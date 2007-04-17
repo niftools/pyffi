@@ -1,5 +1,7 @@
 from XmlHandler import XmlHandler
 
+import xml.sax
+
 class MetaXmlFileFormat(type):
     """The MetaXmlFileFormat metaclass transforms the XML description of a
     file format into a bunch of classes which can be directly used to
@@ -26,7 +28,7 @@ class MetaXmlFileFormat(type):
         # consistency checks
         if not dct.has_key('xmlFileName'):
             raise TypeError("class " + str(cls) + " : missing xmlFileName attribute")
-        if not dct.has_key('versionNumer'):
+        if not dct.has_key('versionNumber'):
             raise TypeError("class " + str(cls) + " : missing versionNumber attribute")
 
         # set up XML parser

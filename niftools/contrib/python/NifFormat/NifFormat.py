@@ -2,9 +2,10 @@ from FileFormat.XmlFileFormat import MetaXmlFileFormat
 
 class NifFormat(object):
     __metaclass__ = MetaXmlFileFormat
-    xmlFileName = 'nif.xml'
+    xmlFileName = '../../docsys/nif.xml'
     
-    def versionNumber(self, version_str):
+    @staticmethod
+    def versionNumber(version_str):
         v = version_str.split('.')
         num = 0
         shift = 24

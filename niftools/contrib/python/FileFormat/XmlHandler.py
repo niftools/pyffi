@@ -38,13 +38,12 @@
 # ***** END LICENCE BLOCK *****
 # --------------------------------------------------------------------------
 
-from string import Template
 import xml.sax
 
-from Element.Basic    import _BasicBase
-from Element.Enum     import _EnumBase
-from Element.Compound import _CompoundBase
-from Element.Block    import _BlockBase
+from Bases.Basic    import _BasicBase
+from Bases.Enum     import _EnumBase
+from Bases.Compound import _CompoundBase
+from Bases.Block    import _BlockBase
 
 class XmlError(Exception):
     pass
@@ -70,10 +69,12 @@ class XmlHandler(xml.sax.handler.ContentHandler):
     "option" : tagOption }
 
     def __init__(self, cls, name, bases, dct):
+        # initialize dictionary of versions
+        # this will map each supported version string to a version number
+        cls.versions = {}
+
         # initialize tag stack
         self.stack = []
-        # initialize dictionary of versions
-        self.cls.versions = {}
         # cls needs to be accessed in member functions, so make it an instance
         # member variable
         self.cls = cls
@@ -109,9 +110,10 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                 self.class_name = attrs["name"]
                 self.class_base = _CompoundBase
                 try:
-                    self.compound_isTemplate = (attrs["istemplate"] == "1")
+                    isTemplate = (attrs["istemplate"] == "1")
                 except KeyError:
-                    self.compound_isTemplate = False
+                    isTemplate = False
+                self.class_dct = { "isTemplate" : isTemplate, "_attrs" : [] }
 
             elif x == self.tagBlock:
                 self.class_name = attrs["name"]
@@ -126,25 +128,26 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                         raise XmlError("forward declaration of block " + class_basename)
                 else:
                     self.class_base = _BlockBase
-                self.block_isAbstract = (attrs["abstract"] == "1")
+                self.class_dct = { "isAbstract" : (attrs["abstract"] == "1"), "_attrs" : [] }
 
             elif x == self.tagBasic:
                 self.class_name = attrs["name"]
                 self.class_base = _BasicBase
-                self.basic_isCount = (attrs["count"] == "1")
+                self.class_dct  = { "isCount" : (attrs["count"] == "1") }
 
             elif x == self.tagEnum:
                 self.class_name = attrs["name"]
-                self.class_base = _EnumBase
-                enum_storagename = attrs["storage"]
+                storagename = attrs["storage"]
                 try:
-                    self.enum_storage = getattr(self.cls, enum_storagename)
+                    storage = getattr(self.cls, storagename)
                 except KeyError:
-                    raise XmlError("forward declaration of block" + enum_storagename)
+                    raise XmlError("forward declaration of block" + storagename)
+                self.class_base = storage
+                self.class_dct  = {}
 
             elif x == self.tagVersion:
                 version_str = attrs["num"]
-                self.cls.version[version_str] = self.cls.versionNumber(version_str)
+                self.cls.versions[version_str] = self.cls.versionNumber(version_str)
 
             else:
                 raise XmlError("expected basic, enum, compound, niobject, or version, but got " + name + " instead")
@@ -155,9 +158,9 @@ class XmlHandler(xml.sax.handler.ContentHandler):
         elif current_tag in [ self.tagCompound, self.tagBlock ]:
             self.pushTag(x)
             if x == self.tagAttribute:
-                if not self.__dict__.has_key('block_attrs'):
-                    self.block_attrs = []
-                self.block_attrs.append( (
+                if not self.__dict__.has_key('class_dct'):
+                    raise XmlError('unexpected add tag')
+                self.class_dct["_attrs"].append( (
                     attrs["name"],
                     getattr(self.cls, attrs["type"] ),
                     attrs["default"],
@@ -187,26 +190,17 @@ class XmlHandler(xml.sax.handler.ContentHandler):
         x = self.tags[name];
         if self.popTag() != x:
             raise XmlError( "mismatching end element tag for element " + name )
-        if x in [ self.tagBlock, self.tagCompound ]:
-            if not blk._name:
-                del blk
-                raise XmlError( "invalid " + name + " declaration: name is empty" );
-            self.fileFormat.registerType(blk);
-            del blk
+        if x in [ self.tagBlock, self.tagCompound, self.tagEnum, self.tagBasic ]:
+            # create class cls.<class_name>
+            setattr(self.cls, self.class_name, type(str(self.class_name), (self.class_base,), self.class_dct))
         elif x == self.tagAttribute:
-            blk.addAttribute(data);
+            pass
         elif x == self.tagOption:
-            self._enumType.addOption(self._enumOption)
-            del self._enumOption
-        elif x == self.tagBasic:
-            self.fileFormat.registerType(self._basicType)
-            del self._basicType
-        elif x == self.tagEnum:
-            self.fileFormat.registerType(self._enumType)
-            del self._enumType
+            #self._enumType.addOption(self._enumOption)
+            #del self._enumOption
+            pass
         elif x == self.tagVersion:
-            self.fileFormat.registerVersion(self._version)
-            del self._version
+            pass
 
 ##    bool characters( const QString & s )
 ##    {
