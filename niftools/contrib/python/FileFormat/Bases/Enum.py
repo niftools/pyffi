@@ -3,8 +3,9 @@
 class _MetaEnumBase(type):
     def __init__(cls, name, bases, dct):
         # consistency checks
-        if not dct.has_key('__doc__'):
-            raise TypeError(str(cls) + ': missing __doc__ attribute')
+        pass
+        #if not dct.has_key('_options'):
+        #    raise TypeError(str(cls) + ': missing _options attribute')
 
 class _EnumBase(object):
     """Base class from which all enum types are derived.

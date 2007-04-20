@@ -5,20 +5,24 @@ class _MetaCompoundBase(type):
         # consistency checks
         if not dct.has_key('_attrs'):
             raise TypeError(str(cls) + ': missing _attrs attribute')
-        if not dct.has_key('__doc__'):
-            raise TypeError(str(cls) + ': missing __doc__ attribute')
+        if not dct.has_key('_isTemplate'):
+            raise TypeError(str(cls) + ': missing _isTemplate attribute')
 
-class _CompoundBase(object):
+class CompoundBase(object):
     """Base class from which all file compound types are derived.
 
-    The _CompoundBase class implements the basic compound interface:
+    The CompoundBase class implements the basic compound interface:
     it will initialize all attributes using the class interface
     using the _attrs class variable, print them as strings, and so on.
     The class variable _attrs *must* be declared every derived class
     interface, see MetaXmlFileFormat.__init__ for an example.
     """
+    
     __metaclass__ = _MetaCompoundBase
+    
+    _isTemplate = False
     _attrs = []
+    
     # initialize all _attrs attributes
     def __init__(self):
         self._initAttributes(self.__class__)
@@ -32,8 +36,13 @@ class _CompoundBase(object):
         for base in cls.__bases__:
             self._initAttributes(base)
         # initialize attributes defined in cls._attrs
-        for name, default in cls._attrs:
-            setattr(self, name, default)
+        for name, typ, default, template, arg, arr1, arr2, cond, ver1, ver2, userver in cls._attrs:
+            typ_args = []
+            if template:
+                typ_args.append(template)
+            if default:
+                typ_args.append(default)
+            setattr(self, name, typ(*typ_args))
 
     # string representation of all _attrs attributes
     def __str__(self):
@@ -49,6 +58,12 @@ class _CompoundBase(object):
         for base in cls.__bases__:
             s += self._strAttributes(base)
         # string of attributes defined in cls._attrs
-        for name, default in cls._attrs:
-            s += str(name) + ' : ' + str(getattr(self, name)) + '\n'
+        for name, typ, default, template, arg, arr1, arr2, cond, ver1, ver2, userver in cls._attrs:
+            attr_str_lines = str(getattr(self, name)).splitlines()
+            if len(attr_str_lines) > 1:
+                s += "* " + str(name) + "\n"
+                for attr_str in attr_str_lines:
+                    s += "    " + attr_str + '\n'
+            else:
+                s += "* " + str(name) + " : " + attr_str_lines[0] + "\n"
         return s
