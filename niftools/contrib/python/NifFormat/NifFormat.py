@@ -55,7 +55,7 @@ class LineString(BasicBase):
 
 class NifFormat(object):
     __metaclass__ = MetaXmlFileFormat
-    xmlFileName = 'nif.xml' # '../../docsys/nif.xml'
+    xmlFileName = 'nif.xml'
     basicClasses = {
         'int'    : Int,
         'uint'   : UInt,
@@ -83,10 +83,6 @@ class NifFormat(object):
             num += int(x) << shift
             shift -= 8
         return num
-
-    @staticmethod
-    def nameBasic(name):
-        return name.capitalize()
 
     @staticmethod
     def nameAttribute(name):
