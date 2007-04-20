@@ -195,8 +195,8 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                 storagename = attrs["storage"]
                 try:
                     storage = getattr(self.cls, storagename)
-                except KeyError:
-                    raise XmlError("forward declaration of block" + storagename)
+                except AttributeError:
+                    raise XmlError("typo, or forward declaration of type " + storagename)
                 self.class_base = storage
                 self.class_dct  = { "_isTemplate" : False }
 
@@ -218,7 +218,10 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                 attrs_name = self.cls.nameAttribute(attrs["name"])
                 attrs_type_str = attrs["type"]
                 if attrs_type_str != "TEMPLATE":
-                    attrs_type = getattr(self.cls, attrs_type_str)
+                    try:
+                        attrs_type = getattr(self.cls, attrs_type_str)
+                    except AttributeError:
+                        raise XmlError("typo, or forward declaration of type " + attrs_type_str)
                 else:
                     attrs_type = None # type determined at runtime, self.T
                 # optional parameters
