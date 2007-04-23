@@ -9,7 +9,7 @@ def test_dom():
 
 import profile
 profile.run("test()", "profile.txt")
-profile.run("test_dom()", "profile_dom.txt")
+#profile.run("test_dom()", "profile_dom.txt")
     
 # print slowest functions, sorted by time
 # (including time spent in subfunctions)
@@ -20,6 +20,6 @@ p = pstats.Stats("profile.txt")
 p.strip_dirs()
 p.sort_stats('cumulative').print_stats('XmlHandler.py:')
 
-p = pstats.Stats("profile_dom.txt")
-p.strip_dirs()
-p.sort_stats('cumulative').print_stats(10)
+#p = pstats.Stats("profile_dom.txt")
+#p.strip_dirs()
+#p.sort_stats('cumulative').print_stats(10)

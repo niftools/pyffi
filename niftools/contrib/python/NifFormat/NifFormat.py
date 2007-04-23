@@ -1,59 +1,5 @@
 from FileFormat.XmlFileFormat import MetaXmlFileFormat
-
-from FileFormat.Bases.Basic import BasicBase
-
-class Int(BasicBase):
-    _isTemplate = False
-    def __init__(self, val = 0L):
-        try:
-            self._value = long(val)
-        except ValueError:
-            try:
-                self._value = long(val, 16) # for '0x...' strings
-            except:
-                raise ValueError("cannot convert value '%s' to integer"%str(val))
-
-class UInt(Int):
-    _isTemplate = False
-
-class Bool(Int):
-    _isTemplate = False
-
-class Byte(UInt):
-    _isTemplate = False
-
-class Char(UInt):
-    _isTemplate = False
-    def __init__(self, val = ' '):
-        self._value = str(val)[0]
-
-class Short(Int):
-    _isTemplate = False
-
-class UShort(UInt):
-    _isTemplate = False
-
-class Float(Int):
-    _isTemplate = False
-    def __init__(self, val = 0L):
-        self._value = float(val)
-
-class Ptr(Int):
-    _isTemplate = True
-    def __init__(self, tmpl, val = -1L):
-        self._T = tmpl
-        self._value = int(val)
-
-class Ref(Ptr):
-    _isTemplate = True
-    def __init__(self, tmpl, val = -1L):
-        self._T = tmpl
-        self._value = int(val)
-
-class LineString(BasicBase):
-    _isTemplate = False
-    def __init__(self, s):
-        self._value = str(s)
+from BasicTypes import *
 
 class NifFormat(object):
     """Stores all information about the nif file format.
@@ -75,7 +21,7 @@ class NifFormat(object):
     0x14000004
     0x14000005
     >>> print NifFormat.HeaderString
-    <class 'NifFormat.NifFormat.LineString'>
+    <class 'NifFormat.BasicTypes.LineString'>
     """
     __metaclass__ = MetaXmlFileFormat
     xmlFileName = 'nif.xml'
@@ -93,7 +39,7 @@ class NifFormat(object):
         'BlockTypeIndex' : UShort,
         'StringOffset' : UInt,
         'FileVersion' : UInt,
-        'Flags' : UShort,
+        'Flags' : Flags,
         'HeaderString' : LineString,
         'LineString' : LineString }
 
@@ -123,7 +69,7 @@ class NifFormat(object):
         'thisIsASillyName'
         """
         
-        parts = name.split()
+        parts = str(name).split() # str(name) converts name to string in case name is a unicode string
         attrname = parts[0].lower()
         for part in parts[1:]:
             attrname += part.capitalize()

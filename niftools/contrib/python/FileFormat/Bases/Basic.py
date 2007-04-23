@@ -11,21 +11,26 @@ class BasicBase(object):
     
     The BasicBase class implements the interface for basic types.
     All basic types have to be derived from this class, by hand.
+    They must override read, write, getValue, and setValue.
     """
     
     __metaclass__ = _MetaBasicBase
     _isTemplate = False
     
-    # initialize _value attribute
-    def __init__(self):
-        self._value = None
-
-    # string representation of _value
+    # string representation
     def __str__(self):
-        return str(self._value)
+        return str(self.getValue())
 
     def read(self, f):
         raise NotImplementedError
 
     def write(self, f):
         raise NotImplementedError
+
+    def getValue(self):
+        raise NotImplementedError
+
+    def setValue(self, value):
+        raise NotImplementedError
+
+    value = property(getValue, setValue, None, "The value.")

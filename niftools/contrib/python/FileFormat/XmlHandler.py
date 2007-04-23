@@ -42,7 +42,6 @@ import xml.sax
 
 from Bases.Basic    import BasicBase
 from Bases.Compound import CompoundBase
-from Bases.Block    import BlockBase
 
 class XmlError(Exception):
     pass
@@ -130,9 +129,74 @@ class XmlHandler(xml.sax.handler.ContentHandler):
         # to self.class_base the base of that class, and to self.class_dct
         # the class dictionary which describes all class variables.
         #
-        # The class variables depend on the type (see the BasicBase,
-        # CompoundBase, and BlockBase classes in FileFormat.Bases).
-        if self.currentTag == self.tagFile:
+        # The class variables depend on the type (see the BasicBase and
+        # CompoundBase classes in FileFormat.Bases).
+        if self.currentTag in [ self.tagCompound, self.tagBlock ]:
+            self.pushTag(x)
+            if x == self.tagAttribute:
+                # mandatory parameters
+                attrs_name = attrs["name"]
+                attrs_type_str = attrs["type"]
+                if attrs_type_str != "TEMPLATE":
+                    try:
+                        attrs_type = getattr(self.cls, attrs_type_str)
+                    except AttributeError:
+                        raise XmlError("typo, or forward declaration of type " + attrs_type_str)
+                else:
+                    attrs_type = type(None) # type determined at runtime, self._T
+                # optional parameters
+                attrs_default = attrs.get("default")
+                attrs_template_str = attrs.get("template")
+                attrs_arg = attrs.get("arg")
+                attrs_arr1 = attrs.get("arr1")
+                attrs_arr2 = attrs.get("arr2")
+                attrs_cond = attrs.get("cond")
+                attrs_ver1 = attrs.get("ver1")
+                attrs_ver2 = attrs.get("ver2")
+                attrs_userver = attrs.get("userver")
+
+                # post-processing
+                if attrs_default:
+                    try:
+                        attrs_default = attrs_type._pythontype(attrs_default)
+                    except:
+                        # conversion failed; not a big problem
+                        attrs_default = None
+                if attrs_userver:
+                    attrs_userver = int(attrs_userver)
+                if attrs_ver1:
+                    attrs_ver1 = self.cls.versions[attrs_ver1]
+                if attrs_ver2:
+                    attrs_ver2 = self.cls.versions[attrs_ver2]
+                # TODO implement Array class
+                #if attrs_arr1:
+                #    attrs_type = Array(attrs_type)
+                #    if attrs_arr2:
+                #        attrs_type = Array(attrs_type)
+
+                # add attribute to class dictionary
+                self.class_dct["_attrs"].append(attrs_name)
+                
+                self.class_dct["_" + attrs_name + "_info_"] = (
+                    attrs_type,
+                    attrs_default,
+                    attrs_template_str,
+                    attrs_arg,
+                    attrs_arr1,
+                    attrs_arr2,
+                    attrs_cond,
+                    attrs_ver1,
+                    attrs_ver2,
+                    attrs_userver )
+
+                # add getter and setter to class dictionary
+                # TODO: move this to the compound metaclass
+                self.class_dct[self.cls.nameAttribute(attrs_name)] = property(
+                    lambda self: CompoundBase.getAttribute(self, attrs_name),
+                    lambda self, value: CompoundBase.setAttribute(self, attrs_name, value))
+            else:
+                raise XmlError("only add tags allowed in block and compound type declaration")
+        elif self.currentTag == self.tagFile:
             self.pushTag(x)
             
             # niftoolsxml -> compound
@@ -147,7 +211,7 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                 except KeyError:
                     isTemplate = False
                 # set attributes (see class CompoundBase)
-                self.class_dct = { "_isTemplate" : isTemplate, "_attrs" : [] }
+                self.class_dct = { "_isTemplate" : isTemplate, "_isAbstract" : True, "_attrs" : [] }
 
             # niftoolsxml -> block
             elif x == self.tagBlock:
@@ -167,8 +231,8 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                     except KeyError:
                         raise XmlError("typo, or forward declaration of block " + class_basename)
                 else:
-                    self.class_base = BlockBase
-                # set attributes (see class BlockBase)
+                    self.class_base = CompoundBase
+                # set attributes (see class CompoundBase)
                 self.class_dct = { "_isTemplate" : False, "_isAbstract" : (attrs["abstract"] == "1"), "_attrs" : [] }
 
             # niftoolsxml -> basic
@@ -211,66 +275,6 @@ class XmlHandler(xml.sax.handler.ContentHandler):
         elif self.currentTag == self.tagVersion:
             raise XmlError( "version tag must not contain any sub tags" )
 
-        elif self.currentTag in [ self.tagCompound, self.tagBlock ]:
-            self.pushTag(x)
-            if x == self.tagAttribute:
-                # mandatory parameters
-                attrs_name = self.cls.nameAttribute(attrs["name"])
-                attrs_type_str = attrs["type"]
-                if attrs_type_str != "TEMPLATE":
-                    try:
-                        attrs_type = getattr(self.cls, attrs_type_str)
-                    except AttributeError:
-                        raise XmlError("typo, or forward declaration of type " + attrs_type_str)
-                else:
-                    attrs_type = None # type determined at runtime, self.T
-                # optional parameters
-                attrs_default  = None
-                attrs_template = None
-                attrs_arg      = None
-                attrs_arr1     = None
-                attrs_arr2     = None
-                attrs_cond     = None
-                attrs_ver1     = None
-                attrs_ver2     = None
-                attrs_userver  = None
-                if attrs.has_key("default"):
-                    try:
-                        attrs_default = attrs_type._pythontype(attrs["default"])
-                    except:
-                        # conversion failed; not a big problem
-                        attrs_default = None
-                if attrs.has_key("template"):
-                    attrs_template = attrs["template"]
-                if attrs.has_key("arg"):
-                    attrs_arg = attrs["arg"]
-                if attrs.has_key("arr1"):
-                    attrs_arr1 = attrs["arr1"]
-                if attrs.has_key("arr2"):
-                    attrs_arr2 = attrs["arr2"]
-                if attrs.has_key("cond"):
-                    attrs_cond = attrs["cond"]
-                if attrs.has_key("ver1"):
-                    attrs_ver1 = self.cls.versions[attrs["ver1"]]
-                if attrs.has_key("ver2"):
-                    attrs_ver2 = self.cls.versions[attrs["ver2"]]
-                if attrs.has_key("userver"):
-                    attrs_userver = int(attrs["userver"])
-
-                self.class_dct["_attrs"].append( (
-                    attrs_name,
-                    attrs_type,
-                    attrs_default,
-                    attrs_template,
-                    attrs_arg,
-                    attrs_arr1,
-                    attrs_arr2,
-                    attrs_cond,
-                    attrs_ver1,
-                    attrs_ver2,
-                    attrs_userver ) )
-            else:
-                raise XmlError("only add tags allowed in block and compound type declaration")
         elif self.currentTag == self.tagEnum:
             self.pushTag(x)
             if not x == self.tagOption:
@@ -280,17 +284,30 @@ class XmlHandler(xml.sax.handler.ContentHandler):
             raise XmlError( "unhandled tag " + name);
     
     def endElement(self, name):
-        if not self.stack:
-            raise XmlError( "mismatching end element tag for element " + name )
-        x = self.tags[name];
-        if self.popTag() != x:
-            raise XmlError( "mismatching end element tag for element " + name )
-        if x in [ self.tagBlock, self.tagCompound, self.tagEnum ]:
+        #if not self.stack:
+        #    raise XmlError( "mismatching end element tag for element " + name )
+        #x = self.tags[name]
+        #if self.popTag() != x:
+        #    raise XmlError( "mismatching end element tag for element " + name )
+        x = self.popTag()
+        if x == self.tagAttribute:
+            return # improves performance
+        elif x in [ self.tagBlock, self.tagCompound, self.tagEnum ]:
             # create class cls.<class_name>
             setattr(self.cls, self.class_name, type(str(self.class_name), (self.class_base,), self.class_dct))
-        elif x in [ self.tagBasic ]:
+        elif x == self.tagBasic:
             # link class cls.<class_name> to self.basic_class
             setattr(self.cls, self.class_name, self.basic_class)
+
+#    def endDocument(self):
+#        # resolve template type names
+#        for obj in self.__dict__.values():
+#            iscompound = False
+#            try:
+#                if issubclass(obj, CompoundBase): continue
+#            except:
+#                continue
+#            for  
 
 ##    bool checkType( const NifData & data )
 ##    {
