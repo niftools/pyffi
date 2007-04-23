@@ -16,7 +16,7 @@ class Int(BasicBase):
             try:
                 self._x = long(value, 16) # for '0x...' strings
             except:
-                raise ValueError("cannot convert value '%s' to integer"%str(val))
+                raise ValueError("cannot convert value '%s' to integer"%str(value))
 
 class UInt(Int):
     _isTemplate = False
