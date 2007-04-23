@@ -25,6 +25,7 @@ class NifFormat(object):
     """
     __metaclass__ = MetaXmlFileFormat
     xmlFileName = 'nif.xml'
+    xmlFilePath = [ '.', '../../docsys' ]
     basicClasses = {
         'int'    : Int,
         'uint'   : UInt,
