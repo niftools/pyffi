@@ -1,4 +1,5 @@
 from Basic import BasicBase
+from functools import partial
 
 # This metaclass checks for the presence of an _attrs and _isTemplate attribute.
 # Used as metaclass of _CompoundBase.
@@ -14,7 +15,9 @@ class _MetaCompoundBase(type):
         for attrname in dct['_attrs']:
             if not dct.has_key('_' + attrname + '_info_'):
                 raise TypeError(str(cls) + ': missing _' + attrname + '_info_ attribute')
-        # TODO automatic attribute properties
+            setattr(cls, attrname, property(
+                partial(CompoundBase.getAttribute, name = attrname),
+                partial(CompoundBase.setAttribute, name = attrname)))
 
 class CompoundBase(object):
     """Base class from which all file compound types are derived.
@@ -30,15 +33,13 @@ class CompoundBase(object):
     instance variable _<name>_value_. The _<name>_info_ class variable
     stores the information about the attribute as stored for instance
     in the xml file, and the _<name>_value_ instance variable stores the
-    actual attribute instance. Access to these instances is
-    implemented via the getAttribute and setAttribute functions below.
+    actual attribute instance.
 
-    Direct access to the attributes can be implemented using a <name>
-    property using these get and set functions, as demonstrated below
+    Direct access to the attributes is implemented using a <name>
+    property which invokes the getAttribute and setAttribute
+    functions, as demonstrated below.
 
     See the FileFormat.XmlHandler class for a more advanced example.
-
-    (TODO handle property statements in metaclass and remove them below)
 
     >>> from Basic import BasicBase
     >>> class UInt(BasicBase):
@@ -55,16 +56,12 @@ class CompoundBase(object):
     ...     _attrs = ['a', 'b']
     ...     _a_info_ = (UInt, None, None, None, None, None, None, None, None, None)
     ...     _b_info_ = (UInt, None, None, None, None, None, None, None, None, None)
-    ...     a = property(lambda self: self.getAttribute('a'), lambda self, value: self.setAttribute('a', value))
-    ...     b = property(lambda self: self.getAttribute('b'), lambda self, value: self.setAttribute('b', value))
     >>> class Y(X):
     ...     _isTemplate = False
     ...     _isAbstract = True
     ...     _attrs = ['c', 'd']
     ...     _c_info_ = (UInt, None, None, None, None, None, None, None, None, None)
     ...     _d_info_ = (X, None, None, None, None, None, None, None, None, None)
-    ...     c = property(lambda self: self.getAttribute('c'), lambda self, value: self.setAttribute('c', value))
-    ...     d = property(lambda self: self.getAttribute('d'), lambda self, value: self.setAttribute('d', value))
     >>> y = Y()
     >>> print y.getAttributeNames()
     ['a', 'b', 'c', 'd']
@@ -147,7 +144,9 @@ class CompoundBase(object):
         else:
             return getattr(self, "_" + name + "_value_")
 
-    def setAttribute(self, name, value):
+    # important note: to apply partial(setAttribute, name = 'xyz') the
+    # name argument must be last
+    def setAttribute(self, value, name):
         typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver = getattr(self, "_" + name + "_info_")
         if issubclass(typ, BasicBase):
             getattr(self, "_" + name + "_value_").setValue(value)

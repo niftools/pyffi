@@ -135,7 +135,7 @@ class XmlHandler(xml.sax.handler.ContentHandler):
             self.pushTag(x)
             if x == self.tagAttribute:
                 # mandatory parameters
-                attrs_name = attrs["name"]
+                attrs_name = self.cls.nameAttribute(attrs["name"])
                 attrs_type_str = attrs["type"]
                 if attrs_type_str != "TEMPLATE":
                     try:
@@ -188,12 +188,6 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                     attrs_ver1,
                     attrs_ver2,
                     attrs_userver )
-
-                # add getter and setter to class dictionary
-                # TODO: move this to the compound metaclass
-                self.class_dct[self.cls.nameAttribute(attrs_name)] = property(
-                    lambda self: CompoundBase.getAttribute(self, attrs_name),
-                    lambda self, value: CompoundBase.setAttribute(self, attrs_name, value))
             else:
                 raise XmlError("only add tags allowed in block and compound type declaration")
         elif self.currentTag == self.tagFile:
