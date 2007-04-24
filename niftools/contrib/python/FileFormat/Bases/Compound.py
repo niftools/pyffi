@@ -1,8 +1,19 @@
 from Basic import BasicBase
-from functools import partial
+try:
+    from functools import partial
+except ImportError: # quick hack for python < 2.5
+    class partial(object):
+        def __init__(self, fn, name):
+            self.fn = fn
+            self.name = name
+        def __call__(self, *args):
+            return self.fn(*args, **{ 'name' : self.name } )
 
-# This metaclass checks for the presence of an _attrs and _isTemplate attribute.
-# Used as metaclass of _CompoundBase.
+# This metaclass checks for the presence of an _attrs, _isTemplate,
+# and _isAbstract attribute. For each <attrname> in _attrs, it also
+# checks for _info_<attrname>_ class attributes, and generates an
+# <attrname> property which gets and sets basic types, and gets other
+# types (compound and array). Used as metaclass of CompoundBase.
 class _MetaCompoundBase(type):
     def __init__(cls, name, bases, dct):
         # consistency checks
@@ -15,9 +26,15 @@ class _MetaCompoundBase(type):
         for attrname in dct['_attrs']:
             if not dct.has_key('_' + attrname + '_info_'):
                 raise TypeError(str(cls) + ': missing _' + attrname + '_info_ attribute')
-            setattr(cls, attrname, property(
-                partial(CompoundBase.getAttribute, name = attrname),
-                partial(CompoundBase.setAttribute, name = attrname)))
+            if issubclass(dct['_' + attrname + '_info_'][0], BasicBase):
+                # get and set basic attributes
+                setattr(cls, attrname, property(
+                    partial(CompoundBase.getBasicAttribute, name = attrname),
+                    partial(CompoundBase.setBasicAttribute, name = attrname)))
+            else:
+                # other types of attributes: get only
+                setattr(cls, attrname, property(
+                    partial(CompoundBase.getAttribute, name = attrname)))
 
 class CompoundBase(object):
     """Base class from which all file compound types are derived.
@@ -68,7 +85,6 @@ class CompoundBase(object):
     >>> y.a = 1
     >>> y.b = 2
     >>> y.c = 3
-    >>> y.d = X()
     >>> y.d.a = 4
     >>> y.d.b = 5
     >>> print y # doctest:+ELLIPSIS
@@ -81,6 +97,10 @@ class CompoundBase(object):
         * a : 4
         * b : 5
     <BLANKLINE>
+    >>> y.d = 1
+    Traceback (most recent call last):
+        ...
+    AttributeError: can't set attribute
     """
     
     __metaclass__ = _MetaCompoundBase
@@ -97,8 +117,6 @@ class CompoundBase(object):
                 assert(template != type(None))
                 assert(self._isTemplate)
                 typ = template
-            else:
-                assert(not self._isTemplate)
             typ_args = []
             if tmpl != None:
                 typ_args.append(tmpl)
@@ -138,17 +156,15 @@ class CompoundBase(object):
         return attrs
 
     def getAttribute(self, name):
-        typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver = getattr(self, "_" + name + "_info_")
-        if issubclass(typ, BasicBase):
-            return getattr(self, "_" + name + "_value_").getValue()
-        else:
-            return getattr(self, "_" + name + "_value_")
+        """Get a (non-basic) attribute."""
+        return getattr(self, "_" + name + "_value_")
+
+    def getBasicAttribute(self, name):
+        """Get a basic attribute."""
+        return getattr(self, "_" + name + "_value_").getValue()
 
     # important note: to apply partial(setAttribute, name = 'xyz') the
     # name argument must be last
-    def setAttribute(self, value, name):
-        typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver = getattr(self, "_" + name + "_info_")
-        if issubclass(typ, BasicBase):
-            getattr(self, "_" + name + "_value_").setValue(value)
-        else:
-            setattr(self, "_" + name + "_value_", value)
+    def setBasicAttribute(self, value, name):
+        """Set the value of a basic attribute."""
+        getattr(self, "_" + name + "_value_").setValue(value)
