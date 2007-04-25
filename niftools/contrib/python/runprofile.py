@@ -18,7 +18,8 @@ import pstats
 
 p = pstats.Stats("profile.txt")
 p.strip_dirs()
-p.sort_stats('cumulative').print_stats('XmlHandler.py:')
+p.sort_stats('cumulative')
+p.print_stats('XmlHandler.py:|Compound.py:|Basic.py:|NifFormat.py:|BasicTypes.py:', 10)
 
 #p = pstats.Stats("profile_dom.txt")
 #p.strip_dirs()
