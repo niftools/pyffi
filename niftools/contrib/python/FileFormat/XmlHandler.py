@@ -43,8 +43,9 @@
 
 import xml.sax
 
-from Bases.Basic    import BasicBase
-from Bases.Compound import CompoundBase
+from Bases.Basic      import BasicBase
+from Bases.Compound   import CompoundBase
+from Bases.Expression import Expression
 
 class XmlError(Exception):
     pass
@@ -165,6 +166,12 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                     except:
                         # conversion failed; not a big problem
                         attrs_default = None
+                if attrs_arr1:
+                    attrs_arr1 = Expression(attrs_arr1, self.cls.nameAttribute)
+                if attrs_arr2:
+                    attrs_arr2 = Expression(attrs_arr2, self.cls.nameAttribute)
+                if attrs_cond:
+                    attrs_cond = Expression(attrs_cond, self.cls.nameAttribute)
                 if attrs_userver:
                     attrs_userver = int(attrs_userver)
                 if attrs_ver1:

@@ -47,29 +47,45 @@ class Expression(object):
     ...     x = False
     ...     y = True
     >>> a = A()
-    >>> e = Expression('x || y', a)
+    >>> e = Expression('x || y', data = a)
     >>> int(e)
     1
     >>> bool(e)
     True
-    >>> e = Expression('99 & 15', a)
-    >>> int(e)
+    >>> int(Expression('99 & 15'))
     3
-    >>> e = Expression('(99&15)&&y', a)
-    >>> bool(e)
+    >>> bool(Expression('(99&15)&&y', data = a))
     True
-    >>> e = Expression('(99 &15) &&x', a)
-    >>> bool(e)
+    >>> a.hello_world = False
+    >>> def nameFilter(s):
+    ...     return 'hello_' + s.lower()
+    >>> bool(Expression('(99 &15) &&WoRlD', name_filter = nameFilter, data = a))
+    False
+    >>> bool(Expression('c && d', data = a))
+    Traceback (most recent call last):
+        ...
+    AttributeError: 'A' object has no attribute 'c'
+    >>> bool(Expression('1 == 1'))
+    True
+    >>> bool(Expression('1 != 1'))
     False
     """
     operators = [ '==', '!=', '&&', '||', '&', '|' ]
-    def __init__(self, expr_str, data = None):
+    def __init__(self, expr_str, name_filter = lambda x: x, data = None):
         self._data = data
         left, self._op, right = self._partition(expr_str)
-        self._left = self.parse(left)
-        self._right = self.parse(right)
+        self._left = self._parse(left, name_filter)
+        if right:
+            self._right = self._parse(right, name_filter)
+        else:
+            self._right = ''
+
+    def setData(data):
+        self._data = data
 
     def __int__(self):
+        """Evaluate the expression to an integer."""
+        
         if isinstance(self._left, Expression):
             left = int(self._left)
         elif isinstance(self._left, basestring):
@@ -92,7 +108,7 @@ class Expression(object):
         if self._op == '==':
             return int(left == right)
         elif self._op == '!=':
-            return int(left == right)
+            return int(left != right)
         elif self._op == '&&':
             return int(left and right)
         elif self._op == '||':
@@ -105,10 +121,12 @@ class Expression(object):
             raise NotImplementedError("expression syntax error: operator '" + op + "' not implemented")
 
     def __nonzero__(self):
+        """A wrapper for __int__(). Allows expressions to be used as
+        a bool, like in conditional statements."""
         return self.__int__()
 
     @classmethod
-    def parse(cls, expr_str):
+    def _parse(cls, expr_str, name_filter = lambda x: x):
         """Returns an Expression, string, or int, depending on the
         contents of <expr_str>."""
         # brackets or operators => expression
@@ -120,9 +138,9 @@ class Expression(object):
         # try to convert it to an integer
         try:
             return int(expr_str)
-        # failed, so return the string
+        # failed, so return the string, passed through the name filter
         except ValueError:
-            return expr_str
+            return name_filter(expr_str)
     
     @classmethod
     def _partition(cls, expr_str):
