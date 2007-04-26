@@ -245,8 +245,8 @@ class Expression(object):
         startpos = -1
         endpos = -1
         scandepth = 0
-        for scanpos, scanchar in enumerate(expr_str):
-            if scanpos < fromIndex: continue # TODO: optimize this...
+        for scanpos in xrange(fromIndex, len(expr_str)):
+            scanchar = expr_str[scanpos]
             if scanchar == "(":
                 if startpos == -1:
                     startpos = scanpos
