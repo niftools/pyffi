@@ -41,6 +41,7 @@
 # --------------------------------------------------------------------------
 
 from Basic import BasicBase
+from Expression import Expression
 
 try:
     from functools import partial
@@ -165,9 +166,9 @@ class CompoundBase(object):
                 typ_args.append(tmpl)
             #if default:
             #    typ_args.append(default)
-            if not arr1:
+            if not isinstance(arr1, Expression):
                 attr_instance = typ(*typ_args)
-            elif not arr2:
+            elif not isinstance(arr2, Expression):
                 attr_instance = [] # TODO use Array class
             else:
                 attr_instance = [[]] # TODO use Array class
