@@ -173,7 +173,7 @@ class Expression(object):
             # the next token should be the operator
             # find the position where the operator should start
             op_startpos = left_endpos+1
-            while expr_str[op_startpos].isspace():
+            while expr_str[op_startpos] == " ":
                 op_startpos += 1
             # to avoid confusion between && and &, and || and |,
             # let's first scan for operators of two characters
@@ -187,7 +187,7 @@ class Expression(object):
         else:
             # it's not... so we need to scan for the first operator
             for op_startpos, ch in enumerate(expr_str):
-                if ch.isspace(): continue
+                if ch == ' ': continue
                 if ch == '(' or ch == ')':
                     raise ValueError("expression syntax error: expected operator before '%s'"%expr_str[op_startpos:])
                 # to avoid confusion between && and &, and || and |,
@@ -217,7 +217,7 @@ class Expression(object):
             # and let that be the right hand side
             right_str = expr_str[right_startpos+1:right_endpos].strip()
             # check for trailing junk
-            if expr_str[right_endpos+1:] and not expr_str[right_endpos+1:].isspace():
+            if expr_str[right_endpos+1:] and not expr_str[right_endpos+1:] == ' ':
                 raise ValueError("expression syntax error: unexpected trailing characters '%s'"%expr_str[right_endpos+1:])
         else:
             # no, so just take the whole expression as right hand side
@@ -247,8 +247,7 @@ class Expression(object):
         scandepth = 0
         for scanpos, scanchar in enumerate(expr_str):
             if scanpos < fromIndex: continue # TODO: optimize this...
-            if scanchar.isspace(): continue
-            elif scanchar == "(":
+            if scanchar == "(":
                 if startpos == -1:
                     startpos = scanpos
                 scandepth += 1
