@@ -143,7 +143,7 @@ class Ref(BasicBase):
         if value == None:
             self._x = None
         else:
-            #assert(isinstance(value, self._template)) # uncomment when forwards are resolved
+            assert(isinstance(value, self._template))
             self._x = value
 
 class Ptr(Ref):
