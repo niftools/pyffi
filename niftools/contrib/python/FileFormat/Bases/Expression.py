@@ -1,6 +1,6 @@
 # --------------------------------------------------------------------------
 # FileFormat.Bases.Expression
-# Expression parser.
+# Expression parser (for arr1, arr2, and cond xml attributes of <add> tag).
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
 #
