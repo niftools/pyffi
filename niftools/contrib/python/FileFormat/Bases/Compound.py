@@ -42,6 +42,7 @@
 
 from Basic import BasicBase
 from Expression import Expression
+from Array import Array
 
 try:
     from functools import partial
@@ -169,7 +170,8 @@ class CompoundBase(object):
             if not isinstance(arr1, Expression):
                 attr_instance = typ(*typ_args)
             elif not isinstance(arr2, Expression):
-                attr_instance = [] # TODO use Array class
+                arr1.setData(self)
+                attr_instance = Array(typ, tmpl, arr1) # TODO use Array class
             else:
                 attr_instance = [[]] # TODO use Array class
             setattr(self, "_" + name + "_value_", attr_instance)

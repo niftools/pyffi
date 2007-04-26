@@ -80,7 +80,7 @@ class Expression(object):
         else:
             self._right = ''
 
-    def setData(data):
+    def setData(self, data):
         self._data = data
 
     def __int__(self):
