@@ -40,10 +40,73 @@
 # ***** END LICENCE BLOCK *****
 # --------------------------------------------------------------------------
 
+import struct
 from FileFormat.Bases.Basic import BasicBase
 
-class Int(BasicBase):
+class Bool(BasicBase):
     _isTemplate = False
+
+    def __init__(self):
+        self.setValue(False)
+
+    def getValue(self):
+        return self._x
+
+    def setValue(self, value):
+        if value:
+            self._x = True
+        else:
+            self._x = False
+
+    def read(self, f, version = 0, user_version = 0):
+        if version > 0x04000002:
+            self._x, = bool(struct.unpack('<I', f.read(4)))
+        else:
+            self._x, = bool(struct.unpack('<B', f.read(1)))
+
+    def write(self, f, version = 0, user_version = 0):
+        if version > 0x04000002:
+            f.write(struct.pack('<I', int(self._x)))
+        else:
+            f.write(struct.pack('<B', int(self._x)))
+
+class Int(BasicBase):
+    """Basic implementation of a 32-bit signed integer type.
+
+    >>> from tempfile import TemporaryFile
+    >>> f = TemporaryFile()
+    >>> i = Int()
+    >>> i.setValue(-1)
+    >>> i.getValue()
+    -1
+    >>> i.setValue(0x11223344)
+    >>> i.write(f)
+    >>> j = Int()
+    >>> f.seek(0)
+    >>> j.read(f)
+    >>> hex(j.getValue())
+    '0x11223344'
+    >>> i.setValue(0x10000000000L)
+    Traceback (most recent call last):
+        ...
+    ValueError: value out of range (1099511627776)
+    >>> i.setValue('hello world')
+    Traceback (most recent call last):
+        ...
+    ValueError: cannot convert value 'hello world' to integer
+    >>> f.seek(0)
+    >>> f.write('\x11\x22\x33\x44')
+    >>> f.seek(0)
+    >>> i.read(f)
+    >>> hex(i.getValue())
+    '0x44332211'
+    """
+    
+    _isTemplate = False
+    _min = -0x80000000
+    _max = 0x7fffffff
+    _struct = 'i'
+    _size = 4
 
     def __init__(self):
         self.setValue(0L)
@@ -53,82 +116,92 @@ class Int(BasicBase):
 
     def setValue(self, value):
         try:
-            self._x = long(value)
+            self._x = int(value)
         except ValueError:
             try:
-                self._x = long(value, 16) # for '0x...' strings
+                self._x = int(value, 16) # for '0x...' strings
             except:
                 raise ValueError("cannot convert value '%s' to integer"%str(value))
+        if self._x < self._min or self._x > self._max:
+            raise ValueError('value out of range (%i)'%self.getValue())
+
+    def read(self, f, version = 0, user_version = 0):
+        self._x, = struct.unpack('<' + self._struct, f.read(self._size))
+
+    def write(self, f, version = 0, user_version = 0):
+        f.write(struct.pack('<' + self._struct, self._x))
+
+    def __str__(self):
+        return str(self._x)
 
 class UInt(Int):
     _isTemplate = False
-
-    def setValue(self, value):
-        Int.setValue(self, value)
-        if self._x < 0:
-            raise ValueError("negative UInt (%i)"%self._x)
-
-class Bool(Int):
-    _isTemplate = False
-
-    def __init__(self):
-        self.setValue(False)
-
-    def setValue(self, value):
-        if value:
-            self._x = True
-        else:
-            self._x = False
+    _min = 0
+    _max = 0xffffffff
+    _struct = 'I'
 
 class Byte(Int):
     _isTemplate = False
-    
-    def setValue(self, value):
-        Int.setValue(self, value)
-        if self._x < 0 or self._x > 255:
-            raise ValueError('Byte out of range (%i)'%self.getValue())
+    _min = 0
+    _max = 0xff
+    _struct = 'B'
 
 # TODO
-class Char(Int):
+class Char(BasicBase):
     _isTemplate = False
     def __init__(self):
         self.setValue('\x00')
+
+    def getValue(self):
+        return self._x
 
     def setValue(self, value):
         assert(isinstance(value, str))
         assert(len(value) == 1)
         self._x = value
 
+    def read(self, f, version = 0, user_version = 0):
+        self._x, = struct.unpack('c', f.read(1))
+
+    def write(self, f, version = 0, user_version = 0):
+        f.write(struct.pack('c', self._x))
+
+    def __str__(self):
+        return self._x
+
 class Short(Int):
     _isTemplate = False
-
-    def setValue(self, value):
-        Int.setValue(self, value)
-        if self._x < -32768 or self._x > 32767:
-            raise ValueError('Byte out of range (%i)'%self.getValue())
+    _min = -0x8000
+    _max = 0x7fff
+    _struct = 'h'
 
 class UShort(UInt):
     _isTemplate = False
+    _min = 0
+    _max = 0xffff
+    _struct = 'H'
 
-    def setValue(self, value):
-        Int.setValue(self, value)
-        if self._x < 0 or self._x > 65535:
-            raise ValueError('UShort out of range (%i)'%self.getValue())
-
-# TODO
 class Flags(UShort):
     _isTemplate = False
-
     def __str__(self):
         return hex(self.getValue())
 
-class Float(Int):
+class Float(BasicBase):
     _isTemplate = False
     def __init__(self):
         self.setValue(0.0)
 
+    def getValue(self):
+        return self._x
+
     def setValue(self, value):
         self._x = float(value)
+
+    def read(self, f, version = 0, user_version = 0):
+        self._x, = struct.unpack('<f', f.read(4))
+
+    def write(self, f, version = 0, user_version = 0):
+        f.write(struct.pack('<f', self._x))
 
 class Ref(BasicBase):
     _isTemplate = True
@@ -146,6 +219,15 @@ class Ref(BasicBase):
             assert(isinstance(value, self._template))
             self._x = value
 
+    def read(self, f, version = 0, user_version = 0):
+        # TODO implement
+        self._x, = None
+        struct.unpack('<I', f.read(4))
+
+    def write(self, f, version = 0, user_version = 0):
+        # TODO implement
+        f.write(struct.pack('<I', 0))
+
 class Ptr(Ref):
     _isTemplate = True
 
@@ -154,6 +236,25 @@ class Ptr(Ref):
         return '%s instance at 0x%08X'%(self._x.__class__, id(self._x))
 
 class LineString(BasicBase):
+    """Basic type for strings ending in a newline character (0x0a).
+
+    >>> from tempfile import TemporaryFile
+    >>> f = TemporaryFile()
+    >>> l = LineString()
+    >>> f.write('abcdefg\\x0a')
+    >>> f.seek(0)
+    >>> l.read(f)
+    >>> str(l)
+    'abcdefg'
+    >>> f.seek(0)
+    >>> l.setValue('Hi There')
+    >>> l.write(f)
+    >>> f.seek(0)
+    >>> m = LineString()
+    >>> m.read(f)
+    >>> str(m)
+    'Hi There'
+    """
     _isTemplate = False
     def __init__(self):
         self.setValue('')
@@ -162,9 +263,15 @@ class LineString(BasicBase):
         return self._x
 
     def setValue(self, value):
-        self._x = str(value)
+        self._x = str(value).rstrip('\x0a')
 
     def __str__(self):
         s = BasicBase.__str__(self)
         if not s: return '<EMPTY STRING>'
-        return "'" + s + "'"
+        return s
+
+    def read(self, f, version = 0, user_version = 0):
+        self._x = f.readline().rstrip('\x0a')
+
+    def write(self, f, version = 0, user_version = 0):
+        f.write("%s\x0a"%self._x)

@@ -171,9 +171,9 @@ class CompoundBase(object):
                 attr_instance = typ(*typ_args)
             elif not isinstance(arr2, Expression):
                 arr1.setData(self)
-                attr_instance = Array(typ, tmpl, arr1) # TODO use Array class
+                attr_instance = Array(typ, tmpl, arr1)
             else:
-                attr_instance = [[]] # TODO use Array class
+                attr_instance = [[]] #TODO Array(Array(typ, tmpl, arr2), type(None), arr1)
             setattr(self, "_" + name + "_value_", attr_instance)
 
     # string of all attributes
@@ -189,6 +189,18 @@ class CompoundBase(object):
             else:
                 s += '* ' + str(name) + ' : ' + attr_str_lines[0] + '\n'
         return s
+
+    def read(self, f, version, user_version):
+        for name in self.getAttributeNames():
+            typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver = getattr(self, "_" + name + "_info_")
+            if ver1:
+                if version < ver1: continue
+            if ver2:
+                if version > ver2: continue
+            if userver and user_version:
+                if user_version != userver: continue
+            if not cond: continue
+            getattr(self, "_" + name + "_value_").read(f, version, user_version)
 
     @classmethod
     def getAttributeNames(cls):
