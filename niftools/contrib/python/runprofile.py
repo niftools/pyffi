@@ -7,7 +7,12 @@ def test_dom():
     from xml.dom.minidom import parse
     parse("nif.xml")
 
-import profile
+try:
+    import cProfile
+    profile = cProfile
+except ImportError:
+    import profile
+
 profile.run("test()", "profile.txt")
 #profile.run("test_dom()", "profile_dom.txt")
     
