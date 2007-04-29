@@ -40,6 +40,7 @@
 # ***** END LICENCE BLOCK *****
 # --------------------------------------------------------------------------
 
+import struct
 from FileFormat.XmlFileFormat import MetaXmlFileFormat
 from BasicTypes import *
 
@@ -63,7 +64,7 @@ class NifFormat(object):
     0x14000004
     0x14000005
     >>> print NifFormat.HeaderString
-    <class 'NifFormat.BasicTypes.LineString'>
+    <class 'NifFormat.BasicTypes.HeaderString'>
     """
     __metaclass__ = MetaXmlFileFormat
     xmlFileName = 'nif.xml'
@@ -81,9 +82,9 @@ class NifFormat(object):
         'Ref'    : Ref,
         'BlockTypeIndex' : UShort,
         'StringOffset' : UInt,
-        'FileVersion' : UInt,
+        'FileVersion' : FileVersion,
         'Flags' : Flags,
-        'HeaderString' : LineString,
+        'HeaderString' : HeaderString,
         'LineString' : LineString }
 
     @staticmethod
@@ -117,3 +118,81 @@ class NifFormat(object):
         for part in parts[1:]:
             attrname += part.capitalize()
         return attrname
+
+    @classmethod
+    def getVersion(cls, f):
+        """Returns version number, if version is supported.
+        Returns -1 if version is not supported.
+        Returns -2 if <f> is not a nif file.
+        """
+        pos = f.tell()
+        try:
+            s = f.readline(64).rstrip()
+        finally:
+            f.seek(pos)
+        if s.startswith("NetImmerse File Format, Version " ):
+            ver_str = s[32:]
+        elif s.startswith("Gamebryo File Format, Version "):
+            ver_str = s[30:]
+        else:
+            return -2 # not a nif file
+        try:
+            ver_list = [int(x) for x in ver_str.split('.')]
+        except ValueError:
+            return -1 # version not supported (i.e. ver_str '10.0.1.3a' would trigger this)
+        if len(ver_list) > 4 or len(ver_list) < 1:
+            return -1 # version not supported
+        for ver_digit in ver_list:
+            if (ver_digit | 0xff) > 0xff:
+                return -1 # version not supported
+        while len(ver_list) < 4: ver_list.append(0)
+        ver = ver_list[0] << 24 + ver_list[1] << 16 + ver_list[2] << 8 + ver_list[3]
+        if not ver in cls.values():
+            return -1 # unsupported version
+        # check version integer
+        try:
+            f.readline(64)
+            if ver <= 0x03010000:
+                f.readline(256)
+                f.readline(256)
+                f.readline(256)
+            ver_int = struct.unpack('<I', f.read(4))
+        finally:
+            f.seek(pos)
+        if ver_int != ver:
+            return -2 # not a nif file
+        return ver
+
+    @classmethod
+    def read(cls, f, version, user_version):
+        hdr = cls.Header()
+        ftr = cls.Footer()
+        hdr.read(f, version, user_version)
+        # TODO read the blocks
+        ftr.read(f, version, user_version)
+        roots = []
+        for root in ftr.roots:
+            roots.append(root)
+        return roots
+
+    @classmethod
+    def write(cls, roots, f, version, user_version):
+        # TODO set up link stack
+        #blk_num = {}
+        #blk_num[root] = 0
+
+        # set up header
+        hdr = cls.Header()
+        hdr.userVersion = user_version # TODO dedicated type for userVersion similar to FileVersion
+
+        # set up footer
+        ftr = cls.Footer()
+        ftr.numRoots = len(roots)
+        ftr.roots.updateSize()
+        for i, root in enumerate(roots):
+            ftr.roots[i] = root
+
+        # write the file
+        hdr.write(f, version, user_version)
+        # TODO write the actual blocks
+        ftr.write(f, version, user_version)

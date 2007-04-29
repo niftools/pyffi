@@ -54,11 +54,32 @@ class BasicBase(object):
     The BasicBase class implements the interface for basic types.
     All basic types have to be derived from this class, by hand.
     They must override read, write, getValue, and setValue.
+
+    >>> class UInt(BasicBase):
+    ...     _isTemplate = False
+    ...     def __init__(self, template = None):
+    ...         self.__value = 0
+    ...     def getValue(self):
+    ...         return self.__value
+    ...     def setValue(self, value):
+    ...         self.__value = int(value)
+    >>> x = UInt()
+    >>> x.setValue('123')
+    >>> x.getValue()
+    123
     """
     
     __metaclass__ = _MetaBasicBase
     _isTemplate = False
     
+    def __init__(self, template = None):
+        """When overriding __init__, the template argument is mandatory
+        even if the type is not a template. This makes it easier to instanciate
+        all types in a uniform manner, i.e. typ(tmpl).
+	
+        See FileFormat/Bases/Compound.py"""
+	raise NotImplementedError
+
     # string representation
     def __str__(self):
         return str(self.getValue())

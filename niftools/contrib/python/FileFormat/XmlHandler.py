@@ -189,11 +189,6 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                     attrs_ver1 = self.cls.versions[attrs_ver1]
                 if attrs_ver2:
                     attrs_ver2 = self.cls.versions[attrs_ver2]
-                # TODO implement Array class
-                #if attrs_arr1:
-                #    attrs_type = Array(attrs_type)
-                #    if attrs_arr2:
-                #        attrs_type = Array(attrs_type)
 
                 # add attribute to class dictionary
                 self.class_dct["_attrs"].append(attrs_name)

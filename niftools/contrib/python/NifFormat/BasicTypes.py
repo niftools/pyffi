@@ -46,7 +46,7 @@ from FileFormat.Bases.Basic import BasicBase
 class Bool(BasicBase):
     _isTemplate = False
 
-    def __init__(self):
+    def __init__(self, template = None):
         self.setValue(False)
 
     def getValue(self):
@@ -108,7 +108,7 @@ class Int(BasicBase):
     _struct = 'i'
     _size = 4
 
-    def __init__(self):
+    def __init__(self, template = None):
         self.setValue(0L)
 
     def getValue(self):
@@ -146,10 +146,9 @@ class Byte(Int):
     _max = 0xff
     _struct = 'B'
 
-# TODO
 class Char(BasicBase):
     _isTemplate = False
-    def __init__(self):
+    def __init__(self, template = None):
         self.setValue('\x00')
 
     def getValue(self):
@@ -188,7 +187,7 @@ class Flags(UShort):
 
 class Float(BasicBase):
     _isTemplate = False
-    def __init__(self):
+    def __init__(self, template = None):
         self.setValue(0.0)
 
     def getValue(self):
@@ -205,8 +204,8 @@ class Float(BasicBase):
 
 class Ref(BasicBase):
     _isTemplate = True
-    def __init__(self, tmpl):
-        self._template = tmpl
+    def __init__(self, template = None):
+        self._template = template
         self.setValue(None)
 
     def getValue(self):
@@ -216,7 +215,8 @@ class Ref(BasicBase):
         if value == None:
             self._x = None
         else:
-            assert(isinstance(value, self._template))
+            if not isinstance(value, self._template):
+                raise TypeError('expected an instance of %s but got instance of %s'%(self._template, value.__class__))
             self._x = value
 
     def read(self, f, version = 0, user_version = 0):
@@ -256,7 +256,7 @@ class LineString(BasicBase):
     'Hi There'
     """
     _isTemplate = False
-    def __init__(self):
+    def __init__(self, template = None):
         self.setValue('')
 
     def getValue(self):
@@ -275,3 +275,65 @@ class LineString(BasicBase):
 
     def write(self, f, version = 0, user_version = 0):
         f.write("%s\x0a"%self._x)
+
+class HeaderString(BasicBase):
+    _isTemplate = False
+    
+    def __init__(self, template = None):
+        pass
+
+    def __str__(self):
+        return 'NetImmerse/Gamebryo File Format, Version x.x.x.x'
+
+    def read(self, f, version = 0, user_version = 0):
+        version_string = versionString(version)
+        s = f.read(len(version_string) + 1)
+        if s != version_string + '\x0a':
+            raise ValueError("invalid NIF header: expected '%s' but got '%s'"%(version_string, s[:-1]))
+
+    def write(self, f, version = 0, user_version = 0):
+        f.write(self.versionString(version) + '\x0a')
+
+    @staticmethod
+    def versionString(version):
+        """Transforms version number into a version string.
+
+        >>> HeaderString.versionString(0x03010000)
+        'NetImmerse File Format, Version 3.1'
+        >>> HeaderString.versionString(0x0A000100)
+        'NetImmerse File Format, Version 10.0.1.0'
+        >>> HeaderString.versionString(0x0A010000)
+        'Gamebryo File Format, Version 10.1.0.0'
+        """
+        if version <= 0x0A000100:
+            s = "NetImmerse"
+        else:
+            s = "Gamebryo"
+        if version <= 0x03010000:
+            v = "%i.%i"%((version >> 24) & 0xff, (version >> 16) & 0xff)
+        else:
+            v = "%i.%i.%i.%i"%((version >> 24) & 0xff, (version >> 16) & 0xff, (version >> 8) & 0xff, version & 0xff)
+        return "%s File Format, Version %s"%(s, v)
+
+class FileVersion(BasicBase):
+    _isTemplate = False
+
+    def __init__(self, template = None):
+        pass
+
+    def getValue(self):
+        raise NotImplementedError
+
+    def setValue(self, value):
+        raise NotImplementedError
+
+    def __str__(self):
+        return 'x.x.x.x'
+
+    def read(self, f, version = 0, user_version = 0):
+        ver = struct.unpack('<I', f.read(4))
+        if ver != version:
+            raise ValueError('invalid version number: expected 0x%08X but got 0x%08X'%(version, ver))
+
+    def write(self, f, version = 0, user_version = 0):
+        f.write(struct.pack('<I', version))

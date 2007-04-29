@@ -71,7 +71,8 @@ class _MetaCompoundBase(type):
         for attrname in dct['_attrs']:
             if not dct.has_key('_' + attrname + '_info_'):
                 raise TypeError(str(cls) + ': missing _' + attrname + '_info_ attribute')
-            if issubclass(dct['_' + attrname + '_info_'][0], BasicBase):
+            typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver = dct["_" + attrname + "_info_"]
+            if issubclass(typ, BasicBase) and arr1 == None:
                 # get and set basic attributes
                 setattr(cls, attrname, property(
                     partial(CompoundBase.getBasicAttribute, name = attrname),
@@ -106,7 +107,7 @@ class CompoundBase(object):
     >>> from Basic import BasicBase
     >>> class UInt(BasicBase):
     ...     _isTemplate = False
-    ...     def __init__(self):
+    ...     def __init__(self, template = None):
     ...         self.__value = 0
     ...     def getValue(self):
     ...         return self.__value
@@ -123,7 +124,7 @@ class CompoundBase(object):
     ...     _isAbstract = True
     ...     _attrs = ['c', 'd']
     ...     _c_info_ = (UInt, None, None, None, None, None, None, None, None, None)
-    ...     _d_info_ = (X, None, None, None, None, None, None, None, None, None)
+    ...     _d_info_ = (X, None, None, None, None, None, Expression('c == 3'), None, None, None)
     >>> y = Y()
     >>> print y.getAttributeNames()
     ['a', 'b', 'c', 'd']
@@ -155,25 +156,28 @@ class CompoundBase(object):
     _attrs = []
     
     # initialize all attributes
-    def __init__(self, template = type(None)):
+    def __init__(self, template = None):
+        """The constructor takes a tempate argument: any attribute whose type, or template type,
+        is type(None) - which corresponds to TEMPLATE in the xml description - will be replaced by
+        this type."""
         for name in self.getAttributeNames():
             typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver = getattr(self, "_" + name + "_info_")
             if typ == type(None):
                 assert(template != type(None))
                 assert(self._isTemplate)
                 typ = template
-            typ_args = []
-            if tmpl != None:
-                typ_args.append(tmpl)
+            if tmpl == type(None):
+                assert(template != type(None))
+                assert(self._isTemplate)
+                tmpl = template
             #if default:
             #    typ_args.append(default)
-            if not isinstance(arr1, Expression):
-                attr_instance = typ(*typ_args)
-            elif not isinstance(arr2, Expression):
-                arr1.setData(self)
-                attr_instance = Array(typ, tmpl, arr1)
+            if arr1 == None:
+                attr_instance = typ(tmpl)
+            elif arr2 == None:
+                attr_instance = Array(self, typ, tmpl, arr1)
             else:
-                attr_instance = [[]] #TODO Array(Array(typ, tmpl, arr2), type(None), arr1)
+                attr_instance = [[]] #TODO Array(self, Array(self, typ, tmpl, arr2), None, arr1)
             setattr(self, "_" + name + "_value_", attr_instance)
 
     # string of all attributes
@@ -191,6 +195,13 @@ class CompoundBase(object):
         return s
 
     def read(self, f, version, user_version):
+        self._apply(f, version, user_version, "read")
+
+    def write(self, f, version, user_version):
+        self._apply(f, version, user_version, "write")
+
+    def _apply(self, f, version, user_version, fn):
+        """Applies the function <fn> on all attributes."""
         for name in self.getAttributeNames():
             typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver = getattr(self, "_" + name + "_info_")
             if ver1:
@@ -199,8 +210,9 @@ class CompoundBase(object):
                 if version > ver2: continue
             if userver and user_version:
                 if user_version != userver: continue
-            if not cond: continue
-            getattr(self, "_" + name + "_value_").read(f, version, user_version)
+            if cond != None:
+                if not cond.eval(self): continue
+            getattr(getattr(self, "_" + name + "_value_"), fn)(f, version, user_version)
 
     @classmethod
     def getAttributeNames(cls):

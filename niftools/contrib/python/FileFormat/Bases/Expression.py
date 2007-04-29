@@ -47,32 +47,29 @@ class Expression(object):
     ...     x = False
     ...     y = True
     >>> a = A()
-    >>> e = Expression('x || y', data = a)
-    >>> int(e)
+    >>> e = Expression('x || y')
+    >>> e.eval(a)
     1
-    >>> bool(e)
-    True
-    >>> int(Expression('99 & 15'))
+    >>> Expression('99 & 15').eval(a)
     3
-    >>> bool(Expression('(99&15)&&y', data = a))
+    >>> bool(Expression('(99&15)&&y').eval(a))
     True
     >>> a.hello_world = False
     >>> def nameFilter(s):
     ...     return 'hello_' + s.lower()
-    >>> bool(Expression('(99 &15) &&WoRlD', name_filter = nameFilter, data = a))
+    >>> bool(Expression('(99 &15) &&WoRlD', name_filter = nameFilter).eval(a))
     False
-    >>> bool(Expression('c && d', data = a))
+    >>> Expression('c && d').eval(a)
     Traceback (most recent call last):
         ...
     AttributeError: 'A' object has no attribute 'c'
-    >>> bool(Expression('1 == 1'))
+    >>> bool(Expression('1 == 1').eval())
     True
-    >>> bool(Expression('1 != 1'))
+    >>> bool(Expression('1 != 1').eval())
     False
     """
     operators = [ '==', '!=', '&&', '||', '&', '|' ]
-    def __init__(self, expr_str, name_filter = lambda x: x, data = None):
-        self._data = data
+    def __init__(self, expr_str, name_filter = lambda x: x):
         left, self._op, right = self._partition(expr_str)
         self._left = self._parse(left, name_filter)
         if right:
@@ -80,16 +77,13 @@ class Expression(object):
         else:
             self._right = ''
 
-    def setData(self, data):
-        self._data = data
-
-    def __int__(self):
+    def eval(self, data = None):
         """Evaluate the expression to an integer."""
         
         if isinstance(self._left, Expression):
-            left = int(self._left)
+            left = self._left.eval(data)
         elif isinstance(self._left, basestring):
-            left = getattr(self._data, self._left)
+            left = getattr(data, self._left)
         else:
             assert(isinstance(self._left, int)) # debug
             left = self._left
@@ -98,9 +92,9 @@ class Expression(object):
             return left
 
         if isinstance(self._right, Expression):
-            right = int(self._right)
+            right = self._right.eval(data)
         elif isinstance(self._right, basestring):
-            right = getattr(self._data, self._right)
+            right = getattr(data, self._right)
         else:
             assert(isinstance(self._right, int)) # debug
             right = self._right
@@ -119,11 +113,6 @@ class Expression(object):
             return left | right
         else:
             raise NotImplementedError("expression syntax error: operator '" + op + "' not implemented")
-
-    def __nonzero__(self):
-        """A wrapper for __int__(). Allows expressions to be used as
-        a bool, like in conditional statements."""
-        return self.__int__()
 
     @classmethod
     def _parse(cls, expr_str, name_filter = lambda x: x):

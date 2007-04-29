@@ -44,20 +44,36 @@ from Basic import BasicBase
 
 class Array(object):
     # initialize the array
-    def __init__(self, element_type, element_type_template, count):
+    def __init__(self, parent, element_type, element_type_template, count):
+        self._parent = parent
         self._elements = []
         self._elementType = element_type
         self._elementTypeTemplate = element_type_template
         self._count = count
         
-        for i in xrange(self._count):
-            self._elements.append(self._elementType())
+        for i in xrange(self._len()):
+            self._elements.append(self._elementType(self._elementTypeTemplate))
 
         if issubclass(self._elementType, BasicBase):
-            self.__getitem__ = self.getBasicItem
-            self.__setitem__ = self.setBasicItem
+            self._getitem_hook = self.getBasicItem
+            self._setitem_hook = self.setBasicItem
         else:
-            self.__getitem__ = self.getItem
+            self._getitem_hook = self.getItem
+            self._setitem_hook = self._notimplemented_hook
+
+    def _len(self):
+        """The length the array *should* have, obtained by evaluating
+        the count expression."""
+	return self._count.eval(self._parent)
+
+    def __getitem__(self, index):
+        return self._getitem_hook(index)
+
+    def __setitem__(self, index, e):
+        return self._setitem_hook(index, e)
+
+    def _notimplemented_hook(self, *args):
+        raise NotImplementedError
 
     # string of the array
     def __str__(self):
@@ -65,6 +81,29 @@ class Array(object):
         for i, element in enumerate(self._elements):
             s += "%i: %s\n"%(i, element)
         return s
+
+    def updateSize(self):
+        old_size = len(self._elements)
+        new_size = self._len()
+        if new_size < old_size:
+            self._elements = self._elements[:new_size]
+        else:
+            for i in xrange(new_size-old_size):
+                e = self._elementType(self._elementTypeTemplate)
+                self._elements.append(e)
+        
+    def read(self, f, version, user_version):
+        self._elements = []
+        for i in xrange(self._len()):
+            e = self._elementType(self._elementTypeTemplate)
+            e.read(f, version, user_version)
+            self._elements.append(e)
+
+    def write(self, f, version, user_version):
+        if not self._len() == len(self._elements):
+            raise ValueError('array size different from to field describing number of elements')
+        for e in self._elements:
+            e.write(f, version, user_version)
 
     def getBasicItem(self, index):
         return self._elements[index].getValue()
