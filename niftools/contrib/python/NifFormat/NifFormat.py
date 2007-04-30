@@ -44,6 +44,9 @@ import struct
 from FileFormat.XmlFileFormat import MetaXmlFileFormat
 from BasicTypes import *
 
+class NifError(Exception):
+    pass
+
 class NifFormat(object):
     """Stores all information about the nif file format.
     
@@ -150,26 +153,71 @@ class NifFormat(object):
         if not ver in cls.values():
             return -1 # unsupported version
         # check version integer
-        try:
-            f.readline(64)
-            if ver <= 0x03010000:
-                f.readline(256)
-                f.readline(256)
-                f.readline(256)
-            ver_int = struct.unpack('<I', f.read(4))
-        finally:
-            f.seek(pos)
-        if ver_int != ver:
-            return -2 # not a nif file
+        if ver >= 0x0303000D:
+            try:
+                f.readline(64)
+                ver_int = struct.unpack('<I', f.read(4))
+            finally:
+                f.seek(pos)
+            if ver_int != ver:
+                return -2 # not a nif file
         return ver
 
     @classmethod
     def read(cls, f, version, user_version):
+        # read header
         hdr = cls.Header()
-        ftr = cls.Footer()
         hdr.read(f, version, user_version)
-        # TODO read the blocks
+        
+        # read the blocks
+        block_dct = {} # maps block index to actual block
+        block_indices = [] # records all indices as read from the nif file in the proper order
+        block_list = [] # records all blocks as read from the nif file in the proper order
+        link_stack = [] # list of indices, as they are added to the stack
+        block_num = 0 # the current block numner
+
+        while True:
+            # get block name
+            if version >= 0x05000001:
+                if version <= 0x0A01006A:
+                    dummy = struct.unpack('<I', f.read(4))
+                    if dummy != 0:
+                        raise NifError('NIF read: invalid block position (expected 0x00000000 but got 0x%08X at 0x%08X)'%(dummy, f.tell()))
+                block_type = hdr.blockTypes[header.blockTypeIndex[block_num]]
+            else:
+                block_type = cls.String()
+                block_type.read(f, version, user_version)
+            if version < 0x0303000D:
+                if block_type == "Top Level Object": continue
+                if block_type == "End Of File": break
+            # create block
+            block = getattr(cls, str(block_type))()
+            print block_type
+            # get the block index
+            if version < 0x0303000D:
+                block_index = struct.unpack('<I', f.read(4))
+                if block_index in block_indices:
+                    raise NifError('NIF read: duplicate block index (0x%08X at 0x%08X)'%(block_index, f.tell()))
+            else:
+                block_index = block_num
+            block_indices.append(block_index)
+            block.read(f, link_stack, version, user_version)
+            block_dct[block_index] = block
+            block_list.append(block)
+            # check if we are done
+            if version >= 0x0303000D:
+                block_num += 1
+                if block_num >= hdr.numBlocks: break
+
+        # read footer
+        ftr = cls.Footer()
         ftr.read(f, version, user_version)
+
+        # fix links
+        for block_index in block_indices:
+            block_dct[block_index].fixLinks(block_list, link_stack, version, user_version)
+
+        # return root objects
         roots = []
         for root in ftr.roots:
             roots.append(root)
