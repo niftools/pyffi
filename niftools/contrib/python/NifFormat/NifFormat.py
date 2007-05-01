@@ -42,9 +42,9 @@
 
 import struct
 from FileFormat.XmlFileFormat import MetaXmlFileFormat
-from BasicTypes import *
+import BasicTypes
 
-class NifError(Exception):
+class NifError(StandardError):
     pass
 
 class NifFormat(object):
@@ -72,23 +72,26 @@ class NifFormat(object):
     __metaclass__ = MetaXmlFileFormat
     xmlFileName = 'nif.xml'
     xmlFilePath = [ '.', '../../docsys' ]
-    basicClasses = {
-        'int'    : Int,
-        'uint'   : UInt,
-        'bool'   : Bool,
-        'byte'   : Byte,
-        'char'   : Char,
-        'short'  : Short,
-        'ushort' : UShort,
-        'float'  : Float,
-        'Ptr'    : Ptr,
-        'Ref'    : Ref,
-        'BlockTypeIndex' : UShort,
-        'StringOffset' : UInt,
-        'FileVersion' : FileVersion,
-        'Flags' : Flags,
-        'HeaderString' : HeaderString,
-        'LineString' : LineString }
+    
+    # basic types
+    int = BasicTypes.Int
+    uint = BasicTypes.UInt
+    byte = BasicTypes.Byte
+    bool = BasicTypes.Bool
+    char = BasicTypes.Char
+    short = BasicTypes.Short
+    ushort = BasicTypes.UShort
+    float = BasicTypes.Float
+    Ptr = BasicTypes.Ptr
+    Ref = BasicTypes.Ref
+    BlockTypeIndex = BasicTypes.UShort
+    StringOffset = BasicTypes.UInt
+    FileVersion = BasicTypes.FileVersion
+    Flags = BasicTypes.Flags
+    HeaderString = BasicTypes.HeaderString
+    LineString = BasicTypes.LineString
+    # other types with internal implementation
+    string = BasicTypes.String
 
     @staticmethod
     def versionNumber(version_str):
@@ -124,9 +127,9 @@ class NifFormat(object):
 
     @classmethod
     def getVersion(cls, f):
-        """Returns version number, if version is supported.
-        Returns -1 if version is not supported.
-        Returns -2 if <f> is not a nif file.
+        """Returns version and user version number, if version is supported.
+        Returns -1, 0 if version is not supported.
+        Returns -2, 0 if <f> is not a nif file.
         """
         pos = f.tell()
         try:
@@ -138,70 +141,76 @@ class NifFormat(object):
         elif s.startswith("Gamebryo File Format, Version "):
             ver_str = s[30:]
         else:
-            return -2 # not a nif file
+            return -2, 0 # not a nif file
         try:
             ver_list = [int(x) for x in ver_str.split('.')]
         except ValueError:
-            return -1 # version not supported (i.e. ver_str '10.0.1.3a' would trigger this)
+            return -1, 0 # version not supported (i.e. ver_str '10.0.1.3a' would trigger this)
         if len(ver_list) > 4 or len(ver_list) < 1:
-            return -1 # version not supported
+            return -1, 0 # version not supported
         for ver_digit in ver_list:
             if (ver_digit | 0xff) > 0xff:
                 return -1 # version not supported
         while len(ver_list) < 4: ver_list.append(0)
-        ver = ver_list[0] << 24 + ver_list[1] << 16 + ver_list[2] << 8 + ver_list[3]
-        if not ver in cls.values():
-            return -1 # unsupported version
+        ver = (ver_list[0] << 24) + (ver_list[1] << 16) + (ver_list[2] << 8) + ver_list[3]
+        if not ver in cls.versions.values():
+            return -1, 0 # unsupported version
         # check version integer
         if ver >= 0x0303000D:
             try:
                 f.readline(64)
-                ver_int = struct.unpack('<I', f.read(4))
+                ver_int, = struct.unpack('<I', f.read(4))
             finally:
                 f.seek(pos)
             if ver_int != ver:
-                return -2 # not a nif file
-        return ver
+                return -2, 0 # not a nif file
+            userver = 0
+        return ver, userver
 
     @classmethod
-    def read(cls, f, version, user_version):
+    def read(cls, version, user_version, f):
         # read header
         hdr = cls.Header()
-        hdr.read(f, version, user_version)
-        
+        link_stack = [] # list of indices, as they are added to the stack
+        hdr.read(version, user_version, f, link_stack)
+        assert(link_stack == []) # there should not be any links in the header
+
         # read the blocks
         block_dct = {} # maps block index to actual block
-        block_indices = [] # records all indices as read from the nif file in the proper order
         block_list = [] # records all blocks as read from the nif file in the proper order
-        link_stack = [] # list of indices, as they are added to the stack
         block_num = 0 # the current block numner
 
         while True:
             # get block name
             if version >= 0x05000001:
                 if version <= 0x0A01006A:
-                    dummy = struct.unpack('<I', f.read(4))
+                    dummy, = struct.unpack('<I', f.read(4))
                     if dummy != 0:
-                        raise NifError('NIF read: invalid block position (expected 0x00000000 but got 0x%08X at 0x%08X)'%(dummy, f.tell()))
-                block_type = hdr.blockTypes[header.blockTypeIndex[block_num]]
+                        raise NifError('non-zero block tag 0x%08X at 0x%08X)'%(dummy, f.tell()))
+                block_type = hdr.blockTypes[hdr.blockTypeIndex[block_num]]
             else:
                 block_type = cls.String()
                 block_type.read(f, version, user_version)
-            if version < 0x0303000D:
-                if block_type == "Top Level Object": continue
-                if block_type == "End Of File": break
-            # create block
-            block = getattr(cls, str(block_type))()
-            print block_type
             # get the block index
-            if version < 0x0303000D:
-                block_index = struct.unpack('<I', f.read(4))
-                if block_index in block_indices:
-                    raise NifError('NIF read: duplicate block index (0x%08X at 0x%08X)'%(block_index, f.tell()))
-            else:
+            if version >= 0x0303000D:
+                # for these versions the block index is simply the block number
                 block_index = block_num
-            block_indices.append(block_index)
-            block.read(f, link_stack, version, user_version)
+            else:
+                # earlier versions
+                # skip 'Top Level Object' block type
+                if block_type == "Top Level Object": continue
+                # the number of blocks is not in the header
+                # and a special block type string marks the end of the file
+                if block_type == "End Of File": break
+                # read the block index, which is probably the memory
+                # location of the object when it was written to
+                # memory
+                block_index = struct.unpack('<I', f.read(4))
+                if block_dct.has_key(block_index):
+                    raise NifError('duplicate block index (0x%08X at 0x%08X)'%(block_index, f.tell()))
+            # create and read block
+            block = getattr(cls, str(block_type))()
+            block.read(version, user_version, f, link_stack)
             block_dct[block_index] = block
             block_list.append(block)
             # check if we are done
@@ -211,12 +220,14 @@ class NifFormat(object):
 
         # read footer
         ftr = cls.Footer()
-        ftr.read(f, version, user_version)
+        ftr.read(version, user_version, f, link_stack)
 
         # fix links
-        for block_index in block_indices:
-            block_dct[block_index].fixLinks(block_list, link_stack, version, user_version)
-
+        for block in block_list:
+            block.fixLinks(version, user_version, block_dct, link_stack)
+        ftr.fixLinks(version, user_version, block_dct, link_stack)
+        if link_stack != []:
+            raise NifError('not all links have been popped from the stack (bug?)')
         # return root objects
         roots = []
         for root in ftr.roots:
@@ -224,7 +235,7 @@ class NifFormat(object):
         return roots
 
     @classmethod
-    def write(cls, roots, f, version, user_version):
+    def write(cls, version, user_version, f, roots):
         # TODO set up link stack
         #blk_num = {}
         #blk_num[root] = 0
@@ -232,6 +243,9 @@ class NifFormat(object):
         # set up header
         hdr = cls.Header()
         hdr.userVersion = user_version # TODO dedicated type for userVersion similar to FileVersion
+        hdr.copyright[0] = 'this'
+        hdr.copyright[1] = 'is'
+        hdr.copyright[2] = 'a test'
 
         # set up footer
         ftr = cls.Footer()
@@ -241,6 +255,6 @@ class NifFormat(object):
             ftr.roots[i] = root
 
         # write the file
-        hdr.write(f, version, user_version)
+        hdr.write(version, user_version, f)
         # TODO write the actual blocks
-        ftr.write(f, version, user_version)
+        ftr.write(version, user_version, f)

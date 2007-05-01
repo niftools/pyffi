@@ -68,7 +68,7 @@ class Expression(object):
     >>> bool(Expression('1 != 1').eval())
     False
     """
-    operators = [ '==', '!=', '&&', '||', '&', '|' ]
+    operators = [ '==', '!=', '>=', '&&', '||', '&', '|' ]
     def __init__(self, expr_str, name_filter = lambda x: x):
         left, self._op, right = self._partition(expr_str)
         self._left = self._parse(left, name_filter)
@@ -103,6 +103,8 @@ class Expression(object):
             return int(left == right)
         elif self._op == '!=':
             return int(left != right)
+        elif self._op == '>=':
+            return int(left >= right)
         elif self._op == '&&':
             return int(left and right)
         elif self._op == '||':
@@ -120,10 +122,10 @@ class Expression(object):
         contents of <expr_str>."""
         # brackets or operators => expression
         if ("(" in expr_str) or (")" in expr_str):
-            return Expression(expr_str)
+            return Expression(expr_str, name_filter)
         for op in cls.operators:
             if expr_str.find(op) != -1:
-                return Expression(expr_str)
+                return Expression(expr_str, name_filter)
         # try to convert it to an integer
         try:
             return int(expr_str)

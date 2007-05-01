@@ -44,15 +44,21 @@ from Basic import BasicBase
 
 class Array(object):
     # initialize the array
-    def __init__(self, parent, element_type, element_type_template, count):
+    def __init__(self, parent, element_type, element_type_template, count1, count2 = None):
         self._parent = parent
         self._elements = []
         self._elementType = element_type
         self._elementTypeTemplate = element_type_template
-        self._count = count
+        self._count1 = count1
+        self._count2 = count2
         
-        for i in xrange(self._len()):
-            self._elements.append(self._elementType(self._elementTypeTemplate))
+        if self._count2 == None:
+            for i in xrange(self._len1()):
+                self._elements.append(self._elementType(self._elementTypeTemplate))
+        else:
+            for i in xrange(self._len1()):
+                # TODO find more elegant way?
+                self._elements.append(Array(self, self._parent, self._elementType, self._elementTypeTemplate, Expression(str(self._len2(i)))))
 
         if issubclass(self._elementType, BasicBase):
             self._getitem_hook = self.getBasicItem
@@ -61,10 +67,22 @@ class Array(object):
             self._getitem_hook = self.getItem
             self._setitem_hook = self._notimplemented_hook
 
-    def _len(self):
+    def _len1(self):
         """The length the array *should* have, obtained by evaluating
-        the count expression."""
-	return self._count.eval(self._parent)
+        the count1 expression."""
+	return self._count1.eval(self._parent)
+
+    def _len2(self, index1):
+        """The length the array *should* have, obtained by evaluating
+        the count2 expression."""
+        if self._count2 == None:
+            raise ValueError('single array treated as double array (bug?)')
+        e = self._count2.eval(self._parent)
+        if isinstance(e, BasicBase):
+            return e.getValue()
+        else:
+            assert isinstance(e, Array) # debug
+            return e[index1]
 
     def __getitem__(self, index):
         return self._getitem_hook(index)
@@ -83,8 +101,10 @@ class Array(object):
         return s
 
     def updateSize(self):
+        if self._count2 != None:
+            raise NotImplementedError('updating size of double array not implemented yet')
         old_size = len(self._elements)
-        new_size = self._len()
+        new_size = self._len1()
         if new_size < old_size:
             self._elements = self._elements[:new_size]
         else:
@@ -92,18 +112,22 @@ class Array(object):
                 e = self._elementType(self._elementTypeTemplate)
                 self._elements.append(e)
         
-    def read(self, f, version, user_version):
+    def read(self, version, user_version, f, link_stack):
         self._elements = []
-        for i in xrange(self._len()):
+        for i in xrange(self._len1()):
             e = self._elementType(self._elementTypeTemplate)
-            e.read(f, version, user_version)
+            e.read(version, user_version, f, link_stack)
             self._elements.append(e)
 
-    def write(self, f, version, user_version):
-        if not self._len() == len(self._elements):
+    def write(self, version, user_version, f):
+        if not self._len1() == len(self._elements):
             raise ValueError('array size different from to field describing number of elements')
         for e in self._elements:
-            e.write(f, version, user_version)
+            e.write(version, user_version, f)
+
+    def fixLinks(self, version, user_version, block_dct, link_stack):
+        for e in self._elements:
+            e.fixLinks(version, user_version, block_dct, link_stack)
 
     def getBasicItem(self, index):
         return self._elements[index].getValue()

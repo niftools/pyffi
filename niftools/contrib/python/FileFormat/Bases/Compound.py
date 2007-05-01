@@ -55,10 +55,10 @@ except ImportError: # quick hack for python < 2.5
             return self.fn(*args, **{ 'name' : self.name } )
 
 # This metaclass checks for the presence of an _attrs, _isTemplate,
-# and _isAbstract attribute. For each <attrname> in _attrs, it also
-# checks for _info_<attrname>_ class attributes, and generates an
-# <attrname> property which gets and sets basic types, and gets other
-# types (compound and array). Used as metaclass of CompoundBase.
+# and _isAbstract attribute. For each attribute in _attrs, an
+# <attrname> property is generated which gets and sets basic types,
+# and gets other types (compound and array). Used as metaclass of
+# CompoundBase.
 class _MetaCompoundBase(type):
     def __init__(cls, name, bases, dct):
         # consistency checks
@@ -68,10 +68,7 @@ class _MetaCompoundBase(type):
             raise TypeError(str(cls) + ': missing _isTemplate attribute')
         if not dct.has_key('_isAbstract'):
             raise TypeError(str(cls) + ': missing _isAbstract attribute')
-        for attrname in dct['_attrs']:
-            if not dct.has_key('_' + attrname + '_info_'):
-                raise TypeError(str(cls) + ': missing _' + attrname + '_info_ attribute')
-            typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver = dct["_" + attrname + "_info_"]
+        for attrname, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in dct['_attrs']:
             if issubclass(typ, BasicBase) and arr1 == None:
                 # get and set basic attributes
                 setattr(cls, attrname, property(
@@ -91,12 +88,10 @@ class CompoundBase(object):
     The class variable _attrs must be declared every derived class
     interface.
 
-    For each string <name> in the _attrs list, there must be a class
-    variable _<name>_info_. Upon instanciation, the compound will create an
-    instance variable _<name>_value_. The _<name>_info_ class variable
-    stores the information about the attribute as stored for instance
-    in the xml file, and the _<name>_value_ instance variable stores the
-    actual attribute instance.
+    Each item in the class _attrs list stores the information about
+    the attribute as stored for instance in the xml file, and the
+    _<name>_value_ instance variable stores the actual attribute
+    instance.
 
     Direct access to the attributes is implemented using a <name>
     property which invokes the getAttribute and setAttribute
@@ -116,18 +111,16 @@ class CompoundBase(object):
     >>> class X(CompoundBase):
     ...     _isTemplate = False
     ...     _isAbstract = True
-    ...     _attrs = ['a', 'b']
-    ...     _a_info_ = (UInt, None, None, None, None, None, None, None, None, None)
-    ...     _b_info_ = (UInt, None, None, None, None, None, None, None, None, None)
+    ...     _attrs = [
+    ...         ('a', UInt, None, None, None, None, None, None, None, None, None),
+    ...         ('b', UInt, None, None, None, None, None, None, None, None, None)]
     >>> class Y(X):
     ...     _isTemplate = False
     ...     _isAbstract = True
-    ...     _attrs = ['c', 'd']
-    ...     _c_info_ = (UInt, None, None, None, None, None, None, None, None, None)
-    ...     _d_info_ = (X, None, None, None, None, None, Expression('c == 3'), None, None, None)
+    ...     _attrs = [
+    ...         ('c', UInt, None, None, None, None, None, None, None, None, None),
+    ...         ('d', X, None, None, None, None, None, Expression('c == 3'), None, None, None)]
     >>> y = Y()
-    >>> print y.getAttributeNames()
-    ['a', 'b', 'c', 'd']
     >>> y.a = 1
     >>> y.b = 2
     >>> y.c = 3
@@ -160,8 +153,7 @@ class CompoundBase(object):
         """The constructor takes a tempate argument: any attribute whose type, or template type,
         is type(None) - which corresponds to TEMPLATE in the xml description - will be replaced by
         this type."""
-        for name in self.getAttributeNames():
-            typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver = getattr(self, "_" + name + "_info_")
+        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self.getAttributeList():
             if typ == type(None):
                 assert(template != type(None))
                 assert(self._isTemplate)
@@ -177,14 +169,18 @@ class CompoundBase(object):
             elif arr2 == None:
                 attr_instance = Array(self, typ, tmpl, arr1)
             else:
-                attr_instance = [[]] #TODO Array(self, Array(self, typ, tmpl, arr2), None, arr1)
-            setattr(self, "_" + name + "_value_", attr_instance)
+                attr_instance = Array(self, typ, tmpl, arr1, arr2)
+            if not self.__dict__.has_key("_" + name + "_value_"):
+                setattr(self, "_" + name + "_value_", attr_instance)
+            #else:
+            #    print "warning: " + name + " already exists"
 
     # string of all attributes
     def __str__(self):
         s = '%s instance at 0x%08X\n'%(self.__class__, id(self))
-        for name in self.getAttributeNames():
-            typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver = getattr(self, "_" + name + "_info_")
+        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self.getAttributeList():
+            if cond != None:
+                if not cond.eval(self): continue
             attr_str_lines = str(getattr(self, "_" + name + "_value_")).splitlines()
             if len(attr_str_lines) > 1:
                 s += '* ' + str(name) + ' :\n'
@@ -194,35 +190,36 @@ class CompoundBase(object):
                 s += '* ' + str(name) + ' : ' + attr_str_lines[0] + '\n'
         return s
 
-    def read(self, f, version, user_version):
-        self._apply(f, version, user_version, "read")
+    def read(self, version, user_version, f, link_stack):
+        self._apply("read", version, user_version, f, link_stack)
 
-    def write(self, f, version, user_version):
-        self._apply(f, version, user_version, "write")
+    def write(self, version, user_version, f):
+        self._apply("write", version, user_version, f)
 
-    def _apply(self, f, version, user_version, fn):
-        """Applies the function <fn> on all attributes."""
-        for name in self.getAttributeNames():
-            typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver = getattr(self, "_" + name + "_info_")
+    def fixLinks(self, version, user_version, block_dct, link_stack):
+        self._apply("fixLinks", version, user_version, block_dct, link_stack)
+
+    def _apply(self, fn, version, user_version, *args):
+        """Applies the function <fn>(version, user_version, *args) on all attributes."""
+        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self.getAttributeList():
             if ver1:
                 if version < ver1: continue
             if ver2:
                 if version > ver2: continue
-            if userver and user_version:
+            if userver:
                 if user_version != userver: continue
             if cond != None:
                 if not cond.eval(self): continue
-            getattr(getattr(self, "_" + name + "_value_"), fn)(f, version, user_version)
+            getattr(getattr(self, "_" + name + "_value_"), fn)(version, user_version, *args)
 
     @classmethod
-    def getAttributeNames(cls):
+    def getAttributeList(cls):
         # string of attributes of base classes of cls
         attrs = []
         for base in cls.__bases__:
             if issubclass(base, CompoundBase):
-                attrs.extend(base.getAttributeNames())
-        for name in cls._attrs:
-            attrs.append(name)
+                attrs.extend(base.getAttributeList())
+        attrs.extend(cls._attrs)
         return attrs
 
     def getAttribute(self, name):

@@ -1,12 +1,15 @@
-import gc
-
 from NifFormat.NifFormat import NifFormat
+from FileFormat.HexDump import HexDump
+
+# checking all supported versions
 
 print "Supported versions:"
-for vstr, vnum in NifFormat.versions.items():
+for vstr, vnum in sorted(NifFormat.versions.items(), cmp=lambda x, y: cmp(x[1],y[1])):
     print "0x%08X %s"%(vnum, vstr)
 
-print "Constructing nif tree"
+# creating new nif blocks
+
+#print "Constructing nif tree"
 blk = NifFormat.NiNode()
 blk.scale = 2.4
 blk.translation.x = 3.9
@@ -19,11 +22,25 @@ blk.numChildren = 1
 blk.children.updateSize()
 blk.children[0] = NifFormat.NiNode()
 
-print "Writing nif file"
+print blk
 
-f = open("test.nif", "wb")
-NifFormat.write([blk, NifFormat.NiNode()], f, 0x14000005, 0)
+#print "Writing nif file"
+#
+#f = open("test.nif", "wb")
+#NifFormat.write(0x14000005, 0, f, [blk, NifFormat.NiNode()])
 
-if gc.garbage:
-    print "warning: uncollectable objects"
-    print gc.garbage
+# reading a nif file
+
+f = open("cube.nif", "rb")
+version, user_version = NifFormat.getVersion(f)
+if version >= 0:
+    try:
+        print "reading nif file (version 0x%08X)"%version
+        NifFormat.read(version, user_version, f)
+    except:
+        HexDump(f)
+        raise
+elif version == -1:
+    print 'nif version not supported'
+else:
+    print 'not a nif file'

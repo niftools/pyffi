@@ -67,6 +67,10 @@ class BasicBase(object):
     >>> x.setValue('123')
     >>> x.getValue()
     123
+
+    #>>> x.value = 456
+    #>>> x.value
+    #456
     """
     
     __metaclass__ = _MetaBasicBase
@@ -84,16 +88,19 @@ class BasicBase(object):
     def __str__(self):
         return str(self.getValue())
 
-    def read(self, f):
+    def read(self, version, user_version, f, link_stack):
         raise NotImplementedError
 
-    def write(self, f):
+    def write(self, version, user_version, f):
         raise NotImplementedError
 
+    def fixLinks(self, block_dct, link_stack, version, user_version):
+        pass
+    
     def getValue(self):
         raise NotImplementedError
 
     def setValue(self, value):
         raise NotImplementedError
 
-    value = property(getValue, setValue, None, "The value.")
+    #value = property(getValue, setValue, None, "The value.")

@@ -70,16 +70,17 @@ class XmlHandler(xml.sax.handler.ContentHandler):
     "enum" : tagEnum,
     "option" : tagOption }
 
-    infoType = 0
-    infoDefault = 1
-    infoTemplate = 2
-    infoArg = 3
-    infoArr1 = 4
-    infoArr2 = 5
-    infoCond = 6
-    infoVer1 = 7
-    infoVer2 = 8
-    infoUserver = 9
+    attrName = 0
+    attrType = 1
+    attrDefault = 2
+    attrTemplate = 3
+    attrArg = 4
+    attrArr1 = 5
+    attrArr2 = 6
+    attrCond = 7
+    attrVer1 = 8
+    attrVer2 = 9
+    attrUserver = 10
 
     def __init__(self, cls, name, bases, dct):
         """Set up the xml parser.
@@ -191,9 +192,8 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                     attrs_ver2 = self.cls.versions[attrs_ver2]
 
                 # add attribute to class dictionary
-                self.class_dct["_attrs"].append(attrs_name)
-                
-                self.class_dct["_" + attrs_name + "_info_"] = [
+                self.class_dct["_attrs"].append([
+                    attrs_name,
                     attrs_type,
                     attrs_default,
                     attrs_template_str,
@@ -203,7 +203,7 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                     attrs_cond,
                     attrs_ver1,
                     attrs_ver2,
-                    attrs_userver ]
+                    attrs_userver])
             else:
                 raise XmlError("only add tags allowed in block and compound type declaration")
         elif self.currentTag == self.tagFile:
@@ -252,7 +252,7 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                 # the link between basic types and python types is stored in
                 # self.cls.basicClasses, which is a dictionary mapping
                 # basic type names onto BasicBase derived classes
-                self.basic_class = self.cls.basicClasses[self.class_name]
+                self.basic_class = getattr(self.cls, self.class_name)
                 # check the class variables
                 # (ignore iscount)
                 #iscount = (attrs["count"] == "1")
@@ -302,9 +302,10 @@ class XmlHandler(xml.sax.handler.ContentHandler):
         x = self.popTag()
         if x == self.tagAttribute:
             return # improves performance
-        elif x in [ self.tagBlock, self.tagCompound, self.tagEnum ]:
-            # create class cls.<class_name>
-            setattr(self.cls, self.class_name, type(str(self.class_name), (self.class_base,), self.class_dct))
+        if x in [ self.tagBlock, self.tagCompound, self.tagEnum ]:
+            # create class cls.<class_name> (if it has not been implemented internally)
+            if not self.cls.__dict__.has_key(self.class_name):
+                setattr(self.cls, self.class_name, type(str(self.class_name), (self.class_base,), self.class_dct))
         elif x == self.tagBasic:
             # link class cls.<class_name> to self.basic_class
             setattr(self.cls, self.class_name, self.basic_class)
@@ -316,11 +317,10 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                 if not issubclass(obj, CompoundBase): continue
             except:
                 continue
-            for attr in obj._attrs:
-                attrinfo = getattr(obj, "_" + attr + "_info_")
-                templ = attrinfo[self.infoTemplate]
+            for a in obj._attrs:
+                templ = a[self.attrTemplate]
                 if isinstance(templ, basestring):
                     if templ != "TEMPLATE":
-                        attrinfo[self.infoTemplate] = getattr(self.cls, templ)
+                        a[self.attrTemplate] = getattr(self.cls, templ)
                     else:
-                        attrinfo[self.infoTemplate] = type(None)
+                        a[self.attrTemplate] = type(None)
