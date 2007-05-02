@@ -102,7 +102,7 @@ class CompoundBase(object):
     >>> from Basic import BasicBase
     >>> class UInt(BasicBase):
     ...     _isTemplate = False
-    ...     def __init__(self, template = None):
+    ...     def __init__(self, template = None, argument = None):
     ...         self.__value = 0
     ...     def getValue(self):
     ...         return self.__value

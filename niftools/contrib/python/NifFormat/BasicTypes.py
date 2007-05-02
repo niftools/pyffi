@@ -84,7 +84,7 @@ class Int(BasicBase):
     >>> i.write(0, 0, f)
     >>> j = Int()
     >>> f.seek(0)
-    >>> j.read(0, 0, f, [])
+    >>> j.read(0, 0, f, [], None)
     >>> hex(j.getValue())
     '0x11223344'
     >>> i.setValue(0x10000000000L)
@@ -98,7 +98,7 @@ class Int(BasicBase):
     >>> f.seek(0)
     >>> f.write('\x11\x22\x33\x44')
     >>> f.seek(0)
-    >>> i.read(0, 0, f, [])
+    >>> i.read(0, 0, f, [], None)
     >>> hex(i.getValue())
     '0x44332211'
     """
@@ -265,7 +265,7 @@ class LineString(BasicBase):
     >>> l = LineString()
     >>> f.write('abcdefg\\x0a')
     >>> f.seek(0)
-    >>> l.read(0, 0, f, [])
+    >>> l.read(0, 0, f, [], None)
     >>> str(l)
     'abcdefg'
     >>> f.seek(0)
@@ -273,7 +273,7 @@ class LineString(BasicBase):
     >>> l.write(0, 0, f)
     >>> f.seek(0)
     >>> m = LineString()
-    >>> m.read(0, 0, f, [])
+    >>> m.read(0, 0, f, [], None)
     >>> str(m)
     'Hi There'
     """
@@ -368,7 +368,7 @@ class String(BasicBase):
     >>> s = String()
     >>> f.write('\\x07\\x00\\x00\\x00abcdefg')
     >>> f.seek(0)
-    >>> s.read(0, 0, f, [])
+    >>> s.read(0, 0, f, [], None)
     >>> str(s)
     'abcdefg'
     >>> f.seek(0)
@@ -376,7 +376,7 @@ class String(BasicBase):
     >>> s.write(0, 0, f)
     >>> f.seek(0)
     >>> m = String()
-    >>> m.read(0, 0, f, [])
+    >>> m.read(0, 0, f, [], None)
     >>> str(m)
     'Hi There'
     """
