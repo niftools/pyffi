@@ -76,25 +76,26 @@ class BasicBase(object):
     __metaclass__ = _MetaBasicBase
     _isTemplate = False
     
-    def __init__(self, template = None):
-        """When overriding __init__, the template argument is mandatory
-        even if the type is not a template. This makes it easier to instanciate
-        all types in a uniform manner, i.e. typ(tmpl).
+    def __init__(self, template = None, argument = None):
+        """When overriding __init__, template and argument are
+        mandatory even if the type is not a template or does not take
+        an argument. This makes it easier to instanciate all types in
+        a uniform manner, i.e. typ(tmpl, arg).
 	
-        See FileFormat/Bases/Compound.py"""
+        See FileFormat/Bases/Compound.py for an example."""
 	raise NotImplementedError
 
     # string representation
     def __str__(self):
         return str(self.getValue())
 
-    def read(self, version, user_version, f, link_stack):
+    def read(self, version, user_version, f, link_stack, argument):
         raise NotImplementedError
 
     def write(self, version, user_version, f):
         raise NotImplementedError
 
-    def fixLinks(self, block_dct, link_stack, version, user_version):
+    def fixLinks(self, version, user_version, block_dct, link_stack):
         pass
     
     def getValue(self):

@@ -149,11 +149,16 @@ class CompoundBase(object):
     _attrs = []
     
     # initialize all attributes
-    def __init__(self, template = None):
-        """The constructor takes a tempate argument: any attribute whose type, or template type,
-        is type(None) - which corresponds to TEMPLATE in the xml description - will be replaced by
-        this type."""
+    def __init__(self, template = None, argument = None):
+        """The constructor takes a tempate: any attribute whose type,
+        or template type, is type(None) - which corresponds to
+        TEMPLATE in the xml description - will be replaced by this
+        type. The argument is what the ARG xml tags will be replaced with."""
+        # initialize argument
+        self.arg = argument
+        # initialize attributes
         for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self.getAttributeList():
+            # handle template
             if typ == type(None):
                 assert(template != type(None))
                 assert(self._isTemplate)
@@ -162,14 +167,18 @@ class CompoundBase(object):
                 assert(template != type(None))
                 assert(self._isTemplate)
                 tmpl = template
-            #if default:
-            #    typ_args.append(default)
+            # handle argument
+            if arg != None:
+                if not isinstance(arg, int):
+                    arg = getattr(self, arg)
+            # handle arrays
             if arr1 == None:
-                attr_instance = typ(tmpl)
+                attr_instance = typ(tmpl, arg)
             elif arr2 == None:
-                attr_instance = Array(self, typ, tmpl, arr1)
+                attr_instance = Array(self, typ, tmpl, arg, arr1)
             else:
-                attr_instance = Array(self, typ, tmpl, arr1, arr2)
+                attr_instance = Array(self, typ, tmpl, arg, arr1, arr2)
+            # assign attribute value
             if not self.__dict__.has_key("_" + name + "_value_"):
                 setattr(self, "_" + name + "_value_", attr_instance)
             #else:
@@ -190,17 +199,8 @@ class CompoundBase(object):
                 s += '* ' + str(name) + ' : ' + attr_str_lines[0] + '\n'
         return s
 
-    def read(self, version, user_version, f, link_stack):
-        self._apply("read", version, user_version, f, link_stack)
-
-    def write(self, version, user_version, f):
-        self._apply("write", version, user_version, f)
-
-    def fixLinks(self, version, user_version, block_dct, link_stack):
-        self._apply("fixLinks", version, user_version, block_dct, link_stack)
-
-    def _apply(self, fn, version, user_version, *args):
-        """Applies the function <fn>(version, user_version, *args) on all attributes."""
+    def read(self, version, user_version, f, link_stack, argument):
+        self.arg = argument
         for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self.getAttributeList():
             if ver1:
                 if version < ver1: continue
@@ -210,7 +210,38 @@ class CompoundBase(object):
                 if user_version != userver: continue
             if cond != None:
                 if not cond.eval(self): continue
-            getattr(getattr(self, "_" + name + "_value_"), fn)(version, user_version, *args)
+            if arg != None:
+                if not isinstance(arg, int):
+                    arg = getattr(self, arg)
+            getattr(self, "_" + name + "_value_").read(version, user_version, f, link_stack, arg)
+
+    def write(self, version, user_version, f, argument):
+        self.arg = argument
+        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self.getAttributeList():
+            if ver1:
+                if version < ver1: continue
+            if ver2:
+                if version > ver2: continue
+            if userver:
+                if user_version != userver: continue
+            if cond != None:
+                if not cond.eval(self): continue
+            if arg != None:
+                if not isinstance(arg, int):
+                    arg = getattr(self, arg)
+            getattr(self, "_" + name + "_value_").write(version, user_version, f, arg)
+
+    def fixLinks(self, version, user_version, block_dct, link_stack):
+        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self.getAttributeList():
+            if ver1:
+                if version < ver1: continue
+            if ver2:
+                if version > ver2: continue
+            if userver:
+                if user_version != userver: continue
+            if cond != None:
+                if not cond.eval(self): continue
+            getattr(self, "_" + name + "_value_").fixLinks(version, user_version, block_dct, link_stack)
 
     @classmethod
     def getAttributeList(cls):

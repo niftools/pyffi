@@ -155,16 +155,19 @@ class NifFormat(object):
         ver = (ver_list[0] << 24) + (ver_list[1] << 16) + (ver_list[2] << 8) + ver_list[3]
         if not ver in cls.versions.values():
             return -1, 0 # unsupported version
-        # check version integer
+        # check version integer and user version
+        userver = 0
         if ver >= 0x0303000D:
+            ver_int = None
             try:
                 f.readline(64)
                 ver_int, = struct.unpack('<I', f.read(4))
+                if ver_int != ver:
+                    return -2, 0 # not a nif file
+                if ver >= 0x14000004: f.read(1)
+                if ver >= 0x0A010000: userver, = struct.unpack('<I', f.read(4))
             finally:
                 f.seek(pos)
-            if ver_int != ver:
-                return -2, 0 # not a nif file
-            userver = 0
         return ver, userver
 
     @classmethod
@@ -172,7 +175,7 @@ class NifFormat(object):
         # read header
         hdr = cls.Header()
         link_stack = [] # list of indices, as they are added to the stack
-        hdr.read(version, user_version, f, link_stack)
+        hdr.read(version, user_version, f, link_stack, None)
         assert(link_stack == []) # there should not be any links in the header
 
         # read the blocks
@@ -189,8 +192,9 @@ class NifFormat(object):
                         raise NifError('non-zero block tag 0x%08X at 0x%08X)'%(dummy, f.tell()))
                 block_type = hdr.blockTypes[hdr.blockTypeIndex[block_num]]
             else:
-                block_type = cls.String()
-                block_type.read(f, version, user_version)
+                block_type = cls.string()
+                block_type.read(version, user_version, f, link_stack, None)
+                block_type = str(block_type)
             # get the block index
             if version >= 0x0303000D:
                 # for these versions the block index is simply the block number
@@ -201,16 +205,17 @@ class NifFormat(object):
                 if block_type == "Top Level Object": continue
                 # the number of blocks is not in the header
                 # and a special block type string marks the end of the file
-                if block_type == "End Of File": break
+                elif block_type == "End Of File": break
                 # read the block index, which is probably the memory
                 # location of the object when it was written to
                 # memory
-                block_index = struct.unpack('<I', f.read(4))
-                if block_dct.has_key(block_index):
-                    raise NifError('duplicate block index (0x%08X at 0x%08X)'%(block_index, f.tell()))
+                else:
+                    block_index, = struct.unpack('<I', f.read(4))
+                    if block_dct.has_key(block_index):
+                        raise NifError('duplicate block index (0x%08X at 0x%08X)'%(block_index, f.tell()))
             # create and read block
-            block = getattr(cls, str(block_type))()
-            block.read(version, user_version, f, link_stack)
+            block = getattr(cls, block_type)()
+            block.read(version, user_version, f, link_stack, None)
             block_dct[block_index] = block
             block_list.append(block)
             # check if we are done
@@ -220,7 +225,11 @@ class NifFormat(object):
 
         # read footer
         ftr = cls.Footer()
-        ftr.read(version, user_version, f, link_stack)
+        ftr.read(version, user_version, f, link_stack, None)
+
+        # check if we are at the end of the file
+        if f.read(1) != '':
+            raise NifError('end of file not reached: corrupt nif file?')
 
         # fix links
         for block in block_list:

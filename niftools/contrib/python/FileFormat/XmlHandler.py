@@ -184,6 +184,11 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                     attrs_arr2 = Expression(attrs_arr2, self.cls.nameAttribute)
                 if attrs_cond:
                     attrs_cond = Expression(attrs_cond, self.cls.nameAttribute)
+                if attrs_arg:
+                    try:
+                        attrs_arg = int(attrs_arg)
+                    except ValueError:
+                        attrs_arg = self.cls.nameAttribute(attrs_arg)
                 if attrs_userver:
                     attrs_userver = int(attrs_userver)
                 if attrs_ver1:

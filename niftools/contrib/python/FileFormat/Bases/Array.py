@@ -41,24 +41,27 @@
 # --------------------------------------------------------------------------
 
 from Basic import BasicBase
+from Expression import Expression
 
 class Array(object):
     # initialize the array
-    def __init__(self, parent, element_type, element_type_template, count1, count2 = None):
+    def __init__(self, parent, element_type, element_type_template, element_type_argument, count1, count2 = None):
         self._parent = parent
         self._elements = []
         self._elementType = element_type
         self._elementTypeTemplate = element_type_template
+        self._elementTypeArgument = element_type_argument
         self._count1 = count1
         self._count2 = count2
         
         if self._count2 == None:
             for i in xrange(self._len1()):
-                self._elements.append(self._elementType(self._elementTypeTemplate))
+                self._elements.append(self._elementType(self._elementTypeTemplate, self._elementTypeArgument))
         else:
+            # TODO find more elegant way?
             for i in xrange(self._len1()):
-                # TODO find more elegant way?
-                self._elements.append(Array(self, self._parent, self._elementType, self._elementTypeTemplate, Expression(str(self._len2(i)))))
+                for j in xrange(self._len2(i)):
+                    self._elements.append(self._elementType(self._elementTypeTemplate, self._elementTypeArgument))
 
         if issubclass(self._elementType, BasicBase):
             self._getitem_hook = self.getBasicItem
@@ -81,8 +84,7 @@ class Array(object):
         if isinstance(e, BasicBase):
             return e.getValue()
         else:
-            assert isinstance(e, Array) # debug
-            return e[index1]
+            return e
 
     def __getitem__(self, index):
         return self._getitem_hook(index)
@@ -109,15 +111,27 @@ class Array(object):
             self._elements = self._elements[:new_size]
         else:
             for i in xrange(new_size-old_size):
-                e = self._elementType(self._elementTypeTemplate)
+                e = self._elementType(self._elementTypeTemplate, self._elementTypeArgument)
                 self._elements.append(e)
         
-    def read(self, version, user_version, f, link_stack):
+    def read(self, version, user_version, f, link_stack, argument):
         self._elements = []
-        for i in xrange(self._len1()):
-            e = self._elementType(self._elementTypeTemplate)
-            e.read(version, user_version, f, link_stack)
-            self._elements.append(e)
+        self._elementTypeArgument = argument
+        if self._count2 == None:
+            if self._len1() > 10000: raise ValueError('array too long')
+            for i in xrange(self._len1()):
+                e = self._elementType(self._elementTypeTemplate, self._elementTypeArgument)
+                e.read(version, user_version, f, link_stack, self._elementTypeArgument)
+                self._elements.append(e)
+        else:
+            # TODO find more elegant way?
+            if self._len1() > 10000: raise ValueError('array too long')
+            for i in xrange(self._len1()):
+                if self._len2() > 10000: raise ValueError('array too long')
+                for j in xrange(self._len2(i)):
+                    e = self._elementType(self._elementTypeTemplate, self._elementTypeArgument)
+                    e.read(version, user_version, f, link_stack, self._elementTypeArgument)
+                    self._elements.append(e)
 
     def write(self, version, user_version, f):
         if not self._len1() == len(self._elements):

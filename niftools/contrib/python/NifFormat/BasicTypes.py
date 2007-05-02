@@ -46,7 +46,7 @@ from FileFormat.Bases.Basic import BasicBase
 class Bool(BasicBase):
     _isTemplate = False
 
-    def __init__(self, template = None):
+    def __init__(self, template = None, argument = None):
         self.setValue(False)
 
     def getValue(self):
@@ -58,7 +58,7 @@ class Bool(BasicBase):
         else:
             self._x = False
 
-    def read(self, version, user_version, f, link_stack):
+    def read(self, version, user_version, f, link_stack, argument):
         if version > 0x04000002:
             value, = struct.unpack('<B', f.read(1))
         else:
@@ -109,7 +109,7 @@ class Int(BasicBase):
     _struct = 'i'
     _size = 4
 
-    def __init__(self, template = None):
+    def __init__(self, template = None, argument = None):
         self.setValue(0L)
 
     def getValue(self):
@@ -126,7 +126,7 @@ class Int(BasicBase):
         if self._x < self._min or self._x > self._max:
             raise ValueError('value out of range (%i)'%self.getValue())
 
-    def read(self, version, user_version, f, link_stack):
+    def read(self, version, user_version, f, link_stack, argument):
         self._x, = struct.unpack('<' + self._struct, f.read(self._size))
 
     def write(self, version, user_version, f):
@@ -151,7 +151,7 @@ class Byte(Int):
 
 class Char(BasicBase):
     _isTemplate = False
-    def __init__(self, template = None):
+    def __init__(self, template = None, argument = None):
         self.setValue('\x00')
 
     def getValue(self):
@@ -162,7 +162,7 @@ class Char(BasicBase):
         assert(len(value) == 1)
         self._x = value
 
-    def read(self, version, user_version, f, link_stack):
+    def read(self, version, user_version, f, link_stack, argument):
         self._x, = struct.unpack('c', f.read(1))
 
     def write(self, version, user_version, f):
@@ -192,7 +192,7 @@ class Flags(UShort):
 
 class Float(BasicBase):
     _isTemplate = False
-    def __init__(self, template = None):
+    def __init__(self, template = None, argument = None):
         self.setValue(0.0)
 
     def getValue(self):
@@ -201,7 +201,7 @@ class Float(BasicBase):
     def setValue(self, value):
         self._x = float(value)
 
-    def read(self, version, user_version, f, link_stack):
+    def read(self, version, user_version, f, link_stack, argument):
         self._x, = struct.unpack('<f', f.read(4))
 
     def write(self, version, user_version, f):
@@ -209,7 +209,7 @@ class Float(BasicBase):
 
 class Ref(BasicBase):
     _isTemplate = True
-    def __init__(self, template = None):
+    def __init__(self, template = None, argument = None):
         self._template = template
         self.setValue(None)
 
@@ -224,7 +224,7 @@ class Ref(BasicBase):
                 raise TypeError('expected an instance of %s but got instance of %s'%(self._template, value.__class__))
             self._x = value
 
-    def read(self, version, user_version, f, link_stack):
+    def read(self, version, user_version, f, link_stack, argument):
         self._x = None # fixLinks will set this field
         block_index, = struct.unpack('<i', f.read(4))
         link_stack.append(block_index)
@@ -235,13 +235,20 @@ class Ref(BasicBase):
 
     def fixLinks(self, version, user_version, block_dct, link_stack):
         block_index = link_stack.pop(0)
-        if block_index == -1:
-            self._x = None
+        # case when there's no link
+        if version >= 0x0303000D:
+            if block_index == -1: # link by block number
+                self._x = None
+                return
         else:
-            block = block_dct[block_index]
-            if not isinstance(block, self._template):
-                raise TypeError('expected an instance of %s but got instance of %s'%(self._template, value.__class__))
-            self._x = block
+            if block_index == 0: # link by pointer
+                self._x = None
+                return
+        # other case: look up the link and check the link type
+        block = block_dct[block_index]
+        if not isinstance(block, self._template):
+            raise TypeError('expected an instance of %s but got instance of %s'%(self._template, value.__class__))
+        self._x = block
 
 class Ptr(Ref):
     _isTemplate = True
@@ -271,7 +278,7 @@ class LineString(BasicBase):
     'Hi There'
     """
     _isTemplate = False
-    def __init__(self, template = None):
+    def __init__(self, template = None, argument = None):
         self.setValue('')
 
     def getValue(self):
@@ -285,7 +292,7 @@ class LineString(BasicBase):
         if not s: return '<EMPTY STRING>'
         return s
 
-    def read(self, version, user_version, f, link_stack):
+    def read(self, version, user_version, f, link_stack, argument):
         self._x = f.readline().rstrip('\x0a')
 
     def write(self, version, user_version, f):
@@ -294,13 +301,13 @@ class LineString(BasicBase):
 class HeaderString(BasicBase):
     _isTemplate = False
     
-    def __init__(self, template = None):
+    def __init__(self, template = None, argument = None):
         pass
 
     def __str__(self):
         return 'NetImmerse/Gamebryo File Format, Version x.x.x.x'
 
-    def read(self, version, user_version, f, link_stack):
+    def read(self, version, user_version, f, link_stack, argument):
         version_string = self.versionString(version)
         s = f.read(len(version_string) + 1)
         if s != version_string + '\x0a':
@@ -333,7 +340,7 @@ class HeaderString(BasicBase):
 class FileVersion(BasicBase):
     _isTemplate = False
 
-    def __init__(self, template = None):
+    def __init__(self, template = None, argument = None):
         pass
 
     def getValue(self):
@@ -345,7 +352,7 @@ class FileVersion(BasicBase):
     def __str__(self):
         return 'x.x.x.x'
 
-    def read(self, version, user_version, f, link_stack):
+    def read(self, version, user_version, f, link_stack, argument):
         ver, = struct.unpack('<I', f.read(4))
         if ver != version:
             raise ValueError('invalid version number: expected 0x%08X but got 0x%08X'%(version, ver))
@@ -374,7 +381,7 @@ class String(BasicBase):
     'Hi There'
     """
     _isTemplate = False
-    def __init__(self, template = None):
+    def __init__(self, template = None, argument = None):
         self.setValue('')
 
     def getValue(self):
@@ -389,7 +396,7 @@ class String(BasicBase):
         if not s: return '<EMPTY STRING>'
         return s
 
-    def read(self, version, user_version, f, link_stack):
+    def read(self, version, user_version, f, link_stack, argument):
         n, = struct.unpack('<I', f.read(4))
         if n > 10000: raise ValueError('string too long (0x%08X at 0x%08X)'%(n, f.tell()))
         self._x = f.read(n)
