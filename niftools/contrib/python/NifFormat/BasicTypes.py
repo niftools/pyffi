@@ -113,24 +113,25 @@ class Int(BasicBase):
         self.setValue(0L)
 
     def getValue(self):
-        return self._x
+        return struct.unpack('<' + self._struct, self._x)[0]
 
     def setValue(self, value):
         try:
-            self._x = int(value)
+            x = int(value)
         except ValueError:
             try:
-                self._x = int(value, 16) # for '0x...' strings
+                x = int(value, 16) # for '0x...' strings
             except:
                 raise ValueError("cannot convert value '%s' to integer"%str(value))
-        if self._x < self._min or self._x > self._max:
+        if x < self._min or x > self._max:
             raise ValueError('value out of range (%i)'%self.getValue())
+        self._x = struct.pack('<' + self._struct, x)
 
     def read(self, version, user_version, f, link_stack, argument):
-        self._x, = struct.unpack('<' + self._struct, f.read(self._size))
+        self._x = f.read(self._size)
 
     def write(self, version, user_version, f):
-        f.write(struct.pack('<' + self._struct, self._x))
+        f.write(self._x)
 
     def __str__(self):
         return str(self._x)
@@ -163,10 +164,10 @@ class Char(BasicBase):
         self._x = value
 
     def read(self, version, user_version, f, link_stack, argument):
-        self._x, = struct.unpack('c', f.read(1))
+        self._x = f.read(1)
 
     def write(self, version, user_version, f):
-        f.write(struct.pack('c', self._x))
+        f.write(self._x)
 
     def __str__(self):
         return self._x
@@ -196,16 +197,16 @@ class Float(BasicBase):
         self.setValue(0.0)
 
     def getValue(self):
-        return self._x
+        return struct.unpack('<f', self._x)[0]
 
     def setValue(self, value):
-        self._x = float(value)
+        self._x = struct.pack('<f', value)
 
     def read(self, version, user_version, f, link_stack, argument):
-        self._x, = struct.unpack('<f', f.read(4))
+        self._x = f.read(4)
 
     def write(self, version, user_version, f):
-        f.write(struct.pack('<f', self._x))
+        f.write(self._x)
 
 class Ref(BasicBase):
     _isTemplate = True
