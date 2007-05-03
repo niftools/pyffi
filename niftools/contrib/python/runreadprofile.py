@@ -5,7 +5,10 @@
 
 from __future__ import generators
 import os, stat, types, re, sys
-
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO
 
 from NifFormat.NifFormat import NifFormat
 from FileFormat.HexDump import HexDump
@@ -76,6 +79,7 @@ def test():
                 fname = os.path.join(top, name)
                 print "*** reading %s ***"%fname,
                 f = open(fname, "rb")
+                f = StringIO(f.read(-1)) # reads entire file in memory
                 version, user_version = NifFormat.getVersion(f)
                 if version >= 0:
                     try:
