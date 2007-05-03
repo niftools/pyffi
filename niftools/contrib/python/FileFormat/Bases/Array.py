@@ -84,7 +84,7 @@ class Array(object):
         if isinstance(e, BasicBase):
             return e.getValue()
         else:
-            return e
+            return e[index1]
 
     def __getitem__(self, index):
         return self._getitem_hook(index)
@@ -115,20 +115,21 @@ class Array(object):
                 self._elements.append(e)
         
     def read(self, version, user_version, f, link_stack, argument):
+        len1 = self._len1()
+        if len1 > 10000: raise ValueError('array too long')
         self._elements = []
         self._elementTypeArgument = argument
         if self._count2 == None:
-            if self._len1() > 10000: raise ValueError('array too long')
-            for i in xrange(self._len1()):
+            for i in xrange(len1):
                 e = self._elementType(self._elementTypeTemplate, self._elementTypeArgument)
                 e.read(version, user_version, f, link_stack, self._elementTypeArgument)
                 self._elements.append(e)
         else:
             # TODO find more elegant way?
-            if self._len1() > 10000: raise ValueError('array too long')
-            for i in xrange(self._len1()):
-                if self._len2() > 10000: raise ValueError('array too long')
-                for j in xrange(self._len2(i)):
+            for i in xrange(len1):
+                len2i = self._len2(i)
+                if len2i > 10000: raise ValueError('array too long')
+                for j in xrange(len2i):
                     e = self._elementType(self._elementTypeTemplate, self._elementTypeArgument)
                     e.read(version, user_version, f, link_stack, self._elementTypeArgument)
                     self._elements.append(e)

@@ -162,12 +162,12 @@ class CompoundBase(object):
         for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
             # handle template
             if typ == type(None):
-                assert(template != type(None))
-                assert(self._isTemplate)
+                #assert(template != type(None))
+                #assert(self._isTemplate)
                 typ = template
             if tmpl == type(None):
-                assert(template != type(None))
-                assert(self._isTemplate)
+                #assert(template != type(None))
+                #assert(self._isTemplate)
                 tmpl = template
             # handle argument
             if arg != None:
@@ -181,10 +181,9 @@ class CompoundBase(object):
             else:
                 attr_instance = Array(self, typ, tmpl, arg, arr1, arr2)
             # assign attribute value
-            if not self.__dict__.has_key("_" + name + "_value_"):
-                setattr(self, "_" + name + "_value_", attr_instance)
-            #else:
-            #    print "warning: " + name + " already exists"
+            setattr(self, "_" + name + "_value_", attr_instance)
+        # remove argument
+        del self.arg
 
     # string of all attributes
     def __str__(self):
@@ -216,6 +215,8 @@ class CompoundBase(object):
                 if not isinstance(arg, int):
                     arg = getattr(self, arg)
             getattr(self, "_" + name + "_value_").read(version, user_version, f, link_stack, arg)
+        # remove argument
+        del self.arg
 
     def write(self, version, user_version, f, argument):
         self.arg = argument
@@ -232,6 +233,8 @@ class CompoundBase(object):
                 if not isinstance(arg, int):
                     arg = getattr(self, arg)
             getattr(self, "_" + name + "_value_").write(version, user_version, f, arg)
+        # remove argument
+        del self.arg
 
     def fixLinks(self, version, user_version, block_dct, link_stack):
         for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
