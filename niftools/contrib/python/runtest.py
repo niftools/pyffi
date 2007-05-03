@@ -31,16 +31,25 @@ print blk
 
 # reading a nif file
 
+from cStringIO import StringIO
+
 f = open("cube.nif", "rb")
-version, user_version = NifFormat.getVersion(f)
-if version >= 0:
-    try:
-        print "reading nif file (version 0x%08X)"%version
-        NifFormat.read(version, user_version, f)
-    except:
-        HexDump(f)
-        raise
-elif version == -1:
-    print 'nif version not supported'
-else:
-    print 'not a nif file'
+try:
+    buffer = StringIO(f.read(-1))
+finally:
+    f.close()
+try:
+    version, user_version = NifFormat.getVersion(buffer)
+    if version >= 0:
+        try:
+            print "reading nif file (version 0x%08X)"%version
+            NifFormat.read(version, user_version, buffer)
+        except:
+            HexDump(buffer)
+            raise
+    elif version == -1:
+        print 'nif version not supported'
+    else:
+        print 'not a nif file'
+finally:
+    buffer.close()
