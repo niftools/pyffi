@@ -78,6 +78,8 @@ class _MetaCompoundBase(type):
                 # other types of attributes: get only
                 setattr(cls, attrname, property(
                     partial(CompoundBase.getAttribute, name = attrname)))
+        # precalculate the attribute list
+        cls._attributeList = cls._getAttributeList()
 
 class CompoundBase(object):
     """Base class from which all file compound types are derived.
@@ -157,7 +159,7 @@ class CompoundBase(object):
         # initialize argument
         self.arg = argument
         # initialize attributes
-        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self.getAttributeList():
+        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
             # handle template
             if typ == type(None):
                 assert(template != type(None))
@@ -187,7 +189,7 @@ class CompoundBase(object):
     # string of all attributes
     def __str__(self):
         s = '%s instance at 0x%08X\n'%(self.__class__, id(self))
-        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self.getAttributeList():
+        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
             if cond != None:
                 if not cond.eval(self): continue
             attr_str_lines = str(getattr(self, "_" + name + "_value_")).splitlines()
@@ -201,7 +203,7 @@ class CompoundBase(object):
 
     def read(self, version, user_version, f, link_stack, argument):
         self.arg = argument
-        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self.getAttributeList():
+        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
             if ver1:
                 if version < ver1: continue
             if ver2:
@@ -217,7 +219,7 @@ class CompoundBase(object):
 
     def write(self, version, user_version, f, argument):
         self.arg = argument
-        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self.getAttributeList():
+        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
             if ver1:
                 if version < ver1: continue
             if ver2:
@@ -232,7 +234,7 @@ class CompoundBase(object):
             getattr(self, "_" + name + "_value_").write(version, user_version, f, arg)
 
     def fixLinks(self, version, user_version, block_dct, link_stack):
-        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self.getAttributeList():
+        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
             if ver1:
                 if version < ver1: continue
             if ver2:
@@ -244,12 +246,14 @@ class CompoundBase(object):
             getattr(self, "_" + name + "_value_").fixLinks(version, user_version, block_dct, link_stack)
 
     @classmethod
-    def getAttributeList(cls):
+    def _getAttributeList(cls):
         # string of attributes of base classes of cls
         attrs = []
         for base in cls.__bases__:
-            if issubclass(base, CompoundBase):
-                attrs.extend(base.getAttributeList())
+            try:
+                attrs.extend(base._getAttributeList())
+            except AttributeError:
+                pass
         attrs.extend(cls._attrs)
         return attrs
 

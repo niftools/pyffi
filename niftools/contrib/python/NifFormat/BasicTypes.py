@@ -87,10 +87,10 @@ class Int(BasicBase):
     >>> j.read(0, 0, f, [], None)
     >>> hex(j.getValue())
     '0x11223344'
-    >>> i.setValue(0x10000000000L)
+    >>> i.setValue(0x10000000000L) # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
-    ValueError: value out of range (1099511627776)
+    ValueError: ...
     >>> i.setValue('hello world')
     Traceback (most recent call last):
         ...
