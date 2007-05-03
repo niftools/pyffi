@@ -110,7 +110,8 @@ class Int(BasicBase):
     _size = 4
 
     def __init__(self, template = None, argument = None):
-        self.setValue(0L)
+        self._x = '\x00' * self._size
+        #self.setValue(0L)
 
     def getValue(self):
         return struct.unpack('<' + self._struct, self._x)[0]
@@ -194,7 +195,8 @@ class Flags(UShort):
 class Float(BasicBase):
     _isTemplate = False
     def __init__(self, template = None, argument = None):
-        self.setValue(0.0)
+        self._x = '\x00\x00\x00\x00'
+        #self.setValue(0.0)
 
     def getValue(self):
         return struct.unpack('<f', self._x)[0]
