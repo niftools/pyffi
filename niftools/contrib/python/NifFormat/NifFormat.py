@@ -92,6 +92,7 @@ class NifFormat(object):
     LineString = BasicTypes.LineString
     # other types with internal implementation
     string = BasicTypes.String
+    ShortString = BasicTypes.ShortString
 
     @staticmethod
     def versionNumber(version_str):

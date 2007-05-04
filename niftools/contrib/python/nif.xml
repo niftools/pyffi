@@ -6,14 +6,14 @@
         each part of the version in a byte.  For example, 4.0.0.2 is
         0x04000002 and 10.1.0.0 is 0x0A010000.-->
 
-	<version num="3.1">Star Trek: Bridge Commander</version>
+    <version num="3.1">Star Trek: Bridge Commander</version>
     <version num="3.3.0.13">Oblivion</version>
     <version num="4.0.0.0">Freedom Force</version>
     <version num="4.0.0.2">Morrowind, Freedom Force</version>
     <version num="4.1.0.12">Dark Age of Camelot</version>
     <version num="4.2.0.2">Civilization IV</version>
     <version num="4.2.1.0">Dark Age of Camelot, Civilization IV</version>
-    <version num="4.2.2.0">Dark Age of Camelot, Civilization IV</version>
+    <version num="4.2.2.0">Dark Age of Camelot, Civilization IV, Empire Earth II</version>
     <version num="10.0.1.0">Zoo Tycoon 2, Civilization IV</version>
     <version num="10.0.1.2">Oblivion</version>
     <version num="10.1.0.0">Dark Age of Camelot, Civilization IV, Freedom Force vs. the 3rd Reich</version>
@@ -405,6 +405,12 @@
         <add name="b" type="float">Blue color component.</add>
     </compound>
 
+    <compound name="ByteColor3">
+        <add name="r" type="byte">Red color component.</add>
+        <add name="g" type="byte">Green color component.</add>
+        <add name="b" type="byte">Blue color component.</add>
+    </compound>
+
     <compound name="Color4" niflibtype="Color4" nifskopetype="color4">
         A color with alpha (red, green, blue, alpha).
         <add name="r" type="float">Red component.</add>
@@ -589,10 +595,17 @@
         <add name="Variable Offset 2" type="StringOffset" ver1="10.2.0.0">Offset in the string palette where some variable string starts (so far only &#039;EmitterActive&#039; and &#039;BirthRate&#039; have been observed in official files, used for particle system controllers). Usually, -1.</add>
     </compound>
 
+    <compound name="ExportInfo" ver1="10.0.1.2">
+        <add name="Unknown" type="uint" ver2="10.0.1.2" default="3">Probably the number of strings that follow.</add>
+        <add name="Creator" type="ShortString">Could be the name of the creator of the NIF file?</add>
+        <add name="Export Info 1" type="ShortString">Unknown. Can be something like &#039;TriStrip Process Script&#039;.</add>
+        <add name="Export Info 2" type="ShortString">Unknown. Possibly the selected option of the export script. Can be something like &#039;Default Export Script&#039;.</add>
+    </compound>
+
     <compound name="Header">
         The NIF file header.
         <add name="Header String" type="HeaderString">&#039;NetImmerse File Format x.x.x.x&#039; (versions &lt;= 10.0.1.2) or &#039;Gamebryo File Format x.x.x.x&#039; (versions &gt;= 10.1.0.0), with x.x.x.x the version written out. Ends with a newline character (0x0A).</add>
-		<add name="Copyright" type="LineString" arr1="3" ver2="3.1" />
+        <add name="Copyright" type="LineString" arr1="3" ver2="3.1" />
         <add name="Version" type="FileVersion" default="0x04000002" ver1="3.3.0.13">The NIF version, in hexadecimal notation: 0x04000002, 0x0401000C, 0x04020002, 0x04020100, 0x04020200, 0x0A000100, 0x0A010000, 0x0A020000, 0x14000004, ...</add>
         <add name="Endian Type" type="byte" default="1" ver1="20.0.0.4">
             Determines the endian-ness of the data.
@@ -602,11 +615,9 @@
         </add>
         <add name="User Version" type="uint" ver1="10.1.0.0">An extra version number, for companies that decide to modify the file format.</add>
         <add name="Num Blocks" type="uint" ver1="3.3.0.13">Number of file objects.</add>
-        <add name="User Version" type="uint" default="1" ver1="10.0.1.2" ver2="10.0.1.2">May not really be user version, but it is convenient to treat it as such in the one file that uses this NIF version.</add>
         <add name="User Version 2" type="uint" default="0" cond="User Version != 0" ver1="10.1.0.0">This also appears to be the extra user version number and must be set in some circumstances.</add>
-        <add name="Creator" type="ShortString" cond="User Version != 0" ver1="10.0.1.2">Could be the name of the creator of the NIF file?</add>
-        <add name="Export Info 1" type="ShortString" cond="User Version != 0" ver1="10.0.1.2">Unknown. Can be something like &#039;TriStrip Process Script&#039;.</add>
-        <add name="Export Info 2" type="ShortString" cond="User Version != 0" ver1="10.0.1.2">Unknown. Possibly the selected option of the export script. Can be something like &#039;Default Export Script&#039;.</add>
+	<add name="Export Info" type="ExportInfo" ver1="10.0.1.2" ver2="10.0.1.2" />
+	<add name="Export Info" type="ExportInfo" cond="User Version != 0" ver1="10.1.0.0" />
         <add name="Num Block Types" type="ushort" ver1="10.0.1.0">Number of object types in this NIF file.</add>
         <add name="Block Types" type="string" arr1="Num Block Types" ver1="10.0.1.0">List of all object types used in this NIF file.</add>
         <add name="Block Type Index" type="BlockTypeIndex" arr1="Num Blocks" ver1="10.0.1.0">Maps file objects on their corresponding type: first file object is of type object_types[object_type_index[0]], the second of object_types[object_type_index[1]], etc.</add>
@@ -641,6 +652,7 @@
         <add name="Interpolation" type="KeyType" cond="Num Keys != 0">The key type.</add>
         <add name="Keys" type="Key" arg="Interpolation" template="TEMPLATE" arr1="Num Keys">The keys.</add>
     </compound>
+    
     <compound name="ns keytbc" istemplate="1">
         A TBC key (!!! for NifSkope only, use keyvec for regular purposes).
         <add name="Time" type="float">The key time.</add>
@@ -864,6 +876,34 @@
         <add name="Material" type="HavokMaterial">The material of the subshape.</add>
     </compound>
 
+    <compound name="RagdollDescriptor">
+        <add name="Pivot A" type="Vector4">Unknown.</add>
+        <add name="Plane A" type="Vector4">Unknown.</add>
+        <add name="Twist A" type="Vector4">Unknown.</add>
+        <add name="Pivot B" type="Vector4">Unknown.</add>
+        <add name="Plane B" type="Vector4">Unknown.</add>
+        <add name="Twist B" type="Vector4">Unknown.</add>
+        <add name="Cone Min Angle" type="float"></add>
+        <add name="Plane Min Angle" type="float"></add>
+        <add name="Plane Max Angle" type="float"></add>
+        <add name="Twist Min Angle" type="float"></add>
+        <add name="Twist Max Angle" type="float"></add>
+        <add name="Max Friction" type="float"></add>
+    </compound>
+
+    <compound name="LimitedHingeDescriptor">
+        <add name="Pivot A" type="Vector4">Unknown.</add>
+        <add name="Axle A" type="Vector4">Unknown.</add>
+        <add name="Perp2AxleInA1" type="Vector4">Unknown.</add>
+        <add name="Perp2AxleInA2" type="Vector4">Unknown.</add>
+        <add name="Pivot B" type="Vector4">Unknown.</add>
+        <add name="Axle B" type="Vector4">Unknown.</add>
+        <add name="Perp2AxleInB2" type="Vector4">Unknown.</add>
+        <add name="Min Angle" type="float"></add>
+        <add name="Max Angle" type="float"></add>
+        <add name="Max Friction" type="float"></add>
+    </compound>
+
     <!-- NIF Objects
          These are the main units of data that NIF files are arranged in.
          They are like C classes and can contain many pieces of data.
@@ -899,21 +939,6 @@
         <add name="Bodies" type="Ptr" template="bhkShape" arr1="Num Bodies">The bodies affected by this constraint.</add>
         <add name="Priority" type="uint" default="1">Usually 1. Higher values indicate higher priority of this constraint?</add>
     </niobject>
-
-    <compound name="RagdollDescriptor">
-        <add name="Pivot A" type="Vector4">Unknown.</add>
-        <add name="Plane A" type="Vector4">Unknown.</add>
-        <add name="Twist A" type="Vector4">Unknown.</add>
-        <add name="Pivot B" type="Vector4">Unknown.</add>
-        <add name="Plane B" type="Vector4">Unknown.</add>
-        <add name="Twist B" type="Vector4">Unknown.</add>
-        <add name="Cone Min Angle" type="float"></add>
-        <add name="Plane Min Angle" type="float"></add>
-        <add name="Plane Max Angle" type="float"></add>
-        <add name="Twist Min Angle" type="float"></add>
-        <add name="Twist Max Angle" type="float"></add>
-        <add name="Max Friction" type="float"></add>
-    </compound>
 
     <niobject name="AbhkRagdollConstraint" abstract="1" inherit="AbhkConstraint">
         Ragdoll constraint.
@@ -1010,9 +1035,8 @@ is simple, it only has three properties.
     <niobject name="NiDynamicEffect" abstract="1" inherit="NiAVObject">
         A dynamic effect such as a light or environment map.
         <add name="Switch State" type="bool" ver1="10.2.0.0">Turns effect on and off?  Switches list to list of unaffected nodes?</add>
-        <add name="Num Affected Nodes" type="uint" ver2="4.0.0.2">The number of affected nodes referenced.</add>
+        <add name="Num Affected Nodes" type="uint">The number of affected nodes referenced.</add>
         <add name="Affected Node List Pointers" type="uint" arr1="Num Affected Nodes" ver2="4.0.0.2">This is probably the list of affected nodes. For some reason i do not know the max exporter seems to write pointers instead of links. But it doesn&#039;t matter because at least in version 4.0.0.2 the list is automagically updated by the engine during the load stage.</add>
-        <add name="Num Affected Nodes" type="uint" ver1="10.1.0.0">The number of affected nodes referenced.</add>
         <add name="Affected Nodes" type="Ref" template="NiAVObject" arr1="Num Affected Nodes" ver1="10.1.0.0">The list of affected nodes?</add>
         
     </niobject>
@@ -1210,19 +1234,6 @@ is simple, it only has three properties.
         <add name="Pivot B" type="Vector4">Pivot B.</add>
         <add name="Axle B" type="Vector4">Unknown.</add>
     </niobject>
-
-    <compound name="LimitedHingeDescriptor">
-        <add name="Pivot A" type="Vector4">Unknown.</add>
-        <add name="Axle A" type="Vector4">Unknown.</add>
-        <add name="Perp2AxleInA1" type="Vector4">Unknown.</add>
-        <add name="Perp2AxleInA2" type="Vector4">Unknown.</add>
-        <add name="Pivot B" type="Vector4">Unknown.</add>
-        <add name="Axle B" type="Vector4">Unknown.</add>
-        <add name="Perp2AxleInB2" type="Vector4">Unknown.</add>
-        <add name="Min Angle" type="float"></add>
-        <add name="Max Angle" type="float"></add>
-        <add name="Max Friction" type="float"></add>
-    </compound>
 
     <niobject name="bhkLimitedHingeConstraint" abstract="0" inherit="AbhkConstraint" ver1="20.0.0.5">
         Hinge constraint.
@@ -1640,14 +1651,18 @@ a linked object group. This may be due to those objects often being bhkRigidBody
         <add name="Object Palette" type="Ref" template="NiDefaultAVObjectPalette">Refers to a NiDefaultAVObjectPalette.</add>
     </niobject>
 
-    <niobject name="NiControllerSequence" abstract="0" inherit="NiObject" ver1="10.0.1.0">
-        Root node in .kf files (version 10.0.1.0 and up).
+    <niobject name="NiSequence" abstract="0" inherit="NiObject" ver1="4.2.2.0">
+        Root node used in some Empire Earth II .kf files (version 4.2.2.0).
         <add name="Name" type="string">Name of this object. This is also the name of the action associated with this file. For instance, if the original NIF file is called &quot;demon.nif&quot; and this animation file contains an attack sequence, then the file would be called &quot;demon_attack1.kf&quot; and this field would contain the string &quot;attack1&quot;.</add>
         <add name="Text Keys Name" type="string" ver2="10.1.0.0">Name of following referenced NiTextKeyExtraData class.</add>
         <add name="Text Keys" type="Ref" template="NiTextKeyExtraData" ver2="10.1.0.0">Link to NiTextKeyExtraData.</add>
         <add name="Num Controlled Blocks" type="uint">Number of controlled objects.</add>
         <add name="Unknown Int 1" type="uint" ver1="10.1.0.106">Unknown.</add>
         <add name="Controlled Blocks" type="ControllerLink" arr1="Num Controlled Blocks">Refers to controlled objects.</add>
+    </niobject>
+
+    <niobject name="NiControllerSequence" abstract="0" inherit="NiSequence" ver1="10.0.1.0">
+        Root node in .kf files (version 10.0.1.0 and up).
         <add name="Weight" type="float" default="1.0" ver1="10.1.0.106">Weight/priority of animation?</add>
         <add name="Text Keys" type="Ref" template="NiTextKeyExtraData" ver1="10.1.0.106">Link to NiTextKeyExtraData. Replaces the other Text Keys field in versions 10.1.0.106 and up.</add>
         <add name="Cycle Type" type="CycleType" ver1="10.1.0.106">Anim cycle type? Is part of &quot;Flags&quot; in other objects?</add>
@@ -2719,10 +2734,10 @@ a linked object group. This may be due to those objects often being bhkRigidBody
     </niobject>
 
     <niobject name="NiZBufferProperty" abstract="0" inherit="NiProperty">
-        This Property controlls the Z buffer (OpenGL: depth buffer).
+        This Property controls the Z buffer (OpenGL: depth buffer).
         <add name="Flags" type="Flags" default="3">
             Bit 0 enables the z test
-            Bit 1 controlls wether the z buffer is read only (0) or read/write (1)
+            Bit 1 controls wether the Z buffer is read only (0) or read/write (1)
         </add>
         <add name="Function" type="CompareMode" default="3" ver1="4.1.0.12">
             Z-Test function (see: glDepthFunc)
@@ -2733,5 +2748,12 @@ a linked object group. This may be due to those objects often being bhkRigidBody
         Morrowind-specific node for collision mesh.
     </niobject>
 
-</niftoolsxml>
+    <niobject name="NiRawImageData" abstract="0" inherit="NiObject" ver1="3.1" ver2="3.1">
+        Raw image data.
+        <add name="Width" type="uint">Image width</add>
+        <add name="Height" type="uint">Image height</add>
+        <add name="Unknown Int" type="uint">Unknown. Image type?</add>
+	<add name="Image Data" type="ByteColor3" arr1="Width" arr2="Height">Image pixel data.</add>
+    </niobject>
 
+</niftoolsxml>

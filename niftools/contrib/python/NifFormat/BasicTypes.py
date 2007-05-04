@@ -330,7 +330,7 @@ class HeaderString(BasicBase):
         >>> HeaderString.versionString(0x0A010000)
         'Gamebryo File Format, Version 10.1.0.0'
         """
-        if version <= 0x0A000100:
+        if version <= 0x0A000102:
             s = "NetImmerse"
         else:
             s = "Gamebryo"
@@ -407,3 +407,29 @@ class String(BasicBase):
     def write(self, version, user_version, f):
         f.write(struct.pack('<I', len(self._x)))
         f.write(self._x)
+
+class ShortString(BasicBase):
+    """Another type for strings."""
+    _isTemplate = False
+    def __init__(self, template = None, argument = None):
+        self._x = ''
+
+    def getValue(self):
+        return self._x
+
+    def setValue(self, value):
+        if len(value) > 254: raise ValueError('string too long')
+        self._x = str(value)
+
+    def __str__(self):
+        s = self._x
+        if not s: return '<EMPTY STRING>'
+        return s
+
+    def read(self, version, user_version, f, link_stack, argument):
+        n, = struct.unpack('<B', f.read(1))
+        self._x = f.read(n).rstrip('\x00')
+
+    def write(self, version, user_version, f):
+        f.write(struct.pack('<B', len(self._x)+1))
+        f.write(self._x + '\x00')
