@@ -71,16 +71,17 @@ class XmlHandler(xml.sax.handler.ContentHandler):
     "option" : tagOption }
 
     attrName = 0
-    attrType = 1
-    attrDefault = 2
-    attrTemplate = 3
-    attrArg = 4
-    attrArr1 = 5
-    attrArr2 = 6
-    attrCond = 7
-    attrVer1 = 8
-    attrVer2 = 9
-    attrUserver = 10
+    attrHash = 1
+    attrType = 2
+    attrDefault = 3
+    attrTemplate = 4
+    attrArg = 5
+    attrArr1 = 6
+    attrArr2 = 7
+    attrCond = 8
+    attrVer1 = 9
+    attrVer2 = 10
+    attrUserver = 11
 
     def __init__(self, cls, name, bases, dct):
         """Set up the xml parser.
@@ -159,7 +160,7 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                     except AttributeError:
                         raise XmlError("typo, or forward declaration of type " + attrs_type_str)
                 else:
-                    attrs_type = type(None) # type determined at runtime, self._T
+                    attrs_type = type(None) # type determined at runtime
                 # optional parameters
                 attrs_default = attrs.get("default")
                 attrs_template_str = attrs.get("template")
@@ -196,9 +197,16 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                 if attrs_ver2:
                     attrs_ver2 = self.cls.versions[attrs_ver2]
 
+                # the hash is used to avoid name clashes between variables
+                # that are declared more than once in the xml
+                # but e.g. with different conditions for different versions
+                # (for example "UV Sets")
+                attrs_hash = hex(id(attrs_name)) # any unique value would do
+
                 # add attribute to class dictionary
                 self.class_dct["_attrs"].append([
                     attrs_name,
+                    attrs_hash,
                     attrs_type,
                     attrs_default,
                     attrs_template_str,

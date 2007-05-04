@@ -5,10 +5,7 @@
 
 from __future__ import generators
 import os, stat, types, re, sys
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
+from cStringIO import StringIO
 
 from NifFormat.NifFormat import NifFormat
 from FileFormat.HexDump import HexDump

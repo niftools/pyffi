@@ -135,7 +135,7 @@ class Int(BasicBase):
         f.write(self._x)
 
     def __str__(self):
-        return str(self._x)
+        return str(self.getValue())
 
 class UInt(Int):
     _isTemplate = False
@@ -250,7 +250,7 @@ class Ref(BasicBase):
         # other case: look up the link and check the link type
         block = block_dct[block_index]
         if not isinstance(block, self._template):
-            raise TypeError('expected an instance of %s but got instance of %s'%(self._template, value.__class__))
+            raise TypeError('expected an instance of %s but got instance of %s'%(self._template, block.__class__))
         self._x = block
 
 class Ptr(Ref):

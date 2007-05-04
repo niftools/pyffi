@@ -81,8 +81,10 @@ class Array(object):
         if self._count2 == None:
             raise ValueError('single array treated as double array (bug?)')
         e = self._count2.eval(self._parent)
-        if isinstance(e, BasicBase):
-            return e.getValue()
+        #if isinstance(e, BasicBase):
+        #    return e.getValue()
+        if isinstance(e, (int, long)):
+            return e
         else:
             return e[index1]
 
@@ -116,7 +118,7 @@ class Array(object):
         
     def read(self, version, user_version, f, link_stack, argument):
         len1 = self._len1()
-        if len1 > 10000: raise ValueError('array too long')
+        if len1 > 100000: raise ValueError('array too long')
         self._elements = []
         self._elementTypeArgument = argument
         if self._count2 == None:
@@ -128,7 +130,7 @@ class Array(object):
             # TODO find more elegant way?
             for i in xrange(len1):
                 len2i = self._len2(i)
-                if len2i > 10000: raise ValueError('array too long')
+                if len2i > 100000: raise ValueError('array too long')
                 for j in xrange(len2i):
                     e = self._elementType(self._elementTypeTemplate, self._elementTypeArgument)
                     e.read(version, user_version, f, link_stack, self._elementTypeArgument)
