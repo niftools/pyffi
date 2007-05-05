@@ -53,6 +53,8 @@ Switches:
    -b switch.  Normally the whole file that contians the block is
    output.
    Example: -x
+
+-v [Verbosity]
 """
 
 #default values
@@ -61,6 +63,7 @@ exclusive_mode = False
 use_start_dir = False
 blk_match_str = ""
 start_dir = os.getcwd()
+verbosity = 0
 
 #examine command line arguments
 help_flag = False
@@ -77,6 +80,9 @@ for i in sys.argv:
     elif prev == "-b":
         # block match
         block_match = i
+    elif prev == "-v":
+        # verbosity
+        verbosity = int(i)
 
     # Evaluate flags that don't have arguments
     if i == "-x":
@@ -105,10 +111,12 @@ for top, names in walktree(start_dir):
             if version >= 0:
                 try:
                     print "(version 0x%08X)"%version
-                    blocks = NifFormat.read(version, user_version, f, verbose = 2)
+                    blocks = NifFormat.read(version, user_version, f, verbose = verbosity)
+                except KeyboardInterrupt:
+                    raise
                 except:
                     HexDump(f, numLines = 32)
-                    raise
+                    #raise
             elif version == -1:
                 print 'nif version not supported'
             else:
