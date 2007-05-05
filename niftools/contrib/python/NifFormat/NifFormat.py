@@ -172,7 +172,7 @@ class NifFormat(object):
         return ver, userver
 
     @classmethod
-    def read(cls, version, user_version, f):
+    def read(cls, version, user_version, f, verbose = 0):
         # read header
         hdr = cls.Header()
         link_stack = [] # list of indices, as they are added to the stack
@@ -215,10 +215,28 @@ class NifFormat(object):
                     if block_dct.has_key(block_index):
                         raise NifError('duplicate block index (0x%08X at 0x%08X)'%(block_index, f.tell()))
             # create and read block
-            block = getattr(cls, block_type)()
-            block.read(version, user_version, f, link_stack, None)
+            try:
+                block = getattr(cls, block_type)()
+            except AttributeError:
+                raise NifError("unknown block type '" + block_type + "'")
+            if verbose >= 1:
+                print "reading block at 0x%08X..."%f.tell()
+            try:
+                block.read(version, user_version, f, link_stack, None)
+            except:
+                if verbose >= 1:
+                    print "reading failed"
+                if verbose >= 2:
+                    print block
+                elif verbose >= 1:
+                    print block.__class__
+                raise
             block_dct[block_index] = block
             block_list.append(block)
+            if verbose >= 2:
+                print block
+            elif verbose >= 1:
+                print block.__class__
             # check if we are done
             if version >= 0x0303000D:
                 block_num += 1

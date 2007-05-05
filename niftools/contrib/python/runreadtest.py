@@ -105,9 +105,9 @@ for top, names in walktree(start_dir):
             if version >= 0:
                 try:
                     print "(version 0x%08X)"%version
-                    blocks = NifFormat.read(version, user_version, f)
+                    blocks = NifFormat.read(version, user_version, f, verbose = 2)
                 except:
-                    HexDump(f)
+                    HexDump(f, numLines = 32)
                     raise
             elif version == -1:
                 print 'nif version not supported'

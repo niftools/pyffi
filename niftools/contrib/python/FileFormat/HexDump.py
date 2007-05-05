@@ -61,8 +61,8 @@ chartable = '................................ !"#$%&\'()*+,-./0123456789:;<=>?@A
 
 def HexDump(f, numLines = 8):
     pos = f.tell()
-    if pos > 8:
-        f.seek((pos-8) & 0xfffffff0)
+    if pos > numLines*8:
+        f.seek((pos-numLines*8) & 0xfffffff0)
     else:
         f.seek(0)
     dumppos = f.tell()

@@ -435,6 +435,7 @@
         The distance range where a specific level of detail applies.
         <add name="Near Extent" type="float">Begining of range.</add>
         <add name="Far Extent" type="float">End of Range.</add>
+        <add name="Unknown Ints" type="uint" arr1="3" ver2="3.1">Unknown (0,0,0).</add>
     </compound>
 
     <compound name="MatchGroup">
@@ -922,7 +923,7 @@
     <niobject name="AParticleModifier" abstract="1" inherit="NiObject">
         A particle system modifier.
         <add name="Next Modifier" type="Ref" template="AParticleModifier">Next particle modifier.</add>
-        <add name="Controller" type="Ptr" template="NiParticleSystemController">Points to the particle system controller parent.</add>
+        <add name="Controller" type="Ptr" template="NiParticleSystemController" ver1="4.0.0.2">Points to the particle system controller parent.</add>
     </niobject>
 
     <niobject name="bhkRefObject" abstract="1" inherit="NiObject">
@@ -1760,10 +1761,10 @@ a linked object group. This may be due to those objects often being bhkRigidBody
 
     <niobject name="NiGravity" abstract="0" inherit="AParticleModifier">
         A particle modifier; applies a gravitational field on the particles.
-        <add name="Unknown Float 1" type="float">Unknown.</add>
+        <add name="Unknown Float 1" type="float" ver1="4.0.0.2">Unknown.</add>
         <add name="Force" type="float">The strength/force of this gravity.</add>
         <add name="Type" type="FieldType">The force field&#039;s type.</add>
-        <add name="Position" type="Vector3">The position of the mass point relative to the particle system.</add>
+        <add name="Position" type="Vector3">The position of the mass point relative to the particle system. (TODO: check for versions &lt;= 3.1)</add>
         <add name="Direction" type="Vector3">The direction of the applied acceleration.</add>
     </niobject>
 
@@ -1924,10 +1925,10 @@ a linked object group. This may be due to those objects often being bhkRigidBody
         Unknown.
     </niobject>
 
-    <niobject name="NiLODNode" abstract="0" inherit="NiNode" ver1="4.0.0.2">
+    <niobject name="NiLODNode" abstract="0" inherit="NiNode" ver1="3.1">
         Level of detail selector. Links to different levels of detail of the same model, used to switch a geometry at a specified distance.
         <add name="Unknown 4 Bytes" type="byte" arr1="4">Unknown.  0,0,0,0 or 1,0,0,0.</add>
-        <add name="LOD Center" type="Vector3" ver2="10.0.1.0">Point to calculate distance from for switching?</add>
+        <add name="LOD Center" type="Vector3" ver1="4.0.0.2" ver2="10.0.1.0">Point to calculate distance from for switching?</add>
         <add name="Num LOD Levels" type="uint" ver2="10.0.1.0">Number of levels of detail.</add>
         <add name="LOD Levels" type="LODRange" arr1="Num LOD Levels" ver2="10.0.1.0">The ranges of distance that each level of detail applies in.</add>
         <add name="Unknown Short" type="ushort" ver1="10.1.0.0">Zero?</add>
@@ -2043,25 +2044,27 @@ a linked object group. This may be due to those objects often being bhkRigidBody
         <add name="Size" type="float">Particle size</add>
         <add name="Emit Start Time" type="float">Particle emit start time</add>
         <add name="Emit Stop Time" type="float">Particle emit stop time</add>
-        <add name="Unknown Byte" type="byte">Unknown byte, (=0)</add>
+        <add name="Unknown Byte" type="byte" ver1="4.0.0.2">Unknown byte, (=0)</add>
         <add name="Emit Rate" type="float">Particle emission rate (particles per second)</add>
         <add name="Lifetime" type="float">Particle lifetime</add>
         <add name="Lifetime Random" type="float">Particle lifetime random modifier</add>
-        <add name="Emit Flags" type="ushort">Bit 0: Emit Rate toggle bit (0 = auto adjust, 1 = use Emit Rate value)</add>
+        <add name="Emit Flags" type="ushort" ver1="4.0.0.2">Bit 0: Emit Rate toggle bit (0 = auto adjust, 1 = use Emit Rate value)</add>
         <add name="Start Random" type="Vector3">Particle random start translation vector</add>
         <add name="Emitter" type="Ptr" template="NiObject">This index targets the particle emitter object (TODO: find out what type of object this refers to).</add>
-        <add name="Unknown Short 2?" type="ushort">? short=0 ?</add>
-        <add name="Unknown Float 13?" type="float">? float=1.0 ?</add>
-        <add name="Unknown Int 1?" type="uint">? int=1 ?</add>
-        <add name="Unknown Int 2?" type="uint">? int=0 ?</add>
-        <add name="Unknown Short 3?" type="ushort">? short=0 ?</add>
-        <add name="Num Particles" type="ushort">Size of the following array. (Maximum number of simultaneous active particles)</add>
-        <add name="Num Valid" type="ushort">Number of valid entries in the following array. (Number of active particles at the time the system was saved)</add>
-        <add name="Particles" type="Particle" arr1="Num Particles">Individual particle modifiers?</add>
-        <add name="Unknown Link" type="Ref" template="NiObject">unknown int (=0xffffffff)</add>
+        <add name="Unknown Short 2?" type="ushort" ver1="4.0.0.2">? short=0 ?</add>
+        <add name="Unknown Float 13?" type="float" ver1="4.0.0.2">? float=1.0 ?</add>
+        <add name="Unknown Int 1?" type="uint" ver1="4.0.0.2">? int=1 ?</add>
+        <add name="Unknown Int 2?" type="uint" ver1="4.0.0.2">? int=0 ?</add>
+        <add name="Unknown Short 3?" type="ushort" ver1="4.0.0.2">? short=0 ?</add>
+        <add name="Particle" type="Particle" ver2="3.1">The particle (older NIF versions only have a single particle per controller?)</add>
+        <add name="Num Particles" type="ushort" ver1="4.0.0.2">Size of the following array. (Maximum number of simultaneous active particles)</add>
+        <add name="Num Valid" type="ushort" ver1="4.0.0.2">Number of valid entries in the following array. (Number of active particles at the time the system was saved)</add>
+        <add name="Particles" type="Particle" arr1="Num Particles" ver1="4.0.0.2">Individual particle modifiers?</add>
+        <add name="Unknown Link" type="Ref" template="NiObject" ver1="4.0.0.2">unknown int (=0xffffffff)</add>
         <add name="Particle Extra" type="Ref" template="AParticleModifier">Link to some optional particle modifiers (NiGravity, NiParticleGrowFade, NiParticleBomb, ...)</add>
         <add name="Unknown Link 2" type="Ref" template="NiObject">Unknown int (=0xffffffff)</add>
-        <add name="Trailer" type="byte">Trailing null byte</add>
+        <add name="Trailer" type="byte" ver1="4.0.0.2">Trailing null byte</add>
+	<add name="Unkown Floats" type="float" arr1="3" ver2="3.1" />
     </niobject>
 
     <niobject name="NiBSPArrayController" abstract="0" inherit="NiParticleSystemController">
@@ -2560,7 +2563,7 @@ a linked object group. This may be due to those objects often being bhkRigidBody
 	
 	<niobject name="NiTextureModeProperty" abstract="0" inherit="NiProperty" ver1="3.1" ver2="3.1">
 		Unknown
-        <add name="Unknown 3 Shorts" type="short" arr1="3"></add>
+        <add name="Unknown 3 Shorts" type="short" arr1="3">Unknown. Either (210,0,-75) or (194,0,-75)</add>
 	</niobject>
 	
 	<niobject name="NiImage" abstract="0" inherit="NiObject" ver1="3.1" ver2="3.1">
@@ -2569,10 +2572,23 @@ a linked object group. This may be due to those objects often being bhkRigidBody
 		<add name="Unknown 4 Shorts" type="short" arr1="4" />
 	</niobject>
 	
-	<niobject name="NiTextureProperty" abstract="0" inherit="NiProperty" ver1="3.1" ver2="3.1">
+    <niobject name="NiTextureProperty" abstract="0" inherit="NiProperty" ver1="3.1" ver2="3.1">
         <add name="Flags" type="Flags">Property flags.</add>
         <add name="Image" type="Ref" template="NiImage">Link to the texture image.</add>
-	</niobject>
+    </niobject>
+
+    <niobject name="NiMultiTextureProperty" abstract="0" inherit="NiProperty" ver1="3.1" ver2="3.1">
+        (note: not quite complete yet... but already reads most of the DAoC ones)
+        <add name="Flags" type="Flags">Property flags.</add>
+        <add name="Unknown Int 1" type="uint" default="5">Unknown. Always 5?</add>
+        <add name="Unknown Int 2" type="uint">Looks like a memory address. Maybe a bool?</add>
+        <add name="Image" type="Ref" template="NiImage">Link to the texture image.</add>
+	<add name="Unknown Int 3" type="uint">Unknown. 3?</add>
+	<add name="Unknown Int 4" type="uint">Unknown. 2?</add>
+	<add name="Unknown Int 5" type="uint">Unknown. 1?</add>
+        <add name="Unknown Shorts" type="short" arr1="11">Unknown. (0,-75,0,0,...,0)?</add>
+	<add name="Unknown Extra Shorts" type="short" arr1="11" cond="Unknown Int 5 == 0">Unknown. (0,0,0,-75,0,...,0)?</add>
+    </niobject>
 
     <niobject name="NiTexturingProperty" abstract="0" inherit="NiProperty">
         Describes an object&#039;s textures.

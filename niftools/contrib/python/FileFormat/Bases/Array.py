@@ -101,6 +101,9 @@ class Array(object):
     def __str__(self):
         s = '%s instance at 0x%08X\n'%(self.__class__, id(self))
         for i, element in enumerate(self._elements):
+            if i > 16:
+                s += "etc...\n"
+                break
             s += "%i: %s\n"%(i, element)
         return s
 
