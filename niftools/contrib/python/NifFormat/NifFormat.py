@@ -174,10 +174,14 @@ class NifFormat(object):
     @classmethod
     def read(cls, version, user_version, f, verbose = 0):
         # read header
+        if verbose >= 1:
+            print "reading block at 0x%08X..."%f.tell()
         hdr = cls.Header()
         link_stack = [] # list of indices, as they are added to the stack
         hdr.read(version, user_version, f, link_stack, None)
         assert(link_stack == []) # there should not be any links in the header
+        if verbose >= 2:
+            print hdr
 
         # read the blocks
         block_dct = {} # maps block index to actual block
