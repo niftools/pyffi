@@ -137,17 +137,31 @@ class Array(_ListWrap):
         return s
 
     def updateSize(self):
-        if self._count2 != None:
-            raise NotImplementedError('updating size of double array not implemented yet')
         old_size = len(self)
         new_size = self._len1()
-        if new_size < old_size:
-            self.__delslice__(new_size, old_size)
+        if self._count2 == None:
+            if new_size < old_size:
+                self.__delslice__(new_size, old_size)
+            else:
+                for i in xrange(new_size-old_size):
+                    e = self._elementType(self._elementTypeTemplate, self._elementTypeArgument)
+                    self.append(e)
         else:
-            for i in xrange(new_size-old_size):
-                e = self._elementType(self._elementTypeTemplate, self._elementTypeArgument)
-                self.append(e)
-        
+            if new_size < old_size:
+                self.__delslice__(new_size, old_size)
+            else:
+                for i in xrange(new_size-old_size):
+                    self.append(_ListWrap(self._elementType))
+            for i, el in enumerate(self):
+                old_size_i = len(el)
+                new_size_i = self._len2(i)
+                if new_size_i < old_size_i:
+                    el.__delslice__(new_size_i, old_size_i)
+                else:
+                    for j in xrange(new_size_i-old_size_i):
+                        e = self._elementType(self._elementTypeTemplate, self._elementTypeArgument)
+                        el.append(e)
+
     def read(self, version, user_version, f, link_stack, argument):
         len1 = self._len1()
         if len1 > 1000000: raise ValueError('array too long')
