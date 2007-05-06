@@ -1036,10 +1036,10 @@ is simple, it only has three properties.
     <niobject name="NiDynamicEffect" abstract="1" inherit="NiAVObject">
         A dynamic effect such as a light or environment map.
         <add name="Switch State" type="bool" ver1="10.2.0.0">Turns effect on and off?  Switches list to list of unaffected nodes?</add>
-        <add name="Num Affected Nodes" type="uint">The number of affected nodes referenced.</add>
+        <add name="Num Affected Nodes" type="uint" ver2="4.0.0.2">The number of affected nodes referenced.</add>
+        <add name="Num Affected Nodes" type="uint" ver1="10.1.0.0">The number of affected nodes referenced.</add>
         <add name="Affected Node List Pointers" type="uint" arr1="Num Affected Nodes" ver2="4.0.0.2">This is probably the list of affected nodes. For some reason i do not know the max exporter seems to write pointers instead of links. But it doesn&#039;t matter because at least in version 4.0.0.2 the list is automagically updated by the engine during the load stage.</add>
         <add name="Affected Nodes" type="Ref" template="NiAVObject" arr1="Num Affected Nodes" ver1="10.1.0.0">The list of affected nodes?</add>
-        
     </niobject>
 
     <niobject name="NiLight" abstract="1" inherit="NiDynamicEffect">
@@ -2064,7 +2064,8 @@ a linked object group. This may be due to those objects often being bhkRigidBody
         <add name="Particle Extra" type="Ref" template="AParticleModifier">Link to some optional particle modifiers (NiGravity, NiParticleGrowFade, NiParticleBomb, ...)</add>
         <add name="Unknown Link 2" type="Ref" template="NiObject">Unknown int (=0xffffffff)</add>
         <add name="Trailer" type="byte" ver1="4.0.0.2">Trailing null byte</add>
-	<add name="Unkown Floats" type="float" arr1="3" ver2="3.1" />
+        <add name="Color Data" type="Ref" template="NiColorData" ver2="3.1" />
+        <add name="Unkown Floats" type="float" arr1="2" ver2="3.1" />
     </niobject>
 
     <niobject name="NiBSPArrayController" abstract="0" inherit="NiParticleSystemController">
@@ -2583,9 +2584,9 @@ a linked object group. This may be due to those objects often being bhkRigidBody
         <add name="Unknown Int 1" type="uint" default="5">Unknown. Always 5?</add>
         <add name="Unknown Int 2" type="uint">Looks like a memory address. Maybe a bool?</add>
         <add name="Image" type="Ref" template="NiImage">Link to the texture image.</add>
-	<add name="Unknown Int 3" type="uint">Unknown. 3?</add>
-	<add name="Unknown Int 4" type="uint">Unknown. 2?</add>
-	<add name="Unknown Int 5" type="uint">Unknown. 1?</add>
+        <add name="Unknown Int 3" type="uint">Unknown. 3?</add>
+        <add name="Unknown Int 4" type="uint">Unknown. 2?</add>
+        <add name="Unknown Int 5" type="uint">Unknown. 1?</add>
         <add name="Unknown Shorts" type="short" arr1="11">Unknown. (0,-75,0,0,...,0)?</add>
 	<add name="Unknown Extra Shorts" type="short" arr1="11" cond="Unknown Int 5 == 0">Unknown. (0,0,0,-75,0,...,0)?</add>
     </niobject>
