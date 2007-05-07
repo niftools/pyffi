@@ -79,6 +79,16 @@ class MetaXmlFileFormat(type):
         parser = xml.sax.make_parser()
         parser.setContentHandler(XmlHandler(cls, name, bases, dct))
 
+        # detect Blender data dir and add it to the path if found
+        try:
+            import Blender
+            if not dct.has_key('xmlFilePath'):
+                dct['xmlFilePath'] = []
+            for p in [Blender.Get('udatadir'), Blender.Get('datadir')]:
+                if p: dct['xmlFilePath'].append(p)
+        except ImportError:
+            pass
+
         # open XML file
         if not dct.has_key('xmlFilePath'):
             f = open(dct['xmlFileName'])
