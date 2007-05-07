@@ -151,7 +151,7 @@ class NifFormat(object):
             return -1, 0 # version not supported
         for ver_digit in ver_list:
             if (ver_digit | 0xff) > 0xff:
-                return -1 # version not supported
+                return -1, 0 # version not supported
         while len(ver_list) < 4: ver_list.append(0)
         ver = (ver_list[0] << 24) + (ver_list[1] << 16) + (ver_list[2] << 8) + ver_list[3]
         if not ver in cls.versions.values():
