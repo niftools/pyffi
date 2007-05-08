@@ -65,7 +65,7 @@ class Bool(BasicBase):
             value, = struct.unpack('<I', f.read(4))
         self._x = bool(value)
 
-    def write(self, version, user_version, f):
+    def write(self, version, user_version, f, block_index_dct, argument):
         if version > 0x04000002:
             f.write(struct.pack('<I', int(self._x)))
         else:
@@ -131,7 +131,7 @@ class Int(BasicBase):
     def read(self, version, user_version, f, link_stack, argument):
         self._x = f.read(self._size)
 
-    def write(self, version, user_version, f):
+    def write(self, version, user_version, f, block_index_dct, argument):
         f.write(self._x)
 
     def __str__(self):
@@ -167,7 +167,7 @@ class Char(BasicBase):
     def read(self, version, user_version, f, link_stack, argument):
         self._x = f.read(1)
 
-    def write(self, version, user_version, f):
+    def write(self, version, user_version, f, block_index_dct, argument):
         f.write(self._x)
 
     def __str__(self):
@@ -207,7 +207,7 @@ class Float(BasicBase):
     def read(self, version, user_version, f, link_stack, argument):
         self._x = f.read(4)
 
-    def write(self, version, user_version, f):
+    def write(self, version, user_version, f, block_index_dct, argument):
         f.write(self._x)
 
 class Ref(BasicBase):
@@ -232,9 +232,14 @@ class Ref(BasicBase):
         block_index, = struct.unpack('<i', f.read(4))
         link_stack.append(block_index)
 
-    def write(self, version, user_version, f):
-        # TODO implement
-        f.write(struct.pack('<i', -1))
+    def write(self, version, user_version, f, block_index_dct, argument):
+        if self._x == None: # link by block number
+            if version >= 0x0303000D:
+                f.write('\xff\xff\xff\xff') # link by number
+            else:
+                f.write('\x00\x00\x00\x00') # link by pointer
+        else:
+            f.write(struct.pack('<i', block_index_dct[self._x]))
 
     def fixLinks(self, version, user_version, block_dct, link_stack):
         block_index = link_stack.pop(0)
@@ -252,6 +257,12 @@ class Ref(BasicBase):
         if not isinstance(block, self._template):
             raise TypeError('expected an instance of %s but got instance of %s'%(self._template, block.__class__))
         self._x = block
+
+    def getLinks(self, version, user_version):
+        if self._x != None:
+            return [self._x]
+        else:
+            return []
 
 class Ptr(Ref):
     _isTemplate = True
@@ -298,7 +309,7 @@ class LineString(BasicBase):
     def read(self, version, user_version, f, link_stack, argument):
         self._x = f.readline().rstrip('\x0a')
 
-    def write(self, version, user_version, f):
+    def write(self, version, user_version, f, block_index_dct, argument):
         f.write("%s\x0a"%self._x)
 
 class HeaderString(BasicBase):
@@ -316,7 +327,7 @@ class HeaderString(BasicBase):
         if s != version_string + '\x0a':
             raise ValueError("invalid NIF header: expected '%s' but got '%s'"%(version_string, s[:-1]))
 
-    def write(self, version, user_version, f):
+    def write(self, version, user_version, f, block_index_dct, argument):
         f.write(self.versionString(version) + '\x0a')
 
     @staticmethod
@@ -360,7 +371,7 @@ class FileVersion(BasicBase):
         if ver != version:
             raise ValueError('invalid version number: expected 0x%08X but got 0x%08X'%(version, ver))
 
-    def write(self, version, user_version, f):
+    def write(self, version, user_version, f, block_index_dct, argument):
         f.write(struct.pack('<I', version))
 
 class String(BasicBase):
@@ -404,7 +415,7 @@ class String(BasicBase):
         if n > 10000: raise ValueError('string too long (0x%08X at 0x%08X)'%(n, f.tell()))
         self._x = f.read(n)
 
-    def write(self, version, user_version, f):
+    def write(self, version, user_version, f, block_index_dct, argument):
         f.write(struct.pack('<I', len(self._x)))
         f.write(self._x)
 
@@ -430,6 +441,6 @@ class ShortString(BasicBase):
         n, = struct.unpack('<B', f.read(1))
         self._x = f.read(n).rstrip('\x00')
 
-    def write(self, version, user_version, f):
+    def write(self, version, user_version, f, block_index_dct, argument):
         f.write(struct.pack('<B', len(self._x)+1))
         f.write(self._x + '\x00')

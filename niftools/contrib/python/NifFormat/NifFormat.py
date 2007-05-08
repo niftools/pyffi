@@ -267,17 +267,28 @@ class NifFormat(object):
         return roots
 
     @classmethod
-    def write(cls, version, user_version, f, roots):
-        # TODO set up link stack
-        #blk_num = {}
-        #blk_num[root] = 0
+    def write(cls, version, user_version, f, roots, verbose = 0):
+        # set up index and type dictionary
+        block_list = [] # list of all blocks to be written
+        block_index_dct = {} # maps block to block index
+        block_type_list = [] # list of all block type strings
+        block_type_dct = {} # maps block to block type string index
+        for root in roots:
+            cls.makeBlockList(version, user_version, root, block_list, block_index_dct, block_type_list, block_type_dct)
 
         # set up header
         hdr = cls.Header()
         hdr.userVersion = user_version # TODO dedicated type for userVersion similar to FileVersion
-        hdr.copyright[0] = 'this'
-        hdr.copyright[1] = 'is'
-        hdr.copyright[2] = 'a test'
+        hdr.numBlocks = len(block_list)
+        hdr.numBlockTypes = len(block_type_list)
+        hdr.blockTypes.updateSize()
+        for i, block_type in enumerate(block_type_list):
+            hdr.blockTypes[i] = block_type
+        hdr.blockTypeIndex.updateSize()
+        for i, block in enumerate(block_list):
+            hdr.blockTypeIndex[i] = block_type_dct[block]
+        if verbose >= 2:
+            print hdr
 
         # set up footer
         ftr = cls.Footer()
@@ -287,6 +298,59 @@ class NifFormat(object):
             ftr.roots[i] = root
 
         # write the file
-        hdr.write(version, user_version, f)
-        # TODO write the actual blocks
-        ftr.write(version, user_version, f)
+        hdr.write(version, user_version, f, block_index_dct, None)
+        if version < 0x0303000D:
+            s = cls.string()
+            s.setValue("Top Level Object")
+            s.write(version, user_version, f, block_index_dct, None)
+        for block in block_list:
+            if version >= 0x05000001:
+                if version <= 0x0A01006A:
+                    f.write('\x00\x00\x00\x00') # write zero dummy separator
+            else:
+                # write block type string
+                s = cls.string()
+                assert(block_type_list[block_type_dct[block]] == block.__class__.__name__) # debug
+                s.setValue(block.__class__.__name__)
+                s.write(version, user_version, f, block_index_dct, None)
+            # write block index
+            if verbose >= 1:
+                print "writing block %i..."%block_index_dct[block]
+            if version < 0x0303000D:
+                f.write(struct.pack('<i', block_index_dct[block])[0])
+            # write block
+            block.write(version, user_version, f, block_index_dct, None)
+        if version < 0x0303000D:
+            s = cls.string()
+            s.setValue("End Of File")
+            s.write(version, user_version, f, block_index_dct, None)
+        ftr.write(version, user_version, f, block_index_dct, None)
+
+    @classmethod
+    def makeBlockList(cls, version, user_version, root, block_list, block_index_dct, block_type_list, block_type_dct, reverse = False):
+        # block already listed? if so, return
+        if root in block_list: return
+        # add block type to block type dictionary
+        block_type = root.__class__.__name__
+        try:
+            block_type_dct[root] = block_type_list.index(block_type)
+        except ValueError:
+            block_type_dct[root] = len(block_type_list)
+            block_type_list.append(block_type)
+        # check if we need to add children first (required for oblivion)
+        if isinstance(root, cls.bhkRigidBody) or isinstance(root, cls.bhkCollisionObject):
+            reverse = True
+        # add block if not reverse
+        if not reverse:
+            if version >= 0x0303000D:
+                block_index_dct[root] = len(block_list)
+            else:
+                block_index_dct[root] = id(root)
+            block_list.append(root)
+        # add children
+        for child in root.getLinks(version, user_version):
+            cls.makeBlockList(version, user_version, child, block_list, block_index_dct, block_type_list, block_type_dct, reverse)
+        # add block if reverse
+        if reverse:
+            block_index_dct[root] = len(block_list)
+            block_list.append(root)

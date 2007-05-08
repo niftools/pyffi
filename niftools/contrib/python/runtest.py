@@ -1,5 +1,3 @@
-from __future__ import with_statement
-
 from NifFormat.NifFormat import NifFormat
 from FileFormat.HexDump import HexDump
 

@@ -98,6 +98,9 @@ class BasicBase(object):
     def fixLinks(self, version, user_version, block_dct, link_stack):
         pass
     
+    def getLinks(self, version, user_version):
+        return []
+    
     def getValue(self):
         raise NotImplementedError
 

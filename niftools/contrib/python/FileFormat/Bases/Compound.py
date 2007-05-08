@@ -48,11 +48,11 @@ try:
     from functools import partial
 except ImportError: # quick hack for python < 2.5
     class partial(object):
-        def __init__(self, fn, hash):
+        def __init__(self, fn, name):
             self.fn = fn
-            self.hash = hash
+            self.name = name
         def __call__(self, *args):
-            return self.fn(*args, **{ 'hash' : self.hash } )
+            return self.fn(*args, **{ 'name' : self.name } )
 
 # This metaclass checks for the presence of an _attrs, _isTemplate,
 # and _isAbstract attribute. For each attribute in _attrs, an
@@ -68,16 +68,16 @@ class _MetaCompoundBase(type):
             raise TypeError(str(cls) + ': missing _isTemplate attribute')
         if not dct.has_key('_isAbstract'):
             raise TypeError(str(cls) + ': missing _isAbstract attribute')
-        for attrname, hash, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in dct['_attrs']:
+        for attrname, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in dct['_attrs']:
             if issubclass(typ, BasicBase) and arr1 == None:
                 # get and set basic attributes
                 setattr(cls, attrname, property(
-                    partial(CompoundBase.getBasicAttribute, hash = hash),
-                    partial(CompoundBase.setBasicAttribute, hash = hash)))
+                    partial(CompoundBase.getBasicAttribute, name = attrname),
+                    partial(CompoundBase.setBasicAttribute, name = attrname)))
             else:
                 # other types of attributes: get only
                 setattr(cls, attrname, property(
-                    partial(CompoundBase.getAttribute, hash = hash)))
+                    partial(CompoundBase.getAttribute, name = attrname)))
         # precalculate the attribute list
         cls._attributeList = cls._getAttributeList()
 
@@ -156,10 +156,18 @@ class CompoundBase(object):
         or template type, is type(None) - which corresponds to
         TEMPLATE in the xml description - will be replaced by this
         type. The argument is what the ARG xml tags will be replaced with."""
+        # used to track names of attributes that have already been added
+        # is faster than self.__dict__.has_key(...)
+        names = []
         # initialize argument
         self.arg = argument
         # initialize attributes
-        for name, hash, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
+        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
+            # skip dupiclate names
+            # (for this to work properly, duplicate names must have the same
+            # typ, tmpl, arg, arr1, and arr2)
+            if name in names:
+                continue
             # handle template
             if typ == type(None):
                 #assert(template != type(None))
@@ -171,7 +179,7 @@ class CompoundBase(object):
                 tmpl = template
             # handle argument
             if arg != None:
-                if not isinstance(arg, int):
+                if not isinstance(arg, (int, long)):
                     arg = getattr(self, arg)
             # handle arrays
             if arr1 == None:
@@ -181,15 +189,16 @@ class CompoundBase(object):
             else:
                 attr_instance = Array(self, typ, tmpl, arg, arr1, arr2)
             # assign attribute value
-            setattr(self, "_" + hash + "_value_", attr_instance)
+            setattr(self, "_" + name + "_value_", attr_instance)
+            names.append(name)
 
     # string of all attributes
     def __str__(self):
         s = '%s instance at 0x%08X\n'%(self.__class__, id(self))
-        for name, hash, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
+        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
             if cond != None:
                 if not cond.eval(self): continue
-            attr_str_lines = str(getattr(self, "_" + hash + "_value_")).splitlines()
+            attr_str_lines = str(getattr(self, "_" + name + "_value_")).splitlines()
             if len(attr_str_lines) > 1:
                 s += '* ' + str(name) + ' :\n'
                 for attr_str in attr_str_lines:
@@ -200,7 +209,7 @@ class CompoundBase(object):
 
     def read(self, version, user_version, f, link_stack, argument):
         self.arg = argument
-        for name, hash, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
+        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
             if ver1:
                 if version < ver1: continue
             if ver2:
@@ -212,11 +221,11 @@ class CompoundBase(object):
             if arg != None:
                 if not isinstance(arg, int):
                     arg = getattr(self, arg)
-            getattr(self, "_" + hash + "_value_").read(version, user_version, f, link_stack, arg)
+            getattr(self, "_" + name + "_value_").read(version, user_version, f, link_stack, arg)
 
-    def write(self, version, user_version, f, argument):
+    def write(self, version, user_version, f, block_index_dct, argument):
         self.arg = argument
-        for name, hash, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
+        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
             if ver1:
                 if version < ver1: continue
             if ver2:
@@ -228,10 +237,10 @@ class CompoundBase(object):
             if arg != None:
                 if not isinstance(arg, int):
                     arg = getattr(self, arg)
-            getattr(self, "_" + hash + "_value_").write(version, user_version, f, arg)
+            getattr(self, "_" + name + "_value_").write(version, user_version, f, block_index_dct, arg)
 
     def fixLinks(self, version, user_version, block_dct, link_stack):
-        for name, hash, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
+        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
             if ver1:
                 if version < ver1: continue
             if ver2:
@@ -240,7 +249,21 @@ class CompoundBase(object):
                 if user_version != userver: continue
             if cond != None:
                 if not cond.eval(self): continue
-            getattr(self, "_" + hash + "_value_").fixLinks(version, user_version, block_dct, link_stack)
+            getattr(self, "_" + name + "_value_").fixLinks(version, user_version, block_dct, link_stack)
+
+    def getLinks(self, version, user_version):
+        links = []
+        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
+            if ver1:
+                if version < ver1: continue
+            if ver2:
+                if version > ver2: continue
+            if userver:
+                if user_version != userver: continue
+            if cond != None:
+                if not cond.eval(self): continue
+            links.extend(getattr(self, "_" + name + "_value_").getLinks(version, user_version))
+        return links
 
     @classmethod
     def _getAttributeList(cls):
@@ -254,16 +277,16 @@ class CompoundBase(object):
         attrs.extend(cls._attrs)
         return attrs
 
-    def getAttribute(self, hash):
+    def getAttribute(self, name):
         """Get a (non-basic) attribute."""
-        return getattr(self, "_" + hash + "_value_")
+        return getattr(self, "_" + name + "_value_")
 
-    def getBasicAttribute(self, hash):
+    def getBasicAttribute(self, name):
         """Get a basic attribute."""
-        return getattr(self, "_" + hash + "_value_").getValue()
+        return getattr(self, "_" + name + "_value_").getValue()
 
-    # important note: to apply partial(setAttribute, hash = 'xyz') the
-    # hash argument must be last
-    def setBasicAttribute(self, value, hash):
+    # important note: to apply partial(setAttribute, name = 'xyz') the
+    # name argument must be last
+    def setBasicAttribute(self, value, name):
         """Set the value of a basic attribute."""
-        getattr(self, "_" + hash + "_value_").setValue(value)
+        getattr(self, "_" + name + "_value_").setValue(value)

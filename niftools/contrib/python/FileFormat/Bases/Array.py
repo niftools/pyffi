@@ -51,9 +51,11 @@ class _ListWrap(list):
         if issubclass(element_type, BasicBase):
             self._getitem_hook = self.getBasicItem
             self._setitem_hook = self.setBasicItem
+            self._iteritem_hook = self.iterBasicItem
         else:
             self._getitem_hook = self.getItem
             self._setitem_hook = self._notimplemented_hook
+            self._iteritem_hook = self.iterItem
 
     def __getitem__(self, index):
         return self._getitem_hook(index)
@@ -61,8 +63,19 @@ class _ListWrap(list):
     def __setitem__(self, index, value):
         return self._setitem_hook(index, value)
 
+    def __iter__(self):
+        return self._iteritem_hook()
+
     def _notimplemented_hook(self, *args):
         raise NotImplementedError
+
+    def iterBasicItem(self):
+        for e in list.__iter__(self):
+            yield e.getValue()
+
+    def iterItem(self):
+        for e in list.__iter__(self):
+            yield e
 
     def getBasicItem(self, index):
         return list.__getitem__(self, index).getValue()
@@ -119,15 +132,15 @@ class Array(_ListWrap):
     def __str__(self):
         s = '%s instance at 0x%08X\n'%(self.__class__, id(self))
         if self._count2 == None:
-            for i, element in enumerate(self):
+            for i, element in enumerate(list.__iter__(self)):
                 if i > 16:
                     s += "etc...\n"
                     break
                 s += "%i: %s\n"%(i, element)
         else:
             k = 0
-            for i, el in enumerate(self):
-                for j, e in enumerate(el):
+            for i, el in enumerate(list.__iter__(self)):
+                for j, e in enumerate(list.__iter__(el)):
                     if k > 16:
                         s += "etc...\n"
                         break
@@ -152,7 +165,7 @@ class Array(_ListWrap):
             else:
                 for i in xrange(new_size-old_size):
                     self.append(_ListWrap(self._elementType))
-            for i, el in enumerate(self):
+            for i, el in enumerate(list.__iter__(self)):
                 old_size_i = len(el)
                 new_size_i = self._len2(i)
                 if new_size_i < old_size_i:
@@ -183,26 +196,43 @@ class Array(_ListWrap):
                     el.append(e)
                 self.append(el)
 
-    def write(self, version, user_version, f):
-        if not self._len1() == self.__len__():
+    def write(self, version, user_version, f, block_index_dct, arg):
+        len1 = self._len1()
+        if len1 != self.__len__():
             raise ValueError('array size different from to field describing number of elements')
-        for e in self:
-            e.write(version, user_version, f)
+        if len1 > 1000000: raise ValueError('array too long')
+        if self._count2 == None:
+            for e in list.__iter__(self):
+                e.write(version, user_version, f, block_index_dct, self._elementTypeArgument)
+        else:
+            for i, el in enumerate(list.__iter__(self)):
+                len2i = self._len2(i)
+                if len2i != el.__len__():
+                    raise ValueError('array size different from to field describing number of elements')
+                if len2i > 1000000: raise ValueError('array too long')
+                for e in list.__iter__(el):
+                    e.write(version, user_version, f, block_index_dct, self._elementTypeArgument)
 
     def fixLinks(self, version, user_version, block_dct, link_stack):
+        # TODO optimize; no need to call this on every element if type
+        # has no links
         if self._count2 == None:
-            for e in self:
+            for e in list.__iter__(self):
                 e.fixLinks(version, user_version, block_dct, link_stack)
         else:
-            for el in self:
-                for e in el:
+            for el in list.__iter__(self):
+                for e in list.__iter__(el):
                     e.fixLinks(version, user_version, block_dct, link_stack)
 
-#    def getBasicItem(self, index):
-#        return self._elements[index].getValue()
-
-#    def setBasicItem(self, index, value):
-#        return self._elements[index].setValue(value)
-
-#    def getItem(self, index):
-#        return self._elements[index]
+    def getLinks(self, version, user_version):
+        # TODO optimize; no need to call this on every element if type
+        # has no links
+        links = []
+        if self._count2 == None:
+            for e in list.__iter__(self):
+                links.extend(e.getLinks(version, user_version))
+        else:
+            for el in list.__iter__(self):
+                for e in list.__iter__(el):
+                    links.extend(e.getLinks(version, user_version))
+        return links
