@@ -1135,12 +1135,11 @@ is simple, it only has three properties.
         <add name="Unknown Short 1" type="ushort" ver1="10.1.0.0">Unknown.</add>
         <add name="Has Vertices" type="bool">Is the vertex array present? (Always non-zero.)</add>
         <add name="Vertices" type="Vector3" arr1="Num Vertices" cond="Has Vertices != 0">The mesh vertices.</add>
-        <add name="Num UV Sets 2" type="byte" ver1="10.0.1.0">The lower 6 (or less?) bits of this field represent the number of UV texture sets. The other bits are probably flag bits.</add>
-        <add name="Unknown Byte" type="byte" ver1="10.0.1.0">Unknown. If bit 4 is set then extra vectors are present after the normals.</add>
+        <add name="Num UV Sets" type="ushort" ver1="10.0.1.0">The lower 6 (or less?) bits of this field represent the number of UV texture sets. The other bits are probably flag bits. For versions 10.1.0.0 and up, if bit 12 is set then extra vectors are present after the normals.</add>
         <add name="Has Normals" type="bool">Do we have lighting normals? These are essential for proper lighting: if not present, the model will only be influenced by ambient light.</add>
         <add name="Normals" type="Vector3" arr1="Num Vertices" cond="Has Normals != 0">The lighting normals.</add>
-        <add name="Unknown Vectors 1" type="Vector3" arr1="Num Vertices" cond="(Has Normals != 0) &amp;&amp; (Unknown Byte &amp; 16)" ver1="10.1.0.0">Unknown. Binormal &amp; tangents? has_normals must be set as well for this field to be present.</add>
-        <add name="Unknown Vectors 2" type="Vector3" arr1="Num Vertices" cond="(Has Normals != 0) &amp;&amp; (Unknown Byte &amp; 16)" ver1="10.1.0.0">Unknown. Binormal &amp; tangents?</add>
+        <add name="Unknown Vectors 1" type="Vector3" arr1="Num Vertices" cond="(Has Normals != 0) &amp;&amp; (Num UV Sets &amp; 4096)" ver1="10.1.0.0">Unknown. Binormal &amp; tangents? has_normals must be set as well for this field to be present.</add>
+        <add name="Unknown Vectors 2" type="Vector3" arr1="Num Vertices" cond="(Has Normals != 0) &amp;&amp; (Num UV Sets &amp; 4096)" ver1="10.1.0.0">Unknown. Binormal &amp; tangents?</add>
         <add name="Center" type="Vector3">Center of the bounding box (smallest box that contains all vertices) of the mesh.</add>
         <add name="Radius" type="float">Radius of the mesh: maximal Euclidean distance between the center and all vertices.</add>
         <add name="Has Vertex Colors" type="bool">
@@ -1151,14 +1150,13 @@ is simple, it only has three properties.
             Note 2: set to either 0 or 0xFFFFFFFF for NifTexture compatibility.
         </add>
         <add name="Vertex Colors" type="Color4" arr1="Num Vertices" cond="Has Vertex Colors != 0">The vertex colors.</add>
-        <add name="Num UV Sets" type="ushort" ver2="4.2.2.0">Number of texture sets.</add>
+        <add name="Num UV Sets" type="ushort" ver2="4.2.2.0">The lower 6 (or less?) bits of this field represent the number of UV texture sets. The other bits are probably flag bits. For versions 10.1.0.0 and up, if bit 12 is set then extra vectors are present after the normals.</add>
         <add name="Has UV" type="bool" ver2="4.0.0.2">
             Do we have UV coordinates?
 
             Note: for compatibility with NifTexture, set this value to either 0x00000000 or 0xFFFFFFFF.
         </add>
-        <add name="UV Sets" type="TexCoord" arr1="Num UV Sets" arr2="Num Vertices" ver2="4.2.2.0">The UV texture coordinates. They follow the OpenGL standard: some programs may require you to flip the second coordinate.</add>
-        <add name="UV Sets" type="TexCoord" arr1="Num UV Sets 2 &amp; 63" arr2="Num Vertices" ver1="10.0.1.0">Same as above, but needs to be repeated due to &#039;UV Sets&#039; moving to a different position.</add>
+        <add name="UV Sets" type="TexCoord" arr1="Num UV Sets &amp; 63" arr2="Num Vertices">The UV texture coordinates. They follow the OpenGL standard: some programs may require you to flip the second coordinate.</add>
         <add name="Unknown Short 2" type="ushort" ver1="10.0.1.0">Unknown. Usually zero.</add>
         <add name="Unknown Link" type="Ref" template="NiObject" ver1="20.0.0.4">Unknown.</add>
     </niobject>
@@ -2585,17 +2583,18 @@ a linked object group. This may be due to those objects often being bhkRigidBody
         <add name="Image" type="Ref" template="NiImage">Link to the texture image.</add>
     </niobject>
 
+    <compound name="MultiTextureElement">
+        <add name="Has Image" type="bool">Looks like a memory address, so probably a bool.</add>
+        <add name="Image" type="Ref" template="NiImage" cond="Has Image">Link to the texture image.</add>
+        <add name="Unknown Ints 3" type="uint" arr1="3" cond="Has Image">Unkown. 3,2,1</add>
+        <add name="Unknown Shorts" type="short" arr1="3" cond="Has Image">Unknown. 0,-75,0</add>
+    </compound>
+
     <niobject name="NiMultiTextureProperty" abstract="0" inherit="NiProperty" ver1="3.1" ver2="3.1">
         (note: not quite complete yet... but already reads most of the DAoC ones)
         <add name="Flags" type="Flags">Property flags.</add>
-        <add name="Unknown Int 1" type="uint" default="5">Unknown. Always 5?</add>
-        <add name="Unknown Int 2" type="uint">Looks like a memory address. Maybe a bool?</add>
-        <add name="Image" type="Ref" template="NiImage">Link to the texture image.</add>
-        <add name="Unknown Int 3" type="uint">Unknown. 3?</add>
-        <add name="Unknown Int 4" type="uint">Unknown. 2?</add>
-        <add name="Unknown Int 5" type="uint">Unknown. 1?</add>
-        <add name="Unknown Shorts" type="short" arr1="11">Unknown. (0,-75,0,0,...,0)?</add>
-	<add name="Unknown Extra Shorts" type="short" arr1="11" cond="Unknown Int 5 == 0">Unknown. (0,0,0,-75,0,...,0)?</add>
+        <add name="Num Texture Elements" type="uint">Just a guess. Always 5 for DAoC files, and always 6 for Freedom Force files</add>
+        <add name="Texture Elements" type="MultiTextureElement" arr1="Num Texture Elements" />
     </niobject>
 
     <niobject name="NiTexturingProperty" abstract="0" inherit="NiProperty">

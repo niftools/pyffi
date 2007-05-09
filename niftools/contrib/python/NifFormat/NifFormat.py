@@ -41,6 +41,7 @@
 # --------------------------------------------------------------------------
 
 import struct
+import os.path
 from FileFormat.XmlFileFormat import MetaXmlFileFormat
 import BasicTypes
 
@@ -71,7 +72,7 @@ class NifFormat(object):
     """
     __metaclass__ = MetaXmlFileFormat
     xmlFileName = 'nif.xml'
-    xmlFilePath = [ '.', '../../docsys' ]
+    xmlFilePath = [ os.path.dirname(__file__) ] # gets the module directory
     
     # basic types
     int = BasicTypes.Int
