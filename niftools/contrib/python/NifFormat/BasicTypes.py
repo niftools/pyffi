@@ -67,9 +67,9 @@ class Bool(BasicBase):
 
     def write(self, version, user_version, f, block_index_dct, argument):
         if version > 0x04000002:
-            f.write(struct.pack('<I', int(self._x)))
-        else:
             f.write(struct.pack('<B', int(self._x)))
+        else:
+            f.write(struct.pack('<I', int(self._x)))
 
 class Int(BasicBase):
     """Basic implementation of a 32-bit signed integer type.

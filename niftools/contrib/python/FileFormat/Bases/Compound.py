@@ -166,8 +166,8 @@ class CompoundBase(object):
             # skip dupiclate names
             # (for this to work properly, duplicate names must have the same
             # typ, tmpl, arg, arr1, and arr2)
-            if name in names:
-                continue
+            if name in names: continue
+            names.append(name)
             # handle template
             if typ == type(None):
                 #assert(template != type(None))
@@ -190,12 +190,17 @@ class CompoundBase(object):
                 attr_instance = Array(self, typ, tmpl, arg, arr1, arr2)
             # assign attribute value
             setattr(self, "_" + name + "_value_", attr_instance)
-            names.append(name)
 
     # string of all attributes
     def __str__(self):
         s = '%s instance at 0x%08X\n'%(self.__class__, id(self))
+        # used to track names of attributes that have already been added
+        # is faster than self.__dict__.has_key(...)
+        names = []
         for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
+            # skip dupiclate names
+            if name in names: continue
+            names.append(name)
             if cond != None:
                 if not cond.eval(self): continue
             attr_str_lines = str(getattr(self, "_" + name + "_value_")).splitlines()
@@ -219,7 +224,7 @@ class CompoundBase(object):
             if cond != None:
                 if not cond.eval(self): continue
             if arg != None:
-                if not isinstance(arg, int):
+                if not isinstance(arg, (int, long)):
                     arg = getattr(self, arg)
             getattr(self, "_" + name + "_value_").read(version, user_version, f, link_stack, arg)
 
@@ -235,7 +240,7 @@ class CompoundBase(object):
             if cond != None:
                 if not cond.eval(self): continue
             if arg != None:
-                if not isinstance(arg, int):
+                if not isinstance(arg, (int, long)):
                     arg = getattr(self, arg)
             getattr(self, "_" + name + "_value_").write(version, user_version, f, block_index_dct, arg)
 

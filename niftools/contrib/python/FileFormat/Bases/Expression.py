@@ -85,7 +85,7 @@ class Expression(object):
         elif isinstance(self._left, basestring):
             left = getattr(data, self._left)
         else:
-            assert(isinstance(self._left, int)) # debug
+            assert(isinstance(self._left, (int, long))) # debug
             left = self._left
 
         if not self._op:
@@ -96,7 +96,7 @@ class Expression(object):
         elif isinstance(self._right, basestring):
             right = getattr(data, self._right)
         else:
-            assert(isinstance(self._right, int)) # debug
+            assert(isinstance(self._right, (int, long))) # debug
             right = self._right
 
         if self._op == '==':
