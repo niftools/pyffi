@@ -5,8 +5,8 @@
         The num argument is the numeric representation created by storing
         each part of the version in a byte.  For example, 4.0.0.2 is
         0x04000002 and 10.1.0.0 is 0x0A010000.-->
-
-    <version num="3.1">Star Trek: Bridge Commander</version>
+    <version num="3.0">Star Trek: Bridge Commander</version>
+    <version num="3.1">Dark Age of Camelot, Star Trek: Bridge Commander</version>
     <version num="3.3.0.13">Oblivion</version>
     <version num="4.0.0.0">Freedom Force</version>
     <version num="4.0.0.2">Morrowind, Freedom Force</version>
@@ -88,9 +88,9 @@
     </basic>
 
     <basic name="LineString" count="0" niflibtype="LineString" nifskopetype="linestring">
-		A variable length string that ends with a newline character (0x0A).
-	</basic>
-	
+        A variable length string that ends with a newline character (0x0A).
+    </basic>
+    
     <basic name="Ptr" count="0" niflibtype="*" nifskopetype="uplink" istemplate="1">
         A signed 32-bit integer, referring to a object before this one in the hierarchy.  Examples:  Bones, gravity objects.
     </basic>
@@ -319,40 +319,40 @@
         <option value="4" name="RIGID_FACE_CENTER">Rigid Face Center.</option>
     </enum>
 
-	<enum name="CompareMode" storage="uint">
-		This enum contains the options for doing z buffer or stecil buffer tests.
-		<option value="0" name="TEST_NEVER">Test will allways return false. Nothing is drawn at all.</option>
-		<option value="1" name="TEST_LESS">The test will only succeed if the pixel is nearer than the previous pixel.</option>
-		<option value="2" name="TEST_EQUAL">Test will only succeed if the z value of the pixel to be drawn is equal to the value of the previous drawn pixel.</option>
-		<option value="3" name="TEST_LESSEQUAL">Test will succeed if the z value of the pixel to be drawn is smaller than or equal to the value in the Z Buffer.</option>
-		<option value="4" name="TEST_GREATER">Opposite of TEST_LESS.</option>
-		<option value="5" name="TEST_GREATEREQUAL">Opposite of TEST_LESSEQUAL.</option>
-		<option value="6" name="TEST_ALWAYS">Test will allways succeed. The Z Buffer value is ignored.</option>
-	</enum>
-	
-	<enum name="StencilAction" storage="uint">
-		This enum defines the various actions used in conjunction with the stencil buffer.
-		For a detailed description of the individual options please refer to the OpenGL docs.
-		<option value="0" name="ACTION_KEEP" />
-		<option value="1" name="ACTION_ZERO" />
-		<option value="2" name="ACTION_REPLACE" />
-		<option value="3" name="ACTION_INCREMENT" />
-		<option value="4" name="ACTION_DECREMENT" />
-		<option value="5" name="ACTION_INVERT" />
-	</enum>
-	
-	<enum name="FaceDrawMode" storage="uint">
-		This enum lists the different face culling options.
-		<option value="0" name="DRAW_CCW_OR_BOTH">use application defaults?</option>
-		<option value="1" name="DRAW_CCW">Draw counter clock wise faces, cull clock wise faces. This is the default for most (all?) Nif Games so far.</option>
-		<option value="2" name="DRAW_CW">Draw clock wise faces, cull counter clock wise faces. This will flip all the faces.</option>
-		<option value="3" name="DRAW_BOTH">Draw double sided faces.</option>
-	</enum>
-	
-	<enum name="MotionSystem" storage="byte">
-		The motion system. 4 (Box) is used for everything movable. 7 (Keyframed) is used on statics and animated stuff.
-		
-		Oblivion's ssg commando reveals even more values:
+    <enum name="CompareMode" storage="uint">
+        This enum contains the options for doing z buffer or stecil buffer tests.
+        <option value="0" name="TEST_NEVER">Test will allways return false. Nothing is drawn at all.</option>
+        <option value="1" name="TEST_LESS">The test will only succeed if the pixel is nearer than the previous pixel.</option>
+        <option value="2" name="TEST_EQUAL">Test will only succeed if the z value of the pixel to be drawn is equal to the value of the previous drawn pixel.</option>
+        <option value="3" name="TEST_LESSEQUAL">Test will succeed if the z value of the pixel to be drawn is smaller than or equal to the value in the Z Buffer.</option>
+        <option value="4" name="TEST_GREATER">Opposite of TEST_LESS.</option>
+        <option value="5" name="TEST_GREATEREQUAL">Opposite of TEST_LESSEQUAL.</option>
+        <option value="6" name="TEST_ALWAYS">Test will allways succeed. The Z Buffer value is ignored.</option>
+    </enum>
+    
+    <enum name="StencilAction" storage="uint">
+        This enum defines the various actions used in conjunction with the stencil buffer.
+        For a detailed description of the individual options please refer to the OpenGL docs.
+        <option value="0" name="ACTION_KEEP" />
+        <option value="1" name="ACTION_ZERO" />
+        <option value="2" name="ACTION_REPLACE" />
+        <option value="3" name="ACTION_INCREMENT" />
+        <option value="4" name="ACTION_DECREMENT" />
+        <option value="5" name="ACTION_INVERT" />
+    </enum>
+    
+    <enum name="FaceDrawMode" storage="uint">
+        This enum lists the different face culling options.
+        <option value="0" name="DRAW_CCW_OR_BOTH">use application defaults?</option>
+        <option value="1" name="DRAW_CCW">Draw counter clock wise faces, cull clock wise faces. This is the default for most (all?) Nif Games so far.</option>
+        <option value="2" name="DRAW_CW">Draw clock wise faces, cull counter clock wise faces. This will flip all the faces.</option>
+        <option value="3" name="DRAW_BOTH">Draw double sided faces.</option>
+    </enum>
+    
+    <enum name="MotionSystem" storage="byte">
+        The motion system. 4 (Box) is used for everything movable. 7 (Keyframed) is used on statics and animated stuff.
+        
+        Oblivion's ssg commando reveals even more values:
         0: Keyframed
         1: Box
         2: Sphere
@@ -363,11 +363,11 @@
         7: Keyframed
         8: Box
         9+: Keyframed?
-		
-		<option value="4" name="MO_SYS_BOX">Box</option>
-		<option value="7" name="MO_SYS_KEYFRAMED">Keyframed</option>
-	</enum>
-	
+        
+        <option value="4" name="MO_SYS_BOX">Box</option>
+        <option value="7" name="MO_SYS_KEYFRAMED">Keyframed</option>
+    </enum>
+    
     <enum name="MotionQuality" storage="byte">
         The motion type. Determines quality of motion?
         <option value="0" name="MO_QUAL_MOVING">Moving</option>
@@ -417,6 +417,13 @@
         <add name="g" type="float">Green component.</add>
         <add name="b" type="float">Blue component.</add>
         <add name="a" type="float">Alpha.</add>
+    </compound>
+
+    <compound name="ByteColor4">
+        <add name="r" type="byte">Red color component.</add>
+        <add name="g" type="byte">Green color component.</add>
+        <add name="b" type="byte">Blue color component.</add>
+        <add name="a" type="byte">Alpha color component.</add>
     </compound>
 
     <compound name="FilePath" niflibtype="string" nifskopetype="filepath">
@@ -905,6 +912,24 @@
         <add name="Max Friction" type="float"></add>
     </compound>
 
+    <compound name="OldSkinData">
+        Used to store skin weights in NiTriShapeSkinController.
+        <add name="Vertex Weight" type="float">The amount that this bone affects the vertex.</add>
+        <add name="Vertex Index" type="ushort">The index of the vertex that this weight applies to.</add>
+        <add name="Unknown Vector" type="Vector3">Unknown.  Perhaps some sort of offset?</add>
+    </compound>
+
+    <compound name="MultiTextureElement">
+        <add name="Has Image" type="bool">Looks like a memory address, so probably a bool.</add>
+        <add name="Image" type="Ref" template="NiImage" cond="Has Image">Link to the texture image.</add>
+        <add name="Unknown Int 1" type="uint" cond="Has Image" default="3">Unkown.  Usually 3 but sometimes 0.</add>
+        <add name="Unknown Int 2" type="uint" cond="Has Image" default="2">Unkown. Usually 2.</add>
+        <add name="Unknown Int 3" type="uint" cond="Has Image" default="1">Unkown. Usually 1.</add>
+        <add name="Unknown Short 1" type="short" cond="Has Image" default="0">Unknown.  Usually 0.</add>
+        <add name="Unknown Short 2" type="short" cond="Has Image" default="-75">Unknown.  Usually -75.</add>
+        <add name="Unknown Short 3" type="short" cond="Has Image" default="0">Unknown.  Usually 0 but sometimes 257</add>
+    </compound>
+
     <!-- NIF Objects
          These are the main units of data that NIF files are arranged in.
          They are like C classes and can contain many pieces of data.
@@ -943,13 +968,13 @@
 
     <niobject name="AbhkRagdollConstraint" abstract="1" inherit="AbhkConstraint">
         Ragdoll constraint.
-		<add name="Ragdoll" type="RagdollDescriptor">Ragdoll constraint.</add>
+        <add name="Ragdoll" type="RagdollDescriptor">Ragdoll constraint.</add>
     </niobject>
 
     <niobject name="bhkShape" abstract="1" inherit="bhkSerializable">
         A Havok Shape?
     </niobject>
-	
+    
     <niobject name="AbhkShapeCollection" abstract="1" inherit="bhkShape">
         Havok data, not sure where to put in the hierarchy.
     </niobject>
@@ -979,7 +1004,7 @@
         This is the most common collision object found in NIF files. It acts as a real object that
 is visible and possibly (if the body allows for it) interactive. The node itself
 is simple, it only has three properties.
-		For this type of collision object, bhkRigidBody or bhkRigidBodyT is generally used.
+        For this type of collision object, bhkRigidBody or bhkRigidBodyT is generally used.
         <add name="Parent" type="Ptr" template="NiAVObject">Link to the node this collision object belongs to</add>
         <add name="Unknown Short" type="ushort" default="1"> Set to "1" for most objects.</add>
         <add name="Body" type="Ref" template="NiObject">Links to the collision object data</add>
@@ -1262,7 +1287,7 @@ is simple, it only has three properties.
         <add name="Damping" type="float" />
     </niobject>
 
-	<niobject name="bhkMoppBvTreeShape" abstract="0" inherit="bhkShape" ver1="20.0.0.5">
+    <niobject name="bhkMoppBvTreeShape" abstract="0" inherit="bhkShape" ver1="20.0.0.5">
         Memory optimized partial polytope bounding volume tree shape (not an entity).
         <add name="Shape" type="Ref" template="bhkShape">The shape.</add>
         <add name="Material" type="HavokMaterial">The shape's material.</add>
@@ -1297,14 +1322,14 @@ is simple, it only has three properties.
         <add name="Data Layers" type="OblivionColFilter" arr1="Num Data Layers">Havok Layers for each strip data.</add>
     </niobject>
 
-	<niobject name="bhkMeshShape" abstract="0" inherit="bhkSphereRepShape">
-		<add name="unknown" type="int" arr1="8" />
-		<add name="unknown count" type="int" />
-		<add name="unknown floats" type="float" arr1="unknown count" arr2="3" />
-		<add name="unknown" type="int" arr1="3" />
-		<add name="Num Strips Data" type="uint">The number of strips data objects referenced.</add>
-		<add name="Strips Data" type="Ref" template="NiTriStripsData" arr1="Num Strips Data">Refers to a bunch of NiTriStripsData objects that make up this shape.</add>
-	</niobject>
+    <niobject name="bhkMeshShape" abstract="0" inherit="bhkSphereRepShape">
+        <add name="unknown" type="int" arr1="8" />
+        <add name="unknown count" type="int" />
+        <add name="unknown floats" type="float" arr1="unknown count" arr2="3" />
+        <add name="unknown" type="int" arr1="3" />
+        <add name="Num Strips Data" type="uint">The number of strips data objects referenced.</add>
+        <add name="Strips Data" type="Ref" template="NiTriStripsData" arr1="Num Strips Data">Refers to a bunch of NiTriStripsData objects that make up this shape.</add>
+    </niobject>
 
     <niobject name="bhkPackedNiTriStripsShape" abstract="0" inherit="AbhkShapeCollection" ver1="20.0.0.5">
         A shape constructed from strips data.
@@ -1508,6 +1533,20 @@ a linked object group. This may be due to those objects often being bhkRigidBody
         <add name="Binary Data" type="ByteArray">The binary data.</add>
     </niobject>
 
+    <niobject name="NiBinaryVoxelExtraData" abstract="0" inherit="NiExtraData" ver1="3.1">
+        Voxel extra data object.
+        <add name="Unknown Int" type="uint" default="0">Unknown.  0?</add>
+        <add name="Data" type="Ref" template="NiBinaryVoxelData">Link to binary voxel data.</add>
+    </niobject>
+
+    <niobject name="NiBinaryVoxelData" abstract="0" inherit="NiObject" ver1="3.1">
+        Voxel extra data object.
+        <add name="Unknown Short 1" type="ushort">Unknown.</add>
+        <add name="Unknown Short 2" type="ushort">Unknown.</add>
+        <add name="Unknown Int" type="uint">Unknown.</add>
+        <!--Very incomplete.  3D image data probably follows.-->
+    </niobject>
+    
     <niobject name="NiBlendBoolInterpolator" abstract="0" inherit="NiBlendInterpolator" ver1="20.0.0.5">
         An interpolator for a bool.
         <add name="Bool Value" type="byte">The interpolated bool?</add>
@@ -1892,6 +1931,10 @@ a linked object group. This may be due to those objects often being bhkRigidBody
         <add name="Children" type="Ref" template="NiAVObject" arr1="Num Children">List of child node object indices.</add>
         <add name="Num Effects" type="uint">The number of references to effect objects that follow.</add>
         <add name="Effects" type="Ref" template="NiDynamicEffect" arr1="Num Effects">List of node effects. ADynamicEffect?</add>
+    </niobject>
+
+    <niobject name="NiBone" abstract="0" inherit="NiNode" ver2="3.0">
+        A NiNode used as a skeleton bone?
     </niobject>
 
     <niobject name="AvoidNode" abstract="0" inherit="NiNode">
@@ -2437,6 +2480,14 @@ a linked object group. This may be due to those objects often being bhkRigidBody
         <add name="Bones" type="Ptr" template="NiNode" arr1="Num Bones">List of all armature bones.</add>
     </niobject>
 
+    <niobject name="NiTriShapeSkinController" abstract="0" inherit="NiTimeController">
+        Old version of skinning instance.
+        <add name="Num Bones" type="uint">The number of node bones referenced as influences.</add>
+        <add name="Vertex Counts" type="uint" arr1="Num Bones">The number of vertex weights stored for each bone.</add>
+        <add name="Bones" type="Ptr" template="NiBone" arr1="Num Bones">List of all armature bones.</add>
+        <add name="Bone Data" type="OldSkinData" arr1="Num Bones" arr2="Vertex Counts">Contains skin weight data for each node that this skin is influenced by.</add>
+    </niobject>
+    
     <niobject name="NiClodSkinInstance" abstract="0" inherit="NiSkinInstance">
         A copy of NISkinInstance for use with NiClod meshes.
     </niobject>
@@ -2483,7 +2534,7 @@ a linked object group. This may be due to those objects often being bhkRigidBody
         <add name="Cutoff Angle" type="float">The opening angle of the spot.</add>
         <add name="Exponent" type="float">Describes the distribution of light. (see: glLight)</add>
     </niobject>
-	
+    
     <niobject name="NiStencilProperty" abstract="0" inherit="NiProperty" ver1="4.1.0.12">
         Allows control of stencil testing.
         <add name="Flags" type="Flags" ver2="10.0.1.2">Property flags.</add>
@@ -2566,35 +2617,33 @@ a linked object group. This may be due to those objects often being bhkRigidBody
         </add>
         <add name="Data" type="Ref" template="NiFloatData" ver2="10.1.0.0">Link to NiFloatData.</add>
     </niobject>
-	
-	<niobject name="NiTextureModeProperty" abstract="0" inherit="NiProperty" ver1="3.1" ver2="3.1">
-		Unknown
-        <add name="Unknown 3 Shorts" type="short" arr1="3">Unknown. Either (210,0,-75) or (194,0,-75)</add>
-	</niobject>
-	
-	<niobject name="NiImage" abstract="0" inherit="NiObject" ver1="3.1" ver2="3.1">
-		<add name="External ?" type="byte" />
-		<add name="File" type="FilePath">The filepath to the texture.</add>
-		<add name="Unknown 4 Shorts" type="short" arr1="4" />
-	</niobject>
-	
-    <niobject name="NiTextureProperty" abstract="0" inherit="NiProperty" ver1="3.1" ver2="3.1">
+    
+    <niobject name="NiTextureModeProperty" abstract="0" inherit="NiProperty" ver1="3.0" ver2="3.1">
+        Unknown
+        <add name="Unknown Short" type="short">Unknown. Either 210 or 194.</add>
+        <add name="Unknown 2 Shorts" type="short" arr1="2" ver1="3.1">Unknown. Either (0,-75) or (0,-75)</add>
+    </niobject>
+    
+    <niobject name="NiImage" abstract="0" inherit="NiObject" ver1="3.0" ver2="3.1">
+        <add name="External" type="byte">0 if the texture is internal to the NIF file.</add>
+        <add name="File" type="FilePath" cond="External != 0">The filepath to the texture.</add>
+        <add name="Image Data" type="Ref" template="NiRawImageData" cond="External == 0">Link to the internally stored image data.</add>
+        <add name="Unknown Int 1" type="uint" default="7">Unknown.  Often seems to be 7.</add>
+        <add name="Unknown Int 2" type="uint" ver1="3.1" default="0x43008000">Unknown.  Perhaps some flags?  Two shorts? Default seems to be 0x43008000</add>
+    </niobject>
+    
+    <niobject name="NiTextureProperty" abstract="0" inherit="NiProperty" ver1="3.0" ver2="3.1">
         <add name="Flags" type="Flags">Property flags.</add>
         <add name="Image" type="Ref" template="NiImage">Link to the texture image.</add>
+        <add name="Unknown Int 1" type ="uint" ver2="3.0">Unknown.  0?</add>
+        <add name="Unknown Int 2" type ="uint" ver2="3.0">Unknown.  0xFFFFFFFF?</add>
     </niobject>
-
-    <compound name="MultiTextureElement">
-        <add name="Has Image" type="bool">Looks like a memory address, so probably a bool.</add>
-        <add name="Image" type="Ref" template="NiImage" cond="Has Image">Link to the texture image.</add>
-        <add name="Unknown Ints 3" type="uint" arr1="3" cond="Has Image">Unkown. 3,2,1</add>
-        <add name="Unknown Shorts" type="short" arr1="3" cond="Has Image">Unknown. 0,-75,0</add>
-    </compound>
 
     <niobject name="NiMultiTextureProperty" abstract="0" inherit="NiProperty" ver1="3.1" ver2="3.1">
         (note: not quite complete yet... but already reads most of the DAoC ones)
         <add name="Flags" type="Flags">Property flags.</add>
-        <add name="Num Texture Elements" type="uint">Just a guess. Always 5 for DAoC files, and always 6 for Freedom Force files</add>
-        <add name="Texture Elements" type="MultiTextureElement" arr1="Num Texture Elements" />
+        <add name="Unknown Int" type="uint">Unknown. Always 5 for DAoC files, and always 6 for Bridge Commander.  Seems to have nothing to do with the number of Texture Element slots that follow.</add>
+        <add name="Texture Elements" type="MultiTextureElement" arr1="5">Describes the various textures used by this mutli-texture property.  Each slot probably has special meaning like thoes in NiTexturingProperty.</add>
     </niobject>
 
     <niobject name="NiTexturingProperty" abstract="0" inherit="NiProperty">
@@ -2656,8 +2705,8 @@ a linked object group. This may be due to those objects often being bhkRigidBody
         <add name="Has Triangles" type="bool" ver1="10.1.0.0">Do we have triangle data?</add>
         <add name="Triangles" type="Triangle" arr1="Num Triangles" ver2="10.0.1.2">Triangle data.</add>
         <add name="Triangles" type="Triangle" arr1="Num Triangles" cond="Has Triangles != 0" ver1="10.1.0.0">Triangle face data.</add>
-        <add name="Num Match Groups" type="ushort">Number of vertex matching groups.</add>
-        <add name="Match Groups" type="MatchGroup" arr1="Num Match Groups">The matching vertex groups.</add>
+        <add name="Num Match Groups" type="ushort" ver1="3.1">Number of vertex matching groups.</add>
+        <add name="Match Groups" type="MatchGroup" arr1="Num Match Groups" ver1="3.1">The matching vertex groups.</add>
     </niobject>
 
     <niobject name="NiTriStrips" abstract="0" inherit="NiTriBasedGeom">
@@ -2775,8 +2824,10 @@ a linked object group. This may be due to those objects often being bhkRigidBody
         Raw image data.
         <add name="Width" type="uint">Image width</add>
         <add name="Height" type="uint">Image height</add>
-        <add name="Unknown Int" type="uint">Unknown. Image type?</add>
-	<add name="Image Data" type="ByteColor3" arr1="Width" arr2="Height">Image pixel data.</add>
+        <add name="Image Type" type="uint">Type of image.  1 = RGB, 2 = RGBA</add>
+        <add name="RGB Image Data" type="ByteColor3" arr1="Width" arr2="Height" cond="Image Type == 1" >Image pixel data.</add>
+        <add name="RGBA Image Data" type="ByteColor4" arr1="Width" arr2="Height" cond="Image Type == 2" >Image pixel data.</add>
+
     </niobject>
 
 </niftoolsxml>
