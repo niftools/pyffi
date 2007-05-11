@@ -116,7 +116,7 @@ for top, names in walktree(start_dir):
                     raise
                 except:
                     HexDump(f, numLines = 32)
-                    #raise
+                    raise
             elif version == -1:
                 print 'nif version not supported'
             else:

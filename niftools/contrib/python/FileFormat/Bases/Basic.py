@@ -89,16 +89,16 @@ class BasicBase(object):
     def __str__(self):
         return str(self.getValue())
 
-    def read(self, version, user_version, f, link_stack, argument):
+    def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
         raise NotImplementedError
 
-    def write(self, version, user_version, f):
+    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
         raise NotImplementedError
 
-    def fixLinks(self, version, user_version, block_dct, link_stack):
+    def fixLinks(self, version = -1, user_version = 0, block_dct = {}, link_stack = []):
         pass
     
-    def getLinks(self, version, user_version):
+    def getLinks(self, version = -1, user_version = 0):
         return []
     
     def getValue(self):

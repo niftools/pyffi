@@ -322,6 +322,7 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                 if not issubclass(obj, CompoundBase): continue
             except:
                 continue
+            # forward declarations
             for a in obj._attrs:
                 templ = a[self.attrTemplate]
                 if isinstance(templ, basestring):
@@ -329,3 +330,11 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                         a[self.attrTemplate] = getattr(self.cls, templ)
                     else:
                         a[self.attrTemplate] = type(None)
+            try:
+                # TODO find better solution to import the custom object module
+                mod = __import__(self.cls.__name__ + '.' + obj.__name__, globals(),  locals(), [])
+            except ImportError:
+                continue
+            mod = getattr(mod, obj.__name__)
+            for x in filter(lambda x: x[0] != "_", mod.__dict__.keys()):
+                setattr(obj, x, mod.__dict__[x])

@@ -83,14 +83,7 @@ class MetaXmlFileFormat(type):
         if not dct.has_key('xmlFilePath'):
             f = open(dct['xmlFileName'])
         else:
-            for p in dct['xmlFilePath']:
-                try:
-                    f = open(os.path.join(p, dct['xmlFileName']))
-                except IOError:
-                    continue
-                break
-            else:
-                raise IOError("'%s' not found in any of the directories %s"%(dct['xmlFileName'], dct['xmlFilePath']))
+            f = open(os.path.join(dct['xmlFilePath'], dct['xmlFileName']))
 
         # parse the XML file: control is now passed on to XmlHandler
         # which takes care of the class creation

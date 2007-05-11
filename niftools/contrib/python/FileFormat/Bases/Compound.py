@@ -114,14 +114,14 @@ class CompoundBase(object):
     ...     _isTemplate = False
     ...     _isAbstract = True
     ...     _attrs = [
-    ...         ('a', 'a', UInt, None, None, None, None, None, None, None, None, None),
-    ...         ('b', 'b', UInt, None, None, None, None, None, None, None, None, None)]
+    ...         ('a', UInt, None, None, None, None, None, None, None, None, None),
+    ...         ('b', UInt, None, None, None, None, None, None, None, None, None)]
     >>> class Y(X):
     ...     _isTemplate = False
     ...     _isAbstract = True
     ...     _attrs = [
-    ...         ('c', 'c', UInt, None, None, None, None, None, None, None, None, None),
-    ...         ('d', 'd', X, None, None, None, None, None, Expression('c == 3'), None, None, None)]
+    ...         ('c', UInt, None, None, None, None, None, None, None, None, None),
+    ...         ('d', X, None, None, None, None, None, Expression('c == 3'), None, None, None)]
     >>> y = Y()
     >>> y.a = 1
     >>> y.b = 2
@@ -212,7 +212,7 @@ class CompoundBase(object):
                 s += '* ' + str(name) + ' : ' + attr_str_lines[0] + '\n'
         return s
 
-    def read(self, version, user_version, f, link_stack, argument):
+    def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
         self.arg = argument
         for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
             if ver1:
@@ -228,7 +228,7 @@ class CompoundBase(object):
                     arg = getattr(self, arg)
             getattr(self, "_" + name + "_value_").read(version, user_version, f, link_stack, arg)
 
-    def write(self, version, user_version, f, block_index_dct, argument):
+    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
         self.arg = argument
         for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
             if ver1:

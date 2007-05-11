@@ -47,8 +47,9 @@ data.points[1][1] = 2
 data.points[1][2] = 3
 data.points[1][3] = 4
 
-
 print blk
+
+print data.getTriangles()
 
 #print "Writing nif file"
 #

@@ -58,14 +58,14 @@ class Bool(BasicBase):
         else:
             self._x = False
 
-    def read(self, version, user_version, f, link_stack, argument):
+    def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
         if version > 0x04000002:
             value, = struct.unpack('<B', f.read(1))
         else:
             value, = struct.unpack('<I', f.read(4))
         self._x = bool(value)
 
-    def write(self, version, user_version, f, block_index_dct, argument):
+    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
         if version > 0x04000002:
             f.write(struct.pack('<B', int(self._x)))
         else:
@@ -75,16 +75,16 @@ class Int(BasicBase):
     """Basic implementation of a 32-bit signed integer type.
 
     >>> from tempfile import TemporaryFile
-    >>> f = TemporaryFile()
+    >>> tmp = TemporaryFile()
     >>> i = Int()
     >>> i.setValue(-1)
     >>> i.getValue()
     -1
     >>> i.setValue(0x11223344)
-    >>> i.write(0, 0, f)
+    >>> i.write(f = tmp)
     >>> j = Int()
-    >>> f.seek(0)
-    >>> j.read(0, 0, f, [], None)
+    >>> tmp.seek(0)
+    >>> j.read(f = tmp)
     >>> hex(j.getValue())
     '0x11223344'
     >>> i.setValue(0x10000000000L) # doctest: +ELLIPSIS
@@ -95,10 +95,10 @@ class Int(BasicBase):
     Traceback (most recent call last):
         ...
     ValueError: cannot convert value 'hello world' to integer
-    >>> f.seek(0)
-    >>> f.write('\x11\x22\x33\x44')
-    >>> f.seek(0)
-    >>> i.read(0, 0, f, [], None)
+    >>> tmp.seek(0)
+    >>> tmp.write('\x11\x22\x33\x44')
+    >>> tmp.seek(0)
+    >>> i.read(f = tmp)
     >>> hex(i.getValue())
     '0x44332211'
     """
@@ -128,10 +128,11 @@ class Int(BasicBase):
             raise ValueError('value out of range (%i)'%self.getValue())
         self._x = struct.pack('<' + self._struct, x)
 
-    def read(self, version, user_version, f, link_stack, argument):
+    def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
+        # file must be an instance of the type
         self._x = f.read(self._size)
 
-    def write(self, version, user_version, f, block_index_dct, argument):
+    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
         f.write(self._x)
 
     def __str__(self):
@@ -164,10 +165,10 @@ class Char(BasicBase):
         assert(len(value) == 1)
         self._x = value
 
-    def read(self, version, user_version, f, link_stack, argument):
+    def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
         self._x = f.read(1)
 
-    def write(self, version, user_version, f, block_index_dct, argument):
+    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
         f.write(self._x)
 
     def __str__(self):
@@ -204,10 +205,10 @@ class Float(BasicBase):
     def setValue(self, value):
         self._x = struct.pack('<f', value)
 
-    def read(self, version, user_version, f, link_stack, argument):
+    def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
         self._x = f.read(4)
 
-    def write(self, version, user_version, f, block_index_dct, argument):
+    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
         f.write(self._x)
 
 class Ref(BasicBase):
@@ -227,12 +228,12 @@ class Ref(BasicBase):
                 raise TypeError('expected an instance of %s but got instance of %s'%(self._template, value.__class__))
             self._x = value
 
-    def read(self, version, user_version, f, link_stack, argument):
+    def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
         self._x = None # fixLinks will set this field
         block_index, = struct.unpack('<i', f.read(4))
         link_stack.append(block_index)
 
-    def write(self, version, user_version, f, block_index_dct, argument):
+    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
         if self._x == None: # link by block number
             if version >= 0x0303000D:
                 f.write('\xff\xff\xff\xff') # link by number
@@ -279,15 +280,15 @@ class LineString(BasicBase):
     >>> l = LineString()
     >>> f.write('abcdefg\\x0a')
     >>> f.seek(0)
-    >>> l.read(0, 0, f, [], None)
+    >>> l.read(f = f)
     >>> str(l)
     'abcdefg'
     >>> f.seek(0)
     >>> l.setValue('Hi There')
-    >>> l.write(0, 0, f)
+    >>> l.write(f = f)
     >>> f.seek(0)
     >>> m = LineString()
-    >>> m.read(0, 0, f, [], None)
+    >>> m.read(f = f)
     >>> str(m)
     'Hi There'
     """
@@ -306,10 +307,10 @@ class LineString(BasicBase):
         if not s: return '<EMPTY STRING>'
         return s
 
-    def read(self, version, user_version, f, link_stack, argument):
+    def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
         self._x = f.readline().rstrip('\x0a')
 
-    def write(self, version, user_version, f, block_index_dct, argument):
+    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
         f.write("%s\x0a"%self._x)
 
 class HeaderString(BasicBase):
@@ -321,13 +322,13 @@ class HeaderString(BasicBase):
     def __str__(self):
         return 'NetImmerse/Gamebryo File Format, Version x.x.x.x'
 
-    def read(self, version, user_version, f, link_stack, argument):
+    def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
         version_string = self.versionString(version)
         s = f.read(len(version_string) + 1)
         if s != version_string + '\x0a':
             raise ValueError("invalid NIF header: expected '%s' but got '%s'"%(version_string, s[:-1]))
 
-    def write(self, version, user_version, f, block_index_dct, argument):
+    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
         f.write(self.versionString(version) + '\x0a')
 
     @staticmethod
@@ -366,12 +367,12 @@ class FileVersion(BasicBase):
     def __str__(self):
         return 'x.x.x.x'
 
-    def read(self, version, user_version, f, link_stack, argument):
+    def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
         ver, = struct.unpack('<I', f.read(4))
         if ver != version:
             raise ValueError('invalid version number: expected 0x%08X but got 0x%08X'%(version, ver))
 
-    def write(self, version, user_version, f, block_index_dct, argument):
+    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
         f.write(struct.pack('<I', version))
 
 class String(BasicBase):
@@ -382,15 +383,15 @@ class String(BasicBase):
     >>> s = String()
     >>> f.write('\\x07\\x00\\x00\\x00abcdefg')
     >>> f.seek(0)
-    >>> s.read(0, 0, f, [], None)
+    >>> s.read(f = f)
     >>> str(s)
     'abcdefg'
     >>> f.seek(0)
     >>> s.setValue('Hi There')
-    >>> s.write(0, 0, f)
+    >>> s.write(f = f)
     >>> f.seek(0)
     >>> m = String()
-    >>> m.read(0, 0, f, [], None)
+    >>> m.read(f = f)
     >>> str(m)
     'Hi There'
     """
@@ -410,12 +411,12 @@ class String(BasicBase):
         if not s: return '<EMPTY STRING>'
         return s
 
-    def read(self, version, user_version, f, link_stack, argument):
+    def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
         n, = struct.unpack('<I', f.read(4))
         if n > 10000: raise ValueError('string too long (0x%08X at 0x%08X)'%(n, f.tell()))
         self._x = f.read(n)
 
-    def write(self, version, user_version, f, block_index_dct, argument):
+    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
         f.write(struct.pack('<I', len(self._x)))
         f.write(self._x)
 
@@ -437,10 +438,10 @@ class ShortString(BasicBase):
         if not s: return '<EMPTY STRING>'
         return s
 
-    def read(self, version, user_version, f, link_stack, argument):
+    def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
         n, = struct.unpack('<B', f.read(1))
         self._x = f.read(n).rstrip('\x00')
 
-    def write(self, version, user_version, f, block_index_dct, argument):
+    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
         f.write(struct.pack('<B', len(self._x)+1))
         f.write(self._x + '\x00')

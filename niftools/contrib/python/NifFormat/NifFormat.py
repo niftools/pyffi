@@ -52,6 +52,7 @@ class NifFormat(object):
     """Stores all information about the nif file format.
     
     >>> for vnum in sorted(NifFormat.versions.values()): print '0x%08X'%vnum
+    0x03000000
     0x03010000
     0x0303000D
     0x04000000
@@ -72,7 +73,8 @@ class NifFormat(object):
     """
     __metaclass__ = MetaXmlFileFormat
     xmlFileName = 'nif.xml'
-    xmlFilePath = [ os.path.dirname(__file__) ] # gets the module directory
+    xmlFilePath = os.path.dirname(__file__) # path of nif.xml
+    clsFilePath = os.path.dirname(__file__) # path of class customizers
     
     # basic types
     int = BasicTypes.Int
@@ -189,6 +191,14 @@ class NifFormat(object):
         block_list = [] # records all blocks as read from the nif file in the proper order
         block_num = 0 # the current block numner
 
+        if version < 0x0303000D:
+            # skip 'Top Level Object' block type
+            top_level_str = cls.string()
+            top_level_str.read(version, user_version, f, link_stack, None)
+            top_level_str = str(top_level_str)
+            if not top_level_str == "Top Level Object":
+                raise NifError("expected 'Top Level Object' but got '%s' instead"%top_level_str)
+
         while True:
             # get block name
             if version >= 0x05000001:
@@ -207,11 +217,9 @@ class NifFormat(object):
                 block_index = block_num
             else:
                 # earlier versions
-                # skip 'Top Level Object' block type
-                if block_type == "Top Level Object": continue
                 # the number of blocks is not in the header
                 # and a special block type string marks the end of the file
-                elif block_type == "End Of File": break
+                if block_type == "End Of File": break
                 # read the block index, which is probably the memory
                 # location of the object when it was written to
                 # memory
@@ -243,8 +251,8 @@ class NifFormat(object):
             elif verbose >= 1:
                 print block.__class__
             # check if we are done
+            block_num += 1
             if version >= 0x0303000D:
-                block_num += 1
                 if block_num >= hdr.numBlocks: break
 
         # read footer
@@ -263,8 +271,12 @@ class NifFormat(object):
             raise NifError('not all links have been popped from the stack (bug?)')
         # return root objects
         roots = []
-        for root in ftr.roots:
-            roots.append(root)
+        if version >= 0x0303000D:
+            for root in ftr.roots:
+                roots.append(root)
+        else:
+            if block_num > 0:
+                roots.append(block_list[0])
         return roots
 
     @classmethod
