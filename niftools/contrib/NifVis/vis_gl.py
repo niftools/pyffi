@@ -12,6 +12,10 @@ Height = 480
 
 Radius = 1
 
+xRot = 0
+yRot = 0
+zRot = 0
+
 
 
 def Initialize( radius ):
@@ -19,10 +23,12 @@ def Initialize( radius ):
     
     Radius = radius
     
+    Width = vis_cfg._WINDOW_WIDTH
     Height = min( vis_cfg._WINDOW_WIDTH, vis_cfg._WINDOW_HEIGHT )
     
-    Aspect = vis_cfg._WINDOW_WIDTH / Height
+    Aspect = 1.0 * Width / Height
     
+    print "OpenGL Setup: Radius %d, Resolution %dx%d, Aspect %.2f" % ( Radius, Width, Height, Aspect )
     
 
 def InitFrame():
@@ -58,23 +64,63 @@ def InitFrame():
     glMatrixMode( GL_MODELVIEW )
     glLoadIdentity()
 
-    # View transformation
+    # View translation
     glTranslatef( 0, 0, -Radius * 4 )
     
-    
-    
-def Lighting():
+    # Set up light always from front
     glPushMatrix()
     glLoadIdentity()
     
     glLightfv( GL_LIGHT0,GL_POSITION,[ 0, 0, 0, 1 ] )
     
     glPopMatrix()
+    
+    # View rotation
+    glRotatef( xRot, 1, 0, 0 )
+    glRotatef( yRot, 0, 1, 0 )
+    glRotatef( zRot, 0, 0, 1 )
+    
+    glRotatef( -90, 1, 0, 0 )
+    glRotatef( -90, 0, 0, 1 )
 
 
 
 def FinalizeFrame():
     pygame.display.flip()
+
+
+
+def RotateViewBy( xAngle, yAngle, zAngle ):
+    global xRot, yRot, zRot
+    
+    xRot += xAngle
+    yRot += yAngle
+    zRot += zAngle
+    
+    NormalizeAngle( xAngle )
+    NormalizeAngle( yAngle )
+    NormalizeAngle( zAngle )
+
+
+
+def RotateView( xAngle, yAngle, zAngle ):
+    global xRot, yRot, zRot
+    
+    xRot = xAngle
+    yRot = yAngle
+    zRot = zAngle
+    
+    NormalizeAngle( xAngle )
+    NormalizeAngle( yAngle )
+    NormalizeAngle( zAngle )
+
+
+
+def NormalizeAngle( angle ):
+    while angle < 0:
+        angle += 360
+    while angle >= 360:
+        angle -= 360
 
 
 

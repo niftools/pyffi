@@ -66,8 +66,6 @@ vis_run.Initialize()
 while vis_run.IsRunning: 
     vis_gl.InitFrame()
     
-    vis_gl.Lighting()
-    
     vis_gl.DrawAxes()
     
     for b in DrawBlocks:

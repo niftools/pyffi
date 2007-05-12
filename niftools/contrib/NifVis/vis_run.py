@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import *
 
 import vis_cfg
+import vis_gl
 
 
 
@@ -14,10 +15,17 @@ def EventHandler():
     
     events = pygame.event.get()
     for event in events: 
-        if event.type == QUIT: 
+        if event.type == QUIT:
             IsRunning = False
-        else: 
-            print event 
+        
+        elif event.type == MOUSEBUTTONDOWN:
+            if event.button == 2:
+                vis_gl.RotateView( 0, 0, 0 )
+        
+        elif event.type == MOUSEMOTION:
+            if event.buttons[0]:
+                vis_gl.RotateViewBy( event.rel[1], event.rel[0], 0 )
+        
 
 
 
