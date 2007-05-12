@@ -16,6 +16,7 @@ for f in os.listdir( lizerPath ):
     module_name, ext = os.path.splitext( f )
     if module_name.startswith( '__' ): continue
     if ext == '.py':
-        print 'Imported Lizer: %s' % ( module_name )
         module = __import__( module_name )
         Registry[module_name] = module
+
+print "Imported %d Lizers." % len( Registry )

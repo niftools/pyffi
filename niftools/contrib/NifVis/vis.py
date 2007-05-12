@@ -15,6 +15,10 @@ sys.path.append( os.path.abspath( 'pymodules' ) )
 
 
 
+if not os.path.exists('nif.xml'):
+    print 'Please copy the nif.xml to use into the NifVis folder.'
+    sys.exit( 1 )
+
 import vis_nif
 
 vis_nif.LoadNif( FileName )

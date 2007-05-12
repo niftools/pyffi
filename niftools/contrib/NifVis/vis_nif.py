@@ -1,5 +1,7 @@
 from NifFormat.NifFormat import NifFormat
 
+import inspect
+
 TypeRegistry = {}
 BlockRegistry = []
 
@@ -11,7 +13,6 @@ class NIFImportError(Exception):
         self.value = value
     def __str__(self):
         return repr(self.value)
-
 
 
 def LoadNif( filename ):
@@ -45,7 +46,37 @@ def AddBlock( block ):
     TypeRegistry[type( block ).__name__].append( block )
     BlockRegistry.append( block )
     
-    if isinstance( block, NifFormat.NiNode ):
-        for child in block.children:
-            if not child: continue
-            AddBlock( child )
+    Refs = GetRefs( block )
+    
+    for child in Refs:
+        if not child in BlockRegistry: AddBlock( child )
+
+
+def GetRefs( cls, ParentRefs = None ):
+    if ParentRefs:
+        Refs = ParentRefs
+    else:
+        Refs = []
+    
+    CheckList = []
+    
+    if isinstance( cls, list ):
+        CheckList = cls
+    elif isinstance( cls, NifFormat.NiObject ):
+        for i in inspect.getmembers( cls ):
+            if i[0].startswith( '_' ): continue
+            CheckList.append( i[1] )
+    else:
+        return Refs
+    
+    for c in CheckList:
+        if isinstance( c, NifFormat.NiObject ):
+            if not c in Refs: Refs.append( c )
+        
+        elif isinstance( c, NifFormat.Ref ):
+            if not c in Refs: Refs.append( c )
+        
+        elif isinstance( c, list ):
+            Refs = GetRefs( c, Refs )
+    
+    return Refs
