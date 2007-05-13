@@ -21,7 +21,7 @@ def Draw( block ):
     norms = mesh.normals
     tris = mesh.triangles
         
-    glColor3f( 0, 0, 0 )
+    glColor3f( 1, 1, 1 )
     
     glBegin( GL_TRIANGLES )
     for t in tris:

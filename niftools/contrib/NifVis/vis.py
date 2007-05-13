@@ -3,7 +3,16 @@ import sys, os.path
 Args = sys.argv
 
 if len( Args ) < 3:
-    print "Syntax: vis.py <file_name> <block_name> "
+    print """
+    NifVis: Visualizes arbitrary block types by scriptable visualizers.
+    ---
+    Syntax: vis.py <file_name> <block_name> [alt]
+    ---
+    Usage:  Specify the Nif file with the <file_name> argument.
+            NifVis will look for a file called "<block_name>.py" in the
+            "lizers" folder. If [alt] was specified, the visualizer
+            "<block_name>_[alt].py" will be used.
+    """
     sys.exit( 1 )
 
 FileName = Args[1]
@@ -59,6 +68,11 @@ for b in DrawBlocks:
 
 vis_gl.Initialize( Radius )
 
+#try:
+#    glBindTexture( Lizer.Texture() )
+#except:
+#    pass
+
 
 
 import vis_run
@@ -73,7 +87,9 @@ while vis_run.IsRunning:
     vis_gl.DrawAxes()
     
     for b in DrawBlocks:
+        vis_gl.InitDraw()
         Lizer.Draw( b )
+        vis_gl.FinalizeDraw()
     
     vis_run.EventHandler()
     

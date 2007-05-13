@@ -28,7 +28,7 @@ def Initialize( radius ):
     
     Aspect = 1.0 * Width / Height
     
-    print "OpenGL Setup: Radius %d, Resolution %dx%d, Aspect %.2f" % ( Radius, Width, Height, Aspect )
+    print "OpenGL Setup: Radius %.2f, Resolution %dx%d, Aspect %.2f" % ( Radius, Width, Height, Aspect )
     
 
 def InitFrame():
@@ -41,12 +41,17 @@ def InitFrame():
     glClearColor( 0.8, 0.8, 0.9, 0 )
     
     glShadeModel( GL_SMOOTH )
+    glEnable( GL_MULTISAMPLE_ARB )
     
     glClearDepth( 1 )
     glEnable( GL_DEPTH_TEST )
     glDepthFunc( GL_LEQUAL )
     
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    
+    glEnable( GL_ALPHA_TEST )
+    glEnable( GL_BLEND )
+    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA )
     
     # Light source
     glLightfv( GL_LIGHT0,GL_AMBIENT,[ .5, .5, .5, 1. ] )
@@ -88,6 +93,15 @@ def InitFrame():
 def FinalizeFrame():
     pygame.display.flip()
 
+
+def InitDraw():
+    glPushAttrib( GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT | GL_POINT_BIT | GL_LINE_BIT )
+    glPushMatrix()
+
+
+def FinalizeDraw():
+    glPopMatrix()
+    glPopAttrib()
 
 
 def RotateViewBy( xAngle, yAngle, zAngle ):
