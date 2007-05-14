@@ -4,6 +4,8 @@ import inspect
 
 TypeRegistry = {}
 BlockRegistry = []
+Version = 0
+UserVersion = 0
 
 #
 # A simple custom exception class.
@@ -16,17 +18,17 @@ class NIFImportError(Exception):
 
 
 def LoadNif( filename ):
-    try: # catch NIFImportErrors
-        # read the NIF file
+    global Version, UserVersion
+    try:
         print "Reading Nif: %s" % filename
         f = open( filename, "rb" )
-        version, user_version = NifFormat.getVersion( f )
-        if version >= 0:
-                print "( version 0x%08X )" % version
-                root_blocks = NifFormat.read( version, user_version, f, verbose = 0 )
+        Version, UserVersion = NifFormat.getVersion( f )
+        if Version >= 0:
+                print "( Version 0x%08X )" % Version
+                root_blocks = NifFormat.read( Version, UserVersion, f, verbose = 0 )
                 for block in root_blocks:
                     AddBlock( block )
-        elif version == -1:
+        elif Version == -1:
             raise NIFImportError( "Unsupported NIF version." )
         else:
             raise NIFImportError( "Not a NIF file." )
@@ -38,6 +40,8 @@ def LoadNif( filename ):
 
 
 def AddBlock( block ):
+    global Version, UserVersion
+    
     if not block: return
     
     if not TypeRegistry.has_key( type( block ).__name__ ):
@@ -46,37 +50,5 @@ def AddBlock( block ):
     TypeRegistry[type( block ).__name__].append( block )
     BlockRegistry.append( block )
     
-    Refs = GetRefs( block )
-    
-    for child in Refs:
+    for child in block.getLinks( Version, UserVersion ):
         if not child in BlockRegistry: AddBlock( child )
-
-
-def GetRefs( cls, ParentRefs = None ):
-    if ParentRefs:
-        Refs = ParentRefs
-    else:
-        Refs = []
-    
-    CheckList = []
-    
-    if isinstance( cls, list ):
-        CheckList = cls
-    elif isinstance( cls, NifFormat.NiObject ):
-        for i in inspect.getmembers( cls ):
-            if i[0].startswith( '_' ): continue
-            CheckList.append( i[1] )
-    else:
-        return Refs
-    
-    for c in CheckList:
-        if isinstance( c, NifFormat.NiObject ):
-            if not c in Refs: Refs.append( c )
-        
-        elif isinstance( c, NifFormat.Ref ):
-            if not c in Refs: Refs.append( c )
-        
-        elif isinstance( c, list ):
-            Refs = GetRefs( c, Refs )
-    
-    return Refs

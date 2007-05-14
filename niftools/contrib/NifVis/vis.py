@@ -1,4 +1,4 @@
-import sys, os.path
+import sys, os
 
 Args = sys.argv
 
@@ -27,6 +27,8 @@ sys.path.append( os.path.abspath( 'pymodules' ) )
 if not os.path.exists('nif.xml'):
     print 'Please copy the nif.xml to use into the NifVis folder.'
     sys.exit( 1 )
+
+os.putenv( 'NIFXMLPATH', os.path.dirname( __file__ ) )
 
 import vis_nif
 

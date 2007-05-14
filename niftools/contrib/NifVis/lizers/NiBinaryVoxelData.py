@@ -1,7 +1,4 @@
-from NifFormat.NifFormat import NifFormat
-from OpenGL.GL import *
-
-import sys
+from ua import *
 
 radius = 0.1
 
@@ -25,14 +22,10 @@ def Draw( block ):
     
     global radius
     
-    glDisable( GL_LIGHTING )
+    GLNoLighting()
     
-    glPointSize( 4 )
-    glColor4f( 1, 1, 1, 1 )
+    SetPointSize( 4 )
+    SetColor( 1, 1, 1 )
     
-    verts = block.unknownVectors
+    DrawVertices( block.unknownVectors )
     
-    glBegin( GL_POINTS )
-    for v in verts:
-        glVertex3f( v.x * v.w, v.y * v.w, v.z * v.w )
-    glEnd()

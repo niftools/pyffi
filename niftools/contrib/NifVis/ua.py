@@ -35,6 +35,12 @@ def DrawVertex( v, mode = True ):
     glVertex3f( v.x, v.y, v.z )
     if mode: glEnd()
 
+def DrawVertices( verts, mode = True ):
+    if mode: glBegin( GL_POINTS )
+    for v in verts:
+        DrawVertex( v, False )
+    if mode: glEnd()
+
 def DrawTriangle( t, verts, mode = True ):
     if mode: glBegin( GL_TRIANGLES )
     DrawVertex( verts[t.v1], False )
