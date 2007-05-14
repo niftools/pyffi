@@ -50,5 +50,5 @@ def AddBlock( block ):
     TypeRegistry[type( block ).__name__].append( block )
     BlockRegistry.append( block )
     
-    for child in block.getLinks( Version, UserVersion ):
+    for child in block.getRefs( Version, UserVersion ):
         if not child in BlockRegistry: AddBlock( child )
