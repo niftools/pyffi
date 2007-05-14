@@ -270,6 +270,20 @@ class CompoundBase(object):
             links.extend(getattr(self, "_" + name + "_value_").getLinks(version, user_version))
         return links
 
+    def getRefs(self, version, user_version):
+        links = []
+        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
+            if ver1:
+                if version < ver1: continue
+            if ver2:
+                if version > ver2: continue
+            if userver:
+                if user_version != userver: continue
+            if cond != None:
+                if not cond.eval(self): continue
+            links.extend(getattr(self, "_" + name + "_value_").getRefs(version, user_version))
+        return links
+
     @classmethod
     def _getAttributeList(cls):
         # string of attributes of base classes of cls

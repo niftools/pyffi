@@ -265,12 +265,21 @@ class Ref(BasicBase):
         else:
             return []
 
+    def getRefs(self, version, user_version):
+        if self._x != None:
+            return [self._x]
+        else:
+            return []
+
 class Ptr(Ref):
     _isTemplate = True
 
     def __str__(self):
         # avoid infinite recursion
         return '%s instance at 0x%08X'%(self._x.__class__, id(self._x))
+
+    def getRefs(self, version, user_version):
+        return []
 
 class LineString(BasicBase):
     """Basic type for strings ending in a newline character (0x0a).

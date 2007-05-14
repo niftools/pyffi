@@ -101,6 +101,9 @@ class BasicBase(object):
     def getLinks(self, version = -1, user_version = 0):
         return []
     
+    def getRefs(self, version = -1, user_version = 0):
+        return []
+    
     def getValue(self):
         raise NotImplementedError
 

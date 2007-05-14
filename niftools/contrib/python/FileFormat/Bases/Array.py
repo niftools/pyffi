@@ -236,3 +236,16 @@ class Array(_ListWrap):
                 for e in list.__iter__(el):
                     links.extend(e.getLinks(version, user_version))
         return links
+
+    def getRefs(self, version, user_version):
+        # TODO optimize; no need to call this on every element if type
+        # has no links
+        links = []
+        if self._count2 == None:
+            for e in list.__iter__(self):
+                links.extend(e.getRefs(version, user_version))
+        else:
+            for el in list.__iter__(self):
+                for e in list.__iter__(el):
+                    links.extend(e.getRefs(version, user_version))
+        return links

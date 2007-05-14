@@ -16,6 +16,7 @@ blk.translation.x = 3.9
 
 ctrl = NifFormat.NiVisController()
 ctrl.flags = 0x000c
+ctrl.target = blk
 blk.controller = ctrl
 
 blk.numChildren = 1
@@ -51,10 +52,15 @@ print blk
 
 print data.getTriangles()
 
+print blk.getLinks(0x14000005, 11)
+print ctrl.getLinks(0x14000005, 11)
+print blk.getRefs(0x14000005, 11)
+print ctrl.getRefs(0x14000005, 11)
+
 #print "Writing nif file"
 #
 #f = open("test.nif", "wb")
-#NifFormat.write(0x14000005, 0, f, [blk, NifFormat.NiNode()])
+#NifFormat.write(0x14000005, 11, f, [blk, NifFormat.NiNode()])
 
 # reading a nif file
 
