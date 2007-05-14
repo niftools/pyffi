@@ -1,5 +1,13 @@
+The general philosophy of this library is to supply all information
+that comes naturally from the files, and nothing more. For very common
+calculations, we might add some functions to it, to make life easier
+for importers and exporters.
+
 To use the library, note that the nif.xml file should reside either in
-the root directory of the library
+the NifFormat directory (following the current layout on svn), or you
+should set the NIFXMLPATH environment variable to th directory where
+nif.xml can be found. If NIFXMLPATH is set, the library will first
+look there.
 
 The python files are organized as follows.
 
@@ -12,6 +20,14 @@ The python files are organized as follows.
 
   - runprofile.py: runs the profiler, gives an idea of bottlenecks in
     the code; used for optimization
+
+  - runreadtest.py: reads all nif files recursively from a base directory
+
+  - runreadprofile.py: like runreadtest.py but also provides
+    profiling information
+
+  - runreadwritetest.py: like runreadtest.py but also writes back every file
+    and checks if the file size is the same
 
 * examples
 
@@ -50,3 +66,4 @@ The python files are organized as follows.
 
   - NifFormat/KfmFormat.py: instanciates classes for the KFM format (TODO)
 
+  - NifFormat/Ni*.py: customization of particular blocks

@@ -57,16 +57,18 @@ print ctrl.getLinks(0x14000005, 11)
 print blk.getRefs(0x14000005, 11)
 print ctrl.getRefs(0x14000005, 11)
 
-#print "Writing nif file"
-#
-#f = open("test.nif", "wb")
-#NifFormat.write(0x14000005, 11, f, [blk, NifFormat.NiNode()])
+print blk.translation.asList()
+
+print "Writing nif file"
+
+f = open("test.nif", "wb")
+NifFormat.write(0x14000005, 11, f, [blk, NifFormat.NiNode()])
 
 # reading a nif file
 
 from cStringIO import StringIO
 
-f = open("cube.nif", "rb")
+f = open("test.nif", "rb")
 try:
     buffer = StringIO(f.read(-1))
 finally:
