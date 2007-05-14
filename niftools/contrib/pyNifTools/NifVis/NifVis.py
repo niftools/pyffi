@@ -1,4 +1,4 @@
-import sys, os
+import sys, os.path
 
 Args = sys.argv
 
@@ -6,7 +6,7 @@ if len( Args ) < 3:
     print """
     NifVis: Visualizes arbitrary block types by scriptable visualizers.
     ---
-    Syntax: vis.py <file_name> <block_name> [alt]
+    Syntax: NifVis.py <file_name> <block_name> [alt]
     ---
     Usage:  Specify the Nif file with the <file_name> argument.
             NifVis will look for a file called "<block_name>.py" in the
@@ -20,15 +20,9 @@ BlockName = Args[2]
 
 
 
-sys.path.append( os.path.abspath( 'pymodules' ) )
+sys.path.append( os.path.abspath( '../pymodules' ) )
 
 
-
-if not os.path.exists('nif.xml'):
-    print 'Please copy the nif.xml to use into the NifVis folder.'
-    sys.exit( 1 )
-
-os.putenv( 'NIFXMLPATH', os.path.dirname( __file__ ) )
 
 import vis_nif
 

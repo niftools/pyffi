@@ -1,7 +1,5 @@
 from NifFormat.NifFormat import NifFormat
 
-import inspect
-
 TypeRegistry = {}
 BlockRegistry = []
 Version = 0
