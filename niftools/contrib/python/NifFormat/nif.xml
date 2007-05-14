@@ -5,6 +5,7 @@
         The num argument is the numeric representation created by storing
         each part of the version in a byte.  For example, 4.0.0.2 is
         0x04000002 and 10.1.0.0 is 0x0A010000.-->
+
     <version num="3.0">Star Trek: Bridge Commander</version>
     <version num="3.1">Dark Age of Camelot, Star Trek: Bridge Commander</version>
     <version num="3.3.0.13">Oblivion</version>
@@ -16,7 +17,7 @@
     <version num="4.2.2.0">Dark Age of Camelot, Civilization IV, Empire Earth II</version>
     <version num="10.0.1.0">Zoo Tycoon 2, Civilization IV</version>
     <version num="10.0.1.2">Oblivion</version>
-    <version num="10.1.0.0">Dark Age of Camelot, Civilization IV, Freedom Force vs. the 3rd Reich</version>
+    <version num="10.1.0.0">Dark Age of Camelot, Civilization IV, Freedom Force vs. the 3rd Reich, Axis and Allies, Kohan 2</version>
     <version num="10.1.0.106">Oblivion</version>
     <version num="10.2.0.0">Civilization IV, Oblivion</version>
     <version num="20.0.0.4">Civilization IV, Oblivion</version>
@@ -851,7 +852,7 @@
         <add name="Bounding Sphere Offset" type="Vector3">Translation offset of a bounding sphere holding all vertices. (Note that its a Sphere Containing Axis Aligned Box not a minimum volume Sphere)</add>
         <add name="Bounding Sphere Radius" type="float">Radius for bounding sphere holding all vertices.</add>
         <add name="Num Vertices" type="ushort">Number of weighted vertices.</add>
-        <add name="Vertex Weights" type="SkinWeight" arr1="Num Vertices">The vertex weights.</add>
+        <add name="Vertex Weights" type="SkinWeight" arr1="Num Vertices" cond="ARG != 0">The vertex weights.</add>
     </compound>
 
     <compound name="Vector4" niflibtype="Float4" nifskopetype="vector4">
@@ -949,6 +950,17 @@
         A particle system modifier.
         <add name="Next Modifier" type="Ref" template="AParticleModifier">Next particle modifier.</add>
         <add name="Controller" type="Ptr" template="NiParticleSystemController" ver1="4.0.0.2">Points to the particle system controller parent.</add>
+    </niobject>
+    
+    <niobject name="ANiPSysCollider" abstract="1" inherit="NiObject">
+        Particle system collider.
+        <add name="Bounce" type="float">Unknown.</add>
+        <add name="Spawn on Collide" type="bool">Unknown.</add>
+        <add name="Die on Collide" type="bool">Unknown.</add>
+        <add name="Spawn Modifier" type="Ref" template="NiPSysSpawnModifier">Link to NiPSysSpawnModifier object?</add>
+        <add name="Parent" type="Ptr" template="NiObject">Link to parent.</add>
+        <add name="Next Collider" type="Ref" template="NiObject">The next collider.</add>
+        <add name="Collider Object" type="Ref" template="NiNode">Link to a NiNode?</add>
     </niobject>
 
     <niobject name="bhkRefObject" abstract="1" inherit="NiObject">
@@ -1061,9 +1073,9 @@ is simple, it only has three properties.
     <niobject name="NiDynamicEffect" abstract="1" inherit="NiAVObject">
         A dynamic effect such as a light or environment map.
         <add name="Switch State" type="bool" ver1="10.2.0.0">Turns effect on and off?  Switches list to list of unaffected nodes?</add>
-        <add name="Num Affected Nodes" type="uint" ver2="4.0.0.2">The number of affected nodes referenced.</add>
+        <add name="Num Affected Node List Pointers" type="uint" ver2="4.0.0.2">The number of affected nodes referenced.</add>
         <add name="Num Affected Nodes" type="uint" ver1="10.1.0.0">The number of affected nodes referenced.</add>
-        <add name="Affected Node List Pointers" type="uint" arr1="Num Affected Nodes" ver2="4.0.0.2">This is probably the list of affected nodes. For some reason i do not know the max exporter seems to write pointers instead of links. But it doesn&#039;t matter because at least in version 4.0.0.2 the list is automagically updated by the engine during the load stage.</add>
+        <add name="Affected Node List Pointers" type="uint" arr1="Num Affected Node List Pointers" ver2="4.0.0.2">This is probably the list of affected nodes. For some reason i do not know the max exporter seems to write pointers instead of links. But it doesn&#039;t matter because at least in version 4.0.0.2 the list is automagically updated by the engine during the load stage.</add>
         <add name="Affected Nodes" type="Ref" template="NiAVObject" arr1="Num Affected Nodes" ver1="10.1.0.0">The list of affected nodes?</add>
     </niobject>
 
@@ -1322,15 +1334,6 @@ is simple, it only has three properties.
         <add name="Data Layers" type="OblivionColFilter" arr1="Num Data Layers">Havok Layers for each strip data.</add>
     </niobject>
 
-    <niobject name="bhkMeshShape" abstract="0" inherit="bhkSphereRepShape">
-        <add name="unknown" type="int" arr1="8" />
-        <add name="unknown count" type="int" />
-        <add name="unknown floats" type="float" arr1="unknown count" arr2="3" />
-        <add name="unknown" type="int" arr1="3" />
-        <add name="Num Strips Data" type="uint">The number of strips data objects referenced.</add>
-        <add name="Strips Data" type="Ref" template="NiTriStripsData" arr1="Num Strips Data">Refers to a bunch of NiTriStripsData objects that make up this shape.</add>
-    </niobject>
-
     <niobject name="bhkPackedNiTriStripsShape" abstract="0" inherit="AbhkShapeCollection" ver1="20.0.0.5">
         A shape constructed from strips data.
         <add name="Num Sub Shapes" type="ushort">Number of subparts.</add>
@@ -1540,11 +1543,17 @@ a linked object group. This may be due to those objects often being bhkRigidBody
     </niobject>
 
     <niobject name="NiBinaryVoxelData" abstract="0" inherit="NiObject" ver1="3.1">
-        Voxel extra data object.
+        Voxel data object.
         <add name="Unknown Short 1" type="ushort">Unknown.</add>
         <add name="Unknown Short 2" type="ushort">Unknown.</add>
-        <add name="Unknown Int" type="uint">Unknown.</add>
-        <!--Very incomplete.  3D image data probably follows.-->
+        <add name="Unknown Short 3" type="ushort">Unknown. Is this^3 the Unknown Bytes 1 size?</add>
+        <add name="Unknown 7 Floats" type="float" arr1="7">Unknown.</add>
+        <add name="Unknown Bytes 1" type="byte" arr1="7" arr2="12">Unknown. Always a multiple of 7.</add>
+        <add name="Num Unknown Vectors" type="uint">Unknown.</add>
+        <add name="Unknown Vectors" type="Vector4" arr1="Num Unknown Vectors">Vectors on the unit sphere.</add>
+        <add name="Num Unknown Bytes 2" type="uint">Unknown.</add>
+        <add name="Unknown Bytes 2" type="byte" arr1="Num Unknown Bytes 2">Unknown.</add>
+        <add name="Unknown 5 Ints" type="uint" arr1="5">Unknown.</add>
     </niobject>
     
     <niobject name="NiBlendBoolInterpolator" abstract="0" inherit="NiBlendInterpolator" ver1="20.0.0.5">
@@ -1760,10 +1769,10 @@ a linked object group. This may be due to those objects often being bhkRigidBody
         <add name="Float Data" type="float">The float data.</add>
     </niobject>
 
-    <niobject name="NiFloatExtraDataController" abstract="0" inherit="NiTimeController" ver1="20.0.0.4">
+    <niobject name="NiFloatExtraDataController" abstract="0" inherit="NiTimeController" ver1="10.2.0.0">
         Unknown.
-        <add name="Unknown Link" type="Ref" template="NiObject" ver1="20.0.0.4">Unknown.</add>
-        <add name="Unknown String" type="string" ver1="20.0.0.4">Unknown. Refers to some NiFloatExtraData name?</add>
+        <add name="Unknown Link" type="Ref" template="NiObject" ver1="10.2.0.0">Unknown.</add>
+        <add name="Controller Data" type="string" ver1="10.2.0.0">Refers to a NiFloatExtraData name.</add>
     </niobject>
 
     <niobject name="NiFloatInterpolator" abstract="0" inherit="NiInterpolator" ver1="10.2.0.0">
@@ -2280,16 +2289,18 @@ a linked object group. This may be due to those objects often being bhkRigidBody
         <add name="Visibility Keys?" type="Key" arg="1" template="byte" arr1="Num Visibility Keys?">Unknown.</add>
     </niobject>
 
-    <niobject name="NiPSysEmitterDeclinationCtlr" abstract="0" inherit="APSysCtlr" ver1="20.0.0.5">
+    <niobject name="NiPSysEmitterDeclinationCtlr" abstract="0" inherit="APSysCtlr" ver1="10.1.0.0">
         Unknown.
+        <add name="Data" type="Ref" template="NiFloatData" ver2="10.1.0.0">This controller's data</add>
     </niobject>
 
     <niobject name="NiPSysEmitterDeclinationVarCtlr" abstract="0" inherit="APSysCtlr" ver1="20.0.0.4">
         Unknown.
     </niobject>
 
-    <niobject name="NiPSysEmitterInitialRadiusCtlr" abstract="0" inherit="APSysCtlr" ver1="20.0.0.4">
+    <niobject name="NiPSysEmitterInitialRadiusCtlr" abstract="0" inherit="APSysCtlr" ver1="10.1.0.0">
         Unknown.
+        <add name="Data" type="Ref" template="NiFloatData" ver2="10.1.0.0">This controller's data</add>
     </niobject>
 
     <niobject name="NiPSysEmitterLifeSpanCtlr" abstract="0" inherit="APSysCtlr" ver1="20.0.0.5">
@@ -2360,19 +2371,17 @@ a linked object group. This may be due to those objects often being bhkRigidBody
         <add name="Unknown Int" type="uint" ver2="10.1.0.0"></add>
     </niobject>
 
-    <niobject name="NiPSysPlanarCollider" abstract="0" inherit="NiObject" ver1="10.2.0.0">
+    <niobject name="NiPSysPlanarCollider" abstract="0" inherit="ANiPSysCollider" ver1="10.2.0.0">
         Unknown.
-        <add name="Bounce" type="float">Unknown.</add>
-        <add name="Spawn on Collide" type="bool">Unknown.</add>
-        <add name="Die on Collide" type="bool">Unknown.</add>
-        <add name="Spawn Modifier" type="Ref" template="NiPSysSpawnModifier">Link to NiPSysSpawnModifier object?</add>
-        <add name="Parent" type="Ptr" template="NiObject">Link to parent.</add>
-        <add name="Unknown Link?" type="Ref" template="NiObject">Unknown link?  Usually -1</add>
-        <add name="Collider Object" type="Ref" template="NiNode">Link to a NiNode?</add>
         <add name="Width" type="float">Unknown.</add>
         <add name="Height" type="float">Unknown.</add>
         <add name="X Axis" type="Vector3">Unknown.</add>
         <add name="Y Axis" type="Vector3">Unknown.</add>
+    </niobject>
+
+    <niobject name="NiPSysSphericalCollider" abstract="0" inherit="ANiPSysCollider" ver1="10.2.0.0">
+        Unknown.
+        <add name="Radius" type="float">Unknown.</add>
     </niobject>
 
     <niobject name="NiPSysPositionModifier" abstract="0" inherit="NiPSysModifier" ver1="10.1.0.0">
@@ -2467,8 +2476,8 @@ a linked object group. This may be due to those objects often being bhkRigidBody
         <add name="Scale" type="float">The scale offset of the skin from this bone in the bind position. (This is an assumption - it has always been 1.0 so far)</add>
         <add name="Num Bones" type="uint">Number of bones.</add>
         <add name="Skin Partition" type="Ref" template="NiSkinPartition" ver2="10.1.0.0">This optionally links a NiSkinPartition for hardware-acceleration information.</add>
-        <add name="Unknown Byte" type="byte" ver1="4.2.1.0" default="1">Unknown. Could be a bool conditioning the following objects.</add>
-        <add name="Bone List" type="SkinData" arr1="Num Bones">Contains offset data for each node that this skin is influenced by.</add>
+        <add name="Has Vertex Weights" type="byte" ver1="4.2.1.0" default="1">Enables Vertex Weights for this NiSkinData.</add>
+        <add name="Bone List" type="SkinData" arr1="Num Bones" arg="Has Vertex Weights">Contains offset data for each node that this skin is influenced by.</add>
     </niobject>
 
     <niobject name="NiSkinInstance" abstract="0" inherit="NiObject">
@@ -2626,7 +2635,7 @@ a linked object group. This may be due to those objects often being bhkRigidBody
     
     <niobject name="NiImage" abstract="0" inherit="NiObject" ver1="3.0" ver2="3.1">
         <add name="External" type="byte">0 if the texture is internal to the NIF file.</add>
-        <add name="File" type="FilePath" cond="External != 0">The filepath to the texture.</add>
+        <add name="File Name" type="FilePath" cond="External != 0">The filepath to the texture.</add>
         <add name="Image Data" type="Ref" template="NiRawImageData" cond="External == 0">Link to the internally stored image data.</add>
         <add name="Unknown Int 1" type="uint" default="7">Unknown.  Often seems to be 7.</add>
         <add name="Unknown Int 2" type="uint" ver1="3.1" default="0x43008000">Unknown.  Perhaps some flags?  Two shorts? Default seems to be 0x43008000</add>
@@ -2827,7 +2836,6 @@ a linked object group. This may be due to those objects often being bhkRigidBody
         <add name="Image Type" type="uint">Type of image.  1 = RGB, 2 = RGBA</add>
         <add name="RGB Image Data" type="ByteColor3" arr1="Width" arr2="Height" cond="Image Type == 1" >Image pixel data.</add>
         <add name="RGBA Image Data" type="ByteColor4" arr1="Width" arr2="Height" cond="Image Type == 2" >Image pixel data.</add>
-
     </niobject>
 
 </niftoolsxml>
