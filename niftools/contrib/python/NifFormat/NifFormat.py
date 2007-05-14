@@ -73,7 +73,7 @@ class NifFormat(object):
     """
     __metaclass__ = MetaXmlFileFormat
     xmlFileName = 'nif.xml'
-    xmlFilePath = os.path.dirname(__file__) # path of nif.xml
+    xmlFilePath = [ os.getenv('NIFXMLPATH'), os.path.dirname(__file__) ] # where to look for nif.xml: NIFXMLPATH env var, or 
     clsFilePath = os.path.dirname(__file__) # path of class customizers
     
     # basic types
