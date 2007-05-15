@@ -68,6 +68,9 @@ class _MetaCompoundBase(type):
             raise TypeError(str(cls) + ': missing _isTemplate attribute')
         if not dct.has_key('_isAbstract'):
             raise TypeError(str(cls) + ': missing _isAbstract attribute')
+        # hasLinks and hasRefs, used for optimization of fixLinks, getLinks, and getRefs
+        cls._hasLinks = getattr(cls, '_hasLinks', False) # does the type contain a Ref or a Ptr?
+        cls._hasRefs = getattr(cls, '_hasRefs', False) # does the type contain a Ref?
         for attrname, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in dct['_attrs']:
             if issubclass(typ, BasicBase) and arr1 == None:
                 # get and set basic attributes
@@ -78,6 +81,20 @@ class _MetaCompoundBase(type):
                 # other types of attributes: get only
                 setattr(cls, attrname, property(
                     partial(CompoundBase.getAttribute, name = attrname)))
+            # check for links and refs
+            if not cls._hasLinks:
+                if typ != type(None): # templates!
+                    if typ._hasLinks:
+                        cls._hasLinks = True
+                #else:
+                #    cls._hasLinks = True # or false... we can't know at this point? might be necessary to uncomment this if template types contain refs
+
+            if not cls._hasRefs:
+                if typ != type(None):
+                    if typ._hasRefs:
+                        cls._hasRefs = True
+                #else:
+                #    cls._hasRefs = True # dito, see comment above
         # precalculate the attribute list
         cls._attributeList = cls._getAttributeList()
 
@@ -246,6 +263,7 @@ class CompoundBase(object):
 
     def fixLinks(self, version, user_version, block_dct, link_stack):
         for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
+            if not typ._hasLinks: continue
             if ver1:
                 if version < ver1: continue
             if ver2:
@@ -259,6 +277,7 @@ class CompoundBase(object):
     def getLinks(self, version, user_version):
         links = []
         for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
+            if not typ._hasLinks: continue
             if ver1:
                 if version < ver1: continue
             if ver2:
@@ -273,6 +292,7 @@ class CompoundBase(object):
     def getRefs(self, version, user_version):
         links = []
         for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
+            if not typ._hasRefs: continue
             if ver1:
                 if version < ver1: continue
             if ver2:

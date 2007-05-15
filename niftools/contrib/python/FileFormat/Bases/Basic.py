@@ -75,6 +75,8 @@ class BasicBase(object):
     
     __metaclass__ = _MetaBasicBase
     _isTemplate = False
+    _hasLinks = False # does the type contain a Ref or a Ptr?
+    _hasRefs = False # does the type contain a Ref?
     
     def __init__(self, template = None, argument = None):
         """When overriding __init__, template and argument are

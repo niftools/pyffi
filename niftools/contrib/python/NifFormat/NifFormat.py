@@ -70,6 +70,10 @@ class NifFormat(object):
     0x14000005
     >>> print NifFormat.HeaderString
     <class 'NifFormat.BasicTypes.HeaderString'>
+    >>> NifFormat.NiNode._hasLinks
+    True
+    >>> NifFormat.NiBone._hasLinks
+    True
     """
     __metaclass__ = MetaXmlFileFormat
     xmlFileName = 'nif.xml'

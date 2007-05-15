@@ -213,6 +213,8 @@ class Float(BasicBase):
 
 class Ref(BasicBase):
     _isTemplate = True
+    _hasLinks = True
+    _hasRefs = True
     def __init__(self, template = None, argument = None):
         self._template = template
         self.setValue(None)
@@ -273,7 +275,9 @@ class Ref(BasicBase):
 
 class Ptr(Ref):
     _isTemplate = True
-
+    _hasLinks = True
+    _hasRefs = False
+    
     def __str__(self):
         # avoid infinite recursion
         return '%s instance at 0x%08X'%(self._x.__class__, id(self._x))
