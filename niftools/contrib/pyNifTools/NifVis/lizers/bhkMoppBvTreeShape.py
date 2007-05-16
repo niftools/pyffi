@@ -4,6 +4,18 @@ Scale = 0.1
 Corner = NifFormat.Vector3()
 Tree = []
 
+Colors = [
+    ( 1, 0, 0 ),
+    ( 0, 1, 0 ),
+    ( 0, 0, 1 ),
+    ( 1, 1, 0 ),
+    ( 0, 1, 1 ),
+    ( 1, 0, 1 ),
+    ( 1, 0.75, 0 ),
+    ( 0, 1, 0.75 ),
+    ( 0.75, 0, 1 )
+]
+
 def Radius( mopp ):
     if not mopp: return
     if not isinstance( mopp, NifFormat.bhkMoppBvTreeShape ): return
@@ -25,7 +37,7 @@ def Draw( mopp ):
     if not mopp: return
     if not isinstance( mopp, NifFormat.bhkMoppBvTreeShape ): return
     
-    global Tree
+    global Tree, Colors
     
     
     GLNoLighting()
@@ -39,9 +51,12 @@ def Draw( mopp ):
     tris = Shape.triangles
     verts = Shape.vertices
     
+    colnum = 0
     for t in tris:
+        SetColorA( Colors[colnum%len(Colors)] )
         SetNormal( t.normal )
         DrawTriangleW( t.triangle, verts )
+        colnum += 1
     
     
     SetPointSize( 4 )
@@ -120,29 +135,7 @@ def DrawCode( pos, tree, off, dim ):
             v.y = Corner.y + Scale * ( off[1] + pos[1] )
             v.z = Corner.z + Scale * ( off[2] + pos[2] )
             
-            if code == 0x30:
-                SetColor( 1, 0, 0 )
-            
-            elif code == 0x31:
-                SetColor( 0, 1, 0 )
-            
-            elif code == 0x32:
-                SetColor( 0, 0, 1 )
-            
-            elif code == 0x33:
-                SetColor( 1, 1, 0 )
-            
-            elif code == 0x34:
-                SetColor( 0, 1, 1 )
-            
-            elif code == 0x35:
-                SetColor( 1, 0, 1 )
-            
-            elif code == 0x36:
-                SetColor( 1, 0.75, 0 )
-            
-            elif code == 0x37:
-                SetColor( 0, 1, 0.75 )
+            SetColorA( Colors[(code-0x30)%len(Colors)] )
             
             DrawVertex( v )
             return

@@ -38,7 +38,7 @@ def InitFrame():
     glViewport( 0, ( vis_cfg._WINDOW_HEIGHT - Height ) / 2, vis_cfg._WINDOW_WIDTH, Height )
 
     # Initialize
-    glClearColor( 0.8, 0.8, 0.9, 0 )
+    glClearColor( 0.5, 0.5, 0.5, 1 )
     
     glShadeModel( GL_SMOOTH )
     glEnable( GL_MULTISAMPLE_ARB )
@@ -86,7 +86,6 @@ def InitFrame():
     glRotatef( zRot, 0, 0, 1 )
     
     glRotatef( -90, 1, 0, 0 )
-    glRotatef( -90, 0, 0, 1 )
 
 
 

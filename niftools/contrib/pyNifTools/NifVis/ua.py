@@ -18,6 +18,13 @@ def SetLineWidth( width ):
 def SetColor( r, g, b, a = 1.0 ):
     glColor4f( r, g, b, a )
 
+def SetColorA( color ):
+    if not isinstance( color, tuple ): return
+    if len( color ) == 3:
+        SetColor( color[0], color[1], color[2] )
+    elif len( color ) == 4:
+        SetColor( color[0], color[1], color[2], color[3] )
+
 
 def BeginDrawing( mode ):
     glBegin( mode )
