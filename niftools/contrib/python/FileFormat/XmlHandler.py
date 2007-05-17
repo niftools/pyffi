@@ -265,7 +265,7 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                     istemplate = (attrs["istemplate"] == "1")
                 except KeyError:
                     istemplate = False
-                if self.basic_class.__dict__['_isTemplate'] != istemplate:
+                if self.basic_class._isTemplate != istemplate:
                     raise XmlError('class %s should have _isTemplate = %s'%(self.class_name,istemplate))
 
             # niftoolsxml -> enum

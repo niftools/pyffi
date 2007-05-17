@@ -40,25 +40,20 @@
 # ***** END LICENCE BLOCK *****
 # --------------------------------------------------------------------------
 
-# This metaclass checks for the presence of an _attrs and __doc__ attribute.
-# Used as metaclass of BasicBase.
-class _MetaBasicBase(type):
-    def __init__(cls, name, bases, dct):
-        # consistency checks
-        if not dct.has_key('_isTemplate'):
-            raise TypeError(str(cls) + ': missing _isTemplate attribute')
-
 class BasicBase(object):
     """Base class from which all basic types are derived.
     
     The BasicBase class implements the interface for basic types.
-    All basic types have to be derived from this class, by hand.
+    All basic types are derived from this class.
     They must override read, write, getValue, and setValue.
 
     >>> class UInt(BasicBase):
-    ...     _isTemplate = False
-    ...     def __init__(self, template = None):
+    ...     def __init__(self, template = None, argument = 0):
     ...         self.__value = 0
+    ...     def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
+    ...         self.__value, = struct.unpack('<I', f.read(4))
+    ...     def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
+    ...         f.write(struct.pack('<I', self.__value)
     ...     def getValue(self):
     ...         return self.__value
     ...     def setValue(self, value):
@@ -67,14 +62,16 @@ class BasicBase(object):
     >>> x.setValue('123')
     >>> x.getValue()
     123
-
-    #>>> x.value = 456
-    #>>> x.value
-    #456
+    >>> class Test(BasicBase): # bad: read, write, getValue, and setValue are not implemented
+    ...     pass
+    >>> x = Test()
+    >>> x.setValue('123') # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    NotImplementedError: ...
     """
     
-    __metaclass__ = _MetaBasicBase
-    _isTemplate = False
+    _isTemplate = False # is it a template type?
     _hasLinks = False # does the type contain a Ref or a Ptr?
     _hasRefs = False # does the type contain a Ref?
     
