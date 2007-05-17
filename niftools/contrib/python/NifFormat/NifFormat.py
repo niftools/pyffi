@@ -100,6 +100,7 @@ class NifFormat(object):
     # other types with internal implementation
     string = BasicTypes.String
     ShortString = BasicTypes.ShortString
+    FilePath = BasicTypes.String
 
     @staticmethod
     def versionNumber(version_str):

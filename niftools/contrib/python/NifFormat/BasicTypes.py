@@ -44,8 +44,6 @@ import struct
 from FileFormat.Bases.Basic import BasicBase
 
 class Bool(BasicBase):
-    _isTemplate = False
-
     def __init__(self, template = None, argument = None):
         self.setValue(False)
 
@@ -103,7 +101,6 @@ class Int(BasicBase):
     '0x44332211'
     """
     
-    _isTemplate = False
     _min = -0x80000000
     _max = 0x7fffffff
     _struct = 'i'
@@ -139,21 +136,18 @@ class Int(BasicBase):
         return str(self.getValue())
 
 class UInt(Int):
-    _isTemplate = False
     _min = 0
     _max = 0xffffffff
     _struct = 'I'
     _size = 4
 
 class Byte(Int):
-    _isTemplate = False
     _min = 0
     _max = 0xff
     _struct = 'B'
     _size = 1
 
 class Char(BasicBase):
-    _isTemplate = False
     def __init__(self, template = None, argument = None):
         self.setValue('\x00')
 
@@ -175,26 +169,22 @@ class Char(BasicBase):
         return self._x
 
 class Short(Int):
-    _isTemplate = False
     _min = -0x8000
     _max = 0x7fff
     _struct = 'h'
     _size = 2
 
 class UShort(UInt):
-    _isTemplate = False
     _min = 0
     _max = 0xffff
     _struct = 'H'
     _size = 2
 
 class Flags(UShort):
-    _isTemplate = False
     def __str__(self):
         return hex(self.getValue())
 
 class Float(BasicBase):
-    _isTemplate = False
     def __init__(self, template = None, argument = None):
         self._x = '\x00\x00\x00\x00'
         #self.setValue(0.0)
@@ -305,7 +295,6 @@ class LineString(BasicBase):
     >>> str(m)
     'Hi There'
     """
-    _isTemplate = False
     def __init__(self, template = None, argument = None):
         self.setValue('')
 
@@ -327,8 +316,6 @@ class LineString(BasicBase):
         f.write("%s\x0a"%self._x)
 
 class HeaderString(BasicBase):
-    _isTemplate = False
-    
     def __init__(self, template = None, argument = None):
         pass
 
@@ -366,8 +353,6 @@ class HeaderString(BasicBase):
         return "%s File Format, Version %s"%(s, v)
 
 class FileVersion(BasicBase):
-    _isTemplate = False
-
     def __init__(self, template = None, argument = None):
         pass
 
@@ -408,7 +393,6 @@ class String(BasicBase):
     >>> str(m)
     'Hi There'
     """
-    _isTemplate = False
     def __init__(self, template = None, argument = None):
         self.setValue('')
 
@@ -435,7 +419,6 @@ class String(BasicBase):
 
 class ShortString(BasicBase):
     """Another type for strings."""
-    _isTemplate = False
     def __init__(self, template = None, argument = None):
         self._x = ''
 
