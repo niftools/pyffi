@@ -53,6 +53,7 @@ class NifFormat(object):
     
     >>> for vnum in sorted(NifFormat.versions.values()): print '0x%08X'%vnum
     0x03000000
+    0x03000300
     0x03010000
     0x0303000D
     0x04000000
@@ -110,15 +111,23 @@ class NifFormat(object):
         '0x30e0f1d'
         >>> hex(NifFormat.versionNumber('1.2'))
         '0x1020000'
+        >>> hex(NifFormat.versionNumber('3.03'))
+        '0x3000300'
         """
         
-        v = version_str.split('.')
-        num = 0
-        shift = 24
-        for x in v:
-            num += int(x) << shift
-            shift -= 8
-        return num
+        if version_str == '3.03': return 0x03000300 # 3.03 case is special
+
+        try:
+            ver_list = [int(x) for x in version_str.split('.')]
+        except ValueError:
+            return -1 # version not supported (i.e. version_str '10.0.1.3a' would trigger this)
+        if len(ver_list) > 4 or len(ver_list) < 1:
+            return -1 # version not supported
+        for ver_digit in ver_list:
+            if (ver_digit | 0xff) > 0xff:
+                return -1 # version not supported
+        while len(ver_list) < 4: ver_list.append(0)
+        return (ver_list[0] << 24) + (ver_list[1] << 16) + (ver_list[2] << 8) + ver_list[3]
 
     @staticmethod
     def nameAttribute(name):
@@ -146,22 +155,15 @@ class NifFormat(object):
         finally:
             f.seek(pos)
         if s.startswith("NetImmerse File Format, Version " ):
-            ver_str = s[32:]
+            version_str = s[32:]
         elif s.startswith("Gamebryo File Format, Version "):
-            ver_str = s[30:]
+            version_str = s[30:]
         else:
             return -2, 0 # not a nif file
         try:
-            ver_list = [int(x) for x in ver_str.split('.')]
-        except ValueError:
-            return -1, 0 # version not supported (i.e. ver_str '10.0.1.3a' would trigger this)
-        if len(ver_list) > 4 or len(ver_list) < 1:
+            ver = cls.versionNumber(version_str)
+        except:
             return -1, 0 # version not supported
-        for ver_digit in ver_list:
-            if (ver_digit | 0xff) > 0xff:
-                return -1, 0 # version not supported
-        while len(ver_list) < 4: ver_list.append(0)
-        ver = (ver_list[0] << 24) + (ver_list[1] << 16) + (ver_list[2] << 8) + ver_list[3]
         if not ver in cls.versions.values():
             return -1, 0 # unsupported version
         # check version integer and user version
