@@ -47,13 +47,14 @@ class BasicBase(object):
     All basic types are derived from this class.
     They must override read, write, getValue, and setValue.
 
+    >>> import struct
     >>> class UInt(BasicBase):
     ...     def __init__(self, template = None, argument = 0):
     ...         self.__value = 0
     ...     def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
     ...         self.__value, = struct.unpack('<I', f.read(4))
     ...     def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
-    ...         f.write(struct.pack('<I', self.__value)
+    ...         f.write(struct.pack('<I', self.__value))
     ...     def getValue(self):
     ...         return self.__value
     ...     def setValue(self, value):
@@ -64,11 +65,11 @@ class BasicBase(object):
     123
     >>> class Test(BasicBase): # bad: read, write, getValue, and setValue are not implemented
     ...     pass
-    >>> x = Test()
+    >>> x = Test() # doctest: +ELLIPSIS
     >>> x.setValue('123') # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
-    NotImplementedError: ...
+    NotImplementedError
     """
     
     _isTemplate = False # is it a template type?
@@ -82,7 +83,7 @@ class BasicBase(object):
         a uniform manner, i.e. typ(tmpl, arg).
 	
         See FileFormat/Bases/Compound.py for an example."""
-	raise NotImplementedError
+        pass
 
     # string representation
     def __str__(self):

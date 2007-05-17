@@ -120,7 +120,10 @@ class Int(BasicBase):
             try:
                 x = int(value, 16) # for '0x...' strings
             except:
-                raise ValueError("cannot convert value '%s' to integer"%str(value))
+                try:
+                    x = getattr(self, value) # for enums
+                except:
+                    raise ValueError("cannot convert value '%s' to integer"%str(value))
         if x < self._min or x > self._max:
             raise ValueError('value out of range (%i)'%self.getValue())
         self._x = struct.pack('<' + self._struct, x)
@@ -193,7 +196,7 @@ class Float(BasicBase):
         return struct.unpack('<f', self._x)[0]
 
     def setValue(self, value):
-        self._x = struct.pack('<f', value)
+        self._x = struct.pack('<f', float(value))
 
     def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
         self._x = f.read(4)

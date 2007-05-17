@@ -174,8 +174,11 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                 # post-processing
                 if attrs_default:
                     try:
-                        attrs_default = attrs_type._pythontype(attrs_default)
-                    except:
+                        tmp = attrs_type()
+                        tmp.setValue(attrs_default)
+                        attrs_default = tmp.getValue()
+                        del tmp
+                    except StandardError:
                         # conversion failed; not a big problem
                         attrs_default = None
                 if attrs_arr1:
@@ -277,7 +280,7 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                 except AttributeError:
                     raise XmlError("typo, or forward declaration of type " + storagename)
                 self.class_base = storage
-                self.class_dct  = { "_isTemplate" : False }
+                self.class_dct = {}
 
             # niftoolsxml -> version
             elif x == self.tagVersion:

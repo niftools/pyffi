@@ -201,6 +201,8 @@ class CompoundBase(object):
             # handle arrays
             if arr1 == None:
                 attr_instance = typ(tmpl, arg)
+                if default != None:
+                    attr_instance.setValue(default)
             elif arr2 == None:
                 attr_instance = Array(self, typ, tmpl, arg, arr1)
             else:
