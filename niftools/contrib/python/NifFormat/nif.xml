@@ -7,6 +7,7 @@
         0x04000002 and 10.1.0.0 is 0x0A010000.-->
 
     <version num="3.0">Star Trek: Bridge Commander</version>
+    <version num="3.03"></version>
     <version num="3.1">Dark Age of Camelot, Star Trek: Bridge Commander</version>
     <version num="3.3.0.13">Oblivion</version>
     <version num="4.0.0.0">Freedom Force</version>
@@ -1201,6 +1202,16 @@
         <add name="Unknown Floats 3" type="float" arr1="Num Vertices" arr2="4" cond="Has Unknown Floats 3 != 0">Unknown.</add>
     </niobject>
 
+    <niobject name="NiCollisionObject" abstract="0" inherit="NiObject" ver1="20.0.0.5">
+        This is the most common collision object found in NIF files. It acts as a real object that
+        is visible and possibly (if the body allows for it) interactive. The node itself
+        is simple, it only has three properties.
+        For this type of collision object, bhkRigidBody or bhkRigidBodyT is generally used.
+        <add name="Target Node" type="Ptr" template="NiNode">Index of the node referring to this collision object.</add>
+        <add name="Unknown Short" type="ushort" default="1" ver1="20.0.0.5"> Set to "1" for most objects.</add>
+        <add name="Body" type="Ref" template="NiObject" ver1="20.0.0.5">Links to the collision object data</add>
+    </niobject>
+
     <niobject name="bhkBlendCollisionObject" abstract="0" inherit="NiCollisionObject" ver1="20.0.0.5">
         Unknown.
         <add name="Unknown Float 1" type="float">Blending parameter?</add>
@@ -1649,16 +1660,6 @@ a linked object group. This may be due to those objects often being bhkRigidBody
         <add name="Unknown Int" type="uint">Unknown.  Changing value crashes viewer.</add>
         <add name="Unknown Int 2" type="uint" ver1="4.2.1.0">Unknown.  Changing value crashes viewer.</add>
         <add name="Unknown Int 3" type ="uint" ver2="3.1">Unknown.</add>
-    </niobject>
-
-    <niobject name="NiCollisionObject" abstract="0" inherit="NiObject" ver1="20.0.0.5">
-        This is the most common collision object found in NIF files. It acts as a real object that
-        is visible and possibly (if the body allows for it) interactive. The node itself
-        is simple, it only has three properties.
-        For this type of collision object, bhkRigidBody or bhkRigidBodyT is generally used.
-        <add name="Target Node" type="Ptr" template="NiNode">Index of the node referring to this collision object.</add>
-        <add name="Unknown Short" type="ushort" default="1" ver1="20.0.0.5"> Set to "1" for most objects.</add>
-        <add name="Body" type="Ref" template="NiObject" ver1="20.0.0.5">Links to the collision object data</add>
     </niobject>
 
     <niobject name="NiCollisionData" abstract="0" inherit="NiCollisionObject" ver1="10.0.1.0">
