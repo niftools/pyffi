@@ -40,9 +40,19 @@
 # ***** END LICENCE BLOCK *****
 # --------------------------------------------------------------------------
 
+from FileFormat.Bases.Array import Array
+from FileFormat.Bases.Expression import Expression
+
+def _get_numTriangles(self, cls):
+    n = 0
+    for strip in self.points:
+        n += len(strip) - 2
+    return n
+
 def _get_triangles(self, cls):
     """Get list of all triangles in all strips."""
-    triangles = []
+    triangles = Array(self, cls.Triangle, None, None, Expression("Num Triangles", cls.nameAttribute))
+    triangles_iter = triangles.__iter__()
     for strip in self.points:
         t1 = strip[0]
         t2 = strip[1]
@@ -51,13 +61,11 @@ def _get_triangles(self, cls):
             t1 = t2
             t2 = strip[i]
             if t0 == t1 or t1 == t2 or t2 == t0: continue
-            t = cls.Triangle()
+            t = triangles_iter.next()
             if i & 1: t.v1 = t0; t.v2 = t2; t.v3 = t1
             else:     t.v1 = t0; t.v2 = t1; t.v3 = t2
-            triangles.append(t)
     return triangles
 
 def _set_triangles(self, cls):
     """Construct strips from triangles."""
-    raise NotImplementedError
-
+    raise NotImplementedError # need to use nvstripper
