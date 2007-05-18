@@ -41,7 +41,36 @@
 # --------------------------------------------------------------------------
 
 def addChild(self, childblock):
+    """Add block to child list."""
     num_children = self.numChildren
     self.numChildren = num_children + 1
     self.children.updateSize()
     self.children[num_children] = childblock
+
+def applyScale(self, scale):
+    """Apply scale factor on data and set self scale equal to 1.0
+    (setting scale to 1.0 fixes issues with TESCS selection box)."""
+    # stuff not influenced by self.scale
+    # apply scale on self
+    self.translation.x *= scale
+    self.translation.y *= scale
+    self.translation.z *= scale
+    # apply scale on controllers
+    ctrl = self.controller
+    while ctrl != None:
+        try:
+            ctrl.applyScale(scale)
+        except AttributeError:
+            pass
+        ctrl = ctrl.nextController
+
+    # stuff influenced by self.scale
+    # apply scale * self.scale on children
+    for child in self.children:
+        try:
+            child.applyScale(scale * self.scale)
+        except AttributeError:
+            pass
+
+    # all done: set self scale to 1.0
+    self.scale = 1.0
