@@ -13,6 +13,9 @@ for vstr, vnum in sorted(NifFormat.versions.items(), cmp=lambda x, y: cmp(x[1],y
 blk = NifFormat.NiNode()
 blk.scale = 2.4
 blk.translation.x = 3.9
+blk.rotation.m11 = 1.0
+blk.rotation.m22 = 1.0
+blk.rotation.m33 = 1.0
 
 ctrl = NifFormat.NiVisController()
 ctrl.flags = 0x000c
@@ -49,6 +52,7 @@ data.points[1][2] = 3
 data.points[1][3] = 4
 
 print blk
+print blk.transform
 
 print data.triangles
 
