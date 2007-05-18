@@ -50,7 +50,7 @@ data.points[1][3] = 4
 
 print blk
 
-print data.getTriangles()
+for t in data.triangles: print t
 
 print blk.getLinks(0x14000005, 11)
 print ctrl.getLinks(0x14000005, 11)

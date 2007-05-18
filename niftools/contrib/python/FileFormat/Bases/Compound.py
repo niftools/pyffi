@@ -44,15 +44,7 @@ from Basic import BasicBase
 from Expression import Expression
 from Array import Array
 
-try:
-    from functools import partial
-except ImportError: # quick hack for python < 2.5
-    class partial(object):
-        def __init__(self, fn, name):
-            self.fn = fn
-            self.name = name
-        def __call__(self, *args):
-            return self.fn(*args, **{ 'name' : self.name } )
+from functools import partial
 
 # This metaclass checks for the presence of an _attrs, _isTemplate,
 # and _isAbstract attribute. For each attribute in _attrs, an

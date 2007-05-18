@@ -40,7 +40,7 @@
 # ***** END LICENCE BLOCK *****
 # --------------------------------------------------------------------------
 
-def getTriangles(self):
+def _get_triangles(self, cls):
     """Get list of all triangles in all strips."""
     triangles = []
     for strip in self.points:
@@ -51,7 +51,13 @@ def getTriangles(self):
             t1 = t2
             t2 = strip[i]
             if t0 == t1 or t1 == t2 or t2 == t0: continue
-            if i & 1: t = (t0, t2, t1)
-            else:     t = (t0, t1, t2)
+            t = cls.Triangle()
+            if i & 1: t.v1 = t0; t.v2 = t2; t.v3 = t1
+            else:     t.v1 = t0; t.v2 = t1; t.v3 = t2
             triangles.append(t)
     return triangles
+
+def _set_triangles(self, cls):
+    """Construct strips from triangles."""
+    raise NotImplementedError
+

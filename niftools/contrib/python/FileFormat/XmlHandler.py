@@ -42,6 +42,7 @@
 # --------------------------------------------------------------------------
 
 import xml.sax
+from functools import partial
 
 from Bases.Basic      import BasicBase
 from Bases.Compound   import CompoundBase
@@ -339,5 +340,24 @@ class XmlHandler(xml.sax.handler.ContentHandler):
             except ImportError:
                 continue
             mod = getattr(mod, obj.__name__)
-            for x in filter(lambda x: x[0] != "_", mod.__dict__.keys()):
-                setattr(obj, x, mod.__dict__[x])
+            props = {}
+            for x in filter(lambda x: x[:2] != "__", mod.__dict__.keys()):
+                xvalue = mod.__dict__[x]
+                if x[:5] == "_get_":
+                    xname = x[5:]
+                    xget = partial(xvalue, cls = self.cls)
+                    if props.has_key(xname):
+                        props[xname][0] = xget
+                    else:
+                        props[xname] = [xget, None, None, None]
+                elif x[:5] == "_set_":
+                    xname = x[5:]
+                    xset = partial(xvalue, cls = self.cls)
+                    if props.has_key(xname):
+                        props[xname][1] = xset
+                    else:
+                        props[xname] = [None, xset, None, None]
+                else:
+                    setattr(obj, x, xvalue)
+            for x, arglist in props.items():
+                setattr(obj, x, property(*arglist))
