@@ -247,6 +247,8 @@ class NifFormat(object):
                 if verbose >= 1:
                     print "reading failed"
                 if verbose >= 2:
+                    print "link stack ", link_stack
+                    print "block that failed:"
                     print block
                 elif verbose >= 1:
                     print block.__class__

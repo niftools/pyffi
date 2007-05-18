@@ -338,6 +338,8 @@ class HeaderString(BasicBase):
     def versionString(version):
         """Transforms version number into a version string.
 
+        >>> HeaderString.versionString(0x03000300)
+        'NetImmerse File Format, Version 3.03'
         >>> HeaderString.versionString(0x03010000)
         'NetImmerse File Format, Version 3.1'
         >>> HeaderString.versionString(0x0A000100)
@@ -349,7 +351,9 @@ class HeaderString(BasicBase):
             s = "NetImmerse"
         else:
             s = "Gamebryo"
-        if version <= 0x03010000:
+        if version == 0x03000300:
+            v = "3.03"
+        elif version <= 0x03010000:
             v = "%i.%i"%((version >> 24) & 0xff, (version >> 16) & 0xff)
         else:
             v = "%i.%i.%i.%i"%((version >> 24) & 0xff, (version >> 16) & 0xff, (version >> 8) & 0xff, version & 0xff)
