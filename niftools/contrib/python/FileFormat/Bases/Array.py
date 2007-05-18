@@ -214,8 +214,7 @@ class Array(_ListWrap):
                     e.write(version, user_version, f, block_index_dct, self._elementTypeArgument)
 
     def fixLinks(self, version, user_version, block_dct, link_stack):
-        # TODO optimize; no need to call this on every element if type
-        # has no links
+        if not self._elementType._hasLinks: return
         if self._count2 == None:
             for e in list.__iter__(self):
                 e.fixLinks(version, user_version, block_dct, link_stack)
@@ -225,9 +224,8 @@ class Array(_ListWrap):
                     e.fixLinks(version, user_version, block_dct, link_stack)
 
     def getLinks(self, version, user_version):
-        # TODO optimize; no need to call this on every element if type
-        # has no links
         links = []
+        if not self._elementType._hasLinks: return links
         if self._count2 == None:
             for e in list.__iter__(self):
                 links.extend(e.getLinks(version, user_version))
@@ -237,15 +235,14 @@ class Array(_ListWrap):
                     links.extend(e.getLinks(version, user_version))
         return links
 
-    def getRefs(self, version, user_version):
-        # TODO optimize; no need to call this on every element if type
-        # has no links
+    def getRefs(self):
         links = []
+        if not self._elementType._hasLinks: return links
         if self._count2 == None:
             for e in list.__iter__(self):
-                links.extend(e.getRefs(version, user_version))
+                links.extend(e.getRefs())
         else:
             for el in list.__iter__(self):
                 for e in list.__iter__(el):
-                    links.extend(e.getRefs(version, user_version))
+                    links.extend(e.getRefs())
         return links

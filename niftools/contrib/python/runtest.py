@@ -27,6 +27,8 @@ blk.children.updateSize()
 strips = NifFormat.NiTriStrips()
 blk.children[0] = strips
 
+strips.name = "hello world"
+
 data = NifFormat.NiTriStripsData()
 strips.data = data
 
@@ -56,10 +58,16 @@ print blk.transform
 
 print data.triangles
 
+print "finding hello world..."
+print blk.find(block_name = "hello world")
+
+print "finding time controller..."
+print blk.find(block_type = NifFormat.NiTimeController)
+
 print blk.getLinks(0x14000005, 11)
 print ctrl.getLinks(0x14000005, 11)
-print blk.getRefs(0x14000005, 11)
-print ctrl.getRefs(0x14000005, 11)
+print blk.getRefs()
+print ctrl.getRefs()
 
 print blk.translation.asList()
 

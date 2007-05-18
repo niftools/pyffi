@@ -260,7 +260,7 @@ class Ref(BasicBase):
         else:
             return []
 
-    def getRefs(self, version, user_version):
+    def getRefs(self):
         if self._x != None:
             return [self._x]
         else:
@@ -275,7 +275,7 @@ class Ptr(Ref):
         # avoid infinite recursion
         return '%s instance at 0x%08X'%(self._x.__class__, id(self._x))
 
-    def getRefs(self, version, user_version):
+    def getRefs(self):
         return []
 
 class LineString(BasicBase):
