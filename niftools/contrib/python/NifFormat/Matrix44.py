@@ -87,57 +87,61 @@ def getCopy(self):
     m.m44 = self.m44
     return m
 
-def _get_matrix33(self):
-    """Returns upper left 3x3 part. If you change attributes of this element,
-    then you also change the original 4x4 matrix."""
+def getMatrix33(self):
+    """Returns upper left 3x3 part."""
     m = self.cls.Matrix33()
-    # copy the actual instances rather than the wrapped values
-    m._m11_value_ = self._m11_value_
-    m._m12_value_ = self._m12_value_
-    m._m13_value_ = self._m13_value_
-    m._m21_value_ = self._m21_value_
-    m._m22_value_ = self._m22_value_
-    m._m23_value_ = self._m23_value_
-    m._m31_value_ = self._m31_value_
-    m._m32_value_ = self._m32_value_
-    m._m33_value_ = self._m33_value_
+    m.m11 = self.m11
+    m.m12 = self.m12
+    m.m13 = self.m13
+    m.m21 = self.m21
+    m.m22 = self.m22
+    m.m23 = self.m23
+    m.m31 = self.m31
+    m.m32 = self.m32
+    m.m33 = self.m33
     return m
 
-def _set_matrix33(self, m):
-    if not isinstance(m, cls.Matrix33):
-        raise TypeError("argument must be of the Matrix33 type")
-    self.m11 = m.m11
-    self.m12 = m.m12
-    self.m13 = m.m13
-    self.m21 = m.m21
-    self.m22 = m.m22
-    self.m23 = m.m23
-    self.m31 = m.m31
-    self.m32 = m.m32
-    self.m33 = m.m33
-
-def _get_scale(self):
-    return self.matrix33.scale
-
-def _set_scale(self, scale):
-    self.matrix33.scale = scale
-
-def _get_rotation(self):
-    return self.matrix33.rotation
-
-def _set_rotation(self, m):
-    self.matrix33.rotation = m
-
-def _get_translation(self):
-    """Returns lower left 1x3 part. If you change attributes of this element,
-    then you also change the original 4x4 matrix."""
+def getTranslation(self):
+    """Returns lower left 1x3 part."""
     t = self.cls.Vector3()
-    t._x_value_ = self._m41_value_
-    t._y_value_ = self._m42_value_
-    t._z_value_ = self._m43_value_
+    t.x = self.m41
+    t.y = self.m42
+    t.z = self.m43
     return t
 
-def _set_translation(self, t):
-    if not isinstance(t, self.cls.Vector3):
-        raise TypeError("argument must be of the Vector3 type")
+def getScaleRotationTranslation(self):
+    r = self.getMatrix33()
+    s = r.getScale()
+    r /= s
+    t = m.getTranslation()
+    return (s, r, t)
 
+def setScaleRotationTranslation(self, scale, rotation, translation):
+    if not isinstance(scale, (float, int, long)):
+        raise TypeError('scale must be float')
+    if not isinstance(rotation, self.cls.Matrix33):
+        raise TypeError('rotation must be Matrix33')
+    if not isinstance(translation, self.cls.Vector3):
+        raise TypeError('translation must be Vector3')
+
+    if not rotation.isRotation():
+        raise ValueError('rotation must be rotation matrix')
+
+    self.m11 = rotation.m11 * scale
+    self.m12 = rotation.m12 * scale
+    self.m13 = rotation.m13 * scale
+    self.m21 = rotation.m21 * scale
+    self.m22 = rotation.m22 * scale
+    self.m23 = rotation.m23 * scale
+    self.m31 = rotation.m31 * scale
+    self.m32 = rotation.m32 * scale
+    self.m33 = rotation.m33 * scale
+
+    self.m41 = translation.x
+    self.m42 = translation.y
+    self.m43 = translation.z
+
+    self.m14 = 0.0
+    self.m24 = 0.0
+    self.m34 = 0.0
+    self.m44 = 1.0

@@ -107,46 +107,41 @@ def isScaleRotation(self):
 def isRotation(self):
     """Returns true if the matrix is a rotation matrix."""
     if not self.isScaleRotation(): return False
-    if abs(self.scale - 1.0) > 0.0001: return False
+    if abs(self.getScale() - 1.0) > 0.0001: return False
     return True
 
-def _get_scale(self):
-    return (m.m11*m.m11 + m.m12*m.m12 + m.m13*m.m13) ** 0.5
+def getDeterminant():
+    return self.m11*self.m22*self.m33+self.m12*self.m23*self.m31+self.m13*self.m21*self.m32-self.m31*self.m22*self.m13-self.m21*self.m12*self.m33-self.m11*self.m32*self.m23
 
-def _set_scale(self, scale):
-    if not isinstance(scale, float):
-        raise TypeError('scale must be of type float')
-    self *= scale / self.scale
+def getScale(self):
+    s = (m.m11*m.m11 + m.m12*m.m12 + m.m13*m.m13) ** 0.5
+    if self.getDeterminant() < 0: s = -s
+    return s
 
-def _get_rotation(self):
-    m = self.getCopy()
-    s = self.scale
-    m.m11 /= s
-    m.m12 /= s
-    m.m13 /= s
-    m.m21 /= s
-    m.m22 /= s
-    m.m23 /= s
-    m.m31 /= s
-    m.m32 /= s
-    m.m33 /= s
-    return m
+def getScaleRotation(self):
+    r = self.getCopy()
+    s = self.getScale()
+    r /= s
+    return (s, r)
 
-def _set_rotation(self, m):
-    if not isinstance(m, self.cls.Matrix33):
-        raise TypeError('argument must be of type Matrix33')
-    if not m.isRotation():
-        raise ValueError('argument must be a rotation matrix')
-    s = self.scale
-    self.m11 = m.m11 * s
-    self.m12 = m.m12 * s
-    self.m13 = m.m13 * s
-    self.m21 = m.m21 * s
-    self.m22 = m.m22 * s
-    self.m23 = m.m23 * s
-    self.m31 = m.m31 * s
-    self.m32 = m.m32 * s
-    self.m33 = m.m33 * s
+def setScaleRotation(self, scale, rotation):
+    if not isinstance(scale, (float, int, long)):
+        raise TypeError('scale must be float')
+    if not isinstance(rotation, self.cls.Matrix33):
+        raise TypeError('rotation must be Matrix33')
+
+    if not rotation.isRotation():
+        raise ValueError('rotation must be rotation matrix')
+
+    self.m11 = rotation.m11 * scale
+    self.m12 = rotation.m12 * scale
+    self.m13 = rotation.m13 * scale
+    self.m21 = rotation.m21 * scale
+    self.m22 = rotation.m22 * scale
+    self.m23 = rotation.m23 * scale
+    self.m31 = rotation.m31 * scale
+    self.m32 = rotation.m32 * scale
+    self.m33 = rotation.m33 * scale
 
 def __mul__(self, x):
     if isinstance(x, (float, int, long)):
@@ -176,6 +171,22 @@ def __mul__(self, x):
         m.m33 = self.m31 * x.m13  +  self.m32 * x.m23  +  self.m33 * x.m33
     else:
         raise TypeError("do not know how to multiply Matrix33 with %s"%x.__class__)
+
+def __div__(self, x):
+    if isinstance(x, (float, int, long)):
+        m = self.cls.Matrix33()
+        m.m11 = self.m11 / x
+        m.m12 = self.m11 / x
+        m.m13 = self.m11 / x
+        m.m21 = self.m21 / x
+        m.m22 = self.m22 / x
+        m.m23 = self.m23 / x
+        m.m31 = self.m31 / x
+        m.m32 = self.m32 / x
+        m.m33 = self.m33 / x
+        return m
+    else:
+        raise TypeError("do not know how to divide Matrix33 by %s"%x.__class__)
 
 def __rmul__(self, x):
     if isinstance(x, (float, int, long)):
