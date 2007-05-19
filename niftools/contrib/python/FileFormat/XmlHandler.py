@@ -42,7 +42,7 @@
 # --------------------------------------------------------------------------
 
 import xml.sax
-from functools import partial
+from types import *
 
 from Bases.Basic      import BasicBase
 from Bases.Compound   import CompoundBase
@@ -320,7 +320,6 @@ class XmlHandler(xml.sax.handler.ContentHandler):
             setattr(self.cls, self.class_name, self.basic_class)
 
     def endDocument(self):
-        # resolve template type names
         for obj in self.cls.__dict__.values():
             try:
                 if not issubclass(obj, CompoundBase): continue
@@ -334,6 +333,9 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                         a[self.attrTemplate] = getattr(self.cls, templ)
                     else:
                         a[self.attrTemplate] = type(None)
+
+            # add custom functions to interface
+            # first find the module
             try:
                 # TODO find better solution to import the custom object module
                 mod = __import__(self.cls.__name__ + '.' + obj.__name__, globals(),  locals(), [])
@@ -341,23 +343,30 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                 continue
             mod = getattr(mod, obj.__name__)
             props = {}
-            for x in filter(lambda x: x[:2] != "__", mod.__dict__.keys()):
-                xvalue = mod.__dict__[x]
+            # set object's cls argument to give it access to other objects
+            # defined in self.cls
+            obj.cls = self.cls
+            # iterate over all objects defined in the module
+            for x, xfunc in mod.__dict__.items():
+                # skip if it is not a function
+                if not isinstance(xfunc, FunctionType): continue
+                # register property getter
                 if x[:5] == "_get_":
                     xname = x[5:]
-                    xget = partial(xvalue, cls = self.cls)
                     if props.has_key(xname):
-                        props[xname][0] = xget
+                        props[xname][0] = xfunc
                     else:
-                        props[xname] = [xget, None, None, None]
+                        props[xname] = [xfunc, None, None, None]
+                # register property setter
                 elif x[:5] == "_set_":
                     xname = x[5:]
-                    xset = partial(xvalue, cls = self.cls)
                     if props.has_key(xname):
-                        props[xname][1] = xset
+                        props[xname][1] = xfunc
                     else:
-                        props[xname] = [None, xset, None, None]
+                        props[xname] = [None, xfunc, None, None]
+                # set regular method
                 else:
-                    setattr(obj, x, xvalue)
+                    setattr(obj, x, xfunc)
+            # set all properties
             for x, arglist in props.items():
                 setattr(obj, x, property(*arglist))

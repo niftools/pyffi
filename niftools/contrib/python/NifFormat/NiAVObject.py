@@ -47,35 +47,18 @@ def addProperty(self, propblock):
     self.properties.updateSize()
     self.properties[num_props] = propblock
 
-def _get_transform(self, cls):
+def _get_transform(self):
     """Compose transforms into a single 4x4 matrix."""
-    m = cls.Matrix44()
-
-    # maybe port this "algorithm" to the Matrix44 class?
-    
-    m.m11 = self.rotation.m11 * self.scale
-    m.m12 = self.rotation.m12 * self.scale
-    m.m13 = self.rotation.m13 * self.scale
-    m.m21 = self.rotation.m21 * self.scale
-    m.m22 = self.rotation.m22 * self.scale
-    m.m23 = self.rotation.m23 * self.scale
-    m.m31 = self.rotation.m31 * self.scale
-    m.m32 = self.rotation.m32 * self.scale
-    m.m33 = self.rotation.m33 * self.scale
-    
-    # should be all zero, but for the sake of mathematical rigour...
-    m.m14 = self.velocity.x * self.scale
-    m.m24 = self.velocity.y * self.scale
-    m.m34 = self.velocity.z * self.scale
-    
-    m.m41 = self.translation.x
-    m.m42 = self.translation.y
-    m.m43 = self.translation.z
-    
-    m.m44 = 1.0
-    
+    m = self.cls.Matrix44()
+    m.setIdentity()
+    m.scale = self.scale
+    m.rotation = self.rotation
+    m.translation = self.translation
     return m
 
-def _set_transform(self, cls, m):
+def _set_transform(self, m):
     """Set rotation, transform, and velocity."""
+    scale, rotation, translation = m.asScaleRotationTranslation()
+
+    self.scale = scale
     raise NotImplementedError

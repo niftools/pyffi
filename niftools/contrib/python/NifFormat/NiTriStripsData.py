@@ -43,15 +43,15 @@
 from FileFormat.Bases.Array import Array
 from FileFormat.Bases.Expression import Expression
 
-def _get_numTriangles(self, cls):
+def _get_numTriangles(self):
     n = 0
     for strip in self.points:
         n += len(strip) - 2
     return n
 
-def _get_triangles(self, cls):
+def _get_triangles(self):
     """Get list of all triangles in all strips."""
-    triangles = Array(self, cls.Triangle, None, None, Expression("Num Triangles", cls.nameAttribute))
+    triangles = Array(self, self.cls.Triangle, None, None, Expression("Num Triangles", self.cls.nameAttribute))
     triangles_iter = triangles.__iter__()
     for strip in self.points:
         t1 = strip[0]
@@ -66,6 +66,6 @@ def _get_triangles(self, cls):
             else:     t.v1 = t0; t.v2 = t1; t.v3 = t2
     return triangles
 
-def _set_triangles(self, cls):
+def _set_triangles(self):
     """Construct strips from triangles."""
     raise NotImplementedError # need to use nvstripper
