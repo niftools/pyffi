@@ -104,17 +104,19 @@ def isScaleRotation(self):
     if abs(m.m11 - m.m22) + abs(m.m22 - m.m33) > 0.0001:
         return False
 
+    return True
+
 def isRotation(self):
     """Returns true if the matrix is a rotation matrix."""
     if not self.isScaleRotation(): return False
     if abs(self.getScale() - 1.0) > 0.0001: return False
     return True
 
-def getDeterminant():
+def getDeterminant(self):
     return self.m11*self.m22*self.m33+self.m12*self.m23*self.m31+self.m13*self.m21*self.m32-self.m31*self.m22*self.m13-self.m21*self.m12*self.m33-self.m11*self.m32*self.m23
 
 def getScale(self):
-    s = (m.m11*m.m11 + m.m12*m.m12 + m.m13*m.m13) ** 0.5
+    s = (self.m11*self.m11 + self.m12*self.m12 + self.m13*self.m13) ** 0.5
     if self.getDeterminant() < 0: s = -s
     return s
 
@@ -169,6 +171,7 @@ def __mul__(self, x):
         m.m31 = self.m31 * x.m11  +  self.m32 * x.m21  +  self.m33 * x.m31 
         m.m32 = self.m31 * x.m12  +  self.m32 * x.m22  +  self.m33 * x.m32 
         m.m33 = self.m31 * x.m13  +  self.m32 * x.m23  +  self.m33 * x.m33
+        return m
     else:
         raise TypeError("do not know how to multiply Matrix33 with %s"%x.__class__)
 

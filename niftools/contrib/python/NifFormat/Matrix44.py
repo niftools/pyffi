@@ -113,7 +113,7 @@ def getScaleRotationTranslation(self):
     r = self.getMatrix33()
     s = r.getScale()
     r /= s
-    t = m.getTranslation()
+    t = self.getTranslation()
     return (s, r, t)
 
 def setScaleRotationTranslation(self, scale, rotation, translation):

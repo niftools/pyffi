@@ -71,10 +71,16 @@ class NifFormat(object):
     0x14000005
     >>> print NifFormat.HeaderString
     <class 'NifFormat.BasicTypes.HeaderString'>
+
+    Tests for links.
+    
     >>> NifFormat.NiNode._hasLinks
     True
     >>> NifFormat.NiBone._hasLinks
     True
+
+    Tests for mathematics.
+    
     >>> m = NifFormat.Matrix44()
     >>> m.setIdentity()
     >>> print m  # doctest: +ELLIPSIS
@@ -96,6 +102,14 @@ class NifFormat(object):
     * m34 : 0.0
     * m44 : 1.0
     <BLANKLINE>
+    >>> s, r, t = m.getScaleRotationTranslation()
+    >>> print s
+    1.0
+    >>> m.getMatrix33().isScaleRotation()
+    True
+    >>> m.m21 = 2.0
+    >>> m.getMatrix33().isScaleRotation()
+    False
     """
     __metaclass__ = MetaXmlFileFormat
     xmlFileName = 'nif.xml'
