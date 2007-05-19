@@ -197,11 +197,5 @@ def __div__(self, x):
 def __rmul__(self, x):
     if isinstance(x, (float, int, long)):
         return self * x
-    elif isinstance(x, self.cls.Vector3):
-        v = self.cls.Vector3()
-        v.x = x.x * self.m11 + x.y * self.m21 + x.z * self.m31
-        v.y = x.x * self.m12 + x.y * self.m22 + x.z * self.m32
-        v.z = x.x * self.m13 + x.y * self.m23 + x.z * self.m33
-        return v
     else:
         raise TypeError("do not know how to multiply %s with Matrix33"%x.__class__)
