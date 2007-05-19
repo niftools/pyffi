@@ -48,6 +48,9 @@ def asList(self):
         [self.m31, self.m32, self.m33]
         ]
 
+def __str__(self):
+    return "[ %6.3f %6.3f %6.3f ]\n[ %6.3f %6.3f %6.3f ]\n[ %6.3f %6.3f %6.3f ]\n"%(self.m11, self.m12, self.m13, self.m21, self.m22, self.m23, self.m31, self.m32, self.m33)
+
 def setIdentity(self):
     self.m11 = 1.0
     self.m12 = 0.0
@@ -179,8 +182,8 @@ def __div__(self, x):
     if isinstance(x, (float, int, long)):
         m = self.cls.Matrix33()
         m.m11 = self.m11 / x
-        m.m12 = self.m11 / x
-        m.m13 = self.m11 / x
+        m.m12 = self.m12 / x
+        m.m13 = self.m13 / x
         m.m21 = self.m21 / x
         m.m22 = self.m22 / x
         m.m23 = self.m23 / x

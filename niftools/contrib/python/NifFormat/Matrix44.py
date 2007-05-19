@@ -49,6 +49,9 @@ def asList(self):
         [self.m41, self.m42, self.m43, self.m44]
         ]
 
+def __str__(self):
+    return "[ %6.3f %6.3f %6.3f %6.3f ]\n[ %6.3f %6.3f %6.3f %6.3f ]\n[ %6.3f %6.3f %6.3f %6.3f ]\n[ %6.3f %6.3f %6.3f %6.3f ]\n"%(self.m11, self.m12, self.m13, self.m14, self.m21, self.m22, self.m23, self.m24, self.m31, self.m32, self.m33, self.m34, self.m41, self.m42, self.m43, self.m44)
+
 def setIdentity(self):
     self.m11 = 1.0
     self.m12 = 0.0
