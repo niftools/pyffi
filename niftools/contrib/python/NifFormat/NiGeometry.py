@@ -40,31 +40,45 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
+def isSkin(self):
+    return self.skinInstance != None
+
+def _validateSkin(self):
+    """Check that skinning blocks are valid. Will raise ValueError exception
+    if not."""
+    if self.skinInstance == None: return
+    if self.skinInstance.data == None:
+        raise ValueError('NiGeometry has NiSkinInstance without NiSkinData')
+    if self.skinInstance.skeletonRoot == None:
+        raise ValueError('NiGeometry has NiSkinInstance without skeleton root')
+    if self.skinInstance.numBones != self.skinInstance.data.numBones:
+        raise ValueError('NiSkinInstance and NiSkinData have different number of bones')
+
 def getBoneRestPositions(self):
     """Return bone rest position dictionary, in skeleton root space.
     To find the rest positions in global space, post-multiply with
     skinInstance.skeletonRoot.getTransform()."""
-    restpose_dct = {}
-    # check out the geometry skin
-    skininst = self.skinInstance
-    if self.skinInstance == None: return {} # no bones
-    skindata = skininst.data
-    if skindata == None:
-        raise ValueError('NiGeometry has NiSkinInstance without NiSkinData')
-    skelroot = skininst.skeletonRoot
-    if skelroot == None:
-        raise ValueError('NiGeometry has NiSkinInstance without skeleton root')
-    num_bones = skininst.numBones
-    if num_bones != skindata.numBones:
-        raise ValueError('NiSkinInstance and NiSkinData have different number of bones')
+    if not isSkin(): return {} # no bones
+    self._validateSkin() # check that skin data is valid
     # calculate the rest positions
-    geometry_matrix = skindata.getTransform()
+    # (there could be an inverse less, code is written to be clear rather
+    # than to be fast)
+    geometry_matrix = skindata.getTransform().getInverse()
     for i, bone_block in enumerate(skininst.bones):
-        bone_matrix = skindata.boneList[i].getTransform()
-        restpose_dct[bone_block] = (geometry_matrix * bone_matrix).getInverse()
+        bone_matrix = skindata.boneList[i].getTransform().getInverse()
+        restpose_dct[bone_block] = bone_matrix * geometry_matrix
     return restpose_dct
 
 def setBoneRestPositions(self, restpose_dct):
     """Recalculate the data which fixes the bone rest positions, from
     the bone rest position (in skeleton root space) dictionary."""
-    raise NotImplementedError
+    self._validateSkin() # check that skin data is valid
+    # calculate skin data from rest positions
+    # (there could be an inverse less, code is written to be clear rather
+    # than to be fast)
+    geometry_matrix = self.getTransform(skelroot)
+    skindata.setTransform(geometry_matrix.getInverse())
+    for i, bone_block in enumerate(skininst.bones):
+        bone_matrix = restpose_dct[bone_block] * geometry_matrix.getInverse()
+        skindata.boneList[i].setTransform(bone_matrix.getInverse())
+    return restpose_dct
