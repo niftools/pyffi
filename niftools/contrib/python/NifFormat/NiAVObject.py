@@ -47,10 +47,22 @@ def addProperty(self, propblock):
     self.properties.updateSize()
     self.properties[num_props] = propblock
 
-def getTransform(self):
-    """Return scale, rotation, and translation into a single 4x4 matrix."""
+def getTransform(self, relative_to = None):
+    """Return scale, rotation, and translation into a single 4x4 matrix,
+    relative to the <relative_to> block (which should be another NiAVObject
+    connecting to this block). If <relative_to> == None, then returns the
+    transform stored in self, or equivalently, the target is assumed to be the
+    parent."""
     m = self.cls.Matrix44()
     m.setScaleRotationTranslation(self.scale, self.rotation, self.translation)
+    if relative_to == None: return m
+    # find chain from relative_to to self
+    chain = relative_to.findChain(self)
+    if not chain:
+        raise ValueError('cannot find a chain of blocks')
+    # and multiply with all transform matrices (not including relative_to)
+    for block in reversed(chain[1:]):
+        m = block.getTransform() * m
     return m
 
 def setTransform(self, m):

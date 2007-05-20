@@ -10,7 +10,11 @@ for vstr, vnum in sorted(NifFormat.versions.items(), cmp=lambda x, y: cmp(x[1],y
 # creating new nif blocks
 
 #print "Constructing nif tree"
+root = NifFormat.NiNode()
+
 blk = NifFormat.NiNode()
+root.addChild(blk)
+
 blk.scale = 2.4
 blk.translation.x = 3.9
 blk.rotation.m11 = 1.0
@@ -22,12 +26,13 @@ ctrl.flags = 0x000c
 ctrl.target = blk
 blk.controller = ctrl
 
-blk.numChildren = 1
-blk.children.updateSize()
 strips = NifFormat.NiTriStrips()
-blk.children[0] = strips
+blk.addChild(strips)
 
 strips.name = "hello world"
+strips.rotation.m11 = 1.0
+strips.rotation.m22 = 1.0
+strips.rotation.m33 = 1.0
 
 data = NifFormat.NiTriStripsData()
 strips.data = data
@@ -55,6 +60,8 @@ data.points[1][3] = 4
 
 print blk
 print blk.getTransform()
+print strips.getTransform()
+print strips.getTransform(root) # includes the blk transform
 
 print data.triangles
 
@@ -71,10 +78,13 @@ print ctrl.getRefs()
 
 print blk.translation.asList()
 
+print blk.findChain(data) # [ninode, nitristrips, nitristripsdata]
+print data.findChain(ctrl) # []
+
 print "Writing nif file"
 
 f = open("test.nif", "wb")
-NifFormat.write(0x14000005, 11, f, [blk, NifFormat.NiNode()])
+NifFormat.write(0x14000005, 11, f, [root, NifFormat.NiNode()])
 
 # reading a nif file
 

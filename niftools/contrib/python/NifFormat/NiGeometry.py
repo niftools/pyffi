@@ -73,6 +73,9 @@ def setBoneRestPositions(self, restpose_dct):
     """Recalculate the data which fixes the bone rest positions, from
     the bone rest position (in skeleton root space) dictionary."""
     self._validateSkin() # check that skin data is valid
+    skininst = self.skinInstance
+    skindata = skininst.data
+    skelroot = skininst.skeletonRoot
     # calculate skin data from rest positions
     # (there could be an inverse less, code is written to be clear rather
     # than to be fast)
