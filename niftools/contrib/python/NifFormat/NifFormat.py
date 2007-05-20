@@ -145,9 +145,40 @@ class NifFormat(object):
     >>> abs(m.getDeterminant() - 0.321 ** 3) < NifFormat._EPSILON
     True
     >>> m *= -2
+    >>> print m
+    [  0.279 -0.573  0.075 ]
+    [  0.290  0.066 -0.569 ]
+    [ -0.500 -0.281 -0.288 ]
+    <BLANKLINE>
     >>> print "%.5f"%m.getScale()
     -0.64200
     >>> abs(m.getDeterminant() + 0.642 ** 3) < NifFormat._EPSILON
+    True
+    >>> n = NifFormat.Matrix44()
+    >>> n.setIdentity()
+    >>> n.setMatrix33(m)
+    >>> t = NifFormat.Vector3()
+    >>> t.x = 1.2
+    >>> t.y = 3.4
+    >>> t.z = 5.6
+    >>> n.setTranslation(t)
+    >>> print n
+    [  0.279 -0.573  0.075  0.000 ]
+    [  0.290  0.066 -0.569  0.000 ]
+    [ -0.500 -0.281 -0.288  0.000 ]
+    [  1.200  3.400  5.600  1.000 ]
+    <BLANKLINE>
+    >>> n == n
+    True
+    >>> n != n
+    False
+    >>> print n.getInverse()
+    [  0.676  0.704 -1.214  0.000 ]
+    [ -1.391  0.161 -0.682  0.000 ]
+    [  0.183 -1.380 -0.698  0.000 ]
+    [  2.895  6.338  7.686  1.000 ]
+    <BLANKLINE>
+    >>> (n * n.getInverse()).isIdentity()
     True
     """
     __metaclass__ = MetaXmlFileFormat
