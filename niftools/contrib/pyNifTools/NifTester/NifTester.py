@@ -125,7 +125,7 @@ def TestBlock( filename, block, ver1, ver2 ):
                     pass
             print "%s: %s" % ( fname, blkdesc )
     
-    for child in block.getRefs( ver1, ver2 ):
+    for child in block.getRefs():
         TestBlock( filename, child, ver1, ver2 )
 
 
