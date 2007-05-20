@@ -140,6 +140,14 @@ def setTranslation(self, translation):
     self.m42 = translation.y
     self.m43 = translation.z
 
+def isScaleRotationTranslation(self):
+    if not self.getMatrix33().isScaleRotation(): return False
+    if abs(self.m14) > self.cls._EPSILON: return False
+    if abs(self.m24) > self.cls._EPSILON: return False
+    if abs(self.m34) > self.cls._EPSILON: return False
+    if abs(self.m44 - 1.0) > self.cls._EPSILON: return False
+    return True
+
 def getScaleRotationTranslation(self):
     r = self.getMatrix33()
     s = r.getScale()
@@ -167,8 +175,7 @@ def setScaleRotationTranslation(self, scale, rotation, translation):
     self.setTranslation(translation)
 
 def getInverse(self):
-    """Calculates inverse; assuming scale, rotation, translation
-    decomposition holds."""
+    """Calculates inverse (assuming isScaleRotationTranslation is true!)."""
     m = self.getMatrix33().getInverse()
     t = -(self.getTranslation() * m)
 
@@ -227,7 +234,7 @@ def __mul__(self, x):
 
 def __div__(self, x):
     if isinstance(x, (float, int, long)):
-        m = self.cls.Matrix33()
+        m = self.cls.Matrix44()
         m.m11 = self.m11 / x
         m.m12 = self.m12 / x
         m.m13 = self.m13 / x
@@ -246,10 +253,34 @@ def __div__(self, x):
         m.m44 = self.m44 / x
         return m
     else:
-        raise TypeError("do not know how to divide Matrix33 by %s"%x.__class__)
+        raise TypeError("do not know how to divide Matrix44 by %s"%x.__class__)
 
 def __rmul__(self, x):
     if isinstance(x, (float, int, long)):
         return self * x
     else:
-        raise TypeError("do not know how to multiply %s with Matrix33"%x.__class__)
+        raise TypeError("do not know how to multiply %s with Matrix44"%x.__class__)
+
+def __eq__(self, m):
+    if not isinstance(m, self.cls.Matrix44):
+        raise TypeError("do not know how to compare Matrix44 and %s"%x.__class__)
+    if abs(self.m11 - m.m11) > self.cls._EPSILON: return False
+    if abs(self.m12 - m.m12) > self.cls._EPSILON: return False
+    if abs(self.m13 - m.m13) > self.cls._EPSILON: return False
+    if abs(self.m14 - m.m14) > self.cls._EPSILON: return False
+    if abs(self.m21 - m.m21) > self.cls._EPSILON: return False
+    if abs(self.m22 - m.m22) > self.cls._EPSILON: return False
+    if abs(self.m23 - m.m23) > self.cls._EPSILON: return False
+    if abs(self.m24 - m.m24) > self.cls._EPSILON: return False
+    if abs(self.m31 - m.m31) > self.cls._EPSILON: return False
+    if abs(self.m32 - m.m32) > self.cls._EPSILON: return False
+    if abs(self.m33 - m.m33) > self.cls._EPSILON: return False
+    if abs(self.m34 - m.m34) > self.cls._EPSILON: return False
+    if abs(self.m41 - m.m41) > self.cls._EPSILON: return False
+    if abs(self.m42 - m.m42) > self.cls._EPSILON: return False
+    if abs(self.m43 - m.m43) > self.cls._EPSILON: return False
+    if abs(self.m44 - m.m44) > self.cls._EPSILON: return False
+    return True
+
+def __ne__(self, m):
+    return not self.__eq__(m)

@@ -62,6 +62,12 @@ def setIdentity(self):
     self.m32 = 0.0
     self.m33 = 1.0
 
+def isIdentity(self):
+    if  abs(self.m11 - 1.0) > self.cls._EPSILON or abs(self.m12) > self.cls._EPSILON or abs(self.m13) > self.cls._EPSILON or abs(self.m21) > self.cls._EPSILON or abs(self.m22 - 1.0) > self.cls._EPSILON or abs(self.m23) > self.cls._EPSILON or abs(self.m31) > self.cls._EPSILON or abs(self.m32) > self.cls._EPSILON or abs(self.m33 - 1.0) > self.cls._EPSILON:
+        return False
+    else:
+        return True
+
 def getCopy(self):
     m = self.cls.Matrix33()
     m.m11 = self.m11
@@ -110,18 +116,19 @@ def isScaleRotation(self):
     return True
 
 def isRotation(self):
-    """Returns true if the matrix is a rotation matrix."""
+    """Returns true if the matrix is a rotation matrix (a member of SO(3))."""
     if not self.isScaleRotation(): return False
-    if abs(self.getScale() - 1.0) > self.cls._EPSILON: return False
+    if abs(self.getDeterminant() - 1.0) > self.cls._EPSILON: return False
     return True
 
 def getDeterminant(self):
     return self.m11*self.m22*self.m33+self.m12*self.m23*self.m31+self.m13*self.m21*self.m32-self.m31*self.m22*self.m13-self.m21*self.m12*self.m33-self.m11*self.m32*self.m23
 
 def getScale(self):
-    s = (self.m11*self.m11 + self.m12*self.m12 + self.m13*self.m13) ** 0.5
-    if self.getDeterminant() < 0: s = -s
-    return s
+    """Gets the scale (assuming isScaleRotation is true!)."""
+    s = self.getDeterminant()
+    if s < 0: return -((-s)**(1.0/3.0))
+    else: return s**(1.0/3.0)
 
 def getScaleRotation(self):
     r = self.getCopy()
@@ -208,6 +215,8 @@ def __rmul__(self, x):
         raise TypeError("do not know how to multiply %s with Matrix33"%x.__class__)
 
 def __eq__(self, m):
+    if not isinstance(m, self.cls.Matrix33):
+        raise TypeError("do not know how to compare Matrix33 and %s"%x.__class__)
     if abs(self.m11 - m.m11) > self.cls._EPSILON: return False
     if abs(self.m12 - m.m12) > self.cls._EPSILON: return False
     if abs(self.m13 - m.m13) > self.cls._EPSILON: return False

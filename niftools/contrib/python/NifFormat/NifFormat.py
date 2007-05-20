@@ -114,20 +114,20 @@ class NifFormat(object):
     >>> m.m31 =  0.779282
     >>> m.m32 =  0.437844
     >>> m.m33 =  0.448343
-    >>> print m == m
+    >>> m == m
     True
-    >>> print m != m
+    >>> m != m
     False
     >>> print "%.4f"%m.getDeterminant()
     1.0000
-    >>> print m.isRotation()
+    >>> m.isRotation()
     True
     >>> print m.getTranspose()
     [ -0.434 -0.452  0.779 ]
     [  0.893 -0.103  0.438 ]
     [ -0.117  0.886  0.448 ]
     <BLANKLINE>
-    >>> print m.getInverse() == m.getTranspose()
+    >>> m.getInverse() == m.getTranspose()
     True
     >>> m *= 0.321
     >>> print "%.5f"%m.getScale()
@@ -135,15 +135,20 @@ class NifFormat(object):
     >>> s, r = m.getInverse().getScaleRotation()
     >>> print "%.5f"%s
     3.11526
-    >>> print abs(0.321 - 1/s) < NifFormat._EPSILON
+    >>> abs(0.321 - 1/s) < NifFormat._EPSILON
     True
     >>> print r # same as print m.getTranspose() above
     [ -0.434 -0.452  0.779 ]
     [  0.893 -0.103  0.438 ]
     [ -0.117  0.886  0.448 ]
     <BLANKLINE>
-    >>> print "%.4f"%m.getDeterminant()
-    1.0000
+    >>> abs(m.getDeterminant() - 0.321 ** 3) < NifFormat._EPSILON
+    True
+    >>> m *= -2
+    >>> print "%.5f"%m.getScale()
+    -0.64200
+    >>> abs(m.getDeterminant() + 0.642 ** 3) < NifFormat._EPSILON
+    True
     """
     __metaclass__ = MetaXmlFileFormat
     xmlFileName = 'nif.xml'
