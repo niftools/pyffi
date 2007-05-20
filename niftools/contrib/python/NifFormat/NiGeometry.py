@@ -1,6 +1,6 @@
 # --------------------------------------------------------------------------
-# NifFormat.NiSkinInstance
-# Custom functions for NiSkinInstance.
+# NifFormat.NiGeometry
+# Custom functions for NiGeometry.
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENCE BLOCK *****
 #
@@ -43,11 +43,28 @@
 def getBoneRestPositions(self):
     """Return bone rest position dictionary, in skeleton root space.
     To find the rest positions in global space, post-multiply with
-    skeletonRoot.transform."""
+    skinInstance.skeletonRoot.getTransform()."""
     restpose_dct = {}
-    geometry_matrix = self.data.getTransform()
-    bone_list = self.data.boneList
-    for i, bone in enumerate(self.bones):
-        bone_matrix = bone_list[i].getTransform()
-        restpose_dct[bone] = (geometry_matrix * bone_matrix).getInverse()
+    # check out the geometry skin
+    skininst = self.skinInstance
+    if self.skinInstance == None: return {} # no bones
+    skindata = skininst.data
+    if skindata == None:
+        raise ValueError('NiGeometry has NiSkinInstance without NiSkinData')
+    skelroot = skininst.skeletonRoot
+    if skelroot == None:
+        raise ValueError('NiGeometry has NiSkinInstance without skeleton root')
+    num_bones = skininst.numBones
+    if num_bones != skindata.numBones:
+        raise ValueError('NiSkinInstance and NiSkinData have different number of bones')
+    # calculate the rest positions
+    geometry_matrix = skindata.getTransform()
+    for i, bone_block in enumerate(skininst.bones):
+        bone_matrix = skindata.boneList[i].getTransform()
+        restpose_dct[bone_block] = (geometry_matrix * bone_matrix).getInverse()
     return restpose_dct
+
+def setBoneRestPositions(self, restpose_dct):
+    """Recalculate the data which fixes the bone rest positions, from
+    the bone rest position (in skeleton root space) dictionary."""
+    raise NotImplementedError

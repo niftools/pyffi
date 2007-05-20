@@ -54,7 +54,7 @@ data.points[1][2] = 3
 data.points[1][3] = 4
 
 print blk
-print blk.transform
+print blk.getTransform()
 
 print data.triangles
 

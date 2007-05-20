@@ -77,7 +77,7 @@ def updateCenterRadius(self):
 
 def applyScale(self, scale):
     """Apply scale factor on data."""
-    if abs(scale - 1.0) < 0.0001: return
+    if abs(scale - 1.0) < self.cls._EPSILON: return
     for v in self.vertices:
         v.x *= scale
         v.y *= scale
