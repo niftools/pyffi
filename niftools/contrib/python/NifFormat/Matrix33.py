@@ -100,11 +100,11 @@ def isScaleRotation(self):
     m = self*selfT
 
     # off diagonal elements should be zero
-    if abs(m.m12) + abs(m.m13) + abs(m.m21) + abs(m.m23) + abs(m.m31) + abs(m.m32) > 0.0001:
+    if abs(m.m12) + abs(m.m13) + abs(m.m21) + abs(m.m23) + abs(m.m31) + abs(m.m32) > self.cls._EPSILON:
         return False
 
     # diagonal elements should be equal (to scale^2)
-    if abs(m.m11 - m.m22) + abs(m.m22 - m.m33) > 0.0001:
+    if abs(m.m11 - m.m22) + abs(m.m22 - m.m33) > self.cls._EPSILON:
         return False
 
     return True
@@ -112,7 +112,7 @@ def isScaleRotation(self):
 def isRotation(self):
     """Returns true if the matrix is a rotation matrix."""
     if not self.isScaleRotation(): return False
-    if abs(self.getScale() - 1.0) > 0.0001: return False
+    if abs(self.getScale() - 1.0) > self.cls._EPSILON: return False
     return True
 
 def getDeterminant(self):
@@ -126,6 +126,7 @@ def getScale(self):
 def getScaleRotation(self):
     r = self.getCopy()
     s = self.getScale()
+    if abs(s) < self.cls._EPSILON: raise ZeroDivisionError('scale is zero, unable to obtain rotation')
     r /= s
     return (s, r)
 
@@ -148,12 +149,18 @@ def setScaleRotation(self, scale, rotation):
     self.m32 = rotation.m32 * scale
     self.m33 = rotation.m33 * scale
 
+def getInverse(self):
+    """Get inverse (assuming isScaleRotation is true!)."""
+    # transpose inverts rotation but keeps the scale
+    # dividing by scale^2 inverts the scale as well
+    return self.getTranspose() / (self.m11*self.m11 + self.m12*self.m12 + self.m13*self.m13)
+
 def __mul__(self, x):
     if isinstance(x, (float, int, long)):
         m = self.cls.Matrix33()
         m.m11 = self.m11 * x
-        m.m12 = self.m11 * x
-        m.m13 = self.m11 * x
+        m.m12 = self.m12 * x
+        m.m13 = self.m13 * x
         m.m21 = self.m21 * x
         m.m22 = self.m22 * x
         m.m23 = self.m23 * x
@@ -199,3 +206,18 @@ def __rmul__(self, x):
         return self * x
     else:
         raise TypeError("do not know how to multiply %s with Matrix33"%x.__class__)
+
+def __eq__(self, m):
+    if abs(self.m11 - m.m11) > self.cls._EPSILON: return False
+    if abs(self.m12 - m.m12) > self.cls._EPSILON: return False
+    if abs(self.m13 - m.m13) > self.cls._EPSILON: return False
+    if abs(self.m21 - m.m21) > self.cls._EPSILON: return False
+    if abs(self.m22 - m.m22) > self.cls._EPSILON: return False
+    if abs(self.m23 - m.m23) > self.cls._EPSILON: return False
+    if abs(self.m31 - m.m31) > self.cls._EPSILON: return False
+    if abs(self.m32 - m.m32) > self.cls._EPSILON: return False
+    if abs(self.m33 - m.m33) > self.cls._EPSILON: return False
+    return True
+
+def __ne__(self, m):
+    return not self.__eq__(m)

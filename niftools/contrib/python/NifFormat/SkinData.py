@@ -1,8 +1,8 @@
 # --------------------------------------------------------------------------
-# NifFormat.NiGeometry
-# Custom functions for NiGeometry.
+# NifFormat.SkinData
+# Custom functions for SkinData.
 # --------------------------------------------------------------------------
-# ***** BEGIN LICENSE BLOCK *****
+# ***** BEGIN LICENCE BLOCK *****
 #
 # Copyright (c) 2007, NIF File Format Library and Tools.
 # All rights reserved.
@@ -37,33 +37,31 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-# ***** END LICENCE BLOCK *****
+# ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-def applyScale(self, scale):
-    """Apply scale factor on data and set self scale equal to 1.0
-    (setting scale to 1.0 fixes issues with TESCS selection box)."""
-    # stuff not influenced by self.scale
-    # apply scale on self
-    self.translation.x *= scale
-    self.translation.y *= scale
-    self.translation.z *= scale
-    # apply scale on controllers
-    ctrl = self.controller
-    while ctrl != None:
-        try:
-            ctrl.applyScale(scale)
-        except AttributeError:
-            pass
-        ctrl = ctrl.nextController
+def getTransform(self):
+    """Return scale, rotation, and translation into a single 4x4 matrix."""
+    m = self.cls.Matrix44()
+    m.setScaleRotationTranslation(self.scale, self.rotation, self.translation)
+    return m
 
-    # stuff influenced by self.scale
-    # apply scale * self.scale on children
-    for child in [self.data, self.skinInstance]:
-        try:
-            child.applyScale(scale * self.scale)
-        except AttributeError:
-            pass
+def setTransform(self, m):
+    """Set rotation, transform, and velocity."""
+    scale, rotation, translation = m.getScaleRotationTranslation()
 
-    # all done: set self scale to 1.0
-    self.scale = 1.0
+    self.scale = scale
+    
+    self.rotation.m11 = rotation.m11
+    self.rotation.m12 = rotation.m12
+    self.rotation.m13 = rotation.m13
+    self.rotation.m21 = rotation.m21
+    self.rotation.m22 = rotation.m22
+    self.rotation.m23 = rotation.m23
+    self.rotation.m31 = rotation.m31
+    self.rotation.m32 = rotation.m32
+    self.rotation.m33 = rotation.m33
+    
+    self.translation.x = translation.x
+    self.translation.y = translation.y
+    self.translation.z = translation.z

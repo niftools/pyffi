@@ -104,11 +104,52 @@ class NifFormat(object):
     >>> m.m21 = 2.0
     >>> m.getMatrix33().isScaleRotation()
     False
+    >>> m = NifFormat.Matrix33()
+    >>> m.m11 = -0.434308
+    >>> m.m12 =  0.893095
+    >>> m.m13 = -0.117294
+    >>> m.m21 = -0.451770
+    >>> m.m22 = -0.103314
+    >>> m.m23 =  0.886132
+    >>> m.m31 =  0.779282
+    >>> m.m32 =  0.437844
+    >>> m.m33 =  0.448343
+    >>> print m == m
+    True
+    >>> print m != m
+    False
+    >>> print "%.4f"%m.getDeterminant()
+    1.0000
+    >>> print m.isRotation()
+    True
+    >>> print m.getTranspose()
+    [ -0.434 -0.452  0.779 ]
+    [  0.893 -0.103  0.438 ]
+    [ -0.117  0.886  0.448 ]
+    <BLANKLINE>
+    >>> print m.getInverse() == m.getTranspose()
+    True
+    >>> m *= 0.321
+    >>> print "%.5f"%m.getScale()
+    0.32100
+    >>> s, r = m.getInverse().getScaleRotation()
+    >>> print "%.5f"%s
+    3.11526
+    >>> print abs(0.321 - 1/s) < NifFormat._EPSILON
+    True
+    >>> print r # same as print m.getTranspose() above
+    [ -0.434 -0.452  0.779 ]
+    [  0.893 -0.103  0.438 ]
+    [ -0.117  0.886  0.448 ]
+    <BLANKLINE>
+    >>> print "%.4f"%m.getDeterminant()
+    1.0000
     """
     __metaclass__ = MetaXmlFileFormat
     xmlFileName = 'nif.xml'
     xmlFilePath = [ os.getenv('NIFXMLPATH'), os.path.dirname(__file__) ] # where to look for nif.xml and in what order: NIFXMLPATH env var, or NifFormat module directory
     clsFilePath = os.path.dirname(__file__) # path of class customizers
+    _EPSILON = 0.0001 # used for comparing floats
     
     # basic types
     int = BasicTypes.Int

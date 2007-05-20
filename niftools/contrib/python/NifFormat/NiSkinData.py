@@ -1,6 +1,6 @@
 # --------------------------------------------------------------------------
-# NifFormat.NiAVObject
-# Custom functions for NiAVObject.
+# NifFormat.NiSkinData
+# Custom functions for NiSkinData.
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENCE BLOCK *****
 #
@@ -40,13 +40,6 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-def addProperty(self, propblock):
-    """Add block to property list."""
-    num_props = self.numProperties
-    self.numProperties = num_props + 1
-    self.properties.updateSize()
-    self.properties[num_props] = propblock
-
 def getTransform(self):
     """Return scale, rotation, and translation into a single 4x4 matrix."""
     m = self.cls.Matrix44()
@@ -72,20 +65,18 @@ def setTransform(self, m):
     self.translation.x = translation.x
     self.translation.y = translation.y
     self.translation.z = translation.z
-    
+
 def applyScale(self, scale):
-    """Apply scale factor <scale> on data."""
-    # apply scale on translation
+    """Apply scale factor on data."""
     self.translation.x *= scale
     self.translation.y *= scale
     self.translation.z *= scale
-    # apply scale on bounding box
-    self.boundingBox.translation.x *= scale
-    self.boundingBox.translation.y *= scale
-    self.boundingBox.translation.z *= scale
-    self.boundingBox.radius.x *= scale
-    self.boundingBox.radius.y *= scale
-    self.boundingBox.radius.z *= scale
 
-    # apply scale on all blocks down the hierarchy
-    self.cls.NiObject.applyScale(self, scale)
+    for skindata in self.boneList:
+        skindata.translation.x *= scale
+        skindata.translation.y *= scale
+        skindata.translation.z *= scale
+        skindata.boundingSphereOffset.x *= scale
+        skindata.boundingSphereOffset.y *= scale
+        skindata.boundingSphereOffset.z *= scale
+        skindata.boundingSphereRadius *= scale

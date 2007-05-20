@@ -124,3 +124,9 @@ def __rsub__(self, x):
     else:
         raise TypeError("do not know how to add %s and Vector3"%x.__class__)
 
+def __neg__(self):
+    v = self.cls.Vector3()
+    v.x = -self.x
+    v.y = -self.y
+    v.z = -self.z
+    return v

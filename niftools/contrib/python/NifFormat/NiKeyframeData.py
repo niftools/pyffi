@@ -1,6 +1,6 @@
 # --------------------------------------------------------------------------
-# NifFormat.NiAVObject
-# Custom functions for NiAVObject.
+# NifFormat.NiKeyframeData
+# Custom functions for NiKeyframeData.
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENCE BLOCK *****
 #
@@ -40,52 +40,16 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-def addProperty(self, propblock):
-    """Add block to property list."""
-    num_props = self.numProperties
-    self.numProperties = num_props + 1
-    self.properties.updateSize()
-    self.properties[num_props] = propblock
-
-def getTransform(self):
-    """Return scale, rotation, and translation into a single 4x4 matrix."""
-    m = self.cls.Matrix44()
-    m.setScaleRotationTranslation(self.scale, self.rotation, self.translation)
-    return m
-
-def setTransform(self, m):
-    """Set rotation, transform, and velocity."""
-    scale, rotation, translation = m.getScaleRotationTranslation()
-
-    self.scale = scale
-    
-    self.rotation.m11 = rotation.m11
-    self.rotation.m12 = rotation.m12
-    self.rotation.m13 = rotation.m13
-    self.rotation.m21 = rotation.m21
-    self.rotation.m22 = rotation.m22
-    self.rotation.m23 = rotation.m23
-    self.rotation.m31 = rotation.m31
-    self.rotation.m32 = rotation.m32
-    self.rotation.m33 = rotation.m33
-    
-    self.translation.x = translation.x
-    self.translation.y = translation.y
-    self.translation.z = translation.z
-    
 def applyScale(self, scale):
-    """Apply scale factor <scale> on data."""
-    # apply scale on translation
-    self.translation.x *= scale
-    self.translation.y *= scale
-    self.translation.z *= scale
-    # apply scale on bounding box
-    self.boundingBox.translation.x *= scale
-    self.boundingBox.translation.y *= scale
-    self.boundingBox.translation.z *= scale
-    self.boundingBox.radius.x *= scale
-    self.boundingBox.radius.y *= scale
-    self.boundingBox.radius.z *= scale
-
-    # apply scale on all blocks down the hierarchy
-    self.cls.NiObject.applyScale(self, scale)
+    """Apply scale factor on data."""
+    for key in self.translations.keys:
+        key.value.x *= scale
+        key.value.y *= scale
+        key.value.z *= scale
+        key.forward.x *= scale
+        key.forward.y *= scale
+        key.forward.z *= scale
+        key.backward.x *= scale
+        key.backward.y *= scale
+        key.backward.z *= scale
+        # TODO figure out what to do with TBC

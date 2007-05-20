@@ -62,3 +62,10 @@ def find(self, block_name = None, block_type = None):
         if blk != None: return blk
 
     return None
+
+def applyScale(self, scale):
+    """Propagate scale down the hierarchy.
+    Override this method if it contains geometry data that can be scaled.
+    If overridden, call this base method to propagate scale down the hierarchy."""
+    for child in self.getRefs():
+        child.applyScale(scale)
