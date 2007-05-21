@@ -40,9 +40,10 @@
 # ***** END LICENCE BLOCK *****
 # --------------------------------------------------------------------------
 
-import struct
-import os
+import struct, os, re
+
 from FileFormat.XmlFileFormat import MetaXmlFileFormat
+from FileFormat import Utils
 import BasicTypes
 
 class NifError(StandardError):
@@ -402,7 +403,7 @@ class NifFormat(object):
         block_type_list = [] # list of all block type strings
         block_type_dct = {} # maps block to block type string index
         for root in roots:
-            cls.makeBlockList(version, user_version, root, block_list, block_index_dct, block_type_list, block_type_dct)
+            cls._makeBlockList(version, user_version, root, block_list, block_index_dct, block_type_list, block_type_dct)
 
         # set up header
         hdr = cls.Header()
@@ -455,7 +456,9 @@ class NifFormat(object):
         ftr.write(version, user_version, f, block_index_dct, None)
 
     @classmethod
-    def makeBlockList(cls, version, user_version, root, block_list, block_index_dct, block_type_list, block_type_dct, reverse = False):
+    def _makeBlockList(cls, version, user_version, root, block_list, block_index_dct, block_type_list, block_type_dct, reverse = False):
+        """This is a helper function for write to set up the list of all blocks,
+        the block index map, and the block type map."""
         # block already listed? if so, return
         if root in block_list: return
         # add block type to block type dictionary
@@ -482,3 +485,53 @@ class NifFormat(object):
         if reverse:
             block_index_dct[root] = len(block_list)
             block_list.append(root)
+
+    @classmethod
+    def walk(cls, top, topdown = True, onerror = None, verbose = 0):
+        """A generator which yields the roots of all files in directory top
+        whose filename matches the regular expression re_filename. The argument
+        top can also be a file instead of a directory. The argument onerror,
+        if set, will be called if cls.read raises an exception (errors coming
+        from os.walk will be ignored)."""
+        # filter for recognizing nif files by extension
+        # .kf are nif files containing keyframes
+        # .kfa are nif files containing keyframes in DAoC style
+        # .nifcache are Empire Earth II nif files
+        re_nif = re.compile(r'^.*\.(nif|kf|kfa|nifcache)$', re.IGNORECASE)
+        # now walk over all these files in directory top
+        for filename in Utils.walk(top, topdown, onerror = None, re_filename = re_nif):
+            if verbose >= 1: print "reading %s"%filename
+            f = open(filename, "rb")
+            try:
+                # get the version
+                version, user_version = cls.getVersion(f)
+                if version >= 0:
+                    # we got it, so now read the nif file
+                    if verbose >= 1: print "version 0x%08X"%version
+                    try:
+                        # return the roots
+                        yield cls.read(version, user_version, f)
+                    except StandardError, e:
+                        # an error occurred during reading
+                        # this should not happen: means that the file is
+                        # corrupt, or that the xml is corrupt
+                        # so we call onerror
+                        if verbose >= 1:
+                            print 'Warning: read failed due to either a corrupt nif file, a corrupt nif.xml,'
+                            print 'or a bug in NifFormat library.'
+                        if verbose >= 2:
+                            Utils.hexDump(f)
+                        if onerror == None:
+                            pass # ignore the error
+                        else:
+                            onerror(e)
+                    except: # raise keyboard interrupt etc.
+                        raise
+                # getting version failed, do not raise an exception
+                # but tell user what happened
+                elif version == -1:
+                    if verbose >= 1: print 'version not supported'
+                else:
+                    if verbose >= 1: print 'not a nif file'
+            finally:
+                f.close()

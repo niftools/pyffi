@@ -81,3 +81,27 @@ def applyScale(self, scale):
     If overridden, call this base method to propagate scale down the hierarchy."""
     for child in self.getRefs():
         child.applyScale(scale)
+
+def tree(self):
+    """A generator for parsing all blocks in the tree (starting from and
+    including self)."""
+    # yield self
+    yield self
+
+    # yield tree attached to each child
+    for child in self.getRefs():
+        for block in child.tree():
+            yield block
+
+def _validateTree(self):
+    """Raises ValueError if there is a cycle in the tree."""
+    # If the tree is parsed, then each block should be visited once.
+    # However, as soon as some cycle is present, parsing the tree
+    # will visit some child more than once (and as a consequence, infinitely
+    # many times). So, walk the reference tree and check that every block is
+    # only visited once.
+    children = []
+    for child in self.tree():
+        if child in children:
+            raise ValueError('cyclic references detected')
+        children.append(child)

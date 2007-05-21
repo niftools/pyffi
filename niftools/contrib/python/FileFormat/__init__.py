@@ -1,1 +1,1 @@
-__all__ = [ 'XmlFileFormat' ]
+__all__ = [ 'XmlFileFormat', 'Utils' ]

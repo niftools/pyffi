@@ -1,19 +1,8 @@
-"""A module for hexdumping.
-
->>> from tempfile import TemporaryFile
->>> f = TemporaryFile()
->>> f.write('abcdefg\\x0a')
->>> f.seek(2)
->>> HexDump(f, 2)
-            00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
------------------------------------------------------------
-0x00000000  61 62>63 64 65 66 67 0A                         |abcdefg.        |
-0x00000010                                                  |                |
-"""
-
 # --------------------------------------------------------------------------
-# FileFormat.HexDump
-# A module for hexdumping.
+# FileFormat.Utils
+# A module with various utilities:
+# - hexdumping
+# - parsing all files in a directory tree
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -53,13 +42,47 @@
 # ***** END LICENCE BLOCK *****
 # --------------------------------------------------------------------------
 
+import os
+
+def walk(top, topdown = True, onerror = None, re_filename = None):
+    """A variant of os.walk() which also works if top is a file instead of a
+    directory, filters files by name, and returns full path."""
+    if os.path.isfile(top):
+        dirpath, filename = os.path.split(top)
+        if re_filename != None:
+            if re_filename.match(filename):
+                yield top
+        else:
+            yield top
+    else:
+        for dirpath, dirnames, filenames in os.walk(top):
+            for filename in filenames:
+                if re_filename != None:
+                    if re_filename.match(filename):
+                        yield os.path.join(dirpath, filename)
+                else:
+                    yield os.path.join(dirpath, filename)
+
 #table = "."*32
 #for c in [chr(i) for i in xrange(32,128)]:
 #    table += c
 #table += "."*128
 chartable = '................................ !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.................................................................................................................................'
 
-def HexDump(f, numLines = 8):
+def hexDump(f, numLines = 8):
+    """A function for hexdumping.
+
+    >>> from tempfile import TemporaryFile
+    >>> f = TemporaryFile()
+    >>> f.write('abcdefg\\x0a')
+    >>> f.seek(2)
+    >>> HexDump(f, 2)
+                00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
+    -----------------------------------------------------------
+    0x00000000  61 62>63 64 65 66 67 0A                         |abcdefg.        |
+    0x00000010                                                  |                |
+    """
+
     pos = f.tell()
     if pos > numLines*8:
         f.seek((pos-numLines*8) & 0xfffffff0)

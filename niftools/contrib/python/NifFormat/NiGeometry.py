@@ -58,11 +58,14 @@ def getBoneRestPositions(self):
     """Return bone rest position dictionary, in skeleton root space.
     To find the rest positions in global space, post-multiply with
     skinInstance.skeletonRoot.getTransform()."""
-    if not isSkin(): return {} # no bones
+    if not self.isSkin(): return {} # no bones
     self._validateSkin() # check that skin data is valid
     # calculate the rest positions
     # (there could be an inverse less, code is written to be clear rather
     # than to be fast)
+    restpose_dct = {}
+    skininst = self.skinInstance
+    skindata = skininst.data
     geometry_matrix = skindata.getTransform().getInverse()
     for i, bone_block in enumerate(skininst.bones):
         bone_matrix = skindata.boneList[i].getTransform().getInverse()
