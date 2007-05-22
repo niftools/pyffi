@@ -54,12 +54,23 @@ def _validateSkin(self):
     if self.skinInstance.numBones != self.skinInstance.data.numBones:
         raise ValueError('NiSkinInstance and NiSkinData have different number of bones')
 
-def getBoneRestPositions(self):
-    """Return bone rest position dictionary, in skeleton root space.
-    To find the rest positions in global space, post-multiply with
-    skinInstance.skeletonRoot.getTransform()."""
-    if not self.isSkin(): return {} # no bones
+def getGeometryRestPosition(self):
+    """Return geometry rest position, in skeleton root space."""
+    if not self.isSkin():
+        raise ValueError('NiGeometry has no NiSkinInstance, and therefore no rest position')
     self._validateSkin() # check that skin data is valid
+    # calculate the rest positions
+    # (there could be an inverse less, code is written to be clear rather
+    # than to be fast)
+    skininst = self.skinInstance
+    skindata = skininst.data
+    geometry_matrix = skindata.getTransform().getInverse()
+    return geometry_matrix
+
+def getBoneRestPositions(self):
+    """Return bone rest position dictionary, in skeleton root space."""
+    # first get the geometry rest position
+    geometry_matrix = self.getGeometryRestPosition()
     # calculate the rest positions
     # (there could be an inverse less, code is written to be clear rather
     # than to be fast)

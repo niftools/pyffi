@@ -480,7 +480,7 @@ class NifFormat(object):
             block_list.append(root)
         # add children
         for child in root.getLinks(version, user_version):
-            cls.makeBlockList(version, user_version, child, block_list, block_index_dct, block_type_list, block_type_dct, reverse)
+            cls._makeBlockList(version, user_version, child, block_list, block_index_dct, block_type_list, block_type_dct, reverse)
         # add block if reverse
         if reverse:
             block_index_dct[root] = len(block_list)
