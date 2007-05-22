@@ -61,7 +61,7 @@ def getTransform(self, relative_to = None):
     if not chain:
         raise ValueError('cannot find a chain of blocks')
     # and multiply with all transform matrices (not including relative_to)
-    for block in reversed(chain[1:]):
+    for block in reversed(chain[1:-1]):
         m = block.getTransform() * m
     return m
 
