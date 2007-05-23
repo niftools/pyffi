@@ -1,3 +1,11 @@
+Installation
+------------
+
+python setup.py install
+
+Quick code description
+----------------------
+
 The general philosophy of this library is to supply all information
 that comes naturally from the files, and nothing more. For very common
 calculations, we might add some functions to it, to make life easier
