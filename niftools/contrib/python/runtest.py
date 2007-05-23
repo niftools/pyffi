@@ -13,8 +13,8 @@ def pass_exception(e):
     pass
 
 # test all files using testBlock and testRoot functions
-def testPath(top, testBlock, testRoot, onreaderror = None):
-    for root_blocks in NifFormat.walk(top, onerror = onreaderror, verbose = 1):
+def testPath(top, testBlock, testRoot, testFile, onreaderror = None):
+    for version, user_version, f, root_blocks in NifFormat.walkFile(top, onerror = onreaderror, verbose = 1):
         if testBlock:
             for root in root_blocks:
                 for block in root.tree():
@@ -22,6 +22,8 @@ def testPath(top, testBlock, testRoot, onreaderror = None):
         if testRoot:
             for root in root_blocks:
                 testRoot(root, verbose = 1)
+        if testFile:
+            testFile(version, user_version, f, root_blocks, verbose = 1)
 
 # if script is called...
 if __name__ == "__main__":
@@ -86,5 +88,6 @@ Usage:  Specify a nif file or folder as first argument.
 
     testBlock = getattr(tester, 'testBlock', None)
     testRoot = getattr(tester, 'testRoot', None)
+    testFile = getattr(tester, 'testFile', None)
 
-    testPath(top, testBlock, testRoot, onreaderror)
+    testPath(top, testBlock, testRoot, testFile, onreaderror)

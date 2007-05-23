@@ -493,6 +493,18 @@ class NifFormat(object):
         top can also be a file instead of a directory. The argument onerror,
         if set, will be called if cls.read raises an exception (errors coming
         from os.walk will be ignored)."""
+        for version, user_version, f, roots in _walkFile(cls, top, topdown, onerror, verbose):
+            yield roots
+
+    @classmethod
+    def walkFile(cls, top, topdown = True, onerror = None, verbose = 0):
+        """Like walk, but returns more information:
+        version, user_version, f, and roots.
+
+        Note that the caller is not responsible for closing f.
+
+        walkFile is for instance used by runtest.py to implement the
+        testFile-style tests which must access f after the file has been read."""
         # filter for recognizing nif files by extension
         # .kf are nif files containing keyframes
         # .kfa are nif files containing keyframes in DAoC style
@@ -509,8 +521,8 @@ class NifFormat(object):
                     # we got it, so now read the nif file
                     if verbose >= 1: print "version 0x%08X"%version
                     try:
-                        # return the roots
-                        yield cls.read(version, user_version, f)
+                        # return (version, user_version, f, roots)
+                        yield version, user_version, f, cls.read(version, user_version, f)
                     except StandardError, e:
                         # an error occurred during reading
                         # this should not happen: means that the file is
@@ -525,8 +537,6 @@ class NifFormat(object):
                             pass # ignore the error
                         else:
                             onerror(e)
-                    except: # raise keyboard interrupt etc.
-                        raise
                 # getting version failed, do not raise an exception
                 # but tell user what happened
                 elif version == -1:
