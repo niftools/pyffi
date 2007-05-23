@@ -4,7 +4,16 @@ import sys, os
 
 from NifFormat.NifFormat import NifFormat
 
-def testPath(top, testBlock, testRoot):
+# useful as onreaderror parameter
+def raise_exception(e):
+    raise e
+
+# useful as onreaderror parameter
+def pass_exception(e):
+    pass
+
+# test all files using testBlock and testRoot functions
+def testPath(top, testBlock, testRoot, onreaderror = None):
     for root_blocks in NifFormat.walk(top, onerror = onreaderror, verbose = 1):
         if testBlock:
             for root in root_blocks:
@@ -14,6 +23,7 @@ def testPath(top, testBlock, testRoot):
             for root in root_blocks:
                 testRoot(root, verbose = 1)
 
+# if script is called...
 if __name__ == "__main__":
     if not len(sys.argv) in [2, 3]:
         print """
@@ -35,6 +45,23 @@ Usage:  Specify a nif file or folder as first argument.
           testBlock(block) - will be called on every block in the nif
           testRoot(root)   - will be called on every root block of the nif
         Not both need to be present.
+
+        Examples:
+
+        * check if the library can read all files (python version of
+          nifskope's xml checker):
+
+            python runtest.py read
+
+        * same as above, but also find out profile information on reading nif
+          files:
+
+            python -m cProfile -s cumulative runtest.py read
+
+        * find out time spent on a particular test:
+
+            python -m cProfile -s cumulative runtest.py skindatacheck | grep skindatacheck
+
 """
         sys.exit(1)
 
@@ -43,12 +70,6 @@ Usage:  Specify a nif file or folder as first argument.
         top = sys.argv[2]
     else:
         top = '.'
-
-    def raise_exception(e):
-        raise e
-
-    def pass_exception(e):
-        pass
 
     try:
         test = __import__('test.hacking.' + tester_str)
@@ -66,4 +87,4 @@ Usage:  Specify a nif file or folder as first argument.
     testBlock = getattr(tester, 'testBlock', None)
     testRoot = getattr(tester, 'testRoot', None)
 
-    testPath(top, testBlock, testRoot)
+    testPath(top, testBlock, testRoot, onreaderror)
