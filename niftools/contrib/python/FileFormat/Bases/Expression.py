@@ -116,6 +116,14 @@ class Expression(object):
         else:
             raise NotImplementedError("expression syntax error: operator '" + op + "' not implemented")
 
+    def __str__(self):
+        """Reconstruct the expression to a string."""
+        
+        left = str(self._left)
+        if not self._op: return left
+        right = str(self._right)
+        return left + ' ' + self._op + ' ' + right
+
     @classmethod
     def _parse(cls, expr_str, name_filter = lambda x: x):
         """Returns an Expression, string, or int, depending on the

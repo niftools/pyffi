@@ -99,10 +99,23 @@ class XmlHandler(xml.sax.handler.ContentHandler):
         # initialize tag stack
         self.stack = []
         self.currentTag = None # last element of self.stack; storing this reduces overhead
+
         # cls needs to be accessed in member functions, so make it an instance
         # member variable
         self.cls = cls
-    
+
+        # We also keep an ordered list of all classes that have been created.
+        # The xmlCompound list includes all xml generated compound classes,
+        # including those that are replaced by a native class in cls (for
+        # instance NifFormat.String). The idea is that these lists should
+        # contain sufficient info from the xml so they can be used to write other
+        # python scripts that would otherwise have to implement their own
+        # xml parser. See makehsl.py for an example of usage.
+        #
+        # (note: no classes are created for basic types, so no list for those)
+        self.cls.xmlEnum = []
+        self.cls.xmlCompound = []
+
     def pushTag(self, x):
         """Push tag x on the stack and make it the current tag."""
         self.stack.insert(0, x)
@@ -313,8 +326,13 @@ class XmlHandler(xml.sax.handler.ContentHandler):
             return # improves performance
         if x in [ self.tagBlock, self.tagCompound, self.tagEnum ]:
             # create class cls.<class_name> (if it has not been implemented internally)
+            class_type = type(str(self.class_name), (self.class_base,), self.class_dct)
             if not self.cls.__dict__.has_key(self.class_name):
-                setattr(self.cls, self.class_name, type(str(self.class_name), (self.class_base,), self.class_dct))
+                setattr(self.cls, self.class_name, class_type)
+            if x != self.tagEnum:
+                self.cls.xmlCompound.append(class_type)
+            else:
+                self.cls.xmlEnum.append(class_type)
         elif x == self.tagBasic:
             # link class cls.<class_name> to self.basic_class
             setattr(self.cls, self.class_name, self.basic_class)
