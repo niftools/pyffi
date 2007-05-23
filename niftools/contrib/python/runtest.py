@@ -43,10 +43,12 @@ Usage:  Specify a nif file or folder as first argument.
         For validate tests, exceptions during read will be raised.
         For hacking tests, exceptions during read will be passed.
 
-        The tester.py script may contain two functions:
+        These three functions in the tester script are called:
           testBlock(block) - will be called on every block in the nif
           testRoot(root)   - will be called on every root block of the nif
-        Not both need to be present.
+          testFile(version, user_version, f, roots)
+                           - will be called on every nif
+        Not all of them need to be present.
 
         Examples:
 
