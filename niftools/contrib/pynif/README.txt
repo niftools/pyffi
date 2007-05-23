@@ -1,14 +1,13 @@
 To run the tools in this directory, you need to install PyOpenGL. The
-easiest way to do this, is to install setuptools by downloading
-
-http://peak.telecommunity.com/dist/ez_setup.py
-
-and running
+easiest way to do this, is to run the following scripts:
 
 $ python ez_setup.py
 
-Then you can install PyOpenGL and pygame using
+to install setuptools, and then
 
 $ easy_install PyOpenGL
+$ easy_install numpy
+$ easy_install pygame
+$ easy_install http://niftools.svn.sourceforge.net/svnroot/niftools/trunk/pynif
 
-to download and install PyOpenGL.
+to download and install the packages you need.
