@@ -453,6 +453,37 @@
         <add name="Vertex Indices" type="ushort" arr1="Num Vertices">The vertex indices.</add>
     </compound>
 
+    <compound name="Vector3" niflibtype="Vector3" nifskopetype="vector3">
+        A vector in 3D space (x,y,z).
+        <add name="x" type="float">First coordinate.</add>
+        <add name="y" type="float">Second coordinate.</add>
+        <add name="z" type="float">Third coordinate.</add>
+    </compound>
+
+    <compound name="Vector4" niflibtype="Float4" nifskopetype="vector4">
+        A 4-dimensional vector.
+        <add name="x" type="float">First coordinate.</add>
+        <add name="y" type="float">Second coordinate.</add>
+        <add name="z" type="float">Third coordinate.</add>
+        <add name="w" type="float">Fourth coordinate.</add>
+    </compound>
+
+    <compound name="Quaternion" niflibtype="Quaternion" nifskopetype="quaternion">
+        A quaternion.
+        <add name="w" type="float">The w-coordinate.</add>
+        <add name="x" type="float">The x-coordinate.</add>
+        <add name="y" type="float">The y-coordinate.</add>
+        <add name="z" type="float">The z-coordinate.</add>
+    </compound>
+
+    <compound name="QuaternionXYZW" nifskopetype="quaternion_xyzw">
+        A quaternion as it appears in the havok objects.
+        <add name="x" type="float">The x-coordinate.</add>
+        <add name="y" type="float">The y-coordinate.</add>
+        <add name="z" type="float">The z-coordinate.</add>
+        <add name="w" type="float">The w-coordinate.</add>
+    </compound>
+
     <compound name="Matrix22" niflibtype="Matrix22">
         A 2x2 matrix of float values.  Stored in OpenGL column-major format.
         <add name="m11" type="float">Member 1,1 (top left)</add>
@@ -525,22 +556,6 @@
         <add name="Value" type="TEMPLATE">The key value.</add>
         <add name="Forward" type="TEMPLATE">Forward tangent.</add>
         <add name="Backward" type="TEMPLATE">Backward tangent.</add>
-    </compound>
-
-    <compound name="Quaternion" niflibtype="Quaternion" nifskopetype="quaternion">
-        A quaternion.
-        <add name="w" type="float">The w-coordinate.</add>
-        <add name="x" type="float">The x-coordinate.</add>
-        <add name="y" type="float">The y-coordinate.</add>
-        <add name="z" type="float">The z-coordinate.</add>
-    </compound>
-
-    <compound name="QuaternionXYZW" nifskopetype="quaternion_xyzw">
-        A quaternion as it appears in the havok objects.
-        <add name="x" type="float">The x-coordinate.</add>
-        <add name="y" type="float">The y-coordinate.</add>
-        <add name="z" type="float">The z-coordinate.</add>
-        <add name="w" type="float">The w-coordinate.</add>
     </compound>
 
     <compound name="ShortString" ver1="10.1.0.0" niflibtype="ShortString" nifskopetype="shortstring">
@@ -794,13 +809,6 @@
         <add name="Bone Indices" type="byte" arr1="Num Vertices" arr2="Num Weights Per Vertex" cond="Has Bone Indices != 0">Bone indices, they index into &#039;Bones&#039;.</add>
     </compound>
 
-    <compound name="Vector3" niflibtype="Vector3" nifskopetype="vector3">
-        A vector in 3D space (x,y,z).
-        <add name="x" type="float">First coordinate.</add>
-        <add name="y" type="float">Second coordinate.</add>
-        <add name="z" type="float">Third coordinate.</add>
-    </compound>
-
     <compound name="BoundingBox">
         Bounding box.
         <add name="Unknown Int" type="uint" default="1">Usually 1.</add>
@@ -857,14 +865,6 @@
         <add name="Vertex Weights" type="SkinWeight" arr1="Num Vertices" ver1="4.2.2.0" cond="ARG != 0">The vertex weights.</add>
     </compound>
 
-    <compound name="Vector4" niflibtype="Float4" nifskopetype="vector4">
-        A 4-dimensional vector.
-        <add name="x" type="float">First coordinate.</add>
-        <add name="y" type="float">Second coordinate.</add>
-        <add name="z" type="float">Third coordinate.</add>
-        <add name="w" type="float">Fourth coordinate.</add>
-    </compound>
-
     <compound name="Sphere">
         A sphere.
         <add name="Center" type="Vector3">The sphere's center.</add>
@@ -883,7 +883,7 @@
         <add name="Layer" type="OblivionLayer">Sets mesh color in Oblivion Construction Set.</add>
         <add name="Col Filter" type="byte">The first bit sets the LINK property and controls whether this body is physically linked to others. The next bit turns collision off. Then, the next bit sets the SCALED property in Oblivion. The next five bits make up the number of this part in a linked body list.</add>
         <add name="Unknown Short" type="ushort">Unknown.</add>
-        <add name="Vertex Count (?)" type="uint">Seems to be the number of vertices that form this sub shape.</add>
+        <add name="Vertex Count?" type="uint">Seems to be the number of vertices that form this sub shape.</add>
         <add name="Material" type="HavokMaterial">The material of the subshape.</add>
     </compound>
 
@@ -1144,7 +1144,7 @@
         <add name="Unknown Short 3" type="ushort">Unknown.</add>
         <add name="Unknown Short 4" type="ushort">Unknown.</add>
         <add name="Dimensions" type="Vector3">Looks like this could be the box size.</add>
-        <add name="Min. size" type="float">The smallest of the three sizes. Might be used for optimization.</add>
+        <add name="Minimum Size" type="float">The smallest of the three sizes. Might be used for optimization.</add>
     </niobject>
 
     <niobject name="bhkConvexVerticesShape" abstract="0" inherit="bhkConvexShape" ver1="20.0.0.5">
