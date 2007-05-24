@@ -1,5 +1,5 @@
-To run the tools in this directory, you need to install PyOpenGL. The
-easiest way to do this, is to run the following scripts:
+To run the tools in this directory, you need to install a few other python
+libraries. The easiest way to do this, is to run the following scripts:
 
 $ python ez_setup.py
 
