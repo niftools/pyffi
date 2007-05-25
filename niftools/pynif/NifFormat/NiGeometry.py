@@ -64,8 +64,7 @@ def getGeometryRestPosition(self):
     # than to be fast)
     skininst = self.skinInstance
     skindata = skininst.data
-    geometry_matrix = skindata.getTransform().getInverse()
-    return geometry_matrix
+    return skindata.getTransform() * self.getTransform(skininst.skeletonRoot)
 
 def getBoneRestPositions(self):
     """Return bone rest position dictionary, in skeleton root space."""
@@ -79,8 +78,7 @@ def getBoneRestPositions(self):
     skindata = skininst.data
     geometry_matrix = skindata.getTransform().getInverse()
     for i, bone_block in enumerate(skininst.bones):
-        bone_matrix = skindata.boneList[i].getTransform().getInverse()
-        restpose_dct[bone_block] = bone_matrix * geometry_matrix
+        restpose_dct[bone_block] = skindata.boneList[i].getTransform().getInverse()
     return restpose_dct
 
 def setBoneRestPositions(self, restpose_dct):

@@ -42,15 +42,21 @@
 
 from FileFormat.Bases.Array import Array
 from FileFormat.Bases.Expression import Expression
+import PyTriStrip
 
-def _get_numTriangles(self):
-    n = 0
+def generateFaces():
     for strip in self.points:
-        n += len(strip) - 2
-    return n
+        for face in PyTriStrip.generateFaces(strip):
+            yield face
 
+def setStripsFromFaces(faces):
+    
+
+# will remove this function
+# instead use generateFaces
 def _get_triangles(self):
     """Get list of all triangles in all strips."""
+    return 
     triangles = Array(self, self.cls.Triangle, None, None, Expression("Num Triangles", self.cls.nameAttribute))
     triangles_iter = triangles.__iter__()
     for strip in self.points:
