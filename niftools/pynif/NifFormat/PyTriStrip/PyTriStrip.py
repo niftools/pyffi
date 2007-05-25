@@ -9,18 +9,20 @@ def _iterateTriangleList(triangles):
 
 def generateTriangles(strip):
     """Converts a strip into a list of triangles. Degenerate triangles are
-    discarded."""
+    discarded.
+
+    >>> generateTriangles([0, 1, 2, 3, 4, 5, 6])
+    [0, 1, 2, 1, 3, 2, 2, 3, 4, 3, 5, 4, 4, 5, 6]"""
     triangles = []
-    
-    t1 = strip[0]
-    t2 = strip[1]
-    for i in xrange(2, len(strip)):
+    i = strip.__iter__()
+    t1 = i.next()
+    t2 = i.next()
+    for j in xrange(2, len(strip)):
         t0 = t1
         t1 = t2
-        t2 = strip[i]
+        t2 = i.next()
         if t0 == t1 or t1 == t2 or t2 == t0: continue
-        t = triangles_iter.next()
-        if i & 1: triangles.extend([t0,t2,t1])
+        if j & 1: triangles.extend([t0,t2,t1])
         else:     triangles.extend([t0,t1,t2])
     return triangles
 
