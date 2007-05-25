@@ -49,9 +49,6 @@ def generateFaces():
         for face in PyTriStrip.generateFaces(strip):
             yield face
 
-def setStripsFromFaces(faces):
-    
-
 # will remove this function
 # instead use generateFaces
 def _get_triangles(self):
