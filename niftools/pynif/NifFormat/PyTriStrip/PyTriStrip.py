@@ -32,7 +32,12 @@ def generateStrips(triangles, minStripLength = 0):
     list of strips. A fan is also a list of triangle indices, and so
     is a strip.
 
-    (Note: in the current implementation, fans is always [].)"""
+    (Note: in the current implementation, fans is always [].)
+
+    >>> triangles = [1, 5, 2, 5, 2, 6, 5, 9, 6, 9, 6, 10, 9, 13, 10, 13, 10, 14, 0, 4, 1, 4, 1, 5, 4, 8, 5, 8, 5, 9, 8, 12, 9, 12, 9, 13, 2, 6, 3, 6, 3, 7, 6, 10, 7, 10, 7, 11, 10, 14, 11, 14, 11, 15]
+    >>> generateStrips(triangles)
+    ([], [], [[1, 0, 1, 4, 5, 8, 9, 12, 13], [2, 1, 2, 5, 6, 9, 10, 13, 14], [3, 2, 3, 6, 7, 10, 11, 14, 15]])
+    """
 
     # build a mesh from triangles
     mesh = Mesh()
@@ -40,4 +45,11 @@ def generateStrips(triangles, minStripLength = 0):
         mesh.AddFace(*face)
 
     # return the strip
-    return Stripifier.Stripify(mesh)
+    stripifier = Stripifier()
+    stripifier(mesh)
+    return stripifier.TriangleList, stripifier.TriangleFans, stripifier.TriangleStrips
+
+if __name__=='__main__':
+    import doctest
+    doctest.testmod()
+    
