@@ -88,9 +88,9 @@ def write_hsl(f, ver, templates):
 
     # write header
     f.write("""// hex structure library for NIF Format 0x%08X
-#pragma maxarray(65536); // Increase the max array length
-#pragma byteorder(little_endian) 
 #include "standard-types.hsl"
+#pragma byteorder(little_endian) 
+#pragma maxarray(65535)
 
 """%ver)
 
@@ -151,22 +151,38 @@ def write_struct(cls, ver, hsl_types, f, template):
             s += tmpl.__name__ # note: basic types are named by their xml name in the template
         # attribute name
         s = s.ljust(20) + ' ' + sanitize_attrname(attrname)
-        # array arguments
+        # array and conditional arguments
+        arr_str = ''
+        comments = ''
+        if cond != None:
+            if (str(cond).find('arg') == -1) and (arr2 == None): # catch argument passing and double arrays
+                if cond._op == None or (cond._op == '!=' and cond._right == 0):
+                    arr_str += sanitize_attrname(str(cond._left))
+                else:
+                    comments += ' (' + sanitize_attrname(str(cond)) + ')'
+            else:
+                comments += ' (' + sanitize_attrname(str(cond)) + ')'
         if arr1 == None:
-            s += ';'
+            pass
         elif arr2 == None:
             if str(arr1).find('arg') == -1: # catch argument passing
-                s += '[' + sanitize_attrname(str(arr1._left)) + '];'
+                if arr_str: arr_str += ' * '
+                arr_str += sanitize_attrname(str(arr1._left))
                 if arr1._op:
-                    s += ' // WARNING - should be [' + sanitize_attrname(str(arr1)) + ']'
+                    comments += ' [' + sanitize_attrname(str(arr1)) + ']'
             else:
-                s += '[1]; // WARNING - should be [arg]'
+                if arr_str: arr_str += ' * '
+                arr_str += '1'
+                comments += ' [arg]'
         else:
             # TODO catch args here too (so far not used anywhere in nif.xml)
-            s += '[' + sanitize_attrname(str(arr1._left)) + ' * ' + sanitize_attrname(str(arr2._left)) + '];'
+            if arr_str: arr_str += ' * '
+            arr_str += sanitize_attrname(str(arr1._left)) + ' * ' + sanitize_attrname(str(arr2._left))
             if arr1._op or arr2._op:
-                s += ' // WARNING - should be [' + sanitize_attrname(str(arr1)) + ' * ' + sanitize_attrname(str(arr2)) + ']'
-        f.write(s + '\n')
+                comments += ' [' + sanitize_attrname(str(arr1)) + ' * ' + sanitize_attrname(str(arr2)) + ']'
+        arr_str = '[' + arr_str + ']' if arr_str else ''
+        comments = ' //' + comments if comments else ''
+        f.write(s + arr_str + ';' + comments + '\n')
     # close the structure
     f.write('};\n\n')
 

@@ -12,7 +12,7 @@ def raise_exception(e):
 def pass_exception(e):
     pass
 
-# test all files using testBlock and testRoot functions
+# test all files using testBlock, testRoot, and testFile functions
 def testPath(top, testBlock, testRoot, testFile, onreaderror = None):
     for version, user_version, f, root_blocks in NifFormat.walkFile(top, onerror = onreaderror, verbose = 1):
         if testBlock:
