@@ -99,98 +99,98 @@ class Face(FlyweightGroupObject):
         else:
                 raise KeyError, "Expected one vertex, but found none! (%r, %r, %r)" % (self.v, (pv0, pv1), result)
     
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
-    class EdgedFace(Face):
-        def __init__(self, v0,v1,v2):
-            Face.__init__(self, v0,v1,v2)
-            e01 = self.mesh.AddEdge(v0,v1, weakref.proxy(self))
-            e12 = self.mesh.AddEdge(v1,v2, weakref.proxy(self))
-            e20 = self.mesh.AddEdge(v2,v0, weakref.proxy(self))
-            self.edges = [e01, e12, e20]
-    
-        def GetEdge(self, ev0, ev1):
-            assert ev0 != ev1
-            v = list(self.v)
-            idx0,idx1 = v.index(ev0), v.index(ev1)
-            if idx0 > idx1: idx0,idx1 = idx1,idx0
-            if idx0 == 0:
-                if idx1==2: return self.edges[2]
-                else: return self.edges[0]
-            else: return self.edges[1]
-    
-        def GetCommonEdges(self, otherface):
-            return [edge for edge in otherface.edges if edge in self.edges]
-    
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
-    class Mesh(FlyweightGroupObject):
-        """
-        >>> mesh = Mesh(); mesh
-        <Mesh |edges|=0 |faces|=0>
-        >>> i0, i1 = 0, 1
-        >>> for i2 in xrange(2, 8):
-        ...     f = mesh.AddFace(i0, i1, i2)
-        ...     i0, i1 = i1, i2
-        >>> mesh
-        <Mesh |edges|=13 |faces|=6>
-        >>> face = mesh.Faces[0]; face
-        <Mesh&EdgedFace v=(0, 1, 2)>
-        >>> face.OtherVertex(0,1)
-        2
-        >>> face.GetEdge(2,1)
-        <Mesh&Edge ev=(1, 2)>
-        """
-    
-        def __init__(self, FaceClass=EdgedFace, EdgeClass=Edge):
-            FaceClassName = '%s&%s'%(self.__class__.__name__, FaceClass.__name__)
-            self._FaceClass = FaceClass.ClassFlyweightGroup(FaceClassName , mesh=weakref.proxy(self))
-            self.Faces = []
-    
-            EdgeClassName = '%s&%s'%(self.__class__.__name__, EdgeClass.__name__)
-            self._EdgeClass = EdgeClass.ClassFlyweightGroup(EdgeClassName , mesh=weakref.proxy(self))
-            self.Edges = {}
-    
-        def __repr__(self):
-            return "<%s |edges|=%s |faces|=%s>" % (self.__class__.__name__, len(self.Edges), len(self.Faces))
-    
-        def HasEdge(self, ev0, ev1):
-            if ev0 > ev1: ev1,ev0=ev0,ev1
-            return (ev0,ev1) in self.Edges
-        def GetEdge(self, ev0, ev1):
-            if ev0 > ev1: ev1,ev0=ev0,ev1
-            return self.Edges[ev0,ev1]
-    
-        def AddEdge(self, ev0, ev1, face):
-            if ev0 > ev1: ev1,ev0=ev0,ev1
-            try:
-                edge = self.Edges[ev0,ev1]
-            except KeyError:
-                edge = self._EdgeClass(ev0,ev1)
-                self.Edges[ev0,ev1] = edge
-    
-            edge.Faces.append(face)
-            #if len(edge.Faces) > 2:
-            #    print "ABNORMAL Edge:", edge, edge.Faces
-            return edge
-    
-        def AddFace(self, v0,v1,v2):
-            if v0 == v1 or v1 == v2 or v2 == v0:
-                #print "DEGENERATE face", (v0,v1,v2)
-                return None
-            else:
-                face = self._FaceClass(v0,v1,v2)
-                self.Faces.append(face)
-                return face
-    
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    #~ Testing
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
-    if __name__=='__main__':
-        print "Testing..."
-        import doctest
-        import Mesh as _testmod
-        doctest.testmod(_testmod)
-        print "Test complete."
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class EdgedFace(Face):
+    def __init__(self, v0,v1,v2):
+        Face.__init__(self, v0,v1,v2)
+        e01 = self.mesh.AddEdge(v0,v1, weakref.proxy(self))
+        e12 = self.mesh.AddEdge(v1,v2, weakref.proxy(self))
+        e20 = self.mesh.AddEdge(v2,v0, weakref.proxy(self))
+        self.edges = [e01, e12, e20]
+
+    def GetEdge(self, ev0, ev1):
+        assert ev0 != ev1
+        v = list(self.v)
+        idx0,idx1 = v.index(ev0), v.index(ev1)
+        if idx0 > idx1: idx0,idx1 = idx1,idx0
+        if idx0 == 0:
+            if idx1==2: return self.edges[2]
+            else: return self.edges[0]
+        else: return self.edges[1]
+
+    def GetCommonEdges(self, otherface):
+        return [edge for edge in otherface.edges if edge in self.edges]
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class Mesh(FlyweightGroupObject):
+    """
+    >>> mesh = Mesh(); mesh
+    <Mesh |edges|=0 |faces|=0>
+    >>> i0, i1 = 0, 1
+    >>> for i2 in xrange(2, 8):
+    ...     f = mesh.AddFace(i0, i1, i2)
+    ...     i0, i1 = i1, i2
+    >>> mesh
+    <Mesh |edges|=13 |faces|=6>
+    >>> face = mesh.Faces[0]; face
+    <Mesh&EdgedFace v=(0, 1, 2)>
+    >>> face.OtherVertex(0,1)
+    2
+    >>> face.GetEdge(2,1)
+    <Mesh&Edge ev=(1, 2)>
+    """
+
+    def __init__(self, FaceClass=EdgedFace, EdgeClass=Edge):
+        FaceClassName = '%s&%s'%(self.__class__.__name__, FaceClass.__name__)
+        self._FaceClass = FaceClass.ClassFlyweightGroup(FaceClassName , mesh=weakref.proxy(self))
+        self.Faces = []
+
+        EdgeClassName = '%s&%s'%(self.__class__.__name__, EdgeClass.__name__)
+        self._EdgeClass = EdgeClass.ClassFlyweightGroup(EdgeClassName , mesh=weakref.proxy(self))
+        self.Edges = {}
+
+    def __repr__(self):
+        return "<%s |edges|=%s |faces|=%s>" % (self.__class__.__name__, len(self.Edges), len(self.Faces))
+
+    def HasEdge(self, ev0, ev1):
+        if ev0 > ev1: ev1,ev0=ev0,ev1
+        return (ev0,ev1) in self.Edges
+    def GetEdge(self, ev0, ev1):
+        if ev0 > ev1: ev1,ev0=ev0,ev1
+        return self.Edges[ev0,ev1]
+
+    def AddEdge(self, ev0, ev1, face):
+        if ev0 > ev1: ev1,ev0=ev0,ev1
+        try:
+            edge = self.Edges[ev0,ev1]
+        except KeyError:
+            edge = self._EdgeClass(ev0,ev1)
+            self.Edges[ev0,ev1] = edge
+
+        edge.Faces.append(face)
+        #if len(edge.Faces) > 2:
+        #    print "ABNORMAL Edge:", edge, edge.Faces
+        return edge
+
+    def AddFace(self, v0,v1,v2):
+        if v0 == v1 or v1 == v2 or v2 == v0:
+            #print "DEGENERATE face", (v0,v1,v2)
+            return None
+        else:
+            face = self._FaceClass(v0,v1,v2)
+            self.Faces.append(face)
+            return face
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#~ Testing
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+if __name__=='__main__':
+    print "Testing..."
+    import doctest
+    import Mesh as _testmod
+    doctest.testmod(_testmod)
+    print "Test complete."
 
