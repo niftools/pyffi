@@ -42,33 +42,29 @@
 
 from FileFormat.Bases.Array import Array
 from FileFormat.Bases.Expression import Expression
-import PyTriStrip
+from PyTriStrip import PyTriStrip
 
-def generateFaces():
+def generateFaces(self):
     for strip in self.points:
         for face in PyTriStrip.generateFaces(strip):
             yield face
 
-# will remove this function
-# instead use generateFaces
+def setFaces(self, faces):
+    strips = PyTriStrip.getStrips(faces)
+    self.numStrips = len(strips)
+    self.stripLengths.updateSize()
+    for i, strip in enumerate(strips):
+        self.stripLengths[i] = len(strip)
+    self.points.updateSize()
+    for i, strip in enumerate(strips):
+        for j, idx in enumerate(strip):
+            self.points[i][j] = idx
+
+# use generateFaces
 def _get_triangles(self):
     """Get list of all triangles in all strips."""
-    return 
-    triangles = Array(self, self.cls.Triangle, None, None, Expression("Num Triangles", self.cls.nameAttribute))
-    triangles_iter = triangles.__iter__()
-    for strip in self.points:
-        t1 = strip[0]
-        t2 = strip[1]
-        for i in xrange(2, len(strip)):
-            t0 = t1
-            t1 = t2
-            t2 = strip[i]
-            if t0 == t1 or t1 == t2 or t2 == t0: continue
-            t = triangles_iter.next()
-            if i & 1: t.v1 = t0; t.v2 = t2; t.v3 = t1
-            else:     t.v1 = t0; t.v2 = t1; t.v3 = t2
-    return triangles
+    raise NotImplementedError('use generateFaces()')
 
 def _set_triangles(self):
     """Construct strips from triangles."""
-    raise NotImplementedError # need to use nvstripper
+    raise NotImplementedError('use setFaces()')

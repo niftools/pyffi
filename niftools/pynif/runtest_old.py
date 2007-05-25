@@ -63,7 +63,10 @@ print blk.getTransform()
 print strips.getTransform()
 print strips.getTransform(root) # includes the blk transform
 
-print data.triangles
+
+print "testing the stripper..."
+data.setFaces([(0,1,4),(1,2,4),(2,3,4),(3,0,4)])
+print data
 
 print "finding hello world..."
 print blk.find(block_name = "hello world")
