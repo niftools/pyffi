@@ -76,7 +76,7 @@ def hexDump(f, numLines = 8):
     >>> f = TemporaryFile()
     >>> f.write('abcdefg\\x0a')
     >>> f.seek(2)
-    >>> HexDump(f, 2)
+    >>> hexDump(f, 2)
                 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
     -----------------------------------------------------------
     0x00000000  61 62>63 64 65 66 67 0A                         |abcdefg.        |

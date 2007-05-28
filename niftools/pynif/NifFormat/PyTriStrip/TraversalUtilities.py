@@ -191,7 +191,7 @@ class Strip(object):
         del self.ExperimentId
         return len(map(self.MarkFace, self.Faces))
 
-    def TraingleListIndices(self):
+    def TriangleListIndices(self):
         result = []
         for face in self.Faces:
             result.extend(face.v)
@@ -204,11 +204,11 @@ class Strip(object):
             # No faces is the easiest of all... return an empty list
             return []
         elif FaceCount == 1:
-            # One face is really easy ;) just return the verticies in order
+            # One face is really easy ;) just return the vertices in order
             return list(FaceList[0].v)
         elif FaceCount == 2:
             # The case of two faces is pretty simple too...
-            face0,face1 = FaceList[:3]
+            face0,face1 = FaceList[:2]
             # Get the common edge
             edge01 = face0.GetCommonEdges(face1)[0]
             # Find the vertex on the first face not on the common edge
@@ -250,7 +250,7 @@ class Strip(object):
                 print "Face -2", idx-2, FaceList[idx-2]
                 print "Face -1", idx-1, FaceList[idx-1]
                 print "Error face:", idx, face
-                print "Face 1", idx+1, FaceList[idx+1]
+                #print "Face 1", idx+1, FaceList[idx+1]
                 print
                 print "StartIdx", FaceList.index(self.StartFace)
                 print "Total", len(FaceList)
@@ -346,7 +346,7 @@ class Stripifier(object):
 
         for strip in Strips:
             if len(strip.Faces) < self.Selector.MinStripLength:
-                self.TriangleList.extend(strip.TraingleListIndices())
+                self.TriangleList.extend(strip.TriangleListIndices())
             else:
                 self.TriangleStrips.append(strip.TriangleStripIndices())
 
@@ -373,6 +373,9 @@ class Stripifier(object):
             if bestscore < score < 3:
                 bestfaceindex, bestscore = faceindex, score
                 if bestscore >= 2: break
+        else:
+            # all faces are lonely, any will do; return the first one
+            return 0
         return bestfaceindex
 
     def _FindGoodResetPoint(self, mesh):
@@ -409,7 +412,9 @@ class Stripifier(object):
                 # If we can use it, then do it!
                 otheredge = mesh.GetEdge(currentedge[0], otherface.OtherVertex(*paralleledge.ev))
                 # TODO: See if we are getting the proper windings.  Otherwise toy with the following
-                return otherface, otheredge, (otheredge.ev[0] == currentedge[0]) and 1 or 0
+                #winding = (otheredge.ev[0] == currentedge[0]) and 1 or 0
+                winding = otherface.GetVertexWinding(*otheredge.ev)
+                return otherface, otheredge, winding
             else:
                 # Keep looking...
                 currentedge[:] = [currentedge[1], v2]

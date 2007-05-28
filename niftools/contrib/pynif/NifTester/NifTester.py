@@ -64,7 +64,7 @@ Usage:  Specify a nif file or folder as first argument.
 
         * find out time spent on a particular test:
 
-            python -m cProfile -s cumulative NifTester.py skindatacheck | grep skindatacheck
+            python -m cProfile -s cumulative NifTester.py tristrip | grep tristrip
 
 """
         sys.exit(1)
@@ -85,8 +85,9 @@ Usage:  Specify a nif file or folder as first argument.
             test = getattr(testers.validate, test_str)
             onreaderror = raise_exception
         except ImportError:
-            print "Tester '%s' was not found!" % test_str
-            sys.exit(1)
+            # either tester was not found, or had an error while importing
+            print "Failed loading tester '%s'!" % test_str
+            raise
 
     testBlock = getattr(test, 'testBlock', None)
     testRoot = getattr(test, 'testRoot', None)

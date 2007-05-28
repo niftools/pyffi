@@ -44,13 +44,11 @@ from FileFormat.Bases.Array import Array
 from FileFormat.Bases.Expression import Expression
 from PyTriStrip import PyTriStrip
 
-def generateFaces(self):
-    for strip in self.points:
-        for face in PyTriStrip.generateFaces(strip):
-            yield face
+def getFaces(self):
+    return triangulate(self.points)
 
 def setFaces(self, faces):
-    strips = PyTriStrip.getStrips(faces)
+    strips = PyTriStrip.strippify(faces)
     self.numStrips = len(strips)
     self.stripLengths.updateSize()
     for i, strip in enumerate(strips):
