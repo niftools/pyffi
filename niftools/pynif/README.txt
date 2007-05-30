@@ -3,8 +3,8 @@ Installation
 
 python setup.py install
 
-Quick code description
-----------------------
+Overview
+--------
 
 The general philosophy of this library is to supply all information
 that comes naturally from the files, and nothing more. For very common
@@ -18,32 +18,6 @@ nif.xml can be found. If NIFXMLPATH is set, the library will first
 look there.
 
 The python files are organized as follows.
-
-* tests
-
-  - runtest.py: an example of how to use the library
-
-  - rundoctest.py: runs all examples from the docstrings; used for
-    quality control
-
-  - runprofile.py: runs the profiler, gives an idea of bottlenecks in
-    the code; used for optimization
-
-  - runreadtest.py: reads all nif files recursively from a base directory
-
-  - runreadprofile.py: like runreadtest.py but also provides
-    profiling information
-
-  - runreadwritetest.py: like runreadtest.py but also writes back every file
-    and checks if the file size is the same
-
-* examples
-
-  - examples/metaclass_simple.py
-
-    Proof of concept of how classes could be generated from an xml
-    description. I keep it there as it could be useful to get a quick
-    idea of how the XML is converted to a bunch of classes.
 
 * File Format Library - representing a file format specified by an XML
   file in Python
@@ -75,3 +49,18 @@ The python files are organized as follows.
   - NifFormat/KfmFormat.py: instanciates classes for the KFM format (TODO)
 
   - NifFormat/Ni*.py: customization of particular blocks
+
+* tests
+
+  - rundoctest.py: runs all tests in the documentation
+
+  - For testing the library on your favorite set of nif files, see
+    NifTester in contrib/pynif.
+
+* examples
+
+  - examples/metaclass_simple.py
+
+    Proof of concept of how classes can be generated from an xml
+    description. I keep it there as it could be useful to get a quick
+    idea of how the XML is converted to a bunch of classes.

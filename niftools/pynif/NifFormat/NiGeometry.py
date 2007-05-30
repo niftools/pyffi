@@ -40,6 +40,17 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
+"""
+The nif skinning algorithm works as follows (as of nifskope):
+v'                               # vertex after skinning in geometry space
+= sum_{b\in skininst.bones}      # sum over all bones b that influence the mesh
+weight[v][b]                     # how much bone b influences vertex v
+* v                              # vertex before skinning in geometry space (as it is stored in the shape data)
+* skindata.bonelist[b].transform # transform vertex to bone b space in the rest pose
+* b.transform(skelroot)          # apply animation, by multiplying with all bone matrices in the chain down to the skeleton root; the vertex is now in skeleton root space
+* skindata.transform             # transforms vertex from skeleton root space back to geometry space
+"""
+
 def isSkin(self):
     return self.skinInstance != None
 
@@ -71,29 +82,9 @@ def getBoneRestPositions(self):
     # first get the geometry rest position
     geometry_matrix = self.getGeometryRestPosition()
     # calculate the rest positions
-    # (there could be an inverse less, code is written to be clear rather
-    # than to be fast)
     restpose_dct = {}
     skininst = self.skinInstance
     skindata = skininst.data
-    geometry_matrix = skindata.getTransform().getInverse()
     for i, bone_block in enumerate(skininst.bones):
         restpose_dct[bone_block] = skindata.boneList[i].getTransform().getInverse()
-    return restpose_dct
-
-def setBoneRestPositions(self, restpose_dct):
-    """Recalculate the data which fixes the bone rest positions, from
-    the bone rest position (in skeleton root space) dictionary."""
-    self._validateSkin() # check that skin data is valid
-    skininst = self.skinInstance
-    skindata = skininst.data
-    skelroot = skininst.skeletonRoot
-    # calculate skin data from rest positions
-    # (there could be an inverse less, code is written to be clear rather
-    # than to be fast)
-    geometry_matrix = self.getTransform(skelroot)
-    skindata.setTransform(geometry_matrix.getInverse())
-    for i, bone_block in enumerate(skininst.bones):
-        bone_matrix = restpose_dct[bone_block] * geometry_matrix.getInverse()
-        skindata.boneList[i].setTransform(bone_matrix.getInverse())
     return restpose_dct

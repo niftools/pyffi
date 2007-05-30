@@ -1,6 +1,6 @@
 # --------------------------------------------------------------------------
-# NifFormat.NiTriStripsData
-# Custom functions for NiTriStripsData.
+# NifFormat.NiTriShapeData
+# Custom functions for NiTriShapeData.
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -42,12 +42,12 @@
 
 """
 >>> from NifFormat import NifFormat
->>> block = NifFormat.NiTriStripsData()
+>>> block = NifFormat.NiTriShapeData()
 >>> block.setTriangles([[0,1,2],[2,1,3],[2,3,4]])
 >>> block.getStrips()
 [[3, 4, 3, 2, 1, 0]]
 >>> block.getTriangles()
-[[4, 2, 3], [3, 2, 1], [2, 0, 1]]
+[[0, 1, 2], [2, 1, 3], [2, 3, 4]]
 >>> block.setStrips([[1,0,1,2,3,4]])
 >>> block.getStrips()
 [[1, 0, 1, 2, 3, 4]]
@@ -55,29 +55,28 @@
 [[0, 2, 1], [1, 2, 3], [2, 4, 3]]
 """
 
-from FileFormat.Bases.Array import Array
-from FileFormat.Bases.Expression import Expression
 from PyTriStrip import PyTriStrip
 
 def getTriangles(self):
-    return PyTriStrip.triangulate(self.points)
+    return [[t.v1, t.v2, t.v3] for t in self.triangles]
 
 def setTriangles(self, triangles):
-    self.setStrips(PyTriStrip.strippify(triangles))
+    # initialize triangle array
+    n = len(triangles)
+    self.numTriangles = n
+    self.numTrianglePoints = 3*n
+    self.hasTriangles = (n > 0)
+    self.triangles.updateSize()
+
+    # copy triangles
+    src = triangles.__iter__()
+    dst = self.triangles.__iter__()
+    for k in xrange(n):
+        dst_t = dst.next()
+        dst_t.v1, dst_t.v2, dst_t.v3 = src.next()
 
 def getStrips(self):
-    return [[i for i in strip] for strip in self.points]
+    return PyTriStrip.strippify(self.getTriangles())
 
 def setStrips(self, strips):
-    # initialize strips array
-    self.numStrips = len(strips)
-    self.stripLengths.updateSize()
-    for i, strip in enumerate(strips):
-        self.stripLengths[i] = len(strip)
-    self.points.updateSize()
-    self.hasPoints = (len(strips) > 0)
-
-    # copy strips
-    for i, strip in enumerate(strips):
-        for j, idx in enumerate(strip):
-            self.points[i][j] = idx
+    self.setTriangles(PyTriStrip.triangulate(strips))

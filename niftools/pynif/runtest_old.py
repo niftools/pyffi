@@ -1,5 +1,5 @@
 from NifFormat.NifFormat import NifFormat
-from FileFormat.HexDump import HexDump
+from FileFormat.Utils import hexDump
 
 # checking all supported versions
 
@@ -65,7 +65,7 @@ print strips.getTransform(root) # includes the blk transform
 
 
 print "testing the stripper..."
-data.setFaces([(0,1,4),(1,2,4),(2,3,4),(3,0,4)])
+data.setTriangles([(0,1,4),(1,2,4),(2,3,4),(3,0,4)])
 print data
 
 print "finding hello world..."
