@@ -73,6 +73,14 @@ class NifFormat(object):
     >>> print NifFormat.HeaderString
     <class 'NifFormat.BasicTypes.HeaderString'>
 
+    Test templates.
+
+    >>> block = NifFormat.NiTextKeyExtraData()
+    >>> block.numTextKeys = 1
+    >>> block.textKeys.updateSize()
+    >>> block.textKeys[0].time = 1.0
+    >>> block.textKeys[0].value = 'hi'
+
     Tests for links.
     
     >>> NifFormat.NiNode._hasLinks

@@ -44,6 +44,7 @@ from Basic import BasicBase
 from Expression import Expression
 from Array import Array
 
+from types import *
 from functools import partial
 
 # This metaclass checks for the presence of an _attrs, _isTemplate,
@@ -69,6 +70,11 @@ class _MetaCompoundBase(type):
                 setattr(cls, attrname, property(
                     partial(CompoundBase.getBasicAttribute, name = attrname),
                     partial(CompoundBase.setBasicAttribute, name = attrname)))
+            elif typ == NoneType and arr1 == None:
+                # get and set template attributes
+                setattr(cls, attrname, property(
+                    partial(CompoundBase.getTemplateAttribute, name = attrname),
+                    partial(CompoundBase.setTemplateAttribute, name = attrname)))
             else:
                 # other types of attributes: get only
                 setattr(cls, attrname, property(
@@ -315,3 +321,19 @@ class CompoundBase(object):
     def setBasicAttribute(self, value, name):
         """Set the value of a basic attribute."""
         getattr(self, "_" + name + "_value_").setValue(value)
+
+    def getTemplateAttribute(self, name):
+        """Get a template attribute."""
+        try:
+            return self.getBasicAttribute(name)
+        except AttributeError:
+            return self.getAttribute(name)
+
+    # important note: to apply partial(setAttribute, name = 'xyz') the
+    # name argument must be last
+    def setTemplateAttribute(self, value, name):
+        """Set the value of a template attribute."""
+        try:
+            self.setBasicAttribute(value, name)
+        except AttributeError:
+            raise NotImplementedError("cannot set '%s' attribute"%name)
