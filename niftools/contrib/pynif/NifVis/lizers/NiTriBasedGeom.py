@@ -19,16 +19,16 @@ def Draw( block ):
     
     verts = mesh.vertices
     norms = mesh.normals
-    tris = mesh.triangles
+    tris = mesh.getTriangles()
         
     glColor3f( 1, 1, 1 )
     
     glBegin( GL_TRIANGLES )
-    for t in tris:
-        glNormal3f( norms[t.v1].x, norms[t.v1].y, norms[t.v1].z )
-        glVertex3f( verts[t.v1].x, verts[t.v1].y, verts[t.v1].z )
-        glNormal3f( norms[t.v2].x, norms[t.v2].y, norms[t.v2].z )
-        glVertex3f( verts[t.v2].x, verts[t.v2].y, verts[t.v2].z )
-        glNormal3f( norms[t.v3].x, norms[t.v3].y, norms[t.v3].z )
-        glVertex3f( verts[t.v3].x, verts[t.v3].y, verts[t.v3].z )
+    for v1, v2, v3 in tris:
+        glNormal3f( norms[v1].x, norms[v1].y, norms[v1].z )
+        glVertex3f( verts[v1].x, verts[v1].y, verts[v1].z )
+        glNormal3f( norms[v2].x, norms[v2].y, norms[v2].z )
+        glVertex3f( verts[v2].x, verts[v2].y, verts[v2].z )
+        glNormal3f( norms[v3].x, norms[v3].y, norms[v3].z )
+        glVertex3f( verts[v3].x, verts[v3].y, verts[v3].z )
     glEnd()
