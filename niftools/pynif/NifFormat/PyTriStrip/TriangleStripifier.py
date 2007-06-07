@@ -36,11 +36,9 @@ import TriangleMesh as Mesh
 def _FindOtherFace(ev0, ev1, face):
     try:
         edge = face.GetEdge(ev0,ev1)
+        # find a face with the different edge windings
         result = edge.NextFace(face)
-        if result and 2 < len(edge.Faces):
-            # Ok, weird case where an edge has more than just two faces attached... (sounds painful ;)
-            # We're going to try and find a face with the different edge windings
-            # -- they SHOULD be facing same way in that case!
+        if result:
             windings = face.GetVertexWinding(ev0,ev1), result.GetVertexWinding(ev0,ev1)
             while result and (windings[0] == windings[1]):
                 result = edge.NextFace(result)
@@ -144,6 +142,7 @@ class TriangleStrip(object):
         def _AlwaysTrue(face):
             """Utility for building face traversal list"""
             return 1
+
         def _UniqueFace(face):
             """Utility for building face traversal list"""
             v0,v1,v2=face.v
