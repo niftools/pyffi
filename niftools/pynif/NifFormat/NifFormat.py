@@ -416,6 +416,7 @@ class NifFormat(object):
         # set up header
         hdr = cls.Header()
         hdr.userVersion = user_version # TODO dedicated type for userVersion similar to FileVersion
+        hdr.userVersion2 = 11 # for oblivion CS; apparently this is the version of the bhk blocks
         hdr.numBlocks = len(block_list)
         hdr.numBlockTypes = len(block_type_list)
         hdr.blockTypes.updateSize()
