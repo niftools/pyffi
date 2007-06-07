@@ -64,9 +64,10 @@ def strippify(triangles):
     >>> _checkStrips(triangles, strips) # NvTriStrip gives wrong result
     >>> triangles = [[0, 1, 2], [0, 1, 3]]
     >>> strips = strippify(triangles)
-    >>> _checkStrips(triangles, strips) # NvTriStrip and Runeblade give wrong result
-
-    triangles = [[1, 5, 2], [5, 2, 6], [5, 9, 6], [9, 6, 10], [9, 13, 10], [13, 10, 14], [0, 4, 1], [4, 1, 5], [4, 8, 5], [8, 5, 9], [8, 12, 9], [12, 9, 13], [2, 6, 3], [6, 3, 7], [6, 10, 7], [10, 7, 11], [10, 14, 11], [14, 11, 15]]
+    >>> _checkStrips(triangles, strips) # NvTriStrip gives wrong result
+    >>> triangles = [[1, 5, 2], [5, 2, 6], [5, 9, 6], [9, 6, 10], [9, 13, 10], [13, 10, 14], [0, 4, 1], [4, 1, 5], [4, 8, 5], [8, 5, 9], [8, 12, 9], [12, 9, 13], [2, 6, 3], [6, 3, 7], [6, 10, 7], [10, 7, 11], [10, 14, 11], [14, 11, 15]]
+    >>> strips = strippify(triangles)
+    >>> _checkStrips(triangles, strips) # NvTriStrip gives wrong result
     """
 
     if USE_NVTRISTRIP:

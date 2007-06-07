@@ -44,6 +44,7 @@ for i, v in enumerate(data.vertices):
     v.x = 1.0+i/10.0
     v.y = 0.2+1.0/(i+1)
     v.z = 0.03
+data.updateCenterRadius()
 
 data.numStrips = 2
 data.stripLengths.updateSize()
@@ -83,6 +84,8 @@ print strips.getTransform(root) # includes the blk transform
 print "testing the stripper..."
 data.setTriangles([(0,1,4),(1,2,4),(2,3,4),(3,0,4)])
 print data
+
+strips.updateTangentSpace()
 
 print "finding hello world..."
 print blk.find(block_name = "hello world")
