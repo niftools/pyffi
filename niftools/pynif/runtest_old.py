@@ -44,6 +44,7 @@ for i, v in enumerate(data.vertices):
     v.x = 1.0+i/10.0
     v.y = 0.2+1.0/(i+1)
     v.z = 0.03
+
 data.numStrips = 2
 data.stripLengths.updateSize()
 data.stripLengths[0] = 3
@@ -58,11 +59,26 @@ data.points[1][1] = 2
 data.points[1][2] = 3
 data.points[1][3] = 4
 
+data.numUvSets = 1
+data.hasUv = True
+data.uvSets.updateSize()
+for i, v in enumerate(data.uvSets[0]):
+    v.u = 1.0-i/10.0
+    v.v = 1.0/(i+1)
+
+data.hasNormals = True
+data.normals.updateSize()
+for i, v in enumerate(data.normals):
+    v.x = 0.0
+    v.y = 0.0
+    v.z = 1.0
+
+strips.updateTangentSpace()
+
 print blk
 print blk.getTransform()
 print strips.getTransform()
 print strips.getTransform(root) # includes the blk transform
-
 
 print "testing the stripper..."
 data.setTriangles([(0,1,4),(1,2,4),(2,3,4),(3,0,4)])

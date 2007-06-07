@@ -51,7 +51,7 @@ def normalize(self):
     self.v /= r
 
 def __str__(self):
-    return "[ %6.3f %6.3f %6.3f ]"%(self.u, self.v)
+    return "[ %6.3f %6.3f ]"%(self.u, self.v)
 
 def __mul__(self, x):
     if isinstance(x, (float, int, long)):
