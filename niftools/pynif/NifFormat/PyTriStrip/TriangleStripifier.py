@@ -193,7 +193,7 @@ class TriangleStrip(object):
             TaskProgress += count
         return self
 
-    def TraingleListIndices(self):
+    def TriangleListIndices(self):
         result = []
         for face in self.Faces:
             result.extend(face.v)
@@ -210,7 +210,7 @@ class TriangleStrip(object):
             return list(FaceList[0].v)
         elif FaceCount == 2:
             # The case of two faces is pretty simple too...
-            face0,face1 = FaceList[:3]
+            face0,face1 = FaceList[:2]
             # Get the common edge
             edge01 = face0.GetCommonEdges(face1)[0]
             # Find the vertex on the first face not on the common edge
@@ -333,7 +333,7 @@ class TriangleStripifier(object):
         Strips = self._FindAllStrips(mesh, TaskProgress)
         for strip in Strips:
             if len(strip.Faces) < self.GLSelector.MinStripLength:
-                self.TriangleList.extend(strip.TraingleListIndices())
+                self.TriangleList.extend(strip.TriangleListIndices())
             else:
                 self.TriangleStrips.append(strip.TriangleStripIndices())
 
@@ -347,7 +347,7 @@ class TriangleStripifier(object):
         Strips = self._FindAllStrips(mesh, TaskProgress)
         for strip in Strips:
             if len(strip.Faces) < self.GLSelector.MinStripLength:
-               yield 'list', strip.TraingleListIndices()
+               yield 'list', strip.TriangleListIndices()
             else:
                yield 'strip', strip.TriangleStripIndices()
 
