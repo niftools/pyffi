@@ -1,6 +1,6 @@
 # --------------------------------------------------------------------------
-# NifFormat.Vector3
-# Custom functions for Vector3.
+# NifFormat.TexCoord
+# Custom functions for TexCoord.
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -41,102 +41,86 @@
 # --------------------------------------------------------------------------
 
 def asList(self):
-    return [self.x, self.y, self.z]
+    return [self.u, self.v]
 
 def normalize(self):
-    r = (self.x*self.x + self.y*self.y + self.z*self.z) ** 0.5
+    r = (self.u*self.u + self.v*self.v) ** 0.5
     if r < self.cls._EPSILON:
         raise ZeroDivisionError('cannot normalize vector %s'%self)
-    self.x /= r
-    self.y /= r
-    self.z /= r
+    self.u /= r
+    self.v /= r
 
 def __str__(self):
-    return "[ %6.3f %6.3f %6.3f ]"%(self.x, self.y, self.z)
+    return "[ %6.3f %6.3f %6.3f ]"%(self.u, self.v)
 
 def __mul__(self, x):
     if isinstance(x, (float, int, long)):
-        v = self.cls.Vector3()
-        v.x = self.x * x
-        v.y = self.y * x
-        v.z = self.z * x
+        v = self.cls.TexCoord()
+        v.u = self.u * x
+        v.v = self.v * x
         return v
-    elif isinstance(x, self.cls.Vector3):
-        return self.x * x.x + self.y * x.y + self.z * x.z
-    elif isinstance(x, self.cls.Matrix33):
-        v = self.cls.Vector3()
-        v.x = self.x * x.m11 + self.y * x.m21 + self.z * x.m31
-        v.y = self.x * x.m12 + self.y * x.m22 + self.z * x.m32
-        v.z = self.x * x.m13 + self.y * x.m23 + self.z * x.m33
-        return v
+    elif isinstance(x, self.cls.TexCoord):
+        return self.u * x.u + self.v * x.v
     else:
-        raise TypeError("do not know how to multiply Vector3 with %s"%x.__class__)
+        raise TypeError("do not know how to multiply TexCoord with %s"%x.__class__)
 
 def __rmul__(self, x):
     if isinstance(x, (float, int, long)):
-        v = self.cls.Vector3()
-        v.x = x * self.x
-        v.y = x * self.y
-        v.z = x * self.z
+        v = self.cls.TexCoord()
+        v.u = x * self.u
+        v.v = x * self.v
         return v
     else:
-        raise TypeError("do not know how to multiply %s and Vector3"%x.__class__)
+        raise TypeError("do not know how to multiply %s and TexCoord"%x.__class__)
 
 def __add__(self, x):
     if isinstance(x, (float, int, long)):
-        v = self.cls.Vector3()
-        v.x = self.x + x
-        v.y = self.y + x
-        v.z = self.z + x
+        v = self.cls.TexCoord()
+        v.u = self.u + x
+        v.v = self.v + x
         return v
-    elif isinstance(x, self.cls.Vector3):
-        v = self.cls.Vector3()
-        v.x = self.x + x.x
-        v.y = self.y + x.y
-        v.z = self.z + x.z
+    elif isinstance(x, self.cls.TexCoord):
+        v = self.cls.TexCoord()
+        v.u = self.u + x.u
+        v.v = self.v + x.v
         return v
     else:
-        raise TypeError("do not know how to add Vector3 and %s"%x.__class__)
+        raise TypeError("do not know how to add TexCoord and %s"%x.__class__)
 
 def __radd__(self, x):
     if isinstance(x, (float, int, long)):
-        v = self.cls.Vector3()
-        v.x = x + self.x
-        v.y = x + self.y
-        v.z = x + self.z
+        v = self.cls.TexCoord()
+        v.u = x + self.u
+        v.v = x + self.v
         return v
     else:
-        raise TypeError("do not know how to add %s and Vector3"%x.__class__)
+        raise TypeError("do not know how to add %s and TexCoord"%x.__class__)
 
 def __sub__(self, x):
     if isinstance(x, (float, int, long)):
-        v = self.cls.Vector3()
-        v.x = self.x - x
-        v.y = self.y - x
-        v.z = self.z - x
+        v = self.cls.TexCoord()
+        v.u = self.u - x
+        v.v = self.v - x
         return v
-    elif isinstance(x, self.cls.Vector3):
-        v = self.cls.Vector3()
-        v.x = self.x - x.x
-        v.y = self.y - x.y
-        v.z = self.z - x.z
+    elif isinstance(x, self.cls.TexCoord):
+        v = self.cls.TexCoord()
+        v.u = self.u - x.u
+        v.v = self.v - x.v
         return v
     else:
-        raise TypeError("do not know how to substract Vector3 and %s"%x.__class__)
+        raise TypeError("do not know how to substract TexCoord and %s"%x.__class__)
 
 def __rsub__(self, x):
     if isinstance(x, (float, int, long)):
-        v = self.cls.Vector3()
-        v.x = x - self.x
-        v.y = x - self.y
-        v.z = x - self.z
+        v = self.cls.TexCoord()
+        v.u = x - self.u
+        v.v = x - self.v
         return v
     else:
-        raise TypeError("do not know how to substract %s and Vector3"%x.__class__)
+        raise TypeError("do not know how to substract %s and TexCoord"%x.__class__)
 
 def __neg__(self):
-    v = self.cls.Vector3()
-    v.x = -self.x
-    v.y = -self.y
-    v.z = -self.z
+    v = self.cls.TexCoord()
+    v.u = -self.u
+    v.v = -self.v
     return v
