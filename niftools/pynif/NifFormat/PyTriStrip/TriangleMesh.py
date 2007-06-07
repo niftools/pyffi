@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+
+# http://techgame.net/projects/Runeblade/browser/trunk/RBRapier/RBRapier/Tools/Geometry/Analysis/TriangleMesh.py?rev=760
+
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##~ License
 ##~
@@ -33,8 +36,7 @@ class FlyweightGroupObject(object):
     def ClassFlyweightGroup(klass, name, **kw):
         return type(name, (klass,), kw)
     ClassFlyweightGroup = classmethod(ClassFlyweightGroup)
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    FlyweightGroup = ClassFlyweightGroup
 
 class Edge(FlyweightGroupObject):
     def __init__(self, ev0, ev1):
@@ -66,6 +68,8 @@ class Face(FlyweightGroupObject):
         return self.v == other.v
     def __ne__(self, other):
         return self.v != other.v
+    def __cmp__(self, other):
+        return cmp(self.v, other.v)
 
     def __hash__(self):
         return hash(self.v)
@@ -97,8 +101,8 @@ class Face(FlyweightGroupObject):
         elif len(result) > 1:
             raise KeyError, "Expected one vertex, but found many! (%r, %r, %r)" % (self.v, (pv0, pv1), result)
         else:
-                raise KeyError, "Expected one vertex, but found none! (%r, %r, %r)" % (self.v, (pv0, pv1), result)
-    
+            raise KeyError, "Expected one vertex, but found none! (%r, %r, %r)" % (self.v, (pv0, pv1), result)
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class EdgedFace(Face):
@@ -124,23 +128,64 @@ class EdgedFace(Face):
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class Mesh(FlyweightGroupObject):
+class FaceMesh(FlyweightGroupObject):
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    #~ Constants / Variables / Etc.
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    WarnOnOddities = 0
+
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    #~ Public Methods
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    def __init__(self, FaceClass=Face):
+        FaceClassName = '%s&%s'%(self.__class__.__name__, FaceClass.__name__)
+        self._FaceClass = FaceClass.ClassFlyweightGroup(FaceClassName, mesh=weakref.proxy(self))
+        self.Faces = []
+
+    def __repr__(self):
+        return "<%s |faces|=%s>" % (self.__class__.__name__, len(self.Faces))
+
+    def AddFace(self, v0,v1,v2):
+        if v0 == v1 or v1 == v2 or v2 == v0:
+            if self.WarnOnOddities:
+                print "DEGENERATE face", (v0,v1,v2)
+            return None
+        else:
+            face = self._FaceClass(v0,v1,v2)
+            self.Faces.append(face)
+            return face
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class FaceEdgeMesh(FlyweightGroupObject):
     """
-    >>> mesh = Mesh(); mesh
-    <Mesh |edges|=0 |faces|=0>
+    >>> mesh = FaceEdgeMesh(); mesh
+    <FaceEdgeMesh |edges|=0 |faces|=0>
     >>> i0, i1 = 0, 1
     >>> for i2 in xrange(2, 8):
     ...     f = mesh.AddFace(i0, i1, i2)
     ...     i0, i1 = i1, i2
     >>> mesh
-    <Mesh |edges|=13 |faces|=6>
+    <FaceEdgeMesh |edges|=13 |faces|=6>
     >>> face = mesh.Faces[0]; face
-    <Mesh&EdgedFace v=(0, 1, 2)>
+    <FaceEdgeMesh&EdgedFace v=(0, 1, 2)>
     >>> face.OtherVertex(0,1)
     2
     >>> face.GetEdge(2,1)
-    <Mesh&Edge ev=(1, 2)>
+    <FaceEdgeMesh&Edge ev=(1, 2)>
     """
+
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    #~ Constants / Variables / Etc.
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    WarnOnOddities = 0
+
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    #~ Public Methods
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     def __init__(self, FaceClass=EdgedFace, EdgeClass=Edge):
         FaceClassName = '%s&%s'%(self.__class__.__name__, FaceClass.__name__)
@@ -170,18 +215,33 @@ class Mesh(FlyweightGroupObject):
             self.Edges[ev0,ev1] = edge
 
         edge.Faces.append(face)
-        #if len(edge.Faces) > 2:
-        #    print "ABNORMAL Edge:", edge, edge.Faces
+        if self.WarnOnOddities:
+            if len(edge.Faces) > 2:
+                print "ABNORMAL Edge:", edge, edge.Faces
         return edge
 
     def AddFace(self, v0,v1,v2):
         if v0 == v1 or v1 == v2 or v2 == v0:
-            #print "DEGENERATE face", (v0,v1,v2)
+            if self.WarnOnOddities:
+                print "DEGENERATE face", (v0,v1,v2)
             return None
         else:
             face = self._FaceClass(v0,v1,v2)
             self.Faces.append(face)
             return face
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#~ Optimization
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+try: import psyco
+except ImportError: pass
+else:
+    psyco.bind(Edge)
+    psyco.bind(Face)
+    psyco.bind(EdgedFace)
+    psyco.bind(FaceMesh)
+    psyco.bind(FaceEdgeMesh)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~ Testing
@@ -190,7 +250,7 @@ class Mesh(FlyweightGroupObject):
 if __name__=='__main__':
     print "Testing..."
     import doctest
-    import Mesh as _testmod
+    import TriangleMesh as _testmod
     doctest.testmod(_testmod)
     print "Test complete."
 

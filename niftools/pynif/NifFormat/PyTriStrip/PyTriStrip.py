@@ -1,10 +1,10 @@
-try:
+USE_NVTRISTRIP = False
+
+if USE_NVTRISTRIP:
     import NvTriStrip
-    USE_NVTRISTRIP = True
-except ImportError:
-    from TraversalUtilities import Stripifier
-    from Mesh import Mesh
-    USE_NVTRISTRIP = False
+else:
+    from TriangleStripifier import TriangleStripifier
+    from TriangleMesh import FaceEdgeMesh
 
 def triangulate(strips):
     """A generator for iterating over the faces in a set of
@@ -61,10 +61,10 @@ def strippify(triangles):
     >>> _checkStrips(triangles, strips)
     >>> triangles = [[0, 1, 2], [2, 1, 0], [1, 2, 3]]
     >>> strips = strippify(triangles)
-    >>> _checkStrips(triangles, strips) # ATM invalid
+    >>> _checkStrips(triangles, strips) # NvTriStrip fails
     >>> triangles = [[1, 5, 2], [5, 2, 6], [5, 9, 6], [9, 6, 10], [9, 13, 10], [13, 10, 14], [0, 4, 1], [4, 1, 5], [4, 8, 5], [8, 5, 9], [8, 12, 9], [12, 9, 13], [2, 6, 3], [6, 3, 7], [6, 10, 7], [10, 7, 11], [10, 14, 11], [14, 11, 15]]
-    >>> strips = strippify(triangles) # ATM fails the NvTriStrip validation test
-    >>> _checkStrips(triangles, strips)
+    >>> strips = strippify(triangles) # NvTriStrip fails
+    >>> _checkStrips(triangles, strips) # Runeblade gives wrong result
     """
 
     if USE_NVTRISTRIP:
@@ -81,13 +81,13 @@ def strippify(triangles):
         return strips
     else:
         # build a mesh from triangles
-        mesh = Mesh()
+        mesh = FaceEdgeMesh()
         for face in triangles:
             mesh.AddFace(*face)
 
         # calculate the strip
-        stripifier = Stripifier()
-        stripifier.Selector.MinStripLength = 0
+        stripifier = TriangleStripifier()
+        stripifier.GLSelector.MinStripLength = 0
         stripifier(mesh)
 
         # add the triangles to it
@@ -97,4 +97,3 @@ def strippify(triangles):
 if __name__=='__main__':
     import doctest
     doctest.testmod()
-    
