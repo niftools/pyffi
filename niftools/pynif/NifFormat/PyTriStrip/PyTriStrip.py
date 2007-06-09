@@ -74,7 +74,7 @@ def strippify(triangles):
         lst = []
         for face in triangles:
             lst.extend(face)
-        pgroups = NvTriStrip.GenerateStrips(lst, validateEnabled = True)
+        pgroups = NvTriStrip.GenerateStrips(lst, validateEnabled = False)
         strips = []
         for ptype, indices in pgroups:
             if ptype == NvTriStrip.PT_STRIP:

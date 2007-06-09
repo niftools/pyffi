@@ -190,7 +190,6 @@ class Flags(UShort):
 class Float(BasicBase):
     def __init__(self, template = None, argument = None):
         self._x = '\x00\x00\x00\x00'
-        #self.setValue(0.0)
 
     def getValue(self):
         return struct.unpack('<f', self._x)[0]
@@ -203,6 +202,23 @@ class Float(BasicBase):
 
     def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
         f.write(self._x)
+
+### faster calculation, slower read/write:
+##class Float(BasicBase):
+##    def __init__(self, template = None, argument = None):
+##        self._x = 0.0
+##
+##    def getValue(self):
+##        return self._x
+##
+##    def setValue(self, value):
+##        self._x = float(value)
+##
+##    def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
+##        self._x = struct.unpack('<f', f.read(4))[0]
+##
+##    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
+##        f.write(struct.pack('<f', self._x))
 
 class Ref(BasicBase):
     _isTemplate = True

@@ -109,5 +109,3 @@ class BasicBase(object):
 
     def setValue(self, value):
         raise NotImplementedError
-
-    #value = property(getValue, setValue, None, "The value.")

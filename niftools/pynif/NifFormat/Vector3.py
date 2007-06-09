@@ -82,6 +82,16 @@ def __rmul__(self, x):
     else:
         raise TypeError("do not know how to multiply %s and Vector3"%x.__class__)
 
+def __div__(self, x):
+    if isinstance(x, (float, int, long)):
+        v = self.cls.Vector3()
+        v.x = self.x / x
+        v.y = self.y / x
+        v.z = self.z / x
+        return v
+    else:
+        raise TypeError("do not know how to divide Vector3 and %s"%x.__class__)
+
 def __add__(self, x):
     if isinstance(x, (float, int, long)):
         v = self.cls.Vector3()
@@ -140,3 +150,14 @@ def __neg__(self):
     v.y = -self.y
     v.z = -self.z
     return v
+
+# cross product
+def crossproduct(self, x):
+    if isinstance(x, self.cls.Vector3):
+        v = self.cls.Vector3()
+        v.x = self.y*x.z - self.z*x.y
+        v.y = self.z*x.x - self.x*x.z
+        v.z = self.x*x.y - self.y*x.x
+        return v
+    else:
+        raise TypeError("do not know how to calculate crossproduct of Vector3 and %s"%x.__class__)

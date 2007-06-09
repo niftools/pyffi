@@ -27,15 +27,17 @@ def testBlock(block, verbose):
         raise
 
     for t0, t1, t2 in triangles2:
+        if t0 == t1 or t1 == t2 or t2 == t0: continue # ignore degenerate triangles
         if [t0, t1, t2] not in triangles and [t1, t2, t0] not in triangles and [t2, t0, t1] not in triangles:
-            print strips
-            print triangles
+            #print strips
+            #print triangles
             print [t0, t1, t2], 'in strip but not in triangles'
             raise ValueError('strippification invalid?')
 
     for t0, t1, t2 in triangles:
+        if t0 == t1 or t1 == t2 or t2 == t0: continue # ignore degenerate triangles
         if [t0, t1, t2] not in triangles2 and [t1, t2, t0] not in triangles2 and [t2, t0, t1] not in triangles2:
-            print strips
-            print triangles
+            #print strips
+            #print triangles
             print [t0, t1, t2], 'in triangles but not in strip'
             raise ValueError('strippification invalid?')

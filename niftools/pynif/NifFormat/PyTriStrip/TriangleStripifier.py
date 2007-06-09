@@ -36,12 +36,13 @@ import TriangleMesh as Mesh
 def _FindOtherFace(ev0, ev1, face):
     try:
         edge = face.GetEdge(ev0,ev1)
-        # find a face with the different edge windings
+        # find a face with different edge windings
         result = edge.NextFace(face)
         if result:
             windings = face.GetVertexWinding(ev0,ev1), result.GetVertexWinding(ev0,ev1)
             while result and (windings[0] == windings[1]):
                 result = edge.NextFace(result)
+                if not result: return None
                 if result == face: return None
                 windings = face.GetVertexWinding(ev0,ev1), result.GetVertexWinding(ev0,ev1)
         return result
@@ -158,14 +159,17 @@ class TriangleStrip(object):
 
         def _TraverseFaces(Indices, NextFace, FaceList, BreakTest):
             """Utility for building face traversal list"""
+            #print "NEW TRAVERSAL"
+            #print NextFace.v, Indices
             nv0,nv1 = Indices[-2:]
             NextFace = _FindOtherFace(nv0, nv1, NextFace)
             while NextFace and not self.IsFaceMarked(NextFace):
                 if not BreakTest(NextFace): break
-                nv0, nv1 = nv1, NextFace.OtherVertex(*Indices[-2:])
+                nv0, nv1 = nv1, NextFace.OtherVertex(nv0, nv1)
                 FaceList.append(NextFace)
-                self.MarkFace(FaceList[-1])
-                Indices.append(nv1);
+                self.MarkFace(NextFace)
+                Indices.append(nv1)
+                #print NextFace.v, Indices
                 NextFace = _FindOtherFace(nv0, nv1, NextFace)
 
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
