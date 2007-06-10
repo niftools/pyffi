@@ -1,33 +1,58 @@
-#!/usr/bin/env python
-
+# --------------------------------------------------------------------------
+# PyTriStrip.TriangleStripifier
+# A general purpose stripifier, based on NvTriStrip:
+# http://developer.nvidia.com/
+#
+# Credit for porting NvTriStrip to Python goes to the RuneBlade Foundation
+# library:
 # http://techgame.net/projects/Runeblade/browser/trunk/RBRapier/RBRapier/Tools/Geometry/Analysis/TriangleStripifier.py?rev=760
+#
+# The algorithm of this stripifier is an improved version of the RuneBlade
+# Foundation / NVidia stripifier; it makes no assumptions about the
+# underlying geometry whatsoever and is intended to produce valid
+# output in all circumstances.
+# --------------------------------------------------------------------------
+# ***** BEGIN LICENSE BLOCK *****
+#
+# Copyright (c) 2007, NIF File Format Library and Tools.
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+#    * Redistributions of source code must retain the above copyright
+#      notice, this list of conditions and the following disclaimer.
+#
+#    * Redistributions in binary form must reproduce the above
+#      copyright notice, this list of conditions and the following
+#      disclaimer in the documentation and/or other materials provided
+#      with the distribution.
+#
+#    * Neither the name of the NIF File Format Library and Tools
+#      project nor the names of its contributors may be used to endorse
+#      or promote products derived from this software without specific
+#      prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# ***** END LICENCE BLOCK *****
+# --------------------------------------------------------------------------
 
-##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-##~ License
-##~
-##- The RuneBlade Foundation library is intended to ease some
-##- aspects of writing intricate Jabber, XML, and User Interface (wxPython, etc.)
-##- applications, while providing the flexibility to modularly change the
-##- architecture. Enjoy.
-##~
-##~ Copyright (C) 2002  TechGame Networks, LLC.
-##~
-##~ This library is free software; you can redistribute it and/or
-##~ modify it under the terms of the BSD style License as found in the
-##~ LICENSE file included with this distribution.
-##~
-##~ TechGame Networks, LLC can be reached at:
-##~ 3578 E. Hartsel Drive #211
-##~ Colorado Springs, Colorado, USA, 80920
-##~
-##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#~ Imports
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-from __future__ import generators
 import TriangleMesh as Mesh
+
+DEBUG = False # print debug info
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~ Definitions
@@ -159,8 +184,7 @@ class TriangleStrip(object):
 
         def _TraverseFaces(Indices, NextFace, FaceList, BreakTest):
             """Utility for building face traversal list"""
-            #print "NEW TRAVERSAL"
-            #print NextFace.v, Indices
+            if DEBUG: print NextFace.v, Indices
             nv0,nv1 = Indices[-2:]
             NextFace = _FindOtherFace(nv0, nv1, NextFace)
             while NextFace and not self.IsFaceMarked(NextFace):
@@ -169,7 +193,7 @@ class TriangleStrip(object):
                 FaceList.append(NextFace)
                 self.MarkFace(NextFace)
                 Indices.append(nv1)
-                #print NextFace.v, Indices
+                if DEBUG: print NextFace.v, Indices
                 NextFace = _FindOtherFace(nv0, nv1, NextFace)
 
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -179,7 +203,15 @@ class TriangleStrip(object):
         self.MarkFace(self.StartFace)
         ForwardFaces.append(self.StartFace)
 
+        if DEBUG:
+            print
+            print "CONSTRUCTING TRAVERSAL"
+            print "FROM FACE", self.StartFace.v
+            print "WINDING", self.StartFace.GetVertexWinding(v0,v1)
+            print "FORWARD TRAVERSAL"
         _TraverseFaces([v0,v1,v2], self.StartFace, ForwardFaces, _AlwaysTrue)
+        if DEBUG:
+            print "BACKWARD TRAVERSAL"
         _TraverseFaces([v2,v1,v0], self.StartFace, BackwardFaces, _UniqueFace)
 
         # Combine the Forward and Backward results
@@ -187,6 +219,9 @@ class TriangleStrip(object):
         self.StartFaceIndex = len(BackwardFaces)
         BackwardFaces.extend(ForwardFaces)
         self.Faces = BackwardFaces
+        if DEBUG:
+            print "COMBINED TRAVERSAL"
+            self.TriangleStripIndices() # this prints out the combined traversal as reconstructed from  self.Faces
         return self.Faces
 
     def Commit(self, TaskProgress=None):
@@ -210,6 +245,7 @@ class TriangleStrip(object):
             return []
         elif FaceCount == 1:
             # One face is really easy ;) just return the verticies in order
+            if DEBUG: print FaceList[0].v, list(FaceList[0].v)
             return list(FaceList[0].v)
         elif FaceCount == 2:
             # The case of two faces is pretty simple too...
@@ -221,34 +257,47 @@ class TriangleStrip(object):
             # add the next two verticies on the edge in winding order
             result.append(face0.NextVertex(result[-1]))
             result.append(face0.NextVertex(result[-1]))
+            if DEBUG: print face0.v, result
             # Find the vertex on the second face not on the common edge
             result.append(face1.OtherVertex(*edge01.ev))
+            if DEBUG: print face1.v, result
             return result
 
         face0,face1,face2 = FaceList[:3]
         # Get the edge between face0 and face1
-        edge01 = face0.GetCommonEdges(face1)[0]
-        # Get the edge between face1 and face2
-        edge12 = face1.GetCommonEdges(face2)[0]
-        # Figure out which vertex we need to end on
-        v2 = edge01.GetCommonVertices(edge12)[0]
-        # Find the vertex on the first face not on the common edge
-        v0 = face0.OtherVertex(*edge01.ev)
-        # Find the middle vertex from the two endpoints
-        v1 = face0.OtherVertex(v0, v2)
+        for edge01 in face0.GetCommonEdges(face1):
+            # Get the edge between face1 and face2
+            for edge12 in face1.GetCommonEdges(face2):
+                # Figure out which vertex we need to end on
+                for  v2 in edge01.GetCommonVertices(edge12):
+                    # Find the vertex on the first face not on the common edge
+                    v0 = face0.OtherVertex(*edge01.ev)
+                    # Find the middle vertex from the two endpoints
+                    v1 = face0.OtherVertex(v0, v2)
+                    
+                    # Figure out if the start triangle is backwards
+                    upsidedown = face0.NextVertex(v0) != v1
+                    if upsidedown:
+                        # We need to add a degenerate triangle to flip the strip over
+                        result = [v1,v0,v1,v2]
+                    else: result = [v0,v1,v2]
+                    
+                    if DEBUG:
+                        print FaceList[0].v, result
+                    for face in FaceList[1:]:
+                        # Build the strip by repeatedly finding the missing index
+                        if DEBUG: print face.v,
+                        try:
+                            result.append(face.OtherVertex(*result[-2:]))
+                        except KeyError:
+                            if DEBUG: print 'FAILED, TRYING AGAIN WITH DIFFERENT STARTING EDGES'
+                            break # constructing strip failed; try other starting combination
+                        if DEBUG: print result
+                    else:
+                        # strip built, so return it
+                        return result
 
-        # Figure out if the start triangle is backwards
-        upsidedown = face0.NextVertex(v0) != v1
-        if upsidedown:
-            # We need to add a degenerate triangle to flip the strip over
-            result = [v1,v0,v1,v2]
-        else: result = [v0,v1,v2]
-
-        for face in FaceList[1:]:
-            # Build the strip by repeatedly finding the missing index
-            result.append(face.OtherVertex(*result[-2:]))
-
-        return result
+        raise ValueError('failed to build strip from triangles')
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~ ExperimentGLSelector
@@ -261,7 +310,7 @@ class ExperimentGLSelector(object):
 
     Samples = 3
     StripLenHeuristic = 1.0
-    MinStripLength = 3
+    MinStripLength = 0
 
     BestScore = None
     BestSample = None
@@ -338,6 +387,9 @@ class TriangleStripifier(object):
             if len(strip.Faces) < self.GLSelector.MinStripLength:
                 self.TriangleList.extend(strip.TriangleListIndices())
             else:
+                if DEBUG:
+                    print
+                    print "STRIP:"
                 self.TriangleStrips.append(strip.TriangleStripIndices())
 
         result = [('list', self.TriangleList), ('strip', self.TriangleStrips)]#, ('fan',self.TriangleFans) ]

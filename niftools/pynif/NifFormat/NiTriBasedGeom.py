@@ -136,7 +136,7 @@ def updateTangentSpace(self):
     for i in xrange(self.data.numVertices):
         n = norms[i]
         try:
-            # turn n, bin, tan into a base via Gramm-Schmidt
+            # turn n, bin, tan into a base via Gram-Schmidt
             bin[i] -= n * (n * bin[i])
             bin[i].normalize()
             tan[i] -= n * (n * tan[i])
@@ -376,8 +376,8 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4):
         parttriangles = []
         for tri in triangles:
             parttriangles.append([vertices.index(t) for t in tri])
-        # strippify the triangles
-        strips = PyTriStrip.strippify(parttriangles)
+        # stripify the triangles
+        strips = PyTriStrip.stripify(parttriangles)
         numtriangles = 0
         for strip in strips: numtriangles += len(strip) - 2
 

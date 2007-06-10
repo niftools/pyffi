@@ -63,7 +63,7 @@ def getTriangles(self):
     return PyTriStrip.triangulate(self.points)
 
 def setTriangles(self, triangles):
-    self.setStrips(PyTriStrip.strippify(triangles))
+    self.setStrips(PyTriStrip.stripify(triangles))
 
 def getStrips(self):
     return [[i for i in strip] for strip in self.points]

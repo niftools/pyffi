@@ -76,7 +76,7 @@ def setTriangles(self, triangles):
         dst_t.v1, dst_t.v2, dst_t.v3 = src.next()
 
 def getStrips(self):
-    return PyTriStrip.strippify(self.getTriangles())
+    return PyTriStrip.stripify(self.getTriangles())
 
 def setStrips(self, strips):
     self.setTriangles(PyTriStrip.triangulate(strips))
