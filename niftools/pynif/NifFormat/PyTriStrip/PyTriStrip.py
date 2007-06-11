@@ -59,6 +59,7 @@ def triangulate(strips):
     triangles = []
 
     for strip in strips:
+        if len(strip) < 3: continue # skip empty strips
         i = strip.__iter__()
         j = False
         t1, t2 = i.next(), i.next()
@@ -137,13 +138,111 @@ def stripify(triangles, stitchstrips = False):
         # calculate the strip
         stripifier = TriangleStripifier()
         stripifier.GLSelector.MinStripLength = 0
+        stripifier.GLSelector.Samples = 10
         stripifier(mesh)
 
         # add the triangles to it
         i = stripifier.TriangleList.__iter__()
-        return [face for face in _generateFacesFromTriangles(stripifier.TriangleList)] + stripifier.TriangleStrips
+        strips = [face for face in _generateFacesFromTriangles(stripifier.TriangleList)] + stripifier.TriangleStrips
 
-        # TODO handle stitching
+        if stitchstrips: return [stitchStrips(strips)]
+        else: return strips
+
+def stitchStrips(strips):
+    """Stitch strips keeping stitch size minimal."""
+    result = []
+    realstrips = [strip for strip in strips if len(strip) >= 3]
+    forward  = [strip for strip in realstrips if strip[0] != strip[1]]
+    backward = [strip for strip in realstrips if strip[0] == strip[1]]
+    while forward or backward:
+        # create stitch
+        if result:
+            result.append(result[-1]) # first stitch
+            winding = len(result) & 1
+            # stitch length 2
+            if winding == 1 and forward:
+                strip = forward.pop()
+                result.append(strip[0]) # second stitch
+            elif winding == 0 and backward:
+                strip = backward.pop()  # (second stitch is already in the strip)
+            # stitch length 3
+            elif winding == 0 and forward:
+                strip = forward.pop()
+                result.append(strip[0]) # second stitch
+                result.append(strip[0]) # third stitch
+            elif winding == 1 and backward:
+                strip = backward.pop()
+                result.append(strip[0]) # second stitch (third stitch is already in strip)
+        else:
+            if forward:
+                strip = forward.pop()
+            else:
+                strip = backward.pop()
+        # append strip
+        result.extend(strip)
+    return result
+
+def unstitchStrip(strip):
+    """Revert stitched strip back to a set of strips without stitches.
+
+    >>> strip = [0,1,2,2,3,3,4,5,6,7,8]
+    >>> triangles = triangulate([strip])
+    >>> strips = unstitchStrip(strip)
+    >>> _checkStrips(triangles, strips)
+    >>> print strips
+    [[0, 1, 2], [3, 3, 4, 5, 6, 7, 8]]
+    >>> strip = [0,1,2,3,3,4,4,4,5,6,7,8]
+    >>> triangles = triangulate([strip])
+    >>> strips = unstitchStrip(strip)
+    >>> _checkStrips(triangles, strips)
+    >>> print strips
+    [[0, 1, 2, 3], [4, 4, 5, 6, 7, 8]]
+    >>> strip = [0,1,2,3,4,4,4,4,5,6,7,8]
+    >>> triangles = triangulate([strip])
+    >>> strips = unstitchStrip(strip)
+    >>> _checkStrips(triangles, strips)
+    >>> print strips
+    [[0, 1, 2, 3, 4], [4, 4, 5, 6, 7, 8]]
+    >>> strip = [0,1,2,3,4,4,4,4,4,5,6,7,8]
+    >>> triangles = triangulate([strip])
+    >>> strips = unstitchStrip(strip)
+    >>> _checkStrips(triangles, strips)
+    >>> print strips
+    [[0, 1, 2, 3, 4], [4, 5, 6, 7, 8]]
+    >>> strip = [0,0,1,1,2,2,3,3,4,4,4,4,4,5,5,6,6,7,7,8,8]
+    >>> triangles = triangulate([strip])
+    >>> strips = unstitchStrip(strip)
+    >>> _checkStrips(triangles, strips)
+    >>> print strips
+    []"""
+    strips = []
+    currentstrip = []
+    i = 0
+    while i < len(strip)-3:
+        # get potential stitch
+        stitch = strip[i:i+4]
+        if stitch[0] == stitch[1] == stitch[2] != stitch[3]:
+            # skip degenerate
+            i += 2
+        elif stitch[0] == stitch[1] and stitch[2] == stitch[3]:
+            # unstitch
+            currentstrip.append(strip[i])
+            if len(currentstrip) >= 3:
+                strips.append(currentstrip)
+            currentstrip = []
+            # set up right winding for next strip
+            if i & 1:
+                i += 3
+            else:
+                i += 2
+        else:
+            # nothing special
+            currentstrip.append(strip[i])
+            i += 1
+    currentstrip.extend(strip[i:])
+    if len(currentstrip) >= 3:
+        strips.append(currentstrip)
+    return strips
 
 if __name__=='__main__':
     import doctest

@@ -279,7 +279,7 @@ class TriangleStrip(object):
                     upsidedown = face0.NextVertex(v0) != v1
                     if upsidedown:
                         # We need to add a degenerate triangle to flip the strip over
-                        result = [v1,v0,v1,v2]
+                        result = [v0,v0,v1,v2]
                     else: result = [v0,v1,v2]
                     
                     if DEBUG:

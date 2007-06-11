@@ -60,7 +60,10 @@ from PyTriStrip import PyTriStrip
 def getTriangles(self):
     return [[t.v1, t.v2, t.v3] for t in self.triangles]
 
-def setTriangles(self, triangles):
+def setTriangles(self, triangles, stitchstrips = False):
+    # note: the stitchstrips argument is ignored - only present to ensure
+    # uniform interface between NiTriShapeData and NiTriStripsData
+
     # initialize triangle array
     n = len(triangles)
     self.numTriangles = n

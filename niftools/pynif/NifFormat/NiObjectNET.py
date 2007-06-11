@@ -51,7 +51,7 @@ def addExtraData(self, extrablock):
     if not self.extraData:
         self.extraData = extrablock
     else:
-        lastextra = block.extraData
-        while lastextra.extraData:
-            lastextra = lastextra.extraData
-        lastextra.extraData = extrablock
+        lastextra = self.extraData
+        while lastextra.nextExtraData:
+            lastextra = lastextra.nextExtraData
+        lastextra.nextExtraData = extrablock

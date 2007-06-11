@@ -62,8 +62,8 @@ from PyTriStrip import PyTriStrip
 def getTriangles(self):
     return PyTriStrip.triangulate(self.points)
 
-def setTriangles(self, triangles):
-    self.setStrips(PyTriStrip.stripify(triangles))
+def setTriangles(self, triangles, stitchstrips = False):
+    self.setStrips(PyTriStrip.stripify(triangles, stitchstrips = stitchstrips))
 
 def getStrips(self):
     return [[i for i in strip] for strip in self.points]
@@ -72,8 +72,11 @@ def setStrips(self, strips):
     # initialize strips array
     self.numStrips = len(strips)
     self.stripLengths.updateSize()
+    numtriangles = 0
     for i, strip in enumerate(strips):
         self.stripLengths[i] = len(strip)
+        numtriangles += len(strip) - 2
+    self.numTriangles = numtriangles
     self.points.updateSize()
     self.hasPoints = (len(strips) > 0)
 
