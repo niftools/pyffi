@@ -106,7 +106,7 @@ def flattenSkin(self):
     skelroot.addChild(self, front = True) # and attatch it to the skeleton root
 
     # reparent bones and set their transforms
-    for bone_block in skininst.bones:
+    for i, bone_block in enumerate(skininst.bones):
         if bone_block != skelroot:
             # remove children
             bone_block.numChildren = 0
