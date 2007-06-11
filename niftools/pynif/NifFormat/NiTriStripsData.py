@@ -45,7 +45,7 @@
 >>> block = NifFormat.NiTriStripsData()
 >>> block.setTriangles([[0,1,2],[2,1,3],[2,3,4]])
 >>> block.getStrips()
-[[3, 4, 3, 2, 1, 0]]
+[[4, 4, 3, 2, 1, 0]]
 >>> block.getTriangles()
 [[4, 2, 3], [3, 2, 1], [2, 0, 1]]
 >>> block.setStrips([[1,0,1,2,3,4]])

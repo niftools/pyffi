@@ -40,12 +40,22 @@
 # ***** END LICENCE BLOCK *****
 # --------------------------------------------------------------------------
 
-def addChild(self, childblock):
+def addChild(self, childblock, front = False):
     """Add block to child list."""
+    # check if it's already a child
+    if childblock in [child for child in self.children]: return
+    # increase number of children
     num_children = self.numChildren
     self.numChildren = num_children + 1
     self.children.updateSize()
-    self.children[num_children] = childblock
+    # add the child
+    if not front:
+        self.children[num_children] = childblock
+    else:
+        for i in xrange(num_children, 0, -1):
+            self.children[i] = self.children[i-1]
+        self.children[0] = childblock
+        
 
 def removeChild(self, childblock):
     """Remove a block from the child list."""

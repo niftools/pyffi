@@ -11,10 +11,12 @@ for vstr, vnum in sorted(NifFormat.versions.items(), cmp=lambda x, y: cmp(x[1],y
 
 #print "Constructing nif tree"
 root = NifFormat.NiNode()
+root.name = 'Scene Root'
 
 blk = NifFormat.NiNode()
 root.addChild(blk)
 
+blk.name = 'new block'
 blk.scale = 2.4
 blk.translation.x = 3.9
 blk.rotation.m11 = 1.0
@@ -28,7 +30,7 @@ blk.addController(ctrl)
 blk.addController(NifFormat.NiAlphaController())
 
 strips = NifFormat.NiTriStrips()
-blk.addChild(strips)
+root.addChild(strips, front = True)
 
 strips.name = "hello world"
 strips.rotation.m11 = 1.0

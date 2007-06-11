@@ -93,7 +93,7 @@ def flattenSkin(self):
     """Reposition all bone blocks and geometry block in the tree to be direct
     children of the skeleton root."""
 
-    if not isSkin(): return # nothing to do
+    if not self.isSkin(): return # nothing to do
     self._validateSkin() # validate the skin
     skininst = self.skinInstance
     skindata = skininst.data
@@ -103,7 +103,7 @@ def flattenSkin(self):
     self.setTransform(skindata.getTransform() * self.getTransform(skelroot))
     chain = skelroot.findChain(self)
     skelroot.removeChild(chain[1]) # detatch geometry from tree
-    skelroot.addChild(self) # and attatch it to the skeleton root
+    skelroot.addChild(self, front = True) # and attatch it to the skeleton root
 
     # reparent bones and set their transforms
     for bone_block in skininst.bones:
