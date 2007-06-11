@@ -47,6 +47,16 @@ def addProperty(self, propblock):
     self.properties.updateSize()
     self.properties[num_props] = propblock
 
+def addController(self, ctrlblock):
+    """Add block to controller chain."""
+    if not self.controller:
+        self.controller = ctrlblock
+    else:
+        lastctrl = self.controller
+        while lastctrl.nextController:
+            lastctrl = lastctrl.nextController
+        lastctrl.nextController = ctrlblock
+
 def getTransform(self, relative_to = None):
     """Return scale, rotation, and translation into a single 4x4 matrix,
     relative to the <relative_to> block (which should be another NiAVObject

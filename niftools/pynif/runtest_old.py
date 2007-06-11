@@ -24,7 +24,8 @@ blk.rotation.m33 = 1.0
 ctrl = NifFormat.NiVisController()
 ctrl.flags = 0x000c
 ctrl.target = blk
-blk.controller = ctrl
+blk.addController(ctrl)
+blk.addController(NifFormat.NiAlphaController())
 
 strips = NifFormat.NiTriStrips()
 blk.addChild(strips)
@@ -102,6 +103,10 @@ print blk.translation.asList()
 
 print blk.findChain(data) # [ninode, nitristrips, nitristripsdata]
 print data.findChain(ctrl) # []
+
+print "flattening tree"
+blk.flattenTree()
+print blk
 
 print "Writing nif file"
 
