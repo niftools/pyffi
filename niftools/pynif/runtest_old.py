@@ -104,10 +104,6 @@ print blk.translation.asList()
 print blk.findChain(data) # [ninode, nitristrips, nitristripsdata]
 print data.findChain(ctrl) # []
 
-print "flattening tree"
-blk.flattenTree()
-print blk
-
 print "Writing nif file"
 
 f = open("test.nif", "wb")

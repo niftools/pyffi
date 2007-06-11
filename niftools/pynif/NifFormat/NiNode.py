@@ -54,32 +54,3 @@ def removeChild(self, childblock):
     self.children.updateSize()
     for i, child in enumerate(children):
         self.children[i] = child
-
-def flattenTree(self):
-    """Reposition all NiNode blocks in the tree to be children of this
-    node. For instance, call this on the parent of a skeleton root for
-    oblivion creatures."""
-
-    for child in self.children:
-        if isinstance(child, self.cls.NiNode):
-            child._flattenTree(self)
-
-def _flattenTree(self, parent):
-    """Helper function for flattenTree()."""
-
-    # just in case
-    if self == parent: raise ValueError('problem while flattening tree (cycles?)')
-
-    # flatten NiNode grandchildren
-    for child in self.children:
-        if isinstance(child, self.cls.NiNode):
-            child._flattenTree(parent)
-
-    # reparent children
-    for child in self.children:
-        child.setTransform(child.getTransform(parent))
-        parent.addChild(child)
-
-    # remove children from self
-    self.numChildren = 0
-    self.children.updateSize()

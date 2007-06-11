@@ -88,3 +88,29 @@ def getBoneRestPositions(self):
     for i, bone_block in enumerate(skininst.bones):
         restpose_dct[bone_block] = skindata.boneList[i].getTransform().getInverse()
     return restpose_dct
+
+def flattenSkin(self):
+    """Reposition all bone blocks and geometry block in the tree to be direct
+    children of the skeleton root."""
+
+    if not isSkin(): return # nothing to do
+    self._validateSkin() # validate the skin
+    skininst = self.skinInstance
+    skindata = skininst.data
+    skelroot = skininst.skeletonRoot
+
+    # reparent geometry
+    self.setTransform(skindata.getTransform() * self.getTransform(skelroot))
+    chain = skelroot.findChain(self)
+    skelroot.removeChild(chain[1]) # detatch geometry from tree
+    skelroot.addChild(self) # and attatch it to the skeleton root
+
+    # reparent bones and set their transforms
+    for bone_block in skininst.bones:
+        if bone_block != skelroot:
+            # remove children
+            bone_block.numChildren = 0
+            bone_block.children.updateSize()
+            bone_block.setTransform(skindata.boneList[i].getTransform().getInverse())
+            skelroot.addChild(bone_block)
+
