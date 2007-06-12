@@ -44,6 +44,17 @@ import struct
 from FileFormat.Bases.Basic import BasicBase
 
 class Bool(BasicBase):
+    """Basic implementation of a 32-bit (8-bit for versions > 4.0.0.2)
+    boolean type.
+    
+    >>> i = Bool()
+    >>> i.setValue('false')
+    >>> i.getValue()
+    False
+    >>> i.setValue('true')
+    >>> i.getValue()
+    True
+    """
     def __init__(self, template = None, argument = None):
         self.setValue(False)
 

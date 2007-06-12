@@ -70,6 +70,22 @@ class NifFormat(object):
     0x0A020000
     0x14000004
     0x14000005
+    >>> for game, versions in sorted(NifFormat.games.items(), key=lambda x: x[0]):
+    ...     print game,
+    ...     for vnum in versions:
+    ...         print '0x%08X'%vnum,
+    ...     print
+    Axis and Allies 0x0A010000
+    Civilization IV 0x04020002 0x04020100 0x04020200 0x0A000100 0x0A010000 0x0A020000 0x14000004
+    Dark Age of Camelot 0x03000300 0x03010000 0x0401000C 0x04020100 0x04020200 0x0A010000
+    Empire Earth II 0x04020200
+    Freedom Force 0x04000000 0x04000002
+    Freedom Force vs. the 3rd Reich 0x0A010000
+    Kohan 2 0x0A010000
+    Morrowind 0x04000002
+    Oblivion 0x0303000D 0x0A000102 0x0A01006A 0x0A020000 0x14000004 0x14000005
+    Star Trek: Bridge Commander 0x03000000 0x03010000
+    Zoo Tycoon 2 0x0A000100
     >>> print NifFormat.HeaderString
     <class 'NifFormat.BasicTypes.HeaderString'>
 

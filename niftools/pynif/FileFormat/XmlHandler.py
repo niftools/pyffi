@@ -92,9 +92,11 @@ class XmlHandler(xml.sax.handler.ContentHandler):
         Initializes the current tag.
         """
         
-        # initialize dictionary of versions
-        # this will map each supported version string to a version number
+        # initialize dictionaries
+        # cls.version maps each supported version string to a version number
         cls.versions = {}
+        # cls.games maps each supported game to a list of version numbers
+        cls.games = {}
 
         # initialize tag stack
         self.stack = []
@@ -298,8 +300,8 @@ class XmlHandler(xml.sax.handler.ContentHandler):
 
             # niftoolsxml -> version
             elif x == self.tagVersion:
-                version_str = str(attrs["num"])
-                self.cls.versions[version_str] = self.cls.versionNumber(version_str)
+                self.version_str = str(attrs["num"])
+                self.cls.versions[self.version_str] = self.cls.versionNumber(self.version_str)
 
             else:
                 raise XmlError("expected basic, enum, compound, niobject, or version, but got " + name + " instead")
@@ -388,3 +390,39 @@ class XmlHandler(xml.sax.handler.ContentHandler):
             # set all properties
             for x, arglist in props.items():
                 setattr(obj, x, property(*arglist))
+
+    def characters(self, s):
+        if self.currentTag == self.tagVersion:
+            for gamestr in [str(g.strip()) for g in s.split(',')]:
+                if self.cls.games.has_key(gamestr):
+                    self.cls.games[gamestr].append(self.cls.versions[self.version_str])
+                else:
+                    self.cls.games[gamestr] = [self.cls.versions[self.version_str]]
+
+##    {
+##        switch ( current() )
+##        {
+##            case tagVersion:
+##                break;
+##            case tagCompound:
+##            case tagBlock:
+##                if ( blk )
+##                    blk->text += s.trimmed();
+##                else
+##                    typTxt += s.trimmed();
+##                break;
+##            case tagAttribute:
+##                data.setText( data.text() + s.trimmed() );
+##                break;
+##            case tagBasic:
+##            case tagEnum:
+##                typTxt += s.trimmed();
+##                break;
+##            case tagOption:
+##                optTxt += s.trimmed();
+##                break;
+##            default:
+##                break;
+##        }
+##        return true;
+##    }
