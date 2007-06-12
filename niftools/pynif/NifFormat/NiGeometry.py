@@ -43,12 +43,62 @@
 """
 The nif skinning algorithm works as follows (as of nifskope):
 v'                               # vertex after skinning in geometry space
-= sum_{b\in skininst.bones}      # sum over all bones b that influence the mesh
+= sum over {b in skininst.bones} # sum over all bones b that influence the mesh
 weight[v][b]                     # how much bone b influences vertex v
 * v                              # vertex before skinning in geometry space (as it is stored in the shape data)
-* skindata.bonelist[b].transform # transform vertex to bone b space in the rest pose
-* b.transform(skelroot)          # apply animation, by multiplying with all bone matrices in the chain down to the skeleton root; the vertex is now in skeleton root space
+* skindata.boneList[b].transform # transform vertex to bone b space in the rest pose
+* b.getTransform(skelroot)       # apply animation, by multiplying with all bone matrices in the chain down to the skeleton root; the vertex is now in skeleton root space
 * skindata.transform             # transforms vertex from skeleton root space back to geometry space
+
+>>> from NifFormat import NifFormat
+>>> id44 = NifFormat.Matrix44()
+>>> id44.setIdentity()
+>>> skelroot = NifFormat.NiNode()
+>>> skelroot.name = 'skelroot'
+>>> bone1 = NifFormat.NiNode()
+>>> bone1.name = 'bone1'
+>>> bone2 = NifFormat.NiNode()
+>>> bone2.name = 'bone2'
+>>> bone21 = NifFormat.NiNode()
+>>> bone21.name = 'bone21'
+>>> bone22 = NifFormat.NiNode()
+>>> bone22.name = 'bone22'
+>>> bone211 = NifFormat.NiNode()
+>>> bone211.name = 'bone211'
+>>> skelroot.addChild(bone1)
+>>> bone1.addChild(bone2)
+>>> bone2.addChild(bone21)
+>>> bone2.addChild(bone22)
+>>> bone21.addChild(bone211)
+>>> geom = NifFormat.NiTriShape()
+>>> geom.name = 'geom'
+>>> geom.setTransform(id44)
+>>> geomdata = NifFormat.NiTriShapeData()
+>>> skininst = NifFormat.NiSkinInstance()
+>>> skindata = NifFormat.NiSkinData()
+>>> skelroot.addChild(geom)
+>>> geom.data = geomdata
+>>> geom.skinInstance = skininst
+>>> skininst.skeletonRoot = skelroot
+>>> skininst.data = skindata
+>>> skininst.numBones = 4
+>>> skininst.bones.updateSize()
+>>> skininst.bones[0] = bone1
+>>> skininst.bones[1] = bone2
+>>> skininst.bones[2] = bone22
+>>> skininst.bones[3] = bone211
+>>> skindata.setTransform(id44)
+>>> skindata.numBones = 4
+>>> skindata.boneList.updateSize()
+>>> print [ child.name for child in skelroot.children ]
+['bone1', 'geom']
+>>> for bonedata in skindata.boneList:
+...     bonedata.setTransform(id44)
+>>> affectedbones = geom.flattenSkin()
+>>> print [ bone.name for bone in affectedbones ]
+['bone1', 'bone2', 'bone22', 'bone211']
+>>> print [ child.name for child in skelroot.children ]
+['geom', 'bone1', 'bone2', 'bone22', 'bone211']
 """
 
 def isSkin(self):
@@ -91,9 +141,12 @@ def getBoneRestPositions(self):
 
 def flattenSkin(self):
     """Reposition all bone blocks and geometry block in the tree to be direct
-    children of the skeleton root."""
+    children of the skeleton root. Returns list of all bones that have been
+    repositioned (and added to the skeleton root children list)."""
 
-    if not self.isSkin(): return # nothing to do
+    if not self.isSkin(): return [] # nothing to do
+
+    result = [] # list of repositioned bones
     self._validateSkin() # validate the skin
     skininst = self.skinInstance
     skindata = skininst.data
@@ -113,4 +166,6 @@ def flattenSkin(self):
             bone_block.children.updateSize()
             bone_block.setTransform(skindata.boneList[i].getTransform().getInverse())
             skelroot.addChild(bone_block)
+            result.append(bone_block)
 
+    return result

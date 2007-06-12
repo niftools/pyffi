@@ -9,9 +9,10 @@ import FileFormat.Utils
 import NifFormat.PyTriStrip.PyTriStrip
 import NifFormat.NiTriStripsData
 import NifFormat.NiTriShapeData
+import NifFormat.NiGeometry
 
 suite = unittest.TestSuite()
-for mod in [ NifFormat.NifFormat, NifFormat.BasicTypes, FileFormat.Bases.Basic, FileFormat.Bases.Compound, FileFormat.Bases.Expression, FileFormat.Utils, NifFormat.PyTriStrip.PyTriStrip, NifFormat.NiTriStripsData, NifFormat.NiTriShapeData ]:
+for mod in [ NifFormat.NifFormat, NifFormat.BasicTypes, FileFormat.Bases.Basic, FileFormat.Bases.Compound, FileFormat.Bases.Expression, FileFormat.Utils, NifFormat.PyTriStrip.PyTriStrip, NifFormat.NiTriStripsData, NifFormat.NiTriShapeData, NifFormat.NiGeometry ]:
     suite.addTest(doctest.DocTestSuite(mod))
 runner = unittest.TextTestRunner(verbosity=10)
 runner.run(suite)
