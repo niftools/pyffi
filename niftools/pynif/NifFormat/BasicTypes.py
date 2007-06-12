@@ -51,6 +51,13 @@ class Bool(BasicBase):
         return self._x
 
     def setValue(self, value):
+        if isinstance(value, basestring):
+            if value.lower() == 'false':
+                self._x = False
+                return
+            elif value == '0':
+                self._x = False
+                return
         if value:
             self._x = True
         else:
