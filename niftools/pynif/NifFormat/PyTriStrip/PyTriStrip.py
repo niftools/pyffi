@@ -1,6 +1,6 @@
 # --------------------------------------------------------------------------
 # PyTriStrip.PyTriStrip
-# A wrapper for TriangleStripifier and NvTriStrip.
+# A wrapper for TriangleStripifier and some utility functions.
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -40,13 +40,8 @@
 # ***** END LICENCE BLOCK *****
 # --------------------------------------------------------------------------
 
-USE_NVTRISTRIP = False
-
-if USE_NVTRISTRIP:
-    import NvTriStrip
-else:
-    from TriangleStripifier import TriangleStripifier
-    from TriangleMesh import FaceEdgeMesh
+from TriangleStripifier import TriangleStripifier
+from TriangleMesh import FaceEdgeMesh
 
 def triangulate(strips):
     """A generator for iterating over the faces in a set of
@@ -87,8 +82,35 @@ def _checkStrips(triangles, strips):
         if [t0,t1,t2] not in triangles and [t1,t2,t0] not in triangles and [t2,t0,t1] not in triangles:
             raise ValueError('triangle %s in strips but not in triangles\ntriangles = %s\nstrips = %s'%([t0,t1,t2],triangles,strips))
 
+def partitionTriangles(triangles):
+    """Partition triangles in lists of disconnected triangles.
+
+    >>> partitionTriangles([[0,1,2],[2,1,3],[4,5,6]])
+    [[[0, 1, 2], [2, 1, 3]], [[4, 5, 6]]]"""
+    if not triangles: return [] # nothing to do
+
+    trianglesleft = triangles[:]
+    # define first partition
+    parts = []
+    verts = [set()]
+    # now process remaining triangles
+    for tri in triangles:
+        t0, t1, t2 = tri
+        # skip degenerate triangles
+        if t0 == t1 or t1 == t2 or t2 == t0: continue
+        # check if tri has common vertex with a partition
+        verts = [ set(reduce(lambda x, y: x+y, part)) for part in parts ]
+        commonparts = [[tri]] + [part for i, part in enumerate(parts) if verts[i] & set(tri)]
+        otherparts  = [part for i, part in enumerate(parts) if not verts[i] & set(tri)]
+        parts = otherparts + [reduce(lambda x, y: x+y, commonparts)]
+
+    return parts
+
 def stripify(triangles, stitchstrips = False):
     """Converts triangles into a list of strips.
+    
+    If stitchstrips is True, then everything is wrapped in a single strip using
+    degenerate triangles.
 
     >>> triangles = [[0,1,4],[1,2,4],[2,3,4],[3,0,4]]
     >>> strips = stripify(triangles)
@@ -116,68 +138,77 @@ def stripify(triangles, stitchstrips = False):
     >>> _checkStrips(triangles, strips) # NvTriStrip gives wrong result
 """
 
-    if USE_NVTRISTRIP:
-        SetStitchStrips(stitchstrips)
-        lst = []
-        for face in triangles:
-            lst.extend(face)
-        pgroups = NvTriStrip.GenerateStrips(lst, validateEnabled = False)
-        strips = []
-        for ptype, indices in pgroups:
-            if ptype == NvTriStrip.PT_STRIP:
-                strips.append(indices)
-            else:
-                raise RuntimeError("unexpected primitive group type %i (bug!)"%ptype)
-        return strips
-    else:
-        # build a mesh from triangles
-        mesh = FaceEdgeMesh()
-        for face in triangles:
-            mesh.AddFace(*face)
+    strips = []
+    # build a mesh from triangles
+    mesh = FaceEdgeMesh()
+    for face in triangles:
+        mesh.AddFace(*face)
 
-        # calculate the strip
-        stripifier = TriangleStripifier()
-        stripifier.GLSelector.MinStripLength = 0
-        stripifier.GLSelector.Samples = 10
-        stripifier(mesh)
+    # calculate the strip
+    stripifier = TriangleStripifier()
+    stripifier.GLSelector.MinStripLength = 0
+    stripifier.GLSelector.Samples = 10
+    stripifier(mesh)
+    
+    # add the triangles to it
+    strips.extend([face for face in _generateFacesFromTriangles(stripifier.TriangleList)])
+    # add strips
+    strips.extend(stripifier.TriangleStrips)
 
-        # add the triangles to it
-        i = stripifier.TriangleList.__iter__()
-        strips = [face for face in _generateFacesFromTriangles(stripifier.TriangleList)] + stripifier.TriangleStrips
-
-        if stitchstrips: return [stitchStrips(strips)]
-        else: return strips
+    # stitch the strips if needed
+    if stitchstrips: return [stitchStrips(strips)]
+    else: return strips
 
 def stitchStrips(strips):
     """Stitch strips keeping stitch size minimal."""
     result = []
     realstrips = [strip for strip in strips if len(strip) >= 3]
-    forward  = [strip for strip in realstrips if strip[0] != strip[1]]
-    backward = [strip for strip in realstrips if strip[0] == strip[1]]
+    forward  = [strip[:] for strip in realstrips if strip[0] != strip[1]]
+    backward = [strip[1:] for strip in realstrips if strip[0] == strip[1]]
     while forward or backward:
         # create stitch
         if result:
-            result.append(result[-1]) # first stitch
             winding = len(result) & 1
+            forwardgood = [i for i, s in enumerate(forward) if s[0] == result[-1]]
+            backwardgood = [i for i, s in enumerate(backward) if s[0] == result[-1]]
+            # stitch length 0
+            if winding == 0 and forwardgood:
+                strip = forward.pop(forwardgood[0])
+            elif winding == 1 and backwardgood:
+                strip = backward.pop(backwardgood[0])
+            # stitch length 1
+            elif winding == 1 and forwardgood:
+                strip = forward.pop(forwardgood[0])
+                result.append(result[-1]) # first stitch
+            elif winding == 0 and backwardgood:
+                strip = backward.pop(backwardgood[0])
+                result.append(result[-1]) # first stitch
             # stitch length 2
-            if winding == 1 and forward:
-                strip = forward.pop()
-                result.append(strip[0]) # second stitch
-            elif winding == 0 and backward:
-                strip = backward.pop()  # (second stitch is already in the strip)
-            # stitch length 3
             elif winding == 0 and forward:
                 strip = forward.pop()
+                result.append(result[-1]) # first stitch
                 result.append(strip[0]) # second stitch
-                result.append(strip[0]) # third stitch
             elif winding == 1 and backward:
                 strip = backward.pop()
-                result.append(strip[0]) # second stitch (third stitch is already in strip)
+                result.append(result[-1]) # first stitch
+                result.append(strip[0]) # second stitch
+            # stitch length 3
+            elif winding == 1 and forward:
+                strip = forward.pop()
+                result.append(result[-1]) # first stitch
+                result.append(strip[0]) # second stitch
+                result.append(strip[0]) # third stitch
+            elif winding == 0 and backward:
+                strip = backward.pop()
+                result.append(result[-1]) # first stitch
+                result.append(strip[0]) # second stitch
+                result.append(strip[0]) # third stitch
         else:
             if forward:
                 strip = forward.pop()
             else:
                 strip = backward.pop()
+                result.append(strip[0])
         # append strip
         result.extend(strip)
     return result
@@ -218,31 +249,27 @@ def unstitchStrip(strip):
     strips = []
     currentstrip = []
     i = 0
-    while i < len(strip)-3:
-        # get potential stitch
-        stitch = strip[i:i+4]
-        if stitch[0] == stitch[1] == stitch[2] != stitch[3]:
-            # skip degenerate
-            i += 2
-        elif stitch[0] == stitch[1] and stitch[2] == stitch[3]:
-            # unstitch
-            currentstrip.append(strip[i])
-            if len(currentstrip) >= 3:
-                strips.append(currentstrip)
-            currentstrip = []
-            # set up right winding for next strip
-            if i & 1:
-                i += 3
+    while i < len(strip)-1:
+        winding = i & 1
+        currentstrip.append(strip[i])
+        if strip[i] == strip[i+1]:
+            # stitch detected, add current strip to list of strips
+            strips.append(currentstrip)
+            # and start a new one, taking into account winding
+            if winding == 1:
+                currentstrip = []
             else:
-                i += 2
-        else:
-            # nothing special
-            currentstrip.append(strip[i])
-            i += 1
+                currentstrip = [strip[i+1]]
+        i += 1
+    # add last part
     currentstrip.extend(strip[i:])
-    if len(currentstrip) >= 3:
-        strips.append(currentstrip)
-    return strips
+    strips.append(currentstrip)
+    # sanitize strips
+    for strip in strips:
+        while len(strip) >= 3 and strip[0] == strip[1] == strip[2]:
+            strip.pop(0)
+            strip.pop(0)
+    return [strip for strip in strips if len(strip) > 3 or (len(strip) == 3 and strip[0] != strip[1])]
 
 if __name__=='__main__':
     import doctest

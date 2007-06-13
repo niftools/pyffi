@@ -279,7 +279,7 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4):
 
     # split triangles into partitions
     parts = []
-    usedverts = set([])
+    usedverts = set()
     # keep creating partitions as long as there are triangles left
     while triangles:
         # create a partition
@@ -326,6 +326,8 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4):
                             addtriangles = True # signal another try in adding triangles to the partition
                         else:
                             newtriangles.append(tri)
+                    else:
+                        newtriangles.append(tri)
                 triangles = newtriangles
 
         parts.append(part)
@@ -415,7 +417,7 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4):
         for i, v in enumerate(vertices):
             for j in xrange(maxbones):
                 if j < len(weights[v]):
-                    skinpartblock.boneIndices[i][j] = weights[v][j][0]
+                    skinpartblock.boneIndices[i][j] = bones.index(weights[v][j][0])
                 else:
                     skinpartblock.boneIndices[i][j] = 0.0
         
