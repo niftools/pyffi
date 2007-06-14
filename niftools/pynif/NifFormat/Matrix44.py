@@ -40,6 +40,8 @@
 # ***** END LICENCE BLOCK *****
 # --------------------------------------------------------------------------
 
+from types import *
+
 def asList(self):
     """Return matrix as 4x4 list."""
     return [
@@ -48,6 +50,13 @@ def asList(self):
         [self.m31, self.m32, self.m33, self.m34],
         [self.m41, self.m42, self.m43, self.m44]
         ]
+
+def setRows(self, row0, row1, row2, row3):
+    """Set matrix from rows."""
+    self.m11, self.m12, self.m13, self.m14 = row0
+    self.m21, self.m22, self.m23, self.m24 = row1
+    self.m31, self.m32, self.m33, self.m34 = row2
+    self.m41, self.m42, self.m43, self.m44 = row3
 
 def __str__(self):
     return "[ %6.3f %6.3f %6.3f %6.3f ]\n[ %6.3f %6.3f %6.3f %6.3f ]\n[ %6.3f %6.3f %6.3f %6.3f ]\n[ %6.3f %6.3f %6.3f %6.3f ]\n"%(self.m11, self.m12, self.m13, self.m14, self.m21, self.m22, self.m23, self.m24, self.m31, self.m32, self.m33, self.m34, self.m41, self.m42, self.m43, self.m44)
@@ -174,19 +183,56 @@ def setScaleRotationTranslation(self, scale, rotation, translation):
     self.setMatrix33(rotation * scale)
     self.setTranslation(translation)
 
-def getInverse(self):
-    """Calculates inverse (assuming isScaleRotationTranslation is true!)."""
-    m = self.getMatrix33().getInverse()
-    t = -(self.getTranslation() * m)
+def getInverse(self, fast = True):
+    """Calculates inverse (fast assumes isScaleRotationTranslation is True)."""
+    def adjoint(m, ii, jj):
+        result = []
+        for i, row in enumerate(m):
+            if i == ii: continue
+            result.append([])
+            for j, x in enumerate(row):
+                if j == jj: continue
+                result[-1].append(x)
+        return result
+    def determinant(m):
+        if len(m) == 2:
+            return m[0][0]*m[1][1] - m[1][0]*m[0][1]
+        result = 0.0
+        for i in xrange(len(m)):
+            det = determinant(adjoint(m, i, 0))
+            if i & 1:
+                result -= m[i][0] * det
+            else:
+                result += m[i][0] * det
+        return result
 
-    n = self.cls.Matrix44()
-    n.m14 = 0.0
-    n.m24 = 0.0
-    n.m34 = 0.0
-    n.m44 = 1.0
-    n.setMatrix33(m)
-    n.setTranslation(t)
-    return n
+    if fast:
+        m = self.getMatrix33().getInverse()
+        t = -(self.getTranslation() * m)
+
+        n = self.cls.Matrix44()
+        n.m14 = 0.0
+        n.m24 = 0.0
+        n.m34 = 0.0
+        n.m44 = 1.0
+        n.setMatrix33(m)
+        n.setTranslation(t)
+        return n
+    else:
+        m = self.asList()
+        nn = [[0.0 for i in xrange(4)] for j in xrange(4)]
+        det = determinant(m)
+        if abs(det) < self.cls._EPSILON:
+            raise ZeroDivisionError('cannot invert matrix:\n%s'%self)
+        for i in xrange(4):
+            for j in xrange(4):
+                if (i+j) & 1:
+                    nn[j][i] = -determinant(adjoint(m, i, j)) / det
+                else:
+                    nn[j][i] = determinant(adjoint(m, i, j)) / det
+        n = self.cls.Matrix44()
+        n.setRows(*nn)
+        return n
 
 def __mul__(self, x):
     if isinstance(x, (float, int, long)):
@@ -198,7 +244,7 @@ def __mul__(self, x):
         m.m21 = self.m21 * x
         m.m22 = self.m22 * x
         m.m23 = self.m23 * x
-        m.m24 = self.m21 * x
+        m.m24 = self.m24 * x
         m.m31 = self.m31 * x
         m.m32 = self.m32 * x
         m.m33 = self.m33 * x
@@ -262,8 +308,10 @@ def __rmul__(self, x):
         raise TypeError("do not know how to multiply %s with Matrix44"%x.__class__)
 
 def __eq__(self, m):
+    if isinstance(m, NoneType):
+        return False
     if not isinstance(m, self.cls.Matrix44):
-        raise TypeError("do not know how to compare Matrix44 and %s"%x.__class__)
+        raise TypeError("do not know how to compare Matrix44 and %s"%m.__class__)
     if abs(self.m11 - m.m11) > self.cls._EPSILON: return False
     if abs(self.m12 - m.m12) > self.cls._EPSILON: return False
     if abs(self.m13 - m.m13) > self.cls._EPSILON: return False
@@ -284,3 +332,27 @@ def __eq__(self, m):
 
 def __ne__(self, m):
     return not self.__eq__(m)
+
+def __add__(self, x):
+    if isinstance(x, (self.cls.Matrix44)):
+        m = self.cls.Matrix44()
+        m.m11 = self.m11 + x.m11
+        m.m12 = self.m12 + x.m12
+        m.m13 = self.m13 + x.m13
+        m.m14 = self.m14 + x.m14
+        m.m21 = self.m21 + x.m21
+        m.m22 = self.m22 + x.m22
+        m.m23 = self.m23 + x.m23
+        m.m24 = self.m24 + x.m24
+        m.m31 = self.m31 + x.m31
+        m.m32 = self.m32 + x.m32
+        m.m33 = self.m33 + x.m33
+        m.m34 = self.m34 + x.m34
+        m.m41 = self.m41 + x.m41
+        m.m42 = self.m42 + x.m42
+        m.m43 = self.m43 + x.m43
+        m.m44 = self.m44 + x.m44
+        return m
+    else:
+        raise TypeError("do not know how to add Matrix44 and %s"%x.__class__)
+

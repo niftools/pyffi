@@ -69,6 +69,8 @@ def __mul__(self, x):
         v.y = self.x * x.m12 + self.y * x.m22 + self.z * x.m32
         v.z = self.x * x.m13 + self.y * x.m23 + self.z * x.m33
         return v
+    elif isinstance(x, self.cls.Matrix44):
+        return self * x.getMatrix33() + x.getTranslation()
     else:
         raise TypeError("do not know how to multiply Vector3 with %s"%x.__class__)
 

@@ -184,11 +184,7 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4):
     skindata = skininst.data
     
     # get skindata vertex weights
-    nv = geomdata.numVertices
-    weights = [[] for i in xrange(nv)]
-    for bonenum, bonedata in enumerate(skindata.boneList):
-        for skinweight in bonedata.vertexWeights:
-            weights[skinweight.index].append([bonenum, skinweight.weight])
+    weights = self.getVertexWeights()
 
     # count minimum and maximum number of bones per vertex
     numbonespervertex = [len(weight) for weight in weights]

@@ -82,30 +82,6 @@ def _checkStrips(triangles, strips):
         if [t0,t1,t2] not in triangles and [t1,t2,t0] not in triangles and [t2,t0,t1] not in triangles:
             raise ValueError('triangle %s in strips but not in triangles\ntriangles = %s\nstrips = %s'%([t0,t1,t2],triangles,strips))
 
-def partitionTriangles(triangles):
-    """Partition triangles in lists of disconnected triangles.
-
-    >>> partitionTriangles([[0,1,2],[2,1,3],[4,5,6]])
-    [[[0, 1, 2], [2, 1, 3]], [[4, 5, 6]]]"""
-    if not triangles: return [] # nothing to do
-
-    trianglesleft = triangles[:]
-    # define first partition
-    parts = []
-    verts = [set()]
-    # now process remaining triangles
-    for tri in triangles:
-        t0, t1, t2 = tri
-        # skip degenerate triangles
-        if t0 == t1 or t1 == t2 or t2 == t0: continue
-        # check if tri has common vertex with a partition
-        verts = [ set(reduce(lambda x, y: x+y, part)) for part in parts ]
-        commonparts = [[tri]] + [part for i, part in enumerate(parts) if verts[i] & set(tri)]
-        otherparts  = [part for i, part in enumerate(parts) if not verts[i] & set(tri)]
-        parts = otherparts + [reduce(lambda x, y: x+y, commonparts)]
-
-    return parts
-
 def stripify(triangles, stitchstrips = False):
     """Converts triangles into a list of strips.
     

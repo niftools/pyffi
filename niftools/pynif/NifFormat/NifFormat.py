@@ -46,9 +46,6 @@ from FileFormat.XmlFileFormat import MetaXmlFileFormat
 from FileFormat import Utils
 import BasicTypes
 
-class NifError(StandardError):
-    pass
-
 class NifFormat(object):
     """Stores all information about the nif file format.
     
@@ -203,6 +200,12 @@ class NifFormat(object):
     [  0.183 -1.380 -0.698  0.000 ]
     [  2.895  6.338  7.686  1.000 ]
     <BLANKLINE>
+    >>> print n.getInverse(fast = False)
+    [  0.676  0.704 -1.214  0.000 ]
+    [ -1.391  0.161 -0.682  0.000 ]
+    [  0.183 -1.380 -0.698  0.000 ]
+    [  2.895  6.338  7.686  1.000 ]
+    <BLANKLINE>
     >>> (n * n.getInverse()).isIdentity()
     True
     """
@@ -233,6 +236,10 @@ class NifFormat(object):
     string = BasicTypes.String
     ShortString = BasicTypes.ShortString
     FilePath = BasicTypes.String
+
+    # exceptions
+    class NifError(StandardError):
+        pass
 
     @staticmethod
     def versionNumber(version_str):
@@ -335,7 +342,7 @@ class NifFormat(object):
             top_level_str.read(version, user_version, f, link_stack, None)
             top_level_str = str(top_level_str)
             if not top_level_str == "Top Level Object":
-                raise NifError("expected 'Top Level Object' but got '%s' instead"%top_level_str)
+                raise cls.NifError("expected 'Top Level Object' but got '%s' instead"%top_level_str)
 
         while True:
             # get block name
@@ -343,7 +350,7 @@ class NifFormat(object):
                 if version <= 0x0A01006A:
                     dummy, = struct.unpack('<I', f.read(4))
                     if dummy != 0:
-                        raise NifError('non-zero block tag 0x%08X at 0x%08X)'%(dummy, f.tell()))
+                        raise cls.NifError('non-zero block tag 0x%08X at 0x%08X)'%(dummy, f.tell()))
                 block_type = hdr.blockTypes[hdr.blockTypeIndex[block_num]]
             else:
                 block_type = cls.string()
@@ -364,12 +371,12 @@ class NifFormat(object):
                 else:
                     block_index, = struct.unpack('<I', f.read(4))
                     if block_dct.has_key(block_index):
-                        raise NifError('duplicate block index (0x%08X at 0x%08X)'%(block_index, f.tell()))
+                        raise cls.NifError('duplicate block index (0x%08X at 0x%08X)'%(block_index, f.tell()))
             # create and read block
             try:
                 block = getattr(cls, block_type)()
             except AttributeError:
-                raise NifError("unknown block type '" + block_type + "'")
+                raise cls.NifError("unknown block type '" + block_type + "'")
             if verbose >= 1:
                 print "reading block at 0x%08X..."%f.tell()
             try:
@@ -401,14 +408,14 @@ class NifFormat(object):
 
         # check if we are at the end of the file
         if f.read(1) != '':
-            raise NifError('end of file not reached: corrupt nif file?')
+            raise cls.NifError('end of file not reached: corrupt nif file?')
 
         # fix links
         for block in block_list:
             block.fixLinks(version, user_version, block_dct, link_stack)
         ftr.fixLinks(version, user_version, block_dct, link_stack)
         if link_stack != []:
-            raise NifError('not all links have been popped from the stack (bug?)')
+            raise cls.NifError('not all links have been popped from the stack (bug?)')
         # return root objects
         roots = []
         if version >= 0x0303000D:
@@ -518,11 +525,11 @@ class NifFormat(object):
         top can also be a file instead of a directory. The argument onerror,
         if set, will be called if cls.read raises an exception (errors coming
         from os.walk will be ignored)."""
-        for version, user_version, f, roots in _walkFile(cls, top, topdown, onerror, verbose):
+        for version, user_version, f, roots in walkFile(cls, top, topdown, onerror, verbose):
             yield roots
 
     @classmethod
-    def walkFile(cls, top, topdown = True, onerror = None, verbose = 0):
+    def walkFile(cls, top, topdown = True, onerror = None, verbose = 0, mode = 'rb'):
         """Like walk, but returns more information:
         version, user_version, f, and roots.
 
@@ -538,7 +545,7 @@ class NifFormat(object):
         # now walk over all these files in directory top
         for filename in Utils.walk(top, topdown, onerror = None, re_filename = re_nif):
             if verbose >= 1: print "reading %s"%filename
-            f = open(filename, "rb")
+            f = open(filename, mode)
             try:
                 # get the version
                 version, user_version = cls.getVersion(f)

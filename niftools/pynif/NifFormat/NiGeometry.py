@@ -101,24 +101,42 @@ weight[v][b]                     # how much bone b influences vertex v
 ['geom', 'bone1', 'bone2', 'bone22', 'bone211']
 """
 
+import random
+
 def isSkin(self):
     return self.skinInstance != None
 
 def _validateSkin(self):
-    """Check that skinning blocks are valid. Will raise ValueError exception
+    """Check that skinning blocks are valid. Will raise NifError exception
     if not."""
     if self.skinInstance == None: return
     if self.skinInstance.data == None:
-        raise ValueError('NiGeometry has NiSkinInstance without NiSkinData')
+        raise self.cls.NifError('NiGeometry has NiSkinInstance without NiSkinData')
     if self.skinInstance.skeletonRoot == None:
-        raise ValueError('NiGeometry has NiSkinInstance without skeleton root')
+        raise self.cls.NifError('NiGeometry has NiSkinInstance without skeleton root')
     if self.skinInstance.numBones != self.skinInstance.data.numBones:
-        raise ValueError('NiSkinInstance and NiSkinData have different number of bones')
+        raise self.cls.NifError('NiSkinInstance and NiSkinData have different number of bones')
+
+def getVertexWeights(self):
+    """Get vertex weights in a convenient format: list bone and weight per
+    vertex."""
+    # shortcuts relevant blocks
+    if not self.skinInstance:
+        raise self.cls.NifError('Cannot get vertex weights of geometry without skin.')
+    self._validateSkin()
+    geomdata = self.data
+    skininst = self.skinInstance
+    skindata = skininst.data
+    weights = [[] for i in xrange(geomdata.numVertices)]
+    for bonenum, bonedata in enumerate(skindata.boneList):
+        for skinweight in bonedata.vertexWeights:
+            weights[skinweight.index].append([bonenum, skinweight.weight])
+    return weights
 
 def getGeometryRestPosition(self):
     """Return geometry rest position, in skeleton root space."""
     if not self.isSkin():
-        raise ValueError('NiGeometry has no NiSkinInstance, and therefore no rest position')
+        raise self.cls.NifError('NiGeometry has no NiSkinInstance, and therefore no rest position')
     self._validateSkin() # check that skin data is valid
     # calculate the rest positions
     # (there could be an inverse less, code is written to be clear rather
@@ -141,8 +159,10 @@ def getBoneRestPositions(self):
 
 def flattenSkin(self):
     """Reposition all bone blocks and geometry block in the tree to be direct
-    children of the skeleton root. Returns list of all bones that have been
-    repositioned (and added to the skeleton root children list)."""
+    children of the skeleton root.
+
+    Returns list of all bones that have been repositioned (and added
+    to the skeleton root children list)."""
 
     if not self.isSkin(): return [] # nothing to do
 
@@ -169,3 +189,159 @@ def flattenSkin(self):
             result.append(bone_block)
 
     return result
+
+def mergeSkeletonRoots(self):
+    """This function will look for other geometries
+    1) whose skeleton root is a (possibly indirect) child of the skeleton root
+       of this skin, and
+    2) whose skeleton shares bones with this geometry's skin.
+    It will then reparent those geometries to the skeleton
+    root of this geometry. For example, it will unify the skeleton
+    roots in Morrowind's cliffracer.nif file. This makes it much easier to
+    import skeletons in for instance Blender: there will be only one skeleton
+    root for each bone, over all geometries.
+
+    The merge fails if some transforms are not unit transform.
+    
+    Returns list of all new blocks that have been reparented (and added
+    to the skeleton root children list), and a list of blocks for which the
+    merge failed."""
+
+    if not self.isSkin(): return [], [] # nothing to do
+
+    result = [] # list of reparented blocks
+    failed = [] # list of blocks that could not be reparented
+    self._validateSkin() # validate the skin
+    skininst = self.skinInstance
+    skindata = skininst.data
+    skelroot = skininst.skeletonRoot
+
+    id44 = self.cls.Matrix44()
+    id44.setIdentity()
+
+    # look for geometries are in this skeleton root's tree
+    # that have a different skeleton root
+    # and that share bones with this geometry
+    geoms = [block for block in skelroot.tree() if isinstance(block, self.cls.NiGeometry) and block.isSkin() and block.skinInstance.skeletonRoot != skelroot and set(block.skinInstance.bones) & set(skininst.bones)]
+    
+    # find the root block (direct parent of skeleton root that connects to the geometry) for each of these geometries
+    geomroots = {}
+    for geom in geoms:
+        # check transforms
+        if geom.skinInstance.data.getTransform() != id44 or geom.getTransform(geom.skinInstance.skeletonRoot)!= id44:
+            failed.append(geom)
+            continue # skip this one
+        # find geometry root block
+        chain = geom.skinInstance.skeletonRoot.findChain(geom)
+        geomroots[geom] = chain[1]
+
+    # reparent geometries
+    for geom, geomroot in geomroots.iteritems():
+        # reparent
+        geom.skinInstance.skeletonRoot.removeChild(geomroot) # detatch geometry from chain
+        skelroot.addChild(geomroot) # attach to new skeleton root
+        geom.skinInstance.skeletonRoot = skelroot # set its new skeleton root
+        if geomroot not in result:
+            result.append(geomroot) # and signal that we reparented this block
+
+    return result, failed
+
+def mergeBoneRestPositions(self, force = False):
+    """This function will look for other geometries that share the same
+    skeleton root and of which every bone is also a bone of this geometry.
+    It will then set the rest
+    position of the bones of those other geometries to the rest position
+    of the corresponding bones of this geometry. In doing so, the vertices
+    of those other geometries are transformed as well. Useful to fix a single
+    bone rest position for all geometries.
+
+    If force is True bones that are present in other geometries but not in this
+    geometry will be repositioned as well, using the average transform of
+    the other bones.
+
+    Returns a list of NiGeometry blocks whose rest positions have been
+    affected and a list of NiGeometry blocks that share bones but that
+    could not be repositioned because they have bones that are not bones
+    of this geometry (in case force = False)."""
+
+    if not self.isSkin(): return [], [] # nothing to do
+
+    result = [] # list of repositioned geometries
+    self._validateSkin() # validate the skin
+    skininst = self.skinInstance
+    skindata = skininst.data
+    skelroot = skininst.skeletonRoot
+
+    # look for other geometries who share the same skeleton root
+    geoms = [block for block in skelroot.tree() if isinstance(block, self.cls.NiGeometry) and block.isSkin() and block.skinInstance.skeletonRoot == skelroot and block != self]
+
+    # iterate over all these geometries
+    failed= []
+    for geom in geoms:
+        geom._validateSkin()
+        # check if geom has bones in common with this block that have
+        # a different rest position
+        # (note: restpos is here the inverse of the rest position)
+        alreadymerged = True
+        offsets     = [None for i in xrange(geom.skinInstance.numBones)]
+        newmatrices = [None for i in xrange(geom.skinInstance.numBones)]
+        oldmatrices = [None for i in xrange(geom.skinInstance.numBones)]
+        for otherindex, otherbone in enumerate(geom.skinInstance.bones):
+            otherrestpos = geom.skinInstance.data.boneList[otherindex].getTransform()
+            oldmatrices[otherindex] = otherrestpos
+            for selfindex, selfbone in enumerate(skininst.bones):
+                if selfbone == otherbone:
+                    selfrestpos  = skindata.boneList[selfindex].getTransform()
+                    newmatrices[otherindex] = selfrestpos
+                    offsets[otherindex] = otherrestpos * selfrestpos.getInverse()
+                    if selfrestpos != otherrestpos:
+                        alreadymerged = False
+                    break
+
+        if alreadymerged:
+            # already merged!
+            continue
+
+        # calculate average offset (is used to fall back on)
+        realoffsets = [ofs for ofs in offsets if ofs is not None]
+        avgoffset = reduce(lambda x,y: x+y, realoffsets) / len(realoffsets)
+
+        # see if all new matrices are available from this geometry's bones
+        if None in newmatrices:
+            # some bones were missing
+            if not force:
+                failed.append(geom)
+                continue
+            else:
+                # use average offset
+                for i in xrange(len(offsets)):
+                    if offsets[i] is None:
+                        newmatrices[i] = avgoffset.getInverse(fast = False) * oldmatrices[i]
+
+        # this geometry will be repositioned
+        result.append(geom)
+
+        # transform the vertices
+        vertexweights = geom.getVertexWeights()
+        for i, v in enumerate(geom.data.vertices):
+            oldmatrix = self.cls.Matrix44()
+            newmatrix = self.cls.Matrix44()
+            # find the indices of the bones influencing this vertex
+            for bonenum, boneweight in vertexweights[i]:
+                oldmatrix += boneweight * oldmatrices[bonenum]
+                newmatrix += boneweight * newmatrices[bonenum]
+            try:
+                newmatrix_inverse = newmatrix.getInverse(fast = False) # newmatrix is not a scale-rotation-translation matrix so we must calculate inverse the slow way
+                vv = v * oldmatrix * newmatrix_inverse
+            except ZeroDivisionError:
+                # in very rare cases inverse will fail, in that case we fall back on the average offset
+                vv = v * avgoffset
+            v.x = vv.x
+            v.y = vv.y
+            v.z = vv.z
+
+        # set bone rest positions
+        for i, bonedata in enumerate(geom.skinInstance.data.boneList):
+            bonedata.setTransform(newmatrices[i])
+
+    return result, failed
