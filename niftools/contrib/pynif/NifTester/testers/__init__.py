@@ -1,1 +1,3 @@
-__all__ = [ 'hacking', 'validate', 'surgery' ]
+import hacking
+import validate
+import surgery

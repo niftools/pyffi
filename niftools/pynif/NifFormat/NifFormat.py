@@ -551,7 +551,7 @@ class NifFormat(object):
                 version, user_version = cls.getVersion(f)
                 if version >= 0:
                     # we got it, so now read the nif file
-                    if verbose >= 1: print "version 0x%08X"%version
+                    if verbose >= 2: print "version 0x%08X"%version
                     try:
                         # return (version, user_version, f, roots)
                         yield version, user_version, f, cls.read(version, user_version, f)

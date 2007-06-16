@@ -4,24 +4,20 @@ from NifFormat.NifFormat import NifFormat
 
 def testRoot(root, verbose):
     skelrootrefgeom = {}
+    skingeoms = [geom for geom in root.tree() if isinstance(geom, NifFormat.NiGeometry) and geom.isSkin()]
 
     # first run: merge skeleton roots
-    for geom in root.tree():
-        if not isinstance(geom, NifFormat.NiGeometry): continue
-        if not geom.isSkin(): continue
+    for geom in skingeoms:
         merged, failed = geom.mergeSkeletonRoots()
-        if merged:
-            print
+        if merged and verbose:
             print 'reparented following blocks to skeleton root of ' + geom.name + ':'
             print [node.name for node in merged]
         if failed:
-            print 'WARNING: failed to reparented following blocks ' + geom.name + ':'
+            print 'WARNING: failed to reparented following blocks  to skeleton root of ' + geom.name + ':'
             print [node.name for node in failed]
 
     # second run: find reference geometries for each skeleton root, i.e. geometry with largest number of bones
-    for geom in root.tree():
-        if not isinstance(geom, NifFormat.NiGeometry): continue
-        if not geom.isSkin(): continue
+    for geom in skingeoms:
         skelroot = geom.skinInstance.skeletonRoot
         numbones = len(geom.skinInstance.bones)
         if skelrootrefgeom.has_key(skelroot):
@@ -30,12 +26,12 @@ def testRoot(root, verbose):
         else:
             skelrootrefgeom[skelroot] = geom
 
-    # thid run: fix rest pose
+    # third run: fix rest pose
     for skelroot, geom in skelrootrefgeom.iteritems():
         merged, failed = geom.mergeBoneRestPositions(force = True)
-        print
-        print 'fixing rest position of skeleton root ' + skelroot.name
-        if merged:
+        if verbose:
+            print 'fixing rest position of skeleton root ' + skelroot.name
+        if merged and verbose:
             print 'merging rest position of ' + geom.name + ' with following geometries:'
             print [node.name for node in merged]
         if failed: # should not happen if force = True
@@ -44,7 +40,5 @@ def testRoot(root, verbose):
 
 def testFile(version, user_version, f, roots, verbose):
     # write result
-    print "writing file"
     f.seek(0)
     NifFormat.write(version, user_version, f, roots)
-    print
