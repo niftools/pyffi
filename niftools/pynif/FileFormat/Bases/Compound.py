@@ -64,21 +64,24 @@ class _MetaCompoundBase(type):
         # hasLinks and hasRefs, used for optimization of fixLinks, getLinks, and getRefs
         cls._hasLinks = getattr(cls, '_hasLinks', False) # does the type contain a Ref or a Ptr?
         cls._hasRefs = getattr(cls, '_hasRefs', False) # does the type contain a Ref?
-        for attrname, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in dct['_attrs']:
+        for attrname, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in dct['_attrs']:
             if issubclass(typ, BasicBase) and arr1 == None:
                 # get and set basic attributes
                 setattr(cls, attrname, property(
                     partial(CompoundBase.getBasicAttribute, name = attrname),
-                    partial(CompoundBase.setBasicAttribute, name = attrname)))
+                    partial(CompoundBase.setBasicAttribute, name = attrname),
+                    doc=doc))
             elif typ == NoneType and arr1 == None:
                 # get and set template attributes
                 setattr(cls, attrname, property(
                     partial(CompoundBase.getTemplateAttribute, name = attrname),
-                    partial(CompoundBase.setTemplateAttribute, name = attrname)))
+                    partial(CompoundBase.setTemplateAttribute, name = attrname),
+                    doc=doc))
             else:
                 # other types of attributes: get only
                 setattr(cls, attrname, property(
-                    partial(CompoundBase.getAttribute, name = attrname)))
+                    partial(CompoundBase.getAttribute, name = attrname),
+                    doc=doc))
             # check for links and refs
             if not cls._hasLinks:
                 if typ != type(None): # templates!
@@ -129,14 +132,14 @@ class CompoundBase(object):
     ...     _isTemplate = False
     ...     _isAbstract = True
     ...     _attrs = [
-    ...         ('a', UInt, None, None, None, None, None, None, None, None, None),
-    ...         ('b', UInt, None, None, None, None, None, None, None, None, None)]
+    ...         ('a', UInt, None, None, None, None, None, None, None, None, None, None),
+    ...         ('b', UInt, None, None, None, None, None, None, None, None, None, None)]
     >>> class Y(X):
     ...     _isTemplate = False
     ...     _isAbstract = True
     ...     _attrs = [
-    ...         ('c', UInt, None, None, None, None, None, None, None, None, None),
-    ...         ('d', X, None, None, None, None, None, Expression('c == 3'), None, None, None)]
+    ...         ('c', UInt, None, None, None, None, None, None, None, None, None, None),
+    ...         ('d', X, None, None, None, None, None, Expression('c == 3'), None, None, None, None)]
     >>> y = Y()
     >>> y.a = 1
     >>> y.b = 2
@@ -177,7 +180,7 @@ class CompoundBase(object):
         # initialize argument
         self.arg = argument
         # initialize attributes
-        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
+        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
             # skip dupiclate names
             # (for this to work properly, duplicate names must have the same
             # typ, tmpl, arg, arr1, and arr2)
@@ -214,7 +217,7 @@ class CompoundBase(object):
         # used to track names of attributes that have already been added
         # is faster than self.__dict__.has_key(...)
         names = []
-        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
+        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
             # skip dupiclate names
             if name in names: continue
             names.append(name)
@@ -231,7 +234,7 @@ class CompoundBase(object):
 
     def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
         self.arg = argument
-        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
+        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
             if ver1:
                 if version < ver1: continue
             if ver2:
@@ -247,7 +250,7 @@ class CompoundBase(object):
 
     def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
         self.arg = argument
-        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
+        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
             if ver1:
                 if version < ver1: continue
             if ver2:
@@ -262,7 +265,7 @@ class CompoundBase(object):
             getattr(self, "_" + name + "_value_").write(version, user_version, f, block_index_dct, arg)
 
     def fixLinks(self, version, user_version, block_dct, link_stack):
-        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
+        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
             if not typ._hasLinks: continue
             if ver1:
                 if version < ver1: continue
@@ -276,7 +279,7 @@ class CompoundBase(object):
 
     def getLinks(self, version, user_version):
         links = []
-        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
+        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
             if not typ._hasLinks: continue
             if ver1:
                 if version < ver1: continue
@@ -291,7 +294,7 @@ class CompoundBase(object):
 
     def getRefs(self):
         links = []
-        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver in self._attributeList:
+        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
             if not typ._hasLinks: continue
             links.extend(getattr(self, "_" + name + "_value_").getRefs())
         return links

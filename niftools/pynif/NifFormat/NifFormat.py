@@ -275,7 +275,7 @@ class NifFormat(object):
         'thisIsASillyName'
         """
         
-        parts = str(name).split() # str(name) converts name to string in case name is a unicode string
+        parts = str(name).replace("?", "X").split() # str(name) converts name to string in case name is a unicode string
         attrname = parts[0].lower()
         for part in parts[1:]:
             attrname += part.capitalize()

@@ -193,7 +193,7 @@ def flattenSkin(self):
 def mergeSkeletonRoots(self):
     """This function will look for other geometries
     1) whose skeleton root is a (possibly indirect) child of the skeleton root
-       of this skin, and
+    of this skin, and
     2) whose skeleton shares bones with this geometry's skin.
     It will then reparent those geometries to the skeleton
     root of this geometry. For example, it will unify the skeleton

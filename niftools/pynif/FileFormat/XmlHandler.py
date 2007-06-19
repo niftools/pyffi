@@ -82,6 +82,7 @@ class XmlHandler(xml.sax.handler.ContentHandler):
     attrVer1 = 8
     attrVer2 = 9
     attrUserver = 10
+    attrDoc = 11
 
     def __init__(self, cls, name, bases, dct):
         """Set up the xml parser.
@@ -186,6 +187,7 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                 attrs_ver1 = attrs.get("ver1")
                 attrs_ver2 = attrs.get("ver2")
                 attrs_userver = attrs.get("userver")
+                attrs_doc = "" # handled in xml parser's characters function
 
                 # post-processing
                 if attrs_default:
@@ -227,7 +229,8 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                     attrs_cond,
                     attrs_ver1,
                     attrs_ver2,
-                    attrs_userver])
+                    attrs_userver,
+                    attrs_doc])
             else:
                 raise XmlError("only add tags allowed in block and compound type declaration")
         elif self.currentTag == self.tagFile:
@@ -245,7 +248,7 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                 except KeyError:
                     isTemplate = False
                 # set attributes (see class CompoundBase)
-                self.class_dct = { "_isTemplate" : isTemplate, "_isAbstract" : True, "_attrs" : [] }
+                self.class_dct = { "_isTemplate" : isTemplate, "_isAbstract" : True, "_attrs" : [], "__doc__" : "" }
 
             # niftoolsxml -> block
             elif x == self.tagBlock:
@@ -267,7 +270,7 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                 else:
                     self.class_base = CompoundBase
                 # set attributes (see class CompoundBase)
-                self.class_dct = { "_isTemplate" : False, "_isAbstract" : (attrs["abstract"] == "1"), "_attrs" : [] }
+                self.class_dct = { "_isTemplate" : False, "_isAbstract" : (attrs["abstract"] == "1"), "_attrs" : [], "__doc__" : "" }
 
             # niftoolsxml -> basic
             elif x == self.tagBasic:
@@ -296,7 +299,7 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                 except AttributeError:
                     raise XmlError("typo, or forward declaration of type " + storagename)
                 self.class_base = storage
-                self.class_dct = {}
+                self.class_dct = {"__doc__" : ""}
 
             # niftoolsxml -> version
             elif x == self.tagVersion:
@@ -392,7 +395,11 @@ class XmlHandler(xml.sax.handler.ContentHandler):
                 setattr(obj, x, property(*arglist))
 
     def characters(self, s):
-        if self.currentTag == self.tagVersion:
+        if self.currentTag == self.tagAttribute:
+            self.class_dct["_attrs"][-1][self.attrDoc] += str(s.strip())
+        elif self.currentTag in [self.tagBlock, self.tagCompound, self.tagEnum]:
+            self.class_dct["__doc__"] += str(s.strip())
+        elif self.currentTag == self.tagVersion:
             for gamestr in [str(g.strip()) for g in s.split(',')]:
                 if self.cls.games.has_key(gamestr):
                     self.cls.games[gamestr].append(self.cls.versions[self.version_str])

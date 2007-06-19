@@ -607,7 +607,7 @@
         <add name="Num Nodes" type="uint">Number of node references that follow.</add>
         <add name="Nodes" type="Ptr" template="NiNode" arr1="Num Nodes">The list of NiNode references.</add>
     </compound>
-
+<!--
     <compound name="ns keylin" istemplate="1">
         Linear key type (!!! for NifSkope optimizer only, use key, keyrot, or keyvec for regular use).
         <add name="Time" type="float">Key time.</add>
@@ -627,7 +627,7 @@
         <add name="Forward" type="TEMPLATE">Forward tangent.</add>
         <add name="Backward" type="TEMPLATE">Backward tangent.</add>
     </compound>
-
+-->
     <compound name="ShortString" ver1="10.1.0.0" niflibtype="ShortString" nifskopetype="shortstring">
         Another string format, for short strings.  Specific to Bethesda-specific header tags.
         <add name="Length" type="byte">The string length.</add>
@@ -742,7 +742,7 @@
         <add name="Interpolation" type="KeyType" cond="Num Keys != 0">The key type.</add>
         <add name="Keys" type="Key" arg="Interpolation" template="TEMPLATE" arr1="Num Keys">The keys.</add>
     </compound>
-    
+<!-- 
     <compound name="ns keytbc" istemplate="1">
         A TBC key (!!! for NifSkope only, use keyvec for regular purposes).
         <add name="Time" type="float">The key time.</add>
@@ -784,7 +784,7 @@
         <add name="Keys" type="ns keytan" template="TEMPLATE" arr1="Num Keys" cond="Key Type == 2">Interpolated keys, using tangents.</add>
         <add name="Keys" type="ns keytbc" template="TEMPLATE" arr1="Num Keys" cond="Key Type == 3">Keys, interpolated with tension, bias, continuity.</add>
     </compound>
-
+-->
     <compound name="QuatKey" niflibtype="Key" istemplate="1">
         A special version of the key type used for quaternions.  Never has tangents.
         <add name="Time" type="float" ver2="10.1.0.0">Time the key applies.</add>
