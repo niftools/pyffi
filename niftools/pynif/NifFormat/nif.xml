@@ -1023,13 +1023,13 @@
     
     <niobject name="NiPSysCollider" abstract="1" inherit="NiObject">
         Particle system collider.
-        <add name="Bounce" type="float">Unknown.</add>
+        <add name="Bounce" type="float">Defines amount of bounce the collider object has.</add>
         <add name="Spawn on Collide" type="bool">Unknown.</add>
-        <add name="Die on Collide" type="bool">Unknown.</add>
+        <add name="Die on Collide" type="bool">Kill particles on impact if set to yes.</add>
         <add name="Spawn Modifier" type="Ref" template="NiPSysSpawnModifier">Link to NiPSysSpawnModifier object?</add>
         <add name="Parent" type="Ptr" template="NiObject">Link to parent.</add>
         <add name="Next Collider" type="Ref" template="NiObject">The next collider.</add>
-        <add name="Collider Object" type="Ref" template="NiNode">Link to a NiNode?</add>
+        <add name="Collider Object" type="Ref" template="NiNode">Links to a NiNode that will define where in object space the collider is located/oriented.</add>
     </niobject>
 
     <niobject name="bhkRefObject" abstract="1" inherit="NiObject">
@@ -1108,7 +1108,7 @@
         <add name="Unknown Int 8" type="uint">Unknown.</add>
         <add name="Num Constraints" type="uint"> The number of constraints this object is bound to.</add>
         <add name="Constraints" type="Ref" template="bhkConstraint" arr1="Num Constraints">Unknown.</add>
-        <add name="Unknown Int 6" type="uint">Unknown.</add>
+        <add name="Unknown Int 9" type="uint">Unknown.</add>
     </niobject>
 
     <niobject name="bhkRigidBodyT" abstract="0" inherit="bhkRigidBody" ver1="20.0.0.5">
@@ -1154,8 +1154,14 @@
 
     <niobject name="bhkPrismaticConstraint" abstract="0" inherit="bhkConstraint" ver1="20.0.0.5">
         A prismatic constraint.
-        <add name="Unknown Vectors" type="Vector4" arr1="8" >Unknown.</add>
-        <add name="Unknown Floats 2" type="float" arr1="3">Unknown.</add>
+        <add name="Pivot A" type="Vector4" >Pivot A.</add>
+        <add name="Rotation" type="Vector4" arr1="4">4x4 rotation matrix, rotates the child entity.</add>
+        <add name="Pivot B" type="Vector4" >Pivot B.</add>
+        <add name="Sliding Axis" type="Vector4" >Describes the axis the object is able to travel along. Unit vector.</add>
+        <add name="Plane" type="Vector4" >Plane normal. Describes the plane the object is able to move on.</add>
+        <add name="Min Distance" type="float" >Describe the min distance the object is able to travel.</add>
+        <add name="Max Distance" type="float" >Describe the max distance the object is able to travel.</add>
+        <add name="Friction" type="float" >Friction.</add>
     </niobject>
 
     <niobject name="bhkHingeConstraint" abstract="0" inherit="bhkConstraint" ver1="20.0.0.5">
@@ -1463,18 +1469,18 @@
     </niobject>
 
     <niobject name="NiPSysEmitter" abstract="1" inherit="NiPSysModifier" ver1="10.1.0.0">
-        A particle emitter modifier?
-        <add name="Speed" type="float">Unknown.</add>
-        <add name="Speed Variation" type="float">Unknown.</add>
-        <add name="Declination" type="float">Unknown.</add>
-        <add name="Declination Variation" type="float">Unknown.</add>
-        <add name="Planar Angle" type="float">Unknown.</add>
-        <add name="Planar Angle Variation" type="float">Unknown.</add>
-        <add name="Initial Color" type="Color4">Unknown.</add>
-        <add name="Initial Radius" type="float">Unknown.</add>
-        <add name="Radius Variation" type="float" ver1="20.0.0.4">Unknown.</add>
-        <add name="Life Span" type="float">Unknown.</add>
-        <add name="Life Span Variation" type="float">Unknown.</add>
+        A particle emitter?
+        <add name="Speed" type="float">Speed / Inertia of particle movement.</add>
+        <add name="Speed Variation" type="float">Adds an amount of randomness to Speed.</add>
+        <add name="Declination" type="float">Declination / First axis.</add>
+        <add name="Declination Variation" type="float">Declination randomness / First axis.</add>
+        <add name="Planar Angle" type="float">Planar Angle / Second axis.</add>
+        <add name="Planar Angle Variation" type="float">Planar Angle randomness / Second axis .</add>
+        <add name="Initial Color" type="Color4">Defines color of a birthed particle.</add>
+        <add name="Initial Radius" type="float">Size of a birthed particle.</add>
+        <add name="Radius Variation" type="float" ver1="20.0.0.4">Particle Radius randomness.</add>
+        <add name="Life Span" type="float">Duration until a particle dies.</add>
+        <add name="Life Span Variation" type="float">Adds randomness to Life Span.</add>
     </niobject>
 
     <niobject name="NiPSysVolumeEmitter" abstract="1" inherit="NiPSysEmitter" ver1="10.1.0.0">
@@ -1737,17 +1743,17 @@
     </niobject>
 
     <niobject name="BSParentVelocityModifier" abstract="0" inherit="NiPSysModifier" ver1="20.0.0.5">
-        Unknown.
-        <add name="Unknown Float" type="float">Unknown.</add>
+        Particle modifier that adds a blend of object space translation and rotation to particles born in world space.
+        <add name="Damping" type="float">Amount of blending?</add>
     </niobject>
 
     <niobject name="BSPSysArrayEmitter" abstract="0" inherit="NiPSysVolumeEmitter" ver1="20.0.0.5">
-        Unknown.
+        Particle emitter that uses a node, its children and subchildren to emit from.  Emission will be evenly spread along points from nodes leading to their direct parents/children only.
     </niobject>
 
     <niobject name="BSWindModifier" abstract="0" inherit="NiPSysModifier" ver1="20.0.0.5">
-        Unknown.
-        <add name="Unknown Float" type="float">Unknown.</add>
+        Particle Modifier that uses the wind value from the gamedata to alter the path of particles.
+        <add name="Strength" type="float">The amount of force wind will have on particles.</add>
     </niobject>
 
     <niobject name="hkPackedNiTriStripsData" abstract="0" inherit="bhkShapeCollection" ver1="20.0.0.5">
@@ -2280,7 +2286,7 @@
 
     <niobject name="NiParticleSystem" abstract="0" inherit="NiParticles" ver1="10.1.0.0">
         A particle system.
-        <add name="Unknown Bool" type="bool" ver1="10.1.0.0">Unknown.</add>
+        <add name="World Space" type="bool" ver1="10.1.0.0">If true, Particles are birthed into world space.  If false, Particles are birthed into object space.</add>
         <add name="Num Modifiers" type="uint" ver1="10.1.0.0">The number of modifier references.</add>
         <add name="Modifiers" type="Ref" template="NiPSysModifier" arr1="Num Modifiers" ver1="10.1.0.0">The list of particle modifiers.</add>
     </niobject>
@@ -2411,13 +2417,13 @@
     </niobject>
 
     <niobject name="NiPSysBombModifier" abstract="0" inherit="NiPSysModifier" ver1="20.0.0.5">
-        Unknown.
-        <add name="Bomb Object" type="Ptr" template="NiNode">Link to a node.  Exact function unknown.</add>
-        <add name="Bomb Axis" type="Vector3">Unknown.</add>
-        <add name="Decay" type="float">Unknown.</add>
-        <add name="Delta V" type="float">Unknown.</add>
-        <add name="Decay Type" type="DecayType">Unknown.</add>
-        <add name="Symmetry Type" type="SymmetryType">Unknown.</add>
+        Particle modifier that uses a NiNode to use as a "Bomb Object" to alter the path of particles.
+        <add name="Bomb Object" type="Ptr" template="NiNode">Link to a NiNode for bomb to function.</add>
+        <add name="Bomb Axis" type="Vector3">Orientation of bomb object.</add>
+        <add name="Decay" type="float">Falloff rate of the bomb object.</add>
+        <add name="Delta V" type="float">DeltaV /  Strength?</add>
+        <add name="Decay Type" type="DecayType">Decay type</add>
+        <add name="Symmetry Type" type="SymmetryType">Shape/symmetry of the bomb object.</add>
     </niobject>
 
     <niobject name="NiPSysBoundUpdateModifier" abstract="0" inherit="NiPSysModifier" ver1="10.1.0.0">
@@ -2426,26 +2432,26 @@
     </niobject>
 
     <niobject name="NiPSysBoxEmitter" abstract="0" inherit="NiPSysVolumeEmitter" ver1="10.1.0.0">
-        Unknown particle modifier.
-        <add name="Width" type="float">Width of the boxes to emit?</add>
-        <add name="Height" type="float">Height of the boxes to emit?</add>
-        <add name="Depth" type="float">Depth of the boxes to emit?</add>
+        Particle emitter that uses points within a defined Box shape to emit from..
+        <add name="Width" type="float">Defines the Width of the box area.</add>
+        <add name="Height" type="float">Defines the Height of the box area.</add>
+        <add name="Depth" type="float">Defines the Depth of the box area.</add>
     </niobject>
 
     <niobject name="NiPSysColliderManager" abstract="0" inherit="NiPSysModifier" ver1="10.2.0.0">
-        Unknown.
-        <add name="Collider" type="Ref" template="NiPSysPlanarCollider">Link to NiPSysPlanarCollider.</add>
+        Particle modifier that adds a defined shape to act as a collision object for particles to interact with.
+        <add name="Collider" type="Ref" template="NiPSysPlanarCollider">Link to a NiPSysPlanarCollider or NiPSysSphericalCollider.</add>
     </niobject>
 
     <niobject name="NiPSysColorModifier" abstract="0" inherit="NiPSysModifier" ver1="10.1.0.0">
-        Unknown particle modifier.
+        Particle modifier that adds keyframe data to modify color/alpha values of particles over time.
         <add name="Data" type="Ref" template="NiColorData">Refers to NiColorData object.</add>
     </niobject>
 
     <niobject name="NiPSysCylinderEmitter" abstract="0" inherit="NiPSysVolumeEmitter" ver1="10.1.0.0">
-        Unknown.
-        <add name="Radius" type="float">Radius of cylinders to emit?</add>
-        <add name="Height" type="float">Height of cylinders to emit?</add>
+        Particle emitter that uses points within a defined Cylinder shape to emit from.
+        <add name="Radius" type="float">Radius of the cylinder shape.</add>
+        <add name="Height" type="float">Height of the cylinders shape.</add>
     </niobject>
 
     <niobject name="NiPSysDragModifier" abstract="0" inherit="NiPSysModifier" ver1="20.0.0.5">
@@ -2465,26 +2471,26 @@
     </niobject>
 
     <niobject name="NiPSysGravityModifier" abstract="0" inherit="NiPSysModifier" ver1="10.1.0.0">
-        Unknown particle system modifier.
-        <add name="Gravity Object" type="Ptr" template="NiNode">Refers to a NiNode.</add>
-        <add name="Gravity Axis" type="Vector3">Unknown.</add>
-        <add name="Decay" type="float">Unknown.</add>
-        <add name="Strength" type="float">Unknown.</add>
-        <add name="Force Type" type="ForceType">The type of force?</add>
-        <add name="Turbulence" type="float">Unknown.</add>
-        <add name="Turbulence Scale" type="float" default="1.0">Unknown.</add>
+        Adds gravity to a particle system, when linked to a NiNode to use as a Gravity Object.
+        <add name="Gravity Object" type="Ptr" template="NiNode">Refers to a NiNode for gravity location.</add>
+        <add name="Gravity Axis" type="Vector3">Orientation of gravity.</add>
+        <add name="Decay" type="float">Falloff range.</add>
+        <add name="Strength" type="float">The strength of gravity.</add>
+        <add name="Force Type" type="ForceType">Planar or Spherical type</add>
+        <add name="Turbulence" type="float">Adds a degree of randomness.</add>
+        <add name="Turbulence Scale" type="float" default="1.0">Range for turbulence.</add>
     </niobject>
 
     <niobject name="NiPSysGrowFadeModifier" abstract="0" inherit="NiPSysModifier" ver1="10.1.0.0">
-        Unknown particle system modifier.
-        <add name="Grow Time" type="float">Unknown.</add>
+        Particle modifier that controls the time it takes to grow a particle from Size=0 to the specified Size in the emitter, and then back to 0.  This modifer has no control over alpha settings.
+        <add name="Grow Time" type="float">Time in seconds to fade in.</add>
         <add name="Grow Generation" type="ushort">Unknown.</add>
-        <add name="Fade Time" type="float">Unknown.</add>
+        <add name="Fade Time" type="float">Time in seconds to fade out.</add>
         <add name="Fade Generation" type="ushort">Unknown.</add>
     </niobject>
 
     <niobject name="NiPSysMeshEmitter" abstract="0" inherit="NiPSysEmitter" ver1="20.0.0.5">
-        Unknown.
+        Particle emitter that uses points on a specified mesh to emit from.
         <add name="Num Emitter Meshes" type="uint">The number of references to emitter meshes that follow.</add>
         <add name="Emitter Meshes" type="Ref" template="NiTriBasedGeom" arr1="Num Emitter Meshes">Links to meshes used for emitting.</add>
         <add name="Initial Velocity Type" type="VelocityType">The way the particles get their initial direction and speed.</add>
@@ -2499,16 +2505,16 @@
     </niobject>
 
     <niobject name="NiPSysPlanarCollider" abstract="0" inherit="NiPSysCollider" ver1="10.2.0.0">
-        Unknown.
-        <add name="Width" type="float">Unknown.</add>
-        <add name="Height" type="float">Unknown.</add>
-        <add name="X Axis" type="Vector3">Unknown.</add>
-        <add name="Y Axis" type="Vector3">Unknown.</add>
+        Particle Collider object which particles will interact with.
+        <add name="Width" type="float">Defines the width of the plane.</add>
+        <add name="Height" type="float">Defines the height of the plane.</add>
+        <add name="X Axis" type="Vector3">Defines Orientation.</add>
+        <add name="Y Axis" type="Vector3">Defines Orientation.</add>
     </niobject>
 
     <niobject name="NiPSysSphericalCollider" abstract="0" inherit="NiPSysCollider" ver1="10.2.0.0">
-        Unknown.
-        <add name="Radius" type="float">Unknown.</add>
+        Particle Collider object which particles will interact with.
+        <add name="Radius" type="float">Defines the radius of the sphere object.</add>
     </niobject>
 
     <niobject name="NiPSysPositionModifier" abstract="0" inherit="NiPSysModifier" ver1="10.1.0.0">
@@ -2520,11 +2526,11 @@
     </niobject>
 
     <niobject name="NiPSysRotationModifier" abstract="0" inherit="NiPSysModifier" ver1="10.1.0.0">
-        Unknown particle system modifier.
-        <add name="Initial Rotation Speed" type="float">Unknown.</add>
-        <add name="Initial Rotation Speed Variation" type="float" ver1="20.0.0.4">Unknown</add>
-        <add name="Initial Rotation Angle" type="float" ver1="20.0.0.4">Unknown.</add>
-        <add name="Initial Rotation Angle Variation" type="float" ver1="20.0.0.4">Unknown.</add>
+        Particle modifier that adds rotations to particles.
+        <add name="Initial Rotation Speed" type="float">The initial speed of rotation.</add>
+        <add name="Initial Rotation Speed Variation" type="float" ver1="20.0.0.4">Adds a ranged randomness to rotation speed.</add>
+        <add name="Initial Rotation Angle" type="float" ver1="20.0.0.4">Sets the intial angle for particles to be birthed in.</add>
+        <add name="Initial Rotation Angle Variation" type="float" ver1="20.0.0.4">Adds a random range to Initial angle.</add>
         <add name="Random Rot Speed Sign" type="bool" ver1="20.0.0.4">Unknown</add>
         <add name="Random Initial Axis" type="bool">Unknown.</add>
         <add name="Initial Axis" type="Vector3">Unknown.</add>
@@ -2543,8 +2549,8 @@
     </niobject>
 
     <niobject name="NiPSysSphereEmitter" abstract="0" inherit="NiPSysVolumeEmitter" ver1="20.0.0.4">
-        Unknown.
-        <add name="Radius" type="float">Radius of spheres to emit?</add>
+        Particle emitter that uses points within a sphere shape to emit from.
+        <add name="Radius" type="float">The radius of the sphere shape</add>
     </niobject>
 
     <niobject name="NiPSysUpdateCtlr" abstract="0" inherit="NiTimeController">
