@@ -9,10 +9,10 @@ import PyFFI.Bases.Struct
 import PyFFI.Bases.Expression
 import PyFFI.Utils
 import PyFFI.Utils.PyTriStrip
-#import PyFFI.NIF
-#import PyFFI.NIF.NiTriStripsData
-#import PyFFI.NIF.NiTriShapeData
-#import PyFFI.NIF.NiGeometry
+import PyFFI.NIF
+import PyFFI.NIF.NiTriStripsData
+import PyFFI.NIF.NiTriShapeData
+import PyFFI.NIF.NiGeometry
 import PyFFI.CGF
 
 mods = [ val for (key, val) in sys.modules.iteritems() if key.startswith('PyFFI') ]
