@@ -43,6 +43,7 @@
 
 import xml.sax
 from types import *
+import sys
 
 from Bases.Basic      import BasicBase
 from Bases.Struct     import StructBase
@@ -100,7 +101,9 @@ class XmlHandler(xml.sax.handler.ContentHandler):
         self.cls for cls. Initializes a stack self.stack of xml tags.
         Initializes the current tag.
         """
-        
+        # save dictionary for future use
+        self.dct = dct
+
         # initialize dictionaries
         # cls.version maps each supported version string to a version number
         cls.versions = {}
@@ -424,12 +427,14 @@ class XmlHandler(xml.sax.handler.ContentHandler):
 
             # add custom functions to interface
             # first find the module
+            sys.path.append(self.dct['clsFilePath'])
             try:
                 # TODO find better solution to import the custom object module
-                mod = __import__(self.cls.__name__ + '.' + obj.__name__, globals(),  locals(), [])
+                mod = __import__(obj.__name__, globals(),  locals(), [])
             except ImportError:
                 continue
-            mod = getattr(mod, obj.__name__)
+            finally:
+                sys.path.pop()
             props = {}
             # set object's cls argument to give it access to other objects
             # defined in self.cls
