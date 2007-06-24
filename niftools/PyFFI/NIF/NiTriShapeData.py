@@ -41,7 +41,7 @@
 # --------------------------------------------------------------------------
 
 """
->>> from NifFormat import NifFormat
+>>> from PyFFI.NIF import NifFormat
 >>> block = NifFormat.NiTriShapeData()
 >>> block.setTriangles([[0,1,2],[2,1,3],[2,3,4]])
 >>> block.getStrips()
@@ -55,7 +55,7 @@
 [[0, 2, 1], [1, 2, 3], [2, 4, 3]]
 """
 
-from PyTriStrip import PyTriStrip
+from PyFFI.Utils import PyTriStrip
 
 def getTriangles(self):
     return [[t.v1, t.v2, t.v3] for t in self.triangles]

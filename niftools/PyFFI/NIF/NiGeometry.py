@@ -50,7 +50,7 @@ weight[v][b]                     # how much bone b influences vertex v
 * b.getTransform(skelroot)       # apply animation, by multiplying with all bone matrices in the chain down to the skeleton root; the vertex is now in skeleton root space
 * skindata.transform             # transforms vertex from skeleton root space back to geometry space
 
->>> from NifFormat import NifFormat
+>>> from PyFFI.NIF import NifFormat
 >>> id44 = NifFormat.Matrix44()
 >>> id44.setIdentity()
 >>> skelroot = NifFormat.NiNode()

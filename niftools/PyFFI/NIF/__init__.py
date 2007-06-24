@@ -1,6 +1,6 @@
 # --------------------------------------------------------------------------
 # NifFormat.NifFormat
-# Implementation of the NIF file format; uses FileFormat.XmlFileFormat.
+# Implementation of the NIF file format; uses PyFFI.
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -42,8 +42,9 @@
 
 import struct, os, re
 
-from FileFormat.XmlFileFormat import MetaXmlFileFormat
-from FileFormat import Utils
+from PyFFI import MetaXmlFileFormat
+from PyFFI import Utils
+from PyFFI import Common
 import BasicTypes
 
 class NifFormat(object):
@@ -84,7 +85,7 @@ class NifFormat(object):
     Star Trek: Bridge Commander 0x03000000 0x03010000
     Zoo Tycoon 2 0x0A000100
     >>> print NifFormat.HeaderString
-    <class 'NifFormat.BasicTypes.HeaderString'>
+    <class 'PyFFI.NIF.BasicTypes.HeaderString'>
 
     Test templates.
 
@@ -216,18 +217,18 @@ class NifFormat(object):
     _EPSILON = 0.0001 # used for comparing floats
     
     # basic types
-    int = BasicTypes.Int
-    uint = BasicTypes.UInt
-    byte = BasicTypes.Byte
+    int = Common.Int
+    uint = Common.UInt
+    byte = Common.Byte
+    char = Common.Char
+    short = Common.Short
+    ushort = Common.UShort
+    float = Common.Float
     bool = BasicTypes.Bool
-    char = BasicTypes.Char
-    short = BasicTypes.Short
-    ushort = BasicTypes.UShort
-    float = BasicTypes.Float
     Ptr = BasicTypes.Ptr
     Ref = BasicTypes.Ref
-    BlockTypeIndex = BasicTypes.UShort
-    StringOffset = BasicTypes.UInt
+    BlockTypeIndex = Common.UShort
+    StringOffset = Common.UInt
     FileVersion = BasicTypes.FileVersion
     Flags = BasicTypes.Flags
     HeaderString = BasicTypes.HeaderString

@@ -1,6 +1,7 @@
 # --------------------------------------------------------------------------
 # NifFormat.BasicTypes
-# Implementation of all basic types in the xml NIF file format description.
+# Implementation of (non-common) basic types in the xml NIF file format
+# description.
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -41,7 +42,8 @@
 # --------------------------------------------------------------------------
 
 import struct
-from FileFormat.Bases.Basic import BasicBase
+from PyFFI.Bases.Basic import BasicBase
+from PyFFI.Common import *
 
 class Bool(BasicBase):
     """Basic implementation of a 32-bit (8-bit for versions > 4.0.0.2)
@@ -86,120 +88,6 @@ class Bool(BasicBase):
             f.write(struct.pack('<B', int(self._x)))
         else:
             f.write(struct.pack('<I', int(self._x)))
-
-class Int(BasicBase):
-    """Basic implementation of a 32-bit signed integer type.
-
-    >>> from tempfile import TemporaryFile
-    >>> tmp = TemporaryFile()
-    >>> i = Int()
-    >>> i.setValue(-1)
-    >>> i.getValue()
-    -1
-    >>> i.setValue(0x11223344)
-    >>> i.write(f = tmp)
-    >>> j = Int()
-    >>> tmp.seek(0)
-    >>> j.read(f = tmp)
-    >>> hex(j.getValue())
-    '0x11223344'
-    >>> i.setValue(0x10000000000L) # doctest: +ELLIPSIS
-    Traceback (most recent call last):
-        ...
-    ValueError: ...
-    >>> i.setValue('hello world')
-    Traceback (most recent call last):
-        ...
-    ValueError: cannot convert value 'hello world' to integer
-    >>> tmp.seek(0)
-    >>> tmp.write('\x11\x22\x33\x44')
-    >>> tmp.seek(0)
-    >>> i.read(f = tmp)
-    >>> hex(i.getValue())
-    '0x44332211'
-    """
-    
-    _min = -0x80000000
-    _max = 0x7fffffff
-    _struct = 'i'
-    _size = 4
-
-    def __init__(self, template = None, argument = None):
-        self._x = '\x00' * self._size
-        #self.setValue(0L)
-
-    def getValue(self):
-        return struct.unpack('<' + self._struct, self._x)[0]
-
-    def setValue(self, value):
-        try:
-            x = int(value)
-        except ValueError:
-            try:
-                x = int(value, 16) # for '0x...' strings
-            except:
-                try:
-                    x = getattr(self, value) # for enums
-                except:
-                    raise ValueError("cannot convert value '%s' to integer"%str(value))
-        if x < self._min or x > self._max:
-            raise ValueError('value out of range (%i)'%self.getValue())
-        self._x = struct.pack('<' + self._struct, x)
-
-    def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
-        # file must be an instance of the type
-        self._x = f.read(self._size)
-
-    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
-        f.write(self._x)
-
-    def __str__(self):
-        return str(self.getValue())
-
-class UInt(Int):
-    _min = 0
-    _max = 0xffffffff
-    _struct = 'I'
-    _size = 4
-
-class Byte(Int):
-    _min = 0
-    _max = 0xff
-    _struct = 'B'
-    _size = 1
-
-class Char(BasicBase):
-    def __init__(self, template = None, argument = None):
-        self.setValue('\x00')
-
-    def getValue(self):
-        return self._x
-
-    def setValue(self, value):
-        assert(isinstance(value, str))
-        assert(len(value) == 1)
-        self._x = value
-
-    def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
-        self._x = f.read(1)
-
-    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
-        f.write(self._x)
-
-    def __str__(self):
-        return self._x
-
-class Short(Int):
-    _min = -0x8000
-    _max = 0x7fff
-    _struct = 'h'
-    _size = 2
-
-class UShort(UInt):
-    _min = 0
-    _max = 0xffff
-    _struct = 'H'
-    _size = 2
 
 class Flags(UShort):
     def __str__(self):
