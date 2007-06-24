@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fileformat>
+<fileformat version="1.0">
+    <version num="623">Far Cry</version>
+    <version num="744">Far Cry</version>
+    <version num="745">Far Cry</version>
+    <version num="746">Far Cry</version>
+    <version num="918">Far Cry</version> <!-- timing chunk -->
+
+    <!--
+    *******************
+    *** basic types ***
+    *******************
+    -->
+
+    <basic name="ubyte">
+        An unsigned 8-bit integer.
+    </basic>
+
+    <basic name="byte">
+        A signed 8-bit integer.
+    </basic>
+
+    <basic name="ushort">
+        An unsigned 16-bit integer.
+    </basic>
+
+    <basic name="short">
+        A signed 16-bit integer.
+    </basic>
+
+    <basic name="uint">
+        An unsigned 32-bit integer.
+    </basic>
+
+    <basic name="int">
+        A signed 32-bit integer.
+    </basic>
+
+    <basic name="char">
+        An 8-bit character.
+    </basic>
+
+    <basic name="float" count="0">
+        A standard 32-bit floating point number.
+    </basic>
+
+    <!--
+    *******************
+    *** alias types ***
+    *******************
+    -->
+
+    <alias name="bool" type="ubyte" />
+    
+    <alias name="ChunkVersion" type="uint">
+        The version of a particular chunk, or the version of the chunk table.
+    </alias>
+
+    <alias name="FileOffset" type="int" default="-1">
+        Points to a position in a file.
+    </alias>
+
+    <alias name="Id" type="int" default="-1">
+        Reference to another chunk, through its Id (as stored in its chunk header).
+    </alias>
+    
+    <!--
+    ******************
+    *** enum types ***
+    ******************
+    -->
+
+    <enum name="FileType" type="uint" default="0xFFFF0000">
+        An unsigned 32-bit integer, describing the file type.
+        <option value="0xFFFF0000" name="GEOM">Geometry file.</option>
+        <option value="0xFFFF0001" name="ANIM">Animation file.</option>
+    </enum>
+    
+    <enum name="ChunkType" type="uint">
+        An unsigned 32-bit integer, describing the chunk type.
+        <option value="0" name="ANY" />
+        <option value="0xCCCC0000" name="Mesh" />
+        <option value="0xCCCC0001" name="Helper" />
+        <option value="0xCCCC0002" name="VertAnim" />
+        <option value="0xCCCC0003" name="BoneAnim" />
+        <option value="0xCCCC0004" name="GeomNameList">Obsolete.</option>
+        <option value="0xCCCC0005" name="BoneNameList" />
+        <option value="0xCCCC0006" name="MtlList">Obsolete.</option>
+        <option value="0xCCCC0007" name="MRM">Obsolete.</option>
+        <option value="0xCCCC0008" name="SceneProps" />
+        <option value="0xCCCC0009" name="Light" />
+        <option value="0xCCCC000A" name="PatchMesh">Not implemented.</option>
+        <option value="0xCCCC000B" name="Node" />
+        <option value="0xCCCC000C" name="Mtl" />
+        <option value="0xCCCC000D" name="Controller" />
+        <option value="0xCCCC000E" name="Timing" />
+        <option value="0xCCCC000F" name="BoneMesh" />
+        <option value="0xCCCC0010" name="BoneLightBinding">Describes the lights binded to bones</option>
+        <option value="0xCCCC0011" name="MeshMorphTarget">Describes a morph target of a mesh chunk</option>
+        <option value="0xCCCC0012" name="BoneInitialPos">Describes the initial position (4x3 matrix) of each bone; just an array of 4x3 matrices</option>
+        <option value="0xCCCC0013" name="SourceInfo">Describes the source from which the cgf was exported: source max file, machine and user.</option>
+    </enum>
+
+    <enum name="TextureMappingType" type="ubyte">
+        <option value="0" name="NORMAL" />
+        <option value="1" name="ENVIRONMENT" />
+        <option value="2" name="SCREENENVIRONMENT" />
+        <option value="3" name="CUBIC" />
+        <option value="4" name="AUTOCUBIC" />
+    </enum>
+
+    <!--
+    ******************
+    *** bitstructs ***
+    ******************
+    -->
+
+    <bitstruct name="TextureMappingFlags" type="ubyte">
+        <add name="No Mipmap" numbits="1" />
+    </bitstruct>
+
+    <!--
+    ***************
+    *** structs ***
+    ***************
+    -->
+
+    <struct name="Vector3">
+        A vector in 3D space (x,y,z).
+        <add name="x" type="float">First coordinate.</add>
+        <add name="y" type="float">Second coordinate.</add>
+        <add name="z" type="float">Third coordinate.</add>
+    </struct>
+
+    <struct name="Quat">
+        A quaternion (x,y,z,w).
+        <add name="x" type="float">First coordinate.</add>
+        <add name="y" type="float">Second coordinate.</add>
+        <add name="z" type="float">Third coordinate.</add>
+        <add name="w" type="float">Fourth coordinate.</add>
+    </struct>
+
+    <struct name="Vertex">
+        <add name="p" type="Vector3">Position.</add>
+        <add name="n" type="Vector3">Normal.</add>
+    </struct>
+
+    <struct name="Face">
+        A mesh face.
+        <add name="v0" type="int">First vertex index.</add>
+        <add name="v1" type="int">Second vertex index.</add>
+        <add name="v2" type="int">Third vertex index.</add>
+        <add name="Mat ID" type="int">Material id.</add>
+        <add name="Sm Group" type="int">Smoothing group.</add>
+    </struct>
+    
+    <struct name="Key">
+        <add name="Time" type="int">Time in ticks.</add>
+        <add name="Abs Pos" type="Vector3">Absolute position.</add>
+        <add name="Rel Pos" type="Vector3">Relative position.</add>
+        <add name="Rel Quat" type="Quat">Relative Quaternion.</add>
+    </struct>
+    
+    <struct name="TexFace">
+        A texture face.
+        <add name="t0" type="int">First vertex index.</add>
+        <add name="t1" type="int">Second vertex index.</add>
+        <add name="t2" type="int">Third vertex index.</add>
+    </struct>
+
+    <struct name="TextureMap">
+        <add name="Name" type="char" arr1="32" ver2="745">Name of the texture map.</add>
+        <add name="Long Name" type="char" arr1="128" ver1="746">Name of the texture map.</add>
+        <add name="Type" type="TextureMappingType" ver1="745">Mapping type</add>
+        <add name="Flags" type="TextureMappingFlags" ver1="745">Mapping flags</add>
+        <add name="Amount" type="ubyte" ver1="745">Unknown.</add>
+        <add name="Reserved1" type="ubyte" ver1="745">Unknown.</add>
+        <add name="Reserved2" type="ubyte" arr1="31" ver1="746">Unknown.</add>
+        <!--tiling and mirror-->
+        <add name="U Tile" type="bool" />
+        <add name="U Mirror" type="bool" />
+        <add name="V Tile" type="bool" />
+        <add name="V Mirror" type="bool" />
+        <!--reflection settings-->
+        <add name="Ref Update" type="int" ver1="745">Update reflection every nth frame.</add>
+        <add name="Ref Size" type="int" ver1="745">Reflection size.</add>
+        <add name="Ref Blur" type="float" ver1="745">Reflection blur.</add>
+        <!--texture position values-->
+        <add  name="U Off Val" type="float" />
+        <add  name="U Scl Val" type="float" />
+        <add  name="U Rot Val" type="float" />
+        <add  name="V Off Val" type="float" />
+        <add  name="V Scl Val" type="float" />
+        <add  name="V Rot Val" type="float" />
+        <add  name="W Rot Val" type="float" />
+
+        <!--texture position controller chunk id's (if not animated they are -1)-->
+        <add name="U Off Ctrl" type="Id" />
+        <add name="U Scl Ctrl" type="Id" />
+        <add name="U Rot Ctrl" type="Id" />
+        <add name="V Off Ctrl" type="Id" />
+        <add name="V Scl Ctrl" type="Id" />
+        <add name="V Rot Ctrl" type="Id" />
+        <add name="W Rot Ctrl" type="Id" />
+    </struct>
+
+    <struct name="Link">
+        A bone link.
+        <add name="Bone" type="Id">The bone chunk?</add>
+        <add name="Offset" type="Vector3">The bone offset?</add>
+        <add name="Blending" type="float">Bone blending?</add>
+    </struct>
+    
+    <struct name="IRGB">
+        R8G8B8.
+        <add name="r" type="ubyte" />
+        <add name="g" type="ubyte" />
+        <add name="b" type="ubyte" />
+    </struct>
+    
+    <struct name="FRGB">
+        R32G32B32 (float).
+        <add name="r" type="float" />
+        <add name="g" type="float" />
+        <add name="b" type="float" />
+    </struct>
+    
+    <struct name="FileSignature">
+        <add name="Signature" type="char" arr1="7">&quot;CryTek\0&quot;</add>
+    </struct>
+
+    <struct name="ChunkHeader">
+        A CGF chunk header.
+        <add name="Type" type="ChunkType">Type of chunk referred to.</add>
+        <add name="Version" type="ChunkVersion">Version of the chunk referred to.</add>
+        <add name="Offset" type="uint">Position of the chunk in the CGF file.</add>
+        <add name="Id" type="int" ver1="744">The chunk identifier.</add>
+    </struct>
+
+    <struct name="RangeEntity">
+        <add name="Name" type="char" arr1="32" />
+        <add name="Start" type="int" />
+        <add name="End" type="int" />
+    </struct>
+
+    <!--real file blocks-->
+
+    <struct name="Header">
+        The CGF header.
+        <add name="Signature" type="FileSignature">The CGF file signature.</add>
+        <add name="Type" type="FileType">The CGF file type (geometry or animation).</add>
+        <add name="Version" type="ChunkVersion">The version of the chunk table.</add>
+        <add name="Offset" type="FileOffset">Position of the chunk table in the CGF file.</add>
+    </struct>
+
+    <struct name="ChunkTable">
+        List of all chunks in the CGF file. Usually this table is put at the end of the CGF file.
+        <add name="Num Chunks" type="uint">Number of chunks</add>
+        <add name="Chunk Headers" type="ChunkHeader" arr1="Num Chunks">Header for each chunk.</add>
+    </struct>
+
+    <struct name="TimingChunk">
+        <add name="Secs Per Tick" type="float">seconds/ticks</add>
+        <add name="Ticks Per Frame" type="int">ticks/frame</add>
+        <add name="Global Range" type="RangeEntity">Covers all of the time ranges.</add>
+        <add name="Num Sub Ranges" type="int" />
+    </struct>
+
+</fileformat>
