@@ -97,6 +97,8 @@ def getTranspose(self):
 
 def isScaleRotation(self):
     """Returns true if the matrix decomposes nicely into scale * rotation."""
+    # NOTE: 0.01 instead of self.cls._EPSILON to work around bad nif files
+
     # calculate self * self^T
     # this should correspond to
     # (scale * rotation) * (scale * rotation)^T
@@ -106,19 +108,21 @@ def isScaleRotation(self):
     m = self*selfT
 
     # off diagonal elements should be zero
-    if abs(m.m12) + abs(m.m13) + abs(m.m21) + abs(m.m23) + abs(m.m31) + abs(m.m32) > self.cls._EPSILON:
+    if abs(m.m12) + abs(m.m13) + abs(m.m21) + abs(m.m23) + abs(m.m31) + abs(m.m32) > 0.01:
         return False
 
     # diagonal elements should be equal (to scale^2)
-    if abs(m.m11 - m.m22) + abs(m.m22 - m.m33) > self.cls._EPSILON:
+    if abs(m.m11 - m.m22) + abs(m.m22 - m.m33) > 0.01:
         return False
 
     return True
 
 def isRotation(self):
     """Returns true if the matrix is a rotation matrix (a member of SO(3))."""
+    # NOTE: 0.01 instead of self.cls._EPSILON to work around bad nif files
+
     if not self.isScaleRotation(): return False
-    if abs(self.getDeterminant() - 1.0) > self.cls._EPSILON: return False
+    if abs(self.getDeterminant() - 1.0) > 0.01: return False
     return True
 
 def getDeterminant(self):
