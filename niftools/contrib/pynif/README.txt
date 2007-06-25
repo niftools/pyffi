@@ -5,9 +5,10 @@ $ python ez_setup.py
 
 to install setuptools, and then
 
+$ easy_install http://niftools.svn.sourceforge.net/svnroot/niftools/trunk/pynif
+
+to download and install the packages you need. For NifVis you also need:
+
 $ easy_install PyOpenGL
 $ easy_install numpy
 $ easy_install pygame
-$ easy_install http://niftools.svn.sourceforge.net/svnroot/niftools/trunk/pynif
-
-to download and install the packages you need.
