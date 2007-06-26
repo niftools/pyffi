@@ -219,7 +219,7 @@ class NifFormat(object):
     # basic types
     int = Common.Int
     uint = Common.UInt
-    byte = Common.Byte
+    byte = Common.UByte # not a typo
     char = Common.Char
     short = Common.Short
     ushort = Common.UShort

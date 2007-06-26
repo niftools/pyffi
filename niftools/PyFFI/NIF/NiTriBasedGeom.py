@@ -41,7 +41,7 @@
 # --------------------------------------------------------------------------
 
 import struct
-from PyTriStrip import PyTriStrip
+from PyFFI.Utils import PyTriStrip
 
 DEBUG_VERTEX = -1 # for debugging a particular vertex; set to -1 to disable
 
