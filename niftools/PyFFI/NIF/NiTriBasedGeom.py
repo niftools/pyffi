@@ -342,7 +342,9 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4):
             for b, partb in enumerate(parts[a+1:]):
                 if b in addedparts: continue
                 if len(parta[0] | partb[0]) <= maxbonesperpartition:
-                    newparts.append([parta[0] | partb[0], parta[1] + partb[2]])
+                    #newparts.append([parta[0] | partb[0], parta[1] + partb[1]])
+                    parta[0] |= partb[0]
+                    parta[1] += partb[1]
                     addedparts.add(b)
                     merged = True # signal another try in merging partitions
         # update partitions to the merged partitions
