@@ -128,13 +128,11 @@ class StructBase(object):
     ...         self.__value = int(value)
     >>> class X(StructBase):
     ...     _isTemplate = False
-    ...     _isAbstract = True
     ...     _attrs = [
     ...         ('a', UInt, None, None, None, None, None, None, None, None, None, None),
     ...         ('b', UInt, None, None, None, None, None, None, None, None, None, None)]
     >>> class Y(X):
     ...     _isTemplate = False
-    ...     _isAbstract = True
     ...     _attrs = [
     ...         ('c', UInt, None, None, None, None, None, None, None, None, None, None),
     ...         ('d', X, None, None, None, None, None, Expression('c == 3'), None, None, None, None)]
@@ -163,7 +161,6 @@ class StructBase(object):
     __metaclass__ = _MetaStructBase
     
     _isTemplate = False
-    _isAbstract = True
     _attrs = []
     
     # initialize all attributes
