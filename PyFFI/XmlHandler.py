@@ -431,8 +431,11 @@ class XmlHandler(xml.sax.handler.ContentHandler):
             try:
                 # TODO find better solution to import the custom object module
                 mod = __import__(obj.__name__, globals(),  locals(), [])
-            except ImportError:
-                continue
+            except ImportError, e:
+                if str(e) != "No module named " + obj.__name__:
+                    raise
+                else:
+                    continue
             finally:
                 sys.path.pop()
             props = {}
@@ -443,26 +446,7 @@ class XmlHandler(xml.sax.handler.ContentHandler):
             for x, xfunc in mod.__dict__.items():
                 # skip if it is not a function
                 if not isinstance(xfunc, FunctionType): continue
-                # register property getter
-                if x[:5] == "_get_":
-                    xname = x[5:]
-                    if props.has_key(xname):
-                        props[xname][0] = xfunc
-                    else:
-                        props[xname] = [xfunc, None, None, None]
-                # register property setter
-                elif x[:5] == "_set_":
-                    xname = x[5:]
-                    if props.has_key(xname):
-                        props[xname][1] = xfunc
-                    else:
-                        props[xname] = [None, xfunc, None, None]
-                # set regular method
-                else:
-                    setattr(obj, x, xfunc)
-            # set all properties
-            for x, arglist in props.items():
-                setattr(obj, x, property(*arglist))
+                setattr(obj, x, xfunc)
 
     def characters(self, s):
         if self.currentTag == self.tagAttribute:
