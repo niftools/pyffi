@@ -1,4 +1,3 @@
-import isabstract
 import read
 import readwrite
 import skinpartition
