@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
     name = "PyFFI",
     version = "0.0",
-    packages = ['PyFFI', 'PyFFI.Bases', 'PyFFI.Utils', 'PyFFI.CGF'],
+    packages = ['PyFFI', 'PyFFI.Bases', 'PyFFI.Utils', 'PyFFI.CGF', 'PyFFI.NIF'],
     package_data = { '': ['*.xml' ] }, # include xml files
     author = "Python File Format Interface",
     author_email = "amorilia@gamebox.net",
