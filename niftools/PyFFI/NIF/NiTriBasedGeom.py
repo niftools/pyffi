@@ -440,22 +440,36 @@ def updateSkinCenterRadius(self):
     verts = geomdata.vertices
 
     for skindatablock in skindata.boneList:
+        # find all vertices influenced by this bone
         indices = [skinweight.index for skinweight in skindatablock.vertexWeights]
+        boneverts = [verts[i] for i in indices]
+
+        # find bounding box of these vertices
         low = self.cls.Vector3()
-        low.x = min([verts[i].x for i in indices])
-        low.y = min([verts[i].y for i in indices])
-        low.z = min([verts[i].z for i in indices])
+        low.x = min([v.x for v in boneverts])
+        low.y = min([v.y for v in boneverts])
+        low.z = min([v.z for v in boneverts])
 
         high = self.cls.Vector3()
-        high.x = max([verts[i].x for i in indices])
-        high.y = max([verts[i].y for i in indices])
-        high.z = max([verts[i].z for i in indices])
+        high.x = max([v.x for v in boneverts])
+        high.y = max([v.y for v in boneverts])
+        high.z = max([v.z for v in boneverts])
 
-        low = low * meshtrans * skindatablock.getTransform().getInverse()
-        high = high * meshtrans * skindatablock.getTransform().getInverse()
+        # center is in the center of the bounding box
+        center = (low + high) * 0.5
 
-        skindatablock.boundingSphereOffset.x = (low.x + high.x) * 0.5
-        skindatablock.boundingSphereOffset.y = (low.y + high.y) * 0.5
-        skindatablock.boundingSphereOffset.z = (low.z + high.z) * 0.5
+        # radius is the largest distance from the center
+        r2 = 0.0
+        for v in boneverts:
+            d = center - v
+            r2 = max(r2, d.x*d.x+d.y*d.y+d.z*d.z)
+        radius = r2 ** 0.5
 
-        skindatablock.boundingSphereRadius = 0.5 * (((high.x - low.x)**2 + (high.y - low.y)**2 + (high.z - low.z)**2)**0.5)
+        # transform center in proper coordinates (radius remains unaffected)
+        center *= meshtrans * skindatablock.getTransform().getInverse()
+
+        # save data
+        skindatablock.boundingSphereOffset.x = center.x
+        skindatablock.boundingSphereOffset.y = center.y
+        skindatablock.boundingSphereOffset.z = center.z
+        skindatablock.boundingSphereRadius = radius
