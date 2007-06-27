@@ -17,6 +17,7 @@ def testBlock(block, verbose):
 
     # TODO copy the skin partition data
 
-    print 'lost weight from partitioning', block.updateSkinPartition(maxbonesperpartition = 4, maxbonespervertex = 4)
+    lw = block.updateSkinPartition(maxbonesperpartition = 4, maxbonespervertex = 4, verbose = verbose)
+    print 'lost weight from partitioning', lw
 
     # TODO check the skin partition data

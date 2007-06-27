@@ -174,7 +174,7 @@ def updateTangentSpace(self):
             block.binaryData.data[cnt] = ord(b)
             cnt += 1
 
-def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4):
+def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, verbose = 0):
     """Recalculate skin partition data."""
     # shortcuts relevant blocks
     if not self.skinInstance: return # no skin, nothing to do
@@ -184,16 +184,20 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4):
     skindata = skininst.data
     
     # get skindata vertex weights
+    if verbose: print "getting vertex weights"
     weights = self.getVertexWeights()
 
     # count minimum and maximum number of bones per vertex
+    if verbose: print "counting min and max bones per vertex",
     numbonespervertex = [len(weight) for weight in weights]
     minbones, maxbones = min(numbonespervertex), max(numbonespervertex)
     del numbonespervertex
     if minbones <= 0:
         raise ValueError('bad NiSkinData: some vertices have no weights')
+    if verbose: print "   min", minbones, "   max", maxbones
 
     # reduce bone influences to meet maximum number of bones per vertex
+    if verbose: print "imposing max bones per vertex", maxbonespervertex
     lostweight = 0.0
     for weight in weights:
         if len(weight) > maxbonespervertex:
@@ -210,6 +214,8 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4):
 
     # reduce bone influences to meet maximum number of bones per partition
     # (i.e. maximum number of bones per triangle)
+    if verbose: print "imposing max bones per partition", maxbonesperpartition
+
     triangles = geomdata.getTriangles()
 
     for tri in triangles:
@@ -241,25 +247,29 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4):
             tribonesweights.sort(key=lambda x: x[1], reverse=True) # sort by vertex weight sum the last element of this list is now a candidate for removal
             minbone = tribonesweights[-1][0]
 
+            # *** vertex match disabled: slows down things too much ***
             # do a vertex match detect
-            verts = geomdata.vertices
-            match = [[a] for a in xrange(len(verts))]
-            for a in xrange(len(verts)):
-                for b in xrange(a+1, len(verts)):
-                    # compare vertices
-                    if verts[a] != verts[b]: continue
-                    # compare bone influences
-                    # skinweights are sorted by bone number, so this will work
-                    for (bonenuma, boneweighta), (bonenumb, boneweightb) in zip(weights[a], weights[b]):
-                        if bonenuma != bonenumb: continue
-                        if abs(boneweighta - boneweightb) > self.cls._EPSILON: continue
-                    # match!
-                    match[a].append(b)
-                    match[b].append(a)
+            #verts = [ (long(v.x/self.cls._EPSILON), long(v.y/self.cls._EPSILON), long(v.z/self.cls._EPSILON)) for v in geomdata.vertices ] # convert to long speeds things up tremendously
+            #print "  doing vertex match (%i vertices)"%len(verts)
+            #match = [[a] for a in xrange(len(verts))]
+            #for a in xrange(len(verts)):
+            #    for b in xrange(a+1, len(verts)):
+            #        # compare vertices
+            #        if verts[a][0] != verts[b][0]: continue
+            #        if verts[a][1] != verts[b][1]: continue
+            #        if verts[a][2] != verts[b][2]: continue
+            #        # compare bone influences
+            #        # skinweights are sorted by bone number, so this will work
+            #        for (bonenuma, boneweighta), (bonenumb, boneweightb) in zip(weights[a], weights[b]):
+            #            if bonenuma != bonenumb: continue
+            #            if abs(boneweighta - boneweightb) > self.cls._EPSILON: continue
+            #        # match!
+            #        match[a].append(b)
+            #        match[b].append(a)
 
             # remove minbone from all vertices of this triangle and from all matching vertices
             for t in tri:
-                for tt in match[t]:
+                for tt in [t]: #match[t]:
                     # remove bone
                     weight = weights[tt]
                     for i, (bonenum, boneweight) in enumerate(weight):
@@ -274,6 +284,7 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4):
                     for x in weight: x[1] /= totalweight
 
     # split triangles into partitions
+    if verbose: print "creating partitions"
     parts = []
     usedverts = set()
     # keep creating partitions as long as there are triangles left
@@ -329,6 +340,7 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4):
         parts.append(part)
 
     # merge all partitions
+    if verbose: print "merging partitions"
     merged = True # signals success, in which case do another run
     while merged:
         merged = False
@@ -351,6 +363,7 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4):
         parts = newparts
 
     # write the NiSkinPartition
+    if verbose: print "creating NiSkinPartition with %i partitions"%len(parts)
 
     # if skin partition already exists, use it
     if skininst.skinPartition != None:
@@ -377,6 +390,7 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4):
         for tri in triangles:
             parttriangles.append([vertices.index(t) for t in tri])
         # stripify the triangles
+        if verbose: print "  stripifying partition", parts.index(part)
         strips = PyTriStrip.stripify(parttriangles)
         numtriangles = 0
         for strip in strips: numtriangles += len(strip) - 2
