@@ -1,5 +1,5 @@
 # --------------------------------------------------------------------------
-# NifFormat.NifFormat
+# PyFFI.NIF
 # Implementation of the NIF file format; uses PyFFI.
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
