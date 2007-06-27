@@ -1,6 +1,6 @@
 # check skin partition and skin partition calculation
 
-from NifFormat.NifFormat import NifFormat
+from PyFFI.NIF import NifFormat
 
 import struct
 

@@ -12,7 +12,7 @@
 # bip01, neck, and spine01:
 # r/dwarvenspecter.nif 
 
-from NifFormat.NifFormat import NifFormat
+from PyFFI.NIF import NifFormat
 
 def testRoot(root, verbose):
     skelroots = set()

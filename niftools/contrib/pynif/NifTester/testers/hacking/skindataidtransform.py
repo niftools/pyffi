@@ -1,7 +1,7 @@
 # checks whether the NiSkinData transform matrix is not identity
 # (the Morrowind better bodies meshes have positive result on this test)
 
-from NifFormat.NifFormat import NifFormat
+from PyFFI.NIF import NifFormat
 
 def testBlock(block, verbose):
     # does it apply?

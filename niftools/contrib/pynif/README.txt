@@ -5,7 +5,7 @@ $ python ez_setup.py
 
 to install setuptools, and then
 
-$ easy_install http://niftools.svn.sourceforge.net/svnroot/niftools/trunk/pynif
+$ easy_install http://pyffi.svn.sourceforge.net/svnroot/pyffi/trunk/
 
 to download and install the packages you need. For NifVis you also need:
 

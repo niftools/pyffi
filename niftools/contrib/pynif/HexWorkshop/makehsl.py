@@ -44,14 +44,14 @@ import sys
 from types import *
 from string import maketrans
 
-from NifFormat.NifFormat import NifFormat
-from FileFormat.Bases.Basic import BasicBase
+from PyFFI.NIF import NifFormat
+from PyFFI.Bases.Basic import BasicBase
 
 def find_templates():
     # find all types that are used as a template (excluding the ones
     # occuring in Ref & its subclass Ptr)
     templates = set()
-    for cls in NifFormat.xmlCompound:
+    for cls in NifFormat.xmlStruct:
         for attrname, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in cls._attributeList:
             if tmpl != None and tmpl != NoneType and not issubclass(typ, NifFormat.Ref):
                 templates.add(tmpl)
@@ -77,9 +77,9 @@ def write_hsl(f, ver, templates):
         NifFormat.FileVersion : ('ulong', None),
         # some stuff we cannot do in hex workshop
         NifFormat.HeaderString : ('char', None),
-        NifFormat.LineString : ('char', None),
+        NifFormat.LineString : ('char', None) }
         # hack for string (TODO fix this in NifFormat)
-        NifFormat.string : ('struct string', None) }
+        #NifFormat.string : ('struct string', None) }
 
     if ver <= 0x04000002:
         hsl_types[NifFormat.bool] = ('ulong', 4)
@@ -98,8 +98,8 @@ def write_hsl(f, ver, templates):
     for cls in NifFormat.xmlEnum:
         write_enum(cls, ver, hsl_types, f)
 
-    # write each compound class
-    for cls in NifFormat.xmlCompound:
+    # write each struct class
+    for cls in NifFormat.xmlStruct:
         if cls.__name__[:3] == 'ns ': continue # cheat: skip ns types
         if not cls._isTemplate:
             # write regular class
@@ -142,7 +142,7 @@ def write_struct(cls, ver, hsl_types, f, template):
         except KeyError:
             if typ in NifFormat.xmlEnum:
                 s += typ.__name__
-            else: # it's in NifFormat.xmlCompound
+            else: # it's in NifFormat.xmlStruct
                 s += 'struct ' + typ.__name__
         # get the attribute template type name
         if tmpl != None and not issubclass(typ, NifFormat.Ref):

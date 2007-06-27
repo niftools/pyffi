@@ -1,6 +1,6 @@
 # check tangent space and tangent space calculation
 
-from NifFormat.NifFormat import NifFormat
+from PyFFI.NIF import NifFormat
 
 import struct
 

@@ -1,8 +1,8 @@
 # run the stripifier on all triangles from nif files
 # also useful for profiling
 
-from NifFormat.PyTriStrip import PyTriStrip
-from NifFormat.NifFormat import NifFormat
+from PyFFI.Utils import PyTriStrip
+from PyFFI.NIF import NifFormat
 
 def testBlock(block, verbose):
     if not isinstance(block, NifFormat.NiTriShapeData): return

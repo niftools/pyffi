@@ -1,4 +1,4 @@
-from NifFormat.NifFormat import NifFormat
+from PyFFI.NIF import NifFormat
 from OpenGL.GL import *
 
 def Radius( block ):

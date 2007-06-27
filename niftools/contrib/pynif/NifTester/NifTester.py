@@ -15,7 +15,7 @@
 import sys, os
 from optparse import OptionParser
 
-from NifFormat.NifFormat import NifFormat
+from PyFFI.NIF import NifFormat
 
 # useful as onreaderror parameter
 def raise_exception(e):

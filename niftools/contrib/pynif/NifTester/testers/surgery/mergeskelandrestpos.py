@@ -1,6 +1,6 @@
 # writes back the file with single skeleton root and fix a single rest position
 
-from NifFormat.NifFormat import NifFormat
+from PyFFI.NIF import NifFormat
 
 def testRoot(root, verbose):
     skelrootrefgeom = {}

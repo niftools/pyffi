@@ -3,7 +3,7 @@
 # the left hand side of some of the better bodies skins do not satisfy the
 # calculations below...
 
-from NifFormat.NifFormat import NifFormat
+from PyFFI.NIF import NifFormat
 
 def testBlock(block, verbose):
     # does it apply?

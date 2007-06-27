@@ -1,6 +1,6 @@
 # simply prints a skin's rest pose and first frame of animation, for comparison
 
-from NifFormat.NifFormat import NifFormat
+from PyFFI.NIF import NifFormat
 
 def testBlock(block, verbose):
     if not isinstance(block, NifFormat.NiGeometry): return

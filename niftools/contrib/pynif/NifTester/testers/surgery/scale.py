@@ -1,6 +1,6 @@
 # scale nif file
 
-from NifFormat.NifFormat import NifFormat
+from PyFFI.NIF import NifFormat
 
 def testRoot(root, verbose, arg = 1.0):
     root.applyScale(float(arg))

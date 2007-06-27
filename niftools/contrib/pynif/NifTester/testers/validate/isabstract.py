@@ -1,6 +1,6 @@
 # checks for abstract blocks
 
-from NifFormat.NifFormat import NifFormat
+from PyFFI.NIF import NifFormat
 
 def testBlock(block, verbose):
     if block._isAbstract:

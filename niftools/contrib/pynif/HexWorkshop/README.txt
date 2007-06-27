@@ -1,7 +1,7 @@
 Installation
 ------------
 
-Make sure you have pynif installed (see http://niftools.sourceforge.net).
+Make sure you have PyFFI installed (see http://pyffi.sourceforge.net).
 
 Then, copy makehsl.py to your Hex Workshop structures folder
 
