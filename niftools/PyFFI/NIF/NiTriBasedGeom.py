@@ -43,8 +43,6 @@
 import struct
 from PyFFI.Utils import PyTriStrip
 
-DEBUG_VERTEX = -1 # for debugging a particular vertex; set to -1 to disable
-
 def updateTangentSpace(self):
     """Recalculate tangent space data."""
     # check that self.data exists and is valid
@@ -115,16 +113,6 @@ def updateTangentSpace(self):
             tan[i] += tdir
             bin[i] += sdir
 
-            if i == DEBUG_VERTEX:
-                print i, r, norms[i]
-                ttmp = tdir - norms[i] * (norms[i] * tdir)
-                ttmp.normalize()
-                stmp = sdir - norms[i] * (norms[i] * sdir)
-                stmp.normalize()
-                print tdir, norms[i] * (norms[i] * tdir), ttmp
-                print sdir, norms[i] * (norms[i] * sdir), stmp
-                print norms[i].crossproduct(stmp)
-
     xvec = self.cls.Vector3()
     xvec.x = 1.0
     xvec.y = 0.0
@@ -174,6 +162,7 @@ def updateTangentSpace(self):
             block.binaryData.data[cnt] = ord(b)
             cnt += 1
 
+# ported from nifskope/skeleton.cpp:spSkinPartition
 def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, verbose = 0):
     """Recalculate skin partition data."""
     # shortcuts relevant blocks
@@ -434,3 +423,39 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
                     skinpartblock.boneIndices[i][j] = 0.0
         
     return lostweight
+
+# ported from nifskope/skeleton.cpp:spFixBoneBounds
+def updateSkinCenterRadius(self):
+    # shortcuts relevant blocks
+    if not self.skinInstance: return # no skin, nothing to do
+    self._validateSkin()
+    geomdata = self.data
+    skininst = self.skinInstance
+    skindata = skininst.data
+    skelroot = skininst.skeletonRoot
+    
+    meshtrans = self.getTransform(skelroot)
+    bonetrans = [ skindatablock.getTransform() for skindatablock in skindata.boneList ]
+    
+    verts = geomdata.vertices
+
+    for skindatablock in skindata.boneList:
+        indices = [skinweight.index for skinweight in skindatablock.vertexWeights]
+        low = self.cls.Vector3()
+        low.x = min([verts[i].x for i in indices])
+        low.y = min([verts[i].y for i in indices])
+        low.z = min([verts[i].z for i in indices])
+
+        high = self.cls.Vector3()
+        high.x = max([verts[i].x for i in indices])
+        high.y = max([verts[i].y for i in indices])
+        high.z = max([verts[i].z for i in indices])
+
+        low = low * meshtrans * skindatablock.getTransform().getInverse()
+        high = high * meshtrans * skindatablock.getTransform().getInverse()
+
+        skindatablock.boundingSphereOffset.x = (low.x + high.x) * 0.5
+        skindatablock.boundingSphereOffset.y = (low.y + high.y) * 0.5
+        skindatablock.boundingSphereOffset.z = (low.z + high.z) * 0.5
+
+        skindatablock.boundingSphereRadius = 0.5 * (((high.x - low.x)**2 + (high.y - low.y)**2 + (high.z - low.z)**2)**0.5)
