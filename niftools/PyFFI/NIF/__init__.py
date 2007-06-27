@@ -201,7 +201,7 @@ class NifFormat(object):
     [  0.183 -1.380 -0.698  0.000 ]
     [  2.895  6.338  7.686  1.000 ]
     <BLANKLINE>
-    >>> print n.getInverse(fast = False)
+    >>> print n.getInverse(fast = False) + 0.000001 # workaround for -0.000
     [  0.676  0.704 -1.214  0.000 ]
     [ -1.391  0.161 -0.682  0.000 ]
     [  0.183 -1.380 -0.698  0.000 ]

@@ -353,6 +353,25 @@ def __add__(self, x):
         m.m43 = self.m43 + x.m43
         m.m44 = self.m44 + x.m44
         return m
+    elif isinstance(x, (int, long, float)):
+        m = self.cls.Matrix44()
+        m.m11 = self.m11 + x
+        m.m12 = self.m12 + x
+        m.m13 = self.m13 + x
+        m.m14 = self.m14 + x
+        m.m21 = self.m21 + x
+        m.m22 = self.m22 + x
+        m.m23 = self.m23 + x
+        m.m24 = self.m24 + x
+        m.m31 = self.m31 + x
+        m.m32 = self.m32 + x
+        m.m33 = self.m33 + x
+        m.m34 = self.m34 + x
+        m.m41 = self.m41 + x
+        m.m42 = self.m42 + x
+        m.m43 = self.m43 + x
+        m.m44 = self.m44 + x
+        return m
     else:
         raise TypeError("do not know how to add Matrix44 and %s"%x.__class__)
 
