@@ -163,3 +163,16 @@ def crossproduct(self, x):
         return v
     else:
         raise TypeError("do not know how to calculate crossproduct of Vector3 and %s"%x.__class__)
+
+def __eq__(self, x):
+    if isinstance(x, NoneType):
+        return False
+    if not isinstance(x, self.cls.Vector3):
+        raise TypeError("do not know how to compare Vector3 and %s"%x.__class__)
+    if abs(self.x - x.x) > self.cls._EPSILON: return False
+    if abs(self.y - x.y) > self.cls._EPSILON: return False
+    if abs(self.z - x.z) > self.cls._EPSILON: return False
+    return True
+
+def __ne__(self, x):
+    return not self.__eq__(x)
