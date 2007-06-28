@@ -460,7 +460,15 @@
         <option value="3" name="TC_SELF_ILLUM">Control the self illumination color.</option>
     </enum>
 
-    <!--Compounds
+    <enum name="ConsistencyType" storage="ushort">
+      Used by NiGeometryData to control the volatility of the mesh.  While they appear to be flags they behave as an enum.
+      <option value="0" name="CT_MUTABLE">Mutable Mesh</option>
+      <option value="16384" name="CT_STATIC">Static Mesh</option>
+      <option value="32768" name="CT_VOLATILE">Volatile Mesh</option>
+    </enum>
+  
+
+  <!--Compounds
         These are like C structures and are used as sub-parts of more complex
         classes when there are multiple pieces of data repeated in an array.-->
 
@@ -904,6 +912,7 @@
         <add name="Interpolation" type="KeyType" ver2="10.1.0.0">Unlike most objects, the presense of this value is not conditional on there being keys.</add>
         <add name="Keys" type="Key" arg="Interpolation" template="float" arr1="Num Keys" ver2="10.1.0.0">The morph key frames.</add>
         <add name="Unknown Int" type="uint" ver1="10.1.0.106" ver2="10.1.0.106">Unknown.</add>
+        <add name="Unknown Int" type="uint" ver1="20.0.0.4" userver="0">Unknown.</add>
         <add name="Vectors" type="Vector3" arr1="ARG">Morph vectors.</add>
     </compound>
 
@@ -1522,8 +1531,12 @@
         <add name="Unknown Byte" type="byte">Unknown byte (always zero?).</add>
         <add name="Num Interpolators" type="uint" ver1="10.1.0.106">The number of interpolator objects.</add>
         <add name="Interpolators" type="Ref" template="NiInterpolator" arr1="Num Interpolators" ver1="10.1.0.106">List of interpolators.</add>
-        <add name="Num Unknown Ints" type="uint" ver1="10.2.0.0">A count.</add>
-        <add name="Unknown Ints" type="uint" arr1="Num Unknown Ints" ver1="10.2.0.0">Unknown.</add>
+        <add name="Num Unknown Ints" type="uint" ver1="10.2.0.0" ver2="10.2.0.0">A count.</add>
+        <add name="Unknown Ints" type="uint" arr1="Num Unknown Ints" ver1="10.2.0.0" ver2="10.2.0.0">Unknown.</add>
+        <add name="Num Unknown Ints" type="uint" ver1="20.0.0.4" userver="10">A count.</add>
+        <add name="Unknown Ints" type="uint" arr1="Num Unknown Ints" ver1="20.0.0.4" userver="10">Unknown.</add>
+        <add name="Num Unknown Ints" type="uint" ver1="20.0.0.4" userver="11">A count.</add>
+        <add name="Unknown Ints" type="uint" arr1="Num Unknown Ints" ver1="20.0.0.4" userver="11">Unknown.</add>
     </niobject>
 
     <niobject name="NiSingleInterpController" abstract="1" inherit="NiInterpController">
@@ -1716,7 +1729,7 @@
             Note: for compatibility with NifTexture, set this value to either 0x00000000 or 0xFFFFFFFF.
         </add>
         <add name="UV Sets" type="TexCoord" arr1="Num UV Sets &amp; 63" arr2="Num Vertices">The UV texture coordinates. They follow the OpenGL standard: some programs may require you to flip the second coordinate.</add>
-        <add name="Unknown Short 2" type="ushort" ver1="10.0.1.0">Unknown. Usually zero.</add>
+        <add name="Consistency Flags" type="ConsistencyType" ver1="10.0.1.0" default="0">Consistency Flags</add>
         <add name="Unknown Link 1" type="Ref" template="NiObject" ver1="20.0.0.4">Unknown.</add>
     </niobject>
 
@@ -1919,8 +1932,11 @@
     </niobject>
     
     <niobject name="NiBSplineCompFloatInterpolator" abstract="0" inherit="NiBSplineFloatInterpolator" ver1="20.0.0.4">
-        Unknown.
-        <add name="Unknown Floats" type="float" arr1="4">Unknown.</add>
+      Unknown.
+      <add name="Base" type="float">Base value when curve not defined.</add>
+      <add name="Offset" type="uint">Starting offset for the data. (USHRT_MAX for no data.)</add>
+      <add name="Bias" type="float">Bias</add>
+      <add name="Multiplier" type="float">Multiplier</add>
     </niobject>
 
     <niobject name="NiBSplinePoint3Interpolator" abstract="1" inherit="NiBSplineInterpolator" ver1="20.0.0.4">
