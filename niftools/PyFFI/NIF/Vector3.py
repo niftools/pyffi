@@ -40,6 +40,8 @@
 # ***** END LICENCE BLOCK *****
 # --------------------------------------------------------------------------
 
+from types import *
+
 def asList(self):
     return [self.x, self.y, self.z]
 
