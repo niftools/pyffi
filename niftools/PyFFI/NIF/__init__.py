@@ -226,6 +226,7 @@ class NifFormat(object):
     float = Common.Float
     BlockTypeIndex = Common.UShort
     StringOffset = Common.UInt
+    StringIndex = Common.UInt
 
 
 
@@ -455,12 +456,12 @@ class NifFormat(object):
         def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
             f.write(struct.pack('<I', version))
 
-    class string(BasicBase):
+    class SizedString(BasicBase):
         """Basic type for strings.
 
         >>> from tempfile import TemporaryFile
         >>> f = TemporaryFile()
-        >>> s = NifFormat.string()
+        >>> s = NifFormat.SizedString()
         >>> f.write('\\x07\\x00\\x00\\x00abcdefg')
         >>> f.seek(0)
         >>> s.read(f = f)
@@ -470,7 +471,7 @@ class NifFormat(object):
         >>> s.setValue('Hi There')
         >>> s.write(f = f)
         >>> f.seek(0)
-        >>> m = NifFormat.string()
+        >>> m = NifFormat.SizedString()
         >>> m.read(f = f)
         >>> str(m)
         'Hi There'
@@ -525,9 +526,13 @@ class NifFormat(object):
             f.write(self._x + '\x00')
 
     # other types with internal implementation
-    class FilePath(string):
+    class FilePath(SizedString):
         pass
 
+    # this is a temporary hack to make the nif.xml work
+    # TODO: upgrade this type to work with versions >= 20.1.0.3 as well
+    class string(SizedString):
+        pass
 
 
     # exceptions
@@ -631,7 +636,7 @@ class NifFormat(object):
 
         if version < 0x0303000D:
             # skip 'Top Level Object' block type
-            top_level_str = cls.string()
+            top_level_str = cls.SizedString()
             top_level_str.read(version, user_version, f, link_stack, None)
             top_level_str = str(top_level_str)
             if not top_level_str == "Top Level Object":
@@ -646,7 +651,7 @@ class NifFormat(object):
                         raise cls.NifError('non-zero block tag 0x%08X at 0x%08X)'%(dummy, f.tell()))
                 block_type = hdr.blockTypes[hdr.blockTypeIndex[block_num]]
             else:
-                block_type = cls.string()
+                block_type = cls.SizedString()
                 block_type.read(version, user_version, f, link_stack, None)
                 block_type = str(block_type)
             # get the block index
@@ -754,7 +759,7 @@ class NifFormat(object):
         # write the file
         hdr.write(version, user_version, f, block_index_dct, None)
         if version < 0x0303000D:
-            s = cls.string()
+            s = cls.SizedString()
             s.setValue("Top Level Object")
             s.write(version, user_version, f, block_index_dct, None)
         for block in block_list:
@@ -763,7 +768,7 @@ class NifFormat(object):
                     f.write('\x00\x00\x00\x00') # write zero dummy separator
             else:
                 # write block type string
-                s = cls.string()
+                s = cls.SizedString()
                 assert(block_type_list[block_type_dct[block]] == block.__class__.__name__) # debug
                 s.setValue(block.__class__.__name__)
                 s.write(version, user_version, f, block_index_dct, None)
@@ -775,7 +780,7 @@ class NifFormat(object):
             # write block
             block.write(version, user_version, f, block_index_dct, None)
         if version < 0x0303000D:
-            s = cls.string()
+            s = cls.SizedString()
             s.setValue("End Of File")
             s.write(version, user_version, f, block_index_dct, None)
         ftr.write(version, user_version, f, block_index_dct, None)

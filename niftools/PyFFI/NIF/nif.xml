@@ -23,6 +23,7 @@
     <version num="10.2.0.0">Civilization IV, Oblivion</version>
     <version num="20.0.0.4">Civilization IV, Oblivion</version>
     <version num="20.0.0.5">Oblivion</version>
+    <version num="20.1.0.3">Megami Tensei: Imagine</version>
 
     <!--Basic Types-->
 
@@ -105,7 +106,11 @@
         A 32-bit unsigned integer, used to refer to strings in a NiStringPalette.
     </basic>
 
-    <!--Enumerations
+    <basic name="StringIndex" count="0" niflibtype="unsigned int" nifskopetype="stringindex">
+        A 32-bit unsigned integer, used to refer to strings in the header.
+    </basic>
+
+ <!--Enumerations
         These are like C enums and consist of a list of options.  They can appear
         as parts of compounts or niobjects.-->
 
@@ -472,6 +477,18 @@
         These are like C structures and are used as sub-parts of more complex
         classes when there are multiple pieces of data repeated in an array.-->
 
+    <compound name="SizedString" nifskopetype="sizedstring">
+        A string of given length.
+        <add name="Length" type="uint">The string length.</add>
+        <add name="Value" type="char" arr1="Length">The string itself.</add>
+    </compound>
+
+    <compound name="string">
+        A string type.
+        <add name="String" type="SizedString" ver2="20.0.0.5">The normal string.</add>
+        <add name="Index" type="StringIndex" ver1="20.1.0.3">The string index.</add>
+    </compound>
+
     <compound name="ByteArray" nifskopetype="bytearray">
         An array of bytes.
         <add name="Data Size" type="uint">The number of bytes in this array</add>
@@ -506,7 +523,7 @@
         <add name="a" type="byte">Alpha color component.</add>
     </compound>
 
-    <compound name="FilePath" niflibtype="string" nifskopetype="filepath">
+    <compound name="FilePath" niflibtype="sizedstring" nifskopetype="filepath">
         A string that contains the path to a file.
         <add name="Length" type="uint">The string length.</add>
         <add name="Value" type="char" arr1="Length">The string itself.</add>
@@ -663,12 +680,6 @@
         <add name="Weight" type="float">The vertex weight - between 0.0 and 1.0</add>
     </compound>
 
-    <compound name="string" niflibtype="string" nifskopetype="string">
-        A string type.
-        <add name="Length" type="uint">The string length.</add>
-        <add name="Value" type="char" arr1="Length">The string itself.</add>
-    </compound>
-
     <compound name="AVObject">
         Used in NiDefaultAVObjectPalette.
         <add name="Name" type="string">Object name.</add>
@@ -685,7 +696,7 @@
         <add name="Unknown Short 0" type="ushort" ver1="10.1.0.106" ver2="10.1.0.106">Unknown.</add>
         <add name="Priority?" type="byte" ver1="10.1.0.106" userver="10">Idle animations tend to have low values for this, and NIF objects that have high values tend to correspond with the important parts of the animation.</add>
         <add name="Priority?" type="byte" ver1="10.1.0.106" userver="11">Idle animations tend to have low values for this, and NIF objects that have high values tend to correspond with the important parts of the animation.</add>
-        <add name="String Palette" type="Ref" template="NiStringPalette" ver1="10.2.0.0">Refers to the NiStringPalette which contains the name of the controlled NIF object.</add>
+        <add name="String Palette" type="Ref" template="NiStringPalette" ver1="10.2.0.0" ver2="20.0.0.5">Refers to the NiStringPalette which contains the name of the controlled NIF object.</add>
         <add name="Node Name" type="string" ver1="10.1.0.106" ver2="10.1.0.106">The name of the animated node.</add>
         <add name="Node Name Offset" type="StringOffset" ver1="10.2.0.0">Offset in the string palette where the name of the controlled node (NiNode, NiTriShape, ...) starts.</add>
         <add name="Property Type" type="string" ver1="10.1.0.106" ver2="10.1.0.106">Name of the property (NiMaterialProperty, ...), if this controller controls a property.</add>
@@ -717,14 +728,17 @@
 	<add name="Export Info" type="ExportInfo" ver1="10.0.1.2" ver2="10.0.1.2" />
 	<add name="Export Info" type="ExportInfo" cond="User Version != 0" ver1="10.1.0.0" />
         <add name="Num Block Types" type="ushort" ver1="10.0.1.0">Number of object types in this NIF file.</add>
-        <add name="Block Types" type="string" arr1="Num Block Types" ver1="10.0.1.0">List of all object types used in this NIF file.</add>
+        <add name="Block Types" type="SizedString" arr1="Num Block Types" ver1="10.0.1.0">List of all object types used in this NIF file.</add>
         <add name="Block Type Index" type="BlockTypeIndex" arr1="Num Blocks" ver1="10.0.1.0">Maps file objects on their corresponding type: first file object is of type object_types[object_type_index[0]], the second of object_types[object_type_index[1]], etc.</add>
+        <add name="Num Strings" type="uint" ver1="20.1.0.3">Number of strings.</add>
+        <add name="Max String Length" type="uint" ver1="20.1.0.3">Maximum string length.</add>
+        <add name="Strings" type="SizedString" arr1="Num Strings" ver1="20.1.0.3">Strings.</add>
         <add name="Unknown Int 2" type="uint" default="0" ver1="10.0.1.0">Unknown.</add>
     </compound>
 
     <compound name="StringPalette" nifskopetype="stringpalette">
         A list of \\0 terminated strings.
-        <add name="Palette" type="string">A bunch of 0x00 seperated strings.</add>
+        <add name="Palette" type="SizedString">A bunch of 0x00 seperated strings.</add>
         <add name="Length" type="uint">Length of the palette string is repeated here.</add>
     </compound>
 
@@ -817,9 +831,10 @@
     <compound name="TexDesc">
         Texture description.
         <add name="Source" type="Ref" template="NiSourceTexture">NiSourceTexture object index.</add>
-        <add name="Clamp Mode" type="TexClampMode" default="WRAP_S_WRAP_T">Determines how UV coordinaes that are outside the 0-1 range will be mapped to the texture.</add>
-        <add name="Filter Mode" type="TexFilterMode" default="FILTER_TRILERP">Determines how the texture will be scaled up and down.</add>
-        <add name="UV Set" type="uint" default="0">The texture coordinate set in NiGeometryData that this texture slot will use.</add>
+        <add name="Clamp Mode" type="TexClampMode" default="WRAP_S_WRAP_T" ver2="20.0.0.5">0=clamp S clamp T, 1=clamp S wrap T, 2=wrap S clamp T, 3=wrap S wrap T</add>
+        <add name="Filter Mode" type="TexFilterMode" default="FILTER_TRILERP" ver2="20.0.0.5">0=nearest, 1=bilinear, 2=trilinear, 3=..., 4=..., 5=...</add>
+        <add name="Flags" type="Flags" ver1="20.1.0.3">Texture mode flags.</add>
+        <add name="UV Set" type="uint" default="0" ver2="20.0.0.5">The texture coordinate set in NiGeometryData that this texture slot will use.</add>
         <add name="PS2 L" type="ushort" default="0" ver2="10.2.0.0">0?</add>
         <add name="PS2 K" type="ushort" default="0xFFB5" ver2="10.2.0.0">0xFFB5?</add>
         <add name="Unknown1" type="ushort" ver2="4.1.0.12">Unknown, 0 or 0x0101?</add>
@@ -1954,9 +1969,10 @@
 
     <niobject name="NiBSplineCompTransformInterpolator" abstract="0" inherit="NiBSplineTransformInterpolator" ver1="20.0.0.4">
         Unknown.
-        <add name="Translation" type="Vector3">Base translation when translate curve not defined.</add>
-        <add name="Rotation" type="Quaternion">Base rotation when rotation curve not defined.</add>
-        <add name="Scale" type="float">Base scale when scale curve not defined.</add>
+        <add name="Translation" type="Vector3" ver2="20.0.0.5">Base translation when translate curve not defined.</add>
+        <add name="Rotation" type="Quaternion" ver2="20.0.0.5">Base rotation when rotation curve not defined.</add>
+        <add name="Scale" type="float" ver2="20.0.0.5">Base scale when scale curve not defined.</add>
+        <add name="Translation" type="short" arr1="4" arr2="4" ver1="20.1.0.3">Transformation matrix using shorts?</add>
         <add name="Translate Offset" type="uint">Starting offset for the translation data. (USHRT_MAX for no data.)</add>
         <add name="Rotate Offset" type="uint">Starting offset for the rotation data. (USHRT_MAX for no data.)</add>
         <add name="Scale Offset" type="uint">Starting offset for the scale data. (USHRT_MAX for no data.)</add>
@@ -2037,7 +2053,7 @@
         <add name="Unknown Byte" type="byte" ver1="10.1.0.106" ver2="10.1.0.106">Unknown.</add>
         <add name="Manager" type="Ptr" template="NiControllerManager" ver1="10.1.0.106">Refers to NiControllerManager which references this object, if any.</add>
         <add name="Target Name" type="string" ver1="10.1.0.106">Name of target node Controller acts on.</add>
-        <add name="String Palette" type="Ref" template="NiStringPalette" ver1="10.2.0.0">Refers to NiStringPalette.</add>
+        <add name="String Palette" type="Ref" template="NiStringPalette" ver1="10.2.0.0" ver2="20.0.0.5">Refers to NiStringPalette.</add>
     </niobject>
 
     <niobject name="NiAVObjectPalette" abstract="1" inherit="NiObject">
@@ -2728,7 +2744,8 @@
         Extra data, used to name different animation sequences.
         <add name="Unknown Int 1" type="uint" ver2="4.2.2.0">Unknown.  Always equals zero in all official files.</add>
         <add name="Num Text Keys" type="uint">The number of text keys that follow.</add>
-        <add name="Text Keys" type="Key" arg="1" template="string" arr1="Num Text Keys">List of textual notes and at which time they take effect. Used for designating the start and stop of animations and the triggering of sounds.</add>
+        <add name="Text Keys" type="Key" arg="1" template="SizedString" arr1="Num Text Keys" ver2="20.0.0.5">List of textual notes and at which time they take effect. Used for designating the start and stop of animations and the triggering of sounds.</add>
+        <add name="Text Keys" type="Key" arg="1" template="StringIndex" arr1="Num Text Keys" ver1="20.1.0.3">List of textual notes and at which time they take effect. Used for designating the start and stop of animations and the triggering of sounds.</add>
     </niobject>
 
     <niobject name="NiTextureEffect" abstract="0" inherit="NiDynamicEffect">
@@ -2780,7 +2797,8 @@
     <niobject name="NiTexturingProperty" abstract="0" inherit="NiProperty">
         Describes an object&#039;s textures.
         <add name="Flags" type="Flags" ver2="10.0.1.2">Property flags.</add>
-        <add name="Apply Mode" type="ApplyMode" default="2">Determines how the texture will be applied.  Seems to have special functions in Oblivion.</add>
+        <add name="Flags" type="Flags" ver1="20.1.0.3">Property flags.</add>
+        <add name="Apply Mode" type="ApplyMode" default="2" ver2="20.0.0.5">Determines how the texture will be applied.  Seems to have special functions in Oblivion.</add>
         <add name="Texture Count" type="uint" default="7">Number of textures. Always 7 in versions &lt; 20.0.0.4. Can also be 8 in &gt;= 20.0.0.4.</add>
         <add name="Has Base Texture" type="bool">Do we have a base texture?</add>
         <add name="Base Texture" type="TexDesc" cond="Has Base Texture != 0">The base texture.</add>
@@ -2885,8 +2903,11 @@
     <niobject name="NiVertexColorProperty" abstract="0" inherit="NiProperty">
         Property of vertex colors. This object is referred to by the root object of the NIF file whenever some NiTriShapeData object has vertex colors with non-default settings; if not present, vertex colors have vertex_mode=2 and lighting_mode=1.
         <add name="Flags" type="Flags">Property flags.</add>
-        <add name="Vertex Mode" type="VertMode">Determines how vertex and material colors are mixed.</add>
-        <add name="Lighting Mode" type="LightMode">The light mode.</add>
+        <add name="Vertex Mode" type="VertMode" ver2="20.0.0.5">Determines how vertex and material colors are mixed.
+            related gl function: glColorMaterial
+            In Flags from version 20.1.0.3 onwards.
+        </add>
+        <add name="Lighting Mode" type="LightMode" ver2="20.0.0.5">The light mode. In Flags from 20.1.0.3 on.</add>
     </niobject>
 
     <niobject name="NiVertWeightsExtraData" abstract="0" inherit="NiExtraData">
@@ -2918,8 +2939,8 @@
             Bit 0 enables the z test
             Bit 1 controls wether the Z buffer is read only (0) or read/write (1)
         </add>
-        <add name="Function" type="CompareMode" default="3" ver1="4.1.0.12">
-            Z-Test function (see: glDepthFunc)
+        <add name="Function" type="CompareMode" default="3" ver1="4.1.0.12" ver2="20.0.0.5">
+            Z-Test function (see: glDepthFunc). In Flags from 20.1.0.3 on.
         </add>
     </niobject>
 
