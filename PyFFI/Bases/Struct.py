@@ -1,6 +1,7 @@
 # --------------------------------------------------------------------------
 # PyFFI.Bases.Struct
-# Implements class for struct types (xml tags <struct> and <niblock>).
+# Implements class for struct types (xml tags <struct>, <compound>
+# and <niblock>).
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -47,6 +48,13 @@ from Array import Array
 from types import *
 from functools import partial
 
+
+
+# TODO find a general purpose mechanism to unify the getRefs getLinks and
+# getStrings stuff
+
+
+
 # This metaclass checks for the presence of an _attrs and _isTemplate
 # attributes. For each attribute in _attrs, an
 # <attrname> property is generated which gets and sets basic types,
@@ -59,9 +67,10 @@ class _MetaStructBase(type):
             raise TypeError(str(cls) + ': missing _attrs attribute')
         if not dct.has_key('_isTemplate'):
             raise TypeError(str(cls) + ': missing _isTemplate attribute')
-        # hasLinks and hasRefs, used for optimization of fixLinks, getLinks, and getRefs
+        # hasLinks, hasRefs, hasStrings, used for optimization of fixLinks, getLinks, getRefs, and getStrings
         cls._hasLinks = getattr(cls, '_hasLinks', False) # does the type contain a Ref or a Ptr?
         cls._hasRefs = getattr(cls, '_hasRefs', False) # does the type contain a Ref?
+        cls._hasStrings = getattr(cls, '_hasStrings', False) # does the type contain a strng?
         for attrname, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in dct['_attrs']:
             if issubclass(typ, BasicBase) and arr1 == None:
                 # get and set basic attributes
@@ -80,7 +89,7 @@ class _MetaStructBase(type):
                 setattr(cls, attrname, property(
                     partial(StructBase.getAttribute, name = attrname),
                     doc=doc))
-            # check for links and refs
+            # check for links and refs and strings
             if not cls._hasLinks:
                 if typ != type(None): # templates!
                     if typ._hasLinks:
@@ -92,6 +101,13 @@ class _MetaStructBase(type):
                 if typ != type(None):
                     if typ._hasRefs:
                         cls._hasRefs = True
+                #else:
+                #    cls._hasRefs = True # dito, see comment above
+
+            if not cls._hasStrings:
+                if typ != type(None):
+                    if typ._hasStrings:
+                        cls._hasStrings = True
                 #else:
                 #    cls._hasRefs = True # dito, see comment above
         # precalculate the attribute list
@@ -227,7 +243,7 @@ class StructBase(object):
                 s += '* ' + str(name) + ' : ' + attr_str_lines[0] + '\n'
         return s
 
-    def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
+    def read(self, version = -1, user_version = 0, f = None, link_stack = [], string_list = [], argument = None):
         self.arg = argument
         for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
             if ver1:
@@ -241,9 +257,9 @@ class StructBase(object):
             if arg != None:
                 if not isinstance(arg, (int, long)):
                     arg = getattr(self, arg)
-            getattr(self, "_" + name + "_value_").read(version, user_version, f, link_stack, arg)
+            getattr(self, "_" + name + "_value_").read(version, user_version, f, link_stack, string_list, arg)
 
-    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
+    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
         self.arg = argument
         for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
             if ver1:
@@ -257,7 +273,7 @@ class StructBase(object):
             if arg != None:
                 if not isinstance(arg, (int, long)):
                     arg = getattr(self, arg)
-            getattr(self, "_" + name + "_value_").write(version, user_version, f, block_index_dct, arg)
+            getattr(self, "_" + name + "_value_").write(version, user_version, f, block_index_dct, string_list, arg)
 
     def fixLinks(self, version, user_version, block_dct, link_stack):
         for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
@@ -286,6 +302,21 @@ class StructBase(object):
                 if not cond.eval(self): continue
             links.extend(getattr(self, "_" + name + "_value_").getLinks(version, user_version))
         return links
+
+    def getStrings(self, version, user_version):
+        strings = []
+        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
+            if not typ._hasStrings: continue
+            if ver1:
+                if version < ver1: continue
+            if ver2:
+                if version > ver2: continue
+            if userver:
+                if user_version != userver: continue
+            if cond != None:
+                if not cond.eval(self): continue
+            strings.extend(getattr(self, "_" + name + "_value_").getStrings())
+        return strings
 
     def getRefs(self):
         links = []

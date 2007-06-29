@@ -96,8 +96,8 @@ print blk.find(block_name = "hello world")
 print "finding time controller..."
 print blk.find(block_type = NifFormat.NiTimeController)
 
-print blk.getLinks(0x14000005, 11)
-print ctrl.getLinks(0x14000005, 11)
+print blk.getLinks(0x14010003, 0)
+print ctrl.getLinks(0x14010003, 0)
 print blk.getRefs()
 print ctrl.getRefs()
 
@@ -109,7 +109,7 @@ print data.findChain(ctrl) # []
 print "Writing nif file"
 
 f = open("test.nif", "wb")
-NifFormat.write(0x14000005, 11, f, [root, NifFormat.NiNode()])
+NifFormat.write(0x14010003, 11, f, [root, NifFormat.NiNode()])
 
 # reading a nif file
 
@@ -127,7 +127,7 @@ try:
             print "reading nif file (version 0x%08X)"%version
             NifFormat.read(version, user_version, buffer)
         except:
-            HexDump(buffer)
+            hexDump(buffer)
             raise
     elif version == -1:
         print 'nif version not supported'

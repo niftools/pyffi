@@ -175,7 +175,7 @@ class Array(_ListWrap):
                         e = self._elementType(self._elementTypeTemplate, self._elementTypeArgument)
                         el.append(e)
 
-    def read(self, version, user_version, f, link_stack, argument):
+    def read(self, version, user_version, f, link_stack, string_list, argument):
         len1 = self._len1()
         if len1 > 1000000: raise ValueError('array too long')
         self._elementTypeArgument = argument
@@ -192,18 +192,18 @@ class Array(_ListWrap):
                 el = _ListWrap(self._elementType)
                 for j in xrange(len2i):
                     e = self._elementType(self._elementTypeTemplate, self._elementTypeArgument)
-                    e.read(version, user_version, f, link_stack, self._elementTypeArgument)
+                    e.read(version, user_version, f, link_stack, string_list, self._elementTypeArgument)
                     el.append(e)
                 self.append(el)
 
-    def write(self, version, user_version, f, block_index_dct, arg):
+    def write(self, version, user_version, f, block_index_dct, string_list, arg):
         len1 = self._len1()
         if len1 != self.__len__():
             raise ValueError('array size different from to field describing number of elements')
         if len1 > 1000000: raise ValueError('array too long')
         if self._count2 == None:
             for e in list.__iter__(self):
-                e.write(version, user_version, f, block_index_dct, self._elementTypeArgument)
+                e.write(version, user_version, f, block_index_dct, string_list, self._elementTypeArgument)
         else:
             for i, el in enumerate(list.__iter__(self)):
                 len2i = self._len2(i)
@@ -211,7 +211,7 @@ class Array(_ListWrap):
                     raise ValueError('array size different from to field describing number of elements')
                 if len2i > 1000000: raise ValueError('array too long')
                 for e in list.__iter__(el):
-                    e.write(version, user_version, f, block_index_dct, self._elementTypeArgument)
+                    e.write(version, user_version, f, block_index_dct, string_list, self._elementTypeArgument)
 
     def fixLinks(self, version, user_version, block_dct, link_stack):
         if not self._elementType._hasLinks: return
@@ -234,6 +234,18 @@ class Array(_ListWrap):
                 for e in list.__iter__(el):
                     links.extend(e.getLinks(version, user_version))
         return links
+
+    def getStrings(self, version, user_version):
+        strings = []
+        if not self._elementType._hasStrings: return strings
+        if self._count2 == None:
+            for e in list.__iter__(self):
+                strings.extend(e.getStrings(version, user_version))
+        else:
+            for el in list.__iter__(self):
+                for e in list.__iter__(el):
+                    strings.extend(e.getStrings(version, user_version))
+        return strings
 
     def getRefs(self):
         links = []
