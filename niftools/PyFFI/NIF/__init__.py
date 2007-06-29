@@ -515,9 +515,7 @@ class NifFormat(object):
             self._x = str(value)
 
         def __str__(self):
-            s = self._x
-            if not s: return '<EMPTY STRING>'
-            return s
+            return self._x
 
         def read(self, version = -1, user_version = 0, f = None, link_stack = [], string_list = [], argument = None):
             n, = struct.unpack('<B', f.read(1))
@@ -534,28 +532,37 @@ class NifFormat(object):
     class string(SizedString):
         _hasStrings = True
         def read(self, version = -1, user_version = 0, f = None, link_stack = [], string_list = [], argument = None):
-            n, = struct.unpack('<I', f.read(4))
+            n, = struct.unpack('<i', f.read(4))
             if version >= 0x14010003:
-                try:
-                    self._x = string_list[n]
-                except IndexError:
-                    raise ValueError('string index too large (%i)'%n)
+                if n == -1:
+                    self._x = ''
+                else:
+                    try:
+                        self._x = string_list[n]
+                    except IndexError:
+                        raise ValueError('string index too large (%i)'%n)
             else:
                 if n > 10000: raise ValueError('string too long (0x%08X at 0x%08X)'%(n, f.tell()))
                 self._x = f.read(n)
 
         def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
             if version >= 0x14010003:
-                try:
-                    f.write(struct.pack('<I', string_list.index(self._x)))
-                except ValueError:
-                    raise ValueError("string '%s' not in string list"%self._x)
+                if self._x == '':
+                    f.write(struct.pack('<i', -1))
+                else:
+                    try:
+                        f.write(struct.pack('<i', string_list.index(self._x)))
+                    except ValueError:
+                        raise ValueError("string '%s' not in string list"%self._x)
             else:
                 f.write(struct.pack('<I', len(self._x)))
                 f.write(self._x)
 
         def getStrings(self, version = -1, user_version = 0):
-            return [self._x]
+            if self._x != '':
+                return [self._x]
+            else:
+                return []
 
     # exceptions
     class NifError(StandardError):
@@ -660,7 +667,7 @@ class NifFormat(object):
         if version < 0x0303000D:
             # skip 'Top Level Object' block type
             top_level_str = cls.SizedString()
-            top_level_str.read(version, user_version, f, link_stack, None)
+            top_level_str.read(version, user_version, f)
             top_level_str = str(top_level_str)
             if not top_level_str == "Top Level Object":
                 raise cls.NifError("expected 'Top Level Object' but got '%s' instead"%top_level_str)
@@ -725,7 +732,7 @@ class NifFormat(object):
 
         # read footer
         ftr = cls.Footer()
-        ftr.read(version, user_version, f, link_stack, None)
+        ftr.read(version, user_version, f, link_stack, string_list, None)
 
         # check if we are at the end of the file
         if f.read(1) != '':
