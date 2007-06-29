@@ -68,6 +68,7 @@ class NifFormat(object):
     0x0A020000
     0x14000004
     0x14000005
+    0x14010003
     >>> for game, versions in sorted(NifFormat.games.items(), key=lambda x: x[0]):
     ...     print game,
     ...     for vnum in versions:
@@ -80,6 +81,7 @@ class NifFormat(object):
     Freedom Force 0x04000000 0x04000002
     Freedom Force vs. the 3rd Reich 0x0A010000
     Kohan 2 0x0A010000
+    Megami Tensei: Imagine 0x14010003
     Morrowind 0x04000002
     Oblivion 0x0303000D 0x0A000102 0x0A01006A 0x0A020000 0x14000004 0x14000005
     Star Trek: Bridge Commander 0x03000000 0x03010000
@@ -263,14 +265,14 @@ class NifFormat(object):
             else:
                 self._x = False
 
-        def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
+        def read(self, version = -1, user_version = 0, f = None, link_stack = [], string_list = [], argument = None):
             if version > 0x04000002:
                 value, = struct.unpack('<B', f.read(1))
             else:
                 value, = struct.unpack('<I', f.read(4))
             self._x = bool(value)
 
-        def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
+        def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
             if version > 0x04000002:
                 f.write(struct.pack('<B', int(self._x)))
             else:
@@ -299,12 +301,12 @@ class NifFormat(object):
                     raise TypeError('expected an instance of %s but got instance of %s'%(self._template, value.__class__))
                 self._x = value
 
-        def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
+        def read(self, version = -1, user_version = 0, f = None, link_stack = [], string_list = [], argument = None):
             self._x = None # fixLinks will set this field
             block_index, = struct.unpack('<i', f.read(4))
             link_stack.append(block_index)
 
-        def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
+        def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
             if self._x == None: # link by block number
                 if version >= 0x0303000D:
                     f.write('\xff\xff\xff\xff') # link by number
@@ -388,10 +390,10 @@ class NifFormat(object):
             if not s: return '<EMPTY STRING>'
             return s
 
-        def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
+        def read(self, version = -1, user_version = 0, f = None, link_stack = [], string_list = [], argument = None):
             self._x = f.readline().rstrip('\x0a')
 
-        def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
+        def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
             f.write("%s\x0a"%self._x)
 
     class HeaderString(BasicBase):
@@ -401,13 +403,13 @@ class NifFormat(object):
         def __str__(self):
             return 'NetImmerse/Gamebryo File Format, Version x.x.x.x'
 
-        def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
+        def read(self, version = -1, user_version = 0, f = None, link_stack = [], string_list = [], argument = None):
             version_string = self.versionString(version)
             s = f.read(len(version_string) + 1)
             if s != version_string + '\x0a':
                 raise ValueError("invalid NIF header: expected '%s' but got '%s'"%(version_string, s[:-1]))
 
-        def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
+        def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
             f.write(self.versionString(version) + '\x0a')
 
         @staticmethod
@@ -448,12 +450,12 @@ class NifFormat(object):
         def __str__(self):
             return 'x.x.x.x'
 
-        def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
+        def read(self, version = -1, user_version = 0, f = None, link_stack = [], string_list = [], argument = None):
             ver, = struct.unpack('<I', f.read(4))
             if ver != version:
                 raise ValueError('invalid version number: expected 0x%08X but got 0x%08X'%(version, ver))
 
-        def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
+        def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
             f.write(struct.pack('<I', version))
 
     class SizedString(BasicBase):
@@ -491,12 +493,12 @@ class NifFormat(object):
             if not s: return '<EMPTY STRING>'
             return s
 
-        def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
+        def read(self, version = -1, user_version = 0, f = None, link_stack = [], string_list = [], argument = None):
             n, = struct.unpack('<I', f.read(4))
             if n > 10000: raise ValueError('string too long (0x%08X at 0x%08X)'%(n, f.tell()))
             self._x = f.read(n)
 
-        def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
+        def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
             f.write(struct.pack('<I', len(self._x)))
             f.write(self._x)
 
@@ -517,11 +519,11 @@ class NifFormat(object):
             if not s: return '<EMPTY STRING>'
             return s
 
-        def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
+        def read(self, version = -1, user_version = 0, f = None, link_stack = [], string_list = [], argument = None):
             n, = struct.unpack('<B', f.read(1))
             self._x = f.read(n).rstrip('\x00')
 
-        def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
+        def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
             f.write(struct.pack('<B', len(self._x)+1))
             f.write(self._x + '\x00')
 
@@ -529,11 +531,27 @@ class NifFormat(object):
     class FilePath(SizedString):
         pass
 
-    # this is a temporary hack to make the nif.xml work
-    # TODO: upgrade this type to work with versions >= 20.1.0.3 as well
     class string(SizedString):
-        pass
+        def read(self, version = -1, user_version = 0, f = None, link_stack = [], string_list = [], argument = None):
+            n, = struct.unpack('<I', f.read(4))
+            if version >= 0x14010003:
+                try:
+                    self._x = string_list[n]
+                except IndexError:
+                    raise ValueError('string index too large (%i)'%n)
+            else:
+                if n > 10000: raise ValueError('string too long (0x%08X at 0x%08X)'%(n, f.tell()))
+                self._x = f.read(n)
 
+        def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
+            if version >= 0x14010003:
+                try:
+                    f.write(struct.pack('<I', string_list.index(self._x)))
+                except ValueError:
+                    raise ValueError("string '%s' not in string list"%self._x)
+            else:
+                f.write(struct.pack('<I', len(self._x)))
+                f.write(self._x)
 
     # exceptions
     class NifError(StandardError):
