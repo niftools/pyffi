@@ -532,6 +532,7 @@ class NifFormat(object):
         pass
 
     class string(SizedString):
+        _hasStrings = True
         def read(self, version = -1, user_version = 0, f = None, link_stack = [], string_list = [], argument = None):
             n, = struct.unpack('<I', f.read(4))
             if version >= 0x14010003:
@@ -552,6 +553,9 @@ class NifFormat(object):
             else:
                 f.write(struct.pack('<I', len(self._x)))
                 f.write(self._x)
+
+        def getStrings(self, version = -1, user_version = 0):
+            return [self._x]
 
     # exceptions
     class NifError(StandardError):
@@ -642,12 +646,13 @@ class NifFormat(object):
             print "reading block at 0x%08X..."%f.tell()
         hdr = cls.Header()
         link_stack = [] # list of indices, as they are added to the stack
-        hdr.read(version, user_version, f, link_stack, None)
+        hdr.read(version, user_version, f, link_stack, [], None)
         assert(link_stack == []) # there should not be any links in the header
         if verbose >= 2:
             print hdr
 
         # read the blocks
+        string_list = [ str(s) for s in hdr.strings ]
         block_dct = {} # maps block index to actual block
         block_list = [] # records all blocks as read from the nif file in the proper order
         block_num = 0 # the current block numner
@@ -670,7 +675,7 @@ class NifFormat(object):
                 block_type = hdr.blockTypes[hdr.blockTypeIndex[block_num]]
             else:
                 block_type = cls.SizedString()
-                block_type.read(version, user_version, f, link_stack, None)
+                block_type.read(version, user_version, f)
                 block_type = str(block_type)
             # get the block index
             if version >= 0x0303000D:
@@ -696,7 +701,7 @@ class NifFormat(object):
             if verbose >= 1:
                 print "reading block at 0x%08X..."%f.tell()
             try:
-                block.read(version, user_version, f, link_stack, None)
+                block.read(version, user_version, f, link_stack, string_list, None)
             except:
                 if verbose >= 1:
                     print "reading failed"
@@ -749,8 +754,12 @@ class NifFormat(object):
         block_index_dct = {} # maps block to block index
         block_type_list = [] # list of all block type strings
         block_type_dct = {} # maps block to block type string index
+        string_list = []
         for root in roots:
             cls._makeBlockList(version, user_version, root, block_list, block_index_dct, block_type_list, block_type_dct)
+            for block in root.tree():
+                string_list.extend(block.getStrings(version, user_version))
+        string_list = list(set(string_list)) # ensure unique elements
 
         # set up header
         hdr = cls.Header()
@@ -764,6 +773,14 @@ class NifFormat(object):
         hdr.blockTypeIndex.updateSize()
         for i, block in enumerate(block_list):
             hdr.blockTypeIndex[i] = block_type_dct[block]
+        hdr.numStrings = len(string_list)
+        if string_list:
+            hdr.maxStringLength = max([len(s) for s in string_list])
+        else:
+            hdr.maxStringLength = 0
+        hdr.strings.updateSize()
+        for i, s in enumerate(string_list):
+            hdr.strings[i] = s
         if verbose >= 2:
             print hdr
 
@@ -779,7 +796,7 @@ class NifFormat(object):
         if version < 0x0303000D:
             s = cls.SizedString()
             s.setValue("Top Level Object")
-            s.write(version, user_version, f, block_index_dct, None)
+            s.write(version, user_version, f)
         for block in block_list:
             if version >= 0x05000001:
                 if version <= 0x0A01006A:
@@ -789,19 +806,19 @@ class NifFormat(object):
                 s = cls.SizedString()
                 assert(block_type_list[block_type_dct[block]] == block.__class__.__name__) # debug
                 s.setValue(block.__class__.__name__)
-                s.write(version, user_version, f, block_index_dct, None)
+                s.write(version, user_version, f)
             # write block index
             if verbose >= 1:
                 print "writing block %i..."%block_index_dct[block]
             if version < 0x0303000D:
                 f.write(struct.pack('<i', block_index_dct[block])[0])
             # write block
-            block.write(version, user_version, f, block_index_dct, None)
+            block.write(version, user_version, f, block_index_dct, string_list, None)
         if version < 0x0303000D:
             s = cls.SizedString()
             s.setValue("End Of File")
             s.write(version, user_version, f, block_index_dct, None)
-        ftr.write(version, user_version, f, block_index_dct, None)
+        ftr.write(version, user_version, f, block_index_dct, string_list, None)
 
     @classmethod
     def _makeBlockList(cls, version, user_version, root, block_list, block_index_dct, block_type_list, block_type_dct, reverse = False):
