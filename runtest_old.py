@@ -1,5 +1,5 @@
-from NifFormat.NifFormat import NifFormat
-from FileFormat.Utils import hexDump
+from PyFFI.NIF import NifFormat
+from PyFFI.Utils import hexDump
 
 # checking all supported versions
 
