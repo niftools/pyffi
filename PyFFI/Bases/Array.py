@@ -183,7 +183,7 @@ class Array(_ListWrap):
         if self._count2 == None:
             for i in xrange(len1):
                 e = self._elementType(self._elementTypeTemplate, self._elementTypeArgument)
-                e.read(version, user_version, f, link_stack, self._elementTypeArgument)
+                e.read(version, user_version, f, link_stack, string_list, self._elementTypeArgument)
                 self.append(e)
         else:
             for i in xrange(len1):
