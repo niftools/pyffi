@@ -227,7 +227,7 @@
     </struct>
     
     <struct name="FileSignature">
-        <add name="Signature" type="char" arr1="7">&quot;CryTek\0&quot;</add>
+        <add name="Signature" type="char" arr1="8">&quot;CryTek\0\0&quot;</add>
     </struct>
 
     <struct name="ChunkHeader">

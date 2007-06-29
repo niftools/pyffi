@@ -45,6 +45,7 @@ import struct, os, re
 from PyFFI import MetaXmlFileFormat
 from PyFFI import Utils
 from PyFFI import Common
+from PyFFI.Bases.Basic import BasicBase
 
 class CgfFormat(object):
     """Stores all information about the cgf file format."""
@@ -63,6 +64,21 @@ class CgfFormat(object):
     ushort = Common.UShort
     char = Common.Char
     float = Common.Float
+
+    class FileSignature(BasicBase):
+        def __init__(self, template = None, argument = None):
+            pass
+
+        def __str__(self):
+            return 'CryTex\x00\x00'
+
+        def read(self, version = -1, user_version = 0, f = None, link_stack = [], string_list = [], argument = None):
+            s = f.read(8)
+            if s != self.__str__():
+                raise ValueError("invalid CGF header: expected '%s' but got '%s'"%(signature_string, s))
+
+        def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
+            f.write(self.__str__())
 
     # exceptions
     class CgfError(StandardError):
@@ -102,24 +118,65 @@ class CgfFormat(object):
         """
         pos = f.tell()
         try:
-            s = f.read(7)
+            s = f.read(8)
             filetype, fileversion = struct.unpack('<II', f.read(8))
         except StandardError:
             return -2, 0
         finally:
             f.seek(pos)
-        if s != "CryTek\x00":
+        if s != "CryTek\x00\x00":
             return -2, 0
         if filetype not in [ cls.FileType.GEOM, cls.FileType.ANIM ]:
             return -1, 0
-        if fileversion not in cls.ChunkTable.versions.keys():
+        if fileversion not in cls.versions.keys():
             return -1, 0
         return filetype, fileversion
 
     @classmethod
     def read(cls, version, f, verbose = 0):
-		raise NotImplementedError
+        chunk_types = [x for x in dir(cls.ChunkType) if x[:2] != '__']
+
+        # read header
+        hdr = cls.Header()
+        hdr.read(version = version, f = f)
+
+        # read chunk table
+        f.seek(hdr.offset)
+        table = cls.chunkTable()
+        table.read(version = hdr.version, f = f)
+
+        # read the chunks
+        ids = []
+        chunks = []
+        for chunkhdr in table.chunkHeaders():
+            # check that id is unique
+            if chunkhdr.id in ids:
+                raise ValueError('chunk id %i not unique'%chunkhdr.id)
+            ids.append(chunkhdr.id)
+
+            # now read the chunks
+            # each chunk starts with a copy of chunkhdr
+            f.seek(chunkhdr.offset)
+            chunkhdr_copy = cls.ChunkHeader()
+            chunkhdr_copy.read(version = hdr.version, f = f)
+            # check that the copy is valid
+            if chunkhdr_copy.type != chunkhdr.type or chunkhdr_copy.version != chunkhdr.version or chunkhdr_copy.offset != chunkhdr.offset or chunkhdr_copy.id != chunkhdr.id:
+                raise ValueError('chunk starts with invalid header:\nexpected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
+
+            # read chunk depending on chunk type
+            for s in chunk_types:
+                if getattr(cls.ChunkType, s) == chunkhdr.type: break
+            else:
+                raise ValueError('unknown chunk type 0x%08X'%chunkhdr.type)
+            try:
+                chunk = getattr(cls, s + 'Chunk')()
+            except AttributeError:
+                continue # for now, ignore undecoded chunk types
+            chunk.read(version = chunkhdr.version, f = f)
+            chunks.append(chunk)
+
+        return chunks
 
     @classmethod
     def write(cls, version, f, chunks, verbose = 0):
-		raise NotImplementedError
+        raise NotImplementedError
