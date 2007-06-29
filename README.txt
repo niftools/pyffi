@@ -14,10 +14,10 @@ for importers and exporters.
 To use the library, the cgf.xml file (for example) should reside either in
 the module directory (following the current layout on svn), or you
 should set the CGFXMLPATH environment variable to the directory where
-nif.xml can be found. If CGFXMLPATH is set, the library will first
+cgf.xml can be found. If CGFXMLPATH is set, the library will first
 look there. The same applies to all other formats.
 
-The python files are organized as follows.
+The code is organized as follows.
 
 * Python File Format Interface - representing a file format specified by an XML
   file in Python
@@ -31,7 +31,7 @@ The python files are organized as follows.
 
     The XML handler, contains the core code that transforms the XML
     file into classes. The parser code is based on NifSkope's XML
-    parser.
+    parser (see http://niftools.sourceforge.net).
 
   - PyFFI/Bases/*
 
@@ -44,6 +44,18 @@ The python files are organized as follows.
   - PyFFI/CGF/__init__.py: instanciates classes for the CGF format
 
   - PyFFI/CGF/*.py: customization of particular blocks
+
+* NIF Format Library - similar to CGF
+
+* Utilities
+
+  - PyFFI/Utils/__init__.py: collection of random small utilities
+
+    + hexDump: dump file chunk in hexadecimal format
+
+    + walk: a variant of os.walk()
+
+    + PyTriStrip: stripifier utilities (uses a Python port of NvTriStrip)
 
 * tests
 
