@@ -102,11 +102,11 @@ class Int(BasicBase):
             raise ValueError('value out of range (%i)'%self.getValue())
         self._x = struct.pack('<' + self._struct, x)
 
-    def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
+    def read(self, version = -1, user_version = 0, f = None, link_stack = [], string_list = [], argument = None):
         # file must be an instance of the type
         self._x = f.read(self._size)
 
-    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
+    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
         f.write(self._x)
 
     def __str__(self):
@@ -154,10 +154,10 @@ class Char(BasicBase):
         assert(len(value) == 1)
         self._x = value
 
-    def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
+    def read(self, version = -1, user_version = 0, f = None, link_stack = [], string_list = [], argument = None):
         self._x = f.read(1)
 
-    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
+    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
         f.write(self._x)
 
     def __str__(self):
@@ -173,10 +173,10 @@ class Float(BasicBase):
     def setValue(self, value):
         self._x = struct.pack('<f', float(value))
 
-    def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
+    def read(self, version = -1, user_version = 0, f = None, link_stack = [], string_list = [], argument = None):
         self._x = f.read(4)
 
-    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
+    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
         f.write(self._x)
 
 ### faster calculation, slower read/write:
@@ -190,8 +190,8 @@ class Float(BasicBase):
 ##    def setValue(self, value):
 ##        self._x = float(value)
 ##
-##    def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
+##    def read(self, version = -1, user_version = 0, f = None, link_stack = [], string_list = [], argument = None):
 ##        self._x = struct.unpack('<f', f.read(4))[0]
 ##
-##    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
+##    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
 ##        f.write(struct.pack('<f', self._x))
