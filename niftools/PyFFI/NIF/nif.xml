@@ -2714,12 +2714,13 @@
         <add name="Flags" type="Flags" ver2="10.0.1.2">Property flags.</add>
         <add name="Stencil Enabled" type="byte">Enables or disables the stencil test.</add>
         <add name="Stencil Function" type="CompareMode">Selects the compare mode function.</add>
-        <add name="Stencil Ref" type="uint">Unknown.  Default is 0.</add>
-        <add name="Stencil Mask" type="uint" default="4294967295">A bit mask. The default is 0xffffffff.</add>
-        <add name="Fail Action" type="StencilAction" />
-        <add name="Z Fail Action" type="StencilAction" />
-        <add name="Pass Action" type="StencilAction" />
-        <add name="Draw Mode" type="FaceDrawMode">Used to enabled double sided faces.</add>
+        <add name="Stencil Ref" type="uint" ver2="20.0.0.5">Unknown.  Default is 0.</add>
+        <add name="Stencil Mask" type="uint" default="4294967295" ver2="20.0.0.5">A bit mask. The default is 0xffffffff.</add>
+        <add name="Fail Action" type="StencilAction" ver2="20.0.0.5"/>
+        <add name="Z Fail Action" type="StencilAction" ver2="20.0.0.5"/>
+        <add name="Pass Action" type="StencilAction" ver2="20.0.0.5"/>
+        <add name="Draw Mode" type="FaceDrawMode" ver2="20.0.0.5">Used to enabled double sided faces.</add>
+        <add name="Unknown Bytes" type="byte" arr1="5" ver1="20.1.0.3" />
     </niobject>
 
     <niobject name="NiStringExtraData" abstract="0" inherit="NiExtraData">
