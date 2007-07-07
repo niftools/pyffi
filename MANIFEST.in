@@ -1,2 +1,2 @@
-recursive-include PyFFI *.xml
+include PyFFI/NIF/nif.xml
 
