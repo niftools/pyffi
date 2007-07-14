@@ -20,7 +20,7 @@
     <version num="10.0.1.2">Oblivion</version>
     <version num="10.1.0.0">Dark Age of Camelot, Civilization IV, Freedom Force vs. the 3rd Reich, Axis and Allies, Kohan 2</version>
     <version num="10.1.0.106">Oblivion</version>
-    <version num="10.2.0.0">Civilization IV, Oblivion</version>
+    <version num="10.2.0.0">Civilization IV, Oblivion, Loki</version>
     <version num="20.0.0.4">Civilization IV, Oblivion</version>
     <version num="20.0.0.5">Oblivion</version>
     <version num="20.1.0.3">Megami Tensei: Imagine</version>
@@ -1720,7 +1720,7 @@
         <add name="Name" type="string" ver1="10.2.0.0">Name of this object.</add>
         <add name="Num Vertices" type="ushort">Number of vertices. For NiPSysData this is max particles.</add>
         <add name="Unknown Short 1" type="ushort" ver1="10.1.0.0">Unknown.</add>
-        <add name="Has Vertices" type="bool">Is the vertex array present? (Always non-zero.)</add>
+        <add name="Has Vertices" type="bool" default="1">Is the vertex array present? (Always non-zero.)</add>
         <add name="Vertices" type="Vector3" arr1="Num Vertices" cond="Has Vertices != 0">The mesh vertices.</add>
         <add name="Num UV Sets" type="ushort" ver1="10.0.1.0">The lower 6 (or less?) bits of this field represent the number of UV texture sets. The other bits are probably flag bits. For versions 10.1.0.0 and up, if bit 12 is set then extra vectors are present after the normals.</add>
         <add name="Has Normals" type="bool">Do we have lighting normals? These are essential for proper lighting: if not present, the model will only be influenced by ambient light.</add>
@@ -2190,7 +2190,7 @@
         Geometry morphing data.
         <add name="Num Morphs" type="uint">Number of morphing object.</add>
         <add name="Num Vertices" type="uint">Number of vertices.</add>
-        <add name="Unknown Byte" type="byte">This byte is always 1 in all official files.</add>
+        <add name="Unknown Byte" type="byte" default="1">This byte is always 1 in all official files.</add>
         <add name="Morphs" type="Morph" arg="Num Vertices" arr1="Num Morphs">The geometry morphing objects.</add>
     </niobject>
 
@@ -2956,6 +2956,12 @@
         <add name="Image Type" type="ImageType">The format of the raw image data.</add>
         <add name="RGB Image Data" type="ByteColor3" arr1="Width" arr2="Height" cond="Image Type == 1" >Image pixel data.</add>
         <add name="RGBA Image Data" type="ByteColor4" arr1="Width" arr2="Height" cond="Image Type == 2" >Image pixel data.</add>
+    </niobject>
+
+    <niobject name="NiSortAdjustNode" abstract="0" inherit="NiNode" ver1="10.2.0.0">
+        Unknown node.  Found in Loki.
+        <add name="Unknown Int 1" type="int" default="1">Unknown.</add>
+        <add name="Unknown Int 2" type="int" default="-1">Unknown.</add>
     </niobject>
 
 </niftoolsxml>
