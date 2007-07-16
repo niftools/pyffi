@@ -926,7 +926,7 @@
         <add name="Num Keys" type="uint" ver2="10.1.0.0">The number of morph keys that follow.</add>
         <add name="Interpolation" type="KeyType" ver2="10.1.0.0">Unlike most objects, the presense of this value is not conditional on there being keys.</add>
         <add name="Keys" type="Key" arg="Interpolation" template="float" arr1="Num Keys" ver2="10.1.0.0">The morph key frames.</add>
-        <add name="Unknown Int" type="uint" ver1="10.1.0.106" ver2="10.1.0.106">Unknown.</add>
+        <add name="Unknown Int" type="uint" ver1="10.1.0.106" ver2="10.2.0.0">Unknown.</add>
         <add name="Unknown Int" type="uint" ver1="20.0.0.4" userver="0">Unknown.</add>
         <add name="Vectors" type="Vector3" arr1="ARG">Morph vectors.</add>
     </compound>
@@ -1546,8 +1546,6 @@
         <add name="Unknown Byte" type="byte">Unknown byte (always zero?).</add>
         <add name="Num Interpolators" type="uint" ver1="10.1.0.106">The number of interpolator objects.</add>
         <add name="Interpolators" type="Ref" template="NiInterpolator" arr1="Num Interpolators" ver1="10.1.0.106">List of interpolators.</add>
-        <add name="Num Unknown Ints" type="uint" ver1="10.2.0.0" ver2="10.2.0.0">A count.</add>
-        <add name="Unknown Ints" type="uint" arr1="Num Unknown Ints" ver1="10.2.0.0" ver2="10.2.0.0">Unknown.</add>
         <add name="Num Unknown Ints" type="uint" ver1="20.0.0.4" userver="10">A count.</add>
         <add name="Unknown Ints" type="uint" arr1="Num Unknown Ints" ver1="20.0.0.4" userver="10">Unknown.</add>
         <add name="Num Unknown Ints" type="uint" ver1="20.0.0.4" userver="11">A count.</add>
@@ -1872,10 +1870,10 @@
 
     <niobject name="NiMeshPSysData" abstract="0" inherit="NiPSysData" ver1="10.1.0.0">
         Particle meshes data.
-        <add name="Modifier" type="Ref" template="NiObject" ver2="20.0.0.4">Unknown. Seems to refer to particle modifiers, however at least one file has a NiNode here.  May indicate that this is really two separate links in different versions or some other problem.</add>
+        <add name="Unknown Modifier" type="uint" ver2="20.0.0.4">Unknown. Seems to refer to particle modifiers, however at least one file has a NiNode here.  May indicate that this is really two separate links in different versions or some other problem.  Several files have number of verts here.</add>
         <add name="Unknown Byte 2" type="byte" ver1="10.2.0.0" ver2="20.0.0.4">Unknown.</add>
         <add name="Num Unknown Links" type="uint" ver1="10.2.0.0" ver2="20.0.0.4">The number of unknown links that follow.</add>
-        <add name="Unknown Links" type="Ref" template="NiObject" arr1="Num Unknown Links" ver1="10.2.0.0" ver2="20.0.0.4">Unknown. Seems to refer to particle modifiers.</add>
+        <add name="Unknown Links" type="uint" arr1="Num Unknown Links" ver1="10.2.0.0" ver2="20.0.0.4">Unknown. Seems to refer to particle modifiers.  Sometimes matches vertices count.</add>
         <add name="Num Vertices 2" type="uint" ver1="20.0.0.5">Repeat of Vertex Count?</add>
         <add name="Unknown Byte 3" type="byte" default="0" ver1="20.0.0.5">Unknown. 0?</add>
         <add name="Unknown Int 2" type="uint" default="1" ver1="20.0.0.5">Unknown.  1?</add>
@@ -1963,19 +1961,18 @@
         Unknown.
     </niobject>
 
-    <niobject name="NiBSplineTransformInterpolator" abstract="1" inherit="NiBSplineInterpolator" ver1="20.0.0.4">
-        Unknown.
+    <niobject name="NiBSplineTransformInterpolator" abstract="0" inherit="NiBSplineInterpolator" ver1="20.0.0.4">
+      Unknown.
+      <add name="Translation" type="Vector3">Base translation when translate curve not defined.</add>
+      <add name="Rotation" type="Quaternion">Base rotation when rotation curve not defined.</add>
+      <add name="Scale" type="float">Base scale when scale curve not defined.</add>
+      <add name="Translate Offset" type="uint">Starting offset for the translation data. (USHRT_MAX for no data.)</add>
+      <add name="Rotate Offset" type="uint">Starting offset for the rotation data. (USHRT_MAX for no data.)</add>
+      <add name="Scale Offset" type="uint">Starting offset for the scale data. (USHRT_MAX for no data.)</add>
     </niobject>
 
     <niobject name="NiBSplineCompTransformInterpolator" abstract="0" inherit="NiBSplineTransformInterpolator" ver1="20.0.0.4">
         Unknown.
-        <add name="Translation" type="Vector3" ver2="20.0.0.5">Base translation when translate curve not defined.</add>
-        <add name="Rotation" type="Quaternion" ver2="20.0.0.5">Base rotation when rotation curve not defined.</add>
-        <add name="Scale" type="float" ver2="20.0.0.5">Base scale when scale curve not defined.</add>
-        <add name="Translation" type="short" arr1="4" arr2="4" ver1="20.1.0.3">Transformation matrix using shorts?</add>
-        <add name="Translate Offset" type="uint">Starting offset for the translation data. (USHRT_MAX for no data.)</add>
-        <add name="Rotate Offset" type="uint">Starting offset for the rotation data. (USHRT_MAX for no data.)</add>
-        <add name="Scale Offset" type="uint">Starting offset for the scale data. (USHRT_MAX for no data.)</add>
         <add name="Translate Bias" type="float">Translate Bias</add>
         <add name="Translate Multiplier" type="float">Translate Multiplier</add>
         <add name="Rotation Bias" type="float">Rotation Bias</add>
@@ -1985,10 +1982,11 @@
     </niobject>
 
     <niobject name="NiBSplineData" abstract="0" inherit="NiObject" ver1="20.0.0.4">
-        Unknown.
-        <add name="Unknown Int" type="uint">Unknown. Zero?</add>
-        <add name="Count" type="uint">Number of Data Points</add>
-        <add name="Control Points" type="short" arr1="Count">Signed shorts representing the data from 0 to 1 (scaled by SHRT_MAX).</add>
+      Unknown.
+        <add name="Float Count" type="uint">Number of Float Data Points</add>
+        <add name="Float Control Points" type="float" arr1="Float Count">Float values representing the control data.</add>
+        <add name="Short Count" type="uint">Number of Short Data Points</add>
+        <add name="Short Control Points" type="short" arr1="Short Count">Signed shorts representing the data from 0 to 1 (scaled by SHRT_MAX).</add>
     </niobject>
 
     <niobject name="NiCamera" abstract="0" inherit="NiAVObject">
