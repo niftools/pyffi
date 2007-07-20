@@ -1,7 +1,7 @@
-# --------------------------------------------------------------------------
-# PyFFI.Common
-# Implementation of common basic types in the xml file format description.
-# --------------------------------------------------------------------------
+"""
+Implements common basic types in XML file format descriptions.
+"""
+
 # ***** BEGIN LICENSE BLOCK *****
 #
 # Copyright (c) 2007, Python File Format Interface.
@@ -38,13 +38,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENCE BLOCK *****
-# --------------------------------------------------------------------------
 
 import struct
 from Bases.Basic import BasicBase
 
 class Int(BasicBase):
-    """Basic implementation of a 32-bit signed integer type.
+    """Basic implementation of a 32-bit signed integer type. Also serves as a
+    base class for all other integer types.
 
     >>> from tempfile import TemporaryFile
     >>> tmp = TemporaryFile()
@@ -75,10 +75,10 @@ class Int(BasicBase):
     '0x44332211'
     """
     
-    _min = -0x80000000
-    _max = 0x7fffffff
-    _struct = 'i'
-    _size = 4
+    _min = -0x80000000 #: Minimum value.
+    _max = 0x7fffffff  #: Maximum value.
+    _struct = 'i'      #: Character used to represent type in struct.
+    _size = 4          #: Number of bytes.
 
     def __init__(self, template = None, argument = None):
         self._x = ''.join(['\x00' for i in xrange(self._size)])

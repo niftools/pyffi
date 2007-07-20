@@ -1,8 +1,9 @@
-# --------------------------------------------------------------------------
-# PyFFI
-# Metaclass for parses file format description in XML format.
-# Actual implementation of the parser is delegated to PyFFI.XmlHandler.
-# --------------------------------------------------------------------------
+"""
+PyFFI provides a metaclass for parsing a file format description in XML format.
+The actual implementation of the parser is delegated to PyFFI.XmlHandler.
+The most common basic types are implemented in PyFFI.Common.
+"""
+
 # ***** BEGIN LICENSE BLOCK *****
 #
 # Copyright (c) 2007, Python File Format Interface
@@ -39,11 +40,10 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENCE BLOCK *****
-# --------------------------------------------------------------------------
 
 __all__ = [ 'XmlHandler', 'Utils', 'Common', 'Bases' ]
 
-from XmlHandler import XmlHandler
+from XmlHandler import XmlSaxHandler
 
 import xml.sax
 import os.path
@@ -53,7 +53,7 @@ class MetaXmlFileFormat(type):
     file format into a bunch of classes which can be directly used to
     manipulate files in this format.
 
-    In particular, a file format corresponds to a particular class with
+    With PyFFI, a file format is implemented as a particular class with
     subclasses corresponding to different (bit)struct types,
     enum types, basic types, and aliases. See NifFormat.py for an example
     of how to use MetaXmlFileFormat.
@@ -65,10 +65,10 @@ class MetaXmlFileFormat(type):
         MetaXmlFileFormat, so upon creation of the NifFormat class,
         the __init__ function is called, with
     
-        cls   : NifFormat
-        name  : 'NifFormat'
-        bases : a tuple (object,) since NifFormat is derived from object
-        dct   : dictionary of NifFormat attributes, such as 'xmlFileName'
+        @param cls: the class created using MetaXmlFileFormat, for example NifFormat
+        @param name: the name of the class, for example 'NifFormat'
+        @param bases: the base classes, usually (object,)
+        @param dct: dictionary of class attributes, such as 'xmlFileName'
         """
 
         # consistency checks
@@ -79,7 +79,7 @@ class MetaXmlFileFormat(type):
 
         # set up XML parser
         parser = xml.sax.make_parser()
-        parser.setContentHandler(XmlHandler(cls, name, bases, dct))
+        parser.setContentHandler(XmlSaxHandler(cls, name, bases, dct))
 
         # open XML file
         if not dct.has_key('xmlFilePath'):
@@ -95,7 +95,7 @@ class MetaXmlFileFormat(type):
             else:
                 raise IOError("'%s' not found in any of the directories %s"%(dct['xmlFileName'], dct['xmlFilePath']))
 
-        # parse the XML file: control is now passed on to XmlHandler
+        # parse the XML file: control is now passed on to XmlSaxHandler
         # which takes care of the class creation
         try:
             parser.parse(f)

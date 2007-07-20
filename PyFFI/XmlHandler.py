@@ -1,8 +1,8 @@
-# --------------------------------------------------------------------------
-# PyFFI.XmlHandler
-# Parses file format description in XML format and set up representation of
-# the file format in memory, as a bunch of classes.
-# --------------------------------------------------------------------------
+"""
+Parses file format description in XML format and set up representation of
+the file format in memory, as a bunch of classes.
+"""
+
 # ***** BEGIN LICENSE BLOCK *****
 #
 # Copyright (c) 2007, Python File Format Interface
@@ -39,7 +39,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENSE BLOCK *****
-# --------------------------------------------------------------------------
 
 import xml.sax
 from types import *
@@ -52,7 +51,7 @@ from Bases.Expression import Expression
 class XmlError(Exception):
     pass
 
-class XmlHandler(xml.sax.handler.ContentHandler):
+class XmlSaxHandler(xml.sax.handler.ContentHandler):
     tagFile      = 1
     tagVersion   = 2
     tagBasic     = 3

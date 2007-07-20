@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name = "PyFFI",
-    version = "0.0",
+    version = "0.1",
     packages = ['PyFFI', 'PyFFI.Bases', 'PyFFI.Utils', 'PyFFI.NIF'],
     package_data = { '' : [ '*.xml' ] }, # include xml files
     author = "Python File Format Interface",
