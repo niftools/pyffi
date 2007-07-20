@@ -81,6 +81,7 @@ class NifFormat(object):
     Freedom Force 0x04000000 0x04000002
     Freedom Force vs. the 3rd Reich 0x0A010000
     Kohan 2 0x0A010000
+    Loki 0x0A020000
     Megami Tensei: Imagine 0x14010003
     Morrowind 0x04000002
     Oblivion 0x0303000D 0x0A000102 0x0A01006A 0x0A020000 0x14000004 0x14000005
