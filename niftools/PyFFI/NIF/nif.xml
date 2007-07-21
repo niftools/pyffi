@@ -24,6 +24,8 @@
     <version num="20.0.0.4">Civilization IV, Oblivion</version>
     <version num="20.0.0.5">Oblivion</version>
     <version num="20.1.0.3">Megami Tensei: Imagine</version>
+    <version num="20.3.0.3">Emerge</version>
+    <version num="20.3.0.6">Emerge</version>
 
     <!--Basic Types-->
 
@@ -106,11 +108,16 @@
         A 32-bit unsigned integer, used to refer to strings in a NiStringPalette.
     </basic>
 
-    <basic name="StringIndex" count="0" niflibtype="unsigned int" nifskopetype="stringindex">
+    <basic name="StringIndex" count="0" niflibtype="IndexString" nifskopetype="stringindex">
         A 32-bit unsigned integer, used to refer to strings in the header.
     </basic>
+    
+    <compound name="Char8String" count="0" niflibtype="Char8String" nifskopetype="char8string">
+        A fixed length string that is 8 bytes long.
+        <add name="Value" type="char" arr1="8">The string.</add>
+    </compound>
 
- <!--Enumerations
+    <!--Enumerations
         These are like C enums and consist of a list of options.  They can appear
         as parts of compounts or niobjects.-->
 
@@ -477,13 +484,13 @@
         These are like C structures and are used as sub-parts of more complex
         classes when there are multiple pieces of data repeated in an array.-->
 
-    <compound name="SizedString" nifskopetype="sizedstring">
+    <compound name="SizedString" niflibtype="string" nifskopetype="sizedstring">
         A string of given length.
         <add name="Length" type="uint">The string length.</add>
         <add name="Value" type="char" arr1="Length">The string itself.</add>
     </compound>
 
-    <compound name="string">
+    <compound name="string" niflibtype="IndexString" nifskopetype="string">
         A string type.
         <add name="String" type="SizedString" ver2="20.0.0.5">The normal string.</add>
         <add name="Index" type="StringIndex" ver1="20.1.0.3">The string index.</add>
@@ -523,10 +530,10 @@
         <add name="a" type="byte">Alpha color component.</add>
     </compound>
 
-    <compound name="FilePath" niflibtype="sizedstring" nifskopetype="filepath">
-        A string that contains the path to a file.
-        <add name="Length" type="uint">The string length.</add>
-        <add name="Value" type="char" arr1="Length">The string itself.</add>
+    <compound name="FilePath" niflibtype="IndexString" nifskopetype="filepath">
+      A string that contains the path to a file.
+      <add name="String" type="SizedString" ver2="20.0.0.5">The normal string.</add>
+      <add name="Index" type="StringIndex" ver1="20.1.0.3">The string index.</add>
     </compound>
 
     <compound name="Footer">
@@ -652,7 +659,9 @@
         <add name="Forward" type="TEMPLATE">Forward tangent.</add>
         <add name="Backward" type="TEMPLATE">Backward tangent.</add>
     </compound>
+
 -->
+
     <compound name="ShortString" ver1="10.1.0.0" niflibtype="ShortString" nifskopetype="shortstring">
         Another string format, for short strings.  Specific to Bethesda-specific header tags.
         <add name="Length" type="byte">The string length.</add>
@@ -698,15 +707,20 @@
         <add name="Priority?" type="byte" ver1="10.1.0.106" userver="11">Idle animations tend to have low values for this, and NIF objects that have high values tend to correspond with the important parts of the animation.</add>
         <add name="String Palette" type="Ref" template="NiStringPalette" ver1="10.2.0.0" ver2="20.0.0.5">Refers to the NiStringPalette which contains the name of the controlled NIF object.</add>
         <add name="Node Name" type="string" ver1="10.1.0.106" ver2="10.1.0.106">The name of the animated node.</add>
-        <add name="Node Name Offset" type="StringOffset" ver1="10.2.0.0">Offset in the string palette where the name of the controlled node (NiNode, NiTriShape, ...) starts.</add>
+        <add name="Node Name" type="string" ver1="20.1.0.3">The name of the animated node.</add>
+        <add name="Node Name Offset" type="StringOffset" ver1="10.2.0.0" ver2="20.0.0.5">Offset in the string palette where the name of the controlled node (NiNode, NiTriShape, ...) starts.</add>
         <add name="Property Type" type="string" ver1="10.1.0.106" ver2="10.1.0.106">Name of the property (NiMaterialProperty, ...), if this controller controls a property.</add>
-        <add name="Property Type Offset" type="StringOffset" ver1="10.2.0.0">Offset in the string palette where the property (NiMaterialProperty, ...) starts, if this controller controls a property. Otherwise, -1.</add>
+        <add name="Property Type" type="string" ver1="20.1.0.3">Name of the property (NiMaterialProperty, ...), if this controller controls a property.</add>
+        <add name="Property Type Offset" type="StringOffset" ver1="10.2.0.0" ver2="20.0.0.5">Offset in the string palette where the property (NiMaterialProperty, ...) starts, if this controller controls a property. Otherwise, -1.</add>
         <add name="Controller Type" type="string" ver1="10.1.0.106" ver2="10.1.0.106">Probably the object type name of the controller in the NIF file that is child of the controlled object.</add>
-        <add name="Controller Type Offset" type="StringOffset" ver1="10.2.0.0">Apparently the offset in the string palette of some type of controller related to Interpolator (for example, a &#039;NiTransformInterpolator&#039; will have here a &#039;NiTransformController&#039;, etc.). Sometimes the type of controller that links to the interpolator. Probably it refers to the controller in the NIF file that is child of the controlled object, via its type name.</add>
+        <add name="Controller Type" type="string" ver1="20.1.0.3">Probably the object type name of the controller in the NIF file that is child of the controlled object.</add>
+        <add name="Controller Type Offset" type="StringOffset" ver1="10.2.0.0" ver2="20.0.0.5">Apparently the offset in the string palette of some type of controller related to Interpolator (for example, a &#039;NiTransformInterpolator&#039; will have here a &#039;NiTransformController&#039;, etc.). Sometimes the type of controller that links to the interpolator. Probably it refers to the controller in the NIF file that is child of the controlled object, via its type name.</add>
         <add name="Variable 1" type="string" ver1="10.1.0.106" ver2="10.1.0.106">Some variable string (such as &#039;SELF_ILLUM&#039;, &#039;0-0-TT_TRANSLATE_U&#039;, &#039;tongue_out&#039;, etc.).</add>
-        <add name="Variable Offset 1" type="StringOffset" ver1="10.2.0.0">Offset in the string palette where some variable string starts (such as &#039;SELF_ILLUM&#039;, &#039;0-0-TT_TRANSLATE_U&#039;, &#039;tongue_out&#039;, etc.). Usually, -1.</add>
+        <add name="Variable 1" type="string" ver1="20.1.0.3">Some variable string (such as &#039;SELF_ILLUM&#039;, &#039;0-0-TT_TRANSLATE_U&#039;, &#039;tongue_out&#039;, etc.).</add>
+        <add name="Variable Offset 1" type="StringOffset" ver1="10.2.0.0" ver2="20.0.0.5">Offset in the string palette where some variable string starts (such as &#039;SELF_ILLUM&#039;, &#039;0-0-TT_TRANSLATE_U&#039;, &#039;tongue_out&#039;, etc.). Usually, -1.</add>
         <add name="Variable 2" type="string" ver1="10.1.0.106" ver2="10.1.0.106">Another variable string, apparently used for particle system controllers.</add>
-        <add name="Variable Offset 2" type="StringOffset" ver1="10.2.0.0">Offset in the string palette where some variable string starts (so far only &#039;EmitterActive&#039; and &#039;BirthRate&#039; have been observed in official files, used for particle system controllers). Usually, -1.</add>
+        <add name="Variable 2" type="string" ver1="20.1.0.3">Another variable string, apparently used for particle system controllers.</add>
+        <add name="Variable Offset 2" type="StringOffset" ver1="10.2.0.0" ver2="20.0.0.5">Offset in the string palette where some variable string starts (so far only &#039;EmitterActive&#039; and &#039;BirthRate&#039; have been observed in official files, used for particle system controllers). Usually, -1.</add>
     </compound>
 
     <compound name="ExportInfo" ver1="10.0.1.2">
@@ -730,6 +744,7 @@
         <add name="Num Block Types" type="ushort" ver1="10.0.1.0">Number of object types in this NIF file.</add>
         <add name="Block Types" type="SizedString" arr1="Num Block Types" ver1="10.0.1.0">List of all object types used in this NIF file.</add>
         <add name="Block Type Index" type="BlockTypeIndex" arr1="Num Blocks" ver1="10.0.1.0">Maps file objects on their corresponding type: first file object is of type object_types[object_type_index[0]], the second of object_types[object_type_index[1]], etc.</add>
+        <add name="Block Size" type="uint" arr1="Num Blocks" ver1="20.3.0.3">Array of block sizes?</add>
         <add name="Num Strings" type="uint" ver1="20.1.0.3">Number of strings.</add>
         <add name="Max String Length" type="uint" ver1="20.1.0.3">Maximum string length.</add>
         <add name="Strings" type="SizedString" arr1="Num Strings" ver1="20.1.0.3">Strings.</add>
@@ -1228,10 +1243,7 @@
 
     <niobject name="bhkCapsuleShape" abstract="0" inherit="bhkConvexShape" ver1="20.0.0.5">
         A capsule.
-        <add name="Unknown Short 1" type="ushort">Unknown.</add>
-        <add name="Unknown Short 2" type="ushort">Unknown.</add>
-        <add name="Unknown Short 3" type="ushort">Unknown.</add>
-        <add name="Unknown Short 4" type="ushort">Unknown.</add>
+        <add name="Unknown String" type="Char8String">Unknown.</add>
         <add name="First Point" type="Vector3">First point on the capsule's axis.</add>
         <add name="Radius 1" type="float">Matches first capsule radius.</add>
         <add name="Second Point" type="Vector3">Second point on the capsule's axis.</add>
@@ -1240,10 +1252,7 @@
 
     <niobject name="bhkBoxShape" abstract="0" inherit="bhkConvexShape" ver1="20.0.0.5">
         A box.
-        <add name="Unknown Short 1" type="ushort">Unknown.</add>
-        <add name="Unknown Short 2" type="ushort">Unknown.</add>
-        <add name="Unknown Short 3" type="ushort">Unknown.</add>
-        <add name="Unknown Short 4" type="ushort">Unknown.</add>
+        <add name="Unknown String" type="Char8String">Unknown.</add>
         <add name="Dimensions" type="Vector3">Looks like this could be the box size.</add>
         <add name="Minimum Size" type="float">The smallest of the three sizes. Might be used for optimization.</add>
     </niobject>
@@ -1705,6 +1714,7 @@
         <add name="Data" type="Ref" template="NiGeometryData">Data index (NiTriShapeData/NiTriStripData).</add>
         <add name="Skin Instance" type="Ref" template="NiSkinInstance" ver1="3.3.0.13">Skin instance index.</add>
         <add name="Has Shader" type="bool" ver1="10.0.1.0">Shader.</add>
+        <add name="Unknown Bools" type="bool" arr1="3" ver1="20.3.0.3">Unknown Booleans.</add>
         <add name="Shader Name" type="string" cond="Has Shader != 0" ver1="10.0.1.0">The shader name.</add>
         <add name="Unknown Link" type="Ptr" template="NiObject" cond="Has Shader != 0" ver1="10.0.1.0">Unknown link, usually -1.</add>
     </niobject>
@@ -2681,8 +2691,9 @@
         <add name="Pixel Layout" type="PixelLayout" default="5">Specifies the way the image will be stored.</add>
         <add name="Use Mipmaps" type="MipMapFormat" default="2">Specifies whether mip maps are used.</add>
         <add name="Alpha Format" type="AlphaFormat" default="3"> Note: the NiTriShape linked to this object must have a NiAlphaProperty in its list of properties to enable material and/or texture transparency.</add>
-        <add name="Unknown Byte" type="byte" default="1">Unknown, usually 1.</add>
+        <add name="Unknown Byte 1" type="byte" default="1">Unknown, usually 1.</add>
         <add name="Unknown Byte 2" type="byte" default="1" ver1="10.1.0.106">Set to one if textures have mipmaps?</add>
+        <add name="Unknown Byte 3" type="byte" default="0" ver1="20.3.0.3">Set to one if textures have mipmaps?</add>
     </niobject>
 
     <niobject name="NiSpecularProperty" abstract="0" inherit="NiProperty">
@@ -2743,8 +2754,7 @@
         Extra data, used to name different animation sequences.
         <add name="Unknown Int 1" type="uint" ver2="4.2.2.0">Unknown.  Always equals zero in all official files.</add>
         <add name="Num Text Keys" type="uint">The number of text keys that follow.</add>
-        <add name="Text Keys" type="Key" arg="1" template="SizedString" arr1="Num Text Keys" ver2="20.0.0.5">List of textual notes and at which time they take effect. Used for designating the start and stop of animations and the triggering of sounds.</add>
-        <add name="Text Keys" type="Key" arg="1" template="StringIndex" arr1="Num Text Keys" ver1="20.1.0.3">List of textual notes and at which time they take effect. Used for designating the start and stop of animations and the triggering of sounds.</add>
+        <add name="Text Keys" type="Key" arg="1" template="string" arr1="Num Text Keys">List of textual notes and at which time they take effect. Used for designating the start and stop of animations and the triggering of sounds.</add>
     </niobject>
 
     <niobject name="NiTextureEffect" abstract="0" inherit="NiDynamicEffect">
@@ -2831,7 +2841,9 @@
     </niobject>
 
     <niobject name="NiTriShape" abstract="0" inherit="NiTriBasedGeom">
-        A shape node that refers to singular triangle data.
+      A shape node that refers to singular triangle data.
+      <add name="Unknown Int 1" type="int" ver1="20.3.0.3">Unknown value.</add>
+      <add name="Unknown Boolean 1" type="bool" ver1="20.3.0.3">Unknown value.</add>
     </niobject>
 
     <niobject name="NiTriShapeData" abstract="0" inherit="NiTriBasedGeomData">
