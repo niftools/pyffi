@@ -69,6 +69,8 @@ class NifFormat(object):
     0x14000004
     0x14000005
     0x14010003
+    0x14030003
+    0x14030006
     >>> for game, versions in sorted(NifFormat.games.items(), key=lambda x: x[0]):
     ...     print game,
     ...     for vnum in versions:
@@ -77,6 +79,7 @@ class NifFormat(object):
     Axis and Allies 0x0A010000
     Civilization IV 0x04020002 0x04020100 0x04020200 0x0A000100 0x0A010000 0x0A020000 0x14000004
     Dark Age of Camelot 0x03000300 0x03010000 0x0401000C 0x04020100 0x04020200 0x0A010000
+    Emerge 0x14030003 0x14030006
     Empire Earth II 0x04020200
     Freedom Force 0x04000000 0x04000002
     Freedom Force vs. the 3rd Reich 0x0A010000
