@@ -315,7 +315,7 @@ class StructBase(object):
                 if user_version != userver: continue
             if cond != None:
                 if not cond.eval(self): continue
-            strings.extend(getattr(self, "_" + name + "_value_").getStrings())
+            strings.extend(getattr(self, "_" + name + "_value_").getStrings(version, user_version))
         return strings
 
     def getRefs(self):
