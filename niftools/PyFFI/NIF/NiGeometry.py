@@ -117,6 +117,35 @@ def _validateSkin(self):
     if self.skinInstance.numBones != self.skinInstance.data.numBones:
         raise self.cls.NifError('NiSkinInstance and NiSkinData have different number of bones')
 
+def addBone(self, bone, transform, vert_weights):
+    """Add bone with given vertex weights and transform.
+
+    @param bone: The bone NiNode block.
+    @param transform: The bone bind matrix relative to the skeleton root.
+    @param vert_weights: A dictionary mapping each influenced vertex index to a vertex weight."""
+    self._validateSkin()
+    geomdata = self.data
+    skininst = self.skinInstance
+    skindata = skininst.data
+
+    bone_index = skininst.numBones
+    skininst.numBones = bone_index+1
+    skininst.bones.updateSize()
+    skininst.bones[bone_index] = bone
+    skindata.numBones = bone_index+1
+    skindata.boneList.updateSize()
+    skinbonedata = skindata.boneList[bone_index]
+    # set rest pose
+    skinbonedata.setTransform(transform.getInverse())
+    # set vertex weights
+    skinbonedata.numVertices = len(vert_weights)
+    skinbonedata.vertexWeights.updateSize()
+    for i, (vert_index, vert_weight) in enumerate(vert_weights.iteritems()):
+        skinbonedata.vertexWeights[i].index = vert_index
+        skinbonedata.vertexWeights[i].weight = vert_weight
+
+
+
 def getVertexWeights(self):
     """Get vertex weights in a convenient format: list bone and weight per
     vertex."""
