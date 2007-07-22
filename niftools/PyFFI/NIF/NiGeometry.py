@@ -119,12 +119,13 @@ def _validateSkin(self):
 
 def addBone(self, bone, transform, vert_weights):
     """Add bone with given vertex weights and transform.
+    The geometry skinning information has to be set before using this function.
+    In particular, make sure that self.skinInstance.data transform has been set.
 
     @param bone: The bone NiNode block.
     @param transform: The bone bind matrix relative to the skeleton root.
     @param vert_weights: A dictionary mapping each influenced vertex index to a vertex weight."""
     self._validateSkin()
-    geomdata = self.data
     skininst = self.skinInstance
     skindata = skininst.data
 
@@ -136,7 +137,7 @@ def addBone(self, bone, transform, vert_weights):
     skindata.boneList.updateSize()
     skinbonedata = skindata.boneList[bone_index]
     # set rest pose
-    skinbonedata.setTransform(transform.getInverse())
+    skinbonedata.setTransform((transform * skindata.getTransform()).getInverse())
     # set vertex weights
     skinbonedata.numVertices = len(vert_weights)
     skinbonedata.vertexWeights.updateSize()
