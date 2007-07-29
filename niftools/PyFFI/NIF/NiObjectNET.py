@@ -55,3 +55,22 @@ def addExtraData(self, extrablock):
         while lastextra.nextExtraData:
             lastextra = lastextra.nextExtraData
         lastextra.nextExtraData = extrablock
+
+def addController(self, ctrlblock):
+    """Add block to controller chain."""
+    if not self.controller:
+        self.controller = ctrlblock
+    else:
+        lastctrl = self.controller
+        while lastctrl.nextController:
+            lastctrl = lastctrl.nextController
+        lastctrl.nextController = ctrlblock
+
+def getControllers(self):
+    """Get a list of all controllers."""
+    ctrls = []
+    ctrl = self.controller
+    while ctrl:
+        ctrls.append(ctrl)
+        ctrl = ctrl.nextController
+    return ctrls
