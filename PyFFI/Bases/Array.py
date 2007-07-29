@@ -199,8 +199,8 @@ class Array(_ListWrap):
     def write(self, version, user_version, f, block_index_dct, string_list, arg):
         len1 = self._len1()
         if len1 != self.__len__():
-            raise ValueError('array size different from to field describing number of elements')
-        if len1 > 1000000: raise ValueError('array too long')
+            raise ValueError('array size (%i) different from to field describing number of elements (%i)'%(self.__len__(),len1))
+        if len1 > 1000000: raise ValueError('array too long (%i)'%len1)
         if self._count2 == None:
             for e in list.__iter__(self):
                 e.write(version, user_version, f, block_index_dct, string_list, self._elementTypeArgument)
@@ -208,8 +208,8 @@ class Array(_ListWrap):
             for i, el in enumerate(list.__iter__(self)):
                 len2i = self._len2(i)
                 if len2i != el.__len__():
-                    raise ValueError('array size different from to field describing number of elements')
-                if len2i > 1000000: raise ValueError('array too long')
+                    raise ValueError('array size (%i) different from to field describing number of elements (%i)'%(el.__len__(),len2i))
+                if len2i > 1000000: raise ValueError('array too long (%i)'%len2i)
                 for e in list.__iter__(el):
                     e.write(version, user_version, f, block_index_dct, string_list, self._elementTypeArgument)
 
