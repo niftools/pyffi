@@ -63,16 +63,19 @@ def find(self, block_name = None, block_type = None):
 
     return None
 
-def findChain(self, block):
+def findChain(self, block, block_type = None):
     """Finds a chain of blocks going from self to <block>. If found,
     self is the first element and block is the last element. If no branch
     found, returns an empty list. Does not check whether there is more
     than one branch; if so, the first one found is returned."""
+
     if self == block: return [self]
     for child in self.getRefs():
-        child_chain = child.findChain(block)
+        if block_type and not isinstance(child, block_type): continue
+        child_chain = child.findChain(block, block_type)
         if child_chain:
             return [self] + child_chain
+
     return []
 
 def applyScale(self, scale):

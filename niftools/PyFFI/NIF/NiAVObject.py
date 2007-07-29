@@ -57,9 +57,9 @@ def getTransform(self, relative_to = None):
     m.setScaleRotationTranslation(self.scale, self.rotation, self.translation)
     if relative_to == None: return m
     # find chain from relative_to to self
-    chain = relative_to.findChain(self)
+    chain = relative_to.findChain(self, block_type = self.cls.NiAVObject)
     if not chain:
-        raise ValueError('cannot find a chain of blocks')
+        raise ValueError('cannot find a chain of NiAVObject blocks')
     # and multiply with all transform matrices (not including relative_to)
     for block in reversed(chain[1:-1]):
         m = block.getTransform() * m
