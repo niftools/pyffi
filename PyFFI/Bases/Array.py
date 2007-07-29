@@ -196,7 +196,8 @@ class Array(_ListWrap):
                     el.append(e)
                 self.append(el)
 
-    def write(self, version, user_version, f, block_index_dct, string_list, arg):
+    def write(self, version, user_version, f, block_index_dct, string_list, argument):
+        self._elementTypeArgument = argument
         len1 = self._len1()
         if len1 != self.__len__():
             raise ValueError('array size (%i) different from to field describing number of elements (%i)'%(self.__len__(),len1))
