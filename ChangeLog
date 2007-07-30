@@ -1,0 +1,17 @@
+Version 0.2.1 (29 Jul 2007):
+* NIF:
+  - fixed bug in getTransform
+  - new option in findChain to fix block type
+
+Version 0.2 (29 Jul 2007):
+* fixed argument passing when writing arrays
+* NIF: added getControllers function to NiObjectNET
+
+Version 0.1 (22 Jul 2007):
+* bug fixed when writing array of strings
+* NIF
+  - new function to add bones
+  - XML update, supports newer versions from Emerge Demo
+
+Version 0.0 (7 Jul 2007):
+* first public release
