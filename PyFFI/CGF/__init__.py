@@ -80,6 +80,35 @@ class CgfFormat(object):
         def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
             f.write(self.__str__())
 
+    class String(BasicBase):
+        def __init__(self, template = None, argument = None):
+            self._x = ""
+
+        def __str__(self):
+            if not self._x: return '<EMPTY STRING>'
+            return self._x
+
+        def getValue(self):
+            return self._x
+
+        def setValue(self, value):
+            s = str(value)
+            i = s.find('\x00')
+            if i != -1:
+                s = s[:i]
+            self._x = s
+
+        def read(self, version = -1, user_version = 0, f = None, link_stack = [], string_list = [], argument = None):
+            self._x = ''
+            c = ''
+            while c != '\x00':
+                self._x += c
+                c = f.read(1)
+
+        def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
+            f.write(self._x)
+            f.write('\x00')
+
     class String32(BasicBase):
         _len = 32
         

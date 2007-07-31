@@ -46,6 +46,10 @@
         A standard 32-bit floating point number.
     </basic>
 
+    <basic name="String">
+        A null-terminated string.
+    </basic>
+
     <!--
     *******************
     *** alias types ***
@@ -200,13 +204,13 @@
         <add name="Long Name" type="String128" ver1="746">Name of the texture map.</add>
         <add name="Type" type="TextureMappingType" ver1="745">Mapping type</add>
         <add name="Flags" type="TextureMappingFlags" ver1="745">Mapping flags</add>
-        <add name="Amount" type="ubyte" ver1="745">Unknown.</add>
+        <add name="Amount" type="ubyte" ver1="745">Unknown. 100 for used texture slots?</add>
         <add name="Reserved1" type="ubyte" ver1="745">Unknown.</add>
         <add name="Reserved2" type="ubyte" arr1="31" ver1="746">Unknown.</add>
         <!--tiling and mirror-->
-        <add name="U Tile" type="bool" />
+        <add name="U Tile" type="bool" default="1" />
         <add name="U Mirror" type="bool" />
-        <add name="V Tile" type="bool" />
+        <add name="V Tile" type="bool" default="1" />
         <add name="V Mirror" type="bool" />
         <add name="Reserved3" type="ubyte">Zero, padding byte.</add>
         <!--reflection settings-->
@@ -215,10 +219,10 @@
         <add name="Ref Blur" type="float" ver1="745">Reflection blur.</add>
         <!--texture position values-->
         <add  name="U Off Val" type="float" />
-        <add  name="U Scl Val" type="float" />
+        <add  name="U Scl Val" type="float" default="1.0" />
         <add  name="U Rot Val" type="float" />
         <add  name="V Off Val" type="float" />
-        <add  name="V Scl Val" type="float" />
+        <add  name="V Scl Val" type="float" default="1.0" />
         <add  name="V Rot Val" type="float" />
         <add  name="W Rot Val" type="float" />
 
@@ -299,9 +303,9 @@
         <add name="Col A" type="IRGB" cond="Type == 1">Ambient color.</add>
         <add name="Unknown" type="ubyte" arr1="3" cond="Type == 1">Zero, probably just padding bytes.</add>
         <add name="Spec Level" type="float" cond="Type == 1" ver1="745">Specular level.</add>
-        <add name="Spec Shininess" type="float" cond="Type == 1" ver1="745">Specular shininess.</add>
+        <add name="Spec Shininess" type="float" default="0.1" cond="Type == 1" ver1="745">Specular shininess.</add>
         <add name="Self Illum" type="float" cond="Type == 1" ver1="745">Self illumination.</add>
-        <add name="Opacity" type="float" cond="Type == 1" ver1="745">Opacity.</add>
+        <add name="Opacity" type="float" default="1.0" cond="Type == 1" ver1="745">Opacity.</add>
         <!-- textures -->
         <add name="Tex A" type="TextureMap" cond="Type == 1" ver1="745">Ambient texture settings.</add>
         <add name="Tex D" type="TextureMap" cond="Type == 1">Diffuse texture settings.</add>
@@ -317,7 +321,7 @@
         <!-- physics -->
         <add name="Flags" type="int" cond="Type == 1" ver1="745" />
         <add name="Dyn Bounce" type="float" cond="Type == 1" />
-        <add name="Dyn Static Friction" type="float" cond="Type == 1" />
+        <add name="Dyn Static Friction" type="float" default="1.0" cond="Type == 1" />
         <add name="Dyn Sliding Friction" type="float" cond="Type == 1" />
 
         <add name="Num Children" type="int" cond="Type == 2" />
@@ -329,6 +333,12 @@
         <add name="Ticks Per Frame" type="int">ticks/frame</add>
         <add name="Global Range" type="RangeEntity">Covers all of the time ranges.</add>
         <add name="Num Sub Ranges" type="int" />
+    </struct>
+
+    <struct name="SourceInfoChunk">
+        <add name="Source File" type="String" />
+        <add name="Date" type="String" />
+        <add name="Author" type="String" />
     </struct>
 
 </fileformat>
