@@ -80,6 +80,40 @@ class CgfFormat(object):
         def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
             f.write(self.__str__())
 
+    class String32(BasicBase):
+        _len = 32
+        
+        def __init__(self, template = None, argument = None):
+            self._x = ""
+
+        def __str__(self):
+            if not self._x: return '<EMPTY STRING>'
+            return self._x
+
+        def getValue(self):
+            return self._x
+
+        def setValue(self, value):
+            s = str(value)
+            if len(s) > self._len:
+                raise ValueError("string '%s' too long"%self._x)
+            self._x = s
+
+        def read(self, version = -1, user_version = 0, f = None, link_stack = [], string_list = [], argument = None):
+            self._x = f.read(self._len)
+            i = self._x.find('\x00')
+            if i != -1:
+                self._x = self._x[:i]
+
+        def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
+            f.write(self._x.ljust(self._len, "\x00"))
+
+    class String64(String32):
+        _len = 64
+
+    class String128(String32):
+        _len = 128
+
     # exceptions
     class CgfError(StandardError):
         pass
@@ -140,14 +174,10 @@ class CgfFormat(object):
         hdr = cls.Header()
         hdr.read(fileversion, f = f)
 
-        print hdr
-
         # read chunk table
         f.seek(hdr.offset)
         table = cls.ChunkTable()
         table.read(version = hdr.version, f = f)
-
-        print table
 
         # read the chunks
         ids = []
@@ -164,7 +194,7 @@ class CgfFormat(object):
                 if getattr(cls.ChunkType, s) == chunkhdr.type: break
             else:
                 raise ValueError('unknown chunk type 0x%08X'%chunkhdr.type)
-            print "chunk type: %s"%s
+            print "%s chunk, version 0x%08X"%(s,chunkhdr.version)
             try:
                 chunk = getattr(cls, s + 'Chunk')()
             except AttributeError:

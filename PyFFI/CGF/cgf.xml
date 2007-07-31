@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE fileformat>
 <fileformat version="1.0">
+    <version num="351">Far Cry</version><!-- light chunk -->
     <version num="623">Far Cry</version>
     <version num="744">Far Cry</version>
     <version num="745">Far Cry</version>
@@ -110,6 +111,13 @@
         <option value="4" name="AUTOCUBIC" />
     </enum>
 
+    <enum name="MtlType" type="uint">
+        <option value="0" name="UNKNOWN" />
+        <option value="1" name="STANDARD" />
+        <option value="2" name="MULTI" />
+        <option value="3" name="TWOSIDED" />
+    </enum>
+
     <!--
     ******************
     *** bitstructs ***
@@ -125,6 +133,18 @@
     *** structs ***
     ***************
     -->
+
+    <struct name="String32">
+        <add name="Data" type="char" arr1="32" />
+    </struct>
+
+    <struct name="String64">
+        <add name="Data" type="char" arr1="64" />
+    </struct>
+
+    <struct name="String128">
+        <add name="Data" type="char" arr1="128" />
+    </struct>
 
     <struct name="Vector3">
         A vector in 3D space (x,y,z).
@@ -162,16 +182,22 @@
         <add name="Rel Quat" type="Quat">Relative Quaternion.</add>
     </struct>
     
+    <struct name="UV">
+        Texture coordinate.
+        <add name="U" type="float" />
+        <add name="V" type="float" />
+    </struct>
+
     <struct name="TexFace">
-        A texture face.
+        A texture face (vertex indices).
         <add name="t0" type="int">First vertex index.</add>
         <add name="t1" type="int">Second vertex index.</add>
         <add name="t2" type="int">Third vertex index.</add>
     </struct>
 
     <struct name="TextureMap">
-        <add name="Name" type="char" arr1="32" ver2="745">Name of the texture map.</add>
-        <add name="Long Name" type="char" arr1="128" ver1="746">Name of the texture map.</add>
+        <add name="Name" type="String32" ver2="745">Name of the texture map.</add>
+        <add name="Long Name" type="String128" ver1="746">Name of the texture map.</add>
         <add name="Type" type="TextureMappingType" ver1="745">Mapping type</add>
         <add name="Flags" type="TextureMappingFlags" ver1="745">Mapping flags</add>
         <add name="Amount" type="ubyte" ver1="745">Unknown.</add>
@@ -182,6 +208,7 @@
         <add name="U Mirror" type="bool" />
         <add name="V Tile" type="bool" />
         <add name="V Mirror" type="bool" />
+        <add name="Reserved3" type="ubyte">Zero, padding byte.</add>
         <!--reflection settings-->
         <add name="Ref Update" type="int" ver1="745">Update reflection every nth frame.</add>
         <add name="Ref Size" type="int" ver1="745">Reflection size.</add>
@@ -239,7 +266,7 @@
     </struct>
 
     <struct name="RangeEntity">
-        <add name="Name" type="char" arr1="32" />
+        <add name="Name" type="String32" />
         <add name="Start" type="int" />
         <add name="End" type="int" />
     </struct>
@@ -256,8 +283,45 @@
 
     <struct name="ChunkTable">
         List of all chunks in the CGF file. Usually this table is put at the end of the CGF file.
-        <add name="Num Chunks" type="uint">Number of chunks</add>
+        <add name="Num Chunks" type="uint">Number of chunks.</add>
         <add name="Chunk Headers" type="ChunkHeader" arr1="Num Chunks">Header for each chunk.</add>
+    </struct>
+
+    <struct name="MtlChunk">
+        <add name="Name" type="String64">Material and shader name.</add>
+        <add name="Reserved" type="ubyte" arr1="60" ver1="746">Reserved.</add>
+        <add name="Alpha Test" type="float" ver1="746">Unknown.</add>
+        <add name="Type" type="MtlType">Material type.</add>
+
+        <!-- colors -->
+        <add name="Col D" type="IRGB" cond="Type == 1">Diffuse color.</add>
+        <add name="Col S" type="IRGB" cond="Type == 1">Specular color.</add>
+        <add name="Col A" type="IRGB" cond="Type == 1">Ambient color.</add>
+        <add name="Unknown" type="ubyte" arr1="3" cond="Type == 1">Zero, probably just padding bytes.</add>
+        <add name="Spec Level" type="float" cond="Type == 1" ver1="745">Specular level.</add>
+        <add name="Spec Shininess" type="float" cond="Type == 1" ver1="745">Specular shininess.</add>
+        <add name="Self Illum" type="float" cond="Type == 1" ver1="745">Self illumination.</add>
+        <add name="Opacity" type="float" cond="Type == 1" ver1="745">Opacity.</add>
+        <!-- textures -->
+        <add name="Tex A" type="TextureMap" cond="Type == 1" ver1="745">Ambient texture settings.</add>
+        <add name="Tex D" type="TextureMap" cond="Type == 1">Diffuse texture settings.</add>
+        <add name="Tex S" type="TextureMap" cond="Type == 1" ver1="745">Specular texture settings.</add>
+        <add name="Tex O" type="TextureMap" cond="Type == 1">Opacity texture settings.</add>
+        <add name="Tex B" type="TextureMap" cond="Type == 1">Bump texture settings.</add>
+        <add name="Tex G" type="TextureMap" cond="Type == 1" ver1="745">Gloss texture settings.</add>
+        <add name="Tex F" type="TextureMap" cond="Type == 1" ver1="746">Filter texture settings.</add>
+        <add name="Tex C" type="TextureMap" cond="Type == 1" ver1="745" ver2="745">Cubemap texture settings.</add>
+        <add name="Tex R" type="TextureMap" cond="Type == 1" ver1="745">Reflection texture settings.</add>
+        <add name="Tex Subsurf" type="TextureMap" cond="Type == 1" ver1="745">Subsurface scattering texture settings.</add>
+        <add name="Tex Detail" type="TextureMap" cond="Type == 1" ver1="745">Detail texture settings.</add>
+        <!-- physics -->
+        <add name="Flags" type="int" cond="Type == 1" ver1="745" />
+        <add name="Dyn Bounce" type="float" cond="Type == 1" />
+        <add name="Dyn Static Friction" type="float" cond="Type == 1" />
+        <add name="Dyn Sliding Friction" type="float" cond="Type == 1" />
+
+        <add name="Num Children" type="int" cond="Type == 2" />
+        <add name="Children" type="Id" arr1="Num Children" cond="Type == 2">Links to other material chunks.</add>
     </struct>
 
     <struct name="TimingChunk">
