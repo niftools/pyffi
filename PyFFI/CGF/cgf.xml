@@ -291,6 +291,21 @@
         <add name="Chunk Headers" type="ChunkHeader" arr1="Num Chunks">Header for each chunk.</add>
     </struct>
 
+    <struct name="MeshChunk">
+        Geometry.
+        <add name="Has Bone Info" type="bool" />
+        <add name="Reserved1" type="ubyte" ver1="744">Padding byte</add>
+        <add name="Has Vertex Colors" type="bool" />
+        <add name="In World Space" type="bool" ver2="623" />
+        <add name="Reserved2" type="ubyte">Padding byte</add>
+        <add name="Num Vertices" type="uint" />
+        <add name="Num UVs" type="uint" />
+        <add name="Num Faces" type="uint" />
+        <add name="Material" type="Id" ver2="623" />
+        <add name="Property String Length" type="uint" ver2="623" />
+        <add name="Vert Anim" type="Id" ver1="744" />
+    </struct>
+
     <struct name="MtlChunk">
         <add name="Name" type="String64">Material and shader name.</add>
         <add name="Reserved" type="ubyte" arr1="60" ver1="746">Reserved.</add>
