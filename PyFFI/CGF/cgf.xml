@@ -175,8 +175,8 @@
         <add name="v0" type="int">First vertex index.</add>
         <add name="v1" type="int">Second vertex index.</add>
         <add name="v2" type="int">Third vertex index.</add>
-        <add name="Mat ID" type="int">Material id.</add>
-        <add name="Sm Group" type="int">Smoothing group.</add>
+        <add name="Material" type="Id">Material.</add>
+        <add name="Sm Group" type="int" default="1">Smoothing group.</add>
     </struct>
     
     <struct name="Key">
@@ -192,7 +192,7 @@
         <add name="V" type="float" />
     </struct>
 
-    <struct name="TexFace">
+    <struct name="UVFace">
         A texture face (vertex indices).
         <add name="t0" type="int">First vertex index.</add>
         <add name="t1" type="int">Second vertex index.</add>
@@ -236,7 +236,7 @@
         <add name="W Rot Ctrl" type="Id" />
     </struct>
 
-    <struct name="Link">
+    <struct name="BoneLink">
         A bone link.
         <add name="Bone" type="Id">The bone chunk?</add>
         <add name="Offset" type="Vector3">The bone offset?</add>
@@ -293,10 +293,10 @@
 
     <struct name="MeshChunk">
         Geometry.
-        <add name="Has Bone Info" type="bool" />
-        <add name="Reserved1" type="ubyte" ver1="744">Padding byte</add>
+        <add name="Has Bone Links" type="bool" />
         <add name="Has Vertex Colors" type="bool" />
         <add name="In World Space" type="bool" ver2="623" />
+        <add name="Reserved1" type="ubyte" ver1="744">Padding byte</add>
         <add name="Reserved2" type="ubyte">Padding byte</add>
         <add name="Num Vertices" type="uint" />
         <add name="Num UVs" type="uint" />
@@ -304,6 +304,14 @@
         <add name="Material" type="Id" ver2="623" />
         <add name="Property String Length" type="uint" ver2="623" />
         <add name="Vert Anim" type="Id" ver1="744" />
+
+        <add name="Vertices" type="Vertex" arr1="Num Vertices" />
+        <add name="Faces" type="Face" arr1="Num Faces" />
+        <add name="UVs" type="UV" arr1="Num UVs" />
+        <add name="UV Faces" type="UVFace" arr1="Num Faces" cond="Num UVs" />
+        <add name="Num Bone Links" type="uint" cond="Has Bone Links" />
+        <add name="Bone Links" type="BoneLink" arr1="Num Bone Links" cond="Has Bone Links" />
+        <add name="Vertex Colors" type="IRGB" arr1="Num Vertices" cond="Has Vertex Colors" />
     </struct>
 
     <struct name="MtlChunk">
