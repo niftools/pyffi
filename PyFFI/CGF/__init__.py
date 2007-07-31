@@ -133,47 +133,57 @@ class CgfFormat(object):
         return filetype, fileversion
 
     @classmethod
-    def read(cls, version, f, verbose = 0):
+    def read(cls, fileversion, f, verbose = 0):
         chunk_types = [x for x in dir(cls.ChunkType) if x[:2] != '__']
 
         # read header
         hdr = cls.Header()
-        hdr.read(version, f = f)
+        hdr.read(fileversion, f = f)
+
+        print hdr
 
         # read chunk table
         f.seek(hdr.offset)
-        table = cls.chunkTable()
+        table = cls.ChunkTable()
         table.read(version = hdr.version, f = f)
+
+        print table
 
         # read the chunks
         ids = []
         chunks = []
         versions = []
-        for chunkhdr in table.chunkHeaders():
+        for chunkhdr in table.chunkHeaders:
             # check that id is unique
             if chunkhdr.id in ids:
                 raise ValueError('chunk id %i not unique'%chunkhdr.id)
             ids.append(chunkhdr.id)
 
-            # now read the chunks
-            # each chunk starts with a copy of chunkhdr
-            f.seek(chunkhdr.offset)
-            chunkhdr_copy = cls.ChunkHeader()
-            chunkhdr_copy.read(version = hdr.version, f = f)
-            # check that the copy is valid
-            if chunkhdr_copy.type != chunkhdr.type or chunkhdr_copy.version != chunkhdr.version or chunkhdr_copy.offset != chunkhdr.offset or chunkhdr_copy.id != chunkhdr.id:
-                raise ValueError('chunk starts with invalid header:\nexpected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
-
-            # read chunk depending on chunk type
+            # get chunk type
             for s in chunk_types:
                 if getattr(cls.ChunkType, s) == chunkhdr.type: break
             else:
                 raise ValueError('unknown chunk type 0x%08X'%chunkhdr.type)
+            print "chunk type: %s"%s
             try:
                 chunk = getattr(cls, s + 'Chunk')()
             except AttributeError:
+                print "*** skipped ***"
                 continue # for now, ignore undecoded chunk types
+
+            # now read the chunk
+            f.seek(chunkhdr.offset)
+
+            # most chunks start with a copy of chunkhdr
+            if chunkhdr.type not in [cls.ChunkType.SourceInfo]:
+                chunkhdr_copy = cls.ChunkHeader()
+                chunkhdr_copy.read(version = hdr.version, f = f)
+                # check that the copy is valid
+                if chunkhdr_copy.type != chunkhdr.type or chunkhdr_copy.version != chunkhdr.version or chunkhdr_copy.offset != chunkhdr.offset or chunkhdr_copy.id != chunkhdr.id:
+                    raise ValueError('chunk starts with invalid header:\nexpected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
+
             chunk.read(version = chunkhdr.version, f = f)
+            print chunk
             chunks.append(chunk)
             versions.append(chunkhdr.version)
 
@@ -202,13 +212,10 @@ class CgfFormat(object):
 
         walkFile is for instance used by runtest.py to implement the
         testFile-style tests which must access f after the file has been read."""
-        # filter for recognizing nif files by extension
-        # .kf are nif files containing keyframes
-        # .kfa are nif files containing keyframes in DAoC style
-        # .nifcache are Empire Earth II nif files
-        re_nif = re.compile(r'^.*\.cgf$', re.IGNORECASE)
+        # filter for recognizing cgf files by extension
+        re_cgf = re.compile(r'^.*\.cgf$', re.IGNORECASE)
         # now walk over all these files in directory top
-        for filename in Utils.walk(top, topdown, onerror = None, re_filename = re_nif):
+        for filename in Utils.walk(top, topdown, onerror = None, re_filename = re_cgf):
             if verbose >= 1: print "reading %s"%filename
             f = open(filename, mode)
             try:
@@ -221,7 +228,7 @@ class CgfFormat(object):
                         # return (filetype, fileversion, f, chunks, versions)
                         chunks, versions = cls.read(fileversion, f)
                         yield filetype, fileversion, f, chunks, versions
-                    except StandardError, e:
+                    except NotImplementedError: #StandardError, e:
                         # an error occurred during reading
                         # this should not happen: means that the file is
                         # corrupt, or that the xml is corrupt
