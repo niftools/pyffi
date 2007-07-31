@@ -70,12 +70,12 @@ class CgfFormat(object):
             pass
 
         def __str__(self):
-            return 'CryTex\x00\x00'
+            return 'CryTek\x00\x00'
 
         def read(self, version = -1, user_version = 0, f = None, link_stack = [], string_list = [], argument = None):
             s = f.read(8)
-            if s != self.__str__():
-                raise ValueError("invalid CGF header: expected '%s' but got '%s'"%(signature_string, s))
+            if s[:6] != self.__str__()[:6]:
+                raise ValueError("invalid CGF header: expected '%s' but got '%s'"%(self.__str__(), s))
 
         def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
             f.write(self.__str__())
@@ -124,11 +124,11 @@ class CgfFormat(object):
             return -2, 0
         finally:
             f.seek(pos)
-        if s != "CryTek\x00\x00":
+        if s[:6] != "CryTek":
             return -2, 0
         if filetype not in [ cls.FileType.GEOM, cls.FileType.ANIM ]:
             return -1, 0
-        if fileversion not in cls.versions.keys():
+        if fileversion not in cls.versions.values():
             return -1, 0
         return filetype, fileversion
 
@@ -138,7 +138,7 @@ class CgfFormat(object):
 
         # read header
         hdr = cls.Header()
-        hdr.read(version = version, f = f)
+        hdr.read(version, f = f)
 
         # read chunk table
         f.seek(hdr.offset)
@@ -148,6 +148,7 @@ class CgfFormat(object):
         # read the chunks
         ids = []
         chunks = []
+        versions = []
         for chunkhdr in table.chunkHeaders():
             # check that id is unique
             if chunkhdr.id in ids:
@@ -174,9 +175,71 @@ class CgfFormat(object):
                 continue # for now, ignore undecoded chunk types
             chunk.read(version = chunkhdr.version, f = f)
             chunks.append(chunk)
+            versions.append(chunkhdr.version)
 
-        return chunks
+        return chunks, versions
 
     @classmethod
-    def write(cls, version, f, chunks, verbose = 0):
+    def write(cls, version, f, chunks, versions, verbose = 0):
         raise NotImplementedError
+
+    @classmethod
+    def walk(cls, top, topdown = True, onerror = None, verbose = 0):
+        """A generator which yields the chunks and versions of all files in directory top
+        whose filename matches the regular expression re_filename. The argument
+        top can also be a file instead of a directory. The argument onerror,
+        if set, will be called if cls.read raises an exception (errors coming
+        from os.walk will be ignored)."""
+        for filetype, fileversion, f, chunks, versions in walkFile(cls, top, topdown, onerror, verbose):
+            yield chunks, versions
+
+    @classmethod
+    def walkFile(cls, top, topdown = True, onerror = None, verbose = 0, mode = 'rb'):
+        """Like walk, but returns more information:
+        filetype, fileversion, f, chunks, and versions
+
+        Note that the caller is not responsible for closing f.
+
+        walkFile is for instance used by runtest.py to implement the
+        testFile-style tests which must access f after the file has been read."""
+        # filter for recognizing nif files by extension
+        # .kf are nif files containing keyframes
+        # .kfa are nif files containing keyframes in DAoC style
+        # .nifcache are Empire Earth II nif files
+        re_nif = re.compile(r'^.*\.cgf$', re.IGNORECASE)
+        # now walk over all these files in directory top
+        for filename in Utils.walk(top, topdown, onerror = None, re_filename = re_nif):
+            if verbose >= 1: print "reading %s"%filename
+            f = open(filename, mode)
+            try:
+                # get the version
+                filetype, fileversion = cls.getVersion(f)
+                if filetype >= 0:
+                    # we got it, so now read the nif file
+                    if verbose >= 2: print "type 0x%08X, version 0x%08X"%(filetype, fileversion)
+                    try:
+                        # return (filetype, fileversion, f, chunks, versions)
+                        chunks, versions = cls.read(fileversion, f)
+                        yield filetype, fileversion, f, chunks, versions
+                    except StandardError, e:
+                        # an error occurred during reading
+                        # this should not happen: means that the file is
+                        # corrupt, or that the xml is corrupt
+                        # so we call onerror
+                        if verbose >= 1:
+                            print 'Warning: read failed due to either a corrupt cgf file, a corrupt cgf.xml,'
+                            print 'or a bug in CgfFormat library.'
+                        if verbose >= 2:
+                            Utils.hexDump(f)
+                        if onerror == None:
+                            pass # ignore the error
+                        else:
+                            onerror(e)
+                # getting version failed, do not raise an exception
+                # but tell user what happened
+                elif filetype == -1:
+                    if verbose >= 1: print 'version not supported'
+                else:
+                    if verbose >= 1: print 'not a cgf file'
+            finally:
+                f.close()

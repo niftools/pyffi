@@ -26,8 +26,8 @@ if sys.version_info < (2, 5):
 
 setup(
     name = "PyFFI",
-    version = "0.2.1",
-    packages = ['PyFFI', 'PyFFI.Bases', 'PyFFI.Utils', 'PyFFI.NIF'],
+    version = "0.3",
+    packages = ['PyFFI', 'PyFFI.Bases', 'PyFFI.Utils', 'PyFFI.NIF', 'PyFFI.CGF'],
     package_data = { '' : [ '*.xml' ] }, # include xml files
     author = "Python File Format Interface",
     author_email = "amorilia@gamebox.net",
