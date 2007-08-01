@@ -141,6 +141,19 @@ i
         <add name="No Mipmap" numbits="1" />
     </bitstruct>
 
+    <bitstruct name="MtlFlags" type="uint">
+        <add name="Wire" numbits="1" />
+        <add name="Two Sided" numbits="1" />
+        <add name="Facemap" numbits="1" />
+        <add name="Faceted" numbits="1" />
+        <add name="Additive" numbits="1" />
+        <add name="Substractive" numbits="1" />
+        <add name="Cry Shader" numbits="1" />
+        <add name="Physicalize" numbits="1" />
+        <add name="Additive Decal" numbits="1" />
+        <add name="Use Glossiness" numbits="1" />
+    </bitstruct>
+
     <!--
     ***************
     *** structs ***
@@ -356,7 +369,7 @@ i
 
     <struct name="NodeChunk">
         <add name="Name" type="String64" />
-        <add name="Object" type="Id">This node's object chunk (if present).</add>
+        <add name="Object" type="Id">This node's object chunk (if present). Usually, a mesh.</add>
         <add name="Parent" type="Id">This node's parent.</add>
         <add name="Num Children" type="uint">Number of children.</add>
         <add name="Material" type="Id">Material chunk.</add>
@@ -408,7 +421,7 @@ i
         <add name="Tex Subsurf" type="TextureMap" cond="Type == 1" ver1="745">Subsurface scattering texture settings.</add>
         <add name="Tex Detail" type="TextureMap" cond="Type == 1" ver1="745">Detail texture settings.</add>
         <!-- physics -->
-        <add name="Flags" type="int" cond="Type == 1" ver1="745" />
+        <add name="Flags" type="MtlFlags" cond="Type == 1" ver1="745" />
         <add name="Dyn Bounce" type="float" cond="Type == 1" />
         <add name="Dyn Static Friction" type="float" default="1.0" cond="Type == 1" />
         <add name="Dyn Sliding Friction" type="float" cond="Type == 1" />
