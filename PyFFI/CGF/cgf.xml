@@ -370,10 +370,16 @@ i
     </struct>
 
     <struct name="BoneLightBinding">
-        <add name="Light" type="Id">Light that's bound to a bone.</add>
+        <add name="Light" type="Id">Light that is bound to a bone.</add>
         <add name="Bone" type="Id">Parent bone.</add>
         <add name="Pos" type="Vector3">Position of light in parent bone coordinates.</add>
         <add name="Rot" type="Vector3">Logarithm of quaternion that describes the light orientation relative to the parent bone.</add>
+    </struct>
+
+    <struct name="InitialPosMatrix">
+        A bone initial position matrix.
+        <add name="Rot" type="Matrix33" />
+        <add name="Pos" type="Vector3" />
     </struct>
 
     <!--real file blocks-->
@@ -458,8 +464,8 @@ i
 
     <struct name="NodeChunk">
         <add name="Name" type="String64" />
-        <add name="Object" type="Id">This node's object chunk (if present). Usually, a mesh.</add>
-        <add name="Parent" type="Id">This node's parent.</add>
+        <add name="Object" type="Id">Node object chunk (if present). Usually, a mesh.</add>
+        <add name="Parent" type="Id">Node parent.</add>
         <add name="Num Children" type="uint">Number of children.</add>
         <add name="Material" type="Id">Material chunk.</add>
 
@@ -529,6 +535,12 @@ i
     <struct name="BoneLightBindingChunk">
         <add name="Num Bindings" type="uint" />
         <add name="Bindings" type="BoneLightBinding" arr1="Num Bindings" />
+    </struct>
+
+    <struct name="BoneInitialPosChunk">
+        <add name="Mesh" type="Id">The meshwith bone info for which these bone initial positions are applicable. There might be some unused bones here as well. There must be the same number of bones as in the other chunks - they are placed in BoneId order.</add>
+        <add name="Num Bones" type="uint">Number of bone initial positions.</add>
+        <add name="Initial Pos Matrices" type="InitialPosMatrix" arr1="Num Bones" />
     </struct>
 
     <struct name="SourceInfoChunk">
