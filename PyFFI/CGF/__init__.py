@@ -143,6 +143,9 @@ class CgfFormat(object):
     class String128(String32):
         _len = 128
 
+    class String256(String32):
+        _len = 256
+
     # exceptions
     class CgfError(StandardError):
         pass

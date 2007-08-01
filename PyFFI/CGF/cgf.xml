@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE fileformat>
 <fileformat version="1.0">
-    <version num="1"  >Far Cry</version> <!-- bonelightbinding chunk -->
+    <version num="1"  >Far Cry</version> <!-- bonelightbinding, boneinitialpos -->
     <version num="290">Far Cry</version> <!-- boneanim chunk -->
     <version num="351">Far Cry</version> <!-- light chunk -->
     <version num="362">Far Cry</version> <!-- helper chunk -->
@@ -133,6 +133,13 @@ i
         <option value="3" name="TWOSIDED" />
     </enum>
 
+    <enum name="LightType" type="uint">
+        <option value="0" name="OMNI" />
+        <option value="1" name="SPOT" />
+        <option value="2" name="DIRECT" />
+        <option value="3" name="AMBIENT" />
+    </enum>
+
     <!--
     ******************
     *** bitstructs ***
@@ -172,6 +179,10 @@ i
 
     <struct name="String128">
         <add name="Data" type="char" arr1="128" />
+    </struct>
+
+    <struct name="String256">
+        <add name="Data" type="char" arr1="256" />
     </struct>
 
     <struct name="Vector3">
@@ -418,6 +429,31 @@ i
     <struct name="BoneNameListChunk">
         <add name="Num Names" type="uint" />
         <add name="Names" type="String" arr1="Num Names" />
+    </struct>
+
+    <struct name="LightChunk">
+        <add name="Name" type="String64" ver2="351" />
+        <add name="Type" type="LightType" />
+        <add name="On" type="bool" />
+        <add name="Reserved1" type="ubyte" arr1="3" ver2="351">Padding bytes.</add>
+        <add name="Pos" type="Vector3" ver2="351">World position.</add>
+        <add name="Transform" type="Matrix44" ver2="351">Transformation matrix.</add>
+        <add name="Color" type="IRGB">Color.</add>
+        <add name="Intensity" type="float">Light intensity.</add>
+        <add name="Hot Size" type="float">For spot and direct light hotspot value.</add>
+        <add name="Fall Size" type="float">For spot and direct light falloff value.</add>
+        <add name="Use Near Attenuation" type="bool">Near attenuation on.</add>
+        <add name="Reserved2" type="ubyte" arr1="3">Padding bytes.</add>
+        <add name="Near Attenuation Start" type="float">Start of near attenuation.</add>
+        <add name="Near Attenuation End" type="float">End of near attenuation.</add>
+        <add name="Use Far Attenuation" type="bool">Far attenuation on.</add>
+        <add name="Reserved3" type="ubyte" arr1="3">Padding bytes.</add>
+        <add name="Far Attenuation Start" type="float">Start of far attenuation.</add>
+        <add name="Far Attenuation End" type="float">End of far attenuation.</add>
+        <add name="Shadow" type="bool">Shadow is on.</add>
+        <add name="Reserved4" type="ubyte" arr1="3">Padding bytes.</add>
+        <add name="Direction" type="Vector3" ver1="744">Spot light direction</add>
+        <add name="Image" type="String256">Spot light image.</add>
     </struct>
 
     <struct name="NodeChunk">
