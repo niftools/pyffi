@@ -1,12 +1,12 @@
 # writes back the file and raises StandardError if sizes differ
 
-from PyFFI.NIF import NifFormat
+from PyFFI.CGF import CgfFormat
 from tempfile import TemporaryFile
 
-def testFile(version, user_version, f, roots, verbose):
+def testFile(filetype, fileversion, f, chunks, versions, verbose):
     f_tmp = TemporaryFile()
     try:
-        NifFormat.write(version, user_version, f_tmp, roots)
+        CgfFormat.write(filetype, fileversion, f_tmp, chunks, versions)
         f.seek(2,0)
         f_tmp.seek(2,0)
         # comparing the files will usually be different because blocks may
