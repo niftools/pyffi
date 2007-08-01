@@ -227,6 +227,7 @@ class CgfFormat(object):
             try:
                 chunk = getattr(cls, s + 'Chunk')()
             except AttributeError:
+                raise ValueError('undecoded chunk type 0x%08X (%sChunk)'%(chunkhdr.type, s))
                 print "*** skipped ***"
                 continue # for now, ignore undecoded chunk types
 
@@ -234,7 +235,7 @@ class CgfFormat(object):
             f.seek(chunkhdr.offset)
 
             # most chunks start with a copy of chunkhdr
-            if chunkhdr.type not in [cls.ChunkType.SourceInfo]:
+            if chunkhdr.type not in [cls.ChunkType.SourceInfo, cls.ChunkType.BoneNameList]:
                 chunkhdr_copy = cls.ChunkHeader()
                 chunkhdr_copy.read(version = hdr.version, f = f)
                 # check that the copy is valid
@@ -249,8 +250,22 @@ class CgfFormat(object):
         return chunks, versions
 
     @classmethod
-    def write(cls, version, f, chunks, versions, verbose = 0):
-        raise NotImplementedError
+    def write(cls, filetype, fileversion, f, chunks, versions, verbose = 0):
+        chunk_types = [x for x in dir(cls.ChunkType) if x[:2] != '__']
+
+        # write header
+        hdr = cls.Header()
+        hdr.type = filetype
+        hdr.version = fileversion
+        hdr.offset = -1 # set this at the end
+        hdr.write(version = fileversion, f = f)
+
+        # write chunks and add headers to chunk table
+        table = cls.ChunkTable()
+
+        # write chunk table
+        hdr.offset = f.tell()
+        table.write(version = fileversion, f = f)
 
     @classmethod
     def walk(cls, top, topdown = True, onerror = None, verbose = 0):

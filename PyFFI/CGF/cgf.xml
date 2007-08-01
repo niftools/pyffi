@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE fileformat>
 <fileformat version="1.0">
+    <version num="290">Far Cry</version> <!-- boneanim chunk -->
     <version num="351">Far Cry</version> <!-- light chunk -->
     <version num="362">Far Cry</version> <!-- helper chunk -->
     <version num="623">Far Cry</version>
@@ -179,6 +180,19 @@ i
         <add name="z" type="float">Third coordinate.</add>
     </struct>
 
+    <struct name="Matrix33">
+        A 3x3 transformation matrix.
+        <add name="m11" type="float">The (1,1) element.</add>
+        <add name="m21" type="float">The (2,1) element.</add>
+        <add name="m31" type="float">The (3,1) element.</add>
+        <add name="m12" type="float">The (1,2) element.</add>
+        <add name="m22" type="float">The (2,2) element.</add>
+        <add name="m32" type="float">The (3,2) element.</add>
+        <add name="m13" type="float">The (1,3) element.</add>
+        <add name="m23" type="float">The (2,3) element.</add>
+        <add name="m33" type="float">The (3,3) element.</add>
+    </struct>
+
     <struct name="Matrix44">
         A 4x4 transformation matrix.
         <add name="m11" type="float">The (1,1) element.</add>
@@ -322,6 +336,27 @@ i
         <add name="End" type="int" />
     </struct>
 
+    <struct name="BonePhysics">
+        <add name="Geometry" type="Id">Geometry of a separate mesh for this bone.</add>
+        <!-- joint parameters -->
+        <add name="Flags" type="uint" />
+        <add name="Min" type="Vector3" />
+        <add name="Max" type="Vector3" />
+        <add name="Spring Angle" type="Vector3" />
+        <add name="Spring Tension" type="Vector3" />
+        <add name="Damping" type="Vector3" />
+        <add name="Frame Matrix" type="Matrix33" />
+    </struct>
+
+    <struct name="BoneEntity">
+        <add name="Bone" type="Id" />
+        <add name="Parent" type="Id" />
+        <add name="Num Children" type="uint" />
+        <add name="Ctrl" type="uint">CRC32 from name of bone.</add>
+        <add name="Properties" type="String32" />
+        <add name="Physics" type="BonePhysics" />
+    </struct>
+
     <!--real file blocks-->
 
     <struct name="Header">
@@ -365,6 +400,16 @@ i
         <add name="Type" type="HelperType">Point, dummy, xref or camera.</add>
         <add name="Pos" type="Vector3">World position</add>
         <add name="Transform" type="Matrix44" ver2="362">Transformation matrix</add>
+    </struct>
+
+    <struct name="BoneAnimChunk">
+        <add name="Num Bones" type="uint" />
+        <add name="Bones" type="BoneEntity" arr1="Num Bones" />
+    </struct>
+
+    <struct name="BoneNameListChunk">
+        <add name="Num Names" type="uint" />
+        <add name="Names" type="String" arr1="Num Names" />
     </struct>
 
     <struct name="NodeChunk">
