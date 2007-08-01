@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE fileformat>
 <fileformat version="1.0">
-    <version num="351">Far Cry</version><!-- light chunk -->
-    <version num="362">Far Cry</version><!-- helper chunk -->
+    <version num="351">Far Cry</version> <!-- light chunk -->
+    <version num="362">Far Cry</version> <!-- helper chunk -->
     <version num="623">Far Cry</version>
     <version num="744">Far Cry</version>
     <version num="745">Far Cry</version>
     <version num="746">Far Cry</version>
+    <version num="823">Far Cry</version> <!-- node chunk -->
     <version num="918">Far Cry</version> <!-- timing chunk -->
 
     <!--
@@ -349,8 +350,34 @@ i
     <struct name="HelperChunk">
         <add name="Name" type="String64" ver2="362">Helper name</add>
         <add name="Type" type="HelperType">Point, dummy, xref or camera.</add>
-        <add name="Position" type="Vector3">World position</add>
+        <add name="Pos" type="Vector3">World position</add>
         <add name="Transform" type="Matrix44" ver2="362">Transformation matrix</add>
+    </struct>
+
+    <struct name="NodeChunk">
+        <add name="Name" type="String64" />
+        <add name="Object" type="Id">This node's object chunk (if present).</add>
+        <add name="Parent" type="Id">This node's parent.</add>
+        <add name="Num Children" type="uint">Number of children.</add>
+        <add name="Material" type="Id">Material chunk.</add>
+
+        <add name="Is Group Head" type="bool" />
+        <add name="Is Group Member" type="bool" />
+        <add name="Reserved1" type="ubyte" arr1="2">Padding bytes.</add>
+
+        <add name="Transform" type="Matrix44">Transformation matrix.</add>
+        <add name="Pos" type="Vector3">Position component of above matrix.</add>
+        <add name="Rot" type="Quat">Rotation component of above matrix.</add>
+        <add name="Scl" type="Vector3">Scale component of above matrix.</add>
+
+        <add name="Pos Ctrl" type="Id">Position controller.</add>
+        <add name="Rot Ctrl" type="Id">Rotation controller.</add>
+        <add name="Scl Ctrl" type="Id">Scale controller.</add>
+
+        <add name="Property String Length" type="uint">Lenght of the property string.</add>
+
+        <add name="Property String" type="char" arr1="Property String Length">Property string.</add>
+        <add name="Children" type="Id" arr1="Num Children">Children.</add>
     </struct>
 
     <struct name="MtlChunk">
