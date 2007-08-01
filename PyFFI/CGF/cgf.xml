@@ -238,11 +238,16 @@
 
     <struct name="BoneLink">
         A bone link.
-        <add name="Bone" type="Id">The bone chunk?</add>
+        <add name="Bone" type="Id">The bone chunk.</add>
         <add name="Offset" type="Vector3">The bone offset?</add>
-        <add name="Blending" type="float">Bone blending?</add>
+        <add name="Blending" type="float">Vertex weight.</add>
     </struct>
     
+    <struct name="VertexWeight">
+        <add name="Num Bone Links" type="uint" />
+        <add name="Bone Links" type="BoneLink" arr1="Num Bone Links" />
+    </struct>
+
     <struct name="IRGB">
         R8G8B8.
         <add name="r" type="ubyte" />
@@ -293,7 +298,7 @@
 
     <struct name="MeshChunk">
         Geometry.
-        <add name="Has Bone Links" type="bool" />
+        <add name="Has Vertex Weights" type="bool" />
         <add name="Has Vertex Colors" type="bool" />
         <add name="In World Space" type="bool" ver2="623" />
         <add name="Reserved1" type="ubyte" ver1="744">Padding byte</add>
@@ -309,8 +314,7 @@
         <add name="Faces" type="Face" arr1="Num Faces" />
         <add name="UVs" type="UV" arr1="Num UVs" />
         <add name="UV Faces" type="UVFace" arr1="Num Faces" cond="Num UVs" />
-        <add name="Num Bone Links" type="uint" cond="Has Bone Links" />
-        <add name="Bone Links" type="BoneLink" arr1="Num Bone Links" cond="Has Bone Links" />
+        <add name="Vertex Weights" type="VertexWeight" arr1="Num Vertices" cond="Has Vertex Weights" />
         <add name="Vertex Colors" type="IRGB" arr1="Num Vertices" cond="Has Vertex Colors" />
     </struct>
 
