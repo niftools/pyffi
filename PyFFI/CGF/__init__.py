@@ -226,19 +226,17 @@ class CgfFormat(object):
                 if getattr(cls.ChunkType, s) == chunkhdr.type: break
             else:
                 raise ValueError('unknown chunk type 0x%08X'%chunkhdr.type)
-            print "%s chunk, version 0x%08X"%(s,chunkhdr.version)
+            #print "%s chunk, version 0x%08X"%(s,chunkhdr.version)
             try:
                 chunk = getattr(cls, s + 'Chunk')()
             except AttributeError:
                 raise ValueError('undecoded chunk type 0x%08X (%sChunk)'%(chunkhdr.type, s))
-                print "*** skipped ***"
-                continue # for now, ignore undecoded chunk types
 
             # now read the chunk
             f.seek(chunkhdr.offset)
 
             # most chunks start with a copy of chunkhdr
-            if chunkhdr.type not in [cls.ChunkType.SourceInfo, cls.ChunkType.BoneNameList, cls.ChunkType.BoneLightBinding, cls.ChunkType.BoneInitialPos]:
+            if chunkhdr.type not in [cls.ChunkType.SourceInfo, cls.ChunkType.BoneNameList, cls.ChunkType.BoneLightBinding, cls.ChunkType.BoneInitialPos, cls.ChunkType.MeshMorphTarget]:
                 chunkhdr_copy = cls.ChunkHeader()
                 chunkhdr_copy.read(version = hdr.version, f = f)
                 # check that the copy is valid
@@ -246,7 +244,6 @@ class CgfFormat(object):
                     raise ValueError('chunk starts with invalid header:\nexpected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
 
             chunk.read(version = chunkhdr.version, f = f)
-            print chunk
             chunks.append(chunk)
             versions.append(chunkhdr.version)
 

@@ -532,6 +532,8 @@ i
         <add name="Num Sub Ranges" type="int" />
     </struct>
 
+    <struct name="BoneMeshChunk" inherit="MeshChunk" />
+
     <struct name="BoneLightBindingChunk">
         <add name="Num Bindings" type="uint" />
         <add name="Bindings" type="BoneLightBinding" arr1="Num Bindings" />
