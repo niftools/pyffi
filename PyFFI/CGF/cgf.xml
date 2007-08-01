@@ -10,6 +10,8 @@
     <version num="745">Far Cry</version>
     <version num="746">Far Cry</version>
     <version num="823">Far Cry</version> <!-- node chunk -->
+    <version num="826">Far Cry</version> <!-- controller chunk -->
+    <version num="827">Far Cry</version> <!-- controller chunk -->
     <version num="918">Far Cry</version> <!-- timing chunk -->
 
     <!--
@@ -140,6 +142,25 @@ i
         <option value="3" name="AMBIENT" />
     </enum>
 
+    <enum name="CtrlType" type="uint">
+        <option value="0" name="NONE" />
+        <option value="1" name="CRYBONE" />
+        <option value="2" name="LINEAR1" />
+        <option value="3" name="LINEAR3" />
+        <option value="4" name="LINEARQ" />
+        <option value="5" name="BEZIER1" />
+        <option value="6" name="BEZIER3" />
+        <option value="7" name="BEZIERQ" />
+        <option value="8" name="TBC1" />
+        <option value="9" name="TBC3" />
+        <option value="10" name="TBCQ" />
+        <option value="11" name="BSPLINE2O">2-byte fixed values, open</option>
+        <option value="12" name="BSPLINE1O">1-byte fixed values, open</option>
+        <option value="13" name="BSPLINE2C">2-byte fixed values, closed</option>
+        <option value="14" name="BSPLINE1C">1-byte fixed values, closed</option>
+        <option value="11" name="CONST">constant</option>
+    </enum>
+
     <!--
     ******************
     *** bitstructs ***
@@ -161,6 +182,11 @@ i
         <add name="Physicalize" numbits="1" />
         <add name="Additive Decal" numbits="1" />
         <add name="Use Glossiness" numbits="1" />
+    </bitstruct>
+
+    <bitstruct name="CtrlFlags" type="uint">
+        <add name="Cycle" numbits="1" />
+        <add name="Loop" numbits="1" />
     </bitstruct>
 
     <!--
@@ -364,7 +390,7 @@ i
         <add name="Bone" type="Id" />
         <add name="Parent" type="Id" />
         <add name="Num Children" type="uint" />
-        <add name="Ctrl" type="uint">CRC32 from name of bone.</add>
+        <add name="Ctrl Id" type="uint">CRC32 from name of bone.</add>
         <add name="Properties" type="String32" />
         <add name="Physics" type="BonePhysics" />
     </struct>
@@ -523,6 +549,14 @@ i
 
         <add name="Num Children" type="int" cond="Type == 2" />
         <add name="Children" type="Id" arr1="Num Children" cond="Type == 2">Links to other material chunks.</add>
+    </struct>
+
+    <struct name="ControllerChunk">
+        <add name="Type" type="CtrlType" ver2="826" />
+        <add name="Num Keys" type="uint" />
+        <add name="Flags" type="CtrlFlags" ver2="826" />
+        <add name="Ctrl Id" type="uint">Unique id based on CRC32 of bone name</add>
+        <add name="Keys" type="Key" arr1="Num Keys" cond="Type == 1" />
     </struct>
 
     <struct name="TimingChunk">
