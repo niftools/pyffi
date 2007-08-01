@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE fileformat>
 <fileformat version="1.0">
+    <version num="1"  >Far Cry</version> <!-- bonelightbinding chunk -->
     <version num="290">Far Cry</version> <!-- boneanim chunk -->
     <version num="351">Far Cry</version> <!-- light chunk -->
     <version num="362">Far Cry</version> <!-- helper chunk -->
@@ -357,6 +358,13 @@ i
         <add name="Physics" type="BonePhysics" />
     </struct>
 
+    <struct name="BoneLightBinding">
+        <add name="Light" type="Id">Light that's bound to a bone.</add>
+        <add name="Bone" type="Id">Parent bone.</add>
+        <add name="Pos" type="Vector3">Position of light in parent bone coordinates.</add>
+        <add name="Rot" type="Vector3">Logarithm of quaternion that describes the light orientation relative to the parent bone.</add>
+    </struct>
+
     <!--real file blocks-->
 
     <struct name="Header">
@@ -480,6 +488,11 @@ i
         <add name="Ticks Per Frame" type="int">ticks/frame</add>
         <add name="Global Range" type="RangeEntity">Covers all of the time ranges.</add>
         <add name="Num Sub Ranges" type="int" />
+    </struct>
+
+    <struct name="BoneLightBindingChunk">
+        <add name="Num Bindings" type="uint" />
+        <add name="Bindings" type="BoneLightBinding" arr1="Num Bindings" />
     </struct>
 
     <struct name="SourceInfoChunk">

@@ -235,7 +235,7 @@ class CgfFormat(object):
             f.seek(chunkhdr.offset)
 
             # most chunks start with a copy of chunkhdr
-            if chunkhdr.type not in [cls.ChunkType.SourceInfo, cls.ChunkType.BoneNameList]:
+            if chunkhdr.type not in [cls.ChunkType.SourceInfo, cls.ChunkType.BoneNameList,cls.ChunkType.BoneLightBinding]:
                 chunkhdr_copy = cls.ChunkHeader()
                 chunkhdr_copy.read(version = hdr.version, f = f)
                 # check that the copy is valid
