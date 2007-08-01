@@ -43,6 +43,8 @@ The most common basic types are implemented in PyFFI.Common.
 
 __all__ = [ 'XmlHandler', 'Utils', 'Common', 'Bases' ]
 
+__version__ = '0.3'
+
 from XmlHandler import XmlSaxHandler
 
 import xml.sax
