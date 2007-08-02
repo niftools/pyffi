@@ -212,7 +212,7 @@ class StructBase(object):
                     arg = getattr(self, arg)
             # handle arrays
             if arr1 == None:
-                attr_instance = typ(tmpl, arg)
+                attr_instance = typ(template = tmpl, argument = arg)
                 if default != None:
                     attr_instance.setValue(default)
             elif arr2 == None:
@@ -257,7 +257,7 @@ class StructBase(object):
             if arg != None:
                 if not isinstance(arg, (int, long)):
                     arg = getattr(self, arg)
-            getattr(self, "_" + name + "_value_").read(version, user_version, f, link_stack, string_list, arg)
+            getattr(self, "_" + name + "_value_").read(f = f, version = version, user_version = user_version, link_stack = link_stack, string_list = string_list, argument = arg)
 
     def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
         self.arg = argument
@@ -273,9 +273,9 @@ class StructBase(object):
             if arg != None:
                 if not isinstance(arg, (int, long)):
                     arg = getattr(self, arg)
-            getattr(self, "_" + name + "_value_").write(version, user_version, f, block_index_dct, string_list, arg)
+            getattr(self, "_" + name + "_value_").write(version = version, user_version = user_version, f = f, block_index_dct = block_index_dct, string_list = string_list, argument = arg)
 
-    def fixLinks(self, version, user_version, block_dct, link_stack):
+    def fixLinks(self, version = -1, user_version = 0, block_dct = {}, link_stack = []):
         for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
             if not typ._hasLinks: continue
             if ver1:
@@ -286,9 +286,10 @@ class StructBase(object):
                 if user_version != userver: continue
             if cond != None:
                 if not cond.eval(self): continue
-            getattr(self, "_" + name + "_value_").fixLinks(version, user_version, block_dct, link_stack)
+            #print "fixlinks %s"%name
+            getattr(self, "_" + name + "_value_").fixLinks(version = version, user_version = user_version, block_dct = block_dct, link_stack = link_stack)
 
-    def getLinks(self, version, user_version):
+    def getLinks(self, version = -1, user_version = 0):
         links = []
         for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
             if not typ._hasLinks: continue
@@ -300,10 +301,10 @@ class StructBase(object):
                 if user_version != userver: continue
             if cond != None:
                 if not cond.eval(self): continue
-            links.extend(getattr(self, "_" + name + "_value_").getLinks(version, user_version))
+            links.extend(getattr(self, "_" + name + "_value_").getLinks(version = version, user_version = user_version))
         return links
 
-    def getStrings(self, version, user_version):
+    def getStrings(self, version = -1, user_version = 0):
         strings = []
         for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
             if not typ._hasStrings: continue
@@ -315,7 +316,7 @@ class StructBase(object):
                 if user_version != userver: continue
             if cond != None:
                 if not cond.eval(self): continue
-            strings.extend(getattr(self, "_" + name + "_value_").getStrings(version, user_version))
+            strings.extend(getattr(self, "_" + name + "_value_").getStrings(version = version, user_version = user_version))
         return strings
 
     def getRefs(self):

@@ -80,7 +80,7 @@ class Int(BasicBase):
     _struct = 'i'      #: Character used to represent type in struct.
     _size = 4          #: Number of bytes.
 
-    def __init__(self, template = None, argument = None):
+    def __init__(self, **kwargs):
         self._x = ''.join(['\x00' for i in xrange(self._size)])
         #self.setValue(0L)
 
@@ -102,11 +102,11 @@ class Int(BasicBase):
             raise ValueError('value out of range (%i)'%self.getValue())
         self._x = struct.pack('<' + self._struct, x)
 
-    def read(self, version = -1, user_version = 0, f = None, link_stack = [], string_list = [], argument = None):
+    def read(self, f = None, **kwargs):
         # file must be an instance of the type
         self._x = f.read(self._size)
 
-    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
+    def write(self, f = None, **kwargs):
         f.write(self._x)
 
     def __str__(self):
@@ -154,17 +154,17 @@ class Char(BasicBase):
         assert(len(value) == 1)
         self._x = value
 
-    def read(self, version = -1, user_version = 0, f = None, link_stack = [], string_list = [], argument = None):
+    def read(self, f = None, **kwargs):
         self._x = f.read(1)
 
-    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
+    def write(self, f = None, **kwargs):
         f.write(self._x)
 
     def __str__(self):
         return self._x
 
 class Float(BasicBase):
-    def __init__(self, template = None, argument = None):
+    def __init__(self, **kwargs):
         self._x = '\x00\x00\x00\x00'
 
     def getValue(self):
@@ -173,10 +173,10 @@ class Float(BasicBase):
     def setValue(self, value):
         self._x = struct.pack('<f', float(value))
 
-    def read(self, version = -1, user_version = 0, f = None, link_stack = [], string_list = [], argument = None):
+    def read(self, f = None, **kwargs):
         self._x = f.read(4)
 
-    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
+    def write(self, f = None, **kwargs):
         f.write(self._x)
 
 ### faster calculation, slower read/write:

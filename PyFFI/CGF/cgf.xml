@@ -56,6 +56,14 @@
         A null-terminated string.
     </basic>
 
+    <basic name="Ref" istemplate="1">
+        A reference to another block.
+    </basic>
+
+    <basic name="Ptr" istemplate="1">
+        A back-reference to another block (up the hierarchy).
+    </basic>
+
     <!--
     *******************
     *** alias types ***
@@ -72,10 +80,6 @@
         Points to a position in a file.
     </alias>
 
-    <alias name="Id" type="int" default="-1">
-        Reference to another chunk, through its Id (as stored in its chunk header).
-    </alias>
-    
     <!--
     ******************
     *** enum types ***
@@ -269,7 +273,7 @@ i
         <add name="v0" type="int">First vertex index.</add>
         <add name="v1" type="int">Second vertex index.</add>
         <add name="v2" type="int">Third vertex index.</add>
-        <add name="Material" type="Id">Material.</add>
+        <add name="Material" type="Ref" template="Chunk">Material or timing chunk.</add>
         <add name="Sm Group" type="int" default="1">Smoothing group.</add>
     </struct>
     
@@ -321,18 +325,18 @@ i
         <add  name="W Rot Val" type="float" />
 
         <!--texture position controller chunk id's (if not animated they are -1)-->
-        <add name="U Off Ctrl" type="Id" />
-        <add name="U Scl Ctrl" type="Id" />
-        <add name="U Rot Ctrl" type="Id" />
-        <add name="V Off Ctrl" type="Id" />
-        <add name="V Scl Ctrl" type="Id" />
-        <add name="V Rot Ctrl" type="Id" />
-        <add name="W Rot Ctrl" type="Id" />
+        <add name="U Off Ctrl" type="Ref" template="ControllerChunk" />
+        <add name="U Scl Ctrl" type="Ref" template="ControllerChunk" />
+        <add name="U Rot Ctrl" type="Ref" template="ControllerChunk" />
+        <add name="V Off Ctrl" type="Ref" template="ControllerChunk" />
+        <add name="V Scl Ctrl" type="Ref" template="ControllerChunk" />
+        <add name="V Rot Ctrl" type="Ref" template="ControllerChunk" />
+        <add name="W Rot Ctrl" type="Ref" template="ControllerChunk" />
     </struct>
 
     <struct name="BoneLink">
         A bone link.
-        <add name="Bone" type="Id">The bone chunk.</add>
+        <add name="Bone" type="uint"> <!-- type="Ref" template="NodeChunk" -->The bone chunk.</add>
         <add name="Offset" type="Vector3">The bone offset?</add>
         <add name="Blending" type="float">Vertex weight.</add>
     </struct>
@@ -365,7 +369,7 @@ i
         <add name="Type" type="ChunkType">Type of chunk referred to.</add>
         <add name="Version" type="ChunkVersion">Version of the chunk referred to.</add>
         <add name="Offset" type="uint">Position of the chunk in the CGF file.</add>
-        <add name="Id" type="int" ver1="744">The chunk identifier.</add>
+        <add name="Id" type="uint" ver1="744">The chunk identifier.</add>
     </struct>
 
     <struct name="RangeEntity">
@@ -375,7 +379,7 @@ i
     </struct>
 
     <struct name="BonePhysics">
-        <add name="Geometry" type="Id">Geometry of a separate mesh for this bone.</add>
+        <add name="Geometry" type="Ref" template="BoneMeshChunk">Geometry of a separate mesh for this bone.</add>
         <!-- joint parameters -->
         <add name="Flags" type="uint" />
         <add name="Min" type="Vector3" />
@@ -387,8 +391,8 @@ i
     </struct>
 
     <struct name="BoneEntity">
-        <add name="Bone" type="Id" />
-        <add name="Parent" type="Id" />
+        <add name="Bone" type="Ref" template="Chunk">Timing chunk or node chunk.</add>
+        <add name="Parent" type="Ptr" template="Chunk">Timing chunk or mesh chunk.</add>
         <add name="Num Children" type="uint" />
         <add name="Ctrl Id" type="uint">CRC32 from name of bone.</add>
         <add name="Properties" type="String32" />
@@ -396,8 +400,8 @@ i
     </struct>
 
     <struct name="BoneLightBinding">
-        <add name="Light" type="Id">Light that is bound to a bone.</add>
-        <add name="Bone" type="Id">Parent bone.</add>
+        <add name="Light" type="Ref" template="LightChunk">Light that is bound to a bone.</add>
+        <add name="Bone" type="Ptr" template="NodeChunk">Parent bone.</add>
         <add name="Pos" type="Vector3">Position of light in parent bone coordinates.</add>
         <add name="Rot" type="Vector3">Logarithm of quaternion that describes the light orientation relative to the parent bone.</add>
     </struct>
@@ -424,7 +428,11 @@ i
         <add name="Chunk Headers" type="ChunkHeader" arr1="Num Chunks">Header for each chunk.</add>
     </struct>
 
-    <struct name="MeshChunk">
+    <struct name="Chunk">
+        Base class for all chunks.
+    </struct>
+
+    <struct name="MeshChunk" inherit="Chunk">
         Geometry.
         <add name="Has Vertex Weights" type="bool" />
         <add name="Has Vertex Colors" type="bool" />
@@ -434,9 +442,9 @@ i
         <add name="Num Vertices" type="uint" />
         <add name="Num UVs" type="uint" />
         <add name="Num Faces" type="uint" />
-        <add name="Material" type="Id" ver2="623" />
+        <add name="Material" type="Ref" template="MtlChunk" ver2="623">Material chunk or timing chunk.</add>
         <add name="Property String Length" type="uint" ver2="623" />
-        <add name="Vert Anim" type="Id" ver1="744" />
+        <add name="Vert Anim" type="Ref" template="VertAnimChunk" ver1="744" />
 
         <add name="Vertices" type="Vertex" arr1="Num Vertices" />
         <add name="Faces" type="Face" arr1="Num Faces" />
@@ -446,24 +454,28 @@ i
         <add name="Vertex Colors" type="IRGB" arr1="Num Vertices" cond="Has Vertex Colors" />
     </struct>
 
-    <struct name="HelperChunk">
+    <struct name="HelperChunk" inherit="Chunk">
         <add name="Name" type="String64" ver2="362">Helper name</add>
         <add name="Type" type="HelperType">Point, dummy, xref or camera.</add>
         <add name="Pos" type="Vector3">World position</add>
         <add name="Transform" type="Matrix44" ver2="362">Transformation matrix</add>
     </struct>
 
-    <struct name="BoneAnimChunk">
+    <struct name="VertAnimChunk" inherit="Chunk">
+    <!-- todo: decode -->
+    </struct>
+
+    <struct name="BoneAnimChunk" inherit="Chunk">
         <add name="Num Bones" type="uint" />
         <add name="Bones" type="BoneEntity" arr1="Num Bones" />
     </struct>
 
-    <struct name="BoneNameListChunk">
+    <struct name="BoneNameListChunk" inherit="Chunk">
         <add name="Num Names" type="uint" />
         <add name="Names" type="String" arr1="Num Names" />
     </struct>
 
-    <struct name="LightChunk">
+    <struct name="LightChunk" inherit="Chunk">
         <add name="Name" type="String64" ver2="351" />
         <add name="Type" type="LightType" />
         <add name="On" type="bool" />
@@ -488,12 +500,12 @@ i
         <add name="Image" type="String256">Spot light image.</add>
     </struct>
 
-    <struct name="NodeChunk">
+    <struct name="NodeChunk" inherit="Chunk">
         <add name="Name" type="String64" />
-        <add name="Object" type="Id">Node object chunk (if present). Usually, a mesh.</add>
-        <add name="Parent" type="Id">Node parent.</add>
+        <add name="Object" type="Ref" template="MeshChunk">Node object chunk (if present). Usually, a mesh.</add>
+        <add name="Parent" type="Ptr" template="NodeChunk">Node parent.</add>
         <add name="Num Children" type="uint">Number of children.</add>
-        <add name="Material" type="Id">Material chunk.</add>
+        <add name="Material" type="Ref" template="MtlChunk">Material chunk.</add>
 
         <add name="Is Group Head" type="bool" />
         <add name="Is Group Member" type="bool" />
@@ -504,17 +516,17 @@ i
         <add name="Rot" type="Quat">Rotation component of above matrix.</add>
         <add name="Scl" type="Vector3">Scale component of above matrix.</add>
 
-        <add name="Pos Ctrl" type="Id">Position controller.</add>
-        <add name="Rot Ctrl" type="Id">Rotation controller.</add>
-        <add name="Scl Ctrl" type="Id">Scale controller.</add>
+        <add name="Pos Ctrl" type="Ref" template="ControllerChunk">Position controller.</add>
+        <add name="Rot Ctrl" type="Ref" template="ControllerChunk">Rotation controller.</add>
+        <add name="Scl Ctrl" type="Ref" template="ControllerChunk">Scale controller.</add>
 
         <add name="Property String Length" type="uint">Lenght of the property string.</add>
 
         <add name="Property String" type="char" arr1="Property String Length">Property string.</add>
-        <add name="Children" type="Id" arr1="Num Children">Children.</add>
+        <add name="Children" type="Ref" template="NodeChunk" arr1="Num Children">Children.</add>
     </struct>
 
-    <struct name="MtlChunk">
+    <struct name="MtlChunk" inherit="Chunk">
         <add name="Name" type="String64">Material and shader name.</add>
         <add name="Reserved" type="ubyte" arr1="60" ver1="746">Reserved.</add>
         <add name="Alpha Test" type="float" ver1="746">Unknown.</add>
@@ -548,10 +560,10 @@ i
         <add name="Dyn Sliding Friction" type="float" cond="Type == 1" />
 
         <add name="Num Children" type="int" cond="Type == 2" />
-        <add name="Children" type="Id" arr1="Num Children" cond="Type == 2">Links to other material chunks.</add>
+        <add name="Children" type="Ref" template="Chunk" arr1="Num Children" cond="Type == 2">Links to other material chunks, source info chunks?, timing chunks.</add>
     </struct>
 
-    <struct name="ControllerChunk">
+    <struct name="ControllerChunk" inherit="Chunk">
         <add name="Type" type="CtrlType" ver2="826" />
         <add name="Num Keys" type="uint" />
         <add name="Flags" type="CtrlFlags" ver2="826" />
@@ -559,7 +571,7 @@ i
         <add name="Keys" type="Key" arr1="Num Keys" cond="Type == 1" />
     </struct>
 
-    <struct name="TimingChunk">
+    <struct name="TimingChunk" inherit="Chunk">
         <add name="Secs Per Tick" type="float">seconds/ticks</add>
         <add name="Ticks Per Frame" type="int">ticks/frame</add>
         <add name="Global Range" type="RangeEntity">Covers all of the time ranges.</add>
@@ -568,21 +580,22 @@ i
 
     <struct name="BoneMeshChunk" inherit="MeshChunk" />
 
-    <struct name="BoneLightBindingChunk">
+    <struct name="BoneLightBindingChunk" inherit="Chunk">
         <add name="Num Bindings" type="uint" />
         <add name="Bindings" type="BoneLightBinding" arr1="Num Bindings" />
     </struct>
 
-    <struct name="BoneInitialPosChunk">
-        <add name="Mesh" type="Id">The meshwith bone info for which these bone initial positions are applicable. There might be some unused bones here as well. There must be the same number of bones as in the other chunks - they are placed in BoneId order.</add>
+    <struct name="BoneInitialPosChunk" inherit="Chunk">
+        <add name="Mesh" type="Ptr" template="MeshChunk">The mesh with bone info for which these bone initial positions are applicable. There might be some unused bones here as well. There must be the same number of bones as in the other chunks - they are placed in BoneId order.</add>
         <add name="Num Bones" type="uint">Number of bone initial positions.</add>
         <add name="Initial Pos Matrices" type="InitialPosMatrix" arr1="Num Bones" />
     </struct>
 
-    <struct name="SourceInfoChunk">
+    <struct name="SourceInfoChunk" inherit="Chunk">
         <add name="Source File" type="String" />
         <add name="Date" type="String" />
         <add name="Author" type="String" />
     </struct>
 
 </fileformat>
+
