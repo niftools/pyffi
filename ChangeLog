@@ -1,3 +1,9 @@
+Version 0.3 (2 Aug 2007):
+* NIF:
+  - fixed an issue with writing skeleton.nif files
+* CGF:
+  - reading support for the most common blocks in static cgf files (experimental)
+
 Version 0.2.1 (29 Jul 2007):
 * NIF:
   - fixed bug in getTransform
