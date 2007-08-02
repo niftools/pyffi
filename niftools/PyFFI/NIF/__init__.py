@@ -855,11 +855,14 @@ class NifFormat(object):
                 block_index_dct[root] = id(root)
             block_list.append(root)
         # add children
-        for child in root.getLinks(version, user_version):
-            cls._makeBlockList(version, user_version, child, block_list, block_index_dct, block_type_list, block_type_dct, reverse)
+        for child in root.getLinks(version = version, user_version = user_version):
+            cls._makeBlockList(version, user_version, child, block_list, block_index_dct, block_type_list, block_type_dct)
         # add block if reverse
         if reverse:
-            block_index_dct[root] = len(block_list)
+            if version >= 0x0303000D:
+                block_index_dct[root] = len(block_list)
+            else:
+                block_index_dct[root] = id(root)
             block_list.append(root)
 
     @classmethod
