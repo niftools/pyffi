@@ -40,16 +40,16 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-"""
-The nif skinning algorithm works as follows (as of nifskope):
-v'                               # vertex after skinning in geometry space
-= sum over {b in skininst.bones} # sum over all bones b that influence the mesh
-weight[v][b]                     # how much bone b influences vertex v
-* v                              # vertex before skinning in geometry space (as it is stored in the shape data)
-* skindata.boneList[b].transform # transform vertex to bone b space in the rest pose
-* b.getTransform(skelroot)       # apply animation, by multiplying with all bone matrices in the chain down to the skeleton root; the vertex is now in skeleton root space
-* skindata.transform             # transforms vertex from skeleton root space back to geometry space
+# The nif skinning algorithm works as follows (as of nifskope):
+# v'                               # vertex after skinning in geometry space
+# = sum over {b in skininst.bones} # sum over all bones b that influence the mesh
+# weight[v][b]                     # how much bone b influences vertex v
+# * v                              # vertex before skinning in geometry space (as it is stored in the shape data)
+# * skindata.boneList[b].transform # transform vertex to bone b space in the rest pose
+# * b.getTransform(skelroot)       # apply animation, by multiplying with all bone matrices in the chain down to the skeleton root; the vertex is now in skeleton root space
+# * skindata.transform             # transforms vertex from skeleton root space back to geometry space
 
+"""
 >>> from PyFFI.NIF import NifFormat
 >>> id44 = NifFormat.Matrix44()
 >>> id44.setIdentity()
