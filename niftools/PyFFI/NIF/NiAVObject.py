@@ -62,7 +62,7 @@ def getTransform(self, relative_to = None):
         raise ValueError('cannot find a chain of NiAVObject blocks')
     # and multiply with all transform matrices (not including relative_to)
     for block in reversed(chain[1:-1]):
-        m = block.getTransform() * m
+        m *= block.getTransform()
     return m
 
 def setTransform(self, m):

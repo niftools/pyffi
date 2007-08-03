@@ -254,6 +254,8 @@ def __mul__(self, x):
         m.m43 = self.m43 * x
         m.m44 = self.m44 * x
         return m
+    elif isinstance(x, self.cls.Vector3):
+        raise TypeError("matrix*vector not supported; please use left multiplication (vector*matrix)")
     elif isinstance(x, self.cls.Vector4):
         raise TypeError("matrix*vector not supported; please use left multiplication (vector*matrix)")
     elif isinstance(x, self.cls.Matrix44):
@@ -276,7 +278,7 @@ def __mul__(self, x):
         m.m44 = self.m41 * x.m14  +  self.m42 * x.m24  +  self.m43 * x.m34  +  self.m44 * x.m44
         return m
     else:
-        raise TypeError("do not know how to multiply Matrix33 with %s"%x.__class__)
+        raise TypeError("do not know how to multiply Matrix44 with %s"%x.__class__)
 
 def __div__(self, x):
     if isinstance(x, (float, int, long)):
