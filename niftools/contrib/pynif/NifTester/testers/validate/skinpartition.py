@@ -19,5 +19,6 @@ def testBlock(block, verbose):
 
     lw = block.updateSkinPartition(maxbonesperpartition = 4, maxbonespervertex = 4, verbose = verbose)
     print 'lost weight from partitioning', lw
+    if lw > 0.49: raise ValueError('lost too much weight; bug in partition algorithm?')
 
     # TODO check the skin partition data
