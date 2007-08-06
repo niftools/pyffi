@@ -200,18 +200,23 @@ def flattenSkin(self):
     skelroot = skininst.skeletonRoot
 
     # reparent geometry
-    self.setTransform(skindata.getTransform() * self.getTransform(skelroot))
-    chain = skelroot.findChain(self)
+    self.setTransform(self.getTransform(skelroot))
+    chain = skelroot.findChain(self, block_type = self.cls.NiAVObject)
     skelroot.removeChild(chain[1]) # detatch geometry from tree
     skelroot.addChild(self, front = True) # and attatch it to the skeleton root
 
     # reparent bones and set their transforms
-    for i, bone_block in enumerate(skininst.bones):
+    bone_transform = {}
+    for bone_block in skininst.bones:
+        bone_transform[bone_block] = bone_block.getTransform(skelroot)
+
+    # reparent bones and set their transforms
+    for bone_block in skininst.bones:
         if bone_block != skelroot:
             # remove children
             bone_block.numChildren = 0
             bone_block.children.updateSize()
-            bone_block.setTransform(skindata.boneList[i].getTransform().getInverse())
+            bone_block.setTransform(bone_transform[bone_block])
             skelroot.addChild(bone_block)
             result.append(bone_block)
 
