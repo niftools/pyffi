@@ -109,7 +109,7 @@ print data.findChain(ctrl) # []
 print "Writing nif file"
 
 f = open("test.nif", "wb")
-NifFormat.write(0x14010003, 11, f, [root, NifFormat.NiNode()])
+NifFormat.write(version = 0x14010003, user_version = 11, f = f, roots = [root, NifFormat.NiNode()])
 
 # reading a nif file
 
@@ -125,7 +125,7 @@ try:
     if version >= 0:
         try:
             print "reading nif file (version 0x%08X)"%version
-            NifFormat.read(version, user_version, buffer)
+            NifFormat.read(version = version, user_version = user_version, f = buffer)
         except:
             hexDump(buffer)
             raise

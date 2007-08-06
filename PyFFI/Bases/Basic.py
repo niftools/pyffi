@@ -78,34 +78,32 @@ class BasicBase(object):
     _hasStrings = False # does the type contain a string?
     
     def __init__(self, template = None, argument = None):
-        """When overriding __init__, template and argument are
-        mandatory even if the type is not a template or does not take
-        an argument. This makes it easier to instanciate all types in
-        a uniform manner, i.e. typ(tmpl, arg).
-	
-        See FileFormat/Bases/Compound.py for an example."""
+        """Initializes the instance.
+
+        @param template: type used as template
+        @param argument: argument used to initialize the instance (see the Struct class)"""
         pass
 
     # string representation
     def __str__(self):
         return str(self.getValue())
 
-    def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
+    def read(self, **kwargs):
         raise NotImplementedError
 
-    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
+    def write(self, **kwargs):
         raise NotImplementedError
 
-    def fixLinks(self, version = -1, user_version = 0, block_dct = {}, link_stack = []):
+    def fixLinks(self, **kwargs):
         pass
     
-    def getLinks(self, version = -1, user_version = 0):
+    def getLinks(self, **kwargs):
         return []
     
-    def getStrings(self, version = -1, user_version = 0):
+    def getStrings(self, **kwargs):
         return []
     
-    def getRefs(self):
+    def getRefs(self, **kwargs):
         return []
     
     def getValue(self):

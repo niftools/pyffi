@@ -243,7 +243,7 @@ class StructBase(object):
                 s += '* ' + str(name) + ' : ' + attr_str_lines[0] + '\n'
         return s
 
-    def read(self, version = -1, user_version = 0, f = None, link_stack = [], string_list = [], argument = None):
+    def read(self, version = -1, user_version = 0, f = None, argument = None, **kwargs):
         self.arg = argument
         for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
             if ver1:
@@ -257,9 +257,9 @@ class StructBase(object):
             if arg != None:
                 if not isinstance(arg, (int, long)):
                     arg = getattr(self, arg)
-            getattr(self, "_" + name + "_value_").read(f = f, version = version, user_version = user_version, link_stack = link_stack, string_list = string_list, argument = arg)
+            getattr(self, "_" + name + "_value_").read(f = f, version = version, user_version = user_version, argument = arg, **kwargs)
 
-    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
+    def write(self, version = -1, user_version = 0, f = None, argument = None, **kwargs):
         self.arg = argument
         for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
             if ver1:
@@ -273,7 +273,7 @@ class StructBase(object):
             if arg != None:
                 if not isinstance(arg, (int, long)):
                     arg = getattr(self, arg)
-            getattr(self, "_" + name + "_value_").write(version = version, user_version = user_version, f = f, block_index_dct = block_index_dct, string_list = string_list, argument = arg)
+            getattr(self, "_" + name + "_value_").write(version = version, user_version = user_version, f = f, argument = arg, **kwargs)
 
     def fixLinks(self, version = -1, user_version = 0, block_dct = {}, link_stack = []):
         for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:

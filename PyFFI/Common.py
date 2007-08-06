@@ -143,7 +143,7 @@ class UShort(UInt):
     _size = 2
 
 class Char(BasicBase):
-    def __init__(self, template = None, argument = None):
+    def __init__(self, **kwargs):
         self.setValue('\x00')
 
     def getValue(self):
@@ -181,7 +181,7 @@ class Float(BasicBase):
 
 ### faster calculation, slower read/write:
 ##class Float(BasicBase):
-##    def __init__(self, template = None, argument = None):
+##    def __init__(self, **kwargs):
 ##        self._x = 0.0
 ##
 ##    def getValue(self):
@@ -190,8 +190,8 @@ class Float(BasicBase):
 ##    def setValue(self, value):
 ##        self._x = float(value)
 ##
-##    def read(self, version = -1, user_version = 0, f = None, link_stack = [], string_list = [], argument = None):
+##    def read(self, f = None, **kwargs):
 ##        self._x = struct.unpack('<f', f.read(4))[0]
 ##
-##    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
+##    def write(self, f = None, **kwargs):
 ##        f.write(struct.pack('<f', self._x))
