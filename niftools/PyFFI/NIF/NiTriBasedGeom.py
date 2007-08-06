@@ -355,11 +355,16 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
     if verbose: print "creating NiSkinPartition with %i partitions"%len(parts)
 
     # if skin partition already exists, use it
-    if skininst.skinPartition != None:
+    if skindata.skinPartition != None:
+        skinpart = skindata.skinPartition
+        skininst.skinPartition = skinpart
+    elif skininst.skinPartition != None:
         skinpart = skininst.skinPartition
+        skindata.skinPartition = skinpart
     else:
     # otherwise, create a new block and link it
         skinpart = self.cls.NiSkinPartition()
+        skindata.skinPartition = skinpart
         skininst.skinPartition = skinpart
 
     # set number of partitions
@@ -421,7 +426,7 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
                     skinpartblock.boneIndices[i][j] = bones.index(weights[v][j][0])
                 else:
                     skinpartblock.boneIndices[i][j] = 0.0
-        
+ 
     return lostweight
 
 # ported from nifskope/skeleton.cpp:spFixBoneBounds
