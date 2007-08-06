@@ -163,7 +163,7 @@ def updateTangentSpace(self):
             cnt += 1
 
 # ported from nifskope/skeleton.cpp:spSkinPartition
-def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, verbose = 0, stripify = True):
+def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, verbose = 0, stripify = True, stitchstrips = False):
     """Recalculate skin partition data."""
     # shortcuts relevant blocks
     if not self.skinInstance: return # no skin, nothing to do
@@ -386,7 +386,7 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
         if stripify:
             # stripify the triangles
             if verbose: print "  stripifying partition", parts.index(part)
-            strips = PyTriStrip.stripify(parttriangles)
+            strips = PyTriStrip.stripify(parttriangles, stitchstrips = stitchstrips)
             numtriangles = 0
             for strip in strips: numtriangles += len(strip) - 2
         else:
