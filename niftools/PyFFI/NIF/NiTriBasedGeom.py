@@ -163,7 +163,7 @@ def updateTangentSpace(self):
             cnt += 1
 
 # ported from nifskope/skeleton.cpp:spSkinPartition
-def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, verbose = 0):
+def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, verbose = 0, stripify = True):
     """Recalculate skin partition data."""
     # shortcuts relevant blocks
     if not self.skinInstance: return # no skin, nothing to do
@@ -383,17 +383,21 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
         parttriangles = []
         for tri in triangles:
             parttriangles.append([vertices.index(t) for t in tri])
-        # stripify the triangles
-        if verbose: print "  stripifying partition", parts.index(part)
-        strips = PyTriStrip.stripify(parttriangles)
-        numtriangles = 0
-        for strip in strips: numtriangles += len(strip) - 2
+        if stripify:
+            # stripify the triangles
+            if verbose: print "  stripifying partition", parts.index(part)
+            strips = PyTriStrip.stripify(parttriangles)
+            numtriangles = 0
+            for strip in strips: numtriangles += len(strip) - 2
+        else:
+            numtriangles = len(parttriangles)
 
         # set all the data
         skinpartblock.numVertices = len(vertices)
         skinpartblock.numTriangles = numtriangles
         skinpartblock.numBones = len(bones)
-        skinpartblock.numStrips = len(strips)
+        if stripify:
+            skinpartblock.numStrips = len(strips)
         skinpartblock.numWeightsPerVertex = maxbones
         skinpartblock.bones.updateSize()
         for i, bonenum in enumerate(bones):
@@ -410,14 +414,22 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
                     skinpartblock.vertexWeights[i][j] = weights[v][j][1]
                 else:
                     skinpartblock.vertexWeights[i][j] = 0.0
-        skinpartblock.hasStrips = True
-        skinpartblock.stripLengths.updateSize()
-        for i, strip in enumerate(strips):
-            skinpartblock.stripLengths[i] = len(strip)
-        skinpartblock.strips.updateSize()
-        for i, strip in enumerate(strips):
-            for j, v in enumerate(strip):
-                skinpartblock.strips[i][j] = v
+        if stripify:
+            skinpartblock.hasStrips = True
+            skinpartblock.stripLengths.updateSize()
+            for i, strip in enumerate(strips):
+                skinpartblock.stripLengths[i] = len(strip)
+            skinpartblock.strips.updateSize()
+            for i, strip in enumerate(strips):
+                for j, v in enumerate(strip):
+                    skinpartblock.strips[i][j] = v
+        else:
+            skinpartblock.hasStrips = False
+            skinpartblock.triangles.updateSize()
+            for i, (v1,v2,v3) in enumerate(triangles):
+                skinpartblock.triangles[i].v1 = v1
+                skinpartblock.triangles[i].v2 = v2
+                skinpartblock.triangles[i].v3 = v3
         skinpartblock.hasBoneIndices = True
         skinpartblock.boneIndices.updateSize()
         for i, v in enumerate(vertices):
