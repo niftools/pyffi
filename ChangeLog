@@ -1,3 +1,11 @@
+Version 0.3.2 (***)
+* simplified interface (still wip) by using keyword arguments for common
+functions such as read and write
+* NIF:
+  - fix for skin partition blocks in older nif versions such as Freedom Force vs. 3rd Reich
+  - support for triangle skin partitions
+  - added stitchstrips option for skin partitions
+
 Version 0.3.1 (6 Aug 2007):
 * NIF:
   - new function for getting geometry skin deformation in rest pose
