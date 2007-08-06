@@ -1,3 +1,8 @@
+Version 0.3.1 (6 Aug 2007):
+* NIF:
+  - new function for getting geometry skin deformation in rest pose
+  - old rest pose functions are deprecated and will be removed from a future release
+
 Version 0.3 (2 Aug 2007):
 * NIF:
   - fixed an issue with writing skeleton.nif files
