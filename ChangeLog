@@ -1,4 +1,4 @@
-Version 0.3.2 (***)
+Version 0.3.2 (7 Aug 2007)
 * simplified interface (still wip) by using keyword arguments for common
 functions such as read and write
 * NIF:
