@@ -444,12 +444,10 @@ def sendBonesToBindPosition(self):
         # if parent_bone is a child of the skeleton root, then fix its
         # transfrom
         if parent_bone in [b for b in skelroot.children]:
-            print "*** " + parent_bone.name
             parent_bone.setTransform(parent_offset.getInverse())
         # fix the transform of all its the children
         for j, child_bone in enumerate(skininst.bones):
             if child_bone not in [b for b in parent_bone.children]: continue
-            print child_bone.name
             child_offset = skindata.boneList[j].getTransform()
             child_matrix = child_offset.getInverse() * parent_offset
             child_bone.setTransform(child_matrix)
