@@ -93,6 +93,7 @@
 """
 
 def isSkin(self):
+    """Returns True if geometry is skinned."""
     return self.skinInstance != None
 
 def _validateSkin(self):
@@ -425,4 +426,31 @@ def getSkinDeformation(self):
         if abs(s - 1.0) > 0.01: print "WARNING: vertex %i has weights not summing to one in getSkinDeformation"
 
     return vertices, normals
+
+# ported from niflib::NiNode::GoToSkeletonBindPosition() (r2518)
+def sendBonesToBindPosition(self):
+    """Send all bones to their bind position."""
+    if not self.isSkin(): return
+
+    # validate skin and set up quick links
+    self._validateSkin()
+    skininst = self.skinInstance
+    skindata = skininst.data
+    skelroot = skininst.skeletonRoot
+
+    # reposition the bones
+    for i, parent_bone in enumerate(skininst.bones):
+        parent_offset = skindata.boneList[i].getTransform()
+        # if parent_bone is a child of the skeleton root, then fix its
+        # transfrom
+        if parent_bone in [b for b in skelroot.children]:
+            print "*** " + parent_bone.name
+            parent_bone.setTransform(parent_offset.getInverse())
+        # fix the transform of all its the children
+        for j, child_bone in enumerate(skininst.bones):
+            if child_bone not in [b for b in parent_bone.children]: continue
+            print child_bone.name
+            child_offset = skindata.boneList[j].getTransform()
+            child_matrix = child_offset.getInverse() * parent_offset
+            child_bone.setTransform(child_matrix)
 
