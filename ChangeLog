@@ -5,6 +5,7 @@ functions such as read and write
   - fix for skin partition blocks in older nif versions such as Freedom Force vs. 3rd Reich
   - support for triangle skin partitions
   - added stitchstrips option for skin partitions
+  - added a NiGeometry function to send bones to bind pose
 
 Version 0.3.1 (6 Aug 2007):
 * NIF:
