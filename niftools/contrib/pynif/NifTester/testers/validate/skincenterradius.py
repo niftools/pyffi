@@ -11,7 +11,7 @@ def testBlock(block, verbose):
     center = []
     radius = []
     for skindatablock in block.skinInstance.data.boneList:
-        center.append(skindatablock.boundingSphereOffset)
+        center.append(skindatablock.boundingSphereOffset.getCopy())
         radius.append(skindatablock.boundingSphereRadius)
 
     print "recalculating bounding sphere"
