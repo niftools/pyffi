@@ -53,6 +53,13 @@ def normalize(self):
     self.y /= r
     self.z /= r
 
+def getCopy(self):
+    v = self.cls.Vector3()
+    v.x = self.x
+    v.y = self.y
+    v.z = self.z
+    return v
+
 def __str__(self):
     return "[ %6.3f %6.3f %6.3f ]"%(self.x, self.y, self.z)
 

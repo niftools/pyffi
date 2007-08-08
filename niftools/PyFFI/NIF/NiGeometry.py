@@ -46,16 +46,22 @@
 >>> id44.setIdentity()
 >>> skelroot = NifFormat.NiNode()
 >>> skelroot.name = 'skelroot'
+>>> skelroot.setTransform(id44)
 >>> bone1 = NifFormat.NiNode()
 >>> bone1.name = 'bone1'
+>>> bone1.setTransform(id44)
 >>> bone2 = NifFormat.NiNode()
 >>> bone2.name = 'bone2'
+>>> bone2.setTransform(id44)
 >>> bone21 = NifFormat.NiNode()
 >>> bone21.name = 'bone21'
+>>> bone21.setTransform(id44)
 >>> bone22 = NifFormat.NiNode()
 >>> bone22.name = 'bone22'
+>>> bone22.setTransform(id44)
 >>> bone211 = NifFormat.NiNode()
 >>> bone211.name = 'bone211'
+>>> bone211.setTransform(id44)
 >>> skelroot.addChild(bone1)
 >>> bone1.addChild(bone2)
 >>> bone2.addChild(bone21)
@@ -78,11 +84,11 @@
 >>> skininst.bones[1] = bone2
 >>> skininst.bones[2] = bone22
 >>> skininst.bones[3] = bone211
->>> skindata.setTransform(id44)
 >>> skindata.numBones = 4
 >>> skindata.boneList.updateSize()
 >>> print [ child.name for child in skelroot.children ]
 ['bone1', 'geom']
+>>> skindata.setTransform(id44)
 >>> for bonedata in skindata.boneList:
 ...     bonedata.setTransform(id44)
 >>> affectedbones = geom.flattenSkin()
