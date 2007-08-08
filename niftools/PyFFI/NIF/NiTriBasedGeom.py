@@ -483,7 +483,7 @@ def updateSkinCenterRadius(self):
         radius = r2 ** 0.5
 
         # transform center in proper coordinates (radius remains unaffected)
-        center *= meshtrans * skindatablock.getTransform().getInverse()
+        center *= skindatablock.getTransform()
 
         # save data
         skindatablock.boundingSphereOffset.x = center.x
