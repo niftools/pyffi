@@ -2,6 +2,7 @@ Version 0.3.4 (***)
 * fixed the 'in' operator in Bases/Array.py
 * NIF:
   - doctest for NiNode
+  - flatten skin fix for skins that consist of multiple shapes
 
 Version 0.3.3 (8 Aug 2007)
 * NIF:
