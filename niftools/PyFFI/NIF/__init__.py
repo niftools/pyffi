@@ -844,7 +844,7 @@ class NifFormat(object):
             block_type_dct[root] = len(block_type_list)
             block_type_list.append(block_type)
         # check if we need to add children first (required for oblivion)
-        if isinstance(root, cls.bhkRigidBody) or isinstance(root, cls.bhkCollisionObject):
+        if isinstance(root, (cls.bhkRigidBody, cls.bhkCollisionObject, cls.bhkListShape, cls.bhkConvexTransformShape)):
             reverse = True
         # add block if not reverse
         if not reverse:
