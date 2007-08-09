@@ -40,10 +40,35 @@
 # ***** END LICENCE BLOCK *****
 # --------------------------------------------------------------------------
 
+"""
+>>> from PyFFI.NIF import NifFormat
+>>> x = NifFormat.NiNode()
+>>> y = NifFormat.NiNode()
+>>> z = NifFormat.NiNode()
+>>> x.numChildren =1
+>>> x.children.updateSize()
+>>> y in x.children
+False
+>>> x.children[0] = y
+>>> y in x.children
+True
+>>> x.addChild(z, front = True)
+>>> x.addChild(y)
+>>> x.numChildren
+2
+>>> x.children[0] == z
+True
+>>> x.removeChild(y)
+>>> y in x.children
+False
+>>> x.numChildren
+1
+"""
+
 def addChild(self, childblock, front = False):
     """Add block to child list."""
     # check if it's already a child
-    if childblock in [child for child in self.children]: return
+    if childblock in self.children: return
     # increase number of children
     num_children = self.numChildren
     self.numChildren = num_children + 1
