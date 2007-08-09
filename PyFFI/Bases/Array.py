@@ -66,6 +66,13 @@ class _ListWrap(list):
     def __iter__(self):
         return self._iteritem_hook()
 
+    def __contains__(self, value):
+        # ensure that the "in" operator uses self.__iter__() rather than
+        # list.__iter__()
+        for x in self.__iter__():
+            if x == value: return True
+        return False
+
     def _notimplemented_hook(self, *args):
         raise NotImplementedError
 
