@@ -1,5 +1,6 @@
 """
-Essentially, PyFFI provides a metaclass for parsing a file format description in XML format.
+Essentially, PyFFI provides a metaclass for parsing a file format description 
+in XML format.
 
 Using PyFFI
 ===========
@@ -61,7 +62,9 @@ What happens in this piece of code?
             self.integers.updateSize()
             self.integers[self.numIntegers-1] = x
 
-    which would provide the class SimpleFormat.Example with a function addInteger.
+    which would provide the class SimpleFormat.Example with a function
+    C{addInteger} in addition to the attributes C{numIntegers} and C{integers}
+    which have been created from the XML.
   - Finally, the PyFFI.Common module implements the most common basic types, such 
     as integers, characters, and floats. In the above example we have taken
     advantage of Common.Int, which defines a signed 32-bit integer, exactly the

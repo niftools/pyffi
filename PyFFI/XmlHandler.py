@@ -49,9 +49,13 @@ from Bases.Struct     import StructBase
 from Bases.Expression import Expression
 
 class XmlError(Exception):
+    """The XML handler will throw this exception if something goes wrong while
+    parsing."""
     pass
 
 class XmlSaxHandler(xml.sax.handler.ContentHandler):
+    """This class contains all functions for parsing the xml and converting
+    the xml structure into Python classes."""
     tagFile      = 1
     tagVersion   = 2
     tagBasic     = 3
@@ -93,12 +97,22 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
     attrDoc = 11
 
     def __init__(self, cls, name, bases, dct):
-        """Set up the xml parser.
+        """
+        Set up the xml parser.
 
-        Creates a dictionary cls.versions which maps each supported
-        version strings onto a version integer. Makes an alias
-        self.cls for cls. Initializes a stack self.stack of xml tags.
-        Initializes the current tag.
+          - Creates a dictionary C{cls.versions} which maps each supported
+            version strings onto a version integer.
+          - Creates a dictionary C{cls.games} which maps each supported game
+            onto a list of versions.
+          - Makes an alias C{self.cls} for C{cls}.
+          - Initializes a stack C{self.stack} of xml tags.
+          - Initializes the current tag.
+          - Creates lists where the created classes will be stored if they
+            ever need to be parsed:
+              - C{self.cls.xmlEnum}
+              - C{self.cls.xmlAlias}
+              - C{self.cls.xmlBitStruct}
+              - C{self.cls.xmlStruct}
         """
         # save dictionary for future use
         self.dct = dct
@@ -132,13 +146,17 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         self.cls.xmlStruct = []
 
     def pushTag(self, x):
-        """Push tag x on the stack and make it the current tag."""
+        """Push tag C{x} on the stack and make it the current tag.
+
+        @param x: The tag to put on the stack."""
         self.stack.insert(0, x)
         self.currentTag = x
 
     def popTag(self):
         """Pop the current tag from the stack and return it. Also update
-        the current tag."""
+        the current tag.
+
+        @return: The tag popped from the stack."""
         lasttag = self.stack.pop(0)
         try:
             self.currentTag = self.stack[0]
@@ -147,8 +165,6 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         return lasttag
 
     def startElement(self, name, attrs):
-        """This function is called on the start of an xml element <name>."""
-
         # get the tag identifier
         try:
             x = self.tags[name]
