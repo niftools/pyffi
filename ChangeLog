@@ -3,6 +3,7 @@ Version 0.3.4 (***)
 * NIF:
   - doctest for NiNode
   - flatten skin fix for skins that consist of multiple shapes
+  - support for some of the oblivion havok blocks
 
 Version 0.3.3 (8 Aug 2007)
 * NIF:
