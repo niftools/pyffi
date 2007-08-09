@@ -1,3 +1,8 @@
+Version 0.3.4 (***)
+* fixed the 'in' operator in Bases/Array.py
+* NIF:
+  - doctest for NiNode
+
 Version 0.3.3 (8 Aug 2007)
 * NIF:
   - fixed a bug in the skin center and radius calculation
