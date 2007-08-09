@@ -176,7 +176,7 @@ class CgfFormat(object):
             else:
                 f.write(struct.pack('<i', block_index_dct[self._x]))
 
-        def fixLinks(self, block_dct = [], link_stack = [], **kwargs):
+        def fixLinks(self, block_dct = {}, link_stack = [], **kwargs):
             block_index = link_stack.pop(0)
             # case when there's no link
             if block_index == -1:
