@@ -831,7 +831,7 @@ class NifFormat(object):
         ftr.write(version = version, user_version = user_version, f = f, block_index_dct = block_index_dct)
 
     @classmethod
-    def _makeBlockList(cls, version, user_version, root, block_list, block_index_dct, block_type_list, block_type_dct, reverse = False):
+    def _makeBlockList(cls, version, user_version, root, block_list, block_index_dct, block_type_list, block_type_dct):
         """This is a helper function for write to set up the list of all blocks,
         the block index map, and the block type map."""
         # block already listed? if so, return
@@ -843,11 +843,8 @@ class NifFormat(object):
         except ValueError:
             block_type_dct[root] = len(block_type_list)
             block_type_list.append(block_type)
-        # check if we need to add children first (required for oblivion)
-        if isinstance(root, (cls.bhkRigidBody, cls.bhkCollisionObject, cls.bhkListShape, cls.bhkConvexTransformShape)):
-            reverse = True
-        # add block if not reverse
-        if not reverse:
+        # add non-havok blocks before children
+        if not isinstance(root, cls.bhkRefObject):
             if version >= 0x0303000D:
                 block_index_dct[root] = len(block_list)
             else:
@@ -856,8 +853,8 @@ class NifFormat(object):
         # add children
         for child in root.getLinks(version = version, user_version = user_version):
             cls._makeBlockList(version, user_version, child, block_list, block_index_dct, block_type_list, block_type_dct)
-        # add block if reverse
-        if reverse:
+        # add havok block after children (required for oblivion)
+        if isinstance(root, cls.bhkRefObject):
             if version >= 0x0303000D:
                 block_index_dct[root] = len(block_list)
             else:
