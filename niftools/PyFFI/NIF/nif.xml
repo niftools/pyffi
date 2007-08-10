@@ -1244,9 +1244,9 @@
     <niobject name="bhkCapsuleShape" abstract="0" inherit="bhkConvexShape" ver1="20.0.0.5">
         A capsule.
         <add name="Unknown String" type="Char8String">Unknown.</add>
-        <add name="First Point" type="Vector3">First point on the capsule's axis.</add>
+        <add name="Point 1" type="Vector3">First point on the capsule's axis.</add>
         <add name="Radius 1" type="float">Matches first capsule radius.</add>
-        <add name="Second Point" type="Vector3">Second point on the capsule's axis.</add>
+        <add name="Point 2" type="Vector3">Second point on the capsule's axis.</add>
         <add name="Radius 2" type="float">Matches second capsule radius.</add>
     </niobject>
 
