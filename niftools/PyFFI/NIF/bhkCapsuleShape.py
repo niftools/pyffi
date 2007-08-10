@@ -46,8 +46,12 @@ def applyScale(self, scale):
     self.radius *= scale
     self.radius1 *= scale
     self.radius2 *= scale
-    self.point1 *= scale
-    self.point2 *= scale
+    self.point1.x *= scale
+    self.point1.y *= scale
+    self.point1.z *= scale
+    self.point2.x *= scale
+    self.point2.y *= scale
+    self.point2.z *= scale
 
     # apply scale on all blocks down the hierarchy
     self.cls.NiObject.applyScale(self, scale)
