@@ -1,6 +1,6 @@
 """A Python library for reading, writing, and processing binary files.
 
-PyFFI aims to make it easy to manipulate binary files in a Python
+The Python File Format Interface aims to make it easy to manipulate binary files in a Python
 environment. Starting from a file format description written in XML,
 PyFFI creates customizable Python classes to read and write file
 blocks as described by the XML. Currently, PyFFI supports the
@@ -34,7 +34,7 @@ setup(
     version = PyFFI.__version__,
     packages = ['PyFFI', 'PyFFI.Bases', 'PyFFI.Utils', 'PyFFI.NIF', 'PyFFI.CGF'],
     package_data = { '' : [ '*.xml' ] }, # include xml files
-    author = "Python File Format Interface",
+    author = "Amorilia",
     author_email = "amorilia@gamebox.net",
     license = "BSD",
     keywords = "fileformat nif cgf binary interface stripify", 
