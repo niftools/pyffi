@@ -1,5 +1,5 @@
 """
-Essentially, PyFFI provides a metaclass for parsing a file format description 
+PyFFI provides a metaclass for parsing a file format description 
 in XML format.
 
 Using PyFFI

@@ -1,9 +1,10 @@
 Version 0.3.4 (***)
+* improved documentation
 * fixed the 'in' operator in Bases/Array.py
 * NIF:
   - doctest for NiNode
   - flatten skin fix for skins that consist of multiple shapes
-  - support for some of the oblivion havok blocks
+  - support for the most common oblivion havok blocks
 
 Version 0.3.3 (8 Aug 2007)
 * NIF:
