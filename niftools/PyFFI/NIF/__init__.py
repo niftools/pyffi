@@ -1,3 +1,249 @@
+"""
+This module implements the NIF file format.
+
+Examples
+========
+
+Create a NIF file from scratch
+------------------------------
+
+>>> root = NifFormat.NiNode()
+>>> root.name = 'Scene Root'
+>>> blk = NifFormat.NiNode()
+>>> root.addChild(blk)
+>>> blk.name = 'new block'
+>>> blk.scale = 2.4
+>>> blk.translation.x = 3.9
+>>> blk.rotation.m11 = 1.0
+>>> blk.rotation.m22 = 1.0
+>>> blk.rotation.m33 = 1.0
+>>> ctrl = NifFormat.NiVisController()
+>>> ctrl.flags = 0x000c
+>>> ctrl.target = blk
+>>> blk.addController(ctrl)
+>>> blk.addController(NifFormat.NiAlphaController())
+>>> strips = NifFormat.NiTriStrips()
+>>> root.addChild(strips, front = True)
+>>> strips.name = "hello world"
+>>> strips.rotation.m11 = 1.0
+>>> strips.rotation.m22 = 1.0
+>>> strips.rotation.m33 = 1.0
+>>> data = NifFormat.NiTriStripsData()
+>>> strips.data = data
+>>> data.numVertices = 5
+>>> data.hasVertices = True
+>>> data.vertices.updateSize()
+>>> for i, v in enumerate(data.vertices):
+...     v.x = 1.0+i/10.0
+...     v.y = 0.2+1.0/(i+1)
+...     v.z = 0.03
+>>> data.updateCenterRadius()
+>>> data.numStrips = 2
+>>> data.stripLengths.updateSize()
+>>> data.stripLengths[0] = 3
+>>> data.stripLengths[1] = 4
+>>> data.hasPoints = True
+>>> data.points.updateSize()
+>>> data.points[0][0] = 0
+>>> data.points[0][1] = 1
+>>> data.points[0][2] = 2
+>>> data.points[1][0] = 1
+>>> data.points[1][1] = 2
+>>> data.points[1][2] = 3
+>>> data.points[1][3] = 4
+>>> data.numUvSets = 1
+>>> data.hasUv = True
+>>> data.uvSets.updateSize()
+>>> for i, v in enumerate(data.uvSets[0]):
+...     v.u = 1.0-i/10.0
+...     v.v = 1.0/(i+1)
+>>> data.hasNormals = True
+>>> data.normals.updateSize()
+>>> for i, v in enumerate(data.normals):
+...     v.x = 0.0
+...     v.y = 0.0
+...     v.z = 1.0
+>>> strips.updateTangentSpace()
+>>> from tempfile import TemporaryFile
+>>> f = TemporaryFile()
+>>> NifFormat.write(version = 0x14010003, user_version = 10, f = f, roots = [root])
+
+Get list of versions and games
+------------------------------
+
+>>> for vnum in sorted(NifFormat.versions.values()): print '0x%08X'%vnum
+0x03000000
+0x03000300
+0x03010000
+0x0303000D
+0x04000000
+0x04000002
+0x0401000C
+0x04020002
+0x04020100
+0x04020200
+0x0A000100
+0x0A000102
+0x0A010000
+0x0A01006A
+0x0A020000
+0x14000004
+0x14000005
+0x14010003
+0x14030003
+0x14030006
+>>> for game, versions in sorted(NifFormat.games.items(), key=lambda x: x[0]):
+...     print game,
+...     for vnum in versions:
+...         print '0x%08X'%vnum,
+...     print
+Axis and Allies 0x0A010000
+Civilization IV 0x04020002 0x04020100 0x04020200 0x0A000100 0x0A010000 0x0A020000 0x14000004
+Dark Age of Camelot 0x03000300 0x03010000 0x0401000C 0x04020100 0x04020200 0x0A010000
+Emerge 0x14030003 0x14030006
+Empire Earth II 0x04020200
+Freedom Force 0x04000000 0x04000002
+Freedom Force vs. the 3rd Reich 0x0A010000
+Kohan 2 0x0A010000
+Loki 0x0A020000
+Megami Tensei: Imagine 0x14010003
+Morrowind 0x04000002
+Oblivion 0x0303000D 0x0A000102 0x0A01006A 0x0A020000 0x14000004 0x14000005
+Star Trek: Bridge Commander 0x03000000 0x03010000
+Zoo Tycoon 2 0x0A000100
+>>> print NifFormat.HeaderString
+<class 'PyFFI.NIF.HeaderString'>
+
+Some Doctests
+=============
+
+Template Types
+--------------
+
+>>> block = NifFormat.NiTextKeyExtraData()
+>>> block.numTextKeys = 1
+>>> block.textKeys.updateSize()
+>>> block.textKeys[0].time = 1.0
+>>> block.textKeys[0].value = 'hi'
+
+Links
+-----
+
+>>> NifFormat.NiNode._hasLinks
+True
+>>> NifFormat.NiBone._hasLinks
+True
+
+Mathematics
+-----------
+
+>>> m = NifFormat.Matrix44()
+>>> m.setIdentity()
+>>> print m
+[  1.000  0.000  0.000  0.000 ]
+[  0.000  1.000  0.000  0.000 ]
+[  0.000  0.000  1.000  0.000 ]
+[  0.000  0.000  0.000  1.000 ]
+<BLANKLINE>
+>>> s, r, t = m.getScaleRotationTranslation()
+>>> print s
+1.0
+>>> print r
+[  1.000  0.000  0.000 ]
+[  0.000  1.000  0.000 ]
+[  0.000  0.000  1.000 ]
+<BLANKLINE>
+>>> print t
+[  0.000  0.000  0.000 ]
+>>> m.getMatrix33().isScaleRotation()
+True
+>>> m.m21 = 2.0
+>>> m.getMatrix33().isScaleRotation()
+False
+>>> m = NifFormat.Matrix33()
+>>> m.m11 = -0.434308
+>>> m.m12 =  0.893095
+>>> m.m13 = -0.117294
+>>> m.m21 = -0.451770
+>>> m.m22 = -0.103314
+>>> m.m23 =  0.886132
+>>> m.m31 =  0.779282
+>>> m.m32 =  0.437844
+>>> m.m33 =  0.448343
+>>> m == m
+True
+>>> m != m
+False
+>>> print "%.4f"%m.getDeterminant()
+1.0000
+>>> m.isRotation()
+True
+>>> print m.getTranspose()
+[ -0.434 -0.452  0.779 ]
+[  0.893 -0.103  0.438 ]
+[ -0.117  0.886  0.448 ]
+<BLANKLINE>
+>>> m.getInverse() == m.getTranspose()
+True
+>>> m *= 0.321
+>>> print "%.5f"%m.getScale()
+0.32100
+>>> s, r = m.getInverse().getScaleRotation()
+>>> print "%.5f"%s
+3.11526
+>>> abs(0.321 - 1/s) < NifFormat._EPSILON
+True
+>>> print r # same as print m.getTranspose() above
+[ -0.434 -0.452  0.779 ]
+[  0.893 -0.103  0.438 ]
+[ -0.117  0.886  0.448 ]
+<BLANKLINE>
+>>> abs(m.getDeterminant() - 0.321 ** 3) < NifFormat._EPSILON
+True
+>>> m *= -2
+>>> print m
+[  0.279 -0.573  0.075 ]
+[  0.290  0.066 -0.569 ]
+[ -0.500 -0.281 -0.288 ]
+<BLANKLINE>
+>>> print "%.5f"%m.getScale()
+-0.64200
+>>> abs(m.getDeterminant() + 0.642 ** 3) < NifFormat._EPSILON
+True
+>>> n = NifFormat.Matrix44()
+>>> n.setIdentity()
+>>> n.setMatrix33(m)
+>>> t = NifFormat.Vector3()
+>>> t.x = 1.2
+>>> t.y = 3.4
+>>> t.z = 5.6
+>>> n.setTranslation(t)
+>>> print n
+[  0.279 -0.573  0.075  0.000 ]
+[  0.290  0.066 -0.569  0.000 ]
+[ -0.500 -0.281 -0.288  0.000 ]
+[  1.200  3.400  5.600  1.000 ]
+<BLANKLINE>
+>>> n == n
+True
+>>> n != n
+False
+>>> print n.getInverse()
+[  0.676  0.704 -1.214  0.000 ]
+[ -1.391  0.161 -0.682  0.000 ]
+[  0.183 -1.380 -0.698  0.000 ]
+[  2.895  6.338  7.686  1.000 ]
+<BLANKLINE>
+>>> print n.getInverse(fast = False) + 0.000001 # workaround for -0.000
+[  0.676  0.704 -1.214  0.000 ]
+[ -1.391  0.161 -0.682  0.000 ]
+[  0.183 -1.380 -0.698  0.000 ]
+[  2.895  6.338  7.686  1.000 ]
+<BLANKLINE>
+>>> (n * n.getInverse()).isIdentity()
+True
+"""
+
 # --------------------------------------------------------------------------
 # PyFFI.NIF
 # Implementation of the NIF file format; uses PyFFI.
@@ -48,174 +294,6 @@ from PyFFI import Common
 from PyFFI.Bases.Basic import BasicBase
 
 class NifFormat(object):
-    """Stores all information about the nif file format.
-    
-    >>> for vnum in sorted(NifFormat.versions.values()): print '0x%08X'%vnum
-    0x03000000
-    0x03000300
-    0x03010000
-    0x0303000D
-    0x04000000
-    0x04000002
-    0x0401000C
-    0x04020002
-    0x04020100
-    0x04020200
-    0x0A000100
-    0x0A000102
-    0x0A010000
-    0x0A01006A
-    0x0A020000
-    0x14000004
-    0x14000005
-    0x14010003
-    0x14030003
-    0x14030006
-    >>> for game, versions in sorted(NifFormat.games.items(), key=lambda x: x[0]):
-    ...     print game,
-    ...     for vnum in versions:
-    ...         print '0x%08X'%vnum,
-    ...     print
-    Axis and Allies 0x0A010000
-    Civilization IV 0x04020002 0x04020100 0x04020200 0x0A000100 0x0A010000 0x0A020000 0x14000004
-    Dark Age of Camelot 0x03000300 0x03010000 0x0401000C 0x04020100 0x04020200 0x0A010000
-    Emerge 0x14030003 0x14030006
-    Empire Earth II 0x04020200
-    Freedom Force 0x04000000 0x04000002
-    Freedom Force vs. the 3rd Reich 0x0A010000
-    Kohan 2 0x0A010000
-    Loki 0x0A020000
-    Megami Tensei: Imagine 0x14010003
-    Morrowind 0x04000002
-    Oblivion 0x0303000D 0x0A000102 0x0A01006A 0x0A020000 0x14000004 0x14000005
-    Star Trek: Bridge Commander 0x03000000 0x03010000
-    Zoo Tycoon 2 0x0A000100
-    >>> print NifFormat.HeaderString
-    <class 'PyFFI.NIF.HeaderString'>
-
-    Test templates.
-
-    >>> block = NifFormat.NiTextKeyExtraData()
-    >>> block.numTextKeys = 1
-    >>> block.textKeys.updateSize()
-    >>> block.textKeys[0].time = 1.0
-    >>> block.textKeys[0].value = 'hi'
-
-    Tests for links.
-    
-    >>> NifFormat.NiNode._hasLinks
-    True
-    >>> NifFormat.NiBone._hasLinks
-    True
-
-    Tests for mathematics.
-    
-    >>> m = NifFormat.Matrix44()
-    >>> m.setIdentity()
-    >>> print m
-    [  1.000  0.000  0.000  0.000 ]
-    [  0.000  1.000  0.000  0.000 ]
-    [  0.000  0.000  1.000  0.000 ]
-    [  0.000  0.000  0.000  1.000 ]
-    <BLANKLINE>
-    >>> s, r, t = m.getScaleRotationTranslation()
-    >>> print s
-    1.0
-    >>> print r
-    [  1.000  0.000  0.000 ]
-    [  0.000  1.000  0.000 ]
-    [  0.000  0.000  1.000 ]
-    <BLANKLINE>
-    >>> print t
-    [  0.000  0.000  0.000 ]
-    >>> m.getMatrix33().isScaleRotation()
-    True
-    >>> m.m21 = 2.0
-    >>> m.getMatrix33().isScaleRotation()
-    False
-    >>> m = NifFormat.Matrix33()
-    >>> m.m11 = -0.434308
-    >>> m.m12 =  0.893095
-    >>> m.m13 = -0.117294
-    >>> m.m21 = -0.451770
-    >>> m.m22 = -0.103314
-    >>> m.m23 =  0.886132
-    >>> m.m31 =  0.779282
-    >>> m.m32 =  0.437844
-    >>> m.m33 =  0.448343
-    >>> m == m
-    True
-    >>> m != m
-    False
-    >>> print "%.4f"%m.getDeterminant()
-    1.0000
-    >>> m.isRotation()
-    True
-    >>> print m.getTranspose()
-    [ -0.434 -0.452  0.779 ]
-    [  0.893 -0.103  0.438 ]
-    [ -0.117  0.886  0.448 ]
-    <BLANKLINE>
-    >>> m.getInverse() == m.getTranspose()
-    True
-    >>> m *= 0.321
-    >>> print "%.5f"%m.getScale()
-    0.32100
-    >>> s, r = m.getInverse().getScaleRotation()
-    >>> print "%.5f"%s
-    3.11526
-    >>> abs(0.321 - 1/s) < NifFormat._EPSILON
-    True
-    >>> print r # same as print m.getTranspose() above
-    [ -0.434 -0.452  0.779 ]
-    [  0.893 -0.103  0.438 ]
-    [ -0.117  0.886  0.448 ]
-    <BLANKLINE>
-    >>> abs(m.getDeterminant() - 0.321 ** 3) < NifFormat._EPSILON
-    True
-    >>> m *= -2
-    >>> print m
-    [  0.279 -0.573  0.075 ]
-    [  0.290  0.066 -0.569 ]
-    [ -0.500 -0.281 -0.288 ]
-    <BLANKLINE>
-    >>> print "%.5f"%m.getScale()
-    -0.64200
-    >>> abs(m.getDeterminant() + 0.642 ** 3) < NifFormat._EPSILON
-    True
-    >>> n = NifFormat.Matrix44()
-    >>> n.setIdentity()
-    >>> n.setMatrix33(m)
-    >>> t = NifFormat.Vector3()
-    >>> t.x = 1.2
-    >>> t.y = 3.4
-    >>> t.z = 5.6
-    >>> n.setTranslation(t)
-    >>> print n
-    [  0.279 -0.573  0.075  0.000 ]
-    [  0.290  0.066 -0.569  0.000 ]
-    [ -0.500 -0.281 -0.288  0.000 ]
-    [  1.200  3.400  5.600  1.000 ]
-    <BLANKLINE>
-    >>> n == n
-    True
-    >>> n != n
-    False
-    >>> print n.getInverse()
-    [  0.676  0.704 -1.214  0.000 ]
-    [ -1.391  0.161 -0.682  0.000 ]
-    [  0.183 -1.380 -0.698  0.000 ]
-    [  2.895  6.338  7.686  1.000 ]
-    <BLANKLINE>
-    >>> print n.getInverse(fast = False) + 0.000001 # workaround for -0.000
-    [  0.676  0.704 -1.214  0.000 ]
-    [ -1.391  0.161 -0.682  0.000 ]
-    [  0.183 -1.380 -0.698  0.000 ]
-    [  2.895  6.338  7.686  1.000 ]
-    <BLANKLINE>
-    >>> (n * n.getInverse()).isIdentity()
-    True
-    """
     __metaclass__ = MetaXmlFileFormat
     xmlFileName = 'nif.xml'
     xmlFilePath = [ os.getenv('NIFXMLPATH'), os.path.dirname(__file__) ] # where to look for nif.xml and in what order: NIFXMLPATH env var, or NifFormat module directory
@@ -287,6 +365,7 @@ class NifFormat(object):
             return hex(self.getValue())
 
     class Ref(BasicBase):
+        """Reference to another block."""
         _isTemplate = True
         _hasLinks = True
         _hasRefs = True
@@ -349,6 +428,7 @@ class NifFormat(object):
                 return []
 
     class Ptr(Ref):
+        """A weak reference to another block, used to point up the hierarchy tree. The reference is not returned by the L{getRefs} function to avoid infinite recursion."""
         _isTemplate = True
         _hasLinks = True
         _hasRefs = False
@@ -394,10 +474,10 @@ class NifFormat(object):
             if not s: return '<EMPTY STRING>'
             return s
 
-        def read(self, version = -1, user_version = 0, f = None, link_stack = [], string_list = [], argument = None):
+        def read(self, f = None, **kwargs):
             self._x = f.readline().rstrip('\x0a')
 
-        def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
+        def write(self, f = None, **kwargs):
             f.write("%s\x0a"%self._x)
 
     class HeaderString(BasicBase):
@@ -535,7 +615,7 @@ class NifFormat(object):
 
     class string(SizedString):
         _hasStrings = True
-        def read(self, version = -1, user_version = 0, f = None, link_stack = [], string_list = [], argument = None):
+        def read(self, version = -1, f = None, string_list = [], **kwargs):
             n, = struct.unpack('<i', f.read(4))
             if version >= 0x14010003:
                 if n == -1:
@@ -549,7 +629,7 @@ class NifFormat(object):
                 if n > 10000: raise ValueError('string too long (0x%08X at 0x%08X)'%(n, f.tell()))
                 self._x = f.read(n)
 
-        def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
+        def write(self, version = -1, f = None, string_list = [], **kwargs):
             if version >= 0x14010003:
                 if self._x == '':
                     f.write(struct.pack('<i', -1))
@@ -562,7 +642,7 @@ class NifFormat(object):
                 f.write(struct.pack('<I', len(self._x)))
                 f.write(self._x)
 
-        def getStrings(self, version = -1, user_version = 0):
+        def getStrings(self, **kwargs):
             if self._x != '':
                 return [self._x]
             else:

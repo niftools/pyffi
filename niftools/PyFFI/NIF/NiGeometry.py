@@ -95,7 +95,7 @@
 >>> print [ bone.name for bone in affectedbones ]
 ['bone1', 'bone2', 'bone22', 'bone211']
 >>> print [ child.name for child in skelroot.children ]
-['geom', 'bone1', 'bone2', 'bone22', 'bone211']
+['geom', 'bone1', 'bone21', 'bone2', 'bone22', 'bone211']
 """
 
 def isSkin(self):
