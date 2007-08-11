@@ -57,6 +57,10 @@ The code is organized as follows.
 
     + PyTriStrip: stripifier utilities (uses a Python port of NvTriStrip)
 
+The following code resides in the subversion trunk only
+(https://pyffi.svn.sf.net/svnroot/pyffi/trunk) and is not distributed
+with the library.
+
 * tests
 
   - rundoctest.py: runs all tests in the documentation
@@ -68,3 +72,8 @@ The code is organized as follows.
     Proof of concept of how classes can be generated from an xml
     description. I keep it there as it could be useful to get a quick
     idea of how the XML is converted to a bunch of classes.
+
+* www
+
+  - script for generating epydoc documentation
+
