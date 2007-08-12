@@ -115,8 +115,8 @@ def _validateSkin(self):
 
 def addBone(self, bone, transform, vert_weights):
     """Add bone with given vertex weights and transform.
-    The geometry skinning information has to be set before using this function.
-    In particular, make sure that self.skinInstance.data transform has been set.
+    The geometry skinning information can also be set from the current position of the bones
+    using the L{updateBindPosition} function.
 
     @param bone: The bone NiNode block.
     @param transform: The bone bind matrix relative to the skeleton root.
@@ -124,6 +124,7 @@ def addBone(self, bone, transform, vert_weights):
     self._validateSkin()
     skininst = self.skinInstance
     skindata = skininst.data
+    skelroot = skininst.skeletonRoot
 
     bone_index = skininst.numBones
     skininst.numBones = bone_index+1
@@ -133,7 +134,7 @@ def addBone(self, bone, transform, vert_weights):
     skindata.boneList.updateSize()
     skinbonedata = skindata.boneList[bone_index]
     # set rest pose
-    skinbonedata.setTransform((transform * skindata.getTransform()).getInverse())
+    skinbonedata.setTransform(self.getTransform(skelroot) * transform.getInverse())
     # set vertex weights
     skinbonedata.numVertices = len(vert_weights)
     skinbonedata.vertexWeights.updateSize()
@@ -159,6 +160,8 @@ def getVertexWeights(self):
             weights[skinweight.index].append([bonenum, skinweight.weight])
     return weights
 
+
+
 def getGeometryRestPosition(self):
     """WARNING: DEPRECATED. Use getSkinDeformation() instead.
 
@@ -175,6 +178,8 @@ def getGeometryRestPosition(self):
     skindata = skininst.data
     return skindata.getTransform() * self.getTransform(skininst.skeletonRoot)
 
+
+
 def getBoneRestPositions(self):
     """WARNING: DEPRECATED. Use getSkinDeformation() instead.
     
@@ -190,6 +195,8 @@ def getBoneRestPositions(self):
     for i, bone_block in enumerate(skininst.bones):
         restpose_dct[bone_block] = skindata.boneList[i].getTransform().getInverse()
     return restpose_dct
+
+
 
 def flattenSkin(self):
     """Reposition all bone blocks and geometry block in the tree to be direct
@@ -233,6 +240,8 @@ def flattenSkin(self):
             result.append(bone_block)
 
     return result
+
+
 
 def mergeSkeletonRoots(self):
     """This function will look for other geometries
@@ -289,6 +298,8 @@ def mergeSkeletonRoots(self):
             result.append(geomroot) # and signal that we reparented this block
 
     return result, failed
+
+
 
 def mergeBoneRestPositions(self, force = False):
     """WARNING: DEPRECATED. Use getSkinDeformation() instead.
@@ -394,6 +405,8 @@ def mergeBoneRestPositions(self, force = False):
 
     return result, failed
 
+
+
 # The nif skinning algorithm works as follows (as of nifskope):
 # v'                               # vertex after skinning in geometry space
 # = sum over {b in skininst.bones} # sum over all bones b that influence the mesh
@@ -438,6 +451,8 @@ def getSkinDeformation(self):
 
     return vertices, normals
 
+
+
 # ported from niflib::NiNode::GoToSkeletonBindPosition() (r2518)
 def sendBonesToBindPosition(self):
     """Send all bones to their bind position."""
@@ -462,4 +477,25 @@ def sendBonesToBindPosition(self):
             child_offset = skindata.boneList[j].getTransform()
             child_matrix = child_offset.getInverse() * parent_offset
             child_bone.setTransform(child_matrix)
+
+
+
+# ported from niflib::NiSkinData::ResetOffsets (r2561)
+def updateBindPosition(self):
+    """Make current position of the bones the bind position for this geometry."""
+    if not self.isSkin(): return
+
+    # validate skin and set up quick links
+    self._validateSkin()
+    skininst = self.skinInstance
+    skindata = skininst.data
+    skelroot = skininst.skeletonRoot
+
+    # calculate overall offset
+    geomtransform = self.getTransform(skelroot)
+    skindata.setTransform(geomtransform.getInverse())
+
+    # calculate bone offsets
+    for i, bone in enumerate(skininst.bones):
+         skindata.boneList[i].setTransform(geomtransform * bone.getTransform(skelroot).getInverse())
 
