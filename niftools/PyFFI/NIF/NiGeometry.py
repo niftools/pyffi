@@ -113,13 +113,12 @@ def _validateSkin(self):
     if self.skinInstance.numBones != self.skinInstance.data.numBones:
         raise self.cls.NifError('NiSkinInstance and NiSkinData have different number of bones')
 
-def addBone(self, bone, transform, vert_weights):
-    """Add bone with given vertex weights and transform.
-    The geometry skinning information can also be set from the current position of the bones
-    using the L{updateBindPosition} function.
+def addBone(self, bone, vert_weights):
+    """Add bone with given vertex weights.
+    After adding all bones, the geometry skinning information should be set
+    from the current position of the bones using the L{updateBindPosition} function.
 
     @param bone: The bone NiNode block.
-    @param transform: The bone bind matrix relative to the skeleton root.
     @param vert_weights: A dictionary mapping each influenced vertex index to a vertex weight."""
     self._validateSkin()
     skininst = self.skinInstance
@@ -133,8 +132,6 @@ def addBone(self, bone, transform, vert_weights):
     skindata.numBones = bone_index+1
     skindata.boneList.updateSize()
     skinbonedata = skindata.boneList[bone_index]
-    # set rest pose
-    skinbonedata.setTransform(self.getTransform(skelroot) * transform.getInverse())
     # set vertex weights
     skinbonedata.numVertices = len(vert_weights)
     skinbonedata.vertexWeights.updateSize()
@@ -159,42 +156,6 @@ def getVertexWeights(self):
         for skinweight in bonedata.vertexWeights:
             weights[skinweight.index].append([bonenum, skinweight.weight])
     return weights
-
-
-
-def getGeometryRestPosition(self):
-    """WARNING: DEPRECATED. Use getSkinDeformation() instead.
-
-    Return geometry rest position, in skeleton root space."""
-
-    print "WARNING: getGeometryRestPosition() is deprecated and will be removed.\n         Use getSkinDeformation() instead."
-    if not self.isSkin():
-        raise self.cls.NifError('NiGeometry has no NiSkinInstance, and therefore no rest position')
-    self._validateSkin() # check that skin data is valid
-    # calculate the rest positions
-    # (there could be an inverse less, code is written to be clear rather
-    # than to be fast)
-    skininst = self.skinInstance
-    skindata = skininst.data
-    return skindata.getTransform() * self.getTransform(skininst.skeletonRoot)
-
-
-
-def getBoneRestPositions(self):
-    """WARNING: DEPRECATED. Use getSkinDeformation() instead.
-    
-    Return bone rest position dictionary, in skeleton root space."""
-
-    print "WARNING: getBoneRestPositions() is deprecated and will be removed.\n         Use getSkinDeformation() instead."
-    # first get the geometry rest position
-    geometry_matrix = self.getGeometryRestPosition()
-    # calculate the rest positions
-    restpose_dct = {}
-    skininst = self.skinInstance
-    skindata = skininst.data
-    for i, bone_block in enumerate(skininst.bones):
-        restpose_dct[bone_block] = skindata.boneList[i].getTransform().getInverse()
-    return restpose_dct
 
 
 
@@ -301,112 +262,6 @@ def mergeSkeletonRoots(self):
 
 
 
-def mergeBoneRestPositions(self, force = False):
-    """WARNING: DEPRECATED. Use getSkinDeformation() instead.
-    
-    This function will look for other geometries that share the same
-    skeleton root and of which every bone is also a bone of this geometry.
-    It will then set the rest
-    position of the bones of those other geometries to the rest position
-    of the corresponding bones of this geometry. In doing so, the vertices
-    of those other geometries are transformed as well. Useful to fix a single
-    bone rest position for all geometries.
-
-    If force is True bones that are present in other geometries but not in this
-    geometry will be repositioned as well, using the average transform of
-    the other bones.
-
-    Returns a list of NiGeometry blocks whose rest positions have been
-    affected and a list of NiGeometry blocks that share bones but that
-    could not be repositioned because they have bones that are not bones
-    of this geometry (in case force = False)."""
-
-    print "WARNING: mergeBoneRestPositions() is deprecated and will be removed.\n         Use getSkinDeformation() instead."
-
-    if not self.isSkin(): return [], [] # nothing to do
-
-    result = [] # list of repositioned geometries
-    self._validateSkin() # validate the skin
-    skininst = self.skinInstance
-    skindata = skininst.data
-    skelroot = skininst.skeletonRoot
-
-    # look for other geometries who share the same skeleton root
-    geoms = [block for block in skelroot.tree() if isinstance(block, self.cls.NiGeometry) and block.isSkin() and block.skinInstance.skeletonRoot == skelroot and block != self]
-
-    # iterate over all these geometries
-    failed= []
-    for geom in geoms:
-        geom._validateSkin()
-        # check if geom has bones in common with this block that have
-        # a different rest position
-        # (note: restpos is here the inverse of the rest position)
-        alreadymerged = True
-        offsets     = [None for i in xrange(geom.skinInstance.numBones)]
-        newmatrices = [None for i in xrange(geom.skinInstance.numBones)]
-        oldmatrices = [None for i in xrange(geom.skinInstance.numBones)]
-        for otherindex, otherbone in enumerate(geom.skinInstance.bones):
-            otherrestpos = geom.skinInstance.data.boneList[otherindex].getTransform()
-            oldmatrices[otherindex] = otherrestpos
-            for selfindex, selfbone in enumerate(skininst.bones):
-                if selfbone == otherbone:
-                    selfrestpos  = skindata.boneList[selfindex].getTransform()
-                    newmatrices[otherindex] = selfrestpos
-                    offsets[otherindex] = otherrestpos * selfrestpos.getInverse()
-                    if selfrestpos != otherrestpos:
-                        alreadymerged = False
-                    break
-
-        if alreadymerged:
-            # already merged!
-            continue
-
-        # calculate average offset (is used to fall back on)
-        realoffsets = [ofs for ofs in offsets if ofs is not None]
-        avgoffset = reduce(lambda x,y: x+y, realoffsets) / len(realoffsets)
-
-        # see if all new matrices are available from this geometry's bones
-        if None in newmatrices:
-            # some bones were missing
-            if not force:
-                failed.append(geom)
-                continue
-            else:
-                # use average offset
-                for i in xrange(len(offsets)):
-                    if offsets[i] is None:
-                        newmatrices[i] = avgoffset.getInverse(fast = False) * oldmatrices[i]
-
-        # this geometry will be repositioned
-        result.append(geom)
-
-        # transform the vertices
-        vertexweights = geom.getVertexWeights()
-        for i, v in enumerate(geom.data.vertices):
-            oldmatrix = self.cls.Matrix44()
-            newmatrix = self.cls.Matrix44()
-            # find the indices of the bones influencing this vertex
-            for bonenum, boneweight in vertexweights[i]:
-                oldmatrix += boneweight * oldmatrices[bonenum]
-                newmatrix += boneweight * newmatrices[bonenum]
-            try:
-                newmatrix_inverse = newmatrix.getInverse(fast = False) # newmatrix is not a scale-rotation-translation matrix so we must calculate inverse the slow way
-                vv = v * oldmatrix * newmatrix_inverse
-            except ZeroDivisionError:
-                # in very rare cases inverse will fail, in that case we fall back on the average offset
-                vv = v * avgoffset
-            v.x = vv.x
-            v.y = vv.y
-            v.z = vv.z
-
-        # set bone rest positions
-        for i, bonedata in enumerate(geom.skinInstance.data.boneList):
-            bonedata.setTransform(newmatrices[i])
-
-    return result, failed
-
-
-
 # The nif skinning algorithm works as follows (as of nifskope):
 # v'                               # vertex after skinning in geometry space
 # = sum over {b in skininst.bones} # sum over all bones b that influence the mesh
@@ -453,7 +308,7 @@ def getSkinDeformation(self):
 
 
 
-# ported from niflib::NiNode::GoToSkeletonBindPosition() (r2518)
+# ported and extended from niflib::NiNode::GoToSkeletonBindPosition() (r2518)
 def sendBonesToBindPosition(self):
     """Send all bones to their bind position."""
     if not self.isSkin(): return
@@ -470,7 +325,7 @@ def sendBonesToBindPosition(self):
         # if parent_bone is a child of the skeleton root, then fix its
         # transfrom
         if parent_bone in skelroot.children:
-            parent_bone.setTransform(parent_offset.getInverse())
+            parent_bone.setTransform(parent_offset.getInverse() * self.getTransform(skelroot))
         # fix the transform of all its the children
         for j, child_bone in enumerate(skininst.bones):
             if child_bone not in parent_bone.children: continue
@@ -482,7 +337,12 @@ def sendBonesToBindPosition(self):
 
 # ported from niflib::NiSkinData::ResetOffsets (r2561)
 def updateBindPosition(self):
-    """Make current position of the bones the bind position for this geometry."""
+    """Make current position of the bones the bind position for this geometry.
+
+    Sets the NiSkinData overall transform to the inverse of the geometry transform
+    relative to the skeleton root, and sets the NiSkinData of each bone to
+    the geometry transform relative to the skeleton root times the inverse of the bone
+    transform relative to the skeleton root."""
     if not self.isSkin(): return
 
     # validate skin and set up quick links
