@@ -9,7 +9,7 @@ for files used by 3D games, such as a stripifier, and a tangent space
 calculator, are included in PyFFI as well."""
 
 classifiers = """\
-Development Status :: 3 - Alpha
+Development Status :: 4 - Beta
 License :: OSI Approved :: BSD License
 Intended Audience :: Developers
 Intended Audience :: End Users/Desktop

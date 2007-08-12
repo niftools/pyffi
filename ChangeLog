@@ -1,3 +1,9 @@
+Version 0.4 (12 Aug 2007)
+* NIF:
+  - new function updateBindPosition in NiGeometry to fix a geometry rest position from current bone positions
+  - removed deprecated functions
+  - (!) changed interface of addBone, no longer takes "transform" argument; use the new function updateBindPosition instead
+
 Version 0.3.4 (11 Aug 2007)
 * improved documentation
 * fixed the 'in' operator in Bases/Array.py
