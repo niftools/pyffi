@@ -63,7 +63,7 @@ def addShape(self, triangles, normals, vertices, layer = 0, material = 0):
         tdata.normal.x = n[0]
         tdata.normal.y = n[1]
         tdata.normal.z = n[2]
-    data.numVertices = len(vertlist)
+    data.numVertices = len(vertices)
     data.vertices.updateSize()
     for vdata, v in zip(data.vertices, vertices):
         vdata.x = v[0] / 7.0
