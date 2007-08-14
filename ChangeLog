@@ -1,3 +1,8 @@
+Version 0.4.1 (14 Aug 2007)
+* NIF:
+  - new function to add collision geometries to packed tristripsshape
+  - fixed bug in bhkListShape.addShape
+
 Version 0.4 (12 Aug 2007)
 * NIF:
   - new function updateBindPosition in NiGeometry to fix a geometry rest position from current bone positions
