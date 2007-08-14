@@ -54,18 +54,20 @@ def addShape(self, triangles, normals, vertices, layer = 0, material = 0):
     if not self.data:
         self.data = self.cls.hkPackedNiTriStripsData()
     data = self.data
-    data.numTriangles = len(triangles)
+    firsttriangle = data.numTriangles
+    firstvertex = data.numVertices
+    data.numTriangles += len(triangles)
     data.triangles.updateSize()
-    for tdata, t, n in zip(data.triangles, triangles, normals):
-        tdata.triangle.v1 = t[0]
-        tdata.triangle.v2 = t[1]
-        tdata.triangle.v3 = t[2]
+    for tdata, t, n in zip(data.triangles[firsttriangle:], triangles, normals):
+        tdata.triangle.v1 = t[0] + firstvertex
+        tdata.triangle.v2 = t[1] + firstvertex
+        tdata.triangle.v3 = t[2] + firstvertex
         tdata.normal.x = n[0]
         tdata.normal.y = n[1]
         tdata.normal.z = n[2]
-    data.numVertices = len(vertices)
+    data.numVertices += len(vertices)
     data.vertices.updateSize()
-    for vdata, v in zip(data.vertices, vertices):
+    for vdata, v in zip(data.vertices[firstvertex:], vertices):
         vdata.x = v[0] / 7.0
         vdata.y = v[1] / 7.0
         vdata.z = v[2] / 7.0
