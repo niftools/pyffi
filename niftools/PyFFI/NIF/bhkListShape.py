@@ -56,7 +56,7 @@ def addShape(self, shape, front = False):
             self.subShapes[i] = self.subShapes[i-1]
         self.subShapes[0] = shape
     # expand list of unknown ints as well
-    self.numUnknownInts = num_shapes
+    self.numUnknownInts = num_shapes + 1
     self.unknownInts.updateSize()
 
 def removeShape(self, shape):
