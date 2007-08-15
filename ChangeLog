@@ -1,3 +1,10 @@
+Version 0.4.2 (15 Aug 2007)
+* kwargs for getRefs
+* NIF:
+  - fixed bug in skin partition calculation
+  - when writing nif files the refs are written in sequence (instead of the links, so missing links will yield an exception, which is a good thing)
+  - new functions to get list of extra data blocks and to add effect
+
 Version 0.4.1 (14 Aug 2007)
 * NIF:
   - new function to add collision geometries to packed tristripsshape
