@@ -421,7 +421,7 @@ class NifFormat(object):
             else:
                 return []
 
-        def getRefs(self):
+        def getRefs(self, **kwargs):
             if self._x != None:
                 return [self._x]
             else:
@@ -437,7 +437,7 @@ class NifFormat(object):
             # avoid infinite recursion
             return '%s instance at 0x%08X'%(self._x.__class__, id(self._x))
 
-        def getRefs(self):
+        def getRefs(self, **kwargs):
             return []
 
     class LineString(BasicBase):
@@ -931,7 +931,7 @@ class NifFormat(object):
                 block_index_dct[root] = id(root)
             block_list.append(root)
         # add children
-        for child in root.getLinks(version = version, user_version = user_version):
+        for child in root.getRefs(version = version, user_version = user_version):
             cls._makeBlockList(version, user_version, child, block_list, block_index_dct, block_type_list, block_type_dct)
         # add havok block after children (required for oblivion)
         if isinstance(root, cls.bhkRefObject):
