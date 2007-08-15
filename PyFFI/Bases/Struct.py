@@ -319,11 +319,20 @@ class StructBase(object):
             strings.extend(getattr(self, "_" + name + "_value_").getStrings(version = version, user_version = user_version))
         return strings
 
-    def getRefs(self):
+    def getRefs(self, version = -1, user_version = 0):
         links = []
         for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
             if not typ._hasLinks: continue
-            links.extend(getattr(self, "_" + name + "_value_").getRefs())
+            if version != -1:
+                if ver1:
+                    if version < ver1: continue
+                if ver2:
+                    if version > ver2: continue
+                if userver:
+                    if user_version != userver: continue
+                if cond != None:
+                    if not cond.eval(self): continue
+            links.extend(getattr(self, "_" + name + "_value_").getRefs(version = version, user_version = user_version))
         return links
 
     @classmethod

@@ -255,14 +255,14 @@ class Array(_ListWrap):
                     strings.extend(e.getStrings(version = version, user_version = user_version))
         return strings
 
-    def getRefs(self):
+    def getRefs(self, **kwargs):
         links = []
         if not self._elementType._hasLinks: return links
         if self._count2 == None:
             for e in list.__iter__(self):
-                links.extend(e.getRefs())
+                links.extend(e.getRefs(**kwargs))
         else:
             for el in list.__iter__(self):
                 for e in list.__iter__(el):
-                    links.extend(e.getRefs())
+                    links.extend(e.getRefs(**kwargs))
         return links
