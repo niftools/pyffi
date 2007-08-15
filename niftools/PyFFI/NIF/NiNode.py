@@ -63,6 +63,12 @@ True
 False
 >>> x.numChildren
 1
+>>> e = NifFormat.NiSpotLight()
+>>> x.addEffect(e)
+>>> x.numEffects
+1
+>>> e in x.effects
+True
 """
 
 def addChild(self, childblock, front = False):
@@ -80,7 +86,8 @@ def addChild(self, childblock, front = False):
         for i in xrange(num_children, 0, -1):
             self.children[i] = self.children[i-1]
         self.children[0] = childblock
-        
+
+
 
 def removeChild(self, childblock):
     """Remove a block from the child list."""
@@ -89,3 +96,13 @@ def removeChild(self, childblock):
     self.children.updateSize()
     for i, child in enumerate(children):
         self.children[i] = child
+
+
+
+def addEffect(self, effectblock):
+    """Add an effect to the list of effects."""
+    num_effs = self.numEffects
+    self.numEffects = num_effs + 1
+    self.effects.updateSize()
+    self.effects[num_effs] = effectblock
+

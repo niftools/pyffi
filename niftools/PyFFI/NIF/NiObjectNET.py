@@ -56,6 +56,16 @@ def addExtraData(self, extrablock):
             lastextra = lastextra.nextExtraData
         lastextra.nextExtraData = extrablock
 
+def getExtraDatas(self):
+    """Get a list of all extra data blocks."""
+    xtras = [xtra for xtra in self.extraDataList ]
+    xtra = self.extraData
+    while xtra:
+        if not xtra in self.extraDataList:
+            xtras.append(xtra)
+        xtra = xtra.nextExtraData
+    return xtras
+
 def addController(self, ctrlblock):
     """Add block to controller chain."""
     if not self.controller:
