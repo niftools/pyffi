@@ -398,7 +398,7 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
         skinpartblock.numBones = len(bones)
         if stripify:
             skinpartblock.numStrips = len(strips)
-        skinpartblock.numWeightsPerVertex = maxbones
+        skinpartblock.numWeightsPerVertex = maxbonespervertex # maxbones would be enough but the Gamebryo engine doesn't like that
         skinpartblock.bones.updateSize()
         for i, bonenum in enumerate(bones):
             skinpartblock.bones[i] = bonenum
@@ -409,7 +409,7 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
         skinpartblock.hasVertexWeights = True
         skinpartblock.vertexWeights.updateSize()
         for i, v in enumerate(vertices):
-            for j in xrange(maxbones):
+            for j in xrange(skinpartblock.numWeightsPerVertex):
                 if j < len(weights[v]):
                     skinpartblock.vertexWeights[i][j] = weights[v][j][1]
                 else:
@@ -433,11 +433,11 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
         skinpartblock.hasBoneIndices = True
         skinpartblock.boneIndices.updateSize()
         for i, v in enumerate(vertices):
-            for j in xrange(maxbones):
+            for j in xrange(skinpartblock.numWeightsPerVertex):
                 if j < len(weights[v]):
                     skinpartblock.boneIndices[i][j] = bones.index(weights[v][j][0])
                 else:
-                    skinpartblock.boneIndices[i][j] = 0.0
+                    skinpartblock.boneIndices[i][j] = 0
  
     return lostweight
 
