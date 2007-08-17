@@ -41,7 +41,9 @@
 # --------------------------------------------------------------------------
 
 def addProperty(self, propblock):
-    """Add block to property list."""
+    """Add block C{propblock} to property list.
+
+    @param propblock: The property block to add."""
     num_props = self.numProperties
     self.numProperties = num_props + 1
     self.properties.updateSize()
@@ -49,13 +51,15 @@ def addProperty(self, propblock):
 
 def getTransform(self, relative_to = None):
     """Return scale, rotation, and translation into a single 4x4 matrix,
-    relative to the <relative_to> block (which should be another NiAVObject
-    connecting to this block). If <relative_to> == None, then returns the
-    transform stored in self, or equivalently, the target is assumed to be the
-    parent."""
+    relative to the C{relative_to} block (which should be another NiAVObject
+    connecting to this block). If C{relative_to} is C{None}, then returns the
+    transform stored in C{self}, or equivalently, the target is assumed to be the
+    parent.
+
+    @param relative_to: The block relative to which the transform must be calculated. If C{None}, the local transform is returned."""
     m = self.cls.Matrix44()
     m.setScaleRotationTranslation(self.scale, self.rotation, self.translation)
-    if relative_to == None: return m
+    if not relative_to: return m
     # find chain from relative_to to self
     chain = relative_to.findChain(self, block_type = self.cls.NiAVObject)
     if not chain:
@@ -66,7 +70,9 @@ def getTransform(self, relative_to = None):
     return m
 
 def setTransform(self, m):
-    """Set rotation, transform, and velocity."""
+    """Set rotation, translation, and scale, from a 4x4 matrix.
+
+    @param m: The matrix to which the transform should be set."""
     scale, rotation, translation = m.getScaleRotationTranslation()
 
     self.scale = scale
@@ -86,7 +92,9 @@ def setTransform(self, m):
     self.translation.z = translation.z
     
 def applyScale(self, scale):
-    """Apply scale factor <scale> on data."""
+    """Apply scale factor on data.
+
+    @param scale: The scale factor."""
     # apply scale on translation
     self.translation.x *= scale
     self.translation.y *= scale

@@ -42,24 +42,24 @@
 
 def find(self, block_name = None, block_type = None):
     # does this block match the search criteria?
-    if block_name != None and block_type != None:
+    if block_name and block_type:
         if isinstance(self, block_type):
             try:
                 if block_name == self.name: return self
             except AttributeError:
                 pass
-    elif block_name != None:
+    elif block_name:
         try:
             if block_name == self.name: return self
         except AttributeError:
             pass
-    elif block_type != None:
+    elif block_type:
         if isinstance(self, block_type): return self
 
     # ok, this block is not a match, so check further down in tree
     for child in self.getRefs():
         blk = child.find(block_name, block_type)
-        if blk != None: return blk
+        if blk: return blk
 
     return None
 
@@ -74,7 +74,7 @@ def findChain(self, block, block_type = None):
     @param block: The block to find a chain to.
     @param block_type: The type that blocks should have in this chain."""
 
-    if self == block: return [self]
+    if self is block: return [self]
     for child in self.getRefs():
         if block_type and not isinstance(child, block_type): continue
         child_chain = child.findChain(block, block_type)
