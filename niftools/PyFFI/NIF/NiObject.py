@@ -63,11 +63,16 @@ def find(self, block_name = None, block_type = None):
 
     return None
 
+
+
 def findChain(self, block, block_type = None):
-    """Finds a chain of blocks going from self to <block>. If found,
+    """Finds a chain of blocks going from C{self} to C{block}. If found,
     self is the first element and block is the last element. If no branch
     found, returns an empty list. Does not check whether there is more
-    than one branch; if so, the first one found is returned."""
+    than one branch; if so, the first one found is returned.
+
+    @param block: The block to find a chain to.
+    @param block_type: The type that blocks should have in this chain."""
 
     if self == block: return [self]
     for child in self.getRefs():
@@ -85,15 +90,22 @@ def applyScale(self, scale):
     for child in self.getRefs():
         child.applyScale(scale)
 
-def tree(self):
+def tree(self, block_type = None, follow_all = True):
     """A generator for parsing all blocks in the tree (starting from and
-    including self)."""
+    including C{self}).
+
+    @param block_type: If not C{None}, yield only blocks of the type C{block_type}.
+    @param follow_all: If C{block_type} is not C{None}, then if this is C{True} the function will parse the whole tree. Otherwise, the function will not follow branches that start by a non-C{block_type} block."""
     # yield self
-    yield self
+    if not block_type:
+        yield self
+    elif isinstance(self, block_type):
+        yield self
+    elif not follow_all: return # don't recurse further
 
     # yield tree attached to each child
     for child in self.getRefs():
-        for block in child.tree():
+        for block in child.tree(block_type = block_type, follow_all = follow_all):
             yield block
 
 def _validateTree(self):
