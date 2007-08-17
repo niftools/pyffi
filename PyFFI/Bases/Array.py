@@ -182,7 +182,7 @@ class Array(_ListWrap):
                         e = self._elementType(template = self._elementTypeTemplate, argument = self._elementTypeArgument)
                         el.append(e)
 
-    def read(self, version = -1, user_version = 0, f = None, link_stack = [], string_list = [], argument = None):
+    def read(self, version = -1, user_version = None, f = None, link_stack = [], string_list = [], argument = None):
         len1 = self._len1()
         if len1 > 1000000: raise ValueError('array too long')
         self._elementTypeArgument = argument
@@ -203,7 +203,7 @@ class Array(_ListWrap):
                     el.append(e)
                 self.append(el)
 
-    def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, string_list = [], argument = None):
+    def write(self, version = -1, user_version = None, f = None, block_index_dct = {}, string_list = [], argument = None):
         self._elementTypeArgument = argument
         len1 = self._len1()
         if len1 != self.__len__():
@@ -221,7 +221,7 @@ class Array(_ListWrap):
                 for e in list.__iter__(el):
                     e.write(version = version, user_version = user_version, f = f, block_index_dct = block_index_dct, string_list = string_list, argument = self._elementTypeArgument)
 
-    def fixLinks(self, version = -1, user_version = 0, block_dct = {}, link_stack = []):
+    def fixLinks(self, version = -1, user_version = None, block_dct = {}, link_stack = []):
         if not self._elementType._hasLinks: return
         if self._count2 == None:
             for e in list.__iter__(self):
@@ -231,7 +231,7 @@ class Array(_ListWrap):
                 for e in list.__iter__(el):
                     e.fixLinks(version = version, user_version = user_version, block_dct = block_dct, link_stack = link_stack)
 
-    def getLinks(self, version = -1, user_version = 0):
+    def getLinks(self, version = -1, user_version = None):
         links = []
         if not self._elementType._hasLinks: return links
         if self._count2 == None:
@@ -243,7 +243,7 @@ class Array(_ListWrap):
                     links.extend(e.getLinks(version = version, user_version = user_version))
         return links
 
-    def getStrings(self, version = -1, user_version = 0):
+    def getStrings(self, version = -1, user_version = None):
         strings = []
         if not self._elementType._hasStrings: return strings
         if self._count2 == None:

@@ -51,9 +51,9 @@ class BasicBase(object):
     >>> class UInt(BasicBase):
     ...     def __init__(self, template = None, argument = 0):
     ...         self.__value = 0
-    ...     def read(self, version = -1, user_version = 0, f = None, link_stack = [], argument = None):
+    ...     def read(self, version = None, user_version = None, f = None, link_stack = [], argument = None):
     ...         self.__value, = struct.unpack('<I', f.read(4))
-    ...     def write(self, version = -1, user_version = 0, f = None, block_index_dct = {}, argument = None):
+    ...     def write(self, version = None, user_version = None, f = None, block_index_dct = {}, argument = None):
     ...         f.write(struct.pack('<I', self.__value))
     ...     def getValue(self):
     ...         return self.__value
