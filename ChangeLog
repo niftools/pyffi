@@ -1,3 +1,10 @@
+Version 0.4.3 (17 Aug 2007)
+* fixed bug that occurred if userver = 0 in the xml (fixes geometry morph data
+in NIF versions 20.0.0.4 and up)
+* NIF:
+  - tree() function has been extended
+  - some minor cleanups and more documentation
+
 Version 0.4.2 (15 Aug 2007)
 * kwargs for getRefs
 * NIF:
