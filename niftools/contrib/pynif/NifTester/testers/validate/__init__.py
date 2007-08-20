@@ -5,4 +5,5 @@ import tangentspace
 import tristrip
 import centerradius
 import skincenterradius
+import convexshape
 
