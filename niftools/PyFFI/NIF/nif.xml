@@ -895,7 +895,7 @@
         <add name="Num Triangles" type="ushort">Number of triangles in this submesh.</add>
         <add name="Num Bones" type="ushort">Number of bones influencing this submesh.</add>
         <add name="Num Strips" type="ushort">Number of strips in this submesh (zero if not stripped).</add>
-        <add name="Num Weights Per Vertex" type="ushort">Number of weight coefficients per vertex.</add>
+        <add name="Num Weights Per Vertex" type="ushort">Number of weight coefficients per vertex. The Gamebryo engine seems to work well only if this number is equal to 4, even if there are less than 4 influences per vertex.</add>
         <add name="Bones" type="ushort" arr1="Num Bones">List of bones.</add>
         <add name="Has Vertex Map" type="bool" ver1="10.1.0.0">Do we have a vertex map?</add>
         <add name="Vertex Map" type="ushort" arr1="Num Vertices" ver2="10.0.1.2">Maps the weight/influence lists in this submesh to the vertices in the shape being skinned.</add>
@@ -1258,12 +1258,12 @@
     </niobject>
 
     <niobject name="bhkConvexVerticesShape" abstract="0" inherit="bhkConvexShape" ver1="20.0.0.5">
-        A convex shape built from vertices?
-        <add name="Unknown 6 Floats" type="float" arr1="6">Unknown.</add>
+        A convex shape built from vertices.
+        <add name="Unknown 6 Floats" type="float" arr1="6">Unknown. Must be (0.0,0.0,-0.0,0.0,0.0,-0.0) for arrow detection to work (mind the minus signs, -0.0 is 0x80000000 in hex).</add>
         <add name="Num Vertices" type="uint">Number of vertices.</add>
-        <add name="Vertices" type="Vector4" arr1="Num Vertices">Vertices. Fourth component is 0.</add>
-        <add name="Num Normals" type="uint">The number of normals.</add>
-        <add name="Normals" type="Vector4" arr1="Num Normals">The normals of the shape's outer faces. Fourth component is the distance from center, negative.</add>
+        <add name="Vertices" type="Vector4" arr1="Num Vertices">Vertices. Fourth component is 0. Lexicographically sorted.</add>
+        <add name="Num Normals" type="uint">The number of half spaces.</add>
+        <add name="Normals" type="Vector4" arr1="Num Normals">Half spaces as determined by the set of vertices above. First three components define the normal pointing to the exterior, fourth component is the signed distance of the separating plane to the origin: it is minus the dot product of v and n, where v is any vertex on the separating plane, and n is the normal. Lexicographically sorted.</add>
     </niobject>
 
     <!--Should inherit from bhkConvexShape according to hierarchy, but seems to be exactly the same as bhkTransformShape.-->
@@ -1302,10 +1302,16 @@
 
     <niobject name="bhkListShape" abstract="0" inherit="bhkShapeCollection">
         A list of shapes.
+
+        Do not put a bhkPackedNiTriStripsShape in the Sub Shapes. Use a
+        separate collision nodes without a list shape for those.
+
+        Also, shapes collected in a bhkListShape may not have the correct
+        walking noise, so only use it for non-walkable objects.
         <add name="Num Sub Shapes" type="uint">The number of sub shapes referenced.</add>
         <add name="Sub Shapes" type="Ref" template="bhkShape" arr1="Num Sub Shapes">List of shapes.</add>
         <add name="Material" type="HavokMaterial">The shape&#039;s material.</add>
-        <add name="Unknown Floats" type="float" arr1="6">Unknown.</add>
+        <add name="Unknown Floats" type="float" arr1="6">Unknown. Set to (0.0,0.0,-0.0,0.0,0.0,-0.0), where -0.0 is 0x80000000 in hex.</add>
         <add name="Num Unknown Ints" type="uint">Count.</add>
         <add name="Unknown Ints" type="uint" arr1="Num Unknown Ints">Unknown.</add>
     </niobject>
