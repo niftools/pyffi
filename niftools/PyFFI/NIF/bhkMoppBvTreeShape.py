@@ -136,7 +136,7 @@ def _printSubTree(self, chunk, depth = 0):
     else:
         raise ValueError("unknown mopp opcode 0x%X"%code)
 
-def printTree(self)
+def printTree(self):
     """Print the mopp tree."""
     for chunk in self.getTree():
         self._printSubTree(chunk)
