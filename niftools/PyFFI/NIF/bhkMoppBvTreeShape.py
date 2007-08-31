@@ -53,9 +53,90 @@ def updateOriginScale(self):
     self.origin.z = minz - 0.1
     self.scale = (256*256*254) / (0.2+max([maxx-minx,maxy-miny,maxz-minz]))
 
-def getTree(self):
-    pass
+def updateTree(self):
+    """Update the MOPP tree."""
+    mopp = [] # the mopp 'assembly' script
+    q = 256*256 / self.scale # quantization factor
 
-def setTree(self, tree):
-    pass
+    # opcodes
+    BOUNDX = 0x26    
+    BOUNDY = 0x27    
+    BOUNDZ = 0x28    
+    TESTX = 0x10
+    TESTY = 0x11
+    TESTZ = 0x12
 
+    # add first crude bounding box checks
+    maxx = round((max([v.x for v in self.shape.data.vertices]) - self.origin.x) / q)
+    maxy = round((max([v.y for v in self.shape.data.vertices]) - self.origin.y) / q)
+    maxz = round((max([v.z for v in self.shape.data.vertices]) - self.origin.z) / q)
+    if maxx < 0 or maxy < 0 or maxz < 0: raise ValueError("cannot update mopp tree with invalid origin")
+    if maxx > 255 or maxy > 255 or maxz > 255: raise ValueError("cannot update mopp tree with invalid scale")
+    mopp.extend([BOUNDZ, 0, maxz])
+    mopp.extend([BOUNDY, 0, maxy])
+    mopp.extend([BOUNDX, 0, maxx])
+
+    # add a trivial tree
+    numtriangles = len(self.shape.data.triangles)
+    if numtriangles > 128: raise ValueError("cannot update mopp: too many triangles") # todo: figure out how to add more
+    for t in xrange(numtriangles-1):
+         mopp.extend([TESTZ, 255, 0, 1, 0x30 + t])
+    mopp.extend([0x30+numtriangles-1])
+
+    # delete mopp and replace with new data
+    self.moppDataSize = len(mopp)
+    self.moppData.updateSize()
+    for i, b in enumerate(mopp):
+        self.moppData[i] = b
+
+def update(self):
+    """Update scale, origin, and mopp data."""
+
+    self.updateOriginScale()
+    self.updateTree()
+
+# ported from NifVis/bhkMoppBvTreeShape.py
+def _getSubTree(self, start, length):
+    """Get a mopp subtree (for internal purposes only)."""
+    mopp = self.moppData
+    i = start
+    end = start + length
+    while i < end:
+        code = mopp[i]
+        if code in [0x26, 0x27, 0x28]:
+            chunk = [code, mopp[i+1], mopp[i+2]]
+            jump = 3
+        elif code in xrange(0x10, 0x20):
+            subsize = mopp[i+3]
+            subtree = _getSubTree(mopp, i+4, subsize)
+            chunk = [code, mopp[i+1], mopp[i+2], subtree]
+            jump = 4+subsize
+        elif code in range(0x30, 0x4f):
+            chunk = [code]
+            jump = 1
+        else:
+            raise ValueError("unknown mopp opcode 0x%X"%code)
+        tree.append(chunk)
+        i += jump
+
+def getTree(self, chunk):
+    return self._getSubTree(0, self.moppDataSize)
+
+def _printSubTree(self, chunk, depth = 0):
+    """Print a mopp subtree (for internal purposes only)."""
+    code = chunk[0]
+    print "  "*depth + '0x' + hex(code),
+    if code in [0x26, 0x27, 0x28]:
+        print chunk[1], chunk[2]
+    elif code in xrange(0x10, 0x20):
+        print chunk[1], chunk[2]
+        self._printSubTree(chunk[3], depth+1)
+    elif code in range(0x30, 0x4f):
+        pass
+    else:
+        raise ValueError("unknown mopp opcode 0x%X"%code)
+
+def printTree(self)
+    """Print the mopp tree."""
+    for chunk in self.getTree():
+        self._printSubTree(chunk)
