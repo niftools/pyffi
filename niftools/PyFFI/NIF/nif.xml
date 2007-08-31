@@ -1290,8 +1290,8 @@
         <add name="Unknown 8 Bytes" type="byte" arr1="8">Unknown bytes, probably MOPP Header.</add>
         <add name="Unknown Float" type="float">Unknown float, might be scale.</add>
         <add name="MOPP Data Size" type="uint">Number of bytes for MOPP data.</add>
-        <add name="Object Corner" type="Vector3" ver1="20.0.0.5">Corner of the object with min. coordinates.</add>
-        <add name="Scaling Factor" type="float" ver1="20.0.0.5">The scaling factor to quantize the MOPP. Determined by 255*255*255 / size.</add>
+        <add name="Origin" type="Vector3" ver1="20.0.0.5">Origin of the object in mopp coordinates. This is the minimum of all vertices in the packed shape along each axis, minus 0.1.</add>
+        <add name="Scale" type="float" ver1="20.0.0.5">The scaling factor to quantize the MOPP: the quantization factor is equal to 256*256 divided by this number. In Oblivion files, scale is taken equal to 256*256*254 / (size + 0.2) where size is the largest dimension of the bounding box of the packed shape.</add>
         <add name="MOPP Data" type="byte" arr1="MOPP Data Size">The tree of bounding volume data.</add>
     </niobject>
 
