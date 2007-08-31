@@ -99,42 +99,42 @@ def update(self):
 def _getSubTree(self, start, length):
     """Get a mopp subtree (for internal purposes only)."""
     mopp = self.moppData
+    tree = []
     i = start
     end = start + length
     while i < end:
         code = mopp[i]
-        if code in [0x26, 0x27, 0x28]:
-            chunk = [code, mopp[i+1], mopp[i+2]]
-            jump = 3
-        elif code in xrange(0x10, 0x20):
-            subsize = mopp[i+3]
-            subtree = _getSubTree(mopp, i+4, subsize)
-            chunk = [code, mopp[i+1], mopp[i+2], subtree]
-            jump = 4+subsize
-        elif code in range(0x30, 0x4f):
+        if code >= 0x30:
             chunk = [code]
             jump = 1
+        elif code in xrange(0x10, 0x20):
+            subsize = mopp[i+3]
+            subtree = self._getSubTree(i+4, subsize)
+            chunk = [code, mopp[i+1], mopp[i+2], subtree]
+            jump = 4+subsize
         else:
-            raise ValueError("unknown mopp opcode 0x%X"%code)
+            chunk = [code, mopp[i+1], mopp[i+2]]
+            jump = 3
+        #else:
+        #    raise ValueError("unknown mopp opcode 0x%X"%code)
         tree.append(chunk)
         i += jump
+    return tree
 
-def getTree(self, chunk):
+def getTree(self):
     return self._getSubTree(0, self.moppDataSize)
 
 def _printSubTree(self, chunk, depth = 0):
     """Print a mopp subtree (for internal purposes only)."""
     code = chunk[0]
-    print "  "*depth + '0x' + hex(code),
-    if code in [0x26, 0x27, 0x28]:
-        print chunk[1], chunk[2]
-    elif code in xrange(0x10, 0x20):
-        print chunk[1], chunk[2]
-        self._printSubTree(chunk[3], depth+1)
-    elif code in range(0x30, 0x4f):
-        pass
+    print "  "*depth + '0x%02X'%code,
+    if code >= 0x30:
+        print
     else:
-        raise ValueError("unknown mopp opcode 0x%X"%code)
+        print chunk[1], chunk[2]
+        if code in xrange(0x10, 0x20): # chunk[3] is subtree
+            for subchunk in chunk[3]:
+                self._printSubTree(subchunk, depth+1)
 
 def printTree(self):
     """Print the mopp tree."""
