@@ -57,6 +57,7 @@ def updateOriginScale(self):
 
 def updateTree(self):
     """Update the MOPP tree."""
+    
     mopp = [] # the mopp 'assembly' script
     q = 256*256 / self.scale # quantization factor
 
@@ -82,7 +83,7 @@ def updateTree(self):
     numtriangles = len(self.shape.data.triangles)
     if numtriangles > 128: raise ValueError("cannot update mopp: too many triangles") # todo: figure out how to add more
     for t in xrange(numtriangles-1):
-         mopp.extend([TESTZ, 255, 0, 1, 0x30 + t])
+         mopp.extend([TESTZ, maxz, 0, 1, 0x30 + t])
     mopp.extend([0x30+numtriangles-1])
 
     # delete mopp and replace with new data
