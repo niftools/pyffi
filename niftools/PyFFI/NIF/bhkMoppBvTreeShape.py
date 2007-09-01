@@ -104,15 +104,15 @@ def _getSubTree(self, start, length):
         if code in xrange(0x30,0x50):
             chunk = [code]
             jump = 1
-        elif code in [0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18]:
+        elif code in [0x10,0x11,0x12, 0x13,0x14,0x15, 0x16,0x17,0x18, 0x19, 0x1A, 0x1C]:
             subsize = mopp[i+3]
             subtree = self._getSubTree(i+4, subsize)
             chunk = [code, mopp[i+1], mopp[i+2], subtree]
             jump = 4+subsize
-        elif code in [0x20, 0x26,0x27,0x28]:
+        elif code in [0x20, 0x23,0x25, 0x26,0x27,0x28]:
             chunk = [code, mopp[i+1], mopp[i+2]]
             jump = 3
-        elif code in [0x05, 0x09, 0x50]:
+        elif code in [0x00,0x01, 0x05, 0x09, 0x50]:
             chunk = [code, mopp[i+1]]
             jump = 2
         else:
@@ -141,14 +141,14 @@ def _chunkToMoppSequence(self, chunk):
     code = chunk[0]
     if code in xrange(0x30,0x50):
         return [code]
-    elif code in [0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18]:
+    elif code in [0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18, 0x19, 0x1A, 0x1C]:
         subseq = []
         for subchunk in chunk[3]:
             subseq.extend(self._chunkToMoppSequence(subchunk))
         return [code, chunk[1], chunk[2], len(subseq)] + subseq
-    elif code in [0x20, 0x26,0x27,0x28]:
+    elif code in [0x20, 0x23,0x25, 0x26,0x27,0x28]:
         return [code, chunk[1], chunk[2]]
-    elif code in [0x05, 0x09, 0x50]:
+    elif code in [0x00,0x01, 0x05, 0x09, 0x50]:
         return [code, chunk[1]]
     else:
         raise ValueError("unknown mopp opcode 0x%02X"%code)
@@ -171,7 +171,7 @@ def _printSubTree(self, chunk, depth = 0):
     print "  "*depth + '0x%02X'%code,
     if code in xrange(0x30, 0x50):
         print '[ triangle %i ]'%(code-0x30)
-    elif code in [0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18]:
+    elif code in [0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18, 0x19, 0x1A, 0x1C]:
         print chunk[1], chunk[2],
         if code == 0x10:
             print '[ branch X ]'
@@ -183,7 +183,7 @@ def _printSubTree(self, chunk, depth = 0):
             print
         for subchunk in chunk[3]:
             self._printSubTree(subchunk, depth+1)
-    elif code in [0x20, 0x26,0x27,0x28]:
+    elif code in [0x20, 0x23,0x25, 0x26,0x27,0x28]:
         print chunk[1], chunk[2],
         if code == 0x26:
             print '[ bound X ]'
@@ -193,7 +193,7 @@ def _printSubTree(self, chunk, depth = 0):
             print '[ bound Z ]'
         else:
             print
-    elif code in [0x05, 0x09, 0x50]:
+    elif code in [0x00,0x01, 0x05, 0x09, 0x50]:
         print chunk[1]
 
 def printTree(self):
