@@ -92,12 +92,6 @@ def updateTree(self):
     for i, b in enumerate(mopp):
         self.moppData[i] = b
 
-def update(self):
-    """Update scale, origin, and mopp data."""
-
-    self.updateOriginScale()
-    self.updateTree()
-
 # ported from NifVis/bhkMoppBvTreeShape.py
 def _getSubTree(self, start, length):
     """Get a mopp subtree (for internal purposes only)."""
@@ -107,7 +101,7 @@ def _getSubTree(self, start, length):
     end = start + length
     while i < end:
         code = mopp[i]
-        if code >= 0x30:
+        if code in xrange(0x30,0x50):
             chunk = [code]
             jump = 1
         elif code in [0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18]:
@@ -115,9 +109,12 @@ def _getSubTree(self, start, length):
             subtree = self._getSubTree(i+4, subsize)
             chunk = [code, mopp[i+1], mopp[i+2], subtree]
             jump = 4+subsize
-        elif code in [0x26,0x27,0x28]:
+        elif code in [0x20, 0x26,0x27,0x28]:
             chunk = [code, mopp[i+1], mopp[i+2]]
             jump = 3
+        elif code in [0x05, 0x09, 0x50]:
+            chunk = [code, mopp[i+1]]
+            jump = 2
         else:
             print "unknown mopp code 0x%02X"%code
             print "following bytes are"
@@ -142,15 +139,19 @@ def getTree(self):
 def _chunkToMoppSequence(self, chunk):
     """Helper function for setTree (internal use only)."""
     code = chunk[0]
-    if code >= 0x30:
-       return [code]
-    elif code in xrange(0x10, 0x20):
+    if code in xrange(0x30,0x50):
+        return [code]
+    elif code in [0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18]:
         subseq = []
         for subchunk in chunk[3]:
             subseq.extend(self._chunkToMoppSequence(subchunk))
         return [code, chunk[1], chunk[2], len(subseq)] + subseq
-    else:
+    elif code in [0x20, 0x26,0x27,0x28]:
         return [code, chunk[1], chunk[2]]
+    elif code in [0x05, 0x09, 0x50]:
+        return [code, chunk[1]]
+    else:
+        raise ValueError("unknown mopp opcode 0x%02X"%code)
 
 def setTree(self, tree):
     # convert tree to mopp sequence
@@ -168,13 +169,32 @@ def _printSubTree(self, chunk, depth = 0):
     """Print a mopp subtree (for internal purposes only)."""
     code = chunk[0]
     print "  "*depth + '0x%02X'%code,
-    if code >= 0x30:
-        print
-    else:
-        print chunk[1], chunk[2]
-        if code in xrange(0x10, 0x20): # chunk[3] is subtree
-            for subchunk in chunk[3]:
-                self._printSubTree(subchunk, depth+1)
+    if code in xrange(0x30, 0x50):
+        print '[ triangle %i ]'%(code-0x30)
+    elif code in [0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18]:
+        print chunk[1], chunk[2],
+        if code == 0x10:
+            print '[ branch X ]'
+        elif code == 0x11:
+            print '[ branch Y ]'
+        elif code == 0x12:
+            print '[ branch Z ]'
+        else:
+            print
+        for subchunk in chunk[3]:
+            self._printSubTree(subchunk, depth+1)
+    elif code in [0x20, 0x26,0x27,0x28]:
+        print chunk[1], chunk[2],
+        if code == 0x26:
+            print '[ bound X ]'
+        elif code == 0x27:
+            print '[ bound Y ]'
+        elif code == 0x28:
+            print '[ bound Z ]'
+        else:
+            print
+    elif code in [0x05, 0x09, 0x50]:
+        print chunk[1]
 
 def printTree(self):
     """Print the mopp tree."""
