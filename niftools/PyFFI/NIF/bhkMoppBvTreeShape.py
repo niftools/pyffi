@@ -40,6 +40,8 @@
 # ***** END LICENCE BLOCK *****
 # --------------------------------------------------------------------------
 
+import math # math.ceil
+
 def updateOriginScale(self):
     """Update scale and origin."""
     minx = min([v.x for v in self.shape.data.vertices])
@@ -67,9 +69,9 @@ def updateTree(self):
     TESTZ = 0x12
 
     # add first crude bounding box checks
-    maxx = round((max([v.x for v in self.shape.data.vertices]) - self.origin.x) / q)
-    maxy = round((max([v.y for v in self.shape.data.vertices]) - self.origin.y) / q)
-    maxz = round((max([v.z for v in self.shape.data.vertices]) - self.origin.z) / q)
+    maxx = math.ceil((max([v.x for v in self.shape.data.vertices]) + 0.1 - self.origin.x) / q)
+    maxy = math.ceil((max([v.y for v in self.shape.data.vertices]) + 0.1 - self.origin.y) / q)
+    maxz = math.ceil((max([v.z for v in self.shape.data.vertices]) + 0.1 - self.origin.z) / q)
     if maxx < 0 or maxy < 0 or maxz < 0: raise ValueError("cannot update mopp tree with invalid origin")
     if maxx > 255 or maxy > 255 or maxz > 255: raise ValueError("cannot update mopp tree with invalid scale")
     mopp.extend([BOUNDZ, 0, maxz])
