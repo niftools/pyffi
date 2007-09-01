@@ -165,38 +165,44 @@ def setTree(self, tree):
     for i, b in enumerate(mopp):
         self.moppData[i] = b
 
-def _printSubTree(self, chunk, depth = 0):
-    """Print a mopp subtree (for internal purposes only)."""
-    code = chunk[0]
-    print "  "*depth + '0x%02X'%code,
-    if code in xrange(0x30, 0x50):
-        print '[ triangle %i ]'%(code-0x30)
-    elif code in [0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18, 0x19, 0x1A, 0x1C]:
-        print chunk[1], chunk[2],
-        if code == 0x10:
-            print '[ branch X ]'
-        elif code == 0x11:
-            print '[ branch Y ]'
-        elif code == 0x12:
-            print '[ branch Z ]'
-        else:
-            print
-        for subchunk in chunk[3]:
-            self._printSubTree(subchunk, depth+1)
-    elif code in [0x20, 0x23,0x24,0x25, 0x26,0x27,0x28]:
-        print chunk[1], chunk[2],
-        if code == 0x26:
-            print '[ bound X ]'
-        elif code == 0x27:
-            print '[ bound Y ]'
-        elif code == 0x28:
-            print '[ bound Z ]'
-        else:
-            print
-    elif code in [0x00,0x01,0x02, 0x03, 0x04, 0x05, 0x06, 0x08, 0x09, 0x0C, 0x0D, 0x50, 0x53]:
-        print chunk[1]
+def _printTree(self, tree, depth = 0, toffset = 0):
+    """Print mopp tree helper function."""
+    for chunk in tree:
+        code = chunk[0]
+        print "  "*depth + '0x%02X'%code,
+        if code in xrange(0x30, 0x50):
+            print '[ triangle %i ]'%(code-0x30+toffset)
+        elif code in [0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18, 0x19, 0x1A, 0x1C]:
+            print chunk[1], chunk[2],
+            if code == 0x10:
+                print '[ branch X ]'
+            elif code == 0x11:
+                print '[ branch Y ]'
+            elif code == 0x12:
+                print '[ branch Z ]'
+            else:
+                print
+            self._printTree(chunk[3], depth+1, toffset = toffset)
+        elif code in [0x20, 0x23,0x24,0x25, 0x26,0x27,0x28]:
+            print chunk[1], chunk[2],
+            if code == 0x26:
+                print '[ bound X ]'
+            elif code == 0x27:
+                print '[ bound Y ]'
+            elif code == 0x28:
+                print '[ bound Z ]'
+            else:
+                print
+        elif code in [0x00,0x01,0x02, 0x03, 0x04, 0x05, 0x06, 0x08, 0x09, 0x0C, 0x0D, 0x50, 0x53]:
+            print chunk[1],
+            if code == 0x50:
+                print '[ triangle %i ]'%chunk[1]
+            elif code == 0x09:
+                print '[ triangle offset = %i ]'%chunk[1]
+                toffset = chunk[1]
+            else:
+                print
 
 def printTree(self):
     """Print the mopp tree."""
-    for chunk in self.getTree():
-        self._printSubTree(chunk)
+    self._printTree(self.getTree())
