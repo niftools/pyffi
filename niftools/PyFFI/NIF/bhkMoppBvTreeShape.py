@@ -114,7 +114,7 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
             # get next command
             code = mopp[i]
             print "  "*depth + '0x%02X'%code,
-            
+
         if code in xrange(0x30,0x50):
             # triangle with offset
             print '[ triangle %i ]'%(code-0x30+toffset)
@@ -129,6 +129,17 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
             i += 2
             n += 2
             ret = True
+
+        elif code in [ 0x06 ]: # unsure
+            print
+            i += 1
+            n += 1
+
+        elif code in [ 0x05 ]: # unsure
+            print mopp[i+1]
+            i += 2
+            n += 2
+
         elif code in [0x10,0x11,0x12, 0x13,0x14,0x15, 0x16,0x17,0x18, 0x19, 0x1A, 0x1C]:
             # compact if-then-else
             print mopp[i+1], mopp[i+2],
@@ -172,7 +183,7 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
                 print
             i += 3
             n += 3
-        elif code in [0x01, 0x03]:
+        elif code in [0x01, 0x02, 0x03]:
             print mopp[i+1], mopp[i+2], mopp[i+3], '[ bound XYZ ]'
             i += 4
             n += 4
