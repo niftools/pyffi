@@ -110,22 +110,59 @@ def _getSubTree(self, start, length):
         if code >= 0x30:
             chunk = [code]
             jump = 1
-        elif code in xrange(0x10, 0x20):
+        elif code in [0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18]:
             subsize = mopp[i+3]
             subtree = self._getSubTree(i+4, subsize)
             chunk = [code, mopp[i+1], mopp[i+2], subtree]
             jump = 4+subsize
-        else:
+        elif code in [0x26,0x27,0x28]:
             chunk = [code, mopp[i+1], mopp[i+2]]
             jump = 3
-        #else:
-        #    raise ValueError("unknown mopp opcode 0x%X"%code)
+        else:
+            print "unknown mopp code 0x%02X"%code
+            print "following bytes are"
+            extrabytes = [mopp[j] for j in xrange(i+1,min(end,i+10))]
+            extraindex = [j       for j in xrange(i+1,min(end,i+10))]
+            print extrabytes
+            for b, j in zip(extrabytes, extraindex):
+                if j+b+1 < self.moppDataSize:
+                    print "opcode after jump %i is 0x%02X"%(b,mopp[j+b+1]), [mopp[k] for k in xrange(j+b+2,min(end,j+b+11))]
+            print "current tree is"
+            print tree
+            print "next branch starts with"
+            print [mopp[j] for j in xrange(end, min(self.moppDataSize, end+9))]
+            raise ValueError("unknown mopp opcode 0x%02X"%code)
         tree.append(chunk)
         i += jump
     return tree
 
 def getTree(self):
     return self._getSubTree(0, self.moppDataSize)
+
+def _chunkToMoppSequence(self, chunk):
+    """Helper function for setTree (internal use only)."""
+    code = chunk[0]
+    if code >= 0x30:
+       return [code]
+    elif code in xrange(0x10, 0x20):
+        subseq = []
+        for subchunk in chunk[3]:
+            subseq.extend(self._chunkToMoppSequence(subchunk))
+        return [code, chunk[1], chunk[2], len(subseq)] + subseq
+    else:
+        return [code, chunk[1], chunk[2]]
+
+def setTree(self, tree):
+    # convert tree to mopp sequence
+    mopp = []
+    for chunk in tree:
+        mopp.extend(self._chunkToMoppSequence(chunk))
+
+    # replace mopp with new data
+    self.moppDataSize = len(mopp)
+    self.moppData.updateSize()
+    for i, b in enumerate(mopp):
+        self.moppData[i] = b
 
 def _printSubTree(self, chunk, depth = 0):
     """Print a mopp subtree (for internal purposes only)."""
