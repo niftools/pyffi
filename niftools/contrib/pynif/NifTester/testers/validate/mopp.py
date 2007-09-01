@@ -23,6 +23,17 @@ def testBlock(block, verbose):
     # n = number of bytes, tris = triangle indices
     n, tris = block.parseTree(verbose = True)
 
+    # check triangles
+    counts = [ tris.count(i) for i in xrange(block.shape.data.numTriangles) ]
+    missing = [ i for i in xrange(block.shape.data.numTriangles) if counts[i] != 1 ]
+    if missing:
+        print "mopp parse error"
+        print "triangles index, times parsed (each index should be parsed exactly once)"
+        for i in missing:
+            print i, counts[i]
+        raise ValueError("mopp parsing failed")
+
+    # check size
     if n != block.moppDataSize:
-        raise ValueError("mopp parsing failed; not all bytes processed")
+        raise ValueError("mopp parsing failed; incorrect number of bytes processed (number of bytes %i, processed %i)"%(block.moppDataSize,n))
 
