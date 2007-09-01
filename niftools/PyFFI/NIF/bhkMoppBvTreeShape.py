@@ -93,87 +93,45 @@ def updateTree(self):
         self.moppData[i] = b
 
 # ported from NifVis/bhkMoppBvTreeShape.py
-def _getSubTree(self, start, length):
-    """Get a mopp subtree (for internal purposes only)."""
-    mopp = self.moppData
-    tree = []
-    i = start
-    end = start + length
-    while i < end:
+def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
+    """If verbose is True then the mopp subtree is printed while parsed. Returns number of bytes processed and a list of triangle indices encountered."""
+    mopp = self.moppData # shortcut notation
+    n = 0 # number of bytes processed
+    tris = [] # triangle indices
+    i = start # current index
+    ret = False # set to True if an opcode signals a triangle index
+    while i < self.moppDataSize and not ret:
+        # get opcode and print it
         code = mopp[i]
-        if code in xrange(0x30,0x50):
-            chunk = [code]
-            jump = 1
-        elif code in [0x10,0x11,0x12, 0x13,0x14,0x15, 0x16,0x17,0x18, 0x19, 0x1A, 0x1C]:
-            subsize = mopp[i+3]
-            subtree = self._getSubTree(i+4, subsize)
-            chunk = [code, mopp[i+1], mopp[i+2], subtree]
-            jump = 4+subsize
-        elif code in [0x20, 0x23,0x24,0x25, 0x26,0x27,0x28]:
-            chunk = [code, mopp[i+1], mopp[i+2]]
-            jump = 3
-        elif code in [0x00,0x01,0x02, 0x03, 0x04, 0x05, 0x06, 0x08, 0x09, 0x0C, 0x0D, 0x50, 0x53]:
-            chunk = [code, mopp[i+1]]
-            jump = 2
-        else:
-            print "unknown mopp code 0x%02X"%code
-            print "following bytes are"
-            extrabytes = [mopp[j] for j in xrange(i+1,min(end,i+10))]
-            extraindex = [j       for j in xrange(i+1,min(end,i+10))]
-            print extrabytes
-            for b, j in zip(extrabytes, extraindex):
-                if j+b+1 < self.moppDataSize:
-                    print "opcode after jump %i is 0x%02X"%(b,mopp[j+b+1]), [mopp[k] for k in xrange(j+b+2,min(end,j+b+11))]
-            print "current tree is"
-            print tree
-            print "next branch starts with"
-            print [mopp[j] for j in xrange(end, min(self.moppDataSize, end+9))]
-            raise ValueError("unknown mopp opcode 0x%02X"%code)
-        tree.append(chunk)
-        i += jump
-    return tree
-
-def getTree(self):
-    return self._getSubTree(0, self.moppDataSize)
-
-def _chunkToMoppSequence(self, chunk):
-    """Helper function for setTree (internal use only)."""
-    code = chunk[0]
-    if code in xrange(0x30,0x50):
-        return [code]
-    elif code in [0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18, 0x19, 0x1A, 0x1C]:
-        subseq = []
-        for subchunk in chunk[3]:
-            subseq.extend(self._chunkToMoppSequence(subchunk))
-        return [code, chunk[1], chunk[2], len(subseq)] + subseq
-    elif code in [0x20, 0x23,0x24,0x25, 0x26,0x27,0x28]:
-        return [code, chunk[1], chunk[2]]
-    elif code in [0x00,0x01,0x02, 0x03, 0x04, 0x05, 0x06, 0x08, 0x09, 0x0C, 0x0D, 0x50, 0x53]:
-        return [code, chunk[1]]
-    else:
-        raise ValueError("unknown mopp opcode 0x%02X"%code)
-
-def setTree(self, tree):
-    # convert tree to mopp sequence
-    mopp = []
-    for chunk in tree:
-        mopp.extend(self._chunkToMoppSequence(chunk))
-
-    # replace mopp with new data
-    self.moppDataSize = len(mopp)
-    self.moppData.updateSize()
-    for i, b in enumerate(mopp):
-        self.moppData[i] = b
-
-def _printTree(self, tree, depth = 0, toffset = 0):
-    """Print mopp tree helper function."""
-    for chunk in tree:
-        code = chunk[0]
         print "  "*depth + '0x%02X'%code,
-        if code in xrange(0x30, 0x50):
+
+        if code == 0x09:
+            # set the triangle offset for next command
+            print mopp[i+1], '[ triangle offset = %i ]'%mopp[i+1]
+            toffset = mopp[i+1]
+            i += 2
+            n += 2
+            # get next command
+            code = mopp[i]
+            print "  "*depth + '0x%02X'%code,
+            
+        if code in xrange(0x30,0x50):
+            # triangle with offset
             print '[ triangle %i ]'%(code-0x30+toffset)
-        elif code in [0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18, 0x19, 0x1A, 0x1C]:
-            print chunk[1], chunk[2],
+            i += 1
+            n += 1
+            tris.append(code-0x30+toffset)
+            ret = True
+        elif code == 0x50:
+            # triangle without offset
+            print mopp[i+1], '[ triangle %i ]'%mopp[i+1]
+            i += 2
+            n += 2
+            tris.append(mopp[i+1])
+            ret = True
+        elif code in [0x10,0x11,0x12, 0x13,0x14,0x15, 0x16,0x17,0x18, 0x19, 0x1A, 0x1C]:
+            # compact if-then-else
+            print mopp[i+1], mopp[i+2],
             if code == 0x10:
                 print '[ branch X ]'
             elif code == 0x11:
@@ -182,27 +140,47 @@ def _printTree(self, tree, depth = 0, toffset = 0):
                 print '[ branch Z ]'
             else:
                 print
-            self._printTree(chunk[3], depth+1, toffset = toffset)
-        elif code in [0x20, 0x23,0x24,0x25, 0x26,0x27,0x28]:
-            print chunk[1], chunk[2],
-            if code == 0x26:
-                print '[ bound X ]'
-            elif code == 0x27:
-                print '[ bound Y ]'
-            elif code == 0x28:
-                print '[ bound Z ]'
-            else:
-                print
-        elif code in [0x00,0x01,0x02, 0x03, 0x04, 0x05, 0x06, 0x08, 0x09, 0x0C, 0x0D, 0x50, 0x53]:
-            print chunk[1],
-            if code == 0x50:
-                print '[ triangle %i ]'%chunk[1]
-            elif code == 0x09:
-                print '[ triangle offset = %i ]'%chunk[1]
-                toffset = chunk[1]
-            else:
-                print
+            print "  "*depth + 'if:'
+            nsub1, trissub1 = self.printTree(i+4, depth+1, toffset)
+            print "  "*depth + 'else:'
+            nsub2, trissub2 = self.printTree(i+4+mopp[i+3], depth+1, toffset)
+            n += 4 + nsub1 + nsub2
+            tris.extend(trissub1)
+            tris.extend(trissub2)
+            ret = True
+        elif code in [0x23,0x24,0x25]: # short if x <= a then 1; if x > b then 2;
+            print mopp[i+1], mopp[i+2]
+            jump1 = mopp[i+3] * 256 + mopp[i+4] 
+            jump2 = mopp[i+5] * 256 + mopp[i+6]
+            print "  "*depth + 'if:'
+            nsub1, trissub1 = self.printTree(i+7+jump1, depth+1, toffset)
+            print "  "*depth + 'else:'
+            nsub2, trissub2 = self.printTree(i+7+jump2, depth+1, toffset)
+            n += 7 + nsub1 + nsub2
+            tris.extend(trissub1)
+            tris.extend(trissub2)
+            ret = True
+        elif code in [0x20, 0x26,0x27,0x28]:
+            print mopp[i+1], mopp[i+2]
+            i += 3
+            n += 3
+        elif code in [0x01, 0x03]:
+            print mopp[i+1], mopp[i+2], mopp[i+3], '[ branch XYZ ]'
+            i += 4
+            n += 4
+        #elif code in [0x00,0x01,0x02, 0x03, 0x04, 0x05, 0x06, 0x08, 0x09, 0x0C, 0x0D, 0x50, 0x53]:
+        #    chunk = [code, mopp[i+1]]
+        #    jump = 2
+        else:
+            print "unknown mopp code 0x%02X"%code
+            print "following bytes are"
+            extrabytes = [mopp[j] for j in xrange(i+1,min(self.moppDataSize,i+10))]
+            extraindex = [j       for j in xrange(i+1,min(self.moppDataSize,i+10))]
+            print extrabytes
+            for b, j in zip(extrabytes, extraindex):
+                if j+b+1 < self.moppDataSize:
+                    print "opcode after jump %i is 0x%02X"%(b,mopp[j+b+1]), [mopp[k] for k in xrange(j+b+2,min(self.moppDataSize,j+b+11))]
+            raise ValueError("unknown mopp opcode 0x%02X"%code)
 
-def printTree(self):
-    """Print the mopp tree."""
-    self._printTree(self.getTree())
+    return n, tris
+
