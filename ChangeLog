@@ -1,3 +1,6 @@
+Version 0.4.4 (***)
+* added mopp calculations
+
 Version 0.4.3 (17 Aug 2007)
 * fixed bug that occurred if userver = 0 in the xml (fixes geometry morph data
 in NIF versions 20.0.0.4 and up)
