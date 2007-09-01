@@ -141,9 +141,9 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
             else:
                 print
             print "  "*depth + 'if:'
-            nsub1, trissub1 = self.printTree(i+4, depth+1, toffset)
+            nsub1, trissub1 = self.parseTree(start = i+4, depth = depth+1, toffset = toffset, verbose = verbose)
             print "  "*depth + 'else:'
-            nsub2, trissub2 = self.printTree(i+4+mopp[i+3], depth+1, toffset)
+            nsub2, trissub2 = self.parseTree(start = i+4+mopp[i+3], depth = depth+1, toffset = toffset, verbose = verbose)
             n += 4 + nsub1 + nsub2
             tris.extend(trissub1)
             tris.extend(trissub2)
@@ -153,19 +153,27 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
             jump1 = mopp[i+3] * 256 + mopp[i+4] 
             jump2 = mopp[i+5] * 256 + mopp[i+6]
             print "  "*depth + 'if:'
-            nsub1, trissub1 = self.printTree(i+7+jump1, depth+1, toffset)
+            nsub1, trissub1 = self.parseTree(start = i+7+jump1, depth = depth+1, toffset = toffset, verbose = verbose)
             print "  "*depth + 'else:'
-            nsub2, trissub2 = self.printTree(i+7+jump2, depth+1, toffset)
+            nsub2, trissub2 = self.parseTree(start = i+7+jump2, depth = depth+1, toffset = toffset, verbose = verbose)
             n += 7 + nsub1 + nsub2
             tris.extend(trissub1)
             tris.extend(trissub2)
             ret = True
         elif code in [0x20, 0x26,0x27,0x28]:
-            print mopp[i+1], mopp[i+2]
+            print mopp[i+1], mopp[i+2],
+            if code == 0x26:
+                print '[ bound X ]'
+            elif code == 0x27:
+                print '[ bound Y ]'
+            elif code == 0x28:
+                print '[ bound Z ]'
+            else:
+                print
             i += 3
             n += 3
         elif code in [0x01, 0x03]:
-            print mopp[i+1], mopp[i+2], mopp[i+3], '[ branch XYZ ]'
+            print mopp[i+1], mopp[i+2], mopp[i+3], '[ bound XYZ ]'
             i += 4
             n += 4
         #elif code in [0x00,0x01,0x02, 0x03, 0x04, 0x05, 0x06, 0x08, 0x09, 0x0C, 0x0D, 0x50, 0x53]:
