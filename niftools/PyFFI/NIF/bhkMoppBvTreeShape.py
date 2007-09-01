@@ -125,9 +125,9 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
         elif code == 0x50:
             # triangle without offset
             print mopp[i+1], '[ triangle %i ]'%mopp[i+1]
+            tris.append(mopp[i+1])
             i += 2
             n += 2
-            tris.append(mopp[i+1])
             ret = True
         elif code in [0x10,0x11,0x12, 0x13,0x14,0x15, 0x16,0x17,0x18, 0x19, 0x1A, 0x1C]:
             # compact if-then-else
