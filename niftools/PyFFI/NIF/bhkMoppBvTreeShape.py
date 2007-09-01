@@ -109,10 +109,10 @@ def _getSubTree(self, start, length):
             subtree = self._getSubTree(i+4, subsize)
             chunk = [code, mopp[i+1], mopp[i+2], subtree]
             jump = 4+subsize
-        elif code in [0x20, 0x23,0x25, 0x26,0x27,0x28]:
+        elif code in [0x20, 0x23,0x24,0x25, 0x26,0x27,0x28]:
             chunk = [code, mopp[i+1], mopp[i+2]]
             jump = 3
-        elif code in [0x00,0x01, 0x05, 0x09, 0x50]:
+        elif code in [0x00,0x01,0x02, 0x03, 0x04, 0x05, 0x06, 0x08, 0x09, 0x0C, 0x0D, 0x50, 0x53]:
             chunk = [code, mopp[i+1]]
             jump = 2
         else:
@@ -146,9 +146,9 @@ def _chunkToMoppSequence(self, chunk):
         for subchunk in chunk[3]:
             subseq.extend(self._chunkToMoppSequence(subchunk))
         return [code, chunk[1], chunk[2], len(subseq)] + subseq
-    elif code in [0x20, 0x23,0x25, 0x26,0x27,0x28]:
+    elif code in [0x20, 0x23,0x24,0x25, 0x26,0x27,0x28]:
         return [code, chunk[1], chunk[2]]
-    elif code in [0x00,0x01, 0x05, 0x09, 0x50]:
+    elif code in [0x00,0x01,0x02, 0x03, 0x04, 0x05, 0x06, 0x08, 0x09, 0x0C, 0x0D, 0x50, 0x53]:
         return [code, chunk[1]]
     else:
         raise ValueError("unknown mopp opcode 0x%02X"%code)
@@ -183,7 +183,7 @@ def _printSubTree(self, chunk, depth = 0):
             print
         for subchunk in chunk[3]:
             self._printSubTree(subchunk, depth+1)
-    elif code in [0x20, 0x23,0x25, 0x26,0x27,0x28]:
+    elif code in [0x20, 0x23,0x24,0x25, 0x26,0x27,0x28]:
         print chunk[1], chunk[2],
         if code == 0x26:
             print '[ bound X ]'
@@ -193,7 +193,7 @@ def _printSubTree(self, chunk, depth = 0):
             print '[ bound Z ]'
         else:
             print
-    elif code in [0x00,0x01, 0x05, 0x09, 0x50]:
+    elif code in [0x00,0x01,0x02, 0x03, 0x04, 0x05, 0x06, 0x08, 0x09, 0x0C, 0x0D, 0x50, 0x53]:
         print chunk[1]
 
 def printTree(self):
