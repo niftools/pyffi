@@ -127,16 +127,29 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
             i += 2
             ret = True
 
-        elif False: #code in [ 0x06 ]: # unsure
-            print
-            ids.append(i)
-            i += 1
+        elif code in [ 0x0B ]: # unsure, maybe triangle offset
+            print mopp[i+1],mopp[i+2],mopp[i+3],mopp[i+4]
+            ids.extend([i,i+1,i+2,i+3,i+4])
+            i += 5
+
+        elif code in [ 0x53 ]: # unsure, maybe triangle selection
+            print mopp[i+1],mopp[i+2],mopp[i+3],mopp[i+4]
+            ids.extend([i,i+1,i+2,i+3,i+4])
+            i += 5
+            ret = True
 
         elif code in [ 0x05 ]:
             # byte jump
             print '[ jump -> %i: ]'%(i+2+mopp[i+1])
             ids.extend([i,i+1])
             i += 2+mopp[i+1]
+
+        elif code in [ 0x06 ]:
+            # short jump
+            jump = mopp[i+1]*256 + mopp[i+2]
+            print '[ jump -> %i: ]'%(i+3+jump)
+            ids.extend([i,i+1,i+2])
+            i += 3+jump
 
         elif code in [0x10,0x11,0x12, 0x13,0x14,0x15, 0x16,0x17,0x18, 0x19, 0x1A, 0x1C]:
             # compact if-then-else with two arguments
@@ -161,7 +174,7 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
             tris.extend(trissub2)
             ret = True
 
-        elif code in [0x20]:
+        elif code in [0x20,0x22]:
             # compact if-then-else with one argument
             print mopp[i+1], '[ branch ? -> %i: %i: ]'%(i+3,i+3+mopp[i+2])
             print "     " + "  "*depth + 'if:'
