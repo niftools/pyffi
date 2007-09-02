@@ -20,8 +20,8 @@ def testBlock(block, verbose):
     if abs(block.scale - scale) > 0.1: raise ValueError("scale not correctly recalculated")
 
     print "parsing mopp"
-    # n = number of bytes, tris = triangle indices
-    n, tris = block.parseTree(verbose = True)
+    # ids = indices of bytes processed, tris = triangle indices
+    ids, tris = block.parseTree(verbose = True)
 
     error = False
 
@@ -41,9 +41,14 @@ def testBlock(block, verbose):
         print wrong
         error = True
 
-    # check size
-    if n != block.moppDataSize:
-        print "incorrect number of bytes processed (number of bytes %i, processed %i)"%(block.moppDataSize,n)
+    # check bytes
+    counts = [ ids.count(i) for i in xrange(block.moppDataSize) ]
+    missing = [ i for i in xrange(block.moppDataSize) if counts[i] != 1 ]
+    if missing:
+        print "some bytes never visited, or visited more than once"
+        print "byte index, times visited, value"
+        for i in missing:
+            print i, counts[i], "0x%02X"%mopp[i], [mopp[k] for k in xrange(i,min(block.moppDataSize,i+10))]
         error = True
 
     if error:
