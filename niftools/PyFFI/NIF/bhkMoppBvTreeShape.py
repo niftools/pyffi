@@ -103,7 +103,7 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
     while i < self.moppDataSize and not ret:
         # get opcode and print it
         code = mopp[i]
-        print "  "*depth + '0x%02X'%code,
+        print "%4i:"%i + "  "*depth + '0x%02X'%code,
 
         if code == 0x09:
             # set the triangle offset for next command
@@ -111,11 +111,8 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
             toffset = mopp[i+1]
             ids.extend([i,i+1])
             i += 2
-            # get next command
-            code = mopp[i]
-            print "  "*depth + '0x%02X'%code,
 
-        if code in xrange(0x30,0x50):
+        elif code in xrange(0x30,0x50):
             # triangle with offset
             print '[ triangle %i ]'%(code-0x30+toffset)
             ids.append(i)
@@ -152,9 +149,9 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
                 print '[ branch Z ]'
             else:
                 print
-            print "  "*depth + 'if:'
+            print "     " + "  "*depth + 'if:'
             idssub1, trissub1 = self.parseTree(start = i+4, depth = depth+1, toffset = toffset, verbose = verbose)
-            print "  "*depth + 'else:'
+            print "     " + "  "*depth + 'else:'
             idssub2, trissub2 = self.parseTree(start = i+4+mopp[i+3], depth = depth+1, toffset = toffset, verbose = verbose)
             ids.extend([i,i+1,i+2,i+3])
             ids.extend(idssub1)
@@ -166,9 +163,9 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
             print mopp[i+1], mopp[i+2]
             jump1 = mopp[i+3] * 256 + mopp[i+4] 
             jump2 = mopp[i+5] * 256 + mopp[i+6]
-            print "  "*depth + 'if:'
+            print "     " + "  "*depth + 'if:'
             idssub1, trissub1 = self.parseTree(start = i+7+jump1, depth = depth+1, toffset = toffset, verbose = verbose)
-            print "  "*depth + 'else:'
+            print "     " + "  "*depth + 'else:'
             idssub2, trissub2 = self.parseTree(start = i+7+jump2, depth = depth+1, toffset = toffset, verbose = verbose)
             ids.extend([i,i+1,i+2,i+3,i+4,i+5,i+6])
             ids.extend(idssub1)
