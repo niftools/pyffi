@@ -132,14 +132,14 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
             ids.append(i)
             i += 1
 
-        elif False: #code in [ 0x05 ]: # unsure
-            print mopp[i+1], '[ triangle ? ]'
+        elif code in [ 0x05 ]:
+            # short jump
+            print '[ jump -> %i: ]'%(i+2+mopp[i+1])
             ids.extend([i,i+1])
-            i += 2
-            ret = True
+            i += 2+mopp[i+1]
 
         elif code in [0x10,0x11,0x12, 0x13,0x14,0x15, 0x16,0x17,0x18, 0x19, 0x1A, 0x1C]:
-            # compact if-then-else
+            # compact if-then-else with two arguments
             print mopp[i+1], mopp[i+2],
             if code == 0x10:
                 print '[ branch X',
@@ -162,6 +162,7 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
             ret = True
 
         elif code in [0x20]:
+            # compact if-then-else with one argument
             print mopp[i+1], '[ branch ? -> %i: %i: ]'%(i+3,i+3+mopp[i+2])
             print "     " + "  "*depth + 'if:'
             idssub1, trissub1 = self.parseTree(start = i+3, depth = depth+1, toffset = toffset, verbose = verbose)
@@ -173,7 +174,6 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
             tris.extend(trissub1)
             tris.extend(trissub2)
             ret = True
-            
 
         elif code in [0x23,0x24,0x25]: # short if x <= a then 1; if x > b then 2;
             jump1 = mopp[i+3] * 256 + mopp[i+4] 
