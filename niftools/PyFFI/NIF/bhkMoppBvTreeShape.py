@@ -55,8 +55,8 @@ def updateOriginScale(self):
     self.origin.z = minz - 0.1
     self.scale = (256*256*254) / (0.2+max([maxx-minx,maxy-miny,maxz-minz]))
 
-def updateTree(self):
-    """Update the MOPP tree."""
+def updateMopp(self):
+    """Update the MOPP data."""
     
     mopp = [] # the mopp 'assembly' script
     q = 256*256 / self.scale # quantization factor
@@ -81,10 +81,14 @@ def updateTree(self):
 
     # add a trivial tree
     numtriangles = len(self.shape.data.triangles)
-    if numtriangles > 128: raise ValueError("cannot update mopp: too many triangles") # todo: figure out how to add more
+    i = 0x30
     for t in xrange(numtriangles-1):
-         mopp.extend([TESTZ, maxz, 0, 1, 0x30 + t])
-    mopp.extend([0x30+numtriangles-1])
+         mopp.extend([TESTZ, maxz, 0, 1, i])
+         i += 1
+         if i == 0x50:
+             mopp.extend([0x09, 0x20]) # increment triangle offset
+             i = 0x30
+    mopp.extend([i])
 
     # delete mopp and replace with new data
     self.moppDataSize = len(mopp)
@@ -93,8 +97,8 @@ def updateTree(self):
         self.moppData[i] = b
 
 # ported from NifVis/bhkMoppBvTreeShape.py
-def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
-    """If verbose is True then the mopp subtree is printed while parsed. Returns list of indices into mopp data of the bytes processed and a list of triangle indices encountered."""
+def parseMopp(self, start = 0, depth = 0, toffset = 0, verbose = False):
+    """If verbose is True then the mopp data is printed while parsed. Returns list of indices into mopp data of the bytes processed and a list of triangle indices encountered."""
     mopp = self.moppData # shortcut notation
     ids = [] # indices of bytes processed
     tris = [] # triangle indices
@@ -186,9 +190,9 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
                 print '[ branch ?',
             print '-> %i: %i: ]'%(i+4,i+4+mopp[i+3])
             print "     " + "  "*depth + 'if:'
-            idssub1, trissub1 = self.parseTree(start = i+4, depth = depth+1, toffset = toffset, verbose = verbose)
+            idssub1, trissub1 = self.parseMopp(start = i+4, depth = depth+1, toffset = toffset, verbose = verbose)
             print "     " + "  "*depth + 'else:'
-            idssub2, trissub2 = self.parseTree(start = i+4+mopp[i+3], depth = depth+1, toffset = toffset, verbose = verbose)
+            idssub2, trissub2 = self.parseMopp(start = i+4+mopp[i+3], depth = depth+1, toffset = toffset, verbose = verbose)
             ids.extend([i,i+1,i+2,i+3])
             ids.extend(idssub1)
             ids.extend(idssub2)
@@ -200,9 +204,9 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
             # compact if-then-else with one argument
             print mopp[i+1], '[ branch ? -> %i: %i: ]'%(i+3,i+3+mopp[i+2])
             print "     " + "  "*depth + 'if:'
-            idssub1, trissub1 = self.parseTree(start = i+3, depth = depth+1, toffset = toffset, verbose = verbose)
+            idssub1, trissub1 = self.parseMopp(start = i+3, depth = depth+1, toffset = toffset, verbose = verbose)
             print "     " + "  "*depth + 'else:'
-            idssub2, trissub2 = self.parseTree(start = i+3+mopp[i+2], depth = depth+1, toffset = toffset, verbose = verbose)
+            idssub2, trissub2 = self.parseMopp(start = i+3+mopp[i+2], depth = depth+1, toffset = toffset, verbose = verbose)
             ids.extend([i,i+1,i+2])
             ids.extend(idssub1)
             ids.extend(idssub2)
@@ -215,9 +219,9 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
             jump2 = mopp[i+5] * 256 + mopp[i+6]
             print mopp[i+1], mopp[i+2], '[ branch ? -> %i: %i: ]'%(i+7+jump1,i+7+jump2)
             print "     " + "  "*depth + 'if:'
-            idssub1, trissub1 = self.parseTree(start = i+7+jump1, depth = depth+1, toffset = toffset, verbose = verbose)
+            idssub1, trissub1 = self.parseMopp(start = i+7+jump1, depth = depth+1, toffset = toffset, verbose = verbose)
             print "     " + "  "*depth + 'else:'
-            idssub2, trissub2 = self.parseTree(start = i+7+jump2, depth = depth+1, toffset = toffset, verbose = verbose)
+            idssub2, trissub2 = self.parseMopp(start = i+7+jump2, depth = depth+1, toffset = toffset, verbose = verbose)
             ids.extend([i,i+1,i+2,i+3,i+4,i+5,i+6])
             ids.extend(idssub1)
             ids.extend(idssub2)
