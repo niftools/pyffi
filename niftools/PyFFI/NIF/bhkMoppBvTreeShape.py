@@ -94,9 +94,9 @@ def updateTree(self):
 
 # ported from NifVis/bhkMoppBvTreeShape.py
 def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
-    """If verbose is True then the mopp subtree is printed while parsed. Returns number of bytes processed and a list of triangle indices encountered."""
+    """If verbose is True then the mopp subtree is printed while parsed. Returns list of indices into mopp data of the bytes processed and a list of triangle indices encountered."""
     mopp = self.moppData # shortcut notation
-    n = 0 # number of bytes processed
+    ids = [] # indices of bytes processed
     tris = [] # triangle indices
     i = start # current index
     ret = False # set to True if an opcode signals a triangle index
@@ -109,8 +109,8 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
             # set the triangle offset for next command
             print mopp[i+1], '[ triangle offset = %i ]'%mopp[i+1]
             toffset = mopp[i+1]
+            ids.extend([i,i+1])
             i += 2
-            n += 2
             # get next command
             code = mopp[i]
             print "  "*depth + '0x%02X'%code,
@@ -118,27 +118,28 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
         if code in xrange(0x30,0x50):
             # triangle with offset
             print '[ triangle %i ]'%(code-0x30+toffset)
-            i += 1
-            n += 1
+            ids.append(i)
             tris.append(code-0x30+toffset)
+            i += 1
             ret = True
         elif code == 0x50:
             # triangle without offset
             print mopp[i+1], '[ triangle %i ]'%mopp[i+1]
+            ids.extend([i,i+1])
             tris.append(mopp[i+1])
             i += 2
-            n += 2
             ret = True
 
-        elif code in [ 0x06 ]: # unsure
+        elif False: #code in [ 0x06 ]: # unsure
             print
+            ids.append(i)
             i += 1
-            n += 1
 
-        elif code in [ 0x05 ]: # unsure
-            print mopp[i+1]
+        elif False: #code in [ 0x05 ]: # unsure
+            print mopp[i+1], '[ triangle ? ]'
+            ids.extend([i,i+1])
             i += 2
-            n += 2
+            ret = True
 
         elif code in [0x10,0x11,0x12, 0x13,0x14,0x15, 0x16,0x17,0x18, 0x19, 0x1A, 0x1C]:
             # compact if-then-else
@@ -152,10 +153,12 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
             else:
                 print
             print "  "*depth + 'if:'
-            nsub1, trissub1 = self.parseTree(start = i+4, depth = depth+1, toffset = toffset, verbose = verbose)
+            idssub1, trissub1 = self.parseTree(start = i+4, depth = depth+1, toffset = toffset, verbose = verbose)
             print "  "*depth + 'else:'
-            nsub2, trissub2 = self.parseTree(start = i+4+mopp[i+3], depth = depth+1, toffset = toffset, verbose = verbose)
-            n += 4 + nsub1 + nsub2
+            idssub2, trissub2 = self.parseTree(start = i+4+mopp[i+3], depth = depth+1, toffset = toffset, verbose = verbose)
+            ids.extend([i,i+1,i+2,i+3])
+            ids.extend(idssub1)
+            ids.extend(idssub2)
             tris.extend(trissub1)
             tris.extend(trissub2)
             ret = True
@@ -164,10 +167,12 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
             jump1 = mopp[i+3] * 256 + mopp[i+4] 
             jump2 = mopp[i+5] * 256 + mopp[i+6]
             print "  "*depth + 'if:'
-            nsub1, trissub1 = self.parseTree(start = i+7+jump1, depth = depth+1, toffset = toffset, verbose = verbose)
+            idssub1, trissub1 = self.parseTree(start = i+7+jump1, depth = depth+1, toffset = toffset, verbose = verbose)
             print "  "*depth + 'else:'
-            nsub2, trissub2 = self.parseTree(start = i+7+jump2, depth = depth+1, toffset = toffset, verbose = verbose)
-            n += 7 + nsub1 + nsub2
+            idssub2, trissub2 = self.parseTree(start = i+7+jump2, depth = depth+1, toffset = toffset, verbose = verbose)
+            ids.extend([i,i+1,i+2,i+3,i+4,i+5,i+6])
+            ids.extend(idssub1)
+            ids.extend(idssub2)
             tris.extend(trissub1)
             tris.extend(trissub2)
             ret = True
@@ -181,12 +186,12 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
                 print '[ bound Z ]'
             else:
                 print
+            ids.extend([i,i+1,i+2])
             i += 3
-            n += 3
         elif code in [0x01, 0x02, 0x03]:
             print mopp[i+1], mopp[i+2], mopp[i+3], '[ bound XYZ ]'
+            ids.extend([i,i+1,i+2,i+3])
             i += 4
-            n += 4
         #elif code in [0x00,0x01,0x02, 0x03, 0x04, 0x05, 0x06, 0x08, 0x09, 0x0C, 0x0D, 0x50, 0x53]:
         #    chunk = [code, mopp[i+1]]
         #    jump = 2
@@ -201,5 +206,5 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
                     print "opcode after jump %i is 0x%02X"%(b,mopp[j+b+1]), [mopp[k] for k in xrange(j+b+2,min(self.moppDataSize,j+b+11))]
             raise ValueError("unknown mopp opcode 0x%02X"%code)
 
-    return n, tris
+    return ids, tris
 
