@@ -133,7 +133,7 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
             i += 1
 
         elif code in [ 0x05 ]:
-            # short jump
+            # byte jump
             print '[ jump -> %i: ]'%(i+2+mopp[i+1])
             ids.extend([i,i+1])
             i += 2+mopp[i+1]
@@ -201,7 +201,7 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
                 print
             ids.extend([i,i+1,i+2])
             i += 3
-        elif code in [0x01, 0x02, 0x03]:
+        elif code in [0x01, 0x02, 0x03, 0x04]:
             print mopp[i+1], mopp[i+2], mopp[i+3], '[ bound XYZ? ]'
             ids.extend([i,i+1,i+2,i+3])
             i += 4
