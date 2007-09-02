@@ -17,11 +17,11 @@ def testBlock(block, verbose):
     print "(scale was %s and is now %s)"%(scale,block.scale)
 
     if block.origin != o: raise ValueError("origin not correctly recalculated")
-    if abs(block.scale - scale) > 0.1: raise ValueError("scale not correctly recalculated")
+    if abs(block.scale - scale) > 0.5: raise ValueError("scale not correctly recalculated")
 
     print "parsing mopp"
     # ids = indices of bytes processed, tris = triangle indices
-    ids, tris = block.parseTree(verbose = True)
+    ids, tris = block.parseMopp(verbose = True)
 
     error = False
 
