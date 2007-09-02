@@ -1,5 +1,5 @@
-Version 0.4.4 (***)
-* added mopp calculations
+Version 0.4.4 (2 Sep 2007)
+* added mopp parser and simple mopp generator
 
 Version 0.4.3 (17 Aug 2007)
 * fixed bug that occurred if userver = 0 in the xml (fixes geometry morph data
