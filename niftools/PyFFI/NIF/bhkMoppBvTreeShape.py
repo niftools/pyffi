@@ -142,13 +142,14 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
             # compact if-then-else
             print mopp[i+1], mopp[i+2],
             if code == 0x10:
-                print '[ branch X ]'
+                print '[ branch X',
             elif code == 0x11:
-                print '[ branch Y ]'
+                print '[ branch Y',
             elif code == 0x12:
-                print '[ branch Z ]'
+                print '[ branch Z',
             else:
-                print
+                print '[ branch ?',
+            print '-> %i: %i: ]'%(i+4,i+4+mopp[i+3])
             print "     " + "  "*depth + 'if:'
             idssub1, trissub1 = self.parseTree(start = i+4, depth = depth+1, toffset = toffset, verbose = verbose)
             print "     " + "  "*depth + 'else:'
@@ -160,9 +161,9 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
             tris.extend(trissub2)
             ret = True
         elif code in [0x23,0x24,0x25]: # short if x <= a then 1; if x > b then 2;
-            print mopp[i+1], mopp[i+2]
             jump1 = mopp[i+3] * 256 + mopp[i+4] 
             jump2 = mopp[i+5] * 256 + mopp[i+6]
+            print mopp[i+1], mopp[i+2], '[ branch ? -> %i: %i: ]'%(i+7+jump1,i+7+jump2)
             print "     " + "  "*depth + 'if:'
             idssub1, trissub1 = self.parseTree(start = i+7+jump1, depth = depth+1, toffset = toffset, verbose = verbose)
             print "     " + "  "*depth + 'else:'
@@ -186,7 +187,7 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
             ids.extend([i,i+1,i+2])
             i += 3
         elif code in [0x01, 0x02, 0x03]:
-            print mopp[i+1], mopp[i+2], mopp[i+3], '[ bound XYZ ]'
+            print mopp[i+1], mopp[i+2], mopp[i+3], '[ bound XYZ? ]'
             ids.extend([i,i+1,i+2,i+3])
             i += 4
         #elif code in [0x00,0x01,0x02, 0x03, 0x04, 0x05, 0x06, 0x08, 0x09, 0x0C, 0x0D, 0x50, 0x53]:
