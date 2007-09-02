@@ -160,6 +160,21 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
             tris.extend(trissub1)
             tris.extend(trissub2)
             ret = True
+
+        elif code in [0x20]:
+            print mopp[i+1], '[ branch ? -> %i: %i: ]'%(i+3,i+3+mopp[i+2])
+            print "     " + "  "*depth + 'if:'
+            idssub1, trissub1 = self.parseTree(start = i+3, depth = depth+1, toffset = toffset, verbose = verbose)
+            print "     " + "  "*depth + 'else:'
+            idssub2, trissub2 = self.parseTree(start = i+3+mopp[i+2], depth = depth+1, toffset = toffset, verbose = verbose)
+            ids.extend([i,i+1,i+2])
+            ids.extend(idssub1)
+            ids.extend(idssub2)
+            tris.extend(trissub1)
+            tris.extend(trissub2)
+            ret = True
+            
+
         elif code in [0x23,0x24,0x25]: # short if x <= a then 1; if x > b then 2;
             jump1 = mopp[i+3] * 256 + mopp[i+4] 
             jump2 = mopp[i+5] * 256 + mopp[i+6]
@@ -174,7 +189,7 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
             tris.extend(trissub1)
             tris.extend(trissub2)
             ret = True
-        elif code in [0x20, 0x26,0x27,0x28]:
+        elif code in [0x26,0x27,0x28]:
             print mopp[i+1], mopp[i+2],
             if code == 0x26:
                 print '[ bound X ]'
@@ -190,9 +205,6 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
             print mopp[i+1], mopp[i+2], mopp[i+3], '[ bound XYZ? ]'
             ids.extend([i,i+1,i+2,i+3])
             i += 4
-        #elif code in [0x00,0x01,0x02, 0x03, 0x04, 0x05, 0x06, 0x08, 0x09, 0x0C, 0x0D, 0x50, 0x53]:
-        #    chunk = [code, mopp[i+1]]
-        #    jump = 2
         else:
             print "unknown mopp code 0x%02X"%code
             print "following bytes are"
