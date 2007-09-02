@@ -112,6 +112,13 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
             ids.extend([i,i+1])
             i += 2
 
+        elif code in [ 0x0A ]:
+            # increment triangle offset
+            toffset += mopp[i+1]*256 + mopp[i+2]
+            print mopp[i+1],mopp[i+2], '[ triangle offset += %i, offset is now %i ]'%(mopp[i+1]*256 + mopp[i+2], toffset)
+            ids.extend([i,i+1,i+2])
+            i += 3
+
         elif code in [ 0x0B ]:
             # unsure about first two arguments, but the 3rd and 4th set triangle offset
             toffset = 256*mopp[i+3] + mopp[i+4]
@@ -133,6 +140,15 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
             ids.extend([i,i+1])
             tris.append(mopp[i+1]+toffset)
             i += 2
+            ret = True
+
+        elif code in [ 0x51 ]:
+            # triangle short
+            t = mopp[i+1]*256 + mopp[i+2] + toffset
+            print mopp[i+1],mopp[i+2], '[ triangle %i ]'%t
+            ids.extend([i,i+1,i+2])
+            tris.append(t)
+            i += 3
             ret = True
 
         elif code in [ 0x53 ]:
@@ -180,7 +196,7 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
             tris.extend(trissub2)
             ret = True
 
-        elif code in [0x20,0x22]:
+        elif code in [0x20,0x21,0x22]:
             # compact if-then-else with one argument
             print mopp[i+1], '[ branch ? -> %i: %i: ]'%(i+3,i+3+mopp[i+2])
             print "     " + "  "*depth + 'if:'
