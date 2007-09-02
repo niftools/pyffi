@@ -106,35 +106,41 @@ def parseTree(self, start = 0, depth = 0, toffset = 0, verbose = False):
         print "%4i:"%i + "  "*depth + '0x%02X'%code,
 
         if code == 0x09:
-            # set the triangle offset for next command
-            print mopp[i+1], '[ triangle offset = %i ]'%mopp[i+1]
-            toffset = mopp[i+1]
+            # increment triangle offset
+            toffset += mopp[i+1]
+            print mopp[i+1], '[ triangle offset += %i, offset is now %i ]'%(mopp[i+1], toffset)
             ids.extend([i,i+1])
             i += 2
 
+        elif code in [ 0x0B ]:
+            # unsure about first two arguments, but the 3rd and 4th set triangle offset
+            toffset = 256*mopp[i+3] + mopp[i+4]
+            print mopp[i+1],mopp[i+2],mopp[i+3],mopp[i+4], '[ triangle offset = %i ]'%toffset
+            ids.extend([i,i+1,i+2,i+3,i+4])
+            i += 5
+
         elif code in xrange(0x30,0x50):
-            # triangle with offset
+            # triangle compact
             print '[ triangle %i ]'%(code-0x30+toffset)
             ids.append(i)
             tris.append(code-0x30+toffset)
             i += 1
             ret = True
+
         elif code == 0x50:
-            # triangle without offset
-            print mopp[i+1], '[ triangle %i ]'%mopp[i+1]
+            # triangle byte
+            print mopp[i+1], '[ triangle %i ]'%(mopp[i+1]+toffset)
             ids.extend([i,i+1])
-            tris.append(mopp[i+1])
+            tris.append(mopp[i+1]+toffset)
             i += 2
             ret = True
 
-        elif code in [ 0x0B ]: # unsure, maybe triangle offset
-            print mopp[i+1],mopp[i+2],mopp[i+3],mopp[i+4]
+        elif code in [ 0x53 ]:
+            # triangle short?
+            t = mopp[i+3]*256 + mopp[i+4] + toffset
+            print mopp[i+1],mopp[i+2],mopp[i+3],mopp[i+4], '[ triangle %i ]'%t
             ids.extend([i,i+1,i+2,i+3,i+4])
-            i += 5
-
-        elif code in [ 0x53 ]: # unsure, maybe triangle selection
-            print mopp[i+1],mopp[i+2],mopp[i+3],mopp[i+4]
-            ids.extend([i,i+1,i+2,i+3,i+4])
+            tris.append(t)
             i += 5
             ret = True
 
