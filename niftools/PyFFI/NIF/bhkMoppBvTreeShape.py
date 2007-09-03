@@ -79,16 +79,21 @@ def updateMopp(self):
     mopp.extend([BOUNDY, 0, maxy])
     mopp.extend([BOUNDX, 0, maxx])
 
+    # add tree using subsequent X-Y-Z splits
+    tris = range(len(self.shape.data.triangles))
+    tree = self.splitTriangles(tris)
+    mopp += self.moppFromTree(tree)
+
     # add a trivial tree
-    numtriangles = len(self.shape.data.triangles)
-    i = 0x30
-    for t in xrange(numtriangles-1):
-         mopp.extend([TESTZ, maxz, 0, 1, i])
-         i += 1
-         if i == 0x50:
-             mopp.extend([0x09, 0x20]) # increment triangle offset
-             i = 0x30
-    mopp.extend([i])
+    #numtriangles = len(self.shape.data.triangles)
+    #i = 0x30
+    #for t in xrange(numtriangles-1):
+    #     mopp.extend([TESTZ, maxz, 0, 1, i])
+    #     i += 1
+    #     if i == 0x50:
+    #         mopp.extend([0x09, 0x20]) # increment triangle offset
+    #         i = 0x30
+    #mopp.extend([i])
 
     # delete mopp and replace with new data
     self.moppDataSize = len(mopp)
@@ -96,7 +101,62 @@ def updateMopp(self):
     for i, b in enumerate(mopp):
         self.moppData[i] = b
 
-# ported from NifVis/bhkMoppBvTreeShape.py
+def splitTriangles(self, ts, direction=0):
+    """Direction 0=X, 1=Y, 2=Z"""
+    if len(ts) == 1:
+        if ts[0] < 32:
+            return [ [ 0x30 + ts[0] ], [], [] ]
+        elif ts[0] < 256:
+            return [ [ 0x50, ts[0] ], [], [] ]
+        else:
+            return [ [ 0x51, ts[0] >> 8, ts[0] & 255 ], [], [] ]
+    q = 256*256 / self.scale # quantization factor
+    verts = self.shape.data.vertices
+    tris = [ t.triangle for t in self.shape.data.triangles ]
+    dir = 'xyz'[direction]
+    # sort triangles in required direction
+    ts.sort(key = lambda t: (getattr(verts[tris[t].v1], dir) + getattr(verts[tris[t].v2], dir) + getattr(verts[tris[t].v3], dir)) / 3.0)
+    # split into two
+    ts1 = ts[:len(ts)/2]
+    ts2 = ts[len(ts)/2:]
+    # get maximum coordinate of small group
+    ts1max1 = max([getattr(verts[tris[t].v1], dir) for t in ts1])
+    ts1max2 = max([getattr(verts[tris[t].v2], dir) for t in ts1])
+    ts1max3 = max([getattr(verts[tris[t].v3], dir) for t in ts1])
+    ts1max  = max([ts1max1,ts1max2,ts1max3])
+    # get minimum coordinate of large group
+    ts2min1 = min([getattr(verts[tris[t].v1], dir) for t in ts2])
+    ts2min2 = min([getattr(verts[tris[t].v2], dir) for t in ts2])
+    ts2min3 = min([getattr(verts[tris[t].v3], dir) for t in ts2])
+    ts2min  = min([ts2min1,ts2min2,ts2min3])
+    # set up test
+    test = [0x10+direction, int((ts1max + 0.1 - getattr(self.origin, dir)) / q + 0.999), int((ts2min + 0.1 - getattr(self.origin, dir)) / q)]
+    # return result
+    nextdir = direction+1
+    if nextdir == 3: nextdir = 0
+    return [test, self.splitTriangles(ts1, nextdir), self.splitTriangles(ts2, nextdir)]
+
+def moppFromTree(self, tree):
+    if tree[0][0] in xrange(0x30, 0x52):
+        return tree[0]
+    mopp = tree[0]
+    submopp1 = self.moppFromTree(tree[1])
+    submopp2 = self.moppFromTree(tree[2])
+    if len(submopp1) < 256:
+        mopp += [ len(submopp1) ]
+        mopp += submopp1
+        mopp += submopp2
+    else:
+        jump = len(submopp2)
+        if jump <= 255:
+            mopp += [2, 0x05, jump]
+        else:
+            mopp += [3, 0x06, jump >> 8, jump & 255]
+        mopp += submopp2
+        mopp += submopp1
+    return mopp
+
+# ported and extended from NifVis/bhkMoppBvTreeShape.py
 def parseMopp(self, start = 0, depth = 0, toffset = 0, verbose = False):
     """If verbose is True then the mopp data is printed while parsed. Returns list of indices into mopp data of the bytes processed and a list of triangle indices encountered."""
     mopp = self.moppData # shortcut notation
