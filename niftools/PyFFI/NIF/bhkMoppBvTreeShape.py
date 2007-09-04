@@ -59,7 +59,7 @@ def updateMopp(self):
     """Update the MOPP data."""
     
     mopp = [] # the mopp 'assembly' script
-    q = 256*256 / self.scale # quantization factor
+    self._q = 256*256 / self.scale # quantization factor
 
     # opcodes
     BOUNDX = 0x26    
@@ -70,18 +70,23 @@ def updateMopp(self):
     TESTZ = 0x12
 
     # add first crude bounding box checks
-    maxx = math.ceil((max([v.x for v in self.shape.data.vertices]) + 0.1 - self.origin.x) / q)
-    maxy = math.ceil((max([v.y for v in self.shape.data.vertices]) + 0.1 - self.origin.y) / q)
-    maxz = math.ceil((max([v.z for v in self.shape.data.vertices]) + 0.1 - self.origin.z) / q)
-    if maxx < 0 or maxy < 0 or maxz < 0: raise ValueError("cannot update mopp tree with invalid origin")
+    self._vertsceil  = [ self.moppCeil(v) for v in self.shape.data.vertices ]
+    self._vertsfloor = [ self.moppFloor(v) for v in self.shape.data.vertices ]
+    minx = min([ v[0] for v in self._vertsfloor ])
+    miny = min([ v[1] for v in self._vertsfloor ])
+    minz = min([ v[2] for v in self._vertsfloor ])
+    maxx = max([ v[0] for v in self._vertsceil ])
+    maxy = max([ v[1] for v in self._vertsceil ])
+    maxz = max([ v[2] for v in self._vertsceil ])
+    if minx < 0 or miny < 0 or minz < 0: raise ValueError("cannot update mopp tree with invalid origin")
     if maxx > 255 or maxy > 255 or maxz > 255: raise ValueError("cannot update mopp tree with invalid scale")
-    mopp.extend([BOUNDZ, 0, maxz])
-    mopp.extend([BOUNDY, 0, maxy])
-    mopp.extend([BOUNDX, 0, maxx])
+    mopp.extend([BOUNDZ, minz, maxz])
+    mopp.extend([BOUNDY, miny, maxy])
+    mopp.extend([BOUNDX, minx, maxx])
 
     # add tree using subsequent X-Y-Z splits
     tris = range(len(self.shape.data.triangles))
-    tree = self.splitTriangles(tris)
+    tree = self.splitTriangles(tris, [[minx,maxx],[miny,maxy],[minz,maxz]])
     mopp += self.moppFromTree(tree)
 
     # add a trivial tree
@@ -101,47 +106,83 @@ def updateMopp(self):
     for i, b in enumerate(mopp):
         self.moppData[i] = b
 
-def splitTriangles(self, ts, direction=0):
+def moppCeil(self, v):
+    moppx = int((v.x + 0.1 - self.origin.x) / self._q + 0.99999999)
+    moppy = int((v.y + 0.1 - self.origin.y) / self._q + 0.99999999)
+    moppz = int((v.z + 0.1 - self.origin.z) / self._q + 0.99999999)
+    return [moppx, moppy, moppz]
+
+def moppFloor(self, v):
+    moppx = int((v.x - 0.1 - self.origin.x) / self._q)
+    moppy = int((v.y - 0.1 - self.origin.y) / self._q)
+    moppz = int((v.z - 0.1 - self.origin.z) / self._q)
+    return [moppx, moppy, moppz]
+
+def splitTriangles(self, ts, bbox, dir=0):
     """Direction 0=X, 1=Y, 2=Z"""
+    btest = [] # for bounding box tests
+    test = [] # for branch command
+    # check bounding box
+    tris = [ t.triangle for t in self.shape.data.triangles ]
+    tsverts = [ tris[t].v1 for t in ts] + [ tris[t].v2 for t in ts] + [ tris[t].v3 for t in ts]
+    minx = min([self._vertsfloor[v][0] for v in tsverts])
+    miny = min([self._vertsfloor[v][1] for v in tsverts])
+    minz = min([self._vertsfloor[v][2] for v in tsverts])
+    maxx = max([self._vertsceil[v][0] for v in tsverts])
+    maxy = max([self._vertsceil[v][1] for v in tsverts])
+    maxz = max([self._vertsceil[v][2] for v in tsverts])
+    # add bounding box checks if it's reduced in a direction
+    if (maxx - minx < bbox[0][1] - bbox[0][0]):
+        btest += [ 0x26, minx, maxx ]
+        bbox[0][0] = minx
+        bbox[0][1] = maxx
+    if (maxy - miny < bbox[1][1] - bbox[1][0]):
+        btest += [ 0x27, miny, maxy ]
+        bbox[1][0] = miny
+        bbox[1][1] = maxy
+    if (maxz - minz < bbox[2][1] - bbox[2][0]):
+        btest += [ 0x28, minz, maxz ]
+        bbox[2][0] = minz
+        bbox[2][1] = maxz
+    # if only one triangle, no further split needed
     if len(ts) == 1:
         if ts[0] < 32:
-            return [ [ 0x30 + ts[0] ], [], [] ]
+            return [ btest, [ 0x30 + ts[0] ], [], [] ]
         elif ts[0] < 256:
-            return [ [ 0x50, ts[0] ], [], [] ]
+            return [ btest, [ 0x50, ts[0] ], [], [] ]
         else:
-            return [ [ 0x51, ts[0] >> 8, ts[0] & 255 ], [], [] ]
-    q = 256*256 / self.scale # quantization factor
-    verts = self.shape.data.vertices
-    tris = [ t.triangle for t in self.shape.data.triangles ]
-    dir = 'xyz'[direction]
+            return [ btest, [ 0x51, ts[0] >> 8, ts[0] & 255 ], [], [] ]
     # sort triangles in required direction
-    ts.sort(key = lambda t: (getattr(verts[tris[t].v1], dir) + getattr(verts[tris[t].v2], dir) + getattr(verts[tris[t].v3], dir)) / 3.0)
+    ts.sort(key = lambda t: max(self._vertsceil[tris[t].v1][dir], self._vertsceil[tris[t].v2][dir], self._vertsceil[tris[t].v3][dir]))
     # split into two
     ts1 = ts[:len(ts)/2]
     ts2 = ts[len(ts)/2:]
     # get maximum coordinate of small group
-    ts1max1 = max([getattr(verts[tris[t].v1], dir) for t in ts1])
-    ts1max2 = max([getattr(verts[tris[t].v2], dir) for t in ts1])
-    ts1max3 = max([getattr(verts[tris[t].v3], dir) for t in ts1])
-    ts1max  = max([ts1max1,ts1max2,ts1max3])
+    ts1verts = [ tris[t].v1 for t in ts1] + [ tris[t].v2 for t in ts1] + [ tris[t].v3 for t in ts1]
+    ts2verts = [ tris[t].v1 for t in ts2] + [ tris[t].v2 for t in ts2] + [ tris[t].v3 for t in ts2]
+    ts1max = max([self._vertsceil[v][dir] for v in ts1verts])
     # get minimum coordinate of large group
-    ts2min1 = min([getattr(verts[tris[t].v1], dir) for t in ts2])
-    ts2min2 = min([getattr(verts[tris[t].v2], dir) for t in ts2])
-    ts2min3 = min([getattr(verts[tris[t].v3], dir) for t in ts2])
-    ts2min  = min([ts2min1,ts2min2,ts2min3])
+    ts2min = min([self._vertsfloor[v][dir] for v in ts2verts])
     # set up test
-    test = [0x10+direction, int((ts1max + 0.1 - getattr(self.origin, dir)) / q + 0.999), int((ts2min + 0.1 - getattr(self.origin, dir)) / q)]
+    test += [0x10+dir, ts1max, ts2min]
+    # set up new bounding boxes for each subtree
+    # make copy
+    bbox1 = [[bbox[0][0],bbox[0][1]],[bbox[1][0],bbox[1][1]],[bbox[2][0],bbox[2][1]]]
+    bbox2 = [[bbox[0][0],bbox[0][1]],[bbox[1][0],bbox[1][1]],[bbox[2][0],bbox[2][1]]]
+    # update bound in test direction
+    bbox1[dir][1] = ts1max
+    bbox2[dir][0] = ts2min
     # return result
-    nextdir = direction+1
+    nextdir = dir+1
     if nextdir == 3: nextdir = 0
-    return [test, self.splitTriangles(ts1, nextdir), self.splitTriangles(ts2, nextdir)]
+    return [btest, test, self.splitTriangles(ts1, bbox1, nextdir), self.splitTriangles(ts2, bbox2, nextdir)]
 
 def moppFromTree(self, tree):
-    if tree[0][0] in xrange(0x30, 0x52):
-        return tree[0]
-    mopp = tree[0]
-    submopp1 = self.moppFromTree(tree[1])
-    submopp2 = self.moppFromTree(tree[2])
+    if tree[1][0] in xrange(0x30, 0x52):
+        return tree[0] + tree[1]
+    mopp = tree[0] + tree[1]
+    submopp1 = self.moppFromTree(tree[2])
+    submopp2 = self.moppFromTree(tree[3])
     if len(submopp1) < 256:
         mopp += [ len(submopp1) ]
         mopp += submopp1
