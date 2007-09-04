@@ -70,8 +70,8 @@ def updateMopp(self):
     TESTZ = 0x12
 
     # add first crude bounding box checks
-    self._vertsceil  = [ self.moppCeil(v) for v in self.shape.data.vertices ]
-    self._vertsfloor = [ self.moppFloor(v) for v in self.shape.data.vertices ]
+    self._vertsceil  = [ self._moppCeil(v) for v in self.shape.data.vertices ]
+    self._vertsfloor = [ self._moppFloor(v) for v in self.shape.data.vertices ]
     minx = min([ v[0] for v in self._vertsfloor ])
     miny = min([ v[1] for v in self._vertsfloor ])
     minz = min([ v[2] for v in self._vertsfloor ])
@@ -85,20 +85,23 @@ def updateMopp(self):
     mopp.extend([BOUNDX, minx, maxx])
 
     # add tree using subsequent X-Y-Z splits
-    tris = range(len(self.shape.data.triangles))
-    tree = self.splitTriangles(tris, [[minx,maxx],[miny,maxy],[minz,maxz]])
-    mopp += self.moppFromTree(tree)
+    # (slow and no noticable difference from other simple tree so deactivated)
+    #tris = range(len(self.shape.data.triangles))
+    #tree = self.splitTriangles(tris, [[minx,maxx],[miny,maxy],[minz,maxz]])
+    #mopp += self.moppFromTree(tree)
 
     # add a trivial tree
-    #numtriangles = len(self.shape.data.triangles)
-    #i = 0x30
-    #for t in xrange(numtriangles-1):
-    #     mopp.extend([TESTZ, maxz, 0, 1, i])
-    #     i += 1
-    #     if i == 0x50:
-    #         mopp.extend([0x09, 0x20]) # increment triangle offset
-    #         i = 0x30
-    #mopp.extend([i])
+    # this prevents the player of walking through the model
+    # but arrows may still fly through
+    numtriangles = len(self.shape.data.triangles)
+    i = 0x30
+    for t in xrange(numtriangles-1):
+         mopp.extend([TESTZ, maxz, 0, 1, i])
+         i += 1
+         if i == 0x50:
+             mopp.extend([0x09, 0x20]) # increment triangle offset
+             i = 0x30
+    mopp.extend([i])
 
     # delete mopp and replace with new data
     self.moppDataSize = len(mopp)
@@ -106,13 +109,13 @@ def updateMopp(self):
     for i, b in enumerate(mopp):
         self.moppData[i] = b
 
-def moppCeil(self, v):
+def _moppCeil(self, v):
     moppx = int((v.x + 0.1 - self.origin.x) / self._q + 0.99999999)
     moppy = int((v.y + 0.1 - self.origin.y) / self._q + 0.99999999)
     moppz = int((v.z + 0.1 - self.origin.z) / self._q + 0.99999999)
     return [moppx, moppy, moppz]
 
-def moppFloor(self, v):
+def _moppFloor(self, v):
     moppx = int((v.x - 0.1 - self.origin.x) / self._q)
     moppy = int((v.y - 0.1 - self.origin.y) / self._q)
     moppz = int((v.z - 0.1 - self.origin.z) / self._q)
