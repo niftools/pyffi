@@ -42,3 +42,5 @@ def testFile(version, user_version, f, roots, verbose):
     # write result
     f.seek(0)
     NifFormat.write(version, user_version, f, roots)
+    f.truncate()
+

@@ -11,4 +11,5 @@ def testBlock(block, verbose):
 def testFile(version, user_version, f, roots, verbose, arg = None):
     f.seek(0)
     NifFormat.write(version, user_version, f, roots)
+    f.truncate()
 
