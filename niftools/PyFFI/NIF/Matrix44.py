@@ -173,7 +173,9 @@ def setScaleRotationTranslation(self, scale, rotation, translation):
         raise TypeError('translation must be Vector3')
 
     if not rotation.isRotation():
-        raise ValueError('rotation must be rotation matrix')
+        print "WARNING (setScaleRotationTranslation): improper rotation matrix"
+        print rotation
+        #raise ValueError('rotation must be rotation matrix')
 
     self.m14 = 0.0
     self.m24 = 0.0
