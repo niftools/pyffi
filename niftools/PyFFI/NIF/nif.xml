@@ -2783,8 +2783,8 @@
     <niobject name="NiTextureModeProperty" abstract="0" inherit="NiProperty" ver1="3.0" ver2="3.1">
         Unknown
         <add name="Unknown Short" type="short">Unknown. Either 210 or 194.</add>
-        <add name="PS2 L" type="ushort" default="0" ver2="10.2.0.0">0?</add>
-        <add name="PS2 K" type="ushort" default="0xFFB5" ver2="10.2.0.0">0xFFB5?</add>
+        <add name="PS2 L" type="ushort" default="0" ver1="3.1" ver2="10.2.0.0">0?</add>
+        <add name="PS2 K" type="ushort" default="0xFFB5" ver1="3.1" ver2="10.2.0.0">0xFFB5?</add>
     </niobject>
     
     <niobject name="NiImage" abstract="0" inherit="NiObject" ver1="3.0" ver2="3.1">
