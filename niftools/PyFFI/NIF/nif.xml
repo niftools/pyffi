@@ -897,18 +897,19 @@
         <add name="Num Strips" type="ushort">Number of strips in this submesh (zero if not stripped).</add>
         <add name="Num Weights Per Vertex" type="ushort">Number of weight coefficients per vertex. The Gamebryo engine seems to work well only if this number is equal to 4, even if there are less than 4 influences per vertex.</add>
         <add name="Bones" type="ushort" arr1="Num Bones">List of bones.</add>
-        <add name="Has Vertex Map" type="bool" ver1="10.1.0.0">Do we have a vertex map?</add>
+        <add name="Has Vertex Map" type="byte" ver1="10.1.0.0">Do we have a vertex map?</add>
         <add name="Vertex Map" type="ushort" arr1="Num Vertices" ver2="10.0.1.2">Maps the weight/influence lists in this submesh to the vertices in the shape being skinned.</add>
         <add name="Vertex Map" type="ushort" arr1="Num Vertices" cond="Has Vertex Map != 0" ver1="10.1.0.0">Maps the weight/influence lists in this submesh to the vertices in the shape being skinned.</add>
         <add name="Has Vertex Weights" type="bool" ver1="10.1.0.0">Do we have vertex weights?</add>
         <add name="Vertex Weights" type="float" arr1="Num Vertices" arr2="Num Weights Per Vertex" ver2="10.0.1.2">The vertex weights.</add>
         <add name="Vertex Weights" type="float" arr1="Num Vertices" arr2="Num Weights Per Vertex" cond="Has Vertex Weights != 0" ver1="10.1.0.0">The vertex weights.</add>
         <add name="Strip Lengths" type="ushort" arr1="Num Strips">The strip lengths.</add>
-        <add name="Has Strips" type="bool" ver1="10.1.0.0">Do we have strip data?</add>
+        <add name="Has Faces" type="byte" ver1="10.1.0.0">Do we have triangle or strip data?</add>
         <add name="Strips" type="ushort" arr1="Num Strips" arr2="Strip Lengths" ver2="10.0.1.2">The strips.</add>
-        <add name="Strips" type="ushort" arr1="Num Strips" arr2="Strip Lengths" cond="Has Strips != 0" ver1="10.1.0.0">The strips.</add>
-        <add name="Triangles" type="Triangle" arr1="Num Triangles" cond="Num Strips == 0">The triangles.</add>
-        <add name="Has Bone Indices" type="bool">Do we have bone indices?</add>
+        <add name="Strips" type="ushort" arr1="Num Strips" arr2="Strip Lengths" cond="Has Faces != 0" ver1="10.1.0.0">The strips.</add>
+        <add name="Triangles" type="Triangle" arr1="Num Triangles" cond="Num Strips == 0" ver2="10.0.1.2">The triangles.</add>
+        <add name="Triangles" type="Triangle" arr1="Num Triangles" cond="Has Faces != 0 &amp;&amp; Num Strips == 0" ver1="10.1.0.0">The triangles.</add>
+        <add name="Has Bone Indices" type="byte">Do we have bone indices?</add>
         <add name="Bone Indices" type="byte" arr1="Num Vertices" arr2="Num Weights Per Vertex" cond="Has Bone Indices != 0">Bone indices, they index into &#039;Bones&#039;.</add>
     </compound>
 
