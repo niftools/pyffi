@@ -433,11 +433,16 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
         skinpartblock.hasBoneIndices = True
         skinpartblock.boneIndices.updateSize()
         for i, v in enumerate(vertices):
+            unusedindices = set(range(len(bones)))
             for j in xrange(skinpartblock.numWeightsPerVertex):
                 if j < len(weights[v]):
                     skinpartblock.boneIndices[i][j] = bones.index(weights[v][j][0])
+                    unusedindices.remove(skinpartblock.boneIndices[i][j])
                 else:
-                    skinpartblock.boneIndices[i][j] = 0
+                    try:
+                        skinpartblock.boneIndices[i][j] = unusedindices.pop()
+                    except KeyError:
+                        skinpartblock.boneIndices[i][j] = 0
  
     return lostweight
 
