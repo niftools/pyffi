@@ -437,13 +437,23 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
         skinpartblock.hasBoneIndices = True
         skinpartblock.boneIndices.updateSize()
         for i, v in enumerate(vertices):
-            boneindices = set(range(skinpartblock.numBones)) # keep track of indices that have not been used yet
+            boneindices = set(range(skinpartblock.numWeightsPerVertex)) # keep track of indices that have not been used yet
             for j in xrange(len(weights[v])):
                 skinpartblock.boneIndices[i][j] = bones.index(weights[v][j][0])
                 boneindices.remove(skinpartblock.boneIndices[i][j])
-            for j in xrange(len(weights[v]),skinpartblock.numBones):
+            for j in xrange(len(weights[v]),skinpartblock.numWeightsPerVertex):
                 skinpartblock.boneIndices[i][j] = boneindices.pop()
- 
+
+        # sort weights by bone index (for ffvt3r)
+        for i, v in enumerate(vertices):
+            vweights = []
+            for j in xrange(skinpartblock.numWeightsPerVertex):
+                vweights.append([skinpartblock.boneIndices[i][j], skinpartblock.vertexWeights[i][j]])
+            vweights.sort(key = lambda w: w[0])
+            for j in xrange(skinpartblock.numWeightsPerVertex):
+                skinpartblock.boneIndices[i][j] = vweights[j][0]
+                skinpartblock.vertexWeights[i][j] = vweights[j][1]
+
     return lostweight
 
 # ported from nifskope/skeleton.cpp:spFixBoneBounds
