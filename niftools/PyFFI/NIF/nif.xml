@@ -905,8 +905,8 @@
         <add name="Vertex Weights" type="float" arr1="Num Vertices" arr2="Num Weights Per Vertex" cond="Has Vertex Weights != 0" ver1="10.1.0.0">The vertex weights.</add>
         <add name="Strip Lengths" type="ushort" arr1="Num Strips">The strip lengths.</add>
         <add name="Has Faces" type="byte" ver1="10.1.0.0">Do we have triangle or strip data?</add>
-        <add name="Strips" type="ushort" arr1="Num Strips" arr2="Strip Lengths" ver2="10.0.1.2">The strips.</add>
-        <add name="Strips" type="ushort" arr1="Num Strips" arr2="Strip Lengths" cond="Has Faces != 0" ver1="10.1.0.0">The strips.</add>
+        <add name="Strips" type="ushort" arr1="Num Strips" arr2="Strip Lengths" cond="Num Strips != 0" ver2="10.0.1.2">The strips.</add>
+        <add name="Strips" type="ushort" arr1="Num Strips" arr2="Strip Lengths" cond="(Has Faces != 0) &amp;&amp; (Num Strips != 0)" ver1="10.1.0.0">The strips.</add>
         <add name="Triangles" type="Triangle" arr1="Num Triangles" cond="Num Strips == 0" ver2="10.0.1.2">The triangles.</add>
         <add name="Triangles" type="Triangle" arr1="Num Triangles" cond="(Has Faces != 0) &amp;&amp; (Num Strips == 0)" ver1="10.1.0.0">The triangles.</add>
         <add name="Has Bone Indices" type="byte">Do we have bone indices?</add>

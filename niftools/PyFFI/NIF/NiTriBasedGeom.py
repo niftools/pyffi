@@ -163,7 +163,7 @@ def updateTangentSpace(self):
             cnt += 1
 
 # ported from nifskope/skeleton.cpp:spSkinPartition
-def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, verbose = 0, stripify = True, stitchstrips = False):
+def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, verbose = 0, stripify = True, stitchstrips = False, minbonesperpartition = 0):
     """Recalculate skin partition data."""
     # shortcuts relevant blocks
     if not self.skinInstance: return # no skin, nothing to do
@@ -395,13 +395,17 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
         # set all the data
         skinpartblock.numVertices = len(vertices)
         skinpartblock.numTriangles = numtriangles
-        skinpartblock.numBones = len(bones)
+        skinpartblock.numBones = max(minbonesperpartition, len(bones)) # len(bones) would be enough but some games do not like less than 4 bones per partition
         if stripify:
             skinpartblock.numStrips = len(strips)
+        else:
+            skinpartblock.numStrips = 0
         skinpartblock.numWeightsPerVertex = maxbonespervertex # maxbones would be enough but the Gamebryo engine doesn't like that
         skinpartblock.bones.updateSize()
         for i, bonenum in enumerate(bones):
             skinpartblock.bones[i] = bonenum
+        for i in xrange(len(bones), minbonesperpartition):
+            skinpartblock.bones[i] = 0 # dummy bone slots refer to first bone
         skinpartblock.hasVertexMap = True
         skinpartblock.vertexMap.updateSize()
         for i, v in enumerate(vertices):
@@ -433,16 +437,12 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
         skinpartblock.hasBoneIndices = True
         skinpartblock.boneIndices.updateSize()
         for i, v in enumerate(vertices):
-            unusedindices = set(range(len(bones)))
-            for j in xrange(skinpartblock.numWeightsPerVertex):
-                if j < len(weights[v]):
-                    skinpartblock.boneIndices[i][j] = bones.index(weights[v][j][0])
-                    unusedindices.remove(skinpartblock.boneIndices[i][j])
-                else:
-                    try:
-                        skinpartblock.boneIndices[i][j] = unusedindices.pop()
-                    except KeyError:
-                        skinpartblock.boneIndices[i][j] = 0
+            boneindices = set(range(skinpartblock.numBones)) # keep track of indices that have not been used yet
+            for j in xrange(len(weights[v])):
+                skinpartblock.boneIndices[i][j] = bones.index(weights[v][j][0])
+                boneindices.remove(skinpartblock.boneIndices[i][j])
+            for j in xrange(len(weights[v]),skinpartblock.numBones):
+                skinpartblock.boneIndices[i][j] = boneindices.pop()
  
     return lostweight
 
