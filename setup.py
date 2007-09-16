@@ -34,6 +34,7 @@ setup(
     version = PyFFI.__version__,
     packages = ['PyFFI', 'PyFFI.Bases', 'PyFFI.Utils', 'PyFFI.NIF', 'PyFFI.CGF'],
     package_data = { '' : [ '*.xml' ] }, # include xml files
+    scripts = ['tools/NIF/ffvt3rskinpartition/ffvt3rskinpartition.py'],
     author = "Amorilia",
     author_email = "amorilia@gamebox.net",
     license = "BSD",
