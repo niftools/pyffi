@@ -275,15 +275,15 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
     # split triangles into partitions
     if verbose: print "creating partitions"
     parts = []
-    usedverts = set()
     # keep creating partitions as long as there are triangles left
     while triangles:
         # create a partition
         part = [set(), []] # bones, triangles
+        usedverts = set()
         addtriangles = True
         # keep adding triangles to it as long as the flag is set
         while addtriangles:
-            newtriangles = []
+            newtriangles = [] # list of triangles that have not been added to the partition
             for tri in triangles:
                 # find the bones influencing this triangle
                 tribones = []
@@ -295,8 +295,7 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
                 if (not part[0]) or (part[0] >= tribones):
                     part[0] |= tribones
                     part[1].append(tri)
-                    for t in tri:
-                        usedverts.add(t)
+                    usedverts |= set(tri)
                 else:
                     newtriangles.append(tri)
             triangles = newtriangles
@@ -317,8 +316,7 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
                         if len(part[0] | tribones) <= maxbonesperpartition:
                             part[0] |= tribones
                             part[1].append(tri)
-                            for t in tri:
-                                usedverts.add(t)
+                            usedverts |= set(tri)
                             addtriangles = True # signal another try in adding triangles to the partition
                         else:
                             newtriangles.append(tri)
@@ -340,7 +338,8 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
             if a in addedparts: continue
             newparts.append(parta)
             addedparts.add(a)
-            for b, partb in enumerate(parts[a+1:]):
+            for b, partb in enumerate(parts):
+                if b <= a: continue
                 if b in addedparts: continue
                 if len(parta[0] | partb[0]) <= maxbonesperpartition:
                     #newparts.append([parta[0] | partb[0], parta[1] + partb[1]])
