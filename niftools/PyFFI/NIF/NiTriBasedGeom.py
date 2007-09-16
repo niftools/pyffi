@@ -163,8 +163,15 @@ def updateTangentSpace(self):
             cnt += 1
 
 # ported from nifskope/skeleton.cpp:spSkinPartition
-def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, verbose = 0, stripify = True, stitchstrips = False, minbonesperpartition = 0):
-    """Recalculate skin partition data."""
+def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, verbose = 0, stripify = True, stitchstrips = False, padbones = False):
+    """Recalculate skin partition data.
+
+    @param maxbonesperpartition: Maximum number of bones in each partition. The numBones field will not exceed this number.
+    @param maxbonespervertex: Maximum number of bones per vertex. The numWeightsPerVertex field will be exactly equal to this number.
+    @param verbose: Set verbosity level (0 = completely quiet).
+    @param stripify: If true, stripify the partitions, otherwise use triangles.
+    @param stitchstrips: If stripify is true, then set this to true to stitch the strips.
+    @param padbones: Enforces the numbones field to be equal to maxbonesperpartition. Also ensures that the bone indices are unique and sorted, per vertex. Raises an exception if maxbonespervertex  is not equal to maxbonesperpartition (in that case bone indices cannot be unique and sorted). This options is required for Freedom Force vs. the 3rd Reich skin partitions."""
     # shortcuts relevant blocks
     if not self.skinInstance: return # no skin, nothing to do
     self._validateSkin()
@@ -394,7 +401,12 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
         # set all the data
         skinpartblock.numVertices = len(vertices)
         skinpartblock.numTriangles = numtriangles
-        skinpartblock.numBones = max(minbonesperpartition, len(bones)) # len(bones) would be enough but some games do not like less than 4 bones per partition
+        if not padbones:
+            skinpartblock.numBones = len(bones)
+        else:
+            if maxbonesperpartition != maxbonespervertex:
+                raise ValueError('when padding bones maxbonesperpartition must be equal to maxbonespervertex')
+            skinpartblock.numBones = maxbonesperpartition # freedom force vs. the 3rd reich needs exactly 4 bones per partition on every partition block
         if stripify:
             skinpartblock.numStrips = len(strips)
         else:
@@ -403,7 +415,7 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
         skinpartblock.bones.updateSize()
         for i, bonenum in enumerate(bones):
             skinpartblock.bones[i] = bonenum
-        for i in xrange(len(bones), minbonesperpartition):
+        for i in xrange(len(bones), skinpartblock.numBones):
             skinpartblock.bones[i] = 0 # dummy bone slots refer to first bone
         skinpartblock.hasVertexMap = True
         skinpartblock.vertexMap.updateSize()
@@ -436,22 +448,29 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
         skinpartblock.hasBoneIndices = True
         skinpartblock.boneIndices.updateSize()
         for i, v in enumerate(vertices):
-            boneindices = set(range(skinpartblock.numWeightsPerVertex)) # keep track of indices that have not been used yet
+            boneindices = set(range(skinpartblock.numBones)) # keep track of indices that have not been used yet
             for j in xrange(len(weights[v])):
                 skinpartblock.boneIndices[i][j] = bones.index(weights[v][j][0])
                 boneindices.remove(skinpartblock.boneIndices[i][j])
             for j in xrange(len(weights[v]),skinpartblock.numWeightsPerVertex):
-                skinpartblock.boneIndices[i][j] = boneindices.pop()
+                if padbones:
+                    # if padbones is True then we have enforced
+                    # numBones == numWeightsPerVertex so this will not trigger
+                    # a KeyError
+                    skinpartblock.boneIndices[i][j] = boneindices.pop()
+                else:
+                    skinpartblock.boneIndices[i][j] = 0
 
         # sort weights by bone index (for ffvt3r)
-        for i, v in enumerate(vertices):
-            vweights = []
-            for j in xrange(skinpartblock.numWeightsPerVertex):
-                vweights.append([skinpartblock.boneIndices[i][j], skinpartblock.vertexWeights[i][j]])
-            vweights.sort(key = lambda w: w[0])
-            for j in xrange(skinpartblock.numWeightsPerVertex):
-                skinpartblock.boneIndices[i][j] = vweights[j][0]
-                skinpartblock.vertexWeights[i][j] = vweights[j][1]
+        if padbones:
+            for i, v in enumerate(vertices):
+                vweights = []
+                for j in xrange(skinpartblock.numWeightsPerVertex):
+                    vweights.append([skinpartblock.boneIndices[i][j], skinpartblock.vertexWeights[i][j]])
+                vweights.sort(key = lambda w: w[0])
+                for j in xrange(skinpartblock.numWeightsPerVertex):
+                    skinpartblock.boneIndices[i][j] = vweights[j][0]
+                    skinpartblock.vertexWeights[i][j] = vweights[j][1]
 
     return lostweight
 
