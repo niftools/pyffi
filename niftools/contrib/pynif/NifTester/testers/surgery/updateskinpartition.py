@@ -17,8 +17,7 @@ def testBlock(block, verbose):
     if not skinpart:
         skinpart = skininst.data.skinPartition
 
-    # use ffvt3r settings
-    block.updateSkinPartition(minbonesperpartition = 4, maxbonesperpartition = 4, maxbonespervertex = 4, stripify = False, verbose = verbose)
+    block.updateSkinPartition(maxbonesperpartition = 4, maxbonespervertex = 4, stripify = False, verbose = verbose, padbones = True)
 
     #print skininst.data.skinPartition
 

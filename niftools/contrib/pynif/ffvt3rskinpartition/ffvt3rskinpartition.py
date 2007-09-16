@@ -15,7 +15,7 @@ def testBlock(block, verbose):
         skinpart = skininst.data.skinPartition
 
     # use ffvt3r settings
-    block.updateSkinPartition(minbonesperpartition = 4, maxbonesperpartition = 4, maxbonespervertex = 4, stripify = False, verbose = verbose)
+    block.updateSkinPartition(maxbonesperpartition = 4, maxbonespervertex = 4, stripify = False, verbose = verbose, padbones = True)
 
 def testFile(version, user_version, f, roots, verbose, arg = None):
     f.seek(0)
