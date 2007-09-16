@@ -1,3 +1,10 @@
+Version 0.4.5 (16 Sep 2007)
+* issue warning message instead of raising exception for improper rotation
+matrix in setScaleRotationTranslation
+* fixed skin partition bug during merge
+* skin partition bone index padding and sorting for Freedom Force vs. the 3rd
+Reich
+
 Version 0.4.4 (2 Sep 2007)
 * added mopp parser and simple mopp generator
 
