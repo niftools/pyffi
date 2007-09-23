@@ -116,21 +116,6 @@ def _BuildUniqueFace(face, ForwardFaces, BackwardFaces):
             if bv0 and bv1 and bv2: return 0
         else: return 1
 
-def _BuildTraverseFaces(Indices, NextFace, FaceList, BreakTest, ForwardFaces, BackwardFaces):
-    """Utility for building face traversal list"""
-    if DEBUG: print NextFace.v, Indices
-    nv0,nv1 = Indices[-2:]
-    NextFace = _FindOtherFace(nv0, nv1, NextFace)
-    while NextFace and not self.IsFaceMarked(NextFace):
-        if not BreakTest(NextFace, ForwardFaces, BackwardFaces): break
-        nv0, nv1 = nv1, NextFace.OtherVertex(nv0, nv1)
-        FaceList.append(NextFace)
-        self.MarkFace(NextFace)
-        Indices.append(nv1)
-        if DEBUG: print NextFace.v, Indices
-        NextFace = _FindOtherFace(nv0, nv1, NextFace)
-
-
 class TriangleStrip(object):
     """
     Heavily adapted from NvTriStrip.
@@ -190,6 +175,20 @@ class TriangleStrip(object):
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    def _BuildTraverseFaces(self, Indices, NextFace, FaceList, BreakTest, ForwardFaces, BackwardFaces):
+        """Utility for building face traversal list"""
+        if DEBUG: print NextFace.v, Indices
+        nv0,nv1 = Indices[-2:]
+        NextFace = _FindOtherFace(nv0, nv1, NextFace)
+        while NextFace and not self.IsFaceMarked(NextFace):
+            if not BreakTest(NextFace, ForwardFaces, BackwardFaces): break
+            nv0, nv1 = nv1, NextFace.OtherVertex(nv0, nv1)
+            FaceList.append(NextFace)
+            self.MarkFace(NextFace)
+            Indices.append(nv1)
+            if DEBUG: print NextFace.v, Indices
+            NextFace = _FindOtherFace(nv0, nv1, NextFace)
+
     def Build(self):
         """Builds the face strip forwards, then backwards, and returns the joined list"""
 
@@ -209,10 +208,10 @@ class TriangleStrip(object):
             print "FROM FACE", self.StartFace.v
             print "WINDING", self.StartFace.GetVertexWinding(v0,v1)
             print "FORWARD TRAVERSAL"
-        _TraverseFaces([v0,v1,v2], self.StartFace, ForwardFaces, _AlwaysTrue, ForwardFaces, BackwardFaces)
+        self._BuildTraverseFaces([v0,v1,v2], self.StartFace, ForwardFaces, _BuildAlwaysTrue, ForwardFaces, BackwardFaces)
         if DEBUG:
             print "BACKWARD TRAVERSAL"
-        _TraverseFaces([v2,v1,v0], self.StartFace, BackwardFaces, _UniqueFace, ForwardFaces, BackwardFaces)
+        self._BuildTraverseFaces([v2,v1,v0], self.StartFace, BackwardFaces, _BuildUniqueFace, ForwardFaces, BackwardFaces)
 
         # Combine the Forward and Backward results
         BackwardFaces.reverse()
@@ -366,8 +365,8 @@ class _FindGoodResetPoint:
     def __init__(self, facelist):
         self.faceList = facelist
         self.lenFaceList = len(facelist)
-        self.startstep = lenFaceList / 10
-        self.startidx = _FindStartFaceIndex(FaceList)
+        self.startstep = self.lenFaceList / 10
+        self.startidx = _FindStartFaceIndex(facelist)
         self.idx = self.startidx
 
     def next(self):
@@ -392,7 +391,7 @@ class _FindGoodResetPoint:
             if self.idx == self.startidx:
                 raise StopIteration
 
-def _IsItHere(idx, currentedge, facelist):
+def _IsItHere(idx, currentedge, facelist, mesh, strip):
     face = facelist[idx]
     # Get the next vertex in this strips' walk
     v2 = face.OtherVertex(*currentedge)
@@ -404,7 +403,7 @@ def _IsItHere(idx, currentedge, facelist):
         # If we can use it, then do it!
         otheredge = mesh.GetEdge(currentedge[0], otherface.OtherVertex(*paralleledge.ev))
         # TODO: See if we are getting the proper windings.  Otherwise toy with the following
-        return otherface, otheredge, (otheredge.ev[0] == currentedge[0]) and 1 or 0
+        return [otherface, otheredge, (otheredge.ev[0] == currentedge[0]) and 1 or 0]
     else:
         # Keep looking...
         currentedge[:] = [currentedge[1], v2]
@@ -488,13 +487,13 @@ class TriangleStripifier(object):
         startindex = strip.StartFaceIndex
         currentedge = list(strip.StartEdgeOrder[:])
         for idx in xrange(startindex, len(FaceList), 1):
-            result = _IsItHere(idx, currentedge, FaceList)
+            result = _IsItHere(idx, currentedge, FaceList, mesh, strip)
             if result is not None: return result
 
         currentedge = list(strip.StartEdgeOrder[:])
         currentedge.reverse()
         for idx in xrange(startindex-1, -1, -1):
-            result = _IsItHere(idx, currentedge, FaceList)
+            result = _IsItHere(idx, currentedge, FaceList, mesh, strip)
             if result is not None: return result
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -504,7 +503,7 @@ class TriangleStripifier(object):
 
         selector = self.GLSelector
         bCleanFaces = getattr(mesh, 'CleanFaces', 0)
-        GoodResetPoints = _FindGoodResetPoint(mesh.faces)
+        GoodResetPoints = _FindGoodResetPoint(mesh.Faces)
         experimentId = _Counter()
         stripId = _Counter()
 
@@ -547,7 +546,7 @@ class TriangleStripifier(object):
                         traversal = self._FindTraversal(exp[-1])
                         if traversal:
                             # if so, add it to the list
-                            traversal.append((stripId.next(), exp[0].ExperimentId))
+                            traversal.extend([stripId.next(), exp[0].ExperimentId])
                             exp.append(TriangleStrip(*traversal))
                         else:
                             # Otherwise, we're done
