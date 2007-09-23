@@ -90,10 +90,8 @@ def _MakeSimpleMesh(mesh, data):
         i0, i1 = i1, i2
         flip = not flip
 
-"""
 def _ConjoinMeshData(*data):
     return [x for y in zip(*data) for x in y]
-"""
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
