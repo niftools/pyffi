@@ -26,15 +26,12 @@
 #~ Definitions
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-cdef class Edge:
-    cdef int ev[2]
-
+class Edge:
     def __init__(self, int ev0, int ev1):
-        self.ev[0] = ev0
-        self.ev[1] = ev1
+        self.v = [ev0, ev1]
         self.Faces = []
 
-    def GetCommonVertices(self, Edge otheredge):
+    def GetCommonVertices(self, otheredge):
         result = []
         if self.v[0] == otheredge.v[0]: result.append(self.v[0])
         if self.v[1] == otheredge.v[1]: result.append(self.v[1])
@@ -51,16 +48,10 @@ cdef class Edge:
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-cdef class Face:
-    cdef int v[3]
-
+class Face:
     def __init__(self, int v0, int v1, int v2):
-        self.v[0] = v0
-        self.v[1] = v1
-        self.v[2] = v2
+        self.v = [v0, v1, v2]
     def __richcmp__(self, other, int op):
-        cdef int i
-
         if op == 2 or op == 3:
             if self.v[0] == other.v[0] and self.v[1] == other.v[1] and self.v[2] == other.v[2]: return op == 2
             return op == 3
@@ -118,11 +109,11 @@ cdef class Face:
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class EdgedFace(Face):
-    def __init__(self, v0,v1,v2):
+    def __init__(self, v0,v1,v2, mesh):
         Face.__init__(self, v0,v1,v2)
-        e01 = self.mesh.AddEdge(v0,v1)
-        e12 = self.mesh.AddEdge(v1,v2)
-        e20 = self.mesh.AddEdge(v2,v0)
+        e01 = mesh.AddEdge(v0,v1,self)
+        e12 = mesh.AddEdge(v1,v2,self)
+        e20 = mesh.AddEdge(v2,v0,self)
         self.edges = [e01, e12, e20]
 
     def GetEdge(self, ev0, ev1):
@@ -238,7 +229,7 @@ class FaceEdgeMesh:
                 print "DEGENERATE face", (v0,v1,v2)
             return None
         else:
-            face = EdgedFace(v0,v1,v2)
+            face = EdgedFace(v0,v1,v2,self)
             self.Faces.append(face)
             return face
 

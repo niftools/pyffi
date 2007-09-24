@@ -1,0 +1,7 @@
+cython TriangleMesh.pyx
+gcc -c -fPIC -I/usr/include/python2.5/ TriangleMesh.c
+gcc -shared TriangleMesh.o -o TriangleMesh.so
+
+cython TriangleStripifier.pyx
+gcc -c -fPIC -I/usr/include/python2.5/ TriangleStripifier.c
+gcc -shared TriangleStripifier.o -o TriangleStripifier.so

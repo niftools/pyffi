@@ -74,20 +74,51 @@ def _FindOtherFace(ev0, ev1, face):
     except KeyError:
         return None
 
-def _Counter():
-    i = 1
-    while 1:
-        yield i
-        i += 1
+#def _Counter():
+#    i = 1
+#    while 1:
+#        yield i
+#        i += 1
 
-def _xwrap(idx, maxlen):
-    while idx < maxlen:
-        yield idx
-        idx += 1
-    maxlen,idx = idx,0
-    while idx < maxlen:
-        yield idx
-        idx += 1
+class _Counter:
+    #cdef int i
+    def __init__(self):
+        self.i = 0
+    def __iter__(self):
+        return self
+    def next(self):
+        self.i += 1
+        return self.i
+
+#def _xwrap(idx, maxlen):
+#    while idx < maxlen:
+#        yield idx
+#        idx += 1
+#    maxlen,idx = idx,0
+#    while idx < maxlen:
+#        yield idx
+#        idx += 1
+
+class _xwrap:
+    #cdef int i
+    #cdef int idx
+    #cdef int maxlen
+    def __init__(self, idx, maxlen):
+        self.i = -1
+        self.idx = idx-1
+        self.maxlen = maxlen
+    def __iter__(self):
+        return self
+    def next(self):
+        # track number of iterations
+        self.i += 1
+        if self.i == self.maxlen: raise StopIteration
+        # updated counter
+        self.idx += 1 
+        if self.idx == self.maxlen:
+            self.idx -= self.maxlen
+        # return counter
+        return self.idx
 
 def _MakeSimpleMesh(mesh, data):
     i0, i1 = data[:2]
