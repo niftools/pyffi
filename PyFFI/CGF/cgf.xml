@@ -381,7 +381,7 @@ i
     </struct>
 
     <struct name="BonePhysics">
-        <add name="Geometry" type="Ref" template="BoneMeshChunk">Geometry of a separate mesh for this bone.</add>
+        <add name="Geometry" type="uint">Geometry of a separate mesh for this bone.</add>
         <!-- joint parameters -->
         <add name="Flags" type="uint" />
         <add name="Min" type="Vector3" />
@@ -393,8 +393,8 @@ i
     </struct>
 
     <struct name="BoneEntity">
-        <add name="Bone" type="Ref" template="Chunk">Timing chunk or node chunk.</add>
-        <add name="Parent" type="Ptr" template="Chunk">Timing chunk or mesh chunk.</add>
+        <add name="Bone Id" type="uint">Bone identifier.</add>
+        <add name="Parent Id" type="uint">Parent identifier.</add>
         <add name="Num Children" type="uint" />
         <add name="Ctrl Id" type="uint">CRC32 from name of bone.</add>
         <add name="Properties" type="String32" />

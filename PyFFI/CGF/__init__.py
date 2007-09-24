@@ -209,6 +209,14 @@ class CgfFormat(object):
             else:
                 return []
 
+        def __str__(self):
+            # don't recurse
+            if self._x != None:
+                return '%s instance at 0x%08X'%(self._x.__class__, id(self._x))
+            else:
+                return 'None'
+
+
     class Ptr(Ref):
         _isTemplate = True
         _hasLinks = True
@@ -216,7 +224,10 @@ class CgfFormat(object):
         
         def __str__(self):
             # avoid infinite recursion
-            return '%s instance at 0x%08X'%(self._x.__class__, id(self._x))
+            if self._x != None:
+                return '%s instance at 0x%08X'%(self._x.__class__, id(self._x))
+            else:
+                return 'None'
 
         def getRefs(self):
             return []
