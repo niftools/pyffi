@@ -273,7 +273,7 @@ i
         <add name="v0" type="int">First vertex index.</add>
         <add name="v1" type="int">Second vertex index.</add>
         <add name="v2" type="int">Third vertex index.</add>
-        <add name="Material" type="Ref" template="Chunk">Material or timing chunk.</add>
+        <add name="Material" type="int">Material index.</add>
         <add name="Sm Group" type="int" default="1">Smoothing group.</add>
     </struct>
     
@@ -560,6 +560,7 @@ i
         <add name="Dyn Sliding Friction" type="float" cond="Type == 1" />
 
         <add name="Num Children" type="int" cond="Type == 2" />
+        <add name="Reserved2" type="ubyte" arr1="2400" cond="Type == 2">All zero?</add>
         <add name="Children" type="Ref" template="Chunk" arr1="Num Children" cond="Type == 2">Links to other material chunks, source info chunks?, timing chunks.</add>
     </struct>
 
