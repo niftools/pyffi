@@ -79,11 +79,11 @@ class Expression(object):
 
     def eval(self, data = None):
         """Evaluate the expression to an integer."""
-        
+       
         if isinstance(self._left, Expression):
             left = self._left.eval(data)
         elif isinstance(self._left, basestring):
-            left = getattr(data, self._left)
+            left = getattr(data, self._left) if self._left != '""' else ""
         else:
             assert(isinstance(self._left, (int, long))) # debug
             left = self._left
@@ -94,7 +94,7 @@ class Expression(object):
         if isinstance(self._right, Expression):
             right = self._right.eval(data)
         elif isinstance(self._right, basestring):
-            right = getattr(data, self._right)
+            right = getattr(data, self._right) if self._right != '""' else ""
         else:
             assert(isinstance(self._right, (int, long))) # debug
             right = self._right
