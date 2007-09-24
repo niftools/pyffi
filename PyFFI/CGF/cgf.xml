@@ -300,6 +300,7 @@ i
     <struct name="TextureMap">
         <add name="Name" type="String32" ver2="745">Name of the texture map.</add>
         <add name="Long Name" type="String128" ver1="746">Name of the texture map.</add>
+        <!-- if there is no name and no long name, then the texture slot is not in use and all following bytes are zero -->
         <add name="Type" type="TextureMappingType" ver1="745">Mapping type</add>
         <add name="Flags" type="TextureMappingFlags" ver1="745">Mapping flags</add>
         <add name="Amount" type="ubyte" ver1="745">Unknown. 100 for used texture slots?</add>
@@ -325,13 +326,14 @@ i
         <add  name="W Rot Val" type="float" />
 
         <!--texture position controller chunk id's (if not animated they are -1)-->
-        <add name="U Off Ctrl" type="Ref" template="ControllerChunk" />
-        <add name="U Scl Ctrl" type="Ref" template="ControllerChunk" />
-        <add name="U Rot Ctrl" type="Ref" template="ControllerChunk" />
-        <add name="V Off Ctrl" type="Ref" template="ControllerChunk" />
-        <add name="V Scl Ctrl" type="Ref" template="ControllerChunk" />
-        <add name="V Rot Ctrl" type="Ref" template="ControllerChunk" />
-        <add name="W Rot Ctrl" type="Ref" template="ControllerChunk" />
+        <add name="U Off Ctrl" type="Ref" template="ControllerChunk" cond="(Name != &quot;&quot;) || (Long Name != &quot;&quot;)" />
+        <add name="U Scl Ctrl" type="Ref" template="ControllerChunk" cond="(Name != &quot;&quot;) || (Long Name != &quot;&quot;)" />
+        <add name="U Rot Ctrl" type="Ref" template="ControllerChunk" cond="(Name != &quot;&quot;) || (Long Name != &quot;&quot;)" />
+        <add name="V Off Ctrl" type="Ref" template="ControllerChunk" cond="(Name != &quot;&quot;) || (Long Name != &quot;&quot;)" />
+        <add name="V Scl Ctrl" type="Ref" template="ControllerChunk" cond="(Name != &quot;&quot;) || (Long Name != &quot;&quot;)" />
+        <add name="V Rot Ctrl" type="Ref" template="ControllerChunk" cond="(Name != &quot;&quot;) || (Long Name != &quot;&quot;)" />
+        <add name="W Rot Ctrl" type="Ref" template="ControllerChunk" cond="(Name != &quot;&quot;) || (Long Name != &quot;&quot;)" />
+        <add name="Reserved4" type="ubyte" arr1="28" cond="(Name == &quot;&quot;) &amp;&amp; (Long Name == &quot;&quot;)" />
     </struct>
 
     <struct name="BoneLink">
@@ -561,7 +563,7 @@ i
 
         <add name="Num Children" type="int" cond="Type == 2" />
         <add name="Reserved2" type="ubyte" arr1="2400" cond="Type == 2">All zero?</add>
-        <add name="Children" type="Ref" template="Chunk" arr1="Num Children" cond="Type == 2">Links to other material chunks, source info chunks?, timing chunks.</add>
+        <add name="Children" type="Ref" template="MtlChunk" arr1="Num Children" cond="Type == 2">Links to other material chunks.</add>
     </struct>
 
     <struct name="ControllerChunk" inherit="Chunk">
