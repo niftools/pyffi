@@ -4,8 +4,22 @@ This module implements the NIF file format.
 Examples
 ========
 
-Create a NIF file from scratch
-------------------------------
+Read a NIF file
+---------------
+
+>>> # get version and user version, and read nif file
+>>> f = open('test.nif', 'rb')
+>>> version, user_version = NifFormat.getVersion(f)
+>>> roots = NifFormat.read(version = version, user_version = user_version, f = f)
+>>> # print all NiNode names
+>>> for root in roots:
+...     for block in root.tree():
+...         if isinstance(block, NifFormat.NiNode):
+...             print block.name
+test
+
+Create a NIF model from scratch and write to file
+-------------------------------------------------
 
 >>> root = NifFormat.NiNode()
 >>> root.name = 'Scene Root'
