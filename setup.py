@@ -32,9 +32,10 @@ import PyFFI
 setup(
     name = "PyFFI",
     version = PyFFI.__version__,
-    packages = ['PyFFI', 'PyFFI.Bases', 'PyFFI.Utils', 'PyFFI.NIF', 'PyFFI.CGF'],
+    packages = ['PyFFI', 'PyFFI.Bases', 'PyFFI.Utils', 'PyFFI.NIF', 'PyFFI.CGF', 'NifTester', 'NifTester.testers', 'NifTester.testers.hacking', 'NifTester.testers.validate', 'NifTester.testers.surgery'],
+    package_dir = { 'NifTester' : 'tools/NIF/NifTester' },
     package_data = { '' : [ '*.xml' ] }, # include xml files
-    scripts = ['tools/NIF/ffvt3rskinpartition/ffvt3rskinpartition.py'],
+    scripts = ['tools/NIF/ffvt3rskinpartition.py', 'tools/NIF/nifmakehsl.py', 'tools/NIF/niftoaster.py'],
     author = "Amorilia",
     author_email = "amorilia@gamebox.net",
     license = "BSD",
