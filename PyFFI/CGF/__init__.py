@@ -345,21 +345,62 @@ class CgfFormat(object):
 
     @classmethod
     def write(cls, filetype, fileversion, f, chunks, versions, verbose = 0):
-        chunk_types = [x for x in dir(cls.ChunkType) if x[:2] != '__']
-
         # write header
+        hdr_pos = f.tell()
         hdr = cls.Header()
         hdr.type = filetype
         hdr.version = fileversion
-        hdr.offset = -1 # set this at the end
+        hdr.offset = -1 # is set at the end
         hdr.write(version = fileversion, f = f)
+
+        # chunk id is simply its index in the chunks list
+        block_index_dct = dict((chunk, i) for i, chunk in enumerate(chunks))
 
         # write chunks and add headers to chunk table
         table = cls.ChunkTable()
+        table.numChunks = len(chunks)
+        table.chunkHeaders.updateSize()
+        for chunkhdr, chunk, version in zip(table.chunkHeaders, chunks, versions):
+            chunkhdr.type = getattr(cls.ChunkType, chunk.__class__.__name__[:-5])
+            chunkhdr.version = version
+            chunkhdr.offset = f.tell()
+            chunkhdr.id = block_index_dct[chunk]
+            # write chunk header
+            if chunkhdr.type not in [cls.ChunkType.SourceInfo, cls.ChunkType.BoneNameList, cls.ChunkType.BoneLightBinding, cls.ChunkType.BoneInitialPos, cls.ChunkType.MeshMorphTarget]:
+                chunkhdr.write(version = fileversion, f = f)
+            # write chunk
+            chunk.write(version = version, f = f, block_index_dct = block_index_dct)
 
         # write chunk table
         hdr.offset = f.tell()
         table.write(version = fileversion, f = f)
+
+        # update header
+        hdr.offset = f.tell()
+        f.seek(hdr_pos)
+        hdr.write(version = fileversion, f = f)
+
+    @classmethod
+    def getFileVersion(cls, game = 'FarCry'):
+        if game == 'FarCry':
+            return 0x744
+        else:
+            raise cls.CgfError("game %s not supported"%game)
+
+    @classmethod
+    def getChunkVersions(cls, game = 'FarCry', chunks = []):
+        if game == 'FarCry':
+            version_dct = dict([
+                (cls.MtlChunk, 0x746),
+                (cls.NodeChunk, 0x823),
+                (cls.TimingChunk, 0x918),
+                (cls.SourceInfoChunk, 0x0),
+                (cls.MeshChunk, 0x744),
+                (cls.ControllerChunk, 0x827)])
+            # TODO add more chunks and their versions
+        else:
+            raise cls.CgfError("game %s not supported"%game)
+        return [ version_dct[chunk.__class__] for chunk in chunks ]
 
     @classmethod
     def walk(cls, top, topdown = True, onerror = None, verbose = 0):
