@@ -1,84 +1,59 @@
-# a script for running hacking, surgery, and validation tests (based on wz's NifTester)
-#
-# For validate and surgery tests, exceptions during read will be raised.
-# For hacking tests, exceptions during read will be passed; these are intended
-# to hack .
-# Unlike validate tests, surgery tests modify the original nif file.
-#
-# These three functions in the tester script are called:
-#    testBlock(block) - will be called on every block in the nif
-#    testRoot(root)   - will be called on every root block of the nif
-#    testFile(version, user_version, f, roots)
-#                     - will be called on every nif
-# Not all of these three functions need to be present.
+#!/usr/bin/python
+
+"""
+A script for running hacking, surgery, and validation tests (based on wz's NifTester)
+
+For validate and surgery tests, exceptions during read will be raised.
+For hacking tests, exceptions during read will be passed; these are intended
+to hack .
+Unlike validate tests, surgery tests modify the original nif file.
+
+These three functions in the tester script are called:
+   testBlock(block) - will be called on every block in the nif
+   testRoot(root)   - will be called on every root block of the nif
+   testFile(version, user_version, f, roots)
+                    - will be called on every nif
+Not all of these three functions need to be present.
+"""
 
 import sys, os
 from optparse import OptionParser
 
-from PyFFI.NIF import NifFormat
-
-# useful as onreaderror parameter
-def raise_exception(e):
-    raise e
-
-# useful as onreaderror parameter
-def pass_exception(e):
-    pass
-
-# test all files using testBlock, testRoot, and testFile functions
-def testPath(top, testBlock, testRoot, testFile, onreaderror = None, mode = 'rb', verbose = None, arg = None):
-    kwargs = {}
-    kwargs['verbose'] = verbose if verbose != None else 0
-    if arg != None: kwargs['arg'] = arg
-    for version, user_version, f, root_blocks in NifFormat.walkFile(top, onerror = onreaderror, verbose = min(1, verbose), mode = mode):
-        # find blocks beforehand as tree hierarchy may change after each
-        # test (especially for surgery tests)
-        for root in root_blocks:
-            blockslist = [[block for block in root.tree()] for root in root_blocks]
-        # run tests
-        if testRoot:
-            for root in root_blocks:
-                testRoot(root, **kwargs)
-        if testBlock:
-            for blocks in blockslist:
-                for block in blocks:
-                    testBlock(block, **kwargs)
-        if testFile:
-            testFile(version, user_version, f, root_blocks, **kwargs)
+import NifTester
 
 def examples_callback(option, opt, value, parser):
     print """* check if the library can read all files in current directory
   (python version of nifskope's xml checker):
 
-    python NifTester.py read .
+    python niftoaster.py read .
 
 * merge skeleton roots and rest positions for all files in current directory:
 
-    python NifTester.py mergeskelandrestpos .
+    python niftoaster.py mergeskelandrestpos .
 
 * scale all files in c:\\zoo2 by a factor 100 - useful to
   visualize nif files from games such as Zoo Tycoon 2 that are otherwise too
   small to show up properly in nifskope:
 
-    python NifTester.py -a 100 scale "c:\\zoo2"
+    python niftoaster.py -a 100 scale "c:\\zoo2"
 
 * same as above, but also find out profile information on reading nif
   files:
 
-    python -m cProfile -s cumulative -o profile_read.txt NifTester.py read .
+    python -m cProfile -s cumulative -o profile_read.txt niftoaster.py read .
 
 * find out time spent on a particular test:
 
-    python -m cProfile -s cumulative NifTester.py tristrip . | grep tristrip"""
+    python -m cProfile -s cumulative niftoaster.py tristrip . | grep tristrip"""
     sys.exit(0)
 
 def tests_callback(option, opt, value, parser):
-    import testers
-    for category in dir(testers):
+    import NifTester.testers
+    for category in dir(NifTester.testers):
         if category[:2] == '__': continue
         print category + ':'
-        tests = __import__('testers.' + category)
-        tests = getattr(tests, category)
+        tests = __import__('NifTester.testers.' + category)
+        tests = getattr(tests.testers, category)
         for test in dir(tests):
             if test[:2] == '__': continue
             print '  ' + test
@@ -122,21 +97,21 @@ for hacking, modifying, or validating <file>, or the files in <folder>."""
     top = args[1]
 
     try:
-        testers = __import__('testers.hacking.' + test_str)
-        test = getattr(testers.hacking, test_str)
-        onreaderror = pass_exception
+        testers = __import__('NifTester.testers.hacking.' + test_str)
+        test = getattr(testers.testers.hacking, test_str)
+        onreaderror = NifTester.pass_exception
         mode = 'rb'
     except ImportError:
         try:
-            testers = __import__('testers.validate.' + test_str)
-            test = getattr(testers.validate, test_str)
-            onreaderror = raise_exception
+            testers = __import__('NifTester.testers.validate.' + test_str)
+            test = getattr(testers.testers.validate, test_str)
+            onreaderror = NifTester.raise_exception
             mode = 'rb'
         except ImportError:
             try:
-                testers = __import__('testers.surgery.' + test_str)
-                test = getattr(testers.surgery, test_str)
-                onreaderror = raise_exception
+                testers = __import__('NifTester.testers.surgery.' + test_str)
+                test = getattr(testers.testers.surgery, test_str)
+                onreaderror = NifTester.raise_exception
                 mode = 'r+b'
             except ImportError:
                 # either tester was not found, or had an error while importing
@@ -147,7 +122,7 @@ for hacking, modifying, or validating <file>, or the files in <folder>."""
     testFile = getattr(test, 'testFile', None)
 
     # run tester
-    testPath(top, testBlock, testRoot, testFile, onreaderror, mode, verbose=options.verbose, arg=options.arg)
+    NifTester.testPath(top, testBlock, testRoot, testFile, onreaderror, mode, verbose=options.verbose, arg=options.arg)
 
 # if script is called...
 if __name__ == "__main__":

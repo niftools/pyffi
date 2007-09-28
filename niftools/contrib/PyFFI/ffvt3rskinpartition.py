@@ -1,5 +1,10 @@
 #!/usr/bin/python
-# a script for updating ffvt3r skin partitions
+
+"""
+A script for updating ffvt3r skin partitions
+"""
+
+import NifTester
 
 def testBlock(block, verbose):
     # does it apply on this block?
@@ -27,35 +32,6 @@ from optparse import OptionParser
 
 from PyFFI.NIF import NifFormat
 
-# useful as onreaderror parameter
-def raise_exception(e):
-    raise e
-
-# useful as onreaderror parameter
-def pass_exception(e):
-    pass
-
-# test all files using testBlock, testRoot, and testFile functions
-def testPath(top, testBlock, testRoot, testFile, onreaderror = None, mode = 'rb', verbose = None, arg = None):
-    kwargs = {}
-    kwargs['verbose'] = verbose if verbose != None else 0
-    if arg != None: kwargs['arg'] = arg
-    for version, user_version, f, root_blocks in NifFormat.walkFile(top, onerror = onreaderror, verbose = min(1, verbose), mode = mode):
-        # find blocks beforehand as tree hierarchy may change after each
-        # test (especially for surgery tests)
-        for root in root_blocks:
-            blockslist = [[block for block in root.tree()] for root in root_blocks]
-        # run tests
-        if testRoot:
-            for root in root_blocks:
-                testRoot(root, **kwargs)
-        if testBlock:
-            for blocks in blockslist:
-                for block in blocks:
-                    testBlock(block, **kwargs)
-        if testFile:
-            testFile(version, user_version, f, root_blocks, **kwargs)
-
 def main():
     # parse options and positional arguments
     usage = "%prog [options] <file>|<folder>"
@@ -78,7 +54,7 @@ may destroy them. Make a backup before running this script."""
     top = args[0]
 
     # run tester
-    testPath(top, testBlock, None, testFile, raise_exception, "r+b", verbose=options.verbose)
+    NifTester.testPath(top, testBlock, None, testFile, NifTester.raise_exception, "r+b", verbose=options.verbose)
 
 # if script is called...
 if __name__ == "__main__":
