@@ -376,7 +376,6 @@ class CgfFormat(object):
         table.write(version = fileversion, f = f)
 
         # update header
-        hdr.offset = f.tell()
         f.seek(hdr_pos)
         hdr.write(version = fileversion, f = f)
 
