@@ -1,6 +1,39 @@
-# --------------------------------------------------------------------------
-# PyFFI.CGF
-# Implementation of the CGF file format.
+"""
+This module implements the CGF file format.
+
+Examples
+========
+
+Read a CGF file
+---------------
+>>> # get file version and file type, and read cgf file
+>>> f = open('test.cgf', 'rb')
+>>> filetype, fileversion = CgfFormat.getVersion(f)
+>>> if filetype == -1:
+...     raise RuntimeError('cgf version not supported')
+... elif filetype == -2:
+...     raise RuntimeError('not a cgf file')
+>>> chunks, versions = CgfFormat.read(fileversion = fileversion, f = f)
+>>> # print all chunks
+>>> for chunk in chunks:
+...     print chunk # doctest: +ELLIPSIS
+<class 'PyFFI.XmlHandler.SourceInfoChunk'> instance at ...
+* sourceFile : <EMPTY STRING>
+* date : Fri Sep 28 22:40:44 2007
+* author : blender@BLENDER
+<BLANKLINE>
+<class 'PyFFI.XmlHandler.TimingChunk'> instance at ...
+* secsPerTick : 0.000208333338378
+* ticksPerFrame : 160
+* globalRange :
+    <class 'PyFFI.XmlHandler.RangeEntity'> instance at ...
+    * name : GlobalRange
+    * start : 0
+    * end : 100
+* numSubRanges : 0
+<BLANKLINE>
+"""
+
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -266,7 +299,7 @@ class CgfFormat(object):
         chunk table.
 
         Returns -1, 0 if file type or chunk table version is not supported.
-        Returns -2, 0 if <f> is not a cgf file.
+        Returns -2, 0 if it is not a cgf file.
         """
         pos = f.tell()
         try:
