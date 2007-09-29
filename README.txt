@@ -57,6 +57,15 @@ The code is organized as follows.
 
     + PyTriStrip: stripifier utilities (uses a Python port of NvTriStrip)
 
+  - tools/NIF and tools/CGF: format specific scripts and helper modules
+
+    + niftoaster and cgftoaster: for hacking nif and cgf files
+
+    + ffvt3rskinpartition: skin partition calculator for Freedom Force vs. The
+      3rd Reich
+
+    + nifvisualizer: visualizes particular blocks of a nif file
+
 The following code resides in the subversion trunk only
 (https://pyffi.svn.sf.net/svnroot/pyffi/trunk) and is not distributed
 with the library.
