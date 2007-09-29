@@ -440,6 +440,8 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
                     skinpartblock.strips[i][j] = v
         else:
             skinpartblock.hasFaces = True
+            skinpartblock.stripLengths.updateSize() # clears strip lengths array
+            skinpartblock.strips.updateSize() # clears strips array
             skinpartblock.triangles.updateSize()
             for i, (v1,v2,v3) in enumerate(parttriangles):
                 skinpartblock.triangles[i].v1 = v1
