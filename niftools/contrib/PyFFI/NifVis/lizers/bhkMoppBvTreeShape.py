@@ -1,4 +1,4 @@
-from ua import *
+from NifVis.ua import *
 
 Scale = 0.1
 Corner = NifFormat.Vector3()
@@ -22,9 +22,9 @@ def Radius( mopp ):
     
     global Scale, Corner, Tree
     
-    Scale = 1.0 * 255 * 255 / mopp.scalingFactor
+    Scale = 1.0 * 255 * 255 / mopp.scale
     
-    Corner = mopp.objectCorner
+    Corner = mopp.origin
     
     ChunkCode( mopp.moppData, 0, len(mopp.moppData), Tree )
     

@@ -1,4 +1,4 @@
-from ua import *
+from NifVis.ua import *
 
 radius = 0.1
 

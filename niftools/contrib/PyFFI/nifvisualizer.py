@@ -1,15 +1,17 @@
+#!/usr/bin/python
+
 import sys, os.path
 
 Args = sys.argv
 
 if len( Args ) < 3:
     print """
-    NifVis: Visualizes arbitrary block types by scriptable visualizers.
+    nifvisualizer: Visualizes arbitrary block types by scriptable visualizers.
     ---
-    Syntax: NifVis.py <file_name> <block_name> [alt]
+    Syntax: python nifvisualizer.py <file_name> <block_name> [alt]
     ---
     Usage:  Specify the Nif file with the <file_name> argument.
-            NifVis will look for a file called "<block_name>.py" in the
+            The visualizer will look for a file called "<block_name>.py" in the
             "lizers" folder. If [alt] was specified, the visualizer
             "<block_name>_[alt].py" will be used.
     """
@@ -24,7 +26,7 @@ sys.path.append( os.path.abspath( '../pymodules' ) )
 
 
 
-import vis_nif
+from NifVis import vis_nif
 
 vis_nif.LoadNif( FileName )
 
@@ -41,13 +43,13 @@ if not DrawBlocks:
 
 
 
-import lizers
+from NifVis import lizers
 
 LizerName = BlockName
 if len( Args ) > 3:
     LizerName += '_' + Args[3]
     
-Lizer = lizers.Get( LizerName )
+Lizer = getattr(lizers, LizerName)
 
 if not Lizer:
     print "Blocktype '%s' has no visualizer!" % BlockName
@@ -55,7 +57,7 @@ if not Lizer:
 
 
 
-import vis_gl
+from NifVis import vis_gl
 
 Radius = 1
 for b in DrawBlocks:
@@ -71,7 +73,7 @@ vis_gl.Initialize( Radius )
 
 
 
-import vis_run
+from NifVis import vis_run
 
 vis_run.Initialize()
 

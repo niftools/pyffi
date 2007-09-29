@@ -1,4 +1,4 @@
-from ua import *
+from NifVis.ua import *
 
 import random
 
