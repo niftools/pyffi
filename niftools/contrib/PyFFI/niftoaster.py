@@ -60,8 +60,8 @@ def tests_callback(option, opt, value, parser):
 def main():
     # parse options and positional arguments
     usage = "%prog [options] <tester> <file>|<folder>"
-    description="""Look for a python script "testers/hacking/<tester>.py",
-"testers/validate/<tester>.py", or "testers/surgery/<tester>.py"
+    description="""Look for a python script "NifTester.hacking.<tester>",
+"NifTester.validate.<tester>", or "NifTester.surgery.<tester>"
 and use the functions testRoot, testBlock, and testFile therein
 for hacking, modifying, or validating <file>, or the files in <folder>."""
 
