@@ -10,6 +10,10 @@ Read a NIF file
 >>> # get version and user version, and read nif file
 >>> f = open('test.nif', 'rb')
 >>> version, user_version = NifFormat.getVersion(f)
+>>> if version == -1:
+...     raise RuntimeError('nif version not supported')
+... elif version == -2:
+...     raise RuntimeError('not a nif file')
 >>> roots = NifFormat.read(version = version, user_version = user_version, f = f)
 >>> # print all NiNode names
 >>> for root in roots:
