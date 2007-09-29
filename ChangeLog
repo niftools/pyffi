@@ -1,3 +1,22 @@
+Version 0.4.6 (29 Sep 2007)
+* nif and cgf documentation improved
+* added a number of new doctests
+* nif: new scripts
+  - niftoaster.py for testing and modifying nif files (contributed by wz)
+  - nifvisualizer.py for visualizing nif blocks (contributed by wz)
+  - nifmakehsl.py for making hex workshop structure libraries for all nif
+    versions
+* nif: bundling NifVis and NifTester modules so you can make your own nif
+  toasters and visualizers
+* nif: fixed rare issue with skin partition calculation
+* cgf: new script
+  - cgftoaster.py for testing and modifying cgf files (similar to niftoaster.py)
+* cgf: bundling CgfTester module so you can make your own cgf toasters
+* cgf: various xml bugs fixed
+* cgf: write support improved (but not entirely functional yet)
+* cgf: material chunk custom function for extraction material shader and script
+* Expression.py: support for empty string check in condition
+	
 Version 0.4.5 (16 Sep 2007)
 * issue warning message instead of raising exception for improper rotation
 matrix in setScaleRotationTranslation
