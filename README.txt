@@ -66,6 +66,8 @@ The code is organized as follows.
 
     + nifvisualizer: visualizes particular blocks of a nif file
 
+    + nifmakehsl: create hex workshop structure libraries for all nif formats
+
 The following code resides in the subversion trunk only
 (https://pyffi.svn.sf.net/svnroot/pyffi/trunk) and is not distributed
 with the library.
