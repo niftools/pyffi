@@ -44,16 +44,14 @@ def examples_callback(option, opt, value, parser):
 
 * find out time spent on a particular test:
 
-    python -m cProfile -s cumulative niftoaster.py tristrip . | grep tristrip"""
+    python -m cProfile -s cumulative niftoaster.py tristrip"""
     sys.exit(0)
 
 def tests_callback(option, opt, value, parser):
-    import NifTester.testers
-    for category in dir(NifTester.testers):
-        if category[:2] == '__': continue
+    for category in ('hacking', 'surgery', 'validate'):
         print category + ':'
-        tests = __import__('NifTester.testers.' + category)
-        tests = getattr(tests.testers, category)
+        tests = __import__('NifTester.' + category)
+        tests = getattr(tests, category)
         for test in dir(tests):
             if test[:2] == '__': continue
             print '  ' + test
@@ -97,20 +95,20 @@ for hacking, modifying, or validating <file>, or the files in <folder>."""
     top = args[1]
 
     try:
-        testers = __import__('NifTester.testers.hacking.' + test_str)
-        test = getattr(testers.testers.hacking, test_str)
+        testers = __import__('NifTester.hacking.' + test_str)
+        test = getattr(testers.hacking, test_str)
         onreaderror = NifTester.pass_exception
         mode = 'rb'
     except ImportError:
         try:
-            testers = __import__('NifTester.testers.validate.' + test_str)
-            test = getattr(testers.testers.validate, test_str)
+            testers = __import__('NifTester.validate.' + test_str)
+            test = getattr(testers.validate, test_str)
             onreaderror = NifTester.raise_exception
             mode = 'rb'
         except ImportError:
             try:
-                testers = __import__('NifTester.testers.surgery.' + test_str)
-                test = getattr(testers.testers.surgery, test_str)
+                testers = __import__('NifTester.surgery.' + test_str)
+                test = getattr(testers.surgery, test_str)
                 onreaderror = NifTester.raise_exception
                 mode = 'r+b'
             except ImportError:
