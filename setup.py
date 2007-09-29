@@ -32,10 +32,10 @@ import PyFFI
 setup(
     name = "PyFFI",
     version = PyFFI.__version__,
-    packages = ['PyFFI', 'PyFFI.Bases', 'PyFFI.Utils', 'PyFFI.NIF', 'PyFFI.CGF', 'NifTester', 'NifTester.hacking', 'NifTester.validate', 'NifTester.surgery'],
-    package_dir = { 'NifTester' : 'tools/NIF/NifTester' },
+    packages = ['PyFFI', 'PyFFI.Bases', 'PyFFI.Utils', 'PyFFI.NIF', 'PyFFI.CGF', 'NifTester', 'NifTester.hacking', 'NifTester.validate', 'NifTester.surgery', 'NifVis', 'NifVis.lizers'],
+    package_dir = { 'NifTester' : 'tools/NIF/NifTester', 'NifVis' : 'tools/NIF/NifVis' },
     package_data = { '' : [ '*.xml' ] }, # include xml files
-    scripts = ['tools/NIF/ffvt3rskinpartition.py', 'tools/NIF/nifmakehsl.py', 'tools/NIF/niftoaster.py'],
+    scripts = ['tools/NIF/ffvt3rskinpartition.py', 'tools/NIF/nifmakehsl.py', 'tools/NIF/niftoaster.py', 'tools/NIF/nifvisualizer.py'],
     author = "Amorilia",
     author_email = "amorilia@users.sourceforge.net",
     license = "BSD",
