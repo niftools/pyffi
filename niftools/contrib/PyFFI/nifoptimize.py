@@ -94,6 +94,8 @@ def testBlock(block, verbose):
         oldnorms = [[n.x, n.y, n.z] for n in data.normals]
         olduvs   = [[[uv.u, uv.v] for uv in uvset] for uvset in data.uvSets]
         oldvcols = [[c.r, c.g, c.b, c.a] for c in data.vertexColors]
+        if block.skinInstance: # for later
+            oldweights = block.getVertexWeights()
         # set new data
         data.numVertices = new_numvertices
         if data.hasVertices:
@@ -141,24 +143,38 @@ def testBlock(block, verbose):
         newlen = sum(i for i in data.stripLengths)
         print "  (strip length was %i and is now %i)"%(origlen, newlen)
 
+        # update skin data
+        if block.skinInstance:
+            print "  update skin data vertex mapping"
+            skindata = block.skinInstance.data
+            newweights = []
+            for i in xrange(new_numvertices):
+                newweights.append(oldweights[v_map_inverse[i]])
+            for bonenum, bonedata in enumerate(skindata.boneList):
+                w = []
+                for i, weightlist in enumerate(newweights):
+                    for bonenum_i, weight_i in weightlist:
+                        if bonenum == bonenum_i:
+                            w.append((i, weight_i))
+                bonedata.numVertices = len(w)
+                bonedata.vertexWeights.updateSize()
+                for j, (i, weight_i) in enumerate(w):
+                    bonedata.vertexWeights[j].index = i
+                    bonedata.vertexWeights[j].weight = weight_i
+
+            print "  updating skin partition"
+            block._validateSkin()
+            skininst = block.skinInstance
+            skinpart = skininst.skinPartition
+            if not skinpart:
+                skinpart = skininst.data.skinPartition
+
+            # use Oblivion settings
+            block.updateSkinPartition(maxbonesperpartition = 18, maxbonespervertex = 4, stripify = True, verbose = 0)
+
         # recalculate tangent space
-        print "recalculating tangent space"
+        print "  recalculating tangent space"
         block.updateTangentSpace()
-
-
-
-##        # update skin partition
-##        if not block.skinInstance: return
-##
-##        print "updating skin partition of block '%s'"%block.name
-##        block._validateSkin()
-##        skininst = block.skinInstance
-##        skinpart = skininst.skinPartition
-##        if not skinpart:
-##            skinpart = skininst.data.skinPartition
-##
-##        # use ffvt3r settings
-##        block.updateSkinPartition(maxbonesperpartition = 4, maxbonespervertex = 4, stripify = False, verbose = verbose, padbones = True)
 
 def testFile(version, user_version, f, roots, verbose, arg = None):
     f.seek(0)
