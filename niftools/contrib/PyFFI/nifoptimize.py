@@ -88,7 +88,7 @@ def testBlock(block, verbose):
         del k_map
 
         new_numvertices = index
-        print "  (found %i duplicates)"%(len(v_map) - new_numvertices)
+        print "  (num vertices was %i and is now %i)"%(len(v_map), new_numvertices)
         # copy old data
         oldverts = [[v.x, v.y, v.z] for v in data.vertices]
         oldnorms = [[n.x, n.y, n.z] for n in data.normals]
