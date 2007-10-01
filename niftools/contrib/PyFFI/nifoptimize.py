@@ -43,23 +43,122 @@
 
 import NifTester
 
+def vertexHash(block, precision = 200):
+    """Generator which identifies unique vertices."""
+    verts = block.vertices if block.hasVertices else None
+    norms = block.normals if block.hasNormals else None
+    uvsets = block.uvSets if len(block.uvSets) else None
+    vcols = block.vertexColors if block.hasVertexColors else None
+    for i in xrange(block.numVertices):
+        h = []
+        if verts:
+            h.extend([ int(x*precision) for x in [verts[i].x, verts[i].y, verts[i].z] ])
+        if norms:
+            h.extend([ int(x*precision) for x in [norms[i].x, norms[i].y, norms[i].z] ])
+        if uvsets:
+            for uvset in uvsets:
+                h.extend([ int(x*precision) for x in [uvset[i].u, uvset[i].v] ])
+        if vcols:
+            h.extend([ int(x*precision) for x in [vcols[i].r, vcols[i].g, vcols[i].b, vcols[i].a ] ])
+        yield tuple(h)
+
 def testBlock(block, verbose):
-    return
+    if isinstance(block, NifFormat.NiTriStrips):
+        print "optimizing block '%s'"%block.name
+        data = block.data
 
-    # does it apply on this block?
-    if not isinstance(block, NifFormat.NiTriBasedGeom): return
-    # does this block have a skin?
-    if not block.skinInstance: return
+        print "  removing duplicate vertices"
+        v_map = [0 for i in xrange(data.numVertices)] # maps old index to new index
+        v_map_inverse = [] # inverse: map new index to old index
+        new_vertices = []
+        k_map = {} # maps hash to new vertex index
+        index = 0  # new vertex index for next vertex
+        for i, vhash in enumerate(vertexHash(data)):
+            try:
+                k = k_map[vhash]
+            except KeyError:
+                # vertex is new
+                k_map[vhash] = index
+                v_map[i] = index
+                v_map_inverse.append(i)
+                index += 1
+            else:
+                # vertex already exists
+                v_map[i] = k
+        del k_map
 
-    print "updating skin partition of block '%s'"%block.name
-    block._validateSkin()
-    skininst = block.skinInstance
-    skinpart = skininst.skinPartition
-    if not skinpart:
-        skinpart = skininst.data.skinPartition
+        new_numvertices = index
+        print "  (found %i duplicates)"%(len(v_map) - new_numvertices)
+        # copy old data
+        oldverts = [[v.x, v.y, v.z] for v in data.vertices]
+        oldnorms = [[n.x, n.y, n.z] for n in data.normals]
+        olduvs   = [[[uv.u, uv.v] for uv in uvset] for uvset in data.uvSets]
+        oldvcols = [[c.r, c.g, c.b, c.a] for c in data.vertexColors]
+        # set new data
+        data.numVertices = new_numvertices
+        if data.hasVertices:
+            data.vertices.updateSize()
+        if data.hasNormals:
+            data.normals.updateSize()
+        data.uvSets.updateSize()
+        if data.hasVertexColors:
+            data.vertexColors.updateSize()
+        for i, v in enumerate(data.vertices):
+            old_i = v_map_inverse[i]
+            v.x = oldverts[old_i][0]
+            v.y = oldverts[old_i][1]
+            v.z = oldverts[old_i][2]
+        for i, n in enumerate(data.normals):
+            old_i = v_map_inverse[i]
+            n.x = oldnorms[old_i][0]
+            n.y = oldnorms[old_i][1]
+            n.z = oldnorms[old_i][2]
+        for j, uvset in enumerate(data.uvSets):
+            for i, uv in enumerate(uvset):
+                old_i = v_map_inverse[i]
+                uv.u = olduvs[j][old_i][0]
+                uv.v = olduvs[j][old_i][1]
+        for i, c in enumerate(data.vertexColors):
+            old_i = v_map_inverse[i]
+            c.r = oldvcols[old_i][0]
+            c.g = oldvcols[old_i][1]
+            c.b = oldvcols[old_i][2]
+            c.a = oldvcols[old_i][3]
+        del oldverts
+        del oldnorms
+        del olduvs
+        del oldvcols
 
-    # use ffvt3r settings
-    block.updateSkinPartition(maxbonesperpartition = 4, maxbonespervertex = 4, stripify = False, verbose = verbose, padbones = True)
+        # update vertex indices in strips
+        for strip in data.points:
+            for i in xrange(len(strip)):
+                strip[i] = v_map[strip[i]]
+
+        # stripify trishape/tristrip
+        print "  recalculating strips"
+        origlen = sum(i for i in data.stripLengths)
+        data.setTriangles(data.getTriangles())
+        newlen = sum(i for i in data.stripLengths)
+        print "  (strip length was %i and is now %i)"%(origlen, newlen)
+
+        # recalculate tangent space
+        print "recalculating tangent space"
+        block.updateTangentSpace()
+
+
+
+##        # update skin partition
+##        if not block.skinInstance: return
+##
+##        print "updating skin partition of block '%s'"%block.name
+##        block._validateSkin()
+##        skininst = block.skinInstance
+##        skinpart = skininst.skinPartition
+##        if not skinpart:
+##            skinpart = skininst.data.skinPartition
+##
+##        # use ffvt3r settings
+##        block.updateSkinPartition(maxbonesperpartition = 4, maxbonespervertex = 4, stripify = False, verbose = verbose, padbones = True)
 
 def testFile(version, user_version, f, roots, verbose, arg = None):
     f.seek(0)
