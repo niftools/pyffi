@@ -1,8 +1,6 @@
 #!/usr/bin/python
 
-"""
-A script for updating ffvt3r skin partitions
-"""
+"""A script for optimizing nif files."""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
@@ -46,6 +44,8 @@ A script for updating ffvt3r skin partitions
 import NifTester
 
 def testBlock(block, verbose):
+    return
+
     # does it apply on this block?
     if not isinstance(block, NifFormat.NiTriBasedGeom): return
     # does this block have a skin?
@@ -74,8 +74,7 @@ from PyFFI.NIF import NifFormat
 def main():
     # parse options and positional arguments
     usage = "%prog [options] <file>|<folder>"
-    description="""Update all skin partitions of file <file> or of all nif 
-files in folder <folder> for Freedom Force vs. the 3rd Reich.
+    description="""Optimize nif file <file> or all nif files in folder <folder>.
 This script will modify the nif files, in particular if something goes wrong it
 may destroy them. Make a backup before running this script."""
     parser = OptionParser(usage, version="%prog $Rev$", description=description)
