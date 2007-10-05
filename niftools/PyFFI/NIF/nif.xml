@@ -988,7 +988,7 @@
         <add name="Layer" type="OblivionLayer">Sets mesh color in Oblivion Construction Set.</add>
         <add name="Col Filter" type="byte">The first bit sets the LINK property and controls whether this body is physically linked to others. The next bit turns collision off. Then, the next bit sets the SCALED property in Oblivion. The next five bits make up the number of this part in a linked body list.</add>
         <add name="Unknown Short" type="ushort">Unknown.</add>
-        <add name="Num Vertices" type="uint">Seems to be the number of vertices that form this sub shape.</add>
+        <add name="Num Vertices" type="uint">The number of vertices that form this sub shape.</add>
         <add name="Material" type="HavokMaterial">The material of the subshape.</add>
     </compound>
 
