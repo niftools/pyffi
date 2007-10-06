@@ -414,6 +414,11 @@ i
         <add name="Pos" type="Vector3" />
     </struct>
 
+    <struct name="MorphVertex">
+        <add name="Vertex Index" type="uint">The vertex index in the mesh.</add>
+        <add name="Vertex Target" type="Vector3">The morphed vertex coordinates.</add>
+    </struct>
+
     <!--real file blocks-->
 
     <struct name="Header">
@@ -598,6 +603,13 @@ i
         <add name="Source File" type="String" />
         <add name="Date" type="String" />
         <add name="Author" type="String" />
+    </struct>
+
+    <struct name="MeshMorphTargetChunk" inherit="Chunk">
+        <add name="Mesh" type="Ptr" template="MeshChunk">The mesh chunk for which this morph target is.</add>
+        <add name="Num Morph Vertices" type="uint">Number of vertices</add>
+        <add name="Morph Vertices" type="MorphVertex" arr1="Num Morph Vertices">The morph vertices</add>
+        <add name="Target Name" type="String">The target name.</add>
     </struct>
 
 </fileformat>

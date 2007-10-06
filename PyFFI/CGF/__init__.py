@@ -426,9 +426,13 @@ class CgfFormat(object):
                 (cls.MtlChunk, 0x746),
                 (cls.NodeChunk, 0x823),
                 (cls.TimingChunk, 0x918),
-                (cls.SourceInfoChunk, 0x0),
+                (cls.SourceInfoChunk, 0x000),
                 (cls.MeshChunk, 0x744),
-                (cls.ControllerChunk, 0x827)])
+                (cls.ControllerChunk, 0x827),
+                (cls.BoneAnimChunk, 0x290),
+                (cls.BoneNameListChunk, 0x745),
+                (cls.MeshMorphTargetChunk, 0x001),
+                (cls.BoneInitialPosChunk, 0x001)])
             # TODO add more chunks and their versions
         else:
             raise cls.CgfError("game %s not supported"%game)
