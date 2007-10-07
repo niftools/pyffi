@@ -47,6 +47,19 @@ import NifTester
 # custom functions
 ############################################################################
 
+def printTexDesc(texdesc):
+    if texdesc.source.useExternal:
+        print '    %s'%texdesc.source.fileName
+    else:
+        print '    (pixel data packed in file)'
+
+def printMaterialProperty(mtl):
+    for coltype in ['ambient', 'diffuse', 'specular', 'emissive']:
+        col = getattr(mtl, '%sColor'%coltype)
+        print '    %-10s %4.2f %4.2f %4.2f'%(coltype, col.r, col.g, col.b)
+    print '    glossiness %f'%mtl.glossiness
+    print '    alpha      %f'%mtl.alpha
+
 ############################################################################
 # testers
 ############################################################################
@@ -57,25 +70,17 @@ OVERWRITE_FILES = False
 def testBlock(block, verbose):
     """Every block will be tested with this function."""
     # modify to your needs
-    if isinstance(block, NifFormat.NiObjectNET):
-        if verbose >= 2: print "parsing block [%s] %s"%(block.__class__.__name__, block.name)
-    else:
-        if verbose >= 2: print "parsing block [%s]"%(block.__class__.__name__)
-
-def testRoot(root_block, verbose):
-    """Every root block will be tested with this function."""
-    # modify to your needs
-    pass
-
-def testFile(version, user_version, f, roots, verbose, arg = None):
-    """Every file will be tested with this function."""
-    # you probably just want to leave this function as it is
-    if OVERWRITE_FILES:
-        if verbose >= 1: print "rewriting file...",
-        f.seek(0)
-        NifFormat.write(version, user_version, f, roots)
-        f.truncate()
-        if verbose >= 1: print "done"
+    if isinstance(block, NifFormat.NiGeometry):
+        print "geometry [%s] %s"%(block.__class__.__name__, block.name)
+        for tex in block.tree(block_type = NifFormat.NiTexturingProperty):
+            print "  [%s] %s"%(tex.__class__.__name__, tex.name)
+            for textype in ['Base', 'Dark', 'Detail', 'Gloss', 'Glow', 'BumpMap', 'Decal0', 'Decal1', 'Decal2', 'Decal3']:
+                if getattr(tex, 'has%sTexture'%textype):
+                    print "  %s:"%textype
+                    printTexDesc(getattr(tex, '%s%sTexture'%(textype[0].lower(),textype[1:])))
+        for mtl in block.tree(block_type = NifFormat.NiMaterialProperty):
+            print "  [%s] %s"%(mtl.__class__.__name__, mtl.name)
+            printMaterialProperty(mtl)
 
 ############################################################################
 # main program
@@ -119,7 +124,7 @@ may destroy them. Make a backup of your nif files before running this script.
 
     # run tester
     mode = "rb" if not OVERWRITE_FILES else "r+b"
-    NifTester.testPath(top, testBlock, testRoot, testFile, NifTester.raise_exception, mode = mode, verbose=options.verbose)
+    NifTester.testPath(top, testBlock, None, None, NifTester.raise_exception, mode = mode, verbose=options.verbose)
 
 # if script is called...
 if __name__ == "__main__":
