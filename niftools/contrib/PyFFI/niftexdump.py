@@ -47,19 +47,6 @@ import NifTester
 # custom functions
 ############################################################################
 
-def printTexDesc(texdesc):
-    if texdesc.source.useExternal:
-        print '    %s'%texdesc.source.fileName
-    else:
-        print '    (pixel data packed in file)'
-
-def printMaterialProperty(mtl):
-    for coltype in ['ambient', 'diffuse', 'specular', 'emissive']:
-        col = getattr(mtl, '%sColor'%coltype)
-        print '    %-10s %4.2f %4.2f %4.2f'%(coltype, col.r, col.g, col.b)
-    print '    glossiness %f'%mtl.glossiness
-    print '    alpha      %f'%mtl.alpha
-
 ############################################################################
 # testers
 ############################################################################
@@ -71,16 +58,24 @@ def testBlock(block, verbose):
     """Every block will be tested with this function."""
     # modify to your needs
     if isinstance(block, NifFormat.NiGeometry):
-        print "geometry [%s] %s"%(block.__class__.__name__, block.name)
+        print "  geometry [%s] %s"%(block.__class__.__name__, block.name)
         for tex in block.tree(block_type = NifFormat.NiTexturingProperty):
-            print "  [%s] %s"%(tex.__class__.__name__, tex.name)
+            #print "    [%s] %s"%(tex.__class__.__name__, tex.name)
             for textype in ['Base', 'Dark', 'Detail', 'Gloss', 'Glow', 'BumpMap', 'Decal0', 'Decal1', 'Decal2', 'Decal3']:
                 if getattr(tex, 'has%sTexture'%textype):
-                    print "  %s:"%textype
-                    printTexDesc(getattr(tex, '%s%sTexture'%(textype[0].lower(),textype[1:])))
+                    texdesc = getattr(tex, '%s%sTexture'%(textype[0].lower(),textype[1:]))
+                    if texdesc.source.useExternal:
+                        filename = texdesc.source.fileName
+                    else:
+                        filename = '(pixel data packed in file)'
+                    print "    [%s] %s"%(textype, filename)
         for mtl in block.tree(block_type = NifFormat.NiMaterialProperty):
-            print "  [%s] %s"%(mtl.__class__.__name__, mtl.name)
-            printMaterialProperty(mtl)
+            #print "    [%s] %s"%(mtl.__class__.__name__, mtl.name)
+            for coltype in ['ambient', 'diffuse', 'specular', 'emissive']:
+                col = getattr(mtl, '%sColor'%coltype)
+                print '    %-10s %4.2f %4.2f %4.2f'%(coltype, col.r, col.g, col.b)
+            print '    glossiness %f'%mtl.glossiness
+            print '    alpha      %f'%mtl.alpha
 
 ############################################################################
 # main program
