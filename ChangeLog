@@ -1,3 +1,8 @@
+Version 0.4.8 (7 Oct 2007)
+* cgf: MeshMorphTargetChunk is now supported too
+* nif: new script (niftexdump.py) to dump texture and material info
+* nif: added template script for quickly writing new nif scripts
+
 Version 0.4.7 (4 Oct 2007)
 * nif: new optimizer script
 
