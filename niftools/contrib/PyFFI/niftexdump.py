@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-"""A template for writing PyFFI nif scripts."""
+"""A script for dumping texture and material information from nifs."""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
@@ -60,7 +60,7 @@ def testBlock(block, verbose):
     if isinstance(block, NifFormat.NiGeometry):
         print "  geometry [%s] %s"%(block.__class__.__name__, block.name)
         for tex in block.tree(block_type = NifFormat.NiTexturingProperty):
-            #print "    [%s] %s"%(tex.__class__.__name__, tex.name)
+            print "    [%s] %s"%(tex.__class__.__name__, tex.name)
             for textype in ['Base', 'Dark', 'Detail', 'Gloss', 'Glow', 'BumpMap', 'Decal0', 'Decal1', 'Decal2', 'Decal3']:
                 if getattr(tex, 'has%sTexture'%textype):
                     texdesc = getattr(tex, '%s%sTexture'%(textype[0].lower(),textype[1:]))
@@ -68,14 +68,15 @@ def testBlock(block, verbose):
                         filename = texdesc.source.fileName
                     else:
                         filename = '(pixel data packed in file)'
-                    print "    [%s] %s"%(textype, filename)
+                    print "      [%s] %s"%(textype, filename)
+            print "      apply mode %i"%tex.applyMode
         for mtl in block.tree(block_type = NifFormat.NiMaterialProperty):
-            #print "    [%s] %s"%(mtl.__class__.__name__, mtl.name)
+            print "    [%s] %s"%(mtl.__class__.__name__, mtl.name)
             for coltype in ['ambient', 'diffuse', 'specular', 'emissive']:
                 col = getattr(mtl, '%sColor'%coltype)
-                print '    %-10s %4.2f %4.2f %4.2f'%(coltype, col.r, col.g, col.b)
-            print '    glossiness %f'%mtl.glossiness
-            print '    alpha      %f'%mtl.alpha
+                print '      %-10s %4.2f %4.2f %4.2f'%(coltype, col.r, col.g, col.b)
+            print '      glossiness %f'%mtl.glossiness
+            print '      alpha      %f'%mtl.alpha
 
 ############################################################################
 # main program
