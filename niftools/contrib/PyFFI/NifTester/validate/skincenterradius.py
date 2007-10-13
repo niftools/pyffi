@@ -1,9 +1,8 @@
-# run the stripifier on all triangles from nif files
-# also useful for profiling
+# check skindata bounding spheres and radii
 
 from PyFFI.NIF import NifFormat
 
-def testBlock(block, verbose):
+def testBlock(block, **args):
     if not isinstance(block, NifFormat.NiTriBasedGeom): return
     if not block.isSkin(): return
 

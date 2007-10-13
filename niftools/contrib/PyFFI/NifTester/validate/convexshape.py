@@ -6,7 +6,7 @@ This test checks whether each vertex is the intersection of at least three plane
 
 from PyFFI.NIF import NifFormat
 
-def testBlock(block, verbose):
+def testBlock(block, **args):
     if not isinstance(block, NifFormat.bhkConvexVerticesShape): return
 
     print "checking shape"

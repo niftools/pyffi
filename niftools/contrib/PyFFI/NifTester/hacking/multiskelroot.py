@@ -14,7 +14,7 @@
 
 from PyFFI.NIF import NifFormat
 
-def testRoot(root, verbose):
+def testRoot(root, **args):
     skelroots = set()
     for block in root.tree():
         if isinstance(block, NifFormat.NiSkinInstance):

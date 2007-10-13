@@ -3,7 +3,7 @@
 
 from PyFFI.NIF import NifFormat
 
-def testBlock(block, verbose):
+def testBlock(block, **args):
     if not isinstance(block, NifFormat.NiTriBasedGeom): return
     if block.data:
         print "recalculating center and radius"
@@ -12,7 +12,7 @@ def testBlock(block, verbose):
         print "recalculating skin center and radius"
         block.updateSkinCenterRadius()
 
-def testFile(version, user_version, f, roots, verbose):
+def testFile(version, user_version, f, roots, **args):
     f.seek(0)
     NifFormat.write(version, user_version, f, roots)
 

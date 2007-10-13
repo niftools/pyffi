@@ -62,7 +62,7 @@ def vertexHash(block, precision = 200):
             h.extend([ int(x*precision) for x in [vcols[i].r, vcols[i].g, vcols[i].b, vcols[i].a ] ])
         yield tuple(h)
 
-def testBlock(block, verbose, **args):
+def testBlock(block, **args):
     if isinstance(block, NifFormat.NiTriStrips):
         print "optimizing block '%s'"%block.name
         data = block.data
@@ -176,19 +176,19 @@ def testBlock(block, verbose, **args):
         print "  recalculating tangent space"
         block.updateTangentSpace()
 
-def testFile(version, user_version, f, roots, verbose, **args):
+def testFile(version, user_version, f, roots, **args):
     f.seek(0)
     backup = f.read(-1)
     f.seek(0)
+    print "writing %s..."%f.name
     try:
         NifFormat.write(version, user_version, f, roots)
-    except:
-        print "*** FAILED ***"
-        print "restoring original file..."
+    except: # not just StandardError, also CTRL-C
+        print "write failed!!! attempt to restore original file..."
+        f.seek(0)
         f.write(backup)
         f.truncate()
-        print """*** please report this as a bug on (include nif file name or nif file) ***
-*** http://sourceforge.net/tracker/?group_id=149157                    ***"""
+        raise
     f.truncate()
 
 import sys, os
@@ -223,7 +223,7 @@ may destroy them. Make a backup of your nif files before running this script.
     if raw_input("Are you sure that you want to proceed? [n/Y] ") != "Y": return
 
     # run tester
-    NifTester.testPath(top, testBlock, None, testFile, NifTester.raise_exception, "r+b", verbose=options.verbose)
+    NifTester.testPath(top, testBlock = testBlock, testFile = testFile, onreaderror = NifTester.raise_exception, mode = "r+b", raisetesterror = False, verbose = options.verbose)
 
 # if script is called...
 if __name__ == "__main__":

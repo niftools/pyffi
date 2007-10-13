@@ -45,7 +45,7 @@ A script for updating ffvt3r skin partitions
 
 import NifTester
 
-def testBlock(block, verbose):
+def testBlock(block, **args):
     # does it apply on this block?
     if not isinstance(block, NifFormat.NiTriBasedGeom): return
     # does this block have a skin?
@@ -59,9 +59,9 @@ def testBlock(block, verbose):
         skinpart = skininst.data.skinPartition
 
     # use ffvt3r settings
-    block.updateSkinPartition(maxbonesperpartition = 4, maxbonespervertex = 4, stripify = False, verbose = verbose, padbones = True)
+    block.updateSkinPartition(maxbonesperpartition = 4, maxbonespervertex = 4, stripify = False, verbose = 1, padbones = True)
 
-def testFile(version, user_version, f, roots, verbose, arg = None):
+def testFile(version, user_version, f, roots, **args):
     f.seek(0)
     NifFormat.write(version, user_version, f, roots)
     f.truncate()
@@ -99,7 +99,7 @@ may destroy them. Make a backup of your nif files before running this script.
     if raw_input("Are you sure that you want to proceed? [n/Y] ") != "Y": return
 
     # run tester
-    NifTester.testPath(top, testBlock, None, testFile, NifTester.raise_exception, "r+b", verbose=options.verbose)
+    NifTester.testPath(top, testBlock = testBlock, testFile = testFile, onreaderror = NifTester.raise_exception, mode = "r+b", verbose = options.verbose)
 
 # if script is called...
 if __name__ == "__main__":

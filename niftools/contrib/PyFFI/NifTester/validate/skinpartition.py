@@ -4,7 +4,8 @@ from PyFFI.NIF import NifFormat
 
 import struct
 
-def testBlock(block, verbose):
+def testBlock(block, **args):
+    verbose = args.get('verbose', 0)
     # does it apply on this block?
     if not isinstance(block, NifFormat.NiTriBasedGeom): return
     # does this block have a skin?

@@ -2,7 +2,7 @@
 
 from PyFFI.NIF import NifFormat
 
-def testBlock(block, verbose):
+def testBlock(block, **args):
     if not isinstance(block, NifFormat.NiGeometry): return
     if block.skinInstance == None: return
     try:

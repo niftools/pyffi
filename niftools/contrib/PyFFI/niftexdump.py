@@ -54,7 +54,7 @@ import NifTester
 # set this variable to True for scripts that need to overwrite of original files
 OVERWRITE_FILES = False
 
-def testBlock(block, verbose):
+def testBlock(block, **args):
     """Every block will be tested with this function."""
     # modify to your needs
     if isinstance(block, NifFormat.NiGeometry):
@@ -120,7 +120,7 @@ may destroy them. Make a backup of your nif files before running this script.
 
     # run tester
     mode = "rb" if not OVERWRITE_FILES else "r+b"
-    NifTester.testPath(top, testBlock, None, None, NifTester.raise_exception, mode = mode, verbose=options.verbose)
+    NifTester.testPath(top, testBlock = testBlock, onreaderror = NifTester.raise_exception, mode = mode, verbose = options.verbose)
 
 # if script is called...
 if __name__ == "__main__":

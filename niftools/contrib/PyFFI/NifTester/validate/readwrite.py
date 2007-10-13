@@ -3,7 +3,7 @@
 from PyFFI.NIF import NifFormat
 from tempfile import TemporaryFile
 
-def testFile(version, user_version, f, roots, verbose):
+def testFile(version, user_version, f, roots, **args):
     f_tmp = TemporaryFile()
     try:
         NifFormat.write(version, user_version, f_tmp, roots)

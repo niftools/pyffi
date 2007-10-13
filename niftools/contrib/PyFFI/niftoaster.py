@@ -159,7 +159,7 @@ for hacking, modifying, or validating <file>, or the files in <folder>."""
     testFile = getattr(test, 'testFile', None)
 
     # run tester
-    NifTester.testPath(top, testBlock, testRoot, testFile, onreaderror, mode, verbose=options.verbose, arg=options.arg)
+    NifTester.testPath(top, testBlock = testBlock, testRoot = testRoot, testFile = testFile, onreaderror = onreaderror, mode = mode, verbose = options.verbose, arg = options.arg)
 
 # if script is called...
 if __name__ == "__main__":

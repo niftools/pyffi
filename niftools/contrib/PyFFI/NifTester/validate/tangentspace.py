@@ -14,7 +14,7 @@ def bytestovectors(bytes):
             yield v
             s = ''
 
-def testBlock(block, verbose):
+def testBlock(block, **args):
     # does it apply on this block?
     if not isinstance(block, NifFormat.NiTriBasedGeom): return
     # does this block have tangent space data?

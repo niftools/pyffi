@@ -1,6 +1,6 @@
 from PyFFI.NIF import NifFormat
 
-def testBlock(block, verbose):
+def testBlock(block, **args):
     if not isinstance(block, NifFormat.bhkMoppBvTreeShape): return
     print "found a mopp"
 

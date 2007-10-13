@@ -26,22 +26,31 @@ def pass_exception(e):
     pass
 
 # test all files using testBlock, testRoot, and testFile functions
-def testPath(top, testBlock, testRoot, testFile, onreaderror = None, mode = 'rb', verbose = None, arg = None, **args):
-    kwargs = dict(**args) # copy dictionary of extra keyword arguments
-    kwargs['verbose'] = verbose if verbose != None else 0
-    if arg != None: kwargs['arg'] = arg
+def testPath(top, testBlock = None, testRoot = None, testFile = None, onreaderror = None, mode = 'rb', raisetesterror = True, **args):
+    verbose = args.get('verbose', 1)
     for version, user_version, f, root_blocks in NifFormat.walkFile(top, onerror = onreaderror, verbose = min(1, verbose), mode = mode):
         # find blocks beforehand as tree hierarchy may change after each
         # test (especially for surgery tests)
         for root in root_blocks:
             blockslist = [[block for block in root.tree()] for root in root_blocks]
         # run tests
-        if testRoot:
-            for root in root_blocks:
-                testRoot(root, **kwargs)
-        if testBlock:
-            for blocks in blockslist:
-                for block in blocks:
-                    testBlock(block, **kwargs)
-        if testFile:
-            testFile(version, user_version, f, root_blocks, **kwargs)
+        try:
+            if testRoot:
+                for root in root_blocks:
+                    testRoot(root, **args)
+            if testBlock:
+                for blocks in blockslist:
+                    for block in blocks:
+                        testBlock(block, **args)
+            if testFile:
+                testFile(version, user_version, f, root_blocks, **args)
+        except StandardError:
+            print """
+*** TEST FAILED ON %-51s ***
+*** If you were running a script that came with PyFFI, then            ***
+*** please report this as a bug (include nif file name or nif file) on ***
+*** http://sourceforge.net/tracker/?group_id=149157                    ***
+"""%f.name
+            if raisetesterror:
+                raise
+

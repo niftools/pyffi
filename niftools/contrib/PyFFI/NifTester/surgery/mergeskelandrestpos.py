@@ -2,7 +2,8 @@
 
 from PyFFI.NIF import NifFormat
 
-def testRoot(root, verbose):
+def testRoot(root, **args):
+    verbose = args.get('verbose', 0)
     skelrootrefgeom = {}
     skingeoms = [geom for geom in root.tree() if isinstance(geom, NifFormat.NiGeometry) and geom.isSkin()]
 
@@ -38,7 +39,7 @@ def testRoot(root, verbose):
             print 'WARNING: failed to merge rest position of ' + geom.name + ' with following geometries:'
             print [node.name for node in failed]
 
-def testFile(version, user_version, f, roots, verbose):
+def testFile(version, user_version, f, roots, **args):
     # write result
     f.seek(0)
     NifFormat.write(version, user_version, f, roots)
