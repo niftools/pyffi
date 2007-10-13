@@ -62,7 +62,7 @@ def vertexHash(block, precision = 200):
             h.extend([ int(x*precision) for x in [vcols[i].r, vcols[i].g, vcols[i].b, vcols[i].a ] ])
         yield tuple(h)
 
-def testBlock(block, verbose):
+def testBlock(block, verbose, **args):
     if isinstance(block, NifFormat.NiTriStrips):
         print "optimizing block '%s'"%block.name
         data = block.data
@@ -176,9 +176,19 @@ def testBlock(block, verbose):
         print "  recalculating tangent space"
         block.updateTangentSpace()
 
-def testFile(version, user_version, f, roots, verbose, arg = None):
+def testFile(version, user_version, f, roots, verbose, **args):
     f.seek(0)
-    NifFormat.write(version, user_version, f, roots)
+    backup = f.read(-1)
+    f.seek(0)
+    try:
+        NifFormat.write(version, user_version, f, roots)
+    except:
+        print "*** FAILED ***"
+        print "restoring original file..."
+        f.write(backup)
+        f.truncate()
+        print """*** please report this as a bug on (include nif file name or nif file) ***
+*** http://sourceforge.net/tracker/?group_id=149157                    ***"""
     f.truncate()
 
 import sys, os

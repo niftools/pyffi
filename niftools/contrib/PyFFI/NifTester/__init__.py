@@ -26,8 +26,8 @@ def pass_exception(e):
     pass
 
 # test all files using testBlock, testRoot, and testFile functions
-def testPath(top, testBlock, testRoot, testFile, onreaderror = None, mode = 'rb', verbose = None, arg = None):
-    kwargs = {}
+def testPath(top, testBlock, testRoot, testFile, onreaderror = None, mode = 'rb', verbose = None, arg = None, **args):
+    kwargs = dict(**args) # copy dictionary of extra keyword arguments
     kwargs['verbose'] = verbose if verbose != None else 0
     if arg != None: kwargs['arg'] = arg
     for version, user_version, f, root_blocks in NifFormat.walkFile(top, onerror = onreaderror, verbose = min(1, verbose), mode = mode):
