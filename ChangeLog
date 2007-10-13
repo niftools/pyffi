@@ -1,3 +1,16 @@
+Version 0.4.9 (13 Oct 2007)
+* nif: nifoptimize no longer raises an exception on test errors, unless you
+pass the -r option
+* nif: nifoptimize will try to restore the original file if something goes 
+wrong during write, so - in theory - it should no longer leave you with 
+corrupt nifs; still it is recommended to keep your backups around just in case
+* nif: niftesters recoded to accept arbitrary argument dictionaries; this
+could cause incompatibilities for people writing their own scripts, but the
+upgrade to the new system is fairly simple: check the niftemplate.py script
+* nif: fixed bug in updateTangentSpace which caused an exception when uvs or
+normals were not present
+* nif: doctest for unsupported blocks in nifs
+
 Version 0.4.8 (7 Oct 2007)
 * cgf: MeshMorphTargetChunk is now supported too
 * nif: new script (niftexdump.py) to dump texture and material info
