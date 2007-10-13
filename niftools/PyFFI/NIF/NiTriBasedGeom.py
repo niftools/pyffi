@@ -51,10 +51,14 @@ def updateTangentSpace(self):
     
     verts = self.data.vertices
     norms = self.data.normals
-    uvs   = self.data.uvSets[0]
-    
-    # TODO check that verts norms and uvs are ok
-    
+    if len(self.data.uvSets) > 0:
+        uvs   = self.data.uvSets[0]
+    else:
+        return # no uv sets so no tangent space
+
+    # check that shape has norms and uvs
+    if len(uvs) == 0 or len(norms) == 0: return
+
     bin = []
     tan = []
     for i in xrange(self.data.numVertices):
