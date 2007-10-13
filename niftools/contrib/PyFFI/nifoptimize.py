@@ -203,11 +203,14 @@ def main():
 This script will modify the nif files, in particular if something goes wrong it
 may destroy them. Make a backup before running this script."""
     parser = OptionParser(usage, version="%prog $Rev$", description=description)
+    parser.add_option("-r", "--raise", dest="raisetesterror",
+                      action="store_true",
+                      help="raise exception on errors during optimization")
     parser.add_option("-v", "--verbose", dest="verbose",
                       type="int",
                       metavar="VERBOSE",
-                      default=1,
                       help="verbosity level: 0, 1, or 2 [default: %default]")
+    parser.set_defaults(raisetesterror = False, verbose = 1)
     (options, args) = parser.parse_args()
 
     if len(args) != 1:
@@ -223,7 +226,7 @@ may destroy them. Make a backup of your nif files before running this script.
     if raw_input("Are you sure that you want to proceed? [n/Y] ") != "Y": return
 
     # run tester
-    NifTester.testPath(top, testBlock = testBlock, testFile = testFile, onreaderror = NifTester.raise_exception, mode = "r+b", raisetesterror = False, verbose = options.verbose)
+    NifTester.testPath(top, testBlock = testBlock, testFile = testFile, onreaderror = NifTester.raise_exception, mode = "r+b", raisetesterror = options.raisetesterror, verbose = options.verbose)
 
 # if script is called...
 if __name__ == "__main__":
