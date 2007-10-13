@@ -135,6 +135,23 @@ Zoo Tycoon 2 0x0A000100
 Some Doctests
 =============
 
+These tests are used to check for functionality and bugs in the library.
+They also provide code examples which you may find useful.
+
+Reading an unsupported nif file
+-------------------------------
+
+>>> f = open('invalid.nif', 'rb')
+>>> version, user_version = NifFormat.getVersion(f)
+>>> if version == -1:
+...     raise RuntimeError('nif version not supported')
+... elif version == -2:
+...     raise RuntimeError('not a nif file')
+>>> roots = NifFormat.read(version = version, user_version = user_version, f = f) # doctest: +ELLIPSIS
+Traceback (most recent call last):
+    ...
+NifError: ...
+
 Template Types
 --------------
 
