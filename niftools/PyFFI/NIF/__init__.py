@@ -665,10 +665,6 @@ class NifFormat(object):
             f.write(struct.pack('<B', len(self._x)+1))
             f.write(self._x + '\x00')
 
-    # other types with internal implementation
-    class FilePath(SizedString):
-        pass
-
     class string(SizedString):
         _hasStrings = True
 
@@ -710,6 +706,10 @@ class NifFormat(object):
                 return [self._x]
             else:
                 return []
+
+    # other types with internal implementation
+    class FilePath(string):
+        pass
 
     # exceptions
     class NifError(StandardError):
@@ -940,7 +940,7 @@ class NifFormat(object):
             hdr.strings[i] = s
         hdr.blockSize.updateSize()
         for i, block in enumerate(block_list):
-            hdr.blockSize[i] = block.getSize(version = version)
+            hdr.blockSize[i] = block.getSize(version = version, user_version = user_version)
         if verbose >= 2:
             print hdr
 
