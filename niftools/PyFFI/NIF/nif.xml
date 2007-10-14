@@ -20,12 +20,15 @@
     <version num="10.0.1.2">Oblivion</version>
     <version num="10.1.0.0">Dark Age of Camelot, Civilization IV, Freedom Force vs. the 3rd Reich, Axis and Allies, Kohan 2</version>
     <version num="10.1.0.106">Oblivion</version>
-    <version num="10.2.0.0">Civilization IV, Oblivion, Loki</version>
+    <version num="10.2.0.0">Civilization IV, Oblivion, Loki, Pro Cycling Manager</version>
     <version num="20.0.0.4">Civilization IV, Oblivion</version>
     <version num="20.0.0.5">Oblivion</version>
     <version num="20.1.0.3">Megami Tensei: Imagine</version>
+    <version num="20.2.0.7">Emerge</version>    
+    <version num="20.2.0.8">Emerge</version>
     <version num="20.3.0.3">Emerge</version>
     <version num="20.3.0.6">Emerge</version>
+    <version num="20.3.0.9">Warhammer</version>
 
     <!--Basic Types-->
 
@@ -479,6 +482,34 @@
       <option value="32768" name="CT_VOLATILE">Volatile Mesh</option>
     </enum>
   
+    <enum name="SortingMode" storage="ushort">
+        <option value="0" name="SORTING_INHERIT">Inherit</option>
+        <option value="1" name="SORTING_OFF">Disable</option>
+    </enum>
+
+    <enum name="PropagationMode" storage="uint">
+        <option value="0" name="PROPAGATE_ON_SUCCESS">On Success</option>
+        <option value="1" name="PROPAGATE_ON_FAILURE">On Failure</option>
+        <option value="2" name="PROPAGATE_ALWAYS">Always</option>
+        <option value="3" name="PROPAGATE_NEVER">Never</option>
+    </enum>
+    
+    <enum name="CollisionMode" storage="uint">
+        <option value="0" name="CM_USE_OBB">Use Bounding Box</option>
+        <option value="1" name="CM_USE_TRI">Use Triangles</option>
+        <option value="2" name="CM_USE_ABV">Use Alternate Bounding Volumes</option>
+        <option value="3" name="CM_NOTEST">No Test</option>
+        <option value="4" name="CM_USE_NIBOUND">Use NiBound</option>
+    </enum>
+
+    <enum name="BoundVolumeType" storage="uint">
+        <option value="-1" name="BASE_BV">Default</option>
+        <option value="0" name="SPHERE_BV">Sphere</option>
+        <option value="1" name="BOX_BV">Box</option>
+        <option value="2" name="CAPSULE_BV">Capsule</option>
+        <option value="4" name="UNION_BV">Union</option>
+        <option value="5" name="HALFSPACE_BV">Half Space</option>
+    </enum>
 
   <!--Compounds
         These are like C structures and are used as sub-parts of more complex
@@ -495,7 +526,7 @@
         <add name="String" type="SizedString" ver2="20.0.0.5">The normal string.</add>
         <add name="Index" type="StringIndex" ver1="20.1.0.3">The string index.</add>
     </compound>
-
+    
     <compound name="ByteArray" nifskopetype="bytearray">
         An array of bytes.
         <add name="Data Size" type="uint">The number of bytes in this array</add>
@@ -744,7 +775,7 @@
         <add name="Num Block Types" type="ushort" ver1="10.0.1.0">Number of object types in this NIF file.</add>
         <add name="Block Types" type="SizedString" arr1="Num Block Types" ver1="10.0.1.0">List of all object types used in this NIF file.</add>
         <add name="Block Type Index" type="BlockTypeIndex" arr1="Num Blocks" ver1="10.0.1.0">Maps file objects on their corresponding type: first file object is of type object_types[object_type_index[0]], the second of object_types[object_type_index[1]], etc.</add>
-        <add name="Block Size" type="uint" arr1="Num Blocks" ver1="20.3.0.3">Array of block sizes?</add>
+        <add name="Block Size" type="uint" arr1="Num Blocks" ver1="20.2.0.7">Array of block sizes?</add>
         <add name="Num Strings" type="uint" ver1="20.1.0.3">Number of strings.</add>
         <add name="Max String Length" type="uint" ver1="20.1.0.3">Maximum string length.</add>
         <add name="Strings" type="SizedString" arr1="Num Strings" ver1="20.1.0.3">Strings.</add>
@@ -970,7 +1001,7 @@
         <add name="Vertex Weights" type="SkinWeight" arr1="Num Vertices" ver1="4.2.2.0" cond="ARG != 0">The vertex weights.</add>
     </compound>
 
-    <compound name="Sphere">
+    <compound name="SphereBV">
         A sphere.
         <add name="Center" type="Vector3">The sphere's center.</add>
         <add name="Radius" type="float">The sphere's radius.</add>
@@ -1044,6 +1075,45 @@
         <option value="2" name="RGBA">Colors store red, blue, green, and alpha components.</option>
     </enum>
 
+    <compound name="BoxBV">
+      Box Bounding Volume
+      <add name="Center" type="Vector3">Center</add>
+      <add name="Axis" type="Vector3" arr1="3">Axis</add>
+      <add name="Extent" type="float" arr1="3">Extent</add>
+    </compound>
+    
+    <compound name="CapsuleBV">
+      Capsule Bounding Volume
+      <add name="Center" type="Vector3">Center</add>
+      <add name="Origin" type="Vector3">Origin</add>
+      <!--<add name="Direction" type="Vector3">Direction</add>
+      <add name="Radius" type="float">Radius</add>-->
+      <!-- direction and radius seem not present in ffvt3r 10.1.0.0 nifs 
+      instead, there's two floats -->   
+      <add name="Unknown Float 1" type="float">Unknown.</add>
+      <add name="Unknown Float 2" type="float">Unknown.</add>
+    </compound>
+    
+    <compound name="UnionBV">
+        <add name="Num BV" type="uint">Number of Bounding Volumes.</add>
+        <add name="Bounding Volumes" type="BoundingVolume" arr1="Num BV">Bounding Volume.</add>
+    </compound>
+    
+    <compound name="HalfSpaceBV">
+      <add name="Normal" type="Vector3">Normal</add>
+      <add name="Center" type="Vector3">Center</add>
+    </compound>
+    
+    <compound name="BoundingVolume">
+        <add name="Collision Type" type="BoundVolumeType">Type of collision data.</add>
+        <add name="Sphere" type="SphereBV" cond="Collision Type == 0">Sphere</add>
+        <add name="Box" type="BoxBV" cond="Collision Type == 1">Box</add>
+        <add name="Capsule" type="CapsuleBV" cond="Collision Type == 2">Capsule</add>
+        <!--<add name="Union" type="UnionBV" cond="Collision Type == 4">Union</add>-->
+        <add name="HalfSpace" type="HalfSpaceBV" cond="Collision Type == 5">Half Space</add>
+    </compound>
+
+    
     <!-- NIF Objects
          These are the main units of data that NIF files are arranged in.
          They are like C classes and can contain many pieces of data.
@@ -1277,7 +1347,7 @@
         <add name="Unknown Float 1" type="float">Unknown.</add>
         <add name="Unknown Float 2" type="float">Unknown.</add>
         <add name="Num Spheres" type="uint">The number of spheres in this multi sphere shape.</add>
-        <add name="Spheres" type="Sphere" arr1="Num Spheres">This array holds the spheres which make up the multi sphere shape.</add>
+        <add name="Spheres" type="SphereBV" arr1="Num Spheres">This array holds the spheres which make up the multi sphere shape.</add>
     </niobject>
     
     <niobject name="bhkBvTreeShape" abstract="1" inherit="bhkShape">
@@ -1427,24 +1497,21 @@
         is simple, it only has three properties.
         For this type of collision object, bhkRigidBody or bhkRigidBodyT is generally used.
         <add name="Target" type="Ptr" template="NiAVObject">Index of the AV object referring to this collision object.</add>
-        <add name="Unknown Short" type="ushort" default="1" ver1="20.0.0.4"> Set to "1" for most objects.</add>
-        <add name="Body" type="Ref" template="NiObject" ver1="20.0.0.4">Links to the collision object data</add>
     </niobject>
 
     <niobject name="NiCollisionData" abstract="0" inherit="NiCollisionObject" ver1="10.0.1.0">
         Collision box.
-        <add name="Unknown Int 1" type="uint">Unknown.</add>
+        <add name="Propagation Mode" type="PropagationMode">Propagation Mode</add>
         <add name="Unknown Int 2" type="uint" ver1="10.1.0.0" ver2="10.1.0.0">Unknown.</add>
-        <add name="Unknown Byte" type="byte">Unknown.</add>
-        <add name="Collision Type" type="uint">Type of collision data.</add>
-        <add name="Unknown Int 2" type="uint" cond="Collision Type == 0">Unknown.</add>
-        <add name="Unknown Vector" type="Vector3" cond="Collision Type == 0">Unknown (can be negative, so not necessarily a radius).</add>
-        <add name="Unknown Float 1" type="float" arr1="8" cond="Collision Type == 2">Unknown.</add>
-        <add name="Unknown Float 2" type="float" arr1="15" cond="Collision Type == 1">Unknown.</add>
+        <!--<add name="Collision Mode" type="CollisionMode">Collision Mode</add>--><!-- not present in ffvt3r 10.1.0.0 nifs -->
+        <add name="Use ABV" type="byte">Use Alternate Bounding Volume.</add>
+        <add name="Bounding Volume" type="BoundingVolume" cond="Use ABV == 1">Collision data.</add>
     </niobject>
 
     <niobject name="bhkNiCollisionObject" abstract="1" inherit="NiCollisionObject" ver1="20.0.0.5">
         Havok related collision object?
+        <add name="Unknown Short" type="ushort" default="1" ver1="20.0.0.4"> Set to "1" for most objects.</add>
+        <add name="Body" type="Ref" template="NiObject" ver1="20.0.0.4">Links to the collision object data</add>
     </niobject>
 
     <niobject name="bhkCollisionObject" abstract="0" inherit="bhkNiCollisionObject" ver1="20.0.0.5">
@@ -1556,10 +1623,10 @@
 
     <niobject name="NiGeomMorpherController" abstract="0" inherit="NiInterpController">
         Time controller for geometry morphing.
-        <add name="Unknown" type="ushort" ver1="10.1.0.0">Unknown.</add>
+        <add name="Flags" type="Flags" ver1="10.0.1.2">Unknown.</add>
         <add name="Unknown 2" type="byte" ver1="10.1.0.106" ver2="10.1.0.106">Unknown.</add>
         <add name="Data" type="Ref" template="NiMorphData">Geometry morphing data index.</add>
-        <add name="Unknown Byte" type="byte">Unknown byte (always zero?).</add>
+        <add name="Always Update" type="byte">Always Update</add>
         <add name="Num Interpolators" type="uint" ver1="10.1.0.106">The number of interpolator objects.</add>
         <add name="Interpolators" type="Ref" template="NiInterpolator" arr1="Num Interpolators" ver1="10.1.0.106">List of interpolators.</add>
         <add name="Num Unknown Ints" type="uint" ver1="20.0.0.4" userver="10">A count.</add>
@@ -1720,10 +1787,14 @@
         Describes a visible scene element with vertices like a mesh, a particle system, lines, etc.
         <add name="Data" type="Ref" template="NiGeometryData">Data index (NiTriShapeData/NiTriStripData).</add>
         <add name="Skin Instance" type="Ref" template="NiSkinInstance" ver1="3.3.0.13">Skin instance index.</add>
-        <add name="Has Shader" type="bool" ver1="10.0.1.0">Shader.</add>
-        <add name="Unknown Bools" type="bool" arr1="3" ver1="20.3.0.3">Unknown Booleans.</add>
-        <add name="Shader Name" type="string" cond="Has Shader != 0" ver1="10.0.1.0">The shader name.</add>
+        <add name="Num Materials" type="uint" ver1="20.2.0.7">Num Materials</add>
+        <add name="Material Name" type="string" arr1="Num Materials" ver1="20.2.0.7">Unknown string.  Shader?</add>
+        <add name="Extra Data" type="uint" arr1="Num Materials" ver1="20.2.0.7">Unknown integer.</add>
+        <add name="Active Material" type="int" ver1="20.2.0.7" default="-1">Active Material.</add>
+        <add name="Has Shader" type="bool" ver1="10.0.1.0" ver2="20.2.0.6">Shader.</add>
+        <add name="Shader Name" type="string" cond="Has Shader != 0" ver1="10.0.1.0" ver2="20.2.0.6">The shader name.</add>
         <add name="Unknown Link" type="Ptr" template="NiObject" cond="Has Shader != 0" ver1="10.0.1.0">Unknown link, usually -1.</add>
+        <add name="Dirty Flag?" type="bool" ver1="20.2.0.7">Dirty Flag?</add>        
     </niobject>
 
     <niobject name="NiTriBasedGeom" abstract="1" inherit="NiGeometry">
@@ -1734,14 +1805,15 @@
         Mesh data: vertices, vertex normals, etc.
         <add name="Name" type="string" ver1="10.2.0.0">Name of this object.</add>
         <add name="Num Vertices" type="ushort">Number of vertices. For NiPSysData this is max particles.</add>
-        <add name="Unknown Short 1" type="ushort" ver1="10.1.0.0">Unknown.</add>
+        <add name="Keep Flags" type="byte" ver1="10.1.0.0">Used with NiCollision objects when OBB or TRI is set.</add>
+        <add name="Compress Flags" type="byte" ver1="10.1.0.0">Unknown.</add>
         <add name="Has Vertices" type="bool" default="1">Is the vertex array present? (Always non-zero.)</add>
         <add name="Vertices" type="Vector3" arr1="Num Vertices" cond="Has Vertices != 0">The mesh vertices.</add>
-        <add name="Num UV Sets" type="ushort" ver1="10.0.1.0">The lower 6 (or less?) bits of this field represent the number of UV texture sets. The other bits are probably flag bits. For versions 10.1.0.0 and up, if bit 12 is set then extra vectors are present after the normals.</add>
+        <add name="Num UV Sets" type="ushort" ver1="10.0.1.0">Methods for saving binormals and tangents saved in upper byte.  Texture flags in lower byte.</add>
         <add name="Has Normals" type="bool">Do we have lighting normals? These are essential for proper lighting: if not present, the model will only be influenced by ambient light.</add>
         <add name="Normals" type="Vector3" arr1="Num Vertices" cond="Has Normals != 0">The lighting normals.</add>
-        <add name="Unknown Vectors 1" type="Vector3" arr1="Num Vertices" cond="(Has Normals != 0) &amp;&amp; (Num UV Sets &amp; 4096)" ver1="10.1.0.0">Unknown. Binormal &amp; tangents? has_normals must be set as well for this field to be present.</add>
-        <add name="Unknown Vectors 2" type="Vector3" arr1="Num Vertices" cond="(Has Normals != 0) &amp;&amp; (Num UV Sets &amp; 4096)" ver1="10.1.0.0">Unknown. Binormal &amp; tangents?</add>
+        <add name="Binormals" type="Vector3" arr1="Num Vertices" cond="(Has Normals != 0) &amp;&amp; (Num UV Sets &amp; 61440)" ver1="10.1.0.0">Unknown. Binormal &amp; tangents? has_normals must be set as well for this field to be present.</add>
+        <add name="Tangents" type="Vector3" arr1="Num Vertices" cond="(Has Normals != 0) &amp;&amp; (Num UV Sets &amp; 61440)" ver1="10.1.0.0">Unknown. Binormal &amp; tangents?</add>
         <add name="Center" type="Vector3">Center of the bounding box (smallest box that contains all vertices) of the mesh.</add>
         <add name="Radius" type="float">Radius of the mesh: maximal Euclidean distance between the center and all vertices.</add>
         <add name="Has Vertex Colors" type="bool">
@@ -2651,7 +2723,7 @@
         <add name="Translation" type="Vector3">The overall translation offset of the skin from this bone in the bind position. (This is a guess, it has always been (0.0, 0.0, 0.0) so far)</add>
         <add name="Scale" type="float">The scale offset of the skin from this bone in the bind position. (This is an assumption - it has always been 1.0 so far)</add>
         <add name="Num Bones" type="uint">Number of bones.</add>
-        <add name="Skin Partition" type="Ref" template="NiSkinPartition" ver2="10.1.0.0">This optionally links a NiSkinPartition for hardware-acceleration information.</add>
+        <add name="Skin Partition" type="Ref" template="NiSkinPartition" ver1="4.0.0.2" ver2="10.1.0.0">This optionally links a NiSkinPartition for hardware-acceleration information.</add>
         <add name="Has Vertex Weights" type="byte" ver1="4.2.1.0" default="1">Enables Vertex Weights for this NiSkinData.</add>
         <add name="Bone List" type="SkinData" arr1="Num Bones" arg="Has Vertex Weights">Contains offset data for each node that this skin is influenced by.</add>
     </niobject>
@@ -2698,9 +2770,9 @@
         <add name="Pixel Layout" type="PixelLayout" default="5">Specifies the way the image will be stored.</add>
         <add name="Use Mipmaps" type="MipMapFormat" default="2">Specifies whether mip maps are used.</add>
         <add name="Alpha Format" type="AlphaFormat" default="3"> Note: the NiTriShape linked to this object must have a NiAlphaProperty in its list of properties to enable material and/or texture transparency.</add>
-        <add name="Unknown Byte 1" type="byte" default="1">Unknown, usually 1.</add>
-        <add name="Unknown Byte 2" type="byte" default="1" ver1="10.1.0.106">Set to one if textures have mipmaps?</add>
-        <add name="Unknown Byte 3" type="byte" default="0" ver1="20.3.0.3">Set to one if textures have mipmaps?</add>
+        <add name="Static" type="byte" default="1">Static</add>
+        <add name="Direct Render" type="byte" default="1" ver1="10.1.0.106">Load direct to renderer</add>
+        <add name="Persist Render Data" type="byte" default="0" ver1="20.2.0.8">Render data is persistant</add>
     </niobject>
 
     <niobject name="NiSpecularProperty" abstract="0" inherit="NiProperty">
@@ -2728,15 +2800,25 @@
     <niobject name="NiStencilProperty" abstract="0" inherit="NiProperty" ver1="4.1.0.12">
         Allows control of stencil testing.
         <add name="Flags" type="Flags" ver2="10.0.1.2">Property flags.</add>
-        <add name="Stencil Enabled" type="byte">Enables or disables the stencil test.</add>
-        <add name="Stencil Function" type="CompareMode">Selects the compare mode function.</add>
+        <add name="Stencil Enabled" type="byte" ver2="20.0.0.5">Enables or disables the stencil test.</add>
+        <add name="Stencil Function" type="CompareMode" ver2="20.0.0.5">Selects the compare mode function.</add>
         <add name="Stencil Ref" type="uint" ver2="20.0.0.5">Unknown.  Default is 0.</add>
         <add name="Stencil Mask" type="uint" default="4294967295" ver2="20.0.0.5">A bit mask. The default is 0xffffffff.</add>
         <add name="Fail Action" type="StencilAction" ver2="20.0.0.5"/>
         <add name="Z Fail Action" type="StencilAction" ver2="20.0.0.5"/>
         <add name="Pass Action" type="StencilAction" ver2="20.0.0.5"/>
         <add name="Draw Mode" type="FaceDrawMode" ver2="20.0.0.5">Used to enabled double sided faces.</add>
-        <add name="Unknown Bytes" type="byte" arr1="5" ver1="20.1.0.3" />
+        <add name="Flags" type="Flags" ver1="20.1.0.3">
+        Property flags:
+           0.. 1 = Stencil Enable
+           1.. 3 = Fail Action
+           4.. 6 = Z Fail Action
+           7.. 9 = Pass Action
+          10..11 = Draw Mode
+          12..15 = Test Func
+        </add>
+        <add name="Stencil Ref" type="uint" ver1="20.1.0.3">Unknown.  Default is 0.</add>
+        <add name="Stencil Mask" type="uint" default="4294967295" ver1="20.1.0.3">A bit mask. The default is 0xffffffff.</add>
     </niobject>
 
     <niobject name="NiStringExtraData" abstract="0" inherit="NiExtraData">
@@ -2849,8 +2931,6 @@
 
     <niobject name="NiTriShape" abstract="0" inherit="NiTriBasedGeom">
       A shape node that refers to singular triangle data.
-      <add name="Unknown Int 1" type="int" ver1="20.3.0.3">Unknown value.</add>
-      <add name="Unknown Boolean 1" type="bool" ver1="20.3.0.3">Unknown value.</add>
     </niobject>
 
     <niobject name="NiTriShapeData" abstract="0" inherit="NiTriBasedGeomData">
@@ -2858,9 +2938,9 @@
         <add name="Num Triangle Points" type="uint">Num Triangles times 3.</add>
         <add name="Has Triangles" type="bool" ver1="10.1.0.0">Do we have triangle data?</add>
         <add name="Triangles" type="Triangle" arr1="Num Triangles" ver2="10.0.1.2">Triangle data.</add>
-        <add name="Triangles" type="Triangle" arr1="Num Triangles" cond="Has Triangles != 0" ver1="10.1.0.0">Triangle face data.</add>
-        <add name="Num Match Groups" type="ushort" ver1="3.1">Number of vertex matching groups.</add>
-        <add name="Match Groups" type="MatchGroup" arr1="Num Match Groups" ver1="3.1">The matching vertex groups.</add>
+        <add name="Triangles" type="Triangle" arr1="Num Triangles" cond="Has Triangles != 0" ver1="10.0.1.3">Triangle face data.</add>
+        <add name="Num Match Groups" type="ushort" ver1="3.1">Number of shared normals groups.</add>
+        <add name="Match Groups" type="MatchGroup" arr1="Num Match Groups" ver1="3.1">The shared normals.</add>
     </niobject>
 
     <niobject name="NiTriStrips" abstract="0" inherit="NiTriBasedGeom">
@@ -2871,9 +2951,9 @@
         Holds mesh data using strips of triangles.
         <add name="Num Strips" type="ushort">Number of OpenGL triangle strips that are present.</add>
         <add name="Strip Lengths" type="ushort" arr1="Num Strips">The number of points in each triangle strip.</add>
-        <add name="Has Points" type="bool" ver1="10.1.0.0">Do we have strip point data?</add>
+        <add name="Has Points" type="bool" ver1="10.0.1.3">Do we have strip point data?</add>
         <add name="Points" type="ushort" arr1="Num Strips" arr2="Strip Lengths" ver2="10.0.1.2">The points in the Triangle strips.  Size is the sum of all entries in Strip Lengths.</add>
-        <add name="Points" type="ushort" arr1="Num Strips" arr2="Strip Lengths" cond="Has Points != 0" ver1="10.1.0.0">The points in the Triangle strips. Size is the sum of all entries in Strip Lengths.</add>
+        <add name="Points" type="ushort" arr1="Num Strips" arr2="Strip Lengths" cond="Has Points != 0" ver1="10.0.1.3">The points in the Triangle strips. Size is the sum of all entries in Strip Lengths.</add>
     </niobject>
 
     <niobject name="NiClod" abstract="0" inherit="NiTriBasedGeom">
@@ -2977,8 +3057,8 @@
 
     <niobject name="NiSortAdjustNode" abstract="0" inherit="NiNode" ver1="10.2.0.0">
         Unknown node.  Found in Loki.
-        <add name="Unknown Int 1" type="int" default="1">Unknown.</add>
-        <add name="Unknown Int 2" type="int" default="-1">Unknown.</add>
+        <add name="Sorting Mode" type="SortingMode" default="SORTING_MAX">Sorting</add>
+        <add name="Unknown Int 2" type="Ptr" default="-1">Unknown.</add>
     </niobject>
 
 </niftoolsxml>
