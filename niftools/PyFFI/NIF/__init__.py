@@ -382,6 +382,12 @@ class NifFormat(object):
             else:
                 self._x = False
 
+        def getSize(self, **kwargs):
+            if kwargs.get('version', -1) > 0x04000002:
+                return 1
+            else:
+                return 4
+
         def read(self, version = -1, f = None, **kwargs):
             if version > 0x04000002:
                 value, = struct.unpack('<B', f.read(1))
@@ -418,6 +424,9 @@ class NifFormat(object):
                 if not isinstance(value, self._template):
                     raise TypeError('expected an instance of %s but got instance of %s'%(self._template, value.__class__))
                 self._x = value
+
+        def getSize(self, **kwargs):
+            return 4
 
         def read(self, f = None, link_stack = [], **kwargs):
             self._x = None # fixLinks will set this field
@@ -509,6 +518,9 @@ class NifFormat(object):
             if not s: return '<EMPTY STRING>'
             return s
 
+        def getSize(self, **kwargs):
+            return len(self._x) + 1 # +1 for trailing endline
+
         def read(self, f = None, **kwargs):
             self._x = f.readline().rstrip('\x0a')
 
@@ -530,6 +542,9 @@ class NifFormat(object):
 
         def write(self, version = -1, f = None, **kwargs):
             f.write(self.versionString(version) + '\x0a')
+
+        def getSize(self, **kwargs):
+            return len(self.versionString(kwargs.get('version', -1))) + 1
 
         @staticmethod
         def versionString(version):
@@ -568,6 +583,9 @@ class NifFormat(object):
 
         def __str__(self):
             return 'x.x.x.x'
+
+        def getSize(self, **kwargs):
+            return 4
 
         def read(self, version = -1, f = None, **kwargs):
             ver, = struct.unpack('<I', f.read(4))
@@ -612,6 +630,9 @@ class NifFormat(object):
             if not s: return '<EMPTY STRING>'
             return s
 
+        def getSize(self, **kwargs):
+            return 4+len(self._x)
+
         def read(self, f = None, **kwargs):
             n, = struct.unpack('<I', f.read(4))
             if n > 10000: raise ValueError('string too long (0x%08X at 0x%08X)'%(n, f.tell()))
@@ -650,6 +671,13 @@ class NifFormat(object):
 
     class string(SizedString):
         _hasStrings = True
+
+        def getSize(self, **kwargs):
+            if kwargs.get('version', -1) >= 0x14010003:
+                return 4
+            else:
+                return 4+len(self._x)
+
         def read(self, version = -1, f = None, string_list = [], **kwargs):
             n, = struct.unpack('<i', f.read(4))
             if version >= 0x14010003:
@@ -843,6 +871,10 @@ class NifFormat(object):
                 print block
             elif verbose >= 1:
                 print block.__class__
+            # check block size
+            if version >= 0x14020007:
+                if block.getSize(version = version, user_version = user_version) != hdr.blockSize[block_num]:
+                    raise cls.NifError('block size check failed: corrupt nif file?')
             # check if we are done
             block_num += 1
             if version >= 0x0303000D:
@@ -906,6 +938,9 @@ class NifFormat(object):
         hdr.strings.updateSize()
         for i, s in enumerate(string_list):
             hdr.strings[i] = s
+        hdr.blockSize.updateSize()
+        for i, block in enumerate(block_list):
+            hdr.blockSize[i] = block.getSize(version = version)
         if verbose >= 2:
             print hdr
 
