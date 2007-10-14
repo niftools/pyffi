@@ -18,12 +18,14 @@
     <version num="4.2.2.0">Dark Age of Camelot, Civilization IV, Empire Earth II</version>
     <version num="10.0.1.0">Zoo Tycoon 2, Civilization IV</version>
     <version num="10.0.1.2">Oblivion</version>
+    <version num="10.0.1.3">?</version>
     <version num="10.1.0.0">Dark Age of Camelot, Civilization IV, Freedom Force vs. the 3rd Reich, Axis and Allies, Kohan 2</version>
     <version num="10.1.0.106">Oblivion</version>
     <version num="10.2.0.0">Civilization IV, Oblivion, Loki, Pro Cycling Manager</version>
     <version num="20.0.0.4">Civilization IV, Oblivion</version>
     <version num="20.0.0.5">Oblivion</version>
     <version num="20.1.0.3">Megami Tensei: Imagine</version>
+    <version num="20.2.0.6">?</version>
     <version num="20.2.0.7">Emerge</version>    
     <version num="20.2.0.8">Emerge</version>
     <version num="20.3.0.3">Emerge</version>
@@ -1094,6 +1096,11 @@
       <add name="Unknown Float 2" type="float">Unknown.</add>
     </compound>
     
+    <compound name="HalfSpaceBV">
+      <add name="Normal" type="Vector3">Normal</add>
+      <add name="Center" type="Vector3">Center</add>
+    </compound>
+
     <compound name="BoundingVolume">
         <add name="Collision Type" type="BoundVolumeType">Type of collision data.</add>
         <add name="Sphere" type="SphereBV" cond="Collision Type == 0">Sphere</add>
@@ -1107,12 +1114,7 @@
         <add name="Num BV" type="uint">Number of Bounding Volumes.</add>
         <add name="Bounding Volumes" type="BoundingVolume" arr1="Num BV">Bounding Volume.</add>
     </compound>
-    
-    <compound name="HalfSpaceBV">
-      <add name="Normal" type="Vector3">Normal</add>
-      <add name="Center" type="Vector3">Center</add>
-    </compound>
-    
+        
     
     <!-- NIF Objects
          These are the main units of data that NIF files are arranged in.
@@ -1789,7 +1791,7 @@
         <add name="Skin Instance" type="Ref" template="NiSkinInstance" ver1="3.3.0.13">Skin instance index.</add>
         <add name="Num Materials" type="uint" ver1="20.2.0.7">Num Materials</add>
         <add name="Material Name" type="string" arr1="Num Materials" ver1="20.2.0.7">Unknown string.  Shader?</add>
-        <add name="Extra Data" type="uint" arr1="Num Materials" ver1="20.2.0.7">Unknown integer.</add>
+        <add name="Material Extra Data" type="uint" arr1="Num Materials" ver1="20.2.0.7">Unknown integer.</add>
         <add name="Active Material" type="int" ver1="20.2.0.7" default="-1">Active Material.</add>
         <add name="Has Shader" type="bool" ver1="10.0.1.0" ver2="20.2.0.6">Shader.</add>
         <add name="Shader Name" type="string" cond="Has Shader != 0" ver1="10.0.1.0" ver2="20.2.0.6">The shader name.</add>
