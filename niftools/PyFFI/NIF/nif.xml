@@ -1094,6 +1094,15 @@
       <add name="Unknown Float 2" type="float">Unknown.</add>
     </compound>
     
+    <compound name="BoundingVolume">
+        <add name="Collision Type" type="BoundVolumeType">Type of collision data.</add>
+        <add name="Sphere" type="SphereBV" cond="Collision Type == 0">Sphere</add>
+        <add name="Box" type="BoxBV" cond="Collision Type == 1">Box</add>
+        <add name="Capsule" type="CapsuleBV" cond="Collision Type == 2">Capsule</add>
+        <!--<add name="Union" type="UnionBV" cond="Collision Type == 4">Union</add>-->
+        <add name="HalfSpace" type="HalfSpaceBV" cond="Collision Type == 5">Half Space</add>
+    </compound>
+
     <compound name="UnionBV">
         <add name="Num BV" type="uint">Number of Bounding Volumes.</add>
         <add name="Bounding Volumes" type="BoundingVolume" arr1="Num BV">Bounding Volume.</add>
@@ -1104,15 +1113,6 @@
       <add name="Center" type="Vector3">Center</add>
     </compound>
     
-    <compound name="BoundingVolume">
-        <add name="Collision Type" type="BoundVolumeType">Type of collision data.</add>
-        <add name="Sphere" type="SphereBV" cond="Collision Type == 0">Sphere</add>
-        <add name="Box" type="BoxBV" cond="Collision Type == 1">Box</add>
-        <add name="Capsule" type="CapsuleBV" cond="Collision Type == 2">Capsule</add>
-        <!--<add name="Union" type="UnionBV" cond="Collision Type == 4">Union</add>-->
-        <add name="HalfSpace" type="HalfSpaceBV" cond="Collision Type == 5">Half Space</add>
-    </compound>
-
     
     <!-- NIF Objects
          These are the main units of data that NIF files are arranged in.
