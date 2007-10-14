@@ -86,6 +86,7 @@ class BasicBase(object):
 
     # string representation
     def __str__(self):
+        """Return string representation."""
         return str(self.getValue())
 
     def read(self, **kwargs):
@@ -111,3 +112,7 @@ class BasicBase(object):
 
     def setValue(self, value):
         raise NotImplementedError
+
+    def getSize(self, **kwargs):
+        raise NotImplementedError
+

@@ -266,3 +266,15 @@ class Array(_ListWrap):
                 for e in list.__iter__(el):
                     links.extend(e.getRefs(**kwargs))
         return links
+
+    def getSize(self, **kwargs):
+        size = 0
+        if self._count2 == None:
+            for e in list.__iter__(self):
+                size += e.getSize(**kwargs)
+        else:
+            for el in list.__iter__(self):
+                for e in list.__iter__(el):
+                    size += e.getSize(**kwargs)
+        return size
+

@@ -257,6 +257,7 @@ class StructBase(object):
             if arg != None:
                 if not isinstance(arg, (int, long)):
                     arg = getattr(self, arg)
+            #print name # debug
             getattr(self, "_" + name + "_value_").read(f = f, version = version, user_version = user_version, argument = arg, **kwargs)
 
     def write(self, version = -1, user_version = None, f = None, argument = None, **kwargs):
@@ -334,6 +335,21 @@ class StructBase(object):
                     if not cond.eval(self): continue
             links.extend(getattr(self, "_" + name + "_value_").getRefs(version = version, user_version = user_version))
         return links
+
+    def getSize(self, version = -1, user_version = None):
+        size = 0
+        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
+            if version != -1:
+                if ver1:
+                    if version < ver1: continue
+                if ver2:
+                    if version > ver2: continue
+                if not userver is None:
+                    if user_version != userver: continue
+                if cond != None:
+                    if not cond.eval(self): continue
+            size += getattr(self, "_" + name + "_value_").getSize(version = version, user_version = user_version)
+        return size
 
     @classmethod
     def _getAttributeList(cls):
