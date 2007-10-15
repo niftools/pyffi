@@ -60,6 +60,7 @@
 
     <basic name="BlockTypeIndex" count="0" niflibtype="unsigned short" nifskopetype="blocktypeindex">
         A 16-bit (signed?) integer, which is used in the header to refer to a particular object type in a object type string array.
+        The upper bit appears to be a flag used for PhysX block types.
     </basic>
 
     <basic name="char" count="0" niflibtype="byte" nifskopetype="char">
@@ -117,11 +118,6 @@
         A 32-bit unsigned integer, used to refer to strings in the header.
     </basic>
     
-    <compound name="Char8String" count="0" niflibtype="Char8String" nifskopetype="char8string">
-        A fixed length string that is 8 bytes long.
-        <add name="Value" type="char" arr1="8">The string.</add>
-    </compound>
-
     <!--Enumerations
         These are like C enums and consist of a list of options.  They can appear
         as parts of compounts or niobjects.-->
@@ -484,7 +480,7 @@
       <option value="32768" name="CT_VOLATILE">Volatile Mesh</option>
     </enum>
   
-    <enum name="SortingMode" storage="ushort">
+    <enum name="SortingMode" storage="uint">
         <option value="0" name="SORTING_INHERIT">Inherit</option>
         <option value="1" name="SORTING_OFF">Disable</option>
     </enum>
@@ -533,6 +529,13 @@
         An array of bytes.
         <add name="Data Size" type="uint">The number of bytes in this array</add>
         <add name="Data" type="byte" arr1="Data Size">The bytes which make up the array</add>
+    </compound>
+    
+    <compound name="ByteMatrix" nifskopetype="bytematrix">
+        An array of bytes.
+        <add name="Data Size 1" type="uint">The number of bytes in this array</add>
+        <add name="Data Size 2" type="uint">The number of bytes in this array</add>
+        <add name="Data" type="byte" arr1="Data Size 2" arr2="Data Size 1">The bytes which make up the array</add>
     </compound>
 
     <compound name="Color3" niflibtype="Color3" nifskopetype="color3">
@@ -703,7 +706,7 @@
 
     <compound name="SkinShape">
         Reference to shape and skin instance.
-        <add name="Shape" type="Ref" template="NiTriShape">The shape.</add>
+        <add name="Shape" type="Ref" template="NiTriBasedGeom">The shape.</add>
         <add name="Skin Instance" type="Ref" template="NiSkinInstance">Skinning instance for the shape?</add>
     </compound>
 
@@ -772,8 +775,8 @@
         <add name="User Version" type="uint" ver1="10.1.0.0">An extra version number, for companies that decide to modify the file format.</add>
         <add name="Num Blocks" type="uint" ver1="3.3.0.13">Number of file objects.</add>
         <add name="User Version 2" type="uint" default="0" cond="User Version != 0" ver1="10.1.0.0">This also appears to be the extra user version number and must be set in some circumstances.</add>
-	<add name="Export Info" type="ExportInfo" ver1="10.0.1.2" ver2="10.0.1.2" />
-	<add name="Export Info" type="ExportInfo" cond="User Version != 0" ver1="10.1.0.0" />
+        <add name="Export Info" type="ExportInfo" ver1="10.0.1.2" ver2="10.0.1.2" />
+        <add name="Export Info" type="ExportInfo" cond="User Version != 0" ver1="10.1.0.0" />
         <add name="Num Block Types" type="ushort" ver1="10.0.1.0">Number of object types in this NIF file.</add>
         <add name="Block Types" type="SizedString" arr1="Num Block Types" ver1="10.0.1.0">List of all object types used in this NIF file.</add>
         <add name="Block Type Index" type="BlockTypeIndex" arr1="Num Blocks" ver1="10.0.1.0">Maps file objects on their corresponding type: first file object is of type object_types[object_type_index[0]], the second of object_types[object_type_index[1]], etc.</add>
@@ -911,7 +914,7 @@
         </add>
         <add name="Unknown Link" type="Ref" template="NiObject" cond="Use External == 1" ver1="10.1.0.0">Unknown.</add>
         <add name="Unknown Byte" type="byte" cond="Use External == 0" ver2="10.0.1.0">Unknown.</add>
-        <add name="Original File Name?" type="string" cond="Use External == 0" ver1="10.1.0.0">The original source filename of the image embedded by the referred NiPixelData object.</add>
+        <add name="File Name" type="FilePath" cond="Use External == 0" ver1="10.1.0.0">The original source filename of the image embedded by the referred NiPixelData object.</add>
         <add name="Pixel Data" type="Ref" template="NiPixelData" cond="Use External == 0">Pixel data object index.</add>
     </compound>
 
@@ -1100,7 +1103,7 @@
       <add name="Normal" type="Vector3">Normal</add>
       <add name="Center" type="Vector3">Center</add>
     </compound>
-
+    
     <compound name="BoundingVolume">
         <add name="Collision Type" type="BoundVolumeType">Type of collision data.</add>
         <add name="Sphere" type="SphereBV" cond="Collision Type == 0">Sphere</add>
@@ -1316,16 +1319,16 @@
 
     <niobject name="bhkCapsuleShape" abstract="0" inherit="bhkConvexShape" ver1="20.0.0.5">
         A capsule.
-        <add name="Unknown String" type="Char8String">Unknown.</add>
-        <add name="Point 1" type="Vector3">First point on the capsule's axis.</add>
+        <add name="Unknown 8 Bytes" type="byte" arr1="8">Unknown.</add>
+        <add name="First Point" type="Vector3">First point on the capsule's axis.</add>
         <add name="Radius 1" type="float">Matches first capsule radius.</add>
-        <add name="Point 2" type="Vector3">Second point on the capsule's axis.</add>
+        <add name="Second Point" type="Vector3">Second point on the capsule's axis.</add>
         <add name="Radius 2" type="float">Matches second capsule radius.</add>
     </niobject>
 
     <niobject name="bhkBoxShape" abstract="0" inherit="bhkConvexShape" ver1="20.0.0.5">
         A box.
-        <add name="Unknown String" type="Char8String">Unknown.</add>
+        <add name="Unknown 8 Bytes" type="byte" arr1="8">Unknown.</add>
         <add name="Dimensions" type="Vector3">Looks like this could be the box size.</add>
         <add name="Minimum Size" type="float">The smallest of the three sizes. Might be used for optimization.</add>
     </niobject>
@@ -1504,8 +1507,7 @@
     <niobject name="NiCollisionData" abstract="0" inherit="NiCollisionObject" ver1="10.0.1.0">
         Collision box.
         <add name="Propagation Mode" type="PropagationMode">Propagation Mode</add>
-        <add name="Unknown Int 2" type="uint" ver1="10.1.0.0" ver2="10.1.0.0">Unknown.</add>
-        <!--<add name="Collision Mode" type="CollisionMode">Collision Mode</add>--><!-- not present in ffvt3r 10.1.0.0 nifs -->
+        <add name="Collision Mode" type="CollisionMode" ver1="10.1.0.0">Collision Mode</add>
         <add name="Use ABV" type="byte">Use Alternate Bounding Volume.</add>
         <add name="Bounding Volume" type="BoundingVolume" cond="Use ABV == 1">Collision data.</add>
     </niobject>
@@ -1775,10 +1777,10 @@
         <add name="Num Node Groups 2" type="uint">Number of node groups.</add>
         <add name="Node Groups" type="NodeGroup" arr1="Num Node Groups">A list of node groups (each group a sequence of bones).</add>
         
-        <add name="Num Shape Groups" type="uint" ver2="10.0.1.0">Number of shape groups.</add>
-        <add name="Shape Groups 1" type="SkinShapeGroup" arr1="Num Shape Groups" ver2="10.0.1.0">List of shape groups.</add>
-        <add name="Num Shape Groups 2" type="uint" ver2="10.0.1.0">The size of the second list of shape groups.</add>
-        <add name="Shape Groups 2" type="Ref" template="NiTriShape" arr1="Num Shape Groups 2" ver2="10.0.1.0">Group of NiTriShape indices.</add>
+        <add name="Num Shape Groups" type="uint">Number of shape groups.</add>
+        <add name="Shape Groups 1" type="SkinShapeGroup" arr1="Num Shape Groups">List of shape groups.</add>
+        <add name="Num Shape Groups 2" type="uint">The size of the second list of shape groups.</add>
+        <add name="Shape Groups 2" type="Ref" template="NiTriBasedGeom" arr1="Num Shape Groups 2">Group of NiTriShape indices.</add>
     </niobject>
 
     <niobject name="NiBSBoneLODController" abstract="0" inherit="NiBoneLODController">
@@ -1795,7 +1797,7 @@
         <add name="Active Material" type="int" ver1="20.2.0.7" default="-1">Active Material.</add>
         <add name="Has Shader" type="bool" ver1="10.0.1.0" ver2="20.2.0.6">Shader.</add>
         <add name="Shader Name" type="string" cond="Has Shader != 0" ver1="10.0.1.0" ver2="20.2.0.6">The shader name.</add>
-        <add name="Unknown Link" type="Ptr" template="NiObject" cond="Has Shader != 0" ver1="10.0.1.0">Unknown link, usually -1.</add>
+        <add name="Unknown Integer" type="int" cond="Has Shader != 0" ver1="10.0.1.0">Unknown value, usually -1. (Not a link)</add>
         <add name="Dirty Flag?" type="bool" ver1="20.2.0.7">Dirty Flag?</add>        
     </niobject>
 
@@ -2473,6 +2475,14 @@
         <add name="Float Data" type="Ref" template="NiFloatData">Path controller data index (float data). ?</add>
     </niobject>
 
+    <compound name="ChannelData">
+        Channel data 
+        <add name="Type" type="uint">Channel Type</add>
+        <add name="Unknown Flag" type="uint">Unknown</add>
+        <add name="Bits Per Channel" type="byte">Bits per channel</add>
+        <add name="Unknown Byte 1" type="byte">Unknown</add>
+    </compound>
+    
     <niobject name="NiPixelData" abstract="0" inherit="NiObject">
         A texture.
         <add name="Pixel Format" type="PixelFormat">The format of the pixels in this internally stored image.</add>
@@ -2488,13 +2498,19 @@
             [4,0,0,0,0,0,0,0] if 0 (?) bits per pixel
         </add>
         <add name="Unknown Int" type="uint" ver1="10.1.0.0" ver2="10.2.0.0">Seems to always be zero.</add>
-        <add name="Unknown 54 Bytes" type="byte" arr1="54" ver1="20.0.0.4">Unknown.</add>
+        <add name="Bits Per Pixel" type="byte" ver1="20.0.0.4">Bits per pixel, 0 (?), 8, 24 or 32.</add>
+        <add name="Unknown Int 2" type="int" ver1="20.0.0.4">Unknown.  Could be reference pointer.</add>
+        <add name="Unknown Int 3" type="uint" ver1="20.0.0.4">Seems to always be zero.</add>
+        <add name="Flags" type="byte" ver1="20.0.0.4">Flags</add>
+        <add name="Unknown Int 4" type="uint" ver1="20.0.0.4">Seems to always be zero.</add>
+        <add name="Channels" type="ChannelData" arr1="4" ver1="20.0.0.4">Channel Data</add>       
         <add name="Palette" type="Ref" template="NiPalette">Link to NiPalette, for 8-bit textures.</add>
+        <add name="Unknown Byte 1" type="byte" ver1="20.3.0.6">Unknown.</add>
         <add name="Num Mipmaps" type="uint">Number of mipmaps in the texture.</add>
         <add name="Bytes Per Pixel" type="uint">Bytes per pixel (Bits Per Pixel / 8).</add>
         <add name="Mipmaps" type="MipMap" arr1="Num Mipmaps">Mipmap descriptions (width, height, offset).</add>
-        <add name="Pixel Data" type="ByteArray">Raw pixel data holding the mipmaps.  Mipmap zero is the full-size texture and they get smaller by half as the number increases.</add>
-        <add name="Unknown Int 2" type="uint" ver1="20.0.0.4"></add>
+        <add name="Pixel Data" type="ByteArray" ver2="10.2.0.0">Raw pixel data holding the mipmaps.  Mipmap zero is the full-size texture and they get smaller by half as the number increases.</add>
+        <add name="Pixel Data Matrix" type="ByteMatrix" ver1="20.0.0.4" >Raw pixel data holding the mipmaps.  Mipmap zero is the full-size texture and they get smaller by half as the number increases.</add>
     </niobject>
 
     <niobject name="NiPlanarCollider" abstract="0" inherit="NiParticleModifier">
@@ -2767,14 +2783,14 @@
         <add name="File Name" type="FilePath" cond="Use External == 1">The external texture file name.</add>
         <add name="Unknown Link" type="Ref" template="NiObject" cond="Use External == 1" ver1="10.1.0.0">Unknown.</add>
         <add name="Unknown Byte" type="byte" cond="Use External == 0" ver2="10.0.1.0">Unknown.</add>
-        <add name="Original File Name?" type="string" cond="Use External == 0" ver1="10.1.0.0">The original source filename of the image embedded by the referred NiPixelData object.</add>
+        <add name="File Name" type="FilePath" cond="Use External == 0" ver1="10.1.0.0">The original source filename of the image embedded by the referred NiPixelData object.</add>
         <add name="Pixel Data" type="Ref" template="NiPixelData" cond="Use External == 0">Pixel data object index.</add>
         <add name="Pixel Layout" type="PixelLayout" default="5">Specifies the way the image will be stored.</add>
         <add name="Use Mipmaps" type="MipMapFormat" default="2">Specifies whether mip maps are used.</add>
         <add name="Alpha Format" type="AlphaFormat" default="3"> Note: the NiTriShape linked to this object must have a NiAlphaProperty in its list of properties to enable material and/or texture transparency.</add>
         <add name="Static" type="byte" default="1">Static</add>
         <add name="Direct Render" type="byte" default="1" ver1="10.1.0.106">Load direct to renderer</add>
-        <add name="Persist Render Data" type="byte" default="0" ver1="20.2.0.8">Render data is persistant</add>
+        <add name="Persist Render Data" type="byte" default="0" ver1="20.2.0.7">Render data is persistant</add>
     </niobject>
 
     <niobject name="NiSpecularProperty" abstract="0" inherit="NiProperty">
@@ -2915,14 +2931,22 @@
         <add name="Bump Map Luma Scale" type="float" cond="Has Bump Map Texture != 0">Unknown.</add>
         <add name="Bump Map Luma Offset" type="float" cond="Has Bump Map Texture != 0">Unknown.</add>
         <add name="Bump Map Matrix" type="Matrix22" cond="Has Bump Map Texture != 0">Unknown.</add>
+        <add name="Has Normal Texture" type="bool" ver1="20.2.0.7">Do we have a normal texture?  (Noraml guess based on file suffix in sample files)</add>
+        <add name="Normal Texture" type="TexDesc" cond="Has Normal Texture != 0" ver1="20.2.0.7">Normal texture.</add>
+        <add name="Has Unknown2 Texture" type="bool" ver1="20.2.0.7">Do we have a unknown texture 2?</add>
+        <add name="Unknown2 Texture" type="TexDesc" cond="Has Unknown2 Texture != 0" ver1="20.2.0.7">Unknown texture 2.</add>
+        <add name="Unknown2 Float" type="float" cond="Has Unknown2 Texture != 0">Unknown.</add>
         <add name="Has Decal 0 Texture" type="bool">Do we have a decal 0 texture?</add>
         <add name="Decal 0 Texture" type="TexDesc" cond="Has Decal 0 Texture != 0">The decal texture.</add>
-        <add name="Has Decal 1 Texture" type="bool" cond="Texture Count &gt;= 8">Do we have a decal 1 texture?</add>
-        <add name="Decal 1 Texture" type="TexDesc" cond="(Texture Count &gt;= 8) &amp;&amp; (Has Decal 1 Texture != 0)">Another decal texture.</add>
-        <add name="Has Decal 2 Texture" type="bool" cond="Texture Count &gt;= 9">Do we have a decal 2 texture?</add>
-        <add name="Decal 2 Texture" type="TexDesc" cond="(Texture Count &gt;= 9) &amp;&amp; (Has Decal 2 Texture != 0)">Another decal texture.</add>
-        <add name="Has Decal 3 Texture" type="bool" cond="Texture Count &gt;= 10">Do we have a decal 3 texture?</add>
-        <add name="Decal 3 Texture" type="TexDesc" cond="(Texture Count &gt;= 10) &amp;&amp; (Has Decal 3 Texture != 0)">Another decal texture. Who knows the limit.</add>
+        <add name="Has Decal 1 Texture" type="bool" cond="Texture Count &gt;= 8" ver2="20.2.0.6">Do we have a decal 1 texture?</add>
+        <add name="Has Decal 1 Texture" type="bool" cond="Texture Count &gt;= 10" ver1="20.2.0.7">Do we have a decal 1 texture?</add>
+        <add name="Decal 1 Texture" type="TexDesc" cond="(Has Decal 1 Texture != 0)">Another decal texture.</add>
+        <add name="Has Decal 2 Texture" type="bool" cond="Texture Count &gt;= 9" ver2="20.2.0.6">Do we have a decal 2 texture?</add>
+        <add name="Has Decal 2 Texture" type="bool" cond="Texture Count &gt;= 11" ver1="20.2.0.7">Do we have a decal 2 texture?</add>
+        <add name="Decal 2 Texture" type="TexDesc" cond="(Has Decal 2 Texture != 0)">Another decal texture.</add>
+        <add name="Has Decal 3 Texture" type="bool" cond="Texture Count &gt;= 10"ver1="20.2.0.6">Do we have a decal 3 texture?</add>
+        <add name="Has Decal 3 Texture" type="bool" cond="Texture Count &gt;= 12"ver1="20.2.0.7">Do we have a decal 3 texture?</add>
+        <add name="Decal 3 Texture" type="TexDesc" cond="(Has Decal 3 Texture != 0)">Another decal texture. Who knows the limit.</add>
         <add name="Num Shader Textures" type="uint" ver1="10.0.1.0">Number of Shader textures that follow.</add>
         <add name="Shader Textures" type="ShaderTexDesc" arr1="Num Shader Textures" ver1="10.0.1.0">Shader textures.</add>
     </niobject>
@@ -3060,7 +3084,108 @@
     <niobject name="NiSortAdjustNode" abstract="0" inherit="NiNode" ver1="10.2.0.0">
         Unknown node.  Found in Loki.
         <add name="Sorting Mode" type="SortingMode" default="SORTING_MAX">Sorting</add>
-        <add name="Unknown Int 2" type="Ptr" default="-1">Unknown.</add>
+        <add name="Unknown Int 2" type="Ptr" default="-1" ver2="10.2.0.0">Unknown.</add>
+    </niobject>
+    
+    <niobject name="NiSourceCubeMap" abstract="0" inherit="NiSourceTexture">
+        Unknown node.  Found in Emerge Demo.
+    </niobject>
+    
+    <niobject name="NiPhysXProp" abstract="0" inherit="NiObjectNET" ver1="20.1.0.7">
+        Unknown PhysX node.  
+        <add name="Unknown Float 1" type="float">Unknown</add>
+        <add name="Unknown Int 1" type="uint">Unknown</add>
+        <add name="Unknown Int 2" type="uint">Unknown</add>
+        <add name="Unknown Byte 1" type="byte">Unknown</add>
+        <add name="Prop Description" type="Ref" template="NiPhysXPropDesc" default="-1">PhysX Property Description.</add>
+    </niobject>
+    
+    <niobject name="NiPhysXPropDesc" abstract="0" inherit="NiObject" ver1="20.1.0.7">
+        Unknown PhysX node.  
+        <add name="Unknown Int 1" type="uint">Unknown</add>
+        <add name="Actor Description" type="Ref" template="NiPhysXActorDesc" default="-1">PhysX Actor Description</add>
+        <add name="Unknown Int 2" type="uint">Unknown</add>
+        <add name="Unknown Int 3" type="uint">Unknown</add>
+        <add name="Unknown Int 4" type="uint">Unknown</add>
+        <add name="Unknown Byte 1" type="byte">Unknown</add>
+        <add name="Unknown Byte 2" type="byte">Unknown</add>
+        <add name="Material Description" type="Ref" template="NiPhysXMaterialDesc" default="-1">PhysX Material Description</add>
+        <add name="Unknown Int 5" type="uint">Unknown</add>
+    </niobject>
+    
+    <niobject name="NiPhysXActorDesc" abstract="0" inherit="NiObject" ver1="20.1.0.7">
+        Unknown PhysX node.  
+        <add name="Unknown Int 1" type="int">Unknown</add>
+        <add name="Unknown Int 2" type="int">Unknown</add>
+        <add name="Unknown Quat 1" type="Quaternion">Unknown</add>
+        <add name="Unknown Quat 2" type="Quaternion">Unknown</add>
+        <add name="Unknown Quat 3" type="Quaternion">Unknown</add>
+        <add name="Unknown Int 3" type="int">Unknown</add>
+        <add name="Unknown Int 4" type="float">Unknown</add>
+        <add name="Unknown Int 5" type="int">Unknown</add>
+        <add name="Unknown Byte 1" type="byte">Unknown</add>
+        <add name="Unknown Byte 2" type="byte">Unknown</add>
+        <add name="Unknown Int 6" type="int">Unknown</add>
+        <add name="Shape Description" type="Ref" template="NiPhysXShapeDesc" default="-1">PhysX Shape Description</add>
+        <add name="Unknown Ref 1" type="Ref" template="NiObject" default="-1">Unknown</add>
+        <add name="Unknown Ref 2" type="Ref" template="NiObject" default="-1">Unknown</add>
+        <add name="Unknown Ref 3" type="Ref" template="NiObject" default="-1">Unknown</add>
+    </niobject>
+    
+    <niobject name="NiPhysXShapeDesc" abstract="0" inherit="NiObject" ver1="20.1.0.7">
+        Unknown PhysX node.  
+        <add name="Unknown Int 1" type="int">Unknown</add>
+        <add name="Unknown Quat 1" type="Quaternion">Unknown</add>
+        <add name="Unknown Quat 2" type="Quaternion">Unknown</add>
+        <add name="Unknown Quat 3" type="Quaternion">Unknown</add>
+        <add name="Unknown Short 1" type="short">Unknown</add>
+        <add name="Unknown Int 2" type="int">Unknown</add>
+        <add name="Unknown Short 2" type="short">Unknown</add>
+        <add name="Unknown Float 1" type="float">Unknown</add>
+        <add name="Unknown Float 2" type="float">Unknown</add>
+        <add name="Unknown Float 3" type="float">Unknown</add>
+        <add name="Unknown Int 3" type="int">Unknown</add>
+        <add name="Unknown Int 4" type="int">Unknown</add>
+        <add name="Unknown Int 5" type="int">Unknown</add>
+        <add name="Unknown Int 7" type="int">Unknown</add>
+        <add name="Unknown Int 8" type="int">Unknown</add>
+        <add name="Mesh Description" type="Ref" template="NiPhysXMeshDesc" default="-1">PhysX Mesh Description</add>
+    </niobject>
+    
+    <niobject name="NiPhysXMeshDesc" abstract="0" inherit="NiObject" ver1="20.1.0.7">
+        Unknown PhysX node.  
+        <add name="Unknown Short 1" type="short">Unknown</add>
+        <add name="Unknown Float 1" type="float">Unknown</add>
+        <add name="Unknown Short 2" type="short">Unknown</add>
+        <add name="Unknown Bytes 1" type="byte" arr1="3">NXS</add>
+        <add name="Unknown Byte 1" type="byte">Unknown</add>
+        <add name="Unknown Bytes 1" type="byte" arr1="4">MESH</add>
+        <add name="Unknown Bytes 2" type="byte" arr1="8">Unknown</add>
+        <add name="Unknown Float 2" type="float">Unknown</add>
+        <add name="Unknown Int 1" type="int">Unknown</add>
+        <add name="Unknown Int 2" type="int">Unknown</add>
+        <add name="Num Vertices" type="int">Number of mesh vertices</add>
+        <add name="Unknown Int 4" type="int">Unknown</add>
+        <add name="Vertices" type="Vector3" arr1="Num Vertices">Vertices</add>
+        <add name="Unknown Bytes 3" type="byte" arr1="982">Unknown</add>
+        <add name="Unknown Shorts 1" type="short" arr1="368">Unknown</add>
+        <add name="Unknown Ints 1" type="uint" arr1="3328">Unknown</add>
+        <add name="Unknown Byte 2" type="byte">Unknown</add>
+    </niobject>
+    
+    <niobject name="NiPhysXMaterialDesc" abstract="0" inherit="NiObject" ver1="20.1.0.7">
+        Unknown node.  
+        <add name="Unknown Int" type="uint" arr1="12">Unknown</add>
+        <add name="Unknown Byte 1" type="byte">Unknown</add>
+        <add name="Unknown Byte 2" type="byte">Unknown</add>
+    </niobject>
+    
+    <niobject name="NiPhysXKinematicSrc" inherit="NiObject" ver1="20.1.0.7">
+        Unknown node.  
+    </niobject>
+
+    <niobject name="NiPhysXTransformDest" inherit="NiObject" ver1="20.1.0.7">
+        Unknown node.  
     </niobject>
 
 </niftoolsxml>
