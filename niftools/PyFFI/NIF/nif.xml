@@ -2940,13 +2940,13 @@
         <add name="Decal 0 Texture" type="TexDesc" cond="Has Decal 0 Texture != 0">The decal texture.</add>
         <add name="Has Decal 1 Texture" type="bool" cond="Texture Count &gt;= 8" ver2="20.2.0.6">Do we have a decal 1 texture?</add>
         <add name="Has Decal 1 Texture" type="bool" cond="Texture Count &gt;= 10" ver1="20.2.0.7">Do we have a decal 1 texture?</add>
-        <add name="Decal 1 Texture" type="TexDesc" cond="(Has Decal 1 Texture != 0)">Another decal texture.</add>
+        <add name="Decal 1 Texture" type="TexDesc" cond="Has Decal 1 Texture != 0">Another decal texture.</add>
         <add name="Has Decal 2 Texture" type="bool" cond="Texture Count &gt;= 9" ver2="20.2.0.6">Do we have a decal 2 texture?</add>
         <add name="Has Decal 2 Texture" type="bool" cond="Texture Count &gt;= 11" ver1="20.2.0.7">Do we have a decal 2 texture?</add>
-        <add name="Decal 2 Texture" type="TexDesc" cond="(Has Decal 2 Texture != 0)">Another decal texture.</add>
-        <add name="Has Decal 3 Texture" type="bool" cond="Texture Count &gt;= 10"ver1="20.2.0.6">Do we have a decal 3 texture?</add>
-        <add name="Has Decal 3 Texture" type="bool" cond="Texture Count &gt;= 12"ver1="20.2.0.7">Do we have a decal 3 texture?</add>
-        <add name="Decal 3 Texture" type="TexDesc" cond="(Has Decal 3 Texture != 0)">Another decal texture. Who knows the limit.</add>
+        <add name="Decal 2 Texture" type="TexDesc" cond="Has Decal 2 Texture != 0">Another decal texture.</add>
+        <add name="Has Decal 3 Texture" type="bool" cond="Texture Count &gt;= 10" ver1="20.2.0.6">Do we have a decal 3 texture?</add>
+        <add name="Has Decal 3 Texture" type="bool" cond="Texture Count &gt;= 12" ver1="20.2.0.7">Do we have a decal 3 texture?</add>
+        <add name="Decal 3 Texture" type="TexDesc" cond="Has Decal 3 Texture != 0">Another decal texture. Who knows the limit.</add>
         <add name="Num Shader Textures" type="uint" ver1="10.0.1.0">Number of Shader textures that follow.</add>
         <add name="Shader Textures" type="ShaderTexDesc" arr1="Num Shader Textures" ver1="10.0.1.0">Shader textures.</add>
     </niobject>
