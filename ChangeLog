@@ -1,3 +1,10 @@
+Version 0.5 (***)
+* new functions to get block size
+* various small bugs fixed
+* nif: support for new versions (20.2.0.6, 20.2.0.7, 20.2.0.8, 20.3.0.3, 20.3.0.6, 20.3.0.9)
+* nif: block sizes are now also written to the nif files, improving support
+for writing 20.2.0.7+ nif versions
+
 Version 0.4.9 (13 Oct 2007)
 * nif: nifoptimize no longer raises an exception on test errors, unless you
 pass the -r option
