@@ -1026,7 +1026,7 @@ class NifFormat(object):
         top can also be a file instead of a directory. The argument onerror,
         if set, will be called if cls.read raises an exception (errors coming
         from os.walk will be ignored)."""
-        for version, user_version, f, roots in walkFile(cls, top, topdown, onerror, verbose):
+        for version, user_version, f, roots in cls.walkFile(top, topdown, onerror, verbose):
             yield roots
 
     @classmethod
