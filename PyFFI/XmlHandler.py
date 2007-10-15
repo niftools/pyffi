@@ -343,7 +343,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 try:
                     self.class_base = getattr(self.cls, typename)
                 except AttributeError:
-                    raise XmlError("typo, or forward declaration of type " + storagename)
+                    raise XmlError("typo, or forward declaration of type " + typename)
                 self.class_dct = {"_attrs" : [], "__doc__" : ""}
                 
             # fileformat -> version
@@ -442,7 +442,8 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
 
             # add custom functions to interface
             # first find the module
-            sys.path.append(self.dct['clsFilePath'])
+            oldsyspath = sys.path
+            sys.path = [self.dct['clsFilePath']]
             try:
                 # TODO find better solution to import the custom object module
                 mod = __import__(obj.__name__, globals(),  locals(), [])
@@ -452,8 +453,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 else:
                     continue
             finally:
-                sys.path.pop()
-            props = {}
+                sys.path = oldsyspath
             # set object's cls argument to give it access to other objects
             # defined in self.cls
             obj.cls = self.cls
@@ -474,30 +474,3 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                     self.cls.games[gamestr].append(self.cls.versions[self.version_str])
                 else:
                     self.cls.games[gamestr] = [self.cls.versions[self.version_str]]
-
-##    {
-##        switch ( current() )
-##        {
-##            case tagVersion:
-##                break;
-##            case tagStruct:
-##                if ( blk )
-##                    blk->text += s.trimmed();
-##                else
-##                    typTxt += s.trimmed();
-##                break;
-##            case tagAttribute:
-##                data.setText( data.text() + s.trimmed() );
-##                break;
-##            case tagBasic:
-##            case tagEnum:
-##                typTxt += s.trimmed();
-##                break;
-##            case tagOption:
-##                optTxt += s.trimmed();
-##                break;
-##            default:
-##                break;
-##        }
-##        return true;
-##    }
