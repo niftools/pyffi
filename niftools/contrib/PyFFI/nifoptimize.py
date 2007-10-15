@@ -70,7 +70,6 @@ def testBlock(block, **args):
         print "  removing duplicate vertices"
         v_map = [0 for i in xrange(data.numVertices)] # maps old index to new index
         v_map_inverse = [] # inverse: map new index to old index
-        new_vertices = []
         k_map = {} # maps hash to new vertex index
         index = 0  # new vertex index for next vertex
         for i, vhash in enumerate(vertexHash(data)):
