@@ -158,7 +158,6 @@ def getVertexWeights(self):
     return weights
 
 
-
 def flattenSkin(self):
     """Reposition all bone blocks and geometry block in the tree to be direct
     children of the skeleton root.
@@ -176,29 +175,32 @@ def flattenSkin(self):
 
     # reparent geometry
     self.setTransform(self.getTransform(skelroot))
-    chain = skelroot.findChain(self, block_type = self.cls.NiAVObject)
-    skelroot.removeChild(chain[1]) # detatch geometry from tree
+    geometry_parent = skelroot.findChain(self, block_type = self.cls.NiAVObject)[-2]
+    geometry_parent.removeChild(self) # detatch geometry from tree
     skelroot.addChild(self, front = True) # and attatch it to the skeleton root
 
     # reparent all the bone blocks
     for bone_block in skininst.bones:
-        if bone_block != skelroot:
-            # get bone parent
-            bone_parent = skelroot.findChain(bone_block, block_type = self.cls.NiAVObject)[-2]
-            # set new child transforms
-            for child in bone_block.children:
-                child.setTransform(child.getTransform(bone_parent))
-            # reparent children
-            for child in bone_block.children:
-                bone_parent.addChild(child)
-            bone_block.numChildren = 0
-            bone_block.children.updateSize() # = removeChild on each child
-            # set new bone transform
-            bone_block.setTransform(bone_block.getTransform(skelroot))
-            # reparent bone block
-            bone_parent.removeChild(bone_block)
-            skelroot.addChild(bone_block)
-            result.append(bone_block)
+        # skeleton root, if it is used as bone, does not need to be processed
+        if bone_block == skelroot: continue
+        # if bone is child of skelroot, also we don't need to do anything
+        if bone_block in skelroot.children: continue
+        # get bone parent
+        bone_parent = skelroot.findChain(bone_block, block_type = self.cls.NiAVObject)[-2]
+        # set new child transforms
+        for child in bone_block.children:
+            child.setTransform(child.getTransform(bone_parent))
+        # reparent children
+        for child in bone_block.children:
+            bone_parent.addChild(child)
+        bone_block.numChildren = 0
+        bone_block.children.updateSize() # = removeChild on each child
+        # set new bone transform
+        bone_block.setTransform(bone_block.getTransform(skelroot))
+        # reparent bone block
+        bone_parent.removeChild(bone_block)
+        skelroot.addChild(bone_block)
+        result.append(bone_block)
 
     return result
 
