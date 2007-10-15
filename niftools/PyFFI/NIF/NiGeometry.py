@@ -162,8 +162,7 @@ def flattenSkin(self):
     """Reposition all bone blocks and geometry block in the tree to be direct
     children of the skeleton root.
 
-    Returns list of all bones that have been repositioned (and added
-    to the skeleton root children list)."""
+    Returns list of all used bones by the skin."""
 
     if not self.isSkin(): return [] # nothing to do
 
@@ -184,7 +183,9 @@ def flattenSkin(self):
         # skeleton root, if it is used as bone, does not need to be processed
         if bone_block == skelroot: continue
         # if bone is child of skelroot, also we don't need to do anything
-        if bone_block in skelroot.children: continue
+        if bone_block in skelroot.children:
+            result.append(bone_block) # the bone is used
+            continue
         # get bone parent
         bone_parent = skelroot.findChain(bone_block, block_type = self.cls.NiAVObject)[-2]
         # set new child transforms
