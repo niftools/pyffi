@@ -445,7 +445,7 @@ class CgfFormat(object):
         top can also be a file instead of a directory. The argument onerror,
         if set, will be called if cls.read raises an exception (errors coming
         from os.walk will be ignored)."""
-        for filetype, fileversion, f, chunks, versions in walkFile(cls, top, topdown, onerror, verbose):
+        for filetype, fileversion, f, chunks, versions in cls.walkFile(top, topdown, onerror, verbose):
             yield chunks, versions
 
     @classmethod
@@ -473,7 +473,7 @@ class CgfFormat(object):
                         # return (filetype, fileversion, f, chunks, versions)
                         chunks, versions = cls.read(fileversion, f)
                         yield filetype, fileversion, f, chunks, versions
-                    except NotImplementedError: #StandardError, e:
+                    except StandardError, e:
                         # an error occurred during reading
                         # this should not happen: means that the file is
                         # corrupt, or that the xml is corrupt
