@@ -220,7 +220,7 @@ def __rmul__(self, x):
 
 def __eq__(self, m):
     if not isinstance(m, self.cls.Matrix33):
-        raise TypeError("do not know how to compare Matrix33 and %s"%x.__class__)
+        raise TypeError("do not know how to compare Matrix33 and %s"%m.__class__)
     if abs(self.m11 - m.m11) > self.cls._EPSILON: return False
     if abs(self.m12 - m.m12) > self.cls._EPSILON: return False
     if abs(self.m13 - m.m13) > self.cls._EPSILON: return False
