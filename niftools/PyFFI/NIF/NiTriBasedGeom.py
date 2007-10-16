@@ -488,7 +488,6 @@ def updateSkinCenterRadius(self):
     geomdata = self.data
     skininst = self.skinInstance
     skindata = skininst.data
-    skelroot = skininst.skeletonRoot
     
     verts = geomdata.vertices
 
