@@ -230,7 +230,6 @@ def mergeSkeletonRoots(self):
     failed = [] # list of blocks that could not be reparented
     self._validateSkin() # validate the skin
     skininst = self.skinInstance
-    skindata = skininst.data
     skelroot = skininst.skeletonRoot
 
     id44 = self.cls.Matrix44()

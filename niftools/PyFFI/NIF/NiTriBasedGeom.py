@@ -490,9 +490,6 @@ def updateSkinCenterRadius(self):
     skindata = skininst.data
     skelroot = skininst.skeletonRoot
     
-    meshtrans = self.getTransform(skelroot)
-    bonetrans = [ skindatablock.getTransform() for skindatablock in skindata.boneList ]
-    
     verts = geomdata.vertices
 
     for skindatablock in skindata.boneList:
