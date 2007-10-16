@@ -93,8 +93,8 @@ def _MakeSimpleMesh(mesh, data):
     i0, i1 = data[:2]
     flip = True
     for i2 in data[2:]:
-        if flip: f = mesh.AddFace(i0, i1, i2)
-        else:    f = mesh.AddFace(i1, i0, i2)
+        if flip: mesh.AddFace(i0, i1, i2)
+        else:    mesh.AddFace(i1, i0, i2)
         i0, i1 = i1, i2
         flip = not flip
 
@@ -502,7 +502,6 @@ class TriangleStripifier(object):
         try:
             while 1:
                 Experiments = []
-                ResetPoints = {}
                 VisitedResetPoints = {}
                
                 for nSample in xrange(selector.Samples):
