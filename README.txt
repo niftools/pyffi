@@ -68,6 +68,8 @@ The code is organized as follows.
 
     + nifmakehsl: create hex workshop structure libraries for all nif formats
 
+    + nifoptimize: remove redundant vertices and restripify nif files
+
 The following code resides in the subversion trunk only
 (https://pyffi.svn.sf.net/svnroot/pyffi/trunk) and is not distributed
 with the library.
