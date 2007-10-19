@@ -182,10 +182,6 @@ def flattenSkin(self):
     for bone_block in skininst.bones:
         # skeleton root, if it is used as bone, does not need to be processed
         if bone_block == skelroot: continue
-        # if bone is child of skelroot, also we don't need to do anything
-        if bone_block in skelroot.children:
-            result.append(bone_block) # the bone is used
-            continue
         # get bone parent
         bone_parent = skelroot.findChain(bone_block, block_type = self.cls.NiAVObject)[-2]
         # set new child transforms
