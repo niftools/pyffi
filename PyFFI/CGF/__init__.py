@@ -158,7 +158,7 @@ class CgfFormat(object):
         def setValue(self, value):
             s = str(value)
             if len(s) > self._len:
-                raise ValueError("string '%s' too long"%self._x)
+                raise ValueError("string '%s' too long"%s)
             self._x = s
 
         def read(self, f = None, **kwargs):
