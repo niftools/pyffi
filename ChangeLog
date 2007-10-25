@@ -1,3 +1,6 @@
+Version 0.5.2 (25 Oct 2007)
+* added hash functions (useful for identifying and comparing objects)
+
 Version 0.5.1 (19 Oct 2007)
 * fixed a bug in the nif.xml file which prevented Oblivion skeleton.nif files
 to load
