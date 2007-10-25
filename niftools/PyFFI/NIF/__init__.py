@@ -399,6 +399,9 @@ class NifFormat(object):
             else:
                 return 4
 
+        def getHash(self, **kwargs):
+            return self._x
+
         def read(self, version = -1, f = None, **kwargs):
             if version > 0x04000002:
                 value, = struct.unpack('<B', f.read(1))
@@ -438,6 +441,10 @@ class NifFormat(object):
 
         def getSize(self, **kwargs):
             return 4
+
+        def getHash(self, **kwargs):
+            if self._x: return self._x.getHash(**kwargs)
+            else: return None
 
         def read(self, f = None, link_stack = [], **kwargs):
             self._x = None # fixLinks will set this field
@@ -495,6 +502,9 @@ class NifFormat(object):
         def getRefs(self, **kwargs):
             return []
 
+        def getHash(self, **kwargs):
+            return None
+
     class LineString(BasicBase):
         """Basic type for strings ending in a newline character (0x0a).
 
@@ -532,6 +542,9 @@ class NifFormat(object):
         def getSize(self, **kwargs):
             return len(self._x) + 1 # +1 for trailing endline
 
+        def getHash(self, **kwargs):
+            return self.getValue()
+
         def read(self, f = None, **kwargs):
             self._x = f.readline().rstrip('\x0a')
 
@@ -544,6 +557,9 @@ class NifFormat(object):
 
         def __str__(self):
             return 'NetImmerse/Gamebryo File Format, Version x.x.x.x'
+
+        def getHash(self, **kwargs):
+            return None
 
         def read(self, version = -1, f = None, **kwargs):
             version_string = self.versionString(version)
@@ -598,6 +614,9 @@ class NifFormat(object):
         def getSize(self, **kwargs):
             return 4
 
+        def getHash(self, **kwargs):
+            return None
+
         def read(self, version = -1, f = None, **kwargs):
             ver, = struct.unpack('<I', f.read(4))
             if ver != version:
@@ -644,6 +663,9 @@ class NifFormat(object):
         def getSize(self, **kwargs):
             return 4+len(self._x)
 
+        def getHash(self, **kwargs):
+            return self.getValue()
+
         def read(self, f = None, **kwargs):
             n, = struct.unpack('<I', f.read(4))
             if n > 10000: raise ValueError('string too long (0x%08X at 0x%08X)'%(n, f.tell()))
@@ -667,6 +689,9 @@ class NifFormat(object):
 
         def __str__(self):
             return self._x
+
+        def getHash(self, **kwargs):
+            return self.getValue()
 
         def read(self, f = None, **kwargs):
             n, = struct.unpack('<B', f.read(1))
@@ -720,7 +745,8 @@ class NifFormat(object):
 
     # other types with internal implementation
     class FilePath(string):
-        pass
+        def getHash(self, **kwargs):
+            return self.getValue().lower() # case insensitive
 
     # exceptions
     class NifError(StandardError):
