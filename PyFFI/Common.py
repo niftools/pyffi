@@ -115,6 +115,9 @@ class Int(BasicBase):
     def getSize(self, **kwargs):
         return self._size
 
+    def getHash(self, **kwargs):
+        return self.getValue()
+
 class UInt(Int):
     _min = 0
     _max = 0xffffffff
@@ -169,6 +172,9 @@ class Char(BasicBase):
     def getSize(self, **kwargs):
         return 1
 
+    def getHash(self, **kwargs):
+        self.getValue()
+
 class Float(BasicBase):
     def __init__(self, **kwargs):
         self._x = '\x00\x00\x00\x00'
@@ -187,6 +193,9 @@ class Float(BasicBase):
 
     def getSize(self, **kwargs):
         return 4
+
+    def getHash(self, **kwargs):
+        return int(self.getValue()*200)
 
 ### faster calculation, slower read/write:
 ##class Float(BasicBase):

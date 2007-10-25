@@ -278,3 +278,14 @@ class Array(_ListWrap):
                     size += e.getSize(**kwargs)
         return size
 
+    def getHash(self, **kwargs):
+        hash = []
+        if self._count2 == None:
+            for e in list.__iter__(self):
+                hash.append(e.getHash(**kwargs))
+        else:
+            for el in list.__iter__(self):
+                for e in list.__iter__(el):
+                    hash.append(e.getHash(**kwargs))
+        return tuple(hash)
+

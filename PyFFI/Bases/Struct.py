@@ -351,6 +351,20 @@ class StructBase(object):
             size += getattr(self, "_" + name + "_value_").getSize(version = version, user_version = user_version)
         return size
 
+    def getHash(self, version = -1, user_version = None):
+        hash = []
+        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
+            if ver1:
+                if version < ver1: continue
+            if ver2:
+                if version > ver2: continue
+            if not userver is None:
+                if user_version != userver: continue
+            if cond != None:
+                if not cond.eval(self): continue
+            hash.append(getattr(self, "_" + name + "_value_").getHash(version = version, user_version = user_version))
+        return tuple(hash)
+
     @classmethod
     def _getAttributeList(cls):
         # string of attributes of base classes of cls

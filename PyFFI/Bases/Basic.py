@@ -90,29 +90,45 @@ class BasicBase(object):
         return str(self.getValue())
 
     def read(self, **kwargs):
+        """Read object from file."""
         raise NotImplementedError
 
     def write(self, **kwargs):
+        """Write object to file."""
         raise NotImplementedError
 
     def fixLinks(self, **kwargs):
+        """Fix links. Called when all objects have been read, and converts
+        block indices into blocks."""
         pass
     
     def getLinks(self, **kwargs):
+        """Return all links referred to in this object."""
         return []
     
     def getStrings(self, **kwargs):
+        """Return all strings used by this object."""
         return []
     
     def getRefs(self, **kwargs):
+        """Return all references (excluding weak pointers) used by this
+        object."""
         return []
     
     def getValue(self):
+        """Return object value."""
         raise NotImplementedError
 
     def setValue(self, value):
+        """Set object value."""
         raise NotImplementedError
 
     def getSize(self, **kwargs):
+        """Returns size of the object in bytes."""
+        raise NotImplementedError
+
+    def getHash(self, **kwargs):
+        """Returns a hash value (an immutable object) that can be used to
+        identify the object uniquely."""
         raise NotImplementedError
 
