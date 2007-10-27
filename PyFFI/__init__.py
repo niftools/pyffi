@@ -27,8 +27,12 @@ in a way that PyFFI can understand::
     <fileformat version="1.0">
         <basic name="int">A signed 32-bit integer.</basic>
         <struct name="Example">
-            <add name="Num Integers" type="int">Number of integers that follow.</add>
-            <add name="Integers" type="int" arr1="Num Integers">A list of integers.</add>
+            <add name="Num Integers" type="int">
+                Number of integers that follow.
+            </add>
+            <add name="Integers" type="int" arr1="Num Integers">
+                A list of integers.
+            </add>
         </struct>
     </fileformat>
 
@@ -52,8 +56,9 @@ What happens in this piece of code?
     classes; how these classes can be used will be explained further.
   - The xmlFileName class attribute provides the name of the xml file that
     describes the structures we wish to generate. The xmlFilePath attribute
-    gives a list of locations of where to look for this file; in our case we have
-    simply chosen to put 'simple.xml' in the same directory as 'simple.py'.
+    gives a list of locations of where to look for this file; in our case we
+    have simply chosen to put 'simple.xml' in the same directory as
+    'simple.py'.
   - The clsFilePath attribute tells PyFFI where to look for class customizers.
     For instance, we could have another file called Example.py::
 
@@ -65,10 +70,10 @@ What happens in this piece of code?
     which would provide the class SimpleFormat.Example with a function
     C{addInteger} in addition to the attributes C{numIntegers} and C{integers}
     which have been created from the XML.
-  - Finally, the PyFFI.Common module implements the most common basic types, such 
-    as integers, characters, and floats. In the above example we have taken
-    advantage of Common.Int, which defines a signed 32-bit integer, exactly the
-    type we need.
+  - Finally, the PyFFI.Common module implements the most common basic types,
+    such as integers, characters, and floats. In the above example we have
+    taken advantage of Common.Int, which defines a signed 32-bit integer,
+    exactly the type we need.
 
 Reading and Writing Files
 -------------------------
@@ -172,17 +177,18 @@ class MetaXmlFileFormat(type):
         MetaXmlFileFormat, so upon creation of the NifFormat class,
         the __init__ function is called, with
     
-        @param cls: the class created using MetaXmlFileFormat, for example NifFormat
-        @param name: the name of the class, for example 'NifFormat'
-        @param bases: the base classes, usually (object,)
-        @param dct: dictionary of class attributes, such as 'xmlFileName'
+        @param cls: The class created using MetaXmlFileFormat, for example
+            NifFormat.
+        @param name: The name of the class, for example 'NifFormat'.
+        @param bases: The base classes, usually (object,).
+        @param dct: A dictionary of class attributes, such as 'xmlFileName'.
         """
 
         # consistency checks
         if not dct.has_key('xmlFileName'):
-            raise TypeError("class " + str(cls) + " : missing xmlFileName attribute")
+            raise TypeError("class %s : missing xmlFileName attribute"%cls)
         if not dct.has_key('versionNumber'):
-            raise TypeError("class " + str(cls) + " : missing versionNumber attribute")
+            raise TypeError("class %s : missing versionNumber attribute"%cls)
 
         # set up XML parser
         parser = xml.sax.make_parser()
@@ -190,21 +196,23 @@ class MetaXmlFileFormat(type):
 
         # open XML file
         if not dct.has_key('xmlFilePath'):
-            f = open(dct['xmlFileName'])
+            xmlfile = open(dct['xmlFileName'])
         else:
-            for p in dct['xmlFilePath']:
-                if not p: continue
+            for filepath in dct['xmlFilePath']:
+                if not filepath:
+                    continue
                 try:
-                    f = open(os.path.join(p, dct['xmlFileName']))
+                    xmlfile = open(os.path.join(filepath, dct['xmlFileName']))
                 except IOError:
                     continue
                 break
             else:
-                raise IOError("'%s' not found in any of the directories %s"%(dct['xmlFileName'], dct['xmlFilePath']))
+                raise IOError("'%s' not found in any of the directories %s"%(
+                    dct['xmlFileName'], dct['xmlFilePath']))
 
         # parse the XML file: control is now passed on to XmlSaxHandler
         # which takes care of the class creation
         try:
-            parser.parse(f)
+            parser.parse(xmlfile)
         finally:
-            f.close()
+            xmlfile.close()
