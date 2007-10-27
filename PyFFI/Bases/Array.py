@@ -1,6 +1,7 @@
-# --------------------------------------------------------------------------
-# PyFFI.Bases.Array
-# Implements class for arrays.
+"""
+Implements class for arrays.
+"""
+
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -182,15 +183,18 @@ class Array(_ListWrap):
                         e = self._elementType(template = self._elementTypeTemplate, argument = self._elementTypeArgument)
                         el.append(e)
 
-    def read(self, version = -1, user_version = None, f = None, link_stack = [], string_list = [], argument = None):
+    def read(self, stream, **kwargs):
+        # parse arguments
+        self._elementTypeArgument = kwargs.get('argument')
+        # check array size
         len1 = self._len1()
         if len1 > 1000000: raise ValueError('array too long')
-        self._elementTypeArgument = argument
         self.__delslice__(0, self.__len__())
+        # read array
         if self._count2 == None:
             for i in xrange(len1):
                 e = self._elementType(template = self._elementTypeTemplate, argument = self._elementTypeArgument)
-                e.read(version = version, user_version = user_version, f = f, link_stack = link_stack, string_list = string_list, argument = self._elementTypeArgument)
+                e.read(stream, **kwargs)
                 self.append(e)
         else:
             for i in xrange(len1):
@@ -199,19 +203,19 @@ class Array(_ListWrap):
                 el = _ListWrap(self._elementType)
                 for j in xrange(len2i):
                     e = self._elementType(template = self._elementTypeTemplate, argument = self._elementTypeArgument)
-                    e.read(version = version, user_version = user_version, f = f, link_stack = link_stack, string_list = string_list, argument = self._elementTypeArgument)
+                    e.read(stream, **kwargs)
                     el.append(e)
                 self.append(el)
 
-    def write(self, version = -1, user_version = None, f = None, block_index_dct = {}, string_list = [], argument = None):
-        self._elementTypeArgument = argument
+    def write(self, stream, **kwargs):
+        self._elementTypeArgument = kwargs.get('argument')
         len1 = self._len1()
         if len1 != self.__len__():
             raise ValueError('array size (%i) different from to field describing number of elements (%i)'%(self.__len__(),len1))
         if len1 > 1000000: raise ValueError('array too long (%i)'%len1)
         if self._count2 == None:
             for e in list.__iter__(self):
-                e.write(version = version, user_version = user_version, f = f, block_index_dct = block_index_dct, string_list = string_list, argument = self._elementTypeArgument)
+                e.write(stream, **kwargs)
         else:
             for i, el in enumerate(list.__iter__(self)):
                 len2i = self._len2(i)
@@ -219,40 +223,40 @@ class Array(_ListWrap):
                     raise ValueError('array size (%i) different from to field describing number of elements (%i)'%(el.__len__(),len2i))
                 if len2i > 1000000: raise ValueError('array too long (%i)'%len2i)
                 for e in list.__iter__(el):
-                    e.write(version = version, user_version = user_version, f = f, block_index_dct = block_index_dct, string_list = string_list, argument = self._elementTypeArgument)
+                    e.write(stream, **kwargs)
 
-    def fixLinks(self, version = -1, user_version = None, block_dct = {}, link_stack = []):
+    def fixLinks(self, **kwargs):
         if not self._elementType._hasLinks: return
         if self._count2 == None:
             for e in list.__iter__(self):
-                e.fixLinks(version = version, user_version = user_version, block_dct = block_dct, link_stack = link_stack)
+                e.fixLinks(**kwargs)
         else:
             for el in list.__iter__(self):
                 for e in list.__iter__(el):
-                    e.fixLinks(version = version, user_version = user_version, block_dct = block_dct, link_stack = link_stack)
+                    e.fixLinks(**kwargs)
 
-    def getLinks(self, version = -1, user_version = None):
+    def getLinks(self, **kwargs):
         links = []
         if not self._elementType._hasLinks: return links
         if self._count2 == None:
             for e in list.__iter__(self):
-                links.extend(e.getLinks(version = version, user_version = user_version))
+                links.extend(e.getLinks(**kwargs))
         else:
             for el in list.__iter__(self):
                 for e in list.__iter__(el):
-                    links.extend(e.getLinks(version = version, user_version = user_version))
+                    links.extend(e.getLinks(**kwargs))
         return links
 
-    def getStrings(self, version = -1, user_version = None):
+    def getStrings(self, **kwargs):
         strings = []
         if not self._elementType._hasStrings: return strings
         if self._count2 == None:
             for e in list.__iter__(self):
-                strings.extend(e.getStrings(version = version, user_version = user_version))
+                strings.extend(e.getStrings(**kwargs))
         else:
             for el in list.__iter__(self):
                 for e in list.__iter__(el):
-                    strings.extend(e.getStrings(version = version, user_version = user_version))
+                    strings.extend(e.getStrings(**kwargs))
         return strings
 
     def getRefs(self, **kwargs):
@@ -279,13 +283,13 @@ class Array(_ListWrap):
         return size
 
     def getHash(self, **kwargs):
-        hash = []
+        hsh = []
         if self._count2 == None:
             for e in list.__iter__(self):
-                hash.append(e.getHash(**kwargs))
+                hsh.append(e.getHash(**kwargs))
         else:
             for el in list.__iter__(self):
                 for e in list.__iter__(el):
-                    hash.append(e.getHash(**kwargs))
-        return tuple(hash)
+                    hsh.append(e.getHash(**kwargs))
+        return tuple(hsh)
 

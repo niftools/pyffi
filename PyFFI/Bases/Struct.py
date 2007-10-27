@@ -1,7 +1,7 @@
-# --------------------------------------------------------------------------
-# PyFFI.Bases.Struct
-# Implements class for struct types (xml tags <struct>, <compound>
-# and <niblock>).
+"""
+Implements class for struct types (xml tag struct).
+"""
+
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -243,8 +243,12 @@ class StructBase(object):
                 s += '* ' + str(name) + ' : ' + attr_str_lines[0] + '\n'
         return s
 
-    def read(self, version = -1, user_version = None, f = None, argument = None, **kwargs):
-        self.arg = argument
+    def read(self, stream, **kwargs):
+        # parse arguments
+        version = kwargs.get('version', -1)
+        user_version = kwargs.get('user_version')
+        self.arg = kwargs.get('argument')
+        # read all attributes
         for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
             if ver1:
                 if version < ver1: continue
@@ -258,10 +262,14 @@ class StructBase(object):
                 if not isinstance(arg, (int, long)):
                     arg = getattr(self, arg)
             #print name # debug
-            getattr(self, "_" + name + "_value_").read(f = f, version = version, user_version = user_version, argument = arg, **kwargs)
+            getattr(self, "_" + name + "_value_").read(stream, **kwargs)
 
-    def write(self, version = -1, user_version = None, f = None, argument = None, **kwargs):
-        self.arg = argument
+    def write(self, stream, **kwargs):
+        # parse arguments
+        version = kwargs.get('version', -1)
+        user_version = kwargs.get('user_version')
+        self.arg = kwargs.get('argument')
+        # write all attributes
         for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
             if ver1:
                 if version < ver1: continue
@@ -274,11 +282,17 @@ class StructBase(object):
             if arg != None:
                 if not isinstance(arg, (int, long)):
                     arg = getattr(self, arg)
-            getattr(self, "_" + name + "_value_").write(version = version, user_version = user_version, f = f, argument = arg, **kwargs)
+            getattr(self, "_" + name + "_value_").write(stream, **kwargs)
 
-    def fixLinks(self, version = -1, user_version = None, block_dct = {}, link_stack = []):
+    def fixLinks(self, **kwargs):
+        # parse arguments
+        version = kwargs.get('version', -1)
+        user_version = kwargs.get('user_version')
+        block_dct = kwargs.get('block_dct', {})
+        link_stack = kwargs.get('link_stack', [])
+        # fix links in all attributes
         for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
-            if not typ._hasLinks: continue
+            if not typ._hasLinks: continue # speeds things up
             if ver1:
                 if version < ver1: continue
             if ver2:
@@ -288,9 +302,13 @@ class StructBase(object):
             if cond != None:
                 if not cond.eval(self): continue
             #print "fixlinks %s"%name
-            getattr(self, "_" + name + "_value_").fixLinks(version = version, user_version = user_version, block_dct = block_dct, link_stack = link_stack)
+            getattr(self, "_" + name + "_value_").fixLinks(**kwargs)
 
-    def getLinks(self, version = -1, user_version = None):
+    def getLinks(self, **kwargs):
+        # parse arguments
+        version = kwargs.get('version', -1)
+        user_version = kwargs.get('user_version')
+        # get all links
         links = []
         for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
             if not typ._hasLinks: continue
@@ -302,10 +320,15 @@ class StructBase(object):
                 if user_version != userver: continue
             if cond != None:
                 if not cond.eval(self): continue
-            links.extend(getattr(self, "_" + name + "_value_").getLinks(version = version, user_version = user_version))
+            links.extend(
+                getattr(self, "_" + name + "_value_").getLinks(**kwargs))
         return links
 
-    def getStrings(self, version = -1, user_version = None):
+    def getStrings(self, **kwargs):
+        # parse arguments
+        version = kwargs.get('version', -1)
+        user_version = kwargs.get('user_version')
+        # get all strings
         strings = []
         for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
             if not typ._hasStrings: continue
@@ -317,10 +340,15 @@ class StructBase(object):
                 if user_version != userver: continue
             if cond != None:
                 if not cond.eval(self): continue
-            strings.extend(getattr(self, "_" + name + "_value_").getStrings(version = version, user_version = user_version))
+            strings.extend(
+                getattr(self, "_" + name + "_value_").getStrings(**kwargs))
         return strings
 
-    def getRefs(self, version = -1, user_version = None):
+    def getRefs(self, **kwargs):
+        # parse arguments
+        version = kwargs.get('version', -1)
+        user_version = kwargs.get('user_version')
+        # get all refs
         links = []
         for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
             if not typ._hasLinks: continue
@@ -333,10 +361,15 @@ class StructBase(object):
                     if user_version != userver: continue
                 if cond != None:
                     if not cond.eval(self): continue
-            links.extend(getattr(self, "_" + name + "_value_").getRefs(version = version, user_version = user_version))
+            links.extend(
+                getattr(self, "_" + name + "_value_").getRefs(**kwargs))
         return links
 
-    def getSize(self, version = -1, user_version = None):
+    def getSize(self, **kwargs):
+        # parse arguments
+        version = kwargs.get('version', -1)
+        user_version = kwargs.get('user_version')
+        # calculate size
         size = 0
         for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
             if version != -1:
@@ -348,11 +381,11 @@ class StructBase(object):
                     if user_version != userver: continue
                 if cond != None:
                     if not cond.eval(self): continue
-            size += getattr(self, "_" + name + "_value_").getSize(version = version, user_version = user_version)
+            size += getattr(self, "_" + name + "_value_").getSize(**kwargs)
         return size
 
     def getHash(self, version = -1, user_version = None):
-        hash = []
+        hsh = []
         for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
             if ver1:
                 if version < ver1: continue
@@ -362,8 +395,8 @@ class StructBase(object):
                 if user_version != userver: continue
             if cond != None:
                 if not cond.eval(self): continue
-            hash.append(getattr(self, "_" + name + "_value_").getHash(version = version, user_version = user_version))
-        return tuple(hash)
+            hsh.append(getattr(self, "_" + name + "_value_").getHash(**kwargs))
+        return tuple(hsh)
 
     @classmethod
     def _getAttributeList(cls):

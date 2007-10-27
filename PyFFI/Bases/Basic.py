@@ -89,11 +89,11 @@ class BasicBase(object):
         """Return string representation."""
         return str(self.getValue())
 
-    def read(self, **kwargs):
+    def read(self, stream, **kwargs):
         """Read object from file."""
         raise NotImplementedError
 
-    def write(self, **kwargs):
+    def write(self, stream, **kwargs):
         """Write object to file."""
         raise NotImplementedError
 

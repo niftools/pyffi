@@ -40,7 +40,7 @@ Implements common basic types in XML file format descriptions.
 # ***** END LICENCE BLOCK *****
 
 import struct
-from Bases.Basic import BasicBase
+from PyFFI.Bases.Basic import BasicBase
 
 class Int(BasicBase):
     """Basic implementation of a 32-bit signed integer type. Also serves as a
@@ -53,10 +53,10 @@ class Int(BasicBase):
     >>> i.getValue()
     -1
     >>> i.setValue(0x11223344)
-    >>> i.write(f = tmp)
+    >>> i.write(tmp)
     >>> j = Int()
     >>> tmp.seek(0)
-    >>> j.read(f = tmp)
+    >>> j.read(tmp)
     >>> hex(j.getValue())
     '0x11223344'
     >>> i.setValue(0x10000000000L) # doctest: +ELLIPSIS
@@ -70,7 +70,7 @@ class Int(BasicBase):
     >>> tmp.seek(0)
     >>> tmp.write('\x11\x22\x33\x44')
     >>> tmp.seek(0)
-    >>> i.read(f = tmp)
+    >>> i.read(tmp)
     >>> hex(i.getValue())
     '0x44332211'
     """
@@ -81,33 +81,33 @@ class Int(BasicBase):
     _size = 4          #: Number of bytes.
 
     def __init__(self, **kwargs):
-        self._x = ''.join(['\x00' for i in xrange(self._size)])
+        self._value = ''.join('\x00' for i in xrange(self._size))
         #self.setValue(0L)
 
     def getValue(self):
-        return struct.unpack('<' + self._struct, self._x)[0]
+        return struct.unpack('<' + self._struct, self._value)[0]
 
     def setValue(self, value):
         try:
-            x = int(value)
+            val = int(value)
         except ValueError:
             try:
-                x = int(value, 16) # for '0x...' strings
-            except:
+                val = int(value, 16) # for '0x...' strings
+            except ValueError:
                 try:
-                    x = getattr(self, value) # for enums
-                except:
-                    raise ValueError("cannot convert value '%s' to integer"%str(value))
-        if x < self._min or x > self._max:
+                    val = getattr(self, value) # for enums
+                except AttributeError:
+                    raise ValueError(
+                        "cannot convert value '%s' to integer"%value)
+        if val < self._min or val > self._max:
             raise ValueError('value out of range (%i)'%self.getValue())
-        self._x = struct.pack('<' + self._struct, x)
+        self._value = struct.pack('<' + self._struct, val)
 
-    def read(self, f = None, **kwargs):
-        # file must be an instance of the type
-        self._x = f.read(self._size)
+    def read(self, stream, **kwargs):
+        self._value = stream.read(self._size)
 
-    def write(self, f = None, **kwargs):
-        f.write(self._x)
+    def write(self, stream, **kwargs):
+        stream.write(self._value)
 
     def __str__(self):
         return str(self.getValue())
@@ -153,21 +153,21 @@ class Char(BasicBase):
         self.setValue('\x00')
 
     def getValue(self):
-        return self._x
+        return self._value
 
     def setValue(self, value):
-        assert(isinstance(value, str))
+        assert(isinstance(value, basestring))
         assert(len(value) == 1)
-        self._x = value
+        self._value = str(value)
 
-    def read(self, f = None, **kwargs):
-        self._x = f.read(1)
+    def read(self, stream, **kwargs):
+        self._value = stream.read(1)
 
-    def write(self, f = None, **kwargs):
-        f.write(self._x)
+    def write(self, stream, **kwargs):
+        stream.write(self._value)
 
     def __str__(self):
-        return self._x
+        return self._value
 
     def getSize(self, **kwargs):
         return 1
@@ -177,19 +177,19 @@ class Char(BasicBase):
 
 class Float(BasicBase):
     def __init__(self, **kwargs):
-        self._x = '\x00\x00\x00\x00'
+        self._value = '\x00\x00\x00\x00'
 
     def getValue(self):
-        return struct.unpack('<f', self._x)[0]
+        return struct.unpack('<f', self._value)[0]
 
     def setValue(self, value):
-        self._x = struct.pack('<f', float(value))
+        self._value = struct.pack('<f', float(value))
 
-    def read(self, f = None, **kwargs):
-        self._x = f.read(4)
+    def read(self, stream, **kwargs):
+        self._value = stream.read(4)
 
-    def write(self, f = None, **kwargs):
-        f.write(self._x)
+    def write(self, stream, **kwargs):
+        stream.write(self._value)
 
     def getSize(self, **kwargs):
         return 4
@@ -200,16 +200,16 @@ class Float(BasicBase):
 ### faster calculation, slower read/write:
 ##class Float(BasicBase):
 ##    def __init__(self, **kwargs):
-##        self._x = 0.0
+##        self._value = 0.0
 ##
 ##    def getValue(self):
-##        return self._x
+##        return self._value
 ##
 ##    def setValue(self, value):
-##        self._x = float(value)
+##        self._value = float(value)
 ##
-##    def read(self, f = None, **kwargs):
-##        self._x = struct.unpack('<f', f.read(4))[0]
+##    def read(self, stream, **kwargs):
+##        self._value = struct.unpack('<f', stream.read(4))[0]
 ##
-##    def write(self, f = None, **kwargs):
-##        f.write(struct.pack('<f', self._x))
+##    def write(self, stream, **kwargs):
+##        stream.write(struct.pack('<f', self._value))

@@ -13,7 +13,7 @@ Read a CGF file
 ...     raise RuntimeError('cgf version not supported')
 ... elif filetype == -2:
 ...     raise RuntimeError('not a cgf file')
->>> chunks, versions = CgfFormat.read(fileversion = fileversion, f = f)
+>>> chunks, versions = CgfFormat.read(f, fileversion = fileversion)
 >>> # print all chunks
 >>> for chunk in chunks:
 ...     print chunk # doctest: +ELLIPSIS
@@ -105,70 +105,70 @@ class CgfFormat(object):
         def __str__(self):
             return 'CryTek\x00\x00'
 
-        def read(self, f = None, **kwargs):
-            s = f.read(8)
+        def read(self, stream, **kwargs):
+            s = stream.read(8)
             if s[:6] != self.__str__()[:6]:
                 raise ValueError("invalid CGF header: expected '%s' but got '%s'"%(self.__str__(), s))
 
-        def write(self, f = None, **kwargs):
-            f.write(self.__str__())
+        def write(self, stream, **kwargs):
+            stream.write(self.__str__())
 
     class String(BasicBase):
         def __init__(self, **kwargs):
-            self._x = ""
+            self._value = ""
 
         def __str__(self):
-            if not self._x: return '<EMPTY STRING>'
-            return self._x
+            if not self._value: return '<EMPTY STRING>'
+            return self._value
 
         def getValue(self):
-            return self._x
+            return self._value
 
         def setValue(self, value):
             s = str(value)
             i = s.find('\x00')
             if i != -1:
                 s = s[:i]
-            self._x = s
+            self._value = s
 
-        def read(self, f = None, **kwargs):
-            self._x = ''
+        def read(self, stream, **kwargs):
+            self._value = ''
             c = ''
             while c != '\x00':
-                self._x += c
-                c = f.read(1)
+                self._value += c
+                c = stream.read(1)
 
-        def write(self, f = None, **kwargs):
-            f.write(self._x)
-            f.write('\x00')
+        def write(self, stream, **kwargs):
+            stream.write(self._value)
+            stream.write('\x00')
 
     class String32(BasicBase):
         _len = 32
         
         def __init__(self, **kwargs):
-            self._x = ""
+            self._value = ""
 
         def __str__(self):
-            if not self._x: return '<EMPTY STRING>'
-            return self._x
+            if not self._value: return '<EMPTY STRING>'
+            return self._value
 
         def getValue(self):
-            return self._x
+            return self._value
 
         def setValue(self, value):
             s = str(value)
             if len(s) > self._len:
                 raise ValueError("string '%s' too long"%s)
-            self._x = s
+            self._value = s
 
-        def read(self, f = None, **kwargs):
-            self._x = f.read(self._len)
-            i = self._x.find('\x00')
+        def read(self, stream, **kwargs):
+            self._value = stream.read(self._len)
+            i = self._value.find('\x00')
             if i != -1:
-                self._x = self._x[:i]
+                self._value = self._value[:i]
 
-        def write(self, f = None, **kwargs):
-            f.write(self._x.ljust(self._len, "\x00"))
+        def write(self, stream, **kwargs):
+            stream.write(self._value.ljust(self._len, "\x00"))
 
     class String64(String32):
         _len = 64
@@ -188,64 +188,65 @@ class CgfFormat(object):
             self.setValue(None)
 
         def getValue(self):
-            return self._x
+            return self._value
 
         def setValue(self, value):
             if value == None:
-                self._x = None
+                self._value = None
             else:
                 if not isinstance(value, self._template):
                     raise TypeError('expected an instance of %s but got instance of %s'%(self._template, value.__class__))
-                self._x = value
+                self._value = value
 
-        def read(self, f = None, link_stack = [], **kwargs):
-            self._x = None # fixLinks will set this field
+        def read(self, stream, **kwargs):
+            self._value = None # fixLinks will set this field
             block_index, = struct.unpack('<i', f.read(4))
-            link_stack.append(block_index)
+            kwargs.get('link_stack', []).append(block_index)
 
-        def write(self, f = None, block_index_dct = {}, **kwargs):
-            if self._x == None:
-                f.write('\xff\xff\xff\xff')
+        def write(self, stream, **kwargs):
+            if self._value == None:
+                stream.write('\xff\xff\xff\xff')
             else:
-                f.write(struct.pack('<i', block_index_dct[self._x]))
+                stream.write(struct.pack(
+                    '<i', kwargs.get('block_index_dct')[self._value]))
 
-        def fixLinks(self, block_dct = {}, link_stack = [], **kwargs):
-            block_index = link_stack.pop(0)
+        def fixLinks(self, **kwargs):
+            block_index = kwargs.get('link_stack').pop(0)
             # case when there's no link
             if block_index == -1:
-                self._x = None
+                self._value = None
                 return
             # other case: look up the link and check the link type
             try:
-                block = block_dct[block_index]
+                block = kwargs.get('block_dct')[block_index]
             except KeyError:
                 # make this raise an exception when all reference errors
                 # are sorted out
                 print "WARNING: invalid chunk reference (%i)"%block_index
-                self._x = None
+                self._value = None
                 return
             if not isinstance(block, self._template):
                 # make this raise an exception when all reference errors
                 # are sorted out
                 print 'WARNING: expected an instance of %s but got instance of %s'%(self._template, block.__class__)
-            self._x = block
+            self._value = block
 
         def getLinks(self, **kwargs):
-            if self._x != None:
-                return [self._x]
+            if self._value != None:
+                return [self._value]
             else:
                 return []
 
-        def getRefs(self):
-            if self._x != None:
-                return [self._x]
+        def getRefs(self, **kwargs):
+            if self._value != None:
+                return [self._value]
             else:
                 return []
 
         def __str__(self):
             # don't recurse
-            if self._x != None:
-                return '%s instance at 0x%08X'%(self._x.__class__, id(self._x))
+            if self._value != None:
+                return '%s instance at 0x%08X'%(self._value.__class__, id(self._value))
             else:
                 return 'None'
 
@@ -257,12 +258,12 @@ class CgfFormat(object):
         
         def __str__(self):
             # avoid infinite recursion
-            if self._x != None:
-                return '%s instance at 0x%08X'%(self._x.__class__, id(self._x))
+            if self._value != None:
+                return '%s instance at 0x%08X'%(self._value.__class__, id(self._value))
             else:
                 return 'None'
 
-        def getRefs(self):
+        def getRefs(self, **kwargs):
             return []
 
     # exceptions
@@ -294,21 +295,21 @@ class CgfFormat(object):
         return attrname
 
     @classmethod
-    def getVersion(cls, f):
+    def getVersion(cls, stream):
         """Returns file type (geometry or animation) and version of the
         chunk table.
 
         Returns -1, 0 if file type or chunk table version is not supported.
         Returns -2, 0 if it is not a cgf file.
         """
-        pos = f.tell()
+        pos = stream.tell()
         try:
-            s = f.read(8)
-            filetype, fileversion = struct.unpack('<II', f.read(8))
+            s = stream.read(8)
+            filetype, fileversion = struct.unpack('<II', stream.read(8))
         except StandardError:
             return -2, 0
         finally:
-            f.seek(pos)
+            stream.seek(pos)
         if s[:6] != "CryTek":
             return -2, 0
         if filetype not in [ cls.FileType.GEOM, cls.FileType.ANIM ]:
@@ -318,17 +319,17 @@ class CgfFormat(object):
         return filetype, fileversion
 
     @classmethod
-    def read(cls, fileversion, f, verbose = 0):
+    def read(cls, stream, fileversion = None, verbose = 0):
         chunk_types = [x for x in dir(cls.ChunkType) if x[:2] != '__']
 
         # read header
         hdr = cls.Header()
-        hdr.read(fileversion, f = f)
+        hdr.read(stream, version = fileversion)
 
         # read chunk table
-        f.seek(hdr.offset)
+        stream.seek(hdr.offset)
         table = cls.ChunkTable()
-        table.read(version = hdr.version, f = f)
+        table.read(stream, version = hdr.version)
 
         # read the chunks
         link_stack = [] # list of chunk identifiers, as they are added to the stack
@@ -337,7 +338,7 @@ class CgfFormat(object):
         versions = [] # records all chunk versions as read from cgf file
         for chunkhdr in table.chunkHeaders:
             # check that id is unique
-            if chunk_dct.has_key(chunkhdr.id):
+            if chunkhdr.id in chunk_dct:
                 raise ValueError('chunk id %i not unique'%chunkhdr.id)
 
             # get chunk type
@@ -352,17 +353,18 @@ class CgfFormat(object):
                 raise ValueError('undecoded chunk type 0x%08X (%sChunk)'%(chunkhdr.type, s))
 
             # now read the chunk
-            f.seek(chunkhdr.offset)
+            stream.seek(chunkhdr.offset)
 
             # most chunks start with a copy of chunkhdr
             if chunkhdr.type not in [cls.ChunkType.SourceInfo, cls.ChunkType.BoneNameList, cls.ChunkType.BoneLightBinding, cls.ChunkType.BoneInitialPos, cls.ChunkType.MeshMorphTarget]:
                 chunkhdr_copy = cls.ChunkHeader()
-                chunkhdr_copy.read(version = hdr.version, f = f)
+                chunkhdr_copy.read(stream, version = hdr.version)
                 # check that the copy is valid
                 if chunkhdr_copy.type != chunkhdr.type or chunkhdr_copy.version != chunkhdr.version or chunkhdr_copy.offset != chunkhdr.offset or chunkhdr_copy.id != chunkhdr.id:
                     raise ValueError('chunk starts with invalid header:\nexpected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
 
-            chunk.read(version = chunkhdr.version, f = f, link_stack = link_stack)
+            chunk.read(
+                stream, version = chunkhdr.version, link_stack = link_stack)
             chunks.append(chunk)
             versions.append(chunkhdr.version)
             chunk_dct[chunkhdr.id] = chunk
@@ -370,21 +372,23 @@ class CgfFormat(object):
         # fix links
         for chunk, version in zip(chunks, versions):
             #print chunk.__class__
-            chunk.fixLinks(version = version, block_dct = chunk_dct, link_stack = link_stack)
+            chunk.fixLinks(
+                version = version,
+                block_dct = chunk_dct, link_stack = link_stack)
         if link_stack != []:
             raise cls.CgfError('not all links have been popped from the stack (bug?)')
 
         return chunks, versions
 
     @classmethod
-    def write(cls, filetype, fileversion, f, chunks, versions, verbose = 0):
+    def write(cls, stream, filetype = None, fileversion = None, chunks = None, versions = None, verbose = 0):
         # write header
-        hdr_pos = f.tell()
+        hdr_pos = stream.tell()
         hdr = cls.Header()
         hdr.type = filetype
         hdr.version = fileversion
         hdr.offset = -1 # is set at the end
-        hdr.write(version = fileversion, f = f)
+        hdr.write(stream, version = fileversion)
 
         # chunk id is simply its index in the chunks list
         block_index_dct = dict((chunk, i) for i, chunk in enumerate(chunks))
@@ -396,7 +400,7 @@ class CgfFormat(object):
         for chunkhdr, chunk, version in zip(table.chunkHeaders, chunks, versions):
             chunkhdr.type = getattr(cls.ChunkType, chunk.__class__.__name__[:-5])
             chunkhdr.version = version
-            chunkhdr.offset = f.tell()
+            chunkhdr.offset = stream.tell()
             chunkhdr.id = block_index_dct[chunk]
             # write chunk header
             if chunkhdr.type not in [cls.ChunkType.SourceInfo, cls.ChunkType.BoneNameList, cls.ChunkType.BoneLightBinding, cls.ChunkType.BoneInitialPos, cls.ChunkType.MeshMorphTarget]:
@@ -405,12 +409,12 @@ class CgfFormat(object):
             chunk.write(version = version, f = f, block_index_dct = block_index_dct)
 
         # write chunk table
-        hdr.offset = f.tell()
-        table.write(version = fileversion, f = f)
+        hdr.offset = stream.tell()
+        table.write(stream, version = fileversion)
 
         # update header
         f.seek(hdr_pos)
-        hdr.write(version = fileversion, f = f)
+        hdr.write(stream, version = fileversion)
 
     @classmethod
     def getFileVersion(cls, game = 'FarCry'):
@@ -471,7 +475,8 @@ class CgfFormat(object):
                     if verbose >= 2: print "type 0x%08X, version 0x%08X"%(filetype, fileversion)
                     try:
                         # return (filetype, fileversion, f, chunks, versions)
-                        chunks, versions = cls.read(fileversion, f)
+                        chunks, versions = cls.read(
+                            stream, fileversion = fileversion)
                         yield filetype, fileversion, f, chunks, versions
                     except StandardError, e:
                         # an error occurred during reading
