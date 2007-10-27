@@ -14,7 +14,7 @@ Read a NIF file
 ...     raise RuntimeError('nif version not supported')
 ... elif version == -2:
 ...     raise RuntimeError('not a nif file')
->>> roots = NifFormat.read(version = version, user_version = user_version, f = f)
+>>> roots = NifFormat.read(f, version = version, user_version = user_version)
 >>> # print all NiNode names
 >>> for root in roots:
 ...     for block in root.tree():
@@ -84,7 +84,7 @@ Create a NIF model from scratch and write to file
 >>> strips.updateTangentSpace()
 >>> from tempfile import TemporaryFile
 >>> f = TemporaryFile()
->>> NifFormat.write(version = 0x14010003, user_version = 10, f = f, roots = [root])
+>>> NifFormat.write(f, version = 0x14010003, user_version = 10, roots = [root])
 
 Get list of versions and games
 ------------------------------
@@ -158,7 +158,7 @@ Reading an unsupported nif file
 ...     raise RuntimeError('nif version not supported')
 ... elif version == -2:
 ...     raise RuntimeError('not a nif file')
->>> roots = NifFormat.read(version = version, user_version = user_version, f = f) # doctest: +ELLIPSIS
+>>> roots = NifFormat.read(f, version = version, user_version = user_version) # doctest: +ELLIPSIS
 Traceback (most recent call last):
     ...
 NifError: ...
@@ -378,20 +378,20 @@ class NifFormat(object):
             self.setValue(False)
 
         def getValue(self):
-            return self._x
+            return self._value
 
         def setValue(self, value):
             if isinstance(value, basestring):
                 if value.lower() == 'false':
-                    self._x = False
+                    self._value = False
                     return
                 elif value == '0':
-                    self._x = False
+                    self._value = False
                     return
             if value:
-                self._x = True
+                self._value = True
             else:
-                self._x = False
+                self._value = False
 
         def getSize(self, **kwargs):
             if kwargs.get('version', -1) > 0x04000002:
@@ -400,20 +400,20 @@ class NifFormat(object):
                 return 4
 
         def getHash(self, **kwargs):
-            return self._x
+            return self._value
 
-        def read(self, version = -1, f = None, **kwargs):
-            if version > 0x04000002:
-                value, = struct.unpack('<B', f.read(1))
+        def read(self, stream, **kwargs):
+            if kwargs.get('version', -1) > 0x04000002:
+                value, = struct.unpack('<B', stream.read(1))
             else:
-                value, = struct.unpack('<I', f.read(4))
-            self._x = bool(value)
+                value, = struct.unpack('<I', stream.read(4))
+            self._value = bool(value)
 
-        def write(self, version = -1, f = None, **kwargs):
-            if version > 0x04000002:
-                f.write(struct.pack('<B', int(self._x)))
+        def write(self, stream, **kwargs):
+            if kwargs.get('version', -1) > 0x04000002:
+                stream.write(struct.pack('<B', int(self._value)))
             else:
-                f.write(struct.pack('<I', int(self._x)))
+                stream.write(struct.pack('<I', int(self._value)))
 
     class Flags(Common.UShort):
         def __str__(self):
@@ -429,63 +429,74 @@ class NifFormat(object):
             self.setValue(None)
 
         def getValue(self):
-            return self._x
+            return self._value
 
         def setValue(self, value):
             if value == None:
-                self._x = None
+                self._value = None
             else:
                 if not isinstance(value, self._template):
                     raise TypeError('expected an instance of %s but got instance of %s'%(self._template, value.__class__))
-                self._x = value
+                self._value = value
 
         def getSize(self, **kwargs):
             return 4
 
         def getHash(self, **kwargs):
-            if self._x: return self._x.getHash(**kwargs)
+            if self._value: return self._value.getHash(**kwargs)
             else: return None
 
-        def read(self, f = None, link_stack = [], **kwargs):
-            self._x = None # fixLinks will set this field
-            block_index, = struct.unpack('<i', f.read(4))
-            link_stack.append(block_index)
+        def read(self, stream, **kwargs):
+            self._value = None # fixLinks will set this field
+            block_index, = struct.unpack('<i', stream.read(4))
+            kwargs.get('link_stack', []).append(block_index)
 
-        def write(self, version = -1, f = None, block_index_dct = {}, **kwargs):
-            if self._x == None: # link by block number
-                if version >= 0x0303000D:
-                    f.write('\xff\xff\xff\xff') # link by number
+        def write(self, stream, **kwargs):
+            """Write block reference.
+
+            @param block_index_dct: The dictionary of block indices
+                (block -> index).
+            """
+            if self._value == None: # link by block number
+                if kwargs.get('version', -1) >= 0x0303000D:
+                    stream.write('\xff\xff\xff\xff') # link by number
                 else:
-                    f.write('\x00\x00\x00\x00') # link by pointer
+                    stream.write('\x00\x00\x00\x00') # link by pointer
             else:
-                f.write(struct.pack('<i', block_index_dct[self._x]))
+                stream.write(struct.pack(
+                    '<i', kwargs.get('block_index_dct')[self._value]))
 
-        def fixLinks(self, version, user_version, block_dct, link_stack):
-            block_index = link_stack.pop(0)
+        def fixLinks(self, **kwargs):
+            """Fix block links.
+
+            @param link_stack: The link stack.
+            @param block_dct: The block dictionary (index -> block).
+            """
+            block_index = kwargs.get('link_stack').pop(0)
             # case when there's no link
-            if version >= 0x0303000D:
+            if kwargs.get('version', -1) >= 0x0303000D:
                 if block_index == -1: # link by block number
-                    self._x = None
+                    self._value = None
                     return
             else:
                 if block_index == 0: # link by pointer
-                    self._x = None
+                    self._value = None
                     return
             # other case: look up the link and check the link type
-            block = block_dct[block_index]
+            block = kwargs.get('block_dct')[block_index]
             if not isinstance(block, self._template):
                 raise TypeError('expected an instance of %s but got instance of %s'%(self._template, block.__class__))
-            self._x = block
+            self._value = block
 
-        def getLinks(self, version, user_version):
-            if self._x != None:
-                return [self._x]
+        def getLinks(self, **kwargs):
+            if self._value != None:
+                return [self._value]
             else:
                 return []
 
         def getRefs(self, **kwargs):
-            if self._x != None:
-                return [self._x]
+            if self._value != None:
+                return [self._value]
             else:
                 return []
 
@@ -497,7 +508,7 @@ class NifFormat(object):
         
         def __str__(self):
             # avoid infinite recursion
-            return '%s instance at 0x%08X'%(self._x.__class__, id(self._x))
+            return '%s instance at 0x%08X'%(self._value.__class__, id(self._value))
 
         def getRefs(self, **kwargs):
             return []
@@ -513,15 +524,15 @@ class NifFormat(object):
         >>> l = NifFormat.LineString()
         >>> f.write('abcdefg\\x0a')
         >>> f.seek(0)
-        >>> l.read(f = f)
+        >>> l.read(f)
         >>> str(l)
         'abcdefg'
         >>> f.seek(0)
         >>> l.setValue('Hi There')
-        >>> l.write(f = f)
+        >>> l.write(f)
         >>> f.seek(0)
         >>> m = NifFormat.LineString()
-        >>> m.read(f = f)
+        >>> m.read(f)
         >>> str(m)
         'Hi There'
         """
@@ -529,10 +540,10 @@ class NifFormat(object):
             self.setValue('')
 
         def getValue(self):
-            return self._x
+            return self._value
 
         def setValue(self, value):
-            self._x = str(value).rstrip('\x0a')
+            self._value = str(value).rstrip('\x0a')
 
         def __str__(self):
             s = BasicBase.__str__(self)
@@ -540,16 +551,16 @@ class NifFormat(object):
             return s
 
         def getSize(self, **kwargs):
-            return len(self._x) + 1 # +1 for trailing endline
+            return len(self._value) + 1 # +1 for trailing endline
 
         def getHash(self, **kwargs):
             return self.getValue()
 
-        def read(self, f = None, **kwargs):
-            self._x = f.readline().rstrip('\x0a')
+        def read(self, stream, **kwargs):
+            self._value = stream.readline().rstrip('\x0a')
 
-        def write(self, f = None, **kwargs):
-            f.write("%s\x0a"%self._x)
+        def write(self, stream, **kwargs):
+            stream.write("%s\x0a"%self._value)
 
     class HeaderString(BasicBase):
         def __init__(self, **kwargs):
@@ -561,17 +572,17 @@ class NifFormat(object):
         def getHash(self, **kwargs):
             return None
 
-        def read(self, version = -1, f = None, **kwargs):
-            version_string = self.versionString(version)
-            s = f.read(len(version_string) + 1)
+        def read(self, stream, **kwargs):
+            version_string = self.versionString(kwargs.get('version'))
+            s = stream.read(len(version_string) + 1)
             if s != version_string + '\x0a':
                 raise ValueError("invalid NIF header: expected '%s' but got '%s'"%(version_string, s[:-1]))
 
-        def write(self, version = -1, f = None, **kwargs):
-            f.write(self.versionString(version) + '\x0a')
+        def write(self, stream, **kwargs):
+            stream.write(self.versionString(kwargs.get('version')) + '\x0a')
 
         def getSize(self, **kwargs):
-            return len(self.versionString(kwargs.get('version', -1))) + 1
+            return len(self.versionString(kwargs.get('version'))) + 1
 
         @staticmethod
         def versionString(version):
@@ -586,6 +597,8 @@ class NifFormat(object):
             >>> NifFormat.HeaderString.versionString(0x0A010000)
             'Gamebryo File Format, Version 10.1.0.0'
             """
+            if version == -1 or version is None:
+                raise NifError('no string for version %s'%version)
             if version <= 0x0A000102:
                 s = "NetImmerse"
             else:
@@ -617,13 +630,13 @@ class NifFormat(object):
         def getHash(self, **kwargs):
             return None
 
-        def read(self, version = -1, f = None, **kwargs):
-            ver, = struct.unpack('<I', f.read(4))
-            if ver != version:
+        def read(self, stream, **kwargs):
+            ver, = struct.unpack('<I', stream.read(4))
+            if ver != kwargs.get('version'):
                 raise ValueError('invalid version number: expected 0x%08X but got 0x%08X'%(version, ver))
 
-        def write(self, version = -1, f = None, **kwargs):
-            f.write(struct.pack('<I', version))
+        def write(self, stream, **kwargs):
+            stream.write(struct.pack('<I', kwargs.get('version')))
 
     class SizedString(BasicBase):
         """Basic type for strings.
@@ -633,15 +646,15 @@ class NifFormat(object):
         >>> s = NifFormat.SizedString()
         >>> f.write('\\x07\\x00\\x00\\x00abcdefg')
         >>> f.seek(0)
-        >>> s.read(f = f)
+        >>> s.read(f)
         >>> str(s)
         'abcdefg'
         >>> f.seek(0)
         >>> s.setValue('Hi There')
-        >>> s.write(f = f)
+        >>> s.write(f)
         >>> f.seek(0)
         >>> m = NifFormat.SizedString()
-        >>> m.read(f = f)
+        >>> m.read(f)
         >>> str(m)
         'Hi There'
         """
@@ -649,57 +662,57 @@ class NifFormat(object):
             self.setValue('')
 
         def getValue(self):
-            return self._x
+            return self._value
 
         def setValue(self, value):
             if len(value) > 10000: raise ValueError('string too long')
-            self._x = str(value)
+            self._value = str(value)
 
         def __str__(self):
-            s = self._x
+            s = self._value
             if not s: return '<EMPTY STRING>'
             return s
 
         def getSize(self, **kwargs):
-            return 4+len(self._x)
+            return 4+len(self._value)
 
         def getHash(self, **kwargs):
             return self.getValue()
 
-        def read(self, f = None, **kwargs):
-            n, = struct.unpack('<I', f.read(4))
-            if n > 10000: raise ValueError('string too long (0x%08X at 0x%08X)'%(n, f.tell()))
-            self._x = f.read(n)
+        def read(self, stream, **kwargs):
+            n, = struct.unpack('<I', stream.read(4))
+            if n > 10000: raise ValueError('string too long (0x%08X at 0x%08X)'%(n, stream.tell()))
+            self._value = stream.read(n)
 
-        def write(self, f = None, **kwargs):
-            f.write(struct.pack('<I', len(self._x)))
-            f.write(self._x)
+        def write(self, stream, **kwargs):
+            stream.write(struct.pack('<I', len(self._value)))
+            stream.write(self._value)
 
     class ShortString(BasicBase):
         """Another type for strings."""
         def __init__(self, **kwargs):
-            self._x = ''
+            self._value = ''
 
         def getValue(self):
-            return self._x
+            return self._value
 
         def setValue(self, value):
             if len(value) > 254: raise ValueError('string too long')
-            self._x = str(value)
+            self._value = str(value)
 
         def __str__(self):
-            return self._x
+            return self._value
 
         def getHash(self, **kwargs):
             return self.getValue()
 
-        def read(self, f = None, **kwargs):
-            n, = struct.unpack('<B', f.read(1))
-            self._x = f.read(n).rstrip('\x00')
+        def read(self, stream, **kwargs):
+            n, = struct.unpack('<B', stream.read(1))
+            self._value = stream.read(n).rstrip('\x00')
 
-        def write(self, f = None, **kwargs):
-            f.write(struct.pack('<B', len(self._x)+1))
-            f.write(self._x + '\x00')
+        def write(self, stream, **kwargs):
+            stream.write(struct.pack('<B', len(self._value)+1))
+            stream.write(self._value + '\x00')
 
     class string(SizedString):
         _hasStrings = True
@@ -708,38 +721,40 @@ class NifFormat(object):
             if kwargs.get('version', -1) >= 0x14010003:
                 return 4
             else:
-                return 4+len(self._x)
+                return 4+len(self._value)
 
-        def read(self, version = -1, f = None, string_list = [], **kwargs):
-            n, = struct.unpack('<i', f.read(4))
-            if version >= 0x14010003:
+        def read(self, stream, **kwargs):
+            n, = struct.unpack('<i', stream.read(4))
+            if kwargs.get('version') >= 0x14010003:
                 if n == -1:
-                    self._x = ''
+                    self._value = ''
                 else:
                     try:
-                        self._x = string_list[n]
+                        self._value = kwargs.get('string_list')[n]
                     except IndexError:
                         raise ValueError('string index too large (%i)'%n)
             else:
-                if n > 10000: raise ValueError('string too long (0x%08X at 0x%08X)'%(n, f.tell()))
-                self._x = f.read(n)
+                if n > 10000: raise ValueError('string too long (0x%08X at 0x%08X)'%(n, stream.tell()))
+                self._value = stream.read(n)
 
-        def write(self, version = -1, f = None, string_list = [], **kwargs):
-            if version >= 0x14010003:
-                if self._x == '':
-                    f.write(struct.pack('<i', -1))
+        def write(self, stream, **kwargs):
+            if kwargs.get('version') >= 0x14010003:
+                if self._value == '':
+                    stream.write(struct.pack('<i', -1))
                 else:
                     try:
-                        f.write(struct.pack('<i', string_list.index(self._x)))
+                        stream.write(struct.pack(
+                            '<i', kwargs.get('string_list').index(self._value)))
                     except ValueError:
-                        raise ValueError("string '%s' not in string list"%self._x)
+                        raise ValueError(
+                            "string '%s' not in string list"%self._value)
             else:
-                f.write(struct.pack('<I', len(self._x)))
-                f.write(self._x)
+                stream.write(struct.pack('<I', len(self._value)))
+                stream.write(self._value)
 
         def getStrings(self, **kwargs):
-            if self._x != '':
-                return [self._x]
+            if self._value != '':
+                return [self._value]
             else:
                 return []
 
@@ -793,16 +808,16 @@ class NifFormat(object):
         return attrname
 
     @classmethod
-    def getVersion(cls, f):
+    def getVersion(cls, stream):
         """Returns version and user version number, if version is supported.
         Returns -1, 0 if version is not supported.
-        Returns -2, 0 if <f> is not a nif file.
+        Returns -2, 0 if <stream> is not a nif file.
         """
-        pos = f.tell()
+        pos = stream.tell()
         try:
-            s = f.readline(64).rstrip()
+            s = stream.readline(64).rstrip()
         finally:
-            f.seek(pos)
+            stream.seek(pos)
         if s.startswith("NetImmerse File Format, Version " ):
             version_str = s[32:]
         elif s.startswith("Gamebryo File Format, Version "):
@@ -820,23 +835,23 @@ class NifFormat(object):
         if ver >= 0x0303000D:
             ver_int = None
             try:
-                f.readline(64)
-                ver_int, = struct.unpack('<I', f.read(4))
+                stream.readline(64)
+                ver_int, = struct.unpack('<I', stream.read(4))
                 if ver_int != ver:
                     return -2, 0 # not a nif file
-                if ver >= 0x14000004: f.read(1)
-                if ver >= 0x0A010000: userver, = struct.unpack('<I', f.read(4))
+                if ver >= 0x14000004: stream.read(1)
+                if ver >= 0x0A010000: userver, = struct.unpack('<I', stream.read(4))
             finally:
-                f.seek(pos)
+                stream.seek(pos)
         return ver, userver
 
     @classmethod
-    def read(cls, version, user_version, f, verbose = 0):
+    def read(cls, stream, version = None, user_version = None, verbose = 0):
         # read header
         if verbose >= 1:
-            print "reading block at 0x%08X..."%f.tell()
+            print "reading block at 0x%08X..."%stream.tell()
         hdr = cls.Header()
-        hdr.read(version = version, user_version = user_version, f = f)
+        hdr.read(stream, version = version, user_version = user_version)
         if verbose >= 2:
             print hdr
 
@@ -850,7 +865,7 @@ class NifFormat(object):
         if version < 0x0303000D:
             # skip 'Top Level Object' block type
             top_level_str = cls.SizedString()
-            top_level_str.read(f = f)
+            top_level_str.read(stream)
             top_level_str = str(top_level_str)
             if not top_level_str == "Top Level Object":
                 raise cls.NifError("expected 'Top Level Object' but got '%s' instead"%top_level_str)
@@ -859,13 +874,13 @@ class NifFormat(object):
             # get block name
             if version >= 0x05000001:
                 if version <= 0x0A01006A:
-                    dummy, = struct.unpack('<I', f.read(4))
+                    dummy, = struct.unpack('<I', stream.read(4))
                     if dummy != 0:
-                        raise cls.NifError('non-zero block tag 0x%08X at 0x%08X)'%(dummy, f.tell()))
+                        raise cls.NifError('non-zero block tag 0x%08X at 0x%08X)'%(dummy, stream.tell()))
                 block_type = hdr.blockTypes[hdr.blockTypeIndex[block_num]]
             else:
                 block_type = cls.SizedString()
-                block_type.read(f = f)
+                block_type.read(stream)
                 block_type = str(block_type)
             # get the block index
             if version >= 0x0303000D:
@@ -880,18 +895,21 @@ class NifFormat(object):
                 # location of the object when it was written to
                 # memory
                 else:
-                    block_index, = struct.unpack('<I', f.read(4))
+                    block_index, = struct.unpack('<I', stream.read(4))
                     if block_dct.has_key(block_index):
-                        raise cls.NifError('duplicate block index (0x%08X at 0x%08X)'%(block_index, f.tell()))
+                        raise cls.NifError('duplicate block index (0x%08X at 0x%08X)'%(block_index, stream.tell()))
             # create and read block
             try:
                 block = getattr(cls, block_type)()
             except AttributeError:
                 raise cls.NifError("unknown block type '" + block_type + "'")
             if verbose >= 1:
-                print "reading block at 0x%08X..."%f.tell()
+                print "reading block at 0x%08X..."%stream.tell()
             try:
-                block.read(version = version, user_version = user_version, f = f, link_stack = link_stack, string_list = string_list)
+                block.read(
+                    stream,
+                    version = version, user_version = user_version,
+                    link_stack = link_stack, string_list = string_list)
             except:
                 if verbose >= 1:
                     print "reading failed"
@@ -919,16 +937,23 @@ class NifFormat(object):
 
         # read footer
         ftr = cls.Footer()
-        ftr.read(version = version, user_version = user_version, f = f, link_stack = link_stack)
+        ftr.read(
+            stream,
+            version = version, user_version = user_version,
+            link_stack = link_stack)
 
         # check if we are at the end of the file
-        if f.read(1) != '':
+        if stream.read(1) != '':
             raise cls.NifError('end of file not reached: corrupt nif file?')
 
         # fix links
         for block in block_list:
-            block.fixLinks(version, user_version, block_dct, link_stack)
-        ftr.fixLinks(version, user_version, block_dct, link_stack)
+            block.fixLinks(
+                version = version, user_version = user_version,
+                block_dct = block_dct, link_stack = link_stack)
+        ftr.fixLinks(
+            version = version, user_version = user_version,
+            block_dct = block_dct, link_stack= link_stack)
         if link_stack != []:
             raise cls.NifError('not all links have been popped from the stack (bug?)')
         # return root objects
@@ -942,7 +967,7 @@ class NifFormat(object):
         return roots
 
     @classmethod
-    def write(cls, version, user_version, f, roots, verbose = 0):
+    def write(cls, stream, version = None, user_version = None, roots = None, verbose = 0):
         # set up index and type dictionary
         block_list = [] # list of all blocks to be written
         block_index_dct = {} # maps block to block index
@@ -952,13 +977,16 @@ class NifFormat(object):
         for root in roots:
             cls._makeBlockList(version, user_version, root, block_list, block_index_dct, block_type_list, block_type_dct)
             for block in root.tree():
-                string_list.extend(block.getStrings(version, user_version))
+                string_list.extend(
+                    block.getStrings(
+                        version = version, user_version = user_version))
         string_list = list(set(string_list)) # ensure unique elements
 
         # set up header
         hdr = cls.Header()
         hdr.userVersion = user_version # TODO dedicated type for userVersion similar to FileVersion
-        hdr.userVersion2 = 11 # for oblivion CS; apparently this is the version of the bhk blocks
+        # for oblivion CS; apparently this is the version of the bhk blocks
+        hdr.userVersion2 = 11
         hdr.numBlocks = len(block_list)
         hdr.numBlockTypes = len(block_type_list)
         hdr.blockTypes.updateSize()
@@ -989,33 +1017,43 @@ class NifFormat(object):
             ftr.roots[i] = root
 
         # write the file
-        hdr.write(version = version, user_version = user_version, f = f, block_index_dct = block_index_dct)
+        hdr.write(
+            stream,
+            version = version, user_version = user_version,
+            block_index_dct = block_index_dct)
         if version < 0x0303000D:
             s = cls.SizedString()
             s.setValue("Top Level Object")
-            s.write(f = f)
+            s.write(stream)
         for block in block_list:
             if version >= 0x05000001:
                 if version <= 0x0A01006A:
-                    f.write('\x00\x00\x00\x00') # write zero dummy separator
+                    # write zero dummy separator
+                    stream.write('\x00\x00\x00\x00')
             else:
                 # write block type string
                 s = cls.SizedString()
                 assert(block_type_list[block_type_dct[block]] == block.__class__.__name__) # debug
                 s.setValue(block.__class__.__name__)
-                s.write(f = f)
+                s.write(stream)
             # write block index
             if verbose >= 1:
                 print "writing block %i..."%block_index_dct[block]
             if version < 0x0303000D:
-                f.write(struct.pack('<i', block_index_dct[block])[0])
+                stream.write(struct.pack('<i', block_index_dct[block])[0])
             # write block
-            block.write(version = version, user_version = user_version, f = f, block_index_dct = block_index_dct, string_list = string_list)
+            block.write(
+                stream,
+                version = version, user_version = user_version,
+                block_index_dct = block_index_dct, string_list = string_list)
         if version < 0x0303000D:
             s = cls.SizedString()
             s.setValue("End Of File")
-            s.write(f = f)
-        ftr.write(version = version, user_version = user_version, f = f, block_index_dct = block_index_dct)
+            s.write(stream)
+        ftr.write(
+            stream,
+            version = version, user_version = user_version,
+            block_index_dct = block_index_dct)
 
     @classmethod
     def _makeBlockList(cls, version, user_version, root, block_list, block_index_dct, block_type_list, block_type_dct):
@@ -1063,10 +1101,11 @@ class NifFormat(object):
         """Like walk, but returns more information:
         version, user_version, f, and roots.
 
-        Note that the caller is not responsible for closing f.
+        Note that the caller is not responsible for closing stream.
 
         walkFile is for instance used by runtest.py to implement the
-        testFile-style tests which must access f after the file has been read."""
+        testFile-style tests which must access the file after the file has been
+        read."""
         # filter for recognizing nif files by extension
         # .kf are nif files containing keyframes
         # .kfa are nif files containing keyframes in DAoC style
@@ -1075,26 +1114,31 @@ class NifFormat(object):
         # now walk over all these files in directory top
         for filename in Utils.walk(top, topdown, onerror = None, re_filename = re_nif):
             if verbose >= 1: print "reading %s"%filename
-            f = open(filename, mode)
+            stream = open(filename, mode)
             try:
                 # get the version
-                version, user_version = cls.getVersion(f)
+                version, user_version = cls.getVersion(stream)
                 if version >= 0:
                     # we got it, so now read the nif file
                     if verbose >= 2: print "version 0x%08X"%version
                     try:
-                        # return (version, user_version, f, roots)
-                        yield version, user_version, f, cls.read(version, user_version, f)
+                        # return (version, user_version, stream, roots)
+                        yield (version, user_version, stream,
+                               cls.read(
+                                   stream,
+                                   version = version,
+                                   user_version = user_version))
                     except StandardError, e:
                         # an error occurred during reading
                         # this should not happen: means that the file is
                         # corrupt, or that the xml is corrupt
                         # so we call onerror
                         if verbose >= 1:
-                            print 'Warning: read failed due to either a corrupt nif file, a corrupt nif.xml,'
-                            print 'or a bug in NifFormat library.'
+                            print """
+Warning: read failed due to either a corrupt nif file, a corrupt nif.xml,
+or a bug in NifFormat library."""
                         if verbose >= 2:
-                            Utils.hexDump(f)
+                            Utils.hexDump(stream)
                         if onerror == None:
                             pass # ignore the error
                         else:
@@ -1106,4 +1150,4 @@ class NifFormat(object):
                 else:
                     if verbose >= 1: print 'not a nif file'
             finally:
-                f.close()
+                stream.close()
