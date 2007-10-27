@@ -200,7 +200,7 @@ class CgfFormat(object):
 
         def read(self, stream, **kwargs):
             self._value = None # fixLinks will set this field
-            block_index, = struct.unpack('<i', f.read(4))
+            block_index, = struct.unpack('<i', stream.read(4))
             kwargs.get('link_stack', []).append(block_index)
 
         def write(self, stream, **kwargs):
@@ -403,17 +403,21 @@ class CgfFormat(object):
             chunkhdr.offset = stream.tell()
             chunkhdr.id = block_index_dct[chunk]
             # write chunk header
-            if chunkhdr.type not in [cls.ChunkType.SourceInfo, cls.ChunkType.BoneNameList, cls.ChunkType.BoneLightBinding, cls.ChunkType.BoneInitialPos, cls.ChunkType.MeshMorphTarget]:
-                chunkhdr.write(version = fileversion, f = f)
+            if chunkhdr.type not in [
+                cls.ChunkType.SourceInfo, cls.ChunkType.BoneNameList,
+                cls.ChunkType.BoneLightBinding, cls.ChunkType.BoneInitialPos,
+                cls.ChunkType.MeshMorphTarget]:
+                chunkhdr.write(stream, version = fileversion)
             # write chunk
-            chunk.write(version = version, f = f, block_index_dct = block_index_dct)
+            chunk.write(
+                stream, version = version, block_index_dct = block_index_dct)
 
         # write chunk table
         hdr.offset = stream.tell()
         table.write(stream, version = fileversion)
 
         # update header
-        f.seek(hdr_pos)
+        stream.seek(hdr_pos)
         hdr.write(stream, version = fileversion)
 
     @classmethod
@@ -449,7 +453,7 @@ class CgfFormat(object):
         top can also be a file instead of a directory. The argument onerror,
         if set, will be called if cls.read raises an exception (errors coming
         from os.walk will be ignored)."""
-        for filetype, fileversion, f, chunks, versions in cls.walkFile(top, topdown, onerror, verbose):
+        for filetype, fileversion, stream, chunks, versions in cls.walkFile(top, topdown, onerror, verbose):
             yield chunks, versions
 
     @classmethod
@@ -457,7 +461,7 @@ class CgfFormat(object):
         """Like walk, but returns more information:
         filetype, fileversion, f, chunks, and versions
 
-        Note that the caller is not responsible for closing f.
+        Note that the caller is not responsible for closing the file.
 
         walkFile is for instance used by runtest.py to implement the
         testFile-style tests which must access f after the file has been read."""
@@ -466,18 +470,19 @@ class CgfFormat(object):
         # now walk over all these files in directory top
         for filename in Utils.walk(top, topdown, onerror = None, re_filename = re_cgf):
             if verbose >= 1: print "reading %s"%filename
-            f = open(filename, mode)
+            stream = open(filename, mode)
             try:
                 # get the version
-                filetype, fileversion = cls.getVersion(f)
+                filetype, fileversion = cls.getVersion(stream)
                 if filetype >= 0:
                     # we got it, so now read the nif file
-                    if verbose >= 2: print "type 0x%08X, version 0x%08X"%(filetype, fileversion)
+                    if verbose >= 2:
+                        print "type 0x%08X, version 0x%08X"%(filetype, fileversion)
                     try:
                         # return (filetype, fileversion, f, chunks, versions)
                         chunks, versions = cls.read(
                             stream, fileversion = fileversion)
-                        yield filetype, fileversion, f, chunks, versions
+                        yield filetype, fileversion, stream, chunks, versions
                     except StandardError, e:
                         # an error occurred during reading
                         # this should not happen: means that the file is
@@ -487,7 +492,7 @@ class CgfFormat(object):
                             print 'Warning: read failed due to either a corrupt cgf file, a corrupt cgf.xml,'
                             print 'or a bug in CgfFormat library.'
                         if verbose >= 2:
-                            Utils.hexDump(f)
+                            Utils.hexDump(stream)
                         if onerror == None:
                             pass # ignore the error
                         else:
@@ -499,4 +504,4 @@ class CgfFormat(object):
                 else:
                     if verbose >= 1: print 'not a cgf file'
             finally:
-                f.close()
+                stream.close()
