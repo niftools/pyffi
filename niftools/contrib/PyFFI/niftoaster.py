@@ -156,10 +156,15 @@ for hacking, modifying, or validating <file>, or the files in <folder>."""
 
     testBlock = getattr(test, 'testBlock', None)
     testRoot = getattr(test, 'testRoot', None)
-    testFile = getattr(test, 'testFile', None)
+    testFile = getattr(test, 'testFile',
+                       NifTester.testFileOverwrite if mode == 'r+b' else None)
 
     # run tester
-    NifTester.testPath(top, testBlock = testBlock, testRoot = testRoot, testFile = testFile, onreaderror = onreaderror, mode = mode, verbose = options.verbose, arg = options.arg)
+    NifTester.testPath(
+        top,
+        testBlock = testBlock, testRoot = testRoot, testFile = testFile,
+        onreaderror = onreaderror, mode = mode, verbose = options.verbose,
+        arg = options.arg)
 
 # if script is called...
 if __name__ == "__main__":

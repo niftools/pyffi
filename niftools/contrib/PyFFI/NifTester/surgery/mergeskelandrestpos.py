@@ -38,10 +38,3 @@ def testRoot(root, **args):
         if failed: # should not happen if force = True
             print 'WARNING: failed to merge rest position of ' + geom.name + ' with following geometries:'
             print [node.name for node in failed]
-
-def testFile(version, user_version, f, roots, **args):
-    # write result
-    f.seek(0)
-    NifFormat.write(version, user_version, f, roots)
-    f.truncate()
-

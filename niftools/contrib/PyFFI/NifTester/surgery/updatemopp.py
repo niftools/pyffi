@@ -7,9 +7,3 @@ def testBlock(block, **args):
     block.updateOriginScale()
     block.updateMopp()
     print "mopp length = %i"%block.moppDataSize
-
-def testFile(version, user_version, f, roots, **args):
-    f.seek(0)
-    NifFormat.write(version, user_version, f, roots)
-    f.truncate()
-

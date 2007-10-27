@@ -22,8 +22,3 @@ def testBlock(block, **args):
 
     #print skininst.data.skinPartition
 
-def testFile(version, user_version, f, roots, **args):
-    f.seek(0)
-    NifFormat.write(version, user_version, f, roots)
-    f.truncate()
-

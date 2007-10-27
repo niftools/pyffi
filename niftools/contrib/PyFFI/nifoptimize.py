@@ -246,21 +246,6 @@ def testBlock(block, **args):
     if isinstance(block, NifFormat.NiTriStrips):
         optimizeTriStrips(block)
 
-def testFile(version, user_version, f, roots, **args):
-    f.seek(0)
-    backup = f.read(-1)
-    f.seek(0)
-    print "writing %s..."%f.name
-    try:
-        NifFormat.write(version, user_version, f, roots)
-    except: # not just StandardError, also CTRL-C
-        print "write failed!!! attempt to restore original file..."
-        f.seek(0)
-        f.write(backup)
-        f.truncate()
-        raise
-    f.truncate()
-
 import sys, os
 from optparse import OptionParser
 
@@ -293,10 +278,16 @@ may destroy them. Make a backup before running this script."""
     print """This script will modify the nif files, in particular if something goes wrong it
 may destroy them. Make a backup of your nif files before running this script.
 """
-    if raw_input("Are you sure that you want to proceed? [n/Y] ") != "Y": return
+    if raw_input("Are you sure that you want to proceed? [n/Y] ") != "Y":
+        return
 
     # run tester
-    NifTester.testPath(top, testBlock = testBlock, testRoot = testRoot, testFile = testFile, onreaderror = NifTester.raise_exception, mode = "r+b", raisetesterror = options.raisetesterror, verbose = options.verbose)
+    NifTester.testPath(
+        top,
+        testBlock = testBlock, testRoot = testRoot,
+        testFile = NifTester.testFileOverwrite,
+        onreaderror = NifTester.raise_exception, mode = "r+b",
+        raisetesterror = options.raisetesterror, verbose = options.verbose)
 
 # if script is called...
 if __name__ == "__main__":

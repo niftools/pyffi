@@ -18,17 +18,39 @@ from optparse import OptionParser
 from PyFFI.NIF import NifFormat
 
 # useful as onreaderror parameter
-def raise_exception(e):
-    raise e
+def raise_exception(exc):
+    raise exc
 
 # useful as onreaderror parameter
-def pass_exception(e):
+def pass_exception(exc):
     pass
+
+# useful as testFile which simply writes back the file
+# but restores the file if the write fails
+def testFileOverwrite(stream,
+                      version = None, user_version = None, roots = None,
+                      **args):
+    stream.seek(0)
+    backup = stream.read(-1)
+    stream.seek(0)
+    if args.get('verbose'):
+        print "writing %s..."%stream.name
+    try:
+        NifFormat.write(
+            stream,
+            version = version, user_version = user_version, roots = roots)
+    except: # not just StandardError, also CTRL-C
+        print "write failed!!! attempt to restore original file..."
+        stream.seek(0)
+        stream.write(backup)
+        stream.truncate()
+        raise
+    stream.truncate()
 
 # test all files using testBlock, testRoot, and testFile functions
 def testPath(top, testBlock = None, testRoot = None, testFile = None, onreaderror = None, mode = 'rb', raisetesterror = True, **args):
     verbose = args.get('verbose', 1)
-    for version, user_version, f, root_blocks in NifFormat.walkFile(top, onerror = onreaderror, verbose = min(1, verbose), mode = mode):
+    for version, user_version, stream, root_blocks in NifFormat.walkFile(top, onerror = onreaderror, verbose = min(1, verbose), mode = mode):
         # find blocks beforehand as tree hierarchy may change after each
         # test (especially for surgery tests)
         for root in root_blocks:
@@ -43,14 +65,17 @@ def testPath(top, testBlock = None, testRoot = None, testFile = None, onreaderro
                     for block in blocks:
                         testBlock(block, **args)
             if testFile:
-                testFile(version, user_version, f, root_blocks, **args)
+                testFile(
+                    stream,
+                    version = version, user_version = user_version,
+                    roots = root_blocks, **args)
         except StandardError:
             print """
 *** TEST FAILED ON %-51s ***
 *** If you were running a script that came with PyFFI, then            ***
 *** please report this as a bug (include nif file name or nif file) on ***
 *** http://sourceforge.net/tracker/?group_id=149157                    ***
-"""%f.name
+"""%stream.name
             if raisetesterror:
                 raise
 

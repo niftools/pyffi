@@ -3,16 +3,18 @@
 from PyFFI.NIF import NifFormat
 from tempfile import TemporaryFile
 
-def testFile(version, user_version, f, roots, **args):
+def testFile(stream, version = None, user_version = None, roots = None, **args):
     f_tmp = TemporaryFile()
     try:
-        NifFormat.write(version, user_version, f_tmp, roots)
-        f.seek(2,0)
+        NifFormat.write(
+            f_tmp,
+            version = version, user_version = user_version, roots = roots)
+        stream.seek(2,0)
         f_tmp.seek(2,0)
         # comparing the files will usually be different because blocks may
         # have been written back in a different order, so cheaply just compare
         # file sizes
-        if f.tell() != f_tmp.tell():
+        if stream.tell() != f_tmp.tell():
             raise StandardError('write check failed: file sizes differ')
     finally:
         f_tmp.close()

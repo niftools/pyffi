@@ -59,12 +59,9 @@ def testBlock(block, **args):
         skinpart = skininst.data.skinPartition
 
     # use ffvt3r settings
-    block.updateSkinPartition(maxbonesperpartition = 4, maxbonespervertex = 4, stripify = False, verbose = 1, padbones = True)
-
-def testFile(version, user_version, f, roots, **args):
-    f.seek(0)
-    NifFormat.write(version, user_version, f, roots)
-    f.truncate()
+    block.updateSkinPartition(
+        maxbonesperpartition = 4, maxbonespervertex = 4,
+        stripify = False, verbose = 1, padbones = True)
 
 import sys, os
 from optparse import OptionParser
@@ -78,7 +75,8 @@ def main():
 files in folder <folder> for Freedom Force vs. the 3rd Reich.
 This script will modify the nif files, in particular if something goes wrong it
 may destroy them. Make a backup before running this script."""
-    parser = OptionParser(usage, version="%prog $Rev$", description=description)
+    parser = OptionParser(
+        usage, version="%prog $Rev$", description=description)
     parser.add_option("-v", "--verbose", dest="verbose",
                       type="int",
                       metavar="VERBOSE",
@@ -96,10 +94,15 @@ may destroy them. Make a backup before running this script."""
     print """This script will modify the nif files, in particular if something goes wrong it
 may destroy them. Make a backup of your nif files before running this script.
 """
-    if raw_input("Are you sure that you want to proceed? [n/Y] ") != "Y": return
+    if raw_input("Are you sure that you want to proceed? [n/Y] ") != "Y":
+        return
 
     # run tester
-    NifTester.testPath(top, testBlock = testBlock, testFile = testFile, onreaderror = NifTester.raise_exception, mode = "r+b", verbose = options.verbose)
+    NifTester.testPath(
+        top,
+        testBlock = testBlock, testFile = NifTester.testFileOverwrite,
+        onreaderror = NifTester.raise_exception,
+        mode = "r+b", verbose = options.verbose)
 
 # if script is called...
 if __name__ == "__main__":

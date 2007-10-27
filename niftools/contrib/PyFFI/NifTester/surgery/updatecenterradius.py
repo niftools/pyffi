@@ -12,7 +12,3 @@ def testBlock(block, **args):
         print "recalculating skin center and radius"
         block.updateSkinCenterRadius()
 
-def testFile(version, user_version, f, roots, **args):
-    f.seek(0)
-    NifFormat.write(version, user_version, f, roots)
-

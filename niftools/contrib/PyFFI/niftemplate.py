@@ -59,25 +59,16 @@ def testBlock(block, **args):
     verbose = args.get('verbose', 1)
     # modify to your needs
     if isinstance(block, NifFormat.NiObjectNET):
-        if verbose >= 2: print "parsing block [%s] %s"%(block.__class__.__name__, block.name)
+        if verbose >= 2:
+            print "parsing block [%s] %s"%(block.__class__.__name__, block.name)
     else:
-        if verbose >= 2: print "parsing block [%s]"%(block.__class__.__name__)
+        if verbose >= 2:
+            print "parsing block [%s]"%(block.__class__.__name__)
 
 def testRoot(root_block, **args):
     """Every root block will be tested with this function."""
     # modify to your needs
     pass
-
-def testFile(version, user_version, f, roots, **args):
-    """Every file will be tested with this function."""
-    # you probably just want to leave this function as it is
-    verbose = args.get('verbose', 1)
-    if OVERWRITE_FILES:
-        if verbose >= 1: print "rewriting file...",
-        f.seek(0)
-        NifFormat.write(version, user_version, f, roots)
-        f.truncate()
-        if verbose >= 1: print "done"
 
 ############################################################################
 # main program
@@ -121,7 +112,12 @@ may destroy them. Make a backup of your nif files before running this script.
 
     # run tester
     mode = "rb" if not OVERWRITE_FILES else "r+b"
-    NifTester.testPath(top, testBlock = testBlock, testRoot = testRoot, testFile = testFile, onreaderror = NifTester.raise_exception, mode = mode, verbose = options.verbose)
+    NifTester.testPath(
+        top,
+        testBlock = testBlock, testRoot = testRoot,
+        testFile = NifTester.testFileOverwrite if OVERWRITE_FILES else None,
+        onreaderror = NifTester.raise_exception, mode = mode,
+        verbose = options.verbose)
 
 # if script is called...
 if __name__ == "__main__":
