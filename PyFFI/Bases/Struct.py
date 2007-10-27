@@ -275,6 +275,7 @@ class StructBase(object):
             if arg != None:
                 if not isinstance(arg, (int, long)):
                     arg = getattr(self, arg)
+                kwargs['argument'] = arg
             #print name # debug
             getattr(self, "_" + name + "_value_").read(stream, **kwargs)
 
@@ -298,6 +299,7 @@ class StructBase(object):
             if arg != None:
                 if not isinstance(arg, (int, long)):
                     arg = getattr(self, arg)
+                kwargs['argument'] = arg
             getattr(self, "_" + name + "_value_").write(stream, **kwargs)
 
     def fixLinks(self, **kwargs):

@@ -41,8 +41,7 @@ Implements class for arrays.
 # ***** END LICENCE BLOCK *****
 # --------------------------------------------------------------------------
 
-from Basic import BasicBase
-from Expression import Expression
+from PyFFI.Bases.Basic import BasicBase
 
 class _ListWrap(list):
     """A wrapper for list, which uses getValue and setValue for
@@ -50,40 +49,41 @@ class _ListWrap(list):
     def __init__(self, element_type):
         list.__init__(self)
         if issubclass(element_type, BasicBase):
-            self._getitem_hook = self.getBasicItem
-            self._setitem_hook = self.setBasicItem
-            self._iteritem_hook = self.iterBasicItem
+            self._getItemHook = self.getBasicItem
+            self._setItemHook = self.setBasicItem
+            self._iterItemHook = self.iterBasicItem
         else:
-            self._getitem_hook = self.getItem
-            self._setitem_hook = self._notimplemented_hook
-            self._iteritem_hook = self.iterItem
+            self._getItemHook = self.getItem
+            self._setItemHook = self._notImplementedHook
+            self._iterItemHook = self.iterItem
 
     def __getitem__(self, index):
-        return self._getitem_hook(index)
+        return self._getItemHook(index)
 
     def __setitem__(self, index, value):
-        return self._setitem_hook(index, value)
+        return self._setItemHook(index, value)
 
     def __iter__(self):
-        return self._iteritem_hook()
+        return self._iterItemHook()
 
     def __contains__(self, value):
         # ensure that the "in" operator uses self.__iter__() rather than
         # list.__iter__()
-        for x in self.__iter__():
-            if x == value: return True
+        for elem in self.__iter__():
+            if elem == value:
+                return True
         return False
 
-    def _notimplemented_hook(self, *args):
+    def _notImplementedHook(self, *args):
         raise NotImplementedError
 
     def iterBasicItem(self):
-        for e in list.__iter__(self):
-            yield e.getValue()
+        for elem in list.__iter__(self):
+            yield elem.getValue()
 
     def iterItem(self):
-        for e in list.__iter__(self):
-            yield e
+        for elem in list.__iter__(self):
+            yield elem
 
     def getBasicItem(self, index):
         return list.__getitem__(self, index).getValue()
@@ -96,7 +96,10 @@ class _ListWrap(list):
 
 class Array(_ListWrap):
     # initialize the array
-    def __init__(self, parent, element_type, element_type_template, element_type_argument, count1, count2 = None):
+    def __init__(
+        self, parent,
+        element_type, element_type_template, element_type_argument,
+        count1, count2 = None):
         if count2 == None:
             _ListWrap.__init__(self, element_type)
         else:
@@ -110,52 +113,57 @@ class Array(_ListWrap):
         
         if self._count2 == None:
             for i in xrange(self._len1()):
-                self.append(self._elementType(template = self._elementTypeTemplate, argument = self._elementTypeArgument))
+                self.append(
+                    self._elementType(
+                        template = self._elementTypeTemplate,
+                        argument = self._elementTypeArgument))
         else:
             for i in xrange(self._len1()):
-                el = _ListWrap(element_type)
+                elem = _ListWrap(element_type)
                 for j in xrange(self._len2(i)):
-                    el.append(self._elementType(template = self._elementTypeTemplate, argument = self._elementTypeArgument))
-                self.append(el)
+                    elem.append(
+                        self._elementType(
+                            template = self._elementTypeTemplate,
+                            argument = self._elementTypeArgument))
+                self.append(elem)
 
     def _len1(self):
         """The length the array *should* have, obtained by evaluating
         the count1 expression."""
-	return self._count1.eval(self._parent)
+        return self._count1.eval(self._parent)
 
     def _len2(self, index1):
         """The length the array *should* have, obtained by evaluating
         the count2 expression."""
         if self._count2 == None:
             raise ValueError('single array treated as double array (bug?)')
-        e = self._count2.eval(self._parent)
-        #if isinstance(e, BasicBase):
-        #    return e.getValue()
-        if isinstance(e, (int, long)):
-            return e
+        expr = self._count2.eval(self._parent)
+        if isinstance(expr, (int, long)):
+            return expr
         else:
-            return e[index1]
+            return expr[index1]
 
     # string of the array
     def __str__(self):
-        s = '%s instance at 0x%08X\n'%(self.__class__, id(self))
+        text = '%s instance at 0x%08X\n' % (self.__class__, id(self))
         if self._count2 == None:
             for i, element in enumerate(list.__iter__(self)):
                 if i > 16:
-                    s += "etc...\n"
+                    text += "etc...\n"
                     break
-                s += "%i: %s\n"%(i, element)
+                text += "%i: %s\n" % (i, element)
         else:
             k = 0
-            for i, el in enumerate(list.__iter__(self)):
-                for j, e in enumerate(list.__iter__(el)):
+            for i, elemlist in enumerate(list.__iter__(self)):
+                for j, elem in enumerate(list.__iter__(elemlist)):
                     if k > 16:
-                        s += "etc...\n"
+                        text += "etc...\n"
                         break
-                    s += "%i, %i: %s\n"%(i, j, e)
+                    text += "%i, %i: %s\n" % (i, j, elem)
                     k += 1
-                if k > 16: break
-        return s
+                if k > 16:
+                    break
+        return text
 
     def updateSize(self):
         old_size = len(self)
@@ -165,23 +173,27 @@ class Array(_ListWrap):
                 self.__delslice__(new_size, old_size)
             else:
                 for i in xrange(new_size-old_size):
-                    e = self._elementType(template = self._elementTypeTemplate, argument = self._elementTypeArgument)
-                    self.append(e)
+                    elem = self._elementType(
+                        template = self._elementTypeTemplate,
+                        argument = self._elementTypeArgument)
+                    self.append(elem)
         else:
             if new_size < old_size:
                 self.__delslice__(new_size, old_size)
             else:
                 for i in xrange(new_size-old_size):
                     self.append(_ListWrap(self._elementType))
-            for i, el in enumerate(list.__iter__(self)):
-                old_size_i = len(el)
+            for i, elemlist in enumerate(list.__iter__(self)):
+                old_size_i = len(elemlist)
                 new_size_i = self._len2(i)
                 if new_size_i < old_size_i:
-                    el.__delslice__(new_size_i, old_size_i)
+                    elemlist.__delslice__(new_size_i, old_size_i)
                 else:
                     for j in xrange(new_size_i-old_size_i):
-                        e = self._elementType(template = self._elementTypeTemplate, argument = self._elementTypeArgument)
-                        el.append(e)
+                        elem = self._elementType(
+                            template = self._elementTypeTemplate,
+                            argument = self._elementTypeArgument)
+                        elemlist.append(elem)
 
     def read(self, stream, **kwargs):
         # parse arguments
@@ -193,103 +205,110 @@ class Array(_ListWrap):
         # read array
         if self._count2 == None:
             for i in xrange(len1):
-                e = self._elementType(template = self._elementTypeTemplate, argument = self._elementTypeArgument)
-                e.read(stream, **kwargs)
-                self.append(e)
+                elem = self._elementType(
+                    template = self._elementTypeTemplate,
+                    argument = self._elementTypeArgument)
+                elem.read(stream, **kwargs)
+                self.append(elem)
         else:
             for i in xrange(len1):
                 len2i = self._len2(i)
                 if len2i > 1000000: raise ValueError('array too long')
-                el = _ListWrap(self._elementType)
+                elemlist = _ListWrap(self._elementType)
                 for j in xrange(len2i):
-                    e = self._elementType(template = self._elementTypeTemplate, argument = self._elementTypeArgument)
-                    e.read(stream, **kwargs)
-                    el.append(e)
-                self.append(el)
+                    elem = self._elementType(
+                        template = self._elementTypeTemplate,
+                        argument = self._elementTypeArgument)
+                    elem.read(stream, **kwargs)
+                    elemlist.append(elem)
+                self.append(elemlist)
 
     def write(self, stream, **kwargs):
         self._elementTypeArgument = kwargs.get('argument')
         len1 = self._len1()
         if len1 != self.__len__():
-            raise ValueError('array size (%i) different from to field describing number of elements (%i)'%(self.__len__(),len1))
+            raise ValueError('array size (%i) different from to field \
+describing number of elements (%i)'%(self.__len__(),len1))
         if len1 > 1000000: raise ValueError('array too long (%i)'%len1)
         if self._count2 == None:
-            for e in list.__iter__(self):
-                e.write(stream, **kwargs)
+            for elem in list.__iter__(self):
+                elem.write(stream, **kwargs)
         else:
-            for i, el in enumerate(list.__iter__(self)):
+            for i, elemlist in enumerate(list.__iter__(self)):
                 len2i = self._len2(i)
-                if len2i != el.__len__():
-                    raise ValueError('array size (%i) different from to field describing number of elements (%i)'%(el.__len__(),len2i))
-                if len2i > 1000000: raise ValueError('array too long (%i)'%len2i)
-                for e in list.__iter__(el):
-                    e.write(stream, **kwargs)
+                if len2i != elemlist.__len__():
+                    raise ValueError("array size (%i) different from to field \
+describing number of elements (%i)"%(elemlist.__len__(),len2i))
+                if len2i > 1000000:
+                    raise ValueError('array too long (%i)'%len2i)
+                for elem in list.__iter__(elemlist):
+                    elem.write(stream, **kwargs)
 
     def fixLinks(self, **kwargs):
         if not self._elementType._hasLinks: return
         if self._count2 == None:
-            for e in list.__iter__(self):
-                e.fixLinks(**kwargs)
+            for elem in list.__iter__(self):
+                elem.fixLinks(**kwargs)
         else:
-            for el in list.__iter__(self):
-                for e in list.__iter__(el):
-                    e.fixLinks(**kwargs)
+            for elemlist in list.__iter__(self):
+                for elem in list.__iter__(elemlist):
+                    elem.fixLinks(**kwargs)
 
     def getLinks(self, **kwargs):
         links = []
         if not self._elementType._hasLinks: return links
         if self._count2 == None:
-            for e in list.__iter__(self):
-                links.extend(e.getLinks(**kwargs))
+            for elem in list.__iter__(self):
+                links.extend(elem.getLinks(**kwargs))
         else:
-            for el in list.__iter__(self):
-                for e in list.__iter__(el):
-                    links.extend(e.getLinks(**kwargs))
+            for elemlist in list.__iter__(self):
+                for elem in list.__iter__(elemlist):
+                    links.extend(elem.getLinks(**kwargs))
         return links
 
     def getStrings(self, **kwargs):
         strings = []
         if not self._elementType._hasStrings: return strings
         if self._count2 == None:
-            for e in list.__iter__(self):
-                strings.extend(e.getStrings(**kwargs))
+            for elem in list.__iter__(self):
+                strings.extend(elem.getStrings(**kwargs))
         else:
-            for el in list.__iter__(self):
-                for e in list.__iter__(el):
-                    strings.extend(e.getStrings(**kwargs))
+            for elemlist in list.__iter__(self):
+                for elem in list.__iter__(elemlist):
+                    strings.extend(elem.getStrings(**kwargs))
         return strings
 
     def getRefs(self, **kwargs):
         links = []
         if not self._elementType._hasLinks: return links
         if self._count2 == None:
-            for e in list.__iter__(self):
-                links.extend(e.getRefs(**kwargs))
+            for elem in list.__iter__(self):
+                links.extend(elem.getRefs(**kwargs))
         else:
-            for el in list.__iter__(self):
-                for e in list.__iter__(el):
-                    links.extend(e.getRefs(**kwargs))
+            for elemlist in list.__iter__(self):
+                for elem in list.__iter__(elemlist):
+                    links.extend(elem.getRefs(**kwargs))
         return links
 
     def getSize(self, **kwargs):
         size = 0
         if self._count2 == None:
-            for e in list.__iter__(self):
-                size += e.getSize(**kwargs)
+            for elem in list.__iter__(self):
+                size += elem.getSize(**kwargs)
         else:
-            for el in list.__iter__(self):
-                for e in list.__iter__(el):
-                    size += e.getSize(**kwargs)
+            for elemlist in list.__iter__(self):
+                for elem in list.__iter__(elemlist):
+                    size += elem.getSize(**kwargs)
         return size
 
     def getHash(self, **kwargs):
         hsh = []
         if self._count2 == None:
-            for e in list.__iter__(self):
-                hsh.append(e.getHash(**kwargs))
+            for elem in list.__iter__(self):
+                hsh.append(elem.getHash(**kwargs))
         else:
-            for el in list.__iter__(self):
-                for e in list.__iter__(el):
-                    hsh.append(e.getHash(**kwargs))
+            for elemlist in list.__iter__(self):
+                for elem in list.__iter__(elemlist):
+                    hsh.append(elem.getHash(**kwargs))
         return tuple(hsh)
 

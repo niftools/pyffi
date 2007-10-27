@@ -150,7 +150,7 @@ class UShort(UInt):
 
 class Char(BasicBase):
     def __init__(self, **kwargs):
-        self.setValue('\x00')
+        self._value = '\x00'
 
     def getValue(self):
         return self._value
