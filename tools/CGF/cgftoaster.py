@@ -100,10 +100,13 @@ for hacking, modifying, or validating <file>, or the files in <folder>."""
                 parser.error("tester '%s' not found" % test_str)
 
     testChunk = getattr(test, 'testChunk', None)
-    testFile = getattr(test, 'testFile', None)
+    testFile = getattr(test, 'testFile',
+                       CgfTester.testFileOverwrite if mode == 'r+b' else None)
 
     # run tester
-    CgfTester.testPath(top, testChunk, testFile, onreaderror, mode, verbose=options.verbose, arg=options.arg)
+    CgfTester.testPath(
+        top, testChunk, testFile, onreaderror, mode,
+        verbose=options.verbose, arg=options.arg)
 
 # if script is called...
 if __name__ == "__main__":
