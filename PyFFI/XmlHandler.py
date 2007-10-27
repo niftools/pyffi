@@ -41,14 +41,14 @@ the file format in memory, as a bunch of classes.
 # ***** END LICENSE BLOCK *****
 
 import xml.sax
-from types import *
+from types import NoneType, FunctionType
 import sys
 
-from Bases.Basic      import BasicBase
-from Bases.Struct     import StructBase
-from Bases.Expression import Expression
+from PyFFI.Bases.Basic      import BasicBase
+from PyFFI.Bases.Struct     import StructBase
+from PyFFI.Bases.Expression import Expression
 
-class XmlError(Exception):
+class XmlError(StandardError):
     """The XML handler will throw this exception if something goes wrong while
     parsing."""
     pass
@@ -125,7 +125,9 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
 
         # initialize tag stack
         self.stack = []
-        self.currentTag = None # last element of self.stack; storing this reduces overhead
+        # keep track last element of self.stack
+        # storing this reduces overhead as profiling has shown
+        self.currentTag = None
 
         # cls needs to be accessed in member functions, so make it an instance
         # member variable
@@ -135,8 +137,8 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         # The xmlStruct list includes all xml generated struct classes,
         # including those that are replaced by a native class in cls (for
         # instance NifFormat.String). The idea is that these lists should
-        # contain sufficient info from the xml so they can be used to write other
-        # python scripts that would otherwise have to implement their own
+        # contain sufficient info from the xml so they can be used to write
+        # other python scripts that would otherwise have to implement their own
         # xml parser. See makehsl.py for an example of usage.
         #
         # (note: no classes are created for basic types, so no list for those)
@@ -205,9 +207,11 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                     try:
                         attrs_type = getattr(self.cls, attrs_type_str)
                     except AttributeError:
-                        raise XmlError("typo, or forward declaration of type " + attrs_type_str)
+                        raise XmlError(
+                            "typo, or forward declaration of type %s"
+                            %attrs_type_str)
                 else:
-                    attrs_type = type(None) # type determined at runtime
+                    attrs_type = NoneType # type determined at runtime
                 # optional parameters
                 attrs_default = attrs.get("default")
                 attrs_template_str = attrs.get("template")
@@ -263,7 +267,8 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                     attrs_userver,
                     attrs_doc])
             else:
-                raise XmlError("only add tags allowed in struct type declaration")
+                raise XmlError(
+                    "only add tags allowed in struct type declaration")
         elif self.currentTag == self.tagFile:
             self.pushTag(x)
             
@@ -283,7 +288,9 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                     try:
                         self.class_base = getattr(self.cls, class_basename)
                     except KeyError:
-                        raise XmlError("typo, or forward declaration of struct " + class_basename)
+                        raise XmlError(
+                            "typo, or forward declaration of struct %s"
+                            %class_basename)
                 else:
                     self.class_base = StructBase
                 # istemplate attribute is optional
@@ -293,7 +300,10 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 except KeyError:
                     isTemplate = False
                 # set attributes (see class StructBase)
-                self.class_dct = { "_isTemplate" : isTemplate, "_attrs" : [], "__doc__" : "" }
+                self.class_dct = {
+                    "_isTemplate" : isTemplate,
+                    "_attrs" : [],
+                    "__doc__" : "" }
 
             # fileformat -> basic
             elif x == self.tagBasic:
@@ -309,7 +319,9 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 except KeyError:
                     istemplate = False
                 if self.basic_class._isTemplate != istemplate:
-                    raise XmlError('class %s should have _isTemplate = %s'%(self.class_name,istemplate))
+                    raise XmlError(
+                        'class %s should have _isTemplate = %s'
+                        %(self.class_name,istemplate))
 
             # fileformat -> enum
             elif x == self.tagEnum:
@@ -321,7 +333,8 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 try:
                     self.class_base = getattr(self.cls, typename)
                 except AttributeError:
-                    raise XmlError("typo, or forward declaration of type " + typename)
+                    raise XmlError(
+                        "typo, or forward declaration of type %s"%typename)
                 self.class_dct = {"__doc__" : ""}
 
             # fileformat -> alias
@@ -331,39 +344,44 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 try:
                     self.class_base = getattr(self.cls, typename)
                 except AttributeError:
-                    raise XmlError("typo, or forward declaration of type " + typename)
+                    raise XmlError(
+                        "typo, or forward declaration of type %s"%typename)
                 self.class_dct = {"__doc__" : ""}
 
             # fileformat -> bitstruct
-            # TODO: this works like an alias for now, will add special
-            #       BitStruct base class later
+            # this works like an alias for now, will add special
+            # BitStruct base class later
             elif x == self.tagBitStruct:
                 self.class_name = attrs["name"]
                 typename = attrs["type"]
                 try:
                     self.class_base = getattr(self.cls, typename)
                 except AttributeError:
-                    raise XmlError("typo, or forward declaration of type " + typename)
+                    raise XmlError(
+                        "typo, or forward declaration of type %s"%typename)
                 self.class_dct = {"_attrs" : [], "__doc__" : ""}
                 
             # fileformat -> version
             elif x == self.tagVersion:
                 self.version_str = str(attrs["num"])
-                self.cls.versions[self.version_str] = self.cls.versionNumber(self.version_str)
+                self.cls.versions[self.version_str] = self.cls.versionNumber(
+                    self.version_str)
 
             else:
-                raise XmlError("expected basic, alias, enum, bitstruct, struct, or version, but got " + name + " instead")
+                raise XmlError("""
+expected basic, alias, enum, bitstruct, struct, or version,
+but got %s instead"""%name)
 
         elif self.currentTag == self.tagVersion:
-            raise XmlError( "version tag must not contain any sub tags" )
+            raise XmlError("version tag must not contain any sub tags")
 
         elif self.currentTag == self.tagAlias:
-            raise XmlError( "alias tag must not contain any sub tags" )
+            raise XmlError("alias tag must not contain any sub tags")
 
         elif self.currentTag == self.tagEnum:
             self.pushTag(x)
             if not x == self.tagOption:
-                raise XmlError( "only option tags allowed in enum declaration" )
+                raise XmlError("only option tags allowed in enum declaration")
             value = attrs["value"]
             try:
                 value = int(value)
@@ -388,29 +406,34 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                     attrs_default,
                     attrs_doc])
             else:
-                raise XmlError("only add tags allowed in struct type declaration")
+                raise XmlError(
+                    "only add tags allowed in struct type declaration")
             
         else:
             raise XmlError( "unhandled tag " + name);
     
     def endElement(self, name):
         if not self.stack:
-            raise XmlError( "mismatching end element tag for element " + name )
+            raise XmlError("mismatching end element tag for element %s"%name)
         try:
             x = self.tags[name]
         except KeyError:
             try:
                 x = self.tags_niftools[name]
             except KeyError:
-                raise XmlError("error unknown element '" + name + "'")
+                raise XmlError("error unknown element %s"%name)
         if self.popTag() != x:
-            raise XmlError( "mismatching end element tag for element " + name )
-        #x = self.popTag()
+            raise XmlError("mismatching end element tag for element %s"%name)
         if x == self.tagAttribute:
             return # improves performance
-        if x in [ self.tagStruct, self.tagEnum, self.tagAlias, self.tagBitStruct ]:
-            # create class cls.<class_name> (if it has not been implemented internally)
-            class_type = type(str(self.class_name), (self.class_base,), self.class_dct)
+        if x in (self.tagStruct,
+                 self.tagEnum,
+                 self.tagAlias,
+                 self.tagBitStruct):
+            # create class cls.<class_name> (if it has not been implemented
+            # internally)
+            class_type = type(
+                str(self.class_name), (self.class_base,), self.class_dct)
             if not self.cls.__dict__.has_key(self.class_name):
                 setattr(self.cls, self.class_name, class_type)
             if x == self.tagStruct:
@@ -438,14 +461,14 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                     if templ != "TEMPLATE":
                         a[self.attrTemplate] = getattr(self.cls, templ)
                     else:
-                        a[self.attrTemplate] = type(None)
+                        a[self.attrTemplate] = NoneType
 
             # add custom functions to interface
             # first find the module
             oldsyspath = sys.path
             sys.path = [self.dct['clsFilePath']]
             try:
-                # TODO find better solution to import the custom object module
+                # import custom object module
                 mod = __import__(obj.__name__, globals(),  locals(), [])
             except ImportError, e:
                 if str(e) != "No module named " + obj.__name__:
@@ -466,11 +489,13 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
     def characters(self, s):
         if self.currentTag == self.tagAttribute:
             self.class_dct["_attrs"][-1][self.attrDoc] += str(s.strip())
-        elif self.currentTag in [self.tagStruct, self.tagEnum, self.tagAlias]:
+        elif self.currentTag in (self.tagStruct, self.tagEnum, self.tagAlias):
             self.class_dct["__doc__"] += str(s.strip())
         elif self.currentTag == self.tagVersion:
-            for gamestr in [str(g.strip()) for g in s.split(',')]:
+            for gamestr in (str(g.strip()) for g in s.split(',')):
                 if self.cls.games.has_key(gamestr):
-                    self.cls.games[gamestr].append(self.cls.versions[self.version_str])
+                    self.cls.games[gamestr].append(
+                        self.cls.versions[self.version_str])
                 else:
-                    self.cls.games[gamestr] = [self.cls.versions[self.version_str]]
+                    self.cls.games[gamestr] = [
+                        self.cls.versions[self.version_str]]
