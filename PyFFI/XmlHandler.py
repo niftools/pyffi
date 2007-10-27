@@ -41,10 +41,9 @@ the file format in memory, as a bunch of classes.
 # ***** END LICENSE BLOCK *****
 
 import xml.sax
-from types import NoneType, FunctionType
+from types import NoneType, FunctionType, TypeType
 import sys
 
-from PyFFI.Bases.Basic      import BasicBase
 from PyFFI.Bases.Struct     import StructBase
 from PyFFI.Bases.Expression import Expression
 
@@ -97,8 +96,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
     attrDoc = 11
 
     def __init__(self, cls, name, bases, dct):
-        """
-        Set up the xml parser.
+        """Set up the xml parser.
 
           - Creates a dictionary C{cls.versions} which maps each supported
             version strings onto a version integer.
@@ -147,12 +145,23 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         self.cls.xmlBitStruct = []
         self.cls.xmlStruct = []
 
-    def pushTag(self, x):
-        """Push tag C{x} on the stack and make it the current tag.
+        # elements for creating new classes
+        self.className = None
+        self.classDict = None
+        self.classBase = None
 
-        @param x: The tag to put on the stack."""
-        self.stack.insert(0, x)
-        self.currentTag = x
+        # elements for basic classes
+        self.basicClass = None
+
+        # elements for versions
+        self.versionString = None
+
+    def pushTag(self, tag):
+        """Push tag C{tag} on the stack and make it the current tag.
+
+        @param tag: The tag to put on the stack."""
+        self.stack.insert(0, tag)
+        self.currentTag = tag
 
     def popTag(self):
         """Pop the current tag from the stack and return it. Also update
@@ -167,39 +176,60 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         return lasttag
 
     def startElement(self, name, attrs):
+        """Called when parser starts parsing an element called C{name}.
+
+        This function sets up all variables for creating the class
+        in the C{self.endElement} function. For struct elements, it will set up
+        C{self.className}, C{self.classBase}, and C{self.classDict} which
+        will be used to create the class by invokation of C{type} in
+        C{self.endElement}. For basic, enum, and bitstruct elements, it will
+        set up C{self.basicClass} to link to the proper class implemented by
+        C{self.cls}. The code also performs sanity checks on the attributes.
+
+        For xml add tags, the function will add an entry to the
+        C{self.classDict["_attrs"]} list. Note that this list is used by the
+        struct metaclass: the class attributes are created exactly from this
+        list.
+
+        @param name: The name of the xml element.
+        @param attrs: A dictionary of attributes of the element."""
         # get the tag identifier
         try:
-            x = self.tags[name]
+            tag = self.tags[name]
         except KeyError:
             try:
-                x = self.tags_niftools[name]
+                tag = self.tags_niftools[name]
             except KeyError:
-                raise XmlError("error unknown element '" + name + "'")
+                raise XmlError("error unknown element '%s'"%name)
 
         # Check the stack, if the stack does not exist then we must be
         # at the root of the xml file, and the tag must be "fileformat".
         # The fileformat tag has no further attributes of interest,
         # so we can exit the function after pushing the tag on the stack.
         if not self.stack:
-            if x != self.tagFile:
+            if tag != self.tagFile:
                 raise XmlError("this is not a fileformat xml file")
-            self.pushTag(x)
+            self.pushTag(tag)
             return
         
         # Now do a number of things, depending on the tag that was last
         # pushed on the stack; this is self.currentTag, and reflects the
         # tag in which <name> is embedded.
         # 
-        # For each basic, alias, enum, and struct tag, we need to create a
-        # class. So we assign to self.class_name the name of that class,
-        # to self.class_base the base of that class, and to self.class_dct
-        # the class dictionary which describes all class variables.
+        # For each struct, alias, enum, and bitstruct tag, we shall
+        # create a class. So assign to C{self.className} the name of that
+        # class, C{self.classBase} to the base of that class, and
+        # C{self.classDict} to the class dictionary.
         #
-        # The class variables depend on the type (see the BasicBase and
-        # StructBase classes in FileFormat.Bases).
+        # For a basic tag, C{self.className} is the name of the
+        # class and C{self.basicClass} is the corresponding class in
+        # C{self.cls}.
+        #
+        # For a version tag, C{self.versionString} describes the version as a
+        # string.
         if self.currentTag == self.tagStruct:
-            self.pushTag(x)
-            if x == self.tagAttribute:
+            self.pushTag(tag)
+            if tag == self.tagAttribute:
                 # mandatory parameters
                 attrs_name = self.cls.nameAttribute(attrs["name"])
                 attrs_type_str = attrs["type"]
@@ -253,7 +283,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                     attrs_ver2 = self.cls.versions[attrs_ver2]
 
                 # add attribute to class dictionary
-                self.class_dct["_attrs"].append([
+                self.classDict["_attrs"].append([
                     attrs_name,
                     attrs_type,
                     attrs_default,
@@ -270,11 +300,11 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 raise XmlError(
                     "only add tags allowed in struct type declaration")
         elif self.currentTag == self.tagFile:
-            self.pushTag(x)
+            self.pushTag(tag)
             
             # fileformat -> struct
-            if x == self.tagStruct:
-                self.class_name = attrs["name"]
+            if tag == self.tagStruct:
+                self.className = attrs["name"]
                 # struct types can be organized in a hierarchy
                 # if inherit attribute is defined, then look for corresponding
                 # base block
@@ -286,86 +316,85 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                     # if that base struct has not yet been assigned to a
                     # class, then we have a problem
                     try:
-                        self.class_base = getattr(self.cls, class_basename)
+                        self.classBase = getattr(self.cls, class_basename)
                     except KeyError:
                         raise XmlError(
                             "typo, or forward declaration of struct %s"
                             %class_basename)
                 else:
-                    self.class_base = StructBase
+                    self.classBase = StructBase
                 # istemplate attribute is optional
                 # if not set, then the struct is not a template
                 try:
-                    isTemplate = (attrs["istemplate"] == "1")
+                    is_template = (attrs["istemplate"] == "1")
                 except KeyError:
-                    isTemplate = False
+                    is_template = False
                 # set attributes (see class StructBase)
-                self.class_dct = {
-                    "_isTemplate" : isTemplate,
+                self.classDict = {
+                    "_isTemplate" : is_template,
                     "_attrs" : [],
                     "__doc__" : "" }
 
             # fileformat -> basic
-            elif x == self.tagBasic:
-                self.class_name = attrs["name"]
-                # Each basic type corresponds to a type defined in python, and
-                # the link between basic types and python types is stored in
-                # self.cls.basicClasses, which is a dictionary mapping
-                # basic type names onto BasicBase derived classes
-                self.basic_class = getattr(self.cls, self.class_name)
+            elif tag == self.tagBasic:
+                self.className = attrs["name"]
+                # Each basic type corresponds to a type defined in C{self.cls}.
+                # The link between basic types and C{self.cls} types is done
+                # via the name of the class.
+                self.basicClass = getattr(self.cls, self.className)
                 # check the class variables
                 try:
-                    istemplate = (attrs["istemplate"] == "1")
+                    is_template = (attrs["istemplate"] == "1")
                 except KeyError:
-                    istemplate = False
-                if self.basic_class._isTemplate != istemplate:
+                    is_template = False
+                if self.basicClass._isTemplate != is_template:
                     raise XmlError(
                         'class %s should have _isTemplate = %s'
-                        %(self.class_name,istemplate))
+                        %(self.className,is_template))
 
             # fileformat -> enum
-            elif x == self.tagEnum:
-                self.class_name = attrs["name"]
+            elif tag == self.tagEnum:
+                self.className = attrs["name"]
                 try:
                     typename = attrs["type"]
                 except KeyError:
                     typename = attrs["storage"] # niftools
                 try:
-                    self.class_base = getattr(self.cls, typename)
+                    self.classBase = getattr(self.cls, typename)
                 except AttributeError:
                     raise XmlError(
                         "typo, or forward declaration of type %s"%typename)
-                self.class_dct = {"__doc__" : ""}
+                self.classDict = {"__doc__" : ""}
 
             # fileformat -> alias
-            elif x == self.tagAlias:
-                self.class_name = attrs["name"]
+            elif tag == self.tagAlias:
+                self.className = attrs["name"]
                 typename = attrs["type"]
                 try:
-                    self.class_base = getattr(self.cls, typename)
+                    self.classBase = getattr(self.cls, typename)
                 except AttributeError:
                     raise XmlError(
                         "typo, or forward declaration of type %s"%typename)
-                self.class_dct = {"__doc__" : ""}
+                self.classDict = {"__doc__" : ""}
 
             # fileformat -> bitstruct
             # this works like an alias for now, will add special
             # BitStruct base class later
-            elif x == self.tagBitStruct:
-                self.class_name = attrs["name"]
+            elif tag == self.tagBitStruct:
+                self.className = attrs["name"]
                 typename = attrs["type"]
                 try:
-                    self.class_base = getattr(self.cls, typename)
+                    self.classBase = getattr(self.cls, typename)
                 except AttributeError:
                     raise XmlError(
                         "typo, or forward declaration of type %s"%typename)
-                self.class_dct = {"_attrs" : [], "__doc__" : ""}
+                self.classDict = {"_attrs" : [], "__doc__" : ""}
                 
             # fileformat -> version
-            elif x == self.tagVersion:
-                self.version_str = str(attrs["num"])
-                self.cls.versions[self.version_str] = self.cls.versionNumber(
-                    self.version_str)
+            elif tag == self.tagVersion:
+                self.versionString = str(attrs["num"])
+                self.cls.versions[self.versionString] = self.cls.versionNumber(
+                    self.versionString)
 
             else:
                 raise XmlError("""
@@ -379,19 +408,19 @@ but got %s instead"""%name)
             raise XmlError("alias tag must not contain any sub tags")
 
         elif self.currentTag == self.tagEnum:
-            self.pushTag(x)
-            if not x == self.tagOption:
+            self.pushTag(tag)
+            if not tag == self.tagOption:
                 raise XmlError("only option tags allowed in enum declaration")
             value = attrs["value"]
             try:
                 value = int(value)
             except ValueError:
                 value = int(value, 16)
-            self.class_dct[attrs["name"]] = value
+            self.classDict[attrs["name"]] = value
 
         elif self.currentTag == self.tagBitStruct:
-            self.pushTag(x)
-            if x == self.tagAttribute:
+            self.pushTag(tag)
+            if tag == self.tagAttribute:
                 # mandatory parameters
                 attrs_name = self.cls.nameAttribute(attrs["name"])
                 attrs_numbits = int(attrs["numbits"])
@@ -400,7 +429,7 @@ but got %s instead"""%name)
                 attrs_doc = "" # handled in xml parser's characters function
 
                 # add attribute to class dictionary
-                self.class_dct["_attrs"].append([
+                self.classDict["_attrs"].append([
                     attrs_name,
                     attrs_numbits,
                     attrs_default,
@@ -410,58 +439,76 @@ but got %s instead"""%name)
                     "only add tags allowed in struct type declaration")
             
         else:
-            raise XmlError( "unhandled tag " + name);
+            raise XmlError("unhandled tag %s"%name)
     
     def endElement(self, name):
+        """Called at the end of each xml tag.
+
+        Creates classes."""
         if not self.stack:
             raise XmlError("mismatching end element tag for element %s"%name)
         try:
-            x = self.tags[name]
+            tag = self.tags[name]
         except KeyError:
             try:
-                x = self.tags_niftools[name]
+                tag = self.tags_niftools[name]
             except KeyError:
                 raise XmlError("error unknown element %s"%name)
-        if self.popTag() != x:
+        if self.popTag() != tag:
             raise XmlError("mismatching end element tag for element %s"%name)
-        if x == self.tagAttribute:
+        if tag == self.tagAttribute:
             return # improves performance
-        if x in (self.tagStruct,
-                 self.tagEnum,
-                 self.tagAlias,
-                 self.tagBitStruct):
-            # create class cls.<class_name> (if it has not been implemented
-            # internally)
+        if tag in (self.tagStruct,
+                   self.tagEnum,
+                   self.tagAlias,
+                   self.tagBitStruct):
+            # create class
             class_type = type(
-                str(self.class_name), (self.class_base,), self.class_dct)
-            if not self.cls.__dict__.has_key(self.class_name):
-                setattr(self.cls, self.class_name, class_type)
-            if x == self.tagStruct:
+                str(self.className), (self.classBase,), self.classDict)
+            # assign it to cls.<className> if it has not been implemented
+            # internally
+            if not self.className in self.cls.__dict__:
+                setattr(self.cls, self.className, class_type)
+            # append class to the appropriate list
+            if tag == self.tagStruct:
                 self.cls.xmlStruct.append(class_type)
-            elif x == self.tagEnum:
+            elif tag == self.tagEnum:
                 self.cls.xmlEnum.append(class_type)
-            elif x == self.tagAlias:
+            elif tag == self.tagAlias:
                 self.cls.xmlAlias.append(class_type)
-            elif x == self.tagBitStruct:
+            elif tag == self.tagBitStruct:
                 self.cls.xmlBitStruct.append(class_type)
-        elif x == self.tagBasic:
-            # link class cls.<class_name> to self.basic_class
-            setattr(self.cls, self.class_name, self.basic_class)
+            # reset variables
+            self.className = None
+            self.classDict = None
+            self.classBase = None
+        elif tag == self.tagBasic:
+            # link class cls.<className> to self.basicClass
+            setattr(self.cls, self.className, self.basicClass)
+            # reset variable
+            self.basicClass = None
+        elif tag == self.tagVersion:
+            # reset variable
+            self.versionString = None
 
     def endDocument(self):
+        """Called when the xml is completely parsed.
+
+        Searches and adds class customized functions.
+        For version tags, adds version to version and game lists."""
         for obj in self.cls.__dict__.values():
-            try:
-                if not issubclass(obj, StructBase): continue
-            except:
+            # skip objects that are not generated by the C{type} function
+            # or that do not derive from StructBase
+            if not (isinstance(obj, TypeType) and issubclass(obj, StructBase)):
                 continue
-            # forward declarations
-            for a in obj._attrs:
-                templ = a[self.attrTemplate]
+            # fix templates
+            for attr in obj._attrs:
+                templ = attr[self.attrTemplate]
                 if isinstance(templ, basestring):
                     if templ != "TEMPLATE":
-                        a[self.attrTemplate] = getattr(self.cls, templ)
+                        attr[self.attrTemplate] = getattr(self.cls, templ)
                     else:
-                        a[self.attrTemplate] = NoneType
+                        attr[self.attrTemplate] = NoneType
 
             # add custom functions to interface
             # first find the module
@@ -470,8 +517,8 @@ but got %s instead"""%name)
             try:
                 # import custom object module
                 mod = __import__(obj.__name__, globals(),  locals(), [])
-            except ImportError, e:
-                if str(e) != "No module named " + obj.__name__:
+            except ImportError, err:
+                if str(err) != "No module named " + obj.__name__:
                     raise
                 else:
                     continue
@@ -481,21 +528,24 @@ but got %s instead"""%name)
             # defined in self.cls
             obj.cls = self.cls
             # iterate over all objects defined in the module
-            for x, xfunc in mod.__dict__.items():
+            for objname, objfunc in mod.__dict__.items():
                 # skip if it is not a function
-                if not isinstance(xfunc, FunctionType): continue
-                setattr(obj, x, xfunc)
+                if not isinstance(objfunc, FunctionType):
+                    continue
+                setattr(obj, objname, objfunc)
 
-    def characters(self, s):
+    def characters(self, chars):
+        """Add the string C{chars} to the docstring.
+        For version tags, updates the game version list."""
         if self.currentTag == self.tagAttribute:
-            self.class_dct["_attrs"][-1][self.attrDoc] += str(s.strip())
+            self.classDict["_attrs"][-1][self.attrDoc] += str(chars.strip())
         elif self.currentTag in (self.tagStruct, self.tagEnum, self.tagAlias):
-            self.class_dct["__doc__"] += str(s.strip())
+            self.classDict["__doc__"] += str(chars.strip())
         elif self.currentTag == self.tagVersion:
-            for gamestr in (str(g.strip()) for g in s.split(',')):
+            for gamestr in (str(g.strip()) for g in chars.split(',')):
                 if self.cls.games.has_key(gamestr):
                     self.cls.games[gamestr].append(
-                        self.cls.versions[self.version_str])
+                        self.cls.versions[self.versionString])
                 else:
                     self.cls.games[gamestr] = [
-                        self.cls.versions[self.version_str]]
+                        self.cls.versions[self.versionString]]
