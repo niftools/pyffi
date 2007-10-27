@@ -41,11 +41,11 @@ Implements class for struct types (xml tag struct).
 # ***** END LICENCE BLOCK *****
 # --------------------------------------------------------------------------
 
-from Basic import BasicBase
-from Expression import Expression
-from Array import Array
+from PyFFI.Bases.Basic import BasicBase
+from PyFFI.Bases.Expression import Expression
+from PyFFI.Bases.Array import Array
 
-from types import *
+from types import NoneType
 from functools import partial
 
 
@@ -67,11 +67,17 @@ class _MetaStructBase(type):
             raise TypeError(str(cls) + ': missing _attrs attribute')
         if not dct.has_key('_isTemplate'):
             raise TypeError(str(cls) + ': missing _isTemplate attribute')
-        # hasLinks, hasRefs, hasStrings, used for optimization of fixLinks, getLinks, getRefs, and getStrings
-        cls._hasLinks = getattr(cls, '_hasLinks', False) # does the type contain a Ref or a Ptr?
-        cls._hasRefs = getattr(cls, '_hasRefs', False) # does the type contain a Ref?
-        cls._hasStrings = getattr(cls, '_hasStrings', False) # does the type contain a strng?
-        for attrname, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in dct['_attrs']:
+        # hasLinks, hasRefs, hasStrings, used for optimization of fixLinks,
+        # getLinks, getRefs, and getStrings
+        # does the type contain a Ref or a Ptr?
+        cls._hasLinks = getattr(cls, '_hasLinks', False)
+        # does the type contain a Ref?
+        cls._hasRefs = getattr(cls, '_hasRefs', False)
+        # does the type contain a string?
+        cls._hasStrings = getattr(cls, '_hasStrings', False)
+        for (attrname, typ,
+             default, tmpl, arg, arr1, arr2,
+             cond, ver1, ver2, userver, doc) in dct['_attrs']:
             if issubclass(typ, BasicBase) and arr1 == None:
                 # get and set basic attributes
                 setattr(cls, attrname, property(
@@ -95,7 +101,9 @@ class _MetaStructBase(type):
                     if typ._hasLinks:
                         cls._hasLinks = True
                 #else:
-                #    cls._hasLinks = True # or false... we can't know at this point? might be necessary to uncomment this if template types contain refs
+                #    cls._hasLinks = True
+                # or false... we can't know at this point? might be necessary
+                # to uncomment this if template types contain refs
 
             if not cls._hasRefs:
                 if typ != type(None):
@@ -191,7 +199,9 @@ class StructBase(object):
         # initialize argument
         self.arg = argument
         # initialize attributes
-        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
+        for (name, typ,
+             default, tmpl, arg, arr1, arr2,
+             cond, ver1, ver2, userver, doc) in self._attributeList:
             # skip dupiclate names
             # (for this to work properly, duplicate names must have the same
             # typ, tmpl, arg, arr1, and arr2)
@@ -228,7 +238,9 @@ class StructBase(object):
         # used to track names of attributes that have already been added
         # is faster than self.__dict__.has_key(...)
         names = []
-        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
+        for (name, typ,
+             default, tmpl, arg, arr1, arr2,
+             cond, ver1, ver2, userver, doc) in self._attributeList:
             # skip dupiclate names
             if name in names: continue
             names.append(name)
@@ -249,7 +261,9 @@ class StructBase(object):
         user_version = kwargs.get('user_version')
         self.arg = kwargs.get('argument')
         # read all attributes
-        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
+        for (name, typ,
+             default, tmpl, arg, arr1, arr2,
+             cond, ver1, ver2, userver, doc) in self._attributeList:
             if ver1:
                 if version < ver1: continue
             if ver2:
@@ -270,7 +284,9 @@ class StructBase(object):
         user_version = kwargs.get('user_version')
         self.arg = kwargs.get('argument')
         # write all attributes
-        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
+        for (name, typ,
+             default, tmpl, arg, arr1, arr2,
+             cond, ver1, ver2, userver, doc) in self._attributeList:
             if ver1:
                 if version < ver1: continue
             if ver2:
@@ -291,7 +307,9 @@ class StructBase(object):
         block_dct = kwargs.get('block_dct', {})
         link_stack = kwargs.get('link_stack', [])
         # fix links in all attributes
-        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
+        for (name, typ,
+             default, tmpl, arg, arr1, arr2,
+             cond, ver1, ver2, userver, doc) in self._attributeList:
             if not typ._hasLinks: continue # speeds things up
             if ver1:
                 if version < ver1: continue
@@ -310,7 +328,9 @@ class StructBase(object):
         user_version = kwargs.get('user_version')
         # get all links
         links = []
-        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
+        for (name, typ,
+             default, tmpl, arg, arr1, arr2,
+             cond, ver1, ver2, userver, doc) in self._attributeList:
             if not typ._hasLinks: continue
             if ver1:
                 if version < ver1: continue
@@ -330,7 +350,9 @@ class StructBase(object):
         user_version = kwargs.get('user_version')
         # get all strings
         strings = []
-        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
+        for (name, typ,
+             default, tmpl, arg, arr1, arr2,
+             cond, ver1, ver2, userver, doc) in self._attributeList:
             if not typ._hasStrings: continue
             if ver1:
                 if version < ver1: continue
@@ -350,7 +372,9 @@ class StructBase(object):
         user_version = kwargs.get('user_version')
         # get all refs
         links = []
-        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
+        for (name, typ,
+             default, tmpl, arg, arr1, arr2,
+             cond, ver1, ver2, userver, doc) in self._attributeList:
             if not typ._hasLinks: continue
             if version != -1:
                 if ver1:
@@ -371,7 +395,9 @@ class StructBase(object):
         user_version = kwargs.get('user_version')
         # calculate size
         size = 0
-        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
+        for (name, typ,
+             default, tmpl, arg, arr1, arr2,
+             cond, ver1, ver2, userver, doc) in self._attributeList:
             if version != -1:
                 if ver1:
                     if version < ver1: continue
@@ -384,9 +410,15 @@ class StructBase(object):
             size += getattr(self, "_" + name + "_value_").getSize(**kwargs)
         return size
 
-    def getHash(self, version = -1, user_version = None):
+    def getHash(self, **kwargs):
+        # parse arguments
+        version = kwargs.get('version', -1)
+        user_version = kwargs.get('user_version')
+        # calculate hash
         hsh = []
-        for name, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in self._attributeList:
+        for (name, typ,
+             default, tmpl, arg, arr1, arr2,
+             cond, ver1, ver2, userver, doc) in self._attributeList:
             if ver1:
                 if version < ver1: continue
             if ver2:
