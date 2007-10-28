@@ -69,7 +69,7 @@ class Expression(object):
     False
     """
     operators = [ '==', '!=', '>=', '&&', '||', '&', '|' ]
-    def __init__(self, expr_str, name_filter):
+    def __init__(self, expr_str, name_filter = None):
         left, self._op, right = self._partition(expr_str)
         self._left = self._parse(left, name_filter)
         if right:
@@ -125,7 +125,7 @@ class Expression(object):
         return left + ' ' + self._op + ' ' + right
 
     @classmethod
-    def _parse(cls, expr_str, name_filter):
+    def _parse(cls, expr_str, name_filter = None):
         """Returns an Expression, string, or int, depending on the
         contents of <expr_str>."""
         # brackets or operators => expression
@@ -139,7 +139,7 @@ class Expression(object):
             return int(expr_str)
         # failed, so return the string, passed through the name filter
         except ValueError:
-            return name_filter(expr_str)
+            return name_filter(expr_str) if name_filter else expr_str
     
     @classmethod
     def _partition(cls, expr_str):
