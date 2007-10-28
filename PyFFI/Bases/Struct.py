@@ -47,11 +47,6 @@ from functools import partial
 
 
 
-# TODO find a general purpose mechanism to unify the getRefs getLinks and
-# getStrings stuff
-
-
-
 class _MetaStructBase(type):
     """This metaclass checks for the presence of an _attrs and _isTemplate
     attributes. For each attribute in _attrs, an
@@ -91,6 +86,7 @@ class _MetaStructBase(type):
                 setattr(cls, attr.name, property(
                     partial(StructBase.getAttribute, name = attr.name),
                     doc=attr.doc))
+
             # check for links and refs and strings
             if not cls._hasLinks:
                 if attr.type != NoneType: # templates!
@@ -98,7 +94,7 @@ class _MetaStructBase(type):
                         cls._hasLinks = True
                 #else:
                 #    cls._hasLinks = True
-                # or false... we can't know at this point? might be necessary
+                # or false... we can't know at this point... might be necessary
                 # to uncomment this if template types contain refs
 
             if not cls._hasRefs:
@@ -114,6 +110,7 @@ class _MetaStructBase(type):
                         cls._hasStrings = True
                 #else:
                 #    cls._hasRefs = True # dito, see comment above
+
         # precalculate the attribute list
         # profiling shows that this speeds up most of the StructBase methods
         # that rely on parsing the attribute list
