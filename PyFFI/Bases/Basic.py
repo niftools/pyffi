@@ -1,6 +1,5 @@
-# --------------------------------------------------------------------------
-# PyFFI.Bases.Basic
-# Implements class for basic types (xml tag <basic>).
+"""Implements base class for basic types."""
+
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -81,7 +80,8 @@ class BasicBase(object):
         """Initializes the instance.
 
         @param template: type used as template
-        @param argument: argument used to initialize the instance (see the Struct class)"""
+        @param argument: argument used to initialize the instance
+            (see the Struct class)"""
         pass
 
     # string representation
