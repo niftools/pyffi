@@ -1,7 +1,5 @@
-"""
-Parses file format description in XML format and set up representation of
-the file format in memory, as a bunch of classes.
-"""
+"""Parses file format description in XML format and set up representation of
+the file format in memory, as a bunch of classes."""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -47,6 +45,66 @@ import sys
 from PyFFI.Bases.Struct     import StructBase
 from PyFFI.Bases.Expression import Expression
 
+class StructAttribute(object):
+    """Helper class to collect attribute data of struct add tags."""
+    def __init__(self, cls, attrs):
+        """Initialize attribute from the xml attrs dictionary of an
+        add tag.
+
+        @param cls: The class where all types reside.
+        @param attrs: The xml add tag attribute dictionary."""
+        # mandatory parameters
+        self.name = cls.nameAttribute(attrs["name"])
+        attrs_type_str = attrs["type"]
+        if attrs_type_str != "TEMPLATE":
+            try:
+                self.type = getattr(cls, attrs_type_str)
+            except AttributeError:
+                raise XmlError(
+                    "typo, or forward declaration of type %s"
+                    % attrs_type_str)
+        else:
+            self.type = NoneType # type determined at runtime
+        # optional parameters
+        self.default = attrs.get("default")
+        self.template = attrs.get("template") # resolved in endDocument
+        self.arg = attrs.get("arg")
+        self.arr1 = attrs.get("arr1")
+        self.arr2 = attrs.get("arr2")
+        self.cond = attrs.get("cond")
+        self.ver1 = attrs.get("ver1")
+        self.ver2 = attrs.get("ver2")
+        self.userver = attrs.get("userver")
+        self.doc = "" # handled in xml parser's characters function
+
+        # post-processing
+        if self.default:
+            try:
+                tmp = self.type()
+                tmp.setValue(self.default)
+                self.default = tmp.getValue()
+                del tmp
+            except StandardError:
+                # conversion failed; not a big problem
+                self.default = None
+        if self.arr1:
+            self.arr1 = Expression(self.arr1, cls.nameAttribute)
+        if self.arr2:
+            self.arr2 = Expression(self.arr2, cls.nameAttribute)
+        if self.cond:
+            self.cond = Expression(self.cond, cls.nameAttribute)
+        if self.arg:
+            try:
+                self.arg = int(self.arg)
+            except ValueError:
+                self.arg = cls.nameAttribute(self.arg)
+        if self.userver:
+            self.userver = int(self.userver)
+        if self.ver1:
+            self.ver1 = cls.versions[self.ver1]
+        if self.ver2:
+            self.ver2 = cls.versions[self.ver2]
+
 class XmlError(StandardError):
     """The XML handler will throw this exception if something goes wrong while
     parsing."""
@@ -81,19 +139,6 @@ class XmlSaxHandler(object, xml.sax.handler.ContentHandler):
     "niftoolsxml" : tagFile,
     "compound" : tagStruct,
     "niobject" : tagStruct }
-
-    attrName = 0
-    attrType = 1
-    attrDefault = 2
-    attrTemplate = 3
-    attrArg = 4
-    attrArr1 = 5
-    attrArr2 = 6
-    attrCond = 7
-    attrVer1 = 8
-    attrVer2 = 9
-    attrUserver = 10
-    attrDoc = 11
 
     def __init__(self, cls, name, bases, dct):
         """Set up the xml parser.
@@ -233,72 +278,9 @@ class XmlSaxHandler(object, xml.sax.handler.ContentHandler):
         if self.currentTag == self.tagStruct:
             self.pushTag(tag)
             if tag == self.tagAttribute:
-                # mandatory parameters
-                attrs_name = self.cls.nameAttribute(attrs["name"])
-                attrs_type_str = attrs["type"]
-                if attrs_type_str != "TEMPLATE":
-                    try:
-                        attrs_type = getattr(self.cls, attrs_type_str)
-                    except AttributeError:
-                        raise XmlError(
-                            "typo, or forward declaration of type %s"
-                            %attrs_type_str)
-                else:
-                    attrs_type = NoneType # type determined at runtime
-                # optional parameters
-                attrs_default = attrs.get("default")
-                attrs_template_str = attrs.get("template")
-                attrs_arg = attrs.get("arg")
-                attrs_arr1 = attrs.get("arr1")
-                attrs_arr2 = attrs.get("arr2")
-                attrs_cond = attrs.get("cond")
-                attrs_ver1 = attrs.get("ver1")
-                attrs_ver2 = attrs.get("ver2")
-                attrs_userver = attrs.get("userver")
-                attrs_doc = "" # handled in xml parser's characters function
-
-                # post-processing
-                if attrs_default:
-                    try:
-                        tmp = attrs_type()
-                        tmp.setValue(attrs_default)
-                        attrs_default = tmp.getValue()
-                        del tmp
-                    except StandardError:
-                        # conversion failed; not a big problem
-                        attrs_default = None
-                if attrs_arr1:
-                    attrs_arr1 = Expression(attrs_arr1, self.cls.nameAttribute)
-                if attrs_arr2:
-                    attrs_arr2 = Expression(attrs_arr2, self.cls.nameAttribute)
-                if attrs_cond:
-                    attrs_cond = Expression(attrs_cond, self.cls.nameAttribute)
-                if attrs_arg:
-                    try:
-                        attrs_arg = int(attrs_arg)
-                    except ValueError:
-                        attrs_arg = self.cls.nameAttribute(attrs_arg)
-                if attrs_userver:
-                    attrs_userver = int(attrs_userver)
-                if attrs_ver1:
-                    attrs_ver1 = self.cls.versions[attrs_ver1]
-                if attrs_ver2:
-                    attrs_ver2 = self.cls.versions[attrs_ver2]
-
                 # add attribute to class dictionary
-                self.classDict["_attrs"].append([
-                    attrs_name,
-                    attrs_type,
-                    attrs_default,
-                    attrs_template_str,
-                    attrs_arg,
-                    attrs_arr1,
-                    attrs_arr2,
-                    attrs_cond,
-                    attrs_ver1,
-                    attrs_ver2,
-                    attrs_userver,
-                    attrs_doc])
+                self.classDict["_attrs"].append(
+                    StructAttribute(self.cls, attrs))
             else:
                 raise XmlError(
                     "only add tags allowed in struct type declaration")
@@ -496,12 +478,12 @@ but got %s instead"""%name)
                 continue
             # fix templates
             for attr in obj._attrs:
-                templ = attr[self.attrTemplate]
+                templ = attr.template
                 if isinstance(templ, basestring):
                     if templ != "TEMPLATE":
-                        attr[self.attrTemplate] = getattr(self.cls, templ)
+                        attr.template = getattr(self.cls, templ)
                     else:
-                        attr[self.attrTemplate] = NoneType
+                        attr.template = NoneType
 
             # add custom functions to interface
             # first find the module
@@ -531,7 +513,7 @@ but got %s instead"""%name)
         """Add the string C{chars} to the docstring.
         For version tags, updates the game version list."""
         if self.currentTag == self.tagAttribute:
-            self.classDict["_attrs"][-1][self.attrDoc] += str(chars.strip())
+            self.classDict["_attrs"][-1].doc += str(chars.strip())
         elif self.currentTag in (self.tagStruct, self.tagEnum, self.tagAlias):
             self.classDict["__doc__"] += str(chars.strip())
         elif self.currentTag == self.tagVersion:
