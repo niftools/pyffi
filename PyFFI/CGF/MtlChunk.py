@@ -1,7 +1,5 @@
-# --------------------------------------------------------------------------
-# MtlChunk
-# Custom MtlChunk functions.
-# --------------------------------------------------------------------------
+"""Custom MtlChunk functions."""
+
 # ***** BEGIN LICENSE BLOCK *****
 #
 # Copyright (c) 2007, Python File Format Interface
@@ -38,7 +36,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENSE BLOCK *****
-# --------------------------------------------------------------------------
 
 def getNameShaderScript(self):
     """Extract name, shader, and script."""
@@ -47,19 +44,28 @@ def getNameShaderScript(self):
     shader_end = name.find(")")
     script_begin = name.find("/")
     if (script_begin != -1):
-        if (name.count("/") != 1): raise ValueError(name + " malformed, has multiple ""/""") # DEBUG we *must* have exactly one script
+        if (name.count("/") != 1):
+            # must have exactly one script
+            raise ValueError("%s malformed, has multiple ""/"""%name)
         mtlscript = name[script_begin+1:]
     else:
         mtlscript = ""
     if (shader_begin != -1): # if a shader was specified
-        if (name.count("(") != 1): raise ValueError(name + " malformed, has multiple ""(""") # DEBUG we *must* have exactly one shader
-        if (name.count(")") != 1): raise ValueError(name + " malformed, has multiple "")""") # DEBUG we *must* have exactly one shader
-        if (shader_begin > shader_end): raise ValueError(name + " malformed, ""("" comes after "")""") # DEBUG shader name should non-empty
-        if ((script_begin != -1) and (shader_end + 1 != script_begin)): raise ValueError(name + " malformed, shader not followed by script") # DEBUG must be immediately followed by the material
+        # must have exactly one shader
+        if (name.count("(") != 1):
+            raise ValueError("%s malformed, has multiple ""("""%name)
+        if (name.count(")") != 1):
+            raise ValueError("%s malformed, has multiple "")"""%name)
+        # shader name should non-empty
+        if shader_begin > shader_end:
+            raise ValueError("%s malformed, ""("" comes after "")"""%name)
+        # script must be immediately followed by the material
+        if (script_begin != -1) and (shader_end + 1 != script_begin):
+            raise ValueError("%s malformed, shader not followed by script"%name)
         mtlname = name[:shader_begin]
         mtlshader = name[shader_begin+1:shader_end]
     else:
-        if (script_begin != -1):
+        if script_begin != -1:
             mtlname = name[:script_begin]
         else:
             mtlname = name[:]

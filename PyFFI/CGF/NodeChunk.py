@@ -1,7 +1,5 @@
-# --------------------------------------------------------------------------
-# NodeChunk
-# Custom NodeChunk functions.
-# --------------------------------------------------------------------------
+"""Custom NodeChunk functions."""
+
 # ***** BEGIN LICENSE BLOCK *****
 #
 # Copyright (c) 2007, Python File Format Interface
@@ -38,11 +36,11 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENSE BLOCK *****
-# --------------------------------------------------------------------------
 
 def applyScale(self, scale):
     """Apply scale factor on data."""
-    if abs(scale - 1.0) < self.cls._EPSILON: return
+    if abs(scale - 1.0) < self.cls.EPSILON:
+        return
     self.transform.m41 *= scale
     self.transform.m42 *= scale
     self.transform.m43 *= scale

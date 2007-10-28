@@ -1,7 +1,5 @@
-# --------------------------------------------------------------------------
-# MeshChunk
-# Custom MeshChunk functions.
-# --------------------------------------------------------------------------
+"""Custom MeshChunk functions."""
+
 # ***** BEGIN LICENSE BLOCK *****
 #
 # Copyright (c) 2007, Python File Format Interface
@@ -38,12 +36,12 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENSE BLOCK *****
-# --------------------------------------------------------------------------
 
 def applyScale(self, scale):
     """Apply scale factor on data."""
-    if abs(scale - 1.0) < self.cls._EPSILON: return
-    for v in self.vertices:
-        v.p.x *= scale
-        v.p.y *= scale
-        v.p.z *= scale
+    if abs(scale - 1.0) < self.cls.EPSILON:
+        return
+    for vert in self.vertices:
+        vert.p.x *= scale
+        vert.p.y *= scale
+        vert.p.z *= scale

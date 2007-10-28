@@ -1,7 +1,5 @@
-# --------------------------------------------------------------------------
-# Chunk
-# Custom Chunk functions.
-# --------------------------------------------------------------------------
+"""Custom Chunk functions."""
+
 # ***** BEGIN LICENSE BLOCK *****
 #
 # Copyright (c) 2007, Python File Format Interface
@@ -38,7 +36,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENSE BLOCK *****
-# --------------------------------------------------------------------------
 
 def applyScale(self, scale):
     """Apply scale factor on data."""

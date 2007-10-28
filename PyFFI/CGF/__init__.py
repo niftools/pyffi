@@ -90,7 +90,7 @@ class CgfFormat(object):
     # or module directory
     xmlFilePath = [ os.getenv('CGFXMLPATH'), os.path.dirname(__file__) ]
     clsFilePath = os.path.dirname(__file__) # path of class customizers
-    _EPSILON = 0.0001 # used for comparing floats
+    EPSILON = 0.0001 # used for comparing floats
     
     # basic types
     int = Common.Int
@@ -412,7 +412,9 @@ class CgfFormat(object):
     @classmethod
     def read(cls, stream, fileversion = None, verbose = 0):
         """Read cgf from stream."""
-        chunk_types = [x for x in dir(cls.ChunkType) if x[:2] != '__']
+        chunk_types = [
+            chunk_type for chunk_type in dir(cls.ChunkType) \
+            if chunk_type[:2] != '__']
 
         # read header
         hdr = cls.Header()
