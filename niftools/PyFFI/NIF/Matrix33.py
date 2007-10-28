@@ -1,7 +1,5 @@
-# --------------------------------------------------------------------------
-# NifFormat.Matrix33
-# Custom functions for Matrix33.
-# --------------------------------------------------------------------------
+"""Custom functions for Matrix33."""
+
 # ***** BEGIN LICENSE BLOCK *****
 #
 # Copyright (c) 2007, NIF File Format Library and Tools.
@@ -49,9 +47,14 @@ def asList(self):
         ]
 
 def __str__(self):
-    return "[ %6.3f %6.3f %6.3f ]\n[ %6.3f %6.3f %6.3f ]\n[ %6.3f %6.3f %6.3f ]\n"%(self.m11, self.m12, self.m13, self.m21, self.m22, self.m23, self.m31, self.m32, self.m33)
+    return "\
+[ %6.3f %6.3f %6.3f ]\n[ %6.3f %6.3f %6.3f ]\n[ %6.3f %6.3f %6.3f ]\n"\
+% (self.m11, self.m12, self.m13,
+   self.m21, self.m22, self.m23,
+   self.m31, self.m32, self.m33)
 
 def setIdentity(self):
+    """Set to identity matrix."""
     self.m11 = 1.0
     self.m12 = 0.0
     self.m13 = 0.0
@@ -63,37 +66,48 @@ def setIdentity(self):
     self.m33 = 1.0
 
 def isIdentity(self):
-    if  abs(self.m11 - 1.0) > self.cls._EPSILON or abs(self.m12) > self.cls._EPSILON or abs(self.m13) > self.cls._EPSILON or abs(self.m21) > self.cls._EPSILON or abs(self.m22 - 1.0) > self.cls._EPSILON or abs(self.m23) > self.cls._EPSILON or abs(self.m31) > self.cls._EPSILON or abs(self.m32) > self.cls._EPSILON or abs(self.m33 - 1.0) > self.cls._EPSILON:
+    """Return C{True} if the matrix is close to identity."""
+    if  (abs(self.m11 - 1.0) > self.cls._EPSILON
+         or abs(self.m12) > self.cls._EPSILON
+         or abs(self.m13) > self.cls._EPSILON
+         or abs(self.m21) > self.cls._EPSILON
+         or abs(self.m22 - 1.0) > self.cls._EPSILON
+         or abs(self.m23) > self.cls._EPSILON
+         or abs(self.m31) > self.cls._EPSILON
+         or abs(self.m32) > self.cls._EPSILON
+         or abs(self.m33 - 1.0) > self.cls._EPSILON):
         return False
     else:
         return True
 
 def getCopy(self):
-    m = self.cls.Matrix33()
-    m.m11 = self.m11
-    m.m12 = self.m12
-    m.m13 = self.m13
-    m.m21 = self.m21
-    m.m22 = self.m22
-    m.m23 = self.m23
-    m.m31 = self.m31
-    m.m32 = self.m32
-    m.m33 = self.m33
-    return m
+    """Return a copy of the matrix."""
+    mat = self.cls.Matrix33()
+    mat.m11 = self.m11
+    mat.m12 = self.m12
+    mat.m13 = self.m13
+    mat.m21 = self.m21
+    mat.m22 = self.m22
+    mat.m23 = self.m23
+    mat.m31 = self.m31
+    mat.m32 = self.m32
+    mat.m33 = self.m33
+    return mat
 
 def getTranspose(self):
-    """Restricts matrix to upper left 3x3 part (similar to rotationPart in Blender)."""
-    m = self.cls.Matrix33()
-    m.m11 = self.m11
-    m.m12 = self.m21
-    m.m13 = self.m31
-    m.m21 = self.m12
-    m.m22 = self.m22
-    m.m23 = self.m32
-    m.m31 = self.m13
-    m.m32 = self.m23
-    m.m33 = self.m33
-    return m
+    """Restricts matrix to upper left 3x3 part (similar to rotationPart in
+    Blender)."""
+    mat = self.cls.Matrix33()
+    mat.m11 = self.m11
+    mat.m12 = self.m21
+    mat.m13 = self.m31
+    mat.m21 = self.m12
+    mat.m22 = self.m22
+    mat.m23 = self.m32
+    mat.m31 = self.m13
+    mat.m32 = self.m23
+    mat.m33 = self.m33
+    return mat
 
 def isScaleRotation(self):
     """Returns true if the matrix decomposes nicely into scale * rotation."""
@@ -104,44 +118,61 @@ def isScaleRotation(self):
     # (scale * rotation) * (scale * rotation)^T
     # = scale^2 * rotation * rotation^T
     # = scale^2 * 3x3 identity matrix
-    selfT = self.getTranspose()
-    m = self*selfT
+    self_transpose = self.getTranspose()
+    mat = self*self_transpose
 
     # off diagonal elements should be zero
-    if abs(m.m12) + abs(m.m13) + abs(m.m21) + abs(m.m23) + abs(m.m31) + abs(m.m32) > 0.01:
+    if (abs(mat.m12) + abs(mat.m13)
+        + abs(mat.m21) + abs(mat.m23)
+        + abs(mat.m31) + abs(mat.m32)) > 0.01:        
         return False
 
     # diagonal elements should be equal (to scale^2)
-    if abs(m.m11 - m.m22) + abs(m.m22 - m.m33) > 0.01:
+    if abs(mat.m11 - mat.m22) + abs(mat.m22 - mat.m33) > 0.01:
         return False
 
     return True
 
 def isRotation(self):
-    """Returns true if the matrix is a rotation matrix (a member of SO(3))."""
+    """Returns C{True} if the matrix is a rotation matrix
+    (a member of SO(3))."""
     # NOTE: 0.01 instead of self.cls._EPSILON to work around bad nif files
 
-    if not self.isScaleRotation(): return False
-    if abs(self.getDeterminant() - 1.0) > 0.01: return False
+    if not self.isScaleRotation():
+        return False
+    if abs(self.getDeterminant() - 1.0) > 0.01:
+        return False
     return True
 
 def getDeterminant(self):
-    return self.m11*self.m22*self.m33+self.m12*self.m23*self.m31+self.m13*self.m21*self.m32-self.m31*self.m22*self.m13-self.m21*self.m12*self.m33-self.m11*self.m32*self.m23
+    """Return determinant."""
+    return (self.m11*self.m22*self.m33
+            +self.m12*self.m23*self.m31
+            +self.m13*self.m21*self.m32
+            -self.m31*self.m22*self.m13
+            -self.m21*self.m12*self.m33
+            -self.m11*self.m32*self.m23)
 
 def getScale(self):
     """Gets the scale (assuming isScaleRotation is true!)."""
-    s = self.getDeterminant()
-    if s < 0: return -((-s)**(1.0/3.0))
-    else: return s**(1.0/3.0)
+    scale = self.getDeterminant()
+    if scale < 0:
+        return -((-scale)**(1.0/3.0))
+    else:
+        return scale**(1.0/3.0)
 
 def getScaleRotation(self):
-    r = self.getCopy()
-    s = self.getScale()
-    if abs(s) < self.cls._EPSILON: raise ZeroDivisionError('scale is zero, unable to obtain rotation')
-    r /= s
-    return (s, r)
+    """Decompose the matrix into scale and rotation, where scale is a float
+    and rotation is a C{Matrix33}. Returns a pair (scale, rotation)."""
+    rot = self.getCopy()
+    scale = self.getScale()
+    if abs(scale) < self.cls._EPSILON:
+        raise ZeroDivisionError('scale is zero, unable to obtain rotation')
+    rot /= scale
+    return (scale, rot)
 
 def setScaleRotation(self, scale, rotation):
+    """Compose the matrix as the product of scale * rotation."""
     if not isinstance(scale, (float, int, long)):
         raise TypeError('scale must be float')
     if not isinstance(rotation, self.cls.Matrix33):
@@ -164,73 +195,79 @@ def getInverse(self):
     """Get inverse (assuming isScaleRotation is true!)."""
     # transpose inverts rotation but keeps the scale
     # dividing by scale^2 inverts the scale as well
-    return self.getTranspose() / (self.m11*self.m11 + self.m12*self.m12 + self.m13*self.m13)
+    return self.getTranspose() / (self.m11**2 + self.m12**2 + self.m13**2)
 
-def __mul__(self, x):
-    if isinstance(x, (float, int, long)):
-        m = self.cls.Matrix33()
-        m.m11 = self.m11 * x
-        m.m12 = self.m12 * x
-        m.m13 = self.m13 * x
-        m.m21 = self.m21 * x
-        m.m22 = self.m22 * x
-        m.m23 = self.m23 * x
-        m.m31 = self.m31 * x
-        m.m32 = self.m32 * x
-        m.m33 = self.m33 * x
-        return m
-    elif isinstance(x, self.cls.Vector3):
-        raise TypeError("matrix*vector not supported; please use left multiplication (vector*matrix)")
-    elif isinstance(x, self.cls.Matrix33):
-        m = self.cls.Matrix33()
-        m.m11 = self.m11 * x.m11  +  self.m12 * x.m21  +  self.m13 * x.m31 
-        m.m12 = self.m11 * x.m12  +  self.m12 * x.m22  +  self.m13 * x.m32 
-        m.m13 = self.m11 * x.m13  +  self.m12 * x.m23  +  self.m13 * x.m33 
-        m.m21 = self.m21 * x.m11  +  self.m22 * x.m21  +  self.m23 * x.m31 
-        m.m22 = self.m21 * x.m12  +  self.m22 * x.m22  +  self.m23 * x.m32 
-        m.m23 = self.m21 * x.m13  +  self.m22 * x.m23  +  self.m23 * x.m33 
-        m.m31 = self.m31 * x.m11  +  self.m32 * x.m21  +  self.m33 * x.m31 
-        m.m32 = self.m31 * x.m12  +  self.m32 * x.m22  +  self.m33 * x.m32 
-        m.m33 = self.m31 * x.m13  +  self.m32 * x.m23  +  self.m33 * x.m33
-        return m
+def __mul__(self, rhs):
+    if isinstance(rhs, (float, int, long)):
+        mat = self.cls.Matrix33()
+        mat.m11 = self.m11 * rhs
+        mat.m12 = self.m12 * rhs
+        mat.m13 = self.m13 * rhs
+        mat.m21 = self.m21 * rhs
+        mat.m22 = self.m22 * rhs
+        mat.m23 = self.m23 * rhs
+        mat.m31 = self.m31 * rhs
+        mat.m32 = self.m32 * rhs
+        mat.m33 = self.m33 * rhs
+        return mat
+    elif isinstance(rhs, self.cls.Vector3):
+        raise TypeError("matrix*vector not supported;\
+please use left multiplication (vector*matrix)")
+    elif isinstance(rhs, self.cls.Matrix33):
+        mat = self.cls.Matrix33()
+        mat.m11 = self.m11 * rhs.m11 + self.m12 * rhs.m21 + self.m13 * rhs.m31 
+        mat.m12 = self.m11 * rhs.m12 + self.m12 * rhs.m22 + self.m13 * rhs.m32 
+        mat.m13 = self.m11 * rhs.m13 + self.m12 * rhs.m23 + self.m13 * rhs.m33 
+        mat.m21 = self.m21 * rhs.m11 + self.m22 * rhs.m21 + self.m23 * rhs.m31 
+        mat.m22 = self.m21 * rhs.m12 + self.m22 * rhs.m22 + self.m23 * rhs.m32 
+        mat.m23 = self.m21 * rhs.m13 + self.m22 * rhs.m23 + self.m23 * rhs.m33 
+        mat.m31 = self.m31 * rhs.m11 + self.m32 * rhs.m21 + self.m33 * rhs.m31 
+        mat.m32 = self.m31 * rhs.m12 + self.m32 * rhs.m22 + self.m33 * rhs.m32 
+        mat.m33 = self.m31 * rhs.m13 + self.m32 * rhs.m23 + self.m33 * rhs.m33
+        return mat
     else:
-        raise TypeError("do not know how to multiply Matrix33 with %s"%x.__class__)
+        raise TypeError(
+            "do not know how to multiply Matrix33 with %s"%rhs.__class__)
 
-def __div__(self, x):
-    if isinstance(x, (float, int, long)):
-        m = self.cls.Matrix33()
-        m.m11 = self.m11 / x
-        m.m12 = self.m12 / x
-        m.m13 = self.m13 / x
-        m.m21 = self.m21 / x
-        m.m22 = self.m22 / x
-        m.m23 = self.m23 / x
-        m.m31 = self.m31 / x
-        m.m32 = self.m32 / x
-        m.m33 = self.m33 / x
-        return m
+def __div__(self, rhs):
+    if isinstance(rhs, (float, int, long)):
+        mat = self.cls.Matrix33()
+        mat.m11 = self.m11 / rhs
+        mat.m12 = self.m12 / rhs
+        mat.m13 = self.m13 / rhs
+        mat.m21 = self.m21 / rhs
+        mat.m22 = self.m22 / rhs
+        mat.m23 = self.m23 / rhs
+        mat.m31 = self.m31 / rhs
+        mat.m32 = self.m32 / rhs
+        mat.m33 = self.m33 / rhs
+        return mat
     else:
-        raise TypeError("do not know how to divide Matrix33 by %s"%x.__class__)
+        raise TypeError(
+            "do not know how to divide Matrix33 by %s"%rhs.__class__)
 
-def __rmul__(self, x):
-    if isinstance(x, (float, int, long)):
-        return self * x
+def __rmul__(self, lhs):
+    if isinstance(lhs, (float, int, long)):
+        return self * lhs # commutes
     else:
-        raise TypeError("do not know how to multiply %s with Matrix33"%x.__class__)
+        raise TypeError(
+            "do not know how to multiply %s with Matrix33"%lhs.__class__)
 
-def __eq__(self, m):
-    if not isinstance(m, self.cls.Matrix33):
-        raise TypeError("do not know how to compare Matrix33 and %s"%m.__class__)
-    if abs(self.m11 - m.m11) > self.cls._EPSILON: return False
-    if abs(self.m12 - m.m12) > self.cls._EPSILON: return False
-    if abs(self.m13 - m.m13) > self.cls._EPSILON: return False
-    if abs(self.m21 - m.m21) > self.cls._EPSILON: return False
-    if abs(self.m22 - m.m22) > self.cls._EPSILON: return False
-    if abs(self.m23 - m.m23) > self.cls._EPSILON: return False
-    if abs(self.m31 - m.m31) > self.cls._EPSILON: return False
-    if abs(self.m32 - m.m32) > self.cls._EPSILON: return False
-    if abs(self.m33 - m.m33) > self.cls._EPSILON: return False
+def __eq__(self, mat):
+    if not isinstance(mat, self.cls.Matrix33):
+        raise TypeError(
+            "do not know how to compare Matrix33 and %s"%mat.__class__)
+    if (abs(self.m11 - mat.m11) > self.cls._EPSILON
+        or abs(self.m12 - mat.m12) > self.cls._EPSILON
+        or abs(self.m13 - mat.m13) > self.cls._EPSILON
+        or abs(self.m21 - mat.m21) > self.cls._EPSILON
+        or abs(self.m22 - mat.m22) > self.cls._EPSILON
+        or abs(self.m23 - mat.m23) > self.cls._EPSILON
+        or abs(self.m31 - mat.m31) > self.cls._EPSILON
+        or abs(self.m32 - mat.m32) > self.cls._EPSILON
+        or abs(self.m33 - mat.m33) > self.cls._EPSILON):
+        return False
     return True
 
-def __ne__(self, m):
-    return not self.__eq__(m)
+def __ne__(self, mat):
+    return not self.__eq__(mat)
