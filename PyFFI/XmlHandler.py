@@ -339,10 +339,7 @@ class XmlSaxHandler(object, xml.sax.handler.ContentHandler):
                 # via the name of the class.
                 self.basicClass = getattr(self.cls, self.className)
                 # check the class variables
-                try:
-                    is_template = (attrs["istemplate"] == "1")
-                except KeyError:
-                    is_template = False
+                is_template = (attrs.get("istemplate") == "1")
                 if self.basicClass._isTemplate != is_template:
                     raise XmlError(
                         'class %s should have _isTemplate = %s'

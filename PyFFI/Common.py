@@ -1,6 +1,4 @@
-"""
-Implements common basic types in XML file format descriptions.
-"""
+"""Implements common basic types in XML file format descriptions."""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -81,13 +79,15 @@ class Int(BasicBase):
     _size = 4          #: Number of bytes.
 
     def __init__(self, **kwargs):
+        super(Int, self).__init__(**kwargs)
         self._value = ''.join('\x00' for i in xrange(self._size))
-        #self.setValue(0L)
 
     def getValue(self):
+        """Return stored value."""
         return struct.unpack('<' + self._struct, self._value)[0]
 
     def setValue(self, value):
+        """Set value to C{value}."""
         try:
             val = int(value)
         except ValueError:
@@ -104,97 +104,123 @@ class Int(BasicBase):
         self._value = struct.pack('<' + self._struct, val)
 
     def read(self, stream, **kwargs):
+        """Read value from stream."""
         self._value = stream.read(self._size)
 
     def write(self, stream, **kwargs):
+        """Write value to stream."""
         stream.write(self._value)
 
     def __str__(self):
         return str(self.getValue())
 
     def getSize(self, **kwargs):
+        """Return size of this type."""
         return self._size
 
     def getHash(self, **kwargs):
+        """Return a hash value for this value."""
         return self.getValue()
 
 class UInt(Int):
+    """Implementation of a 32-bit unsigned integer type."""
     _min = 0
     _max = 0xffffffff
     _struct = 'I'
     _size = 4
 
 class Byte(Int):
+    """Implementation of a 8-bit signed integer type."""
     _min = -0x80
     _max = 0x7f
     _struct = 'b'
     _size = 1
 
 class UByte(Int):
+    """Implementation of a 8-bit unsigned integer type."""
     _min = 0
     _max = 0xff
     _struct = 'B'
     _size = 1
 
 class Short(Int):
+    """Implementation of a 16-bit signed integer type."""
     _min = -0x8000
     _max = 0x7fff
     _struct = 'h'
     _size = 2
 
 class UShort(UInt):
+    """Implementation of a 16-bit unsigned integer type."""
     _min = 0
     _max = 0xffff
     _struct = 'H'
     _size = 2
 
 class Char(BasicBase):
+    """Implementation of an 8-bit ACII character."""
     def __init__(self, **kwargs):
+        super(Char, self).__init__(**kwargs)
         self._value = '\x00'
 
     def getValue(self):
+        """Return stored value."""
         return self._value
 
     def setValue(self, value):
+        """Set value to C{value}."""
         assert(isinstance(value, basestring))
         assert(len(value) == 1)
         self._value = str(value)
 
     def read(self, stream, **kwargs):
+        """Read value from stream."""
         self._value = stream.read(1)
 
     def write(self, stream, **kwargs):
+        """Write value to stream."""
         stream.write(self._value)
 
     def __str__(self):
         return self._value
 
     def getSize(self, **kwargs):
+        """Return size of this type."""
         return 1
 
     def getHash(self, **kwargs):
+        """Return a hash value for this value."""
         self.getValue()
 
 class Float(BasicBase):
+    """Implementation of a 32-bit float."""
     def __init__(self, **kwargs):
+        super(Float, self).__init__(**kwargs)
         self._value = '\x00\x00\x00\x00'
 
     def getValue(self):
+        """Return stored value."""
         return struct.unpack('<f', self._value)[0]
 
     def setValue(self, value):
+        """Set value to C{value}."""
         self._value = struct.pack('<f', float(value))
 
     def read(self, stream, **kwargs):
+        """Read value from stream."""
         self._value = stream.read(4)
 
     def write(self, stream, **kwargs):
+        """Write value to stream."""
         stream.write(self._value)
 
     def getSize(self, **kwargs):
+        """Return size of this type."""
         return 4
 
     def getHash(self, **kwargs):
+        """Return a hash value for this value. Currently implemented
+        with precision 1/200."""
         return int(self.getValue()*200)
 
 ### faster calculation, slower read/write:
