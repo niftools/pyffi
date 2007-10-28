@@ -52,7 +52,7 @@ class XmlError(StandardError):
     parsing."""
     pass
 
-class XmlSaxHandler(xml.sax.handler.ContentHandler):
+class XmlSaxHandler(object, xml.sax.handler.ContentHandler):
     """This class contains all functions for parsing the xml and converting
     the xml structure into Python classes."""
     tagFile      = 1
@@ -112,6 +112,9 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
               - C{self.cls.xmlBitStruct}
               - C{self.cls.xmlStruct}
         """
+        # initialize base class
+        super(XmlSaxHandler, self).__init__()
+
         # save dictionary for future use
         self.dct = dct
 
@@ -308,10 +311,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 # struct types can be organized in a hierarchy
                 # if inherit attribute is defined, then look for corresponding
                 # base block
-                try:
-                    class_basename = attrs["inherit"]
-                except KeyError:
-                    class_basename = None
+                class_basename = attrs.get("inherit")
                 if class_basename:
                     # if that base struct has not yet been assigned to a
                     # class, then we have a problem
@@ -325,13 +325,9 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                     self.classBase = StructBase
                 # istemplate attribute is optional
                 # if not set, then the struct is not a template
-                try:
-                    is_template = (attrs["istemplate"] == "1")
-                except KeyError:
-                    is_template = False
                 # set attributes (see class StructBase)
                 self.classDict = {
-                    "_isTemplate" : is_template,
+                    "_isTemplate" : attrs.get("istemplate") == "1",
                     "_attrs" : [],
                     "__doc__" : "" }
 
