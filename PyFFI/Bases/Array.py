@@ -1,6 +1,4 @@
-"""
-Implements class for arrays.
-"""
+"""Implements class for arrays."""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
@@ -75,32 +73,43 @@ class _ListWrap(list):
         return False
 
     def _notImplementedHook(self, *args):
+        """A hook for members that are not implemented."""
         raise NotImplementedError
 
     def iterBasicItem(self):
+        """Iterator which calls C{getValue()} on all items. Applies when
+        the list has BasicBase elements."""
         for elem in list.__iter__(self):
             yield elem.getValue()
 
     def iterItem(self):
+        """Iterator over all items. Applies when the list does not have
+        BasicBase elements."""
         for elem in list.__iter__(self):
             yield elem
 
     def getBasicItem(self, index):
+        """Item getter which calls C{getValue()} on the C{index}'d item."""
         return list.__getitem__(self, index).getValue()
 
     def setBasicItem(self, index, value):
+        """Item setter which calls C{setValue()} on the C{index}'d item."""
         return list.__getitem__(self, index).setValue(value)
 
     def getItem(self, index):
+        """Regular item getter, used when the list does not have BasicBase
+        elements."""
         return list.__getitem__(self, index)
 
 class Array(_ListWrap):
+    """A general purpose class for 1 or 2 dimensional arrays consisting of
+    either BasicBase or StructBase elements."""
     # initialize the array
     def __init__(
         self, parent,
         element_type, element_type_template, element_type_argument,
         count1, count2 = None):
-        if count2 == None:
+        if count2 is None:
             _ListWrap.__init__(self, element_type)
         else:
             _ListWrap.__init__(self, _ListWrap)
@@ -128,12 +137,12 @@ class Array(_ListWrap):
                 self.append(elem)
 
     def _len1(self):
-        """The length the array *should* have, obtained by evaluating
+        """The length the array should have, obtained by evaluating
         the count1 expression."""
         return self._count1.eval(self._parent)
 
     def _len2(self, index1):
-        """The length the array *should* have, obtained by evaluating
+        """The length the array should have, obtained by evaluating
         the count2 expression."""
         if self._count2 == None:
             raise ValueError('single array treated as double array (bug?)')
@@ -166,6 +175,8 @@ class Array(_ListWrap):
         return text
 
     def updateSize(self):
+        """Update the array size. Call this function whenever the size
+        parameters change in C{parent}."""
         old_size = len(self)
         new_size = self._len1()
         if self._count2 == None:
@@ -196,11 +207,13 @@ class Array(_ListWrap):
                         elemlist.append(elem)
 
     def read(self, stream, **kwargs):
+        """Read array from stream."""
         # parse arguments
         self._elementTypeArgument = kwargs.get('argument')
         # check array size
         len1 = self._len1()
-        if len1 > 1000000: raise ValueError('array too long')
+        if len1 > 1000000:
+            raise ValueError('array too long')
         self.__delslice__(0, self.__len__())
         # read array
         if self._count2 == None:
@@ -213,7 +226,8 @@ class Array(_ListWrap):
         else:
             for i in xrange(len1):
                 len2i = self._len2(i)
-                if len2i > 1000000: raise ValueError('array too long')
+                if len2i > 1000000:
+                    raise ValueError('array too long')
                 elemlist = _ListWrap(self._elementType)
                 for j in xrange(len2i):
                     elem = self._elementType(
@@ -224,12 +238,14 @@ class Array(_ListWrap):
                 self.append(elemlist)
 
     def write(self, stream, **kwargs):
+        """Write array to stream."""
         self._elementTypeArgument = kwargs.get('argument')
         len1 = self._len1()
         if len1 != self.__len__():
             raise ValueError('array size (%i) different from to field \
 describing number of elements (%i)'%(self.__len__(),len1))
-        if len1 > 1000000: raise ValueError('array too long (%i)'%len1)
+        if len1 > 1000000:
+            raise ValueError('array too long (%i)'%len1)
         if self._count2 == None:
             for elem in list.__iter__(self):
                 elem.write(stream, **kwargs)
@@ -245,7 +261,10 @@ describing number of elements (%i)"%(elemlist.__len__(),len2i))
                     elem.write(stream, **kwargs)
 
     def fixLinks(self, **kwargs):
-        if not self._elementType._hasLinks: return
+        """Fix the links in the array by calling C{fixLinks} on all elements
+        of the array."""
+        if not self._elementType._hasLinks:
+            return
         if self._count2 == None:
             for elem in list.__iter__(self):
                 elem.fixLinks(**kwargs)
@@ -255,8 +274,11 @@ describing number of elements (%i)"%(elemlist.__len__(),len2i))
                     elem.fixLinks(**kwargs)
 
     def getLinks(self, **kwargs):
+        """Return all links in the array by calling C{getLinks} on all elements
+        of the array."""
         links = []
-        if not self._elementType._hasLinks: return links
+        if not self._elementType._hasLinks:
+            return links
         if self._count2 == None:
             for elem in list.__iter__(self):
                 links.extend(elem.getLinks(**kwargs))
@@ -267,8 +289,11 @@ describing number of elements (%i)"%(elemlist.__len__(),len2i))
         return links
 
     def getStrings(self, **kwargs):
+        """Return all strings in the array by calling C{getStrings} on all
+        elements of the array."""
         strings = []
-        if not self._elementType._hasStrings: return strings
+        if not self._elementType._hasStrings:
+            return strings
         if self._count2 == None:
             for elem in list.__iter__(self):
                 strings.extend(elem.getStrings(**kwargs))
@@ -279,8 +304,11 @@ describing number of elements (%i)"%(elemlist.__len__(),len2i))
         return strings
 
     def getRefs(self, **kwargs):
+        """Return all references in the array by calling C{getRefs} on all
+        elements of the array."""
         links = []
-        if not self._elementType._hasLinks: return links
+        if not self._elementType._hasLinks:
+            return links
         if self._count2 == None:
             for elem in list.__iter__(self):
                 links.extend(elem.getRefs(**kwargs))
@@ -291,6 +319,7 @@ describing number of elements (%i)"%(elemlist.__len__(),len2i))
         return links
 
     def getSize(self, **kwargs):
+        """Calculate the sum of the size of all elements in the array."""
         size = 0
         if self._count2 == None:
             for elem in list.__iter__(self):
@@ -302,6 +331,7 @@ describing number of elements (%i)"%(elemlist.__len__(),len2i))
         return size
 
     def getHash(self, **kwargs):
+        """Calculate a hash value for the array, as a tuple."""
         hsh = []
         if self._count2 == None:
             for elem in list.__iter__(self):
