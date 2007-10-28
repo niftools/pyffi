@@ -510,8 +510,10 @@ maxbonespervertex')
 
 # ported from nifskope/skeleton.cpp:spFixBoneBounds
 def updateSkinCenterRadius(self):
+    """Update centers and radii of all skin data fields."""
     # shortcuts relevant blocks
-    if not self.skinInstance: return # no skin, nothing to do
+    if not self.skinInstance:
+        return # no skin, nothing to do
     self._validateSkin()
     geomdata = self.data
     skininst = self.skinInstance
@@ -521,20 +523,19 @@ def updateSkinCenterRadius(self):
 
     for skindatablock in skindata.boneList:
         # find all vertices influenced by this bone
-        indices = [
-            skinweight.index for skinweight in skindatablock.vertexWeights]
-        boneverts = [verts[i] for i in indices]
+        boneverts = [verts[skinweight.index]
+                     for skinweight in skindatablock.vertexWeights]
 
         # find bounding box of these vertices
         low = self.cls.Vector3()
-        low.x = min([v.x for v in boneverts])
-        low.y = min([v.y for v in boneverts])
-        low.z = min([v.z for v in boneverts])
+        low.x = min(v.x for v in boneverts)
+        low.y = min(v.y for v in boneverts)
+        low.z = min(v.z for v in boneverts)
 
         high = self.cls.Vector3()
-        high.x = max([v.x for v in boneverts])
-        high.y = max([v.y for v in boneverts])
-        high.z = max([v.z for v in boneverts])
+        high.x = max(v.x for v in boneverts)
+        high.y = max(v.y for v in boneverts)
+        high.z = max(v.z for v in boneverts)
 
         # center is in the center of the bounding box
         center = (low + high) * 0.5
