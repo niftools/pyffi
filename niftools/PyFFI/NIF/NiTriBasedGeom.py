@@ -1,7 +1,5 @@
-# --------------------------------------------------------------------------
-# NifFormat.NiTriBasedGeom
-# Custom functions for NiTriBasedGeom.
-# --------------------------------------------------------------------------
+"""Custom functions for NiTriBasedGeom."""
+
 # ***** BEGIN LICENCE BLOCK *****
 #
 # Copyright (c) 2007, NIF File Format Library and Tools.
@@ -38,7 +36,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENSE BLOCK *****
-# --------------------------------------------------------------------------
 
 import struct
 from PyFFI.Utils import PyTriStrip
@@ -47,7 +44,9 @@ def updateTangentSpace(self):
     """Recalculate tangent space data."""
     # check that self.data exists and is valid
     if not isinstance(self.data, self.cls.NiTriBasedGeomData):
-        raise ValueError('cannot update tangent space of a geometry with %s data'%(self.data.__class__ if self.data else 'no'))
+        raise ValueError(
+            'cannot update tangent space of a geometry with %s data'
+            %(self.data.__class__ if self.data else 'no'))
     
     verts = self.data.vertices
     norms = self.data.normals
@@ -112,7 +111,7 @@ def updateTangentSpace(self):
         except ValueError: # catches invalid data
             continue # skip triangle
 
-        # TODO figure out vector combination algorithm
+        # vector combination algorithm could possibly be improved
         for i in [t1, t2, t3]:
             tan[i] += tdir
             bin[i] += sdir
@@ -167,15 +166,26 @@ def updateTangentSpace(self):
             cnt += 1
 
 # ported from nifskope/skeleton.cpp:spSkinPartition
-def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, verbose = 0, stripify = True, stitchstrips = False, padbones = False):
+def updateSkinPartition(self,
+                        maxbonesperpartition = 4, maxbonespervertex = 4,
+                        verbose = 0, stripify = True, stitchstrips = False,
+                        padbones = False):
     """Recalculate skin partition data.
 
-    @param maxbonesperpartition: Maximum number of bones in each partition. The numBones field will not exceed this number.
-    @param maxbonespervertex: Maximum number of bones per vertex. The numWeightsPerVertex field will be exactly equal to this number.
+    @param maxbonesperpartition: Maximum number of bones in each partition.
+        The numBones field will not exceed this number.
+    @param maxbonespervertex: Maximum number of bones per vertex.
+        The numWeightsPerVertex field will be exactly equal to this number.
     @param verbose: Set verbosity level (0 = completely quiet).
     @param stripify: If true, stripify the partitions, otherwise use triangles.
-    @param stitchstrips: If stripify is true, then set this to true to stitch the strips.
-    @param padbones: Enforces the numbones field to be equal to maxbonesperpartition. Also ensures that the bone indices are unique and sorted, per vertex. Raises an exception if maxbonespervertex  is not equal to maxbonesperpartition (in that case bone indices cannot be unique and sorted). This options is required for Freedom Force vs. the 3rd Reich skin partitions."""
+    @param stitchstrips: If stripify is true, then set this to true to stitch
+        the strips.
+    @param padbones: Enforces the numbones field to be equal to
+        maxbonesperpartition. Also ensures that the bone indices are unique
+        and sorted, per vertex. Raises an exception if maxbonespervertex
+        is not equal to maxbonesperpartition (in that case bone indices cannot
+        be unique and sorted). This options is required for Freedom Force vs.
+        the 3rd Reich skin partitions."""
     # shortcuts relevant blocks
     if not self.skinInstance: return # no skin, nothing to do
     self._validateSkin()
@@ -189,21 +199,25 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
 
     # count minimum and maximum number of bones per vertex
     if verbose: print "counting min and max bones per vertex",
-    numbonespervertex = [len(weight) for weight in weights]
-    minbones, maxbones = min(numbonespervertex), max(numbonespervertex)
-    del numbonespervertex
+    minbones = min(len(weight) for weight in weights)
+    maxbones = max(len(weight) for weight in weights)
     if minbones <= 0:
         raise ValueError('bad NiSkinData: some vertices have no weights')
-    if verbose: print "   min", minbones, "   max", maxbones
+    if verbose:
+        print "   min", minbones, "   max", maxbones
 
     # reduce bone influences to meet maximum number of bones per vertex
-    if verbose: print "imposing max bones per vertex", maxbonespervertex
+    if verbose:
+        print "imposing max bones per vertex", maxbonespervertex
     lostweight = 0.0
     for weight in weights:
         if len(weight) > maxbonespervertex:
             # delete bone influences with least weight
             weight.sort(key=lambda x: x[1], reverse=True) # sort by weight
-            lostweight = max(lostweight, max([x[1] for x in weight[maxbonespervertex:]])) # save lost weight to return to user
+            # save lost weight to return to user
+            lostweight = max(
+                lostweight, max(
+                    [x[1] for x in weight[maxbonespervertex:]]))
             del weight[maxbonespervertex:] # only keep first elements
             # normalize
             totalweight = sum([x[1] for x in weight]) # sum of all weights
@@ -235,52 +249,42 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
             for bonenum in tribones: tribonesweights[bonenum] = 0.0
             nono = set() # bones with weight 1 cannot be removed
             for skinweights in [weights[t] for t in tri]:
-                if len(skinweights) == 1: nono.add(skinweights[0][0]) # skinweights[0] is the first skinweight influencing vertex t and skinweights[0][0] is the bone number of that bone
+                # skinweights[0] is the first skinweight influencing vertex t
+                # and skinweights[0][0] is the bone number of that bone
+                if len(skinweights) == 1: nono.add(skinweights[0][0])
                 for bonenum, boneweight in skinweights:
                     tribonesweights[bonenum] += boneweight
 
             # select a bone to remove
             # first find bones we can remove
-            tribonesweights = [x for x in tribonesweights.items() if x[0] not in nono] # restrict to bones not in the nono set
+
+            # restrict to bones not in the nono set
+            tribonesweights = [
+                x for x in tribonesweights.items() if x[0] not in nono]
             if not tribonesweights:
-                raise ValueError('cannot remove anymore bones in this skin; increase maxbonesperpartition and try again')
-            tribonesweights.sort(key=lambda x: x[1], reverse=True) # sort by vertex weight sum the last element of this list is now a candidate for removal
+                raise ValueError('cannot remove anymore bones in this skin; \
+increase maxbonesperpartition and try again')
+            # sort by vertex weight sum the last element of this list is now a
+            # candidate for removal
+            tribonesweights.sort(key=lambda x: x[1], reverse=True)
             minbone = tribonesweights[-1][0]
 
-            # *** vertex match disabled: slows down things too much ***
-            # do a vertex match detect
-            #verts = [ (long(v.x/self.cls._EPSILON), long(v.y/self.cls._EPSILON), long(v.z/self.cls._EPSILON)) for v in geomdata.vertices ] # convert to long speeds things up tremendously
-            #print "  doing vertex match (%i vertices)"%len(verts)
-            #match = [[a] for a in xrange(len(verts))]
-            #for a in xrange(len(verts)):
-            #    for b in xrange(a+1, len(verts)):
-            #        # compare vertices
-            #        if verts[a][0] != verts[b][0]: continue
-            #        if verts[a][1] != verts[b][1]: continue
-            #        if verts[a][2] != verts[b][2]: continue
-            #        # compare bone influences
-            #        # skinweights are sorted by bone number, so this will work
-            #        for (bonenuma, boneweighta), (bonenumb, boneweightb) in zip(weights[a], weights[b]):
-            #            if bonenuma != bonenumb: continue
-            #            if abs(boneweighta - boneweightb) > self.cls._EPSILON: continue
-            #        # match!
-            #        match[a].append(b)
-            #        match[b].append(a)
-
-            # remove minbone from all vertices of this triangle and from all matching vertices
+            # remove minbone from all vertices of this triangle and from all
+            # matching vertices
             for t in tri:
                 for tt in [t]: #match[t]:
                     # remove bone
                     weight = weights[tt]
                     for i, (bonenum, boneweight) in enumerate(weight):
                         if bonenum == minbone:
-                            lostweight = max(lostweight, boneweight) # save lost weight to return to user
+                            # save lost weight to return to user
+                            lostweight = max(lostweight, boneweight)
                             del weight[i]
                             break
                     else:
                         continue
                     # normalize
-                    totalweight = sum([x[1] for x in weight]) # sum of all weights
+                    totalweight = sum([x[1] for x in weight])
                     for x in weight: x[1] /= totalweight
 
     # split triangles into partitions
@@ -294,12 +298,15 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
         addtriangles = True
         # keep adding triangles to it as long as the flag is set
         while addtriangles:
-            newtriangles = [] # list of triangles that have not been added to the partition
+            # newtriangles is a list of triangles that have not been added to
+            # the partition
+            newtriangles = []
             for tri in triangles:
                 # find the bones influencing this triangle
                 tribones = []
                 for t in tri:
-                    tribones.extend([bonenum for bonenum, boneweight in weights[t]])
+                    tribones.extend([
+                        bonenum for bonenum, boneweight in weights[t]])
                 tribones = set(tribones)
                 # if part has no bones, or if part has all bones of tribones
                 # then add this triangle to this part
@@ -321,14 +328,18 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
                         # find the bones influencing this triangle
                         tribones = []
                         for t in tri:
-                            tribones.extend([bonenum for bonenum, boneweight in weights[t]])
+                            tribones.extend([
+                                bonenum for bonenum, boneweight in weights[t]])
                         tribones = set(tribones)
-                        # and check if we exceed the maximum number of allowed bones
+                        # and check if we exceed the maximum number of allowed
+                        # bones
                         if len(part[0] | tribones) <= maxbonesperpartition:
                             part[0] |= tribones
                             part[1].append(tri)
                             usedverts |= set(tri)
-                            addtriangles = True # signal another try in adding triangles to the partition
+                            # signal another try in adding triangles to
+                            # the partition
+                            addtriangles = True
                         else:
                             newtriangles.append(tri)
                     else:
@@ -342,8 +353,11 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
     merged = True # signals success, in which case do another run
     while merged:
         merged = False
-        newparts = [] # to contain the updated merged partitions as we go
-        addedparts = set() # set of all partitions from parts that have been added to newparts
+        # newparts is to contain the updated merged partitions as we go
+        newparts = []
+        # addedparts is the set of all partitions from parts that have been
+        # added to newparts
+        addedparts = set()
         # try all combinations
         for a, parta in enumerate(parts):
             if a in addedparts: continue
@@ -353,7 +367,6 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
                 if b <= a: continue
                 if b in addedparts: continue
                 if len(parta[0] | partb[0]) <= maxbonesperpartition:
-                    #newparts.append([parta[0] | partb[0], parta[1] + partb[1]])
                     parta[0] |= partb[0]
                     parta[1] += partb[1]
                     addedparts.add(b)
@@ -362,7 +375,8 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
         parts = newparts
 
     # write the NiSkinPartition
-    if verbose: print "creating NiSkinPartition with %i partitions"%len(parts)
+    if verbose:
+        print "creating NiSkinPartition with %i partitions" % len(parts)
 
     # if skin partition already exists, use it
     if skindata.skinPartition != None:
@@ -396,7 +410,8 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
         if stripify:
             # stripify the triangles
             if verbose: print "  stripifying partition", parts.index(part)
-            strips = PyTriStrip.stripify(parttriangles, stitchstrips = stitchstrips)
+            strips = PyTriStrip.stripify(
+                parttriangles, stitchstrips = stitchstrips)
             numtriangles = 0
             for strip in strips: numtriangles += len(strip) - 2
         else:
@@ -409,13 +424,20 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
             skinpartblock.numBones = len(bones)
         else:
             if maxbonesperpartition != maxbonespervertex:
-                raise ValueError('when padding bones maxbonesperpartition must be equal to maxbonespervertex')
-            skinpartblock.numBones = maxbonesperpartition # freedom force vs. the 3rd reich needs exactly 4 bones per partition on every partition block
+                raise ValueError(
+                    'when padding bones maxbonesperpartition must be equal to \
+maxbonespervertex')
+            # freedom force vs. the 3rd reich needs exactly 4 bones per
+            # partition on every partition block
+            skinpartblock.numBones = maxbonesperpartition
         if stripify:
             skinpartblock.numStrips = len(strips)
         else:
             skinpartblock.numStrips = 0
-        skinpartblock.numWeightsPerVertex = maxbonespervertex # maxbones would be enough but the Gamebryo engine doesn't like that
+        # maxbones would be enough as numWeightsPerVertex but the Gamebryo
+        # engine doesn't like that, it seems to want exactly 4 even if there
+        # are fewer
+        skinpartblock.numWeightsPerVertex = maxbonespervertex
         skinpartblock.bones.updateSize()
         for i, bonenum in enumerate(bones):
             skinpartblock.bones[i] = bonenum
@@ -444,8 +466,10 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
                     skinpartblock.strips[i][j] = v
         else:
             skinpartblock.hasFaces = True
-            skinpartblock.stripLengths.updateSize() # clears strip lengths array
-            skinpartblock.strips.updateSize() # clears strips array
+            # clear strip lengths array
+            skinpartblock.stripLengths.updateSize()
+            # clear strips array
+            skinpartblock.strips.updateSize()
             skinpartblock.triangles.updateSize()
             for i, (v1,v2,v3) in enumerate(parttriangles):
                 skinpartblock.triangles[i].v1 = v1
@@ -454,7 +478,9 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
         skinpartblock.hasBoneIndices = True
         skinpartblock.boneIndices.updateSize()
         for i, v in enumerate(vertices):
-            boneindices = set(range(skinpartblock.numBones)) # keep track of indices that have not been used yet
+            # the boneindices set keeps track of indices that have not been
+            # used yet
+            boneindices = set(range(skinpartblock.numBones))
             for j in xrange(len(weights[v])):
                 skinpartblock.boneIndices[i][j] = bones.index(weights[v][j][0])
                 boneindices.remove(skinpartblock.boneIndices[i][j])
@@ -472,7 +498,9 @@ def updateSkinPartition(self, maxbonesperpartition = 4, maxbonespervertex = 4, v
             for i, v in enumerate(vertices):
                 vweights = []
                 for j in xrange(skinpartblock.numWeightsPerVertex):
-                    vweights.append([skinpartblock.boneIndices[i][j], skinpartblock.vertexWeights[i][j]])
+                    vweights.append([
+                        skinpartblock.boneIndices[i][j],
+                        skinpartblock.vertexWeights[i][j]])
                 vweights.sort(key = lambda w: w[0])
                 for j in xrange(skinpartblock.numWeightsPerVertex):
                     skinpartblock.boneIndices[i][j] = vweights[j][0]
@@ -493,7 +521,8 @@ def updateSkinCenterRadius(self):
 
     for skindatablock in skindata.boneList:
         # find all vertices influenced by this bone
-        indices = [skinweight.index for skinweight in skindatablock.vertexWeights]
+        indices = [
+            skinweight.index for skinweight in skindatablock.vertexWeights]
         boneverts = [verts[i] for i in indices]
 
         # find bounding box of these vertices

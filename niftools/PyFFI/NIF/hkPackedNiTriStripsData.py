@@ -1,7 +1,5 @@
-# --------------------------------------------------------------------------
-# NifFormat.hkPackedNiTriStripsData
-# Custom functions for hkPackedNiTriStripsData.
-# --------------------------------------------------------------------------
+"""Custom functions for hkPackedNiTriStripsData."""
+
 # ***** BEGIN LICENSE BLOCK *****
 #
 # Copyright (c) 2007, NIF File Format Library and Tools.
@@ -38,12 +36,12 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENCE BLOCK *****
-# --------------------------------------------------------------------------
 
 def applyScale(self, scale):
     """Apply scale factor on data."""
-    if abs(scale - 1.0) < self.cls._EPSILON: return
-    for v in self.vertices:
-        v.x *= scale
-        v.y *= scale
-        v.z *= scale
+    if abs(scale - 1.0) < self.cls._EPSILON:
+        return
+    for vert in self.vertices:
+        vert.x *= scale
+        vert.y *= scale
+        vert.z *= scale

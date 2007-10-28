@@ -1,7 +1,5 @@
-# --------------------------------------------------------------------------
-# NifFormat.NiKeyframeData
-# Custom functions for NiKeyframeData.
-# --------------------------------------------------------------------------
+"""Custom functions for NiKeyframeData."""
+
 # ***** BEGIN LICENCE BLOCK *****
 #
 # Copyright (c) 2007, NIF File Format Library and Tools.
@@ -38,7 +36,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENSE BLOCK *****
-# --------------------------------------------------------------------------
 
 def applyScale(self, scale):
     """Apply scale factor on data."""
@@ -52,4 +49,4 @@ def applyScale(self, scale):
         key.backward.x *= scale
         key.backward.y *= scale
         key.backward.z *= scale
-        # TODO figure out what to do with TBC
+        # what to do with TBC?
