@@ -109,7 +109,6 @@ Get list of versions and games
 0x14000004
 0x14000005
 0x14010003
-0x14020006
 0x14020007
 0x14020008
 0x14030003
@@ -120,7 +119,7 @@ Get list of versions and games
 ...     for vnum in versions:
 ...         print '0x%08X'%vnum,
 ...     print
-? 0x0A000103 0x14020006
+? 0x0A000103
 Axis and Allies 0x0A010000
 Civilization IV 0x04020002 0x04020100 0x04020200 0x0A000100 0x0A010000 0x0A020000 0x14000004
 Dark Age of Camelot 0x03000300 0x03010000 0x0401000C 0x04020100 0x04020200 0x0A010000

@@ -25,7 +25,6 @@
     <version num="20.0.0.4">Civilization IV, Oblivion</version>
     <version num="20.0.0.5">Oblivion</version>
     <version num="20.1.0.3">Megami Tensei: Imagine</version>
-    <version num="20.2.0.6">?</version>
     <version num="20.2.0.7">Emerge</version>    
     <version num="20.2.0.8">Emerge</version>
     <version num="20.3.0.3">Emerge</version>
@@ -979,7 +978,7 @@
         <add name="Interpolation" type="KeyType" ver2="10.1.0.0">Unlike most objects, the presense of this value is not conditional on there being keys.</add>
         <add name="Keys" type="Key" arg="Interpolation" template="float" arr1="Num Keys" ver2="10.1.0.0">The morph key frames.</add>
         <add name="Unknown Int" type="uint" ver1="10.1.0.106" ver2="10.2.0.0">Unknown.</add>
-        <add name="Unknown Int" type="uint" ver1="20.0.0.4" userver="0">Unknown.</add>
+        <add name="Unknown Int" type="uint" ver1="20.0.0.4" ver2="20.2.0.8" userver="0">Unknown.</add>
         <add name="Vectors" type="Vector3" arr1="ARG">Morph vectors.</add>
     </compound>
 
@@ -1118,6 +1117,10 @@
         <add name="Bounding Volumes" type="BoundingVolume" arr1="Num BV">Bounding Volume.</add>
     </compound>
         
+    <compound name="MorphWeight">
+        <add name="Interpolator" type="Ref" template="NiInterpolator">Interpolator</add>
+        <add name="Weight?" type="float">Weight</add>
+    </compound>
     
     <!-- NIF Objects
          These are the main units of data that NIF files are arranged in.
@@ -1622,7 +1625,7 @@
     <niobject name="NiMultiTargetTransformController" abstract="0" inherit="NiInterpController" ver1="10.2.0.0">
         Unknown.
         <add name="Num Extra Targets" type="ushort">The number of target pointers that follow.</add>
-        <add name="Extra Targets" type="Ptr" template="NiNode" arr1="Num Extra Targets">NiNode Targets to be controlled.</add>
+        <add name="Extra Targets" type="Ptr" template="NiAVObject" arr1="Num Extra Targets">NiNode Targets to be controlled.</add>
     </niobject>
 
     <niobject name="NiGeomMorpherController" abstract="0" inherit="NiInterpController">
@@ -1632,7 +1635,8 @@
         <add name="Data" type="Ref" template="NiMorphData">Geometry morphing data index.</add>
         <add name="Always Update" type="byte">Always Update</add>
         <add name="Num Interpolators" type="uint" ver1="10.1.0.106">The number of interpolator objects.</add>
-        <add name="Interpolators" type="Ref" template="NiInterpolator" arr1="Num Interpolators" ver1="10.1.0.106">List of interpolators.</add>
+        <add name="Interpolators" type="Ref" template="NiInterpolator" arr1="Num Interpolators" ver1="10.1.0.106" ver2="20.2.0.8">List of interpolators.</add>
+        <add name="Interpolator Weights" type="MorphWeight" arr1="Num Interpolators" ver1="20.3.0.6">Weighted Interpolators?</add>
         <add name="Num Unknown Ints" type="uint" ver1="20.0.0.4" userver="10">A count.</add>
         <add name="Unknown Ints" type="uint" arr1="Num Unknown Ints" ver1="20.0.0.4" userver="10">Unknown.</add>
         <add name="Num Unknown Ints" type="uint" ver1="20.0.0.4" userver="11">A count.</add>
@@ -1776,11 +1780,10 @@
         <add name="Num Node Groups" type="uint">Number of node groups.</add>
         <add name="Num Node Groups 2" type="uint">Number of node groups.</add>
         <add name="Node Groups" type="NodeGroup" arr1="Num Node Groups">A list of node groups (each group a sequence of bones).</add>
-        
-        <add name="Num Shape Groups" type="uint" ver2="10.2.0.0">Number of shape groups.</add>
-        <add name="Shape Groups 1" type="SkinShapeGroup" arr1="Num Shape Groups" ver2="10.2.0.0">List of shape groups.</add>
-        <add name="Num Shape Groups 2" type="uint" ver2="10.2.0.0">The size of the second list of shape groups.</add>
-        <add name="Shape Groups 2" type="Ref" template="NiTriBasedGeom" arr1="Num Shape Groups 2" ver2="10.2.0.0">Group of NiTriShape indices.</add>
+        <add name="Num Shape Groups" type="uint" ver1="10.0.1.0" userver="0">Number of shape groups.</add>
+        <add name="Shape Groups 1" type="SkinShapeGroup" arr1="Num Shape Groups" ver1="10.0.1.0" userver="0">List of shape groups.</add>
+        <add name="Num Shape Groups 2" type="uint" ver1="10.0.1.0" userver="0">The size of the second list of shape groups.</add>
+        <add name="Shape Groups 2" type="Ref" template="NiTriBasedGeom" arr1="Num Shape Groups 2" ver1="10.0.1.0" userver="0">Group of NiTriShape indices.</add>
     </niobject>
 
     <niobject name="NiBSBoneLODController" abstract="0" inherit="NiBoneLODController">
@@ -1795,8 +1798,8 @@
         <add name="Material Name" type="string" arr1="Num Materials" ver1="20.2.0.7">Unknown string.  Shader?</add>
         <add name="Material Extra Data" type="uint" arr1="Num Materials" ver1="20.2.0.7">Unknown integer.</add>
         <add name="Active Material" type="int" ver1="20.2.0.7" default="-1">Active Material.</add>
-        <add name="Has Shader" type="bool" ver1="10.0.1.0" ver2="20.2.0.6">Shader.</add>
-        <add name="Shader Name" type="string" cond="Has Shader != 0" ver1="10.0.1.0" ver2="20.2.0.6">The shader name.</add>
+        <add name="Has Shader" type="bool" ver1="10.0.1.0" ver2="20.1.0.3">Shader.</add>
+        <add name="Shader Name" type="string" cond="Has Shader != 0" ver1="10.0.1.0" ver2="20.1.0.3">The shader name.</add>
         <add name="Unknown Integer" type="int" cond="Has Shader != 0" ver1="10.0.1.0">Unknown value, usually -1. (Not a link)</add>
         <add name="Dirty Flag?" type="bool" ver1="20.2.0.7">Dirty Flag?</add>        
     </niobject>
@@ -2257,7 +2260,7 @@
         Unknown.
         <add name="Unknown Short" type="ushort">Unknown.</add>
         <add name="Look At" type="Ref" template="NiNode">Refers to a Node to focus on.</add>
-        <add name="Unknown Float" type="float">Unknown.</add>
+        <add name="Target" type="string">Target node name.</add>
         <add name="Translation" type="Vector3">Translate.</add>
         <add name="Rotation" type="Quaternion">Rotation.</add>
         <add name="Scale" type="float">Scale.</add>
@@ -2788,9 +2791,9 @@
         <add name="Pixel Layout" type="PixelLayout" default="5">Specifies the way the image will be stored.</add>
         <add name="Use Mipmaps" type="MipMapFormat" default="2">Specifies whether mip maps are used.</add>
         <add name="Alpha Format" type="AlphaFormat" default="3"> Note: the NiTriShape linked to this object must have a NiAlphaProperty in its list of properties to enable material and/or texture transparency.</add>
-        <add name="Static" type="byte" default="1">Static</add>
-        <add name="Direct Render" type="byte" default="1" ver1="10.1.0.106">Load direct to renderer</add>
-        <add name="Persist Render Data" type="byte" default="0" ver1="20.2.0.7">Render data is persistant</add>
+        <add name="Is Static" type="bool" default="1">Is Static?</add>
+        <add name="Direct Render" type="bool" default="1" ver1="10.1.0.106">Load direct to renderer</add>
+        <add name="Persist Render Data" type="bool" default="0" ver1="20.2.0.7">Render data is persistant</add>
     </niobject>
 
     <niobject name="NiSpecularProperty" abstract="0" inherit="NiProperty">
@@ -2812,6 +2815,7 @@
     <niobject name="NiSpotLight" abstract="0" inherit="NiPointLight" ver1="20.0.0.4">
         A spot.
         <add name="Cutoff Angle" type="float">The opening angle of the spot.</add>
+        <add name="Unknown Float" type="float" ver1="20.3.0.6">Unknown</add>
         <add name="Exponent" type="float">Describes the distribution of light. (see: glLight)</add>
     </niobject>
     
@@ -2938,13 +2942,13 @@
         <add name="Unknown2 Float" type="float" cond="Has Unknown2 Texture != 0">Unknown.</add>
         <add name="Has Decal 0 Texture" type="bool">Do we have a decal 0 texture?</add>
         <add name="Decal 0 Texture" type="TexDesc" cond="Has Decal 0 Texture != 0">The decal texture.</add>
-        <add name="Has Decal 1 Texture" type="bool" cond="Texture Count &gt;= 8" ver2="20.2.0.6">Do we have a decal 1 texture?</add>
+        <add name="Has Decal 1 Texture" type="bool" cond="Texture Count &gt;= 8" ver2="20.1.0.3">Do we have a decal 1 texture?</add>
         <add name="Has Decal 1 Texture" type="bool" cond="Texture Count &gt;= 10" ver1="20.2.0.7">Do we have a decal 1 texture?</add>
         <add name="Decal 1 Texture" type="TexDesc" cond="Has Decal 1 Texture != 0">Another decal texture.</add>
-        <add name="Has Decal 2 Texture" type="bool" cond="Texture Count &gt;= 9" ver2="20.2.0.6">Do we have a decal 2 texture?</add>
+        <add name="Has Decal 2 Texture" type="bool" cond="Texture Count &gt;= 9" ver2="20.1.0.3">Do we have a decal 2 texture?</add>
         <add name="Has Decal 2 Texture" type="bool" cond="Texture Count &gt;= 11" ver1="20.2.0.7">Do we have a decal 2 texture?</add>
         <add name="Decal 2 Texture" type="TexDesc" cond="Has Decal 2 Texture != 0">Another decal texture.</add>
-        <add name="Has Decal 3 Texture" type="bool" cond="Texture Count &gt;= 10" ver1="20.2.0.6">Do we have a decal 3 texture?</add>
+        <add name="Has Decal 3 Texture" type="bool" cond="Texture Count &gt;= 10" ver2="20.1.0.3">Do we have a decal 3 texture?</add>
         <add name="Has Decal 3 Texture" type="bool" cond="Texture Count &gt;= 12" ver1="20.2.0.7">Do we have a decal 3 texture?</add>
         <add name="Decal 3 Texture" type="TexDesc" cond="Has Decal 3 Texture != 0">Another decal texture. Who knows the limit.</add>
         <add name="Num Shader Textures" type="uint" ver1="10.0.1.0">Number of Shader textures that follow.</add>
@@ -3083,8 +3087,8 @@
 
     <niobject name="NiSortAdjustNode" abstract="0" inherit="NiNode" ver1="10.2.0.0">
         Unknown node.  Found in Loki.
-        <add name="Sorting Mode" type="SortingMode" default="SORTING_MAX">Sorting</add>
-        <add name="Unknown Int 2" type="Ptr" default="-1" ver2="10.2.0.0">Unknown.</add>
+        <add name="Sorting Mode" type="SortingMode" default="SORTING_INHERIT">Sorting</add>
+        <add name="Unknown Int 2" type="int" default="-1" ver2="10.2.0.0">Unknown.</add>
     </niobject>
     
     <niobject name="NiSourceCubeMap" abstract="0" inherit="NiSourceTexture">
@@ -3097,19 +3101,19 @@
         <add name="Unknown Int 1" type="uint">Unknown</add>
         <add name="Unknown Int 2" type="uint">Unknown</add>
         <add name="Unknown Byte 1" type="byte">Unknown</add>
-        <add name="Prop Description" type="Ref" template="NiPhysXPropDesc" default="-1">PhysX Property Description.</add>
+        <add name="Prop Description" type="Ref" template="NiPhysXPropDesc">PhysX Property Description.</add>
     </niobject>
     
     <niobject name="NiPhysXPropDesc" abstract="0" inherit="NiObject" ver1="20.1.0.7">
         Unknown PhysX node.  
         <add name="Unknown Int 1" type="uint">Unknown</add>
-        <add name="Actor Description" type="Ref" template="NiPhysXActorDesc" default="-1">PhysX Actor Description</add>
+        <add name="Actor Description" type="Ref" template="NiPhysXActorDesc">PhysX Actor Description</add>
         <add name="Unknown Int 2" type="uint">Unknown</add>
         <add name="Unknown Int 3" type="uint">Unknown</add>
         <add name="Unknown Int 4" type="uint">Unknown</add>
         <add name="Unknown Byte 1" type="byte">Unknown</add>
         <add name="Unknown Byte 2" type="byte">Unknown</add>
-        <add name="Material Description" type="Ref" template="NiPhysXMaterialDesc" default="-1">PhysX Material Description</add>
+        <add name="Material Description" type="Ref" template="NiPhysXMaterialDesc">PhysX Material Description</add>
         <add name="Unknown Int 5" type="uint">Unknown</add>
     </niobject>
     
@@ -3126,10 +3130,10 @@
         <add name="Unknown Byte 1" type="byte">Unknown</add>
         <add name="Unknown Byte 2" type="byte">Unknown</add>
         <add name="Unknown Int 6" type="int">Unknown</add>
-        <add name="Shape Description" type="Ref" template="NiPhysXShapeDesc" default="-1">PhysX Shape Description</add>
-        <add name="Unknown Ref 1" type="Ref" template="NiObject" default="-1">Unknown</add>
-        <add name="Unknown Ref 2" type="Ref" template="NiObject" default="-1">Unknown</add>
-        <add name="Unknown Ref 3" type="Ref" template="NiObject" default="-1">Unknown</add>
+        <add name="Shape Description" type="Ref" template="NiPhysXShapeDesc">PhysX Shape Description</add>
+        <add name="Unknown Ref 1" type="Ref" template="NiObject">Unknown</add>
+        <add name="Unknown Ref 2" type="Ref" template="NiObject">Unknown</add>
+        <add name="Unknown Ref 3" type="Ref" template="NiObject">Unknown</add>
     </niobject>
     
     <niobject name="NiPhysXShapeDesc" abstract="0" inherit="NiObject" ver1="20.1.0.7">
@@ -3149,7 +3153,7 @@
         <add name="Unknown Int 5" type="int">Unknown</add>
         <add name="Unknown Int 7" type="int">Unknown</add>
         <add name="Unknown Int 8" type="int">Unknown</add>
-        <add name="Mesh Description" type="Ref" template="NiPhysXMeshDesc" default="-1">PhysX Mesh Description</add>
+        <add name="Mesh Description" type="Ref" template="NiPhysXMeshDesc">PhysX Mesh Description</add>
     </niobject>
     
     <niobject name="NiPhysXMeshDesc" abstract="0" inherit="NiObject" ver1="20.1.0.7">
