@@ -431,12 +431,12 @@ but got %s instead"""%name)
                 raise XmlError("error unknown element %s"%name)
         if self.popTag() != tag:
             raise XmlError("mismatching end element tag for element %s"%name)
-        if tag == self.tagAttribute:
+        elif tag == self.tagAttribute:
             return # improves performance
-        if tag in (self.tagStruct,
-                   self.tagEnum,
-                   self.tagAlias,
-                   self.tagBitStruct):
+        elif tag in (self.tagStruct,
+                     self.tagEnum,
+                     self.tagAlias,
+                     self.tagBitStruct):
             # create class
             class_type = type(
                 str(self.className), (self.classBase,), self.classDict)
@@ -480,10 +480,9 @@ but got %s instead"""%name)
             for attr in obj._attrs:
                 templ = attr.template
                 if isinstance(templ, basestring):
-                    if templ != "TEMPLATE":
-                        attr.template = getattr(self.cls, templ)
-                    else:
-                        attr.template = NoneType
+                    attr.template = \
+                        getattr(self.cls, templ) if templ != "TEMPLATE" \
+                        else NoneType
 
             # add custom functions to interface
             # first find the module
