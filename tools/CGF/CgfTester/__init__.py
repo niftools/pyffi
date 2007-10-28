@@ -27,8 +27,8 @@ def pass_exception(exc):
 # useful as testFile which simply writes back the file
 # but restores the file if the write fails
 def testFileOverwrite(stream,
-                      filetype = filetype, fileversion = fileversion,
-                      chunks = chunks, versions = versions, **kwargs):
+                      filetype = None, fileversion = None,
+                      chunks = None, versions = None, **kwargs):
     stream.seek(0)
     backup = stream.read(-1)
     stream.seek(0)
