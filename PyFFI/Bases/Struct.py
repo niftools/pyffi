@@ -1,6 +1,4 @@
-"""
-Implements class for struct types (xml tag struct).
-"""
+"""Implements base class for struct types."""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
@@ -42,7 +40,6 @@ Implements class for struct types (xml tag struct).
 # --------------------------------------------------------------------------
 
 from PyFFI.Bases.Basic import BasicBase
-from PyFFI.Bases.Expression import Expression
 from PyFFI.Bases.Array import Array
 
 from types import NoneType
@@ -55,13 +52,14 @@ from functools import partial
 
 
 
-# This metaclass checks for the presence of an _attrs and _isTemplate
-# attributes. For each attribute in _attrs, an
-# <attrname> property is generated which gets and sets basic types,
-# and gets other types (struct and array). Used as metaclass of
-# StructBase.
 class _MetaStructBase(type):
+    """This metaclass checks for the presence of an _attrs and _isTemplate
+    attributes. For each attribute in _attrs, an
+    <attrname> property is generated which gets and sets basic types,
+    and gets other types (struct and array). Used as metaclass of
+    StructBase."""
     def __init__(cls, name, bases, dct):
+        super(_MetaStructBase, cls).__init__(name, bases, dct)
         # consistency checks
         if not dct.has_key('_attrs'):
             raise TypeError(str(cls) + ': missing _attrs attribute')
@@ -141,7 +139,8 @@ class StructBase(object):
 
     See the PyFFI.XmlHandler class for a more advanced example.
 
-    >>> from Basic import BasicBase
+    >>> from PyFFI.Bases.Basic import BasicBase
+    >>> from PyFFI.Bases.Expression import Expression
     >>> class UInt(BasicBase):
     ...     _isTemplate = False
     ...     def __init__(self, template = None, argument = None):
@@ -205,7 +204,8 @@ class StructBase(object):
             # skip dupiclate names
             # (for this to work properly, duplicate names must have the same
             # typ, tmpl, arg, arr1, and arr2)
-            if name in names: continue
+            if name in names:
+                continue
             names.append(name)
             # handle template
             if typ == type(None):
@@ -234,7 +234,7 @@ class StructBase(object):
 
     # string of all attributes
     def __str__(self):
-        s = '%s instance at 0x%08X\n'%(self.__class__, id(self))
+        text = '%s instance at 0x%08X\n' % (self.__class__, id(self))
         # used to track names of attributes that have already been added
         # is faster than self.__dict__.has_key(...)
         names = []
@@ -242,20 +242,24 @@ class StructBase(object):
              default, tmpl, arg, arr1, arr2,
              cond, ver1, ver2, userver, doc) in self._attributeList:
             # skip dupiclate names
-            if name in names: continue
+            if name in names:
+                continue
             names.append(name)
             if cond != None:
-                if not cond.eval(self): continue
-            attr_str_lines = str(getattr(self, "_" + name + "_value_")).splitlines()
+                if not cond.eval(self):
+                    continue
+            attr_str_lines = str(
+                getattr(self, "_" + name + "_value_")).splitlines()
             if len(attr_str_lines) > 1:
-                s += '* ' + str(name) + ' :\n'
+                text += '* ' + str(name) + ' :\n'
                 for attr_str in attr_str_lines:
-                    s += '    ' + attr_str + '\n'
+                    text += '    ' + attr_str + '\n'
             else:
-                s += '* ' + str(name) + ' : ' + attr_str_lines[0] + '\n'
-        return s
+                text += '* ' + str(name) + ' : ' + attr_str_lines[0] + '\n'
+        return text
 
     def read(self, stream, **kwargs):
+        """Read structure from stream."""
         # parse arguments
         version = kwargs.get('version', -1)
         user_version = kwargs.get('user_version')
@@ -265,13 +269,17 @@ class StructBase(object):
              default, tmpl, arg, arr1, arr2,
              cond, ver1, ver2, userver, doc) in self._attributeList:
             if ver1:
-                if version < ver1: continue
+                if version < ver1:
+                    continue
             if ver2:
-                if version > ver2: continue
+                if version > ver2:
+                    continue
             if not userver is None:
-                if user_version != userver: continue
+                if user_version != userver:
+                    continue
             if cond != None:
-                if not cond.eval(self): continue
+                if not cond.eval(self):
+                    continue
             if arg != None:
                 if not isinstance(arg, (int, long)):
                     arg = getattr(self, arg)
@@ -280,6 +288,7 @@ class StructBase(object):
             getattr(self, "_" + name + "_value_").read(stream, **kwargs)
 
     def write(self, stream, **kwargs):
+        """Write structure to stream."""
         # parse arguments
         version = kwargs.get('version', -1)
         user_version = kwargs.get('user_version')
@@ -289,13 +298,17 @@ class StructBase(object):
              default, tmpl, arg, arr1, arr2,
              cond, ver1, ver2, userver, doc) in self._attributeList:
             if ver1:
-                if version < ver1: continue
+                if version < ver1:
+                    continue
             if ver2:
-                if version > ver2: continue
+                if version > ver2:
+                    continue
             if not userver is None:
-                if user_version != userver: continue
+                if user_version != userver:
+                    continue
             if cond != None:
-                if not cond.eval(self): continue
+                if not cond.eval(self):
+                    continue
             if arg != None:
                 if not isinstance(arg, (int, long)):
                     arg = getattr(self, arg)
@@ -303,6 +316,7 @@ class StructBase(object):
             getattr(self, "_" + name + "_value_").write(stream, **kwargs)
 
     def fixLinks(self, **kwargs):
+        """Fix links in the structure."""
         # parse arguments
         version = kwargs.get('version', -1)
         user_version = kwargs.get('user_version')
@@ -312,19 +326,25 @@ class StructBase(object):
         for (name, typ,
              default, tmpl, arg, arr1, arr2,
              cond, ver1, ver2, userver, doc) in self._attributeList:
-            if not typ._hasLinks: continue # speeds things up
+            if not typ._hasLinks:
+                continue # speeds things up
             if ver1:
-                if version < ver1: continue
+                if version < ver1:
+                    continue
             if ver2:
-                if version > ver2: continue
+                if version > ver2:
+                    continue
             if not userver is None:
-                if user_version != userver: continue
+                if user_version != userver:
+                    continue
             if cond != None:
-                if not cond.eval(self): continue
-            #print "fixlinks %s"%name
+                if not cond.eval(self):
+                    continue
+            #print "fixlinks %s" % name
             getattr(self, "_" + name + "_value_").fixLinks(**kwargs)
 
     def getLinks(self, **kwargs):
+        """Get list of all links in the structure."""
         # parse arguments
         version = kwargs.get('version', -1)
         user_version = kwargs.get('user_version')
@@ -333,20 +353,26 @@ class StructBase(object):
         for (name, typ,
              default, tmpl, arg, arr1, arr2,
              cond, ver1, ver2, userver, doc) in self._attributeList:
-            if not typ._hasLinks: continue
+            if not typ._hasLinks:
+                continue
             if ver1:
-                if version < ver1: continue
+                if version < ver1:
+                    continue
             if ver2:
-                if version > ver2: continue
+                if version > ver2:
+                    continue
             if not userver is None:
-                if user_version != userver: continue
+                if user_version != userver:
+                    continue
             if cond != None:
-                if not cond.eval(self): continue
+                if not cond.eval(self):
+                    continue
             links.extend(
                 getattr(self, "_" + name + "_value_").getLinks(**kwargs))
         return links
 
     def getStrings(self, **kwargs):
+        """Get list of all strings in the structure."""
         # parse arguments
         version = kwargs.get('version', -1)
         user_version = kwargs.get('user_version')
@@ -355,20 +381,26 @@ class StructBase(object):
         for (name, typ,
              default, tmpl, arg, arr1, arr2,
              cond, ver1, ver2, userver, doc) in self._attributeList:
-            if not typ._hasStrings: continue
+            if not typ._hasStrings:
+                continue
             if ver1:
-                if version < ver1: continue
+                if version < ver1:
+                    continue
             if ver2:
-                if version > ver2: continue
+                if version > ver2:
+                    continue
             if not userver is None:
-                if user_version != userver: continue
+                if user_version != userver:
+                    continue
             if cond != None:
-                if not cond.eval(self): continue
+                if not cond.eval(self):
+                    continue
             strings.extend(
                 getattr(self, "_" + name + "_value_").getStrings(**kwargs))
         return strings
 
     def getRefs(self, **kwargs):
+        """Get list of all references in the structure."""
         # parse arguments
         version = kwargs.get('version', -1)
         user_version = kwargs.get('user_version')
@@ -377,21 +409,27 @@ class StructBase(object):
         for (name, typ,
              default, tmpl, arg, arr1, arr2,
              cond, ver1, ver2, userver, doc) in self._attributeList:
-            if not typ._hasLinks: continue
+            if not typ._hasLinks:
+                continue
             if version != -1:
                 if ver1:
-                    if version < ver1: continue
+                    if version < ver1:
+                        continue
                 if ver2:
-                    if version > ver2: continue
+                    if version > ver2:
+                        continue
                 if not userver is None:
-                    if user_version != userver: continue
+                    if user_version != userver:
+                        continue
                 if cond != None:
-                    if not cond.eval(self): continue
+                    if not cond.eval(self):
+                        continue
             links.extend(
                 getattr(self, "_" + name + "_value_").getRefs(**kwargs))
         return links
 
     def getSize(self, **kwargs):
+        """Calculate the structure size in bytes."""
         # parse arguments
         version = kwargs.get('version', -1)
         user_version = kwargs.get('user_version')
@@ -402,17 +440,22 @@ class StructBase(object):
              cond, ver1, ver2, userver, doc) in self._attributeList:
             if version != -1:
                 if ver1:
-                    if version < ver1: continue
+                    if version < ver1:
+                        continue
                 if ver2:
-                    if version > ver2: continue
+                    if version > ver2:
+                        continue
                 if not userver is None:
-                    if user_version != userver: continue
+                    if user_version != userver:
+                        continue
                 if cond != None:
-                    if not cond.eval(self): continue
+                    if not cond.eval(self):
+                        continue
             size += getattr(self, "_" + name + "_value_").getSize(**kwargs)
         return size
 
     def getHash(self, **kwargs):
+        """Calculate a hash for the structure, as a tuple."""
         # parse arguments
         version = kwargs.get('version', -1)
         user_version = kwargs.get('user_version')
@@ -422,24 +465,29 @@ class StructBase(object):
              default, tmpl, arg, arr1, arr2,
              cond, ver1, ver2, userver, doc) in self._attributeList:
             if ver1:
-                if version < ver1: continue
+                if version < ver1:
+                    continue
             if ver2:
-                if version > ver2: continue
+                if version > ver2:
+                    continue
             if not userver is None:
-                if user_version != userver: continue
+                if user_version != userver:
+                    continue
             if cond != None:
-                if not cond.eval(self): continue
+                if not cond.eval(self):
+                    continue
             hsh.append(getattr(self, "_" + name + "_value_").getHash(**kwargs))
         return tuple(hsh)
 
     @classmethod
     def _getAttributeList(cls):
+        """Calculate the list of all attributes of this structure."""
         # string of attributes of base classes of cls
         attrs = []
         for base in cls.__bases__:
             try:
                 attrs.extend(base._getAttributeList())
-            except AttributeError:
+            except AttributeError: # when base class is "object"
                 pass
         attrs.extend(cls._attrs)
         return attrs
