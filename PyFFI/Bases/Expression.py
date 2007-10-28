@@ -69,7 +69,7 @@ class Expression(object):
     False
     """
     operators = [ '==', '!=', '>=', '&&', '||', '&', '|' ]
-    def __init__(self, expr_str, name_filter = lambda x: x):
+    def __init__(self, expr_str, name_filter):
         left, self._op, right = self._partition(expr_str)
         self._left = self._parse(left, name_filter)
         if right:
@@ -125,7 +125,7 @@ class Expression(object):
         return left + ' ' + self._op + ' ' + right
 
     @classmethod
-    def _parse(cls, expr_str, name_filter = lambda x: x):
+    def _parse(cls, expr_str, name_filter):
         """Returns an Expression, string, or int, depending on the
         contents of <expr_str>."""
         # brackets or operators => expression
