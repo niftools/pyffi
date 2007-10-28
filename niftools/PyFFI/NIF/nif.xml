@@ -2791,7 +2791,7 @@
         <add name="Pixel Layout" type="PixelLayout" default="5">Specifies the way the image will be stored.</add>
         <add name="Use Mipmaps" type="MipMapFormat" default="2">Specifies whether mip maps are used.</add>
         <add name="Alpha Format" type="AlphaFormat" default="3"> Note: the NiTriShape linked to this object must have a NiAlphaProperty in its list of properties to enable material and/or texture transparency.</add>
-        <add name="Is Static" type="bool" default="1">Is Static?</add>
+        <add name="Is Static" type="byte" default="1">Is Static?</add>
         <add name="Direct Render" type="bool" default="1" ver1="10.1.0.106">Load direct to renderer</add>
         <add name="Persist Render Data" type="bool" default="0" ver1="20.2.0.7">Render data is persistant</add>
     </niobject>
