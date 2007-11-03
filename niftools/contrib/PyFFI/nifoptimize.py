@@ -200,7 +200,7 @@ def testRoot(root, **args):
                         texdesc.source = new_texdesc_source
     for block in root.tree(block_type = NifFormat.NiAVObject):
         for i, prop in enumerate(block.properties):
-            hashvalue = prop.getHash()
+            hashvalue = prop.getHash(ignore_strings = True)
             # join duplicate texturing properties
             if isinstance(prop, NifFormat.NiTexturingProperty):
                 try:

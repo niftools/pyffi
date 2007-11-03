@@ -8,7 +8,7 @@
 # These three functions in the tester script are called:
 #    testBlock(block) - will be called on every block in the nif
 #    testRoot(root)   - will be called on every root block of the nif
-#    testFile(version, user_version, f, roots)
+#    testFile(stream, version, user_version, roots)
 #                     - will be called on every nif
 # Not all of these three functions need to be present.
 
