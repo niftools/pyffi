@@ -339,7 +339,7 @@ class StructBase(object):
         the whole tree starting from the root you would use getRefs and not
         getLinks, as getLinks could result in infinite recursion."""
         # parse arguments
-        version = kwargs.get('version', -1)
+        version = kwargs.get('version')
         user_version = kwargs.get('user_version')
         # get all refs
         refs = []
@@ -368,7 +368,7 @@ class StructBase(object):
     def getHash(self, **kwargs):
         """Calculate a hash for the structure, as a tuple."""
         # parse arguments
-        version = kwargs.get('version', -1)
+        version = kwargs.get('version')
         user_version = kwargs.get('user_version')
         # calculate hash
         hsh = []
