@@ -84,7 +84,7 @@ simple.xml::
     from simple import SimpleFormat
     x = SimpleFormat.Simple()
     f = open('somefile.simple', 'rb')
-    x.read(f = f)
+    x.read(f)
     f.close()
     print x
 
@@ -100,7 +100,7 @@ Or, to create a new file in this format::
     x.integers[3] = 1
     x.integers[4] = 5
     f = open('pi.simple', 'wb')
-    x.write(f = f)
+    x.write(f)
     f.close()
 
 Further References
