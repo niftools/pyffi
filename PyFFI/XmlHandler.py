@@ -143,6 +143,7 @@ class XmlSaxHandler(object, xml.sax.handler.ContentHandler):
     def __init__(self, cls, name, bases, dct):
         """Set up the xml parser.
 
+        Upon instantiation this function does the following:
           - Creates a dictionary C{cls.versions} which maps each supported
             version strings onto a version integer.
           - Creates a dictionary C{cls.games} which maps each supported game
