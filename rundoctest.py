@@ -14,6 +14,7 @@ import PyFFI.NIF.NiTriStripsData
 import PyFFI.NIF.NiTriShapeData
 import PyFFI.NIF.NiGeometry
 import PyFFI.NIF.NiNode
+import PyFFI.NIF.NiSkinData
 import PyFFI.CGF
 
 mods = [ val for (key, val) in sys.modules.iteritems() if key.startswith('PyFFI') ]
