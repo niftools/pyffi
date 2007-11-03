@@ -1,7 +1,5 @@
-# --------------------------------------------------------------------------
-# NifFormat.NiSkinData
-# Custom functions for NiSkinData.
-# --------------------------------------------------------------------------
+"""Custom functions for NiSkinData."""
+
 # ***** BEGIN LICENCE BLOCK *****
 #
 # Copyright (c) 2007, NIF File Format Library and Tools.
@@ -38,17 +36,16 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENSE BLOCK *****
-# --------------------------------------------------------------------------
 
 def getTransform(self):
     """Return scale, rotation, and translation into a single 4x4 matrix."""
-    m = self.cls.Matrix44()
-    m.setScaleRotationTranslation(self.scale, self.rotation, self.translation)
-    return m
+    mat = self.cls.Matrix44()
+    mat.setScaleRotationTranslation(self.scale, self.rotation, self.translation)
+    return mat
 
-def setTransform(self, m):
+def setTransform(self, mat):
     """Set rotation, transform, and velocity."""
-    scale, rotation, translation = m.getScaleRotationTranslation()
+    scale, rotation, translation = mat.getScaleRotationTranslation()
 
     self.scale = scale
     
@@ -67,7 +64,41 @@ def setTransform(self, m):
     self.translation.z = translation.z
 
 def applyScale(self, scale):
-    """Apply scale factor on data."""
+    """Apply scale factor on data.
+
+    >>> from PyFFI.NIF import NifFormat
+    >>> id44 = NifFormat.Matrix44()
+    >>> id44.setIdentity()
+    >>> skelroot = NifFormat.NiNode()
+    >>> skelroot.name = 'Scene Root'
+    >>> skelroot.setTransform(id44)
+    >>> bone1 = NifFormat.NiNode()
+    >>> bone1.name = 'bone1'
+    >>> bone1.setTransform(id44)
+    >>> bone1.translation.x = 10
+    >>> skelroot.addChild(bone1)
+    >>> geom = NifFormat.NiTriShape()
+    >>> geom.setTransform(id44)
+    >>> skelroot.addChild(geom)
+    >>> skininst = NifFormat.NiSkinInstance()
+    >>> geom.skinInstance = skininst
+    >>> skininst.skeletonRoot = skelroot
+    >>> skindata = NifFormat.NiSkinData()
+    >>> skininst.data = skindata
+    >>> skindata.setTransform(id44)
+    >>> geom.addBone(bone1, {})
+    >>> geom.updateBindPosition()
+    >>> bone1.translation.x
+    10.0
+    >>> skindata.boneList[0].translation.x
+    -10.0
+    >>> skelroot.applyScale(0.1)
+    >>> bone1.translation.x
+    1.0
+    >>> skindata.boneList[0].translation.x
+    -1.0
+    """
+
     self.translation.x *= scale
     self.translation.y *= scale
     self.translation.z *= scale
