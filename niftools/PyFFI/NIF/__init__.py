@@ -178,6 +178,18 @@ Links
 True
 >>> NifFormat.NiBone._hasLinks
 True
+>>> skelroot = NifFormat.NiNode()
+>>> geom = NifFormat.NiTriShape()
+>>> geom.skinInstance = NifFormat.NiSkinInstance()
+>>> geom.skinInstance.skeletonRoot = skelroot
+>>> [ block.__class__.__name__ for block in geom.getRefs() ]
+['NiSkinInstance']
+>>> [ block.__class__.__name__ for block in geom.getLinks() ]
+['NiSkinInstance']
+>>> [ block.__class__.__name__ for block in geom.skinInstance.getRefs() ]
+[]
+>>> [ block.__class__.__name__ for block in geom.skinInstance.getLinks() ]
+['NiNode']
 
 Mathematics
 -----------
