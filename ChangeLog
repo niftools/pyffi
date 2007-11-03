@@ -1,5 +1,17 @@
-Version 0.5.3 (***)
+Version 0.6 (3 Nov 2007)
 * nifoptimize removes duplicate property blocks
+* reduced memory footprint in skin data center and radius calculation for the
+nif format
+* new option to ignore strings when calculating hash
+* code has been cleaned up using pylint
+* added a lot more documentation
+* refactored all common functions to take **kwargs as argument
+* read and write functions have the file stream as first non-keyword argument
+* refactored and simplified attribute parsing, using a common
+_filteredAttributeList method used by all methods that need to parse
+attributes; the version and user_version checks are now also consistent over
+all functions (i.e. getRefs, getLinks, etc.)
+* added more doctests
 
 Version 0.5.2 (25 Oct 2007)
 * added hash functions (useful for identifying and comparing objects)
