@@ -769,10 +769,16 @@ class NifFormat(object):
             else:
                 return []
 
+        def getHash(self, **kwargs):
+            if not kwargs.get('ignore_strings'):
+                return self.getValue()
+
     # other types with internal implementation
     class FilePath(string):
         def getHash(self, **kwargs):
-            return self.getValue().lower() # case insensitive
+            # never ignore file paths
+            # transform to lower case to make hash case insensitive
+            return self.getValue().lower()
 
     # exceptions
     class NifError(StandardError):
