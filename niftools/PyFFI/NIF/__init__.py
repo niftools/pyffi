@@ -963,7 +963,7 @@ class NifFormat(object):
         if stream.read(1) != '':
             raise cls.NifError('end of file not reached: corrupt nif file?')
 
-        # fix links
+        # fix links in blocks and footer (header has no links)
         for block in block_list:
             block.fixLinks(
                 version = version, user_version = user_version,
@@ -971,7 +971,8 @@ class NifFormat(object):
         ftr.fixLinks(
             version = version, user_version = user_version,
             block_dct = block_dct, link_stack= link_stack)
-        if link_stack != []:
+        # the link stack should be empty now
+        if link_stack:
             raise cls.NifError('not all links have been popped from the stack (bug?)')
         # return root objects
         roots = []
