@@ -488,7 +488,9 @@ but got %s instead"""%name)
             # add custom functions to interface
             # first find the module
             oldsyspath = sys.path
-            sys.path = [self.dct['clsFilePath']]
+            # note: keep the old sys.path because the customize modules might
+            # import other modules (such as math)
+            sys.path = [self.dct['clsFilePath']] + sys.path
             try:
                 # import custom object module
                 mod = __import__(obj.__name__, globals(),  locals(), [])
