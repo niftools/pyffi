@@ -1,7 +1,5 @@
-# --------------------------------------------------------------------------
-# NifFormat.bhkConvexTransformShape
-# Custom functions for bhkConvexTransformShape.
-# --------------------------------------------------------------------------
+"""Custom functions for bhkTransformShape."""
+
 # ***** BEGIN LICENCE BLOCK *****
 #
 # Copyright (c) 2007, NIF File Format Library and Tools.
@@ -38,7 +36,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENSE BLOCK *****
-# --------------------------------------------------------------------------
 
 def applyScale(self, scale):
     """Apply scale factor <scale> on data."""
@@ -49,3 +46,18 @@ def applyScale(self, scale):
 
     # apply scale on all blocks down the hierarchy
     self.cls.NiObject.applyScale(self, scale)
+
+def getCenter(self, scale):
+    shapex, shapey, shapez = self.shape.getCenter()
+    return [self.transform.m11 * shapex
+            + self.transform.m12 * shapey
+            + self.transform.m13 * shapez
+            + self.transform.m14,
+            self.transform.m21 * shapex
+            + self.transform.m22 * shapey
+            + self.transform.m23 * shapez
+            + self.transform.m24,
+            self.transform.m31 * shapex
+            + self.transform.m32 * shapey
+            + self.transform.m33 * shapez
+            + self.transform.m34]

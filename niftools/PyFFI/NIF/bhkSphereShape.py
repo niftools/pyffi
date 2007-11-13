@@ -1,7 +1,5 @@
-# --------------------------------------------------------------------------
-# NifFormat.bhkSphereShape
-# Custom functions for bhkSphereShape.
-# --------------------------------------------------------------------------
+"""Custom functions for bhkSphereShape."""
+
 # ***** BEGIN LICENCE BLOCK *****
 #
 # Copyright (c) 2007, NIF File Format Library and Tools.
@@ -38,7 +36,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENSE BLOCK *****
-# --------------------------------------------------------------------------
 
 def applyScale(self, scale):
     """Apply scale factor <scale> on data."""
@@ -47,3 +44,7 @@ def applyScale(self, scale):
 
     # apply scale on all blocks down the hierarchy
     self.cls.NiObject.applyScale(self, scale)
+
+def getCenter(self):
+    """Return center of gravity."""
+    return [0.0, 0.0, 0.0]

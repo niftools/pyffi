@@ -1,7 +1,5 @@
-# --------------------------------------------------------------------------
-# NifFormat.bhkCapsuleShape
-# Custom functions for bhkCapsuleShape.
-# --------------------------------------------------------------------------
+"""Custom functions for bhkCapsuleShape."""
+
 # ***** BEGIN LICENCE BLOCK *****
 #
 # Copyright (c) 2007, NIF File Format Library and Tools.
@@ -38,7 +36,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENSE BLOCK *****
-# --------------------------------------------------------------------------
 
 def applyScale(self, scale):
     """Apply scale factor <scale> on data."""
@@ -55,3 +52,9 @@ def applyScale(self, scale):
 
     # apply scale on all blocks down the hierarchy
     self.cls.NiObject.applyScale(self, scale)
+
+def getCenter(self):
+    """Return center of gravity."""
+    return [(self.firstPoint.x + self.secondPoint.x) * 0.5,
+            (self.firstPoint.y + self.secondPoint.y) * 0.5,
+            (self.firstPoint.z + self.secondPoint.z) * 0.5]
