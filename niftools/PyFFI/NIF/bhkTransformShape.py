@@ -47,7 +47,7 @@ def applyScale(self, scale):
     # apply scale on all blocks down the hierarchy
     self.cls.NiObject.applyScale(self, scale)
 
-def getCenterArea(self, scale):
+def getCenterArea(self):
     """Return center of gravity and area."""
     # assumes that the scale factor of the transform matrix is 1
     (shapex, shapey, shapez), area = self.shape.getCenterArea()

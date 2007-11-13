@@ -42,10 +42,10 @@ def getCenterArea(self):
     # see http://local.wasp.uwa.edu.au/~pbourke/geometry/polyarea/
     # for explanation of algorithm
     centerarea = []
-    for hktriangle in data.triangles:
-        vert1 = data.vertices[hktriangle.v1]
-        vert2 = data.vertices[hktriangle.v2]
-        vert3 = data.vertices[hktriangle.v3]
+    for hktriangle in self.data.triangles:
+        vert1 = self.data.vertices[hktriangle.triangle.v1]
+        vert2 = self.data.vertices[hktriangle.triangle.v2]
+        vert3 = self.data.vertices[hktriangle.triangle.v3]
         centerarea.append(
             ( (vert1 + vert2 + vert3) / 3,
               (vert2-vert1).crossproduct(vert3-vert1).norm() / 2 ) )

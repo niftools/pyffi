@@ -40,7 +40,7 @@
 def getCenterArea(self):
     """Return center of gravity and area."""
     subshapes_centerarea = [ subshape.getCenterArea()
-                             for subshape in self.subshapes ]
+                             for subshape in self.subShapes ]
     totalarea = sum(area for center, area in subshapes_centerarea)
     return ( [ sum(area * center[0] for center, area in subshapes_centerarea)
                / totalarea,
