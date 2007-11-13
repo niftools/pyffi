@@ -48,6 +48,13 @@ def applyScale(self, scale):
     # apply scale on all blocks down the hierarchy
     self.cls.NiObject.applyScale(self, scale)
 
-def getCenter(self):
-    """Return center of gravity."""
-    return [0.0, 0.0, 0.0]
+def getCenterArea(self):
+    """Return center of gravity and area."""
+    # the dimensions describe half the size of the box in each dimension
+    # so the length of a single edge is dimension.dir * 2
+    # and thereby the area of a single face is (dimension.dir * 2) ** 2
+    # and this twice, and for every direction, gives the total area of the box
+    return ( [0.0, 0.0, 0.0],
+             ((self.dimensions.x *2 ) ** 2) * 2
+             + ((self.dimensions.y * 2) ** 2) * 2
+             + ((self.dimensions.z * 2) ** 2) * 2 )

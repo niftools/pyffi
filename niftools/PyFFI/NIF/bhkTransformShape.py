@@ -47,17 +47,20 @@ def applyScale(self, scale):
     # apply scale on all blocks down the hierarchy
     self.cls.NiObject.applyScale(self, scale)
 
-def getCenter(self, scale):
-    shapex, shapey, shapez = self.shape.getCenter()
-    return [self.transform.m11 * shapex
-            + self.transform.m12 * shapey
-            + self.transform.m13 * shapez
-            + self.transform.m14,
-            self.transform.m21 * shapex
-            + self.transform.m22 * shapey
-            + self.transform.m23 * shapez
-            + self.transform.m24,
-            self.transform.m31 * shapex
-            + self.transform.m32 * shapey
-            + self.transform.m33 * shapez
-            + self.transform.m34]
+def getCenterArea(self, scale):
+    """Return center of gravity and area."""
+    # assumes that the scale factor of the transform matrix is 1
+    (shapex, shapey, shapez), area = self.shape.getCenterArea()
+    return ( [ self.transform.m11 * shapex
+               + self.transform.m12 * shapey
+               + self.transform.m13 * shapez
+               + self.transform.m14,
+               self.transform.m21 * shapex
+               + self.transform.m22 * shapey
+               + self.transform.m23 * shapez
+               + self.transform.m24,
+               self.transform.m31 * shapex
+               + self.transform.m32 * shapey
+               + self.transform.m33 * shapez
+               + self.transform.m34 ],
+             area )

@@ -37,6 +37,8 @@
 #
 # ***** END LICENSE BLOCK *****
 
+import math # math.pi
+
 def applyScale(self, scale):
     """Apply scale factor <scale> on data."""
     # apply scale on dimensions
@@ -53,8 +55,12 @@ def applyScale(self, scale):
     # apply scale on all blocks down the hierarchy
     self.cls.NiObject.applyScale(self, scale)
 
-def getCenter(self):
-    """Return center of gravity."""
-    return [(self.firstPoint.x + self.secondPoint.x) * 0.5,
-            (self.firstPoint.y + self.secondPoint.y) * 0.5,
-            (self.firstPoint.z + self.secondPoint.z) * 0.5]
+def getCenterArea(self):
+    """Return center of gravity and area."""
+    # (assumes self.radius == self.radius1 == self.radius2)
+    # area of capsule is area of cylinder + area of caps (two half spheres)
+    return ( [ (self.firstPoint.x + self.secondPoint.x) * 0.5,
+               (self.firstPoint.y + self.secondPoint.y) * 0.5,
+               (self.firstPoint.z + self.secondPoint.z) * 0.5 ],
+             2 * math.pi * self.radius * (self.firstPoint - self.secondPoint).norm()
+             + 4 * math.pi * (self.radius ** 2) )

@@ -1,7 +1,5 @@
-# --------------------------------------------------------------------------
-# NifFormat.bhkListShape
-# Custom functions for bhkListShape.
-# --------------------------------------------------------------------------
+"""Custom functions for bhkListShape."""
+
 # ***** BEGIN LICENSE BLOCK *****
 #
 # Copyright (c) 2007, NIF File Format Library and Tools.
@@ -38,7 +36,19 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENCE BLOCK *****
-# --------------------------------------------------------------------------
+
+def getCenterArea(self):
+    """Return center of gravity and area."""
+    subshapes_centerarea = [ subshape.getCenterArea()
+                             for subshape in self.subshapes ]
+    totalarea = sum(area for center, area in subshapes_centerarea)
+    return ( [ sum(area * center[0] for center, area in subshapes_centerarea)
+               / totalarea,
+               sum(area * center[1] for center, area in subshapes_centerarea)
+               / totalarea,
+               sum(area * center[2] for center, area in subshapes_centerarea)
+               / totalarea ],
+             totalarea )
 
 def addShape(self, shape, front = False):
     """Add shape to list."""

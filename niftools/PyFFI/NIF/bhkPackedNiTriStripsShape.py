@@ -37,23 +37,23 @@
 #
 # ***** END LICENCE BLOCK *****
 
-def getCenter(self):
-    """Return center of gravity."""
+def getCenterArea(self):
+    """Return center of gravity and area."""
     # see http://local.wasp.uwa.edu.au/~pbourke/geometry/polyarea/
     # for explanation of algorithm
-    area = []
-    center = []
+    centerarea = []
     for hktriangle in data.triangles:
         vert1 = data.vertices[hktriangle.v1]
         vert2 = data.vertices[hktriangle.v2]
         vert3 = data.vertices[hktriangle.v3]
-        center.append((vert1 + vert2 + vert3)/3)
-        # actually twice the area, gets cancelled out below
-        area.append((vert2-vert1).crossproduct(vert3-vert1).norm())
-    totalarea = sum(area)
-    return [sum(ar * vert.x for ar, vert in zip(area, center)) / totalarea,
-            sum(ar * vert.y for ar, vert in zip(area, center)) / totalarea,
-            sum(ar * vert.z for ar, vert in zip(area, center)) / totalarea]
+        centerarea.append(
+            ( (vert1 + vert2 + vert3) / 3,
+              (vert2-vert1).crossproduct(vert3-vert1).norm() / 2 ) )
+    totalarea = sum(area for vert, area in centerarea)
+    return ( [ sum(area * vert.x for vert, area in centerarea) / totalarea,
+               sum(area * vert.y for vert, area in centerarea) / totalarea,
+               sum(area * vert.z for vert, area in centerarea) / totalarea ],
+             totalarea )
 
 def addShape(self, triangles, normals, vertices, layer = 0, material = 0):
     """Pack the given geometry."""

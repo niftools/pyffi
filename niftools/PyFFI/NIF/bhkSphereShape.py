@@ -37,6 +37,8 @@
 #
 # ***** END LICENSE BLOCK *****
 
+import math # math.pi
+
 def applyScale(self, scale):
     """Apply scale factor <scale> on data."""
     # apply scale on dimensions
@@ -45,6 +47,7 @@ def applyScale(self, scale):
     # apply scale on all blocks down the hierarchy
     self.cls.NiObject.applyScale(self, scale)
 
-def getCenter(self):
-    """Return center of gravity."""
-    return [0.0, 0.0, 0.0]
+def getCenterArea(self):
+    """Return center of gravity and area."""
+    # the area is 4*pi*radius^2
+    return [0.0, 0.0, 0.0], 4 * math.pi * (self.radius**2)

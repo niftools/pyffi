@@ -39,9 +39,9 @@
 
 import math # math.ceil
 
-def getCenter(self):
-    """Return center of gravity."""
-    return self.shape.getCenter()
+def getCenterArea(self):
+    """Return center of gravity and area."""
+    return self.shape.getCenterArea()
 
 def updateOriginScale(self):
     """Update scale and origin."""
