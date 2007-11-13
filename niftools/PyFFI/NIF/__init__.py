@@ -301,10 +301,6 @@ False
 True
 """
 
-# --------------------------------------------------------------------------
-# PyFFI.NIF
-# Implementation of the NIF file format; uses PyFFI.
-# --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
 #
 # Copyright (c) 2007, NIF File Format Library and Tools.
@@ -341,7 +337,6 @@ True
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENCE BLOCK *****
-# --------------------------------------------------------------------------
 
 import struct, os, re
 
@@ -885,7 +880,9 @@ class NifFormat(object):
             top_level_str.read(stream)
             top_level_str = str(top_level_str)
             if not top_level_str == "Top Level Object":
-                raise cls.NifError("expected 'Top Level Object' but got '%s' instead"%top_level_str)
+                raise cls.NifError(
+                    "expected 'Top Level Object' but got '%s' instead"
+                    %top_level_str)
 
         while True:
             # get block name
@@ -893,7 +890,9 @@ class NifFormat(object):
                 if version <= 0x0A01006A:
                     dummy, = struct.unpack('<I', stream.read(4))
                     if dummy != 0:
-                        raise cls.NifError('non-zero block tag 0x%08X at 0x%08X)'%(dummy, stream.tell()))
+                        raise cls.NifError(
+                            'non-zero block tag 0x%08X at 0x%08X)'
+                            %(dummy, stream.tell()))
                 block_type = hdr.blockTypes[hdr.blockTypeIndex[block_num]]
             else:
                 block_type = cls.SizedString()
@@ -914,7 +913,9 @@ class NifFormat(object):
                 else:
                     block_index, = struct.unpack('<I', stream.read(4))
                     if block_dct.has_key(block_index):
-                        raise cls.NifError('duplicate block index (0x%08X at 0x%08X)'%(block_index, stream.tell()))
+                        raise cls.NifError(
+                            'duplicate block index (0x%08X at 0x%08X)'
+                            %(block_index, stream.tell()))
             # create and read block
             try:
                 block = getattr(cls, block_type)()
@@ -945,7 +946,8 @@ class NifFormat(object):
                 print block.__class__
             # check block size
             if version >= 0x14020007:
-                if block.getSize(version = version, user_version = user_version) != hdr.blockSize[block_num]:
+                if block.getSize(version = version, user_version = user_version) \
+                   != hdr.blockSize[block_num]:
                     raise cls.NifError('block size check failed: corrupt nif file?')
             # check if we are done
             block_num += 1
@@ -1023,7 +1025,8 @@ class NifFormat(object):
             hdr.strings[i] = s
         hdr.blockSize.updateSize()
         for i, block in enumerate(block_list):
-            hdr.blockSize[i] = block.getSize(version = version, user_version = user_version)
+            hdr.blockSize[i] = block.getSize(
+                version = version, user_version = user_version)
         if verbose >= 2:
             print hdr
 
@@ -1051,7 +1054,8 @@ class NifFormat(object):
             else:
                 # write block type string
                 s = cls.SizedString()
-                assert(block_type_list[block_type_dct[block]] == block.__class__.__name__) # debug
+                assert(block_type_list[block_type_dct[block]] \
+                       == block.__class__.__name__) # debug
                 s.setValue(block.__class__.__name__)
                 s.write(stream)
             # write block index
@@ -1074,7 +1078,9 @@ class NifFormat(object):
             block_index_dct = block_index_dct)
 
     @classmethod
-    def _makeBlockList(cls, version, user_version, root, block_list, block_index_dct, block_type_list, block_type_dct):
+    def _makeBlockList(
+        cls, version, user_version, root,
+        block_list, block_index_dct, block_type_list, block_type_dct):
         """This is a helper function for write to set up the list of all blocks,
         the block index map, and the block type map."""
         # block already listed? if so, return
@@ -1087,7 +1093,10 @@ class NifFormat(object):
             block_type_dct[root] = len(block_type_list)
             block_type_list.append(block_type)
         # add non-havok blocks before children
-        if not isinstance(root, cls.bhkRefObject):
+        # note: bhkNiCollisionObject derives from NiObject and not from bhkRefObject
+        #       so it is dealt with separately
+        if not (isinstance(root, cls.bhkRefObject)
+                or isinstance(root, cls.bhkNiCollisionObject):
             if version >= 0x0303000D:
                 block_index_dct[root] = len(block_list)
             else:
@@ -1095,9 +1104,14 @@ class NifFormat(object):
             block_list.append(root)
         # add children
         for child in root.getRefs(version = version, user_version = user_version):
-            cls._makeBlockList(version, user_version, child, block_list, block_index_dct, block_type_list, block_type_dct)
+            cls._makeBlockList(
+                version, user_version, child,
+                block_list, block_index_dct, block_type_list, block_type_dct)
         # add havok block after children (required for oblivion)
-        if isinstance(root, cls.bhkRefObject):
+        # note: bhkNiCollisionObject derives from NiObject and not from bhkRefObject
+        #       so it is dealt with separately
+        if (isinstance(root, cls.bhkRefObject)
+            or isinstance(root, cls.bhkNiCollisionObject):
             if version >= 0x0303000D:
                 block_index_dct[root] = len(block_list)
             else:
