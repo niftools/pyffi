@@ -938,6 +938,8 @@ class NifFormat(object):
                 elif verbose >= 1:
                     print block.__class__
                 raise
+            #print "*** " + block_type + " ***" # debug
+            #print block                        # debug
             block_dct[block_index] = block
             block_list.append(block)
             if verbose >= 2:
