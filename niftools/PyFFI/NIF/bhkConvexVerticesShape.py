@@ -59,21 +59,21 @@ def getCenterArea(self):
         Returns a fan of vertices that makes up the surface."""
         # adapted from
         # http://en.literateprograms.org/Quickhull_(Python,_arrays)
-        def dome(verts, normal, base):
+        def dome(verts, base):
             a, b = base
-            dists = [ normal.crossproduct(b-a) * vert for vert in verts ]
-            outer = [ vert for vert, dist in izip(verts, dists) if dist > 0 ]
- 
-            if len(outer):
-                pivot = sample[argmax(dists)]
+            dists = [ normal.crossproduct(b-a) * (vert-a) for vert in verts ]
+            outer = [ vert for vert, dist in izip(verts, dists) if dist > 0.001 ]
+
+            if outer:
+                pivot = verts[argmax(dists)]
                 return dome(outer, [a, pivot]) \
                        + dome(outer, [pivot, b])[1:]
             else:
-                return [base]
+                return base
   
         if len(vertices) > 2:
             a, b = vertices[:2]
-            return dome(vertices, [a, b]) + dome(vertices, [b, a])[1:]
+            return dome(vertices, [a, b]) + dome(vertices, [b, a])[1:-1]
         else:
             return vertices
 
@@ -85,13 +85,13 @@ def getCenterArea(self):
         for vert in self.vertices:
             if abs(norm.x * vert.x + norm.y * vert.y + norm.z * vert.z
                    + norm.w) < 0.001:
-                normverts.append(vert)
+                normverts.append(vert.getVector3())
         assert(len(normverts) >= 3) # debug
         
         # find center and area of each triangle that makes up this set of
         # coplanar vertices; note that this set is already convex, the
         # qhull algorithm is simply used to sort the vertices into a fan
-        fan = qhull(normverts)
+        fan = qhull(normverts, norm.getVector3())
         for i in xrange(2, len(fan)):
             centerarea.append(
                 ( (fan[0] + fan[i-1] + fan[i]) / 3,
