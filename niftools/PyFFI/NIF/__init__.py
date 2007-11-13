@@ -191,6 +191,19 @@ True
 >>> [ block.__class__.__name__ for block in geom.skinInstance.getLinks() ]
 ['NiNode']
 
+Strings
+-------
+
+>>> extra = NifFormat.NiTextKeyExtraData()
+>>> extra.numTextKeys = 2
+>>> extra.textKeys.updateSize()
+>>> extra.textKeys[0].time = 0.0
+>>> extra.textKeys[0].value = "start"
+>>> extra.textKeys[1].time = 2.0
+>>> extra.textKeys[1].value = "end"
+>>> extra.getStrings()
+['start', 'end']
+
 Mathematics
 -----------
 
@@ -1003,6 +1016,7 @@ class NifFormat(object):
                     block.getStrings(
                         version = version, user_version = user_version))
         string_list = list(set(string_list)) # ensure unique elements
+        #print string_list # debug
 
         # set up header
         hdr = cls.Header()
