@@ -1096,7 +1096,7 @@ class NifFormat(object):
         # note: bhkNiCollisionObject derives from NiObject and not from bhkRefObject
         #       so it is dealt with separately
         if not (isinstance(root, cls.bhkRefObject)
-                or isinstance(root, cls.bhkNiCollisionObject):
+                or isinstance(root, cls.bhkNiCollisionObject)):
             if version >= 0x0303000D:
                 block_index_dct[root] = len(block_list)
             else:
@@ -1111,7 +1111,7 @@ class NifFormat(object):
         # note: bhkNiCollisionObject derives from NiObject and not from bhkRefObject
         #       so it is dealt with separately
         if (isinstance(root, cls.bhkRefObject)
-            or isinstance(root, cls.bhkNiCollisionObject):
+            or isinstance(root, cls.bhkNiCollisionObject)):
             if version >= 0x0303000D:
                 block_index_dct[root] = len(block_list)
             else:
