@@ -399,22 +399,32 @@ class StructBase(object):
         well."""
         names = []
         for attr in self._attributeList:
+            #print attr.name, version, attr.ver1, attr.ver2 # debug
+
             # check version
             if not (version is None):
                 if (not (attr.ver1 is None)) and version < attr.ver1:
                     continue
                 if (not (attr.ver2 is None)) and version > attr.ver2:
                     continue
+            #print "version check passed" # debug
+
             # check user version
             if not(attr.userver is None or user_version is None) \
                and user_version != attr.userver:
                 continue
+            #print "user version check passed" # debug
+
             # check condition
             if not (attr.cond is None) and not attr.cond.eval(self):
                 continue
+            #print "condition passed" # debug
+
             # skip dupiclate names
             if attr.name in names:
                 continue
+            #print "duplicate check passed" # debug
+
             names.append(attr.name)
             # passed all tests
             # so yield the attribute
