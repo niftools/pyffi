@@ -253,7 +253,7 @@
         <option value="48" name="OL_R_FOOT">RFoot</option>
         <option value="49" name="OL_TAIL">Tail</option>
         <option value="50" name="OL_SIDE_WEAPON">SideWeapon</option>
-        <option value="51" name="OL_SHEILD">Shield</option>
+        <option value="51" name="OL_SHIELD">Shield</option>
         <option value="52" name="OL_QUIVER">Quiver</option>
         <option value="53" name="OL_BACK_WEAPON">BackWeapon</option>
         <option value="54" name="OL_BACK_WEAPON2">BackWeapon (?)</option>
@@ -1226,7 +1226,7 @@
         <add name="Unknown Int 8" type="uint">Unknown.</add>
         <add name="Num Constraints" type="uint"> The number of constraints this object is bound to.</add>
         <add name="Constraints" type="Ref" template="bhkConstraint" arr1="Num Constraints">Unknown.</add>
-        <add name="Unknown Int 9" type="uint">Unknown.</add>
+        <add name="Unknown Int 9" type="uint">0 = do not respond to wind, 1 = respond to wind (?)</add>
     </niobject>
 
     <niobject name="bhkRigidBodyT" abstract="0" inherit="bhkRigidBody" ver1="20.0.0.5">
@@ -1955,7 +1955,7 @@
         Particle system data.
         <add name="Unknown Floats 2" type="float" arr1="Num Vertices" arr2="10" ver2="10.2.0.0">Unknown.</add>
         <add name="Has Unknown Floats 3" type="bool" ver1="20.0.0.4">Unknown.</add>
-        <add name="Unknown Floats 1" type="float" arr1="Num Vertices" cond="Has Unknown Floats 3 != 0" ver1="20.0.0.4">Unknown</add>
+        <add name="Unknown Floats 3" type="float" arr1="Num Vertices" cond="Has Unknown Floats 3 != 0" ver1="20.0.0.4">Unknown</add>
         <add name="Has Unknown Floats 4" type="bool" ver1="20.0.0.4">Unknown.</add>
         <add name="Unknown Floats 4" type="float" arr1="Num Vertices" arr2="4" cond="Has Unknown Floats 4 != 0"></add>
         <add name="Unknown Floats 5" type="float" arr1="Num Vertices" arr2="7" ver1="20.0.0.4">Unknown.</add>
