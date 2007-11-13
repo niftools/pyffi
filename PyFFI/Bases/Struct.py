@@ -108,8 +108,10 @@ class _MetaStructBase(type):
                 if attr.type != NoneType:
                     if attr.type._hasStrings:
                         cls._hasStrings = True
-                #else:
-                #    cls._hasRefs = True # dito, see comment above
+                else:
+                    # enabled because there is a template key type that has
+                    # strings
+                    cls._hasStrings = True
 
         # precalculate the attribute list
         # profiling shows that this speeds up most of the StructBase methods
@@ -325,7 +327,7 @@ class StructBase(object):
         for attr in self._filteredAttributeList(version, user_version):
             # check if there are any strings at all
             # (this speeds things up considerably)
-            if not attr.type._hasStrings:
+            if (not attr.type is NoneType) and (not attr.type._hasStrings):
                 continue
             # extend list of strings
             strings.extend(
