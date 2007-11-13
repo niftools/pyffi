@@ -1,3 +1,8 @@
+Version 0.6.1 (***):
+* fixed a problem locating the customized functions for Fedora 8 python which 
+does not look in default locations besides sys.path
+* nif: fixed order of bhkCollisionObject when writing nif files
+
 Version 0.6 (3 Nov 2007)
 * nifoptimize removes duplicate property blocks
 * reduced memory footprint in skin data center and radius calculation for the
