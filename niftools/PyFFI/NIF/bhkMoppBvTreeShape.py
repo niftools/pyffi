@@ -39,6 +39,10 @@
 
 import math # math.ceil
 
+def getCenter(self):
+    """Return center of gravity."""
+    return self.shape.getCenter()
+
 def updateOriginScale(self):
     """Update scale and origin."""
     minx = min(v.x for v in self.shape.data.vertices)

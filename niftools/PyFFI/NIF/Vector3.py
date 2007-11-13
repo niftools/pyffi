@@ -45,13 +45,16 @@ from types import *
 def asList(self):
     return [self.x, self.y, self.z]
 
+def norm(self):
+    return (self.x*self.x + self.y*self.y + self.z*self.z) ** 0.5
+
 def normalize(self):
-    r = (self.x*self.x + self.y*self.y + self.z*self.z) ** 0.5
-    if r < self.cls._EPSILON:
+    norm = self.norm()
+    if norm < self.cls._EPSILON:
         raise ZeroDivisionError('cannot normalize vector %s'%self)
-    self.x /= r
-    self.y /= r
-    self.z /= r
+    self.x /= norm
+    self.y /= norm
+    self.z /= norm
 
 def getCopy(self):
     v = self.cls.Vector3()
