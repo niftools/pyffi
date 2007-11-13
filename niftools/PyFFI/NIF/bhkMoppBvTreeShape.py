@@ -1,7 +1,5 @@
-# --------------------------------------------------------------------------
-# NifFormat.bhkMoppBvTreeShape
-# Custom functions for bhkMoppBvTreeShape.
-# --------------------------------------------------------------------------
+"""Custom functions for bhkMoppBvTreeShape."""
+
 # ***** BEGIN LICENSE BLOCK *****
 #
 # Copyright (c) 2007, NIF File Format Library and Tools.
@@ -38,18 +36,17 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENCE BLOCK *****
-# --------------------------------------------------------------------------
 
 import math # math.ceil
 
 def updateOriginScale(self):
     """Update scale and origin."""
-    minx = min([v.x for v in self.shape.data.vertices])
-    miny = min([v.y for v in self.shape.data.vertices])
-    minz = min([v.z for v in self.shape.data.vertices])
-    maxx = max([v.x for v in self.shape.data.vertices])
-    maxy = max([v.y for v in self.shape.data.vertices])
-    maxz = max([v.z for v in self.shape.data.vertices])
+    minx = min(v.x for v in self.shape.data.vertices)
+    miny = min(v.y for v in self.shape.data.vertices)
+    minz = min(v.z for v in self.shape.data.vertices)
+    maxx = max(v.x for v in self.shape.data.vertices)
+    maxy = max(v.y for v in self.shape.data.vertices)
+    maxz = max(v.z for v in self.shape.data.vertices)
     self.origin.x = minx - 0.1
     self.origin.y = miny - 0.1
     self.origin.z = minz - 0.1
