@@ -2494,7 +2494,7 @@
         <add name="Blue Mask" type="uint" ver2="10.2.0.0">0x00ff0000 (for 24bpp and 32bpp) or 0x00000000 (for 8bpp)</add>
         <add name="Alpha Mask" type="uint" ver2="10.2.0.0">0xff000000 (for 32bpp) or 0x00000000 (for 24bpp and 8bpp)</add>
         <add name="Bits Per Pixel" type="byte" ver2="10.2.0.0">Bits per pixel, 0 (?), 8, 24 or 32.</add>
-        <add name="Unknown 3 Bytes" type="byte" ver2="10.2.0.0">Zero?</add>
+        <add name="Unknown 3 Bytes" type="byte" arr1="3" ver2="10.2.0.0">Zero?</add>
         <add name="Unknown 8 Bytes" type="byte" arr1="8" ver2="10.2.0.0">
             [96,8,130,0,0,65,0,0] if 24 bits per pixel
             [129,8,130,32,0,65,12,0] if 32 bits per pixel
