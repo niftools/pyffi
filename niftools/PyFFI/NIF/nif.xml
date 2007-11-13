@@ -1630,7 +1630,7 @@
 
     <niobject name="NiGeomMorpherController" abstract="0" inherit="NiInterpController">
         Time controller for geometry morphing.
-        <add name="Flags" type="Flags" ver1="10.0.1.2">Unknown.</add>
+        <add name="Extra Flags" type="Flags" ver1="10.0.1.2">Unknown.</add>
         <add name="Unknown 2" type="byte" ver1="10.1.0.106" ver2="10.1.0.106">Unknown.</add>
         <add name="Data" type="Ref" template="NiMorphData">Geometry morphing data index.</add>
         <add name="Always Update" type="byte">Always Update</add>
