@@ -1,10 +1,9 @@
-# --------------------------------------------------------------------------
-# PyFFI.Utils
-# A module with various utilities:
-# - hexdumping
-# - parsing all files in a directory tree
-# - 3D related tasks (see PyFFI.Utils.3D)
-# --------------------------------------------------------------------------
+"""This module bundles various general purpose utilities:
+- hexdumping
+- parsing all files in a directory tree
+- 3D related tasks (see TriStrip.py, MathUtils.py, QuickHull.py, and Inertia.py)
+"""
+
 # ***** BEGIN LICENSE BLOCK *****
 #
 # Copyright (c) 2007, Python File Format Interface
@@ -41,9 +40,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENCE BLOCK *****
-# --------------------------------------------------------------------------
 
-__all__ = [ "PyTriStrip" ]
+__all__ = [ "TriStrip", "MathUtils", "Inertia", "QuickHull" ]
 
 import os
 

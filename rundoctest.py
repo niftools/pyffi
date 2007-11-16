@@ -8,7 +8,8 @@ import PyFFI.Bases.Basic
 import PyFFI.Bases.Struct
 import PyFFI.Bases.Expression
 import PyFFI.Utils
-import PyFFI.Utils.PyTriStrip
+import PyFFI.Utils.TriStrip
+import PyFFI.Utils.MathUtils
 import PyFFI.NIF
 import PyFFI.NIF.NiTriStripsData
 import PyFFI.NIF.NiTriShapeData
