@@ -1,7 +1,20 @@
-# --------------------------------------------------------------------------
-# NifFormat.NiTriShapeData
-# Custom functions for NiTriShapeData.
-# --------------------------------------------------------------------------
+"""Custom functions for NiTriShapeData.
+
+Example usage:
+>>> from PyFFI.NIF import NifFormat
+>>> block = NifFormat.NiTriShapeData()
+>>> block.setTriangles([(0,1,2),(2,1,3),(2,3,4)])
+>>> block.getStrips()
+[[4, 4, 3, 2, 1, 0]]
+>>> block.getTriangles()
+[(0, 1, 2), (2, 1, 3), (2, 3, 4)]
+>>> block.setStrips([[1,0,1,2,3,4]])
+>>> block.getStrips()
+[[0, 0, 1, 2, 3, 4]]
+>>> block.getTriangles()
+[(0, 2, 1), (1, 2, 3), (2, 4, 3)]
+"""
+
 # ***** BEGIN LICENSE BLOCK *****
 #
 # Copyright (c) 2007, NIF File Format Library and Tools.
@@ -38,27 +51,11 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENCE BLOCK *****
-# --------------------------------------------------------------------------
 
-"""
->>> from PyFFI.NIF import NifFormat
->>> block = NifFormat.NiTriShapeData()
->>> block.setTriangles([[0,1,2],[2,1,3],[2,3,4]])
->>> block.getStrips()
-[[4, 4, 3, 2, 1, 0]]
->>> block.getTriangles()
-[[0, 1, 2], [2, 1, 3], [2, 3, 4]]
->>> block.setStrips([[1,0,1,2,3,4]])
->>> block.getStrips()
-[[0, 0, 1, 2, 3, 4]]
->>> block.getTriangles()
-[[0, 2, 1], [1, 2, 3], [2, 4, 3]]
-"""
-
-from PyFFI.Utils import PyTriStrip
+from PyFFI.Utils import TriStrip
 
 def getTriangles(self):
-    return [[t.v1, t.v2, t.v3] for t in self.triangles]
+    return [(t.v1, t.v2, t.v3) for t in self.triangles]
 
 def setTriangles(self, triangles, stitchstrips = False):
     # note: the stitchstrips argument is ignored - only present to ensure
@@ -79,7 +76,7 @@ def setTriangles(self, triangles, stitchstrips = False):
         dst_t.v1, dst_t.v2, dst_t.v3 = src.next()
 
 def getStrips(self):
-    return PyTriStrip.stripify(self.getTriangles())
+    return TriStrip.stripify(self.getTriangles())
 
 def setStrips(self, strips):
-    self.setTriangles(PyTriStrip.triangulate(strips))
+    self.setTriangles(TriStrip.triangulate(strips))

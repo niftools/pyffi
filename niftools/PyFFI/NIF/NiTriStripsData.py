@@ -1,7 +1,21 @@
-# --------------------------------------------------------------------------
-# NifFormat.NiTriStripsData
-# Custom functions for NiTriStripsData.
-# --------------------------------------------------------------------------
+"""Custom functions for NiTriStripsData.
+
+Example usage:
+
+>>> from PyFFI.NIF import NifFormat
+>>> block = NifFormat.NiTriStripsData()
+>>> block.setTriangles([(0,1,2),(2,1,3),(2,3,4)])
+>>> block.getStrips()
+[[4, 4, 3, 2, 1, 0]]
+>>> block.getTriangles()
+[(4, 2, 3), (3, 2, 1), (2, 0, 1)]
+>>> block.setStrips([[1,0,1,2,3,4]])
+>>> block.getStrips()
+[[1, 0, 1, 2, 3, 4]]
+>>> block.getTriangles()
+[(0, 2, 1), (1, 2, 3), (2, 4, 3)]
+"""
+
 # ***** BEGIN LICENSE BLOCK *****
 #
 # Copyright (c) 2007, NIF File Format Library and Tools.
@@ -38,30 +52,14 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENCE BLOCK *****
-# --------------------------------------------------------------------------
 
-"""
->>> from PyFFI.NIF import NifFormat
->>> block = NifFormat.NiTriStripsData()
->>> block.setTriangles([[0,1,2],[2,1,3],[2,3,4]])
->>> block.getStrips()
-[[4, 4, 3, 2, 1, 0]]
->>> block.getTriangles()
-[[4, 2, 3], [3, 2, 1], [2, 0, 1]]
->>> block.setStrips([[1,0,1,2,3,4]])
->>> block.getStrips()
-[[1, 0, 1, 2, 3, 4]]
->>> block.getTriangles()
-[[0, 2, 1], [1, 2, 3], [2, 4, 3]]
-"""
-
-from PyFFI.Utils import PyTriStrip
+from PyFFI.Utils import TriStrip
 
 def getTriangles(self):
-    return PyTriStrip.triangulate(self.points)
+    return TriStrip.triangulate(self.points)
 
 def setTriangles(self, triangles, stitchstrips = False):
-    self.setStrips(PyTriStrip.stripify(triangles, stitchstrips = stitchstrips))
+    self.setStrips(TriStrip.stripify(triangles, stitchstrips = stitchstrips))
 
 def getStrips(self):
     return [[i for i in strip] for strip in self.points]

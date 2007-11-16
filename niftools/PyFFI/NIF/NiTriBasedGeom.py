@@ -38,7 +38,7 @@
 # ***** END LICENSE BLOCK *****
 
 import struct
-from PyFFI.Utils import PyTriStrip
+from PyFFI.Utils import TriStrip
 
 def updateTangentSpace(self):
     """Recalculate tangent space data."""
@@ -410,7 +410,7 @@ increase maxbonesperpartition and try again')
         if stripify:
             # stripify the triangles
             if verbose: print "  stripifying partition", parts.index(part)
-            strips = PyTriStrip.stripify(
+            strips = TriStrip.stripify(
                 parttriangles, stitchstrips = stitchstrips)
             numtriangles = 0
             for strip in strips: numtriangles += len(strip) - 2
