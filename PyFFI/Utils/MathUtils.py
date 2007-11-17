@@ -1,4 +1,4 @@
-"""A lightweight library for common vector operations."""
+"""A lightweight library for common vector and matrix operations."""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -42,7 +42,13 @@ import operator
 
 def vecSub(vec1, vec2):
     """Vector substraction."""
-    return map(operator.sub, vec1, vec2)
+    return tuple(x - y for x, y in izip(vec1, vec2))
+
+def vecAdd(vec1, vec2):
+    return tuple(x + y for x, y in izip(vec1, vec2))
+
+def vecscalarMul(vec, scalar):
+    return tuple(x * scalar for x in vec)
 
 def vecDotProduct(vec1, vec2):
     """The vector dot product (any dimension).
@@ -107,6 +113,68 @@ def vecCrossProduct(vec1, vec2):
     return (vec1[1] * vec2[2] - vec1[2] * vec2[1],
             vec1[2] * vec2[0] - vec1[0] * vec2[2],
             vec1[0] * vec2[1] - vec1[1] * vec2[0])
+
+def matTransposed(mat):
+    """Return the transposed of a nxn matrix.
+
+    >>> matTransposed(((1, 2), (3, 4)))
+    ((1, 3), (2, 4))"""
+    dim = len(mat)
+    return tuple( tuple( mat[i][j]
+                         for i in xrange(dim) )
+                  for j in xrange(dim) )
+
+def matscalarMul(mat, scalar):
+    """Return matrix * scalar."""
+    dim = len(mat)
+    return tuple( tuple( mat[i][j] * scalar
+                         for j in xrange(dim) )
+                  for i in xrange(dim) )
+
+def matvecMul(mat, vec):
+    """Return matrix * vector."""
+    dim = len(mat)
+    return tuple( sum( mat[i][j] * vec[j] for j in xrange(dim) )
+                  for i in xrange(dim) )
+
+def matMul(mat1, mat2):
+    """Return matrix * matrix."""
+    dim = len(mat)
+    return tuple( tuple( sum( mat1[i][k] * mat2[k][j]
+                              for k in xrange(dim) )
+                         for j in xrange(dim) )
+                  for i in xrange(dim) )
+
+def matAdd(mat1, mat2):
+    """Return matrix + matrix."""
+    dim = len(mat)
+    return tuple( tuple( mat1[i][j] + mat2[i][j]
+                         for j in xrange(dim) )
+                  for i in xrange(dim) )
+
+def matCofactor(mat, i, j):
+    dim = len(mat)
+    return matDeterminant(tuple( tuple( mat[ii][jj]
+                                        for jj in xrange(dim)
+                                        if jj != j )
+                                 for ii in xrange(dim)
+                                 if ii != i ))
+
+def matDeterminant(mat):
+    """Calculate determinant.
+
+    >>> matDeterminant( ((1,2,3), (4,5,6), (7,8,9)) )
+    0
+    >>> matDeterminant( ((1,2,4), (3,0,2), (-3,6,2)) )
+    36
+    """
+    dim = len(mat)
+    if dim == 0: return 0
+    elif dim == 1: return mat[0][0]
+    elif dim == 2: return mat[0][0] * mat[1][1] - mat[1][0] * mat[0][1]
+    else:
+        return sum( (-1 if i&1 else 1) * mat[i][0] * matCofactor(mat, i, 0)
+                    for i in xrange(dim) )
 
 if __name__ == "__main__":
     import doctest

@@ -46,7 +46,15 @@ import operator
 def qdome2d(vertices, base, normal, precision = 0.0001):
     """Build a convex dome from C{vertices} on top of the two C{base} vertices,
     in the plane with normal C{normal}. This is a helper function for
-    C{qhull2d}, and should usually not be called directly."""
+    C{qhull2d}, and should usually not be called directly.
+
+    @param vertices: The vertices to construct the dome from.
+    @param base: Two vertices that serve as a base for the dome.
+    @param normal: Orientation of the projection plane used for calculating
+        distances.
+    @param precision: Distance used to decide whether points lie outside of
+        the hull or not."""
+
     vert0, vert1 = base
     outer = [ (dist, vert)
           for dist, vert
@@ -69,6 +77,12 @@ def qhull2d(vertices, normal, precision = 0.0001):
     """Simple implementation of the 2d quickhull algorithm in 3 dimensions for
     vertices viewed from the direction of C{normal}.
     Returns a fan of vertices that makes up the surface.
+
+    @param vertices: The vertices to construct the hull from.
+    @param normal: Orientation of the projection plane used for calculating
+        distances.
+    @param precision: Distance used to decide whether points lie outside of
+        the hull or not.
 
     >>> import random
     >>> import math
@@ -114,6 +128,10 @@ def basesimplex3d(vertices, precision = 0.0001):
     returned. If the vertices are colinear up to C{precision} then only two
     vertices are returned. Finally, if the vertices are equal up to C{precision}
     then just one vertex is returned.
+
+    @param vertices: The vertices to construct extreme points from.
+    @param precision: Distance used to decide whether points coincide,
+        are colinear, or coplanar.
 
     >>> import random
     >>> cube = [(0,0,0),(0,0,1),(0,1,0),(1,0,0),(0,1,1),(1,0,1),(1,1,0),(1,1,1)]
@@ -169,6 +187,10 @@ def qhull3d(vertices, precision = 0.0001):
     the hull of a complex mesh, at the expense of exactness of the hull).
     
     @param vertices: The vertices to find the hull of.
+    @param precision: Distance used to decide whether points lie outside of
+        the hull or not. Larger numbers mean fewer triangles, but some vertices
+        will lie outside of the hull, at a distance of no more than
+        C{precision}.
 
     Test a tetrahedron
     ------------------
@@ -334,8 +356,8 @@ def qhull3d(vertices, precision = 0.0001):
     # no triangle has outer vertices anymore
     # so the convex hull is complete!
     # remap the triangles to indices that point into hull_vertices
-    return hull_vertices, [ tuple(map(lambda vert: hull_vertices.index(vert),
-                                      triangle))
+    return hull_vertices, [ tuple(hull_vertices.index(vert)
+                                  for vert in triangle)
                             for triangle in hull_triangles ]
 
 if __name__ == "__main__":
