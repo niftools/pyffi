@@ -55,7 +55,15 @@ The code is organized as follows.
 
     + walk: a variant of os.walk()
 
-    + PyTriStrip: stripifier utilities (uses a Python port of NvTriStrip)
+    + TriStrip: stripifier utilities (uses a Python port of NvTriStrip)
+
+    + MathUtils: common vector and matrix operations
+
+    + QuickHull: a simple implementation of the 2d and 3d quick hull
+      algorithms
+
+    + Inertia: a library for calculating mass, center of gravity, and inertia
+      tensor of common shapes
 
   - tools/NIF and tools/CGF: format specific scripts and helper modules
 
