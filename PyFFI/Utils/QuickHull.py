@@ -44,6 +44,9 @@ import operator
 # adapted from
 # http://en.literateprograms.org/Quickhull_(Python,_arrays)
 def qdome2d(vertices, base, normal, precision = 0.0001):
+    """Build a convex dome from C{vertices} on top of the two C{base} vertices,
+    in the plane with normal C{normal}. This is a helper function for
+    C{qhull2d}, and should usually not be called directly."""
     vert0, vert1 = base
     outer = [ (dist, vert)
           for dist, vert
@@ -68,12 +71,29 @@ def qhull2d(vertices, normal, precision = 0.0001):
     Returns a fan of vertices that makes up the surface.
 
     >>> import random
+    >>> import math
     >>> plane = [(0,0,0),(1,0,0),(0,1,0),(1,1,0)]
     >>> for i in xrange(200):
     ...     plane.append((random.random(), random.random(), 0))
     >>> verts = qhull2d(plane, (0,0,1))
     >>> len(verts)
-    4"""
+    4
+    >>> disc = []
+    >>> for i in xrange(50):
+    ...     theta = (2 * math.pi * i) / 50
+    ...     disc.append((0, math.sin(theta), math.cos(theta)))
+    >>> verts = qhull2d(disc, (1,0,0))
+    >>> len(verts)
+    50
+    >>> for i in xrange(400):
+    ...     disc.append((0, 1.4 * random.random() - 0.7, 1.4 * random.random() - 0.7))
+    >>> verts = qhull2d(disc, (1,0,0))
+    >>> len(verts)
+    50
+    >>> dist = 2 * math.pi / 50
+    >>> for i in xrange(len(verts) - 1):
+    ...      assert(abs(vecDistance(verts[i], verts[i+1]) - dist) < 0.001)
+    """
     base = basesimplex3d(vertices, precision)
     if len(base) >= 2:
         vert0, vert1 = base[:2]
@@ -95,7 +115,11 @@ def basesimplex3d(vertices, precision = 0.0001):
     vertices are returned. Finally, if the vertices are equal up to C{precision}
     then just one vertex is returned.
 
-    >>> base = basesimplex3d([(0,0,0),(0,0,1),(0,1,0),(1,0,0),(0,1,1),(1,0,1),(1,1,0),(1,1,1)])
+    >>> import random
+    >>> cube = [(0,0,0),(0,0,1),(0,1,0),(1,0,0),(0,1,1),(1,0,1),(1,1,0),(1,1,1)]
+    >>> for i in xrange(200):
+    ...     cube.append((random.random(), random.random(), random.random()))
+    >>> base = basesimplex3d(cube)
     >>> len(base)
     4
     >>> (0,0,0) in base
