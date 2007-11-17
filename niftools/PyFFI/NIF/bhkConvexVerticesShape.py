@@ -37,8 +37,8 @@
 #
 # ***** END LICENCE BLOCK *****
 
-from itertools import izip
-argmax = lambda array: max(izip(array, xrange(len(array))))[1] # used in qhull
+from PyFFI.Utils import Inertia
+from PyFFI.Utils import QuickHull
 
 def applyScale(self, scale):
     """Apply scale factor on data."""
@@ -50,58 +50,11 @@ def applyScale(self, scale):
     for n in self.normals:
         n.w *= scale
 
-def getCenterArea(self):
-    """Calculate center of gravity and area."""
-
-    def qhull(vertices, normal):
-        """Simple implementation of the quickhull algorithm in 3 dimensions for
-        a set of coplanar points. All vertices must satisfy vert * normal = 0.
-        Returns a fan of vertices that makes up the surface."""
-        # adapted from
-        # http://en.literateprograms.org/Quickhull_(Python,_arrays)
-        def dome(verts, base):
-            a, b = base
-            dists = [ normal.crossproduct(b-a) * (vert-a) for vert in verts ]
-            outer = [ vert for vert, dist in izip(verts, dists) if dist > 0.001 ]
-
-            if outer:
-                pivot = verts[argmax(dists)]
-                return dome(outer, [a, pivot]) \
-                       + dome(outer, [pivot, b])[1:]
-            else:
-                return base
-  
-        if len(vertices) > 2:
-            a, b = vertices[:2]
-            return dome(vertices, [a, b]) + dome(vertices, [b, a])[1:-1]
-        else:
-            return vertices
-
-    centerarea = []
-    # iterate over all half spaces
-    for norm in self.normals:
-        # find vertices that lie on this plane
-        normverts = []
-        for vert in self.vertices:
-            if abs(norm.x * vert.x + norm.y * vert.y + norm.z * vert.z
-                   + norm.w) < 0.001:
-                normverts.append(vert.getVector3())
-        assert(len(normverts) >= 3) # debug
-        
-        # find center and area of each triangle that makes up this set of
-        # coplanar vertices; note that this set is already convex, the
-        # qhull algorithm is simply used to sort the vertices into a fan
-        fan = qhull(normverts, norm.getVector3())
-        for i in xrange(2, len(fan)):
-            centerarea.append(
-                ( (fan[0] + fan[i-1] + fan[i]) / 3,
-                  (fan[i-1] - fan[0]).crossproduct(fan[i] - fan[0]).norm() / 2 ))
-    # now return the average center and total area
-    totalarea = sum(area for center, area in centerarea)
-    return ( [ sum(area * center.x for center, area in centerarea)
-               / totalarea,
-               sum(area * center.y for center, area in centerarea)
-               / totalarea,
-               sum(area * center.z for center, area in centerarea)
-               / totalarea ],
-             totalarea )
+def getMassCenterInertia(self, density = 1):
+    """Return mass, center, and inertia tensor."""
+    # first find an enumeration of all triangles making up the convex shape
+    vertices, triangles = QuickHull.qhull3d([ tuple(vert.asList())
+                                              for vert in self.vertices ])
+    # now calculate mass, center, and inertia
+    return Inertia.getMassCenterInertiaPolyhedron(
+        vertices, triangles, density = density)

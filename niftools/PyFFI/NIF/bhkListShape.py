@@ -37,18 +37,20 @@
 #
 # ***** END LICENCE BLOCK *****
 
-def getCenterArea(self):
+from PyFFI.Utils.MathUtils import *
+
+def getMassCenterInertia(self, density = 1):
     """Return center of gravity and area."""
-    subshapes_centerarea = [ subshape.getCenterArea()
-                             for subshape in self.subShapes ]
-    totalarea = sum(area for center, area in subshapes_centerarea)
-    return ( [ sum(area * center[0] for center, area in subshapes_centerarea)
-               / totalarea,
-               sum(area * center[1] for center, area in subshapes_centerarea)
-               / totalarea,
-               sum(area * center[2] for center, area in subshapes_centerarea)
-               / totalarea ],
-             totalarea )
+    subshapes_mci = [ subshape.getMassCenterInertia(density = density)
+                      for subshape in self.subShapes ]
+    total_mass = sum(mass for mass, center, inertia in subshapes_mci)
+    total_center = reduce(vecAdd,
+                          ( vecscalarMul(center, mass / total_mass)
+                            for mass, center, inertia in subshapes_mci ))
+    total_inertia = reduce(matAdd,
+                           ( inertia
+                             for mass, center, inertia in subshapes_mci ))
+    return total_mass, total_center, total_inertia
 
 def addShape(self, shape, front = False):
     """Add shape to list."""

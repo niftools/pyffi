@@ -37,6 +37,8 @@
 #
 # ***** END LICENSE BLOCK *****
 
+from PyFFI.Utils.MathUtils import *
+
 def applyScale(self, scale):
     """Apply scale factor <scale> on data."""
     # apply scale on translation
@@ -47,20 +49,18 @@ def applyScale(self, scale):
     # apply scale on all blocks down the hierarchy
     self.cls.NiObject.applyScale(self, scale)
 
-def getCenterArea(self):
-    """Return center of gravity and area."""
-    # assumes that the scale factor of the transform matrix is 1
-    (shapex, shapey, shapez), area = self.shape.getCenterArea()
-    return ( [ self.transform.m11 * shapex
-               + self.transform.m12 * shapey
-               + self.transform.m13 * shapez
-               + self.transform.m14,
-               self.transform.m21 * shapex
-               + self.transform.m22 * shapey
-               + self.transform.m23 * shapez
-               + self.transform.m24,
-               self.transform.m31 * shapex
-               + self.transform.m32 * shapey
-               + self.transform.m33 * shapez
-               + self.transform.m34 ],
-             area )
+def getMassCenterInertia(self, density = 1):
+    """Return mass, center, and inertia tensor."""
+    # get shape mass, center, and inertia
+    mass, center, inertia = self.shape.getMassCenterInertia(density = density)
+    # get transform matrix and translation vector
+    transform = tuple(tuple(row)
+                      for row in self.transform.getMatrix33().asList())
+    transform_transposed = matTransposed(transform)
+    translation = tuple(self.transform.getTranslation().asList())
+    # transform center and inertia
+    center = matvecMul(transform, center)
+    center = vecAdd(center, translation)
+    inertia = reduce(matMul, (transform_transposed, inertia, transform))
+    # return updated mass center and inertia
+    return mass, center, inertia

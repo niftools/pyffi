@@ -39,6 +39,8 @@
 
 import math # math.pi
 
+from PyFFI.Utils import Inertia
+
 def applyScale(self, scale):
     """Apply scale factor <scale> on data."""
     # apply scale on dimensions
@@ -47,7 +49,10 @@ def applyScale(self, scale):
     # apply scale on all blocks down the hierarchy
     self.cls.NiObject.applyScale(self, scale)
 
-def getCenterArea(self):
-    """Return center of gravity and area."""
-    # the area is 4*pi*radius^2
-    return [0.0, 0.0, 0.0], 4 * math.pi * (self.radius**2)
+def getMassCenterInertia(self, density = 1):
+    """Return mass, center, and inertia tensor."""
+    # the dimensions describe half the size of the box in each dimension
+    # so the length of a single edge is dimension.dir * 2
+    mass, inertia = Inertia.getMassInertiaSphere(
+        self.radius, density = density)
+    return mass, (0,0,0), inertia

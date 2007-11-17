@@ -37,21 +37,26 @@
 #
 # ***** END LICENCE BLOCK *****
 
-def getCenterArea(self):
-    """Return center of gravity and area."""
-    # see http://local.wasp.uwa.edu.au/~pbourke/geometry/polyarea/
-    # for explanation of algorithm
-    centerarea = []
+from PyFFI.Utils import Inertia
+from PyFFI.Utils.MathUtils import *
+
+def getMassCenterInertia(self, density = 1):
+    """Return mass, center, and inertia tensor."""
+    # first find mass, center, and inertia of all shapes
+    subshapes_mci = []
     for data in self.stripsData:
-        for triangle in data.getTriangles():
-            vert1 = data.vertices[triangle[0]]
-            vert2 = data.vertices[triangle[1]]
-            vert3 = data.vertices[triangle[2]]
-            centerarea.append(
-                ( (vert1 + vert2 + vert3) / 3,
-                  (vert2-vert1).crossproduct(vert3-vert1).norm() / 2 ) )
-    totalarea = sum(area for vert, area in centerarea)
-    return ( [ sum(area * vert.x for vert, area in centerarea) / totalarea,
-               sum(area * vert.y for vert, area in centerarea) / totalarea,
-               sum(area * vert.z for vert, area in centerarea) / totalarea ],
-             totalarea )
+        subshapes_mci.append(
+            Inertia.getMassCenterInertiaPolyhedron(
+                [ tuple(vert.asList()) for vert in data.vertices ],
+                [ triangle for triangle in data.getTriangles() ],
+                density = density))
+
+    # now calculate mass, center, and inertia
+    total_mass = sum(mass for mass, center, inertia in subshapes_mci)
+    total_center = reduce(vecAdd,
+                          ( vecscalarMul(center, mass / total_mass)
+                            for mass, center, inertia in subshapes_mci ))
+    total_inertia = reduce(matAdd,
+                           ( inertia
+                             for mass, center, inertia in subshapes_mci ))
+    return total_mass, total_center, total_inertia

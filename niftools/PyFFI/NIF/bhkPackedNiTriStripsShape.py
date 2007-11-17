@@ -37,23 +37,17 @@
 #
 # ***** END LICENCE BLOCK *****
 
-def getCenterArea(self):
-    """Return center of gravity and area."""
-    # see http://local.wasp.uwa.edu.au/~pbourke/geometry/polyarea/
-    # for explanation of algorithm
-    centerarea = []
-    for hktriangle in self.data.triangles:
-        vert1 = self.data.vertices[hktriangle.triangle.v1]
-        vert2 = self.data.vertices[hktriangle.triangle.v2]
-        vert3 = self.data.vertices[hktriangle.triangle.v3]
-        centerarea.append(
-            ( (vert1 + vert2 + vert3) / 3,
-              (vert2-vert1).crossproduct(vert3-vert1).norm() / 2 ) )
-    totalarea = sum(area for vert, area in centerarea)
-    return ( [ sum(area * vert.x for vert, area in centerarea) / totalarea,
-               sum(area * vert.y for vert, area in centerarea) / totalarea,
-               sum(area * vert.z for vert, area in centerarea) / totalarea ],
-             totalarea )
+from PyFFI.Utils import Inertia
+
+def getMassCenterInertia(self, density = 1):
+    """Return mass, center, and inertia tensor."""
+    return Inertia.getMassCenterInertiaPolyhedron(
+        [ tuple(vert.asList()) for vert in self.data.vertices ],
+        [ ( hktriangle.triangle.v1,
+            hktriangle.triangle.v2,
+            hktriangle.triangle.v3 )
+          for hktriangle in self.data.triangles ],
+        density = density)
 
 def addShape(self, triangles, normals, vertices, layer = 0, material = 0):
     """Pack the given geometry."""

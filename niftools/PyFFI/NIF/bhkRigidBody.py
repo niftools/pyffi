@@ -44,11 +44,39 @@ def applyScale(self, scale):
     self.center.y *= scale
     self.center.z *= scale
 
+    self.mass *= (scale ** 3)
+
+    self.inertia[0] *= (scale ** 5)
+    self.inertia[1] *= (scale ** 5)
+    self.inertia[2] *= (scale ** 5)
+    self.inertia[3] *= (scale ** 5)
+    self.inertia[4] *= (scale ** 5)
+    self.inertia[5] *= (scale ** 5)
+    self.inertia[6] *= (scale ** 5)
+    self.inertia[7] *= (scale ** 5)
+    self.inertia[8] *= (scale ** 5)
+    self.inertia[9] *= (scale ** 5)
+    self.inertia[10] *= (scale ** 5)
+    self.inertia[11] *= (scale ** 5)
+
     # apply scale on all blocks down the hierarchy
     self.cls.NiObject.applyScale(self, scale)
 
-def updateCenter(self):
-    """Look at all the objects under this rigid body and update the center of
-    gravity accordingly."""
-    # calculate center of the shape, and update center accordingly
-    (self.center.x, self.center.y, self.center.z), area = self.shape.getCenterArea()
+def updateMassCenterInertia(self, density = 1):
+    """Look at all the objects under this rigid body and update the mass,
+    center of gravity, and inertia tensor accordingly."""
+    mass, center, inertia = self.shape.getMassCenterInertia(density = density)
+    self.mass = mass
+    self.center.x, self.center.y, self.center.z = center
+    self.inertia[0] = inertia[0][0]
+    self.inertia[1] = inertia[0][1]
+    self.inertia[2] = inertia[0][2]
+    self.inertia[3] = 0
+    self.inertia[4] = inertia[1][0]
+    self.inertia[5] = inertia[1][1]
+    self.inertia[6] = inertia[1][2]
+    self.inertia[7] = 0
+    self.inertia[8] = inertia[2][0]
+    self.inertia[9] = inertia[2][1]
+    self.inertia[10] = inertia[2][2]
+    self.inertia[11] = 0

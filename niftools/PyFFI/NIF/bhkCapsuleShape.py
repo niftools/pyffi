@@ -39,6 +39,9 @@
 
 import math # math.pi
 
+from PyFFI.Utils import Inertia
+from PyFFI.Utils.MathUtils import *
+
 def applyScale(self, scale):
     """Apply scale factor <scale> on data."""
     # apply scale on dimensions
@@ -55,12 +58,33 @@ def applyScale(self, scale):
     # apply scale on all blocks down the hierarchy
     self.cls.NiObject.applyScale(self, scale)
 
-def getCenterArea(self):
-    """Return center of gravity and area."""
+def getMassCenterInertia(self, density = 1):
+    """Return mass, center, and inertia tensor."""
     # (assumes self.radius == self.radius1 == self.radius2)
-    # area of capsule is area of cylinder + area of caps (two half spheres)
-    return ( [ (self.firstPoint.x + self.secondPoint.x) * 0.5,
-               (self.firstPoint.y + self.secondPoint.y) * 0.5,
-               (self.firstPoint.z + self.secondPoint.z) * 0.5 ],
-             2 * math.pi * self.radius * (self.firstPoint - self.secondPoint).norm()
-             + 4 * math.pi * (self.radius ** 2) )
+    length = (self.firstPoint - self.secondPoint).norm()
+    mass, inertia = Inertia.getMassInertiaCapsule(
+        radius = self.radius,
+        length = length,
+        density = density)
+    # now fix inertia so it is expressed in the right coordinates
+    # need a transform that maps (0,0,length/2) on (second - first) / 2
+    # and (0,0,-length/2) on (first - second)/2
+    vec1 = tuple(((self.secondPoint - self.firstPoint) / length).asList())
+    # find an orthogonal vector to vec1
+    index = min(enumerate(vec1), key=lambda val: abs(val[1]))[0]
+    vec2 = vecCrossProduct(vec1, tuple((1 if i == index else 0)
+                                       for i in xrange(3)))
+    vec2 = vecscalarMul(vec2, 1/vecNorm(vec2))
+    # find an orthogonal vector to vec1 and vec2
+    vec3 = vecCrossProduct(vec1, vec2)
+    # get transform matrix
+    transform_transposed = (vec2, vec3, vec1) # this is effectively the transposed of our transform
+    transform = matTransposed(transform_transposed)
+    # check the result (debug)
+    assert(vecDistance(matvecMul(transform, (0,0,1)), vec1) < 0.0001)
+    assert(abs(matDeterminant(transform) - 1) < 0.0001)
+    # transform the inertia tensor
+    inertia = reduce(matMul, (transform_transposed, inertia, transform))
+    return mass, \
+           tuple(((self.firstPoint + self.secondPoint) * 0.5).asList()), \
+           inertia
