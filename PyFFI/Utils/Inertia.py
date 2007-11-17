@@ -115,24 +115,48 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1,
     (0.5, 1.0, 1.5)
     >>> inertia
     ((26.0, 0.0, 0.0), (0.0, 20.0, 0.0), (0.0, 0.0, 10.0))
+    >>> import QuickHull
+    >>> poly = [(3,0,0),(0,3,0),(-3,0,0),(0,-3,0),(0,0,3),(0,0,-3)] # very rough approximation of a sphere of radius 2
+    >>> vertices, triangles = QuickHull.qhull3d(poly)
+    >>> mass, center, inertia = getMassCenterInertiaPolyhedron(
+    ...     vertices, triangles, density = 3)
+    >>> mass
+    108.0
+    >>> center
+    (0.0, 0.0, 0.0)
+    >>> abs(inertia[0][0] - 194.4) < 0.0001
+    True
+    >>> abs(inertia[1][1] - 194.4) < 0.0001
+    True
+    >>> abs(inertia[2][2] - 194.4) < 0.0001
+    True
+    >>> abs(inertia[0][1]) < 0.0001
+    True
+    >>> abs(inertia[0][2]) < 0.0001
+    True
+    >>> abs(inertia[1][2]) < 0.0001
+    True
     >>> sphere = []
-    >>> for i in xrange(0, 50):
-    ...     theta = i * 2 * math.pi / 50
-    ...     s, c = math.sin(theta), math.cos(theta)
-    ...     for j in xrange(1, 50):
-    ...         h = j / 25.0 - 1.0
-    ...         sphere.append((2*s, 2*c, 2*h)) # construct sphere of radius 2
+    >>> N = 10
+    >>> for j in xrange(-N+1, N):
+    ...     theta = j * 0.5 * math.pi / N
+    ...     st, ct = math.sin(theta), math.cos(theta)
+    ...     M = max(3, int(ct * 2 * N + 0.5))
+    ...     for i in xrange(0, M):
+    ...         phi = i * 2 * math.pi / M
+    ...         s, c = math.sin(phi), math.cos(phi)
+    ...         sphere.append((2*s*ct, 2*c*ct, 2*st)) # construct sphere of radius 2
     >>> sphere.append((0,0,2))
     >>> sphere.append((0,0,-2))
     >>> vertices, triangles = QuickHull.qhull3d(sphere)
     >>> mass, center, inertia = getMassCenterInertiaPolyhedron(
     ...     vertices, triangles, density = 3)
-    >>> mass
-    100.53096...
+    >>> abs(mass - 100.53) < 10
+    True
     >>> sum(abs(x) for x in center) < 0.01 # is center at origin?
     True
-    >>> inertia[0][0]
-    160.84954...
+    >>> abs(inertia[0][0] - 160.84) < 10
+    True
     """
 
     ## Blow and Binstock's method
@@ -172,26 +196,32 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1,
 ##                determinant))
 ##
 ##        # find mass
-##        masses.append(determinant / 6.0) # assume density = 1, fixed below
+##        masses.append(density * determinant / 6.0)
 ##
 ##        # find center of gravity of the tetrahedron
 ##        centers.append(tuple( 0.25 * sum(vert[i]
 ##                                         for vert in (vert0, vert1, vert2))
 ##                              for i in xrange(3) ))
-##        print transform_transposed, centers[-1], masses[-1]
 ##
 ##    # accumulate the results
 ##    total_covariance = reduce(matAdd, covariances)
-##    total_mass = density * sum(masses) # now take into account the density
+##    total_mass = sum(masses)
 ##    total_center = reduce(vecAdd, ( vecscalarMul(center, mass / total_mass)
 ##                                    for center, mass
 ##                                    in izip(centers, masses)))
 ##
 ##    # translate covariance to center of gravity
-##    ...
+##    # TODO
+##    
 ##    # convert covariance matrix into inertia tensor
-##    ...
-##    #return total_mass, total_center, total_inertia
+##
+##    trace = sum(total_covariance[i][i] for i in xrange(3))
+##    trace_matrix = tuple(tuple((trace if i == j else 0)
+##                               for i in xrange(3))
+##                         for j in xrange(3))
+##    total_inertia = matscalarMul(matSub(trace_matrix, total_covariance), density)
+##
+##    return total_mass, total_center, total_inertia
 
     ## Eberly's method (very optimized hence faster than above method
     ## although quite a bit harder to understand):

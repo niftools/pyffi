@@ -152,6 +152,13 @@ def matAdd(mat1, mat2):
                          for j in xrange(dim) )
                   for i in xrange(dim) )
 
+def matSub(mat1, mat2):
+    """Return matrix - matrix."""
+    dim = len(mat1)
+    return tuple( tuple( mat1[i][j] - mat2[i][j]
+                         for j in xrange(dim) )
+                  for i in xrange(dim) )
+
 def matCofactor(mat, i, j):
     dim = len(mat)
     return matDeterminant(tuple( tuple( mat[ii][jj]
