@@ -42,6 +42,9 @@ from types import NoneType
 def asList(self):
     return [self.x, self.y, self.z, self.w]
 
+def asTuple(self):
+    return (self.x, self.y, self.z, self.w)
+
 def getCopy(self):
     v = self.cls.Vector4()
     v.x = self.x

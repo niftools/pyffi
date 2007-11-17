@@ -1,7 +1,5 @@
-# --------------------------------------------------------------------------
-# NifFormat.Vector3
-# Custom functions for Vector3.
-# --------------------------------------------------------------------------
+"""Custom functions for Vector3."""
+
 # ***** BEGIN LICENSE BLOCK *****
 #
 # Copyright (c) 2007, NIF File Format Library and Tools.
@@ -38,12 +36,14 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENCE BLOCK *****
-# --------------------------------------------------------------------------
 
 from types import *
 
 def asList(self):
     return [self.x, self.y, self.z]
+
+def asTuple(self):
+    return (self.x, self.y, self.z)
 
 def norm(self):
     return (self.x*self.x + self.y*self.y + self.z*self.z) ** 0.5

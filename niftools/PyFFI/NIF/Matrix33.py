@@ -46,6 +46,14 @@ def asList(self):
         [self.m31, self.m32, self.m33]
         ]
 
+def asList(self):
+    """Return matrix as 3x3 tuple."""
+    return (
+        (self.m11, self.m12, self.m13),
+        (self.m21, self.m22, self.m23),
+        (self.m31, self.m32, self.m33)
+        )
+
 def __str__(self):
     return "\
 [ %6.3f %6.3f %6.3f ]\n[ %6.3f %6.3f %6.3f ]\n[ %6.3f %6.3f %6.3f ]\n"\

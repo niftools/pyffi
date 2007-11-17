@@ -51,6 +51,15 @@ def asList(self):
         [self.m41, self.m42, self.m43, self.m44]
         ]
 
+def asTuple(self):
+    """Return matrix as 4x4 tuple."""
+    return (
+        (self.m11, self.m12, self.m13, self.m14),
+        (self.m21, self.m22, self.m23, self.m24),
+        (self.m31, self.m32, self.m33, self.m34),
+        (self.m41, self.m42, self.m43, self.m44)
+        )
+
 def setRows(self, row0, row1, row2, row3):
     """Set matrix from rows."""
     self.m11, self.m12, self.m13, self.m14 = row0
