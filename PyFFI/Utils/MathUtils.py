@@ -139,7 +139,7 @@ def matvecMul(mat, vec):
 
 def matMul(mat1, mat2):
     """Return matrix * matrix."""
-    dim = len(mat)
+    dim = len(mat1)
     return tuple( tuple( sum( mat1[i][k] * mat2[k][j]
                               for k in xrange(dim) )
                          for j in xrange(dim) )
@@ -147,7 +147,7 @@ def matMul(mat1, mat2):
 
 def matAdd(mat1, mat2):
     """Return matrix + matrix."""
-    dim = len(mat)
+    dim = len(mat1)
     return tuple( tuple( mat1[i][j] + mat2[i][j]
                          for j in xrange(dim) )
                   for i in xrange(dim) )
