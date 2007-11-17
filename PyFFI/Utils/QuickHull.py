@@ -310,8 +310,8 @@ def qhull3d(vertices, precision = 0.0001):
     # no triangle has outer vertices anymore
     # so the convex hull is complete!
     # remap the triangles to indices that point into hull_vertices
-    return hull_vertices, [ map(lambda vert: hull_vertices.index(vert),
-                                triangle)
+    return hull_vertices, [ tuple(map(lambda vert: hull_vertices.index(vert),
+                                      triangle))
                             for triangle in hull_triangles ]
 
 if __name__ == "__main__":
