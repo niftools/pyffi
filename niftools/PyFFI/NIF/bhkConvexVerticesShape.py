@@ -53,7 +53,7 @@ def applyScale(self, scale):
 def getMassCenterInertia(self, density = 1):
     """Return mass, center, and inertia tensor."""
     # first find an enumeration of all triangles making up the convex shape
-    vertices, triangles = QuickHull.qhull3d([ tuple(vert.asList())
+    vertices, triangles = QuickHull.qhull3d([ vert.asTuple()
                                               for vert in self.vertices ])
     # now calculate mass, center, and inertia
     return Inertia.getMassCenterInertiaPolyhedron(

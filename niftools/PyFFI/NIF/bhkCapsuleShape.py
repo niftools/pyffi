@@ -69,7 +69,7 @@ def getMassCenterInertia(self, density = 1):
     # now fix inertia so it is expressed in the right coordinates
     # need a transform that maps (0,0,length/2) on (second - first) / 2
     # and (0,0,-length/2) on (first - second)/2
-    vec1 = tuple(((self.secondPoint - self.firstPoint) / length).asList())
+    vec1 = ((self.secondPoint - self.firstPoint) / length).asTuple()
     # find an orthogonal vector to vec1
     index = min(enumerate(vec1), key=lambda val: abs(val[1]))[0]
     vec2 = vecCrossProduct(vec1, tuple((1 if i == index else 0)
@@ -86,5 +86,5 @@ def getMassCenterInertia(self, density = 1):
     # transform the inertia tensor
     inertia = reduce(matMul, (transform_transposed, inertia, transform))
     return mass, \
-           tuple(((self.firstPoint + self.secondPoint) * 0.5).asList()), \
+           ((self.firstPoint + self.secondPoint) * 0.5).asTuple(), \
            inertia

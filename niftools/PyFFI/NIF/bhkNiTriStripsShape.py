@@ -47,7 +47,7 @@ def getMassCenterInertia(self, density = 1):
     for data in self.stripsData:
         subshapes_mci.append(
             Inertia.getMassCenterInertiaPolyhedron(
-                [ tuple(vert.asList()) for vert in data.vertices ],
+                [ vert.asTuple() for vert in data.vertices ],
                 [ triangle for triangle in data.getTriangles() ],
                 density = density))
 

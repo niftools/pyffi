@@ -46,7 +46,7 @@ def asList(self):
         [self.m31, self.m32, self.m33]
         ]
 
-def asList(self):
+def asTuple(self):
     """Return matrix as 3x3 tuple."""
     return (
         (self.m11, self.m12, self.m13),
