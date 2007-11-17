@@ -39,7 +39,7 @@ shapes."""
 # ***** END LICENSE BLOCK *****
 
 import math
-from PyFFI.Utils.MathUtils import vecCrossProduct
+from MathUtils import vecCrossProduct
 
 # see http://en.wikipedia.org/wiki/List_of_moment_of_inertia_tensors
 
@@ -103,9 +103,11 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1,
                                    bodycoords = False):
     """Return mass, center of gravity, and inertia matrix for a polyhedron.
 
+    >>> import QuickHull
+    >>> box = [(0,0,0),(1,0,0),(0,2,0),(0,0,3),(1,2,0),(0,2,3),(1,0,3),(1,2,3)]
+    >>> vertices, triangles = QuickHull.qhull3d(box)
     >>> getMassCenterInertiaPolyhedron(
-    ...     [(0,0,0),(1,0,0),(0,2,0),(0,0,3),(1,2,0),(0,2,3),(1,0,3),(1,2,3)],
-    ...     [(0,1,2),()])"""
+    ...     box, triangles, density = 4)"""
     # order:  1, x, y, z, x^2, y^2, z^2, xy, yz, zx
     afIntergral = [ 0.0 for i in xrange(10) ]
 
@@ -160,34 +162,34 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1,
         afIntegral[8] += kN[1]*(kV0[2]*fG0y + kV1[2]*fG1y + kV2[2]*fG2y)
         afIntegral[9] += kN[2]*(kV0[0]*fG0z + kV1[0]*fG1z + kV2[0]*fG2z)
 
-    afIntegral[0] /= 6
-    afIntegral[1] /= 24
-    afIntegral[2] /= 24
-    afIntegral[3] /= 24
-    afIntegral[4] /= 60
-    afIntegral[5] /= 60
-    afIntegral[6] /= 60
-    afIntegral[7] /= 120
-    afIntegral[8] /= 120
-    afIntegral[9] /= 120
+    afIntegral[0] /= 6.0
+    afIntegral[1] /= 24.0
+    afIntegral[2] /= 24.0
+    afIntegral[3] /= 24.0
+    afIntegral[4] /= 60.0
+    afIntegral[5] /= 60.0
+    afIntegral[6] /= 60.0
+    afIntegral[7] /= 120.0
+    afIntegral[8] /= 120.0
+    afIntegral[9] /= 120.0
 
     # mass
-    rfMass = afIntegral[0]
+    rfMass = density * afIntegral[0]
 
     # center of mass
     rkCenter = (afIntegral[1],afIntegral[2],afIntegral[3])
 
     # inertia relative to world origin
     rkInertia = [ [ 0.0 for i in xrange(3) ] for j in xrange(3) ]
-    rkInertia[0][0] = afIntegral[5] + afIntegral[6]
-    rkInertia[0][1] = -afIntegral[7]
-    rkInertia[0][2] = -afIntegral[9]
+    rkInertia[0][0] = density * (afIntegral[5] + afIntegral[6])
+    rkInertia[0][1] = density * (-afIntegral[7])
+    rkInertia[0][2] = density * (-afIntegral[9])
     rkInertia[1][0] = rkInertia[0][1]
-    rkInertia[1][1] = afIntegral[4] + afIntegral[6]
-    rkInertia[1][2] = -afIntegral[8]
+    rkInertia[1][1] = density * (afIntegral[4] + afIntegral[6])
+    rkInertia[1][2] = density * (-afIntegral[8])
     rkInertia[2][0] = rkInertia[0][2]
     rkInertia[2][1] = rkInertia[1][2]
-    rkInertia[2][2] = afIntegral[4] + afIntegral[5]
+    rkInertia[2][2] = density * (afIntegral[4] + afIntegral[5])
 
     # inertia relative to center of mass
     if bodycoords:

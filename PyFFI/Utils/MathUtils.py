@@ -40,6 +40,10 @@
 from itertools import izip
 import operator
 
+def vecSub(vec1, vec2):
+    """Vector substraction."""
+    return map(operator.sub, vec1, vec2)
+
 def vecDotProduct(vec1, vec2):
     """The vector dot product (any dimension).
 
@@ -53,34 +57,35 @@ def vecDistance(vec1, vec2):
     >>> vecDistance((1,2,3),(4,-5,6)) # doctest: +ELLIPSIS
     8.185...
     """
-    diff = map(operator.sub, vec1, vec2)
-    return vecDotProduct(diff, diff) ** 0.5
+    return vecNorm(vecSub(vec1, vec2))
+
+def vecNormal(vec1, vec2, vec3):
+    """Returns a vector that is orthogonal on C{triangle}."""
+    return vecCrossProduct(vecSub(vec2, vec1), vecSub(vec3, vec1))
 
 def vecDistanceAxis(axis, vec):
     """Return distance between the axis spanned by axis[0] and axis[1] and the
-    vector v, in 3 dimensions.
+    vector v, in 3 dimensions. Raises ZeroDivisionError if the axis points
+    coincide.
 
     >>> vecDistanceAxis([(0,0,0), (0,0,1)], (0,3.5,0))
     3.5
     >>> vecDistanceAxis([(0,0,0), (1,1,1)], (0,1,0.5)) # doctest: +ELLIPSIS
     0.70710678...
     """
-    return (vecNorm(vecCrossProduct(map(operator.sub, axis[1], axis[0]),
-                                    map(operator.sub, axis[0], vec)))
-            / vecNorm(map(operator.sub, axis[1], axis[0])))
+    return vecNorm(vecNormal(axis[0], axis[1], vec)) / vecDistance(*axis)
 
-def vecDistanceTriangle(triangle, v):
+def vecDistanceTriangle(triangle, vert):
     """Return (signed) distance between the plane spanned by triangle[0],
     triangle[1], and triange[2], and the vector v, in 3 dimensions.
 
     >>> vecDistanceTriangle([(0,0,0),(1,0,0),(0,1,0)], (0,0,1))
-    -1.0
-    >>> vecDistanceTriangle([(0,0,0),(0,1,0),(1,0,0)], (0,0,1))
     1.0
+    >>> vecDistanceTriangle([(0,0,0),(0,1,0),(1,0,0)], (0,0,1))
+    -1.0
     """
-    normal = vecCrossProduct(map(operator.sub, triangle[2], triangle[0]),
-                             map(operator.sub, triangle[1], triangle[0]))
-    return vecDotProduct(normal, map(operator.sub, v, triangle[0])) \
+    normal = vecNormal(*triangle)
+    return vecDotProduct(normal, vecSub(vert, triangle[0])) \
            / vecNorm(normal)
 
 def vecNorm(vec):
