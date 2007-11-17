@@ -65,7 +65,15 @@ def qdome2d(vertices, base, normal, precision = 0.0001):
 def qhull2d(vertices, normal, precision = 0.0001):
     """Simple implementation of the 2d quickhull algorithm in 3 dimensions for
     vertices viewed from the direction of C{normal}.
-    Returns a fan of vertices that makes up the surface."""
+    Returns a fan of vertices that makes up the surface.
+
+    >>> import random
+    >>> plane = [(0,0,0),(1,0,0),(0,1,0),(1,1,0)]
+    >>> for i in xrange(200):
+    ...     plane.append((random.random(), random.random(), 0))
+    >>> verts = qhull2d(plane, (0,0,1))
+    >>> len(verts)
+    4"""
     base = basesimplex3d(vertices, precision)
     if len(base) >= 2:
         vert0, vert1 = base[:2]
@@ -88,6 +96,8 @@ def basesimplex3d(vertices, precision = 0.0001):
     then just one vertex is returned.
 
     >>> base = basesimplex3d([(0,0,0),(0,0,1),(0,1,0),(1,0,0),(0,1,1),(1,0,1),(1,1,0),(1,1,1)])
+    >>> len(base)
+    4
     >>> (0,0,0) in base
     True
     >>> (1,1,1) in base
@@ -220,7 +230,7 @@ def qhull3d(vertices, precision = 0.0001):
     # handle degenerate cases
     if len(hull_vertices) == 3:
         # coplanar
-        hull_vertices = qhull2d(hull_vertices, vecNormal(*hull_vertices[:3]))
+        hull_vertices = qhull2d(vertices, vecNormal(*hull_vertices))
         return hull_vertices, [ (0, i+1, i+2)
                                 for i in xrange(len(hull_vertices) - 2) ]
     elif len(hull_vertices) <= 2:
