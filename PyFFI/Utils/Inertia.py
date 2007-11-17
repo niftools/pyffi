@@ -84,7 +84,7 @@ def getMassInertiaCapsule(length, radius, density = 1):
     # approximate by cylinder
     # TODO: also include the caps into the inertia matrix
     inertia_xx = mass * (3 * (radius ** 2) + (length ** 2)) / 12.0
-    inertia_yy = inertia_matrix[0][0]
+    inertia_yy = inertia_xx
     inertia_zz = 0.5 * mass * (radius ** 2)
 
     return mass,  ( ( inertia_xx, 0, 0 ),
@@ -289,25 +289,44 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1,
     afIntegral[8] /= 120.0
     afIntegral[9] /= 120.0
 
-    # mass
-    rfMass = density * afIntegral[0]
+    if afIntegral[0] > 0.00001:
+        # mass
+        rfMass = density * afIntegral[0]
 
-    # center of mass
-    rkCenter = (afIntegral[1] / afIntegral[0],
-                afIntegral[2] / afIntegral[0],
-                afIntegral[3] / afIntegral[0])
+        # center of mass
+        rkCenter = (afIntegral[1] / afIntegral[0],
+                    afIntegral[2] / afIntegral[0],
+                    afIntegral[3] / afIntegral[0])
 
-    # inertia relative to world origin
-    rkInertia = [ [ 0.0 for i in xrange(3) ] for j in xrange(3) ]
-    rkInertia[0][0] = density * (afIntegral[5] + afIntegral[6])
-    rkInertia[0][1] = density * (-afIntegral[7])
-    rkInertia[0][2] = density * (-afIntegral[9])
-    rkInertia[1][0] = rkInertia[0][1]
-    rkInertia[1][1] = density * (afIntegral[4] + afIntegral[6])
-    rkInertia[1][2] = density * (-afIntegral[8])
-    rkInertia[2][0] = rkInertia[0][2]
-    rkInertia[2][1] = rkInertia[1][2]
-    rkInertia[2][2] = density * (afIntegral[4] + afIntegral[5])
+        # inertia relative to world origin
+        rkInertia = [ [ 0.0 for i in xrange(3) ] for j in xrange(3) ]
+        rkInertia[0][0] = density * (afIntegral[5] + afIntegral[6])
+        rkInertia[0][1] = density * (-afIntegral[7])
+        rkInertia[0][2] = density * (-afIntegral[9])
+        rkInertia[1][0] = rkInertia[0][1]
+        rkInertia[1][1] = density * (afIntegral[4] + afIntegral[6])
+        rkInertia[1][2] = density * (-afIntegral[8])
+        rkInertia[2][0] = rkInertia[0][2]
+        rkInertia[2][1] = rkInertia[1][2]
+        rkInertia[2][2] = density * (afIntegral[4] + afIntegral[5])
+    else:
+        # shape is a 2d surface
+        print "WARNING: shape is too thin to calculate mass"
+        # TODO do something smarter
+        centerx, centery, centerz = [0,0,0]
+        for triangle in triangles:
+            # get vertices
+            for vert in operator.itemgetter(*triangle)(vertices):
+                centerx += vert[0]
+                centery += vert[1]
+                centerz += vert[2]
+        centerx /= 3.0*len(triangles)
+        centery /= 3.0*len(triangles)
+        centerz /= 3.0*len(triangles)
+
+        rfMass = 0
+        rkCenter = ( centerx, centery, centerz )
+        rkInertia = [ [ 0 for i in xrange(3) ] for j in xrange(3) ]
 
     # inertia relative to center of mass
     if bodycoords:
