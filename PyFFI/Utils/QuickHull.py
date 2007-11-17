@@ -181,7 +181,7 @@ def basesimplex3d(vertices, precision = 0.0001):
         # coplanar
         return [ vert0, vert1, vert2 ]
 
-def qhull3d(vertices, precision = 0.0001):
+def qhull3d(vertices, precision = 0.0001, verbose = False):
     """Return the triangles making up the convex hull of C{vertices}.
     Regards distances less than C{precision} to be zero (useful to simplify
     the hull of a complex mesh, at the expense of exactness of the hull).
@@ -216,6 +216,19 @@ def qhull3d(vertices, precision = 0.0001):
     4
     >>> len(triangles)
     4
+
+    Test another polyhedron
+    -----------------------
+
+    >>> poly = [(2,0,0),(0,2,0),(-2,0,0),(0,-2,0),(0,0,2),(0,0,-2)]
+    >>> vertices, triangles = qhull3d(poly)
+    >>> len(vertices)
+    6
+    >>> len(triangles)
+    8
+    >>> for triangle in triangles: # check orientation relative to origin
+    ...     verts = [ vertices[i] for i in triangle ]
+    ...     assert(vecDotProduct(vecCrossProduct(*verts[:2]), verts[2]) == 8)
 
     Test a pyramid
     --------------
@@ -288,6 +301,9 @@ def qhull3d(vertices, precision = 0.0001):
     hull_triangles = set([ operator.itemgetter(i,j,k)(hull_vertices)
                          for i, j, k in ((1,0,2), (0,1,3), (0,3,2), (3,1,2)) ])
 
+    if verbose:
+        print "starting set", hull_vertices
+
     # construct list of outer vertices for each triangle
     outer_vertices = {}
     for triangle in hull_triangles:
@@ -307,6 +323,8 @@ def qhull3d(vertices, precision = 0.0001):
         triangle, outer = outer_vertices.iteritems().next()
         # calculate pivot point
         pivot = max(outer)[1]
+        if verbose:
+            print "pivot", pivot
         # add it to the list of extreme vertices
         hull_vertices.append(pivot)
         # and update the list of triangles:
@@ -318,28 +336,32 @@ def qhull3d(vertices, precision = 0.0001):
                               for othertriangle, visible
                               in izip(outer_vertices.iterkeys(), visibility)
                               if visible ]
-        # and list of all vertices associated with visible triangles
-        visible_outer = reduce(operator.add,
-                               [ [ vert
-                                   for dist, vert
-                                   in outer_vertices[othertriangle] ]
-                                 for othertriangle in visible_triangles ] )
         # 3. find all edges of visible triangles
         visible_edges = reduce(operator.add,
                                [ [ operator.itemgetter(i,j)(visible_triangle)
                                    for i, j in ((0,1),(1,2),(2,0)) ]
                                  for visible_triangle in visible_triangles ],
                                [] )
+        if verbose:
+            print "visible edges", visible_edges
         # 4. construct horizon: edges that are not shared with another triangle
         horizon_edges = [ edge for edge in visible_edges
                           if not tuple(reversed(edge)) in visible_edges ]
         # 5. remove visible triangles from list
         # this puts a hole inside the triangle list
+        visible_outer = set(reduce(operator.add,
+                                   ( map(operator.itemgetter(1), outer_verts)
+                                     for outer_verts
+                                     in outer_vertices.itervalues() )))
         for triangle in visible_triangles:
+            if verbose:
+                print "removing", triangle
             hull_triangles.remove(triangle)
             del outer_vertices[triangle]
         # 6. close triangle list by adding cone from horizon to pivot
         # also update the outer triangle list as we go
+        if verbose:
+            print "visible outer vertices to add again", visible_outer
         for edge in horizon_edges:
             newtriangle = edge + ( pivot, )
             newouter = \
@@ -352,6 +374,8 @@ def qhull3d(vertices, precision = 0.0001):
             hull_triangles.add(newtriangle)
             if newouter:
                 outer_vertices[newtriangle] = newouter
+            if verbose:
+                print "adding", newtriangle, newouter
 
     # no triangle has outer vertices anymore
     # so the convex hull is complete!
