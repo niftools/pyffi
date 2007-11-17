@@ -10,6 +10,8 @@ import PyFFI.Bases.Expression
 import PyFFI.Utils
 import PyFFI.Utils.TriStrip
 import PyFFI.Utils.MathUtils
+import PyFFI.Utils.QuickHull
+import PyFFI.Utils.Inertia
 import PyFFI.NIF
 import PyFFI.NIF.NiTriStripsData
 import PyFFI.NIF.NiTriShapeData
