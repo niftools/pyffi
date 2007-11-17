@@ -39,7 +39,7 @@ shapes."""
 # ***** END LICENSE BLOCK *****
 
 import math
-from MathUtils import vecCrossProduct
+from MathUtils import *
 
 # see http://en.wikipedia.org/wiki/List_of_moment_of_inertia_tensors
 
@@ -55,32 +55,26 @@ def getMassInertiaSphere(radius, density = 1):
     mass = density * (4 * math.pi * (radius ** 3)) / 3
     inertia = (2 * mass * (radius ** 2)) / 5
 
-    inertia_matrix = [ [ 0.0 for i in xrange(3) ] for j in xrange(3) ]
-    inertia_matrix[0][0] = inertia
-    inertia_matrix[1][1] = inertia
-    inertia_matrix[2][2] = inertia
-
-    return mass, inertia_matrix
+    return mass, tuple( tuple( (inertia if i == j else 0)
+                               for i in xrange(3) )
+                        for j in xrange(3) )
 
 def getMassInertiaBox(size, density = 1):
     """Return mass and inertia matrix for a box of given size and
     density.
 
-    >>> mass, inertia_matrix = getMassInertiaBox((1.0, 2.0, 3.0), 4.0)
-    >>> mass # doctest: +ELLIPSIS
-    24.0...
-    >>> inertia_matrix[0][0] # doctest: +ELLIPSIS
-    26.0
+    >>> mass, inertia = getMassInertiaBox((1.0, 2.0, 3.0), 4.0)
+    >>> mass
+    24.0
+    >>> inertia
+    ((26.0, 0, 0), (0, 20.0, 0), (0, 0, 10.0))
     """
     assert(len(size) == 3) # debug
-    mass = density * size[0] * size[1] * size[2]
-    tmp = map(lambda dim: mass * (dim ** 2) / 12.0, size)
-    
-    inertia_matrix = [ [ 0.0 for i in xrange(3) ] for j in xrange(3) ]
-    inertia_matrix[0][0] = tmp[1] + tmp[2]
-    inertia_matrix[1][1] = tmp[2] + tmp[0]
-    inertia_matrix[2][2] = tmp[0] + tmp[1]
-    return mass, inertia_matrix
+    mass = density * reduce(operator.mul, size)
+    tmp = tuple(mass * (length ** 2) / 12.0 for length in size)
+    return mass, ( ( tmp[1] + tmp[2], 0, 0 ),
+                   ( 0, tmp[2] + tmp[0], 0 ),
+                   ( 0, 0, tmp[0] + tmp[1] ) )
 
 def getMassInertiaCapsule(length, radius, density = 1):
     # cylinder + caps, and caps have volume of a sphere
@@ -89,35 +83,127 @@ def getMassInertiaCapsule(length, radius, density = 1):
 
     # approximate by cylinder
     # TODO: also include the caps into the inertia matrix
-    inertia_matrix = [ [ 0.0 for i in xrange(3) ] for j in xrange(3) ]
-    inertia_matrix[0][0] = mass * (3 * (radius ** 2) + (length ** 2)) / 12.0
-    inertia_matrix[1][1] = inertia_matrix[0][0]
-    inertia_matrix[2][2] = 0.5 * mass * (radius ** 2)
+    inertia_xx = mass * (3 * (radius ** 2) + (length ** 2)) / 12.0
+    inertia_yy = inertia_matrix[0][0]
+    inertia_zz = 0.5 * mass * (radius ** 2)
 
-    return mass, inertia_matrix
+    return mass,  ( ( inertia_xx, 0, 0 ),
+                    ( 0, inertia_yy, 0 ),
+                    ( 0, 0, inertia_zz ) )
 
-# ported from
+# references:
+#
+# Jonathan Blow, Atman J Binstock
+# "How to find the inertia tensor (or other mass properties) of a 3D solid body represented by a triangle mesh"
+# http://number-none.com/blow/inertia/bb_inertia.doc
+#
+# David Eberly
+# "Polyhedral Mass Properties (Revisited)"
 # http://www.geometrictools.com//LibPhysics/RigidBody/Wm4PolyhedralMassProperties.cpp
-
 def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1,
-                                   bodycoords = False):
+                                   bodycoords = True):
     """Return mass, center of gravity, and inertia matrix for a polyhedron.
 
     >>> import QuickHull
     >>> box = [(0,0,0),(1,0,0),(0,2,0),(0,0,3),(1,2,0),(0,2,3),(1,0,3),(1,2,3)]
     >>> vertices, triangles = QuickHull.qhull3d(box)
-    >>> getMassCenterInertiaPolyhedron(
-    ...     box, triangles, density = 4)"""
+    >>> mass, center, inertia = getMassCenterInertiaPolyhedron(
+    ...     vertices, triangles, density = 4)
+    >>> mass
+    24.0
+    >>> center
+    (0.5, 1.0, 1.5)
+    >>> inertia
+    ((26.0, 0.0, 0.0), (0.0, 20.0, 0.0), (0.0, 0.0, 10.0))
+    >>> sphere = []
+    >>> for i in xrange(0, 50):
+    ...     theta = i * 2 * math.pi / 50
+    ...     s, c = math.sin(theta), math.cos(theta)
+    ...     for j in xrange(1, 50):
+    ...         h = j / 25.0 - 1.0
+    ...         sphere.append((2*s, 2*c, 2*h)) # construct sphere of radius 2
+    >>> sphere.append((0,0,2))
+    >>> sphere.append((0,0,-2))
+    >>> vertices, triangles = QuickHull.qhull3d(sphere)
+    >>> mass, center, inertia = getMassCenterInertiaPolyhedron(
+    ...     vertices, triangles, density = 3)
+    >>> mass
+    100.53096...
+    >>> sum(abs(x) for x in center) < 0.01 # is center at origin?
+    True
+    >>> inertia[0][0]
+    160.84954...
+    """
+
+    ## Blow and Binstock's method
+
+##    # covariance matrix of the canonical tetrahedron
+##    # (0,0,0),(1,0,0),(0,1,0),(0,0,1)
+##    covariance_canonical = ( (1/60.0 , 1/120.0, 1/120.0 ),
+##                             (1/120.0, 1/60.0 , 1/120.0 ),
+##                             (1/120.0, 1/120.0, 1/60.0  ) )
+##
+##    covariances = []
+##    masses = []
+##    centers = []
+##
+##    # for each triangle
+##    # construct a tetrahedron from triangle + (0,0,0)
+##    # find its matrix, mass, and center
+##    # and update the matrix accordingly
+##    for triangle in triangles:
+##        # get vertices
+##        vert0, vert1, vert2 = operator.itemgetter(*triangle)(vertices)
+##
+##        # construct a transform matrix that converts the canonical tetrahedron
+##        # into (0,0,0),vert0,vert1,vert2
+##        transform_transposed = ( vert0, vert1, vert2 )
+##        transform = matTransposed(transform_transposed)
+##
+##        # we shall be needing the determinant more than once, so
+##        # precalculate it
+##        determinant = matDeterminant(transform)
+##
+##        # find the covariance matrix of the transformed tetrahedron
+##        covariances.append(
+##            matscalarMul(
+##                reduce(matMul,
+##                       (transform, covariance_canonical, transform_transposed)),
+##                determinant))
+##
+##        # find mass
+##        masses.append(determinant / 6.0) # assume density = 1, fixed below
+##
+##        # find center of gravity of the tetrahedron
+##        centers.append(tuple( 0.25 * sum(vert[i]
+##                                         for vert in (vert0, vert1, vert2))
+##                              for i in xrange(3) ))
+##        print transform_transposed, centers[-1], masses[-1]
+##
+##    # accumulate the results
+##    total_covariance = reduce(matAdd, covariances)
+##    total_mass = density * sum(masses) # now take into account the density
+##    total_center = reduce(vecAdd, ( vecscalarMul(center, mass / total_mass)
+##                                    for center, mass
+##                                    in izip(centers, masses)))
+##
+##    # translate covariance to center of gravity
+##    ...
+##    # convert covariance matrix into inertia tensor
+##    ...
+##    #return total_mass, total_center, total_inertia
+
+    ## Eberly's method (very optimized hence faster than above method
+    ## although quite a bit harder to understand):
+
     # order:  1, x, y, z, x^2, y^2, z^2, xy, yz, zx
-    afIntergral = [ 0.0 for i in xrange(10) ]
+    afIntegral = [ 0.0 for i in xrange(10) ]
 
     for idx0, idx1, idx2 in triangles:
         # get the vertices of the current triangle
         kV0, kV1, kV2 = vertices[idx0], vertices[idx1], vertices[idx2]
-        # get cross product of edges
-        kV1mV0 = map(operator.sub, kV1, kV0)
-        kV2mV0 = map(operator.sub, kV2, kV0)
-        kN = vecCrossProduct3d(kV1mV0, kV2mV0)
+        # get normal of the triangle
+        kN = vecNormal(kV0, kV1, kV2)
 
         # compute integral terms
         fTmp0 = kV0[0] + kV1[0]
@@ -177,7 +263,9 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1,
     rfMass = density * afIntegral[0]
 
     # center of mass
-    rkCenter = (afIntegral[1],afIntegral[2],afIntegral[3])
+    rkCenter = (afIntegral[1] / afIntegral[0],
+                afIntegral[2] / afIntegral[0],
+                afIntegral[3] / afIntegral[0])
 
     # inertia relative to world origin
     rkInertia = [ [ 0.0 for i in xrange(3) ] for j in xrange(3) ]
@@ -206,7 +294,7 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1,
         rkInertia[2][2] -= rfMass*(rkCenter[0]*rkCenter[0]
                                    + rkCenter[1]*rkCenter[1])
 
-    return rfMass, rkCenter, rkInertia
+    return rfMass, rkCenter, tuple(tuple(x for x in row) for row in rkInertia)
 
 if __name__ == "__main__":
     import doctest
