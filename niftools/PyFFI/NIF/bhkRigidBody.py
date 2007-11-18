@@ -44,6 +44,19 @@ def applyScale(self, scale):
     self.center.y *= scale
     self.center.z *= scale
 
+    self.inertia[0] *= (scale ** 2)
+    self.inertia[1] *= (scale ** 2)
+    self.inertia[2] *= (scale ** 2)
+    self.inertia[3] *= (scale ** 2)
+    self.inertia[4] *= (scale ** 2)
+    self.inertia[5] *= (scale ** 2)
+    self.inertia[6] *= (scale ** 2)
+    self.inertia[7] *= (scale ** 2)
+    self.inertia[8] *= (scale ** 2)
+    self.inertia[9] *= (scale ** 2)
+    self.inertia[10] *= (scale ** 2)
+    self.inertia[11] *= (scale ** 2)
+
     # apply scale on all blocks down the hierarchy
     self.cls.NiObject.applyScale(self, scale)
 
