@@ -17,6 +17,11 @@ def testBlock(block, **args):
     if mass != block.mass:
         #raise ValueError("center does not match; original %s, calculated %s"%(center, block.center))
         print("warning: mass does not match; original %s, calculated %s"%(mass, block.mass))
+        # adapt calculated inertia matrix with observed mass
+        if mass > 0.001:
+            correction = mass / block.mass
+            for i in xrange(12):
+                block.inertia[i] *= correction
     else:
         print "perfect match!"
 
@@ -28,8 +33,10 @@ def testBlock(block, **args):
         print "perfect match!"
 
     print "checking inertia..."
-    if sum(abs(x - y) for x, y in zip(inertia, block.inertia)) > 0.01:
+
+    scale = max(abs(x) for x in inertia + [ y for y in block.inertia ])
+    if max(abs(x - y) for x, y in zip(inertia, block.inertia)) > 0.1 * scale:
         #raise ValueError("center does not match; original %s, calculated %s"%(center, block.center))
-        print("warning: inertia does not match; original\n%s, calculated\n%s"%(inertia, [x for x in block.inertia]))
+        print("warning: inertia does not match:\n\noriginal\n%s\n\ncalculated\n%s\n"%(inertia, [x for x in block.inertia]))
     else:
         print "perfect match!"
