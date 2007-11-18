@@ -56,7 +56,7 @@ def getMassCenterInertia(self, density = 1):
     # get transform matrix and translation vector
     transform = self.transform.getMatrix33().asTuple()
     transform_transposed = matTransposed(transform)
-    translation = self.transform.getTranslation().asTuple()
+    translation = ( self.transform.m14, self.transform.m24, self.transform.m34 )
     # transform center and inertia
     center = matvecMul(transform, center)
     center = vecAdd(center, translation)
