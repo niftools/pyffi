@@ -36,6 +36,15 @@ shapes."""
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
+# The function getMassCenterInertiaPolyhedron was ported from Wild Magic 4.6
+# and the code of that function is therefore covered by the GNU Lesser General
+# Public License 2.1 (see http://www.gnu.org/licenses/lgpl-2.1.html)
+# The source on which this function was based can be found in the
+# Wm4PolyhedralMassProperties.cpp file of Wild Magic 4.6
+# This port was done during November 2007.
+# Wild Magic is hosted at http://www.geometrictools.com where you can also
+# download the original source.
+#
 # ***** END LICENSE BLOCK *****
 
 import math
@@ -91,7 +100,9 @@ def getMassInertiaCapsule(length, radius, density = 1):
                     ( 0, inertia_yy, 0 ),
                     ( 0, 0, inertia_zz ) )
 
-# references:
+#
+# References
+# ----------
 #
 # Jonathan Blow, Atman J Binstock
 # "How to find the inertia tensor (or other mass properties) of a 3D solid body represented by a triangle mesh"
@@ -99,7 +110,13 @@ def getMassInertiaCapsule(length, radius, density = 1):
 #
 # David Eberly
 # "Polyhedral Mass Properties (Revisited)"
+# http://www.geometrictools.com//LibPhysics/RigidBody/Wm4PolyhedralMassProperties.pdf
+#
+# Note that the code in the getMassCenterInertiaPolyhedron function is based on
 # http://www.geometrictools.com//LibPhysics/RigidBody/Wm4PolyhedralMassProperties.cpp
+# from Wild Magic 4.6, and therefore the source code of this function is covered
+# by the GNU Lesser General Public License 2.1
+#
 def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1,
                                    bodycoords = True):
     """Return mass, center of gravity, and inertia matrix for a polyhedron.
@@ -115,7 +132,6 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1,
     (0.5, 1.0, 1.5)
     >>> inertia
     ((26.0, 0.0, 0.0), (0.0, 20.0, 0.0), (0.0, 0.0, 10.0))
-    >>> import QuickHull
     >>> poly = [(3,0,0),(0,3,0),(-3,0,0),(0,-3,0),(0,0,3),(0,0,-3)] # very rough approximation of a sphere of radius 2
     >>> vertices, triangles = QuickHull.qhull3d(poly)
     >>> mass, center, inertia = getMassCenterInertiaPolyhedron(
@@ -158,73 +174,6 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1,
     >>> abs(inertia[0][0] - 160.84) < 10
     True
     """
-
-    ## Blow and Binstock's method
-
-##    # covariance matrix of the canonical tetrahedron
-##    # (0,0,0),(1,0,0),(0,1,0),(0,0,1)
-##    covariance_canonical = ( (1/60.0 , 1/120.0, 1/120.0 ),
-##                             (1/120.0, 1/60.0 , 1/120.0 ),
-##                             (1/120.0, 1/120.0, 1/60.0  ) )
-##
-##    covariances = []
-##    masses = []
-##    centers = []
-##
-##    # for each triangle
-##    # construct a tetrahedron from triangle + (0,0,0)
-##    # find its matrix, mass, and center
-##    # and update the matrix accordingly
-##    for triangle in triangles:
-##        # get vertices
-##        vert0, vert1, vert2 = operator.itemgetter(*triangle)(vertices)
-##
-##        # construct a transform matrix that converts the canonical tetrahedron
-##        # into (0,0,0),vert0,vert1,vert2
-##        transform_transposed = ( vert0, vert1, vert2 )
-##        transform = matTransposed(transform_transposed)
-##
-##        # we shall be needing the determinant more than once, so
-##        # precalculate it
-##        determinant = matDeterminant(transform)
-##
-##        # find the covariance matrix of the transformed tetrahedron
-##        covariances.append(
-##            matscalarMul(
-##                reduce(matMul,
-##                       (transform, covariance_canonical, transform_transposed)),
-##                determinant))
-##
-##        # find mass
-##        masses.append(density * determinant / 6.0)
-##
-##        # find center of gravity of the tetrahedron
-##        centers.append(tuple( 0.25 * sum(vert[i]
-##                                         for vert in (vert0, vert1, vert2))
-##                              for i in xrange(3) ))
-##
-##    # accumulate the results
-##    total_covariance = reduce(matAdd, covariances)
-##    total_mass = sum(masses)
-##    total_center = reduce(vecAdd, ( vecscalarMul(center, mass / total_mass)
-##                                    for center, mass
-##                                    in izip(centers, masses)))
-##
-##    # translate covariance to center of gravity
-##    # TODO
-##    
-##    # convert covariance matrix into inertia tensor
-##
-##    trace = sum(total_covariance[i][i] for i in xrange(3))
-##    trace_matrix = tuple(tuple((trace if i == j else 0)
-##                               for i in xrange(3))
-##                         for j in xrange(3))
-##    total_inertia = matscalarMul(matSub(trace_matrix, total_covariance), density)
-##
-##    return total_mass, total_center, total_inertia
-
-    ## Eberly's method (very optimized hence faster than above method
-    ## although quite a bit harder to understand):
 
     # order:  1, x, y, z, x^2, y^2, z^2, xy, yz, zx
     afIntegral = [ 0.0 for i in xrange(10) ]
