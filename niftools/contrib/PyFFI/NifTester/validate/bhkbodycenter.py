@@ -11,7 +11,7 @@ def testBlock(block, **args):
     inertia = [ x for x in block.inertia ]
 
     print "recalculating..."
-    block.updateMassCenterInertia(density = 1)
+    block.updateMassCenterInertia(mass = block.mass)
 
     print "checking mass..."
     if mass != block.mass:
