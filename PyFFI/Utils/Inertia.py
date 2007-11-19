@@ -36,15 +36,6 @@ shapes."""
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-# The function getMassCenterInertiaPolyhedron was ported from Wild Magic 4.6
-# and the code of that function is therefore covered by the GNU Lesser General
-# Public License 2.1 (see http://www.gnu.org/licenses/lgpl-2.1.html)
-# The source on which this function was based can be found in the
-# Wm4PolyhedralMassProperties.cpp file of Wild Magic 4.6
-# This port was done during November 2007.
-# Wild Magic is hosted at http://www.geometrictools.com where you can also
-# download the original source.
-#
 # ***** END LICENSE BLOCK *****
 
 import math
@@ -112,13 +103,8 @@ def getMassInertiaCapsule(length, radius, density = 1):
 # "Polyhedral Mass Properties (Revisited)"
 # http://www.geometrictools.com//LibPhysics/RigidBody/Wm4PolyhedralMassProperties.pdf
 #
-# Note that the code in the getMassCenterInertiaPolyhedron function is based on
-# http://www.geometrictools.com//LibPhysics/RigidBody/Wm4PolyhedralMassProperties.cpp
-# from Wild Magic 4.6, and therefore the source code of this function is covered
-# by the GNU Lesser General Public License 2.1
-#
-def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1,
-                                   bodycoords = True):
+# The function is an implementation of the Blow and Binstock algorithm
+def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1):
     """Return mass, center of gravity, and inertia matrix for a polyhedron.
 
     >>> import QuickHull
@@ -175,124 +161,84 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1,
     True
     """
 
-    # order:  1, x, y, z, x^2, y^2, z^2, xy, yz, zx
-    afIntegral = [ 0.0 for i in xrange(10) ]
+    # 120 times the covariance matrix of the canonical tetrahedron
+    # (0,0,0),(1,0,0),(0,1,0),(0,0,1)
+    covariance_canonical_120 = ( (2, 1, 1),
+                                 (1, 2, 1),
+                                 (1, 1, 2) )
 
-    for idx0, idx1, idx2 in triangles:
-        # get the vertices of the current triangle
-        kV0, kV1, kV2 = vertices[idx0], vertices[idx1], vertices[idx2]
-        # get normal of the triangle
-        kN = vecNormal(kV0, kV1, kV2)
+    covariances_120 = []
+    masses = []
+    centers = []
 
-        # compute integral terms
-        fTmp0 = kV0[0] + kV1[0]
-        fF1x = fTmp0 + kV2[0]
-        fTmp1 = kV0[0]*kV0[0]
-        fTmp2 = fTmp1 + kV1[0]*fTmp0
-        fF2x = fTmp2 + kV2[0]*fF1x
-        fF3x = kV0[0]*fTmp1 + kV1[0]*fTmp2 + kV2[0]*fF2x
-        fG0x = fF2x + kV0[0]*(fF1x + kV0[0])
-        fG1x = fF2x + kV1[0]*(fF1x + kV1[0])
-        fG2x = fF2x + kV2[0]*(fF1x + kV2[0])
+    # for each triangle
+    # construct a tetrahedron from triangle + (0,0,0)
+    # find its matrix, mass, and center (for density = 1, will be corrected at
+    # the end of the algorithm)
+    for triangle in triangles:
+        # get vertices
+        vert0, vert1, vert2 = operator.itemgetter(*triangle)(vertices)
 
-        fTmp0 = kV0[1] + kV1[1]
-        fF1y = fTmp0 + kV2[1]
-        fTmp1 = kV0[1]*kV0[1]
-        fTmp2 = fTmp1 + kV1[1]*fTmp0
-        fF2y = fTmp2 + kV2[1]*fF1y
-        fF3y = kV0[1]*fTmp1 + kV1[1]*fTmp2 + kV2[1]*fF2y
-        fG0y = fF2y + kV0[1]*(fF1y + kV0[1])
-        fG1y = fF2y + kV1[1]*(fF1y + kV1[1])
-        fG2y = fF2y + kV2[1]*(fF1y + kV2[1])
+        # construct a transform matrix that converts the canonical tetrahedron
+        # into (0,0,0),vert0,vert1,vert2
+        transform_transposed = ( vert0, vert1, vert2 )
+        transform = matTransposed(transform_transposed)
 
-        fTmp0 = kV0[2] + kV1[2]
-        fF1z = fTmp0 + kV2[2]
-        fTmp1 = kV0[2]*kV0[2]
-        fTmp2 = fTmp1 + kV1[2]*fTmp0
-        fF2z = fTmp2 + kV2[2]*fF1z
-        fF3z = kV0[2]*fTmp1 + kV1[2]*fTmp2 + kV2[2]*fF2z
-        fG0z = fF2z + kV0[2]*(fF1z + kV0[2])
-        fG1z = fF2z + kV1[2]*(fF1z + kV1[2])
-        fG2z = fF2z + kV2[2]*(fF1z + kV2[2])
+        # we shall be needing the determinant more than once, so
+        # precalculate it
+        determinant = matDeterminant(transform)
 
-        # update integrals
-        afIntegral[0] += kN[0]*fF1x
-        afIntegral[1] += kN[0]*fF2x
-        afIntegral[2] += kN[1]*fF2y
-        afIntegral[3] += kN[2]*fF2z
-        afIntegral[4] += kN[0]*fF3x
-        afIntegral[5] += kN[1]*fF3y
-        afIntegral[6] += kN[2]*fF3z
-        afIntegral[7] += kN[0]*(kV0[1]*fG0x + kV1[1]*fG1x + kV2[1]*fG2x)
-        afIntegral[8] += kN[1]*(kV0[2]*fG0y + kV1[2]*fG1y + kV2[2]*fG2y)
-        afIntegral[9] += kN[2]*(kV0[0]*fG0z + kV1[0]*fG1z + kV2[0]*fG2z)
+        # find 120 times the covariance matrix of the transformed tetrahedron
+        # C' = det(A) * A * C * A^T
+        covariances_120.append(
+            matscalarMul(
+                reduce(matMul,
+                       (transform,
+                        covariance_canonical_120,
+                        transform_transposed)),
+                determinant))
 
-    afIntegral[0] /= 6.0
-    afIntegral[1] /= 24.0
-    afIntegral[2] /= 24.0
-    afIntegral[3] /= 24.0
-    afIntegral[4] /= 60.0
-    afIntegral[5] /= 60.0
-    afIntegral[6] /= 60.0
-    afIntegral[7] /= 120.0
-    afIntegral[8] /= 120.0
-    afIntegral[9] /= 120.0
+        # find mass
+        # m = det(A)
+        masses.append(determinant / 6.0)
 
-    if afIntegral[0] > 0.00001:
-        # mass
-        rfMass = density * afIntegral[0]
+        # find center of gravity of the tetrahedron
+        centers.append(tuple( 0.25 * sum(vert[i]
+                                         for vert in (vert0, vert1, vert2))
+                              for i in xrange(3) ))
 
-        # center of mass
-        rkCenter = (afIntegral[1] / afIntegral[0],
-                    afIntegral[2] / afIntegral[0],
-                    afIntegral[3] / afIntegral[0])
+    # accumulate the results and correct the covariance scale
+    total_covariance = reduce(matAdd, covariances_120)
+    total_covariance = matscalarMul(total_covariance, 1/120.0)
+    total_mass = sum(masses)
+    if total_mass < 0.0001:
+        # shape is too thin
+        print "WARNING: shape has almost zero mass"
+        return 0, (0,0,0), tuple(tuple(0 for i in xrange(3))
+                                  for j in xrange(3))
+    total_center = reduce(vecAdd, ( vecscalarMul(center, mass / total_mass)
+                                    for center, mass
+                                    in izip(centers, masses)))
 
-        # inertia relative to world origin
-        rkInertia = [ [ 0.0 for i in xrange(3) ] for j in xrange(3) ]
-        rkInertia[0][0] = density * (afIntegral[5] + afIntegral[6])
-        rkInertia[0][1] = density * (-afIntegral[7])
-        rkInertia[0][2] = density * (-afIntegral[9])
-        rkInertia[1][0] = rkInertia[0][1]
-        rkInertia[1][1] = density * (afIntegral[4] + afIntegral[6])
-        rkInertia[1][2] = density * (-afIntegral[8])
-        rkInertia[2][0] = rkInertia[0][2]
-        rkInertia[2][1] = rkInertia[1][2]
-        rkInertia[2][2] = density * (afIntegral[4] + afIntegral[5])
-    else:
-        # shape is a 2d surface
-        print "WARNING: shape is too thin to calculate mass"
-        # TODO do something smarter
-        centerx, centery, centerz = [0,0,0]
-        for triangle in triangles:
-            # get vertices
-            for vert in operator.itemgetter(*triangle)(vertices):
-                centerx += vert[0]
-                centery += vert[1]
-                centerz += vert[2]
-        centerx /= 3.0*len(triangles)
-        centery /= 3.0*len(triangles)
-        centerz /= 3.0*len(triangles)
+    # translate covariance to center of gravity:
+    # C' = C - m * ( x dx^T + dx x^T + dx dx^T )
+    # with x the translation vector and dx the center of gravity
+    translate_correction = matscalarMul(tuple(tuple(x * y
+                                                    for x in total_center)
+                                              for y in total_center),
+                                        total_mass)
+    total_covariance = matSub(total_covariance, translate_correction)
+    
+    # convert covariance matrix into inertia tensor
+    trace = sum(total_covariance[i][i] for i in xrange(3))
+    trace_matrix = tuple(tuple((trace if i == j else 0)
+                               for i in xrange(3))
+                         for j in xrange(3))
+    total_inertia = matSub(trace_matrix, total_covariance)
 
-        rfMass = 0
-        rkCenter = ( centerx, centery, centerz )
-        rkInertia = [ [ 0 for i in xrange(3) ] for j in xrange(3) ]
-
-    # inertia relative to center of mass
-    if bodycoords:
-        rkInertia[0][0] -= rfMass*(rkCenter[1]*rkCenter[1]
-                                   + rkCenter[2]*rkCenter[2])
-        rkInertia[0][1] += rfMass*rkCenter[0]*rkCenter[1]
-        rkInertia[0][2] += rfMass*rkCenter[2]*rkCenter[0]
-        rkInertia[1][0] = rkInertia[0][1]
-        rkInertia[1][1] -= rfMass*(rkCenter[2]*rkCenter[2]
-                                   + rkCenter[0]*rkCenter[0])
-        rkInertia[1][2] += rfMass*rkCenter[1]*rkCenter[2]
-        rkInertia[2][0] = rkInertia[0][2]
-        rkInertia[2][1] = rkInertia[1][2]
-        rkInertia[2][2] -= rfMass*(rkCenter[0]*rkCenter[0]
-                                   + rkCenter[1]*rkCenter[1])
-
-    return rfMass, rkCenter, tuple(tuple(x for x in row) for row in rkInertia)
+    # correct for given density
+    total_inertia = matscalarMul(total_inertia, density)
+    total_mass *= density
 
 if __name__ == "__main__":
     import doctest
