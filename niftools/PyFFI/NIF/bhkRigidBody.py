@@ -86,7 +86,7 @@ def updateMassCenterInertia(self, density = 1, solid = True, mass = None):
     self.inertia[11] = 0
 
     if not mass is None:
-        mass_correction = mass / calc_mass
+        mass_correction = mass / calc_mass if calc_mass != 0 else 1
         self.mass = mass
         self.inertia[0] *= mass_correction
         self.inertia[1] *= mass_correction
