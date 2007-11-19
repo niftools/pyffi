@@ -56,7 +56,7 @@ def getMassInertiaSphere(radius, density = 1, solid = True):
         mass = density * (4 * math.pi * (radius ** 3)) / 3
         inertia = (2 * mass * (radius ** 2)) / 5
     else:
-        mass = density * 4 * math/pi * (radius ** 2)
+        mass = density * 4 * math.pi * (radius ** 2)
         inertia = (2 * mass * (radius ** 2)) / 3
 
     return mass, tuple( tuple( (inertia if i == j else 0)
