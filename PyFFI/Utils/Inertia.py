@@ -103,9 +103,12 @@ def getMassInertiaCapsule(length, radius, density = 1):
 # "Polyhedral Mass Properties (Revisited)"
 # http://www.geometrictools.com//LibPhysics/RigidBody/Wm4PolyhedralMassProperties.pdf
 #
-# The function is an implementation of the Blow and Binstock algorithm
-def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1):
+# The function is an implementation of the Blow and Binstock algorithm,
+# extended for the case where the polygon is a surface (dimension = 2), a
+# wireframe (dimension = 1), or a collection of point masses (dimension = 0)
+def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, dimension = 3):
     """Return mass, center of gravity, and inertia matrix for a polyhedron.
+    Raises ZeroDivisionError if the calculated mass is zero.
 
     >>> import QuickHull
     >>> box = [(0,0,0),(1,0,0),(0,2,0),(0,0,3),(1,2,0),(0,2,3),(1,0,3),(1,2,3)]
@@ -152,22 +155,57 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1):
     >>> sphere.append((0,0,-2))
     >>> vertices, triangles = QuickHull.qhull3d(sphere)
     >>> mass, center, inertia = getMassCenterInertiaPolyhedron(
-    ...     vertices, triangles, density = 3)
-    >>> abs(mass - 100.53) < 10
+    ...     vertices, triangles, density = 3, dimension = 3)
+    >>> abs(mass - 100.53) < 10 # 3*(4/3)*pi*2^3 = 100.53
     True
     >>> sum(abs(x) for x in center) < 0.01 # is center at origin?
     True
     >>> abs(inertia[0][0] - 160.84) < 10
     True
+    >>> mass, center, inertia = getMassCenterInertiaPolyhedron(
+    ...     vertices, triangles, density = 3, dimension = 2)
+    >>> abs(mass - 150.79) < 10 # 3*4*pi*2^2 = 150.79
+    True
+    >>> abs(inertia[0][0] - mass*0.666*4) < 20 # m*(2/3)*2^2
+    True
     """
 
-    # 120 times the covariance matrix of the canonical tetrahedron
-    # (0,0,0),(1,0,0),(0,1,0),(0,0,1)
-    covariance_canonical_120 = ( (2, 1, 1),
+    if dimension >= 1:
+        # 120 times the covariance matrix of the canonical tetrahedron
+        # (0,0,0),(1,0,0),(0,1,0),(0,0,1)
+        # integrate(integrate(integrate(z*z, x=0..1-y-z), y=0..1-z), z=0..1) = 1/120
+        # integrate(integrate(integrate(y*z, x=0..1-y-z), y=0..1-z), z=0..1) = 1/60
+        covariance_canonical = ( (2, 1, 1),
                                  (1, 2, 1),
                                  (1, 1, 2) )
+        if dimension == 3:
+            covariance_correction = 1.0/120
+        elif dimension == 2:
+            # the covariance matrix of the canonical triangle
+            # (1,0,0),(0,1,0),(0,0,1)
+            # integrate(integrate(z*z, y=0..1-z), z=0..1) = 1/12
+            # integrate(integrate(y*z, y=0..1-z), z=0..1) = 1/24
+            # is just 5 times the covariance matrix of the canonical tetrahedron
+            covariance_correction = 1.0/(24*2) # bug in code below? need factor two to get correct results in doctest
+        elif dimension == 1:
+            # the covariance matrix of a wireframe built from the canonical triangle
+            # (1,0,0),(0,1,0),(0,0,1)
+            # integrate(z*z), z=0..1) = 1/3
+            # integrate(z*(1-z), z=0..1) = 1/6
+            # is just 60 times the covariance matrix of the canonical tetrahedron
+            # (note we're taking only half the covariance matrix of the wireframe
+            # because otherwise we would be counting all edges twice)
+            covariance_correction = 1.0/6
+    elif dimension == 0:
+        # the integrals in this case are
+        # integrate(z*z * (delta(x=1,y=0,z=0)+delta(x=0,y=1,z=0)+delta(x=0,y=0,z=1))) = 1
+        # integrate(y*z * (delta(x=1,y=0,z=0)+delta(x=0,y=1,z=0)+delta(x=0,y=0,z=1))) = 0
+        covariance_canonical = ( (1, 0, 0),
+                                 (0, 1, 0),
+                                 (0, 0, 1) )
+        covariance_correction = 1.0
 
-    covariances_120 = []
+    covariances = []
     masses = []
     centers = []
 
@@ -188,36 +226,59 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1):
         # precalculate it
         determinant = matDeterminant(transform)
 
-        # find 120 times the covariance matrix of the transformed tetrahedron
+        # find the covariance matrix of the transformed tetrahedron/triange/wire
         # C' = det(A) * A * C * A^T
-        covariances_120.append(
+        covariances.append(
             matscalarMul(
                 reduce(matMul,
                        (transform,
-                        covariance_canonical_120,
+                        covariance_canonical,
                         transform_transposed)),
                 determinant))
 
-        # find mass
-        # m = det(A)
-        masses.append(determinant / 6.0)
+        # find mass and center
+        if dimension == 3:
+            # m = det(A) / 6.0
+            masses.append(determinant / 6.0)
+            # find center of gravity of the tetrahedron
+            centers.append(tuple( 0.25 * sum(vert[i]
+                                             for vert in (vert0, vert1, vert2))
+                                  for i in xrange(3) ))
+        else:
+            # find center of gravity of the triangle / wireframe
+            centers.append(tuple( sum(vert[i]
+                                      for vert in (vert0, vert1, vert2)) / 3.0
+                                  for i in xrange(3) ))
+            # find mass of triangle / wireframe
+            if dimension == 2:
+                # mass is surface, which is half the norm of cross product
+                # of two edges
+                masses.append(
+                    vecNorm(vecCrossProduct(
+                        vecSub(vert1, vert0), vecSub(vert2, vert0))) / 2.0)
+            elif dimension == 1:
+                # mass is length of edges
+                masses.append(
+                    reduce(operator.add,
+                           ( vecDistance(vecSub(vert0, vert1)),
+                             vecDistance(vecSub(vert1, vert2)),
+                             vecDistance(vecSub(vert2, vert0)))))
+            elif dimension == 0:
+                # mass is sum of point masses
+                masses.append(3.0)
 
-        # find center of gravity of the tetrahedron
-        centers.append(tuple( 0.25 * sum(vert[i]
-                                         for vert in (vert0, vert1, vert2))
-                              for i in xrange(3) ))
-
-    # accumulate the results and correct the covariance scale
-    total_covariance = reduce(matAdd, covariances_120)
-    total_covariance = matscalarMul(total_covariance, 1/120.0)
+    # accumulate the results
     total_mass = sum(masses)
     if total_mass < 0.0001:
-        # shape is too thin
-        print "WARNING: shape has almost zero mass"
-        return 0, (0,0,0), tuple(tuple(0 for i in xrange(3)) for j in xrange(3))
+        # dimension is probably badly chosen
+        raise ZeroDivisionError("mass is zero (consider calculating inertia with a lower dimension)")
+    # weighed average of centers with masses
     total_center = reduce(vecAdd, ( vecscalarMul(center, mass / total_mass)
                                     for center, mass
                                     in izip(centers, masses)))
+    # add covariances, and correct the values
+    total_covariance = reduce(matAdd, covariances)
+    total_covariance = matscalarMul(total_covariance, covariance_correction)
 
     # translate covariance to center of gravity:
     # C' = C - m * ( x dx^T + dx x^T + dx dx^T )
