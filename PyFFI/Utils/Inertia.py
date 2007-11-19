@@ -191,15 +191,7 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, solid = Tru
     covariance_canonical = ( (2, 1, 1),
                              (1, 2, 1),
                              (1, 1, 2) )
-    if solid:
-        covariance_correction = 1.0/120
-    else:
-        # the covariance matrix of the canonical triangle
-        # (1,0,0),(0,1,0),(0,0,1)
-        # integrate(integrate(z*z, y=0..1-z), z=0..1) = 1/12
-        # integrate(integrate(y*z, y=0..1-z), z=0..1) = 1/24
-        # is just 5 times the covariance matrix of the canonical tetrahedron
-        covariance_correction = 1.0/(24*2) # bug in code below? need factor two to get correct results in doctest
+    covariance_correction = 1.0/120
 
     covariances = []
     masses = []
@@ -218,22 +210,19 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, solid = Tru
         transform_transposed = ( vert0, vert1, vert2 )
         transform = matTransposed(transform_transposed)
 
-        # we shall be needing the determinant more than once, so
-        # precalculate it
-        determinant = matDeterminant(transform)
-
-        # find the covariance matrix of the transformed tetrahedron/triange/wire
-        # C' = det(A) * A * C * A^T
-        covariances.append(
-            matscalarMul(
-                reduce(matMul,
-                       (transform,
-                        covariance_canonical,
-                        transform_transposed)),
-                determinant))
-
-        # find mass and center
+        # find the covariance matrix of the transformed tetrahedron/triangle
         if solid:
+            # we shall be needing the determinant more than once, so
+            # precalculate it
+            determinant = matDeterminant(transform)
+            # C' = det(A) * A * C * A^T
+            covariances.append(
+                matscalarMul(
+                    reduce(matMul,
+                           (transform,
+                            covariance_canonical,
+                            transform_transposed)),
+                    determinant))
             # m = det(A) / 6.0
             masses.append(determinant / 6.0)
             # find center of gravity of the tetrahedron
@@ -251,6 +240,12 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, solid = Tru
             masses.append(
                 vecNorm(vecCrossProduct(
                     vecSub(vert1, vert0), vecSub(vert2, vert0))) / 2.0)
+            # find covariance at center of this triangle
+            # (this is approximate only as it replaces triangle with point mass
+            # todo: find better way)
+            covariances.append(
+                tuple(tuple( masses[-1]*x*y for x in centers[-1] )
+                      for y in centers[-1]))
 
     # accumulate the results
     total_mass = sum(masses)
@@ -265,7 +260,8 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, solid = Tru
                                     in izip(centers, masses)))
     # add covariances, and correct the values
     total_covariance = reduce(matAdd, covariances)
-    total_covariance = matscalarMul(total_covariance, covariance_correction)
+    if solid:
+        total_covariance = matscalarMul(total_covariance, covariance_correction)
 
     # translate covariance to center of gravity:
     # C' = C - m * ( x dx^T + dx x^T + dx dx^T )
