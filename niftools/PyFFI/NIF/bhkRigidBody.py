@@ -60,12 +60,17 @@ def applyScale(self, scale):
     # apply scale on all blocks down the hierarchy
     self.cls.NiObject.applyScale(self, scale)
 
-def updateMassCenterInertia(self, density = 1, solid = True):
+def updateMassCenterInertia(self, density = 1, solid = True, mass = None):
     """Look at all the objects under this rigid body and update the mass,
-    center of gravity, and inertia tensor accordingly."""
-    mass, center, inertia = self.shape.getMassCenterInertia(density = density,
-                                                            solid = solid)
-    self.mass = mass
+    center of gravity, and inertia tensor accordingly. If the C{mass} parameter
+    is given then the C{density} argument is ignored."""
+    if not mass is None:
+        density = 1
+    
+    calc_mass, center, inertia = self.shape.getMassCenterInertia(
+        density = density, solid = solid)
+
+    self.mass = calc_mass
     self.center.x, self.center.y, self.center.z = center
     self.inertia[0] = inertia[0][0]
     self.inertia[1] = inertia[0][1]
@@ -79,3 +84,19 @@ def updateMassCenterInertia(self, density = 1, solid = True):
     self.inertia[9] = inertia[2][1]
     self.inertia[10] = inertia[2][2]
     self.inertia[11] = 0
+
+    if not mass is None:
+        mass_correction = mass / calc_mass
+        self.mass = mass
+        self.inertia[0] *= mass_correction
+        self.inertia[1] *= mass_correction
+        self.inertia[2] *= mass_correction
+        self.inertia[3] *= mass_correction
+        self.inertia[4] *= mass_correction
+        self.inertia[5] *= mass_correction
+        self.inertia[6] *= mass_correction
+        self.inertia[7] *= mass_correction
+        self.inertia[8] *= mass_correction
+        self.inertia[9] *= mass_correction
+        self.inertia[10] *= mass_correction
+        self.inertia[11] *= mass_correction
