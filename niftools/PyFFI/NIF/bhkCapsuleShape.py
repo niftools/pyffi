@@ -58,14 +58,13 @@ def applyScale(self, scale):
     # apply scale on all blocks down the hierarchy
     self.cls.NiObject.applyScale(self, scale)
 
-def getMassCenterInertia(self, density = 1):
+def getMassCenterInertia(self, density = 1, solid = True):
     """Return mass, center, and inertia tensor."""
     # (assumes self.radius == self.radius1 == self.radius2)
     length = (self.firstPoint - self.secondPoint).norm()
     mass, inertia = Inertia.getMassInertiaCapsule(
-        radius = self.radius,
-        length = length,
-        density = density)
+        radius = self.radius, length = length,
+        density = density, solid = solid)
     # now fix inertia so it is expressed in the right coordinates
     # need a transform that maps (0,0,length/2) on (second - first) / 2
     # and (0,0,-length/2) on (first - second)/2

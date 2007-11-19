@@ -40,13 +40,13 @@
 from PyFFI.Utils.MathUtils import *
 from PyFFI.Utils import Inertia
 
-def getMassCenterInertia(self, density = 1):
+def getMassCenterInertia(self, density = 1, solid = True):
     """Return center of gravity and area."""
     subshapes_mci = [
         (mass, center, inertia)
         for (mass, inertia), center in
         izip( ( Inertia.getMassInertiaSphere(radius = sphere.radius,
-                                             density = density)
+                                             density = density, solid = solid)
                 for sphere in self.spheres ),
               ( sphere.center.asTuple() for sphere in self.spheres ) ) ]
     total_mass = sum(mass for mass, center, inertia in subshapes_mci)

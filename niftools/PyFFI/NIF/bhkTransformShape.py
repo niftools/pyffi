@@ -49,10 +49,11 @@ def applyScale(self, scale):
     # apply scale on all blocks down the hierarchy
     self.cls.NiObject.applyScale(self, scale)
 
-def getMassCenterInertia(self, density = 1):
+def getMassCenterInertia(self, density = 1, solid = True):
     """Return mass, center, and inertia tensor."""
     # get shape mass, center, and inertia
-    mass, center, inertia = self.shape.getMassCenterInertia(density = density)
+    mass, center, inertia = self.shape.getMassCenterInertia(density = density,
+                                                            solid = solid)
     # get transform matrix and translation vector
     transform = self.transform.getMatrix33().asTuple()
     transform_transposed = matTransposed(transform)

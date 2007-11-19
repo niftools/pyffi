@@ -40,7 +40,7 @@
 from PyFFI.Utils import Inertia
 from PyFFI.Utils.MathUtils import *
 
-def getMassCenterInertia(self, density = 1):
+def getMassCenterInertia(self, density = 1, solid = True):
     """Return mass, center, and inertia tensor."""
     # first find mass, center, and inertia of all shapes
     subshapes_mci = []
@@ -49,7 +49,7 @@ def getMassCenterInertia(self, density = 1):
             Inertia.getMassCenterInertiaPolyhedron(
                 [ vert.asTuple() for vert in data.vertices ],
                 [ triangle for triangle in data.getTriangles() ],
-                density = density))
+                density = density, solid = solid))
 
     # now calculate mass, center, and inertia
     total_mass = sum(mass for mass, center, inertia in subshapes_mci)

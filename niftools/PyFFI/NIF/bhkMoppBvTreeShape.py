@@ -39,9 +39,9 @@
 
 import math # math.ceil
 
-def getMassCenterInertia(self, density = 1):
+def getMassCenterInertia(self, density = 1, solid = True):
     """Return mass, center of gravity, and inertia tensor."""
-    return self.shape.getMassCenterInertia(density = density)
+    return self.shape.getMassCenterInertia(density = density, solid = solid)
 
 def updateOriginScale(self):
     """Update scale and origin."""

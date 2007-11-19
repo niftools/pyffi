@@ -49,10 +49,10 @@ def applyScale(self, scale):
     # apply scale on all blocks down the hierarchy
     self.cls.NiObject.applyScale(self, scale)
 
-def getMassCenterInertia(self, density = 1):
+def getMassCenterInertia(self, density = 1, solid = True):
     """Return mass, center, and inertia tensor."""
     # the dimensions describe half the size of the box in each dimension
     # so the length of a single edge is dimension.dir * 2
     mass, inertia = Inertia.getMassInertiaSphere(
-        self.radius, density = density)
+        self.radius, density = density, solid = solid)
     return mass, (0,0,0), inertia

@@ -39,7 +39,7 @@
 
 from PyFFI.Utils import Inertia
 
-def getMassCenterInertia(self, density = 1):
+def getMassCenterInertia(self, density = 1, solid = True):
     """Return mass, center, and inertia tensor."""
     return Inertia.getMassCenterInertiaPolyhedron(
         [ vert.asTuple() for vert in self.data.vertices ],
@@ -47,7 +47,7 @@ def getMassCenterInertia(self, density = 1):
             hktriangle.triangle.v2,
             hktriangle.triangle.v3 )
           for hktriangle in self.data.triangles ],
-        density = density)
+        density = density, solid = solid)
 
 def addShape(self, triangles, normals, vertices, layer = 0, material = 0):
     """Pack the given geometry."""

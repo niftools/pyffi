@@ -39,9 +39,10 @@
 
 from PyFFI.Utils.MathUtils import *
 
-def getMassCenterInertia(self, density = 1):
+def getMassCenterInertia(self, density = 1, solid = True):
     """Return center of gravity and area."""
-    subshapes_mci = [ subshape.getMassCenterInertia(density = density)
+    subshapes_mci = [ subshape.getMassCenterInertia(density = density,
+                                                    solid = solid)
                       for subshape in self.subShapes ]
     total_mass = sum(mass for mass, center, inertia in subshapes_mci)
     total_center = reduce(vecAdd,
