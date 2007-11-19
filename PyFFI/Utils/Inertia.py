@@ -214,8 +214,7 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1):
     if total_mass < 0.0001:
         # shape is too thin
         print "WARNING: shape has almost zero mass"
-        return 0, (0,0,0), tuple(tuple(0 for i in xrange(3))
-                                  for j in xrange(3))
+        return 0, (0,0,0), tuple(tuple(0 for i in xrange(3)) for j in xrange(3))
     total_center = reduce(vecAdd, ( vecscalarMul(center, mass / total_mass)
                                     for center, mass
                                     in izip(centers, masses)))
@@ -239,6 +238,8 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1):
     # correct for given density
     total_inertia = matscalarMul(total_inertia, density)
     total_mass *= density
+
+    return total_mass, total_center, total_inertia
 
 if __name__ == "__main__":
     import doctest
