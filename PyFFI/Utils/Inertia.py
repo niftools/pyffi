@@ -43,7 +43,7 @@ from MathUtils import *
 
 # see http://en.wikipedia.org/wiki/List_of_moment_of_inertia_tensors
 
-def getMassInertiaSphere(radius, density = 1):
+def getMassInertiaSphere(radius, density = 1, solid = True):
     """Return mass and inertia matrix for a sphere of given radius and
     density.
 
@@ -52,14 +52,18 @@ def getMassInertiaSphere(radius, density = 1):
     100.53096...
     >>> inertia_matrix[0][0] # doctest: +ELLIPSIS
     160.84954..."""
-    mass = density * (4 * math.pi * (radius ** 3)) / 3
-    inertia = (2 * mass * (radius ** 2)) / 5
+    if solid:
+        mass = density * (4 * math.pi * (radius ** 3)) / 3
+        inertia = (2 * mass * (radius ** 2)) / 5
+    else:
+        mass = density * 4 * math/pi * (radius ** 2)
+        inertia = (2 * mass * (radius ** 2)) / 3
 
     return mass, tuple( tuple( (inertia if i == j else 0)
                                for i in xrange(3) )
                         for j in xrange(3) )
 
-def getMassInertiaBox(size, density = 1):
+def getMassInertiaBox(size, density = 1, solid = True):
     """Return mass and inertia matrix for a box of given size and
     density.
 
@@ -70,22 +74,33 @@ def getMassInertiaBox(size, density = 1):
     ((26.0, 0, 0), (0, 20.0, 0), (0, 0, 10.0))
     """
     assert(len(size) == 3) # debug
-    mass = density * reduce(operator.mul, size)
-    tmp = tuple(mass * (length ** 2) / 12.0 for length in size)
+    if solid:
+        mass = density * reduce(operator.mul, size)
+        tmp = tuple(mass * (length ** 2) / 12.0 for length in size)
+    else:
+        mass = density * sum( x * x for x in size)
+        tmp = tuple(mass * (length ** 2) / 6.0 for length in size) # just guessing here, todo calculate it
     return mass, ( ( tmp[1] + tmp[2], 0, 0 ),
                    ( 0, tmp[2] + tmp[0], 0 ),
                    ( 0, 0, tmp[0] + tmp[1] ) )
 
-def getMassInertiaCapsule(length, radius, density = 1):
+def getMassInertiaCapsule(length, radius, density = 1, solid = True):
     # cylinder + caps, and caps have volume of a sphere
-    mass = density * (length * math.pi * (radius ** 2)
-                      + (4 * math.pi * (radius ** 3)) / 3)
+    if solid:
+        mass = density * (length * math.pi * (radius ** 2)
+                          + (4 * math.pi * (radius ** 3)) / 3)
 
-    # approximate by cylinder
-    # TODO: also include the caps into the inertia matrix
-    inertia_xx = mass * (3 * (radius ** 2) + (length ** 2)) / 12.0
-    inertia_yy = inertia_xx
-    inertia_zz = 0.5 * mass * (radius ** 2)
+        # approximate by cylinder
+        # TODO: also include the caps into the inertia matrix
+        inertia_xx = mass * (3 * (radius ** 2) + (length ** 2)) / 12.0
+        inertia_yy = inertia_xx
+        inertia_zz = 0.5 * mass * (radius ** 2)
+    else:
+        mass = density * (length * 2 * math.pi * radius
+                          + 2 * math.pi * (radius ** 2))
+        inertia_xx = mass * (6 * (radius ** 2) + (length ** 2)) / 12.0
+        inertia_yy = inertia_xx
+        inertia_zz = mass * (radius ** 2)
 
     return mass,  ( ( inertia_xx, 0, 0 ),
                     ( 0, inertia_yy, 0 ),
@@ -104,9 +119,9 @@ def getMassInertiaCapsule(length, radius, density = 1):
 # http://www.geometrictools.com//LibPhysics/RigidBody/Wm4PolyhedralMassProperties.pdf
 #
 # The function is an implementation of the Blow and Binstock algorithm,
-# extended for the case where the polygon is a surface (dimension = 2), a
-# wireframe (dimension = 1), or a collection of point masses (dimension = 0)
-def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, dimension = 3):
+# extended for the case where the polygon is a surface (set parameter
+# solid = False).
+def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, solid = True):
     """Return mass, center of gravity, and inertia matrix for a polyhedron.
 
     >>> import QuickHull
@@ -154,7 +169,7 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, dimension =
     >>> sphere.append((0,0,-2))
     >>> vertices, triangles = QuickHull.qhull3d(sphere)
     >>> mass, center, inertia = getMassCenterInertiaPolyhedron(
-    ...     vertices, triangles, density = 3, dimension = 3)
+    ...     vertices, triangles, density = 3, solid = True)
     >>> abs(mass - 100.53) < 10 # 3*(4/3)*pi*2^3 = 100.53
     True
     >>> sum(abs(x) for x in center) < 0.01 # is center at origin?
@@ -162,47 +177,29 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, dimension =
     >>> abs(inertia[0][0] - 160.84) < 10
     True
     >>> mass, center, inertia = getMassCenterInertiaPolyhedron(
-    ...     vertices, triangles, density = 3, dimension = 2)
+    ...     vertices, triangles, density = 3, solid = False)
     >>> abs(mass - 150.79) < 10 # 3*4*pi*2^2 = 150.79
     True
     >>> abs(inertia[0][0] - mass*0.666*4) < 20 # m*(2/3)*2^2
     True
     """
 
-    if dimension >= 1:
-        # 120 times the covariance matrix of the canonical tetrahedron
-        # (0,0,0),(1,0,0),(0,1,0),(0,0,1)
-        # integrate(integrate(integrate(z*z, x=0..1-y-z), y=0..1-z), z=0..1) = 1/120
-        # integrate(integrate(integrate(y*z, x=0..1-y-z), y=0..1-z), z=0..1) = 1/60
-        covariance_canonical = ( (2, 1, 1),
-                                 (1, 2, 1),
-                                 (1, 1, 2) )
-        if dimension == 3:
-            covariance_correction = 1.0/120
-        elif dimension == 2:
-            # the covariance matrix of the canonical triangle
-            # (1,0,0),(0,1,0),(0,0,1)
-            # integrate(integrate(z*z, y=0..1-z), z=0..1) = 1/12
-            # integrate(integrate(y*z, y=0..1-z), z=0..1) = 1/24
-            # is just 5 times the covariance matrix of the canonical tetrahedron
-            covariance_correction = 1.0/(24*2) # bug in code below? need factor two to get correct results in doctest
-        elif dimension == 1:
-            # the covariance matrix of a wireframe built from the canonical triangle
-            # (1,0,0),(0,1,0),(0,0,1)
-            # integrate(z*z), z=0..1) = 1/3
-            # integrate(z*(1-z), z=0..1) = 1/6
-            # is just 60 times the covariance matrix of the canonical tetrahedron
-            # (note we're taking only half the covariance matrix of the wireframe
-            # because otherwise we would be counting all edges twice)
-            covariance_correction = 1.0/6
-    elif dimension == 0:
-        # the integrals in this case are
-        # integrate(z*z * (delta(x=1,y=0,z=0)+delta(x=0,y=1,z=0)+delta(x=0,y=0,z=1))) = 1
-        # integrate(y*z * (delta(x=1,y=0,z=0)+delta(x=0,y=1,z=0)+delta(x=0,y=0,z=1))) = 0
-        covariance_canonical = ( (1, 0, 0),
-                                 (0, 1, 0),
-                                 (0, 0, 1) )
-        covariance_correction = 1.0
+    # 120 times the covariance matrix of the canonical tetrahedron
+    # (0,0,0),(1,0,0),(0,1,0),(0,0,1)
+    # integrate(integrate(integrate(z*z, x=0..1-y-z), y=0..1-z), z=0..1) = 1/120
+    # integrate(integrate(integrate(y*z, x=0..1-y-z), y=0..1-z), z=0..1) = 1/60
+    covariance_canonical = ( (2, 1, 1),
+                             (1, 2, 1),
+                             (1, 1, 2) )
+    if solid:
+        covariance_correction = 1.0/120
+    else:
+        # the covariance matrix of the canonical triangle
+        # (1,0,0),(0,1,0),(0,0,1)
+        # integrate(integrate(z*z, y=0..1-z), z=0..1) = 1/12
+        # integrate(integrate(y*z, y=0..1-z), z=0..1) = 1/24
+        # is just 5 times the covariance matrix of the canonical tetrahedron
+        covariance_correction = 1.0/(24*2) # bug in code below? need factor two to get correct results in doctest
 
     covariances = []
     masses = []
@@ -236,7 +233,7 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, dimension =
                 determinant))
 
         # find mass and center
-        if dimension == 3:
+        if solid:
             # m = det(A) / 6.0
             masses.append(determinant / 6.0)
             # find center of gravity of the tetrahedron
@@ -244,34 +241,23 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, dimension =
                                              for vert in (vert0, vert1, vert2))
                                   for i in xrange(3) ))
         else:
-            # find center of gravity of the triangle / wireframe
+            # find center of gravity of the triangle
             centers.append(tuple( sum(vert[i]
                                       for vert in (vert0, vert1, vert2)) / 3.0
                                   for i in xrange(3) ))
-            # find mass of triangle / wireframe
-            if dimension == 2:
-                # mass is surface, which is half the norm of cross product
-                # of two edges
-                masses.append(
-                    vecNorm(vecCrossProduct(
-                        vecSub(vert1, vert0), vecSub(vert2, vert0))) / 2.0)
-            elif dimension == 1:
-                # mass is length of edges
-                masses.append(
-                    reduce(operator.add,
-                           ( vecDistance(vecSub(vert0, vert1)),
-                             vecDistance(vecSub(vert1, vert2)),
-                             vecDistance(vecSub(vert2, vert0)))))
-            elif dimension == 0:
-                # mass is sum of point masses
-                masses.append(3.0)
+            # find mass of triangle
+            # mass is surface, which is half the norm of cross product
+            # of two edges
+            masses.append(
+                vecNorm(vecCrossProduct(
+                    vecSub(vert1, vert0), vecSub(vert2, vert0))) / 2.0)
 
     # accumulate the results
     total_mass = sum(masses)
     if total_mass < 0.0001:
         # dimension is probably badly chosen
         #raise ZeroDivisionError("mass is zero (consider calculating inertia with a lower dimension)")
-        print("WARNING: mass is zero (consider calculating inertia with a lower dimension)")
+        print("WARNING: mass is zero")
         return 0, (0,0,0), ((0,0,0),(0,0,0),(0,0,0))
     # weighed average of centers with masses
     total_center = reduce(vecAdd, ( vecscalarMul(center, mass / total_mass)
