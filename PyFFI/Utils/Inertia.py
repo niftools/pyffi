@@ -108,7 +108,6 @@ def getMassInertiaCapsule(length, radius, density = 1):
 # wireframe (dimension = 1), or a collection of point masses (dimension = 0)
 def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, dimension = 3):
     """Return mass, center of gravity, and inertia matrix for a polyhedron.
-    Raises ZeroDivisionError if the calculated mass is zero.
 
     >>> import QuickHull
     >>> box = [(0,0,0),(1,0,0),(0,2,0),(0,0,3),(1,2,0),(0,2,3),(1,0,3),(1,2,3)]
@@ -271,7 +270,9 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, dimension =
     total_mass = sum(masses)
     if total_mass < 0.0001:
         # dimension is probably badly chosen
-        raise ZeroDivisionError("mass is zero (consider calculating inertia with a lower dimension)")
+        #raise ZeroDivisionError("mass is zero (consider calculating inertia with a lower dimension)")
+        print("WARNING: mass is zero (consider calculating inertia with a lower dimension)")
+        return 0, (0,0,0), ((0,0,0),(0,0,0),(0,0,0))
     # weighed average of centers with masses
     total_center = reduce(vecAdd, ( vecscalarMul(center, mass / total_mass)
                                     for center, mass
