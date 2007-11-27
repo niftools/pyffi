@@ -39,11 +39,17 @@
 
 def applyScale(self, scale):
     """Apply scale factor <scale> on data."""
-    # apply scale on dimensions
+    # apply scale on transform
+    self.translation.x *= scale
+    self.translation.y *= scale
+    self.translation.z *= scale
+
+    # apply scale on center of gravity
     self.center.x *= scale
     self.center.y *= scale
     self.center.z *= scale
 
+    # apply scale on inertia tensor
     self.inertia[0] *= (scale ** 2)
     self.inertia[1] *= (scale ** 2)
     self.inertia[2] *= (scale ** 2)
