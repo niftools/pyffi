@@ -1,3 +1,6 @@
+Version 0.7.1 (27 Nov 2007):
+* nif: fixed applyScale in bhkRigidBody
+
 Version 0.7 (19 Nov 2007):
 * fixed a problem locating the customized functions for Fedora 8 python which 
 does not look in default locations besides sys.path
