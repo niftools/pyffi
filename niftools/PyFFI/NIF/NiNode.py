@@ -1,7 +1,5 @@
-# --------------------------------------------------------------------------
-# NifFormat.NiNode
-# Custom functions for NiNode.
-# --------------------------------------------------------------------------
+"""Custom functions for NiNode."""
+
 # ***** BEGIN LICENSE BLOCK *****
 #
 # Copyright (c) 2007, NIF File Format Library and Tools.
@@ -38,7 +36,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENCE BLOCK *****
-# --------------------------------------------------------------------------
 
 """
 >>> from PyFFI.NIF import NifFormat

@@ -1,7 +1,5 @@
-# --------------------------------------------------------------------------
-# NifFormat.NiObject
-# Custom functions for NiObject.
-# --------------------------------------------------------------------------
+"""Custom functions for NiObject."""
+
 # ***** BEGIN LICENSE BLOCK *****
 #
 # Copyright (c) 2007, NIF File Format Library and Tools.
@@ -38,7 +36,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENCE BLOCK *****
-# --------------------------------------------------------------------------
 
 def find(self, block_name = None, block_type = None):
     # does this block match the search criteria?

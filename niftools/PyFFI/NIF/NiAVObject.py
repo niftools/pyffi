@@ -1,7 +1,5 @@
-# --------------------------------------------------------------------------
-# NifFormat.NiAVObject
-# Custom functions for NiAVObject.
-# --------------------------------------------------------------------------
+"""Custom functions for NiAVObject."""
+
 # ***** BEGIN LICENCE BLOCK *****
 #
 # Copyright (c) 2007, NIF File Format Library and Tools.
@@ -38,7 +36,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENSE BLOCK *****
-# --------------------------------------------------------------------------
 
 def addProperty(self, propblock):
     """Add block C{propblock} to property list.

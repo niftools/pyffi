@@ -1,7 +1,5 @@
-# --------------------------------------------------------------------------
-# NifFormat.NiMorphData
-# Custom functions for NiMorphData.
-# --------------------------------------------------------------------------
+"""Custom functions for NiMorphData."""
+
 # ***** BEGIN LICENCE BLOCK *****
 #
 # Copyright (c) 2007, NIF File Format Library and Tools.
@@ -38,7 +36,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENSE BLOCK *****
-# --------------------------------------------------------------------------
 
 def applyScale(self, scale):
     """Apply scale factor on data."""

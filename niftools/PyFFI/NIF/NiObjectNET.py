@@ -1,7 +1,5 @@
-# --------------------------------------------------------------------------
-# NifFormat.NiObjectNET
-# Custom functions for NiObjectNET.
-# --------------------------------------------------------------------------
+"""Custom functions for NiObjectNET."""
+
 # ***** BEGIN LICENSE BLOCK *****
 #
 # Copyright (c) 2007, NIF File Format Library and Tools.
@@ -38,7 +36,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENCE BLOCK *****
-# --------------------------------------------------------------------------
 
 def addExtraData(self, extrablock):
     """Add block to extra data list and extra data chain."""
