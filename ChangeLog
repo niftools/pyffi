@@ -1,3 +1,10 @@
+Version 0.7.2 (3 Dec 2007):
+* NifTester: new raisereaderror argument which simplifies the older system and
+yields more instructive backtraces
+* nif: better support for recent nif versions, if block sizes do not match
+with the number of bytes read then the bytes are skipped and a warning is
+printed, instead of raising an exception
+
 Version 0.7.1 (27 Nov 2007):
 * nif: fixed applyScale in bhkRigidBody
 
