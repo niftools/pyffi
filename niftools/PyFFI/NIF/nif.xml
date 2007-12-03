@@ -2510,8 +2510,8 @@
         <add name="Flags" type="byte" ver1="20.0.0.4">Flags</add>
         <add name="Unknown Int 4" type="uint" ver1="20.0.0.4">Seems to always be zero.</add>
         <add name="Channels" type="ChannelData" arr1="4" ver1="20.0.0.4">Channel Data</add>       
-        <add name="Palette" type="Ref" template="NiPalette">Link to NiPalette, for 8-bit textures.</add>
         <add name="Unknown Byte 1" type="byte" ver1="20.3.0.6">Unknown.</add>
+        <add name="Palette" type="Ref" template="NiPalette">Link to NiPalette, for 8-bit textures.</add>
         <add name="Num Mipmaps" type="uint">Number of mipmaps in the texture.</add>
         <add name="Bytes Per Pixel" type="uint">Bytes per pixel (Bits Per Pixel / 8).</add>
         <add name="Mipmaps" type="MipMap" arr1="Num Mipmaps">Mipmap descriptions (width, height, offset).</add>
