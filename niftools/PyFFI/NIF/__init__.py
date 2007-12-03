@@ -847,7 +847,6 @@ class NifFormat(object):
         def read(self, stream, **kwargs):
             size1, = struct.unpack('<I', stream.read(4))
             size2, = struct.unpack('<I', stream.read(4))
-            print size1, size2
             self._value = []
             for i in xrange(size2):
                 self._value.append(stream.read(size1))
