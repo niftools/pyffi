@@ -788,6 +788,84 @@ class NifFormat(object):
             # transform to lower case to make hash case insensitive
             return self.getValue().lower()
 
+    # pixel data byte array, implement as internal to speed up reading
+    # and also to prevent data to be dumped
+    class ByteArray(BasicBase):
+        def __init__(self, **kwargs):
+            self.setValue("")
+
+        def getValue(self):
+            return self._value
+
+        def setValue(self, value):
+            self._value = value # should be a string of bytes
+
+        def getSize(self, **kwargs):
+            return len(self._value) + 4
+
+        def getHash(self, **kwargs):
+            return self._value.__hash__()
+
+        def read(self, stream, **kwargs):
+            size, = struct.unpack('<I', stream.read(4))
+            self._value = stream.read(size)
+
+        def write(self, stream, **kwargs):
+            stream.write(struct.pack('<I', len(self._value)))
+            stream.write(self._value)
+
+        def __str__(self):
+            return "< %i Bytes >" % len(self._value)
+
+    # pixel data byte matrix implement as internal to speed up reading
+    # and also to prevent data to be dumped
+    class ByteMatrix(BasicBase):
+        def __init__(self, **kwargs):
+            self.setValue([])
+
+        def getValue(self):
+            return self._value
+
+        def setValue(self, value):
+            assert(isinstance(value, list))
+            if value:
+                size1 = len(value[0])
+            for x in value:
+                assert(isinstance(value, basestring))
+                assert(len(x) == size1)
+            self._value = value # should be a list of strings of bytes
+
+        def getSize(self, **kwargs):
+            if len(self._value) == 0:
+                return 8
+            else:
+                return len(self._value) * len(self._value[0]) + 8
+
+        def getHash(self, **kwargs):
+            return self._value.__hash__()
+
+        def read(self, stream, **kwargs):
+            size1, = struct.unpack('<I', stream.read(4))
+            size2, = struct.unpack('<I', stream.read(4))
+            print size1, size2
+            self._value = []
+            for i in xrange(size2):
+                self._value.append(stream.read(size1))
+
+        def write(self, stream, **kwargs):
+            if self._value:
+                stream.write(struct.pack('<I', len(self._value[0])))
+            else:
+                stream.write(struct.pack('<I', 0))
+            stream.write(struct.pack('<I', len(self._value)))
+            for x in self._value:
+                stream.write(x)
+
+        def __str__(self):
+            size1 = len(self._value[0]) if self._value else 0
+            size2 = len(self._value)
+            return "< %ix%i Bytes >" % (size2, size1)
+
     # exceptions
     class NifError(StandardError):
         pass
