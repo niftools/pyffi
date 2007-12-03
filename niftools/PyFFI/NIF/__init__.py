@@ -843,7 +843,7 @@ class NifFormat(object):
                 return len(self._value) * len(self._value[0]) + 8
 
         def getHash(self, **kwargs):
-            return self._value.__hash__()
+            return tuple( x.__hash__() for x in self._value )
 
         def read(self, stream, **kwargs):
             size1, = struct.unpack('<I', stream.read(4))
