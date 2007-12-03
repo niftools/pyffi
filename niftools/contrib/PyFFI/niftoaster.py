@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
-"""
-A script for running hacking, surgery, and validation tests (based on wz's NifTester)
+"""A script for running hacking, surgery, and validation tests (based on wz's NifTester)
 
 For validate and surgery tests, exceptions during read will be raised.
 For hacking tests, exceptions during read will be passed; these are intended
@@ -13,8 +12,7 @@ These three functions in the tester script are called:
    testRoot(root)   - will be called on every root block of the nif
    testFile(version, user_version, f, roots)
                     - will be called on every nif
-Not all of these three functions need to be present.
-"""
+Not all of these three functions need to be present."""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
@@ -136,19 +134,19 @@ for hacking, modifying, or validating <file>, or the files in <folder>."""
     try:
         testers = __import__('NifTester.hacking.' + test_str)
         test = getattr(testers.hacking, test_str)
-        onreaderror = NifTester.pass_exception
+        raisereaderror = False
         mode = 'rb'
     except ImportError:
         try:
             testers = __import__('NifTester.validate.' + test_str)
             test = getattr(testers.validate, test_str)
-            onreaderror = NifTester.raise_exception
+            raisereaderror = True
             mode = 'rb'
         except ImportError:
             try:
                 testers = __import__('NifTester.surgery.' + test_str)
                 test = getattr(testers.surgery, test_str)
-                onreaderror = NifTester.raise_exception
+                raisereaderror = True
                 mode = 'r+b'
             except ImportError:
                 # either tester was not found, or had an error while importing
@@ -163,7 +161,7 @@ for hacking, modifying, or validating <file>, or the files in <folder>."""
     NifTester.testPath(
         top,
         testBlock = testBlock, testRoot = testRoot, testFile = testFile,
-        onreaderror = onreaderror, mode = mode, verbose = options.verbose,
+        raisereaderror = raisereaderror, mode = mode, verbose = options.verbose,
         arg = options.arg)
 
 # if script is called...

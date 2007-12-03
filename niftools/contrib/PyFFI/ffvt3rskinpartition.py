@@ -1,8 +1,6 @@
 #!/usr/bin/python
 
-"""
-A script for updating ffvt3r skin partitions
-"""
+"""A script for updating ffvt3r skin partitions."""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
@@ -101,7 +99,7 @@ may destroy them. Make a backup of your nif files before running this script.
     NifTester.testPath(
         top,
         testBlock = testBlock, testFile = NifTester.testFileOverwrite,
-        onreaderror = NifTester.raise_exception,
+        raisereaderror = True,
         mode = "r+b", verbose = options.verbose)
 
 # if script is called...

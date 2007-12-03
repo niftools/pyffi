@@ -120,7 +120,7 @@ may destroy them. Make a backup of your nif files before running this script.
 
     # run tester
     mode = "rb" if not OVERWRITE_FILES else "r+b"
-    NifTester.testPath(top, testBlock = testBlock, onreaderror = NifTester.raise_exception, mode = mode, verbose = options.verbose)
+    NifTester.testPath(top, testBlock = testBlock, raisereaderror = True, mode = mode, verbose = options.verbose)
 
 # if script is called...
 if __name__ == "__main__":

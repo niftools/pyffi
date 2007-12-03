@@ -116,7 +116,7 @@ may destroy them. Make a backup of your nif files before running this script.
         top,
         testBlock = testBlock, testRoot = testRoot,
         testFile = NifTester.testFileOverwrite if OVERWRITE_FILES else None,
-        onreaderror = NifTester.raise_exception, mode = mode,
+        raisereaderror = True, mode = mode,
         verbose = options.verbose)
 
 # if script is called...

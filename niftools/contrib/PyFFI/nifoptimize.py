@@ -286,7 +286,7 @@ may destroy them. Make a backup of your nif files before running this script.
         top,
         testBlock = testBlock, testRoot = testRoot,
         testFile = NifTester.testFileOverwrite,
-        onreaderror = NifTester.raise_exception, mode = "r+b",
+        raisereaderror = True, mode = "r+b",
         raisetesterror = options.raisetesterror, verbose = options.verbose)
 
 # if script is called...
