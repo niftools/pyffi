@@ -1222,7 +1222,8 @@ class NifFormat(object):
             yield roots
 
     @classmethod
-    def walkFile(cls, top, topdown = True, onerror = None, verbose = 0, mode = 'rb'):
+    def walkFile(cls, top, topdown = True,
+                 raisereaderror = False, verbose = 0, mode = 'rb'):
         """Like walk, but returns more information:
         version, user_version, f, and roots.
 
@@ -1237,7 +1238,8 @@ class NifFormat(object):
         # .nifcache are Empire Earth II nif files
         re_nif = re.compile(r'^.*\.(nif|kf|kfa|nifcache)$', re.IGNORECASE)
         # now walk over all these files in directory top
-        for filename in Utils.walk(top, topdown, onerror = None, re_filename = re_nif):
+        for filename in Utils.walk(top, topdown, onerror = None,
+                                   re_filename = re_nif):
             if verbose >= 1: print "reading %s"%filename
             stream = open(filename, mode)
             try:
@@ -1253,21 +1255,18 @@ class NifFormat(object):
                                    stream,
                                    version = version,
                                    user_version = user_version))
-                    except StandardError, e:
+                    except StandardError:
                         # an error occurred during reading
                         # this should not happen: means that the file is
                         # corrupt, or that the xml is corrupt
-                        # so we call onerror
                         if verbose >= 1:
                             print """
 Warning: read failed due to either a corrupt nif file, a corrupt nif.xml,
 or a bug in NifFormat library."""
                         if verbose >= 2:
                             Utils.hexDump(stream)
-                        if onerror == None:
-                            pass # ignore the error
-                        else:
-                            onerror(e)
+                        if raisereaderror:
+                            raise
                 # getting version failed, do not raise an exception
                 # but tell user what happened
                 elif version == -1:
