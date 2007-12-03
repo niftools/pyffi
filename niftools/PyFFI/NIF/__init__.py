@@ -798,7 +798,8 @@ class NifFormat(object):
             return self._value
 
         def setValue(self, value):
-            self._value = value # should be a string of bytes
+            assert(isinstance(value, basestring))
+            self._value = value
 
         def getSize(self, **kwargs):
             return len(self._value) + 4

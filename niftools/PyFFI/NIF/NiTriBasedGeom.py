@@ -156,14 +156,10 @@ def updateTangentSpace(self):
         self.addExtraData(block)
 
     # write the data
-    block.binaryData.dataSize = self.data.numVertices * 24
-    block.binaryData.data.updateSize()
-    cnt = 0
+    binarydata = ""
     for v in tan + bin:
-        bytes = struct.pack('<fff', v.x, v.y, v.z)
-        for b in bytes:
-            block.binaryData.data[cnt] = ord(b)
-            cnt += 1
+        binarydata += struct.pack('<fff', v.x, v.y, v.z)
+    block.binaryData = binarydata
 
 # ported from nifskope/skeleton.cpp:spSkinPartition
 def updateSkinPartition(self,
