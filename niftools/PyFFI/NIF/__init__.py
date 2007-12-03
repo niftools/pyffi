@@ -1039,9 +1039,16 @@ class NifFormat(object):
                 print block.__class__
             # check block size
             if version >= 0x14020007:
-                if block.getSize(version = version, user_version = user_version) \
-                   != hdr.blockSize[block_num]:
-                    raise cls.NifError('block size check failed: corrupt nif file?')
+                calculated_size = block.getSize(version = version,
+                                                user_version = user_version)
+                if calculated_size != hdr.blockSize[block_num]:
+                    #raise cls.NifError('block size check failed: corrupt nif file?')
+                    print("WARNING: block size check failed: corrupt nif file or bad nif.xml?")
+                    print("         skipping %i bytes in %s"
+                          % ( hdr.blockSize[block_num] - calculated_size,
+                              block.__class__.__name__ ))
+                    # skip bytes that were missed
+                    stream.seek(hdr.blockSize[block_num] - calculated_size, 1)
             # check if we are done
             block_num += 1
             if version >= 0x0303000D:
