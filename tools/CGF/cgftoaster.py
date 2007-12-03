@@ -81,19 +81,19 @@ for hacking, modifying, or validating <file>, or the files in <folder>."""
     try:
         testers = __import__('CgfTester.hacking.' + test_str)
         test = getattr(testers.hacking, test_str)
-        onreaderror = CgfTester.pass_exception
+        raisereaderror = False
         mode = 'rb'
     except ImportError:
         try:
             testers = __import__('CgfTester.validate.' + test_str)
             test = getattr(testers.validate, test_str)
-            onreaderror = CgfTester.raise_exception
+            raisereaderror = True
             mode = 'rb'
         except ImportError:
             try:
                 testers = __import__('CgfTester.surgery.' + test_str)
                 test = getattr(testers.surgery, test_str)
-                onreaderror = CgfTester.raise_exception
+                raisereaderror = True
                 mode = 'r+b'
             except ImportError:
                 # either tester was not found, or had an error while importing
@@ -105,8 +105,8 @@ for hacking, modifying, or validating <file>, or the files in <folder>."""
 
     # run tester
     CgfTester.testPath(
-        top, testChunk, testFile, onreaderror, mode,
-        verbose=options.verbose, arg=options.arg)
+        top, testChunk, testFile, raisereaderror = raisereaderror, mode = mode,
+        verbose = options.verbose, arg = options.arg)
 
 # if script is called...
 if __name__ == "__main__":

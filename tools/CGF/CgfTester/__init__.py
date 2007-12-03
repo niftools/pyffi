@@ -16,14 +16,6 @@ from optparse import OptionParser
 
 from PyFFI.CGF import CgfFormat
 
-# useful as onreaderror parameter
-def raise_exception(exc):
-    raise exc
-
-# useful as onreaderror parameter
-def pass_exception(exc):
-    pass
-
 # useful as testFile which simply writes back the file
 # but restores the file if the write fails
 def testFileOverwrite(stream,
@@ -48,11 +40,11 @@ def testFileOverwrite(stream,
     stream.truncate()
 
 # test all files using testChunk and testFile functions
-def testPath(top, testChunk, testFile, onreaderror = None, mode = 'rb', verbose = None, arg = None):
+def testPath(top, testChunk, testFile, raisereaderror = False, mode = 'rb', verbose = None, arg = None):
     kwargs = {}
     kwargs['verbose'] = verbose if verbose != None else 0
     if arg != None: kwargs['arg'] = arg
-    for filetype, fileversion, stream, chunks, versions in CgfFormat.walkFile(top, onerror = onreaderror, verbose = min(1, verbose), mode = mode):
+    for filetype, fileversion, stream, chunks, versions in CgfFormat.walkFile(top, raisereaderror = raisereaderror, verbose = min(1, verbose), mode = mode):
         if testChunk:
             for chunk in chunks:
                 testChunk(block, **kwargs)

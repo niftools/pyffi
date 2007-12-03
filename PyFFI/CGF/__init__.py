@@ -564,19 +564,19 @@ expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
 
     @classmethod
     def walk(cls, top,
-             topdown = True, onerror = None, verbose = 0):
+             topdown = True, raisereaderror = False, verbose = 0):
         """A generator which yields the chunks and versions of all files in
         directory top whose filename matches the regular expression re_filename.
         The argument top can also be a file instead of a directory.
         The argument onerror, if set, will be called if cls.read raises an
         exception (errors coming from os.walk will be ignored)."""
         for filetype, fileversion, stream, chunks, versions \
-            in cls.walkFile(top, topdown, onerror, verbose):
+            in cls.walkFile(top, topdown, raisereaderror, verbose):
             yield chunks, versions
 
     @classmethod
     def walkFile(cls, top,
-                 topdown = True, onerror = None, verbose = 0, mode = 'rb'):
+                 topdown = True, raisereaderror = False, verbose = 0, mode = 'rb'):
         """Like walk, but returns more information:
         filetype, fileversion, f, chunks, and versions
 
@@ -607,21 +607,19 @@ expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
                         chunks, versions = cls.read(
                             stream, fileversion = fileversion)
                         yield filetype, fileversion, stream, chunks, versions
-                    except StandardError, err:
+                    except StandardError:
                         # an error occurred during reading
                         # this should not happen: means that the file is
                         # corrupt, or that the xml is corrupt
-                        # so we call onerror
+                        # so we re-raise the exception if requested
                         if verbose >= 1:
                             print """\
 Warning: read failed due to either a corrupt cgf file, a corrupt cgf.xml,
 or a bug in CgfFormat library."""
                         if verbose >= 2:
                             Utils.hexDump(stream)
-                        if onerror == None:
-                            pass # ignore the error
-                        else:
-                            onerror(err)
+                        if raisereaderror:
+                            raise
                 # getting version failed, do not raise an exception
                 # but tell user what happened
                 elif filetype == -1:
