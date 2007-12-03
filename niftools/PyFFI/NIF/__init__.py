@@ -983,7 +983,8 @@ class NifFormat(object):
                         raise cls.NifError(
                             'non-zero block tag 0x%08X at 0x%08X)'
                             %(dummy, stream.tell()))
-                block_type = hdr.blockTypes[hdr.blockTypeIndex[block_num]]
+                # note the 0xfff mask: required for the NiPhysX blocks
+                block_type = hdr.blockTypes[hdr.blockTypeIndex[block_num] & 0xfff]
             else:
                 block_type = cls.SizedString()
                 block_type.read(stream)
