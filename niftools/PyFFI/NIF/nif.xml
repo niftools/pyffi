@@ -1122,6 +1122,15 @@
         <add name="Weight?" type="float">Weight</add>
     </compound>
     
+    <compound name="ArkTexture">
+        A texture reference used by NiArkTextureExtraData.
+        <add name="Texture Name" type="string" />
+        <add name="Unknown Int 3" type="int" />
+        <add name="Unknown Int 4" type="int" />
+        <add name="Texturing Property" type="Ref" template="NiTexturingProperty"/>
+        <add name="Unknown Bytes" type="byte" arr1="9" />
+    </compound>
+
     <!-- NIF Objects
          These are the main units of data that NIF files are arranged in.
          They are like C classes and can contain many pieces of data.
@@ -3212,16 +3221,11 @@
 
     <niobject name="NiArkTextureExtraData" inherit="NiExtraData">
         Unknown node.
-        <!--<add name="Num Unknown Ints 1" type="int" />-->
         <add name="Unknown Ints 1" type="int" arr1="2" />
         <add name="Unknown Byte" type="byte" />
-        <add name="Unknown Int 2" type="int" />
-        <add name="Unknown Int 5" type="int" ver2="4.1.0.12" />
-        <add name="Unknown String" type="string" />
-        <add name="Unknown Int 3" type="int" />
-        <add name="Unknown Int 4" type="int" />
-        <add name="Texturing Property" type="Ref" template="NiTexturingProperty"/>
-        <add name="Unknown Bytes" type="byte" arr1="9" />
+        <add name="Unknown Int 2" type="int" ver2="4.1.0.12" />
+        <add name="Num Textures" type="int" />
+        <add name="Textures" type="ArkTexture" arr1="Num Textures" />
     </niobject>
 
     <niobject name="NiArkViewportInfoExtraData" inherit="NiExtraData">
