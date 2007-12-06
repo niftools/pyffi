@@ -989,7 +989,7 @@ class NifFormat(object):
             else:
                 block_type = cls.SizedString()
                 block_type.read(stream)
-                block_type = str(block_type)
+                block_type = str(block_type.getValue())
             # get the block index
             if version >= 0x0303000D:
                 # for these versions the block index is simply the block number
@@ -1012,7 +1012,7 @@ class NifFormat(object):
             try:
                 block = getattr(cls, block_type)()
             except AttributeError:
-                raise cls.NifError("unknown block type '" + block_type + "'")
+                raise cls.NifError("unknown block type '%s'" % block_type)
             if verbose >= 1:
                 print "reading block at 0x%08X..."%stream.tell()
             try:
