@@ -3198,21 +3198,25 @@
     <niobject name="NiArkAnimationExtraData" inherit="NiExtraData">
         Unknown node.
         <add name="Unknown Ints" type="int" arr1="4" />
+        <add name="Unknown Bytes" type="byte" arr1="37" ver2="4.1.0.12" />
     </niobject>
 
     <niobject name="NiArkImporterExtraData" inherit="NiExtraData">
         Unknown node.
-        <add name="Unknown Int" type="int" />
-        <add name="Importer Name" type="string">Contains &quot;Gamebryo_1_1&quot;</add>
+        <add name="Unknown Int 1" type="int" />
+        <add name="Unknown Int 2" type="int" ver2="4.1.0.12" />
+        <add name="Importer Name" type="string">Contains a string like &quot;Gamebryo_1_1&quot; or &quot;4.1.0.12&quot;</add>
         <add name="Unknown Bytes" type="byte" arr1="13" />
         <add name="Unknown Floats" type="float" arr1="7" />
     </niobject>
 
     <niobject name="NiArkTextureExtraData" inherit="NiExtraData">
         Unknown node.
+        <!--<add name="Num Unknown Ints 1" type="int" />-->
         <add name="Unknown Ints 1" type="int" arr1="2" />
         <add name="Unknown Byte" type="byte" />
         <add name="Unknown Int 2" type="int" />
+        <add name="Unknown Int 5" type="int" ver2="4.1.0.12" />
         <add name="Unknown String" type="string" />
         <add name="Unknown Int 3" type="int" />
         <add name="Unknown Int 4" type="int" />
