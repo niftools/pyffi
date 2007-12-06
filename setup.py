@@ -35,7 +35,7 @@ setup(
     packages = ['PyFFI', 'PyFFI.Bases', 'PyFFI.Utils', 'PyFFI.NIF', 'PyFFI.CGF', 'NifTester', 'NifTester.hacking', 'NifTester.validate', 'NifTester.surgery', 'NifVis', 'NifVis.lizers', 'CgfTester', 'CgfTester.hacking', 'CgfTester.validate', 'CgfTester.surgery'],
     package_dir = { 'NifTester' : 'tools/NIF/NifTester', 'NifVis' : 'tools/NIF/NifVis', 'CgfTester' : 'tools/CGF/CgfTester' },
     package_data = { '' : [ '*.xml' ] }, # include xml files
-    scripts = ['tools/NIF/ffvt3rskinpartition.py', 'tools/NIF/nifmakehsl.py', 'tools/NIF/niftoaster.py', 'tools/NIF/nifvisualizer.py', 'tools/NIF/nifoptimize.py', 'tools/NIF/niftexdump.py', 'tools/NIF/niftemplate.py', 'tools/CGF/cgftoaster.py'],
+    scripts = ['tools/NIF/ffvt3rskinpartition.py', 'tools/NIF/nifmakehsl.py', 'tools/NIF/niftoaster.py', 'tools/NIF/nifvisualizer.py', 'tools/NIF/nifoptimize.py', 'tools/NIF/niftexdump.py', 'tools/NIF/nifdump.py', 'tools/NIF/niftemplate.py', 'tools/CGF/cgftoaster.py'],
     author = "Amorilia",
     author_email = "amorilia@users.sourceforge.net",
     license = "BSD",

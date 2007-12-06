@@ -1,3 +1,7 @@
+Version 0.7.3 (***):
+* nif: fixed error message when encountering empty block type
+* nif: dump script with block selection feature
+
 Version 0.7.2 (3 Dec 2007):
 * NifTester: new raisereaderror argument which simplifies the older system and
 yields more instructive backtraces
