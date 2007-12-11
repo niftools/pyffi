@@ -220,7 +220,7 @@ def setScaleRotationTranslation(self, scale, rotation, translation):
     self.m34 = 0.0
     self.m44 = 1.0
 
-	rotscl = rotation.getCopy()
+    rotscl = rotation.getCopy()
     rotscl.m11 *= scale.x
     rotscl.m12 *= scale.x
     rotscl.m13 *= scale.x

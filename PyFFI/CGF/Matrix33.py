@@ -143,8 +143,10 @@ def isRotation(self):
 
     if not self.isScaleRotation():
         return False
-	scale = self.getScale()
-	if abs(scale.x - 1.0) > 0.01 or abs(scale.y - 1.0) > 0.01 or abs(scale.z - 1.0) > 0.01:
+    scale = self.getScale()
+    if abs(scale.x - 1.0) > 0.01 \
+       or abs(scale.y - 1.0) > 0.01 \
+       or abs(scale.z - 1.0) > 0.01:
         return False
     return True
 
@@ -167,10 +169,10 @@ def getScale(self):
     self_transpose = self.getTranspose()
     mat = self * self_transpose
 
-	scale = self.cls.Vector3()
-	scale.x = mat.m11 ** 0.5
-	scale.y = mat.m22 ** 0.5
-	scale.z = mat.m33 ** 0.5
+    scale = self.cls.Vector3()
+    scale.x = mat.m11 ** 0.5
+    scale.y = mat.m22 ** 0.5
+    scale.z = mat.m33 ** 0.5
 
     if self.getDeterminant() < 0:
         return -scale
@@ -219,17 +221,17 @@ def getInverse(self):
     """Get inverse (assuming isScaleRotation is true!)."""
     # transpose inverts rotation but keeps the scale
     # dividing by scale^2 inverts the scale as well
-	scale = self.getScale()
+    scale = self.getScale()
     mat = self.getTranspose()
-	mat.m11 /= scale.x ** 2
-	mat.m21 /= scale.x ** 2
-	mat.m31 /= scale.x ** 2
-	mat.m12 /= scale.y ** 2
-	mat.m22 /= scale.y ** 2
-	mat.m32 /= scale.y ** 2
-	mat.m13 /= scale.z ** 2
-	mat.m23 /= scale.z ** 2
-	mat.m33 /= scale.z ** 2
+    mat.m11 /= scale.x ** 2
+    mat.m21 /= scale.x ** 2
+    mat.m31 /= scale.x ** 2
+    mat.m12 /= scale.y ** 2
+    mat.m22 /= scale.y ** 2
+    mat.m32 /= scale.y ** 2
+    mat.m13 /= scale.z ** 2
+    mat.m23 /= scale.z ** 2
+    mat.m33 /= scale.z ** 2
 
 def __mul__(self, rhs):
     if isinstance(rhs, (float, int, long)):
