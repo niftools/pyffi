@@ -41,9 +41,9 @@ def applyScale(self, scale):
     """Apply scale factor on data."""
     if abs(scale - 1.0) < self.cls.EPSILON:
         return
-    self.transform.m41 *= scale
-    self.transform.m42 *= scale
-    self.transform.m43 *= scale
+    self.transform.m14 *= scale
+    self.transform.m24 *= scale
+    self.transform.m34 *= scale
     self.pos.x *= scale
     self.pos.y *= scale
     self.pos.z *= scale
