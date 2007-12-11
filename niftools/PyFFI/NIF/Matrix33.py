@@ -103,8 +103,7 @@ def getCopy(self):
     return mat
 
 def getTranspose(self):
-    """Restricts matrix to upper left 3x3 part (similar to rotationPart in
-    Blender)."""
+    """Get transposed of the matrix."""
     mat = self.cls.Matrix33()
     mat.m11 = self.m11
     mat.m12 = self.m21
