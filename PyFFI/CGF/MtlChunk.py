@@ -53,7 +53,14 @@ def getNameShaderScript(self):
     if (shader_begin != -1): # if a shader was specified
         # must have exactly one shader
         if (name.count("(") != 1):
-            raise ValueError("%s malformed, has multiple ""("""%name)
+            # some names are buggy and have "((" instead of "("
+            # like in jungle_camp_sleeping_barack
+            # here we handle that case
+            if name[shader_begin + 1] == "(" \
+               and name[shader_begin + 1:].count("(") != 1:
+                shader_begin += 1
+            else:
+                raise ValueError("%s malformed, has multiple ""("""%name)
         if (name.count(")") != 1):
             raise ValueError("%s malformed, has multiple "")"""%name)
         # shader name should non-empty
