@@ -139,7 +139,7 @@ def isScaleRotation(self):
 def isRotation(self):
     """Returns C{True} if the matrix is a rotation matrix
     (a member of SO(3))."""
-    # NOTE: 0.01 instead of self.cls._EPSILON to work around bad nif files
+    # NOTE: 0.01 instead of self.cls.EPSILON to work around bad nif files
 
     if not self.isScaleRotation():
         return False
@@ -223,7 +223,7 @@ def getScaleQuat(self):
     quat = self.cls.Quat()
     trace = 1.0 + rot.m11 + rot.m22 + rot.m33
     
-    if trace > self.EPSILON:
+    if trace > self.cls.EPSILON:
         s = (trace ** 0.5) * 2
         quat.x = ( rot.m23 - rot.m32 ) / s
         quat.y = ( rot.m13 - rot.m31 ) / s
@@ -327,15 +327,15 @@ def __eq__(self, mat):
     if not isinstance(mat, self.cls.Matrix33):
         raise TypeError(
             "do not know how to compare Matrix33 and %s"%mat.__class__)
-    if (abs(self.m11 - mat.m11) > self.cls._EPSILON
-        or abs(self.m12 - mat.m12) > self.cls._EPSILON
-        or abs(self.m13 - mat.m13) > self.cls._EPSILON
-        or abs(self.m21 - mat.m21) > self.cls._EPSILON
-        or abs(self.m22 - mat.m22) > self.cls._EPSILON
-        or abs(self.m23 - mat.m23) > self.cls._EPSILON
-        or abs(self.m31 - mat.m31) > self.cls._EPSILON
-        or abs(self.m32 - mat.m32) > self.cls._EPSILON
-        or abs(self.m33 - mat.m33) > self.cls._EPSILON):
+    if (abs(self.m11 - mat.m11) > self.cls.EPSILON
+        or abs(self.m12 - mat.m12) > self.cls.EPSILON
+        or abs(self.m13 - mat.m13) > self.cls.EPSILON
+        or abs(self.m21 - mat.m21) > self.cls.EPSILON
+        or abs(self.m22 - mat.m22) > self.cls.EPSILON
+        or abs(self.m23 - mat.m23) > self.cls.EPSILON
+        or abs(self.m31 - mat.m31) > self.cls.EPSILON
+        or abs(self.m32 - mat.m32) > self.cls.EPSILON
+        or abs(self.m33 - mat.m33) > self.cls.EPSILON):
         return False
     return True
 

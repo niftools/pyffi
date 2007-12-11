@@ -58,6 +58,6 @@ def updatePosRotScl(self):
     self.rot.y = quat.y
     self.rot.z = quat.z
     self.rot.w = quat.w
-    self.scale.x = scale.x
-    self.scale.y = scale.y
-    self.scale.z = scale.z
+    self.scl.x = scale.x
+    self.scl.y = scale.y
+    self.scl.z = scale.z
