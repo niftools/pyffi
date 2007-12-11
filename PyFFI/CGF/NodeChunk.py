@@ -48,3 +48,8 @@ def applyScale(self, scale):
     self.pos.y *= scale
     self.pos.z *= scale
 
+def updatePosRotScl(self):
+    """Update position, rotation, and scale, from the transform."""
+    self.pos.x = transform.m41
+    self.pos.y = transform.m42
+    self.pos.z = transform.m43
