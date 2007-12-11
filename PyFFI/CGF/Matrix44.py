@@ -62,6 +62,13 @@ def setRows(self, row0, row1, row2, row3):
     self.m31, self.m32, self.m33, self.m34 = row2
     self.m41, self.m42, self.m43, self.m44 = row3
 
+def setCols(self, col0, col1, col2, col3):
+    """Set matrix from rows."""
+    self.m11, self.m21, self.m31, self.m41 = col0
+    self.m12, self.m22, self.m32, self.m42 = col1
+    self.m13, self.m23, self.m33, self.m43 = col2
+    self.m14, self.m24, self.m34, self.m44 = col3
+
 def __str__(self):
     return """\
 [ %6.3f %6.3f %6.3f %6.3f ]
@@ -149,6 +156,27 @@ def getMatrix33(self):
     m.m33 = self.m33
     return m
 
+def getTranspose(self):
+    """Get transposed of the matrix."""
+    mat = self.cls.Matrix44()
+    mat.m11 = self.m11
+    mat.m12 = self.m21
+    mat.m13 = self.m31
+    mat.m14 = self.m41
+    mat.m21 = self.m12
+    mat.m22 = self.m22
+    mat.m23 = self.m32
+    mat.m24 = self.m42
+    mat.m31 = self.m13
+    mat.m32 = self.m23
+    mat.m33 = self.m33
+    mat.m34 = self.m43
+    mat.m41 = self.m14
+    mat.m42 = self.m24
+    mat.m43 = self.m34
+    mat.m44 = self.m44
+    return mat
+
 def setMatrix33(self, m):
     """Sets upper left 3x3 part."""
     if not isinstance(m, self.cls.Matrix33):
@@ -166,24 +194,24 @@ def setMatrix33(self, m):
 def getTranslation(self):
     """Returns lower left 1x3 part."""
     t = self.cls.Vector3()
-    t.x = self.m41
-    t.y = self.m42
-    t.z = self.m43
+    t.x = self.m14
+    t.y = self.m24
+    t.z = self.m34
     return t
 
 def setTranslation(self, translation):
     """Returns lower left 1x3 part."""
     if not isinstance(translation, self.cls.Vector3):
         raise TypeError('argument must be Vector3')
-    self.m41 = translation.x
-    self.m42 = translation.y
-    self.m43 = translation.z
+    self.m14 = translation.x
+    self.m24 = translation.y
+    self.m34 = translation.z
 
 def isScaleRotationTranslation(self):
     if not self.getMatrix33().isScaleRotation(): return False
-    if abs(self.m14) > self.cls.EPSILON: return False
-    if abs(self.m24) > self.cls.EPSILON: return False
-    if abs(self.m34) > self.cls.EPSILON: return False
+    if abs(self.m41) > self.cls.EPSILON: return False
+    if abs(self.m42) > self.cls.EPSILON: return False
+    if abs(self.m43) > self.cls.EPSILON: return False
     if abs(self.m44 - 1.0) > self.cls.EPSILON: return False
     return True
 
@@ -212,20 +240,20 @@ def setScaleRotationTranslation(self, scale, rotation, translation):
         print rotation
         #raise ValueError('rotation must be rotation matrix')
 
-    self.m14 = 0.0
-    self.m24 = 0.0
-    self.m34 = 0.0
+    self.m41 = 0.0
+    self.m42 = 0.0
+    self.m43 = 0.0
     self.m44 = 1.0
 
     rotscl = rotation.getCopy()
     rotscl.m11 *= scale.x
-    rotscl.m12 *= scale.x
-    rotscl.m13 *= scale.x
-    rotscl.m21 *= scale.y
+    rotscl.m21 *= scale.x
+    rotscl.m31 *= scale.x
+    rotscl.m12 *= scale.y
     rotscl.m22 *= scale.y
-    rotscl.m23 *= scale.y
-    rotscl.m31 *= scale.z
-    rotscl.m32 *= scale.z
+    rotscl.m32 *= scale.y
+    rotscl.m13 *= scale.z
+    rotscl.m23 *= scale.z
     rotscl.m33 *= scale.z
 
     self.setMatrix33(rotscl)
@@ -256,12 +284,12 @@ def getInverse(self, fast = True):
 
     if fast:
         m = self.getMatrix33().getInverse()
-        t = -(self.getTranslation() * m)
+        t = -(m * self.getTranslation())
 
         n = self.cls.Matrix44()
-        n.m14 = 0.0
-        n.m24 = 0.0
-        n.m34 = 0.0
+        n.m41 = 0.0
+        n.m42 = 0.0
+        n.m43 = 0.0
         n.m44 = 1.0
         n.setMatrix33(m)
         n.setTranslation(t)
