@@ -1,7 +1,5 @@
-# --------------------------------------------------------------------------
-# NifFormat.Matrix44
-# Custom functions for Matrix44.
-# --------------------------------------------------------------------------
+"""Custom Matrix44 functions."""
+
 # ***** BEGIN LICENSE BLOCK *****
 #
 # Copyright (c) 2007, NIF File Format Library and Tools.
@@ -68,9 +66,18 @@ def setRows(self, row0, row1, row2, row3):
     self.m41, self.m42, self.m43, self.m44 = row3
 
 def __str__(self):
-    return "[ %6.3f %6.3f %6.3f %6.3f ]\n[ %6.3f %6.3f %6.3f %6.3f ]\n[ %6.3f %6.3f %6.3f %6.3f ]\n[ %6.3f %6.3f %6.3f %6.3f ]\n"%(self.m11, self.m12, self.m13, self.m14, self.m21, self.m22, self.m23, self.m24, self.m31, self.m32, self.m33, self.m34, self.m41, self.m42, self.m43, self.m44)
+    return """\
+[ %6.3f %6.3f %6.3f %6.3f ]
+[ %6.3f %6.3f %6.3f %6.3f ]
+[ %6.3f %6.3f %6.3f %6.3f ]
+[ %6.3f %6.3f %6.3f %6.3f ]
+""" % (self.m11, self.m12, self.m13, self.m14,
+       self.m21, self.m22, self.m23, self.m24,
+       self.m31, self.m32, self.m33, self.m34,
+       self.m41, self.m42, self.m43, self.m44)
 
 def setIdentity(self):
+    """Set to identity matrix."""
     self.m11 = 1.0
     self.m12 = 0.0
     self.m13 = 0.0
@@ -89,30 +96,47 @@ def setIdentity(self):
     self.m44 = 1.0
 
 def isIdentity(self):
-    if  abs(self.m11 - 1.0) > self.cls._EPSILON or abs(self.m12) > self.cls._EPSILON or abs(self.m13) > self.cls._EPSILON or abs(self.m14) > self.cls._EPSILON or abs(self.m21) > self.cls._EPSILON or abs(self.m22 - 1.0) > self.cls._EPSILON or abs(self.m23) > self.cls._EPSILON or abs(self.m24) > self.cls._EPSILON or abs(self.m31) > self.cls._EPSILON or abs(self.m32) > self.cls._EPSILON or abs(self.m33 - 1.0) > self.cls._EPSILON or abs(self.m34) > self.cls._EPSILON or abs(self.m41) > self.cls._EPSILON or abs(self.m42) > self.cls._EPSILON or abs(self.m43) > self.cls._EPSILON or abs(self.m44 - 1.0) > self.cls._EPSILON:
+    """Return C{True} if the matrix is close to identity."""
+    if (abs(self.m11 - 1.0) > self.cls._EPSILON
+        or abs(self.m12) > self.cls._EPSILON
+        or abs(self.m13) > self.cls._EPSILON
+        or abs(self.m14) > self.cls._EPSILON
+        or abs(self.m21) > self.cls._EPSILON
+        or abs(self.m22 - 1.0) > self.cls._EPSILON
+        or abs(self.m23) > self.cls._EPSILON
+        or abs(self.m24) > self.cls._EPSILON
+        or abs(self.m31) > self.cls._EPSILON
+        or abs(self.m32) > self.cls._EPSILON
+        or abs(self.m33 - 1.0) > self.cls._EPSILON
+        or abs(self.m34) > self.cls._EPSILON
+        or abs(self.m41) > self.cls._EPSILON
+        or abs(self.m42) > self.cls._EPSILON
+        or abs(self.m43) > self.cls._EPSILON
+        or abs(self.m44 - 1.0) > self.cls._EPSILON):
         return False
     else:
         return True
 
 def getCopy(self):
-    m = self.cls.Matrix44()
-    m.m11 = self.m11
-    m.m12 = self.m12
-    m.m13 = self.m13
-    m.m14 = self.m14
-    m.m21 = self.m21
-    m.m22 = self.m22
-    m.m23 = self.m23
-    m.m24 = self.m24
-    m.m31 = self.m31
-    m.m32 = self.m32
-    m.m33 = self.m33
-    m.m34 = self.m34
-    m.m41 = self.m41
-    m.m42 = self.m42
-    m.m43 = self.m43
-    m.m44 = self.m44
-    return m
+    """Create a copy of the matrix."""
+    mat = self.cls.Matrix44()
+    mat.m11 = self.m11
+    mat.m12 = self.m12
+    mat.m13 = self.m13
+    mat.m14 = self.m14
+    mat.m21 = self.m21
+    mat.m22 = self.m22
+    mat.m23 = self.m23
+    mat.m24 = self.m24
+    mat.m31 = self.m31
+    mat.m32 = self.m32
+    mat.m33 = self.m33
+    mat.m34 = self.m34
+    mat.m41 = self.m41
+    mat.m42 = self.m42
+    mat.m43 = self.m43
+    mat.m44 = self.m44
+    return mat
 
 def getMatrix33(self):
     """Returns upper left 3x3 part."""

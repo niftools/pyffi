@@ -127,7 +127,7 @@ def isScaleRotation(self):
     # = scale^2 * rotation * rotation^T
     # = scale^2 * 3x3 identity matrix
     self_transpose = self.getTranspose()
-    mat = self*self_transpose
+    mat = self * self_transpose
 
     # off diagonal elements should be zero
     if (abs(mat.m12) + abs(mat.m13)
