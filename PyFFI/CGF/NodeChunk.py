@@ -50,6 +50,14 @@ def applyScale(self, scale):
 
 def updatePosRotScl(self):
     """Update position, rotation, and scale, from the transform."""
-    self.pos.x = transform.m41
-    self.pos.y = transform.m42
-    self.pos.z = transform.m43
+    scale, quat, trans = self.transform.getScaleQuatTranslation()
+    self.pos.x = trans.x
+    self.pos.y = trans.y
+    self.pos.z = trans.z
+    self.rot.x = quat.x
+    self.rot.y = quat.y
+    self.rot.z = quat.z
+    self.rot.w = quat.w
+    self.scale.x = scale.x
+    self.scale.y = scale.y
+    self.scale.z = scale.z

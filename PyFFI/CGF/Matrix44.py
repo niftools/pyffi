@@ -188,19 +188,16 @@ def isScaleRotationTranslation(self):
     return True
 
 def getScaleRotationTranslation(self):
-    r = self.getMatrix33()
-    s = r.getScale()
-    r.m11 /= s.x
-    r.m12 /= s.x
-    r.m13 /= s.x
-    r.m21 /= s.y
-    r.m22 /= s.y
-    r.m23 /= s.y
-    r.m31 /= s.z
-    r.m32 /= s.z
-    r.m33 /= s.z
-    t = self.getTranslation()
-    return (s, r, t)
+    rotscl = self.getMatrix33()
+    scale, rot = rotscl.getScaleRotation()
+    trans = self.getTranslation()
+    return (scale, rot, trans)
+
+def getScaleQuatTranslation(self):
+    rotscl = self.getMatrix33()
+    scale, quat = rotscl.getScaleQuat()
+    trans = self.getTranslation()
+    return (scale, quat, trans)
 
 def setScaleRotationTranslation(self, scale, rotation, translation):
     if not isinstance(scale, self.cls.Vector3):
