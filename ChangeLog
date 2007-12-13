@@ -1,4 +1,4 @@
-Version 0.7.3 (***):
+Version 0.7.3 (13 Dec 2007):
 * nif: fixed error message when encountering empty block type
 * nif: dump script with block selection feature
 * cgf: fix transform errors, ported matrix and vector operations from nif
