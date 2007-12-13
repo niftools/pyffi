@@ -562,7 +562,7 @@ i
         <add name="Tex Detail" type="TextureMap" cond="Type == 1" ver1="745">Detail texture settings.</add>
         <!-- physics -->
         <add name="Flags" type="MtlFlags" cond="Type == 1" ver1="745" />
-        <add name="Dyn Bounce" type="float" cond="Type == 1" />
+        <add name="Dyn Bounce" type="float" cond="Type == 1">Set 1.0 to activate collision, 0.0 for walkthrough.</add>
         <add name="Dyn Static Friction" type="float" cond="Type == 1" />
         <add name="Dyn Sliding Friction" type="float" cond="Type == 1" />
 
