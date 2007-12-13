@@ -563,7 +563,7 @@ i
         <!-- physics -->
         <add name="Flags" type="MtlFlags" cond="Type == 1" ver1="745" />
         <add name="Dyn Bounce" type="float" cond="Type == 1" />
-        <add name="Dyn Static Friction" type="float" default="1.0" cond="Type == 1" />
+        <add name="Dyn Static Friction" type="float" cond="Type == 1" />
         <add name="Dyn Sliding Friction" type="float" cond="Type == 1" />
 
         <add name="Num Children" type="int" cond="Type == 2" />
