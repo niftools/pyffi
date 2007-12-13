@@ -51,13 +51,14 @@ def getNameShaderScript(self):
     else:
         mtlscript = ""
     if (shader_begin != -1): # if a shader was specified
+        mtl_end = shader_begin
         # must have exactly one shader
         if (name.count("(") != 1):
             # some names are buggy and have "((" instead of "("
             # like in jungle_camp_sleeping_barack
             # here we handle that case
             if name[shader_begin + 1] == "(" \
-               and name[shader_begin + 1:].count("(") != 1:
+               and name[shader_begin + 1:].count("(") == 1:
                 shader_begin += 1
             else:
                 raise ValueError("%s malformed, has multiple ""("""%name)
@@ -69,7 +70,7 @@ def getNameShaderScript(self):
         # script must be immediately followed by the material
         if (script_begin != -1) and (shader_end + 1 != script_begin):
             raise ValueError("%s malformed, shader not followed by script"%name)
-        mtlname = name[:shader_begin]
+        mtlname = name[:mtl_end]
         mtlshader = name[shader_begin+1:shader_end]
     else:
         if script_begin != -1:
