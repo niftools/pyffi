@@ -230,14 +230,45 @@ class VectorBase(BasicBase):
     Use as base class for vectors and set the C{_dim} class variable to the
     dimension and the C{_type} class variable to the actual vector type that
     should do the math. The constructor of C{_type} must take C{_dim} float
-    arguments, and C{_type} must be iterable. For example, the
-    Blender.Mathutils.Vector class satisfies these requirements."""
+    arguments, or a tuple of C{_dim} floats, and C{_type} must be iterable.
+    For example, the Blender.Mathutils.Vector class satisfies these
+    requirements.
+
+    >>> from tempfile import TemporaryFile
+    >>> tmp = TemporaryFile()
+    >>> i = VectorBase()
+    >>> i.setValue((-1, 1, 2))
+    >>> i.getValue()
+    (-1, 1, 2)
+    >>> i.write(tmp)
+    >>> j = VectorBase()
+    >>> tmp.seek(0)
+    >>> j.read(tmp)
+    >>> j.getValue()
+    (-1.0, 1.0, 2.0)
+    >>> i.setValue('hello world') # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    TypeError: ...
+    >>> tmp.seek(0)
+    >>> tmp.write('\\x00\\x00\\x80\\x3f')
+    >>> tmp.write('\\x00\\x00\\x80\\x3f')
+    >>> tmp.write('\\x00\\x00\\x80\\x3f')
+    >>> tmp.seek(0)
+    >>> i.read(tmp)
+    >>> i.getValue()
+    (1.0, 1.0, 1.0)
+    """
     _dim  = 3
     _type = tuple
 
     def __init__(self, **kwargs):
         super(VectorBase, self).__init__(**kwargs)
-        self._value = self._type(*tuple(0.0 for i in xrange(self._dim)))
+        value = tuple(0.0 for i in xrange(self._dim))
+        try:
+            self._value = self._type(*value)
+        except TypeError:
+            self._value = self._type(value)
 
     def getValue(self):
         """Return stored value as a C{self._type} type."""
@@ -246,10 +277,11 @@ class VectorBase(BasicBase):
     def setValue(self, value):
         """Set value to C{value}."""
         if not isinstance(value, self._type):
-            raise TypeError("Argument must be of type %s."
-                            % self._type.__class__)
-        if not len(value) != self._dim:
-            raise TypeError("Argument must have length %i." % self._dim)
+            raise TypeError("Argument is of type %s but should be of type %s."
+                            % (value.__class__, self._type))
+        if len(value) != self._dim:
+            raise TypeError("Argument has length %i but should have length %i."
+                            % (len(value), self._dim))
         self._value = value
 
     def __str__(self):
@@ -257,8 +289,12 @@ class VectorBase(BasicBase):
 
     def read(self, stream, **kwargs):
         """Read value from stream."""
-        self._value = self._type(*tuple(struct.unpack("<f", stream.read(4))
-                                        for i in xrange(self._dim)))
+        value = struct.unpack("<" + "f" * self._dim,
+                              stream.read(4 * self._dim))
+        try:
+            self._value = self._type(*value)
+        except TypeError:
+            self._value = self._type(value)
 
     def write(self, stream, **kwargs):
         """Write value to stream."""
