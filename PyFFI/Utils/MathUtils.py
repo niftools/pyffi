@@ -185,39 +185,123 @@ def matDeterminant(mat):
 
 #==============================================================================
 
-# partially based on
-# http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52272
+from types import GeneratorType
+
 class Vector(list):
     """A general purpose vector class."""
     def __init__(self, *args):
-        super(Vector, self).__init__(self, (float(x) for x in args))
+        """Vector constructor. Takes either a single list/tuple/generator
+        argument, or multiple int, long, float arguments.
 
-    def __getslice__(self, i, j):
-        return Vector(super(Vector, self).__getslice__(i, j))
+        >>> Vector(1,2,3)
+        [1, 2, 3]
+        >>> Vector("abc") # doctest: +ELLIPSIS
+        Traceback (most recent call last):
+            ...
+        TypeError: ...
+        """
+        if len(args) == 1 and isinstance(args[0], (list, tuple, GeneratorType)):
+            # single list/tuple/generator type
+            list.__init__(self, args[0])
+        else:
+            list.__init__(self, (elem for elem in args))
+        for elem in self:
+            if not isinstance(elem, (int, long, float)):
+                raise TypeError("Vector must consist of scalars.")
 
     def __add__(self, other):
-        return Vector(map(operator.add, self, other))
+        """Vector and scalar addition.
+
+        >>> Vector(1,2,3) + Vector(5,4,3)
+        [6, 6, 6]
+        >>> Vector(1,2,3) + 5
+        [6, 7, 8]
+        """
+        if isinstance(other, Vector):
+            return Vector(elem1 + elem2 for elem1, elem2 in izip(self, other))
+        elif isinstance(other, (int, long, float)):
+            return Vector(elem + other for elem in self)
+        else:
+            raise TypeError("cannot add %s and %s"
+                            % (self.__class__, other.__class__))
 
     def __neg__(self):
-        return Vector(map(operator.neg, self))
+        """Negation.
+
+        >>> -Vector(1,2,3,4)
+        [-1, -2, -3, -4]
+        """
+        return Vector(-elem for elem in self)
     
     def __sub__(self, other):
-        return Vector(map(operator.sub, self, other))
+        """Vector and scalar substraction.
 
-    def __mul__(self, other):
-        """Dot product, scalar product, and matrix product."""
+        >>> Vector(1,2,3) - Vector(5,4,3)
+        [-4, -2, 0]
+        >>> Vector(1,2,3) - 5
+        [-4, -3, -2]
+        >>> Vector(1,2,3) - "hi" # doctest: +ELLIPSIS
+        Traceback (most recent call last):
+            ...
+        TypeError: ...
+        """
         if isinstance(other, Vector):
-            return Vector(map(operator.mul, self, other))
+            return Vector(elem1 - elem2 for elem1, elem2 in izip(self, other))
+        elif isinstance(other, (int, long, float)):
+            return Vector(elem - other for elem in self)
+        else:
+            raise TypeError("cannot substract %s and %s"
+                            % (self.__class__, other.__class__))
+
+    def __rsub__(self, other):
+        """Scalar minus Vector.
+
+        >>> 5 - Vector(1,2,3)
+        [4, 3, 2]
+        """
+        if isinstance(other, (int, long, float)):
+            return Vector(other - elem for elem in self)
+        else:
+            raise TypeError("cannot substract %s and %s"
+                            % (other.__class__, self.__class__))
+    def __mul__(self, other):
+        """Dot product, scalar product, and matrix product.
+
+        >>> Vector(1,2,3) * Vector(4,-5,6)
+        12
+        >>> Vector(2,3,4) * 5
+        [10, 15, 20]"""
+        if isinstance(other, Vector):
+            return sum(map(operator.mul, self, other))
         elif isinstance(other, Matrix):
             if len(self) != other.dim_n:
                 raise ValueError("...")
             return Vector(*( sum( self[i] * other[i][j]
-                                  for i in xrange(len(self)) )
+                                  for i in xrange(other.dim_n) )
                              for j in xrange(other.dim_m) ))
         elif isinstance(other, (int, long, float)):
-            return Vector(map(lambda x: x * other, self))
+            return Vector(other * elem for elem in self)
         else:
             raise TypeError("...")
+
+    def cross(self, other):
+        """Cross product, for 3 dimensional vectors.
+
+        >>> Vector(1,0,0).cross(Vector(0,1,0))
+        [0, 0, 1]
+        >>> Vector(1,2,3).cross(Vector(4,5,6))
+        [-3, 6, -3]
+        """
+        if not isinstance(other, Vector):
+            raise TypeError("cannot take cross product of %s and %s"
+                            % (other.__class__, self.__class__))
+        if len(self) != len(other) and len(self) != 3:
+            raise ValueError(
+                "can only take cross product if both vectors have length 3")
+        return Vector(self[1] * other[2] - self[2] * other[1],
+                      self[2] * other[0] - self[0] * other[2],
+                      self[0] * other[1] - self[1] * other[0])
+        
 
     def __rmul__(self, other):
         if isinstance(other, (int, long, float)):
@@ -227,11 +311,16 @@ class Vector(list):
 
     def __div__(self, other):
         if isinstance(other, (int, long, float)):
-            return vector(map(lambda x: x / other, self))
+            return Vector(elem / other for elem in self)
         else:
             raise TypeError("...")
 
     def norm(self):
+        """Norm of the vector.
+
+        >>> Vector(1,2,3).norm() # doctest: +ELLIPSIS
+        3.74165738677394...
+        """
         return (self * self) ** 0.5
 
     def normalize(self):
@@ -245,13 +334,23 @@ class Matrix(list):
     """A general purpose matrix class."""
     def __init__(self, *args):
         """Initialize matrix from row vectors."""
-        super(Matrix, self).__init__(self, ( list(float(x) for x in row )
+        super(Matrix, self).__init__(self, ( list(x for x in row )
                                              for row in args ))
-        self.dim_n = len(self)
-        self.dim_m = len(self[0]) if self.dim_n else 0
+        self._dim_n = len(self)
+        self._dim_m = len(self[0]) if self.dim_n else 0
         for row in self:
             if len(row) != self.dim_m:
                 raise ValueError("all rows must have the same length")
+
+    def __add__(self, other):
+        if not isinstance(other, Matrix):
+            raise TypeError("cannot add %s and %s"
+                            % (self.__class__, other.__class__))
+        if self._dim_n != other._dim_n or self._dim_m != other._dim_m:
+            raise ValueError("cannot add matrices of different length")
+        return Matrix( ( tuple( mat1[i][j] + mat2[i][j]
+                                for j in xrange(self.dim_n) )
+                         for i in xrange(self.dim_m) ) )
 
 if __name__ == "__main__":
     import doctest
