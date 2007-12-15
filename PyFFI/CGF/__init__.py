@@ -6,6 +6,7 @@ Examples
 
 Read a CGF file
 ---------------
+
 >>> # get file version and file type, and read cgf file
 >>> stream = open('test.cgf', 'rb')
 >>> filetype, fileversion = CgfFormat.getVersion(stream)
@@ -31,6 +32,103 @@ Read a CGF file
     * start : 0
     * end : 100
 * numSubRanges : 0
+<BLANKLINE>
+
+Create a CGF file from scratch
+------------------------------
+
+>>> from PyFFI.CGF import CgfFormat
+>>> node1 = CgfFormat.NodeChunk()
+>>> node1.name = "hello"
+>>> node2 = CgfFormat.NodeChunk()
+>>> node1.numChildren = 1
+>>> node1.children.updateSize()
+>>> node1.children[0] = node2
+>>> node2.name = "world"
+>>> chunks = [node1, node2]
+>>> stream = open('testwrite.cgf', 'wb')
+>>> CgfFormat.write(
+...     stream,
+...     filetype = CgfFormat.FileType.GEOM,
+...     fileversion = CgfFormat.getFileVersion('FarCry'),
+...     chunks = chunks,
+...     versions = CgfFormat.getChunkVersions('FarCry', chunks))
+>>> stream.close()
+>>> stream = open('testwrite.cgf', 'rb')
+>>> filetype, fileversion = CgfFormat.getVersion(stream)
+>>> if filetype == -1:
+...     raise RuntimeError('cgf version not supported')
+... elif filetype == -2:
+...     raise RuntimeError('not a cgf file')
+>>> chunks, versions = CgfFormat.read(stream, fileversion = fileversion)
+>>> # print all chunks
+>>> for chunk in chunks:
+...     print chunk # doctest: +ELLIPSIS
+<class 'PyFFI.XmlHandler.NodeChunk'> instance at 0x...
+* name : hello
+* object : None
+* parent : None
+* numChildren : 1
+* material : None
+* isGroupHead : 0
+* isGroupMember : 0
+* reserved1 :
+    <class 'PyFFI.Bases.Array.Array'> instance at 0x...
+    0: 0
+    1: 0
+* transform :
+    [  0.000  0.000  0.000  0.000 ]
+    [  0.000  0.000  0.000  0.000 ]
+    [  0.000  0.000  0.000  0.000 ]
+    [  0.000  0.000  0.000  0.000 ]
+* pos : [  0.000  0.000  0.000 ]
+* rot :
+    <class 'PyFFI.XmlHandler.Quat'> instance at 0x...
+    * x : 0.0
+    * y : 0.0
+    * z : 0.0
+    * w : 0.0
+* scl : [  0.000  0.000  0.000 ]
+* posCtrl : None
+* rotCtrl : None
+* sclCtrl : None
+* propertyStringLength : 0
+* propertyString : <class 'PyFFI.Bases.Array.Array'> instance at 0x...
+* children :
+    <class 'PyFFI.Bases.Array.Array'> instance at 0x...
+    0: <class 'PyFFI.XmlHandler.NodeChunk'> instance at 0x...
+<BLANKLINE>
+<class 'PyFFI.XmlHandler.NodeChunk'> instance at 0x...
+* name : world
+* object : None
+* parent : None
+* numChildren : 0
+* material : None
+* isGroupHead : 0
+* isGroupMember : 0
+* reserved1 :
+    <class 'PyFFI.Bases.Array.Array'> instance at 0x...
+    0: 0
+    1: 0
+* transform :
+    [  0.000  0.000  0.000  0.000 ]
+    [  0.000  0.000  0.000  0.000 ]
+    [  0.000  0.000  0.000  0.000 ]
+    [  0.000  0.000  0.000  0.000 ]
+* pos : [  0.000  0.000  0.000 ]
+* rot :
+    <class 'PyFFI.XmlHandler.Quat'> instance at 0x...
+    * x : 0.0
+    * y : 0.0
+    * z : 0.0
+    * w : 0.0
+* scl : [  0.000  0.000  0.000 ]
+* posCtrl : None
+* rotCtrl : None
+* sclCtrl : None
+* propertyStringLength : 0
+* propertyString : <class 'PyFFI.Bases.Array.Array'> instance at 0x...
+* children : <class 'PyFFI.Bases.Array.Array'> instance at 0x...
 <BLANKLINE>
 """
 

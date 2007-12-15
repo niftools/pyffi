@@ -260,6 +260,7 @@ class VectorBase(BasicBase):
     (1.0, 1.0, 1.0)
     """
     class TupleVector(tuple):
+        """A very simple vector class."""
         _dim = 3
         def __new__(cls, *args):
             if len(args) != cls._dim:
@@ -354,6 +355,7 @@ class MatrixBase(BasicBase):
     """
 
     class TupleMatrix(tuple):
+        """A very simple matrix class."""
         _dim_n = 3
         _dim_m = 3
         def __new__(cls, *args):
