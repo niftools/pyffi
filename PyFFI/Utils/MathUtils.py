@@ -225,6 +225,18 @@ class Vector(list):
             raise TypeError("cannot add %s and %s"
                             % (self.__class__, other.__class__))
 
+    def __radd__(self, other):
+        """Scalar plus Vector.
+
+        >>> 5 + Vector(1,2,3)
+        [6, 7, 8]
+        """
+        if isinstance(other, (int, long, float)):
+            return Vector(elem + other for elem in self)
+        else:
+            raise TypeError("cannot add %s and %s"
+                            % (other.__class__, self.__class__))
+
     def __neg__(self):
         """Negation.
 
@@ -274,15 +286,27 @@ class Vector(list):
         if isinstance(other, Vector):
             return sum(map(operator.mul, self, other))
         elif isinstance(other, Matrix):
-            if len(self) != other.dim_n:
+            if len(self) != other._dim_n:
                 raise ValueError("...")
             return Vector(*( sum( self[i] * other[i][j]
-                                  for i in xrange(other.dim_n) )
+                                  for i in xrange(other._dim_n) )
                              for j in xrange(other.dim_m) ))
         elif isinstance(other, (int, long, float)):
             return Vector(other * elem for elem in self)
         else:
-            raise TypeError("...")
+            raise TypeError("cannot multiply %s and %s"
+                            % (self.__class__, other.__class__))
+
+    def __rmul__(self, other):
+        """Scalar times Vector.
+
+        >>> 5 * Vector(2,3,4)
+        [10, 15, 20]"""
+        if isinstance(other, (int, long, float)):
+            return (self * other)
+        else:
+            raise TypeError("cannot multiply %s and %s"
+                            % (other.__class__, self.__class__))
 
     def cross(self, other):
         """Cross product, for 3 dimensional vectors.
@@ -291,11 +315,19 @@ class Vector(list):
         [0, 0, 1]
         >>> Vector(1,2,3).cross(Vector(4,5,6))
         [-3, 6, -3]
+        >>> Vector(1,2).cross(Vector(4,5,6)) # doctest: +ELLIPSIS
+        Traceback (most recent call last):
+            ...
+        ValueError: ...
+        >>> Vector(1,2).cross("hi") # doctest: +ELLIPSIS
+        Traceback (most recent call last):
+            ...
+        TypeError: ...
         """
         if not isinstance(other, Vector):
             raise TypeError("cannot take cross product of %s and %s"
                             % (other.__class__, self.__class__))
-        if len(self) != len(other) and len(self) != 3:
+        if len(self) != len(other) or len(self) != 3:
             raise ValueError(
                 "can only take cross product if both vectors have length 3")
         return Vector(self[1] * other[2] - self[2] * other[1],
@@ -303,13 +335,12 @@ class Vector(list):
                       self[0] * other[1] - self[1] * other[0])
         
 
-    def __rmul__(self, other):
-        if isinstance(other, (int, long, float)):
-            return (self * other)
-        else:
-            raise TypeError("...")
-
     def __div__(self, other):
+        """Divide a Vector by a scalar.
+
+        >>> 0.000000001 + (Vector(2,3,4) / 5.0) # doctest: +ELLIPSIS
+        [0.4000..., 0.6000..., 0.8000...]
+        """
         if isinstance(other, (int, long, float)):
             return Vector(elem / other for elem in self)
         else:
@@ -324,33 +355,86 @@ class Vector(list):
         return (self * self) ** 0.5
 
     def normalize(self):
+        """Normalize and return self. Raise ZeroDivisionError if the vector
+        cannot be normalized.
+
+        >>> x = Vector(1,2,3).normalize()
+        >>> x # doctest: +ELLIPSIS
+        [0.2672612419124..., 0.5345224838248..., 0.8017837257372...]
+        >>> x.norm() + 0.00001 # doctest: +ELLIPSIS
+        1.000...
+        >>> Vector(0,0,0).normalize() # doctest: +ELLIPSIS
+        Traceback (most recent call last):
+            ...
+        ZeroDivisionError: ...
+        """
         norm = self.norm()
-        if norm < self._EPSILON:
+        try:
+            for i in xrange(len(self)):
+                self[i] /= norm
+        except ZeroDivisionError:
             raise ZeroDivisionError('cannot normalize vector %s' % self)
-        for i in xrange(len(self)):
-            self[i] /= norm
+        return self
 
 class Matrix(list):
     """A general purpose matrix class."""
     def __init__(self, *args):
-        """Initialize matrix from row vectors."""
-        super(Matrix, self).__init__(self, ( list(x for x in row )
-                                             for row in args ))
+        """Initialize matrix from row vectors.
+
+        >>> Matrix((1,2,3),(4,5,6),(7,8,9))
+        [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+        >>> Matrix(( row for row in xrange(i, i + 3) ) for i in xrange(3))
+        [[0, 1, 2], [1, 2, 3], [2, 3, 4]]
+        """
+        if len(args) == 1 and isinstance(args[0], (list, tuple, GeneratorType)):
+            # single list/tuple/generator type
+            list.__init__(self, (list(row) for row in args[0]))
+        else:
+            list.__init__(self, ( list( elem for elem in row )
+                                  for row in args ))
         self._dim_n = len(self)
-        self._dim_m = len(self[0]) if self.dim_n else 0
+        self._dim_m = len(self[0]) if self._dim_n else 0
         for row in self:
-            if len(row) != self.dim_m:
+            if len(row) != self._dim_m:
                 raise ValueError("all rows must have the same length")
+        for row in self:
+            for elem in row:
+                if not isinstance(elem, (int, long, float)):
+                    raise TypeError("Matrix must consist of scalars.")
 
     def __add__(self, other):
-        if not isinstance(other, Matrix):
+        """Matrix and scalar addition.
+
+        >>> Matrix((1,2,3),(2,3,4),(4,5,6)) + Matrix((3,2,1),(2,1,0),(1,2,3))
+        [[4, 4, 4], [4, 4, 4], [5, 7, 9]]
+        >>> Matrix((1,2,3),(2,3,4),(4,5,6)) + 5
+        [[6, 7, 8], [7, 8, 9], [9, 10, 11]]
+        """
+        if isinstance(other, Matrix):
+            if self._dim_n != other._dim_n or self._dim_m != other._dim_m:
+                raise ValueError("cannot add matrices of different length")
+            return Matrix( ( elem1 + elem2
+                             for elem1, elem2 in izip(row1, row2) )
+                           for row1, row2 in izip(self, other) )
+        elif isinstance(other, (int, long, float)):
+            return Matrix( ( elem + other for elem in row )
+                           for row in self )
+        else:
             raise TypeError("cannot add %s and %s"
                             % (self.__class__, other.__class__))
-        if self._dim_n != other._dim_n or self._dim_m != other._dim_m:
-            raise ValueError("cannot add matrices of different length")
-        return Matrix( ( tuple( mat1[i][j] + mat2[i][j]
-                                for j in xrange(self.dim_n) )
-                         for i in xrange(self.dim_m) ) )
+
+    def __radd__(self, other):
+        """Scalar plus Matrix.
+
+        >>> 5 + Matrix((1,2,3),(2,3,4),(4,5,6))
+        [[6, 7, 8], [7, 8, 9], [9, 10, 11]]
+        """
+        if isinstance(other, (int, long, float)):
+            return Matrix( ( elem + other for elem in row )
+                           for row in self )
+        else:
+            raise TypeError("cannot add %s and %s"
+                            % (other.__class__, self.__class__))
 
 if __name__ == "__main__":
     import doctest
