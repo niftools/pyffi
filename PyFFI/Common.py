@@ -223,19 +223,126 @@ class Float(BasicBase):
         with precision 1/200."""
         return int(self.getValue()*200)
 
-### faster calculation, slower read/write:
-##class Float(BasicBase):
-##    def __init__(self, **kwargs):
-##        self._value = 0.0
-##
-##    def getValue(self):
-##        return self._value
-##
-##    def setValue(self, value):
-##        self._value = float(value)
-##
-##    def read(self, stream, **kwargs):
-##        self._value = struct.unpack('<f', stream.read(4))[0]
-##
-##    def write(self, stream, **kwargs):
-##        stream.write(struct.pack('<f', self._value))
+class VectorBase(BasicBase):
+    """Implementation of a N-dimensional vector.
+
+    Use as base class for vectors and set the C{_dim} class variable to the
+    dimension and the C{_math} class variable to the actual vector type that
+    should do the math. The constructor of C{_math} must take C{_dim} float
+    arguments, and C{_math} must be iterable. For example, the
+    Blender.Mathutils.Vector class satisfies these requirements."""
+    _dim  = None
+    _math = None
+
+    def __init__(self, **kwargs):
+        super(VectorBase, self).__init__(**kwargs)
+        self._value = '\x00\x00\x00\x00' * self._dim
+
+    def _asTuple(self):
+        """Helper function for getValue, __str__, and getHash methods."""
+        return struct.unpack("<" + "f" * self._dim, self._value)
+
+    def getValue(self):
+        """Return stored value as a C{self._math} type."""
+        return self._math(*self._asTuple())
+
+    def setValue(self, value):
+        """Set value to C{value}."""
+        try:
+            self._value = struct.pack("<" + "f" * self._dim, *value)
+        except TypeError:
+            raise TypeError("Argument must be a sequence.")
+
+    def __str__(self):
+        return ("[ " + "%6.3f " * self._dim + "]") % self._asTuple()
+
+    def read(self, stream, **kwargs):
+        """Read value from stream."""
+        self._value = stream.read(4 * self._dim)
+
+    def write(self, stream, **kwargs):
+        """Write value to stream."""
+        stream.write(self._value)
+
+    def getSize(self, **kwargs):
+        """Return size of this type."""
+        return 4 * self._dim
+
+    def getHash(self, **kwargs):
+        """Return a hash value for this vector. Currently implemented
+        with precision 1/200."""
+        return tuple(int(x * 200) for x in self._asTuple())
+
+class MatrixBase(BasicBase):
+    """Implementation of a nxm matrix.
+
+    Use as base class for matrices and set the C{_dim_n} and C{_dim_m} class
+    variables to the dimensions and the C{_math} class variable to the actual
+    matrix type that should do the math. The constructor of C{_math} must take
+    {_dim_n} arguments, each of which is a tuple of C{_dim_m} floats. If the
+    matrix is stored transposed, then set C{_transposed} to C{True}."""
+    _dim_n = None
+    _dim_m = None
+    _math = None
+    _transposed = False
+
+    def __init__(self, **kwargs):
+        super(Vector2, self).__init__(**kwargs)
+        self._value = '\x00\x00\x00\x00' * (self._dim_n * self._dim_m)
+
+    def _asTuple(self):
+        """Helper function for getValue, __str__, and getHash methods."""
+        result = tuple(struct.unpack("<" + "f" * self._dim_m,
+                                     self._value[i * 4 * self._dim_m:
+                                                 (i + 1) * 4 * self._dim_m])
+                       for i in xrange(self._dim_n))
+        if not self._transposed:
+            return result
+        else:
+            return tuple( tuple( result[i][j]
+                                 for i in xrange(self._dim_n) )
+                          for j in xrange(self._dim_m) )
+
+    def getValue(self):
+        """Return stored value."""
+        return self._math(*self._asTuple())
+
+    def setValue(self, value):
+        """Set value to C{value}."""
+        # transform value to a tuple of tuple of floats
+        if not self._transposed:
+            mat = tuple( tuple( float(value[i][j])
+                                for j in xrange(self._dim_m) )
+                         for i in xrange(self._dim_n) )
+        else:
+            mat = tuple( tuple( float(value[i][j])
+                                for i in xrange(self._dim_n) )
+                         for j in xrange(self._dim_m) )
+        # pack mat
+        self._value = ""
+        for row in mat:
+            self._value += struct.pack("<" + "f" * len(row), *row)
+
+    def __str__(self):
+        result = ""
+        for row in self._asTuple():
+            result += ("[ " + "%6.3f " * len(row) + "]\n") % row
+        return result
+
+    def read(self, stream, **kwargs):
+        """Read value from stream."""
+        self._value = stream.read(4 * self._dim_n * self._dim_m)
+
+    def write(self, stream, **kwargs):
+        """Write value to stream."""
+        stream.write(self._value)
+
+    def getSize(self, **kwargs):
+        """Return size of this type."""
+        return 4 * self._dim_n * self._dim_m
+
+    def getHash(self, **kwargs):
+        """Return a hash value for this matrix. Currently implemented
+        with precision 1/200."""
+        return tuple( tuple( int(elem * 200) for elem in row )
+                      for row in self._asTuple() )
