@@ -237,9 +237,9 @@ class VectorBase(BasicBase):
     >>> from tempfile import TemporaryFile
     >>> tmp = TemporaryFile()
     >>> i = VectorBase()
-    >>> i.setValue((-1, 1, 2))
+    >>> i.setValue(VectorBase.TupleVector(-1, 1, 2))
     >>> i.getValue()
-    (-1, 1, 2)
+    (-1.0, 1.0, 2.0)
     >>> i.write(tmp)
     >>> j = VectorBase()
     >>> tmp.seek(0)
@@ -259,29 +259,34 @@ class VectorBase(BasicBase):
     >>> i.getValue()
     (1.0, 1.0, 1.0)
     """
+    class TupleVector(tuple):
+        _dim = 3
+        def __new__(cls, *args):
+            if len(args) != cls._dim:
+                raise TypeError("expected exactly %i arguments" % cls._dim)
+            return tuple.__new__(cls, (float(x) for x in args))
+
     _dim  = 3
-    _type = tuple
+    _type = TupleVector
 
     def __init__(self, **kwargs):
         super(VectorBase, self).__init__(**kwargs)
         value = tuple(0.0 for i in xrange(self._dim))
-        try:
-            self._value = self._type(*value)
-        except TypeError:
-            self._value = self._type(value)
+        self._value = self._type(*value)
 
     def getValue(self):
-        """Return stored value as a C{self._type} type."""
+        """Return stored value."""
         return self._value
 
     def setValue(self, value):
-        """Set value to C{value}."""
+        """Set matrix to C{value}. Raises TypeError if C{value} is not an
+        instance of self._type."""
+        # check type
         if not isinstance(value, self._type):
             raise TypeError("Argument is of type %s but should be of type %s."
                             % (value.__class__, self._type))
-        if len(value) != self._dim:
-            raise TypeError("Argument has length %i but should have length %i."
-                            % (len(value), self._dim))
+        # (leave dimension checks to self._type)
+        # set the value
         self._value = value
 
     def __str__(self):
@@ -291,10 +296,7 @@ class VectorBase(BasicBase):
         """Read value from stream."""
         value = struct.unpack("<" + "f" * self._dim,
                               stream.read(4 * self._dim))
-        try:
-            self._value = self._type(*value)
-        except TypeError:
-            self._value = self._type(value)
+        self._value = self._type(*value)
 
     def write(self, stream, **kwargs):
         """Write value to stream."""
@@ -317,28 +319,76 @@ class MatrixBase(BasicBase):
     variables to the dimensions and the C{_type} class variable to the actual
     matrix type that should do the math. The constructor of C{_type} must take
     {_dim_n} arguments, each of which is a tuple of C{_dim_m} floats. If the
-    matrix is stored transposed, then set C{_transposed} to C{True}."""
+    matrix is stored transposed, then set C{_transposed} to C{True}.
+
+    >>> from tempfile import TemporaryFile
+    >>> tmp = TemporaryFile()
+    >>> i = MatrixBase()
+    >>> i.setValue(MatrixBase.TupleMatrix((-1, 1, 2), (1, 2, 3), (4, 5, 6)))
+    >>> i.getValue()
+    ((-1.0, 1.0, 2.0), (1.0, 2.0, 3.0), (4.0, 5.0, 6.0))
+    >>> i.write(tmp)
+    >>> j = MatrixBase()
+    >>> tmp.seek(0)
+    >>> j.read(tmp)
+    >>> j.getValue()
+    ((-1.0, 1.0, 2.0), (1.0, 2.0, 3.0), (4.0, 5.0, 6.0))
+    >>> i.setValue('hello world') # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    TypeError: ...
+    >>> tmp.seek(0)
+    >>> tmp.write('\\x00\\x00\\x80\\x3f')
+    >>> tmp.write('\\x00\\x00\\x00\\x00')
+    >>> tmp.write('\\x00\\x00\\x00\\x00')
+    >>> tmp.write('\\x00\\x00\\x00\\x00')
+    >>> tmp.write('\\x00\\x00\\x80\\x3f')
+    >>> tmp.write('\\x00\\x00\\x00\\x00')
+    >>> tmp.write('\\x00\\x00\\x00\\x00')
+    >>> tmp.write('\\x00\\x00\\x00\\x00')
+    >>> tmp.write('\\x00\\x00\\x80\\x3f')
+    >>> tmp.seek(0)
+    >>> i.read(tmp)
+    >>> i.getValue()
+    ((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))
+    """
+
+    class TupleMatrix(tuple):
+        _dim_n = 3
+        _dim_m = 3
+        def __new__(cls, *args):
+            if len(args) != cls._dim_n:
+                raise ValueError("expected exactly %i arguments" % cls._dim_n)
+            for row in args:
+                if len(row) != cls._dim_m:
+                    raise TypeError("each argument should have length %i"
+                                    % cls._dim_m)
+            return tuple.__new__(cls, (tuple(float(x) for x in row) for row in args))
+
     _dim_n = 3
     _dim_m = 3
-    _type = tuple
+    _type = TupleMatrix
     _transposed = False
 
     def __init__(self, **kwargs):
         super(MatrixBase, self).__init__(**kwargs)
-        self._value = self._type(*( tuple( 0.0
-                                           for j in xrange(self._dim_m) )
-                                    for i in xrange(self._dim_n) ) )
+        value = tuple( tuple( 0.0
+                              for j in xrange(self._dim_m) )
+                       for i in xrange(self._dim_n) )
+        self._value = self._type(*value)
 
     def getValue(self):
         """Return stored matrix."""
         return self._value
 
     def setValue(self, value):
-        """Set matrix to C{value}."""
+        """Set matrix to C{value}. Raises TypeError if C{value} is not an
+        instance of self._type."""
         # check type
         if not isinstance(value, self._type):
-            raise TypeError("Argument must be of type %s."
-                            % self._type.__class__)
+            raise TypeError("Argument is of type %s but should be of type %s."
+                            % (value.__class__, self._type))
+        # (leave dimension checks to self._type)
         # set the value
         self._value = value
 
@@ -351,13 +401,13 @@ class MatrixBase(BasicBase):
     def read(self, stream, **kwargs):
         """Read matrix from stream."""
         if not self._transposed:
-            mat = ( struct(unpack("<" + "f" * self._dim_m,
-                                  stream.read(4 * self._dim_m)))
+            mat = ( struct.unpack("<" + "f" * self._dim_m,
+                                  stream.read(4 * self._dim_m))
                     for i in xrange(self._dim_n) )
             self._value = self._type(*mat)
         else:
-            mat = ( struct(unpack("<" + "f" * self._dim_n,
-                                  stream.read(4 * self._dim_n)))
+            mat = ( struct.unpack("<" + "f" * self._dim_n,
+                                  stream.read(4 * self._dim_n))
                     for i in xrange(self._dim_m) )
             # izip(*mat) is an iterator which transposes the matrix
             self._value = self._type(*izip(*mat))
@@ -365,10 +415,10 @@ class MatrixBase(BasicBase):
     def write(self, stream, **kwargs):
         """Write matrix to stream."""
         if not self._transposed:
-            for row in mat:
+            for row in self._value:
                 stream.write(struct.pack("<" + "f" * len(row), *row))
         else:
-            for row in izip(*mat):
+            for row in izip(*self._value):
                 stream.write(struct.pack("<" + "f" * len(row), *row))
 
     def getSize(self, **kwargs):
