@@ -282,15 +282,21 @@ class Vector(list):
         >>> Vector(1,2,3) * Vector(4,-5,6)
         12
         >>> Vector(2,3,4) * 5
-        [10, 15, 20]"""
+        [10, 15, 20]
+        >>> Vector(4,-5,6) * Matrix((1,2,3),(2,3,4),(4,5,6))
+        [18, 23, 28]
+        >>> Vector(4,-5,6) * Matrix((1,2,4),(2,3,5),(3,4,6))
+        [12, 17, 27]
+        """
         if isinstance(other, Vector):
             return sum(map(operator.mul, self, other))
         elif isinstance(other, Matrix):
             if len(self) != other._dim_n:
-                raise ValueError("...")
-            return Vector(*( sum( self[i] * other[i][j]
-                                  for i in xrange(other._dim_n) )
-                             for j in xrange(other.dim_m) ))
+                raise ValueError("cannot multiply %i-vector with %ix%i-matrix"
+                                 % (len(self), other._dim_n, other._dim_m))
+            return Vector( sum( self[i] * other[i][j]
+                                for i in xrange(other._dim_n) )
+                           for j in xrange(other._dim_m) )
         elif isinstance(other, (int, long, float)):
             return Vector(other * elem for elem in self)
         else:
@@ -407,8 +413,8 @@ class Matrix(list):
 
         >>> Matrix((1,2,3),(2,3,4),(4,5,6)) + Matrix((3,2,1),(2,1,0),(1,2,3))
         [[4, 4, 4], [4, 4, 4], [5, 7, 9]]
-        >>> Matrix((1,2,3),(2,3,4),(4,5,6)) + 5
-        [[6, 7, 8], [7, 8, 9], [9, 10, 11]]
+        >>> Matrix((1,2,3),(2,3,4)) + 5
+        [[6, 7, 8], [7, 8, 9]]
         """
         if isinstance(other, Matrix):
             if self._dim_n != other._dim_n or self._dim_m != other._dim_m:
@@ -435,6 +441,84 @@ class Matrix(list):
         else:
             raise TypeError("cannot add %s and %s"
                             % (other.__class__, self.__class__))
+
+    def __sub__(self, other):
+        """Matrix and scalar substraction.
+
+        >>> Matrix((1,2,3),(2,3,4),(4,5,6)) - Matrix((3,2,1),(2,1,0),(1,2,3))
+        [[-2, 0, 2], [0, 2, 4], [3, 3, 3]]
+        >>> Matrix((1,2,3),(2,3,4)) - 5
+        [[-4, -3, -2], [-3, -2, -1]]
+        """
+        if isinstance(other, Matrix):
+            if self._dim_n != other._dim_n or self._dim_m != other._dim_m:
+                raise ValueError("cannot add matrices of different length")
+            return Matrix( ( elem1 - elem2
+                             for elem1, elem2 in izip(row1, row2) )
+                           for row1, row2 in izip(self, other) )
+        elif isinstance(other, (int, long, float)):
+            return Matrix( ( elem - other for elem in row )
+                           for row in self )
+        else:
+            raise TypeError("cannot add %s and %s"
+                            % (self.__class__, other.__class__))
+
+    def __rsub__(self, other):
+        """Scalar minus Matrix.
+
+        >>> 5 - Matrix((1,2,3),(2,3,4),(4,5,6))
+        [[4, 3, 2], [3, 2, 1], [1, 0, -1]]
+        """
+        if isinstance(other, (int, long, float)):
+            return Matrix( ( other - elem for elem in row )
+                           for row in self )
+        else:
+            raise TypeError("cannot add %s and %s"
+                            % (other.__class__, self.__class__))
+    def __mul__(self, other):
+        """Matrix times scalar, Vector, or Matrix.
+
+        >>> Matrix((1,2,3),(2,3,4),(4,5,6)) * Matrix((1,2,3),(2,3,4),(4,5,6))
+        [[17, 23, 29], [24, 33, 42], [38, 53, 68]]
+        >>> Matrix((1,2,3),(2,3,4),(4,5,6)) * Vector(4,-5,6)
+        [12, 17, 27]
+        >>> Matrix((1,2,3),(2,3,4),(4,5,6)) * 5
+        [[5, 10, 15], [10, 15, 20], [20, 25, 30]]"""
+        if isinstance(other, Vector):
+            if len(other) != self._dim_n:
+                raise ValueError("cannot multiply %ix%i-matrix and %i vector"
+                                 % (self._dim_n, self._dim_m, len(other)))
+            return Vector( sum( self[i][j] * other[j]
+                                for j in xrange(self._dim_m) )
+                           for i in xrange(self._dim_n) )
+        elif isinstance(other, Matrix):
+            if self._dim_m != other._dim_n:
+                raise ValueError("cannot multiply %ix%i-matrix with %ix%i-matrix"
+                                 % (self._dim_n, self._dim_m,
+                                    other._dim_n, other._dim_m))
+            return Matrix( ( sum(self[i][k] * other[k][j]
+                                 for k in xrange(self._dim_m) )
+                             for j in xrange(other._dim_m) )
+                           for i in xrange(self._dim_n) )
+        elif isinstance(other, (int, long, float)):
+            return Matrix( ( other * elem for elem in row )
+                           for row in self )
+        else:
+            raise TypeError("cannot multiply %s and %s"
+                            % (self.__class__, other.__class__))
+
+    def __rmul__(self, other):
+        """Scalar times Matrix.
+
+        >>> 5 * Matrix((1,2,3),(2,3,4),(4,5,6))
+        [[5, 10, 15], [10, 15, 20], [20, 25, 30]]
+        """
+        if isinstance(other, (int, long, float)):
+            return (self * other)
+        else:
+            raise TypeError("cannot multiply %s and %s"
+                            % (other.__class__, self.__class__))
+
 
 if __name__ == "__main__":
     import doctest
