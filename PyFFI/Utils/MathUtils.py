@@ -183,6 +183,76 @@ def matDeterminant(mat):
         return sum( (-1 if i&1 else 1) * mat[i][0] * matCofactor(mat, i, 0)
                     for i in xrange(dim) )
 
+#==============================================================================
+
+# partially based on
+# http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52272
+class Vector(list):
+    """A general purpose vector class."""
+    def __init__(self, *args):
+        super(Vector, self).__init__(self, (float(x) for x in args))
+
+    def __getslice__(self, i, j):
+        return Vector(super(Vector, self).__getslice__(i, j))
+
+    def __add__(self, other):
+        return Vector(map(operator.add, self, other))
+
+    def __neg__(self):
+        return Vector(map(operator.neg, self))
+    
+    def __sub__(self, other):
+        return Vector(map(operator.sub, self, other))
+
+    def __mul__(self, other):
+        """Dot product, scalar product, and matrix product."""
+        if isinstance(other, Vector):
+            return Vector(map(operator.mul, self, other))
+        elif isinstance(other, Matrix):
+            if len(self) != other.dim_n:
+                raise ValueError("...")
+            return Vector(*( sum( self[i] * other[i][j]
+                                  for i in xrange(len(self)) )
+                             for j in xrange(other.dim_m) ))
+        elif isinstance(other, (int, long, float)):
+            return Vector(map(lambda x: x * other, self))
+        else:
+            raise TypeError("...")
+
+    def __rmul__(self, other):
+        if isinstance(other, (int, long, float)):
+            return (self * other)
+        else:
+            raise TypeError("...")
+
+    def __div__(self, other):
+        if isinstance(other, (int, long, float)):
+            return vector(map(lambda x: x / other, self))
+        else:
+            raise TypeError("...")
+
+    def norm(self):
+        return (self * self) ** 0.5
+
+    def normalize(self):
+        norm = self.norm()
+        if norm < self._EPSILON:
+            raise ZeroDivisionError('cannot normalize vector %s' % self)
+        for i in xrange(len(self)):
+            self[i] /= norm
+
+class Matrix(list):
+    """A general purpose matrix class."""
+    def __init__(self, *args):
+        """Initialize matrix from row vectors."""
+        super(Matrix, self).__init__(self, ( list(float(x) for x in row )
+                                             for row in args ))
+        self.dim_n = len(self)
+        self.dim_m = len(self[0]) if self.dim_n else 0
+        for row in self:
+            if len(row) != self.dim_m:
+                raise ValueError("all rows must have the same length")
+
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
