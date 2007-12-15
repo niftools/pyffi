@@ -38,6 +38,7 @@
 # ***** END LICENCE BLOCK *****
 
 import struct
+from itertools import izip
 from PyFFI.Bases.Basic import BasicBase
 
 class Int(BasicBase):
@@ -227,42 +228,42 @@ class VectorBase(BasicBase):
     """Implementation of a N-dimensional vector.
 
     Use as base class for vectors and set the C{_dim} class variable to the
-    dimension and the C{_math} class variable to the actual vector type that
-    should do the math. The constructor of C{_math} must take C{_dim} float
-    arguments, and C{_math} must be iterable. For example, the
+    dimension and the C{_type} class variable to the actual vector type that
+    should do the math. The constructor of C{_type} must take C{_dim} float
+    arguments, and C{_type} must be iterable. For example, the
     Blender.Mathutils.Vector class satisfies these requirements."""
-    _dim  = None
-    _math = None
+    _dim  = 3
+    _type = tuple
 
     def __init__(self, **kwargs):
         super(VectorBase, self).__init__(**kwargs)
-        self._value = '\x00\x00\x00\x00' * self._dim
-
-    def _asTuple(self):
-        """Helper function for getValue, __str__, and getHash methods."""
-        return struct.unpack("<" + "f" * self._dim, self._value)
+        self._value = self._type(*tuple(0.0 for i in xrange(self._dim)))
 
     def getValue(self):
-        """Return stored value as a C{self._math} type."""
-        return self._math(*self._asTuple())
+        """Return stored value as a C{self._type} type."""
+        return self._value
 
     def setValue(self, value):
         """Set value to C{value}."""
-        try:
-            self._value = struct.pack("<" + "f" * self._dim, *value)
-        except TypeError:
-            raise TypeError("Argument must be a sequence.")
+        if not isinstance(value, self._type):
+            raise TypeError("Argument must be of type %s."
+                            % self._type.__class__)
+        if not len(value) != self._dim:
+            raise TypeError("Argument must have length %i." % self._dim)
+        self._value = value
 
     def __str__(self):
-        return ("[ " + "%6.3f " * self._dim + "]") % self._asTuple()
+        return ("[ " + "%6.3f " * self._dim + "]") % tuple(self._value)
 
     def read(self, stream, **kwargs):
         """Read value from stream."""
-        self._value = stream.read(4 * self._dim)
+        self._value = self._type(*tuple(struct.unpack("<f", stream.read(4))
+                                        for i in xrange(self._dim)))
 
     def write(self, stream, **kwargs):
         """Write value to stream."""
-        stream.write(self._value)
+        for elem in self._value:
+            stream.write(struct.pack("<f", elem))
 
     def getSize(self, **kwargs):
         """Return size of this type."""
@@ -271,71 +272,68 @@ class VectorBase(BasicBase):
     def getHash(self, **kwargs):
         """Return a hash value for this vector. Currently implemented
         with precision 1/200."""
-        return tuple(int(x * 200) for x in self._asTuple())
+        return tuple(int(x * 200) for x in self._value)
 
 class MatrixBase(BasicBase):
     """Implementation of a nxm matrix.
 
     Use as base class for matrices and set the C{_dim_n} and C{_dim_m} class
-    variables to the dimensions and the C{_math} class variable to the actual
-    matrix type that should do the math. The constructor of C{_math} must take
+    variables to the dimensions and the C{_type} class variable to the actual
+    matrix type that should do the math. The constructor of C{_type} must take
     {_dim_n} arguments, each of which is a tuple of C{_dim_m} floats. If the
     matrix is stored transposed, then set C{_transposed} to C{True}."""
-    _dim_n = None
-    _dim_m = None
-    _math = None
+    _dim_n = 3
+    _dim_m = 3
+    _type = tuple
     _transposed = False
 
     def __init__(self, **kwargs):
-        super(Vector2, self).__init__(**kwargs)
-        self._value = '\x00\x00\x00\x00' * (self._dim_n * self._dim_m)
-
-    def _asTuple(self):
-        """Helper function for getValue, __str__, and getHash methods."""
-        result = tuple(struct.unpack("<" + "f" * self._dim_m,
-                                     self._value[i * 4 * self._dim_m:
-                                                 (i + 1) * 4 * self._dim_m])
-                       for i in xrange(self._dim_n))
-        if not self._transposed:
-            return result
-        else:
-            return tuple( tuple( result[i][j]
-                                 for i in xrange(self._dim_n) )
-                          for j in xrange(self._dim_m) )
+        super(MatrixBase, self).__init__(**kwargs)
+        self._value = self._type(*( tuple( 0.0
+                                           for j in xrange(self._dim_m) )
+                                    for i in xrange(self._dim_n) ) )
 
     def getValue(self):
-        """Return stored value."""
-        return self._math(*self._asTuple())
+        """Return stored matrix."""
+        return self._value
 
     def setValue(self, value):
-        """Set value to C{value}."""
-        # transform value to a tuple of tuple of floats
-        if not self._transposed:
-            mat = tuple( tuple( float(value[i][j])
-                                for j in xrange(self._dim_m) )
-                         for i in xrange(self._dim_n) )
-        else:
-            mat = tuple( tuple( float(value[i][j])
-                                for i in xrange(self._dim_n) )
-                         for j in xrange(self._dim_m) )
-        # pack mat
-        self._value = ""
-        for row in mat:
-            self._value += struct.pack("<" + "f" * len(row), *row)
+        """Set matrix to C{value}."""
+        # check type
+        if not isinstance(value, self._type):
+            raise TypeError("Argument must be of type %s."
+                            % self._type.__class__)
+        # set the value
+        self._value = value
 
     def __str__(self):
         result = ""
-        for row in self._asTuple():
+        for row in self._value:
             result += ("[ " + "%6.3f " * len(row) + "]\n") % row
         return result
 
     def read(self, stream, **kwargs):
-        """Read value from stream."""
-        self._value = stream.read(4 * self._dim_n * self._dim_m)
+        """Read matrix from stream."""
+        if not self._transposed:
+            mat = ( struct(unpack("<" + "f" * self._dim_m,
+                                  stream.read(4 * self._dim_m)))
+                    for i in xrange(self._dim_n) )
+            self._value = self._type(*mat)
+        else:
+            mat = ( struct(unpack("<" + "f" * self._dim_n,
+                                  stream.read(4 * self._dim_n)))
+                    for i in xrange(self._dim_m) )
+            # izip(*mat) is an iterator which transposes the matrix
+            self._value = self._type(*izip(*mat))
 
     def write(self, stream, **kwargs):
-        """Write value to stream."""
-        stream.write(self._value)
+        """Write matrix to stream."""
+        if not self._transposed:
+            for row in mat:
+                stream.write(struct.pack("<" + "f" * len(row), *row))
+        else:
+            for row in izip(*mat):
+                stream.write(struct.pack("<" + "f" * len(row), *row))
 
     def getSize(self, **kwargs):
         """Return size of this type."""
@@ -345,4 +343,4 @@ class MatrixBase(BasicBase):
         """Return a hash value for this matrix. Currently implemented
         with precision 1/200."""
         return tuple( tuple( int(elem * 200) for elem in row )
-                      for row in self._asTuple() )
+                      for row in self._value )
