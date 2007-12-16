@@ -39,7 +39,9 @@ shapes."""
 # ***** END LICENSE BLOCK *****
 
 import math
-from MathUtils import *
+import operator
+from MathUtils import Vector, LMatrix, LRMatrix
+from itertools import izip
 
 # see http://en.wikipedia.org/wiki/List_of_moment_of_inertia_tensors
 
@@ -59,9 +61,9 @@ def getMassInertiaSphere(radius, density = 1, solid = True):
         mass = density * 4 * math.pi * (radius ** 2)
         inertia = (2 * mass * (radius ** 2)) / 3
 
-    return mass, tuple( tuple( (inertia if i == j else 0)
-                               for i in xrange(3) )
-                        for j in xrange(3) )
+    return mass, LRMatrix( ( (inertia if i == j else 0)
+                             for i in xrange(3) )
+                           for j in xrange(3) )
 
 def getMassInertiaBox(size, density = 1, solid = True):
     """Return mass and inertia matrix for a box of given size and
@@ -76,15 +78,17 @@ def getMassInertiaBox(size, density = 1, solid = True):
     assert(len(size) == 3) # debug
     if solid:
         mass = density * reduce(operator.mul, size)
-        tmp = tuple(mass * (length ** 2) / 12.0 for length in size)
+        tmp = Vector(mass * (length ** 2) / 12.0 for length in size)
     else:
         mass = density * sum( x * x for x in size)
-        tmp = tuple(mass * (length ** 2) / 6.0 for length in size) # just guessing here, todo calculate it
-    return mass, ( ( tmp[1] + tmp[2], 0, 0 ),
-                   ( 0, tmp[2] + tmp[0], 0 ),
-                   ( 0, 0, tmp[0] + tmp[1] ) )
+        tmp = Vector(mass * (length ** 2) / 6.0 for length in size) # just guessing here, todo calculate it
+    return mass, LRMatrix( ( tmp[1] + tmp[2], 0, 0 ),
+                           ( 0, tmp[2] + tmp[0], 0 ),
+                           ( 0, 0, tmp[0] + tmp[1] ) )
 
 def getMassInertiaCapsule(length, radius, density = 1, solid = True):
+    """Return mass and inertia matrix for a capsule of given size and
+    density."""
     # cylinder + caps, and caps have volume of a sphere
     if solid:
         mass = density * (length * math.pi * (radius ** 2)
@@ -102,9 +106,9 @@ def getMassInertiaCapsule(length, radius, density = 1, solid = True):
         inertia_yy = inertia_xx
         inertia_zz = mass * (radius ** 2)
 
-    return mass,  ( ( inertia_xx, 0, 0 ),
-                    ( 0, inertia_yy, 0 ),
-                    ( 0, 0, inertia_zz ) )
+    return mass,  LRMatrix( ( inertia_xx, 0, 0 ),
+                            ( 0, inertia_yy, 0 ),
+                            ( 0, 0, inertia_zz ) )
 
 #
 # References
@@ -125,7 +129,7 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, solid = Tru
     """Return mass, center of gravity, and inertia matrix for a polyhedron.
 
     >>> import QuickHull
-    >>> box = [(0,0,0),(1,0,0),(0,2,0),(0,0,3),(1,2,0),(0,2,3),(1,0,3),(1,2,3)]
+    >>> box = [Vector(x) for x in ((0,0,0),(1,0,0),(0,2,0),(0,0,3),(1,2,0),(0,2,3),(1,0,3),(1,2,3))]
     >>> vertices, triangles = QuickHull.qhull3d(box)
     >>> mass, center, inertia = getMassCenterInertiaPolyhedron(
     ...     vertices, triangles, density = 4)
@@ -135,7 +139,7 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, solid = Tru
     (0.5, 1.0, 1.5)
     >>> inertia
     ((26.0, 0.0, 0.0), (0.0, 20.0, 0.0), (0.0, 0.0, 10.0))
-    >>> poly = [(3,0,0),(0,3,0),(-3,0,0),(0,-3,0),(0,0,3),(0,0,-3)] # very rough approximation of a sphere of radius 2
+    >>> poly = [Vector(x) for x in ((3,0,0),(0,3,0),(-3,0,0),(0,-3,0),(0,0,3),(0,0,-3))] # very rough approximation of a sphere of radius 2
     >>> vertices, triangles = QuickHull.qhull3d(poly)
     >>> mass, center, inertia = getMassCenterInertiaPolyhedron(
     ...     vertices, triangles, density = 3)
@@ -164,9 +168,9 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, solid = Tru
     ...     for i in xrange(0, M):
     ...         phi = i * 2 * math.pi / M
     ...         s, c = math.sin(phi), math.cos(phi)
-    ...         sphere.append((2*s*ct, 2*c*ct, 2*st)) # construct sphere of radius 2
-    >>> sphere.append((0,0,2))
-    >>> sphere.append((0,0,-2))
+    ...         sphere.append(Vector(2*s*ct, 2*c*ct, 2*st)) # construct sphere of radius 2
+    >>> sphere.append(Vector(0,0,2))
+    >>> sphere.append(Vector(0,0,-2))
     >>> vertices, triangles = QuickHull.qhull3d(sphere)
     >>> mass, center, inertia = getMassCenterInertiaPolyhedron(
     ...     vertices, triangles, density = 3, solid = True)
@@ -188,9 +192,9 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, solid = Tru
     # (0,0,0),(1,0,0),(0,1,0),(0,0,1)
     # integrate(integrate(integrate(z*z, x=0..1-y-z), y=0..1-z), z=0..1) = 1/120
     # integrate(integrate(integrate(y*z, x=0..1-y-z), y=0..1-z), z=0..1) = 1/60
-    covariance_canonical = ( (2, 1, 1),
-                             (1, 2, 1),
-                             (1, 1, 2) )
+    covariance_canonical = LRMatrix( (2, 1, 1),
+                                     (1, 2, 1),
+                                     (1, 1, 2) )
     covariance_correction = 1.0/120
 
     covariances = []
@@ -207,45 +211,38 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, solid = Tru
 
         # construct a transform matrix that converts the canonical tetrahedron
         # into (0,0,0),vert0,vert1,vert2
-        transform_transposed = ( vert0, vert1, vert2 )
-        transform = matTransposed(transform_transposed)
+        transform = LMatrix( ( vert0[i], vert1[i], vert2[i] )
+                             for i in xrange(3) )
 
         # find the covariance matrix of the transformed tetrahedron/triangle
         if solid:
             # we shall be needing the determinant more than once, so
             # precalculate it
-            determinant = matDeterminant(transform)
+            determinant = transform.getDeterminant()
             # C' = det(A) * A * C * A^T
             covariances.append(
-                matscalarMul(
-                    reduce(matMul,
-                           (transform,
-                            covariance_canonical,
-                            transform_transposed)),
-                    determinant))
+                reduce(operator.mul,
+                        ( transform,
+                          covariance_canonical,
+                          transform.getTranspose() ) )
+                * determinant)
             # m = det(A) / 6.0
             masses.append(determinant / 6.0)
             # find center of gravity of the tetrahedron
-            centers.append(tuple( 0.25 * sum(vert[i]
-                                             for vert in (vert0, vert1, vert2))
-                                  for i in xrange(3) ))
+            centers.append((vert0 + vert1 + vert2) * 0.25)
         else:
             # find center of gravity of the triangle
-            centers.append(tuple( sum(vert[i]
-                                      for vert in (vert0, vert1, vert2)) / 3.0
-                                  for i in xrange(3) ))
+            centers.append((vert0 + vert1 + vert2) / 3.0)
             # find mass of triangle
             # mass is surface, which is half the norm of cross product
             # of two edges
-            masses.append(
-                vecNorm(vecCrossProduct(
-                    vecSub(vert1, vert0), vecSub(vert2, vert0))) / 2.0)
+            masses.append(vert0.getNormal(vert1, vert2).getNorm() / 2.0)
             # find covariance at center of this triangle
             # (this is approximate only as it replaces triangle with point mass
             # todo: find better way)
             covariances.append(
-                tuple(tuple( masses[-1]*x*y for x in centers[-1] )
-                      for y in centers[-1]))
+                LRMatrix( ( masses[-1]*x*y for x in centers[-1] )
+                          for y in centers[-1] ) )
 
     # accumulate the results
     total_mass = sum(masses)
@@ -253,34 +250,32 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, solid = Tru
         # dimension is probably badly chosen
         #raise ZeroDivisionError("mass is zero (consider calculating inertia with a lower dimension)")
         print("WARNING: mass is zero")
-        return 0, (0,0,0), ((0,0,0),(0,0,0),(0,0,0))
+        return 0, Vector(0,0,0), LRMatrix((0,0,0),(0,0,0),(0,0,0))
     # weighed average of centers with masses
-    total_center = reduce(vecAdd, ( vecscalarMul(center, mass / total_mass)
-                                    for center, mass
-                                    in izip(centers, masses)))
+    total_center = reduce( operator.add,
+                           ( center * (mass / total_mass)
+                             for center, mass
+                             in izip(centers, masses) ) )
     # add covariances, and correct the values
-    total_covariance = reduce(matAdd, covariances)
+    total_covariance = reduce(operator.add, covariances)
     if solid:
-        total_covariance = matscalarMul(total_covariance, covariance_correction)
+        total_covariance = total_covariance * covariance_correction
 
     # translate covariance to center of gravity:
     # C' = C - m * ( x dx^T + dx x^T + dx dx^T )
     # with x the translation vector and dx the center of gravity
-    translate_correction = matscalarMul(tuple(tuple(x * y
-                                                    for x in total_center)
-                                              for y in total_center),
-                                        total_mass)
-    total_covariance = matSub(total_covariance, translate_correction)
+    translate_correction = total_mass * total_center.tensorProduct(total_center)
+    total_covariance = total_covariance - translate_correction
     
     # convert covariance matrix into inertia tensor
     trace = sum(total_covariance[i][i] for i in xrange(3))
-    trace_matrix = tuple(tuple((trace if i == j else 0)
-                               for i in xrange(3))
-                         for j in xrange(3))
-    total_inertia = matSub(trace_matrix, total_covariance)
+    trace_matrix = LRMatrix( ( (trace if i == j else 0)
+                               for i in xrange(3) )
+                             for j in xrange(3) )
+    total_inertia = trace_matrix - total_covariance
 
     # correct for given density
-    total_inertia = matscalarMul(total_inertia, density)
+    total_inertia = total_inertia * density
     total_mass *= density
 
     return total_mass, total_center, total_inertia
