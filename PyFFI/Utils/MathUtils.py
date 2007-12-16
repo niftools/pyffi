@@ -40,6 +40,8 @@
 from itertools import izip
 import operator
 
+EPSILON = 0.0001
+
 def vecSub(vec1, vec2):
     """Vector substraction."""
     return tuple(x - y for x, y in izip(vec1, vec2))
@@ -283,14 +285,24 @@ class Vector(list):
         12
         >>> Vector(2,3,4) * 5
         [10, 15, 20]
-        >>> Vector(4,-5,6) * Matrix((1,2,3),(2,3,4),(4,5,6))
+        >>> Vector(4,-5,6) * LMatrix((1,2,3),(2,3,4),(4,5,6))
         [18, 23, 28]
-        >>> Vector(4,-5,6) * Matrix((1,2,4),(2,3,5),(3,4,6))
+        >>> Vector(4,-5,6) * LMatrix((1,2,4),(2,3,5),(3,4,6))
         [12, 17, 27]
+        >>> RMatrix((1,2,3),(2,3,4),(4,5,6)) * Vector(4,-5,6)
+        [12, 17, 27]
+        >>> Vector(4,-5,6) * Matrix((1,2,3),(2,3,4),(4,5,6)) # doctest: +ELLIPSIS
+        Traceback (most recent call last):
+            ...
+        TypeError: ...
+        >>> Vector(4,-5,6) * RMatrix((1,2,3),(2,3,4),(4,5,6)) # doctest: +ELLIPSIS
+        Traceback (most recent call last):
+            ...
+        TypeError: ...
         """
         if isinstance(other, Vector):
             return sum(map(operator.mul, self, other))
-        elif isinstance(other, Matrix):
+        elif isinstance(other, LMatrix):
             if len(self) != other._dim_n:
                 raise ValueError("cannot multiply %i-vector with %ix%i-matrix"
                                  % (len(self), other._dim_n, other._dim_m))
@@ -360,30 +372,32 @@ class Vector(list):
         """
         return (self * self) ** 0.5
 
-    def normalize(self):
-        """Normalize and return self. Raise ZeroDivisionError if the vector
+    def normalized(self):
+        """Return normalized self. Raise ValueError if the vector
         cannot be normalized.
 
-        >>> x = Vector(1,2,3).normalize()
+        >>> x = Vector(1,2,3).normalized()
         >>> x # doctest: +ELLIPSIS
         [0.2672612419124..., 0.5345224838248..., 0.8017837257372...]
         >>> x.norm() + 0.00001 # doctest: +ELLIPSIS
         1.000...
-        >>> Vector(0,0,0).normalize() # doctest: +ELLIPSIS
+        >>> Vector(0,0,0).normalized() # doctest: +ELLIPSIS
         Traceback (most recent call last):
             ...
-        ZeroDivisionError: ...
+        ValueError: ...
         """
         norm = self.norm()
-        try:
-            for i in xrange(len(self)):
-                self[i] /= norm
-        except ZeroDivisionError:
-            raise ZeroDivisionError('cannot normalize vector %s' % self)
-        return self
+        if norm < EPSILON:
+            raise ValueError('cannot normalize vector %s' % self)
+        return Vector(elem / norm for elem in self)
 
 class Matrix(list):
-    """A general purpose matrix class."""
+    """A general purpose matrix base class, without vector multiplication.
+    For matrices that support vector multiplication, use LMatrix, RMatrix, or
+    LRMatrix."""
+    # note: all multiplication code (L/R)Matrix * something is implemented in
+    # __mul__
+    
     def __init__(self, *args):
         """Initialize matrix from row vectors.
 
@@ -417,14 +431,20 @@ class Matrix(list):
         [[6, 7, 8], [7, 8, 9]]
         """
         if isinstance(other, Matrix):
+            # type check
+            if not self.__class__ is other.__class__:
+                raise TypeError("cannot add %s and %s"
+                                % (other.__class__, self.__class__))
+            # dimension check
             if self._dim_n != other._dim_n or self._dim_m != other._dim_m:
-                raise ValueError("cannot add matrices of different length")
-            return Matrix( ( elem1 + elem2
-                             for elem1, elem2 in izip(row1, row2) )
-                           for row1, row2 in izip(self, other) )
+                raise ValueError(
+                    "cannot add matrices with different dimensions")
+            return self.__class__( ( elem1 + elem2
+                                     for elem1, elem2 in izip(row1, row2) )
+                                   for row1, row2 in izip(self, other) )
         elif isinstance(other, (int, long, float)):
-            return Matrix( ( elem + other for elem in row )
-                           for row in self )
+            return self.__class__( ( elem + other for elem in row )
+                                   for row in self )
         else:
             raise TypeError("cannot add %s and %s"
                             % (self.__class__, other.__class__))
@@ -436,8 +456,8 @@ class Matrix(list):
         [[6, 7, 8], [7, 8, 9], [9, 10, 11]]
         """
         if isinstance(other, (int, long, float)):
-            return Matrix( ( elem + other for elem in row )
-                           for row in self )
+            return self.__class__( ( elem + other for elem in row )
+                                   for row in self )
         else:
             raise TypeError("cannot add %s and %s"
                             % (other.__class__, self.__class__))
@@ -451,14 +471,20 @@ class Matrix(list):
         [[-4, -3, -2], [-3, -2, -1]]
         """
         if isinstance(other, Matrix):
+            # type check
+            if not self.__class__ is other.__class__:
+                raise TypeError("cannot add %s and %s"
+                                % (other.__class__, self.__class__))
+            # dimension check
             if self._dim_n != other._dim_n or self._dim_m != other._dim_m:
-                raise ValueError("cannot add matrices of different length")
-            return Matrix( ( elem1 - elem2
-                             for elem1, elem2 in izip(row1, row2) )
+                raise ValueError(
+                    "cannot substract matrices with different dimensions")
+            return self.__class__( ( elem1 - elem2
+                                   for elem1, elem2 in izip(row1, row2) )
                            for row1, row2 in izip(self, other) )
         elif isinstance(other, (int, long, float)):
-            return Matrix( ( elem - other for elem in row )
-                           for row in self )
+            return self.__class__( ( elem - other for elem in row )
+                                   for row in self )
         else:
             raise TypeError("cannot add %s and %s"
                             % (self.__class__, other.__class__))
@@ -470,39 +496,62 @@ class Matrix(list):
         [[4, 3, 2], [3, 2, 1], [1, 0, -1]]
         """
         if isinstance(other, (int, long, float)):
-            return Matrix( ( other - elem for elem in row )
-                           for row in self )
+            return self.__class__( ( other - elem for elem in row )
+                                   for row in self )
         else:
             raise TypeError("cannot add %s and %s"
                             % (other.__class__, self.__class__))
+
     def __mul__(self, other):
         """Matrix times scalar, Vector, or Matrix.
 
-        >>> Matrix((1,2,3),(2,3,4),(4,5,6)) * Matrix((1,2,3),(2,3,4),(4,5,6))
+        >>> LMatrix((1,2,3),(2,3,4),(4,5,6)) * LMatrix((1,2,3),(2,3,4),(4,5,6))
         [[17, 23, 29], [24, 33, 42], [38, 53, 68]]
-        >>> Matrix((1,2,3),(2,3,4),(4,5,6)) * Vector(4,-5,6)
-        [12, 17, 27]
+        >>> Matrix((1,2,3),(2,3,4),(4,5,6)) * Vector(4,-5,6) # doctest: +ELLIPSIS
+        Traceback (most recent call last):
+            ...
+        TypeError: ...
+        >>> LMatrix((1,2,3),(2,3,4),(4,5,6)) * Vector(4,-5,6) # doctest: +ELLIPSIS
+        Traceback (most recent call last):
+            ...
+        TypeError: ...
         >>> Matrix((1,2,3),(2,3,4),(4,5,6)) * 5
         [[5, 10, 15], [10, 15, 20], [20, 25, 30]]"""
-        if isinstance(other, Vector):
+        if isinstance(other, Matrix):
+            # what should be the resulting class?
+            if isinstance(self, LMatrix) and isinstance(other, LMatrix):
+                cls = LMatrix
+            elif isinstance(self, RMatrix) and isinstance(other, RMatrix):
+                cls = RMatrix
+            elif isinstance(self, LMatrix) and isinstance(other, RMatrix):
+                cls = LRMatrix
+            elif isinstance(self, LMatrix) and isinstance(other, LRMatrix):
+                cls = LRMatrix
+            elif isinstance(self, LRMatrix) and isinstance(other, RMatrix):
+                cls = LRMatrix
+            else:
+                raise TypeError("cannot multiply %s and %s"
+                                % (self.__class__, other.__class__))
+            # check dimensions
+            if self._dim_m != other._dim_n:
+                raise ValueError(
+                    "cannot multiply %ix%i-matrix with %ix%i-matrix"
+                    % (self._dim_n, self._dim_m, other._dim_n, other._dim_m))
+            # do the multiplication
+            return cls( ( sum(self[i][k] * other[k][j]
+                              for k in xrange(self._dim_m) )
+                          for j in xrange(other._dim_m) )
+                        for i in xrange(self._dim_n) )
+        elif isinstance(self, RMatrix) and isinstance(other, Vector):
             if len(other) != self._dim_n:
                 raise ValueError("cannot multiply %ix%i-matrix and %i vector"
                                  % (self._dim_n, self._dim_m, len(other)))
             return Vector( sum( self[i][j] * other[j]
                                 for j in xrange(self._dim_m) )
                            for i in xrange(self._dim_n) )
-        elif isinstance(other, Matrix):
-            if self._dim_m != other._dim_n:
-                raise ValueError("cannot multiply %ix%i-matrix with %ix%i-matrix"
-                                 % (self._dim_n, self._dim_m,
-                                    other._dim_n, other._dim_m))
-            return Matrix( ( sum(self[i][k] * other[k][j]
-                                 for k in xrange(self._dim_m) )
-                             for j in xrange(other._dim_m) )
-                           for i in xrange(self._dim_n) )
         elif isinstance(other, (int, long, float)):
-            return Matrix( ( other * elem for elem in row )
-                           for row in self )
+            return self.__class__( ( other * elem for elem in row )
+                                   for row in self )
         else:
             raise TypeError("cannot multiply %s and %s"
                             % (self.__class__, other.__class__))
@@ -519,6 +568,24 @@ class Matrix(list):
             raise TypeError("cannot multiply %s and %s"
                             % (other.__class__, self.__class__))
 
+class LMatrix(Matrix):
+    """A general purpose matrix class, with left vector multiplication. Use
+    for linear transforms."""
+    # the left multiplication is implemented in the Vector class
+
+class RMatrix(Matrix):
+    """A general purpose matrix class, with vector multiplication from the
+    right. Use for linear transforms."""
+    # the right multiplication is implemented in the Matrix class
+
+class LRMatrix(Matrix):
+    """A general purpose matrix class, with vector multiplication from both
+    sides. Use for bilinear forms (such as inertia tensors)."""
+    def product(self, vec1, vec2):
+        return sum( sum( vec1[i] * self[i][j]
+                         for i in xrange(self._dim_n) )
+                    * vec2[j]
+                    for j in xrange(self._dim_m) )
 
 if __name__ == "__main__":
     import doctest
