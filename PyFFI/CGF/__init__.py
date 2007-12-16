@@ -82,12 +82,7 @@ Create a CGF file from scratch
     [  0.000  0.000  0.000  0.000 ]
     [  0.000  0.000  0.000  0.000 ]
 * pos : [  0.000  0.000  0.000 ]
-* rot :
-    <class 'PyFFI.XmlHandler.Quat'> instance at 0x...
-    * x : 0.0
-    * y : 0.0
-    * z : 0.0
-    * w : 0.0
+* rot : [  0.000  0.000  0.000  0.000 ]
 * scl : [  0.000  0.000  0.000 ]
 * posCtrl : None
 * rotCtrl : None
@@ -116,12 +111,7 @@ Create a CGF file from scratch
     [  0.000  0.000  0.000  0.000 ]
     [  0.000  0.000  0.000  0.000 ]
 * pos : [  0.000  0.000  0.000 ]
-* rot :
-    <class 'PyFFI.XmlHandler.Quat'> instance at 0x...
-    * x : 0.0
-    * y : 0.0
-    * z : 0.0
-    * w : 0.0
+* rot : [  0.000  0.000  0.000  0.000 ]
 * scl : [  0.000  0.000  0.000 ]
 * posCtrl : None
 * rotCtrl : None
