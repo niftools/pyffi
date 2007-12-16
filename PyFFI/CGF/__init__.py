@@ -617,6 +617,9 @@ expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
         table.chunkHeaders.updateSize()
         for chunkhdr, chunk, version in zip(table.chunkHeaders,
                                             chunks, versions):
+            # write padding bytes to align blocks
+            stream.write( "\x00" * ((4 - stream.tell() & 3) & 3) )
+            # set up chunk header
             chunkhdr.type = getattr(
                 cls.ChunkType, chunk.__class__.__name__[:-5])
             chunkhdr.version = version
