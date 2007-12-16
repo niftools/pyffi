@@ -42,151 +42,6 @@ import operator
 
 EPSILON = 0.0001
 
-def vecSub(vec1, vec2):
-    """Vector substraction."""
-    return tuple(x - y for x, y in izip(vec1, vec2))
-
-def vecAdd(vec1, vec2):
-    return tuple(x + y for x, y in izip(vec1, vec2))
-
-def vecscalarMul(vec, scalar):
-    return tuple(x * scalar for x in vec)
-
-def vecDotProduct(vec1, vec2):
-    """The vector dot product (any dimension).
-
-    >>> vecDotProduct((1,2,3),(4,-5,6))
-    12"""
-    return sum(x1 * x2 for x1, x2 in izip(vec1, vec2))
-
-def vecDistance(vec1, vec2):
-    """Return distance between two vectors (any dimension).
-
-    >>> vecDistance((1,2,3),(4,-5,6)) # doctest: +ELLIPSIS
-    8.185...
-    """
-    return vecNorm(vecSub(vec1, vec2))
-
-def vecNormal(vec1, vec2, vec3):
-    """Returns a vector that is orthogonal on C{triangle}."""
-    return vecCrossProduct(vecSub(vec2, vec1), vecSub(vec3, vec1))
-
-def vecDistanceAxis(axis, vec):
-    """Return distance between the axis spanned by axis[0] and axis[1] and the
-    vector v, in 3 dimensions. Raises ZeroDivisionError if the axis points
-    coincide.
-
-    >>> vecDistanceAxis([(0,0,0), (0,0,1)], (0,3.5,0))
-    3.5
-    >>> vecDistanceAxis([(0,0,0), (1,1,1)], (0,1,0.5)) # doctest: +ELLIPSIS
-    0.70710678...
-    """
-    return vecNorm(vecNormal(axis[0], axis[1], vec)) / vecDistance(*axis)
-
-def vecDistanceTriangle(triangle, vert):
-    """Return (signed) distance between the plane spanned by triangle[0],
-    triangle[1], and triange[2], and the vector v, in 3 dimensions.
-
-    >>> vecDistanceTriangle([(0,0,0),(1,0,0),(0,1,0)], (0,0,1))
-    1.0
-    >>> vecDistanceTriangle([(0,0,0),(0,1,0),(1,0,0)], (0,0,1))
-    -1.0
-    """
-    normal = vecNormal(*triangle)
-    return vecDotProduct(normal, vecSub(vert, triangle[0])) \
-           / vecNorm(normal)
-
-def vecNorm(vec):
-    """Norm of a vector (any dimension).
-
-    >>> vecNorm((2,3,4)) # doctest: +ELLIPSIS
-    5.3851648...
-    """
-    return vecDotProduct(vec, vec) ** 0.5
-
-def vecCrossProduct(vec1, vec2):
-    """The vector cross product (in 3d).
-
-    >>> vecCrossProduct((1,0,0),(0,1,0))
-    (0, 0, 1)
-    >>> vecCrossProduct((1,2,3),(4,5,6))
-    (-3, 6, -3)
-    """
-    return (vec1[1] * vec2[2] - vec1[2] * vec2[1],
-            vec1[2] * vec2[0] - vec1[0] * vec2[2],
-            vec1[0] * vec2[1] - vec1[1] * vec2[0])
-
-def matTransposed(mat):
-    """Return the transposed of a nxn matrix.
-
-    >>> matTransposed(((1, 2), (3, 4)))
-    ((1, 3), (2, 4))"""
-    dim = len(mat)
-    return tuple( tuple( mat[i][j]
-                         for i in xrange(dim) )
-                  for j in xrange(dim) )
-
-def matscalarMul(mat, scalar):
-    """Return matrix * scalar."""
-    dim = len(mat)
-    return tuple( tuple( mat[i][j] * scalar
-                         for j in xrange(dim) )
-                  for i in xrange(dim) )
-
-def matvecMul(mat, vec):
-    """Return matrix * vector."""
-    dim = len(mat)
-    return tuple( sum( mat[i][j] * vec[j] for j in xrange(dim) )
-                  for i in xrange(dim) )
-
-def matMul(mat1, mat2):
-    """Return matrix * matrix."""
-    dim = len(mat1)
-    return tuple( tuple( sum( mat1[i][k] * mat2[k][j]
-                              for k in xrange(dim) )
-                         for j in xrange(dim) )
-                  for i in xrange(dim) )
-
-def matAdd(mat1, mat2):
-    """Return matrix + matrix."""
-    dim = len(mat1)
-    return tuple( tuple( mat1[i][j] + mat2[i][j]
-                         for j in xrange(dim) )
-                  for i in xrange(dim) )
-
-def matSub(mat1, mat2):
-    """Return matrix - matrix."""
-    dim = len(mat1)
-    return tuple( tuple( mat1[i][j] - mat2[i][j]
-                         for j in xrange(dim) )
-                  for i in xrange(dim) )
-
-def matCofactor(mat, i, j):
-    dim = len(mat)
-    return matDeterminant(tuple( tuple( mat[ii][jj]
-                                        for jj in xrange(dim)
-                                        if jj != j )
-                                 for ii in xrange(dim)
-                                 if ii != i ))
-
-def matDeterminant(mat):
-    """Calculate determinant.
-
-    >>> matDeterminant( ((1,2,3), (4,5,6), (7,8,9)) )
-    0
-    >>> matDeterminant( ((1,2,4), (3,0,2), (-3,6,2)) )
-    36
-    """
-    dim = len(mat)
-    if dim == 0: return 0
-    elif dim == 1: return mat[0][0]
-    elif dim == 2: return mat[0][0] * mat[1][1] - mat[1][0] * mat[0][1]
-    else:
-        return sum( (-1 if i&1 else 1) * mat[i][0] * matCofactor(mat, i, 0)
-                    for i in xrange(dim) )
-
-#==============================================================================
-
 from types import GeneratorType
 
 class Vector(list):
@@ -352,6 +207,10 @@ class Vector(list):
                       self[2] * other[0] - self[0] * other[2],
                       self[0] * other[1] - self[1] * other[0])
 
+    def getNormal(self, vec2, vec3):
+        """Return normal spanned by self, vec2, vec3."""
+        return (vec2 - self).crossProduct(vec3 - self)
+
     def tensorProduct(self, other):
         """Tensor product.
 
@@ -380,6 +239,8 @@ class Vector(list):
     def getNorm(self):
         """Norm of the vector.
 
+        >>> Vector(2,3,4).getNorm() # doctest: +ELLIPSIS
+        5.3851648...
         >>> Vector(1,2,3).getNorm() # doctest: +ELLIPSIS
         3.74165738677394...
         """
@@ -404,9 +265,35 @@ class Vector(list):
             raise ValueError('cannot normalize vector %s' % self)
         return Vector(elem / norm for elem in self)
 
+    def getDistance(self, *args):
+        """Get distance from C{self} to a Vector, to an axis (two arguments),
+        or signed distance to a triangle (three arguments).
+        Raises ZeroDivisionError if the axis points coincide or if triangle
+        is degenerate.
+
+        >>> Vector(1,2,3).getDistance(Vector(4,-5,6)) # doctest: +ELLIPSIS
+        8.185...
+        >>> Vector(0,3.5,0).getDistance(Vector(0,0,0), Vector(0,0,1))
+        3.5
+        >>> Vector(0,1,0.5).getDistance(Vector(0,0,0), Vector(1,1,1)) # doctest: +ELLIPSIS
+        0.70710678...
+        >>> Vector(0,0,1).getDistance(Vector(0,0,0),Vector(1,0,0),Vector(0,1,0))
+        1.0
+        >>> Vector(0,0,1).getDistance(Vector(0,0,0),Vector(0,1,0),Vector(1,0,0))
+        -1.0
+        """
+
+        if len(args) == 1:
+            return (self - args[0]).getNorm()
+        elif len(args) == 2:
+            return ( self.getNormal(*args).getNorm()
+                     / args[0].getDistance(args[1]) )
+        elif len(args) == 3:
+            normal = args[0].getNormal(args[1], args[2])
+            return (normal * (self - args[0])) / normal.getNorm()
 
 class Quat(list):
-    """Quaternion."""
+    """Quaternion implementation."""
     def __init__(self, *args):
         """Quaternion constructor. Takes either a single list/tuple/generator
         argument, or multiple int, long, float arguments.
@@ -665,6 +552,8 @@ class Matrix(list):
 
         >>> Matrix((1,2,3),(2,3,4),(4,5,6)).getTranspose()
         [[1, 2, 4], [2, 3, 5], [3, 4, 6]]
+        >>> Matrix((1, 2), (3, 4)).getTranspose()
+        [[1, 3], [2, 4]]
         """
         # get type of result
         if isinstance(self, LMatrix):
