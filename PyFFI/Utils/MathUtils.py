@@ -326,18 +326,18 @@ class Vector(list):
             raise TypeError("cannot multiply %s and %s"
                             % (other.__class__, self.__class__))
 
-    def cross(self, other):
+    def crossProduct(self, other):
         """Cross product, for 3 dimensional vectors.
 
-        >>> Vector(1,0,0).cross(Vector(0,1,0))
+        >>> Vector(1,0,0).crossProduct(Vector(0,1,0))
         [0, 0, 1]
-        >>> Vector(1,2,3).cross(Vector(4,5,6))
+        >>> Vector(1,2,3).crossProduct(Vector(4,5,6))
         [-3, 6, -3]
-        >>> Vector(1,2).cross(Vector(4,5,6)) # doctest: +ELLIPSIS
+        >>> Vector(1,2).crossProduct(Vector(4,5,6)) # doctest: +ELLIPSIS
         Traceback (most recent call last):
             ...
         ValueError: ...
-        >>> Vector(1,2).cross("hi") # doctest: +ELLIPSIS
+        >>> Vector(1,2).crossProduct("hi") # doctest: +ELLIPSIS
         Traceback (most recent call last):
             ...
         TypeError: ...
@@ -351,8 +351,21 @@ class Vector(list):
         return Vector(self[1] * other[2] - self[2] * other[1],
                       self[2] * other[0] - self[0] * other[2],
                       self[0] * other[1] - self[1] * other[0])
-        
 
+    def tensorProduct(self, other):
+        """Tensor product.
+
+        >>> Vector(1,0,0).tensorProduct(Vector(0,1))
+        [[0, 1], [0, 0], [0, 0]]
+        >>> Vector(1,2,3).tensorProduct(Vector(4,5,6))
+        [[4, 5, 6], [8, 10, 12], [12, 15, 18]]
+        """
+        if not isinstance(other, Vector):
+            raise TypeError("cannot take tensor product of %s and %s"
+                            % (other.__class__, self.__class__))
+        return LRMatrix( ( elem1 * elem2 for elem2 in other )
+                         for elem1 in self )
+        
     def __div__(self, other):
         """Divide a Vector by a scalar.
 
@@ -364,32 +377,61 @@ class Vector(list):
         else:
             raise TypeError("...")
 
-    def norm(self):
+    def getNorm(self):
         """Norm of the vector.
 
-        >>> Vector(1,2,3).norm() # doctest: +ELLIPSIS
+        >>> Vector(1,2,3).getNorm() # doctest: +ELLIPSIS
         3.74165738677394...
         """
         return (self * self) ** 0.5
 
-    def normalized(self):
+    def getNormalized(self):
         """Return normalized self. Raise ValueError if the vector
         cannot be normalized.
 
-        >>> x = Vector(1,2,3).normalized()
+        >>> x = Vector(1,2,3).getNormalized()
         >>> x # doctest: +ELLIPSIS
         [0.2672612419124..., 0.5345224838248..., 0.8017837257372...]
-        >>> x.norm() + 0.00001 # doctest: +ELLIPSIS
+        >>> x.getNorm() + 0.00001 # doctest: +ELLIPSIS
         1.000...
-        >>> Vector(0,0,0).normalized() # doctest: +ELLIPSIS
+        >>> Vector(0,0,0).getNormalized() # doctest: +ELLIPSIS
         Traceback (most recent call last):
             ...
         ValueError: ...
         """
-        norm = self.norm()
+        norm = self.getNorm()
         if norm < EPSILON:
             raise ValueError('cannot normalize vector %s' % self)
         return Vector(elem / norm for elem in self)
+
+
+class Quat(list):
+    """Quaternion."""
+    def __init__(self, *args):
+        """Quaternion constructor. Takes either a single list/tuple/generator
+        argument, or multiple int, long, float arguments.
+
+        >>> Quat(0,0,0,1)
+        [0, 0, 0, 1]
+        >>> Quat("abcd") # doctest: +ELLIPSIS
+        Traceback (most recent call last):
+            ...
+        TypeError: ...
+        """
+        if len(args) == 1 and isinstance(args[0], (list, tuple, GeneratorType)):
+            # single list/tuple/generator type
+            list.__init__(self, args[0])
+        else:
+            list.__init__(self, (elem for elem in args))
+        if len(self) != 4:
+            raise TypeError("Quaternion must consist of exactly 4 scalars.")
+        for elem in self:
+            if not isinstance(elem, (int, long, float)):
+                raise TypeError("Vector must consist of scalars.")
+
+    def getLMatrix(self):
+        """Get matrix representation."""
+        raise NotImplementedError
 
 class Matrix(list):
     """A general purpose matrix base class, without vector multiplication.
@@ -421,6 +463,15 @@ class Matrix(list):
             for elem in row:
                 if not isinstance(elem, (int, long, float)):
                     raise TypeError("Matrix must consist of scalars.")
+
+    def __str__(self):
+        """Format the matrix in a string."""
+        result = ""
+        for row in self:
+            result += "[ "
+            result += ("%6s " * len(row)) % tuple(row)
+            result += "]\n"
+        return result
 
     def __add__(self, other):
         """Matrix and scalar addition.
@@ -568,20 +619,269 @@ class Matrix(list):
             raise TypeError("cannot multiply %s and %s"
                             % (other.__class__, self.__class__))
 
+    def __eq__(self, other):
+        """Compare matrices.
+
+        >>> Matrix((1,2,3), (4,5,6)) == Matrix((1.0,2.0,3.0), (4,5,6))
+        True
+        >>> Matrix((1,2,3), (4,5,6)) == Matrix((1.0,2.1,3.0), (4,5,6))
+        False
+        """
+        if isinstance(other, Matrix):
+            # dimension check
+            if self._dim_n != other._dim_n or self._dim_m != other._dim_m:
+                raise ValueError(
+                    "cannot compare matrices with different dimensions")
+            for row1, row2 in izip(self, other):
+                for elem1, elem2 in izip(row1, row2):
+                    if abs(elem1 - elem2) > EPSILON:
+                        return False
+        else:
+            raise TypeError(
+                "do not know how to compare %s and %s"
+                % (self.__class__, other.__class__))
+        return True
+
+    def __ne__(self, other):
+        """Compare matrices."""
+        return not self.__eq__(other)
+
+    def setIdentity(self):
+        """Set to identity matrix."""
+        for i in xrange(self._dim_n):
+            for j in xrange(self._dim_m):
+                self[i][j] = 1 if i == j else 0
+
+    def isIdentity(self):
+        """Check if matrix is identity matrix."""
+        for i in xrange(self._dim_n):
+            for j in xrange(self._dim_m):
+                if abs(self[i][j] - (1 if i == j else 0)) > EPSILON:
+                    return False
+        return True
+
+    def getTranspose(self):
+        """Get transpose of self.
+
+        >>> Matrix((1,2,3),(2,3,4),(4,5,6)).getTranspose()
+        [[1, 2, 4], [2, 3, 5], [3, 4, 6]]
+        """
+        # get type of result
+        if isinstance(self, LMatrix):
+            cls = RMatrix
+        elif isinstance(self, RMatrix):
+            cls = LMatrix
+        else:
+            cls = self.__class__ # self must be Matrix or LRMatrix
+        return cls(*izip(*self))
+
+    def getSubMatrix(self, sub_n, sub_m):
+        """Return a submatrix from the indices C{sub_n} and C{sub_m}."""
+        return self.__class__( ( self[i][j] for j in sub_m )
+                               for i in sub_n )
+
+    def getCofactor(self, i, j):
+        """Return the cofactor of the (i, j) entry of the matrix."""
+        return Matrix( ( self[ii][jj]
+                         for jj in xrange(self._dim_m)
+                         if jj != j )
+                       for ii in xrange(self._dim_n)
+                       if ii != i ).getDeterminant()
+
+    def getDeterminant(self):
+        """Calculate determinant.
+
+        >>> Matrix((1,2,3), (4,5,6), (7,8,9)).getDeterminant()
+        0
+        >>> Matrix((1,2,4), (3,0,2), (-3,6,2)).getDeterminant()
+        36
+        """
+        if self._dim_n != self._dim_m:
+            raise ValueError(
+                "cannot calculate determinant of non-square matrix")
+        if self._dim_n == 0:
+            return 0
+        elif self._dim_n == 1:
+            return self[0][0]
+        elif self._dim_n == 2:
+            return self[0][0] * self[1][1] - self[1][0] * self[0][1]
+        else:
+            return sum( (-1 if i&1 else 1) * self[i][0] * self.getCofactor(i, 0)
+                        for i in xrange(self._dim_n) )
+
+    def getInverse(self):
+        """Calculate the inverse of the matrix."""
+
 class LMatrix(Matrix):
     """A general purpose matrix class, with left vector multiplication. Use
-    for linear transforms."""
+    for linear and affine transforms."""
     # the left multiplication is implemented in the Vector class
+
+    def __init__(self, *args, **kwargs):
+        """Initialize matrix from row vectors.
+
+        @param affine: Set C{affine = True} if the last row of the matrix
+            is the translation component of the transform.
+        @param args: The rows.
+
+        >>> LMatrix((0.5,0.5,0), (0.5,-0.5,0), (7,8,1), affine = True)
+        [[0.5, 0.5, 0], [0.5, -0.5, 0], [7, 8, 1]]
+        >>> LMatrix(( row for row in xrange(i, i + 3) ) for i in xrange(3))
+        [[0, 1, 2], [1, 2, 3], [2, 3, 4]]
+        """
+        self._affine = bool(kwargs.get("affine", False))
+        Matrix.__init__(self, *args)
+
+    def getScaleRotation(self, conformal = False):
+        """Gets the scale and rotation part of the transformation. Raises
+        C{ValueError} if the decomposition does not exist.
+
+        @param conformal: If C{True} then checks for conformality (uniform
+            scaling).
+        @return: A Vector containing the scaling in each direction, a
+            rotation matrix, and a translation Vector.
+
+        >>> LMatrix((0,-1,0),(2,0,0),(0,0,5)).getScaleRotation()
+        ([1.0, 2.0, 5.0], [[0.0, -1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]])
+        """
+        if self._dim_n != self._dim_m:
+            raise ValueError("cannot calculate scale, rotation, and \
+translation of a non-square matrix")
+
+        # calculate self * self^T
+        # this should correspond to
+        # (scale * rotation) * (scale * rotation)^T
+        # = scale * scale^T
+        # = diagonal matrix with scales squared on the diagonal
+        if self._affine:
+            dim = self._dim_n - 1
+            rot = self.getSubMatrix(range(dim - 1),
+                                    range(dim - 1))
+        else:
+            dim = self._dim_n
+            rot = LMatrix(*self)
+        mat = rot * rot.getTranspose()
+
+        # off diagonal elements should be zero
+        for i in xrange(dim):
+            for j in xrange(dim):
+                # admit a rather large tolerance because
+                # some programs do not produce nice rotation matrices
+                if i != j and abs(mat[i][j]) > 0.01:
+                    raise valueError("matrix does not decompose in \
+non-uniform scale * rotation")
+
+        scale = Vector(mat[i][i] ** 0.5 for i in xrange(dim))
+
+        if conformal:
+            if max(abs(scale[0] - scale[i])
+                   for i in xrange(1, dim)) > EPSILON:
+                raise ValueError("matrix does not decompose in \
+uniform scale * rotation")
+
+        if rot.getDeterminant() < 0:
+            scale = -scale
+
+        for i in xrange(dim):
+            for j in xrange(dim):
+                rot[i][j] /= scale[i]
+        
+        return scale, rot
+
+    def setScaleRotation(self, scale, rotation):
+        """Set scale and rotation part of the matrix.
+
+        >>> x = LMatrix((0,0,0),(0,0,0),(0,0,0))
+        >>> x.setScaleRotation(Vector(1.0, 2.0, 5.0), LMatrix([0.0, -1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]))
+        >>> x
+        [[0.0, -1.0, 0.0], [2.0, 0.0, 0.0], [0.0, 0.0, 5.0]]
+        """
+        if not isinstance(scale, Vector):
+            raise TypeError("first argument must be Vector")
+        if not isinstance(rotation, LMatrix):
+            raise TypeError("second argument must be LMatrix")
+        if self._affine:
+            dim = self._dim_n - 1
+        else:
+            dim = self._dim_n
+        if rotation._dim_n != dim or rotation._dim_m != dim or rotation._affine:
+            raise ValueError("second argument must be a %ix%i rotation matrix"
+                             % (dim, dim))
+        if len(scale) != dim:
+            raise ValueError(
+                "scale Vector must have same dimension as rotation matrix")
+        if rotation.getScaleRotation()[1] != rotation:
+            raise ValueError("second argument must be a rotation matrix")
+        for i in xrange(dim):
+            for j in xrange(dim):
+                self[i][j] = scale[i] * rotation[i][j]
+
+    def getScaleQuat(self):
+        """Decompose upper 3x3 part of matrix into scale and quaternion.
+
+        >>> LMatrix((1,0,0),(0,2,0),(0,0,5)).getScaleQuat()
+        ([1.0, 2.0, 5.0], [0.0, 0.0, 0.0, 1.0])
+        >>> LMatrix((0,-1,0),(2,0,0),(0,0,5)).getScaleQuat() # doctest: +ELLIPSIS
+        ([1.0, 2.0, 5.0], [0.0, 0.0, -0.7071..., 0.7071...])
+        """
+        scale, rot = self.getScaleRotation()
+        if len(scale) != 3:
+            raise ValueError("matrix must be 3x3 (linear) or 4x4 (affine)")
+
+        trace = sum((rot[i][i] for i in xrange(3)), 1.0)
+        
+        if trace > EPSILON:
+            s = (trace ** 0.5) * 2
+            return scale, Quat( ( rot[1][2] - rot[2][1] ) / s,
+                                ( rot[2][0] - rot[0][2] ) / s,
+                                ( rot[0][1] - rot[1][0] ) / s,
+                                0.25 * s )
+        elif rot[0][0] > max((rot[1][1], rot[2][2])): 
+            s  = (( 1.0 + rot[0][0] - rot[1][1] - rot[2][2] ) ** 0.5) * 2
+            return scale, Quat( 0.25 * s,
+                                ( rot[0][1] + rot[1][0] ) / s,
+                                ( rot[2][0] + rot[0][2] ) / s,
+                                ( rot[1][2] - rot[2][1] ) / s )
+        elif rot[1][1] > rot[2][2]:
+            s  = (( 1.0 + rot[1][1] - rot[0][0] - rot[2][2] ) ** 0.5) * 2
+            return scale, Quat( ( rot[0][1] + rot[1][0] ) / s,
+                                0.25 * s,
+                                ( rot[1][2] + rot[2][1] ) / s,
+                                ( rot[2][0] - rot[0][2] ) / s )
+        else:
+            s  = (( 1.0 + rot[2][2] - rot[0][0] - rot[1][1] ) ** 0.5) * 2
+            return scale, Quat( ( rot[2][0] + rot[0][2] ) / s,
+                                ( rot[1][2] + rot[2][1] ) / s,
+                                0.25 * s,
+                                ( rot[0][1] - rot[1][0] ) / s )
+
+        return scale, quat
+
+    def getTranslation(self):
+        """Returns translation part (zero Vector for non-affine transforms).
+
+        >>> x = LMatrix((0.5,-0.5,0),(0.5,0.5,0),(7,8,1), affine = True)
+        >>> x.getTranslation()
+        [7, 8]
+        """
+        if self._affine:
+            return Vector(self[-1][j] for j in xrange(self._dim_m - 1))
+        else:
+            return Vector(0 for j in xrange(self._dim_m - 1))
 
 class RMatrix(Matrix):
     """A general purpose matrix class, with vector multiplication from the
     right. Use for linear transforms."""
     # the right multiplication is implemented in the Matrix class
 
+
+
 class LRMatrix(Matrix):
     """A general purpose matrix class, with vector multiplication from both
     sides. Use for bilinear forms (such as inertia tensors)."""
-    def product(self, vec1, vec2):
+    
+    def innerProduct(self, vec1, vec2):
+        """Inner product of two vectors."""
         return sum( sum( vec1[i] * self[i][j]
                          for i in xrange(self._dim_n) )
                     * vec2[j]

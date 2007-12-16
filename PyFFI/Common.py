@@ -280,15 +280,11 @@ class VectorBase(BasicBase):
         return self._value
 
     def setValue(self, value):
-        """Set matrix to C{value}. Raises TypeError if C{value} is not an
-        instance of self._type."""
-        # check type
-        if not isinstance(value, self._type):
-            raise TypeError("Argument is of type %s but should be of type %s."
-                            % (value.__class__, self._type))
-        # (leave dimension checks to self._type)
-        # set the value
-        self._value = value
+        """Set vector to C{value}.
+
+        @param value: A generator, list, or tuple, containing the entries of the
+            vector."""
+        self._value = self._type(*value)
 
     def __str__(self):
         return ("[ " + "%6.3f " * self._dim + "]") % tuple(self._value)
@@ -360,7 +356,7 @@ class MatrixBase(BasicBase):
         _dim_m = 3
         def __new__(cls, *args):
             if len(args) != cls._dim_n:
-                raise ValueError("expected exactly %i arguments" % cls._dim_n)
+                raise TypeError("expected exactly %i arguments" % cls._dim_n)
             for row in args:
                 if len(row) != cls._dim_m:
                     raise TypeError("each argument should have length %i"
@@ -384,15 +380,11 @@ class MatrixBase(BasicBase):
         return self._value
 
     def setValue(self, value):
-        """Set matrix to C{value}. Raises TypeError if C{value} is not an
-        instance of self._type."""
-        # check type
-        if not isinstance(value, self._type):
-            raise TypeError("Argument is of type %s but should be of type %s."
-                            % (value.__class__, self._type))
-        # (leave dimension checks to self._type)
-        # set the value
-        self._value = value
+        """Set matrix to C{value}.
+
+        @param value: A generator, list, or tuple, containing the rows of the
+            matrix."""
+        self._value = self._type(*value)
 
     def __str__(self):
         result = ""
