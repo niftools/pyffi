@@ -20,6 +20,13 @@ def testFile(stream,
         if stream.tell() != f_tmp.tell():
             print "original size: %i" % stream.tell()
             print "written size:  %i" % f_tmp.tell()
+            try:
+                f_tmp.seek(0)
+                f_debug = open("debug.cgf", "wb")
+                f_debug.write(f_tmp.read(-1))
+                f_debug.close()
+            except:
+                raise
             raise StandardError('write check failed: file sizes differ')
     finally:
         f_tmp.close()
