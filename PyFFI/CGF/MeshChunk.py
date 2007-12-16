@@ -42,6 +42,4 @@ def applyScale(self, scale):
     if abs(scale - 1.0) < self.cls.EPSILON:
         return
     for vert in self.vertices:
-        vert.p.x *= scale
-        vert.p.y *= scale
-        vert.p.z *= scale
+        vert.p *= scale

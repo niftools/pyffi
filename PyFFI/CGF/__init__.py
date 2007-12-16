@@ -453,6 +453,22 @@ class CgfFormat(object):
             """Ptr does not point down, so getRefs returns empty list."""
             return []
 
+    class Vector3(Common.VectorBase):
+        _type = Utils.MathUtils.Vector
+
+    class Matrix33(Common.MatrixBase):
+        _type = Utils.MathUtils.LMatrix
+
+    class Matrix44(Common.MatrixBase):
+        _dim_n = 4
+        _dim_m = 4
+        _type = Utils.MathUtils.LMatrix
+        _kwargs = { "affine" : True }
+
+    class Quat(Common.VectorBase):
+        _dim = 4
+        _type = Utils.MathUtils.Quat
+
     # exceptions
     class CgfError(StandardError):
         """Exception for CGF specific errors."""

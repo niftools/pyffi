@@ -651,8 +651,8 @@ translation of a non-square matrix")
         # = diagonal matrix with scales squared on the diagonal
         if self._affine:
             dim = self._dim_n - 1
-            rot = self.getSubMatrix(range(dim - 1),
-                                    range(dim - 1))
+            rot = self.getSubMatrix(range(dim),
+                                    range(dim))
         else:
             dim = self._dim_n
             rot = self

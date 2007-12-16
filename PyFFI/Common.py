@@ -366,7 +366,8 @@ class MatrixBase(BasicBase):
     _dim_n = 3
     _dim_m = 3
     _type = TupleMatrix
-    _transposed = False
+    _kwargs = {}        #: Keyword argument dictionary used when constructing C{_type}
+    _transposed = False #: Whether to transpose the matrix before constructing.
 
     def __init__(self, **kwargs):
         super(MatrixBase, self).__init__(**kwargs)
@@ -384,7 +385,7 @@ class MatrixBase(BasicBase):
 
         @param value: A generator, list, or tuple, containing the rows of the
             matrix."""
-        self._value = self._type(*value)
+        self._value = self._type(*value, **self._kwargs)
 
     def __str__(self):
         result = ""
@@ -398,13 +399,13 @@ class MatrixBase(BasicBase):
             mat = ( struct.unpack("<" + "f" * self._dim_m,
                                   stream.read(4 * self._dim_m))
                     for i in xrange(self._dim_n) )
-            self._value = self._type(*mat)
+            self._value = self._type(*mat, **self._kwargs)
         else:
             mat = ( struct.unpack("<" + "f" * self._dim_n,
                                   stream.read(4 * self._dim_n))
                     for i in xrange(self._dim_m) )
             # izip(*mat) is an iterator which transposes the matrix
-            self._value = self._type(*izip(*mat))
+            self._value = self._type(*izip(*mat), **self._kwargs)
 
     def write(self, stream, **kwargs):
         """Write matrix to stream."""

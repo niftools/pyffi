@@ -37,27 +37,24 @@
 #
 # ***** END LICENSE BLOCK *****
 
+from PyFFI.Utils.MathUtils import LMatrix
+
 def applyScale(self, scale):
     """Apply scale factor on data."""
     if abs(scale - 1.0) < self.cls.EPSILON:
         return
-    self.transform.m14 *= scale
-    self.transform.m24 *= scale
-    self.transform.m34 *= scale
-    self.pos.x *= scale
-    self.pos.y *= scale
-    self.pos.z *= scale
+
+    self.transform = LMatrix( ( ( self.transform[i][j]
+                                  if (i < 3 or j == 3)
+                                  else self.transform[i][j] * scale )
+                                for j in xrange(4) )
+                              for i in xrange(4) )
+    self.pos *= scale
 
 def updatePosRotScl(self):
     """Update position, rotation, and scale, from the transform."""
-    scale, quat, trans = self.transform.getScaleQuatTranslation()
-    self.pos.x = trans.x
-    self.pos.y = trans.y
-    self.pos.z = trans.z
-    self.rot.x = quat.x
-    self.rot.y = quat.y
-    self.rot.z = quat.z
-    self.rot.w = quat.w
-    self.scl.x = scale.x
-    self.scl.y = scale.y
-    self.scl.z = scale.z
+    scale, quat = self.transform.getScaleQuat()
+    trans = self.transform.getTranslation()
+    self.pos = trans
+    self.rot = quat
+    self.scl = scale
