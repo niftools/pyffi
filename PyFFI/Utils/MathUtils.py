@@ -44,14 +44,14 @@ EPSILON = 0.0001
 
 from types import GeneratorType
 
-class Vector(list):
+class Vector(tuple):
     """A general purpose vector class."""
-    def __init__(self, *args):
+    def __new__(cls, *args):
         """Vector constructor. Takes either a single list/tuple/generator
         argument, or multiple int, long, float arguments.
 
         >>> Vector(1,2,3)
-        [1, 2, 3]
+        (1, 2, 3)
         >>> Vector("abc") # doctest: +ELLIPSIS
         Traceback (most recent call last):
             ...
@@ -59,9 +59,12 @@ class Vector(list):
         """
         if len(args) == 1 and isinstance(args[0], (list, tuple, GeneratorType)):
             # single list/tuple/generator type
-            list.__init__(self, args[0])
+            vec = tuple.__new__(cls, args[0])
         else:
-            list.__init__(self, (elem for elem in args))
+            vec = tuple.__new__(cls, (elem for elem in args))
+        return vec
+    
+    def __init__(self, *args):
         for elem in self:
             if not isinstance(elem, (int, long, float)):
                 raise TypeError("Vector must consist of scalars.")
@@ -70,9 +73,9 @@ class Vector(list):
         """Vector and scalar addition.
 
         >>> Vector(1,2,3) + Vector(5,4,3)
-        [6, 6, 6]
+        (6, 6, 6)
         >>> Vector(1,2,3) + 5
-        [6, 7, 8]
+        (6, 7, 8)
         """
         if isinstance(other, Vector):
             return Vector(elem1 + elem2 for elem1, elem2 in izip(self, other))
@@ -86,7 +89,7 @@ class Vector(list):
         """Scalar plus Vector.
 
         >>> 5 + Vector(1,2,3)
-        [6, 7, 8]
+        (6, 7, 8)
         """
         if isinstance(other, (int, long, float)):
             return Vector(elem + other for elem in self)
@@ -98,7 +101,7 @@ class Vector(list):
         """Negation.
 
         >>> -Vector(1,2,3,4)
-        [-1, -2, -3, -4]
+        (-1, -2, -3, -4)
         """
         return Vector(-elem for elem in self)
     
@@ -106,9 +109,9 @@ class Vector(list):
         """Vector and scalar substraction.
 
         >>> Vector(1,2,3) - Vector(5,4,3)
-        [-4, -2, 0]
+        (-4, -2, 0)
         >>> Vector(1,2,3) - 5
-        [-4, -3, -2]
+        (-4, -3, -2)
         >>> Vector(1,2,3) - "hi" # doctest: +ELLIPSIS
         Traceback (most recent call last):
             ...
@@ -126,7 +129,7 @@ class Vector(list):
         """Scalar minus Vector.
 
         >>> 5 - Vector(1,2,3)
-        [4, 3, 2]
+        (4, 3, 2)
         """
         if isinstance(other, (int, long, float)):
             return Vector(other - elem for elem in self)
@@ -139,13 +142,13 @@ class Vector(list):
         >>> Vector(1,2,3) * Vector(4,-5,6)
         12
         >>> Vector(2,3,4) * 5
-        [10, 15, 20]
+        (10, 15, 20)
         >>> Vector(4,-5,6) * LMatrix((1,2,3),(2,3,4),(4,5,6))
-        [18, 23, 28]
+        (18, 23, 28)
         >>> Vector(4,-5,6) * LMatrix((1,2,4),(2,3,5),(3,4,6))
-        [12, 17, 27]
+        (12, 17, 27)
         >>> RMatrix((1,2,3),(2,3,4),(4,5,6)) * Vector(4,-5,6)
-        [12, 17, 27]
+        (12, 17, 27)
         >>> Vector(4,-5,6) * Matrix((1,2,3),(2,3,4),(4,5,6)) # doctest: +ELLIPSIS
         Traceback (most recent call last):
             ...
@@ -174,7 +177,7 @@ class Vector(list):
         """Scalar times Vector.
 
         >>> 5 * Vector(2,3,4)
-        [10, 15, 20]"""
+        (10, 15, 20)"""
         if isinstance(other, (int, long, float)):
             return (self * other)
         else:
@@ -185,9 +188,9 @@ class Vector(list):
         """Cross product, for 3 dimensional vectors.
 
         >>> Vector(1,0,0).crossProduct(Vector(0,1,0))
-        [0, 0, 1]
+        (0, 0, 1)
         >>> Vector(1,2,3).crossProduct(Vector(4,5,6))
-        [-3, 6, -3]
+        (-3, 6, -3)
         >>> Vector(1,2).crossProduct(Vector(4,5,6)) # doctest: +ELLIPSIS
         Traceback (most recent call last):
             ...
@@ -215,9 +218,9 @@ class Vector(list):
         """Tensor product.
 
         >>> Vector(1,0,0).tensorProduct(Vector(0,1))
-        [[0, 1], [0, 0], [0, 0]]
+        ((0, 1), (0, 0), (0, 0))
         >>> Vector(1,2,3).tensorProduct(Vector(4,5,6))
-        [[4, 5, 6], [8, 10, 12], [12, 15, 18]]
+        ((4, 5, 6), (8, 10, 12), (12, 15, 18))
         """
         if not isinstance(other, Vector):
             raise TypeError("cannot take tensor product of %s and %s"
@@ -229,7 +232,7 @@ class Vector(list):
         """Divide a Vector by a scalar.
 
         >>> 0.000000001 + (Vector(2,3,4) / 5.0) # doctest: +ELLIPSIS
-        [0.4000..., 0.6000..., 0.8000...]
+        (0.4000..., 0.6000..., 0.8000...)
         """
         if isinstance(other, (int, long, float)):
             return Vector(elem / other for elem in self)
@@ -252,7 +255,7 @@ class Vector(list):
 
         >>> x = Vector(1,2,3).getNormalized()
         >>> x # doctest: +ELLIPSIS
-        [0.2672612419124..., 0.5345224838248..., 0.8017837257372...]
+        (0.2672612419124..., 0.5345224838248..., 0.8017837257372...)
         >>> x.getNorm() + 0.00001 # doctest: +ELLIPSIS
         1.000...
         >>> Vector(0,0,0).getNormalized() # doctest: +ELLIPSIS
@@ -262,7 +265,7 @@ class Vector(list):
         """
         norm = self.getNorm()
         if norm < EPSILON:
-            raise ValueError('cannot normalize vector %s' % self)
+            raise ValueError('cannot normalize vector %s' % str(self))
         return Vector(elem / norm for elem in self)
 
     def getDistance(self, *args):
@@ -292,14 +295,14 @@ class Vector(list):
             normal = args[0].getNormal(args[1], args[2])
             return (normal * (self - args[0])) / normal.getNorm()
 
-class Quat(list):
+class Quat(tuple):
     """Quaternion implementation."""
-    def __init__(self, *args):
+    def __new__(cls, *args):
         """Quaternion constructor. Takes either a single list/tuple/generator
         argument, or multiple int, long, float arguments.
 
         >>> Quat(0,0,0,1)
-        [0, 0, 0, 1]
+        (0, 0, 0, 1)
         >>> Quat("abcd") # doctest: +ELLIPSIS
         Traceback (most recent call last):
             ...
@@ -307,40 +310,44 @@ class Quat(list):
         """
         if len(args) == 1 and isinstance(args[0], (list, tuple, GeneratorType)):
             # single list/tuple/generator type
-            list.__init__(self, args[0])
+            quat = tuple.__new__(cls, args[0])
         else:
-            list.__init__(self, (elem for elem in args))
-        if len(self) != 4:
+            quat = tuple.__new__(cls, (elem for elem in args))
+        if len(quat) != 4:
             raise TypeError("Quaternion must consist of exactly 4 scalars.")
-        for elem in self:
+        for elem in quat:
             if not isinstance(elem, (int, long, float)):
                 raise TypeError("Vector must consist of scalars.")
+        return quat
 
     def getLMatrix(self):
         """Get matrix representation."""
         raise NotImplementedError
 
-class Matrix(list):
+class Matrix(tuple):
     """A general purpose matrix base class, without vector multiplication.
     For matrices that support vector multiplication, use LMatrix, RMatrix, or
     LRMatrix."""
     # note: all multiplication code (L/R)Matrix * something is implemented in
     # __mul__
     
-    def __init__(self, *args):
+    def __new__(cls, *args, **kwargs):
         """Initialize matrix from row vectors.
 
         >>> Matrix((1,2,3),(4,5,6),(7,8,9))
-        [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+        ((1, 2, 3), (4, 5, 6), (7, 8, 9))
         >>> Matrix(( row for row in xrange(i, i + 3) ) for i in xrange(3))
-        [[0, 1, 2], [1, 2, 3], [2, 3, 4]]
+        ((0, 1, 2), (1, 2, 3), (2, 3, 4))
         """
         if len(args) == 1 and isinstance(args[0], (list, tuple, GeneratorType)):
             # single list/tuple/generator type
-            list.__init__(self, (list(row) for row in args[0]))
+            mat = tuple.__new__(cls, ( tuple(row) for row in args[0] ))
         else:
-            list.__init__(self, ( list( elem for elem in row )
-                                  for row in args ))
+            mat = tuple.__new__(cls, ( tuple( elem for elem in row )
+                                       for row in args ))
+        return mat
+
+    def __init__(self, *args, **kwargs):
         self._dim_n = len(self)
         self._dim_m = len(self[0]) if self._dim_n else 0
         for row in self:
@@ -364,9 +371,9 @@ class Matrix(list):
         """Matrix and scalar addition.
 
         >>> Matrix((1,2,3),(2,3,4),(4,5,6)) + Matrix((3,2,1),(2,1,0),(1,2,3))
-        [[4, 4, 4], [4, 4, 4], [5, 7, 9]]
+        ((4, 4, 4), (4, 4, 4), (5, 7, 9))
         >>> Matrix((1,2,3),(2,3,4)) + 5
-        [[6, 7, 8], [7, 8, 9]]
+        ((6, 7, 8), (7, 8, 9))
         """
         if isinstance(other, Matrix):
             # type check
@@ -391,7 +398,7 @@ class Matrix(list):
         """Scalar plus Matrix.
 
         >>> 5 + Matrix((1,2,3),(2,3,4),(4,5,6))
-        [[6, 7, 8], [7, 8, 9], [9, 10, 11]]
+        ((6, 7, 8), (7, 8, 9), (9, 10, 11))
         """
         if isinstance(other, (int, long, float)):
             return self.__class__( ( elem + other for elem in row )
@@ -404,9 +411,9 @@ class Matrix(list):
         """Matrix and scalar substraction.
 
         >>> Matrix((1,2,3),(2,3,4),(4,5,6)) - Matrix((3,2,1),(2,1,0),(1,2,3))
-        [[-2, 0, 2], [0, 2, 4], [3, 3, 3]]
+        ((-2, 0, 2), (0, 2, 4), (3, 3, 3))
         >>> Matrix((1,2,3),(2,3,4)) - 5
-        [[-4, -3, -2], [-3, -2, -1]]
+        ((-4, -3, -2), (-3, -2, -1))
         """
         if isinstance(other, Matrix):
             # type check
@@ -431,7 +438,7 @@ class Matrix(list):
         """Scalar minus Matrix.
 
         >>> 5 - Matrix((1,2,3),(2,3,4),(4,5,6))
-        [[4, 3, 2], [3, 2, 1], [1, 0, -1]]
+        ((4, 3, 2), (3, 2, 1), (1, 0, -1))
         """
         if isinstance(other, (int, long, float)):
             return self.__class__( ( other - elem for elem in row )
@@ -444,7 +451,7 @@ class Matrix(list):
         """Matrix times scalar, Vector, or Matrix.
 
         >>> LMatrix((1,2,3),(2,3,4),(4,5,6)) * LMatrix((1,2,3),(2,3,4),(4,5,6))
-        [[17, 23, 29], [24, 33, 42], [38, 53, 68]]
+        ((17, 23, 29), (24, 33, 42), (38, 53, 68))
         >>> Matrix((1,2,3),(2,3,4),(4,5,6)) * Vector(4,-5,6) # doctest: +ELLIPSIS
         Traceback (most recent call last):
             ...
@@ -454,7 +461,7 @@ class Matrix(list):
             ...
         TypeError: ...
         >>> Matrix((1,2,3),(2,3,4),(4,5,6)) * 5
-        [[5, 10, 15], [10, 15, 20], [20, 25, 30]]"""
+        ((5, 10, 15), (10, 15, 20), (20, 25, 30))"""
         if isinstance(other, Matrix):
             # what should be the resulting class?
             if isinstance(self, LMatrix) and isinstance(other, LMatrix):
@@ -498,7 +505,7 @@ class Matrix(list):
         """Scalar times Matrix.
 
         >>> 5 * Matrix((1,2,3),(2,3,4),(4,5,6))
-        [[5, 10, 15], [10, 15, 20], [20, 25, 30]]
+        ((5, 10, 15), (10, 15, 20), (20, 25, 30))
         """
         if isinstance(other, (int, long, float)):
             return (self * other)
@@ -551,9 +558,9 @@ class Matrix(list):
         """Get transpose of self.
 
         >>> Matrix((1,2,3),(2,3,4),(4,5,6)).getTranspose()
-        [[1, 2, 4], [2, 3, 5], [3, 4, 6]]
+        ((1, 2, 4), (2, 3, 5), (3, 4, 6))
         >>> Matrix((1, 2), (3, 4)).getTranspose()
-        [[1, 3], [2, 4]]
+        ((1, 3), (2, 4))
         """
         # get type of result
         if isinstance(self, LMatrix):
@@ -614,12 +621,12 @@ class LMatrix(Matrix):
         @param args: The rows.
 
         >>> LMatrix((0.5,0.5,0), (0.5,-0.5,0), (7,8,1), affine = True)
-        [[0.5, 0.5, 0], [0.5, -0.5, 0], [7, 8, 1]]
+        ((0.5, 0.5, 0), (0.5, -0.5, 0), (7, 8, 1))
         >>> LMatrix(( row for row in xrange(i, i + 3) ) for i in xrange(3))
-        [[0, 1, 2], [1, 2, 3], [2, 3, 4]]
+        ((0, 1, 2), (1, 2, 3), (2, 3, 4))
         """
-        self._affine = bool(kwargs.get("affine", False))
         Matrix.__init__(self, *args)
+        self._affine = bool(kwargs.get("affine", False))
 
     def getScaleRotation(self, conformal = False):
         """Gets the scale and rotation part of the transformation. Raises
@@ -631,7 +638,7 @@ class LMatrix(Matrix):
             rotation matrix, and a translation Vector.
 
         >>> LMatrix((0,-1,0),(2,0,0),(0,0,5)).getScaleRotation()
-        ([1.0, 2.0, 5.0], [[0.0, -1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]])
+        ((1.0, 2.0, 5.0), ((0.0, -1.0, 0.0), (1.0, 0.0, 0.0), (0.0, 0.0, 1.0)))
         """
         if self._dim_n != self._dim_m:
             raise ValueError("cannot calculate scale, rotation, and \
@@ -648,7 +655,7 @@ translation of a non-square matrix")
                                     range(dim - 1))
         else:
             dim = self._dim_n
-            rot = LMatrix(*self)
+            rot = self
         mat = rot * rot.getTranspose()
 
         # off diagonal elements should be zero
@@ -671,29 +678,24 @@ uniform scale * rotation")
         if rot.getDeterminant() < 0:
             scale = -scale
 
-        for i in xrange(dim):
-            for j in xrange(dim):
-                rot[i][j] /= scale[i]
-        
-        return scale, rot
+        return scale, LMatrix( ( rot[i][j] / scale[i]
+                                 for j in xrange(dim) )
+                               for i in xrange(dim) )
 
-    def setScaleRotation(self, scale, rotation):
-        """Set scale and rotation part of the matrix.
+    @classmethod
+    def constructScaleRotation(cls, scale, rotation):
+        """Compose scale * rotation.
 
-        >>> x = LMatrix((0,0,0),(0,0,0),(0,0,0))
-        >>> x.setScaleRotation(Vector(1.0, 2.0, 5.0), LMatrix([0.0, -1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]))
+        >>> x = LMatrix.constructScaleRotation(Vector(1.0, 2.0, 5.0), LMatrix((0.0, -1.0, 0.0), (1.0, 0.0, 0.0), (0.0, 0.0, 1.0)))
         >>> x
-        [[0.0, -1.0, 0.0], [2.0, 0.0, 0.0], [0.0, 0.0, 5.0]]
+        ((0.0, -1.0, 0.0), (2.0, 0.0, 0.0), (0.0, 0.0, 5.0))
         """
         if not isinstance(scale, Vector):
             raise TypeError("first argument must be Vector")
         if not isinstance(rotation, LMatrix):
             raise TypeError("second argument must be LMatrix")
-        if self._affine:
-            dim = self._dim_n - 1
-        else:
-            dim = self._dim_n
-        if rotation._dim_n != dim or rotation._dim_m != dim or rotation._affine:
+        dim = rotation._dim_n
+        if rotation._dim_n != rotation._dim_m or rotation._affine:
             raise ValueError("second argument must be a %ix%i rotation matrix"
                              % (dim, dim))
         if len(scale) != dim:
@@ -701,17 +703,17 @@ uniform scale * rotation")
                 "scale Vector must have same dimension as rotation matrix")
         if rotation.getScaleRotation()[1] != rotation:
             raise ValueError("second argument must be a rotation matrix")
-        for i in xrange(dim):
-            for j in xrange(dim):
-                self[i][j] = scale[i] * rotation[i][j]
+        return LMatrix( ( scale[i] * rotation[i][j]
+                          for j in xrange(dim) )
+                        for i in xrange(dim) )
 
     def getScaleQuat(self):
         """Decompose upper 3x3 part of matrix into scale and quaternion.
 
         >>> LMatrix((1,0,0),(0,2,0),(0,0,5)).getScaleQuat()
-        ([1.0, 2.0, 5.0], [0.0, 0.0, 0.0, 1.0])
+        ((1.0, 2.0, 5.0), (0.0, 0.0, 0.0, 1.0))
         >>> LMatrix((0,-1,0),(2,0,0),(0,0,5)).getScaleQuat() # doctest: +ELLIPSIS
-        ([1.0, 2.0, 5.0], [0.0, 0.0, -0.7071..., 0.7071...])
+        ((1.0, 2.0, 5.0), (0.0, 0.0, -0.7071..., 0.7071...))
         """
         scale, rot = self.getScaleRotation()
         if len(scale) != 3:
@@ -751,7 +753,7 @@ uniform scale * rotation")
 
         >>> x = LMatrix((0.5,-0.5,0),(0.5,0.5,0),(7,8,1), affine = True)
         >>> x.getTranslation()
-        [7, 8]
+        (7, 8)
         """
         if self._affine:
             return Vector(self[-1][j] for j in xrange(self._dim_m - 1))
