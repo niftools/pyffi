@@ -3,16 +3,23 @@
 from PyFFI.CGF import CgfFormat
 from tempfile import TemporaryFile
 
-def testFile(filetype, fileversion, f, chunks, versions, verbose):
+def testFile(stream,
+             filetype = None, fileversion = None,
+             chunks = None, versions = None, **kwargs):
     f_tmp = TemporaryFile()
     try:
-        CgfFormat.write(filetype, fileversion, f_tmp, chunks, versions)
-        f.seek(2,0)
-        f_tmp.seek(2,0)
+        CgfFormat.write(
+            f_tmp,
+            filetype = filetype, fileversion = fileversion,
+            chunks = chunks, versions = versions)
         # comparing the files will usually be different because blocks may
         # have been written back in a different order, so cheaply just compare
         # file sizes
-        if f.tell() != f_tmp.tell():
+        stream.seek(0,2)
+        f_tmp.seek(0,2)
+        if stream.tell() != f_tmp.tell():
+            print "original size: %i" % stream.tell()
+            print "written size:  %i" % f_tmp.tell()
             raise StandardError('write check failed: file sizes differ')
     finally:
         f_tmp.close()

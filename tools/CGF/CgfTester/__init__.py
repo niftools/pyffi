@@ -43,7 +43,8 @@ def testFileOverwrite(stream,
 def testPath(top, testChunk, testFile, raisereaderror = False, mode = 'rb', verbose = None, arg = None):
     kwargs = {}
     kwargs['verbose'] = verbose if verbose != None else 0
-    if arg != None: kwargs['arg'] = arg
+    if arg != None:
+        kwargs['arg'] = arg
     for filetype, fileversion, stream, chunks, versions in CgfFormat.walkFile(top, raisereaderror = raisereaderror, verbose = min(1, verbose), mode = mode):
         if testChunk:
             for chunk in chunks:
@@ -53,3 +54,4 @@ def testPath(top, testChunk, testFile, raisereaderror = False, mode = 'rb', verb
                 stream,
                 filetype = filetype, fileversion = fileversion,
                 chunks = chunks, versions = versions, **kwargs)
+

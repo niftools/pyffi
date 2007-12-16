@@ -550,11 +550,12 @@ class CgfFormat(object):
             # now read the chunk
             stream.seek(chunkhdr.offset)
 
-            # most chunks start with a copy of chunkhdr
-            if chunkhdr.type not in [
-                cls.ChunkType.SourceInfo, cls.ChunkType.BoneNameList,
-                cls.ChunkType.BoneLightBinding, cls.ChunkType.BoneInitialPos,
-                cls.ChunkType.MeshMorphTarget]:
+            # in far cry, most chunks start with a copy of chunkhdr
+            # in crysis, all chunks start with chunkhdr... this hack
+            # peeks into a block to check whether the next block is a chunk
+            # header or not
+            if chunkhdr.type == struct.unpack("<I", stream.read(4))[0]:
+                stream.seek(chunkhdr.offset)
                 
                 chunkhdr_copy = cls.ChunkHeader()
                 chunkhdr_copy.read(stream, version = hdr.version)
@@ -566,6 +567,8 @@ class CgfFormat(object):
                     raise ValueError(
                         'chunk starts with invalid header:\n\
 expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
+            else:
+                stream.seek(chunkhdr.offset)
 
             chunk.read(
                 stream, version = chunkhdr.version, link_stack = link_stack)
