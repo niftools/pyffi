@@ -7,7 +7,7 @@ from PyFFI.NIF import NifFormat
 def testBlock(block, **args):
     if not isinstance(block, NifFormat.NiTriShapeData): return
     print 'calculating strips'
-    triangles = [[t.v1, t.v2, t.v3] for t in block.triangles]
+    triangles = [(t.v1, t.v2, t.v3) for t in block.triangles]
     try:
         strips = TriStrip.stripify(triangles, stitchstrips = False)
     except StandardError:
