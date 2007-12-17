@@ -486,6 +486,7 @@ i
 
     <struct name="LightChunk" inherit="Chunk">
         <version num="351">Far Cry</version>
+        <version num="744">Far Cry</version>
         <add name="Name" type="String64" ver2="351" />
         <add name="Type" type="LightType" />
         <add name="On" type="bool" />
