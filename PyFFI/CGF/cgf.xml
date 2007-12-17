@@ -460,7 +460,7 @@ i
 
     <struct name="HelperChunk" inherit="Chunk">
         <version num="362">Far Cry</version>
-        <version num="744">Crysis</version>
+        <version num="744">Far Cry, Crysis</version>
         <add name="Name" type="String64" ver2="362">Helper name</add>
         <add name="Type" type="HelperType">Point, dummy, xref or camera.</add>
         <add name="Pos" type="Vector3">World position</add>
