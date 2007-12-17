@@ -191,6 +191,7 @@ class StructBase(object):
     
     _isTemplate = False
     _attrs = []
+    _games = {}
     
     # initialize all attributes
     def __init__(self, template = None, argument = None):
@@ -378,6 +379,16 @@ class StructBase(object):
             hsh.append(
                 getattr(self, "_%s_value_" % attr.name).getHash(**kwargs))
         return tuple(hsh)
+
+    @classmethod
+    def getGames(cls):
+        """Get games for which this block is supported."""
+        return list(cls._games.iterkeys())
+
+    @classmethod
+    def getVersions(cls, game):
+        """Get versions supported for C{game}."""
+        return cls._games[game]
 
     @classmethod
     def _getAttributeList(cls):
