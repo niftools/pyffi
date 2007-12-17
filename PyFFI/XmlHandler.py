@@ -101,9 +101,9 @@ class StructAttribute(object):
         if self.userver:
             self.userver = int(self.userver)
         if self.ver1:
-            self.ver1 = cls.versions[self.ver1]
+            self.ver1 = cls.versionNumber(self.ver1)
         if self.ver2:
-            self.ver2 = cls.versions[self.ver2]
+            self.ver2 = cls.versionNumber(self.ver2)
 
 class XmlError(StandardError):
     """The XML handler will throw this exception if something goes wrong while

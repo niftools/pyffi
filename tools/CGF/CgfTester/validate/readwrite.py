@@ -4,13 +4,13 @@ from PyFFI.CGF import CgfFormat
 from tempfile import TemporaryFile
 
 def testFile(stream,
-             filetype = None, fileversion = None,
+             filetype = None, fileversion = None, game = None,
              chunks = None, versions = None, **kwargs):
     f_tmp = TemporaryFile()
     try:
         CgfFormat.write(
             f_tmp,
-            filetype = filetype, fileversion = fileversion,
+            filetype = filetype, fileversion = fileversion, game = game,
             chunks = chunks, versions = versions)
         # comparing the files will usually be different because blocks may
         # have been written back in a different order, so cheaply just compare

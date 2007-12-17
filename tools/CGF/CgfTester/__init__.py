@@ -7,7 +7,7 @@
 #
 # These three functions in the tester script are called:
 #    testChunk(block) - will be called on every chunk in the cgf
-#    testFile(stream, filetype, fileversion, chunks, versions)
+#    testFile(stream, filetype, fileversion, game, chunks, versions)
 #                     - will be called on every cgf
 # Not all of these three functions need to be present.
 
@@ -19,7 +19,7 @@ from PyFFI.CGF import CgfFormat
 # useful as testFile which simply writes back the file
 # but restores the file if the write fails
 def testFileOverwrite(stream,
-                      filetype = None, fileversion = None,
+                      filetype = None, fileversion = None, game = None,
                       chunks = None, versions = None, **kwargs):
     stream.seek(0)
     backup = stream.read(-1)
@@ -29,7 +29,7 @@ def testFileOverwrite(stream,
     try:
         CgfFormat.write(
             stream,
-            filetype = filetype, fileversion = fileversion,
+            filetype = filetype, fileversion = fileversion, game = game,
             chunks = chunks, versions = versions)
     except: # not just StandardError, also CTRL-C
         print "write failed!!! attempt to restore original file..."
@@ -45,13 +45,13 @@ def testPath(top, testChunk, testFile, raisereaderror = False, mode = 'rb', verb
     kwargs['verbose'] = verbose if verbose != None else 0
     if arg != None:
         kwargs['arg'] = arg
-    for filetype, fileversion, stream, chunks, versions in CgfFormat.walkFile(top, raisereaderror = raisereaderror, verbose = min(1, verbose), mode = mode):
+    for filetype, fileversion, game, stream, chunks, versions in CgfFormat.walkFile(top, raisereaderror = raisereaderror, verbose = min(1, verbose), mode = mode):
         if testChunk:
             for chunk in chunks:
                 testChunk(block, **kwargs)
         if testFile:
             testFile(
                 stream,
-                filetype = filetype, fileversion = fileversion,
+                filetype = filetype, fileversion = fileversion, game = game,
                 chunks = chunks, versions = versions, **kwargs)
 

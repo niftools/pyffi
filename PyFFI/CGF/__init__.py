@@ -491,8 +491,8 @@ class CgfFormat(object):
 
     @classmethod
     def getVersion(cls, stream):
-        """Returns file type (geometry or animation) and version of the
-        chunk table.
+        """Returns file type (geometry or animation), version of the
+        chunk table, and game.
 
         Returns -1, 0 if file type or chunk table version is not supported.
         Returns -2, 0 if it is not a cgf file.
@@ -500,7 +500,8 @@ class CgfFormat(object):
         pos = stream.tell()
         try:
             signat = stream.read(8)
-            filetype, fileversion = struct.unpack('<II', stream.read(8))
+            filetype, fileversion, offset = struct.unpack('<III',
+                                                          stream.read(12))
         except StandardError:
             return -2, 0
         finally:
@@ -511,11 +512,18 @@ class CgfFormat(object):
             return -1, 0
         if fileversion not in cls.versions.values():
             return -1, 0
-        return filetype, fileversion
+        # quick and lame game check:
+        # far cry has chunk table at the end, crysis at the start
+        return filetype, fileversion, "Crysis" if offset == 0x14 else "Far Cry"
 
     @classmethod
-    def read(cls, stream, fileversion = None, verbose = 0):
+    def read(cls, stream, fileversion = None, verbose = 0, game = None):
         """Read cgf from stream."""
+        if game is None:
+            print("WARNING: provide a game='Far Cry' or game='Crysis' argument to read")
+            print("         assuming 'Far Cry'")
+            game = 'Far Cry'
+
         chunk_types = [
             chunk_type for chunk_type in dir(cls.ChunkType) \
             if chunk_type[:2] != '__']
@@ -552,17 +560,28 @@ class CgfFormat(object):
                 raise ValueError(
                     'undecoded chunk type 0x%08X (%sChunk)'
                     %(chunkhdr.type, chunk_type))
+            # check the chunk version
+            if not game in chunk.getGames():
+                raise ValueError(
+                    'game %s does not support %sChunk'
+                    % (game, chunk_type))
+            if not chunkhdr.version in chunk.getVersions(game):
+                raise ValueError(
+                    'chunk version 0x%08X not supported for game %s and %sChunk'
+                    % (chunkhdr.version, game, chunk_type))
 
             # now read the chunk
             stream.seek(chunkhdr.offset)
 
             # in far cry, most chunks start with a copy of chunkhdr
-            # in crysis, all chunks start with chunkhdr... this hack
-            # peeks into a block to check whether the next block is a chunk
-            # header or not
-            if chunkhdr.type == struct.unpack("<I", stream.read(4))[0]:
-                stream.seek(chunkhdr.offset)
-                
+            # in crysis, all chunks start with chunkhdr
+            if not(game == "Far Cry"
+                   and chunkhdr.type in [
+                       cls.ChunkType.SourceInfo,
+                       cls.ChunkType.BoneNameList,
+                       cls.ChunkType.BoneLightBinding,
+                       cls.ChunkType.BoneInitialPos,
+                       cls.ChunkType.MeshMorphTarget]):
                 chunkhdr_copy = cls.ChunkHeader()
                 chunkhdr_copy.read(stream, version = hdr.version)
                 # check that the copy is valid
@@ -573,8 +592,6 @@ class CgfFormat(object):
                     raise ValueError(
                         'chunk starts with invalid header:\n\
 expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
-            else:
-                stream.seek(chunkhdr.offset)
 
             chunk.read(
                 stream, version = chunkhdr.version, link_stack = link_stack)
@@ -597,9 +614,14 @@ expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
     @classmethod
     def write(cls,
               stream,
-              filetype = None, fileversion = None, game = 'Far Cry',
+              filetype = None, fileversion = None, game = None,
               chunks = None, versions = None, verbose = 0):
         """Write cgf to stream."""
+        if game is None:
+            print("WARNING: provide a game='Far Cry' or game='Crysis' argument to write")
+            print("         assuming 'Far Cry'")
+            game = 'Far Cry'
+
         # write header
         hdr_pos = stream.tell()
         hdr = cls.Header()
@@ -626,10 +648,13 @@ expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
             chunkhdr.offset = stream.tell()
             chunkhdr.id = block_index_dct[chunk]
             # write chunk header
-            if chunkhdr.type not in [
-                cls.ChunkType.SourceInfo, cls.ChunkType.BoneNameList,
-                cls.ChunkType.BoneLightBinding, cls.ChunkType.BoneInitialPos,
-                cls.ChunkType.MeshMorphTarget]:
+            if not(game == "Far Cry"
+                   and chunkhdr.type in [
+                       cls.ChunkType.SourceInfo,
+                       cls.ChunkType.BoneNameList,
+                       cls.ChunkType.BoneLightBinding,
+                       cls.ChunkType.BoneInitialPos,
+                       cls.ChunkType.MeshMorphTarget]):
                 chunkhdr.write(stream, version = fileversion)
             # write chunk
             chunk.write(
@@ -655,22 +680,24 @@ expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
     def getChunkVersions(cls, game = 'Far Cry', chunks = None):
         """Return version list that matches the chunk list C{chunks} for the
         given C{game}."""
-        if game == 'Far Cry':
-            version_dct = dict([
-                (cls.MtlChunk, 0x746),
-                (cls.NodeChunk, 0x823),
-                (cls.TimingChunk, 0x918),
-                (cls.SourceInfoChunk, 0x000),
-                (cls.MeshChunk, 0x744),
-                (cls.ControllerChunk, 0x827),
-                (cls.BoneAnimChunk, 0x290),
-                (cls.BoneNameListChunk, 0x745),
-                (cls.MeshMorphTargetChunk, 0x001),
-                (cls.BoneInitialPosChunk, 0x001)])
-            # TODO add more chunks and their versions
-        else:
+        #version_dct = dict([
+        #    version_dct = dict([
+        #        (cls.MtlChunk, 0x746),
+        #        (cls.NodeChunk, 0x823),
+        #        (cls.TimingChunk, 0x918),
+        #        (cls.SourceInfoChunk, 0x000),
+        #        (cls.MeshChunk, 0x744),
+        #        (cls.ControllerChunk, 0x827),
+        #        (cls.BoneAnimChunk, 0x290),
+        #        (cls.BoneNameListChunk, 0x745),
+        #        (cls.MeshMorphTargetChunk, 0x001),
+        #        (cls.BoneInitialPosChunk, 0x001)])
+        #    # TODO add more chunks and their versions
+        #else:
+        try:
+            return [ max(chunk.getVersions(game)) for chunk in chunks ]
+        except KeyError:
             raise cls.CgfError("game %s not supported"%game)
-        return [ version_dct[chunk.__class__] for chunk in chunks ]
 
     @classmethod
     def walk(cls, top,
@@ -680,7 +707,7 @@ expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
         The argument top can also be a file instead of a directory.
         The argument onerror, if set, will be called if cls.read raises an
         exception (errors coming from os.walk will be ignored)."""
-        for filetype, fileversion, stream, chunks, versions \
+        for filetype, fileversion, game, stream, chunks, versions \
             in cls.walkFile(top, topdown, raisereaderror, verbose):
             yield chunks, versions
 
@@ -706,7 +733,7 @@ expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
             stream = open(filename, mode)
             try:
                 # get the version
-                filetype, fileversion = cls.getVersion(stream)
+                filetype, fileversion, game = cls.getVersion(stream)
                 if filetype >= 0:
                     # we got it, so now read the nif file
                     if verbose >= 2:
@@ -715,8 +742,8 @@ expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
                     try:
                         # return (filetype, fileversion, f, chunks, versions)
                         chunks, versions = cls.read(
-                            stream, fileversion = fileversion)
-                        yield filetype, fileversion, stream, chunks, versions
+                            stream, fileversion = fileversion, game = game)
+                        yield filetype, fileversion, game, stream, chunks, versions
                     except StandardError:
                         # an error occurred during reading
                         # this should not happen: means that the file is

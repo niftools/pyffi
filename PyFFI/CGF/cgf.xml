@@ -1,18 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE fileformat>
 <fileformat version="1.0">
-    <version num="1"  >Far Cry</version> <!-- bonelightbinding, boneinitialpos -->
-    <version num="290">Far Cry</version> <!-- boneanim chunk -->
-    <version num="351">Far Cry</version> <!-- light chunk -->
-    <version num="362">Far Cry</version> <!-- helper chunk -->
-    <version num="623">Far Cry</version>
-    <version num="744">Far Cry</version>
-    <version num="745">Far Cry</version>
-    <version num="746">Far Cry</version>
-    <version num="823">Far Cry</version> <!-- node chunk -->
-    <version num="826">Far Cry</version> <!-- controller chunk -->
-    <version num="827">Far Cry</version> <!-- controller chunk -->
-    <version num="918">Far Cry</version> <!-- timing chunk -->
+    <version num="744">Far Cry, Crysis</version>
 
     <!--
     *******************
@@ -445,6 +434,9 @@ i
     </struct>
 
     <struct name="MeshChunk" inherit="Chunk">
+        <version num="623">Far Cry</version>
+        <version num="744">Far Cry</version>
+        <version num="800">Crysis</version>
         Geometry.
         <add name="Has Vertex Weights" type="bool" />
         <add name="Has Vertex Colors" type="bool" />
@@ -467,6 +459,8 @@ i
     </struct>
 
     <struct name="HelperChunk" inherit="Chunk">
+        <version num="362">Far Cry</version>
+        <version num="744">Crysis</version>
         <add name="Name" type="String64" ver2="362">Helper name</add>
         <add name="Type" type="HelperType">Point, dummy, xref or camera.</add>
         <add name="Pos" type="Vector3">World position</add>
@@ -474,20 +468,24 @@ i
     </struct>
 
     <struct name="VertAnimChunk" inherit="Chunk">
+        <version num="744">Far Cry</version>
     <!-- todo: decode -->
     </struct>
 
     <struct name="BoneAnimChunk" inherit="Chunk">
+        <version num="290">Far Cry, Crysis</version>
         <add name="Num Bones" type="uint" />
         <add name="Bones" type="BoneEntity" arr1="Num Bones" />
     </struct>
 
     <struct name="BoneNameListChunk" inherit="Chunk">
+        <version num="745">Far Cry, Crysis</version>
         <add name="Num Names" type="uint" />
         <add name="Names" type="String" arr1="Num Names" />
     </struct>
 
     <struct name="LightChunk" inherit="Chunk">
+        <version num="351">Far Cry</version>
         <add name="Name" type="String64" ver2="351" />
         <add name="Type" type="LightType" />
         <add name="On" type="bool" />
@@ -513,6 +511,7 @@ i
     </struct>
 
     <struct name="NodeChunk" inherit="Chunk">
+        <version num="823">Far Cry, Crysis</version>
         <add name="Name" type="String64" />
         <add name="Object" type="Ref" template="MeshChunk">Node object chunk (if present). Usually, a mesh.</add>
         <add name="Parent" type="Ptr" template="NodeChunk">Node parent.</add>
@@ -539,6 +538,9 @@ i
     </struct>
 
     <struct name="MtlChunk" inherit="Chunk">
+        <version num="744">Far Cry</version>
+        <version num="745">Far Cry</version>
+        <version num="746">Far Cry</version>
         <add name="Name" type="String64">Material and shader name.</add>
         <add name="Reserved" type="ubyte" arr1="60" ver1="746">Reserved.</add>
         <add name="Alpha Test" type="float" ver1="746">Unknown.</add>
@@ -577,6 +579,8 @@ i
     </struct>
 
     <struct name="ControllerChunk" inherit="Chunk">
+        <version num="826">Far Cry, Crysis</version>
+        <version num="827">Far Cry, Crysis</version>
         <add name="Type" type="CtrlType" ver2="826" />
         <add name="Num Keys" type="uint" />
         <add name="Flags" type="CtrlFlags" ver2="826" />
@@ -585,20 +589,25 @@ i
     </struct>
 
     <struct name="TimingChunk" inherit="Chunk">
+        <version num="918">Far Cry, Crysis</version>
         <add name="Secs Per Tick" type="float">seconds/ticks</add>
         <add name="Ticks Per Frame" type="int">ticks/frame</add>
         <add name="Global Range" type="RangeEntity">Covers all of the time ranges.</add>
         <add name="Num Sub Ranges" type="int" />
     </struct>
 
-    <struct name="BoneMeshChunk" inherit="MeshChunk" />
+    <struct name="BoneMeshChunk" inherit="MeshChunk">
+        <version num="744">Far Cry</version>
+    </struct>
 
     <struct name="BoneLightBindingChunk" inherit="Chunk">
+        <version num="1">Far Cry</version>
         <add name="Num Bindings" type="uint" />
         <add name="Bindings" type="BoneLightBinding" arr1="Num Bindings" />
     </struct>
 
     <struct name="BoneInitialPosChunk" inherit="Chunk">
+        <version num="1">Far Cry</version>
         <add name="Mesh" type="Ptr" template="MeshChunk">The mesh with bone info for which these bone initial positions are applicable. There might be some unused bones here as well. There must be the same number of bones as in the other chunks - they are placed in BoneId order.</add>
         <add name="Num Bones" type="uint">Number of bone initial positions.</add>
         <add name="Initial Pos Matrices" type="InitialPosMatrix" arr1="Num Bones" />
@@ -612,6 +621,7 @@ i
     </struct>
 
     <struct name="MeshMorphTargetChunk" inherit="Chunk">
+        <version num="1">Far Cry</version>
         <add name="Mesh" type="Ptr" template="MeshChunk">The mesh chunk for which this morph target is.</add>
         <add name="Num Morph Vertices" type="uint">Number of vertices</add>
         <add name="Morph Vertices" type="MorphVertex" arr1="Num Morph Vertices">The morph vertices</add>
@@ -620,11 +630,25 @@ i
 
 <!-- crysis chunks -->
 
-    <struct name="Unknown14Chunk" inherit="Chunk" />
-    <struct name="Unknown15Chunk" inherit="Chunk" />
-    <struct name="Unknown16Chunk" inherit="Chunk" />
-    <struct name="Unknown17Chunk" inherit="Chunk" />
-    <struct name="Unknown18Chunk" inherit="Chunk" />
+    <struct name="Unknown14Chunk" inherit="Chunk">
+        <version num="800">Crysis</version>
+    </struct>
+
+    <struct name="Unknown15Chunk" inherit="Chunk">
+        <version num="1">Crysis</version>
+    </struct>
+
+    <struct name="Unknown16Chunk" inherit="Chunk">
+        <version num="800">Crysis</version>
+    </struct>
+
+    <struct name="Unknown17Chunk" inherit="Chunk">
+        <version num="800">Crysis</version>
+    </struct>
+
+    <struct name="Unknown18Chunk" inherit="Chunk">
+        <version num="800">Crysis</version>
+    </struct>
 
 </fileformat>
 
