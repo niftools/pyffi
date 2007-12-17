@@ -167,8 +167,10 @@ class XmlSaxHandler(object, xml.sax.handler.ContentHandler):
         # initialize dictionaries
         # cls.version maps each supported version string to a version number
         cls.versions = {}
-        # cls.games maps each supported game to a list of version numbers
+        # cls.games maps each supported game to a list of header version numbers
         cls.games = {}
+        # note: block versions are stored in the _games attribute of the
+        # struct class
 
         # initialize tag stack
         self.stack = []
@@ -278,10 +280,18 @@ class XmlSaxHandler(object, xml.sax.handler.ContentHandler):
         # string.
         if self.currentTag == self.tagStruct:
             self.pushTag(tag)
+            # struct -> attribute
             if tag == self.tagAttribute:
                 # add attribute to class dictionary
                 self.classDict["_attrs"].append(
                     StructAttribute(self.cls, attrs))
+            # struct -> version
+            elif tag == self.tagVersion:
+                # set the version string
+                self.versionString = str(attrs["num"])
+                self.cls.versions[self.versionString] = self.cls.versionNumber(
+                    self.versionString)
+                # (classDict["_games"] is updated when reading the characters)
             else:
                 raise XmlError(
                     "only add tags allowed in struct type declaration")
@@ -312,6 +322,7 @@ class XmlSaxHandler(object, xml.sax.handler.ContentHandler):
                 self.classDict = {
                     "_isTemplate" : attrs.get("istemplate") == "1",
                     "_attrs" : [],
+                    "_games" : {},
                     "__doc__" : "" }
 
             # fileformat -> basic
@@ -371,6 +382,7 @@ class XmlSaxHandler(object, xml.sax.handler.ContentHandler):
                 self.versionString = str(attrs["num"])
                 self.cls.versions[self.versionString] = self.cls.versionNumber(
                     self.versionString)
+                # (self.cls.games is updated when reading the characters)
 
             else:
                 raise XmlError("""
@@ -519,10 +531,19 @@ but got %s instead"""%name)
         elif self.currentTag in (self.tagStruct, self.tagEnum, self.tagAlias):
             self.classDict["__doc__"] += str(chars.strip())
         elif self.currentTag == self.tagVersion:
+            # fileformat -> version
+            if self.stack[1] == self.tagFile:
+                gamesdict = self.cls.games
+            # struct -> version
+            elif self.stack[1] == self.tagStruct:
+                gamesdict = self.classDict["_games"]
+            else:
+                raise XmlError("version parsing error at '%s'" % chars)
+            # update the gamesdict dictionary
             for gamestr in (str(g.strip()) for g in chars.split(',')):
-                if self.cls.games.has_key(gamestr):
-                    self.cls.games[gamestr].append(
+                if gamestr in gamesdict:
+                    gamesdict[gamestr].append(
                         self.cls.versions[self.versionString])
                 else:
-                    self.cls.games[gamestr] = [
+                    gamesdict[gamestr] = [
                         self.cls.versions[self.versionString]]

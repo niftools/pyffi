@@ -605,6 +605,7 @@ i
     </struct>
 
     <struct name="SourceInfoChunk" inherit="Chunk">
+        <version num="0">Far Cry, Crysis</version>
         <add name="Source File" type="String" />
         <add name="Date" type="String" />
         <add name="Author" type="String" />

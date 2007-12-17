@@ -50,9 +50,9 @@ Create a CGF file from scratch
 >>> CgfFormat.write(
 ...     stream,
 ...     filetype = CgfFormat.FileType.GEOM,
-...     fileversion = CgfFormat.getFileVersion('FarCry'),
+...     fileversion = CgfFormat.getFileVersion('Far Cry'),
 ...     chunks = chunks,
-...     versions = CgfFormat.getChunkVersions('FarCry', chunks))
+...     versions = CgfFormat.getChunkVersions('Far Cry', chunks))
 >>> stream.close()
 >>> stream = open('testwrite.cgf', 'rb')
 >>> filetype, fileversion = CgfFormat.getVersion(stream)
@@ -597,7 +597,7 @@ expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
     @classmethod
     def write(cls,
               stream,
-              filetype = None, fileversion = None,
+              filetype = None, fileversion = None, game = 'Far Cry',
               chunks = None, versions = None, verbose = 0):
         """Write cgf to stream."""
         # write header
@@ -644,18 +644,18 @@ expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
         hdr.write(stream, version = fileversion)
 
     @classmethod
-    def getFileVersion(cls, game = 'FarCry'):
+    def getFileVersion(cls, game = 'Far Cry'):
         """Return file version for C{game}."""
-        if game == 'FarCry':
+        if game == 'Far Cry' or game == 'Crysis':
             return 0x744
         else:
             raise cls.CgfError("game %s not supported"%game)
 
     @classmethod
-    def getChunkVersions(cls, game = 'FarCry', chunks = None):
+    def getChunkVersions(cls, game = 'Far Cry', chunks = None):
         """Return version list that matches the chunk list C{chunks} for the
         given C{game}."""
-        if game == 'FarCry':
+        if game == 'Far Cry':
             version_dct = dict([
                 (cls.MtlChunk, 0x746),
                 (cls.NodeChunk, 0x823),
