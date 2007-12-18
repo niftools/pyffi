@@ -698,10 +698,10 @@ uniform scale * rotation")
                                for i in xrange(dim) )
 
     @classmethod
-    def constructScaleRotation(cls, scale, rotation):
+    def composeScaleRotation(cls, scale, rotation):
         """Compose scale * rotation.
 
-        >>> x = LMatrix.constructScaleRotation(Vector(1.0, 2.0, 5.0), LMatrix((0.0, -1.0, 0.0), (1.0, 0.0, 0.0), (0.0, 0.0, 1.0)))
+        >>> x = LMatrix.composeScaleRotation(Vector(1.0, 2.0, 5.0), LMatrix((0.0, -1.0, 0.0), (1.0, 0.0, 0.0), (0.0, 0.0, 1.0)))
         >>> x
         ((0.0, -1.0, 0.0), (2.0, 0.0, 0.0), (0.0, 0.0, 5.0))
         """
@@ -721,6 +721,38 @@ uniform scale * rotation")
         return LMatrix( ( scale[i] * rotation[i][j]
                           for j in xrange(dim) )
                         for i in xrange(dim) )
+
+    @classmethod
+    def composeScaleRotationTranslation(cls, scale, rotation, translation):
+        """Compose scale * rotation * translation.
+
+        >>> x = LMatrix.composeScaleRotationTranslation(Vector(1.0, 2.0, 5.0), LMatrix((0.0, -1.0, 0.0), (1.0, 0.0, 0.0), (0.0, 0.0, 1.0)), Vector(1, 2, 3))
+        >>> x
+        ((0.0, -1.0, 0.0, 0), (2.0, 0.0, 0.0, 0), (0.0, 0.0, 5.0, 0), (1, 2, 3, 1))
+        """
+        if not isinstance(scale, Vector):
+            raise TypeError("first argument must be Vector")
+        if not isinstance(rotation, LMatrix):
+            raise TypeError("second argument must be LMatrix")
+        if not isinstance(translation, Vector):
+            raise TypeError("third argument must be Vector")
+        dim = rotation._dim_n
+        if rotation._dim_n != rotation._dim_m or rotation._affine:
+            raise ValueError("second argument must be a %ix%i rotation matrix"
+                             % (dim, dim))
+        if len(scale) != dim:
+            raise ValueError(
+                "scale Vector must have same dimension as rotation matrix")
+        if len(translation) != dim:
+            raise ValueError(
+                "translation Vector must have same dimension as rotation matrix")
+        if rotation.getScaleRotation()[1] != rotation:
+            raise ValueError("second argument must be a rotation matrix")
+        return LMatrix( [ [ scale[i] * rotation[i][j]
+                            for j in xrange(dim) ] + [ 0 ]
+                          for i in xrange(dim) ]
+                        + [ [ translation[i] for i in xrange(dim) ] + [ 1 ] ],
+                        affine = True )
 
     def getScaleQuat(self):
         """Decompose upper 3x3 part of matrix into scale and quaternion.
@@ -774,6 +806,17 @@ uniform scale * rotation")
             return Vector(self[-1][j] for j in xrange(self._dim_m - 1))
         else:
             return Vector(0 for j in xrange(self._dim_m - 1))
+
+    def getScaled(self, scale):
+        """Return matrix with translation component scaled."""
+        if not self._affine:
+            raise ValueError("getScaled only makes sense for affine transforms.")
+        return LMatrix( self[:-1]
+                        +
+                        ( tuple( elem * scale
+                                 for elem in self[-1][:-1] )
+                          + ( self[-1][-1], ), ),
+                        affine = True )
 
 class RMatrix(Matrix):
     """A general purpose matrix class, with vector multiplication from the
