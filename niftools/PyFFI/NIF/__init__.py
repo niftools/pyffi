@@ -722,6 +722,10 @@ class NifFormat(object):
         def __str__(self):
             return self._value
 
+        def getSize(self, **kwargs):
+            # length byte + string chars + zero byte
+            return len(self._value) + 2
+
         def getHash(self, **kwargs):
             return self.getValue()
 
@@ -740,7 +744,7 @@ class NifFormat(object):
             if kwargs.get('version', -1) >= 0x14010003:
                 return 4
             else:
-                return 4+len(self._value)
+                return 4 + len(self._value)
 
         def read(self, stream, **kwargs):
             n, = struct.unpack('<i', stream.read(4))
@@ -865,6 +869,71 @@ class NifFormat(object):
             size1 = len(self._value[0]) if self._value else 0
             size2 = len(self._value)
             return "< %ix%i Bytes >" % (size2, size1)
+
+    class Vector3(Common.VectorBase):
+        _type = Utils.MathUtils.Vector
+
+    class Vector4(Common.VectorBase):
+        _dim = 4
+        _type = Utils.MathUtils.Vector
+
+    class Matrix33(Common.MatrixBase):
+        _type = Utils.MathUtils.LMatrix
+        _transpose = True
+
+    class Matrix44(Common.MatrixBase):
+        _dim_n = 4
+        _dim_m = 4
+        _type = Utils.MathUtils.LMatrix
+        _transpose = True
+        _kwargs = { "affine" : True }
+
+    class TMatrix44(Common.MatrixBase):
+        _dim_n = 4
+        _dim_m = 4
+        _type = Utils.MathUtils.LMatrix
+        _kwargs = { "affine" : True }
+
+    class InertiaMatrix(Common.MatrixBase):
+        _dim_n = 3
+        _dim_m = 3
+        _type = Utils.MathUtils.LRMatrix
+        
+        def read(self, stream, **kwargs):
+            """Read inertia matrix from stream."""
+            mat = []
+            mat.append(struct.unpack("<fff", stream.read(12)))
+            assert(stream.read(4) == "\x00\x00\x00\x00")
+            mat.append(struct.unpack("<fff", stream.read(12)))
+            assert(stream.read(4) == "\x00\x00\x00\x00")
+            mat.append(struct.unpack("<fff", stream.read(12)))
+            assert(stream.read(4) == "\x00\x00\x00\x00")
+            self._value = self._type(*mat, **self._kwargs)
+
+        def write(self, stream, **kwargs):
+            """Write matrix to stream."""
+            for row in self._value:
+                stream.write(struct.pack("<fff", *row))
+                stream.write("\x00\x00\x00\x00")
+ 
+        def getSize(self, **kwargs):
+            """Return size of this type."""
+            return 48
+
+    class QuaternionXYZW(Common.VectorBase):
+        _dim = 4
+        _type = Utils.MathUtils.Quat
+
+    class Quaternion(QuaternionXYZW):
+        def read(self, stream, **kwargs):
+            """Read quaternion from stream."""
+            w, x, y, z = struct.unpack("<ffff", stream.read(16))
+            self._value = self._type(x, y, z, w)
+
+        def write(self, stream, **kwargs):
+            """Write quaternion to stream."""
+            x, y, z, w = self._value
+            stream.write(struct.pack("<ffff", w, x, y, z))
 
     # exceptions
     class NifError(StandardError):

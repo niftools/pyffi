@@ -39,6 +39,7 @@
 
 import struct
 from PyFFI.Utils import TriStrip
+from PyFFI.Utils.MathUtils import Vector
 
 def updateTangentSpace(self):
     """Recalculate tangent space data."""
@@ -61,8 +62,8 @@ def updateTangentSpace(self):
     bin = []
     tan = []
     for i in xrange(self.data.numVertices):
-        bin.append(self.cls.Vector3())
-        tan.append(self.cls.Vector3())
+        bin.append(Vector())
+        tan.append(Vector())
 
     # calculate tangents and binormals from vertex and texture coordinates
     for t1, t2, t3 in self.data.getTriangles():
@@ -87,25 +88,25 @@ def updateTangentSpace(self):
         r_sign = (1 if r >= 0 else -1)
 
         # contribution of this triangle to tangents and binormals
-        sdir = self.cls.Vector3()
-        sdir.x = w3w1.v * v2v1.x - w2w1.v * v3v1.x
-        sdir.y = w3w1.v * v2v1.y - w2w1.v * v3v1.y
-        sdir.z = w3w1.v * v2v1.z - w2w1.v * v3v1.z
+        sdir = Vector(
+            w3w1.v * v2v1[0] - w2w1.v * v3v1[0],
+            w3w1.v * v2v1[1] - w2w1.v * v3v1[1],
+            w3w1.v * v2v1[2] - w2w1.v * v3v1[2])
         sdir *= r_sign
         try:
-            sdir.normalize()
+            sdir = sdir.getNormalized()
         except ZeroDivisionError: # catches zero vector
             continue # skip triangle
         except ValueError: # catches invalid data
             continue # skip triangle
 
-        tdir = self.cls.Vector3()
-        tdir.x = w2w1.u * v3v1.x - w3w1.u * v2v1.x
-        tdir.y = w2w1.u * v3v1.y - w3w1.u * v2v1.y
-        tdir.z = w2w1.u * v3v1.z - w3w1.u * v2v1.z
+        tdir = Vector(
+            w2w1.u * v3v1[0] - w3w1.u * v2v1[0],
+            w2w1.u * v3v1[1] - w3w1.u * v2v1[1],
+            w2w1.u * v3v1[2] - w3w1.u * v2v1[2])
         tdir *= r_sign
         try:
-            tdir.normalize()
+            tdir = tdir.getNormalized()
         except ZeroDivisionError: # catches zero vector
             continue # skip triangle
         except ValueError: # catches invalid data
@@ -116,33 +117,27 @@ def updateTangentSpace(self):
             tan[i] += tdir
             bin[i] += sdir
 
-    xvec = self.cls.Vector3()
-    xvec.x = 1.0
-    xvec.y = 0.0
-    xvec.z = 0.0
-    yvec = self.cls.Vector3()
-    yvec.x = 0.0
-    yvec.y = 1.0
-    yvec.z = 0.0
+    xvec = Vector(1, 0, 0)
+    yvec = Vector(0, 1, 0)
     for i in xrange(self.data.numVertices):
         n = norms[i]
         try:
             # turn n, bin, tan into a base via Gram-Schmidt
             bin[i] -= n * (n * bin[i])
-            bin[i].normalize()
+            bin[i] = bin[i].getNormalized()
             tan[i] -= n * (n * tan[i])
             tan[i] -= bin[i] * (bin[i] * tan[i])
-            tan[i].normalize()
-        except ZeroDivisionError:
+            tan[i] = tan[i].getNormalized()
+        except ZeroDivisionError, ValueError:
             # insuffient data to set tangent space for this vertex
             # in that case pick a space
-            bin[i] = xvec.crossproduct(n)
+            bin[i] = xvec.crossProduct(n)
             try:
-                bin[i].normalize()
+                bin[i] = bin[i].getNormalized()
             except ZeroDivisionError:
-                bin[i] = yvec.crossproduct(n)
-                bin[i].normalize() # should work now
-            tan[i] = n.crossproduct(bin[i])
+                bin[i] = yvec.crossProduct(n)
+                bin[i] = bin[i].getNormalized() # should work now
+            tan[i] = n.crossProduct(bin[i])
 
     # if tangent space extra data already exists, use it
     for block in self.getRefs():
@@ -158,7 +153,7 @@ def updateTangentSpace(self):
     # write the data
     binarydata = ""
     for v in tan + bin:
-        binarydata += struct.pack('<fff', v.x, v.y, v.z)
+        binarydata += struct.pack('<fff', *v)
     block.binaryData = binarydata
 
 # ported from nifskope/skeleton.cpp:spSkinPartition

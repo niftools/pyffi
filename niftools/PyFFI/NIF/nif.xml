@@ -1131,6 +1131,22 @@
         <add name="Unknown Bytes" type="byte" arr1="9" />
     </compound>
 
+    <compound name="InertiaMatrix">
+        An inertia matrix.
+        <add name="m11" type="float" />
+        <add name="m12" type="float" />
+        <add name="m13" type="float" />
+        <add name="m14" type="float">Zero</add>
+        <add name="m21" type="float" />
+        <add name="m22" type="float" />
+        <add name="m23" type="float" />
+        <add name="m24" type="float">Zero</add>
+        <add name="m31" type="float" />
+        <add name="m32" type="float" />
+        <add name="m33" type="float" />
+        <add name="m34" type="float">Zero</add>
+    </compound>
+
     <!-- NIF Objects
          These are the main units of data that NIF files are arranged in.
          They are like C classes and can contain many pieces of data.
@@ -1215,7 +1231,7 @@
         <add name="Angular Velocity" type="Vector3">Angular velocity.</add>
         <add name="Unknown Float 02" type="float">Unknown.</add>
 
-        <add name="Inertia" type="float" arr1="12">Defines how the mass is distributed among the body.</add>
+        <add name="Inertia" type="InertiaMatrix">Defines how the mass is distributed among the body.</add>
         <add name="Center" type="Vector3"> This seems to be used to relocate the object's center of mass. Useful for balancing objects in contraints.</add>
         <add name="Unknown Float 03" type="float">Unknown float.</add>
         <add name="Mass" type="float">The body's mass.</add>

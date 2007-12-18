@@ -37,6 +37,8 @@
 #
 # ***** END LICENSE BLOCK *****
 
+from PyFFI.Utils.MathUtils import Vector, LMatrix
+
 def addProperty(self, propblock):
     """Add block C{propblock} to property list.
 
@@ -54,55 +56,35 @@ def getTransform(self, relative_to = None):
     parent.
 
     @param relative_to: The block relative to which the transform must be calculated. If C{None}, the local transform is returned."""
-    m = self.cls.Matrix44()
-    m.setScaleRotationTranslation(self.scale, self.rotation, self.translation)
-    if not relative_to: return m
+    mat = LMatrix.composeScaleRotationTranslation(Vector(self.scale, self.scale, self.scale), self.rotation, self.translation)
+    if not relative_to:
+        return mat
     # find chain from relative_to to self
     chain = relative_to.findChain(self, block_type = self.cls.NiAVObject)
     if not chain:
         raise ValueError('cannot find a chain of NiAVObject blocks')
     # and multiply with all transform matrices (not including relative_to)
     for block in reversed(chain[1:-1]):
-        m *= block.getTransform()
-    return m
+        mat *= block.getTransform()
+    return mat
 
-def setTransform(self, m):
-    """Set rotation, translation, and scale, from a 4x4 matrix.
+def setTransform(self, mat):
+    """Set rotation, translation, and scale, from a transform matrix.
 
-    @param m: The matrix to which the transform should be set."""
-    scale, rotation, translation = m.getScaleRotationTranslation()
-
-    self.scale = scale
-    
-    self.rotation.m11 = rotation.m11
-    self.rotation.m12 = rotation.m12
-    self.rotation.m13 = rotation.m13
-    self.rotation.m21 = rotation.m21
-    self.rotation.m22 = rotation.m22
-    self.rotation.m23 = rotation.m23
-    self.rotation.m31 = rotation.m31
-    self.rotation.m32 = rotation.m32
-    self.rotation.m33 = rotation.m33
-    
-    self.translation.x = translation.x
-    self.translation.y = translation.y
-    self.translation.z = translation.z
+    @param mat: The matrix to which the transform should be set."""
+    scale, self.rotation = mat.getScaleRotation(conformal = True)
+    self.scale = scale[0]
+    self.translation = mat.getTranslation()
     
 def applyScale(self, scale):
     """Apply scale factor on data.
 
     @param scale: The scale factor."""
     # apply scale on translation
-    self.translation.x *= scale
-    self.translation.y *= scale
-    self.translation.z *= scale
+    self.translation *= scale
     # apply scale on bounding box
-    self.boundingBox.translation.x *= scale
-    self.boundingBox.translation.y *= scale
-    self.boundingBox.translation.z *= scale
-    self.boundingBox.radius.x *= scale
-    self.boundingBox.radius.y *= scale
-    self.boundingBox.radius.z *= scale
+    self.boundingBox.translation *= scale
+    self.boundingBox.radius *= scale
 
     # apply scale on all blocks down the hierarchy
     self.cls.NiObject.applyScale(self, scale)

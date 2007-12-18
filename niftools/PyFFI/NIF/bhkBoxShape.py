@@ -38,13 +38,12 @@
 # ***** END LICENSE BLOCK *****
 
 from PyFFI.Utils import Inertia
+from PyFFI.Utils.MathUtils import Vector
 
 def applyScale(self, scale):
     """Apply scale factor C{scale} on data."""
     # apply scale on dimensions
-    self.dimensions.x *= scale
-    self.dimensions.y *= scale
-    self.dimensions.z *= scale
+    self.dimensions *= scale
     self.minimumSize  *= scale
 
     # apply scale on all blocks down the hierarchy
@@ -55,6 +54,6 @@ def getMassCenterInertia(self, density = 1, solid = True):
     # the dimensions describe half the size of the box in each dimension
     # so the length of a single edge is dimension.dir * 2
     mass, inertia = Inertia.getMassInertiaBox(
-        (self.dimensions.x * 2, self.dimensions.y * 2, self.dimensions.z * 2),
+        self.dimensions[0] * 2, self.dimensions[1] * 2, self.dimensions[2] * 2,
         density = density, solid = solid)
-    return mass, (0,0,0), inertia
+    return mass, Vector(0, 0, 0), inertia

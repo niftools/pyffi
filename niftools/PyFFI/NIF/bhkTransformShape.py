@@ -37,14 +37,12 @@
 #
 # ***** END LICENSE BLOCK *****
 
-from PyFFI.Utils.MathUtils import *
+from PyFFI.Utils.MathUtils import RMatrix
 
 def applyScale(self, scale):
     """Apply scale factor <scale> on data."""
     # apply scale on translation
-    self.transform.m14 *= scale
-    self.transform.m24 *= scale
-    self.transform.m34 *= scale
+    self.transform = self.transform.getScaled(scale)
 
     # apply scale on all blocks down the hierarchy
     self.cls.NiObject.applyScale(self, scale)
@@ -54,13 +52,8 @@ def getMassCenterInertia(self, density = 1, solid = True):
     # get shape mass, center, and inertia
     mass, center, inertia = self.shape.getMassCenterInertia(density = density,
                                                             solid = solid)
-    # get transform matrix and translation vector
-    transform = self.transform.getMatrix33().asTuple()
-    transform_transposed = matTransposed(transform)
-    translation = ( self.transform.m14, self.transform.m24, self.transform.m34 )
+    # get transform matrix
+    transform = RMatrix(self.transform.asTuple(), affine = True)
     # transform center and inertia
-    center = matvecMul(transform, center)
-    center = vecAdd(center, translation)
-    inertia = reduce(matMul, (transform_transposed, inertia, transform))
     # return updated mass center and inertia
-    return mass, center, inertia
+    return mass, transform * center, transform.getTranspose() * inertia * transform

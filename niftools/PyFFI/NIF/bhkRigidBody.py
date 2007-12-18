@@ -40,28 +40,13 @@
 def applyScale(self, scale):
     """Apply scale factor <scale> on data."""
     # apply scale on transform
-    self.translation.x *= scale
-    self.translation.y *= scale
-    self.translation.z *= scale
+    self.translation *= scale
 
     # apply scale on center of gravity
-    self.center.x *= scale
-    self.center.y *= scale
-    self.center.z *= scale
+    self.center *= scale
 
     # apply scale on inertia tensor
-    self.inertia[0] *= (scale ** 2)
-    self.inertia[1] *= (scale ** 2)
-    self.inertia[2] *= (scale ** 2)
-    self.inertia[3] *= (scale ** 2)
-    self.inertia[4] *= (scale ** 2)
-    self.inertia[5] *= (scale ** 2)
-    self.inertia[6] *= (scale ** 2)
-    self.inertia[7] *= (scale ** 2)
-    self.inertia[8] *= (scale ** 2)
-    self.inertia[9] *= (scale ** 2)
-    self.inertia[10] *= (scale ** 2)
-    self.inertia[11] *= (scale ** 2)
+    self.inertia *= (scale ** 2)
 
     # apply scale on all blocks down the hierarchy
     self.cls.NiObject.applyScale(self, scale)
@@ -73,36 +58,12 @@ def updateMassCenterInertia(self, density = 1, solid = True, mass = None):
     if not mass is None:
         density = 1
     
-    calc_mass, center, inertia = self.shape.getMassCenterInertia(
+    self.mass, self.center, self.inertia = self.shape.getMassCenterInertia(
         density = density, solid = solid)
 
-    self.mass = calc_mass
-    self.center.x, self.center.y, self.center.z = center
-    self.inertia[0] = inertia[0][0]
-    self.inertia[1] = inertia[0][1]
-    self.inertia[2] = inertia[0][2]
-    self.inertia[3] = 0
-    self.inertia[4] = inertia[1][0]
-    self.inertia[5] = inertia[1][1]
-    self.inertia[6] = inertia[1][2]
-    self.inertia[7] = 0
-    self.inertia[8] = inertia[2][0]
-    self.inertia[9] = inertia[2][1]
-    self.inertia[10] = inertia[2][2]
-    self.inertia[11] = 0
+    calc_mass = self.mass
 
     if not mass is None:
         mass_correction = mass / calc_mass if calc_mass != 0 else 1
         self.mass = mass
-        self.inertia[0] *= mass_correction
-        self.inertia[1] *= mass_correction
-        self.inertia[2] *= mass_correction
-        self.inertia[3] *= mass_correction
-        self.inertia[4] *= mass_correction
-        self.inertia[5] *= mass_correction
-        self.inertia[6] *= mass_correction
-        self.inertia[7] *= mass_correction
-        self.inertia[8] *= mass_correction
-        self.inertia[9] *= mass_correction
-        self.inertia[10] *= mass_correction
-        self.inertia[11] *= mass_correction
+        self.inertia *= mass_correction
