@@ -808,7 +808,12 @@ uniform scale * rotation")
             return Vector(0 for j in xrange(self._dim_m - 1))
 
     def getScaled(self, scale):
-        """Return matrix with translation component scaled."""
+        """Return matrix with translation component scaled.
+
+        >>> x = LMatrix((0.5,-0.5,0),(0.5,0.5,0),(7,8,1), affine = True)
+        >>> x.getScaled(3)
+        ((0.5, -0.5, 0), (0.5, 0.5, 0), (21, 24, 1))
+        """
         if not self._affine:
             raise ValueError("getScaled only makes sense for affine transforms.")
         return LMatrix( self[:-1]
