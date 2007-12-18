@@ -149,6 +149,8 @@ class Vector(tuple):
         (12, 17, 27)
         >>> RMatrix((1,2,3),(2,3,4),(4,5,6)) * Vector(4,-5,6)
         (12, 17, 27)
+        >>> Vector(1, 1) * LMatrix((0.5,0.5,0), (0.5,-0.5,0), (7,8,1), affine = True)
+        (8.0, 8.0)
         >>> Vector(4,-5,6) * Matrix((1,2,3),(2,3,4),(4,5,6)) # doctest: +ELLIPSIS
         Traceback (most recent call last):
             ...
@@ -161,12 +163,25 @@ class Vector(tuple):
         if isinstance(other, Vector):
             return sum(map(operator.mul, self, other))
         elif isinstance(other, LMatrix):
-            if len(self) != other._dim_n:
-                raise ValueError("cannot multiply %i-vector with %ix%i-matrix"
-                                 % (len(self), other._dim_n, other._dim_m))
-            return Vector( sum( self[i] * other[i][j]
-                                for i in xrange(other._dim_n) )
-                           for j in xrange(other._dim_m) )
+            if not other._affine:
+                # linear transform
+                if len(self) != other._dim_n:
+                    raise ValueError(
+                        "cannot multiply %i-vector with %ix%i-matrix"
+                        % (len(self), other._dim_n, other._dim_m))
+                return Vector( sum( self[i] * other[i][j]
+                                    for i in xrange(other._dim_n) )
+                               for j in xrange(other._dim_m) )
+            else:
+                # affine transform
+                if len(self) + 1 != other._dim_n:
+                    raise ValueError(
+                        "cannot multiply %i-vector with affine %ix%i-matrix"
+                        % (len(self), other._dim_n, other._dim_m))
+                return Vector( sum( ( self[i] * other[i][j]
+                                      for i in xrange(other._dim_n - 1) ),
+                                    other[-1][j] )
+                               for j in xrange(other._dim_m - 1) )
         elif isinstance(other, (int, long, float)):
             return Vector(other * elem for elem in self)
         else:
