@@ -62,8 +62,8 @@ def updateTangentSpace(self):
     bin = []
     tan = []
     for i in xrange(self.data.numVertices):
-        bin.append(Vector())
-        tan.append(Vector())
+        bin.append(Vector(0,0,0))
+        tan.append(Vector(0,0,0))
 
     # calculate tangents and binormals from vertex and texture coordinates
     for t1, t2, t3 in self.data.getTriangles():
@@ -95,9 +95,8 @@ def updateTangentSpace(self):
         sdir *= r_sign
         try:
             sdir = sdir.getNormalized()
-        except ZeroDivisionError: # catches zero vector
-            continue # skip triangle
-        except ValueError: # catches invalid data
+        except (ZeroDivisionError, ValueError):
+            # catches zero vector or invalid data
             continue # skip triangle
 
         tdir = Vector(
@@ -107,13 +106,12 @@ def updateTangentSpace(self):
         tdir *= r_sign
         try:
             tdir = tdir.getNormalized()
-        except ZeroDivisionError: # catches zero vector
-            continue # skip triangle
-        except ValueError: # catches invalid data
+        except (ZeroDivisionError, ValueError):
+            # catches zero vector or invalid data
             continue # skip triangle
 
         # vector combination algorithm could possibly be improved
-        for i in [t1, t2, t3]:
+        for i in (t1, t2, t3):
             tan[i] += tdir
             bin[i] += sdir
 
@@ -128,13 +126,13 @@ def updateTangentSpace(self):
             tan[i] -= n * (n * tan[i])
             tan[i] -= bin[i] * (bin[i] * tan[i])
             tan[i] = tan[i].getNormalized()
-        except ZeroDivisionError, ValueError:
+        except (ZeroDivisionError, ValueError):
             # insuffient data to set tangent space for this vertex
             # in that case pick a space
             bin[i] = xvec.crossProduct(n)
             try:
                 bin[i] = bin[i].getNormalized()
-            except ZeroDivisionError:
+            except (ZeroDivisionError, ValueError):
                 bin[i] = yvec.crossProduct(n)
                 bin[i] = bin[i].getNormalized() # should work now
             tan[i] = n.crossProduct(bin[i])
