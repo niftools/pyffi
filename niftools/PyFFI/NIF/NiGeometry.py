@@ -1,8 +1,8 @@
 """Custom functions for NiGeometry.
 
 >>> from PyFFI.NIF import NifFormat
->>> id44 = NifFormat.Matrix44()
->>> id44.setIdentity()
+>>> from PyFFI.Utils.MathUtils import LMatrix
+>>> id44 = NifFormat.LMatrix((1,0,0,0),(0,1,0,0),(0,0,1,0),(0,0,0,1), affine = True)
 >>> skelroot = NifFormat.NiNode()
 >>> skelroot.name = 'skelroot'
 >>> skelroot.setTransform(id44)
