@@ -37,8 +37,6 @@
 #
 # ***** END LICENSE BLOCK *****
 
-from PyFFI.Utils.MathUtils import RMatrix
-
 def applyScale(self, scale):
     """Apply scale factor <scale> on data."""
     # apply scale on translation
@@ -52,8 +50,9 @@ def getMassCenterInertia(self, density = 1, solid = True):
     # get shape mass, center, and inertia
     mass, center, inertia = self.shape.getMassCenterInertia(density = density,
                                                             solid = solid)
-    # get transform matrix
-    transform = RMatrix(self.transform.asTuple(), affine = True)
     # transform center and inertia
+    submatrix = self.transform.getSubMatrix(range(3), range(3))
     # return updated mass center and inertia
-    return mass, transform * center, transform.getTranspose() * inertia * transform
+    return (mass,
+            center * self.transform,
+            submatrix * inertia * submatrix.getTranspose())
