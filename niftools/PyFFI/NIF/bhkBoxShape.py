@@ -54,6 +54,5 @@ def getMassCenterInertia(self, density = 1, solid = True):
     # the dimensions describe half the size of the box in each dimension
     # so the length of a single edge is dimension.dir * 2
     mass, inertia = Inertia.getMassInertiaBox(
-        self.dimensions[0] * 2, self.dimensions[1] * 2, self.dimensions[2] * 2,
-        density = density, solid = solid)
+        self.dimensions * 2, density = density, solid = solid)
     return mass, Vector(0, 0, 0), inertia
