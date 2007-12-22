@@ -40,7 +40,7 @@
 import math # math.pi
 
 from PyFFI.Utils import Inertia
-from PyFFI.Utils.MathUtils import Vector
+from PyFFI.Utils.MathUtils import Vector, LMatrix
 
 def applyScale(self, scale):
     """Apply scale factor <scale> on data."""
@@ -72,12 +72,12 @@ def getMassCenterInertia(self, density = 1, solid = True):
     # find an orthogonal vector to vec1 and vec2
     vec3 = vec1.crossProduct(vec2)
     # get transform matrix
-    transform = LMatrix(vec2, vec3, vec1).getTransposed()
+    transform = LMatrix(vec2, vec3, vec1).getTranspose()
     # check the result (debug)
     assert(vec1.getDistance(transform * Vector(0,0,1)) < 0.0001)
     assert(abs(transform.getDeterminant() - 1) < 0.0001)
     # transform the inertia tensor
-    inertia = transform.getTransposed() * inertia * transform
+    inertia = transform.getTranspose() * inertia * transform
     return mass, \
            ((self.firstPoint + self.secondPoint) * 0.5), \
            inertia
