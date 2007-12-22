@@ -78,6 +78,8 @@ class Vector(tuple):
         (6, 7, 8)
         """
         if isinstance(other, Vector):
+            if len(self) != len(other):
+                raise ValueError("cannot add vectors of different length")
             return Vector(elem1 + elem2 for elem1, elem2 in izip(self, other))
         elif isinstance(other, (int, long, float)):
             return Vector(elem + other for elem in self)
@@ -118,6 +120,8 @@ class Vector(tuple):
         TypeError: ...
         """
         if isinstance(other, Vector):
+            if len(self) != len(other):
+                raise ValueError("cannot substract vectors of different length")
             return Vector(elem1 - elem2 for elem1, elem2 in izip(self, other))
         elif isinstance(other, (int, long, float)):
             return Vector(elem - other for elem in self)
