@@ -41,7 +41,5 @@ def applyScale(self, scale):
     """Apply scale factor on data."""
     if abs(scale - 1.0) < self.cls._EPSILON:
         return
-    for vert in self.vertices:
-        vert.x *= scale
-        vert.y *= scale
-        vert.z *= scale
+    for i in xrange(len(self.vertices)):
+        self.vertices[i] *= scale
