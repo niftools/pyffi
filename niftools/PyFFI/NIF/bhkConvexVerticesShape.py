@@ -43,18 +43,15 @@ from PyFFI.Utils import QuickHull
 def applyScale(self, scale):
     """Apply scale factor on data."""
     if abs(scale - 1.0) < self.cls._EPSILON: return
-    for v in self.vertices:
-        v.x *= scale
-        v.y *= scale
-        v.z *= scale
-    for n in self.normals:
-        n.w *= scale
+    for i in xrange(self.numVertices):
+        self.vertices[i] *= scale
+    for i, n in enumerate(self.normals):
+        self.normals[i] = (n[0], n[1], n[2], n[3] * scale)
 
 def getMassCenterInertia(self, density = 1, solid = True):
     """Return mass, center, and inertia tensor."""
     # first find an enumeration of all triangles making up the convex shape
-    vertices, triangles = QuickHull.qhull3d([ vert.asTuple()
-                                              for vert in self.vertices ])
+    vertices, triangles = QuickHull.qhull3d(self.vertices)
     # now calculate mass, center, and inertia
     return Inertia.getMassCenterInertiaPolyhedron(
         vertices, triangles, density = density, solid = solid)
