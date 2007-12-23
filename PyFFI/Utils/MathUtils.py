@@ -382,7 +382,7 @@ class Matrix(tuple):
         result = ""
         for row in self:
             result += "[ "
-            result += ("%6s " * len(row)) % tuple(row)
+            result += ("%6.3f " * len(row)) % tuple(row)
             result += "]\n"
         return result
 
@@ -539,6 +539,13 @@ class Matrix(tuple):
         True
         >>> Matrix((1,2,3), (4,5,6)) == Matrix((1.0,2.1,3.0), (4,5,6))
         False
+        >>> m = Matrix((-0.434308, 0.893095, -0.117294),
+        ...            (-0.451770, -0.103314, 0.886132),
+        ...            (0.779282, 0.437844, 0.448343))
+        >>> m == m
+        True
+        >>> m != m
+        False
         """
         if isinstance(other, Matrix):
             # dimension check
@@ -580,6 +587,14 @@ class Matrix(tuple):
         ((1, 2, 4), (2, 3, 5), (3, 4, 6))
         >>> Matrix((1, 2), (3, 4)).getTranspose()
         ((1, 3), (2, 4))
+        >>> m = Matrix((-0.434308, 0.893095, -0.117294),
+        ...            (-0.451770, -0.103314, 0.886132),
+        ...            (0.779282, 0.437844, 0.448343))
+        >>> print m.getTranspose()
+        [ -0.434 -0.452  0.779 ]
+        [  0.893 -0.103  0.438 ]
+        [ -0.117  0.886  0.448 ]
+        <BLANKLINE>
         """
         # get type of result
         if isinstance(self, LMatrix):
@@ -597,11 +612,15 @@ class Matrix(tuple):
 
     def getCofactor(self, i, j):
         """Return the cofactor of the (i, j) entry of the matrix."""
-        return Matrix( ( self[ii][jj]
+        cofac = Matrix( ( self[ii][jj]
                          for jj in xrange(self._dim_m)
                          if jj != j )
                        for ii in xrange(self._dim_n)
                        if ii != i ).getDeterminant()
+        if (i + j) & 1:
+            return -cofac
+        else:
+            return cofac
 
     def getDeterminant(self):
         """Calculate determinant.
@@ -610,6 +629,11 @@ class Matrix(tuple):
         0
         >>> Matrix((1,2,4), (3,0,2), (-3,6,2)).getDeterminant()
         36
+        >>> m = Matrix((-0.434308, 0.893095, -0.117294),
+        ...            (-0.451770, -0.103314, 0.886132),
+        ...            (0.779282, 0.437844, 0.448343))
+        >>> print "%.4f"%m.getDeterminant()
+        1.0000
         """
         if self._dim_n != self._dim_m:
             raise ValueError(
@@ -621,11 +645,24 @@ class Matrix(tuple):
         elif self._dim_n == 2:
             return self[0][0] * self[1][1] - self[1][0] * self[0][1]
         else:
-            return sum( (-1 if i&1 else 1) * self[i][0] * self.getCofactor(i, 0)
+            return sum( self[i][0] * self.getCofactor(i, 0)
                         for i in xrange(self._dim_n) )
 
     def getInverse(self):
-        """Calculate the inverse of the matrix."""
+        """Calculate the inverse of the matrix.
+
+        >>> m = Matrix((-0.434308, 0.893095, -0.117294),
+        ...            (-0.451770, -0.103314, 0.886132),
+        ...            (0.779282, 0.437844, 0.448343))
+        >>> m.getInverse() == m.getTranspose() # m is a rotation matrix
+        True
+        """
+        det = self.getDeterminant()
+        if abs(det) < EPSILON:
+            raise ValueError('cannot invert matrix:\n%s'%self)
+        return self.__class__( ( self.getCofactor(j, i) / det
+                                 for j in xrange(self._dim_m) )
+                               for i in xrange(self._dim_n) )
 
 class LMatrix(Matrix):
     """A general purpose matrix class, with left vector multiplication. Use
