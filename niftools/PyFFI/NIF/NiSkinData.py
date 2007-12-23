@@ -46,10 +46,11 @@ def getTransform(self):
         self.rotation, self.translation)
 
 def setTransform(self, mat):
-    """Set rotation, transform, and velocity."""
-    scale, self.rotation = mat.getScaleRotation(conformal = True)
+    """Set rotation, transform, and velocity from an affine 4x4 matrix."""
+    xmat = LMatrix(mat, affine = True)
+    scale, self.rotation = xmat.getScaleRotation(conformal = True)
     self.scale = sum(scale) / 3.0
-    self.translation = mat.getTranslation()
+    self.translation = xmat.getTranslation()
     
 def applyScale(self, scale):
     """Apply scale factor on data.

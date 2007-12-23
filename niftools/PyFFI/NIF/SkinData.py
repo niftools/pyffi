@@ -45,8 +45,9 @@ def getTransform(self):
         Vector(self.scale, self.scale, self.scale),
         self.rotation, self.translation)
 
-def setTransform(self, m):
-    """Set rotation, transform, and velocity."""
-    scale, self.rotation = m.getScaleRotation(conformal = True)
+def setTransform(self, mat):
+    """Set rotation, transform, and velocity from an affine 4x4 matrix."""
+    xmat = LMatrix(mat, affine = True)
+    scale, self.rotation = xmat.getScaleRotation(conformal = True)
     self.scale = sum(scale) / 3.0
-    self.translation = m.getTranslation()
+    self.translation = xmat.getTranslation()
