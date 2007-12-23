@@ -37,13 +37,13 @@
 #
 # ***** END LICENSE BLOCK *****
 
-from PyFFI.Utils.MathUtils import Vector
+from PyFFI.Utils.MathUtils import Vector, LMatrix
 
 def getTransform(self):
     """Return scale, rotation, and translation into a single 4x4 matrix."""
-    m = self.cls.Matrix44()
-    m.setScaleRotationTranslation(Vector(self.scale, self.scale, self.scale), self.rotation, self.translation)
-    return m
+    return LMatrix.composeScaleRotationTranslation(
+        Vector(self.scale, self.scale, self.scale),
+        self.rotation, self.translation)
 
 def setTransform(self, m):
     """Set rotation, transform, and velocity."""
