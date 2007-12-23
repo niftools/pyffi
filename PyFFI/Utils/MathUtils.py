@@ -410,7 +410,7 @@ class Matrix(tuple):
         >>> Matrix(( row for row in xrange(i, i + 3) ) for i in xrange(3))
         ((0, 1, 2), (1, 2, 3), (2, 3, 4))
         """
-        if len(args) == 1 and isinstance(args[0], (list, tuple, GeneratorType)):
+        if len(args) == 1: # and isinstance(args[0], (list, tuple, GeneratorType)):
             # single list/tuple/generator type
             mat = tuple.__new__(cls, ( tuple(row) for row in args[0] ))
         else:
