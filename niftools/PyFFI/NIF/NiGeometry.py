@@ -94,6 +94,8 @@
 #
 # ***** END LICENSE BLOCK *****
 
+from PyFFI.Utils.MathUtils import Vector
+
 def isSkin(self):
     """Returns True if geometry is skinned."""
     return self.skinInstance != None
@@ -275,8 +277,8 @@ def getSkinDeformation(self):
     skindata = skininst.data
     skelroot = skininst.skeletonRoot
 
-    vertices = [ self.cls.Vector3() for i in xrange(self.data.numVertices) ]
-    normals = [ self.cls.Vector3() for i in xrange(self.data.numVertices) ]
+    vertices = [ Vector(0, 0, 0) for i in xrange(self.data.numVertices) ]
+    normals = [ Vector(0, 0, 0) for i in xrange(self.data.numVertices) ]
     sumweights = [ 0.0 for i in xrange(self.data.numVertices) ]
     skin_offset = skindata.getTransform()
     for i, bone_block in enumerate(skininst.bones):
@@ -316,9 +318,10 @@ def sendBonesToBindPosition(self):
     for i, parent_bone in enumerate(skininst.bones):
         parent_offset = skindata.boneList[i].getTransform()
         # if parent_bone is a child of the skeleton root, then fix its
-        # transfrom
+        # transform
         if parent_bone in skelroot.children:
-            parent_bone.setTransform(parent_offset.getInverse() * self.getTransform(skelroot))
+            parent_bone.setTransform(
+                parent_offset.getInverse() * self.getTransform(skelroot))
         # fix the transform of all its the children
         for j, child_bone in enumerate(skininst.bones):
             if child_bone not in parent_bone.children: continue
@@ -332,10 +335,10 @@ def sendBonesToBindPosition(self):
 def updateBindPosition(self):
     """Make current position of the bones the bind position for this geometry.
 
-    Sets the NiSkinData overall transform to the inverse of the geometry transform
-    relative to the skeleton root, and sets the NiSkinData of each bone to
-    the geometry transform relative to the skeleton root times the inverse of the bone
-    transform relative to the skeleton root."""
+    Sets the NiSkinData overall transform to the inverse of the geometry
+    transform relative to the skeleton root, and sets the NiSkinData of each
+    bone to the geometry transform relative to the skeleton root times the
+    inverse of the bone transform relative to the skeleton root."""
     if not self.isSkin(): return
 
     # validate skin and set up quick links
