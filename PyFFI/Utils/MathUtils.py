@@ -69,6 +69,10 @@ class Vector(tuple):
             if not isinstance(elem, (int, long, float)):
                 raise TypeError("Vector must consist of scalars.")
 
+    def __str__(self):
+        """Format the vector in a string."""
+        return  "[ " + ("%6.3f " * len(self)) % tuple(self) + " ]"
+
     def __add__(self, other):
         """Vector and scalar addition.
 
@@ -202,6 +206,36 @@ class Vector(tuple):
         else:
             raise TypeError("cannot multiply %s and %s"
                             % (other.__class__, self.__class__))
+
+    def __eq__(self, other):
+        """Compare vectors.
+
+        >>> Vector(1,2,3) == Vector(1.0, 2.0, 3.0)
+        True
+        >>> Vector(1,2,3) != Vector(1.0, 2.1, 3.0)
+        True
+        >>> Vector(1,2,3) != Vector(1.0, 2.0, 3.0)
+        False
+        >>> Vector(1,2,3) == Vector(1.0, 2.1, 3.0)
+        False
+        """
+        if isinstance(other, Vector):
+            # dimension check
+            if len(self) != len(other):
+                raise ValueError(
+                    "cannot compare vectors with different length")
+            for elem1, elem2 in izip(self, other):
+                if abs(elem1 - elem2) > EPSILON:
+                    return False
+        else:
+            raise TypeError(
+                "do not know how to compare %s and %s"
+                % (self.__class__, other.__class__))
+        return True
+
+    def __ne__(self, other):
+        """Compare vectors."""
+        return not self.__eq__(other)
 
     def crossProduct(self, other):
         """Cross product, for 3 dimensional vectors.
@@ -641,11 +675,14 @@ class Matrix(tuple):
         0
         >>> Matrix((1,2,4), (3,0,2), (-3,6,2)).getDeterminant()
         36
+        >>> # playing with a rotation matrix:
         >>> m = Matrix((-0.434308, 0.893095, -0.117294),
         ...            (-0.451770, -0.103314, 0.886132),
         ...            (0.779282, 0.437844, 0.448343))
-        >>> print "%.4f"%m.getDeterminant()
-        1.0000
+        >>> print "%.5f"%m.getDeterminant()
+        1.00000
+        >>> print "%.5f"%((m * 0.321).getDeterminant() ** (1.0 / 3.0))
+        0.32100
         """
         if self._dim_n != self._dim_m:
             raise ValueError(
@@ -707,6 +744,38 @@ class LMatrix(Matrix):
 
         >>> LMatrix((0,-1,0),(2,0,0),(0,0,5)).getScaleRotation()
         ((1.0, 2.0, 5.0), ((0.0, -1.0, 0.0), (1.0, 0.0, 0.0), (0.0, 0.0, 1.0)))
+        >>> mat = LMatrix.getIdentity(4, 4, affine = True)
+        >>> mat.getScaleRotation(conformal = True)
+        ((1.0, 1.0, 1.0), ((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0)))
+        >>> # a matrix that cannot be decomposed:
+        >>> LMatrix((1,2,0),(0,1,0),(0,0,1)).getScaleRotation() # doctest: +ELLIPSIS
+        Traceback (most recent call last):
+            ...
+        ValueError: ...
+        >>> mat = LMatrix((-0.434308, 0.893095, -0.117294),
+        ...               (-0.451770, -0.103314, 0.886132),
+        ...               (0.779282, 0.437844, 0.448343))
+        >>> smat = mat * 0.321
+        >>> scale, rot = smat.getScaleRotation()
+        >>> scale == Vector(0.321, 0.321, 0.321)
+        True
+        >>> rot == mat
+        True
+        >>> iscale, irot = smat.getInverse().getScaleRotation()
+        >>> iscale == Vector(1/scale[0], 1/scale[0], 1/scale[0])
+        True
+        >>> irot == rot.getTranspose()
+        True
+        >>> iscale[0] # doctest: +ELLIPSIS
+        3.11526...
+        >>> smat *= -2
+        >>> jscale, jrot = smat.getScaleRotation()
+        >>> jscale == -2 * scale
+        True
+        >>> abs(jscale[0] + 0.642) < EPSILON # doctest: +ELLIPSIS
+        True
+        >>> abs(smat.getDeterminant() + 0.642 ** 3) < EPSILON
+        True
         """
         if self._dim_n != self._dim_m:
             raise ValueError("cannot calculate scale, rotation, and \
@@ -732,7 +801,7 @@ translation of a non-square matrix")
                 # admit a rather large tolerance because
                 # some programs do not produce nice rotation matrices
                 if i != j and abs(mat[i][j]) > 0.01:
-                    raise valueError("matrix does not decompose in \
+                    raise ValueError("matrix does not decompose in \
 non-uniform scale * rotation")
 
         scale = Vector(mat[i][i] ** 0.5 for i in xrange(dim))
@@ -782,6 +851,23 @@ uniform scale * rotation")
         >>> x = LMatrix.composeScaleRotationTranslation(Vector(1.0, 2.0, 5.0), LMatrix((0.0, -1.0, 0.0), (1.0, 0.0, 0.0), (0.0, 0.0, 1.0)), Vector(1, 2, 3))
         >>> x
         ((0.0, -1.0, 0.0, 0), (2.0, 0.0, 0.0, 0), (0.0, 0.0, 5.0, 0), (1, 2, 3, 1))
+        >>> mat = LMatrix((-0.434308, 0.893095, -0.117294),
+        ...               (-0.451770, -0.103314, 0.886132),
+        ...               (0.779282, 0.437844, 0.448343))
+        >>> xmat = LMatrix.composeScaleRotationTranslation(
+        ...     Vector(-0.642, -0.642, -0.642), mat, Vector(1.2, 3.4, 5.6))
+        >>> xmat == xmat
+        True
+        >>> xmat != xmat
+        False
+        >>> print xmat.getInverse() + 0.000001 # workaround for -0.000
+        [  0.676  0.704 -1.214  0.000 ]
+        [ -1.391  0.161 -0.682  0.000 ]
+        [  0.183 -1.380 -0.698  0.000 ]
+        [  2.895  6.338  7.686  1.000 ]
+        <BLANKLINE>
+        >>> (xmat * xmat.getInverse()).isIdentity()
+        True
         """
         if not isinstance(scale, Vector):
             raise TypeError("first argument must be Vector")
@@ -851,9 +937,12 @@ uniform scale * rotation")
     def getTranslation(self):
         """Returns translation part (zero Vector for non-affine transforms).
 
-        >>> x = LMatrix((0.5,-0.5,0),(0.5,0.5,0),(7,8,1), affine = True)
-        >>> x.getTranslation()
+        >>> mat = LMatrix((0.5,-0.5,0),(0.5,0.5,0),(7,8,1), affine = True)
+        >>> mat.getTranslation()
         (7, 8)
+        >>> mat = LMatrix.getIdentity(4, 4, affine = True)
+        >>> mat.getTranslation()
+        (0, 0, 0)
         """
         if self._affine:
             return Vector(self[-1][j] for j in xrange(self._dim_m - 1))
