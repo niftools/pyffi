@@ -716,7 +716,7 @@ class Matrix(tuple):
         """
         det = self.getDeterminant()
         if abs(det) < EPSILON:
-            raise ValueError('cannot invert matrix:\n%s'%self)
+            raise ValueError('cannot invert matrix:\n%s'%(self.__str__()))
         return self.__class__( ( ( self.getCofactor(j, i) / det
                                    for j in xrange(self._dim_m) )
                                  for i in xrange(self._dim_n) ),
