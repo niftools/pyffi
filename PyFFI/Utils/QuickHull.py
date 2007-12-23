@@ -10,21 +10,21 @@ Tetrahedron
 -----------
 
 >>> import random
->>> tetrahedron = [Vector(x) for x in ((0,0,0),(1,0,0),(0,1,0),(0,0,1))]
+>>> tetrahedron = [(0,0,0),(1,0,0),(0,1,0),(0,0,1)]
 >>> for i in xrange(200):
 ...     alpha = random.random()
 ...     beta = random.random()
 ...     gamma = 1 - alpha - beta
 ...     if gamma >= 0:
-...         tetrahedron.append(Vector(alpha, beta, gamma))
+...         tetrahedron.append((alpha, beta, gamma))
 >>> verts, triangles = qhull3d(tetrahedron)
->>> Vector(0,0,0) in verts
+>>> (0,0,0) in verts
 True
->>> Vector(1,0,0) in verts
+>>> (1,0,0) in verts
 True
->>> Vector(0,1,0) in verts
+>>> (0,1,0) in verts
 True
->>> Vector(0,0,1) in verts
+>>> (0,0,1) in verts
 True
 >>> len(verts)
 4
@@ -34,7 +34,7 @@ True
 A double pyramid polyhedron
 ---------------------------
 
->>> poly = [Vector(x) for x in ((2,0,0),(0,2,0),(-2,0,0),(0,-2,0),(0,0,2),(0,0,-2))]
+>>> poly = [(2,0,0),(0,2,0),(-2,0,0),(0,-2,0),(0,0,2),(0,0,-2)]
 >>> vertices, triangles = qhull3d(poly)
 >>> len(vertices)
 6
@@ -42,19 +42,19 @@ A double pyramid polyhedron
 8
 >>> for triangle in triangles: # check orientation relative to origin
 ...     verts = [ vertices[i] for i in triangle ]
-...     assert(verts[0].crossProduct(verts[1]) * verts[2] == 8)
+...     assert(vecDotProduct(vecCrossProduct(*verts[:2]), verts[2]) == 8)
 
 A pyramid
 ---------
 
->>> verts, triangles = qhull3d([Vector(x) for x in ((0,0,0),(1,0,0),(0,1,0),(1,1,0),(0.5,0.5,1))])
->>> Vector(0,0,0) in verts
+>>> verts, triangles = qhull3d([(0,0,0),(1,0,0),(0,1,0),(1,1,0),(0.5,0.5,1)])
+>>> (0,0,0) in verts
 True
->>> Vector(1,0,0) in verts
+>>> (1,0,0) in verts
 True
->>> Vector(0,1,0) in verts
+>>> (0,1,0) in verts
 True
->>> Vector(1,1,0) in verts
+>>> (1,1,0) in verts
 True
 >>> len(verts)
 5
@@ -65,9 +65,9 @@ The unit cube
 -------------
 
 >>> import random
->>> cube = [Vector(x) for x in ((0,0,0),(0,0,1),(0,1,0),(1,0,0),(0,1,1),(1,0,1),(1,1,0),(1,1,1))]
+>>> cube = [(0,0,0),(0,0,1),(0,1,0),(1,0,0),(0,1,1),(1,0,1),(1,1,0),(1,1,1)]
 >>> for i in xrange(200):
-...     cube.append(Vector(random.random(), random.random(), random.random()))
+...     cube.append((random.random(), random.random(), random.random()))
 >>> verts, triangles = qhull3d(cube)
 >>> len(triangles) # 6 faces, written as 12 triangles
 12
@@ -78,9 +78,9 @@ A degenerate shape: the unit square
 -----------------------------------
 
 >>> import random
->>> plane = [Vector(x) for x in ((0,0,0),(1,0,0),(0,1,0),(1,1,0))]
+>>> plane = [(0,0,0),(1,0,0),(0,1,0),(1,1,0)]
 >>> for i in xrange(200):
-...     plane.append(Vector(random.random(), random.random(), 0))
+...     plane.append((random.random(), random.random(), 0))
 >>> verts, triangles = qhull3d(plane)
 >>> len(verts)
 4
@@ -93,7 +93,7 @@ A random shape
 >>> import random
 >>> shape = []
 >>> for i in xrange(2000):
-...     vert = Vector(random.random(), random.random(), random.random())
+...     vert = (random.random(), random.random(), random.random())
 ...     shape.append(vert)
 >>> verts, triangles = qhull3d(shape)
 """
@@ -135,7 +135,7 @@ A random shape
 #
 # ***** END LICENSE BLOCK *****
 
-from MathUtils import Vector
+from MathUtils import *
 from itertools import izip
 import operator
 
@@ -157,7 +157,9 @@ def qdome2d(vertices, base, normal, precision = 0.0001):
     vert0, vert1 = base
     outer = [ (dist, vert)
           for dist, vert
-          in izip( ( normal.crossProduct(vert1 - vert0) * (vert - vert0)
+          in izip( ( vecDotProduct(vecCrossProduct(normal,
+                                                   vecSub(vert1, vert0)),
+                                   vecSub(vert, vert0))
                      for vert in vertices ),
                    vertices )
           if dist > precision ]
@@ -178,27 +180,27 @@ def qhull2d(vertices, normal, precision = 0.0001):
 
     >>> import random
     >>> import math
-    >>> plane = [Vector(0,0,0),Vector(1,0,0),Vector(0,1,0),Vector(1,1,0)]
+    >>> plane = [(0,0,0),(1,0,0),(0,1,0),(1,1,0)]
     >>> for i in xrange(200):
-    ...     plane.append(Vector(random.random(), random.random(), 0))
-    >>> verts = qhull2d(plane, Vector(0,0,1))
+    ...     plane.append((random.random(), random.random(), 0))
+    >>> verts = qhull2d(plane, (0,0,1))
     >>> len(verts)
     4
     >>> disc = []
     >>> for i in xrange(50):
     ...     theta = (2 * math.pi * i) / 50
-    ...     disc.append(Vector(0, math.sin(theta), math.cos(theta)))
-    >>> verts = qhull2d(disc, Vector(1,0,0))
+    ...     disc.append((0, math.sin(theta), math.cos(theta)))
+    >>> verts = qhull2d(disc, (1,0,0))
     >>> len(verts)
     50
     >>> for i in xrange(400):
-    ...     disc.append(Vector(0, 1.4 * random.random() - 0.7, 1.4 * random.random() - 0.7))
-    >>> verts = qhull2d(disc, Vector(1,0,0))
+    ...     disc.append((0, 1.4 * random.random() - 0.7, 1.4 * random.random() - 0.7))
+    >>> verts = qhull2d(disc, (1,0,0))
     >>> len(verts)
     50
     >>> dist = 2 * math.pi / 50
     >>> for i in xrange(len(verts) - 1):
-    ...      assert(abs(verts[i].getDistance(verts[i+1]) - dist) < 0.001)
+    ...      assert(abs(vecDistance(verts[i], verts[i+1]) - dist) < 0.001)
 
     @param vertices: The vertices to construct the hull from.
     @param normal: Orientation of the projection plane used for calculating
@@ -229,15 +231,15 @@ def basesimplex3d(vertices, precision = 0.0001):
     then just one vertex is returned.
 
     >>> import random
-    >>> cube = [Vector(x) for x in ((0,0,0),(0,0,1),(0,1,0),(1,0,0),(0,1,1),(1,0,1),(1,1,0),(1,1,1))]
+    >>> cube = [(0,0,0),(0,0,1),(0,1,0),(1,0,0),(0,1,1),(1,0,1),(1,1,0),(1,1,1)]
     >>> for i in xrange(200):
-    ...     cube.append(Vector(random.random(), random.random(), random.random()))
+    ...     cube.append((random.random(), random.random(), random.random()))
     >>> base = basesimplex3d(cube)
     >>> len(base)
     4
-    >>> Vector(0,0,0) in base
+    >>> (0,0,0) in base
     True
-    >>> Vector(1,1,1) in base
+    >>> (1,1,1) in base
     True
 
     @param vertices: The vertices to construct extreme points from.
@@ -258,21 +260,22 @@ def basesimplex3d(vertices, precision = 0.0001):
     vert0 = min(vertices, key=operator.itemgetter(*extents))
     vert1 = max(vertices, key=operator.itemgetter(*extents))
     # check if all vertices coincide
-    if vert0.getDistance(vert1) < precision:
+    if vecDistance(vert0, vert1) < precision:
         return [ vert0 ]
     # as a third extreme point select that one which maximizes the distance
     # from the vert0 - vert1 axis
     vert2 = max(vertices,
-                key=lambda vert: vert.getDistance(vert0, vert1))
+                key=lambda vert: vecDistanceAxis((vert0, vert1), vert))
     #check if all vertices are colinear
-    if vert2.getDistance(vert0, vert1) < precision:
+    if vecDistanceAxis((vert0, vert1), vert2) < precision:
         return [ vert0, vert1 ]
     # as a fourth extreme point select one which maximizes the distance from
     # the v0, v1, v2 triangle
     vert3 = max(vertices,
-                key=lambda vert: abs(vert.getDistance(vert0, vert1, vert2)))
+                key=lambda vert: abs(vecDistanceTriangle((vert0, vert1, vert2),
+                                                         vert)))
     # ensure positive orientation and check if all vertices are coplanar
-    orientation = vert3.getDistance(vert0, vert1, vert2)
+    orientation = vecDistanceTriangle((vert0, vert1, vert2), vert3)
     if orientation > precision:
         return [ vert0, vert1, vert2, vert3 ]
     elif orientation < -precision:
@@ -303,9 +306,7 @@ def qhull3d(vertices, precision = 0.0001, verbose = False):
     # handle degenerate cases
     if len(hull_vertices) == 3:
         # coplanar
-        hull_vertices = qhull2d(vertices,
-                                hull_vertices[0].getNormal(hull_vertices[1],
-                                                           hull_vertices[2]))
+        hull_vertices = qhull2d(vertices, vecNormal(*hull_vertices))
         return hull_vertices, [ (0, i+1, i+2)
                                 for i in xrange(len(hull_vertices) - 2) ]
     elif len(hull_vertices) <= 2:
@@ -315,7 +316,7 @@ def qhull3d(vertices, precision = 0.0001, verbose = False):
     
     # construct list of triangles of this simplex
     hull_triangles = set([ operator.itemgetter(i,j,k)(hull_vertices)
-                           for i, j, k in ((1,0,2), (0,1,3), (0,3,2), (3,1,2)) ])
+                         for i, j, k in ((1,0,2), (0,1,3), (0,3,2), (3,1,2)) ])
 
     if verbose:
         print "starting set", hull_vertices
@@ -326,7 +327,7 @@ def qhull3d(vertices, precision = 0.0001, verbose = False):
         outer = \
             [ (dist, vert)
               for dist, vert
-              in izip( ( vert.getDistance(*triangle)
+              in izip( ( vecDistanceTriangle(triangle, vert)
                          for vert in vertices ),
                        vertices )
               if dist > precision ]
@@ -345,9 +346,8 @@ def qhull3d(vertices, precision = 0.0001, verbose = False):
         hull_vertices.append(pivot)
         # and update the list of triangles:
         # 1. calculate visibility of triangles to pivot point
-        visibility = [
-            pivot.getDistance(*othertriangle) > precision
-            for othertriangle in outer_vertices.iterkeys() ]
+        visibility = [ vecDistanceTriangle(othertriangle, pivot) > precision
+                       for othertriangle in outer_vertices.iterkeys() ]
         # 2. get list of visible triangles
         visible_triangles = [ othertriangle
                               for othertriangle, visible
@@ -370,9 +370,9 @@ def qhull3d(vertices, precision = 0.0001, verbose = False):
                                    ( map(operator.itemgetter(1), outer_verts)
                                      for outer_verts
                                      in outer_vertices.itervalues() )))
-        if verbose:
-            print "removing", visible_triangles
         for triangle in visible_triangles:
+            if verbose:
+                print "removing", triangle
             hull_triangles.remove(triangle)
             del outer_vertices[triangle]
         # 6. close triangle list by adding cone from horizon to pivot
@@ -381,7 +381,8 @@ def qhull3d(vertices, precision = 0.0001, verbose = False):
             newtriangle = edge + ( pivot, )
             newouter = \
                 [ (dist, vert)
-                  for dist, vert in izip( ( vert.getDistance(*newtriangle)
+                  for dist, vert in izip( ( vecDistanceTriangle(newtriangle,
+                                                                vert)
                                             for vert in visible_outer ),
                                           visible_outer )
                   if dist > precision ]
