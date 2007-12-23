@@ -151,7 +151,7 @@ formats.
 
 __all__ = [ 'XmlHandler', 'Utils', 'Common', 'Bases' ]
 
-__version__ = '0.7.3'
+__version__ = '0.7.4'
 
 from XmlHandler import XmlSaxHandler
 

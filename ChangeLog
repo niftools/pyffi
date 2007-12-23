@@ -1,7 +1,9 @@
 Version 0.7.4 (***):
 * fixed file size check bug in readwrite test for nif and cgf
-* initial read support for crysis cgf files
+* initial read and write support for crysis cgf files
 * support for versions in structs
+* fix in nif xml for a long outstanding issue which caused some nifs with mopp
+shapes to fail
 
 Version 0.7.3 (13 Dec 2007):
 * nif: fixed error message when encountering empty block type
