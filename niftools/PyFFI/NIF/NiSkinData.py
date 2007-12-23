@@ -37,7 +37,7 @@
 #
 # ***** END LICENSE BLOCK *****
 
-from PyFFI.Utils.MathUtils import LMatrix
+from PyFFI.Utils.MathUtils import LMatrix, Vector
 
 def getTransform(self):
     """Return scale, rotation, and translation into a single 4x4 matrix."""
