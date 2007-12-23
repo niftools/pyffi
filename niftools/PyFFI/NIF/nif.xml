@@ -1230,7 +1230,6 @@
         <add name="Unknown Float 01" type="float">Unknown.</add>
         <add name="Angular Velocity" type="Vector3">Angular velocity.</add>
         <add name="Unknown Float 02" type="float">Unknown.</add>
-
         <add name="Inertia" type="InertiaMatrix">Defines how the mass is distributed among the body.</add>
         <add name="Center" type="Vector3"> This seems to be used to relocate the object's center of mass. Useful for balancing objects in contraints.</add>
         <add name="Unknown Float 03" type="float">Unknown float.</add>
@@ -1389,15 +1388,15 @@
         A tree-like Havok data structure stored in an assembly-like binary code?
     </niobject>
 
-    <niobject name="bhkMoppBvTreeShape" abstract="0" inherit="bhkBvTreeShape" ver1="20.0.0.5">
+    <niobject name="bhkMoppBvTreeShape" abstract="0" inherit="bhkBvTreeShape">
         Memory optimized partial polytope bounding volume tree shape (not an entity).
         <add name="Shape" type="Ref" template="bhkShape">The shape.</add>
         <add name="Material" type="HavokMaterial">The shape's material.</add>
         <add name="Unknown 8 Bytes" type="byte" arr1="8">Unknown bytes, probably MOPP Header.</add>
         <add name="Unknown Float" type="float">Unknown float, might be scale.</add>
         <add name="MOPP Data Size" type="uint">Number of bytes for MOPP data.</add>
-        <add name="Origin" type="Vector3" ver1="20.0.0.5">Origin of the object in mopp coordinates. This is the minimum of all vertices in the packed shape along each axis, minus 0.1.</add>
-        <add name="Scale" type="float" ver1="20.0.0.5">The scaling factor to quantize the MOPP: the quantization factor is equal to 256*256 divided by this number. In Oblivion files, scale is taken equal to 256*256*254 / (size + 0.2) where size is the largest dimension of the bounding box of the packed shape.</add>
+        <add name="Origin" type="Vector3">Origin of the object in mopp coordinates. This is the minimum of all vertices in the packed shape along each axis, minus 0.1.</add>
+        <add name="Scale" type="float">The scaling factor to quantize the MOPP: the quantization factor is equal to 256*256 divided by this number. In Oblivion files, scale is taken equal to 256*256*254 / (size + 0.2) where size is the largest dimension of the bounding box of the packed shape.</add>
         <add name="MOPP Data" type="byte" arr1="MOPP Data Size">The tree of bounding volume data.</add>
     </niobject>
 
