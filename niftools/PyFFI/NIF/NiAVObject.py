@@ -37,7 +37,7 @@
 #
 # ***** END LICENSE BLOCK *****
 
-from PyFFI.Utils.MathUtils import Vector, LMatrix
+from PyFFI.Utils.MathUtils import Vector, Matrix, LMatrix
 
 def addProperty(self, propblock):
     """Add block C{propblock} to property list.
@@ -52,11 +52,14 @@ def getTransform(self, relative_to = None):
     """Return scale, rotation, and translation into a single 4x4 matrix,
     relative to the C{relative_to} block (which should be another NiAVObject
     connecting to this block). If C{relative_to} is C{None}, then returns the
-    transform stored in C{self}, or equivalently, the target is assumed to be the
-    parent.
+    transform stored in C{self}, or equivalently, the target is assumed to be
+    the parent.
 
-    @param relative_to: The block relative to which the transform must be calculated. If C{None}, the local transform is returned."""
-    mat = LMatrix.composeScaleRotationTranslation(Vector(self.scale, self.scale, self.scale), self.rotation, self.translation)
+    @param relative_to: The block relative to which the transform must be
+        calculated. If C{None}, the local transform is returned."""
+    mat = LMatrix.composeScaleRotationTranslation(
+        Vector(self.scale, self.scale, self.scale),
+        self.rotation, self.translation)
     if not relative_to:
         return mat
     # find chain from relative_to to self
@@ -71,13 +74,11 @@ def getTransform(self, relative_to = None):
 def setTransform(self, mat):
     """Set rotation, translation, and scale, from a transform matrix.
 
-    @param mat: The matrix to which the transform should be set."""
-    if not (mat._dim_n == 4 and mat._dim_m == 4 and mat._affine):
-        raise ValueError("expected affine 4x4 matrix but got %s %ix%i matrix"
-                         % ("affine" if mat._affine else "non-affine",
-                            mat._dim_n, mat._dim_m))
+    @param mat: The matrix to which the transform should be set. Must be
+        either an affine 4x4 LMatrix, or a 4x4 list/tuple."""
+    xmat = mat if isinstance(mat, Matrix) else LMatrix(mat, affine = True)
     scale, self.rotation = mat.getScaleRotation(conformal = True)
-    self.scale = scale[0]
+    self.scale = sum(scale) / 3.0
     self.translation = mat.getTranslation()
     
 def applyScale(self, scale):
