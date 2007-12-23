@@ -117,14 +117,15 @@ def getTranspose(self):
 
 def isScaleRotation(self):
     """Returns true if the matrix decomposes nicely into scale * rotation."""
-    # NOTE: 0.01 instead of self.cls.EPSILON to work around bad files
+    # NOTE: 0.01 instead of self.cls.EPSILON to work around bad nif files
 
-    # calculate self^T * self
+    # calculate self * self^T
     # this should correspond to
-    # (rotation * scale)^T * (rotation * scale)
-    # = scale^T * scale
-    # = diagonal matrix with scales squared on the diagonal
-    mat = self.getTranspose() * self
+    # (scale * rotation) * (scale * rotation)^T
+    # = scale * rotation * rotation^T * scale^T
+    # = scale * scale^T
+    self_transpose = self.getTranspose()
+    mat = self * self_transpose
 
     # off diagonal elements should be zero
     if (abs(mat.m12) + abs(mat.m13)
@@ -159,12 +160,12 @@ def getDeterminant(self):
 
 def getScale(self):
     """Gets the scale (assuming isScaleRotation is true!)."""
-    # calculate self^T * self
+    # calculate self * self^T
     # this should correspond to
-    # (rotation * scale)^T * (rotation * scale)
-    # = scale^T * scale
+    # (rotation * scale)* (rotation * scale)^T
+    # = scale * scale^T
     # = diagonal matrix with scales squared on the diagonal
-    mat = self.getTranspose() * self
+    mat = self * self.getTranspose()
 
     scale = self.cls.Vector3()
     scale.x = mat.m11 ** 0.5
@@ -184,13 +185,13 @@ def getScaleRotation(self):
     if min(abs(x) for x in scale.asTuple()) < self.cls.EPSILON:
         raise ZeroDivisionError('scale is zero, unable to obtain rotation')
     rot.m11 /= scale.x
-    rot.m21 /= scale.x
-    rot.m31 /= scale.x
-    rot.m12 /= scale.y
+    rot.m12 /= scale.x
+    rot.m13 /= scale.x
+    rot.m21 /= scale.y
     rot.m22 /= scale.y
-    rot.m32 /= scale.y
-    rot.m13 /= scale.z
-    rot.m23 /= scale.z
+    rot.m23 /= scale.y
+    rot.m31 /= scale.z
+    rot.m32 /= scale.z
     rot.m33 /= scale.z
     return (scale, rot)
 
@@ -205,13 +206,13 @@ def setScaleRotation(self, scale, rotation):
         raise ValueError('rotation must be rotation matrix')
 
     self.m11 = rotation.m11 * scale.x
-    self.m12 = rotation.m12 * scale.y
-    self.m13 = rotation.m13 * scale.z
-    self.m21 = rotation.m21 * scale.x
+    self.m12 = rotation.m12 * scale.x
+    self.m13 = rotation.m13 * scale.x
+    self.m21 = rotation.m21 * scale.y
     self.m22 = rotation.m22 * scale.y
-    self.m23 = rotation.m23 * scale.z
-    self.m31 = rotation.m31 * scale.x
-    self.m32 = rotation.m32 * scale.y
+    self.m23 = rotation.m23 * scale.y
+    self.m31 = rotation.m31 * scale.z
+    self.m32 = rotation.m32 * scale.z
     self.m33 = rotation.m33 * scale.z
 
 def getScaleQuat(self):
@@ -222,28 +223,28 @@ def getScaleQuat(self):
     
     if trace > self.cls.EPSILON:
         s = (trace ** 0.5) * 2
-        quat.x = ( rot.m32 - rot.m23 ) / s
-        quat.y = ( rot.m13 - rot.m31 ) / s
-        quat.z = ( rot.m21 - rot.m12 ) / s
+        quat.x = -( rot.m32 - rot.m23 ) / s
+        quat.y = -( rot.m13 - rot.m31 ) / s
+        quat.z = -( rot.m21 - rot.m12 ) / s
         quat.w = 0.25 * s
     elif rot.m11 > max((rot.m22, rot.m33)): 
         s  = (( 1.0 + rot.m11 - rot.m22 - rot.m33 ) ** 0.5) * 2
         quat.x = 0.25 * s
         quat.y = (rot.m21 + rot.m12 ) / s
         quat.z = (rot.m13 + rot.m31 ) / s
-        quat.w = (rot.m32 - rot.m23 ) / s
+        quat.w = -(rot.m32 - rot.m23 ) / s
     elif rot.m22 > rot.m33:
         s  = (( 1.0 + rot.m22 - rot.m11 - rot.m33 ) ** 0.5) * 2
         quat.x = (rot.m21 + rot.m12 ) / s
         quat.y = 0.25 * s
         quat.z = (rot.m32 + rot.m23 ) / s
-        quat.w = (rot.m13 - rot.m31 ) / s
+        quat.w = -(rot.m13 - rot.m31 ) / s
     else:
         s  = (( 1.0 + rot.m33 - rot.m11 - rot.m22 ) ** 0.5) * 2
         quat.x = (rot.m13 + rot.m31 ) / s
         quat.y = (rot.m32 + rot.m23 ) / s
         quat.z = 0.25 * s
-        quat.w = (rot.m21 - rot.m12 ) / s
+        quat.w = -(rot.m21 - rot.m12 ) / s
 
     return scale, quat
 
@@ -255,13 +256,13 @@ def getInverse(self):
     scale = self.getScale()
     mat = self.getTranspose()
     mat.m11 /= scale.x ** 2
-    mat.m21 /= scale.x ** 2
-    mat.m31 /= scale.x ** 2
-    mat.m12 /= scale.y ** 2
+    mat.m12 /= scale.x ** 2
+    mat.m13 /= scale.x ** 2
+    mat.m21 /= scale.y ** 2
     mat.m22 /= scale.y ** 2
-    mat.m32 /= scale.y ** 2
-    mat.m13 /= scale.z ** 2
-    mat.m23 /= scale.z ** 2
+    mat.m23 /= scale.y ** 2
+    mat.m31 /= scale.z ** 2
+    mat.m32 /= scale.z ** 2
     mat.m33 /= scale.z ** 2
 
 def __mul__(self, rhs):
