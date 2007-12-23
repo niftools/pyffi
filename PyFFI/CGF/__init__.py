@@ -83,7 +83,12 @@ Create a CGF file from scratch
     [  0.000  0.000  0.000  0.000 ]
     [  0.000  0.000  0.000  0.000 ]
 * pos : [  0.000  0.000  0.000 ]
-* rot : [  0.000  0.000  0.000  0.000 ]
+* rot :
+    <class 'PyFFI.XmlHandler.Quat'> instance at 0x...
+    * x : 0.0
+    * y : 0.0
+    * z : 0.0
+    * w : 0.0
 * scl : [  0.000  0.000  0.000 ]
 * posCtrl : None
 * rotCtrl : None
@@ -112,7 +117,12 @@ Create a CGF file from scratch
     [  0.000  0.000  0.000  0.000 ]
     [  0.000  0.000  0.000  0.000 ]
 * pos : [  0.000  0.000  0.000 ]
-* rot : [  0.000  0.000  0.000  0.000 ]
+* rot :
+    <class 'PyFFI.XmlHandler.Quat'> instance at 0x...
+    * x : 0.0
+    * y : 0.0
+    * z : 0.0
+    * w : 0.0
 * scl : [  0.000  0.000  0.000 ]
 * posCtrl : None
 * rotCtrl : None
@@ -443,22 +453,6 @@ class CgfFormat(object):
         def getRefs(self, **kwargs):
             """Ptr does not point down, so getRefs returns empty list."""
             return []
-
-    class Vector3(Common.VectorBase):
-        _type = Utils.MathUtils.Vector
-
-    class Matrix33(Common.MatrixBase):
-        _type = Utils.MathUtils.LMatrix
-
-    class Matrix44(Common.MatrixBase):
-        _dim_n = 4
-        _dim_m = 4
-        _type = Utils.MathUtils.LMatrix
-        _kwargs = { "affine" : True }
-
-    class Quat(Common.VectorBase):
-        _dim = 4
-        _type = Utils.MathUtils.Quat
 
     # exceptions
     class CgfError(StandardError):
