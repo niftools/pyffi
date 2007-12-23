@@ -516,15 +516,15 @@ def updateSkinCenterRadius(self):
                      for skinweight in skindatablock.vertexWeights]
 
         # find bounding box of these vertices
-        low = self.cls.Vector3()
-        low.x = min(v.x for v in boneverts)
-        low.y = min(v.y for v in boneverts)
-        low.z = min(v.z for v in boneverts)
+        low = Vector(
+            min(v[0] for v in boneverts),
+            min(v[1] for v in boneverts),
+            min(v[2] for v in boneverts))
 
-        high = self.cls.Vector3()
-        high.x = max(v.x for v in boneverts)
-        high.y = max(v.y for v in boneverts)
-        high.z = max(v.z for v in boneverts)
+        high = Vector(
+            max(v[0] for v in boneverts),
+            max(v[1] for v in boneverts),
+            max(v[2] for v in boneverts))
 
         # center is in the center of the bounding box
         center = (low + high) * 0.5
@@ -533,14 +533,12 @@ def updateSkinCenterRadius(self):
         r2 = 0.0
         for v in boneverts:
             d = center - v
-            r2 = max(r2, d.x*d.x+d.y*d.y+d.z*d.z)
+            r2 = max(r2, d * d)
         radius = r2 ** 0.5
 
         # transform center in proper coordinates (radius remains unaffected)
         center *= skindatablock.getTransform()
 
         # save data
-        skindatablock.boundingSphereOffset.x = center.x
-        skindatablock.boundingSphereOffset.y = center.y
-        skindatablock.boundingSphereOffset.z = center.z
+        skindatablock.boundingSphereOffset = center
         skindatablock.boundingSphereRadius = radius
