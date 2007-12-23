@@ -349,6 +349,24 @@ class Matrix(tuple):
     LRMatrix."""
     # note: all multiplication code (L/R)Matrix * something is implemented in
     # __mul__
+
+    @classmethod
+    def getIdentity(cls, *args, **kwargs):
+        """Constructor for identity matrix.
+
+        >>> Matrix.getIdentity(2, 2)
+        ((1, 0), (0, 1))
+        >>> m = LMatrix.getIdentity(3, 3, affine = True)
+        >>> m
+        ((1, 0, 0), (0, 1, 0), (0, 0, 1))
+        >>> Vector(2, 3) * m
+        (2, 3)"""
+        if len(args) != 2:
+            raise TypeError("expected two arguments")
+        return cls( ( ( 1 if i == j else 0
+                        for j in xrange(args[1]) )
+                      for i in xrange(args[0]) ),
+                    **kwargs)
     
     def __new__(cls, *args, **kwargs):
         """Initialize matrix from row vectors.
@@ -565,12 +583,6 @@ class Matrix(tuple):
     def __ne__(self, other):
         """Compare matrices."""
         return not self.__eq__(other)
-
-    def setIdentity(self):
-        """Set to identity matrix."""
-        for i in xrange(self._dim_n):
-            for j in xrange(self._dim_m):
-                self[i][j] = 1 if i == j else 0
 
     def isIdentity(self):
         """Check if matrix is identity matrix."""
