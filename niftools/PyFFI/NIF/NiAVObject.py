@@ -72,6 +72,10 @@ def setTransform(self, mat):
     """Set rotation, translation, and scale, from a transform matrix.
 
     @param mat: The matrix to which the transform should be set."""
+    if not (mat._dim_n == 4 and mat._dim_m == 4 and mat._affine):
+        raise ValueError("expected affine 4x4 matrix but got %s %ix%i matrix"
+                         % ("affine" if mat._affine else "non-affine",
+                            mat._dim_n, mat._dim_m))
     scale, self.rotation = mat.getScaleRotation(conformal = True)
     self.scale = scale[0]
     self.translation = mat.getTranslation()

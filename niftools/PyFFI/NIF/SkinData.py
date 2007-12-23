@@ -1,7 +1,5 @@
-# --------------------------------------------------------------------------
-# NifFormat.SkinData
-# Custom functions for SkinData.
-# --------------------------------------------------------------------------
+"""Custom functions for SkinData."""
+
 # ***** BEGIN LICENCE BLOCK *****
 #
 # Copyright (c) 2007, NIF File Format Library and Tools.
@@ -38,30 +36,17 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENSE BLOCK *****
-# --------------------------------------------------------------------------
+
+from PyFFI.Utils.MathUtils import Vector
 
 def getTransform(self):
     """Return scale, rotation, and translation into a single 4x4 matrix."""
     m = self.cls.Matrix44()
-    m.setScaleRotationTranslation(self.scale, self.rotation, self.translation)
+    m.setScaleRotationTranslation(Vector(self.scale, self.scale, self.scale), self.rotation, self.translation)
     return m
 
 def setTransform(self, m):
     """Set rotation, transform, and velocity."""
-    scale, rotation, translation = m.getScaleRotationTranslation()
-
-    self.scale = scale
-    
-    self.rotation.m11 = rotation.m11
-    self.rotation.m12 = rotation.m12
-    self.rotation.m13 = rotation.m13
-    self.rotation.m21 = rotation.m21
-    self.rotation.m22 = rotation.m22
-    self.rotation.m23 = rotation.m23
-    self.rotation.m31 = rotation.m31
-    self.rotation.m32 = rotation.m32
-    self.rotation.m33 = rotation.m33
-    
-    self.translation.x = translation.x
-    self.translation.y = translation.y
-    self.translation.z = translation.z
+    scale, self.rotation = m.getScaleRotation(conformal = True)
+    self.scale = sum(scale) / 3.0
+    self.translation = m.getTranslation()

@@ -2,7 +2,7 @@
 
 >>> from PyFFI.NIF import NifFormat
 >>> from PyFFI.Utils.MathUtils import LMatrix
->>> id44 = NifFormat.LMatrix((1,0,0,0),(0,1,0,0),(0,0,1,0),(0,0,0,1), affine = True)
+>>> id44 = LMatrix.getIdentity(4, 4, affine = True)
 >>> skelroot = NifFormat.NiNode()
 >>> skelroot.name = 'skelroot'
 >>> skelroot.setTransform(id44)
@@ -224,9 +224,6 @@ def mergeSkeletonRoots(self):
     skininst = self.skinInstance
     skelroot = skininst.skeletonRoot
 
-    id44 = self.cls.Matrix44()
-    id44.setIdentity()
-
     # look for geometries are in this skeleton root's tree
     # that have a different skeleton root
     # and that share bones with this geometry
@@ -236,7 +233,8 @@ def mergeSkeletonRoots(self):
     geomroots = {}
     for geom in geoms:
         # check transforms
-        if geom.skinInstance.data.getTransform() != id44 or geom.getTransform(geom.skinInstance.skeletonRoot)!= id44:
+        if (not geom.skinInstance.data.getTransform().isIdentity()) \
+            or (not geom.getTransform(geom.skinInstance.skeletonRoot).isIdentity()):
             failed.append(geom)
             continue # skip this one
         # find geometry root block
@@ -286,7 +284,8 @@ def getSkinDeformation(self):
         bone_offset = bonedata.getTransform()
         bone_matrix = bone_block.getTransform(skelroot)
         transform = bone_offset * bone_matrix * skin_offset
-        scale, rotation, translation = transform.getScaleRotationTranslation()
+        scale, rotation = transform.getScaleRotation()
+        translation = transform.getTranslation()
         for skinweight in bonedata.vertexWeights:
             index = skinweight.index
             weight = skinweight.weight
