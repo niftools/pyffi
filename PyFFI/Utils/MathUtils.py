@@ -554,10 +554,11 @@ class Matrix(tuple):
                     "cannot multiply %ix%i-matrix with %ix%i-matrix"
                     % (self._dim_n, self._dim_m, other._dim_n, other._dim_m))
             # do the multiplication
-            return cls( ( sum(self[i][k] * other[k][j]
-                              for k in xrange(self._dim_m) )
-                          for j in xrange(other._dim_m) )
-                        for i in xrange(self._dim_n) )
+            return cls( ( ( sum(self[i][k] * other[k][j]
+                                for k in xrange(self._dim_m) )
+                            for j in xrange(other._dim_m) )
+                          for i in xrange(self._dim_n) ),
+                        affine = getattr(self, "_affine", False))
         elif isinstance(self, RMatrix) and isinstance(other, Vector):
             if len(other) != self._dim_n:
                 raise ValueError("cannot multiply %ix%i-matrix and %i vector"
@@ -705,13 +706,21 @@ class Matrix(tuple):
         ...            (0.779282, 0.437844, 0.448343))
         >>> m.getInverse() == m.getTranspose() # m is a rotation matrix
         True
+        >>> mat = LMatrix((-0.434308, 0.893095, -0.117294),
+        ...               (-0.451770, -0.103314, 0.886132),
+        ...               (0.779282, 0.437844, 0.448343))
+        >>> xmat = LMatrix.composeScaleRotationTranslation(
+        ...     Vector(1, 1, 1), mat, Vector(0, 0, 1))
+        >>> print Vector(0, 0, 0) * xmat.getInverse()
+        [  0.117 -0.886 -0.448  ]
         """
         det = self.getDeterminant()
         if abs(det) < EPSILON:
             raise ValueError('cannot invert matrix:\n%s'%self)
-        return self.__class__( ( self.getCofactor(j, i) / det
-                                 for j in xrange(self._dim_m) )
-                               for i in xrange(self._dim_n) )
+        return self.__class__( ( ( self.getCofactor(j, i) / det
+                                   for j in xrange(self._dim_m) )
+                                 for i in xrange(self._dim_n) ),
+                               affine = getattr(self, "_affine", False) )
 
 class LMatrix(Matrix):
     """A general purpose matrix class, with left vector multiplication. Use

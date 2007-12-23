@@ -9,12 +9,12 @@ Read a CGF file
 
 >>> # get file version and file type, and read cgf file
 >>> stream = open('test.cgf', 'rb')
->>> filetype, fileversion = CgfFormat.getVersion(stream)
+>>> filetype, fileversion, game = CgfFormat.getVersion(stream)
 >>> if filetype == -1:
 ...     raise RuntimeError('cgf version not supported')
 ... elif filetype == -2:
 ...     raise RuntimeError('not a cgf file')
->>> chunks, versions = CgfFormat.read(stream, fileversion = fileversion)
+>>> chunks, versions = CgfFormat.read(stream, fileversion = fileversion, game = game)
 >>> # print all chunks
 >>> for chunk in chunks:
 ...     print chunk # doctest: +ELLIPSIS
@@ -52,15 +52,16 @@ Create a CGF file from scratch
 ...     filetype = CgfFormat.FileType.GEOM,
 ...     fileversion = CgfFormat.getFileVersion('Far Cry'),
 ...     chunks = chunks,
-...     versions = CgfFormat.getChunkVersions('Far Cry', chunks))
+...     versions = CgfFormat.getChunkVersions('Far Cry', chunks),
+...     game = 'Far Cry')
 >>> stream.close()
 >>> stream = open('testwrite.cgf', 'rb')
->>> filetype, fileversion = CgfFormat.getVersion(stream)
+>>> filetype, fileversion, game = CgfFormat.getVersion(stream)
 >>> if filetype == -1:
 ...     raise RuntimeError('cgf version not supported')
 ... elif filetype == -2:
 ...     raise RuntimeError('not a cgf file')
->>> chunks, versions = CgfFormat.read(stream, fileversion = fileversion)
+>>> chunks, versions = CgfFormat.read(stream, fileversion = fileversion, game = game)
 >>> # print all chunks
 >>> for chunk in chunks:
 ...     print chunk # doctest: +ELLIPSIS
@@ -494,8 +495,8 @@ class CgfFormat(object):
         """Returns file type (geometry or animation), version of the
         chunk table, and game.
 
-        Returns -1, 0 if file type or chunk table version is not supported.
-        Returns -2, 0 if it is not a cgf file.
+        Returns file type -1 if file type or chunk table version is not supported.
+        Returns file type -2 if it is not a cgf file.
         """
         pos = stream.tell()
         try:
