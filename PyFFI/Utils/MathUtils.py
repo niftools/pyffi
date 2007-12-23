@@ -432,10 +432,10 @@ class Matrix(tuple):
     def __str__(self):
         """Format the matrix in a string."""
         result = ""
-        for row in self:
+        for i, row in enumerate(self):
             result += "[ "
             result += ("%6.3f " * len(row)) % tuple(row)
-            result += "]\n"
+            result += "]\n" if i + 1 < len(self) else "]"
         return result
 
     def __add__(self, other):
