@@ -1,6 +1,4 @@
 Version 0.7.4 (***):
-* vector and matrix base classes
-* new dedicated math library shared by cgf and nif modules
 * fixed file size check bug in readwrite test for nif and cgf
 * initial read support for crysis cgf files
 * support for versions in structs
