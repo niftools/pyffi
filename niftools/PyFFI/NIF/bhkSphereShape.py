@@ -40,7 +40,6 @@
 import math # math.pi
 
 from PyFFI.Utils import Inertia
-from PyFFI.Utils.MathUtils import Vector
 
 def applyScale(self, scale):
     """Apply scale factor <scale> on data."""
@@ -56,4 +55,4 @@ def getMassCenterInertia(self, density = 1, solid = True):
     # so the length of a single edge is dimension.dir * 2
     mass, inertia = Inertia.getMassInertiaSphere(
         self.radius, density = density, solid = solid)
-    return mass, Vector(0,0,0), inertia
+    return mass, (0,0,0), inertia

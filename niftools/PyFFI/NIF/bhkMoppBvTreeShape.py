@@ -45,13 +45,15 @@ def getMassCenterInertia(self, density = 1, solid = True):
 
 def updateOriginScale(self):
     """Update scale and origin."""
-    minx = min(v[0] for v in self.shape.data.vertices)
-    miny = min(v[1] for v in self.shape.data.vertices)
-    minz = min(v[2] for v in self.shape.data.vertices)
-    maxx = max(v[0] for v in self.shape.data.vertices)
-    maxy = max(v[1] for v in self.shape.data.vertices)
-    maxz = max(v[2] for v in self.shape.data.vertices)
-    self.origin = (minx - 0.1, miny - 0.1, minz - 0.1)
+    minx = min(v.x for v in self.shape.data.vertices)
+    miny = min(v.y for v in self.shape.data.vertices)
+    minz = min(v.z for v in self.shape.data.vertices)
+    maxx = max(v.x for v in self.shape.data.vertices)
+    maxy = max(v.y for v in self.shape.data.vertices)
+    maxz = max(v.z for v in self.shape.data.vertices)
+    self.origin.x = minx - 0.1
+    self.origin.y = miny - 0.1
+    self.origin.z = minz - 0.1
     self.scale = (256*256*254) / (0.2+max([maxx-minx,maxy-miny,maxz-minz]))
 
 def updateMopp(self):
@@ -109,12 +111,16 @@ def updateMopp(self):
         self.moppData[i] = b
 
 def _moppCeil(self, v):
-    return tuple(int((v[i] + 0.1 - self.origin[i]) / self._q + 0.99999999)
-                 for i in xrange(3))
+    moppx = int((v.x + 0.1 - self.origin.x) / self._q + 0.99999999)
+    moppy = int((v.y + 0.1 - self.origin.y) / self._q + 0.99999999)
+    moppz = int((v.z + 0.1 - self.origin.z) / self._q + 0.99999999)
+    return [moppx, moppy, moppz]
 
 def _moppFloor(self, v):
-    return tuple(int((v[i] - 0.1 - self.origin[i]) / self._q)
-                 for i in xrange(3))
+    moppx = int((v.x - 0.1 - self.origin.x) / self._q)
+    moppy = int((v.y - 0.1 - self.origin.y) / self._q)
+    moppz = int((v.z - 0.1 - self.origin.z) / self._q)
+    return [moppx, moppy, moppz]
 
 def splitTriangles(self, ts, bbox, dir=0):
     """Direction 0=X, 1=Y, 2=Z"""

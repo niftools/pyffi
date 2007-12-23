@@ -1,8 +1,8 @@
 """Custom functions for NiGeometry.
 
 >>> from PyFFI.NIF import NifFormat
->>> from PyFFI.Utils.MathUtils import LMatrix
->>> id44 = LMatrix.getIdentity(4, 4, affine = True)
+>>> id44 = NifFormat.Matrix44()
+>>> id44.setIdentity()
 >>> skelroot = NifFormat.NiNode()
 >>> skelroot.name = 'skelroot'
 >>> skelroot.setTransform(id44)
@@ -93,8 +93,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENSE BLOCK *****
-
-from PyFFI.Utils.MathUtils import Vector
 
 def isSkin(self):
     """Returns True if geometry is skinned."""
@@ -226,6 +224,9 @@ def mergeSkeletonRoots(self):
     skininst = self.skinInstance
     skelroot = skininst.skeletonRoot
 
+    id44 = self.cls.Matrix44()
+    id44.setIdentity()
+
     # look for geometries are in this skeleton root's tree
     # that have a different skeleton root
     # and that share bones with this geometry
@@ -235,8 +236,7 @@ def mergeSkeletonRoots(self):
     geomroots = {}
     for geom in geoms:
         # check transforms
-        if (not geom.skinInstance.data.getTransform().isIdentity()) \
-            or (not geom.getTransform(geom.skinInstance.skeletonRoot).isIdentity()):
+        if geom.skinInstance.data.getTransform() != id44 or geom.getTransform(geom.skinInstance.skeletonRoot)!= id44:
             failed.append(geom)
             continue # skip this one
         # find geometry root block
@@ -277,8 +277,8 @@ def getSkinDeformation(self):
     skindata = skininst.data
     skelroot = skininst.skeletonRoot
 
-    vertices = [ Vector(0, 0, 0) for i in xrange(self.data.numVertices) ]
-    normals = [ Vector(0, 0, 0) for i in xrange(self.data.numVertices) ]
+    vertices = [ self.cls.Vector3() for i in xrange(self.data.numVertices) ]
+    normals = [ self.cls.Vector3() for i in xrange(self.data.numVertices) ]
     sumweights = [ 0.0 for i in xrange(self.data.numVertices) ]
     skin_offset = skindata.getTransform()
     for i, bone_block in enumerate(skininst.bones):
@@ -286,8 +286,7 @@ def getSkinDeformation(self):
         bone_offset = bonedata.getTransform()
         bone_matrix = bone_block.getTransform(skelroot)
         transform = bone_offset * bone_matrix * skin_offset
-        scale, rotation = transform.getScaleRotation()
-        translation = transform.getTranslation()
+        scale, rotation, translation = transform.getScaleRotationTranslation()
         for skinweight in bonedata.vertexWeights:
             index = skinweight.index
             weight = skinweight.weight
@@ -318,10 +317,9 @@ def sendBonesToBindPosition(self):
     for i, parent_bone in enumerate(skininst.bones):
         parent_offset = skindata.boneList[i].getTransform()
         # if parent_bone is a child of the skeleton root, then fix its
-        # transform
+        # transfrom
         if parent_bone in skelroot.children:
-            parent_bone.setTransform(
-                parent_offset.getInverse() * self.getTransform(skelroot))
+            parent_bone.setTransform(parent_offset.getInverse() * self.getTransform(skelroot))
         # fix the transform of all its the children
         for j, child_bone in enumerate(skininst.bones):
             if child_bone not in parent_bone.children: continue
@@ -335,10 +333,10 @@ def sendBonesToBindPosition(self):
 def updateBindPosition(self):
     """Make current position of the bones the bind position for this geometry.
 
-    Sets the NiSkinData overall transform to the inverse of the geometry
-    transform relative to the skeleton root, and sets the NiSkinData of each
-    bone to the geometry transform relative to the skeleton root times the
-    inverse of the bone transform relative to the skeleton root."""
+    Sets the NiSkinData overall transform to the inverse of the geometry transform
+    relative to the skeleton root, and sets the NiSkinData of each bone to
+    the geometry transform relative to the skeleton root times the inverse of the bone
+    transform relative to the skeleton root."""
     if not self.isSkin(): return
 
     # validate skin and set up quick links

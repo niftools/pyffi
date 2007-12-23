@@ -1,8 +1,6 @@
-# --------------------------------------------------------------------------
-# NifFormat.SkinData
-# Custom functions for SkinData.
-# --------------------------------------------------------------------------
-# ***** BEGIN LICENCE BLOCK *****
+"""Custom functions for Vector4."""
+
+# ***** BEGIN LICENSE BLOCK *****
 #
 # Copyright (c) 2007, NIF File Format Library and Tools.
 # All rights reserved.
@@ -37,31 +35,44 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-# ***** END LICENSE BLOCK *****
-# --------------------------------------------------------------------------
+# ***** END LICENCE BLOCK *****
 
-def getTransform(self):
-    """Return scale, rotation, and translation into a single 4x4 matrix."""
-    m = self.cls.Matrix44()
-    m.setScaleRotationTranslation(self.scale, self.rotation, self.translation)
-    return m
+from types import NoneType
 
-def setTransform(self, m):
-    """Set rotation, transform, and velocity."""
-    scale, rotation, translation = m.getScaleRotationTranslation()
+def asList(self):
+    return [self.x, self.y, self.z, self.w]
 
-    self.scale = scale
-    
-    self.rotation.m11 = rotation.m11
-    self.rotation.m12 = rotation.m12
-    self.rotation.m13 = rotation.m13
-    self.rotation.m21 = rotation.m21
-    self.rotation.m22 = rotation.m22
-    self.rotation.m23 = rotation.m23
-    self.rotation.m31 = rotation.m31
-    self.rotation.m32 = rotation.m32
-    self.rotation.m33 = rotation.m33
-    
-    self.translation.x = translation.x
-    self.translation.y = translation.y
-    self.translation.z = translation.z
+def asTuple(self):
+    return (self.x, self.y, self.z, self.w)
+
+def getCopy(self):
+    v = self.cls.Vector4()
+    v.x = self.x
+    v.y = self.y
+    v.z = self.z
+    v.w = self.w
+    return v
+
+def getVector3(self):
+    v = self.cls.Vector3()
+    v.x = self.x
+    v.y = self.y
+    v.z = self.z
+    return v
+
+def __str__(self):
+    return "[ %6.3f %6.3f %6.3f %6.3f ]"%(self.x, self.y, self.z, self.w)
+
+def __eq__(self, x):
+    if isinstance(rhs, NoneType):
+        return False
+    if not isinstance(rhs, self.cls.Vector4):
+        raise TypeError("do not know how to compare Vector4 and %s"%x.__class__)
+    if abs(self.x - rhs.x) > self.cls._EPSILON: return False
+    if abs(self.y - rhs.y) > self.cls._EPSILON: return False
+    if abs(self.z - rhs.z) > self.cls._EPSILON: return False
+    if abs(self.w - rhs.w) > self.cls._EPSILON: return False
+    return True
+
+def __ne__(self, rhs):
+    return not self.__eq__(rhs)

@@ -37,7 +37,7 @@
 #
 # ***** END LICENCE BLOCK *****
 
-import operator
+from PyFFI.Utils.MathUtils import *
 
 def getMassCenterInertia(self, density = 1, solid = True):
     """Return center of gravity and area."""
@@ -45,10 +45,10 @@ def getMassCenterInertia(self, density = 1, solid = True):
                                                     solid = solid)
                       for subshape in self.subShapes ]
     total_mass = sum(mass for mass, center, inertia in subshapes_mci)
-    total_center = reduce(operator.add,
-                          ( center * (mass / total_mass)
+    total_center = reduce(vecAdd,
+                          ( vecscalarMul(center, mass / total_mass)
                             for mass, center, inertia in subshapes_mci ))
-    total_inertia = reduce(operator.add,
+    total_inertia = reduce(matAdd,
                            ( inertia
                              for mass, center, inertia in subshapes_mci ))
     return total_mass, total_center, total_inertia

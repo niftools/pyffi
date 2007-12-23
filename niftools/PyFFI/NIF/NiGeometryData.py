@@ -44,37 +44,45 @@ def updateCenterRadius(self):
     """Recalculate center and radius of the data."""
     # in case there are no vertices, set center and radius to zero
     if len(self.vertices) == 0:
-        self.center = (0, 0, 0)
+        self.center.x = 0.0
+        self.center.y = 0.0
+        self.center.z = 0.0
         self.radius = 0.0
         return
 
     # find extreme values in x, y, and z direction
-    lowx = min(v[0] for v in self.vertices)
-    lowy = min(v[1] for v in self.vertices)
-    lowz = min(v[2] for v in self.vertices)
-    highx = max(v[0] for v in self.vertices)
-    highy = max(v[1] for v in self.vertices)
-    highz = max(v[2] for v in self.vertices)
+    lowx = min([v.x for v in self.vertices])
+    lowy = min([v.y for v in self.vertices])
+    lowz = min([v.z for v in self.vertices])
+    highx = max([v.x for v in self.vertices])
+    highy = max([v.y for v in self.vertices])
+    highz = max([v.z for v in self.vertices])
 
     # center is in the center of the bounding box
     cx = (lowx + highx) * 0.5
     cy = (lowy + highy) * 0.5
     cz = (lowz + highz) * 0.5
-    self.center = (cx, cy, cz)
+    self.center.x = cx
+    self.center.y = cy
+    self.center.z = cz
 
     # radius is the largest distance from the center
     r2 = 0.0
     for v in self.vertices:
-        dx = cx - v[0]
-        dy = cy - v[1]
-        dz = cz - v[2]
+        dx = cx - v.x
+        dy = cy - v.y
+        dz = cz - v.z
         r2 = max(r2, dx*dx+dy*dy+dz*dz)
     self.radius = r2 ** 0.5
 
 def applyScale(self, scale):
     """Apply scale factor on data."""
     if abs(scale - 1.0) < self.cls._EPSILON: return
-    for i in xrange(len(self.vertices)):
-        self.vertices[i] *= scale
-    self.center *= scale
+    for v in self.vertices:
+        v.x *= scale
+        v.y *= scale
+        v.z *= scale
+    self.center.x *= scale
+    self.center.y *= scale
+    self.center.z *= scale
     self.radius *= scale

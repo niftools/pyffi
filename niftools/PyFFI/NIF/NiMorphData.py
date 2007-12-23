@@ -40,5 +40,7 @@
 def applyScale(self, scale):
     """Apply scale factor on data."""
     for morph in self.morphs:
-        for i in xrange(len(morph.vectors)):
-            morph.vectors[i] *= scale
+        for v in morph.vectors:
+            v.x *= scale
+            v.y *= scale
+            v.z *= scale

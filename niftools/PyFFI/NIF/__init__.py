@@ -25,15 +25,16 @@ test
 Create a NIF model from scratch and write to file
 -------------------------------------------------
 
->>> from PyFFI.Utils.MathUtils import LMatrix
 >>> root = NifFormat.NiNode()
 >>> root.name = 'Scene Root'
 >>> blk = NifFormat.NiNode()
 >>> root.addChild(blk)
 >>> blk.name = 'new block'
 >>> blk.scale = 2.4
->>> blk.translation = (3.9, 0, 0)
->>> blk.rotation = LMatrix.getIdentity(3, 3)
+>>> blk.translation.x = 3.9
+>>> blk.rotation.m11 = 1.0
+>>> blk.rotation.m22 = 1.0
+>>> blk.rotation.m33 = 1.0
 >>> ctrl = NifFormat.NiVisController()
 >>> ctrl.flags = 0x000c
 >>> ctrl.target = blk
@@ -42,14 +43,18 @@ Create a NIF model from scratch and write to file
 >>> strips = NifFormat.NiTriStrips()
 >>> root.addChild(strips, front = True)
 >>> strips.name = "hello world"
->>> strips.rotation = LMatrix.getIdentity(3, 3)
+>>> strips.rotation.m11 = 1.0
+>>> strips.rotation.m22 = 1.0
+>>> strips.rotation.m33 = 1.0
 >>> data = NifFormat.NiTriStripsData()
 >>> strips.data = data
 >>> data.numVertices = 5
 >>> data.hasVertices = True
 >>> data.vertices.updateSize()
->>> for i in xrange(data.numVertices):
-...     data.vertices[i] = (1.0+i/10.0, 0.2+1.0/(i+1), 0.03)
+>>> for i, v in enumerate(data.vertices):
+...     v.x = 1.0+i/10.0
+...     v.y = 0.2+1.0/(i+1)
+...     v.z = 0.03
 >>> data.updateCenterRadius()
 >>> data.numStrips = 2
 >>> data.stripLengths.updateSize()
@@ -72,8 +77,10 @@ Create a NIF model from scratch and write to file
 ...     v.v = 1.0/(i+1)
 >>> data.hasNormals = True
 >>> data.normals.updateSize()
->>> for i in xrange(data.numVertices):
-...     data.normals[i] = (0, 0, 1)
+>>> for i, v in enumerate(data.normals):
+...     v.x = 0.0
+...     v.y = 0.0
+...     v.z = 1.0
 >>> strips.updateTangentSpace()
 >>> from tempfile import TemporaryFile
 >>> f = TemporaryFile()
@@ -196,6 +203,115 @@ Strings
 >>> extra.textKeys[1].value = "end"
 >>> extra.getStrings()
 ['start', 'end']
+
+Mathematics
+-----------
+
+>>> m = NifFormat.Matrix44()
+>>> m.setIdentity()
+>>> print m
+[  1.000  0.000  0.000  0.000 ]
+[  0.000  1.000  0.000  0.000 ]
+[  0.000  0.000  1.000  0.000 ]
+[  0.000  0.000  0.000  1.000 ]
+<BLANKLINE>
+>>> s, r, t = m.getScaleRotationTranslation()
+>>> print s
+1.0
+>>> print r
+[  1.000  0.000  0.000 ]
+[  0.000  1.000  0.000 ]
+[  0.000  0.000  1.000 ]
+<BLANKLINE>
+>>> print t
+[  0.000  0.000  0.000 ]
+>>> m.getMatrix33().isScaleRotation()
+True
+>>> m.m21 = 2.0
+>>> m.getMatrix33().isScaleRotation()
+False
+>>> m = NifFormat.Matrix33()
+>>> m.m11 = -0.434308
+>>> m.m12 =  0.893095
+>>> m.m13 = -0.117294
+>>> m.m21 = -0.451770
+>>> m.m22 = -0.103314
+>>> m.m23 =  0.886132
+>>> m.m31 =  0.779282
+>>> m.m32 =  0.437844
+>>> m.m33 =  0.448343
+>>> m == m
+True
+>>> m != m
+False
+>>> print "%.4f"%m.getDeterminant()
+1.0000
+>>> m.isRotation()
+True
+>>> print m.getTranspose()
+[ -0.434 -0.452  0.779 ]
+[  0.893 -0.103  0.438 ]
+[ -0.117  0.886  0.448 ]
+<BLANKLINE>
+>>> m.getInverse() == m.getTranspose()
+True
+>>> m *= 0.321
+>>> print "%.5f"%m.getScale()
+0.32100
+>>> s, r = m.getInverse().getScaleRotation()
+>>> print "%.5f"%s
+3.11526
+>>> abs(0.321 - 1/s) < NifFormat._EPSILON
+True
+>>> print r # same as print m.getTranspose() above
+[ -0.434 -0.452  0.779 ]
+[  0.893 -0.103  0.438 ]
+[ -0.117  0.886  0.448 ]
+<BLANKLINE>
+>>> abs(m.getDeterminant() - 0.321 ** 3) < NifFormat._EPSILON
+True
+>>> m *= -2
+>>> print m
+[  0.279 -0.573  0.075 ]
+[  0.290  0.066 -0.569 ]
+[ -0.500 -0.281 -0.288 ]
+<BLANKLINE>
+>>> print "%.5f"%m.getScale()
+-0.64200
+>>> abs(m.getDeterminant() + 0.642 ** 3) < NifFormat._EPSILON
+True
+>>> n = NifFormat.Matrix44()
+>>> n.setIdentity()
+>>> n.setMatrix33(m)
+>>> t = NifFormat.Vector3()
+>>> t.x = 1.2
+>>> t.y = 3.4
+>>> t.z = 5.6
+>>> n.setTranslation(t)
+>>> print n
+[  0.279 -0.573  0.075  0.000 ]
+[  0.290  0.066 -0.569  0.000 ]
+[ -0.500 -0.281 -0.288  0.000 ]
+[  1.200  3.400  5.600  1.000 ]
+<BLANKLINE>
+>>> n == n
+True
+>>> n != n
+False
+>>> print n.getInverse()
+[  0.676  0.704 -1.214  0.000 ]
+[ -1.391  0.161 -0.682  0.000 ]
+[  0.183 -1.380 -0.698  0.000 ]
+[  2.895  6.338  7.686  1.000 ]
+<BLANKLINE>
+>>> print n.getInverse(fast = False) + 0.000001 # workaround for -0.000
+[  0.676  0.704 -1.214  0.000 ]
+[ -1.391  0.161 -0.682  0.000 ]
+[  0.183 -1.380 -0.698  0.000 ]
+[  2.895  6.338  7.686  1.000 ]
+<BLANKLINE>
+>>> (n * n.getInverse()).isIdentity()
+True
 """
 
 # ***** BEGIN LICENSE BLOCK *****
@@ -753,71 +869,6 @@ class NifFormat(object):
             size1 = len(self._value[0]) if self._value else 0
             size2 = len(self._value)
             return "< %ix%i Bytes >" % (size2, size1)
-
-    class Vector3(Common.VectorBase):
-        _type = Utils.MathUtils.Vector
-
-    class Vector4(Common.VectorBase):
-        _dim = 4
-        _type = Utils.MathUtils.Vector
-
-    class Matrix33(Common.MatrixBase):
-        _type = Utils.MathUtils.LMatrix
-        _transpose = True
-
-    class Matrix44(Common.MatrixBase):
-        _dim_n = 4
-        _dim_m = 4
-        _type = Utils.MathUtils.LMatrix
-        _transpose = True
-        _kwargs = { "affine" : True }
-
-    class TMatrix44(Common.MatrixBase):
-        _dim_n = 4
-        _dim_m = 4
-        _type = Utils.MathUtils.LMatrix
-        _kwargs = { "affine" : True }
-
-    class InertiaMatrix(Common.MatrixBase):
-        _dim_n = 3
-        _dim_m = 3
-        _type = Utils.MathUtils.LRMatrix
-        
-        def read(self, stream, **kwargs):
-            """Read inertia matrix from stream."""
-            mat = []
-            mat.append(struct.unpack("<fff", stream.read(12)))
-            assert(stream.read(4) == "\x00\x00\x00\x00")
-            mat.append(struct.unpack("<fff", stream.read(12)))
-            assert(stream.read(4) == "\x00\x00\x00\x00")
-            mat.append(struct.unpack("<fff", stream.read(12)))
-            assert(stream.read(4) == "\x00\x00\x00\x00")
-            self._value = self._type(*mat, **self._kwargs)
-
-        def write(self, stream, **kwargs):
-            """Write matrix to stream."""
-            for row in self._value:
-                stream.write(struct.pack("<fff", *row))
-                stream.write("\x00\x00\x00\x00")
- 
-        def getSize(self, **kwargs):
-            """Return size of this type."""
-            return 48
-
-    class QuaternionXYZW(Common.VectorBase):
-        _dim = 4
-        _type = Utils.MathUtils.Quat
-
-    class Quaternion(QuaternionXYZW):
-        def read(self, stream, **kwargs):
-            """Read quaternion from stream."""
-            w, x, y, z = struct.unpack("<ffff", stream.read(16))
-            self._value = self._type(x, y, z, w)
-
-        def write(self, stream, **kwargs):
-            """Write quaternion to stream."""
-            x, y, z, w = self._value
-            stream.write(struct.pack("<ffff", w, x, y, z))
 
     # exceptions
     class NifError(StandardError):

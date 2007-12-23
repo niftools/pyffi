@@ -39,7 +39,6 @@
 
 import struct
 from PyFFI.Utils import TriStrip
-from PyFFI.Utils.MathUtils import Vector
 
 def updateTangentSpace(self):
     """Recalculate tangent space data."""
@@ -62,8 +61,8 @@ def updateTangentSpace(self):
     bin = []
     tan = []
     for i in xrange(self.data.numVertices):
-        bin.append(Vector(0,0,0))
-        tan.append(Vector(0,0,0))
+        bin.append(self.cls.Vector3())
+        tan.append(self.cls.Vector3())
 
     # calculate tangents and binormals from vertex and texture coordinates
     for t1, t2, t3 in self.data.getTriangles():
@@ -88,54 +87,62 @@ def updateTangentSpace(self):
         r_sign = (1 if r >= 0 else -1)
 
         # contribution of this triangle to tangents and binormals
-        sdir = Vector(
-            w3w1.v * v2v1[0] - w2w1.v * v3v1[0],
-            w3w1.v * v2v1[1] - w2w1.v * v3v1[1],
-            w3w1.v * v2v1[2] - w2w1.v * v3v1[2])
+        sdir = self.cls.Vector3()
+        sdir.x = w3w1.v * v2v1.x - w2w1.v * v3v1.x
+        sdir.y = w3w1.v * v2v1.y - w2w1.v * v3v1.y
+        sdir.z = w3w1.v * v2v1.z - w2w1.v * v3v1.z
         sdir *= r_sign
         try:
-            sdir = sdir.getNormalized()
-        except (ZeroDivisionError, ValueError):
-            # catches zero vector or invalid data
+            sdir.normalize()
+        except ZeroDivisionError: # catches zero vector
+            continue # skip triangle
+        except ValueError: # catches invalid data
             continue # skip triangle
 
-        tdir = Vector(
-            w2w1.u * v3v1[0] - w3w1.u * v2v1[0],
-            w2w1.u * v3v1[1] - w3w1.u * v2v1[1],
-            w2w1.u * v3v1[2] - w3w1.u * v2v1[2])
+        tdir = self.cls.Vector3()
+        tdir.x = w2w1.u * v3v1.x - w3w1.u * v2v1.x
+        tdir.y = w2w1.u * v3v1.y - w3w1.u * v2v1.y
+        tdir.z = w2w1.u * v3v1.z - w3w1.u * v2v1.z
         tdir *= r_sign
         try:
-            tdir = tdir.getNormalized()
-        except (ZeroDivisionError, ValueError):
-            # catches zero vector or invalid data
+            tdir.normalize()
+        except ZeroDivisionError: # catches zero vector
+            continue # skip triangle
+        except ValueError: # catches invalid data
             continue # skip triangle
 
         # vector combination algorithm could possibly be improved
-        for i in (t1, t2, t3):
+        for i in [t1, t2, t3]:
             tan[i] += tdir
             bin[i] += sdir
 
-    xvec = Vector(1, 0, 0)
-    yvec = Vector(0, 1, 0)
+    xvec = self.cls.Vector3()
+    xvec.x = 1.0
+    xvec.y = 0.0
+    xvec.z = 0.0
+    yvec = self.cls.Vector3()
+    yvec.x = 0.0
+    yvec.y = 1.0
+    yvec.z = 0.0
     for i in xrange(self.data.numVertices):
         n = norms[i]
         try:
             # turn n, bin, tan into a base via Gram-Schmidt
             bin[i] -= n * (n * bin[i])
-            bin[i] = bin[i].getNormalized()
+            bin[i].normalize()
             tan[i] -= n * (n * tan[i])
             tan[i] -= bin[i] * (bin[i] * tan[i])
-            tan[i] = tan[i].getNormalized()
-        except (ZeroDivisionError, ValueError):
+            tan[i].normalize()
+        except ZeroDivisionError:
             # insuffient data to set tangent space for this vertex
             # in that case pick a space
-            bin[i] = xvec.crossProduct(n)
+            bin[i] = xvec.crossproduct(n)
             try:
-                bin[i] = bin[i].getNormalized()
-            except (ZeroDivisionError, ValueError):
-                bin[i] = yvec.crossProduct(n)
-                bin[i] = bin[i].getNormalized() # should work now
-            tan[i] = n.crossProduct(bin[i])
+                bin[i].normalize()
+            except ZeroDivisionError:
+                bin[i] = yvec.crossproduct(n)
+                bin[i].normalize() # should work now
+            tan[i] = n.crossproduct(bin[i])
 
     # if tangent space extra data already exists, use it
     for block in self.getRefs():
@@ -151,7 +158,7 @@ def updateTangentSpace(self):
     # write the data
     binarydata = ""
     for v in tan + bin:
-        binarydata += struct.pack('<fff', *v)
+        binarydata += struct.pack('<fff', v.x, v.y, v.z)
     block.binaryData = binarydata
 
 # ported from nifskope/skeleton.cpp:spSkinPartition
@@ -516,15 +523,15 @@ def updateSkinCenterRadius(self):
                      for skinweight in skindatablock.vertexWeights]
 
         # find bounding box of these vertices
-        low = Vector(
-            min(v[0] for v in boneverts),
-            min(v[1] for v in boneverts),
-            min(v[2] for v in boneverts))
+        low = self.cls.Vector3()
+        low.x = min(v.x for v in boneverts)
+        low.y = min(v.y for v in boneverts)
+        low.z = min(v.z for v in boneverts)
 
-        high = Vector(
-            max(v[0] for v in boneverts),
-            max(v[1] for v in boneverts),
-            max(v[2] for v in boneverts))
+        high = self.cls.Vector3()
+        high.x = max(v.x for v in boneverts)
+        high.y = max(v.y for v in boneverts)
+        high.z = max(v.z for v in boneverts)
 
         # center is in the center of the bounding box
         center = (low + high) * 0.5
@@ -533,12 +540,14 @@ def updateSkinCenterRadius(self):
         r2 = 0.0
         for v in boneverts:
             d = center - v
-            r2 = max(r2, d * d)
+            r2 = max(r2, d.x*d.x+d.y*d.y+d.z*d.z)
         radius = r2 ** 0.5
 
         # transform center in proper coordinates (radius remains unaffected)
         center *= skindatablock.getTransform()
 
         # save data
-        skindatablock.boundingSphereOffset = center
+        skindatablock.boundingSphereOffset.x = center.x
+        skindatablock.boundingSphereOffset.y = center.y
+        skindatablock.boundingSphereOffset.z = center.z
         skindatablock.boundingSphereRadius = radius
