@@ -402,8 +402,9 @@ class CgfFormat(object):
             if not isinstance(block, self._template):
                 # make this raise an exception when all reference errors
                 # are sorted out
-                print('WARNING: expected instance of %s but got instance of %s'
-                      %(self._template, block.__class__))
+                print("""\
+WARNING: expected instance of %s
+         but got instance of %s""" % (self._template, block.__class__))
             self._value = block
 
         def getLinks(self, **kwargs):
