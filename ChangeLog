@@ -4,6 +4,7 @@ Version 0.7.4 (***):
 * support for versions in structs
 * fix in nif xml for a long outstanding issue which caused some nifs with mopp
 shapes to fail
+* updates for controller key types 6, 9, and 10, in cgf xml
 
 Version 0.7.3 (13 Dec 2007):
 * nif: fixed error message when encountering empty block type
