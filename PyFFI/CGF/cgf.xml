@@ -275,7 +275,8 @@ i
         <add name="Time" type="int">Time in ticks.</add>
         <add name="Abs Pos" type="Vector3">Absolute position.</add>
         <add name="Rel Pos" type="Vector3">Relative position.</add>
-        <add name="Rel Quat" type="Quat">Relative Quaternion.</add>
+        <add name="Rel Quat" type="Quat" cond="ARG == 1">Relative Quaternion.</add>
+        <add name="Unknown" type="Vector3" cond="ARG != 1">Unknown.</add>
     </struct>
     
     <struct name="UV">
@@ -586,7 +587,7 @@ i
         <add name="Num Keys" type="uint" />
         <add name="Flags" type="CtrlFlags" ver2="826" />
         <add name="Ctrl Id" type="uint">Unique id based on CRC32 of bone name</add>
-        <add name="Keys" type="Key" arr1="Num Keys" cond="Type == 1" />
+        <add name="Keys" type="Key" arr1="Num Keys" arg="Type" />
     </struct>
 
     <struct name="TimingChunk" inherit="Chunk">
