@@ -7,7 +7,7 @@ import struct
 def bytestovectors(bytes):
     s = ''
     for b in bytes:
-        s += chr(b)
+        s += b
         if len(s) == 12:
             v = NifFormat.Vector3()
             v.x, v.y, v.z = struct.unpack('<fff', s)
@@ -27,10 +27,10 @@ def testBlock(block, **args):
 
     print "found tangent space in block '%s'"%block.name
     # check length
-    if 24*block.data.numVertices != extra.binaryData.dataSize:
-        raise ValueError('tangent space data has invalid size, expected %i bytes but got %i'%(24*block.data.numVertices,extra.binaryData.dataSize))
+    if 24*block.data.numVertices != len(extra.binaryData):
+        raise ValueError('tangent space data has invalid size, expected %i bytes but got %i'%(24*block.data.numVertices, len(extra.binaryData)))
     # copy the tangent space data
-    old_tangentspace = [v for v in bytestovectors(extra.binaryData.data)]
+    old_tangentspace = [v for v in bytestovectors(extra.binaryData)]
     old_tan = old_tangentspace[:block.data.numVertices]
     old_bin = old_tangentspace[block.data.numVertices:]
     # check orthogonality constraint
@@ -52,7 +52,7 @@ def testBlock(block, **args):
     # recalculate the tangent space
     block.updateTangentSpace()
     # copy the tangent space data
-    new_tangentspace = [v for v in bytestovectors(extra.binaryData.data)]
+    new_tangentspace = [v for v in bytestovectors(extra.binaryData)]
     new_tan = new_tangentspace[:block.data.numVertices]
     new_bin = new_tangentspace[block.data.numVertices:]
     # compare the two spaces
