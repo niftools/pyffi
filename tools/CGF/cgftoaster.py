@@ -9,7 +9,7 @@ for file format decoding.
 Unlike validate tests, surgery tests modify the original cgf file.
 
 These three functions in the tester script are called:
-   testChunk(block) - will be called on every chunk in the cgf
+   testChunk(chunk) - will be called on every chunk in the cgf
    testFile(filetype, fileversion, f, chunks, versions)
                     - will be called on every cgf
 Not all of these three functions need to be present.

@@ -6,7 +6,7 @@
 # Unlike validate tests, surgery tests modify the original cgf file.
 #
 # These three functions in the tester script are called:
-#    testChunk(block) - will be called on every chunk in the cgf
+#    testChunk(chunk) - will be called on every chunk in the cgf
 #    testFile(stream, filetype, fileversion, game, chunks, versions)
 #                     - will be called on every cgf
 # Not all of these three functions need to be present.
@@ -48,7 +48,7 @@ def testPath(top, testChunk, testFile, raisereaderror = False, mode = 'rb', verb
     for filetype, fileversion, game, stream, chunks, versions in CgfFormat.walkFile(top, raisereaderror = raisereaderror, verbose = min(1, verbose), mode = mode):
         if testChunk:
             for chunk in chunks:
-                testChunk(block, **kwargs)
+                testChunk(chunk, **kwargs)
         if testFile:
             testFile(
                 stream,
