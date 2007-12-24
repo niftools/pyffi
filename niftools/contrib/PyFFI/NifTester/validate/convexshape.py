@@ -24,6 +24,10 @@ def testBlock(block, **args):
             n.z = n4.z
             d   = n4.w
             if abs(v*n+d) < 0.01: num_intersect += 1
-        if num_intersect < 3:
-            raise ValueError("vertex %s does not intersect with 3 planes")
+        if num_intersect == 0:
+            raise ValueError("vertex %s does not intersect with any plane" % v)
+        elif num_intersect == 1:
+            print("vertex %s only intersects with one plane" % v)
+        elif num_intersect == 2:
+            print("vertex %s only intersects with two planes" % v)
 
