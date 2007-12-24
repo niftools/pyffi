@@ -276,7 +276,9 @@ i
         <add name="Abs Pos" type="Vector3">Absolute position.</add>
         <add name="Rel Pos" type="Vector3">Relative position.</add>
         <add name="Rel Quat" type="Quat" cond="ARG == 1">Relative Quaternion.</add>
-        <add name="Unknown" type="Vector3" cond="ARG != 1">Unknown.</add>
+        <add name="Unknown 1" type="Vector3" cond="ARG == 6">Unknown.</add>
+        <add name="Unknown 1" type="Vector3" cond="ARG == 10">Unknown.</add>
+        <add name="Unknown 2" type="float" arr1="2" cond="ARG == 9">Unknown.</add>
     </struct>
     
     <struct name="UV">
