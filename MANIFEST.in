@@ -1,4 +1,2 @@
 include PyFFI/NIF/nif.xml
 include PyFFI/CGF/cgf.xml
-include PyFFI/NIF/*.py
-include PyFFI/CGF/*.py
