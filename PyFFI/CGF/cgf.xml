@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE fileformat>
-<fileformat version="1.0">
+<fileformat>
     <version num="744">Far Cry, Crysis</version>
 
     <!--
@@ -110,7 +110,7 @@
         <option value="0xCCCC0017" name="Unknown17">Unknown chunk. Used in Crysis.</option>
         <option value="0xCCCC0018" name="Unknown18">Unknown chunk. Used in Crysis.</option>
     </enum>
-i
+
     <enum name="HelperType" type="ubyte">
         <option value="0" name="POINT" />
         <option value="1" name="DUMMY" />

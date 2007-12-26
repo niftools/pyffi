@@ -1,0 +1,48 @@
+<!ELEMENT fileformat (version*, basic+, alias*, enum*, bitstruct*, struct*)>
+
+<!ELEMENT version (#PCDATA)>
+<!ATTLIST version num CDATA #REQUIRED>
+
+<!ELEMENT basic (#PCDATA)>
+<!ATTLIST basic name       CDATA #REQUIRED
+                default    CDATA #IMPLIED
+                istemplate (0|1) "0">
+
+<!ELEMENT alias (#PCDATA)>
+<!ATTLIST alias name    CDATA #REQUIRED 
+                type    CDATA #REQUIRED
+                default CDATA #IMPLIED>
+
+<!ELEMENT enum (#PCDATA | option)*>
+<!ATTLIST enum name    CDATA #REQUIRED
+               type    CDATA #REQUIRED
+               default CDATA #IMPLIED>
+
+<!ELEMENT option (#PCDATA)>
+<!ATTLIST option value CDATA #REQUIRED
+                 name  CDATA #REQUIRED>
+
+<!ELEMENT bitstruct (#PCDATA | bits)*>
+<!ATTLIST bitstruct name CDATA #REQUIRED
+                    type CDATA #REQUIRED>
+
+<!ELEMENT bits (#PCDATA)>
+<!ATTLIST bits name    CDATA #REQUIRED
+               numbits CDATA #REQUIRED>
+
+<!ELEMENT struct (#PCDATA | version | add)*>
+<!ATTLIST struct name    CDATA #REQUIRED
+                 inherit CDATA #IMPLIED>
+
+<!ELEMENT add (#PCDATA)>
+<!ATTLIST add name     CDATA #REQUIRED
+              type     CDATA #REQUIRED
+              arg      CDATA #IMPLIED
+              default  CDATA #IMPLIED
+              ver1     CDATA #IMPLIED
+              ver2     CDATA #IMPLIED
+              arr1     CDATA #IMPLIED
+              arr2     CDATA #IMPLIED
+              cond     CDATA #IMPLIED
+              template CDATA #IMPLIED>
+
