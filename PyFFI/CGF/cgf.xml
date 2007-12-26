@@ -166,25 +166,25 @@ i
     -->
 
     <bitstruct name="TextureMappingFlags" type="ubyte">
-        <add name="No Mipmap" numbits="1" />
+        <bits name="No Mipmap" numbits="1" />
     </bitstruct>
 
     <bitstruct name="MtlFlags" type="uint">
-        <add name="Wire" numbits="1" />
-        <add name="Two Sided" numbits="1" />
-        <add name="Facemap" numbits="1" />
-        <add name="Faceted" numbits="1" />
-        <add name="Additive" numbits="1" />
-        <add name="Substractive" numbits="1" />
-        <add name="Cry Shader" numbits="1" />
-        <add name="Physicalize" numbits="1" />
-        <add name="Additive Decal" numbits="1" />
-        <add name="Use Glossiness" numbits="1" />
+        <bits name="Wire" numbits="1" />
+        <bits name="Two Sided" numbits="1" />
+        <bits name="Facemap" numbits="1" />
+        <bits name="Faceted" numbits="1" />
+        <bits name="Additive" numbits="1" />
+        <bits name="Substractive" numbits="1" />
+        <bits name="Cry Shader" numbits="1" />
+        <bits name="Physicalize" numbits="1" />
+        <bits name="Additive Decal" numbits="1" />
+        <bits name="Use Glossiness" numbits="1" />
     </bitstruct>
 
     <bitstruct name="CtrlFlags" type="uint">
-        <add name="Cycle" numbits="1" />
-        <add name="Loop" numbits="1" />
+        <bits name="Cycle" numbits="1" />
+        <bits name="Loop" numbits="1" />
     </bitstruct>
 
     <!--

@@ -122,6 +122,7 @@ class XmlSaxHandler(object, xml.sax.handler.ContentHandler):
     tagBitStruct = 7
     tagStruct    = 8
     tagAttribute = 9
+    tagBits      = 10
 
     tags = {
     "fileformat" : tagFile,
@@ -132,6 +133,7 @@ class XmlSaxHandler(object, xml.sax.handler.ContentHandler):
     "option" : tagOption,
     "bitstruct" : tagBitStruct,
     "struct" : tagStruct,
+    "bits" : tagBits,
     "add" : tagAttribute }
 
     # for compatibility with niftools
@@ -294,7 +296,7 @@ class XmlSaxHandler(object, xml.sax.handler.ContentHandler):
                 # (classDict["_games"] is updated when reading the characters)
             else:
                 raise XmlError(
-                    "only add tags allowed in struct type declaration")
+                    "only add and version tags allowed in struct type declaration")
         elif self.currentTag == self.tagFile:
             self.pushTag(tag)
             
@@ -408,7 +410,7 @@ but got %s instead"""%name)
 
         elif self.currentTag == self.tagBitStruct:
             self.pushTag(tag)
-            if tag == self.tagAttribute:
+            if tag == self.tagBits:
                 # mandatory parameters
                 attrs_name = self.cls.nameAttribute(attrs["name"])
                 attrs_numbits = int(attrs["numbits"])
@@ -424,7 +426,7 @@ but got %s instead"""%name)
                     attrs_doc])
             else:
                 raise XmlError(
-                    "only add tags allowed in struct type declaration")
+                    "only bits tags allowed in struct type declaration")
             
         else:
             raise XmlError("unhandled tag %s"%name)
