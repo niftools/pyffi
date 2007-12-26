@@ -633,6 +633,12 @@ expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
         table = cls.ChunkTable()
         table.numChunks = len(chunks)
         table.chunkHeaders.updateSize()
+
+        # crysis: write chunk table now
+        if game == "Crysis":
+            hdr.offset = stream.tell()
+            table.write(stream, version = fileversion)
+
         for chunkhdr, chunk, version in zip(table.chunkHeaders,
                                             chunks, versions):
             # write padding bytes to align blocks
@@ -656,8 +662,11 @@ expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
             chunk.write(
                 stream, version = version, block_index_dct = block_index_dct)
 
-        # write chunk table
-        hdr.offset = stream.tell()
+        # write/update chunk table
+        if game == "Crysis":
+            stream.seek(hdr.offset)
+        else:
+            hdr.offset = stream.tell()
         table.write(stream, version = fileversion)
 
         # update header
