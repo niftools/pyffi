@@ -1,9 +1,9 @@
-Version 0.7.4 (***):
+Version 0.7.4 (26 Dec 2007):
+* fix in nif xml for a long outstanding issue which caused some nifs with mopp
+shapes to fail
 * fixed file size check bug in readwrite test for nif and cgf
 * initial read and write support for crysis cgf files
 * support for versions in structs
-* fix in nif xml for a long outstanding issue which caused some nifs with mopp
-shapes to fail
 * updates for controller key types 6, 9, and 10, in cgf xml
 
 Version 0.7.3 (13 Dec 2007):
