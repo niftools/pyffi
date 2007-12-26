@@ -1,2 +1,3 @@
+import checkvcols
 import dump
 
