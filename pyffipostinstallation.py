@@ -89,8 +89,8 @@ else:
         hkeyoptimize = createsubkey(hkeyshell, "Optimize with PyFFI")
         hkeycommand = createsubkey(hkeyoptimize, "command",
                                    _winreg.REG_SZ,
-                                   '"%s" "%s\\Scripts\\nifoptimize.py" "%%1"'
-                                   % (sys.executable, sys.exec_prefix))
+                                   '"%s\\python.exe" "%s\\Scripts\\nifoptimize.py" "%%1"'
+                                   % (sys.exec_prefix, sys.exec_prefix))
     # uninstall
     elif sys.argv[1] == "-remove":
         # get all the keys (this checks whether they exist)
