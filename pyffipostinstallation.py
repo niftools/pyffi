@@ -43,16 +43,17 @@
 
 def createsubkey(key, sub_key, default_type = None, default_value = None):
     """Get the registry sub_key from hkey object key. If not found then the
-    sub_key is created and its default value is set (if not None)."""
+    sub_key is created. If default_type is not None, then the sub_key's default
+    value is set."""
     try:
         # try to open the sub_key
-        hkey = _winreg.OpenKey(key, sub_key)
+        hkey = _winreg.OpenKey(key, sub_key, 0, _winreg.KEY_SET_VALUE)
     except EnvironmentError:
         # opening failed, so create it
         hkey = _winreg.CreateKey(key, sub_key)
-        # set its default value, if applicable
-        if not default_type is None:
-            _winreg.SetValue(hkey, None, default_type, default_value)
+    # set its default value, if applicable
+    if not default_type is None:
+        _winreg.SetValue(hkey, None, default_type, default_value)
     # return the key
     return hkey
 
@@ -89,7 +90,7 @@ else:
         hkeyoptimize = createsubkey(hkeyshell, "Optimize with PyFFI")
         hkeycommand = createsubkey(hkeyoptimize, "command",
                                    _winreg.REG_SZ,
-                                   '"%s\\python.exe" "%s\\Scripts\\nifoptimize.py" "%%1"'
+                                   '"%s\\python.exe" "%s\\Scripts\\nifoptimize.py" --pause "%%1"'
                                    % (sys.exec_prefix, sys.exec_prefix))
     # uninstall
     elif sys.argv[1] == "-remove":
