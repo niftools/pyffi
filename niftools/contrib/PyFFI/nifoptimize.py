@@ -176,6 +176,8 @@ def optimizeTriStrips(block):
 
 def testRoot(root, **args):
     print("checking for duplicate properties")
+    # check which blocks to exclude
+    exclude = args.get("exclude", [])
     # initialize hash maps
     # (each of these dictionaries maps a block hash to an actual block of
     # the given type)
@@ -185,24 +187,27 @@ def testRoot(root, **args):
     alphaProps = {}
     specularProps = {}
     # join duplicate source textures
-    for block in root.tree(block_type = NifFormat.NiTexturingProperty):
-        for tex in ("Base", "Dark", "Detail", "Gloss", "Glow"):
-            if getattr(block, "has%sTexture"%tex):
-                texdesc = getattr(block, "%sTexture"%tex.lower())
-                hashvalue = texdesc.source.getHash()
-                try:
-                    new_texdesc_source = sourceTextures[hashvalue]
-                except KeyError:
-                    sourceTextures[hashvalue] = texdesc.source
-                else:
-                    if texdesc.source != new_texdesc_source:
-                        print("  removing duplicate NiSourceTexture block")
-                        texdesc.source = new_texdesc_source
+    if not "NiSourceTexture" in exclude:
+        for block in root.tree(block_type = NifFormat.NiTexturingProperty):
+            for tex in ("Base", "Dark", "Detail", "Gloss", "Glow"):
+                if getattr(block, "has%sTexture"%tex):
+                    texdesc = getattr(block, "%sTexture"%tex.lower())
+                    hashvalue = texdesc.source.getHash()
+                    try:
+                        new_texdesc_source = sourceTextures[hashvalue]
+                    except KeyError:
+                        sourceTextures[hashvalue] = texdesc.source
+                    else:
+                        if texdesc.source != new_texdesc_source:
+                            print("  removing duplicate NiSourceTexture block")
+                            texdesc.source = new_texdesc_source
+                        
     for block in root.tree(block_type = NifFormat.NiAVObject):
         for i, prop in enumerate(block.properties):
             hashvalue = prop.getHash(ignore_strings = True)
             # join duplicate texturing properties
-            if isinstance(prop, NifFormat.NiTexturingProperty):
+            if isinstance(prop, NifFormat.NiTexturingProperty) \
+               and not "NiTexturingProperty" in exclude:
                 try:
                     new_prop = texturingProps[hashvalue]
                 except KeyError:
@@ -212,7 +217,8 @@ def testRoot(root, **args):
                         print("  removing duplicate NiTexturingProperty block")
                         block.properties[i] = new_prop
             # join duplicate material properties
-            elif isinstance(prop, NifFormat.NiMaterialProperty):
+            elif isinstance(prop, NifFormat.NiMaterialProperty)\
+               and not "NiMaterialProperty" in exclude:
                 try:
                     new_prop = materialProps[hashvalue]
                 except KeyError:
@@ -222,7 +228,8 @@ def testRoot(root, **args):
                         print("  removing duplicate NiMaterialProperty block")
                         block.properties[i] = new_prop
             # join duplicate alpha properties
-            elif isinstance(prop, NifFormat.NiAlphaProperty):
+            elif isinstance(prop, NifFormat.NiAlphaProperty) \
+               and not "NiAlphaProperty" in exclude:
                 try:
                     new_prop = alphaProps[hashvalue]
                 except KeyError:
@@ -232,7 +239,8 @@ def testRoot(root, **args):
                         print("  removing duplicate NiAlphaProperty block")
                         block.properties[i] = new_prop
             # join duplicate specular properties
-            elif isinstance(prop, NifFormat.NiSpecularProperty):
+            elif isinstance(prop, NifFormat.NiSpecularProperty) \
+               and not "NiSpecularProperty" in exclude:
                 try:
                     new_prop = specularProps[hashvalue]
                 except KeyError:
@@ -243,7 +251,11 @@ def testRoot(root, **args):
                         block.properties[i] = new_prop
 
 def testBlock(block, **args):
-    if isinstance(block, NifFormat.NiTriStrips):
+    # check which blocks to exclude
+    exclude = args.get("exclude", [])
+    # optimize block
+    if isinstance(block, NifFormat.NiTriStrips) \
+       and not "NiTriStrips" in exclude:
         optimizeTriStrips(block)
 
 import sys, os
@@ -268,7 +280,13 @@ may destroy them. Make a backup before running this script."""
     parser.add_option("-p", "--pause", dest="pause",
                       action="store_true",
                       help="pause when done")
-    parser.set_defaults(raisetesterror = False, verbose = 1, pause = False)
+    parser.add_option("-x", "--exclude", dest="exclude",
+                      action="append",
+                      help="exclude given block type from optimization \
+(you can exclude multiple block types by specifying this option multiple \
+times)")
+    parser.set_defaults(raisetesterror = False, verbose = 1, pause = False,
+                        exclude = [])
     (options, args) = parser.parse_args()
 
     if len(args) != 1:
@@ -294,7 +312,8 @@ may destroy them. Make a backup of your nif files before running this script.
         testBlock = testBlock, testRoot = testRoot,
         testFile = NifTester.testFileOverwrite,
         raisereaderror = True, mode = "r+b",
-        raisetesterror = options.raisetesterror, verbose = options.verbose)
+        raisetesterror = options.raisetesterror, verbose = options.verbose,
+        exclude = options.exclude)
 
     if options.pause:
         raw_input("Finished.")
