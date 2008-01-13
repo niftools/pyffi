@@ -27,8 +27,8 @@ def testFile(stream, version = None, user_version = None, roots = None, **args):
         stream.seek(0,2)
         f_tmp.seek(0,2)
         if stream.tell() - orig_hdr_size != f_tmp.tell() - tmp_hdr_size:
-            print "original size (excluding header): %i" % stream.tell() - orig_hdr_size
-            print "written size (excluding header):  %i" % f_tmp.tell() - tmp_hdr_size
+            print "original size (excluding header): %i" % (stream.tell() - orig_hdr_size)
+            print "written size (excluding header):  %i" % (f_tmp.tell() - tmp_hdr_size)
             f_tmp.seek(0)
             f_debug = open("debug.nif", "wb")
             f_debug.write(f_tmp.read(-1))
