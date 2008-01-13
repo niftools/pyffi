@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
-"""
-Make hex structure libraries for all nif versions.
+"""Make hex structure libraries for all nif versions.
 
 Installation
 ------------
@@ -74,9 +73,9 @@ def find_templates():
     # occuring in Ref & its subclass Ptr)
     templates = set()
     for cls in NifFormat.xmlStruct:
-        for attrname, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in cls._attributeList:
-            if tmpl != None and tmpl != NoneType and not issubclass(typ, NifFormat.Ref):
-                templates.add(tmpl)
+        for attr in cls._attributeList:
+            if attr.template != None and attr.template != NoneType and not issubclass(attr.type, NifFormat.Ref):
+                templates.add(attr.template)
     return templates
 
 transtable = maketrans('?', '_')
@@ -152,56 +151,70 @@ def write_struct(cls, ver, hsl_types, f, template):
         f.write('struct ' + cls.__name__ + ' {\n')
     else:
         f.write('struct ' + cls.__name__ + '_' + template.__name__ + ' {\n')
-    for attrname, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in cls._attributeList:
-        # is the attribute present in this version?
-        if ver1 and ver1 > ver: continue
-        if ver2 and ver2 < ver: continue
+    #for attrname, typ, default, tmpl, arg, arr1, arr2, cond, ver1, ver2, userver, doc in cls._attributeList:
+    for attr in cls._attributeList:
+        # check version
+        if not (ver is None):
+            if (not (attr.ver1 is None)) and ver < attr.ver1:
+                continue
+            if (not (attr.ver2 is None)) and ver > attr.ver2:
+                continue
+
         s = '  '
+
+        # things that can only be determined at runtime (rt_xxx)
+        rt_type = attr.type if attr.type != NoneType \
+                  else template
+        rt_template = attr.template if attr.template != NoneType \
+                      else template
+
         # get the attribute type name
-        if typ == NoneType: typ = template
         try:
-            s += hsl_types[typ][0]
+            s += hsl_types[rt_type][0]
         except KeyError:
-            if typ in NifFormat.xmlEnum:
-                s += typ.__name__
+            if rt_type in NifFormat.xmlEnum:
+                s += rt_type.__name__
             else: # it's in NifFormat.xmlStruct
-                s += 'struct ' + typ.__name__
+                s += 'struct ' + rt_type.__name__
         # get the attribute template type name
-        if tmpl != None and not issubclass(typ, NifFormat.Ref):
-            if tmpl == NoneType: tmpl = template
+        if (not rt_template is None) and (not issubclass(rt_type, NifFormat.Ref)):
             s += '_'
-            s += tmpl.__name__ # note: basic types are named by their xml name in the template
+            s += rt_template.__name__ # note: basic types are named by their xml name in the template
         # attribute name
-        s = s.ljust(20) + ' ' + sanitize_attrname(attrname)
+        s = s.ljust(20) + ' ' + sanitize_attrname(attr.name)
         # array and conditional arguments
         arr_str = ''
         comments = ''
-        if cond != None:
-            if (str(cond).find('arg') == -1) and (arr2 == None): # catch argument passing and double arrays
-                if cond._op == None or (cond._op == '!=' and cond._right == 0):
-                    arr_str += sanitize_attrname(str(cond._left))
+        if not attr.cond is None:
+            # catch argument passing and double arrays
+            if (str(attr.cond).find('arg') == -1) and (attr.arr2 is None):
+                if attr.cond._op is None or (attr.cond._op == '!=' and attr.cond._right == 0):
+                    arr_str += sanitize_attrname(str(attr.cond._left))
                 else:
-                    comments += ' (' + sanitize_attrname(str(cond)) + ')'
+                    comments += ' (' + sanitize_attrname(str(attr.cond)) + ')'
             else:
-                comments += ' (' + sanitize_attrname(str(cond)) + ')'
-        if arr1 == None:
+                comments += ' (' + sanitize_attrname(str(attr.cond)) + ')'
+        if attr.arr1 is None:
             pass
-        elif arr2 == None:
-            if str(arr1).find('arg') == -1: # catch argument passing
-                if arr_str: arr_str += ' * '
-                arr_str += sanitize_attrname(str(arr1._left))
-                if arr1._op:
-                    comments += ' [' + sanitize_attrname(str(arr1)) + ']'
+        elif attr.arr2 is None:
+            if str(attr.arr1).find('arg') == -1: # catch argument passing
+                if arr_str:
+                    arr_str += ' * '
+                arr_str += sanitize_attrname(str(attr.arr1._left))
+                if attr.arr1._op:
+                    comments += ' [' + sanitize_attrname(str(attr.arr1)) + ']'
             else:
-                if arr_str: arr_str += ' * '
+                if arr_str:
+                    arr_str += ' * '
                 arr_str += '1'
                 comments += ' [arg]'
         else:
             # TODO catch args here too (so far not used anywhere in nif.xml)
-            if arr_str: arr_str += ' * '
-            arr_str += sanitize_attrname(str(arr1._left)) + ' * ' + sanitize_attrname(str(arr2._left))
-            if arr1._op or arr2._op:
-                comments += ' [' + sanitize_attrname(str(arr1)) + ' * ' + sanitize_attrname(str(arr2)) + ']'
+            if arr_str:
+                arr_str += ' * '
+            arr_str += sanitize_attrname(str(attr.arr1._left)) + ' * ' + sanitize_attrname(str(attr.arr2._left))
+            if attr.arr1._op or attr.arr2._op:
+                comments += ' [' + sanitize_attrname(str(attr.arr1)) + ' * ' + sanitize_attrname(str(attr.arr2)) + ']'
         arr_str = '[' + arr_str + ']' if arr_str else ''
         comments = ' //' + comments if comments else ''
         f.write(s + arr_str + ';' + comments + '\n')
