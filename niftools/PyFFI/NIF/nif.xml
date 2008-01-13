@@ -1640,7 +1640,8 @@
         <add name="Phase" type="float">Phase (usually 0.0).</add>
         <add name="Start Time" type="float">Controller start time.</add>
         <add name="Stop Time" type="float">Controller stop time.</add>
-        <add name="Target" type="Ptr" template="NiObjectNET">Controller target (object index of the first controllable ancestor of this object).</add>
+        <add name="Target" type="Ptr" template="NiObjectNET" ver1="3.3.0.13">Controller target (object index of the first controllable ancestor of this object).</add>
+        <add name="Unknown Integer" type="uint" ver2="3.1">Unknown integer.</add>
     </niobject>
     
 
@@ -1992,7 +1993,9 @@
 
     <niobject name="NiMeshPSysData" abstract="0" inherit="NiPSysData" ver1="10.1.0.0">
         Particle meshes data.
-        <add name="Unknown Modifier" type="uint" ver2="20.0.0.4">Unknown. Seems to refer to particle modifiers, however at least one file has a NiNode here.  May indicate that this is really two separate links in different versions or some other problem.  Several files have number of verts here.</add>
+        <add name="Unknown Modifier" type="Ref" template="NiNode" ver2="20.0.0.4">Unknown. Seems to refer to particle modifiers, however at least one file has a NiNode here.  May indicate that this is really two separate links in different versions or some other problem.  Several files have number of verts here.
+
+Version 10.1.0.0: can have a NiNode.</add>
         <add name="Unknown Byte 2" type="byte" ver1="10.2.0.0" ver2="20.0.0.4">Unknown.</add>
         <add name="Num Unknown Links" type="uint" ver1="10.2.0.0" ver2="20.0.0.4">The number of unknown links that follow.</add>
         <add name="Unknown Links" type="uint" arr1="Num Unknown Links" ver1="10.2.0.0" ver2="20.0.0.4">Unknown. Seems to refer to particle modifiers.  Sometimes matches vertices count.</add>
