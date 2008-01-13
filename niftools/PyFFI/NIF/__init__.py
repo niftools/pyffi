@@ -966,6 +966,13 @@ class NifFormat(object):
         if verbose >= 2:
             print hdr
 
+        # list of root blocks
+        # for versions < 3.3.0.13 this list is updated through the
+        # "Top Level Object" string while reading the blocks
+        # for more recent versions, this list is updated at the end when the
+        # footer is read
+        roots = []
+
         # read the blocks
         link_stack = [] # list of indices, as they are added to the stack
         string_list = [ str(s) for s in hdr.strings ]
@@ -973,17 +980,23 @@ class NifFormat(object):
         block_list = [] # records all blocks as read from the nif file in the proper order
         block_num = 0 # the current block numner
 
-        if version < 0x0303000D:
-            # skip 'Top Level Object' block type
-            top_level_str = cls.SizedString()
-            top_level_str.read(stream)
-            top_level_str = str(top_level_str)
-            if not top_level_str == "Top Level Object":
-                raise cls.NifError(
-                    "expected 'Top Level Object' but got '%s' instead"
-                    %top_level_str)
-
         while True:
+            if version < 0x0303000D:
+                # check if this is a 'Top Level Object'
+                pos = stream.tell()
+                top_level_str = cls.SizedString()
+                top_level_str.read(stream)
+                top_level_str = str(top_level_str)
+                if top_level_str == "Top Level Object":
+                    is_root = True
+                else:
+                    is_root = False
+                    stream.seek(pos)
+            else:
+                # signal as no root for now, roots are added when the footer
+                # is read
+                is_root = False
+
             # get block name
             if version >= 0x05000001:
                 if version <= 0x0A01006A:
@@ -1058,10 +1071,14 @@ class NifFormat(object):
                               block.__class__.__name__ ))
                     # skip bytes that were missed
                     stream.seek(hdr.blockSize[block_num] - calculated_size, 1)
+            # add block to roots if flagged as such
+            if is_root:
+                roots.append(block)
             # check if we are done
             block_num += 1
             if version >= 0x0303000D:
-                if block_num >= hdr.numBlocks: break
+                if block_num >= hdr.numBlocks:
+                    break
 
         # read footer
         ftr = cls.Footer()
@@ -1085,14 +1102,11 @@ class NifFormat(object):
         # the link stack should be empty now
         if link_stack:
             raise cls.NifError('not all links have been popped from the stack (bug?)')
-        # return root objects
-        roots = []
+        # add root objects in footer to roots list
         if version >= 0x0303000D:
             for root in ftr.roots:
                 roots.append(root)
-        else:
-            if block_num > 0:
-                roots.append(block_list[0])
+        # return all root objects
         return roots
 
     @classmethod
@@ -1152,11 +1166,12 @@ class NifFormat(object):
             stream,
             version = version, user_version = user_version,
             block_index_dct = block_index_dct)
-        if version < 0x0303000D:
-            s = cls.SizedString()
-            s.setValue("Top Level Object")
-            s.write(stream)
         for block in block_list:
+            # signal top level object if block is a root object
+            if version < 0x0303000D and block in roots:
+                s = cls.SizedString()
+                s.setValue("Top Level Object")
+                s.write(stream)
             if version >= 0x05000001:
                 if version <= 0x0A01006A:
                     # write zero dummy separator
