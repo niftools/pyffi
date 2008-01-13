@@ -2,6 +2,14 @@ Version 0.7.5 (***)
 * bits tag for bitstructs, instead of add tag
 * added a DTD for the 'fileformat' document type, to validate the xml
 * cgf: write the chunk header table at start, for crysis
+* nifoptimize:
+  - new command line option '-p' to pause after run
+  - new command line option '-x' to exclude blocks per type
+* niftoaster: fix reporting of file size difference in readwrite test
+* bug fixed when writing nifs of version < 3.3.0.13
+* support for multiple 'Top Level Object' (roots) for nifs of version < 3.3.0.13
+* various xml fixes
+* post installation script for adding nifoptimize to .nif context menu
 
 Version 0.7.4 (26 Dec 2007):
 * fix in nif xml for a long outstanding issue which caused some nifs with mopp
