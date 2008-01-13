@@ -1172,7 +1172,7 @@ class NifFormat(object):
             if verbose >= 1:
                 print "writing block %i..."%block_index_dct[block]
             if version < 0x0303000D:
-                stream.write(struct.pack('<i', block_index_dct[block])[0])
+                stream.write(struct.pack('<i', block_index_dct[block]))
             # write block
             block.write(
                 stream,
