@@ -10,6 +10,7 @@ Version 0.7.5 (***)
 * support for multiple 'Top Level Object' (roots) for nifs of version < 3.3.0.13
 * various xml fixes
 * post installation script for adding nifoptimize to .nif context menu
+* fixed nifmakehsl.py script
 
 Version 0.7.4 (26 Dec 2007):
 * fix in nif xml for a long outstanding issue which caused some nifs with mopp
