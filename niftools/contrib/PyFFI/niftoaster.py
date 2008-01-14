@@ -17,7 +17,7 @@ Not all of these three functions need to be present."""
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
 #
-# Copyright (c) 2007, NIF File Format Library and Tools.
+# Copyright (c) 2007-2008, NIF File Format Library and Tools.
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
