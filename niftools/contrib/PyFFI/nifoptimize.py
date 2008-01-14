@@ -174,6 +174,13 @@ def optimizeTriStrips(block):
     print "  recalculating tangent space"
     block.updateTangentSpace()
 
+def fixTexturePath(block, **args):
+    if ('\n' in block.fileName) or ('\r' in block.fileName):
+        block.fileName = block.fileName.replace('\n', '\\n')
+        block.fileName = block.fileName.replace('\r', '\\r')
+        print("fixing corrupted file name")
+        print("  %s" % block.fileName)
+
 def testRoot(root, **args):
     print("checking for duplicate properties")
     # check which blocks to exclude
@@ -257,6 +264,9 @@ def testBlock(block, **args):
     if isinstance(block, NifFormat.NiTriStrips) \
        and not "NiTriStrips" in exclude:
         optimizeTriStrips(block)
+    elif isinstance(block, NifFormat.NiSourceTexture) \
+       and not "NiSourceTexture" in exclude:
+        fixTexturePath(block)
 
 import sys, os
 from optparse import OptionParser
