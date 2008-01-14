@@ -27,6 +27,8 @@
     <version num="20.1.0.3">Megami Tensei: Imagine</version>
     <version num="20.2.0.7">Emerge, Empire Earth III</version>    
     <version num="20.2.0.8">Emerge, Empire Earth III</version>
+    <!-- version 20.3.0.2 is found in PFX/fx_muzzle_flash_example.nif -->
+    <version num="20.3.0.2">Emerge</version>
     <version num="20.3.0.3">Emerge</version>
     <version num="20.3.0.6">Emerge</version>
     <version num="20.3.0.9">Warhammer</version>
@@ -694,9 +696,7 @@
         <add name="Forward" type="TEMPLATE">Forward tangent.</add>
         <add name="Backward" type="TEMPLATE">Backward tangent.</add>
     </compound>
-
 -->
-
     <compound name="ShortString" ver1="10.1.0.0" niflibtype="ShortString" nifskopetype="shortstring">
         Another string format, for short strings.  Specific to Bethesda-specific header tags.
         <add name="Length" type="byte">The string length.</add>
@@ -1993,16 +1993,11 @@
 
     <niobject name="NiMeshPSysData" abstract="0" inherit="NiPSysData" ver1="10.1.0.0">
         Particle meshes data.
-        <add name="Unknown Node" type="Ref" template="NiNode" ver2="10.1.0.0">Unknown NiNode.</add>
-        <add name="Unknown Modifier" type="Ref" template="NiPSysModifier" ver1="10.2.0.0" ver2="20.0.0.4">Particle modifier.</add>
-        <add name="Unknown Byte 2" type="byte" ver1="10.2.0.0" ver2="20.0.0.4">Unknown.</add>
-        <add name="Num Unknown Links" type="uint" ver1="10.2.0.0" ver2="20.0.0.4">The number of unknown links that follow.</add>
-        <add name="Unknown Links" type="uint" arr1="Num Unknown Links" ver1="10.2.0.0" ver2="20.0.0.4">Unknown. Seems to refer to particle modifiers.  Sometimes matches vertices count.</add>
-        <add name="Num Vertices 2" type="uint" ver1="20.0.0.5">Repeat of Vertex Count?</add>
-        <add name="Unknown Byte 3" type="byte" default="0" ver1="20.0.0.5">Unknown. 0?</add>
-        <add name="Unknown Int 2" type="uint" default="1" ver1="20.0.0.5">Unknown.  1?</add>
-        <add name="Num Vertices 3" type="uint" ver1="20.0.0.5">Repeat of Vertex Count?</add>
-        <add name="Unknown Link 2" type="Ref" template="NiNode" ver1="10.2.0.0">Links to a NiNode; but this NiNode doesn&#039;t seem to be a mesh?</add>
+        <add name="Num Vertices 2" type="uint" ver1="10.2.0.0">Repeat of Vertex Count?</add>
+        <add name="Unknown Byte 3" type="byte" default="0" ver1="10.2.0.0">Unknown. 0?</add>
+        <add name="Unknown Int 2" type="uint" default="1" ver1="10.2.0.0">Unknown.  1?</add>
+        <add name="Num Vertices 3" type="uint" ver1="10.2.0.0">Repeat of Vertex Count?</add>
+        <add name="Unknown Node" type="Ref" template="NiNode">Unknown NiNode.</add>
     </niobject>
 
     <niobject name="NiBinaryExtraData" abstract="0" inherit="NiExtraData" ver1="10.1.0.0">
