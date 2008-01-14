@@ -63,7 +63,7 @@ def dumpArray(block):
                 if k > 16:
                     text += "etc...\n"
                     break
-                text += "%i, %i: %s\n" % (i, j, dumpAttr(element))
+                text += "%i, %i: %s\n" % (i, j, dumpAttr(elem))
                 k += 1
             if k > 16:
                 break
