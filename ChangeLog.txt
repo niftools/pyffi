@@ -1,16 +1,21 @@
-Version 0.7.5 (***)
-* bits tag for bitstructs, instead of add tag
+Version 0.7.5 (14 Jan 2008)
 * added a DTD for the 'fileformat' document type, to validate the xml
+* bits tag for bitstructs, instead of add tag, to allow validation
 * cgf: write the chunk header table at start, for crysis
 * nifoptimize:
   - new command line option '-p' to pause after run
   - new command line option '-x' to exclude blocks per type
 * niftoaster: fix reporting of file size difference in readwrite test
-* bug fixed when writing nifs of version < 3.3.0.13
-* support for multiple 'Top Level Object' (roots) for nifs of version < 3.3.0.13
+* bug fixed when writing nifs of version <= 3.1
+* support for multiple 'Top Level Object' (roots) for nifs of version <= 3.1
 * various xml fixes
+  - new version 20.3.0.2 from emerge demo
+  - NiMeshPSysData bugfix and simplification
+  - replaced NiTimeController Target with unknown int to cope with invalid
+  pointers in nif versions <= 3.1
 * post installation script for adding nifoptimize to .nif context menu
-* fixed nifmakehsl.py script
+* fixed bug nifmakehsl.py script
+* fixed bug in nifdump.py script
 
 Version 0.7.4 (26 Dec 2007):
 * fix in nif xml for a long outstanding issue which caused some nifs with mopp
