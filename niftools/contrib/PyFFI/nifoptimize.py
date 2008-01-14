@@ -299,7 +299,7 @@ times)")
     print("""This script will modify the nif files, in particular if something goes wrong it
 may destroy them. Make a backup of your nif files before running this script.
 """)
-    if raw_input("Are you sure that you want to proceed? [n/Y] ") != "Y":
+    if not raw_input("Are you sure that you want to proceed? [n/y] ") in ["y", "Y"]:
         if options.pause:
             raw_input("Script aborted by user.")
         else:
