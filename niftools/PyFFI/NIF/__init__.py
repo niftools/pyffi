@@ -922,8 +922,12 @@ class NifFormat(object):
     @classmethod
     def getVersion(cls, stream):
         """Returns version and user version number, if version is supported.
-        Returns -1, 0 if version is not supported.
-        Returns -2, 0 if <stream> is not a nif file.
+
+        @param stream: The stream from which to read, typically a file or a
+            memory stream such as cStringIO.
+        @return: The version and user version of the file.
+            Returns C{(-1, 0)} if a nif file but version not supported.
+            Returns C{(-2, 0)} if not a nif file.
         """
         pos = stream.tell()
         try:
@@ -958,7 +962,18 @@ class NifFormat(object):
         return ver, userver
 
     @classmethod
-    def read(cls, stream, version = None, user_version = None, verbose = 0):
+    def read(cls, stream, version = None, user_version = None,
+             verbose = 0, aslist = False):
+        """Read a nif file.
+
+        @param stream: The stream from which to read, typically a file or a
+            memory stream such as cStringIO.
+        @param version: The version number as obtained by getVersion.
+        @param user_version: The user version number as obtained by getVersion.
+        @param verbose: The level of verbosity.
+        @param aslist: Whether to return the roots of the nif tree. If C{True},
+            then this function returns all blocks as a list, with header
+            first and footer last."""
         # read header
         if verbose >= 1:
             print "reading block at 0x%08X..."%stream.tell()
@@ -1107,11 +1122,17 @@ class NifFormat(object):
         if version >= 0x0303000D:
             for root in ftr.roots:
                 roots.append(root)
-        # return all root objects
-        return roots
+
+        if not aslist:
+            # return all root objects
+            return roots
+        else:
+            # return header, blocks, and footer
+            return [ hdr ] + block_list + [ ftr ]
 
     @classmethod
-    def write(cls, stream, version = None, user_version = None, roots = None, verbose = 0):
+    def write(cls, stream, version = None, user_version = None,
+              roots = None, verbose = 0):
         # set up index and type dictionary
         block_list = [] # list of all blocks to be written
         block_index_dct = {} # maps block to block index
