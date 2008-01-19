@@ -60,7 +60,7 @@ def createsubkey(key, sub_key, default_type = None, default_value = None):
 def createsubkeychain(key, *args, **kwargs):
     """Create a chain of registry keys."""
     default_type = kwargs.get("default_type")
-    default_value = kwargs.get("default_type")
+    default_value = kwargs.get("default_value")
     for sub_key in args[:-1]:
         key = createsubkey(key, sub_key)
     createsubkey(key, args[-1], default_type, default_value)
