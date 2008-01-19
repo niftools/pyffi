@@ -262,7 +262,7 @@ def main():
     view = QtGui.QTreeView()
     model = BaseModel(blocks = blocks)
     view.setModel(model)
-    view.setWindowTitle("QSkope")
+    view.setWindowTitle("QSkope - %s" % filename)
     view.show()
     sys.exit(app.exec_())
 
