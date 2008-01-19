@@ -81,7 +81,10 @@ class BaseModel(QtCore.QAbstractItemModel):
         # get the data for display
         data = index.internalPointer()
         if index.column() == self.COL_NAME:
-            return QtCore.QVariant() # TODO implement naming
+            if isinstance(data._parent, StructBase):
+                return QtCore.QVariant(data._parent._names[data._parent._items.index(data)]) # TODO implement naming
+            else:
+                return QtCore.QVariant()
         elif index.column() == self.COL_TYPE:
             return QtCore.QVariant(data.__class__.__name__)
         elif index.column() == self.COL_VALUE and isinstance(data, BasicBase):
