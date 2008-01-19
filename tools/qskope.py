@@ -216,11 +216,26 @@ class BaseModel(QtCore.QAbstractItemModel):
             row = getIndex(parentData._parent._items, parentData)
         return self.createIndex(row, 0, parentData)
 
-if __name__ == "__main__":
-    import sys
+import sys, os
+from optparse import OptionParser
+
+def main():
     global app, model
 
-    stream = open(sys.argv[1], "rb")
+    # parse options and positional arguments
+    usage = "%prog [options] <file>"
+    description="""Parse and display the file <file>."""
+
+    parser = OptionParser(usage, version="%prog $Rev$", description=description)
+    (options, args) = parser.parse_args()
+
+    if len(args) != 1:
+        parser.error("incorrect number of arguments (one required)")
+
+    # get file
+    file = args[0]
+
+    stream = open(file, "rb")
     version, user_version = NifFormat.getVersion(stream)
     if version >= 0:
         blocks = NifFormat.read(stream, version, user_version,
@@ -241,3 +256,6 @@ if __name__ == "__main__":
     view.setWindowTitle("QSkope")
     view.show()
     sys.exit(app.exec_())
+
+if __name__ == "__main__":
+    main()
