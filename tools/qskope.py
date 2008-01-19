@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 """The qskope script visualizes the structure of PyFFI structures and arrays."""
 
 # ***** BEGIN LICENSE BLOCK *****
