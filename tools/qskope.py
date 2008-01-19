@@ -135,8 +135,10 @@ class BaseModel(QtCore.QAbstractItemModel):
             # parent is valid, so we need to go get the row'th attribute
             # get the parent pointer
             parentData = parent.internalPointer()
-            if isinstance(parentData, (StructBase, Array)):
-                data = parentData._items[row]
+            if isinstance(parentData, (StructBase, Array, _ListWrap)):
+                # TODO fix _ListWrap class so we can write simply
+                # parentData._items[row]
+                data = list.__getitem__(parentData._items, row)
             else:
                 return QtCore.QModelIndex()
         index = self.createIndex(row, column, data)
@@ -144,15 +146,17 @@ class BaseModel(QtCore.QAbstractItemModel):
 
     def parent(self, index):
         data = index.internalPointer()
-        parentData = data._parent
+        try:
+            parentData = data._parent
+        except AttributeError:
+            raise RuntimeError("no parent attribute for data %s of class %s"%(data, data.__class__.__name__))
         if parentData is None:
             return QtCore.QModelIndex()
+        elif parentData._parent is None:
+            row = self.blocks.index(parentData)
         else:
-            if parentData._parent is None:
-                row = self.blocks.index(parentData)
-            else:
-                row = parentData._parent._items.index(parentData)
-            return self.createIndex(row, 0, parentData)
+            row = parentData._parent._items.index(parentData)
+        return self.createIndex(row, 0, parentData)
 
 if __name__ == "__main__":
     import sys
