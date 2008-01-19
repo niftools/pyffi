@@ -57,6 +57,14 @@ def createsubkey(key, sub_key, default_type = None, default_value = None):
     # return the key
     return hkey
 
+def createsubkeychain(key, *args, **kwargs):
+    """Create a chain of registry keys."""
+    default_type = kwargs.get("default_type")
+    default_value = kwargs.get("default_type")
+    for sub_key in args[:-1]:
+        key = createsubkey(key, sub_key)
+    createsubkey(key, args[-1], default_type, default_value)
+
 def getsubkey(key, sub_key):
     """Get the registry sub_key from hkey object key. If not found then returns
     None. If key is None then this function also returns None."""
@@ -83,18 +91,33 @@ else:
         # register the .nif extension
         hkeydotnif = createsubkey(_winreg.HKEY_CLASSES_ROOT, ".nif",
                                   _winreg.REG_SZ, "NetImmerseFile")
-        # add the optimize command to it
+        # register the .cgf extension
+        hkeydotcgf = createsubkey(_winreg.HKEY_CLASSES_ROOT, ".cgf",
+                                  _winreg.REG_SZ, "CrytekGeometryFile")
+        # add the optimize and qskope commands to nif
         hkeynif = createsubkey(_winreg.HKEY_CLASSES_ROOT, "NetImmerseFile",
                                _winreg.REG_SZ, "NetImmerse/Gamebryo File")
-        hkeyshell = createsubkey(hkeynif, "shell")
-        hkeyoptimize = createsubkey(hkeyshell, "Optimize with PyFFI")
-        hkeycommand = createsubkey(hkeyoptimize, "command",
-                                   _winreg.REG_SZ,
-                                   '"%s\\python.exe" "%s\\Scripts\\nifoptimize.py" --pause "%%1"'
-                                   % (sys.exec_prefix, sys.exec_prefix))
+        createsubkeychain(hkeynif, "shell", "Optimize with PyFFI",
+                          "command",
+                          default_type = _winreg.REG_SZ,
+                          default_value = '"%s\\python.exe" "%s\\Scripts\\nifoptimize.py" --pause "%%1"'
+                          % (sys.exec_prefix, sys.exec_prefix))
+        createsubkeychain(hkeynif, "shell", "Open with QSkope",
+                          "command",
+                          default_type = _winreg.REG_SZ,
+                          default_value = '"%s\\python.exe" "%s\\Scripts\\qskope.py" "%%1"'
+                          % (sys.exec_prefix, sys.exec_prefix))
+        # add the qskope commands to cgf
+        hkeycgf = createsubkey(_winreg.HKEY_CLASSES_ROOT, "CrytekGeometryFile",
+                               _winreg.REG_SZ, "Crytek Geometry File")
+        createsubkeychain(hkeycgf, "shell", "Open with QSkope",
+                          "command",
+                          default_type = _winreg.REG_SZ,
+                          default_value = '"%s\\python.exe" "%s\\Scripts\\qskope.py" "%%1"'
+                          % (sys.exec_prefix, sys.exec_prefix))
     # uninstall
     elif sys.argv[1] == "-remove":
-        # get all the keys (this checks whether they exist)
+        # get all the nif keys (this checks whether they exist)
         hkeynif = getsubkey(_winreg.HKEY_CLASSES_ROOT, "NetImmerseFile")
         hkeyshell = getsubkey(hkeynif, "shell")
         hkeyoptimize = getsubkey(hkeyshell, "Optimize with PyFFI")
@@ -104,3 +127,20 @@ else:
             _winreg.DeleteKey(hkeyoptimize, "command")
             hkeyoptimize.Close()
             _winreg.DeleteKey(hkeyshell, "Optimize with PyFFI")            
+        hkeyqskope = getsubkey(hkeyshell, "Open with QSkope")
+        hkeycommand = getsubkey(hkeyqskope, "command")
+        if hkeycommand:
+            hkeycommand.Close()
+            _winreg.DeleteKey(hkeyqskope, "command")
+            hkeyqskope.Close()
+            _winreg.DeleteKey(hkeyshell, "Open with QSkope")            
+        # get all the cgf keys (this checks whether they exist)
+        hkeycgf = getsubkey(_winreg.HKEY_CLASSES_ROOT, "CrytekGeometryFile")
+        hkeyshell = getsubkey(hkeycgf, "shell")
+        hkeyqskope = getsubkey(hkeyshell, "Open with QSkope")
+        hkeycommand = getsubkey(hkeyqskope, "command")
+        if hkeycommand:
+            hkeycommand.Close()
+            _winreg.DeleteKey(hkeyqskope, "command")
+            hkeyqskope.Close()
+            _winreg.DeleteKey(hkeyshell, "Open with QSkope")            
