@@ -499,15 +499,15 @@ WARNING: expected instance of %s
             filetype, fileversion, offset = struct.unpack('<III',
                                                           stream.read(12))
         except StandardError:
-            return -2, 0
+            return -2, 0, ""
         finally:
             stream.seek(pos)
         if signat[:6] != "CryTek":
-            return -2, 0
+            return -2, 0, ""
         if filetype not in [ cls.FileType.GEOM, cls.FileType.ANIM ]:
-            return -1, 0
+            return -1, 0, ""
         if fileversion not in cls.versions.values():
-            return -1, 0
+            return -1, 0, ""
         # quick and lame game check:
         # far cry has chunk table at the end, crysis at the start
         return filetype, fileversion, "Crysis" if offset == 0x14 else "Far Cry"
