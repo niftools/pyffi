@@ -118,6 +118,9 @@ class _MetaStructBase(type):
         # that rely on parsing the attribute list
         cls._attributeList = cls._getAttributeList()
 
+        # precalculate the attribute name list
+        cls._names = cls._getNames()
+
 class StructBase(object):
     """Base class from which all file struct types are derived.
 
@@ -428,6 +431,24 @@ class StructBase(object):
                 pass
         attrs.extend(cls._attrs)
         return attrs
+
+    @classmethod
+    def _getNames(cls):
+        """Calculate the list of all attributes names in this structure.
+        Skips duplicate names."""
+        # string of attributes of base classes of cls
+        names = []
+        for base in cls.__bases__:
+            try:
+                names.extend(base._getNames())
+            except AttributeError: # when base class is "object"
+                pass
+        for attr in cls._attrs:
+            if attr.name in names:
+                continue
+            else:
+                names.append(attr.name)
+        return names
 
     def _filteredAttributeList(self, version = None, user_version = None):
         """Generator for listing all 'active' attributes, that is,
