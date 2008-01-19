@@ -38,8 +38,12 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENCE BLOCK *****
-
-from PyQt4 import QtGui, QtCore
+try:
+    from PyQt4 import QtGui, QtCore
+except ImportError:
+    raw_input("""PyQt4 not found. Please download and install from
+http://www.riverbankcomputing.co.uk/pyqt/download.php""")
+    raise
 
 from PyFFI.Bases.Basic import BasicBase
 from PyFFI.Bases.Struct import StructBase
@@ -249,7 +253,14 @@ def main():
                                               fileversion = fileversion,
                                               game = game)
         else:
-            raise RuntimeError("not a recognized file format")
+            app = QtGui.QApplication(sys.argv)
+            label = QtGui.QLabel('File format of %s not recognized' % filename)
+            label.setAlignment(QtCore.Qt.AlignCenter)
+            label.setMargin(10)
+            label.setWindowTitle("QSkope - Error")
+            label.show()
+            app.exec_()
+            raise RuntimeError('File format of %s not recognized' % filename)
 
     app = QtGui.QApplication(sys.argv)
     view = QtGui.QTreeView()
