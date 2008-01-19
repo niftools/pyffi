@@ -195,8 +195,7 @@ class StructBase(object):
     _games = {}
     
     # initialize all attributes
-    def __init__(self, template = None, argument = None,
-                 row = None, parent = None):
+    def __init__(self, template = None, argument = None, parent = None):
         """The constructor takes a tempate: any attribute whose type,
         or template type, is NoneType - which corresponds to
         TEMPLATE in the xml description - will be replaced by this
@@ -206,7 +205,6 @@ class StructBase(object):
             argument, then this argument describes the template type.
         @param argument: If the class takes a type argument, then
             it is described here.
-        @param row: The row number of this instance within the parent.
         @param parent: The parent of this instance, that is, the instance this
             array is an attribute of."""
         # used to track names of attributes that have already been added
@@ -214,13 +212,12 @@ class StructBase(object):
         names = []
         # initialize argument
         self.arg = argument
-        # save parent and row
+        # save parent
         self._parent = parent
-        self._row = row
-        # initialize attribute row number
-        # the row number is used for instance by qskope to display
-        # the attribute as a tree view
-        attr_row = 0
+        # initialize item list
+        # this list is used for instance by qskope to display the structure
+        # in a tree view
+        self._items = []
         # initialize attributes
         for attr in self._attributeList:
             # skip attributes with dupiclate names
@@ -242,7 +239,7 @@ class StructBase(object):
             if attr.arr1 == None:
                 attr_instance = rt_type(
                     template = rt_template, argument = rt_arg,
-                    row = attr_row, parent = self)
+                    parent = self)
                 if attr.default != None:
                     attr_instance.setValue(attr.default)
             elif attr.arr2 == None:
@@ -251,20 +248,20 @@ class StructBase(object):
                     element_type_template = rt_template,
                     element_type_argument = rt_arg,
                     count1 = attr.arr1,
-                    row = attr_row, parent = self)
+                    parent = self)
             else:
                 attr_instance = Array(
                     element_type = rt_type,
                     element_type_template = rt_template,
                     element_type_argument = rt_arg,
                     count1 = attr.arr1, count2 = attr.arr2,
-                    row = attr_row, parent = self)
+                    parent = self)
 
             # assign attribute value
             setattr(self, "_%s_value_" % attr.name, attr_instance)
 
-            # increment attribute row number
-            attr_row += 1
+            # add instance to item list
+            self._items.append(attr_instance)
 
     # string of all attributes
     def __str__(self):

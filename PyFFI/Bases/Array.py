@@ -44,8 +44,9 @@ from PyFFI.Bases.Basic import BasicBase
 class _ListWrap(list):
     """A wrapper for list, which uses getValue and setValue for
     getting and setting items of the basic type."""
-    def __init__(self, element_type):
-        list.__init__(self)
+    def __init__(self, element_type, parent = None):
+        self._items = self
+        self._parent = parent
         if issubclass(element_type, BasicBase):
             self._getItemHook = self.getBasicItem
             self._setItemHook = self.setBasicItem
@@ -111,7 +112,7 @@ class Array(_ListWrap):
         element_type_template = None,
         element_type_argument = None,
         count1 = None, count2 = None,
-        row = None, parent = None):
+        parent = None):
         """Initialize the array type.
 
         @param element_type: The class describing the type of each element.
@@ -126,12 +127,11 @@ class Array(_ListWrap):
         @param parent: The parent of this instance, that is, the instance this
             array is an attribute of."""
         if count2 is None:
-            _ListWrap.__init__(self, element_type)
+            _ListWrap.__init__(self, element_type = element_type, parent = parent)
         else:
-            _ListWrap.__init__(self, _ListWrap)
+            _ListWrap.__init__(self, element_type = _ListWrap, parent = parent)
         self._elementType = element_type
         self._parent = parent
-        self._row = row
         self._elementTypeTemplate = element_type_template
         self._elementTypeArgument = element_type_argument
         self._count1 = count1
@@ -139,23 +139,21 @@ class Array(_ListWrap):
         
         if self._count2 == None:
             for i in xrange(self._len1()):
-                self.append(
-                    self._elementType(
+                elem_instance = self._elementType(
                         template = self._elementTypeTemplate,
                         argument = self._elementTypeArgument,
-                        row = i, parent = self))
+                        parent = self)
+                self.append(elem_instance)
         else:
-            elem_row = 0
             for i in xrange(self._len1()):
-                elem = _ListWrap(element_type)
+                elem = _ListWrap(element_type = element_type, parent = self)
                 for j in xrange(self._len2(i)):
-                    elem.append(
-                        self._elementType(
+                    elem_instance = self._elementType(
                             template = self._elementTypeTemplate,
                             argument = self._elementTypeArgument,
-                            row = elem_row, parent = self))
+                            parent = elem)
+                    elem.append(elem_instance)
                 self.append(elem)
-                elem_row += 1
 
     def _len1(self):
         """The length the array should have, obtained by evaluating

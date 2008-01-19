@@ -41,7 +41,7 @@ from PyQt4 import QtGui, QtCore
 
 from PyFFI.Bases.Basic import BasicBase
 from PyFFI.Bases.Struct import StructBase
-from PyFFI.Bases.Array import Array
+from PyFFI.Bases.Array import Array, _ListWrap
 
 from PyFFI.NIF import NifFormat
 from PyFFI.CGF import CgfFormat
@@ -62,7 +62,7 @@ class BaseModel(QtCore.QAbstractItemModel):
         # this list stores the blocks in the view
         # is a list of NiObjects for the nif format, and a list of Chunks for
         # the cgf format
-        self.blocks = blocks
+        self.blocks = blocks if not blocks is None else []
 
     def flags(self, index):
         if not index.isValid():
@@ -81,11 +81,11 @@ class BaseModel(QtCore.QAbstractItemModel):
         # get the data for display
         data = index.internalPointer()
         if index.column() == self.COL_NAME:
-            return QtCore.QVariant() #(data._name)
+            return QtCore.QVariant() # TODO implement naming
         elif index.column() == self.COL_TYPE:
             return QtCore.QVariant(data.__class__.__name__)
         elif index.column() == self.COL_VALUE and isinstance(data, BasicBase):
-                return QtCore.QVariant(str(data.getValue()))
+                return QtCore.QVariant(str(data))
         else:
             return QtCore.QVariant()
 
@@ -105,23 +105,24 @@ class BaseModel(QtCore.QAbstractItemModel):
             # top level: one row for each block
             return len(self.blocks)
         else:
-            return 0
-            ## TODO fix this once parenting works
             # get the parent data
             parentData = parent.internalPointer()
-            if isinstance(parentData, StructBase):
-                # one row per attribute
-                return len(parentData._attributeList)
-                # one row per item
-            elif isinstance(parentData, Array):
-                return len(parentData)
+            # struct and array: number of items
+            if isinstance(parentData, (StructBase, Array, _ListWrap)):
+                return len(parentData._items)
+            # basics
+            elif isinstance(parentData, BasicBase):
+                return 0
+            else:
+                raise RuntimeError("bad parent data")
 
     def columnCount(self, parent = QtCore.QModelIndex()):
         return self.NUM_COLUMNS
 
     def index(self, row, column, parent):
         """Create an index to item (row, column) of object parent.
-        Internal pointers consist of the StructBase or Array instance."""
+        Internal pointers consist of the BasicBase, StructBase, or Array
+        instance."""
         # check if we have such index
         if not self.hasIndex(row, column, parent):
             return QtCore.QModelIndex()
@@ -134,26 +135,24 @@ class BaseModel(QtCore.QAbstractItemModel):
             # parent is valid, so we need to go get the row'th attribute
             # get the parent pointer
             parentData = parent.internalPointer()
-            if isinstance(parentData, StructBase):
-                data = getattr(parentData,
-                               "_%s_value_"
-                               % parentData._attributeList[row].name)
-            elif isinstance(parentData, Array):
-                # get the "raw" list item
-                data = list.__getitem__(parentData, row)
+            if isinstance(parentData, (StructBase, Array)):
+                data = parentData._items[row]
+            else:
+                return QtCore.QModelIndex()
         index = self.createIndex(row, column, data)
         return index
 
     def parent(self, index):
-        return QtCore.QModelIndex()
-
-        ## TODO implement _ui functions in BasicBase, StructBase, and Array
         data = index.internalPointer()
-        parentData = data._uiGetParent()
+        parentData = data._parent
         if parentData is None:
             return QtCore.QModelIndex()
         else:
-            return self.createIndex(parentData._uiGetRow(), 0, parentData)
+            if parentData._parent is None:
+                row = self.blocks.index(parentData)
+            else:
+                row = parentData._parent._items.index(parentData)
+            return self.createIndex(row, 0, parentData)
 
 if __name__ == "__main__":
     import sys
