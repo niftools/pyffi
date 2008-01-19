@@ -399,6 +399,7 @@ class NifFormat(object):
         True
         """
         def __init__(self, **kwargs):
+            BasicBase.__init__(self, **kwargs)
             self.setValue(False)
 
         def getValue(self):
@@ -448,8 +449,9 @@ class NifFormat(object):
         _isTemplate = True
         _hasLinks = True
         _hasRefs = True
-        def __init__(self, template = None, **kwargs):
-            self._template = template
+        def __init__(self, **kwargs):
+            BasicBase.__init__(self, **kwargs)
+            self._template = kwargs.get("template")
             self.setValue(None)
 
         def getValue(self):
@@ -560,7 +562,8 @@ class NifFormat(object):
         >>> str(m)
         'Hi There'
         """
-        def __init__(self, template = None, argument = None):
+        def __init__(self, **kwargs):
+            BasicBase.__init__(self, **kwargs)
             self.setValue('')
 
         def getValue(self):
@@ -587,9 +590,6 @@ class NifFormat(object):
             stream.write("%s\x0a"%self._value)
 
     class HeaderString(BasicBase):
-        def __init__(self, **kwargs):
-            pass
-
         def __str__(self):
             return 'NetImmerse/Gamebryo File Format, Version x.x.x.x'
 
@@ -636,9 +636,6 @@ class NifFormat(object):
             return "%s File Format, Version %s"%(s, v)
 
     class FileVersion(BasicBase):
-        def __init__(self, **kwargs):
-            pass
-
         def getValue(self):
             raise NotImplementedError
 
@@ -683,6 +680,7 @@ class NifFormat(object):
         'Hi There'
         """
         def __init__(self, **kwargs):
+            BasicBase.__init__(self, **kwargs)            
             self.setValue('')
 
         def getValue(self):
@@ -715,6 +713,7 @@ class NifFormat(object):
     class ShortString(BasicBase):
         """Another type for strings."""
         def __init__(self, **kwargs):
+            BasicBase.__init__(self, **kwargs)
             self._value = ''
 
         def getValue(self):
@@ -801,6 +800,7 @@ class NifFormat(object):
     # and also to prevent data to be dumped
     class ByteArray(BasicBase):
         def __init__(self, **kwargs):
+            BasicBase.__init__(self, **kwargs)
             self.setValue("")
 
         def getValue(self):
@@ -831,6 +831,7 @@ class NifFormat(object):
     # and also to prevent data to be dumped
     class ByteMatrix(BasicBase):
         def __init__(self, **kwargs):
+            BasicBase.__init__(self, **kwargs)
             self.setValue([])
 
         def getValue(self):
