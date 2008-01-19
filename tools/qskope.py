@@ -67,8 +67,8 @@ class BaseModel(QtCore.QAbstractItemModel):
     """General purpose model for access to data loaded with PyFFI."""
     # column definitions
     NUM_COLUMNS = 3
-    COL_TYPE  = 0
-    COL_NAME  = 1
+    COL_NAME  = 0
+    COL_TYPE  = 1
     COL_VALUE = 2
 
     def __init__(self, parent = None, blocks = None):
@@ -106,20 +106,16 @@ class BaseModel(QtCore.QAbstractItemModel):
             elif isinstance(data._parent, _ListWrap):
                 return QtCore.QVariant(
                     "[%i]" % getIndex(data._parent._items, data))
+            # top level objects
+            elif data._parent is None:
+                return QtCore.QVariant(
+                    "[%i]" % getIndex(self.blocks, data))
             else:
                 return QtCore.QVariant()
 
         # the type column
         elif index.column() == self.COL_TYPE:
-            try:
-                blocknum = getIndex(self.blocks, data)
-            except ValueError:
-                # not a top level object: just print their class name
-                return QtCore.QVariant(data.__class__.__name__)
-            else:
-                # top level objects: index plus class name
-                return QtCore.QVariant(
-                    "[%i] %s" % (blocknum, data.__class__.__name__))
+            return QtCore.QVariant(data.__class__.__name__)
 
         # the value column
         elif index.column() == self.COL_VALUE and isinstance(data, BasicBase):
