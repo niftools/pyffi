@@ -240,7 +240,8 @@ class Array(_ListWrap):
             for i in xrange(len1):
                 elem = self._elementType(
                     template = self._elementTypeTemplate,
-                    argument = self._elementTypeArgument)
+                    argument = self._elementTypeArgument,
+                    parent = self)
                 elem.read(stream, **kwargs)
                 self.append(elem)
         else:
@@ -248,11 +249,12 @@ class Array(_ListWrap):
                 len2i = self._len2(i)
                 if len2i > 1000000:
                     raise ValueError('array too long')
-                elemlist = _ListWrap(self._elementType)
+                elemlist = _ListWrap(self._elementType, parent = self)
                 for j in xrange(len2i):
                     elem = self._elementType(
                         template = self._elementTypeTemplate,
-                        argument = self._elementTypeArgument)
+                        argument = self._elementTypeArgument,
+                        parent = elemlist)
                     elem.read(stream, **kwargs)
                     elemlist.append(elem)
                 self.append(elemlist)
