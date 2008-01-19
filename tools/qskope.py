@@ -85,7 +85,7 @@ class BaseModel(QtCore.QAbstractItemModel):
         elif index.column() == self.COL_TYPE:
             return QtCore.QVariant(data.__class__.__name__)
         elif index.column() == self.COL_VALUE and isinstance(data, BasicBase):
-                return QtCore.QVariant(str(data))
+            return QtCore.QVariant(str(data))
         else:
             return QtCore.QVariant()
 
@@ -164,14 +164,21 @@ if __name__ == "__main__":
 
     stream = open(sys.argv[1], "rb")
     version, user_version = NifFormat.getVersion(stream)
-    if version < 0:
-        print("not a nif file or version not supported")
-        exit
-    
+    if version >= 0:
+        blocks = NifFormat.read(stream, version, user_version,
+                                rootsonly = False)
+    else:
+        filetype, fileversion, game = CgfFormat.getVersion(stream)
+        if filetype >= 0:
+            blocks, versions = CgfFormat.read(stream,
+                                              fileversion = fileversion,
+                                              game = game)
+        else:
+            raise RuntimeError("not a recognized file format")
+
     app = QtGui.QApplication(sys.argv)
     view = QtGui.QTreeView()
-    model = BaseModel(blocks = NifFormat.read(stream, version, user_version,
-                                              rootsonly = False))
+    model = BaseModel(blocks = blocks)
     view.setModel(model)
     view.setWindowTitle("QSkope")
     view.show()
