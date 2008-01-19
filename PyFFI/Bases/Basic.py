@@ -76,13 +76,18 @@ class BasicBase(object):
     _hasRefs = False # does the type contain a Ref?
     _hasStrings = False # does the type contain a string?
     
-    def __init__(self, template = None, argument = None):
+    def __init__(self, template = None, argument = None,
+                 row = None, parent = None):
         """Initializes the instance.
 
         @param template: type used as template
         @param argument: argument used to initialize the instance
-            (see the Struct class)"""
-        pass
+            (see the Struct class).
+        @param row: The row number of this instance within the parent.
+        @param parent: The parent of this instance, that is, the instance this
+            array is an attribute of."""
+        self._row = row
+        self._parent = parent
 
     # string representation
     def __str__(self):

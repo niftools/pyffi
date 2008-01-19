@@ -144,7 +144,8 @@ class StructBase(object):
     >>> class SimpleFormat(object):
     ...     class UInt(BasicBase):
     ...         _isTemplate = False
-    ...         def __init__(self, template = None, argument = None):
+    ...         def __init__(self, **kwargs):
+    ...             BasicBase.__init__(self, **kwargs)
     ...             self.__value = 0
     ...         def getValue(self):
     ...             return self.__value
@@ -194,16 +195,32 @@ class StructBase(object):
     _games = {}
     
     # initialize all attributes
-    def __init__(self, template = None, argument = None):
+    def __init__(self, template = None, argument = None,
+                 row = None, parent = None):
         """The constructor takes a tempate: any attribute whose type,
         or template type, is NoneType - which corresponds to
         TEMPLATE in the xml description - will be replaced by this
-        type. The argument is what the ARG xml tags will be replaced with."""
+        type. The argument is what the ARG xml tags will be replaced with.
+
+        @param template: If the class takes a template type
+            argument, then this argument describes the template type.
+        @param argument: If the class takes a type argument, then
+            it is described here.
+        @param row: The row number of this instance within the parent.
+        @param parent: The parent of this instance, that is, the instance this
+            array is an attribute of."""
         # used to track names of attributes that have already been added
         # is faster than self.__dict__.has_key(...)
         names = []
         # initialize argument
         self.arg = argument
+        # save parent and row
+        self._parent = parent
+        self._row = row
+        # initialize attribute row number
+        # the row number is used for instance by qskope to display
+        # the attribute as a tree view
+        attr_row = 0
         # initialize attributes
         for attr in self._attributeList:
             # skip attributes with dupiclate names
@@ -224,18 +241,30 @@ class StructBase(object):
             # instantiate the class, handling arrays at the same time
             if attr.arr1 == None:
                 attr_instance = rt_type(
-                    template = rt_template, argument = rt_arg)
+                    template = rt_template, argument = rt_arg,
+                    row = attr_row, parent = self)
                 if attr.default != None:
                     attr_instance.setValue(attr.default)
             elif attr.arr2 == None:
                 attr_instance = Array(
-                    self, rt_type, rt_template, rt_arg, attr.arr1)
+                    element_type = rt_type,
+                    element_type_template = rt_template,
+                    element_type_argument = rt_arg,
+                    count1 = attr.arr1,
+                    row = attr_row, parent = self)
             else:
                 attr_instance = Array(
-                    self, rt_type, rt_template, rt_arg, attr.arr1, attr.arr2)
+                    element_type = rt_type,
+                    element_type_template = rt_template,
+                    element_type_argument = rt_arg,
+                    count1 = attr.arr1, count2 = attr.arr2,
+                    row = attr_row, parent = self)
 
             # assign attribute value
             setattr(self, "_%s_value_" % attr.name, attr_instance)
+
+            # increment attribute row number
+            attr_row += 1
 
     # string of all attributes
     def __str__(self):

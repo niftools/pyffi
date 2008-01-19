@@ -106,15 +106,32 @@ class Array(_ListWrap):
     either BasicBase or StructBase elements."""
     # initialize the array
     def __init__(
-        self, parent,
-        element_type, element_type_template, element_type_argument,
-        count1, count2 = None):
+        self,
+        element_type = None,
+        element_type_template = None,
+        element_type_argument = None,
+        count1 = None, count2 = None,
+        row = None, parent = None):
+        """Initialize the array type.
+
+        @param element_type: The class describing the type of each element.
+        @param element_type_template: If the class takes a template type
+            argument, then this argument describes the template type.
+        @param element_type_argument: If the class takes a type argument, then
+            it is described here.
+        @param count1: An C{Expression} describing the count (first dimension).
+        @param count2: Either C{None}, or an C{Expression} describing the
+            second dimension count.
+        @param row: The row number of this instance within the parent.
+        @param parent: The parent of this instance, that is, the instance this
+            array is an attribute of."""
         if count2 is None:
             _ListWrap.__init__(self, element_type)
         else:
             _ListWrap.__init__(self, _ListWrap)
         self._elementType = element_type
         self._parent = parent
+        self._row = row
         self._elementTypeTemplate = element_type_template
         self._elementTypeArgument = element_type_argument
         self._count1 = count1
@@ -125,16 +142,20 @@ class Array(_ListWrap):
                 self.append(
                     self._elementType(
                         template = self._elementTypeTemplate,
-                        argument = self._elementTypeArgument))
+                        argument = self._elementTypeArgument,
+                        row = i, parent = self))
         else:
+            elem_row = 0
             for i in xrange(self._len1()):
                 elem = _ListWrap(element_type)
                 for j in xrange(self._len2(i)):
                     elem.append(
                         self._elementType(
                             template = self._elementTypeTemplate,
-                            argument = self._elementTypeArgument))
+                            argument = self._elementTypeArgument,
+                            row = elem_row, parent = self))
                 self.append(elem)
+                elem_row += 1
 
     def _len1(self):
         """The length the array should have, obtained by evaluating
@@ -177,6 +198,7 @@ class Array(_ListWrap):
     def updateSize(self):
         """Update the array size. Call this function whenever the size
         parameters change in C{parent}."""
+        ## TODO also update row numbers
         old_size = len(self)
         new_size = self._len1()
         if self._count2 == None:
