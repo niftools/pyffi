@@ -622,7 +622,7 @@ class NifFormat(object):
             'Gamebryo File Format, Version 10.1.0.0'
             """
             if version == -1 or version is None:
-                raise NifError('no string for version %s'%version)
+                raise RuntimeError('no string for version %s'%version)
             if version <= 0x0A000102:
                 s = "NetImmerse"
             else:
@@ -963,7 +963,7 @@ class NifFormat(object):
 
     @classmethod
     def read(cls, stream, version = None, user_version = None,
-             verbose = 0, aslist = False):
+             verbose = 0, rootsonly = True):
         """Read a nif file.
 
         @param stream: The stream from which to read, typically a file or a
@@ -971,9 +971,9 @@ class NifFormat(object):
         @param version: The version number as obtained by getVersion.
         @param user_version: The user version number as obtained by getVersion.
         @param verbose: The level of verbosity.
-        @param aslist: Whether to return the roots of the nif tree. If C{True},
-            then this function returns all blocks as a list, with header
-            first and footer last."""
+        @param rootsonly: Whether to return the roots of the nif tree. If
+            C{False}, then this function returns all blocks as a list, with
+            header first and footer last."""
         # read header
         if verbose >= 1:
             print "reading block at 0x%08X..."%stream.tell()
@@ -1123,7 +1123,7 @@ class NifFormat(object):
             for root in ftr.roots:
                 roots.append(root)
 
-        if not aslist:
+        if rootsonly:
             # return all root objects
             return roots
         else:
