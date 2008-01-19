@@ -48,11 +48,11 @@ from PyFFI.Bases.Array import Array, _ListWrap
 from PyFFI.NIF import NifFormat
 from PyFFI.CGF import CgfFormat
 
-# helper function to calculate index using object identity "is"
-# (rather than __eq__ as used by list.index)
 def getIndex(itemlist, item):
-    for num, it in enumerate(list.__iter__(itemlist)):
-        if it is item:
+    """Helper function to calculate index using object identity
+    (rather than __eq__ as used by list.index) and native list iterator."""
+    for num, otheritem in enumerate(list.__iter__(itemlist)):
+        if otheritem is item:
             return num
     raise ValueError("getIndex(itemlist, item): item not in itemlist")
 
@@ -216,26 +216,28 @@ class BaseModel(QtCore.QAbstractItemModel):
             row = getIndex(parentData._parent._items, parentData)
         return self.createIndex(row, 0, parentData)
 
-import sys, os
+import sys
 from optparse import OptionParser
 
 def main():
-    global app, model
-
+    """The main script function. Does argument parsing, file type checking,
+    and builds the qskope interface."""
     # parse options and positional arguments
     usage = "%prog [options] <file>"
-    description="""Parse and display the file <file>."""
+    description = """Parse and display the file <file>."""
 
-    parser = OptionParser(usage, version="%prog $Rev$", description=description)
+    parser = OptionParser(usage,
+                          version = "%prog $Rev$",
+                          description = description)
     (options, args) = parser.parse_args()
 
     if len(args) != 1:
         parser.error("incorrect number of arguments (one required)")
 
     # get file
-    file = args[0]
+    filename = args[0]
 
-    stream = open(file, "rb")
+    stream = open(filename, "rb")
     version, user_version = NifFormat.getVersion(stream)
     if version >= 0:
         blocks = NifFormat.read(stream, version, user_version,
