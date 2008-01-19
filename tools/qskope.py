@@ -263,6 +263,7 @@ def main():
     model = BaseModel(blocks = blocks)
     view.setModel(model)
     view.setWindowTitle("QSkope - %s" % filename)
+    view.setAlternatingRowColors (True)
     view.show()
     sys.exit(app.exec_())
 
