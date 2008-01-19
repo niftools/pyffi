@@ -46,6 +46,14 @@ from PyFFI.Bases.Array import Array, _ListWrap
 from PyFFI.NIF import NifFormat
 from PyFFI.CGF import CgfFormat
 
+# helper function to calculate index using object identity "is"
+# (rather than __eq__ as used by list.index)
+def getIndex(itemlist, item):
+    for num, it in enumerate(list.__iter__(itemlist)):
+        if it is item:
+            return num
+    raise ValueError("getIndex(itemlist, item): item not in itemlist")
+
 # implementation references:
 # http://doc.trolltech.com/4.3/model-view-programming.html
 # http://doc.trolltech.com/4.3/model-view-model-subclassing.html
@@ -58,6 +66,7 @@ class BaseModel(QtCore.QAbstractItemModel):
     COL_VALUE = 2
 
     def __init__(self, parent = None, blocks = None):
+        """Initialize the model to display the given blocks."""
         QtCore.QAbstractItemModel.__init__(self, parent)
         # this list stores the blocks in the view
         # is a list of NiObjects for the nif format, and a list of Chunks for
@@ -65,6 +74,8 @@ class BaseModel(QtCore.QAbstractItemModel):
         self.blocks = blocks if not blocks is None else []
 
     def flags(self, index):
+        """Return flags for the given index: all indices are enabled and
+        selectable."""
         if not index.isValid():
             return 0
         return QtCore.Qt.ItemFlags(QtCore.Qt.ItemIsEnabled
@@ -73,26 +84,61 @@ class BaseModel(QtCore.QAbstractItemModel):
     def data(self, index, role):
         """Return the data of model index in a particular role."""
         # check if the index is valid
-        if not index.isValid():
-            return QtCore.QVariant()
         # check if the role is supported
-        if role != QtCore.Qt.DisplayRole:
+        if not index.isValid() or role != QtCore.Qt.DisplayRole:
             return QtCore.QVariant()
         # get the data for display
         data = index.internalPointer()
+
+        # the name column
         if index.column() == self.COL_NAME:
+            # only structures have named attributes
             if isinstance(data._parent, StructBase):
-                return QtCore.QVariant(data._parent._names[data._parent._items.index(data)]) # TODO implement naming
+                return QtCore.QVariant(
+                    data._parent._names[getIndex(data._parent._items, data)])
+            # for arrays use the index as name
+            elif isinstance(data._parent, _ListWrap):
+                return QtCore.QVariant(
+                    "[%i]" % getIndex(data._parent._items, data))
             else:
                 return QtCore.QVariant()
+
+        # the type column
         elif index.column() == self.COL_TYPE:
-            return QtCore.QVariant(data.__class__.__name__)
+            try:
+                blocknum = getIndex(self.blocks, data)
+            except ValueError:
+                # not a top level object: just print their class name
+                return QtCore.QVariant(data.__class__.__name__)
+            else:
+                # top level objects: index plus class name
+                return QtCore.QVariant(
+                    "[%i] %s" % (blocknum, data.__class__.__name__))
+
+        # the value column
         elif index.column() == self.COL_VALUE and isinstance(data, BasicBase):
-            return QtCore.QVariant(str(data))
+            # get the data value
+            try:
+                datavalue = data.getValue()
+            except NotImplementedError:
+                datavalue = str(data)
+            try:
+                blocknum = getIndex(self.blocks, datavalue)
+            except ValueError:
+                # not a reference: return the datavalue QVariant
+                return QtCore.QVariant(str(datavalue))
+            else:
+                # handle references
+                return QtCore.QVariant(
+                    "[%i] %s" % (blocknum,
+                                 datavalue.__class__.__name__))
+
+        # other colums: invalid
         else:
             return QtCore.QVariant()
 
     def headerData(self, section, orientation, role):
+        """Return header data."""
         if (orientation == QtCore.Qt.Horizontal
             and role == QtCore.Qt.DisplayRole):
             if section == self.COL_TYPE:
@@ -104,6 +150,7 @@ class BaseModel(QtCore.QAbstractItemModel):
         return QtCore.QVariant()
 
     def rowCount(self, parent = QtCore.QModelIndex()):
+        """Calculate a row count for the given parent index."""
         if not parent.isValid():
             # top level: one row for each block
             return len(self.blocks)
@@ -113,13 +160,16 @@ class BaseModel(QtCore.QAbstractItemModel):
             # struct and array: number of items
             if isinstance(parentData, (StructBase, Array, _ListWrap)):
                 return len(parentData._items)
-            # basics
+            # basic types do not expand, so rows is zero
             elif isinstance(parentData, BasicBase):
                 return 0
             else:
+                # should not happen, print message if it does
                 raise RuntimeError("bad parent data")
 
     def columnCount(self, parent = QtCore.QModelIndex()):
+        """Return column count."""
+        # column count is constant everywhere
         return self.NUM_COLUMNS
 
     def index(self, row, column, parent):
@@ -148,17 +198,20 @@ class BaseModel(QtCore.QAbstractItemModel):
         return index
 
     def parent(self, index):
+        """Calculate parent of a given index."""
         data = index.internalPointer()
         try:
             parentData = data._parent
         except AttributeError:
-            raise RuntimeError("no parent attribute for data %s of class %s"%(data, data.__class__.__name__))
+            raise RuntimeError(
+                "no parent attribute for data %s of class %s"
+                %(data, data.__class__.__name__))
         if parentData is None:
             return QtCore.QModelIndex()
         elif parentData._parent is None:
             row = self.blocks.index(parentData)
         else:
-            row = parentData._parent._items.index(parentData)
+            row = getIndex(parentData._parent._items, parentData)
         return self.createIndex(row, 0, parentData)
 
 if __name__ == "__main__":
