@@ -45,7 +45,6 @@ class _ListWrap(list):
     """A wrapper for list, which uses getValue and setValue for
     getting and setting items of the basic type."""
     def __init__(self, element_type, parent = None):
-        self._items = self
         self._parent = parent
         if issubclass(element_type, BasicBase):
             self._getItemHook = self.getBasicItem
@@ -101,6 +100,36 @@ class _ListWrap(list):
         """Regular item getter, used when the list does not have BasicBase
         elements."""
         return list.__getitem__(self, index)
+
+    #
+    # user interface functions come next
+    # these functions are named after similar ones in the TreeItem example
+    # at http://doc.trolltech.com/4.3/itemviews-simpletreemodel.html
+    #
+
+    def qParent(self):
+        """Return parent of this structure."""
+        return self._parent
+
+    def qChildCount(self):
+        """Return number of items in this structure."""
+        return len(self)
+
+    def qChild(self, row):
+        """Find item at given row."""
+        return list.__getitem__(self, row)
+
+    def qRow(self, item):
+        """Find the row number of the given item."""
+        for row, otheritem in enumerate(list.__iter__(self)):
+            if item is otheritem:
+                return row
+        else:
+            raise ValueError("qRow(self, item): item not found")
+
+    def qName(self, item):
+        """Find the name of the given item."""
+        return "[%i]" % self.qRow(item)
 
 class Array(_ListWrap):
     """A general purpose class for 1 or 2 dimensional arrays consisting of

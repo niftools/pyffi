@@ -38,6 +38,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENCE BLOCK *****
+
 try:
     from PyQt4 import QtGui, QtCore
 except ImportError:
@@ -51,14 +52,6 @@ from PyFFI.Bases.Array import Array, _ListWrap
 
 from PyFFI.NIF import NifFormat
 from PyFFI.CGF import CgfFormat
-
-def getIndex(itemlist, item):
-    """Helper function to calculate index using object identity
-    (rather than __eq__ as used by list.index) and native list iterator."""
-    for num, otheritem in enumerate(list.__iter__(itemlist)):
-        if otheritem is item:
-            return num
-    raise ValueError("getIndex(itemlist, item): item not in itemlist")
 
 # implementation references:
 # http://doc.trolltech.com/4.3/model-view-programming.html
@@ -99,19 +92,12 @@ class BaseModel(QtCore.QAbstractItemModel):
         # the name column
         if index.column() == self.COL_NAME:
             # only structures have named attributes
-            if isinstance(data._parent, StructBase):
-                return QtCore.QVariant(
-                    data._parent._names[getIndex(data._parent._items, data)])
-            # for arrays use the index as name
-            elif isinstance(data._parent, _ListWrap):
-                return QtCore.QVariant(
-                    "[%i]" % getIndex(data._parent._items, data))
-            # top level objects
-            elif data._parent is None:
-                return QtCore.QVariant(
-                    "[%i]" % getIndex(self.blocks, data))
+            if index.parent().isValid():
+                # not a top level object: name
+                return QtCore.QVariant(data.qParent().qName(data))
             else:
-                return QtCore.QVariant()
+                # top level object
+                return QtCore.QVariant("[%i]" % self.blocks.index(data))
 
         # the type column
         elif index.column() == self.COL_TYPE:
@@ -125,8 +111,8 @@ class BaseModel(QtCore.QAbstractItemModel):
             except NotImplementedError:
                 datavalue = str(data)
             try:
-                blocknum = getIndex(self.blocks, datavalue)
-            except ValueError:
+                blocknum = self.blocks.index(datavalue)
+            except (ValueError, TypeError):
                 # not a reference: return the datavalue QVariant
                 return QtCore.QVariant(str(datavalue))
             else:
@@ -158,16 +144,7 @@ class BaseModel(QtCore.QAbstractItemModel):
             return len(self.blocks)
         else:
             # get the parent data
-            parentData = parent.internalPointer()
-            # struct and array: number of items
-            if isinstance(parentData, (StructBase, Array, _ListWrap)):
-                return len(parentData._items)
-            # basic types do not expand, so rows is zero
-            elif isinstance(parentData, BasicBase):
-                return 0
-            else:
-                # should not happen, print message if it does
-                raise RuntimeError("bad parent data")
+            return parent.internalPointer().qChildCount()
 
     def columnCount(self, parent = QtCore.QModelIndex()):
         """Return column count."""
@@ -189,31 +166,26 @@ class BaseModel(QtCore.QAbstractItemModel):
         else:
             # parent is valid, so we need to go get the row'th attribute
             # get the parent pointer
-            parentData = parent.internalPointer()
-            if isinstance(parentData, (StructBase, Array, _ListWrap)):
-                # TODO fix _ListWrap class so we can write simply
-                # parentData._items[row]
-                data = list.__getitem__(parentData._items, row)
-            else:
-                return QtCore.QModelIndex()
-        index = self.createIndex(row, column, data)
-        return index
+            data = parent.internalPointer().qChild(row)
+        return self.createIndex(row, column, data)
 
     def parent(self, index):
         """Calculate parent of a given index."""
-        data = index.internalPointer()
-        try:
-            parentData = data._parent
-        except AttributeError:
-            raise RuntimeError(
-                "no parent attribute for data %s of class %s"
-                %(data, data.__class__.__name__))
+        # get parent structure
+        parentData = index.internalPointer().qParent()
+        # if no parent, then index must be top level object
         if parentData is None:
             return QtCore.QModelIndex()
-        elif parentData._parent is None:
+        # if parent's parent is None, then index must be a member of a top
+        # level object, so the parent is that top level object, so
+        # parent row is index of this parent block
+        elif parentData.qParent() is None:
             row = self.blocks.index(parentData)
+        # finally, if parent's parent is not None, then it must be member of
+        # some deeper nested structure, so calculate the row as usual
         else:
-            row = getIndex(parentData._parent._items, parentData)
+            row = parentData.qParent().qRow(parentData)
+        # construct the index
         return self.createIndex(row, 0, parentData)
 
 import sys

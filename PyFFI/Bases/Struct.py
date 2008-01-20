@@ -44,8 +44,7 @@ from PyFFI.Bases.Array import Array
 
 from types import NoneType
 from functools import partial
-
-
+from itertools import izip
 
 class _MetaStructBase(type):
     """This metaclass checks for the presence of an _attrs and _isTemplate
@@ -519,3 +518,37 @@ class StructBase(object):
             self.setBasicAttribute(value, name)
         except AttributeError:
             raise NotImplementedError("cannot set '%s' attribute"%name)
+
+    #
+    # user interface functions come next
+    # these functions are named after similar ones in the TreeItem example
+    # at http://doc.trolltech.com/4.3/itemviews-simpletreemodel.html
+    #
+
+    def qParent(self):
+        """Return parent of this structure."""
+        return self._parent
+
+    def qChildCount(self):
+        """Return number of items in this structure."""
+        return len(self._items)
+
+    def qChild(self, row):
+        """Find item at given row."""
+        return self._items[row]
+
+    def qRow(self, item):
+        """Find the row number of the given item."""
+        for row, otheritem in enumerate(self._items):
+            if item is otheritem:
+                return row
+        else:
+            raise ValueError("qRow(self, item): item not found")
+
+    def qName(self, item):
+        """Find the name of the given item."""
+        for otheritem, name in izip(self._items, self._names):
+            if item is otheritem:
+                return name
+        else:
+            raise ValueError("qDataName(self, item): item not found")

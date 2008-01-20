@@ -135,3 +135,29 @@ class BasicBase(object):
         identify the object uniquely."""
         raise NotImplementedError
 
+    #
+    # user interface functions come next
+    # these functions are named after similar ones in the TreeItem example
+    # at http://doc.trolltech.com/4.3/itemviews-simpletreemodel.html
+    #
+
+    def qParent(self):
+        """Return parent of this structure."""
+        return self._parent
+
+    def qChildCount(self):
+        """Return number of items in this structure. Always zero for basic
+        types."""
+        return 0
+
+    def qChild(self, row):
+        """Find item at given row. Should never be called."""
+        raise NotImplementedError
+
+    def qRow(self, item):
+        """Find the row number of the given item. Should never be called."""
+        raise NotImplementedError
+
+    def qName(self, item):
+        """Find the name of the given item. Should never be called."""
+        raise NotImplementedError
