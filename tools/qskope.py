@@ -202,10 +202,34 @@ class BaseModel(QtCore.QAbstractItemModel):
 
     def setData(self, index, value, role):
         """Set data of a given index from given QVariant value."""
-        return False
-        # TODO
         if role == QtCore.Qt.EditRole:
-            pass
+            # fetch the current data, as a regular Python type
+            data = index.internalPointer()
+            currentvalue = data.getValue()
+            # transform the QVariant value into the right class
+            if isinstance(currentvalue, (int, long)):
+                pyvalue, ok = value.toInt()
+            elif isinstance(currentvalue, float):
+                pyvalue, ok = value.toFloat()
+            elif isinstance(currentvalue, basestring):
+                pyvalue, ok = value.toString()
+                pyvalue = str(pyvalue)
+            elif isinstance(currentvalue, bool):
+                pyvalue, ok = value.toBool()
+            else:
+                # type not supported
+                return False
+            # check if conversion worked
+            if not ok:
+                return False
+            # set the value
+            data.setValue(pyvalue)
+            # tell everyone that the data has changed
+            self.emit(QtCore.SIGNAL('dataChanged(QModelIndex, QModelIndex)'),
+                                    index, index)
+            return True
+        # all other cases: failed
+        return False
 
 import sys
 from optparse import OptionParser
