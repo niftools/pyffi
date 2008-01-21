@@ -46,10 +46,6 @@ except ImportError:
 http://www.riverbankcomputing.co.uk/pyqt/download.php""")
     raise
 
-from PyFFI.Bases.Basic import BasicBase
-from PyFFI.Bases.Struct import StructBase
-from PyFFI.Bases.Array import Array, _ListWrap
-
 from PyFFI.NIF import NifFormat
 from PyFFI.CGF import CgfFormat
 
@@ -104,13 +100,20 @@ class BaseModel(QtCore.QAbstractItemModel):
             return QtCore.QVariant(data.__class__.__name__)
 
         # the value column
-        elif index.column() == self.COL_VALUE and isinstance(data, BasicBase):
+        elif index.column() == self.COL_VALUE:
             # get the data value
             try:
                 datavalue = data.getValue()
             except NotImplementedError:
+                # not implemented, so there is no value
+                # but there should be a string representation
                 datavalue = str(data)
+            except AttributeError:
+                # no getValue attribute: so no value
+                return QtCore.QVariant()
             try:
+                # see if the data is in the blocks list
+                # if so, it is a reference
                 blocknum = self.blocks.index(datavalue)
             except (ValueError, TypeError):
                 # not a reference: return the datavalue QVariant
