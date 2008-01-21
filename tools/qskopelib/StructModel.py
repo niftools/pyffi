@@ -1,6 +1,5 @@
-#!/usr/bin/python
-
-"""The qskope script visualizes the structure of PyFFI structures and arrays."""
+"""The StructModel module defines a model to display StructBase, Array, and
+BasicBase instances."""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -40,7 +39,7 @@
 # ***** END LICENSE BLOCK *****
 
 try:
-    from PyQt4 import QtGui, QtCore
+    from PyQt4 import QtCore
 except ImportError:
     raw_input("""PyQt4 not found. Please download and install from
 http://www.riverbankcomputing.co.uk/pyqt/download.php""")
@@ -49,22 +48,24 @@ http://www.riverbankcomputing.co.uk/pyqt/download.php""")
 # implementation references:
 # http://doc.trolltech.com/4.3/model-view-programming.html
 # http://doc.trolltech.com/4.3/model-view-model-subclassing.html
-class BaseModel(QtCore.QAbstractItemModel):
-    """General purpose model for QModelIndexed access to data loaded with
-    PyFFI."""
+class StructModel(QtCore.QAbstractItemModel):
+    """General purpose model for QModelIndexed access to PyFFI data structures
+    such as StructBase, Array, and BasicBase instances."""
     # column definitions
     NUM_COLUMNS = 3
     COL_NAME  = 0
     COL_TYPE  = 1
     COL_VALUE = 2
 
-    def __init__(self, parent = None, blocks = None):
-        """Initialize the model to display the given blocks."""
+    def __init__(self, parent = None, block = None, blocklist = None):
+        """Initialize the model to display the given block. The blocklist
+        is used to handle references in the block."""
         QtCore.QAbstractItemModel.__init__(self, parent)
         # this list stores the blocks in the view
         # is a list of NiObjects for the nif format, and a list of Chunks for
         # the cgf format
-        self.blocks = blocks if not blocks is None else []
+        self.block = block
+        self.blocklist = blocklist if not blocklist is None else []
 
     def flags(self, index):
         """Return flags for the given index: all indices are enabled and
@@ -96,13 +97,7 @@ class BaseModel(QtCore.QAbstractItemModel):
 
         # the name column
         if index.column() == self.COL_NAME:
-            # only structures have named attributes
-            if data.qParent():
-                # has a parent, so has a name
-                return QtCore.QVariant(data.qParent().qName(data))
-            else:
-                # has no parent, so has no name
-                return QtCore.QVariant("[%i]" % self.blocks.index(data))
+            return QtCore.QVariant(data.qParent().qName(data))
 
         # the type column
         elif index.column() == self.COL_TYPE:
@@ -123,7 +118,7 @@ class BaseModel(QtCore.QAbstractItemModel):
             try:
                 # see if the data is in the blocks list
                 # if so, it is a reference
-                blocknum = self.blocks.index(datavalue)
+                blocknum = self.blocklist.index(datavalue)
             except (ValueError, TypeError):
                 # not a reference: return the datavalue QVariant
                 return QtCore.QVariant(
@@ -153,8 +148,8 @@ class BaseModel(QtCore.QAbstractItemModel):
     def rowCount(self, parent = QtCore.QModelIndex()):
         """Calculate a row count for the given parent index."""
         if not parent.isValid():
-            # top level: one row for each block
-            return len(self.blocks)
+            # top level: one row for each attribute
+            return self.block.qChildCount()
         else:
             # get the parent child count
             return parent.internalPointer().qChildCount()
@@ -171,8 +166,8 @@ class BaseModel(QtCore.QAbstractItemModel):
         # check if the parent is valid
         if not parent.isValid():
             # parent is not valid, so we need a top-level object
-            # return the index with row'th block as internal pointer
-            data = self.blocks[row]
+            # return the row'th attribute
+            data = self.block.qChild(row)
         else:
             # parent is valid, so we need to go get the row'th attribute
             # get the parent pointer
@@ -190,7 +185,7 @@ class BaseModel(QtCore.QAbstractItemModel):
         # level object, so the parent is that top level object, so
         # parent row is index of this parent block
         elif parentData.qParent() is None:
-            row = self.blocks.index(parentData)
+            row = self.block.qRow(parentData)
         # finally, if parent's parent is not None, then it must be member of
         # some deeper nested structure, so calculate the row as usual
         else:
@@ -228,54 +223,3 @@ class BaseModel(QtCore.QAbstractItemModel):
             return True
         # all other cases: failed
         return False
-
-import sys
-from optparse import OptionParser
-
-from PyFFI.NIF import NifFormat
-from PyFFI.CGF import CgfFormat
-
-def main():
-    """The main script function. Does argument parsing, file type checking,
-    and builds the qskope interface."""
-    # parse options and positional arguments
-    usage = "%prog [options] <file>"
-    description = """Parse and display the file <file>."""
-
-    parser = OptionParser(usage,
-                          version = "%prog $Rev$",
-                          description = description)
-    (options, args) = parser.parse_args()
-
-    if len(args) != 1:
-        parser.error("incorrect number of arguments (one required)")
-
-    # get file
-    filename = args[0]
-
-    stream = open(filename, "rb")
-    version, user_version = NifFormat.getVersion(stream)
-    if version >= 0:
-        blocks = NifFormat.read(stream, version, user_version,
-                                rootsonly = False)
-    else:
-        filetype, fileversion, game = CgfFormat.getVersion(stream)
-        if filetype >= 0:
-            blocks, versions = CgfFormat.read(stream,
-                                              fileversion = fileversion,
-                                              game = game)
-        else:
-            raw_input('File format of %s not recognized' % filename)
-            raise RuntimeError('File format of %s not recognized' % filename)
-
-    app = QtGui.QApplication(sys.argv)
-    view = QtGui.QTreeView()
-    model = BaseModel(blocks = blocks)
-    view.setModel(model)
-    view.setWindowTitle("QSkope - %s" % filename)
-    view.setAlternatingRowColors (True)
-    view.show()
-    sys.exit(app.exec_())
-
-if __name__ == "__main__":
-    main()
