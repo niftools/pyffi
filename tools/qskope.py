@@ -46,6 +46,8 @@ except ImportError:
 http://www.riverbankcomputing.co.uk/pyqt/download.php""")
     raise
 
+from qskopelib.StructModel import StructModel
+
 class QSkope(QtGui.QMainWindow):
     """Main QSkope window."""
     def __init__(self, parent = None):
@@ -89,8 +91,11 @@ class QSkope(QtGui.QMainWindow):
 
     def openFile(self, filename = None):
         """Open a file, and set up the view."""
-        self.statusBar().showMessage("Opening %s ..." % filename)
+        # inform user about file being read
+        self.statusBar().showMessage("Reading %s ..." % filename)
 
+        # open the file and check type and version
+        # then read the file
         stream = open(filename, "rb")
         version, user_version = NifFormat.getVersion(stream)
         if version >= 0:
@@ -107,10 +112,16 @@ class QSkope(QtGui.QMainWindow):
                 raise RuntimeError('File format of %s not recognized'
                                    % filename)
 
-        self.treeModel = BaseModel(blocks = blocklist)
+        # set up the models and update the views
+        self.treeModel = BaseModel(blocks = blocklist) # TODO TreeModel
         self.treeWidget.setModel(self.treeModel)
+        self.structModel = StructModel(block = blocklist[0])
+        self.structWidget.setModel(self.structModel)
+
+        # update window title
         self.setWindowTitle("QSkope - %s" % filename)
 
+        # clear status bar
         self.statusBar().clearMessage()
 
     def saveFile(self):

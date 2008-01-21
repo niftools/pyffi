@@ -178,15 +178,11 @@ class StructModel(QtCore.QAbstractItemModel):
         """Calculate parent of a given index."""
         # get parent structure
         parentData = index.internalPointer().qParent()
-        # if no parent, then index must be top level object
-        if parentData is None:
+        # if parent's parent is None, then index must be a top
+        # level object, so return invalid index
+        if parentData.qParent() is None:
             return QtCore.QModelIndex()
-        # if parent's parent is None, then index must be a member of a top
-        # level object, so the parent is that top level object, so
-        # parent row is index of this parent block
-        elif parentData.qParent() is None:
-            row = self.block.qRow(parentData)
-        # finally, if parent's parent is not None, then it must be member of
+        # if parent's parent is not None, then it must be member of
         # some deeper nested structure, so calculate the row as usual
         else:
             row = parentData.qParent().qRow(parentData)
