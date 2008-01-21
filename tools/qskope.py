@@ -88,11 +88,11 @@ class BaseModel(QtCore.QAbstractItemModel):
         # the name column
         if index.column() == self.COL_NAME:
             # only structures have named attributes
-            if index.parent().isValid():
-                # not a top level object: name
+            if data.qParent():
+                # has a parent, so has a name
                 return QtCore.QVariant(data.qParent().qName(data))
             else:
-                # top level object
+                # has no parent, so has no name
                 return QtCore.QVariant("[%i]" % self.blocks.index(data))
 
         # the type column
@@ -117,7 +117,7 @@ class BaseModel(QtCore.QAbstractItemModel):
                 blocknum = self.blocks.index(datavalue)
             except (ValueError, TypeError):
                 # not a reference: return the datavalue QVariant
-                return QtCore.QVariant(str(datavalue))
+                return QtCore.QVariant(str(datavalue).replace("\n", " ").replace("\r", " "))
             else:
                 # handle references
                 return QtCore.QVariant(
@@ -146,7 +146,7 @@ class BaseModel(QtCore.QAbstractItemModel):
             # top level: one row for each block
             return len(self.blocks)
         else:
-            # get the parent data
+            # get the parent child count
             return parent.internalPointer().qChildCount()
 
     def columnCount(self, parent = QtCore.QModelIndex()):
@@ -158,9 +158,6 @@ class BaseModel(QtCore.QAbstractItemModel):
         """Create an index to item (row, column) of object parent.
         Internal pointers consist of the BasicBase, StructBase, or Array
         instance."""
-        # check if we have such index
-        if not self.hasIndex(row, column, parent):
-            return QtCore.QModelIndex()
         # check if the parent is valid
         if not parent.isValid():
             # parent is not valid, so we need a top-level object
