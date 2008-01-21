@@ -53,7 +53,8 @@ from PyFFI.CGF import CgfFormat
 # http://doc.trolltech.com/4.3/model-view-programming.html
 # http://doc.trolltech.com/4.3/model-view-model-subclassing.html
 class BaseModel(QtCore.QAbstractItemModel):
-    """General purpose model for access to data loaded with PyFFI."""
+    """General purpose model for QModelIndexed access to data loaded with
+    PyFFI."""
     # column definitions
     NUM_COLUMNS = 3
     COL_NAME  = 0
@@ -73,8 +74,19 @@ class BaseModel(QtCore.QAbstractItemModel):
         selectable."""
         if not index.isValid():
             return 0
-        return QtCore.Qt.ItemFlags(QtCore.Qt.ItemIsEnabled
-                                   | QtCore.Qt.ItemIsSelectable)
+        # all items are enabled and selectable
+        flags = QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
+        # determine whether item value can be set
+        if index.column() == self.COL_VALUE:
+            try:
+                index.internalPointer().getValue()
+            except AttributeError:
+                pass
+            except NotImplementedError:
+                pass
+            else:
+                flags |= QtCore.Qt.ItemIsEditable
+        return QtCore.Qt.ItemFlags(flags)
 
     def data(self, index, role):
         """Return the data of model index in a particular role."""
@@ -187,6 +199,13 @@ class BaseModel(QtCore.QAbstractItemModel):
             row = parentData.qParent().qRow(parentData)
         # construct the index
         return self.createIndex(row, 0, parentData)
+
+    def setData(self, index, value, role):
+        """Set data of a given index from given QVariant value."""
+        return False
+        # TODO
+        if role == QtCore.Qt.EditRole:
+            pass
 
 import sys
 from optparse import OptionParser
