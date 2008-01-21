@@ -46,6 +46,62 @@ except ImportError:
 http://www.riverbankcomputing.co.uk/pyqt/download.php""")
     raise
 
+class QSkope(QtGui.QMainWindow):
+    """Main QSkope window."""
+    def __init__(self, parent = None):
+        """Initialize the main window."""
+        QtGui.QMainWindow.__init__(self, parent)
+        # set up the menu
+        self.createActions()
+        self.createMenus()
+        # set up the main view
+        self.treeWidget = QtGui.QTreeView()
+        self.treeWidget.setAlternatingRowColors(True)
+        self.setCentralWidget(self.treeWidget)
+        # activate status bar
+        self.statusBar().clearMessage()
+
+    def createActions(self):
+        self.openAct = QtGui.QAction("&Open", self)
+        self.openAct.setShortcut("Ctrl+O")
+        self.saveAct = QtGui.QAction("&Save", self)
+        self.saveAct.setShortcut("Ctrl+S")
+
+    def createMenus(self):
+        fileMenu = self.menuBar().addMenu("&File")
+        fileMenu.addAction(self.openAct)
+        fileMenu.addAction(self.saveAct)
+
+    def openFile(self, filename = None):
+        """Open a file, and set up the view."""
+        self.statusBar().showMessage("Opening %s ..." % filename)
+
+        stream = open(filename, "rb")
+        version, user_version = NifFormat.getVersion(stream)
+        if version >= 0:
+            blocklist = NifFormat.read(stream, version, user_version,
+                                       rootsonly = False)
+        else:
+            filetype, fileversion, game = CgfFormat.getVersion(stream)
+            if filetype >= 0:
+                blocklist, versions = CgfFormat.read(stream,
+                                                     fileversion = fileversion,
+                                                     game = game)
+            else:
+                raw_input('File format of %s not recognized' % filename)
+                raise RuntimeError('File format of %s not recognized'
+                                   % filename)
+
+        self.treeModel = BaseModel(blocks = blocklist)
+        self.treeWidget.setModel(self.treeModel)
+        self.setWindowTitle("QSkope - %s" % filename)
+
+        self.statusBar().clearMessage()
+
+    def saveFile(self):
+        """Save changes to disk."""
+        pass
+
 # implementation references:
 # http://doc.trolltech.com/4.3/model-view-programming.html
 # http://doc.trolltech.com/4.3/model-view-model-subclassing.html
@@ -247,34 +303,15 @@ def main():
                           description = description)
     (options, args) = parser.parse_args()
 
-    if len(args) != 1:
-        parser.error("incorrect number of arguments (one required)")
+    if len(args) > 1:
+        parser.error("incorrect number of arguments (one at most)")
 
-    # get file
-    filename = args[0]
-
-    stream = open(filename, "rb")
-    version, user_version = NifFormat.getVersion(stream)
-    if version >= 0:
-        blocks = NifFormat.read(stream, version, user_version,
-                                rootsonly = False)
-    else:
-        filetype, fileversion, game = CgfFormat.getVersion(stream)
-        if filetype >= 0:
-            blocks, versions = CgfFormat.read(stream,
-                                              fileversion = fileversion,
-                                              game = game)
-        else:
-            raw_input('File format of %s not recognized' % filename)
-            raise RuntimeError('File format of %s not recognized' % filename)
-
+    # run the application
     app = QtGui.QApplication(sys.argv)
-    view = QtGui.QTreeView()
-    model = BaseModel(blocks = blocks)
-    view.setModel(model)
-    view.setWindowTitle("QSkope - %s" % filename)
-    view.setAlternatingRowColors (True)
-    view.show()
+    mainwindow = QSkope()
+    if len(args) >= 1:
+        mainwindow.openFile(filename = args[0])
+    mainwindow.show()
     sys.exit(app.exec_())
 
 if __name__ == "__main__":
