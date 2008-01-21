@@ -51,13 +51,28 @@ class QSkope(QtGui.QMainWindow):
     def __init__(self, parent = None):
         """Initialize the main window."""
         QtGui.QMainWindow.__init__(self, parent)
-        # set up the menu
+
+        # set up the menu bar
         self.createActions()
         self.createMenus()
-        # set up the main view
+
+        # set up the tree model view
         self.treeWidget = QtGui.QTreeView()
         self.treeWidget.setAlternatingRowColors(True)
-        self.setCentralWidget(self.treeWidget)
+
+        # set up the struct model view
+        self.structWidget = QtGui.QTreeView()
+        self.structWidget.setAlternatingRowColors(True)
+
+        # set up central widget which contains everything else
+        # horizontal split: left = tree view, right = struct view
+        self.mainWidget = QtGui.QWidget()        
+        self.layout = QtGui.QHBoxLayout()
+        self.layout.addWidget(self.treeWidget)
+        self.layout.addWidget(self.structWidget)
+        self.mainWidget.setLayout(self.layout)
+        self.setCentralWidget(self.mainWidget)
+
         # activate status bar
         self.statusBar().clearMessage()
 
