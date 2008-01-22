@@ -1,5 +1,5 @@
-"""The StructModel module defines a model to display StructBase, Array, and
-BasicBase instances."""
+"""The GlobalModel module defines a model to display the structure of a file
+built from StructBase instances possibly referring to one another."""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -38,34 +38,29 @@ BasicBase instances."""
 #
 # ***** END LICENSE BLOCK *****
 
-try:
-    from PyQt4 import QtCore
-except ImportError:
-    raw_input("""PyQt4 not found. Please download and install from
-http://www.riverbankcomputing.co.uk/pyqt/download.php""")
-    raise
+from PyQt4 import QtGui, QtCore
 
 # implementation references:
 # http://doc.trolltech.com/4.3/model-view-programming.html
 # http://doc.trolltech.com/4.3/model-view-model-subclassing.html
-class StructModel(QtCore.QAbstractItemModel):
-    """General purpose model for QModelIndexed access to PyFFI data structures
-    such as StructBase, Array, and BasicBase instances."""
+class GlobalModel(QtCore.QAbstractItemModel):
+    # TODO this is the old BaseModel stuff, still have to remove the detail
+    # in the displayed tree
+    """General purpose model for QModelIndexed access to data loaded with
+    PyFFI."""
     # column definitions
     NUM_COLUMNS = 3
     COL_NAME  = 0
     COL_TYPE  = 1
     COL_VALUE = 2
 
-    def __init__(self, parent = None, block = None, blocklist = None):
-        """Initialize the model to display the given block. The blocklist
-        is used to handle references in the block."""
+    def __init__(self, parent = None, roots = None):
+        """Initialize the model to display the given blocks."""
         QtCore.QAbstractItemModel.__init__(self, parent)
         # this list stores the blocks in the view
         # is a list of NiObjects for the nif format, and a list of Chunks for
         # the cgf format
-        self.block = block
-        self.blocklist = blocklist if not blocklist is None else []
+        self.blocks = roots if not roots is None else []
 
     def flags(self, index):
         """Return flags for the given index: all indices are enabled and
@@ -97,7 +92,13 @@ class StructModel(QtCore.QAbstractItemModel):
 
         # the name column
         if index.column() == self.COL_NAME:
-            return QtCore.QVariant(data.qParent().qName(data))
+            # only structures have named attributes
+            if data.qParent():
+                # has a parent, so has a name
+                return QtCore.QVariant(data.qParent().qName(data))
+            else:
+                # has no parent, so has no name
+                return QtCore.QVariant("[%i]" % self.blocks.index(data))
 
         # the type column
         elif index.column() == self.COL_TYPE:
@@ -118,7 +119,7 @@ class StructModel(QtCore.QAbstractItemModel):
             try:
                 # see if the data is in the blocks list
                 # if so, it is a reference
-                blocknum = self.blocklist.index(datavalue)
+                blocknum = self.blocks.index(datavalue)
             except (ValueError, TypeError):
                 # not a reference: return the datavalue QVariant
                 return QtCore.QVariant(
@@ -148,8 +149,8 @@ class StructModel(QtCore.QAbstractItemModel):
     def rowCount(self, parent = QtCore.QModelIndex()):
         """Calculate a row count for the given parent index."""
         if not parent.isValid():
-            # top level: one row for each attribute
-            return self.block.qChildCount()
+            # top level: one row for each block
+            return len(self.blocks)
         else:
             # get the parent child count
             return parent.internalPointer().qChildCount()
@@ -166,8 +167,8 @@ class StructModel(QtCore.QAbstractItemModel):
         # check if the parent is valid
         if not parent.isValid():
             # parent is not valid, so we need a top-level object
-            # return the row'th attribute
-            data = self.block.qChild(row)
+            # return the index with row'th block as internal pointer
+            data = self.blocks[row]
         else:
             # parent is valid, so we need to go get the row'th attribute
             # get the parent pointer
@@ -178,11 +179,15 @@ class StructModel(QtCore.QAbstractItemModel):
         """Calculate parent of a given index."""
         # get parent structure
         parentData = index.internalPointer().qParent()
-        # if parent's parent is None, then index must be a top
-        # level object, so return invalid index
-        if parentData.qParent() is None:
+        # if no parent, then index must be top level object
+        if parentData is None:
             return QtCore.QModelIndex()
-        # if parent's parent is not None, then it must be member of
+        # if parent's parent is None, then index must be a member of a top
+        # level object, so the parent is that top level object, so
+        # parent row is index of this parent block
+        elif parentData.qParent() is None:
+            row = self.blocks.index(parentData)
+        # finally, if parent's parent is not None, then it must be member of
         # some deeper nested structure, so calculate the row as usual
         else:
             row = parentData.qParent().qRow(parentData)
