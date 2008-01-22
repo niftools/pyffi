@@ -44,15 +44,11 @@ from PyQt4 import QtGui, QtCore
 # http://doc.trolltech.com/4.3/model-view-programming.html
 # http://doc.trolltech.com/4.3/model-view-model-subclassing.html
 class GlobalModel(QtCore.QAbstractItemModel):
-    # TODO this is the old BaseModel stuff, still have to remove the detail
-    # in the displayed tree
     """General purpose model for QModelIndexed access to data loaded with
     PyFFI."""
     # column definitions
-    NUM_COLUMNS = 3
-    COL_NAME  = 0
-    COL_TYPE  = 1
-    COL_VALUE = 2
+    NUM_COLUMNS = 1
+    COL_TYPE  = 0
 
     def __init__(self, parent = None, roots = None):
         """Initialize the model to display the given blocks."""
@@ -60,7 +56,7 @@ class GlobalModel(QtCore.QAbstractItemModel):
         # this list stores the blocks in the view
         # is a list of NiObjects for the nif format, and a list of Chunks for
         # the cgf format
-        self.blocks = roots if not roots is None else []
+        self.roots = roots if not roots is None else []
 
     def flags(self, index):
         """Return flags for the given index: all indices are enabled and
@@ -69,16 +65,6 @@ class GlobalModel(QtCore.QAbstractItemModel):
             return 0
         # all items are enabled and selectable
         flags = QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
-        # determine whether item value can be set
-        if index.column() == self.COL_VALUE:
-            try:
-                index.internalPointer().getValue()
-            except AttributeError:
-                pass
-            except NotImplementedError:
-                pass
-            else:
-                flags |= QtCore.Qt.ItemIsEditable
         return QtCore.Qt.ItemFlags(flags)
 
     def data(self, index, role):
@@ -90,45 +76,9 @@ class GlobalModel(QtCore.QAbstractItemModel):
         # get the data for display
         data = index.internalPointer()
 
-        # the name column
-        if index.column() == self.COL_NAME:
-            # only structures have named attributes
-            if data.qParent():
-                # has a parent, so has a name
-                return QtCore.QVariant(data.qParent().qName(data))
-            else:
-                # has no parent, so has no name
-                return QtCore.QVariant("[%i]" % self.blocks.index(data))
-
         # the type column
-        elif index.column() == self.COL_TYPE:
+        if index.column() == self.COL_TYPE:
             return QtCore.QVariant(data.__class__.__name__)
-
-        # the value column
-        elif index.column() == self.COL_VALUE:
-            # get the data value
-            try:
-                datavalue = data.getValue()
-            except NotImplementedError:
-                # not implemented, so there is no value
-                # but there should be a string representation
-                datavalue = str(data)
-            except AttributeError:
-                # no getValue attribute: so no value
-                return QtCore.QVariant()
-            try:
-                # see if the data is in the blocks list
-                # if so, it is a reference
-                blocknum = self.blocks.index(datavalue)
-            except (ValueError, TypeError):
-                # not a reference: return the datavalue QVariant
-                return QtCore.QVariant(
-                    str(datavalue).replace("\n", " ").replace("\r", " "))
-            else:
-                # handle references
-                return QtCore.QVariant(
-                    "[%i] %s" % (blocknum,
-                                 datavalue.__class__.__name__))
 
         # other colums: invalid
         else:
@@ -140,20 +90,16 @@ class GlobalModel(QtCore.QAbstractItemModel):
             and role == QtCore.Qt.DisplayRole):
             if section == self.COL_TYPE:
                 return QtCore.QVariant("Type")
-            elif section == self.COL_NAME:
-                return QtCore.QVariant("Name")
-            if section == self.COL_VALUE:
-                return QtCore.QVariant("Value")
         return QtCore.QVariant()
 
     def rowCount(self, parent = QtCore.QModelIndex()):
         """Calculate a row count for the given parent index."""
         if not parent.isValid():
             # top level: one row for each block
-            return len(self.blocks)
+            return len(self.roots)
         else:
             # get the parent child count
-            return parent.internalPointer().qChildCount()
+            return len(parent.internalPointer().getRefs())
 
     def columnCount(self, parent = QtCore.QModelIndex()):
         """Return column count."""
@@ -168,59 +114,26 @@ class GlobalModel(QtCore.QAbstractItemModel):
         if not parent.isValid():
             # parent is not valid, so we need a top-level object
             # return the index with row'th block as internal pointer
-            data = self.blocks[row]
+            data = self.roots[row]
         else:
             # parent is valid, so we need to go get the row'th attribute
             # get the parent pointer
-            data = parent.internalPointer().qChild(row)
+            data = parent.internalPointer().getRefs()[row]
         return self.createIndex(row, column, data)
 
     def parent(self, index):
         """Calculate parent of a given index."""
         # get parent structure
-        parentData = index.internalPointer().qParent()
+        data = index.internalPointer()
         # if no parent, then index must be top level object
-        if parentData is None:
+        if data in self.roots:
             return QtCore.QModelIndex()
-        # if parent's parent is None, then index must be a member of a top
-        # level object, so the parent is that top level object, so
-        # parent row is index of this parent block
-        elif parentData.qParent() is None:
-            row = self.blocks.index(parentData)
         # finally, if parent's parent is not None, then it must be member of
         # some deeper nested structure, so calculate the row as usual
-        else:
-            row = parentData.qParent().qRow(parentData)
+        for block in self.roots[0].tree():
+            if data in block.getRefs():
+                parentData = block
+                row = block.getRefs().index(data)
+                break
         # construct the index
         return self.createIndex(row, 0, parentData)
-
-    def setData(self, index, value, role):
-        """Set data of a given index from given QVariant value."""
-        if role == QtCore.Qt.EditRole:
-            # fetch the current data, as a regular Python type
-            data = index.internalPointer()
-            currentvalue = data.getValue()
-            # transform the QVariant value into the right class
-            if isinstance(currentvalue, (int, long)):
-                pyvalue, ok = value.toInt()
-            elif isinstance(currentvalue, float):
-                pyvalue, ok = value.toDouble()
-            elif isinstance(currentvalue, basestring):
-                pyvalue = str(value.toString())
-                ok = True
-            elif isinstance(currentvalue, bool):
-                pyvalue, ok = value.toBool()
-            else:
-                # type not supported
-                return False
-            # check if conversion worked
-            if not ok:
-                return False
-            # set the value
-            data.setValue(pyvalue)
-            # tell everyone that the data has changed
-            self.emit(QtCore.SIGNAL('dataChanged(QModelIndex, QModelIndex)'),
-                                    index, index)
-            return True
-        # all other cases: failed
-        return False
