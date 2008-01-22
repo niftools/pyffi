@@ -57,12 +57,20 @@ class GlobalModel(QtCore.QAbstractItemModel):
         # is a list of NiObjects for the nif format, and a list of Chunks for
         # the cgf format
         self.roots = roots if not roots is None else []
+        # set up the tree (avoiding duplicate references)
+        self.parentDict = {}
+        self.refDict = {}
+        for root in self.roots:
+            for block in root.tree():
+                self.refDict[block] = []
+                for refblock in block.getRefs():
+                    if not refblock in self.parentDict:
+                        self.parentDict[refblock] = block
+                        self.refDict[block].append(refblock)
 
     def flags(self, index):
         """Return flags for the given index: all indices are enabled and
         selectable."""
-        if not index.isValid():
-            return QtCore.Qt.ItemFlags()
         # all items are enabled and selectable
         flags = QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
         return QtCore.Qt.ItemFlags(flags)
@@ -99,7 +107,7 @@ class GlobalModel(QtCore.QAbstractItemModel):
             return len(self.roots)
         else:
             # get the parent child count
-            return len(parent.internalPointer().getRefs())
+            return len(self.refDict[parent.internalPointer()])
 
     def columnCount(self, parent = QtCore.QModelIndex()):
         """Return column count."""
@@ -118,7 +126,7 @@ class GlobalModel(QtCore.QAbstractItemModel):
         else:
             # parent is valid, so we need to go get the row'th attribute
             # get the parent pointer
-            data = parent.internalPointer().getRefs()[row]
+            data = self.refDict[parent.internalPointer()][row]
         return self.createIndex(row, column, data)
 
     def parent(self, index):
@@ -130,10 +138,7 @@ class GlobalModel(QtCore.QAbstractItemModel):
             return QtCore.QModelIndex()
         # finally, if parent's parent is not None, then it must be member of
         # some deeper nested structure, so calculate the row as usual
-        for block in self.roots[0].tree():
-            if data in block.getRefs():
-                parentData = block
-                row = block.getRefs().index(data)
-                break
+        parentData = self.parentDict[data]
+        row = self.refDict[parentData].index(data)
         # construct the index
         return self.createIndex(row, 0, parentData)
