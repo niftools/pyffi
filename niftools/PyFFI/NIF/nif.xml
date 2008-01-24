@@ -333,7 +333,8 @@
         <option value="2" name="RIGID_FACE_CAMERA">Rigid Face Camera.</option>
         <option value="3" name="ALWAYS_FACE_CENTER">Always Face Center.</option>
         <option value="4" name="RIGID_FACE_CENTER">Rigid Face Center.</option>
-        <option value="9" name="ROTATE_ABOUT_UP">The billboard will only rotate around the up axis.</option>
+        <option value="9" name="ROTATE_ABOUT_UP2">The billboard will only rotate around the up axis (same as ROTATE_ABOUT_UP?).</option>
+
     </enum>
 
     <enum name="CompareMode" storage="uint">
