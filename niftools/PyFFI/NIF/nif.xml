@@ -1105,9 +1105,6 @@
       <add name="Center" type="Vector3">Center</add>
     </compound>
 
-    <!-- forward declaration -->
-    <compound name="UnionBV" />
-    
     <compound name="BoundingVolume">
         <add name="Collision Type" type="BoundVolumeType">Type of collision data.</add>
         <add name="Sphere" type="SphereBV" cond="Collision Type == 0">Sphere</add>
