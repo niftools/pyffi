@@ -100,6 +100,10 @@ class QSkope(QtGui.QMainWindow):
         """Create the menu actions."""
         self.openAct = QtGui.QAction("&Open", self)
         self.openAct.setShortcut("Ctrl+O")
+        QtCore.QObject.connect(self.openAct,
+                               QtCore.SIGNAL("triggered()"),
+                               self.openAction)
+        
         self.saveAct = QtGui.QAction("&Save", self)
         self.saveAct.setShortcut("Ctrl+S")
 
@@ -166,3 +170,7 @@ class QSkope(QtGui.QMainWindow):
         else:
             self.detailModel = DetailModel()
         self.detailWidget.setModel(self.detailModel)
+
+    def openAction(self):
+        self.openFile(
+            filename = QtGui.QFileDialog.getOpenFileName(self, "Open File"))
