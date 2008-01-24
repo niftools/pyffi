@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """The GlobalModel module defines a model to display the structure of a file
 built from StructBase instances possibly referring to one another."""
 
@@ -76,10 +77,9 @@ class GlobalModel(QtCore.QAbstractItemModel):
         """Return flags for the given index: all indices are enabled and
         selectable."""
         # all items are enabled and selectable
-        if index.isValid():
-            flags = QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
-        else:
-            flags = 0
+        if not index.isValid():
+            return QtCore.Qt.ItemFlags()
+        flags = QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
         return QtCore.Qt.ItemFlags(flags)
 
     def data(self, index, role):
@@ -113,7 +113,7 @@ class GlobalModel(QtCore.QAbstractItemModel):
             # top level: one row for each block
             return len(self.roots)
         else:
-            # get the parent child count
+            # get the parent child count = number of references
             data = parent.internalPointer()
             return len(self.refDict[data])
 
@@ -131,21 +131,16 @@ class GlobalModel(QtCore.QAbstractItemModel):
             # parent is not valid, so we need a top-level object
             # return the index with row'th block as internal pointer
             data = self.roots[row]
-            return self.createIndex(row, column, data)
-        elif parent.internalPointer() in self.refDict:
-            # parent is valid, so we need to go get the row'th attribute
+        else:
+            # parent is valid, so we need to go get the row'th reference
             # get the parent pointer
             data = self.refDict[parent.internalPointer()][row]
-            return self.createIndex(row, column, data)
-        else:
-            print "WARNING: GETTING INVALID INDEX"
-            return QtCore.QModelIndex()
+        return self.createIndex(row, column, data)
 
     def parent(self, index):
         """Calculate parent of a given index."""
         # get parent structure
         if not index.isValid():
-            print "WARNING: PARENT OF INVALID"
             return QtCore.QModelIndex()
         data = index.internalPointer()
         # if no parent, then index must be top level object
@@ -154,6 +149,15 @@ class GlobalModel(QtCore.QAbstractItemModel):
         # finally, if parent's parent is not None, then it must be member of
         # some deeper nested structure, so calculate the row as usual
         parentData = self.parentDict[data]
-        row = self.refDict[parentData].index(data)
+        if parentData in self.roots:
+            # top level parent
+            # row number is index in roots list
+            row = self.roots.index(parentData)
+        else:
+            # we need the row number of parentData:
+            # 1) get the parent of parentData
+            # 2) get the list of references of the parent of parentData
+            # 3) check the index number of parentData in this list of references
+            row = self.refDict[self.parentDict[parentData]].index(parentData)
         # construct the index
         return self.createIndex(row, 0, parentData)

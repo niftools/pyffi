@@ -66,7 +66,7 @@ class DetailModel(QtCore.QAbstractItemModel):
         """Return flags for the given index: all indices are enabled and
         selectable."""
         if not index.isValid():
-            return 0
+            return QtCore.Qt.ItemFlags()
         # all items are enabled and selectable
         flags = QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
         # determine whether item value can be set
