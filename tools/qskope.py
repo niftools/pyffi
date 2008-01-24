@@ -52,9 +52,6 @@ except ImportError:
 # import the main QSkope window class
 from qskopelib.QSkope import QSkope
 
-# get the PyFFI version, this is also the script version
-from PyFFI import __version__
-
 # system and option parsing functions
 import sys
 from optparse import OptionParser
@@ -68,7 +65,7 @@ def main():
     description = """Parse and display the file <file>."""
 
     parser = OptionParser(usage,
-                          version = "QSkope %s" % __version__,
+                          version = "QSkope %s" % QSkope.__version__,
                           description = description)
     (options, args) = parser.parse_args()
 

@@ -43,6 +43,7 @@ from qskopelib.GlobalModel import GlobalModel
 from qskopelib.DetailModel import DetailModel
 from qskopelib.DetailDelegate import DetailDelegate
 
+import PyFFI
 from PyFFI.NIF import NifFormat
 from PyFFI.CGF import CgfFormat
 
@@ -50,6 +51,9 @@ from types import NoneType
 
 class QSkope(QtGui.QMainWindow):
     """Main QSkope window."""
+    # class constants
+    __version__ = PyFFI.__version__
+
     def __init__(self, parent = None):
         """Initialize the main window."""
         QtGui.QMainWindow.__init__(self, parent)
@@ -102,30 +106,51 @@ class QSkope(QtGui.QMainWindow):
 
     def createActions(self):
         """Create the menu actions."""
+        # open a file
         self.openAct = QtGui.QAction("&Open", self)
         self.openAct.setShortcut("Ctrl+O")
         QtCore.QObject.connect(self.openAct,
                                QtCore.SIGNAL("triggered()"),
                                self.openAction)
         
+        # save a file
         self.saveAct = QtGui.QAction("&Save", self)
         self.saveAct.setShortcut("Ctrl+S")
         QtCore.QObject.connect(self.saveAct,
                                QtCore.SIGNAL("triggered()"),
                                self.saveAction)
 
+        # save a file as ...
         self.saveAsAct = QtGui.QAction("Save As...", self)
         self.saveAsAct.setShortcut("Ctrl+Shift+S")
         QtCore.QObject.connect(self.saveAsAct,
                                QtCore.SIGNAL("triggered()"),
                                self.saveAsAction)
 
+        # tell something about QSkope
+        self.aboutQSkopeAct = QtGui.QAction("About QSkope", self)
+        QtCore.QObject.connect(self.aboutQSkopeAct,
+                               QtCore.SIGNAL("triggered()"),
+                               self.aboutQSkopeAction)
+        
+        # tell something about Qt
+        self.aboutQtAct = QtGui.QAction("About Qt", self)
+        QtCore.QObject.connect(self.aboutQtAct,
+                               QtCore.SIGNAL("triggered()"),
+                               self.aboutQtAction)
+
     def createMenus(self):
         """Create the menu bar."""
+        # the file menu: open, save, save as
         fileMenu = self.menuBar().addMenu("&File")
         fileMenu.addAction(self.openAct)
         fileMenu.addAction(self.saveAct)
         fileMenu.addAction(self.saveAsAct)
+
+        # the help menu: 
+        helpMenu = self.menuBar().addMenu("&Help")
+        helpMenu.addAction(self.aboutQSkopeAct)
+        helpMenu.addAction(self.aboutQtAct)
 
     #
     # various helper functions
@@ -232,3 +257,27 @@ class QSkope(QtGui.QMainWindow):
         """Save a file."""
         if self.fileName:
             self.saveFile(filename = self.fileName)
+
+    def aboutQSkopeAction(self):
+        mb = QtGui.QMessageBox(self)
+        mb.setWindowTitle("About QSkope and PyFFI %s" % self.__version__)
+        mb.setText("""
+<p>QSkope is a tool bundled with PyFFI for analyzing and editing files whose
+format is supported by PyFFI. PyFFI is a general purpose library to read and
+write block structured file formats. PyFFI and QSkope are written in
+Python.</p>
+<p>For more informations visit
+<a href="http://pyffi.sourceforge.net">http://pyffi.sourceforge.net</a>.</p>
+<p>PyFFI is free software are available under a BSD license. The source is
+available via
+<a href="http://pyffi.svn.sourceforge.net/viewvc/pyffi/trunk/">svn</a>
+on <a href="http://sourceforge.net">SourceForge</a>.</p>
+<p>The most recent version of PyFFI can always be downloaded from the
+<a href="http://sourceforge.net/project/showfiles.php?group_id=199269">
+PyFFI SourceForge Project page</a>.""")
+        
+        mb.exec_()
+
+    def aboutQtAction(self):
+        pass
+    
