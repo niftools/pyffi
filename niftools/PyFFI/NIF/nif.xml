@@ -1104,6 +1104,11 @@
       <add name="Normal" type="Vector3">Normal</add>
       <add name="Center" type="Vector3">Center</add>
     </compound>
+
+    <compound name="UnionBV">
+        <add name="Num BV" type="uint">Number of Bounding Volumes.</add>
+        <add name="Bounding Volumes" type="BoundingVolume" arr1="Num BV">Bounding Volume.</add>
+    </compound>
     
     <compound name="BoundingVolume">
         <add name="Collision Type" type="BoundVolumeType">Type of collision data.</add>
@@ -1114,11 +1119,6 @@
         <add name="HalfSpace" type="HalfSpaceBV" cond="Collision Type == 5">Half Space</add>
     </compound>
 
-    <compound name="UnionBV">
-        <add name="Num BV" type="uint">Number of Bounding Volumes.</add>
-        <add name="Bounding Volumes" type="BoundingVolume" arr1="Num BV">Bounding Volume.</add>
-    </compound>
-        
     <compound name="MorphWeight">
         <add name="Interpolator" type="Ref" template="NiInterpolator">Interpolator</add>
         <add name="Weight?" type="float">Weight</add>
