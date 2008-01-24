@@ -51,9 +51,6 @@ from types import NoneType
 
 class QSkope(QtGui.QMainWindow):
     """Main QSkope window."""
-    # class constants
-    __version__ = PyFFI.__version__
-
     def __init__(self, parent = None):
         """Initialize the main window."""
         QtGui.QMainWindow.__init__(self, parent)
@@ -137,7 +134,7 @@ class QSkope(QtGui.QMainWindow):
         self.aboutQtAct = QtGui.QAction("About Qt", self)
         QtCore.QObject.connect(self.aboutQtAct,
                                QtCore.SIGNAL("triggered()"),
-                               self.aboutQtAction)
+                               QtGui.qApp.aboutQt)
 
     def createMenus(self):
         """Create the menu bar."""
@@ -260,24 +257,22 @@ class QSkope(QtGui.QMainWindow):
 
     def aboutQSkopeAction(self):
         mb = QtGui.QMessageBox(self)
-        mb.setWindowTitle("About QSkope and PyFFI %s" % self.__version__)
+        mb.setWindowTitle("About QSkope")
         mb.setText("""
 <p>QSkope is a tool bundled with PyFFI for analyzing and editing files whose
-format is supported by PyFFI. PyFFI is a general purpose library to read and
-write block structured file formats. PyFFI and QSkope are written in
-Python.</p>
+format is supported by PyFFI. QSkope is written in Python.</p>
+<p>The Python File Format Interface, or briefly PyFFI, is a general purpose
+library to read and write block structured file formats.</p>
 <p>For more informations visit
 <a href="http://pyffi.sourceforge.net">http://pyffi.sourceforge.net</a>.</p>
-<p>PyFFI is free software are available under a BSD license. The source is
+<p>PyFFI is free software and comes under a BSD license. The source is
 available via
 <a href="http://pyffi.svn.sourceforge.net/viewvc/pyffi/trunk/">svn</a>
 on <a href="http://sourceforge.net">SourceForge</a>.</p>
-<p>The most recent version of PyFFI can always be downloaded from the
+<p>You are running PyFFI %s.
+The most recent version of PyFFI can always be downloaded from the
 <a href="http://sourceforge.net/project/showfiles.php?group_id=199269">
-PyFFI SourceForge Project page</a>.""")
+PyFFI SourceForge Project page</a>.""" % PyFFI.__version__)
         
         mb.exec_()
-
-    def aboutQtAction(self):
-        pass
     

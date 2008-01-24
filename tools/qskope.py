@@ -65,7 +65,7 @@ def main():
     description = """Parse and display the file <file>."""
 
     parser = OptionParser(usage,
-                          version = "QSkope %s" % QSkope.__version__,
+                          version = "%prog $Rev$",
                           description = description)
     (options, args) = parser.parse_args()
 
