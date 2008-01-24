@@ -39,6 +39,8 @@
 #
 # ***** END LICENSE BLOCK *****
 
+
+# check if PyQt4 is installed
 try:
     from PyQt4 import QtGui
 except ImportError:
@@ -47,20 +49,26 @@ except ImportError:
   http://www.riverbankcomputing.co.uk/pyqt/download.php""")
     raise
 
+# import the main QSkope window class
 from qskopelib.QSkope import QSkope
 
+# get the PyFFI version, this is also the script version
+from PyFFI import __version__
+
+# system and option parsing functions
 import sys
 from optparse import OptionParser
 
+# main script function
 def main():
     """The main script function. Does argument parsing, file type checking,
     and builds the qskope interface."""
     # parse options and positional arguments
-    usage = "%prog [options] <file>"
+    usage = "%prog [options] [<file>]"
     description = """Parse and display the file <file>."""
 
     parser = OptionParser(usage,
-                          version = "%prog $Rev$",
+                          version = "QSkope %s" % __version__,
                           description = description)
     (options, args) = parser.parse_args()
 
