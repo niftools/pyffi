@@ -62,8 +62,12 @@ class GlobalModel(QtCore.QAbstractItemModel):
         self.refDict = {}
         for root in self.roots:
             for block in root.tree():
-                self.refDict[block] = []
+                # create a reference list for this block
+                # if it does not exist already
+                if not block in self.refDict:
+                    self.refDict[block] = []
                 for refblock in block.getRefs():
+                    # each block can have only one parent
                     if not refblock in self.parentDict:
                         self.parentDict[refblock] = block
                         self.refDict[block].append(refblock)
@@ -72,7 +76,10 @@ class GlobalModel(QtCore.QAbstractItemModel):
         """Return flags for the given index: all indices are enabled and
         selectable."""
         # all items are enabled and selectable
-        flags = QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
+        if index.isValid():
+            flags = QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
+        else:
+            flags = 0
         return QtCore.Qt.ItemFlags(flags)
 
     def data(self, index, role):
@@ -107,7 +114,8 @@ class GlobalModel(QtCore.QAbstractItemModel):
             return len(self.roots)
         else:
             # get the parent child count
-            return len(self.refDict[parent.internalPointer()])
+            data = parent.internalPointer()
+            return len(self.refDict[data])
 
     def columnCount(self, parent = QtCore.QModelIndex()):
         """Return column count."""
@@ -123,15 +131,22 @@ class GlobalModel(QtCore.QAbstractItemModel):
             # parent is not valid, so we need a top-level object
             # return the index with row'th block as internal pointer
             data = self.roots[row]
-        else:
+            return self.createIndex(row, column, data)
+        elif parent.internalPointer() in self.refDict:
             # parent is valid, so we need to go get the row'th attribute
             # get the parent pointer
             data = self.refDict[parent.internalPointer()][row]
-        return self.createIndex(row, column, data)
+            return self.createIndex(row, column, data)
+        else:
+            print "WARNING: GETTING INVALID INDEX"
+            return QtCore.QModelIndex()
 
     def parent(self, index):
         """Calculate parent of a given index."""
         # get parent structure
+        if not index.isValid():
+            print "WARNING: PARENT OF INVALID"
+            return QtCore.QModelIndex()
         data = index.internalPointer()
         # if no parent, then index must be top level object
         if data in self.roots:
