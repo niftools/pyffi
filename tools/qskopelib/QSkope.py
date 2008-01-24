@@ -41,6 +41,7 @@ from PyQt4 import QtGui, QtCore
 
 from qskopelib.GlobalModel import GlobalModel
 from qskopelib.DetailModel import DetailModel
+from qskopelib.DetailDelegate import DetailDelegate
 
 from PyFFI.NIF import NifFormat
 from PyFFI.CGF import CgfFormat
