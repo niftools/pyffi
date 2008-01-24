@@ -37,7 +37,7 @@
 #
 # ***** END LICENSE BLOCK *****
 
-from PyQt4 import QtGui
+from PyQt4 import QtGui, QtCore
 
 from qskopelib.GlobalModel import GlobalModel
 from qskopelib.DetailModel import DetailModel
@@ -65,9 +65,14 @@ class QSkope(QtGui.QMainWindow):
         self.detailWidget = QtGui.QTreeView()
         self.detailWidget.setAlternatingRowColors(True)
 
+        # connect global with detail
+        QtCore.QObject.connect(self.globalWidget,
+                               QtCore.SIGNAL("clicked(const QModelIndex &)"),
+                               self.setDetailModel)
+
         # set up central widget which contains everything else
-        # horizontal split: left = tree view, right = struct view
-        self.mainWidget = QtGui.QWidget()        
+        # horizontal split: left = global view, right = detail view
+        self.mainWidget = QtGui.QWidget()
         self.layout = QtGui.QHBoxLayout()
         self.layout.addWidget(self.globalWidget)
         self.layout.addWidget(self.detailWidget)
@@ -92,6 +97,14 @@ class QSkope(QtGui.QMainWindow):
         fileMenu = self.menuBar().addMenu("&File")
         fileMenu.addAction(self.openAct)
         fileMenu.addAction(self.saveAct)
+
+    #
+    # slots
+    #
+
+    def setDetailModel(self, index):
+        self.detailModel = DetailModel(block = index.internalPointer())
+        self.detailWidget.setModel(self.detailModel)
 
     def openFile(self, filename = None):
         """Open a file, and set up the view."""
