@@ -68,7 +68,11 @@ class _MetaStructBase(type):
         # does the type contain a string?
         cls._hasStrings = getattr(cls, '_hasStrings', False)
         for attr in dct['_attrs']:
-            if issubclass(attr.type, BasicBase) and attr.arr1 == None:
+            # basestring is a forward compound type declaration
+            # and issubclass must take a type as first argument
+            # hence this hack
+            if not isinstance(attr.type, basestring) and \
+                issubclass(attr.type, BasicBase) and attr.arr1 == None:
                 # get and set basic attributes
                 setattr(cls, attr.name, property(
                     partial(StructBase.getBasicAttribute, name = attr.name),
@@ -89,7 +93,9 @@ class _MetaStructBase(type):
             # check for links and refs and strings
             if not cls._hasLinks:
                 if attr.type != NoneType: # templates!
-                    if attr.type._hasLinks:
+                    # attr.type basestring means forward declaration
+                    # we cannot know if it has links, so assume yes
+                    if isinstance(attr.type, basestring) or attr.type._hasLinks:
                         cls._hasLinks = True
                 #else:
                 #    cls._hasLinks = True
@@ -98,14 +104,18 @@ class _MetaStructBase(type):
 
             if not cls._hasRefs:
                 if attr.type != NoneType:
-                    if attr.type._hasRefs:
+                    # attr.type basestring means forward declaration
+                    # we cannot know if it has refs, so assume yes
+                    if isinstance(attr.type, basestring) or attr.type._hasRefs:
                         cls._hasRefs = True
                 #else:
                 #    cls._hasRefs = True # dito, see comment above
 
             if not cls._hasStrings:
                 if attr.type != NoneType:
-                    if attr.type._hasStrings:
+                    # attr.type basestring means forward declaration
+                    # we cannot know if it has strings, so assume yes
+                    if isinstance(attr.type, basestring) or attr.type._hasStrings:
                         cls._hasStrings = True
                 else:
                     # enabled because there is a template key type that has

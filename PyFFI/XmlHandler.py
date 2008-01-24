@@ -60,9 +60,8 @@ class StructAttribute(object):
             try:
                 self.type = getattr(cls, attrs_type_str)
             except AttributeError:
-                raise XmlError(
-                    "typo, or forward declaration of type %s"
-                    % attrs_type_str)
+                # forward declaration, resolved at endDocument
+                self.type = attrs_type_str
         else:
             self.type = NoneType # type determined at runtime
         # optional parameters
@@ -498,6 +497,9 @@ but got %s instead"""%name)
                     attr.template = \
                         getattr(self.cls, templ) if templ != "TEMPLATE" \
                         else NoneType
+                attrtype = attr.type
+                if isinstance(attrtype, basestring):
+                    attr.type = getattr(self.cls, attrtype)
 
             # add custom functions to interface
             # first find the module
