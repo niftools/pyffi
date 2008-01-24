@@ -66,6 +66,8 @@ class QSkope(QtGui.QMainWindow):
         self.detailWidget.setAlternatingRowColors(True)
 
         # connect global with detail
+        # if object is selected in global view, then show its details in the
+        # detail view
         QtCore.QObject.connect(self.globalWidget,
                                QtCore.SIGNAL("clicked(const QModelIndex &)"),
                                self.setDetailModel)
@@ -193,7 +195,8 @@ class QSkope(QtGui.QMainWindow):
                                 game = self.formatArgs[2],
                                 chunks = self.roots,
                                 versions = CgfFormat.getChunkVersions(
-                                    game, self.roots))
+                                    game = self.formatArgs[2],
+                                    chunks = self.roots))
         finally:
             stream.close()
 

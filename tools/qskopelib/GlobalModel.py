@@ -57,11 +57,12 @@ class GlobalModel(QtCore.QAbstractItemModel):
         # this list stores the blocks in the view
         # is a list of NiObjects for the nif format, and a list of Chunks for
         # the cgf format
-        self.roots = roots if not roots is None else []
+        if roots is None:
+            roots = []
         # set up the tree (avoiding duplicate references)
         self.parentDict = {}
         self.refDict = {}
-        for root in self.roots:
+        for root in roots:
             for block in root.tree():
                 # create a reference list for this block
                 # if it does not exist already
@@ -72,6 +73,18 @@ class GlobalModel(QtCore.QAbstractItemModel):
                     if not refblock in self.parentDict:
                         self.parentDict[refblock] = block
                         self.refDict[block].append(refblock)
+        # get list of actual roots
+        self.roots = []
+        # list over all blocks with references
+        for root in self.refDict:
+            # if it is already listed: skip
+            if root in self.roots:
+                continue
+            # if it has a parent: skip
+            if root in self.parentDict:
+                continue
+            # it must be an actual root
+            self.roots.append(root)
 
     def flags(self, index):
         """Return flags for the given index: all indices are enabled and
