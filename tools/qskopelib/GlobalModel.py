@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """The GlobalModel module defines a model to display the structure of a file
 built from StructBase instances possibly referring to one another."""
 
@@ -48,8 +47,9 @@ class GlobalModel(QtCore.QAbstractItemModel):
     """General purpose model for QModelIndexed access to data loaded with
     PyFFI."""
     # column definitions
-    NUM_COLUMNS = 1
-    COL_TYPE  = 0
+    NUM_COLUMNS = 2
+    COL_TYPE = 0
+    COL_NAME = 1
 
     def __init__(self, parent = None, roots = None):
         """Initialize the model to display the given blocks."""
@@ -94,6 +94,11 @@ class GlobalModel(QtCore.QAbstractItemModel):
         # the type column
         if index.column() == self.COL_TYPE:
             return QtCore.QVariant(data.__class__.__name__)
+        elif index.column() == self.COL_NAME:
+            if hasattr(data, "name"):
+                return QtCore.QVariant(data.name)
+            else:
+                return QtCore.QVariant()
 
         # other colums: invalid
         else:
@@ -105,6 +110,8 @@ class GlobalModel(QtCore.QAbstractItemModel):
             and role == QtCore.Qt.DisplayRole):
             if section == self.COL_TYPE:
                 return QtCore.QVariant("Type")
+            elif section == self.COL_NAME:
+                return QtCore.QVariant("Name")
         return QtCore.QVariant()
 
     def rowCount(self, parent = QtCore.QModelIndex()):
@@ -130,7 +137,10 @@ class GlobalModel(QtCore.QAbstractItemModel):
         if not parent.isValid():
             # parent is not valid, so we need a top-level object
             # return the index with row'th block as internal pointer
-            data = self.roots[row]
+            if row < len(self.roots):
+                data = self.roots[row]
+            else:
+                return QtCore.QModelIndex()
         else:
             # parent is valid, so we need to go get the row'th reference
             # get the parent pointer

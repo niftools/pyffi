@@ -70,17 +70,26 @@ class QSkope(QtGui.QMainWindow):
                                QtCore.SIGNAL("clicked(const QModelIndex &)"),
                                self.setDetailModel)
 
-        # set up central widget which contains everything else
-        # horizontal split: left = global view, right = detail view
-        self.mainWidget = QtGui.QWidget()
-        self.layout = QtGui.QHBoxLayout()
-        self.layout.addWidget(self.globalWidget)
-        self.layout.addWidget(self.detailWidget)
-        self.mainWidget.setLayout(self.layout)
-        self.setCentralWidget(self.mainWidget)
+        # set up the docks
+        self.setCentralWidget(self.globalWidget)
+        ## alternative if central widget changes in future:
+        ## global block list dock
+        #self.globalDock = QtGui.QDockWidget("Block List", self)
+        #self.globalDock.setWidget(self.globalWidget)
+        #self.globalDock.setAllowedAreas(QtCore.Qt.AllDockWidgetAreas)
+        #self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.globalDock)
+
+        # block detail dock
+        self.detailDock = QtGui.QDockWidget("Block Details", self)
+        self.detailDock.setWidget(self.detailWidget)
+        self.detailDock.setAllowedAreas(QtCore.Qt.AllDockWidgetAreas)
+        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.detailDock)
 
         # activate status bar
         self.statusBar().clearMessage()
+
+        # window title
+        self.setWindowTitle("QSkope")
 
         # current file and arguments to save back to disk
         self.roots = []
@@ -88,23 +97,21 @@ class QSkope(QtGui.QMainWindow):
         self.formatArgs = ()
 
     def createActions(self):
+        """Create the menu actions."""
         self.openAct = QtGui.QAction("&Open", self)
         self.openAct.setShortcut("Ctrl+O")
         self.saveAct = QtGui.QAction("&Save", self)
         self.saveAct.setShortcut("Ctrl+S")
 
     def createMenus(self):
+        """Create the menu bar."""
         fileMenu = self.menuBar().addMenu("&File")
         fileMenu.addAction(self.openAct)
         fileMenu.addAction(self.saveAct)
 
     #
-    # slots
+    # various helper functions
     #
-
-    def setDetailModel(self, index):
-        self.detailModel = DetailModel(block = index.internalPointer())
-        self.detailWidget.setModel(self.detailModel)
 
     def openFile(self, filename = None):
         """Open a file, and set up the view."""
@@ -123,21 +130,20 @@ class QSkope(QtGui.QMainWindow):
             filetype, fileversion, game = CgfFormat.getVersion(stream)
             if filetype >= 0:
                 self.roots, versions = CgfFormat.read(stream,
-                                                 fileversion = fileversion,
-                                                 game = game)
+                                                      fileversion = fileversion,
+                                                      game = game)
                 self.Format = CgfFormat
                 self.formatArgs = (filetype, fileversion, game)
             else:
-                raw_input('File format of %s not recognized' % filename)
-                raise RuntimeError('File format of %s not recognized'
-                                   % filename)
+                self.statusBar().showMessage(
+                    'File format of %s not recognized.' % filename)
+                return
 
         # set up the models and update the views
         self.globalModel = GlobalModel(roots = self.roots)
         self.globalWidget.setModel(self.globalModel)
-        self.detailModel = DetailModel(
-            block = self.roots[0] if self.roots else None)
-        self.detailWidget.setModel(self.detailModel)
+        self.setDetailModel(
+            self.globalModel.index(0, 0, QtCore.QModelIndex()))
 
         # update window title
         self.setWindowTitle("QSkope - %s" % filename)
@@ -148,3 +154,15 @@ class QSkope(QtGui.QMainWindow):
     def saveFile(self):
         """Save changes to disk."""
         pass
+
+    #
+    # slots
+    #
+
+    def setDetailModel(self, index):
+        """Set the detail model given an index from the global model."""
+        if index.isValid():
+            self.detailModel = DetailModel(block = index.internalPointer())
+        else:
+            self.detailModel = DetailModel()
+        self.detailWidget.setModel(self.detailModel)
