@@ -93,6 +93,7 @@ class QSkope(QtGui.QMainWindow):
 
         # current file and arguments to save back to disk
         self.roots = []
+        self.fileName = None
         self.Format = NoneType
         self.formatArgs = ()
 
@@ -106,12 +107,22 @@ class QSkope(QtGui.QMainWindow):
         
         self.saveAct = QtGui.QAction("&Save", self)
         self.saveAct.setShortcut("Ctrl+S")
+        QtCore.QObject.connect(self.saveAct,
+                               QtCore.SIGNAL("triggered()"),
+                               self.saveAction)
+
+        self.saveAsAct = QtGui.QAction("Save As...", self)
+        self.saveAsAct.setShortcut("Ctrl+Shift+S")
+        QtCore.QObject.connect(self.saveAsAct,
+                               QtCore.SIGNAL("triggered()"),
+                               self.saveAsAction)
 
     def createMenus(self):
         """Create the menu bar."""
         fileMenu = self.menuBar().addMenu("&File")
         fileMenu.addAction(self.openAct)
         fileMenu.addAction(self.saveAct)
+        fileMenu.addAction(self.saveAsAct)
 
     #
     # various helper functions
@@ -124,24 +135,29 @@ class QSkope(QtGui.QMainWindow):
 
         # open the file and check type and version
         # then read the file
-        stream = open(filename, "rb")
-        version, user_version = NifFormat.getVersion(stream)
-        if version >= 0:
-            self.roots = NifFormat.read(stream, version, user_version)
-            self.Format = NifFormat
-            self.formatArgs = (version, user_version)
-        else:
-            filetype, fileversion, game = CgfFormat.getVersion(stream)
-            if filetype >= 0:
-                self.roots, versions = CgfFormat.read(stream,
-                                                      fileversion = fileversion,
-                                                      game = game)
-                self.Format = CgfFormat
-                self.formatArgs = (filetype, fileversion, game)
+        try:
+            stream = open(filename, "rb")
+            version, user_version = NifFormat.getVersion(stream)
+            if version >= 0:
+                self.roots = NifFormat.read(stream, version, user_version)
+                self.fileName = filename
+                self.Format = NifFormat
+                self.formatArgs = (version, user_version)
             else:
-                self.statusBar().showMessage(
-                    'File format of %s not recognized.' % filename)
-                return
+                filetype, fileversion, game = CgfFormat.getVersion(stream)
+                if filetype >= 0:
+                    self.roots, versions = CgfFormat.read(stream,
+                                                          fileversion = fileversion,
+                                                          game = game)
+                    self.fileName = filename
+                    self.Format = CgfFormat
+                    self.formatArgs = (filetype, fileversion, game)
+                else:
+                    self.statusBar().showMessage(
+                        'File format of %s not recognized.' % filename)
+                    return
+        finally:
+            stream.close()
 
         # set up the models and update the views
         self.globalModel = GlobalModel(roots = self.roots)
@@ -150,14 +166,39 @@ class QSkope(QtGui.QMainWindow):
             self.globalModel.index(0, 0, QtCore.QModelIndex()))
 
         # update window title
-        self.setWindowTitle("QSkope - %s" % filename)
+        self.setWindowTitle("QSkope - %s" % self.fileName)
 
         # clear status bar
-        self.statusBar().clearMessage()
+        self.statusBar().showMessage("%s read." % filename)
 
-    def saveFile(self):
+    def saveFile(self, filename = None):
         """Save changes to disk."""
-        pass
+        # tell user we are saving the file
+        self.statusBar().showMessage("Saving %s ..." % filename)
+        try:
+            # open stream for writing
+            stream = open(filename, "wb")
+            # check type of file
+            if issubclass(self.Format, NifFormat):
+                # write nif file
+                NifFormat.write(stream,
+                                version = self.formatArgs[0],
+                                user_version = self.formatArgs[1],
+                                roots = self.roots)
+            elif issubclass(self.Format, CgfFormat):
+                # write cgf file
+                CgfFormat.write(stream,
+                                filetype = self.formatArgs[0],
+                                fileversion = self.formatArgs[1],
+                                game = self.formatArgs[2],
+                                chunks = self.roots,
+                                versions = CgfFormat.getChunkVersions(
+                                    game, self.roots))
+        finally:
+            stream.close()
+
+        # update status bar message
+        self.statusBar().showMessage("%s saved." % filename)
 
     #
     # slots
@@ -172,5 +213,18 @@ class QSkope(QtGui.QMainWindow):
         self.detailWidget.setModel(self.detailModel)
 
     def openAction(self):
+        """Open a file."""
         self.openFile(
             filename = QtGui.QFileDialog.getOpenFileName(self, "Open File"))
+
+    def saveAsAction(self):
+        """Save a file."""
+        filename = QtGui.QFileDialog.getSaveFileName(self, "Save File")
+        if filename:
+            self.fileName = filename
+            self.saveAction()
+
+    def saveAction(self):
+        """Save a file."""
+        if self.fileName:
+            self.saveFile(filename = self.fileName)
