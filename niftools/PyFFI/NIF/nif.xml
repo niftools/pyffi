@@ -1105,10 +1105,8 @@
       <add name="Center" type="Vector3">Center</add>
     </compound>
 
-    <compound name="UnionBV">
-        <add name="Num BV" type="uint">Number of Bounding Volumes.</add>
-        <add name="Bounding Volumes" type="BoundingVolume" arr1="Num BV">Bounding Volume.</add>
-    </compound>
+    <!-- forward declaration -->
+    <compound name="UnionBV" />
     
     <compound name="BoundingVolume">
         <add name="Collision Type" type="BoundVolumeType">Type of collision data.</add>
@@ -1119,6 +1117,11 @@
         <add name="HalfSpace" type="HalfSpaceBV" cond="Collision Type == 5">Half Space</add>
     </compound>
 
+    <compound name="UnionBV">
+        <add name="Num BV" type="uint">Number of Bounding Volumes.</add>
+        <add name="Bounding Volumes" type="BoundingVolume" arr1="Num BV">Bounding Volume.</add>
+    </compound>
+    
     <compound name="MorphWeight">
         <add name="Interpolator" type="Ref" template="NiInterpolator">Interpolator</add>
         <add name="Weight?" type="float">Weight</add>
@@ -1815,7 +1818,7 @@
         <add name="Num Node Groups 2" type="uint">Number of node groups.</add>
         <add name="Node Groups" type="NodeGroup" arr1="Num Node Groups">A list of node groups (each group a sequence of bones).</add>
         <add name="Num Shape Groups" type="uint" userver="0">Number of shape groups.</add>
-        <add name="Shape Groups 1" type="SkinShapeGroup" arr1="Num Shape Groups"userver="0">List of shape groups.</add>
+        <add name="Shape Groups 1" type="SkinShapeGroup" arr1="Num Shape Groups" userver="0">List of shape groups.</add>
         <add name="Num Shape Groups 2" type="uint" userver="0">The size of the second list of shape groups.</add>
         <add name="Shape Groups 2" type="Ref" template="NiTriBasedGeom" arr1="Num Shape Groups 2" userver="0">Group of NiTriShape indices.</add>
     </niobject>
