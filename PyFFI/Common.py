@@ -159,7 +159,7 @@ class UShort(UInt):
     _size = 2
 
 class Char(BasicBase):
-    """Implementation of an 8-bit ACII character."""
+    """Implementation of an 8-bit ASCII character."""
     def __init__(self, **kwargs):
         super(Char, self).__init__(**kwargs)
         self._value = '\x00'
