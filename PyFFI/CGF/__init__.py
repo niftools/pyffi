@@ -201,6 +201,14 @@ class CgfFormat(object):
     char = Common.Char
     float = Common.Float
 
+    class bool(Common.UByte):
+        """Simple bool implementation."""
+        def getValue(self):
+            return False if self._value == '\x00' else True
+
+        def setValue(self, value):
+            self._value = '\x01' if value else '\x00'
+
     class FileSignature(BasicBase):
         """The CryTek file signature 'CryTex\x00\x00' with which every
         cgf file starts."""
