@@ -256,7 +256,10 @@ class QSkope(QtGui.QMainWindow):
             self.saveFile(filename = self.fileName)
 
     def aboutQSkopeAction(self):
+        """Display an information window about QSkope."""
+        # create the box
         mb = QtGui.QMessageBox(self)
+        # set window title and window text
         mb.setWindowTitle("About QSkope")
         mb.setText("""
 <p>QSkope is a tool bundled with PyFFI for analyzing and editing files whose
@@ -273,6 +276,5 @@ on <a href="http://sourceforge.net">SourceForge</a>.</p>
 The most recent version of PyFFI can always be downloaded from the
 <a href="http://sourceforge.net/project/showfiles.php?group_id=199269">
 PyFFI SourceForge Project page</a>.""" % PyFFI.__version__)
-        
+        # display the window        
         mb.exec_()
-    
