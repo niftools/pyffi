@@ -98,7 +98,8 @@ def tree(self, block_type = None, follow_all = True):
         yield self
     elif isinstance(self, block_type):
         yield self
-    elif not follow_all: return # don't recurse further
+    elif not follow_all:
+        return # don't recurse further
 
     # yield tree attached to each child
     for child in self.getRefs():
