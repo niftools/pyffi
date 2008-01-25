@@ -59,15 +59,15 @@ class QSkope(QtGui.QMainWindow):
         self.createActions()
         self.createMenus()
 
-        # set up the tree model view
+        # set up the global model view
         self.globalWidget = QtGui.QTreeView()
         self.globalWidget.setAlternatingRowColors(True)
 
-        # set up the struct model view
+        # set up the detail model view
         self.detailWidget = QtGui.QTreeView()
         self.detailWidget.setAlternatingRowColors(True)
 
-        # connect global with detail
+        # connect global with detail:
         # if object is selected in global view, then show its details in the
         # detail view
         QtCore.QObject.connect(self.globalWidget,
@@ -95,11 +95,12 @@ class QSkope(QtGui.QMainWindow):
         # window title
         self.setWindowTitle("QSkope")
 
+        # set the main application data:
         # current file and arguments to save back to disk
         self.roots = []
         self.fileName = None
         self.Format = NoneType
-        self.formatArgs = ()
+        self.formatArgs = () # format dependent
 
     def createActions(self):
         """Create the menu actions."""
@@ -162,22 +163,26 @@ class QSkope(QtGui.QMainWindow):
         # then read the file
         try:
             stream = open(filename, "rb")
+            # try reading as a nif file
             version, user_version = NifFormat.getVersion(stream)
             if version >= 0:
+                # if succesful: parse the file and save information about it
                 self.roots = NifFormat.read(stream, version, user_version)
                 self.fileName = filename
                 self.Format = NifFormat
                 self.formatArgs = (version, user_version)
             else:
+                # failed... try reading as a cgf file
                 filetype, fileversion, game = CgfFormat.getVersion(stream)
                 if filetype >= 0:
-                    self.roots, versions = CgfFormat.read(stream,
-                                                          fileversion = fileversion,
-                                                          game = game)
+                    # if succesful: parse the file and save information about it
+                    self.roots, versions = CgfFormat.read(
+                        stream, fileversion = fileversion, game = game)
                     self.fileName = filename
                     self.Format = CgfFormat
                     self.formatArgs = (filetype, fileversion, game)
                 else:
+                    # all failed: inform user that format is not recognized
                     self.statusBar().showMessage(
                         'File format of %s not recognized.' % filename)
                     return
@@ -193,7 +198,7 @@ class QSkope(QtGui.QMainWindow):
         # update window title
         self.setWindowTitle("QSkope - %s" % self.fileName)
 
-        # clear status bar
+        # update the status bar
         self.statusBar().showMessage("%s read." % filename)
 
     def saveFile(self, filename = None):
@@ -232,19 +237,26 @@ class QSkope(QtGui.QMainWindow):
 
     def setDetailModel(self, index):
         """Set the detail model given an index from the global model."""
+        # if the index is valid, then get the block from its internal pointer
+        # and set up the model
         if index.isValid():
             self.detailModel = DetailModel(block = index.internalPointer())
         else:
             self.detailModel = DetailModel()
+        # set the widget's model
         self.detailWidget.setModel(self.detailModel)
 
     def openAction(self):
         """Open a file."""
+        # wrapper around openFile
+        # (displays an extra file dialog)
         self.openFile(
             filename = QtGui.QFileDialog.getOpenFileName(self, "Open File"))
 
     def saveAsAction(self):
         """Save a file."""
+        # wrapper around saveAction
+        # (displays an extra file dialog)
         filename = QtGui.QFileDialog.getSaveFileName(self, "Save File")
         if filename:
             self.fileName = filename
@@ -252,16 +264,18 @@ class QSkope(QtGui.QMainWindow):
 
     def saveAction(self):
         """Save a file."""
+        # wrapper around saveFile
+        # (gets file name automatically from stored file name)
         if self.fileName:
             self.saveFile(filename = self.fileName)
 
     def aboutQSkopeAction(self):
         """Display an information window about QSkope."""
         # create the box
-        mb = QtGui.QMessageBox(self)
+        mbox = QtGui.QMessageBox(self)
         # set window title and window text
-        mb.setWindowTitle("About QSkope")
-        mb.setText("""
+        mbox.setWindowTitle("About QSkope")
+        mbox.setText("""
 <p>QSkope is a tool bundled with PyFFI for analyzing and editing files whose
 format is supported by PyFFI. QSkope is written in Python.</p>
 <p>The Python File Format Interface, or briefly PyFFI, is a general purpose
@@ -277,4 +291,4 @@ The most recent version of PyFFI can always be downloaded from the
 <a href="http://sourceforge.net/project/showfiles.php?group_id=199269">
 PyFFI SourceForge Project page</a>.""" % PyFFI.__version__)
         # display the window        
-        mb.exec_()
+        mbox.exec_()
