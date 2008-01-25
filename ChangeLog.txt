@@ -1,8 +1,8 @@
 Version 0.8.0 (***)
 * qskope: new general purpose tool for visualizing files loaded with PyFFI
-* nif: new rootsonly option for nif read function to return header + blocks +
-footer as list instead of just a list of root blocks
 * support for forward declaration of types (required for UnionBV)
+* PyFFI.__hexversion__ for numeric represenation of the version number
+* cgf: corrected the bool implementation (using True/False rather than an int)
 
 Version 0.7.5 (14 Jan 2008)
 * added a DTD for the 'fileformat' document type, to validate the xml

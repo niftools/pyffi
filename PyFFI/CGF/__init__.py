@@ -71,8 +71,8 @@ Create a CGF file from scratch
 * parent : None
 * numChildren : 1
 * material : None
-* isGroupHead : 0
-* isGroupMember : 0
+* isGroupHead : False
+* isGroupMember : False
 * reserved1 :
     <class 'PyFFI.Bases.Array.Array'> instance at 0x...
     0: 0
@@ -105,8 +105,8 @@ Create a CGF file from scratch
 * parent : None
 * numChildren : 0
 * material : None
-* isGroupHead : 0
-* isGroupMember : 0
+* isGroupHead : False
+* isGroupMember : False
 * reserved1 :
     <class 'PyFFI.Bases.Array.Array'> instance at 0x...
     0: 0
