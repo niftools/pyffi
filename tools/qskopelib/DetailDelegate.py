@@ -72,6 +72,7 @@ class DetailDelegate(QtGui.QItemDelegate):
             editor = QtGui.QDoubleSpinBox(parent)
             editor.setMinimum(-0x80000000)
             editor.setMaximum(0x7fffffff)
+            editor.setDecimals(5)
         else:
             return None
         # return the editor
@@ -85,9 +86,8 @@ class DetailDelegate(QtGui.QItemDelegate):
         # determine the data type
         data = index.internalPointer()
         value = data.getValue()
-        if isinstance(value, QtGui.QDoubleSpinBox):
+        if isinstance(editor, QtGui.QDoubleSpinBox):
             # a spinbox for floats
-            print value
             editor.setValue(value)
         elif isinstance(editor, QtGui.QSpinBox):
             # a regular spin box
