@@ -76,20 +76,11 @@ class QSkope(QtGui.QMainWindow):
                                QtCore.SIGNAL("clicked(const QModelIndex &)"),
                                self.setDetailModel)
 
-        # set up the docks
-        self.setCentralWidget(self.globalWidget)
-        ## alternative if central widget changes in future:
-        ## global block list dock
-        #self.globalDock = QtGui.QDockWidget("Block List", self)
-        #self.globalDock.setWidget(self.globalWidget)
-        #self.globalDock.setAllowedAreas(QtCore.Qt.AllDockWidgetAreas)
-        #self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.globalDock)
-
-        # block detail dock
-        self.detailDock = QtGui.QDockWidget("Block Details", self)
-        self.detailDock.setWidget(self.detailWidget)
-        self.detailDock.setAllowedAreas(QtCore.Qt.AllDockWidgetAreas)
-        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.detailDock)
+        # set up the central widget
+        self.splitter = QtGui.QSplitter()
+        self.splitter.addWidget(self.globalWidget)
+        self.splitter.addWidget(self.detailWidget)
+        self.setCentralWidget(self.splitter)
 
         # activate status bar
         self.statusBar().clearMessage()
@@ -103,6 +94,11 @@ class QSkope(QtGui.QMainWindow):
         self.fileName = None
         self.Format = NoneType
         self.formatArgs = () # format dependent
+
+        # restore geometry
+        settings = self.getSettings(versioned = True)
+        self.restoreGeometry(
+            settings.value("MainWindow/geometry").toByteArray())
 
     def createActions(self):
         """Create the menu actions."""
@@ -152,6 +148,14 @@ class QSkope(QtGui.QMainWindow):
         helpMenu.addAction(self.aboutQSkopeAct)
         helpMenu.addAction(self.aboutQtAct)
 
+    def closeEvent(self, event):
+        """Called when the application is closed. Saves the settings."""
+        settings = self.getSettings(versioned = True)
+        settings.setValue("MainWindow/geometry",
+                          QtCore.QVariant(self.saveGeometry()))
+        QtGui.QMainWindow.closeEvent(self, event)
+
+
     #
     # various helper functions
     #
@@ -186,22 +190,27 @@ class QSkope(QtGui.QMainWindow):
                 else:
                     # all failed: inform user that format is not recognized
                     self.statusBar().showMessage(
-                        'File format of %s not recognized.' % filename)
+                        'File format of %s not recognized' % filename)
                     return
+        except ValueError:
+            # update status bar message
+            self.statusBar().showMessage("Failed reading %s (see console)"
+                                         % filename)
+            raise
+        else:
+            # update the status bar
+            self.statusBar().showMessage("Finished reading %s" % filename)
+
+            # set up the models and update the views
+            self.globalModel = GlobalModel(roots = self.roots)
+            self.globalWidget.setModel(self.globalModel)
+            self.setDetailModel(
+                self.globalModel.index(0, 0, QtCore.QModelIndex()))
+
+            # update window title
+            self.setWindowTitle("QSkope - %s" % self.fileName)
         finally:
             stream.close()
-
-        # set up the models and update the views
-        self.globalModel = GlobalModel(roots = self.roots)
-        self.globalWidget.setModel(self.globalModel)
-        self.setDetailModel(
-            self.globalModel.index(0, 0, QtCore.QModelIndex()))
-
-        # update window title
-        self.setWindowTitle("QSkope - %s" % self.fileName)
-
-        # update the status bar
-        self.statusBar().showMessage("%s read." % filename)
 
     def saveFile(self, filename = None):
         """Save changes to disk."""
@@ -227,11 +236,24 @@ class QSkope(QtGui.QMainWindow):
                                 versions = CgfFormat.getChunkVersions(
                                     game = self.formatArgs[2],
                                     chunks = self.roots))
+        except ValueError:
+            # update status bar message
+            self.statusBar().showMessage("Failed saving %s (see console)"
+                                         % filename)
+            raise
+        else:
+            # update status bar message
+            self.statusBar().showMessage("Finished saving %s" % filename)
         finally:
             stream.close()
 
-        # update status bar message
-        self.statusBar().showMessage("%s saved." % filename)
+    @staticmethod
+    def getSettings(versioned = False):
+        """Return the QSkope settings."""
+        if not versioned:
+            return QtCore.QSettings("PyFFI", "QSkope")
+        else:
+            return QtCore.QSettings("PyFFI-%s" % PyFFI.__version__, "QSkope")
 
     #
     # slots
