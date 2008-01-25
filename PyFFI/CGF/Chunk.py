@@ -37,6 +37,25 @@
 #
 # ***** END LICENSE BLOCK *****
 
+def tree(self, block_type = None, follow_all = True):
+    """A generator for parsing all blocks in the tree (starting from and
+    including C{self}).
+
+    @param block_type: If not C{None}, yield only blocks of the type C{block_type}.
+    @param follow_all: If C{block_type} is not C{None}, then if this is C{True} the function will parse the whole tree. Otherwise, the function will not follow branches that start by a non-C{block_type} block."""
+    # yield self
+    if not block_type:
+        yield self
+    elif isinstance(self, block_type):
+        yield self
+    elif not follow_all:
+        return # don't recurse further
+
+    # yield tree attached to each child
+    for child in self.getRefs():
+        for block in child.tree(block_type = block_type, follow_all = follow_all):
+            yield block
+
 def applyScale(self, scale):
     """Apply scale factor on data."""
     pass
