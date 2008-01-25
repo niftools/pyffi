@@ -37,7 +37,7 @@
 #
 # ***** END LICENSE BLOCK *****
 
-from PyQt4 import QtGui
+from PyQt4 import QtCore, QtGui
 
 
 # implementation details:
@@ -47,17 +47,80 @@ class DetailDelegate(QtGui.QItemDelegate):
     """Defines an editor for data in the detail view."""
     def createEditor(self, parent, option, index):
         """Returns the widget used to change data."""
-        pass
+        # check if index is valid
+        if not index.isValid():
+            return None
+        # determine the data type
+        data = index.internalPointer()
+        value = data.getValue()
+        # int and long: spin box
+        if isinstance(value, bool):
+            # a combo box for bools
+            editor = QtGui.QComboBox(parent)
+            editor.addItem("False") # index 0
+            editor.addItem("True")  # index 1
+        elif isinstance(value, (int, long)):
+            # a regular spin box
+            editor = QtGui.QSpinBox(parent)
+            editor.setMinimum(-0x80000000)
+            editor.setMaximum(0x7fffffff)
+        elif isinstance(value, basestring):
+            # a text editor
+            editor = QtGui.QLineEdit(parent)
+        elif isinstance(value, float):
+            # a spinbox for floats
+            editor = QtGui.QDoubleSpinBox(parent)
+            editor.setMinimum(-0x80000000)
+            editor.setMaximum(0x7fffffff)
+        else:
+            return None
+        # return the editor
+        return editor
 
     def setEditorData(self, editor, index):
         """Provides the widget with data to manipulate."""
-        pass
+        # check if index is valid
+        if not index.isValid():
+            return None
+        # determine the data type
+        data = index.internalPointer()
+        value = data.getValue()
+        if isinstance(value, QtGui.QDoubleSpinBox):
+            # a spinbox for floats
+            print value
+            editor.setValue(value)
+        elif isinstance(editor, QtGui.QSpinBox):
+            # a regular spin box
+            editor.setValue(value)
+        elif isinstance(editor, QtGui.QLineEdit):
+            # a text editor
+            editor.setText(value)
+        elif isinstance(editor, QtGui.QComboBox):
+            # a combo box for bools
+            editor.setCurrentIndex(1 if value else 0)
 
     def updateEditorGeometry(self, editor, option, index):
         """Ensures that the editor is displayed correctly with respect to the
         item view."""
-        pass
+        editor.setGeometry(option.rect)
 
     def setModelData(self, editor, model, index):
         """Returns updated data to the model."""
-        pass
+        # check if index is valid
+        if not index.isValid():
+            return None
+        # get the editor value
+        if isinstance(editor, QtGui.QSpinBox):
+            # a regular spin box
+            value = editor.value()
+        elif isinstance(editor, QtGui.QLineEdit):
+            # a text editor
+            value = editor.text()
+        elif isinstance(editor, QtGui.QComboBox):
+            # a combo box for bools
+            value = bool(editor.currentIndex())
+        elif isinstance(editor, QtGui.QDoubleSpinBox):
+            # a spinbox for floats
+            value = editor.value()
+        # set the model data
+        model.setData(index, QtCore.QVariant(value), QtCore.Qt.EditRole)

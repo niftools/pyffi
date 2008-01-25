@@ -65,6 +65,8 @@ class QSkope(QtGui.QMainWindow):
 
         # set up the detail model view
         self.detailWidget = QtGui.QTreeView()
+        self.detailDelegate = DetailDelegate()
+        self.detailWidget.setItemDelegate(self.detailDelegate)
         self.detailWidget.setAlternatingRowColors(True)
 
         # connect global with detail:
