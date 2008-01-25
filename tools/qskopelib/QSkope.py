@@ -192,11 +192,12 @@ class QSkope(QtGui.QMainWindow):
                     self.statusBar().showMessage(
                         'File format of %s not recognized' % filename)
                     return
-        except ValueError:
+        except (ValueError, IOError):
             # update status bar message
             self.statusBar().showMessage("Failed reading %s (see console)"
                                          % filename)
             raise
+            
         else:
             # update the status bar
             self.statusBar().showMessage("Finished reading %s" % filename)
@@ -210,7 +211,10 @@ class QSkope(QtGui.QMainWindow):
             # update window title
             self.setWindowTitle("QSkope - %s" % self.fileName)
         finally:
-            stream.close()
+            try:
+                stream.close()
+            except UnboundLocalError:
+                pass
 
     def saveFile(self, filename = None):
         """Save changes to disk."""
@@ -274,8 +278,9 @@ class QSkope(QtGui.QMainWindow):
         """Open a file."""
         # wrapper around openFile
         # (displays an extra file dialog)
-        self.openFile(
-            filename = QtGui.QFileDialog.getOpenFileName(self, "Open File"))
+        filename = QtGui.QFileDialog.getOpenFileName(self, "Open File")
+        if filename:
+            self.openFile(filename = filename)
 
     def saveAsAction(self):
         """Save a file."""
