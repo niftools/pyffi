@@ -27,6 +27,8 @@
     <version num="20.1.0.3">Megami Tensei: Imagine</version>
     <version num="20.2.0.7">Emerge, Empire Earth III</version>    
     <version num="20.2.0.8">Emerge, Empire Earth III</version>
+    <!-- version 20.3.0.1 is found in Props/GDCLargeContainer.nif-->
+    <version num="20.3.0.1">Emerge</version>
     <!-- version 20.3.0.2 is found in PFX/fx_muzzle_flash_example.nif -->
     <version num="20.3.0.2">Emerge</version>
     <version num="20.3.0.3">Emerge</version>
@@ -888,8 +890,8 @@
         <add name="Filter Mode" type="TexFilterMode" default="FILTER_TRILERP" ver2="20.0.0.5">0=nearest, 1=bilinear, 2=trilinear, 3=..., 4=..., 5=...</add>
         <add name="Flags" type="Flags" ver1="20.1.0.3">Texture mode flags.</add>
         <add name="UV Set" type="uint" default="0" ver2="20.0.0.5">The texture coordinate set in NiGeometryData that this texture slot will use.</add>
-        <add name="PS2 L" type="ushort" default="0" ver2="10.2.0.0">0?</add>
-        <add name="PS2 K" type="ushort" default="0xFFB5" ver2="10.2.0.0">0xFFB5?</add>
+        <add name="PS2 L" type="short" default="0" ver2="10.2.0.0">0?</add>
+        <add name="PS2 K" type="short" default="-75" ver2="10.2.0.0">-75?</add>
         <add name="Unknown1" type="ushort" ver2="4.1.0.12">Unknown, 0 or 0x0101?</add>
         <add name="Has Texture Transform" type="bool" default="false" ver1="10.1.0.0">Determines whether or not the texture&#039;s coordinates are transformed.</add>
         <add name="Translation" type="TexCoord" cond="Has Texture Transform != 0" ver1="10.1.0.0">The amount to translate the texture coordinates in each direction?</add>
@@ -1071,8 +1073,8 @@
         <add name="Clamp?" type="TexClampMode" cond="Has Image" default="3">May be texture clamp mode.</add>
         <add name="Filter?" type="TexFilterMode" cond="Has Image" default="2">May be texture filter mode.</add>
         <add name="UV Set?" type="uint" cond="Has Image" default="1">This may be the UV set counting from 1 instead of zero.</add>
-        <add name="PS2 L" type="ushort" cond="Has Image" default="0" ver2="10.2.0.0">0?</add>
-        <add name="PS2 K" type="ushort" cond="Has Image" default="0xFFB5" ver2="10.2.0.0">0xFFB5?</add>
+        <add name="PS2 L" type="short" cond="Has Image" default="0" ver2="10.2.0.0">0?</add>
+        <add name="PS2 K" type="short" cond="Has Image" default="-75" ver2="10.2.0.0">-75?</add>
         <add name="Unknown Short 3" type="short" cond="Has Image" default="0">Unknown.  Usually 0 but sometimes 257</add>
     </compound>
 
@@ -2539,7 +2541,7 @@
         <add name="Flags" type="byte" ver1="20.0.0.4">Flags</add>
         <add name="Unknown Int 4" type="uint" ver1="20.0.0.4">Seems to always be zero.</add>
         <add name="Channels" type="ChannelData" arr1="4" ver1="20.0.0.4">Channel Data</add>       
-        <add name="Unknown Byte 1" type="byte" ver1="20.2.0.7">Unknown.</add>
+        <add name="Unknown Byte 1" type="byte" ver1="20.3.0.6">Unknown.</add>
         <add name="Palette" type="Ref" template="NiPalette">Link to NiPalette, for 8-bit textures.</add>
         <add name="Num Mipmaps" type="uint">Number of mipmaps in the texture.</add>
         <add name="Bytes Per Pixel" type="uint">Bytes per pixel (Bits Per Pixel / 8).</add>
@@ -2847,7 +2849,7 @@
     <niobject name="NiSpotLight" abstract="0" inherit="NiPointLight" ver1="20.0.0.4">
         A spot.
         <add name="Cutoff Angle" type="float">The opening angle of the spot.</add>
-        <add name="Unknown Float" type="float" ver1="20.3.0.6">Unknown</add>
+        <add name="Unknown Float" type="float" ver1="20.3.0.1">Unknown</add>
         <add name="Exponent" type="float">Describes the distribution of light. (see: glLight)</add>
     </niobject>
     
@@ -2912,8 +2914,8 @@
         <add name="Clipping Plane" default="0" type="byte">Determines whether a clipping plane is used.  0 means that a plane is not used.</add>
         <add name="Unknown Vector" type="Vector3">Unknown: (1,0,0)?</add>
         <add name="Unknown Float" type="float">Unknown. 0?</add>
-        <add name="PS2 L" type="short" ver2="10.2.0.0">0?</add>
-        <add name="PS2 K" type="short" ver2="10.2.0.0">0xFFB5?</add>
+        <add name="PS2 L" type="short" default="0" ver2="10.2.0.0">0?</add>
+        <add name="PS2 K" type="short" default="-75" ver2="10.2.0.0">-75?</add>
         <add name="Unknown Short" type="ushort" ver2="4.1.0.12">Unknown: 0.</add>
     </niobject>
     
@@ -2921,7 +2923,7 @@
         Unknown
         <add name="Unknown Short" type="short">Unknown. Either 210 or 194.</add>
         <add name="PS2 L" type="short" default="0" ver1="3.1" ver2="10.2.0.0">0?</add>
-        <add name="PS2 K" type="short" default="0xFFB5" ver1="3.1" ver2="10.2.0.0">0xFFB5?</add>
+        <add name="PS2 K" type="short" default="-75" ver1="3.1" ver2="10.2.0.0">-75?</add>
     </niobject>
     
     <niobject name="NiImage" abstract="0" inherit="NiObject" ver1="3.0" ver2="3.1">
@@ -3131,22 +3133,29 @@
         Unknown PhysX node.  
         <add name="Unknown Float 1" type="float">Unknown</add>
         <add name="Unknown Int 1" type="uint">Unknown</add>
-        <add name="Unknown Int 2" type="uint">Unknown</add>
-        <add name="Unknown Byte 1" type="byte">Unknown</add>
+        <add name="Unknown Refs 1" type="Ref" arr1="Unknown Int 1">Unknown</add>
+        <add name="Num Dests" type="int">Number of NiPhysXTransformDest references</add>
+        <add name="Transform Dests" type="Ref" template="NiPhysXTransformDest" arr1="Num Dests">Unknown</add>
+        <add name="Unknown Byte" type="byte">Unknown</add>
         <add name="Prop Description" type="Ref" template="NiPhysXPropDesc">PhysX Property Description.</add>
     </niobject>
+
+    <compound name="physXMaterialRef">
+        <add name="Number" type="byte">Unknown</add>
+        <add name="Unknown Byte 1" type="byte">Unknown</add>
+        <add name="Material Desc" type="Ref" template="NiPhysXMaterialDesc" >PhysX Material Description</add>
+    </compound>
     
     <niobject name="NiPhysXPropDesc" abstract="0" inherit="NiObject" ver1="20.1.0.7">
         Unknown PhysX node.  
-        <add name="Unknown Int 1" type="uint">Unknown</add>
-        <add name="Actor Description" type="Ref" template="NiPhysXActorDesc">PhysX Actor Description</add>
+        <add name="Num Dests" type="int">Number of NiPhysXActorDesc references</add>
+        <add name="Actor Descs" type="Ref" template="NiPhysXActorDesc" arr1="Num Dests">Unknown</add>
+        <add name="Num Joints" type="uint">Unknown</add>
+        <add name="Joint Descs" type="Ref" template="NiPhysXD6JointDesc" arr1="Num Joints">PhysX Joint Descriptions</add>
+        <add name="Unknown Int 1" type="int">Unknown</add>
+        <add name="Num Materials" type="uint">Unknown</add>
+        <add name="Material Descs" type="physXMaterialRef"  arr1="Num Materials">PhysX Material Descriptions</add>
         <add name="Unknown Int 2" type="uint">Unknown</add>
-        <add name="Unknown Int 3" type="uint">Unknown</add>
-        <add name="Unknown Int 4" type="uint">Unknown</add>
-        <add name="Unknown Byte 1" type="byte">Unknown</add>
-        <add name="Unknown Byte 2" type="byte">Unknown</add>
-        <add name="Material Description" type="Ref" template="NiPhysXMaterialDesc">PhysX Material Description</add>
-        <add name="Unknown Int 5" type="uint">Unknown</add>
     </niobject>
     
     <niobject name="NiPhysXActorDesc" abstract="0" inherit="NiObject" ver1="20.1.0.7">
@@ -3165,9 +3174,19 @@
         <add name="Shape Description" type="Ref" template="NiPhysXShapeDesc">PhysX Shape Description</add>
         <add name="Unknown Ref 1" type="Ref" template="NiObject">Unknown</add>
         <add name="Unknown Ref 2" type="Ref" template="NiObject">Unknown</add>
-        <add name="Unknown Ref 3" type="Ref" template="NiObject">Unknown</add>
+        <add name="Unknown Refs 3" type="Ref" template="NiObject" arr1="Unknown Int 6">Unknown</add>
     </niobject>
     
+    <niobject name="NiPhysXBodyDesc" inherit="NiObject" ver1="20.3.0.6">
+        Unknown PhysX node.
+        <add name="Unknown Bytes" type="byte" arr1="136" ver1="20.3.0.6">Unknown</add>
+    </niobject>
+
+    <niobject name="NiPhysXD6JointDesc" inherit="NiObject" ver1="20.3.0.6">
+        Unknown PhysX node.
+        <add name="Unknown Bytes" type="byte" arr1="388" ver1="20.3.0.6">Unknown</add>
+    </niobject>
+
     <niobject name="NiPhysXShapeDesc" abstract="0" inherit="NiObject" ver1="20.1.0.7">
         Unknown PhysX node.  
         <add name="Unknown Int 1" type="int">Unknown</add>
@@ -3185,6 +3204,7 @@
         <add name="Unknown Int 5" type="int">Unknown</add>
         <add name="Unknown Int 7" type="int">Unknown</add>
         <add name="Unknown Int 8" type="int">Unknown</add>
+        <add name="Unknown Bytes 1" type="byte" arr1="8" ver1="20.3.0.6">Unknown. Wrong, but better than nothing.</add>
         <add name="Mesh Description" type="Ref" template="NiPhysXMeshDesc">PhysX Mesh Description</add>
     </niobject>
     
@@ -3217,11 +3237,16 @@
     </niobject>
     
     <niobject name="NiPhysXKinematicSrc" inherit="NiObject" ver1="20.1.0.7">
-        Unknown node.  
+        Unknown PhysX node.
+        <add name="Unknown Bytes" type="byte" arr1="6" ver1="20.3.0.6">Unknown</add>
     </niobject>
 
     <niobject name="NiPhysXTransformDest" inherit="NiObject" ver1="20.1.0.7">
-        Unknown PhysX node. 
+        Unknown PhysX node.
+        <add name="Unknown Byte 1" type="byte">Unknown. =1?</add>
+        <add name="Unknown Byte 2" type="byte">Unknown. =0</add>
+        <add name="Node" type="Ptr" template="NiNode" >Affected node?</add>
+
     </niobject>
 
     <niobject name="NiArkAnimationExtraData" inherit="NiExtraData">
