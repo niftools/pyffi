@@ -82,9 +82,8 @@ class BasicBase(object):
         @param template: type used as template
         @param argument: argument used to initialize the instance
             (see the Struct class).
-        @param row: The row number of this instance within the parent.
         @param parent: The parent of this instance, that is, the instance this
-            array is an attribute of."""
+            instance is an attribute of."""
         self._parent = parent
 
     # string representation

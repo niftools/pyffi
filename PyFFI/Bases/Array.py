@@ -152,7 +152,6 @@ class Array(_ListWrap):
         @param count1: An C{Expression} describing the count (first dimension).
         @param count2: Either C{None}, or an C{Expression} describing the
             second dimension count.
-        @param row: The row number of this instance within the parent.
         @param parent: The parent of this instance, that is, the instance this
             array is an attribute of."""
         if count2 is None:
