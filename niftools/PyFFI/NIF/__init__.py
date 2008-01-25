@@ -966,17 +966,14 @@ class NifFormat(object):
 
     @classmethod
     def read(cls, stream, version = None, user_version = None,
-             verbose = 0, rootsonly = True):
+             verbose = 0):
         """Read a nif file.
 
         @param stream: The stream from which to read, typically a file or a
             memory stream such as cStringIO.
         @param version: The version number as obtained by getVersion.
         @param user_version: The user version number as obtained by getVersion.
-        @param verbose: The level of verbosity.
-        @param rootsonly: Whether to return the roots of the nif tree. If
-            C{False}, then this function returns all blocks as a list, with
-            header first and footer last."""
+        @param verbose: The level of verbosity."""
         # read header
         if verbose >= 1:
             print "reading block at 0x%08X..."%stream.tell()
@@ -1126,12 +1123,8 @@ class NifFormat(object):
             for root in ftr.roots:
                 roots.append(root)
 
-        if rootsonly:
-            # return all root objects
-            return roots
-        else:
-            # return header, blocks, and footer
-            return [ hdr ] + block_list + [ ftr ]
+        # return all root objects
+        return roots
 
     @classmethod
     def write(cls, stream, version = None, user_version = None,
