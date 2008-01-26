@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
-"""A script for installing and uninstalling PyFFI's registry keys."""
+"""A script for installing and uninstalling PyFFI's registry keys and desktop
+icons."""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
@@ -82,12 +83,18 @@ except ImportError:
     # not on Windows: nothing to do
     pass
 else:
-    import sys
+    import sys, os.path
     # check arguments
     if len(sys.argv) < 2:
-        pass
+        sys.exit()
+    # get paths to various programs, scripts, and shortcuts
+    pythonexe = os.path.join(sys.exec_prefix, "python.exe")
+    qskopepy  = os.path.join(sys.exec_prefix, "Scripts", "qskope.py")
+    qskopelnk = os.path.join(
+        get_special_folder_path("CSIDL_COMMON_DESKTOPDIRECTORY"),
+        "QSkope.lnk")
     # install
-    elif sys.argv[1] == "-install":
+    if sys.argv[1] == "-install":
         # register the .nif extension
         hkeydotnif = createsubkey(_winreg.HKEY_CLASSES_ROOT, ".nif",
                                   _winreg.REG_SZ, "NetImmerseFile")
@@ -100,21 +107,27 @@ else:
         createsubkeychain(hkeynif, "shell", "Optimize with PyFFI",
                           "command",
                           default_type = _winreg.REG_SZ,
-                          default_value = '"%s\\python.exe" "%s\\Scripts\\nifoptimize.py" --pause "%%1"'
-                          % (sys.exec_prefix, sys.exec_prefix))
+                          default_value = '"%s" "%s\\Scripts\\nifoptimize.py" --pause "%%1"'
+                          % (pythonexe, sys.exec_prefix))
         createsubkeychain(hkeynif, "shell", "Open with QSkope",
                           "command",
                           default_type = _winreg.REG_SZ,
-                          default_value = '"%s\\python.exe" "%s\\Scripts\\qskope.py" "%%1"'
-                          % (sys.exec_prefix, sys.exec_prefix))
+                          default_value = '"%s" "%s" "%%1"'
+                          % (pythonexe, qskopepy))
         # add the qskope commands to cgf
         hkeycgf = createsubkey(_winreg.HKEY_CLASSES_ROOT, "CrytekGeometryFile",
                                _winreg.REG_SZ, "Crytek Geometry File")
         createsubkeychain(hkeycgf, "shell", "Open with QSkope",
                           "command",
                           default_type = _winreg.REG_SZ,
-                          default_value = '"%s\\python.exe" "%s\\Scripts\\qskope.py" "%%1"'
-                          % (sys.exec_prefix, sys.exec_prefix))
+                          default_value = '"%s" "%s\\Scripts\\qskope.py" "%%1"'
+                          % (pythonexe, sys.exec_prefix))
+        # add qskope desktop shortcut
+        create_shortcut('"%s"' % pythonexe,
+                        "QSkope",
+                        '"%s"' % qskopelnk,
+                        '"%s"' % qskopepy)
+        file_created(qskopelnk)
     # uninstall
     elif sys.argv[1] == "-remove":
         # get all the nif keys (this checks whether they exist)
