@@ -6,7 +6,13 @@ description written in XML, PyFFI creates customizable Python classes
 to read and write file blocks as described by the XML. Currently,
 PyFFI supports the NetImmerse/Gamebryo NIF format, and CryTek's CGF
 format. Many tools for files used by 3D games, such as a stripifier,
-and a tangent space calculator, are included in PyFFI as well."""
+and a tangent space calculator, are included in PyFFI as well.
+
+QSkope is PyFFI's graphical user interface, and enables simple editing of
+files in any fileformat supported by PyFFI. QSkope depends on PyQt4, which you
+can download from
+
+http://www.riverbankcomputing.co.uk/pyqt/download.php"""
 
 classifiers = """\
 Development Status :: 4 - Beta
@@ -15,8 +21,7 @@ Intended Audience :: Developers
 Intended Audience :: End Users/Desktop
 Topic :: Multimedia :: Graphics :: 3D Modeling
 Programming Language :: Python
-Operating System :: OS Independent
-"""
+Operating System :: OS Independent"""
 #Topic :: Formats and Protocols :: Data Formats
 
 doclines = __doc__.split("\n")
