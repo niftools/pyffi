@@ -89,9 +89,10 @@ else:
         sys.exit()
     # get paths to various programs, scripts, and shortcuts
     pythonexe = os.path.join(sys.exec_prefix, "python.exe")
+    nifoptpy  = os.path.join(sys.exec_prefix, "Scripts", "qskope.py")
     qskopepy  = os.path.join(sys.exec_prefix, "Scripts", "qskope.py")
     qskopelnk = os.path.join(
-        get_special_folder_path("CSIDL_COMMON_DESKTOPDIRECTORY"),
+        get_special_folder_path("CSIDL_DESKTOPDIRECTORY"),
         "QSkope.lnk")
     # install
     if sys.argv[1] == "-install":
@@ -107,8 +108,8 @@ else:
         createsubkeychain(hkeynif, "shell", "Optimize with PyFFI",
                           "command",
                           default_type = _winreg.REG_SZ,
-                          default_value = '"%s" "%s\\Scripts\\nifoptimize.py" --pause "%%1"'
-                          % (pythonexe, sys.exec_prefix))
+                          default_value = '"%s" "%s" --pause "%%1"'
+                          % (pythonexe, nifoptpy))
         createsubkeychain(hkeynif, "shell", "Open with QSkope",
                           "command",
                           default_type = _winreg.REG_SZ,
@@ -120,12 +121,12 @@ else:
         createsubkeychain(hkeycgf, "shell", "Open with QSkope",
                           "command",
                           default_type = _winreg.REG_SZ,
-                          default_value = '"%s" "%s\\Scripts\\qskope.py" "%%1"'
-                          % (pythonexe, sys.exec_prefix))
+                          default_value = '"%s" "%s" "%%1"'
+                          % (pythonexe, qskopepy))
         # add qskope desktop shortcut
         create_shortcut('"%s"' % pythonexe,
                         "QSkope",
-                        '"%s"' % qskopelnk,
+                        qskopelnk,
                         '"%s"' % qskopepy)
         file_created(qskopelnk)
     # uninstall
