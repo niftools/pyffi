@@ -49,6 +49,8 @@ from PyFFI.CGF import CgfFormat
 
 from types import NoneType
 
+# implementation details:
+# http://doc.trolltech.com/4.3/qmainwindow.html#details
 class QSkope(QtGui.QMainWindow):
     """Main QSkope window."""
     def __init__(self, parent = None):
@@ -123,6 +125,13 @@ class QSkope(QtGui.QMainWindow):
                                QtCore.SIGNAL("triggered()"),
                                self.saveAsAction)
 
+        # exit
+        self.exitAct = QtGui.QAction("E&xit", self)
+        self.exitAct.setShortcut("Ctrl+Q")
+        QtCore.QObject.connect(self.exitAct,
+                               QtCore.SIGNAL("triggered()"),
+                               QtGui.qApp.quit)
+
         # tell something about QSkope
         self.aboutQSkopeAct = QtGui.QAction("About QSkope", self)
         QtCore.QObject.connect(self.aboutQSkopeAct,
@@ -135,6 +144,8 @@ class QSkope(QtGui.QMainWindow):
                                QtCore.SIGNAL("triggered()"),
                                QtGui.qApp.aboutQt)
 
+    # implementation details:
+    # http://doc.trolltech.com/4.3/mainwindows-menus.html
     def createMenus(self):
         """Create the menu bar."""
         # the file menu: open, save, save as
@@ -142,6 +153,8 @@ class QSkope(QtGui.QMainWindow):
         fileMenu.addAction(self.openAct)
         fileMenu.addAction(self.saveAct)
         fileMenu.addAction(self.saveAsAct)
+        fileMenu.addSeparator()
+        fileMenu.addAction(self.exitAct)
 
         # the help menu: 
         helpMenu = self.menuBar().addMenu("&Help")
