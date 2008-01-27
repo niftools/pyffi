@@ -199,6 +199,32 @@ class Array(_ListWrap):
         else:
             return expr[index1]
 
+    def deepcopy(self, block):
+        """Copy attributes from a given array which needs to have at least as
+        many elements (possibly more) as self."""
+        if self._count2 == None:
+            for i in xrange(self._len1()):
+                attrvalue = self[i]
+                if isinstance(attrvalue, StructBase):
+                    attrvalue.deepcopy(block[i])
+                elif isinstance(attrvalue, Array):
+                    attrvalue.updateSize()
+                    attrvalue.deepcopy(block[i])
+                else:
+                    self[i] = block[i]
+        else:
+            for i in xrange(self._len1()):
+                elem = _ListWrap(element_type = element_type, parent = self)
+                for j in xrange(self._len2(i)):
+                    attrvalue = self[i][j]
+                    if isinstance(attrvalue, StructBase):
+                        attrvalue.deepcopy(block[i][j])
+                    elif isinstance(attrvalue, Array):
+                        attrvalue.updateSize()
+                        attrvalue.deepcopy(block[i][j])
+                    else:
+                        self[i][j] = block[i][j]
+
     # string of the array
     def __str__(self):
         text = '%s instance at 0x%08X\n' % (self.__class__, id(self))

@@ -275,6 +275,19 @@ class StructBase(object):
             # add instance to item list
             self._items.append(attr_instance)
 
+    def deepcopy(self, block):
+        """Copy attributes from a given block which needs to have all the
+        attributes (possibly more) of self."""
+        for attr in self._attributeList:
+            attrvalue = getattr(self, attr.name)
+            if isinstance(attrvalue, StructBase):
+                attrvalue.deepcopy(getattr(block, attr.name))
+            elif isinstance(attrvalue, Array):
+                attrvalue.updateSize()
+                attrvalue.deepcopy(getattr(block, attr.name))
+            else:
+                setattr(self, attr.name, getattr(block, attr.name))
+
     # string of all attributes
     def __str__(self):
         text = '%s instance at 0x%08X\n' % (self.__class__, id(self))

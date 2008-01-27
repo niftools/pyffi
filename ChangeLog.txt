@@ -1,3 +1,6 @@
+Version 0.8.1 (***)
+* deep copy for structs and arrays
+
 Version 0.8.0 (27 Jan 2008)
 * qskope: new general purpose tool for visualizing files loaded with PyFFI
 * cgf: corrected the bool implementation (using True/False rather than an int)
