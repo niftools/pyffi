@@ -39,7 +39,7 @@
 
 from PyQt4 import QtGui, QtCore
 
-from qskopelib.GlobalModel import GlobalModel
+from qskopelib.GlobalModel import GlobalModel, StructPtr
 from qskopelib.DetailModel import DetailModel
 from qskopelib.DetailDelegate import DetailDelegate
 
@@ -281,7 +281,10 @@ class QSkope(QtGui.QMainWindow):
         # if the index is valid, then get the block from its internal pointer
         # and set up the model
         if index.isValid():
-            self.detailModel = DetailModel(block = index.internalPointer())
+            block = index.internalPointer()
+            if isinstance(block, StructPtr):
+                block = block.ptr
+            self.detailModel = DetailModel(block = block)
         else:
             self.detailModel = DetailModel()
         # set the widget's model

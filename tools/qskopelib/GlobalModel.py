@@ -38,7 +38,19 @@ built from StructBase instances possibly referring to one another."""
 #
 # ***** END LICENSE BLOCK *****
 
+from PyFFI.Bases.Struct import StructBase
+
 from PyQt4 import QtGui, QtCore
+
+class StructPtr(object):
+    """A weak reference to a structure, to be used as internal pointer."""
+    def __init__(self, block):
+        """Store the block for future reference."""
+        self.ptr = block
+
+    def qChildCount(self):
+        """Break cycles: no children."""
+        return 0
 
 # implementation references:
 # http://doc.trolltech.com/4.3/model-view-programming.html
@@ -73,6 +85,15 @@ class GlobalModel(QtCore.QAbstractItemModel):
                     if not refblock in self.parentDict:
                         self.parentDict[refblock] = block
                         self.refDict[block].append(refblock)
+                for refblock in block.getLinks():
+                    if not refblock in self.refDict[block]:
+                        # create a wrapper around the block
+                        ptrblock = StructPtr(refblock)
+                        # store the references
+                        self.parentDict[ptrblock] = block 
+                        self.refDict[block].append(ptrblock)
+                        # no children
+                        self.refDict[ptrblock] = []
         # get list of actual roots
         self.roots = []
         # list over all blocks with references
@@ -92,7 +113,10 @@ class GlobalModel(QtCore.QAbstractItemModel):
         # all items are enabled and selectable
         if not index.isValid():
             return QtCore.Qt.ItemFlags()
-        flags = QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
+        if isinstance(index.internalPointer(), StructBase):
+            flags = QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
+        else:
+            flags = QtCore.Qt.ItemIsSelectable
         return QtCore.Qt.ItemFlags(flags)
 
     def data(self, index, role):
@@ -106,12 +130,23 @@ class GlobalModel(QtCore.QAbstractItemModel):
 
         # the type column
         if index.column() == self.COL_TYPE:
-            return QtCore.QVariant(data.__class__.__name__)
-        elif index.column() == self.COL_NAME:
-            if hasattr(data, "name"):
-                return QtCore.QVariant(data.name)
+            if isinstance(data, StructBase):
+                return QtCore.QVariant(data.__class__.__name__)
             else:
-                return QtCore.QVariant()
+                # StructPtr
+                return QtCore.QVariant(data.ptr.__class__.__name__)
+        elif index.column() == self.COL_NAME:
+            if isinstance(data, StructBase):
+                if hasattr(data, "name"):
+                    return QtCore.QVariant(data.name)
+                else:
+                    return QtCore.QVariant()
+            else:
+                # StructPtr
+                if hasattr(data.ptr, "name"):
+                    return QtCore.QVariant(data.ptr.name)
+                else:
+                    return QtCore.QVariant()
 
         # other colums: invalid
         else:
