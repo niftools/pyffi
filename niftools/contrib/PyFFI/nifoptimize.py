@@ -99,6 +99,12 @@ def stripifyTriShape(block):
 def optimizeTriBasedGeom(block, striplencutoff = 10.0, stitch = True):
     """Optimize a NiTriStrips or NiTriShape block."""
     print "optimizing block '%s'"%block.name
+
+    # cover degenerate case
+    if self.numVertices < 3:
+        print "  less than 3 vertices: removing block"
+        return None
+
     data = block.data
 
     print "  removing duplicate vertices"
