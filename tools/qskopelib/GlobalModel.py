@@ -61,8 +61,8 @@ class GlobalModel(QtCore.QAbstractItemModel):
     # column definitions
     NUM_COLUMNS = 3
     COL_TYPE   = 0
-    COL_NUMBER = 1
-    COL_NAME   = 2
+    COL_NUMBER = 2
+    COL_NAME   = 1
 
     def __init__(self, parent = None, roots = None):
         """Initialize the model to display the given blocks."""
