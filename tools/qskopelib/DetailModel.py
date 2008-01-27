@@ -123,12 +123,12 @@ class DetailModel(QtCore.QAbstractItemModel):
                     valuestr.replace("\n", " ").replace("\r", " "))
             else:
                 # handle references
-                return QtCore.QVariant(
-                    "%i [%s]" % (blocknum,
-                                 datavalue.__class__.__name__
-                                 if (not hasattr(datavalue, "name")
-                                     or not datavalue.name)
-                                 else datavalue.name))
+                if not hasattr(datavalue, "name") or not datavalue.name:
+                    return QtCore.QVariant(
+                        "%i [%s]" % (blocknum, datavalue.__class__.__name__))
+                else:
+                    return QtCore.QVariant(
+                        "%i (%s)" % (blocknum, datavalue.name))
 
         # other colums: invalid
         else:
