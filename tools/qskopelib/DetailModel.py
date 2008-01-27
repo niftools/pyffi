@@ -52,15 +52,15 @@ class DetailModel(QtCore.QAbstractItemModel):
     COL_TYPE  = 1
     COL_VALUE = 2
 
-    def __init__(self, parent = None, block = None, blocklist = None):
-        """Initialize the model to display the given block. The blocklist
-        is used to handle references in the block."""
+    def __init__(self, parent = None, block = None, refnumber_dict = None):
+        """Initialize the model to display the given block. The refnumber_dict
+        dictionary is used to handle references in the block."""
         QtCore.QAbstractItemModel.__init__(self, parent)
         # this list stores the blocks in the view
         # is a list of NiObjects for the nif format, and a list of Chunks for
         # the cgf format
         self.block = block
-        self.blocklist = blocklist if not blocklist is None else []
+        self.refNumber = refnumber_dict if not refnumber_dict is None else {}
 
     def flags(self, index):
         """Return flags for the given index: all indices are enabled and
@@ -113,16 +113,22 @@ class DetailModel(QtCore.QAbstractItemModel):
             try:
                 # see if the data is in the blocks list
                 # if so, it is a reference
-                blocknum = self.blocklist.index(datavalue)
-            except (ValueError, TypeError):
+                blocknum = self.refNumber[datavalue]
+            except KeyError:
                 # not a reference: return the datavalue QVariant
+                valuestr = str(datavalue)
+                if len(valuestr) > 64:
+                    return QtCore.QVariant("...")
                 return QtCore.QVariant(
-                    str(datavalue).replace("\n", " ").replace("\r", " "))
+                    valuestr.replace("\n", " ").replace("\r", " "))
             else:
                 # handle references
                 return QtCore.QVariant(
-                    "[%i] %s" % (blocknum,
-                                 datavalue.__class__.__name__))
+                    "%i [%s]" % (blocknum,
+                                 datavalue.__class__.__name__
+                                 if (not hasattr(datavalue, "name")
+                                     or not datavalue.name)
+                                 else datavalue.name))
 
         # other colums: invalid
         else:

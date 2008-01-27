@@ -284,7 +284,8 @@ class QSkope(QtGui.QMainWindow):
             block = index.internalPointer()
             if isinstance(block, StructPtr):
                 block = block.ptr
-            self.detailModel = DetailModel(block = block)
+            self.detailModel = DetailModel(block = block,
+                                           refnumber_dict = self.globalModel.refNumber)
         else:
             self.detailModel = DetailModel()
         # set the widget's model
