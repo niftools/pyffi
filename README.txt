@@ -6,14 +6,14 @@ python setup.py install
 Overview
 --------
 
-The general philosophy of this library is to supply all information
-that comes naturally from the files, and nothing more. For very common
-calculations, we might add some functions to it, to make life easier
-for importers and exporters.
+The general philosophy of the library is to supply all information
+that comes naturally from files, and nothing more. For very common
+calculations, some functions might be added, to make life easier
+for importers and exporters. Specialized functions are implemented as
+tools (typically, as scripts) rather than as part of the library.
 
-To use the library, the cgf.xml file (for example) should reside either in
-the module directory (following the current layout on svn), or you
-should set the CGFXMLPATH environment variable to the directory where
+You can specify an alternate location of your xml file, for instance cgf.xml,
+by setting the CGFXMLPATH environment variable to the directory where
 cgf.xml can be found. If CGFXMLPATH is set, the library will first
 look there. The same applies to all other formats.
 
