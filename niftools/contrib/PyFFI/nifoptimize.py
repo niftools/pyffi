@@ -101,7 +101,7 @@ def optimizeTriBasedGeom(block, striplencutoff = 10.0, stitch = True):
     print "optimizing block '%s'"%block.name
 
     # cover degenerate case
-    if self.numVertices < 3:
+    if block.data.numVertices < 3:
         print "  less than 3 vertices: removing block"
         return None
 
