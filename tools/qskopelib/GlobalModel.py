@@ -59,9 +59,10 @@ class GlobalModel(QtCore.QAbstractItemModel):
     """General purpose model for QModelIndexed access to data loaded with
     PyFFI."""
     # column definitions
-    NUM_COLUMNS = 2
-    COL_TYPE = 0
-    COL_NAME = 1
+    NUM_COLUMNS = 3
+    COL_TYPE   = 0
+    COL_NUMBER = 1
+    COL_NAME   = 2
 
     def __init__(self, parent = None, roots = None):
         """Initialize the model to display the given blocks."""
@@ -72,6 +73,7 @@ class GlobalModel(QtCore.QAbstractItemModel):
         if roots is None:
             roots = []
         # set up the tree (avoiding duplicate references)
+        self.refNumber = {}
         self.parentDict = {}
         self.refDict = {}
         for root in roots:
@@ -80,6 +82,10 @@ class GlobalModel(QtCore.QAbstractItemModel):
                 # if it does not exist already
                 if not block in self.refDict:
                     self.refDict[block] = []
+                # assign the block a number
+                if not block in self.refNumber:
+                    blocknum = len(self.refNumber)
+                    self.refNumber[block] = blocknum
                 for refblock in block.getRefs():
                     # each block can have only one parent
                     if not refblock in self.parentDict:
@@ -127,26 +133,20 @@ class GlobalModel(QtCore.QAbstractItemModel):
             return QtCore.QVariant()
         # get the data for display
         data = index.internalPointer()
+        if isinstance(data, StructPtr):
+            data = data.ptr
 
         # the type column
         if index.column() == self.COL_TYPE:
-            if isinstance(data, StructBase):
-                return QtCore.QVariant(data.__class__.__name__)
-            else:
-                # StructPtr
-                return QtCore.QVariant(data.ptr.__class__.__name__)
+            return QtCore.QVariant(data.__class__.__name__)
         elif index.column() == self.COL_NAME:
             if isinstance(data, StructBase):
                 if hasattr(data, "name"):
                     return QtCore.QVariant(data.name)
                 else:
                     return QtCore.QVariant()
-            else:
-                # StructPtr
-                if hasattr(data.ptr, "name"):
-                    return QtCore.QVariant(data.ptr.name)
-                else:
-                    return QtCore.QVariant()
+        elif index.column() == self.COL_NUMBER:
+            return QtCore.QVariant(self.refNumber[data])
 
         # other colums: invalid
         else:
@@ -160,6 +160,8 @@ class GlobalModel(QtCore.QAbstractItemModel):
                 return QtCore.QVariant("Type")
             elif section == self.COL_NAME:
                 return QtCore.QVariant("Name")
+            elif section == self.COL_NUMBER:
+                return QtCore.QVariant("#")
         return QtCore.QVariant()
 
     def rowCount(self, parent = QtCore.QModelIndex()):
