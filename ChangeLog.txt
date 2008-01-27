@@ -1,5 +1,11 @@
-Version 0.8.1 (***)
+Version 0.8.1 (27 Jan 2008)
 * deep copy for structs and arrays
+* nifoptimize:
+  - detects cases where triangulated geometry performs better than stripified
+  geometry (fixes a performance issue with non-smooth geometry reported by
+  Lazarus)
+  - can now also optimize NiTriShapes
+  - throws away empty and/or duplicate children in NiNode lists
 
 Version 0.8.0 (27 Jan 2008)
 * qskope: new general purpose tool for visualizing files loaded with PyFFI
