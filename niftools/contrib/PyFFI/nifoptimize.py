@@ -41,6 +41,7 @@
 # ***** END LICENCE BLOCK *****
 # --------------------------------------------------------------------------
 
+from PyFFI.NIF import NifFormat
 import NifTester
 
 def vertexHash(block, precision = 200):
@@ -62,7 +63,23 @@ def vertexHash(block, precision = 200):
             h.extend([ int(x*precision) for x in [vcols[i].r, vcols[i].g, vcols[i].b, vcols[i].a ] ])
         yield tuple(h)
 
-def optimizeTriStrips(block):
+def triangulateTriStrips(block):
+    """Takes a NiTriStrip block and returns an equivalent NiTriShape block."""
+    assert(isinstance(block, NifFormat.NiTriStrips))
+    # copy the shape (first to NiTriBasedGeom and then to NiTriShape)
+    shape = NifFormat.NiTriShape().deepcopy(
+        NifFormat.NiTriBasedGeom().deepcopy(block))
+    # copy the geometry without strips
+    shapedata = NifFormat.NiTriShapeData().deepcopy(
+        NifFormat.NiTriBasedGeomData().deepcopy(block.data))
+    # update the shape data
+    shapedata.setTriangles(block.data.getTriangles())
+    # relink the shape data
+    shape.data = shapedata
+    # and return the result
+    return shape
+
+def optimizeTriStrips(block, striplencutoff = 10.0):
     print "optimizing block '%s'"%block.name
     data = block.data
 
@@ -139,7 +156,15 @@ def optimizeTriStrips(block):
     origlen = sum(i for i in data.stripLengths)
     data.setTriangles(data.getTriangles())
     newlen = sum(i for i in data.stripLengths)
-    print "  (strip length was %i and is now %i)"%(origlen, newlen)
+    # average, weighed towards large strips
+    avgstriplen = float(sum(i * i for i in data.stripLengths)) \
+        / sum(i for i in data.stripLengths)
+    print "  (strip length was %i and is now %i)" % (origlen, newlen)
+    print "  (average strip length is %f)" % avgstriplen
+    if avgstriplen < striplencutoff:
+        print("  average strip length less than %f so triangulating"
+              % striplencutoff)
+        block = triangulateTriStrips(block)
 
     # update skin data
     if block.skinInstance:
@@ -173,6 +198,8 @@ def optimizeTriStrips(block):
     # recalculate tangent space
     print "  recalculating tangent space"
     block.updateTangentSpace()
+
+    return block
 
 def fixTexturePath(block, **args):
     if ('\n' in block.fileName) or ('\r' in block.fileName):
@@ -256,22 +283,33 @@ def testRoot(root, **args):
                     if new_prop != prop:
                         print("  removing duplicate NiSpecularProperty block")
                         block.properties[i] = new_prop
+    return block
 
 def testBlock(block, **args):
     # check which blocks to exclude
     exclude = args.get("exclude", [])
     # optimize block
-    if isinstance(block, NifFormat.NiTriStrips) \
-       and not "NiTriStrips" in exclude:
-        optimizeTriStrips(block)
+    if isinstance(block, NifFormat.NiNode):
+        # remove duplicate and empty children
+        childlist = []
+        for child in block.children:
+            if not(child is None or child in childlist):
+                childlist.append(child)
+        block.numChildren = len(childlist)
+        block.children.updateSize()
+        for i, child in enumerate(childlist):
+            block.children[i] = child
+        # optimize them
+        for i, child in enumerate(block.children):
+           if isinstance(child, NifFormat.NiTriStrips) \
+               and not "NiTriStrips" in exclude:
+               block.children[i] = optimizeTriStrips(child)
     elif isinstance(block, NifFormat.NiSourceTexture) \
-       and not "NiSourceTexture" in exclude:
+        and not "NiSourceTexture" in exclude:
         fixTexturePath(block)
 
 import sys, os
 from optparse import OptionParser
-
-from PyFFI.NIF import NifFormat
 
 def main():
     # parse options and positional arguments
