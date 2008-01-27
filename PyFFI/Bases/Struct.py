@@ -39,8 +39,7 @@
 # ***** END LICENCE BLOCK *****
 # --------------------------------------------------------------------------
 
-from PyFFI.Bases.Basic import BasicBase
-from PyFFI.Bases.Array import Array
+# note: some imports are defined at the end to avoid problems with circularity
 
 from types import NoneType
 from functools import partial
@@ -575,3 +574,6 @@ class StructBase(object):
                 return name
         else:
             raise ValueError("qDataName(self, item): item not found")
+
+from PyFFI.Bases.Basic import BasicBase
+from PyFFI.Bases.Array import Array

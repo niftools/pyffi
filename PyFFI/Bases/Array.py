@@ -39,7 +39,7 @@
 # ***** END LICENCE BLOCK *****
 # --------------------------------------------------------------------------
 
-from PyFFI.Bases.Basic import BasicBase
+# note: imports are defined at the end to avoid problems with circularity
 
 class _ListWrap(list):
     """A wrapper for list, which uses getValue and setValue for
@@ -214,7 +214,6 @@ class Array(_ListWrap):
                     self[i] = block[i]
         else:
             for i in xrange(self._len1()):
-                elem = _ListWrap(element_type = element_type, parent = self)
                 for j in xrange(self._len2(i)):
                     attrvalue = self[i][j]
                     if isinstance(attrvalue, StructBase):
@@ -418,3 +417,5 @@ describing number of elements (%i)"%(elemlist.__len__(),len2i))
                     hsh.append(elem.getHash(**kwargs))
         return tuple(hsh)
 
+from PyFFI.Bases.Basic import BasicBase
+from PyFFI.Bases.Struct import StructBase
