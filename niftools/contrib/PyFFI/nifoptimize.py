@@ -43,6 +43,7 @@
 
 from PyFFI.NIF import NifFormat
 import NifTester
+from PyFFI.Utils import TriStrip
 
 def vertexHash(block, precision = 200):
     """Generator which identifies unique vertices."""
@@ -79,7 +80,7 @@ def triangulateTriStrips(block):
     # and return the result
     return shape
 
-def optimizeTriStrips(block, striplencutoff = 10.0):
+def optimizeTriStrips(block, striplencutoff = 10.0, stitch = True):
     print "optimizing block '%s'"%block.name
     data = block.data
 
@@ -165,6 +166,8 @@ def optimizeTriStrips(block, striplencutoff = 10.0):
         print("  average strip length less than %f so triangulating"
               % striplencutoff)
         block = triangulateTriStrips(block)
+    elif stitch:
+        data.setStrips([TriStrip.stitchStrips(data.getStrips())])
 
     # update skin data
     if block.skinInstance:
