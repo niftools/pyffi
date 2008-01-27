@@ -80,7 +80,24 @@ def triangulateTriStrips(block):
     # and return the result
     return shape
 
-def optimizeTriStrips(block, striplencutoff = 10.0, stitch = True):
+def stripifyTriShape(block):
+    """Takes a NiTriShape block and returns an equivalent NiTriStrips block."""
+    assert(isinstance(block, NifFormat.NiTriShape))
+    # copy the shape (first to NiTriBasedGeom and then to NiTriStrips)
+    strips = NifFormat.NiTriStrips().deepcopy(
+        NifFormat.NiTriBasedGeom().deepcopy(block))
+    # copy the geometry without triangles
+    stripsdata = NifFormat.NiTriStripsData().deepcopy(
+        NifFormat.NiTriBasedGeomData().deepcopy(block.data))
+    # update the shape data
+    stripsdata.setTriangles(block.data.getTriangles())
+    # relink the shape data
+    strips.data = stripsdata
+    # and return the result
+    return strips
+
+def optimizeTriBasedGeom(block, striplencutoff = 10.0, stitch = True):
+    """Optimize a NiTriStrips or NiTriShape block."""
     print "optimizing block '%s'"%block.name
     data = block.data
 
@@ -147,27 +164,40 @@ def optimizeTriStrips(block, striplencutoff = 10.0, stitch = True):
     del olduvs
     del oldvcols
 
-    # update vertex indices in strips
-    for strip in data.points:
-        for i in xrange(len(strip)):
-            strip[i] = v_map[strip[i]]
+    # update vertex indices in strips/triangles
+    if isinstance(block, NifFormat.NiTriStrips):
+        for strip in data.points:
+            for i in xrange(len(strip)):
+                strip[i] = v_map[strip[i]]
+    elif isinstance(block, NifFormat.NiTriShape):
+        for tri in data.triangles:
+            tri.v1 = v_map[tri.v1]
+            tri.v2 = v_map[tri.v2]
+            tri.v3 = v_map[tri.v3]
 
     # stripify trishape/tristrip
-    print "  recalculating strips"
-    origlen = sum(i for i in data.stripLengths)
-    data.setTriangles(data.getTriangles())
-    newlen = sum(i for i in data.stripLengths)
+    if isinstance(block, NifFormat.NiTriStrips):
+        print "  recalculating strips"
+        origlen = sum(i for i in data.stripLengths)
+        data.setTriangles(data.getTriangles())
+        newlen = sum(i for i in data.stripLengths)
+        print "  (strip length was %i and is now %i)" % (origlen, newlen)
+    elif isinstance(block, NifFormat.NiTriShape):
+        print "  stripifying"
+        block = stripifyTriShape(block)
+        data = block.data
     # average, weighed towards large strips
-    avgstriplen = float(sum(i * i for i in data.stripLengths)) \
-        / sum(i for i in data.stripLengths)
-    print "  (strip length was %i and is now %i)" % (origlen, newlen)
-    print "  (average strip length is %f)" % avgstriplen
-    if avgstriplen < striplencutoff:
-        print("  average strip length less than %f so triangulating"
-              % striplencutoff)
-        block = triangulateTriStrips(block)
-    elif stitch:
-        data.setStrips([TriStrip.stitchStrips(data.getStrips())])
+    if isinstance(block, NifFormat.NiTriStrips):
+        avgstriplen = float(sum(i * i for i in data.stripLengths)) \
+            / sum(i for i in data.stripLengths)
+        print "  (average strip length is %f)" % avgstriplen
+        if avgstriplen < striplencutoff:
+            print("  average strip length less than %f so triangulating"
+                  % striplencutoff)
+            block = triangulateTriStrips(block)
+        elif stitch:
+            print "  stitching strips"
+            data.setStrips([TriStrip.stitchStrips(data.getStrips())])
 
     # update skin data
     if block.skinInstance:
@@ -304,9 +334,11 @@ def testBlock(block, **args):
             block.children[i] = child
         # optimize them
         for i, child in enumerate(block.children):
-           if isinstance(child, NifFormat.NiTriStrips) \
-               and not "NiTriStrips" in exclude:
-               block.children[i] = optimizeTriStrips(child)
+           if (isinstance(child, NifFormat.NiTriStrips) \
+               and not "NiTriStrips" in exclude) or \
+               (isinstance(child, NifFormat.NiTriShape) \
+               and not "NiTriShape" in exclude):
+               block.children[i] = optimizeTriBasedGeom(child)
     elif isinstance(block, NifFormat.NiSourceTexture) \
         and not "NiSourceTexture" in exclude:
         fixTexturePath(block)
