@@ -275,9 +275,18 @@ class StructBase(object):
             self._items.append(attr_instance)
 
     def deepcopy(self, block):
-        """Copy attributes from a given block which needs to have all the
-        attributes (possibly more) of self."""
-        for attr in self._attributeList:
+        """Copy attributes from a given block (one block class must be a
+        subclass of the other). Returns self."""
+        # check class lineage
+        if isinstance(self, block.__class__):
+            attrlist = block._filteredAttributeList()
+        elif isinstance(block, self.__class__):
+            attrlist = self._filteredAttributeList()
+        else:
+            raise ValueError("deepcopy: classes %s and %s unrelated"
+                             % (self.__class__.__name__, block.__class__.__name__))
+        # copy the attributes
+        for attr in attrlist:
             attrvalue = getattr(self, attr.name)
             if isinstance(attrvalue, StructBase):
                 attrvalue.deepcopy(getattr(block, attr.name))
@@ -286,6 +295,8 @@ class StructBase(object):
                 attrvalue.deepcopy(getattr(block, attr.name))
             else:
                 setattr(self, attr.name, getattr(block, attr.name))
+        
+        return self
 
     # string of all attributes
     def __str__(self):
