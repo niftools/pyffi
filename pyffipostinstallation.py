@@ -89,27 +89,27 @@ else:
         sys.exit()
     # get paths to various programs, scripts, and shortcuts
     pythonexe = os.path.join(sys.exec_prefix, "python.exe")
-    nifoptpy  = os.path.join(sys.exec_prefix, "Scripts", "qskope.py")
+    nifoptpy  = os.path.join(sys.exec_prefix, "Scripts", "nifoptimize.py")
     qskopepy  = os.path.join(sys.exec_prefix, "Scripts", "qskope.py")
     qskopelnk = os.path.join(
         get_special_folder_path("CSIDL_DESKTOPDIRECTORY"),
         "QSkope.lnk")
     # install
     if sys.argv[1] == "-install":
-        # register the .nif extension
-        hkeydotnif = createsubkey(_winreg.HKEY_CLASSES_ROOT, ".nif",
-                                  _winreg.REG_SZ, "NetImmerseFile")
-        # register the .cgf extension
-        hkeydotcgf = createsubkey(_winreg.HKEY_CLASSES_ROOT, ".cgf",
-                                  _winreg.REG_SZ, "CrytekGeometryFile")
-        # add the optimize and qskope commands to nif
-        hkeynif = createsubkey(_winreg.HKEY_CLASSES_ROOT, "NetImmerseFile",
-                               _winreg.REG_SZ, "NetImmerse/Gamebryo File")
-        createsubkeychain(hkeynif, "shell", "Optimize with PyFFI",
-                          "command",
-                          default_type = _winreg.REG_SZ,
-                          default_value = '"%s" "%s" --pause "%%1"'
-                          % (pythonexe, nifoptpy))
+	# register the .nif extension
+	hkeydotnif = createsubkey(_winreg.HKEY_CLASSES_ROOT, ".nif",
+				  _winreg.REG_SZ, "NetImmerseFile")
+	# register the .cgf extension
+	hkeydotcgf = createsubkey(_winreg.HKEY_CLASSES_ROOT, ".cgf",
+				  _winreg.REG_SZ, "CrytekGeometryFile")
+	# add the optimize and qskope commands to nif
+	hkeynif = createsubkey(_winreg.HKEY_CLASSES_ROOT, "NetImmerseFile",
+			       _winreg.REG_SZ, "NetImmerse/Gamebryo File")
+	createsubkeychain(hkeynif, "shell", "Optimize with PyFFI",
+			  "command",
+			  default_type = _winreg.REG_SZ,
+			  default_value = '"%s" "%s" --pause "%%1"'
+			  % (pythonexe, nifoptpy))
         createsubkeychain(hkeynif, "shell", "Open with QSkope",
                           "command",
                           default_type = _winreg.REG_SZ,
