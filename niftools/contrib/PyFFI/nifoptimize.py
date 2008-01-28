@@ -234,9 +234,11 @@ def optimizeTriBasedGeom(block, striplencutoff = 10.0, stitch = True):
         # use Oblivion settings
         block.updateSkinPartition(maxbonesperpartition = 18, maxbonespervertex = 4, stripify = True, verbose = 0)
 
-    # recalculate tangent space
-    print "  recalculating tangent space"
-    block.updateTangentSpace()
+    # recalculate tangent space (only if the block already exists)
+    if block.find(block_name = 'Tangent space (binormal & tangent vectors)',
+                  block_type = NifFormat.NiBinaryExtraData):
+        print "  recalculating tangent space"
+        block.updateTangentSpace()
 
     return block
 
