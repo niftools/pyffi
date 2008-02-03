@@ -107,7 +107,7 @@ class GlobalModel(QtCore.QAbstractItemModel):
                     self.refDict[blockparent].append(block)
         # get list of actual roots
         self.roots = []
-        # list over all blocks with references
+        # list over all blocks
         for root in self.refDict:
             # if it is already listed: skip
             if root in self.roots:
@@ -117,6 +117,8 @@ class GlobalModel(QtCore.QAbstractItemModel):
                 continue
             # it must be an actual root
             self.roots.append(root)
+        # sort blocks by reference number
+        self.roots.sort(key = lambda block: self.refNumber[block])
 
     def flags(self, index):
         """Return flags for the given index: all indices are enabled and
