@@ -100,6 +100,11 @@ class GlobalModel(QtCore.QAbstractItemModel):
                         self.refDict[block].append(ptrblock)
                         # no children
                         self.refDict[ptrblock] = []
+                # check if it has a qBlockParent
+                blockparent = block.qBlockParent()
+                if blockparent and not block in self.refDict[blockparent]:
+                    self.parentDict[block] = blockparent
+                    self.refDict[blockparent].append(block)
         # get list of actual roots
         self.roots = []
         # list over all blocks with references

@@ -586,5 +586,12 @@ class StructBase(object):
         else:
             raise ValueError("qDataName(self, item): item not found")
 
+    # extra function for global view, override if required
+    def qBlockParent(self):
+        """This can be used to return a parent of an object, if the parent
+        object does not happen to link to the object (for instance the
+        MeshMorphTargetChunk in the cgf format is an example)."""
+        return None
+
 from PyFFI.Bases.Basic import BasicBase
 from PyFFI.Bases.Array import Array
