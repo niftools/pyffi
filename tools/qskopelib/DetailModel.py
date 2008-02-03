@@ -117,7 +117,7 @@ class DetailModel(QtCore.QAbstractItemModel):
             except KeyError:
                 # not a reference: return the datavalue QVariant
                 valuestr = str(datavalue)
-                if len(valuestr) > 64:
+                if len(valuestr) > 128:
                     return QtCore.QVariant("...")
                 return QtCore.QVariant(
                     valuestr.replace("\n", " ").replace("\r", " "))
