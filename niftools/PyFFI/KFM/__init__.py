@@ -144,10 +144,16 @@ class KfmFormat(object):
             return None
 
         def read(self, stream, **kwargs):
+            # get the string we expect
             version_string = self.versionString(kwargs.get('version'))
+            # read string from stream
             s = stream.read(len(version_string))
+            # check if the string is correct
             if s != version_string:
-                raise ValueError("invalid KFM header: expected '%s' but got '%s'"%(version_string, s[:-1]))
+                raise ValueError(
+                    "invalid KFM header: expected '%s' but got '%s'"
+                    % (version_string, s))
+            # check eol style
             nextchar = stream.read(1)
             if nextchar == '\x0d':
                 nextchar = stream.read(1)
@@ -155,16 +161,21 @@ class KfmFormat(object):
             else:
                 self._doseol = False
             if nextchar != '\x0a':
-                raise ValueError("invalid KFM header: string does not end on \\n or \\r\\n")
+                raise ValueError(
+                    "invalid KFM header: string does not end on \\n or \\r\\n")
 
         def write(self, stream, **kwargs):
-            if self._doseol and kwargs.get('version') == 0x01000000:
-                stream.write(self.versionString(kwargs.get('version')) + '\x0d\x0a')
+            # write the version string
+            stream.write(self.versionString(kwargs.get('version')))
+            # write \n (or \r\n for older versions)
+            if self._doseol:
+                stream.write('\x0d\x0a')
             else:
-                stream.write(self.versionString(kwargs.get('version')) + '\x0a')
+                stream.write('\x0a')
 
         def getSize(self, **kwargs):
-            return len(self.versionString(kwargs.get('version'))) + 1
+            return len(self.versionString(kwargs.get('version'))) \
+                   + (1 if not self._doseol else 2)
 
         @staticmethod
         def versionString(version):
