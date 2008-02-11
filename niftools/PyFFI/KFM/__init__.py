@@ -129,18 +129,30 @@ class KfmFormat(object):
     class HeaderString(BasicBase):
         def __str__(self):
             return ';Gamebryo KFM File Version x.x.x.x'
+            self._doseol = False
 
         def getHash(self, **kwargs):
             return None
 
         def read(self, stream, **kwargs):
             version_string = self.versionString(kwargs.get('version'))
-            s = stream.read(len(version_string) + 1)
-            if s != version_string + '\x0a':
+            s = stream.read(len(version_string))
+            if s != version_string:
                 raise ValueError("invalid KFM header: expected '%s' but got '%s'"%(version_string, s[:-1]))
+            nextchar = stream.read(1)
+            if nextchar == '\x0d':
+                nextchar = stream.read(1)
+                self._doseol = True
+            else:
+                self._doseol = False
+            if nextchar != '\x0a':
+                raise ValueError("invalid KFM header: string does not end on \\n or \\r\\n")
 
         def write(self, stream, **kwargs):
-            stream.write(self.versionString(kwargs.get('version')) + '\x0a')
+            if self._doseol and kwargs.get('version') == 0x01000000:
+                stream.write(self.versionString(kwargs.get('version')) + '\x0d\x0a')
+            else:
+                stream.write(self.versionString(kwargs.get('version')) + '\x0a')
 
         def getSize(self, **kwargs):
             return len(self.versionString(kwargs.get('version'))) + 1
