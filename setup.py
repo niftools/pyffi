@@ -37,10 +37,10 @@ import PyFFI
 setup(
     name = "PyFFI",
     version = PyFFI.__version__,
-    packages = ['PyFFI', 'PyFFI.Bases', 'PyFFI.Utils', 'PyFFI.NIF', 'PyFFI.KFM', 'PyFFI.CGF', 'NifTester', 'NifTester.hacking', 'NifTester.validate', 'NifTester.surgery', 'NifVis', 'NifVis.lizers', 'CgfTester', 'CgfTester.hacking', 'CgfTester.validate', 'CgfTester.surgery', 'qskopelib'],
-    package_dir = { 'NifTester' : 'tools/NIF/NifTester', 'NifVis' : 'tools/NIF/NifVis', 'CgfTester' : 'tools/CGF/CgfTester', 'qskopelib' : 'tools/qskopelib' },
+    packages = ['PyFFI', 'PyFFI.Bases', 'PyFFI.Utils', 'PyFFI.NIF', 'PyFFI.KFM', 'PyFFI.CGF', 'NifTester', 'NifTester.hacking', 'NifTester.validate', 'NifTester.surgery', 'NifVis', 'NifVis.lizers', 'CgfTester', 'CgfTester.hacking', 'CgfTester.validate', 'CgfTester.surgery', 'KfmTester', 'KfmTester.hacking', 'KfmTester.validate', 'KfmTester.surgery', 'qskopelib'],
+    package_dir = { 'NifTester' : 'tools/NIF/NifTester', 'NifVis' : 'tools/NIF/NifVis', 'CgfTester' : 'tools/CGF/CgfTester', 'KfmTester' : 'tools/KFM/KfmTester', 'qskopelib' : 'tools/qskopelib' },
     package_data = { '' : [ '*.xml' ] }, # include xml files
-    scripts = ['pyffipostinstallation.py', 'tools/NIF/ffvt3rskinpartition.py', 'tools/NIF/nifmakehsl.py', 'tools/NIF/niftoaster.py', 'tools/NIF/nifvisualizer.py', 'tools/NIF/nifoptimize.py', 'tools/NIF/niftexdump.py', 'tools/NIF/nifdump.py', 'tools/NIF/niftemplate.py', 'tools/CGF/cgftoaster.py', 'tools/qskope.py'],
+    scripts = ['pyffipostinstallation.py', 'tools/NIF/ffvt3rskinpartition.py', 'tools/NIF/nifmakehsl.py', 'tools/NIF/niftoaster.py', 'tools/NIF/nifvisualizer.py', 'tools/NIF/nifoptimize.py', 'tools/NIF/niftexdump.py', 'tools/NIF/nifdump.py', 'tools/NIF/niftemplate.py', 'tools/CGF/cgftoaster.py', 'tools/KFM/kfmtoaster.py', 'tools/qskope.py'],
     author = "Amorilia",
     author_email = "amorilia@users.sourceforge.net",
     license = "BSD",
