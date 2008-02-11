@@ -54,10 +54,16 @@ Get list of versions and games
 ...     for vnum in versions:
 ...         print '0x%08X'%vnum,
 ...     print
-? 0x01000000 0x0201000B
-Civilization IV 0x0200000B
-Emerge 0x0202000B
+Civilization IV 0x01000000 0x01024B00 0x0200000B
+Emerge 0x0201000B 0x0202000B
+Loki 0x01024B00
+Megami Tensei: Imagine 0x0201000B
 Oblivion 0x01024B00
+Prison Tycoon 0x01024B00
+Pro Cycling Manager 0x01024B00
+Red Ocean 0x01024B00
+Sid Meier's Railroads 0x0200000B
+The Guild 2 0x01024B00
 """
 
 # ***** BEGIN LICENSE BLOCK *****
@@ -127,9 +133,12 @@ class KfmFormat(object):
     # implementation of kfm-specific basic types
 
     class HeaderString(BasicBase):
+        def __init__(self, **kwargs):
+            BasicBase.__init__(self, **kwargs)            
+            self._doseol = False
+
         def __str__(self):
             return ';Gamebryo KFM File Version x.x.x.x'
-            self._doseol = False
 
         def getHash(self, **kwargs):
             return None
@@ -231,7 +240,7 @@ class KfmFormat(object):
 
         >>> from tempfile import TemporaryFile
         >>> f = TemporaryFile()
-        >>> s = KfmFormat.Text()
+        >>> s = KfmFormat.TextString()
         >>> f.write('abcdefg')
         >>> f.seek(0)
         >>> s.read(f)
@@ -241,7 +250,7 @@ class KfmFormat(object):
         >>> s.setValue('Hi There Everybody')
         >>> s.write(f)
         >>> f.seek(0)
-        >>> m = KfmFormat.Text()
+        >>> m = KfmFormat.TextString()
         >>> m.read(f)
         >>> str(m)
         'Hi There Everybody'
