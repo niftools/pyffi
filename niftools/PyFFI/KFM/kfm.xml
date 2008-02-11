@@ -10,8 +10,8 @@
 
 	<compound name="Animation">
 		<add name="Event Code" type="int" />
-		<add name="Name" type="sizedstring" ver2="16927488" />
-		<add name="KF File Name" type="sizedstring" />
+		<add name="Name" type="SizedString" ver2="16927488" />
+		<add name="KF File Name" type="SizedString" />
 		<add name="Index" type="int">An index?</add>
 		<add name="Num Transitions" type="int" />
 		<add name="Transitions" type="Transition" arr1="Num Transitions">Max = Num Animations -1? No transition from animation to itself.</add>
@@ -19,7 +19,7 @@
 
 	<compound name="Intermediate Anim">
 		<add name="Unknown Int" type="int" />
-		<add name="Event" type="sizedstring" />
+		<add name="Event" type="SizedString" />
 	</compound>
 
 	<compound name="Transition">
@@ -34,8 +34,8 @@
 	<compound name="Kfm">
 		<add name="Header String" type="headerstring" />
 		<add name="Unknown Byte" type="byte" ver1="33554432" />
-		<add name="NIF File Name" type="sizedstring" ver1="16909312" />
-		<add name="Master" type="sizedstring" ver1="16909312" />
+		<add name="NIF File Name" type="SizedString" ver1="16909312" />
+		<add name="Master" type="SizedString" ver1="16909312" />
 		<add name="Unknown Int 1" type="int" ver1="16909312" />
 		<add name="Unknown Int 2" type="int" ver1="16909312" />
 		<add name="Unknown Float 1" type="float" ver1="16909312" />
