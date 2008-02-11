@@ -2,8 +2,8 @@
 <!DOCTYPE niftoolsxml>
 <niftoolsxml version="0.7.0.0">
 
-	<version num="1.0">?</version>
-	<version num="1.2.4b">Oblivion</version><!--16927488-->
+	<version num="1.0">Civilization IV</version>
+	<version num="1.2.4b">Oblivion, Civilization IV</version><!--16927488-->
 	<version num="2.0.0.0b">Civilization IV</version>
 	<version num="2.1.0.0b">?</version>
 	<version num="2.2.0.0b">Emerge</version><!--33685515-->
@@ -33,6 +33,7 @@
 
 	<compound name="Kfm">
 		<add name="Header String" type="HeaderString" />
+		<add name="Text String" type="TextString" ver2="1.0" />
 		<add name="Unknown Byte" type="byte" ver1="33554432" />
 		<add name="NIF File Name" type="SizedString" ver1="16909312" />
 		<add name="Master" type="SizedString" ver1="16909312" />

@@ -214,6 +214,56 @@ class KfmFormat(object):
             stream.write(struct.pack('<I', len(self._value)))
             stream.write(self._value)
 
+    class TextString(BasicBase):
+        """Basic type for text (used by older kfm versions).
+
+        >>> from tempfile import TemporaryFile
+        >>> f = TemporaryFile()
+        >>> s = KfmFormat.Text()
+        >>> f.write('abcdefg')
+        >>> f.seek(0)
+        >>> s.read(f)
+        >>> str(s)
+        'abcdefg'
+        >>> f.seek(0)
+        >>> s.setValue('Hi There Everybody')
+        >>> s.write(f)
+        >>> f.seek(0)
+        >>> m = KfmFormat.Text()
+        >>> m.read(f)
+        >>> str(m)
+        'Hi There Everybody'
+        """
+        def __init__(self, **kwargs):
+            BasicBase.__init__(self, **kwargs)            
+            self.setValue('')
+
+        def getValue(self):
+            return self._value
+
+        def setValue(self, value):
+            if len(value) > 10000:
+                raise ValueError('text too long')
+            self._value = str(value)
+
+        def __str__(self):
+            s = self._value
+            if not s:
+                return '<EMPTY TEXT>'
+            return s
+
+        def getSize(self, **kwargs):
+            return len(self._value)
+
+        def getHash(self, **kwargs):
+            return self.getValue()
+
+        def read(self, stream, **kwargs):
+            self._value = stream.read(-1)
+
+        def write(self, stream, **kwargs):
+            stream.write(self._value)
+
     # other types with internal implementation
     class FilePath(SizedString):
         def getHash(self, **kwargs):
