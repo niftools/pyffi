@@ -19,6 +19,7 @@ import PyFFI.NIF.NiGeometry
 import PyFFI.NIF.NiNode
 import PyFFI.NIF.NiSkinData
 import PyFFI.CGF
+import PyFFI.KFM
 
 mods = [ val for (key, val) in sys.modules.iteritems() if key.startswith('PyFFI') ]
 
