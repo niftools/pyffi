@@ -46,6 +46,7 @@ from qskopelib.DetailDelegate import DetailDelegate
 import PyFFI
 from PyFFI.NIF import NifFormat
 from PyFFI.CGF import CgfFormat
+from PyFFI.KFM import KfmFormat
 
 from types import NoneType
 
@@ -201,10 +202,19 @@ class QSkope(QtGui.QMainWindow):
                     self.Format = CgfFormat
                     self.formatArgs = (filetype, fileversion, game)
                 else:
-                    # all failed: inform user that format is not recognized
-                    self.statusBar().showMessage(
-                        'File format of %s not recognized' % filename)
-                    return
+                    # try reading as a kfm file
+                    version = KfmFormat.getVersion(stream)
+                    if version >= 0:
+                        # if succesful: parse the file and save information about it
+                        self.roots = [ KfmFormat.read(stream, version) ]
+                        self.fileName = filename
+                        self.Format = KfmFormat
+                        self.formatArgs = (version,)
+                    else:
+                        # all failed: inform user that format is not recognized
+                        self.statusBar().showMessage(
+                            'File format of %s not recognized' % filename)
+                        return
         except (ValueError, IOError):
             # update status bar message
             self.statusBar().showMessage("Failed reading %s (see console)"
@@ -253,6 +263,11 @@ class QSkope(QtGui.QMainWindow):
                                 versions = CgfFormat.getChunkVersions(
                                     game = self.formatArgs[2],
                                     chunks = self.roots))
+            elif issubclass(self.Format, KfmFormat):
+                # write nif file
+                KfmFormat.write(stream,
+                                version = self.formatArgs[0],
+                                kfm = self.roots[0])
         except ValueError:
             # update status bar message
             self.statusBar().showMessage("Failed saving %s (see console)"
