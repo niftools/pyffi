@@ -17,7 +17,7 @@
 		<add name="Transitions" type="Transition" arr1="Num Transitions">Max = Num Animations -1? No transition from animation to itself.</add>
 	</compound>
 
-	<compound name="Intermediate Anim">
+	<compound name="IntermediateAnim">
 		<add name="Unknown Int" type="int" />
 		<add name="Event" type="SizedString" />
 	</compound>
@@ -27,7 +27,7 @@
 		<add name="Type" type="int" />
 		<add name="Duration" type="float" cond="Type != 5" />
 		<add name="Num Intermediate Anims" type="int" cond="Type != 5" />
-		<add name="Intermediate Anims" type="Intermediate Anim" arr1="Num Intermediate Anims" cond="Type != 5" />
+		<add name="Intermediate Anims" type="IntermediateAnim" arr1="Num Intermediate Anims" cond="Type != 5" />
 		<add name="Num TextKeyPairs" type="int" cond="Type != 5" />
 	</compound>
 
