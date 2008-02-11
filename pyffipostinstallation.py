@@ -96,12 +96,20 @@ else:
         "QSkope.lnk")
     # install
     if sys.argv[1] == "-install":
-        # register the .nif extension
-        hkeydotnif = createsubkey(_winreg.HKEY_CLASSES_ROOT, ".nif",
-                      _winreg.REG_SZ, "NetImmerseFile")
+        # register the .nif, .nifcache, .kf, .kfa, and .kfm extensions
+        createsubkey(_winreg.HKEY_CLASSES_ROOT, ".nif",
+                     _winreg.REG_SZ, "NetImmerseFile")
+        createsubkey(_winreg.HKEY_CLASSES_ROOT, ".nifcache",
+                     _winreg.REG_SZ, "NetImmerseFile")
+        createsubkey(_winreg.HKEY_CLASSES_ROOT, ".kf",
+                     _winreg.REG_SZ, "NetImmerseFile")
+        createsubkey(_winreg.HKEY_CLASSES_ROOT, ".kfa",
+                     _winreg.REG_SZ, "NetImmerseFile")
+        createsubkey(_winreg.HKEY_CLASSES_ROOT, ".kfm",
+                     _winreg.REG_SZ, "NetImmerseFile")
         # register the .cgf extension
-        hkeydotcgf = createsubkey(_winreg.HKEY_CLASSES_ROOT, ".cgf",
-                      _winreg.REG_SZ, "CrytekGeometryFile")
+        createsubkey(_winreg.HKEY_CLASSES_ROOT, ".cgf",
+                     _winreg.REG_SZ, "CrytekGeometryFile")
         # add the optimize and qskope commands to nif
         hkeynif = createsubkey(_winreg.HKEY_CLASSES_ROOT, "NetImmerseFile",
                        _winreg.REG_SZ, "NetImmerse/Gamebryo File")
