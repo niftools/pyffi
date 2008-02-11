@@ -1,3 +1,4 @@
 include ChangeLog.txt
 include PyFFI/NIF/nif.xml
+include PyFFI/KFM/kfm.xml
 include PyFFI/CGF/cgf.xml
