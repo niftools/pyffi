@@ -1,16 +1,17 @@
-"""A Python library for reading, writing, and processing binary files.
+"""A Python library for processing block structured binary files.
 
 The Python File Format Interface aims to make it easy to manipulate
 binary files in a Python environment. Starting from a file format
 description written in XML, PyFFI creates customizable Python classes
 to read and write file blocks as described by the XML. Currently,
-PyFFI supports the NetImmerse/Gamebryo NIF format, and CryTek's CGF
-format. Many tools for files used by 3D games, such as a stripifier,
-and a tangent space calculator, are included in PyFFI as well.
+PyFFI supports the NetImmerse/Gamebryo NIF and KFM formats, and
+CryTek's CGF format. Many tools for files used by 3D games, such as a
+stripifier, and a tangent space calculator, are included in PyFFI as
+well.
 
-QSkope is PyFFI's graphical user interface, and enables simple editing of
-files in any fileformat supported by PyFFI. QSkope depends on PyQt4, which you
-can download from
+QSkope is PyFFI's graphical user interface, and enables simple editing
+of files in any fileformat supported by PyFFI. QSkope depends on PyQt4,
+which you can download from
 
 http://www.riverbankcomputing.co.uk/pyqt/download.php"""
 
