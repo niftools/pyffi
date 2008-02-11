@@ -236,7 +236,10 @@ class KfmFormat(object):
         >>> hex(KfmFormat.versionNumber('2.2.0.0b'))
         '0x202000b'
         """
-        
+       
+        if not '.' in version_str:
+            return int(version_str)
+ 
         try:
             ver_list = [int(x, 16) for x in version_str.split('.')]
         except ValueError:
