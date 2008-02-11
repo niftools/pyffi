@@ -16,30 +16,48 @@ Read a KFM file
 ...     raise RuntimeError('not a kfm file')
 >>> kfm = KfmFormat.read(f, version = version)
 >>> # print all animation file names
+>>> print kfm.nifFileName
+Test.nif
 >>> for anim in kfm.animations:
-...     print anim.file
+...     print anim.kfFileName
+Test_MD_Idle.kf
+Test_MD_Run.kf
+Test_MD_Walk.kf
+Test_MD_Die.kf
 
 Create a KFM model from scratch and write to file
 -------------------------------------------------
 
 >>> kfm = KfmFormat.Kfm()
+>>> kfm.nifFileName = "Test.nif"
+>>> kfm.numAnimations = 4
+>>> kfm.animations.updateSize()
+>>> kfm.animations[0].kfFileName = "Test_MD_Idle.kf"
+>>> kfm.animations[1].kfFileName = "Test_MD_Run.kf"
+>>> kfm.animations[2].kfFileName = "Test_MD_Walk.kf"
+>>> kfm.animations[3].kfFileName = "Test_MD_Die.kf"
+>>> from tempfile import TemporaryFile
 >>> f = TemporaryFile()
->>> KfmFormat.write(f, version = 0x0202000b, kfm = kfm)
+>>> KfmFormat.write(f, version = 0x0202000B, kfm = kfm)
 
 Get list of versions and games
 ------------------------------
 
 >>> for vnum in sorted(KfmFormat.versions.values()): print '0x%08X'%vnum
 0x01000000
-0x01024b00
-0x0200000b
-0x0201000b
-0x0202000b
+0x01024B00
+0x0200000B
+0x0201000B
+0x0202000B
 >>> for game, versions in sorted(KfmFormat.games.items(), key=lambda x: x[0]):
 ...     print game,
 ...     for vnum in versions:
 ...         print '0x%08X'%vnum,
 ...     print
+? 0x01000000 0x0201000B
+Civilization IV 0x0200000B
+Emerge 0x0202000B
+Oblivion 0x01024B00
 """
 
 # ***** BEGIN LICENSE BLOCK *****
