@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE niflotoxml>
-<niflotoxml version="0.6.0.0">
+<!DOCTYPE niftoolsxml>
+<niftoolsxml version="0.7.0.0">
 
 	<version num="1.0">?</version>
 	<version num="1.2.4b">Oblivion</version><!--16927488-->
@@ -45,5 +45,5 @@
 		<add name="Unknown Int 3" type="int" ver1="16909312" />
 	</compound>
 
-</niflotoxml>
+</niftoolsxml>
 
