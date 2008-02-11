@@ -64,10 +64,13 @@ def testBlock(block, **args):
             for textype in ['Base', 'Dark', 'Detail', 'Gloss', 'Glow', 'BumpMap', 'Decal0', 'Decal1', 'Decal2', 'Decal3']:
                 if getattr(tex, 'has%sTexture'%textype):
                     texdesc = getattr(tex, '%s%sTexture'%(textype[0].lower(),textype[1:]))
-                    if texdesc.source.useExternal:
-                        filename = texdesc.source.fileName
+                    if texdesc.source:
+                        if texdesc.source.useExternal:
+                            filename = texdesc.source.fileName
+                        else:
+                            filename = '(pixel data packed in file)'
                     else:
-                        filename = '(pixel data packed in file)'
+                        filename = '(no texture file)'
                     print "      [%s] %s"%(textype, filename)
             print "      apply mode %i"%tex.applyMode
         for mtl in block.tree(block_type = NifFormat.NiMaterialProperty):
