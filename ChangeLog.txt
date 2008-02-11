@@ -3,7 +3,8 @@ Version 0.8.3 (***)
 * new qBlockParent function to assign parents if the parent block does not
 contain a reference to the child, but the child contains a reference to the
 parent (as in MeshMorphTargetChunk and BoneInitialPosChunk)
-* root blocks sorted by reference number
+* QSkope: root blocks sorted by reference number
+* niftexdump: bug fixed when reading nifs that have textures without source
 
 Version 0.8.2 (28 Jan 2008)
 * fixed installer bug (nifoptimize would not launch from context menu)
