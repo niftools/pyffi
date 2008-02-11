@@ -32,7 +32,7 @@
 	</compound>
 
 	<compound name="Kfm">
-		<add name="Header String" type="headerstring" />
+		<add name="Header String" type="HeaderString" />
 		<add name="Unknown Byte" type="byte" ver1="33554432" />
 		<add name="NIF File Name" type="SizedString" ver1="16909312" />
 		<add name="Master" type="SizedString" ver1="16909312" />
