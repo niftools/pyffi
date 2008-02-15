@@ -9,4 +9,4 @@ import skincenterradius
 import skinpartition
 import tangentspace
 import tristrip
-
+import showpixeldata
