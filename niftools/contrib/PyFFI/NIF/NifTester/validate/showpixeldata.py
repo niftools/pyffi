@@ -1,9 +1,11 @@
 """Show image in NiPixelData block."""
 
 from PyFFI.NIF import NifFormat
+import os.path
 
 try:
     from PIL import Image
+    from PIL.ImageQt import ImageQt
 except:
     Image = None
 
@@ -23,5 +25,12 @@ Please install PIL from http://www.pythonware.com/products/pil/""")
     mode, size, data = block.getRawImage()
 
     # display the image
-    Image.fromstring(mode, size, data, "raw", mode, 0, 1).show()
+    img = Image.fromstring(mode, size, data, "raw", mode, 0, 1)
+    n = 0
+    while True:
+        filename = "image%03i.png" % n
+        if not os.path.exists(filename):
+            break
+        n += 1
+    img.save(filename)
 
