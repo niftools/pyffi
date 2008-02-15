@@ -114,7 +114,8 @@ class DetailModel(QtCore.QAbstractItemModel):
                 # see if the data is in the blocks list
                 # if so, it is a reference
                 blocknum = self.refNumber[datavalue]
-            except KeyError:
+            except (KeyError, TypeError):
+                # note: TypeError occurs if datavalue is not a hashable type
                 # not a reference: return the datavalue QVariant
                 valuestr = str(datavalue)
                 if len(valuestr) > 128:
