@@ -18,7 +18,8 @@ from PyFFI.KFM import KfmFormat
 # useful as testFile which simply writes back the file
 # but restores the file if the write fails
 def testFileOverwrite(stream,
-                      version = None, kfm = None,
+                      version = None,
+                      header = None, animations = None, footer = None,
                       **args):
     stream.seek(0)
     backup = stream.read(-1)
@@ -27,8 +28,8 @@ def testFileOverwrite(stream,
         print "writing %s..."%stream.name
     try:
         KfmFormat.write(
-            stream,
-            version = version, kfm = kfm)
+            stream, version = version,
+            header = header, animations = animations, footer = footer)
     except: # not just StandardError, also CTRL-C
         print "write failed!!! attempt to restore original file..."
         stream.seek(0)
@@ -40,14 +41,14 @@ def testFileOverwrite(stream,
 # test all files using testBlock, testRoot, and testFile functions
 def testPath(top, testFile = None, raisereaderror = False, mode = 'rb', raisetesterror = True, **args):
     verbose = args.get('verbose', 1)
-    for version, stream, kfm in KfmFormat.walkFile(top, raisereaderror = raisereaderror, verbose = min(1, verbose), mode = mode):
+    for version, stream, (header, animations, footer) in KfmFormat.walkFile(top, raisereaderror = raisereaderror, verbose = min(1, verbose), mode = mode):
         # run tests
         try:
             if testFile:
                 testFile(
-                    stream,
-                    version = version,
-                    kfm = kfm, **args)
+                    stream, version = version,
+                    header = header, animations = animations, footer = footer,
+                    **args)
         except StandardError:
             print """
 *** TEST FAILED ON %-51s ***
