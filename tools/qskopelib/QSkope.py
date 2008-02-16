@@ -93,7 +93,9 @@ class QSkope(QtGui.QMainWindow):
 
         # set the main application data:
         # current file and arguments to save back to disk
+        self.header = None
         self.roots = []
+        self.footer = None
         self.fileName = None
         self.Format = NoneType
         self.formatArgs = () # format dependent
@@ -188,6 +190,8 @@ class QSkope(QtGui.QMainWindow):
             if version >= 0:
                 # if succesful: parse the file and save information about it
                 self.roots = NifFormat.read(stream, version, user_version)
+                self.header = None
+                self.footer = None
                 self.fileName = filename
                 self.Format = NifFormat
                 self.formatArgs = (version, user_version)
@@ -198,6 +202,8 @@ class QSkope(QtGui.QMainWindow):
                     # if succesful: parse the file and save information about it
                     self.roots, versions = CgfFormat.read(
                         stream, fileversion = fileversion, game = game)
+                    self.header = None
+                    self.footer = None
                     self.fileName = filename
                     self.Format = CgfFormat
                     self.formatArgs = (filetype, fileversion, game)
@@ -206,7 +212,7 @@ class QSkope(QtGui.QMainWindow):
                     version = KfmFormat.getVersion(stream)
                     if version >= 0:
                         # if succesful: parse the file and save information about it
-                        self.roots = [ KfmFormat.read(stream, version) ]
+                        self.header, self.roots, self.footer = KfmFormat.read(stream, version)
                         self.fileName = filename
                         self.Format = KfmFormat
                         self.formatArgs = (version,)
@@ -226,7 +232,8 @@ class QSkope(QtGui.QMainWindow):
             self.statusBar().showMessage("Finished reading %s" % filename)
 
             # set up the models and update the views
-            self.globalModel = GlobalModel(roots = self.roots)
+            self.globalModel = GlobalModel(
+                header = self.header, roots = self.roots, footer = self.footer)
             self.globalWidget.setModel(self.globalModel)
             self.setDetailModel(
                 self.globalModel.index(0, 0, QtCore.QModelIndex()))
@@ -267,7 +274,9 @@ class QSkope(QtGui.QMainWindow):
                 # write nif file
                 KfmFormat.write(stream,
                                 version = self.formatArgs[0],
-                                kfm = self.roots[0])
+                                header = self.header,
+                                animations = self.roots,
+                                footer = self.footer)
         except ValueError:
             # update status bar message
             self.statusBar().showMessage("Failed saving %s (see console)"

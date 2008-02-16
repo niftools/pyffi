@@ -552,6 +552,13 @@ class StructBase(object):
         except AttributeError:
             raise NotImplementedError("cannot set '%s' attribute"%name)
 
+    def tree(self):
+        """A generator for parsing all blocks in the tree (starting from and
+        including C{self}). By default, there is no tree structure, so returns
+        self."""
+        # return self
+        yield self
+
     #
     # user interface functions come next
     # these functions are named after similar ones in the TreeItem example
@@ -584,7 +591,11 @@ class StructBase(object):
             if item is otheritem:
                 return name
         else:
-            raise ValueError("qDataName(self, item): item not found")
+            raise ValueError("qName(self, item): item not found")
+
+    def qBlockName(self):
+        """Construct a convenient name for the block itself."""
+        return self.name if hasattr(self, "name") else ""
 
     # extra function for global view, override if required
     def qBlockParent(self):

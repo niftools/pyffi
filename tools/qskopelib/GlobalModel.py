@@ -64,9 +64,12 @@ class GlobalModel(QtCore.QAbstractItemModel):
     COL_NUMBER = 2
     COL_NAME   = 1
 
-    def __init__(self, parent = None, roots = None):
+    def __init__(self, parent = None,
+                 roots = None, header = None, footer = None):
         """Initialize the model to display the given blocks."""
         QtCore.QAbstractItemModel.__init__(self, parent)
+        self.header = header
+        self.footer = footer
         # this list stores the blocks in the view
         # is a list of NiObjects for the nif format, and a list of Chunks for
         # the cgf format
@@ -148,12 +151,15 @@ class GlobalModel(QtCore.QAbstractItemModel):
             return QtCore.QVariant(data.__class__.__name__)
         elif index.column() == self.COL_NAME:
             if isinstance(data, StructBase):
-                if hasattr(data, "name"):
-                    return QtCore.QVariant(data.name)
-                else:
-                    return QtCore.QVariant()
+                return QtCore.QVariant(data.qBlockName())
+            else:
+                return QtCore.QVariant()
+            
         elif index.column() == self.COL_NUMBER:
-            return QtCore.QVariant(self.refNumber[data])
+            if not data is self.header and not data is self.footer:
+                return QtCore.QVariant(self.refNumber[data])
+            else:
+                return QtCore.QVariant()
 
         # other colums: invalid
         else:
@@ -175,11 +181,14 @@ class GlobalModel(QtCore.QAbstractItemModel):
         """Calculate a row count for the given parent index."""
         if not parent.isValid():
             # top level: one row for each block
-            return len(self.roots)
+            return len(self.roots) + 2
         else:
             # get the parent child count = number of references
             data = parent.internalPointer()
-            return len(self.refDict[data])
+            if data is self.header or data is self.footer:
+                return 0
+            else:
+                return len(self.refDict[data])
 
     def columnCount(self, parent = QtCore.QModelIndex()):
         """Return column count."""
@@ -194,8 +203,12 @@ class GlobalModel(QtCore.QAbstractItemModel):
         if not parent.isValid():
             # parent is not valid, so we need a top-level object
             # return the index with row'th block as internal pointer
-            if row < len(self.roots):
-                data = self.roots[row]
+            if row == 0:
+                data = self.header
+            elif row <= len(self.roots):
+                data = self.roots[row - 1]
+            elif row == len(self.roots) + 1:
+                data = self.footer
             else:
                 return QtCore.QModelIndex()
         else:
@@ -211,7 +224,7 @@ class GlobalModel(QtCore.QAbstractItemModel):
             return QtCore.QModelIndex()
         data = index.internalPointer()
         # if no parent, then index must be top level object
-        if data in self.roots:
+        if data in self.roots or data is self.header or data is self.footer:
             return QtCore.QModelIndex()
         # finally, if parent's parent is not None, then it must be member of
         # some deeper nested structure, so calculate the row as usual
@@ -219,7 +232,7 @@ class GlobalModel(QtCore.QAbstractItemModel):
         if parentData in self.roots:
             # top level parent
             # row number is index in roots list
-            row = self.roots.index(parentData)
+            row = self.roots.index(parentData) + 1
         else:
             # we need the row number of parentData:
             # 1) get the parent of parentData
