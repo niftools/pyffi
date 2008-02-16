@@ -1,0 +1,508 @@
+"""Implements base class for bitstruct types."""
+
+# --------------------------------------------------------------------------
+# ***** BEGIN LICENSE BLOCK *****
+#
+# Copyright (c) 2007-2008, Python File Format Interface
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+#    * Redistributions of source code must retain the above copyright
+#      notice, this list of conditions and the following disclaimer.
+#
+#    * Redistributions in binary form must reproduce the above
+#      copyright notice, this list of conditions and the following
+#      disclaimer in the documentation and/or other materials provided
+#      with the distribution.
+#
+#    * Neither the name of the Python File Format Interface
+#      project nor the names of its contributors may be used to endorse
+#      or promote products derived from this software without specific
+#      prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# ***** END LICENCE BLOCK *****
+# --------------------------------------------------------------------------
+
+# note: some imports are defined at the end to avoid problems with circularity
+
+from types import NoneType
+from functools import partial
+from itertools import izip
+
+class _MetaBitStructBase(type):
+    """This metaclass checks for the presence of a _attrs attribute.
+    For each attribute in _attrs, an <attrname> property is generated which
+    gets and sets bit fields. Used as metaclass of BitStructBase."""
+    def __init__(cls, name, bases, dct):
+        super(_MetaStructBase, cls).__init__(name, bases, dct)
+        # consistency checks
+        if not '_attrs' in dct:
+            raise TypeError('%s: missing _attrs attribute'%cls)
+        if not '_size' in dct:
+            raise TypeError('%s: missing _size attribute'%cls)
+
+        # check storage type
+        if cls._size == 1:
+            cls._struct = '<B'
+        elif cls._size == 2:
+            cls._struct = '<H'
+        elif cls._size == 4:
+            cls._struct = '<I'
+        else:
+            raise RuntimeError("unsupported bitstruct size")
+
+        # template type?
+        cls._isTemplate = False
+        # does the type contain a Ref or a Ptr?
+        cls._hasLinks = False
+        # does the type contain a Ref?
+        cls._hasRefs = False
+        # does the type contain a string?
+        cls._hasStrings = False
+        for attr in dct['_attrs']:
+            # get and set basic attributes
+            setattr(cls, attr.name, property(
+                partial(BitStructBase.getAttribute, name = attr.name, numbits = attr.numbits),
+                partial(BitStructBase.setAttribute, name = attr.name, numbits = attr.numbits),
+                doc=attr.doc))
+
+        # precalculate the attribute list
+        cls._attributeList = cls._getAttributeList()
+
+        # precalculate the attribute name list
+        cls._names = cls._getNames()
+
+class BitStructBase(object):
+    """Base class from which all file bitstruct types are derived.
+
+    The BitStructBase class implements the basic bitstruct interface:
+    it will initialize all attributes using the class interface
+    using the _attrs class variable, print them as strings, and so on.
+    The class variable _attrs must be declared every derived class
+    interface.
+
+    Each item in the class _attrs list stores the information about
+    the attribute as stored for instance in the xml file, and the
+    _<name>_value_ instance variable stores the actual attribute
+    instance.
+
+    Direct access to the attributes is implemented using a <name>
+    property which invokes the getAttribute and setAttribute
+    functions, as demonstrated below.
+
+    See the PyFFI.XmlHandler class for a more advanced example.
+
+    >>> from PyFFI.Bases.Basic import BasicBase
+    >>> from PyFFI.Bases.Expression import Expression
+    >>> from PyFFI.XmlHandler import StructAttribute as Attr
+    >>> class SimpleFormat(object):
+    ...     class UInt(BasicBase):
+    ...         _isTemplate = False
+    ...         def __init__(self, **kwargs):
+    ...             BasicBase.__init__(self, **kwargs)
+    ...             self.__value = 0
+    ...         def getValue(self):
+    ...             return self.__value
+    ...         def setValue(self, value):
+    ...             self.__value = int(value)
+    ...     @staticmethod
+    ...     def nameAttribute(name):
+    ...         return name
+    >>> class X(StructBase):
+    ...     _isTemplate = False
+    ...     _attrs = [
+    ...         Attr(SimpleFormat, dict(name = 'a', type = 'UInt')),
+    ...         Attr(SimpleFormat, dict(name = 'b', type = 'UInt'))]
+    >>> SimpleFormat.X = X
+    >>> class Y(X):
+    ...     _isTemplate = False
+    ...     _attrs = [
+    ...         Attr(SimpleFormat, dict(name = 'c', type = 'UInt')),
+    ...         Attr(SimpleFormat, dict(name = 'd', type = 'X', cond = 'c == 3'))]
+    >>> SimpleFormat.Y = Y
+    >>> y = Y()
+    >>> y.a = 1
+    >>> y.b = 2
+    >>> y.c = 3
+    >>> y.d.a = 4
+    >>> y.d.b = 5
+    >>> print y # doctest:+ELLIPSIS
+    <class 'PyFFI.Bases.Struct.Y'> instance at 0x...
+    * a : 1
+    * b : 2
+    * c : 3
+    * d :
+        <class 'PyFFI.Bases.Struct.X'> instance at 0x...
+        * a : 4
+        * b : 5
+    <BLANKLINE>
+    >>> y.d = 1
+    Traceback (most recent call last):
+        ...
+    AttributeError: can't set attribute
+    """
+    
+    __metaclass__ = _MetaStructBase
+    
+    _isTemplate = False
+    _attrs = []
+    _games = {}
+    
+    # initialize all attributes
+    def __init__(self, template = None, argument = None, parent = None):
+        """The constructor takes a tempate: any attribute whose type,
+        or template type, is NoneType - which corresponds to
+        TEMPLATE in the xml description - will be replaced by this
+        type. The argument is what the ARG xml tags will be replaced with.
+
+        @param template: If the class takes a template type
+            argument, then this argument describes the template type.
+        @param argument: If the class takes a type argument, then
+            it is described here.
+        @param parent: The parent of this instance, that is, the instance this
+            array is an attribute of."""
+        # used to track names of attributes that have already been added
+        # is faster than self.__dict__.has_key(...)
+        names = []
+        # initialize argument
+        self.arg = argument
+        # save parent
+        self._parent = parent
+        # initialize item list
+        # this list is used for instance by qskope to display the structure
+        # in a tree view
+        self._items = []
+        # initialize attributes
+        for attr in self._attributeList:
+            # skip attributes with dupiclate names
+            if attr.name in names:
+                continue
+            names.append(attr.name)
+
+            # instantiate the integer
+            if attr.arr1 == None:
+                if attr.default != None:
+                    attr_instance = int(attr.default)
+                else:
+                    attr_instance = 0
+
+            # assign attribute value
+            setattr(self, "_%s_value_" % attr.name, attr_instance)
+
+            # add instance to item list
+            self._items.append(attr_instance)
+
+    def deepcopy(self, block):
+        """Copy attributes from a given block (one block class must be a
+        subclass of the other). Returns self."""
+        # check class lineage
+        if isinstance(self, block.__class__):
+            attrlist = block._filteredAttributeList()
+        elif isinstance(block, self.__class__):
+            attrlist = self._filteredAttributeList()
+        else:
+            raise ValueError("deepcopy: classes %s and %s unrelated"
+                             % (self.__class__.__name__, block.__class__.__name__))
+        # copy the attributes
+        for attr in attrlist:
+            setattr(self, attr.name, getattr(block, attr.name))
+        
+        return self
+
+    # string of all attributes
+    def __str__(self):
+        text = '%s instance at 0x%08X\n' % (self.__class__, id(self))
+        # used to track names of attributes that have already been added
+        # is faster than self.__dict__.has_key(...)
+        for attr in self._filteredAttributeList():
+            # append string
+            attr_str_lines = str(
+                getattr(self, "_%s_value_" % attr.name)).splitlines()
+            if len(attr_str_lines) > 1:
+                text += '* %s :\n' % attr.name
+                for attr_str in attr_str_lines:
+                    text += '    %s\n' % attr_str
+            else:
+                text += '* %s : %s\n' % (attr.name, attr_str_lines[0])
+        return text
+
+    def read(self, stream, **kwargs):
+        """Read structure from stream."""
+        # parse arguments
+        version = kwargs.get('version')
+        user_version = kwargs.get('user_version')
+        self.arg = kwargs.get('argument')
+        # read all attributes
+        value = struct.unpack('<%s' % self._struct, stream.read(self._size))
+        # set the structure variables
+        bitpos = 0
+        for attr in self._filteredAttributeList(version, user_version):
+            #print attr.name # debug
+            attrvalue = (value >> bitpos) & ((1 << attr.numbits) - 1)
+            setattr(self, "_%s_value_" % attr.name, attrvalue)
+            bitpos += attr.numbits
+
+    def write(self, stream, **kwargs):
+        """Write structure to stream."""
+        # parse arguments
+        version = kwargs.get('version')
+        user_version = kwargs.get('user_version')
+        self.arg = kwargs.get('argument')
+        # write all attributes
+        value = 0
+        bitpos = 0
+        for attr in self._filteredAttributeList(version, user_version):
+            attrvalue = getattr(self, "_%s_value_" % attr.name)
+            value |= (attrvalue & ((1 << attr.numbits) - 1)) << bitpos
+            bitpos += attr.numbits
+        # write the attribute
+        stream.write(struct.pack('<%s' % self._struct, value))
+
+    def fixLinks(self, **kwargs):
+        """Fix links in the structure."""
+        # parse arguments
+        version = kwargs.get('version')
+        user_version = kwargs.get('user_version')
+        # fix links in all attributes
+        for attr in self._filteredAttributeList(version, user_version):
+            # check if there are any links at all
+            # (commonly this speeds things up considerably)
+            if not attr.type._hasLinks:
+                continue
+            #print "fixlinks %s" % attr.name
+            # fix the links in the attribute
+            getattr(self, "_%s_value_" % attr.name).fixLinks(**kwargs)
+
+    def getLinks(self, **kwargs):
+        """Get list of all links in the structure."""
+        # parse arguments
+        version = kwargs.get('version')
+        user_version = kwargs.get('user_version')
+        # get all links
+        links = []
+        for attr in self._filteredAttributeList(version, user_version):
+            # check if there are any links at all
+            # (this speeds things up considerably)
+            if not attr.type._hasLinks:
+                continue
+            # extend list of links
+            links.extend(
+                getattr(self, "_" + attr.name + "_value_").getLinks(**kwargs))
+        # return the list of all links in all attributes
+        return links
+
+    def getStrings(self, **kwargs):
+        """Get list of all strings in the structure."""
+        # parse arguments
+        version = kwargs.get('version')
+        user_version = kwargs.get('user_version')
+        # get all strings
+        strings = []
+        for attr in self._filteredAttributeList(version, user_version):
+            # check if there are any strings at all
+            # (this speeds things up considerably)
+            if (not attr.type is NoneType) and (not attr.type._hasStrings):
+                continue
+            # extend list of strings
+            strings.extend(
+                getattr(self, "_%s_value_" % attr.name).getStrings(**kwargs))
+        # return the list of all strings in all attributes
+        return strings
+
+    def getRefs(self, **kwargs):
+        """Get list of all references in the structure. Refs are
+        links that point down the tree. For instance, if you need to parse
+        the whole tree starting from the root you would use getRefs and not
+        getLinks, as getLinks could result in infinite recursion."""
+        # parse arguments
+        version = kwargs.get('version')
+        user_version = kwargs.get('user_version')
+        # get all refs
+        refs = []
+        for attr in self._filteredAttributeList(version, user_version):
+            # check if there are any links at all
+            # (this speeds things up considerably)
+            if not attr.type._hasLinks:
+                continue
+            # extend list of refs
+            refs.extend(
+                getattr(self, "_%s_value_" % attr.name).getRefs(**kwargs))
+        # return the list of all refs in all attributes
+        return refs
+
+    def getSize(self, **kwargs):
+        """Calculate the structure size in bytes."""
+        return self._size
+
+    def getHash(self, **kwargs):
+        """Calculate a hash for the structure, as a tuple."""
+        # parse arguments
+        version = kwargs.get('version')
+        user_version = kwargs.get('user_version')
+        # calculate hash
+        hsh = []
+        for attr in self._filteredAttributeList(version, user_version):
+            hsh.append(getattr(self, "_%s_value_" % attr.name))
+        return tuple(hsh)
+
+    @classmethod
+    def getGames(cls):
+        """Get games for which this block is supported."""
+        return list(cls._games.iterkeys())
+
+    @classmethod
+    def getVersions(cls, game):
+        """Get versions supported for C{game}."""
+        return cls._games[game]
+
+    @classmethod
+    def _getAttributeList(cls):
+        """Calculate the list of all attributes of this structure."""
+        # string of attributes of base classes of cls
+        attrs = []
+        for base in cls.__bases__:
+            try:
+                attrs.extend(base._getAttributeList())
+            except AttributeError: # when base class is "object"
+                pass
+        attrs.extend(cls._attrs)
+        return attrs
+
+    @classmethod
+    def _getNames(cls):
+        """Calculate the list of all attributes names in this structure.
+        Skips duplicate names."""
+        # string of attributes of base classes of cls
+        names = []
+        for base in cls.__bases__:
+            try:
+                names.extend(base._getNames())
+            except AttributeError: # when base class is "object"
+                pass
+        for attr in cls._attrs:
+            if attr.name in names:
+                continue
+            else:
+                names.append(attr.name)
+        return names
+
+    def _filteredAttributeList(self, version = None, user_version = None):
+        """Generator for listing all 'active' attributes, that is,
+        attributes whose condition evaluates C{True}, whose version
+        interval contaions C{version}, and whose user version is
+        C{user_version}. C{None} for C{version} or C{user_version} means
+        that these checks are ignored. Duplicate names are skipped as
+        well."""
+        names = []
+        for attr in self._attributeList:
+            #print attr.name, version, attr.ver1, attr.ver2 # debug
+
+            # check version
+            if not (version is None):
+                if (not (attr.ver1 is None)) and version < attr.ver1:
+                    continue
+                if (not (attr.ver2 is None)) and version > attr.ver2:
+                    continue
+            #print "version check passed" # debug
+
+            # check user version
+            if not(attr.userver is None or user_version is None) \
+               and user_version != attr.userver:
+                continue
+            #print "user version check passed" # debug
+
+            # check condition
+            if not (attr.cond is None) and not attr.cond.eval(self):
+                continue
+            #print "condition passed" # debug
+
+            # skip dupiclate names
+            if attr.name in names:
+                continue
+            #print "duplicate check passed" # debug
+
+            names.append(attr.name)
+            # passed all tests
+            # so yield the attribute
+            yield attr
+
+    def getAttribute(self, name):
+        """Get a basic attribute."""
+        return getattr(self, "_" + name + "_value_")
+
+    # important note: to apply partial(setAttribute, name = 'xyz') the
+    # name argument must be last
+    def setAttribute(self, value, name):
+        """Set the value of a basic attribute."""
+        setattr(self, "_" + name + "_value_", value)
+
+    def tree(self):
+        """A generator for parsing all blocks in the tree (starting from and
+        including C{self}). By default, there is no tree structure, so returns
+        self."""
+        # return self
+        yield self
+
+    #
+    # user interface functions come next
+    # these functions are named after similar ones in the TreeItem example
+    # at http://doc.trolltech.com/4.3/itemviews-simpletreemodel.html
+    #
+
+    def qParent(self):
+        """Return parent of this structure."""
+        return self._parent
+
+    def qChildCount(self):
+        """Return number of items in this structure."""
+        return len(self._items)
+
+    def qChild(self, row):
+        """Find item at given row."""
+        return self._items[row]
+
+    def qRow(self, item):
+        """Find the row number of the given item."""
+        for row, otheritem in enumerate(self._items):
+            if item is otheritem:
+                return row
+        else:
+            raise ValueError("qRow(self, item): item not found")
+
+    def qName(self, item):
+        """Find the name of the given item."""
+        for otheritem, name in izip(self._items, self._names):
+            if item is otheritem:
+                return name
+        else:
+            raise ValueError("qName(self, item): item not found")
+
+    def qBlockName(self):
+        """Construct a convenient name for the block itself."""
+        return self.name if hasattr(self, "name") else ""
+
+    # extra function for global view, override if required
+    def qBlockParent(self):
+        """This can be used to return a parent of an object, if the parent
+        object does not happen to link to the object (for instance the
+        MeshMorphTargetChunk in the cgf format is an example)."""
+        return None
+
+from PyFFI.Bases.Basic import BasicBase
+from PyFFI.Bases.Array import Array
