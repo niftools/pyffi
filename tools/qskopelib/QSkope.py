@@ -47,6 +47,7 @@ import PyFFI
 from PyFFI.NIF import NifFormat
 from PyFFI.CGF import CgfFormat
 from PyFFI.KFM import KfmFormat
+from PyFFI.DDS import DdsFormat
 
 from types import NoneType
 
@@ -215,10 +216,21 @@ class QSkope(QtGui.QMainWindow):
                         self.Format = KfmFormat
                         self.formatArgs = (version,)
                     else:
-                        # all failed: inform user that format is not recognized
-                        self.statusBar().showMessage(
-                            'File format of %s not recognized' % filename)
-                        return
+                        # try reading as a dds file
+                        version = DdsFormat.getVersion(stream)
+                        if version >= 0:
+                            # if succesful: parse the file and save information about it
+                            self.header, pixeldata = DdsFormat.read(stream, version)
+                            self.roots = None
+                            self.footer = None
+                            self.fileName = filename
+                            self.Format = DdsFormat
+                            self.formatArgs = (version,)
+                        else:
+                            # all failed: inform user that format is not recognized
+                            self.statusBar().showMessage(
+                                'File format of %s not recognized' % filename)
+                            return
         except (ValueError, IOError):
             # update status bar message
             self.statusBar().showMessage("Failed reading %s (see console)"
@@ -246,6 +258,11 @@ class QSkope(QtGui.QMainWindow):
 
     def saveFile(self, filename = None):
         """Save changes to disk."""
+        # TODO support dds saving as well
+        if issubclass(self.Format, DdsFormat):
+            self.statusBar().showMessage("Saving DDS format not supported")
+            return
+
         # tell user we are saving the file
         self.statusBar().showMessage("Saving %s ..." % filename)
         try:
