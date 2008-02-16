@@ -361,8 +361,8 @@ class KfmFormat(object):
         @param stream: The stream from which to read, typically a file or a
             memory stream such as cStringIO.
         @return: The version and user version of the file.
-            Returns C{(-1, 0)} if a kfm file but version not supported.
-            Returns C{(-2, 0)} if not a kfm file.
+            Returns -1 if a kfm file but version not supported.
+            Returns -2 if not a kfm file.
         """
         pos = stream.tell()
         try:
@@ -373,15 +373,15 @@ class KfmFormat(object):
             version_str = s[27:]
         else:
             # not a kfm file
-            return -2, 0
+            return -2
         try:
             ver = cls.versionNumber(version_str)
         except:
             # version not supported
-            return -1, 0
+            return -1
         if not ver in cls.versions.values():
             # unsupported version
-            return -1, 0
+            return -1
 
         return ver
 
