@@ -14,11 +14,11 @@ Read a KFM file
 ...     raise RuntimeError('kfm version not supported')
 ... elif version == -2:
 ...     raise RuntimeError('not a kfm file')
->>> kfm = KfmFormat.read(f, version = version)
+>>> header, animations, footer = KfmFormat.read(f, version = version)
 >>> # print all animation file names
->>> print kfm.nifFileName
+>>> print header.nifFileName
 Test.nif
->>> for anim in kfm.animations:
+>>> for anim in animations:
 ...     print anim.kfFileName
 Test_MD_Idle.kf
 Test_MD_Run.kf
@@ -28,17 +28,17 @@ Test_MD_Die.kf
 Create a KFM model from scratch and write to file
 -------------------------------------------------
 
->>> kfm = KfmFormat.Kfm()
->>> kfm.nifFileName = "Test.nif"
->>> kfm.numAnimations = 4
->>> kfm.animations.updateSize()
+>>> header = KfmFormat.Header()
+>>> header.nifFileName = "Test.nif"
+>>> header.numAnimations = 4
+>>> animations = [ KfmFormat.Animation() for j in xrange(4) ]
 >>> kfm.animations[0].kfFileName = "Test_MD_Idle.kf"
 >>> kfm.animations[1].kfFileName = "Test_MD_Run.kf"
 >>> kfm.animations[2].kfFileName = "Test_MD_Walk.kf"
 >>> kfm.animations[3].kfFileName = "Test_MD_Die.kf"
 >>> from tempfile import TemporaryFile
 >>> f = TemporaryFile()
->>> KfmFormat.write(f, version = 0x0202000B, kfm = kfm)
+>>> KfmFormat.write(f, version = 0x0202000B, header = header, animations = animations)
 
 Get list of versions and games
 ------------------------------
@@ -386,7 +386,7 @@ class KfmFormat(object):
         return ver
 
     @classmethod
-    def read(cls, stream, version = None, user_version = None,
+    def read(cls, stream, version = None,
              verbose = 0):
         """Read a kfm file.
 
@@ -396,22 +396,38 @@ class KfmFormat(object):
         @param user_version: The user version number as obtained by getVersion.
         @param verbose: The level of verbosity."""
         # read the file
-        kfm = cls.Kfm()
-        kfm.read(stream, version = version)
+        header = cls.Header()
+        header.read(stream, version = version)
+        animations = [ cls.Animation() for i in xrange(header.numAnimations) ]
+        for anim in animations:
+            anim.read(stream, version = version)
+        footer = cls.Footer()
+        footer.read(stream, version = version)
 
         # check if we are at the end of the file
         if stream.read(1) != '':
             raise cls.KfmError('end of file not reached: corrupt kfm file?')
 
-        return kfm
+        return header, animations, footer
 
     @classmethod
     def write(cls, stream, version = None,
-              kfm = None, verbose = 0):
+              header = None, animations = None, footer = None, verbose = 0):
+        # make sure header has correct number of animations
+        header.numAnimations = len(animations)
         # write the file
-        kfm.write(
-            stream,
-            version = version)
+        # first header
+        assert(isinstance(header, cls.Header))
+        header.write(stream, version = version)
+        # next all animations
+        for anim in animations:
+            assert(isinstance(anim, cls.Animation))
+            anim.write(stream, version = version)
+        # finally the footer
+        if footer is None:
+            footer = cls.Footer()
+        assert(isinstance(footer, cls.Footer))
+        footer.write(stream, version = version)
 
     @classmethod
     def walk(cls, top, topdown = True, onerror = None, verbose = 0):
@@ -448,11 +464,9 @@ class KfmFormat(object):
                     # we got it, so now read the kfm file
                     if verbose >= 2: print "version 0x%08X"%version
                     try:
-                        # return (version, stream, kfm)
+                        # return (version, stream, (header, animations, footer))
                         yield (version, stream,
-                               cls.read(
-                                   stream,
-                                   version = version))
+                               cls.read(stream, version = version))
                     except StandardError:
                         # an error occurred during reading
                         # this should not happen: means that the file is
