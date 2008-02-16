@@ -110,12 +110,12 @@
         <add name="Mipmap Count" type="uint" />
         <add name="Reserved 1" type="uint" arr1="11" />
         <add name="PF Size" type="uint" default="32" />
-        <add name="PF Flags" type="uint" />
+        <add name="PF Flags" type="uint" default="64" />
         <add name="FourCC" type="FourCC" />
         <add name="Bit Count" type="uint" default="24" />
-        <add name="R Mask" type="uint" default="0x000000FF" />
+        <add name="R Mask" type="uint" default="0x00FF0000" />
         <add name="G Mask" type="uint" default="0x0000FF00" />
-        <add name="B Mask" type="uint" default="0x00FF0000" />
+        <add name="B Mask" type="uint" default="0x000000FF" />
         <add name="A Mask" type="uint" default="0x00000000" />
         <add name="Caps 1" type="uint" default="0x00001000" />
         <add name="Caps 2" type="uint" />
