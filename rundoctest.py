@@ -20,6 +20,7 @@ import PyFFI.NIF.NiNode
 import PyFFI.NIF.NiSkinData
 import PyFFI.CGF
 import PyFFI.KFM
+import PyFFI.DDS
 
 mods = [ val for (key, val) in sys.modules.iteritems() if key.startswith('PyFFI') ]
 

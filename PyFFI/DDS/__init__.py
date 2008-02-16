@@ -30,16 +30,13 @@ Get list of versions
 --------------------
 
 >>> for vnum in sorted(DdsFormat.versions.values()): print '0x%08X'%vnum
-0x01000000
-0x01024B00
-0x0200000B
-0x0201000B
-0x0202000B
+0x00000009
+0x00000010
 """
 
 # ***** BEGIN LICENSE BLOCK *****
 #
-# Copyright (c) 2007-2008, NIF File Format Library and Tools.
+# Copyright (c) 2007-2008, Python File Format Interface
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -54,7 +51,7 @@ Get list of versions
 #      disclaimer in the documentation and/or other materials provided
 #      with the distribution.
 #
-#    * Neither the name of the NIF File Format Library and Tools
+#    * Neither the name of the Python File Format Interface
 #      project nor the names of its contributors may be used to endorse
 #      or promote products derived from this software without specific
 #      prior written permission.
@@ -72,7 +69,7 @@ Get list of versions
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-# ***** END LICENCE BLOCK *****
+# ***** END LICENSE BLOCK *****
 
 import struct, os, re
 
@@ -163,6 +160,15 @@ class DdsFormat(object):
         pass
 
     @staticmethod
+    def versionNumber(version_str):
+        """Converts version string into an integer.
+
+        >>> hex(DdsFormat.versionNumber('DX10'))
+        '0x10'
+        """
+        return { 'DX9' : 0x09, 'DX10' : 0x10 }[version_str]
+
+    @staticmethod
     def nameAttribute(name):
         """Converts an attribute name, as in the xml file, into a name usable
         by python.
@@ -172,7 +178,7 @@ class DdsFormat(object):
         """
         
         # str(name) converts name to string in case name is a unicode string
-        parts = str(name).replace("?", "X").split()
+        parts = str(name).split()
         attrname = parts[0].lower()
         for part in parts[1:]:
             attrname += part.capitalize()
@@ -192,10 +198,11 @@ class DdsFormat(object):
             hdrstr = stream.read(4)
         finally:
             stream.seek(pos)
-        return 0 if hdrstr == "DDS " else -2
+        if hdrstr != "DDS ": return -2
+        return 0x09 # TODO DX10
 
     @classmethod
-    def read(cls, stream, verbose = 0):
+    def read(cls, stream, version = None, verbose = 0):
         """Read a dds file.
 
         @param stream: The stream from which to read, typically a file or a
@@ -262,7 +269,7 @@ class DdsFormat(object):
                     # we got it, so now read the dds file
                     if verbose >= 2: print "version 0x%08X"%version
                     try:
-                        # return (version, stream, (header, animations, footer))
+                        # return (version, stream, (header, pixeldata))
                         yield (version, stream,
                                cls.read(stream, version = version))
                     except StandardError:
