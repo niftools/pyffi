@@ -966,14 +966,17 @@ class NifFormat(object):
 
     @classmethod
     def read(cls, stream, version = None, user_version = None,
-             verbose = 0):
+             verbose = 0, rootsonly = True):
         """Read a nif file.
 
         @param stream: The stream from which to read, typically a file or a
             memory stream such as cStringIO.
         @param version: The version number as obtained by getVersion.
         @param user_version: The user version number as obtained by getVersion.
-        @param verbose: The level of verbosity."""
+        @param verbose: The level of verbosity.
+        @param rootsonly: Whether to return the list of roots only (default).
+            If C{False} then will return header, blocks, footer.
+        """
         # read header
         if verbose >= 1:
             print "reading block at 0x%08X..."%stream.tell()
@@ -1124,11 +1127,28 @@ class NifFormat(object):
                 roots.append(root)
 
         # return all root objects
-        return roots
+        if rootsonly:
+            return roots
+        else:
+            return hdr, blocklist, ftr
 
     @classmethod
     def write(cls, stream, version = None, user_version = None,
-              roots = None, verbose = 0):
+              roots = None, verbose = 0, header = None):
+        """Write a nif file.
+
+        @param stream: The stream to which to write, typically a file or a
+            memory stream such as cStringIO.
+        @param version: The version number.
+        @param user_version: The user version number.
+        @param roots: The list of roots of the NIF tree.
+            If C{False} then will return header, blocks, footer.
+        @param verbose: The level of verbosity.
+        @param header: If you pass a header, then this will be used as a basis
+            for writing the header. Note that data in this parameter may be
+            changed (for instance the list of block types and list of strings
+            will be automatically updated).
+        """
         # set up index and type dictionary
         block_list = [] # list of all blocks to be written
         block_index_dct = {} # maps block to block index
@@ -1145,7 +1165,12 @@ class NifFormat(object):
         #print string_list # debug
 
         # set up header
-        hdr = cls.Header()
+        if header is None:
+            hdr = cls.Header()
+        else:
+            assert(isinstance(header, cls.Header))
+            hdr = header
+
         hdr.userVersion = user_version # TODO dedicated type for userVersion similar to FileVersion
         # for oblivion CS; apparently this is the version of the bhk blocks
         hdr.userVersion2 = 11
