@@ -1130,7 +1130,7 @@ class NifFormat(object):
         if rootsonly:
             return roots
         else:
-            return hdr, blocklist, ftr
+            return hdr, block_list, ftr
 
     @classmethod
     def write(cls, stream, version = None, user_version = None,
