@@ -189,9 +189,7 @@ class QSkope(QtGui.QMainWindow):
             version, user_version = NifFormat.getVersion(stream)
             if version >= 0:
                 # if succesful: parse the file and save information about it
-                self.roots = NifFormat.read(stream, version, user_version)
-                self.header = None
-                self.footer = None
+                self.header, self.roots, self.footer = NifFormat.read(stream, version, user_version, rootsonly = False)
                 self.fileName = filename
                 self.Format = NifFormat
                 self.formatArgs = (version, user_version)
@@ -259,7 +257,8 @@ class QSkope(QtGui.QMainWindow):
                 NifFormat.write(stream,
                                 version = self.formatArgs[0],
                                 user_version = self.formatArgs[1],
-                                roots = self.roots)
+                                roots = [ blk for blk in self.footer.roots ],
+                                header = self.header)
             elif issubclass(self.Format, CgfFormat):
                 # write cgf file
                 CgfFormat.write(stream,
