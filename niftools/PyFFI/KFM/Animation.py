@@ -1,4 +1,4 @@
-"""Custom functions for Kfm."""
+"""Custom functions for Animation."""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -37,8 +37,6 @@
 #
 # ***** END LICENCE BLOCK *****
 
-def tree(self):
-    """A generator for parsing all blocks in the tree (starting from and
-    including C{self}). A Kfm file has just a single root, so returns self."""
-    # return self
-    yield self
+def qBlockName(self):
+    """Return the kf file name."""
+    return self.kfFileName if not self.name else self.name
