@@ -181,7 +181,12 @@ class GlobalModel(QtCore.QAbstractItemModel):
         """Calculate a row count for the given parent index."""
         if not parent.isValid():
             # top level: one row for each block
-            return len(self.roots) + 2
+            rows = len(self.roots)
+            if not self.header is None:
+                rows += 1
+            if not self.footer is None:
+                rows += 1
+            return rows
         else:
             # get the parent child count = number of references
             data = parent.internalPointer()
@@ -203,14 +208,22 @@ class GlobalModel(QtCore.QAbstractItemModel):
         if not parent.isValid():
             # parent is not valid, so we need a top-level object
             # return the index with row'th block as internal pointer
-            if row == 0:
-                data = self.header
-            elif row <= len(self.roots):
-                data = self.roots[row - 1]
-            elif row == len(self.roots) + 1:
-                data = self.footer
+            if not self.header is None:
+                if row == 0:
+                    data = self.header
+                elif row <= len(self.roots):
+                    data = self.roots[row - 1]
+                elif row == len(self.roots) + 1 and not self.footer is None:
+                    data = self.footer
+                else:
+                    return QtCore.QModelIndex()
             else:
-                return QtCore.QModelIndex()
+                if row < len(self.roots):
+                    data = self.roots[row]
+                elif row == len(self.roots) and not self.footer is None:
+                    data = self.footer
+                else:
+                    return QtCore.QModelIndex()
         else:
             # parent is valid, so we need to go get the row'th reference
             # get the parent pointer
@@ -232,7 +245,10 @@ class GlobalModel(QtCore.QAbstractItemModel):
         if parentData in self.roots:
             # top level parent
             # row number is index in roots list
-            row = self.roots.index(parentData) + 1
+            if not self.header is None:
+                row = self.roots.index(parentData) + 1
+            else:
+                row = self.roots.index(parentData)
         else:
             # we need the row number of parentData:
             # 1) get the parent of parentData
@@ -241,3 +257,4 @@ class GlobalModel(QtCore.QAbstractItemModel):
             row = self.refDict[self.parentDict[parentData]].index(parentData)
         # construct the index
         return self.createIndex(row, 0, parentData)
+
