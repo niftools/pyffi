@@ -110,7 +110,7 @@
         <add name="Mipmap Count" type="uint" />
         <add name="Reserved 1" type="uint" arr1="11" />
         <add name="PF Size" type="uint" default="32" />
-        <add name="PF Flags" type="uint" default="64" />
+        <add name="PF Flags" type="uint" default="64">Non-zero for DX9, zero for DX10.</add>
         <add name="FourCC" type="FourCC" />
         <add name="Bit Count" type="uint" default="24" />
         <add name="R Mask" type="uint" default="0x00FF0000" />
@@ -123,11 +123,11 @@
         <add name="Caps 4" type="uint" />
         <add name="Unused" type="uint" />
         <!-- DX10 extensions -->
-        <add name="DXGI Format" type="uint" cond="PF Flags == 0" />
-        <add name="Resource Dimension" type="uint" cond="PF Flags == 0" />
-        <add name="Misc Flags" type="uint" cond="PF Flags == 0" />
-        <add name="Array Size" type="uint" cond="PF Flags == 0" />
-        <add name="Reserved 2" type="uint" cond="PF Flags == 0" />
+        <add name="DXGI Format" type="uint" ver1="DX10" />
+        <add name="Resource Dimension" type="uint" ver1="DX10" />
+        <add name="Misc Flags" type="uint" ver1="DX10" />
+        <add name="Array Size" type="uint" ver1="DX10" />
+        <add name="Reserved 2" type="uint" ver1="DX10" />
     </struct>
 
 </fileformat>

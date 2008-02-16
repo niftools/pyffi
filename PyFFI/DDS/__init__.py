@@ -16,7 +16,10 @@ Read a DDS file
 ...     raise RuntimeError('not a dds file')
 >>> header, data = DdsFormat.read(f, version = version)
 >>> # print DDS header
->>> print header
+>>> print header.size
+124
+>>> print header.pfSize
+32
 
 Create a DDS file from scratch and write to file
 -------------------------------------------------
@@ -24,7 +27,7 @@ Create a DDS file from scratch and write to file
 >>> header = DdsFormat.Header()
 >>> from tempfile import TemporaryFile
 >>> f = TemporaryFile()
->>> DdsFormat.write(f, version = version, header = header, data = "")
+>>> DdsFormat.write(f, version = version, header = header, pixeldata = DdsFormat.PixelData())
 
 Get list of versions
 --------------------
