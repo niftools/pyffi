@@ -32,10 +32,10 @@ Create a KFM model from scratch and write to file
 >>> header.nifFileName = "Test.nif"
 >>> header.numAnimations = 4
 >>> animations = [ KfmFormat.Animation() for j in xrange(4) ]
->>> kfm.animations[0].kfFileName = "Test_MD_Idle.kf"
->>> kfm.animations[1].kfFileName = "Test_MD_Run.kf"
->>> kfm.animations[2].kfFileName = "Test_MD_Walk.kf"
->>> kfm.animations[3].kfFileName = "Test_MD_Die.kf"
+>>> animations[0].kfFileName = "Test_MD_Idle.kf"
+>>> animations[1].kfFileName = "Test_MD_Run.kf"
+>>> animations[2].kfFileName = "Test_MD_Walk.kf"
+>>> animations[3].kfFileName = "Test_MD_Die.kf"
 >>> from tempfile import TemporaryFile
 >>> f = TemporaryFile()
 >>> KfmFormat.write(f, version = 0x0202000B, header = header, animations = animations)
