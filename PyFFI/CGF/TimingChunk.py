@@ -1,4 +1,4 @@
-"""Custom MeshMorphTargetChunk functions."""
+"""Custom TimingChunk functions."""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -37,19 +37,6 @@
 #
 # ***** END LICENSE BLOCK *****
 
-def applyScale(self, scale):
-    """Apply scale factor on data."""
-    if abs(scale - 1.0) < self.cls.EPSILON:
-        return
-    for morphvert in self.morphVertices:
-        morphvert.vertexTarget.x *= scale
-        morphvert.vertexTarget.y *= scale
-        morphvert.vertexTarget.z *= scale
-
-def qBlockParent(self):
-    """Get the block parent (used for instance in the QSkope global view)."""
-    return self.mesh
-
 def qBlockName(self):
     """Return a name for the block."""
-    return self.targetName
+    return self.globalRange.name
