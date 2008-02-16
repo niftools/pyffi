@@ -50,7 +50,7 @@ class _MetaBitStructBase(type):
     For each attribute in _attrs, an <attrname> property is generated which
     gets and sets bit fields. Used as metaclass of BitStructBase."""
     def __init__(cls, name, bases, dct):
-        super(_MetaStructBase, cls).__init__(name, bases, dct)
+        super(_MetaBitStructBase, cls).__init__(name, bases, dct)
         # consistency checks
         if not '_attrs' in dct:
             raise TypeError('%s: missing _attrs attribute'%cls)
@@ -158,9 +158,8 @@ class BitStructBase(object):
     AttributeError: can't set attribute
     """
     
-    __metaclass__ = _MetaStructBase
+    __metaclass__ = _MetaBitStructBase
     
-    _isTemplate = False
     _attrs = []
     _games = {}
     
