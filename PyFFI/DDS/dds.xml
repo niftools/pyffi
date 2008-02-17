@@ -107,7 +107,9 @@
         <bits name="Palette Indexed 2" numbits="1" />
         <bits name="Reserved 3" numbits="2" />
         <bits name="Alpha Premult" numbits="1" />
-        <bits name="Reserved 4" numbits="15" />
+        <bits name="Reserved 4" numbits="1" />
+        <bits name="Luminance" numbits="1" />
+        <bits name="Reserved 5" numbits="13" />
         <bits name="Normal" numbits="1" />
     </bitstruct>
 
