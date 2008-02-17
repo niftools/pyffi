@@ -79,12 +79,12 @@
     -->
 
     <bitstruct name="HeaderFlags" numbytes="4">
-        <bits name="Caps" numbits="1" />
+        <bits name="Caps" numbits="1" default="1" />
         <bits name="Height" numbits="1" />
         <bits name="Width" numbits="1" />
         <bits name="Pitch" numbits="1" />
         <bits name="Reserved 1" numbits="8" />
-        <bits name="Pixel Format" numbits="1" />
+        <bits name="Pixel Format" numbits="1" default="1" />
         <bits name="Reserved 2" numbits="4" />
         <bits name="Mipmap Count" numbits="1" />
         <bits name="Reserved 3" numbits="1" />
@@ -93,32 +93,75 @@
         <bits name="Depth" numbits="1" />
     </bitstruct>
 
+    <bitstruct name="PixelFormatFlags" numbytes="4">
+        <bits name="Alpha Pixels" numbits="1" />
+        <bits name="Alpha" numbits="1" />
+        <bits name="FourCC" numbits="1" />
+        <bits name="Palette Indexed 4" numbits="1" />
+        <bits name="Reserved 1" numbits="1" />
+        <bits name="Palette Indexed 8" numbits="1" />
+        <bits name="RGB" numbits="1" default="1" />
+        <bits name="Reserved 2" numbits="4" />
+        <bits name="Palette Indexed 1" numbits="1" />
+        <bits name="Palette Indexed 2" numbits="1" />
+        <bits name="Reserved 3" numbits="2" />
+        <bits name="Alpha Premult" numbits="1" />
+        <bits name="Reserved 4" numbits="15" />
+        <bits name="Normal" numbits="1" />
+    </bitstruct>
+
+    <bitstruct name="Caps1" numbytes="4">
+        <bits name="Reserved 1" numbits="3" />
+        <bits name="Complex" numbits="1" />
+        <bits name="Reserved 2" numbits="8" />
+        <bits name="Texture" numbits="1" default="1" />
+        <bits name="Reserved 3" numbits="9" />
+        <bits name="Mipmap" numbits="1" />
+    </bitstruct>
+
+    <bitstruct name="Caps2" numbytes="4" >
+        <bits name="Reserved 1" numbits="9" />
+        <bits name="Cubemap" numbits="1" />
+        <bits name="Cubemap Pos X" numbits="1" />
+        <bits name="Cubemap Neg X" numbits="1" />
+        <bits name="Cubemap Pos Y" numbits="1" />
+        <bits name="Cubemap Neg Y" numbits="1" />
+        <bits name="Cubemap Pos Z" numbits="1" />
+        <bits name="Cubemap Neg Z" numbits="1" />
+        <bits name="Reserved 2" numbits="5" />
+        <bits name="Volume" numbits="1" />
+    </bitstruct>
+
     <!--
     ***************
     *** structs ***
     ***************
     -->
 
-    <struct name="Header">
-        <add name="Header String" type="HeaderString">DDS</add>
-        <add name="Size" type="uint" default="124" />
-        <add name="Flags" type="HeaderFlags" default="0x00001001" />
-        <add name="Height" type="uint" />
-        <add name="Width" type="uint" />
-        <add name="Pitch" type="uint" />
-        <add name="Depth" type="uint" />
-        <add name="Mipmap Count" type="uint" />
-        <add name="Reserved 1" type="uint" arr1="11" />
-        <add name="PF Size" type="uint" default="32" />
-        <add name="PF Flags" type="uint" default="64">Non-zero for DX9, zero for DX10.</add>
+    <struct name="PixelFormat">
+        <add name="Size" type="uint" default="32" />
+        <add name="Flags" type="PixelFormatFlags">Non-zero for DX9, zero for DX10.</add>
         <add name="FourCC" type="FourCC" />
         <add name="Bit Count" type="uint" default="24" />
         <add name="R Mask" type="uint" default="0x00FF0000" />
         <add name="G Mask" type="uint" default="0x0000FF00" />
         <add name="B Mask" type="uint" default="0x000000FF" />
         <add name="A Mask" type="uint" default="0x00000000" />
-        <add name="Caps 1" type="uint" default="0x00001000" />
-        <add name="Caps 2" type="uint" />
+    </struct>
+
+    <struct name="Header">
+        <add name="Header String" type="HeaderString">DDS</add>
+        <add name="Size" type="uint" default="124" />
+        <add name="Flags" type="HeaderFlags" />
+        <add name="Height" type="uint" />
+        <add name="Width" type="uint" />
+        <add name="Pitch" type="uint" />
+        <add name="Depth" type="uint" />
+        <add name="Mipmap Count" type="uint" />
+        <add name="Reserved 1" type="uint" arr1="11" />
+        <add name="Pixel Format" type="PixelFormat" />
+        <add name="Caps 1" type="Caps1" />
+        <add name="Caps 2" type="Caps2" />
         <add name="Caps 3" type="uint" />
         <add name="Caps 4" type="uint" />
         <add name="Unused" type="uint" />
