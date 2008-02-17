@@ -161,7 +161,7 @@
         <add name="Flags" type="HeaderFlags" />
         <add name="Height" type="uint">The texture height.</add>
         <add name="Width" type="uint">The texture width.</add>
-        <add name="Pitch" type="uint" />
+        <add name="Linear Size" type="uint" />
         <add name="Depth" type="uint" />
         <add name="Mipmap Count" type="uint" />
         <add name="Reserved 1" type="uint" arr1="11" />
