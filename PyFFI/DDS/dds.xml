@@ -80,12 +80,12 @@
     -->
 
     <bitstruct name="HeaderFlags" numbytes="4">
-        <bits name="Caps" numbits="1" default="1">Always 1.</add>
+        <bits name="Caps" numbits="1" default="1">Always 1.</bits>
         <bits name="Height" numbits="1" />
         <bits name="Width" numbits="1" />
         <bits name="Pitch" numbits="1" />
         <bits name="Reserved 1" numbits="8" />
-        <bits name="Pixel Format" numbits="1" default="1">Always 1.</add>
+        <bits name="Pixel Format" numbits="1" default="1">Always 1.</bits>
         <bits name="Reserved 2" numbits="4" />
         <bits name="Mipmap Count" numbits="1" />
         <bits name="Reserved 3" numbits="1" />
@@ -142,7 +142,7 @@
     <struct name="PixelFormat">
         <add name="Size" type="uint" default="32">Always 32.</add>
         <add name="Flags" type="PixelFormatFlags">Non-zero for DX9, zero for DX10.</add>
-        <add name="FourCC" type="FourCC">Determines compression type. Zero means no compression.</bits> 
+        <add name="FourCC" type="FourCC">Determines compression type. Zero means no compression.</add> 
         <add name="Bit Count" type="uint">For non-compressed types, this is either 24 or 32 depending on whether there is an alpha channel. For compressed types, this describes the number of bits per block, which can be either 256 or 512.</add>
         <add name="R Mask" type="uint">For non-compressed types, this determines the red mask. Usually 0x00FF0000. Is zero for compressed textures.</add>
         <add name="G Mask" type="uint">For non-compressed types, this determines

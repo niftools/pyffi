@@ -18,7 +18,7 @@ Read a DDS file
 >>> # print DDS header
 >>> print header.size
 124
->>> print header.pfSize
+>>> print header.pixelFormat.size
 32
 
 Create a DDS file from scratch and write to file
