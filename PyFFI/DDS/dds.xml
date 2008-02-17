@@ -62,6 +62,7 @@
 
     <enum name="FourCC" type="uint" default="0x31545844">
         An unsigned 32-bit integer, describing the compression type.
+        <option value="0x00000000" name="LINEAR" />
         <option value="0x31545844" name="DXT1" />
         <option value="0x32545844" name="DXT2" />
         <option value="0x33545844" name="DXT3" />
@@ -79,12 +80,12 @@
     -->
 
     <bitstruct name="HeaderFlags" numbytes="4">
-        <bits name="Caps" numbits="1" default="1" />
+        <bits name="Caps" numbits="1" default="1">Always 1.</add>
         <bits name="Height" numbits="1" />
         <bits name="Width" numbits="1" />
         <bits name="Pitch" numbits="1" />
         <bits name="Reserved 1" numbits="8" />
-        <bits name="Pixel Format" numbits="1" default="1" />
+        <bits name="Pixel Format" numbits="1" default="1">Always 1.</add>
         <bits name="Reserved 2" numbits="4" />
         <bits name="Mipmap Count" numbits="1" />
         <bits name="Reserved 3" numbits="1" />
@@ -96,11 +97,11 @@
     <bitstruct name="PixelFormatFlags" numbytes="4">
         <bits name="Alpha Pixels" numbits="1" />
         <bits name="Alpha" numbits="1" />
-        <bits name="FourCC" numbits="1" />
+        <bits name="FourCC" numbits="1">Set this option for compressed files. The pixel format FourCC determines the compression type.</bits>
         <bits name="Palette Indexed 4" numbits="1" />
         <bits name="Reserved 1" numbits="1" />
         <bits name="Palette Indexed 8" numbits="1" />
-        <bits name="RGB" numbits="1" default="1" />
+        <bits name="RGB" numbits="1">Set this option for uncompressed files.</bits>
         <bits name="Reserved 2" numbits="4" />
         <bits name="Palette Indexed 1" numbits="1" />
         <bits name="Palette Indexed 2" numbits="1" />
@@ -139,22 +140,25 @@
     -->
 
     <struct name="PixelFormat">
-        <add name="Size" type="uint" default="32" />
+        <add name="Size" type="uint" default="32">Always 32.</add>
         <add name="Flags" type="PixelFormatFlags">Non-zero for DX9, zero for DX10.</add>
-        <add name="FourCC" type="FourCC" />
-        <add name="Bit Count" type="uint" default="24" />
-        <add name="R Mask" type="uint" default="0x00FF0000" />
-        <add name="G Mask" type="uint" default="0x0000FF00" />
-        <add name="B Mask" type="uint" default="0x000000FF" />
-        <add name="A Mask" type="uint" default="0x00000000" />
+        <add name="FourCC" type="FourCC">Determines compression type. Zero means no compression.</bits> 
+        <add name="Bit Count" type="uint">For non-compressed types, this is either 24 or 32 depending on whether there is an alpha channel. For compressed types, this describes the number of bits per block, which can be either 256 or 512.</add>
+        <add name="R Mask" type="uint">For non-compressed types, this determines the red mask. Usually 0x00FF0000. Is zero for compressed textures.</add>
+        <add name="G Mask" type="uint">For non-compressed types, this determines
+ the green mask. Usually 0x0000FF00. Is zero for compressed textures.</add>
+        <add name="B Mask" type="uint">For non-compressed types, this determines
+ the blue mask. Usually 0x00FF0000. Is zero for compressed textures.</add>
+        <add name="A Mask" type="uint">For non-compressed types, this determines
+ the alpha mask. Usually 0x00000000 if there is no alpha channel and 0xFF000000 if there is an alpha channel. Is zero for compressed textures.</add>
     </struct>
 
     <struct name="Header">
         <add name="Header String" type="HeaderString">DDS</add>
-        <add name="Size" type="uint" default="124" />
+        <add name="Size" type="uint" default="124">124 for DX9 textures, and 144 for DX10 textures.</add>
         <add name="Flags" type="HeaderFlags" />
-        <add name="Height" type="uint" />
-        <add name="Width" type="uint" />
+        <add name="Height" type="uint">The texture height.</add>
+        <add name="Width" type="uint">The texture width.</add>
         <add name="Pitch" type="uint" />
         <add name="Depth" type="uint" />
         <add name="Mipmap Count" type="uint" />
