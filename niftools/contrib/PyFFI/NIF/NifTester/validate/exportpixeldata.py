@@ -1,36 +1,49 @@
 """Show image in NiPixelData block."""
 
 from PyFFI.NIF import NifFormat
+from PyFFI.DDS import DdsFormat
 import os.path
-
-try:
-    from PIL import Image
-    from PIL.ImageQt import ImageQt
-except:
-    Image = None
-
 
 def testBlock(block, **args):
     # check if test applies
     if not isinstance(block, NifFormat.NiPixelData):
         return
 
-    # check that PIL is installed
-    if Image is None:
-        print("""The showpixeldata test uses PIL.
-Please install PIL from http://www.pythonware.com/products/pil/""")
-        return
+    # export the image
+    header = DdsFormat.Header()
+    data = DdsFormat.PixelData()
 
-    # get image information
-    mode, size, data = block.getRawImage()
+    # uncompressed RGB(A)
+    header.flags.caps = 1
+    header.flags.height = 1
+    header.flags.width = 1
+    header.flags.pixelFormat = 1
+    header.flags.mipmapCount = 1
+    header.flags.linearSize = 1
+    header.height = block.mipmaps[0].height
+    header.width = block.mipmaps[0].width
+    header.linearSize = len(block.pixelData)
+    header.mipmapCount = len(block.mipmaps)
+    header.pixelFormat.flags.rgb = 1
+    header.pixelFormat.bitCount = block.bitsPerPixel
+    header.pixelFormat.rMask = block.redMask
+    header.pixelFormat.gMask = block.greenMask
+    header.pixelFormat.bMask = block.blueMask
+    header.pixelFormat.aMask = block.alphaMask
+    header.caps1.complex = 1
+    header.caps1.texture = 1
+    header.caps1.mipmap = 1
 
-    # display the image
-    img = Image.fromstring(mode, size, data, "raw", mode, 0, 1)
+    data.setValue(block.pixelData)
+
     n = 0
     while True:
-        filename = "image%03i.png" % n
+        filename = "image%03i.dds" % n
         if not os.path.exists(filename):
             break
         n += 1
-    img.save(filename)
-
+    stream = open(filename, "wb")
+    try:
+        DdsFormat.write(stream, version = 9, header = header, pixeldata = data)
+    finally:
+        stream.close()
