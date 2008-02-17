@@ -92,7 +92,8 @@ class _MetaBitStructBase(type):
 class Bits(object):
     """Basic implementation of a n-bit unsigned integer type (without read
     and write)."""
-    def __init__(self, numbits = 1, default = 0):
+    def __init__(self, numbits = 1, default = 0, parent = None):
+        self._parent = parent
         self._value = default
         self._numbits = numbits
 
@@ -105,11 +106,38 @@ class Bits(object):
         if not isinstance(value, (int, long)):
             raise TypeError("bitstruct attribute must be integer")
         if value >> self._numbits:
-            raise ValueError('value out of range (%i)' % val)
+            raise ValueError('value out of range (%i)' % value)
         self._value = value
 
     def __str__(self):
         return str(self.getValue())
+
+    #
+    # user interface functions come next
+    # these functions are named after similar ones in the TreeItem example
+    # at http://doc.trolltech.com/4.3/itemviews-simpletreemodel.html
+    #
+
+    def qParent(self):
+        """Return parent of this structure."""
+        return self._parent
+
+    def qChildCount(self):
+        """Return number of items in this structure. Always zero for basic
+        types."""
+        return 0
+
+    def qChild(self, row):
+        """Find item at given row. Should never be called."""
+        raise NotImplementedError
+
+    def qRow(self, item):
+        """Find the row number of the given item. Should never be called."""
+        raise NotImplementedError
+
+    def qName(self, item):
+        """Find the name of the given item. Should never be called."""
+        raise NotImplementedError
 
 class BitStructBase(object):
     """Base class from which all file bitstruct types are derived.
@@ -157,7 +185,7 @@ class BitStructBase(object):
     __metaclass__ = _MetaBitStructBase
     
     _attrs = []
-    _numbytes = 1
+    _numbytes = 1 # default width of a bitstruct
     _games = {}
     
     # initialize all attributes
@@ -194,9 +222,11 @@ class BitStructBase(object):
             # instantiate the integer
             if attr.default != None:
                 attr_instance = Bits(numbits = attr.numbits,
-                                     default = attr.default)
+                                     default = attr.default,
+                                     parent = self)
             else:
-                attr_instance = Bits(numbits = attr.numbits)
+                attr_instance = Bits(numbits = attr.numbits,
+                                     parent = self)
 
             # assign attribute value
             setattr(self, "_%s_value_" % attr.name, attr_instance)
@@ -446,6 +476,3 @@ class BitStructBase(object):
         object does not happen to link to the object (for instance the
         MeshMorphTargetChunk in the cgf format is an example)."""
         return None
-
-from PyFFI.Bases.Basic import BasicBase
-from PyFFI.Bases.Array import Array
