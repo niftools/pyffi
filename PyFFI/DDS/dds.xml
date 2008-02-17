@@ -78,7 +78,7 @@
     ******************
     -->
 
-    <bitstruct name="HeaderFlags" type="uint">
+    <bitstruct name="HeaderFlags" numbytes="4">
         <bits name="Caps" numbits="1" />
         <bits name="Height" numbits="1" />
         <bits name="Width" numbits="1" />

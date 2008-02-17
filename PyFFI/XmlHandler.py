@@ -43,6 +43,7 @@ from types import NoneType, FunctionType, TypeType
 import sys
 
 from PyFFI.Bases.Struct     import StructBase
+from PyFFI.Bases.BitStruct  import BitStructBase
 from PyFFI.Bases.Expression import Expression
 
 class StructAttribute(object):
@@ -97,6 +98,37 @@ class StructAttribute(object):
                 self.arg = int(self.arg)
             except ValueError:
                 self.arg = cls.nameAttribute(self.arg)
+        if self.userver:
+            self.userver = int(self.userver)
+        if self.ver1:
+            self.ver1 = cls.versionNumber(self.ver1)
+        if self.ver2:
+            self.ver2 = cls.versionNumber(self.ver2)
+
+class BitStructAttribute(object):
+    """Helper class to collect attribute data of bitstruct bits tags."""
+    def __init__(self, cls, attrs):
+        """Initialize attribute from the xml attrs dictionary of an
+        add tag.
+
+        @param cls: The class where all types reside.
+        @param attrs: The xml add tag attribute dictionary."""
+        # mandatory parameters
+        self.name = cls.nameAttribute(attrs["name"])
+        self.numbits = int(cls.nameAttribute(attrs["numbits"]))
+        # optional parameters
+        self.default = attrs.get("default")
+        self.cond = attrs.get("cond")
+        self.ver1 = attrs.get("ver1")
+        self.ver2 = attrs.get("ver2")
+        self.userver = attrs.get("userver")
+        self.doc = "" # handled in xml parser's characters function
+
+        # post-processing
+        if self.default:
+            self.default = int(self.default)
+        if self.cond:
+            self.cond = Expression(self.cond, cls.nameAttribute)
         if self.userver:
             self.userver = int(self.userver)
         if self.ver1:
@@ -369,14 +401,10 @@ class XmlSaxHandler(object, xml.sax.handler.ContentHandler):
             # this works like an alias for now, will add special
             # BitStruct base class later
             elif tag == self.tagBitStruct:
+                self.classBase = BitStructBase
                 self.className = attrs["name"]
-                typename = attrs["type"]
-                try:
-                    self.classBase = getattr(self.cls, typename)
-                except AttributeError:
-                    raise XmlError(
-                        "typo, or forward declaration of type %s"%typename)
-                self.classDict = {"_attrs" : [], "__doc__" : ""}
+                self.classDict = { "_attrs" : [], "__doc__" : "",
+                                   "_numbytes" : int(attrs["numbytes"]) }
                 
             # fileformat -> version
             elif tag == self.tagVersion:
@@ -411,18 +439,8 @@ but got %s instead"""%name)
             self.pushTag(tag)
             if tag == self.tagBits:
                 # mandatory parameters
-                attrs_name = self.cls.nameAttribute(attrs["name"])
-                attrs_numbits = int(attrs["numbits"])
-                # optional parameters
-                attrs_default = attrs.get("default")
-                attrs_doc = "" # handled in xml parser's characters function
-
-                # add attribute to class dictionary
-                self.classDict["_attrs"].append([
-                    attrs_name,
-                    attrs_numbits,
-                    attrs_default,
-                    attrs_doc])
+                self.classDict["_attrs"].append(
+                    BitStructAttribute(self.cls, attrs))
             else:
                 raise XmlError(
                     "only bits tags allowed in struct type declaration")
@@ -530,7 +548,7 @@ but got %s instead"""%name)
     def characters(self, chars):
         """Add the string C{chars} to the docstring.
         For version tags, updates the game version list."""
-        if self.currentTag == self.tagAttribute:
+        if self.currentTag in (self.tagAttribute, self.tagBits):
             self.classDict["_attrs"][-1].doc += str(chars.strip())
         elif self.currentTag in (self.tagStruct, self.tagEnum, self.tagAlias):
             self.classDict["__doc__"] += str(chars.strip())

@@ -165,11 +165,11 @@
     ******************
     -->
 
-    <bitstruct name="TextureMappingFlags" type="ubyte">
+    <bitstruct name="TextureMappingFlags" numbytes="1">
         <bits name="No Mipmap" numbits="1" />
     </bitstruct>
 
-    <bitstruct name="MtlFlags" type="uint">
+    <bitstruct name="MtlFlags" numbytes="4">
         <bits name="Wire" numbits="1" />
         <bits name="Two Sided" numbits="1" />
         <bits name="Facemap" numbits="1" />
@@ -182,7 +182,7 @@
         <bits name="Use Glossiness" numbits="1" />
     </bitstruct>
 
-    <bitstruct name="CtrlFlags" type="uint">
+    <bitstruct name="CtrlFlags" numbytes="4">
         <bits name="Cycle" numbits="1" />
         <bits name="Loop" numbits="1" />
     </bitstruct>
