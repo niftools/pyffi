@@ -1,5 +1,7 @@
 Version 0.9.1 (***)
-* niftoaster for exporting images from NiPixelData blocks
+* added PyFFI.DDS library for dds file format
+* nif: new function for NiPixelData to save image as dds file
+* nif: niftoaster for exporting images from NiPixelData blocks
 
 Version 0.9.0 (11 Feb 2008)
 * added PyFFI.KFM library for kfm file format
