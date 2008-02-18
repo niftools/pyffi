@@ -269,15 +269,17 @@ def optimizeTriBasedGeom(block, striplencutoff = 10.0, stitch = True):
                 bonedata.vertexWeights[j].index = i
                 bonedata.vertexWeights[j].weight = weight_i
 
-        print "  updating skin partition"
+        # update skin partition (only if block already exists)
         block._validateSkin()
         skininst = block.skinInstance
         skinpart = skininst.skinPartition
         if not skinpart:
             skinpart = skininst.data.skinPartition
 
-        # use Oblivion settings
-        block.updateSkinPartition(maxbonesperpartition = 18, maxbonespervertex = 4, stripify = True, verbose = 0)
+        if skinpart:
+            print "  updating skin partition"
+            # use Oblivion settings
+            block.updateSkinPartition(maxbonesperpartition = 18, maxbonespervertex = 4, stripify = True, verbose = 0)
 
     # recalculate tangent space (only if the block already exists)
     if block.find(block_name = 'Tangent space (binormal & tangent vectors)',
