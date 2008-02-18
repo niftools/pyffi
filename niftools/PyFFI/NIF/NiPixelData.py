@@ -37,13 +37,40 @@
 #
 # ***** END LICENCE BLOCK *****
 
-def getRawImage(self):
-    """Return image as mode, size, data string tuple."""
-    # determine mode
-    mode = "RGB" if self.bytesPerPixel == 3 else "RGBA"
-    # determine size
-    size = (self.mipmaps[0].width, self.mipmaps[0].height)
-    # convert raw image data into image object
-    data = self.pixelData[:self.bytesPerPixel * size[0] * size[1]]
-    # and return it
-    return mode, size, data
+from PyFFI.DDS import DdsFormat
+
+def saveAsDDS(self, stream):
+    """Save image as DDS file."""
+    # set up header and pixel data
+    header = DdsFormat.Header()
+    data = DdsFormat.PixelData()
+
+    # create header, depending on the format
+    if self.pixelFormat in (self.cls.PixelFormat.PX_FMT_RGB8,
+                            self.cls.PixelFormat.PX_FMT_RGBA8):
+        # uncompressed RGB(A)
+        header.flags.caps = 1
+        header.flags.height = 1
+        header.flags.width = 1
+        header.flags.pixelFormat = 1
+        header.flags.mipmapCount = 1
+        header.flags.linearSize = 1
+        header.height = self.mipmaps[0].height
+        header.width = self.mipmaps[0].width
+        header.linearSize = len(self.pixelData)
+        header.mipmapCount = len(self.mipmaps)
+        header.pixelFormat.flags.rgb = 1
+        header.pixelFormat.bitCount = self.bitsPerPixel
+        header.pixelFormat.rMask = self.redMask
+        header.pixelFormat.gMask = self.greenMask
+        header.pixelFormat.bMask = self.blueMask
+        header.pixelFormat.aMask = self.alphaMask
+        header.caps1.complex = 1
+        header.caps1.texture = 1
+        header.caps1.mipmap = 1
+        data.setValue(self.pixelData)
+    else:
+        raise ValueError(
+            "cannot save pixel format %i as DDS" % self.pixelFormat)
+
+    DdsFormat.write(stream, version = 9, header = header, pixeldata = data)
