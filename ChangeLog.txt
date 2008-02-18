@@ -1,7 +1,11 @@
 Version 0.9.1 (***)
 * added PyFFI.DDS library for dds file format
 * nif: new function for NiPixelData to save image as dds file
-* nif: niftoaster for exporting images from NiPixelData blocks
+* niftoaster: script for exporting images from NiPixelData blocks
+* nifoptimize:
+  - merge identical shape data blocks
+  - remove empty NiNode children
+  - update skin partition only if block already exists
 
 Version 0.9.0 (11 Feb 2008)
 * added PyFFI.KFM library for kfm file format
