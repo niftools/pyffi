@@ -45,11 +45,17 @@ from PyFFI.NIF import NifFormat
 import NifTester
 from PyFFI.Utils import TriStrip
 
-def compareTriShapeData(shape1, shape2):
-    """Compare two NiTriShapeData blocks, checks if they are equal."""
+def isequalTriGeomData(shape1, shape2):
+    """Compare two NiTriShapeData/NiTriStrips blocks, checks if they are
+    equal."""
     # check for object identity
     if shape1 is shape2:
         return True
+
+    # check class
+    if not isinstance(shape1, shape2.__class__) \
+        or not isinstance(shape2, shape1.__class__):
+        return False
 
     # check some trivial things first
     for attribute in (
@@ -70,10 +76,10 @@ def compareTriShapeData(shape1, shape2):
             return False
 
     # check triangle list
-    triangles1 = [ tuple(verthashes1[i] for i in (tri.v1, tri.v2, tri.v3))
-                   for tri in shape1.triangles ]
-    triangles2 = [ tuple(verthashes2[i] for i in (tri.v1, tri.v2, tri.v3))
-                   for tri in shape2.triangles ]
+    triangles1 = [ tuple(verthashes1[i] for i in tri)
+                   for tri in shape1.getTriangles() ]
+    triangles2 = [ tuple(verthashes2[i] for i in tri)
+                   for tri in shape2.getTriangles() ]
     for tri1 in triangles1:
         if not tri1 in triangles2:
             return False
@@ -289,9 +295,9 @@ def fixTexturePath(block, **args):
         print("  %s" % block.fileName)
 
 def testRoot(root, **args):
-    print("checking for duplicate properties")
     # check which blocks to exclude
     exclude = args.get("exclude", [])
+
     # initialize hash maps
     # (each of these dictionaries maps a block hash to an actual block of
     # the given type)
@@ -300,35 +306,47 @@ def testRoot(root, **args):
     texturingProps = {}
     alphaProps = {}
     specularProps = {}
-    # maintain list of shapes when merging NiTriShapeData
-    triShapeDataList = []
+
+    # get list of all blocks
+    block_list = [ block for block in root.tree(unique = True) ]
+
+    # fix source texture path
+    for block in block_list:
+        if isinstance(block, NifFormat.NiSourceTexture) \
+            and not "NiSourceTexture" in exclude:
+            fixTexturePath(block)
+
     # join duplicate source textures
+    print("checking for duplicate source textures")
     if not "NiSourceTexture" in exclude:
-        for block in root.tree(block_type = NifFormat.NiTexturingProperty, unique = True):
+        for block in block_list:
+            # source texture blocks are children of texturing property blocks
+            if not isinstance(block, NifFormat.NiTexturingProperty):
+                continue
+            # check all textures
             for tex in ("Base", "Dark", "Detail", "Gloss", "Glow"):
                 if getattr(block, "has%sTexture"%tex):
                     texdesc = getattr(block, "%sTexture"%tex.lower())
                     hashvalue = texdesc.source.getHash()
+                    # try to find a matching source texture
                     try:
                         new_texdesc_source = sourceTextures[hashvalue]
+                    # if not, save for future reference
                     except KeyError:
                         sourceTextures[hashvalue] = texdesc.source
                     else:
+                        # found a match, so report and reassign
                         if texdesc.source != new_texdesc_source:
                             print("  removing duplicate NiSourceTexture block")
                             texdesc.source = new_texdesc_source
                         
-    for block in root.tree(block_type = NifFormat.NiAVObject, unique = True):
-        # merge shape data
-        if isinstance(block, NifFormat.NiTriShape):
-            for shapedata in triShapeDataList:
-                if compareTriShapeData(shapedata, block.data):
-                    block.data = shapedata
-                    print "  merging shape data of NiTriShape %s" % block.name
-                    break
-            else:
-                triShapeDataList.append(block.data)
-
+    # joining duplicate properties
+    print("checking for duplicate properties")
+    for block in block_list:
+        # check block type
+        if not isinstance(block, NifFormat.NiAVObject):
+            continue
+        
         # remove duplicate and empty properties within the list
         proplist = []
         for prop in block.properties:
@@ -344,7 +362,7 @@ def testRoot(root, **args):
             hashvalue = prop.getHash(ignore_strings = True)
             # join duplicate texturing properties
             if isinstance(prop, NifFormat.NiTexturingProperty) \
-               and not "NiTexturingProperty" in exclude:
+                and not "NiTexturingProperty" in exclude:
                 try:
                     new_prop = texturingProps[hashvalue]
                 except KeyError:
@@ -355,7 +373,7 @@ def testRoot(root, **args):
                         block.properties[i] = new_prop
             # join duplicate material properties
             elif isinstance(prop, NifFormat.NiMaterialProperty)\
-               and not "NiMaterialProperty" in exclude:
+                and not "NiMaterialProperty" in exclude:
                 try:
                     new_prop = materialProps[hashvalue]
                 except KeyError:
@@ -366,7 +384,7 @@ def testRoot(root, **args):
                         block.properties[i] = new_prop
             # join duplicate alpha properties
             elif isinstance(prop, NifFormat.NiAlphaProperty) \
-               and not "NiAlphaProperty" in exclude:
+                and not "NiAlphaProperty" in exclude:
                 try:
                     new_prop = alphaProps[hashvalue]
                 except KeyError:
@@ -377,7 +395,7 @@ def testRoot(root, **args):
                         block.properties[i] = new_prop
             # join duplicate specular properties
             elif isinstance(prop, NifFormat.NiSpecularProperty) \
-               and not "NiSpecularProperty" in exclude:
+                and not "NiSpecularProperty" in exclude:
                 try:
                     new_prop = specularProps[hashvalue]
                 except KeyError:
@@ -386,13 +404,13 @@ def testRoot(root, **args):
                     if new_prop != prop:
                         print("  removing duplicate NiSpecularProperty block")
                         block.properties[i] = new_prop
-    return block
 
-def testBlock(block, **args):
-    # check which blocks to exclude
-    exclude = args.get("exclude", [])
-    # optimize block
-    if isinstance(block, NifFormat.NiNode):
+    print("optimizing geometries")
+    for block in block_list:
+        # check if it is a NiNode
+        if not isinstance(block, NifFormat.NiNode):
+            continue
+        
         # remove duplicate and empty children
         childlist = []
         for child in block.children:
@@ -402,16 +420,28 @@ def testBlock(block, **args):
         block.children.updateSize()
         for i, child in enumerate(childlist):
             block.children[i] = child
-        # optimize them
+
+        # optimize geometries
         for i, child in enumerate(block.children):
            if (isinstance(child, NifFormat.NiTriStrips) \
                and not "NiTriStrips" in exclude) or \
                (isinstance(child, NifFormat.NiTriShape) \
                and not "NiTriShape" in exclude):
                block.children[i] = optimizeTriBasedGeom(child)
-    elif isinstance(block, NifFormat.NiSourceTexture) \
-        and not "NiSourceTexture" in exclude:
-        fixTexturePath(block)
+
+
+    # merge shape data
+    triShapeDataList = [] # list of unique shape data blocks
+    for block in block_list:
+        if isinstance(block, (NifFormat.NiTriShape, NifFormat.NiTriStrips)):
+            # check with all shapes that were already exported
+            for shapedata in triShapeDataList:
+                if isequalTriGeomData(shapedata, block.data):
+                    block.data = shapedata
+                    print "  merging shape data of shape %s" % block.name
+                    break
+            else:
+                triShapeDataList.append(block.data)
 
 import sys, os
 from optparse import OptionParser
