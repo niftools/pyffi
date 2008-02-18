@@ -87,12 +87,23 @@ def applyScale(self, scale):
     for child in self.getRefs():
         child.applyScale(scale)
 
-def tree(self, block_type = None, follow_all = True):
+def tree(self, block_type = None, follow_all = True, unique = False):
     """A generator for parsing all blocks in the tree (starting from and
     including C{self}).
 
     @param block_type: If not C{None}, yield only blocks of the type C{block_type}.
-    @param follow_all: If C{block_type} is not C{None}, then if this is C{True} the function will parse the whole tree. Otherwise, the function will not follow branches that start by a non-C{block_type} block."""
+    @param follow_all: If C{block_type} is not C{None}, then if this is C{True} the function will parse the whole tree. Otherwise, the function will not follow branches that start by a non-C{block_type} block.
+
+    @param unique: Whether the generator can return the same block twice or not."""
+    # unique blocks: reduce this to the case of non-unique blocks
+    if unique:
+        block_list = []
+        for block in self.tree(block_type = block_type, follow_all = follow_all, unique = False):
+            if not block in block_list:
+                yield block
+                block_list.append(block)
+        return
+
     # yield self
     if not block_type:
         yield self

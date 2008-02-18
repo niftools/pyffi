@@ -304,7 +304,7 @@ def testRoot(root, **args):
     triShapeDataList = []
     # join duplicate source textures
     if not "NiSourceTexture" in exclude:
-        for block in root.tree(block_type = NifFormat.NiTexturingProperty):
+        for block in root.tree(block_type = NifFormat.NiTexturingProperty, unique = True):
             for tex in ("Base", "Dark", "Detail", "Gloss", "Glow"):
                 if getattr(block, "has%sTexture"%tex):
                     texdesc = getattr(block, "%sTexture"%tex.lower())
@@ -318,13 +318,13 @@ def testRoot(root, **args):
                             print("  removing duplicate NiSourceTexture block")
                             texdesc.source = new_texdesc_source
                         
-    for block in root.tree(block_type = NifFormat.NiAVObject):
+    for block in root.tree(block_type = NifFormat.NiAVObject, unique = True):
         # merge shape data
         if isinstance(block, NifFormat.NiTriShape):
             for shapedata in triShapeDataList:
                 if compareTriShapeData(shapedata, block.data):
                     block.data = shapedata
-                    print "merging shape data of NiTriShape %s" % block.name
+                    print "  merging shape data of NiTriShape %s" % block.name
                     break
             else:
                 triShapeDataList.append(block.data)

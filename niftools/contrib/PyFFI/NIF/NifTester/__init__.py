@@ -46,7 +46,7 @@ def testPath(top, testBlock = None, testRoot = None, testFile = None, raisereade
         # find blocks beforehand as tree hierarchy may change after each
         # test (especially for surgery tests)
         for root in root_blocks:
-            blockslist = [[block for block in root.tree()] for root in root_blocks]
+            blockslist = [[block for block in root.tree(unique = True)] for root in root_blocks]
         # run tests
         try:
             if testRoot:
