@@ -431,17 +431,25 @@ def testRoot(root, **args):
 
 
     # merge shape data
-    triShapeDataList = [] # list of unique shape data blocks
+    # first update list of all blocks
+    block_list = [ block for block in root.tree(unique = True) ]
+    # then set up list of unique shape data blocks
+    # (actually the NiTriShape/NiTriStrips blocks are stored in the list
+    # so we can refer back to their name)
+    triShapeDataList = []
     for block in block_list:
         if isinstance(block, (NifFormat.NiTriShape, NifFormat.NiTriStrips)):
             # check with all shapes that were already exported
-            for shapedata in triShapeDataList:
-                if isequalTriGeomData(shapedata, block.data):
-                    block.data = shapedata
-                    print "  merging shape data of shape %s" % block.name
+            for shape in triShapeDataList:
+                if isequalTriGeomData(shape.data, block.data):
+                    # match! so merge
+                    block.data = shape.data
+                    print("  merging shape data of shape %s with shape %s"
+                          % (block.name, shape.name))
                     break
             else:
-                triShapeDataList.append(block.data)
+                # no match, so store for future matching
+                triShapeDataList.append(block)
 
 import sys, os
 from optparse import OptionParser
