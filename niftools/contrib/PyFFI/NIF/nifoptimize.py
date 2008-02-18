@@ -492,7 +492,7 @@ may destroy them. Make a backup of your nif files before running this script.
     # run tester
     NifTester.testPath(
         top,
-        testBlock = testBlock, testRoot = testRoot,
+        testRoot = testRoot,
         testFile = NifTester.testFileOverwrite,
         raisereaderror = True, mode = "r+b",
         raisetesterror = options.raisetesterror, verbose = options.verbose,
