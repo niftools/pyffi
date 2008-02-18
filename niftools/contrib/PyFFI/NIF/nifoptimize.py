@@ -45,6 +45,45 @@ from PyFFI.NIF import NifFormat
 import NifTester
 from PyFFI.Utils import TriStrip
 
+def compareTriShapeData(shape1, shape2):
+    """Compare two NiTriShapeData blocks, checks if they are equal."""
+    # check for object identity
+    if shape1 is shape2:
+        return True
+
+    # check some trivial things first
+    for attribute in (
+        "numVertices", "keepFlags", "compressFlags", "hasVertices",
+        "numUvSets", "hasNormals", "center", "radius",
+        "hasVertexColors", "hasUv", "consistencyFlags"):
+        if getattr(shape1, attribute) != getattr(shape2, attribute):
+            return False
+
+    # check vertices (this includes uvs, vcols and normals)
+    verthashes1 = [ hsh for hsh in vertexHash(shape1) ]
+    verthashes2 = [ hsh for hsh in vertexHash(shape2) ]
+    for hash1 in verthashes1:
+        if not hash1 in verthashes2:
+            return False
+    for hash2 in verthashes2:
+        if not hash2 in verthashes1:
+            return False
+
+    # check triangle list
+    triangles1 = [ tuple(verthashes1[i] for i in (tri.v1, tri.v2, tri.v3))
+                   for tri in shape1.triangles ]
+    triangles2 = [ tuple(verthashes2[i] for i in (tri.v1, tri.v2, tri.v3))
+                   for tri in shape2.triangles ]
+    for tri1 in triangles1:
+        if not tri1 in triangles2:
+            return False
+    for tri2 in triangles2:
+        if not tri2 in triangles1:
+            return False
+
+    # looks pretty identical!
+    return True
+
 def vertexHash(block, precision = 200):
     """Generator which identifies unique vertices."""
     verts = block.vertices if block.hasVertices else None
@@ -261,6 +300,8 @@ def testRoot(root, **args):
     texturingProps = {}
     alphaProps = {}
     specularProps = {}
+    # maintain list of shapes when merging NiTriShapeData
+    triShapeDataList = []
     # join duplicate source textures
     if not "NiSourceTexture" in exclude:
         for block in root.tree(block_type = NifFormat.NiTexturingProperty):
@@ -278,6 +319,27 @@ def testRoot(root, **args):
                             texdesc.source = new_texdesc_source
                         
     for block in root.tree(block_type = NifFormat.NiAVObject):
+        # merge shape data
+        if isinstance(block, NifFormat.NiTriShape):
+            for shapedata in triShapeDataList:
+                if compareTriShapeData(shapedata, block.data):
+                    block.data = shapedata
+                    print "merging shape data of NiTriShape %s" % block.name
+                    break
+            else:
+                triShapeDataList.append(block.data)
+
+        # remove duplicate and empty properties within the list
+        proplist = []
+        for prop in block.properties:
+            if not(prop is None or prop in proplist):
+                proplist.append(prop)
+        block.numProperties = len(proplist)
+        block.properties.updateSize()
+        for i, prop in enumerate(proplist):
+            block.properties[i] = prop
+
+        # merge properties
         for i, prop in enumerate(block.properties):
             hashvalue = prop.getHash(ignore_strings = True)
             # join duplicate texturing properties
