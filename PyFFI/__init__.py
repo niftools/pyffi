@@ -7,8 +7,9 @@ Using PyFFI
 
 If you simply wish to use PyFFI with a format that's already implemented,
 refer to the documentation of that library. For the nif format, refer to
-L{PyFFI.NIF}, for the kfm format, refer to L{PyFFI.KFM}, and and for the
-cgf format, refer to L{PyFFI.CGF}.
+L{PyFFI.NIF}, for the kfm format, refer to L{PyFFI.KFM}, for the
+cgf format, refer to L{PyFFI.CGF}, and for the dds format, refer to
+L{PyFFI.DDS}.
 
 Supporting New File Formats
 ===========================
