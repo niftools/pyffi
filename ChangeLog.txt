@@ -1,4 +1,5 @@
 Version 0.9.1 (22 Feb 2008)
+* full support for the xml bitstruct tag (for types that contain bit flags)
 * added PyFFI.DDS library for dds file format
 * nif: new function for NiPixelData to save image as dds file
 * niftoaster: script for exporting images from NiPixelData blocks
