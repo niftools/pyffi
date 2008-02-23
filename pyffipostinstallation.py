@@ -110,6 +110,9 @@ else:
         # register the .cgf extension
         createsubkey(_winreg.HKEY_CLASSES_ROOT, ".cgf",
                      _winreg.REG_SZ, "CrytekGeometryFile")
+        # register the .dds extension (using DirectX SDK association)
+        createsubkey(_winreg.HKEY_CLASSES_ROOT, ".dds",
+                     _winreg.REG_SZ, "DirectX.DDS.Document")
         # add the optimize and qskope commands to nif
         hkeynif = createsubkey(_winreg.HKEY_CLASSES_ROOT, "NetImmerseFile",
                        _winreg.REG_SZ, "NetImmerse/Gamebryo File")
@@ -127,6 +130,14 @@ else:
         hkeycgf = createsubkey(_winreg.HKEY_CLASSES_ROOT, "CrytekGeometryFile",
                                _winreg.REG_SZ, "Crytek Geometry File")
         createsubkeychain(hkeycgf, "shell", "Open with QSkope",
+                          "command",
+                          default_type = _winreg.REG_SZ,
+                          default_value = '"%s" "%s" "%%1"'
+                          % (pythonexe, qskopepy))
+        # add the qskope commands to dds
+        hkeydds = createsubkey(_winreg.HKEY_CLASSES_ROOT, "DirectX.DDS.Document",
+                               _winreg.REG_SZ, "DDS Document")
+        createsubkeychain(hkeydds, "shell", "Open with QSkope",
                           "command",
                           default_type = _winreg.REG_SZ,
                           default_value = '"%s" "%s" "%%1"'
@@ -159,6 +170,16 @@ else:
         # get all the cgf keys (this checks whether they exist)
         hkeycgf = getsubkey(_winreg.HKEY_CLASSES_ROOT, "CrytekGeometryFile")
         hkeyshell = getsubkey(hkeycgf, "shell")
+        hkeyqskope = getsubkey(hkeyshell, "Open with QSkope")
+        hkeycommand = getsubkey(hkeyqskope, "command")
+        if hkeycommand:
+            hkeycommand.Close()
+            _winreg.DeleteKey(hkeyqskope, "command")
+            hkeyqskope.Close()
+            _winreg.DeleteKey(hkeyshell, "Open with QSkope")            
+        # get all the dds keys (this checks whether they exist)
+        hkeydds = getsubkey(_winreg.HKEY_CLASSES_ROOT, "DirectX.DDS.Document")
+        hkeyshell = getsubkey(hkeydds, "shell")
         hkeyqskope = getsubkey(hkeyshell, "Open with QSkope")
         hkeycommand = getsubkey(hkeyqskope, "command")
         if hkeycommand:
