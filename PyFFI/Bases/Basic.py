@@ -160,3 +160,7 @@ class BasicBase(object):
     def qName(self, item):
         """Find the name of the given item. Should never be called."""
         raise NotImplementedError
+
+    def qDataDisplay(self):
+        """Return an object that can be used to display the instance."""
+        return self.getValue()

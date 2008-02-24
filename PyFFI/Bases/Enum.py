@@ -146,17 +146,18 @@ class EnumBase(BasicBase,DelegateComboBox):
     # DelegateComboBox methods
     #
 
-    def qDelegateItems(self):
+    def qDelegateKeys(self):
         """List or tuple of strings, each string describing an item."""
         return self._enumitems
 
-    def qDelegateValue(self, item):
+    def qDelegateValue(self, index):
+        """List or tuple of strings, each string describing an item."""
+        return self._enumvalues[index]
+
+    def qDelegateIndex(self):
         """Get the value of an item string."""
-        return self._enumvalues.index(self._enumitems.index(item))
+        return self._enumvalues.index(self._value)
 
-    def qDelegateItem(self, value):
-        """Get the item string of a value."""
-        return self._enumitems.index(self._enumvalues.index(value))
-
-    def qDelegateDisplay(self):
-        return self.__str__()
+    def qDataDisplay(self):
+        """Return object that can be used to display the instance."""
+        return self._enumitems[self._enumvalues.index(self._value)]

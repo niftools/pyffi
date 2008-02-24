@@ -72,35 +72,29 @@ class DelegateLineEdit(DelegateBase):
 class DelegateComboBox(DelegateBase):
     """Requirement: getValue must return an integer."""
 
-    def qDelegateItems(self):
+    def qDelegateKeys(self):
         """List or tuple of strings, each string describing an item."""
         return []
 
-    def qDelegateValue(self, item):
-        """Get the value of an item string."""
+    def qDelegateValue(self, index):
+        """Get the value of an enum index."""
         raise NotImplementedError
 
-    def qDelegateItem(self, value):
-        """Get the item string of a value."""
+    def qDelegateIndex(self):
+        """Get current enum index."""
         raise NotImplementedError
-
-    def qDelegateDisplay(self):
-        return self.qDelegateItem(self.getValue())
 
 class DelegateBoolComboBox(DelegateComboBox):
-    def qDelegateValues(self):
+    def qDelegateKeys(self):
         return ("False", "True")
 
-    def qDelegateValue(self, item):
-        if item == "False":
-            return 0
-        elif item == "True":
-            return 1
+    def qDelegateValue(self, index):
+        if index == 0:
+            return False
+        elif index == 1:
+            return True
         else:
-            raise ValueError("no value for item '%s'" % item)
+            raise ValueError("no value for index %i" % index)
 
-    def qDelegateItem(self, value):
-        if value:
-            return "True"
-        else:
-            return "False"
+    def qDelegateIndex(self):
+        return 1 if self.getValue() else 0

@@ -139,6 +139,10 @@ class Bits(object):
         """Find the name of the given item. Should never be called."""
         raise NotImplementedError
 
+    def qDataDisplay(self):
+        """Return an object that can be used to display the instance."""
+        return self._value
+
 class BitStructBase(object):
     """Base class from which all file bitstruct types are derived.
 

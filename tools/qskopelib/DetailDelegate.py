@@ -39,6 +39,7 @@
 
 from PyQt4 import QtCore, QtGui
 
+from PyFFI.Bases.Delegate import DelegateComboBox
 
 # implementation details:
 # http://doc.trolltech.com/4.3/model-view-delegate.html
@@ -53,8 +54,14 @@ class DetailDelegate(QtGui.QItemDelegate):
         # determine the data type
         data = index.internalPointer()
         value = data.getValue()
+        # first check for delegates
+        if isinstance(data, DelegateComboBox):
+            # a general purpose combo box
+            editor = QtGui.QComboBox(parent)
+            for key in data.qDelegateKeys():
+                editor.addItem(key)
         # int and long: spin box
-        if isinstance(value, bool):
+        elif isinstance(value, bool):
             # a combo box for bools
             editor = QtGui.QComboBox(parent)
             editor.addItem("False") # index 0
@@ -97,7 +104,7 @@ class DetailDelegate(QtGui.QItemDelegate):
             editor.setText(value)
         elif isinstance(editor, QtGui.QComboBox):
             # a combo box for bools
-            editor.setCurrentIndex(1 if value else 0)
+            editor.setCurrentIndex(data.qDelegateIndex())
 
     def updateEditorGeometry(self, editor, option, index):
         """Ensures that the editor is displayed correctly with respect to the
@@ -106,6 +113,7 @@ class DetailDelegate(QtGui.QItemDelegate):
 
     def setModelData(self, editor, model, index):
         """Returns updated data to the model."""
+        data = index.internalPointer()
         # check if index is valid
         if not index.isValid():
             return None
@@ -118,7 +126,7 @@ class DetailDelegate(QtGui.QItemDelegate):
             value = editor.text()
         elif isinstance(editor, QtGui.QComboBox):
             # a combo box for bools
-            value = bool(editor.currentIndex())
+            value = data.qDelegateValue(editor.currentIndex())
         elif isinstance(editor, QtGui.QDoubleSpinBox):
             # a spinbox for floats
             value = editor.value()
