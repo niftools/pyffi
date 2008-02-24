@@ -116,7 +116,7 @@ class EnumBase(BasicBase,DelegateComboBox):
                     raise ValueError(
                         "cannot convert value '%s' to integer"%value)
         if not val in self._enumvalues:
-            raise ValueError('invalid enum value (%i)'%self.getValue())
+            raise ValueError('invalid enum value (%i)' % val)
         self._value = val
 
     def read(self, stream, **kwargs):
