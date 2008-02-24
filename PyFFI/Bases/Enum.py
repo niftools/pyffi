@@ -160,4 +160,8 @@ class EnumBase(BasicBase,DelegateComboBox):
 
     def qDataDisplay(self):
         """Return object that can be used to display the instance."""
-        return self._enumitems[self._enumvalues.index(self._value)]
+        try:
+            return self._enumitems[self._enumvalues.index(self._value)]
+        except ValueError:
+            # value self._value is not in the self._enumvalues list
+            return "<INVALID (0x%08X)>" % self._value
