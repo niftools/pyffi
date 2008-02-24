@@ -180,6 +180,7 @@ from PyFFI import MetaXmlFileFormat
 from PyFFI import Utils
 from PyFFI import Common
 from PyFFI.Bases.Basic import BasicBase
+from PyFFI.Bases.Delegate import DelegateBoolComboBox
 
 class CgfFormat(object):
     """Stores all information about the cgf file format."""
@@ -201,7 +202,7 @@ class CgfFormat(object):
     char = Common.Char
     float = Common.Float
 
-    class bool(Common.UByte):
+    class bool(Common.UByte,DelegateBoolComboBox):
         """Simple bool implementation."""
         def getValue(self):
             return False if self._value == '\x00' else True
