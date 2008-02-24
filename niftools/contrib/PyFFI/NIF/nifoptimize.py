@@ -318,6 +318,24 @@ def testRoot(root, **args):
             and not "NiSourceTexture" in exclude:
             fixTexturePath(block)
 
+    # clamp corrupted material alpha values
+    if not "NiMaterialProperty" in exclude:
+        for block in block_list:
+            # skip non-material blocks
+            if not isinstance(block, NifFormat.NiMaterialProperty):
+                continue
+            # check if alpha exceeds usual values
+            if block.alpha > 1:
+                # too large
+                print("clamping alpha value (%f -> 1.0) in material %s"
+                      % (block.alpha, block.name))
+                block.alpha = 1.0
+            elif block.alpha < 0:
+                # too small
+                print("clamping alpha value (%f -> 0.0) in material %s"
+                      % (block.alpha, block.name))
+                block.alpha = 0.0
+
     # join duplicate source textures
     print("checking for duplicate source textures")
     if not "NiSourceTexture" in exclude:
@@ -351,9 +369,11 @@ def testRoot(root, **args):
         
         # remove duplicate and empty properties within the list
         proplist = []
+        # construct list of unique and non-empty properties
         for prop in block.properties:
             if not(prop is None or prop in proplist):
                 proplist.append(prop)
+        # update block properties with the list just constructed
         block.numProperties = len(proplist)
         block.properties.updateSize()
         for i, prop in enumerate(proplist):
