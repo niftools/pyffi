@@ -209,6 +209,11 @@
         <add name="Data" type="char" arr1="256" />
     </struct>
 
+    <struct name="SizedString">
+	    <add name="Length" type="uint" />
+        <add name="Data" type="char" arr1="Length" />
+    </struct>
+
     <struct name="Vector3">
         A vector in 3D space (x,y,z).
         <add name="x" type="float">First coordinate.</add>
@@ -537,9 +542,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Rot Ctrl" type="Ref" template="ControllerChunk">Rotation controller.</add>
         <add name="Scl Ctrl" type="Ref" template="ControllerChunk">Scale controller.</add>
 
-        <add name="Property String Length" type="uint">Lenght of the property string.</add>
-
-        <add name="Property String" type="char" arr1="Property String Length">Property string.</add>
+        <add name="Property String" type="SizedString">Property string.</add>
         <add name="Children" type="Ref" template="NodeChunk" arr1="Num Children">Children.</add>
     </struct>
 

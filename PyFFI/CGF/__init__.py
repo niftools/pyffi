@@ -93,8 +93,7 @@ Create a CGF file from scratch
 * posCtrl : None
 * rotCtrl : None
 * sclCtrl : None
-* propertyStringLength : 0
-* propertyString : <class 'PyFFI.Bases.Array.Array'> instance at 0x...
+* propertyString : <EMPTY STRING>
 * children :
     <class 'PyFFI.Bases.Array.Array'> instance at 0x...
     0: <class 'PyFFI.XmlHandler.NodeChunk'> instance at 0x...
@@ -127,8 +126,7 @@ Create a CGF file from scratch
 * posCtrl : None
 * rotCtrl : None
 * sclCtrl : None
-* propertyStringLength : 0
-* propertyString : <class 'PyFFI.Bases.Array.Array'> instance at 0x...
+* propertyString : <EMPTY STRING>
 * children : <class 'PyFFI.Bases.Array.Array'> instance at 0x...
 <BLANKLINE>
 """
@@ -352,6 +350,61 @@ class CgfFormat(object):
     class String256(String32):
         """String of fixed length 256."""
         _len = 256
+
+    class SizedString(BasicBase):
+        """Basic type for strings.
+
+        >>> from tempfile import TemporaryFile
+        >>> f = TemporaryFile()
+        >>> s = CgfFormat.SizedString()
+        >>> f.write('\\x07\\x00\\x00\\x00abcdefg')
+        >>> f.seek(0)
+        >>> s.read(f)
+        >>> str(s)
+        'abcdefg'
+        >>> f.seek(0)
+        >>> s.setValue('Hi There')
+        >>> s.write(f)
+        >>> f.seek(0)
+        >>> m = CgfFormat.SizedString()
+        >>> m.read(f)
+        >>> str(m)
+        'Hi There'
+        """
+        def __init__(self, **kwargs):
+            BasicBase.__init__(self, **kwargs)            
+            self.setValue('')
+
+        def getValue(self):
+            return self._value
+
+        def setValue(self, value):
+            if len(value) > 10000:
+                raise ValueError('string too long')
+            self._value = str(value)
+
+        def __str__(self):
+            s = self._value
+            if not s:
+                return '<EMPTY STRING>'
+            return s
+
+        def getSize(self, **kwargs):
+            return 4 + len(self._value)
+
+        def getHash(self, **kwargs):
+            return self.getValue()
+
+        def read(self, stream, **kwargs):
+            n, = struct.unpack('<I', stream.read(4))
+            if n > 10000:
+                raise ValueError('string too long (0x%08X at 0x%08X)'
+                                 % (n, stream.tell()))
+            self._value = stream.read(n)
+
+        def write(self, stream, **kwargs):
+            stream.write(struct.pack('<I', len(self._value)))
+            stream.write(self._value)
 
     class Ref(BasicBase):
         """Reference to a chunk, up the hierarchy."""
