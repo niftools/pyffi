@@ -75,13 +75,13 @@
     ******************
     -->
 
-    <enum name="FileType" type="uint" default="0xFFFF0000">
+    <enum name="FileType" numbytes="4" default="0xFFFF0000">
         An unsigned 32-bit integer, describing the file type.
         <option value="0xFFFF0000" name="GEOM">Geometry file.</option>
         <option value="0xFFFF0001" name="ANIM">Animation file.</option>
     </enum>
     
-    <enum name="ChunkType" type="uint">
+    <enum name="ChunkType" numbytes="4">
         An unsigned 32-bit integer, describing the chunk type.
         <option value="0" name="ANY" />
         <option value="0xCCCC0000" name="Mesh" />
@@ -111,14 +111,14 @@
         <option value="0xCCCC0018" name="Unknown18">Unknown chunk. Used in Crysis.</option>
     </enum>
 
-    <enum name="HelperType" type="ubyte">
+    <enum name="HelperType" numbytes="1">
         <option value="0" name="POINT" />
         <option value="1" name="DUMMY" />
         <option value="2" name="XREF" />
         <option value="3" name="CAMERA" />
     </enum>
 
-    <enum name="TextureMappingType" type="ubyte">
+    <enum name="TextureMappingType" numbytes="1">
         <option value="0" name="NORMAL" />
         <option value="1" name="ENVIRONMENT" />
         <option value="2" name="SCREENENVIRONMENT" />
@@ -126,21 +126,21 @@
         <option value="4" name="AUTOCUBIC" />
     </enum>
 
-    <enum name="MtlType" type="uint">
+    <enum name="MtlType" numbytes="4">
         <option value="0" name="UNKNOWN" />
         <option value="1" name="STANDARD" />
         <option value="2" name="MULTI" />
         <option value="3" name="TWOSIDED" />
     </enum>
 
-    <enum name="LightType" type="uint">
+    <enum name="LightType" numbytes="4">
         <option value="0" name="OMNI" />
         <option value="1" name="SPOT" />
         <option value="2" name="DIRECT" />
         <option value="3" name="AMBIENT" />
     </enum>
 
-    <enum name="CtrlType" type="uint">
+    <enum name="CtrlType" numbytes="4">
         <option value="0" name="NONE" />
         <option value="1" name="CRYBONE" />
         <option value="2" name="LINEAR1" />

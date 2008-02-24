@@ -46,7 +46,7 @@ from functools import partial
 from itertools import izip
 
 class _MetaStructBase(type):
-    """This metaclass checks for the presence of an _attrs and _isTemplate
+    """This metaclass checks for the presence of _attrs and _isTemplate
     attributes. For each attribute in _attrs, an
     <attrname> property is generated which gets and sets basic types,
     and gets other types (struct and array). Used as metaclass of

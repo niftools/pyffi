@@ -60,7 +60,7 @@
     ******************
     -->
 
-    <enum name="FourCC" type="uint" default="0x31545844">
+    <enum name="FourCC" numbytes="4" default="0x31545844">
         An unsigned 32-bit integer, describing the compression type.
         <option value="0x00000000" name="LINEAR" />
         <option value="0x31545844" name="DXT1" />

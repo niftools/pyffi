@@ -44,6 +44,7 @@ import sys
 
 from PyFFI.Bases.Struct     import StructBase
 from PyFFI.Bases.BitStruct  import BitStructBase
+from PyFFI.Bases.Enum       import EnumBase
 from PyFFI.Bases.Expression import Expression
 
 class StructAttribute(object):
@@ -374,17 +375,23 @@ class XmlSaxHandler(object, xml.sax.handler.ContentHandler):
 
             # fileformat -> enum
             elif tag == self.tagEnum:
+                self.classBase = EnumBase
                 self.className = attrs["name"]
                 try:
-                    typename = attrs["type"]
+                    numbytes = int(attrs["numbytes"])
                 except KeyError:
-                    typename = attrs["storage"] # niftools
-                try:
-                    self.classBase = getattr(self.cls, typename)
-                except AttributeError:
-                    raise XmlError(
-                        "typo, or forward declaration of type %s"%typename)
-                self.classDict = {"__doc__" : ""}
+                    # niftools format uses a storage
+                    # get number of bytes from that
+                    typename = attrs["storage"]
+                    try:
+                        typ = getattr(self.cls, typename)
+                    except AttributeError:
+                        raise XmlError(
+                            "typo, or forward declaration of type %s"%typename)
+                    numbytes = typ.getSize()
+                self.classDict = {"__doc__" : "",
+                                  "_numbytes" : numbytes,
+                                  "_enumitems" : [], "_enumvalues" : []}
 
             # fileformat -> alias
             elif tag == self.tagAlias:
@@ -433,7 +440,8 @@ but got %s instead"""%name)
                 value = int(value)
             except ValueError:
                 value = int(value, 16)
-            self.classDict[attrs["name"]] = value
+            self.classDict["_enumitems"].append(attrs["name"])
+            self.classDict["_enumvalues"].append(value)
 
         elif self.currentTag == self.tagBitStruct:
             self.pushTag(tag)

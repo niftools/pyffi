@@ -40,8 +40,11 @@
 import struct
 from itertools import izip
 from PyFFI.Bases.Basic import BasicBase
+from PyFFI.Bases.Delegate import DelegateSpinBox
+from PyFFI.Bases.Delegate import DelegateFloatSpinBox
+from PyFFI.Bases.Delegate import DelegateLineEdit
 
-class Int(BasicBase):
+class Int(BasicBase,DelegateSpinBox):
     """Basic implementation of a 32-bit signed integer type. Also serves as a
     base class for all other integer types.
 
@@ -115,13 +118,20 @@ class Int(BasicBase):
     def __str__(self):
         return str(self.getValue())
 
-    def getSize(self, **kwargs):
+    @classmethod
+    def getSize(cls, **kwargs):
         """Return size of this type."""
-        return self._size
+        return cls._size
 
     def getHash(self, **kwargs):
         """Return a hash value for this value."""
         return self.getValue()
+
+    def qDelegateMinimum(self):
+        return self._min
+
+    def qDelegateMaximum(self):
+        return self._max
 
 class UInt(Int):
     """Implementation of a 32-bit unsigned integer type."""
@@ -158,7 +168,7 @@ class UShort(UInt):
     _struct = 'H'
     _size = 2
 
-class Char(BasicBase):
+class Char(BasicBase,DelegateLineEdit):
     """Implementation of an 8-bit ASCII character."""
     def __init__(self, **kwargs):
         super(Char, self).__init__(**kwargs)
@@ -193,7 +203,7 @@ class Char(BasicBase):
         """Return a hash value for this value."""
         self.getValue()
 
-class Float(BasicBase):
+class Float(BasicBase,DelegateFloatSpinBox):
     """Implementation of a 32-bit float."""
     def __init__(self, **kwargs):
         super(Float, self).__init__(**kwargs)
