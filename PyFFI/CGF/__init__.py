@@ -447,12 +447,25 @@ WARNING: expected instance of %s
         table = cls.ChunkTable()
         table.read(stream, version = hdr.version)
 
+        # get the chunk sizes (for double checking that we have all data)
+        chunk_offsets = [ chunkhdr.offset for chunkhdr in table.chunkHeaders ]
+        chunk_offsets.append(hdr.offset)
+        chunk_sizes = []
+        for chunkhdr in table.chunkHeaders:
+            next_chunk_offsets = [ offset for offset in chunk_offsets
+                                   if offset > chunkhdr.offset ]
+            if next_chunk_offsets:
+                chunk_sizes.append(min(next_chunk_offsets) - chunkhdr.offset)
+            else:
+                stream.seek(0, 2)
+                chunk_sizes.append(stream.tell() - chunkhdr.offset)
+
         # read the chunks
         link_stack = [] # list of chunk identifiers, as added to the stack
         chunk_dct = {} # maps chunk index to actual chunk
         chunks = [] # records all chunks as read from cgf file in proper order
         versions = [] # records all chunk versions as read from cgf file
-        for chunkhdr in table.chunkHeaders:
+        for chunknum, chunkhdr in enumerate(table.chunkHeaders):
             # check that id is unique
             if chunkhdr.id in chunk_dct:
                 raise ValueError('chunk id %i not unique'%chunkhdr.id)
@@ -502,12 +515,27 @@ WARNING: expected instance of %s
                     raise ValueError(
                         'chunk starts with invalid header:\n\
 expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
+            else:
+                chunkhdr_copy = None
 
             chunk.read(
                 stream, version = chunkhdr.version, link_stack = link_stack)
             chunks.append(chunk)
             versions.append(chunkhdr.version)
             chunk_dct[chunkhdr.id] = chunk
+
+            # calculate size
+            size = chunk.getSize(version = chunkhdr.version)
+            # take into account header copy
+            if chunkhdr_copy:
+                size += chunkhdr_copy.getSize(version = hdr.version)
+            # padding
+            size += ((4 - size & 3) & 3)
+            if size != chunk_sizes[chunknum]:
+                print("""\
+WARNING: chunk size mismatch when reading %s
+         expected %i bytes but got %i bytes"""
+                      % (chunk.__class__.__name__, chunk_sizes[chunknum], size))
 
         # fix links
         for chunk, version in zip(chunks, versions):

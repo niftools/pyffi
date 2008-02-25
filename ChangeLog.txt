@@ -5,6 +5,7 @@ extend
 * new common string types
 * qskope: no more duplicate ptr refs in global view
 * cgf: some new crysis chunks have been partially decoded
+* cgf: added extra chunk size check on read
 
 Version 0.9.1 (22 Feb 2008)
 * full support for the xml bitstruct tag (for types that contain bit flags)
