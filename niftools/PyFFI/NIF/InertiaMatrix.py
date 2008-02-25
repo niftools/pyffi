@@ -35,7 +35,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-# ***** END LICENCE BLOCK *****
+# ***** END LICENSE BLOCK *****
 
 def asList(self):
     """Return matrix as 3x3 list."""

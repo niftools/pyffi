@@ -35,7 +35,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-# ***** END LICENCE BLOCK *****
+# ***** END LICENSE BLOCK *****
 
 def find(self, block_name = None, block_type = None):
     # does this block match the search criteria?

@@ -48,7 +48,7 @@ Not all of these three functions need to be present."""
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-# ***** END LICENCE BLOCK *****
+# ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
 import sys, os

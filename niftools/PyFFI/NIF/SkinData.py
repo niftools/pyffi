@@ -2,7 +2,7 @@
 # NifFormat.SkinData
 # Custom functions for SkinData.
 # --------------------------------------------------------------------------
-# ***** BEGIN LICENCE BLOCK *****
+# ***** BEGIN LICENSE BLOCK *****
 #
 # Copyright (c) 2007-2008, NIF File Format Library and Tools.
 # All rights reserved.
