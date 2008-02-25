@@ -40,11 +40,12 @@
 from PyQt4 import QtCore, QtGui
 
 # each delegate type corresponds to a QtGui delegate type
-from PyFFI.Bases.Delegate import DelegateSpinBox      # -> QSpinBox
-from PyFFI.Bases.Delegate import DelegateFloatSpinBox # -> QDoubleSpinBox
+# (see _checkValidDelegate for more details)
 from PyFFI.Bases.Delegate import DelegateComboBox     # -> QComboBox
-from PyFFI.Bases.Delegate import DelegateLineEdit     # -> QLineEdit
+from PyFFI.Bases.Delegate import DelegateFloatSpinBox # -> QDoubleSpinBox
+from PyFFI.Bases.Delegate import DelegateSpinBox      # -> QSpinBox
 from PyFFI.Bases.Delegate import DelegateTextEdit     # -> QTextEdit
+from PyFFI.Bases.Delegate import DelegateLineEdit     # -> QLineEdit
 
 # implementation details:
 # http://doc.trolltech.com/4.3/model-view-delegate.html
@@ -57,8 +58,6 @@ class DetailDelegate(QtGui.QItemDelegate):
         If data and editor do not correspond to one another, then a ValueError is
         raised.
 
-        This function is only used for internal debugging purposes.
-
         All functions checking for delegate base classes should respect
         the order in this function, because a class may derive from more than
         one delegate class. So this function determines which editor is
@@ -68,10 +67,15 @@ class DetailDelegate(QtGui.QItemDelegate):
           - SpinBox
           - TextEdit
           - LineEdit
+
+        This function is only used for internal debugging purposes.
         """
-        # check complex instances (that derive from simpler ones) first
+        # the general idea is to check complex instances (that derive from
+        # simpler ones) first
         
         # check combo box
+        # (some combo types may also derive from spin box such as bools,
+        # in that case prefer the combo box representation)
         if isinstance(data, DelegateComboBox):
             isvalid = isinstance(editor, QtGui.QComboBox)
         # check float spin box

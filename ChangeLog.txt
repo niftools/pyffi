@@ -1,5 +1,9 @@
 Version 0.9.2 (***)
 * nifoptimize clamps material alpha to [0,1]
+* improved delegate editor system so it is more transparent and much easier to
+extend
+* new common string types
+* cgf: some new crysis chunks have been partially decoded
 
 Version 0.9.1 (22 Feb 2008)
 * full support for the xml bitstruct tag (for types that contain bit flags)
