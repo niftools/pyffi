@@ -178,7 +178,6 @@ from PyFFI import MetaXmlFileFormat
 from PyFFI import Utils
 from PyFFI import Common
 from PyFFI.Bases.Basic import BasicBase
-from PyFFI.Bases.Delegate import DelegateBoolComboBox
 
 class CgfFormat(object):
     """Stores all information about the cgf file format."""
@@ -199,14 +198,25 @@ class CgfFormat(object):
     ushort = Common.UShort
     char = Common.Char
     float = Common.Float
+    bool = Common.Bool
+    String = Common.ZString
+    SizedString = Common.SizedString
 
-    class bool(Common.UByte,DelegateBoolComboBox):
-        """Simple bool implementation."""
-        def getValue(self):
-            return False if self._value == '\x00' else True
+    class String32(Common.FixedString):
+        """String of fixed length 32."""
+        _len = 32
 
-        def setValue(self, value):
-            self._value = '\x01' if value else '\x00'
+    class String64(Common.FixedString):
+        """String of fixed length 64."""
+        _len = 64
+
+    class String128(Common.FixedString):
+        """String of fixed length 128."""
+        _len = 128
+
+    class String256(Common.FixedString):
+        """String of fixed length 256."""
+        _len = 256
 
     class FileSignature(BasicBase):
         """The CryTek file signature 'CryTex\x00\x00' with which every
@@ -247,164 +257,6 @@ class CgfFormat(object):
         def getHash(self, **kwargs):
             """Get signature hash value."""
             return self.__str__()
-
-    class String(BasicBase):
-        """String of variable length (null terminated)."""
-        def __init__(self, **kwargs):
-            super(CgfFormat.String, self).__init__(**kwargs)
-            self._value = ""
-
-        def __str__(self):
-            if not self._value:
-                return '<EMPTY STRING>'
-            return self._value
-
-        def getValue(self):
-            """Return the string."""
-            return self._value
-
-        def setValue(self, value):
-            """Set the string."""
-            val = str(value)
-            i = val.find('\x00')
-            if i != -1:
-                val = val[:i]
-            self._value = val
-
-        def read(self, stream, **kwargs):
-            """Read string from stream."""
-            i = 0
-            self._value = ''
-            char = ''
-            while char != '\x00':
-                i += 1
-                if i > 1000:
-                    raise ValueError('string too long')
-                self._value += char
-                char = stream.read(1)
-
-        def write(self, stream, **kwargs):
-            """Write string to stream."""
-            stream.write(self._value)
-            stream.write('\x00')
-
-        def getSize(self, **kwargs):
-            """Return string size in bytes."""
-            return len(self._value) + 1
-
-        def getHash(self, **kwargs):
-            """Return hash value for the string."""
-            return self._value
-
-    class String32(BasicBase):
-        """String of fixed length 32."""
-        _len = 32
-        
-        def __init__(self, **kwargs):
-            super(CgfFormat.String32, self).__init__(**kwargs)
-            self._value = ""
-
-        def __str__(self):
-            if not self._value:
-                return '<EMPTY STRING>'
-            return self._value
-
-        def getValue(self):
-            """Return the string."""
-            return self._value
-
-        def setValue(self, value):
-            """Set the string."""
-            val = str(value)
-            if len(val) > self._len:
-                raise ValueError("string '%s' too long" % val)
-            self._value = val
-
-        def read(self, stream, **kwargs):
-            """Read string from stream."""
-            self._value = stream.read(self._len)
-            i = self._value.find('\x00')
-            if i != -1:
-                self._value = self._value[:i]
-
-        def write(self, stream, **kwargs):
-            """Write string to stream."""
-            stream.write(self._value.ljust(self._len, "\x00"))
-
-        def getSize(self, **kwargs):
-            """Return string size in bytes."""
-            return self._len
-
-        def getHash(self, **kwargs):
-            """Return hash value for the string."""
-            return self._value
-
-    class String64(String32):
-        """String of fixed length 64."""
-        _len = 64
-
-    class String128(String32):
-        """String of fixed length 128."""
-        _len = 128
-
-    class String256(String32):
-        """String of fixed length 256."""
-        _len = 256
-
-    class SizedString(BasicBase):
-        """Basic type for strings.
-
-        >>> from tempfile import TemporaryFile
-        >>> f = TemporaryFile()
-        >>> s = CgfFormat.SizedString()
-        >>> f.write('\\x07\\x00\\x00\\x00abcdefg')
-        >>> f.seek(0)
-        >>> s.read(f)
-        >>> str(s)
-        'abcdefg'
-        >>> f.seek(0)
-        >>> s.setValue('Hi There')
-        >>> s.write(f)
-        >>> f.seek(0)
-        >>> m = CgfFormat.SizedString()
-        >>> m.read(f)
-        >>> str(m)
-        'Hi There'
-        """
-        def __init__(self, **kwargs):
-            BasicBase.__init__(self, **kwargs)            
-            self.setValue('')
-
-        def getValue(self):
-            return self._value
-
-        def setValue(self, value):
-            if len(value) > 10000:
-                raise ValueError('string too long')
-            self._value = str(value)
-
-        def __str__(self):
-            s = self._value
-            if not s:
-                return '<EMPTY STRING>'
-            return s
-
-        def getSize(self, **kwargs):
-            return 4 + len(self._value)
-
-        def getHash(self, **kwargs):
-            return self.getValue()
-
-        def read(self, stream, **kwargs):
-            n, = struct.unpack('<I', stream.read(4))
-            if n > 10000:
-                raise ValueError('string too long (0x%08X at 0x%08X)'
-                                 % (n, stream.tell()))
-            self._value = stream.read(n)
-
-        def write(self, stream, **kwargs):
-            stream.write(struct.pack('<I', len(self._value)))
-            stream.write(self._value)
 
     class Ref(BasicBase):
         """Reference to a chunk, up the hierarchy."""

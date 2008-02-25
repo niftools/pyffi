@@ -46,31 +46,50 @@ class DelegateBase(object):
         return self.getValue()
 
 class DelegateSpinBox(DelegateBase):
-    """Requirement: getValue must return an integer."""
+    """Abstract base class for data that can be edited with a spin box that
+    contains an integer. Override qDelegateMinimum and qDelegateMaximum to
+    set the minimum and maximum values that the spin box may contain.
+
+    Requirement: getValue must return an integer."""
     def qDelegateMinimum(self):
         return -0x80000000
 
     def qDelegateMaximum(self):
         return 0x7fffffff
 
-class DelegateFloatSpinBox(DelegateBase):
-    """Requirement: getValue must return a float."""
+class DelegateFloatSpinBox(DelegateSpinBox):
+    """Abstract base class for data that can be edited with a spin box that
+    contains a float. Override qDelegateDecimals to set the number of decimals
+    in the editor display.
 
-    def qDelegateMinimum(self):
-        return float(-0x80000000)
-
-    def qDelegateMaximum(self):
-        return float(0x7fffffff)
+    Requirement: getValue must return a float."""
 
     def qDelegateDecimals(self):
         return 5
 
 class DelegateLineEdit(DelegateBase):
-    """Requirement: getValue must return a string."""
+    """Abstract base class for data that can be edited with a single line
+    editor.
+
+    Requirement: getValue must return a string."""
+    def qDelegateDisplay(self):
+        val = self.getValue()
+        if len(val) > 32:
+            return val[:29] + "..."
+        else:
+            return val
+
+class DelegateTextEdit(DelegateLineEdit):
+    """Abstract base class for data that can be edited with a multiline editor.
+
+    Requirement: getValue must return a string."""
     pass
 
 class DelegateComboBox(DelegateBase):
-    """Requirement: getValue must return an integer."""
+    """Abstract base class for data that can be edited with combo boxes.
+    This can be used for for instance enum types.
+
+    Requirement: getValue must return an integer."""
 
     def qDelegateKeys(self):
         """List or tuple of strings, each string describing an item."""
@@ -85,6 +104,9 @@ class DelegateComboBox(DelegateBase):
         raise NotImplementedError
 
 class DelegateBoolComboBox(DelegateComboBox):
+    """Abstract base class for data that can be edited with a bool combo box.
+
+    Requirement: getValue must return a bool."""
     def qDelegateKeys(self):
         return ("False", "True")
 
