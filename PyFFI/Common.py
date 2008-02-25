@@ -105,7 +105,7 @@ class Int(BasicBase, DelegateSpinBox):
                     raise ValueError(
                         "cannot convert value '%s' to integer"%value)
         if val < self._min or val > self._max:
-            raise ValueError('value out of range (%i)'%self.getValue())
+            raise ValueError('value out of range (%i)' % val)
         self._value = struct.pack('<' + self._struct, val)
 
     def read(self, stream, **kwargs):
