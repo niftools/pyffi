@@ -95,14 +95,22 @@ class GlobalModel(QtCore.QAbstractItemModel):
                         self.parentDict[refblock] = block
                         self.refDict[block].append(refblock)
                 for refblock in block.getLinks():
-                    if not refblock in self.refDict[block]:
-                        # create a wrapper around the block
-                        ptrblock = StructPtr(refblock)
-                        # store the references
-                        self.parentDict[ptrblock] = block 
-                        self.refDict[block].append(ptrblock)
-                        # no children
-                        self.refDict[ptrblock] = []
+                    # check all other links
+                    # already added?
+                    if refblock in self.refDict[block]:
+                        continue
+                    # already added as StructPtr?
+                    if refblock in [ blk.ptr
+                                     for blk in self.refDict[block]
+                                     if isinstance(blk, StructPtr) ]:
+                        continue
+                    # create a wrapper around the block
+                    ptrblock = StructPtr(refblock)
+                    # store the references
+                    self.parentDict[ptrblock] = block 
+                    self.refDict[block].append(ptrblock)
+                    # no children
+                    self.refDict[ptrblock] = []
                 # check if it has a qBlockParent
                 blockparent = block.qBlockParent()
                 if blockparent and not block in self.refDict[blockparent]:
