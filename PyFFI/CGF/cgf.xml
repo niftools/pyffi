@@ -492,6 +492,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <version num="745">Far Cry, Crysis</version>
         <add name="Num Names" type="uint" />
         <add name="Names" type="String" arr1="Num Names" />
+        <add name="Unknown Int" type="uint" />
     </struct>
 
     <struct name="LightChunk" inherit="Chunk">
