@@ -384,12 +384,11 @@ class NifFormat(object):
     BlockTypeIndex = Common.UShort
     StringOffset = Common.UInt
     StringIndex = Common.UInt
-
-
+    SizedString = Common.SizedString
 
     # implementation of nif-specific basic types
 
-    class bool(BasicBase,DelegateBoolComboBox):
+    class bool(BasicBase, DelegateBoolComboBox):
         """Basic implementation of a 32-bit (8-bit for versions > 4.0.0.2)
         boolean type.
         
@@ -661,57 +660,6 @@ class NifFormat(object):
 
         def write(self, stream, **kwargs):
             stream.write(struct.pack('<I', kwargs.get('version')))
-
-    class SizedString(BasicBase):
-        """Basic type for strings.
-
-        >>> from tempfile import TemporaryFile
-        >>> f = TemporaryFile()
-        >>> s = NifFormat.SizedString()
-        >>> f.write('\\x07\\x00\\x00\\x00abcdefg')
-        >>> f.seek(0)
-        >>> s.read(f)
-        >>> str(s)
-        'abcdefg'
-        >>> f.seek(0)
-        >>> s.setValue('Hi There')
-        >>> s.write(f)
-        >>> f.seek(0)
-        >>> m = NifFormat.SizedString()
-        >>> m.read(f)
-        >>> str(m)
-        'Hi There'
-        """
-        def __init__(self, **kwargs):
-            BasicBase.__init__(self, **kwargs)            
-            self.setValue('')
-
-        def getValue(self):
-            return self._value
-
-        def setValue(self, value):
-            if len(value) > 10000: raise ValueError('string too long')
-            self._value = str(value)
-
-        def __str__(self):
-            s = self._value
-            if not s: return '<EMPTY STRING>'
-            return s
-
-        def getSize(self, **kwargs):
-            return 4+len(self._value)
-
-        def getHash(self, **kwargs):
-            return self.getValue()
-
-        def read(self, stream, **kwargs):
-            n, = struct.unpack('<I', stream.read(4))
-            if n > 10000: raise ValueError('string too long (0x%08X at 0x%08X)'%(n, stream.tell()))
-            self._value = stream.read(n)
-
-        def write(self, stream, **kwargs):
-            stream.write(struct.pack('<I', len(self._value)))
-            stream.write(self._value)
 
     class ShortString(BasicBase):
         """Another type for strings."""
