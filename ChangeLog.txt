@@ -1,11 +1,16 @@
-Version 0.9.2 (***)
-* nifoptimize clamps material alpha to [0,1]
-* improved delegate editor system so it is more transparent and much easier to
-extend
-* new common string types
+Version 0.9.2 (26 Feb 2008)
+* full support for the xml enum tag type, with improved editor in qskope
+* new common string types (shared between cgf and nif formats)
+  - null terminated
+  - fixed sized
+  - variable sized starting with integer describing length
 * qskope: no more duplicate ptr refs in global view
-* cgf: some new crysis chunks have been partially decoded
-* cgf: added extra chunk size check on read
+* qskope: refactored delegate editor system to be more transparent and much
+easier to extend
+* cgf: crysis chunks have been partially decoded (still very much wip)
+* cgf: added extra chunk size check on read to aid decoding
+* dds: register dds extension with qskope on windows install
+* nif: nifoptimize clamps material alpha to [0,1]
 
 Version 0.9.1 (22 Feb 2008)
 * full support for the xml bitstruct tag (for types that contain bit flags)

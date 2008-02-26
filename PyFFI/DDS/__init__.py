@@ -22,7 +22,7 @@ Read a DDS file
 32
 
 Create a DDS file from scratch and write to file
--------------------------------------------------
+------------------------------------------------
 
 >>> header = DdsFormat.Header()
 >>> from tempfile import TemporaryFile
