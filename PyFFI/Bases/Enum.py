@@ -38,20 +38,21 @@
 # ***** END LICENSE BLOCK *****
 
 import struct
+from functools import izip
 
 from PyFFI.Bases.Basic import BasicBase
 from PyFFI.Bases.Delegate import DelegateComboBox
 
 class _MetaEnumBase(type):
-    """This metaclass checks for the presence of a _enumitems, _enumvalues,
+    """This metaclass checks for the presence of _enumkeys, _enumvalues,
     and _numbytes attributes. It also adds enum class attributes.
 
     Used as metaclass of EnumBase."""
     def __init__(cls, name, bases, dct):
         super(_MetaEnumBase, cls).__init__(name, bases, dct)
         # consistency checks
-        if not '_enumitems' in dct:
-            raise TypeError('%s: missing _enumitems attribute'%cls)
+        if not '_enumkeys' in dct:
+            raise TypeError('%s: missing _enumkeys attribute'%cls)
         if not '_enumvalues' in dct:
             raise TypeError('%s: missing _enumvalues attribute'%cls)
         if not '_numbytes' in dct:
@@ -81,12 +82,12 @@ class _MetaEnumBase(type):
         cls._max = (1 << (cls._numbytes * 8)) - 1
 
         # set enum values as class attributes
-        for item, value in zip(cls._enumitems, cls._enumvalues):
+        for item, value in izip(cls._enumkeys, cls._enumvalues):
             setattr(cls, item, value)
 
 class EnumBase(BasicBase,DelegateComboBox):
     __metaclass__ = _MetaEnumBase
-    _enumitems = []
+    _enumkeys = []
     _enumvalues = []
     _numbytes = 1 # default width of an enum
 
@@ -110,7 +111,7 @@ class EnumBase(BasicBase,DelegateComboBox):
             try:
                 val = int(value, 16) # for '0x...' strings
             except ValueError:
-                if value in self._enumitems:
+                if value in self._enumkeys:
                     val = getattr(self, value)
                 else:
                     raise ValueError(
@@ -129,7 +130,7 @@ class EnumBase(BasicBase,DelegateComboBox):
 
     def __str__(self):
         try:
-            return self._enumitems[self._enumvalues.index(self.getValue())]
+            return self._enumkeys[self._enumvalues.index(self.getValue())]
         except ValueError:
             # not in _enumvalues list
             return "<INVALID (%i)>" % self.getValue()
@@ -148,7 +149,7 @@ class EnumBase(BasicBase,DelegateComboBox):
 
     def qDelegateKeys(self):
         """List or tuple of strings, each string describing an item."""
-        return self._enumitems
+        return self._enumkeys
 
     def qDelegateValue(self, index):
         """List or tuple of strings, each string describing an item."""
@@ -161,7 +162,7 @@ class EnumBase(BasicBase,DelegateComboBox):
     def qDataDisplay(self):
         """Return object that can be used to display the instance."""
         try:
-            return self._enumitems[self._enumvalues.index(self._value)]
+            return self._enumkeys[self._enumvalues.index(self._value)]
         except ValueError:
             # value self._value is not in the self._enumvalues list
             return "<INVALID (0x%08X)>" % self._value

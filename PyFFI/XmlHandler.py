@@ -391,7 +391,7 @@ class XmlSaxHandler(object, xml.sax.handler.ContentHandler):
                     numbytes = typ.getSize()
                 self.classDict = {"__doc__" : "",
                                   "_numbytes" : numbytes,
-                                  "_enumitems" : [], "_enumvalues" : []}
+                                  "_enumkeys" : [], "_enumvalues" : []}
 
             # fileformat -> alias
             elif tag == self.tagAlias:
@@ -440,7 +440,7 @@ but got %s instead"""%name)
                 value = int(value)
             except ValueError:
                 value = int(value, 16)
-            self.classDict["_enumitems"].append(attrs["name"])
+            self.classDict["_enumkeys"].append(attrs["name"])
             self.classDict["_enumvalues"].append(value)
 
         elif self.currentTag == self.tagBitStruct:
