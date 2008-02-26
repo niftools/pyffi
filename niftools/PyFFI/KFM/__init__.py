@@ -393,7 +393,6 @@ class KfmFormat(object):
         @param stream: The stream from which to read, typically a file or a
             memory stream such as cStringIO.
         @param version: The version number as obtained by getVersion.
-        @param user_version: The user version number as obtained by getVersion.
         @param verbose: The level of verbosity."""
         # read the file
         header = cls.Header()
