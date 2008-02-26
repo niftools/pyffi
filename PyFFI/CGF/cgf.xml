@@ -159,6 +159,14 @@
         <option value="11" name="CONST">constant</option>
     </enum>
 
+    <enum name="DataType" numbytes="4">
+        <option value="0" name="VERTICES" />
+        <option value="1" name="NORMALS" />
+        <option value="2" name="UVS" />
+        <option value="5" name="FACES" />
+        <option value="6" name="UNKNOWN" />
+    </enum>
+
     <!--
     ******************
     *** bitstructs ***
@@ -652,6 +660,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
     </struct>
 
     <struct name="Unknown15Chunk" inherit="Chunk">
+        Export info?
         <version num="1">Crysis</version>
         <add name="Unknown 1" type="int" arr1="5" />
         <add name="name" type="String128" />
@@ -659,14 +668,20 @@ In Python this can be calculated using zlib.crc32(name)</add>
     </struct>
 
     <struct name="Unknown16Chunk" inherit="Chunk">
+        Contains data such as vertices, normals, etc.
         <version num="800">Crysis</version>
-        <add name="Unknown 1" type="int" />
+        <add name="Unknown 1" type="int">Unknown</add>
+        <add name="Data Type" type="DataType">The type of data.</add>
+        <add name="Num Data" type="uint">Number of data entries.</add>
+        <add name="Bytes Per Data" type="uint">Bytes per data entry.</add>
         <add name="Unknown 2" type="int" />
-        <add name="Num UnknownX 1" type="uint" />
-        <add name="Num UnknownX 2" type="int" />
-        <add name="Unknown 4" type="int" />
-        <add name="Unknown 5" type="int" />
-        <add name="UnknownX" type="byte" arr1="Num UnknownX 1" arr2="Num UnknownX 2" />
+        <add name="Unknown 3" type="int" />
+        <!--<add name="Data" type="byte" arr1="Num UnknownX 1" arr2="Num UnknownX 2" />-->
+        <add name="Vertices" type="Vector3" arr1="Num Data" cond="Data Type == 0" />
+        <add name="Normals" type="Vector3" arr1="Num Data" cond="Data Type == 1" />
+        <add name="UVs" type="UV" arr1="Num Data" cond="Data Type == 2" />
+        <add name="Faces" type="short" arr1="Num Data" cond="Data Type == 5" />
+        <add name="Unknown Data" type="int" arr1="Num Data" arr2="4" cond="Data Type == 6" />
     </struct>
 
     <struct name="Unknown17Chunk" inherit="Chunk">
