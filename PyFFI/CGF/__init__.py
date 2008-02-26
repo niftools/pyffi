@@ -53,7 +53,8 @@ Create a CGF file from scratch
 ...     fileversion = CgfFormat.getFileVersion('Far Cry'),
 ...     chunks = chunks,
 ...     versions = CgfFormat.getChunkVersions('Far Cry', chunks),
-...     game = 'Far Cry')
+...     game = 'Far Cry') # note: returns number of padding bytes
+0
 >>> stream.close()
 >>> stream = open('testwrite.cgf', 'rb')
 >>> filetype, fileversion, game = CgfFormat.getVersion(stream)
