@@ -104,10 +104,10 @@
         <option value="0xCCCC0011" name="MeshMorphTarget">Describes a morph target of a mesh chunk</option>
         <option value="0xCCCC0012" name="BoneInitialPos">Describes the initial position (4x3 matrix) of each bone; just an array of 4x3 matrices</option>
         <option value="0xCCCC0013" name="SourceInfo">Describes the source from which the cgf was exported: source max file, machine and user.</option>
-        <option value="0xCCCC0014" name="Unknown14">Unknown chunk. Used in Crysis.</option>
-        <option value="0xCCCC0015" name="Unknown15">Unknown chunk. Used in Crysis.</option>
-        <option value="0xCCCC0016" name="Unknown16">Unknown chunk. Used in Crysis.</option>
-        <option value="0xCCCC0017" name="Unknown17">Unknown chunk. Used in Crysis.</option>
+        <option value="0xCCCC0014" name="MtlXml">Refers to a material described in an xml file.</option>
+        <option value="0xCCCC0015" name="ExportInfo">Describes export information?</option>
+        <option value="0xCCCC0016" name="Data">A data chunk used in Crysis.</option>
+        <option value="0xCCCC0017" name="MeshInfo">Describes extra mesh info.</option>
         <option value="0xCCCC0018" name="Unknown18">Unknown chunk. Used in Crysis.</option>
     </enum>
 
@@ -461,22 +461,46 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="In World Space" type="bool" ver2="623" />
         <add name="Reserved1" type="ubyte" ver1="744" ver2="744">Padding byte</add>
         <add name="Reserved2" type="ubyte" ver2="744">Padding byte</add>
-        <add name="Num Vertices" type="uint" ver2="744" />
+        <add name="Unknown 1" type="uint" ver1="800" />
+        <add name="Unknown 2" type="uint" ver1="800" />
+        <add name="Num Vertices" type="uint" />
+        <add name="Num Triangle Points" type="uint" ver1="800">Appears to be the number of triangles times 3.</add>
         <add name="Num UVs" type="uint" ver2="744" />
         <add name="Num Faces" type="uint" ver2="744" />
         <add name="Material" type="Ref" template="MtlChunk" ver2="623">Material chunk.</add>
         <add name="Property String Length" type="uint" ver2="623" />
         <add name="Vert Anim" type="Ref" template="VertAnimChunk" ver1="744" ver2="744" />
 
+        <add name="Unknown 3" type="uint" ver1="800" />
+        <add name="Mesh Info" type="Ref" template="Chunk" ver1="800" />
+        <add name="Unknown 4" type="uint" ver1="800" />
+        
         <add name="Vertices" type="Vertex" arr1="Num Vertices" ver2="744" />
+        <add name="Vertex Data" type="Ref" template="DataChunk" ver1="800" />
+        <add name="Normal Data" type="Ref" template="DataChunk" ver1="800" />
+        
         <add name="Faces" type="Face" arr1="Num Faces" ver2="744" />
+        
         <add name="UVs" type="UV" arr1="Num UVs" ver2="744" />
+        <add name="UV Data" type="Ref" template="DataChunk" ver1="800" />
+        
         <add name="UV Faces" type="UVFace" arr1="Num Faces" cond="Num UVs" ver2="744" />
+
+        <add name="Unknown 5" type="uint" ver1="800" />
+        <add name="Unknown 6" type="uint" ver1="800" />
+        <add name="Face Data" type="Ref" template="DataChunk" ver1="800" />
+
         <add name="Vertex Weights" type="VertexWeight" arr1="Num Vertices" cond="Has Vertex Weights" ver2="744" />
         <add name="Vertex Colors" type="IRGB" arr1="Num Vertices" cond="Has Vertex Colors" ver2="744" />
 
-        <add name="Unknown Ints" type="uint" arr1="24" ver1="800" />
-        <add name="Unknown Floats" type="float" arr1="41" ver1="800" />
+        <add name="Unknown Data" type="Ref" template="DataChunk" ver1="800" />
+
+        <add name="Unknown 7" type="uint" arr1="9" ver1="800" />
+        <add name="Unknown Link 3" type="Ref" template="Chunk" ver1="800" />
+        <add name="Unknown 8" type="uint" arr1="3" ver1="800" />
+        <add name="Min Bound" type="Vector3" ver1="800">Minimum coordinate values.</add>
+        <add name="Max Bound" type="Vector3" ver1="800">Maximum coordinate values.</add>
+        <add name="Unknown 9" type="uint" arr1="32" ver1="800" />
     </struct>
 
     <struct name="HelperChunk" inherit="Chunk">
@@ -539,7 +563,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Object" type="Ref" template="MeshChunk">Node object chunk (if present). Usually, a mesh.</add>
         <add name="Parent" type="Ptr" template="NodeChunk">Node parent.</add>
         <add name="Num Children" type="uint">Number of children.</add>
-        <add name="Material" type="Ref" template="MtlChunk">Material chunk.</add>
+        <add name="Material" type="Ref" template="MtlChunk">Material chunk or helper chunk.</add>
 
         <add name="Is Group Head" type="bool" />
         <add name="Is Group Member" type="bool" />
@@ -651,15 +675,15 @@ In Python this can be calculated using zlib.crc32(name)</add>
 
 <!-- crysis chunks -->
 
-    <struct name="Unknown14Chunk" inherit="Chunk">
+    <struct name="MtlXmlChunk" inherit="Chunk">
         <version num="800">Crysis</version>
         <add name="Unknown Int 1" type="int" />
         <add name="Unknown Int 2" type="int" />
-        <add name="Name" type="String32" />
-        <add name="Unknown 3" type="int" arr1="92" />
+        <add name="Name" type="String128" />
+        <add name="Unknown 3" type="int" arr1="68" />
     </struct>
 
-    <struct name="Unknown15Chunk" inherit="Chunk">
+    <struct name="ExportInfoChunk" inherit="Chunk">
         Export info?
         <version num="1">Crysis</version>
         <add name="Unknown 1" type="int" arr1="5" />
@@ -667,7 +691,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 2" type="int" arr1="4" />
     </struct>
 
-    <struct name="Unknown16Chunk" inherit="Chunk">
+    <struct name="DataChunk" inherit="Chunk">
         Contains data such as vertices, normals, etc.
         <version num="800">Crysis</version>
         <add name="Unknown 1" type="int">Unknown</add>
@@ -684,11 +708,11 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown Data" type="int" arr1="Num Data" arr2="4" cond="Data Type == 6" />
     </struct>
 
-    <struct name="Unknown17Chunk" inherit="Chunk">
+    <struct name="MeshInfoChunk" inherit="Chunk">
         <version num="800">Crysis</version>
         <add name="Unknown 1" type="int" arr1="9" />
-        <add name="Unknown 2" type="float" arr1="4" />
-        <add name="Unknown 3" type="int" arr1="9" />
+        <add name="Radius" type="float" />
+        <add name="Center" type="Vector3" />
     </struct>
 
     <struct name="Unknown18Chunk" inherit="Chunk">
