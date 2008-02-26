@@ -38,7 +38,7 @@
 # ***** END LICENSE BLOCK *****
 
 import struct
-from functools import izip
+from itertools import izip
 
 from PyFFI.Bases.Basic import BasicBase
 from PyFFI.Bases.Delegate import DelegateComboBox
