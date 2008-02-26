@@ -529,8 +529,18 @@ expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
             # take into account header copy
             if chunkhdr_copy:
                 size += chunkhdr_copy.getSize(version = hdr.version)
-            # padding
-            size += ((4 - size & 3) & 3)
+            # check with number of bytes read
+            if size != stream.tell() - chunkhdr.offset:
+                raise RuntimeError("""\
+BUG: getSize returns wrong size when reading %s
+     actual bytes read is %i, getSize yields %i""" % (chunk.__class__.__name__,
+                                                       size, chunkhdr.offset))
+            # check for padding bytes
+            if chunk_sizes[chunknum] & 3 == 0:
+                padlen = ((4 - size & 3) & 3)
+                assert(stream.read(padlen) == '\x00' * padlen)
+                size += ((4 - size & 3) & 3)
+            # check size
             if size != chunk_sizes[chunknum]:
                 print("""\
 WARNING: chunk size mismatch when reading %s
@@ -554,11 +564,14 @@ WARNING: chunk size mismatch when reading %s
               stream,
               filetype = None, fileversion = None, game = None,
               chunks = None, versions = None, verbose = 0):
-        """Write cgf to stream."""
+        """Write cgf to stream. Returns number of padding bytes written."""
         if game is None:
             print("WARNING: provide a game='Far Cry' or game='Crysis' argument to write")
             print("         assuming 'Far Cry'")
             game = 'Far Cry'
+
+        # variable to track number of padding bytes
+        total_padding = 0
 
         # write header
         hdr_pos = stream.tell()
@@ -583,8 +596,6 @@ WARNING: chunk size mismatch when reading %s
 
         for chunkhdr, chunk, version in zip(table.chunkHeaders,
                                             chunks, versions):
-            # write padding bytes to align blocks
-            stream.write( "\x00" * ((4 - stream.tell() & 3) & 3) )
             # set up chunk header
             chunkhdr.type = getattr(
                 cls.ChunkType, chunk.__class__.__name__[:-5])
@@ -603,6 +614,11 @@ WARNING: chunk size mismatch when reading %s
             # write chunk
             chunk.write(
                 stream, version = version, block_index_dct = block_index_dct)
+            # write padding bytes to align blocks
+            padlen = (4 - stream.tell() & 3) & 3
+            if padlen:
+                stream.write( "\x00" * padlen )
+                total_padding += padlen
 
         # write/update chunk table
         if game == "Crysis":
@@ -614,6 +630,9 @@ WARNING: chunk size mismatch when reading %s
         # update header
         stream.seek(hdr_pos)
         hdr.write(stream, version = fileversion)
+
+        # return number of padding bytes written
+        return total_padding
 
     @classmethod
     def getFileVersion(cls, game = 'Far Cry'):
@@ -627,20 +646,6 @@ WARNING: chunk size mismatch when reading %s
     def getChunkVersions(cls, game = 'Far Cry', chunks = None):
         """Return version list that matches the chunk list C{chunks} for the
         given C{game}."""
-        #version_dct = dict([
-        #    version_dct = dict([
-        #        (cls.MtlChunk, 0x746),
-        #        (cls.NodeChunk, 0x823),
-        #        (cls.TimingChunk, 0x918),
-        #        (cls.SourceInfoChunk, 0x000),
-        #        (cls.MeshChunk, 0x744),
-        #        (cls.ControllerChunk, 0x827),
-        #        (cls.BoneAnimChunk, 0x290),
-        #        (cls.BoneNameListChunk, 0x745),
-        #        (cls.MeshMorphTargetChunk, 0x001),
-        #        (cls.BoneInitialPosChunk, 0x001)])
-        #    # TODO add more chunks and their versions
-        #else:
         try:
             return [ max(chunk.getVersions(game)) for chunk in chunks ]
         except KeyError:
