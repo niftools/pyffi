@@ -648,12 +648,14 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown Int 1" type="int" />
         <add name="Unknown Int 2" type="int" />
         <add name="Name" type="String32" />
-        <add name="Unknown Int 3" type="int" arr1="92" />
+        <add name="Unknown 3" type="int" arr1="92" />
     </struct>
 
     <struct name="Unknown15Chunk" inherit="Chunk">
         <version num="1">Crysis</version>
-        <add name="Unknown Int 1" type="int" arr1="41" />
+        <add name="Unknown 1" type="int" arr1="5" />
+        <add name="name" type="String128" />
+        <add name="Unknown 2" type="int" arr1="4" />
     </struct>
 
     <struct name="Unknown16Chunk" inherit="Chunk">
@@ -662,7 +664,9 @@ In Python this can be calculated using zlib.crc32(name)</add>
 
     <struct name="Unknown17Chunk" inherit="Chunk">
         <version num="800">Crysis</version>
-        <add name="Unknown Int 1" type="int" arr1="22" />
+        <add name="Unknown 1" type="int" arr1="9" />
+        <add name="Unknown 2" type="float" arr1="4" />
+        <add name="Unknown 3" type="int" arr1="9" />
     </struct>
 
     <struct name="Unknown18Chunk" inherit="Chunk">
