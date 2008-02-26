@@ -660,6 +660,13 @@ In Python this can be calculated using zlib.crc32(name)</add>
 
     <struct name="Unknown16Chunk" inherit="Chunk">
         <version num="800">Crysis</version>
+        <add name="Unknown 1" type="int" />
+        <add name="Unknown 2" type="int" />
+        <add name="Num UnknownX 1" type="uint" />
+        <add name="Num UnknownX 2" type="int" />
+        <add name="Unknown 4" type="int" />
+        <add name="Unknown 5" type="int" />
+        <add name="UnknownX" type="byte" arr1="Num UnknownX 1" arr2="Num UnknownX 2" />
     </struct>
 
     <struct name="Unknown17Chunk" inherit="Chunk">
@@ -671,6 +678,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
 
     <struct name="Unknown18Chunk" inherit="Chunk">
         <version num="800">Crysis</version>
+        <add name="Unknown 1" type="ubyte" arr1="226" />
     </struct>
 
 </fileformat>
