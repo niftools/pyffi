@@ -531,21 +531,27 @@ expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
                 size += chunkhdr_copy.getSize(version = hdr.version)
             # check with number of bytes read
             if size != stream.tell() - chunkhdr.offset:
-                raise RuntimeError("""\
-BUG: getSize returns wrong size when reading %s
-     actual bytes read is %i, getSize yields %i""" % (chunk.__class__.__name__,
-                                                       size, chunkhdr.offset))
+                print("""\
+BUG: getSize returns wrong size when reading %s at 0x%08X
+     actual bytes read is %i, getSize yields %i (expected %i bytes)"""
+                                   % (chunk.__class__.__name__,
+                                      chunkhdr.offset,
+                                      size,
+                                      stream.tell() - chunkhdr.offset,
+                                      chunk_sizes[chunknum]))
             # check for padding bytes
             if chunk_sizes[chunknum] & 3 == 0:
                 padlen = ((4 - size & 3) & 3)
                 assert(stream.read(padlen) == '\x00' * padlen)
-                size += ((4 - size & 3) & 3)
+                size += padlen
             # check size
             if size != chunk_sizes[chunknum]:
                 print("""\
-WARNING: chunk size mismatch when reading %s
-         expected %i bytes but got %i bytes"""
-                      % (chunk.__class__.__name__, chunk_sizes[chunknum], size))
+WARNING: chunk size mismatch when reading %s at 0x%08X
+         %i bytes available, but actual bytes read is %i"""
+                      % (chunk.__class__.__name__,
+                         chunkhdr.offset,
+                         chunk_sizes[chunknum], size))
 
         # fix links
         for chunk, version in zip(chunks, versions):

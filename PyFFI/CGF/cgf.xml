@@ -104,7 +104,7 @@
         <option value="0xCCCC0011" name="MeshMorphTarget">Describes a morph target of a mesh chunk</option>
         <option value="0xCCCC0012" name="BoneInitialPos">Describes the initial position (4x3 matrix) of each bone; just an array of 4x3 matrices</option>
         <option value="0xCCCC0013" name="SourceInfo">Describes the source from which the cgf was exported: source max file, machine and user.</option>
-        <option value="0xCCCC0014" name="CrysisMtl">Unknown chunk. Used in Crysis.</option>
+        <option value="0xCCCC0014" name="Unknown14">Unknown chunk. Used in Crysis.</option>
         <option value="0xCCCC0015" name="Unknown15">Unknown chunk. Used in Crysis.</option>
         <option value="0xCCCC0016" name="Unknown16">Unknown chunk. Used in Crysis.</option>
         <option value="0xCCCC0017" name="Unknown17">Unknown chunk. Used in Crysis.</option>
@@ -448,24 +448,27 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <version num="744">Far Cry</version>
         <version num="800">Crysis</version>
         Geometry.
-        <add name="Has Vertex Weights" type="bool" />
-        <add name="Has Vertex Colors" type="bool" />
+        <add name="Has Vertex Weights" type="bool" ver2="744" />
+        <add name="Has Vertex Colors" type="bool" ver2="744"/>
         <add name="In World Space" type="bool" ver2="623" />
-        <add name="Reserved1" type="ubyte" ver1="744">Padding byte</add>
-        <add name="Reserved2" type="ubyte">Padding byte</add>
-        <add name="Num Vertices" type="uint" />
-        <add name="Num UVs" type="uint" />
-        <add name="Num Faces" type="uint" />
-        <add name="Material" type="Ref" template="MtlChunk" ver2="623">Material chunk or timing chunk.</add>
+        <add name="Reserved1" type="ubyte" ver1="744" ver2="744">Padding byte</add>
+        <add name="Reserved2" type="ubyte" ver2="744">Padding byte</add>
+        <add name="Num Vertices" type="uint" ver2="744" />
+        <add name="Num UVs" type="uint" ver2="744" />
+        <add name="Num Faces" type="uint" ver2="744" />
+        <add name="Material" type="Ref" template="MtlChunk" ver2="623">Material chunk.</add>
         <add name="Property String Length" type="uint" ver2="623" />
-        <add name="Vert Anim" type="Ref" template="VertAnimChunk" ver1="744" />
+        <add name="Vert Anim" type="Ref" template="VertAnimChunk" ver1="744" ver2="744" />
 
-        <add name="Vertices" type="Vertex" arr1="Num Vertices" />
-        <add name="Faces" type="Face" arr1="Num Faces" />
-        <add name="UVs" type="UV" arr1="Num UVs" />
-        <add name="UV Faces" type="UVFace" arr1="Num Faces" cond="Num UVs" />
-        <add name="Vertex Weights" type="VertexWeight" arr1="Num Vertices" cond="Has Vertex Weights" />
-        <add name="Vertex Colors" type="IRGB" arr1="Num Vertices" cond="Has Vertex Colors" />
+        <add name="Vertices" type="Vertex" arr1="Num Vertices" ver2="744" />
+        <add name="Faces" type="Face" arr1="Num Faces" ver2="744" />
+        <add name="UVs" type="UV" arr1="Num UVs" ver2="744" />
+        <add name="UV Faces" type="UVFace" arr1="Num Faces" cond="Num UVs" ver2="744" />
+        <add name="Vertex Weights" type="VertexWeight" arr1="Num Vertices" cond="Has Vertex Weights" ver2="744" />
+        <add name="Vertex Colors" type="IRGB" arr1="Num Vertices" cond="Has Vertex Colors" ver2="744" />
+
+        <add name="Unknown Ints" type="uint" arr1="24" ver1="800" />
+        <add name="Unknown Floats" type="float" arr1="41" ver1="800" />
     </struct>
 
     <struct name="HelperChunk" inherit="Chunk">
@@ -640,18 +643,17 @@ In Python this can be calculated using zlib.crc32(name)</add>
 
 <!-- crysis chunks -->
 
-    <struct name="CrysisMtlChunk" inherit="Chunk">
+    <struct name="Unknown14Chunk" inherit="Chunk">
         <version num="800">Crysis</version>
         <add name="Unknown Int 1" type="int" />
         <add name="Unknown Int 2" type="int" />
-        <add name="Name" type="String128" />
-        <add name="Unknown Int 6" type="int" />
-        <add name="Num Children" type="int" />
-        <add name="Children" type="Ref" template="CrysisMtlChunk" arr1="Num Children" />
+        <add name="Name" type="String32" />
+        <add name="Unknown Int 3" type="int" arr1="92" />
     </struct>
 
     <struct name="Unknown15Chunk" inherit="Chunk">
         <version num="1">Crysis</version>
+        <add name="Unknown Int 1" type="int" arr1="41" />
     </struct>
 
     <struct name="Unknown16Chunk" inherit="Chunk">
@@ -660,6 +662,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
 
     <struct name="Unknown17Chunk" inherit="Chunk">
         <version num="800">Crysis</version>
+        <add name="Unknown Int 1" type="int" arr1="22" />
     </struct>
 
     <struct name="Unknown18Chunk" inherit="Chunk">
