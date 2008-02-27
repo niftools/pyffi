@@ -543,7 +543,7 @@ BUG: getSize returns wrong size when reading %s at 0x%08X
             # check for padding bytes
             if chunk_sizes[chunknum] & 3 == 0:
                 padlen = ((4 - size & 3) & 3)
-                assert(stream.read(padlen) == '\x00' * padlen)
+                #assert(stream.read(padlen) == '\x00' * padlen)
                 size += padlen
             # check size
             if size != chunk_sizes[chunknum]:

@@ -431,6 +431,16 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Vertex Target" type="Vector3">The morphed vertex coordinates.</add>
     </struct>
 
+    <struct name="MeshInfo">
+        <add name="Unknown 1" type="int" />
+        <add name="Num Triangle Points" type="uint" />
+        <add name="Unknown 2" type="int" />
+        <add name="Num Vertices" type="uint" />
+        <add name="Unknown 3" type="int" />
+        <add name="Radius" type="float" />
+        <add name="Center" type="Vector3" />
+    </struct>
+
     <!--real file blocks-->
 
     <struct name="Header">
@@ -705,14 +715,16 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Normals" type="Vector3" arr1="Num Data" cond="Data Type == 1" />
         <add name="UVs" type="UV" arr1="Num Data" cond="Data Type == 2" />
         <add name="Faces" type="short" arr1="Num Data" cond="Data Type == 5" />
-        <add name="Unknown Data" type="int" arr1="Num Data" arr2="4" cond="Data Type == 6" />
+        <add name="Unknown Data" type="short" arr1="Num Data" arr2="8" cond="Data Type == 6" />
     </struct>
 
     <struct name="MeshInfoChunk" inherit="Chunk">
         <version num="800">Crysis</version>
-        <add name="Unknown 1" type="int" arr1="9" />
-        <add name="Radius" type="float" />
-        <add name="Center" type="Vector3" />
+        <add name="Unknown 1" type="int" />
+        <add name="Num Info" type="int" />
+        <add name="Unknown 3" type="int" />
+        <add name="Unknown 4" type="int" />
+        <add name="Info" type="MeshInfo" arr1="Num Info" />
     </struct>
 
     <struct name="Unknown18Chunk" inherit="Chunk">
