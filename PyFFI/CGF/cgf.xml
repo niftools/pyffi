@@ -107,7 +107,7 @@
         <option value="0xCCCC0014" name="MtlXml">Refers to a material described in an xml file.</option>
         <option value="0xCCCC0015" name="ExportInfo">Describes export information?</option>
         <option value="0xCCCC0016" name="Data">A data chunk used in Crysis.</option>
-        <option value="0xCCCC0017" name="MeshInfo">Describes extra mesh info.</option>
+        <option value="0xCCCC0017" name="MeshMtlInfo">Describes mesh material information.</option>
         <option value="0xCCCC0018" name="Unknown18">Unknown chunk. Used in Crysis.</option>
     </enum>
 
@@ -431,12 +431,12 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Vertex Target" type="Vector3">The morphed vertex coordinates.</add>
     </struct>
 
-    <struct name="MeshInfo">
-        <add name="Unknown 1" type="int" />
+    <struct name="MeshMtlInfo">
+        <add name="First Triangle Point" type="uint" />
         <add name="Num Triangle Points" type="uint" />
-        <add name="Unknown 2" type="int" />
+        <add name="First Vertex" type="uint" />
         <add name="Num Vertices" type="uint" />
-        <add name="Unknown 3" type="int" />
+        <add name="Material" type="int" />
         <add name="Radius" type="float" />
         <add name="Center" type="Vector3" />
     </struct>
@@ -718,13 +718,13 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown Data" type="short" arr1="Num Data" arr2="8" cond="Data Type == 6" />
     </struct>
 
-    <struct name="MeshInfoChunk" inherit="Chunk">
+    <struct name="MeshMtlInfoChunk" inherit="Chunk">
         <version num="800">Crysis</version>
         <add name="Unknown 1" type="int" />
-        <add name="Num Info" type="int" />
+        <add name="Num Materials" type="int" />
         <add name="Unknown 3" type="int" />
         <add name="Unknown 4" type="int" />
-        <add name="Info" type="MeshInfo" arr1="Num Info" />
+        <add name="Materials" type="MeshMtlInfo" arr1="Num Materials" />
     </struct>
 
     <struct name="Unknown18Chunk" inherit="Chunk">
