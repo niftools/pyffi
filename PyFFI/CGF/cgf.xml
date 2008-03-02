@@ -163,6 +163,7 @@
         <option value="0" name="VERTICES" />
         <option value="1" name="NORMALS" />
         <option value="2" name="UVS" />
+        <option value="3" name="COLORS" />
         <option value="5" name="FACES" />
         <option value="6" name="UNKNOWN" />
     </enum>
@@ -365,6 +366,14 @@
         <add name="b" type="ubyte" />
     </struct>
     
+    <struct name="IRGBA">
+        R8G8B8A8.
+        <add name="r" type="ubyte" />
+        <add name="g" type="ubyte" />
+        <add name="b" type="ubyte" />
+        <add name="a" type="ubyte" />
+    </struct>
+    
     <struct name="FRGB">
         R32G32B32 (float).
         <add name="r" type="float" />
@@ -496,7 +505,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
         
         <add name="UV Faces" type="UVFace" arr1="Num Faces" cond="Num UVs" ver2="744" />
 
-        <add name="Unknown 5" type="uint" ver1="800" />
+        <add name="Vertex Colors" type="Ref" template="DataChunk" ver1="800" />
         <add name="Unknown 6" type="uint" ver1="800" />
         <add name="Face Data" type="Ref" template="DataChunk" ver1="800" />
 
@@ -714,8 +723,9 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Vertices" type="Vector3" arr1="Num Data" cond="Data Type == 0" />
         <add name="Normals" type="Vector3" arr1="Num Data" cond="Data Type == 1" />
         <add name="UVs" type="UV" arr1="Num Data" cond="Data Type == 2" />
+        <add name="Vertex Colors" type="IRGBA" arr1="Num Data" cond="Data Type == 3" />
         <add name="Faces" type="short" arr1="Num Data" cond="Data Type == 5" />
-        <add name="Unknown Data" type="short" arr1="Num Data" arr2="8" cond="Data Type == 6" />
+        <add name="Unknown Data 2" type="short" arr1="Num Data" arr2="8" cond="Data Type == 6" />
     </struct>
 
     <struct name="MeshMtlInfoChunk" inherit="Chunk">
@@ -727,9 +737,38 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Materials" type="MeshMtlInfo" arr1="Num Materials" />
     </struct>
 
+    <struct name="Unknown18Struct">
+        <add name="Unknown 1" type="Matrix33" />
+        <add name="Unknown 2" type="float" arr1="6" />
+        <add name="Unknown 3" type="int" arr1="3" />
+    </struct>
+
     <struct name="Unknown18Chunk" inherit="Chunk">
         <version num="800">Crysis</version>
-        <add name="Unknown 1" type="ubyte" arr1="226" />
+        <add name="Unknown 0" type="int" />
+        <add name="Unknown 1" type="int" arr1="5" />
+        <add name="Unknown 3" type="int" />
+        <add name="Unknown 4" type="int" />
+        <add name="Unknown 5" type="float" arr1="11" />
+        <add name="Unknown 10" type="int" />
+        <add name="Unknown 11" type="int" />
+        <add name="Unknown 12" type="float">Not sure whether this is a float.</add>
+        <add name="Unknown 13" type="float">Not sure either.</add>
+        <add name="Unknown 14" type="int" />
+        <add name="Num 1" type="uint" />
+        <add name="Num 2" type="uint" />
+        <add name="Unknown 17" type="int" />
+        <add name="Unknown 18" type="int" />
+        <add name="Unknown 19" type="ubyte" />
+        <add name="Unknown 20" type="short" arr1="Num 1" />
+        <add name="Unknown 21" type="ubyte" />
+        <add name="Unknown 30" type="Vector3" arr1="Num 1" />
+        <add name="Unknown 40" type="short" arr1="Num 2" arr2="3">Triangles?</add>
+        <add name="Unknown 50" type="ubyte" arr1="110">Not sure, probably has more structure.</add>
+        <add name="Num Unknown Struct" type="uint" />
+        <add name="Unknown Structs" type="Unknown18Struct" arr1="Num Unknown Struct" />
+<!--
+-->
     </struct>
 
 </fileformat>
