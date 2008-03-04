@@ -45,3 +45,41 @@ def applyScale(self, scale):
         vert.p.x *= scale
         vert.p.y *= scale
         vert.p.z *= scale
+
+def getVertices(self):
+    """Generator for all vertices."""
+    if self.vertices:
+        for vert in self.vertices:
+            yield vert.p
+    elif self.vertexData:
+        for vert in self.vertexData.vertices:
+            yield vert
+
+def getNormals(self):
+    """Generator for all normals."""
+    if self.vertices:
+        for vert in self.vertices:
+            yield vert.n
+    elif self.normalData:
+        for norm in self.normalData.normals:
+            yield norm
+
+def getNumTriangles(self):
+    """Get number of triangles."""
+    if self.faces:
+        return self.numFaces
+    elif self.faceData:
+        return self.faceData.numData // 3
+    else:
+        return 0
+
+def getTriangles(self):
+    """Generator for all triangles."""
+    if self.faces:
+        for face in self.faces:
+            yield face.v0, face.v1, face.v2
+    elif self.faceData:
+        it = iter(self.faceData.faces)
+        while True:
+           yield it.next(), it.next(), it.next()
+

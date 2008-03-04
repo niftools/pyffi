@@ -513,7 +513,8 @@ WARNING: expected instance of %s
                    or chunkhdr_copy.version != chunkhdr.version \
                    or chunkhdr_copy.offset != chunkhdr.offset \
                    or chunkhdr_copy.id != chunkhdr.id:
-                    raise ValueError(
+                    #raise ValueError(
+                    print(
                         'chunk starts with invalid header:\n\
 expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
             else:
