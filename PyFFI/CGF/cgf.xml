@@ -745,7 +745,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
 
     <struct name="Unknown18Chunk" inherit="Chunk">
         <version num="800">Crysis</version>
-        <add name="Unknown 0" type="int" />
+        <add name="Num Bytes" type="uint">Size of this structure minus 24.</add>
         <add name="Unknown 1" type="int" arr1="5" />
         <add name="Unknown 3" type="int" />
         <add name="Unknown 4" type="int" />
@@ -762,12 +762,13 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 19" type="ubyte" />
         <add name="Unknown 20" type="short" arr1="Num 1" />
         <add name="Unknown 21" type="ubyte" />
-        <add name="Unknown 30" type="Vector3" arr1="Num 1" />
-        <add name="Unknown 40" type="short" arr1="Num 2" arr2="3">Triangles?</add>
-        <add name="Unknown 50" type="ubyte" arr1="110">Not sure, probably has more structure.</add>
+        <add name="Unknown 22" type="short" arr1="Num 2" cond="Unknown 21 == 1" />
+        <add name="Unknown 30" type="Vector3" arr1="Num 1" cond="Unknown 21 == 0"/>
+        <add name="Unknown 40" type="short" arr1="Num 2" arr2="3" cond="Unknown 21 == 0">Triangles?</add>
+<!--
+        <add name="Unknown 50" type="ubyte" arr1="110">Not sure, has more structure, variable size.</add>
         <add name="Num Unknown Struct" type="uint" />
         <add name="Unknown Structs" type="Unknown18Struct" arr1="Num Unknown Struct" />
-<!--
 -->
     </struct>
 
