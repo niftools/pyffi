@@ -848,10 +848,25 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <version num="920">Crysis</version>
         <version num="921">Crysis</version>
         <version num="922">Crysis</version>
-    </struct>
+        <add name="Speed" type="float" />
+        <add name="Distance" type="float" />
+        <add name="Slope" type="float" />
+        <add name="Looped" type="int" />
+        <add name="Move Direction" type="Vector3" ver1="921" />
+        <add name="Start Position" type="Quat" ver1="922" />
+        </struct>
 
     <struct name="FootPlantInfoChunk" inherit="Chunk">
         <version num="920">Crysis</version>
+        <add name="Num Poses" type="uint" />
+        <add name="L Heel Start" type="float" />
+        <add name="L Heel End" type="float" />
+        <add name="L Toe0 Start" type="float" />
+        <add name="L Toe0 End" type="float" />
+        <add name="R Heel Start" type="float" />
+        <add name="R Heel End" type="float" />
+        <add name="R Toe0 Start" type="float" />
+        <add name="R Toe0 End" type="float" />
     </struct>
 
     <struct name="BonesBoxesChunk" inherit="Chunk">
