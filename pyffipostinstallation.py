@@ -107,8 +107,10 @@ else:
                      _winreg.REG_SZ, "NetImmerseFile")
         createsubkey(_winreg.HKEY_CLASSES_ROOT, ".kfm",
                      _winreg.REG_SZ, "NetImmerseFile")
-        # register the .cgf extension
+        # register the .cgf and .chr extensions
         createsubkey(_winreg.HKEY_CLASSES_ROOT, ".cgf",
+                     _winreg.REG_SZ, "CrytekGeometryFile")
+        createsubkey(_winreg.HKEY_CLASSES_ROOT, ".chr",
                      _winreg.REG_SZ, "CrytekGeometryFile")
         # register the .dds extension (using DirectX SDK association)
         createsubkey(_winreg.HKEY_CLASSES_ROOT, ".dds",
