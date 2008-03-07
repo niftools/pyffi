@@ -129,6 +129,7 @@
         <option value="1" name="DUMMY" />
         <option value="2" name="XREF" />
         <option value="3" name="CAMERA" />
+        <option value="4" name="GEOMETRY" />
     </enum>
 
     <enum name="TextureMappingType" numbytes="1">
@@ -236,11 +237,19 @@
         <bits name="Bone Indices" numbits="1" />
     </bitstruct>
     
+    <bitstruct name="ExportFlags" numbytes="4">
+        <bits name="Merge All Nodes" numbits="1" />
+    </bitstruct>
+
     <!--
     ***************
     *** structs ***
     ***************
     -->
+
+    <struct name="String16">
+        <add name="Data" type="char" arr1="16" />
+    </struct>
 
     <struct name="String32">
         <add name="Data" type="char" arr1="32" />
@@ -419,6 +428,14 @@
         <add name="r" type="float" />
         <add name="g" type="float" />
         <add name="b" type="float" />
+    </struct>
+
+    <struct name="Tangent">
+        Tangents. Divide each component by 32767 to get the actual value.
+        <add name="x" type="short" />
+        <add name="y" type="short" />
+        <add name="z" type="short" />
+        <add name="w" type="short" default="-32767">Not used?</add>
     </struct>
     
     <struct name="FileSignature">
@@ -628,7 +645,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Object" type="Ref" template="MeshChunk">Node object chunk (if present). Usually, a mesh.</add>
         <add name="Parent" type="Ptr" template="NodeChunk">Node parent.</add>
         <add name="Num Children" type="uint">Number of children.</add>
-        <add name="Material" type="Ref" template="MtlChunk">Material chunk or helper chunk.</add>
+        <add name="Material" type="Ref" template="AbstractMtlChunk">Material chunk or helper chunk.</add>
 
         <add name="Is Group Head" type="bool" />
         <add name="Is Group Member" type="bool" />
@@ -647,7 +664,11 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Children" type="Ref" template="NodeChunk" arr1="Num Children">Children.</add>
     </struct>
 
-    <struct name="MtlChunk" inherit="Chunk">
+    <struct name="AbstractMtlChunk" inherit="Chunk">
+        Common parent for MtlChunk and MtlNameChunk.
+    </struct>
+    
+    <struct name="MtlChunk" inherit="AbstractMtlChunk">
         <version num="744">Far Cry</version>
         <version num="745">Far Cry</version>
         <version num="746">Far Cry</version>
@@ -740,7 +761,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
 
 <!-- crysis chunks -->
 
-    <struct name="MtlNameChunk" inherit="Chunk">
+    <struct name="MtlNameChunk" inherit="AbstractMtlChunk">
         <version num="800">Crysis</version>
         <add name="Flags 1" type="MtlNameFlags" />
         <add name="Flags 2" type="uint" />
@@ -755,11 +776,12 @@ In Python this can be calculated using zlib.crc32(name)</add>
     </struct>
 
     <struct name="ExportFlagsChunk" inherit="Chunk">
-        Export info?
+        Export information.
         <version num="1">Crysis</version>
-        <add name="Unknown 1" type="int" arr1="5" />
-        <add name="name" type="String128" />
-        <add name="Unknown 2" type="int" arr1="4" />
+        <add name="Flags" type="ExportFlags" />
+        <add name="RC Version" type="uint" arr1="4" />
+        <add name="RC Version String" type="String16" />
+        <add name="Reserved" type="uint" arr1="32" />
     </struct>
 
     <struct name="DataStreamChunk" inherit="Chunk">
@@ -777,7 +799,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Colors" type="IRGBA" arr1="Num Elements" cond="Data Stream Type == 3" />
         <add name="Colors 2" type="IRGBA" arr1="Num Elements" cond="Data Stream Type == 4" />
         <add name="Indices" type="short" arr1="Num Elements" cond="Data Stream Type == 5" />
-        <add name="Tangents" type="short" arr1="Num Elements" arr2="8" cond="Data Stream Type == 6" />
+        <add name="Tangents" type="Tangent" arr1="Num Elements" arr2="2" cond="Data Stream Type == 6" />
         <add name="Sh Coeffs" type="ubyte" arr1="Num Elements" arr2="Bytes Per Element" cond="Data Stream Type == 7" />
         <add name="Shape Deformation" type="ubyte" arr1="Num Elements" arr2="Bytes Per Element" cond="Data Stream Type == 8" />
         <add name="Bone Map" type="ubyte" arr1="Num Elements" arr2="Bytes Per Element" cond="Data Stream Type == 9" />
@@ -802,9 +824,15 @@ In Python this can be calculated using zlib.crc32(name)</add>
 
     <struct name="MeshPhysicsDataChunk" inherit="Chunk">
         <version num="800">Crysis</version>
-        <add name="Num Bytes" type="uint">Size of this structure minus 24.</add>
-        <add name="Unknown 1" type="int" arr1="5" />
-        <add name="Unknown 3" type="int" />
+        <add name="Physics Data Size" type="uint">Size of the physical data at the end of the chunk.</add>
+        <add name="Flags" type="uint">Not used?</add>
+        <add name="Tetrahedra Data Size" type="uint" />
+        <add name="Tetrahedra" type="Ref" template="DataStreamChunk">Not sure which type this should be.</add>
+        <add name="Reserved 1" type="uint" />
+        <add name="Reserved 2" type="uint" />
+        <add name="Physics Data" type="ubyte" arr1="Physics Data Size" />
+        <add name="Tetrahedra Data" type="ubyte" arr1="Tetrahedra Data Size" />
+        <!-- the following is an experimental decoding of the physics data
         <add name="Unknown 4" type="int" />
         <add name="Unknown 5" type="float" arr1="11" />
         <add name="Unknown 10" type="int" />
@@ -822,7 +850,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 22" type="short" arr1="Num 2" cond="Unknown 21 == 1" />
         <add name="Unknown 30" type="Vector3" arr1="Num 1" cond="Unknown 21 == 0"/>
         <add name="Unknown 40" type="short" arr1="Num 2" arr2="3" cond="Unknown 21 == 0">Triangles?</add>
-<!--
+
         <add name="Unknown 50" type="ubyte" arr1="110">Not sure, has more structure, variable size.</add>
         <add name="Num Unknown Struct" type="uint" />
         <add name="Unknown Structs" type="PhysicsStruct" arr1="Num Unknown Struct" />

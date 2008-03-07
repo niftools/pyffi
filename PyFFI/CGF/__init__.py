@@ -203,6 +203,10 @@ class CgfFormat(object):
     String = Common.ZString
     SizedString = Common.SizedString
 
+    class String16(Common.FixedString):
+        """String of fixed length 16."""
+        _len = 16
+
     class String32(Common.FixedString):
         """String of fixed length 32."""
         _len = 32
