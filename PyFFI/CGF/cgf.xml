@@ -104,19 +104,24 @@
         <option value="0xCCCC0011" name="MeshMorphTarget">Describes a morph target of a mesh chunk</option>
         <option value="0xCCCC0012" name="BoneInitialPos">Describes the initial position (4x3 matrix) of each bone; just an array of 4x3 matrices</option>
         <option value="0xCCCC0013" name="SourceInfo">Describes the source from which the cgf was exported: source max file, machine and user.</option>
-        <option value="0xCCCC0014" name="MtlXml">Refers to a material described in an xml file.</option>
-        <option value="0xCCCC0015" name="ExportInfo">Describes export information?</option>
-        <option value="0xCCCC0016" name="Data">A data chunk used in Crysis.</option>
-        <option value="0xCCCC0017" name="MeshMtlInfo">Describes mesh material information.</option>
-        <option value="0xCCCC0018" name="Unknown18">Unknown chunk. Used in Crysis.</option>
-        <option value="0xACDC0000" name="UnknownChrACDC0">Unknown chunk. Used in Crysis.</option>
-        <option value="0xACDC0001" name="UnknownChrACDC1">Unknown chunk. Used in Crysis.</option>
-        <option value="0xACDC0002" name="UnknownChrACDC2">Unknown chunk. Used in Crysis.</option>
-        <option value="0xACDC0003" name="UnknownChrACDC3">Unknown chunk. Used in Crysis.</option>
-        <option value="0xACDC0004" name="UnknownChrACDC4">Unknown chunk. Used in Crysis.</option>
-        <option value="0xACDC0005" name="UnknownChrACDC5">Unknown chunk. Used in Crysis.</option>
-        <option value="0xACDC0006" name="UnknownChrACDC6">Unknown chunk. Used in Crysis.</option>
-        <option value="0xAAFC0004" name="UnknownChrAAFC4">Unknown chunk. Used in Crysis.</option>
+        <!-- the following chunk types are crysis exclusive -->
+        <option value="0xCCCC0014" name="MtlName">Provides material name (as used in the material xml file).</option>
+        <option value="0xCCCC0015" name="ExportFlags">Describes export information.</option>
+        <option value="0xCCCC0016" name="DataStream">A data stream.</option>
+        <option value="0xCCCC0017" name="MeshSubsets">Describes an array of mesh subsets.</option>
+        <option value="0xCCCC0018" name="MeshPhysicsData">Physicalized mesh data.</option>
+        <option value="0xACDC0000" name="CompiledBones">Unknown chunk. Used in Crysis.</option>
+        <option value="0xACDC0001" name="CompiledPhysicalBones">Unknown chunk. Used in Crysis.</option>
+        <option value="0xACDC0002" name="CompiledMorphTargets">Unknown chunk. Used in Crysis.</option>
+        <option value="0xACDC0003" name="CompiledPhysicalProxies">Unknown chunk. Used in Crysis.</option>
+        <option value="0xACDC0004" name="CompiledIntFaces">Unknown chunk. Used in Crysis.</option>
+        <option value="0xACDC0005" name="CompiledIntSkinVertices">Unknown chunk. Used in Crysis.</option>
+        <option value="0xACDC0006" name="CompiledExt2IntMap">Unknown chunk. Used in Crysis.</option>
+        <option value="0xAAFC0000" name="BreakablePhysics">Unknown chunk. Used in Crysis.</option>
+        <option value="0xAAFC0001" name="FaceMap">Unknown chunk. Used in Crysis.</option>
+        <option value="0xAAFC0002" name="SpeedInfo">Speed and distant info.</option>
+        <option value="0xAAFC0003" name="FootPlantInfo">Footplant information.</option>
+        <option value="0xAAFC0004" name="BonesBoxes">Unknown chunk. Used in Crysis.</option>
     </enum>
 
     <enum name="HelperType" numbytes="1">
@@ -448,7 +453,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Vertex Target" type="Vector3">The morphed vertex coordinates.</add>
     </struct>
 
-    <struct name="MeshMtlInfo">
+    <struct name="MeshSubset">
         <add name="First Triangle Point" type="uint" />
         <add name="Num Triangle Points" type="uint" />
         <add name="First Vertex" type="uint" />
@@ -503,24 +508,24 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 4" type="uint" ver1="800" />
         
         <add name="Vertices" type="Vertex" arr1="Num Vertices" ver2="744" />
-        <add name="Vertex Data" type="Ref" template="DataChunk" ver1="800" />
-        <add name="Normal Data" type="Ref" template="DataChunk" ver1="800" />
+        <add name="Vertex Data" type="Ref" template="DataStreamChunk" ver1="800" />
+        <add name="Normal Data" type="Ref" template="DataStreamChunk" ver1="800" />
         
         <add name="Faces" type="Face" arr1="Num Faces" ver2="744" />
         
         <add name="UVs" type="UV" arr1="Num UVs" ver2="744" />
-        <add name="UV Data" type="Ref" template="DataChunk" ver1="800" />
+        <add name="UV Data" type="Ref" template="DataStreamChunk" ver1="800" />
         
         <add name="UV Faces" type="UVFace" arr1="Num Faces" cond="Num UVs" ver2="744" />
 
-        <add name="Vertex Colors" type="Ref" template="DataChunk" ver1="800" />
+        <add name="Vertex Colors" type="Ref" template="DataStreamChunk" ver1="800" />
         <add name="Unknown 6" type="uint" ver1="800" />
-        <add name="Face Data" type="Ref" template="DataChunk" ver1="800" />
+        <add name="Face Data" type="Ref" template="DataStreamChunk" ver1="800" />
 
         <add name="Vertex Weights" type="VertexWeight" arr1="Num Vertices" cond="Has Vertex Weights" ver2="744" />
         <add name="Vertex Colors" type="IRGB" arr1="Num Vertices" cond="Has Vertex Colors" ver2="744" />
 
-        <add name="Unknown Data" type="Ref" template="DataChunk" ver1="800" />
+        <add name="Unknown Data" type="Ref" template="DataStreamChunk" ver1="800" />
 
         <add name="Unknown 7" type="uint" arr1="9" ver1="800" />
         <add name="Unknown Link 3" type="Ref" template="Chunk" ver1="800" />
@@ -702,7 +707,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
 
 <!-- crysis chunks -->
 
-    <struct name="MtlXmlChunk" inherit="Chunk">
+    <struct name="MtlNameChunk" inherit="Chunk">
         <version num="800">Crysis</version>
         <add name="Unknown Int 1" type="int" />
         <add name="Unknown Int 2" type="int" />
@@ -710,7 +715,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 3" type="int" arr1="68" />
     </struct>
 
-    <struct name="ExportInfoChunk" inherit="Chunk">
+    <struct name="ExportFlagsChunk" inherit="Chunk">
         Export info?
         <version num="1">Crysis</version>
         <add name="Unknown 1" type="int" arr1="5" />
@@ -718,7 +723,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 2" type="int" arr1="4" />
     </struct>
 
-    <struct name="DataChunk" inherit="Chunk">
+    <struct name="DataStreamChunk" inherit="Chunk">
         Contains data such as vertices, normals, etc.
         <version num="800">Crysis</version>
         <add name="Unknown 1" type="int">Unknown</add>
@@ -736,22 +741,22 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown Data 2" type="short" arr1="Num Data" arr2="8" cond="Data Type == 6" />
     </struct>
 
-    <struct name="MeshMtlInfoChunk" inherit="Chunk">
+    <struct name="MeshSubsetsChunk" inherit="Chunk">
         <version num="800">Crysis</version>
         <add name="Unknown 1" type="int" />
-        <add name="Num Materials" type="int" />
+        <add name="Num Meshes" type="int" />
         <add name="Unknown 3" type="int" />
         <add name="Unknown 4" type="int" />
-        <add name="Materials" type="MeshMtlInfo" arr1="Num Materials" />
+        <add name="Meshes" type="MeshSubset" arr1="Num Meshes" />
     </struct>
 
-    <struct name="Unknown18Struct">
+    <struct name="PhysicsStruct">
         <add name="Unknown 1" type="Matrix33" />
         <add name="Unknown 2" type="float" arr1="6" />
         <add name="Unknown 3" type="int" arr1="3" />
     </struct>
 
-    <struct name="Unknown18Chunk" inherit="Chunk">
+    <struct name="MeshPhysicsDataChunk" inherit="Chunk">
         <version num="800">Crysis</version>
         <add name="Num Bytes" type="uint">Size of this structure minus 24.</add>
         <add name="Unknown 1" type="int" arr1="5" />
@@ -776,40 +781,56 @@ In Python this can be calculated using zlib.crc32(name)</add>
 <!--
         <add name="Unknown 50" type="ubyte" arr1="110">Not sure, has more structure, variable size.</add>
         <add name="Num Unknown Struct" type="uint" />
-        <add name="Unknown Structs" type="Unknown18Struct" arr1="Num Unknown Struct" />
+        <add name="Unknown Structs" type="PhysicsStruct" arr1="Num Unknown Struct" />
 -->
     </struct>
 
-    <struct name="UnknownChrACDC0Chunk" inherit="Chunk">
+    <struct name="CompiledBonesChunk" inherit="Chunk">
         <version num="800">Crysis</version>
     </struct>
 
-    <struct name="UnknownChrACDC1Chunk" inherit="Chunk">
+    <struct name="CompiledPhysicalBonesChunk" inherit="Chunk">
         <version num="800">Crysis</version>
     </struct>
 
-    <struct name="UnknownChrACDC2Chunk" inherit="Chunk">
+    <struct name="CompiledMorphTargetsChunk" inherit="Chunk">
         <version num="800">Crysis</version>
         <version num="801">Crysis</version>
     </struct>
 
-    <struct name="UnknownChrACDC3Chunk" inherit="Chunk">
+    <struct name="CompiledPhysicalProxiesChunk" inherit="Chunk">
         <version num="800">Crysis</version>
     </struct>
 
-    <struct name="UnknownChrACDC4Chunk" inherit="Chunk">
+    <struct name="CompiledIntFacesChunk" inherit="Chunk">
         <version num="800">Crysis</version>
     </struct>
 
-    <struct name="UnknownChrACDC5Chunk" inherit="Chunk">
+    <struct name="CompiledIntSkinVerticesChunk" inherit="Chunk">
         <version num="800">Crysis</version>
     </struct>
 
-    <struct name="UnknownChrACDC6Chunk" inherit="Chunk">
+    <struct name="CompiledExt2IntMapChunk" inherit="Chunk">
         <version num="800">Crysis</version>
     </struct>
 
-    <struct name="UnknownChrAAFC4Chunk" inherit="Chunk">
+    <struct name="BreakablePhysicsChunk" inherit="Chunk">
+        <version num="800">Crysis</version>
+    </struct>
+
+    <struct name="FaceMapChunk" inherit="Chunk">
+        <version num="800">Crysis</version>
+    </struct>
+
+    <struct name="SpeedInfoChunk" inherit="Chunk">
+        <version num="800">Crysis</version>
+    </struct>
+
+    <struct name="FootPlantInfoChunk" inherit="Chunk">
+        <version num="800">Crysis</version>
+    </struct>
+
+    <struct name="BonesBoxesChunk" inherit="Chunk">
         <version num="800">Crysis</version>
         <version num="801">Crysis</version>
     </struct>
