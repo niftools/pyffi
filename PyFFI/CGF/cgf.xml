@@ -146,6 +146,14 @@
         <option value="3" name="TWOSIDED" />
     </enum>
 
+    <enum name="MtlNamePhysicsType" numbytes="4">
+        <option value="0xffffffff" name="NONE" />
+        <option value="0" name="DEFAULT" />
+        <option value="1" name="NOCOLLIDE" />
+        <option value="3" name="OBSTRUCT" />
+        <option value="256" name="DEFAULTPROXY" />
+    </enum>
+    
     <enum name="LightType" numbytes="4">
         <option value="0" name="OMNI" />
         <option value="1" name="SPOT" />
@@ -720,7 +728,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Flags 1" type="MtlNameFlags" />
         <add name="Flags 2" type="uint" />
         <add name="Name" type="String128">Material/shader name.</add>
-        <add name="Physicalize Type" type="uint" />
+        <add name="Physics Type" type="MtlNamePhysicsType" />
         <add name="Num Sub Materials" type="uint" />
         <add name="Sub Materials" type="Ref" template="MtlNameChunk" arr1="Num Sub Materials" />
         <add name="Padding" type="uint" arr1="32 - Num Sub Materials" />
