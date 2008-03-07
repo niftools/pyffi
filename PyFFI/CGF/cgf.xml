@@ -180,13 +180,19 @@
         <option value="11" name="CONST">constant</option>
     </enum>
 
-    <enum name="DataType" numbytes="4">
+    <enum name="DataStreamType" numbytes="4">
         <option value="0" name="VERTICES" />
         <option value="1" name="NORMALS" />
         <option value="2" name="UVS" />
         <option value="3" name="COLORS" />
-        <option value="5" name="FACES" />
-        <option value="6" name="UNKNOWN" />
+        <option value="3" name="COLORS2" />
+        <option value="5" name="INDICES" />
+        <option value="6" name="TANGENTS" />
+        <option value="7" name="SHCOEFFS" />
+        <option value="8" name="SHAPEDEFORMATION" />
+        <option value="9" name="BONEMAP" />
+        <option value="10" name="FACEMAP" />
+        <option value="11" name="VERTMATS" />
     </enum>
 
     <!--
@@ -507,48 +513,48 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Has Vertex Weights" type="bool" ver2="744" />
         <add name="Has Vertex Colors" type="bool" ver2="744"/>
         <add name="In World Space" type="bool" ver2="623" />
-        <add name="Reserved1" type="ubyte" ver1="744" ver2="744">Padding byte</add>
-        <add name="Reserved2" type="ubyte" ver2="744">Padding byte</add>
-        <add name="Unknown 1" type="uint" ver1="800" />
-        <add name="Unknown 2" type="uint" ver1="800" />
+        <add name="Reserved 1" type="ubyte" ver1="744" ver2="744">Padding byte</add>
+        <add name="Reserved 2" type="ubyte" ver2="744">Padding byte</add>
+        <add name="Flags 1" type="uint" ver1="800" />
+        <add name="Flags 2" type="uint" ver1="800" />
         <add name="Num Vertices" type="uint" />
-        <add name="Num Triangle Points" type="uint" ver1="800">Appears to be the number of triangles times 3.</add>
+        <add name="Num Indices" type="uint" ver1="800">Number of indices (each triangle has 3 indices, so this is the number of triangles times 3).</add>
         <add name="Num UVs" type="uint" ver2="744" />
         <add name="Num Faces" type="uint" ver2="744" />
         <add name="Material" type="Ref" template="MtlChunk" ver2="623">Material chunk.</add>
-        <add name="Property String Length" type="uint" ver2="623" />
-        <add name="Vert Anim" type="Ref" template="VertAnimChunk" ver1="744" ver2="744" />
-
-        <add name="Unknown 3" type="uint" ver1="800" />
-        <add name="Mesh Info" type="Ref" template="Chunk" ver1="800" />
-        <add name="Unknown 4" type="uint" ver1="800" />
+        <!-- mesh chunks of version 0x623 never encountered, and the next field is very confusing, so deleted -->
+        <!--<add name="Property String Length" type="uint" ver2="623" />-->
+        <add name="Num Mesh Subsets" type="uint" ver1="800">Number of mesh subsets.</add>
+        <add name="Mesh Subsets" type="Ref" template="MeshSubsetsChunk" ver1="800" />
+        <add name="Vert Anim" type="Ref" template="VertAnimChunk" ver1="744" />
         
         <add name="Vertices" type="Vertex" arr1="Num Vertices" ver2="744" />
-        <add name="Vertex Data" type="Ref" template="DataStreamChunk" ver1="800" />
-        <add name="Normal Data" type="Ref" template="DataStreamChunk" ver1="800" />
         
         <add name="Faces" type="Face" arr1="Num Faces" ver2="744" />
         
         <add name="UVs" type="UV" arr1="Num UVs" ver2="744" />
-        <add name="UV Data" type="Ref" template="DataStreamChunk" ver1="800" />
-        
         <add name="UV Faces" type="UVFace" arr1="Num Faces" cond="Num UVs" ver2="744" />
-
-        <add name="Vertex Colors" type="Ref" template="DataStreamChunk" ver1="800" />
-        <add name="Unknown 6" type="uint" ver1="800" />
-        <add name="Face Data" type="Ref" template="DataStreamChunk" ver1="800" />
 
         <add name="Vertex Weights" type="VertexWeight" arr1="Num Vertices" cond="Has Vertex Weights" ver2="744" />
         <add name="Vertex Colors" type="IRGB" arr1="Num Vertices" cond="Has Vertex Colors" ver2="744" />
 
-        <add name="Unknown Data" type="Ref" template="DataStreamChunk" ver1="800" />
-
-        <add name="Unknown 7" type="uint" arr1="9" ver1="800" />
-        <add name="Unknown Link 3" type="Ref" template="Chunk" ver1="800" />
-        <add name="Unknown 8" type="uint" arr1="3" ver1="800" />
+        <add name="Vertices Data" type="Ref" template="DataStreamChunk" ver1="800" />
+        <add name="Normals Data" type="Ref" template="DataStreamChunk" ver1="800" />
+        <add name="UV Data" type="Ref" template="DataStreamChunk" ver1="800" />
+        <add name="Colors Data" type="Ref" template="DataStreamChunk" ver1="800" />
+        <add name="Colors 2 Data" type="Ref" template="DataStreamChunk" ver1="800" />
+        <add name="Indices Data" type="Ref" template="DataStreamChunk" ver1="800" />
+        <add name="Tangents Data" type="Ref" template="DataStreamChunk" ver1="800" />
+        <add name="Sh Coeffs Data" type="Ref" template="DataStreamChunk" ver1="800" />
+        <add name="Shape Deformation Data" type="Ref" template="DataStreamChunk" ver1="800" />
+        <add name="Bone Map Data" type="Ref" template="DataStreamChunk" ver1="800" />
+        <add name="Face Map Data" type="Ref" template="DataStreamChunk" ver1="800" />
+        <add name="Vert Mats Data" type="Ref" template="DataStreamChunk" ver1="800" />
+        <add name="Reserved Data" type="Ref" template="DataStreamChunk" arr1="4" ver1="800" />
+        <add name="Physics Data" type="Ref" template="MeshPhysicsDataChunk" arr1="4" ver1="800" />
         <add name="Min Bound" type="Vector3" ver1="800">Minimum coordinate values.</add>
         <add name="Max Bound" type="Vector3" ver1="800">Maximum coordinate values.</add>
-        <add name="Unknown 9" type="uint" arr1="32" ver1="800" />
+        <add name="Reserved 3" type="uint" arr1="32" ver1="800" />
     </struct>
 
     <struct name="HelperChunk" inherit="Chunk">
@@ -748,19 +754,25 @@ In Python this can be calculated using zlib.crc32(name)</add>
     <struct name="DataStreamChunk" inherit="Chunk">
         Contains data such as vertices, normals, etc.
         <version num="800">Crysis</version>
-        <add name="Unknown 1" type="int">Unknown</add>
-        <add name="Data Type" type="DataType">The type of data.</add>
-        <add name="Num Data" type="uint">Number of data entries.</add>
-        <add name="Bytes Per Data" type="uint">Bytes per data entry.</add>
-        <add name="Unknown 2" type="int" />
-        <add name="Unknown 3" type="int" />
+        <add name="Flags" type="uint">Not used.</add>
+        <add name="Data Stream Type" type="DataStreamType">The type of data.</add>
+        <add name="Num Elements" type="uint">Number of data entries.</add>
+        <add name="Bytes Per Element" type="uint">Bytes per data entry.</add>
+        <add name="Reserved 1" type="uint" />
+        <add name="Reserved 2" type="uint" />
         <!--<add name="Data" type="byte" arr1="Num UnknownX 1" arr2="Num UnknownX 2" />-->
-        <add name="Vertices" type="Vector3" arr1="Num Data" cond="Data Type == 0" />
-        <add name="Normals" type="Vector3" arr1="Num Data" cond="Data Type == 1" />
-        <add name="UVs" type="UV" arr1="Num Data" cond="Data Type == 2" />
-        <add name="Vertex Colors" type="IRGBA" arr1="Num Data" cond="Data Type == 3" />
-        <add name="Faces" type="short" arr1="Num Data" cond="Data Type == 5" />
-        <add name="Unknown Data 2" type="short" arr1="Num Data" arr2="8" cond="Data Type == 6" />
+        <add name="Vertices" type="Vector3" arr1="Num Elements" cond="Data Stream Type == 0" />
+        <add name="Normals" type="Vector3" arr1="Num Elements" cond="Data Stream Type == 1" />
+        <add name="UVs" type="UV" arr1="Num Elements" cond="Data Stream Type == 2" />
+        <add name="Colors" type="IRGBA" arr1="Num Elements" cond="Data Stream Type == 3" />
+        <add name="Colors 2" type="IRGBA" arr1="Num Elements" cond="Data Stream Type == 4" />
+        <add name="Indices" type="short" arr1="Num Elements" cond="Data Stream Type == 5" />
+        <add name="Tangents" type="short" arr1="Num Elements" arr2="8" cond="Data Stream Type == 6" />
+        <add name="Sh Coeffs" type="ubyte" arr1="Num Elements" arr2="Bytes Per Element" cond="Data Stream Type == 7" />
+        <add name="Shape Deformation" type="ubyte" arr1="Num Elements" arr2="Bytes Per Element" cond="Data Stream Type == 8" />
+        <add name="Bone Map" type="ubyte" arr1="Num Elements" arr2="Bytes Per Element" cond="Data Stream Type == 9" />
+        <add name="Face Map" type="ubyte" arr1="Num Elements" arr2="Bytes Per Element" cond="Data Stream Type == 10" />
+        <add name="Vert Mats" type="ubyte" arr1="Num Elements" arr2="Bytes Per Element" cond="Data Stream Type == 11" />
     </struct>
 
     <struct name="MeshSubsetsChunk" inherit="Chunk">
@@ -854,7 +866,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Looped" type="int" />
         <add name="Move Direction" type="Vector3" ver1="921" />
         <add name="Start Position" type="Quat" ver1="922" />
-        </struct>
+    </struct>
 
     <struct name="FootPlantInfoChunk" inherit="Chunk">
         <version num="920">Crysis</version>
