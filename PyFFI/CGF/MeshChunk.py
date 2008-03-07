@@ -51,8 +51,8 @@ def getVertices(self):
     if self.vertices:
         for vert in self.vertices:
             yield vert.p
-    elif self.vertexData:
-        for vert in self.vertexData.vertices:
+    elif self.verticesData:
+        for vert in self.verticesData.vertices:
             yield vert
 
 def getNormals(self):
@@ -60,16 +60,16 @@ def getNormals(self):
     if self.vertices:
         for vert in self.vertices:
             yield vert.n
-    elif self.normalData:
-        for norm in self.normalData.normals:
+    elif self.normalsData:
+        for norm in self.normalsData.normals:
             yield norm
 
 def getNumTriangles(self):
     """Get number of triangles."""
     if self.faces:
         return self.numFaces
-    elif self.faceData:
-        return self.faceData.numData // 3
+    elif self.indicesData:
+        return self.indicesData.numElements // 3
     else:
         return 0
 
@@ -78,8 +78,8 @@ def getTriangles(self):
     if self.faces:
         for face in self.faces:
             yield face.v0, face.v1, face.v2
-    elif self.faceData:
-        it = iter(self.faceData.faces)
+    elif self.indicesData:
+        it = iter(self.indicesData.indices)
         while True:
            yield it.next(), it.next(), it.next()
 
