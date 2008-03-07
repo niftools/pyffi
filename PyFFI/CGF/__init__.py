@@ -315,9 +315,14 @@ class CgfFormat(object):
                 self._value = None
                 return
             if not isinstance(block, self._template):
-                # make this raise an exception when all reference errors
-                # are sorted out
-                print("""\
+                if block_index == 0:
+                    # crysis often uses index 0 to refer to an invalid index
+                    # so don't complain on this one
+                    block = None
+                else:
+                    # make this raise an exception when all reference errors
+                    # are sorted out
+                    print("""\
 WARNING: expected instance of %s
          but got instance of %s""" % (self._template, block.__class__))
             self._value = block
