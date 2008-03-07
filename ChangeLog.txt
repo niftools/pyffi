@@ -1,3 +1,17 @@
+Version 0.9.3 (7 Mar 2008)
+* cgf:
+  - decoded a lot of geometry data
+    # vertices
+    # normals
+    # vertex colors
+    # uvs
+    # mesh material info
+  - started decoding many other chunk types
+  - added chr chunk types so files containing them can be processed (the data
+  is ignored)
+  - started adding functions to MeshChunk to have unified access to geometry
+  data for both Far Cry and Crysis cgf files
+
 Version 0.9.2 (26 Feb 2008)
 * full support for the xml enum tag type, with improved editor in qskope
 * new common string types (shared between cgf and nif formats)

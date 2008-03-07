@@ -109,6 +109,14 @@
         <option value="0xCCCC0016" name="Data">A data chunk used in Crysis.</option>
         <option value="0xCCCC0017" name="MeshMtlInfo">Describes mesh material information.</option>
         <option value="0xCCCC0018" name="Unknown18">Unknown chunk. Used in Crysis.</option>
+        <option value="0xACDC0000" name="UnknownChrACDC0">Unknown chunk. Used in Crysis.</option>
+        <option value="0xACDC0001" name="UnknownChrACDC1">Unknown chunk. Used in Crysis.</option>
+        <option value="0xACDC0002" name="UnknownChrACDC2">Unknown chunk. Used in Crysis.</option>
+        <option value="0xACDC0003" name="UnknownChrACDC3">Unknown chunk. Used in Crysis.</option>
+        <option value="0xACDC0004" name="UnknownChrACDC4">Unknown chunk. Used in Crysis.</option>
+        <option value="0xACDC0005" name="UnknownChrACDC5">Unknown chunk. Used in Crysis.</option>
+        <option value="0xACDC0006" name="UnknownChrACDC6">Unknown chunk. Used in Crysis.</option>
+        <option value="0xAAFC0004" name="UnknownChrAAFC4">Unknown chunk. Used in Crysis.</option>
     </enum>
 
     <enum name="HelperType" numbytes="1">
@@ -770,6 +778,40 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Num Unknown Struct" type="uint" />
         <add name="Unknown Structs" type="Unknown18Struct" arr1="Num Unknown Struct" />
 -->
+    </struct>
+
+    <struct name="UnknownChrACDC0Chunk" inherit="Chunk">
+        <version num="800">Crysis</version>
+    </struct>
+
+    <struct name="UnknownChrACDC1Chunk" inherit="Chunk">
+        <version num="800">Crysis</version>
+    </struct>
+
+    <struct name="UnknownChrACDC2Chunk" inherit="Chunk">
+        <version num="800">Crysis</version>
+        <version num="801">Crysis</version>
+    </struct>
+
+    <struct name="UnknownChrACDC3Chunk" inherit="Chunk">
+        <version num="800">Crysis</version>
+    </struct>
+
+    <struct name="UnknownChrACDC4Chunk" inherit="Chunk">
+        <version num="800">Crysis</version>
+    </struct>
+
+    <struct name="UnknownChrACDC5Chunk" inherit="Chunk">
+        <version num="800">Crysis</version>
+    </struct>
+
+    <struct name="UnknownChrACDC6Chunk" inherit="Chunk">
+        <version num="800">Crysis</version>
+    </struct>
+
+    <struct name="UnknownChrAAFC4Chunk" inherit="Chunk">
+        <version num="800">Crysis</version>
+        <version num="801">Crysis</version>
     </struct>
 
 </fileformat>
