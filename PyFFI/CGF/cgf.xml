@@ -204,6 +204,14 @@
         <bits name="Use Glossiness" numbits="1" />
     </bitstruct>
 
+    <bitstruct name="MtlNameFlags" numbytes="4">
+        <bits name="Multi" numbits="1">Has material sub materials info?</bits>
+        <bits name="Sub" numbits="1">Is material a sub material?</bits>
+        <bits name="Sh Coeffs" numbits="1">Material should get spherical harmonics coefficients computed.</bits>
+        <bits name="Sh Two Sided" numbits="1">This material will be used as 2 sided in the spherical harmonics precomputation.</bits>
+        <bits name="Sh Ambient" numbits="1">This material will get an ambient spherical harmonics term (to not shadow it entirely).</bits>
+    </bitstruct>
+
     <bitstruct name="CtrlFlags" numbytes="4">
         <bits name="Cycle" numbits="1" />
         <bits name="Loop" numbits="1" />
@@ -709,10 +717,16 @@ In Python this can be calculated using zlib.crc32(name)</add>
 
     <struct name="MtlNameChunk" inherit="Chunk">
         <version num="800">Crysis</version>
-        <add name="Unknown Int 1" type="int" />
-        <add name="Unknown Int 2" type="int" />
-        <add name="Name" type="String128" />
-        <add name="Unknown 3" type="int" arr1="68" />
+        <add name="Flags 1" type="MtlNameFlags" />
+        <add name="Flags 2" type="uint" />
+        <add name="Name" type="String128">Material/shader name.</add>
+        <add name="Physicalize Type" type="uint" />
+        <add name="Num Sub Materials" type="uint" />
+        <add name="Sub Materials" type="Ref" template="MtlNameChunk" arr1="Num Sub Materials" />
+        <add name="Padding" type="uint" arr1="32 - Num Sub Materials" />
+        <add name="Advanced Data" type="uint" />
+        <add name="Sh Opacity" type="float" />
+        <add name="Reserved" type="int" arr1="32" />
     </struct>
 
     <struct name="ExportFlagsChunk" inherit="Chunk">
@@ -823,11 +837,13 @@ In Python this can be calculated using zlib.crc32(name)</add>
     </struct>
 
     <struct name="SpeedInfoChunk" inherit="Chunk">
-        <version num="800">Crysis</version>
+        <version num="920">Crysis</version>
+        <version num="921">Crysis</version>
+        <version num="922">Crysis</version>
     </struct>
 
     <struct name="FootPlantInfoChunk" inherit="Chunk">
-        <version num="800">Crysis</version>
+        <version num="920">Crysis</version>
     </struct>
 
     <struct name="BonesBoxesChunk" inherit="Chunk">
