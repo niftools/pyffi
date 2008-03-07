@@ -231,6 +231,11 @@
         <bits name="Loop" numbits="1" />
     </bitstruct>
 
+    <bitstruct name="MeshSubsetsFlags" numbytes="4">
+        <bits name="Sh Has Decompr Mat" numbits="1" />
+        <bits name="Bone Indices" numbits="1" />
+    </bitstruct>
+    
     <!--
     ***************
     *** structs ***
@@ -476,13 +481,19 @@ In Python this can be calculated using zlib.crc32(name)</add>
     </struct>
 
     <struct name="MeshSubset">
-        <add name="First Triangle Point" type="uint" />
-        <add name="Num Triangle Points" type="uint" />
+        <add name="First Index" type="uint" />
+        <add name="Num Indices" type="uint" />
         <add name="First Vertex" type="uint" />
         <add name="Num Vertices" type="uint" />
-        <add name="Material" type="int" />
+        <add name="Mat Id" type="uint" />
         <add name="Radius" type="float" />
         <add name="Center" type="Vector3" />
+    </struct>
+
+    <struct name="MeshBoneIds">
+        <add name="Num Bone Ids" type="uint" />
+        <add name="Bones" type="ushort" arr1="Num Bone Ids" />
+        <add name="Padding" type="ushort" arr1="0x80 - Num Bone Ids" />
     </struct>
 
     <!--real file blocks-->
@@ -760,7 +771,6 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Bytes Per Element" type="uint">Bytes per data entry.</add>
         <add name="Reserved 1" type="uint" />
         <add name="Reserved 2" type="uint" />
-        <!--<add name="Data" type="byte" arr1="Num UnknownX 1" arr2="Num UnknownX 2" />-->
         <add name="Vertices" type="Vector3" arr1="Num Elements" cond="Data Stream Type == 0" />
         <add name="Normals" type="Vector3" arr1="Num Elements" cond="Data Stream Type == 1" />
         <add name="UVs" type="UV" arr1="Num Elements" cond="Data Stream Type == 2" />
@@ -777,11 +787,11 @@ In Python this can be calculated using zlib.crc32(name)</add>
 
     <struct name="MeshSubsetsChunk" inherit="Chunk">
         <version num="800">Crysis</version>
-        <add name="Unknown 1" type="int" />
-        <add name="Num Meshes" type="int" />
-        <add name="Unknown 3" type="int" />
-        <add name="Unknown 4" type="int" />
-        <add name="Meshes" type="MeshSubset" arr1="Num Meshes" />
+        <add name="Flags" type="MeshSubsetsFlags" />
+        <add name="Num Mesh Subsets" type="int" />
+        <add name="Reserved 1" type="int" />
+        <add name="Reserved 2" type="int" />
+        <add name="Mesh Subsets" type="MeshSubset" arr1="Num Mesh Subsets" />
     </struct>
 
     <struct name="PhysicsStruct">
