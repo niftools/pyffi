@@ -39,8 +39,7 @@
 
 from MathUtils import *
 
-def getTangentSpace(self,
-                    vertices = None, normals = None, uvs = None,
+def getTangentSpace(vertices = None, normals = None, uvs = None,
                     triangles = None):
     """Calculate tangent space data.
 
@@ -49,6 +48,13 @@ def getTangentSpace(self,
     @param uvs: A list of uvs (pairs of floats/ints).
     @param triangles: A list of triangle indices (triples of ints).
     @return: Two lists of vectors.
+
+    >>> vertices = [(0,0,0), (0,1,0), (1,0,0)]
+    >>> normals = [(0,0,1), (0,0,1), (0,0,1)]
+    >>> uvs = [(0,0), (0,1), (1,0)]
+    >>> triangles = [(0,1,2)]
+    >>> getTangentSpace(vertices = vertices, normals = normals, uvs = uvs, triangles = triangles)
+    ([(0.0, 1.0, 0.0), (0.0, 1.0, 0.0), (0.0, 1.0, 0.0)], [(1.0, 0.0, 0.0), (1.0, 0.0, 0.0), (1.0, 0.0, 0.0)])
     """
 
     # validate input
@@ -144,3 +150,7 @@ def getTangentSpace(self,
 
     # return result
     return tan, bin
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
