@@ -437,12 +437,22 @@ WARNING: expected instance of %s
         return filetype, fileversion, "Crysis" if offset == 0x14 else "Far Cry"
 
     @classmethod
-    def read(cls, stream, fileversion = None, verbose = 0, game = None):
+    def read(cls, stream, fileversion = None, verbose = 0, game = None, user_version = None):
         """Read cgf from stream."""
-        if game is None:
-            print("WARNING: provide a game='Far Cry' or game='Crysis' argument to read")
-            print("         assuming 'Far Cry'")
-            game = 'Far Cry'
+        # check game argument for backwards compatibility
+        if not game is None:
+            print("WARNING: the game argument is deprecated, please use user_version instead")
+            if game == 'Far Cry':
+                user_version = 0
+            elif game == 'Crysis':
+                user_version = 1
+        # check user_version argument
+        if not user_version in (0, 1):
+            print("""\
+WARNING: Provide a user_version = 0 (for Far Cry) or user_version = 1 (for
+         Crysis) argument to read.
+         Assuming user_version = 0 (Far Cry).""")
+            user_version = 0
 
         chunk_types = [
             chunk_type for chunk_type in dir(cls.ChunkType) \
@@ -450,12 +460,12 @@ WARNING: expected instance of %s
 
         # read header
         hdr = cls.Header()
-        hdr.read(stream, version = fileversion)
+        hdr.read(stream, version = fileversion, user_version = user_version)
 
         # read chunk table
         stream.seek(hdr.offset)
         table = cls.ChunkTable()
-        table.read(stream, version = hdr.version)
+        table.read(stream, version = hdr.version, user_version = user_version)
 
         # get the chunk sizes (for double checking that we have all data)
         chunk_offsets = [ chunkhdr.offset for chunkhdr in table.chunkHeaders ]
@@ -516,7 +526,9 @@ WARNING: expected instance of %s
                        cls.ChunkType.BoneInitialPos,
                        cls.ChunkType.MeshMorphTarget]):
                 chunkhdr_copy = cls.ChunkHeader()
-                chunkhdr_copy.read(stream, version = hdr.version)
+                chunkhdr_copy.read(stream,
+                                   version = hdr.version,
+                                   user_version = user_version)
                 # check that the copy is valid
                 # note: chunkhdr_copy.offset != chunkhdr.offset check removed
                 # as many crysis cgf files have this wrong
@@ -530,16 +542,21 @@ expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
                 chunkhdr_copy = None
 
             chunk.read(
-                stream, version = chunkhdr.version, link_stack = link_stack)
+                stream,
+                version = chunkhdr.version,
+                user_version = user_version,
+                link_stack = link_stack)
             chunks.append(chunk)
             versions.append(chunkhdr.version)
             chunk_dct[chunkhdr.id] = chunk
 
             # calculate size
-            size = chunk.getSize(version = chunkhdr.version)
+            size = chunk.getSize(version = chunkhdr.version,
+                                 user_version = user_version)
             # take into account header copy
             if chunkhdr_copy:
-                size += chunkhdr_copy.getSize(version = hdr.version)
+                size += chunkhdr_copy.getSize(version = hdr.version,
+                                              user_version = user_version)
             # check with number of bytes read
             if size != stream.tell() - chunkhdr.offset:
                 print("""\
@@ -568,7 +585,7 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
         for chunk, version in zip(chunks, versions):
             #print chunk.__class__
             chunk.fixLinks(
-                version = version,
+                version = version, user_version = user_version,
                 block_dct = chunk_dct, link_stack = link_stack)
         if link_stack != []:
             raise cls.CgfError(
@@ -579,13 +596,24 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
     @classmethod
     def write(cls,
               stream,
-              filetype = None, fileversion = None, game = None,
+              filetype = None,
+              fileversion = None, user_version = None, game = None,
               chunks = None, versions = None, verbose = 0):
         """Write cgf to stream. Returns number of padding bytes written."""
-        if game is None:
-            print("WARNING: provide a game='Far Cry' or game='Crysis' argument to write")
-            print("         assuming 'Far Cry'")
-            game = 'Far Cry'
+        # check game argument for backwards compatibility
+        if not game is None:
+            print("WARNING: the game argument is deprecated, please use user_version instead")
+            if game == 'Far Cry':
+                user_version = 0
+            elif game == 'Crysis':
+                user_version = 1
+        # check user_version argument
+        if not user_version in (0, 1):
+            print("""\
+WARNING: Provide a user_version = 0 (for Far Cry) or user_version = 1 (for
+         Crysis) argument to write.
+         Assuming user_version = 0 (Far Cry).""")
+            user_version = 0
 
         # variable to track number of padding bytes
         total_padding = 0
@@ -596,7 +624,7 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
         hdr.type = filetype
         hdr.version = fileversion
         hdr.offset = -1 # is set at the end
-        hdr.write(stream, version = fileversion)
+        hdr.write(stream, version = fileversion, user_version = user_version)
 
         # chunk id is simply its index in the chunks list
         block_index_dct = dict((chunk, i) for i, chunk in enumerate(chunks))
@@ -609,7 +637,8 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
         # crysis: write chunk table now
         if game == "Crysis":
             hdr.offset = stream.tell()
-            table.write(stream, version = fileversion)
+            table.write(stream,
+                        version = fileversion, user_version = user_version)
 
         for chunkhdr, chunk, version in zip(table.chunkHeaders,
                                             chunks, versions):
@@ -627,10 +656,13 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
                        cls.ChunkType.BoneLightBinding,
                        cls.ChunkType.BoneInitialPos,
                        cls.ChunkType.MeshMorphTarget]):
-                chunkhdr.write(stream, version = fileversion)
+                chunkhdr.write(stream,
+                               version = fileversion,
+                               user_version = user_version)
             # write chunk
             chunk.write(
-                stream, version = version, block_index_dct = block_index_dct)
+                stream, version = version, user_version = user_version,
+                block_index_dct = block_index_dct)
             # write padding bytes to align blocks
             padlen = (4 - stream.tell() & 3) & 3
             if padlen:
@@ -642,11 +674,11 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
             stream.seek(hdr.offset)
         else:
             hdr.offset = stream.tell()
-        table.write(stream, version = fileversion)
+        table.write(stream, version = fileversion, user_version = user_version)
 
         # update header
         stream.seek(hdr_pos)
-        hdr.write(stream, version = fileversion)
+        hdr.write(stream, version = fileversion, user_version = user_version)
 
         # return number of padding bytes written
         return total_padding
@@ -656,6 +688,16 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
         """Return file version for C{game}."""
         if game == 'Far Cry' or game == 'Crysis':
             return 0x744
+        else:
+            raise cls.CgfError("game %s not supported"%game)
+
+    @classmethod
+    def getUserVersion(cls, game = 'Far Cry'):
+        """Return file version for C{game}."""
+        if game == 'Far Cry':
+            return 0
+        elif game == 'Crysis':
+            return 1
         else:
             raise cls.CgfError("game %s not supported"%game)
 
