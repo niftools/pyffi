@@ -661,7 +661,8 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Scl Ctrl" type="Ref" template="ControllerChunk">Scale controller.</add>
 
         <add name="Property String" type="SizedString">Property string.</add>
-        <add name="Children" type="Ref" template="NodeChunk" arr1="Num Children">Children.</add>
+        <!-- only CE1 files have list of children here hence userver="1" -->
+        <add name="Children" type="Ref" template="NodeChunk" arr1="Num Children" userver="1">Children.</add>
     </struct>
 
     <struct name="AbstractMtlChunk" inherit="Chunk">
