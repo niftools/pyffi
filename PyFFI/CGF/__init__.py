@@ -437,22 +437,21 @@ WARNING: expected instance of %s
         return filetype, fileversion, "Crysis" if offset == 0x14 else "Far Cry"
 
     @classmethod
-    def read(cls, stream, fileversion = None, verbose = 0, game = None, user_version = None):
+    def read(cls, stream, fileversion = None, verbose = 0, game = None):
         """Read cgf from stream."""
-        # check game argument for backwards compatibility
-        if not game is None:
-            print("WARNING: the game argument is deprecated, please use user_version instead")
-            if game == 'Far Cry':
-                user_version = 0
-            elif game == 'Crysis':
-                user_version = 1
-        # check user_version argument
-        if not user_version in (0, 1):
+        # convert game argument into user_version (i.e. the cry engine version)
+        if game == 'Far Cry':
+            user_version = 1
+        elif game == 'Crysis':
+            user_version = 2
+        elif not game is None:
+            raise ValueError("game %s not supported" % game)
+        else:
             print("""\
-WARNING: Provide a user_version = 0 (for Far Cry) or user_version = 1 (for
-         Crysis) argument to read.
-         Assuming user_version = 0 (Far Cry).""")
-            user_version = 0
+WARNING: Provide a game = "Far Cry" or game = "Crysis" argument to read.
+         Assuming Far Cry.""")
+            game = "Far Cry"
+            user_version = 1
 
         chunk_types = [
             chunk_type for chunk_type in dir(cls.ChunkType) \
@@ -600,20 +599,19 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
               fileversion = None, user_version = None, game = None,
               chunks = None, versions = None, verbose = 0):
         """Write cgf to stream. Returns number of padding bytes written."""
-        # check game argument for backwards compatibility
-        if not game is None:
-            print("WARNING: the game argument is deprecated, please use user_version instead")
-            if game == 'Far Cry':
-                user_version = 0
-            elif game == 'Crysis':
-                user_version = 1
-        # check user_version argument
-        if not user_version in (0, 1):
+        # convert game argument into user_version (i.e. the cry engine version)
+        if game == 'Far Cry':
+            user_version = 1
+        elif game == 'Crysis':
+            user_version = 2
+        elif not game is None:
+            raise ValueError("game %s not supported" % game)
+        else:
             print("""\
-WARNING: Provide a user_version = 0 (for Far Cry) or user_version = 1 (for
-         Crysis) argument to write.
-         Assuming user_version = 0 (Far Cry).""")
-            user_version = 0
+WARNING: Provide a game = "Far Cry" or game = "Crysis" argument to read.
+         Assuming Far Cry.""")
+            game = "Far Cry"
+            user_version = 1
 
         # variable to track number of padding bytes
         total_padding = 0
@@ -688,16 +686,6 @@ WARNING: Provide a user_version = 0 (for Far Cry) or user_version = 1 (for
         """Return file version for C{game}."""
         if game == 'Far Cry' or game == 'Crysis':
             return 0x744
-        else:
-            raise cls.CgfError("game %s not supported"%game)
-
-    @classmethod
-    def getUserVersion(cls, game = 'Far Cry'):
-        """Return file version for C{game}."""
-        if game == 'Far Cry':
-            return 0
-        elif game == 'Crysis':
-            return 1
         else:
             raise cls.CgfError("game %s not supported"%game)
 
