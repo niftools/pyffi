@@ -47,7 +47,7 @@ def getTangentSpace(vertices = None, normals = None, uvs = None,
     @param normals: A list of normals (triples of floats/ints).
     @param uvs: A list of uvs (pairs of floats/ints).
     @param triangles: A list of triangle indices (triples of ints).
-    @return: Two lists of vectors.
+    @return: Two lists of vectors, tangents and binormals.
 
     >>> vertices = [(0,0,0), (0,1,0), (1,0,0)]
     >>> normals = [(0,0,1), (0,0,1), (0,0,1)]

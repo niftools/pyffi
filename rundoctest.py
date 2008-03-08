@@ -12,6 +12,7 @@ import PyFFI.Utils.TriStrip
 import PyFFI.Utils.MathUtils
 import PyFFI.Utils.QuickHull
 import PyFFI.Utils.Inertia
+import PyFFI.Utils.TangentSpace
 import PyFFI.NIF
 import PyFFI.NIF.NiTriStripsData
 import PyFFI.NIF.NiTriShapeData
