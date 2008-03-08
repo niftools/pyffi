@@ -37,6 +37,10 @@
 #
 # ***** END LICENSE BLOCK *****
 
+def qBlockParent(self):
+    """Get the block parent (used for instance in the QSkope global view)."""
+    return self.parent
+
 def applyScale(self, scale):
     """Apply scale factor on data."""
     if abs(scale - 1.0) < self.cls.EPSILON:
