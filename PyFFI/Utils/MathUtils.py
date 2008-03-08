@@ -102,6 +102,14 @@ def vecNorm(vec):
     """
     return vecDotProduct(vec, vec) ** 0.5
 
+def vecNormalized(vec):
+    """Normalized version of a vector (any dimension).
+
+    >>> vecNormalized((2,3,4)) # doctest: +ELLIPSIS
+    (0.371..., 0.557..., 0.742...)
+    """
+    return vecscalarMul(vec, 1.0 / vecNorm(vec))
+
 def vecCrossProduct(vec1, vec2):
     """The vector cross product (in 3d).
 
