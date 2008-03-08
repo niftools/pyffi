@@ -1,3 +1,7 @@
+Version 0.10.0 (***)
+* cgf: ported A LOT of stuff from the Crysis Mod SDK 1.2; the most common
+CE2 chunks now read and write succesfully
+
 Version 0.9.3 (7 Mar 2008)
 * cgf:
   - decoded a lot of geometry data
