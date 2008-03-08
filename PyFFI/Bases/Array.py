@@ -285,8 +285,8 @@ class Array(_ListWrap):
         self._elementTypeArgument = kwargs.get('argument')
         # check array size
         len1 = self._len1()
-        if len1 > 1000000:
-            raise ValueError('array too long')
+        if len1 > 2000000:
+            raise ValueError('array too long (%i)' % len1)
         self.__delslice__(0, self.__len__())
         # read array
         if self._count2 == None:
@@ -300,8 +300,8 @@ class Array(_ListWrap):
         else:
             for i in xrange(len1):
                 len2i = self._len2(i)
-                if len2i > 1000000:
-                    raise ValueError('array too long')
+                if len2i > 2000000:
+                    raise ValueError('array too long (%i)' % len2i)
                 elemlist = _ListWrap(self._elementType, parent = self)
                 for j in xrange(len2i):
                     elem = self._elementType(
@@ -319,8 +319,8 @@ class Array(_ListWrap):
         if len1 != self.__len__():
             raise ValueError('array size (%i) different from to field \
 describing number of elements (%i)'%(self.__len__(),len1))
-        if len1 > 1000000:
-            raise ValueError('array too long (%i)'%len1)
+        if len1 > 2000000:
+            raise ValueError('array too long (%i)' % len1)
         if self._count2 == None:
             for elem in list.__iter__(self):
                 elem.write(stream, **kwargs)
@@ -330,8 +330,8 @@ describing number of elements (%i)'%(self.__len__(),len1))
                 if len2i != elemlist.__len__():
                     raise ValueError("array size (%i) different from to field \
 describing number of elements (%i)"%(elemlist.__len__(),len2i))
-                if len2i > 1000000:
-                    raise ValueError('array too long (%i)'%len2i)
+                if len2i > 2000000:
+                    raise ValueError('array too long (%i)' % len2i)
                 for elem in list.__iter__(elemlist):
                     elem.write(stream, **kwargs)
 
