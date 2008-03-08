@@ -676,7 +676,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
     <struct name="MtlChunk" inherit="AbstractMtlChunk">
         <version num="744">Far Cry</version>
         <version num="745">Far Cry</version>
-        <version num="746">Far Cry</version>
+        <version num="746">Far Cry, Crysis</version>
         <add name="Name" type="String64">Material and shader name.</add>
         <add name="Reserved" type="ubyte" arr1="60" ver1="746">Reserved.</add>
         <add name="Alpha Test" type="float" ver1="746">Unknown.</add>
