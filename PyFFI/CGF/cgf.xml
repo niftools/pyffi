@@ -533,7 +533,11 @@ In Python this can be calculated using zlib.crc32(name)</add>
         Base class for all chunks.
     </struct>
 
-    <struct name="MeshChunk" inherit="Chunk">
+    <struct name="AbstractObjectChunk" inherit="Chunk">
+        Common parent for HelperChunk and MeshChunk.
+    </struct>
+
+    <struct name="MeshChunk" inherit="AbstractObjectChunk">
         <version num="623">Far Cry</version>
         <version num="744">Far Cry</version>
         <version num="800">Crysis</version>
@@ -585,7 +589,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Reserved 3" type="uint" arr1="32" ver1="800" />
     </struct>
 
-    <struct name="HelperChunk" inherit="Chunk">
+    <struct name="HelperChunk" inherit="AbstractObjectChunk">
         <version num="362">Far Cry</version>
         <version num="744">Far Cry, Crysis</version>
         <add name="Name" type="String64" ver2="362">Helper name</add>
@@ -642,7 +646,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
     <struct name="NodeChunk" inherit="Chunk">
         <version num="823">Far Cry, Crysis</version>
         <add name="Name" type="String64" />
-        <add name="Object" type="Ref" template="MeshChunk">Node object chunk (if present). Usually, a mesh.</add>
+        <add name="Object" type="Ref" template="AbstractObjectChunk">Mesh or helper object chunk.</add>
         <add name="Parent" type="Ptr" template="NodeChunk">Node parent.</add>
         <add name="Num Children" type="uint">Number of children.</add>
         <add name="Material" type="Ref" template="AbstractMtlChunk">Material chunk or helper chunk.</add>
