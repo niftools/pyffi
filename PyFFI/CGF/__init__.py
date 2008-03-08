@@ -518,12 +518,12 @@ WARNING: expected instance of %s
                 chunkhdr_copy = cls.ChunkHeader()
                 chunkhdr_copy.read(stream, version = hdr.version)
                 # check that the copy is valid
+                # note: chunkhdr_copy.offset != chunkhdr.offset check removed
+                # as many crysis cgf files have this wrong
                 if chunkhdr_copy.type != chunkhdr.type \
                    or chunkhdr_copy.version != chunkhdr.version \
-                   or chunkhdr_copy.offset != chunkhdr.offset \
                    or chunkhdr_copy.id != chunkhdr.id:
-                    #raise ValueError(
-                    print(
+                    raise ValueError(
                         'chunk starts with invalid header:\n\
 expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
             else:
