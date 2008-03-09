@@ -83,3 +83,22 @@ def getTriangles(self):
         while True:
            yield it.next(), it.next(), it.next()
 
+def getUVs(self):
+    """Generator for all uv coordinates."""
+    if self.uvs:
+        for uv in self.uvs:
+            yield uv.u, uv.v
+    elif self.uvData:
+        for uv in self.uvData.uvs:
+            yield uv.u, 1.0 - uv.v # OpenGL fix!
+
+def getUVTriangles(self):
+    """Generator for all uv triangles."""
+    if self.uvFaces:
+        for uvface in self.uvFaces:
+            yield uvface.t0, uvface.t1, uvface.t2
+    elif self.indicesData:
+        # Crysis: UV triangles coincide with triangles
+        it = iter(self.indicesData.indices)
+        while True:
+           yield it.next(), it.next(), it.next()
