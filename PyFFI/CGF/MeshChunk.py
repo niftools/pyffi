@@ -37,6 +37,7 @@
 #
 # ***** END LICENSE BLOCK *****
 
+import itertools
 from itertools import izip
 
 def applyScale(self, scale):
@@ -105,6 +106,7 @@ def getUVTriangles(self):
         while True:
            yield it.next(), it.next(), it.next()
 
+### DEPRECATED: USE setGeometry INSTEAD ###
 def setVerticesNormals(self, vertices, normals):
     """Set vertices and normals. This should be the first function you call
     when setting mesh geometry data.
@@ -146,3 +148,122 @@ def setVerticesNormals(self, vertices, normals):
         crynorm.x = norm[0]
         crynorm.y = norm[1]
         crynorm.z = norm[2]
+
+### STILL WIP!!! ###
+def setGeometry(self,
+                verticeslist = None, normalslist = None,
+                triangleslist = None, matlist = None,
+                uvslist = None, colorslist = None):
+    """Set geometry data.
+
+    @param verticeslist: A list of lists of vertices (one list per material).
+    @param normalslist: A list of lists of normals (one list per material).
+    @param triangleslist: A list of lists of triangles (one list per material).
+    @param matlist: A list of material indices.
+    @param uvslist: A list of lists of uvs (one list per material).
+    @param colorslist: A list of lists of colors (one list per material).
+    """
+    # get total number of vertices
+    numvertices = sum(len(vertices) for vertices in verticeslist)
+    numtriangles = sum(len(triangles) for triangles in triangleslist)
+    
+    # Far Cry data preparation
+    self.numVertices = numvertices
+    self.vertices.updateSize()
+    self.numFaces = numtriangles
+    self.faces.updateSize()
+
+    # Crysis data preparation
+    self.verticesData = self.cls.DataStreamChunk()
+    self.verticesData.dataStreamType = self.cls.DataStreamType.VERTICES
+    self.verticesData.bytesPerElement = 12
+    self.verticesData.numElements = numvertices
+    self.verticesData.vertices.updateSize()
+
+    self.normalsData = self.cls.DataStreamChunk()
+    self.normalsData.dataStreamType = self.cls.DataStreamType.NORMALS
+    self.normalsData.bytesPerElement = 12
+    self.normalsData.numElements = numvertices
+    self.normalsData.normals.updateSize()
+
+    self.indicesData = self.cls.DataStreamChunk()
+    self.indicesData.dataStreamType = self.cls.DataStreamType.INDICES
+    self.indicesData.bytesPerElement = 2
+    self.indicesData.numElements = numtriangles * 3
+    self.indicesData.indices.updateSize()
+
+    self.numMeshSubsets = len(matlist)
+    self.meshSubsets = self.cls.MeshSubsetsChunk()
+    self.meshSubsets.numMeshSubsets = len(matlist)
+    self.meshSubsets.meshSubsets.updateSize()
+
+    # set up default iterators
+    if matlist is None:
+        matlist = itertools.repeat(0)
+    if uvslist is None:
+        uvs = itertools.repeat(None)
+    if colorslist is None:
+        colorslist = itertools.repeat(None)
+
+    selfvertices_iter = iter(self.vertices)
+    selfverticesData_iter = iter(self.verticesData.vertices)
+    selfnormals_iter = iter(self.normals)
+    selfnormalsData_iter = iter(self.normalsData.normals)
+    selffaces_iter = iter(self.faces)
+
+    # now iterate over all materials
+    firstvertexindex = 0
+    firstindicesindex = 0
+    for vertices, normals, triangles, mat, uvs, colors, meshsubset in izip(
+        verticeslist, normalslist,
+        triangleslist, matlist,
+        uvslist, colorslist,
+        self.meshSubsets.meshSubsets):
+
+        # set Crysis mesh subset info
+        meshsubset.firstIndex = firstindicesindex
+        meshsubset.numIndices = len(triangles) * 3
+        meshsubset.firstVertex = firstvertexindex
+        meshsubset.numVertices = len(vertices)
+        meshsubset.matId = mat
+        meshsubset.radius = 0 # TODO
+        meshsubset.center = 0 # TODO
+
+        # set vertex coordinates and normals for Far Cry
+        for cryvert, vert, norm in izip(selfvertices_iter,
+                                        vertices,
+                                        normals):
+            cryvert.p.x = vert[0]
+            cryvert.p.y = vert[1]
+            cryvert.p.z = vert[2]
+            cryvert.n.x = norm[0]
+            cryvert.n.y = norm[1]
+            cryvert.n.z = norm[2]
+
+        # set vertex coordinates and normals for Crysis
+        for cryvert, crynorm, vert, norm in izip(selfverticesData_iter,
+                                                 selfnormalsData_iter,
+                                                 vertices,
+                                                 normals):
+            cryvert.x = vert[0]
+            cryvert.y = vert[1]
+            cryvert.z = vert[2]
+            crynorm.x = norm[0]
+            crynorm.y = norm[1]
+            crynorm.z = norm[2]
+
+        # set Far Cry face info
+        for cryface, triangle in izip(selffaces_iter, triangles):
+            cryface.v0 = triangle[0] + firstvertexindex
+            cryface.v1 = triangle[1] + firstvertexindex
+            cryface.v2 = triangle[2] + firstvertexindex
+            cryface.material = mat
+
+        # set Crysis face info
+        for i, vertexindex in enumerate(itertools.chain(triangles)):
+            self.indicesData.indices[i + firstindicesindex] \
+                = vertexindex + firstvertexindex
+
+        # update index offsets
+        firstvertexindex += len(vertices)
+        firstindicesindex += 3 * len(triangles)
