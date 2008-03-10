@@ -37,6 +37,8 @@
 #
 # ***** END LICENSE BLOCK *****
 
+from itertools import izip
+
 def applyScale(self, scale):
     """Apply scale factor on data."""
     if abs(scale - 1.0) < self.cls.EPSILON:
@@ -102,3 +104,45 @@ def getUVTriangles(self):
         it = iter(self.indicesData.indices)
         while True:
            yield it.next(), it.next(), it.next()
+
+def setVerticesNormals(self, vertices, normals):
+    """Set vertices and normals. This should be the first function you call
+    when setting mesh geometry data.
+
+    Returns list of chunks that have been added."""
+    # Far Cry
+    self.numVertices = len(vertices)
+    self.vertices.updateSize()
+
+    # Crysis
+    self.verticesData = self.cls.DataStreamChunk()
+    self.verticesData.dataStreamType = self.cls.DataStreamType.VERTICES
+    self.verticesData.bytesPerElement = 12
+    self.verticesData.numElements = len(vertices)
+    self.verticesData.vertices.updateSize()
+
+    self.normalsData = self.cls.DataStreamChunk()
+    self.normalsData.dataStreamType = self.cls.DataStreamType.NORMALS
+    self.normalsData.bytesPerElement = 12
+    self.normalsData.numElements = len(vertices)
+    self.normalsData.normals.updateSize()
+
+    # set vertex coordinates and normals for Far Cry
+    for cryvert, vert, norm in izip(self.vertices, vertices, normals):
+        cryvert.p.x = vert[0]
+        cryvert.p.y = vert[1]
+        cryvert.p.z = vert[2]
+        cryvert.n.x = norm[0]
+        cryvert.n.y = norm[1]
+        cryvert.n.z = norm[2]
+
+    # set vertex coordinates and normals for Crysis
+    for cryvert, crynorm, vert, norm in izip(self.verticesData.vertices,
+                                             self.normalsData.normals,
+                                             vertices, normals):
+        cryvert.x = vert[0]
+        cryvert.y = vert[1]
+        cryvert.z = vert[2]
+        crynorm.x = norm[0]
+        crynorm.y = norm[1]
+        crynorm.z = norm[2]
