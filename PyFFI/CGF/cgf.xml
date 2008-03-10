@@ -207,16 +207,16 @@
     </bitstruct>
 
     <bitstruct name="MtlFlags" numbytes="4">
-        <bits name="Wire" numbits="1" />
-        <bits name="Two Sided" numbits="1" />
-        <bits name="Facemap" numbits="1" />
-        <bits name="Faceted" numbits="1" />
-        <bits name="Additive" numbits="1" />
-        <bits name="Substractive" numbits="1" />
-        <bits name="Cry Shader" numbits="1" />
-        <bits name="Physicalize" numbits="1" />
-        <bits name="Additive Decal" numbits="1" />
-        <bits name="Use Glossiness" numbits="1" />
+        <bits name="Wire" numbits="1" />          <!-- 1 -->
+        <bits name="Two Sided" numbits="1" />     <!-- 2 -->
+        <bits name="Facemap" numbits="1" />       <!-- 4 -->
+        <bits name="Faceted" numbits="1" />       <!-- 8 -->
+        <bits name="Additive" numbits="1" />      <!-- 16 -->
+        <bits name="Substractive" numbits="1" />  <!-- 32 -->
+        <bits name="Cry Shader" numbits="1" />    <!-- 64 -->
+        <bits name="Physicalize" numbits="1" />   <!-- 128 -->
+        <bits name="Additive Decal" numbits="1" /><!-- 256 -->
+        <bits name="Use Glossiness" numbits="1" /><!-- 512 -->
     </bitstruct>
 
     <bitstruct name="MtlNameFlags" numbytes="4">
