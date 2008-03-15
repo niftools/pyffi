@@ -610,7 +610,7 @@ def setGeometry(self,
         # tangent space
         self.tangentsData = self.cls.DataStreamChunk()
         self.tangentsData.dataStreamType = self.cls.DataStreamType.TANGENTS
-        self.tangentsData.bytesPerElement = 8
+        self.tangentsData.bytesPerElement = 16
         self.tangentsData.numElements = numvertices
         self.tangentsData.tangents.updateSize()
         selftangentsData_iter = iter(self.tangentsData.tangents)
@@ -707,12 +707,12 @@ def setGeometry(self,
                 triangles = triangles)
             for tan, bin in izip(tangents, binormals):
                 crytangent = selftangentsData_iter.next()
-                crytangent[0].x = int(32767 * tan[0])
-                crytangent[0].y = int(32767 * tan[1])
-                crytangent[0].z = int(32767 * tan[2])
-                crytangent[1].x = int(32767 * bin[0])
-                crytangent[1].y = int(32767 * bin[1])
-                crytangent[1].z = int(32767 * bin[2])
+                crytangent[1].x = int(-32767 * tan[0])
+                crytangent[1].y = int(-32767 * tan[1])
+                crytangent[1].z = int(-32767 * tan[2])
+                crytangent[0].x = int(32767 * bin[0])
+                crytangent[0].y = int(32767 * bin[1])
+                crytangent[0].z = int(32767 * bin[2])
 
         # update index offsets
         firstvertexindex += len(vertices)
