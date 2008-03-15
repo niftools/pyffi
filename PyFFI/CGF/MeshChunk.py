@@ -40,6 +40,7 @@
 import itertools
 from itertools import izip
 from PyFFI.Utils import MathUtils
+from PyFFI.Utils import TangentSpace
 
 def applyScale(self, scale):
     """Apply scale factor on data."""
@@ -299,7 +300,7 @@ def setGeometry(self,
     * colorsData : None
     * colors2Data : None
     * indicesData : <class 'PyFFI.XmlHandler.DataStreamChunk'> instance at ...
-    * tangentsData : None
+    * tangentsData : <class 'PyFFI.XmlHandler.DataStreamChunk'> instance at ...
     * shCoeffsData : None
     * shapeDeformationData : None
     * boneMapData : None
@@ -464,6 +465,97 @@ def setGeometry(self,
         * u : 1.0
         * v : 1.0
     <BLANKLINE>
+    >>> print chunk.tangentsData # doctest: +ELLIPSIS
+    <class 'PyFFI.XmlHandler.DataStreamChunk'> instance at ...
+    * flags : 0
+    * dataStreamType : TANGENTS
+    * numElements : 8
+    * bytesPerElement : 8
+    * reserved1 : 0
+    * reserved2 : 0
+    * tangents :
+        <class 'PyFFI.Bases.Array.Array'> instance at ...
+        0, 0: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
+        * x : 0
+        * y : 32767
+        * z : 0
+        * w : -32767
+        0, 1: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
+        * x : 32767
+        * y : 0
+        * z : 0
+        * w : -32767
+        1, 0: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
+        * x : 0
+        * y : 32767
+        * z : 0
+        * w : -32767
+        1, 1: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
+        * x : 32767
+        * y : 0
+        * z : 0
+        * w : -32767
+        2, 0: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
+        * x : 0
+        * y : 32767
+        * z : 0
+        * w : -32767
+        2, 1: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
+        * x : 32767
+        * y : 0
+        * z : 0
+        * w : -32767
+        3, 0: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
+        * x : 0
+        * y : 32767
+        * z : 0
+        * w : -32767
+        3, 1: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
+        * x : 32767
+        * y : 0
+        * z : 0
+        * w : -32767
+        4, 0: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
+        * x : 0
+        * y : 32767
+        * z : 0
+        * w : -32767
+        4, 1: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
+        * x : 32767
+        * y : 0
+        * z : 0
+        * w : -32767
+        5, 0: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
+        * x : 0
+        * y : 32767
+        * z : 0
+        * w : -32767
+        5, 1: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
+        * x : 32767
+        * y : 0
+        * z : 0
+        * w : -32767
+        6, 0: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
+        * x : 0
+        * y : 32767
+        * z : 0
+        * w : -32767
+        6, 1: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
+        * x : 32767
+        * y : 0
+        * z : 0
+        * w : -32767
+        7, 0: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
+        * x : 0
+        * y : 32767
+        * z : 0
+        * w : -32767
+        7, 1: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
+        * x : 32767
+        * y : 0
+        * z : 0
+        * w : -32767
+    <BLANKLINE>
     """
     # get total number of vertices
     numvertices = sum(len(vertices) for vertices in verticeslist)
@@ -507,12 +599,21 @@ def setGeometry(self,
     self.indicesData.indices.updateSize()
 
     if not uvslist is None:
+        # uvs
         self.uvsData = self.cls.DataStreamChunk()
         self.uvsData.dataStreamType = self.cls.DataStreamType.UVS
         self.uvsData.bytesPerElement = 8
         self.uvsData.numElements = numvertices
         self.uvsData.uvs.updateSize()
         selfuvsData_iter = iter(self.uvsData.uvs)
+
+        # tangent space
+        self.tangentsData = self.cls.DataStreamChunk()
+        self.tangentsData.dataStreamType = self.cls.DataStreamType.TANGENTS
+        self.tangentsData.bytesPerElement = 8
+        self.tangentsData.numElements = numvertices
+        self.tangentsData.tangents.updateSize()
+        selftangentsData_iter = iter(self.tangentsData.tangents)
 
     self.numMeshSubsets = len(matlist)
     self.meshSubsets = self.cls.MeshSubsetsChunk()
@@ -599,6 +700,19 @@ def setGeometry(self,
                 cryuv = selfuvsData_iter.next()
                 cryuv.u = uv[0]
                 cryuv.v = uv[1]
+
+            # set Crysis tangents info
+            tangents, binormals = TangentSpace.getTangentSpace(
+                vertices = vertices, normals = normals, uvs = uvs,
+                triangles = triangles)
+            for tan, bin in izip(tangents, binormals):
+                crytangent = selftangentsData_iter.next()
+                crytangent[0].x = int(32767 * tan[0])
+                crytangent[0].y = int(32767 * tan[1])
+                crytangent[0].z = int(32767 * tan[2])
+                crytangent[1].x = int(32767 * bin[0])
+                crytangent[1].y = int(32767 * bin[1])
+                crytangent[1].z = int(32767 * bin[2])
 
         # update index offsets
         firstvertexindex += len(vertices)
