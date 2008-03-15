@@ -342,6 +342,48 @@ def setGeometry(self,
         6: [  1.000  0.000  1.000 ]
         7: [  1.000  1.000  1.000 ]
     <BLANKLINE>
+    >>> print chunk.normalsData # doctest: +ELLIPSIS
+    <class 'PyFFI.XmlHandler.DataStreamChunk'> instance at ...
+    * flags : 0
+    * dataStreamType : NORMALS
+    * numElements : 8
+    * bytesPerElement : 12
+    * reserved1 : 0
+    * reserved2 : 0
+    * normals :
+        <class 'PyFFI.Bases.Array.Array'> instance at ...
+        0: [  0.000  0.000 -1.000 ]
+        1: [  0.000  0.000 -1.000 ]
+        2: [  0.000  0.000 -1.000 ]
+        3: [  0.000  0.000 -1.000 ]
+        4: [  0.000  0.000  1.000 ]
+        5: [  0.000  0.000  1.000 ]
+        6: [  0.000  0.000  1.000 ]
+        7: [  0.000  0.000  1.000 ]
+    <BLANKLINE>
+    >>> print chunk.indicesData # doctest: +ELLIPSIS
+    <class 'PyFFI.XmlHandler.DataStreamChunk'> instance at ...
+    * flags : 0
+    * dataStreamType : INDICES
+    * numElements : 12
+    * bytesPerElement : 2
+    * reserved1 : 0
+    * reserved2 : 0
+    * indices :
+        <class 'PyFFI.Bases.Array.Array'> instance at ...
+        0: 0
+        1: 1
+        2: 2
+        3: 2
+        4: 1
+        5: 3
+        6: 4
+        7: 5
+        8: 6
+        9: 6
+        10: 5
+        11: 7
+    <BLANKLINE>
     """
     # get total number of vertices
     numvertices = sum(len(vertices) for vertices in verticeslist)
