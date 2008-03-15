@@ -20,6 +20,7 @@ import PyFFI.NIF.NiGeometry
 import PyFFI.NIF.NiNode
 import PyFFI.NIF.NiSkinData
 import PyFFI.CGF
+import PyFFI.CGF.MeshChunk
 import PyFFI.KFM
 import PyFFI.DDS
 
