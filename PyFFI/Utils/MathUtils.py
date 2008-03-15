@@ -40,6 +40,48 @@
 from itertools import izip
 import operator
 
+def getBoundingBox(veclist):
+    """Calculate bounding box (pair of vectors with minimum and maximum
+    coordinates).
+
+    >>> getBoundingBox([(0,0,0), (1,1,2), (0.5,0.5,0.5)])
+    ((0, 0, 0), (1, 1, 2))"""
+    if not veclist:
+        # assume 3 dimensions if veclist is empty
+        return (0,0,0), (0,0,0)
+
+    # find bounding box
+    dim = len(veclist[0])
+    return (
+        tuple((min(vec[i] for vec in veclist) for i in xrange(dim))),
+        tuple((max(vec[i] for vec in veclist) for i in xrange(dim))))
+
+def getCenterRadius(veclist):
+    """Calculate center and radius of given list of vectors.
+
+    >>> getCenterRadius([(0,0,0), (1,1,2), (0.5,0.5,0.5)]) # doctest: +ELLIPSIS
+    ((0.5, 0.5, 1.0), 1.2247...)
+    """
+    if not veclist:
+        # assume 3 dimensions if veclist is empty
+        return (0,0,0), 0
+
+    # get bounding box
+    vecmin, vecmax = getBoundingBox(veclist)
+    
+    # center is in the center of the bounding box
+    center = tuple((minco + maxco) * 0.5
+                   for minco, maxco in izip(vecmin, vecmax))
+
+    # radius is the largest distance from the center
+    r2 = 0.0
+    for vec in veclist:
+        dist = vecSub(center, vec)
+        r2 = max(r2, vecDotProduct(dist, dist))
+    radius = r2 ** 0.5
+
+    return center, radius
+
 def vecSub(vec1, vec2):
     """Vector substraction."""
     return tuple(x - y for x, y in izip(vec1, vec2))
