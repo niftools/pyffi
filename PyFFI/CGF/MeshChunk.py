@@ -699,7 +699,7 @@ def setGeometry(self,
             for uv in uvs:
                 cryuv = selfuvsData_iter.next()
                 cryuv.u = uv[0]
-                cryuv.v = uv[1]
+                cryuv.v = 1.0 - uv[1] # OpenGL fix
 
             # set Crysis tangents info
             tangents, binormals = TangentSpace.getTangentSpace(
