@@ -465,14 +465,6 @@ def setGeometry(self,
         * v : 1.0
     <BLANKLINE>
     """
-    # quick hack to accept empty lists instead of None for optional lists
-    if uvslist == []:
-        uvslist = None
-    if colorslist == []:
-        colorslist = None
-    if matlist == []:
-        matlist = None
-    
     # get total number of vertices
     numvertices = sum(len(vertices) for vertices in verticeslist)
     numtriangles = sum(len(triangles) for triangles in triangleslist)
