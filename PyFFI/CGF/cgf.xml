@@ -572,7 +572,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
 
         <add name="Vertices Data" type="Ref" template="DataStreamChunk" ver1="800" />
         <add name="Normals Data" type="Ref" template="DataStreamChunk" ver1="800" />
-        <add name="UV Data" type="Ref" template="DataStreamChunk" ver1="800" />
+        <add name="UVs Data" type="Ref" template="DataStreamChunk" ver1="800" />
         <add name="Colors Data" type="Ref" template="DataStreamChunk" ver1="800" />
         <add name="Colors 2 Data" type="Ref" template="DataStreamChunk" ver1="800" />
         <add name="Indices Data" type="Ref" template="DataStreamChunk" ver1="800" />

@@ -177,6 +177,7 @@ def setGeometry(self,
     >>> chunk.setGeometry(verticeslist = [vertices1, vertices2],
     ...                   normalslist = [normals1, normals2],
     ...                   triangleslist = [triangles1, triangles2],
+    ...                   uvslist = [uvs1, uvs2],
     ...                   matlist = [2,5])
     >>> print chunk # doctest: +ELLIPSIS
     <class 'PyFFI.XmlHandler.MeshChunk'> instance at ...
@@ -189,7 +190,7 @@ def setGeometry(self,
     * flags2 : 0
     * numVertices : 8
     * numIndices : 12
-    * numUvs : 0
+    * numUvs : 8
     * numFaces : 4
     * material : None
     * numMeshSubsets : 2
@@ -247,10 +248,53 @@ def setGeometry(self,
         * v2 : 7
         * material : 5
         * smGroup : 1
-    * uvs : <class 'PyFFI.Bases.Array.Array'> instance at ...
+    * uvs :
+        <class 'PyFFI.Bases.Array.Array'> instance at ...
+        0: <class 'PyFFI.XmlHandler.UV'> instance at ...
+        * u : 0.0
+        * v : 0.0
+        1: <class 'PyFFI.XmlHandler.UV'> instance at ...
+        * u : 0.0
+        * v : 1.0
+        2: <class 'PyFFI.XmlHandler.UV'> instance at ...
+        * u : 1.0
+        * v : 0.0
+        3: <class 'PyFFI.XmlHandler.UV'> instance at ...
+        * u : 1.0
+        * v : 1.0
+        4: <class 'PyFFI.XmlHandler.UV'> instance at ...
+        * u : 0.0
+        * v : 0.0
+        5: <class 'PyFFI.XmlHandler.UV'> instance at ...
+        * u : 0.0
+        * v : 1.0
+        6: <class 'PyFFI.XmlHandler.UV'> instance at ...
+        * u : 1.0
+        * v : 0.0
+        7: <class 'PyFFI.XmlHandler.UV'> instance at ...
+        * u : 1.0
+        * v : 1.0
+    * uvFaces :
+        <class 'PyFFI.Bases.Array.Array'> instance at ...
+        0: <class 'PyFFI.XmlHandler.UVFace'> instance at ...
+        * t0 : 0
+        * t1 : 1
+        * t2 : 2
+        1: <class 'PyFFI.XmlHandler.UVFace'> instance at ...
+        * t0 : 2
+        * t1 : 1
+        * t2 : 3
+        2: <class 'PyFFI.XmlHandler.UVFace'> instance at ...
+        * t0 : 4
+        * t1 : 5
+        * t2 : 6
+        3: <class 'PyFFI.XmlHandler.UVFace'> instance at ...
+        * t0 : 6
+        * t1 : 5
+        * t2 : 7
     * verticesData : <class 'PyFFI.XmlHandler.DataStreamChunk'> instance at ...
     * normalsData : <class 'PyFFI.XmlHandler.DataStreamChunk'> instance at ...
-    * uvData : None
+    * uvsData : <class 'PyFFI.XmlHandler.DataStreamChunk'> instance at ...
     * colorsData : None
     * colors2Data : None
     * indicesData : <class 'PyFFI.XmlHandler.DataStreamChunk'> instance at ...
@@ -384,6 +428,41 @@ def setGeometry(self,
         10: 5
         11: 7
     <BLANKLINE>
+    >>> print chunk.uvsData # doctest: +ELLIPSIS
+    <class 'PyFFI.XmlHandler.DataStreamChunk'> instance at ...
+    * flags : 0
+    * dataStreamType : UVS
+    * numElements : 8
+    * bytesPerElement : 8
+    * reserved1 : 0
+    * reserved2 : 0
+    * uvs :
+        <class 'PyFFI.Bases.Array.Array'> instance at ...
+        0: <class 'PyFFI.XmlHandler.UV'> instance at ...
+        * u : 0.0
+        * v : 0.0
+        1: <class 'PyFFI.XmlHandler.UV'> instance at ...
+        * u : 0.0
+        * v : 1.0
+        2: <class 'PyFFI.XmlHandler.UV'> instance at ...
+        * u : 1.0
+        * v : 0.0
+        3: <class 'PyFFI.XmlHandler.UV'> instance at ...
+        * u : 1.0
+        * v : 1.0
+        4: <class 'PyFFI.XmlHandler.UV'> instance at ...
+        * u : 0.0
+        * v : 0.0
+        5: <class 'PyFFI.XmlHandler.UV'> instance at ...
+        * u : 0.0
+        * v : 1.0
+        6: <class 'PyFFI.XmlHandler.UV'> instance at ...
+        * u : 1.0
+        * v : 0.0
+        7: <class 'PyFFI.XmlHandler.UV'> instance at ...
+        * u : 1.0
+        * v : 1.0
+    <BLANKLINE>
     """
     # get total number of vertices
     numvertices = sum(len(vertices) for vertices in verticeslist)
@@ -392,8 +471,16 @@ def setGeometry(self,
     # Far Cry data preparation
     self.numVertices = numvertices
     self.vertices.updateSize()
+    selfvertices_iter = iter(self.vertices)
     self.numFaces = numtriangles
     self.faces.updateSize()
+    if not uvslist is None:
+        self.numUvs = numvertices
+        self.uvs.updateSize()
+        self.uvFaces.updateSize()
+        selfuvs_iter = iter(self.uvs)
+        selfuvFaces_iter = iter(self.uvFaces)
+    selffaces_iter = iter(self.faces)
 
     # Crysis data preparation
     self.numIndices = numtriangles * 3
@@ -403,18 +490,28 @@ def setGeometry(self,
     self.verticesData.bytesPerElement = 12
     self.verticesData.numElements = numvertices
     self.verticesData.vertices.updateSize()
+    selfverticesData_iter = iter(self.verticesData.vertices)
 
     self.normalsData = self.cls.DataStreamChunk()
     self.normalsData.dataStreamType = self.cls.DataStreamType.NORMALS
     self.normalsData.bytesPerElement = 12
     self.normalsData.numElements = numvertices
     self.normalsData.normals.updateSize()
+    selfnormalsData_iter = iter(self.normalsData.normals)
 
     self.indicesData = self.cls.DataStreamChunk()
     self.indicesData.dataStreamType = self.cls.DataStreamType.INDICES
     self.indicesData.bytesPerElement = 2
     self.indicesData.numElements = numtriangles * 3
     self.indicesData.indices.updateSize()
+
+    if not uvslist is None:
+        self.uvsData = self.cls.DataStreamChunk()
+        self.uvsData.dataStreamType = self.cls.DataStreamType.UVS
+        self.uvsData.bytesPerElement = 8
+        self.uvsData.numElements = numvertices
+        self.uvsData.uvs.updateSize()
+        selfuvsData_iter = iter(self.uvsData.uvs)
 
     self.numMeshSubsets = len(matlist)
     self.meshSubsets = self.cls.MeshSubsetsChunk()
@@ -428,11 +525,6 @@ def setGeometry(self,
         uvslist = itertools.repeat(None)
     if colorslist is None:
         colorslist = itertools.repeat(None)
-
-    selfvertices_iter = iter(self.vertices)
-    selfverticesData_iter = iter(self.verticesData.vertices)
-    selfnormalsData_iter = iter(self.normalsData.normals)
-    selffaces_iter = iter(self.faces)
 
     # now iterate over all materials
     firstvertexindex = 0
@@ -488,6 +580,24 @@ def setGeometry(self,
         for i, vertexindex in enumerate(itertools.chain(*triangles)):
             self.indicesData.indices[i + firstindicesindex] \
                 = vertexindex + firstvertexindex
+
+        if not uvs is None:
+            # set Far Cry uv info
+            for triangle in triangles:
+                cryuvface = selfuvFaces_iter.next()
+                cryuvface.t0 = triangle[0] + firstvertexindex
+                cryuvface.t1 = triangle[1] + firstvertexindex
+                cryuvface.t2 = triangle[2] + firstvertexindex
+            for uv in uvs:
+                cryuv = selfuvs_iter.next()
+                cryuv.u = uv[0]
+                cryuv.v = uv[1]
+
+            # set Crysis uv info
+            for uv in uvs:
+                cryuv = selfuvsData_iter.next()
+                cryuv.u = uv[0]
+                cryuv.v = uv[1]
 
         # update index offsets
         firstvertexindex += len(vertices)
