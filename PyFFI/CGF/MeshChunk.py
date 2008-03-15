@@ -160,9 +160,10 @@ def setGeometry(self,
     @param verticeslist: A list of lists of vertices (one list per material).
     @param normalslist: A list of lists of normals (one list per material).
     @param triangleslist: A list of lists of triangles (one list per material).
-    @param matlist: A list of material indices.
-    @param uvslist: A list of lists of uvs (one list per material).
+    @param matlist: A list of material indices. Optional.
+    @param uvslist: A list of lists of uvs (one list per material). Optional.
     @param colorslist: A list of lists of colors (one list per material).
+        Optional.
 
     >>> from PyFFI.CGF import CgfFormat
     >>> chunk = CgfFormat.MeshChunk()
@@ -464,6 +465,14 @@ def setGeometry(self,
         * v : 1.0
     <BLANKLINE>
     """
+    # quick hack to accept empty lists instead of None for optional lists
+    if uvslist == []:
+        uvslist = None
+    if colorslist == []:
+        colorslist = None
+    if matlist == []:
+        matlist = None
+    
     # get total number of vertices
     numvertices = sum(len(vertices) for vertices in verticeslist)
     numtriangles = sum(len(triangles) for triangles in triangleslist)
