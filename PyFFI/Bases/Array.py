@@ -232,7 +232,9 @@ class Array(_ListWrap):
                 if i > 16:
                     text += "etc...\n"
                     break
-                text += "%i: %s\n" % (i, element)
+                text += "%i: %s" % (i, element)
+                if text[-1:] != "\n":
+                    text += "\n"
         else:
             k = 0
             for i, elemlist in enumerate(list.__iter__(self)):
@@ -240,7 +242,9 @@ class Array(_ListWrap):
                     if k > 16:
                         text += "etc...\n"
                         break
-                    text += "%i, %i: %s\n" % (i, j, elem)
+                    text += "%i, %i: %s" % (i, j, elem)
+                    if text[-1:] != "\n":
+                        text += "\n"
                     k += 1
                 if k > 16:
                     break
