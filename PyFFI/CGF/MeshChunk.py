@@ -93,8 +93,8 @@ def getUVs(self):
     if self.uvs:
         for uv in self.uvs:
             yield uv.u, uv.v
-    elif self.uvData:
-        for uv in self.uvData.uvs:
+    elif self.uvsData:
+        for uv in self.uvsData.uvs:
             yield uv.u, 1.0 - uv.v # OpenGL fix!
 
 def getUVTriangles(self):
