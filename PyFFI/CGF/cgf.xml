@@ -898,7 +898,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
     </struct>
 
     <struct name="BreakablePhysicsChunk" inherit="Chunk">
-        <version num="800">Crysis</version>
+        <version num="1">Crysis</version>
     </struct>
 
     <struct name="FaceMapChunk" inherit="Chunk">
