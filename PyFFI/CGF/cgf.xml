@@ -775,10 +775,9 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Physics Type" type="MtlNamePhysicsType" />
         <add name="Num Children" type="uint">Maximum is 66.</add>
         <add name="Children" type="Ref" template="MtlNameChunk" arr1="Num Children" />
-        <add name="Padding" type="uint" arr1="66 - Num Children" cond="Num Children != 0"/>
-        <add name="Reserved 1" type="uint" arr1="32" cond="Num Children == 0"/>
-        <add name="Advanced Data" type="uint" cond="Num Children == 0" />
-        <add name="Sh Opacity" type="float" cond="Num Children == 0"/>
+        <add name="Padding" type="uint" arr1="32 - Num Children" />
+        <add name="Advanced Data" type="uint" />
+        <add name="Sh Opacity" type="float" />
         <add name="Reserved 2" type="int" arr1="32" cond="Num Children == 0" />
     </struct>
 
