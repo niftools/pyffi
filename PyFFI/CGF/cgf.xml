@@ -122,6 +122,7 @@
         <option value="0xAAFC0002" name="SpeedInfo">Speed and distant info.</option>
         <option value="0xAAFC0003" name="FootPlantInfo">Footplant information.</option>
         <option value="0xAAFC0004" name="BonesBoxes">Unknown chunk. Used in Crysis.</option>
+        <option value="0xAAFC0005" name="UnknownAAFC0005">Unknown chunk. Used in Crysis.</option>
     </enum>
 
     <enum name="HelperType" numbytes="1">
@@ -929,6 +930,12 @@ In Python this can be calculated using zlib.crc32(name)</add>
     <struct name="BonesBoxesChunk" inherit="Chunk">
         <version num="800">Crysis</version>
         <version num="801">Crysis</version>
+    </struct>
+
+    <struct name="UnknownAAFC0005Chunk" inherit="Chunk">
+        Unknown. An extra block written by the XSI exporter.
+        <version num="1">Crysis</version>
+        <add name="Unknown" type="byte" arr1="16" />
     </struct>
 
 </fileformat>
