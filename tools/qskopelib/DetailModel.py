@@ -199,7 +199,8 @@ class DetailModel(QtCore.QAbstractItemModel):
             currentvalue = data.getValue()
             # transform the QVariant value into the right class
             if isinstance(currentvalue, (int, long)):
-                pyvalue, ok = value.toInt()
+                # use long type to work around QVariant(0xffffffff).toInt() bug
+                pyvalue, ok = value.toLongLong()
             elif isinstance(currentvalue, float):
                 pyvalue, ok = value.toDouble()
             elif isinstance(currentvalue, basestring):

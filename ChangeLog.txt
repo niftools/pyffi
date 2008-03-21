@@ -1,3 +1,12 @@
+Version 0.10.1 (21 Mar 2008)
+* cgf:
+  - some minor xml updates
+  - setGeometry function for MeshChunk to set geometry for both Far Cry and
+  Crysis in a unified way
+  - uv.v opengl flip fix for Crysis MeshChunk data
+* MathUtils: new function to calculate bounding box, center, and radius
+* qskope: fixed bug which prevented setting material physics type to NONE
+
 Version 0.10.0 (8 Mar 2008)
 * cgf: ported A LOT of stuff from the Crysis Mod SDK 1.2; the most common
 CE2 chunks now read and write successfully

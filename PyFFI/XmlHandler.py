@@ -437,9 +437,11 @@ but got %s instead"""%name)
                 raise XmlError("only option tags allowed in enum declaration")
             value = attrs["value"]
             try:
-                value = int(value)
+                # note: use long rather than int to work around 0xffffffff
+                # error in qskope
+                value = long(value)
             except ValueError:
-                value = int(value, 16)
+                value = long(value, 16)
             self.classDict["_enumkeys"].append(attrs["name"])
             self.classDict["_enumvalues"].append(value)
 
