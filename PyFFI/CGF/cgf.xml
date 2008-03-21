@@ -837,12 +837,16 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Tetrahedra" type="Ref" template="DataStreamChunk">Not sure which type this should be.</add>
         <add name="Reserved 1" type="uint" />
         <add name="Reserved 2" type="uint" />
-        <add name="Physics Data" type="ubyte" arr1="Physics Data Size" />
+        <!-- <add name="Physics Data" type="ubyte" arr1="Physics Data Size" /> -->
         <add name="Tetrahedra Data" type="ubyte" arr1="Tetrahedra Data Size" />
-        <!-- the following is an experimental decoding of the physics data
-        <add name="Unknown 4" type="int" />
-        <add name="Unknown 5" type="float" arr1="11" />
-        <add name="Unknown 10" type="int" />
+        <!-- the following is an experimental decoding of the physics data -->
+        <add name="Unknown 4" type="int">Seems to be 1 in all cases observed.</add>
+        <add name="Unknown 4bis" type="int">Unknown, does not seem to be flags.</add>
+        <add name="Unknown 5" type="float" arr1="3">Inertia?</add>
+        <add name="Rot" type="Quat">Most definitely a quaternion. Probably describes rotation of the physics object.</add>
+        <add name="Center" type="Vector3">Center, or position. Probably describes translation of the physics object. Often corresponds to the center of the mesh data as described in the submesh chunk.</add>
+        <add name="Unknown 10" type="float">Mass?</add>
+<!--
         <add name="Unknown 11" type="int" />
         <add name="Unknown 12" type="float">Not sure whether this is a float.</add>
         <add name="Unknown 13" type="float">Not sure either.</add>
