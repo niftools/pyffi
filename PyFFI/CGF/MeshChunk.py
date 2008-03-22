@@ -95,6 +95,16 @@ def getTriangles(self):
         while True:
            yield it.next(), it.next(), it.next()
 
+def getMaterialIndices(self):
+    """Generator for all materials (per triangle)."""
+    if self.faces:
+        for face in self.faces:
+            yield face.material
+    elif self.meshSubsets:
+        for meshsubset in self.meshSubsets.meshSubsets:
+            for i in xrange(meshsubset.numIndices // 3):
+                yield meshsubset.matId
+
 def getUVs(self):
     """Generator for all uv coordinates."""
     if self.uvs:
