@@ -459,117 +459,117 @@ def setGeometry(self,
         <class 'PyFFI.Bases.Array.Array'> instance at ...
         0: <class 'PyFFI.XmlHandler.UV'> instance at ...
         * u : 0.0
-        * v : 0.0
+        * v : 1.0
         1: <class 'PyFFI.XmlHandler.UV'> instance at ...
         * u : 0.0
-        * v : 1.0
+        * v : 0.0
         2: <class 'PyFFI.XmlHandler.UV'> instance at ...
         * u : 1.0
-        * v : 0.0
+        * v : 1.0
         3: <class 'PyFFI.XmlHandler.UV'> instance at ...
         * u : 1.0
-        * v : 1.0
+        * v : 0.0
         4: <class 'PyFFI.XmlHandler.UV'> instance at ...
         * u : 0.0
-        * v : 0.0
+        * v : 1.0
         5: <class 'PyFFI.XmlHandler.UV'> instance at ...
         * u : 0.0
-        * v : 1.0
+        * v : 0.0
         6: <class 'PyFFI.XmlHandler.UV'> instance at ...
         * u : 1.0
-        * v : 0.0
+        * v : 1.0
         7: <class 'PyFFI.XmlHandler.UV'> instance at ...
         * u : 1.0
-        * v : 1.0
+        * v : 0.0
     <BLANKLINE>
     >>> print chunk.tangentsData # doctest: +ELLIPSIS
     <class 'PyFFI.XmlHandler.DataStreamChunk'> instance at ...
     * flags : 0
     * dataStreamType : TANGENTS
     * numElements : 8
-    * bytesPerElement : 8
+    * bytesPerElement : 16
     * reserved1 : 0
     * reserved2 : 0
     * tangents :
         <class 'PyFFI.Bases.Array.Array'> instance at ...
         0, 0: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
-        * x : 0
-        * y : 32767
+        * x : 32767
+        * y : 0
         * z : 0
         * w : -32767
         0, 1: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
-        * x : 32767
-        * y : 0
+        * x : 0
+        * y : -32767
         * z : 0
         * w : -32767
         1, 0: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
-        * x : 0
-        * y : 32767
+        * x : 32767
+        * y : 0
         * z : 0
         * w : -32767
         1, 1: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
-        * x : 32767
-        * y : 0
+        * x : 0
+        * y : -32767
         * z : 0
         * w : -32767
         2, 0: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
-        * x : 0
-        * y : 32767
+        * x : 32767
+        * y : 0
         * z : 0
         * w : -32767
         2, 1: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
-        * x : 32767
-        * y : 0
+        * x : 0
+        * y : -32767
         * z : 0
         * w : -32767
         3, 0: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
-        * x : 0
-        * y : 32767
+        * x : 32767
+        * y : 0
         * z : 0
         * w : -32767
         3, 1: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
-        * x : 32767
-        * y : 0
+        * x : 0
+        * y : -32767
         * z : 0
         * w : -32767
         4, 0: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
-        * x : 0
-        * y : 32767
+        * x : 32767
+        * y : 0
         * z : 0
         * w : -32767
         4, 1: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
-        * x : 32767
-        * y : 0
+        * x : 0
+        * y : -32767
         * z : 0
         * w : -32767
         5, 0: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
-        * x : 0
-        * y : 32767
+        * x : 32767
+        * y : 0
         * z : 0
         * w : -32767
         5, 1: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
-        * x : 32767
-        * y : 0
+        * x : 0
+        * y : -32767
         * z : 0
         * w : -32767
         6, 0: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
-        * x : 0
-        * y : 32767
+        * x : 32767
+        * y : 0
         * z : 0
         * w : -32767
         6, 1: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
-        * x : 32767
-        * y : 0
+        * x : 0
+        * y : -32767
         * z : 0
         * w : -32767
         7, 0: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
-        * x : 0
-        * y : 32767
+        * x : 32767
+        * y : 0
         * z : 0
         * w : -32767
         7, 1: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
-        * x : 32767
-        * y : 0
+        * x : 0
+        * y : -32767
         * z : 0
         * w : -32767
     <BLANKLINE>
