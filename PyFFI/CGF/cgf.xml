@@ -846,9 +846,9 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Rot" type="Quat">Most definitely a quaternion. Probably describes rotation of the physics object.</add>
         <add name="Center" type="Vector3">Center, or position. Probably describes translation of the physics object. Often corresponds to the center of the mesh data as described in the submesh chunk.</add>
         <add name="Unknown 10" type="float">Mass?</add>
+        <add name="Unknown 11" type="int">Usually 1.</add>
+        <add name="Unknown 12" type="int">Another number, could be a count (observed values: 0, 1, 17, ...).</add>
 <!--
-        <add name="Unknown 11" type="int" />
-        <add name="Unknown 12" type="float">Not sure whether this is a float.</add>
         <add name="Unknown 13" type="float">Not sure either.</add>
         <add name="Unknown 14" type="int" />
         <add name="Num 1" type="uint" />
