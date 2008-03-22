@@ -727,9 +727,11 @@ def setGeometry(self,
                 crytangent[1].x = int(-32767 * tan[0])
                 crytangent[1].y = int(-32767 * tan[1])
                 crytangent[1].z = int(-32767 * tan[2])
+                crytangent[1].w = -32767
                 crytangent[0].x = int(32767 * bin[0])
                 crytangent[0].y = int(32767 * bin[1])
                 crytangent[0].z = int(32767 * bin[2])
+                crytangent[0].w = -32767
 
         # update index offsets
         firstvertexindex += len(vertices)

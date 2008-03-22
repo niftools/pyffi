@@ -436,7 +436,7 @@
         <add name="x" type="short" />
         <add name="y" type="short" />
         <add name="z" type="short" />
-        <add name="w" type="short" default="32767">Not used?</add>
+        <add name="w" type="short" />Handness? Either 32767 (+1.0) or -32767 (-1.0).</add>
     </struct>
     
     <struct name="FileSignature">
