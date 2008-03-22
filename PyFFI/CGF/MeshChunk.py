@@ -127,7 +127,7 @@ def getUVTriangles(self):
 
 ### DEPRECATED: USE setGeometry INSTEAD ###
 def setVerticesNormals(self, vertices, normals):
-    """B{Deprecated}. Set vertices and normals. This used to be the first function to call
+    """B{Deprecated. Use L{setGeometry} instead.} Set vertices and normals. This used to be the first function to call
     when setting mesh geometry data.
 
     Returns list of chunks that have been added."""
