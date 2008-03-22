@@ -51,6 +51,13 @@ def applyScale(self, scale):
         vert.p.y *= scale
         vert.p.z *= scale
 
+    self.minBound.x *= scale
+    self.minBound.y *= scale
+    self.minBound.z *= scale
+    self.maxBound.x *= scale
+    self.maxBound.y *= scale
+    self.maxBound.z *= scale
+
 def getVertices(self):
     """Generator for all vertices."""
     if self.vertices:
