@@ -127,7 +127,7 @@ def getUVTriangles(self):
 
 ### DEPRECATED: USE setGeometry INSTEAD ###
 def setVerticesNormals(self, vertices, normals):
-    """Set vertices and normals. This should be the first function you call
+    """B{Deprecated}. Set vertices and normals. This used to be the first function to call
     when setting mesh geometry data.
 
     Returns list of chunks that have been added."""
@@ -174,14 +174,6 @@ def setGeometry(self,
                 triangleslist = None, matlist = None,
                 uvslist = None, colorslist = None):
     """Set geometry data.
-
-    @param verticeslist: A list of lists of vertices (one list per material).
-    @param normalslist: A list of lists of normals (one list per material).
-    @param triangleslist: A list of lists of triangles (one list per material).
-    @param matlist: A list of material indices. Optional.
-    @param uvslist: A list of lists of uvs (one list per material). Optional.
-    @param colorslist: A list of lists of colors (one list per material).
-        Optional.
 
     >>> from PyFFI.CGF import CgfFormat
     >>> chunk = CgfFormat.MeshChunk()
@@ -573,6 +565,14 @@ def setGeometry(self,
         * z : 0
         * w : -32767
     <BLANKLINE>
+
+    @param verticeslist: A list of lists of vertices (one list per material).
+    @param normalslist: A list of lists of normals (one list per material).
+    @param triangleslist: A list of lists of triangles (one list per material).
+    @param matlist: A list of material indices. Optional.
+    @param uvslist: A list of lists of uvs (one list per material). Optional.
+    @param colorslist: A list of lists of colors (one list per material).
+        Optional.
     """
     # get total number of vertices
     numvertices = sum(len(vertices) for vertices in verticeslist)
