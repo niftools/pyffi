@@ -1,3 +1,12 @@
+Version 0.10.2 (22 Mar 2008)
+* cgf:
+  - fixed "normals" problem by setting last component of tangents to -1.0
+  - meshchunk function to get all material indices, per triangle (game
+  independent)
+  - scaling fixes for datastreamchunk, meshchunk, and meshsubsetschunk
+  - fixed version of BreakablePhysicsChunk
+  - a few new findings in decoding the physics data (position and rotation)
+
 Version 0.10.1 (21 Mar 2008)
 * cgf:
   - some minor xml updates
