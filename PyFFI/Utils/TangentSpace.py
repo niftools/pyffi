@@ -121,6 +121,9 @@ def getTangentSpace(vertices = None, normals = None, uvs = None,
     xvec = (1, 0, 0)
     yvec = (0, 1, 0)
     for i, norm in enumerate(normals):
+        if abs(1-sum(abs(x) for x in norm)) > 0.00001:
+            raise ValueError(
+                "tangentspace: unnormalized norm in list of norms (%s)" % norm)
         try:
             # turn norm, bin, tan into a base via Gram-Schmidt
             bin[i] = vecSub(bin[i],
