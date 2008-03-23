@@ -1221,10 +1221,10 @@
         properties. Because the properties are equal, a bhkRigidBody may be renamed
         into a bhkRigidBodyT and vice-versa.
         <add name="Unknown 5 Floats" type="float" arr1="5">Unknown.</add>
-        <add name="Unknown 4 Shorts" type="ushort" arr1="4" ver1="20.0.0.4">Unknown.</add>
-        <add name="Layer Copy" type="OblivionLayer" default="1" ver1="20.0.0.4">Copy of Layer value?</add>
-        <add name="Col Filter Copy" type="byte" default="0" ver1="20.0.0.4">Copy of Col Filter value?</add>
-        <add name="Unknown 7 Shorts" type="ushort" arr1="7" ver1="20.0.0.4">Unknown.</add>
+        <add name="Unknown 4 Shorts" type="ushort" arr1="4">Unknown.</add>
+        <add name="Layer Copy" type="OblivionLayer" default="1">Copy of Layer value?</add>
+        <add name="Col Filter Copy" type="byte" default="0">Copy of Col Filter value?</add>
+        <add name="Unknown 7 Shorts" type="ushort" arr1="7">Unknown.</add>
         <add name="Translation" type="Vector3"> A vector that moves the body by the specified amount. Only enabled in bhkRigidBodyT objects.</add>
         <add name="Unknown Float 00" type="float">
             This seems to often be 1 for single objects, or the first one in a
@@ -1546,14 +1546,14 @@
         <add name="Bounding Volume" type="BoundingVolume" cond="Use ABV == 1">Collision data.</add>
     </niobject>
 
-    <niobject name="bhkNiCollisionObject" abstract="1" inherit="NiCollisionObject" ver1="20.0.0.5">
+    <niobject name="bhkNiCollisionObject" abstract="1" inherit="NiCollisionObject">
         Havok related collision object?
-        <add name="Flags" type="ushort" default="1" ver1="20.0.0.4">
+        <add name="Flags" type="ushort" default="1">
         Set to "1" for most objects. Bits: 0=Active 2=Notify 3=Set Local 6=Reset</add>
-        <add name="Body" type="Ref" template="NiObject" ver1="20.0.0.4">Links to the collision object data</add>
+        <add name="Body" type="Ref" template="NiObject">Links to the collision object data</add>
     </niobject>
 
-    <niobject name="bhkCollisionObject" abstract="0" inherit="bhkNiCollisionObject" ver1="20.0.0.5">
+    <niobject name="bhkCollisionObject" abstract="0" inherit="bhkNiCollisionObject">
         Havok related collision object?
     </niobject>
 
