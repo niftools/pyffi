@@ -48,6 +48,7 @@ from PyFFI.NIF import NifFormat
 from PyFFI.CGF import CgfFormat
 from PyFFI.KFM import KfmFormat
 from PyFFI.DDS import DdsFormat
+from PyFFI.TGA import TgaFormat
 
 from types import NoneType
 
@@ -177,6 +178,84 @@ class QSkope(QtGui.QMainWindow):
     # various helper functions
     #
 
+    def openNifFile(self, stream = None):
+        """Read nif file from stream. If stream does not contain a nif file,
+        then raises ValueError. Sets the self.header, self.roots, self.footer,
+        self.Format, and self.formatArgs variables."""
+        # try reading as a nif file
+        version, user_version = NifFormat.getVersion(stream)
+        # if not succesful: raise an exception
+        if version < 0:
+            raise ValueError("not a nif file")
+        # if succesful: parse the file and save information about it
+        self.header, self.roots, self.footer = NifFormat.read(
+            stream, version, user_version, rootsonly = False)
+        self.Format = NifFormat
+        self.formatArgs = (version, user_version)
+
+    def openCgfFile(self, stream = None):
+        """Read cgf file from stream. If stream does not contain a cgf file,
+        then raises ValueError. Sets the self.header, self.roots, self.footer,
+        self.Format, and self.formatArgs variables."""
+        # failed... try reading as a cgf file
+        filetype, fileversion, game = CgfFormat.getVersion(stream)
+        # if not succesful: raise an exception
+        if filetype < 0:
+            raise ValueError("not a cgf file")
+        # if succesful: parse the file and save information about it
+        self.roots, versions = CgfFormat.read(
+            stream, fileversion = fileversion, game = game)
+        self.header = None
+        self.footer = None
+        self.Format = CgfFormat
+        self.formatArgs = (filetype, fileversion, game)
+
+    def openKfmFile(self, stream = None):
+        """Read kfm file from stream. If stream does not contain a kfm file,
+        then raises ValueError. Sets the self.header, self.roots, self.footer,
+        self.Format, and self.formatArgs variables."""
+        # try reading as a kfm file
+        version = KfmFormat.getVersion(stream)
+        # if not succesful: raise an exception
+        if version < 0:
+            raise ValueError("not a kfm file")
+        # if succesful: parse the file and save information about it
+        self.header, self.roots, self.footer = KfmFormat.read(stream, version)
+        self.Format = KfmFormat
+        self.formatArgs = (version,)
+
+    def openDdsFile(self, stream = None):
+        """Read dds file from stream. If stream does not contain a dds file,
+        then raises ValueError. Sets the self.header, self.roots, self.footer,
+        self.Format, and self.formatArgs variables."""
+        # try reading as a dds file
+        version = DdsFormat.getVersion(stream)
+        # if not succesful: raise an exception
+        if version < 0:
+            raise ValueError("not a dds file")
+        # if succesful: parse the file and save information about it
+        self.header, pixeldata = DdsFormat.read(stream, version)
+        self.roots = None
+        self.footer = None
+        self.Format = DdsFormat
+        self.formatArgs = (version,)
+
+    def openTgaFile(self, stream = None):
+        """Read tga file from stream. If stream does not contain a tga file,
+        then raises ValueError. Sets the self.header, self.roots, self.footer,
+        self.Format, and self.formatArgs variables."""
+        # try reading as a dds file
+        version = TgaFormat.getVersion(stream)
+        # if not succesful: raise an exception
+        if version < 0:
+            raise ValueError("not a tga file")
+        # if succesful: parse the file and save information about it
+        self.header, pixeldata = TgaFormat.read(stream, version)
+        self.roots = None
+        self.footer = None
+        self.Format = TgaFormat
+        self.formatArgs = (version,)
+
     def openFile(self, filename = None):
         """Open a file, and set up the view."""
         # inform user about file being read
@@ -187,50 +266,27 @@ class QSkope(QtGui.QMainWindow):
         try:
             stream = open(filename, "rb")
             # try reading as a nif file
-            version, user_version = NifFormat.getVersion(stream)
-            if version >= 0:
-                # if succesful: parse the file and save information about it
-                self.header, self.roots, self.footer = NifFormat.read(stream, version, user_version, rootsonly = False)
-                self.fileName = filename
-                self.Format = NifFormat
-                self.formatArgs = (version, user_version)
-            else:
+            try:
+                self.openNifFile(stream)
+            except ValueError:
                 # failed... try reading as a cgf file
-                filetype, fileversion, game = CgfFormat.getVersion(stream)
-                if filetype >= 0:
-                    # if succesful: parse the file and save information about it
-                    self.roots, versions = CgfFormat.read(
-                        stream, fileversion = fileversion, game = game)
-                    self.header = None
-                    self.footer = None
-                    self.fileName = filename
-                    self.Format = CgfFormat
-                    self.formatArgs = (filetype, fileversion, game)
-                else:
-                    # try reading as a kfm file
-                    version = KfmFormat.getVersion(stream)
-                    if version >= 0:
-                        # if succesful: parse the file and save information about it
-                        self.header, self.roots, self.footer = KfmFormat.read(stream, version)
-                        self.fileName = filename
-                        self.Format = KfmFormat
-                        self.formatArgs = (version,)
-                    else:
-                        # try reading as a dds file
-                        version = DdsFormat.getVersion(stream)
-                        if version >= 0:
-                            # if succesful: parse the file and save information about it
-                            self.header, pixeldata = DdsFormat.read(stream, version)
-                            self.roots = None
-                            self.footer = None
-                            self.fileName = filename
-                            self.Format = DdsFormat
-                            self.formatArgs = (version,)
-                        else:
-                            # all failed: inform user that format is not recognized
-                            self.statusBar().showMessage(
-                                'File format of %s not recognized' % filename)
-                            return
+                try:
+                    self.openCgfFile(stream)
+                except ValueError:
+                    try:
+                        self.openKfmFile(stream)
+                    except ValueError:
+                        try:
+                            self.openDdsFile(stream)
+                        except ValueError:
+                            try:
+                                self.openTgaFile(stream)
+                            except ValueError:
+                                # all failed: inform user that format is not
+                                # recognized
+                                self.statusBar().showMessage(
+                                    'File format of %s not recognized' % filename)
+                                return
         except (ValueError, IOError):
             # update status bar message
             self.statusBar().showMessage("Failed reading %s (see console)"
@@ -238,6 +294,9 @@ class QSkope(QtGui.QMainWindow):
             raise
             
         else:
+            # update current file name
+            self.fileName = filename
+
             # update the status bar
             self.statusBar().showMessage("Finished reading %s" % filename)
 
@@ -261,6 +320,11 @@ class QSkope(QtGui.QMainWindow):
         # TODO support dds saving as well
         if issubclass(self.Format, DdsFormat):
             self.statusBar().showMessage("Saving DDS format not supported")
+            return
+
+        # TODO support tga saving as well
+        if issubclass(self.Format, TgaFormat):
+            self.statusBar().showMessage("Saving TGA format not supported")
             return
 
         # tell user we are saving the file

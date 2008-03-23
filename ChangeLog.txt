@@ -1,3 +1,7 @@
+Version 0.10.3 (***)
+* added support for the TGA format
+* tangentspace: validate normals before calculating tangents
+
 Version 0.10.2 (22 Mar 2008)
 * cgf:
   - fixed "normals" problem by setting last component of tangents to -1.0
