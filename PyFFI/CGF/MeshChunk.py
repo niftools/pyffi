@@ -624,14 +624,6 @@ def setGeometry(self,
         self.uvsData.uvs.updateSize()
         selfuvsData_iter = iter(self.uvsData.uvs)
 
-        # tangent space
-        self.tangentsData = self.cls.DataStreamChunk()
-        self.tangentsData.dataStreamType = self.cls.DataStreamType.TANGENTS
-        self.tangentsData.bytesPerElement = 16
-        self.tangentsData.numElements = numvertices
-        self.tangentsData.tangents.updateSize()
-        selftangentsData_iter = iter(self.tangentsData.tangents)
-
     self.numMeshSubsets = len(matlist)
     self.meshSubsets = self.cls.MeshSubsetsChunk()
     self.meshSubsets.numMeshSubsets = len(matlist)
@@ -718,24 +710,13 @@ def setGeometry(self,
                 cryuv.u = uv[0]
                 cryuv.v = 1.0 - uv[1] # OpenGL fix
 
-            # set Crysis tangents info
-            tangents, binormals = TangentSpace.getTangentSpace(
-                vertices = vertices, normals = normals, uvs = uvs,
-                triangles = triangles)
-            for tan, bin in izip(tangents, binormals):
-                crytangent = selftangentsData_iter.next()
-                crytangent[1].x = int(-32767 * tan[0])
-                crytangent[1].y = int(-32767 * tan[1])
-                crytangent[1].z = int(-32767 * tan[2])
-                crytangent[1].w = -32767
-                crytangent[0].x = int(32767 * bin[0])
-                crytangent[0].y = int(32767 * bin[1])
-                crytangent[0].z = int(32767 * bin[2])
-                crytangent[0].w = -32767
-
         # update index offsets
         firstvertexindex += len(vertices)
         firstindicesindex += 3 * len(triangles)
+
+    # update tangent space
+    if not uvslist is None:
+        self.updateTangentSpace()
 
     # set global bounding box
     minbound, maxbound = MathUtils.getBoundingBox(
@@ -746,6 +727,38 @@ def setGeometry(self,
     self.maxBound.x = maxbound[0]
     self.maxBound.y = maxbound[1]
     self.maxBound.z = maxbound[2]
+
+def updateTangentSpace(self):
+    """Recalculate tangent space data."""
+    # set up tangent space
+    self.tangentsData = self.cls.DataStreamChunk()
+    self.tangentsData.dataStreamType = self.cls.DataStreamType.TANGENTS
+    self.tangentsData.bytesPerElement = 16
+    self.tangentsData.numElements = self.numVertices
+    self.tangentsData.tangents.updateSize()
+    selftangentsData_iter = iter(self.tangentsData.tangents)
+
+    # set Crysis tangents info
+    tangents, binormals = TangentSpace.getTangentSpace(
+        vertices = list((vert.x, vert.y, vert.z)
+                        for vert in self.verticesData.vertices),
+        normals = list((norm.x, norm.y, norm.z)
+                        for norm in self.normalsData.normals),
+        uvs = list((uv.u, uv.v)
+                   for uv in self.uvsData.uvs),
+        triangles = list(self.getTriangles()))
+
+    for crytangent, tan, bin in izip(self.tangentsData.tangents,
+                                     tangents, binormals):
+        crytangent[1].x = int(32767 * tan[0])
+        crytangent[1].y = int(32767 * tan[1])
+        crytangent[1].z = int(32767 * tan[2])
+        crytangent[1].w = -32767
+        crytangent[0].x = int(32767 * bin[0])
+        crytangent[0].y = int(32767 * bin[1])
+        crytangent[0].z = int(32767 * bin[2])
+        crytangent[0].w = -32767
+
 
 if __name__ == "__main__":
     import doctest
