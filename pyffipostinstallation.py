@@ -216,4 +216,15 @@ else:
             hkeycommand.Close()
             _winreg.DeleteKey(hkeyqskope, "command")
             hkeyqskope.Close()
-            _winreg.DeleteKey(hkeyshell, "Open with QSkope")            
+            _winreg.DeleteKey(hkeyshell, "Open with QSkope")
+        # remove pyffi from maya
+        for mayaversion in ("2008",):
+            val, valtype = getsubkeyvalue(_winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\Autodesk\\Maya\\%s\\Setup\\InstallPath" % mayaversion, "MAYA_INSTALL_LOCATION")
+            if not val is None:
+                mayapyffi = os.path.join(val, "Python", "lib", "site-packages", "PyFFI")
+                # delete old maya pyffi install
+                try:
+                    shutil.rmtree(mayapyffi)
+                except WindowsError:
+                    # PyFFI was not installed in the maya tree
+                    pass
