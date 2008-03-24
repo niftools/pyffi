@@ -1,8 +1,15 @@
-Version 0.10.3 (***)
+Version 0.10.3 (24 Mar 2008)
 * added support for the TGA format
-* tangentspace: validate normals before calculating tangents
-* installer detects Maya and copies relevant files to Maya Python directory
-for the Maya scripts to work
+* tangentspace:
+  - validate normals before calculating tangents
+  - added new option to get orientation of tangent space relative to texture
+  space (Crysis needs to know about this)
+* installer detects Maya 2008 and copies relevant files to Maya Python
+directory for the Maya scripts to work
+* cgf:
+  - tangent space cgftoaster
+  - new MeshChunk updateTangentSpace function
+
 
 Version 0.10.2 (22 Mar 2008)
 * cgf:
