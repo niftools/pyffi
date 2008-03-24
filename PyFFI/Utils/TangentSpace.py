@@ -40,14 +40,20 @@
 from MathUtils import *
 
 def getTangentSpace(vertices = None, normals = None, uvs = None,
-                    triangles = None):
+                    triangles = None, orientation = False,
+                    orthogonal = True):
     """Calculate tangent space data.
 
     @param vertices: A list of vertices (triples of floats/ints).
     @param normals: A list of normals (triples of floats/ints).
     @param uvs: A list of uvs (pairs of floats/ints).
     @param triangles: A list of triangle indices (triples of ints).
-    @return: Two lists of vectors, tangents and binormals.
+    @param orientation: Set to C{True} to return orientation (this is used by
+        for instance Crysis).
+    @return: Two lists of vectors, tangents and binormals. If C{orientation}
+        is C{True}, then returns an extra list with orientations (containing
+        floats which describe the total signed surface of all faces sharing
+        the particular vertex).
 
     >>> vertices = [(0,0,0), (0,1,0), (1,0,0)]
     >>> normals = [(0,0,1), (0,0,1), (0,0,1)]
@@ -64,6 +70,7 @@ def getTangentSpace(vertices = None, normals = None, uvs = None,
 
     bin = [(0,0,0) for i in xrange(len(vertices)) ]
     tan = [(0,0,0) for i in xrange(len(vertices)) ]
+    orientations = [0 for i in xrange(len(vertices))]
 
     # calculate tangents and binormals from vertex and texture coordinates
     for t1, t2, t3 in triangles:
@@ -116,6 +123,7 @@ def getTangentSpace(vertices = None, normals = None, uvs = None,
         for i in (t1, t2, t3):
             tan[i] = vecAdd(tan[i], tdir)
             bin[i] = vecAdd(bin[i], sdir)
+            orientations[i] += r
 
     # convert into orthogonal space
     xvec = (1, 0, 0)
@@ -152,7 +160,10 @@ def getTangentSpace(vertices = None, normals = None, uvs = None,
             tan[i] = vecCrossProduct(norm, bin[i])
 
     # return result
-    return tan, bin
+    if orientation:
+        return tan, bin, orientations
+    else:
+        return tan, bin
 
 if __name__ == "__main__":
     import doctest

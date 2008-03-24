@@ -739,25 +739,30 @@ def updateTangentSpace(self):
     selftangentsData_iter = iter(self.tangentsData.tangents)
 
     # set Crysis tangents info
-    tangents, binormals = TangentSpace.getTangentSpace(
+    tangents, binormals, orientations = TangentSpace.getTangentSpace(
         vertices = list((vert.x, vert.y, vert.z)
                         for vert in self.verticesData.vertices),
         normals = list((norm.x, norm.y, norm.z)
                         for norm in self.normalsData.normals),
         uvs = list((uv.u, uv.v)
                    for uv in self.uvsData.uvs),
-        triangles = list(self.getTriangles()))
+        triangles = list(self.getTriangles()),
+        orientation = True)
 
-    for crytangent, tan, bin in izip(self.tangentsData.tangents,
-                                     tangents, binormals):
+    for crytangent, tan, bin, orient in izip(self.tangentsData.tangents,
+                                             tangents, binormals, orientations):
+        if orient > 0:
+            tangent_w = 32767
+        else:
+            tangent_w = -32767
         crytangent[1].x = int(32767 * tan[0])
         crytangent[1].y = int(32767 * tan[1])
         crytangent[1].z = int(32767 * tan[2])
-        crytangent[1].w = -32767
+        crytangent[1].w = tangent_w
         crytangent[0].x = int(32767 * bin[0])
         crytangent[0].y = int(32767 * bin[1])
         crytangent[0].z = int(32767 * bin[2])
-        crytangent[0].w = -32767
+        crytangent[0].w = tangent_w
 
 
 if __name__ == "__main__":

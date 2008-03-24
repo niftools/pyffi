@@ -16,25 +16,25 @@ def testChunk(chunk, **args):
 
     oldtangents = [tangent for tangent in chunk.tangentsData.tangents]
 
-    print "recalculating new tangent space"
+    print("recalculating new tangent space")
     chunk.updateTangentSpace()
     newtangents = [tangent for tangent in chunk.tangentsData.tangents]
 
-    print "validating and checking old with new"
+    print("validating and checking old with new")
 
     for norm, oldtangent, newtangent in izip(chunk.normalsData.normals,
                                              oldtangents, newtangents):
-        print "*** %s ***" % (norm,)
+        print("*** %s ***" % (norm,))
         # check old
         norm = (norm.x, norm.y, norm.z)
         tan = tuple(x / 32767.0 for x in (oldtangent[0].x, oldtangent[0].y, oldtangent[0].z))
         bin = tuple(x / 32767.0 for x in (oldtangent[1].x, oldtangent[1].y, oldtangent[1].z))
         if abs(vecNorm(norm) - 1) > 0.001:
-            print "WARNING: normal has non-unit norm"
+            print("WARNING: normal has non-unit norm")
         if abs(vecNorm(tan) - 1) > 0.001:
-            print "WARNING: oldtangent has non-unit norm"
+            print("WARNING: oldtangent has non-unit norm")
         if abs(vecNorm(bin) - 1) > 0.001:
-            print "WARNING: binormal has non-unit norm"
+            print("WARNING: binormal has non-unit norm")
         if (oldtangent[0].w != oldtangent[1].w):
             raise ValueError(
                 "inconsistent oldtangent w coordinate (%i != %i)"
@@ -49,18 +49,18 @@ def testChunk(chunk, **args):
         crossnorm = vecNorm(cross)
         if abs(crossnorm - 1) > 0.001:
             # a lot of these...
-            print "WARNING: tan and bin not orthogonal"
-            print "         (error is %f)" % abs(crossnorm - 1)
+            print("WARNING: tan and bin not orthogonal")
+            print("         %s %s" % (tan, bin))
+            print("         (error is %f)" % abs(crossnorm - 1))
             cross = vecscalarMul(cross, 1.0/crossnorm)
         if vecDistance(norm, cross) > 0.01:
-            print "norm                 = %s" % (norm,)
-            print "tan                  = %s" % (tan,)
-            print "bin                  = %s" % (bin,)
-            print "tan bin cross prod   = %s" % (cross,)
-            print "error distance       = %f" % vecDistance(norm, cross)
-            #raise ValueError(
             print(
                 "WARNING: norm not cross product of tangent and binormal")
+            #print "norm                 = %s" % (norm,)
+            #print "tan                  = %s" % (tan,)
+            #print "bin                  = %s" % (bin,)
+            #print "tan bin cross prod   = %s" % (cross,)
+            print("       (error is %f)" % vecDistance(norm, cross))
 
         # compare old with new
         if sum((abs(oldtangent[0].x - newtangent[0].x),
@@ -70,21 +70,12 @@ def testChunk(chunk, **args):
                 abs(oldtangent[1].x - newtangent[1].x),
                 abs(oldtangent[1].y - newtangent[1].y),
                 abs(oldtangent[1].z - newtangent[1].z),
-                abs(oldtangent[1].w - newtangent[1].w))) > 30000:
-            if oldtangent[1].w == -32767:
-                print "old tangent"
-                print oldtangent[0], oldtangent[1]
-                print "new tangent"
-                print newtangent[0], newtangent[1]
-            else:
-                print "positive w..."
-                print \
-                    sum((abs(oldtangent[0].x - newtangent[0].x),
-                         abs(oldtangent[0].y - newtangent[0].y),
-                         abs(oldtangent[0].z - newtangent[0].z),
-                         abs(oldtangent[0].w + newtangent[0].w),
-                         abs(oldtangent[1].x - newtangent[1].x),
-                         abs(oldtangent[1].y - newtangent[1].y),
-                         abs(oldtangent[1].z - newtangent[1].z),
-                         abs(oldtangent[1].w + newtangent[1].w)))
+                abs(oldtangent[1].w - newtangent[1].w))) > 100:
+            ntan = tuple(x / 32767.0 for x in (newtangent[0].x, newtangent[0].y, newtangent[0].z))
+            nbin = tuple(x / 32767.0 for x in (newtangent[1].x, newtangent[1].y, newtangent[1].z))
+            print("WARNING: old and new tangents differ substantially")
+            print("old tangent")
+            print((tan, bin))
+            print("new tangent")
+            print((ntan, nbin))
                 
