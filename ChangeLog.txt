@@ -1,6 +1,8 @@
 Version 0.10.3 (***)
 * added support for the TGA format
 * tangentspace: validate normals before calculating tangents
+* installer detects Maya and copies relevant files to Maya Python directory
+for the Maya scripts to work
 
 Version 0.10.2 (22 Mar 2008)
 * cgf:
