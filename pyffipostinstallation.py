@@ -77,13 +77,26 @@ def getsubkey(key, sub_key):
     except EnvironmentError:
         return None
 
+def getsubkeyvalue(key, sub_key, value_name):
+    if key is None:
+        return None, None
+    try:
+        # try to open the sub_key
+        hkey = _winreg.OpenKey(key, sub_key)
+    except EnvironmentError:
+        return None, None
+    else:
+        val = _winreg.QueryValueEx(hkey, value_name)
+        hkey.Close()
+        return val
+
 try:
     import _winreg
 except ImportError:
     # not on Windows: nothing to do
     pass
 else:
-    import sys, os.path
+    import sys, os.path, shutil, PyFFI
     # check arguments
     if len(sys.argv) < 2:
         sys.exit()
@@ -150,6 +163,21 @@ else:
                         qskopelnk,
                         '"%s"' % qskopepy)
         file_created(qskopelnk)
+
+        # copy files to maya
+        for mayaversion in ("2008",):
+            val, valtype = getsubkeyvalue(_winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\Autodesk\\Maya\\%s\\Setup\\InstallPath" % mayaversion, "MAYA_INSTALL_LOCATION")
+            if not val is None:
+                mayapyffi = os.path.join(val, "Python", "lib", "site-packages", "PyFFI")
+                # delete old maya pyffi install
+                try:
+                    shutil.rmtree(mayapyffi)
+                except WindowsError:
+                    # PyFFI was not yet installed
+                    pass
+                # copy new pyffi to maya python path
+                shutil.copytree(os.path.dirname(PyFFI.__file__), mayapyffi)
+
     # uninstall
     elif sys.argv[1] == "-remove":
         # get all the nif keys (this checks whether they exist)
