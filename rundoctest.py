@@ -23,6 +23,7 @@ import PyFFI.CGF
 import PyFFI.CGF.MeshChunk
 import PyFFI.KFM
 import PyFFI.DDS
+import PyFFI.TGA
 
 mods = [ val for (key, val) in sys.modules.iteritems() if key.startswith('PyFFI') ]
 

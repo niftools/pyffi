@@ -16,10 +16,8 @@ Read a TGA file
 ...     raise RuntimeError('not a tga file')
 >>> header, data = TgaFormat.read(f, version = version)
 >>> # print TGA header
->>> print header.size
-124
->>> print header.pixelFormat.size
-32
+>>> print header.width, header.height
+60 20
 
 Create a TGA file from scratch and write to file
 ------------------------------------------------
@@ -28,13 +26,6 @@ Create a TGA file from scratch and write to file
 >>> from tempfile import TemporaryFile
 >>> f = TemporaryFile()
 >>> TgaFormat.write(f, version = version, header = header, pixeldata = TgaFormat.PixelData())
-
-Get list of versions
---------------------
-
->>> for vnum in sorted(TgaFormat.versions.values()): print '0x%08X'%vnum
-0x00000009
-0x00000010
 """
 
 # ***** BEGIN LICENSE BLOCK *****
@@ -278,3 +269,8 @@ or a bug in TgaFormat library."""
                     if verbose >= 1: print 'not a tga file'
             finally:
                 stream.close()
+
+if __name__=='__main__':
+    import doctest
+    doctest.testmod()
+

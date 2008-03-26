@@ -6,10 +6,12 @@ Using PyFFI
 ===========
 
 If you simply wish to use PyFFI with a format that's already implemented,
-refer to the documentation of that library. For the nif format, refer to
-L{PyFFI.NIF}, for the kfm format, refer to L{PyFFI.KFM}, for the
-cgf format, refer to L{PyFFI.CGF}, and for the dds format, refer to
-L{PyFFI.DDS}.
+refer to the documentation of that library:
+  - L{PyFFI.NIF}
+  - L{PyFFI.KFM}
+  - L{PyFFI.CGF}
+  - L{PyFFI.DDS}
+  - L{PyFFI.TGA}
 
 Supporting New File Formats
 ===========================
@@ -153,7 +155,7 @@ formats.
 
 __all__ = [ 'XmlHandler', 'Utils', 'Common', 'Bases' ]
 
-__version__ = '0.10.4'
+__version__ = '0.10.5'
 __hexversion__ = eval('0x%02X%02X%02X'
                       % tuple(int(x) for x in __version__.split('.')))
 
