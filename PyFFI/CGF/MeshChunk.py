@@ -488,82 +488,82 @@ def setGeometry(self,
         * x : 32767
         * y : 0
         * z : 0
-        * w : -32767
+        * w : 32767
         0, 1: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
         * x : 0
         * y : -32767
         * z : 0
-        * w : -32767
+        * w : 32767
         1, 0: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
         * x : 32767
         * y : 0
         * z : 0
-        * w : -32767
+        * w : 32767
         1, 1: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
         * x : 0
         * y : -32767
         * z : 0
-        * w : -32767
+        * w : 32767
         2, 0: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
         * x : 32767
         * y : 0
         * z : 0
-        * w : -32767
+        * w : 32767
         2, 1: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
         * x : 0
         * y : -32767
         * z : 0
-        * w : -32767
+        * w : 32767
         3, 0: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
         * x : 32767
         * y : 0
         * z : 0
-        * w : -32767
+        * w : 32767
         3, 1: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
         * x : 0
         * y : -32767
         * z : 0
-        * w : -32767
+        * w : 32767
         4, 0: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
         * x : 32767
         * y : 0
         * z : 0
-        * w : -32767
+        * w : 32767
         4, 1: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
         * x : 0
         * y : -32767
         * z : 0
-        * w : -32767
+        * w : 32767
         5, 0: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
         * x : 32767
         * y : 0
         * z : 0
-        * w : -32767
+        * w : 32767
         5, 1: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
         * x : 0
         * y : -32767
         * z : 0
-        * w : -32767
+        * w : 32767
         6, 0: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
         * x : 32767
         * y : 0
         * z : 0
-        * w : -32767
+        * w : 32767
         6, 1: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
         * x : 0
         * y : -32767
         * z : 0
-        * w : -32767
+        * w : 32767
         7, 0: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
         * x : 32767
         * y : 0
         * z : 0
-        * w : -32767
+        * w : 32767
         7, 1: <class 'PyFFI.XmlHandler.Tangent'> instance at ...
         * x : 0
         * y : -32767
         * z : 0
-        * w : -32767
+        * w : 32767
     <BLANKLINE>
 
     @param verticeslist: A list of lists of vertices (one list per material).
@@ -574,6 +574,32 @@ def setGeometry(self,
     @param colorslist: A list of lists of colors (one list per material).
         Optional.
     """
+    # argument sanity checking
+    # check length of lists
+    if len(verticeslist) != len(normalslist):
+        raise ValueError("normalslist must have same length as verticeslist")
+    if len(triangleslist) != len(normalslist):
+        raise ValueError("triangleslist must have same length as verticeslist")
+    if not matlist is None and len(verticeslist) != len(matlist):
+        raise ValueError("matlist must have same length as verticeslist")
+    if not uvslist is None and len(verticeslist) != len(uvslist):
+        raise ValueError("uvslist must have same length as verticeslist")
+    if not colorslist is None and len(verticeslist) != len(colorslist):
+        raise ValueError("colorslist must have same length as verticeslist")
+
+    # check length of lists in lists
+    for vertices, normals in izip(verticeslist, normalslist):
+        if len(vertices) != len(normals):
+            raise ValueError("vertex and normal lists must have same length")
+    if not uvslist is None:
+        for vertices, uvs in izip(verticeslist, uvslist):
+            if len(vertices) != len(uvs):
+                raise ValueError("vertex and uv lists must have same length")
+    if not colorslist is None:
+        for vertices, colors in izip(verticeslist, colorslist):
+            if len(vertices) != len(colors):
+                raise ValueError("vertex and color lists must have same length")
+
     # get total number of vertices
     numvertices = sum(len(vertices) for vertices in verticeslist)
     numtriangles = sum(len(triangles) for triangles in triangleslist)
@@ -623,8 +649,13 @@ def setGeometry(self,
         self.uvsData.numElements = numvertices
         self.uvsData.uvs.updateSize()
         selfuvsData_iter = iter(self.uvsData.uvs)
+        # have tangent space
+        has_tangentspace = True
+    else:
+        # no tangent space
+        has_tangentspace = False
 
-    self.numMeshSubsets = len(matlist) if matlist else 0
+    self.numMeshSubsets = len(verticeslist)
     self.meshSubsets = self.cls.MeshSubsetsChunk()
     self.meshSubsets.numMeshSubsets = self.numMeshSubsets
     self.meshSubsets.meshSubsets.updateSize()
@@ -715,7 +746,7 @@ def setGeometry(self,
         firstindicesindex += 3 * len(triangles)
 
     # update tangent space
-    if not uvslist is None:
+    if has_tangentspace:
         self.updateTangentSpace()
 
     # set global bounding box
