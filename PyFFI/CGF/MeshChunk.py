@@ -624,9 +624,9 @@ def setGeometry(self,
         self.uvsData.uvs.updateSize()
         selfuvsData_iter = iter(self.uvsData.uvs)
 
-    self.numMeshSubsets = len(matlist)
+    self.numMeshSubsets = len(matlist) if matlist else 0
     self.meshSubsets = self.cls.MeshSubsetsChunk()
-    self.meshSubsets.numMeshSubsets = len(matlist)
+    self.meshSubsets.numMeshSubsets = self.numMeshSubsets
     self.meshSubsets.meshSubsets.updateSize()
 
     # set up default iterators
