@@ -1,3 +1,10 @@
+Version 0.10.4 (26 Mar 2008)
+* cgf:
+  - fixed tangent space doctest
+  - setGeometry argument sanity checking
+  - setGeometry fix for empty material list
+  - setGeometry tangent space update fix if there are no uvs
+
 Version 0.10.3 (24 Mar 2008)
 * added support for the TGA format
 * tangentspace:
