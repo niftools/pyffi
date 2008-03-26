@@ -44,6 +44,13 @@ def getTangentSpace(vertices = None, normals = None, uvs = None,
                     orthogonal = True):
     """Calculate tangent space data.
 
+    >>> vertices = [(0,0,0), (0,1,0), (1,0,0)]
+    >>> normals = [(0,0,1), (0,0,1), (0,0,1)]
+    >>> uvs = [(0,0), (0,1), (1,0)]
+    >>> triangles = [(0,1,2)]
+    >>> getTangentSpace(vertices = vertices, normals = normals, uvs = uvs, triangles = triangles)
+    ([(0.0, 1.0, 0.0), (0.0, 1.0, 0.0), (0.0, 1.0, 0.0)], [(1.0, 0.0, 0.0), (1.0, 0.0, 0.0), (1.0, 0.0, 0.0)])
+
     @param vertices: A list of vertices (triples of floats/ints).
     @param normals: A list of normals (triples of floats/ints).
     @param uvs: A list of uvs (pairs of floats/ints).
@@ -54,13 +61,6 @@ def getTangentSpace(vertices = None, normals = None, uvs = None,
         is C{True}, then returns an extra list with orientations (containing
         floats which describe the total signed surface of all faces sharing
         the particular vertex).
-
-    >>> vertices = [(0,0,0), (0,1,0), (1,0,0)]
-    >>> normals = [(0,0,1), (0,0,1), (0,0,1)]
-    >>> uvs = [(0,0), (0,1), (1,0)]
-    >>> triangles = [(0,1,2)]
-    >>> getTangentSpace(vertices = vertices, normals = normals, uvs = uvs, triangles = triangles)
-    ([(0.0, 1.0, 0.0), (0.0, 1.0, 0.0), (0.0, 1.0, 0.0)], [(1.0, 0.0, 0.0), (1.0, 0.0, 0.0), (1.0, 0.0, 0.0)])
     """
 
     # validate input
