@@ -76,6 +76,20 @@ def getNormals(self):
         for norm in self.normalsData.normals:
             yield norm
 
+def getColors(self):
+    """Generator for all vertex colors."""
+    if self.vertexColors:
+        for color in self.vertexColors:
+            # Far Cry has no alpha channel
+            yield (color.r, color.g, color.b, 255)
+    elif self.colorsData:
+        if self.colorsData.rgbColors:
+            for color in self.colorsData.rgbColors:
+                yield (color.r, color.g, color.b, 255)
+        elif self.colorsData.rgbaColors:
+            for color in self.colorsData.rgbaColors:
+                yield (color.r, color.g, color.b, color.a)
+
 def getNumTriangles(self):
     """Get number of triangles."""
     if self.faces:

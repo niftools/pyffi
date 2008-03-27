@@ -1,3 +1,9 @@
+Version 0.10.5 (27 Mar 2008)
+* qskope: make bitstructs editable
+* cgf:
+  - MeshChunk functions to get vertex colors (game independent).
+  - Set vertex colors in setGeometry function.
+
 Version 0.10.4 (26 Mar 2008)
 * cgf:
   - fixed tangent space doctest
