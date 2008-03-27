@@ -185,15 +185,18 @@ def setGeometry(self,
     >>> triangles2 = [(0,1,2),(2,1,3)]
     >>> uvs1 = [(0,0),(0,1),(1,0),(1,1)]
     >>> uvs2 = [(0,0),(0,1),(1,0),(1,1)]
+    >>> colors1 = [(0,1,2,3),(4,5,6,7),(8,9,10,11),(12,13,14,15)]
+    >>> colors2 = [(50,51,52,53),(54,55,56,57),(58,59,60,61),(62,63,64,65)]
     >>> chunk.setGeometry(verticeslist = [vertices1, vertices2],
     ...                   normalslist = [normals1, normals2],
     ...                   triangleslist = [triangles1, triangles2],
     ...                   uvslist = [uvs1, uvs2],
-    ...                   matlist = [2,5])
+    ...                   matlist = [2,5],
+    ...                   colorslist = [colors1, colors2])
     >>> print chunk # doctest: +ELLIPSIS
     <class 'PyFFI.XmlHandler.MeshChunk'> instance at ...
     * hasVertexWeights : False
-    * hasVertexColors : False
+    * hasVertexColors : True
     * inWorldSpace : False
     * reserved1 : 0
     * reserved2 : 0
@@ -303,10 +306,44 @@ def setGeometry(self,
         * t0 : 6
         * t1 : 5
         * t2 : 7
+    * vertexColors :
+        <class 'PyFFI.Bases.Array.Array'> instance at ...
+        0: <class 'PyFFI.XmlHandler.IRGB'> instance at ...
+        * r : 0
+        * g : 1
+        * b : 2
+        1: <class 'PyFFI.XmlHandler.IRGB'> instance at ...
+        * r : 4
+        * g : 5
+        * b : 6
+        2: <class 'PyFFI.XmlHandler.IRGB'> instance at ...
+        * r : 8
+        * g : 9
+        * b : 10
+        3: <class 'PyFFI.XmlHandler.IRGB'> instance at ...
+        * r : 12
+        * g : 13
+        * b : 14
+        4: <class 'PyFFI.XmlHandler.IRGB'> instance at ...
+        * r : 50
+        * g : 51
+        * b : 52
+        5: <class 'PyFFI.XmlHandler.IRGB'> instance at ...
+        * r : 54
+        * g : 55
+        * b : 56
+        6: <class 'PyFFI.XmlHandler.IRGB'> instance at ...
+        * r : 58
+        * g : 59
+        * b : 60
+        7: <class 'PyFFI.XmlHandler.IRGB'> instance at ...
+        * r : 62
+        * g : 63
+        * b : 64
     * verticesData : <class 'PyFFI.XmlHandler.DataStreamChunk'> instance at ...
     * normalsData : <class 'PyFFI.XmlHandler.DataStreamChunk'> instance at ...
     * uvsData : <class 'PyFFI.XmlHandler.DataStreamChunk'> instance at ...
-    * colorsData : None
+    * colorsData : <class 'PyFFI.XmlHandler.DataStreamChunk'> instance at ...
     * colors2Data : None
     * indicesData : <class 'PyFFI.XmlHandler.DataStreamChunk'> instance at ...
     * tangentsData : <class 'PyFFI.XmlHandler.DataStreamChunk'> instance at ...
@@ -565,14 +602,66 @@ def setGeometry(self,
         * z : 0
         * w : 32767
     <BLANKLINE>
+    >>> print chunk.colorsData # doctest: +ELLIPSIS
+    <class 'PyFFI.XmlHandler.DataStreamChunk'> instance at ...
+    * flags : 0
+    * dataStreamType : COLORS
+    * numElements : 8
+    * bytesPerElement : 4
+    * reserved1 : 0
+    * reserved2 : 0
+    * rgbaColors :
+        <class 'PyFFI.Bases.Array.Array'> instance at ...
+        0: <class 'PyFFI.XmlHandler.IRGBA'> instance at ...
+        * r : 0
+        * g : 1
+        * b : 2
+        * a : 3
+        1: <class 'PyFFI.XmlHandler.IRGBA'> instance at ...
+        * r : 4
+        * g : 5
+        * b : 6
+        * a : 7
+        2: <class 'PyFFI.XmlHandler.IRGBA'> instance at ...
+        * r : 8
+        * g : 9
+        * b : 10
+        * a : 11
+        3: <class 'PyFFI.XmlHandler.IRGBA'> instance at ...
+        * r : 12
+        * g : 13
+        * b : 14
+        * a : 15
+        4: <class 'PyFFI.XmlHandler.IRGBA'> instance at ...
+        * r : 50
+        * g : 51
+        * b : 52
+        * a : 53
+        5: <class 'PyFFI.XmlHandler.IRGBA'> instance at ...
+        * r : 54
+        * g : 55
+        * b : 56
+        * a : 57
+        6: <class 'PyFFI.XmlHandler.IRGBA'> instance at ...
+        * r : 58
+        * g : 59
+        * b : 60
+        * a : 61
+        7: <class 'PyFFI.XmlHandler.IRGBA'> instance at ...
+        * r : 62
+        * g : 63
+        * b : 64
+        * a : 65
+    <BLANKLINE>
 
     @param verticeslist: A list of lists of vertices (one list per material).
     @param normalslist: A list of lists of normals (one list per material).
     @param triangleslist: A list of lists of triangles (one list per material).
     @param matlist: A list of material indices. Optional.
     @param uvslist: A list of lists of uvs (one list per material). Optional.
-    @param colorslist: A list of lists of colors (one list per material).
-        Optional.
+    @param colorslist: A list of lists of RGBA colors (one list per material).
+        Optional. Each color is a tuple (r, g, b, a) with each component an
+        integer between 0 and 255.
     """
     # argument sanity checking
     # check length of lists
@@ -610,13 +699,17 @@ def setGeometry(self,
     selfvertices_iter = iter(self.vertices)
     self.numFaces = numtriangles
     self.faces.updateSize()
+    selffaces_iter = iter(self.faces)
     if not uvslist is None:
         self.numUvs = numvertices
         self.uvs.updateSize()
         self.uvFaces.updateSize()
         selfuvs_iter = iter(self.uvs)
         selfuvFaces_iter = iter(self.uvFaces)
-    selffaces_iter = iter(self.faces)
+    if not colorslist is None:
+        self.hasVertexColors = True
+        self.vertexColors.updateSize()
+        selfvertexColors_iter = iter(self.vertexColors)
 
     # Crysis data preparation
     self.numIndices = numtriangles * 3
@@ -654,6 +747,15 @@ def setGeometry(self,
     else:
         # no tangent space
         has_tangentspace = False
+
+    if not colorslist is None:
+        # vertex colors
+        self.colorsData = self.cls.DataStreamChunk()
+        self.colorsData.dataStreamType = self.cls.DataStreamType.COLORS
+        self.colorsData.bytesPerElement = 4
+        self.colorsData.numElements = numvertices
+        self.colorsData.rgbaColors.updateSize()
+        selfcolorsData_iter = iter(self.colorsData.rgbaColors)
 
     self.numMeshSubsets = len(verticeslist)
     self.meshSubsets = self.cls.MeshSubsetsChunk()
@@ -740,6 +842,23 @@ def setGeometry(self,
                 cryuv = selfuvsData_iter.next()
                 cryuv.u = uv[0]
                 cryuv.v = 1.0 - uv[1] # OpenGL fix
+
+        if not colors is None:
+            # set Far Cry color info
+            for color in colors:
+                crycolor = selfvertexColors_iter.next()
+                crycolor.r = color[0]
+                crycolor.g = color[1]
+                crycolor.b = color[2]
+                # note: Far Cry does not support alpha color channel
+
+            # set Crysis color info
+            for color in colors:
+                crycolor = selfcolorsData_iter.next()
+                crycolor.r = color[0]
+                crycolor.g = color[1]
+                crycolor.b = color[2]
+                crycolor.a = color[3]
 
         # update index offsets
         firstvertexindex += len(vertices)

@@ -187,7 +187,7 @@
         <option value="1" name="NORMALS" />
         <option value="2" name="UVS" />
         <option value="3" name="COLORS" />
-        <option value="3" name="COLORS2" />
+        <option value="4" name="COLORS2" />
         <option value="5" name="INDICES" />
         <option value="6" name="TANGENTS" />
         <option value="7" name="SHCOEFFS" />
