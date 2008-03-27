@@ -46,6 +46,8 @@ from functools import partial
 from itertools import izip
 import struct
 
+from PyFFI.Bases.Delegate import DelegateSpinBox # for Bits
+
 class _MetaBitStructBase(type):
     """This metaclass checks for the presence of a _attrs attribute.
     For each attribute in _attrs, an <attrname> property is generated which
@@ -89,7 +91,7 @@ class _MetaBitStructBase(type):
         # precalculate the attribute name list
         cls._names = cls._getNames()
 
-class Bits(object):
+class Bits(DelegateSpinBox):
     """Basic implementation of a n-bit unsigned integer type (without read
     and write)."""
     def __init__(self, numbits = 1, default = 0, parent = None):
@@ -142,6 +144,15 @@ class Bits(object):
     def qDataDisplay(self):
         """Return an object that can be used to display the instance."""
         return self._value
+
+    # DelegateSpinBox functions
+
+    def qDelegateMinimum(self):
+        return 0
+
+    def qDelegateMaximum(self):
+        return (1 << self._numbits) - 1
+
 
 class BitStructBase(object):
     """Base class from which all file bitstruct types are derived.
