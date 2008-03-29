@@ -743,8 +743,8 @@
         <add name="Controller" type="Ref" template="NiTimeController" ver1="10.1.0.106">Unknown link. Usually -1.</add>
         <add name="Unknown Link 2" type="Ref" template="NiObject" ver1="10.1.0.106" ver2="10.1.0.106">Unknown.</add>
         <add name="Unknown Short 0" type="ushort" ver1="10.1.0.106" ver2="10.1.0.106">Unknown.</add>
-        <add name="Priority?" type="byte" ver1="10.1.0.106" userver="10">Idle animations tend to have low values for this, and NIF objects that have high values tend to correspond with the important parts of the animation.</add>
-        <add name="Priority?" type="byte" ver1="10.1.0.106" userver="11">Idle animations tend to have low values for this, and NIF objects that have high values tend to correspond with the important parts of the animation.</add>
+        <add name="Priority" type="byte" ver1="10.1.0.106" userver="10">Idle animations tend to have low values for this, and NIF objects that have high values tend to correspond with the important parts of the animation.</add>
+        <add name="Priority" type="byte" ver1="10.1.0.106" userver="11">Idle animations tend to have low values for this, and NIF objects that have high values tend to correspond with the important parts of the animation.</add>
         <add name="String Palette" type="Ref" template="NiStringPalette" ver1="10.2.0.0" ver2="20.0.0.5">Refers to the NiStringPalette which contains the name of the controlled NIF object.</add>
         <add name="Node Name" type="string" ver1="10.1.0.106" ver2="10.1.0.106">The name of the animated node.</add>
         <add name="Node Name" type="string" ver1="20.1.0.3">The name of the animated node.</add>
@@ -1838,7 +1838,7 @@
         <add name="Has Shader" type="bool" ver1="10.0.1.0" ver2="20.1.0.3">Shader.</add>
         <add name="Shader Name" type="string" cond="Has Shader != 0" ver1="10.0.1.0" ver2="20.1.0.3">The shader name.</add>
         <add name="Unknown Integer" type="int" cond="Has Shader != 0" ver1="10.0.1.0">Unknown value, usually -1. (Not a link)</add>
-        <add name="Dirty Flag?" type="bool" ver1="20.2.0.7">Dirty Flag?</add>        
+        <add name="Dirty Flag" type="bool" ver1="20.2.0.7">Dirty Flag?</add>        
     </niobject>
 
     <niobject name="NiTriBasedGeom" abstract="1" inherit="NiGeometry">
@@ -2133,7 +2133,7 @@
         <add name="Viewport Top" type="float">Viewport top.</add>
         <add name="Viewport Bottom" type="float">Viewport bottom.</add>
         <add name="LOD Adjust" type="float">Level of detail adjust.</add>
-        <add name="Unknown Link?" type="Ref" template="NiObject">Unknown.</add>
+        <add name="Unknown Link" type="Ref" template="NiObject">Unknown.</add>
         <add name="Unknown Int" type="uint">Unknown.  Changing value crashes viewer.</add>
         <add name="Unknown Int 2" type="uint" ver1="4.2.1.0">Unknown.  Changing value crashes viewer.</add>
         <add name="Unknown Int 3" type ="uint" ver2="3.1">Unknown.</add>
