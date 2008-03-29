@@ -46,7 +46,8 @@ Create a CGF file from scratch
 >>> node1.children[0] = node2
 >>> node2.name = "world"
 >>> chunks = [node1, node2]
->>> stream = open('testwrite.cgf', 'wb')
+>>> from tempfile import TemporaryFile
+>>> stream = TemporaryFile()
 >>> CgfFormat.write(
 ...     stream,
 ...     filetype = CgfFormat.FileType.GEOM,
@@ -55,8 +56,7 @@ Create a CGF file from scratch
 ...     versions = CgfFormat.getChunkVersions('Far Cry', chunks),
 ...     game = 'Far Cry') # note: returns number of padding bytes
 0
->>> stream.close()
->>> stream = open('testwrite.cgf', 'rb')
+>>> stream.seek(0)
 >>> filetype, fileversion, game = CgfFormat.getVersion(stream)
 >>> if filetype == -1:
 ...     raise RuntimeError('cgf version not supported')
