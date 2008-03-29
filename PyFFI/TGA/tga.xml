@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fileformat>
+<fileformat>
+    <!--
+    *******************
+    *** basic types ***
+    *******************
+    -->
+
+    <basic name="ubyte">
+        An unsigned 8-bit integer.
+    </basic>
+
+    <basic name="byte">
+        A signed 8-bit integer.
+    </basic>
+
+    <basic name="ushort">
+        An unsigned 16-bit integer.
+    </basic>
+
+    <basic name="short">
+        A signed 16-bit integer.
+    </basic>
+
+    <basic name="uint">
+        An unsigned 32-bit integer.
+    </basic>
+
+    <basic name="int">
+        A signed 32-bit integer.
+    </basic>
+
+    <basic name="char">
+        An 8-bit character.
+    </basic>
+
+    <basic name="float">
+        A standard 32-bit floating point number.
+    </basic>
+
+    <!--
+    *******************
+    *** alias types ***
+    *******************
+    -->
+
+    <alias name="bool" type="ubyte" />
+    
+    <!--
+    ******************
+    *** enum types ***
+    ******************
+    -->
+
+    <enum name="ImageType" numbytes="1" default="2">
+        An unsigned 8-bit integer, describing the image type.
+        <option value="1" name="INDEXED" />
+        <option value="2" name="RGB" />
+        <option value="3" name="GREY" />
+        <option value="9" name="RLE_INDEXED" />
+        <option value="10" name="RLE_RGB" />
+        <option value="11" name="RLE_GREY" />
+    </enum>
+    
+    <enum name="ColormapType" numbytes="1">
+        An unsigned 8-bit integer, describing the colormap type.
+        <option value="0" name="NONE" />
+        <!-- TODO: add more -->
+    </enum>
+
+    <!--
+    ******************
+    *** bitstructs ***
+    ******************
+    -->
+
+    <bitstruct name="TgaFlags" numbytes="1" >
+        <bits name="Has Alpha" numbits="4" />
+        <bits name="Origin Right" numbits="1" />
+        <bits name="Origin Upper" numbits="1" />
+        <bits name="Interleave 2 Way" numbits="1" />
+        <bits name="Interleave 4 Way" numbits="1" />
+    </bitstruct>
+
+    <!--
+    ***************
+    *** structs ***
+    ***************
+    -->
+
+    <struct name="Header">
+        <add name="Id Length" type="ubyte">Unknown.</add>
+        <add name="Colormap Type" type="ColormapType" />
+        <add name="Image Type" type="ImageType" />
+        <add name="Colormap Index" type="ushort" />
+        <add name="Colormap Length" type="ushort" />
+        <add name="Colormap Size" type="ubyte" />
+        <add name="X Origin" type="ushort" />
+        <add name="Y Origin" type="ushort" />
+        <add name="Width" type="ushort" />
+        <add name="Height" type="ushort" />
+        <add name="Pixel Size" type="ubyte" />
+        <add name="Flags" type="TgaFlags" />
+    </struct>
+
+</fileformat>
+
