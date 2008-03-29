@@ -198,6 +198,40 @@ def setScaleRotation(self, scale, rotation):
     self.m32 = rotation.m32 * scale
     self.m33 = rotation.m33 * scale
 
+def getScaleQuat(self):
+    """Decompose matrix into scale and quaternion."""
+    scale, rot = self.getScaleRotation()
+    quat = self.cls.Quaternion()
+    trace = 1.0 + rot.m11 + rot.m22 + rot.m33
+    
+    if trace > self.cls._EPSILON:
+        s = (trace ** 0.5) * 2
+        quat.x = -( rot.m32 - rot.m23 ) / s
+        quat.y = -( rot.m13 - rot.m31 ) / s
+        quat.z = -( rot.m21 - rot.m12 ) / s
+        quat.w = 0.25 * s
+    elif rot.m11 > max((rot.m22, rot.m33)): 
+        s  = (( 1.0 + rot.m11 - rot.m22 - rot.m33 ) ** 0.5) * 2
+        quat.x = 0.25 * s
+        quat.y = (rot.m21 + rot.m12 ) / s
+        quat.z = (rot.m13 + rot.m31 ) / s
+        quat.w = -(rot.m32 - rot.m23 ) / s
+    elif rot.m22 > rot.m33:
+        s  = (( 1.0 + rot.m22 - rot.m11 - rot.m33 ) ** 0.5) * 2
+        quat.x = (rot.m21 + rot.m12 ) / s
+        quat.y = 0.25 * s
+        quat.z = (rot.m32 + rot.m23 ) / s
+        quat.w = -(rot.m13 - rot.m31 ) / s
+    else:
+        s  = (( 1.0 + rot.m33 - rot.m11 - rot.m22 ) ** 0.5) * 2
+        quat.x = (rot.m13 + rot.m31 ) / s
+        quat.y = (rot.m32 + rot.m23 ) / s
+        quat.z = 0.25 * s
+        quat.w = -(rot.m21 - rot.m12 ) / s
+
+    return scale, quat
+
+
 def getInverse(self):
     """Get inverse (assuming isScaleRotation is true!)."""
     # transpose inverts rotation but keeps the scale

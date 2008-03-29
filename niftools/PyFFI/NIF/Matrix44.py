@@ -197,6 +197,12 @@ def getScaleRotationTranslation(self):
     t = self.getTranslation()
     return (s, r, t)
 
+def getScaleQuatTranslation(self):
+    rotscl = self.getMatrix33()
+    scale, quat = rotscl.getScaleQuat()
+    trans = self.getTranslation()
+    return (scale, quat, trans)
+
 def setScaleRotationTranslation(self, scale, rotation, translation):
     if not isinstance(scale, (float, int, long)):
         raise TypeError('scale must be float')
