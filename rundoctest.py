@@ -19,6 +19,8 @@ import PyFFI.NIF.NiTriShapeData
 import PyFFI.NIF.NiGeometry
 import PyFFI.NIF.NiNode
 import PyFFI.NIF.NiSkinData
+import PyFFI.NIF.StringPalette
+import PyFFI.NIF.ControllerLink
 import PyFFI.CGF
 import PyFFI.CGF.MeshChunk
 import PyFFI.KFM
