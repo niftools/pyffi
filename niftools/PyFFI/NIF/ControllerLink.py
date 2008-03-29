@@ -1,15 +1,25 @@
 """Custom functions for ControllerLink.
 
+>>> # a doctest
 >>> from PyFFI.NIF import NifFormat
 >>> link = NifFormat.ControllerLink()
->>> link.stringPalette = NifFormat.NiStringPalette()
->>> palette = link.stringPalette.stringPalette
->>> link.nodeNameOffset = palette.addString("Bip01")
->>> link.controllerTypeOffset = palette.addString("NiTransformController")
+>>> print link.nodeNameOffset
+-1
+>>> link.setNodeName("Bip01")
+>>> print link.nodeNameOffset
+0
 >>> print link.getNodeName()
->>> print link.getControllerType()
+Bip01
+>>> print link.nodeName
+Bip01
+>>> link.setNodeName("Bip01 Tail")
+>>> print link.nodeNameOffset
+6
+>>> print link.getNodeName()
+Bip01 Tail
+>>> print link.nodeName
+Bip01 Tail
 """
-
 # ***** BEGIN LICENSE BLOCK *****
 #
 # Copyright (c) 2007-2008, NIF File Format Library and Tools.
@@ -48,23 +58,44 @@
 # ***** END LICENSE BLOCK *****
 
 def _getString(self, offset):
-    """A wrapper around stringPalette.getString. Used by getNodeName etc."""
-    if not self.stringPalette:
-        return ''
-
+    """A wrapper around stringPalette.palette.getString. Used by getNodeName
+    etc. Returns the string at given offset."""
     if offset == -1:
         return ''
 
-    return self.stringPalette.stringPalette.getString(offset)
+    if not self.stringPalette:
+        return ''
+
+    return self.stringPalette.palette.getString(offset)
 
 def _addString(self, text):
-    """Wrapper for stringPalette.addString. Used by setNodeName etc. Returns
-    offset of string added."""
+    """Wrapper for stringPalette.palette.addString. Used by setNodeName etc.
+    Returns offset of string added."""
+    # create string palette if none exists yet
     if not self.stringPalette:
         self.stringPalette = self.cls.NiStringPalette()
-    self.stringPalette.stringPalette.addString(text)
+    # add the string and return the offset
+    return self.stringPalette.palette.addString(text)
 
 def getNodeName(self):
+    """Return the node name.
+
+    >>> # a doctest
+    >>> from PyFFI.NIF import NifFormat
+    >>> link = NifFormat.ControllerLink()
+    >>> link.stringPalette = NifFormat.NiStringPalette()
+    >>> palette = link.stringPalette.palette
+    >>> link.nodeNameOffset = palette.addString("Bip01")
+    >>> print link.getNodeName()
+    Bip01
+    
+    >>> # another doctest
+    >>> from PyFFI.NIF import NifFormat
+    >>> link = NifFormat.ControllerLink()
+    >>> link.nodeName = "Bip01"
+    >>> print link.getNodeName()
+    Bip01
+    """
     if self.nodeName:
         return self.nodeName
     else:
@@ -72,7 +103,7 @@ def getNodeName(self):
 
 def setNodeName(self, text):
     self.nodeName = text
-    self.stringPalette
+    self.nodeNameOffset = self._addString(text)
 
 def getPropertyType(self):
     if self.propertyType:
@@ -80,11 +111,19 @@ def getPropertyType(self):
     else:
         return self._getString(self.propertyTypeOffset)
 
+def setPropertyType(self, text):
+    self.propertyType = text
+    self.propertyTypeOffset = self._addString(text)
+
 def getControllerType(self):
     if self.controllerType:
         return self.controllerType
     else:
         return self._getString(self.controllerTypeOffset)
+
+def setControllerType(self, text):
+    self.controllerType = text
+    self.controllerTypeOffset = self._addString(text)
 
 def getVariable1(self):
     if self.variable1:
@@ -92,8 +131,16 @@ def getVariable1(self):
     else:
         return self._getString(self.variable1Offset)
 
+def setVariable1(self, text):
+    self.variable1 = text
+    self.variable1Offset = self._addString(text)
+
 def getVariable2(self):
     if self.variable2:
         return self.variable2
     else:
         return self._getString(self.variable2Offset)
+
+def setVariable2(self, text):
+    self.variable2 = text
+    self.variable2Offset = self._addString(text)

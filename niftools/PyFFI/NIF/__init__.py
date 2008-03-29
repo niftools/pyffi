@@ -382,11 +382,16 @@ class NifFormat(object):
     ushort = Common.UShort
     float = Common.Float
     BlockTypeIndex = Common.UShort
-    StringOffset = Common.UInt
     StringIndex = Common.UInt
     SizedString = Common.SizedString
 
     # implementation of nif-specific basic types
+
+    class StringOffset(Common.Int):
+        """This is just an integer with -1 as default value."""
+        def __init__(self, **kwargs):
+            Common.Int.__init__(self, **kwargs)
+            self.setValue(-1)
 
     class bool(BasicBase, DelegateBoolComboBox):
         """Basic implementation of a 32-bit (8-bit for versions > 4.0.0.2)

@@ -757,10 +757,10 @@
         <add name="Controller Type Offset" type="StringOffset" ver1="10.2.0.0" ver2="20.0.0.5">Apparently the offset in the string palette of some type of controller related to Interpolator (for example, a &#039;NiTransformInterpolator&#039; will have here a &#039;NiTransformController&#039;, etc.). Sometimes the type of controller that links to the interpolator. Probably it refers to the controller in the NIF file that is child of the controlled object, via its type name.</add>
         <add name="Variable 1" type="string" ver1="10.1.0.106" ver2="10.1.0.106">Some variable string (such as &#039;SELF_ILLUM&#039;, &#039;0-0-TT_TRANSLATE_U&#039;, &#039;tongue_out&#039;, etc.).</add>
         <add name="Variable 1" type="string" ver1="20.1.0.3">Some variable string (such as &#039;SELF_ILLUM&#039;, &#039;0-0-TT_TRANSLATE_U&#039;, &#039;tongue_out&#039;, etc.).</add>
-        <add name="Variable Offset 1" type="StringOffset" ver1="10.2.0.0" ver2="20.0.0.5">Offset in the string palette where some variable string starts (such as &#039;SELF_ILLUM&#039;, &#039;0-0-TT_TRANSLATE_U&#039;, &#039;tongue_out&#039;, etc.). Usually, -1.</add>
+        <add name="Variable 1 Offset" type="StringOffset" ver1="10.2.0.0" ver2="20.0.0.5">Offset in the string palette where some variable string starts (such as &#039;SELF_ILLUM&#039;, &#039;0-0-TT_TRANSLATE_U&#039;, &#039;tongue_out&#039;, etc.). Usually, -1.</add>
         <add name="Variable 2" type="string" ver1="10.1.0.106" ver2="10.1.0.106">Another variable string, apparently used for particle system controllers.</add>
         <add name="Variable 2" type="string" ver1="20.1.0.3">Another variable string, apparently used for particle system controllers.</add>
-        <add name="Variable Offset 2" type="StringOffset" ver1="10.2.0.0" ver2="20.0.0.5">Offset in the string palette where some variable string starts (so far only &#039;EmitterActive&#039; and &#039;BirthRate&#039; have been observed in official files, used for particle system controllers). Usually, -1.</add>
+        <add name="Variable 2 Offset" type="StringOffset" ver1="10.2.0.0" ver2="20.0.0.5">Offset in the string palette where some variable string starts (so far only &#039;EmitterActive&#039; and &#039;BirthRate&#039; have been observed in official files, used for particle system controllers). Usually, -1.</add>
     </compound>
 
     <compound name="ExportInfo" ver1="10.0.1.2">

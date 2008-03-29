@@ -38,7 +38,26 @@
 # ***** END LICENSE BLOCK *****
 
 def getString(self, offset):
-    """Return string at given offset."""
+    """Return string at given offset.
+    >>> from PyFFI.NIF import NifFormat
+    >>> pal = NifFormat.StringPalette()
+    >>> pal.addString("abc")
+    0
+    >>> pal.addString("def")
+    4
+    >>> pal.getString(0)
+    'abc'
+    >>> pal.getString(4)
+    'def'
+    >>> pal.getString(5) # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    ValueError: ...
+    >>> pal.getString(100) # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    ValueError: ...
+    """
     # check that offset isn't too large
     if offset >= len(self.palette):
         raise ValueError(
@@ -51,20 +70,33 @@ def getString(self, offset):
     # return the string
     return self.palette[offset:self.palette.find("\x00", offset)]
 
+def getAllStrings(self):
+    """Return a list of all strings.
+    >>> from PyFFI.NIF import NifFormat
+    >>> pal = NifFormat.StringPalette()
+    >>> pal.addString("abc")
+    0
+    >>> pal.addString("def")
+    4
+    >>> pal.getAllStrings()
+    ['abc', 'def']
+    """
+    return self.palette[:-1].split("\x00")
+
 def addString(self, text):
     """Adds string to palette (will recycle existing strings if possible) and
     return offset to the string in the palette.
 
     >>> from PyFFI.NIF import NifFormat
     >>> pal = NifFormat.StringPalette()
-    >>> print pal.addString("abc")
+    >>> pal.addString("abc")
     0
-    >>> print pal.addString("abc")
+    >>> pal.addString("abc")
     0
-    >>> print pal.addString("def")
+    >>> pal.addString("def")
     4
-    >>> print pal.getString(4)
-    "def"
+    >>> pal.getString(4)
+    'def'
     """
     # check if string is already in the palette
     # ... at the start
@@ -75,7 +107,7 @@ def addString(self, text):
     if offset != -1:
         return offset + 1
     # if no match, add the string
-    if offest == -1:
+    if offset == -1:
         offset = len(self.palette)
         self.palette = self.palette + text + "\x00"
         self.length += len(text) + 1
