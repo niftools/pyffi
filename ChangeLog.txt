@@ -1,3 +1,16 @@
+Version 0.10.6 (30 Mar 2008)
+* tga: added missing xml file
+* nif:
+  - removed some question marks so the fields can be accessed easily in python
+    interface
+  - ControllerLink and StringPalette functions and doctests
+  - quaternion functions in Matrix33 and Matrix44
+  - new bspline modules (still to implement later)
+  - fixed NiTransformInterpolator scaling bug
+* cgf:
+  - use tempfile for write test
+* quick install batch file for windows
+
 Version 0.10.5 (27 Mar 2008)
 * qskope: make bitstructs editable
 * cgf:
