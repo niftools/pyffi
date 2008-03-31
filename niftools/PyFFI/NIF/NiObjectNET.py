@@ -38,7 +38,9 @@
 # ***** END LICENSE BLOCK *****
 
 def addExtraData(self, extrablock):
-    """Add block to extra data list and extra data chain."""
+    """Add block to extra data list and extra data chain. It is good practice
+    to ensure that the extra data has empty nextExtraData field when adding it
+    to avoid loops in the hierarchy."""
     # add to the list
     num_extra = self.numExtraDataList
     self.numExtraDataList = num_extra + 1
