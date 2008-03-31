@@ -387,7 +387,8 @@
         
         <option value="2" name="MO_SYS_SPHERE">Sphere</option>
         <option value="4" name="MO_SYS_BOX">Box</option>
-        <option value="7" name="MO_SYS_KEYFRAMED">Keyframed</option>
+        <option value="6" name="MO_SYS_KEYFRAMED_BIPED">Keyframed (used for creatures)</option>
+        <option value="7" name="MO_SYS_KEYFRAMED">Keyframed (used for weapons)</option>
     </enum>
     
     <enum name="MotionQuality" storage="byte">
