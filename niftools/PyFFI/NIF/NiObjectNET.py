@@ -66,7 +66,7 @@ def getExtraDatas(self):
     return xtras
 
 def addController(self, ctrlblock):
-    """Add block to controller chain."""
+    """Add block to controller chain and set target of controller to self."""
     if not self.controller:
         self.controller = ctrlblock
     else:
