@@ -74,6 +74,8 @@ def addController(self, ctrlblock):
         while lastctrl.nextController:
             lastctrl = lastctrl.nextController
         lastctrl.nextController = ctrlblock
+    # set the target of the controller
+    ctrlblock.target = self
 
 def getControllers(self):
     """Get a list of all controllers."""
