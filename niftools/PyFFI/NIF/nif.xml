@@ -1040,7 +1040,7 @@
         <add name="Pivot B" type="Vector4">Unknown.</add>
         <add name="Plane B" type="Vector4">Unknown.</add>
         <add name="Twist B" type="Vector4">Unknown.</add>
-        <add name="Cone Min Angle" type="float"></add>
+        <add name="Cone Angle" type="float"></add>
         <add name="Plane Min Angle" type="float"></add>
         <add name="Plane Max Angle" type="float"></add>
         <add name="Twist Min Angle" type="float"></add>
@@ -1051,11 +1051,11 @@
     <compound name="LimitedHingeDescriptor">
         <add name="Pivot A" type="Vector4">Unknown.</add>
         <add name="Axle A" type="Vector4">Unknown.</add>
-        <add name="Perp2AxleInA1" type="Vector4">Unknown.</add>
-        <add name="Perp2AxleInA2" type="Vector4">Unknown.</add>
+        <add name="Perp2 Axle In A1" type="Vector4">Unknown.</add>
+        <add name="Perp2 Axle In A2" type="Vector4">Unknown.</add>
         <add name="Pivot B" type="Vector4">Unknown.</add>
         <add name="Axle B" type="Vector4">Unknown.</add>
-        <add name="Perp2AxleInB2" type="Vector4">Unknown.</add>
+        <add name="Perp2 Axle In B2" type="Vector4">Unknown.</add>
         <add name="Min Angle" type="float"></add>
         <add name="Max Angle" type="float"></add>
         <add name="Max Friction" type="float"></add>
