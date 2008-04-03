@@ -805,7 +805,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="RGB Colors" type="IRGB" arr1="Num Elements" cond="(Data Stream Type == 3) &amp;&amp; (Bytes Per Element == 3)" />
         <add name="RGBA Colors" type="IRGBA" arr1="Num Elements" cond="(Data Stream Type == 3) &amp;&amp; (Bytes Per Element == 4)" />
         <add name="Colors 2" type="IRGBA" arr1="Num Elements" cond="Data Stream Type == 4" />
-        <add name="Indices" type="short" arr1="Num Elements" cond="Data Stream Type == 5" />
+        <add name="Indices" type="ushort" arr1="Num Elements" cond="Data Stream Type == 5" />
         <add name="Tangents" type="Tangent" arr1="Num Elements" arr2="2" cond="Data Stream Type == 6" />
         <add name="Sh Coeffs" type="ubyte" arr1="Num Elements" arr2="Bytes Per Element" cond="Data Stream Type == 7" />
         <add name="Shape Deformation" type="ubyte" arr1="Num Elements" arr2="Bytes Per Element" cond="Data Stream Type == 8" />
