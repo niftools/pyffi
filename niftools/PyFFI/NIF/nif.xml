@@ -1473,7 +1473,7 @@
     </niobject>
 
     <niobject name="NiTransformInterpolator" abstract="0" inherit="NiKeyBasedInterpolator" ver1="10.2.0.0">
-        Unknown.
+        An interpolator for transform keyframes.
         <add name="Translation" type="Vector3">Translate.</add>
         <add name="Rotation" type="Quaternion">Rotation.</add>
         <add name="Scale" type="float">Scale.</add>
@@ -1515,7 +1515,7 @@
     </niobject>
 
     <niobject name="NiBSplineInterpolator" abstract="1" inherit="NiInterpolator">
-        A B-spline (component?) interpolator.
+        For interpolators storing data via a B-spline.
         <add name="Start Time" type="float">Animation start time.</add>
         <add name="Stop Time" type="float">Animation stop time.</add>
         <add name="Spline Data" type="Ref" template="NiBSplineData">Refers to NiBSplineData.</add>
@@ -2066,7 +2066,7 @@
     </niobject>
 
     <niobject name="NiBSplineBasisData" abstract="0" inherit="NiObject" ver1="20.0.0.4">
-        Unknown.
+        Stores the number of control points of a B-spline.
         <add name="Num Control Pt" type="uint">The number of control points (Usually number of frames for animation).</add>
     </niobject>
 
@@ -2092,7 +2092,7 @@
     </niobject>
 
     <niobject name="NiBSplineTransformInterpolator" abstract="0" inherit="NiBSplineInterpolator" ver1="20.0.0.4">
-      Unknown.
+      An interpolator for storing transform keyframes via a B-spline.
       <add name="Translation" type="Vector3">Base translation when translate curve not defined.</add>
       <add name="Rotation" type="Quaternion">Base rotation when rotation curve not defined.</add>
       <add name="Scale" type="float">Base scale when scale curve not defined.</add>
@@ -2102,7 +2102,9 @@
     </niobject>
 
     <niobject name="NiBSplineCompTransformInterpolator" abstract="0" inherit="NiBSplineTransformInterpolator" ver1="20.0.0.4">
-        Unknown.
+        An interpolator for storing transform keyframes via a compressed
+        B-spline (that is, using shorts rather than floats in the B-spline
+        data).
         <add name="Translate Bias" type="float">Translate Bias</add>
         <add name="Translate Multiplier" type="float">Translate Multiplier</add>
         <add name="Rotation Bias" type="float">Rotation Bias</add>
@@ -2112,7 +2114,7 @@
     </niobject>
 
     <niobject name="NiBSplineData" abstract="0" inherit="NiObject" ver1="20.0.0.4">
-      Unknown.
+        B-spline data points as floats, or as shorts for compressed B-splines.
         <add name="Num Float Control Points" type="uint">Number of Float Data Points</add>
         <add name="Float Control Points" type="float" arr1="Num Float Control Points">Float values representing the control data.</add>
         <add name="Num Short Control Points" type="uint">Number of Short Data Points</add>
