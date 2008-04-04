@@ -1040,7 +1040,7 @@
         <add name="Pivot B" type="Vector4">Unknown.</add>
         <add name="Plane B" type="Vector4">Unknown.</add>
         <add name="Twist B" type="Vector4">Unknown.</add>
-        <add name="Cone Angle" type="float"></add>
+        <add name="Cone Max Angle" type="float"></add>
         <add name="Plane Min Angle" type="float"></add>
         <add name="Plane Max Angle" type="float"></add>
         <add name="Twist Min Angle" type="float"></add>
