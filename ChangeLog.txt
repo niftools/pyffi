@@ -4,7 +4,9 @@ Version 0.10.7 (***)
     large models)
   - MeshChunk.setGeometry gives useful error message if number of vertices is
     too large
-* nif.xml: minor updates in naming of constraint descriptors
+* nif:
+  - nif.xml has minor updates in naming
+  - added NiBSplineData access functions
 
 Version 0.10.6 (30 Mar 2008)
 * tga: added missing xml file

@@ -21,6 +21,7 @@ import PyFFI.NIF.NiNode
 import PyFFI.NIF.NiSkinData
 import PyFFI.NIF.StringPalette
 import PyFFI.NIF.ControllerLink
+import PyFFI.NIF.NiBSplineData
 import PyFFI.CGF
 import PyFFI.CGF.MeshChunk
 import PyFFI.KFM
