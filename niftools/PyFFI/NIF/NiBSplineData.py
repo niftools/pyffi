@@ -7,12 +7,12 @@
 >>> block.shortControlPoints.updateSize()
 >>> for i in xrange(block.numShortControlPoints):
 ...     block.shortControlPoints[i] = 20 - i
->>> block.getData(12, 4, 3)
+>>> block.getShortData(12, 4, 3)
 [(8, 7, 6), (5, 4, 3), (2, 1, 0), (-1, -2, -3)]
->>> offset = block.appendData([(1,2),(4,3),(13,14),(8,2),(33,33)])
+>>> offset = block.appendShortData([(1,2),(4,3),(13,14),(8,2),(33,33)])
 >>> offset
 50
->>> block.getData(offset, 5, 2)
+>>> block.getShortData(offset, 5, 2)
 [(1, 2), (4, 3), (13, 14), (8, 2), (33, 33)]
 """
 
@@ -53,7 +53,7 @@
 #
 # ***** END LICENSE BLOCK *****
 
-def getData(self, offset, num_elements, element_size):
+def getShortData(self, offset, num_elements, element_size):
     """Get data.
     
     @param offset: The offset in the data where to start.
@@ -61,14 +61,16 @@ def getData(self, offset, num_elements, element_size):
     @param element_size: Size of a single element.
     @return: A list of C{num_elements} tuples of size C{element_size}.
     """
+    # list to store result
     data = []
+    # parse the data
     for element in xrange(num_elements):
         data.append(tuple(
             self.shortControlPoints[offset + element * element_size + index]
             for index in xrange(element_size)))
     return data
 
-def appendData(self, data):
+def appendShortData(self, data):
     """Append data.
 
     @param data: A list of elements, where each element is a tuple of
