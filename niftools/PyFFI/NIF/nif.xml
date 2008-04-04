@@ -2096,8 +2096,8 @@
       <add name="Translation" type="Vector3">Base translation when translate curve not defined.</add>
       <add name="Rotation" type="Quaternion">Base rotation when rotation curve not defined.</add>
       <add name="Scale" type="float">Base scale when scale curve not defined.</add>
-      <add name="Translate Offset" type="uint">Starting offset for the translation data. (USHRT_MAX for no data.)</add>
-      <add name="Rotate Offset" type="uint">Starting offset for the rotation data. (USHRT_MAX for no data.)</add>
+      <add name="Translation Offset" type="uint">Starting offset for the translation data. (USHRT_MAX for no data.)</add>
+      <add name="Rotation Offset" type="uint">Starting offset for the rotation data. (USHRT_MAX for no data.)</add>
       <add name="Scale Offset" type="uint">Starting offset for the scale data. (USHRT_MAX for no data.)</add>
     </niobject>
 
@@ -2105,8 +2105,8 @@
         An interpolator for storing transform keyframes via a compressed
         B-spline (that is, using shorts rather than floats in the B-spline
         data).
-        <add name="Translate Bias" type="float">Translate Bias</add>
-        <add name="Translate Multiplier" type="float">Translate Multiplier</add>
+        <add name="Translation Bias" type="float">Translate Bias</add>
+        <add name="Translation Multiplier" type="float">Translate Multiplier</add>
         <add name="Rotation Bias" type="float">Rotation Bias</add>
         <add name="Rotation Multiplier" type="float">Rotation Multiplier</add>
         <add name="Scale Bias" type="float">Scale Bias</add>
