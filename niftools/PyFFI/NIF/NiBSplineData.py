@@ -14,7 +14,10 @@
 50
 >>> block.getShortData(offset, 5, 2)
 [(1, 2), (4, 3), (13, 14), (8, 2), (33, 33)]
-"""
+>>> block.appendFloatData([(1.0,2.0),(3.0,4.0),(0.5,0.25)])
+0
+>>> block.getFloatData(0, 3, 2)
+[(1.0, 2.0), (3.0, 4.0), (0.5, 0.25)]"""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -53,29 +56,26 @@
 #
 # ***** END LICENSE BLOCK *****
 
-def getShortData(self, offset, num_elements, element_size):
-    """Get data.
-    
-    @param offset: The offset in the data where to start.
-    @param num_elements: Number of elements to get.
-    @param element_size: Size of a single element.
-    @return: A list of C{num_elements} tuples of size C{element_size}.
-    """
+def _getData(self, offset, num_elements, element_size, controlpoints):
+    """Helper function for getFloatData and getShortData. For internal
+    use only."""
+    # check arguments
+    if not (controlpoints is self.floatControlPoints
+            or controlpoints is self.shortControlPoints):
+        raise ValueError("internal error while appending data")
     # list to store result
     data = []
     # parse the data
     for element in xrange(num_elements):
         data.append(tuple(
-            self.shortControlPoints[offset + element * element_size + index]
+            controlpoints[offset + element * element_size + index]
             for index in xrange(element_size)))
     return data
 
-def appendShortData(self, data):
-    """Append data.
 
-    @param data: A list of elements, where each element is a tuple of
-        integers.
-    @return: The offset at which the data was appended."""
+def _appendData(self, data, controlpoints):
+    """Helper function for appendFloatData and appendShortData. For internal
+    use only."""
     # get number of elements
     num_elements = len(data)
     # empty list, do nothing
@@ -84,17 +84,60 @@ def appendShortData(self, data):
     # get element size
     element_size = len(data[0])
     # store offset at which we append the data
-    offset = self.numShortControlPoints
+    if controlpoints is self.floatControlPoints:
+        offset = self.numFloatControlPoints
+        self.numFloatControlPoints += num_elements * element_size
+    elif controlpoints is self.shortControlPoints:
+        offset = self.numShortControlPoints
+        self.numShortControlPoints += num_elements * element_size
+    else:
+        raise ValueError("internal error while appending data")
     # update size
-    self.numShortControlPoints += num_elements * element_size
-    self.shortControlPoints.updateSize()
+    controlpoints.updateSize()
     # store the data
     for element, datum in enumerate(data):
         for index, value in enumerate(datum):
-            self.shortControlPoints[
-                offset + element * element_size + index] = value
+            controlpoints[offset + element * element_size + index] = value
     # return the offset
     return offset
+
+def getShortData(self, offset, num_elements, element_size):
+    """Get data.
+    
+    @param offset: The offset in the data where to start.
+    @param num_elements: Number of elements to get.
+    @param element_size: Size of a single element.
+    @return: A list of C{num_elements} tuples of size C{element_size}.
+    """
+    return self._getData(
+        offset, num_elements, element_size, self.shortControlPoints)
+
+def appendShortData(self, data):
+    """Append data.
+
+    @param data: A list of elements, where each element is a tuple of
+        integers.
+    @return: The offset at which the data was appended."""
+    return self._appendData(data, self.shortControlPoints)
+
+def getFloatData(self, offset, num_elements, element_size):
+    """Get data.
+    
+    @param offset: The offset in the data where to start.
+    @param num_elements: Number of elements to get.
+    @param element_size: Size of a single element.
+    @return: A list of C{num_elements} tuples of size C{element_size}.
+    """
+    return self._getData(
+        offset, num_elements, element_size, self.floatControlPoints)
+
+def appendFloatData(self, data):
+    """Append data.
+
+    @param data: A list of elements, where each element is a tuple of
+        floats.
+    @return: The offset at which the data was appended."""
+    return self._appendData(data, self.floatControlPoints)
 
 if __name__=='__main__':
     import doctest
