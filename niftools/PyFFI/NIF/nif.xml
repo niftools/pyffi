@@ -2113,10 +2113,10 @@
 
     <niobject name="NiBSplineData" abstract="0" inherit="NiObject" ver1="20.0.0.4">
       Unknown.
-        <add name="Float Count" type="uint">Number of Float Data Points</add>
-        <add name="Float Control Points" type="float" arr1="Float Count">Float values representing the control data.</add>
-        <add name="Short Count" type="uint">Number of Short Data Points</add>
-        <add name="Short Control Points" type="short" arr1="Short Count">Signed shorts representing the data from 0 to 1 (scaled by SHRT_MAX).</add>
+        <add name="Num Float Control Points" type="uint">Number of Float Data Points</add>
+        <add name="Float Control Points" type="float" arr1="Num Float Control Points">Float values representing the control data.</add>
+        <add name="Num Short Control Points" type="uint">Number of Short Data Points</add>
+        <add name="Short Control Points" type="short" arr1="Num Short Control Points">Signed shorts representing the data from 0 to 1 (scaled by SHRT_MAX).</add>
     </niobject>
 
     <niobject name="NiCamera" abstract="0" inherit="NiAVObject">
