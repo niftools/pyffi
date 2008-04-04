@@ -37,4 +37,32 @@
 #
 # ***** END LICENSE BLOCK *****
 
-# TODO implement access to control points
+def getTimes(self):
+    """Return an iterator over all key times."""
+    for i in xrange(self.basisData.numControlPoints):
+        yield self.startTime + (i * (self.stopTime - self.startTime)
+                                / (self.basisData.numControlPoints - 1))
+
+def _getFloatKeys(self, offset, element_size):
+    """Helper function to get iterator to various keys. Internal use only."""
+    # are there keys?
+    if offset == 32767:
+        return
+    # yield all keys
+    for key in self.splineData.getFloatData(offset,
+                                            self.basisData.numControlPoints,
+                                            element_size):
+        yield key
+
+def _getCompKeys(self, offset, element_size, bias, multiplier):
+    """Helper function to get iterator to various keys. Internal use only."""
+    # are there keys?
+    if offset == 32767:
+        return
+    # yield all keys
+    for key in self.splineData.getCompData(offset,
+                                           self.basisData.numControlPoints,
+                                           element_size,
+                                           bias, multiplier):
+        yield key
+

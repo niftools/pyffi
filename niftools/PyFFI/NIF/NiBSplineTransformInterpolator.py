@@ -37,34 +37,15 @@
 #
 # ***** END LICENSE BLOCK *****
 
-# TODO implement actual bspline sampling
-
-def getTimes(self):
-    """Return an iterator over all key times."""
-    for i in xrange(self.basisData.numControlPoints):
-        yield self.startTime + (i * (self.stopTime - self.startTime)
-                                / (self.basisData.numControlPoints - 1))
-
-def _getKeys(self, offset, element_size):
-    """Helper function to get iterator to various keys. Internal use only."""
-    # are there keys?
-    if offset == 32767:
-        return
-    # yield all keys
-    for key in self.splineData.getFloatData(offset,
-                                            self.basisData.numControlPoints,
-                                            element_size):
-        yield key
-
 def getTranslations(self):
     """Return an iterator over all translation keys."""
-    return self._getKeys(self.translationOffset, 3)
+    return self._getFloatKeys(self.translationOffset, 3)
 
 def getRotations(self):
     """Return an iterator over all rotation keys."""
-    return self._getKeys(self.rotationOffset, 4)
+    return self._getFloatKeys(self.rotationOffset, 4)
 
 def getScales(self):
     """Return an iterator over all scale keys."""    
-    for key in self._getKeys(self.scaleOffset, 1):
+    for key in self._getFloatKeys(self.scaleOffset, 1):
         yield key[0]
