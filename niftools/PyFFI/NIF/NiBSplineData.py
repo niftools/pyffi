@@ -7,17 +7,26 @@
 >>> block.shortControlPoints.updateSize()
 >>> for i in xrange(block.numShortControlPoints):
 ...     block.shortControlPoints[i] = 20 - i
->>> block.getShortData(12, 4, 3)
+>>> list(block.getShortData(12, 4, 3))
 [(8, 7, 6), (5, 4, 3), (2, 1, 0), (-1, -2, -3)]
 >>> offset = block.appendShortData([(1,2),(4,3),(13,14),(8,2),(33,33)])
 >>> offset
 50
->>> block.getShortData(offset, 5, 2)
+>>> list(block.getShortData(offset, 5, 2))
 [(1, 2), (4, 3), (13, 14), (8, 2), (33, 33)]
+>>> list(block.getCompData(offset, 5, 2, 10.0, 32767.0))
+[(11.0, 12.0), (14.0, 13.0), (23.0, 24.0), (18.0, 12.0), (43.0, 43.0)]
 >>> block.appendFloatData([(1.0,2.0),(3.0,4.0),(0.5,0.25)])
 0
->>> block.getFloatData(0, 3, 2)
-[(1.0, 2.0), (3.0, 4.0), (0.5, 0.25)]"""
+>>> list(block.getFloatData(0, 3, 2))
+[(1.0, 2.0), (3.0, 4.0), (0.5, 0.25)]
+>>> block.appendCompData([(1,2),(4,3)])
+(60, 2.5, 1.5)
+>>> list(block.getShortData(60, 2, 2))
+[(-32767, -10922), (32767, 10922)]
+>>> list(block.getCompData(60, 2, 2, 2.5, 1.5)) # doctest: +ELLIPSIS
+[(1.0, 2.00...), (4.0, 2.99...)]
+"""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -63,15 +72,11 @@ def _getData(self, offset, num_elements, element_size, controlpoints):
     if not (controlpoints is self.floatControlPoints
             or controlpoints is self.shortControlPoints):
         raise ValueError("internal error while appending data")
-    # list to store result
-    data = []
     # parse the data
     for element in xrange(num_elements):
-        data.append(tuple(
+        yield tuple(
             controlpoints[offset + element * element_size + index]
-            for index in xrange(element_size)))
-    return data
-
+            for index in xrange(element_size))
 
 def _appendData(self, data, controlpoints):
     """Helper function for appendFloatData and appendShortData. For internal
@@ -102,7 +107,7 @@ def _appendData(self, data, controlpoints):
     return offset
 
 def getShortData(self, offset, num_elements, element_size):
-    """Get data.
+    """Get an iterator to the data.
     
     @param offset: The offset in the data where to start.
     @param num_elements: Number of elements to get.
@@ -112,16 +117,58 @@ def getShortData(self, offset, num_elements, element_size):
     return self._getData(
         offset, num_elements, element_size, self.shortControlPoints)
 
+def getCompData(self, offset, num_elements, element_size, bias, multiplier):
+    """Get an interator to the data, converted to float with extra bias and
+    multiplication factor. If C{x} is the short value, then the returned value
+    is C{bias + x * multiplier / 32767.0}.
+
+    @param offset: The offset in the data where to start.
+    @param num_elements: Number of elements to get.
+    @param element_size: Size of a single element.
+    @param bias: Value bias.
+    @param multiplier: Value multiplier.
+    @return: A list of C{num_elements} tuples of size C{element_size}.
+    """
+    for key in self.getShortData(offset, num_elements, element_size):
+        yield tuple(bias + x * multiplier / 32767.0 for x in key)
+
 def appendShortData(self, data):
     """Append data.
 
     @param data: A list of elements, where each element is a tuple of
-        integers.
+        integers. (Note: cannot be an interator; maybe this restriction
+        will be removed in a future version.)
     @return: The offset at which the data was appended."""
     return self._appendData(data, self.shortControlPoints)
 
+def appendCompData(self, data):
+    """Append data as compressed list.
+
+    @param data: A list of elements, where each element is a tuple of
+        integers. (Note: cannot be an interator; maybe this restriction
+        will be removed in a future version.)
+    @return: The offset, bias, and multiplier."""
+    # get extremes
+    maxvalue = max(max(datum) for datum in data)
+    minvalue = min(min(datum) for datum in data)
+    # get bias and multiplier
+    bias = 0.5 * (maxvalue + minvalue)
+    if maxvalue > minvalue:
+        multiplier = 0.5 * (maxvalue - minvalue)
+    else:
+        # no need to compress in this case
+        multiplier = 1.0
+
+    # compress points into shorts
+    shortdata = []
+    for datum in data:
+        shortdata.append(tuple(int(32767 * (x - bias) / multiplier)
+                               for x in datum))
+    return (self._appendData(shortdata, self.shortControlPoints),
+            bias, multiplier)
+
 def getFloatData(self, offset, num_elements, element_size):
-    """Get data.
+    """Get an iterator to the data.
     
     @param offset: The offset in the data where to start.
     @param num_elements: Number of elements to get.
@@ -135,7 +182,8 @@ def appendFloatData(self, data):
     """Append data.
 
     @param data: A list of elements, where each element is a tuple of
-        floats.
+        floats. (Note: cannot be an interator; maybe this restriction
+        will be removed in a future version.)
     @return: The offset at which the data was appended."""
     return self._appendData(data, self.floatControlPoints)
 
