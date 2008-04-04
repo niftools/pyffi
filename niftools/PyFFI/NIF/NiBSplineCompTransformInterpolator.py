@@ -37,4 +37,32 @@
 #
 # ***** END LICENSE BLOCK *****
 
-# TODO implement
+# TODO implement actual bspline sampling
+
+def _getCompKeys(self, offset, element_size, bias, multiplier):
+    """Helper function to get iterator to various keys. Internal use only."""
+    # are there keys?
+    if offset == 32767:
+        return
+    # yield all keys
+    for key in self.splineData.getCompData(offset,
+                                           self.basisData.numControlPoints,
+                                           element_size,
+                                           bias, multiplier):
+        yield key
+
+def getTranslations(self):
+    """Return an iterator over all translation keys."""
+    return self._getCompKeys(self.translationOffset, 3,
+                             self.translationBias, self.translationMultiplier)
+
+def getRotations(self):
+    """Return an iterator over all rotation keys."""
+    return self._getCompKeys(self.rotationOffset, 4,
+                             self.rotationBias, self.rotationMultiplier)
+
+def getScales(self):
+    """Return an iterator over all scale keys."""    
+    for key in self._getCompKeys(self.scaleOffset, 1,
+                                 self.scaleBias, self.scaleMultiplier):
+        yield key[0]
