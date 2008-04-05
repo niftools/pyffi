@@ -9,6 +9,7 @@ Version 0.10.7 (5 Apr 2008)
   - added NiBSplineData access functions (experimental, interface could still
   change)
   - started on support for compressed B-spline data
+  - fixed block order writing of bhkConstraints
 
 Version 0.10.6 (30 Mar 2008)
 * tga: added missing xml file
