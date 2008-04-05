@@ -1,18 +1,19 @@
-Version 0.10.7 (***)
+Version 0.10.7 (5 Apr 2008)
 * cgf:
   - indices are unsigned shorts now (fixes geometry corruption on import of
-    large models)
+  large models)
   - MeshChunk.setGeometry gives useful error message if number of vertices is
-    too large
+  too large
 * nif:
   - nif.xml has minor updates in naming
   - added NiBSplineData access functions
+  - started on support for compressed B-spline data
 
 Version 0.10.6 (30 Mar 2008)
 * tga: added missing xml file
 * nif:
   - removed some question marks so the fields can be accessed easily in python
-    interface
+  interface
   - ControllerLink and StringPalette functions and doctests
   - quaternion functions in Matrix33 and Matrix44
   - new bspline modules (still to implement later)
@@ -225,7 +226,8 @@ to load
 Version 0.5 (19 Oct 2007)
 * new functions to get block size
 * various small bugs fixed
-* nif: support for new versions (20.2.0.6, 20.2.0.7, 20.2.0.8, 20.3.0.3, 20.3.0.6, 20.3.0.9)
+* nif: support for new versions (20.2.0.6, 20.2.0.7, 20.2.0.8, 20.3.0.3,
+20.3.0.6, 20.3.0.9)
 * nif: block sizes are now also written to the nif files, improving support
 for writing 20.2.0.7+ nif versions
 * nif: fixed flattenSkin bug (reported by Kikai)
@@ -258,9 +260,9 @@ Version 0.4.6 (29 Sep 2007)
   - niftoaster.py for testing and modifying nif files (contributed by wz)
   - nifvisualizer.py for visualizing nif blocks (contributed by wz)
   - nifmakehsl.py for making hex workshop structure libraries for all nif
-    versions
+  versions
 * nif: bundling NifVis and NifTester modules so you can make your own nif
-  toasters and visualizers
+toasters and visualizers
 * nif: fixed rare issue with skin partition calculation
 * cgf: new script
   - cgftoaster.py for testing and modifying cgf files (similar to niftoaster.py)
@@ -291,7 +293,8 @@ Version 0.4.2 (15 Aug 2007)
 * kwargs for getRefs
 * NIF:
   - fixed bug in skin partition calculation
-  - when writing nif files the refs are written in sequence (instead of the links, so missing links will yield an exception, which is a good thing)
+  - when writing nif files the refs are written in sequence (instead of the
+  links, so missing links will yield an exception, which is a good thing)
   - new functions to get list of extra data blocks and to add effect
 
 Version 0.4.1 (14 Aug 2007)
@@ -301,9 +304,11 @@ Version 0.4.1 (14 Aug 2007)
 
 Version 0.4 (12 Aug 2007)
 * NIF:
-  - new function updateBindPosition in NiGeometry to fix a geometry rest position from current bone positions
+  - new function updateBindPosition in NiGeometry to fix a geometry rest
+  position from current bone positions
   - removed deprecated functions
-  - (!) changed interface of addBone, no longer takes "transform" argument; use the new function updateBindPosition instead
+  - (!) changed interface of addBone, no longer takes "transform" argument; use
+  the new function updateBindPosition instead
 
 Version 0.3.4 (11 Aug 2007)
 * improved documentation
@@ -323,7 +328,8 @@ Version 0.3.2 (7 Aug 2007)
 * simplified interface (still wip) by using keyword arguments for common
 functions such as read and write
 * NIF:
-  - fix for skin partition blocks in older nif versions such as Freedom Force vs. 3rd Reich
+  - fix for skin partition blocks in older nif versions such as
+  Freedom Force vs. 3rd Reich
   - support for triangle skin partitions
   - added stitchstrips option for skin partitions
   - added a NiGeometry function to send bones to bind pose
@@ -331,13 +337,15 @@ functions such as read and write
 Version 0.3.1 (6 Aug 2007):
 * NIF:
   - new function for getting geometry skin deformation in rest pose
-  - old rest pose functions are deprecated and will be removed from a future release
+  - old rest pose functions are deprecated and will be removed from a future
+  release
 
 Version 0.3 (2 Aug 2007):
 * NIF:
   - fixed an issue with writing skeleton.nif files
 * CGF:
-  - reading support for the most common blocks in static cgf files (experimental)
+  - reading support for the most common blocks in static cgf files;
+  experimental
 
 Version 0.2.1 (29 Jul 2007):
 * NIF:
