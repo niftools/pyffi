@@ -1214,31 +1214,38 @@ class NifFormat(object):
         except ValueError:
             block_type_dct[root] = len(block_type_list)
             block_type_list.append(block_type)
-        # add non-havok blocks before children
-        # note: bhkNiCollisionObject derives from NiObject and not from bhkRefObject
-        #       so it is dealt with separately
-        if not (isinstance(root, cls.bhkRefObject)
-                or isinstance(root, cls.bhkNiCollisionObject)):
-            if version >= 0x0303000D:
-                block_index_dct[root] = len(block_list)
-            else:
-                block_index_dct[root] = id(root)
-            block_list.append(root)
-        # add children
-        for child in root.getRefs(version = version, user_version = user_version):
-            cls._makeBlockList(
-                version, user_version, child,
-                block_list, block_index_dct, block_type_list, block_type_dct)
-        # add havok block after children (required for oblivion)
-        # note: bhkNiCollisionObject derives from NiObject and not from bhkRefObject
-        #       so it is dealt with separately
-        if (isinstance(root, cls.bhkRefObject)
-            or isinstance(root, cls.bhkNiCollisionObject)):
-            if version >= 0x0303000D:
-                block_index_dct[root] = len(block_list)
-            else:
-                block_index_dct[root] = id(root)
-            block_list.append(root)
+
+        # add children that come before the block
+        for child in root.getRefs(version = version,
+                                  user_version = user_version):
+            if cls._blockChildBeforeParent(child):
+                cls._makeBlockList(
+                    version, user_version, child,
+                    block_list,
+                    block_index_dct, block_type_list, block_type_dct)
+
+        # add the block
+        if version >= 0x0303000D:
+            block_index_dct[root] = len(block_list)
+        else:
+            block_index_dct[root] = id(root)
+        block_list.append(root)
+
+        # add children that come after the block
+        for child in root.getRefs(version = version,
+                                  user_version = user_version):
+            if not cls._blockChildBeforeParent(child):
+                cls._makeBlockList(
+                    version, user_version, child,
+                    block_list,
+                    block_index_dct, block_type_list, block_type_dct)
+
+    @classmethod
+    def _blockChildBeforeParent(cls, block):
+        """Determine whether block comes before its parent or not, depending
+        on the block type."""
+        return (isinstance(block, cls.bhkRefObject)
+                and not isinstance(block, cls.bhkConstraint))
 
     @classmethod
     def walk(cls, top, topdown = True, onerror = None, verbose = 0):
