@@ -137,7 +137,7 @@ def getUVTriangles(self):
         # Crysis: UV triangles coincide with triangles
         it = iter(self.indicesData.indices)
         while True:
-           yield it.next(), it.next(), it.next()
+            yield it.next(), it.next(), it.next()
 
 ### DEPRECATED: USE setGeometry INSTEAD ###
 def setVerticesNormals(self, vertices, normals):
