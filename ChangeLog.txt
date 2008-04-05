@@ -6,7 +6,8 @@ Version 0.10.7 (5 Apr 2008)
   too large
 * nif:
   - nif.xml has minor updates in naming
-  - added NiBSplineData access functions
+  - added NiBSplineData access functions (experimental, interface could still
+  change)
   - started on support for compressed B-spline data
 
 Version 0.10.6 (30 Mar 2008)
