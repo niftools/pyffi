@@ -823,10 +823,39 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Mesh Subsets" type="MeshSubset" arr1="Num Mesh Subsets" />
     </struct>
 
-    <struct name="PhysicsStruct">
+    <struct name="PhysicsStruct1">
+        <add name="Unknown 1" type="Matrix33" />
+        <add name="Unknown 2" type="int" />
+        <add name="Unknown 3" type="float" arr1="6" />
+    </struct>
+
+    <struct name="PhysicsStruct2">
         <add name="Unknown 1" type="Matrix33" />
         <add name="Unknown 2" type="float" arr1="6" />
         <add name="Unknown 3" type="int" arr1="3" />
+    </struct>
+
+    <struct name="PhysicsStruct13c0">
+        <add name="Unknown 14" type="PhysicsStruct1" />
+        <add name="Unknown 15" type="PhysicsStruct1" />
+        <add name="Unknown 16" type="int" />
+    </struct>
+
+    <struct name="PhysicsStruct13c1">
+        <add name="Num Vertices" type="uint">Number of vertices (in this physics mesh?).</add>
+        <add name="Num 2" type="uint" />
+        <add name="Unknown 17" type="int" />
+        <add name="Unknown 18" type="int" />
+        <add name="Unknown 19" type="ubyte" />
+        <add name="Vertex Map" type="short" arr1="Num Vertices">
+             If the (non-physics) mesh has say 200 vertices, then the first 200
+             entries of this map give a mapping identifying the unique vertices.
+             The meaning of the extra entries is unknown.
+        </add>
+        <add name="Unknown 21" type="ubyte" />
+        <add name="Unknown 22" type="short" arr1="Num 2" cond="Unknown 21 == 1" />
+<!--        <add name="Unknown 30" type="Vector3" arr1="Num 1" cond="Unknown 21 == 0"/>
+        <add name="Unknown 40" type="short" arr1="Num 2" arr2="3" cond="Unknown 21 == 0">Triangles?</add>-->
     </struct>
 
     <struct name="MeshPhysicsDataChunk" inherit="Chunk">
@@ -848,6 +877,11 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 10" type="float">Mass?</add>
         <add name="Unknown 11" type="int">Usually 1.</add>
         <add name="Unknown 12" type="int">Another number, could be a count (observed values: 0, 1, 17, ...).</add>
+        <add name="Unknown 13a" type="float" />
+        <add name="Unknown 13b" type="float" />
+        <add name="Unknown 13c" type="int">Physics type?</add>
+        <add name="Unknown Data 0" type="PhysicsStruct13c1" cond="Unknown 13c == 0" />
+        <add name="Unknown Data 1" type="PhysicsStruct13c1" cond="Unknown 13c == 1" />
 <!--
         <add name="Unknown 13" type="float">Not sure either.</add>
         <add name="Unknown 14" type="int" />
@@ -863,9 +897,10 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 40" type="short" arr1="Num 2" arr2="3" cond="Unknown 21 == 0">Triangles?</add>
 
         <add name="Unknown 50" type="ubyte" arr1="110">Not sure, has more structure, variable size.</add>
-        <add name="Num Unknown Struct" type="uint" />
-        <add name="Unknown Structs" type="PhysicsStruct" arr1="Num Unknown Struct" />
+        <add name="Num Unknown Struct2" type="uint" />
+        <add name="Unknown Structs2" type="PhysicsStruct2" arr1="Num Unknown Struct" />
 -->
+
     </struct>
 
     <struct name="CompiledBonesChunk" inherit="Chunk">
