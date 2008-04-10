@@ -835,6 +835,40 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 3" type="int" arr1="3" />
     </struct>
 
+    <struct name="PhysicsStruct50">
+        <add name="Unknown 1" type="int" />
+        <add name="Unknown 21" type="short" />
+        <add name="Unknown 22" type="short" />
+        <add name="Unknown 23" type="short" />
+        <add name="Unknown 24" type="short" />
+    </struct>
+
+    <struct name="PhysicsStruct210">
+        <!--<add name="Unknown 30" type="Vector3" arr1="Num 1" cond="Unknown 21 == 0"/>
+        <add name="Unknown 40" type="short" arr1="Num 2" arr2="3" cond="Unknown 21 == 0">Triangles?</add>-->
+    </struct>
+
+    <struct name="PhysicsStruct211">
+        <add name="Unknown 45" type="byte" arr1="16">Random junk</add>
+        <add name="Unknown 461" type="int">0</add>
+        <add name="Unknown 462" type="int">0</add>
+        <add name="Unknown 463" type="float">0.02</add>
+        <add name="Unknown 464" type="float">not sure, junk?</add>
+        <add name="Unknown 465" type="float">-1.0</add>
+        <add name="Unknown 466" type="float">not sure, junk?</add>
+        <add name="Unknown 467" type="float">-1.0</add>
+        <add name="Unknown 468" type="float">not sure, junk?</add>
+        <add name="Unknown 469" type="float">-1.0</add>
+        <add name="Unknown 470" type="uint" />
+        <add name="Unknown 471" type="uint" />
+<!-- only if Unknown 17 is 5 or 8? or if Unk470 is 1 and Unk471 is -1?-->
+        <add name="Num 50" type="uint" cond="Unknown 471 == 4294967295"/>
+        <add name="Unknown 50 Data" type="PhysicsStruct50" arr1="Num 50" cond="Unknown 471 == 4294967295"/>
+        <add name="Unknown 60" type="float" arr1="15" cond="Unknown 471 == 4294967295"/>
+        <add name="Unknown 70" type="int" arr1="3" cond="Unknown 471 == 4294967295"/>
+        <add name="Unknown 80" type="float" cond="Unknown 471 == 4294967295"/>
+    </struct>
+
     <struct name="PhysicsStruct13c0">
         <add name="Unknown 14" type="PhysicsStruct1" />
         <add name="Unknown 15" type="PhysicsStruct1" />
@@ -853,9 +887,9 @@ In Python this can be calculated using zlib.crc32(name)</add>
              The meaning of the extra entries is unknown.
         </add>
         <add name="Unknown 21" type="ubyte" />
-        <add name="Unknown 22" type="short" arr1="Num 2" cond="Unknown 21 == 1" />
-<!--        <add name="Unknown 30" type="Vector3" arr1="Num 1" cond="Unknown 21 == 0"/>
-        <add name="Unknown 40" type="short" arr1="Num 2" arr2="3" cond="Unknown 21 == 0">Triangles?</add>-->
+        <add name="Unknown 22 Extra 0" type="PhysicsStruct210" cond="Unknown 21 == 0"/>
+        <add name="Unknown 22" type="short" arr1="Num 2" cond="Unknown 21 == 1"/>
+        <add name="Unknown 22 Extra 1" type="PhysicsStruct211" cond="Unknown 21 == 1"/>
     </struct>
 
     <struct name="MeshPhysicsDataChunk" inherit="Chunk">
@@ -880,7 +914,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 13a" type="float" />
         <add name="Unknown 13b" type="float" />
         <add name="Unknown 13c" type="int">Physics type?</add>
-        <add name="Unknown Data 0" type="PhysicsStruct13c1" cond="Unknown 13c == 0" />
+        <add name="Unknown Data 0" type="PhysicsStruct13c0" cond="Unknown 13c == 0" />
         <add name="Unknown Data 1" type="PhysicsStruct13c1" cond="Unknown 13c == 1" />
 <!--
         <add name="Unknown 13" type="float">Not sure either.</add>
