@@ -86,7 +86,7 @@ class Int(BasicBase, DelegateSpinBox):
 
     def __init__(self, **kwargs):
         super(Int, self).__init__(**kwargs)
-        self._value = self._default
+        self._value = ''.join('\x00' for i in xrange(self._size)) #self._default
 
     def getValue(self):
         """Return stored value."""
