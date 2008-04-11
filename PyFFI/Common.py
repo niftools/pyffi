@@ -82,10 +82,11 @@ class Int(BasicBase, DelegateSpinBox):
     _max = 0x7fffffff  #: Maximum value.
     _struct = 'i'      #: Character used to represent type in struct.
     _size = 4          #: Number of bytes.
+    _default = ''.join('\x00' for i in xrange(_size)) #: Default value (in internal storage format).
 
     def __init__(self, **kwargs):
         super(Int, self).__init__(**kwargs)
-        self._value = ''.join('\x00' for i in xrange(self._size))
+        self._value = self._default
 
     def getValue(self):
         """Return stored value."""
