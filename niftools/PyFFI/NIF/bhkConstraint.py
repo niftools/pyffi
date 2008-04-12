@@ -37,15 +37,27 @@
 #
 # ***** END LICENSE BLOCK *****
 
-def getTransformAB(self):
+def getTransformAB(self, parent):
     """Returns the transform of the first entity relative to the second
-    entity."""
+    entity. Root is simply a nif block that is a common parent to both
+    blocks."""
     # check entities
     if self.numEntities != 2:
         raise ValueError("""\
 cannot get tranform for constraint that hasn't exactly 2 entities""")
     # find transform of entity A relative to entity B
-    # (we are cheating and using the qBlockParent function to get the
-    # NiNode that has this rigidbody)
-    return entities[0].qBlockParent().qBlockParent().getTransform(
-        relative_to = entities[1].qBlockParent().qBlockParent())
+
+    # find chains from parent to A and B entities
+    chainA = parent.findChain(self.entities[0])
+    chainB = parent.findChain(self.entities[1])
+    # validate the chains
+    assert(isinstance(chainA[-1], self.cls.bhkRigidBody))
+    assert(isinstance(chainA[-2], self.cls.NiCollisionObject))
+    assert(isinstance(chainA[-3], self.cls.NiNode))
+    assert(isinstance(chainB[-1], self.cls.bhkRigidBody))
+    assert(isinstance(chainB[-2], self.cls.NiCollisionObject))
+    assert(isinstance(chainB[-3], self.cls.NiNode))
+    # return the relative transform
+    return (chainA[-3].getTransform(relative_to = parent)
+            * chainB[-3].getTransform(relative_to = parent).getInverse())
+

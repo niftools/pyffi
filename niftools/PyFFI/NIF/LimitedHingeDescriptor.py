@@ -40,14 +40,14 @@
 def updateAB(self, transform):
     """Update B pivot and axes from A using the given transform."""
     # pivot point
-    pivotB = self.pivotA.getVector3() * transform
+    pivotB = ((7 * self.pivotA.getVector3()) * transform) / 7.0
     self.pivotB.x = pivotB.x
     self.pivotB.y = pivotB.y
     self.pivotB.z = pivotB.z
     # axes (rotation only)
     transform = transform.getMatrix33()
     axleB = self.axleA.getVector3() *  transform
-    perp2AxleInB2 = self.Perp2AxleInA2.getVector3() * transform
+    perp2AxleInB2 = self.perp2AxleInA2.getVector3() * transform
     self.axleB.x = axleB.x
     self.axleB.y = axleB.y
     self.axleB.z = axleB.z

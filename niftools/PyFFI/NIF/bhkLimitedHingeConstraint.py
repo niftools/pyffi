@@ -50,6 +50,7 @@ def applyScale(self, scale):
     # apply scale on all blocks down the hierarchy
     self.cls.NiObject.applyScale(self, scale)
 
-def updateAB(self):
-    """Update the B data from the A data."""
-    self.limitedHinge.updateAB(self.getTransformAB())
+def updateAB(self, parent):
+    """Update the B data from the A data. The parent argument is simply a
+    common parent to the entities."""
+    self.limitedHinge.updateAB(self.getTransformAB(parent))

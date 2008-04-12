@@ -40,7 +40,7 @@
 def updateAB(self, transform):
     """Update B pivot and axes from A using the given transform."""
     # pivot point
-    pivotB = self.pivotA.getVector3() * transform
+    pivotB = ((7 * self.pivotA.getVector3()) * transform) / 7.0
     self.pivotB.x = pivotB.x
     self.pivotB.y = pivotB.y
     self.pivotB.z = pivotB.z
