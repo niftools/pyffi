@@ -3,6 +3,8 @@ Version 0.10.8 (***)
   - more decoded of the mesh physics data chunk
 * nif:
   - scaling for constraints
+  - ported the A -> B spell from nifskope (see the new getTransformAB and
+  updateAB methods)
 
 Version 0.10.7 (5 Apr 2008)
 * cgf:
