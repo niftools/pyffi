@@ -37,7 +37,7 @@
 #
 # ***** END LICENSE BLOCK *****
 
-def updateB(self, transform):
+def updateAB(self, transform):
     """Update B pivot and axes from A using the given transform."""
     # pivot point
     pivotB = self.pivotA.getVector3() * transform

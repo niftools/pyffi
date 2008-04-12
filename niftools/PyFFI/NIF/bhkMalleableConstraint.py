@@ -56,8 +56,8 @@ def applyScale(self, scale):
     # apply scale on all blocks down the hierarchy
     self.cls.NiObject.applyScale(self, scale)
 
-def updateB(self):
+def updateAB(self):
     """Update the B data from the A data."""
     transformAB = self.getTransformAB()
-    self.limitedHinge.updateB(transform)
-    self.ragdoll.updateB(transform)
+    self.limitedHinge.updateAB(transform)
+    self.ragdoll.updateAB(transform)

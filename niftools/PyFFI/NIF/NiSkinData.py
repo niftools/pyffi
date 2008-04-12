@@ -87,7 +87,7 @@ def applyScale(self, scale):
     >>> skininst.data = skindata
     >>> skindata.setTransform(id44)
     >>> geom.addBone(bone1, {})
-    >>> geom.updateBindPosition()
+    >>> geom.updateABindPosition()
     >>> bone1.translation.x
     10.0
     >>> skindata.boneList[0].translation.x

@@ -112,7 +112,7 @@ def _validateSkin(self):
 def addBone(self, bone, vert_weights):
     """Add bone with given vertex weights.
     After adding all bones, the geometry skinning information should be set
-    from the current position of the bones using the L{updateBindPosition} function.
+    from the current position of the bones using the L{updateABindPosition} function.
 
     @param bone: The bone NiNode block.
     @param vert_weights: A dictionary mapping each influenced vertex index to a vertex weight."""
@@ -330,7 +330,7 @@ def sendBonesToBindPosition(self):
 
 
 # ported from niflib::NiSkinData::ResetOffsets (r2561)
-def updateBindPosition(self):
+def updateABindPosition(self):
     """Make current position of the bones the bind position for this geometry.
 
     Sets the NiSkinData overall transform to the inverse of the geometry transform
