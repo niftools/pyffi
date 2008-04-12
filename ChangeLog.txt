@@ -1,3 +1,9 @@
+Version 0.10.8 (***)
+* cgf:
+  - more decoded of the mesh physics data chunk
+* nif:
+  - scaling for constraints
+
 Version 0.10.7 (5 Apr 2008)
 * cgf:
   - indices are unsigned shorts now (fixes geometry corruption on import of
