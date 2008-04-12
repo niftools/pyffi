@@ -1,4 +1,4 @@
-"""Custom functions for bhkRagdollConstraint."""
+"""Custom functions for LimitedHingeDescriptor."""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -37,19 +37,20 @@
 #
 # ***** END LICENSE BLOCK *****
 
-def applyScale(self, scale):
-    """Scale data."""
-    # apply scale on transform
-    self.ragdoll.pivotA.x *= scale
-    self.ragdoll.pivotA.y *= scale
-    self.ragdoll.pivotA.z *= scale
-    self.ragdoll.pivotB.x *= scale
-    self.ragdoll.pivotB.y *= scale
-    self.ragdoll.pivotB.z *= scale
-
-    # apply scale on all blocks down the hierarchy
-    self.cls.NiObject.applyScale(self, scale)
-
-def updateB(self):
-    """Update the B data from the A data."""
-    self.ragdoll.updateB(self.getTransformAB())
+def updateB(self, transform):
+    """Update B pivot and axes from A using the given transform."""
+    # pivot point
+    pivotB = self.pivotA.getVector3() * transform
+    self.pivotB.x = pivotB.x
+    self.pivotB.y = pivotB.y
+    self.pivotB.z = pivotB.z
+    # axes (rotation only)
+    transform = transform.getMatrix33()
+    axleB = self.axleA.getVector3() *  transform
+    perp2AxleInB2 = self.Perp2AxleInA2.getVector3() * transform
+    self.axleB.x = axleB.x
+    self.axleB.y = axleB.y
+    self.axleB.z = axleB.z
+    self.perp2AxleInB2.x = perp2AxleInB2.x
+    self.perp2AxleInB2.y = perp2AxleInB2.y
+    self.perp2AxleInB2.z = perp2AxleInB2.z

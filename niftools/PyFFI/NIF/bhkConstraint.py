@@ -1,4 +1,4 @@
-"""Custom functions for bhkRagdollConstraint."""
+"""Custom functions for bhkConstraint."""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -37,19 +37,15 @@
 #
 # ***** END LICENSE BLOCK *****
 
-def applyScale(self, scale):
-    """Scale data."""
-    # apply scale on transform
-    self.ragdoll.pivotA.x *= scale
-    self.ragdoll.pivotA.y *= scale
-    self.ragdoll.pivotA.z *= scale
-    self.ragdoll.pivotB.x *= scale
-    self.ragdoll.pivotB.y *= scale
-    self.ragdoll.pivotB.z *= scale
-
-    # apply scale on all blocks down the hierarchy
-    self.cls.NiObject.applyScale(self, scale)
-
-def updateB(self):
-    """Update the B data from the A data."""
-    self.ragdoll.updateB(self.getTransformAB())
+def getTransformAB(self):
+    """Returns the transform of the first entity relative to the second
+    entity."""
+    # check entities
+    if self.numEntities != 2:
+        raise ValueError("""\
+cannot get tranform for constraint that hasn't exactly 2 entities""")
+    # find transform of entity A relative to entity B
+    # (we are cheating and using the qBlockParent function to get the
+    # NiNode that has this rigidbody)
+    return entities[0].qBlockParent().qBlockParent().getTransform(
+        relative_to = entities[1].qBlockParent().qBlockParent())
