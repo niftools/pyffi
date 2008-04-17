@@ -52,3 +52,12 @@ def getScales(self):
     for key in self._getCompKeys(self.scaleOffset, 1,
                                  self.scaleBias, self.scaleMultiplier):
         yield key[0]
+
+def applyScale(self, scale):
+    """Apply scale factor on data."""
+    self.translation.x *= scale
+    self.translation.y *= scale
+    self.translation.z *= scale
+    self.translationBias *= scale
+    self.translationMultiplier *= scale
+    

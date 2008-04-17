@@ -49,3 +49,19 @@ def getScales(self):
     """Return an iterator over all scale keys."""    
     for key in self._getFloatKeys(self.scaleOffset, 1):
         yield key[0]
+
+def applyScale(self, scale):
+    """Apply scale factor on data."""
+    self.translation.x *= scale
+    self.translation.y *= scale
+    self.translation.z *= scale
+    # also scale translation float keys
+    if self.translationOffset != 65535:
+        offset = self.translationOffset
+        num_elements = self.basisData.numControlPoints
+        element_size = 3
+        controlpoints = self.splineData.floatControlPoints
+        for element in xrange(num_elements):
+            for index in xrange(element_size):
+                controlpoints[offset + element * element_size + index] *= scale
+    
