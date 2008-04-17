@@ -46,7 +46,7 @@ def getTimes(self):
 def _getFloatKeys(self, offset, element_size):
     """Helper function to get iterator to various keys. Internal use only."""
     # are there keys?
-    if offset == 32767:
+    if offset == 65535:
         return
     # yield all keys
     for key in self.splineData.getFloatData(offset,
@@ -57,7 +57,7 @@ def _getFloatKeys(self, offset, element_size):
 def _getCompKeys(self, offset, element_size, bias, multiplier):
     """Helper function to get iterator to various keys. Internal use only."""
     # are there keys?
-    if offset == 32767:
+    if offset == 65535:
         return
     # yield all keys
     for key in self.splineData.getCompData(offset,
