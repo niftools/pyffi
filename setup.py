@@ -45,8 +45,8 @@ except:
 #import PyFFI
 
 basicext = Extension(
-    "PyFFI.Bases.Basic",
-    sources = ["PyFFI/Bases/Basic.pyx"]
+    "PyFFI.Bases._Basic",
+    sources = ["PyFFI/Bases/_Basic.pyx"]
     )
 
 setup(
