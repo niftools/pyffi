@@ -46,7 +46,13 @@ cdef extern from "Python.h":
     int fread(void *ptr, int size, int nitems, FILE *stream)
     int fwrite(void *ptr, int size, int nitems, FILE *stream)
 
-cdef class BasicBase:
+# Cython doesn't do class variables
+# so first we define the classes with class variables
+# (these are the "Cxxx" classes)
+# then we derive the classes from those, and define
+# the class variables in them
+
+cdef class CBasicBase:
     """Base class from which all basic types are derived.
     
     The BasicBase class implements the interface for basic types.
@@ -80,13 +86,6 @@ cdef class BasicBase:
 
     cdef object _parent
 
-    # class variables not supported in Cython
-    # so we use __getattr__ to emulate them
-    def __getattr__(self, attr):
-        if attr in ("_isTemplate", "_hasLinks", "_hasRefs", "_hasStrings"):
-            return False
-        raise AttributeError(attr)
-    
     def __init__(self, template = None, argument = None, parent = None):
         """Initializes the instance.
 
@@ -176,7 +175,7 @@ cdef class BasicBase:
         """Return an object that can be used to display the instance."""
         return self.getValue()
 
-cdef class FloatBase(BasicBase):
+cdef class CFloatBase(CBasicBase):
     """Implementation of a 32-bit float.
 
     >>> from tempfile import TemporaryFile
@@ -239,3 +238,15 @@ cdef class FloatBase(BasicBase):
         """Return a hash value for this value. Currently implemented
         with precision 1/200."""
         return int(self._value * 200)
+
+# the full classes, with class variables
+
+class BasicBase(CBasicBase):
+    _isTemplate = False
+    _hasLinks = False
+    _hasRefs = False
+    _hasStrings = False
+
+class FloatBase(CFloatBase, BasicBase):
+    pass
+
