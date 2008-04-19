@@ -87,7 +87,13 @@ class StructAttribute(object):
                 del tmp
             except StandardError:
                 # conversion failed; not a big problem
-                self.default = None
+                # try to convert via an integer
+                try:
+                    tmp.setValue(int(self.default))
+                    self.default = tmp.getValue()
+                except StandardError:
+                    # still failed, discard default value
+                    self.default = None
         if self.arr1:
             self.arr1 = Expression(self.arr1, cls.nameAttribute)
         if self.arr2:

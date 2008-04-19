@@ -44,8 +44,8 @@ from PyFFI.Bases.Basic import BasicBase
 from PyFFI.Bases.Basic import FloatBase as Float
 from PyFFI.Bases.Basic import IntBase as Int
 from PyFFI.Bases.Basic import UIntBase as UInt
-from PyFFI.Bases.Basic import IntBase as Short
-from PyFFI.Bases.Basic import UIntBase as UShort
+from PyFFI.Bases.Basic import ShortBase as Short
+from PyFFI.Bases.Basic import UShortBase as UShort
 from PyFFI.Bases.Basic import ByteBase as Byte
 from PyFFI.Bases.Basic import UByteBase as UByte
 
@@ -61,6 +61,9 @@ class Bool(UByte, DelegateBoolComboBox):
 
     def setValue(self, value):
         UByte.setValue(self, 1) if value else UByte.setValue(self, 0)
+
+    def __str__(self):
+        return str(self.getValue())
 
 class Char(BasicBase, DelegateLineEdit):
     """Implementation of an 8-bit ASCII character."""

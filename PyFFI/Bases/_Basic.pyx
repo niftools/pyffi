@@ -44,12 +44,12 @@ class variables and class methods."""
 
 # C functions we need
 cdef extern from "Python.h":
+    # low level file access
     ctypedef struct FILE
     FILE* PyFile_AsFile(object)
     int fread(void *ptr, int size, int nitems, FILE *stream)
     int fwrite(void *ptr, int size, int nitems, FILE *stream)
-
-    #ctypedef struct PyObject
+    # convenience conversion functions
     object PyInt_FromLong(int value)
 
 # Cython/Pyrex does not support class variables
