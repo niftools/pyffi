@@ -28,20 +28,36 @@ Operating System :: OS Independent"""
 doclines = __doc__.split("\n")
 
 from distutils.core import setup
+from distutils.extension import Extension
 import sys
 
 if sys.version_info < (2, 5):
     raise RuntimeError("PyFFI requires Python 2.5 or higher.")
 
-import PyFFI
+# we'd better have Cython installed, or it's a no-go
+try:
+    from Cython.Distutils import build_ext
+except:
+    print "You don't seem to have Cython installed. Please get a"
+    print "copy from www.cython.org and install it"
+    sys.exit(1)
+
+#import PyFFI
+
+basicext = Extension(
+    "PyFFI.Bases.Basic",
+    sources = ["PyFFI/Bases/Basic.pyx"]
+    )
 
 setup(
     name = "PyFFI",
-    version = PyFFI.__version__,
+    version = '0.10.9', #PyFFI.__version__,
     packages = ['PyFFI', 'PyFFI.Bases', 'PyFFI.Utils', 'PyFFI.NIF', 'PyFFI.KFM', 'PyFFI.CGF', 'PyFFI.DDS', 'PyFFI.TGA', 'NifTester', 'NifTester.hacking', 'NifTester.validate', 'NifTester.surgery', 'NifVis', 'NifVis.lizers', 'CgfTester', 'CgfTester.hacking', 'CgfTester.validate', 'CgfTester.surgery', 'KfmTester', 'KfmTester.hacking', 'KfmTester.validate', 'KfmTester.surgery', 'qskopelib'],
     package_dir = { 'NifTester' : 'tools/NIF/NifTester', 'NifVis' : 'tools/NIF/NifVis', 'CgfTester' : 'tools/CGF/CgfTester', 'KfmTester' : 'tools/KFM/KfmTester', 'qskopelib' : 'tools/qskopelib' },
     package_data = { '' : [ '*.xml' ] }, # include xml files
     scripts = ['pyffipostinstallation.py', 'tools/NIF/ffvt3rskinpartition.py', 'tools/NIF/nifmakehsl.py', 'tools/NIF/niftoaster.py', 'tools/NIF/nifvisualizer.py', 'tools/NIF/nifoptimize.py', 'tools/NIF/niftexdump.py', 'tools/NIF/nifdump.py', 'tools/NIF/niftemplate.py', 'tools/CGF/cgftoaster.py', 'tools/KFM/kfmtoaster.py', 'tools/qskope.py'],
+    ext_modules = [basicext],
+    cmdclass = {'build_ext': build_ext},
     author = "Amorilia",
     author_email = "amorilia@users.sourceforge.net",
     license = "BSD",

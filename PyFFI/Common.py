@@ -39,7 +39,7 @@
 
 import struct
 from itertools import izip
-from PyFFI.Bases.Basic import BasicBase
+from PyFFI.Bases.Basic import BasicBase, FloatBase
 from PyFFI.Bases.Delegate import DelegateSpinBox
 from PyFFI.Bases.Delegate import DelegateFloatSpinBox
 from PyFFI.Bases.Delegate import DelegateLineEdit
@@ -213,36 +213,9 @@ class Char(BasicBase, DelegateLineEdit):
         """Return a hash value for this value."""
         self.getValue()
 
-class Float(BasicBase, DelegateFloatSpinBox):
+class Float(FloatBase, DelegateFloatSpinBox):
     """Implementation of a 32-bit float."""
-    def __init__(self, **kwargs):
-        super(Float, self).__init__(**kwargs)
-        self._value = '\x00\x00\x00\x00'
-
-    def getValue(self):
-        """Return stored value."""
-        return struct.unpack('<f', self._value)[0]
-
-    def setValue(self, value):
-        """Set value to C{value}."""
-        self._value = struct.pack('<f', float(value))
-
-    def read(self, stream, **kwargs):
-        """Read value from stream."""
-        self._value = stream.read(4)
-
-    def write(self, stream, **kwargs):
-        """Write value to stream."""
-        stream.write(self._value)
-
-    def getSize(self, **kwargs):
-        """Return size of this type."""
-        return 4
-
-    def getHash(self, **kwargs):
-        """Return a hash value for this value. Currently implemented
-        with precision 1/200."""
-        return int(self.getValue()*200)
+    pass
 
 class ZString(BasicBase, DelegateLineEdit):
     """String of variable length (null terminated).

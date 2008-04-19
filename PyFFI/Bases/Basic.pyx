@@ -39,7 +39,15 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-class BasicBase(object):
+# C functions we need
+cdef extern from "Python.h":
+    ctypedef struct FILE
+    FILE* PyFile_AsFile(object)
+    ctypedef size_t
+    size_t fread(void *ptr, size_t size, size_t nitems, FILE *stream)
+    size_t fwrite(void *ptr, size_t size, size_t nitems, FILE *stream)
+
+cdef class BasicBase:
     """Base class from which all basic types are derived.
     
     The BasicBase class implements the interface for basic types.
@@ -164,3 +172,67 @@ class BasicBase(object):
     def qDataDisplay(self):
         """Return an object that can be used to display the instance."""
         return self.getValue()
+
+cdef class FloatBase(BasicBase):
+    """Implementation of a 32-bit float.
+
+    >>> from tempfile import TemporaryFile
+    >>> tmp = TemporaryFile()
+    >>> i = FloatBase()
+    >>> i.setValue(-1)
+    >>> i.getValue()
+    -1
+    >>> i.setValue(0x11223344)
+    >>> i.write(tmp)
+    >>> j = FloatBase()
+    >>> tmp.seek(0)
+    >>> j.read(tmp)
+    >>> j.getValue()
+    0x11223344
+    >>> i.setValue('hello world')
+    Traceback (most recent call last):
+        ...
+    ValueError: cannot convert value 'hello world' to integer
+    >>> tmp.seek(0)
+    >>> tmp.write('\x00\x00\x8f\x30')
+    >>> tmp.seek(0)
+    >>> i.read(tmp)
+    >>> i.getValue()
+    1.0
+    """
+
+    cdef float _value
+
+    def __init__(self, **kwargs):
+        self._parent = kwargs.get("parent")
+        self._value = 0
+
+    def getValue(self):
+        """Return stored value."""
+        return self._value
+
+    def setValue(self, float value):
+        """Set value to C{value}."""
+        self._value = value
+
+    def read(self, stream, **kwargs):
+        """Read value from stream."""
+        fread(&self._value, 4, 1, PyFile_AsFile(stream))
+
+    def write(self, stream, **kwargs):
+        """Write value to stream."""
+        fwrite(&self._value, 4, 1, PyFile_AsFile(stream))
+
+    def __str__(self):
+        return str(self._value)
+
+    # classmethod decorator not supported by Cython
+    #@classmethod
+    def getSize(cls, **kwargs):
+        """Return size of this type."""
+        return 4
+
+    def getHash(self, **kwargs):
+        """Return a hash value for this value. Currently implemented
+        with precision 1/200."""
+        return int(self._value * 200)
