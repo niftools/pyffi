@@ -43,9 +43,8 @@
 cdef extern from "Python.h":
     ctypedef struct FILE
     FILE* PyFile_AsFile(object)
-    ctypedef size_t
-    size_t fread(void *ptr, size_t size, size_t nitems, FILE *stream)
-    size_t fwrite(void *ptr, size_t size, size_t nitems, FILE *stream)
+    int fread(void *ptr, int size, int nitems, FILE *stream)
+    int fwrite(void *ptr, int size, int nitems, FILE *stream)
 
 cdef class BasicBase:
     """Base class from which all basic types are derived.
@@ -78,11 +77,15 @@ cdef class BasicBase:
         ...
     NotImplementedError
     """
-    
-    _isTemplate = False # is it a template type?
-    _hasLinks = False # does the type contain a Ref or a Ptr?
-    _hasRefs = False # does the type contain a Ref?
-    _hasStrings = False # does the type contain a string?
+
+    cdef object _parent
+
+    # class variables not supported in Cython
+    # so we use __getattr__ to emulate them
+    def __getattr__(self, attr):
+        if attr in ("_isTemplate", "_hasLinks", "_hasRefs", "_hasStrings"):
+            return False
+        raise AttributeError(attr)
     
     def __init__(self, template = None, argument = None, parent = None):
         """Initializes the instance.
