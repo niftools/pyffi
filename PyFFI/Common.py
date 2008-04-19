@@ -39,144 +39,28 @@
 
 import struct
 from itertools import izip
-from PyFFI.Bases.Basic import BasicBase, FloatBase
+
+from PyFFI.Bases.Basic import BasicBase
+from PyFFI.Bases.Basic import FloatBase as Float
+from PyFFI.Bases.Basic import IntBase as Int
+from PyFFI.Bases.Basic import UIntBase as UInt
+from PyFFI.Bases.Basic import IntBase as Short
+from PyFFI.Bases.Basic import UIntBase as UShort
+from PyFFI.Bases.Basic import ByteBase as Byte
+from PyFFI.Bases.Basic import UByteBase as UByte
+
 from PyFFI.Bases.Delegate import DelegateSpinBox
 from PyFFI.Bases.Delegate import DelegateFloatSpinBox
 from PyFFI.Bases.Delegate import DelegateLineEdit
 from PyFFI.Bases.Delegate import DelegateBoolComboBox
 
-class Int(BasicBase, DelegateSpinBox):
-    """Basic implementation of a 32-bit signed integer type. Also serves as a
-    base class for all other integer types.
-
-    >>> from tempfile import TemporaryFile
-    >>> tmp = TemporaryFile()
-    >>> i = Int()
-    >>> i.setValue(-1)
-    >>> i.getValue()
-    -1
-    >>> i.setValue(0x11223344)
-    >>> i.write(tmp)
-    >>> j = Int()
-    >>> tmp.seek(0)
-    >>> j.read(tmp)
-    >>> hex(j.getValue())
-    '0x11223344'
-    >>> i.setValue(0x10000000000L) # doctest: +ELLIPSIS
-    Traceback (most recent call last):
-        ...
-    ValueError: ...
-    >>> i.setValue('hello world')
-    Traceback (most recent call last):
-        ...
-    ValueError: cannot convert value 'hello world' to integer
-    >>> tmp.seek(0)
-    >>> tmp.write('\x11\x22\x33\x44')
-    >>> tmp.seek(0)
-    >>> i.read(tmp)
-    >>> hex(i.getValue())
-    '0x44332211'
-    """
-    
-    _min = -0x80000000 #: Minimum value.
-    _max = 0x7fffffff  #: Maximum value.
-    _struct = 'i'      #: Character used to represent type in struct.
-    _size = 4          #: Number of bytes.
-    _default = ''.join('\x00' for i in xrange(_size)) #: Default value (in internal storage format).
-
-    def __init__(self, **kwargs):
-        super(Int, self).__init__(**kwargs)
-        self._value = ''.join('\x00' for i in xrange(self._size)) #self._default
-
-    def getValue(self):
-        """Return stored value."""
-        return struct.unpack('<' + self._struct, self._value)[0]
-
-    def setValue(self, value):
-        """Set value to C{value}."""
-        try:
-            val = int(value)
-        except ValueError:
-            try:
-                val = int(value, 16) # for '0x...' strings
-            except ValueError:
-                try:
-                    val = getattr(self, value) # for enums
-                except AttributeError:
-                    raise ValueError(
-                        "cannot convert value '%s' to integer"%value)
-        if val < self._min or val > self._max:
-            raise ValueError('value out of range (%i)' % val)
-        self._value = struct.pack('<' + self._struct, val)
-
-    def read(self, stream, **kwargs):
-        """Read value from stream."""
-        self._value = stream.read(self._size)
-
-    def write(self, stream, **kwargs):
-        """Write value to stream."""
-        stream.write(self._value)
-
-    def __str__(self):
-        return str(self.getValue())
-
-    @classmethod
-    def getSize(cls, **kwargs):
-        """Return size of this type."""
-        return cls._size
-
-    def getHash(self, **kwargs):
-        """Return a hash value for this value."""
-        return self.getValue()
-
-    def qDelegateMinimum(self):
-        return self._min
-
-    def qDelegateMaximum(self):
-        return self._max
-
-class UInt(Int):
-    """Implementation of a 32-bit unsigned integer type."""
-    _min = 0
-    _max = 0xffffffff
-    _struct = 'I'
-    _size = 4
-
-class Byte(Int):
-    """Implementation of a 8-bit signed integer type."""
-    _min = -0x80
-    _max = 0x7f
-    _struct = 'b'
-    _size = 1
-
-class UByte(Int):
-    """Implementation of a 8-bit unsigned integer type."""
-    _min = 0
-    _max = 0xff
-    _struct = 'B'
-    _size = 1
-
-class Short(Int):
-    """Implementation of a 16-bit signed integer type."""
-    _min = -0x8000
-    _max = 0x7fff
-    _struct = 'h'
-    _size = 2
-
-class UShort(UInt):
-    """Implementation of a 16-bit unsigned integer type."""
-    _min = 0
-    _max = 0xffff
-    _struct = 'H'
-    _size = 2
-
 class Bool(UByte, DelegateBoolComboBox):
     """Simple bool implementation."""
     def getValue(self):
-        return False if self._value == '\x00' else True
+        return True if UByte.getValue(self) else False
 
     def setValue(self, value):
-        self._value = '\x01' if value else '\x00'
+        UByte.setValue(self, 1) if value else UByte.setValue(self, 0)
 
 class Char(BasicBase, DelegateLineEdit):
     """Implementation of an 8-bit ASCII character."""
@@ -212,10 +96,6 @@ class Char(BasicBase, DelegateLineEdit):
     def getHash(self, **kwargs):
         """Return a hash value for this value."""
         self.getValue()
-
-class Float(FloatBase, DelegateFloatSpinBox):
-    """Implementation of a 32-bit float."""
-    pass
 
 class ZString(BasicBase, DelegateLineEdit):
     """String of variable length (null terminated).

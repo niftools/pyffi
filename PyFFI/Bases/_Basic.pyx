@@ -49,6 +49,9 @@ cdef extern from "Python.h":
     int fread(void *ptr, int size, int nitems, FILE *stream)
     int fwrite(void *ptr, int size, int nitems, FILE *stream)
 
+    #ctypedef struct PyObject
+    object PyInt_FromLong(int value)
+
 # Cython/Pyrex does not support class variables
 # so first we define the classes with class variables
 # (these are the "Cxxx" classes)
@@ -63,7 +66,7 @@ cdef class CBasicBase:
     They must override read, write, getValue, and setValue.
 
     >>> import struct
-    >>> class UInt(BasicBase):
+    >>> class UInt(CBasicBase):
     ...     def __init__(self, template = None, argument = 0):
     ...         self.__value = 0
     ...     def read(self, version = None, user_version = None, f = None, link_stack = [], argument = None):
@@ -78,7 +81,7 @@ cdef class CBasicBase:
     >>> x.setValue('123')
     >>> x.getValue()
     123
-    >>> class Test(BasicBase): # bad: read, write, getValue, and setValue are not implemented
+    >>> class Test(CBasicBase): # bad: read, write, getValue, and setValue are not implemented
     ...     pass
     >>> x = Test() # doctest: +ELLIPSIS
     >>> x.setValue('123') # doctest: +ELLIPSIS
@@ -110,12 +113,9 @@ cdef class CBasicBase:
         """Return string representation."""
         return str(self.getValue())
 
-    # classmethod decorator not supported by Cython
-    # deferred to FloatBase class
-    #@classmethod
-    #def getSize(cls, **kwargs):
-    #    """Return size of this type."""
-    #    raise NotImplementedError
+    def getSize(self, **kwargs):
+        """Returns size of the object in bytes."""
+        raise NotImplementedError
 
     def read(self, stream, **kwargs):
         """Read object from file."""
@@ -195,18 +195,18 @@ cdef class CFloatBase(CBasicBase):
 
     >>> from tempfile import TemporaryFile
     >>> tmp = TemporaryFile()
-    >>> i = FloatBase()
+    >>> i = CFloatBase()
     >>> i.setValue(-1)
     >>> i.getValue()
     -1.0
     >>> i.setValue(3.1415926535)
-    >>> i.getValue()
+    >>> i.getValue() # doctest: +ELLIPSIS
     3.141592...
     >>> i.write(tmp)
-    >>> j = FloatBase()
+    >>> j = CFloatBase()
     >>> tmp.seek(0)
     >>> j.read(tmp)
-    >>> j.getValue()
+    >>> j.getValue() # doctest: +ELLIPSIS
     3.141592...
     >>> i.setValue('hello world')
     Traceback (most recent call last):
@@ -245,14 +245,296 @@ cdef class CFloatBase(CBasicBase):
     def __str__(self):
         return str(self._value)
 
-    # classmethod decorator not supported by Cython
-    # deferred to FloatBase class
-    #@classmethod
-    #def getSize(cls, **kwargs):
-    #    """Return size of this type."""
-    #    return 4
+    def getSize(self, **kwargs):
+        """Return size of this type."""
+        return 4
 
     def getHash(self, **kwargs):
         """Return a hash value for this value. Currently implemented
         with precision 1/200."""
         return int(self._value * 200)
+
+cdef class CIntBase(CBasicBase):
+    """Basic implementation of a 32-bit signed integer type.
+
+    >>> from tempfile import TemporaryFile
+    >>> tmp = TemporaryFile()
+    >>> i = CIntBase()
+    >>> i.setValue(-1)
+    >>> i.getValue()
+    -1
+    >>> i.setValue(0x11223344)
+    >>> i.write(tmp)
+    >>> j = CIntBase()
+    >>> tmp.seek(0)
+    >>> j.read(tmp)
+    >>> hex(j.getValue())
+    '0x11223344'
+    >>> i.setValue(0x10000000000L) # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    OverflowError: ...
+    >>> i.setValue('hello world')
+    Traceback (most recent call last):
+        ...
+    TypeError: an integer is required
+    >>> tmp.seek(0)
+    >>> tmp.write('\x11\x22\x33\x44')
+    >>> tmp.seek(0)
+    >>> i.read(tmp)
+    >>> hex(i.getValue())
+    '0x44332211'
+    """
+
+    cdef int _value
+
+    def __init__(self, **kwargs):
+        self._parent = kwargs.get("parent")
+        self._value = 0
+
+    def getValue(self):
+        """Return stored value."""
+        return self._value
+
+    def setValue(self, value):
+        """Set value to C{value}."""
+        self._value = value
+
+    def read(self, stream, **kwargs):
+        """Read value from stream."""
+        fread(&self._value, 4, 1, PyFile_AsFile(stream))
+
+    def write(self, stream, **kwargs):
+        """Write value to stream."""
+        fwrite(&self._value, 4, 1, PyFile_AsFile(stream))
+
+    def __str__(self):
+        return str(self._value)
+
+    def getSize(self, **kwargs):
+        """Return size of this type."""
+        return 4
+
+    def getHash(self, **kwargs):
+        """Return a hash value for this value."""
+        return self._value
+
+    def qDelegateMinimum(self):
+        return -2147483648
+
+    def qDelegateMaximum(self):
+        return +2147483647
+
+cdef class CUIntBase(CBasicBase):
+    """Basic implementation of a 32-bit unsigned integer type."""
+
+    cdef unsigned int _value
+
+    def __init__(self, **kwargs):
+        self._parent = kwargs.get("parent")
+        self._value = 0
+
+    def getValue(self):
+        """Return stored value."""
+        # only return a long if the value does not fit in an int
+        if self._value <= 2147483647:
+            return PyInt_FromLong(self._value)
+        else:
+            return self._value
+
+    def setValue(self, value):
+        """Set value to C{value}."""
+        self._value = value
+
+    def read(self, stream, **kwargs):
+        """Read value from stream."""
+        fread(&self._value, 4, 1, PyFile_AsFile(stream))
+
+    def write(self, stream, **kwargs):
+        """Write value to stream."""
+        fwrite(&self._value, 4, 1, PyFile_AsFile(stream))
+
+    def __str__(self):
+        return str(self._value)
+
+    def getSize(self, **kwargs):
+        """Return size of this type."""
+        return 4
+
+    def getHash(self, **kwargs):
+        """Return a hash value for this value."""
+        return self._value
+
+    def qDelegateMinimum(self):
+        return 0
+
+    def qDelegateMaximum(self):
+        return 4294967295
+
+cdef class CShortBase(CBasicBase):
+    """Basic implementation of a 16-bit signed integer type."""
+
+    cdef short _value
+
+    def __init__(self, **kwargs):
+        self._parent = kwargs.get("parent")
+        self._value = 0
+
+    def getValue(self):
+        """Return stored value."""
+        return self._value
+
+    def setValue(self, value):
+        """Set value to C{value}."""
+        self._value = value
+
+    def read(self, stream, **kwargs):
+        """Read value from stream."""
+        fread(&self._value, 2, 1, PyFile_AsFile(stream))
+
+    def write(self, stream, **kwargs):
+        """Write value to stream."""
+        fwrite(&self._value, 2, 1, PyFile_AsFile(stream))
+
+    def __str__(self):
+        return str(self._value)
+
+    def getSize(self, **kwargs):
+        """Return size of this type."""
+        return 2
+
+    def getHash(self, **kwargs):
+        """Return a hash value for this value."""
+        return self._value
+
+    def qDelegateMinimum(self):
+        return -32768
+
+    def qDelegateMaximum(self):
+        return +32767
+
+cdef class CUShortBase(CBasicBase):
+    """Basic implementation of a 16-bit unsigned integer type."""
+
+    cdef unsigned short _value
+
+    def __init__(self, **kwargs):
+        self._parent = kwargs.get("parent")
+        self._value = 0
+
+    def getValue(self):
+        """Return stored value."""
+        return self._value
+
+    def setValue(self, value):
+        """Set value to C{value}."""
+        self._value = value
+
+    def read(self, stream, **kwargs):
+        """Read value from stream."""
+        fread(&self._value, 2, 1, PyFile_AsFile(stream))
+
+    def write(self, stream, **kwargs):
+        """Write value to stream."""
+        fwrite(&self._value, 2, 1, PyFile_AsFile(stream))
+
+    def __str__(self):
+        return str(self._value)
+
+    def getSize(self, **kwargs):
+        """Return size of this type."""
+        return 2
+
+    def getHash(self, **kwargs):
+        """Return a hash value for this value."""
+        return self._value
+
+    def qDelegateMinimum(self):
+        return 0
+
+    def qDelegateMaximum(self):
+        return 65535
+
+cdef class CByteBase(CBasicBase):
+    """Basic implementation of a 8-bit signed integer type."""
+
+    cdef char _value
+
+    def __init__(self, **kwargs):
+        self._parent = kwargs.get("parent")
+        self._value = 0
+
+    def getValue(self):
+        """Return stored value."""
+        return self._value
+
+    def setValue(self, value):
+        """Set value to C{value}."""
+        self._value = value
+
+    def read(self, stream, **kwargs):
+        """Read value from stream."""
+        fread(&self._value, 1, 1, PyFile_AsFile(stream))
+
+    def write(self, stream, **kwargs):
+        """Write value to stream."""
+        fwrite(&self._value, 1, 1, PyFile_AsFile(stream))
+
+    def __str__(self):
+        return str(self._value)
+
+    def getSize(self, **kwargs):
+        """Return size of this type."""
+        return 1
+
+    def getHash(self, **kwargs):
+        """Return a hash value for this value."""
+        return self._value
+
+    def qDelegateMinimum(self):
+        return -128
+
+    def qDelegateMaximum(self):
+        return +127
+
+cdef class CUByteBase(CBasicBase):
+    """Basic implementation of a 8-bit unsigned integer type."""
+
+    cdef unsigned char _value
+
+    def __init__(self, **kwargs):
+        self._parent = kwargs.get("parent")
+        self._value = 0
+
+    def getValue(self):
+        """Return stored value."""
+        return self._value
+
+    def setValue(self, value):
+        """Set value to C{value}."""
+        self._value = value
+
+    def read(self, stream, **kwargs):
+        """Read value from stream."""
+        fread(&self._value, 1, 1, PyFile_AsFile(stream))
+
+    def write(self, stream, **kwargs):
+        """Write value to stream."""
+        fwrite(&self._value, 1, 1, PyFile_AsFile(stream))
+
+    def __str__(self):
+        return str(self._value)
+
+    def getSize(self, **kwargs):
+        """Return size of this type."""
+        return 1
+
+    def getHash(self, **kwargs):
+        """Return a hash value for this value."""
+        return self._value
+
+    def qDelegateMinimum(self):
+        return 0
+
+    def qDelegateMaximum(self):
+        return 255

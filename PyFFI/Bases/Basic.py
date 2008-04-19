@@ -39,9 +39,20 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
+# import delegate classes
+
+from PyFFI.Bases.Delegate import DelegateSpinBox
+from PyFFI.Bases.Delegate import DelegateFloatSpinBox
+from PyFFI.Bases.Delegate import DelegateLineEdit
+from PyFFI.Bases.Delegate import DelegateBoolComboBox
+
 # import partial fast C implementation
 
-from PyFFI.Bases._Basic import CBasicBase, CFloatBase
+from PyFFI.Bases._Basic import CBasicBase
+from PyFFI.Bases._Basic import CFloatBase
+from PyFFI.Bases._Basic import CIntBase, CUIntBase
+from PyFFI.Bases._Basic import CShortBase, CUShortBase
+from PyFFI.Bases._Basic import CByteBase, CUByteBase
 
 # the full classes, with class variables and class methods
 
@@ -51,13 +62,33 @@ class BasicBase(CBasicBase):
     _hasRefs = False
     _hasStrings = False
 
-    @classmethod
-    def getSize(cls, **kwargs):
-        """Returns size of the object in bytes."""
-        raise NotImplementedError
+# note: getSize static methods required for enums: those need the size of the
+#       type from the class (not from an instance)
 
-class FloatBase(CFloatBase, BasicBase):
-    @classmethod
-    def getSize(cls, **kwargs):
-        """Return size of this type."""
-        return 4
+class FloatBase(CFloatBase, BasicBase, DelegateFloatSpinBox):
+    @staticmethod
+    def getSize(**kwargs): return 4
+
+class IntBase(CIntBase, BasicBase, DelegateSpinBox):
+    @staticmethod
+    def getSize(**kwargs): return 4
+
+class UIntBase(CUIntBase, BasicBase, DelegateSpinBox):
+    @staticmethod
+    def getSize(**kwargs): return 4
+
+class ShortBase(CShortBase, BasicBase, DelegateSpinBox):
+    @staticmethod
+    def getSize(**kwargs): return 2
+
+class UShortBase(CUShortBase, BasicBase, DelegateSpinBox):
+    @staticmethod
+    def getSize(**kwargs): return 2
+
+class ByteBase(CByteBase, BasicBase, DelegateSpinBox):
+    @staticmethod
+    def getSize(**kwargs): return 1
+
+class UByteBase(CUByteBase, BasicBase, DelegateSpinBox):
+    @staticmethod
+    def getSize(**kwargs): return 1
