@@ -1,4 +1,7 @@
-"""Implements base class for basic types."""
+"""Partial Cython/Pyrex implementation of base classes for basic types.
+Use PyFFI.Bases.Basic instead of this module. This module only contains a
+partial implementation of the base classes because Cython/Pyrex do not support
+class variables and class methods."""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
@@ -46,11 +49,11 @@ cdef extern from "Python.h":
     int fread(void *ptr, int size, int nitems, FILE *stream)
     int fwrite(void *ptr, int size, int nitems, FILE *stream)
 
-# Cython doesn't do class variables
+# Cython/Pyrex does not support class variables
 # so first we define the classes with class variables
 # (these are the "Cxxx" classes)
 # then we derive the classes from those, and define
-# the class variables in them
+# the class variables in them, in PyFFI.Bases.Basic
 
 cdef class CBasicBase:
     """Base class from which all basic types are derived.
@@ -84,6 +87,12 @@ cdef class CBasicBase:
     NotImplementedError
     """
 
+    # class variables not supported by Cython, deferred to BasicBase
+    #_isTemplate = False
+    #_hasLinks = False
+    #_hasRefs = False
+    #_hasStrings = False
+
     cdef object _parent
 
     def __init__(self, template = None, argument = None, parent = None):
@@ -100,6 +109,13 @@ cdef class CBasicBase:
     def __str__(self):
         """Return string representation."""
         return str(self.getValue())
+
+    # classmethod decorator not supported by Cython
+    # deferred to FloatBase class
+    #@classmethod
+    #def getSize(cls, **kwargs):
+    #    """Return size of this type."""
+    #    raise NotImplementedError
 
     def read(self, stream, **kwargs):
         """Read object from file."""
@@ -133,10 +149,6 @@ cdef class CBasicBase:
 
     def setValue(self, value):
         """Set object value."""
-        raise NotImplementedError
-
-    def getSize(self, **kwargs):
-        """Returns size of the object in bytes."""
         raise NotImplementedError
 
     def getHash(self, **kwargs):
@@ -176,27 +188,32 @@ cdef class CBasicBase:
         return self.getValue()
 
 cdef class CFloatBase(CBasicBase):
-    """Implementation of a 32-bit float.
+    """Implementation of a 32-bit float. Note that the float has less
+    precision than the Python floats (which are usually 64-bit), so
+    for instance assigning 287454020.0 to this type will result in the
+    value 287454016.0 due to the 32-bit representation.
 
     >>> from tempfile import TemporaryFile
     >>> tmp = TemporaryFile()
     >>> i = FloatBase()
     >>> i.setValue(-1)
     >>> i.getValue()
-    -1
-    >>> i.setValue(0x11223344)
+    -1.0
+    >>> i.setValue(3.1415926535)
+    >>> i.getValue()
+    3.141592...
     >>> i.write(tmp)
     >>> j = FloatBase()
     >>> tmp.seek(0)
     >>> j.read(tmp)
     >>> j.getValue()
-    0x11223344
+    3.141592...
     >>> i.setValue('hello world')
     Traceback (most recent call last):
         ...
-    ValueError: cannot convert value 'hello world' to integer
+    TypeError: a float is required
     >>> tmp.seek(0)
-    >>> tmp.write('\x00\x00\x8f\x30')
+    >>> tmp.write('\\x00\\x00\\x80\\x3f')
     >>> tmp.seek(0)
     >>> i.read(tmp)
     >>> i.getValue()
@@ -213,7 +230,7 @@ cdef class CFloatBase(CBasicBase):
         """Return stored value."""
         return self._value
 
-    def setValue(self, float value):
+    def setValue(self, value):
         """Set value to C{value}."""
         self._value = value
 
@@ -229,24 +246,13 @@ cdef class CFloatBase(CBasicBase):
         return str(self._value)
 
     # classmethod decorator not supported by Cython
+    # deferred to FloatBase class
     #@classmethod
-    def getSize(cls, **kwargs):
-        """Return size of this type."""
-        return 4
+    #def getSize(cls, **kwargs):
+    #    """Return size of this type."""
+    #    return 4
 
     def getHash(self, **kwargs):
         """Return a hash value for this value. Currently implemented
         with precision 1/200."""
         return int(self._value * 200)
-
-# the full classes, with class variables
-
-class BasicBase(CBasicBase):
-    _isTemplate = False
-    _hasLinks = False
-    _hasRefs = False
-    _hasStrings = False
-
-class FloatBase(CFloatBase, BasicBase):
-    pass
-
