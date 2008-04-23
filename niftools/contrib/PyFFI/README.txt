@@ -1,5 +1,6 @@
-To run the tools in this directory, you need to install a few other python
-libraries. The easiest way to do this, is to run the following scripts:
+The tools in this directory are part of PyFFI, but you may need to install a
+few other python libraries. The easiest way to do this, is to run the
+following scripts:
 
 $ python ez_setup.py
 
@@ -11,7 +12,8 @@ or (if you want the development code of PyFFI)
 
 $ easy_install http://pyffi.svn.sourceforge.net/svnroot/pyffi/trunk/
 
-to download and install the packages you need. For NifVis you also need:
+to download and install PyFFI you need. All scripts will reside in the Python
+scripts folder on Windows, or in /usr/bin on linux. For NifVis you also need:
 
 $ easy_install PyOpenGL
 $ easy_install numpy
