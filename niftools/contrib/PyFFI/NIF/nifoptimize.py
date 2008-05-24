@@ -455,12 +455,21 @@ def testRoot(root, **args):
     # merge shape data
     # first update list of all blocks
     block_list = [ block for block in root.tree(unique = True) ]
+    # create a list of blocks that should NOT be merged: particle data!
+    triShapeDataForbidden = []
+    for block in block_list:
+        if isinstance(block, NifFormat.NiPSysMeshEmitter):
+            for mesh in block.emitterMeshes:
+                triShapeDataForbidden.append(mesh)
     # then set up list of unique shape data blocks
     # (actually the NiTriShape/NiTriStrips blocks are stored in the list
     # so we can refer back to their name)
     triShapeDataList = []
     for block in block_list:
         if isinstance(block, (NifFormat.NiTriShape, NifFormat.NiTriStrips)):
+            # skip meshes that shouldn't be merged
+            if block in triShapeDataForbidden:
+                continue
             # check with all shapes that were already exported
             for shape in triShapeDataList:
                 if isequalTriGeomData(shape.data, block.data):
