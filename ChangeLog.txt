@@ -1,4 +1,4 @@
-Version 0.10.9 (***)
+Version 0.10.9 (27 May 2008)
 * nif:
   - bspline interpolator fix if no keys
   - fixed bspline scale bug
