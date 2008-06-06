@@ -714,8 +714,8 @@
 
     <compound name="SkinShape">
         Reference to shape and skin instance.
-        <add name="Shape" type="Ref" template="NiTriBasedGeom">The shape.</add>
-        <add name="Skin Instance" type="Ref" template="NiSkinInstance">Skinning instance for the shape?</add>
+        <add name="Shape" type="Ptr" template="NiTriBasedGeom">The shape.</add>
+        <add name="Skin Instance" type="Ptr" template="NiSkinInstance">Skinning instance for the shape?</add>
     </compound>
 
     <compound name="SkinShapeGroup" ver1="10.0.1.0">
