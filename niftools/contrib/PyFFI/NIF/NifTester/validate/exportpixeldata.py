@@ -9,6 +9,8 @@ def testBlock(block, **args):
     if not isinstance(block, NifFormat.NiPixelData):
         return
 
+    print("  found pixel data (format %i)" % block.pixelFormat)
+
     n = 0
     while True:
         filename = "image%03i.dds" % n
@@ -16,7 +18,8 @@ def testBlock(block, **args):
             break
         n += 1
 
-    print("  saving pixel data as %s" % filename)
+    print("  saving as %s" % filename)
+
     stream = open(filename, "wb")
     try:
         block.saveAsDDS(stream)
