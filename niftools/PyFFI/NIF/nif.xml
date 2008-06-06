@@ -278,6 +278,7 @@
         <option value="0" name="PX_FMT_RGB8">24-bit color: uses 8 bit to store each red, blue, and green component.</option>
         <option value="1" name="PX_FMT_RGBA8">32-bit color with alpha: uses 8 bits to store each red, blue, green, and alpha component.</option>
         <option value="2" name="PX_FMT_PAL8">8-bit palette index: uses 8 bits to store an index into the palette stored in a NiPallete object.</option>
+        <option value="4" name="PX_FMT_DXT1">DXT1 compressed texture.</option>
     </enum>
 
     <enum name="PixelLayout" storage="uint">
