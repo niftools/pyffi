@@ -427,8 +427,19 @@ def testRoot(root, **args):
                         print("  removing duplicate NiSpecularProperty block")
                         block.properties[i] = new_prop
 
+    # do not optimize shapes if there is particle data
+    # (see MadCat221's metstaff.nif)
+    opt_shapes = True
+    for block in block_list:
+        if isinstance(block, NifFormat.NiPSysMeshEmitter):
+            opt_shapes = False
+
     print("optimizing geometries")
     for block in block_list:
+        # skip if we are not optimizing shapes
+        if not opt_shapes:
+            continue
+        
         # check if it is a NiNode
         if not isinstance(block, NifFormat.NiNode):
             continue
@@ -455,17 +466,14 @@ def testRoot(root, **args):
     # merge shape data
     # first update list of all blocks
     block_list = [ block for block in root.tree(unique = True) ]
-    # create a list of blocks that should NOT be merged: particle data!
-    triShapeDataForbidden = []
-    for block in block_list:
-        if isinstance(block, NifFormat.NiPSysMeshEmitter):
-            for mesh in block.emitterMeshes:
-                triShapeDataForbidden.append(mesh)
     # then set up list of unique shape data blocks
     # (actually the NiTriShape/NiTriStrips blocks are stored in the list
     # so we can refer back to their name)
-    triShapeDataList = []
     for block in block_list:
+        # skip if we are not optimizing shapes
+        if not opt_shapes:
+            continue
+
         if isinstance(block, (NifFormat.NiTriShape, NifFormat.NiTriStrips)):
             # skip meshes that shouldn't be merged
             if block in triShapeDataForbidden:
