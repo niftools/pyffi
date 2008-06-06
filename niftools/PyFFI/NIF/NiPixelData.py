@@ -92,7 +92,8 @@ def saveAsDDS(self, stream):
         header.caps1.texture = 1
         header.caps1.mipmap = 1
         data.setValue(''.join(self.pixelDataMatrix))
-    elif self.pixelFormat == self.cls.PixelFormat.PX_FMT_DXT5:
+    elif self.pixelFormat in (self.cls.PixelFormat.PX_FMT_DXT5,
+                              self.cls.PixelFormat.PX_FMT_DXT5_ALT):
         # format used in Megami Tensei: Imagine
         header.flags.caps = 1
         header.flags.height = 1
@@ -115,32 +116,6 @@ def saveAsDDS(self, stream):
         header.caps1.texture = 1
         header.caps1.mipmap = 1
         data.setValue(''.join(self.pixelDataMatrix))
-    elif self.pixelFormat == 6:
-        # format used in Megami Tensei: Imagine
-        header.flags.caps = 1
-        header.flags.height = 1
-        header.flags.width = 1
-        header.flags.pixelFormat = 1
-        header.flags.mipmapCount = 0
-        header.flags.linearSize = 0
-        header.pixelFormat.fourcc = DdsFormat.FourCC.DXT5
-        header.height = self.mipmaps[0].height
-        header.width = self.mipmaps[0].width
-        header.linearSize = len(self.pixelData)
-        header.mipmapCount = 0
-        header.pixelFormat.flags.rgb = 0
-        header.pixelFormat.flags.fourcc = 1
-        header.pixelFormat.bitCount = self.bitsPerPixel
-        header.pixelFormat.rMask = self.redMask
-        header.pixelFormat.gMask = self.greenMask
-        header.pixelFormat.bMask = self.blueMask
-        header.pixelFormat.aMask = self.alphaMask
-        header.caps1.complex = 0
-        header.caps1.texture = 1
-        header.caps1.mipmap = 0
-        data.setValue(''.join(self.pixelDataMatrix))
-
-
     else:
         raise ValueError(
             "cannot save pixel format %i as DDS" % self.pixelFormat)

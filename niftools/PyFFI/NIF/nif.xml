@@ -280,6 +280,7 @@
         <option value="2" name="PX_FMT_PAL8">8-bit palette index: uses 8 bits to store an index into the palette stored in a NiPallete object.</option>
         <option value="4" name="PX_FMT_DXT1">DXT1 compressed texture.</option>
         <option value="5" name="PX_FMT_DXT5">DXT5 compressed texture.</option>
+        <option value="6" name="PX_FMT_DXT5_ALT">DXT5 compressed texture. It is not clear what the difference is with PX_FMT_DXT5.</option>
     </enum>
 
     <enum name="PixelLayout" storage="uint">
