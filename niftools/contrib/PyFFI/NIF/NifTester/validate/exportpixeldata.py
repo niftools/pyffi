@@ -15,6 +15,8 @@ def testBlock(block, **args):
         if not os.path.exists(filename):
             break
         n += 1
+
+    print("  saving pixel data as %s" % filename)
     stream = open(filename, "wb")
     try:
         block.saveAsDDS(stream)
