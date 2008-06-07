@@ -475,9 +475,6 @@ def testRoot(root, **args):
             continue
 
         if isinstance(block, (NifFormat.NiTriShape, NifFormat.NiTriStrips)):
-            # skip meshes that shouldn't be merged
-            if block in triShapeDataForbidden:
-                continue
             # check with all shapes that were already exported
             for shape in triShapeDataList:
                 if isequalTriGeomData(shape.data, block.data):
