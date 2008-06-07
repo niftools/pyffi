@@ -127,6 +127,12 @@ def updateTangentSpace(self):
     for i in xrange(self.data.numVertices):
         n = norms[i]
         try:
+            n.normalize()
+        except ValueError:
+            # this happens if the normal has NAN values
+            # just pick something in that case
+            n = yvec
+        try:
             # turn n, bin, tan into a base via Gram-Schmidt
             bin[i] -= n * (n * bin[i])
             bin[i].normalize()
