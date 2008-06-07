@@ -1,9 +1,10 @@
-Version 0.10.10 (***)
+Version 0.10.10 (8 Jun 2008)
 * nif:
   - minor updates in xml
   - NiPixelData saveAsDDS function now also writes DXT compressed formats,
   that is, pixel formats 4, 5, and 6 (contributed by taarna23)
   - fixed nifoptimize for nifs with particle systems (niftools issue #1965936)
+  - fixed nifoptimize for nifs with invalid normals (niftools issue #1987506)
 
 Version 0.10.9 (27 May 2008)
 * nif:
