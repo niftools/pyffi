@@ -469,6 +469,7 @@ def testRoot(root, **args):
     # then set up list of unique shape data blocks
     # (actually the NiTriShape/NiTriStrips blocks are stored in the list
     # so we can refer back to their name)
+    triShapeDataList = []
     for block in block_list:
         # skip if we are not optimizing shapes
         if not opt_shapes:
