@@ -13,7 +13,7 @@ QSkope is PyFFI's graphical user interface, and enables simple editing
 of files in any fileformat supported by PyFFI. QSkope depends on PyQt4,
 which you can download from
 
-http://www.riverbankcomputing.co.uk/pyqt/download.php"""
+http://www.riverbankcomputing.co.uk/software/pyqt/download"""
 
 classifiers = """\
 Development Status :: 4 - Beta

@@ -46,7 +46,7 @@ try:
 except ImportError:
     raw_input("""PyQt4 not found. Please download and install from
 
-  http://www.riverbankcomputing.co.uk/pyqt/download.php""")
+  http://www.riverbankcomputing.co.uk/software/pyqt/download""")
     raise
 
 # import the main QSkope window class
