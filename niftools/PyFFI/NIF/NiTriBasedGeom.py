@@ -128,8 +128,8 @@ def updateTangentSpace(self):
         n = norms[i]
         try:
             n.normalize()
-        except ValueError:
-            # this happens if the normal has NAN values
+        except (ValueError, ZeroDivisionError):
+            # this happens if the normal has NAN values or is zero
             # just pick something in that case
             n = yvec
         try:
