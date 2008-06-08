@@ -1,3 +1,6 @@
+Version 0.10.11 (***)
+  - fixed updateTangentSpace for nifs with zero normals
+
 Version 0.10.10 (8 Jun 2008)
 * nif:
   - minor updates in xml
