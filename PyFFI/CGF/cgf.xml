@@ -922,18 +922,21 @@ In Python this can be calculated using zlib.crc32(name)</add>
              entries of this map give a mapping identifying the unique vertices.
              The meaning of the extra entries is unknown.
         </add>
-        <add name="Unknown 21" type="ubyte" />
+        <add name="Unknown 21" type="ubyte">Not sure. Theory:
+		Value of 1 means that vertices are recycled from the VERTICES DataStreamChunk.
+		Value of 0 means that the vertices are defined here.</add>
         <!-- the unknown 21 == 0 case is still not perfect
              (see Hunter_debris.cgf in particular)
-             so commented out until improved
-        <add name="Unknown 210 0" type="Vector3" arr1="Num Vertices" cond="Unknown 21 == 0"/>
-        <add name="Unknown 210 1" type="short" arr1="Num 2" arr2="3" cond="Unknown 21 == 0">Triangles?</add>
-        <add name="Unknown 210 2" type="byte" arr1="11" cond="Unknown 21 == 0">Junk?</add>
-        <add name="Unknown 210 3" type="PhysicsStruct210" cond="Unknown 21 == 0"/>
+             so commented out until improved -->
+        <add name="Vertices" type="Vector3" arr1="Num Vertices" cond="Unknown 21 == 0"/>
+        <add name="Triangles" type="short" arr1="Num 2" arr2="3" cond="Unknown 21 == 0">Triangles?</add>
+		<!--
+        <add name="Unknown 210 c" type="byte" arr1="11" cond="Unknown 21 == 0">Junk?</add>
+        <add name="Unknown 210 d" type="PhysicsStruct210" cond="Unknown 21 == 0"/>
         -->
         <!-- the unknown 21 == 1 case seems to work quite well -->
-        <add name="Unknown 211 0" type="short" arr1="Num 2" cond="Unknown 21 == 1"/>
-        <add name="Unknown 211 1" type="PhysicsStruct211" cond="Unknown 21 == 1"/>
+        <add name="Unknown 211 a" type="short" arr1="Num 2" cond="Unknown 21 == 1"/>
+        <add name="Unknown 211 b" type="PhysicsStruct211" cond="Unknown 21 == 1"/>
     </struct>
 
     <struct name="MeshPhysicsDataChunk" inherit="Chunk">
@@ -957,9 +960,9 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 12" type="int">Another number, could be a count (observed values: 0, 1, 17, ...).</add>
         <add name="Unknown 13a" type="float" />
         <add name="Unknown 13b" type="float" />
-        <add name="Unknown 13c" type="int">Physics type?</add>
-        <add name="Unknown Data 0" type="PhysicsStruct13c0" cond="Unknown 13c == 0" />
-        <add name="Unknown Data 1" type="PhysicsStruct13c1" cond="Unknown 13c == 1" />
+        <add name="Unknown 13c" type="int">Physics type? 0 = simple (cube?), 1 = complex (polygons?)</add>
+        <add name="Unknown Data 0" type="PhysicsStruct13c0" cond="Unknown 13c == 0">Primitive, like a cube?</add>
+        <add name="Unknown Data 1" type="PhysicsStruct13c1" cond="Unknown 13c == 1">Polygons?</add>
 <!--
         <add name="Unknown 13" type="float">Not sure either.</add>
         <add name="Unknown 14" type="int" />
