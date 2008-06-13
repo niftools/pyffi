@@ -930,10 +930,11 @@ In Python this can be calculated using zlib.crc32(name)</add>
              so commented out until improved -->
         <add name="Vertices" type="Vector3" arr1="Num Vertices" cond="Unknown 21 == 0"/>
         <add name="Triangles" type="short" arr1="Num 2" arr2="3" cond="Unknown 21 == 0">Triangles?</add>
-		<!--
-        <add name="Unknown 210 c" type="byte" arr1="11" cond="Unknown 21 == 0">Junk?</add>
+		<!-- -->
+        <add name="Unknown 210 b" type="byte" cond="Unknown 21 == 0">Junk?</add>
+        <add name="Unknown 210 c" type="byte" arr1="Num 2" cond="Unknown 21 == 0">Flags?</add>
         <add name="Unknown 210 d" type="PhysicsStruct210" cond="Unknown 21 == 0"/>
-        -->
+        <!-- -->
         <!-- the unknown 21 == 1 case seems to work quite well -->
         <add name="Unknown 211 a" type="short" arr1="Num 2" cond="Unknown 21 == 1"/>
         <add name="Unknown 211 b" type="PhysicsStruct211" cond="Unknown 21 == 1"/>
