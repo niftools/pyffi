@@ -850,17 +850,9 @@ In Python this can be calculated using zlib.crc32(name)</add>
     </struct>
 
     <struct name="PhysicsStruct2104700">
-        <!-- this structure still needs work -->
+        <!-- this structure seems finished -->
         <add name="Unknown 10" type="int">Some number, a count?</add>
-        <!-- from here things start going wrong -->
         <add name="Unknown 11" type="PhysicsStruct2" arr1="Unknown 10"></add>
-        <!--
-        <add name="Unknown 20" type="Matrix33" />
-        <add name="Unknown 21" type="float" arr1="6" />
-        <add name="Unknown 30" type="int">-1</add>
-        <add name="Unknown 31" type="int">2</add>
-        <add name="Unknown 32" type="int">0</add>
-        -->
         <add name="Unknown 33" type="int" arr1="3" />
         <add name="Unknown 80" type="float" />
     </struct>
@@ -904,21 +896,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 4700" type="PhysicsStruct2104700" cond="Unknown 470 == 0" />
         <add name="Unknown 4701" type="PhysicsStruct2104701" cond="Unknown 470 == 1" />
         <add name="Unknown 4702" type="PhysicsStruct2104702" cond="Unknown 470 == 2" />
-<!--
-        <add name="Num Unknown 51 Data" type="uint" cond="Unknown 470 == 0" />
-        <add name="Unknown 51 Data" type="PhysicsStruct51" arr1="Num Unknown 51 Data" cond="Unknown 470 == 0" />
-        <add name="Unknown 51 Extra" type="ushort" />
--->
     </struct>
-<!--
-        <add name="Unknown 471" type="ushort" />
-        <add name="Unknown 472" type="ushort" cond="Unknown 471 == 65535"/>
--->
-<!-- only if Unknown 17 is 5 or 8? or if Unk470 is 1 and Unk471 is -1? -->
-<!--
-        <add name="Num 50" type="uint" cond="Unknown 471 == 65535"/>
-        <add name="Unknown 50 Data" type="PhysicsStruct50" arr1="Num 50" cond="Unknown 471 == 65535"/>
--->
 
     <struct name="PhysicsStruct211">
         <add name="Unknown 45" type="byte" arr1="16">Random junk</add>
@@ -934,10 +912,17 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 4681" type="short">not sure</add>
         <add name="Unknown 4682" type="short">not sure</add>
         <add name="Unknown 469" type="float">-1.0</add>
+        <add name="Unknown 470" type="uint">
+             0, 1, and
+             sometimes also 2 (Objects/Characters/Alien/Hunter/weak_point_a.cgf)
+        </add>
+        <add name="Unknown 4700" type="PhysicsStruct2104700" cond="Unknown 470 == 0" />
+        <add name="Unknown 4701" type="PhysicsStruct2104701" cond="Unknown 470 == 1" />
+        <add name="Unknown 4702" type="PhysicsStruct2104702" cond="Unknown 470 == 2" />
+        <!--
         <add name="Unknown 470" type="uint" />
         <add name="Unknown 471" type="ushort" />
         <add name="Unknown 472" type="ushort" cond="Unknown 471 == 65535"/>
-<!-- only if Unknown 17 is 5 or 8? or if Unk470 is 1 and Unk471 is -1?-->
         <add name="Num 50" type="uint" cond="Unknown 471 == 65535"/>
         <add name="Unknown 50 Data" type="PhysicsStruct50" arr1="Num 50" cond="Unknown 471 == 65535"/>
         <add name="Unknown 51 Data" type="PhysicsStruct51" arr1="Unknown 471" cond="Unknown 471 != 65535" />
@@ -946,6 +931,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 61" type="Matrix33">A rotation matrix.</add>
         <add name="Unknown 70" type="int" arr1="3" />
         <add name="Unknown 80" type="float" />
+        -->
     </struct>
 
     <struct name="PhysicsStruct13c0">
@@ -979,7 +965,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 210 d" type="PhysicsStruct210" cond="Unknown 21 == 0"/>
         <!-- -->
         <!-- the unknown 21 == 1 case seems to work quite well -->
-        <add name="Unknown 211 a" type="short" arr1="Num Triangles" cond="Unknown 21 == 1"/>
+        <add name="Unknown 211 Triangle Map" type="short" arr1="Num Triangles" cond="Unknown 21 == 1"/>
         <add name="Unknown 211 b" type="PhysicsStruct211" cond="Unknown 21 == 1"/>
     </struct>
 
