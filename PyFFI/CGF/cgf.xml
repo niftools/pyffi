@@ -852,14 +852,17 @@ In Python this can be calculated using zlib.crc32(name)</add>
     <struct name="PhysicsStruct2104700">
         <!-- this structure still needs work -->
         <add name="Unknown 10" type="int">Some number, a count?</add>
-        <add name="Unknown 60" type="float" arr1="15" />
-        <add name="Unknown 70" type="int">-1</add>
-        <add name="Unknown 71" type="int">2</add>
-        <add name="Unknown 72" type="int">0</add>
         <!-- from here things start going wrong -->
-        <add name="Unknown 73" type="int" arr1="4" />
-        <add name="Unknown 80" type="byte" />
-        <add name="Unknown 90" type="ushort" arr1="16" />
+        <add name="Unknown 11" type="PhysicsStruct2" arr1="Unknown 10"></add>
+        <!--
+        <add name="Unknown 20" type="Matrix33" />
+        <add name="Unknown 21" type="float" arr1="6" />
+        <add name="Unknown 30" type="int">-1</add>
+        <add name="Unknown 31" type="int">2</add>
+        <add name="Unknown 32" type="int">0</add>
+        -->
+        <add name="Unknown 33" type="int" arr1="3" />
+        <add name="Unknown 80" type="float" />
     </struct>
 
     <struct name="PhysicsStruct2104701">
@@ -867,6 +870,18 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 10" type="int">-1</add>
         <add name="Num Data" type="int">A count.</add>
         <add name="Data" type="PhysicsStruct50" arr1="Num Data" />
+        <add name="Unknown 60" type="float" arr1="6" />
+        <add name="Unknown 61" type="Matrix33">A rotation matrix.</add>
+        <add name="Unknown 70" type="int" arr1="3" />
+        <add name="Unknown 80" type="float" />
+    </struct>
+
+    <struct name="PhysicsStruct2104702">
+        <!-- this structure seems pretty much finished -->
+        <add name="Unknown 1" type="Matrix33">A rotation matrix.</add>
+        <add name="Unknown 2" type="int" />
+        <add name="Unknown 3" type="float" arr1="6" />
+        <add name="Unknown 4" type="int" />
     </struct>
 
     <struct name="PhysicsStruct210">
@@ -882,9 +897,13 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 467" type="float">-1.0</add>
         <add name="Unknown 468" type="float">not sure</add>
         <add name="Unknown 469" type="float">-1.0</add>
-        <add name="Unknown 470" type="uint">0 or 1</add>
+        <add name="Unknown 470" type="uint">
+             0, 1, and
+             sometimes also 2 (Objects/Characters/Alien/Hunter/weak_point_a.cgf)
+        </add>
         <add name="Unknown 4700" type="PhysicsStruct2104700" cond="Unknown 470 == 0" />
         <add name="Unknown 4701" type="PhysicsStruct2104701" cond="Unknown 470 == 1" />
+        <add name="Unknown 4702" type="PhysicsStruct2104702" cond="Unknown 470 == 2" />
 <!--
         <add name="Num Unknown 51 Data" type="uint" cond="Unknown 470 == 0" />
         <add name="Unknown 51 Data" type="PhysicsStruct51" arr1="Num Unknown 51 Data" cond="Unknown 470 == 0" />
@@ -923,6 +942,10 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 50 Data" type="PhysicsStruct50" arr1="Num 50" cond="Unknown 471 == 65535"/>
         <add name="Unknown 51 Data" type="PhysicsStruct51" arr1="Unknown 471" cond="Unknown 471 != 65535" />
         <add name="Unknown 51 Extra" type="ushort" cond="Unknown 471 != 65535"/>
+        <add name="Unknown 60" type="float" arr1="6" />
+        <add name="Unknown 61" type="Matrix33">A rotation matrix.</add>
+        <add name="Unknown 70" type="int" arr1="3" />
+        <add name="Unknown 80" type="float" />
     </struct>
 
     <struct name="PhysicsStruct13c0">
@@ -958,10 +981,6 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <!-- the unknown 21 == 1 case seems to work quite well -->
         <add name="Unknown 211 a" type="short" arr1="Num Triangles" cond="Unknown 21 == 1"/>
         <add name="Unknown 211 b" type="PhysicsStruct211" cond="Unknown 21 == 1"/>
-        <add name="Unknown 60" type="float" arr1="6" />
-        <add name="Unknown 61" type="Matrix33">A rotation matrix.</add>
-        <add name="Unknown 70" type="int" arr1="3" />
-        <add name="Unknown 80" type="float" />
     </struct>
 
     <struct name="MeshPhysicsDataChunk" inherit="Chunk">
