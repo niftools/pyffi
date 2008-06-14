@@ -859,9 +859,10 @@ In Python this can be calculated using zlib.crc32(name)</add>
 
     <struct name="PhysicsStruct2104701">
         <!-- this structure seems pretty much finished -->
-        <add name="Unknown 10" type="int">-1</add>
-        <add name="Num Data" type="int">A count.</add>
-        <add name="Data" type="PhysicsStruct50" arr1="Num Data" />
+        <add name="Unknown 10" type="uint">-1</add>
+        <add name="Unknown 20" type="short" arr1="Unknown 10" arr2="6" cond="Unknown 10 != 4294967295" />
+        <add name="Num Data" type="int" cond="Unknown 10 == 4294967295">A count.</add>
+        <add name="Data" type="PhysicsStruct50" arr1="Num Data"  cond="Unknown 10 == 4294967295" />
         <add name="Unknown 60" type="float" arr1="6" />
         <add name="Unknown 61" type="Matrix33">A rotation matrix.</add>
         <add name="Unknown 70" type="int" arr1="3" />
