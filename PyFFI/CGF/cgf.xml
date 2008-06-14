@@ -946,8 +946,8 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Num Triangles" type="uint" />
         <add name="Unknown 17" type="int">This could be determining the type of data coming further on? Typically, 3, 4, 5, or 8.</add>
         <add name="Unknown 18" type="int" />
-        <add name="Unknown 19" type="ubyte" />
-        <add name="Vertex Map" type="short" arr1="Num Vertices">
+        <add name="Has Vertex Map" type="ubyte" />
+        <add name="Vertex Map" type="short" arr1="Num Vertices" cond="Has Vertex Map == 1">
              If the (non-physics) mesh has say 200 vertices, then the first 200
              entries of this map give a mapping identifying the unique vertices.
              The meaning of the extra entries is unknown.

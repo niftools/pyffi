@@ -11,7 +11,7 @@
 #                     - will be called on every cgf
 # Not all of these three functions need to be present.
 
-import sys, os
+import sys, os, gc
 from optparse import OptionParser
 
 from PyFFI.CGF import CgfFormat
@@ -54,4 +54,4 @@ def testPath(top, testChunk, testFile, raisereaderror = False, mode = 'rb', verb
                 stream,
                 filetype = filetype, fileversion = fileversion, game = game,
                 chunks = chunks, versions = versions, **kwargs)
-
+        gc.collect()
