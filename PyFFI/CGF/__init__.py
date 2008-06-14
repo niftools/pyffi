@@ -532,7 +532,8 @@ WARNING: Provide a game = "Far Cry" or game = "Crysis" argument to read.
                        cls.ChunkType.MeshMorphTarget]) \
                 and not(game == "Crysis"
                         and chunkhdr.type in [
-                            cls.ChunkType.BoneNameList]):
+                            cls.ChunkType.BoneNameList,
+                            cls.ChunkType.BoneInitialPos]):
                 chunkhdr_copy = cls.ChunkHeader()
                 chunkhdr_copy.read(stream,
                                    version = hdr.version,
@@ -666,7 +667,8 @@ WARNING: Provide a game = "Far Cry" or game = "Crysis" argument to read.
                        cls.ChunkType.MeshMorphTarget]) \
                 and not(game == "Crysis"
                         and chunkhdr.type in [
-                            cls.ChunkType.BoneNameList]):
+                            cls.ChunkType.BoneNameList,
+                            cls.ChunkType.BoneInitialPos]):
                 chunkhdr.write(stream,
                                version = fileversion,
                                user_version = user_version)
