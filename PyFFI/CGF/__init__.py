@@ -522,14 +522,17 @@ WARNING: Provide a game = "Far Cry" or game = "Crysis" argument to read.
             stream.seek(chunkhdr.offset)
 
             # in far cry, most chunks start with a copy of chunkhdr
-            # in crysis, all chunks start with chunkhdr
+            # in crysis, more chunks start with chunkhdr
             if not(game == "Far Cry"
                    and chunkhdr.type in [
                        cls.ChunkType.SourceInfo,
                        cls.ChunkType.BoneNameList,
                        cls.ChunkType.BoneLightBinding,
                        cls.ChunkType.BoneInitialPos,
-                       cls.ChunkType.MeshMorphTarget]):
+                       cls.ChunkType.MeshMorphTarget]) \
+                and not(game == "Crysis"
+                        and chunkhdr.type in [
+                            cls.ChunkType.BoneNameList]):
                 chunkhdr_copy = cls.ChunkHeader()
                 chunkhdr_copy.read(stream,
                                    version = hdr.version,
@@ -660,7 +663,10 @@ WARNING: Provide a game = "Far Cry" or game = "Crysis" argument to read.
                        cls.ChunkType.BoneNameList,
                        cls.ChunkType.BoneLightBinding,
                        cls.ChunkType.BoneInitialPos,
-                       cls.ChunkType.MeshMorphTarget]):
+                       cls.ChunkType.MeshMorphTarget]) \
+                and not(game == "Crysis"
+                        and chunkhdr.type in [
+                            cls.ChunkType.BoneNameList]):
                 chunkhdr.write(stream,
                                version = fileversion,
                                user_version = user_version)
