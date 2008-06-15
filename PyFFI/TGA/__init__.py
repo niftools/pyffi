@@ -153,14 +153,14 @@ class TgaFormat(object):
 
     @classmethod
     def getVersion(cls, stream):
-        """Returns 0 if the file is a TGA file, -1 if it is not supported, and
-        -2 if it is not a TGA file.
+        """Returns 0 if the file looks like a TGA file, -1 if it is a TGA file
+        but the format is not supported, and -2 if it is not a TGA file.
 
         @param stream: The stream from which to read, typically a file or a
             memory stream such as cStringIO.
         @return: 0 for TGA files, -2 for non-TGA files.
         """
-        return 0
+        #return 0
         pos = stream.tell()
         # read header
         try:
@@ -168,14 +168,22 @@ class TgaFormat(object):
             colormap_index, colormap_length, colormap_size, \
             x_origin, y_origin, width, height, \
             pixel_size, flags = struct.unpack("<BBBHHBHHHHBB", stream.read(18))
+        except struct.error:
+            # could not read 18 bytes
+            # not a TGA file
+            return -2
         finally:
             stream.seek(pos)
         # check if tga type is valid
         if not image_type in (1, 2, 3, 9, 10, 11):
             return -2
         # check pixel size
-        #if not pixel_size in (8, 24, 32):
-        #    return -2
+        if not pixel_size in (8, 24, 32):
+            return -2
+        # check width and height
+        if width >= 100000 or height >= 100000:
+            return -2
+        # this looks like a tga file
         return 0
 
     @classmethod
