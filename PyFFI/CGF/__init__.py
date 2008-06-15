@@ -737,7 +737,7 @@ WARNING: Provide a game = "Far Cry" or game = "Crysis" argument to read.
         testFile-style tests which must access f after the file has been
         read."""
         # filter for recognizing cgf files by extension
-        re_cgf = re.compile(r'^.*\.cgf$', re.IGNORECASE)
+        re_cgf = re.compile(r'^.*\.(cgf|cga|chr|caf)$', re.IGNORECASE)
         # now walk over all these files in directory top
         for filename in Utils.walk(
             top, topdown, onerror = None, re_filename = re_cgf):

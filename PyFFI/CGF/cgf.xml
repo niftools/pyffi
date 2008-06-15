@@ -783,7 +783,10 @@ In Python this can be calculated using zlib.crc32(name)</add>
 
     <struct name="ExportFlagsChunk" inherit="Chunk">
         Export information.
-        <version num="1">Crysis</version>
+        <!-- in Crysis this occurs in caf files, which are of the old Far Cry
+        style, hence we allow these for Far Cry cgf files as well although
+        probably Far Cry is not going to recognize this chunk -->
+        <version num="1">Far Cry, Crysis</version>
         <add name="Flags" type="ExportFlags" />
         <add name="RC Version" type="uint" arr1="4" />
         <add name="RC Version String" type="String16" />
