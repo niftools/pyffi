@@ -877,7 +877,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 4" type="int" />
     </struct>
 
-    <struct name="PhysicsStruct210">
+    <struct name="PhysicsStruct30">
         <!-- similar to 211 but not quite the same TODO merge the two as much
         as possible... -->
         <add name="Unknown 45" type="byte" arr1="16">Random junk</add>
@@ -885,33 +885,22 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 462" type="int">0</add>
         <add name="Unknown 463" type="float">0.02</add>
         <add name="Unknown 464" type="float">not sure</add>
-        <add name="Unknown 465" type="float">-1.0</add>
-        <add name="Unknown 466" type="float">not sure</add>
-        <add name="Unknown 467" type="float">-1.0</add>
-        <add name="Unknown 468" type="float">not sure</add>
-        <add name="Unknown 469" type="float">-1.0</add>
-        <add name="Unknown 470" type="uint">
-             0, 1, and
-             sometimes also 2 (Objects/Characters/Alien/Hunter/weak_point_a.cgf)
-        </add>
-        <add name="Unknown 4700" type="PhysicsStruct2104700" cond="Unknown 470 == 0" />
-        <add name="Unknown 4701" type="PhysicsStruct2104701" cond="Unknown 470 == 1" />
-        <add name="Unknown 4702" type="PhysicsStruct2104702" cond="Unknown 470 == 2" />
-    </struct>
-
-    <struct name="PhysicsStruct211">
-        <add name="Unknown 45" type="byte" arr1="16">Random junk</add>
-        <add name="Unknown 461" type="int">0</add>
-        <add name="Unknown 462" type="int">0</add>
-        <add name="Unknown 463" type="float">0.02</add>
+<!-- alternative to Unknown 464:
         <add name="Unknown 4641" type="short">not sure</add>
         <add name="Unknown 4642" type="short">not sure</add>
+-->
         <add name="Unknown 465" type="float">-1.0</add>
+        <add name="Unknown 466" type="float">not sure</add>
+<!-- alternative to Unknown 466:
         <add name="Unknown 4661" type="short">not sure</add>
         <add name="Unknown 4662" type="short">not sure</add>
+-->
         <add name="Unknown 467" type="float">-1.0</add>
+        <add name="Unknown 468" type="float">not sure</add>
+<!-- alternative to Unknown 468:
         <add name="Unknown 4681" type="short">not sure</add>
         <add name="Unknown 4682" type="short">not sure</add>
+-->
         <add name="Unknown 469" type="float">-1.0</add>
         <add name="Unknown 470" type="uint">
              0, 1, and
@@ -922,13 +911,13 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 4702" type="PhysicsStruct2104702" cond="Unknown 470 == 2" />
     </struct>
 
-    <struct name="PhysicsStruct13c0">
+    <struct name="PhysicsSimple">
         <add name="Unknown 14" type="PhysicsStruct1" />
         <add name="Unknown 15" type="PhysicsStruct1" />
         <add name="Unknown 16" type="int" />
     </struct>
 
-    <struct name="PhysicsStruct13c1">
+    <struct name="PhysicsComplex">
         <add name="Num Vertices" type="uint">Number of vertices (in this physics mesh?).</add>
         <add name="Num Triangles" type="uint" />
         <add name="Unknown 17" type="int">This could be determining the type of data coming further on? Typically, 3, 4, 5, or 8.</add>
@@ -939,22 +928,31 @@ In Python this can be calculated using zlib.crc32(name)</add>
              entries of this map give a mapping identifying the unique vertices.
              The meaning of the extra entries is unknown.
         </add>
-        <add name="Unknown 21" type="ubyte">Not sure. Theory:
+        <add name="Use Data Stream" type="ubyte">Not sure. Theory:
 		Value of 1 means that vertices are recycled from the VERTICES DataStreamChunk.
 		Value of 0 means that the vertices are defined here.</add>
-        <!-- the unknown 21 == 0 case is still not perfect
-             (see Hunter_debris.cgf in particular)
-             so commented out until improved -->
-        <add name="Vertices" type="Vector3" arr1="Num Vertices" cond="Unknown 21 == 0"/>
-        <add name="Triangles" type="short" arr1="Num Triangles" arr2="3" cond="Unknown 21 == 0">Triangles?</add>
-		<!-- -->
-        <add name="Unknown 210 b" type="byte" cond="Unknown 21 == 0">Junk?</add>
-        <add name="Unknown 210 c" type="byte" arr1="Num Triangles" cond="Unknown 21 == 0">Flags?</add>
-        <add name="Unknown 210 d" type="PhysicsStruct210" cond="Unknown 21 == 0"/>
-        <!-- -->
-        <!-- the unknown 21 == 1 case seems to work quite well -->
-        <add name="Unknown 211 Triangle Map" type="short" arr1="Num Triangles" cond="Unknown 21 == 1"/>
-        <add name="Unknown 211 b" type="PhysicsStruct211" cond="Unknown 21 == 1"/>
+        <add name="Vertices" type="Vector3" arr1="Num Vertices" cond="Use Data Stream == 0">Vertices</add>
+        <add name="Triangles" type="short" arr1="Num Triangles" arr2="3" cond="Use Data Stream == 0">Triangles</add>
+        <add name="Unknown 210" type="byte" cond="Use Data Stream == 0">Junk?</add>
+        <add name="Triangle Flags" type="byte" arr1="Num Triangles" cond="Use Data Stream == 0">Flags?</add>
+        <add name="Triangle Map" type="short" arr1="Num Triangles" cond="Use Data Stream == 1"/>
+        <add name="Unknown 30" type="PhysicsStruct30" />
+    </struct>
+
+    <struct name="PhysicsData">
+        <add name="Unknown 4" type="int">Seems to be 1 in all cases observed.</add>
+        <add name="Unknown 5" type="int">Unknown, does not seem to be flags.</add>
+        <add name="Unknown 6" type="float" arr1="3">Inertia?</add>
+        <add name="Rot" type="Quat">Most definitely a quaternion. Probably describes rotation of the physics object.</add>
+        <add name="Center" type="Vector3">Center, or position. Probably describes translation of the physics object. Often corresponds to the center of the mesh data as described in the submesh chunk.</add>
+        <add name="Unknown 10" type="float">Mass?</add>
+        <add name="Unknown 11" type="int">Usually 1.</add>
+        <add name="Unknown 12" type="int">Another number, could be a count (observed values: 0, 1, 17, ...).</add>
+        <add name="Unknown 13" type="float" />
+        <add name="Unknown 14" type="float" />
+        <add name="Complexity" type="int">Physics type? 0 = simple (cube?), 1 = complex (polygons?)</add>
+        <add name="Simple Data" type="PhysicsSimple" cond="Complexity == 0">Primitive, like a cube?</add>
+        <add name="Complex Data" type="PhysicsComplex" cond="Complexity == 1">Polygons?</add>
     </struct>
 
     <struct name="MeshPhysicsDataChunk" inherit="Chunk">
@@ -965,41 +963,8 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Tetrahedra" type="Ref" template="DataStreamChunk">Not sure which type this should be.</add>
         <add name="Reserved 1" type="uint" />
         <add name="Reserved 2" type="uint" />
-        <!-- <add name="Physics Data" type="ubyte" arr1="Physics Data Size" /> -->
+        <add name="Physics Data" type="PhysicsData" cond="Physics Data Size != 0" />
         <add name="Tetrahedra Data" type="ubyte" arr1="Tetrahedra Data Size" />
-        <!-- the following is an experimental decoding of the physics data -->
-        <add name="Unknown 4" type="int">Seems to be 1 in all cases observed.</add>
-        <add name="Unknown 4bis" type="int">Unknown, does not seem to be flags.</add>
-        <add name="Unknown 5" type="float" arr1="3">Inertia?</add>
-        <add name="Rot" type="Quat">Most definitely a quaternion. Probably describes rotation of the physics object.</add>
-        <add name="Center" type="Vector3">Center, or position. Probably describes translation of the physics object. Often corresponds to the center of the mesh data as described in the submesh chunk.</add>
-        <add name="Unknown 10" type="float">Mass?</add>
-        <add name="Unknown 11" type="int">Usually 1.</add>
-        <add name="Unknown 12" type="int">Another number, could be a count (observed values: 0, 1, 17, ...).</add>
-        <add name="Unknown 13a" type="float" />
-        <add name="Unknown 13b" type="float" />
-        <add name="Unknown 13c" type="int">Physics type? 0 = simple (cube?), 1 = complex (polygons?)</add>
-        <add name="Unknown Data 0" type="PhysicsStruct13c0" cond="Unknown 13c == 0">Primitive, like a cube?</add>
-        <add name="Unknown Data 1" type="PhysicsStruct13c1" cond="Unknown 13c == 1">Polygons?</add>
-<!--
-        <add name="Unknown 13" type="float">Not sure either.</add>
-        <add name="Unknown 14" type="int" />
-        <add name="Num 1" type="uint" />
-        <add name="Num 2" type="uint" />
-        <add name="Unknown 17" type="int" />
-        <add name="Unknown 18" type="int" />
-        <add name="Unknown 19" type="ubyte" />
-        <add name="Unknown 20" type="short" arr1="Num 1" />
-        <add name="Unknown 21" type="ubyte" />
-        <add name="Unknown 22" type="short" arr1="Num 2" cond="Unknown 21 == 1" />
-        <add name="Unknown 30" type="Vector3" arr1="Num 1" cond="Unknown 21 == 0"/>
-        <add name="Unknown 40" type="short" arr1="Num 2" arr2="3" cond="Unknown 21 == 0">Triangles?</add>
-
-        <add name="Unknown 50" type="ubyte" arr1="110">Not sure, has more structure, variable size.</add>
-        <add name="Num Unknown Struct2" type="uint" />
-        <add name="Unknown Structs2" type="PhysicsStruct2" arr1="Num Unknown Struct" />
--->
-
     </struct>
 
     <struct name="CompiledBonesChunk" inherit="Chunk">
