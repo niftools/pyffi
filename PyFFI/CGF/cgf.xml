@@ -839,17 +839,12 @@ In Python this can be calculated using zlib.crc32(name)</add>
     </struct>
 
     <struct name="PhysicsStruct50">
-        <add name="Unknown 1" type="int" />
+        <add name="Unknown 11" type="short" />
+        <add name="Unknown 12" type="short" />
         <add name="Unknown 21" type="short" />
         <add name="Unknown 22" type="short" />
         <add name="Unknown 23" type="short" />
         <add name="Unknown 24" type="short" />
-    </struct>
-
-    <struct name="PhysicsStruct51">
-        <add name="Unknown 1" type="float" />
-        <add name="Unknown 2" type="float" />
-        <add name="Unknown 3" type="float" />
     </struct>
 
     <struct name="PhysicsStruct2104700">
