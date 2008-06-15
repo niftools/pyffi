@@ -856,11 +856,13 @@ In Python this can be calculated using zlib.crc32(name)</add>
     </struct>
 
     <struct name="PhysicsStruct2104701">
-        <!-- this structure seems pretty much finished -->
-        <add name="Unknown 10" type="uint">-1</add>
-        <add name="Unknown 20" type="short" arr1="Unknown 10" arr2="6" cond="Unknown 10 != 4294967295" />
-        <add name="Num Data" type="int" cond="Unknown 10 == 4294967295">A count.</add>
-        <add name="Data" type="PhysicsStruct50" arr1="Num Data"  cond="Unknown 10 == 4294967295" />
+        <!-- this structure seems pretty much finished 
+        TODO try to unify Data 1 and Data 2: can we predict when Num Data 1
+        will be 0xffffffff? -->
+        <add name="Num Data 1" type="uint">Usually 4294967295 (0xffffffff)</add>
+        <add name="Data 1" type="PhysicsStruct50" arr1="Num Data 1" cond="Num Data 1 != 4294967295" />
+        <add name="Num Data 2" type="int" cond="Num Data 1 == 4294967295">A count.</add>
+        <add name="Data 2" type="PhysicsStruct50" arr1="Num Data 2"  cond="Num Data 1 == 4294967295" />
         <add name="Unknown 60" type="float" arr1="6" />
         <add name="Unknown 61" type="Matrix33">A rotation matrix.</add>
         <add name="Unknown 70" type="int" arr1="3" />
@@ -918,19 +920,6 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 4700" type="PhysicsStruct2104700" cond="Unknown 470 == 0" />
         <add name="Unknown 4701" type="PhysicsStruct2104701" cond="Unknown 470 == 1" />
         <add name="Unknown 4702" type="PhysicsStruct2104702" cond="Unknown 470 == 2" />
-        <!--
-        <add name="Unknown 470" type="uint" />
-        <add name="Unknown 471" type="ushort" />
-        <add name="Unknown 472" type="ushort" cond="Unknown 471 == 65535"/>
-        <add name="Num 50" type="uint" cond="Unknown 471 == 65535"/>
-        <add name="Unknown 50 Data" type="PhysicsStruct50" arr1="Num 50" cond="Unknown 471 == 65535"/>
-        <add name="Unknown 51 Data" type="PhysicsStruct51" arr1="Unknown 471" cond="Unknown 471 != 65535" />
-        <add name="Unknown 51 Extra" type="ushort" cond="Unknown 471 != 65535"/>
-        <add name="Unknown 60" type="float" arr1="6" />
-        <add name="Unknown 61" type="Matrix33">A rotation matrix.</add>
-        <add name="Unknown 70" type="int" arr1="3" />
-        <add name="Unknown 80" type="float" />
-        -->
     </struct>
 
     <struct name="PhysicsStruct13c0">
