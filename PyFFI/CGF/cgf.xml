@@ -847,15 +847,15 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 24" type="short" />
     </struct>
 
-    <struct name="PhysicsStruct2104700">
+    <struct name="PhysicsDataType0">
         <!-- this structure seems finished -->
-        <add name="Unknown 10" type="int">Some number, a count?</add>
-        <add name="Unknown 11" type="PhysicsStruct2" arr1="Unknown 10"></add>
+        <add name="Num Data" type="int">Some number, a count?</add>
+        <add name="Data" type="PhysicsStruct2" arr1="Num Data"></add>
         <add name="Unknown 33" type="int" arr1="3" />
         <add name="Unknown 80" type="float" />
     </struct>
 
-    <struct name="PhysicsStruct2104701">
+    <struct name="PhysicsDataType1">
         <!-- this structure seems pretty much finished 
         TODO try to unify Data 1 and Data 2: can we predict when Num Data 1
         will be 0xffffffff? -->
@@ -869,46 +869,12 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 80" type="float" />
     </struct>
 
-    <struct name="PhysicsStruct2104702">
+    <struct name="PhysicsDataType2">
         <!-- this structure seems pretty much finished -->
         <add name="Unknown 1" type="Matrix33">A rotation matrix.</add>
         <add name="Unknown 2" type="int" />
         <add name="Unknown 3" type="float" arr1="6" />
         <add name="Unknown 4" type="int" />
-    </struct>
-
-    <struct name="PhysicsStruct30">
-        <!-- similar to 211 but not quite the same TODO merge the two as much
-        as possible... -->
-        <add name="Unknown 45" type="byte" arr1="16">Random junk</add>
-        <add name="Unknown 461" type="int">0</add>
-        <add name="Unknown 462" type="int">0</add>
-        <add name="Unknown 463" type="float">0.02</add>
-        <add name="Unknown 464" type="float">not sure</add>
-<!-- alternative to Unknown 464:
-        <add name="Unknown 4641" type="short">not sure</add>
-        <add name="Unknown 4642" type="short">not sure</add>
--->
-        <add name="Unknown 465" type="float">-1.0</add>
-        <add name="Unknown 466" type="float">not sure</add>
-<!-- alternative to Unknown 466:
-        <add name="Unknown 4661" type="short">not sure</add>
-        <add name="Unknown 4662" type="short">not sure</add>
--->
-        <add name="Unknown 467" type="float">-1.0</add>
-        <add name="Unknown 468" type="float">not sure</add>
-<!-- alternative to Unknown 468:
-        <add name="Unknown 4681" type="short">not sure</add>
-        <add name="Unknown 4682" type="short">not sure</add>
--->
-        <add name="Unknown 469" type="float">-1.0</add>
-        <add name="Unknown 470" type="uint">
-             0, 1, and
-             sometimes also 2 (Objects/Characters/Alien/Hunter/weak_point_a.cgf)
-        </add>
-        <add name="Unknown 4700" type="PhysicsStruct2104700" cond="Unknown 470 == 0" />
-        <add name="Unknown 4701" type="PhysicsStruct2104701" cond="Unknown 470 == 1" />
-        <add name="Unknown 4702" type="PhysicsStruct2104702" cond="Unknown 470 == 2" />
     </struct>
 
     <struct name="PhysicsSimple">
@@ -936,7 +902,35 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 210" type="byte" cond="Use Data Stream == 0">Junk?</add>
         <add name="Triangle Flags" type="byte" arr1="Num Triangles" cond="Use Data Stream == 0">Flags?</add>
         <add name="Triangle Map" type="short" arr1="Num Triangles" cond="Use Data Stream == 1"/>
-        <add name="Unknown 30" type="PhysicsStruct30" />
+        <add name="Unknown 45" type="byte" arr1="16">Random junk</add>
+        <add name="Unknown 461" type="int">0</add>
+        <add name="Unknown 462" type="int">0</add>
+        <add name="Unknown 463" type="float">0.02</add>
+        <add name="Unknown 464" type="float">not sure</add>
+<!-- alternative to Unknown 464:
+        <add name="Unknown 4641" type="short">not sure</add>
+        <add name="Unknown 4642" type="short">not sure</add>
+-->
+        <add name="Unknown 465" type="float">-1.0</add>
+        <add name="Unknown 466" type="float">not sure</add>
+<!-- alternative to Unknown 466:
+        <add name="Unknown 4661" type="short">not sure</add>
+        <add name="Unknown 4662" type="short">not sure</add>
+-->
+        <add name="Unknown 467" type="float">-1.0</add>
+        <add name="Unknown 468" type="float">not sure</add>
+<!-- alternative to Unknown 468:
+        <add name="Unknown 4681" type="short">not sure</add>
+        <add name="Unknown 4682" type="short">not sure</add>
+-->
+        <add name="Unknown 469" type="float">-1.0</add>
+        <add name="Data Type" type="uint">
+             0, 1, and
+             sometimes also 2 (Objects/Characters/Alien/Hunter/weak_point_a.cgf)
+        </add>
+        <add name="Data 0" type="PhysicsDataType0" cond="Data Type == 0" />
+        <add name="Data 1" type="PhysicsDataType1" cond="Data Type == 1" />
+        <add name="Data 2" type="PhysicsDataType2" cond="Data Type == 2" />
     </struct>
 
     <struct name="PhysicsData">
