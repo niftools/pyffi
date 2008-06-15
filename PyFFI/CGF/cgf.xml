@@ -941,6 +941,13 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 3" type="PhysicsDataType2" />
     </struct>
 
+    <struct name="PhysicsShape6">
+        <!-- identical to cylinder? -->
+        <add name="Unknown 1" type="float" arr1="8" />
+        <add name="Unknown 2" type="int" />
+        <add name="Unknown 3" type="PhysicsDataType2" />
+    </struct>
+
     <struct name="PhysicsData">
         <add name="Unknown 4" type="int">Seems to be 1 in all cases observed.</add>
         <add name="Unknown 5" type="int">Unknown, does not seem to be flags.</add>
@@ -956,6 +963,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Cube" type="PhysicsCube" cond="Primitive Type == 0">Cube data</add>
         <add name="Polyhedron" type="PhysicsPolyhedron" cond="Primitive Type == 1">Polyhedron data</add>
         <add name="Cylinder" type="PhysicsCylinder" cond="Primitive Type == 5">Cylinder data</add>
+        <add name="Unknown Shape 6" type="PhysicsShape6" cond="Primitive Type == 6">Unknown shape data</add><!-- Objects/Vehicles/Asian_AAA/asian_AAA.cga, hull_proxy_03 -->
     </struct>
 
     <struct name="MeshPhysicsDataChunk" inherit="Chunk">
