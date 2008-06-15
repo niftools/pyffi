@@ -54,4 +54,7 @@ def testPath(top, testChunk, testFile, raisereaderror = False, mode = 'rb', verb
                 stream,
                 filetype = filetype, fileversion = fileversion, game = game,
                 chunks = chunks, versions = versions, **kwargs)
+        # force free memory
+        del stream, chunks, versions
         gc.collect()
+
