@@ -1,5 +1,10 @@
-Version 0.10.11 (***)
+Version 0.11.0 (***)
   - fixed updateTangentSpace for nifs with zero normals
+  - a lot of new physics stuff: MeshPhysicsDataChunk mostly decoded (finally!!)
+  - fixes for reading and writing caf files (they are missing controller
+  headers)
+  - improved tga file detection
+  - activated BoneMeshChunk and BoneInitialPosChunk for Crysis
 
 Version 0.10.10 (8 Jun 2008)
 * nif:

@@ -458,6 +458,9 @@ WARNING: Provide a game = "Far Cry" or game = "Crysis" argument to read.
             game = "Far Cry"
             user_version = 1
 
+        # is it a caf file? these are missing chunk headers on controllers
+        is_caf = (stream.name[-4:].lower() == ".caf")
+
         chunk_types = [
             chunk_type for chunk_type in dir(cls.ChunkType) \
             if chunk_type[:2] != '__']
@@ -523,6 +526,7 @@ WARNING: Provide a game = "Far Cry" or game = "Crysis" argument to read.
 
             # in far cry, most chunks start with a copy of chunkhdr
             # in crysis, more chunks start with chunkhdr
+            # caf files are special: they don't have headers on controllers
             if not(game == "Far Cry"
                    and chunkhdr.type in [
                        cls.ChunkType.SourceInfo,
@@ -533,7 +537,10 @@ WARNING: Provide a game = "Far Cry" or game = "Crysis" argument to read.
                 and not(game == "Crysis"
                         and chunkhdr.type in [
                             cls.ChunkType.BoneNameList,
-                            cls.ChunkType.BoneInitialPos]):
+                            cls.ChunkType.BoneInitialPos]) \
+                and not(is_caf
+                        and chunkhdr.type in [
+                            cls.ChunkType.Controller]):
                 chunkhdr_copy = cls.ChunkHeader()
                 chunkhdr_copy.read(stream,
                                    version = hdr.version,
@@ -624,6 +631,9 @@ WARNING: Provide a game = "Far Cry" or game = "Crysis" argument to read.
             game = "Far Cry"
             user_version = 1
 
+        # is it a caf file? these are missing chunk headers on controllers
+        is_caf = (stream.name[-4:].lower() == ".caf")
+
         # variable to track number of padding bytes
         total_padding = 0
 
@@ -668,7 +678,11 @@ WARNING: Provide a game = "Far Cry" or game = "Crysis" argument to read.
                 and not(game == "Crysis"
                         and chunkhdr.type in [
                             cls.ChunkType.BoneNameList,
-                            cls.ChunkType.BoneInitialPos]):
+                            cls.ChunkType.BoneInitialPos,
+                            cls.ChunkType.Controller]) \
+                and not(is_caf
+                        and chunkhdr.type in [
+                            cls.ChunkType.Controller]):
                 chunkhdr.write(stream,
                                version = fileversion,
                                user_version = user_version)
