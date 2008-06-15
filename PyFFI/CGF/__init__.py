@@ -678,8 +678,7 @@ WARNING: Provide a game = "Far Cry" or game = "Crysis" argument to read.
                 and not(game == "Crysis"
                         and chunkhdr.type in [
                             cls.ChunkType.BoneNameList,
-                            cls.ChunkType.BoneInitialPos,
-                            cls.ChunkType.Controller]) \
+                            cls.ChunkType.BoneInitialPos]) \
                 and not(is_caf
                         and chunkhdr.type in [
                             cls.ChunkType.Controller]):
