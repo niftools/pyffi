@@ -891,7 +891,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 17" type="int">This could be determining the type of data coming further on? Typically, 3, 4, 5, or 8.</add>
         <add name="Unknown 18" type="int" />
         <add name="Has Vertex Map" type="ubyte" />
-        <add name="Vertex Map" type="short" arr1="Num Vertices" cond="Has Vertex Map == 1">
+        <add name="Vertex Map" type="ushort" arr1="Num Vertices" cond="Has Vertex Map == 1">
              If the (non-physics) mesh has say 200 vertices, then the first 200
              entries of this map give a mapping identifying the unique vertices.
              The meaning of the extra entries is unknown.
@@ -900,10 +900,10 @@ In Python this can be calculated using zlib.crc32(name)</add>
 		Value of 1 means that vertices are recycled from the VERTICES DataStreamChunk.
 		Value of 0 means that the vertices are defined here.</add>
         <add name="Vertices" type="Vector3" arr1="Num Vertices" cond="Use Data Stream == 0">Vertices</add>
-        <add name="Triangles" type="short" arr1="Num Triangles" arr2="3" cond="Use Data Stream == 0">Triangles</add>
+        <add name="Triangles" type="ushort" arr1="Num Triangles" arr2="3" cond="Use Data Stream == 0">Triangles</add>
         <add name="Unknown 210" type="byte" cond="Use Data Stream == 0">Junk?</add>
         <add name="Triangle Flags" type="byte" arr1="Num Triangles" cond="Use Data Stream == 0">Flags?</add>
-        <add name="Triangle Map" type="short" arr1="Num Triangles" cond="Use Data Stream == 1"/>
+        <add name="Triangle Map" type="ushort" arr1="Num Triangles" cond="Use Data Stream == 1"/>
         <add name="Unknown 45" type="byte" arr1="16">Random junk</add>
         <add name="Unknown 461" type="int">0</add>
         <add name="Unknown 462" type="int">0</add>
