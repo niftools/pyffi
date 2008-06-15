@@ -879,13 +879,13 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 4" type="int" />
     </struct>
 
-    <struct name="PhysicsSimple">
+    <struct name="PhysicsCube">
         <add name="Unknown 14" type="PhysicsStruct1" />
         <add name="Unknown 15" type="PhysicsStruct1" />
         <add name="Unknown 16" type="int" />
     </struct>
 
-    <struct name="PhysicsComplex">
+    <struct name="PhysicsPolyhedron">
         <add name="Num Vertices" type="uint">Number of vertices (in this physics mesh?).</add>
         <add name="Num Triangles" type="uint" />
         <add name="Unknown 17" type="int">This could be determining the type of data coming further on? Typically, 3, 4, 5, or 8.</add>
@@ -935,6 +935,12 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Data 2" type="PhysicsDataType2" cond="Data Type == 2" />
     </struct>
 
+    <struct name="PhysicsCylinder">
+        <add name="Unknown 1" type="float" arr1="8" />
+        <add name="Unknown 2" type="int" />
+        <add name="Unknown 3" type="PhysicsDataType2" />
+    </struct>
+
     <struct name="PhysicsData">
         <add name="Unknown 4" type="int">Seems to be 1 in all cases observed.</add>
         <add name="Unknown 5" type="int">Unknown, does not seem to be flags.</add>
@@ -946,9 +952,10 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Unknown 12" type="int">Another number, could be a count (observed values: 0, 1, 17, ...).</add>
         <add name="Unknown 13" type="float" />
         <add name="Unknown 14" type="float" />
-        <add name="Complexity" type="int">Physics type? 0 = simple (cube?), 1 = complex (polygons?)</add>
-        <add name="Simple Data" type="PhysicsSimple" cond="Complexity == 0">Primitive, like a cube?</add>
-        <add name="Complex Data" type="PhysicsComplex" cond="Complexity == 1">Polygons?</add>
+        <add name="Primitive Type" type="int">Describes the shape type: cube, polyhedron, cylinder, ...</add>
+        <add name="Cube" type="PhysicsCube" cond="Primitive Type == 0">Cube data</add>
+        <add name="Polyhedron" type="PhysicsPolyhedron" cond="Primitive Type == 1">Polyhedron data</add>
+        <add name="Cylinder" type="PhysicsCylinder" cond="Primitive Type == 5">Cylinder data</add>
     </struct>
 
     <struct name="MeshPhysicsDataChunk" inherit="Chunk">
