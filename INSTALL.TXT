@@ -1,0 +1,46 @@
+PyFFI can be installed in three ways:
+- download and run the Windows installer
+- install manually using setuptools (easy_install)
+- install manually from the source package
+
+============
+Requirements
+============
+
+To run PyFFI's graphical file editor, you need PyQt4, which you can download
+from
+
+http://www.riverbankcomputing.co.uk/software/pyqt/download
+
+Manual installation
+===================
+
+Via setuptools
+--------------
+
+If you have setuptools installed
+(http://peak.telecommunity.com/DevCenter/setuptools), simply run
+
+  easy_install PyFFI
+
+at the command prompt.
+
+From source package
+-------------------
+
+Untar or unzip the source via either
+
+  tar xfvz PyFFI-x.x.x.tar.gz
+
+or
+
+  unzip PyFFI-x.x.x.zip 
+
+Change to the PyFFI directory
+
+  cd PyFFI-x.x.x
+
+Finally, run the setup script,
+
+  python setup.py install
+
