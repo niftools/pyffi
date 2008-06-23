@@ -6,3 +6,10 @@ include AUTHORS.TXT
 include PyFFI/NIF/nif.xml
 include PyFFI/KFM/kfm.xml
 include PyFFI/CGF/cgf.xml
+incude example/simple/Example.py
+incude example/simple/simple.py
+incude example/simple/simple.xml
+incude example/simple/somefile.simple
+incude example/simple/testread.py
+incude example/simple/testwrite.py
+

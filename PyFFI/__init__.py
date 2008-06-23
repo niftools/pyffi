@@ -21,6 +21,9 @@ This section tries to explain how you can implement your own format in PyFFI.
 Getting Started
 ---------------
 
+Note that the files which make up the following example can all be found in
+the examples/simple directory of the source distribution of PyFFI.
+
 Suppose you have a simple file format, which consists of an integer, followed
 by a list of integers as many as described by the first integer. We start
 by creating an XML file, call it simple.xml, which describes this format
@@ -44,6 +47,7 @@ What PyFFI does is convert this simple XML description into Python classes
 which automatically can read and write the structure you've just described.
 Say this is the contents of simple.py::
 
+    import os
     from PyFFI import MetaXmlFileFormat
     from PyFFI import Common
     class SimpleFormat:
@@ -53,6 +57,18 @@ Say this is the contents of simple.py::
         clsFilePath = os.path.dirname(__file__)
 
         int = Common.Int
+
+        @staticmethod
+        def versionNumber(version_str):
+            return 0
+
+        @staticmethod
+        def nameAttribute(name):
+            parts = str(name).replace("?", "X").split() # str(name) converts name to string in case name is a unicode string
+            attrname = parts[0].lower()
+            for part in parts[1:]:
+                attrname += part.capitalize()
+            return attrname
 
 What happens in this piece of code?
 
@@ -78,6 +94,13 @@ What happens in this piece of code?
     such as integers, characters, and floats. In the above example we have
     taken advantage of Common.Int, which defines a signed 32-bit integer,
     exactly the type we need.
+  - The versionNumber function is useful for implementing file formats that
+    have different versions, and converts the xml version strings into Python
+    integers. As this feature is not used in this simple example, it simply
+    returns zero.
+  - The nameAttribute function converts attribute names as specified in the
+    xml into Python attribute names. This implementation simply removes spaces
+    and uses a default capitalization.
 
 Reading and Writing Files
 -------------------------
@@ -86,7 +109,7 @@ To read and print the contents of a file of the format described by
 simple.xml::
 
     from simple import SimpleFormat
-    x = SimpleFormat.Simple()
+    x = SimpleFormat.Example()
     f = open('somefile.simple', 'rb')
     x.read(f)
     f.close()
@@ -95,7 +118,7 @@ simple.xml::
 Or, to create a new file in this format::
 
     from simple import SimpleFormat
-    x = SimpleFormat.Simple()
+    x = SimpleFormat.Example()
     x.numIntegers = 5
     x.integers.updateSize()
     x.integers[0] = 3
