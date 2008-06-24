@@ -12,4 +12,5 @@ include examples/simple/simple.xml
 include examples/simple/somefile.simple
 include examples/simple/testread.py
 include examples/simple/testwrite.py
+include docs/*.*
 
