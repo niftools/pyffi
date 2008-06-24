@@ -8,7 +8,7 @@ icons."""
 #
 # Copyright (c) 2007-2008, Python File Format Interface
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -189,14 +189,14 @@ else:
             hkeycommand.Close()
             _winreg.DeleteKey(hkeyoptimize, "command")
             hkeyoptimize.Close()
-            _winreg.DeleteKey(hkeyshell, "Optimize with PyFFI")            
+            _winreg.DeleteKey(hkeyshell, "Optimize with PyFFI")
         hkeyqskope = getsubkey(hkeyshell, "Open with QSkope")
         hkeycommand = getsubkey(hkeyqskope, "command")
         if hkeycommand:
             hkeycommand.Close()
             _winreg.DeleteKey(hkeyqskope, "command")
             hkeyqskope.Close()
-            _winreg.DeleteKey(hkeyshell, "Open with QSkope")            
+            _winreg.DeleteKey(hkeyshell, "Open with QSkope")
         # get all the cgf keys (this checks whether they exist)
         hkeycgf = getsubkey(_winreg.HKEY_CLASSES_ROOT, "CrytekGeometryFile")
         hkeyshell = getsubkey(hkeycgf, "shell")
@@ -206,7 +206,7 @@ else:
             hkeycommand.Close()
             _winreg.DeleteKey(hkeyqskope, "command")
             hkeyqskope.Close()
-            _winreg.DeleteKey(hkeyshell, "Open with QSkope")            
+            _winreg.DeleteKey(hkeyshell, "Open with QSkope")
         # get all the dds keys (this checks whether they exist)
         hkeydds = getsubkey(_winreg.HKEY_CLASSES_ROOT, "DirectX.DDS.Document")
         hkeyshell = getsubkey(hkeydds, "shell")

@@ -4,7 +4,7 @@
 #
 # Copyright (c) 2007-2008, Python File Format Interface
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -78,7 +78,7 @@ def getTangentSpace(vertices = None, normals = None, uvs = None,
         if t1 == t2 or t2 == t3 or t3 == t1:
             continue
 
-        # get vertices, uvs, and directions of the triangle        
+        # get vertices, uvs, and directions of the triangle
         v1 = vertices[t1]
         v2 = vertices[t2]
         v3 = vertices[t3]
@@ -89,10 +89,10 @@ def getTangentSpace(vertices = None, normals = None, uvs = None,
         v3v1 = vecSub(v3, v1)
         w2w1 = vecSub(w2, w1)
         w3w1 = vecSub(w3, w1)
-        
+
         # surface of triangle in texture space
         r = w2w1[0] * w3w1[1] - w3w1[0] * w2w1[1]
-        
+
         # sign of surface
         r_sign = (1 if r >= 0 else -1)
 

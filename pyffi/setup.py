@@ -45,7 +45,7 @@ setup(
     author = "Amorilia",
     author_email = "amorilia@users.sourceforge.net",
     license = "BSD",
-    keywords = "fileformat nif cgf binary interface stripify", 
+    keywords = "fileformat nif cgf binary interface stripify",
     platforms = ["any"],
     description = doclines[0],
     classifiers = filter(None, classifiers.split("\n")),

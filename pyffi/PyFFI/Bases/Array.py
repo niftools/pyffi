@@ -5,7 +5,7 @@
 #
 # Copyright (c) 2007-2008, Python File Format Interface
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -44,6 +44,7 @@
 class _ListWrap(list):
     """A wrapper for list, which uses getValue and setValue for
     getting and setting items of the basic type."""
+
     def __init__(self, element_type, parent = None):
         self._parent = parent
         if issubclass(element_type, BasicBase):
@@ -134,7 +135,7 @@ class _ListWrap(list):
 class Array(_ListWrap):
     """A general purpose class for 1 or 2 dimensional arrays consisting of
     either BasicBase or StructBase elements."""
-    # initialize the array
+
     def __init__(
         self,
         element_type = None,
@@ -155,16 +156,18 @@ class Array(_ListWrap):
         @param parent: The parent of this instance, that is, the instance this
             array is an attribute of."""
         if count2 is None:
-            _ListWrap.__init__(self, element_type = element_type, parent = parent)
+            _ListWrap.__init__(self,
+                               element_type = element_type, parent = parent)
         else:
-            _ListWrap.__init__(self, element_type = _ListWrap, parent = parent)
+            _ListWrap.__init__(self,
+                               element_type = _ListWrap, parent = parent)
         self._elementType = element_type
         self._parent = parent
         self._elementTypeTemplate = element_type_template
         self._elementTypeArgument = element_type_argument
         self._count1 = count1
         self._count2 = count2
-        
+
         if self._count2 == None:
             for i in xrange(self._len1()):
                 elem_instance = self._elementType(

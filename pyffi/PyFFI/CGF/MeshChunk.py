@@ -4,7 +4,7 @@
 #
 # Copyright (c) 2007-2008, Python File Format Interface
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -708,7 +708,7 @@ def setGeometry(self,
     if numvertices > 65535:
         raise ValueError("cannot store geometry: too many vertices (%i and maximum is 65535)")
     numtriangles = sum(len(triangles) for triangles in triangleslist)
-    
+
     # Far Cry data preparation
     self.numVertices = numvertices
     self.vertices.updateSize()

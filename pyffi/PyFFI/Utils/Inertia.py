@@ -5,7 +5,7 @@ shapes."""
 #
 # Copyright (c) 2007-2008, Python File Format Interface
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -271,7 +271,7 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, solid = Tru
                                               for y in total_center),
                                         total_mass)
     total_covariance = matSub(total_covariance, translate_correction)
-    
+
     # convert covariance matrix into inertia tensor
     trace = sum(total_covariance[i][i] for i in xrange(3))
     trace_matrix = tuple(tuple((trace if i == j else 0)

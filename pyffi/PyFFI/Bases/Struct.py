@@ -5,7 +5,7 @@
 #
 # Copyright (c) 2007-2008, Python File Format Interface
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -198,13 +198,13 @@ class StructBase(object):
         ...
     AttributeError: can't set attribute
     """
-    
+
     __metaclass__ = _MetaStructBase
-    
+
     _isTemplate = False
     _attrs = []
     _games = {}
-    
+
     # initialize all attributes
     def __init__(self, template = None, argument = None, parent = None):
         """The constructor takes a tempate: any attribute whose type,
@@ -295,7 +295,7 @@ class StructBase(object):
                 attrvalue.deepcopy(getattr(block, attr.name))
             else:
                 setattr(self, attr.name, getattr(block, attr.name))
-        
+
         return self
 
     # string of all attributes

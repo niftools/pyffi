@@ -14,7 +14,7 @@ output in all circumstances.
 #
 # Copyright (c) 2007-2008, Python File Format Interface
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -256,14 +256,14 @@ class TriangleStrip(object):
                     v0 = face0.OtherVertex(*edge01.ev)
                     # Find the middle vertex from the two endpoints
                     v1 = face0.OtherVertex(v0, v2)
-                    
+
                     # Figure out if the start triangle is backwards
                     upsidedown = face0.NextVertex(v0) != v1
                     if upsidedown:
                         # We need to add a degenerate triangle to flip the strip over
                         result = [v0,v0,v1,v2]
                     else: result = [v0,v1,v2]
-                    
+
                     for face in FaceList[1:]:
                         # Build the strip by repeatedly finding the missing index
                         try:
@@ -370,7 +370,7 @@ class TriangleStripifier(object):
 
         result = [('list', self.TriangleList), ('strip', self.TriangleStrips)]#, ('fan',self.TriangleFans) ]
         return result
-       
+
     __call__ = Stripify
 
     def StripifyIter(self, mesh, TaskProgress=None):
@@ -474,7 +474,7 @@ class TriangleStripifier(object):
             while 1:
                 Experiments = []
                 VisitedResetPoints = {}
-               
+
                 for nSample in xrange(selector.Samples):
                     # Get a good start face for an experiment
                     ExpFace = GoodResetPoints.next()

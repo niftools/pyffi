@@ -137,7 +137,7 @@ Create a CGF file from scratch
 #
 # Copyright (c) 2007-2008, Python File Format Interface
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -189,7 +189,7 @@ class CgfFormat(object):
     xmlFilePath = [ os.getenv('CGFXMLPATH'), os.path.dirname(__file__) ]
     clsFilePath = os.path.dirname(__file__) # path of class customizers
     EPSILON = 0.0001 # used for comparing floats
-    
+
     # basic types
     int = Common.Int
     uint = Common.UInt
@@ -366,7 +366,7 @@ WARNING: expected instance of %s
         _isTemplate = True
         _hasLinks = True
         _hasRefs = False
-        
+
         def __str__(self):
             # avoid infinite recursion
             if self._value != None:
@@ -754,7 +754,7 @@ WARNING: Provide a game = "Far Cry" or game = "Crysis" argument to read.
         # now walk over all these files in directory top
         for filename in Utils.walk(
             top, topdown, onerror = None, re_filename = re_cgf):
-            
+
             if verbose >= 1:
                 print "reading %s" % filename
             stream = open(filename, mode)

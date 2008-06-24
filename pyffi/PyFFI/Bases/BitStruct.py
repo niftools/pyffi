@@ -5,7 +5,7 @@
 #
 # Copyright (c) 2007-2008, Python File Format Interface
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -196,13 +196,13 @@ class BitStructBase(object):
     * b : 1
     <BLANKLINE>
     """
-    
+
     __metaclass__ = _MetaBitStructBase
-    
+
     _attrs = []
     _numbytes = 1 # default width of a bitstruct
     _games = {}
-    
+
     # initialize all attributes
     def __init__(self, template = None, argument = None, parent = None):
         """The constructor takes a tempate: any attribute whose type,
@@ -263,7 +263,7 @@ class BitStructBase(object):
         # copy the attributes
         for attr in attrlist:
             setattr(self, attr.name, getattr(block, attr.name))
-        
+
         return self
 
     # string of all attributes

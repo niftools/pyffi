@@ -4,7 +4,7 @@
 #
 # Copyright (c) 2007-2008, Python File Format Interface
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -68,7 +68,7 @@ def getCenterRadius(veclist):
 
     # get bounding box
     vecmin, vecmax = getBoundingBox(veclist)
-    
+
     # center is in the center of the bounding box
     center = tuple((minco + maxco) * 0.5
                    for minco, maxco in izip(vecmin, vecmax))

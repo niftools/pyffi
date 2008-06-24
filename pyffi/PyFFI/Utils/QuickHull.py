@@ -102,7 +102,7 @@ A random shape
 #
 # Copyright (c) 2007-2008, Python File Format Interface
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -313,7 +313,7 @@ def qhull3d(vertices, precision = 0.0001, verbose = False):
         # colinear or singular
         # no triangles for these cases
         return hull_vertices, []
-    
+
     # construct list of triangles of this simplex
     hull_triangles = set([ operator.itemgetter(i,j,k)(hull_vertices)
                          for i, j, k in ((1,0,2), (0,1,3), (0,3,2), (3,1,2)) ])

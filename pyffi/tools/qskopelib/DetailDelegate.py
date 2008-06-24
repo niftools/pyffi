@@ -4,7 +4,7 @@
 #
 # Copyright (c) 2007-2008, Python File Format Interface
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -52,7 +52,7 @@ from PyFFI.Bases.Delegate import DelegateLineEdit     # -> QLineEdit
 # http://doc.trolltech.com/4.3/qitemdelegate.html#details
 class DetailDelegate(QtGui.QItemDelegate):
     """Defines an editor for data in the detail view."""
-    
+
     def _checkValidDelegate(self, data, editor):
         """This function checks that the delegate class has the correct editor.
         If data and editor do not correspond to one another, then a ValueError is
@@ -72,7 +72,7 @@ class DetailDelegate(QtGui.QItemDelegate):
         """
         # the general idea is to check complex instances (that derive from
         # simpler ones) first
-        
+
         # check combo box
         # (some combo types may also derive from spin box such as bools,
         # in that case prefer the combo box representation)

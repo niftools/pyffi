@@ -41,7 +41,7 @@ Get list of versions
 #
 # Copyright (c) 2007-2008, Python File Format Interface
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -91,7 +91,7 @@ class DdsFormat(object):
     clsFilePath = os.path.dirname(__file__)
     # used for comparing floats
     _EPSILON = 0.0001
-    
+
     # basic types
     int = Common.Int
     uint = Common.UInt
@@ -106,7 +106,7 @@ class DdsFormat(object):
 
     class HeaderString(BasicBase):
         def __init__(self, **kwargs):
-            BasicBase.__init__(self, **kwargs)            
+            BasicBase.__init__(self, **kwargs)
 
         def __str__(self):
             return 'DDS'
@@ -132,7 +132,7 @@ class DdsFormat(object):
     class PixelData(BasicBase):
         """Basic type for pixel data."""
         def __init__(self, **kwargs):
-            BasicBase.__init__(self, **kwargs)            
+            BasicBase.__init__(self, **kwargs)
             self.setValue('')
 
         def getValue(self):
@@ -179,7 +179,7 @@ class DdsFormat(object):
         >>> DdsFormat.nameAttribute('tHis is A Silly naME')
         'thisIsASillyName'
         """
-        
+
         # str(name) converts name to string in case name is a unicode string
         parts = str(name).split()
         attrname = parts[0].lower()

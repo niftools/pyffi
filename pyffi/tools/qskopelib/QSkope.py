@@ -4,7 +4,7 @@
 #
 # Copyright (c) 2007-2008, Python File Format Interface
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -115,7 +115,7 @@ class QSkope(QtGui.QMainWindow):
         QtCore.QObject.connect(self.openAct,
                                QtCore.SIGNAL("triggered()"),
                                self.openAction)
-        
+
         # save a file
         self.saveAct = QtGui.QAction("&Save", self)
         self.saveAct.setShortcut("Ctrl+S")
@@ -142,7 +142,7 @@ class QSkope(QtGui.QMainWindow):
         QtCore.QObject.connect(self.aboutQSkopeAct,
                                QtCore.SIGNAL("triggered()"),
                                self.aboutQSkopeAction)
-        
+
         # tell something about Qt
         self.aboutQtAct = QtGui.QAction("About Qt", self)
         QtCore.QObject.connect(self.aboutQtAct,
@@ -161,7 +161,7 @@ class QSkope(QtGui.QMainWindow):
         fileMenu.addSeparator()
         fileMenu.addAction(self.exitAct)
 
-        # the help menu: 
+        # the help menu:
         helpMenu = self.menuBar().addMenu("&Help")
         helpMenu.addAction(self.aboutQSkopeAct)
         helpMenu.addAction(self.aboutQtAct)
@@ -292,7 +292,7 @@ class QSkope(QtGui.QMainWindow):
             self.statusBar().showMessage("Failed reading %s (see console)"
                                          % filename)
             raise
-            
+
         else:
             # update current file name
             self.fileName = filename
@@ -440,5 +440,5 @@ on <a href="http://sourceforge.net">SourceForge</a>.</p>
 The most recent version of PyFFI can always be downloaded from the
 <a href="http://sourceforge.net/project/showfiles.php?group_id=199269">
 PyFFI SourceForge Project page</a>.""" % PyFFI.__version__)
-        # display the window        
+        # display the window
         mbox.exec_()

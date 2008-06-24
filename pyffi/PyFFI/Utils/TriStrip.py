@@ -6,7 +6,7 @@ and triangulation of strips."""
 #
 # Copyright (c) 2007-2008, Python File Format Interface
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -87,7 +87,7 @@ def _checkStrips(triangles, strips):
 
 def stripify(triangles, stitchstrips = False):
     """Converts triangles into a list of strips.
-    
+
     If stitchstrips is True, then everything is wrapped in a single strip using
     degenerate triangles.
 
@@ -128,7 +128,7 @@ def stripify(triangles, stitchstrips = False):
     stripifier.GLSelector.MinStripLength = 0
     stripifier.GLSelector.Samples = 10
     stripifier(mesh)
-    
+
     # add the triangles to it
     strips.extend([face for face in _generateFacesFromTriangles(stripifier.TriangleList)])
     # add strips

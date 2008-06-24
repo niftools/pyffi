@@ -5,7 +5,7 @@ built from StructBase instances possibly referring to one another."""
 #
 # Copyright (c) 2007-2008, Python File Format Interface
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -107,7 +107,7 @@ class GlobalModel(QtCore.QAbstractItemModel):
                     # create a wrapper around the block
                     ptrblock = StructPtr(refblock)
                     # store the references
-                    self.parentDict[ptrblock] = block 
+                    self.parentDict[ptrblock] = block
                     self.refDict[block].append(ptrblock)
                     # no children
                     self.refDict[ptrblock] = []
@@ -162,7 +162,7 @@ class GlobalModel(QtCore.QAbstractItemModel):
                 return QtCore.QVariant(data.qBlockName())
             else:
                 return QtCore.QVariant()
-            
+
         elif index.column() == self.COL_NUMBER:
             if not data is self.header and not data is self.footer:
                 return QtCore.QVariant(self.refNumber[data])

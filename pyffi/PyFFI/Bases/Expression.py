@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2007-2008, Python File Format Interface
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -42,7 +42,7 @@
 
 class Expression(object):
     """This class represents an expression.
-    
+
     >>> class A(object):
     ...     x = False
     ...     y = True
@@ -79,7 +79,7 @@ class Expression(object):
 
     def eval(self, data = None):
         """Evaluate the expression to an integer."""
-       
+
         if isinstance(self._left, Expression):
             left = self._left.eval(data)
         elif isinstance(self._left, basestring):
@@ -122,7 +122,7 @@ class Expression(object):
 
     def __str__(self):
         """Reconstruct the expression to a string."""
-        
+
         left = str(self._left)
         if not self._op: return left
         right = str(self._right)
@@ -144,7 +144,7 @@ class Expression(object):
         # failed, so return the string, passed through the name filter
         except ValueError:
             return name_filter(expr_str) if name_filter else expr_str
-    
+
     @classmethod
     def _partition(cls, expr_str):
         """Partitions expr_str. See examples below.

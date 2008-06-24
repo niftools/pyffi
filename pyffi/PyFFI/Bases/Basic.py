@@ -5,7 +5,7 @@
 #
 # Copyright (c) 2007-2008, Python File Format Interface
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -41,7 +41,7 @@
 
 class BasicBase(object):
     """Base class from which all basic types are derived.
-    
+
     The BasicBase class implements the interface for basic types.
     All basic types are derived from this class.
     They must override read, write, getValue, and setValue.
@@ -50,9 +50,11 @@ class BasicBase(object):
     >>> class UInt(BasicBase):
     ...     def __init__(self, template = None, argument = 0):
     ...         self.__value = 0
-    ...     def read(self, version = None, user_version = None, f = None, link_stack = [], argument = None):
+    ...     def read(self, version = None, user_version = None, f = None,
+    ...              link_stack = [], argument = None):
     ...         self.__value, = struct.unpack('<I', f.read(4))
-    ...     def write(self, version = None, user_version = None, f = None, block_index_dct = {}, argument = None):
+    ...     def write(self, version = None, user_version = None, f = None,
+    ...               block_index_dct = {}, argument = None):
     ...         f.write(struct.pack('<I', self.__value))
     ...     def getValue(self):
     ...         return self.__value
@@ -62,7 +64,8 @@ class BasicBase(object):
     >>> x.setValue('123')
     >>> x.getValue()
     123
-    >>> class Test(BasicBase): # bad: read, write, getValue, and setValue are not implemented
+    >>> class Test(BasicBase): # bad: read, write, getValue, and setValue are
+    ...                        # not implemented
     ...     pass
     >>> x = Test() # doctest: +ELLIPSIS
     >>> x.setValue('123') # doctest: +ELLIPSIS
@@ -70,12 +73,12 @@ class BasicBase(object):
         ...
     NotImplementedError
     """
-    
+
     _isTemplate = False # is it a template type?
     _hasLinks = False # does the type contain a Ref or a Ptr?
     _hasRefs = False # does the type contain a Ref?
     _hasStrings = False # does the type contain a string?
-    
+
     def __init__(self, template = None, argument = None, parent = None):
         """Initializes the instance.
 
@@ -103,20 +106,20 @@ class BasicBase(object):
         """Fix links. Called when all objects have been read, and converts
         block indices into blocks."""
         pass
-    
+
     def getLinks(self, **kwargs):
         """Return all links referred to in this object."""
         return []
-    
+
     def getStrings(self, **kwargs):
         """Return all strings used by this object."""
         return []
-    
+
     def getRefs(self, **kwargs):
         """Return all references (excluding weak pointers) used by this
         object."""
         return []
-    
+
     def getValue(self):
         """Return object value."""
         raise NotImplementedError
