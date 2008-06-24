@@ -4,7 +4,7 @@
 #
 # Copyright (c) 2007-2008, Python File Format Interface.
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -76,7 +76,7 @@ class Int(BasicBase, DelegateSpinBox):
     >>> hex(i.getValue())
     '0x44332211'
     """
-    
+
     _min = -0x80000000 #: Minimum value.
     _max = 0x7fffffff  #: Maximum value.
     _struct = 'i'      #: Character used to represent type in struct.
@@ -127,7 +127,8 @@ class Int(BasicBase, DelegateSpinBox):
         """Write value to stream.
 
         @param stream: The stream to write to.
-        @type stream: file"""
+        @type stream: file
+        """
         stream.write(self._value)
 
     def __str__(self):
@@ -137,13 +138,15 @@ class Int(BasicBase, DelegateSpinBox):
     def getSize(cls, **kwargs):
         """Return size of this type.
 
-        @return: The size of the type."""
+        @return: The size of the type.
+        """
         return cls._size
 
     def getHash(self, **kwargs):
         """Return a hash value for this value.
 
-        @return: An immutable object that can be used as a hash."""
+        @return: An immutable object that can be used as a hash.
+        """
         return self.getValue()
 
     def qDelegateMinimum(self):
@@ -197,6 +200,7 @@ class UShort(UInt):
 
 class Bool(UByte, DelegateBoolComboBox):
     """Simple bool implementation."""
+
     def getValue(self):
         """Return stored value.
 
@@ -214,6 +218,7 @@ class Bool(UByte, DelegateBoolComboBox):
 
 class Char(BasicBase, DelegateLineEdit):
     """Implementation of an 8-bit ASCII character."""
+
     def __init__(self, **kwargs):
         super(Char, self).__init__(**kwargs)
         self._value = '\x00'
@@ -256,6 +261,7 @@ class Char(BasicBase, DelegateLineEdit):
 
 class Float(BasicBase, DelegateFloatSpinBox):
     """Implementation of a 32-bit float."""
+
     def __init__(self, **kwargs):
         super(Float, self).__init__(**kwargs)
         self._value = '\x00\x00\x00\x00'
@@ -313,7 +319,7 @@ class ZString(BasicBase, DelegateLineEdit):
     'Hi There!'
     """
     _maxlen = 1000 #: The maximum length.
-    
+
     def __init__(self, **kwargs):
         super(ZString, self).__init__(**kwargs)
         self._value = ""
@@ -393,7 +399,7 @@ class FixedString(BasicBase, DelegateLineEdit):
     'Hi There'
     """
     _len = 0
-    
+
     def __init__(self, **kwargs):
         super(FixedString, self).__init__(**kwargs)
         self._value = ""
@@ -461,8 +467,9 @@ class SizedString(BasicBase, DelegateLineEdit):
     >>> str(m)
     'Hi There'
     """
+
     def __init__(self, **kwargs):
-        BasicBase.__init__(self, **kwargs)            
+        BasicBase.__init__(self, **kwargs)
         self._value = ""
 
     def getValue(self):
