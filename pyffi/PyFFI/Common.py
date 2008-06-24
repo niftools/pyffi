@@ -82,18 +82,25 @@ class Int(BasicBase, DelegateSpinBox):
     _max = 0x7fffffff  #: Maximum value.
     _struct = 'i'      #: Character used to represent type in struct.
     _size = 4          #: Number of bytes.
-    _default = ''.join('\x00' for i in xrange(_size)) #: Default value (in internal storage format).
 
     def __init__(self, **kwargs):
+        """Initialize the integer."""
         super(Int, self).__init__(**kwargs)
-        self._value = ''.join('\x00' for i in xrange(self._size)) #self._default
+        self._value = ''.join('\x00' for i in xrange(self._size))
 
     def getValue(self):
-        """Return stored value."""
+        """Return stored value.
+
+        @return: The stored value.
+        """
         return struct.unpack('<' + self._struct, self._value)[0]
 
     def setValue(self, value):
-        """Set value to C{value}."""
+        """Set value to C{value}. Calls C{int(value)} to convert to integer.
+
+        @param value: The value to assign.
+        @type value: int
+        """
         try:
             val = int(value)
         except ValueError:
@@ -110,11 +117,18 @@ class Int(BasicBase, DelegateSpinBox):
         self._value = struct.pack('<' + self._struct, val)
 
     def read(self, stream, **kwargs):
-        """Read value from stream."""
+        """Read value from stream.
+
+        @param stream: The stream to read from.
+        @type stream: file
+        """
         self._value = stream.read(self._size)
 
     def write(self, stream, **kwargs):
-        """Write value to stream."""
+        """Write value to stream.
+
+        @param stream: The stream to write to.
+        @type stream: file"""
         stream.write(self._value)
 
     def __str__(self):
@@ -122,17 +136,29 @@ class Int(BasicBase, DelegateSpinBox):
 
     @classmethod
     def getSize(cls, **kwargs):
-        """Return size of this type."""
+        """Return size of this type.
+
+        @return: The size of the type."""
         return cls._size
 
     def getHash(self, **kwargs):
-        """Return a hash value for this value."""
+        """Return a hash value for this value.
+
+        @return: An immutable object that can be used as a hash."""
         return self.getValue()
 
     def qDelegateMinimum(self):
+        """Minimum possible value.
+
+        @return: Minimum possible value.
+        """
         return self._min
 
     def qDelegateMaximum(self):
+        """Maximum possible value.
+
+        @return: Maximum possible value.
+        """
         return self._max
 
 class UInt(Int):
@@ -173,6 +199,10 @@ class UShort(UInt):
 class Bool(UByte, DelegateBoolComboBox):
     """Simple bool implementation."""
     def getValue(self):
+        """Return stored value.
+
+        @return: The stored value.
+        """
         return False if self._value == '\x00' else True
 
     def setValue(self, value):
@@ -185,7 +215,10 @@ class Char(BasicBase, DelegateLineEdit):
         self._value = '\x00'
 
     def getValue(self):
-        """Return stored value."""
+        """Return stored value.
+
+        @return: The stored value.
+        """
         return self._value
 
     def setValue(self, value):
@@ -220,7 +253,10 @@ class Float(BasicBase, DelegateFloatSpinBox):
         self._value = '\x00\x00\x00\x00'
 
     def getValue(self):
-        """Return stored value."""
+        """Return stored value.
+
+        @return: The stored value.
+        """
         return struct.unpack('<f', self._value)[0]
 
     def setValue(self, value):
@@ -276,7 +312,10 @@ class ZString(BasicBase, DelegateLineEdit):
         return self._value
 
     def getValue(self):
-        """Return the string."""
+        """Return the string.
+
+        @return: The stored string.
+        """
         return self._value
 
     def setValue(self, value):
@@ -349,7 +388,10 @@ class FixedString(BasicBase, DelegateLineEdit):
         return self._value
 
     def getValue(self):
-        """Return the string."""
+        """Return the string.
+
+        @return: The stored string.
+        """
         return self._value
 
     def setValue(self, value):
@@ -404,6 +446,10 @@ class SizedString(BasicBase, DelegateLineEdit):
         self._value = ""
 
     def getValue(self):
+        """Return the string.
+
+        @return: The stored string.
+        """
         return self._value
 
     def setValue(self, value):
