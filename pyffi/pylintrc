@@ -1,0 +1,6 @@
+[BASIC]
+# Regular expression which should only match correct method names
+method-rgx=([a-z_][a-zA-Z0-9]{2,30})|(__[a-z]+__)$
+
+# Regular expression which should only match correct instance attribute names
+attr-rgx=[a-z_][a-zA-Z0-9]{2,30}$
