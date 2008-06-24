@@ -83,5 +83,5 @@ def DrawOffset( v, off ):
     w = NifFormat.Vector3()
     w.x = v.x + off.x
     w.y = v.y + off.y
-    w.z = v.z + off.z 
+    w.z = v.z + off.z
     DrawLine( v, w )

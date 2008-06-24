@@ -2,7 +2,7 @@
 # morrowind nifs that test positive on this are as follows
 
 # bip01 and left and right upper arm skeleton roots:
-# r/azura.nif 
+# r/azura.nif
 # r/skeleton.nif
 # r/lordvivec.nif
 
@@ -10,7 +10,7 @@
 # r/cliffracer.nif
 
 # bip01, neck, and spine01:
-# r/dwarvenspecter.nif 
+# r/dwarvenspecter.nif
 
 from PyFFI.NIF import NifFormat
 

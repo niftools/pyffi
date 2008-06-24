@@ -7,7 +7,7 @@
 #
 # Copyright (c) 2007-2008, NIF File Format Library and Tools.
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -359,14 +359,14 @@ def testRoot(root, **args):
                         if texdesc.source != new_texdesc_source:
                             print("  removing duplicate NiSourceTexture block")
                             texdesc.source = new_texdesc_source
-                        
+
     # joining duplicate properties
     print("checking for duplicate properties")
     for block in block_list:
         # check block type
         if not isinstance(block, NifFormat.NiAVObject):
             continue
-        
+
         # remove duplicate and empty properties within the list
         proplist = []
         # construct list of unique and non-empty properties
@@ -439,11 +439,11 @@ def testRoot(root, **args):
         # skip if we are not optimizing shapes
         if not opt_shapes:
             continue
-        
+
         # check if it is a NiNode
         if not isinstance(block, NifFormat.NiNode):
             continue
-        
+
         # remove duplicate and empty children
         childlist = []
         for child in block.children:

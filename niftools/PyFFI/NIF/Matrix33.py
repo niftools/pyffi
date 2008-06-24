@@ -4,7 +4,7 @@
 #
 # Copyright (c) 2007-2008, NIF File Format Library and Tools.
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -131,7 +131,7 @@ def isScaleRotation(self):
     # off diagonal elements should be zero
     if (abs(mat.m12) + abs(mat.m13)
         + abs(mat.m21) + abs(mat.m23)
-        + abs(mat.m31) + abs(mat.m32)) > 0.01:        
+        + abs(mat.m31) + abs(mat.m32)) > 0.01:
         return False
 
     # diagonal elements should be equal (to scale^2)
@@ -203,14 +203,14 @@ def getScaleQuat(self):
     scale, rot = self.getScaleRotation()
     quat = self.cls.Quaternion()
     trace = 1.0 + rot.m11 + rot.m22 + rot.m33
-    
+
     if trace > self.cls._EPSILON:
         s = (trace ** 0.5) * 2
         quat.x = -( rot.m32 - rot.m23 ) / s
         quat.y = -( rot.m13 - rot.m31 ) / s
         quat.z = -( rot.m21 - rot.m12 ) / s
         quat.w = 0.25 * s
-    elif rot.m11 > max((rot.m22, rot.m33)): 
+    elif rot.m11 > max((rot.m22, rot.m33)):
         s  = (( 1.0 + rot.m11 - rot.m22 - rot.m33 ) ** 0.5) * 2
         quat.x = 0.25 * s
         quat.y = (rot.m21 + rot.m12 ) / s
@@ -256,14 +256,14 @@ def __mul__(self, rhs):
 please use left multiplication (vector*matrix)")
     elif isinstance(rhs, self.cls.Matrix33):
         mat = self.cls.Matrix33()
-        mat.m11 = self.m11 * rhs.m11 + self.m12 * rhs.m21 + self.m13 * rhs.m31 
-        mat.m12 = self.m11 * rhs.m12 + self.m12 * rhs.m22 + self.m13 * rhs.m32 
-        mat.m13 = self.m11 * rhs.m13 + self.m12 * rhs.m23 + self.m13 * rhs.m33 
-        mat.m21 = self.m21 * rhs.m11 + self.m22 * rhs.m21 + self.m23 * rhs.m31 
-        mat.m22 = self.m21 * rhs.m12 + self.m22 * rhs.m22 + self.m23 * rhs.m32 
-        mat.m23 = self.m21 * rhs.m13 + self.m22 * rhs.m23 + self.m23 * rhs.m33 
-        mat.m31 = self.m31 * rhs.m11 + self.m32 * rhs.m21 + self.m33 * rhs.m31 
-        mat.m32 = self.m31 * rhs.m12 + self.m32 * rhs.m22 + self.m33 * rhs.m32 
+        mat.m11 = self.m11 * rhs.m11 + self.m12 * rhs.m21 + self.m13 * rhs.m31
+        mat.m12 = self.m11 * rhs.m12 + self.m12 * rhs.m22 + self.m13 * rhs.m32
+        mat.m13 = self.m11 * rhs.m13 + self.m12 * rhs.m23 + self.m13 * rhs.m33
+        mat.m21 = self.m21 * rhs.m11 + self.m22 * rhs.m21 + self.m23 * rhs.m31
+        mat.m22 = self.m21 * rhs.m12 + self.m22 * rhs.m22 + self.m23 * rhs.m32
+        mat.m23 = self.m21 * rhs.m13 + self.m22 * rhs.m23 + self.m23 * rhs.m33
+        mat.m31 = self.m31 * rhs.m11 + self.m32 * rhs.m21 + self.m33 * rhs.m31
+        mat.m32 = self.m31 * rhs.m12 + self.m32 * rhs.m22 + self.m33 * rhs.m32
         mat.m33 = self.m31 * rhs.m13 + self.m32 * rhs.m23 + self.m33 * rhs.m33
         return mat
     else:

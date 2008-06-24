@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2007-2008, NIF File Format Library and Tools.
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -51,7 +51,7 @@ def setTransform(self, m):
     scale, rotation, translation = m.getScaleRotationTranslation()
 
     self.scale = scale
-    
+
     self.rotation.m11 = rotation.m11
     self.rotation.m12 = rotation.m12
     self.rotation.m13 = rotation.m13
@@ -61,7 +61,7 @@ def setTransform(self, m):
     self.rotation.m31 = rotation.m31
     self.rotation.m32 = rotation.m32
     self.rotation.m33 = rotation.m33
-    
+
     self.translation.x = translation.x
     self.translation.y = translation.y
     self.translation.z = translation.z

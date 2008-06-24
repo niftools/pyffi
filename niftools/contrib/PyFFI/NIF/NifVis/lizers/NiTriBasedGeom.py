@@ -4,25 +4,25 @@ from OpenGL.GL import *
 def Radius( block ):
     if not block: return
     if not isinstance( block, NifFormat.NiTriBasedGeom ): return 0
-    
+
     mesh = block.data
     if not mesh: return 0
-    
+
     return mesh.radius
 
 def Draw( block ):
     if not block: return
     if not isinstance( block, NifFormat.NiTriBasedGeom ): return
-    
+
     mesh = block.data
     if not mesh: return
-    
+
     verts = mesh.vertices
     norms = mesh.normals
     tris = mesh.getTriangles()
-        
+
     glColor3f( 1, 1, 1 )
-    
+
     glBegin( GL_TRIANGLES )
     for v1, v2, v3 in tris:
         glNormal3f( norms[v1].x, norms[v1].y, norms[v1].z )

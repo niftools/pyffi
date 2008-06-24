@@ -61,7 +61,7 @@
 #
 # Copyright (c) 2007-2008, NIF File Format Library and Tools.
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -211,7 +211,7 @@ def mergeSkeletonRoots(self):
     root for each bone, over all geometries.
 
     The merge fails if some transforms are not unit transform.
-    
+
     Returns list of all new blocks that have been reparented (and added
     to the skeleton root children list), and a list of blocks for which the
     merge failed."""
@@ -231,7 +231,7 @@ def mergeSkeletonRoots(self):
     # that have a different skeleton root
     # and that share bones with this geometry
     geoms = [block for block in skelroot.tree() if isinstance(block, self.cls.NiGeometry) and block.isSkin() and block.skinInstance.skeletonRoot != skelroot and set(block.skinInstance.bones) & set(skininst.bones)]
-    
+
     # find the root block (direct parent of skeleton root that connects to the geometry) for each of these geometries
     geomroots = {}
     for geom in geoms:

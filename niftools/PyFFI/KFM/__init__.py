@@ -70,7 +70,7 @@ The Guild 2 0x01024B00
 #
 # Copyright (c) 2007-2008, NIF File Format Library and Tools.
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -120,7 +120,7 @@ class KfmFormat(object):
     clsFilePath = os.path.dirname(__file__)
     # used for comparing floats
     _EPSILON = 0.0001
-    
+
     # basic types
     int = Common.Int
     uint = Common.UInt
@@ -134,7 +134,7 @@ class KfmFormat(object):
 
     class HeaderString(BasicBase):
         def __init__(self, **kwargs):
-            BasicBase.__init__(self, **kwargs)            
+            BasicBase.__init__(self, **kwargs)
             self._doseol = False
 
         def __str__(self):
@@ -216,7 +216,7 @@ class KfmFormat(object):
         'Hi There'
         """
         def __init__(self, **kwargs):
-            BasicBase.__init__(self, **kwargs)            
+            BasicBase.__init__(self, **kwargs)
             self.setValue('')
 
         def getValue(self):
@@ -267,7 +267,7 @@ class KfmFormat(object):
         'Hi There Everybody'
         """
         def __init__(self, **kwargs):
-            BasicBase.__init__(self, **kwargs)            
+            BasicBase.__init__(self, **kwargs)
             self.setValue('')
 
         def getValue(self):
@@ -318,10 +318,10 @@ class KfmFormat(object):
         >>> hex(KfmFormat.versionNumber('2.2.0.0b'))
         '0x202000b'
         """
-       
+
         if not '.' in version_str:
             return int(version_str)
- 
+
         try:
             ver_list = [int(x, 16) for x in version_str.split('.')]
         except ValueError:
@@ -346,7 +346,7 @@ class KfmFormat(object):
         >>> KfmFormat.nameAttribute('tHis is A Silly naME')
         'thisIsASillyName'
         """
-        
+
         # str(name) converts name to string in case name is a unicode string
         parts = str(name).replace("?", "X").split()
         attrname = parts[0].lower()

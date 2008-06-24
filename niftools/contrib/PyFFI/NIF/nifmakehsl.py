@@ -27,7 +27,7 @@ block you are investigating.
 #
 # Copyright (c) 2007-2008, NIF File Format Library and Tools.
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -110,7 +110,7 @@ def write_hsl(f, ver, templates):
     # write header
     f.write("""// hex structure library for NIF Format 0x%08X
 #include "standard-types.hsl"
-#pragma byteorder(little_endian) 
+#pragma byteorder(little_endian)
 #pragma maxarray(65535)
 
 """%ver)

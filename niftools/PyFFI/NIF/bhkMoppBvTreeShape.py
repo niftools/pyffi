@@ -4,7 +4,7 @@
 #
 # Copyright (c) 2007-2008, NIF File Format Library and Tools.
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -58,14 +58,14 @@ def updateOriginScale(self):
 
 def updateMopp(self):
     """Update the MOPP data."""
-    
+
     mopp = [] # the mopp 'assembly' script
     self._q = 256*256 / self.scale # quantization factor
 
     # opcodes
-    BOUNDX = 0x26    
-    BOUNDY = 0x27    
-    BOUNDZ = 0x28    
+    BOUNDX = 0x26
+    BOUNDY = 0x27
+    BOUNDZ = 0x28
     TESTX = 0x10
     TESTY = 0x11
     TESTZ = 0x12
@@ -320,7 +320,7 @@ def parseMopp(self, start = 0, depth = 0, toffset = 0, verbose = False):
             ret = True
 
         elif code in [0x23,0x24,0x25]: # short if x <= a then 1; if x > b then 2;
-            jump1 = mopp[i+3] * 256 + mopp[i+4] 
+            jump1 = mopp[i+3] * 256 + mopp[i+4]
             jump2 = mopp[i+5] * 256 + mopp[i+6]
             print mopp[i+1], mopp[i+2], '[ branch ? -> %i: %i: ]'%(i+7+jump1,i+7+jump2)
             print "     " + "  "*depth + 'if:'

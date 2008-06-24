@@ -24,7 +24,7 @@ Bip01 Tail
 #
 # Copyright (c) 2007-2008, NIF File Format Library and Tools.
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -88,7 +88,7 @@ def getNodeName(self):
     >>> link.nodeNameOffset = palette.addString("Bip01")
     >>> print link.getNodeName()
     Bip01
-    
+
     >>> # another doctest
     >>> from PyFFI.NIF import NifFormat
     >>> link = NifFormat.ControllerLink()

@@ -30,7 +30,7 @@ def LoadNif( filename ):
             raise NIFImportError( "Unsupported NIF version." )
         else:
             raise NIFImportError( "Not a NIF file." )
-    
+
     except NIFImportError, e: # in that case, we raise a menu instead of an exception
         print 'NIFImportError: ' + e.value
         return
@@ -39,14 +39,14 @@ def LoadNif( filename ):
 
 def AddBlock( block ):
     global Version, UserVersion
-    
+
     if not block: return
-    
+
     if not TypeRegistry.has_key( type( block ).__name__ ):
         TypeRegistry[type( block ).__name__] = []
-    
+
     TypeRegistry[type( block ).__name__].append( block )
     BlockRegistry.append( block )
-    
+
     for child in block.getRefs():
         if not child in BlockRegistry: AddBlock( child )

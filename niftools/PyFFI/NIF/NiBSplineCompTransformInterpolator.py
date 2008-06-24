@@ -4,7 +4,7 @@
 #
 # Copyright (c) 2007-2008, NIF File Format Library and Tools.
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -48,7 +48,7 @@ def getRotations(self):
                              self.rotationBias, self.rotationMultiplier)
 
 def getScales(self):
-    """Return an iterator over all scale keys."""    
+    """Return an iterator over all scale keys."""
     for key in self._getCompKeys(self.scaleOffset, 1,
                                  self.scaleBias, self.scaleMultiplier):
         yield key[0]
@@ -60,4 +60,4 @@ def applyScale(self, scale):
     self.translation.z *= scale
     self.translationBias *= scale
     self.translationMultiplier *= scale
-    
+

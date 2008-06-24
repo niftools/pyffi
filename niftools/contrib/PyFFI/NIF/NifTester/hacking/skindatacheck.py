@@ -34,7 +34,7 @@ def testBlock(block, **args):
     # calculate bone rest positions
     # this is just for play
     # usually the rest pose is not stored in the bone transform
-    for i, bone_block in enumerate(block.skinInstance.bones): 
+    for i, bone_block in enumerate(block.skinInstance.bones):
         m = skindata.boneList[i].getTransform().getInverse() * skininst.data.getTransform().getInverse()
         n = bone_block.getTransform(skelroot)
         if m != n:

@@ -32,7 +32,7 @@
 #
 # Copyright (c) 2007-2008, NIF File Format Library and Tools.
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -108,7 +108,7 @@ def _appendData(self, data, controlpoints):
 
 def getShortData(self, offset, num_elements, element_size):
     """Get an iterator to the data.
-    
+
     @param offset: The offset in the data where to start.
     @param num_elements: Number of elements to get.
     @param element_size: Size of a single element.
@@ -169,7 +169,7 @@ def appendCompData(self, data):
 
 def getFloatData(self, offset, num_elements, element_size):
     """Get an iterator to the data.
-    
+
     @param offset: The offset in the data where to start.
     @param num_elements: Number of elements to get.
     @param element_size: Size of a single element.

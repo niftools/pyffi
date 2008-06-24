@@ -325,7 +325,7 @@ True
 #
 # Copyright (c) 2007-2008, NIF File Format Library and Tools.
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -372,7 +372,7 @@ class NifFormat(object):
     xmlFilePath = [ os.getenv('NIFXMLPATH'), os.path.dirname(__file__) ] # where to look for nif.xml and in what order: NIFXMLPATH env var, or NifFormat module directory
     clsFilePath = os.path.dirname(__file__) # path of class customizers
     _EPSILON = 0.0001 # used for comparing floats
-    
+
     # basic types
     int = Common.Int
     uint = Common.UInt
@@ -396,7 +396,7 @@ class NifFormat(object):
     class bool(BasicBase, DelegateBoolComboBox):
         """Basic implementation of a 32-bit (8-bit for versions > 4.0.0.2)
         boolean type.
-        
+
         >>> i = NifFormat.bool()
         >>> i.setValue('false')
         >>> i.getValue()
@@ -538,7 +538,7 @@ class NifFormat(object):
         _isTemplate = True
         _hasLinks = True
         _hasRefs = False
-        
+
         def __str__(self):
             # avoid infinite recursion
             return '%s instance at 0x%08X'%(self._value.__class__, id(self._value))
@@ -847,7 +847,7 @@ class NifFormat(object):
         >>> hex(NifFormat.versionNumber('3.03'))
         '0x3000300'
         """
-        
+
         if version_str == '3.03': return 0x03000300 # 3.03 case is special
 
         try:
@@ -869,7 +869,7 @@ class NifFormat(object):
         >>> NifFormat.nameAttribute('tHis is A Silly naME')
         'thisIsASillyName'
         """
-        
+
         parts = str(name).replace("?", "X").split() # str(name) converts name to string in case name is a unicode string
         attrname = parts[0].lower()
         for part in parts[1:]:

@@ -4,7 +4,7 @@
 #
 # Copyright (c) 2007-2008, NIF File Format Library and Tools.
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -47,7 +47,7 @@ def updateTangentSpace(self):
         raise ValueError(
             'cannot update tangent space of a geometry with %s data'
             %(self.data.__class__ if self.data else 'no'))
-    
+
     verts = self.data.vertices
     norms = self.data.normals
     if len(self.data.uvSets) > 0:
@@ -68,7 +68,7 @@ def updateTangentSpace(self):
     for t1, t2, t3 in self.data.getTriangles():
         # skip degenerate triangles
         if t1 == t2 or t2 == t3 or t3 == t1: continue
-        
+
         v1 = verts[t1]
         v2 = verts[t2]
         v3 = verts[t3]
@@ -79,10 +79,10 @@ def updateTangentSpace(self):
         v3v1 = v3 - v1
         w2w1 = w2 - w1
         w3w1 = w3 - w1
-        
+
         # surface of triangle in texture space
         r = w2w1.u * w3w1.v - w3w1.u * w2w1.v
-        
+
         # sign of surface
         r_sign = (1 if r >= 0 else -1)
 
@@ -194,7 +194,7 @@ def updateSkinPartition(self,
     geomdata = self.data
     skininst = self.skinInstance
     skindata = skininst.data
-    
+
     # get skindata vertex weights
     if verbose: print "getting vertex weights"
     weights = self.getVertexWeights()
@@ -520,7 +520,7 @@ def updateSkinCenterRadius(self):
     geomdata = self.data
     skininst = self.skinInstance
     skindata = skininst.data
-    
+
     verts = geomdata.vertices
 
     for skindatablock in skindata.boneList:

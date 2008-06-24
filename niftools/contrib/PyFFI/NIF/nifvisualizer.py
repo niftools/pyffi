@@ -5,7 +5,7 @@
 #
 # Copyright (c) 2007-2008, NIF File Format Library and Tools.
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -75,7 +75,7 @@ DrawBlocks = None
 
 if vis_nif.TypeRegistry.has_key( BlockName ):
     DrawBlocks = vis_nif.TypeRegistry[BlockName]
-    
+
 if not DrawBlocks:
     print "Blocktype '%s' was not found in file!" % BlockName
     sys.exit( 1 )
@@ -87,7 +87,7 @@ from NifVis import lizers
 LizerName = BlockName
 if len( Args ) > 3:
     LizerName += '_' + Args[3]
-    
+
 Lizer = getattr(lizers, LizerName)
 
 if not Lizer:
@@ -118,16 +118,16 @@ vis_run.Initialize()
 
 
 
-while vis_run.IsRunning: 
+while vis_run.IsRunning:
     vis_gl.InitFrame()
-    
+
     vis_gl.DrawAxes()
-    
+
     for b in DrawBlocks:
         vis_gl.InitDraw()
         Lizer.Draw( b )
         vis_gl.FinalizeDraw()
-    
+
     vis_run.EventHandler()
-    
+
     vis_gl.FinalizeFrame()

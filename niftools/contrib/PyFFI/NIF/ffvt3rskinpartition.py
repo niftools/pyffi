@@ -7,7 +7,7 @@
 #
 # Copyright (c) 2007-2008, NIF File Format Library and Tools.
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -69,7 +69,7 @@ from PyFFI.NIF import NifFormat
 def main():
     # parse options and positional arguments
     usage = "%prog [options] <file>|<folder>"
-    description="""Update all skin partitions of file <file> or of all nif 
+    description="""Update all skin partitions of file <file> or of all nif
 files in folder <folder> for Freedom Force vs. the 3rd Reich.
 This script will modify the nif files, in particular if something goes wrong it
 may destroy them. Make a backup before running this script."""
