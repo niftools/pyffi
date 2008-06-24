@@ -1,5 +1,5 @@
 """
-PyFFI provides a metaclass for parsing a file format description 
+PyFFI provides a metaclass for parsing a file format description
 in XML format.
 
 Using PyFFI
@@ -64,7 +64,7 @@ Say this is the contents of simple.py::
 
         @staticmethod
         def nameAttribute(name):
-            parts = str(name).replace("?", "X").split() # str(name) converts name to string in case name is a unicode string
+            parts = str(name).split() # str(name) converts unicode to str
             attrname = parts[0].lower()
             for part in parts[1:]:
                 attrname += part.capitalize()
@@ -143,7 +143,7 @@ formats.
 #
 # Copyright (c) 2007-2008, Python File Format Interface
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -176,7 +176,7 @@ formats.
 #
 # ***** END LICENSE BLOCK *****
 
-__all__ = [ 'XmlHandler', 'Utils', 'Common', 'Bases' ]
+__all__ = ['XmlHandler', 'Utils', 'Common', 'Bases']
 
 __version__ = '0.11.0'
 __hexversion__ = eval('0x%02X%02X%02X'
@@ -199,13 +199,13 @@ class MetaXmlFileFormat(type):
 
     The actual implementation of the parser is delegated to PyFFI.XmlHandler.
     """
-    
+
     def __init__(cls, name, bases, dct):
         """This function constitutes the core of the class generation
         process. For instance, we declare NifFormat to have metaclass
         MetaXmlFileFormat, so upon creation of the NifFormat class,
         the __init__ function is called, with
-    
+
         @param cls: The class created using MetaXmlFileFormat, for example
             NifFormat.
         @param name: The name of the class, for example 'NifFormat'.
@@ -214,9 +214,9 @@ class MetaXmlFileFormat(type):
         """
 
         # consistency checks
-        if not dct.has_key('xmlFileName'):
+        if not 'xmlFileName' in dct:
             raise TypeError("class %s : missing xmlFileName attribute"%cls)
-        if not dct.has_key('versionNumber'):
+        if not 'versionNumber' in dct:
             raise TypeError("class %s : missing versionNumber attribute"%cls)
 
         # set up XML parser
@@ -224,7 +224,7 @@ class MetaXmlFileFormat(type):
         parser.setContentHandler(XmlSaxHandler(cls, name, bases, dct))
 
         # open XML file
-        if not dct.has_key('xmlFilePath'):
+        if not 'xmlFilePath' in dct:
             xmlfile = open(dct['xmlFileName'])
         else:
             for filepath in dct['xmlFilePath']:
