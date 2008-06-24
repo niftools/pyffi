@@ -38,7 +38,6 @@
 # ***** END LICENSE BLOCK *****
 
 import struct
-from itertools import izip
 from PyFFI.Bases.Basic import BasicBase
 from PyFFI.Bases.Delegate import DelegateSpinBox
 from PyFFI.Bases.Delegate import DelegateFloatSpinBox
@@ -206,6 +205,11 @@ class Bool(UByte, DelegateBoolComboBox):
         return False if self._value == '\x00' else True
 
     def setValue(self, value):
+        """Set value to C{value}.
+
+        @param value: The value to assign.
+        @type value: bool
+        """
         self._value = '\x01' if value else '\x00'
 
 class Char(BasicBase, DelegateLineEdit):
@@ -222,7 +226,11 @@ class Char(BasicBase, DelegateLineEdit):
         return self._value
 
     def setValue(self, value):
-        """Set value to C{value}."""
+        """Set character to C{value}.
+
+        @param value: The value to assign (string of length 1).
+        @type value: str
+        """
         assert(isinstance(value, basestring))
         assert(len(value) == 1)
         self._value = str(value)
@@ -260,7 +268,11 @@ class Float(BasicBase, DelegateFloatSpinBox):
         return struct.unpack('<f', self._value)[0]
 
     def setValue(self, value):
-        """Set value to C{value}."""
+        """Set value to C{value}.
+
+        @param value: The value to assign.
+        @type value: float
+        """
         self._value = struct.pack('<f', float(value))
 
     def read(self, stream, **kwargs):
@@ -319,7 +331,11 @@ class ZString(BasicBase, DelegateLineEdit):
         return self._value
 
     def setValue(self, value):
-        """Set the string."""
+        """Set string to C{value}.
+
+        @param value: The value to assign.
+        @type value: str
+        """
         val = str(value)
         i = val.find('\x00')
         if i != -1:
@@ -395,7 +411,11 @@ class FixedString(BasicBase, DelegateLineEdit):
         return self._value
 
     def setValue(self, value):
-        """Set the string."""
+        """Set string to C{value}.
+
+        @param value: The value to assign.
+        @type value: str
+        """
         val = str(value)
         if len(val) > self._len:
             raise ValueError("string '%s' too long" % val)
@@ -453,6 +473,11 @@ class SizedString(BasicBase, DelegateLineEdit):
         return self._value
 
     def setValue(self, value):
+        """Set string to C{value}.
+
+        @param value: The value to assign.
+        @type value: str
+        """
         if len(value) > 10000:
             raise ValueError('string too long')
         self._value = str(value)
@@ -470,11 +495,11 @@ class SizedString(BasicBase, DelegateLineEdit):
         return self.getValue()
 
     def read(self, stream, **kwargs):
-        n, = struct.unpack('<I', stream.read(4))
-        if n > 10000:
+        length, = struct.unpack('<I', stream.read(4))
+        if length > 10000:
             raise ValueError('string too long (0x%08X at 0x%08X)'
-                             % (n, stream.tell()))
-        self._value = stream.read(n)
+                             % (length, stream.tell()))
+        self._value = stream.read(length)
 
     def write(self, stream, **kwargs):
         stream.write(struct.pack('<I', len(self._value)))
