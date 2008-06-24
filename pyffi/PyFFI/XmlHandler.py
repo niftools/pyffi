@@ -5,7 +5,7 @@ the file format in memory, as a bunch of classes."""
 #
 # Copyright (c) 2007-2008, Python File Format Interface
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -49,6 +49,7 @@ from PyFFI.Bases.Expression import Expression
 
 class StructAttribute(object):
     """Helper class to collect attribute data of struct add tags."""
+
     def __init__(self, cls, attrs):
         """Initialize attribute from the xml attrs dictionary of an
         add tag.
@@ -108,6 +109,7 @@ class StructAttribute(object):
 
 class BitStructAttribute(object):
     """Helper class to collect attribute data of bitstruct bits tags."""
+
     def __init__(self, cls, attrs):
         """Initialize attribute from the xml attrs dictionary of an
         add tag.
@@ -145,34 +147,34 @@ class XmlError(StandardError):
 class XmlSaxHandler(object, xml.sax.handler.ContentHandler):
     """This class contains all functions for parsing the xml and converting
     the xml structure into Python classes."""
-    tagFile      = 1
-    tagVersion   = 2
-    tagBasic     = 3
-    tagAlias     = 4
-    tagEnum      = 5
-    tagOption    = 6
+    tagFile = 1
+    tagVersion = 2
+    tagBasic = 3
+    tagAlias = 4
+    tagEnum = 5
+    tagOption = 6
     tagBitStruct = 7
-    tagStruct    = 8
+    tagStruct = 8
     tagAttribute = 9
-    tagBits      = 10
+    tagBits = 10
 
     tags = {
-    "fileformat" : tagFile,
-    "version" : tagVersion,
-    "basic" : tagBasic,
-    "alias" : tagAlias,
-    "enum" : tagEnum,
-    "option" : tagOption,
-    "bitstruct" : tagBitStruct,
-    "struct" : tagStruct,
-    "bits" : tagBits,
-    "add" : tagAttribute }
+    "fileformat": tagFile,
+    "version": tagVersion,
+    "basic": tagBasic,
+    "alias": tagAlias,
+    "enum": tagEnum,
+    "option": tagOption,
+    "bitstruct": tagBitStruct,
+    "struct": tagStruct,
+    "bits": tagBits,
+    "add": tagAttribute}
 
     # for compatibility with niftools
     tags_niftools = {
-    "niftoolsxml" : tagFile,
-    "compound" : tagStruct,
-    "niobject" : tagStruct }
+    "niftoolsxml": tagFile,
+    "compound": tagStruct,
+    "niobject": tagStruct}
 
     def __init__(self, cls, name, bases, dct):
         """Set up the xml parser.
@@ -201,7 +203,8 @@ class XmlSaxHandler(object, xml.sax.handler.ContentHandler):
         # initialize dictionaries
         # cls.version maps each supported version string to a version number
         cls.versions = {}
-        # cls.games maps each supported game to a list of header version numbers
+        # cls.games maps each supported game to a list of header version
+        # numbers
         cls.games = {}
         # note: block versions are stored in the _games attribute of the
         # struct class
@@ -296,11 +299,11 @@ class XmlSaxHandler(object, xml.sax.handler.ContentHandler):
                 raise XmlError("this is not a fileformat xml file")
             self.pushTag(tag)
             return
-        
+
         # Now do a number of things, depending on the tag that was last
         # pushed on the stack; this is self.currentTag, and reflects the
         # tag in which <name> is embedded.
-        # 
+        #
         # For each struct, alias, enum, and bitstruct tag, we shall
         # create a class. So assign to C{self.className} the name of that
         # class, C{self.classBase} to the base of that class, and
@@ -328,10 +331,10 @@ class XmlSaxHandler(object, xml.sax.handler.ContentHandler):
                 # (classDict["_games"] is updated when reading the characters)
             else:
                 raise XmlError(
-                    "only add and version tags allowed in struct type declaration")
+                    "only add and version tags allowed in struct declaration")
         elif self.currentTag == self.tagFile:
             self.pushTag(tag)
-            
+
             # fileformat -> struct
             if tag == self.tagStruct:
                 self.className = attrs["name"]
@@ -354,10 +357,10 @@ class XmlSaxHandler(object, xml.sax.handler.ContentHandler):
                 # if not set, then the struct is not a template
                 # set attributes (see class StructBase)
                 self.classDict = {
-                    "_isTemplate" : attrs.get("istemplate") == "1",
-                    "_attrs" : [],
-                    "_games" : {},
-                    "__doc__" : "" }
+                    "_isTemplate": attrs.get("istemplate") == "1",
+                    "_attrs": [],
+                    "_games": {},
+                    "__doc__": ""}
 
             # fileformat -> basic
             elif tag == self.tagBasic:
@@ -389,9 +392,9 @@ class XmlSaxHandler(object, xml.sax.handler.ContentHandler):
                         raise XmlError(
                             "typo, or forward declaration of type %s"%typename)
                     numbytes = typ.getSize()
-                self.classDict = {"__doc__" : "",
-                                  "_numbytes" : numbytes,
-                                  "_enumkeys" : [], "_enumvalues" : []}
+                self.classDict = {"__doc__": "",
+                                  "_numbytes": numbytes,
+                                  "_enumkeys": [], "_enumvalues": []}
 
             # fileformat -> alias
             elif tag == self.tagAlias:
@@ -402,7 +405,7 @@ class XmlSaxHandler(object, xml.sax.handler.ContentHandler):
                 except AttributeError:
                     raise XmlError(
                         "typo, or forward declaration of type %s"%typename)
-                self.classDict = {"__doc__" : ""}
+                self.classDict = {"__doc__": ""}
 
             # fileformat -> bitstruct
             # this works like an alias for now, will add special
@@ -410,9 +413,9 @@ class XmlSaxHandler(object, xml.sax.handler.ContentHandler):
             elif tag == self.tagBitStruct:
                 self.classBase = BitStructBase
                 self.className = attrs["name"]
-                self.classDict = { "_attrs" : [], "__doc__" : "",
-                                   "_numbytes" : int(attrs["numbytes"]) }
-                
+                self.classDict = {"_attrs": [], "__doc__": "",
+                                  "_numbytes": int(attrs["numbytes"])}
+
             # fileformat -> version
             elif tag == self.tagVersion:
                 self.versionString = str(attrs["num"])
@@ -454,10 +457,10 @@ but got %s instead"""%name)
             else:
                 raise XmlError(
                     "only bits tags allowed in struct type declaration")
-            
+
         else:
             raise XmlError("unhandled tag %s"%name)
-    
+
     def endElement(self, name):
         """Called at the end of each xml tag.
 
