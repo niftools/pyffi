@@ -1,3 +1,10 @@
+* move all regression tests to the tests directory (but keep useful examples
+  in the docstrings!)
+
+* NSIS installer? (would solve Vista problems, and make installation more
+  customizable and professional looking, also would allow to install
+  documentation, tests, and examples)
+
 * better class plugin structure (can we use metaclasses for this?)
   instead of assigning custom methods directly to the class dictionaries
   create new class encapsulating all methods and let a metaclass do the work

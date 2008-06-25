@@ -9,11 +9,9 @@ include PyFFI/KFM/kfm.xml
 include PyFFI/CGF/cgf.xml
 include PyFFI/DDS/dds.xml
 include PyFFI/TGA/tga.xml
-include examples/simple/Example.py
-include examples/simple/simple.py
+recursive-include examples *.py
 include examples/simple/simple.xml
 include examples/simple/somefile.simple
-include examples/simple/testread.py
-include examples/simple/testwrite.py
-include docs/*.*
 recursive-include tests *.*
+include docs/*.*
+

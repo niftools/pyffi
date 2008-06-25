@@ -1,3 +1,14 @@
+"""This script simply serves as a conceptual example on how classes could
+be created from an xml file. For simplicity, no actual xml file is involved
+and the class data (attribute names and their default values) is described
+in a dictionary.
+
+The MetaXmlFileFormat class does all the hard work in converting the
+dictionary data into real classes. The _Block class is a helper class for
+describing an arbitrary structure. _MetaBlock simply checks a _Block class
+for the presence of particular attributes.
+"""
+
 DEBUG = False
 
 # This metaclass checks for the presence of an _attrs and __doc__ attribute.
