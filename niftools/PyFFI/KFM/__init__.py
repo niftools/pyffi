@@ -8,7 +8,7 @@ Read a KFM file
 ---------------
 
 >>> # get version and user version, and read kfm file
->>> f = open('test.kfm', 'rb')
+>>> f = open('tests/kfm/test.kfm', 'rb')
 >>> version = KfmFormat.getVersion(f)
 >>> if version == -1:
 ...     raise RuntimeError('kfm version not supported')

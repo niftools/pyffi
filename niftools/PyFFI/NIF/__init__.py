@@ -8,7 +8,7 @@ Read a NIF file
 ---------------
 
 >>> # get version and user version, and read nif file
->>> f = open('test.nif', 'rb')
+>>> f = open('tests/nif/test.nif', 'rb')
 >>> version, user_version = NifFormat.getVersion(f)
 >>> if version == -1:
 ...     raise RuntimeError('nif version not supported')
@@ -158,7 +158,7 @@ They also provide code examples which you may find useful.
 Reading an unsupported nif file
 -------------------------------
 
->>> f = open('invalid.nif', 'rb')
+>>> f = open('tests/nif/invalid.nif', 'rb')
 >>> version, user_version = NifFormat.getVersion(f)
 >>> if version == -1:
 ...     raise RuntimeError('nif version not supported')
