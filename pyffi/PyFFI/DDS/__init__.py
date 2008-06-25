@@ -27,7 +27,8 @@ Create a DDS file from scratch and write to file
 >>> header = DdsFormat.Header()
 >>> from tempfile import TemporaryFile
 >>> f = TemporaryFile()
->>> DdsFormat.write(f, version = version, header = header, pixeldata = DdsFormat.PixelData())
+>>> DdsFormat.write(f, version = version, header = header,
+...                 pixeldata = DdsFormat.PixelData())
 
 Get list of versions
 --------------------
@@ -82,6 +83,7 @@ from PyFFI import Common
 from PyFFI.Bases.Basic import BasicBase
 
 class DdsFormat(object):
+    """This class implements the DDS format."""
     __metaclass__ = MetaXmlFileFormat
     xmlFileName = 'dds.xml'
     # where to look for dds.xml and in what order:
@@ -105,6 +107,7 @@ class DdsFormat(object):
     # implementation of dds-specific basic types
 
     class HeaderString(BasicBase):
+        """Basic type which implements the header of a DDS file."""
         def __init__(self, **kwargs):
             BasicBase.__init__(self, **kwargs)
 
@@ -115,7 +118,7 @@ class DdsFormat(object):
             return None
 
         def read(self, stream, **kwargs):
-            # read string from stream
+            """Read header string from stream and check it."""
             hdrstr = stream.read(4)
             # check if the string is correct
             if hdrstr != "DDS ":
@@ -123,7 +126,7 @@ class DdsFormat(object):
                     "invalid DDS header: expected 'DDS ' but got '%s'" % hdrstr)
 
         def write(self, stream, **kwargs):
-            # write the version string
+            """Write the header string to stream."""
             stream.write("DDS ")
 
         def getSize(self, **kwargs):

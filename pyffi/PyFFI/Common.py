@@ -136,9 +136,9 @@ class Int(BasicBase, DelegateSpinBox):
 
     @classmethod
     def getSize(cls, **kwargs):
-        """Return size of this type.
+        """Return number of bytes this type occupies in a file.
 
-        @return: The size of the type.
+        @return: Number of bytes.
         """
         return cls._size
 
@@ -220,6 +220,7 @@ class Char(BasicBase, DelegateLineEdit):
     """Implementation of an 8-bit ASCII character."""
 
     def __init__(self, **kwargs):
+        """Initialize the character."""
         super(Char, self).__init__(**kwargs)
         self._value = '\x00'
 
@@ -241,28 +242,43 @@ class Char(BasicBase, DelegateLineEdit):
         self._value = str(value)
 
     def read(self, stream, **kwargs):
-        """Read value from stream."""
+        """Read value from stream.
+
+        @param stream: The stream to read from.
+        @type stream: file
+        """
         self._value = stream.read(1)
 
     def write(self, stream, **kwargs):
-        """Write value to stream."""
+        """Write value to stream.
+
+        @param stream: The stream to write to.
+        @type stream: file
+        """
         stream.write(self._value)
 
     def __str__(self):
         return self._value
 
     def getSize(self, **kwargs):
-        """Return size of this type."""
+        """Return number of bytes this type occupies in a file.
+
+        @return: Number of bytes.
+        """
         return 1
 
     def getHash(self, **kwargs):
-        """Return a hash value for this value."""
+        """Return a hash value for this value.
+
+        @return: An immutable object that can be used as a hash.
+        """
         self.getValue()
 
 class Float(BasicBase, DelegateFloatSpinBox):
     """Implementation of a 32-bit float."""
 
     def __init__(self, **kwargs):
+        """Initialize the float."""
         super(Float, self).__init__(**kwargs)
         self._value = '\x00\x00\x00\x00'
 
@@ -282,20 +298,34 @@ class Float(BasicBase, DelegateFloatSpinBox):
         self._value = struct.pack('<f', float(value))
 
     def read(self, stream, **kwargs):
-        """Read value from stream."""
+        """Read value from stream.
+
+        @param stream: The stream to read from.
+        @type stream: file
+        """
         self._value = stream.read(4)
 
     def write(self, stream, **kwargs):
-        """Write value to stream."""
+        """Write value to stream.
+
+        @param stream: The stream to write to.
+        @type stream: file
+        """
         stream.write(self._value)
 
     def getSize(self, **kwargs):
-        """Return size of this type."""
+        """Return number of bytes this type occupies in a file.
+
+        @return: Number of bytes.
+        """
         return 4
 
     def getHash(self, **kwargs):
         """Return a hash value for this value. Currently implemented
-        with precision 1/200."""
+        with precision 1/200.
+
+        @return: An immutable object that can be used as a hash.
+        """
         return int(self.getValue()*200)
 
 class ZString(BasicBase, DelegateLineEdit):
@@ -321,6 +351,7 @@ class ZString(BasicBase, DelegateLineEdit):
     _maxlen = 1000 #: The maximum length.
 
     def __init__(self, **kwargs):
+        """Initialize the string."""
         super(ZString, self).__init__(**kwargs)
         self._value = ""
 
@@ -351,7 +382,11 @@ class ZString(BasicBase, DelegateLineEdit):
         self._value = val
 
     def read(self, stream, **kwargs):
-        """Read string from stream."""
+        """Read string from stream.
+
+        @param stream: The stream to read from.
+        @type stream: file
+        """
         i = 0
         self._value = ''
         char = ''
@@ -363,16 +398,26 @@ class ZString(BasicBase, DelegateLineEdit):
             char = stream.read(1)
 
     def write(self, stream, **kwargs):
-        """Write string to stream."""
+        """Write string to stream.
+
+        @param stream: The stream to write to.
+        @type stream: file
+        """
         stream.write(self._value)
         stream.write('\x00')
 
     def getSize(self, **kwargs):
-        """Return string size in bytes."""
+        """Return number of bytes this type occupies in a file.
+
+        @return: Number of bytes.
+        """
         return len(self._value) + 1
 
     def getHash(self, **kwargs):
-        """Return hash value for the string."""
+        """Return a hash value for this string.
+
+        @return: An immutable object that can be used as a hash.
+        """
         return self._value
 
 class FixedString(BasicBase, DelegateLineEdit):
@@ -401,6 +446,7 @@ class FixedString(BasicBase, DelegateLineEdit):
     _len = 0
 
     def __init__(self, **kwargs):
+        """Initialize the string."""
         super(FixedString, self).__init__(**kwargs)
         self._value = ""
 
@@ -428,22 +474,36 @@ class FixedString(BasicBase, DelegateLineEdit):
         self._value = val
 
     def read(self, stream, **kwargs):
-        """Read string from stream."""
+        """Read string from stream.
+
+        @param stream: The stream to read from.
+        @type stream: file
+        """
         self._value = stream.read(self._len)
         i = self._value.find('\x00')
         if i != -1:
             self._value = self._value[:i]
 
     def write(self, stream, **kwargs):
-        """Write string to stream."""
+        """Write string to stream.
+
+        @param stream: The stream to write to.
+        @type stream: file
+        """
         stream.write(self._value.ljust(self._len, "\x00"))
 
     def getSize(self, **kwargs):
-        """Return string size in bytes."""
+        """Return number of bytes this type occupies in a file.
+
+        @return: Number of bytes.
+        """
         return self._len
 
     def getHash(self, **kwargs):
-        """Return hash value for the string."""
+        """Return a hash value for this string.
+
+        @return: An immutable object that can be used as a hash.
+        """
         return self._value
 
 class SizedString(BasicBase, DelegateLineEdit):
@@ -469,7 +529,8 @@ class SizedString(BasicBase, DelegateLineEdit):
     """
 
     def __init__(self, **kwargs):
-        BasicBase.__init__(self, **kwargs)
+        """Initialize the string."""
+        super(SizedString, self).__init__(**kwargs)
         self._value = ""
 
     def getValue(self):
@@ -490,18 +551,30 @@ class SizedString(BasicBase, DelegateLineEdit):
         self._value = str(value)
 
     def __str__(self):
-        s = self._value
-        if not s:
+        if not self._value:
             return '<EMPTY STRING>'
-        return s
+        return self._value
 
     def getSize(self, **kwargs):
+        """Return number of bytes this type occupies in a file.
+
+        @return: Number of bytes.
+        """
         return 4 + len(self._value)
 
     def getHash(self, **kwargs):
+        """Return a hash value for this string.
+
+        @return: An immutable object that can be used as a hash.
+        """
         return self.getValue()
 
     def read(self, stream, **kwargs):
+        """Read string from stream.
+
+        @param stream: The stream to read from.
+        @type stream: file
+        """
         length, = struct.unpack('<I', stream.read(4))
         if length > 10000:
             raise ValueError('string too long (0x%08X at 0x%08X)'
@@ -509,6 +582,11 @@ class SizedString(BasicBase, DelegateLineEdit):
         self._value = stream.read(length)
 
     def write(self, stream, **kwargs):
+        """Write string to stream.
+
+        @param stream: The stream to write to.
+        @type stream: file
+        """
         stream.write(struct.pack('<I', len(self._value)))
         stream.write(self._value)
 
