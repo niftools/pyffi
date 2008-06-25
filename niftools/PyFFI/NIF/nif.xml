@@ -20,6 +20,7 @@
     <version num="10.0.1.2">Oblivion</version>
     <version num="10.0.1.3">?</version>
     <version num="10.1.0.0">Dark Age of Camelot, Civilization IV, Freedom Force vs. the 3rd Reich, Axis and Allies, Kohan 2, Entropia Universe, Wildlife Park 2, The Guild 2</version>
+    <version num="10.1.0.101">Oblivion</version>
     <version num="10.1.0.106">Oblivion</version>
     <version num="10.2.0.0">Civilization IV, Oblivion, Loki, Pro Cycling Manager, Prison Tycoon, Red Ocean, Wildlife Park 2</version>
     <version num="20.0.0.4">Civilization IV, Oblivion, Sid Meier's Railroads</version>
@@ -2369,6 +2370,15 @@
 
     <niobject name="NiBillboardNode" abstract="0" inherit="NiNode">
         These nodes will always be rotated to face the camera creating a billboard effect for any attached objects.
+
+        In pre-10.1.0.0 the Flags field is used for BillboardMode.
+        Here is what alphax says about these Flags after checking SceneImmerse:
+
+        0x0000 - 0x0010 is ALWAYS_FACE_CAMERA (somewhat misleadingly named, but that is what the format calls it),
+        0x0020 is ROTATE_ABOUT_UP,
+        0x0040 is RIGID_FACE_CAMERA (always face the viewport), and
+        0x0060 is ALWAYS_FACE_CENTER.
+        That is where &quot;left shift the corresponding value from v10 NIFs 5 bits&quot; falls down - I do not know if v4 NIFs support the others, or if they actually mean anything, but these seem the most useful. The rotation of the node does seem to affect the axis of constraint.
         <add name="Billboard Mode" type="BillboardMode" ver1="10.1.0.0">The way the billboard will react to the camera.</add>
     </niobject>
 
@@ -3144,7 +3154,7 @@
         Unknown PhysX node.  
         <add name="Unknown Float 1" type="float">Unknown</add>
         <add name="Unknown Int 1" type="uint">Unknown</add>
-        <add name="Unknown Refs 1" type="Ref" arr1="Unknown Int 1">Unknown</add>
+        <add name="Unknown Refs 1" type="Ref" template="NiObject" arr1="Unknown Int 1">Unknown</add>
         <add name="Num Dests" type="int">Number of NiPhysXTransformDest references</add>
         <add name="Transform Dests" type="Ref" template="NiPhysXTransformDest" arr1="Num Dests">Unknown</add>
         <add name="Unknown Byte" type="byte">Unknown</add>
