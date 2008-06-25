@@ -182,7 +182,7 @@ __version__ = '0.11.0'
 __hexversion__ = eval('0x%02X%02X%02X'
                       % tuple(int(x) for x in __version__.split('.')))
 
-from XmlHandler import XmlSaxHandler
+from PyFFI.XmlHandler import XmlSaxHandler
 
 import xml.sax
 import os.path
@@ -212,6 +212,7 @@ class MetaXmlFileFormat(type):
         @param bases: The base classes, usually (object,).
         @param dct: A dictionary of class attributes, such as 'xmlFileName'.
         """
+        super(MetaXmlFileFormat, cls).__init__(name, bases, dct)
 
         # consistency checks
         if not 'xmlFileName' in dct:

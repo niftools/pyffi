@@ -154,16 +154,17 @@ class BasicBase(object):
 
     def qChild(self, row):
         """Find item at given row. Should never be called."""
-        raise NotImplementedError
+        raise RuntimeError
 
     def qRow(self, item):
         """Find the row number of the given item. Should never be called."""
-        raise NotImplementedError
+        raise RuntimeError
 
     def qName(self, item):
         """Find the name of the given item. Should never be called."""
-        raise NotImplementedError
+        raise RuntimeError
 
     def qDataDisplay(self):
         """Return an object that can be used to display the instance."""
         return self.getValue()
+
