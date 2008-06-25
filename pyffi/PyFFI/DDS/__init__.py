@@ -8,7 +8,7 @@ Read a DDS file
 ---------------
 
 >>> # check and read dds file
->>> f = open('test.dds', 'rb')
+>>> f = open('tests/dds/test.dds', 'rb')
 >>> version = DdsFormat.getVersion(f)
 >>> if version == -1:
 ...     raise RuntimeError('dds version not supported')

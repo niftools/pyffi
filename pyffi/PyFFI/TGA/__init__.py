@@ -8,7 +8,7 @@ Read a TGA file
 ---------------
 
 >>> # check and read tga file
->>> f = open('test.tga', 'rb')
+>>> f = open('tests/tga/test.tga', 'rb')
 >>> version = TgaFormat.getVersion(f)
 >>> if version == -1:
 ...     raise RuntimeError('tga version not supported')

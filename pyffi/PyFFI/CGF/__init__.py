@@ -8,7 +8,7 @@ Read a CGF file
 ---------------
 
 >>> # get file version and file type, and read cgf file
->>> stream = open('test.cgf', 'rb')
+>>> stream = open('tests/cgf/test.cgf', 'rb')
 >>> filetype, fileversion, game = CgfFormat.getVersion(stream)
 >>> if filetype == -1:
 ...     raise RuntimeError('cgf version not supported')

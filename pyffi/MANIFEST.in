@@ -16,4 +16,4 @@ include examples/simple/somefile.simple
 include examples/simple/testread.py
 include examples/simple/testwrite.py
 include docs/*.*
-
+recursive-include tests *.*
