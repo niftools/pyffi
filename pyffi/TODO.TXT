@@ -1,0 +1,34 @@
+* better class plugin structure (can we use metaclasses for this?)
+  instead of assigning custom methods directly to the class dictionaries
+  create new class encapsulating all methods and let a metaclass do the work
+  (this would also allow for adding methods to the base classes such as
+  BasicBase, StructBase, etc.)
+
+* refactor directory structure
+  - make all modules submodules of PyFFI
+  - separate the base format modules from the rest
+  - join NifTester, CgfTester, ... into a single tester module
+  - for other projects that are based on PyFFI (tester, qskope) agree on
+    a common directory structure for organizing plugins, i.e.
+    tester.formats.nif
+    tester.formats.cgf
+    tester.formats.dds
+    tester.bases.basic
+    tester.bases.struct
+    qskopelib.formats.nif
+    qskopelib.formats.cgf
+    qskopelib.formats.dds
+    qskopelib.bases.basic
+    qskopelib.bases.struct
+    ...
+
+* create nsis installer
+
+* pep8 conventions
+  - lower case for all modules
+  - lower case for all methods and attributes
+  (this would obviously break backwards compatibility, not sure how to deal
+  with this... have both and do deprecation warnings via the warnings module?
+  or start on new module like pyffi_ besides PyFFI, and move pyffi_ to pyffi,
+  removing PyFFI, after a year or so)
+

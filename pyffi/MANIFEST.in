@@ -3,9 +3,12 @@ include INSTALL.TXT
 include LICENSE.TXT
 include CHANGELOG.TXT
 include AUTHORS.TXT
+include TODO.TXT
 include PyFFI/NIF/nif.xml
 include PyFFI/KFM/kfm.xml
 include PyFFI/CGF/cgf.xml
+include PyFFI/DDS/dds.xml
+include PyFFI/TGA/tga.xml
 include examples/simple/Example.py
 include examples/simple/simple.py
 include examples/simple/simple.xml
