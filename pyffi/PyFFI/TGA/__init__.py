@@ -94,65 +94,7 @@ class TgaFormat(object):
     short = Common.Short
     ushort = Common.UShort
     float = Common.Float
-
-    # implementation of tga-specific basic types
-
-    class PixelData(BasicBase):
-        """Basic type for pixel data."""
-        def __init__(self, **kwargs):
-            BasicBase.__init__(self, **kwargs)
-            self._value = ''
-
-        def getValue(self):
-            """Return stored value.
-
-            @return: The stored value.
-            """
-            return self._value
-
-        def setValue(self, value):
-            """Set value to C{value}.
-
-            @param value: The value to assign.
-            @type value: str
-            """
-            if len(value) > 16000000:
-                raise ValueError('pixel data too long')
-            self._value = str(value)
-
-        def __str__(self):
-            return '<PIXEL DATA>'
-
-        def getSize(self, **kwargs):
-            """Return number of bytes the pixel data occupies in a file.
-
-            @return: Number of bytes.
-            """
-            return len(self._value)
-
-        def getHash(self, **kwargs):
-            """Return a hash value for this value.
-
-            @return: An immutable object that can be used as a hash.
-            """
-            return self.getValue()
-
-        def read(self, stream, **kwargs):
-            """Read pixel data from stream. Note that this function simply
-            reads until the end of the stream.
-
-            @param stream: The stream to read from.
-            @type stream: file
-            """
-            self._value = stream.read(-1)
-
-        def write(self, stream, **kwargs):
-            """Write pixel data to stream.
-
-            @param stream: The stream to write to.
-            @type stream: file
-            """
-            stream.write(self._value)
+    PixelData = Common.UndecodedData
 
     # exceptions
     class TgaError(StandardError):
@@ -236,6 +178,7 @@ class TgaFormat(object):
         @type version: int
         @param verbose: The level of verbosity.
         @type verbose: int
+        @return: header, pixeldata
         """
         # read the file
         header = cls.Header()
