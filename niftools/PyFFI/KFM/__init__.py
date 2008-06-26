@@ -9,7 +9,7 @@ Read a KFM file
 
 >>> # get version and user version, and read kfm file
 >>> f = open('tests/kfm/test.kfm', 'rb')
->>> version = KfmFormat.getVersion(f)
+>>> version, user_version = KfmFormat.getVersion(f)
 >>> if version == -1:
 ...     raise RuntimeError('kfm version not supported')
 ... elif version == -2:
@@ -161,16 +161,18 @@ class KfmFormat(XmlFileFormat):
 
             @param stream: The stream to read from.
             @type stream: file
+            @param version: The file version.
+            @type: int
             """
             # get the string we expect
             version_string = self.versionString(kwargs.get('version'))
             # read string from stream
-            s = stream.read(len(version_string))
+            hdrstr = stream.read(len(version_string))
             # check if the string is correct
-            if s != version_string:
+            if hdrstr != version_string:
                 raise ValueError(
                     "invalid KFM header: expected '%s' but got '%s'"
-                    % (version_string, s))
+                    % (version_string, hdrstr))
             # check eol style
             nextchar = stream.read(1)
             if nextchar == '\x0d':
@@ -274,7 +276,10 @@ class KfmFormat(XmlFileFormat):
                 return -1 # version not supported
         while len(ver_list) < 4:
             ver_list.append(0)
-        return (ver_list[0] << 24) + (ver_list[1] << 16) + (ver_list[2] << 8) + ver_list[3]
+        return ((ver_list[0] << 24)
+                + (ver_list[1] << 16)
+                + (ver_list[2] << 8)
+                + ver_list[3])
 
     @classmethod
     def getVersion(cls, stream):
@@ -283,8 +288,8 @@ class KfmFormat(XmlFileFormat):
         @param stream: The stream from which to read.
         @type stream: file
         @return: The version and user version of the file.
-            Returns -1 if a kfm file but version not supported.
-            Returns -2 if not a kfm file.
+            Returns C{(-1, 0)} if a kfm file but version not supported.
+            Returns C{(-2, 0)} if not a kfm file.
         """
         pos = stream.tell()
         try:
@@ -295,26 +300,28 @@ class KfmFormat(XmlFileFormat):
             version_str = hdrstr[27:]
         else:
             # not a kfm file
-            return -2
+            return -2, 0
         try:
             ver = cls.versionNumber(version_str)
         except:
             # version not supported
-            return -1
+            return -1, 0
         if not ver in cls.versions.values():
             # unsupported version
-            return -1
+            return -1, 0
 
-        return ver
+        return ver, 0
 
     @classmethod
-    def read(cls, stream, version = None, verbose = 0):
+    def read(cls, stream, version = None, user_version = None, verbose = 0):
         """Read a kfm file.
 
         @param stream: The stream from which to read.
         @type stream: file
         @param version: The kfm version obtained by L{getVersion}.
         @type version: int
+        @param user_version: The kfm user version obtained by L{getVersion}.
+        @type user_version: int
         @param verbose: The level of verbosity.
         @type verbose: int
         @return: header, list of animations, footer
@@ -335,22 +342,24 @@ class KfmFormat(XmlFileFormat):
         return header, animations, footer
 
     @classmethod
-    def write(cls, stream, version = None,
-              header = None, animations = None, footer = None, verbose = 0):
+    def write(cls, stream, version = None, user_version = None, verbose = 0,
+              header = None, animations = None, footer = None):
         """Write a kfm file.
 
         @param stream: The stream to which to write.
         @type stream: file
         @param version: The version number.
         @type version: int
+        @param user version: The user version number (ignored for now).
+        @type user version: int
+        @param verbose: The level of verbosity.
+        @type verbose: int
         @param header: The kfm header.
         @type header: L{KfmFormat.Header}
         @param animations: The animation data.
         @type animations: list of L{KfmFormat.Animation}
         @param footer: The kfm footer.
         @type footer: L{KfmFormat.Footer}
-        @param verbose: The level of verbosity.
-        @type verbose: int
         """
         # make sure header has correct number of animations
         header.numAnimations = len(animations)
