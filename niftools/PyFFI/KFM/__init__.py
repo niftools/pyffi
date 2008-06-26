@@ -31,14 +31,15 @@ Create a KFM model from scratch and write to file
 >>> header = KfmFormat.Header()
 >>> header.nifFileName = "Test.nif"
 >>> header.numAnimations = 4
->>> animations = [ KfmFormat.Animation() for j in xrange(4) ]
+>>> animations = [KfmFormat.Animation() for j in xrange(4)]
 >>> animations[0].kfFileName = "Test_MD_Idle.kf"
 >>> animations[1].kfFileName = "Test_MD_Run.kf"
 >>> animations[2].kfFileName = "Test_MD_Walk.kf"
 >>> animations[3].kfFileName = "Test_MD_Die.kf"
 >>> from tempfile import TemporaryFile
->>> f = TemporaryFile()
->>> KfmFormat.write(f, version = 0x0202000B, header = header, animations = animations)
+>>> stream = TemporaryFile()
+>>> KfmFormat.write(stream, version = 0x0202000B,
+...                 header = header, animations = animations)
 
 Get list of versions and games
 ------------------------------
@@ -49,7 +50,8 @@ Get list of versions and games
 0x0200000B
 0x0201000B
 0x0202000B
->>> for game, versions in sorted(KfmFormat.games.items(), key=lambda x: x[0]):
+>>> for game, versions in sorted(KfmFormat.games.items(),
+...                              key=lambda x: x[0]):
 ...     print game,
 ...     for vnum in versions:
 ...         print '0x%08X'%vnum,
@@ -105,19 +107,23 @@ The Guild 2 0x01024B00
 
 import struct, os, re
 
+from PyFFI import XmlFileFormat
 from PyFFI import MetaXmlFileFormat
 from PyFFI import Utils
 from PyFFI import Common
 from PyFFI.Bases.Basic import BasicBase
 
-class KfmFormat(object):
+class KfmFormat(XmlFileFormat):
+    """This class implements the kfm file format."""
     __metaclass__ = MetaXmlFileFormat
     xmlFileName = 'kfm.xml'
     # where to look for kfm.xml and in what order:
     # KFMXMLPATH env var, or KfmFormat module directory
-    xmlFilePath = [ os.getenv('KFMXMLPATH'), os.path.dirname(__file__) ]
+    xmlFilePath = [os.getenv('KFMXMLPATH'), os.path.dirname(__file__)]
     # path of class customizers
     clsFilePath = os.path.dirname(__file__)
+    # file name regular expression match
+    re_filename = re.compile(r'^.*\.kfm$', re.IGNORECASE)
     # used for comparing floats
     _EPSILON = 0.0001
 
@@ -129,10 +135,13 @@ class KfmFormat(object):
     short = Common.Short
     ushort = Common.UShort
     float = Common.Float
+    SizedString = Common.SizedString
+    TextString = Common.UndecodedData # for text (used by older kfm versions)
 
     # implementation of kfm-specific basic types
 
     class HeaderString(BasicBase):
+        """The kfm header string."""
         def __init__(self, **kwargs):
             BasicBase.__init__(self, **kwargs)
             self._doseol = False
@@ -141,9 +150,18 @@ class KfmFormat(object):
             return ';Gamebryo KFM File Version x.x.x.x'
 
         def getHash(self, **kwargs):
+            """Return a hash value for this value.
+
+            @return: An immutable object that can be used as a hash.
+            """
             return None
 
         def read(self, stream, **kwargs):
+            """Read header string from stream and check it.
+
+            @param stream: The stream to read from.
+            @type stream: file
+            """
             # get the string we expect
             version_string = self.versionString(kwargs.get('version'))
             # read string from stream
@@ -165,6 +183,11 @@ class KfmFormat(object):
                     "invalid KFM header: string does not end on \\n or \\r\\n")
 
         def write(self, stream, **kwargs):
+            """Write the header string to stream.
+
+            @param stream: The stream to write to.
+            @type stream: file
+            """
             # write the version string
             stream.write(self.versionString(kwargs.get('version')))
             # write \n (or \r\n for older versions)
@@ -174,12 +197,20 @@ class KfmFormat(object):
                 stream.write('\x0a')
 
         def getSize(self, **kwargs):
+            """Return number of bytes the header string occupies in a file.
+
+            @return: Number of bytes.
+            """
             return len(self.versionString(kwargs.get('version'))) \
                    + (1 if not self._doseol else 2)
 
         @staticmethod
         def versionString(version):
             """Transforms version number into a version string.
+
+            @param version: The version number.
+            @type version: int
+            @return: A version string.
 
             >>> KfmFormat.HeaderString.versionString(0x0202000b)
             ';Gamebryo KFM File Version 2.2.0.0b'
@@ -195,121 +226,28 @@ class KfmFormat(object):
                 0x0201000b : "2.1.0.0b",
                 0x0202000b : "2.2.0.0b" } [version])
 
-    class SizedString(BasicBase):
-        """Basic type for strings.
-
-        >>> from tempfile import TemporaryFile
-        >>> f = TemporaryFile()
-        >>> s = KfmFormat.SizedString()
-        >>> f.write('\\x07\\x00\\x00\\x00abcdefg')
-        >>> f.seek(0)
-        >>> s.read(f)
-        >>> str(s)
-        'abcdefg'
-        >>> f.seek(0)
-        >>> s.setValue('Hi There')
-        >>> s.write(f)
-        >>> f.seek(0)
-        >>> m = KfmFormat.SizedString()
-        >>> m.read(f)
-        >>> str(m)
-        'Hi There'
-        """
-        def __init__(self, **kwargs):
-            BasicBase.__init__(self, **kwargs)
-            self.setValue('')
-
-        def getValue(self):
-            return self._value
-
-        def setValue(self, value):
-            if len(value) > 10000: raise ValueError('string too long')
-            self._value = str(value)
-
-        def __str__(self):
-            s = self._value
-            if not s: return '<EMPTY STRING>'
-            return s
-
-        def getSize(self, **kwargs):
-            return 4+len(self._value)
-
-        def getHash(self, **kwargs):
-            return self.getValue()
-
-        def read(self, stream, **kwargs):
-            n, = struct.unpack('<I', stream.read(4))
-            if n > 10000: raise ValueError('string too long (0x%08X at 0x%08X)'%(n, stream.tell()))
-            self._value = stream.read(n)
-
-        def write(self, stream, **kwargs):
-            stream.write(struct.pack('<I', len(self._value)))
-            stream.write(self._value)
-
-    class TextString(BasicBase):
-        """Basic type for text (used by older kfm versions).
-
-        >>> from tempfile import TemporaryFile
-        >>> f = TemporaryFile()
-        >>> s = KfmFormat.TextString()
-        >>> f.write('abcdefg')
-        >>> f.seek(0)
-        >>> s.read(f)
-        >>> str(s)
-        'abcdefg'
-        >>> f.seek(0)
-        >>> s.setValue('Hi There Everybody')
-        >>> s.write(f)
-        >>> f.seek(0)
-        >>> m = KfmFormat.TextString()
-        >>> m.read(f)
-        >>> str(m)
-        'Hi There Everybody'
-        """
-        def __init__(self, **kwargs):
-            BasicBase.__init__(self, **kwargs)
-            self.setValue('')
-
-        def getValue(self):
-            return self._value
-
-        def setValue(self, value):
-            if len(value) > 10000:
-                raise ValueError('text too long')
-            self._value = str(value)
-
-        def __str__(self):
-            s = self._value
-            if not s:
-                return '<EMPTY TEXT>'
-            return s
-
-        def getSize(self, **kwargs):
-            return len(self._value)
-
-        def getHash(self, **kwargs):
-            return self.getValue()
-
-        def read(self, stream, **kwargs):
-            self._value = stream.read(-1)
-
-        def write(self, stream, **kwargs):
-            stream.write(self._value)
-
     # other types with internal implementation
     class FilePath(SizedString):
         def getHash(self, **kwargs):
-            # never ignore file paths
-            # transform to lower case to make hash case insensitive
+            """Return a hash value for this value.
+            For file paths, the hash value is case insensitive.
+
+            @return: An immutable object that can be used as a hash.
+            """
             return self.getValue().lower()
 
     # exceptions
     class KfmError(StandardError):
+        """Exception class used for KFM related exceptions."""
         pass
 
     @staticmethod
     def versionNumber(version_str):
         """Converts version string into an integer.
+
+        @param version_str: The version string.
+        @type version_str: str
+        @return: A version integer.
 
         >>> hex(KfmFormat.versionNumber('1.0'))
         '0x1000000'
@@ -338,39 +276,23 @@ class KfmFormat(object):
             ver_list.append(0)
         return (ver_list[0] << 24) + (ver_list[1] << 16) + (ver_list[2] << 8) + ver_list[3]
 
-    @staticmethod
-    def nameAttribute(name):
-        """Converts an attribute name, as in the xml file, into a name usable
-        by python.
-
-        >>> KfmFormat.nameAttribute('tHis is A Silly naME')
-        'thisIsASillyName'
-        """
-
-        # str(name) converts name to string in case name is a unicode string
-        parts = str(name).replace("?", "X").split()
-        attrname = parts[0].lower()
-        for part in parts[1:]:
-            attrname += part.capitalize()
-        return attrname
-
     @classmethod
     def getVersion(cls, stream):
         """Returns version and user version number, if version is supported.
 
-        @param stream: The stream from which to read, typically a file or a
-            memory stream such as cStringIO.
+        @param stream: The stream from which to read.
+        @type stream: file
         @return: The version and user version of the file.
             Returns -1 if a kfm file but version not supported.
             Returns -2 if not a kfm file.
         """
         pos = stream.tell()
         try:
-            s = stream.readline(64).rstrip()
+            hdrstr = stream.readline(64).rstrip()
         finally:
             stream.seek(pos)
-        if s.startswith(";Gamebryo KFM File Version " ):
-            version_str = s[27:]
+        if hdrstr.startswith(";Gamebryo KFM File Version " ):
+            version_str = hdrstr[27:]
         else:
             # not a kfm file
             return -2
@@ -386,14 +308,17 @@ class KfmFormat(object):
         return ver
 
     @classmethod
-    def read(cls, stream, version = None,
-             verbose = 0):
+    def read(cls, stream, version = None, verbose = 0):
         """Read a kfm file.
 
-        @param stream: The stream from which to read, typically a file or a
-            memory stream such as cStringIO.
-        @param version: The version number as obtained by getVersion.
-        @param verbose: The level of verbosity."""
+        @param stream: The stream from which to read.
+        @type stream: file
+        @param version: The kfm version obtained by L{getVersion}.
+        @type version: int
+        @param verbose: The level of verbosity.
+        @type verbose: int
+        @return: header, list of animations, footer
+        """
         # read the file
         header = cls.Header()
         header.read(stream, version = version)
@@ -412,6 +337,21 @@ class KfmFormat(object):
     @classmethod
     def write(cls, stream, version = None,
               header = None, animations = None, footer = None, verbose = 0):
+        """Write a kfm file.
+
+        @param stream: The stream to which to write.
+        @type stream: file
+        @param version: The version number.
+        @type version: int
+        @param header: The kfm header.
+        @type header: L{KfmFormat.Header}
+        @param animations: The animation data.
+        @type animations: list of L{KfmFormat.Animation}
+        @param footer: The kfm footer.
+        @type footer: L{KfmFormat.Footer}
+        @param verbose: The level of verbosity.
+        @type verbose: int
+        """
         # make sure header has correct number of animations
         header.numAnimations = len(animations)
         # write the file
@@ -427,62 +367,3 @@ class KfmFormat(object):
             footer = cls.Footer()
         assert(isinstance(footer, cls.Footer))
         footer.write(stream, version = version)
-
-    @classmethod
-    def walk(cls, top, topdown = True, onerror = None, verbose = 0):
-        """A generator which yields the roots of all files in directory top
-        whose filename matches the regular expression re_filename. The argument
-        top can also be a file instead of a directory. The argument onerror,
-        if set, will be called if cls.read raises an exception (errors coming
-        from os.walk will be ignored)."""
-        for version, f, kfm in cls.walkFile(top, topdown, onerror, verbose):
-            yield kfm
-
-    @classmethod
-    def walkFile(cls, top, topdown = True,
-                 raisereaderror = False, verbose = 0, mode = 'rb'):
-        """Like walk, but returns more information:
-        version, f, and kfm.
-
-        Note that the caller is not responsible for closing stream.
-
-        walkFile is for instance used by runtest.py to implement the
-        testFile-style tests which must access the file after the file has been
-        read."""
-        # filter for recognizing kfm files by extension
-        re_kfm = re.compile(r'^.*\.kfm$', re.IGNORECASE)
-        # now walk over all these files in directory top
-        for filename in Utils.walk(top, topdown, onerror = None,
-                                   re_filename = re_kfm):
-            if verbose >= 1: print "reading %s"%filename
-            stream = open(filename, mode)
-            try:
-                # get the version
-                version = cls.getVersion(stream)
-                if version >= 0:
-                    # we got it, so now read the kfm file
-                    if verbose >= 2: print "version 0x%08X"%version
-                    try:
-                        # return (version, stream, (header, animations, footer))
-                        yield (version, stream,
-                               cls.read(stream, version = version))
-                    except StandardError:
-                        # an error occurred during reading
-                        # this should not happen: means that the file is
-                        # corrupt, or that the xml is corrupt
-                        if verbose >= 1:
-                            print """
-Warning: read failed due to either a corrupt kfm file, a corrupt kfm.xml,
-or a bug in KfmFormat library."""
-                        if verbose >= 2:
-                            Utils.hexDump(stream)
-                        if raisereaderror:
-                            raise
-                # getting version failed, do not raise an exception
-                # but tell user what happened
-                elif version == -1:
-                    if verbose >= 1: print 'version not supported'
-                else:
-                    if verbose >= 1: print 'not a kfm file'
-            finally:
-                stream.close()
