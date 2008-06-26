@@ -162,7 +162,7 @@ class KfmFormat(XmlFileFormat):
             @param stream: The stream to read from.
             @type stream: file
             @param version: The file version.
-            @type: int
+            @type version: int
             """
             # get the string we expect
             version_string = self.versionString(kwargs.get('version'))
@@ -350,8 +350,8 @@ class KfmFormat(XmlFileFormat):
         @type stream: file
         @param version: The version number.
         @type version: int
-        @param user version: The user version number (ignored for now).
-        @type user version: int
+        @param user_version: The user version number (ignored for now).
+        @type user_version: int
         @param verbose: The level of verbosity.
         @type verbose: int
         @param header: The kfm header.
