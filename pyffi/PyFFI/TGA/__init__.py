@@ -25,7 +25,8 @@ Create a TGA file from scratch and write to file
 >>> header = TgaFormat.Header()
 >>> from tempfile import TemporaryFile
 >>> f = TemporaryFile()
->>> TgaFormat.write(f, version = version, header = header, pixeldata = TgaFormat.PixelData())
+>>> TgaFormat.write(f, version = version, header = header,
+...                 pixeldata = TgaFormat.PixelData())
 """
 
 # ***** BEGIN LICENSE BLOCK *****
@@ -73,6 +74,7 @@ from PyFFI import Common
 from PyFFI.Bases.Basic import BasicBase
 
 class TgaFormat(object):
+    """This class implements the TGA format."""
     __metaclass__ = MetaXmlFileFormat
     xmlFileName = 'tga.xml'
     # where to look for tga.xml and in what order:
@@ -102,9 +104,18 @@ class TgaFormat(object):
             self.setValue('')
 
         def getValue(self):
+            """Return stored value.
+
+            @return: The stored value.
+            """
             return self._value
 
         def setValue(self, value):
+            """Set value to C{value}.
+
+            @param value: The value to assign.
+            @type value: str
+            """
             if len(value) > 16000000:
                 raise ValueError('pixel data too long')
             self._value = str(value)
@@ -113,25 +124,49 @@ class TgaFormat(object):
             return '<PIXEL DATA>'
 
         def getSize(self, **kwargs):
+            """Return number of bytes the pixel data occupies in a file.
+
+            @return: Number of bytes.
+            """
             return len(self._value)
 
         def getHash(self, **kwargs):
+            """Return a hash value for this value.
+
+            @return: An immutable object that can be used as a hash.
+            """
             return self.getValue()
 
         def read(self, stream, **kwargs):
+            """Read pixel data from stream. Note that this function simply
+            reads until the end of the stream.
+
+            @param stream: The stream to read from.
+            @type stream: file
+            """
             self._value = stream.read(-1)
 
         def write(self, stream, **kwargs):
+            """Write pixel data to stream.
+
+            @param stream: The stream to write to.
+            @type stream: file
+            """
             stream.write(self._value)
 
     # exceptions
     class TgaError(StandardError):
+        """Exception class used for TGA related exceptions."""
         pass
 
     @staticmethod
     def versionNumber(version_str):
         """Converts version string into an integer. TGA files have no versions
-        so this function simply raises NotImplementedError."""
+        so this function simply raises NotImplementedError.
+
+        @param version_str: The version string.
+        @type version_str: str
+        @return: A version integer."""
         # TGA format not versioned
         raise NotImplementedError
 
@@ -139,6 +174,10 @@ class TgaFormat(object):
     def nameAttribute(name):
         """Converts an attribute name, as in the xml file, into a name usable
         by python.
+
+        @param name: The attribute name.
+        @type name: str
+        @return: Reformatted attribute name, useable by python.
 
         >>> TgaFormat.nameAttribute('tHis is A Silly naME')
         'thisIsASillyName'
@@ -156,8 +195,8 @@ class TgaFormat(object):
         """Returns 0 if the file looks like a TGA file, -1 if it is a TGA file
         but the format is not supported, and -2 if it is not a TGA file.
 
-        @param stream: The stream from which to read, typically a file or a
-            memory stream such as cStringIO.
+        @param stream: The stream from which to read.
+        @type stream: file
         @return: 0 for TGA files, -2 for non-TGA files.
         """
         #return 0
@@ -190,10 +229,13 @@ class TgaFormat(object):
     def read(cls, stream, version = None, verbose = 0):
         """Read a tga file.
 
-        @param stream: The stream from which to read, typically a file or a
-            memory stream such as cStringIO.
-        @param version: The TGA version.
-        @param verbose: The level of verbosity."""
+        @param stream: The stream from which to read.
+        @type stream: file
+        @param version: The TGA version obtained by L{getVersion}.
+        @type version: int
+        @param verbose: The level of verbosity.
+        @type verbose: bool
+        """
         # read the file
         header = cls.Header()
         header.read(stream, version = version)
@@ -209,6 +251,19 @@ class TgaFormat(object):
     @classmethod
     def write(cls, stream, version = None,
               header = None, pixeldata = None, verbose = 0):
+        """Write a tga file.
+
+        @param stream: The stream to which to write.
+        @type stream: file
+        @param version: The version number (usually 0).
+        @type version: int
+        @param header: The tga header.
+        @type header: L{TgaFormat.Header}
+        @param pixeldata: The tga pixel data.
+        @type pixeldata: L{TgaFormat.PixelData}
+        @param verbose: The level of verbosity.
+        @type verbose: bool
+        """
         # TODO: make sure pixel data has correct length
 
         # write the file
@@ -220,51 +275,84 @@ class TgaFormat(object):
         pixeldata.write(stream, version = version)
 
     @classmethod
-    def walk(cls, top, topdown = True, onerror = None, verbose = 0):
-        """A generator which yields the roots of all files in directory top
-        whose filename matches the regular expression re_filename. The argument
-        top can also be a file instead of a directory. The argument onerror,
-        if set, will be called if cls.read raises an exception (errors coming
-        from os.walk will be ignored)."""
-        for version, f, tga in cls.walkFile(top, topdown, onerror, verbose):
-            yield tga
+    def walk(cls, top, topdown = True, raisereaderror = False, verbose = 0):
+        """A generator which yields (header, pixeldata) of all files in
+        directory top whose filename matches the regular expression
+        re_filename. The argument top can also be a file instead of a
+        directory. Errors coming from os.walk are ignored.
+
+        >>> for header, pixeldata in TgaFormat.walk('tests/tga',
+        ...                                         raisereaderror = True,
+        ...                                         verbose = 1):
+        ...     pass
+        reading tests/tga/test.tga
+
+        @param top: The top folder.
+        @type top: str
+        @param topdown: Determines whether subdirectories should be iterated
+            over first.
+        @type topdown: bool
+        @param raisereaderror: Should read errors raise an exception, or
+            should they be ignored?
+        @type raisereaderror: bool
+        @param verbose: Verbosity level.
+        @type verbose: int
+        """
+        for version, file, header, pixeldata in cls.walkFile(
+            top, topdown = topdown,
+            raisereaderror = raisereaderror, verbose = verbose):
+            yield header, pixeldata
 
     @classmethod
     def walkFile(cls, top, topdown = True,
                  raisereaderror = False, verbose = 0, mode = 'rb'):
-        """Like walk, but returns more information:
-        version, f, and tga.
+        """Like L{walk}, but returns more information:
+        version, file, header, and pixeldata.
 
         Note that the caller is not responsible for closing stream.
 
-        walkFile is for instance used by runtest.py to implement the
+        walkFile is for instance used by the testers to implement the
         testFile-style tests which must access the file after the file has been
-        read."""
+        read.
+
+        @param top: The top folder.
+        @type top: str
+        @param topdown: Determines whether subdirectories should be iterated
+            over first.
+        @type topdown: bool
+        @param raisereaderror: Should read errors raise an exception, or
+            should they be ignored?
+        @type raisereaderror: bool
+        @param verbose: Verbosity level.
+        @type verbose: int
+        """
         # filter for recognizing tga files by extension
         re_tga = re.compile(r'^.*\.tga$', re.IGNORECASE)
         # now walk over all these files in directory top
         for filename in Utils.walk(top, topdown, onerror = None,
                                    re_filename = re_tga):
-            if verbose >= 1: print "reading %s"%filename
+            if verbose >= 1:
+                print("reading %s" % filename)
             stream = open(filename, mode)
             try:
                 # get the version
                 version = cls.getVersion(stream)
                 if version >= 0:
                     # we got it, so now read the tga file
-                    if verbose >= 2: print "version 0x%08X"%version
+                    if verbose >= 2:
+                        print("version 0x%08X" % version)
                     try:
                         # return (version, stream, (header, pixeldata))
-                        yield (version, stream,
+                        yield ((version, stream) +
                                cls.read(stream, version = version))
                     except StandardError:
                         # an error occurred during reading
                         # this should not happen: means that the file is
                         # corrupt, or that the xml is corrupt
                         if verbose >= 1:
-                            print """
+                            print("""
 Warning: read failed due to either a corrupt tga file, a corrupt tga.xml,
-or a bug in TgaFormat library."""
+or a bug in TgaFormat library.""")
                         if verbose >= 2:
                             Utils.hexDump(stream)
                         if raisereaderror:
@@ -272,9 +360,11 @@ or a bug in TgaFormat library."""
                 # getting version failed, do not raise an exception
                 # but tell user what happened
                 elif version == -1:
-                    if verbose >= 1: print 'version not supported'
+                    if verbose >= 1:
+                        print('version not supported')
                 else:
-                    if verbose >= 1: print 'not a tga file'
+                    if verbose >= 1:
+                        print('not a tga file')
             finally:
                 stream.close()
 
