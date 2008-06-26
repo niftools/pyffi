@@ -1,6 +1,9 @@
 * move all regression tests to the tests directory (but keep useful examples
   in the docstrings!)
 
+* unify the getVersion and read functions among all formats, so they can all
+  use the XmlFileFormat base class
+
 * NSIS installer? (would solve Vista problems, and make installation more
   customizable and professional looking, also would allow to install
   documentation, tests, and examples)
