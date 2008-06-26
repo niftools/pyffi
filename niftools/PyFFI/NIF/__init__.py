@@ -22,6 +22,17 @@ Read a NIF file
 ...             print block.name
 test
 
+Parse all NIF files in a directory tree
+---------------------------------------
+
+>>> for roots in NifFormat.walk('tests/nif',
+...                             raisereaderror = False,
+...                             verbose = 1):
+...     pass
+reading tests/nif/invalid.nif
+Warning: read failed due to either a corrupt file, a corrupt xml, or a bug.
+reading tests/nif/test.nif
+
 Create a NIF model from scratch and write to file
 -------------------------------------------------
 
@@ -361,18 +372,27 @@ True
 
 import struct, os, re
 
+from PyFFI import XmlFileFormat
 from PyFFI import MetaXmlFileFormat
 from PyFFI import Utils
 from PyFFI import Common
 from PyFFI.Bases.Basic import BasicBase
 from PyFFI.Bases.Delegate import DelegateBoolComboBox
 
-class NifFormat(object):
+class NifFormat(XmlFileFormat):
     __metaclass__ = MetaXmlFileFormat
     xmlFileName = 'nif.xml'
-    xmlFilePath = [ os.getenv('NIFXMLPATH'), os.path.dirname(__file__) ] # where to look for nif.xml and in what order: NIFXMLPATH env var, or NifFormat module directory
+    # where to look for nif.xml and in what order: NIFXMLPATH env var,
+    # or NifFormat module directory
+    xmlFilePath = [os.getenv('NIFXMLPATH'), os.path.dirname(__file__)]
     clsFilePath = os.path.dirname(__file__) # path of class customizers
-    _EPSILON = 0.0001 # used for comparing floats
+    # filter for recognizing nif files by extension
+    # .kf are nif files containing keyframes
+    # .kfa are nif files containing keyframes in DAoC style
+    # .nifcache are Empire Earth II nif files
+    re_filename = re.compile(r'^.*\.(nif|kf|kfa|nifcache)$', re.IGNORECASE)
+    # used for comparing floats
+    _EPSILON = 0.0001
 
     # basic types
     int = Common.Int
@@ -841,6 +861,10 @@ class NifFormat(object):
     def versionNumber(version_str):
         """Converts version string into an integer.
 
+        @param version_str: The version string.
+        @type version_str: str
+        @return: A version integer.
+
         >>> hex(NifFormat.versionNumber('3.14.15.29'))
         '0x30e0f1d'
         >>> hex(NifFormat.versionNumber('1.2'))
@@ -863,26 +887,12 @@ class NifFormat(object):
         while len(ver_list) < 4: ver_list.append(0)
         return (ver_list[0] << 24) + (ver_list[1] << 16) + (ver_list[2] << 8) + ver_list[3]
 
-    @staticmethod
-    def nameAttribute(name):
-        """Converts an attribute name, as in the xml file, into a name usable by python.
-
-        >>> NifFormat.nameAttribute('tHis is A Silly naME')
-        'thisIsASillyName'
-        """
-
-        parts = str(name).replace("?", "X").split() # str(name) converts name to string in case name is a unicode string
-        attrname = parts[0].lower()
-        for part in parts[1:]:
-            attrname += part.capitalize()
-        return attrname
-
     @classmethod
     def getVersion(cls, stream):
         """Returns version and user version number, if version is supported.
 
-        @param stream: The stream from which to read, typically a file or a
-            memory stream such as cStringIO.
+        @param stream: The stream from which to read.
+        @type stream: file
         @return: The version and user version of the file.
             Returns C{(-1, 0)} if a nif file but version not supported.
             Returns C{(-2, 0)} if not a nif file.
@@ -913,8 +923,10 @@ class NifFormat(object):
                 ver_int, = struct.unpack('<I', stream.read(4))
                 if ver_int != ver:
                     return -2, 0 # not a nif file
-                if ver >= 0x14000004: stream.read(1)
-                if ver >= 0x0A010000: userver, = struct.unpack('<I', stream.read(4))
+                if ver >= 0x14000004:
+                    stream.read(1)
+                if ver >= 0x0A010000:
+                    userver, = struct.unpack('<I', stream.read(4))
             finally:
                 stream.seek(pos)
         return ver, userver
@@ -924,13 +936,17 @@ class NifFormat(object):
              verbose = 0, rootsonly = True):
         """Read a nif file.
 
-        @param stream: The stream from which to read, typically a file or a
-            memory stream such as cStringIO.
-        @param version: The version number as obtained by getVersion.
-        @param user_version: The user version number as obtained by getVersion.
+        @param stream: The stream from which to read.
+        @type stream: file
+        @param version: The version as obtained by L{getVersion}.
+        @type version: int
+        @param user_version: The user version as obtained by L{getVersion}.
+        @type user_version: int
         @param verbose: The level of verbosity.
+        @type verbose: int
         @param rootsonly: Whether to return the list of roots only (default).
             If C{False} then will return header, blocks, footer.
+        @type rootsonly: bool
         """
         # read header
         if verbose >= 1:
@@ -951,7 +967,7 @@ class NifFormat(object):
         link_stack = [] # list of indices, as they are added to the stack
         string_list = [ str(s) for s in hdr.strings ]
         block_dct = {} # maps block index to actual block
-        block_list = [] # records all blocks as read from the nif file in the proper order
+        block_list = [] # records all blocks as read from file in order
         block_num = 0 # the current block numner
 
         while True:
@@ -980,7 +996,8 @@ class NifFormat(object):
                             'non-zero block tag 0x%08X at 0x%08X)'
                             %(dummy, stream.tell()))
                 # note the 0xfff mask: required for the NiPhysX blocks
-                block_type = hdr.blockTypes[hdr.blockTypeIndex[block_num] & 0xfff]
+                block_type = hdr.blockTypes[
+                    hdr.blockTypeIndex[block_num] & 0xfff]
             else:
                 block_type = cls.SizedString()
                 block_type.read(stream)
@@ -1038,11 +1055,11 @@ class NifFormat(object):
                 calculated_size = block.getSize(version = version,
                                                 user_version = user_version)
                 if calculated_size != hdr.blockSize[block_num]:
-                    #raise cls.NifError('block size check failed: corrupt nif file?')
-                    print("WARNING: block size check failed: corrupt nif file or bad nif.xml?")
-                    print("         skipping %i bytes in %s"
-                          % ( hdr.blockSize[block_num] - calculated_size,
-                              block.__class__.__name__ ))
+                    print("""
+WARNING: block size check failed: corrupt nif file or bad nif.xml?
+         skipping %i bytes in %s""" 
+                          % (hdr.blockSize[block_num] - calculated_size,
+                             block.__class__.__name__))
                     # skip bytes that were missed
                     stream.seek(hdr.blockSize[block_num] - calculated_size, 1)
             # add block to roots if flagged as such
@@ -1089,16 +1106,19 @@ class NifFormat(object):
 
     @classmethod
     def write(cls, stream, version = None, user_version = None,
-              roots = None, verbose = 0, header = None):
+              verbose = 0, roots = None, header = None):
         """Write a nif file.
 
-        @param stream: The stream to which to write, typically a file or a
-            memory stream such as cStringIO.
+        @param stream: The stream to which to write.
+        @type stream: file
         @param version: The version number.
+        @type version: int
         @param user_version: The user version number.
+        @type user_version: int
+        @param verbose: The level of verbosity.
+        @type verbose: int
         @param roots: The list of roots of the NIF tree.
             If C{False} then will return header, blocks, footer.
-        @param verbose: The level of verbosity.
         @param header: If you pass a header, then this will be used as a basis
             for writing the header. Note that data in this parameter may be
             changed (for instance the list of block types and list of strings
@@ -1247,68 +1267,3 @@ class NifFormat(object):
         on the block type."""
         return (isinstance(block, cls.bhkRefObject)
                 and not isinstance(block, cls.bhkConstraint))
-
-    @classmethod
-    def walk(cls, top, topdown = True, onerror = None, verbose = 0):
-        """A generator which yields the roots of all files in directory top
-        whose filename matches the regular expression re_filename. The argument
-        top can also be a file instead of a directory. The argument onerror,
-        if set, will be called if cls.read raises an exception (errors coming
-        from os.walk will be ignored)."""
-        for version, user_version, f, roots in cls.walkFile(top, topdown, onerror, verbose):
-            yield roots
-
-    @classmethod
-    def walkFile(cls, top, topdown = True,
-                 raisereaderror = False, verbose = 0, mode = 'rb'):
-        """Like walk, but returns more information:
-        version, user_version, f, and roots.
-
-        Note that the caller is not responsible for closing stream.
-
-        walkFile is for instance used by runtest.py to implement the
-        testFile-style tests which must access the file after the file has been
-        read."""
-        # filter for recognizing nif files by extension
-        # .kf are nif files containing keyframes
-        # .kfa are nif files containing keyframes in DAoC style
-        # .nifcache are Empire Earth II nif files
-        re_nif = re.compile(r'^.*\.(nif|kf|kfa|nifcache)$', re.IGNORECASE)
-        # now walk over all these files in directory top
-        for filename in Utils.walk(top, topdown, onerror = None,
-                                   re_filename = re_nif):
-            if verbose >= 1: print "reading %s"%filename
-            stream = open(filename, mode)
-            try:
-                # get the version
-                version, user_version = cls.getVersion(stream)
-                if version >= 0:
-                    # we got it, so now read the nif file
-                    if verbose >= 2: print "version 0x%08X"%version
-                    try:
-                        # return (version, user_version, stream, roots)
-                        yield (version, user_version, stream,
-                               cls.read(
-                                   stream,
-                                   version = version,
-                                   user_version = user_version))
-                    except StandardError:
-                        # an error occurred during reading
-                        # this should not happen: means that the file is
-                        # corrupt, or that the xml is corrupt
-                        if verbose >= 1:
-                            print """
-Warning: read failed due to either a corrupt nif file, a corrupt nif.xml,
-or a bug in NifFormat library."""
-                        if verbose >= 2:
-                            Utils.hexDump(stream)
-                        if raisereaderror:
-                            raise
-                # getting version failed, do not raise an exception
-                # but tell user what happened
-                elif version == -1:
-                    if verbose >= 1: print 'version not supported'
-                else:
-                    if verbose >= 1: print 'not a nif file'
-            finally:
-                stream.close()
