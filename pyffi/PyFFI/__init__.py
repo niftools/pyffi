@@ -183,6 +183,7 @@ __hexversion__ = eval('0x%02X%02X%02X'
                       % tuple(int(x) for x in __version__.split('.')))
 
 from PyFFI.XmlHandler import XmlSaxHandler
+from PyFFI import Utils
 
 import xml.sax
 import os.path
@@ -216,9 +217,7 @@ class MetaXmlFileFormat(type):
 
         # consistency checks
         if not 'xmlFileName' in dct:
-            raise TypeError("class %s : missing xmlFileName attribute"%cls)
-        if not 'versionNumber' in dct:
-            raise TypeError("class %s : missing versionNumber attribute"%cls)
+            raise TypeError("class %s : missing xmlFileName attribute" % cls)
 
         # set up XML parser
         parser = xml.sax.make_parser()
@@ -246,3 +245,127 @@ class MetaXmlFileFormat(type):
             parser.parse(xmlfile)
         finally:
             xmlfile.close()
+
+class XmlFileFormat(object):
+    """This class can be used as a base class for file formats. It implements
+    a number of useful functions such as walking over directory trees and a
+    default attribute naming function."""
+
+    @staticmethod
+    def versionNumber(version_str):
+        """Converts version string into an integer.
+        This default implementation simply returns zero at all times,
+        and works for formats that are not versioned.
+
+        @param version_str: The version string.
+        @type version_str: str
+        @return: A version integer.
+        """
+        return 0
+
+    @staticmethod
+    def nameAttribute(name):
+        """Converts an attribute name, as in the xml file, into a name usable
+        by python.
+
+        @param name: The attribute name.
+        @type name: str
+        @return: Reformatted attribute name, useable by python.
+
+        >>> XmlFileFormat.nameAttribute('tHis is A Silly naME')
+        'thisIsASillyName'
+        """
+
+        # str(name) converts name to string in case name is a unicode string
+        parts = str(name).split()
+        attrname = parts[0].lower()
+        for part in parts[1:]:
+            attrname += part.capitalize()
+        return attrname
+
+    @classmethod
+    def walk(cls, top, topdown = True, raisereaderror = False, verbose = 0):
+        """A generator which yields the cls.read result of all files in
+        directory top whose filename matches the regular expression
+        cls.re_filename. The argument top can also be a file instead of a
+        directory. Errors coming from os.walk are ignored.
+
+        @param top: The top folder.
+        @type top: str
+        @param topdown: Determines whether subdirectories should be iterated
+            over first.
+        @type topdown: bool
+        @param raisereaderror: Should read errors raise an exception, or
+            should they be ignored?
+        @type raisereaderror: bool
+        @param verbose: Verbosity level.
+        @type verbose: int
+        """
+        for result in cls.walkFile(
+            top, topdown = topdown,
+            raisereaderror = raisereaderror, verbose = verbose):
+            # discard first two items from result (version and stream)
+            yield result[2:]
+
+    @classmethod
+    def walkFile(cls, top, topdown = True,
+                 raisereaderror = False, verbose = 0, mode = 'rb'):
+        """Like L{walk}, but returns more information:
+        version, stream, and the result from cls.read.
+
+        Note that the caller is not responsible for closing stream.
+
+        walkFile is for instance used by runtest.py to implement the
+        testFile-style tests which must access the file after the file has been
+        read.
+
+        @param top: The top folder.
+        @type top: str
+        @param topdown: Determines whether subdirectories should be iterated
+            over first.
+        @type topdown: bool
+        @param raisereaderror: Should read errors raise an exception, or
+            should they be ignored?
+        @type raisereaderror: bool
+        @param verbose: Verbosity level.
+        @type verbose: int
+        """
+        # now walk over all these files in directory top
+        for filename in Utils.walk(top, topdown, onerror = None,
+                                   re_filename = cls.re_filename):
+            if verbose >= 1:
+                print("reading %s" % filename)
+            stream = open(filename, mode)
+            try:
+                # get the version
+                version = cls.getVersion(stream)
+                if version >= 0:
+                    # we got it, so now read the file
+                    if verbose >= 2:
+                        print("version 0x%08X" % version)
+                    try:
+                        # return (version, stream, (header, pixeldata))
+                        yield ((version, stream) +
+                               cls.read(stream, version = version))
+                    except StandardError:
+                        # an error occurred during reading
+                        # this should not happen: means that the file is
+                        # corrupt, or that the xml is corrupt
+                        if verbose >= 1:
+                            print("""
+Warning: read failed due to either a corrupt file, a corrupt xml, or a bug.""")
+                        if verbose >= 2:
+                            Utils.hexDump(stream)
+                        if raisereaderror:
+                            raise
+                # getting version failed, do not raise an exception
+                # but tell user what happened
+                elif version == -1:
+                    if verbose >= 1:
+                        print('version not supported')
+                else:
+                    if verbose >= 1:
+                        print('file format not recognized')
+            finally:
+                stream.close()
+

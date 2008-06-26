@@ -8,18 +8,27 @@ Read a DDS file
 ---------------
 
 >>> # check and read dds file
->>> f = open('tests/dds/test.dds', 'rb')
->>> version = DdsFormat.getVersion(f)
+>>> stream = open('tests/dds/test.dds', 'rb')
+>>> version = DdsFormat.getVersion(stream)
 >>> if version == -1:
 ...     raise RuntimeError('dds version not supported')
 ... elif version == -2:
 ...     raise RuntimeError('not a dds file')
->>> header, data = DdsFormat.read(f, version = version)
+>>> header, data = DdsFormat.read(stream, version = version)
 >>> # print DDS header
 >>> print header.size
 124
 >>> print header.pixelFormat.size
 32
+
+Parse all DDS files in a directory tree
+---------------------------------------
+
+>>> for header, pixeldata in DdsFormat.walk('tests/dds',
+...                                         raisereaderror = True,
+...                                         verbose = 1):
+...     pass
+reading tests/dds/test.dds
 
 Create a DDS file from scratch and write to file
 ------------------------------------------------
@@ -76,22 +85,26 @@ Get list of versions
 #
 # ***** END LICENSE BLOCK *****
 
-import struct, os, re
+import struct
+import os
+import re
 
+from PyFFI import XmlFileFormat
 from PyFFI import MetaXmlFileFormat
-from PyFFI import Utils
 from PyFFI import Common
 from PyFFI.Bases.Basic import BasicBase
 
-class DdsFormat(object):
+class DdsFormat(XmlFileFormat):
     """This class implements the DDS format."""
     __metaclass__ = MetaXmlFileFormat
     xmlFileName = 'dds.xml'
     # where to look for dds.xml and in what order:
     # DDSXMLPATH env var, or DdsFormat module directory
-    xmlFilePath = [ os.getenv('DDSXMLPATH'), os.path.dirname(__file__) ]
+    xmlFilePath = [os.getenv('DDSXMLPATH'), os.path.dirname(__file__)]
     # path of class customizers
     clsFilePath = os.path.dirname(__file__)
+    # file name regular expression match
+    re_filename = re.compile(r'^.*\.dds$', re.IGNORECASE)
     # used for comparing floats
     _EPSILON = 0.0001
 
@@ -168,26 +181,6 @@ class DdsFormat(object):
         """
         return { 'DX9' : 0x09, 'DX10' : 0x10 }[version_str]
 
-    @staticmethod
-    def nameAttribute(name):
-        """Converts an attribute name, as in the xml file, into a name usable
-        by python.
-
-        @param name: The attribute name.
-        @type name: str
-        @return: Reformatted attribute name, useable by python.
-
-        >>> DdsFormat.nameAttribute('tHis is A Silly naME')
-        'thisIsASillyName'
-        """
-
-        # str(name) converts name to string in case name is a unicode string
-        parts = str(name).split()
-        attrname = parts[0].lower()
-        for part in parts[1:]:
-            attrname += part.capitalize()
-        return attrname
-
     @classmethod
     def getVersion(cls, stream):
         """Returns 0 if the file is a DDS file, -1 if it is not supported, and
@@ -255,97 +248,3 @@ class DdsFormat(object):
         # next the pixel data
         assert(isinstance(pixeldata, cls.PixelData))
         pixeldata.write(stream, version = version)
-
-    @classmethod
-    def walk(cls, top, topdown = True, raisereaderror = False, verbose = 0):
-        """A generator which yields (header, pixeldata) of all files in
-        directory top whose filename matches the regular expression
-        re_filename. The argument top can also be a file instead of a
-        directory. Errors coming from os.walk are ignored.
-
-        >>> for header, pixeldata in DdsFormat.walk('tests/dds',
-        ...                                         raisereaderror = True,
-        ...                                         verbose = 1):
-        ...     pass
-        reading tests/dds/test.dds
-
-        @param top: The top folder.
-        @type top: str
-        @param topdown: Determines whether subdirectories should be iterated
-            over first.
-        @type topdown: bool
-        @param raisereaderror: Should read errors raise an exception, or
-            should they be ignored?
-        @type raisereaderror: bool
-        @param verbose: Verbosity level.
-        @type verbose: int
-        """
-        for version, stream, header, pixeldata in cls.walkFile(
-            top, topdown = topdown,
-            raisereaderror = raisereaderror, verbose = verbose):
-            yield header, pixeldata
-
-    @classmethod
-    def walkFile(cls, top, topdown = True,
-                 raisereaderror = False, verbose = 0, mode = 'rb'):
-        """Like L{walk}, but returns more information:
-        version, stream, header, and pixeldata.
-
-        Note that the caller is not responsible for closing stream.
-
-        walkFile is for instance used by runtest.py to implement the
-        testFile-style tests which must access the file after the file has been
-        read.
-
-        @param top: The top folder.
-        @type top: str
-        @param topdown: Determines whether subdirectories should be iterated
-            over first.
-        @type topdown: bool
-        @param raisereaderror: Should read errors raise an exception, or
-            should they be ignored?
-        @type raisereaderror: bool
-        @param verbose: Verbosity level.
-        @type verbose: int
-        """
-        # filter for recognizing dds files by extension
-        re_dds = re.compile(r'^.*\.dds$', re.IGNORECASE)
-        # now walk over all these files in directory top
-        for filename in Utils.walk(top, topdown, onerror = None,
-                                   re_filename = re_dds):
-            if verbose >= 1:
-                print("reading %s" % filename)
-            stream = open(filename, mode)
-            try:
-                # get the version
-                version = cls.getVersion(stream)
-                if version >= 0:
-                    # we got it, so now read the dds file
-                    if verbose >= 2:
-                        print("version 0x%08X" % version)
-                    try:
-                        # return (version, stream, (header, pixeldata))
-                        yield ((version, stream) +
-                               cls.read(stream, version = version))
-                    except StandardError:
-                        # an error occurred during reading
-                        # this should not happen: means that the file is
-                        # corrupt, or that the xml is corrupt
-                        if verbose >= 1:
-                            print("""
-Warning: read failed due to either a corrupt dds file, a corrupt dds.xml,
-or a bug in DdsFormat library.""")
-                        if verbose >= 2:
-                            Utils.hexDump(stream)
-                        if raisereaderror:
-                            raise
-                # getting version failed, do not raise an exception
-                # but tell user what happened
-                elif version == -1:
-                    if verbose >= 1:
-                        print('version not supported')
-                else:
-                    if verbose >= 1:
-                        print('not a dds file')
-            finally:
-                stream.close()
