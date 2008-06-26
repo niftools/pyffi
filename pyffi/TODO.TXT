@@ -32,8 +32,6 @@
     qskopelib.bases.struct
     ...
 
-* create nsis installer
-
 * pep8 conventions
   - lower case for all modules
   - lower case for all methods and attributes

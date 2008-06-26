@@ -251,6 +251,10 @@ class XmlFileFormat(object):
     a number of useful functions such as walking over directory trees and a
     default attribute naming function."""
 
+    # override this with a regular expression for the file extension of
+    # the format you are implementing
+    re_filename = None
+
     @staticmethod
     def versionNumber(version_str):
         """Converts version string into an integer.
@@ -262,6 +266,22 @@ class XmlFileFormat(object):
         @return: A version integer.
         """
         return 0
+
+    @classmethod
+    def getVersion(cls, stream):
+        """Returns version and user version numbers. You should override this
+        function. When implementing this function, take care to preserve the
+        stream position: for instance, start with
+        C{pos = stream.tell()} and end with C{stream.seek(pos)}.
+
+        @param stream: The stream from which to read.
+        @type stream: file
+        @return: The version and user version of the file.
+            Returns C{(-1, 0)} if file is of known format but the particular
+            version not supported.
+            Returns C{(-2, 0)} if format is not known.
+        """
+        raise NotImplementedError
 
     @staticmethod
     def nameAttribute(name):
@@ -282,6 +302,41 @@ class XmlFileFormat(object):
         for part in parts[1:]:
             attrname += part.capitalize()
         return attrname
+
+    @classmethod
+    def read(cls, stream, version = None, user_version = None,
+             verbose = 0, **kwargs):
+        """Read a file. You should override this function.
+
+        @param stream: The stream from which to read.
+        @type stream: file
+        @param version: The version as obtained by L{getVersion}.
+        @type version: int
+        @param user_version: The user version as obtained by L{getVersion}.
+        @type user_version: int
+        @param verbose: The level of verbosity.
+        @type verbose: int
+        @param kwargs: Extra keyword arguments.
+        @return: An object or list of objects describing the file.
+        """
+        raise NotImplementedError
+
+    @classmethod
+    def write(cls, stream, version = None, user_version = None,
+              verbose = 0, **kwargs):
+        """Write a file. You should override this function.
+
+        @param stream: The stream to which to write.
+        @type stream: file
+        @param version: The version number.
+        @type version: int
+        @param user_version: The user version number.
+        @type user_version: int
+        @param verbose: The level of verbosity.
+        @type verbose: int
+        @param kwargs: Extra keyword arguments (e.g. header, block list, ...)
+        """
+        raise NotImplementedError
 
     @classmethod
     def walk(cls, top, topdown = True, raisereaderror = False, verbose = 0):
@@ -337,22 +392,26 @@ class XmlFileFormat(object):
                 print("reading %s" % filename)
             stream = open(filename, mode)
             try:
-                # get the version
-                version = cls.getVersion(stream)
+                # get the version and user version
+                version, user_version = cls.getVersion(stream)
                 if version >= 0:
                     # we got it, so now read the file
                     if verbose >= 2:
                         print("version 0x%08X" % version)
                     try:
-                        # return (version, stream, (header, pixeldata))
-                        yield ((version, stream) +
-                               cls.read(stream, version = version))
+                        # return (version, stream) + result of read
+                        result = cls.read(stream,
+                                          version = version,
+                                          user_version = user_version)
+                        if not isinstance(result, tuple):
+                            result = (result,)
+                        yield (version, stream) + result
                     except StandardError:
                         # an error occurred during reading
                         # this should not happen: means that the file is
                         # corrupt, or that the xml is corrupt
                         if verbose >= 1:
-                            print("""
+                            print("""\
 Warning: read failed due to either a corrupt file, a corrupt xml, or a bug.""")
                         if verbose >= 2:
                             Utils.hexDump(stream)

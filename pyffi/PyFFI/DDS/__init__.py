@@ -9,7 +9,7 @@ Read a DDS file
 
 >>> # check and read dds file
 >>> stream = open('tests/dds/test.dds', 'rb')
->>> version = DdsFormat.getVersion(stream)
+>>> version, user_version = DdsFormat.getVersion(stream)
 >>> if version == -1:
 ...     raise RuntimeError('dds version not supported')
 ... elif version == -2:
@@ -183,12 +183,12 @@ class DdsFormat(XmlFileFormat):
 
     @classmethod
     def getVersion(cls, stream):
-        """Returns 0 if the file is a DDS file, -1 if it is not supported, and
-        -2 if it is not a DDS file.
+        """Returns 9, 0 if the file is a DX9 DDS file, -1, 0 if it is not
+        supported, and -2, 0 if it is not a DDS file.
 
         @param stream: The stream from which to read.
         @type stream: file
-        @return: 0 for DDS files, -2 for non-DDS files.
+        @return: 9, 0 for DX9 DDS files, -2, 0 for non-DDS files.
         """
         pos = stream.tell()
         try:
@@ -196,17 +196,19 @@ class DdsFormat(XmlFileFormat):
         finally:
             stream.seek(pos)
         if hdrstr != "DDS ":
-            return -2
-        return 0x09 # TODO DX10
+            return -2, 0
+        return 0x09, 0 # TODO DX10
 
     @classmethod
-    def read(cls, stream, version = None, verbose = 0):
+    def read(cls, stream, version = None, user_version = None, verbose = 0):
         """Read a dds file.
 
         @param stream: The stream from which to read.
         @type stream: file
         @param version: The DDS version obtained by L{getVersion}.
         @type version: int
+        @param user_version: The user_version obtained by L{getVersion}.
+        @type user_version: int
         @param verbose: The level of verbosity.
         @type verbose: int
         @return: header, pixeldata
@@ -224,20 +226,22 @@ class DdsFormat(XmlFileFormat):
         return header, pixeldata
 
     @classmethod
-    def write(cls, stream, version = None,
-              header = None, pixeldata = None, verbose = 0):
+    def write(cls, stream, version = None, user_version = None,
+              verbose = 0, header = None, pixeldata = None):
         """Write a dds file.
 
         @param stream: The stream to which to write.
         @type stream: file
         @param version: The version number (9 or 10).
         @type version: int
+        @param user_version: The user version number (ignored so far).
+        @type user_version: int
+        @param verbose: The level of verbosity.
+        @type verbose: int
         @param header: The dds header.
         @type header: L{DdsFormat.Header}
         @param pixeldata: The dds pixel data.
         @type pixeldata: L{DdsFormat.PixelData}
-        @param verbose: The level of verbosity.
-        @type verbose: int
         """
         # TODO: make sure pixel data has correct length
 
