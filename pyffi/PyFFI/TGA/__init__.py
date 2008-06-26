@@ -101,7 +101,7 @@ class TgaFormat(object):
         """Basic type for pixel data."""
         def __init__(self, **kwargs):
             BasicBase.__init__(self, **kwargs)
-            self.setValue('')
+            self._value = ''
 
         def getValue(self):
             """Return stored value.
@@ -234,7 +234,7 @@ class TgaFormat(object):
         @param version: The TGA version obtained by L{getVersion}.
         @type version: int
         @param verbose: The level of verbosity.
-        @type verbose: bool
+        @type verbose: int
         """
         # read the file
         header = cls.Header()
@@ -262,7 +262,7 @@ class TgaFormat(object):
         @param pixeldata: The tga pixel data.
         @type pixeldata: L{TgaFormat.PixelData}
         @param verbose: The level of verbosity.
-        @type verbose: bool
+        @type verbose: int
         """
         # TODO: make sure pixel data has correct length
 
@@ -298,7 +298,7 @@ class TgaFormat(object):
         @param verbose: Verbosity level.
         @type verbose: int
         """
-        for version, file, header, pixeldata in cls.walkFile(
+        for version, stream, header, pixeldata in cls.walkFile(
             top, topdown = topdown,
             raisereaderror = raisereaderror, verbose = verbose):
             yield header, pixeldata
@@ -368,7 +368,7 @@ or a bug in TgaFormat library.""")
             finally:
                 stream.close()
 
-if __name__=='__main__':
+if __name__ == '__main__':
     import doctest
     doctest.testmod()
 
