@@ -166,7 +166,8 @@ class TgaFormat(object):
 
         @param version_str: The version string.
         @type version_str: str
-        @return: A version integer."""
+        @return: A version integer.
+        """
         # TGA format not versioned
         raise NotImplementedError
 

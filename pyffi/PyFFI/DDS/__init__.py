@@ -26,14 +26,15 @@ Create a DDS file from scratch and write to file
 
 >>> header = DdsFormat.Header()
 >>> from tempfile import TemporaryFile
->>> f = TemporaryFile()
->>> DdsFormat.write(f, version = version, header = header,
+>>> stream = TemporaryFile()
+>>> DdsFormat.write(stream, version = version, header = header,
 ...                 pixeldata = DdsFormat.PixelData())
 
 Get list of versions
 --------------------
 
->>> for vnum in sorted(DdsFormat.versions.values()): print '0x%08X'%vnum
+>>> for vnum in sorted(DdsFormat.versions.values()):
+...     print '0x%08X'%vnum
 0x00000009
 0x00000010
 """
@@ -115,10 +116,18 @@ class DdsFormat(object):
             return 'DDS'
 
         def getHash(self, **kwargs):
+            """Return a hash value for this value.
+
+            @return: An immutable object that can be used as a hash.
+            """
             return None
 
         def read(self, stream, **kwargs):
-            """Read header string from stream and check it."""
+            """Read header string from stream and check it.
+
+            @param stream: The stream to read from.
+            @type stream: file
+            """
             hdrstr = stream.read(4)
             # check if the string is correct
             if hdrstr != "DDS ":
@@ -126,22 +135,39 @@ class DdsFormat(object):
                     "invalid DDS header: expected 'DDS ' but got '%s'" % hdrstr)
 
         def write(self, stream, **kwargs):
-            """Write the header string to stream."""
+            """Write the header string to stream.
+
+            @param stream: The stream to write to.
+            @type stream: file
+            """
             stream.write("DDS ")
 
         def getSize(self, **kwargs):
+            """Return number of bytes the header string occupies in a file.
+
+            @return: Number of bytes.
+            """
             return 4
 
     class PixelData(BasicBase):
         """Basic type for pixel data."""
         def __init__(self, **kwargs):
             BasicBase.__init__(self, **kwargs)
-            self.setValue('')
+            self._value = ''
 
         def getValue(self):
+            """Return stored value.
+
+            @return: The stored value.
+            """
             return self._value
 
         def setValue(self, value):
+            """Set value to C{value}.
+
+            @param value: The value to assign.
+            @type value: str
+            """
             if len(value) > 16000000:
                 raise ValueError('pixel data too long')
             self._value = str(value)
@@ -150,24 +176,48 @@ class DdsFormat(object):
             return '<PIXEL DATA>'
 
         def getSize(self, **kwargs):
+            """Return number of bytes the pixel data occupies in a file.
+
+            @return: Number of bytes.
+            """
             return len(self._value)
 
         def getHash(self, **kwargs):
+            """Return a hash value for this value.
+
+            @return: An immutable object that can be used as a hash.
+            """
             return self.getValue()
 
         def read(self, stream, **kwargs):
+            """Read pixel data from stream. Note that this function simply
+            reads until the end of the stream.
+
+            @param stream: The stream to read from.
+            @type stream: file
+            """
             self._value = stream.read(-1)
 
         def write(self, stream, **kwargs):
+            """Write pixel data to stream.
+
+            @param stream: The stream to write to.
+            @type stream: file
+            """
             stream.write(self._value)
 
     # exceptions
     class DdsError(StandardError):
+        """Exception class used for DDS related exceptions."""
         pass
 
     @staticmethod
     def versionNumber(version_str):
         """Converts version string into an integer.
+
+        @param version_str: The version string.
+        @type version_str: str
+        @return: A version integer.
 
         >>> hex(DdsFormat.versionNumber('DX10'))
         '0x10'
@@ -178,6 +228,10 @@ class DdsFormat(object):
     def nameAttribute(name):
         """Converts an attribute name, as in the xml file, into a name usable
         by python.
+
+        @param name: The attribute name.
+        @type name: str
+        @return: Reformatted attribute name, useable by python.
 
         >>> DdsFormat.nameAttribute('tHis is A Silly naME')
         'thisIsASillyName'
@@ -195,8 +249,8 @@ class DdsFormat(object):
         """Returns 0 if the file is a DDS file, -1 if it is not supported, and
         -2 if it is not a DDS file.
 
-        @param stream: The stream from which to read, typically a file or a
-            memory stream such as cStringIO.
+        @param stream: The stream from which to read.
+        @type stream: file
         @return: 0 for DDS files, -2 for non-DDS files.
         """
         pos = stream.tell()
@@ -211,10 +265,13 @@ class DdsFormat(object):
     def read(cls, stream, version = None, verbose = 0):
         """Read a dds file.
 
-        @param stream: The stream from which to read, typically a file or a
-            memory stream such as cStringIO.
-        @param version: The DDS version.
-        @param verbose: The level of verbosity."""
+        @param stream: The stream from which to read.
+        @type stream: file
+        @param version: The DDS version obtained by L{getVersion}.
+        @type version: int
+        @param verbose: The level of verbosity.
+        @type verbose: int
+        """
         # read the file
         header = cls.Header()
         header.read(stream, version = version)
@@ -230,6 +287,19 @@ class DdsFormat(object):
     @classmethod
     def write(cls, stream, version = None,
               header = None, pixeldata = None, verbose = 0):
+        """Write a dds file.
+
+        @param stream: The stream to which to write.
+        @type stream: file
+        @param version: The version number (9 or 10).
+        @type version: int
+        @param header: The dds header.
+        @type header: L{DdsFormat.Header}
+        @param pixeldata: The dds pixel data.
+        @type pixeldata: L{DdsFormat.PixelData}
+        @param verbose: The level of verbosity.
+        @type verbose: int
+        """
         # TODO: make sure pixel data has correct length
 
         # write the file
@@ -241,51 +311,84 @@ class DdsFormat(object):
         pixeldata.write(stream, version = version)
 
     @classmethod
-    def walk(cls, top, topdown = True, onerror = None, verbose = 0):
-        """A generator which yields the roots of all files in directory top
-        whose filename matches the regular expression re_filename. The argument
-        top can also be a file instead of a directory. The argument onerror,
-        if set, will be called if cls.read raises an exception (errors coming
-        from os.walk will be ignored)."""
-        for version, f, dds in cls.walkFile(top, topdown, onerror, verbose):
-            yield dds
+    def walk(cls, top, topdown = True, raisereaderror = False, verbose = 0):
+        """A generator which yields (header, pixeldata) of all files in
+        directory top whose filename matches the regular expression
+        re_filename. The argument top can also be a file instead of a
+        directory. Errors coming from os.walk are ignored.
+
+        >>> for header, pixeldata in DdsFormat.walk('tests/dds',
+        ...                                         raisereaderror = True,
+        ...                                         verbose = 1):
+        ...     pass
+        reading tests/dds/test.dds
+
+        @param top: The top folder.
+        @type top: str
+        @param topdown: Determines whether subdirectories should be iterated
+            over first.
+        @type topdown: bool
+        @param raisereaderror: Should read errors raise an exception, or
+            should they be ignored?
+        @type raisereaderror: bool
+        @param verbose: Verbosity level.
+        @type verbose: int
+        """
+        for version, stream, header, pixeldata in cls.walkFile(
+            top, topdown = topdown,
+            raisereaderror = raisereaderror, verbose = verbose):
+            yield header, pixeldata
 
     @classmethod
     def walkFile(cls, top, topdown = True,
                  raisereaderror = False, verbose = 0, mode = 'rb'):
-        """Like walk, but returns more information:
-        version, f, and dds.
+        """Like L{walk}, but returns more information:
+        version, stream, header, and pixeldata.
 
         Note that the caller is not responsible for closing stream.
 
         walkFile is for instance used by runtest.py to implement the
         testFile-style tests which must access the file after the file has been
-        read."""
+        read.
+
+        @param top: The top folder.
+        @type top: str
+        @param topdown: Determines whether subdirectories should be iterated
+            over first.
+        @type topdown: bool
+        @param raisereaderror: Should read errors raise an exception, or
+            should they be ignored?
+        @type raisereaderror: bool
+        @param verbose: Verbosity level.
+        @type verbose: int
+        """
         # filter for recognizing dds files by extension
         re_dds = re.compile(r'^.*\.dds$', re.IGNORECASE)
         # now walk over all these files in directory top
         for filename in Utils.walk(top, topdown, onerror = None,
                                    re_filename = re_dds):
-            if verbose >= 1: print "reading %s"%filename
+            if verbose >= 1:
+                print("reading %s" % filename)
             stream = open(filename, mode)
             try:
                 # get the version
                 version = cls.getVersion(stream)
                 if version >= 0:
                     # we got it, so now read the dds file
-                    if verbose >= 2: print "version 0x%08X"%version
+                    if verbose >= 2:
+                        print("version 0x%08X" % version)
                     try:
                         # return (version, stream, (header, pixeldata))
-                        yield (version, stream,
+                        yield ((version, stream) +
                                cls.read(stream, version = version))
                     except StandardError:
                         # an error occurred during reading
                         # this should not happen: means that the file is
                         # corrupt, or that the xml is corrupt
                         if verbose >= 1:
-                            print """
+                            print("""
 Warning: read failed due to either a corrupt dds file, a corrupt dds.xml,
-or a bug in DdsFormat library."""
+or a bug in DdsFormat library.""")
                         if verbose >= 2:
                             Utils.hexDump(stream)
                         if raisereaderror:
@@ -293,8 +396,10 @@ or a bug in DdsFormat library."""
                 # getting version failed, do not raise an exception
                 # but tell user what happened
                 elif version == -1:
-                    if verbose >= 1: print 'version not supported'
+                    if verbose >= 1:
+                        print('version not supported')
                 else:
-                    if verbose >= 1: print 'not a dds file'
+                    if verbose >= 1:
+                        print('not a dds file')
             finally:
                 stream.close()
