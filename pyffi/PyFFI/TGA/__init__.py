@@ -308,7 +308,7 @@ class TgaFormat(object):
     def walkFile(cls, top, topdown = True,
                  raisereaderror = False, verbose = 0, mode = 'rb'):
         """Like L{walk}, but returns more information:
-        version, file, header, and pixeldata.
+        version, stream, header, and pixeldata.
 
         Note that the caller is not responsible for closing stream.
 

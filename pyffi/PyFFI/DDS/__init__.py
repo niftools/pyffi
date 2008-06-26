@@ -258,7 +258,8 @@ class DdsFormat(object):
             hdrstr = stream.read(4)
         finally:
             stream.seek(pos)
-        if hdrstr != "DDS ": return -2
+        if hdrstr != "DDS ":
+            return -2
         return 0x09 # TODO DX10
 
     @classmethod
