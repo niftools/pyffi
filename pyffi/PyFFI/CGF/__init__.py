@@ -65,8 +65,7 @@ Create a CGF file from scratch
 ...     version = CgfFormat.VER_FARCRY,
 ...     user_version = CgfFormat.UVER_FARCRY,
 ...     filetype = CgfFormat.FileType.GEOM,
-...     chunks = chunks,
-...     versions = CgfFormat.getChunkVersions('Far Cry', chunks))
+...     chunks = chunks)
 0
 >>> stream.seek(0)
 >>> version, user_version = CgfFormat.getVersion(stream)
@@ -491,7 +490,7 @@ WARNING: expected instance of %s
             the chunk size as expected. If there is a mismatch, then a warning
             will be printed.
         @type validate: bool
-        @return: (filetype as int, chunks as list of L{Chunk}s,
+        @return: (filetype as int, chunks as list of L{CgfFormat.Chunk}s,
             versions as list of ints)
         """
 
@@ -667,9 +666,9 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
         @param filetype: The file type, L{FileType.GEOM} or L{FileType.ANIM}.
         @type filetype: int
         @param chunks: The file chunks.
-        @type chunks: list of L{Chunk}s
-        @param versions: The file chunk versions, usually obtained through
-            L{getChunkVersions}
+        @type chunks: list of L{CgfFormat.Chunk}s
+        @param versions: The file chunk versions. If C{None} then these will
+            be automatically obtained through L{getChunkVersions}.
         @type versions: list of ints
         @return: Number of padding bytes written.
         """
@@ -683,6 +682,12 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
 
         # variable to track number of padding bytes
         total_padding = 0
+
+        # chunk versions
+        if versions is None:
+            versions = cls.getChunkVersions(version = version,
+                                            user_version = user_version,
+                                            chunks = chunks)
 
         # write header
         hdr_pos = stream.tell()
@@ -757,19 +762,26 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
         return total_padding
 
     @classmethod
-    def getFileVersion(cls, game = 'Far Cry'):
-        """Return file version for C{game}."""
-        if game == 'Far Cry' or game == 'Crysis':
-            return 0x744
-        else:
-            raise cls.CgfError("game %s not supported"%game)
+    def getChunkVersions(cls, version = None, user_version = None,
+                         chunks = None):
+        """Return version of each chunk in the chunk list for the
+        given file version and file user version.
 
-    @classmethod
-    def getChunkVersions(cls, game = 'Far Cry', chunks = None):
-        """Return version list that matches the chunk list C{chunks} for the
-        given C{game}."""
+        @param version: The version.
+        @type version: int
+        @param user_version: The user version.
+        @type user_version: int
+        @param chunks: List of chunks.
+        @type chunks: list of L{CgfFormat.Chunk}
+        @return: Version of each chunk as list of ints (same length as
+            C{chunks}).
+        """
+
+        # game string
+        game = {cls.UVER_FARCRY: "Far Cry",
+                cls.UVER_CRYSIS: "Crysis"}[user_version]
+
         try:
             return [max(chunk.getVersions(game)) for chunk in chunks]
         except KeyError:
             raise cls.CgfError("game %s not supported" % game)
-
