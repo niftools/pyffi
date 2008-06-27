@@ -1118,11 +1118,12 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
         @param verbose: The level of verbosity.
         @type verbose: int
         @param roots: The list of roots of the NIF tree.
-            If C{False} then will return header, blocks, footer.
+        @type roots: list of L{NifFormat.NiObject}s
         @param header: If you pass a header, then this will be used as a basis
             for writing the header. Note that data in this parameter may be
             changed (for instance the list of block types and list of strings
             will be automatically updated).
+        @type header: L{NifFormat.Header}
         """
         # set up index and type dictionary
         block_list = [] # list of all blocks to be written

@@ -25,6 +25,15 @@ Test_MD_Run.kf
 Test_MD_Walk.kf
 Test_MD_Die.kf
 
+Parse all KFM files in a directory tree
+---------------------------------------
+
+>>> for header, animations, footer in KfmFormat.walk('tests/kfm',
+...                                                  raisereaderror = False,
+...                                                  verbose = 1):
+...     pass
+reading tests/kfm/test.kfm
+
 Create a KFM model from scratch and write to file
 -------------------------------------------------
 
