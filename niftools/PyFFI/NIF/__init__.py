@@ -767,15 +767,16 @@ class NifFormat(XmlFileFormat):
                 return self.getValue()
 
     # other types with internal implementation
+
     class FilePath(string):
+        """A file path."""
         def getHash(self, **kwargs):
-            # never ignore file paths
-            # transform to lower case to make hash case insensitive
+            """Returns a case insensitive hash value."""
             return self.getValue().lower()
 
-    # pixel data byte array, implement as internal to speed up reading
-    # and also to prevent data to be dumped
     class ByteArray(BasicBase):
+        """Array (list) of bytes. Implemented as basic type to speed up reading
+        and also to prevent data to be dumped by __str__."""
         def __init__(self, **kwargs):
             BasicBase.__init__(self, **kwargs)
             self.setValue("")
@@ -804,9 +805,9 @@ class NifFormat(XmlFileFormat):
         def __str__(self):
             return "< %i Bytes >" % len(self._value)
 
-    # pixel data byte matrix implement as internal to speed up reading
-    # and also to prevent data to be dumped
     class ByteMatrix(BasicBase):
+        """Matrix of bytes. Implemented as basic type to speed up reading
+        and to prevent data being dumped by __str__."""
         def __init__(self, **kwargs):
             BasicBase.__init__(self, **kwargs)
             self.setValue([])
@@ -855,6 +856,7 @@ class NifFormat(XmlFileFormat):
 
     # exceptions
     class NifError(StandardError):
+        """Standard nif exception class."""
         pass
 
     @staticmethod
@@ -873,7 +875,9 @@ class NifFormat(XmlFileFormat):
         '0x3000300'
         """
 
-        if version_str == '3.03': return 0x03000300 # 3.03 case is special
+        # 3.03 case is special
+        if version_str == '3.03':
+            return 0x03000300
 
         try:
             ver_list = [int(x) for x in version_str.split('.')]
@@ -1226,9 +1230,30 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
         cls, version, user_version, root,
         block_list, block_index_dct, block_type_list, block_type_dct):
         """This is a helper function for write to set up the list of all blocks,
-        the block index map, and the block type map."""
+        the block index map, and the block type map.
+
+        @param version: The version number.
+        @type version: int
+        @param user_version: The user version number.
+        @type user_version: int
+        @param root: The root block, whose tree is to be added to
+            the block list.
+        @type root: L{NifFormat.NiObject}
+        @param block_list: The list of blocks that have already been added,
+            and to which new blocks will be added.
+        @type block_list: list of L{NifFormat.NiObject}s
+        @param block_index_dct: Dictionary mapping blocks in block_list to
+            their block index.
+        @type block_index_dct: dict
+        @param block_type_list: List of all block types.
+        @type block_type_list: list of str
+        @param block_type_dct: Dictionary mapping blocks in block_list to
+            their block type index.
+        @type block_type_dct: dict
+        """
         # block already listed? if so, return
-        if root in block_list: return
+        if root in block_list:
+            return
         # add block type to block type dictionary
         block_type = root.__class__.__name__
         try:
@@ -1265,6 +1290,11 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
     @classmethod
     def _blockChildBeforeParent(cls, block):
         """Determine whether block comes before its parent or not, depending
-        on the block type."""
+        on the block type.
+
+        @param block: The block to test.
+        @type block: L{NifFormat.NiObject}
+        @return: C{True} if child should come first, C{False} otherwise.
+        """
         return (isinstance(block, cls.bhkRefObject)
                 and not isinstance(block, cls.bhkConstraint))
