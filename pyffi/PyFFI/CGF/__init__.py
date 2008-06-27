@@ -9,12 +9,14 @@ Read a CGF file
 
 >>> # get file version and file type, and read cgf file
 >>> stream = open('tests/cgf/test.cgf', 'rb')
->>> filetype, fileversion, game = CgfFormat.getVersion(stream)
->>> if filetype == -1:
+>>> version, user_version = CgfFormat.getVersion(stream)
+>>> if version == -1:
 ...     raise RuntimeError('cgf version not supported')
-... elif filetype == -2:
+... elif version == -2:
 ...     raise RuntimeError('not a cgf file')
->>> chunks, versions = CgfFormat.read(stream, fileversion = fileversion, game = game)
+>>> filetype, chunks, versions = CgfFormat.read(stream,
+...                                             version = version,
+...                                             user_version = user_version)
 >>> # print all chunks
 >>> for chunk in chunks:
 ...     print chunk # doctest: +ELLIPSIS
@@ -34,6 +36,15 @@ Read a CGF file
 * numSubRanges : 0
 <BLANKLINE>
 
+Parse all CGF files in a directory tree
+---------------------------------------
+
+>>> for filetype, chunks, versions in CgfFormat.walk('tests/cgf',
+...                                                  raisereaderror = False,
+...                                                  verbose = 1):
+...     pass
+reading tests/cgf/test.cgf
+
 Create a CGF file from scratch
 ------------------------------
 
@@ -48,21 +59,24 @@ Create a CGF file from scratch
 >>> chunks = [node1, node2]
 >>> from tempfile import TemporaryFile
 >>> stream = TemporaryFile()
+>>> # note: write returns number of padding bytes
 >>> CgfFormat.write(
 ...     stream,
+...     version = CgfFormat.VER_FARCRY,
+...     user_version = CgfFormat.UVER_FARCRY,
 ...     filetype = CgfFormat.FileType.GEOM,
-...     fileversion = CgfFormat.getFileVersion('Far Cry'),
 ...     chunks = chunks,
-...     versions = CgfFormat.getChunkVersions('Far Cry', chunks),
-...     game = 'Far Cry') # note: returns number of padding bytes
+...     versions = CgfFormat.getChunkVersions('Far Cry', chunks))
 0
 >>> stream.seek(0)
->>> filetype, fileversion, game = CgfFormat.getVersion(stream)
->>> if filetype == -1:
+>>> version, user_version = CgfFormat.getVersion(stream)
+>>> if version == -1:
 ...     raise RuntimeError('cgf version not supported')
-... elif filetype == -2:
+... elif version == -2:
 ...     raise RuntimeError('not a cgf file')
->>> chunks, versions = CgfFormat.read(stream, fileversion = fileversion, game = game)
+>>> filetype, chunks, versions = CgfFormat.read(stream,
+...                                             version = version,
+...                                             user_version = user_version)
 >>> # print all chunks
 >>> for chunk in chunks:
 ...     print chunk # doctest: +ELLIPSIS
@@ -175,20 +189,31 @@ import struct, os, re
 
 from types import NoneType
 
+from PyFFI import XmlFileFormat
 from PyFFI import MetaXmlFileFormat
 from PyFFI import Utils
 from PyFFI import Common
 from PyFFI.Bases.Basic import BasicBase
 
-class CgfFormat(object):
+class CgfFormat(XmlFileFormat):
     """Stores all information about the cgf file format."""
     __metaclass__ = MetaXmlFileFormat
     xmlFileName = 'cgf.xml'
     # where to look for cgf.xml and in what order: CGFXMLPATH env var,
     # or module directory
-    xmlFilePath = [ os.getenv('CGFXMLPATH'), os.path.dirname(__file__) ]
+    xmlFilePath = [os.getenv('CGFXMLPATH'), os.path.dirname(__file__)]
     clsFilePath = os.path.dirname(__file__) # path of class customizers
     EPSILON = 0.0001 # used for comparing floats
+    # regular expression for file name extension matching on cgf files
+    re_filename = re.compile(r'^.*\.(cgf|cga|chr|caf)$', re.IGNORECASE)
+
+    # version and user version for far cry
+    VER_FARCRY = 0x744
+    UVER_FARCRY = 1
+
+    # version and user version for crysis
+    VER_CRYSIS = 0x744
+    UVER_CRYSIS = 2
 
     # basic types
     int = Common.Int
@@ -388,75 +413,91 @@ WARNING: expected instance of %s
     def versionNumber(version_str):
         """Converts version string into an integer.
 
+        @param version_str: The version string.
+        @type version_str: str
+        @return: A version integer.
+
         >>> hex(CgfFormat.versionNumber('744'))
         '0x744'
         """
         return int(version_str, 16)
 
-    @staticmethod
-    def nameAttribute(name):
-        """Converts an attribute name, as in the xml file, into a name usable
-        by Python.
-
-        >>> CgfFormat.nameAttribute('tHis is A Silly naME')
-        'thisIsASillyName'
-        """
-
-        # str(name) converts name to string in case name is a unicode string
-        parts = str(name).split()
-        attrname = parts[0].lower()
-        for part in parts[1:]:
-            attrname += part.capitalize()
-        return attrname
-
     @classmethod
     def getVersion(cls, stream):
-        """Returns file type (geometry or animation), version of the
-        chunk table, and game.
+        """Returns version of the chunk table, and game as user_version.
+        Far Cry is user_version L{CgfFormat.UVER_FARCRY} and Crysis is
+        user_version L{CgfFormat.UVER_CRYSIS}. Preserves the stream position.
 
-        Returns file type -1 if file type or chunk table version is not supported.
-        Returns file type -2 if it is not a cgf file.
+        @param stream: The stream from which to read.
+        @type stream: file
+        @return: A pair (version, user_version).
+            The returned version is -1 if the file type or chunk table version
+            is not supported, and -2 if the file is not a cgf file.
         """
         pos = stream.tell()
         try:
             signat = stream.read(8)
-            filetype, fileversion, offset = struct.unpack('<III',
-                                                          stream.read(12))
+            filetype, version, offset = struct.unpack('<III',
+                                                      stream.read(12))
         except StandardError:
-            return -2, 0, ""
+            return -2, 0
         finally:
             stream.seek(pos)
         if signat[:6] != "CryTek":
-            return -2, 0, ""
-        if filetype not in [ cls.FileType.GEOM, cls.FileType.ANIM ]:
-            return -1, 0, ""
-        if fileversion not in cls.versions.values():
-            return -1, 0, ""
+            return -2, 0
+        if filetype not in [cls.FileType.GEOM, cls.FileType.ANIM]:
+            return -1, 0
+        if version not in cls.versions.values():
+            return -1, 0
         # quick and lame game check:
         # far cry has chunk table at the end, crysis at the start
-        return filetype, fileversion, "Crysis" if offset == 0x14 else "Far Cry"
+        if offset == 0x14:
+            return version, cls.UVER_CRYSIS
+        else:
+            return version, cls.UVER_FARCRY
 
     @classmethod
-    def read(cls, stream, fileversion = None, verbose = 0, game = None,
+    def getFileType(cls, stream):
+        """Returns file type (geometry or animation). Preserves the stream
+        position.
+
+        @param stream: The stream from which to read.
+        @type stream: file
+        @return: L{FileType.GEOM} or L{FileType.ANIM}
+        """
+        pos = stream.tell()
+        try:
+            signat = stream.read(8)
+            filetype, = struct.unpack('<I',
+                                      stream.read(4))
+        finally:
+            stream.seek(pos)
+        return filetype
+
+    @classmethod
+    def read(cls, stream, version = None, user_version = None, verbose = 0,
              validate = True):
         """Read cgf from stream.
 
+        @param stream: The stream from which to read.
+        @type stream: file
+        @param version: The version as obtained by L{getVersion}.
+        @type version: int
+        @param user_version: The user version as obtained by L{getVersion}.
+        @type user_version: int
+        @param verbose: The level of verbosity.
+        @type verbose: int
         @param validate: If C{True} then the chunk size as read is compared to
             the chunk size as expected. If there is a mismatch, then a warning
-            will be printed."""
-        # convert game argument into user_version (i.e. the cry engine version)
-        if game == 'Far Cry':
-            user_version = 1
-        elif game == 'Crysis':
-            user_version = 2
-        elif not game is None:
-            raise ValueError("game %s not supported" % game)
-        else:
-            print("""\
-WARNING: Provide a game = "Far Cry" or game = "Crysis" argument to read.
-         Assuming Far Cry.""")
-            game = "Far Cry"
-            user_version = 1
+            will be printed.
+        @type validate: bool
+        @return: (filetype as int, chunks as list of L{Chunk}s,
+            versions as list of ints)
+        """
+
+        # game string
+        game = {cls.UVER_FARCRY: "Far Cry",
+                cls.UVER_CRYSIS: "Crysis"}[user_version]
 
         # is it a caf file? these are missing chunk headers on controllers
         is_caf = (stream.name[-4:].lower() == ".caf")
@@ -467,7 +508,7 @@ WARNING: Provide a game = "Far Cry" or game = "Crysis" argument to read.
 
         # read header
         hdr = cls.Header()
-        hdr.read(stream, version = fileversion, user_version = user_version)
+        hdr.read(stream, version = version, user_version = user_version)
 
         # read chunk table
         stream.seek(hdr.offset)
@@ -527,14 +568,14 @@ WARNING: Provide a game = "Far Cry" or game = "Crysis" argument to read.
             # in far cry, most chunks start with a copy of chunkhdr
             # in crysis, more chunks start with chunkhdr
             # caf files are special: they don't have headers on controllers
-            if not(game == "Far Cry"
+            if not(user_version == cls.UVER_FARCRY
                    and chunkhdr.type in [
                        cls.ChunkType.SourceInfo,
                        cls.ChunkType.BoneNameList,
                        cls.ChunkType.BoneLightBinding,
                        cls.ChunkType.BoneInitialPos,
                        cls.ChunkType.MeshMorphTarget]) \
-                and not(game == "Crysis"
+                and not(user_version == cls.UVER_CRYSIS
                         and chunkhdr.type in [
                             cls.ChunkType.BoneNameList,
                             cls.ChunkType.BoneInitialPos]) \
@@ -577,13 +618,13 @@ expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
                 # check with number of bytes read
                 if size != stream.tell() - chunkhdr.offset:
                     print("""\
-    BUG: getSize returns wrong size when reading %s at 0x%08X
-         actual bytes read is %i, getSize yields %i (expected %i bytes)"""
-                                       % (chunk.__class__.__name__,
-                                          chunkhdr.offset,
-                                          size,
-                                          stream.tell() - chunkhdr.offset,
-                                          chunk_sizes[chunknum]))
+BUG: getSize returns wrong size when reading %s at 0x%08X
+     actual bytes read is %i, getSize yields %i (expected %i bytes)"""
+                          % (chunk.__class__.__name__,
+                             chunkhdr.offset,
+                             size,
+                             stream.tell() - chunkhdr.offset,
+                             chunk_sizes[chunknum]))
                 # check for padding bytes
                 if chunk_sizes[chunknum] & 3 == 0:
                     padlen = ((4 - size & 3) & 3)
@@ -592,8 +633,8 @@ expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
                 # check size
                 if size != chunk_sizes[chunknum]:
                     print("""\
-    WARNING: chunk size mismatch when reading %s at 0x%08X
-             %i bytes available, but actual bytes read is %i"""
+WARNING: chunk size mismatch when reading %s at 0x%08X
+         %i bytes available, but actual bytes read is %i"""
                           % (chunk.__class__.__name__,
                              chunkhdr.offset,
                              chunk_sizes[chunknum], size))
@@ -608,28 +649,34 @@ expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
             raise cls.CgfError(
                 'not all links have been popped from the stack (bug?)')
 
-        return chunks, versions
+        return hdr.type, chunks, versions
 
     @classmethod
-    def write(cls,
-              stream,
-              filetype = None,
-              fileversion = None, user_version = None, game = None,
-              chunks = None, versions = None, verbose = 0):
-        """Write cgf to stream. Returns number of padding bytes written."""
-        # convert game argument into user_version (i.e. the cry engine version)
-        if game == 'Far Cry':
-            user_version = 1
-        elif game == 'Crysis':
-            user_version = 2
-        elif not game is None:
-            raise ValueError("game %s not supported" % game)
-        else:
-            print("""\
-WARNING: Provide a game = "Far Cry" or game = "Crysis" argument to read.
-         Assuming Far Cry.""")
-            game = "Far Cry"
-            user_version = 1
+    def write(cls, stream, version = None, user_version = None, verbose = 0,
+              filetype = None, chunks = None, versions = None):
+        """Write cgf to stream. Returns number of padding bytes written.
+
+        @param stream: The stream to which to write.
+        @type stream: file
+        @param version: The version number.
+        @type version: int
+        @param user_version: The user version number.
+        @type user_version: int
+        @param verbose: The level of verbosity.
+        @type verbose: int
+        @param filetype: The file type, L{FileType.GEOM} or L{FileType.ANIM}.
+        @type filetype: int
+        @param chunks: The file chunks.
+        @type chunks: list of L{Chunk}s
+        @param versions: The file chunk versions, usually obtained through
+            L{getChunkVersions}
+        @type versions: list of ints
+        @return: Number of padding bytes written.
+        """
+
+        # game string
+        game = {cls.UVER_FARCRY: "Far Cry",
+                cls.UVER_CRYSIS: "Crysis"}[user_version]
 
         # is it a caf file? these are missing chunk headers on controllers
         is_caf = (stream.name[-4:].lower() == ".caf")
@@ -641,9 +688,9 @@ WARNING: Provide a game = "Far Cry" or game = "Crysis" argument to read.
         hdr_pos = stream.tell()
         hdr = cls.Header()
         hdr.type = filetype
-        hdr.version = fileversion
+        hdr.version = version
         hdr.offset = -1 # is set at the end
-        hdr.write(stream, version = fileversion, user_version = user_version)
+        hdr.write(stream, version = version, user_version = user_version)
 
         # chunk id is simply its index in the chunks list
         block_index_dct = dict((chunk, i) for i, chunk in enumerate(chunks))
@@ -657,7 +704,7 @@ WARNING: Provide a game = "Far Cry" or game = "Crysis" argument to read.
         if game == "Crysis":
             hdr.offset = stream.tell()
             table.write(stream,
-                        version = fileversion, user_version = user_version)
+                        version = version, user_version = user_version)
 
         for chunkhdr, chunk, version in zip(table.chunkHeaders,
                                             chunks, versions):
@@ -668,14 +715,14 @@ WARNING: Provide a game = "Far Cry" or game = "Crysis" argument to read.
             chunkhdr.offset = stream.tell()
             chunkhdr.id = block_index_dct[chunk]
             # write chunk header
-            if not(game == "Far Cry"
+            if not(user_version == cls.UVER_FARCRY
                    and chunkhdr.type in [
                        cls.ChunkType.SourceInfo,
                        cls.ChunkType.BoneNameList,
                        cls.ChunkType.BoneLightBinding,
                        cls.ChunkType.BoneInitialPos,
                        cls.ChunkType.MeshMorphTarget]) \
-                and not(game == "Crysis"
+                and not(user_version == cls.UVER_CRYSIS
                         and chunkhdr.type in [
                             cls.ChunkType.BoneNameList,
                             cls.ChunkType.BoneInitialPos]) \
@@ -683,7 +730,7 @@ WARNING: Provide a game = "Far Cry" or game = "Crysis" argument to read.
                         and chunkhdr.type in [
                             cls.ChunkType.Controller]):
                 chunkhdr.write(stream,
-                               version = fileversion,
+                               version = version,
                                user_version = user_version)
             # write chunk
             chunk.write(
@@ -696,15 +743,15 @@ WARNING: Provide a game = "Far Cry" or game = "Crysis" argument to read.
                 total_padding += padlen
 
         # write/update chunk table
-        if game == "Crysis":
+        if user_version == cls.UVER_CRYSIS:
             stream.seek(hdr.offset)
         else:
             hdr.offset = stream.tell()
-        table.write(stream, version = fileversion, user_version = user_version)
+        table.write(stream, version = version, user_version = user_version)
 
         # update header
         stream.seek(hdr_pos)
-        hdr.write(stream, version = fileversion, user_version = user_version)
+        hdr.write(stream, version = version, user_version = user_version)
 
         # return number of padding bytes written
         return total_padding
@@ -722,75 +769,7 @@ WARNING: Provide a game = "Far Cry" or game = "Crysis" argument to read.
         """Return version list that matches the chunk list C{chunks} for the
         given C{game}."""
         try:
-            return [ max(chunk.getVersions(game)) for chunk in chunks ]
+            return [max(chunk.getVersions(game)) for chunk in chunks]
         except KeyError:
-            raise cls.CgfError("game %s not supported"%game)
+            raise cls.CgfError("game %s not supported" % game)
 
-    @classmethod
-    def walk(cls, top,
-             topdown = True, raisereaderror = False, verbose = 0):
-        """A generator which yields the chunks and versions of all files in
-        directory top whose filename matches the regular expression re_filename.
-        The argument top can also be a file instead of a directory.
-        The argument onerror, if set, will be called if cls.read raises an
-        exception (errors coming from os.walk will be ignored)."""
-        for filetype, fileversion, game, stream, chunks, versions \
-            in cls.walkFile(top, topdown, raisereaderror, verbose):
-            yield chunks, versions
-
-    @classmethod
-    def walkFile(cls, top,
-                 topdown = True, raisereaderror = False, verbose = 0, mode = 'rb'):
-        """Like walk, but returns more information:
-        filetype, fileversion, f, chunks, and versions
-
-        Note that the caller is not responsible for closing the file.
-
-        walkFile is for instance used by runtest.py to implement the
-        testFile-style tests which must access f after the file has been
-        read."""
-        # filter for recognizing cgf files by extension
-        re_cgf = re.compile(r'^.*\.(cgf|cga|chr|caf)$', re.IGNORECASE)
-        # now walk over all these files in directory top
-        for filename in Utils.walk(
-            top, topdown, onerror = None, re_filename = re_cgf):
-
-            if verbose >= 1:
-                print "reading %s" % filename
-            stream = open(filename, mode)
-            try:
-                # get the version
-                filetype, fileversion, game = cls.getVersion(stream)
-                if filetype >= 0:
-                    # we got it, so now read the nif file
-                    if verbose >= 2:
-                        print("type 0x%08X, version 0x%08X"
-                              %(filetype, fileversion))
-                    try:
-                        # return (filetype, fileversion, f, chunks, versions)
-                        chunks, versions = cls.read(
-                            stream, fileversion = fileversion, game = game)
-                        yield filetype, fileversion, game, stream, chunks, versions
-                    except StandardError:
-                        # an error occurred during reading
-                        # this should not happen: means that the file is
-                        # corrupt, or that the xml is corrupt
-                        # so we re-raise the exception if requested
-                        if verbose >= 1:
-                            print """\
-Warning: read failed due to either a corrupt cgf file, a corrupt cgf.xml,
-or a bug in CgfFormat library."""
-                        if verbose >= 2:
-                            Utils.hexDump(stream)
-                        if raisereaderror:
-                            raise
-                # getting version failed, do not raise an exception
-                # but tell user what happened
-                elif filetype == -1:
-                    if verbose >= 1:
-                        print 'version not supported'
-                else:
-                    if verbose >= 1:
-                        print 'not a cgf file'
-            finally:
-                stream.close()

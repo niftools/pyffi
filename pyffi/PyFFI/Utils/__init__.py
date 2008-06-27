@@ -52,7 +52,18 @@ import QuickHull
 
 def walk(top, topdown = True, onerror = None, re_filename = None):
     """A variant of os.walk() which also works if top is a file instead of a
-    directory, filters files by name, and returns full path."""
+    directory, filters files by name, and returns full path. File names are
+    returned in alphabetical order.
+
+    @param top: The top directory or file.
+    @type top: str
+    @param topdown: Whether to list directories first or not.
+    @type topdown: bool
+    @param onerror: Which function to call when an error occurs.
+    @type onerror: function
+    @param re_filename: Regular expression to match file names.
+    @type re_filename: compiled regular expression (see re module)
+    """
     if os.path.isfile(top):
         dirpath, filename = os.path.split(top)
         if re_filename != None:
@@ -62,6 +73,7 @@ def walk(top, topdown = True, onerror = None, re_filename = None):
             yield top
     else:
         for dirpath, dirnames, filenames in os.walk(top):
+            filenames = sorted(filenames)
             for filename in filenames:
                 if re_filename != None:
                     if re_filename.match(filename):

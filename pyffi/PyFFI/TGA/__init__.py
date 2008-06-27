@@ -19,6 +19,15 @@ Read a TGA file
 >>> print header.width, header.height
 60 20
 
+Parse all TGA files in a directory tree
+---------------------------------------
+
+>>> for header, data in TgaFormat.walk('tests/tga',
+...                                    raisereaderror = False,
+...                                    verbose = 1):
+...     pass
+reading tests/tga/test.tga
+
 Create a TGA file from scratch and write to file
 ------------------------------------------------
 
@@ -68,12 +77,13 @@ Create a TGA file from scratch and write to file
 
 import struct, os, re
 
+from PyFFI import XmlFileFormat
 from PyFFI import MetaXmlFileFormat
 from PyFFI import Utils
 from PyFFI import Common
 from PyFFI.Bases.Basic import BasicBase
 
-class TgaFormat(object):
+class TgaFormat(XmlFileFormat):
     """This class implements the TGA format."""
     __metaclass__ = MetaXmlFileFormat
     xmlFileName = 'tga.xml'
@@ -84,6 +94,8 @@ class TgaFormat(object):
     clsFilePath = os.path.dirname(__file__)
     # used for comparing floats
     _EPSILON = 0.0001
+    # filter for recognizing tga files by extension
+    re_filename = re.compile(r'^.*\.tga$', re.IGNORECASE)
 
     # basic types
     int = Common.Int
@@ -135,14 +147,16 @@ class TgaFormat(object):
 
     @classmethod
     def getVersion(cls, stream):
-        """Returns 0 if the file looks like a TGA file, -1 if it is a TGA file
-        but the format is not supported, and -2 if it is not a TGA file.
+        """Get version and user version.
+
+        Returns (0, 0) if the file looks like a TGA file, (-1, 0) if it is
+        a TGA file but the format is not supported, and (-2, 0) if it is not a
+        TGA file.
 
         @param stream: The stream from which to read.
         @type stream: file
-        @return: 0 for TGA files, -2 for non-TGA files.
+        @return: (0, 0) for TGA files, (-2, 0) for non-TGA files.
         """
-        #return 0
         pos = stream.tell()
         # read header
         try:
@@ -153,38 +167,40 @@ class TgaFormat(object):
         except struct.error:
             # could not read 18 bytes
             # not a TGA file
-            return -2
+            return -2, 0
         finally:
             stream.seek(pos)
         # check if tga type is valid
         if not image_type in (1, 2, 3, 9, 10, 11):
-            return -2
+            return -2, 0
         # check pixel size
         if not pixel_size in (8, 24, 32):
-            return -2
+            return -2, 0
         # check width and height
         if width >= 100000 or height >= 100000:
-            return -2
+            return -2, 0
         # this looks like a tga file
-        return 0
+        return 0, 0
 
     @classmethod
-    def read(cls, stream, version = None, verbose = 0):
+    def read(cls, stream, version = None, user_version = None, verbose = 0):
         """Read a tga file.
 
         @param stream: The stream from which to read.
         @type stream: file
         @param version: The TGA version obtained by L{getVersion}.
         @type version: int
+        @param user_version: The TGA user version obtained by L{getVersion}.
+        @type user_version: int
         @param verbose: The level of verbosity.
         @type verbose: int
         @return: header, pixeldata
         """
         # read the file
         header = cls.Header()
-        header.read(stream, version = version)
+        header.read(stream, version = version, user_version = user_version)
         pixeldata = cls.PixelData()
-        pixeldata.read(stream, version = version)
+        pixeldata.read(stream, version = version, user_version = user_version)
 
         # check if we are at the end of the file
         if stream.read(1) != '':
@@ -193,124 +209,32 @@ class TgaFormat(object):
         return header, pixeldata
 
     @classmethod
-    def write(cls, stream, version = None,
-              header = None, pixeldata = None, verbose = 0):
+    def write(cls, stream, version = None, user_version = None, verbose = 0,
+              header = None, pixeldata = None):
         """Write a tga file.
 
         @param stream: The stream to which to write.
         @type stream: file
         @param version: The version number (usually 0).
         @type version: int
+        @param user_version: The user version number (usually 0).
+        @type user_version: int
         @param header: The tga header.
+        @param verbose: The level of verbosity.
+        @type verbose: int
         @type header: L{TgaFormat.Header}
         @param pixeldata: The tga pixel data.
         @type pixeldata: L{TgaFormat.PixelData}
-        @param verbose: The level of verbosity.
-        @type verbose: int
         """
         # TODO: make sure pixel data has correct length
 
         # write the file
         # first header
         assert(isinstance(header, cls.Header))
-        header.write(stream, version = version)
+        header.write(stream, version = version, user_version = user_version)
         # next the pixel data
         assert(isinstance(pixeldata, cls.PixelData))
-        pixeldata.write(stream, version = version)
-
-    @classmethod
-    def walk(cls, top, topdown = True, raisereaderror = False, verbose = 0):
-        """A generator which yields (header, pixeldata) of all files in
-        directory top whose filename matches the regular expression
-        re_filename. The argument top can also be a file instead of a
-        directory. Errors coming from os.walk are ignored.
-
-        >>> for header, pixeldata in TgaFormat.walk('tests/tga',
-        ...                                         raisereaderror = True,
-        ...                                         verbose = 1):
-        ...     pass
-        reading tests/tga/test.tga
-
-        @param top: The top folder.
-        @type top: str
-        @param topdown: Determines whether subdirectories should be iterated
-            over first.
-        @type topdown: bool
-        @param raisereaderror: Should read errors raise an exception, or
-            should they be ignored?
-        @type raisereaderror: bool
-        @param verbose: Verbosity level.
-        @type verbose: int
-        """
-        for version, stream, header, pixeldata in cls.walkFile(
-            top, topdown = topdown,
-            raisereaderror = raisereaderror, verbose = verbose):
-            yield header, pixeldata
-
-    @classmethod
-    def walkFile(cls, top, topdown = True,
-                 raisereaderror = False, verbose = 0, mode = 'rb'):
-        """Like L{walk}, but returns more information:
-        version, stream, header, and pixeldata.
-
-        Note that the caller is not responsible for closing stream.
-
-        walkFile is for instance used by the testers to implement the
-        testFile-style tests which must access the file after the file has been
-        read.
-
-        @param top: The top folder.
-        @type top: str
-        @param topdown: Determines whether subdirectories should be iterated
-            over first.
-        @type topdown: bool
-        @param raisereaderror: Should read errors raise an exception, or
-            should they be ignored?
-        @type raisereaderror: bool
-        @param verbose: Verbosity level.
-        @type verbose: int
-        """
-        # filter for recognizing tga files by extension
-        re_tga = re.compile(r'^.*\.tga$', re.IGNORECASE)
-        # now walk over all these files in directory top
-        for filename in Utils.walk(top, topdown, onerror = None,
-                                   re_filename = re_tga):
-            if verbose >= 1:
-                print("reading %s" % filename)
-            stream = open(filename, mode)
-            try:
-                # get the version
-                version = cls.getVersion(stream)
-                if version >= 0:
-                    # we got it, so now read the tga file
-                    if verbose >= 2:
-                        print("version 0x%08X" % version)
-                    try:
-                        # return (version, stream, (header, pixeldata))
-                        yield ((version, stream) +
-                               cls.read(stream, version = version))
-                    except StandardError:
-                        # an error occurred during reading
-                        # this should not happen: means that the file is
-                        # corrupt, or that the xml is corrupt
-                        if verbose >= 1:
-                            print("""
-Warning: read failed due to either a corrupt tga file, a corrupt tga.xml,
-or a bug in TgaFormat library.""")
-                        if verbose >= 2:
-                            Utils.hexDump(stream)
-                        if raisereaderror:
-                            raise
-                # getting version failed, do not raise an exception
-                # but tell user what happened
-                elif version == -1:
-                    if verbose >= 1:
-                        print('version not supported')
-                else:
-                    if verbose >= 1:
-                        print('not a tga file')
-            finally:
-                stream.close()
+        pixeldata.write(stream, version = version, user_version = user_version)
 
 if __name__ == '__main__':
     import doctest
