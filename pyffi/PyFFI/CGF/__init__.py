@@ -257,7 +257,11 @@ class CgfFormat(XmlFileFormat):
             return 'CryTek\x00\x00'
 
         def read(self, stream, **kwargs):
-            """Read signature from stream."""
+            """Read signature from stream.
+
+            @param stream: The stream to read from.
+            @type stream: file
+            """
             signat = stream.read(8)
             if signat[:6] != self.__str__()[:6]:
                 raise ValueError(
@@ -265,26 +269,43 @@ class CgfFormat(XmlFileFormat):
                     %(self.__str__(), signat))
 
         def write(self, stream, **kwargs):
-            """Write signature to stream."""
+            """Write signature to stream.
+
+            @param stream: The stream to read from.
+            @type stream: file
+            """
             stream.write(self.__str__())
 
         def getValue(self):
-            """Get signature."""
+            """Get signature.
+
+            @return: The signature.
+            """
             return self.__str__()
 
         def setValue(self, value):
-            """Set signature."""
+            """Set signature.
+
+            @param value: The value to assign (should be 'Crytek\\x00\\x00').
+            @type value: str
+            """
             if value != self.__str__():
                 raise ValueError(
                     "invalid CGF signature: expected '%s' but got '%s'"
                     %(self.__str__(), value))
 
         def getSize(self, **kwargs):
-            """Get signature size in bytes."""
+            """Return number of bytes that the signature occupies in a file.
+
+            @return: Number of bytes.
+            """
             return 8
 
         def getHash(self, **kwargs):
-            """Get signature hash value."""
+            """Return a hash value for the signature.
+
+            @return: An immutable object that can be used as a hash.
+            """
             return self.__str__()
 
     class Ref(BasicBase):
@@ -298,11 +319,18 @@ class CgfFormat(XmlFileFormat):
             self._value = None
 
         def getValue(self):
-            """Get chunk being referred to."""
+            """Get chunk being referred to.
+
+            @return: The chunk being referred to.
+            """
             return self._value
 
         def setValue(self, value):
-            """Set chunk reference."""
+            """Set chunk reference.
+
+            @param value: The value to assign.
+            @type value: L{CgfFormat.Chunk}
+            """
             if value == None:
                 self._value = None
             else:
@@ -313,13 +341,25 @@ class CgfFormat(XmlFileFormat):
                 self._value = value
 
         def read(self, stream, **kwargs):
-            """Read chunk index."""
+            """Read chunk index.
+
+            @param stream: The stream to read from.
+            @type stream: file
+            @param link_stack: The stack containing all block indices.
+            @type link_stack: list of ints
+            """
             self._value = None # fixLinks will set this field
             block_index, = struct.unpack('<i', stream.read(4))
             kwargs.get('link_stack', []).append(block_index)
 
         def write(self, stream, **kwargs):
-            """Write chunk index."""
+            """Write chunk index.
+
+            @param stream: The stream to write to.
+            @type stream: file
+            @param block_index_dct: Dictionary mapping blocks to indices.
+            @type block_index_dct: dict
+            """
             if self._value == None:
                 stream.write('\xff\xff\xff\xff')
             else:
@@ -327,7 +367,14 @@ class CgfFormat(XmlFileFormat):
                     '<i', kwargs.get('block_index_dct')[self._value]))
 
         def fixLinks(self, **kwargs):
-            """Resolve chunk index into a chunk."""
+            """Resolve chunk index into a chunk.
+
+            @param block_dct: Dictionary mapping block index to block.
+            @type block_dct: dict
+            @param link_stack: The stack containing all block indices.
+            @type link_stack: list of ints
+            """
+
             block_index = kwargs.get('link_stack').pop(0)
             # case when there's no link
             if block_index == -1:
@@ -339,7 +386,7 @@ class CgfFormat(XmlFileFormat):
             except KeyError:
                 # make this raise an exception when all reference errors
                 # are sorted out
-                print "WARNING: invalid chunk reference (%i)" % block_index
+                print("WARNING: invalid chunk reference (%i)" % block_index)
                 self._value = None
                 return
             if not isinstance(block, self._template):
@@ -356,14 +403,22 @@ WARNING: expected instance of %s
             self._value = block
 
         def getLinks(self, **kwargs):
-            """Return the chunk reference."""
+            """Return the chunk reference.
+
+            @return: Empty list if no reference, or single item list containing
+                the reference.
+            """
             if self._value != None:
                 return [self._value]
             else:
                 return []
 
         def getRefs(self, **kwargs):
-            """Return the chunk reference."""
+            """Return the chunk reference.
+
+            @return: Empty list if no reference, or single item list containing
+                the reference.
+            """
             if self._value != None:
                 return [self._value]
             else:
@@ -378,12 +433,18 @@ WARNING: expected instance of %s
                 return 'None'
 
         def getSize(self, **kwargs):
-            """Return link size in bytes."""
+            """Return number of bytes this type occupies in a file.
+
+            @return: Number of bytes.
+            """
             return 4
 
         def getHash(self, **kwargs):
-            """Return hash of chunk referred to."""
-            return self._value.getHash()if not self._value is None else None
+            """Return a hash value for the chunk referred to.
+
+            @return: An immutable object that can be used as a hash.
+            """
+            return self._value.getHash() if not self._value is None else None
 
     class Ptr(Ref):
         """Reference to a chunk, down the hierarchy."""
@@ -400,7 +461,10 @@ WARNING: expected instance of %s
                 return 'None'
 
         def getRefs(self, **kwargs):
-            """Ptr does not point down, so getRefs returns empty list."""
+            """Ptr does not point down, so getRefs returns empty list.
+
+            @return: C{[]}
+            """
             return []
 
     # exceptions
