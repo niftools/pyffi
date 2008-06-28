@@ -21,11 +21,11 @@
     tester.formats.dds
     tester.bases.basic
     tester.bases.struct
-    qskopelib.formats.nif
-    qskopelib.formats.cgf
-    qskopelib.formats.dds
-    qskopelib.bases.basic
-    qskopelib.bases.struct
+    QSkopeLib.formats.nif
+    QSkopeLib.formats.cgf
+    QSkopeLib.formats.dds
+    QSkopeLib.bases.basic
+    QSkopeLib.bases.struct
     ...
 
 * pep8 conventions

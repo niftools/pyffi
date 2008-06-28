@@ -78,7 +78,7 @@ The code is organized as follows.
 
     + nifoptimize: remove redundant vertices and restripify nif files
 
-  - tools/qskopelib: modules used by QSkope (PyFFI's GUI application)
+  - PyFFI/QSkopeLib: modules used by QSkope (PyFFI's GUI application)
 
 The following code resides in the subversion trunk only
 (https://pyffi.svn.sf.net/svnroot/pyffi/trunk) and is not distributed

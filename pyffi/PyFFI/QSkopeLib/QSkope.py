@@ -39,9 +39,9 @@
 
 from PyQt4 import QtGui, QtCore
 
-from PyFFI.qskopelib.GlobalModel import GlobalModel, StructPtr
-from PyFFI.qskopelib.DetailModel import DetailModel
-from PyFFI.qskopelib.DetailDelegate import DetailDelegate
+from PyFFI.QSkopeLib.GlobalModel import GlobalModel, StructPtr
+from PyFFI.QSkopeLib.DetailModel import DetailModel
+from PyFFI.QSkopeLib.DetailDelegate import DetailDelegate
 
 import PyFFI
 from PyFFI.Formats.NIF import NifFormat
