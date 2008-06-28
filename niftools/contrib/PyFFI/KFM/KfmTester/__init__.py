@@ -41,7 +41,7 @@ def testFileOverwrite(stream,
 # test all files using testBlock, testRoot, and testFile functions
 def testPath(top, testFile = None, raisereaderror = False, mode = 'rb', raisetesterror = True, **args):
     verbose = args.get('verbose', 1)
-    for version, stream, (header, animations, footer) in KfmFormat.walkFile(top, raisereaderror = raisereaderror, verbose = min(1, verbose), mode = mode):
+    for stream, version, user_version, header, animations, footer in KfmFormat.walkFile(top, raisereaderror = raisereaderror, verbose = min(1, verbose), mode = mode):
         # run tests
         try:
             if testFile:
