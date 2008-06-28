@@ -37,7 +37,7 @@
 #
 # ***** END LICENSE BLOCK *****
 
-from PyFFI.DDS import DdsFormat
+from PyFFI.Formats.DDS import DdsFormat
 
 def saveAsDDS(self, stream):
     """Save image as DDS file."""
