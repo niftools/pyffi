@@ -269,7 +269,7 @@ class XmlFileFormat(object):
 
     @classmethod
     def getVersion(cls, stream):
-        """Returns version and user version numbers. You should override this
+        """Returns version and user version numbers. Override this
         function. When implementing this function, take care to preserve the
         stream position: for instance, start with
         C{pos = stream.tell()} and end with C{stream.seek(pos)}.
@@ -304,9 +304,8 @@ class XmlFileFormat(object):
         return attrname
 
     @classmethod
-    def read(cls, stream, version = None, user_version = None,
-             verbose = 0, **kwargs):
-        """Read a file. You should override this function.
+    def read(cls, stream, version = None, user_version = None, **kwargs):
+        """Read a file. Override this function.
 
         @param stream: The stream from which to read.
         @type stream: file
@@ -314,17 +313,19 @@ class XmlFileFormat(object):
         @type version: int
         @param user_version: The user version as obtained by L{getVersion}.
         @type user_version: int
-        @param verbose: The level of verbosity.
-        @type verbose: int
         @param kwargs: Extra keyword arguments.
-        @return: An object or list of objects describing the file.
+        @return: A tuple of objects (typically, header, blocks, and footer)
+            describing the file.
         """
         raise NotImplementedError
 
     @classmethod
-    def write(cls, stream, version = None, user_version = None,
-              verbose = 0, **kwargs):
-        """Write a file. You should override this function.
+    def write(cls, stream, version = None, user_version = None, **kwargs):
+        """Write a file. Override this function.
+        The extra arguments must be organized such that calling
+        C{write(stream, version, user_version,
+        *read(stream, version, user_version)} would rewrite the original file
+        back to the stream as it is.
 
         @param stream: The stream to which to write.
         @type stream: file
@@ -332,8 +333,6 @@ class XmlFileFormat(object):
         @type version: int
         @param user_version: The user version number.
         @type user_version: int
-        @param verbose: The level of verbosity.
-        @type verbose: int
         @param kwargs: Extra keyword arguments (e.g. header, block list, ...)
         """
         raise NotImplementedError
@@ -360,19 +359,18 @@ class XmlFileFormat(object):
             top, topdown = topdown,
             raisereaderror = raisereaderror, verbose = verbose):
             # discard first two items from result (version and stream)
-            yield result[2:]
+            yield result[3:]
 
     @classmethod
     def walkFile(cls, top, topdown = True,
                  raisereaderror = False, verbose = 0, mode = 'rb'):
         """Like L{walk}, but returns more information:
-        stream, version, user_version, and the result from cls.read.
+        stream, version, user_version, and the result from L{read}.
 
         Note that the caller is not responsible for closing stream.
 
-        walkFile is for instance used by runtest.py to implement the
-        testFile-style tests which must access the file after the file has been
-        read.
+        This function is for instance used by L{PyFFI.Spells} to implement
+        modifying a file after reading and parsing.
 
         @param top: The top folder.
         @type top: str
@@ -397,7 +395,8 @@ class XmlFileFormat(object):
                 if version >= 0:
                     # we got it, so now read the file
                     if verbose >= 2:
-                        print("version 0x%08X" % version)
+                        print("version      0x%08X" % version)
+                        print("user version 0x%08X" % version)
                     try:
                         # return (version, stream) + result of read
                         result = cls.read(stream,
@@ -427,4 +426,24 @@ Warning: read failed due to either a corrupt file, a corrupt xml, or a bug.""")
                         print('file format not recognized')
             finally:
                 stream.close()
+
+    def getRoots(cls, *readresult):
+        """Returns list of all root blocks. Used by L{PyFFI.QSkopeLib.QSkope}
+        and L{PyFFI.Spells}.
+
+        @param readresult: Result from L{walk} or L{read}.
+        @type readresult: tuple
+        @return: list of root blocks
+        """
+        return []
+
+    def getBlocks(cls, *readresult):
+        """Returns list of all blocks. Used by L{PyFFI.QSkopeLib.QSkope}
+        and L{PyFFI.Spells}.
+
+        @param readresult: Result from L{walk} or L{read}.
+        @type readresult: tuple
+        @return: list of blocks
+        """
+        return []
 

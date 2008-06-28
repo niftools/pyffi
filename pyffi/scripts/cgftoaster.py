@@ -86,16 +86,15 @@ def tests_callback(option, opt, value, parser):
 def main():
     # parse options and positional arguments
     usage = "%prog [options] <tester> <file>|<folder>"
-    description="""Look for a python script "CgfTester.hacking.<tester>",
-"CgfTester.validate.<tester>", or "CgfTester.surgery.<tester>"
-and use the functions testChunk and testFile therein
-for hacking, modifying, or validating <file>, or the files in <folder>."""
+    description="""Look for a python script "PyFFI.Spells.CGF.<spell>"
+and apply the functions testRoot, testBlock, and testFile therein
+on the file <file>, or on the files in <folder>."""
 
     parser = OptionParser(usage, version="%prog $Rev$", description=description)
     parser.add_option("-a", "--arg", dest="arg",
                       type="string",
                       metavar="ARG",
-                      help="pass argument ARG to tester")
+                      help="pass argument ARG to spell")
     parser.add_option("--examples",
                       action="callback", callback=examples_callback,
                       help="show examples of usage and exit")
