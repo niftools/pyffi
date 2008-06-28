@@ -3,13 +3,13 @@
 from PyFFI.Formats.KFM import KfmFormat
 from tempfile import TemporaryFile
 
-def testFile(stream, version = None,
+def testFile(stream, version = None, user_version = None,
              header = None, animations = None, footer = None, **args):
     f_tmp = TemporaryFile()
     try:
         KfmFormat.write(
             f_tmp,
-            version = version,
+            version = version, user_version = user_version,
             header = header, animations = animations, footer = footer)
         # cheaply just compare file sizes
 

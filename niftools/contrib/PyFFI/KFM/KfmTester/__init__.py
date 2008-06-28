@@ -6,7 +6,7 @@
 # Unlike validate tests, surgery tests modify the original kfm file.
 #
 # These three functions in the tester script are called:
-#    testFile(stream, version, kfm)
+#    testFile(stream, version, user_version, ...)
 #                     - will be called on every kfm
 # Not all of these three functions need to be present.
 
@@ -18,7 +18,7 @@ from PyFFI.Formats.KFM import KfmFormat
 # useful as testFile which simply writes back the file
 # but restores the file if the write fails
 def testFileOverwrite(stream,
-                      version = None,
+                      version = None, user_version = None,
                       header = None, animations = None, footer = None,
                       **args):
     stream.seek(0)
@@ -46,7 +46,7 @@ def testPath(top, testFile = None, raisereaderror = False, mode = 'rb', raisetes
         try:
             if testFile:
                 testFile(
-                    stream, version = version,
+                    stream, version = version, user_version = user_version,
                     header = header, animations = animations, footer = footer,
                     **args)
         except StandardError:
