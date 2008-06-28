@@ -48,7 +48,7 @@ reading tests/cgf/test.cgf
 Create a CGF file from scratch
 ------------------------------
 
->>> from PyFFI.CGF import CgfFormat
+>>> from PyFFI.Formats.CGF import CgfFormat
 >>> node1 = CgfFormat.NodeChunk()
 >>> node1.name = "hello"
 >>> node2 = CgfFormat.NodeChunk()
@@ -520,12 +520,55 @@ WARNING: expected instance of %s
             return version, cls.UVER_FARCRY
 
     @classmethod
-    def getFileType(cls, stream):
+    def getGame(cls, version = None, user_version = None):
+        """Guess game based on version and user_version. This is the inverse of
+        L{getGameVersion}.
+
+        @param version: The version as obtained by L{getVersion}.
+        @type version: int
+        @param user_version: The user version as obtained by L{getVersion}.
+        @type user_version: int
+        @return: 'Crysis' or 'Far Cry'
+        """
+        try:
+            return {cls.UVER_FARCRY: "Far Cry",
+                    cls.UVER_CRYSIS: "Crysis"}[user_version]
+        except KeyError:
+            raise ValueError("unknown version 0x%X and user version %i" %
+                             (version, user_version))
+
+    @classmethod
+    def getGameVersion(cls, game = None):
+        """Get version and user_version for a particular game. This is the
+        inverse of L{getGame}.
+
+        @param game: 'Crysis' or 'Far Cry'.
+        @type game: str
+        @return: The version and user version.
+
+        >>> CgfFormat.getGameVersion("Far Cry")
+        (1860, 1)
+        >>> CgfFormat.getGameVersion("Crysis")
+        (1860, 2)
+        """
+        if game == "Far Cry":
+            return cls.VER_FARCRY, cls.UVER_FARCRY
+        elif game == "Crysis":
+            return cls.VER_CRYSIS, cls.UVER_CRYSIS
+        else:
+            raise ValueError("unknown game %s" % game)
+
+    @classmethod
+    def getFileType(cls, stream, version = None, user_version = None):
         """Returns file type (geometry or animation). Preserves the stream
         position.
 
         @param stream: The stream from which to read.
         @type stream: file
+        @param version: The version as obtained by L{getVersion}.
+        @type version: int
+        @param user_version: The user version as obtained by L{getVersion}.
+        @type user_version: int
         @return: L{FileType.GEOM} or L{FileType.ANIM}
         """
         pos = stream.tell()
@@ -559,8 +602,7 @@ WARNING: expected instance of %s
         """
 
         # game string
-        game = {cls.UVER_FARCRY: "Far Cry",
-                cls.UVER_CRYSIS: "Crysis"}[user_version]
+        game = cls.getGame(version = version, user_version = user_version)
 
         # is it a caf file? these are missing chunk headers on controllers
         is_caf = (stream.name[-4:].lower() == ".caf")
@@ -738,8 +780,7 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
         """
 
         # game string
-        game = {cls.UVER_FARCRY: "Far Cry",
-                cls.UVER_CRYSIS: "Crysis"}[user_version]
+        game = cls.getGame(version = version, user_version = user_version)
 
         # is it a caf file? these are missing chunk headers on controllers
         is_caf = (stream.name[-4:].lower() == ".caf")
@@ -842,8 +883,7 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
         """
 
         # game string
-        game = {cls.UVER_FARCRY: "Far Cry",
-                cls.UVER_CRYSIS: "Crysis"}[user_version]
+        game = cls.getGame(version = version, user_version = user_version)
 
         try:
             return [max(chunk.getVersions(game)) for chunk in chunks]

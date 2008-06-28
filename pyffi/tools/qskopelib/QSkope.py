@@ -44,11 +44,11 @@ from qskopelib.DetailModel import DetailModel
 from qskopelib.DetailDelegate import DetailDelegate
 
 import PyFFI
-from PyFFI.NIF import NifFormat
-from PyFFI.CGF import CgfFormat
-from PyFFI.KFM import KfmFormat
-from PyFFI.DDS import DdsFormat
-from PyFFI.TGA import TgaFormat
+from PyFFI.Formats.NIF import NifFormat
+from PyFFI.Formats.CGF import CgfFormat
+from PyFFI.Formats.KFM import KfmFormat
+from PyFFI.Formats.DDS import DdsFormat
+from PyFFI.Formats.TGA import TgaFormat
 
 from types import NoneType
 
@@ -189,7 +189,8 @@ class QSkope(QtGui.QMainWindow):
             raise ValueError("not a nif file")
         # if succesful: parse the file and save information about it
         self.header, self.roots, self.footer = NifFormat.read(
-            stream, version, user_version, rootsonly = False)
+            stream, version = version, user_version = user_version,
+            rootsonly = False)
         self.Format = NifFormat
         self.formatArgs = (version, user_version)
 
@@ -198,63 +199,66 @@ class QSkope(QtGui.QMainWindow):
         then raises ValueError. Sets the self.header, self.roots, self.footer,
         self.Format, and self.formatArgs variables."""
         # failed... try reading as a cgf file
-        filetype, fileversion, game = CgfFormat.getVersion(stream)
+        version, user_version = CgfFormat.getVersion(stream)
         # if not succesful: raise an exception
         if filetype < 0:
             raise ValueError("not a cgf file")
         # if succesful: parse the file and save information about it
-        self.roots, versions = CgfFormat.read(
-            stream, fileversion = fileversion, game = game)
+        filetype, self.roots, versions = CgfFormat.read(
+            stream, version = version, user_version = user_version)
         self.header = None
         self.footer = None
         self.Format = CgfFormat
-        self.formatArgs = (filetype, fileversion, game)
+        self.formatArgs = (version, user_version, filetype)
 
     def openKfmFile(self, stream = None):
         """Read kfm file from stream. If stream does not contain a kfm file,
         then raises ValueError. Sets the self.header, self.roots, self.footer,
         self.Format, and self.formatArgs variables."""
         # try reading as a kfm file
-        version = KfmFormat.getVersion(stream)
+        version, user_version = KfmFormat.getVersion(stream)
         # if not succesful: raise an exception
         if version < 0:
             raise ValueError("not a kfm file")
         # if succesful: parse the file and save information about it
-        self.header, self.roots, self.footer = KfmFormat.read(stream, version)
+        self.header, self.roots, self.footer = KfmFormat.read(
+            stream, version = version, user_version = user_version)
         self.Format = KfmFormat
-        self.formatArgs = (version,)
+        self.formatArgs = (version, user_version)
 
     def openDdsFile(self, stream = None):
         """Read dds file from stream. If stream does not contain a dds file,
         then raises ValueError. Sets the self.header, self.roots, self.footer,
         self.Format, and self.formatArgs variables."""
         # try reading as a dds file
-        version = DdsFormat.getVersion(stream)
+        version, user_version = DdsFormat.getVersion(stream)
         # if not succesful: raise an exception
         if version < 0:
             raise ValueError("not a dds file")
         # if succesful: parse the file and save information about it
-        self.header, pixeldata = DdsFormat.read(stream, version)
+        self.header, pixeldata = DdsFormat.read(
+            stream, version = version, user_version = user_version)
         self.roots = None
         self.footer = None
         self.Format = DdsFormat
-        self.formatArgs = (version,)
+        self.formatArgs = (version, user_version)
 
     def openTgaFile(self, stream = None):
         """Read tga file from stream. If stream does not contain a tga file,
         then raises ValueError. Sets the self.header, self.roots, self.footer,
         self.Format, and self.formatArgs variables."""
         # try reading as a dds file
-        version = TgaFormat.getVersion(stream)
+        version, user_version = TgaFormat.getVersion(stream)
         # if not succesful: raise an exception
         if version < 0:
             raise ValueError("not a tga file")
         # if succesful: parse the file and save information about it
-        self.header, pixeldata = TgaFormat.read(stream, version)
+        self.header, pixeldata = TgaFormat.read(
+            stream, version = version, user_version = user_version)
         self.roots = None
         self.footer = None
         self.Format = TgaFormat
-        self.formatArgs = (version,)
+        self.formatArgs = (version, user_version)
 
     def openFile(self, filename = None):
         """Open a file, and set up the view."""
@@ -343,17 +347,15 @@ class QSkope(QtGui.QMainWindow):
             elif issubclass(self.Format, CgfFormat):
                 # write cgf file
                 CgfFormat.write(stream,
-                                filetype = self.formatArgs[0],
-                                fileversion = self.formatArgs[1],
-                                game = self.formatArgs[2],
-                                chunks = self.roots,
-                                versions = CgfFormat.getChunkVersions(
-                                    game = self.formatArgs[2],
-                                    chunks = self.roots))
+                                version = self.formatArgs[0],
+                                user_version = self.formatArgs[1],
+                                filetype = self.formatArgs[2],
+                                chunks = self.roots)
             elif issubclass(self.Format, KfmFormat):
                 # write nif file
                 KfmFormat.write(stream,
                                 version = self.formatArgs[0],
+                                user_version = self.formatArgs[1],
                                 header = self.header,
                                 animations = self.roots,
                                 footer = self.footer)

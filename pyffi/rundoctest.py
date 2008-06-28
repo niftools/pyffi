@@ -13,20 +13,20 @@ import PyFFI.Utils.MathUtils
 import PyFFI.Utils.QuickHull
 import PyFFI.Utils.Inertia
 import PyFFI.Utils.TangentSpace
-import PyFFI.NIF
-import PyFFI.NIF.NiTriStripsData
-import PyFFI.NIF.NiTriShapeData
-import PyFFI.NIF.NiGeometry
-import PyFFI.NIF.NiNode
-import PyFFI.NIF.NiSkinData
-import PyFFI.NIF.StringPalette
-import PyFFI.NIF.ControllerLink
-import PyFFI.NIF.NiBSplineData
-import PyFFI.CGF
-import PyFFI.CGF.MeshChunk
-import PyFFI.KFM
-import PyFFI.DDS
-import PyFFI.TGA
+import PyFFI.Formats.NIF
+import PyFFI.Formats.NIF.NiTriStripsData
+import PyFFI.Formats.NIF.NiTriShapeData
+import PyFFI.Formats.NIF.NiGeometry
+import PyFFI.Formats.NIF.NiNode
+import PyFFI.Formats.NIF.NiSkinData
+import PyFFI.Formats.NIF.StringPalette
+import PyFFI.Formats.NIF.ControllerLink
+import PyFFI.Formats.NIF.NiBSplineData
+import PyFFI.Formats.CGF
+import PyFFI.Formats.CGF.MeshChunk
+import PyFFI.Formats.KFM
+import PyFFI.Formats.DDS
+import PyFFI.Formats.TGA
 
 mods = [ val for (key, val) in sys.modules.iteritems() if key.startswith('PyFFI') ]
 

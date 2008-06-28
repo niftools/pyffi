@@ -7,11 +7,11 @@ Using PyFFI
 
 If you simply wish to use PyFFI with a format that's already implemented,
 refer to the documentation of that library:
-  - L{PyFFI.NIF}
-  - L{PyFFI.KFM}
-  - L{PyFFI.CGF}
-  - L{PyFFI.DDS}
-  - L{PyFFI.TGA}
+  - L{PyFFI.Formats.NIF}
+  - L{PyFFI.Formats.KFM}
+  - L{PyFFI.Formats.CGF}
+  - L{PyFFI.Formats.DDS}
+  - L{PyFFI.Formats.TGA}
 
 Supporting New File Formats
 ===========================
@@ -135,7 +135,7 @@ Further References
 
 With the above simple example in mind, you may wish to browse through the
 source code of
-L{PyFFI.CGF} or L{PyFFI.NIF} to see how PyFFI works for more complex file
+L{PyFFI.Formats.CGF} or L{PyFFI.Formats.NIF} to see how PyFFI works for more complex file
 formats.
 """
 

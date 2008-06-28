@@ -14,7 +14,7 @@
 import sys, os, gc
 from optparse import OptionParser
 
-from PyFFI.CGF import CgfFormat
+from PyFFI.Formats.CGF import CgfFormat
 
 # useful as testFile which simply writes back the file
 # but restores the file if the write fails

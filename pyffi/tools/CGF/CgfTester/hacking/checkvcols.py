@@ -1,6 +1,6 @@
 # check if mesh has vertex colors
 
-from PyFFI.CGF import CgfFormat
+from PyFFI.Formats.CGF import CgfFormat
 
 def testChunk(chunk, **kwargs):
     if isinstance(chunk, CgfFormat.MeshChunk):

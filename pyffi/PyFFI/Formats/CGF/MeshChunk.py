@@ -189,7 +189,7 @@ def setGeometry(self,
                 uvslist = None, colorslist = None):
     """Set geometry data.
 
-    >>> from PyFFI.CGF import CgfFormat
+    >>> from PyFFI.Formats.CGF import CgfFormat
     >>> chunk = CgfFormat.MeshChunk()
     >>> vertices1 = [(0,0,0),(0,1,0),(1,0,0),(1,1,0)]
     >>> vertices2 = [(0,0,1),(0,1,1),(1,0,1),(1,1,1)]

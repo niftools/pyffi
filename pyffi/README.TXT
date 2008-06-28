@@ -41,9 +41,9 @@ The code is organized as follows.
 
 * CGF Format Library - instanciates classes, and customize them
 
-  - PyFFI/CGF/__init__.py: instanciates classes for the CGF format
+  - PyFFI/Formats/CGF/__init__.py: instanciates classes for the CGF format
 
-  - PyFFI/CGF/*.py: customization of particular blocks
+  - PyFFI/Formats/CGF/*.py: customization of particular blocks
 
 * NIF Format Library - similar to CGF
 

@@ -1,6 +1,6 @@
 # writes back the file and raises StandardError if sizes differ
 
-from PyFFI.CGF import CgfFormat
+from PyFFI.Formats.CGF import CgfFormat
 from tempfile import TemporaryFile
 
 def testFile(stream,

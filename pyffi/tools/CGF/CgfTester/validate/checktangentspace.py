@@ -1,6 +1,6 @@
 # check tangent space calculation
 
-from PyFFI.CGF import CgfFormat
+from PyFFI.Formats.CGF import CgfFormat
 from PyFFI.Utils.MathUtils import *
 
 from itertools import izip
