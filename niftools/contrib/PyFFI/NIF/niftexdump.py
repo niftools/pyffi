@@ -88,7 +88,7 @@ def testBlock(block, **args):
 import sys, os
 from optparse import OptionParser
 
-from PyFFI.NIF import NifFormat
+from PyFFI.Formats.NIF import NifFormat
 
 def main():
     # parse options and positional arguments

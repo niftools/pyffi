@@ -1,4 +1,4 @@
-from PyFFI.NIF import NifFormat
+from PyFFI.Formats.NIF import NifFormat
 
 TypeRegistry = {}
 BlockRegistry = []
@@ -23,7 +23,7 @@ def LoadNif( filename ):
         Version, UserVersion = NifFormat.getVersion( f )
         if Version >= 0:
                 print "( Version 0x%08X )" % Version
-                root_blocks = NifFormat.read( Version, UserVersion, f, verbose = 0 )
+                root_blocks = NifFormat.read(f, version = Version, user_version = UserVersion, verbose = 0)
                 for block in root_blocks:
                     AddBlock( block )
         elif Version == -1:

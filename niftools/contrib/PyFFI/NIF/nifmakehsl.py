@@ -65,7 +65,7 @@ import sys
 from types import *
 from string import maketrans
 
-from PyFFI.NIF import NifFormat
+from PyFFI.Formats.NIF import NifFormat
 from PyFFI.Bases.Basic import BasicBase
 
 def find_templates():

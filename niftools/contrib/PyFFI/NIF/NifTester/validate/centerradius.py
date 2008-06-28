@@ -8,7 +8,7 @@
 # morrowind: usually ok (quite some exceptions here)
 # zoo tycoon 2: mostly ok (except *_Adult_*.nif files)
 
-from PyFFI.NIF import NifFormat
+from PyFFI.Formats.NIF import NifFormat
 
 def testBlock(block, **args):
     if not isinstance(block, NifFormat.NiGeometry): return

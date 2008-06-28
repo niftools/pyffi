@@ -1,6 +1,6 @@
 # scale nif file
 
-from PyFFI.NIF import NifFormat
+from PyFFI.Formats.NIF import NifFormat
 
 def testRoot(root, **args):
     arg = args.get('arg', 1.0)

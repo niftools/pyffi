@@ -13,7 +13,7 @@
 import sys, os
 from optparse import OptionParser
 
-from PyFFI.KFM import KfmFormat
+from PyFFI.Formats.KFM import KfmFormat
 
 # useful as testFile which simply writes back the file
 # but restores the file if the write fails

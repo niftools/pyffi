@@ -41,7 +41,7 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-from PyFFI.NIF import NifFormat
+from PyFFI.Formats.NIF import NifFormat
 import NifTester
 from PyFFI.Utils import TriStrip
 

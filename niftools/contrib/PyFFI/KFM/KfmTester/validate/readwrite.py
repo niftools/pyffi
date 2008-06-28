@@ -1,6 +1,6 @@
 # writes back the file and raises StandardError if sizes differ
 
-from PyFFI.KFM import KfmFormat
+from PyFFI.Formats.KFM import KfmFormat
 from tempfile import TemporaryFile
 
 def testFile(stream, version = None,

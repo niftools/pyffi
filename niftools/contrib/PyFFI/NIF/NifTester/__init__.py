@@ -15,7 +15,7 @@
 import sys, os
 from optparse import OptionParser
 
-from PyFFI.NIF import NifFormat
+from PyFFI.Formats.NIF import NifFormat
 
 # useful as testFile which simply writes back the file
 # but restores the file if the write fails

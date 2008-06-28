@@ -2,7 +2,7 @@
 # also useful for profiling
 
 from PyFFI.Utils import TriStrip
-from PyFFI.NIF import NifFormat
+from PyFFI.Formats.NIF import NifFormat
 
 def testBlock(block, **args):
     if not isinstance(block, NifFormat.NiTriShapeData): return

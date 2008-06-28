@@ -1,7 +1,7 @@
 """Show image in NiPixelData block."""
 
-from PyFFI.NIF import NifFormat
-from PyFFI.DDS import DdsFormat
+from PyFFI.Formats.NIF import NifFormat
+from PyFFI.Formats.DDS import DdsFormat
 import os.path
 
 def testBlock(block, **args):

@@ -1,6 +1,6 @@
 """Check bhkRigidBody centers."""
 
-from PyFFI.NIF import NifFormat
+from PyFFI.Formats.NIF import NifFormat
 
 def testBlock(block, **args):
     if not isinstance(block, NifFormat.bhkRigidBody): return

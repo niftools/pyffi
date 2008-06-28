@@ -1,6 +1,6 @@
 # writes back the file and raises StandardError if sizes differ
 
-from PyFFI.NIF import NifFormat
+from PyFFI.Formats.NIF import NifFormat
 from tempfile import TemporaryFile
 
 def testFile(stream, version = None, user_version = None, roots = None, **args):
