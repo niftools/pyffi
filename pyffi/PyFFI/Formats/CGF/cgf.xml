@@ -725,11 +725,12 @@ In Python this can be calculated using zlib.crc32(name)</add>
     <struct name="ControllerChunk" inherit="Chunk">
         <version num="826">Far Cry, Crysis</version>
         <version num="827">Far Cry, Crysis</version>
+        <version num="829">Crysis</version>
         <add name="Type" type="CtrlType" ver2="826" />
-        <add name="Num Keys" type="uint" />
+        <add name="Num Keys" type="uint" ver2="827" />
         <add name="Flags" type="CtrlFlags" ver2="826" />
-        <add name="Ctrl Id" type="uint">Unique id based on CRC32 of bone name</add>
-        <add name="Keys" type="Key" arr1="Num Keys" arg="Type" />
+        <add name="Ctrl Id" type="uint" ver2="827">Unique id based on CRC32 of bone name</add>
+        <add name="Keys" type="Key" arr1="Num Keys" arg="Type" ver2="827" />
     </struct>
 
     <struct name="TimingChunk" inherit="Chunk">

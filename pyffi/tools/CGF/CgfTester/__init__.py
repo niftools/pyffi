@@ -19,8 +19,8 @@ from PyFFI.Formats.CGF import CgfFormat
 # useful as testFile which simply writes back the file
 # but restores the file if the write fails
 def testFileOverwrite(stream,
-                      filetype = None, fileversion = None, game = None,
-                      chunks = None, versions = None, **kwargs):
+                      version = None, user_version = None,
+                      filetype = None, chunks = None, versions = None, **kwargs):
     stream.seek(0)
     backup = stream.read(-1)
     stream.seek(0)
@@ -29,8 +29,8 @@ def testFileOverwrite(stream,
     try:
         CgfFormat.write(
             stream,
-            filetype = filetype, fileversion = fileversion, game = game,
-            chunks = chunks, versions = versions)
+            version = version, user_version = user_version,
+            filetype = filetype, chunks = chunks, versions = versions)
     except: # not just StandardError, also CTRL-C
         print "write failed!!! attempt to restore original file..."
         stream.seek(0)
@@ -45,14 +45,14 @@ def testPath(top, testChunk, testFile, raisereaderror = False, mode = 'rb', verb
     kwargs['verbose'] = verbose if verbose != None else 0
     if arg != None:
         kwargs['arg'] = arg
-    for filetype, fileversion, game, stream, chunks, versions in CgfFormat.walkFile(top, raisereaderror = raisereaderror, verbose = min(1, verbose), mode = mode):
+    for stream, version, user_version, filetype, chunks, versions in CgfFormat.walkFile(top, raisereaderror = raisereaderror, verbose = min(1, verbose), mode = mode):
         if testChunk:
             for chunk in chunks:
                 testChunk(chunk, **kwargs)
         if testFile:
             testFile(
-                stream,
-                filetype = filetype, fileversion = fileversion, game = game,
+                stream, version = version, user_version = user_version,
+                filetype = filetype,
                 chunks = chunks, versions = versions, **kwargs)
         # force free memory
         del stream, chunks, versions

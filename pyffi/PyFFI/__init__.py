@@ -366,7 +366,7 @@ class XmlFileFormat(object):
     def walkFile(cls, top, topdown = True,
                  raisereaderror = False, verbose = 0, mode = 'rb'):
         """Like L{walk}, but returns more information:
-        version, stream, and the result from cls.read.
+        stream, version, user_version, and the result from cls.read.
 
         Note that the caller is not responsible for closing stream.
 
@@ -405,7 +405,7 @@ class XmlFileFormat(object):
                                           user_version = user_version)
                         if not isinstance(result, tuple):
                             result = (result,)
-                        yield (version, stream) + result
+                        yield (stream, version, user_version) + result
                     except StandardError:
                         # an error occurred during reading
                         # this should not happen: means that the file is
