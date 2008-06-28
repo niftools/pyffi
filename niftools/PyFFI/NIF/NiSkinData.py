@@ -66,7 +66,7 @@ def setTransform(self, mat):
 def applyScale(self, scale):
     """Apply scale factor on data.
 
-    >>> from PyFFI.NIF import NifFormat
+    >>> from PyFFI.Formats.NIF import NifFormat
     >>> id44 = NifFormat.Matrix44()
     >>> id44.setIdentity()
     >>> skelroot = NifFormat.NiNode()

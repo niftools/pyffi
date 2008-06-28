@@ -1,7 +1,7 @@
 """Custom functions for ControllerLink.
 
 >>> # a doctest
->>> from PyFFI.NIF import NifFormat
+>>> from PyFFI.Formats.NIF import NifFormat
 >>> link = NifFormat.ControllerLink()
 >>> print link.nodeNameOffset
 -1
@@ -81,7 +81,7 @@ def getNodeName(self):
     """Return the node name.
 
     >>> # a doctest
-    >>> from PyFFI.NIF import NifFormat
+    >>> from PyFFI.Formats.NIF import NifFormat
     >>> link = NifFormat.ControllerLink()
     >>> link.stringPalette = NifFormat.NiStringPalette()
     >>> palette = link.stringPalette.palette
@@ -90,7 +90,7 @@ def getNodeName(self):
     Bip01
 
     >>> # another doctest
-    >>> from PyFFI.NIF import NifFormat
+    >>> from PyFFI.Formats.NIF import NifFormat
     >>> link = NifFormat.ControllerLink()
     >>> link.nodeName = "Bip01"
     >>> print link.getNodeName()

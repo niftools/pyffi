@@ -38,7 +38,7 @@
 # ***** END LICENSE BLOCK *****
 
 """
->>> from PyFFI.NIF import NifFormat
+>>> from PyFFI.Formats.NIF import NifFormat
 >>> x = NifFormat.NiNode()
 >>> y = NifFormat.NiNode()
 >>> z = NifFormat.NiNode()

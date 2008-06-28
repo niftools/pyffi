@@ -1,7 +1,7 @@
 """Custom functions for NiBSplineData.
 
 >>> # a doctest
->>> from PyFFI.NIF import NifFormat
+>>> from PyFFI.Formats.NIF import NifFormat
 >>> block = NifFormat.NiBSplineData()
 >>> block.numShortControlPoints = 50
 >>> block.shortControlPoints.updateSize()

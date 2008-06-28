@@ -2,7 +2,7 @@
 
 Example usage:
 
->>> from PyFFI.NIF import NifFormat
+>>> from PyFFI.Formats.NIF import NifFormat
 >>> block = NifFormat.NiTriStripsData()
 >>> block.setTriangles([(0,1,2),(2,1,3),(2,3,4)])
 >>> block.getStrips()

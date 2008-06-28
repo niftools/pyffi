@@ -1,6 +1,6 @@
 """Custom functions for NiGeometry.
 
->>> from PyFFI.NIF import NifFormat
+>>> from PyFFI.Formats.NIF import NifFormat
 >>> id44 = NifFormat.Matrix44()
 >>> id44.setIdentity()
 >>> skelroot = NifFormat.NiNode()

@@ -159,7 +159,7 @@ Warhammer 0x14030009
 Wildlife Park 2 0x0A010000 0x0A020000
 Zoo Tycoon 2 0x0A000100
 >>> print NifFormat.HeaderString
-<class 'PyFFI.NIF.HeaderString'>
+<class 'PyFFI.Formats.NIF.HeaderString'>
 
 Some Doctests
 =============

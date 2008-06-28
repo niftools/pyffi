@@ -40,7 +40,7 @@
 def getString(self, offset):
     """Return string at given offset.
 
-    >>> from PyFFI.NIF import NifFormat
+    >>> from PyFFI.Formats.NIF import NifFormat
     >>> pal = NifFormat.StringPalette()
     >>> pal.addString("abc")
     0
@@ -74,7 +74,7 @@ def getString(self, offset):
 def getAllStrings(self):
     """Return a list of all strings.
 
-    >>> from PyFFI.NIF import NifFormat
+    >>> from PyFFI.Formats.NIF import NifFormat
     >>> pal = NifFormat.StringPalette()
     >>> pal.addString("abc")
     0
@@ -91,7 +91,7 @@ def addString(self, text):
     """Adds string to palette (will recycle existing strings if possible) and
     return offset to the string in the palette.
 
-    >>> from PyFFI.NIF import NifFormat
+    >>> from PyFFI.Formats.NIF import NifFormat
     >>> pal = NifFormat.StringPalette()
     >>> pal.addString("abc")
     0
