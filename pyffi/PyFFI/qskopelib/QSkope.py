@@ -201,7 +201,7 @@ class QSkope(QtGui.QMainWindow):
         # failed... try reading as a cgf file
         version, user_version = CgfFormat.getVersion(stream)
         # if not succesful: raise an exception
-        if filetype < 0:
+        if version < 0:
             raise ValueError("not a cgf file")
         # if succesful: parse the file and save information about it
         filetype, self.roots, versions = CgfFormat.read(
