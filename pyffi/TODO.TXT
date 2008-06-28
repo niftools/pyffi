@@ -1,9 +1,6 @@
 * move all regression tests to the tests directory (but keep useful examples
   in the docstrings!)
 
-* unify the getVersion and read functions among all formats, so they can all
-  use the XmlFileFormat base class
-
 * NSIS installer? (would solve Vista problems, and make installation more
   customizable and professional looking, also would allow to install
   documentation, tests, and examples)
@@ -16,7 +13,6 @@
 
 * refactor directory structure
   - make all modules submodules of PyFFI
-  - separate the base format modules from the rest
   - join NifTester, CgfTester, ... into a single tester module
   - for other projects that are based on PyFFI (tester, qskope) agree on
     a common directory structure for organizing plugins, i.e.
