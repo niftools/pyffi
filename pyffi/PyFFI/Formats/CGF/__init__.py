@@ -604,6 +604,8 @@ WARNING: expected instance of %s
         # game string
         game = cls.getGame(version = version, user_version = user_version)
 
+        #print version, user_version, game # DEBUG
+
         # is it a caf file? these are missing chunk headers on controllers
         is_caf = (stream.name[-4:].lower() == ".caf")
 
@@ -618,16 +620,16 @@ WARNING: expected instance of %s
         # read chunk table
         stream.seek(hdr.offset)
         table = cls.ChunkTable()
-        table.read(stream, version = hdr.version, user_version = user_version)
+        table.read(stream, version = version, user_version = user_version)
 
         # get the chunk sizes (for double checking that we have all data)
         if validate:
-            chunk_offsets = [ chunkhdr.offset for chunkhdr in table.chunkHeaders ]
+            chunk_offsets = [chunkhdr.offset for chunkhdr in table.chunkHeaders]
             chunk_offsets.append(hdr.offset)
             chunk_sizes = []
             for chunkhdr in table.chunkHeaders:
-                next_chunk_offsets = [ offset for offset in chunk_offsets
-                                       if offset > chunkhdr.offset ]
+                next_chunk_offsets = [offset for offset in chunk_offsets
+                                      if offset > chunkhdr.offset]
                 if next_chunk_offsets:
                     chunk_sizes.append(min(next_chunk_offsets) - chunkhdr.offset)
                 else:
@@ -689,7 +691,7 @@ WARNING: expected instance of %s
                             cls.ChunkType.Controller]):
                 chunkhdr_copy = cls.ChunkHeader()
                 chunkhdr_copy.read(stream,
-                                   version = hdr.version,
+                                   version = version,
                                    user_version = user_version)
                 # check that the copy is valid
                 # note: chunkhdr_copy.offset != chunkhdr.offset check removed
@@ -718,7 +720,7 @@ expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
                                      user_version = user_version)
                 # take into account header copy
                 if chunkhdr_copy:
-                    size += chunkhdr_copy.getSize(version = hdr.version,
+                    size += chunkhdr_copy.getSize(version = version,
                                                   user_version = user_version)
                 # check with number of bytes read
                 if size != stream.tell() - chunkhdr.offset:
@@ -745,10 +747,10 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
                              chunk_sizes[chunknum], size))
 
         # fix links
-        for chunk, version in zip(chunks, versions):
+        for chunk, chunkversion in zip(chunks, versions):
             #print chunk.__class__
             chunk.fixLinks(
-                version = version, user_version = user_version,
+                version = chunkversion, user_version = user_version,
                 block_dct = chunk_dct, link_stack = link_stack)
         if link_stack != []:
             raise cls.CgfError(
@@ -816,12 +818,12 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
             table.write(stream,
                         version = version, user_version = user_version)
 
-        for chunkhdr, chunk, version in zip(table.chunkHeaders,
-                                            chunks, versions):
+        for chunkhdr, chunk, chunkversion in zip(table.chunkHeaders,
+                                                 chunks, versions):
             # set up chunk header
             chunkhdr.type = getattr(
                 cls.ChunkType, chunk.__class__.__name__[:-5])
-            chunkhdr.version = version
+            chunkhdr.version = chunkversion
             chunkhdr.offset = stream.tell()
             chunkhdr.id = block_index_dct[chunk]
             # write chunk header
@@ -839,12 +841,13 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
                 and not(is_caf
                         and chunkhdr.type in [
                             cls.ChunkType.Controller]):
+                #print chunkhdr # DEBUG
                 chunkhdr.write(stream,
                                version = version,
                                user_version = user_version)
             # write chunk
             chunk.write(
-                stream, version = version, user_version = user_version,
+                stream, version = chunkversion, user_version = user_version,
                 block_index_dct = block_index_dct)
             # write padding bytes to align blocks
             padlen = (4 - stream.tell() & 3) & 3
