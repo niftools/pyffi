@@ -38,10 +38,10 @@ import PyFFI
 setup(
     name = "PyFFI",
     version = PyFFI.__version__,
-    packages = ['PyFFI', 'PyFFI.Bases', 'PyFFI.Utils', 'PyFFI.Formats', 'PyFFI.Formats.NIF', 'PyFFI.Formats.KFM', 'PyFFI.Formats.CGF', 'PyFFI.Formats.DDS', 'PyFFI.Formats.TGA', 'NifTester', 'NifTester.hacking', 'NifTester.validate', 'NifTester.surgery', 'NifVis', 'NifVis.lizers', 'CgfTester', 'CgfTester.hacking', 'CgfTester.validate', 'CgfTester.surgery', 'KfmTester', 'KfmTester.hacking', 'KfmTester.validate', 'KfmTester.surgery', 'PyFFI.QSkopeLib'],
-    package_dir = {'NifTester': 'tools/NIF/NifTester', 'NifVis': 'tools/NIF/NifVis', 'CgfTester': 'tools/CGF/CgfTester', 'KfmTester': 'tools/KFM/KfmTester'},
+    packages = ['PyFFI', 'PyFFI.Bases', 'PyFFI.Utils', 'PyFFI.Formats', 'PyFFI.Formats.NIF', 'PyFFI.Formats.KFM', 'PyFFI.Formats.CGF', 'PyFFI.Formats.DDS', 'PyFFI.Formats.TGA', 'PyFFI.Spells', 'PyFFI.Spells.CGF', 'NifTester', 'NifTester.hacking', 'NifTester.validate', 'NifTester.surgery', 'NifVis', 'NifVis.lizers', 'KfmTester', 'KfmTester.hacking', 'KfmTester.validate', 'KfmTester.surgery', 'PyFFI.QSkopeLib'],
+    package_dir = {'NifTester': 'tools/NIF/NifTester', 'NifVis': 'tools/NIF/NifVis', 'KfmTester': 'tools/KFM/KfmTester'},
     package_data = {'': ['*.xml']}, # include xml files
-    scripts = ['pyffipostinstallation.py', 'tools/NIF/ffvt3rskinpartition.py', 'tools/NIF/nifmakehsl.py', 'tools/NIF/niftoaster.py', 'tools/NIF/nifvisualizer.py', 'tools/NIF/nifoptimize.py', 'tools/NIF/niftexdump.py', 'tools/NIF/nifdump.py', 'tools/NIF/niftemplate.py', 'tools/CGF/cgftoaster.py', 'tools/KFM/kfmtoaster.py', 'scripts/qskope.py'],
+    scripts = ['pyffipostinstallation.py', 'tools/NIF/ffvt3rskinpartition.py', 'tools/NIF/nifmakehsl.py', 'tools/NIF/niftoaster.py', 'tools/NIF/nifvisualizer.py', 'tools/NIF/nifoptimize.py', 'tools/NIF/niftexdump.py', 'tools/NIF/nifdump.py', 'tools/NIF/niftemplate.py', 'scripts/cgftoaster.py', 'tools/KFM/kfmtoaster.py', 'scripts/qskope.py'],
     author = "Amorilia",
     author_email = "amorilia@users.sourceforge.net",
     license = "BSD",
