@@ -581,8 +581,8 @@ WARNING: expected instance of %s
         return filetype
 
     @classmethod
-    def read(cls, stream, version = None, user_version = None, verbose = 0,
-             validate = True):
+    def read(cls, stream, version = None, user_version = None,
+             verbose = 0, validate = True):
         """Read cgf from stream.
 
         @param stream: The stream from which to read.
@@ -759,8 +759,9 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
         return hdr.type, chunks, versions
 
     @classmethod
-    def write(cls, stream, version = None, user_version = None, verbose = 0,
-              filetype = None, chunks = None, versions = None):
+    def write(cls, stream, version = None, user_version = None,
+              filetype = None, chunks = None, versions = None,
+              verbose = 0):
         """Write cgf to stream. Returns number of padding bytes written.
 
         @param stream: The stream to which to write.
@@ -769,8 +770,6 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
         @type version: int
         @param user_version: The user version number.
         @type user_version: int
-        @param verbose: The level of verbosity.
-        @type verbose: int
         @param filetype: The file type, L{FileType.GEOM} or L{FileType.ANIM}.
         @type filetype: int
         @param chunks: The file chunks.
@@ -778,6 +777,8 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
         @param versions: The file chunk versions. If C{None} then these will
             be automatically obtained through L{getChunkVersions}.
         @type versions: list of ints
+        @param verbose: The level of verbosity.
+        @type verbose: int
         @return: Number of padding bytes written.
         """
 

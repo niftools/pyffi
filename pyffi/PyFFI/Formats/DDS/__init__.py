@@ -227,7 +227,8 @@ class DdsFormat(XmlFileFormat):
 
     @classmethod
     def write(cls, stream, version = None, user_version = None,
-              verbose = 0, header = None, pixeldata = None):
+              header = None, pixeldata = None,
+              verbose = 0):
         """Write a dds file.
 
         @param stream: The stream to which to write.
@@ -236,12 +237,12 @@ class DdsFormat(XmlFileFormat):
         @type version: int
         @param user_version: The user version number (ignored so far).
         @type user_version: int
-        @param verbose: The level of verbosity.
-        @type verbose: int
         @param header: The dds header.
         @type header: L{DdsFormat.Header}
         @param pixeldata: The dds pixel data.
         @type pixeldata: L{DdsFormat.PixelData}
+        @param verbose: The level of verbosity.
+        @type verbose: int
         """
         # TODO: make sure pixel data has correct length
 

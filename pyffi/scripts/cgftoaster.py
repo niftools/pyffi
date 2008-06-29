@@ -56,7 +56,7 @@ Not all of these three functions need to be present.
 import sys, os
 from optparse import OptionParser
 
-import CgfTester
+import PyFFI.Spells
 
 def examples_callback(option, opt, value, parser):
     print """* check if the library can read all files in current directory:
@@ -103,9 +103,9 @@ on the file <file>, or on the files in <folder>."""
                       metavar="VERBOSE",
                       default=1,
                       help="verbosity level: 0, 1, or 2 [default: %default]")
-    parser.add_option("--testers",
+    parser.add_option("--spells",
                       action="callback", callback=tests_callback,
-                      help="list all testers and exit")
+                      help="list all spells and exit")
     (options, args) = parser.parse_args()
 
     if len(args) != 2:

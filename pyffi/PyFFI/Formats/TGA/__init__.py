@@ -209,8 +209,9 @@ class TgaFormat(XmlFileFormat):
         return header, pixeldata
 
     @classmethod
-    def write(cls, stream, version = None, user_version = None, verbose = 0,
-              header = None, pixeldata = None):
+    def write(cls, stream, version = None, user_version = None,
+              header = None, pixeldata = None,
+              verbose = 0):
         """Write a tga file.
 
         @param stream: The stream to which to write.
@@ -220,11 +221,11 @@ class TgaFormat(XmlFileFormat):
         @param user_version: The user version number (usually 0).
         @type user_version: int
         @param header: The tga header.
-        @param verbose: The level of verbosity.
-        @type verbose: int
         @type header: L{TgaFormat.Header}
         @param pixeldata: The tga pixel data.
         @type pixeldata: L{TgaFormat.PixelData}
+        @param verbose: The level of verbosity.
+        @type verbose: int
         """
         # TODO: make sure pixel data has correct length
 
