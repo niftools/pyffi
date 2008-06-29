@@ -3,10 +3,11 @@ validation spells. It is originally based on wz's NifTester module, although not
 much of the original code that is left in this module.
 
 These three functions in the spell script are called:
-   testRoot(block)  - will be called on every root block in the file
-   testBlock(block) - will be called on every block in the file
-   testFile(stream, version, user_version, ...)
-                    - will be called on every file
+
+ - testRoot(block): will be called on every root block in the file
+ - testBlock(block): will be called on every block in the file
+ - testFile(stream, version, user_version, ...): will be called on every file
+
 Not all of these three functions need to be present.
 """
 

@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
-"""A script for casting spells on cgf files."""
+"""A script for casting spells on cgf files. This script is essentially
+a cgf specific wrapper around L{PyFFI.Spells.toaster}."""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
