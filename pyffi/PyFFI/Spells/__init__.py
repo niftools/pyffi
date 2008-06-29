@@ -96,7 +96,7 @@ def testPath(top, format = None, spellmodule = None, verbose = 0, **kwargs):
     @param kwargs: Extra keyword arguments that will be passed to the spell.
     @type kwargs: dict
     """
-    raisereaderror = getattr(spellmodule, "__raisereaderror__", False)
+    raisereaderror = getattr(spellmodule, "__raisereaderror__", True)
     readonly = getattr(spellmodule, "__readonly__", True)
     mode = 'rb' if readonly else 'r+b'
     testRoot = getattr(spellmodule, "testRoot", None)
