@@ -1,9 +1,9 @@
-# check tangent space calculation
+"""Check tangent space calculation."""
+
+from itertools import izip
 
 from PyFFI.Formats.CGF import CgfFormat
 from PyFFI.Utils.MathUtils import *
-
-from itertools import izip
 
 def testChunk(chunk, **args):
     # check block type

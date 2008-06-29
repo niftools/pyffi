@@ -68,11 +68,12 @@ def testFileOverwrite(format, *walkresult, **kwargs):
     backup = stream.read(-1)
     stream.seek(0)
     if kwargs.get('verbose'):
-        print "writing %s..."%stream.name
+        print "  writing %s..."%stream.name
+    #print(walkresult) # DEBUG
     try:
         format.write(*walkresult)
     except: # not just StandardError, also CTRL-C
-        print "write failed!!! attempt to restore original file..."
+        print "  write failed!!! attempt to restore original file..."
         stream.seek(0)
         stream.write(backup)
         stream.truncate()

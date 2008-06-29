@@ -1,13 +1,17 @@
-# writes back the file and raises StandardError if sizes differ
+"""This spell writes back the file and raises StandardError if sizes differ."""
+
+from tempfile import TemporaryFile
 
 from PyFFI.Formats.CGF import CgfFormat
-from tempfile import TemporaryFile
 
 def testFile(stream,
              version = None, user_version = None,
              filetype = None, chunks = None, versions = None, **kwargs):
+    verbose = kwargs.get("verbose")
     f_tmp = TemporaryFile()
     try:
+        if verbose:
+            print("  writing to temporary file...")
         total_padding = CgfFormat.write(
             f_tmp,
             version = version, user_version = user_version,
@@ -15,6 +19,8 @@ def testFile(stream,
         # comparing the files will usually be different because blocks may
         # have been written back in a different order, so cheaply just compare
         # file sizes
+        if verbose:
+            print("  comparing sizes...")
         stream.seek(0,2)
         f_tmp.seek(0,2)
         if stream.tell() != f_tmp.tell():

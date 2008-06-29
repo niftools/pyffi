@@ -782,8 +782,12 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
         @return: Number of padding bytes written.
         """
 
+        # DEBUG
+        #print((stream, version, user_version, filetype, chunks, versions))
+
         # game string
         game = cls.getGame(version = version, user_version = user_version)
+        #print(game) # DEBUG
 
         # is it a caf file? these are missing chunk headers on controllers
         is_caf = (stream.name[-4:].lower() == ".caf")
@@ -812,9 +816,10 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
         table = cls.ChunkTable()
         table.numChunks = len(chunks)
         table.chunkHeaders.updateSize()
+        #print(table) # DEBUG
 
         # crysis: write chunk table now
-        if game == "Crysis":
+        if user_version == cls.UVER_CRYSIS:
             hdr.offset = stream.tell()
             table.write(stream,
                         version = version, user_version = user_version)
@@ -842,7 +847,7 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
                 and not(is_caf
                         and chunkhdr.type in [
                             cls.ChunkType.Controller]):
-                #print chunkhdr # DEBUG
+                #print(chunkhdr) # DEBUG
                 chunkhdr.write(stream,
                                version = version,
                                user_version = user_version)
@@ -858,14 +863,20 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
 
         # write/update chunk table
         if user_version == cls.UVER_CRYSIS:
+            end_pos = stream.tell()
             stream.seek(hdr.offset)
+            table.write(stream, version = version, user_version = user_version)
         else:
             hdr.offset = stream.tell()
-        table.write(stream, version = version, user_version = user_version)
+            table.write(stream, version = version, user_version = user_version)
+            end_pos = stream.tell()
 
         # update header
         stream.seek(hdr_pos)
         hdr.write(stream, version = version, user_version = user_version)
+
+        # seek end of written data
+        stream.seek(end_pos)
 
         # return number of padding bytes written
         return total_padding
