@@ -93,7 +93,7 @@ may destroy them. Make a backup of your nif files before running this script.
 
     # run tester
     testPath(
-        top, format=NifFormat, formatspellsmodule=PyFFI.Spells.NIF.optimize,
+        top, format=NifFormat, spellmodule=PyFFI.Spells.NIF.optimize,
         verbose = options.verbose, raisetesterror = options.raisetesterror,
         exclude = options.exclude)
 

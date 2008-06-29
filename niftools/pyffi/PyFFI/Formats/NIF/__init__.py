@@ -1300,6 +1300,7 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
         return (isinstance(block, cls.bhkRefObject)
                 and not isinstance(block, cls.bhkConstraint))
 
+    @classmethod
     def getRoots(cls, *readresult):
         """Returns list of all root blocks. Used by L{PyFFI.QSkopeLib.QSkope}
         and L{PyFFI.Spells}.
@@ -1310,6 +1311,7 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
         """
         return readresult[0]
 
+    @classmethod
     def getBlocks(cls, *readresult):
         """Returns list of all blocks. Used by L{PyFFI.QSkopeLib.QSkope}
         and L{PyFFI.Spells}.
