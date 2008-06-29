@@ -1299,3 +1299,34 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
         """
         return (isinstance(block, cls.bhkRefObject)
                 and not isinstance(block, cls.bhkConstraint))
+
+    def getRoots(cls, *readresult):
+        """Returns list of all root blocks. Used by L{PyFFI.QSkopeLib.QSkope}
+        and L{PyFFI.Spells}.
+
+        @param readresult: Result from L{walk} or L{read}.
+        @type readresult: tuple
+        @return: list of root blocks
+        """
+        return readresult[0]
+
+    def getBlocks(cls, *readresult):
+        """Returns list of all blocks. Used by L{PyFFI.QSkopeLib.QSkope}
+        and L{PyFFI.Spells}.
+
+        @param readresult: Result from L{walk} or L{read}.
+        @type readresult: tuple
+        @return: list of blocks
+        """
+        # start with empty list
+        blocks = []
+        # go over all blocks from all roots
+        for root in readresult[0]:
+            for block in root.tree():
+                # skip duplicates
+                if block in blocks:
+                    continue
+                # not yet there, so add it
+                blocks.append(block)
+        # return the list
+        return blocks
