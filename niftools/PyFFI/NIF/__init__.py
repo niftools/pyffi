@@ -937,7 +937,7 @@ class NifFormat(XmlFileFormat):
 
     @classmethod
     def read(cls, stream, version = None, user_version = None,
-             verbose = 0, rootsonly = True):
+             rootsonly = True, verbose = 0):
         """Read a nif file.
 
         @param stream: The stream from which to read.
@@ -946,11 +946,11 @@ class NifFormat(XmlFileFormat):
         @type version: int
         @param user_version: The user version as obtained by L{getVersion}.
         @type user_version: int
-        @param verbose: The level of verbosity.
-        @type verbose: int
         @param rootsonly: Whether to return the list of roots only (default).
             If C{False} then will return header, blocks, footer.
         @type rootsonly: bool
+        @param verbose: The level of verbosity.
+        @type verbose: int
         """
         # read header
         if verbose >= 1:
@@ -1110,7 +1110,8 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
 
     @classmethod
     def write(cls, stream, version = None, user_version = None,
-              verbose = 0, roots = None, header = None):
+              roots = None,
+              header = None, verbose = 0):
         """Write a nif file.
 
         @param stream: The stream to which to write.
@@ -1119,8 +1120,6 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
         @type version: int
         @param user_version: The user version number.
         @type user_version: int
-        @param verbose: The level of verbosity.
-        @type verbose: int
         @param roots: The list of roots of the NIF tree.
         @type roots: list of L{NifFormat.NiObject}s
         @param header: If you pass a header, then this will be used as a basis
@@ -1128,6 +1127,8 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
             changed (for instance the list of block types and list of strings
             will be automatically updated).
         @type header: L{NifFormat.Header}
+        @param verbose: The level of verbosity.
+        @type verbose: int
         """
         # set up index and type dictionary
         block_list = [] # list of all blocks to be written

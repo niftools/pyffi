@@ -351,8 +351,9 @@ class KfmFormat(XmlFileFormat):
         return header, animations, footer
 
     @classmethod
-    def write(cls, stream, version = None, user_version = None, verbose = 0,
-              header = None, animations = None, footer = None):
+    def write(cls, stream, version = None, user_version = None,
+              header = None, animations = None, footer = None,
+              verbose = 0):
         """Write a kfm file.
 
         @param stream: The stream to which to write.
@@ -361,14 +362,14 @@ class KfmFormat(XmlFileFormat):
         @type version: int
         @param user_version: The user version number (ignored for now).
         @type user_version: int
-        @param verbose: The level of verbosity.
-        @type verbose: int
         @param header: The kfm header.
         @type header: L{KfmFormat.Header}
         @param animations: The animation data.
         @type animations: list of L{KfmFormat.Animation}
         @param footer: The kfm footer.
         @type footer: L{KfmFormat.Footer}
+        @param verbose: The level of verbosity.
+        @type verbose: int
         """
         # make sure header has correct number of animations
         header.numAnimations = len(animations)
