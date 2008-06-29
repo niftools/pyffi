@@ -1,6 +1,6 @@
 # writes back the file with single skeleton root and fix a single rest position
 
-from PyFFI.NIF import NifFormat
+from PyFFI.Formats.NIF import NifFormat
 
 __readonly__ = False
 

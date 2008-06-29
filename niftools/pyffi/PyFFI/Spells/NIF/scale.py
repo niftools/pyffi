@@ -1,6 +1,6 @@
 # scale nif file
 
-from PyFFI.NIF import NifFormat
+from PyFFI.Formats.NIF import NifFormat
 
 __readonly__ = False
 
