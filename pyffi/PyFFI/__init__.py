@@ -427,6 +427,7 @@ Warning: read failed due to either a corrupt file, a corrupt xml, or a bug.""")
             finally:
                 stream.close()
 
+    @classmethod
     def getRoots(cls, *readresult):
         """Returns list of all root blocks. Used by L{PyFFI.QSkopeLib.QSkope}
         and L{PyFFI.Spells}.
@@ -437,6 +438,7 @@ Warning: read failed due to either a corrupt file, a corrupt xml, or a bug.""")
         """
         return []
 
+    @classmethod
     def getBlocks(cls, *readresult):
         """Returns list of all blocks. Used by L{PyFFI.QSkopeLib.QSkope}
         and L{PyFFI.Spells}.
