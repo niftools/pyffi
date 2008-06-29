@@ -38,10 +38,9 @@ import PyFFI
 setup(
     name = "PyFFI",
     version = PyFFI.__version__,
-    packages = ['PyFFI', 'PyFFI.Bases', 'PyFFI.Utils', 'PyFFI.Formats', 'PyFFI.Formats.NIF', 'PyFFI.Formats.KFM', 'PyFFI.Formats.CGF', 'PyFFI.Formats.DDS', 'PyFFI.Formats.TGA', 'PyFFI.Spells', 'PyFFI.Spells.CGF', 'NifTester', 'NifTester.hacking', 'NifTester.validate', 'NifTester.surgery', 'NifVis', 'NifVis.lizers', 'KfmTester', 'KfmTester.hacking', 'KfmTester.validate', 'KfmTester.surgery', 'PyFFI.QSkopeLib'],
-    package_dir = {'NifTester': 'tools/NIF/NifTester', 'NifVis': 'tools/NIF/NifVis', 'KfmTester': 'tools/KFM/KfmTester'},
+    packages = ['PyFFI', 'PyFFI.Bases', 'PyFFI.Utils', 'PyFFI.Formats', 'PyFFI.Formats.NIF', 'PyFFI.Formats.KFM', 'PyFFI.Formats.CGF', 'PyFFI.Formats.DDS', 'PyFFI.Formats.TGA', 'PyFFI.Spells', 'PyFFI.Spells.CGF', 'PyFFI.Spells.NIF', 'PyFFI.Spells.KFM', 'PyFFI.QSkopeLib'],
     package_data = {'': ['*.xml']}, # include xml files
-    scripts = ['pyffipostinstallation.py', 'tools/NIF/ffvt3rskinpartition.py', 'tools/NIF/nifmakehsl.py', 'tools/NIF/niftoaster.py', 'tools/NIF/nifvisualizer.py', 'tools/NIF/nifoptimize.py', 'tools/NIF/niftexdump.py', 'tools/NIF/nifdump.py', 'tools/NIF/niftemplate.py', 'scripts/cgftoaster.py', 'tools/KFM/kfmtoaster.py', 'scripts/qskope.py'],
+    scripts = ['pyffipostinstallation.py', 'scripts/NIF/ffvt3rskinpartition.py', 'scripts/NIF/nifmakehsl.py', 'scripts/NIF/niftoaster.py', 'scripts/NIF/nifvisualizer.py', 'scripts/NIF/nifoptimize.py', 'scripts/NIF/niftexdump.py', 'scripts/NIF/nifdump.py', 'scripts/NIF/niftemplate.py', 'scripts/CGF/cgftoaster.py', 'scripts/KFM/kfmtoaster.py', 'scripts/qskope.py'],
     author = "Amorilia",
     author_email = "amorilia@users.sourceforge.net",
     license = "BSD",
