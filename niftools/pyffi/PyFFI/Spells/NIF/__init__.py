@@ -13,6 +13,7 @@ import hackmultiskelroot
 import hackskindataidtransform
 import hackskinrestpose
 import mergeskelandrestpos
+import optimize
 import read
 import readwrite
 import scale
