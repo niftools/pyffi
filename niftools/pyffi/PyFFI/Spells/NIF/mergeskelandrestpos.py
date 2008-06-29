@@ -1,6 +1,8 @@
 # writes back the file with single skeleton root and fix a single rest position
 
-from PyFFI.Formats.NIF import NifFormat
+from PyFFI.NIF import NifFormat
+
+__readonly__ = False
 
 def testRoot(root, **args):
     verbose = args.get('verbose', 0)

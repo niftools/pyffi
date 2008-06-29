@@ -1,8 +1,10 @@
 # check skin partition and skin partition calculation
 
-from PyFFI.Formats.NIF import NifFormat
+from PyFFI.NIF import NifFormat
 
 import struct
+
+__readonly__ = False
 
 def testBlock(block, **args):
     verbose = args.get('verbose', 0)
