@@ -201,9 +201,9 @@ def spellscallback(option, opt, value, parser, *args, **kwargs):
             continue
         print(spell)
 
-def toaster(ext = None, format = None,
-            formatspellsmodule = None, spellname = None,
-            examples = None):
+def toaster(ext=None, format=None,
+            formatspellsmodule=None, spellname=None,
+            examples=None, description=None):
     """Main function to be called for toasters. Either the spell is specified
     on the command line (such as with niftoaster, cgftoaster, etc.) in which
     case formatspellsmodule is specified but spellname is not specified, or the
@@ -218,14 +218,19 @@ def toaster(ext = None, format = None,
     @param formatspellsmodule: The module where all spells can be found, e.g.
         L{PyFFI.Spells.TGA}.
     @type formatspellsmodule: module
-    @param spellname: The name of the spell.
+    @param spellname: The name of the spell. If not given then the spell name
+        is taken from the command line.
     @type spellname: str
     @param examples: A string listing some examples of usage.
     @type examples: str
+    @param description: A description.
+    @type description: str
     """
     # parse options and positional arguments
-    usage = "%prog [options] <spell> <file>|<folder>"
-    description = """Look for a python script "PyFFI.Spells.%s.<spell>"
+    usage = ("%%prog [options]%s <file>|<folder>"
+             % (" <spell>" if spellname is None else ""))
+    if description is None:
+        description = """Look for a python script "PyFFI.Spells.%s.<spell>"
 and apply the functions testRoot, testBlock, and testFile therein
 on the file <file>, or on the files in <folder>.""" % ext
 
@@ -235,11 +240,12 @@ on the file <file>, or on the files in <folder>.""" % ext
                       action="callback", callback=examplescallback,
                       callback_kwargs={'examples': examples},
                       help="show examples of usage and exit")
-    parser.add_option("--spells",
-                      action="callback", callback=spellscallback,
-                      callback_kwargs={'formatspellsmodule':
-                                       formatspellsmodule},
-                      help="list all spells and exit")
+    if spellname is None:
+        parser.add_option("--spells",
+                          action="callback", callback=spellscallback,
+                          callback_kwargs={'formatspellsmodule':
+                                           formatspellsmodule},
+                          help="list all spells and exit")
     parser.add_option("-a", "--arg", dest="arg",
                       type="string",
                       metavar="ARG",
