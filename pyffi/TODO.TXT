@@ -1,5 +1,7 @@
-* refactor directory structure
+* refactoring
   - fix the test scripts for the new tester module
+  - re-enable the --raise and --exclude arguments for nifoptimize (and, also
+    activate them for all spells via PyFFI.Spells.toaster)
 
 * NSIS installer (would solve Vista problems, and make installation more
   customizable and professional looking, also would allow to install
