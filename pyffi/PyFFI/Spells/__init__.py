@@ -62,6 +62,8 @@ def testFileOverwrite(format, *walkresult, **kwargs):
     @type format: subclass of L{PyFFI.XmlFileFormat}
     @param walkresult: Tuple with result from walkFile.
     @type walkresult: tuple
+    @param kwargs: Extra keyword arguments.
+    @type kwargs: dict
     """
     # first argument is always the stream, by convention
     stream = walkresult[0]
@@ -69,7 +71,7 @@ def testFileOverwrite(format, *walkresult, **kwargs):
     backup = stream.read(-1)
     stream.seek(0)
     if kwargs.get('verbose'):
-        print "  writing %s..."%stream.name
+        print("  writing %s..." % stream.name)
     #print(walkresult) # DEBUG
     try:
         format.write(*walkresult)
@@ -81,7 +83,7 @@ def testFileOverwrite(format, *walkresult, **kwargs):
         raise
     stream.truncate()
 
-def testPath(top, format = None, spellmodule = None, verbose = 0, **kwargs):
+def testPath(top, format = None, spellmodule = None, **kwargs):
     """Walk over all files in a directory tree and cast a particular spell
     on every file.
 
@@ -91,9 +93,11 @@ def testPath(top, format = None, spellmodule = None, verbose = 0, **kwargs):
     @type format: L{PyFFI.XmlFileFormat} subclass
     @param spellmodule: The actual spell module.
     @type spellmodule: module
-    @param verbose: Level of verbosity.
-    @type verbose: int
-    @param kwargs: Extra keyword arguments that will be passed to the spell.
+    @param kwargs: Extra keyword arguments that will be passed to the spell,
+        such as
+          - verbose: Level of verbosity.
+          - raisetesterror: Wheter to raise errors that occur while casting
+              the spell
     @type kwargs: dict
     """
     if format is None:
@@ -103,20 +107,21 @@ def testPath(top, format = None, spellmodule = None, verbose = 0, **kwargs):
 
     raisereaderror = getattr(spellmodule, "__raisereaderror__", True)
     readonly = getattr(spellmodule, "__readonly__", True)
-    mode = 'rb' if readonly else 'r+b'
     verbose = kwargs.get("verbose", 1)
+    raisetesterror = kwargs.get("raisetesterror", True)
     pause = kwargs.get("pause", False)
     testRoot = getattr(spellmodule, "testRoot", None)
     testBlock = getattr(spellmodule, "testBlock", None)
     testFile = getattr(spellmodule, "testFile", None)
-    spellkwargs = dict(**kwargs)
 
     # warning
     if not readonly:
-        print("""This script will modify the nif files, in particular if something goes wrong it
-may destroy them. Make a backup of your nif files before running this script.
+        print("""\
+This script will modify your files, in particular if something goes wrong it
+may destroy them. Make a backup of your files before running this script.
 """)
-        if not raw_input("Are you sure that you want to proceed? [n/y] ") in ["y", "Y"]:
+        if not raw_input(
+            "Are you sure that you want to proceed? [n/y] ") in ("y", "Y"):
             if pause:
                 raw_input("Script aborted by user.")
             else:
@@ -129,38 +134,57 @@ may destroy them. Make a backup of your nif files before running this script.
     # the file uniquely
     for walkresult in format.walkFile(
         top, raisereaderror = raisereaderror,
-        verbose = min(1, verbose), mode = mode):
+        verbose = min(1, verbose), mode = 'rb' if readonly else 'r+b'):
 
         # result from read
         readresult = walkresult[3:]
 
-        # cast all spells
-        if testRoot:
-            for block in format.getRoots(*readresult):
-                testRoot(block, **spellkwargs)
-        if testBlock:
-            for block in format.getBlocks(*readresult):
-                testBlock(block, **spellkwargs)
-        if testFile:
-            testFile(*walkresult, **spellkwargs)
+        try:
+            # cast all spells
+            if testRoot:
+                for block in format.getRoots(*readresult):
+                    testRoot(block, **kwargs)
+            if testBlock:
+                for block in format.getBlocks(*readresult):
+                    testBlock(block, **kwargs)
+            if testFile:
+                testFile(*walkresult, **kwargs)
 
-        # save file back to disk if not readonly
-        if not readonly:
-            testFileOverwrite(format, *walkresult, **spellkwargs)
+            # save file back to disk if not readonly
+            if not readonly:
+                testFileOverwrite(format, *walkresult, **kwargs)
+        except StandardError:
+            # walkresult[0] is the stream
+            print("""\
+*** TEST FAILED ON %-51s ***
+*** If you were running a script that came with PyFFI, then            ***
+*** please report this as a bug (include the file) on                  ***
+*** http://sourceforge.net/tracker/?group_id=199269                    ***
+""" % walkresult[0].name)
+            # if raising test errors, reraise the exception
+            if raisetesterror:
+                raise
 
         # force free memory (this helps when parsing many very large files)
         del readresult
         del walkresult
         gc.collect()
 
-def examples_callback(option, opt, value, parser, *args, **kwargs):
-    """Print examples of usage."""
-    examples = kwargs.get('examples')
-    print examples
+def examplescallback(option, opt, value, parser, *args, **kwargs):
+    """Print examples of usage.
+
+    @param examples: The string of examples. (Passed via kwargs.)
+    @type examples: str
+    """
+    print(kwargs.get('examples'))
     sys.exit(0)
 
-def spells_callback(option, opt, value, parser, *args, **kwargs):
-    """Print all spells."""
+def spellscallback(option, opt, value, parser, *args, **kwargs):
+    """Print all spells.
+
+    @param formatspellsmodule: The spells module. (Passed via kwargs.)
+    @type formatspellsmodule: module
+    """
     # get spells module
     formatspellsmodule = kwargs.get('formatspellsmodule')
 
@@ -173,9 +197,15 @@ def spells_callback(option, opt, value, parser, *args, **kwargs):
     # quit
     sys.exit(0)
 
-def toaster(ext = None, format = None, formatspellsmodule = None,
+def toaster(ext = None, format = None,
+            formatspellsmodule = None, spellname = None,
             examples = None):
-    """Main function to be called for toasters.
+    """Main function to be called for toasters. Either the spell is specified
+    on the command line (such as with niftoaster, cgftoaster, etc.) in which
+    case formatspellsmodule is specified but spellname is not specified, or the
+    spell is baked into the script (such as with nifoptimize which always calls
+    the optimize spell) in which case both formatspellsmodule and spellname are
+    specified.
 
     @param ext: Three letter abbreviation of this format, e.g. 'TGA'.
     @type ext: str
@@ -184,12 +214,14 @@ def toaster(ext = None, format = None, formatspellsmodule = None,
     @param formatspellsmodule: The module where all spells can be found, e.g.
         L{PyFFI.Spells.TGA}.
     @type formatspellsmodule: module
+    @param spellname: The name of the spell.
+    @type spellname: str
     @param examples: A string listing some examples of usage.
     @type examples: str
     """
     # parse options and positional arguments
     usage = "%prog [options] <spell> <file>|<folder>"
-    description="""Look for a python script "PyFFI.Spells.%s.<spell>"
+    description = """Look for a python script "PyFFI.Spells.%s.<spell>"
 and apply the functions testRoot, testBlock, and testFile therein
 on the file <file>, or on the files in <folder>.""" % ext
 
@@ -200,7 +232,7 @@ on the file <file>, or on the files in <folder>.""" % ext
                       metavar="ARG",
                       help="pass argument ARG to spell")
     parser.add_option("--examples",
-                      action="callback", callback=examples_callback,
+                      action="callback", callback=examplescallback,
                       callback_kwargs={'examples': examples},
                       help="show examples of usage and exit")
     parser.add_option("-r", "--raise", dest="raisetesterror",
@@ -219,7 +251,7 @@ on the file <file>, or on the files in <folder>.""" % ext
 (you can exclude multiple block types by specifying this option multiple \
 times)")
     parser.add_option("--spells",
-                      action="callback", callback=spells_callback,
+                      action="callback", callback=spellscallback,
                       callback_kwargs={'formatspellsmodule':
                                        formatspellsmodule},
                       help="list all spells and exit")
@@ -227,33 +259,40 @@ times)")
                         exclude = [])
     (options, args) = parser.parse_args()
 
-    if len(args) != 2:
-        parser.error("incorrect number of arguments (two required)")
+    # check number of arguments and get spell name if needed
+    if not spellname is None:
+        # spell name specified when function was called
+        if len(args) != 1:
+            parser.error("incorrect number of arguments (one required)")
+    else:
+        # spell name not specified when function was called
+        if len(args) != 2:
+            parser.error("incorrect number of arguments (two required)")
+        # get spell name
+        spellname = args[0]
 
-    # get spell and top folder/file
-    spell_str = args[0]
-    top = args[1]
+    # get top folder/file: last argument always is folder/file
+    top = args[-1]
 
     try:
-        spellfullmodule = __import__("%s.%s" % (formatspellsmodule.__name__,
-                                                spell_str))
-        spellmodule = getattr(formatspellsmodule, spell_str)
-    except ImportError:
-        # either spell was not found, or had an error while importing
-        parser.error("spell '%s' not found" % spell_str)
+        spellmodule = getattr(formatspellsmodule, spellname)
+    except AttributeError:
+        # spell was not found
+        parser.error("spell '%s' not found" % spellname)
 
     # convert options to dictionary
-    options_dict = {}
-    for option_name in dir(options):
+    optionsdict = {}
+    for optionname in dir(options):
         # skip default attributes of optparse.Values
-        if not option_name in dir(optparse.Values):
-            options_dict[option_name] = getattr(options, option_name)
+        if not optionname in dir(optparse.Values):
+            optionsdict[optionname] = getattr(options, optionname)
 
+    # run the spell
+    testPath(top, format = format, spellmodule = spellmodule, **optionsdict)
 
-    # run tester
-    testPath(top, format = format, spellmodule = spellmodule, **options_dict)
-
+    # signal the end
     if options.pause:
         raw_input("Finished.")
     else:
         print("Finished.")
+
