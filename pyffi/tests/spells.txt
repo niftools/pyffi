@@ -82,3 +82,13 @@ reading tests/nif/test.nif
   writing to temporary file...
 Finished.
 
+
+Test nifoptimize
+----------------
+
+>>> import sys
+>>> sys.path.append("scripts/NIF")
+>>> import nifoptimize
+>>> sys.argv = ["nifoptimize.py", "--verbose=99", "tests/nif/test.nif"]
+>>> nifoptimize.main() # doctest: +ELLIPSIS
+
