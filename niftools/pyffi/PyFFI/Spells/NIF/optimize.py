@@ -101,18 +101,26 @@ def vertexHash(block, precision = 200):
     for i in xrange(block.numVertices):
         h = []
         if verts:
-            h.extend([ int(x*precision) for x in [verts[i].x, verts[i].y, verts[i].z] ])
+            h.extend([int(x * precision)
+                     for x in [verts[i].x, verts[i].y, verts[i].z]])
         if norms:
-            h.extend([ int(x*precision) for x in [norms[i].x, norms[i].y, norms[i].z] ])
+            h.extend([int(x * precision)
+                      for x in [norms[i].x, norms[i].y, norms[i].z]])
         if uvsets:
             for uvset in uvsets:
-                h.extend([ int(x*precision) for x in [uvset[i].u, uvset[i].v] ])
+                h.extend([int(x*precision) for x in [uvset[i].u, uvset[i].v]])
         if vcols:
-            h.extend([ int(x*precision) for x in [vcols[i].r, vcols[i].g, vcols[i].b, vcols[i].a ] ])
+            h.extend([int(x * precision)
+                      for x in [vcols[i].r, vcols[i].g,
+                                vcols[i].b, vcols[i].a]])
         yield tuple(h)
 
 def triangulateTriStrips(block):
-    """Takes a NiTriStrip block and returns an equivalent NiTriShape block."""
+    """Takes a NiTriStrip block and returns an equivalent NiTriShape block.
+
+    @param block: The block to triangulate.
+    @type block: L{NifFormat.NiTriStrips}
+    """
     assert(isinstance(block, NifFormat.NiTriStrips))
     # copy the shape (first to NiTriBasedGeom and then to NiTriShape)
     shape = NifFormat.NiTriShape().deepcopy(
@@ -128,7 +136,11 @@ def triangulateTriStrips(block):
     return shape
 
 def stripifyTriShape(block):
-    """Takes a NiTriShape block and returns an equivalent NiTriStrips block."""
+    """Takes a NiTriShape block and returns an equivalent NiTriStrips block.
+
+    @param block: The block to stripify.
+    @type block: L{NifFormat.NiTriShape}
+    """
     assert(isinstance(block, NifFormat.NiTriShape))
     # copy the shape (first to NiTriBasedGeom and then to NiTriStrips)
     strips = NifFormat.NiTriStrips().deepcopy(
@@ -145,7 +157,7 @@ def stripifyTriShape(block):
 
 def optimizeTriBasedGeom(block, striplencutoff = 10.0, stitch = True):
     """Optimize a NiTriStrips or NiTriShape block."""
-    print "optimizing block '%s'"%block.name
+    print("optimizing block '%s'" % block.name)
 
     # cover degenerate case
     if block.data.numVertices < 3:
@@ -174,7 +186,8 @@ def optimizeTriBasedGeom(block, striplencutoff = 10.0, stitch = True):
     del k_map
 
     new_numvertices = index
-    print "  (num vertices was %i and is now %i)"%(len(v_map), new_numvertices)
+    print("  (num vertices was %i and is now %i)"
+          % (len(v_map), new_numvertices))
     # copy old data
     oldverts = [[v.x, v.y, v.z] for v in data.vertices]
     oldnorms = [[n.x, n.y, n.z] for n in data.normals]
@@ -281,7 +294,9 @@ def optimizeTriBasedGeom(block, striplencutoff = 10.0, stitch = True):
         if skinpart:
             print "  updating skin partition"
             # use Oblivion settings
-            block.updateSkinPartition(maxbonesperpartition = 18, maxbonespervertex = 4, stripify = True, verbose = 0)
+            block.updateSkinPartition(
+                maxbonesperpartition = 18, maxbonespervertex = 4,
+                stripify = True, verbose = 0)
 
     # recalculate tangent space (only if the block already exists)
     if block.find(block_name = 'Tangent space (binormal & tangent vectors)',
@@ -292,6 +307,11 @@ def optimizeTriBasedGeom(block, striplencutoff = 10.0, stitch = True):
     return block
 
 def fixTexturePath(block, **args):
+    """Fix the texture path.
+
+    @param block: The block to fix.
+    @type block: L{NifFormat.NiSourceTexture}
+    """
     if ('\n' in block.fileName) or ('\r' in block.fileName):
         block.fileName = block.fileName.replace('\n', '\\n')
         block.fileName = block.fileName.replace('\r', '\\r')
@@ -347,8 +367,8 @@ def testRoot(root, **args):
                 continue
             # check all textures
             for tex in ("Base", "Dark", "Detail", "Gloss", "Glow"):
-                if getattr(block, "has%sTexture"%tex):
-                    texdesc = getattr(block, "%sTexture"%tex.lower())
+                if getattr(block, "has%sTexture" % tex):
+                    texdesc = getattr(block, "%sTexture" % tex.lower())
                     hashvalue = texdesc.source.getHash()
                     # try to find a matching source texture
                     try:
@@ -458,11 +478,11 @@ def testRoot(root, **args):
 
         # optimize geometries
         for i, child in enumerate(block.children):
-           if (isinstance(child, NifFormat.NiTriStrips) \
-               and not "NiTriStrips" in exclude) or \
-               (isinstance(child, NifFormat.NiTriShape) \
-               and not "NiTriShape" in exclude):
-               block.children[i] = optimizeTriBasedGeom(child)
+            if (isinstance(child, NifFormat.NiTriStrips) \
+                and not "NiTriStrips" in exclude) or \
+                (isinstance(child, NifFormat.NiTriShape) \
+                and not "NiTriShape" in exclude):
+                block.children[i] = optimizeTriBasedGeom(child)
 
 
     # merge shape data
