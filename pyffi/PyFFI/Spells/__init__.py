@@ -52,7 +52,7 @@ Not all of these three functions need to be present.
 
 import sys
 import gc
-from optparse import OptionParser
+import optparse
 
 def testFileOverwrite(format, *walkresult, **kwargs):
     """Useful as testFile which simply writes back the file
@@ -193,7 +193,8 @@ def toaster(ext = None, format = None, formatspellsmodule = None,
 and apply the functions testRoot, testBlock, and testFile therein
 on the file <file>, or on the files in <folder>.""" % ext
 
-    parser = OptionParser(usage, version="%prog $Rev$", description=description)
+    parser = optparse.OptionParser(usage, version="%prog $Rev$",
+                                   description=description)
     parser.add_option("-a", "--arg", dest="arg",
                       type="string",
                       metavar="ARG",
@@ -241,10 +242,18 @@ times)")
         # either spell was not found, or had an error while importing
         parser.error("spell '%s' not found" % spell_str)
 
+    # convert options to dictionary
+    options_dict = {}
+    for option_name in dir(options):
+        # skip default attributes of optparse.Values
+        if not option_name in dir(optparse.Values):
+            options_dict[option_name] = getattr(options, option_name)
+
+
     # run tester
-    testPath(
-        top, format = format, spellmodule = spellmodule,
-        **parser.values)
+    testPath(top, format = format, spellmodule = spellmodule, **options_dict)
 
     if options.pause:
         raw_input("Finished.")
+    else:
+        print("Finished.")
