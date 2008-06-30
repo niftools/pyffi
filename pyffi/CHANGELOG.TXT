@@ -1,4 +1,4 @@
-Version 0.12.0 (***)
+Version 1.0.0 (***)
 * library reorganized and some interfaces have been unified
   - main format classes PyFFI.XXX have been moved to PyFFI.Formats.XXX, so
   "from PyFFI.XXX import XxxFormat" is now 
