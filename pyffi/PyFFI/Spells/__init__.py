@@ -176,8 +176,10 @@ def examplescallback(option, opt, value, parser, *args, **kwargs):
     @param examples: The string of examples. (Passed via kwargs.)
     @type examples: str
     """
+    # set option value
+    parser.values.examples = True
+    # print examples
     print(kwargs.get('examples'))
-    sys.exit(0)
 
 def spellscallback(option, opt, value, parser, *args, **kwargs):
     """Print all spells.
@@ -185,6 +187,8 @@ def spellscallback(option, opt, value, parser, *args, **kwargs):
     @param formatspellsmodule: The spells module. (Passed via kwargs.)
     @type formatspellsmodule: module
     """
+    # set option value
+    parser.values.spells = True
     # get spells module
     formatspellsmodule = kwargs.get('formatspellsmodule')
 
@@ -193,9 +197,6 @@ def spellscallback(option, opt, value, parser, *args, **kwargs):
         if spell[:2] == '__':
             continue
         print(spell)
-
-    # quit
-    sys.exit(0)
 
 def toaster(ext = None, format = None,
             formatspellsmodule = None, spellname = None,
@@ -255,9 +256,13 @@ times)")
                       callback_kwargs={'formatspellsmodule':
                                        formatspellsmodule},
                       help="list all spells and exit")
-    parser.set_defaults(raisetesterror = False, verbose = 1, pause = False,
-                        exclude = [])
+    parser.set_defaults(raisetesterror=False, verbose=1, pause=False,
+                        exclude=[], examples=False, spells=False)
     (options, args) = parser.parse_args()
+
+    # check if we had examples and/or spells: quit
+    if options.spells or options.examples:
+        return
 
     # check number of arguments and get spell name if needed
     if not spellname is None:

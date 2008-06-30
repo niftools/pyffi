@@ -1,0 +1,33 @@
+This file contains doctests for the PyFFI.Spells module.
+
+Show example of usage
+---------------------
+
+>>> import sys
+>>> sys.path.append("scripts/NIF")
+>>> import niftoaster
+>>> sys.argv = ["niftoaster.py", "--examples"]
+>>> niftoaster.main()
+* check if PyFFI can read all files in current directory
+  (python version of nifskope's xml checker):
+<BLANKLINE>
+    python niftoaster.py read .
+<BLANKLINE>
+* merge skeleton roots and rest positions for all files in current directory:
+<BLANKLINE>
+    python niftoaster.py mergeskelandrestpos .
+<BLANKLINE>
+* scale all files in c:\zoo2 by a factor 100 - useful to
+  visualize nif files from games such as Zoo Tycoon 2 that are otherwise too
+  small to show up properly in nifskope:
+<BLANKLINE>
+    python niftoaster.py -a 100 scale "c:\zoo2"
+<BLANKLINE>
+* same as above, but also find out profile information on reading nif
+  files:
+<BLANKLINE>
+    python -m cProfile -s cumulative -o profile_read.txt niftoaster.py read .
+<BLANKLINE>
+* find out time spent on a particular test:
+<BLANKLINE>
+    python -m cProfile -s cumulative niftoaster.py tristrip
