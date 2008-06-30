@@ -41,64 +41,23 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-from PyFFI.Spells import testPath
+from PyFFI.Spells import toaster
 from PyFFI.Formats.NIF import NifFormat
-import PyFFI.Spells.NIF.optimize
-
-import sys, os
-from optparse import OptionParser
+import PyFFI.Spells.NIF
 
 def main():
-    # parse options and positional arguments
-    usage = "%prog [options] <file>|<folder>"
-    description="""Optimize nif file <file> or all nif files in folder <folder>.
+    description = """\
+Optimize nif file <file> or all nif files in folder <folder>.
 This script will modify the nif files, in particular if something goes wrong it
 may destroy them. Make a backup before running this script."""
-    parser = OptionParser(usage, version="%prog $Rev$", description=description)
-    parser.add_option("-r", "--raise", dest="raisetesterror",
-                      action="store_true",
-                      help="raise exception on errors during optimization")
-    parser.add_option("-v", "--verbose", dest="verbose",
-                      type="int",
-                      metavar="VERBOSE",
-                      help="verbosity level: 0, 1, or 2 [default: %default]")
-    parser.add_option("-p", "--pause", dest="pause",
-                      action="store_true",
-                      help="pause when done")
-    parser.add_option("-x", "--exclude", dest="exclude",
-                      action="append",
-                      help="exclude given block type from optimization \
-(you can exclude multiple block types by specifying this option multiple \
-times)")
-    parser.set_defaults(raisetesterror = False, verbose = 1, pause = False,
-                        exclude = [])
-    (options, args) = parser.parse_args()
+    examples = """python nifoptimize.py /path/to/copy/of/my/nifs"""
 
-    if len(args) != 1:
-        parser.error("incorrect number of arguments (one required)")
-
-    # get top folder/file
-    top = args[0]
-
-    # warning
-    print("""This script will modify the nif files, in particular if something goes wrong it
-may destroy them. Make a backup of your nif files before running this script.
-""")
-    if not raw_input("Are you sure that you want to proceed? [n/y] ") in ["y", "Y"]:
-        if options.pause:
-            raw_input("Script aborted by user.")
-        else:
-            print("Script aborted by user.")
-        return
-
-    # run tester
-    testPath(
-        top, format=NifFormat, spellmodule=PyFFI.Spells.NIF.optimize,
-        verbose = options.verbose, raisetesterror = options.raisetesterror,
-        exclude = options.exclude)
-
-    if options.pause:
-        raw_input("Finished.")
+    toaster(ext='NIF',
+            format=NifFormat,
+            formatspellsmodule=PyFFI.Spells.NIF,
+            spellname="optimize",
+            examples=examples,
+            description=description)
 
 # if script is called...
 if __name__ == "__main__":
