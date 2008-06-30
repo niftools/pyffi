@@ -178,7 +178,7 @@ formats.
 
 __all__ = ['XmlHandler', 'Utils', 'Common', 'Bases']
 
-__version__ = '0.12.0'
+__version__ = '1.0.0'
 __hexversion__ = eval('0x%02X%02X%02X'
                       % tuple(int(x) for x in __version__.split('.')))
 
