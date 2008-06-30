@@ -104,11 +104,24 @@ def testPath(top, format = None, spellmodule = None, verbose = 0, **kwargs):
     raisereaderror = getattr(spellmodule, "__raisereaderror__", True)
     readonly = getattr(spellmodule, "__readonly__", True)
     mode = 'rb' if readonly else 'r+b'
+    verbose = kwargs.get("verbose", 1)
+    pause = kwargs.get("pause", False)
     testRoot = getattr(spellmodule, "testRoot", None)
     testBlock = getattr(spellmodule, "testBlock", None)
     testFile = getattr(spellmodule, "testFile", None)
     spellkwargs = dict(**kwargs)
-    spellkwargs['verbose'] = verbose
+
+    # warning
+    if not readonly:
+        print("""This script will modify the nif files, in particular if something goes wrong it
+may destroy them. Make a backup of your nif files before running this script.
+""")
+        if not raw_input("Are you sure that you want to proceed? [n/y] ") in ["y", "Y"]:
+            if pause:
+                raw_input("Script aborted by user.")
+            else:
+                print("Script aborted by user.")
+            return
 
     # remind, walkresult is stream, version, user_version, and anything
     # returned by format.read appended to it
@@ -189,16 +202,28 @@ on the file <file>, or on the files in <folder>.""" % ext
                       action="callback", callback=examples_callback,
                       callback_kwargs={'examples': examples},
                       help="show examples of usage and exit")
+    parser.add_option("-r", "--raise", dest="raisetesterror",
+                      action="store_true",
+                      help="raise exception on errors during the spell")
     parser.add_option("-v", "--verbose", dest="verbose",
                       type="int",
                       metavar="VERBOSE",
-                      default=1,
                       help="verbosity level: 0, 1, or 2 [default: %default]")
+    parser.add_option("-p", "--pause", dest="pause",
+                      action="store_true",
+                      help="pause when done")
+    parser.add_option("-x", "--exclude", dest="exclude",
+                      action="append",
+                      help="exclude given block type from the spell \
+(you can exclude multiple block types by specifying this option multiple \
+times)")
     parser.add_option("--spells",
                       action="callback", callback=spells_callback,
                       callback_kwargs={'formatspellsmodule':
                                        formatspellsmodule},
                       help="list all spells and exit")
+    parser.set_defaults(raisetesterror = False, verbose = 1, pause = False,
+                        exclude = [])
     (options, args) = parser.parse_args()
 
     if len(args) != 2:
@@ -219,4 +244,7 @@ on the file <file>, or on the files in <folder>.""" % ext
     # run tester
     testPath(
         top, format = format, spellmodule = spellmodule,
-        verbose = options.verbose, arg = options.arg)
+        **parser.values)
+
+    if options.pause:
+        raw_input("Finished.")
