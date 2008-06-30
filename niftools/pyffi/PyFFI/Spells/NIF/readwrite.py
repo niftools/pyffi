@@ -3,9 +3,12 @@
 from PyFFI.Formats.NIF import NifFormat
 from tempfile import TemporaryFile
 
-def testFile(stream, version = None, user_version = None, roots = None, **args):
+def testFile(stream, version = None, user_version = None, roots = None, **kwargs):
+    verbose = kwargs.get("verbose", 0)
     f_tmp = TemporaryFile()
     try:
+        if verbose:
+            print("  writing to temporary file...")
         NifFormat.write(
             f_tmp,
             version = version, user_version = user_version, roots = roots)
