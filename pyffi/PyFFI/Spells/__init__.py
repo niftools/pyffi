@@ -53,6 +53,7 @@ Not all of these three functions need to be present.
 import sys
 import gc
 import optparse
+import PyFFI
 
 def testFileOverwrite(format, *walkresult, **kwargs):
     """Useful as testFile which simply writes back the file
@@ -96,8 +97,10 @@ def testPath(top, format = None, spellmodule = None, **kwargs):
     @param kwargs: Extra keyword arguments that will be passed to the spell,
         such as
           - verbose: Level of verbosity.
-          - raisetesterror: Wheter to raise errors that occur while casting
-              the spell
+          - raisetesterror: Whether to raise errors that occur while casting
+              the spell.
+          - raisereaderror: Whether to raise errors that occur while reading
+              the file.
     @type kwargs: dict
     """
     if format is None:
@@ -105,10 +108,10 @@ def testPath(top, format = None, spellmodule = None, **kwargs):
     if spellmodule is None:
         raise ValueError("you must specify a spellmodule argument")
 
-    raisereaderror = getattr(spellmodule, "__raisereaderror__", True)
     readonly = getattr(spellmodule, "__readonly__", True)
+    raisereaderror = kwargs.get("raisereaderror", True)
     verbose = kwargs.get("verbose", 1)
-    raisetesterror = kwargs.get("raisetesterror", True)
+    raisetesterror = kwargs.get("raisetesterror", False)
     pause = kwargs.get("pause", False)
     testRoot = getattr(spellmodule, "testRoot", None)
     testBlock = getattr(spellmodule, "testBlock", None)
@@ -226,16 +229,26 @@ def toaster(ext = None, format = None,
 and apply the functions testRoot, testBlock, and testFile therein
 on the file <file>, or on the files in <folder>.""" % ext
 
-    parser = optparse.OptionParser(usage, version="%prog $Rev$",
+    parser = optparse.OptionParser(usage, version="%%prog (PyFFI %s)" % PyFFI.__version__,
                                    description=description)
-    parser.add_option("-a", "--arg", dest="arg",
-                      type="string",
-                      metavar="ARG",
-                      help="pass argument ARG to spell")
     parser.add_option("--examples",
                       action="callback", callback=examplescallback,
                       callback_kwargs={'examples': examples},
                       help="show examples of usage and exit")
+    parser.add_option("--spells",
+                      action="callback", callback=spellscallback,
+                      callback_kwargs={'formatspellsmodule':
+                                       formatspellsmodule},
+                      help="list all spells and exit")
+    parser.add_option("-a", "--arg", dest="arg",
+                      type="string",
+                      metavar="ARG",
+                      help="pass argument ARG to spell")
+    parser.add_option("-x", "--exclude", dest="exclude",
+                      action="append",
+                      help="exclude given block type from the spell \
+(you can exclude multiple block types by specifying this option multiple \
+times)")
     parser.add_option("-r", "--raise", dest="raisetesterror",
                       action="store_true",
                       help="raise exception on errors during the spell")
@@ -246,18 +259,14 @@ on the file <file>, or on the files in <folder>.""" % ext
     parser.add_option("-p", "--pause", dest="pause",
                       action="store_true",
                       help="pause when done")
-    parser.add_option("-x", "--exclude", dest="exclude",
-                      action="append",
-                      help="exclude given block type from the spell \
-(you can exclude multiple block types by specifying this option multiple \
-times)")
-    parser.add_option("--spells",
-                      action="callback", callback=spellscallback,
-                      callback_kwargs={'formatspellsmodule':
-                                       formatspellsmodule},
-                      help="list all spells and exit")
+    parser.add_option("--usetheforceluke", dest="raisereaderror",
+                      action="store_false",
+                      help="""pass exceptions while reading files
+(normally you do not need this, unless you are hacking the xml format
+description)""")
     parser.set_defaults(raisetesterror=False, verbose=1, pause=False,
-                        exclude=[], examples=False, spells=False)
+                        exclude=[], examples=False, spells=False,
+                        raisereaderror=True)
     (options, args) = parser.parse_args()
 
     # check if we had examples and/or spells: quit
