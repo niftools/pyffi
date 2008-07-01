@@ -49,26 +49,16 @@ Say this is the contents of simple.py::
 
     import os
     from PyFFI import MetaXmlFileFormat
+    from PyFFI import XmlFileFormat
     from PyFFI import Common
-    class SimpleFormat:
+
+    class SimpleFormat(XmlFileFormat):
         __metaclass__ = MetaXmlFileFormat
         xmlFileName = 'simple.xml'
         xmlFilePath = [ os.path.dirname(__file__) ]
         clsFilePath = os.path.dirname(__file__)
 
         int = Common.Int
-
-        @staticmethod
-        def versionNumber(version_str):
-            return 0
-
-        @staticmethod
-        def nameAttribute(name):
-            parts = str(name).split() # str(name) converts unicode to str
-            attrname = parts[0].lower()
-            for part in parts[1:]:
-                attrname += part.capitalize()
-            return attrname
 
 What happens in this piece of code?
 
@@ -94,13 +84,6 @@ What happens in this piece of code?
     such as integers, characters, and floats. In the above example we have
     taken advantage of Common.Int, which defines a signed 32-bit integer,
     exactly the type we need.
-  - The versionNumber function is useful for implementing file formats that
-    have different versions, and converts the xml version strings into Python
-    integers. As this feature is not used in this simple example, it simply
-    returns zero.
-  - The nameAttribute function converts attribute names as specified in the
-    xml into Python attribute names. This implementation simply removes spaces
-    and uses a default capitalization.
 
 Reading and Writing Files
 -------------------------
