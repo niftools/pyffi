@@ -12,3 +12,8 @@ python setup.py sdist --format=zip
 python setup.py sdist --format=gztar
 python setup.py bdist_wininst --install-script pyffipostinstallation.py --bitmap win-install/pyffi_install_152x261.bmp
 
+# create file list for nsis installer from MANIFEST
+python makensis.py
+
+# TODO: run nsis script to create windows installer
+
