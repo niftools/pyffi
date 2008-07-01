@@ -243,6 +243,7 @@ maya_check_end:
 
   ; Install shortcuts
   CreateDirectory "$SMPROGRAMS\PyFFI\"
+  CreateShortCut "$SMPROGRAMS\PyFFI\Authors.lnk" "$INSTDIR\AUTHORS.TXT"
   CreateShortCut "$SMPROGRAMS\PyFFI\ChangeLog.lnk" "$INSTDIR\CHANGELOG.TXT"
   CreateShortCut "$SMPROGRAMS\PyFFI\Documentation.lnk" "$INSTDIR\docs\index.html"
   CreateShortCut "$SMPROGRAMS\PyFFI\License.lnk" "$INSTDIR\LICENSE.TXT"
@@ -250,6 +251,8 @@ maya_check_end:
   CreateShortCut "$SMPROGRAMS\PyFFI\Thanks.lnk" "$INSTDIR\THANKS.TXT"
   CreateShortCut "$SMPROGRAMS\PyFFI\Todo.lnk" "$INSTDIR\TODO.TXT"
   CreateShortCut "$SMPROGRAMS\PyFFI\Uninstall.lnk" "$INSTDIR\uninstall.exe"
+
+  ; TODO QSkope shortcut
 
   ; Set up file associations
   WriteRegStr HKCR ".nif" "" "NetImmerseFile"
@@ -322,8 +325,12 @@ python_check_end:
   ; remove program files and program directory
   RMDir /r "$INSTDIR"
 
+  ; TODO remove QSkope shortcut
+  ; TODO remove PyFFI from Maya
+
   ; remove links in start menu
   Delete "$SMPROGRAMS\PyFFI\*.*"
   RMDir "$SMPROGRAMS\PyFFI"
   RMDir "$SMPROGRAMS" ; this will only delete if the directory is empty
 SectionEnd
+

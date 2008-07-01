@@ -3,8 +3,8 @@ Main author
 
 amorilia (amorilia@users.sourceforge.net)
 
-Contributions
--------------
+Contributors
+------------
 
   - wz:
       - niftester (the current spells module is a revamped version of that)

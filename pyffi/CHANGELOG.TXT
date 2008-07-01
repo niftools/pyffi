@@ -1,5 +1,8 @@
 Version 1.0.0 (***)
-* library reorganized and some interfaces have been unified
+* new NSIS installer (this solves various issues with Vista, and also allows
+the documentation to be bundled)
+* refactoring: library reorganized and some interfaces have been unified,
+also a lot of code duplication has been reduced
   - main format classes PyFFI.XXX have been moved to PyFFI.Formats.XXX, so
   "from PyFFI.XXX import XxxFormat" is now 
   "from PyFFI.Formats.XXX import XxxFormat"
