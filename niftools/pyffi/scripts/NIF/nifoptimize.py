@@ -46,12 +46,20 @@ from PyFFI.Formats.NIF import NifFormat
 import PyFFI.Spells.NIF
 
 def main():
+    # set description and examples
     description = """\
 Optimize nif file <file> or all nif files in folder <folder>.
 This script will modify the nif files, in particular if something goes wrong it
 may destroy them. Make a backup before running this script."""
-    examples = """python nifoptimize.py /path/to/copy/of/my/nifs"""
+    examples = """* Standard usage:
 
+    python nifoptimize.py /path/to/copy/of/my/nifs
+
+* Optimize, but do not merge NiMaterialProperty blocks:
+
+    python nifoptimize.py --exclude=NiMaterialProperty /path/to/copy/of/my/nifs
+"""
+    # run the toaster for the optimize spell
     toaster(ext='NIF',
             format=NifFormat,
             formatspellsmodule=PyFFI.Spells.NIF,
@@ -62,3 +70,4 @@ may destroy them. Make a backup before running this script."""
 # if script is called...
 if __name__ == "__main__":
     main()
+
