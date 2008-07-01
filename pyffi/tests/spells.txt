@@ -127,7 +127,7 @@ optimizing block 'Cube'
   removing duplicate vertices
   (num vertices was 8 and is now 8)
   stripifying
-  (average strip length is 8.894737)
+  (average strip length is 8.157895)
   average strip length less than 10.000000 so triangulating
   writing tests/nif/_test.nif...
 Finished.
@@ -154,7 +154,7 @@ optimizing block 'Cube'
   removing duplicate vertices
   (num vertices was 8 and is now 8)
   stripifying
-  (average strip length is 8.894737)
+  (average strip length is 8.157895)
   average strip length less than 10.000000 so triangulating
   writing tests/nif/_test.nif...
 Finished.
