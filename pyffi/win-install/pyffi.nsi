@@ -183,16 +183,16 @@ FunctionEnd
 Section
   SectionIn RO
 
-  ; full PyFFI install takes about 3MB in the Python directory
+  ; full PyFFI install takes about 4MB in the Python directory
   ; plus the same for the Maya directory
   ; the build directory takes about 1.5MB
-  ; reserve 10MB extra for the installation to be absolutely on
+  ; reserve 15MB extra for the installation to be absolutely on
   ; the safe side
-  AddSize 10000
+  AddSize 15000
 
   SetShellVarContext all
 
-  ; Clean up old versions
+  ; Clean up old versions and clutter
   RMDir /r "$PYTHONPATH\Lib\site-packages\PyFFI"
   RMDir /r "$PYTHONPATH\Lib\site-packages\NifTester"
   RMDir /r "$PYTHONPATH\Lib\site-packages\NifVis"
@@ -200,6 +200,8 @@ Section
   RMDir /r "$PYTHONPATH\Lib\site-packages\CgfTester"
   RMDir /r "$PYTHONPATH\Lib\site-packages\qskopelib"
   Delete "$PYTHONPATH\Lib\site-packages\PyFFI*.*"
+  Delete "$PYTHONPATH\RemovePyFFI.exe"
+  Delete "$PYTHONPATH\PyFFI-wininst.log"
 
   ; Install documentation files
   !insertmacro InstallManifestFiles
@@ -265,11 +267,12 @@ python_remove_pyffi:
 
      ; key, that means that Python 2.5 is still installed
      RMDir /r "$PYTHONPATH\Lib\site-packages\PyFFI"
+     Delete "$PYTHONPATH\Lib\site-packages\PyFFI*.*"
 
 python_check_end:
 
   ; remove registry keys
-  DeleteRegKey HKLM SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI-py2.5
+  DeleteRegKey HKLM SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI
 
   ; remove program files and program directory
   RMDir /r "$INSTDIR"
