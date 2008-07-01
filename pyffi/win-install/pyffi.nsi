@@ -36,8 +36,6 @@
 SetCompressor /SOLID lzma
 
 !include "MUI.nsh"
-!include "WordFunc.nsh"
-!insertmacro VersionCompare
 
 ; list of files, generated from MANIFEST file
 !include "manifest.nsh"
@@ -201,6 +199,7 @@ Section
   RMDir /r "$PYTHONPATH\Lib\site-packages\KfmTester"
   RMDir /r "$PYTHONPATH\Lib\site-packages\CgfTester"
   RMDir /r "$PYTHONPATH\Lib\site-packages\qskopelib"
+  Delete "$PYTHONPATH\Lib\site-packages\PyFFI*.*"
 
   ; Install documentation files
   !insertmacro InstallManifestFiles
@@ -243,7 +242,7 @@ maya_check_end:
   CreateShortCut "$SMPROGRAMS\PyFFI\Uninstall.lnk" "$INSTDIR\uninstall.exe"
 
   ; Write the uninstall keys & uninstaller for Windows
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI" "DisplayName" "Python 2.5 PyFFI-$VERSION"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI" "DisplayName" "Python 2.5 PyFFI-${VERSION}"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI" "UninstallString" "$INSTDIR\uninstall.exe"
   SetOutPath $INSTDIR
   WriteUninstaller "uninstall.exe"
