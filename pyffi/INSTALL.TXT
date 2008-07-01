@@ -3,7 +3,6 @@ PyFFI can be installed in three ways:
 - install manually using setuptools (easy_install)
 - install manually from the source package
 
-============
 Requirements
 ============
 

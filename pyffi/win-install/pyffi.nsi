@@ -46,7 +46,7 @@ SetCompressor /SOLID lzma
 
 Name "PyFFI ${VERSION}"
 Var PYTHONPATH
-Var PYFFI
+Var MAYAINST
 
 ; define installer pages
 !define MUI_ABORTWARNING
@@ -145,7 +145,6 @@ Function openLinkNewWindow
   Pop $3
 FunctionEnd
 
-
 Function .onInit
   ; check if user is admin
   ; call userInfo plugin to get user info.  The plugin puts the result in the stack
@@ -186,15 +185,22 @@ FunctionEnd
 Section
   SectionIn RO
 
+  ; full PyFFI install takes about 3MB in the Python directory
+  ; plus the same for the Maya directory
+  ; the build directory takes about 1.5MB
+  ; reserve 10MB extra for the installation to be absolutely on
+  ; the safe side
+  AddSize 10000
+
   SetShellVarContext all
 
   ; Clean up old versions
-   RMDir /r $PYTHONPATH\Lib\site-packages\PyFFI
-   RMDir /r $PYTHONPATH\Lib\site-packages\NifTester
-   RMDir /r $PYTHONPATH\Lib\site-packages\NifVis
-   RMDir /r $PYTHONPATH\Lib\site-packages\KfmTester
-   RMDir /r $PYTHONPATH\Lib\site-packages\CgfTester
-   RMDir /r $PYTHONPATH\Lib\site-packages\qskopelib
+  RMDir /r "$PYTHONPATH\Lib\site-packages\PyFFI"
+  RMDir /r "$PYTHONPATH\Lib\site-packages\NifTester"
+  RMDir /r "$PYTHONPATH\Lib\site-packages\NifVis"
+  RMDir /r "$PYTHONPATH\Lib\site-packages\KfmTester"
+  RMDir /r "$PYTHONPATH\Lib\site-packages\CgfTester"
+  RMDir /r "$PYTHONPATH\Lib\site-packages\qskopelib"
 
   ; Install documentation files
   !insertmacro InstallManifestFiles
@@ -202,8 +208,28 @@ Section
   SetOutPath $INSTDIR
   ExecWait "$PYTHONPATH\python.exe setup.py install"
   ; remove build and source directories
-  RMDir /r $INSTDIR\build
-  RMDir /r $INSTDIR\PyFFI
+  RMDir /r "$INSTDIR\build"
+  RMDir /r "$INSTDIR\PyFFI"
+  RMDir /r "$INSTDIR\scripts"
+  Delete "$INSTDIR\setup.py"
+  Delete "$INSTDIR\pyffipostinstallation.py"
+
+  ; check if Maya 2008 is installed
+
+  ClearErrors
+  ReadRegStr $MAYAINST HKLM SOFTWARE\Autodesk\Maya\2008\Setup\InstallPath "MAYA_INSTALL_LOCATION"
+  IfErrors 0 have_maya
+  ReadRegStr $MAYAINST HKCU SOFTWARE\Autodesk\Maya\2008\Setup\InstallPath "MAYA_INSTALL_LOCATION"
+  IfErrors 0 have_maya
+  Goto maya_check_end
+
+have_maya:
+    ; key, that means that Maya 2008 is installed
+    ; Synchronize PyFFI (CopyFiles does a recursive copy)
+    RMDir /r "$MAYAINST\Python\Lib\site-packages\PyFFI"
+    CopyFiles "$PYTHONPATH\Lib\site-packages\PyFFI" "$MAYAINST\Python\Lib\site-packages"
+
+maya_check_end:
 
   ; Clean up possibly previously installed shortcuts
   Delete "$SMPROGRAMS\PyFFI\*.*"
@@ -239,7 +265,7 @@ Section "Uninstall"
 python_remove_pyffi:
 
      ; key, that means that Python 2.5 is still installed
-     RMDir /r $PYTHONPATH\Lib\site-packages\PyFFI
+     RMDir /r "$PYTHONPATH\Lib\site-packages\PyFFI"
 
 python_check_end:
 

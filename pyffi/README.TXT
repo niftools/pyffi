@@ -1,7 +1,24 @@
+PyFFI is a Python library for processing block structured binary files.
+
+The Python File Format Interface aims to make it easy to manipulate
+binary files in a Python environment. Starting from a file format
+description written in XML, PyFFI creates customizable Python classes
+to read and write file blocks as described by the XML. Currently,
+PyFFI supports the NetImmerse/Gamebryo NIF and KFM formats,
+CryTek's CGF format, the DDS format, and the TGA format. Many tools
+for files used by 3D games, such as a stripifier, and a tangent space
+calculator, are included in PyFFI as well.
+
+QSkope is PyFFI's graphical user interface, and enables simple editing
+of files in any fileformat supported by PyFFI. QSkope depends on PyQt4,
+which you can download from
+
+http://www.riverbankcomputing.co.uk/software/pyqt/download
+
 Installation
 ------------
 
-python setup.py install
+See INSTALL.TXT
 
 Overview
 --------
