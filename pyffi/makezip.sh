@@ -1,5 +1,7 @@
 #!/bin/sh
 
+VERSION=`python -c "import PyFFI; print PyFFI.__version__;"`
+
 # generate documentation
 
 rm -rfv docs
@@ -15,5 +17,6 @@ python setup.py bdist_wininst --install-script pyffipostinstallation.py --bitmap
 # create file list for nsis installer from MANIFEST
 python makensis.py
 
-# TODO: run nsis script to create windows installer
-
+# create windows installer
+rm -f "win-install/PyFFI-${VERSION}-windows.exe"
+wine ~/.wine/drive_c/Program\ Files/NSIS/makensis.exe /v3 win-install/pyffi.nsi

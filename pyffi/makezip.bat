@@ -27,8 +27,10 @@ goto end
 )
 
 %PYTHONPATH%\python.exe setup.py sdist --format=zip
-%PYTHONPATH%\python.exe setup.py sdist --format=bztar
+%PYTHONPATH%\python.exe setup.py sdist --format=gztar
 %PYTHONPATH%\python.exe setup.py bdist_wininst --install-script pyffipostinstallation.py --bitmap pyffi_install_152x261.bmp
+
+%PYTHONPATH%\python.exe python makensis.py
 
 :end
 pause
