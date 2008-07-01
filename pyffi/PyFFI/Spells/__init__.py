@@ -113,22 +113,21 @@ def testPath(top, format = None, spellmodule = None, **kwargs):
     verbose = kwargs.get("verbose", 1)
     raisetesterror = kwargs.get("raisetesterror", False)
     pause = kwargs.get("pause", False)
+    interactive = kwargs.get("interactive", True)
     testRoot = getattr(spellmodule, "testRoot", None)
     testBlock = getattr(spellmodule, "testBlock", None)
     testFile = getattr(spellmodule, "testFile", None)
 
     # warning
-    if not readonly:
-        # TODO fix the inputfunc issue
-        inputfunc = raw_input
+    if (not readonly) and interactive:
         print("""\
 This script will modify your files, in particular if something goes wrong it
 may destroy them. Make a backup of your files before running this script.
 """)
-        if not inputfunc(
+        if not raw_input(
             "Are you sure that you want to proceed? [n/y] ") in ("y", "Y"):
             if pause:
-                inputfunc("Script aborted by user.")
+                raw_input("Script aborted by user.")
             else:
                 print("Script aborted by user.")
             return
@@ -205,8 +204,7 @@ def spellscallback(option, opt, value, parser, *args, **kwargs):
 
 def toaster(ext=None, format=None,
             formatspellsmodule=None, spellname=None,
-            examples=None, description=None,
-            inputfunc=None):
+            examples=None, description=None):
     """Main function to be called for toasters. Either the spell is specified
     on the command line (such as with niftoaster, cgftoaster, etc.) in which
     case formatspellsmodule is specified but spellname is not specified, or the
@@ -228,9 +226,6 @@ def toaster(ext=None, format=None,
     @type examples: str
     @param description: A description.
     @type description: str
-    @param inputfunc: Function used for input (takes one string and returns
-        a string). By default this is C{raw_input}.
-    @type inputfunc: function
     """
     # parse options and positional arguments
     usage = ("%%prog [options]%s <file>|<folder>"
@@ -239,8 +234,6 @@ def toaster(ext=None, format=None,
         description = """Look for a python script "PyFFI.Spells.%s.<spell>"
 and apply the functions testRoot, testBlock, and testFile therein
 on the file <file>, or on the files in <folder>.""" % ext
-    if inputfunc is None:
-        inputfunc = raw_input
 
     parser = optparse.OptionParser(usage, version="%%prog (PyFFI %s)" % PyFFI.__version__,
                                    description=description)
@@ -266,6 +259,10 @@ times)")
     parser.add_option("-r", "--raise", dest="raisetesterror",
                       action="store_true",
                       help="raise exception on errors during the spell")
+    parser.add_option("--noninteractive", dest="interactive",
+                      action="store_false",
+                      help="run a non-interactive session (overwrites files \
+without warning)")
     parser.add_option("-v", "--verbose", dest="verbose",
                       type="int",
                       metavar="VERBOSE",
@@ -280,7 +277,7 @@ times)")
 description)""")
     parser.set_defaults(raisetesterror=False, verbose=1, pause=False,
                         exclude=[], examples=False, spells=False,
-                        raisereaderror=True)
+                        raisereaderror=True, interactive=True)
     (options, args) = parser.parse_args()
 
     # check if we had examples and/or spells: quit
@@ -319,8 +316,8 @@ description)""")
     testPath(top, format = format, spellmodule = spellmodule, **optionsdict)
 
     # signal the end
-    if options.pause:
-        inputfunc("Finished.")
+    if options.pause and options.interactive:
+        raw_input("Finished.")
     else:
         print("Finished.")
 

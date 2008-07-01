@@ -86,9 +86,79 @@ Finished.
 Test nifoptimize
 ----------------
 
+Interactive test:
+
+>>> # this inputfunc hack is very ugly but it allows to simulate user input
+>>> inputlist = ["yes it is", "n", "y"] # list of inputs of this test
+>>> def inputfunc(msg = ""):
+...     result = inputlist.pop(0)
+...     print("%s%s" % (msg, result))
+...     return result
+>>> inputfunc("is the input working? ")
+is the input working? yes it is
+'yes it is'
+>>> import PyFFI.Spells
+>>> PyFFI.Spells.testPath.func_globals['raw_input'] = inputfunc
+>>> # copy file to avoid overwriting
+>>> import shutil
+>>> shutil.copyfile("tests/nif/test.nif", "tests/nif/_test.nif")
+>>> # simulate calling "nifoptimize.py --verbose=99 tests/nif/_test.nif"
 >>> import sys
 >>> sys.path.append("scripts/NIF")
 >>> import nifoptimize
->>> sys.argv = ["nifoptimize.py", "--verbose=99", "tests/nif/test.nif"]
+>>> sys.argv = ["nifoptimize.py", "--verbose=99", "tests/nif/_test.nif"]
 >>> nifoptimize.main() # doctest: +ELLIPSIS
+This script will modify your files, in particular if something goes wrong it
+may destroy them. Make a backup of your files before running this script.
+<BLANKLINE>
+Are you sure that you want to proceed? [n/y] n
+Script aborted by user.
+Finished.
+>>> nifoptimize.main() # doctest: +ELLIPSIS
+This script will modify your files, in particular if something goes wrong it
+may destroy them. Make a backup of your files before running this script.
+<BLANKLINE>
+Are you sure that you want to proceed? [n/y] y
+reading tests/nif/_test.nif
+checking for duplicate source textures
+checking for duplicate properties
+optimizing geometries
+optimizing block 'Cube'
+  removing duplicate vertices
+  (num vertices was 8 and is now 8)
+  stripifying
+  (average strip length is 8.894737)
+  average strip length less than 10.000000 so triangulating
+  writing tests/nif/_test.nif...
+Finished.
+>>> # clean up
+>>> import os
+>>> os.remove("tests/nif/_test.nif")
+
+Non-interactive test:
+
+>>> # copy file to avoid overwriting
+>>> import shutil
+>>> shutil.copyfile("tests/nif/test.nif", "tests/nif/_test.nif")
+>>> # simulate calling "nifoptimize.py --verbose=99 tests/nif/_test.nif"
+>>> import sys
+>>> sys.path.append("scripts/NIF")
+>>> import nifoptimize
+>>> sys.argv = ["nifoptimize.py", "--noninteractive", "--verbose=99", "tests/nif/_test.nif"]
+>>> nifoptimize.main() # doctest: +ELLIPSIS
+reading tests/nif/_test.nif
+checking for duplicate source textures
+checking for duplicate properties
+optimizing geometries
+optimizing block 'Cube'
+  removing duplicate vertices
+  (num vertices was 8 and is now 8)
+  stripifying
+  (average strip length is 8.894737)
+  average strip length less than 10.000000 so triangulating
+  writing tests/nif/_test.nif...
+Finished.
+>>> # clean up
+>>> import os
+>>> os.remove("tests/nif/_test.nif")
 
