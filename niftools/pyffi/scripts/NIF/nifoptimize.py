@@ -46,6 +46,7 @@ from PyFFI.Formats.NIF import NifFormat
 import PyFFI.Spells.NIF
 
 def main():
+    """Script entry point."""
     # set description and examples
     description = """\
 Optimize nif file <file> or all nif files in folder <folder>.

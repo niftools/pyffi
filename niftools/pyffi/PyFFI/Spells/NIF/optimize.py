@@ -48,8 +48,15 @@ from PyFFI.Utils import TriStrip
 __readonly__ = False
 
 def isequalTriGeomData(shape1, shape2):
-    """Compare two NiTriShapeData/NiTriStrips blocks, checks if they are
-    equal."""
+    """Compare two NiTriShapeData/NiTriStripsData blocks, checks if they
+    describe the same geometry.
+
+    @param shape1: A shape.
+    @type shape1: L{NifFormat.NiTriBasedGeomData}
+    @param shape2: Another shape.
+    @type shape2: L{NifFormat.NiTriBasedGeomData}
+    @return: C{True} if the shapes are equivalent, C{False} otherwise.
+    """
     # check for object identity
     if shape1 is shape2:
         return True
@@ -68,8 +75,8 @@ def isequalTriGeomData(shape1, shape2):
             return False
 
     # check vertices (this includes uvs, vcols and normals)
-    verthashes1 = [ hsh for hsh in vertexHash(shape1) ]
-    verthashes2 = [ hsh for hsh in vertexHash(shape2) ]
+    verthashes1 = [hsh for hsh in vertexHash(shape1)]
+    verthashes2 = [hsh for hsh in vertexHash(shape2)]
     for hash1 in verthashes1:
         if not hash1 in verthashes2:
             return False
@@ -78,10 +85,10 @@ def isequalTriGeomData(shape1, shape2):
             return False
 
     # check triangle list
-    triangles1 = [ tuple(verthashes1[i] for i in tri)
-                   for tri in shape1.getTriangles() ]
-    triangles2 = [ tuple(verthashes2[i] for i in tri)
-                   for tri in shape2.getTriangles() ]
+    triangles1 = [tuple(verthashes1[i] for i in tri)
+                  for tri in shape1.getTriangles()]
+    triangles2 = [tuple(verthashes2[i] for i in tri)
+                  for tri in shape2.getTriangles()]
     for tri1 in triangles1:
         if not tri1 in triangles2:
             return False
@@ -93,7 +100,14 @@ def isequalTriGeomData(shape1, shape2):
     return True
 
 def vertexHash(block, precision = 200):
-    """Generator which identifies unique vertices."""
+    """Generator which identifies unique vertices.
+
+    @param block: A shape data block.
+    @type block: L{NifFormat.NiGeometryData}
+    @param precision: Precision to be used for floats.
+    @type precision: int
+    @return: A generator yielding a hash value for each vertex.
+    """
     verts = block.vertices if block.hasVertices else None
     norms = block.normals if block.hasNormals else None
     uvsets = block.uvSets if len(block.uvSets) else None
@@ -120,6 +134,7 @@ def triangulateTriStrips(block):
 
     @param block: The block to triangulate.
     @type block: L{NifFormat.NiTriStrips}
+    @return: An equivalent L{NifFormat.NiTriShape} block.
     """
     assert(isinstance(block, NifFormat.NiTriStrips))
     # copy the shape (first to NiTriBasedGeom and then to NiTriShape)
@@ -140,6 +155,7 @@ def stripifyTriShape(block):
 
     @param block: The block to stripify.
     @type block: L{NifFormat.NiTriShape}
+    @return: An equivalent L{NifFormat.NiTriStrips} block.
     """
     assert(isinstance(block, NifFormat.NiTriShape))
     # copy the shape (first to NiTriBasedGeom and then to NiTriStrips)
@@ -156,7 +172,24 @@ def stripifyTriShape(block):
     return strips
 
 def optimizeTriBasedGeom(block, striplencutoff = 10.0, stitch = True):
-    """Optimize a NiTriStrips or NiTriShape block."""
+    """Optimize a NiTriStrips or NiTriShape block:
+      - remove duplicate vertices
+      - stripify if strips are long enough
+      - recalculate skin partition
+      - recalculate tangent space 
+
+    @param block: The shape block.
+    @type block: L{NifFormat.NiTriBasedGeom}
+    @param striplencutoff: Minimum average length for strips (below this
+        length the block is triangulated).
+    @type striplencutoff: float
+    @param stitch: Whether to stitch strips or not.
+    @type stitch: bool
+    @return: An optimized version of the shape.
+
+    @todo: Limit the length of strips (see operation optimization mod for
+        Oblivion!)
+    """
     print("optimizing block '%s'" % block.name)
 
     # cover degenerate case
@@ -307,7 +340,8 @@ def optimizeTriBasedGeom(block, striplencutoff = 10.0, stitch = True):
     return block
 
 def fixTexturePath(block, **args):
-    """Fix the texture path.
+    """Fix the texture path. Transforms 0x0a into \\n and 0x0d into \\r.
+    This fixes a bug in nifs saved with older versions of nifskope.
 
     @param block: The block to fix.
     @type block: L{NifFormat.NiSourceTexture}
@@ -319,6 +353,12 @@ def fixTexturePath(block, **args):
         print("  %s" % block.fileName)
 
 def testRoot(root, **args):
+    """Optimize the tree at root. This is the main entry point for the
+    nifoptimize script.
+
+    @param root: The root of the tree.
+    @type root: L{NifFormat.NiObject}
+    """
     # check which blocks to exclude
     exclude = args.get("exclude", [])
 
