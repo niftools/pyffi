@@ -4,6 +4,7 @@ include LICENSE.TXT
 include CHANGELOG.TXT
 include AUTHORS.TXT
 include TODO.TXT
+include THANKS.TXT
 include PyFFI/Formats/NIF/nif.xml
 include PyFFI/Formats/KFM/kfm.xml
 include PyFFI/Formats/CGF/cgf.xml

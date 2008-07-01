@@ -1,0 +1,15 @@
+Special thanks to
+-----------------
+
+  - Guido van Rossum, and with him many others, for Python, and in particular
+    for having metaclasses in Python: metaclasses make PyFFI's implementation
+    very easy.
+  - m4444x for nifskope, which has been an inspiration for PyFFI's xml based
+    design.
+  - wz for his support, and for testing of the library, when the first
+    version was being written.
+  - CryTek for releasing the Far Cry SDK and Crysis SDK, which contains much
+    information about the cgf file format. This has saved many months of hard
+    work.
+  - CryTek and Bethesda for the great games they make.
+
