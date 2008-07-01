@@ -166,7 +166,7 @@ Function .onInit
   IfErrors 0 python_check_end
 
      ; no key, that means that Python 2.5 is not installed
-     MessageBox MB_OK "You first need to download and install Python 2.5 in order to install PyFFI. Pressing OK will take you to the Python download page. Please download and run the Python windows installer. When you are done, rerun the PyFFI installer."
+     MessageBox MB_OK "You need Python 2.5 to use PyFFI. Pressing OK will take you to the Python download page. Please download and run the Python windows installer. When you are done, rerun the PyFFI installer."
      StrCpy $0 "http://www.python.org/download/"
      Call openLinkNewWindow
      Abort ; causes installer to quit
