@@ -173,6 +173,12 @@ Function .onInit
 
 python_check_end:
 
+  ; remove trailing backslash from $PYTHONPATH (using the $EXEDIR trick)
+  Push $PYTHONPATH
+  Exch $EXEDIR
+  Exch $EXEDIR
+  Pop $PYTHONPATH
+
 FunctionEnd
 
 Function finishShowReadmeChangelog
@@ -237,11 +243,46 @@ maya_check_end:
 
   ; Install shortcuts
   CreateDirectory "$SMPROGRAMS\PyFFI\"
-  CreateShortCut "$SMPROGRAMS\PyFFI\Documentation.lnk" "$INSTDIR\docs\index.html"
-  CreateShortCut "$SMPROGRAMS\PyFFI\Readme.lnk" "$INSTDIR\README.TXT"
   CreateShortCut "$SMPROGRAMS\PyFFI\ChangeLog.lnk" "$INSTDIR\CHANGELOG.TXT"
+  CreateShortCut "$SMPROGRAMS\PyFFI\Documentation.lnk" "$INSTDIR\docs\index.html"
   CreateShortCut "$SMPROGRAMS\PyFFI\License.lnk" "$INSTDIR\LICENSE.TXT"
+  CreateShortCut "$SMPROGRAMS\PyFFI\Readme.lnk" "$INSTDIR\README.TXT"
+  CreateShortCut "$SMPROGRAMS\PyFFI\Thanks.lnk" "$INSTDIR\THANKS.TXT"
+  CreateShortCut "$SMPROGRAMS\PyFFI\Todo.lnk" "$INSTDIR\TODO.TXT"
   CreateShortCut "$SMPROGRAMS\PyFFI\Uninstall.lnk" "$INSTDIR\uninstall.exe"
+
+  ; Set up file associations
+  WriteRegStr HKCR ".nif" "" "NetImmerseFile"
+  WriteRegStr HKCR ".nifcache" "" "NetImmerseFile"
+  WriteRegStr HKCR ".kf" "" "NetImmerseFile"
+  WriteRegStr HKCR ".kfa" "" "NetImmerseFile"
+  WriteRegStr HKCR ".kfm" "" "NetImmerseFile"
+
+    WriteRegStr HKCR "NetImmerseFile" "" "NetImmerse/Gamebryo File"
+    WriteRegStr HKCR "NetImmerseFile\shell" "" "open"
+
+    WriteRegStr HKCR "NetImmerseFile\shell\Optimize with PyFFI" "" ""
+    WriteRegStr HKCR "NetImmerseFile\shell\Optimize with PyFFI\command" "" '"$PYTHONPATH\python.exe" "$PYTHONPATH\Scripts\nifoptimize.py" --pause "%1"'
+
+    WriteRegStr HKCR "NetImmerseFile\shell\Open with QSkope" "" ""
+    WriteRegStr HKCR "NetImmerseFile\shell\Open with QSkope\command" "" '"$PYTHONPATH\python.exe" "$PYTHONPATH\Scripts\qskope.py" "%1"'
+
+  WriteRegStr HKCR ".cgf" "" "CrytekGeometryFile"
+  WriteRegStr HKCR ".chr" "" "CrytekGeometryFile"
+
+    WriteRegStr HKCR "CrytekGeometryFile" "" "Crytek Geometry File"
+    WriteRegStr HKCR "CrytekGeometryFile\shell" "" "open"
+
+    WriteRegStr HKCR "CrytekGeometryFile\shell\Open with QSkope" "" ""
+    WriteRegStr HKCR "CrytekGeometryFile\shell\Open with QSkope\command" "" '"$PYTHONPATH\python.exe" "$PYTHONPATH\Scripts\qskope.py" "%1"'
+
+  WriteRegStr HKCR ".dds" "" "DirectX.DDS.Document" ; following DirectX SDK
+
+    WriteRegStr HKCR "DirectX.DDS.Document" "" "DDS Document"
+    WriteRegStr HKCR "DirectX.DDS.Document\shell" "" "open"
+
+    WriteRegStr HKCR "DirectX.DDS.Document\shell\Open with QSkope" "" ""
+    WriteRegStr HKCR "DirectX.DDS.Document\shell\Open with QSkope\command" "" '"$PYTHONPATH\python.exe" "$PYTHONPATH\Scripts\qskope.py" "%1"'
 
   ; Write the uninstall keys & uninstaller for Windows
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI" "DisplayName" "Python 2.5 PyFFI-${VERSION}"
@@ -273,6 +314,10 @@ python_check_end:
 
   ; remove registry keys
   DeleteRegKey HKLM SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI
+  DeleteRegKey HKCR "NetImmerseFile\shell\Optimize with PyFFI"
+  DeleteRegKey HKCR "NetImmerseFile\shell\Open with QSkope"
+  DeleteRegKey HKCR "CrytekGeometryFile\shell\Open with QSkope"
+  DeleteRegKey HKCR "DirectX.DDS.Document\shell\Open with QSkope"
 
   ; remove program files and program directory
   RMDir /r "$INSTDIR"
