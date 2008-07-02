@@ -17,6 +17,7 @@ import optimize
 import read
 import readwrite
 import scale
+import texdump
 import updatecenterradius
 import updatemopp
 import updateskinpartition
