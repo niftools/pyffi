@@ -267,7 +267,7 @@ maya_check_end:
     WriteRegStr HKCR "NetImmerseFile\shell" "" "open"
 
     WriteRegStr HKCR "NetImmerseFile\shell\Optimize with PyFFI" "" ""
-    WriteRegStr HKCR "NetImmerseFile\shell\Optimize with PyFFI\command" "" '"$PYTHONPATH\python.exe" "$PYTHONPATH\Scripts\nifoptimize.py" --pause "%1"'
+    WriteRegStr HKCR "NetImmerseFile\shell\Optimize with PyFFI\command" "" '"$PYTHONPATH\python.exe" "$PYTHONPATH\Scripts\niftoaster.py" optimize --pause "%1"'
 
     WriteRegStr HKCR "NetImmerseFile\shell\Open with QSkope" "" ""
     WriteRegStr HKCR "NetImmerseFile\shell\Open with QSkope\command" "" '"$PYTHONPATH\python.exe" "$PYTHONPATH\Scripts\qskope.py" "%1"'
