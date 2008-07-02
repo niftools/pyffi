@@ -56,12 +56,8 @@ Print texture information of nif file <file> or all nif files in folder
     python niftexdump.py /path/to/copy/of/my/nifs
 """
     # run the toaster for the optimize spell
-    toaster(ext='NIF',
-            format=NifFormat,
-            formatspellsmodule=PyFFI.Spells.NIF,
-            spellname="texdump",
-            examples=examples,
-            description=description)
+    toaster(format=NifFormat, formatspellsmodule=PyFFI.Spells.NIF,
+            spellname="texdump", examples=examples, description=description)
 
 # if script is called...
 if __name__ == "__main__":

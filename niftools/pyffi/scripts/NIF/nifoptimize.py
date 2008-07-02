@@ -61,12 +61,8 @@ may destroy them. Make a backup before running this script."""
     python nifoptimize.py --exclude=NiMaterialProperty /path/to/copy/of/my/nifs
 """
     # run the toaster for the optimize spell
-    toaster(ext='NIF',
-            format=NifFormat,
-            formatspellsmodule=PyFFI.Spells.NIF,
-            spellname="optimize",
-            examples=examples,
-            description=description)
+    toaster(format=NifFormat, formatspellsmodule=PyFFI.Spells.NIF,
+            spellname="optimize", examples=examples, description=description)
 
 # if script is called...
 if __name__ == "__main__":

@@ -71,9 +71,7 @@ def main():
 
     python -m cProfile -s cumulative niftoaster.py tristrip"""
 
-    toaster(ext='NIF',
-            format=NifFormat,
-            formatspellsmodule=PyFFI.Spells.NIF,
+    toaster(format=NifFormat, formatspellsmodule=PyFFI.Spells.NIF,
             examples=examples)
 
 # if script is called...
