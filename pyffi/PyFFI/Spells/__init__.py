@@ -202,8 +202,7 @@ def spellscallback(option, opt, value, parser, *args, **kwargs):
             continue
         print(spell)
 
-def toaster(ext=None, format=None,
-            formatspellsmodule=None, spellname=None,
+def toaster(format=None, formatspellsmodule=None, spellname=None,
             examples=None, description=None):
     """Main function to be called for toasters. Either the spell is specified
     on the command line (such as with niftoaster, cgftoaster, etc.) in which
@@ -231,9 +230,9 @@ def toaster(ext=None, format=None,
     usage = ("%%prog [options]%s <file>|<folder>"
              % (" <spell>" if spellname is None else ""))
     if description is None:
-        description = """Look for a python script "PyFFI.Spells.%s.<spell>"
+        description = """Look for a python script "%s.<spell>"
 and apply the functions testRoot, testBlock, and testFile therein
-on the file <file>, or on the files in <folder>.""" % ext
+on the file <file>, or on the files in <folder>.""" % formatspellsmodule.__name__
 
     parser = optparse.OptionParser(usage, version="%%prog (PyFFI %s)" % PyFFI.__version__,
                                    description=description)

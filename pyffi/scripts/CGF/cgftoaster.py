@@ -60,9 +60,7 @@ def main():
 
     python -m cProfile -s cumulative cgftoaster.py dump"""
 
-    toaster(ext='CGF',
-            format=CgfFormat,
-            formatspellsmodule=PyFFI.Spells.CGF,
+    toaster(format=CgfFormat, formatspellsmodule=PyFFI.Spells.CGF,
             examples=examples)
 
 # if script is called...

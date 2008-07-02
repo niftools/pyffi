@@ -1,0 +1,119 @@
+Doctests for the niftoaster script
+==================================
+
+The --help switch
+-----------------
+
+>>> import sys
+>>> sys.path.append("scripts/NIF")
+>>> import niftoaster
+>>> sys.argv = ["niftoaster.py", "--help"]
+>>> niftoaster.main()
+Usage: niftoaster.py [options] <spell> <file>|<folder>
+<BLANKLINE>
+Look for a python script "PyFFI.Spells.NIF.<spell>" and apply the functions
+testRoot, testBlock, and testFile therein on the file <file>, or on the files
+in <folder>.
+<BLANKLINE>
+Options:
+  --version             show program's version number and exit
+  -h, --help            show this help message and exit
+  --examples            show examples of usage and exit
+  --spells              list all spells and exit
+  -a ARG, --arg=ARG     pass argument ARG to spell
+  -x EXCLUDE, --exclude=EXCLUDE
+                        exclude given block type from the spell (you can
+                        exclude multiple block types by specifying this option
+                        multiple times)
+  -r, --raise           raise exception on errors during the spell
+  --noninteractive      run a non-interactive session (overwrites files
+                        without warning)
+  -v VERBOSE, --verbose=VERBOSE
+                        verbosity level: 0, 1, or 2 [default: 1]
+  -p, --pause           pause when done
+  --usetheforceluke     pass exceptions while reading files (normally you do
+                        not need this, unless you are hacking the xml format
+                        description)
+
+The --examples switch
+---------------------
+
+>>> import sys
+>>> sys.path.append("scripts/NIF")
+>>> import niftoaster
+>>> sys.argv = ["niftoaster.py", "--examples"]
+>>> niftoaster.main()
+* check if PyFFI can read all files in current directory
+  (python version of nifskope's xml checker):
+<BLANKLINE>
+    python niftoaster.py read .
+<BLANKLINE>
+* merge skeleton roots and rest positions for all files in current directory:
+<BLANKLINE>
+    python niftoaster.py mergeskelandrestpos .
+<BLANKLINE>
+* scale all files in c:\zoo2 by a factor 100 - useful to
+  visualize nif files from games such as Zoo Tycoon 2 that are otherwise too
+  small to show up properly in nifskope:
+<BLANKLINE>
+    python niftoaster.py -a 100 scale "c:\zoo2"
+<BLANKLINE>
+* same as above, but also find out profile information on reading nif
+  files:
+<BLANKLINE>
+    python -m cProfile -s cumulative -o profile_read.txt niftoaster.py read .
+<BLANKLINE>
+* find out time spent on a particular test:
+<BLANKLINE>
+    python -m cProfile -s cumulative niftoaster.py tristrip
+
+The --spells switch
+-------------------
+
+>>> import sys
+>>> sys.path.append("scripts/NIF")
+>>> import niftoaster
+>>> sys.argv = ["niftoaster.py", "--spells"]
+>>> niftoaster.main()
+checkbhkbodycenter
+checkcenterradius
+checkconvexshape
+checkmopp
+checkskincenterradius
+checkskinpartition
+checktangentspace
+checktristrip
+dump
+exportpixeldata
+hackcheckskindata
+hackmultiskelroot
+hackskindataidtransform
+hackskinrestpose
+mergeskelandrestpos
+optimize
+read
+readwrite
+scale
+texdump
+updatecenterradius
+updatemopp
+updateskinpartition
+
+The --usetheforceluke switch
+----------------------------
+
+>>> import sys
+>>> sys.path.append("scripts/NIF")
+>>> import niftoaster
+>>> sys.argv = ["niftoaster.py", "--verbose=99", "readwrite", "tests/nif/"]
+>>> niftoaster.main() # doctest: +ELLIPSIS
+Traceback (most recent call last):
+    ...
+NifError: unknown block type 'NiInvalid!'
+>>> sys.argv = ["niftoaster.py", "--verbose=99", "--usetheforceluke", "readwrite", "tests/nif/"]
+>>> niftoaster.main() # doctest: +ELLIPSIS
+reading tests/nif/invalid.nif
+Warning: read failed due to either a corrupt file, a corrupt xml, or a bug.
+reading tests/nif/test.nif
+  writing to temporary file...
+Finished.

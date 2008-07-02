@@ -39,7 +39,8 @@ for mod in mods:
         pass
 
 # various regression tests (outside documentation)
-suite.addTest(doctest.DocFileSuite('tests/spells.txt'))
+suite.addTest(doctest.DocFileSuite('tests/nif/niftoaster.txt'))
+suite.addTest(doctest.DocFileSuite('tests/nif/nifoptimize.txt'))
 
 # TODO: examples
 #suite.addTest(doctest.DocFileSuite('examples/*.txt'))
