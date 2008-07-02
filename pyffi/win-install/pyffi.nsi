@@ -41,6 +41,7 @@ SetCompressor /SOLID lzma
 !include "manifest.nsh"
 
 !define VERSION "1.0.0"
+!define PYTHONVERSION "2.5"
 
 Name "PyFFI ${VERSION}"
 Var PYTHONPATH
@@ -158,15 +159,15 @@ Function .onInit
     messageBox MB_OK "You require administrator privileges to install PyFFI successfully."
     Abort ; quit installer
    
-  ; check if Python 2.5 is installed
+  ; check if Python is installed
   ClearErrors
-  ReadRegStr $PYTHONPATH HKLM SOFTWARE\Python\PythonCore\2.5\InstallPath ""
+  ReadRegStr $PYTHONPATH HKLM SOFTWARE\Python\PythonCore\${PYTHONVERSION}\InstallPath ""
   IfErrors 0 python_check_end
-  ReadRegStr $PYTHONPATH HKCU SOFTWARE\Python\PythonCore\2.5\InstallPath ""
+  ReadRegStr $PYTHONPATH HKCU SOFTWARE\Python\PythonCore\${PYTHONVERSION}\InstallPath ""
   IfErrors 0 python_check_end
 
-     ; no key, that means that Python 2.5 is not installed
-     MessageBox MB_OK "You need Python 2.5 to use PyFFI. Pressing OK will take you to the Python download page. Please download and run the Python windows installer. When you are done, rerun the PyFFI installer."
+     ; no key, that means that Python is not installed
+     MessageBox MB_OK "You need Python ${PYTHONVERSION} to use PyFFI. Pressing OK will take you to the Python download page. Please download and run the Python ${PYTHONVERSION} windows installer. When you are done, rerun the PyFFI installer."
      StrCpy $0 "http://www.python.org/download/"
      Call openLinkNewWindow
      Abort ; causes installer to quit
@@ -209,7 +210,7 @@ Section
   Delete "$PYTHONPATH\RemovePyFFI.exe"
   Delete "$PYTHONPATH\PyFFI-wininst.log"
 
-  ; Install documentation files
+  ; Install source files and documentation
   !insertmacro InstallManifestFiles
   ; Execute install script from installation directory
   SetOutPath $INSTDIR
@@ -219,7 +220,6 @@ Section
   RMDir /r "$INSTDIR\PyFFI"
   RMDir /r "$INSTDIR\scripts"
   Delete "$INSTDIR\setup.py"
-  Delete "$INSTDIR\pyffipostinstallation.py"
 
   ; check if Maya 2008 is installed
 
@@ -242,6 +242,7 @@ maya_check_end:
   Delete "$SMPROGRAMS\PyFFI\*.*"
 
   ; Install shortcuts
+  SetOutPath $INSTDIR
   CreateDirectory "$SMPROGRAMS\PyFFI\"
   CreateShortCut "$SMPROGRAMS\PyFFI\Authors.lnk" "$INSTDIR\AUTHORS.TXT"
   CreateShortCut "$SMPROGRAMS\PyFFI\ChangeLog.lnk" "$INSTDIR\CHANGELOG.TXT"
@@ -252,7 +253,8 @@ maya_check_end:
   CreateShortCut "$SMPROGRAMS\PyFFI\Todo.lnk" "$INSTDIR\TODO.TXT"
   CreateShortCut "$SMPROGRAMS\PyFFI\Uninstall.lnk" "$INSTDIR\uninstall.exe"
 
-  ; TODO QSkope shortcut
+  ; QSkope desktop shortcut
+  CreateShortCut "$DESKTOP\QSkope.lnk" "$PYTHONPATH\python.exe" "$PYTHONPATH\Scripts\qskope.py" "" "" "" "" "QSkope"
 
   ; Set up file associations
   WriteRegStr HKCR ".nif" "" "NetImmerseFile"
@@ -288,7 +290,7 @@ maya_check_end:
     WriteRegStr HKCR "DirectX.DDS.Document\shell\Open with QSkope\command" "" '"$PYTHONPATH\python.exe" "$PYTHONPATH\Scripts\qskope.py" "%1"'
 
   ; Write the uninstall keys & uninstaller for Windows
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI" "DisplayName" "Python 2.5 PyFFI-${VERSION}"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI" "DisplayName" "Python ${PYTHONVERSION} PyFFI-${VERSION}"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI" "UninstallString" "$INSTDIR\uninstall.exe"
   SetOutPath $INSTDIR
   WriteUninstaller "uninstall.exe"
@@ -298,22 +300,38 @@ Section "Uninstall"
   SetShellVarContext all
   SetAutoClose false
 
-  ; check if Python 2.5 is installed
+  ; check if Python is installed
   ClearErrors
-  ReadRegStr $PYTHONPATH HKLM SOFTWARE\Python\PythonCore\2.5\InstallPath ""
-  IfErrors 0 python_remove_pyffi
-  ReadRegStr $PYTHONPATH HKCU SOFTWARE\Python\PythonCore\2.5\InstallPath ""
-  IfErrors 0 python_remove_pyffi
+  ReadRegStr $PYTHONPATH HKLM SOFTWARE\Python\PythonCore\${PYTHONVERSION}\InstallPath ""
+  IfErrors 0 have_python
+  ReadRegStr $PYTHONPATH HKCU SOFTWARE\Python\PythonCore\${PYTHONVERSION}\InstallPath ""
+  IfErrors 0 have_python
 
   Goto python_check_end
 
-python_remove_pyffi:
+have_python:
 
-     ; key, that means that Python 2.5 is still installed
+     ; key, that means that Python is still installed
      RMDir /r "$PYTHONPATH\Lib\site-packages\PyFFI"
      Delete "$PYTHONPATH\Lib\site-packages\PyFFI*.*"
 
 python_check_end:
+
+  ; check if Maya 2008 is installed
+
+  ClearErrors
+  ReadRegStr $MAYAINST HKLM SOFTWARE\Autodesk\Maya\2008\Setup\InstallPath "MAYA_INSTALL_LOCATION"
+  IfErrors 0 have_maya
+  ReadRegStr $MAYAINST HKCU SOFTWARE\Autodesk\Maya\2008\Setup\InstallPath "MAYA_INSTALL_LOCATION"
+  IfErrors 0 have_maya
+  Goto maya_check_end
+
+have_maya:
+    ; key, that means that Maya 2008 is installed
+    ; remove PyFFI
+    RMDir /r "$MAYAINST\Python\Lib\site-packages\PyFFI"
+
+maya_check_end:
 
   ; remove registry keys
   DeleteRegKey HKLM SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI
@@ -325,8 +343,8 @@ python_check_end:
   ; remove program files and program directory
   RMDir /r "$INSTDIR"
 
-  ; TODO remove QSkope shortcut
-  ; TODO remove PyFFI from Maya
+  ; remove QSkope shortcut
+  Delete "$DESKTOP\QSkope.lnk"
 
   ; remove links in start menu
   Delete "$SMPROGRAMS\PyFFI\*.*"

@@ -27,10 +27,11 @@ goto end
 )
 
 %PYTHONPATH%\python.exe setup.py sdist --format=zip
-%PYTHONPATH%\python.exe setup.py sdist --format=gztar
-%PYTHONPATH%\python.exe setup.py bdist_wininst --install-script pyffipostinstallation.py --bitmap pyffi_install_152x261.bmp
+rem on windows bztar format is not supported
+rem %PYTHONPATH%\python.exe setup.py sdist --format=bztar
 
 %PYTHONPATH%\python.exe python makensis.py
+rem TODO: call nsis for installer
 
 :end
 pause
