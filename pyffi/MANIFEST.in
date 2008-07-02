@@ -14,5 +14,6 @@ recursive-include examples *.py
 include examples/simple/simple.xml
 include examples/simple/somefile.simple
 recursive-include tests *.*
+prune *.svn*
 include docs/*.*
 
