@@ -174,78 +174,58 @@ may destroy them. Make a backup of your files before running this script.
         del walkresult
         gc.collect()
 
-def examplescallback(option, opt, value, parser, *args, **kwargs):
+def printexamples(examples):
     """Print examples of usage.
 
     @param examples: The string of examples. (Passed via kwargs.)
     @type examples: str
     """
-    # set option value
-    parser.values.examples = True
     # print examples
-    print(kwargs.get('examples'))
+    print(examples)
 
-def spellscallback(option, opt, value, parser, *args, **kwargs):
+def printspells(formatspellsmodule):
     """Print all spells.
 
     @param formatspellsmodule: The spells module. (Passed via kwargs.)
     @type formatspellsmodule: module
     """
-    # set option value
-    parser.values.spells = True
-    # get spells module
-    formatspellsmodule = kwargs.get('formatspellsmodule')
-
     # print all submodules of the spells module
     for spell in dir(formatspellsmodule):
         if spell[:2] == '__':
             continue
         print(spell)
 
-def toaster(format=None, formatspellsmodule=None, spellname=None,
-            examples=None, description=None):
-    """Main function to be called for toasters. Either the spell is specified
-    on the command line (such as with niftoaster, cgftoaster, etc.) in which
-    case formatspellsmodule is specified but spellname is not specified, or the
-    spell is baked into the script (such as with nifoptimize which always calls
-    the optimize spell) in which case both formatspellsmodule and spellname are
-    specified.
+def toaster(format=None, formatspellsmodule=None, examples=None):
+    """Main function to be called for toasters. The spell is taken from
+    the command line (such as with niftoaster, cgftoaster, etc.), along with
+    any options.
 
-    @param ext: Three letter abbreviation of this format, e.g. 'TGA'.
-    @type ext: str
-    @param format: Format class, e.g. L{PyFFI.Formats.TGA.TgaFormat}.
+    @param format: Format class, e.g. L{PyFFI.Formats.NIF.NifFormat}.
     @type format: subclass of L{PyFFI.XmlFileFormat}.
     @param formatspellsmodule: The module where all spells can be found, e.g.
-        L{PyFFI.Spells.TGA}.
+        L{PyFFI.Spells.NIF}.
     @type formatspellsmodule: module
-    @param spellname: The name of the spell. If not given then the spell name
-        is taken from the command line.
-    @type spellname: str
     @param examples: A string listing some examples of usage.
     @type examples: str
-    @param description: A description.
-    @type description: str
     """
     # parse options and positional arguments
-    usage = ("%%prog [options]%s <file>|<folder>"
-             % (" <spell>" if spellname is None else ""))
-    if description is None:
-        description = """Look for a python script "%s.<spell>"
-and apply the functions testRoot, testBlock, and testFile therein
-on the file <file>, or on the files in <folder>.""" % formatspellsmodule.__name__
+    usage = "%prog [options] <spell> <file>|<folder>"
+    description = """Apply a spell "%s.<spell>" on <file>, or recursively
+on <folder>.""" % formatspellsmodule.__name__
 
-    parser = optparse.OptionParser(usage, version="%%prog (PyFFI %s)" % PyFFI.__version__,
-                                   description=description)
-    parser.add_option("--examples",
-                      action="callback", callback=examplescallback,
-                      callback_kwargs={'examples': examples},
+    parser = optparse.OptionParser(
+        usage,
+        version="%%prog (PyFFI %s)" % PyFFI.__version__,
+        description=description)
+    parser.add_option("--help-spell", dest="helpspell",
+                      action="store_true",
+                      help="show help specific to the given spell")
+    parser.add_option("--examples", dest="examples",
+                      action="store_true",
                       help="show examples of usage and exit")
-    if spellname is None:
-        parser.add_option("--spells",
-                          action="callback", callback=spellscallback,
-                          callback_kwargs={'formatspellsmodule':
-                                           formatspellsmodule},
-                          help="list all spells and exit")
+    parser.add_option("--spells", dest="spells",
+                      action="store_true",
+                      help="list all spells and exit")
     parser.add_option("-a", "--arg", dest="arg",
                       type="string",
                       metavar="ARG",
@@ -276,33 +256,44 @@ without warning)")
 description)""")
     parser.set_defaults(raisetesterror=False, verbose=1, pause=False,
                         exclude=[], examples=False, spells=False,
-                        raisereaderror=True, interactive=True)
+                        raisereaderror=True, interactive=True,
+                        helpspell=False)
     (options, args) = parser.parse_args()
 
     # check if we had examples and/or spells: quit
-    if options.spells or options.examples:
+    if options.spells:
+        printspells(formatspellsmodule)
+        return
+    if options.examples:
+        printexamples(examples)
         return
 
-    # check number of arguments and get spell name if needed
-    if not spellname is None:
-        # spell name specified when function was called
-        if len(args) != 1:
-            parser.error("incorrect number of arguments (one required)")
-    else:
-        # spell name not specified when function was called
-        if len(args) != 2:
-            parser.error("incorrect number of arguments (two required)")
-        # get spell name
-        spellname = args[0]
+    # spell name not specified when function was called
+    if len(args) < 1:
+        parser.error("incorrect number of arguments")
 
-    # get top folder/file: last argument always is folder/file
-    top = args[-1]
-
+    # get spell name
+    spellname = args[0]
+    # get spell module
     try:
         spellmodule = getattr(formatspellsmodule, spellname)
     except AttributeError:
         # spell was not found
         parser.error("spell '%s' not found" % spellname)
+
+    if options.helpspell:
+        # hackish, but it works
+        parser.usage = "%%prog [options] %s <file>|<folder>" % spellname
+        parser.description = spellmodule.__doc__
+        parser.print_help()
+        return
+
+    # top not specified when function was called
+    if len(args) != 2:
+        parser.error("incorrect number of arguments")
+
+    # get top folder/file: last argument always is folder/file
+    top = args[-1]
 
     # convert options to dictionary
     optionsdict = {}

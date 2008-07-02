@@ -1,0 +1,14 @@
+Doctests for the texdump spell
+==============================
+
+@todo: some more advanced test
+
+>>> import sys
+>>> sys.path.append("scripts/NIF")
+>>> import niftoaster
+>>> sys.argv = ["niftoaster.py", "texdump", "--verbose=99", "tests/nif/test.nif"]
+>>> niftoaster.main() # doctest: +ELLIPSIS
+reading tests/nif/test.nif
+  geometry [NiTriShape] Cube
+Finished.
+

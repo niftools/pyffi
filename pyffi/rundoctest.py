@@ -40,7 +40,8 @@ for mod in mods:
 
 # various regression tests (outside documentation)
 suite.addTest(doctest.DocFileSuite('tests/nif/niftoaster.txt'))
-suite.addTest(doctest.DocFileSuite('tests/nif/nifoptimize.txt'))
+suite.addTest(doctest.DocFileSuite('tests/nif/optimize.txt'))
+suite.addTest(doctest.DocFileSuite('tests/nif/texdump.txt'))
 
 # TODO: examples
 #suite.addTest(doctest.DocFileSuite('examples/*.txt'))

@@ -14,13 +14,13 @@ The --help switch
 ...     pass
 Usage: niftoaster.py [options] <spell> <file>|<folder>
 <BLANKLINE>
-Look for a python script "PyFFI.Spells.NIF.<spell>" and apply the functions
-testRoot, testBlock, and testFile therein on the file <file>, or on the files
-in <folder>.
+Apply a spell "PyFFI.Spells.NIF.<spell>" on <file>, or recursively on
+<folder>.
 <BLANKLINE>
 Options:
   --version             show program's version number and exit
   -h, --help            show this help message and exit
+  --help-spell          show help specific to the given spell
   --examples            show examples of usage and exit
   --spells              list all spells and exit
   -a ARG, --arg=ARG     pass argument ARG to spell

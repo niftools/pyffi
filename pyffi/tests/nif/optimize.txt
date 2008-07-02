@@ -1,5 +1,5 @@
-Doctests for the nifoptimize script
-===================================
+Doctests for the optimize spell
+===============================
 
 Interactive
 -----------
@@ -18,19 +18,19 @@ is the input working? yes it is
 >>> # copy file to avoid overwriting
 >>> import shutil
 >>> shutil.copyfile("tests/nif/test.nif", "tests/nif/_test.nif")
->>> # simulate calling "nifoptimize.py --verbose=99 tests/nif/_test.nif"
+>>> # simulate calling "niftoaster.py optimize --verbose=99 tests/nif/_test.nif"
 >>> import sys
 >>> sys.path.append("scripts/NIF")
->>> import nifoptimize
->>> sys.argv = ["nifoptimize.py", "--verbose=99", "tests/nif/_test.nif"]
->>> nifoptimize.main() # doctest: +ELLIPSIS
+>>> import niftoaster
+>>> sys.argv = ["niftoaster.py", "optimize", "--verbose=99", "tests/nif/_test.nif"]
+>>> niftoaster.main() # doctest: +ELLIPSIS
 This script will modify your files, in particular if something goes wrong it
 may destroy them. Make a backup of your files before running this script.
 <BLANKLINE>
 Are you sure that you want to proceed? [n/y] n
 Script aborted by user.
 Finished.
->>> nifoptimize.main() # doctest: +ELLIPSIS
+>>> niftoaster.main() # doctest: +ELLIPSIS
 This script will modify your files, in particular if something goes wrong it
 may destroy them. Make a backup of your files before running this script.
 <BLANKLINE>
@@ -57,12 +57,12 @@ Non-interactive
 >>> # copy file to avoid overwriting
 >>> import shutil
 >>> shutil.copyfile("tests/nif/test.nif", "tests/nif/_test.nif")
->>> # simulate calling "nifoptimize.py --verbose=99 tests/nif/_test.nif"
+>>> # simulate calling "niftoaster.py optimize --verbose=99 tests/nif/_test.nif"
 >>> import sys
 >>> sys.path.append("scripts/NIF")
->>> import nifoptimize
->>> sys.argv = ["nifoptimize.py", "--noninteractive", "--verbose=99", "tests/nif/_test.nif"]
->>> nifoptimize.main() # doctest: +ELLIPSIS
+>>> import niftoaster
+>>> sys.argv = ["niftoaster.py", "optimize", "--noninteractive", "--verbose=99", "tests/nif/_test.nif"]
+>>> niftoaster.main() # doctest: +ELLIPSIS
 reading tests/nif/_test.nif
 checking for duplicate source textures
 checking for duplicate properties
