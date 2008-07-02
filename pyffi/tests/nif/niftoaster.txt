@@ -8,7 +8,10 @@ The --help switch
 >>> sys.path.append("scripts/NIF")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--help"]
->>> niftoaster.main()
+>>> try:
+...     niftoaster.main()
+... except SystemExit: # --help uses sys.exit()
+...     pass
 Usage: niftoaster.py [options] <spell> <file>|<folder>
 <BLANKLINE>
 Look for a python script "PyFFI.Spells.NIF.<spell>" and apply the functions
