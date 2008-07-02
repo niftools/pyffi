@@ -41,30 +41,15 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-from PyFFI.Spells import toaster
-from PyFFI.Formats.NIF import NifFormat
-import PyFFI.Spells.NIF
-
-def main():
-    """Script entry point."""
-    # set description and examples
-    description = """\
-Optimize nif file <file> or all nif files in folder <folder>.
-This script will modify the nif files, in particular if something goes wrong it
-may destroy them. Make a backup before running this script."""
-    examples = """* Standard usage:
-
-    python nifoptimize.py /path/to/copy/of/my/nifs
-
-* Optimize, but do not merge NiMaterialProperty blocks:
-
-    python nifoptimize.py --exclude=NiMaterialProperty /path/to/copy/of/my/nifs
-"""
-    # run the toaster for the optimize spell
-    toaster(format=NifFormat, formatspellsmodule=PyFFI.Spells.NIF,
-            spellname="optimize", examples=examples, description=description)
-
 # if script is called...
 if __name__ == "__main__":
-    main()
+    print("""The nifoptimize.py script is deprecated. To optimize nif files,
+run the optimize spell with the niftoaster. That is, type
 
+  python niftoaster.py optimize ...
+
+instead of
+
+  python nifoptimize.py ...
+""")
+    raw_input()

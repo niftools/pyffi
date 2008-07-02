@@ -41,25 +41,15 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-from PyFFI.Spells import toaster
-from PyFFI.Formats.NIF import NifFormat
-import PyFFI.Spells.NIF
-
-def main():
-    """Script entry point."""
-    # set description and examples
-    description = """\
-Print texture information of nif file <file> or all nif files in folder
-<folder>."""
-    examples = """* Standard usage:
-
-    python niftexdump.py /path/to/copy/of/my/nifs
-"""
-    # run the toaster for the optimize spell
-    toaster(format=NifFormat, formatspellsmodule=PyFFI.Spells.NIF,
-            spellname="texdump", examples=examples, description=description)
-
 # if script is called...
 if __name__ == "__main__":
-    main()
+    print("""The niftexdump.py script is deprecated. Please
+run the texdump spell with the niftoaster. That is, type
 
+  python niftoaster.py texdump ...
+
+instead of
+
+  python niftexdump.py ...
+""")
+    raw_input()

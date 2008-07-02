@@ -47,6 +47,16 @@ from PyFFI.Utils import TriStrip
 # set flag to overwrite files
 __readonly__ = False
 
+# example usage
+__examples__ = """* Standard usage:
+
+    python nifoptimize.py /path/to/copy/of/my/nifs
+
+* Optimize, but do not merge NiMaterialProperty blocks:
+
+    python nifoptimize.py --exclude=NiMaterialProperty /path/to/copy/of/my/nifs
+"""
+
 def isequalTriGeomData(shape1, shape2):
     """Compare two NiTriShapeData/NiTriStripsData blocks, checks if they
     describe the same geometry.
