@@ -8,6 +8,7 @@ import checktangentspace
 import checktristrip
 import dump
 import exportpixeldata
+import ffvt3rskinpartition
 import hackcheckskindata
 import hackmultiskelroot
 import hackskindataidtransform

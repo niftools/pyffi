@@ -1,5 +1,6 @@
-"""A spell for updating or generating skin partitions for the game
-Freedom Force vs. the 3rd Reich."""
+#!/usr/bin/python
+
+"""A script for generating/updating ffvt3r skin partitions."""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
@@ -40,33 +41,15 @@ Freedom Force vs. the 3rd Reich."""
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-# this script changes the files in place
-__readonly__ = False
+# if script is called...
+if __name__ == "__main__":
+    print("""The ffvt3rskinpartition.py script is deprecated. Instead,
+run the ffvt3rskinpartition spell with the niftoaster. That is, type
 
-from PyFFI.Formats.NIF import NifFormat
+  python niftoaster.py ffvt3rskinpartition ...
 
-def testBlock(block, **args):
-    """Generate or update skin partition for given block.
+instead of
 
-    @param block: The geometry block whose skin partition to generate/update.
-    @type block: L{NifFormat.NiTriBasedGeom}
-    """
-    # does it apply on this block?
-    if not isinstance(block, NifFormat.NiTriBasedGeom):
-        return
-    # does this block have a skin?
-    if not block.skinInstance:
-        return
-
-    print "updating skin partition of block '%s'"%block.name
-    block._validateSkin()
-    skininst = block.skinInstance
-    skinpart = skininst.skinPartition
-    if not skinpart:
-        skinpart = skininst.data.skinPartition
-
-    # use ffvt3r settings
-    block.updateSkinPartition(
-        maxbonesperpartition = 4, maxbonespervertex = 4,
-        stripify = False, verbose = 1, padbones = True)
-
+  python ffvt3rskinpartition.py ...
+""")
+    raw_input()
