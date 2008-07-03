@@ -51,10 +51,9 @@ Var MAYAINST
 !define MUI_ABORTWARNING
 !define MUI_FINISHPAGE_NOAUTOCLOSE
 
-; TODO: make header image icons
-;!define MUI_HEADERIMAGE
-;!define MUI_HEADERIMAGE_BITMAP pyffi_install_150x57.bmp
-;!define MUI_HEADERIMAGE_UNBITMAP pyffi_install_150x57.bmp
+!define MUI_HEADERIMAGE
+!define MUI_HEADERIMAGE_BITMAP pyffi_install_150x57.bmp
+!define MUI_HEADERIMAGE_UNBITMAP pyffi_install_150x57.bmp
 
 !define MUI_WELCOMEFINISHPAGE_BITMAP pyffi_install_164x314.bmp
 !define MUI_UNWELCOMEFINISHPAGE_BITMAP pyffi_install_164x314.bmp
