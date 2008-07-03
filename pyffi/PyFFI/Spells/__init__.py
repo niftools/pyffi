@@ -84,6 +84,28 @@ def testFileOverwrite(format, *walkresult, **kwargs):
         raise
     stream.truncate()
 
+def isBlockAdmissible(block, exclude, include):
+    """Check if a block should be tested or not, based on exclude and include
+    options passed on the command line.
+
+    @param block: The block to check.
+    @type block: L{PyFFI.Bases.Struct.StructBase}
+    @param exclude: List of blocks to exclude.
+    @type exclude: list of str
+    @param include: List of blocks to include.
+    @type include: list of str
+    """
+    if not include:
+        # everything is included
+        return not(block.__class__.__name__ in exclude)
+    else:
+        # if it is in exclude, exclude it
+        if block.__class__.__name__ in exclude:
+            return False
+        else:
+            # else only include it if it is in the include list
+            return (block.__class__.__name.__ in include)
+
 def testPath(top, format = None, spellmodule = None, **kwargs):
     """Walk over all files in a directory tree and cast a particular spell
     on every file.
@@ -101,6 +123,8 @@ def testPath(top, format = None, spellmodule = None, **kwargs):
               the spell.
           - raisereaderror: Whether to raise errors that occur while reading
               the file.
+          - exclude: List of blocks to exclude from the spell.
+          - include: List of blocks to include in the spell.
     @type kwargs: dict
     """
     if format is None:
@@ -147,10 +171,16 @@ may destroy them. Make a backup of your files before running this script.
             # cast all spells
             if testRoot:
                 for block in format.getRoots(*readresult):
-                    testRoot(block, **kwargs)
+                    if isBlockAdmissible(block = block,
+                                         exclude = kwargs["exclude"],
+                                         include = kwargs["include"]):
+                        testRoot(block, **kwargs)
             if testBlock:
                 for block in format.getBlocks(*readresult):
-                    testBlock(block, **kwargs)
+                    if isBlockAdmissible(block = block,
+                                         exclude = kwargs["exclude"],
+                                         include = kwargs["include"]):
+                        testBlock(block, **kwargs)
             if testFile:
                 testFile(*walkresult, **kwargs)
 
@@ -235,6 +265,11 @@ on <folder>.""" % formatspellsmodule.__name__
                       help="exclude given block type from the spell \
 (you can exclude multiple block types by specifying this option multiple \
 times)")
+    parser.add_option("-i", "--include", dest="include",
+                      type="string",
+                      help="include only the given block types in spell \
+(you can include multiple block types by specifying this option multiple \
+times)")
     parser.add_option("-r", "--raise", dest="raisetesterror",
                       action="store_true",
                       help="raise exception on errors during the spell")
@@ -255,7 +290,7 @@ without warning)")
 (normally you do not need this, unless you are hacking the xml format
 description)""")
     parser.set_defaults(raisetesterror=False, verbose=1, pause=False,
-                        exclude=[], examples=False, spells=False,
+                        exclude=[], include=[], examples=False, spells=False,
                         raisereaderror=True, interactive=True,
                         helpspell=False)
     (options, args) = parser.parse_args()
