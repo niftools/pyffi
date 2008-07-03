@@ -267,7 +267,9 @@ on <folder>.""" % formatspellsmodule.__name__
 times)")
     parser.add_option("-i", "--include", dest="include",
                       type="string",
-                      help="include only the given block types in spell \
+                      help="include only the given block types in spell; \
+if this option is not specified, then all block types are included except \
+of course those specified under --exclude \
 (you can include multiple block types by specifying this option multiple \
 times)")
     parser.add_option("-r", "--raise", dest="raisetesterror",

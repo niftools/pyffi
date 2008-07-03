@@ -28,6 +28,12 @@ Options:
                         exclude given block type from the spell (you can
                         exclude multiple block types by specifying this option
                         multiple times)
+  -i INCLUDE, --include=INCLUDE
+                        include only the given block types in spell; if this
+                        option is not specified, then all block types are
+                        included except of course those specified under
+                        --exclude (you can include multiple block types by
+                        specifying this option multiple times)
   -r, --raise           raise exception on errors during the spell
   --noninteractive      run a non-interactive session (overwrites files
                         without warning)
