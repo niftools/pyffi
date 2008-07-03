@@ -319,10 +319,8 @@ description)""")
         parser.error("spell '%s' not found" % spellname)
 
     if options.helpspell:
-        # hackish, but it works
-        parser.usage = "%%prog [options] %s <file>|<folder>" % spellname
-        parser.description = spellmodule.__doc__
-        parser.print_help()
+        # TODO: format the docstring
+        print(spellmodule.__doc__)
         return
 
     # top not specified when function was called
