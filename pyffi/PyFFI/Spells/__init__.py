@@ -104,7 +104,7 @@ def isBlockAdmissible(block, exclude, include):
             return False
         else:
             # else only include it if it is in the include list
-            return (block.__class__.__name.__ in include)
+            return (block.__class__.__name__ in include)
 
 def testPath(top, format = None, spellmodule = None, **kwargs):
     """Walk over all files in a directory tree and cast a particular spell
