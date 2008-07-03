@@ -208,6 +208,18 @@ Section
   Delete "$PYTHONPATH\Lib\site-packages\PyFFI*.*"
   Delete "$PYTHONPATH\RemovePyFFI.exe"
   Delete "$PYTHONPATH\PyFFI-wininst.log"
+  Delete "$PYTHONPATH\Scripts\qskope.*"
+  Delete "$PYTHONPATH\Scripts\cgftoaster.*"
+  Delete "$PYTHONPATH\Scripts\kfmtoaster.*"
+  Delete "$PYTHONPATH\Scripts\ffvt3rskinpartition.*"
+  Delete "$PYTHONPATH\Scripts\nifdump.*"
+  Delete "$PYTHONPATH\Scripts\nifmakehsl.*"
+  Delete "$PYTHONPATH\Scripts\nifoptimize.*"
+  Delete "$PYTHONPATH\Scripts\niftemplate.*"
+  Delete "$PYTHONPATH\Scripts\niftexdump.*"
+  Delete "$PYTHONPATH\Scripts\niftoaster.*"
+  Delete "$PYTHONPATH\Scripts\pyffipostinstallation.*"
+  Delete "$PYTHONPATH\Scripts\nifvisualizer.*"
 
   ; Install source files and documentation
   !insertmacro InstallManifestFiles
