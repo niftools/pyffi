@@ -94,6 +94,7 @@ checktangentspace
 checktristrip
 dump
 exportpixeldata
+ffvt3rskinpartition
 hackcheckskindata
 hackmultiskelroot
 hackskindataidtransform

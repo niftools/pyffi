@@ -42,6 +42,7 @@ for mod in mods:
 suite.addTest(doctest.DocFileSuite('tests/nif/niftoaster.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/optimize.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/texdump.txt'))
+suite.addTest(doctest.DocFileSuite('tests/nif/ffvt3rskin.txt'))
 
 # TODO: examples
 #suite.addTest(doctest.DocFileSuite('examples/*.txt'))

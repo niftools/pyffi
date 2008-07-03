@@ -1,0 +1,14 @@
+Doctests for the ffvt3rskinpartition spell
+==========================================
+
+@todo: some more advanced test
+
+>>> import sys
+>>> sys.path.append("scripts/NIF")
+>>> import niftoaster
+>>> sys.argv = ["niftoaster.py", "ffvt3rskinpartition", "--verbose=99", "--noninteractive", "tests/nif/test.nif"]
+>>> niftoaster.main()
+reading tests/nif/test.nif
+  writing tests/nif/test.nif...
+Finished.
+
