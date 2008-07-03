@@ -1,6 +1,7 @@
 * refactoring
   - fix the test scripts for the new tester module
-  - re-enable the --raise and --exclude arguments for the optimize spell
+
+* finish nsis implementation of custom PyFFI doc folder location
 
 * improve overall documentation, for instance:
   - add docstrings for all spells

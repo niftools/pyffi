@@ -301,8 +301,8 @@ maya_check_end:
     WriteRegStr HKCR "DirectX.DDS.Document\shell\Open with QSkope\command" "" '"$PYTHONPATH\python.exe" "$PYTHONPATH\Scripts\qskope.py" "%1"'
 
   ; Write the uninstall keys & uninstaller for Windows
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI" "DisplayName" "Python ${PYTHONVERSION} PyFFI-${VERSION}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI" "UninstallString" "$INSTDIR\uninstall.exe"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI-py${PYTHONVERSION}" "DisplayName" "Python ${PYTHONVERSION} PyFFI-${VERSION}"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI-py${PYTHONVERSION}" "UninstallString" "$INSTDIR\uninstall.exe"
   SetOutPath $INSTDIR
   WriteUninstaller "uninstall.exe"
 SectionEnd
@@ -322,9 +322,18 @@ Section "Uninstall"
 
 have_python:
 
-     ; key, that means that Python is still installed
-     RMDir /r "$PYTHONPATH\Lib\site-packages\PyFFI"
-     Delete "$PYTHONPATH\Lib\site-packages\PyFFI*.*"
+    ; key, that means that Python is still installed
+    RMDir /r "$PYTHONPATH\Lib\site-packages\PyFFI"
+    Delete "$PYTHONPATH\Lib\site-packages\PyFFI*.*"
+    Delete "$PYTHONPATH\Scripts\qskope.*"
+    Delete "$PYTHONPATH\Scripts\cgftoaster.*"
+    Delete "$PYTHONPATH\Scripts\kfmtoaster.*"
+    Delete "$PYTHONPATH\Scripts\ffvt3rskinpartition.*"
+    Delete "$PYTHONPATH\Scripts\nifdump.*"
+    Delete "$PYTHONPATH\Scripts\nifmakehsl.*"
+    Delete "$PYTHONPATH\Scripts\nifoptimize.*"
+    Delete "$PYTHONPATH\Scripts\niftexdump.*"
+    Delete "$PYTHONPATH\Scripts\niftoaster.*"
 
 python_check_end:
 
@@ -345,7 +354,7 @@ have_maya:
 maya_check_end:
 
   ; remove registry keys
-  DeleteRegKey HKLM SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI
+  DeleteRegKey HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI-py${PYTHONVERSION}"
   DeleteRegKey HKCR "NetImmerseFile\shell\Optimize with PyFFI"
   DeleteRegKey HKCR "NetImmerseFile\shell\Open with QSkope"
   DeleteRegKey HKCR "CrytekGeometryFile\shell\Open with QSkope"
