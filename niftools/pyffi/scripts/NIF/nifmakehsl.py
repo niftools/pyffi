@@ -132,13 +132,14 @@ def write_hsl(f, ver, templates):
 
 def write_enum(cls, ver, hsl_types, f):
     # set enum size
-    f.write('#pragma enumsize(%s)\n'%hsl_types[cls.__bases__[0]][1])
+    f.write('#pragma enumsize(%s)\n' % cls._numbytes)
     f.write('typedef enum tag' + cls.__name__ + ' {\n')
-    # list of all non-private attributes gives enum constants
-    enum_items = [x for x in cls.__dict__.items() if x[0][:2] != '__']
-    # sort them by value
-    enum_items = sorted(enum_items, key=lambda x: x[1])
+    ## list of all non-private attributes gives enum constants
+    #enum_items = [x for x in cls.__dict__.items() if x[0][:2] != '__']
+    ## sort them by value
+    #enum_items = sorted(enum_items, key=lambda x: x[1])
     # and write out all name, value pairs
+    enum_items = zip(cls._enumkeys, cls._enumvalues)
     for const_name, const_value in enum_items[:-1]:
         f.write('  ' + const_name + ' = ' + str(const_value) + ',\n')
     const_name, const_value = enum_items[-1]
