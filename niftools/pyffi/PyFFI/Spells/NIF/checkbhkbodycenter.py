@@ -1,9 +1,16 @@
-"""Check bhkRigidBody centers."""
+"""Check bhkRigidBody center and inertia."""
 
 from PyFFI.Formats.NIF import NifFormat
 
 def testBlock(block, **args):
-    if not isinstance(block, NifFormat.bhkRigidBody): return
+    """Recalculate the center of mass and inertia matrix,
+    compare them to the originals, and report accordingly.
+
+    @param block: The block to test.
+    @type block: L{NifFormat.bhkRigidBody}
+    """
+    if not isinstance(block, NifFormat.bhkRigidBody):
+        return
 
     print "getting rigid body mass, center, and inertia"
     mass = block.mass
@@ -40,3 +47,4 @@ def testBlock(block, **args):
         print("warning: inertia does not match:\n\noriginal\n%s\n\ncalculated\n%s\n"%(inertia, block.inertia))
     else:
         print "perfect match!"
+
