@@ -40,8 +40,8 @@ def testFile(stream,
         # file sizes
         if verbose:
             print("  comparing sizes...")
-        stream.seek(0,2)
-        f_tmp.seek(0,2)
+        stream.seek(0, 2)
+        f_tmp.seek(0, 2)
         if stream.tell() != f_tmp.tell():
             print "original size: %i" % stream.tell()
             print "written size:  %i" % f_tmp.tell()
