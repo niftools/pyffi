@@ -1,10 +1,15 @@
-"""Show image in NiPixelData block."""
+"""Export image from NiPixelData block as a DDS file."""
 
 from PyFFI.Formats.NIF import NifFormat
 from PyFFI.Formats.DDS import DdsFormat
 import os.path
 
 def testBlock(block, **args):
+    """Export image as DDS file.
+
+    @param block: The block to test.
+    @type block: L{NifFormat.NiPixelData}
+    """
     # check if test applies
     if not isinstance(block, NifFormat.NiPixelData):
         return
@@ -25,3 +30,4 @@ def testBlock(block, **args):
         block.saveAsDDS(stream)
     finally:
         stream.close()
+

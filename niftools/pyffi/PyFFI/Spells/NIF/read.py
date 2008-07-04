@@ -1,1 +1,2 @@
-# a test which does nothing! useful to test reading
+"""A test which does nothing! Useful to test reading."""
+
