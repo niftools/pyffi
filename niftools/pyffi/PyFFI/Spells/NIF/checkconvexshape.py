@@ -1,15 +1,22 @@
-"""
-Check bhkConvexVerticesShape data.
+"""Check bhkConvexVerticesShape data.
 
-This test checks whether each vertex is the intersection of at least three planes.
+This test checks whether each vertex is the intersection of at least three
+planes.
 """
 
 from PyFFI.Formats.NIF import NifFormat
 
 def testBlock(block, **args):
-    if not isinstance(block, NifFormat.bhkConvexVerticesShape): return
+    """Check whether each vertex is the intersection of at least three
+    planes.
 
-    print "checking shape"
+    @param block: The block to test.
+    @type block: L{NifFormat.bhkConvexVerticesShape}
+    """
+    if not isinstance(block, NifFormat.bhkConvexVerticesShape):
+        return
+
+    print("checking shape")
 
     for v4 in block.vertices:
         v = NifFormat.Vector3()
