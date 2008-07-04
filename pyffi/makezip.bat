@@ -1,7 +1,5 @@
 @echo off
 
-del MANIFEST
-
 rem find python
 set PYTHONPATH=
 for /f "tokens=3* delims=	 " %%A in ('reg.exe query "HKLM\SOFTWARE\Python\PythonCore\2.5\InstallPath\" \ve') do set PYTHONPATH="%%B"
@@ -26,12 +24,17 @@ echo.
 goto end
 )
 
+del docs\*.*
+%PYTHONPATH%\python.exe %PYTHONPATH%\Scripts\epydoc.py  -v --output=docs --name="Python File Format Interface" --url="http://pyffi.sourceforge.net/" --navlink="&nbsp;&nbsp;&nbsp;<a class=\"navbar\" target=\"_top\" href=\"http://pyffi.sourceforge.net/\">Python File Format Interface</a>&nbsp;&nbsp;&nbsp;</th><th class=\"navbar\" align=\"center\">&nbsp;&nbsp;&nbsp;<a class=\"navbar\" target=\"_top\" href=\"http://sourceforge.net\"><img src=\"http://sflogo.sourceforge.net/sflogo.php?group_id=199269\" width=\"88\" height=\"31\" border=\"0\" alt=\"SourceForge.net Logo\" /></a>&nbsp;&nbsp;&nbsp;" --top=PyFFI PyFFI
+
+del MANIFEST
 %PYTHONPATH%\python.exe setup.py sdist --format=zip
 rem on windows bztar format is not supported
 rem %PYTHONPATH%\python.exe setup.py sdist --format=bztar
 
-%PYTHONPATH%\python.exe python makensis.py
-rem TODO: call nsis for installer
+%PYTHONPATH%\python.exe makensis.py
+rem del win-install\pyffi-*.exe
+"%PROGRAMFILES%\NSIS\makensis.exe" /v3 win-install\pyffi.nsi
 
 :end
 pause
