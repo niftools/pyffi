@@ -1,5 +1,4 @@
-"""
-This module implements the NIF file format.
+"""This module implements the NIF file format.
 
 Examples
 ========
@@ -135,9 +134,11 @@ Get list of versions and games
 ...     print
 ? 0x0A000103
 Axis and Allies 0x0A010000
-Civilization IV 0x04020002 0x04020100 0x04020200 0x0A000100 0x0A010000 0x0A020000 0x14000004
+Civilization IV 0x04020002 0x04020100 0x04020200 0x0A000100 0x0A010000 \
+0x0A020000 0x14000004
 Culpa Innata 0x04020200
-Dark Age of Camelot 0x03000300 0x03010000 0x0401000C 0x04020100 0x04020200 0x0A010000
+Dark Age of Camelot 0x03000300 0x03010000 0x0401000C 0x04020100 0x04020200 \
+0x0A010000
 Emerge 0x14020007 0x14020008 0x14030001 0x14030002 0x14030003 0x14030006
 Empire Earth II 0x04020200
 Empire Earth III 0x14020007 0x14020008
@@ -148,7 +149,8 @@ Kohan 2 0x0A010000
 Loki 0x0A020000
 Megami Tensei: Imagine 0x14010003
 Morrowind 0x04000002
-Oblivion 0x0303000D 0x0A000102 0x0A010065 0x0A01006A 0x0A020000 0x14000004 0x14000005
+Oblivion 0x0303000D 0x0A000102 0x0A010065 0x0A01006A 0x0A020000 0x14000004 \
+0x14000005
 Prison Tycoon 0x0A020000
 Pro Cycling Manager 0x0A020000
 Red Ocean 0x0A020000
@@ -176,7 +178,8 @@ Reading an unsupported nif file
 ...     raise RuntimeError('nif version not supported')
 ... elif version == -2:
 ...     raise RuntimeError('not a nif file')
->>> roots = NifFormat.read(f, version = version, user_version = user_version) # doctest: +ELLIPSIS
+>>> roots = NifFormat.read(f, version = version, user_version = user_version) \
+# doctest: +ELLIPSIS
 Traceback (most recent call last):
     ...
 NifError: ...
@@ -201,13 +204,13 @@ True
 >>> geom = NifFormat.NiTriShape()
 >>> geom.skinInstance = NifFormat.NiSkinInstance()
 >>> geom.skinInstance.skeletonRoot = skelroot
->>> [ block.__class__.__name__ for block in geom.getRefs() ]
+>>> [block.__class__.__name__ for block in geom.getRefs()]
 ['NiSkinInstance']
->>> [ block.__class__.__name__ for block in geom.getLinks() ]
+>>> [block.__class__.__name__ for block in geom.getLinks()]
 ['NiSkinInstance']
->>> [ block.__class__.__name__ for block in geom.skinInstance.getRefs() ]
+>>> [block.__class__.__name__ for block in geom.skinInstance.getRefs()]
 []
->>> [ block.__class__.__name__ for block in geom.skinInstance.getLinks() ]
+>>> [block.__class__.__name__ for block in geom.skinInstance.getLinks()]
 ['NiNode']
 
 Strings
@@ -490,7 +493,8 @@ class NifFormat(XmlFileFormat):
                 self._value = None
             else:
                 if not isinstance(value, self._template):
-                    raise TypeError('expected an instance of %s but got instance of %s'%(self._template, value.__class__))
+                    raise TypeError('expected an instance of %s \
+but got instance of %s' % (self._template, value.__class__))
                 self._value = value
 
         def getSize(self, **kwargs):
