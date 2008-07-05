@@ -22,6 +22,8 @@ README.TXT for more details on how to migrate from 0.x.x to 1.x.x
   file
   - all XxxFormat classes derive from XmlFileFormat base class
   - common nameAttribute, walk, and walkFile functions
+  - XxxTester modules have been moved to PyFFI.Spells.XXX, along with a much
+  improved PyFFI.Spells module for toasters with loads of new options
 * lots of documentation has been added and improved
 
 Version 0.11.0 (16 Jun 2008)
