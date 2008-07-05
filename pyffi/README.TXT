@@ -56,9 +56,9 @@ The code is organized as follows.
     XmlFileFormat metaclass, i.e. basic and struct. Also contains
     the implementation of array's and the expression parser.
 
-* CGF Format Library - instanciates classes, and customize them
+* CGF Format Library - instantiates classes, and customize them
 
-  - PyFFI/Formats/CGF/__init__.py: instanciates classes for the CGF format
+  - PyFFI/Formats/CGF/__init__.py: instantiates classes for the CGF format
 
   - PyFFI/Formats/CGF/*.py: customization of particular blocks
 
@@ -129,3 +129,96 @@ with the library.
 
   - pylintrc: pylint configuration file
 
+Migrating from PyFFI 0.x.x to PyFFI 1.x.x
+-----------------------------------------
+
+There are a few API and organizational changes between the 0.x.x
+releases and 1.x.x releases. Most projects using PyFFI should not be
+affected too much by this, and the migration should be fairly
+straightforward. But if you have really serious problems migrating
+from PyFFI 0.x.x to PyFFI 1.x.x even with the documentation below,
+post your problem on the sourceforge tracker:
+
+http://sourceforge.net/tracker/?group_id=199269
+
+Following is a detailed list of important changes and the minimal changes
+required to your code.
+
+* Instead of PyFFI.XXX you should now use PyFFI.Formats.XXX; from a
+  linux prompt, type for instance (assuming you have find and perl
+  installed)
+
+    find . -not -wholename "*svn*" -exec perl -pi -w -e 's/PyFFI\.NIF/PyFFI.Formats.NIF/g' {} \;
+    find . -not -wholename "*svn*" -exec perl -pi -w -e 's/PyFFI\.KFM/PyFFI.Formats.KFM/g' {} \;
+    find . -not -wholename "*svn*" -exec perl -pi -w -e 's/PyFFI\.CGF/PyFFI.Formats.CGF/g' {} \;
+    find . -not -wholename "*svn*" -exec perl -pi -w -e 's/PyFFI\.DDS/PyFFI.Formats.DDS/g' {} \;
+    find . -not -wholename "*svn*" -exec perl -pi -w -e 's/PyFFI\.TGA/PyFFI.Formats.TGA/g' {} \;
+
+  and manually check the changes.
+
+* the XxxFormat.getVersion methods now always returns two integers,
+  namely the version, and the user version; to find all instances,
+  type
+
+    find . -not -wholename "*svn*" -exec grep -ln "getVersion("
+
+  to find which of your files might be affected; check that they are
+  indeed of the form
+
+    version, user_version = XxxFormat.getVersion(...)
+
+  This does not affect the nif format as this method already returned
+  both version and user_version. All other formats are affected.
+
+  The CgfFormat.getVersion function also no longer returns the file
+  type. This is delegated to the read function now. You can use the
+  CgfFormat.getFileType function to get the file type without having
+  to parse the complete file.
+
+* Similarly, the XxxFormat read and write functions have been unified, in the
+  following way:
+
+  - XxxFormat.read(stream, version, user_version, ...), returns a tuple
+    say readresult
+
+  - XxxFormat.write(stream, version, user_version, *readresult, ...)
+
+  Use for instance
+
+    find . -not -wholename "*svn*" -exec grep -ln "Format\.read("
+    find . -not -wholename "*svn*" -exec grep -ln "Format\.write("
+
+  to find out which files might be potentially affected.
+
+  In particular, the cgf format no longer takes the game argument, but
+  uses user_version instead (i.e. CgfFormat.UVER_CRYSIS and
+  CgfFormat.UVER_FARCRY, also check the CgfFormat.getGame and
+  CgfFormat.getGameVersion methods).
+
+* The nameAttribute, walk, and walkFile methods are now commonly
+  implemented for all format classes, so please check them if you used
+  them. In particular, the API for the walk methods has slightly
+  changed. Again you can use "find" on linux to check which of your
+  files might be affected.
+
+* The format tester modules have been removed as well. Their
+  functionality has been merged into PyFFI.Spells.NIF,
+  PyFFI.Spells.KFM, and so on, so use these new modules if
+  possible. Usually, this should be enough:
+
+    find . -not -wholename "*svn*" -exec perl -pi -w -e 's/NifTester/PyFFI.Spells.NIF/g' {} \;
+
+  and similarly for other formats.
+
+* The different format toaster functions have been unified into the
+  new PyFFI.Spells module. The code for the niftoaster, cgftoaster,
+  etc. scripts is now much simpler, so if you implement your own toasters,
+  you may wish to make use of the new PyFFI.Spells.toaster(...) function to
+  take advantage of this as well.
+
+* NifVis is no longer distributed; the code is still on the repository
+  and eventually it will be merged again, not as a toaster, but as a
+  part of qskope. This may take a while.
+
+* If you used qskopelib before, it now resides in PyFFI.QSkopeLib, so
+  update your import statements to reflect this.

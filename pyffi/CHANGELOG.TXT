@@ -2,25 +2,15 @@ Version 1.0.0 (***)
 * new NSIS installer (this solves various issues with Vista, and also allows
 the documentation to be bundled)
 * refactoring: library reorganized and some interfaces have been unified,
-also a lot of code duplication has been reduced
+also a lot of code duplication has been reduced; see README.TXT for more
+details on how to migrate from 0.x.x to 1.x.x
   - main format classes PyFFI.XXX have been moved to PyFFI.Formats.XXX, so
-  "from PyFFI.XXX import XxxFormat" is now 
-  "from PyFFI.Formats.XXX import XxxFormat"
-  use 
-  $ find . -not -wholename "*svn*" -exec perl -pi -w -e 's/PyFFI.XXX/PyFFI.Formats.XXX/g' {} \;
-  to migrate your files
-  - "XxxFormat.getVersion(self, stream)" now always returns two integers,
-  version and user_version; this affects all formats except for NIF, use
-  $ find . -not -wholename "*svn*" -exec grep -ln "Format.getVersion("
-  to find which of your files might be affected
-  - "XxxFormat.read(self, stream, version, user_version, verbose, ...)"
-  for all formats; this affects all formats except for NIF, use
-  $ find . -not -wholename "*svn*" -exec grep -ln "Format.read("
-  to find which of your files might be affected
-  - "XxxFormat.write(self, stream, version, user_version, verbose, ...)"
-  for all formats; this affects all formats except for NIF, use
-  $ find . -not -wholename "*svn*" -exec grep -ln "Format.write("
-  to find which of your files might be affected
+  - "XxxFormat.getVersion(cls, stream)" now always returns two integers,
+  version and user_version; this affects all formats except for NIF
+  - "XxxFormat.read(self, stream, version, user_version, ...)"
+  for all formats
+  - "XxxFormat.write(self, stream, version, user_version, *readresult, ...)"
+  for all formats
   - in particular, note that the CGF format game argument removed from read
   and write functions, use version and user_version instead (the user_version
   denotes the game, this is hardcoded into CgfFormat); you can use
@@ -30,8 +20,7 @@ also a lot of code duplication has been reduced
   - there is a separate CgfFormat.getFileType function, if you need to know
   the file type but you don't want to parse the whole file.
   - all XxxFormat classes derive from XmlFileFormat base class
-  - common nameAttribute, walk, and walkFile functions; if you relied on any
-  of these, again check with find!
+  - common nameAttribute, walk, and walkFile functions
 * lots of documentation has been added and improved
 
 Version 0.11.0 (16 Jun 2008)
