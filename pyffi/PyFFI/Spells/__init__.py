@@ -53,7 +53,33 @@ Not all of these three functions need to be present.
 import sys
 import gc
 import optparse
+import tempfile
+
 import PyFFI
+
+def testFileTempwrite(format, *walkresult, **kwargs):
+    """Useful as testFile which simply writes back the file
+    to a temporary file and raises an exception if the write fails.
+
+    @param format: The format class, e.g. L{PyFFI.Formats.CGF.CgfFormat}.
+    @type format: subclass of L{PyFFI.XmlFileFormat}
+    @param walkresult: Tuple with result from walkFile.
+    @type walkresult: tuple
+    @param kwargs: Extra keyword arguments.
+    @type kwargs: dict
+    """
+    if kwargs.get('verbose'):
+        print("  writing to temporary file...")
+    stream = tempfile.TemporaryFile()
+    # first argument is always the stream, by convention
+    writeargs = (stream,) + walkresult[1:]
+    try:
+        format.write(*writeargs)
+    except StandardError:
+        print "  write failed!!!"
+        raise
+    finally:
+        stream.close()
 
 def testFileOverwrite(format, *walkresult, **kwargs):
     """Useful as testFile which simply writes back the file
@@ -138,12 +164,13 @@ def testPath(top, format = None, spellmodule = None, **kwargs):
     raisetesterror = kwargs.get("raisetesterror", False)
     pause = kwargs.get("pause", False)
     interactive = kwargs.get("interactive", True)
+    dryrun = kwargs.get("dryrun", False)
     testRoot = getattr(spellmodule, "testRoot", None)
     testBlock = getattr(spellmodule, "testBlock", None)
     testFile = getattr(spellmodule, "testFile", None)
 
     # warning
-    if (not readonly) and interactive:
+    if (not readonly) and (not dryrun) and interactive:
         print("""\
 This script will modify your files, in particular if something goes wrong it
 may destroy them. Make a backup of your files before running this script.
@@ -186,7 +213,11 @@ may destroy them. Make a backup of your files before running this script.
 
             # save file back to disk if not readonly
             if not readonly:
-                testFileOverwrite(format, *walkresult, **kwargs)
+                if not dryrun:
+                    testFileOverwrite(format, *walkresult, **kwargs)
+                else:
+                    # write back to a temporary file
+                    testFileTempwrite(format, *walkresult, **kwargs)
         except StandardError:
             # walkresult[0] is the stream
             print("""\
@@ -274,7 +305,8 @@ of course those specified under --exclude \
 times)")
     parser.add_option("-r", "--raise", dest="raisetesterror",
                       action="store_true",
-                      help="raise exception on errors during the spell")
+                      help="raise exception on errors during the spell; \
+useful for debugging spells")
     parser.add_option("--noninteractive", dest="interactive",
                       action="store_false",
                       help="run a non-interactive session (overwrites files \
@@ -286,15 +318,20 @@ without warning)")
     parser.add_option("-p", "--pause", dest="pause",
                       action="store_true",
                       help="pause when done")
+    parser.add_option("--dry-run", dest="dryrun",
+                      action="store_true",
+                      help="for spells that modify files, \
+save the modification to a temporary file instead of writing it back to the \
+original file; useful for debugging spells")
     parser.add_option("--usetheforceluke", dest="raisereaderror",
                       action="store_false",
-                      help="""pass exceptions while reading files
-(normally you do not need this, unless you are hacking the xml format
-description)""")
+                      help="""pass exceptions while reading files;
+normally you do not need this, unless you are hacking the xml format
+description""")
     parser.set_defaults(raisetesterror=False, verbose=1, pause=False,
                         exclude=[], include=[], examples=False, spells=False,
                         raisereaderror=True, interactive=True,
-                        helpspell=False)
+                        helpspell=False, dryrun=False)
     (options, args) = parser.parse_args()
 
     # check if we had examples and/or spells: quit
