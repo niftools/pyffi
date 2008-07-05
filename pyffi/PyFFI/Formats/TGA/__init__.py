@@ -113,38 +113,6 @@ class TgaFormat(XmlFileFormat):
         """Exception class used for TGA related exceptions."""
         pass
 
-    @staticmethod
-    def versionNumber(version_str):
-        """Converts version string into an integer. TGA files have no versions
-        so this function simply raises NotImplementedError.
-
-        @param version_str: The version string.
-        @type version_str: str
-        @return: A version integer.
-        """
-        # TGA format not versioned
-        raise NotImplementedError
-
-    @staticmethod
-    def nameAttribute(name):
-        """Converts an attribute name, as in the xml file, into a name usable
-        by python.
-
-        @param name: The attribute name.
-        @type name: str
-        @return: Reformatted attribute name, useable by python.
-
-        >>> TgaFormat.nameAttribute('tHis is A Silly naME')
-        'thisIsASillyName'
-        """
-
-        # str(name) converts name to string in case name is a unicode string
-        parts = str(name).split()
-        attrname = parts[0].lower()
-        for part in parts[1:]:
-            attrname += part.capitalize()
-        return attrname
-
     @classmethod
     def getVersion(cls, stream):
         """Get version and user version.
