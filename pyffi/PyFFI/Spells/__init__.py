@@ -100,8 +100,9 @@ def testFilePrefixwrite(format, *walkresult, **kwargs):
         if kwargs.get('verbose'):
             print("  writing %s..." % stream.name)
         #print(walkresult) # DEBUG
+        writeargs = (stream,) + walkresult[1:]
         try:
-            format.write(*walkresult)
+            format.write(*writeargs)
         except StandardError:
             print "  write failed!!!"
             raise
@@ -199,7 +200,7 @@ def testPath(top, format = None, spellmodule = None, **kwargs):
     testFile = getattr(spellmodule, "testFile", None)
 
     # warning
-    if (not readonly) and (not dryrun) and interactive:
+    if (not readonly) and (not dryrun) and not(prefix) and interactive:
         print("""\
 This script will modify your files, in particular if something goes wrong it
 may destroy them. Make a backup of your files before running this script.
