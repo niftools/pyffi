@@ -1,24 +1,25 @@
 Version 1.0.0 (***)
-* new NSIS installer (this solves various issues with Vista, and also allows
-the documentation to be bundled)
-* refactoring: library reorganized and some interfaces have been unified,
-also a lot of code duplication has been reduced; see README.TXT for more
-details on how to migrate from 0.x.x to 1.x.x
-  - main format classes PyFFI.XXX have been moved to PyFFI.Formats.XXX, so
-  - "XxxFormat.getVersion(cls, stream)" now always returns two integers,
-  version and user_version; this affects all formats except for NIF
-  - "XxxFormat.read(self, stream, version, user_version, ...)"
-  for all formats
+* new NSIS installer (this solves various issues with Vista, and also
+allows the documentation to be bundled)
+* refactoring: library reorganized and some interfaces have been
+unified, also a lot of code duplication has been reduced; see
+README.TXT for more details on how to migrate from 0.x.x to 1.x.x
+  - main format classes PyFFI.XXX have been moved to PyFFI.Formats.XXX
+  - "XxxFormat.getVersion(cls, stream)" now always returns two
+  integers, version and user_version
+  - "XxxFormat.read(self, stream, version, user_version, ...)" for all
+  formats
   - "XxxFormat.write(self, stream, version, user_version, *readresult, ...)"
   for all formats
-  - in particular, note that the CGF format game argument removed from read
-  and write functions, use version and user_version instead (the user_version
-  denotes the game, this is hardcoded into CgfFormat); you can use
-  CgfFormat.getGame(version, user_version) to get the game in string format.
-  - also for the CGF format, take care that getVersion no longer returns the
-  file type. It is returned with the CgfFormat.read function.
-  - there is a separate CgfFormat.getFileType function, if you need to know
-  the file type but you don't want to parse the whole file.
+  - in particular, CGF format game argument removed from read and
+  write functions, but there are new CgfFormat.getGame and
+  CgfFormat.getGameVersion functions to convert between (version,
+  user_version) and game
+  - also for the CGF format, take care that getVersion no longer
+  returns the file type. It is returned with the CgfFormat.read
+  function, however there is a new CgfFormat.getFileType function, if
+  you need to know the file type but you don't want to parse the whole
+  file
   - all XxxFormat classes derive from XmlFileFormat base class
   - common nameAttribute, walk, and walkFile functions
 * lots of documentation has been added and improved
