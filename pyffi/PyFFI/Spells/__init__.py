@@ -50,12 +50,12 @@ Not all of these three functions need to be present.
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-import sys
 import gc
 import optparse
+import os.path
 import tempfile
 
-import PyFFI
+import PyFFI # for PyFFI.__version__
 
 def testFileTempwrite(format, *walkresult, **kwargs):
     """Useful as testFile which simply writes back the file
@@ -71,13 +71,40 @@ def testFileTempwrite(format, *walkresult, **kwargs):
     if kwargs.get('verbose'):
         print("  writing to temporary file...")
     stream = tempfile.TemporaryFile()
-    # first argument is always the stream, by convention
-    writeargs = (stream,) + walkresult[1:]
     try:
-        format.write(*writeargs)
-    except StandardError:
-        print "  write failed!!!"
-        raise
+        # first argument is always the stream, by convention
+        writeargs = (stream,) + walkresult[1:]
+        try:
+            format.write(*writeargs)
+        except StandardError:
+            print "  write failed!!!"
+            raise
+    finally:
+        stream.close()
+
+def testFilePrefixwrite(format, *walkresult, **kwargs):
+    """Useful as testFile which simply writes back the file
+    appending a prefix to the original file name.
+
+    @param format: The format class, e.g. L{PyFFI.Formats.CGF.CgfFormat}.
+    @type format: subclass of L{PyFFI.XmlFileFormat}
+    @param walkresult: Tuple with result from walkFile.
+    @type walkresult: tuple
+    @param kwargs: Extra keyword arguments.
+    @type kwargs: dict
+    """
+    # first argument is always the stream, by convention
+    head, tail = os.path.split(walkresult[0].name)
+    stream = open(os.path.join(head, kwargs["prefix"] + tail), "wb")
+    try:
+        if kwargs.get('verbose'):
+            print("  writing %s..." % stream.name)
+        #print(walkresult) # DEBUG
+        try:
+            format.write(*walkresult)
+        except StandardError:
+            print "  write failed!!!"
+            raise
     finally:
         stream.close()
 
@@ -151,6 +178,7 @@ def testPath(top, format = None, spellmodule = None, **kwargs):
               the file.
           - exclude: List of blocks to exclude from the spell.
           - include: List of blocks to include in the spell.
+          - prefix: File prefix when writing back.
     @type kwargs: dict
     """
     if format is None:
@@ -165,6 +193,7 @@ def testPath(top, format = None, spellmodule = None, **kwargs):
     pause = kwargs.get("pause", False)
     interactive = kwargs.get("interactive", True)
     dryrun = kwargs.get("dryrun", False)
+    prefix = kwargs.get("prefix", "")
     testRoot = getattr(spellmodule, "testRoot", None)
     testBlock = getattr(spellmodule, "testBlock", None)
     testFile = getattr(spellmodule, "testFile", None)
@@ -214,7 +243,10 @@ may destroy them. Make a backup of your files before running this script.
             # save file back to disk if not readonly
             if not readonly:
                 if not dryrun:
-                    testFileOverwrite(format, *walkresult, **kwargs)
+                    if not prefix:
+                        testFileOverwrite(format, *walkresult, **kwargs)
+                    else:
+                        testFilePrefixwrite(format, *walkresult, **kwargs)
                 else:
                     # write back to a temporary file
                     testFileTempwrite(format, *walkresult, **kwargs)
@@ -292,17 +324,19 @@ on <folder>.""" % formatspellsmodule.__name__
                       metavar="ARG",
                       help="pass argument ARG to spell")
     parser.add_option("-x", "--exclude", dest="exclude",
+                      type="string",
                       action="append",
-                      help="exclude given block type from the spell \
-(you can exclude multiple block types by specifying this option multiple \
-times)")
+                      metavar="EXCLUDE",
+                      help="exclude block type EXCLUDE from spell; \
+exclude multiple block types by specifying this option more than once")
     parser.add_option("-i", "--include", dest="include",
                       type="string",
-                      help="include only the given block types in spell; \
+                      action="append",
+                      metavar="INCLUDE",
+                      help="include only block type INCLUDE in spell; \
 if this option is not specified, then all block types are included except \
-of course those specified under --exclude \
-(you can include multiple block types by specifying this option multiple \
-times)")
+those specified under --exclude; \
+include multiple block types by specifying this option more than once")
     parser.add_option("-r", "--raise", dest="raisetesterror",
                       action="store_true",
                       help="raise exception on errors during the spell; \
@@ -323,6 +357,11 @@ without warning)")
                       help="for spells that modify files, \
 save the modification to a temporary file instead of writing it back to the \
 original file; useful for debugging spells")
+    parser.add_option("--prefix", dest="prefix",
+                      type="string",
+                      metavar="PREFIX",
+                      help="for spells that modify files, \
+prepend PREFIX to file name")
     parser.add_option("--usetheforceluke", dest="raisereaderror",
                       action="store_false",
                       help="""pass exceptions while reading files;
@@ -331,7 +370,7 @@ description""")
     parser.set_defaults(raisetesterror=False, verbose=1, pause=False,
                         exclude=[], include=[], examples=False, spells=False,
                         raisereaderror=True, interactive=True,
-                        helpspell=False, dryrun=False)
+                        helpspell=False, dryrun=False, prefix="", arg="")
     (options, args) = parser.parse_args()
 
     # check if we had examples and/or spells: quit

@@ -25,24 +25,30 @@ Options:
   --spells              list all spells and exit
   -a ARG, --arg=ARG     pass argument ARG to spell
   -x EXCLUDE, --exclude=EXCLUDE
-                        exclude given block type from the spell (you can
-                        exclude multiple block types by specifying this option
-                        multiple times)
+                        exclude block type EXCLUDE from spell; exclude
+                        multiple block types by specifying this option more
+                        than once
   -i INCLUDE, --include=INCLUDE
-                        include only the given block types in spell; if this
+                        include only block type INCLUDE in spell; if this
                         option is not specified, then all block types are
-                        included except of course those specified under
-                        --exclude (you can include multiple block types by
-                        specifying this option multiple times)
-  -r, --raise           raise exception on errors during the spell
+                        included except those specified under --exclude;
+                        include multiple block types by specifying this option
+                        more than once
+  -r, --raise           raise exception on errors during the spell; useful for
+                        debugging spells
   --noninteractive      run a non-interactive session (overwrites files
                         without warning)
   -v VERBOSE, --verbose=VERBOSE
                         verbosity level: 0, 1, or 2 [default: 1]
   -p, --pause           pause when done
-  --usetheforceluke     pass exceptions while reading files (normally you do
+  --dry-run             for spells that modify files, save the modification to
+                        a temporary file instead of writing it back to the
+                        original file; useful for debugging spells
+  --prefix=PREFIX       for spells that modify files, prepend PREFIX to file
+                        name
+  --usetheforceluke     pass exceptions while reading files; normally you do
                         not need this, unless you are hacking the xml format
-                        description)
+                        description
 
 The --examples switch
 ---------------------
