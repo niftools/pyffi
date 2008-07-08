@@ -305,7 +305,8 @@ def optimizeTriBasedGeom(block, striplencutoff = 10.0, stitch = True):
                   % striplencutoff)
             block = triangulateTriStrips(block)
         elif stitch:
-            print "  stitching strips"
+            print("  stitching strips (using %i stitches)"
+                  % len(data.getStrips()))
             data.setStrips([TriStrip.stitchStrips(data.getStrips())])
 
     # update skin data
