@@ -118,8 +118,8 @@ Further References
 
 With the above simple example in mind, you may wish to browse through the
 source code of
-L{PyFFI.Formats.CGF} or L{PyFFI.Formats.NIF} to see how PyFFI works for more complex file
-formats.
+L{PyFFI.Formats.CGF} or L{PyFFI.Formats.NIF} to see how PyFFI works for more
+complex file formats.
 """
 
 # ***** BEGIN LICENSE BLOCK *****

@@ -5,7 +5,8 @@ from itertools import izip
 from PyFFI.Formats.CGF import CgfFormat
 from PyFFI.Utils.MathUtils import *
 
-def testChunk(chunk, **args):
+def testBlock(chunk, **args):
+    """Checks mesh chunk tangent space calculation."""
     # check block type
     if not isinstance(chunk, CgfFormat.MeshChunk):
         return

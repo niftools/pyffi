@@ -904,3 +904,26 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
             return [max(chunk.getVersions(game)) for chunk in chunks]
         except KeyError:
             raise cls.CgfError("game %s not supported" % game)
+
+    @classmethod
+    def getRoots(cls, *readresult):
+        """Returns list of all root blocks. Used by L{PyFFI.QSkopeLib.QSkope}
+        and L{PyFFI.Spells}.
+
+        @param readresult: Result from L{walk} or L{read}.
+        @type readresult: tuple
+        @return: list of root blocks
+        """
+        # TODO: implement this (if we need it)
+        return []
+
+    @classmethod
+    def getBlocks(cls, *readresult):
+        """Returns list of all blocks. Used by L{PyFFI.QSkopeLib.QSkope}
+        and L{PyFFI.Spells}.
+
+        @param readresult: Result from L{walk} or L{read}.
+        @type readresult: tuple
+        @return: list of blocks
+        """
+        return readresult[1]
