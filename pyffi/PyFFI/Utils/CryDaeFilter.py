@@ -68,8 +68,11 @@ class CryDaeFilter(xml.sax.saxutils.XMLFilterBase):
         # set some parameters
         self.verbose = verbose
         self.scenenum = 0
+        self.stack = []
 
     def startElement(self, name, attrs):
+        # update element stack
+        self.stack.append(name)
         # call base startElement
         xml.sax.saxutils.XMLFilterBase.startElement(self, name, attrs)
         # insert extra visual scene CryExportNode
@@ -82,12 +85,55 @@ class CryDaeFilter(xml.sax.saxutils.XMLFilterBase):
                 print("visual scene '%s'" % scenename)
                 print("  inserting '%s'" % cryexportnodeid)
             self.startElement("node", {"id": cryexportnodeid})
+            self.startElement("translate", {"sid": "translation"})
+            self.characters("0 0 0")
+            self.endElement("translate")
+            self.startElement("rotate", {"sid": "rotation_z"})
+            self.characters("0 0 1 0")
+            self.endElement("rotate")
+            self.startElement("rotate", {"sid": "rotation_y"})
+            self.characters("0 1 0 0")
+            self.endElement("rotate")
+            self.startElement("rotate", {"sid": "rotation_x"})
+            self.characters("1 0 0 0")
+            self.endElement("rotate")
+            self.startElement("scale", {"sid": "scale"})
+            self.characters("1 1 1")
+            self.endElement("scale")
             self.scenenum += 1
+
+    def characters(self, chars):
+        if (len(self.stack) >= 2
+            and self.stack[-2] == "image" and self.stack[-1] == "init_from"):
+            # texture path
+            idx = chars.lower().find("\\game\\")
+            if idx != -1:
+                # texture path relative to Game
+                chars = chars[idx+6:]
+                if self.verbose:
+                    print("truncating texture path '%s'" % chars)
+            else:
+                if self.verbose:
+                    print("""\
+WARNING:
+  for Crysis, your texture files should reside in
+  ...\\Game\\...
+  (for example: ...\\Crysis\\Mods\\MyModName\\Game\\Textures\\...\\...)
+  but %s
+  does not satisfy this requirement.""" % chars)
+
+        # call base characters
+        xml.sax.saxutils.XMLFilterBase.characters(self, chars)
 
     def endElement(self, name):
         # close the extra visual scene CryExportNode
         if name == "visual_scene":
             self.endElement("node")
+        # update element stack
+        startname = self.stack.pop()
+        if name != startname:
+            raise ValueError("invalid xml (%s tag closed by %s tag)"
+                             % (name, startname))
         # call base endElement
         xml.sax.saxutils.XMLFilterBase.endElement(self, name)
 
