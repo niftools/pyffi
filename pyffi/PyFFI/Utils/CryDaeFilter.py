@@ -39,6 +39,7 @@ collada file which can be used with Crytek's resource compiler."""
 # ***** END LICENSE BLOCK *****
 
 import xml.sax
+import xml.sax.saxutils
 import optparse
 import PyFFI # for PyFFI.__version__
 
@@ -62,6 +63,6 @@ def convert(infile, outfile):
     @type outfile: file
     """
     parser = xml.sax.make_parser()
-    parser.setContentHandler(xml.sax.XMLGenerator(outfile))
+    parser.setContentHandler(xml.sax.saxutils.XMLGenerator(outfile))
     parser.parse(infile)
 

@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 """Parses a collada file and outputs a similar collada file which can be used
 with Crytek's resource compiler."""
 
@@ -53,7 +55,7 @@ def main():
         description=description)
     (options, args) = parser.parse_args()
 
-    if len(args) != 2:
+    if not(len(args) in (1, 2)):
         parser.error("incorrect number of arguments")
 
     infile = open(args[0], "r")
