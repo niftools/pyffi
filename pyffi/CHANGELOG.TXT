@@ -1,6 +1,7 @@
 Version 1.0.0 (***)
 * new NSIS installer (this solves various issues with Vista, and also
 allows the documentation to be bundled)
+* new filter to prepare collada (.dae) files for CryEngine2
 * refactoring: library reorganized and some interfaces have been
 unified, also a lot of code duplication has been reduced; see
 README.TXT for more details on how to migrate from 0.x.x to 1.x.x

@@ -44,6 +44,20 @@ import optparse
 
 import PyFFI.Utils.CryDaeFilter
 
+def finalmessage(options, args):
+    """Print a final message, and pause if needed."""
+    # signal the end
+    if options.verbose:
+        finalmessage = "Finished."
+    else:
+        # writing to stdout, so don't print an extra message
+        finalmessage = ""
+    # pause if needed
+    if options.pause:
+        raw_input(finalmessage)
+    else:
+        print(finalmessage)
+
 def main():
     """Parse options and run dae convertor."""
     usage = "%prog [options] <infile> <outfile>"
@@ -69,7 +83,10 @@ def main():
     try:
         # check that input is not yet a CryEngine dae file!
         if infile.read(-1).find("CryExportNode") != -1:
-            raise RuntimeError("%s is already a CryEngine dae file")
+            print("%s is already a CryEngine dae file" % infile.name)
+            finalmessage(options, args)
+            return
+
         infile.seek(0)
         # open output file
         outfile = open(args[1], "w")
@@ -85,17 +102,7 @@ def main():
     finally:
         infile.close()
 
-    # signal the end
-    if options.verbose:
-        finalmessage = "Finished."
-    else:
-        # writing to stdout, so don't print an extra message
-        finalmessage = ""
-    # pause if needed
-    if options.pause:
-        raw_input(finalmessage)
-    else:
-        print(finalmessage)
+    finalmessage(options, args)
 
 if __name__ == '__main__':
     main()

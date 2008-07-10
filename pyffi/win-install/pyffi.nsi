@@ -298,7 +298,7 @@ maya_check_end:
     WriteRegStr HKCR "daefile\shell" "" "open"
 
     WriteRegStr HKCR "daefile\shell\Prepare for CryEngine with PyFFI" "" ""
-    WriteRegStr HKCR "CrytekGeometryFile\shell\Prepare for CryEngine with PyFFI\command" "" '"$PYTHONPATH\python.exe" "$PYTHONPATH\Scripts\crydaefilter.py" --pause "%1" "cry_%1"'
+    WriteRegStr HKCR "daefile\shell\Prepare for CryEngine with PyFFI\command" "" '"$PYTHONPATH\python.exe" "$PYTHONPATH\Scripts\crydaefilter.py" "%1" "cry.dae" --pause'
 
   WriteRegStr HKCR ".dds" "" "DirectX.DDS.Document" ; following DirectX SDK
 
@@ -367,6 +367,7 @@ maya_check_end:
   DeleteRegKey HKCR "NetImmerseFile\shell\Open with QSkope"
   DeleteRegKey HKCR "CrytekGeometryFile\shell\Open with QSkope"
   DeleteRegKey HKCR "DirectX.DDS.Document\shell\Open with QSkope"
+  DeleteRegKey HKCR "daefile\shell\Prepare for CryEngine with PyFFI"
 
   ; remove program files and program directory
   RMDir /r "$INSTDIR"
