@@ -292,6 +292,14 @@ maya_check_end:
     WriteRegStr HKCR "CrytekGeometryFile\shell\Open with QSkope" "" ""
     WriteRegStr HKCR "CrytekGeometryFile\shell\Open with QSkope\command" "" '"$PYTHONPATH\python.exe" "$PYTHONPATH\Scripts\qskope.py" "%1"'
 
+  WriteRegStr HKCR ".dae" "" "daefile"
+
+    WriteRegStr HKCR "daefile" "" "Collada File"
+    WriteRegStr HKCR "daefile\shell" "" "open"
+
+    WriteRegStr HKCR "daefile\shell\Prepare for CryEngine with PyFFI" "" ""
+    WriteRegStr HKCR "CrytekGeometryFile\shell\Prepare for CryEngine with PyFFI\command" "" '"$PYTHONPATH\python.exe" "$PYTHONPATH\Scripts\crydaefilter.py" --pause "%1" "cry_%1"'
+
   WriteRegStr HKCR ".dds" "" "DirectX.DDS.Document" ; following DirectX SDK
 
     WriteRegStr HKCR "DirectX.DDS.Document" "" "DDS Document"

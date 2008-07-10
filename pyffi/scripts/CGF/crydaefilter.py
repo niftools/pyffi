@@ -41,36 +41,61 @@ with Crytek's resource compiler."""
 # ***** END LICENSE BLOCK *****
 
 import optparse
-import sys
 
 import PyFFI.Utils.CryDaeFilter
 
 def main():
     """Parse options and run dae convertor."""
-    usage = "%prog [options] <infile> [<outfile>]"
+    usage = "%prog [options] <infile> <outfile>"
     description = __doc__
     parser = optparse.OptionParser(
         usage,
         version="%%prog (PyFFI %s)" % PyFFI.__version__,
         description=description)
+    parser.add_option("-v", "--verbose", dest="verbose",
+                      type="int",
+                      metavar="VERBOSE",
+                      help="verbosity level [default: %default]")
+    parser.add_option("-p", "--pause", dest="pause",
+                      action="store_true",
+                      help="pause when done")
+    parser.set_defaults(pause=False, verbose=1)
     (options, args) = parser.parse_args()
 
-    if not(len(args) in (1, 2)):
+    if len(args) != 2:
         parser.error("incorrect number of arguments")
 
     infile = open(args[0], "r")
     try:
-        if len(args) == 1:
-            outfile = sys.stdout
-        else:
-            outfile = open(args[1], "w")
+        # check that input is not yet a CryEngine dae file!
+        if infile.read(-1).find("CryExportNode") != -1:
+            raise RuntimeError("%s is already a CryEngine dae file")
+        infile.seek(0)
+        # open output file
+        outfile = open(args[1], "w")
+        # convert the file
         try:
-            PyFFI.Utils.CryDaeFilter.convert(infile, outfile)
+            if options.verbose:
+                print("converting %s to CryEngine dae file %s..."
+                      % (infile.name, outfile.name))
+            PyFFI.Utils.CryDaeFilter.convert(infile, outfile,
+                                             verbose=options.verbose)
         finally:
             outfile.close()
     finally:
         infile.close()
 
+    # signal the end
+    if options.verbose:
+        finalmessage = "Finished."
+    else:
+        # writing to stdout, so don't print an extra message
+        finalmessage = ""
+    # pause if needed
+    if options.pause:
+        raw_input(finalmessage)
+    else:
+        print(finalmessage)
+
 if __name__ == '__main__':
     main()
-
