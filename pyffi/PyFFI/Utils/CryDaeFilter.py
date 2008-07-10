@@ -57,16 +57,22 @@ class CryDaeFilter(xml.sax.saxutils.XMLFilterBase):
     and filtering the data so it is acceptable for the Crytek resource
     compiler."""
 
-    def __init__(self, parent, verbose=0):
+    def __init__(self, parent, verbose=0, basename=''):
         """Initialize the filter.
 
         @param parent: The parent XMLReader instance.
         @type parent: XMLReader
+        @param verbose: Level of verbosity.
+        @type verbose: int
+        @param basename: Base name of the CgfExportNode (this will become the
+            cgf file base name).
+        @type basename: str
         """
         # call base constructor
         xml.sax.saxutils.XMLFilterBase.__init__(self, parent)
         # set some parameters
         self.verbose = verbose
+        self.basename = basename
         self.scenenum = 0
         self.stack = []
 
@@ -78,7 +84,15 @@ class CryDaeFilter(xml.sax.saxutils.XMLFilterBase):
         # insert extra visual scene CryExportNode
         if name == "visual_scene":
             # insert a node
-            scenename = attrs.get("name", "untitledscene%03i" % self.scenenum)
+            if self.basename:
+                if self.scenenum == 0:
+                    scenename = self.basename
+                else:
+                    scenename = "%s%03i" % (self.basename, self.scenenum)
+            else:
+                # no base name: use scene name, and fall back on 'untitled'
+                scenename = attrs.get("name", "untitledscene%03i"
+                                      % self.scenenum)
             cryexportnodeid = ("CryExportNode_%s-CGF-%s-DoExport-MergeNodes"
                                % (scenename, scenename))
             if self.verbose:
@@ -137,7 +151,7 @@ WARNING:
         # call base endElement
         xml.sax.saxutils.XMLFilterBase.endElement(self, name)
 
-def convert(infile, outfile, verbose=0):
+def convert(infile, outfile, verbose=0, basename=''):
     """Convert dae file using the CryDaeFilter.
 
     @param infile: The input file.
@@ -145,7 +159,8 @@ def convert(infile, outfile, verbose=0):
     @param outfile: The output file.
     @type outfile: file
     """
-    parser = CryDaeFilter(xml.sax.make_parser(), verbose=verbose)
+    parser = CryDaeFilter(xml.sax.make_parser(),
+                          verbose=verbose, basename=basename)
     parser.setContentHandler(xml.sax.saxutils.XMLGenerator(outfile))
     parser.parse(infile)
 
