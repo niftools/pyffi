@@ -1,5 +1,9 @@
 """Utility functions for parsing a collada file and generating a similar
-collada file which can be used with Crytek's resource compiler."""
+collada file which can be used with Crytek's resource compiler.
+
+The conversion is implemented as an XML filter: see the L{CryDaeFilter} class
+for more details.
+"""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -52,7 +56,36 @@ class CryDaeFilter(xml.sax.saxutils.XMLFilterBase):
     """This class contains all functions for parsing the collada xml file
     and filtering the data so it is acceptable for the Crytek resource
     compiler."""
-    pass
+
+    def __init__(self, parent):
+        """Initialize the filter.
+
+        @param parent: The parent XMLReader instance.
+        @type parent: XMLReader
+        """
+        # call base constructor
+        xml.sax.saxutils.XMLFilterBase.__init__(self, parent)
+        # set some parameters
+        self.scenenum = 0
+
+    def startElement(self, name, attrs):
+        # call base startElement
+        xml.sax.saxutils.XMLFilterBase.startElement(self, name, attrs)
+        # insert extra visual scene CryExportNode
+        if name == "visual_scene":
+            # insert a node
+            scenename = attrs.get("name", "untitledscene%03i" % self.scenenum)
+            cryexportnodeid = ("CryExportNode_%s-CGF-%s-DoExport-MergeNodes"
+                               % (scenename, scenename))
+            self.startElement("node", {"id": cryexportnodeid})
+            self.scenenum += 1
+
+    def endElement(self, name):
+        # close the extra visual scene CryExportNode
+        if name == "visual_scene":
+            self.endElement("node")
+        # call base endElement
+        xml.sax.saxutils.XMLFilterBase.endElement(self, name)
 
 def convert(infile, outfile):
     """Convert dae file using the CryDaeFilter.
@@ -62,7 +95,7 @@ def convert(infile, outfile):
     @param outfile: The output file.
     @type outfile: file
     """
-    parser = xml.sax.make_parser()
+    parser = CryDaeFilter(xml.sax.make_parser())
     parser.setContentHandler(xml.sax.saxutils.XMLGenerator(outfile))
     parser.parse(infile)
 
