@@ -4,6 +4,7 @@ import doctest
 
 import PyFFI
 import PyFFI.Common
+import PyFFI.XsdFormat
 import PyFFI.Bases.Basic
 import PyFFI.Bases.Struct
 import PyFFI.Bases.Expression
@@ -27,6 +28,7 @@ import PyFFI.Formats.CGF.MeshChunk
 import PyFFI.Formats.KFM
 import PyFFI.Formats.DDS
 import PyFFI.Formats.TGA
+import PyFFI.Formats.DAE
 
 mods = [val for (key, val) in sys.modules.iteritems()
         if key.startswith('PyFFI')]
