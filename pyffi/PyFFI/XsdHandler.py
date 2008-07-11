@@ -209,28 +209,31 @@ class XsdSaxHandler(object, xml.sax.handler.ContentHandler):
         # save dictionary for future use
         self.dct = dct
 
-        # initialize tag stack
+        # initialize tag and class stack
         self.stack = []
-        # keep track last element of self.stack
+        self.classstack = []
+        self.attrstack = []
+        # keep track last element of self.stack and self.classstack
         # storing this reduces overhead as profiling has shown
         self.currentTag = None
+        self.currentClass = None
+        self.currentAttr = None
 
         # cls needs to be accessed in member functions, so make it an instance
         # member variable
         self.cls = cls
 
-        # elements for creating new classes
-        self.className = None
-        self.classDict = None
-        self.classBase = None
-
-        # elements for basic classes
-        self.basicClass = None
+        # dictionary for attributes of every class
+        # maps each class to a list of attributes
+        # the "None" class is used for global attributes
+        self.classAttributes = {None: []}
 
     def pushTag(self, tag):
-        """Push tag C{tag} on the stack and make it the current tag.
+        """Push tag on the stack and make it the current tag.
 
-        @param tag: The tag to put on the stack."""
+        @param tag: The tag to put on the stack.
+        @type tag: int
+        """
         self.stack.insert(0, tag)
         self.currentTag = tag
 
@@ -238,7 +241,8 @@ class XsdSaxHandler(object, xml.sax.handler.ContentHandler):
         """Pop the current tag from the stack and return it. Also update
         the current tag.
 
-        @return: The tag popped from the stack."""
+        @return: The tag popped from the stack.
+        """
         lasttag = self.stack.pop(0)
         try:
             self.currentTag = self.stack[0]
@@ -246,7 +250,80 @@ class XsdSaxHandler(object, xml.sax.handler.ContentHandler):
             self.currentTag = None
         return lasttag
 
+    def pushAttr(self, attr):
+        """Push attribute on the stack and make it the current attribute.
+        The attribute is also automatically added to the current class
+        attribute.
+
+        @param attr: The attribute to put on the stack.
+        @type attr: XXX
+        """
+        print("registering attribute %s.%s" % (self.currentClass, attr))
+        if self.currentClass == None:
+            if (self.currentTag != self.tagSchema):
+                print("WARNING: no current class, but current tag is not \
+schema (it is %i)" % self.currentTag)
+        attrinfo = [attr] # TODO: make this a self-contained class
+        self.attrstack.insert(0, attrinfo)
+        self.currentAttr = attrinfo
+        # TODO: check just the name
+        #if attrinfo in self.classAttributes[self.currentClass]:
+        #    print("WARNING: class %s already has %s"
+        #          % (self.currentClass, attr))
+        self.classAttributes[self.currentClass].append(attrinfo)
+
+    def popAttr(self):
+        """Pop the current tag from the stack and return it. Also update
+        the current tag.
+
+        @return: The tag popped from the stack.
+        """
+        lastattr = self.attrstack.pop(0)
+        try:
+            self.currentAttr = self.attrstack[0]
+        except IndexError:
+            self.currentAttr = None
+        return lastattr
+
+    def pushClass(self, klass):
+        """Push class on the stack and make it the current one.
+
+        @param klass: The class to put on the stack.
+        @type klass: XXX
+        """
+        # TODO: declare classes also as attributes!! now everything is global
+        print("registering class %s" % klass)
+        if self.currentClass == None:
+            if (self.currentTag != self.tagSchema):
+                print("WARNING: current tag is not schema, but %i" % self.currentTag)
+        self.classstack.insert(0, klass)
+        self.currentClass = klass
+        # set up empty attribute list
+        if klass in self.classAttributes:
+            # TODO: if everything is sorted out, make this raise an exception
+            print("WARNING: class %s already defined" % klass)
+        self.classAttributes[klass] = []
+
+    def popClass(self):
+        """Pop the current class from the stack and return it. Also update
+        the current class.
+
+        @return: The class popped from the stack.
+        """
+        lastclass = self.classstack.pop(0)
+        try:
+            self.currentClass = self.classstack[0]
+        except IndexError:
+            self.currentClass = None
+        return lastclass
+
     def getElementTag(self, name):
+        """Find tag for named element.
+
+        @param name: The name of the element, including the prefix.
+        @type name: str
+        @return: The tag, as integer (one of the tagXxx constants).
+        """
         # find prefix
         # the prefix can be anything; see comments under the example
         # here: http://www.w3.org/TR/xmlschema-0/#POSchema
@@ -285,11 +362,49 @@ class XsdSaxHandler(object, xml.sax.handler.ContentHandler):
             self.pushTag(tag)
             return
 
-        # Now do a number of things, depending on the tag that was last
-        # pushed on the stack; this is self.currentTag, and reflects the
-        # tag in which <name> is embedded.
-        if self.currentTag == self.tagAnnotation:
+        # do a number of things, depending on the tag
+        # self.currentTag reflects the element in which <name> is embedded
+        # (it is the last element of the stack)
+        if tag == self.tagAnnotation:
+            # skip
             pass
+        elif tag == self.tagDocumentation:
+            # skip (TODO: use for docstring)
+            pass
+        elif tag in (self.tagElement, self.tagGroup):
+            # create an attribute for the current class
+            # - if it has a type attribute, then the class can be taken from
+            #   that type, otherwise, wait for complexType or simpleType tag
+            # - if the element has a parent, then add it to the parent list of
+            #   attributes, if not, add its type to the list of possible root
+            #   objects
+
+            # all elements must have a declared name
+            # the name is either attrs["name"] if declared, or attrs["ref"]
+            # (remove __BUG__ once everything works!)
+            elemname = attrs.get("name", attrs.get("ref", "__BUG__"))
+
+            # if the type is not defined as an attribute, it must be resolved
+            # later in a simpleType or complexType child
+            typename = attrs.get("type", "__RESOLVE:%sType__" % elemname)
+
+            self.pushAttr(elemname)
+            self.currentAttr.append(typename)
+        elif tag == self.tagAttribute:
+            # add an attribute to this element
+            pass
+        elif tag in (self.tagSimpleType, self.tagComplexType):
+            # create a new simple type
+            # if it has a name attribute, then take that as name
+            # if it has no name attribute, then it should be a child of an
+            # element tag, and it makes sense to use the element name
+            # as a basis for this type's name (e.g. element "quantity" with
+            # simpleType child would be automatically have the class name
+            # QuantityType)
+
+            # simpleType must have a name
+            typename = attrs.get("name", "%sType" % self.currentAttr[0])
+            self.pushClass(typename)
         else:
             ### uncomment this if all tags are handled 
             #raise XsdError("unhandled element %s" % name)
@@ -310,6 +425,10 @@ class XsdSaxHandler(object, xml.sax.handler.ContentHandler):
             raise XsdError("end element %s does not match start element" % name)
         elif tag == self.tagAnnotation:
             return
+        elif tag in (self.tagElement, self.tagGroup):
+            self.popAttr()
+        elif tag in (self.tagSimpleType, self.tagComplexType):
+            self.popClass()
         elif tag in []: # TODO
             # create class
             class_type = type(
