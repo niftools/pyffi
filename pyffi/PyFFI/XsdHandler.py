@@ -211,12 +211,11 @@ class XsdSaxHandler(object, xml.sax.handler.ContentHandler):
 
         # initialize tag and class stack
         self.stack = []
-        self.classstack = []
+        self.classstack = ()
         self.attrstack = []
         # keep track last element of self.stack and self.classstack
         # storing this reduces overhead as profiling has shown
         self.currentTag = None
-        self.currentClass = None
         self.currentAttr = None
 
         # cls needs to be accessed in member functions, so make it an instance
@@ -226,7 +225,7 @@ class XsdSaxHandler(object, xml.sax.handler.ContentHandler):
         # dictionary for attributes of every class
         # maps each class to a list of attributes
         # the "None" class is used for global attributes
-        self.classAttributes = {None: []}
+        self.classAttributes = {(): []}
 
     def pushTag(self, tag):
         """Push tag on the stack and make it the current tag.
@@ -258,19 +257,19 @@ class XsdSaxHandler(object, xml.sax.handler.ContentHandler):
         @param attr: The attribute to put on the stack.
         @type attr: XXX
         """
-        print("registering attribute %s.%s" % (self.currentClass, attr))
-        if self.currentClass == None:
+        if self.classstack == ():
             if (self.currentTag != self.tagSchema):
                 print("WARNING: no current class, but current tag is not \
 schema (it is %i)" % self.currentTag)
+        print("registering attribute %s.%s" % (".".join(self.classstack), attr))
         attrinfo = [attr] # TODO: make this a self-contained class
         self.attrstack.insert(0, attrinfo)
         self.currentAttr = attrinfo
         # TODO: check just the name
-        #if attrinfo in self.classAttributes[self.currentClass]:
+        #if attrinfo in self.classAttributes[self.classstack]:
         #    print("WARNING: class %s already has %s"
-        #          % (self.currentClass, attr))
-        self.classAttributes[self.currentClass].append(attrinfo)
+        #          % (".".join(self.classstack), attr))
+        self.classAttributes[self.classstack].append(attrinfo)
 
     def popAttr(self):
         """Pop the current tag from the stack and return it. Also update
@@ -292,30 +291,14 @@ schema (it is %i)" % self.currentTag)
         @type klass: XXX
         """
         # TODO: declare classes also as attributes!! now everything is global
-        print("registering class %s" % klass)
-        if self.currentClass == None:
-            if (self.currentTag != self.tagSchema):
-                print("WARNING: current tag is not schema, but %i" % self.currentTag)
-        self.classstack.insert(0, klass)
-        self.currentClass = klass
+        self.classstack = self.classstack + (klass,)
+        print("registering class %s" % (".".join(self.classstack)))
         # set up empty attribute list
-        if klass in self.classAttributes:
-            # TODO: if everything is sorted out, make this raise an exception
-            print("WARNING: class %s already defined" % klass)
-        self.classAttributes[klass] = []
+        self.classAttributes[self.classstack] = []
 
     def popClass(self):
-        """Pop the current class from the stack and return it. Also update
-        the current class.
-
-        @return: The class popped from the stack.
-        """
-        lastclass = self.classstack.pop(0)
-        try:
-            self.currentClass = self.classstack[0]
-        except IndexError:
-            self.currentClass = None
-        return lastclass
+        """Pop the current class from the stack."""
+        self.classstack = self.classstack[:-1]
 
     def getElementTag(self, name):
         """Find tag for named element.
@@ -382,17 +365,26 @@ schema (it is %i)" % self.currentTag)
             # all elements must have a declared name
             # the name is either attrs["name"] if declared, or attrs["ref"]
             # (remove __BUG__ once everything works!)
-            elemname = attrs.get("name", attrs.get("ref", "__BUG__"))
+            elemname = self.cls.nameAttribute(
+                attrs.get("name", attrs.get("ref", "__BUG__")))
 
             # if the type is not defined as an attribute, it must be resolved
             # later in a simpleType or complexType child
-            typename = attrs.get("type", "__RESOLVE:%sType__" % elemname)
+            typename = self.cls.nameClass(
+                attrs.get("type", self.cls.nameClass(elemname)))
 
             self.pushAttr(elemname)
             self.currentAttr.append(typename)
+            if tag == self.tagGroup:
+                self.pushClass(typename)
         elif tag == self.tagAttribute:
             # add an attribute to this element
-            pass
+            attrname = self.cls.nameAttribute(
+                attrs.get("name", attrs.get("ref", "__BUG__")))
+            typename = self.cls.nameClass(
+                attrs.get("type", self.cls.nameClass(attrname)))
+            self.pushAttr(attrname)
+            self.currentAttr.append(typename)
         elif tag in (self.tagSimpleType, self.tagComplexType):
             # create a new simple type
             # if it has a name attribute, then take that as name
@@ -403,7 +395,8 @@ schema (it is %i)" % self.currentTag)
             # QuantityType)
 
             # simpleType must have a name
-            typename = attrs.get("name", "%sType" % self.currentAttr[0])
+            typename = self.cls.nameClass(
+                attrs.get("name", self.currentAttr[0]))
             self.pushClass(typename)
         else:
             ### uncomment this if all tags are handled 
@@ -427,6 +420,8 @@ schema (it is %i)" % self.currentTag)
             return
         elif tag in (self.tagElement, self.tagGroup):
             self.popAttr()
+            if tag == self.tagGroup:
+                self.popClass()
         elif tag in (self.tagSimpleType, self.tagComplexType):
             self.popClass()
         elif tag in []: # TODO

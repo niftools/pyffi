@@ -125,9 +125,27 @@ class XsdFileFormat(object):
 
         # str(name) converts name to string in case name is a unicode string
         parts = str(name).split()
-        attrname = parts[0].lower()
-        for part in parts[1:]:
-            attrname += part.capitalize()
+        return "_".join(part.lower() for part in parts)
+
+    @staticmethod
+    def nameClass(name):
+        """Converts a class name, as in the xsd file, into a name usable
+        by python.
+
+        @param name: The class name.
+        @type name: str
+        @return: Reformatted class name, useable by python.
+
+        >>> XsdFileFormat.nameClass('tHis is A Silly naME')
+        'ThisIsASillyName'
+        """
+
+        # str(name) converts name to string in case name is a unicode string
+        partss = [part.split("_") for part in str(name).split()]
+        attrname = ""
+        for parts in partss:
+            for part in parts:
+                attrname += part.capitalize()
         return attrname
 
     @classmethod
