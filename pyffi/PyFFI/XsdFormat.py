@@ -138,7 +138,8 @@ class XsdFileFormat(object):
         @type stream: file
         @return: The root of the DOM tree.
         """
-        raise NotImplementedError
+        return None
+        #raise NotImplementedError
 
     @classmethod
     def write(cls, stream, root):
@@ -149,7 +150,8 @@ class XsdFileFormat(object):
         @param root: The root of the DOM tree.
         @type root: ???
         """
-        raise NotImplementedError
+        return None
+        #raise NotImplementedError
 
     @classmethod
     def walk(cls, top, topdown = True, raisereaderror = False, verbose = 0):

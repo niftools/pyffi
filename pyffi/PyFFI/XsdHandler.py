@@ -200,9 +200,11 @@ class XsdSaxHandler(object, xml.sax.handler.ContentHandler):
 
     def __init__(self, cls, name, bases, dct):
         """Set up the xsd parser."""
-
         # initialize base class
         super(XsdSaxHandler, self).__init__()
+
+        # xsd prefix (this is set if the first element is read)
+        self.prefix = None
 
         # save dictionary for future use
         self.dct = dct
@@ -245,18 +247,25 @@ class XsdSaxHandler(object, xml.sax.handler.ContentHandler):
         return lasttag
 
     def getElementTag(self, name):
-        # strip xs or xsd from name
-        if name.startswith("xs:"):
-            shortname = name[3:]
-        elif name.startswith("xsd:"):
-            shortname = name[4:]
-        else:
-            raise XsdError("invalid xsd element '%s'" % name)
+        # find prefix
+        # the prefix can be anything; see comments under the example
+        # here: http://www.w3.org/TR/xmlschema-0/#POSchema
+        if self.prefix is None:
+            idx = name.find(":")
+            if idx == -1:
+                self.prefix = ""
+            else:
+                self.prefix = name[:idx + 1]
+        # check that name starts with prefix
+        if not name.startswith(self.prefix):
+            raise XsdError("invalid prefix on element '%s'" % name)
+        # strip prefix from name
+        shortname = name[len(self.prefix):]
         # get the tag identifier
         try:
             return self.tags[shortname]
         except KeyError:
-            raise XsdError("invalid xsd element '%s'" % name)
+            raise XsdError("invalid element '%s'" % name)
 
     def startElement(self, name, attrs):
         """Called when parser starts parsing an element called C{name}.
