@@ -120,11 +120,11 @@ class XsdFileFormat(object):
         @return: Reformatted attribute name, useable by python.
 
         >>> XsdFileFormat.nameAttribute('tHis is A Silly naME')
-        'thisIsASillyName'
+        'this_is_a_silly_name'
         """
 
         # str(name) converts name to string in case name is a unicode string
-        parts = str(name).split()
+        parts = str(name).replace(":", "_").split()
         return "_".join(part.lower() for part in parts)
 
     @staticmethod
@@ -136,8 +136,8 @@ class XsdFileFormat(object):
         @type name: str
         @return: Reformatted class name, useable by python.
 
-        >>> XsdFileFormat.nameClass('tHis is A Silly naME')
-        'ThisIsASillyName'
+        >>> XsdFileFormat.nameClass('this IS a sillyNAME')
+        'ThisISASillyNAME'
         """
 
         # str(name) converts name to string in case name is a unicode string
@@ -145,7 +145,7 @@ class XsdFileFormat(object):
         attrname = ""
         for parts in partss:
             for part in parts:
-                attrname += part.capitalize()
+                attrname += part[0].upper() + part[1:]
         return attrname
 
     @classmethod
