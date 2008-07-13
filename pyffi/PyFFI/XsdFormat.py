@@ -243,7 +243,7 @@ Warning: read failed due to either a corrupt file, a corrupt xsd, or a bug.""")
 
     @classmethod
     def getRoots(cls, *readresult):
-        """Returns list of all root blocks. Used by L{PyFFI.QSkopeLib.QSkope}
+        """Returns list of all root blocks. Used by L{PyFFI.QSkope}
         and L{PyFFI.Spells}.
 
         @param readresult: Result from L{walk} or L{read}.
@@ -254,7 +254,7 @@ Warning: read failed due to either a corrupt file, a corrupt xsd, or a bug.""")
 
     @classmethod
     def getBlocks(cls, *readresult):
-        """Returns list of all blocks. Used by L{PyFFI.QSkopeLib.QSkope}
+        """Returns list of all blocks. Used by L{PyFFI.QSkope}
         and L{PyFFI.Spells}.
 
         @param readresult: Result from L{walk} or L{read}.

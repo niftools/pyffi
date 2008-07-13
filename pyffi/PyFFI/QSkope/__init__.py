@@ -39,9 +39,9 @@
 
 from PyQt4 import QtGui, QtCore
 
-from PyFFI.QSkopeLib.GlobalModel import GlobalModel, StructPtr
-from PyFFI.QSkopeLib.DetailModel import DetailModel
-from PyFFI.QSkopeLib.DetailDelegate import DetailDelegate
+import PyFFI.QSkope.GlobalModel
+import PyFFI.QSkope.DetailModel
+import PyFFI.QSkope.DetailDelegate
 
 import PyFFI
 from PyFFI.Formats.NIF import NifFormat
@@ -70,7 +70,7 @@ class QSkope(QtGui.QMainWindow):
 
         # set up the detail model view
         self.detailWidget = QtGui.QTreeView()
-        self.detailDelegate = DetailDelegate()
+        self.detailDelegate = PyFFI.QSkope.DetailDelegate.DetailDelegate()
         self.detailWidget.setItemDelegate(self.detailDelegate)
         self.detailWidget.setAlternatingRowColors(True)
 
@@ -305,7 +305,7 @@ class QSkope(QtGui.QMainWindow):
             self.statusBar().showMessage("Finished reading %s" % filename)
 
             # set up the models and update the views
-            self.globalModel = GlobalModel(
+            self.globalModel = PyFFI.QSkope.GlobalModel.GlobalModel(
                 header = self.header, roots = self.roots, footer = self.footer)
             self.globalWidget.setModel(self.globalModel)
             self.setDetailModel(
@@ -388,12 +388,12 @@ class QSkope(QtGui.QMainWindow):
         # and set up the model
         if index.isValid():
             block = index.internalPointer()
-            if isinstance(block, StructPtr):
+            if isinstance(block, PyFFI.QSkope.GlobalModel.StructPtr):
                 block = block.ptr
-            self.detailModel = DetailModel(block = block,
-                                           refnumber_dict = self.globalModel.refNumber)
+            self.detailModel = PyFFI.QSkope.DetailModel.DetailModel(
+                block = block, refnumber_dict = self.globalModel.refNumber)
         else:
-            self.detailModel = DetailModel()
+            self.detailModel = PyFFI.QSkope.DetailModel.DetailModel()
         # set the widget's model
         self.detailWidget.setModel(self.detailModel)
 

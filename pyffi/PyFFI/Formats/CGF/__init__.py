@@ -907,7 +907,7 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
 
     @classmethod
     def getRoots(cls, *readresult):
-        """Returns list of all root blocks. Used by L{PyFFI.QSkopeLib.QSkope}
+        """Returns list of all root blocks. Used by L{PyFFI.QSkope}
         and L{PyFFI.Spells}.
 
         @param readresult: Result from L{walk} or L{read}.
@@ -919,7 +919,7 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
 
     @classmethod
     def getBlocks(cls, *readresult):
-        """Returns list of all blocks. Used by L{PyFFI.QSkopeLib.QSkope}
+        """Returns list of all blocks. Used by L{PyFFI.QSkope}
         and L{PyFFI.Spells}.
 
         @param readresult: Result from L{walk} or L{read}.
