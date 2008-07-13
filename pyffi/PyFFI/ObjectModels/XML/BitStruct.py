@@ -46,7 +46,7 @@ from functools import partial
 from itertools import izip
 import struct
 
-from PyFFI.ObjectModels.Delegate import DelegateSpinBox # for Bits
+from PyFFI.QSkope.Delegate import DelegateSpinBox # for Bits
 
 class _MetaBitStructBase(type):
     """This metaclass checks for the presence of a _attrs attribute.
