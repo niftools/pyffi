@@ -607,7 +607,9 @@ WARNING: expected instance of %s
         #print version, user_version, game # DEBUG
 
         # is it a caf file? these are missing chunk headers on controllers
-        is_caf = (stream.name[-4:].lower() == ".caf")
+        # (note: stream.name may not be a python string for some file
+        # implementations, notably PyQt4, so convert it explicitely)
+        is_caf = (str(stream.name)[-4:].lower() == ".caf")
 
         chunk_types = [
             chunk_type for chunk_type in dir(cls.ChunkType) \
