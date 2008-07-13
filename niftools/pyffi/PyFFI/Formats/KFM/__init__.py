@@ -120,7 +120,7 @@ from PyFFI import XmlFileFormat
 from PyFFI import MetaXmlFileFormat
 from PyFFI import Utils
 from PyFFI import Common
-from PyFFI.Bases.Basic import BasicBase
+from PyFFI.ObjectModels.XML.Basic import BasicBase
 
 class KfmFormat(XmlFileFormat):
     """This class implements the kfm file format."""

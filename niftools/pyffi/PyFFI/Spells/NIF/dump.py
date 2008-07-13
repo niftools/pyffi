@@ -45,7 +45,7 @@ def dumpArray(arr):
     """Format an array.
 
     @param arr: An array.
-    @type arr: L{PyFFI.Bases.Array.Array}
+    @type arr: L{PyFFI.ObjectModels.XML.Array.Array}
     @return: String describing the array.
     """
     text = ""
