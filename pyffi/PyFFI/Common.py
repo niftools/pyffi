@@ -39,10 +39,10 @@
 
 import struct
 from PyFFI.ObjectModels.XML.Basic import BasicBase
-from PyFFI.ObjectModels.XML.Delegate import DelegateSpinBox
-from PyFFI.ObjectModels.XML.Delegate import DelegateFloatSpinBox
-from PyFFI.ObjectModels.XML.Delegate import DelegateLineEdit
-from PyFFI.ObjectModels.XML.Delegate import DelegateBoolComboBox
+from PyFFI.ObjectModels.Delegate import DelegateSpinBox
+from PyFFI.ObjectModels.Delegate import DelegateFloatSpinBox
+from PyFFI.ObjectModels.Delegate import DelegateLineEdit
+from PyFFI.ObjectModels.Delegate import DelegateBoolComboBox
 
 class Int(BasicBase, DelegateSpinBox):
     """Basic implementation of a 32-bit signed integer type. Also serves as a
