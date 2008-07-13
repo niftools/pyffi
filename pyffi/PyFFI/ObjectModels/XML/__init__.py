@@ -1,1 +1,2 @@
-__all__ = [ "Array.py", "Basic.py", "Expression.py", "Struct.py" ]
+"""This module implements all object models for xml file format descriptions.
+"""
