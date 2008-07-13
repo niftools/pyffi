@@ -4,8 +4,10 @@
     PyFFI.ObjectModels.XSD.SimpleType/ComplexType
     (e.g. PyFFI.ObjectModel.SimpleType/ComplexType)
   - derive ObjectModels.ArrayType and ObjectModels.StructType from
-    common subclass PyFFI.ObjectModel.ComplexType, use these then as base
+    common subclass PyFFI.ObjectModels.ComplexType, use these then as base
     classes for ObjectModels.XML.Array and ObjectModels.XML.StructBase
+  - use PyFFI.ObjectModels.Tree
+  - improve the abstract ObjectModels.Delegate classes
 
 * improve overall documentation, for instance:
   - add docstrings for all spells
