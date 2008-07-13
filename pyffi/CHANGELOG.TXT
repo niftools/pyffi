@@ -2,6 +2,10 @@ Version 1.0.0 (***)
 * new NSIS installer (this solves various issues with Vista, and also
 allows the documentation to be bundled)
 * new filter to prepare collada (.dae) files for CryEngine2
+* started on support for collada format, by parsing the collada xsd schema
+description (this is still far from functional, but an initial parser is
+already included with the library, although it does not yet create any
+classes yet)
 * refactoring: library reorganized and some interfaces have been
 unified, also a lot of code duplication has been reduced; see
 README.TXT for more details on how to migrate from 0.x.x to 1.x.x
@@ -25,6 +29,9 @@ README.TXT for more details on how to migrate from 0.x.x to 1.x.x
   - common nameAttribute, walk, and walkFile functions
   - XxxTester modules have been moved to PyFFI.Spells.XXX, along with a much
   improved PyFFI.Spells module for toasters with loads of new options
+  - some other internal code has been moved around
+    + qskopelib -> PyFFI.QSkope
+    + PyFFI.Bases -> PyFFI.ObjectModels.XML
 * lots of documentation has been added and improved
 
 Version 0.11.0 (16 Jun 2008)
