@@ -1306,7 +1306,7 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
 
     @classmethod
     def getRoots(cls, *readresult):
-        """Returns list of all root blocks. Used by L{PyFFI.QSkopeLib.QSkope}
+        """Returns list of all root blocks. Used by L{PyFFI.QSkope}
         and L{PyFFI.Spells}.
 
         @param readresult: Result from L{walk} or L{read}.
@@ -1317,7 +1317,7 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
 
     @classmethod
     def getBlocks(cls, *readresult):
-        """Returns list of all blocks. Used by L{PyFFI.QSkopeLib.QSkope}
+        """Returns list of all blocks. Used by L{PyFFI.QSkope}
         and L{PyFFI.Spells}.
 
         @param readresult: Result from L{walk} or L{read}.
