@@ -42,10 +42,10 @@ import xml.sax
 from types import NoneType, FunctionType, TypeType
 import sys
 
-from PyFFI.Bases.Struct     import StructBase
-from PyFFI.Bases.BitStruct  import BitStructBase
-from PyFFI.Bases.Enum       import EnumBase
-from PyFFI.Bases.Expression import Expression
+from PyFFI.ObjectModels.XML.Struct     import StructBase
+from PyFFI.ObjectModels.XML.BitStruct  import BitStructBase
+from PyFFI.ObjectModels.XML.Enum       import EnumBase
+from PyFFI.ObjectModels.XML.Expression import Expression
 
 class StructAttribute(object):
     """Helper class to collect attribute data of struct add tags."""

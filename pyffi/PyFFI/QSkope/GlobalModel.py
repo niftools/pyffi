@@ -38,7 +38,7 @@ built from StructBase instances possibly referring to one another."""
 #
 # ***** END LICENSE BLOCK *****
 
-from PyFFI.Bases.Struct import StructBase
+from PyFFI.ObjectModels.XML.Struct import StructBase
 
 from PyQt4 import QtGui, QtCore
 

@@ -1,4 +1,4 @@
-"""Implements base class for bitstruct types."""
+"""Implements base class for struct types."""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
@@ -44,120 +44,95 @@
 from types import NoneType
 from functools import partial
 from itertools import izip
-import struct
 
-from PyFFI.Bases.Delegate import DelegateSpinBox # for Bits
-
-class _MetaBitStructBase(type):
-    """This metaclass checks for the presence of a _attrs attribute.
-    For each attribute in _attrs, an <attrname> property is generated which
-    gets and sets bit fields. Used as metaclass of BitStructBase."""
+class _MetaStructBase(type):
+    """This metaclass checks for the presence of _attrs and _isTemplate
+    attributes. For each attribute in _attrs, an
+    <attrname> property is generated which gets and sets basic types,
+    and gets other types (struct and array). Used as metaclass of
+    StructBase."""
     def __init__(cls, name, bases, dct):
-        super(_MetaBitStructBase, cls).__init__(name, bases, dct)
+        super(_MetaStructBase, cls).__init__(name, bases, dct)
         # consistency checks
         if not '_attrs' in dct:
             raise TypeError('%s: missing _attrs attribute'%cls)
-        if not '_numbytes' in dct:
-            raise TypeError('%s: missing _numbytes attribute'%cls)
-
-        # check storage type
-        if cls._numbytes == 1:
-            cls._struct = '<B'
-        elif cls._numbytes == 2:
-            cls._struct = '<H'
-        elif cls._numbytes == 4:
-            cls._struct = '<I'
-        else:
-            raise RuntimeError("unsupported bitstruct numbytes")
-
-        # template type?
-        cls._isTemplate = False
+        if not '_isTemplate' in dct:
+            raise TypeError('%s: missing _isTemplate attribute'%cls)
+        # hasLinks, hasRefs, hasStrings, used for optimization of fixLinks,
+        # getLinks, getRefs, and getStrings
         # does the type contain a Ref or a Ptr?
-        cls._hasLinks = False
+        cls._hasLinks = getattr(cls, '_hasLinks', False)
         # does the type contain a Ref?
-        cls._hasRefs = False
+        cls._hasRefs = getattr(cls, '_hasRefs', False)
         # does the type contain a string?
-        cls._hasStrings = False
+        cls._hasStrings = getattr(cls, '_hasStrings', False)
         for attr in dct['_attrs']:
-            # get and set basic attributes
-            setattr(cls, attr.name, property(
-                partial(BitStructBase.getAttribute, name = attr.name),
-                partial(BitStructBase.setAttribute, name = attr.name),
-                doc=attr.doc))
+            # basestring is a forward compound type declaration
+            # and issubclass must take a type as first argument
+            # hence this hack
+            if not isinstance(attr.type, basestring) and \
+                issubclass(attr.type, BasicBase) and attr.arr1 == None:
+                # get and set basic attributes
+                setattr(cls, attr.name, property(
+                    partial(StructBase.getBasicAttribute, name = attr.name),
+                    partial(StructBase.setBasicAttribute, name = attr.name),
+                    doc=attr.doc))
+            elif attr.type == NoneType and attr.arr1 == None:
+                # get and set template attributes
+                setattr(cls, attr.name, property(
+                    partial(StructBase.getTemplateAttribute, name = attr.name),
+                    partial(StructBase.setTemplateAttribute, name = attr.name),
+                    doc=attr.doc))
+            else:
+                # other types of attributes: get only
+                setattr(cls, attr.name, property(
+                    partial(StructBase.getAttribute, name = attr.name),
+                    doc=attr.doc))
+
+            # check for links and refs and strings
+            if not cls._hasLinks:
+                if attr.type != NoneType: # templates!
+                    # attr.type basestring means forward declaration
+                    # we cannot know if it has links, so assume yes
+                    if isinstance(attr.type, basestring) or attr.type._hasLinks:
+                        cls._hasLinks = True
+                #else:
+                #    cls._hasLinks = True
+                # or false... we can't know at this point... might be necessary
+                # to uncomment this if template types contain refs
+
+            if not cls._hasRefs:
+                if attr.type != NoneType:
+                    # attr.type basestring means forward declaration
+                    # we cannot know if it has refs, so assume yes
+                    if isinstance(attr.type, basestring) or attr.type._hasRefs:
+                        cls._hasRefs = True
+                #else:
+                #    cls._hasRefs = True # dito, see comment above
+
+            if not cls._hasStrings:
+                if attr.type != NoneType:
+                    # attr.type basestring means forward declaration
+                    # we cannot know if it has strings, so assume yes
+                    if isinstance(attr.type, basestring) or attr.type._hasStrings:
+                        cls._hasStrings = True
+                else:
+                    # enabled because there is a template key type that has
+                    # strings
+                    cls._hasStrings = True
 
         # precalculate the attribute list
+        # profiling shows that this speeds up most of the StructBase methods
+        # that rely on parsing the attribute list
         cls._attributeList = cls._getAttributeList()
 
         # precalculate the attribute name list
         cls._names = cls._getNames()
 
-class Bits(DelegateSpinBox):
-    """Basic implementation of a n-bit unsigned integer type (without read
-    and write)."""
-    def __init__(self, numbits = 1, default = 0, parent = None):
-        self._parent = parent
-        self._value = default
-        self._numbits = numbits
+class StructBase(object):
+    """Base class from which all file struct types are derived.
 
-    def getValue(self):
-        """Return stored value."""
-        return self._value
-
-    def setValue(self, value):
-        """Set value to C{value}."""
-        if not isinstance(value, (int, long)):
-            raise TypeError("bitstruct attribute must be integer")
-        if value >> self._numbits:
-            raise ValueError('value out of range (%i)' % value)
-        self._value = value
-
-    def __str__(self):
-        return str(self.getValue())
-
-    #
-    # user interface functions come next
-    # these functions are named after similar ones in the TreeItem example
-    # at http://doc.trolltech.com/4.3/itemviews-simpletreemodel.html
-    #
-
-    def qParent(self):
-        """Return parent of this structure."""
-        return self._parent
-
-    def qChildCount(self):
-        """Return number of items in this structure. Always zero for basic
-        types."""
-        return 0
-
-    def qChild(self, row):
-        """Find item at given row. Should never be called."""
-        raise NotImplementedError
-
-    def qRow(self, item):
-        """Find the row number of the given item. Should never be called."""
-        raise NotImplementedError
-
-    def qName(self, item):
-        """Find the name of the given item. Should never be called."""
-        raise NotImplementedError
-
-    def qDataDisplay(self):
-        """Return an object that can be used to display the instance."""
-        return self._value
-
-    # DelegateSpinBox functions
-
-    def qDelegateMinimum(self):
-        return 0
-
-    def qDelegateMaximum(self):
-        return (1 << self._numbits) - 1
-
-
-class BitStructBase(object):
-    """Base class from which all file bitstruct types are derived.
-
-    The BitStructBase class implements the basic bitstruct interface:
+    The StructBase class implements the basic struct interface:
     it will initialize all attributes using the class interface
     using the _attrs class variable, print them as strings, and so on.
     The class variable _attrs must be declared every derived class
@@ -174,33 +149,60 @@ class BitStructBase(object):
 
     See the PyFFI.XmlHandler class for a more advanced example.
 
-    >>> from PyFFI.Bases.Basic import BasicBase
-    >>> from PyFFI.Bases.Expression import Expression
-    >>> from PyFFI.XmlHandler import BitStructAttribute as Attr
+    >>> from PyFFI.ObjectModels.XML.Basic import BasicBase
+    >>> from PyFFI.ObjectModels.XML.Expression import Expression
+    >>> from PyFFI.XmlHandler import StructAttribute as Attr
     >>> class SimpleFormat(object):
+    ...     class UInt(BasicBase):
+    ...         _isTemplate = False
+    ...         def __init__(self, **kwargs):
+    ...             BasicBase.__init__(self, **kwargs)
+    ...             self.__value = 0
+    ...         def getValue(self):
+    ...             return self.__value
+    ...         def setValue(self, value):
+    ...             self.__value = int(value)
     ...     @staticmethod
     ...     def nameAttribute(name):
     ...         return name
-    >>> class Flags(BitStructBase):
-    ...     _numbytes = 1
+    >>> class X(StructBase):
+    ...     _isTemplate = False
     ...     _attrs = [
-    ...         Attr(SimpleFormat, dict(name = 'a', numbits = '3')),
-    ...         Attr(SimpleFormat, dict(name = 'b', numbits = '1'))]
-    >>> SimpleFormat.Flags = Flags
-    >>> y = Flags()
-    >>> y.a = 5
-    >>> y.b = 1
+    ...         Attr(SimpleFormat, dict(name = 'a', type = 'UInt')),
+    ...         Attr(SimpleFormat, dict(name = 'b', type = 'UInt'))]
+    >>> SimpleFormat.X = X
+    >>> class Y(X):
+    ...     _isTemplate = False
+    ...     _attrs = [
+    ...         Attr(SimpleFormat, dict(name = 'c', type = 'UInt')),
+    ...         Attr(SimpleFormat, dict(name = 'd', type = 'X', cond = 'c == 3'))]
+    >>> SimpleFormat.Y = Y
+    >>> y = Y()
+    >>> y.a = 1
+    >>> y.b = 2
+    >>> y.c = 3
+    >>> y.d.a = 4
+    >>> y.d.b = 5
     >>> print y # doctest:+ELLIPSIS
-    <class 'PyFFI.Bases.BitStruct.Flags'> instance at 0x...
-    * a : 5
-    * b : 1
+    <class 'PyFFI.ObjectModels.XML.Struct.Y'> instance at 0x...
+    * a : 1
+    * b : 2
+    * c : 3
+    * d :
+        <class 'PyFFI.ObjectModels.XML.Struct.X'> instance at 0x...
+        * a : 4
+        * b : 5
     <BLANKLINE>
+    >>> y.d = 1
+    Traceback (most recent call last):
+        ...
+    AttributeError: can't set attribute
     """
 
-    __metaclass__ = _MetaBitStructBase
+    __metaclass__ = _MetaStructBase
 
+    _isTemplate = False
     _attrs = []
-    _numbytes = 1 # default width of a bitstruct
     _games = {}
 
     # initialize all attributes
@@ -230,18 +232,41 @@ class BitStructBase(object):
         # initialize attributes
         for attr in self._attributeList:
             # skip attributes with dupiclate names
+            # (for this to work properly, duplicates must have the same
+            # type, template, argument, arr1, and arr2)
             if attr.name in names:
                 continue
             names.append(attr.name)
 
-            # instantiate the integer
-            if attr.default != None:
-                attr_instance = Bits(numbits = attr.numbits,
-                                     default = attr.default,
-                                     parent = self)
+            # things that can only be determined at runtime (rt_xxx)
+            rt_type = attr.type if attr.type != NoneType \
+                      else template
+            rt_template = attr.template if attr.template != NoneType \
+                          else template
+            rt_arg = attr.arg if isinstance(attr.arg, (int, long, NoneType)) \
+                     else getattr(self, attr.arg)
+
+            # instantiate the class, handling arrays at the same time
+            if attr.arr1 == None:
+                attr_instance = rt_type(
+                    template = rt_template, argument = rt_arg,
+                    parent = self)
+                if attr.default != None:
+                    attr_instance.setValue(attr.default)
+            elif attr.arr2 == None:
+                attr_instance = Array(
+                    element_type = rt_type,
+                    element_type_template = rt_template,
+                    element_type_argument = rt_arg,
+                    count1 = attr.arr1,
+                    parent = self)
             else:
-                attr_instance = Bits(numbits = attr.numbits,
-                                     parent = self)
+                attr_instance = Array(
+                    element_type = rt_type,
+                    element_type_template = rt_template,
+                    element_type_argument = rt_arg,
+                    count1 = attr.arr1, count2 = attr.arr2,
+                    parent = self)
 
             # assign attribute value
             setattr(self, "_%s_value_" % attr.name, attr_instance)
@@ -262,7 +287,14 @@ class BitStructBase(object):
                              % (self.__class__.__name__, block.__class__.__name__))
         # copy the attributes
         for attr in attrlist:
-            setattr(self, attr.name, getattr(block, attr.name))
+            attrvalue = getattr(self, attr.name)
+            if isinstance(attrvalue, StructBase):
+                attrvalue.deepcopy(getattr(block, attr.name))
+            elif isinstance(attrvalue, Array):
+                attrvalue.updateSize()
+                attrvalue.deepcopy(getattr(block, attr.name))
+            else:
+                setattr(self, attr.name, getattr(block, attr.name))
 
         return self
 
@@ -290,14 +322,14 @@ class BitStructBase(object):
         user_version = kwargs.get('user_version')
         self.arg = kwargs.get('argument')
         # read all attributes
-        value = struct.unpack(self._struct, stream.read(self._numbytes))[0]
-        # set the structure variables
-        bitpos = 0
         for attr in self._filteredAttributeList(version, user_version):
             #print attr.name # debug
-            attrvalue = (value >> bitpos) & ((1 << attr.numbits) - 1)
-            setattr(self, attr.name, attrvalue)
-            bitpos += attr.numbits
+            # get attribute argument (can only be done at runtime)
+            rt_arg = attr.arg if isinstance(attr.arg, (int, long, NoneType)) \
+                     else getattr(self, attr.arg)
+            kwargs['argument'] = rt_arg
+            # read the attribute
+            getattr(self, "_%s_value_" % attr.name).read(stream, **kwargs)
 
     def write(self, stream, **kwargs):
         """Write structure to stream."""
@@ -306,37 +338,96 @@ class BitStructBase(object):
         user_version = kwargs.get('user_version')
         self.arg = kwargs.get('argument')
         # write all attributes
-        value = 0
-        bitpos = 0
         for attr in self._filteredAttributeList(version, user_version):
-            attrvalue = getattr(self, attr.name)
-            value |= (attrvalue & ((1 << attr.numbits) - 1)) << bitpos
-            bitpos += attr.numbits
-        # write the attribute
-        stream.write(struct.pack(self._struct, value))
+            # get attribute argument (can only be done at runtime)
+            rt_arg = attr.arg if isinstance(attr.arg, (int, long, NoneType)) \
+                     else getattr(self, attr.arg)
+            kwargs['argument'] = rt_arg
+            # write the attribute
+            getattr(self, "_%s_value_" % attr.name).write(stream, **kwargs)
 
     def fixLinks(self, **kwargs):
         """Fix links in the structure."""
-        return
+        # parse arguments
+        version = kwargs.get('version')
+        user_version = kwargs.get('user_version')
+        # fix links in all attributes
+        for attr in self._filteredAttributeList(version, user_version):
+            # check if there are any links at all
+            # (commonly this speeds things up considerably)
+            if not attr.type._hasLinks:
+                continue
+            #print "fixlinks %s" % attr.name
+            # fix the links in the attribute
+            getattr(self, "_%s_value_" % attr.name).fixLinks(**kwargs)
 
     def getLinks(self, **kwargs):
         """Get list of all links in the structure."""
-        return []
+        # parse arguments
+        version = kwargs.get('version')
+        user_version = kwargs.get('user_version')
+        # get all links
+        links = []
+        for attr in self._filteredAttributeList(version, user_version):
+            # check if there are any links at all
+            # (this speeds things up considerably)
+            if not attr.type._hasLinks:
+                continue
+            # extend list of links
+            links.extend(
+                getattr(self, "_" + attr.name + "_value_").getLinks(**kwargs))
+        # return the list of all links in all attributes
+        return links
 
     def getStrings(self, **kwargs):
         """Get list of all strings in the structure."""
-        return []
+        # parse arguments
+        version = kwargs.get('version')
+        user_version = kwargs.get('user_version')
+        # get all strings
+        strings = []
+        for attr in self._filteredAttributeList(version, user_version):
+            # check if there are any strings at all
+            # (this speeds things up considerably)
+            if (not attr.type is NoneType) and (not attr.type._hasStrings):
+                continue
+            # extend list of strings
+            strings.extend(
+                getattr(self, "_%s_value_" % attr.name).getStrings(**kwargs))
+        # return the list of all strings in all attributes
+        return strings
 
     def getRefs(self, **kwargs):
         """Get list of all references in the structure. Refs are
         links that point down the tree. For instance, if you need to parse
         the whole tree starting from the root you would use getRefs and not
         getLinks, as getLinks could result in infinite recursion."""
-        return []
+        # parse arguments
+        version = kwargs.get('version')
+        user_version = kwargs.get('user_version')
+        # get all refs
+        refs = []
+        for attr in self._filteredAttributeList(version, user_version):
+            # check if there are any links at all
+            # (this speeds things up considerably)
+            if not attr.type._hasLinks:
+                continue
+            # extend list of refs
+            refs.extend(
+                getattr(self, "_%s_value_" % attr.name).getRefs(**kwargs))
+        # return the list of all refs in all attributes
+        return refs
 
     def getSize(self, **kwargs):
         """Calculate the structure size in bytes."""
-        return self._numbytes
+        # parse arguments
+        version = kwargs.get('version')
+        user_version = kwargs.get('user_version')
+        # calculate size
+        size = 0
+        for attr in self._filteredAttributeList(version, user_version):
+            size += getattr(self, "_%s_value_" % attr.name).getSize(**kwargs)
+        return size
 
     def getHash(self, **kwargs):
         """Calculate a hash for the structure, as a tuple."""
@@ -346,7 +437,8 @@ class BitStructBase(object):
         # calculate hash
         hsh = []
         for attr in self._filteredAttributeList(version, user_version):
-            hsh.append(getattr(self, attr.name))
+            hsh.append(
+                getattr(self, "_%s_value_" % attr.name).getHash(**kwargs))
         return tuple(hsh)
 
     @classmethod
@@ -378,11 +470,11 @@ class BitStructBase(object):
         Skips duplicate names."""
         # string of attributes of base classes of cls
         names = []
-        #for base in cls.__bases__:
-        #    try:
-        #        names.extend(base._getNames())
-        #    except AttributeError: # when base class is "object"
-        #        pass
+        for base in cls.__bases__:
+            try:
+                names.extend(base._getNames())
+            except AttributeError: # when base class is "object"
+                pass
         for attr in cls._attrs:
             if attr.name in names:
                 continue
@@ -431,14 +523,34 @@ class BitStructBase(object):
             yield attr
 
     def getAttribute(self, name):
+        """Get a (non-basic) attribute."""
+        return getattr(self, "_" + name + "_value_")
+
+    def getBasicAttribute(self, name):
         """Get a basic attribute."""
         return getattr(self, "_" + name + "_value_").getValue()
 
     # important note: to apply partial(setAttribute, name = 'xyz') the
     # name argument must be last
-    def setAttribute(self, value, name):
+    def setBasicAttribute(self, value, name):
         """Set the value of a basic attribute."""
         getattr(self, "_" + name + "_value_").setValue(value)
+
+    def getTemplateAttribute(self, name):
+        """Get a template attribute."""
+        try:
+            return self.getBasicAttribute(name)
+        except AttributeError:
+            return self.getAttribute(name)
+
+    # important note: to apply partial(setAttribute, name = 'xyz') the
+    # name argument must be last
+    def setTemplateAttribute(self, value, name):
+        """Set the value of a template attribute."""
+        try:
+            self.setBasicAttribute(value, name)
+        except AttributeError:
+            raise NotImplementedError("cannot set '%s' attribute"%name)
 
     def tree(self):
         """A generator for parsing all blocks in the tree (starting from and
@@ -491,3 +603,6 @@ class BitStructBase(object):
         object does not happen to link to the object (for instance the
         MeshMorphTargetChunk in the cgf format is an example)."""
         return None
+
+from PyFFI.ObjectModels.XML.Basic import BasicBase
+from PyFFI.ObjectModels.XML.Array import Array

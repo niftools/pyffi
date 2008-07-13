@@ -38,11 +38,11 @@
 # ***** END LICENSE BLOCK *****
 
 import struct
-from PyFFI.Bases.Basic import BasicBase
-from PyFFI.Bases.Delegate import DelegateSpinBox
-from PyFFI.Bases.Delegate import DelegateFloatSpinBox
-from PyFFI.Bases.Delegate import DelegateLineEdit
-from PyFFI.Bases.Delegate import DelegateBoolComboBox
+from PyFFI.ObjectModels.XML.Basic import BasicBase
+from PyFFI.ObjectModels.XML.Delegate import DelegateSpinBox
+from PyFFI.ObjectModels.XML.Delegate import DelegateFloatSpinBox
+from PyFFI.ObjectModels.XML.Delegate import DelegateLineEdit
+from PyFFI.ObjectModels.XML.Delegate import DelegateBoolComboBox
 
 class Int(BasicBase, DelegateSpinBox):
     """Basic implementation of a 32-bit signed integer type. Also serves as a

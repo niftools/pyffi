@@ -88,7 +88,7 @@ Create a CGF file from scratch
 * isGroupHead : False
 * isGroupMember : False
 * reserved1 :
-    <class 'PyFFI.Bases.Array.Array'> instance at 0x...
+    <class 'PyFFI.ObjectModels.XML.Array.Array'> instance at 0x...
     0: 0
     1: 0
 * transform :
@@ -109,7 +109,7 @@ Create a CGF file from scratch
 * sclCtrl : None
 * propertyString : <EMPTY STRING>
 * children :
-    <class 'PyFFI.Bases.Array.Array'> instance at 0x...
+    <class 'PyFFI.ObjectModels.XML.Array.Array'> instance at 0x...
     0: <class 'PyFFI.XmlHandler.NodeChunk'> instance at 0x...
 <BLANKLINE>
 <class 'PyFFI.XmlHandler.NodeChunk'> instance at 0x...
@@ -121,7 +121,7 @@ Create a CGF file from scratch
 * isGroupHead : False
 * isGroupMember : False
 * reserved1 :
-    <class 'PyFFI.Bases.Array.Array'> instance at 0x...
+    <class 'PyFFI.ObjectModels.XML.Array.Array'> instance at 0x...
     0: 0
     1: 0
 * transform :
@@ -141,7 +141,7 @@ Create a CGF file from scratch
 * rotCtrl : None
 * sclCtrl : None
 * propertyString : <EMPTY STRING>
-* children : <class 'PyFFI.Bases.Array.Array'> instance at 0x...
+* children : <class 'PyFFI.ObjectModels.XML.Array.Array'> instance at 0x...
 <BLANKLINE>
 """
 
@@ -192,7 +192,7 @@ from PyFFI import XmlFileFormat
 from PyFFI import MetaXmlFileFormat
 from PyFFI import Utils
 from PyFFI import Common
-from PyFFI.Bases.Basic import BasicBase
+from PyFFI.ObjectModels.XML.Basic import BasicBase
 
 class CgfFormat(XmlFileFormat):
     """Stores all information about the cgf file format."""

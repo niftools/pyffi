@@ -424,5 +424,5 @@ describing number of elements (%i)"%(elemlist.__len__(),len2i))
                     hsh.append(elem.getHash(**kwargs))
         return tuple(hsh)
 
-from PyFFI.Bases.Basic import BasicBase
-from PyFFI.Bases.Struct import StructBase
+from PyFFI.ObjectModels.XML.Basic import BasicBase
+from PyFFI.ObjectModels.XML.Struct import StructBase

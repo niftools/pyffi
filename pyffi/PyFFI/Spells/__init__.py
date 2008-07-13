@@ -143,7 +143,7 @@ def isBlockAdmissible(block, exclude, include):
     options passed on the command line.
 
     @param block: The block to check.
-    @type block: L{PyFFI.Bases.Struct.StructBase}
+    @type block: L{PyFFI.ObjectModels.XML.Struct.StructBase}
     @param exclude: List of blocks to exclude.
     @type exclude: list of str
     @param include: List of blocks to include.

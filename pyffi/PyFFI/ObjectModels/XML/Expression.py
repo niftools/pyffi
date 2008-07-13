@@ -1,5 +1,5 @@
 # --------------------------------------------------------------------------
-# PyFFI.Bases.Expression
+# PyFFI.ObjectModels.XML.Expression
 # Expression parser (for arr1, arr2, and cond xml attributes of <add> tag).
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****

@@ -40,8 +40,8 @@
 import struct
 from itertools import izip
 
-from PyFFI.Bases.Basic import BasicBase
-from PyFFI.Bases.Delegate import DelegateComboBox
+from PyFFI.ObjectModels.XML.Basic import BasicBase
+from PyFFI.ObjectModels.XML.Delegate import DelegateComboBox
 
 class _MetaEnumBase(type):
     """This metaclass checks for the presence of _enumkeys, _enumvalues,

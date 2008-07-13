@@ -92,7 +92,7 @@ import re
 from PyFFI import XmlFileFormat
 from PyFFI import MetaXmlFileFormat
 from PyFFI import Common
-from PyFFI.Bases.Basic import BasicBase
+from PyFFI.ObjectModels.XML.Basic import BasicBase
 
 class DdsFormat(XmlFileFormat):
     """This class implements the DDS format."""

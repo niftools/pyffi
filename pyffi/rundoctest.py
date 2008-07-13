@@ -5,9 +5,9 @@ import doctest
 import PyFFI
 import PyFFI.Common
 import PyFFI.XsdFormat
-import PyFFI.Bases.Basic
-import PyFFI.Bases.Struct
-import PyFFI.Bases.Expression
+import PyFFI.ObjectModels.XML.Basic
+import PyFFI.ObjectModels.XML.Struct
+import PyFFI.ObjectModels.XML.Expression
 import PyFFI.Utils
 import PyFFI.Utils.TriStrip
 import PyFFI.Utils.MathUtils
