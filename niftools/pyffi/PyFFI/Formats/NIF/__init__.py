@@ -380,7 +380,7 @@ from PyFFI import MetaXmlFileFormat
 from PyFFI import Utils
 from PyFFI import Common
 from PyFFI.ObjectModels.XML.Basic import BasicBase
-from PyFFI.ObjectModels.XML.Delegate import DelegateBoolComboBox
+from PyFFI.ObjectModels.Delegate import DelegateBoolComboBox
 
 class NifFormat(XmlFileFormat):
     __metaclass__ = MetaXmlFileFormat
