@@ -261,7 +261,8 @@ class XsdSaxHandler(object, xml.sax.handler.ContentHandler):
             if (self.currentTag != self.tagSchema):
                 print("WARNING: no current class, but current tag is not \
 schema (it is %i)" % self.currentTag)
-        print("registering attribute %s.%s" % (".".join(self.classstack), attr))
+        # DEBUG
+        #print("attribute %s.%s" % (".".join(self.classstack), attr))
         attrinfo = [attr] # TODO: make this a self-contained class
         self.attrstack.insert(0, attrinfo)
         self.currentAttr = attrinfo
@@ -292,7 +293,8 @@ schema (it is %i)" % self.currentTag)
         """
         # TODO: declare classes also as attributes!! now everything is global
         self.classstack = self.classstack + (klass,)
-        print("registering class %s" % (".".join(self.classstack)))
+        # DEBUG
+        #print("class %s" % (".".join(self.classstack)))
         # set up empty attribute list
         self.classAttributes[self.classstack] = []
 

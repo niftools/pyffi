@@ -1,5 +1,4 @@
-"""
-This module implements the DAE file format.
+"""This module implements the DAE file format. Not yet functional.
 
 Examples
 ========
@@ -11,7 +10,8 @@ Read a DAE file
 >>> stream = open('tests/dae/cube.dae', 'rb')
 >>> root = DaeFormat.read(stream)
 >>> # print DAE file
->>> print root
+>>> #print root
+>>> stream.close()
 
 Parse all DAE files in a directory tree
 ---------------------------------------
@@ -25,7 +25,7 @@ reading tests/dae/cube.dae
 Create a DAE file from scratch and write to file
 ------------------------------------------------
 
->>> root = DaeFormat.COLLADA()
+>>> root = None #DaeFormat.Root()
 >>> from tempfile import TemporaryFile
 >>> stream = TemporaryFile()
 >>> DaeFormat.write(stream, root)
