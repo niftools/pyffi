@@ -58,7 +58,7 @@ class TreeItem(object):
         """
         self._parent = kwargs.get(parent)
 
-    def qParent(self):
+    def getTreeParent(self):
         """Return parent of this structure.
 
         @return: The parent.

@@ -92,7 +92,7 @@ class DetailModel(QtCore.QAbstractItemModel):
 
         # the name column
         if index.column() == self.COL_NAME:
-            return QtCore.QVariant(data.qParent().qName(data))
+            return QtCore.QVariant(data.getTreeParent().qName(data))
 
         # the type column
         elif index.column() == self.COL_TYPE:
@@ -179,15 +179,15 @@ class DetailModel(QtCore.QAbstractItemModel):
     def parent(self, index):
         """Calculate parent of a given index."""
         # get parent structure
-        parentData = index.internalPointer().qParent()
+        parentData = index.internalPointer().getTreeParent()
         # if parent's parent is None, then index must be a top
         # level object, so return invalid index
-        if parentData.qParent() is None:
+        if parentData.getTreeParent() is None:
             return QtCore.QModelIndex()
         # if parent's parent is not None, then it must be member of
         # some deeper nested structure, so calculate the row as usual
         else:
-            row = parentData.qParent().qRow(parentData)
+            row = parentData.getTreeParent().qRow(parentData)
         # construct the index
         return self.createIndex(row, 0, parentData)
 

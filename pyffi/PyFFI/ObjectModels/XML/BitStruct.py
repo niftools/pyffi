@@ -120,7 +120,7 @@ class Bits(DelegateSpinBox):
     # at http://doc.trolltech.com/4.3/itemviews-simpletreemodel.html
     #
 
-    def qParent(self):
+    def getTreeParent(self):
         """Return parent of this structure."""
         return self._parent
 
@@ -453,7 +453,7 @@ class BitStructBase(object):
     # at http://doc.trolltech.com/4.3/itemviews-simpletreemodel.html
     #
 
-    def qParent(self):
+    def getTreeParent(self):
         """Return parent of this structure."""
         return self._parent
 
