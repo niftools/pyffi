@@ -17,7 +17,6 @@ def testBlock(block, **args):
         return
     print "mopp length = %i" % block.moppDataSize
     print "updating mopp data..."
-    block.updateOriginScale()
     block.updateMopp()
     print "mopp length = %i" % block.moppDataSize
 
