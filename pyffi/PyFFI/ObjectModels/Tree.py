@@ -68,7 +68,7 @@ class TreeItem(object):
 def TreeBranch(TreeItem):
     """A tree item which may have children."""
 
-    def qChildCount(self):
+    def getTreeNumChildren(self):
         """Return number of items in this structure. Zero for simple
         types, positive for structures and arrays.
 
