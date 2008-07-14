@@ -39,6 +39,8 @@
 
 import math # math.ceil
 
+from PyFFI.Utils.Mopp import getMoppScaleOriginCode
+
 def getMassCenterInertia(self, density = 1, solid = True):
     """Return mass, center of gravity, and inertia tensor."""
     return self.shape.getMassCenterInertia(density = density, solid = solid)
@@ -59,6 +61,25 @@ def updateOriginScale(self):
 def updateMopp(self):
     """Update the MOPP data."""
 
+    # first try with PyFFI.Utils.Mopp
+    try:
+        scale, orig, mopp = getMoppScaleOriginCode(
+            [vert.asTuple() for vert in self.shape.data.vertices],
+            [(hktri.triangle.v1, hktri.triangle.v2, hktri.triangle.v3)
+             for hktri in self.shape.data.triangles])
+    except RuntimeError:
+        print(
+            "WARNING: havok mopp generator failed, falling back on simple mopp")
+        mopp = self._makeSimpleMopp()
+
+    # delete mopp and replace with new data
+    self.moppDataSize = len(mopp)
+    self.moppData.updateSize()
+    for i, b in enumerate(mopp):
+        self.moppData[i] = b
+
+def _makeSimpleMopp(self):
+    """Make a simple mopp."""
     mopp = [] # the mopp 'assembly' script
     self._q = 256*256 / self.scale # quantization factor
 
@@ -104,11 +125,7 @@ def updateMopp(self):
              i = 0x30
     mopp.extend([i])
 
-    # delete mopp and replace with new data
-    self.moppDataSize = len(mopp)
-    self.moppData.updateSize()
-    for i, b in enumerate(mopp):
-        self.moppData[i] = b
+    return mopp
 
 def _moppCeil(self, v):
     moppx = int((v.x + 0.1 - self.origin.x) / self._q + 0.99999999)
