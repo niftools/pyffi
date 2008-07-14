@@ -14,6 +14,7 @@ import PyFFI.Utils.MathUtils
 import PyFFI.Utils.QuickHull
 import PyFFI.Utils.Inertia
 import PyFFI.Utils.TangentSpace
+import PyFFI.Utils.Mopp
 import PyFFI.Formats.NIF
 import PyFFI.Formats.NIF.NiTriStripsData
 import PyFFI.Formats.NIF.NiTriShapeData

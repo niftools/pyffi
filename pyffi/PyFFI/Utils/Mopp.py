@@ -41,10 +41,16 @@ from ctypes import *
 from itertools import chain
 import os.path
 
-_NifMopp = WinDLL(os.path.join(os.path.dirname(__file__), "NifMopp.dll"))
+try:
+    _NifMopp = WinDLL(os.path.join(os.path.dirname(__file__), "NifMopp.dll"))
+except NameError:
+    # on linux WinDLL will raise a NameError
+    _NifMopp = None
 
 def getMoppScaleOriginCode(vertices, triangles):
-    """Generate mopp code for given geometry.
+    """Generate mopp code for given geometry. Raises RuntimeError if something
+    goes wrong (e.g. if mopp generator fails, or if NifMopp.dll cannot be
+    loaded on the current platform).
 
     For example, creating a mopp for the standard cube:
 
@@ -68,29 +74,31 @@ def getMoppScaleOriginCode(vertices, triangles):
     @return: The mopp scale as a float, the origin as a tuple of floats, and
         the mopp code as a list of ints.
     """
+    if _NifMopp is None:
+        raise RuntimeError("havok mopp generator cannot run on this platform")
     nverts = c_int(len(vertices))
     ntris = c_int(len(triangles))
     pverts = (c_float * (3 * len(vertices)))(*chain(*vertices))
     ptris = (c_short * (3 * len(triangles)))(*chain(*triangles))
     moppcodelen = _NifMopp.GenerateMoppCode(nverts, pverts, ntris, ptris)
     if moppcodelen == -1:
-        raise RuntimeError("mopp generator failed")
+        raise RuntimeError("havok mopp generator failed")
     pmoppcode = create_string_buffer(moppcodelen)
     result = _NifMopp.RetrieveMoppCode(c_int(moppcodelen), pmoppcode)
     if result != moppcodelen:
-        raise RuntimeError("retrieving mopp code failed")
+        raise RuntimeError("retrieving havok mopp code failed")
     # convert c byte array to list of ints
     moppcode = list(ord(char) for char in pmoppcode)
 
     scale = c_float()
     if not _NifMopp.RetrieveMoppScale(byref(scale)):
-        raise RuntimeError("retrieving mopp scale failed")
+        raise RuntimeError("retrieving havok mopp scale failed")
     # convert c_double to Python float
     scale = scale.value
 
     porigin = (c_float * 3)()
     if not _NifMopp.RetrieveMoppOrigin(porigin):
-        raise RuntimeError("retreiving mopp origin failed")
+        raise RuntimeError("retreiving havok mopp origin failed")
     origin = tuple(value for value in porigin)
     #_NifMopp.RetrieveOrigin
     return scale, origin, moppcode
@@ -99,3 +107,4 @@ def getMoppScaleOriginCode(vertices, triangles):
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
+
