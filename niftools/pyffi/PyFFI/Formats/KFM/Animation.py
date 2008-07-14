@@ -37,6 +37,6 @@
 #
 # ***** END LICENSE BLOCK *****
 
-def qBlockName(self):
+def getTreeDescription(self):
     """Return the kf file name."""
     return self.kfFileName if not self.name else self.name
