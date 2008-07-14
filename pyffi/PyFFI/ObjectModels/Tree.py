@@ -118,13 +118,13 @@ def TreeBranch(TreeItem):
 class TreeLeaf(TreeItem):
     """A tree item that does not have any children.
 
-    The function L{qDataDisplay} controls the display of the data. If the
+    The function L{getTreeDataDisplay} controls the display of the data. If the
     data must be editable, also derive the class from one of the delegate
     classes defined in L{PyFFI.ObjectModels.Delegate}, and make sure that the
     getValue and setValue functions are implemented.
     """
 
-    def qDataDisplay(self):
+    def getTreeDataDisplay(self):
         """Return an object that can be used to display the instance.
 
         @return: str(self)

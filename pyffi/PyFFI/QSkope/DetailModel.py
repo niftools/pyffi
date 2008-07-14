@@ -102,7 +102,7 @@ class DetailModel(QtCore.QAbstractItemModel):
         elif index.column() == self.COL_VALUE:
             # get the data value
             try:
-                datavalue = data.qDataDisplay()
+                datavalue = data.getTreeDataDisplay()
             except NotImplementedError:
                 # not implemented, so there is no value
                 # but there should be a string representation

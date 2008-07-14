@@ -159,7 +159,7 @@ class EnumBase(BasicBase,DelegateComboBox):
         """Get the value of an item string."""
         return self._enumvalues.index(self._value)
 
-    def qDataDisplay(self):
+    def getTreeDataDisplay(self):
         """Return object that can be used to display the instance."""
         try:
             return self._enumkeys[self._enumvalues.index(self._value)]
