@@ -159,7 +159,7 @@ class GlobalModel(QtCore.QAbstractItemModel):
             return QtCore.QVariant(data.__class__.__name__)
         elif index.column() == self.COL_NAME:
             if isinstance(data, StructBase):
-                return QtCore.QVariant(data.getTreeDescription())
+                return QtCore.QVariant(data.getTreeGlobalDataDisplay())
             else:
                 return QtCore.QVariant()
 

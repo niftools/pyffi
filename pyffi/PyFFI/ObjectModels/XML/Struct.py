@@ -593,7 +593,7 @@ class StructBase(object):
         else:
             raise ValueError("getTreeChildName(self, item): item not found")
 
-    def getTreeDescription(self):
+    def getTreeGlobalDataDisplay(self):
         """Construct a convenient name for the block itself."""
         return self.name if hasattr(self, "name") else ""
 

@@ -7,6 +7,8 @@
     common subclass PyFFI.ObjectModels.ComplexType, use these then as base
     classes for ObjectModels.XML.Array and ObjectModels.XML.StructBase
   - use PyFFI.ObjectModels.Tree
+  - upgrade QSkope and XML model to use TreeGlobalBranch instead of the
+    current ad hoc system with Refs
   - improve the abstract ObjectModels.Delegate classes
 
 * improve overall documentation, for instance:

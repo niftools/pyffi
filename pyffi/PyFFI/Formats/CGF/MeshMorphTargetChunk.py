@@ -50,6 +50,6 @@ def getTreeGlobalParent(self):
     """Get the block parent (used for instance in the QSkope global view)."""
     return self.mesh
 
-def getTreeDescription(self):
+def getTreeGlobalDataDisplay(self):
     """Return a name for the block."""
     return self.targetName

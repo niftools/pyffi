@@ -2,6 +2,16 @@
 
 This interface is roughly based on the TreeItem example in the Qt docs:
 http://doc.trolltech.com/4.4/itemviews-simpletreemodel.html
+
+The interfaces defined here allow data to be organized in two views: a
+global view which only shows 'top-level' objects (i.e. large file
+blocks, chunks, and so on) and their structure, and a detail view
+which shows the details of a top-level like object, that is, the
+actual data they contain. L{TreeItem} and L{TreeBranch} implement the
+detail view side of things, with L{TreeLeaf} implementing the actual
+display of the data content. The L{TreeGlobalBranch} class implements
+the global view, which does not show any actual data, but only
+structure, hence there is no need for a special TreeGlobalLeaf class.
 """
 
 # --------------------------------------------------------------------------
@@ -50,21 +60,12 @@ class TreeItem(object):
     Instead, use the L{TreeBranch} and L{TreeLeaf} classes.
     """
 
-    def __init__(self, **kwargs):
-        """Initializes the instance.
-
-        @param parent: The parent of this instance, that is, the instance this
-            instance is an attribute of.
-        @type parent: C{NoneType} or L{ComplexType}
-        """
-        self._parent = kwargs.get(parent)
-
     def getTreeParent(self):
         """Return parent of this structure.
 
         @return: The parent.
         """
-        return self._parent
+        raise NotImplementedError
 
     def getTreeNumChildren(self):
         """Return number of children of this item. Always zero for leafs,
@@ -75,7 +76,7 @@ class TreeItem(object):
         """
         raise NotImplementedError
 
-def TreeBranch(TreeItem):
+class TreeBranch(TreeItem):
     """A tree item which may have children."""
 
     def getTreeChild(self, row):
@@ -105,15 +106,46 @@ def TreeBranch(TreeItem):
         """
         raise NotImplementedError
 
-    def getTreeDescription(self):
-        """Construct a convenient name for the block itself."""
-        return self.name if hasattr(self, "name") else ""
+class TreeGlobalBranch(TreeBranch):
+    """A tree item that can appear in the global view as well."""
+
+    def getTreeGlobalDataDisplay(self):
+        """Construct a convenient name for the block itself.
+        Override this methd."""
+        raise NotImplementedError
+        # possible implementation:
+        #return self.name if hasattr(self, "name") else ""
 
     def getTreeGlobalParent(self):
-        """This can be used to return a parent of an object, if the parent
-        object does not happen to link to the object (for instance the
-        MeshMorphTargetChunk in the cgf format is an example)."""
-        return None
+        """Parent of an object in the global view. Override this method."""
+        raise NotImplementedError
+
+    def getTreeGlobalNumChildren(self):
+        """Return number of children of this item in the global view.
+        Override this method.
+
+        @return: Number of global children as int.
+        """
+        raise NotImplementedError
+
+    def getTreeGlobalChild(self, row):
+        """Find row'th child for global view. Override this method.
+
+        @param row: The row number.
+        @type row: int
+        @return: The child (must be a L{TreeGlobalBranch}).
+        """
+        raise NotImplementedError
+
+    def getTreeGlobalChildRow(self, item):
+        """Find the row number of the given child for global view.
+        Override this method.
+
+        @param item: The child.
+        @type item: any
+        @return: The row, as int.
+        """
+        raise NotImplementedError
 
 class TreeLeaf(TreeItem):
     """A tree item that does not have any children.
@@ -133,9 +165,5 @@ class TreeLeaf(TreeItem):
         return 0
 
     def getTreeDataDisplay(self):
-        """Return an object that can be used to display the instance.
-
-        @return: str(self)
-        """
-        return str(self)
-
+        """Return an object that can be used to display the instance."""
+        raise NotImplementedError

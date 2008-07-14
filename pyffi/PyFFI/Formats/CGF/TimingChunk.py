@@ -37,6 +37,6 @@
 #
 # ***** END LICENSE BLOCK *****
 
-def getTreeDescription(self):
+def getTreeGlobalDataDisplay(self):
     """Return a name for the block."""
     return self.globalRange.name
