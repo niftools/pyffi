@@ -6,6 +6,7 @@ allows the documentation to be bundled)
 description (this is still far from functional, but an initial parser is
 already included with the library, although it does not yet create any
 classes yet)
+* real mopp generation for Oblivion (using the havok library)
 * refactoring: library reorganized and some interfaces have been
 unified, also a lot of code duplication has been reduced; see
 README.TXT for more details on how to migrate from 0.x.x to 1.x.x

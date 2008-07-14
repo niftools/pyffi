@@ -11,6 +11,7 @@ include PyFFI/Formats/CGF/cgf.xml
 include PyFFI/Formats/DDS/dds.xml
 include PyFFI/Formats/TGA/tga.xml
 include PyFFI/Formats/DAE/COLLADASchema.xsd
+include PyFFI/Utils/NifMopp.dll
 recursive-include examples *.py
 include examples/simple/simple.xml
 include examples/simple/somefile.simple
