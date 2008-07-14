@@ -59,18 +59,26 @@ def updateOriginScale(self):
     self.scale = (256*256*254) / (0.2+max([maxx-minx,maxy-miny,maxz-minz]))
 
 def updateMopp(self):
-    """Update the MOPP data."""
+    """Update the MOPP data, scale, and origin."""
 
     # first try with PyFFI.Utils.Mopp
     try:
-        scale, orig, mopp = getMoppScaleOriginCode(
+        scale, origin, mopp \
+        = getMoppScaleOriginCode(
             [vert.asTuple() for vert in self.shape.data.vertices],
             [(hktri.triangle.v1, hktri.triangle.v2, hktri.triangle.v3)
              for hktri in self.shape.data.triangles])
     except RuntimeError:
         print(
             "WARNING: havok mopp generator failed, falling back on simple mopp")
+        self.updateOriginScale()
         mopp = self._makeSimpleMopp()
+    else:
+        # must use calculated scale and origin
+        self.scale = scale
+        self.origin.x = origin[0]
+        self.origin.y = origin[1]
+        self.origin.z = origin[2]
 
     # delete mopp and replace with new data
     self.moppDataSize = len(mopp)
