@@ -220,6 +220,10 @@ Section
   Delete "$PYTHONPATH\Scripts\niftoaster.*"
   Delete "$PYTHONPATH\Scripts\pyffipostinstallation.*"
   Delete "$PYTHONPATH\Scripts\nifvisualizer.*"
+  RMDir /r "$INSTDIR\docs"
+  RMDir /r "$INSTDIR\examples"
+  RMDir /r "$INSTDIR\tests"
+  Delete "$INSTDIR\*.TXT"
 
   ; Install source files and documentation
   !insertmacro InstallManifestFiles
