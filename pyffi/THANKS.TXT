@@ -12,4 +12,5 @@ Special thanks to
     information about the cgf file format. This has saved many months of hard
     work.
   - CryTek and Bethesda for the great games they make.
-
+  - Havok, for releasing their SDK without which PyFFI's mopp generator would
+    not have been possible.

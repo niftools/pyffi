@@ -30,3 +30,11 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
+
+=======================================================================
+
+PyFFI uses Havok. Copyright 1999-2008 Havok.com Inc. (and its Licensors).
+All Rights Reserved. See www.havok.com for details.
+
+All of Havok's code used by PyFFI is contained in the file
+PyFFI/Utils/NifMopp.dll

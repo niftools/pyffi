@@ -11,4 +11,4 @@ Contributors
       - nifvis (which hopefully will be embedded into QSkope one day...)
   - taarna23: extraction of DXT compressed embedded textures for the nif format
   - seith: logo design for the Windows installer
-
+  - tazpn: NifMopp.dll (dll wrapper for havok's mopp generator)
