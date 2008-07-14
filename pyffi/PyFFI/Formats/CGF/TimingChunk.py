@@ -37,6 +37,6 @@
 #
 # ***** END LICENSE BLOCK *****
 
-def qBlockName(self):
+def getTreeDescription(self):
     """Return a name for the block."""
     return self.globalRange.name

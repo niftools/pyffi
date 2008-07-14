@@ -573,32 +573,32 @@ class StructBase(object):
         """Return number of items in this structure."""
         return len(self._items)
 
-    def qChild(self, row):
+    def getTreeChild(self, row):
         """Find item at given row."""
         return self._items[row]
 
-    def qRow(self, item):
+    def getTreeChildRow(self, item):
         """Find the row number of the given item."""
         for row, otheritem in enumerate(self._items):
             if item is otheritem:
                 return row
         else:
-            raise ValueError("qRow(self, item): item not found")
+            raise ValueError("getTreeChildRow(self, item): item not found")
 
-    def qName(self, item):
+    def getTreeChildName(self, item):
         """Find the name of the given item."""
         for otheritem, name in izip(self._items, self._names):
             if item is otheritem:
                 return name
         else:
-            raise ValueError("qName(self, item): item not found")
+            raise ValueError("getTreeChildName(self, item): item not found")
 
-    def qBlockName(self):
+    def getTreeDescription(self):
         """Construct a convenient name for the block itself."""
         return self.name if hasattr(self, "name") else ""
 
     # extra function for global view, override if required
-    def qBlockParent(self):
+    def getTreeGlobalParent(self):
         """This can be used to return a parent of an object, if the parent
         object does not happen to link to the object (for instance the
         MeshMorphTargetChunk in the cgf format is an example)."""

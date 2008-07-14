@@ -111,8 +111,8 @@ class GlobalModel(QtCore.QAbstractItemModel):
                     self.refDict[block].append(ptrblock)
                     # no children
                     self.refDict[ptrblock] = []
-                # check if it has a qBlockParent
-                blockparent = block.qBlockParent()
+                # check if it has a getTreeGlobalParent
+                blockparent = block.getTreeGlobalParent()
                 if blockparent and not block in self.refDict[blockparent]:
                     self.parentDict[block] = blockparent
                     self.refDict[blockparent].append(block)
@@ -159,7 +159,7 @@ class GlobalModel(QtCore.QAbstractItemModel):
             return QtCore.QVariant(data.__class__.__name__)
         elif index.column() == self.COL_NAME:
             if isinstance(data, StructBase):
-                return QtCore.QVariant(data.qBlockName())
+                return QtCore.QVariant(data.getTreeDescription())
             else:
                 return QtCore.QVariant()
 

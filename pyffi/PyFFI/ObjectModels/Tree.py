@@ -46,7 +46,8 @@ http://doc.trolltech.com/4.4/itemviews-simpletreemodel.html
 class TreeItem(object):
     """Base class used for the tree view. All objects which contain data
     is displayed by QSkope derive from this class (such as SimpleType and
-    ComplexType).
+    ComplexType). You should never have to derive from this class directly.
+    Instead, use the L{TreeBranch} and L{TreeLeaf} classes.
     """
 
     def __init__(self, **kwargs):
@@ -65,19 +66,20 @@ class TreeItem(object):
         """
         return self._parent
 
-def TreeBranch(TreeItem):
-    """A tree item which may have children."""
-
     def getTreeNumChildren(self):
-        """Return number of items in this structure. Zero for simple
-        types, positive for structures and arrays.
+        """Return number of children of this item. Always zero for leafs,
+        and of course positive for branches if they have children.
+        Override this method.
 
         @return: Number of children as int.
         """
         raise NotImplementedError
 
-    def qChild(self, row):
-        """Find item at given row. Override for complex types.
+def TreeBranch(TreeItem):
+    """A tree item which may have children."""
+
+    def getTreeChild(self, row):
+        """Find row'th child. Override this method.
 
         @param row: The row number.
         @type row: int
@@ -85,9 +87,8 @@ def TreeBranch(TreeItem):
         """
         raise NotImplementedError
 
-    def qRow(self, item):
-        """Find the row number of the given item. Override for complex
-        types.
+    def getTreeChildRow(self, item):
+        """Find the row number of the given child. Override this method.
 
         @param item: The child.
         @type item: any
@@ -95,8 +96,8 @@ def TreeBranch(TreeItem):
         """
         raise NotImplementedError
 
-    def qName(self, item):
-        """Find the name of the given item. Override for complex types.
+    def getTreeChildName(self, item):
+        """Find the name of the given child. Override this method.
 
         @param item: The child.
         @type item: any
@@ -104,12 +105,11 @@ def TreeBranch(TreeItem):
         """
         raise NotImplementedError
 
-    def qBlockName(self):
+    def getTreeDescription(self):
         """Construct a convenient name for the block itself."""
         return self.name if hasattr(self, "name") else ""
 
-    # extra function for global view, override if required
-    def qBlockParent(self):
+    def getTreeGlobalParent(self):
         """This can be used to return a parent of an object, if the parent
         object does not happen to link to the object (for instance the
         MeshMorphTargetChunk in the cgf format is an example)."""
@@ -123,6 +123,14 @@ class TreeLeaf(TreeItem):
     classes defined in L{PyFFI.ObjectModels.Delegate}, and make sure that the
     getValue and setValue functions are implemented.
     """
+
+    def getTreeNumChildren(self):
+        """Return number of items in this structure (i.e. always zero). Do not
+        override this method, it is simply provided for convenience.
+
+        @return: 0
+        """
+        return 0
 
     def getTreeDataDisplay(self):
         """Return an object that can be used to display the instance.

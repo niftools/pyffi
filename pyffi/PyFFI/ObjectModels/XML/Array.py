@@ -116,21 +116,21 @@ class _ListWrap(list):
         """Return number of items in this structure."""
         return len(self)
 
-    def qChild(self, row):
+    def getTreeChild(self, row):
         """Find item at given row."""
         return list.__getitem__(self, row)
 
-    def qRow(self, item):
+    def getTreeChildRow(self, item):
         """Find the row number of the given item."""
         for row, otheritem in enumerate(list.__iter__(self)):
             if item is otheritem:
                 return row
         else:
-            raise ValueError("qRow(self, item): item not found")
+            raise ValueError("getTreeChildRow(self, item): item not found")
 
-    def qName(self, item):
+    def getTreeChildName(self, item):
         """Find the name of the given item."""
-        return "[%i]" % self.qRow(item)
+        return "[%i]" % self.getTreeChildRow(item)
 
 class Array(_ListWrap):
     """A general purpose class for 1 or 2 dimensional arrays consisting of

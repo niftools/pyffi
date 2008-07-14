@@ -152,15 +152,15 @@ class BasicBase(object):
         types."""
         return 0
 
-    def qChild(self, row):
+    def getTreeChild(self, row):
         """Find item at given row. Should never be called."""
         raise RuntimeError
 
-    def qRow(self, item):
+    def getTreeChildRow(self, item):
         """Find the row number of the given item. Should never be called."""
         raise RuntimeError
 
-    def qName(self, item):
+    def getTreeChildName(self, item):
         """Find the name of the given item. Should never be called."""
         raise RuntimeError
 

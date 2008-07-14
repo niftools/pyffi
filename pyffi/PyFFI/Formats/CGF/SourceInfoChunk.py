@@ -37,7 +37,7 @@
 #
 # ***** END LICENSE BLOCK *****
 
-def qBlockName(self):
+def getTreeDescription(self):
     """Return a name for the block."""
     idx = max(self.sourceFile.rfind("\\"), self.sourceFile.rfind("/"))
     return self.sourceFile[idx+1:]

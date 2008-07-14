@@ -37,7 +37,7 @@
 #
 # ***** END LICENSE BLOCK *****
 
-def qBlockParent(self):
+def getTreeGlobalParent(self):
     """Get the block parent (used for instance in the QSkope global view)."""
     return self.parent
 
