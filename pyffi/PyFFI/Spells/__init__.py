@@ -306,6 +306,8 @@ def toaster(format=None, formatspellsmodule=None, examples=None):
     usage = "%prog [options] <spell> <file>|<folder>"
     description = """Apply a spell "%s.<spell>" on <file>, or recursively
 on <folder>.""" % formatspellsmodule.__name__
+    errormessage_numargs = """incorrect number of arguments
+(use the --help option for help)"""
 
     parser = optparse.OptionParser(
         usage,
@@ -384,7 +386,7 @@ description""")
 
     # spell name not specified when function was called
     if len(args) < 1:
-        parser.error("incorrect number of arguments")
+        parser.error(errormessage_numargs)
 
     # get spell name
     spellname = args[0]
@@ -402,7 +404,7 @@ description""")
 
     # top not specified when function was called
     if len(args) != 2:
-        parser.error("incorrect number of arguments")
+        parser.error(errormessage_numargs)
 
     # get top folder/file: last argument always is folder/file
     top = args[-1]
