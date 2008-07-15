@@ -8,9 +8,9 @@ The classes defined here allow data to be organized in two views: a
 global view which only shows 'top-level' objects (i.e. large file
 blocks, chunks, and so on) and their structure, and a detail view
 which shows the details of a top-level like object, that is, the
-actual data they contain. L{TreeItem} and L{TreeBranch} implement the
-detail view side of things, with L{TreeLeaf} implementing the actual
-display of the data content. The L{TreeGlobalBranch} class implements
+actual data they contain. L{DetailTreeItem} and L{DetailTreeBranch} implement the
+detail view side of things, with L{DetailTreeLeaf} implementing the actual
+display of the data content. The L{GlobalTreeBranch} class implements
 the global view, which does not show any actual data, but only
 structure, hence there is no need for a special TreeGlobalLeaf class.
 
@@ -68,21 +68,21 @@ anywhere yet, and names may still change.
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-class TreeItem(object):
+class DetailTreeItem(object):
     """Base class used for the tree detail view. All objects whose data
     is displayed by QSkope derive from this class (such as SimpleType and
     ComplexType). You should never have to derive from this class directly.
-    Instead, use the L{TreeBranch}, L{TreeLeaf}, and L{TreeGlobalBranch}
+    Instead, use the L{DetailTreeBranch}, L{DetailTreeLeaf}, and L{GlobalTreeBranch}
     classes.
     """
 
     def getTreeParent(self):
         """Return parent of this structure. Override this method.
 
-        @return: The parent, which should be a L{TreeBranch} instance, or
-            L{None} if this is a L{TreeGlobalBranch} (in that case the
+        @return: The parent, which should be a L{DetailTreeBranch} instance, or
+            L{None} if this is a L{GlobalTreeBranch} (in that case the
             parent can be browsed in the global view via
-            L{TreeGlobalBranch.getTreeGlobalParent}).
+            L{GlobalTreeBranch.getTreeGlobalParent}).
         """
         raise NotImplementedError
 
@@ -95,7 +95,7 @@ class TreeItem(object):
         """
         raise NotImplementedError
 
-class TreeBranch(TreeItem):
+class DetailTreeBranch(DetailTreeItem):
     """A tree item which may have children."""
 
     def getTreeChild(self, row):
@@ -125,7 +125,7 @@ class TreeBranch(TreeItem):
         """
         raise NotImplementedError
 
-class TreeGlobalBranch(TreeBranch):
+class GlobalTreeBranch(DetailTreeBranch):
     """A tree branch that can appear summarized as an item in the global view,
     and also fully in the detail view."""
 
@@ -148,6 +148,14 @@ class TreeGlobalBranch(TreeBranch):
         # possible implementation:
         #return self.__class__.__name__
 
+    def getTreeGlobalId(self):
+        """Unique reference id for this global branch for display
+        purposes. Override this method.
+
+        @return: An integer.
+        """
+        raise NotImplementedError
+
     def getTreeGlobalDataDisplay(self):
         """Very short summary of the data of this global branch for display
         purposes. Override this method.
@@ -161,7 +169,7 @@ class TreeGlobalBranch(TreeBranch):
     def getTreeGlobalParent(self):
         """Parent of an object in the global view. Override this method.
 
-        @return: A L{TreeGlobalBranch} instance, or C{None} for the root
+        @return: A L{GlobalTreeBranch} instance, or C{None} for the root
             element in the global view (typically, the global view root is a
             L{PyFFI.ObjectModels.Data.Data} instance).
         """
@@ -180,7 +188,7 @@ class TreeGlobalBranch(TreeBranch):
 
         @param row: The row number.
         @type row: int
-        @return: The child (must be a L{TreeGlobalBranch}).
+        @return: The child (must be a L{GlobalTreeBranch}).
         """
         raise NotImplementedError
 
@@ -194,7 +202,7 @@ class TreeGlobalBranch(TreeBranch):
         """
         raise NotImplementedError
 
-class TreeLeaf(TreeItem):
+class DetailTreeLeaf(DetailTreeItem):
     """A tree item that does not have any children.
 
     The function L{getTreeDataDisplay} controls the display of the data. If the
@@ -205,9 +213,7 @@ class TreeLeaf(TreeItem):
 
     def getTreeNumChildren(self):
         """Leafs should not have any children, so override this method to
-        return zero. For very special leafs you may want to do something
-        else although in that case you're better off with using L{TreeBranch}
-        instead anyway.
+        return zero.
 
         @return: Usually 0.
         """

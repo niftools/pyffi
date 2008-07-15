@@ -40,9 +40,9 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-from PyFFI.ObjectModels.Tree import TreeGlobalBranch
+from PyFFI.ObjectModels.Tree import GlobalTreeBranch
 
-class Data(TreeGlobalBranch):
+class Data(GlobalTreeBranch):
     """Base class for representing data in a particular format."""
 
     def isValid():
