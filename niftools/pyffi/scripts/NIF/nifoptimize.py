@@ -43,13 +43,15 @@
 
 # if script is called...
 if __name__ == "__main__":
-    print("""The nifoptimize.py script is deprecated. To optimize nif files,
-run the optimize spell with the niftoaster. That is, type
+    print("""The nifoptimize.py script is deprecated and will be removed
+from a future PyFFI release. The optimizer has been integrated with
+PyFFI's spell system. Hence, to optimize nif files, run the optimize spell
+with the niftoaster. That is, type
 
-  python niftoaster.py optimize ...
+  \\Python25\\python.exe \\Python25\\Scripts\\niftoaster.py optimize ...
 
 instead of
 
-  python nifoptimize.py ...
+  \\Python25\\python.exe \\Python25\\Scripts\\nifoptimize.py ...
 """)
     raw_input()

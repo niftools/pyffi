@@ -52,6 +52,31 @@ def main():
 
     python niftoaster.py read .
 
+* optimize all nif files a directory tree, recursively
+
+    python niftoaster.py optimize /path/to/your/nifs/
+
+* print texture information of all nif files a directory tree, recursively
+
+    python niftoaster.py texdump /path/to/your/nifs/
+
+* update/generate mopps of all nif files a directory tree, recursively
+
+    python niftoaster.py updatemopp /path/to/your/nifs/
+
+* update/generate skin partitions of all nif files a directory tree,
+recursively, for Freedom Force vs. The 3rd Reich
+
+    python niftoaster.py ffvt3rskinpartition /path/to/your/nifs/
+
+* run the profiler on PyFFI while reading nif files:
+
+    python -m cProfile -s cumulative -o profile_read.txt niftoaster.py read .
+
+* find out time spent on a particular test:
+
+    python -m cProfile -s cumulative niftoaster.py tristrip
+
 * merge skeleton roots and rest positions for all files in current directory:
 
     python niftoaster.py mergeskelandrestpos .
@@ -61,15 +86,7 @@ def main():
   small to show up properly in nifskope:
 
     python niftoaster.py -a 100 scale "c:\\zoo2"
-
-* same as above, but also find out profile information on reading nif
-  files:
-
-    python -m cProfile -s cumulative -o profile_read.txt niftoaster.py read .
-
-* find out time spent on a particular test:
-
-    python -m cProfile -s cumulative niftoaster.py tristrip"""
+"""
 
     toaster(format=NifFormat, formatspellsmodule=PyFFI.Spells.NIF,
             examples=examples)
@@ -77,3 +94,4 @@ def main():
 # if script is called...
 if __name__ == "__main__":
     main()
+

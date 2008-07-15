@@ -43,13 +43,15 @@
 
 # if script is called...
 if __name__ == "__main__":
-    print("""The niftexdump.py script is deprecated. Please
-run the texdump spell with the niftoaster. That is, type
+    print("""The niftexdump.py script is deprecated and will be removed
+from a future PyFFI release. The texdumper has been integrated with
+PyFFI's spell system. Hence, to texdump nif files, run the texdump spell
+with the niftoaster. That is, type
 
-  python niftoaster.py texdump ...
+  \\Python25\\python.exe \\Python25\\Scripts\\niftoaster.py texdump ...
 
 instead of
 
-  python niftexdump.py ...
+  \\Python25\\python.exe \\Python25\\Scripts\\niftexdump.py ...
 """)
     raw_input()
