@@ -141,7 +141,7 @@ class Bits(DelegateSpinBox):
         """Find the name of the given item. Should never be called."""
         raise NotImplementedError
 
-    def getTreeDataDisplay(self):
+    def getDetailTreeDataDisplay(self):
         """Return an object that can be used to display the instance."""
         return self._value
 

@@ -164,7 +164,7 @@ class BasicBase(object):
         """Find the name of the given item. Should never be called."""
         raise RuntimeError
 
-    def getTreeDataDisplay(self):
+    def getDetailTreeDataDisplay(self):
         """Return an object that can be used to display the instance."""
         return self.getValue()
 
