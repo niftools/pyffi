@@ -16,19 +16,23 @@
     instead introduce a global root element that contains all file information
     in a way that qskope (and any other program) can handle it in a simpler and
     format independent way:
-    + common base class for file information PyFFI.ObjectModels.Data
+    + common base class for file information: PyFFI.ObjectModels.Data
     + every fileformat implements an inspect(self, stream) function which
       returns a PyFFI.ObjectModels.Data instance (NifData, CgfData, ...);
       "inspect" replaces "getVersion" and its friends (a NifData could
       implement such functions of course, but they do not need to be assumed)
-    + the read function takes a NifData argument, and updates the information
-      contained in it to have the full file information
-    + the write function also takes a NifData argument instead of version
+    + the read function only takes a stream argument, and returns a Data
+      instance; it calls "inspect" automatically and raises an exception if
+      the file is not supported or not valid
+    + the write function also takes a Data argument instead of version
       and user_version arguments (possibly some other keyword arguments to
       tune the export, but these do not need to be assumed)
-    + PyFFI.Data implements isSupported(), isValid(), and also derives from
-      TreeGlobalBranch because it serves as a root branch for qskope;
-      identify other functions as we go
+    + PyFFI.ObjectModels.Data implements isSupported(), isValid(), and also
+      derives from TreeGlobalBranch because it serves as a root branch for
+      qskope; identify other required functions as we go
+    + the ObjectModels.XML Data implements getVersion which replaces
+      the XmlFileFormat.getVersion function (and maybe some other functions
+      implemented as well?)
     implementation plan:
     + implement the abstract base classes
     + use those fo the XSD parser, in subsequent 2.x.x releases
@@ -38,7 +42,7 @@
     ObjectModels.XML/ObjectModels.XSD specific implementations; if it only
     relies on the abstract base classes in ObjectModels.Tree then future
     expansions are a lot easier to cope with; in particular, qskope should
-    never have to import from ObjectModels.XXX
+    never have to import from ObjectModels.XXX, or Formats.XXX
 
 * doctests for all spells
 
