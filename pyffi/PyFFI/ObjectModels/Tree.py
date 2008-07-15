@@ -86,17 +86,16 @@ class DetailTreeItem(object):
         """
         raise NotImplementedError
 
-    def getTreeNumChildren(self):
-        """Return number of children of this item. Always zero for leafs,
-        and of course positive for branches if they have children.
+class DetailTreeBranch(DetailTreeItem):
+    """A tree item which may have children."""
+
+    def getDetailTreeNumChildren(self):
+        """Return number of children of this branch.
         Override this method.
 
         @return: Number of children as int.
         """
         raise NotImplementedError
-
-class DetailTreeBranch(DetailTreeItem):
-    """A tree item which may have children."""
 
     def getTreeChild(self, row):
         """Find row'th child. Override this method.
@@ -210,14 +209,6 @@ class DetailTreeLeaf(DetailTreeItem):
     classes defined in L{PyFFI.ObjectModels.Delegate}, and make sure that the
     getValue and setValue functions are implemented.
     """
-
-    def getTreeNumChildren(self):
-        """Leafs should not have any children, so override this method to
-        return zero.
-
-        @return: Usually 0.
-        """
-        raise NotImplementedError
 
     def getTreeDataDisplay(self):
         """Return an object that can be used to display the instance.

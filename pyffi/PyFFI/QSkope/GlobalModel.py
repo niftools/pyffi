@@ -48,7 +48,7 @@ class StructPtr(object):
         """Store the block for future reference."""
         self.ptr = block
 
-    def getTreeNumChildren(self):
+    def getDetailTreeNumChildren(self):
         """Break cycles: no children."""
         return 0
 

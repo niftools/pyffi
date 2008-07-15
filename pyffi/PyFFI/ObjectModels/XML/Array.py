@@ -112,7 +112,7 @@ class _ListWrap(list):
         """Return parent of this structure."""
         return self._parent
 
-    def getTreeNumChildren(self):
+    def getDetailTreeNumChildren(self):
         """Return number of items in this structure."""
         return len(self)
 

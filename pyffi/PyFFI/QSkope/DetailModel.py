@@ -151,10 +151,10 @@ class DetailModel(QtCore.QAbstractItemModel):
         """Calculate a row count for the given parent index."""
         if not parent.isValid():
             # top level: one row for each attribute
-            return self.block.getTreeNumChildren()
+            return self.block.getDetailTreeNumChildren()
         else:
             # get the parent child count
-            return parent.internalPointer().getTreeNumChildren()
+            return parent.internalPointer().getDetailTreeNumChildren()
 
     def columnCount(self, parent = QtCore.QModelIndex()):
         """Return column count."""

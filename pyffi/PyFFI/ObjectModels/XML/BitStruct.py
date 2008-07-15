@@ -124,7 +124,7 @@ class Bits(DelegateSpinBox):
         """Return parent of this structure."""
         return self._parent
 
-    def getTreeNumChildren(self):
+    def getDetailTreeNumChildren(self):
         """Return number of items in this structure. Always zero for basic
         types."""
         return 0
@@ -457,7 +457,7 @@ class BitStructBase(object):
         """Return parent of this structure."""
         return self._parent
 
-    def getTreeNumChildren(self):
+    def getDetailTreeNumChildren(self):
         """Return number of items in this structure."""
         return len(self._items)
 
