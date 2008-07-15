@@ -1,9 +1,10 @@
-"""Base classes for visualizing data with QSkope in a tree view.
+"""Abstract base classes for visualizing data (for example with Qt) in a
+tree view.
 
-This interface is roughly based on the TreeItem example in the Qt docs:
+The base classes are roughly based on the TreeItem example in the Qt docs:
 http://doc.trolltech.com/4.4/itemviews-simpletreemodel.html
 
-The interfaces defined here allow data to be organized in two views: a
+The classes defined here allow data to be organized in two views: a
 global view which only shows 'top-level' objects (i.e. large file
 blocks, chunks, and so on) and their structure, and a detail view
 which shows the details of a top-level like object, that is, the
@@ -12,6 +13,20 @@ detail view side of things, with L{TreeLeaf} implementing the actual
 display of the data content. The L{TreeGlobalBranch} class implements
 the global view, which does not show any actual data, but only
 structure, hence there is no need for a special TreeGlobalLeaf class.
+
+Do not use any of the methods of these classes unless you are programming a
+GUI application. In particular, for manipulating the data from within Python
+(e.g. in spells), you should not use them, because there are more convenient
+ways to access the data from within Python directly.
+
+Note that all classes are purely abstract, because they are not intended
+for code reuse, rather, they are intended to define a uniform interface
+between a GUI application and the underlying data. So you can use these
+safely along with other purely abstract base classes in a multiple
+inheritance scheme.
+
+@todo: Still a work in progress, classes are not actually used
+anywhere yet, and names may still change.
 """
 
 # --------------------------------------------------------------------------
@@ -54,16 +69,20 @@ structure, hence there is no need for a special TreeGlobalLeaf class.
 # --------------------------------------------------------------------------
 
 class TreeItem(object):
-    """Base class used for the tree view. All objects which contain data
+    """Base class used for the tree detail view. All objects whose data
     is displayed by QSkope derive from this class (such as SimpleType and
     ComplexType). You should never have to derive from this class directly.
-    Instead, use the L{TreeBranch} and L{TreeLeaf} classes.
+    Instead, use the L{TreeBranch}, L{TreeLeaf}, and L{TreeGlobalBranch}
+    classes.
     """
 
     def getTreeParent(self):
-        """Return parent of this structure.
+        """Return parent of this structure. Override this method.
 
-        @return: The parent.
+        @return: The parent, which should be a L{TreeBranch} instance, or
+            L{None} if this is a L{TreeGlobalBranch} (in that case the
+            parent can be browsed in the global view via
+            L{TreeGlobalBranch.getTreeGlobalParent}).
         """
         raise NotImplementedError
 
@@ -107,17 +126,45 @@ class TreeBranch(TreeItem):
         raise NotImplementedError
 
 class TreeGlobalBranch(TreeBranch):
-    """A tree item that can appear in the global view as well."""
+    """A tree branch that can appear summarized as an item in the global view,
+    and also fully in the detail view."""
+
+    def getTreeParent(self):
+        """Usually you would implement this to return C{None}, because
+        branches which can appear in the global view have no parents in the
+        detail view. Override this method.
+
+        @return: Usually C{None}.
+        """ 
+        raise NotImplementedError
+
+    def getTreeGlobalType(self):
+        """The type of this global branch for display purposes.
+        Override this method.
+
+        @return: A string.
+        """
+        raise NotImplementedError
+        # possible implementation:
+        #return self.__class__.__name__
 
     def getTreeGlobalDataDisplay(self):
-        """Construct a convenient name for the block itself.
-        Override this methd."""
+        """Very short summary of the data of this global branch for display
+        purposes. Override this method.
+
+        @return: A string.
+        """
         raise NotImplementedError
         # possible implementation:
         #return self.name if hasattr(self, "name") else ""
 
     def getTreeGlobalParent(self):
-        """Parent of an object in the global view. Override this method."""
+        """Parent of an object in the global view. Override this method.
+
+        @return: A L{TreeGlobalBranch} instance, or C{None} for the root
+            element in the global view (typically, the global view root is a
+            L{PyFFI.ObjectModels.Data.Data} instance).
+        """
         raise NotImplementedError
 
     def getTreeGlobalNumChildren(self):
@@ -157,13 +204,20 @@ class TreeLeaf(TreeItem):
     """
 
     def getTreeNumChildren(self):
-        """Return number of items in this structure (i.e. always zero). Do not
-        override this method, it is simply provided for convenience.
+        """Leafs should not have any children, so override this method to
+        return zero. For very special leafs you may want to do something
+        else although in that case you're better off with using L{TreeBranch}
+        instead anyway.
 
-        @return: 0
+        @return: Usually 0.
         """
-        return 0
+        raise NotImplementedError
 
     def getTreeDataDisplay(self):
-        """Return an object that can be used to display the instance."""
+        """Return an object that can be used to display the instance.
+        Override this method.
+
+        @return: A string.
+        """
         raise NotImplementedError
+
