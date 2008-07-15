@@ -46,10 +46,10 @@ def applyScale(self, scale):
         morphvert.vertexTarget.y *= scale
         morphvert.vertexTarget.z *= scale
 
-def getTreeGlobalParent(self):
+def getGlobalTreeParent(self):
     """Get the block parent (used for instance in the QSkope global view)."""
     return self.mesh
 
-def getTreeGlobalDataDisplay(self):
+def getGlobalTreeDataDisplay(self):
     """Return a name for the block."""
     return self.targetName

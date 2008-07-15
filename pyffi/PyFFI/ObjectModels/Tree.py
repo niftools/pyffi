@@ -82,7 +82,7 @@ class DetailTreeItem(object):
         @return: The parent, which should be a L{DetailTreeBranch} instance, or
             L{None} if this is a L{GlobalTreeBranch} (in that case the
             parent can be browsed in the global view via
-            L{GlobalTreeBranch.getTreeGlobalParent}).
+            L{GlobalTreeBranch.getGlobalTreeParent}).
         """
         raise NotImplementedError
 
@@ -137,7 +137,7 @@ class GlobalTreeBranch(DetailTreeBranch):
         """ 
         raise NotImplementedError
 
-    def getTreeGlobalType(self):
+    def getGlobalTreeType(self):
         """The type of this global branch for display purposes.
         Override this method.
 
@@ -147,7 +147,7 @@ class GlobalTreeBranch(DetailTreeBranch):
         # possible implementation:
         #return self.__class__.__name__
 
-    def getTreeGlobalId(self):
+    def getGlobalTreeId(self):
         """Unique reference id for this global branch for display
         purposes. Override this method.
 
@@ -155,7 +155,7 @@ class GlobalTreeBranch(DetailTreeBranch):
         """
         raise NotImplementedError
 
-    def getTreeGlobalDataDisplay(self):
+    def getGlobalTreeDataDisplay(self):
         """Very short summary of the data of this global branch for display
         purposes. Override this method.
 
@@ -165,7 +165,7 @@ class GlobalTreeBranch(DetailTreeBranch):
         # possible implementation:
         #return self.name if hasattr(self, "name") else ""
 
-    def getTreeGlobalParent(self):
+    def getGlobalTreeParent(self):
         """Parent of an object in the global view. Override this method.
 
         @return: A L{GlobalTreeBranch} instance, or C{None} for the root
@@ -174,7 +174,7 @@ class GlobalTreeBranch(DetailTreeBranch):
         """
         raise NotImplementedError
 
-    def getTreeGlobalNumChildren(self):
+    def getGlobalTreeNumChildren(self):
         """Return number of children of this item in the global view.
         Override this method.
 
@@ -182,7 +182,7 @@ class GlobalTreeBranch(DetailTreeBranch):
         """
         raise NotImplementedError
 
-    def getTreeGlobalChild(self, row):
+    def getGlobalTreeChild(self, row):
         """Find row'th child for global view. Override this method.
 
         @param row: The row number.
@@ -191,7 +191,7 @@ class GlobalTreeBranch(DetailTreeBranch):
         """
         raise NotImplementedError
 
-    def getTreeGlobalChildRow(self, item):
+    def getGlobalTreeChildRow(self, item):
         """Find the row number of the given child for global view.
         Override this method.
 

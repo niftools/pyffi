@@ -481,12 +481,12 @@ class BitStructBase(object):
         else:
             raise ValueError("getDetailTreeChildName(self, item): item not found")
 
-    def getTreeGlobalDataDisplay(self):
+    def getGlobalTreeDataDisplay(self):
         """Construct a convenient name for the block itself."""
         return self.name if hasattr(self, "name") else ""
 
     # extra function for global view, override if required
-    def getTreeGlobalParent(self):
+    def getGlobalTreeParent(self):
         """This can be used to return a parent of an object, if the parent
         object does not happen to link to the object (for instance the
         MeshMorphTargetChunk in the cgf format is an example)."""

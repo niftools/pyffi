@@ -46,6 +46,6 @@ def applyScale(self, scale):
         mat.pos.y *= scale
         mat.pos.z *= scale
 
-def getTreeGlobalParent(self):
+def getGlobalTreeParent(self):
     """Get the block parent (used for instance in the QSkope global view)."""
     return self.mesh

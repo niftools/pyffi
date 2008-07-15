@@ -37,7 +37,7 @@
 #
 # ***** END LICENSE BLOCK *****
 
-def getTreeGlobalDataDisplay(self):
+def getGlobalTreeDataDisplay(self):
     """Return a name for the block."""
     idx = max(self.sourceFile.rfind("\\"), self.sourceFile.rfind("/"))
     return self.sourceFile[idx+1:]
