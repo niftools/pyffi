@@ -76,7 +76,7 @@ class DetailTreeItem(object):
     classes.
     """
 
-    def getTreeParent(self):
+    def getDetailTreeParent(self):
         """Return parent of this structure. Override this method.
 
         @return: The parent, which should be a L{DetailTreeBranch} instance, or
@@ -129,7 +129,7 @@ class GlobalTreeBranch(DetailTreeBranch):
     """A tree branch that can appear summarized as an item in the global view,
     and also fully in the detail view."""
 
-    def getTreeParent(self):
+    def getDetailTreeParent(self):
         """Usually you would implement this to return C{None}, because
         branches which can appear in the global view have no parents in the
         detail view. Override this method.

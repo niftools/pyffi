@@ -143,7 +143,7 @@ class BasicBase(object):
     # at http://doc.trolltech.com/4.3/itemviews-simpletreemodel.html
     #
 
-    def getTreeParent(self):
+    def getDetailTreeParent(self):
         """Return parent of this structure."""
         return self._parent
 
