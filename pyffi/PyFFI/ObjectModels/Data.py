@@ -1,7 +1,7 @@
-"""Base class for storing data (typically, from a file in a given format).
+"""Abstract base class for storing data from a file in a particular
+format.
 """
 
-# --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
 #
 # Copyright (c) 2007-2008, Python File Format Interface
@@ -38,24 +38,41 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENSE BLOCK *****
-# --------------------------------------------------------------------------
 
 from PyFFI.ObjectModels.Tree import GlobalTreeBranch
 
 class Data(GlobalTreeBranch):
     """Base class for representing data in a particular format."""
 
-    def isValid():
-        """Check if data is valid.
+    def inspect(self, stream):
+        """Quickly checks whether the stream appears to contain
+        data of a particular format. Resets stream to original position.
+        Call this function if you simply wish to check that a file is
+        of a particular format without having to parse it completely.
 
-        @return: C{True} if valid, C{False} otherwise.
+        Override this method.
+
+        @param stream: The file to inspect.
+        @type stream: file
+        @return: C{True} if stream is of particular format, C{False}
+            otherwise.
         """
         raise NotImplementedError
 
-    def isSupported():
-        """Check if data is supported.
+    def read(self, stream):
+        """Read data of particular format from stream.
+        Override this method.
 
-        @return: C{True} if supported, C{False} otherwise.
+        @param stream: The file to read from.
+        @type stream: file
         """
         raise NotImplementedError
 
+    def write(self, stream):
+        """Write data of particular format to stream.
+        Override this method.
+
+        @param stream: The file to write to.
+        @type stream: file
+        """
+        raise NotImplementedError

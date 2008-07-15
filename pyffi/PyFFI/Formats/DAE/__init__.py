@@ -1,4 +1,4 @@
-"""This module implements the DAE file format. Not yet functional.
+"""This module implements the DAE (collada) file format. Not yet functional.
 
 Examples
 ========
@@ -8,27 +8,28 @@ Read a DAE file
 
 >>> # check and read dae file
 >>> stream = open('tests/dae/cube.dae', 'rb')
->>> root = DaeFormat.read(stream)
+>>> daedata = DaeData()
+>>> daedata.read(stream)
 >>> # print DAE file
->>> #print root
+>>> #print daedata.getRootElement()
 >>> stream.close()
 
 Parse all DAE files in a directory tree
 ---------------------------------------
 
->>> for root in DaeFormat.walk('tests/dae',
-...                            raisereaderror = True,
-...                            verbose = 1):
+>>> for daedata in DaeFormat.walk('tests/dae',
+...                               raisereaderror = True,
+...                               verbose = 1):
 ...     pass
 reading tests/dae/cube.dae
 
 Create a DAE file from scratch and write to file
 ------------------------------------------------
 
->>> root = None #DaeFormat.Root()
+>>> daedata = DaeData() #DaeFormat.Root()
 >>> from tempfile import TemporaryFile
 >>> stream = TemporaryFile()
->>> DaeFormat.write(stream, root)
+>>> daedata.write(stream)
 """
 
 # ***** BEGIN LICENSE BLOCK *****
@@ -72,8 +73,75 @@ import struct
 import os
 import re
 
+import PyFFI.ObjectModels.Data
 from PyFFI.XsdFormat import XsdFileFormat
 from PyFFI.XsdFormat import MetaXsdFileFormat
+
+class DaeError(StandardError):
+    """Exception class used for collada related exceptions."""
+    pass
+
+class DaeData(PyFFI.ObjectModels.Data.Data):
+    """A class to contain the actual collada data."""
+
+    def __init__(self, version = 0x01040100):
+        """Initialize collada data. By default, this creates an empty collada
+        1.4.1 root element.
+
+        @param version: The collada version (for instance, 0x01040100 for
+            1.4.1).
+        @type version: int
+        """
+        self._rootelement = None #DaeFormat.Collada()
+
+    def getRootElement(self):
+        """Get the collada root element (for inspecting or manipulating the
+        data).
+
+        @return: The root element as L{DaeFormat.Collada}.
+        """
+        return self._rootelement
+
+    def getVersion(self):
+        """Get the collada version, as integer (for instance, 1.4.1 would be
+        0x01040100).
+
+        @return: The version, as integer.
+        """
+        return self._rootelement.version
+
+    # overriding PyFFI.ObjectModels.Data.Data methods
+
+    def inspect(self, stream):
+        """Quickly checks whether the stream appears to contain
+        collada data. Resets stream to original position. If the stream
+        turns out to be collada, L{getVersion} is guaranteed to return
+        the version.
+
+        Call this function if you simply wish to check that a file is
+        a collada file without having to parse it completely.
+
+        @param stream: The file to inspect.
+        @type stream: file
+        @return: C{True} if stream is collada, C{False} otherwise.
+        """
+        raise NotImplementedError
+
+    def read(self, stream):
+        """Read collada data from stream.
+
+        @param stream: The file to read from.
+        @type stream: file
+        """
+        raise NotImplementedError
+
+    def write(self, stream):
+        """Write collada data to stream.
+
+        @param stream: The file to write to.
+        @type stream: file
+        """
+        raise NotImplementedError
 
 class DaeFormat(XsdFileFormat):
     """This class implements the DAE format."""
@@ -94,9 +162,4 @@ class DaeFormat(XsdFileFormat):
 
     # implementation of dae-specific basic types
     # TODO
-
-    # exceptions
-    class DaeError(StandardError):
-        """Exception class used for DAE related exceptions."""
-        pass
 
