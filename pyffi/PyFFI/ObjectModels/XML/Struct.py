@@ -323,13 +323,22 @@ class StructBase(object):
         self.arg = kwargs.get('argument')
         # read all attributes
         for attr in self._filteredAttributeList(version, user_version):
-            #print attr.name # debug
             # get attribute argument (can only be done at runtime)
             rt_arg = attr.arg if isinstance(attr.arg, (int, long, NoneType)) \
                      else getattr(self, attr.arg)
             kwargs['argument'] = rt_arg
             # read the attribute
             getattr(self, "_%s_value_" % attr.name).read(stream, **kwargs)
+            ### UNCOMMENT FOR DEBUGGING WHILE READING
+            #print "* %s.%s" % (self.__class__.__name__, attr.name), # debug
+            #val = getattr(self, "_%s_value_" % attr.name) # debug
+            #if isinstance(val, BasicBase): # debug
+            #    try:
+            #        print val.getValue() # debug
+            #    except StandardError:
+            #        pass
+            #else:
+            #    print val.__class__.__name__
 
     def write(self, stream, **kwargs):
         """Write structure to stream."""
