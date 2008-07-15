@@ -97,7 +97,7 @@ class DetailTreeBranch(DetailTreeItem):
         """
         raise NotImplementedError
 
-    def getTreeChild(self, row):
+    def getDetailTreeChild(self, row):
         """Find row'th child. Override this method.
 
         @param row: The row number.
@@ -106,7 +106,7 @@ class DetailTreeBranch(DetailTreeItem):
         """
         raise NotImplementedError
 
-    def getTreeChildRow(self, item):
+    def getDetailTreeChildRow(self, item):
         """Find the row number of the given child. Override this method.
 
         @param item: The child.
@@ -115,7 +115,7 @@ class DetailTreeBranch(DetailTreeItem):
         """
         raise NotImplementedError
 
-    def getTreeChildName(self, item):
+    def getDetailTreeChildName(self, item):
         """Find the name of the given child. Override this method.
 
         @param item: The child.

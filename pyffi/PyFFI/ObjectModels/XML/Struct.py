@@ -582,25 +582,25 @@ class StructBase(object):
         """Return number of items in this structure."""
         return len(self._items)
 
-    def getTreeChild(self, row):
+    def getDetailTreeChild(self, row):
         """Find item at given row."""
         return self._items[row]
 
-    def getTreeChildRow(self, item):
+    def getDetailTreeChildRow(self, item):
         """Find the row number of the given item."""
         for row, otheritem in enumerate(self._items):
             if item is otheritem:
                 return row
         else:
-            raise ValueError("getTreeChildRow(self, item): item not found")
+            raise ValueError("getDetailTreeChildRow(self, item): item not found")
 
-    def getTreeChildName(self, item):
+    def getDetailTreeChildName(self, item):
         """Find the name of the given item."""
         for otheritem, name in izip(self._items, self._names):
             if item is otheritem:
                 return name
         else:
-            raise ValueError("getTreeChildName(self, item): item not found")
+            raise ValueError("getDetailTreeChildName(self, item): item not found")
 
     def getTreeGlobalDataDisplay(self):
         """Construct a convenient name for the block itself."""

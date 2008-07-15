@@ -116,21 +116,21 @@ class _ListWrap(list):
         """Return number of items in this structure."""
         return len(self)
 
-    def getTreeChild(self, row):
+    def getDetailTreeChild(self, row):
         """Find item at given row."""
         return list.__getitem__(self, row)
 
-    def getTreeChildRow(self, item):
+    def getDetailTreeChildRow(self, item):
         """Find the row number of the given item."""
         for row, otheritem in enumerate(list.__iter__(self)):
             if item is otheritem:
                 return row
         else:
-            raise ValueError("getTreeChildRow(self, item): item not found")
+            raise ValueError("getDetailTreeChildRow(self, item): item not found")
 
-    def getTreeChildName(self, item):
+    def getDetailTreeChildName(self, item):
         """Find the name of the given item."""
-        return "[%i]" % self.getTreeChildRow(item)
+        return "[%i]" % self.getDetailTreeChildRow(item)
 
 class Array(_ListWrap):
     """A general purpose class for 1 or 2 dimensional arrays consisting of
