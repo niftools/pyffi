@@ -6,43 +6,29 @@
     common subclass PyFFI.ObjectModels.ComplexType, use these then as base
     classes for ObjectModels.XML.Array and ObjectModels.XML.StructBase
   - use PyFFI.ObjectModels.Tree for all ObjectModels.XXX implementations
-  - upgrade QSkope and XML model to use TreeGlobalBranch instead of the
+  - upgrade QSkope and XML model to use GlobalTreeBranch instead of the
     current ad hoc system with Refs
-  - improve the abstract ObjectModels.Delegate classes (i.e. make them into
+  - improve the abstract ObjectModels.Delegate classes (i.e. naming,
     true abstract base classes, defining a common interface); also perhaps
     think about deriving these delegate classes from TreeLeaf (only leafs have
     editors!)?
   - ditch version and user_version from the ObjectModels interface, and
-    instead introduce a global root element that contains all file information
-    in a way that qskope (and any other program) can handle it in a simpler and
-    format independent way:
-    + common base class for file information: PyFFI.ObjectModels.Data
-    + every fileformat implements an inspect(self, stream) function which
-      returns a PyFFI.ObjectModels.Data instance (NifData, CgfData, ...);
-      "inspect" replaces "getVersion" and its friends (a NifData could
-      implement such functions of course, but they do not need to be assumed)
-    + the read function only takes a stream argument, and returns a Data
-      instance; it calls "inspect" automatically and raises an exception if
-      the file is not supported or not valid
-    + the write function also takes a Data argument instead of version
-      and user_version arguments (possibly some other keyword arguments to
-      tune the export, but these do not need to be assumed)
-    + PyFFI.ObjectModels.Data implements isSupported(), isValid(), and also
-      derives from TreeGlobalBranch because it serves as a root branch for
-      qskope; identify other required functions as we go
-    + the ObjectModels.XML Data implements getVersion which replaces
-      the XmlFileFormat.getVersion function (and maybe some other functions
-      implemented as well?)
+    instead use ObjectModels.Data as a global root element that contains all
+    file information with a minimal format independent interface;
     implementation plan:
-    + implement the abstract base classes
-    + use those fo the XSD parser, in subsequent 2.x.x releases
-    + update the rest to follow the same scheme, when switching from 2.x.x
-      to 3.0.0, and document the 2.x.x -> 3.0.0 migration strategy
+    + use abstract Data and Tree base classes fo the XSD parser, in
+      subsequent 2.x.x releases
+    + update the XML parser to follow the same scheme, when switching from
+      2.x.x to 3.0.0, and document the 2.x.x -> 3.0.0 migration strategy
+    + deprecate the old methods (XxxFormat.read, XxxFormat.write,
+      XxxFormat.getVersion, and so on) in 3.x.x
+    + remove old method in 4.x.x
   - one of the aims is that qskope no longer relies on any
     ObjectModels.XML/ObjectModels.XSD specific implementations; if it only
-    relies on the abstract base classes in ObjectModels.Tree then future
-    expansions are a lot easier to cope with; in particular, qskope should
-    never have to import from ObjectModels.XXX, or Formats.XXX
+    relies on the abstract base classes in ObjectModels.Tree and
+    ObjectModels.Data then future expansions are a lot easier to cope with;
+    in particular, qskope should never have to import from ObjectModels.XXX,
+    or Formats.XXX
 
 * doctests for all spells
 
