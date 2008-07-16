@@ -1,7 +1,15 @@
-Version 1.0.0 (15 Jul 2008)
+Version 1.0.0 (***)
 * new NSIS installer (this solves various issues with Vista, and also
 allows the documentation to be bundled)
-* new filter to prepare collada (.dae) files for CryEngine2
+* new filter to prepare collada (.dae) files for CryEngine2 resource compiler
+  - wraps scenes into CryExportNodes
+  - corrects id/sid naming
+  - renames TS texcoord params to UV
+  - adds phong and lamber shader sid's
+  - enforces material instance symbol to coincide with target
+  - sets material names in correct format for material library and
+  physicalization
+  - properly truncates texture paths
 * started on support for collada format, by parsing the collada xsd schema
 description (this is still far from functional, but an initial parser is
 already included with the library, although it does not yet create any

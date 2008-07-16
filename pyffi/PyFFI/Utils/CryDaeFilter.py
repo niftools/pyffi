@@ -45,6 +45,8 @@ for more details.
 import xml.sax
 import xml.sax.saxutils
 import optparse
+import os.path # basename, splitext
+
 import PyFFI # for PyFFI.__version__
 
 class CryDaeError(StandardError):
@@ -52,52 +54,150 @@ class CryDaeError(StandardError):
     parsing or writing."""
     pass
 
+def translatename(name):
+    """Translate id into valid name."""
+    translation = ""
+    for char in name:
+        if (not char.isalnum()) and char != "_":
+            char = "_"
+        translation += char
+    return translation
+
+class CryDaeInspector(xml.sax.handler.ContentHandler):
+    """Parses dae file and gets useful information that we need when
+    converting the file with CryDaeFilter."""
+
+    def __init__(self, basename=None, matlibraryname=None):
+        """Initialize the parser.
+
+        @param basename: Base name of the CgfExportNode (this will become the
+            cgf file base name).
+        @type basename: str
+        @param matlibraryname: Base name of the material library (this will
+            become the mtl file base name).
+        @type matlibraryname: str
+        """
+        # keep track of materials
+        self.num_materials = 0
+
+        if basename is None:
+            basename = "untitled"
+        self.basename = basename
+
+        if matlibraryname is None:
+            matlibraryname = basename
+        self.matlibraryname = matlibraryname
+
+        self.id_translations = {}
+
+    def startElement(self, name, attrs):
+        for attrname in ("id", "sid"):
+            idvalue = attrs.get(attrname)
+            if idvalue:
+                idcryvalue = translatename(idvalue)
+                if name == "material":
+                    self.num_materials += 1
+                    idcryvalue = ("%s-%02i-%s-phys1"
+                                  % (self.matlibraryname, self.num_materials,
+                                     idcryvalue))
+                # store translation
+                # this will be written in the CryDaeFilter
+                if idvalue != idcryvalue:
+                    self.id_translations[idvalue] = idcryvalue
+        # resource compiler does not properly supports the "symbol" attribute
+        # it must coincide with the target name; workaround is to make the
+        # symbol name translate into the target name
+        if (name == "instance_material"
+            and attrs.get("symbol") and attrs.get("target")
+            and attrs.get("symbol") != attrs.get("target", "#")[1:]):
+            self.id_translations[attrs.get("symbol")] = self.id_translations[attrs.get("target")[1:]]
+
 class CryDaeFilter(xml.sax.saxutils.XMLFilterBase):
     """This class contains all functions for parsing the collada xml file
     and filtering the data so it is acceptable for the Crytek resource
     compiler."""
 
-    def __init__(self, parent, verbose=0, basename=''):
+    def __init__(self, parent, verbose=0, inspector=None):
         """Initialize the filter.
 
         @param parent: The parent XMLReader instance.
         @type parent: XMLReader
         @param verbose: Level of verbosity.
         @type verbose: int
-        @param basename: Base name of the CgfExportNode (this will become the
-            cgf file base name).
-        @type basename: str
+        @param inspector: XML handler which inspected the file before.
+        @type inspector: L{CryDaeInspector}
         """
         # call base constructor
         xml.sax.saxutils.XMLFilterBase.__init__(self, parent)
         # set some parameters
         self.verbose = verbose
-        self.basename = basename
         self.scenenum = 0
         self.stack = []
+        self.inspector = inspector
 
     def startElement(self, name, attrs):
         # update element stack
         self.stack.append(name)
-        # call base startElement
+        # make attrs editable
+        attrs = dict(attrs.items())
+        # translate ids
+        for attrname in ("id", "name", "symbol", "material", "sid", "texture"):
+            idtranslation = self.inspector.id_translations.get(
+                attrs.get(attrname))
+            if idtranslation:
+                if self.verbose:
+                    print("translating %s %s into %s" % (attrname,
+                                                         attrs[attrname],
+                                                         idtranslation))
+                attrs[attrname] = idtranslation
+        for attrname in ("url", "source", "target"):
+            urltranslation = self.inspector.id_translations.get(
+                attrs.get(attrname, "#")[1:])
+            if urltranslation:
+                if self.verbose:
+                    print("translating %s %s into %s" % (attrname,
+                                                          attrs[attrname],
+                                                          "#" + urltranslation))
+                attrs[attrname] = "#" + urltranslation
+        # technique sid=blender -> sid=common
+        if name == "technique":
+            if attrs.get("sid") == "blender":
+                if self.verbose:
+                    print("technique sid=blender converted to sid=common")
+                attrs["sid"] = "common"
+        # uv naming fix
+        if name == "param" and attrs.get("type") == "float":
+            if attrs.get("name") == "S":
+                if self.verbose:
+                    print("param type=float name=S converted to name=U")
+                attrs["name"] = "U"
+            if attrs.get("name") == "T":
+                if self.verbose:
+                    print("param type=float name=T converted to name=V")
+                attrs["name"] = "V"
+        # phong shader sid fix
+        if (name in ("color", "float")
+            and len(self.stack) > 3
+            and self.stack[-3] in ("phong", "lambert")
+            and attrs.get("sid") is None):
+            if self.verbose:
+                print("setting %s %s color sid"
+                      % (self.stack[-3], self.stack[-2]))
+            attrs["sid"] = self.stack[-2]
+        # call base startElement (this will write out the element)
         xml.sax.saxutils.XMLFilterBase.startElement(self, name, attrs)
         # insert extra visual scene CryExportNode
         if name == "visual_scene":
             # insert a node
-            if self.basename:
-                if self.scenenum == 0:
-                    scenename = self.basename
-                else:
-                    scenename = "%s%03i" % (self.basename, self.scenenum)
+            if self.scenenum == 0:
+                scenename = self.inspector.basename
             else:
-                # no base name: use scene name, and fall back on 'untitled'
-                scenename = attrs.get("name", "untitledscene%03i"
-                                      % self.scenenum)
+                scenename = "%s%02i" % (self.inspector.basename, self.scenenum)
             cryexportnodeid = ("CryExportNode_%s-CGF-%s-DoExport-MergeNodes"
                                % (scenename, scenename))
             if self.verbose:
-                print("visual scene '%s'" % scenename)
-                print("  inserting '%s'" % cryexportnodeid)
+                print("visual scene %s:" % scenename)
+                print("  inserting %s" % cryexportnodeid)
             self.startElement("node", {"id": cryexportnodeid})
             self.startElement("translate", {"sid": "translation"})
             self.characters("0 0 0")
@@ -119,13 +219,15 @@ class CryDaeFilter(xml.sax.saxutils.XMLFilterBase):
     def characters(self, chars):
         if (len(self.stack) >= 2
             and self.stack[-2] == "image" and self.stack[-1] == "init_from"):
+            # windows seperators
+            chars = chars.replace("/", "\\")
             # texture path
             idx = chars.lower().find("\\game\\")
             if idx != -1:
                 # texture path relative to Game
                 chars = chars[idx+6:]
                 if self.verbose:
-                    print("truncating texture path '%s'" % chars)
+                    print("truncating texture path %s" % chars)
             else:
                 if self.verbose:
                     print("""\
@@ -135,6 +237,15 @@ WARNING:
   (for example: ...\\Crysis\\Mods\\MyModName\\Game\\Textures\\...\\...)
   but %s
   does not satisfy this requirement.""" % chars)
+        else:
+            # translate names in characters
+            # (sometimes found in init_from and source elements)
+            charstranslate = self.inspector.id_translations.get(chars)
+            if charstranslate:
+                if self.verbose:
+                    print("translating characters %s into %s"
+                          % (chars, charstranslate))
+                chars = charstranslate
 
         # call base characters
         xml.sax.saxutils.XMLFilterBase.characters(self, chars)
@@ -151,7 +262,7 @@ WARNING:
         # call base endElement
         xml.sax.saxutils.XMLFilterBase.endElement(self, name)
 
-def convert(infile, outfile, verbose=0, basename=''):
+def convert(infile, outfile, verbose=0, basename=None, matlibraryname=None):
     """Convert dae file using the CryDaeFilter.
 
     @param infile: The input file.
@@ -159,8 +270,23 @@ def convert(infile, outfile, verbose=0, basename=''):
     @param outfile: The output file.
     @type outfile: file
     """
+    if basename is None:
+        basename = os.path.splitext(os.path.basename(infile.name))[0]
+
+    if matlibraryname is None:
+        matlibraryname = basename
+
+    infile.seek(0)
+    inspector = CryDaeInspector(basename=basename,
+                                matlibraryname=matlibraryname)
+    parser = xml.sax.make_parser()
+    parser.setContentHandler(inspector)
+    parser.parse(infile)
+
+    infile.seek(0)
     parser = CryDaeFilter(xml.sax.make_parser(),
-                          verbose=verbose, basename=basename)
+                          verbose=verbose,
+                          inspector=inspector)
     parser.setContentHandler(xml.sax.saxutils.XMLGenerator(outfile))
     parser.parse(infile)
 
