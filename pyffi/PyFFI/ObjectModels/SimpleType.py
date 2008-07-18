@@ -39,47 +39,16 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-from PyFFI.ObjectModels.Tree import DetailTreeLeaf
+import PyFFI.ObjectModels.AnyType
+import PyFFI.ObjectModels.Tree import
 
 # derives from DetailTreeLeaf because simple types can be displayed in the
 # detail view, as leafs of the display tree
-class SimpleType(DetailTreeLeaf):
+class SimpleType(PyFFI.ObjectModels.AnyType.AnyType,
+                 PyFFI.ObjectModels.Tree.DetailTreeLeaf):
     """Abstract base class from which all simple types are derived. Simple
     types contain data which is not divided further into smaller bits.
-
-    >>> import struct
-    >>> class UInt(SimpleType):
-    ...     def __init__(self, **kwargs):
-    ...         self.__value = 0
-    ...     def read(self, stream, **kwargs):
-    ...         self.__value, = struct.unpack('<I', stream.read(4))
-    ...     def write(self, stream, **kwargs):
-    ...         stream.write(struct.pack('<I', self.__value))
-    ...     def getValue(self):
-    ...         return self.__value
-    ...     def setValue(self, value):
-    ...         self.__value = int(value)
-    >>> x = UInt()
-    >>> x.setValue('123')
-    >>> x.getValue()
-    123
     """
-
-    def read(self, stream, **kwargs):
-        """Read object from file.
-
-        @param stream: The stream to read from.
-        @type stream: file
-        """
-        raise NotImplementedError
-
-    def write(self, stream, **kwargs):
-        """Write object to file.
-
-        @param stream: The stream to write to.
-        @type stream: file
-        """
-        raise NotImplementedError
 
     def getValue(self):
         """Return object value.
@@ -93,14 +62,6 @@ class SimpleType(DetailTreeLeaf):
 
         @param value: The new object value.
         @type value: any (whatever is suitable for the implemented type)
-        """
-        raise NotImplementedError
-
-    def getHash(self, **kwargs):
-        """Returns a hash value (an immutable object) that can be used to
-        identify the object uniquely.
-
-        @return: An immutable object.
         """
         raise NotImplementedError
 
