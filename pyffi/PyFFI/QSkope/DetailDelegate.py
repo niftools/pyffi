@@ -154,7 +154,7 @@ class DetailDelegate(QtGui.QItemDelegate):
         # (see _checkValidEditor for the correct delegate preference order)
         if isinstance(data, EditableComboBox):
             # a combo box: set the index
-            editor.setCurrentIndex(data.qEditableIndex())
+            editor.setCurrentIndex(data.getEditorValue())
         elif isinstance(data, EditableSpinBox):
             # a (possibly float) spinbox: simply set the value
             editor.setValue(value)

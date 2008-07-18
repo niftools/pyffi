@@ -121,7 +121,7 @@ class EditableComboBox(EditableBase):
         """Get the value of an enum index."""
         raise NotImplementedError
 
-    def qEditableIndex(self):
+    def getEditorValue(self):
         """Get current enum index."""
         raise NotImplementedError
 
@@ -140,5 +140,5 @@ class EditableBoolComboBox(EditableComboBox):
         else:
             raise ValueError("no value for index %i" % index)
 
-    def qEditableIndex(self):
+    def getEditorValue(self):
         return 1 if self.getValue() else 0
