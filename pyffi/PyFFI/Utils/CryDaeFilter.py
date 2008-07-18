@@ -46,6 +46,7 @@ import xml.sax
 import xml.sax.saxutils
 import optparse
 import os.path # basename, splitext
+import textwrap # fill
 
 import PyFFI # for PyFFI.__version__
 
@@ -159,12 +160,12 @@ class CryDaeFilter(xml.sax.saxutils.XMLFilterBase):
                                                           attrs[attrname],
                                                           "#" + urltranslation))
                 attrs[attrname] = "#" + urltranslation
-        # technique sid=blender -> sid=common
+        # technique sid=blender -> sid=default
         if name == "technique":
             if attrs.get("sid") == "blender":
                 if self.verbose:
-                    print("technique sid=blender converted to sid=common")
-                attrs["sid"] = "common"
+                    print("technique sid=blender converted to sid=default")
+                attrs["sid"] = "default"
         # uv naming fix
         if name == "param" and attrs.get("type") == "float":
             if attrs.get("name") == "S":
@@ -219,16 +220,15 @@ class CryDaeFilter(xml.sax.saxutils.XMLFilterBase):
     def characters(self, chars):
         if (len(self.stack) >= 2
             and self.stack[-2] == "image" and self.stack[-1] == "init_from"):
-            # windows seperators
-            chars = chars.replace("/", "\\")
-            # texture path
-            idx = chars.lower().find("\\game\\")
-            if idx != -1:
-                # texture path relative to Game
-                chars = chars[idx+6:]
+            if not chars.startswith("file://"):
                 if self.verbose:
-                    print("truncating texture path %s" % chars)
-            else:
+                    print("adding file:// to texture path %s" % chars)
+                chars = "file://" + chars
+            # windows seperators
+            #chars = chars.replace("\\", "/")
+            # texture path
+            idx = chars.lower().find("/game/")
+            if idx == -1:
                 if self.verbose:
                     print("""\
 WARNING:
@@ -246,6 +246,13 @@ WARNING:
                     print("translating characters %s into %s"
                           % (chars, charstranslate))
                 chars = charstranslate
+
+        # wrap long lines for improved readability
+        #if len(chars) > 79:
+        #    chars = textwrap.fill(chars, 79, break_long_words=False)
+        #if len(chars) > 79:
+        #    print("num elements %i" % len(chars.split()))
+        #    print(chars.split())
 
         # call base characters
         xml.sax.saxutils.XMLFilterBase.characters(self, chars)
