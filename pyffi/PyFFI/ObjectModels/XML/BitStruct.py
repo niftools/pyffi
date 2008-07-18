@@ -153,10 +153,10 @@ class Bits(EditableSpinBox):
     def setEditorValue(self, editorvalue):
         self.setValue(editorvalue)
 
-    def qEditableMinimum(self):
+    def getEditorMinimum(self):
         return 0
 
-    def qEditableMaximum(self):
+    def getEditorMaximum(self):
         return (1 << self._numbits) - 1
 
 class BitStructBase(object):

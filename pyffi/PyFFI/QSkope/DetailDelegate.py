@@ -112,21 +112,21 @@ class DetailDelegate(QtGui.QItemDelegate):
         if isinstance(data, EditableComboBox):
             # a general purpose combo box
             editor = QtGui.QComboBox(parent)
-            for key in data.qEditableKeys():
+            for key in data.getEditorKeys():
                 editor.addItem(key)
         elif isinstance(data, EditableFloatSpinBox):
             # a spinbox for floats
             editor = QtGui.QDoubleSpinBox(parent)
-            editor.setMinimum(data.qEditableMinimum())
-            editor.setMaximum(data.qEditableMaximum())
-            editor.setDecimals(data.qEditableDecimals())
+            editor.setMinimum(data.getEditorMinimum())
+            editor.setMaximum(data.getEditorMaximum())
+            editor.setDecimals(data.getEditorDecimals())
         elif isinstance(data, EditableSpinBox):
             # an integer spin box
             editor = QtGui.QSpinBox(parent)
-            editor.setMinimum(data.qEditableMinimum())
+            editor.setMinimum(data.getEditorMinimum())
             # work around a qt "bug": maximum must be C type "int"
             # so cannot be larger than 0x7fffffff
-            editor.setMaximum(min(data.qEditableMaximum(), 0x7fffffff))
+            editor.setMaximum(min(data.getEditorMaximum(), 0x7fffffff))
         elif isinstance(data, EditableTextEdit):
             # a text editor
             editor = QtGui.QTextEdit(parent)

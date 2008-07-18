@@ -149,14 +149,14 @@ class Int(BasicBase, EditableSpinBox):
         """
         return self.getValue()
 
-    def qEditableMinimum(self):
+    def getEditorMinimum(self):
         """Minimum possible value.
 
         @return: Minimum possible value.
         """
         return self._min
 
-    def qEditableMaximum(self):
+    def getEditorMaximum(self):
         """Maximum possible value.
 
         @return: Maximum possible value.

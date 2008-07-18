@@ -66,26 +66,26 @@ class EditableBase(object):
 
 class EditableSpinBox(EditableBase):
     """Abstract base class for data that can be edited with a spin box that
-    contains an integer. Override qEditableMinimum and qEditableMaximum to
+    contains an integer. Override getEditorMinimum and getEditorMaximum to
     set the minimum and maximum values that the spin box may contain.
 
     Requirement: getEditorValue must return an C{int}, setEditorValue
     must take an C{int}.
     """
-    def qEditableMinimum(self):
+    def getEditorMinimum(self):
         return -0x80000000
 
-    def qEditableMaximum(self):
+    def getEditorMaximum(self):
         return 0x7fffffff
 
 class EditableFloatSpinBox(EditableSpinBox):
     """Abstract base class for data that can be edited with a spin box that
-    contains a float. Override qEditableDecimals to set the number of decimals
+    contains a float. Override getEditorDecimals to set the number of decimals
     in the editor display.
 
     Requirement: getValue must return a float."""
 
-    def qEditableDecimals(self):
+    def getEditorDecimals(self):
         return 5
 
 class EditableLineEdit(EditableBase):
@@ -94,12 +94,6 @@ class EditableLineEdit(EditableBase):
 
     Requirement: getValue must return a string."""
     pass
-    #def qEditableDisplay(self):
-    #    val = self.getValue()
-    #    if len(val) > 32:
-    #        return val[:29] + "..."
-    #    else:
-    #        return val
 
 class EditableTextEdit(EditableLineEdit):
     """Abstract base class for data that can be edited with a multiline editor.
@@ -113,7 +107,7 @@ class EditableComboBox(EditableBase):
 
     Requirement: getValue must return an integer."""
 
-    def qEditableKeys(self):
+    def getEditorKeys(self):
         """List or tuple of strings, each string describing an item."""
         return []
 
@@ -121,7 +115,7 @@ class EditableBoolComboBox(EditableComboBox):
     """Abstract base class for data that can be edited with a bool combo box.
 
     Requirement: getValue must return a bool."""
-    def qEditableKeys(self):
+    def getEditorKeys(self):
         return ("False", "True")
 
     def setEditorValue(self, editorvalue):
