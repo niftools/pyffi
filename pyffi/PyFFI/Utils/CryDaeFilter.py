@@ -166,16 +166,6 @@ class CryDaeFilter(xml.sax.saxutils.XMLFilterBase):
                 if self.verbose:
                     print("technique sid=blender converted to sid=default")
                 attrs["sid"] = "default"
-        # uv naming fix
-        if name == "param" and attrs.get("type") == "float":
-            if attrs.get("name") == "S":
-                if self.verbose:
-                    print("param type=float name=S converted to name=U")
-                attrs["name"] = "U"
-            if attrs.get("name") == "T":
-                if self.verbose:
-                    print("param type=float name=T converted to name=V")
-                attrs["name"] = "V"
         # phong shader sid fix
         if (name in ("color", "float")
             and len(self.stack) > 3
@@ -220,6 +210,8 @@ class CryDaeFilter(xml.sax.saxutils.XMLFilterBase):
     def characters(self, chars):
         if (len(self.stack) >= 2
             and self.stack[-2] == "image" and self.stack[-1] == "init_from"):
+            # windows seperators -> platform independent seperators
+            chars = chars.replace("\\", "/")
             if not chars.startswith("file://"):
                 if self.verbose:
                     print("adding file:// to texture path %s" % chars)
