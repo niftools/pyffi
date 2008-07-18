@@ -380,7 +380,7 @@ from PyFFI import MetaXmlFileFormat
 from PyFFI import Utils
 from PyFFI import Common
 from PyFFI.ObjectModels.XML.Basic import BasicBase
-from PyFFI.ObjectModels.Delegate import DelegateBoolComboBox
+from PyFFI.ObjectModels.Editable import EditableBoolComboBox
 
 class NifFormat(XmlFileFormat):
     __metaclass__ = MetaXmlFileFormat
@@ -417,7 +417,7 @@ class NifFormat(XmlFileFormat):
             Common.Int.__init__(self, **kwargs)
             self.setValue(-1)
 
-    class bool(BasicBase, DelegateBoolComboBox):
+    class bool(BasicBase, EditableBoolComboBox):
         """Basic implementation of a 32-bit (8-bit for versions > 4.0.0.2)
         boolean type.
 
