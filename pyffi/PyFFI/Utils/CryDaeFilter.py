@@ -211,7 +211,9 @@ class CryDaeFilter(xml.sax.saxutils.XMLFilterBase):
         if (len(self.stack) >= 2
             and self.stack[-2] == "image" and self.stack[-1] == "init_from"):
             # windows seperators -> platform independent seperators
-            chars = chars.replace("\\", "/")
+            if "\\" in chars:
+                print("forcing separators to '/' in texture path %s" % chars)
+                chars = chars.replace("\\", "/")
             if not chars.startswith("file://"):
                 if self.verbose:
                     print("adding file:// to texture path %s" % chars)
