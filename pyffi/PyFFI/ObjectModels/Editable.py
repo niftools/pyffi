@@ -2,6 +2,10 @@
 
 These abstract base classes provide an abstract layer for editing data in a
 graphical user interface.
+
+@todo: Make these into true abstract base classes, and implement and use the
+    getEditorValue and setEditorValue functions in non-abstract derived
+    classes.
 """
 
 # ***** BEGIN LICENSE BLOCK *****
@@ -43,15 +47,31 @@ graphical user interface.
 
 class EditableBase(object):
     """The base class for all delegates."""
-    def qEditableDisplay(self):
-        return self.getValue()
+    def getEditorValue(self):
+        """Return data as a value to initialize an editor with.
+        Override this method.
+
+        @return: A value for the editor.
+        """
+        raise NotImplementedError
+
+    def setEditorValue(self, editorvalue):
+        """Set data from the editor value. Override this method.
+
+        @param editorvalue: The value of the editor.
+        @type editorvalue: any (whatever is appropriate for the particular
+            implementation of the editor)
+        """
+        raise NotImplementedError
 
 class EditableSpinBox(EditableBase):
     """Abstract base class for data that can be edited with a spin box that
     contains an integer. Override qEditableMinimum and qEditableMaximum to
     set the minimum and maximum values that the spin box may contain.
 
-    Requirement: getValue must return an integer."""
+    Requirement: getEditorValue must return an C{int}, setEditorValue
+    must take an C{int}.
+    """
     def qEditableMinimum(self):
         return -0x80000000
 
@@ -73,12 +93,13 @@ class EditableLineEdit(EditableBase):
     editor.
 
     Requirement: getValue must return a string."""
-    def qEditableDisplay(self):
-        val = self.getValue()
-        if len(val) > 32:
-            return val[:29] + "..."
-        else:
-            return val
+    pass
+    #def qEditableDisplay(self):
+    #    val = self.getValue()
+    #    if len(val) > 32:
+    #        return val[:29] + "..."
+    #    else:
+    #        return val
 
 class EditableTextEdit(EditableLineEdit):
     """Abstract base class for data that can be edited with a multiline editor.
