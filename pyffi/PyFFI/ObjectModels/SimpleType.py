@@ -40,7 +40,7 @@
 # --------------------------------------------------------------------------
 
 import PyFFI.ObjectModels.AnyType
-import PyFFI.ObjectModels.Tree import
+import PyFFI.ObjectModels.Tree
 
 # derives from DetailTreeLeaf because simple types can be displayed in the
 # detail view, as leafs of the display tree
