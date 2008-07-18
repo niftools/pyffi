@@ -91,24 +91,22 @@ class AnyType:
         # compare generator results
         self_idgen = self.identityGenerator()
         other_idgen = other.identityGenerator()
-        for self_id, other_id in izip(self_idgen, other_idgen):
+        for self_id in self_idgen:
+            try:
+                other_id = other_idgen.next()
+            except StopIteration:
+                # other has less data
+                return False
             if self_id != other_id:
                 return False
-        # check that generators are done
-        try:
-            self_idgen.next()
-        except StopIteration:
-            pass
-        else:
-            return False
+        # check that other generator is done as well
         try:
             other_idgen.next()
         except StopIteration:
-            pass
+            return True
         else:
+            # other has trailing data
             return False
-        # equal
-        return True
 
     def __neq__(self, other):
         """Check inequality, using L{identityGenerator}.
