@@ -218,8 +218,8 @@ may destroy them. Make a backup of your files before running this script.
     # these are exactly the arguments accepted by write, so it identifies
     # the file uniquely
     for walkresult in format.walkFile(
-        top, raisereaderror = raisereaderror,
-        verbose = min(1, verbose), mode = 'rb' if readonly else 'r+b'):
+        top, raisereaderror=raisereaderror,
+        verbose=verbose, mode='rb' if readonly else 'r+b'):
 
         # result from read
         readresult = walkresult[3:]
