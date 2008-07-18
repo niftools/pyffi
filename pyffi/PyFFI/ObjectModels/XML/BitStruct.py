@@ -147,12 +147,17 @@ class Bits(EditableSpinBox):
 
     # EditableSpinBox functions
 
+    def getEditorValue(self):
+        return self.getValue()
+
+    def setEditorValue(self, editorvalue):
+        self.setValue(editorvalue)
+
     def qEditableMinimum(self):
         return 0
 
     def qEditableMaximum(self):
         return (1 << self._numbits) - 1
-
 
 class BitStructBase(object):
     """Base class from which all file bitstruct types are derived.

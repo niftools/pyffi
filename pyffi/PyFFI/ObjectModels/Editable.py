@@ -117,14 +117,6 @@ class EditableComboBox(EditableBase):
         """List or tuple of strings, each string describing an item."""
         return []
 
-    def qEditableValue(self, index):
-        """Get the value of an enum index."""
-        raise NotImplementedError
-
-    def getEditorValue(self):
-        """Get current enum index."""
-        raise NotImplementedError
-
 class EditableBoolComboBox(EditableComboBox):
     """Abstract base class for data that can be edited with a bool combo box.
 
@@ -132,13 +124,14 @@ class EditableBoolComboBox(EditableComboBox):
     def qEditableKeys(self):
         return ("False", "True")
 
-    def qEditableValue(self, index):
-        if index == 0:
-            return False
-        elif index == 1:
-            return True
+    def setEditorValue(self, editorvalue):
+        if editorvalue == 0:
+            self.setValue(False)
+        elif editorvalue == 1:
+            self.setValue(True)
         else:
-            raise ValueError("no value for index %i" % index)
+            raise ValueError("no value for index %i" % editorvalue)
 
     def getEditorValue(self):
         return 1 if self.getValue() else 0
+

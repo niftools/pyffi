@@ -151,12 +151,12 @@ class EnumBase(BasicBase,EditableComboBox):
         """List or tuple of strings, each string describing an item."""
         return self._enumkeys
 
-    def qEditableValue(self, index):
-        """List or tuple of strings, each string describing an item."""
-        return self._enumvalues[index]
+    def setEditorValue(self, index):
+        """Set value from item index."""
+        self.setValue(self._enumvalues[index])
 
     def getEditorValue(self):
-        """Get the value of an item string."""
+        """Get the item index from the enum value."""
         return self._enumvalues.index(self._value)
 
     def getDetailTreeDataDisplay(self):

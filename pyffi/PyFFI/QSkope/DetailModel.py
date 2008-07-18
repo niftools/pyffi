@@ -82,7 +82,9 @@ class DetailModel(QtCore.QAbstractItemModel):
         return QtCore.Qt.ItemFlags(flags)
 
     def data(self, index, role):
-        """Return the data of model index in a particular role."""
+        """Return the data of model index in a particular role. Only
+        QtCore.Qt.DisplayRole is implemented.
+        """
         # check if the index is valid
         # check if the role is supported
         if not index.isValid() or role != QtCore.Qt.DisplayRole:
@@ -192,7 +194,9 @@ class DetailModel(QtCore.QAbstractItemModel):
         return self.createIndex(row, 0, parentData)
 
     def setData(self, index, value, role):
-        """Set data of a given index from given QVariant value."""
+        """Set data of a given index from given QVariant value. Only
+        QtCore.Qt.EditRole is implemented.
+        """
         if role == QtCore.Qt.EditRole:
             # fetch the current data, as a regular Python type
             data = index.internalPointer()
@@ -214,8 +218,8 @@ class DetailModel(QtCore.QAbstractItemModel):
             # check if conversion worked
             if not ok:
                 return False
-            # set the value
-            data.setValue(pyvalue)
+            # set the value (EditRole, so use setEditorValue, not setValue)
+            data.setEditorValue(pyvalue)
             # tell everyone that the data has changed
             self.emit(QtCore.SIGNAL('dataChanged(QModelIndex, QModelIndex)'),
                                     index, index)

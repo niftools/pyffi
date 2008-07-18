@@ -168,3 +168,14 @@ class BasicBase(object):
         """Return an object that can be used to display the instance."""
         return self.getValue()
 
+    # editor functions: default implementation assumes that the value is
+    # also suitable for an editor; override if not
+
+    def getEditorValue(self):
+        """Return value suitable for editor."""
+        return self.getValue()
+
+    def setEditorValue(self, editorvalue):
+        """Set value from editor value."""
+        return self.setValue(editorvalue)
+

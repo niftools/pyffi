@@ -147,20 +147,20 @@ class DetailDelegate(QtGui.QItemDelegate):
             return None
         # determine the data and its value
         data = index.internalPointer()
-        value = data.getValue()
+        editorvalue = data.getEditorValue()
         # check validity of editor
         self._checkValidEditor(data, editor)
         # set editor data
         # (see _checkValidEditor for the correct delegate preference order)
         if isinstance(data, EditableComboBox):
             # a combo box: set the index
-            editor.setCurrentIndex(data.getEditorValue())
+            editor.setCurrentIndex(editorvalue)
         elif isinstance(data, EditableSpinBox):
             # a (possibly float) spinbox: simply set the value
-            editor.setValue(value)
+            editor.setValue(editorvalue)
         elif isinstance(data, EditableLineEdit):
             # a text editor: set the text
-            editor.setText(value)
+            editor.setText(editorvalue)
 
     def updateEditorGeometry(self, editor, option, index):
         """Ensures that the editor is displayed correctly with respect to the
@@ -180,17 +180,19 @@ class DetailDelegate(QtGui.QItemDelegate):
         # (see _checkValidEditor for the correct delegate preference order)
         if isinstance(data, EditableComboBox):
             # a combo box: get the value from the current index
-            value = data.qEditableValue(editor.currentIndex())
+            editorvalue = editor.currentIndex()
         elif isinstance(data, EditableSpinBox):
             # a regular (float) spin box
-            value = editor.value()
+            editorvalue = editor.value()
         elif isinstance(data, EditableLineEdit):
             # a text editor
-            value = editor.text()
+            editorvalue = editor.text()
         else:
             # should not happen: no editor
             print("WARNING: cannot set model data for type %s"
                   % data.__class__.__name__)
             return
         # set the model data
-        model.setData(index, QtCore.QVariant(value), QtCore.Qt.EditRole)
+        # EditRole ensures that setData uses setEditorValue to set the data
+        model.setData(index, QtCore.QVariant(editorvalue), QtCore.Qt.EditRole)
+
