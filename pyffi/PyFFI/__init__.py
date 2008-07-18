@@ -379,7 +379,7 @@ class XmlFileFormat(object):
                     # we got it, so now read the file
                     if verbose >= 2:
                         print("version      0x%08X" % version)
-                        print("user version 0x%08X" % version)
+                        print("user version 0x%08X" % user_version)
                     try:
                         # return (version, stream) + result of read
                         result = cls.read(stream,

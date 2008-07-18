@@ -18,11 +18,11 @@ is the input working? yes it is
 >>> # copy file to avoid overwriting
 >>> import shutil
 >>> shutil.copyfile("tests/nif/test.nif", "tests/nif/_test.nif")
->>> # simulate calling "niftoaster.py optimize --verbose=99 tests/nif/_test.nif"
+>>> # simulate calling "niftoaster.py optimize --verbose=1 tests/nif/_test.nif"
 >>> import sys
 >>> sys.path.append("scripts/NIF")
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "optimize", "--verbose=99", "tests/nif/_test.nif"]
+>>> sys.argv = ["niftoaster.py", "optimize", "--verbose=1", "tests/nif/_test.nif"]
 >>> niftoaster.main() # doctest: +ELLIPSIS
 This script will modify your files, in particular if something goes wrong it
 may destroy them. Make a backup of your files before running this script.
@@ -57,11 +57,11 @@ Non-interactive
 >>> # copy file to avoid overwriting
 >>> import shutil
 >>> shutil.copyfile("tests/nif/test.nif", "tests/nif/_test.nif")
->>> # simulate calling "niftoaster.py optimize --verbose=99 tests/nif/_test.nif"
+>>> # simulate calling "niftoaster.py optimize --verbose=1 tests/nif/_test.nif"
 >>> import sys
 >>> sys.path.append("scripts/NIF")
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "optimize", "--noninteractive", "--verbose=99", "tests/nif/_test.nif"]
+>>> sys.argv = ["niftoaster.py", "optimize", "--noninteractive", "--verbose=1", "tests/nif/_test.nif"]
 >>> niftoaster.main() # doctest: +ELLIPSIS
 reading tests/nif/_test.nif
 checking for duplicate source textures
