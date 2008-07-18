@@ -46,7 +46,7 @@ from functools import partial
 from itertools import izip
 import struct
 
-from PyFFI.ObjectModels.Delegate import DelegateSpinBox # for Bits
+from PyFFI.ObjectModels.Editable import EditableSpinBox # for Bits
 
 class _MetaBitStructBase(type):
     """This metaclass checks for the presence of a _attrs attribute.
@@ -91,7 +91,7 @@ class _MetaBitStructBase(type):
         # precalculate the attribute name list
         cls._names = cls._getNames()
 
-class Bits(DelegateSpinBox):
+class Bits(EditableSpinBox):
     """Basic implementation of a n-bit unsigned integer type (without read
     and write)."""
     def __init__(self, numbits = 1, default = 0, parent = None):
@@ -145,12 +145,12 @@ class Bits(DelegateSpinBox):
         """Return an object that can be used to display the instance."""
         return self._value
 
-    # DelegateSpinBox functions
+    # EditableSpinBox functions
 
-    def qDelegateMinimum(self):
+    def qEditableMinimum(self):
         return 0
 
-    def qDelegateMaximum(self):
+    def qEditableMaximum(self):
         return (1 << self._numbits) - 1
 
 

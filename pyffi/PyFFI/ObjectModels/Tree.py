@@ -206,7 +206,7 @@ class DetailTreeLeaf(DetailTreeItem):
 
     The function L{getDetailTreeDataDisplay} controls the display of the data. If the
     data must be editable, also derive the class from one of the delegate
-    classes defined in L{PyFFI.ObjectModels.Delegate}, and make sure that the
+    classes defined in L{PyFFI.ObjectModels.Editable}, and make sure that the
     getValue and setValue functions are implemented.
     """
 

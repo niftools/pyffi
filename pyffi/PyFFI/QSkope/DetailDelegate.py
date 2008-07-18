@@ -40,12 +40,12 @@
 from PyQt4 import QtCore, QtGui
 
 # each delegate type corresponds to a QtGui delegate type
-# (see _checkValidDelegate for more details)
-from PyFFI.ObjectModels.Delegate import DelegateComboBox     # -> QComboBox
-from PyFFI.ObjectModels.Delegate import DelegateFloatSpinBox # -> QDoubleSpinBox
-from PyFFI.ObjectModels.Delegate import DelegateSpinBox      # -> QSpinBox
-from PyFFI.ObjectModels.Delegate import DelegateTextEdit     # -> QTextEdit
-from PyFFI.ObjectModels.Delegate import DelegateLineEdit     # -> QLineEdit
+# (see _checkValidEditor for more details)
+from PyFFI.ObjectModels.Editable import EditableComboBox     # -> QComboBox
+from PyFFI.ObjectModels.Editable import EditableFloatSpinBox # -> QDoubleSpinBox
+from PyFFI.ObjectModels.Editable import EditableSpinBox      # -> QSpinBox
+from PyFFI.ObjectModels.Editable import EditableTextEdit     # -> QTextEdit
+from PyFFI.ObjectModels.Editable import EditableLineEdit     # -> QLineEdit
 
 # implementation details:
 # http://doc.trolltech.com/4.3/model-view-delegate.html
@@ -53,7 +53,7 @@ from PyFFI.ObjectModels.Delegate import DelegateLineEdit     # -> QLineEdit
 class DetailDelegate(QtGui.QItemDelegate):
     """Defines an editor for data in the detail view."""
 
-    def _checkValidDelegate(self, data, editor):
+    def _checkValidEditor(self, data, editor):
         """This function checks that the delegate class has the correct editor.
         If data and editor do not correspond to one another, then a ValueError is
         raised.
@@ -76,19 +76,19 @@ class DetailDelegate(QtGui.QItemDelegate):
         # check combo box
         # (some combo types may also derive from spin box such as bools,
         # in that case prefer the combo box representation)
-        if isinstance(data, DelegateComboBox):
+        if isinstance(data, EditableComboBox):
             isvalid = isinstance(editor, QtGui.QComboBox)
         # check float spin box
-        elif isinstance(data, DelegateFloatSpinBox):
+        elif isinstance(data, EditableFloatSpinBox):
             isvalid = isinstance(editor, QtGui.QDoubleSpinBox)
         # check spin box
-        elif isinstance(data, DelegateSpinBox):
+        elif isinstance(data, EditableSpinBox):
             isvalid = isinstance(editor, QtGui.QSpinBox)
         # check text editor
-        elif isinstance(data, DelegateTextEdit):
+        elif isinstance(data, EditableTextEdit):
             isvalid = isinstance(editor, QtGui.QTextEdit)
         # check line editor
-        elif isinstance(data, DelegateLineEdit):
+        elif isinstance(data, EditableLineEdit):
             isvalid = isinstance(editor, QtGui.QLineEdit)
         else:
             # data has no delegate class, which is classified as invalid
@@ -108,35 +108,35 @@ class DetailDelegate(QtGui.QItemDelegate):
         # get the data
         data = index.internalPointer()
         # determine editor by checking for delegate base classes
-        # (see _checkValidDelegate for the correct delegate preference order)
-        if isinstance(data, DelegateComboBox):
+        # (see _checkValidEditor for the correct delegate preference order)
+        if isinstance(data, EditableComboBox):
             # a general purpose combo box
             editor = QtGui.QComboBox(parent)
-            for key in data.qDelegateKeys():
+            for key in data.qEditableKeys():
                 editor.addItem(key)
-        elif isinstance(data, DelegateFloatSpinBox):
+        elif isinstance(data, EditableFloatSpinBox):
             # a spinbox for floats
             editor = QtGui.QDoubleSpinBox(parent)
-            editor.setMinimum(data.qDelegateMinimum())
-            editor.setMaximum(data.qDelegateMaximum())
-            editor.setDecimals(data.qDelegateDecimals())
-        elif isinstance(data, DelegateSpinBox):
+            editor.setMinimum(data.qEditableMinimum())
+            editor.setMaximum(data.qEditableMaximum())
+            editor.setDecimals(data.qEditableDecimals())
+        elif isinstance(data, EditableSpinBox):
             # an integer spin box
             editor = QtGui.QSpinBox(parent)
-            editor.setMinimum(data.qDelegateMinimum())
+            editor.setMinimum(data.qEditableMinimum())
             # work around a qt "bug": maximum must be C type "int"
             # so cannot be larger than 0x7fffffff
-            editor.setMaximum(min(data.qDelegateMaximum(), 0x7fffffff))
-        elif isinstance(data, DelegateTextEdit):
+            editor.setMaximum(min(data.qEditableMaximum(), 0x7fffffff))
+        elif isinstance(data, EditableTextEdit):
             # a text editor
             editor = QtGui.QTextEdit(parent)
-        elif isinstance(data, DelegateLineEdit):
+        elif isinstance(data, EditableLineEdit):
             # a line editor
             editor = QtGui.QLineEdit(parent)
         else:
             return None
         # check validity
-        self._checkValidDelegate(data, editor)
+        self._checkValidEditor(data, editor)
         # return the editor
         return editor
 
@@ -149,16 +149,16 @@ class DetailDelegate(QtGui.QItemDelegate):
         data = index.internalPointer()
         value = data.getValue()
         # check validity of editor
-        self._checkValidDelegate(data, editor)
+        self._checkValidEditor(data, editor)
         # set editor data
-        # (see _checkValidDelegate for the correct delegate preference order)
-        if isinstance(data, DelegateComboBox):
+        # (see _checkValidEditor for the correct delegate preference order)
+        if isinstance(data, EditableComboBox):
             # a combo box: set the index
-            editor.setCurrentIndex(data.qDelegateIndex())
-        elif isinstance(data, DelegateSpinBox):
+            editor.setCurrentIndex(data.qEditableIndex())
+        elif isinstance(data, EditableSpinBox):
             # a (possibly float) spinbox: simply set the value
             editor.setValue(value)
-        elif isinstance(data, DelegateLineEdit):
+        elif isinstance(data, EditableLineEdit):
             # a text editor: set the text
             editor.setText(value)
 
@@ -175,16 +175,16 @@ class DetailDelegate(QtGui.QItemDelegate):
         # get the data
         data = index.internalPointer()
         # check validity of editor
-        self._checkValidDelegate(data, editor)
+        self._checkValidEditor(data, editor)
         # set model data from editor value
-        # (see _checkValidDelegate for the correct delegate preference order)
-        if isinstance(data, DelegateComboBox):
+        # (see _checkValidEditor for the correct delegate preference order)
+        if isinstance(data, EditableComboBox):
             # a combo box: get the value from the current index
-            value = data.qDelegateValue(editor.currentIndex())
-        elif isinstance(data, DelegateSpinBox):
+            value = data.qEditableValue(editor.currentIndex())
+        elif isinstance(data, EditableSpinBox):
             # a regular (float) spin box
             value = editor.value()
-        elif isinstance(data, DelegateLineEdit):
+        elif isinstance(data, EditableLineEdit):
             # a text editor
             value = editor.text()
         else:

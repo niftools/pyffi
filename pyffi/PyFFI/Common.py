@@ -39,12 +39,12 @@
 
 import struct
 from PyFFI.ObjectModels.XML.Basic import BasicBase
-from PyFFI.ObjectModels.Delegate import DelegateSpinBox
-from PyFFI.ObjectModels.Delegate import DelegateFloatSpinBox
-from PyFFI.ObjectModels.Delegate import DelegateLineEdit
-from PyFFI.ObjectModels.Delegate import DelegateBoolComboBox
+from PyFFI.ObjectModels.Editable import EditableSpinBox
+from PyFFI.ObjectModels.Editable import EditableFloatSpinBox
+from PyFFI.ObjectModels.Editable import EditableLineEdit
+from PyFFI.ObjectModels.Editable import EditableBoolComboBox
 
-class Int(BasicBase, DelegateSpinBox):
+class Int(BasicBase, EditableSpinBox):
     """Basic implementation of a 32-bit signed integer type. Also serves as a
     base class for all other integer types.
 
@@ -149,14 +149,14 @@ class Int(BasicBase, DelegateSpinBox):
         """
         return self.getValue()
 
-    def qDelegateMinimum(self):
+    def qEditableMinimum(self):
         """Minimum possible value.
 
         @return: Minimum possible value.
         """
         return self._min
 
-    def qDelegateMaximum(self):
+    def qEditableMaximum(self):
         """Maximum possible value.
 
         @return: Maximum possible value.
@@ -198,7 +198,7 @@ class UShort(UInt):
     _struct = 'H'
     _size = 2
 
-class Bool(UByte, DelegateBoolComboBox):
+class Bool(UByte, EditableBoolComboBox):
     """Simple bool implementation."""
 
     def getValue(self):
@@ -216,7 +216,7 @@ class Bool(UByte, DelegateBoolComboBox):
         """
         self._value = '\x01' if value else '\x00'
 
-class Char(BasicBase, DelegateLineEdit):
+class Char(BasicBase, EditableLineEdit):
     """Implementation of an 8-bit ASCII character."""
 
     def __init__(self, **kwargs):
@@ -274,7 +274,7 @@ class Char(BasicBase, DelegateLineEdit):
         """
         self.getValue()
 
-class Float(BasicBase, DelegateFloatSpinBox):
+class Float(BasicBase, EditableFloatSpinBox):
     """Implementation of a 32-bit float."""
 
     def __init__(self, **kwargs):
@@ -328,7 +328,7 @@ class Float(BasicBase, DelegateFloatSpinBox):
         """
         return int(self.getValue()*200)
 
-class ZString(BasicBase, DelegateLineEdit):
+class ZString(BasicBase, EditableLineEdit):
     """String of variable length (null terminated).
 
     >>> from tempfile import TemporaryFile
@@ -420,7 +420,7 @@ class ZString(BasicBase, DelegateLineEdit):
         """
         return self._value
 
-class FixedString(BasicBase, DelegateLineEdit):
+class FixedString(BasicBase, EditableLineEdit):
     """String of fixed length. Default length is 0, so you must override
     this class and set the _len class variable.
 
@@ -506,7 +506,7 @@ class FixedString(BasicBase, DelegateLineEdit):
         """
         return self._value
 
-class SizedString(BasicBase, DelegateLineEdit):
+class SizedString(BasicBase, EditableLineEdit):
     """Basic type for strings. The type starts with an unsigned int which
     describes the length of the string.
 

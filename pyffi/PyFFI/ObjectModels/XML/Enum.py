@@ -41,7 +41,7 @@ import struct
 from itertools import izip
 
 from PyFFI.ObjectModels.XML.Basic import BasicBase
-from PyFFI.ObjectModels.Delegate import DelegateComboBox
+from PyFFI.ObjectModels.Editable import EditableComboBox
 
 class _MetaEnumBase(type):
     """This metaclass checks for the presence of _enumkeys, _enumvalues,
@@ -85,7 +85,7 @@ class _MetaEnumBase(type):
         for item, value in izip(cls._enumkeys, cls._enumvalues):
             setattr(cls, item, value)
 
-class EnumBase(BasicBase,DelegateComboBox):
+class EnumBase(BasicBase,EditableComboBox):
     __metaclass__ = _MetaEnumBase
     _enumkeys = []
     _enumvalues = []
@@ -144,18 +144,18 @@ class EnumBase(BasicBase,DelegateComboBox):
         return self.getValue()
 
     #
-    # DelegateComboBox methods
+    # EditableComboBox methods
     #
 
-    def qDelegateKeys(self):
+    def qEditableKeys(self):
         """List or tuple of strings, each string describing an item."""
         return self._enumkeys
 
-    def qDelegateValue(self, index):
+    def qEditableValue(self, index):
         """List or tuple of strings, each string describing an item."""
         return self._enumvalues[index]
 
-    def qDelegateIndex(self):
+    def qEditableIndex(self):
         """Get the value of an item string."""
         return self._enumvalues.index(self._value)
 

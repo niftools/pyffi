@@ -1,7 +1,8 @@
-"""Implements delegate (for editors and so on) base classes.
+"""Implements abstract editor base classes.
 
-These abstract classes determine how a type can be displayed in for instance
-a GUI."""
+These abstract base classes provide an abstract layer for editing data in a
+graphical user interface.
+"""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -40,77 +41,77 @@ a GUI."""
 #
 # ***** END LICENSE BLOCK *****
 
-class DelegateBase(object):
+class EditableBase(object):
     """The base class for all delegates."""
-    def qDelegateDisplay(self):
+    def qEditableDisplay(self):
         return self.getValue()
 
-class DelegateSpinBox(DelegateBase):
+class EditableSpinBox(EditableBase):
     """Abstract base class for data that can be edited with a spin box that
-    contains an integer. Override qDelegateMinimum and qDelegateMaximum to
+    contains an integer. Override qEditableMinimum and qEditableMaximum to
     set the minimum and maximum values that the spin box may contain.
 
     Requirement: getValue must return an integer."""
-    def qDelegateMinimum(self):
+    def qEditableMinimum(self):
         return -0x80000000
 
-    def qDelegateMaximum(self):
+    def qEditableMaximum(self):
         return 0x7fffffff
 
-class DelegateFloatSpinBox(DelegateSpinBox):
+class EditableFloatSpinBox(EditableSpinBox):
     """Abstract base class for data that can be edited with a spin box that
-    contains a float. Override qDelegateDecimals to set the number of decimals
+    contains a float. Override qEditableDecimals to set the number of decimals
     in the editor display.
 
     Requirement: getValue must return a float."""
 
-    def qDelegateDecimals(self):
+    def qEditableDecimals(self):
         return 5
 
-class DelegateLineEdit(DelegateBase):
+class EditableLineEdit(EditableBase):
     """Abstract base class for data that can be edited with a single line
     editor.
 
     Requirement: getValue must return a string."""
-    def qDelegateDisplay(self):
+    def qEditableDisplay(self):
         val = self.getValue()
         if len(val) > 32:
             return val[:29] + "..."
         else:
             return val
 
-class DelegateTextEdit(DelegateLineEdit):
+class EditableTextEdit(EditableLineEdit):
     """Abstract base class for data that can be edited with a multiline editor.
 
     Requirement: getValue must return a string."""
     pass
 
-class DelegateComboBox(DelegateBase):
+class EditableComboBox(EditableBase):
     """Abstract base class for data that can be edited with combo boxes.
     This can be used for for instance enum types.
 
     Requirement: getValue must return an integer."""
 
-    def qDelegateKeys(self):
+    def qEditableKeys(self):
         """List or tuple of strings, each string describing an item."""
         return []
 
-    def qDelegateValue(self, index):
+    def qEditableValue(self, index):
         """Get the value of an enum index."""
         raise NotImplementedError
 
-    def qDelegateIndex(self):
+    def qEditableIndex(self):
         """Get current enum index."""
         raise NotImplementedError
 
-class DelegateBoolComboBox(DelegateComboBox):
+class EditableBoolComboBox(EditableComboBox):
     """Abstract base class for data that can be edited with a bool combo box.
 
     Requirement: getValue must return a bool."""
-    def qDelegateKeys(self):
+    def qEditableKeys(self):
         return ("False", "True")
 
-    def qDelegateValue(self, index):
+    def qEditableValue(self, index):
         if index == 0:
             return False
         elif index == 1:
@@ -118,5 +119,5 @@ class DelegateBoolComboBox(DelegateComboBox):
         else:
             raise ValueError("no value for index %i" % index)
 
-    def qDelegateIndex(self):
+    def qEditableIndex(self):
         return 1 if self.getValue() else 0
