@@ -43,15 +43,15 @@ import PyFFI.ObjectModels.AnyType
 import PyFFI.ObjectModels.Tree
 
 class MetaSimpleType(type):
-    """Metaclass for L{SimpleType}. Sets the L{PyType<SimpleType.PyType>}
+    """Metaclass for L{SimpleType}. Sets the L{ValueType<SimpleType.ValueType>}
     class variable.
     """
     def __init__(cls, name, bases, dct):
-        """Set C{cls.L{PyType<SimpleType.PyType>}} as
+        """Set C{cls.L{ValueType<SimpleType.ValueType>}} as
         C{type(cls.L{default<SimpleType.default>})}.
         """
         super(MetaSimpleType, cls).__init__(name, bases, dct)
-        cls.PyType = type(cls.default)
+        cls.ValueType = type(cls.default)
 
 # derives from DetailTreeLeaf because simple types can be displayed in the
 # detail view, as leafs of the display tree
@@ -106,21 +106,21 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType,
 
         The L{makeValue} class method takes
         special precautions that the value you assign is indeed of type
-        L{PyType} and has an admissible value. If this is violated, you may
+        L{ValueType} and has an admissible value. If this is violated, you may
         encounter hard to debug errors.
 
     @cvar default: Default value of the data. This value also determines
-        the Python type used to store the data, that is, L{PyType}.
-    @type default: L{PyType}
-    @cvar PyType: The Python type used to store the data
+        the Python type used to store the data, that is, L{ValueType}.
+    @type default: L{ValueType}
+    @cvar ValueType: The Python type used to store the data
         (no need to declare, automatically generated from L{default}).
-    @type PyType: C{type}
+    @type ValueType: C{type}
     @ivar value: The actual data.
-    @type value: L{PyType}
+    @type value: L{ValueType}
     @ivar parent: The parent of this data in the detail tree view.
     @type parent: L{DetailTreeBranch}
     """
-    # magic to create PyType from default
+    # magic to create ValueType from default
     __metaclass__ = MetaSimpleType
     # using __slots__ saves memory and prevents accidental creation
     # of other attributes
@@ -133,8 +133,17 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType,
 
         @keyword parent: The L{parent} of the object (default is C{None}).
         @type parent: L{DetailTreeBranch} or C{NoneType}
+        @keyword value: The initial value of the object; if omitted then
+            L{default} is chosen. If set, L{makeValue} is called to validate
+            the value.
+        @type value: L{ValueType}
         """
-        self.value = self.default
+        # set value
+        if not "value" in kwargs:
+            self.value = self.default
+        else:
+            self.value = self.makeValue(kwargs["value"])
+        # set parent
         self.parent = kwargs.get("parent")
         if not self.parent is None:
             if not isinstance(self.parent,
@@ -145,21 +154,21 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType,
 
     @classmethod
     def makeValue(cls, value):
-        """Convert value to L{PyType} by calling its constructor with the
-        value as argument, and set object value. If not all L{PyType} values
+        """Convert value to L{ValueType} by calling its constructor with the
+        value as argument, and set object value. If not all L{ValueType} values
         are admissible, override this class to perform the extra check.
 
         @param value: Any value.
-        @type value: L{PyType} or convertible to it
+        @type value: L{ValueType} or convertible to it
         @return: Validated and converted value. 
-        @rtype: L{PyType}
+        @rtype: L{ValueType}
         """
         try:
-            return cls.PyType(value)
+            return cls.ValueType(value)
         except (ValueError, TypeError):
             raise ValueError("could not convert %s (of type %s) to %s"
                              % (value, value.__class__.__name__,
-                                self.PyType.__name__))
+                                self.ValueType.__name__))
 
     def __str__(self):
         """String representation. This implementation is simply a wrapper
