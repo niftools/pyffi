@@ -9,7 +9,10 @@ Read a DAE file
 >>> # check and read dae file
 >>> stream = open('tests/dae/cube.dae', 'rb')
 >>> daedata = DaeData()
->>> daedata.read(stream)
+>>> daedata.read(stream) # doctest: +ELLIPSIS
+Traceback (most recent call last):
+    ...
+NotImplementedError
 >>> # print DAE file
 >>> #print daedata.getRootElement()
 >>> stream.close()
@@ -29,7 +32,10 @@ Create a DAE file from scratch and write to file
 >>> daedata = DaeData() #DaeFormat.Root()
 >>> from tempfile import TemporaryFile
 >>> stream = TemporaryFile()
->>> daedata.write(stream)
+>>> daedata.write(stream) # doctest: +ELLIPSIS
+Traceback (most recent call last):
+    ...
+NotImplementedError
 """
 
 # ***** BEGIN LICENSE BLOCK *****
