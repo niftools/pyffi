@@ -75,7 +75,7 @@ def _classequality(class1, class2):
 class MetaArrayAnyType(type):
     """Metaclass for C{ArrayAnyType}. Checks that
     L{ElementType<ArrayAnyType.ElementType>} is an
-    L{AnyType<PyFFI.ObjectModels.AnyType.AnyType} subclass.
+    L{AnyType<PyFFI.ObjectModels.AnyType.AnyType>} subclass.
     """
     def __init__(cls, name, bases, dct):
         """Initialize array type."""
