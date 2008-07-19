@@ -88,26 +88,16 @@ class MetaArrayAnyType(type):
 class ArrayAnyType(PyFFI.ObjectModels.AnyType.AnyType, list):
     """Wrapper for list of elements of uniform type. Overrides all list
     methods to ensure that the elements are of type
-    L{ElementType<ArrayAnyType.ElementType>}.
+    L{ElementType<ArrayAnyType.ElementType>}, and that their parent is set.
 
     >>> from PyFFI.ObjectModels.SimpleType import SimpleType
     >>> class MyInt(SimpleType):
     ...     ValueType = int
     >>> class ListOfInts(ArrayAnyType):
-    ...     ElementType = int # doctest: +ELLIPSIS
-    Traceback (most recent call last):
-        ...
-    TypeError: ...
-    >>> class ListOfInts(ArrayAnyType):
     ...     ElementType = MyInt
-    >>> ListOfInts.ElementType is MyInt
-    True
     >>> testlist = ListOfInts()
-    >>> print(testlist + [0]) # doctest: +ELLIPSIS
-    Traceback (most recent call last):
-        ...
-    TypeError: ...
-    >>> print(testlist + [MyInt(value=val) for val in xrange(2, 10, 2)])
+    >>> testlist.extend([MyInt(value=val) for val in xrange(2, 10, 2)])
+    >>> print(testlist)
     MyInt array:
       [00] 2
       [01] 4
@@ -130,6 +120,9 @@ class ArrayAnyType(PyFFI.ObjectModels.AnyType.AnyType, list):
 
     def identityGenerator(self, **kwargs):
         """Generator for the identity of this array."""
+        # compare length
+        yield len(self)
+        # compare elements
         for item in self:
             for item_id in item.identityGenerator():
                 yield item_id
@@ -177,8 +170,8 @@ class ArrayAnyType(PyFFI.ObjectModels.AnyType.AnyType, list):
         # and not the subclass, so we must reimplement the function, without
         # the list __add__ function: do extend(self), followed by extend(other)
         result = self.__class__()
-        result.extend(self)
-        result.extend(other)
+        list.extend(result, self)
+        list.extend(result, other)
         return result
 
 class MetaArrayType(type):

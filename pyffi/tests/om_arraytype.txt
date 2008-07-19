@@ -1,0 +1,60 @@
+Regression tests for PyFFI.ObjectModels.ArrayType
+=================================================
+
+Array elements must be AnyType
+------------------------------
+
+>>> from PyFFI.ObjectModels.ArrayType import ArrayAnyType
+>>> class ListOfInts(ArrayAnyType):
+...     ElementType = int # doctest: +ELLIPSIS
+Traceback (most recent call last):
+    ...
+TypeError: ...
+
+The __add__ method
+------------------
+
+>>> from PyFFI.ObjectModels.SimpleType import SimpleType
+>>> class MyInt(SimpleType):
+...     ValueType = int
+>>> class ListOfInts(ArrayAnyType):
+...     ElementType = MyInt
+>>> class MyFloat(SimpleType):
+...     ValueType = float
+>>> class ListOfFloats(ArrayAnyType):
+...     ElementType = MyFloat
+>>> testlist = ListOfInts()
+>>> # add array and list
+>>> #   list elements must be testlist.ElementType, try with invalid list
+>>> print(testlist + [0]) # doctest: +ELLIPSIS
+Traceback (most recent call last):
+    ...
+TypeError: ...
+>>> #   now with valid list
+>>> testlist = testlist + [MyInt(value=val) for val in xrange(2, 10, 2)]
+>>> print(testlist)
+MyInt array:
+  [00] 2
+  [01] 4
+  [02] 6
+  [03] 8
+<BLANKLINE>
+>>> # add array and array
+>>> #   try first with invalid array
+>>> print(testlist + ListOfFloats()) # doctest: +ELLIPSIS
+Traceback (most recent call last):
+    ...
+TypeError: ...
+>>> #   now a valid array
+>>> print(testlist + testlist)
+MyInt array:
+  [00] 2
+  [01] 4
+  [02] 6
+  [03] 8
+  [04] 2
+  [05] 4
+  [06] 6
+  [07] 8
+<BLANKLINE>
+

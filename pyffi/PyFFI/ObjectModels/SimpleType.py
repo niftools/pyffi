@@ -68,6 +68,14 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType,
 
     A brief example of usage:
 
+    >>> class Int(SimpleType):
+    ...     ValueType = int
+    >>> print(Int(value=12345))
+    12345
+
+    A slightly more complicated example, demonstrating how to implement
+    custom types that derive from built-in types:
+
     >>> class shortint(int):
     ...     def __new__(cls, *args, **kwargs):
     ...         # for the sake of example, default value is 3
