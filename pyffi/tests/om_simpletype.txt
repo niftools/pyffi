@@ -1,0 +1,40 @@
+Regression tests for L{PyFFI.ObjectModels.SimpleType}
+=====================================================
+
+Constructor value argument
+--------------------------
+
+>>> from PyFFI.ObjectModels.SimpleType import SimpleType
+>>> class Test(SimpleType):
+...     ValueType = float
+>>> # note: float("eek!") raises a ValueError
+>>> test = Test(value="eek!") # doctest: +ELLIPSIS
+Traceback (most recent call last):
+    ...
+ValueError: ...
+>>> test = Test(value=4.0)
+>>> test.value
+4.0
+
+Constructor parent argument
+---------------------------
+
+>>> from PyFFI.ObjectModels.SimpleType import SimpleType
+>>> class Test(SimpleType):
+...     ValueType = int
+>>> test = Test()
+>>> print(test.parent)
+None
+>>> test = Test(parent=None)
+>>> print(test.parent)
+None
+>>> test = Test(parent="eek!") # doctest: +ELLIPSIS
+Traceback (most recent call last):
+    ...
+TypeError: ...
+>>> from PyFFI.ObjectModels.Tree import DetailTreeBranch
+>>> test = Test(parent=DetailTreeBranch())
+>>> test.parent # doctest: +ELLIPSIS
+<PyFFI.ObjectModels.Tree.DetailTreeBranch object at ...>
+>>> test.getDetailTreeParent() == test.parent
+True
