@@ -5,6 +5,7 @@ import doctest
 import PyFFI
 import PyFFI.Common
 import PyFFI.XsdFormat
+import PyFFI.ObjectModels.SimpleType
 import PyFFI.ObjectModels.ArrayType
 import PyFFI.ObjectModels.XML.Basic
 import PyFFI.ObjectModels.XML.Struct

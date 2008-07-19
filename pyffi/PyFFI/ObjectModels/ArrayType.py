@@ -2,26 +2,21 @@
 
 >>> from PyFFI.ObjectModels.SimpleType import SimpleType
 >>> class Int(SimpleType):
-...     def __init__(self, value=0):
-...         self._value = int(value)
-...     def getValue(self):
-...         return self._value
-...     def setValue(self, value):
-...         self._value = int(value)
+...     default = 0
 ...     def __str__(self):
-...         return "%i (integer)" % self._value
+...         return "%i (integer)" % self.value
 ...     def identityGenerator(self):
-...         yield self._value
+...         yield self.value
 >>> class IntArray(ArrayType):
 ...     ElementType = Int
 >>> listofints = IntArray()
->>> listofints.append("eek!") # doctest: +ELLIPSIS
+>>> listofints.append(IntArray.makeValue("eek!")) # doctest: +ELLIPSIS
 Traceback (most recent call last):
     ...
 ValueError: ...
->>> listofints.append(3)
+>>> listofints.append(IntArray.makeValue(3))
 >>> listofints[0] = 3
->>> listofints.extend([1, 2, 3, 4, 9, 10])
+>>> listofints.extend(IntArray.makeArray([1, 2, 3, 4, 9, 10]))
 >>> listofints[-1]
 10
 >>> len(listofints)
@@ -97,44 +92,11 @@ def raiseNotImplementedError(*args, **kwargs):
 class MetaArrayType(type):
     """Metaclass for ArrayType."""
     def __init__(cls, name, bases, dct):
+        """Initialize array type."""
         # create the class
         super(MetaArrayType, cls).__init__(name, bases, dct)
         # customize it
-        if issubclass(cls.ElementType,
-                      PyFFI.ObjectModels.SimpleType.SimpleType):
-            cls.__iter__ = cls.__iter_simpletype__
-            cls.__getitem__ = cls.__getitem_simpletype__
-            cls.__setitem__ = cls.__setitem_simpletype__
-            cls.__contains__ = cls.__contains_simpletype__
-            cls.append = (lambda self, value:
-                          list.append(self, cls.ElementType(value)))
-            cls.count = (lambda self, value:
-                         list.count(self, cls.ElementType(value)))
-            cls.extend = (lambda self, valuelist:
-                          list.extend(self, (cls.ElementType(value)
-                                             for value in valuelist)))
-            cls.index = (lambda self, value:
-                         list.index(self, cls.ElementType(value)))
-            cls.insert = (lambda self, index, value:
-                          list.insert(self, index, cls.ElementType(value)))
-            cls.pop = (lambda self, *arg:
-                       list.pop(self, *arg).getValue())
-            cls.remove = (lambda self, value:
-                          list.remove(self, cls.ElementType(value)))
-
-        cls.__add__ = raiseNotImplementedError
-        cls.__delitem__ = raiseNotImplementedError
-        cls.__delslice__ = raiseNotImplementedError
-        cls.__gt__ = raiseNotImplementedError
-        cls.__iadd__ = raiseNotImplementedError
-        cls.__imul__ = raiseNotImplementedError
-        cls.__le__ = raiseNotImplementedError
-        cls.__lt__ = raiseNotImplementedError
-        cls.__mul__ = raiseNotImplementedError
-        cls.__reduce__ = raiseNotImplementedError
-        cls.__reduce_ex__ = raiseNotImplementedError
-        cls.__rmul__ = raiseNotImplementedError
-        cls.__setslice__ = raiseNotImplementedError
+        cls.ElementType = type(cls.default)
 
 # derives from DetailTreeBranch because arrays types can be displayed in the
 # detail view, as branches of the display tree
@@ -143,37 +105,17 @@ class ArrayType(PyFFI.ObjectModels.AnyType.AnyType,
                 list):
     """Base class from which all array types are derived."""
     __metaclass__ = MetaArrayType
-    ElementType = NoneType
+    default = PyFFI.ObjectModels.SimpleType.SimpleType()
 
-    def __iter_simpletype__(self):
-        """Iterate over all elements."""
-        return (item.getValue() for item in list.__iter__(self))
-
-    def __getitem_simpletype__(self, index):
-        """Return item at index.
-
-        @param index: The index of the item to return.
-        @type index: int
+    @classmethod
+    def makeValue(cls, value):
+        """Wrapper for L{ElementType}.makeValue(value).
         """
-        return list.__getitem__(self, index).getValue()
+        return cls.ElementType.makeValue(value)
 
-    def __setitem_simpletype__(self, index, value):
-        """Set item value at index.
-
-        @param index: The index of the item to set.
-        @type index: int
-        @param value: The value of the item to set.
-        @type value: any (whatever value that is appropriate)
+    def makeArray(cls, iterable):
+        """Returns generator which yields L{ElementType}.makeValue(value) for
+        every value in iterable.
         """
-        list.__getitem__(self, index).setValue(value)
-
-    def __contains_simpletype__(self, value):
-        """Check whether the array contains a particular value."""
-        xvalue = self.ElementType()
-        xvalue.setValue(value)
-        for listvalue in list.__iter__(self):
-            # this ensures we use ElementType.__eq__
-            if listvalue == xvalue:
-                return True
-        return False
+        return (cls.ElementType.makeValue(value) for value in iterable)
 

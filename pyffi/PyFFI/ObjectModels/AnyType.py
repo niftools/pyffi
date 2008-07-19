@@ -42,7 +42,7 @@ which generates immutable objects that can be used to identify the object.
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-class AnyType:
+class AnyType(object):
     """Abstract base class from which all complex types are derived."""
 
     def read(self, stream, **kwargs):

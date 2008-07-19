@@ -1,4 +1,4 @@
-"""Abstract base class for simple types."""
+"""Defines the base class and its corresponding metaclass for simple types."""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
@@ -42,26 +42,148 @@
 import PyFFI.ObjectModels.AnyType
 import PyFFI.ObjectModels.Tree
 
+class MetaSimpleType(type):
+    """Metaclass for L{SimpleType}. Sets the L{PyType<SimpleType.PyType>}
+    class variable.
+    """
+    def __init__(cls, name, bases, dct):
+        """Set C{cls.L{PyType<SimpleType.PyType>}} as
+        C{type(cls.L{default<SimpleType.default>})}.
+        """
+        super(MetaSimpleType, cls).__init__(name, bases, dct)
+        cls.PyType = type(cls.default)
+
 # derives from DetailTreeLeaf because simple types can be displayed in the
 # detail view, as leafs of the display tree
 class SimpleType(PyFFI.ObjectModels.AnyType.AnyType,
                  PyFFI.ObjectModels.Tree.DetailTreeLeaf):
-    """Abstract base class from which all simple types are derived. Simple
-    types contain data which is not divided further into smaller bits.
+    """Base class from which all simple types are derived. Simple
+    types contain data which is not divided further into smaller pieces,
+    and that can represented efficiently by a (usually native) Python type,
+    typically C{int}, C{float}, or L{str}.
+
+    When overriding this class, set L{default} to whatever default value for
+    this data. The type of L{default} also determines the type used to
+    represent this data into Python. If this type requires extra validation
+    (for example if not all Python values are admissible), also override
+    the class method L{makeValue} with additional checks.
+
+    Also override L{read} and L{write} if you wish to read and write data
+    of this type, and L{identityGenerator} to implement the L{__eq__} and
+    L{__neq__} methods efficiently.
+
+    When instantiating simple types which are part of larger objects such as
+    L{ArrayType} or L{StructType}, pass these as L{parent} keyword argument
+    to the constructor.
+
+    A brief example of usage:
+
+        >>> class Short(SimpleType):
+        ...     default = 3
+        ...     @classmethod
+        ...     def makeValue(cls, value):
+        ...         # convert
+        ...         val = super(cls, cls).makeValue(value)
+        ...         # check range
+        ...         if val < -0x8000 or val > 0x7fff:
+        ...             raise ValueError("value %i out of range" % val)
+        ...         return val
+        >>> test = Short()
+        >>> print(test)
+        3
+        >>> test.value = Short.makeValue(255)
+        >>> print(test)
+        255
+        >>> Short.makeValue(100000) # doctest: +ELLIPSIS
+        Traceback (most recent call last):
+            ...
+        ValueError: ...
+
+    @warning: When assigning to L{value}, it is good practice always to use
+        the L{makeValue} class method, as in
+
+            >>> some.value = SomeType.makeValue(somevalue) # doctest: +SKIP
+
+        The L{makeValue} class method takes
+        special precautions that the value you assign is indeed of type
+        L{PyType} and has an admissible value. If this is violated, you may
+        encounter hard to debug errors.
+
+    @cvar default: Default value of the data. This value also determines
+        the Python type used to store the data, that is, L{PyType}.
+    @type default: L{PyType}
+    @cvar PyType: The Python type used to store the data
+        (no need to declare, automatically generated from L{default}).
+    @type PyType: C{type}
+    @ivar value: The actual data.
+    @type value: L{PyType}
+    @ivar parent: The parent of this data in the detail tree view.
+    @type parent: L{DetailTreeBranch}
     """
+    # magic to create PyType from default
+    __metaclass__ = MetaSimpleType
+    # using __slots__ saves memory and prevents accidental creation
+    # of other attributes
+    __slots__ = ["value", "parent"]
+    # default value
+    default = None
 
-    def getValue(self):
-        """Return object value.
+    def __init__(self, **kwargs):
+        """Initialize the type with the value C{default}.
 
-        @return: Object value.
+        @keyword parent: The L{parent} of the object (default is C{None}).
+        @type parent: L{DetailTreeBranch} or C{NoneType}
         """
-        raise NotImplementedError
+        self.value = self.default
+        self.parent = kwargs.get("parent")
+        if not self.parent is None:
+            if not isinstance(self.parent,
+                              PyFFI.ObjectModels.Tree.DetailTreeBranch):
+                raise TypeError(
+                    "parent argument must be a DetailTreeBranch, not a %s"
+                    % self.parent.__class__.__name__)
 
-    def setValue(self, value):
-        """Set object value.
+    @classmethod
+    def makeValue(cls, value):
+        """Convert value to L{PyType} by calling its constructor with the
+        value as argument, and set object value. If not all L{PyType} values
+        are admissible, override this class to perform the extra check.
 
-        @param value: The new object value.
-        @type value: any (whatever is suitable for the implemented type)
+        @param value: Any value.
+        @type value: L{PyType} or convertible to it
+        @return: Validated and converted value. 
+        @rtype: L{PyType}
         """
-        raise NotImplementedError
+        try:
+            return cls.PyType(value)
+        except (ValueError, TypeError):
+            raise ValueError("could not convert %s (of type %s) to %s"
+                             % (value, value.__class__.__name__,
+                                self.PyType.__name__))
+
+    def __str__(self):
+        """String representation. This implementation is simply a wrapper
+        around C{self.L{value}.__str__()}.
+
+        @return: String representation.
+        @rtype: C{str}
+        """
+        return self.value.__str__()
+
+    def getDetailTreeParent(self):
+        """Returns L{parent}.
+
+        @return: L{parent}.
+        @rtype: L{DetailTreeBranch}
+        """
+        return self.parent
+
+    def getDetailTreeDataDisplay(self):
+        """Display string for the detail tree. This implementation is simply
+        a wrapper around C{self.L{value}.__str__()}.
+
+        @return: String representation.
+        @rtype: C{str}
+        """
+        return self.value.__str__()
 
