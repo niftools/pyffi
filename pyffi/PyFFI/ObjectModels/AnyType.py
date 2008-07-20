@@ -43,7 +43,7 @@ which generates immutable objects that can be used to identify the object.
 # --------------------------------------------------------------------------
 
 class AnyType(object):
-    """Abstract base class from which all complex types are derived."""
+    """Abstract base class from which all types are derived."""
 
     def read(self, stream, **kwargs):
         """Read object from file.

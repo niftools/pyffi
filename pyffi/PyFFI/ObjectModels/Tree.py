@@ -1,5 +1,5 @@
-"""Abstract base classes for visualizing data (for example with Qt) in a
-tree view.
+"""Base classes for visualizing data (for example with Qt) in a
+double tree view.
 
 The base classes are roughly based on the TreeItem example in the Qt docs:
 http://doc.trolltech.com/4.4/itemviews-simpletreemodel.html
@@ -8,11 +8,10 @@ The classes defined here allow data to be organized in two views: a
 global view which only shows 'top-level' objects (i.e. large file
 blocks, chunks, and so on) and their structure, and a detail view
 which shows the details of a top-level like object, that is, the
-actual data they contain. L{DetailTreeItem} and L{DetailTreeBranch} implement the
-detail view side of things, with L{DetailTreeLeaf} implementing the actual
-display of the data content. The L{GlobalTreeBranch} class implements
+actual data they contain. L{DetailTreeLeaf} and L{DetailTreeBranch} implement
+the detail view side of things. The L{GlobalTreeBranch} class implements
 the global view, which does not show any actual data, but only
-structure, hence there is no need for a special TreeGlobalLeaf class.
+structure, hence there is no need for a special C{GlobalTreeLeaf} class.
 
 Do not use any of the methods of these classes unless you are programming a
 GUI application. In particular, for manipulating the data from within Python
@@ -68,25 +67,24 @@ anywhere yet, and names may still change.
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-class DetailTreeItem(object):
-    """Base class used for the tree detail view. All objects whose data
-    is displayed by QSkope derive from this class (such as SimpleType and
-    ComplexType). You should never have to derive from this class directly.
-    Instead, use the L{DetailTreeBranch}, L{DetailTreeLeaf}, and L{GlobalTreeBranch}
-    classes.
+class TreeItem(object):
+    """Base class used for the detail and global trees. All objects whose data
+    is displayed by QSkope derive from this class (such as L{SimpleType} and
+    L{ComplexType}). You should never have to derive from this class directly.
+    Instead, use the L{DetailTreeBranch}, L{DetailTreeLeaf}, and
+    L{GlobalTreeBranch} classes.
     """
 
-    def getDetailTreeParent(self):
+    def getTreeParent(self):
         """Return parent of this structure. Override this method.
 
-        @return: The parent, which should be a L{DetailTreeBranch} instance, or
-            L{None} if this is a L{GlobalTreeBranch} (in that case the
-            parent can be browsed in the global view via
-            L{GlobalTreeBranch.getGlobalTreeParent}).
+        @return: The parent, which is a L{DetailTreeBranch} instance, or
+            C{None}. If C{self} is a L{GlobalTreeBranch} then the parent is also
+            a L{GlobalTreeBranch}, or C{None}.
         """
         raise NotImplementedError
 
-class DetailTreeBranch(DetailTreeItem):
+class DetailTreeBranch(TreeItem):
     """A tree item which may have children."""
 
     def getDetailTreeNumChildren(self):
@@ -128,15 +126,6 @@ class GlobalTreeBranch(DetailTreeBranch):
     """A tree branch that can appear summarized as an item in the global view,
     and also fully in the detail view."""
 
-    def getDetailTreeParent(self):
-        """Usually you would implement this to return C{None}, because
-        branches which can appear in the global view have no parents in the
-        detail view. Override this method.
-
-        @return: Usually C{None}.
-        """ 
-        raise NotImplementedError
-
     def getGlobalTreeType(self):
         """The type of this global branch for display purposes.
         Override this method.
@@ -165,15 +154,6 @@ class GlobalTreeBranch(DetailTreeBranch):
         # possible implementation:
         #return self.name if hasattr(self, "name") else ""
 
-    def getGlobalTreeParent(self):
-        """Parent of an object in the global view. Override this method.
-
-        @return: A L{GlobalTreeBranch} instance, or C{None} for the root
-            element in the global view (typically, the global view root is a
-            L{PyFFI.ObjectModels.Data.Data} instance).
-        """
-        raise NotImplementedError
-
     def getGlobalTreeNumChildren(self):
         """Return number of children of this item in the global view.
         Override this method.
@@ -201,7 +181,7 @@ class GlobalTreeBranch(DetailTreeBranch):
         """
         raise NotImplementedError
 
-class DetailTreeLeaf(DetailTreeItem):
+class DetailTreeLeaf(TreeItem):
     """A tree item that does not have any children.
 
     The function L{getDetailTreeDataDisplay} controls the display of the data. If the
