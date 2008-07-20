@@ -2,7 +2,7 @@
 
 >>> from PyFFI.ObjectModels.SimpleType import SimpleType
 >>> class Int(SimpleType):
-...     ValueType = int
+...     _ValueType = int
 >>> class IntArray(ArrayType):
 ...     ElementType = Int
 """
@@ -92,7 +92,7 @@ class ArrayAnyType(PyFFI.ObjectModels.AnyType.AnyType, list):
 
     >>> from PyFFI.ObjectModels.SimpleType import SimpleType
     >>> class MyInt(SimpleType):
-    ...     ValueType = int
+    ...     _ValueType = int
     >>> class ListOfInts(ArrayAnyType):
     ...     ElementType = MyInt
     >>> testlist = ListOfInts()

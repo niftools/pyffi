@@ -16,11 +16,11 @@ The __add__ method
 
 >>> from PyFFI.ObjectModels.SimpleType import SimpleType
 >>> class MyInt(SimpleType):
-...     ValueType = int
+...     _ValueType = int
 >>> class ListOfInts(ArrayAnyType):
 ...     ElementType = MyInt
 >>> class MyFloat(SimpleType):
-...     ValueType = float
+...     _ValueType = float
 >>> class ListOfFloats(ArrayAnyType):
 ...     ElementType = MyFloat
 >>> testlist = ListOfInts()

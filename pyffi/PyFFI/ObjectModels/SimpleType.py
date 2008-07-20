@@ -53,7 +53,7 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType,
     and that can represented efficiently by a (usually native) Python type,
     typically C{int}, C{float}, or L{str}.
 
-    When overriding this class, set L{ValueType} to the type used to store
+    When overriding this class, set L{_ValueType} to the type used to store
     this data. If it is a native type but requires extra validation
     (for example if not all Python values are admissible), derive a wrapper
     class around the native type and place an extra check in C{__new__}.
@@ -63,13 +63,13 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType,
     L{__neq__} methods efficiently.
 
     When instantiating simple types which are part of larger objects such as
-    L{ArrayType} or L{StructType}, pass these as L{parent} keyword argument
+    L{ArrayType} or L{StructType}, pass these as C{treeparent} keyword argument
     to the constructor.
 
     A brief example of usage:
 
     >>> class Int(SimpleType):
-    ...     ValueType = int
+    ...     _ValueType = int
     >>> print(Int(value=12345))
     12345
 
@@ -84,11 +84,11 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType,
     ...             raise ValueError("value %i out of range" % val)
     ...         return super(shortint, cls).__new__(cls, val)
     >>> class Short(SimpleType):
-    ...     ValueType = shortint
+    ...     _ValueType = shortint
     >>> test = Short()
     >>> print(test)
     3
-    >>> test.value = test.ValueType(255)
+    >>> test._value = test._ValueType(255)
     >>> print(test)
     255
     >>> Short(value=100000) # doctest: +ELLIPSIS
@@ -98,74 +98,77 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType,
     >>> print(Short(value=15))
     15
 
-    @warning: When assigning to L{value}, it is good practice always to use
-        the L{ValueType} class, as in
+    @warning: When assigning to L{_value}, it is good practice always to use
+        the L{_ValueType} class, as in
 
-            >>> some.value = some.ValueType(somevalue) # doctest: +SKIP
+            >>> some._value = some._ValueType(somevalue) # doctest: +SKIP
 
         This ensures that the value you assign is indeed of type
-        L{ValueType} and has an admissible value. If this is violated, you may
+        L{_ValueType} and has an admissible value. If this is violated, you may
         encounter hard to debug errors.
 
-    @cvar ValueType: The type used to store the data.
-    @type ValueType: C{type}
-    @ivar value: The actual data.
-    @type value: L{ValueType}
-    @ivar parent: The parent of this data in the detail tree view.
-    @type parent: L{DetailTreeBranch}
+    @cvar _ValueType: The type used to store the data.
+    @type _ValueType: C{type}
+    @ivar _value: The actual data.
+    @type _value: L{_ValueType}
+    @ivar _treeparent: The parent of this data in the tree view.
+    @type _treeparent: L{DetailTreeBranch}
     """
-    # using __slots__ saves memory
-    __slots__ = ["value", "parent"]
     # value type
-    ValueType = NoneType
+    _ValueType = NoneType
 
     def __init__(self, **kwargs):
-        """Initialize the type with given value and parent.
+        """Initialize the type with given value and tree parent.
 
-        @keyword parent: The L{parent} of the object (default is C{None}).
-        @type parent: L{DetailTreeBranch} or C{NoneType}
+        @keyword treeparent: The L{_treeparent} of the object (default is
+            C{None}).
+        @type treeparent: L{DetailTreeBranch} or C{NoneType}
         @keyword value: The initial value of the object. This value is passed
-            as an argument to L{ValueType}.
-        @type value: L{ValueType}, or anything acceptable as a first argument
-            to the L{ValueType} constructor.
+            as an argument to L{_ValueType}.
+        @type value: L{_ValueType}, or anything acceptable as a first argument
+            to the L{_ValueType} constructor.
         """
         # set value
         if not "value" in kwargs:
-            self.value = self.ValueType()
+            self._value = self._ValueType()
         else:
-            self.value = self.ValueType(kwargs["value"])
-        # set parent
-        self.parent = kwargs.get("parent")
-        if not isinstance(self.parent,
+            self._value = self._ValueType(kwargs["value"])
+        # set tree parent
+        self._treeparent = kwargs.get("treeparent")
+        if not isinstance(self._treeparent,
                           (NoneType,
                            PyFFI.ObjectModels.Tree.DetailTreeBranch)):
             raise TypeError(
-                "parent argument must be a DetailTreeBranch, not a %s"
-                % self.parent.__class__.__name__)
+                "tree parent argument must be a DetailTreeBranch, not a %s"
+                % self._treeparent.__class__.__name__)
 
     def __str__(self):
         """String representation. This implementation is simply a wrapper
-        around C{self.L{value}.__str__()}.
+        around C{self.L{_value}.__str__()}.
 
         @return: String representation.
         @rtype: C{str}
         """
-        return self.value.__str__()
+        return self._value.__str__()
 
-    def getDetailTreeParent(self):
-        """Returns L{parent}.
+    # TreeItem
 
-        @return: L{parent}.
+    def getTreeParent(self):
+        """Returns L{_treeparent}.
+
+        @return: L{_treeparent}.
         @rtype: L{DetailTreeBranch}
         """
-        return self.parent
+        return self._treeparent
+
+    # DetailTreeLeaf
 
     def getDetailTreeDataDisplay(self):
         """Display string for the detail tree. This implementation is simply
-        a wrapper around C{self.L{value}.__str__()}.
+        a wrapper around C{self.L{_value}.__str__()}.
 
         @return: String representation.
         @rtype: C{str}
         """
-        return self.value.__str__()
+        return self._value.__str__()
 
