@@ -23,7 +23,7 @@ def testFile(stream,
     @param versions: The file chunk versions. If C{None} then these will
         be automatically obtained through L{getChunkVersions}.
     @type versions: list of ints
-    @param verbose: The level of verbosity.
+    @keyword verbose: The level of verbosity.
     @type verbose: int
     """
     verbose = kwargs.get("verbose")

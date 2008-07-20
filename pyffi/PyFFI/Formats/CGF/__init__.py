@@ -345,7 +345,7 @@ class CgfFormat(XmlFileFormat):
 
             @param stream: The stream to read from.
             @type stream: file
-            @param link_stack: The stack containing all block indices.
+            @keyword link_stack: The stack containing all block indices.
             @type link_stack: list of ints
             """
             self._value = None # fixLinks will set this field
@@ -357,7 +357,7 @@ class CgfFormat(XmlFileFormat):
 
             @param stream: The stream to write to.
             @type stream: file
-            @param block_index_dct: Dictionary mapping blocks to indices.
+            @keyword block_index_dct: Dictionary mapping blocks to indices.
             @type block_index_dct: dict
             """
             if self._value == None:
@@ -369,9 +369,9 @@ class CgfFormat(XmlFileFormat):
         def fixLinks(self, **kwargs):
             """Resolve chunk index into a chunk.
 
-            @param block_dct: Dictionary mapping block index to block.
+            @keyword block_dct: Dictionary mapping block index to block.
             @type block_dct: dict
-            @param link_stack: The stack containing all block indices.
+            @keyword link_stack: The stack containing all block indices.
             @type link_stack: list of ints
             """
 

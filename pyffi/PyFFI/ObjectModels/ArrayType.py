@@ -154,8 +154,10 @@ class ArrayAnyType(PyFFI.ObjectModels.AnyType.AnyType):
         """Check if item can be added, and sets tree parent (for internal use
         only, this is called on items before they are added to the array).
 
-        @raise C{TypeError}: If item has incompatible type, or if it already
-            has a tree parent.
+        @param item: The item to be checked.
+        @type item: L{_ElementType}
+        @raise C{TypeError}: If item has incompatible type.
+        @raise C{ValueError}: If item already has a tree parent.
         """
         # check item
         if not _classequality(type(item), self._ElementType):
@@ -227,7 +229,6 @@ class ArrayAnyType(PyFFI.ObjectModels.AnyType.AnyType):
 
         @param other: The list to extend with.
         @type other: C{list} of L{_ElementType}
-
         @raise C{TypeError}: If the types of the list items do not match.
         @raise C{ValueError}: If items already have a tree parent.
         """
