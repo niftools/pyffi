@@ -167,15 +167,17 @@ class CryDaeFilter(xml.sax.saxutils.XMLFilterBase):
                     print("technique sid=blender converted to sid=default")
                 attrs["sid"] = "default"
         # uv naming fix
+        # resource compiler 1.4.4282076 (XSI 2.4) wants "U" "V"
+        # resource compiler 1.4.4269756 (XSI 3.2) wants "S" "T"
         if name == "param" and attrs.get("type") == "float":
-            if attrs.get("name") == "S":
+            if attrs.get("name") == "U":
                 if self.verbose:
-                    print("param type=float name=S converted to name=U")
-                attrs["name"] = "U"
-            if attrs.get("name") == "T":
+                    print("param type=float name=U converted to name=S")
+                attrs["name"] = "S"
+            if attrs.get("name") == "V":
                 if self.verbose:
-                    print("param type=float name=T converted to name=V")
-                attrs["name"] = "V"
+                    print("param type=float name=V converted to name=T")
+                attrs["name"] = "T"
         # phong shader sid fix
         if (name in ("color", "float")
             and len(self.stack) > 3
