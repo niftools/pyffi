@@ -512,7 +512,7 @@ but got instance of %s' % (self._template, value.__class__))
         def write(self, stream, **kwargs):
             """Write block reference.
 
-            @param block_index_dct: The dictionary of block indices
+            @keyword block_index_dct: The dictionary of block indices
                 (block -> index).
             """
             if self._value == None: # link by block number
@@ -527,8 +527,8 @@ but got instance of %s' % (self._template, value.__class__))
         def fixLinks(self, **kwargs):
             """Fix block links.
 
-            @param link_stack: The link stack.
-            @param block_dct: The block dictionary (index -> block).
+            @keyword link_stack: The link stack.
+            @keyword block_dct: The block dictionary (index -> block).
             """
             block_index = kwargs.get('link_stack').pop(0)
             # case when there's no link

@@ -16,7 +16,7 @@ def testFile(stream, version = None, user_version = None, roots = None,
     @type user_version: int
     @param roots: The list of roots of the NIF tree.
     @type roots: list of L{NifFormat.NiObject}s
-    @param verbose: The level of verbosity.
+    @keyword verbose: The level of verbosity.
     @type verbose: int
     """
     verbose = kwargs.get("verbose", 0)

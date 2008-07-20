@@ -170,7 +170,7 @@ class KfmFormat(XmlFileFormat):
 
             @param stream: The stream to read from.
             @type stream: file
-            @param version: The file version.
+            @keyword version: The file version.
             @type version: int
             """
             # get the string we expect
