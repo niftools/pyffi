@@ -4,7 +4,7 @@
 >>> class Int(SimpleType):
 ...     _ValueType = int
 >>> class IntArray(ArrayType):
-...     ElementType = Int
+...     _ElementType = Int
 """
 
 # --------------------------------------------------------------------------
@@ -74,7 +74,7 @@ def _classequality(class1, class2):
 
 class MetaArrayAnyType(type):
     """Metaclass for C{ArrayAnyType}. Checks that
-    L{ElementType<ArrayAnyType.ElementType>} is an
+    L{_ElementType<ArrayAnyType._ElementType>} is an
     L{AnyType<PyFFI.ObjectModels.AnyType.AnyType>} subclass.
     """
     def __init__(cls, name, bases, dct):
@@ -82,48 +82,53 @@ class MetaArrayAnyType(type):
         # create the class
         super(MetaArrayAnyType, cls).__init__(name, bases, dct)
         # check type of elements
-        if not issubclass(cls.ElementType, PyFFI.ObjectModels.AnyType.AnyType):
-            raise TypeError("array ElementType must be an AnyType subclass")
+        if not issubclass(cls._ElementType, PyFFI.ObjectModels.AnyType.AnyType):
+            raise TypeError("array _ElementType must be an AnyType subclass")
 
-class ArrayAnyType(PyFFI.ObjectModels.AnyType.AnyType, list):
-    """Wrapper for list of elements of uniform type. Overrides all list
+class ArrayAnyType(PyFFI.ObjectModels.AnyType.AnyType):
+    """Wrapper for list of elements of uniform type. Has all of list's
     methods to ensure that the elements are of type
-    L{ElementType<ArrayAnyType.ElementType>}, and that their parent is set.
+    L{_ElementType<ArrayAnyType._ElementType>}, and that their parent is set.
 
     >>> from PyFFI.ObjectModels.SimpleType import SimpleType
     >>> class MyInt(SimpleType):
     ...     _ValueType = int
     >>> class ListOfInts(ArrayAnyType):
-    ...     ElementType = MyInt
+    ...     _ElementType = MyInt
     >>> testlist = ListOfInts()
+    >>> testlist.append(MyInt(value=20))
     >>> testlist.extend([MyInt(value=val) for val in xrange(2, 10, 2)])
     >>> print(testlist)
     MyInt array:
-      [00] 2
-      [01] 4
-      [02] 6
-      [03] 8
+      [00] 20
+      [01] 2
+      [02] 4
+      [03] 6
+      [04] 8
     <BLANKLINE>
+    >>> [item._value for item in testlist[::-2]]
+    [8, 4, 20]
 
-    @cvar ElementType: Type of the elements of this array.
-    @type ElementType: L{PyFFI.ObjectModels.AnyType.AnyType}
-    @cvar MAXSTR: Maximum number of elements to write in the L{__str__} method.
-    @type MAXSTR: C{int}
+    @cvar _ElementType: Type of the elements of this array.
+    @type _ElementType: L{PyFFI.ObjectModels.AnyType.AnyType}
+    @cvar _MAXSTR: Maximum number of elements to write in the L{__str__} method.
+    @type _MAXSTR: C{int}
     """
     __metaclass__ = MetaArrayAnyType
-    ElementType = PyFFI.ObjectModels.AnyType.AnyType
-    MAXSTR = 16
+    _ElementType = PyFFI.ObjectModels.AnyType.AnyType
+    _MAXSTR = 16
 
     def __init__(self, **kwargs):
         """Initialize empty list."""
-        super(ArrayAnyType, self).__init__()
+        super(ArrayAnyType, self).__init__(**kwargs)
+        self._items = []
 
     def identityGenerator(self, **kwargs):
         """Generator for the identity of this array."""
         # compare length
-        yield len(self)
+        yield len(self._items)
         # compare elements
-        for item in self:
+        for item in self._items:
             for item_id in item.identityGenerator():
                 yield item_id
 
@@ -133,46 +138,129 @@ class ArrayAnyType(PyFFI.ObjectModels.AnyType.AnyType, list):
         @return: String representation.
         @rtype: C{str}
         """
-        result = "%s array:\n" % self.ElementType.__name__
+        result = "%s array:\n" % self._ElementType.__name__
         more = False
-        for itemnum, item in enumerate(self):
-            if itemnum >= self.MAXSTR:
+        for itemnum, item in enumerate(self._items):
+            if itemnum >= self._MAXSTR:
                 more = True
                 break
             result += "  [%02i] %s\n" % (itemnum, item)
         if more:
             result += ("  ...  (%i more following)\n"
-                       % (len(self) - self.MAXSTR))
+                       % (len(self._items) - self._MAXSTR))
         return result
 
-    def __add__(self, other):
-        """Checks type and appends other list.
+    def _setItemTreeParent(self, item):
+        """Check if item can be added, and sets tree parent (for internal use
+        only, this is called on items before they are added to the array).
 
-        @param other: Another list.
-        @type other: C{list}
+        @raise C{TypeError}: If item has incompatible type, or if it already
+            has a tree parent.
         """
-        # type check
-        if isinstance(other, ArrayAnyType):
-            # fast: only single type check needed
-            if not _classequality(other.ElementType, self.ElementType):
-                raise TypeError("array has incompatible element type")
-        elif isinstance(other, list):
-            # slower: check type of all items
-            for item in other:
-                if not _classequality(type(item), self.ElementType):
-                    raise TypeError("list has incompatible element types")
+        # check item
+        if not _classequality(type(item), self._ElementType):
+            raise TypeError("item has incompatible type (%s, not %s)"
+                            % (item.__class__.__name__,
+                               self._ElementType.__name__))
+        # set item parent
+        if item._treeparent is None:
+            item._treeparent = self
         else:
-            # all other cases: failure
-            raise TypeError("cannot add %s to array"
-                            % other.__class__.__name__)
+            raise ValueError("item already has a tree parent") 
 
-        # when subclassing from list, the __add__ function still returns a list
-        # and not the subclass, so we must reimplement the function, without
-        # the list __add__ function: do extend(self), followed by extend(other)
-        result = self.__class__()
-        list.extend(result, self)
-        list.extend(result, other)
-        return result
+    def __getitem__(self, index):
+        """Return item at given index.
+
+        @param index: The index.
+        @type index: C{int} or C{slice}
+        @return: Item at given index, or slice.
+        @rtype: L{_ElementType}, or C{list} of L{_ElementType}
+        """
+        return self._items[index]
+
+    def __setitem__(self, index, item):
+        """Set item at given index. Parent of item currently at index has its
+        tree parent removed.
+
+        @param index: The index.
+        @type index: C{int}
+        @param item: Item to set.
+        @type item: L{_ElementType}
+        """
+        # clear parent of previous item
+        self._items[index]._treeparent = None
+        # set the new item
+        self._setItemTreeParent(item)
+        self._items[index] = item
+
+    def __delitem__(self, index):
+        """Remove tree parents of item(s) at index or slice, and
+        remove the items from the array.
+
+        @param index: The index or slice of items to remove.
+        @type index: C{int} or C{slice}
+        """
+        if isinstance(index, slice):
+            for i in xrange(*slice.indices(len(self._items))):
+                self._items[i]._treeparent = None
+        else:
+            self._items[index]._treeparent = None
+        self._items.__del__(index)
+
+    def __iter__(self):
+        return self._items.__iter__()
+
+    def append(self, item):
+        """Set item tree parent and append to array.
+
+        @param item: The item to append.
+        @type item: L{_ElementType}
+        """
+        self._setItemTreeParent(item)
+        self._items.append(item)
+
+    def count(self, item):
+        return self._items.count(item)
+
+    def extend(self, other):
+        """Set tree parent of all items, and extend array.
+
+        @param other: The list to extend with.
+        @type other: C{list} of L{_ElementType}
+
+        @raise C{TypeError}: If the types of the list items do not match.
+        @raise C{ValueError}: If items already have a tree parent.
+        """
+        # check type of other
+        if not isinstance(other, list):
+            raise TypeError("first argument must be list")
+        # set tree parents and check type
+        for item in other:
+            self._setItemTreeParent(item)
+        # extend
+        self._items.extend(other)
+
+    def index(self, item):
+        return self._items.index(item)
+
+    def insert(self, index, item):
+        self._setItemTreeParent(item)
+        self._items.insert(index, item)
+
+    def pop(self, index=-1):
+        self._items[index]._treeparent = None
+        return self._items.pop(index)
+
+    def remove(self, item):
+        index = self.index(item)
+        self._items[index]._treeparent = None
+        self.__delitem__(index)
+
+    def reverse(self):
+        self._items.reverse()
+
+    def sort(self, cmp=None, key=None, reverse=False):
+        self._items.sort(cmp, key, reverse)
 
 class MetaArrayType(type):
     """Metaclass for C{ArrayType}."""
@@ -186,13 +274,16 @@ class MetaArrayType(type):
 # derives from DetailTreeBranch because arrays types can be displayed in the
 # detail view, as branches of the display tree
 class ArrayType(PyFFI.ObjectModels.Tree.DetailTreeBranch):
-    """Base class from which all array types are derived."""
+    """Base class from which all array types are derived.
+
+    @todo: Finish this class.
+    """
     __metaclass__ = MetaArrayType
-    ElementType = PyFFI.ObjectModels.SimpleType.SimpleType
+    _ElementType = PyFFI.ObjectModels.SimpleType.SimpleType
 
     def __init__(self, **kwargs):
-         """Initialize empty list. No keyword arguments are passed down the
-         class hierarchy.
+         """Initialize empty list. For now, no keyword arguments are passed
+         down the class hierarchy.
          """
          super(ArrayType, self).__init__()
 
