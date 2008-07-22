@@ -199,6 +199,7 @@ Section
   SetShellVarContext all
 
   ; Clean up old versions and clutter
+  !insertmacro UninstallManifestFiles
   RMDir /r "$PYTHONPATH\Lib\site-packages\PyFFI"
   RMDir /r "$PYTHONPATH\Lib\site-packages\NifTester"
   RMDir /r "$PYTHONPATH\Lib\site-packages\NifVis"
@@ -335,6 +336,9 @@ Section "Uninstall"
 have_python:
 
     ; key, that means that Python is still installed
+    !insertmacro UninstallManifestFiles
+	
+	; now also clean up left overs
     RMDir /r "$PYTHONPATH\Lib\site-packages\PyFFI"
     Delete "$PYTHONPATH\Lib\site-packages\PyFFI*.*"
     Delete "$PYTHONPATH\Scripts\qskope.*"

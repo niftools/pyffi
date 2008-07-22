@@ -11,14 +11,14 @@ def getfiledict(stream):
         # seperate file and path
         idx = line.rfind('\\')
         if idx == -1:
-            dir = "."
+            path = "."
         else:
-            dir = line[:idx]
-        file = line[idx+1:]
+            path = line[:idx]
+        filename = line[idx+1:]
         # add it to the dictionary
-        if not dir in filedict:
-            filedict[dir] = []
-        filedict[dir].append(file)
+        if not path in filedict:
+            filedict[path] = []
+        filedict[path].append(filename)
 
     return filedict
 
@@ -27,18 +27,41 @@ def removeslashdot(path):
 
 def writeinstallnsh(filedict, nsh):
     nsh.write("!macro InstallManifestFiles\n")
-    for dir in sorted(filedict.keys()):
-        nsh.write(removeslashdot("  SetOutPath $INSTDIR\\%s\n" % dir))
-        nsh.writelines([removeslashdot("  File ..\\%s\\%s\n" % (dir, file))
-                       for file in sorted(filedict[dir])])
-    nsh.write("!macroend")
+    for path in sorted(filedict.keys()):
+        nsh.write(removeslashdot("  SetOutPath $INSTDIR\\%s\n" % path))
+        nsh.writelines([removeslashdot("  File ..\\%s\\%s\n" % (path, filename))
+                        for filename in sorted(filedict[path])])
+    nsh.write("!macroend\n\n")
+
+def writeuninstallnsh(filedict, nsh):
+    nsh.write("!macro UninstallManifestFiles\n")
+    for path in sorted(filedict.keys()):
+        if path.startswith("PyFFI"):
+            nsh.writelines([removeslashdot("  Delete $PYTHONPATH\\Lib\\site-packages\\%s\\%s\n"
+                                           % (path, filename))
+                            for filename in sorted(filedict[path])])
+            # .pyc files
+            nsh.writelines([removeslashdot("  Delete $PYTHONPATH\\Lib\\site-packages\\%s\\%sc\n"
+                                           % (path, filename))
+                            for filename in sorted(filedict[path])
+                            if filename.endswith(".py")])
+            # .pyo files
+            nsh.writelines([removeslashdot("  Delete $PYTHONPATH\\Lib\\site-packages\\%s\\%so\n"
+                                           % (path, filename))
+                            for filename in sorted(filedict[path])
+                            if filename.endswith(".py")])
+        else:
+            nsh.writelines([removeslashdot("  Delete $INSTDIR\\%s\\%s\n"
+                                           % (path, filename))
+                            for filename in sorted(filedict[path])])
+    nsh.write("!macroend\n\n")
 
 manifest = open("MANIFEST", "r")
 nsh = open("win-install/manifest.nsh", "w")
 try:
     filedict = getfiledict(manifest)
     writeinstallnsh(filedict, nsh)
+    writeuninstallnsh(filedict, nsh)
 finally:
     nsh.close()
     manifest.close()
-
