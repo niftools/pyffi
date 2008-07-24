@@ -70,7 +70,7 @@ def updateMopp(self):
             [vert.asTuple() for vert in self.shape.data.vertices],
             [(hktri.triangle.v1, hktri.triangle.v2, hktri.triangle.v3)
              for hktri in self.shape.data.triangles])
-    except RuntimeError:
+    except (OSError, RuntimeError):
         print(
             "WARNING: havok mopp generator failed, falling back on simple mopp")
         self.updateOriginScale()
