@@ -15,7 +15,7 @@ already included with the library, although it does not yet create any
 classes yet)
 * fully optimal mopp generation for Oblivion (using the NifTools mopper.exe
 which is a command line utility that calls the mopp functions in the havok
-library, credits for writing the original wrapper goes to tazpn)
+library, credit for writing the original wrapper goes to tazpn)
 * minor updates to the nif.xml format description
 * refactoring: library reorganized and some interfaces have been
 unified, also a lot of code duplication has been reduced; see
