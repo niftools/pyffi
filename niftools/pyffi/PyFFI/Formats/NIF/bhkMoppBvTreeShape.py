@@ -39,7 +39,8 @@
 
 import math # math.ceil
 
-from PyFFI.Utils.Mopp import getMoppScaleOriginCode
+from PyFFI.Utils.Mopp import getMopperCredits
+from PyFFI.Utils.Mopp import getMopperOriginScaleCode
 
 def getMassCenterInertia(self, density = 1, solid = True):
     """Return mass, center of gravity, and inertia tensor."""
@@ -63,8 +64,9 @@ def updateMopp(self):
 
     # first try with PyFFI.Utils.Mopp
     try:
-        scale, origin, mopp \
-        = getMoppScaleOriginCode(
+        print(getMopperCredits())
+        origin, scale, mopp \
+        = getMopperOriginScaleCode(
             [vert.asTuple() for vert in self.shape.data.vertices],
             [(hktri.triangle.v1, hktri.triangle.v2, hktri.triangle.v3)
              for hktri in self.shape.data.triangles])
