@@ -1,4 +1,4 @@
-"""Wrapper for NifMopp.dll"""
+"""Create mopps using mopper.exe"""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -37,26 +37,77 @@
 #
 # ***** END LICENSE BLOCK *****
 
-from ctypes import *
-from itertools import chain
 import os.path
+import tempfile
+import subprocess
 
-try:
-    _NifMopp = WinDLL(os.path.join(os.path.dirname(__file__), "NifMopp.dll"))
-except NameError:
-    # on linux WinDLL will raise a NameError
-    _NifMopp = None
+def getMopperPath():
+    """Get path to the mopper. If mopper is not found, raises a
+    C{RuntimeError}.
 
-def getMoppScaleOriginCode(vertices, triangles):
+    >>> path = "mopper.exe" # to fool doctest on non-windows
+    >>> import sys
+    >>> if sys.platform == "win32":
+    ...     path = getMopperPath()
+    >>> path.endswith("mopper.exe")
+    True
+
+    @raise RuntimeError: If mopper.exe is not found.
+
+    @return: Path to mopper.exe.
+    @rtype: C{str}
+    """
+    mopper = os.path.join(os.path.dirname(__file__), "mopper.exe")
+    if not os.path.exists(mopper):
+        raise RuntimeError("mopper.exe not found at %s" % mopper)
+    return mopper
+
+def getMopperCredits():
+    """Get info about mopper, and credit havok.
+
+    >>> print(getMopperCredits())
+    Mopper. Copyright (c) 2008, NIF File Format Library and Tools
+    All rights reserved.
+    <BLANKLINE>
+    Options:
+      --help      for usage help
+      --license   for licensing details
+    <BLANKLINE>
+    Mopper uses havok. Copyright 1999-2008 Havok.com Inc. (and its Licensors).
+    All Rights Reserved. See www.havok.com for details.
+    <BLANKLINE>
+    <BLANKLINE>
+
+    @raise RuntimeError: If mopper.exe is not found or cannot run.
+
+    @return: Credits string.
+    @rtype: C{str}
+    """
+    mopper = getMopperPath()
+    outfile = tempfile.TemporaryFile()
+    try:
+        # print license info, credit havok
+        subprocess.call([mopper], stdout=outfile)
+        outfile.seek(0)
+        creditstr = outfile.read().replace("\r\n", "\n")
+    finally:
+        outfile.close()
+    return creditstr
+
+def getMopperOriginScaleCode(vertices, triangles):
     """Generate mopp code for given geometry. Raises RuntimeError if something
-    goes wrong (e.g. if mopp generator fails, or if NifMopp.dll cannot be
-    loaded on the current platform).
+    goes wrong (e.g. if mopp generator fails, or if mopper.exe cannot be
+    run on the current platform).
+
+    Call L{showMopperCredits} before calling this function if you need to credit
+    havok in a console application that uses this function.
 
     For example, creating a mopp for the standard cube:
 
     >>> expected_moppcode = [40, 0, 255, 39, 0, 255, 38, 0, 255, 19, 129, 125, 41, 22, 130, 125, 12, 24, 130, 125, 4, 38, 0, 5, 51, 39, 0, 5, 50, 24, 130, 125, 4, 40, 0, 5, 59, 16, 255, 249, 12, 20, 130, 125, 4, 39, 0, 5, 53, 40, 0, 5, 49, 54, 22, 130, 125, 25, 24, 130, 125, 17, 17, 255, 249, 12, 21, 129, 125, 4, 38, 0, 5, 57, 40, 249, 255, 58, 56, 40, 249, 255, 52, 24, 130, 125, 4, 39, 249, 255, 55, 38, 249, 255, 48]
-    >>> if not _NifMopp is None:
-    ...     scale, orig, moppcode = getMoppScaleOriginCode(
+    >>> import sys
+    >>> if sys.platform == "win32":
+    ...     orig, scale, moppcode = getMopperOriginScaleCode(
     ...         [(1, 1, 1), (0, 0, 0), (0, 0, 1), (0, 1, 0),
     ...          (1, 0, 1), (0, 1, 1), (1, 1, 0), (1, 0, 0)],
     ...         [(0, 4, 6), (1, 6, 7), (2, 1, 4), (3, 1, 2),
@@ -74,42 +125,45 @@ def getMoppScaleOriginCode(vertices, triangles):
     >>> moppcode == expected_moppcode
     True
 
+    @raise RuntimeError: If the mopper cannot run or has bad output.
+
     @param vertices: List of vertices.
     @type vertices: list of tuples of floats
     @param triangles: List of triangles (indices referring back to vertex list).
     @type triangles: list of tuples of ints
-    @return: The mopp scale as a float, the origin as a tuple of floats, and
+    @return: The origin as a tuple of floats, the mopp scale as a float, and
         the mopp code as a list of ints.
+    @rtype: C{tuple} of C{float}s, C{float}, and C{list} of C{int}s
     """
-    if _NifMopp is None:
-        raise RuntimeError("havok mopp generator cannot run on this platform")
-    nverts = c_int(len(vertices))
-    ntris = c_int(len(triangles))
-    pverts = (c_float * (3 * len(vertices)))(*chain(*vertices))
-    ptris = (c_short * (3 * len(triangles)))(*chain(*triangles))
-    moppcodelen = _NifMopp.GenerateMoppCode(nverts, pverts, ntris, ptris)
-    if moppcodelen == -1:
-        raise RuntimeError("havok mopp generator failed")
-    pmoppcode = create_string_buffer(moppcodelen)
-    result = _NifMopp.RetrieveMoppCode(c_int(moppcodelen), pmoppcode)
-    if result != moppcodelen:
-        raise RuntimeError("retrieving havok mopp code failed")
-    # convert c byte array to list of ints
-    moppcode = list(ord(char) for char in pmoppcode)
 
-    scale = c_float()
-    if not _NifMopp.RetrieveMoppScale(byref(scale)):
-        raise RuntimeError("retrieving havok mopp scale failed")
-    # convert c_double to Python float
-    scale = scale.value
-
-    porigin = (c_float * 3)()
-    if not _NifMopp.RetrieveMoppOrigin(porigin):
-        raise RuntimeError("retreiving havok mopp origin failed")
-    origin = tuple(value for value in porigin)
-    #_NifMopp.RetrieveOrigin
-    return scale, origin, moppcode
-    
+    mopper = getMopperPath()
+    infile = tempfile.TemporaryFile()
+    outfile = tempfile.TemporaryFile()
+    try:
+        # set up input
+        infile.write("%i\n" % len(vertices))
+        for vert in vertices:
+            infile.write("%f %f %f\n" % vert)
+        infile.write("\n%i\n" % len(triangles))
+        for tri in triangles:
+            infile.write("%i %i %i\n" % tri)
+        infile.seek(0)
+        # call mopper
+        subprocess.call([mopper, "--"], stdin=infile, stdout=outfile)
+        # process output
+        outfile.seek(0)
+        try:
+            origin = tuple(float(outfile.readline()) for i in xrange(3))
+            scale = float(outfile.readline())
+            moppcodelen = int(outfile.readline())
+            moppcode = [int(outfile.readline()) for i in xrange(moppcodelen)]
+        except ValueError:
+            # conversion failed
+            raise RuntimeError("invalid mopper output (mopper failed?)")
+    finally:
+        infile.close()
+        outfile.close()
+    return origin, scale, moppcode
 
 if __name__ == "__main__":
     import doctest
