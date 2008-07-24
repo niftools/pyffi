@@ -1,4 +1,4 @@
-Version 1.0.0 (***)
+Version 1.0.0 (24 Jul 2008)
 * new NSIS installer (this solves various issues with Vista, and also
 allows the documentation to be bundled)
 * new filter to prepare collada (.dae) files for CryEngine2 resource compiler

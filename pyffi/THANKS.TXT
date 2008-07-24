@@ -5,12 +5,12 @@ Special thanks to
     for having metaclasses in Python: metaclasses make PyFFI's implementation
     very easy.
   - m4444x for nifskope, which has been an inspiration for PyFFI's xml based
-    design.
+    design, and of course also an inspiration for QSkope
   - wz for his support, and for testing of the library, when the first
     version was being written.
   - CryTek for releasing the Far Cry SDK and Crysis SDK, which contains much
     information about the cgf file format. This has saved many months of hard
     work.
   - CryTek and Bethesda for the great games they make.
-  - Havok, for releasing their SDK without which PyFFI's mopp generator would
+  - Havok, for releasing their SDK without which custom mopp generation would
     not have been possible.
