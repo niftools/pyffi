@@ -220,5 +220,5 @@ required to your code.
   and eventually it will be merged again, not as a toaster, but as a
   part of qskope. This may take a while.
 
-* If you used qskopelib before, it now resides in PyFFI.QSkopeLib, so
+* If you used qskopelib before, it now resides in PyFFI.QSkope, so
   update your import statements to reflect this.

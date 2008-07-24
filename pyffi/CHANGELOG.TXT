@@ -13,8 +13,9 @@ allows the documentation to be bundled)
 description (this is still far from functional, but an initial parser is
 already included with the library, although it does not yet create any
 classes yet)
-* fully optimal mopp generation for Oblivion (using tazpn's NifMopp.dll
-wrapper for the mopp functions in the havok library)
+* fully optimal mopp generation for Oblivion (using the NifTools mopper.exe
+which is a command line utility that calls the mopp functions in the havok
+library, credits for writing the original wrapper goes to tazpn)
 * minor updates to the nif.xml format description
 * refactoring: library reorganized and some interfaces have been
 unified, also a lot of code duplication has been reduced; see
@@ -42,7 +43,7 @@ README.TXT for more details on how to migrate from 0.x.x to 1.x.x
   - some other internal code has been moved around
     + qskopelib -> PyFFI.QSkope
     + PyFFI.Bases -> PyFFI.ObjectModels.XML
-  - and a lot more...
+  - a lot more internal code reorganization is in progress...
 * much documentation has been added and improved
 
 Version 0.11.0 (16 Jun 2008)
