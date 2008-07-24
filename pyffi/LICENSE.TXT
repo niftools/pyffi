@@ -31,10 +31,12 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-=======================================================================
+=======================================
 
-PyFFI uses Havok. Copyright 1999-2008 Havok.com Inc. (and its Licensors).
-All Rights Reserved. See www.havok.com for details.
+PyFFI uses Mopper. Copyright 2008 NIF File Format Library and Tools.
+All rights reserved. Run "PyFFI\Utils\mopper.exe --license" for details.
 
-All of Havok's code used by PyFFI is contained in the file
-PyFFI/Utils/NifMopp.dll
+=======================================
+
+Mopper uses Havok. Copyright 1999-2008 Havok.com Inc. (and its Licensors).
+All rights reserved. See www.havok.com for details.
