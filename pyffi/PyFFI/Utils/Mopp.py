@@ -42,24 +42,20 @@ import tempfile
 import subprocess
 
 def getMopperPath():
-    """Get path to the mopper. If mopper is not found, raises a
-    C{RuntimeError}.
+    """Get path to the mopper.
 
-    >>> path = "mopper.exe" # to fool doctest on non-windows
-    >>> import sys
-    >>> if sys.platform == "win32":
-    ...     path = getMopperPath()
+    >>> path = getMopperPath()
     >>> path.endswith("mopper.exe")
     True
 
-    @raise RuntimeError: If mopper.exe is not found.
+    @raise OSError: If mopper.exe is not found.
 
     @return: Path to mopper.exe.
     @rtype: C{str}
     """
     mopper = os.path.join(os.path.dirname(__file__), "mopper.exe")
     if not os.path.exists(mopper):
-        raise RuntimeError("mopper.exe not found at %s" % mopper)
+        raise OSError("mopper.exe not found at %s" % mopper)
     return mopper
 
 def getMopperCredits():
@@ -78,7 +74,7 @@ def getMopperCredits():
     <BLANKLINE>
     <BLANKLINE>
 
-    @raise RuntimeError: If mopper.exe is not found or cannot run.
+    @raise OSError: If mopper.exe is not found or cannot run.
 
     @return: Credits string.
     @rtype: C{str}
@@ -86,7 +82,7 @@ def getMopperCredits():
     mopper = getMopperPath()
     outfile = tempfile.TemporaryFile()
     try:
-        # print license info, credit havok
+        # print license info, credit havok (raises OSError on failure)
         subprocess.call([mopper], stdout=outfile)
         outfile.seek(0)
         creditstr = outfile.read().replace("\r\n", "\n")
@@ -104,20 +100,20 @@ def getMopperOriginScaleCode(vertices, triangles):
 
     For example, creating a mopp for the standard cube:
 
-    >>> expected_moppcode = [40, 0, 255, 39, 0, 255, 38, 0, 255, 19, 129, 125, 41, 22, 130, 125, 12, 24, 130, 125, 4, 38, 0, 5, 51, 39, 0, 5, 50, 24, 130, 125, 4, 40, 0, 5, 59, 16, 255, 249, 12, 20, 130, 125, 4, 39, 0, 5, 53, 40, 0, 5, 49, 54, 22, 130, 125, 25, 24, 130, 125, 17, 17, 255, 249, 12, 21, 129, 125, 4, 38, 0, 5, 57, 40, 249, 255, 58, 56, 40, 249, 255, 52, 24, 130, 125, 4, 39, 249, 255, 55, 38, 249, 255, 48]
-    >>> import sys
-    >>> if sys.platform == "win32":
-    ...     orig, scale, moppcode = getMopperOriginScaleCode(
-    ...         [(1, 1, 1), (0, 0, 0), (0, 0, 1), (0, 1, 0),
-    ...          (1, 0, 1), (0, 1, 1), (1, 1, 0), (1, 0, 0)],
-    ...         [(0, 4, 6), (1, 6, 7), (2, 1, 4), (3, 1, 2),
-    ...          (0, 2, 4), (4, 1, 7), (6, 4, 7), (3, 0, 6),
-    ...          (0, 3, 5), (3, 2, 5), (2, 0, 5), (1, 3, 6)])
-    ... else:
-    ...     # cheat for doctest
-    ...     scale = 16319749.0
-    ...     orig = (-0.01, -0.01, -0.01)
-    ...     moppcode = expected_moppcode
+    >>> expected_moppcode = [
+    ...     40, 0, 255, 39, 0, 255, 38, 0, 255, 19, 129, 125, 41, 22, 130,
+    ...     125, 12, 24, 130, 125, 4, 38, 0, 5, 51, 39, 0, 5, 50, 24, 130,
+    ...     125, 4, 40, 0, 5, 59, 16, 255, 249, 12, 20, 130, 125, 4, 39,
+    ...     0, 5, 53, 40, 0, 5, 49, 54, 22, 130, 125, 25, 24, 130, 125, 17,
+    ...     17, 255, 249, 12, 21, 129, 125, 4, 38, 0, 5, 57, 40, 249, 255,
+    ...     58, 56, 40, 249, 255, 52, 24, 130, 125, 4, 39, 249, 255, 55, 38,
+    ...     249, 255, 48]
+    >>> orig, scale, moppcode = getMopperOriginScaleCode(
+    ...     [(1, 1, 1), (0, 0, 0), (0, 0, 1), (0, 1, 0),
+    ...      (1, 0, 1), (0, 1, 1), (1, 1, 0), (1, 0, 0)],
+    ...     [(0, 4, 6), (1, 6, 7), (2, 1, 4), (3, 1, 2),
+    ...      (0, 2, 4), (4, 1, 7), (6, 4, 7), (3, 0, 6),
+    ...      (0, 3, 5), (3, 2, 5), (2, 0, 5), (1, 3, 6)])
     >>> scale
     16319749.0
     >>> ["%6.3f" % value for value in orig]
@@ -125,7 +121,8 @@ def getMopperOriginScaleCode(vertices, triangles):
     >>> moppcode == expected_moppcode
     True
 
-    @raise RuntimeError: If the mopper cannot run or has bad output.
+    @raise RuntimeError: If the mopper has bad output.
+    @raise OSError: If the mopper is not found or cannot run.
 
     @param vertices: List of vertices.
     @type vertices: list of tuples of floats
@@ -148,7 +145,7 @@ def getMopperOriginScaleCode(vertices, triangles):
         for tri in triangles:
             infile.write("%i %i %i\n" % tri)
         infile.seek(0)
-        # call mopper
+        # call mopper (raises OSError on failure)
         subprocess.call([mopper, "--"], stdin=infile, stdout=outfile)
         # process output
         outfile.seek(0)

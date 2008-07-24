@@ -108,6 +108,14 @@ ShowUninstDetails show
 ;--------------------------------
 ; Functions
 
+!include "FileFunc.nsh"
+!include "WordFunc.nsh"
+
+!insertmacro Locate
+!insertmacro VersionCompare
+
+Var DLL_found
+
 ; taken from http://nsis.sourceforge.net/Open_link_in_new_browser_window
 # uses $0
 Function openLinkNewWindow
@@ -141,6 +149,36 @@ Function openLinkNewWindow
   Pop $1
   Pop $2
   Pop $3
+FunctionEnd
+
+!define DLL_VER "9.00.21022.8"
+
+Function LocateCallback
+
+	MoreInfo::GetProductVersion "$R9"
+	Pop $0
+
+        ${VersionCompare} "$0" "${DLL_VER}" $R1
+
+        StrCmp $R1 0 0 new
+      new:
+        StrCmp $R1 1 0 old
+      old:
+        StrCmp $R1 2 0 end
+	; Found DLL is older
+        Call DownloadDLL
+
+     end:
+	StrCpy "$0" StopLocate
+	StrCpy $DLL_found "true"
+	Push "$0"
+
+FunctionEnd
+
+Function DownloadDLL
+    MessageBox MB_OK "You will need to download the Microsoft Visual C++ 2008 Redistributable Package in order to run Mopper. Pressing OK will take you to the download page, please follow the instructions on the page that appears."
+    StrCpy $0 "http://www.microsoft.com/downloads/details.aspx?familyid=9b2da534-3e03-4391-8a4d-074b9f2bc1bf&displaylang=en"
+    Call openLinkNewWindow
 FunctionEnd
 
 Function .onInit
@@ -320,6 +358,14 @@ maya_check_end:
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI-py${PYTHONVERSION}" "Publisher" "Python File Format Library"
   SetOutPath $INSTDIR
   WriteUninstaller "uninstall.exe"
+
+  ; Check for msvcr90.dll - give notice to download if not found
+  MessageBox MB_OK "The installer will now check your system for the required system dlls."
+  StrCpy $1 $WINDIR
+  StrCpy $DLL_found "false"
+  ${Locate} "$1" "/L=F /M=MSVCR90.DLL /S=0B" "LocateCallback"
+  StrCmp $DLL_found "false" 0 +2
+    Call DownloadDLL
 SectionEnd
 
 Section "Uninstall"
