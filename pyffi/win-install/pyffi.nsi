@@ -97,7 +97,7 @@ LangString DESC_SecCopyUI ${LANG_ENGLISH} "Copy all required files to the applic
 ;--------------------------------
 ; Data
 
-OutFile "pyffi-py${PYTHONVERSION}-${VERSION}-windows.exe"
+OutFile "PyFFI-py${PYTHONVERSION}-${VERSION}-windows.exe"
 InstallDir "$PROGRAMFILES\PyFFI"
 BrandingText "http://pyffi.sourceforge.net/"
 Icon nsis1-install.ico
