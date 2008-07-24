@@ -355,7 +355,7 @@ maya_check_end:
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI-py${PYTHONVERSION}" "DisplayName" "Python ${PYTHONVERSION} PyFFI-${VERSION}"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI-py${PYTHONVERSION}" "UninstallString" "$INSTDIR\uninstall.exe"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI-py${PYTHONVERSION}" "InstallLocation" "$INSTDIR"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI-py${PYTHONVERSION}" "Publisher" "Python File Format Library"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI-py${PYTHONVERSION}" "Publisher" "Python File Format Interface"
   SetOutPath $INSTDIR
   WriteUninstaller "uninstall.exe"
 
