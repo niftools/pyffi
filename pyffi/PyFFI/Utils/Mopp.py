@@ -66,7 +66,7 @@ def getMopperCredits():
     """Get info about mopper, and credit havok.
 
     >>> print(getMopperCredits())
-    Mopper. Copyright (c) 2008, NIF File Format Library and Tools
+    Mopper. Copyright (c) 2008, NIF File Format Library and Tools.
     All rights reserved.
     <BLANKLINE>
     Options:
