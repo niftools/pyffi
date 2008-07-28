@@ -259,6 +259,7 @@ Section
   Delete "$PYTHONPATH\Scripts\niftoaster.*"
   Delete "$PYTHONPATH\Scripts\pyffipostinstallation.*"
   Delete "$PYTHONPATH\Scripts\nifvisualizer.*"
+  Delete "$PYTHONPATH\Scripts\crydaefilter.*"
   RMDir /r "$INSTDIR\docs"
   RMDir /r "$INSTDIR\examples"
   RMDir /r "$INSTDIR\tests"
@@ -398,6 +399,7 @@ have_python:
     Delete "$PYTHONPATH\Scripts\nifoptimize.*"
     Delete "$PYTHONPATH\Scripts\niftexdump.*"
     Delete "$PYTHONPATH\Scripts\niftoaster.*"
+    Delete "$PYTHONPATH\Scripts\crydaefilter.*"
 
 python_check_end:
 
