@@ -38,7 +38,12 @@
 # ***** END LICENSE BLOCK *****
 
 def getTimes(self):
-    """Return an iterator over all key times."""
+    """Return an iterator over all key times.
+
+    @todo: When code for calculating the bspines is ready, this function
+    will return exactly self.basisData.numControlPoints - 1 time points, and
+    not self.basisData.numControlPoints as it is now.
+    """
     for i in xrange(self.basisData.numControlPoints):
         yield self.startTime + (i * (self.stopTime - self.startTime)
                                 / (self.basisData.numControlPoints - 1))
