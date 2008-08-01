@@ -222,6 +222,10 @@ class CryDaeFilter(xml.sax.saxutils.XMLFilterBase):
     def characters(self, chars):
         if (len(self.stack) >= 2
             and self.stack[-2] == "image" and self.stack[-1] == "init_from"):
+            # %20 not recognized
+            if "%20" in chars:
+                print("translating '%%20' to ' ' in texture path %s" % chars)
+                chars = chars.replace("%20", " ")
             # windows seperators -> platform independent seperators
             if "\\" in chars:
                 print("forcing separators to '/' in texture path %s" % chars)
