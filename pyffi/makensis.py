@@ -1,5 +1,9 @@
 """Transform MANIFEST into an NSIS file list."""
 
+import sys # python version
+
+import PyFFI # version
+
 def getfiledict(stream):
     """Get dictionary mapping each directory to a list of files."""
     filedict = {}
@@ -59,6 +63,11 @@ def writeuninstallnsh(filedict, nsh):
 manifest = open("MANIFEST", "r")
 nsh = open("win-install/manifest.nsh", "w")
 try:
+    nsh.write("""\
+!define VERSION "%s"
+!define PYTHONVERSION "%i.%i"
+
+""" % (PyFFI.__version__, sys.version_info[0], sys.version_info[1]))
     filedict = getfiledict(manifest)
     writeinstallnsh(filedict, nsh)
     writeuninstallnsh(filedict, nsh)
