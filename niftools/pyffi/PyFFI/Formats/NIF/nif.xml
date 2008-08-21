@@ -2962,7 +2962,7 @@
         <add name="Fail Action" type="StencilAction" ver2="20.0.0.5"/>
         <add name="Z Fail Action" type="StencilAction" ver2="20.0.0.5"/>
         <add name="Pass Action" type="StencilAction" ver2="20.0.0.5"/>
-        <add name="Draw Mode" type="FaceDrawMode" ver2="20.0.0.5">Used to enabled double sided faces.</add>
+        <add name="Draw Mode" default="3" type="FaceDrawMode" ver2="20.0.0.5">Used to enabled double sided faces. Default is 3 (DRAW_BOTH).</add>
         <add name="Flags" type="Flags" ver1="20.1.0.3">
         Property flags:
            0.. 1 = Stencil Enable
@@ -3141,6 +3141,8 @@
     </niobject>
     -->
     <niobject name="NiEnvMappedTriShapeData" abstract="0" ver1="3.1" ver2="3.1" inherit="NiTriShapeData">
+        Holds mesh data using a list of singular triangles.
+    </niobject>
 
     <niobject name="NiBezierTriangle4" abstract="0" inherit="NiObject">
       Sub data of NiBezierMesh
