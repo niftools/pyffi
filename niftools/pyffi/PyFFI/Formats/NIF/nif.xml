@@ -1831,7 +1831,7 @@
         </add>
         <add name="Num Sources" type="uint">The number of source objects.</add>
         <add name="Sources" type="Ref" template="NiSourceTexture" arr1="Num Sources" ver1="4.0.0.0">The texture sources.</add>
-        <add name="Image" type="Ref" template="NiImage" arr1="Num Sources" ver2="3.1">The image sources</add>
+        <add name="Images" type="Ref" template="NiImage" arr1="Num Sources" ver2="3.1">The image sources</add>
     </niobject>
 
     <niobject name="NiAlphaController" abstract="0" inherit="NiFloatInterpController">
@@ -3009,8 +3009,8 @@
         <add name="Texture Clamping" type="TexClampMode">Texture Clamp mode.</add>
         <add name="Texture Type" default="2" type="EffectType">The type of effect that the texture is used for.</add>
         <add name="Coordinate Generation Type" default="2" type="CoordGenType">The method that will be used to generate UV coordinates for the texture effect.</add>
-        <add name="Source Texture" type="Ref" template="NiSourceTexture">Source texture index.</add>
-    <!--Source Texture could also be NiImage (atleast in v3.1) -->
+        <add name="Image" type="Ref" template="NiImage" arr1="Num Sources" ver2="3.1">Image index.</add>
+        <add name="Source Texture" type="Ref" template="NiSourceTexture" ver1="4.0.0.0">Source texture index.</add>
         <add name="Clipping Plane" default="0" type="byte">Determines whether a clipping plane is used.  0 means that a plane is not used.</add>
         <add name="Unknown Vector" type="Vector3">Unknown: (1,0,0)?</add>
         <add name="Unknown Float" type="float">Unknown. 0?</add>
