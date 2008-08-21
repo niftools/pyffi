@@ -6,6 +6,7 @@
         each part of the version in a byte.  For example, 4.0.0.2 is
         0x04000002 and 10.1.0.0 is 0x0A010000.-->
 
+    <version num="2.3">Dark Age of Camelot</version>
     <version num="3.0">Star Trek: Bridge Commander</version>
     <version num="3.03">Dark Age of Camelot</version>
     <version num="3.1">Dark Age of Camelot, Star Trek: Bridge Commander</version>
@@ -1001,7 +1002,7 @@
         <add name="Lifetime" type="float">The particle&#039;s age.</add>
         <add name="Lifespan" type="float">Maximum age of the particle.</add>
         <add name="Timestamp" type="float">Timestamp of the last update.</add>
-        <add name="Unknown Short" type="ushort">Unknown short (=0)</add>
+        <add name="Unknown Short" type="ushort" default="0">Unknown short</add>
         <add name="Vertex ID" type="ushort">Particle/vertex index matches array index</add>
     </compound>
 
@@ -1089,9 +1090,9 @@
         <add name="Clamp?" type="TexClampMode" cond="Has Image" default="3">May be texture clamp mode.</add>
         <add name="Filter?" type="TexFilterMode" cond="Has Image" default="2">May be texture filter mode.</add>
         <add name="UV Set?" type="uint" cond="Has Image" default="1">This may be the UV set counting from 1 instead of zero.</add>
-        <add name="PS2 L" type="short" cond="Has Image" default="0" ver2="10.2.0.0">0?</add>
-        <add name="PS2 K" type="short" cond="Has Image" default="-75" ver2="10.2.0.0">-75?</add>
-        <add name="Unknown Short 3" type="short" cond="Has Image" default="0">Unknown.  Usually 0 but sometimes 257</add>
+        <add name="PS2 L" type="short" cond="Has Image" default="0" ver1="3.03" ver2="10.2.0.0">0?</add>
+        <add name="PS2 K" type="short" cond="Has Image" default="-75" ver1="3.03" ver2="10.2.0.0">-75?</add>
+        <add name="Unknown Short 3" type="short" cond="Has Image" default="0" ver1="3.03">Unknown.  Usually 0 but sometimes 257</add>
     </compound>
 
     <enum name="ImageType" storage="uint">
@@ -1178,6 +1179,48 @@
     <niobject name="NiObject" abstract="1">
         Abstract object type.
     </niobject>
+
+    <niobject name="Ni3dsAlphaAnimator" abstract="0" ver2="2.3" inherit="NiObject">
+        Unknown! 
+        <add name="Unknown 1" type="byte" arr1="40">Unknown.</add>
+        <add name="Parent" type="Ref" template="NiObject">The parent?</add>
+        <add name="Num 1" type="uint">Unknown.</add>
+        <add name="Num 2" type="uint">Unknown.</add>
+        <add name="Unknown 2" type="uint" arr1="Num 1" arr2="Num 2" arr3="2">Unknown.</add>
+    </niobject>
+
+    <niobject name="Ni3dsAnimationNode" abstract="0" ver2="2.3" inherit="NiObject">
+        Unknown! 
+        <add name="Name" type="string">Name of this object.</add>
+        <add name="Has Data" type="uint">Unknown.</add>
+        <add name="Unknown Floats 1" type="float" arr1="21" cond="Has Data">Unknown. Matrix?</add>
+        <add name="Unknown Short" type="ushort" cond="Has Data">Unknown.</add>
+        <add name="Child" type="Ref" template="NiObject" cond="Has Data">Child?</add>
+        <add name="Unknown Floats 2" type="float" arr1="12" cond="Has Data">Unknown.</add>
+        <add name="Count" type="uint" cond="Has Data">A count.</add>
+        <add name="Unknown Array" type="byte" arr1="Count" arr2="5" cond="Has Data">Unknown.</add>
+    </niobject>
+
+    <niobject name="Ni3dsColorAnimator" abstract="0" ver2="2.3" inherit="NiObject">
+        Unknown! 
+        <add name="Unknown 1" type="byte" arr1="184">Unknown.</add>
+    </niobject>
+
+    <niobject name="Ni3dsMorphShape" abstract="0" ver2="2.3" inherit="NiObject">
+        Unknown! 
+        <add name="Unknown 1" type="byte" arr1="14">Unknown.</add>
+    </niobject>
+
+    <niobject name="Ni3dsParticleSystem" abstract="0" ver2="2.3" inherit="NiObject">
+        Unknown! 
+        <add name="Unknown 1" type="byte" arr1="14">Unknown.</add>
+    </niobject>
+
+    <niobject name="Ni3dsPathController" abstract="0" ver2="2.3" inherit="NiObject">
+        Unknown! 
+        <add name="Unknown 1" type="byte" arr1="20">Unknown.</add>
+    </niobject>
+
 
     <niobject name="NiParticleModifier" abstract="1" inherit="NiObject">
         A particle system modifier.
@@ -1536,10 +1579,15 @@
     <niobject name="NiObjectNET" abstract="1" inherit="NiObject">
         An object that can be controlled by a controller.
         <add name="Name" type="string">Name of this controllable object, used to refer to the object in .kf files.</add>
-        <add name="Extra Data" type="Ref" template="NiExtraData" ver2="4.2.2.0">Extra data object index. (The first in a chain)</add>
+        <add name="Has Old Extra Data" type="uint" ver2="2.3">Extra data for pre-3.0 versions.</add>
+        <add name="Old Extra Prop Name" cond="Has Old Extra Data" ver2="2.3" type="string">(=NiStringExtraData)</add>
+        <add name="Old Extra Internal Id" cond="Has Old Extra Data" ver2="2.3" type="uint">ref</add>
+        <add name="Old Extra String" cond="Has Old Extra Data" ver2="2.3" type="string">Extra string data.</add>
+        <add name="Unknown Byte" type="byte" ver2="2.3">Always 0.</add>
+        <add name="Extra Data" type="Ref" template="NiExtraData" ver1="3.0" ver2="4.2.2.0">Extra data object index. (The first in a chain)</add>
         <add name="Num Extra Data List" type="uint" ver1="10.0.1.0">The number of Extra Data objects referenced through the list.</add>
         <add name="Extra Data List" type="Ref" template="NiExtraData" arr1="Num Extra Data List" ver1="10.0.1.0">List of extra data indices.</add>
-        <add name="Controller" type="Ref" template="NiTimeController">Controller object index. (The first in a chain)</add>
+        <add name="Controller" type="Ref" template="NiTimeController" ver1="3.0">Controller object index. (The first in a chain)</add>
     </niobject>
 
     <niobject name="NiCollisionObject" abstract="0" inherit="NiObject" ver1="20.0.0.5">
@@ -1585,15 +1633,17 @@
 
     <niobject name="NiAVObject" abstract="1" inherit="NiObjectNET">
         Generic node object.
-        <add name="Flags" type="Flags">Some flags; commonly 0x000C or 0x000A.</add>
+        <add name="Flags" type="Flags" ver1="3.0">Some flags; commonly 0x000C or 0x000A.</add>
         <add name="Translation" type="Vector3">The translation vector.</add>
         <add name="Rotation" type="Matrix33">The rotation part of the transformation matrix.</add>
         <add name="Scale" type="float" default="1.0">Scaling part (only uniform scaling is supported).</add>
         <add name="Velocity" type="Vector3" ver2="4.2.2.0">Unknown function. Always seems to be (0, 0, 0)</add>
         <add name="Num Properties" type="uint">The number of property objects referenced.</add>
         <add name="Properties" type="Ref" template="NiProperty" arr1="Num Properties">List of node properties.</add>
-        <add name="Has Bounding Box" type="bool" ver2="4.2.2.0">Do we have a bounding box?</add>
-        <add name="Bounding Box" type="BoundingBox" cond="Has Bounding Box != 0" ver2="4.2.2.0">The bounding box.</add>
+         <add name="Unknown 1" type="uint" arr1="4" ver2="2.3">Always 2,0,2,0.</add>
+         <add name="Unknown 2" type="byte" ver2="2.3">0 or 1.</add>
+        <add name="Has Bounding Box" type="bool" ver1="3.0" ver2="4.2.2.0">Do we have a bounding box?</add>
+        <add name="Bounding Box" type="BoundingBox" cond="Has Bounding Box != 0" ver1="3.0" ver2="4.2.2.0">The bounding box.</add>
         <add name="Collision Object" type="Ref" template="NiCollisionObject" ver1="10.0.1.0">Refers to NiCollisionObject, which is usually a bounding box or other simple collision shape.  In Oblivion this links the Havok objects.</add>
     </niobject>
 
@@ -1616,6 +1666,11 @@
 
     <niobject name="NiProperty" abstract="1" inherit="NiObjectNET">
         A generic property object.
+    </niobject>
+
+    <niobject name="NiTransparentProperty" abstract="0" ver1="3.1" ver2="3.1" inherit="NiProperty">
+        Unknown
+        <add name="Unknown" type="byte" arr1="6">Unknown.</add>
     </niobject>
 
     <niobject name="NiPSysModifier" abstract="1" inherit="NiObject" ver1="10.1.0.0">
@@ -1687,6 +1742,15 @@
         <add name="Unknown Ints" type="uint" arr1="Num Unknown Ints" ver1="20.0.0.4" userver="10">Unknown.</add>
         <add name="Num Unknown Ints" type="uint" ver1="20.0.0.4" userver="11">A count.</add>
         <add name="Unknown Ints" type="uint" arr1="Num Unknown Ints" ver1="20.0.0.4" userver="11">Unknown.</add>
+    </niobject>
+
+    <niobject name="NiMorphController" abstract="0" inherit="NiInterpController" ver2="3.03">
+        Unknown! Used by Daoc->'healing.nif'. 
+    </niobject>
+
+    <niobject name="NiMorpherController" abstract="0" inherit="NiInterpController" ver2="3.1">
+        Unknown! Used by Daoc. 
+                <add name="Data" type="Ref" template="NiMorphData">This controller's data.</add>
     </niobject>
 
     <niobject name="NiSingleInterpController" abstract="1" inherit="NiInterpController">
@@ -2414,14 +2478,14 @@
         <add name="Palette" type="ByteColor4" arr1="256">The color palette.</add>
     </niobject>
 
-    <niobject name="NiParticleBomb" abstract="0" inherit="NiParticleModifier" ver1="4.1.0.12">
+    <niobject name="NiParticleBomb" abstract="0" inherit="NiParticleModifier" ver1="3.03">
         A particle modifier.
         <add name="Decay?" type="float">Unknown.</add>
         <add name="Duration?" type="float">Unknown.</add>
         <add name="DeltaV?" type="float">Unknown.</add>
         <add name="Start?" type="float">Unknown.</add>
         <add name="Decay Type?" type="DecayType">Unknown.</add>
-        <add name="Symmetry Type?" type="SymmetryType">Unknown.</add>
+        <add name="Symmetry Type?" type="SymmetryType" ver1="4.1.0.12">Unknown.</add>
         <add name="Position?" type="Vector3">The position of the mass point relative to the particle system?</add>
         <add name="Direction?" type="Vector3">The direction of the applied acceleration?</add>
     </niobject>
@@ -2480,7 +2544,8 @@
 
     <niobject name="NiParticleSystemController" abstract="0" inherit="NiTimeController">
         A generic particle system time controller object.
-        <add name="Speed" type="float">Particle speed</add>
+        <add name="Old Speed" type="uint" ver2="3.1">Particle speed in old files</add>
+        <add name="Speed" type="float" ver1="3.3.0.13">Particle speed</add>
         <add name="Speed Random" type="float">Particle random speed modifier</add>
         <add name="Vertical Direction" type="float">
             vertical emit direction [radians]
@@ -2497,7 +2562,8 @@
         <add name="Emit Start Time" type="float">Particle emit start time</add>
         <add name="Emit Stop Time" type="float">Particle emit stop time</add>
         <add name="Unknown Byte" type="byte" ver1="4.0.0.2">Unknown byte, (=0)</add>
-        <add name="Emit Rate" type="float">Particle emission rate (particles per second)</add>
+        <add name="Old Emit Rate" type="uint" ver2="3.1">Particle emission rate in old files</add>
+        <add name="Emit Rate" type="float" ver1="3.3.0.13">Particle emission rate (particles per second)</add>
         <add name="Lifetime" type="float">Particle lifetime</add>
         <add name="Lifetime Random" type="float">Particle lifetime random modifier</add>
         <add name="Emit Flags" type="ushort" ver1="4.0.0.2">Bit 0: Emit Rate toggle bit (0 = auto adjust, 1 = use Emit Rate value)</add>
@@ -2508,7 +2574,15 @@
         <add name="Unknown Int 1?" type="uint" ver1="4.0.0.2">? int=1 ?</add>
         <add name="Unknown Int 2?" type="uint" ver1="4.0.0.2">? int=0 ?</add>
         <add name="Unknown Short 3?" type="ushort" ver1="4.0.0.2">? short=0 ?</add>
-        <add name="Particle" type="Particle" ver2="3.1">The particle (older NIF versions only have a single particle per controller?)</add>
+        <!-- <add name="Particle" type="Particle" ver2="3.1">The particle (older NIF versions only have a single particle per controller?)</add> -->
+        <add name="Particle Velocity" type="Vector3" ver2="3.1">Particle velocity</add>
+        <add name="Particle Unknown Vector" type="Vector3" ver2="3.1">Unknown</add>
+        <add name="Particle Lifetime" type="float" ver2="3.1">The particle&#039;s age.</add>
+        <add name="Particle Link" type="Ref" template="NiObject" ver2="3.1" />
+        <add name="Particle Timestamp" type="uint" ver2="3.1">Timestamp of the last update.</add>
+        <add name="Particle Unknown Short" type="ushort" ver2="3.1">Unknown short</add>
+        <add name="Particle Vertex Id" type="ushort" ver2="3.1">Particle/vertex index matches array index</add>
+        
         <add name="Num Particles" type="ushort" ver1="4.0.0.2">Size of the following array. (Maximum number of simultaneous active particles)</add>
         <add name="Num Valid" type="ushort" ver1="4.0.0.2">Number of valid entries in the following array. (Number of active particles at the time the system was saved)</add>
         <add name="Particles" type="Particle" arr1="Num Particles" ver1="4.0.0.2">Individual particle modifiers?</add>
@@ -2517,7 +2591,8 @@
         <add name="Unknown Link 2" type="Ref" template="NiObject">Unknown int (=0xffffffff)</add>
         <add name="Trailer" type="byte" ver1="4.0.0.2">Trailing null byte</add>
         <add name="Color Data" type="Ref" template="NiColorData" ver2="3.1" />
-        <add name="Unkown Floats" type="float" arr1="2" ver2="3.1" />
+        <add name="Unknown Float 1" type="float" ver2="3.1" />
+        <add name="Unknown Floats 2" arr1="Particle Unknown Short" type="float" ver2="3.1" /> 
     </niobject>
 
     <niobject name="NiBSPArrayController" abstract="0" inherit="NiParticleSystemController">
@@ -2935,6 +3010,7 @@
         <add name="Texture Type" default="2" type="EffectType">The type of effect that the texture is used for.</add>
         <add name="Coordinate Generation Type" default="2" type="CoordGenType">The method that will be used to generate UV coordinates for the texture effect.</add>
         <add name="Source Texture" type="Ref" template="NiSourceTexture">Source texture index.</add>
+    <!--Source Texture could also be NiImage (atleast in v3.1) -->
         <add name="Clipping Plane" default="0" type="byte">Determines whether a clipping plane is used.  0 means that a plane is not used.</add>
         <add name="Unknown Vector" type="Vector3">Unknown: (1,0,0)?</add>
         <add name="Unknown Float" type="float">Unknown. 0?</add>
@@ -3043,6 +3119,58 @@
         <add name="Points" type="ushort" arr1="Num Strips" arr2="Strip Lengths" ver2="10.0.1.2">The points in the Triangle strips.  Size is the sum of all entries in Strip Lengths.</add>
         <add name="Points" type="ushort" arr1="Num Strips" arr2="Strip Lengths" cond="Has Points != 0" ver1="10.0.1.3">The points in the Triangle strips. Size is the sum of all entries in Strip Lengths.</add>
     </niobject>
+
+    <niobject name="NiEnvMappedTriShape" abstract="0" ver1="3.1" ver2="3.1" inherit="NiObjectNET">
+           Unknown
+      <add name="Unknown 1" type="ushort">unknown (=4 - 5)</add>
+      <add name="Unknown Matrix" type="Matrix44">unknown</add>
+      <add name="Num Children" type="uint">The number of child objects.</add>
+      <add name="Children" type="Ref" template="NiAVObject" arr1="Num Children">List of child node object indices.</add>
+      <add name="Child 2" type="Ref" template="NiObject">unknown</add>
+      <add name="Child 3" type="Ref" template="NiObject">unknown</add>
+    </niobject>
+
+    <!--
+    <niobject name="NiEnvMappedTriShapeData" abstract="0" ver1="3.1" ver2="3.1" inherit="NiTriBasedGeomData">
+        Holds mesh data using a list of singular triangles.
+        <add name="Num Triangle Points" type="uint">Num Triangles times 3.</add>
+        <add name="Has Triangles" type="bool">Do we have triangle data?</add>
+        <add name="Triangles" type="Triangle" arr1="Num Triangles" cond="Has Triangles != 0">Triangle face data.</add>
+        <add name="Num Match Groups" type="ushort">Number of shared normals groups.</add>
+        <add name="Match Groups" type="MatchGroup" arr1="Num Match Groups">The shared normals.</add>
+    </niobject>
+    -->
+    <niobject name="NiEnvMappedTriShapeData" abstract="0" ver1="3.1" ver2="3.1" inherit="NiTriShapeData">
+
+    <niobject name="NiBezierTriangle4" abstract="0" inherit="NiObject">
+      Sub data of NiBezierMesh
+        <add name="Unknown 1" type="uint" arr1="6">unknown</add>
+        <add name="Unknown 2" type="ushort">unknown</add>
+        <add name="Matrix" type="Matrix33">unknown</add>
+        <add name="Vector 1" type="Vector3">unknown</add>
+        <add name="Vector 2" type="Vector3">unknown</add>
+        <add name="Unknown 3" type="short" arr1="4">unknown</add>
+        <add name="Unknown 4" type="byte">unknown</add>
+        <add name="Unknown 5" type="uint">unknown</add>
+        <add name="Unknown 6" type="short" arr1="24">unknown</add>
+    </niobject>
+          
+    <niobject name="NiBezierMesh" abstract="0" inherit="NiAVObject">
+        Unknown
+        <add name="Num Bezier Triangles" type="uint">references.</add>
+        <add name="Bezier Triangle" type="Ref" template="NiBezierTriangle4" arr1="Num Bezier Triangles">unknown</add>
+        <add name="Unknown 1" type="uint">Unknown.</add>
+        <add name="Count 1" type="ushort">Data count.</add>
+        <add name="Unknown 2" type="ushort">Unknown.</add>
+        <add name="Points 1" type="Vector3" arr1="Count 1">data.</add>
+        <add name="Unknown 3" type="uint">Unknown (illegal link?).</add>
+        <add name="Points 2" type="float" arr1="Count 1" arr2="2">data.</add>
+        <add name="Unknown 4" type="uint">unknown</add>
+        <add name="Count 2" type="ushort">data count 2.</add>
+        <add name="Data 2" type="ushort" arr1="Count 2" arr2="4">data count.</add>
+    </niobject>
+    
+  
 
     <niobject name="NiClod" abstract="0" inherit="NiTriBasedGeom">
         A shape node that holds continuous level of detail information.
