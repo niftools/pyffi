@@ -507,7 +507,7 @@ def testRoot(root, **args):
         if isinstance(block, NifFormat.NiPSysMeshEmitter):
             opt_shapes = False
 
-    print("optimizing geometries")
+    print("removing duplicate and empty children")
     for block in block_list:
         # skip if we are not optimizing shapes
         if not opt_shapes:
@@ -527,14 +527,38 @@ def testRoot(root, **args):
         for i, child in enumerate(childlist):
             block.children[i] = child
 
+    print("optimizing geometries")
+    # first update list of all blocks
+    block_list = [ block for block in root.tree(unique = True) ]
+    optimized_geometries = []
+    for block in block_list:
         # optimize geometries
-        for i, child in enumerate(block.children):
-            if (isinstance(child, NifFormat.NiTriStrips) \
-                and not "NiTriStrips" in exclude) or \
-                (isinstance(child, NifFormat.NiTriShape) \
-                and not "NiTriShape" in exclude):
-                block.children[i] = optimizeTriBasedGeom(child)
-
+        if (isinstance(block, NifFormat.NiTriStrips) \
+            and not "NiTriStrips" in exclude) or \
+            (isinstance(block, NifFormat.NiTriShape) \
+            and not "NiTriShape" in exclude):
+            # already optimized? skip!
+            if block in optimized_geometries:
+                continue
+            # optimize
+            newblock = optimizeTriBasedGeom(block)
+            optimized_geometries.append(block)
+            # search for all locations of the block, and replace it
+            if not(newblock is block):
+                optimized_geometries.append(newblock)
+                for otherblock in block_list:
+                    if not(block in otherblock.getLinks()):
+                        continue
+                    if isinstance(otherblock, NifFormat.NiNode):
+                        for i, child in enumerate(otherblock.children):
+                            if child is block:
+                                otherblock.children[i] = newblock
+                    elif isinstance(otherblock, NifFormat.NiDefaultAVObjectPalette):
+                        for i, avobj in enumerate(otherblock.objs):
+                            if avobj.avObject is block:
+                                avobj.avObject = newblock
+                    else:
+                        raise RuntimeError("don't know how to replace block %s in %s" % (block.__class__.__name__, otherblock.__class__.__name__))
 
     # merge shape data
     # first update list of all blocks
