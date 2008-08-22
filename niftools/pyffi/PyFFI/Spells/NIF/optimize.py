@@ -297,8 +297,9 @@ def optimizeTriBasedGeom(block, striplencutoff = 10.0, stitch = True):
         data = block.data
     # average, weighed towards large strips
     if isinstance(block, NifFormat.NiTriStrips):
+        # note: the max(1, ...) is to avoid ZeroDivisionError
         avgstriplen = float(sum(i * i for i in data.stripLengths)) \
-            / sum(i for i in data.stripLengths)
+            / max(1, sum(i for i in data.stripLengths))
         print "  (average strip length is %f)" % avgstriplen
         if avgstriplen < striplencutoff:
             print("  average strip length less than %f so triangulating"
