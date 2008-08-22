@@ -354,6 +354,16 @@ class StructBase(object):
             kwargs['argument'] = rt_arg
             # write the attribute
             getattr(self, "_%s_value_" % attr.name).write(stream, **kwargs)
+            ### UNCOMMENT FOR DEBUGGING WHILE WRITING
+            #print "* %s.%s" % (self.__class__.__name__, attr.name), # debug
+            #val = getattr(self, "_%s_value_" % attr.name) # debug
+            #if isinstance(val, BasicBase): # debug
+            #    try:
+            #        print val.getValue() # debug
+            #    except StandardError:
+            #        pass
+            #else:
+            #    print val.__class__.__name__
 
     def fixLinks(self, **kwargs):
         """Fix links in the structure."""
