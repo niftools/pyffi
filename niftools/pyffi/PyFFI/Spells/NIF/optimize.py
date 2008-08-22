@@ -558,6 +558,9 @@ def testRoot(root, **args):
                         for i, avobj in enumerate(otherblock.objs):
                             if avobj.avObject is block:
                                 avobj.avObject = newblock
+                    elif isinstance(otherblock, NifFormat.bhkCollisionObject):
+                        if otherblock.target is block:
+                            otherblock.target = newblock
                     else:
                         raise RuntimeError("don't know how to replace block %s in %s" % (block.__class__.__name__, otherblock.__class__.__name__))
 
