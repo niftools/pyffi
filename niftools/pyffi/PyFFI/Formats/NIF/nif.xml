@@ -1758,8 +1758,8 @@
         <add name="Data" type="Ref" template="NiMorphData">Geometry morphing data index.</add>
         <add name="Always Update" type="byte">Always Update</add>
         <add name="Num Interpolators" type="uint" ver1="10.1.0.106">The number of interpolator objects.</add>
-        <add name="Interpolators" type="Ref" template="NiInterpolator" arr1="Num Interpolators" ver1="10.1.0.106" ver2="20.2.0.8">List of interpolators.</add>
-        <add name="Interpolator Weights" type="MorphWeight" arr1="Num Interpolators" ver1="20.3.0.6">Weighted Interpolators?</add>
+        <add name="Interpolators" type="Ref" template="NiInterpolator" arr1="Num Interpolators" ver1="10.1.0.106" ver2="20.2.0.7">List of interpolators.</add>
+        <add name="Interpolator Weights" type="MorphWeight" arr1="Num Interpolators" ver1="20.2.0.8">Weighted Interpolators?</add>
         <add name="Num Unknown Ints" type="uint" ver1="20.0.0.4" userver="10">A count.</add>
         <add name="Unknown Ints" type="uint" arr1="Num Unknown Ints" ver1="20.0.0.4" userver="10">Unknown.</add>
         <add name="Num Unknown Ints" type="uint" ver1="20.0.0.4" userver="11">A count.</add>
