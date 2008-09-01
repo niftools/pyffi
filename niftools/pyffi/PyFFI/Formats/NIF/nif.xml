@@ -122,6 +122,11 @@
     <basic name="StringIndex" count="0" niflibtype="IndexString" nifskopetype="stringindex">
         A 32-bit unsigned integer, used to refer to strings in the header.
     </basic>
+
+    <basic name="Blob" count="0" niflibtype="byte" nifskopetype="blob">
+        Opaque array of data.
+    </basic>
+
     
     <!--Enumerations
         These are like C enums and consist of a list of options.  They can appear
@@ -378,35 +383,51 @@
     <enum name="MotionSystem" storage="byte">
         The motion system. 4 (Box) is used for everything movable. 7 (Keyframed) is used on statics and animated stuff.
         
-        Oblivion's ssg commando reveals even more values:
-        0: Keyframed
-        1: Box
-        2: Sphere
-        3: Sphere
-        4: Box
-        5: Box
-        6: Keyframed
-        7: Keyframed
-        8: Box
-        9+: Keyframed?
-        
-        <option value="2" name="MO_SYS_SPHERE">Sphere</option>
-        <option value="4" name="MO_SYS_BOX">Box</option>
-        <option value="6" name="MO_SYS_KEYFRAMED_BIPED">Keyframed (used for creatures)</option>
-        <option value="7" name="MO_SYS_KEYFRAMED">Keyframed (used for weapons)</option>
+        <option value="0" name="MO_SYS_INVALID">Invalid</option>
+        <option value="1" name="MO_SYS_DYNAMIC">A fully-simulated, movable rigid body. At construction time the engine checks the input inertia and selects MO_SYS_SPHERE_INERTIA or MO_SYS_BOX_INERTIA as appropriate.</option>       
+        <option value="2" name="MO_SYS_SPHERE">Simulation is performed using a sphere inertia tensor.</option>
+        <option value="3" name="MO_SYS_SPHERE_INERTIA">This is the same as MO_SYS_SPHERE_INERTIA, except that simulation of the rigid body is "softened".</option>
+        <option value="4" name="MO_SYS_BOX">Simulation is performed using a box inertia tensor.</option>
+        <option value="5" name="MO_SYS_BOX_STABILIZED">This is the same as MO_SYS_BOX_INERTIA, except that simulation of the rigid body is "softened".</option>
+        <option value="6" name="MO_SYS_KEYFRAMED">Simulation is not performed as a normal rigid body. The keyframed rigid body has an infinite mass when viewed by the rest of the system. (used for creatures)</option>
+        <option value="7" name="MO_SYS_FIXED">This motion type is used for the static elements of a game scene, e.g. the landscape. Faster than MO_SYS_KEYFRAMED at velocity 0. (used for weapons)</option>
+        <option value="8" name="MO_SYS_THIN_BOX">A box inertia motion which is optimized for thin boxes and has less stability problems</option>
+        <option value="9" name="MO_SYS_CHARACTER">A specialized motion used for character controllers</option>
+    </enum>
+    
+    <enum name="DeactivatorType" storage="byte">
+        <option value="0" name="DEACTIVATOR_INVALID">Invalid</option>
+        <option value="1" name="DEACTIVATOR_NEVER">This will force the rigid body to never deactivate.</option>
+        <option value="2" name="DEACTIVATOR_SPATIAL">Tells Havok to use a spatial deactivation scheme. This makes use of high and low frequencies of positional motion to determine when deactivation should occur.</option>   
+    </enum>
+    
+    <enum name="SolverDeactivation" storage="byte">
+        A list of possible solver deactivation settings. This value defines how the
+		solver deactivates objects. The solver works on a per object basis. 	
+		Note: Solver deactivation does not save CPU, but reduces creeping of
+		movable objects in a pile quite dramatically.
+        <option value="0" name="SOLVER_DEACTIVATION_INVALID">Invalid</option>
+        <option value="1" name="SOLVER_DEACTIVATION_OFF">No solver deactivation</option>
+        <option value="2" name="SOLVER_DEACTIVATION_LOW">Very conservative deactivation, typically no visible artifacts.</option>   
+        <option value="3" name="SOLVER_DEACTIVATION_MEDIUM">Normal deactivation, no serious visible artifacts in most cases</option>   
+        <option value="4" name="SOLVER_DEACTIVATION_HIGH">Fast deactivation, visible artifacts</option>   
+        <option value="5" name="SOLVER_DEACTIVATION_MAX">Very fast deactivation, visible artifacts</option>   
     </enum>
     
     <enum name="MotionQuality" storage="byte">
         The motion type. Determines quality of motion?
-        <option value="0" name="MO_QUAL_MOVING">Moving</option>
-        <option value="1" name="MO_QUAL_FIXED">Fixed</option>
-        <option value="2" name="MO_QUAL_KEYFRAMED">Keyframed</option>
-        <option value="3" name="MO_QUAL_MOVING2">Moving(?)</option>
-        <option value="4" name="MO_QUAL_MOVING3">Moving(?)</option>
-        <option value="5" name="MO_QUAL_CRITICAL">Critical</option>
-        <option value="6" name="MO_QUAL_BULLET">Bullet</option>
-        <option value="7" name="MO_QUAL_USER">User</option>
-        <option value="8" name="MO_QUAL_NULL">Null</option>
+        <option value="0" name="MO_QUAL_INVALID">Automatically assigned to MO_QUAL_FIXED, MO_QUAL_KEYFRAMED or MO_QUAL_DEBRIS</option>
+        <option value="1" name="MO_QUAL_FIXED">Use this for fixed bodies. </option>
+        <option value="2" name="MO_QUAL_KEYFRAMED">Use this for moving objects with infinite mass.</option>
+        <option value="3" name="MO_QUAL_DEBRIS">Use this for all your debris objects</option>
+        <option value="4" name="MO_QUAL_MOVING">Use this for moving bodies, which should not leave the world.</option>
+        <option value="5" name="MO_QUAL_CRITICAL">Use this for all objects, which you cannot afford to tunnel through the world at all</option>
+        <option value="6" name="MO_QUAL_BULLET">Use this for very fast objects </option>
+        <option value="7" name="MO_QUAL_USER">For user.</option>
+        <option value="8" name="MO_QUAL_CHARACTER">Use this for rigid body character controllers</option>
+        <option value="9" name="MO_QUAL_KEYFRAMED_REPORT">
+        Use this for moving objects with infinite mass which should report contact points and Toi-collisions against all other bodies, including other fixed and keyframed bodies.
+        </option>
     </enum>
 
     <enum name="ForceType" storage="uint">
@@ -521,6 +542,13 @@
         <option value="5" name="HALFSPACE_BV">Half Space</option>
     </enum>
 
+    <enum name="hkResponseType" storage="byte">
+        <option value="0" name="RESPONSE_INVALID">Invalid Response</option>
+        <option value="1" name="RESPONSE_SIMPLE_CONTACT">Do normal collision resolution</option>
+        <option value="2" name="RESPONSE_REPORTING">No collision resolution is performed but listeners are called</option>
+        <option value="3" name="RESPONSE_NONE">Do nothing, ignore all the results.</option>
+    </enum>
+    
   <!--Compounds
         These are like C structures and are used as sub-parts of more complex
         classes when there are multiple pieces of data repeated in an array.-->
@@ -610,7 +638,7 @@
         <add name="z" type="float">Third coordinate.</add>
     </compound>
 
-    <compound name="Vector4" niflibtype="Float4" nifskopetype="vector4">
+    <compound name="Vector4" niflibtype="Vector4" nifskopetype="vector4">
         A 4-dimensional vector.
         <add name="x" type="float">First coordinate.</add>
         <add name="y" type="float">Second coordinate.</add>
@@ -991,7 +1019,7 @@
         <add name="Interpolation" type="KeyType" ver2="10.1.0.0">Unlike most objects, the presense of this value is not conditional on there being keys.</add>
         <add name="Keys" type="Key" arg="Interpolation" template="float" arr1="Num Keys" ver2="10.1.0.0">The morph key frames.</add>
         <add name="Unknown Int" type="uint" ver1="10.1.0.106" ver2="10.2.0.0">Unknown.</add>
-        <add name="Unknown Int" type="uint" ver1="20.0.0.4" ver2="20.2.0.8" userver="0">Unknown.</add>
+        <add name="Unknown Int" type="uint" ver1="20.0.0.4" ver2="20.1.0.3" userver="0">Unknown.</add>
         <add name="Vectors" type="Vector3" arr1="ARG">Morph vectors.</add>
     </compound>
 
@@ -1893,10 +1921,10 @@
         <add name="Num Node Groups" type="uint">Number of node groups.</add>
         <add name="Num Node Groups 2" type="uint">Number of node groups.</add>
         <add name="Node Groups" type="NodeGroup" arr1="Num Node Groups">A list of node groups (each group a sequence of bones).</add>
-        <add name="Num Shape Groups" type="uint" userver="0">Number of shape groups.</add>
-        <add name="Shape Groups 1" type="SkinShapeGroup" arr1="Num Shape Groups" userver="0">List of shape groups.</add>
-        <add name="Num Shape Groups 2" type="uint" userver="0">The size of the second list of shape groups.</add>
-        <add name="Shape Groups 2" type="Ref" template="NiTriBasedGeom" arr1="Num Shape Groups 2" userver="0">Group of NiTriShape indices.</add>
+        <add name="Num Shape Groups" type="uint" ver1="4.2.2.0" userver="0">Number of shape groups.</add>
+        <add name="Shape Groups 1" type="SkinShapeGroup" arr1="Num Shape Groups"  ver1="4.2.2.0" userver="0">List of shape groups.</add>
+        <add name="Num Shape Groups 2" type="uint"  ver1="4.2.2.0" userver="0">The size of the second list of shape groups.</add>
+        <add name="Shape Groups 2" type="Ref" template="NiTriBasedGeom" arr1="Num Shape Groups 2"  ver1="4.2.2.0" userver="0">Group of NiTriShape indices.</add>
     </niobject>
 
     <niobject name="NiBSBoneLODController" abstract="0" inherit="NiBoneLODController">
@@ -2334,10 +2362,10 @@
         Controls animation and collision.  Integer holds flags:
         Bit 0 : enable animation
         Bit 1 : enable collision
-        Bit 2 : unknown, usually zero
+        Bit 2 : is skeleton nif?
         Bit 3 : toggable? unknown, set to 1 on oblivion signs
-        Bit 4 : unknown, usually zero
-        Bit 5 : trigger?
+        Bit 4 : FlameNodes present
+        Bit 5 : EditorMarkers present
     </niobject>
 
     <niobject name="NiIntegersExtraData" abstract="0" inherit="NiExtraData" ver1="10.1.0.0">
@@ -2610,10 +2638,27 @@
         <add name="Float Data" type="Ref" template="NiFloatData">Path controller data index (float data). ?</add>
     </niobject>
 
+    <enum name="ChannelType" storage="uint">
+        <option value="0" name="CHNL_RED">Red</option>
+        <option value="1" name="CHNL_GREEN">Green</option>
+        <option value="2" name="CHNL_BLUE">Blue</option>
+        <option value="3" name="CHNL_ALPHA">Alpha</option>
+        <option value="4" name="CHNL_COMPRESSED">Compressed</option>
+        <option value="16" name="CHNL_INDEX">Index</option>
+        <option value="19" name="CHNL_EMPTY">Empty</option>
+    </enum>
+
+    <enum name="ChannelConvention" storage="uint">
+        <option value="0" name="CC_FIXED">Fixed</option>
+        <option value="3" name="CC_INDEX">Palettized</option>
+        <option value="4" name="CC_COMPRESSED">Compressed</option>
+        <option value="5" name="CC_EMPTY">Empty</option>
+    </enum>
+
     <compound name="ChannelData">
         Channel data 
-        <add name="Type" type="uint">Channel Type</add>
-        <add name="Unknown Flag" type="uint">Unknown</add>
+        <add name="Type" type="ChannelType">Channel Type</add>
+        <add name="Convention" type="ChannelConvention">Data Storage Convention</add>
         <add name="Bits Per Channel" type="byte">Bits per channel</add>
         <add name="Unknown Byte 1" type="byte">Unknown</add>
     </compound>
@@ -2639,8 +2684,8 @@
         <add name="Unknown Int 3" type="uint" ver1="20.0.0.4">Seems to always be zero.</add>
         <add name="Flags" type="byte" ver1="20.0.0.4">Flags</add>
         <add name="Unknown Int 4" type="uint" ver1="20.0.0.4">Seems to always be zero.</add>
-        <add name="Channels" type="ChannelData" arr1="4" ver1="20.0.0.4">Channel Data</add>       
         <add name="Unknown Byte 1" type="byte" ver1="20.3.0.6">Unknown.</add>
+        <add name="Channels" type="ChannelData" arr1="4" ver1="20.0.0.4">Channel Data</add>
         <add name="Palette" type="Ref" template="NiPalette">Link to NiPalette, for 8-bit textures.</add>
         <add name="Num Mipmaps" type="uint">Number of mipmaps in the texture.</add>
         <add name="Bytes Per Pixel" type="uint">Bytes per pixel (Bits Per Pixel / 8).</add>
@@ -2774,7 +2819,7 @@
     <niobject name="NiPSysMeshUpdateModifier" abstract="0" inherit="NiPSysModifier" ver1="10.2.0.0">
         Unknown.
         <add name="Num Meshes" type="uint">The number of object references that follow.</add>
-        <add name="Meshes" type="Ref" template="NiNode" arr1="Num Meshes">Not sure here... Group of target NiNodes?</add>
+        <add name="Meshes" type="Ref" template="NiAVObject" arr1="Num Meshes">Group of target NiNodes or NiTriShapes?</add>
     </niobject>
 
     <niobject name="NiPSysPlanarCollider" abstract="0" inherit="NiPSysCollider" ver1="10.2.0.0">
@@ -2920,7 +2965,7 @@
         <add name="Unknown Link" type="Ref" template="NiObject" cond="Use External == 1" ver1="10.1.0.0">Unknown.</add>
         <add name="Unknown Byte" type="byte" cond="Use External == 0" ver2="10.0.1.0">Unknown.</add>
         <add name="File Name" type="FilePath" cond="Use External == 0" ver1="10.1.0.0">The original source filename of the image embedded by the referred NiPixelData object.</add>
-        <add name="Pixel Data" type="Ref" template="NiPixelData" cond="Use External == 0">Pixel data object index.</add>
+        <add name="Pixel Data" type="Ref" template="NiObject" cond="Use External == 0">Pixel data object index. NiPixelData or NiPersistentSrcTextureRendererData</add>
         <add name="Pixel Layout" type="PixelLayout" default="5">Specifies the way the image will be stored.</add>
         <add name="Use Mipmaps" type="MipMapFormat" default="2">Specifies whether mip maps are used.</add>
         <add name="Alpha Format" type="AlphaFormat" default="3"> Note: the NiTriShape linked to this object must have a NiAlphaProperty in its list of properties to enable material and/or texture transparency.</add>
@@ -3447,5 +3492,63 @@
         <add name="Lines" type="bool" arr1="Num Vertices">Is vertex connected to other (next?) vertex?</add>
     </niobject>
 
+    <compound name="Polygon">
+        Two dimensional screen elements.
+        <add name="Num Vertices" type="ushort">Number of vertices in this polygon</add>
+        <add name="Vertex Offset" type="ushort">Vertex Offset</add>
+        <add name="Num Triangles" type="ushort">Number of faces in this polygon</add>
+        <add name="Triangle Offset" type="ushort">Triangle offset in shape</add>
+    </compound>
+    
+    <niobject name="NiScreenElementsData" inherit="NiTriShapeData">
+        Two dimensional screen elements.
+        <add name="Max Polygons" type="ushort">Maximum number of polygons?</add>
+        <add name="Polygons" type="Polygon" arr1="Max Polygons">Polygons</add>
+        <add name="Polygon Indices" type="ushort" arr1="Max Polygons">Polygon Indices</add>
+        <add name="Unknown UShort 1" type="ushort" default="1">Unknown</add>
+        <add name="Num Polygons" type="ushort">Number of Polygons actually in use</add>
+        <add name="Used Vertices" type="ushort">Number of in-use vertices</add>
+        <add name="Unknown UShort 2" type="ushort" default="1">Unknown</add>
+        <add name="Used Triangle Points" type="ushort">Number of in-use triangles</add>
+        <add name="Unknown UShort 3" type="ushort" default="1">Maximum number of faces</add>
+    </niobject>
+    
+    <niobject name="NiScreenElements" inherit="NiTriShape">
+        Two dimensional screen elements.
+    </niobject>
+       
+    <niobject name="NiPersistentSrcTextureRendererData" inherit="NiObject">
+        <add name="Pixel Format" type="PixelFormat">The format of the pixels in this internally stored image.</add>
+        <add name="Red Mask" type="uint" ver2="10.2.0.0">0x000000ff (for 24bpp and 32bpp) or 0x00000000 (for 8bpp)</add>
+        <add name="Green Mask" type="uint" ver2="10.2.0.0">0x0000ff00 (for 24bpp and 32bpp) or 0x00000000 (for 8bpp)</add>
+        <add name="Blue Mask" type="uint" ver2="10.2.0.0">0x00ff0000 (for 24bpp and 32bpp) or 0x00000000 (for 8bpp)</add>
+        <add name="Alpha Mask" type="uint" ver2="10.2.0.0">0xff000000 (for 32bpp) or 0x00000000 (for 24bpp and 8bpp)</add>
+        <add name="Bits Per Pixel" type="byte" ver2="10.2.0.0">Bits per pixel, 0 (?), 8, 24 or 32.</add>
+        <add name="Unknown 3 Bytes" type="byte" arr1="3" ver2="10.2.0.0">Zero?</add>
+        <add name="Unknown 8 Bytes" type="byte" arr1="8" ver2="10.2.0.0">
+            [96,8,130,0,0,65,0,0] if 24 bits per pixel
+            [129,8,130,32,0,65,12,0] if 32 bits per pixel
+            [34,0,0,0,0,0,0,0] if 8 bits per pixel
+            [4,0,0,0,0,0,0,0] if 0 (?) bits per pixel
+        </add>
+        <add name="Unknown Int" type="uint" ver1="10.1.0.0" ver2="10.2.0.0">Seems to always be zero.</add>
+        <add name="Bits Per Pixel" type="byte" ver1="20.0.0.4">Bits per pixel, 0 (?), 8, 24 or 32.</add>
+        <add name="Unknown Int 2" type="int" ver1="20.0.0.4">Unknown.  Could be reference pointer.</add>
+        <add name="Unknown Int 3" type="uint" ver1="20.0.0.4">Seems to always be zero.</add>
+        <add name="Flags" type="byte" ver1="20.0.0.4">Flags</add>
+        <add name="Unknown Int 4" type="uint" ver1="20.0.0.4">Seems to always be zero.</add>
+        <add name="Unknown Byte 1" type="byte" ver1="20.3.0.6">Unknown.</add>
+        <add name="Channels" type="ChannelData" arr1="4" ver1="20.0.0.4">Channel Data</add>       
+        <add name="Palette" type="Ref" template="NiPalette">Link to NiPalette, for 8-bit textures.</add>
+        <add name="Num Mipmaps" type="uint">Number of mipmaps in the texture.</add>
+        <add name="Bytes Per Pixel" type="uint">Bytes per pixel (Bits Per Pixel / 8).</add>
+        <add name="Mipmaps" type="MipMap" arr1="Num Mipmaps">Mipmap descriptions (width, height, offset).</add>
+        <add name="Num Pixels" type="uint">Unknown</add>
+        <add name="Unknown Int 6" type="uint">Unknown</add>
+        <add name="Num Faces" type="uint">Unknown</add>
+        <add name="Unknown Int 7" type="uint">Unknown</add>
+        <add name="Pixel Data" type="Blob" arr1="Num Faces" arr2="Num Pixels">Raw pixel data holding the mipmaps.  Mipmap zero is the full-size texture and they get smaller by half as the number increases.</add>
+    </niobject>
+    
 </niftoolsxml>
 
