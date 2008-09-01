@@ -2165,7 +2165,7 @@
 
     <niobject name="NiBSplineBasisData" abstract="0" inherit="NiObject" ver1="20.0.0.4">
         Stores the number of control points of a B-spline.
-        <add name="Num Control Points" type="uint">The number of control points of the B-spline.</add>
+        <add name="Num Control Points" type="uint">The number of control points of the B-spline (number of frames of animation plus degree of B-spline minus one).</add>
     </niobject>
 
     <niobject name="NiBSplineFloatInterpolator" abstract="1" inherit="NiBSplineInterpolator" ver1="20.0.0.4">
