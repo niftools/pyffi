@@ -2203,7 +2203,7 @@
         An interpolator for storing transform keyframes via a compressed
         B-spline (that is, using shorts rather than floats in the B-spline
         data).
-        <add name="Translation Bias" type="float">Translate Bias</add>
+        <add name="Translation Bias" type="float">Translation Bias</add>
         <add name="Translation Multiplier" type="float">Translate Multiplier</add>
         <add name="Rotation Bias" type="float">Rotation Bias</add>
         <add name="Rotation Multiplier" type="float">Rotation Multiplier</add>
