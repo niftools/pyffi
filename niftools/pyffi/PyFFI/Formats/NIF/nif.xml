@@ -1307,28 +1307,27 @@
         <add name="Layer Copy" type="OblivionLayer" default="1">Copy of Layer value?</add>
         <add name="Col Filter Copy" type="byte" default="0">Copy of Col Filter value?</add>
         <add name="Unknown 7 Shorts" type="ushort" arr1="7">Unknown.</add>
-        <add name="Translation" type="Vector3"> A vector that moves the body by the specified amount. Only enabled in bhkRigidBodyT objects.</add>
-        <add name="Unknown Float 00" type="float">
-            This seems to often be 1 for single objects, or the first one in a
-            a linked object group. This may be due to those objects often being bhkRigidBodyT as well.
-        </add>
+        <add name="Translation" type="Vector4"> A vector that moves the body by the specified amount. Only enabled in bhkRigidBodyT objects.</add>
         <add name="Rotation" type="QuaternionXYZW">The rotation Yaw/Pitch/Roll to apply to the body. Only enabled in bhkRigidBodyT objects.</add>
-        <add name="Linear Velocity" type="Vector3">Linear velocity.</add>
-        <add name="Unknown Float 01" type="float">Unknown.</add>
-        <add name="Angular Velocity" type="Vector3">Angular velocity.</add>
-        <add name="Unknown Float 02" type="float">Unknown.</add>
+        <add name="Linear Velocity" type="Vector4">Linear velocity.</add>
+        <add name="Angular Velocity" type="Vector4">Angular velocity.</add>
         <add name="Inertia" type="InertiaMatrix">Defines how the mass is distributed among the body.</add>
-        <add name="Center" type="Vector3"> This seems to be used to relocate the object's center of mass. Useful for balancing objects in contraints.</add>
-        <add name="Unknown Float 03" type="float">Unknown float.</add>
-        <add name="Mass" type="float">The body's mass.</add>
+        <add name="Center" type="Vector4"> This seems to be used to relocate the object's center of mass. Useful for balancing objects in contraints.</add>
+        <add name="Mass" type="float" default="1.0">The body's mass in kg. A mass of zero represents an immovable object.</add>
         <add name="Linear Damping" type="float" default="0.1"> Damping value for linear movement. A value that is too small fixes the object in place.</add>
-        <add name="Angular Damping" type="float" default="0.1"> Damping value for angular movement.</add>
+        <add name="Angular Damping" type="float" default="0.05"> Damping value for angular movement.</add>
         <add name="Friction" type="float" default="0.3">The body&#039;s friction.</add>
-        <add name="Restitution" type="float" default="0.3">The body&#039;s restitution (elasticity).</add>
+        <add name="Restitution" type="float" default="0.3">The body&#039;s restitution (elasticity).
+            If the restitution is not 0.0 the object will need extra CPU for all new collisions. 
+            Try to set restitution to 0 for maximum performance (e.g. collapsing buildings)
+        </add>
         <add name="Max Linear Velocity" type="float" default="250.0">Maximal linear velocity.</add>
         <add name="Max Angular Velocity" type="float" default="31.415926535">Maximal angular velocity. Pi x 10?</add>
-        <add name="Penetration Depth" type="float" default="0.15">Penetration depth.</add>
-        <add name="Motion System" type="MotionSystem" default="7">Motion system? Overrides Quality when on Keyframed?</add>
+        <add name="Penetration Depth" type="float" default="0.15">The maximum allowed penetration for this object. 
+            This is a hint to the engine to see how much CPU the engine should invest to keep this object from penetrating.
+            A good choice is 5% - 20% of the smallest diameter of the object.
+        </add>
+        <add name="Motion System" type="MotionSystem" default="1">Motion system? Overrides Quality when on Keyframed?</add>
         <add name="Unknown Byte 1" type="byte" default="1"> Usually set to 1 for fixed objects, or set to 2 for moving ones.  Seems to always be same as Unknown Byte 2.</add>
         <add name="Unknown Byte 2" type="byte" default="1">Usually set to 1 for fixed objects, or set to 2 for moving ones.  Seems to always be same as Unknown Byte 1.</add>
         <add name="Quality Type" type="MotionQuality" default="1">The motion type. Determines quality of motion?</add>
