@@ -123,11 +123,6 @@
         A 32-bit unsigned integer, used to refer to strings in the header.
     </basic>
 
-    <basic name="Blob" count="0" niflibtype="byte" nifskopetype="blob">
-        Opaque array of data.
-    </basic>
-
-    
     <!--Enumerations
         These are like C enums and consist of a list of options.  They can appear
         as parts of compounts or niobjects.-->
@@ -3547,7 +3542,7 @@
         <add name="Unknown Int 6" type="uint">Unknown</add>
         <add name="Num Faces" type="uint">Unknown</add>
         <add name="Unknown Int 7" type="uint">Unknown</add>
-        <add name="Pixel Data" type="Blob" arr1="Num Faces" arr2="Num Pixels">Raw pixel data holding the mipmaps.  Mipmap zero is the full-size texture and they get smaller by half as the number increases.</add>
+        <add name="Pixel Data" type="byte" arr1="Num Faces" arr2="Num Pixels">Raw pixel data holding the mipmaps.  Mipmap zero is the full-size texture and they get smaller by half as the number increases.</add>
     </niobject>
     
 </niftoolsxml>
