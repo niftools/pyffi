@@ -38,6 +38,7 @@ Are you sure that you want to proceed? [n/y] y
 reading tests/nif/_test.nif
 checking for duplicate source textures
 checking for duplicate properties
+removing duplicate and empty children
 optimizing geometries
 optimizing block 'Cube'
   removing duplicate vertices
@@ -66,6 +67,7 @@ Non-interactive
 reading tests/nif/_test.nif
 checking for duplicate source textures
 checking for duplicate properties
+removing duplicate and empty children
 optimizing geometries
 optimizing block 'Cube'
   removing duplicate vertices
