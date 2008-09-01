@@ -2204,7 +2204,7 @@
         B-spline (that is, using shorts rather than floats in the B-spline
         data).
         <add name="Translation Bias" type="float">Translation Bias</add>
-        <add name="Translation Multiplier" type="float">Translate Multiplier</add>
+        <add name="Translation Multiplier" type="float">Translation Multiplier</add>
         <add name="Rotation Bias" type="float">Rotation Bias</add>
         <add name="Rotation Multiplier" type="float">Rotation Multiplier</add>
         <add name="Scale Bias" type="float">Scale Bias</add>
