@@ -1,4 +1,4 @@
-Version 1.0.1 (***)
+Version 1.0.1 (12 Sep 2008)
 * small fix in uninstaller (didn't remove crydaefilter script)
 * crydaefilter converts %20 back into spaces (as rc doesn't recognize %20)
 * bugfixes for niftoaster optimize spell (pyffi issue #2065018)
