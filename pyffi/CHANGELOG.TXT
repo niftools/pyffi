@@ -1,4 +1,4 @@
-Version 1.0.2 (***)
+Version 1.0.2 (15 Sep 2008)
 * "negative mass" fix in inertia calculation
 
 Version 1.0.1 (12 Sep 2008)
