@@ -249,10 +249,10 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, solid = Tru
 
     # accumulate the results
     total_mass = sum(masses)
-    if total_mass < 0.0001:
+    if abs(total_mass) < 0.0001:
         # dimension is probably badly chosen
         #raise ZeroDivisionError("mass is zero (consider calculating inertia with a lower dimension)")
-        print("WARNING: mass is zero")
+        print("WARNING: mass is nearly zero (%f)" % total_mass)
         return 0, (0,0,0), ((0,0,0),(0,0,0),(0,0,0))
     # weighed average of centers with masses
     total_center = reduce(vecAdd, ( vecscalarMul(center, mass / total_mass)
@@ -282,6 +282,12 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, solid = Tru
     # correct for given density
     total_inertia = matscalarMul(total_inertia, density)
     total_mass *= density
+
+    # correct negative mass
+    if total_mass < 0:
+        total_mass = -total_mass
+        total_inertia = tuple(tuple(-x for x in row)
+                              for row in total_inertia)
 
     return total_mass, total_center, total_inertia
 
