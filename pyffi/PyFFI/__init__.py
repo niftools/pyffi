@@ -161,7 +161,7 @@ complex file formats.
 
 __all__ = ['XmlHandler', 'XsdHandler', 'Utils', 'Common', 'Bases']
 
-__version__ = '1.0.1'
+__version__ = '1.0.2'
 __hexversion__ = eval('0x%02X%02X%02X'
                       % tuple(int(x) for x in __version__.split('.')))
 
