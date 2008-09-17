@@ -436,6 +436,8 @@ def testRoot(root, **args):
 
     # joining duplicate properties
     print("checking for duplicate properties")
+    # keep dictionary mapping old properties to new (merged) properties
+    property_map = {}
     for block in block_list:
         # check block type
         if not isinstance(block, NifFormat.NiAVObject):
@@ -467,6 +469,7 @@ def testRoot(root, **args):
                     if new_prop != prop:
                         print("  removing duplicate NiTexturingProperty block")
                         block.properties[i] = new_prop
+                        property_map[prop] = new_prop
             # join duplicate material properties
             elif isinstance(prop, NifFormat.NiMaterialProperty)\
                 and not "NiMaterialProperty" in exclude:
@@ -478,6 +481,7 @@ def testRoot(root, **args):
                     if new_prop != prop:
                         print("  removing duplicate NiMaterialProperty block")
                         block.properties[i] = new_prop
+                        property_map[prop] = new_prop
             # join duplicate alpha properties
             elif isinstance(prop, NifFormat.NiAlphaProperty) \
                 and not "NiAlphaProperty" in exclude:
@@ -489,6 +493,7 @@ def testRoot(root, **args):
                     if new_prop != prop:
                         print("  removing duplicate NiAlphaProperty block")
                         block.properties[i] = new_prop
+                        property_map[prop] = new_prop
             # join duplicate specular properties
             elif isinstance(prop, NifFormat.NiSpecularProperty) \
                 and not "NiSpecularProperty" in exclude:
@@ -500,6 +505,13 @@ def testRoot(root, **args):
                     if new_prop != prop:
                         print("  removing duplicate NiSpecularProperty block")
                         block.properties[i] = new_prop
+                        property_map[prop] = new_prop
+
+    # fix properties in NiTimeController targets
+    for block in block_list:
+        if isinstance(block, NifFormat.NiTimeController):
+            if block.target in property_map:
+                block.target = property_map[block.target]
 
     # do not optimize shapes if there is particle data
     # (see MadCat221's metstaff.nif)
@@ -568,6 +580,9 @@ def testRoot(root, **args):
                         for i, child in enumerate(otherblock.children):
                             if child is block:
                                 otherblock.children[i] = newblock
+                    elif isinstance(otherblock, NifFormat.NiTimeController):
+                        if otherblock.target is block:
+                            otherblock.target = newblock
                     elif isinstance(otherblock, NifFormat.NiDefaultAVObjectPalette):
                         for i, avobj in enumerate(otherblock.objs):
                             if avobj.avObject is block:
@@ -576,7 +591,10 @@ def testRoot(root, **args):
                         if otherblock.target is block:
                             otherblock.target = newblock
                     else:
-                        raise RuntimeError("don't know how to replace block %s in %s" % (block.__class__.__name__, otherblock.__class__.__name__))
+                        raise RuntimeError(
+                            "don't know how to replace block %s in %s"
+                            % (block.__class__.__name__,
+                               otherblock.__class__.__name__))
 
     # merge shape data
     # first update list of all blocks
