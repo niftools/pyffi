@@ -532,6 +532,20 @@ def testRoot(root, **args):
     # first update list of all blocks
     block_list = [ block for block in root.tree(unique = True) ]
     optimized_geometries = []
+    # for NiTriStrips if their NiTriStripsData also occurs in a
+    # bhkNiTriStripsShape, make deep copy of data in havok
+    # so havok data remains untouched (probably should be converted to
+    # a mopp anyway)
+    # (see issue #2065018, MiddleWolfRug01.NIF)
+    for block in block_list:
+        if isinstance(block, NifFormat.bhkNiTriStripsShape):
+            for i, shape in enumerate(block.stripsData):
+                for otherblock in block_list:
+                    if isinstance(otherblock, NifFormat.NiTriStrips):
+                        if shape is otherblock.data:
+                            print("  detaching data of %s from havok tree"
+                                  % otherblock.name)
+                            block.stripsData[i] = NifFormat.NiTriStripsData().deepcopy(shape)
     for block in block_list:
         # optimize geometries
         if (isinstance(block, NifFormat.NiTriStrips) \
