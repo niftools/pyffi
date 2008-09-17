@@ -378,10 +378,7 @@ def testRoot(root, **args):
     # (each of these dictionaries maps a block hash to an actual block of
     # the given type)
     sourceTextures = {}
-    materialProps = {}
-    texturingProps = {}
-    alphaProps = {}
-    specularProps = {}
+    property_map = {}
 
     # get list of all blocks
     block_list = [ block for block in root.tree(unique = True) ]
@@ -436,8 +433,6 @@ def testRoot(root, **args):
 
     # joining duplicate properties
     print("checking for duplicate properties")
-    # keep dictionary mapping old properties to new (merged) properties
-    property_map = {}
     for block in block_list:
         # check block type
         if not isinstance(block, NifFormat.NiAVObject):
@@ -457,61 +452,40 @@ def testRoot(root, **args):
 
         # merge properties
         for i, prop in enumerate(block.properties):
-            hashvalue = prop.getHash(ignore_strings = True)
-            # join duplicate texturing properties
-            if isinstance(prop, NifFormat.NiTexturingProperty) \
-                and not "NiTexturingProperty" in exclude:
-                try:
-                    new_prop = texturingProps[hashvalue]
-                except KeyError:
-                    texturingProps[hashvalue] = prop
-                else:
-                    if new_prop != prop:
-                        print("  removing duplicate NiTexturingProperty block")
-                        block.properties[i] = new_prop
-                        property_map[prop] = new_prop
-            # join duplicate material properties
-            elif isinstance(prop, NifFormat.NiMaterialProperty)\
-                and not "NiMaterialProperty" in exclude:
-                try:
-                    new_prop = materialProps[hashvalue]
-                except KeyError:
-                    materialProps[hashvalue] = prop
-                else:
-                    if new_prop != prop:
-                        print("  removing duplicate NiMaterialProperty block")
-                        block.properties[i] = new_prop
-                        property_map[prop] = new_prop
-            # join duplicate alpha properties
-            elif isinstance(prop, NifFormat.NiAlphaProperty) \
-                and not "NiAlphaProperty" in exclude:
-                try:
-                    new_prop = alphaProps[hashvalue]
-                except KeyError:
-                    alphaProps[hashvalue] = prop
-                else:
-                    if new_prop != prop:
-                        print("  removing duplicate NiAlphaProperty block")
-                        block.properties[i] = new_prop
-                        property_map[prop] = new_prop
-            # join duplicate specular properties
-            elif isinstance(prop, NifFormat.NiSpecularProperty) \
-                and not "NiSpecularProperty" in exclude:
-                try:
-                    new_prop = specularProps[hashvalue]
-                except KeyError:
-                    specularProps[hashvalue] = prop
-                else:
-                    if new_prop != prop:
-                        print("  removing duplicate NiSpecularProperty block")
-                        block.properties[i] = new_prop
-                        property_map[prop] = new_prop
+            # skip properties that have controllers
+            # (the controller data cannot always be reliably checked, see also
+            # issue #2106668)
+            if prop.controller:
+                continue
+            # calculate property hash
+            prop_class_str = prop.__class__.__name__
+            hashvalue = (prop_class_str,
+                         prop.getHash(ignore_strings = True))
+            # skip if excluded
+            if prop_class_str in exclude:
+                continue
+            # join duplicate properties
+            try:
+                new_prop = property_map[hashvalue]
+            except KeyError:
+                property_map[hashvalue] = prop
+            else:
+                if new_prop != prop:
+                    print("  removing duplicate %s block" % prop_class_str)
+                    block.properties[i] = new_prop
+                    property_map[hashvalue] = new_prop
 
     # fix properties in NiTimeController targets
     for block in block_list:
         if isinstance(block, NifFormat.NiTimeController):
-            if block.target in property_map:
-                block.target = property_map[block.target]
+            prop = block.target
+            if not prop:
+                continue
+            prop_class_str = prop.__class__.__name__
+            hashvalue = (prop_class_str,
+                         prop.getHash(ignore_strings = True))
+            if hashvalue in property_map:
+                block.target = property_map[hashvalue]
 
     # do not optimize shapes if there is particle data
     # (see MadCat221's metstaff.nif)
