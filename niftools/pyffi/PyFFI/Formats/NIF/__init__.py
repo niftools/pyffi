@@ -1142,7 +1142,9 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
         block_type_dct = {} # maps block to block type string index
         string_list = []
         for root in roots:
-            cls._makeBlockList(version, user_version, root, block_list, block_index_dct, block_type_list, block_type_dct)
+            cls._makeBlockList(version, user_version, root,
+                               block_list, block_index_dct,
+                               block_type_list, block_type_dct)
             for block in root.tree():
                 string_list.extend(
                     block.getStrings(
@@ -1267,6 +1269,15 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
         except ValueError:
             block_type_dct[root] = len(block_type_list)
             block_type_list.append(block_type)
+
+        # special case: add bhkConstraint entities before bhkConstraint
+        # (these are actually links, not refs)
+        if isinstance(root, cls.bhkConstraint):
+            for entity in root.entities:
+                cls._makeBlockList(
+                    version, user_version, entity,
+                    block_list, block_index_dct,
+                    block_type_list, block_type_dct)
 
         # add children that come before the block
         for child in root.getRefs(version = version,
