@@ -1,9 +1,11 @@
-Version 1.0.3 (***)
-* niftoaster optimize: detach NiTriStripsData from havok tree when block is
-shared with geometry data (fixes issue #2065018, MiddleWolfRug01.NIF)
+Version 1.0.3 (17 Sep 2008)
+* niftoaster optimize
+  - detach NiTriStripsData from havok tree when block is
+  shared with geometry data (fixes issue #2065018, MiddleWolfRug01.NIF)
+  - fix in case merged properties had controllers (issue #2106668)
 * fix writing of block order: bhkConstraint entities now always preceed the
 constraint block (this also fixes the "falling sign" issue with the niftoaster
-optimize spell, see issue #2068090)
+optimize spell, issue #2068090)
 
 Version 1.0.2 (15 Sep 2008)
 * "negative mass" fix in inertia calculation
