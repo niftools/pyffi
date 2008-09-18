@@ -41,6 +41,8 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
+from itertools import izip
+
 from PyFFI.Formats.NIF import NifFormat
 from PyFFI.Utils import TriStrip
 
@@ -342,6 +344,30 @@ def optimizeTriBasedGeom(block, striplencutoff = 10.0, stitch = True):
             block.updateSkinPartition(
                 maxbonesperpartition = 18, maxbonespervertex = 4,
                 stripify = True, verbose = 0)
+
+    # update morph data
+    for morphctrl in block.getControllers():
+        if isinstance(morphctrl, NifFormat.NiGeomMorpherController):
+            morphdata = morphctrl.data
+            # skip empty morph data
+            if not morphdata:
+                continue
+            # convert morphs
+            print("  updating morphs")
+            for morph in morphdata.morphs:
+                # store a copy of the old vectors
+                oldmorphvectors = [(vec.x, vec.y, vec.z)
+                                   for vec in morph.vectors]
+                for old_i, vec in izip(v_map_inverse, morph.vectors):
+                    vec.x = oldmorphvectors[old_i][0]
+                    vec.y = oldmorphvectors[old_i][1]
+                    vec.z = oldmorphvectors[old_i][2]
+                del oldmorphvectors
+            # resize matrices
+            morphdata.numVertices = new_numvertices
+            for morph in morphdata.morphs:
+                 morph.arg = morphdata.numVertices # manual argument passing
+                 morph.vectors.updateSize()
 
     # recalculate tangent space (only if the block already exists)
     if block.find(block_name = 'Tangent space (binormal & tangent vectors)',
