@@ -1,3 +1,7 @@
+Version 1.0.4 (***)
+* niftoaster optimize
+  - morph data optimization (issue #2116594)
+
 Version 1.0.3 (17 Sep 2008)
 * niftoaster optimize
   - detach NiTriStripsData from havok tree when block is
