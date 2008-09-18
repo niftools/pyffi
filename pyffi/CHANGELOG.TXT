@@ -1,6 +1,6 @@
-Version 1.0.4 (***)
+Version 1.0.4 (18 Sep 2008)
 * niftoaster optimize
-  - morph data optimization (issue #2116594)
+  - morph data optimization (issue #2116594, fixes "bow" weapons)
 
 Version 1.0.3 (17 Sep 2008)
 * niftoaster optimize
