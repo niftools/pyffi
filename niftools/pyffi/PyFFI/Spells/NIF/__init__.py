@@ -9,12 +9,14 @@ import checktristrip
 import dump
 import exportpixeldata
 import ffvt3rskinpartition
+import fix_detachhavoktristripsdata
 import hackcheckskindata
 import hackmultiskelroot
 import hackskindataidtransform
 import hackskinrestpose
 import mergeskelandrestpos
 import optimize
+import optimize_split
 import read
 import readwrite
 import scale

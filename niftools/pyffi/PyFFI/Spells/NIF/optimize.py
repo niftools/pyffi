@@ -45,6 +45,7 @@ from itertools import izip
 
 from PyFFI.Formats.NIF import NifFormat
 from PyFFI.Utils import TriStrip
+from PyFFI.Spells.NIF import fix_detachhavoktristripsdata
 
 # set flag to overwrite files
 __readonly__ = False
@@ -400,6 +401,9 @@ def testRoot(root, **args):
     # check which blocks to exclude
     exclude = args.get("exclude", [])
 
+    # detach havok tree tristripsdata
+    fix_detachhavoktristripsdata.testRoot(root, **args)
+
     # initialize hash maps
     # (each of these dictionaries maps a block hash to an actual block of
     # the given type)
@@ -547,20 +551,6 @@ def testRoot(root, **args):
     # first update list of all blocks
     block_list = [ block for block in root.tree(unique = True) ]
     optimized_geometries = []
-    # for NiTriStrips if their NiTriStripsData also occurs in a
-    # bhkNiTriStripsShape, make deep copy of data in havok
-    # so havok data remains untouched (probably should be converted to
-    # a mopp anyway)
-    # (see issue #2065018, MiddleWolfRug01.NIF)
-    for block in block_list:
-        if isinstance(block, NifFormat.bhkNiTriStripsShape):
-            for i, shape in enumerate(block.stripsData):
-                for otherblock in block_list:
-                    if isinstance(otherblock, NifFormat.NiTriStrips):
-                        if shape is otherblock.data:
-                            print("  detaching data of %s from havok tree"
-                                  % otherblock.name)
-                            block.stripsData[i] = NifFormat.NiTriStripsData().deepcopy(shape)
     for block in block_list:
         # optimize geometries
         if (isinstance(block, NifFormat.NiTriStrips) \
