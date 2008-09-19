@@ -444,6 +444,9 @@ def testRoot(root, **args):
             for tex in ("Base", "Dark", "Detail", "Gloss", "Glow"):
                 if getattr(block, "has%sTexture" % tex):
                     texdesc = getattr(block, "%sTexture" % tex.lower())
+                    # skip empty textures
+                    if not texdesc.source:
+                        continue
                     hashvalue = texdesc.source.getHash()
                     # try to find a matching source texture
                     try:
