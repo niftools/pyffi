@@ -50,12 +50,14 @@ Not all of these three functions need to be present.
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
+from cStringIO import StringIO
 import gc
 import optparse
 import os.path
 import tempfile
 
 import PyFFI # for PyFFI.__version__
+import PyFFI.Utils.Diff
 
 def testFileTempwrite(format, *walkresult, **kwargs):
     """Useful as testFile which simply writes back the file
@@ -138,6 +140,38 @@ def testFileOverwrite(format, *walkresult, **kwargs):
         raise
     stream.truncate()
 
+def testFileCreatePatch(format, *walkresult, **kwargs):
+    """Useful as testFile which simply creates a binary patch for the
+    updated file.
+
+    @param format: The format class, e.g. L{PyFFI.Formats.CGF.CgfFormat}.
+    @type format: subclass of L{PyFFI.XmlFileFormat}
+    @param walkresult: Tuple with result from walkFile.
+    @type walkresult: tuple
+    @param kwargs: Extra keyword arguments.
+    @type kwargs: dict
+    """
+    # write the file to a memory stream
+    newfile = StringIO()
+    if kwargs.get('verbose'):
+        print("  writing to memory...")
+    #print(walkresult) # DEBUG
+    try:
+        format.write(newfile, *walkresult[1:])
+    except: # not just StandardError, also CTRL-C
+        print "  write failed!!!"
+        raise
+    # first argument is always the stream, by convention
+    oldfile = walkresult[0]
+    oldfile.seek(0)
+    newfile.seek(0)
+    patchfile = open(oldfile.name + ".patch", "wb")
+    if kwargs.get('verbose'):
+        print("  writing patch...")
+    PyFFI.Utils.Diff.diff(oldfile, newfile, patchfile)
+    patchfile.close()
+    newfile.close()
+
 def isBlockAdmissible(block, exclude, include):
     """Check if a block should be tested or not, based on exclude and include
     options passed on the command line.
@@ -180,6 +214,7 @@ def testPath(top, format = None, spellmodule = None, **kwargs):
           - exclude: List of blocks to exclude from the spell.
           - include: List of blocks to include in the spell.
           - prefix: File prefix when writing back.
+          - createpatch: Whether to write back the result as a patch.
     @type kwargs: dict
     """
     if format is None:
@@ -195,6 +230,7 @@ def testPath(top, format = None, spellmodule = None, **kwargs):
     interactive = kwargs.get("interactive", True)
     dryrun = kwargs.get("dryrun", False)
     prefix = kwargs.get("prefix", "")
+    createpatch = kwargs.get("createpatch", False)
     testRoot = getattr(spellmodule, "testRoot", None)
     testBlock = getattr(spellmodule, "testBlock", None)
     testFile = getattr(spellmodule, "testFile", None)
@@ -244,10 +280,12 @@ may destroy them. Make a backup of your files before running this script.
             # save file back to disk if not readonly
             if not readonly:
                 if not dryrun:
-                    if not prefix:
-                        testFileOverwrite(format, *walkresult, **kwargs)
-                    else:
+                    if createpatch:
+                        testFileCreatePatch(format, *walkresult, **kwargs)
+                    elif prefix:
                         testFilePrefixwrite(format, *walkresult, **kwargs)
+                    else:
+                        testFileOverwrite(format, *walkresult, **kwargs)
                 else:
                     # write back to a temporary file
                     testFileTempwrite(format, *walkresult, **kwargs)
@@ -370,10 +408,15 @@ prepend PREFIX to file name")
                       help="""pass exceptions while reading files;
 normally you do not need this, unless you are hacking the xml format
 description""")
+    parser.add_option("--createpatch", dest="createpatch",
+                      action="store_true",
+                      help="""instead of writing back the file, write a \
+binary patch""")
     parser.set_defaults(raisetesterror=False, verbose=1, pause=False,
                         exclude=[], include=[], examples=False, spells=False,
                         raisereaderror=True, interactive=True,
-                        helpspell=False, dryrun=False, prefix="", arg="")
+                        helpspell=False, dryrun=False, prefix="", arg="",
+                        createpatch=False)
     (options, args) = parser.parse_args()
 
     # check if we had examples and/or spells: quit
