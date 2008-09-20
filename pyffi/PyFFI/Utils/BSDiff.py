@@ -41,14 +41,11 @@
 #
 # ***** END LICENSE BLOCK *****
 
-static void split(off_t *I,off_t *V,off_t start,off_t len,off_t h)
-{
-    off_t i,j,k,x,tmp,jj,kk;
-
-    if(len<16) {
-        for(k=start;k<start+len;k+=j) {
+def split(I, V, start, length, h):
+    if(length<16) {
+        for(k=start;k<start+length;k+=j) {
             j=1;x=V[I[k]+h];
-            for(i=1;k+i<start+len;i++) {
+            for(i=1;k+i<start+length;i++) {
                 if(V[I[k+i]+h]<x) {
                     x=V[I[k+i]+h];
                     j=0;
@@ -64,9 +61,9 @@ static void split(off_t *I,off_t *V,off_t start,off_t len,off_t h)
         return;
     };
 
-    x=V[I[start+len/2]+h];
+    x=V[I[start+length/2]+h];
     jj=0;kk=0;
-    for(i=start;i<start+len;i++) {
+    for(i=start;i<start+length;i++) {
         if(V[I[i]+h]<x) jj++;
         if(V[I[i]+h]==x) kk++;
     };
@@ -99,13 +96,11 @@ static void split(off_t *I,off_t *V,off_t start,off_t len,off_t h)
     for(i=0;i<kk-jj;i++) V[I[jj+i]]=kk-1;
     if(jj==kk-1) I[jj]=-1;
 
-    if(start+len>kk) split(I,V,kk,start+len-kk,h);
-}
+    if(start+length>kk) split(I,V,kk,start+length-kk,h);
 
-static void qsufsort(off_t *I,off_t *V,u_char *old,off_t oldsize)
-{
+def qsufsort(I, V, old, oldsize)
     off_t buckets[256];
-    off_t i,h,len;
+    off_t i,h,length;
 
     for(i=0;i<256;i++) buckets[i]=0;
     for(i=0;i<oldsize;i++) buckets[old[i]]++;
@@ -121,43 +116,39 @@ static void qsufsort(off_t *I,off_t *V,u_char *old,off_t oldsize)
     I[0]=-1;
 
     for(h=1;I[0]!=-(oldsize+1);h+=h) {
-        len=0;
+        length=0;
         for(i=0;i<oldsize+1;) {
             if(I[i]<0) {
-                len-=I[i];
+                length-=I[i];
                 i-=I[i];
             } else {
-                if(len) I[i-len]=-len;
-                len=V[I[i]]+1-i;
-                split(I,V,i,len,h);
-                i+=len;
-                len=0;
+                if(length) I[i-length]=-length;
+                length=V[I[i]]+1-i;
+                split(I,V,i,length,h);
+                i+=length;
+                length=0;
             };
         };
-        if(len) I[i-len]=-len;
+        if(length) I[i-length]=-length;
     };
 
     for(i=0;i<oldsize+1;i++) I[V[i]]=i;
-}
 
-static off_t matchlen(u_char *old,off_t oldsize,u_char *new,off_t newsize)
-{
+def matchlength(old, oldsize, new, newsize):
     off_t i;
 
     for(i=0;(i<oldsize)&&(i<newsize);i++)
         if(old[i]!=new[i]) break;
 
     return i;
-}
 
-static off_t search(off_t *I,u_char *old,off_t oldsize,
-        u_char *new,off_t newsize,off_t st,off_t en,off_t *pos)
-{
+def search(I, old, oldsize,
+        new, newsize, st, en, pos):
     off_t x,y;
 
     if(en-st<2) {
-        x=matchlen(old+I[st],oldsize-I[st],new,newsize);
-        y=matchlen(old+I[en],oldsize-I[en],new,newsize);
+        x=matchlength(old+I[st],oldsize-I[st],new,newsize);
+        y=matchlength(old+I[en],oldsize-I[en],new,newsize);
 
         if(x>y) {
             *pos=I[st];
@@ -174,10 +165,8 @@ static off_t search(off_t *I,u_char *old,off_t oldsize,
     } else {
         return search(I,old,oldsize,new,newsize,st,x,pos);
     };
-}
 
-static void offtout(off_t x,u_char *buf)
-{
+def offtout(x, buf):
     off_t y;
 
     if(x<0) y=-x; else y=x;
@@ -192,21 +181,19 @@ static void offtout(off_t x,u_char *buf)
     y=y/256;buf[7]=y%256;
 
     if(x<0) buf[7]|=0x80;
-}
 
-int main(int argc,char *argv[])
-{
+def main(argc, argv):
     int fd;
     u_char *old,*new;
     off_t oldsize,newsize;
     off_t *I,*V;
-    off_t scan,pos,len;
+    off_t scan,pos,length;
     off_t lastscan,lastpos,lastoffset;
     off_t oldscore,scsc;
-    off_t s,Sf,lenf,Sb,lenb;
-    off_t overlap,Ss,lens;
+    off_t s,Sf,lengthf,Sb,lengthb;
+    off_t overlap,Ss,lengths;
     off_t i;
-    off_t dblen,eblen;
+    off_t dblength,eblength;
     u_char *db,*eb;
     u_char buf[8];
     u_char header[32];
@@ -243,8 +230,8 @@ int main(int argc,char *argv[])
 
     if(((db=malloc(newsize+1))==NULL) ||
         ((eb=malloc(newsize+1))==NULL)) err(1,NULL);
-    dblen=0;
-    eblen=0;
+    dblength=0;
+    eblength=0;
 
     /* Create the patch file */
     if ((pf = fopen(argv[3], "w")) == NULL)
@@ -270,85 +257,85 @@ int main(int argc,char *argv[])
     /* Compute the differences, writing ctrl as we go */
     if ((pfbz2 = BZ2_bzWriteOpen(&bz2err, pf, 9, 0, 0)) == NULL)
         errx(1, "BZ2_bzWriteOpen, bz2err = %d", bz2err);
-    scan=0;len=0;
+    scan=0;length=0;
     lastscan=0;lastpos=0;lastoffset=0;
     while(scan<newsize) {
         oldscore=0;
 
-        for(scsc=scan+=len;scan<newsize;scan++) {
-            len=search(I,old,oldsize,new+scan,newsize-scan,
+        for(scsc=scan+=length;scan<newsize;scan++) {
+            length=search(I,old,oldsize,new+scan,newsize-scan,
                     0,oldsize,&pos);
 
-            for(;scsc<scan+len;scsc++)
+            for(;scsc<scan+length;scsc++)
             if((scsc+lastoffset<oldsize) &&
                 (old[scsc+lastoffset] == new[scsc]))
                 oldscore++;
 
-            if(((len==oldscore) && (len!=0)) || 
-                (len>oldscore+8)) break;
+            if(((length==oldscore) && (length!=0)) || 
+                (length>oldscore+8)) break;
 
             if((scan+lastoffset<oldsize) &&
                 (old[scan+lastoffset] == new[scan]))
                 oldscore--;
         };
 
-        if((len!=oldscore) || (scan==newsize)) {
-            s=0;Sf=0;lenf=0;
+        if((length!=oldscore) || (scan==newsize)) {
+            s=0;Sf=0;lengthf=0;
             for(i=0;(lastscan+i<scan)&&(lastpos+i<oldsize);) {
                 if(old[lastpos+i]==new[lastscan+i]) s++;
                 i++;
-                if(s*2-i>Sf*2-lenf) { Sf=s; lenf=i; };
+                if(s*2-i>Sf*2-lengthf) { Sf=s; lengthf=i; };
             };
 
-            lenb=0;
+            lengthb=0;
             if(scan<newsize) {
                 s=0;Sb=0;
                 for(i=1;(scan>=lastscan+i)&&(pos>=i);i++) {
                     if(old[pos-i]==new[scan-i]) s++;
-                    if(s*2-i>Sb*2-lenb) { Sb=s; lenb=i; };
+                    if(s*2-i>Sb*2-lengthb) { Sb=s; lengthb=i; };
                 };
             };
 
-            if(lastscan+lenf>scan-lenb) {
-                overlap=(lastscan+lenf)-(scan-lenb);
-                s=0;Ss=0;lens=0;
+            if(lastscan+lengthf>scan-lengthb) {
+                overlap=(lastscan+lengthf)-(scan-lengthb);
+                s=0;Ss=0;lengths=0;
                 for(i=0;i<overlap;i++) {
-                    if(new[lastscan+lenf-overlap+i]==
-                       old[lastpos+lenf-overlap+i]) s++;
-                    if(new[scan-lenb+i]==
-                       old[pos-lenb+i]) s--;
-                    if(s>Ss) { Ss=s; lens=i+1; };
+                    if(new[lastscan+lengthf-overlap+i]==
+                       old[lastpos+lengthf-overlap+i]) s++;
+                    if(new[scan-lengthb+i]==
+                       old[pos-lengthb+i]) s--;
+                    if(s>Ss) { Ss=s; lengths=i+1; };
                 };
 
-                lenf+=lens-overlap;
-                lenb-=lens;
+                lengthf+=lengths-overlap;
+                lengthb-=lengths;
             };
 
-            for(i=0;i<lenf;i++)
-                db[dblen+i]=new[lastscan+i]-old[lastpos+i];
-            for(i=0;i<(scan-lenb)-(lastscan+lenf);i++)
-                eb[eblen+i]=new[lastscan+lenf+i];
+            for(i=0;i<lengthf;i++)
+                db[dblength+i]=new[lastscan+i]-old[lastpos+i];
+            for(i=0;i<(scan-lengthb)-(lastscan+lengthf);i++)
+                eb[eblength+i]=new[lastscan+lengthf+i];
 
-            dblen+=lenf;
-            eblen+=(scan-lenb)-(lastscan+lenf);
+            dblength+=lengthf;
+            eblength+=(scan-lengthb)-(lastscan+lengthf);
 
-            offtout(lenf,buf);
+            offtout(lengthf,buf);
             BZ2_bzWrite(&bz2err, pfbz2, buf, 8);
             if (bz2err != BZ_OK)
                 errx(1, "BZ2_bzWrite, bz2err = %d", bz2err);
 
-            offtout((scan-lenb)-(lastscan+lenf),buf);
+            offtout((scan-lengthb)-(lastscan+lengthf),buf);
             BZ2_bzWrite(&bz2err, pfbz2, buf, 8);
             if (bz2err != BZ_OK)
                 errx(1, "BZ2_bzWrite, bz2err = %d", bz2err);
 
-            offtout((pos-lenb)-(lastpos+lenf),buf);
+            offtout((pos-lengthb)-(lastpos+lengthf),buf);
             BZ2_bzWrite(&bz2err, pfbz2, buf, 8);
             if (bz2err != BZ_OK)
                 errx(1, "BZ2_bzWrite, bz2err = %d", bz2err);
 
-            lastscan=scan-lenb;
-            lastpos=pos-lenb;
+            lastscan=scan-lengthb;
+            lastpos=pos-lengthb;
             lastoffset=pos-scan;
         };
     };
@@ -357,14 +344,14 @@ int main(int argc,char *argv[])
         errx(1, "BZ2_bzWriteClose, bz2err = %d", bz2err);
 
     /* Compute size of compressed ctrl data */
-    if ((len = ftello(pf)) == -1)
+    if ((length = ftello(pf)) == -1)
         err(1, "ftello");
-    offtout(len-32, header + 8);
+    offtout(length-32, header + 8);
 
     /* Write compressed diff data */
     if ((pfbz2 = BZ2_bzWriteOpen(&bz2err, pf, 9, 0, 0)) == NULL)
         errx(1, "BZ2_bzWriteOpen, bz2err = %d", bz2err);
-    BZ2_bzWrite(&bz2err, pfbz2, db, dblen);
+    BZ2_bzWrite(&bz2err, pfbz2, db, dblength);
     if (bz2err != BZ_OK)
         errx(1, "BZ2_bzWrite, bz2err = %d", bz2err);
     BZ2_bzWriteClose(&bz2err, pfbz2, 0, NULL, NULL);
@@ -374,12 +361,12 @@ int main(int argc,char *argv[])
     /* Compute size of compressed diff data */
     if ((newsize = ftello(pf)) == -1)
         err(1, "ftello");
-    offtout(newsize - len, header + 16);
+    offtout(newsize - length, header + 16);
 
     /* Write compressed extra data */
     if ((pfbz2 = BZ2_bzWriteOpen(&bz2err, pf, 9, 0, 0)) == NULL)
         errx(1, "BZ2_bzWriteOpen, bz2err = %d", bz2err);
-    BZ2_bzWrite(&bz2err, pfbz2, eb, eblen);
+    BZ2_bzWrite(&bz2err, pfbz2, eb, eblength);
     if (bz2err != BZ_OK)
         errx(1, "BZ2_bzWrite, bz2err = %d", bz2err);
     BZ2_bzWriteClose(&bz2err, pfbz2, 0, NULL, NULL);
@@ -402,4 +389,3 @@ int main(int argc,char *argv[])
     free(new);
 
     return 0;
-}
