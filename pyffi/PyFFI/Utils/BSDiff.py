@@ -114,44 +114,50 @@ def split(I, V, start, length, h):
         split(I, V, kk, start + length - kk, h)
 
 def qsufsort(I, V, old, oldsize):
-    off_t buckets[256];
-    off_t i,h,length;
+    buckets = [0 for i in xrange(256)]
+    for i in xrange(oldsize):
+        buckets[old[i]] += 1
+    for i in xrange(1, 256):
+        buckets[i] += buckets[i - 1]
+    for i in xrange(255, 0, -1):
+        buckets[i] = buckets[i - 1]
+    buckets[0] = 0
 
-    for(i=0;i<256;i++) buckets[i]=0;
-    for(i=0;i<oldsize;i++) buckets[old[i]]++;
-    for(i=1;i<256;i++) buckets[i]+=buckets[i-1];
-    for(i=255;i>0;i--) buckets[i]=buckets[i-1];
-    buckets[0]=0;
+    for i in xrange(oldsize):
+        buckets[old[i]] += 1
+        I[buckets[old[i]]] = i
+    I[0] = oldsize
+    for i in xrange(oldsize):
+        V[i] = buckets[old[i]]
+    V[oldsize] = 0
+    for i in xrange(1, 256):
+        if buckets[i] == buckets[i - 1] + 1:
+            I[buckets[i]] = -1
+    I[0] = -1
 
-    for(i=0;i<oldsize;i++) I[++buckets[old[i]]]=i;
-    I[0]=oldsize;
-    for(i=0;i<oldsize;i++) V[i]=buckets[old[i]];
-    V[oldsize]=0;
-    for(i=1;i<256;i++) if(buckets[i]==buckets[i-1]+1) I[buckets[i]]=-1;
-    I[0]=-1;
+    h = 1
+    while I[0] != -(oldsize + 1):
+        length = 0
+        i = 0
+        while i < oldsize + 1:
+            if I[i] < 0:
+                length -= I[i]
+                i -= I[i]
+            else:
+                if length:
+                    I[i - length] = -length
+                length = V[I[i]] + 1 - i
+                split(I, V, i, length, h)
+                i += length
+                length = 0
+        if length:
+            I[i - length] = -length;
+        h += h
 
-    for(h=1;I[0]!=-(oldsize+1);h+=h) {
-        length=0;
-        for(i=0;i<oldsize+1;) {
-            if(I[i]<0) {
-                length-=I[i];
-                i-=I[i];
-            } else {
-                if(length) I[i-length]=-length;
-                length=V[I[i]]+1-i;
-                split(I,V,i,length,h);
-                i+=length;
-                length=0;
-            };
-        };
-        if(length) I[i-length]=-length;
-    };
-
-    for(i=0;i<oldsize+1;i++) I[V[i]]=i;
+    for i in xrange(oldsize+1):
+        I[V[i]] = i
 
 def matchlength(old, oldsize, new, newsize):
-    off_t i;
-
     for(i=0;(i<oldsize)&&(i<newsize);i++)
         if(old[i]!=new[i]) break;
 
