@@ -65,44 +65,55 @@ def split(I, V, start, length, h):
             k += j
         return
 
-    x=V[I[start+length/2]+h];
-    jj=0;kk=0;
-    for(i=start;i<start+length;i++) {
-        if(V[I[i]+h]<x) jj++;
-        if(V[I[i]+h]==x) kk++;
-    };
-    jj+=start;kk+=jj;
+    x = V[I[(start + length) // 2] + h]
+    jj=0
+    kk=0
+    for i in xrange(start, start + length):
+        if V[I[i] + h] < x:
+            jj += 1
+        elif V[I[i] + h] == x:
+            kk += 1
+    jj += start
+    kk += jj
 
-    i=start;j=0;k=0;
-    while(i<jj) {
-        if(V[I[i]+h]<x) {
-            i++;
-        } else if(V[I[i]+h]==x) {
-            tmp=I[i];I[i]=I[jj+j];I[jj+j]=tmp;
-            j++;
-        } else {
-            tmp=I[i];I[i]=I[kk+k];I[kk+k]=tmp;
-            k++;
-        };
-    };
+    i = start
+    j=0
+    k=0
+    while i < jj:
+        if V[I[i] + h] < x:
+            i += 1
+        elif V[I[i] + h] == x:
+            tmp = I[i]
+            I[i] = I[jj + j]
+            I[jj + j] = tmp
+            j += 1
+        else:
+            tmp = I[i]
+            I[i] = I[kk + k]
+            I[kk + k] = tmp
+            k += 1
 
-    while(jj+j<kk) {
-        if(V[I[jj+j]+h]==x) {
-            j++;
-        } else {
-            tmp=I[jj+j];I[jj+j]=I[kk+k];I[kk+k]=tmp;
-            k++;
-        };
-    };
+    while jj + j < kk:
+        if V[I[jj + j] + h] == x:
+            j += 1
+        else:
+            tmp = I[jj + j]
+            I[jj + j] = I[kk + k]
+            I[kk + k] = tmp
+            k += 1
 
-    if(jj>start) split(I,V,start,jj-start,h);
+    if jj > start:
+        split(I, V, start, jj - start, h)
 
-    for(i=0;i<kk-jj;i++) V[I[jj+i]]=kk-1;
-    if(jj==kk-1) I[jj]=-1;
+    for i in xrange(kk-jj):
+        V[I[jj + i]] = kk - 1
+    if jj == kk - 1:
+        I[jj] = -1
 
-    if(start+length>kk) split(I,V,kk,start+length-kk,h);
+    if start + length > kk:
+        split(I, V, kk, start + length - kk, h)
 
-def qsufsort(I, V, old, oldsize)
+def qsufsort(I, V, old, oldsize):
     off_t buckets[256];
     off_t i,h,length;
 
