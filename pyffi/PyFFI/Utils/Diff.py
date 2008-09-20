@@ -1,6 +1,7 @@
 """A wrapper around difflib.SequenceMatcher to create and apply binary
 patches.
 
+>>> from cStringIO import StringIO
 >>> a = StringIO("qabxcd")
 >>> b = StringIO("abycdf")
 >>> p = StringIO()
@@ -49,7 +50,6 @@ True
 #
 # ***** END LICENSE BLOCK *****
 
-from cStringIO import StringIO
 from difflib import SequenceMatcher
 import os
 import struct
