@@ -42,24 +42,28 @@
 # ***** END LICENSE BLOCK *****
 
 def split(I, V, start, length, h):
-    if(length<16) {
-        for(k=start;k<start+length;k+=j) {
-            j=1;x=V[I[k]+h];
-            for(i=1;k+i<start+length;i++) {
-                if(V[I[k+i]+h]<x) {
-                    x=V[I[k+i]+h];
-                    j=0;
-                };
-                if(V[I[k+i]+h]==x) {
-                    tmp=I[k+j];I[k+j]=I[k+i];I[k+i]=tmp;
-                    j++;
-                };
-            };
-            for(i=0;i<j;i++) V[I[k+i]]=k+j-1;
-            if(j==1) I[k]=-1;
-        };
-        return;
-    };
+    if length < 16:
+        k = start
+        while k < start + length:
+            j = 1
+            x = V[I[k] + h]
+            i = 1
+            while k + i < start + length:
+                if V[I[k + i] + h] < x:
+                    x = V[I[k + i] + h]
+                    j = 0
+                elif V[I[k + i] + h] == x:
+                    tmp = I[k + j]
+                    I[k + j] = I[k + i]
+                    I[k + i] = tmp
+                    j += 1
+                i += 1
+            for i in xrange(j):
+                V[I[k + i]] = k + j - 1
+            if j == 1:
+                I[k] = -1
+            k += j
+        return
 
     x=V[I[start+length/2]+h];
     jj=0;kk=0;
