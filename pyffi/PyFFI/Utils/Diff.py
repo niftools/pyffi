@@ -2,8 +2,8 @@
 patches.
 
 >>> from cStringIO import StringIO
->>> a = StringIO("qabxcd")
->>> b = StringIO("abycdf")
+>>> a = StringIO("qabxcdafhjaksdhuaeuhuhasf")
+>>> b = StringIO("abycdfafhjajsadjkahgeruiofssq")
 >>> p = StringIO()
 >>> diff(a, b, p)
 >>> c = StringIO()
@@ -53,14 +53,31 @@ True
 from difflib import SequenceMatcher
 import os
 import struct
+import zlib
 
 OPCODES = ["replace", "delete", "insert", "equal"]
+MAGIC = "\x0d\x01\x0f\x00"  # 'DIF0', header of patch files
 
 def diff(oldfile, newfile, patchfile):
     """Writes binary date to patchfile which describes how to turn oldfile
     into newfile. Note that the caller must close patchfile."""
+
+    # reset streams
+    oldfile.seek(0)
+    newfile.seek(0)
+
+    # read data
+    olddata = oldfile.read()
+    newdata = newfile.read()
+
+    # diff version string
+    patchfile.write(MAGIC)
+
+    # write hashes for data integrity
+    patchfile.write(struct.pack("<i", zlib.crc32(olddata)))
+    patchfile.write(struct.pack("<i", zlib.crc32(newdata)))
     
-    seqmatch = SequenceMatcher(None, oldfile.read(), newfile.read())
+    seqmatch = SequenceMatcher(None, olddata, newdata)
     newfile.seek(0)
     for tag, i1, i2, j1, j2 in seqmatch.get_opcodes():
         patchfile.write(struct.pack("<B", OPCODES.index(tag) + 0xf0))
@@ -82,6 +99,23 @@ def diff(oldfile, newfile, patchfile):
 def patch(oldfile, newfile, patchfile):
     """Writes newfile based on oldfile and patchfile generated previously with
     L{diff}."""
+    # reset streams
+    oldfile.seek(0)
+    newfile.seek(0)
+
+    # check header
+    if patchfile.read(4) != MAGIC:
+        raise ValueError("patch file corrupted (invalid header)")
+
+    # read checksums
+    oldcrc32, = struct.unpack("<i", patchfile.read(4))
+    newcrc32, = struct.unpack("<i", patchfile.read(4))
+
+    # read data and check checksum
+    if oldcrc32 != zlib.crc32(oldfile.read()):
+        raise ValueError("patch does not match source file (invalid checksum)")
+    oldfile.seek(0)
+
     while True:
         tagbyte, = struct.unpack("<B", patchfile.read(1))
         if tagbyte == 255:
@@ -104,6 +138,11 @@ def patch(oldfile, newfile, patchfile):
         else:
             raise RuntimeError("patch corrupted (unexpected opcode %i)"
                                % tagbyte)
+
+    # check checksum of written data
+    newfile.seek(0)
+    if newcrc32 != zlib.crc32(newfile.read()):
+        raise RuntimeError("patch applied but crc32 does not match")
 
 if __name__ == "__main__":
     import doctest
