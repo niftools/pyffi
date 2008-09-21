@@ -215,7 +215,7 @@ def matchlength(old, oldsize, new, newsize):
     for i in xrange(min(oldsize, newsize)):
         if old[i] != new[i]:
             return i
-    return min(oldsize, newsize) + 1
+    return min(oldsize, newsize)
 
 # wrapper
 def memcmp(buf1, buf2, size):
