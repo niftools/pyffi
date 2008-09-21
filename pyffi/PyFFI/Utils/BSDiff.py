@@ -58,13 +58,17 @@ True
 
 from array import array
 import bz2
+from cStringIO import StringIO
 import struct
 import os
 
 class ByteArray:
     """A byte array which behaves somewhat like a C pointer."""
-    def __init__(self, data):
-        self._data = array("B", data)
+    def __init__(self, data = None):
+        if data is None:
+            self._data = array("B")
+        else:
+            self._data = array("B", data)
         self._pos = 0
 
     def __getitem__(self, index):
@@ -74,7 +78,7 @@ class ByteArray:
         self._data[self._pos + index] = value
 
     def __add__(self, index):
-        result = ByteArray("")
+        result = ByteArray()
         result._data = self._data
         result._pos = self._pos + index
         return result
@@ -227,20 +231,6 @@ def search(I, old, oldsize, new, newsize, st, en):
         return search(I,old,oldsize,new,newsize,st,x)
 
 def diff(oldfile, newfile, patchfile):
-##    off_t scan,pos,length;
-##    off_t lastscan,lastpos,lastoffset;
-##    off_t oldscore,scsc;
-##    off_t s,Sf,lengthf,Sb,lengthb;
-##    off_t overlap,Ss,lengths;
-##    off_t i;
-##    off_t dblength,eblength;
-##    u_char *db,*eb;
-##    u_char buf[8];
-##    u_char header[32];
-##    FILE * pf;
-##    BZFILE * pfbz2;
-##    int bz2err;
-
     # argv[1] in C function is oldfile
     olddata = oldfile.read()
     oldsize = len(olddata)
@@ -282,9 +272,9 @@ def diff(oldfile, newfile, patchfile):
     #    ??  ??  Bzip2ed extra block
 
     pf.write("BSDIFF40")
-    pf.write(struct.pack("Q", 0))
-    pf.write(struct.pack("Q", 0))
-    pf.write(struct.pack("Q", newsize))
+    pf.write(struct.pack("<q", 0))
+    pf.write(struct.pack("<q", 0))
+    pf.write(struct.pack("<q", newsize))
 
     # Compute the differences, writing ctrl as we go
     pfbz2 = bz2.BZ2Compressor()
@@ -373,15 +363,21 @@ def diff(oldfile, newfile, patchfile):
             eblength+=(scan-lengthb)-(lastscan+lengthf)
 
             pf.write(pfbz2.compress(
-                struct.pack("q", length)))
+                struct.pack("<q", length)))
             pf.write(pfbz2.compress(
-                struct.pack("q", (scan-lengthb)-(lastscan+lengthf))))
+                struct.pack("<q", (scan-lengthb)-(lastscan+lengthf))))
             pf.write(pfbz2.compress(
-                struct.pack("q", (pos-lengthb)-(lastpos+lengthf))))
+                struct.pack("<q", (pos-lengthb)-(lastpos+lengthf))))
+
+            # DEBUG
+            print "ctrl", (length,
+                           (scan-lengthb)-(lastscan+lengthf),
+                           (pos-lengthb)-(lastpos+lengthf))
 
             lastscan=scan-lengthb
             lastpos=pos-lengthb
             lastoffset=pos-scan
+
     pf.write(pfbz2.flush())
 
     # Compute size of compressed ctrl data
@@ -398,164 +394,106 @@ def diff(oldfile, newfile, patchfile):
 
     # seek to the beginning and write the header
     pf.seek(8)
-    pf.write(struct.pack("Q", ctrl_endpos - 32))
-    pf.write(struct.pack("Q", diff_endpos - ctrl_endpos))
+    pf.write(struct.pack("<q", ctrl_endpos - 32))
+    pf.write(struct.pack("<q", diff_endpos - ctrl_endpos))
     pf.seek(0, os.SEEK_END)
 
 def patch(oldfile, newfile, patchfile):
-    FILE * f, * cpf, * dpf, * epf;
-    BZFILE * cpfbz2, * dpfbz2, * epfbz2;
-    int cbz2err, dbz2err, ebz2err;
-    int fd;
-    ssize_t oldsize,newsize;
-    ssize_t bzctrllen,bzdatalen;
-    u_char header[32],buf[8];
-    u_char *old, *new;
-    off_t oldpos,newpos;
-    off_t ctrl[3];
-    off_t lenread;
-    off_t i;
+    # f is patchfile in C function
+    f = patchfile
 
-    if(argc!=4) errx(1,"usage: %s oldfile newfile patchfile\n",argv[0]);
+    
+    # File format:
+    #    0   8   "BSDIFF40"
+    #    8   8   X
+    #    16  8   Y
+    #    24  8   sizeof(newfile)
+    #    32  X   bzip2(control block)
+    #    32+X    Y   bzip2(diff block)
+    #    32+X+Y  ??? bzip2(extra block)
+    # with control block a set of triples (x,y,z) meaning "add x bytes
+    # from oldfile to x bytes from the diff block; copy y bytes from the
+    # extra block; seek forwards in oldfile by z bytes".
 
-    /* Open patch file */
-    if ((f = fopen(argv[3], "r")) == NULL)
-        err(1, "fopen(%s)", argv[3]);
+    # Read header
+    if f.read(8) != "BSDIFF40":
+        raise ValueError("corrupt patch")
 
-    /*
-    File format:
-        0   8   "BSDIFF40"
-        8   8   X
-        16  8   Y
-        24  8   sizeof(newfile)
-        32  X   bzip2(control block)
-        32+X    Y   bzip2(diff block)
-        32+X+Y  ??? bzip2(extra block)
-    with control block a set of triples (x,y,z) meaning "add x bytes
-    from oldfile to x bytes from the diff block; copy y bytes from the
-    extra block; seek forwards in oldfile by z bytes".
-    */
+    # Read lengths from header
+    bzctrllen, bzdatalen, newsize = struct.unpack("<qqq", f.read(24))
+    if((bzctrllen<0) or (bzdatalen<0) or (newsize<0)):
+        raise ValueError("corrupt patch")
 
-    /* Read header */
-    if (fread(header, 1, 32, f) < 32) {
-        if (feof(f))
-            errx(1, "Corrupt patch\n");
-        err(1, "fread(%s)", argv[3]);
-    }
+    # C function opens compressed streams with libbzip2 at the right places
+    # and sequentially decompresses the data
+    # this implementation decompresses everything in one shot
+    # and uses a memory stream to each part
+    cpf = StringIO(bz2.decompress(f.read(bzctrllen)))
+    dpf = StringIO(bz2.decompress(f.read(bzdatalen)))
+    epf = StringIO(bz2.decompress(f.read()))
 
-    /* Check for appropriate magic */
-    if (memcmp(header, "BSDIFF40", 8) != 0)
-        errx(1, "Corrupt patch\n");
+    # read old file
+    olddata = oldfile.read()
+    oldsize = len(olddata)
+    old = ByteArray(olddata)
+    del olddata
 
-    /* Read lengths from header */
-    bzctrllen=offtin(header+8);
-    bzdatalen=offtin(header+16);
-    newsize=offtin(header+24);
-    if((bzctrllen<0) || (bzdatalen<0) || (newsize<0))
-        errx(1,"Corrupt patch\n");
+    # allocate new data
+    new = array("B")
 
-    /* Close patch file and re-open it via libbzip2 at the right places */
-    if (fclose(f))
-        err(1, "fclose(%s)", argv[3]);
-    if ((cpf = fopen(argv[3], "r")) == NULL)
-        err(1, "fopen(%s)", argv[3]);
-    if (fseeko(cpf, 32, SEEK_SET))
-        err(1, "fseeko(%s, %lld)", argv[3],
-            (long long)32);
-    if ((cpfbz2 = BZ2_bzReadOpen(&cbz2err, cpf, 0, 0, NULL, 0)) == NULL)
-        errx(1, "BZ2_bzReadOpen, bz2err = %d", cbz2err);
-    if ((dpf = fopen(argv[3], "r")) == NULL)
-        err(1, "fopen(%s)", argv[3]);
-    if (fseeko(dpf, 32 + bzctrllen, SEEK_SET))
-        err(1, "fseeko(%s, %lld)", argv[3],
-            (long long)(32 + bzctrllen));
-    if ((dpfbz2 = BZ2_bzReadOpen(&dbz2err, dpf, 0, 0, NULL, 0)) == NULL)
-        errx(1, "BZ2_bzReadOpen, bz2err = %d", dbz2err);
-    if ((epf = fopen(argv[3], "r")) == NULL)
-        err(1, "fopen(%s)", argv[3]);
-    if (fseeko(epf, 32 + bzctrllen + bzdatalen, SEEK_SET))
-        err(1, "fseeko(%s, %lld)", argv[3],
-            (long long)(32 + bzctrllen + bzdatalen));
-    if ((epfbz2 = BZ2_bzReadOpen(&ebz2err, epf, 0, 0, NULL, 0)) == NULL)
-        errx(1, "BZ2_bzReadOpen, bz2err = %d", ebz2err);
+    # DEBUG
+    print "old size", oldsize
+    print "new size", newsize
 
-    if(((fd=open(argv[1],O_RDONLY,0))<0) ||
-        ((oldsize=lseek(fd,0,SEEK_END))==-1) ||
-        ((old=malloc(oldsize+1))==NULL) ||
-        (lseek(fd,0,SEEK_SET)!=0) ||
-        (read(fd,old,oldsize)!=oldsize) ||
-        (close(fd)==-1)) err(1,"%s",argv[1]);
-    if((new=malloc(newsize+1))==NULL) err(1,NULL);
+    oldpos=0
+    newpos=0
+    while(newpos<newsize):
+        # Read control data
+        ctrl = struct.unpack("<qqq", cpf.read(24))
 
-    oldpos=0;newpos=0;
-    while(newpos<newsize) {
-        /* Read control data */
-        for(i=0;i<=2;i++) {
-            lenread = BZ2_bzRead(&cbz2err, cpfbz2, buf, 8);
-            if ((lenread < 8) || ((cbz2err != BZ_OK) &&
-                (cbz2err != BZ_STREAM_END)))
-                errx(1, "Corrupt patch\n");
-            ctrl[i]=offtin(buf);
-        };
+        # DEBUG
+        print "ctrl", ctrl
 
-        /* Sanity-check */
-        if(newpos+ctrl[0]>newsize)
-            errx(1,"Corrupt patch\n");
+        # Sanity-check
+        if(newpos+ctrl[0]>newsize):
+            raise ValueError("corrupt patch")
 
-        /* Read diff string */
-        lenread = BZ2_bzRead(&dbz2err, dpfbz2, new + newpos, ctrl[0]);
-        if ((lenread < ctrl[0]) ||
-            ((dbz2err != BZ_OK) && (dbz2err != BZ_STREAM_END)))
-            errx(1, "Corrupt patch\n");
+        # Read diff string
+        new.fromstring(dpf.read(ctrl[0]))
 
-        /* Add old data to diff string */
-        for(i=0;i<ctrl[0];i++)
-            if((oldpos+i>=0) && (oldpos+i<oldsize))
-                new[newpos+i]+=old[oldpos+i];
+        # Add old data to diff string
+        for i in xrange(ctrl[0]):
+            # TODO optimize this range check by putting it in the xrange
+            if((oldpos+i>=0) and (oldpos+i<oldsize)):
+                new[newpos+i]+=old[oldpos+i]
 
-        /* Adjust pointers */
-        newpos+=ctrl[0];
-        oldpos+=ctrl[0];
+        # Adjust pointers
+        newpos+=ctrl[0]
+        oldpos+=ctrl[0]
 
-        /* Sanity-check */
-        if(newpos+ctrl[1]>newsize)
-            errx(1,"Corrupt patch\n");
+        # Sanity-check
+        if(newpos+ctrl[1]>newsize):
+            raise ValueError("corrupt patch %s")
 
-        /* Read extra string */
-        lenread = BZ2_bzRead(&ebz2err, epfbz2, new + newpos, ctrl[1]);
-        if ((lenread < ctrl[1]) ||
-            ((ebz2err != BZ_OK) && (ebz2err != BZ_STREAM_END)))
-            errx(1, "Corrupt patch\n");
+        # Read extra string
+        new.fromstring(epf.read(ctrl[1]))
 
-        /* Adjust pointers */
-        newpos+=ctrl[1];
-        oldpos+=ctrl[2];
-    };
+        # Adjust pointers
+        newpos += ctrl[1]
+        oldpos += ctrl[2]
 
-    /* Clean up the bzip2 reads */
-    BZ2_bzReadClose(&cbz2err, cpfbz2);
-    BZ2_bzReadClose(&dbz2err, dpfbz2);
-    BZ2_bzReadClose(&ebz2err, epfbz2);
-    if (fclose(cpf) || fclose(dpf) || fclose(epf))
-        err(1, "fclose(%s)", argv[3]);
-
-    /* Write the new file */
-    if(((fd=open(argv[2],O_CREAT|O_TRUNC|O_WRONLY,0666))<0) ||
-        (write(fd,new,newsize)!=newsize) || (close(fd)==-1))
-        err(1,"%s",argv[2]);
-
-    free(new);
-    free(old);
-
-    return 0;
+    # Write the new file
+    new.tofile(newfile)
 
 if __name__ == "__main__":
-    import doctest
-    doctest.testmod()
-#    from cStringIO import StringIO
-#    a = StringIO("qabxcdafhjaksdhuaeuhuhasf")
-#    b = StringIO("abycdfafhjajsadjkahgeruiofssq")
-#    p = StringIO()
-#    diff(a, b, p)
-#    print p.getvalue()
-
+#    import doctest
+#    doctest.testmod()
+    from cStringIO import StringIO
+    a = StringIO("qabxcdafhjaksdhuaeuhuhasf")
+    b = StringIO("abycdfafhjajsadjkahgeruiofssq")
+    p = StringIO()
+    diff(a, b, p)
+    c = StringIO()
+    a.seek(0)
+    p.seek(0)
+    patch(a, c, p)
