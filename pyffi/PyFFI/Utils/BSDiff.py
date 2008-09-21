@@ -5,7 +5,10 @@
 >>> for a, b in [
 ...     ("qabxcdafhjaksdhuaeuhuhasf", "abycdfafhjajsadjkahgeruiofssq"),
 ...     ("abcdefghijklmnopqrstuvwxyz", "abcdefghijklmnopqrstuvwxyz"),
-...     ("onewithconstntdifference", "nmdvhsgbnmrsmscheedqdmbd")]:
+...     ("onewithconstntdifference", "nmdvhsgbnmrsmscheedqdmbd"),
+...     ("nmdvhsgbnmrsmscheedqdmbd", "onewithconstntdifference"),
+...     ("asdhjkahsdhasdasdhajfakjdhsjahfkasjhdsjahsdhakjfhajshgjahdsajsdha",
+...      "asdjkahdasdasdhjfakhsjahfkajhdsahsdhafhajshjahdsjsdha")]:
 ...     astr = StringIO(a)
 ...     bstr = StringIO(b)
 ...     pstr = StringIO()
@@ -15,6 +18,8 @@
 ...     pstr.seek(0)
 ...     patch(astr, cstr, pstr)
 ...     bstr.getvalue() == cstr.getvalue()
+True
+True
 True
 True
 True
