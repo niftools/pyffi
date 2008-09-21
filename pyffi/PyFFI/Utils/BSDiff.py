@@ -290,29 +290,38 @@ def diff(oldfile, newfile, patchfile):
                 oldscore -= 1
             scan += 1
 
-        if((length!=oldscore) || (scan==newsize)) {
-            s=0;Sf=0;lengthf=0;
-            for(i=0;(lastscan+i<scan)&&(lastpos+i<oldsize);) {
-                if(old[lastpos+i]==new[lastscan+i]) s++;
-                i++;
-                if(s*2-i>Sf*2-lengthf) { Sf=s; lengthf=i; };
-            };
+        if((length!=oldscore) or (scan==newsize)):
+            s = 0
+            Sf = 0
+            lengthf = 0
+            i = 0
+            while (lastscan+i<scan)and(lastpos+i<oldsize):
+                if (old[lastpos+i]==new[lastscan+i]):
+                    s += 1
+                i += 1
+                if(s*2-i>Sf*2-lengthf):
+                    Sf = s
+                    lengthf = i
 
-            lengthb=0;
-            if(scan<newsize) {
-                s=0;Sb=0;
-                for(i=1;(scan>=lastscan+i)&&(pos>=i);i++) {
-                    if(old[pos-i]==new[scan-i]) s++;
-                    if(s*2-i>Sb*2-lengthb) { Sb=s; lengthb=i; };
-                };
-            };
+            lengthb=0
+            if(scan<newsize):
+                s = 0
+                Sb = 0
+                i = 1
+                while (scan>=lastscan+i)and(pos>=i):
+                    if(old[pos-i]==new[scan-i]):
+                        s += 1;
+                    if(s*2-i>Sb*2-lengthb):
+                        Sb = s
+                        lengthb = i
+                    i += 1
 
             if(lastscan+lengthf>scan-lengthb) {
                 overlap=(lastscan+lengthf)-(scan-lengthb);
                 s=0;Ss=0;lengths=0;
-                for(i=0;i<overlap;i++) {
+                for(i=0;i<overlap;i += 1) {
                     if(new[lastscan+lengthf-overlap+i]==
-                       old[lastpos+lengthf-overlap+i]) s++;
+                       old[lastpos+lengthf-overlap+i]) s += 1;
                     if(new[scan-lengthb+i]==
                        old[pos-lengthb+i]) s--;
                     if(s>Ss) { Ss=s; lengths=i+1; };
@@ -322,9 +331,9 @@ def diff(oldfile, newfile, patchfile):
                 lengthb-=lengths;
             };
 
-            for(i=0;i<lengthf;i++)
+            for(i=0;i<lengthf;i += 1)
                 db[dblength+i]=new[lastscan+i]-old[lastpos+i];
-            for(i=0;i<(scan-lengthb)-(lastscan+lengthf);i++)
+            for(i=0;i<(scan-lengthb)-(lastscan+lengthf);i += 1)
                 eb[eblength+i]=new[lastscan+lengthf+i];
 
             dblength+=lengthf;
