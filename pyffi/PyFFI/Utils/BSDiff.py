@@ -8,7 +8,9 @@
 ...     ("onewithconstntdifference", "nmdvhsgbnmrsmscheedqdmbd"),
 ...     ("nmdvhsgbnmrsmscheedqdmbd", "onewithconstntdifference"),
 ...     ("asdhjkahsdhasdasdhajfakjdhsjahfkasjhdsjahsdhakjfhajshgjahdsajsdha",
-...      "asdjkahdasdasdhjfakhsjahfkajhdsahsdhafhajshjahdsjsdha")]:
+...      "asdjkahdasdasdhjfakhsjahfkajhdsahsdhafhajshjahdsjsdha"),
+...     ("abcasdhajhsdkahs", ""),
+...     ("", "asdjkljklerquwioruioeutiow")]:
 ...     astr = StringIO(a)
 ...     bstr = StringIO(b)
 ...     pstr = StringIO()
@@ -18,6 +20,8 @@
 ...     pstr.seek(0)
 ...     patch(astr, cstr, pstr)
 ...     bstr.getvalue() == cstr.getvalue()
+True
+True
 True
 True
 True
@@ -367,7 +371,7 @@ def diff(oldfile, newfile, patchfile):
                 lengthb -= lengths
 
             for i in xrange(lengthf):
-                db[dblength+i]=new[lastscan+i]-old[lastpos+i]
+                db[dblength+i]=((new[lastscan+i]-old[lastpos+i]) & 0xff)
             for i in xrange((scan-lengthb)-(lastscan+lengthf)):
                 eb[eblength+i]=new[lastscan+lengthf+i]
 
@@ -497,7 +501,7 @@ def patch(oldfile, newfile, patchfile):
                 # DEBUG
                 #print newpos + i
                 #print oldpos + i
-                new[newpos+i]+=old[oldpos+i]
+                new[newpos+i]=((new[newpos+i]+old[oldpos+i]) & 0xff)
         # DEBUG
         #if ctrl[0]:
         #    print new

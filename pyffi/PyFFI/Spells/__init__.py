@@ -57,7 +57,7 @@ import os.path
 import tempfile
 
 import PyFFI # for PyFFI.__version__
-import PyFFI.Utils.Diff
+import PyFFI.Utils.BSDiff
 
 def testFileTempwrite(format, *walkresult, **kwargs):
     """Useful as testFile which simply writes back the file
@@ -168,7 +168,7 @@ def testFileCreatePatch(format, *walkresult, **kwargs):
     patchfile = open(oldfile.name + ".patch", "wb")
     if kwargs.get('verbose'):
         print("  writing patch...")
-    PyFFI.Utils.Diff.diff(oldfile, newfile, patchfile)
+    PyFFI.Utils.BSDiff.diff(oldfile, newfile, patchfile)
     patchfile.close()
     newfile.close()
 
