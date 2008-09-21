@@ -41,6 +41,24 @@
 #
 # ***** END LICENSE BLOCK *****
 
+from array import array
+import bz2
+
+class ByteArray:
+    """A byte array which behaves like a C pointer."""
+    def __init__(self, data):
+        self._data = array("c", data)
+        self._pos = 0
+
+    def __getitem__(self, index):
+        return self._data[self._pos + index]
+
+    def __setitem__(self, index, value):
+        self._data[self._pos + index] = value
+
+    def __add__(self, index):
+        self._pos += index
+
 def split(I, V, start, length, h):
     if length < 16:
         k = start
@@ -158,147 +176,119 @@ def qsufsort(I, V, old, oldsize):
         I[V[i]] = i
 
 def matchlength(old, oldsize, new, newsize):
-    for(i=0;(i<oldsize)&&(i<newsize);i++)
-        if(old[i]!=new[i]) break;
+    for i in xrange(min(oldsize, newsize)):
+        if old[i] != new[i]:
+            return i
+    return min(oldsize, newsize) + 1
 
-    return i;
+# note: returns offset and pos (C function returned pos via pointer argument)
+def search(I, old, oldsize, new, newsize, st, en):
+    if en-st < 2:
+        x = matchlength(old+I[st],oldsize-I[st],new,newsize)
+        y = matchlength(old+I[en],oldsize-I[en],new,newsize)
+        if x > y:
+            return I[st], x
+        else:
+            return I[en], y
 
-def search(I, old, oldsize,
-        new, newsize, st, en, pos):
-    off_t x,y;
+    x = st + (en - st) // 2
+    if(memcmp(old+I[x],new,min(oldsize-I[x],newsize))<0):
+        return search(I,old,oldsize,new,newsize,x,en)
+    else:
+        return search(I,old,oldsize,new,newsize,st,x)
 
-    if(en-st<2) {
-        x=matchlength(old+I[st],oldsize-I[st],new,newsize);
-        y=matchlength(old+I[en],oldsize-I[en],new,newsize);
+def diff(oldfile, newfile, patchfile):
+##    off_t scan,pos,length;
+##    off_t lastscan,lastpos,lastoffset;
+##    off_t oldscore,scsc;
+##    off_t s,Sf,lengthf,Sb,lengthb;
+##    off_t overlap,Ss,lengths;
+##    off_t i;
+##    off_t dblength,eblength;
+##    u_char *db,*eb;
+##    u_char buf[8];
+##    u_char header[32];
+##    FILE * pf;
+##    BZFILE * pfbz2;
+##    int bz2err;
 
-        if(x>y) {
-            *pos=I[st];
-            return x;
-        } else {
-            *pos=I[en];
-            return y;
-        }
-    };
+    # argv[1] in C function is oldfile
+    olddata = oldfile.read()
+    oldsize = len(olddata)
+    old = ByteArray(olddata)
+    del olddata
 
-    x=st+(en-st)/2;
-    if(memcmp(old+I[x],new,MIN(oldsize-I[x],newsize))<0) {
-        return search(I,old,oldsize,new,newsize,x,en,pos);
-    } else {
-        return search(I,old,oldsize,new,newsize,st,x,pos);
-    };
+    I = [0 for i in xrange(oldsize + 1)]
+    V = [0 for i in xrange(oldsize + 1)]
 
-def offtout(x, buf):
-    off_t y;
+    qsufsort(I, V, old, oldsize)
 
-    if(x<0) y=-x; else y=x;
+    del V
 
-        buf[0]=y%256;y-=buf[0];
-    y=y/256;buf[1]=y%256;y-=buf[1];
-    y=y/256;buf[2]=y%256;y-=buf[2];
-    y=y/256;buf[3]=y%256;y-=buf[3];
-    y=y/256;buf[4]=y%256;y-=buf[4];
-    y=y/256;buf[5]=y%256;y-=buf[5];
-    y=y/256;buf[6]=y%256;y-=buf[6];
-    y=y/256;buf[7]=y%256;
+    # argv[2] in C function is newfile
+    newdata = newfile.read()
+    newsize = len(newdata)
+    new = ByteArray(newdata)
+    del newdata
 
-    if(x<0) buf[7]|=0x80;
+    # no need to use db and eb as pointers, so array will do instead of
+    # ByteArray
+    db = array("c", ("\x00" for i in xrange(newsize + 1)))
+    eb = array("c", ("\x00" for i in xrange(newsize + 1)))
+    dblength=0
+    eblength=0
 
-def main(argc, argv):
-    int fd;
-    u_char *old,*new;
-    off_t oldsize,newsize;
-    off_t *I,*V;
-    off_t scan,pos,length;
-    off_t lastscan,lastpos,lastoffset;
-    off_t oldscore,scsc;
-    off_t s,Sf,lengthf,Sb,lengthb;
-    off_t overlap,Ss,lengths;
-    off_t i;
-    off_t dblength,eblength;
-    u_char *db,*eb;
-    u_char buf[8];
-    u_char header[32];
-    FILE * pf;
-    BZFILE * pfbz2;
-    int bz2err;
+    # pf is patchfile in C function
+    pf = patchfile 
 
-    if(argc!=4) errx(1,"usage: %s oldfile newfile patchfile\n",argv[0]);
+    # Header is
+    #    0   8    "BSDIFF40"
+    #    8   8   length of bzip2ed ctrl block
+    #    16  8   length of bzip2ed diff block
+    #    24  8   length of new file
+    # File is
+    #    0   32  Header
+    #    32  ??  Bzip2ed ctrl block
+    #    ??  ??  Bzip2ed diff block
+    #    ??  ??  Bzip2ed extra block
 
-    /* Allocate oldsize+1 bytes instead of oldsize bytes to ensure
-        that we never try to malloc(0) and get a NULL pointer */
-    if(((fd=open(argv[1],O_RDONLY,0))<0) ||
-        ((oldsize=lseek(fd,0,SEEK_END))==-1) ||
-        ((old=malloc(oldsize+1))==NULL) ||
-        (lseek(fd,0,SEEK_SET)!=0) ||
-        (read(fd,old,oldsize)!=oldsize) ||
-        (close(fd)==-1)) err(1,"%s",argv[1]);
+    pf.write("BSDIFF40")
+    pf.write(struct.pack("Q", 0))
+    pf.write(struct.pack("Q", 0))
+    pf.write(struct.pack("Q", newsize))
 
-    if(((I=malloc((oldsize+1)*sizeof(off_t)))==NULL) ||
-        ((V=malloc((oldsize+1)*sizeof(off_t)))==NULL)) err(1,NULL);
+    # Compute the differences, writing ctrl as we go
+    pfbz2 = bz2.BZ2Compressor()
+    scan = 0
+    length = 0
+    lastscan = 0
+    lastpos = 0
+    lastoffset = 0
+    while scan < newsize:
+        oldscore = 0
+        # original was scsc=scan+=length
+        # C processes assignments from right to left
+        scan += length
+        scsc = scan
+        while scan < newsize:
+            # search returns pos and length (unlike C function)
+            pos, length = search(I,old,oldsize,new+scan,newsize-scan,
+                                 0,oldsize)
 
-    qsufsort(I,V,old,oldsize);
+            while scsc < scan + length:
+                if((scsc+lastoffset<oldsize) and
+                    (old[scsc+lastoffset] == new[scsc])):
+                    oldscore += 1
+                scsc += 1
 
-    free(V);
+            if (((length==oldscore) and (length!=0)) or
+                (length>oldscore+8)):
+                break
 
-    /* Allocate newsize+1 bytes instead of newsize bytes to ensure
-        that we never try to malloc(0) and get a NULL pointer */
-    if(((fd=open(argv[2],O_RDONLY,0))<0) ||
-        ((newsize=lseek(fd,0,SEEK_END))==-1) ||
-        ((new=malloc(newsize+1))==NULL) ||
-        (lseek(fd,0,SEEK_SET)!=0) ||
-        (read(fd,new,newsize)!=newsize) ||
-        (close(fd)==-1)) err(1,"%s",argv[2]);
-
-    if(((db=malloc(newsize+1))==NULL) ||
-        ((eb=malloc(newsize+1))==NULL)) err(1,NULL);
-    dblength=0;
-    eblength=0;
-
-    /* Create the patch file */
-    if ((pf = fopen(argv[3], "w")) == NULL)
-        err(1, "%s", argv[3]);
-
-    /* Header is
-        0   8    "BSDIFF40"
-        8   8   length of bzip2ed ctrl block
-        16  8   length of bzip2ed diff block
-        24  8   length of new file */
-    /* File is
-        0   32  Header
-        32  ??  Bzip2ed ctrl block
-        ??  ??  Bzip2ed diff block
-        ??  ??  Bzip2ed extra block */
-    memcpy(header,"BSDIFF40",8);
-    offtout(0, header + 8);
-    offtout(0, header + 16);
-    offtout(newsize, header + 24);
-    if (fwrite(header, 32, 1, pf) != 1)
-        err(1, "fwrite(%s)", argv[3]);
-
-    /* Compute the differences, writing ctrl as we go */
-    if ((pfbz2 = BZ2_bzWriteOpen(&bz2err, pf, 9, 0, 0)) == NULL)
-        errx(1, "BZ2_bzWriteOpen, bz2err = %d", bz2err);
-    scan=0;length=0;
-    lastscan=0;lastpos=0;lastoffset=0;
-    while(scan<newsize) {
-        oldscore=0;
-
-        for(scsc=scan+=length;scan<newsize;scan++) {
-            length=search(I,old,oldsize,new+scan,newsize-scan,
-                    0,oldsize,&pos);
-
-            for(;scsc<scan+length;scsc++)
-            if((scsc+lastoffset<oldsize) &&
-                (old[scsc+lastoffset] == new[scsc]))
-                oldscore++;
-
-            if(((length==oldscore) && (length!=0)) || 
-                (length>oldscore+8)) break;
-
-            if((scan+lastoffset<oldsize) &&
-                (old[scan+lastoffset] == new[scan]))
-                oldscore--;
-        };
+            if ((scan+lastoffset<oldsize) and
+                (old[scan+lastoffset] == new[scan])):
+                oldscore -= 1
+            scan += 1
 
         if((length!=oldscore) || (scan==newsize)) {
             s=0;Sf=0;lengthf=0;
