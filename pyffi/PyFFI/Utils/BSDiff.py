@@ -1,3 +1,18 @@
+"""A port of the bsdiff algorithm to Python
+(see http://www.daemonology.net/bsdiff/).
+
+>>> from cStringIO import StringIO
+>>> a = StringIO("qabxcdafhjaksdhuaeuhuhasf")
+>>> b = StringIO("abycdfafhjajsadjkahgeruiofssq")
+>>> p = StringIO()
+>>> diff(a, b, p)
+>>> c = StringIO()
+>>> p.seek(0)
+>>> patch(a, c, p)
+>>> b.getvalue() == c.getvalue()
+True
+"""
+
 #
 # This file is based on bsdiff.c and bspatch.c which are
 # Copyright 2003-2005 Colin Percival
@@ -43,11 +58,13 @@
 
 from array import array
 import bz2
+import struct
+import os
 
 class ByteArray:
-    """A byte array which behaves like a C pointer."""
+    """A byte array which behaves somewhat like a C pointer."""
     def __init__(self, data):
-        self._data = array("c", data)
+        self._data = array("B", data)
         self._pos = 0
 
     def __getitem__(self, index):
@@ -57,7 +74,10 @@ class ByteArray:
         self._data[self._pos + index] = value
 
     def __add__(self, index):
-        self._pos += index
+        result = ByteArray("")
+        result._data = self._data
+        result._pos = self._pos + index
+        return result
 
 def split(I, V, start, length, h):
     if length < 16:
@@ -70,7 +90,7 @@ def split(I, V, start, length, h):
                 if V[I[k + i] + h] < x:
                     x = V[I[k + i] + h]
                     j = 0
-                elif V[I[k + i] + h] == x:
+                if V[I[k + i] + h] == x:
                     tmp = I[k + j]
                     I[k + j] = I[k + i]
                     I[k + i] = tmp
@@ -89,7 +109,7 @@ def split(I, V, start, length, h):
     for i in xrange(start, start + length):
         if V[I[i] + h] < x:
             jj += 1
-        elif V[I[i] + h] == x:
+        if V[I[i] + h] == x:
             kk += 1
     jj += start
     kk += jj
@@ -181,6 +201,15 @@ def matchlength(old, oldsize, new, newsize):
             return i
     return min(oldsize, newsize) + 1
 
+# wrapper
+def memcmp(buf1, buf2, size):
+    for i in xrange(size):
+        result = cmp(buf1[i], buf2[i])
+        if result:
+            return result
+    # equal
+    return 0
+
 # note: returns offset and pos (C function returned pos via pointer argument)
 def search(I, old, oldsize, new, newsize, st, en):
     if en-st < 2:
@@ -233,8 +262,8 @@ def diff(oldfile, newfile, patchfile):
 
     # no need to use db and eb as pointers, so array will do instead of
     # ByteArray
-    db = array("c", ("\x00" for i in xrange(newsize + 1)))
-    eb = array("c", ("\x00" for i in xrange(newsize + 1)))
+    db = array("B", (0 for i in xrange(newsize + 1)))
+    eb = array("B", (0 for i in xrange(newsize + 1)))
     dblength=0
     eblength=0
 
@@ -316,96 +345,70 @@ def diff(oldfile, newfile, patchfile):
                         lengthb = i
                     i += 1
 
-            if(lastscan+lengthf>scan-lengthb) {
-                overlap=(lastscan+lengthf)-(scan-lengthb);
-                s=0;Ss=0;lengths=0;
-                for(i=0;i<overlap;i += 1) {
+            if(lastscan+lengthf>scan-lengthb):
+                overlap=(lastscan+lengthf)-(scan-lengthb)
+                s=0
+                Ss=0
+                lengths=0
+                for i in xrange(overlap):
                     if(new[lastscan+lengthf-overlap+i]==
-                       old[lastpos+lengthf-overlap+i]) s += 1;
+                       old[lastpos+lengthf-overlap+i]):
+                        s += 1
                     if(new[scan-lengthb+i]==
-                       old[pos-lengthb+i]) s--;
-                    if(s>Ss) { Ss=s; lengths=i+1; };
-                };
+                       old[pos-lengthb+i]):
+                        s -= 1
+                    if(s>Ss):
+                        Ss=s
+                        lengths=i+1
 
-                lengthf+=lengths-overlap;
-                lengthb-=lengths;
-            };
+                lengthf += lengths-overlap
+                lengthb -= lengths
 
-            for(i=0;i<lengthf;i += 1)
-                db[dblength+i]=new[lastscan+i]-old[lastpos+i];
-            for(i=0;i<(scan-lengthb)-(lastscan+lengthf);i += 1)
-                eb[eblength+i]=new[lastscan+lengthf+i];
+            for i in xrange(lengthf):
+                db[dblength+i]=new[lastscan+i]-old[lastpos+i]
+            for i in xrange((scan-lengthb)-(lastscan+lengthf)):
+                eb[eblength+i]=new[lastscan+lengthf+i]
 
-            dblength+=lengthf;
-            eblength+=(scan-lengthb)-(lastscan+lengthf);
+            dblength+=lengthf
+            eblength+=(scan-lengthb)-(lastscan+lengthf)
 
-            offtout(lengthf,buf);
-            BZ2_bzWrite(&bz2err, pfbz2, buf, 8);
-            if (bz2err != BZ_OK)
-                errx(1, "BZ2_bzWrite, bz2err = %d", bz2err);
+            pf.write(pfbz2.compress(
+                struct.pack("q", length)))
+            pf.write(pfbz2.compress(
+                struct.pack("q", (scan-lengthb)-(lastscan+lengthf))))
+            pf.write(pfbz2.compress(
+                struct.pack("q", (pos-lengthb)-(lastpos+lengthf))))
 
-            offtout((scan-lengthb)-(lastscan+lengthf),buf);
-            BZ2_bzWrite(&bz2err, pfbz2, buf, 8);
-            if (bz2err != BZ_OK)
-                errx(1, "BZ2_bzWrite, bz2err = %d", bz2err);
+            lastscan=scan-lengthb
+            lastpos=pos-lengthb
+            lastoffset=pos-scan
+    pf.write(pfbz2.flush())
 
-            offtout((pos-lengthb)-(lastpos+lengthf),buf);
-            BZ2_bzWrite(&bz2err, pfbz2, buf, 8);
-            if (bz2err != BZ_OK)
-                errx(1, "BZ2_bzWrite, bz2err = %d", bz2err);
+    # Compute size of compressed ctrl data
+    ctrl_endpos = pf.tell()
 
-            lastscan=scan-lengthb;
-            lastpos=pos-lengthb;
-            lastoffset=pos-scan;
-        };
-    };
-    BZ2_bzWriteClose(&bz2err, pfbz2, 0, NULL, NULL);
-    if (bz2err != BZ_OK)
-        errx(1, "BZ2_bzWriteClose, bz2err = %d", bz2err);
+    # Write compressed diff data
+    pf.write(bz2.compress(db[:dblength].tostring()))
 
-    /* Compute size of compressed ctrl data */
-    if ((length = ftello(pf)) == -1)
-        err(1, "ftello");
-    offtout(length-32, header + 8);
+    # Compute size of compressed diff data
+    diff_endpos = pf.tell()
 
-    /* Write compressed diff data */
-    if ((pfbz2 = BZ2_bzWriteOpen(&bz2err, pf, 9, 0, 0)) == NULL)
-        errx(1, "BZ2_bzWriteOpen, bz2err = %d", bz2err);
-    BZ2_bzWrite(&bz2err, pfbz2, db, dblength);
-    if (bz2err != BZ_OK)
-        errx(1, "BZ2_bzWrite, bz2err = %d", bz2err);
-    BZ2_bzWriteClose(&bz2err, pfbz2, 0, NULL, NULL);
-    if (bz2err != BZ_OK)
-        errx(1, "BZ2_bzWriteClose, bz2err = %d", bz2err);
+    # Write compressed extra data
+    pf.write(bz2.compress(eb[:eblength].tostring()))
 
-    /* Compute size of compressed diff data */
-    if ((newsize = ftello(pf)) == -1)
-        err(1, "ftello");
-    offtout(newsize - length, header + 16);
+    # seek to the beginning and write the header
+    pf.seek(8)
+    pf.write(struct.pack("Q", ctrl_endpos - 32))
+    pf.write(struct.pack("Q", diff_endpos - ctrl_endpos))
+    pf.seek(0, os.SEEK_END)
 
-    /* Write compressed extra data */
-    if ((pfbz2 = BZ2_bzWriteOpen(&bz2err, pf, 9, 0, 0)) == NULL)
-        errx(1, "BZ2_bzWriteOpen, bz2err = %d", bz2err);
-    BZ2_bzWrite(&bz2err, pfbz2, eb, eblength);
-    if (bz2err != BZ_OK)
-        errx(1, "BZ2_bzWrite, bz2err = %d", bz2err);
-    BZ2_bzWriteClose(&bz2err, pfbz2, 0, NULL, NULL);
-    if (bz2err != BZ_OK)
-        errx(1, "BZ2_bzWriteClose, bz2err = %d", bz2err);
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
+#    from cStringIO import StringIO
+#    a = StringIO("qabxcdafhjaksdhuaeuhuhasf")
+#    b = StringIO("abycdfafhjajsadjkahgeruiofssq")
+#    p = StringIO()
+#    diff(a, b, p)
+#    print p.getvalue()
 
-    /* Seek to the beginning, write the header, and close the file */
-    if (fseeko(pf, 0, SEEK_SET))
-        err(1, "fseeko");
-    if (fwrite(header, 32, 1, pf) != 1)
-        err(1, "fwrite(%s)", argv[3]);
-    if (fclose(pf))
-        err(1, "fclose");
-
-    /* Free the memory we used */
-    free(db);
-    free(eb);
-    free(I);
-    free(old);
-    free(new);
-
-    return 0;
