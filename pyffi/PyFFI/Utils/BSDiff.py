@@ -107,7 +107,7 @@ def split(I, V, start, length, h):
             k += j
         return
 
-    x = V[I[(start + length) // 2] + h]
+    x = V[I[start + (length // 2)] + h]
     jj=0
     kk=0
     for i in xrange(start, start + length):
@@ -363,16 +363,16 @@ def diff(oldfile, newfile, patchfile):
             eblength+=(scan-lengthb)-(lastscan+lengthf)
 
             pf.write(pfbz2.compress(
-                struct.pack("<q", length)))
+                struct.pack("<q", lengthf)))
             pf.write(pfbz2.compress(
                 struct.pack("<q", (scan-lengthb)-(lastscan+lengthf))))
             pf.write(pfbz2.compress(
                 struct.pack("<q", (pos-lengthb)-(lastpos+lengthf))))
 
             # DEBUG
-            print "ctrl", (length,
-                           (scan-lengthb)-(lastscan+lengthf),
-                           (pos-lengthb)-(lastpos+lengthf))
+            #print "ctrl", (lengthf,
+            #               (scan-lengthb)-(lastscan+lengthf),
+            #               (pos-lengthb)-(lastpos+lengthf))
 
             lastscan=scan-lengthb
             lastpos=pos-lengthb
@@ -424,26 +424,40 @@ def patch(oldfile, newfile, patchfile):
     if((bzctrllen<0) or (bzdatalen<0) or (newsize<0)):
         raise ValueError("corrupt patch")
 
+    # DEBUG
+    #print("bzctrllen %i" % bzctrllen)
+    #print("bzdatalen %i" % bzdatalen)
+    #print("newsize   %i" % newsize)
+
     # C function opens compressed streams with libbzip2 at the right places
     # and sequentially decompresses the data
     # this implementation decompresses everything in one shot
     # and uses a memory stream to each part
-    cpf = StringIO(bz2.decompress(f.read(bzctrllen)))
-    dpf = StringIO(bz2.decompress(f.read(bzdatalen)))
-    epf = StringIO(bz2.decompress(f.read()))
+    ctrldata = bz2.decompress(f.read(bzctrllen))
+    diffdata = bz2.decompress(f.read(bzdatalen))
+    extradata = bz2.decompress(f.read())
+    # DEBUG
+    #print("ctrllen   %i" % len(ctrldata))
+    #print("datalen   %i" % len(diffdata))
+    #print("extralen  %i" % len(extradata))
+    cpf = StringIO(ctrldata)
+    dpf = StringIO(diffdata)
+    epf = StringIO(extradata)
+    #cpf.seek(0)
+    #dpf.seek(0)
+    #epf.seek(0)
 
     # read old file
     olddata = oldfile.read()
     oldsize = len(olddata)
-    old = ByteArray(olddata)
+    old = array("B", olddata)
     del olddata
+
+    # DEBUG
+    #print("old size  %i" % oldsize)
 
     # allocate new data
     new = array("B")
-
-    # DEBUG
-    print "old size", oldsize
-    print "new size", newsize
 
     oldpos=0
     newpos=0
@@ -452,7 +466,7 @@ def patch(oldfile, newfile, patchfile):
         ctrl = struct.unpack("<qqq", cpf.read(24))
 
         # DEBUG
-        print "ctrl", ctrl
+        #print "ctrl", ctrl
 
         # Sanity-check
         if(newpos+ctrl[0]>newsize):
@@ -465,6 +479,9 @@ def patch(oldfile, newfile, patchfile):
         for i in xrange(ctrl[0]):
             # TODO optimize this range check by putting it in the xrange
             if((oldpos+i>=0) and (oldpos+i<oldsize)):
+                # DEBUG
+                #print newpos + i
+                #print oldpos + i
                 new[newpos+i]+=old[oldpos+i]
 
         # Adjust pointers
@@ -483,17 +500,17 @@ def patch(oldfile, newfile, patchfile):
         oldpos += ctrl[2]
 
     # Write the new file
-    new.tofile(newfile)
+    newfile.write(new.tostring())
 
 if __name__ == "__main__":
-#    import doctest
-#    doctest.testmod()
-    from cStringIO import StringIO
-    a = StringIO("qabxcdafhjaksdhuaeuhuhasf")
-    b = StringIO("abycdfafhjajsadjkahgeruiofssq")
-    p = StringIO()
-    diff(a, b, p)
-    c = StringIO()
-    a.seek(0)
-    p.seek(0)
-    patch(a, c, p)
+    import doctest
+    doctest.testmod()
+    #from cStringIO import StringIO
+    #a = StringIO("qabxcdafhjaksdhuaeuhuhasf")
+    #b = StringIO("abycdfafhjajsadjkahgeruiofssq")
+    #p = StringIO()
+    #diff(a, b, p)
+    #c = StringIO()
+    #a.seek(0)
+    #p.seek(0)
+    #patch(a, c, p)
