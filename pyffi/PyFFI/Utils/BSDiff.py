@@ -2,14 +2,21 @@
 (see http://www.daemonology.net/bsdiff/).
 
 >>> from cStringIO import StringIO
->>> a = StringIO("qabxcdafhjaksdhuaeuhuhasf")
->>> b = StringIO("abycdfafhjajsadjkahgeruiofssq")
->>> p = StringIO()
->>> diff(a, b, p)
->>> c = StringIO()
->>> p.seek(0)
->>> patch(a, c, p)
->>> b.getvalue() == c.getvalue()
+>>> for a, b in [
+...     ("qabxcdafhjaksdhuaeuhuhasf", "abycdfafhjajsadjkahgeruiofssq"),
+...     ("abcdefghijklmnopqrstuvwxyz", "abcdefghijklmnopqrstuvwxyz"),
+...     ("onewithconstntdifference", "nmdvhsgbnmrsmscheedqdmbd")]:
+...     as = StringIO(a)
+...     bs = StringIO(b)
+...     ps = StringIO()
+...     diff(as, bs, ps)
+...     print len(ps.getvalue())
+...     cs = StringIO()
+...     ps.seek(0)
+...     patch(as, cs, ps)
+...     bs.getvalue() == cs.getvalue()
+True
+True
 True
 """
 
