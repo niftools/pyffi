@@ -6,15 +6,15 @@
 ...     ("qabxcdafhjaksdhuaeuhuhasf", "abycdfafhjajsadjkahgeruiofssq"),
 ...     ("abcdefghijklmnopqrstuvwxyz", "abcdefghijklmnopqrstuvwxyz"),
 ...     ("onewithconstntdifference", "nmdvhsgbnmrsmscheedqdmbd")]:
-...     as = StringIO(a)
-...     bs = StringIO(b)
-...     ps = StringIO()
-...     diff(as, bs, ps)
-...     print len(ps.getvalue())
-...     cs = StringIO()
-...     ps.seek(0)
-...     patch(as, cs, ps)
-...     bs.getvalue() == cs.getvalue()
+...     astr = StringIO(a)
+...     bstr = StringIO(b)
+...     pstr = StringIO()
+...     diff(astr, bstr, pstr)
+...     cstr = StringIO()
+...     astr.seek(0)
+...     pstr.seek(0)
+...     patch(astr, cstr, pstr)
+...     bstr.getvalue() == cstr.getvalue()
 True
 True
 True
@@ -481,6 +481,9 @@ def patch(oldfile, newfile, patchfile):
 
         # Read diff string
         new.fromstring(dpf.read(ctrl[0]))
+        # DEBUG
+        #if ctrl[0]:
+        #    print new
 
         # Add old data to diff string
         for i in xrange(ctrl[0]):
@@ -490,6 +493,9 @@ def patch(oldfile, newfile, patchfile):
                 #print newpos + i
                 #print oldpos + i
                 new[newpos+i]+=old[oldpos+i]
+        # DEBUG
+        #if ctrl[0]:
+        #    print new
 
         # Adjust pointers
         newpos+=ctrl[0]
