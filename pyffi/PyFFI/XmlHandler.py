@@ -48,7 +48,35 @@ from PyFFI.ObjectModels.XML.Enum       import EnumBase
 from PyFFI.ObjectModels.XML.Expression import Expression
 
 class StructAttribute(object):
-    """Helper class to collect attribute data of struct add tags."""
+    """Helper class to collect attribute data of struct add tags.
+    @ivar name:  The name of this member variable.
+    @type name: C{str}
+    @ivar type: The type of this member variable (type is C{str} for forward
+        declarations, and resolved to an actual type later).
+    @type type: C{str} or L{BasicBase} or L{StructBase}
+    @ivar default: The default value of this member variable.
+    @type default: C{str} or C{NoneType}
+    @ivar template: The template type of this member variable (initially
+        C{str}, resolved to an actual type at the end of the xml parsing).
+        If there is no template type, then this variable will equal
+        C{NoneType}.
+    @type template: C{str} or L{BasicBase} or L{StructBase} or
+        L{type(NoneType)}
+    @ivar arg: The argument of this member variable.
+    @type arg: C{str} or C{NoneType}
+    @ivar arr1: The first array size of this member variable.
+    @type arr1: L{Expression} or C{NoneType}
+    @ivar arr2: The first array size of this member variable.
+    @type arr2: L{Expression} or C{NoneType}
+    @ivar cond: The condition of this member variable.
+    @type cond: L{Expression} or C{NoneType}
+    @ivar ver1: The first version this member exists.
+    @type ver1: C{int} or C{NoneType}
+    @ivar ver2: The last version this member exists.
+    @type ver2: C{int} or C{NoneType}
+    @ivar userver: The user version where this member exists.
+    @type userver: C{int} or C{NoneType}
+    """
 
     def __init__(self, cls, attrs):
         """Initialize attribute from the xml attrs dictionary of an
