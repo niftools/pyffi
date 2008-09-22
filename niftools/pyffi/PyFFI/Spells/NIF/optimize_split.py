@@ -197,6 +197,10 @@ def testRoot(root, **args):
              newblock = split(block, threshold_radius = THRESHOLD_RADIUS)
              # TODO replace block with newblock everywhere (write dedicated
              #      function in PyFFI for replacement)
-             root.replaceBlock(block, newblock)
+             root = root.replaceLink(block, newblock)
+
              optimized_geometries.append(block)
+
+    # root may have changed
+    return root
 
