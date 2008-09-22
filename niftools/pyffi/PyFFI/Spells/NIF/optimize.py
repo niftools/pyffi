@@ -490,10 +490,18 @@ def testRoot(root, **args):
             # issue #2106668)
             if prop.controller:
                 continue
+            # check if the name of the property is relevant
+            specialnames = ("envmap2", "envmap", "skin", "hair",
+                            "dynalpha", "hidesecret", "lava")
+            if (isinstance(prop, NifFormat.NiMaterialProperty)
+                and prop.name.lower() in specialnames):
+                ignore_strings = False
+            else:
+                ignore_strings = True
             # calculate property hash
             prop_class_str = prop.__class__.__name__
             hashvalue = (prop_class_str,
-                         prop.getHash(ignore_strings = True))
+                         prop.getHash(ignore_strings = ignore_strings))
             # skip if excluded
             if prop_class_str in exclude:
                 continue
