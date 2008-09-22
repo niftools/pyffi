@@ -102,7 +102,10 @@ class ByteArray:
 def bspackq(value):
     """bsdiff has a special way of storing long integers in a file.
     Unsigned is as usual, but signed is done by putting a 0x80 over the
-    msb."""
+    msb.
+
+    This is used for writing the control values, as these can be negative.
+    """
     packvalue = struct.pack("<q", abs(value))
     if value < 0:
         packvalue = packvalue[:7] + chr(ord(packvalue[-1]) | 0x80)
@@ -402,11 +405,11 @@ def diff(oldfile, newfile, patchfile):
             eblength+=(scan-lengthb)-(lastscan+lengthf)
 
             pf.write(pfbz2.compress(
-                struct.pack("<q", lengthf)))
+                bspackq(lengthf)))
             pf.write(pfbz2.compress(
-                struct.pack("<q", (scan-lengthb)-(lastscan+lengthf))))
+                bspackq((scan-lengthb)-(lastscan+lengthf))))
             pf.write(pfbz2.compress(
-                struct.pack("<q", (pos-lengthb)-(lastpos+lengthf))))
+                bspackq((pos-lengthb)-(lastpos+lengthf))))
 
             # DEBUG
             #print "ctrl", (lengthf,
@@ -502,7 +505,9 @@ def patch(oldfile, newfile, patchfile):
     newpos=0
     while(newpos<newsize):
         # Read control data
-        ctrl = struct.unpack("<qqq", cpf.read(24))
+        ctrl = (bsunpackq(cpf.read(8)),
+                bsunpackq(cpf.read(8)),
+                bsunpackq(cpf.read(8)))
 
         # DEBUG
         #print "ctrl", ctrl
