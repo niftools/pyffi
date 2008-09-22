@@ -53,7 +53,9 @@ Not all of these three functions need to be present.
 from cStringIO import StringIO
 import gc
 import optparse
+import os
 import os.path
+import subprocess
 import tempfile
 
 import PyFFI # for PyFFI.__version__
@@ -152,10 +154,14 @@ def testFileCreatePatch(format, *walkresult, **kwargs):
     @param kwargs: Extra keyword arguments.
     @type kwargs: dict
     """
-    # write the file to a memory stream
-    newfile = StringIO()
+    diffcmd = kwargs.get('diffcmd')
+    # create a temporary file that won't get deleted when closed
+    newfile = tempfile.NamedTemporaryFile()
+    newfilename = newfile.name
+    newfile.close()
+    newfile = open(newfilename, "w+b")
     if kwargs.get('verbose'):
-        print("  writing to memory...")
+        print("  writing to temporary file...")
     #print(walkresult) # DEBUG
     try:
         format.write(newfile, *walkresult[1:])
@@ -163,15 +169,30 @@ def testFileCreatePatch(format, *walkresult, **kwargs):
         print "  write failed!!!"
         raise
     # first argument is always the stream, by convention
-    oldfile = walkresult[0]
-    oldfile.seek(0)
-    newfile.seek(0)
-    patchfile = open(oldfile.name + ".patch", "wb")
-    if kwargs.get('verbose'):
-        print("  writing patch...")
-    PyFFI.Utils.BSDiff.diff(oldfile, newfile, patchfile)
-    patchfile.close()
-    newfile.close()
+    if not diffcmd:
+        # use internal differ
+        oldfile = walkresult[0]
+        oldfile.seek(0)
+        newfile.seek(0)
+        patchfile = open(oldfile.name + ".patch", "wb")
+        if kwargs.get('verbose'):
+            print("  writing patch...")
+        PyFFI.Utils.BSDiff.diff(oldfile, newfile, patchfile)
+        patchfile.close()
+        newfile.close()
+    else:
+        # use external diff command
+        oldfile = walkresult[0]
+        oldfilename = oldfile.name
+        patchfilename = oldfilename + ".patch"
+        # close all files before calling external command
+        oldfile.close()
+        newfile.close()
+        if kwargs.get('verbose'):
+            print("  calling %s..." % diffcmd)
+        subprocess.call([diffcmd, oldfilename, newfilename, patchfilename])
+    # delete temporary file
+    os.remove(newfilename)
 
 def isBlockAdmissible(block, exclude, include):
     """Check if a block should be tested or not, based on exclude and include
@@ -238,7 +259,8 @@ def testPath(top, format = None, spellmodule = None, **kwargs):
     testFile = getattr(spellmodule, "testFile", None)
 
     # warning
-    if (not readonly) and (not dryrun) and not(prefix) and interactive:
+    if ((not readonly) and (not dryrun) and not(prefix) and not(createpatch)
+        and interactive):
         print("""\
 This script will modify your files, in particular if something goes wrong it
 may destroy them. Make a backup of your files before running this script.
@@ -417,16 +439,28 @@ binary patch""")
     parser.add_option("--patch", dest="applypatch",
                       action="store_true",
                       help="""apply all binary patches""")
+    parser.add_option("--diff-cmd", dest="diffcmd",
+                      type="string",
+                      help="""use ARG as diff command; this command must \
+accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
+    parser.add_option("--patch-cmd", dest="patchcmd",
+                      type="string",
+                      help="""use ARG as patch command; this command must \
+accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
     parser.set_defaults(raisetesterror=False, verbose=1, pause=False,
                         exclude=[], include=[], examples=False, spells=False,
                         raisereaderror=True, interactive=True,
                         helpspell=False, dryrun=False, prefix="", arg="",
-                        createpatch=False, applypatch=False)
+                        createpatch=False, applypatch=False, diffcmd="")
     (options, args) = parser.parse_args()
 
     # check errors
     if options.createpatch and options.applypatch:
         parser.error("options --diff and --patch are mutually exclusive")
+    if options.diffcmd and not(options.createpatch):
+        parser.error("option --diff-cmd can only be used with --diff")
+    if options.patchcmd and not(options.applypatch):
+        parser.error("option --patch-cmd can only be used with --patch")
 
     # check if we had examples and/or spells: quit
     if options.spells:
