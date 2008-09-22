@@ -1,3 +1,14 @@
+Version 1.0.5 (***)
+* niftoaster optimize
+  - fix for materials named skin, envmap2, etc. (issue #2121098)
+  - fix for empty source textures in texdesc (issue #2118481)
+* toaster
+  - new options --diff and --patch to create and apply patches; interal
+  patcher uses bsdiff format, but you can also specify an arbitrary
+  external diff/patch command via --diff-cmd and --patch-cmd options
+  (the external command must take three arguments: oldfile, newfile,
+  and patchfile)
+
 Version 1.0.4 (18 Sep 2008)
 * niftoaster optimize
   - morph data optimization (issue #2116594, fixes "bow" weapons)
