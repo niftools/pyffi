@@ -57,6 +57,7 @@ import os.path
 import tempfile
 
 import PyFFI # for PyFFI.__version__
+import PyFFI.Spells.applypatch
 import PyFFI.Utils.BSDiff
 
 def testFileTempwrite(format, *walkresult, **kwargs):
@@ -231,6 +232,7 @@ def testPath(top, format = None, spellmodule = None, **kwargs):
     dryrun = kwargs.get("dryrun", False)
     prefix = kwargs.get("prefix", "")
     createpatch = kwargs.get("createpatch", False)
+    applypatch = kwargs.get("applypatch", False)
     testRoot = getattr(spellmodule, "testRoot", None)
     testBlock = getattr(spellmodule, "testBlock", None)
     testFile = getattr(spellmodule, "testFile", None)
@@ -408,16 +410,23 @@ prepend PREFIX to file name")
                       help="""pass exceptions while reading files;
 normally you do not need this, unless you are hacking the xml format
 description""")
-    parser.add_option("--createpatch", dest="createpatch",
+    parser.add_option("--diff", dest="createpatch",
                       action="store_true",
                       help="""instead of writing back the file, write a \
 binary patch""")
+    parser.add_option("--patch", dest="applypatch",
+                      action="store_true",
+                      help="""apply all binary patches""")
     parser.set_defaults(raisetesterror=False, verbose=1, pause=False,
                         exclude=[], include=[], examples=False, spells=False,
                         raisereaderror=True, interactive=True,
                         helpspell=False, dryrun=False, prefix="", arg="",
-                        createpatch=False)
+                        createpatch=False, applypatch=False)
     (options, args) = parser.parse_args()
+
+    # check errors
+    if options.createpatch and options.applypatch:
+        parser.error("options --diff and --patch are mutually exclusive")
 
     # check if we had examples and/or spells: quit
     if options.spells:
@@ -431,23 +440,30 @@ binary patch""")
     if len(args) < 1:
         parser.error(errormessage_numargs)
 
-    # get spell name
-    spellname = args[0]
-    # get spell module
-    try:
-        spellmodule = getattr(formatspellsmodule, spellname)
-    except AttributeError:
-        # spell was not found
-        parser.error("spell '%s' not found" % spellname)
+    # check if we are applying patches
+    if options.applypatch:
+        if len(args) > 1:
+            parser.error("when using --patch, do not specify a spell")
+        # set spell module to applying patch
+        spellmodule = PyFFI.Spells.applypatch
+    else:
+        # get spell name
+        spellname = args[0]
+        # get spell module
+        try:
+            spellmodule = getattr(formatspellsmodule, spellname)
+        except AttributeError:
+            # spell was not found
+            parser.error("spell '%s' not found" % spellname)
 
-    if options.helpspell:
-        # TODO: format the docstring
-        print(spellmodule.__doc__)
-        return
+        if options.helpspell:
+            # TODO: format the docstring
+            print(spellmodule.__doc__)
+            return
 
-    # top not specified when function was called
-    if len(args) != 2:
-        parser.error(errormessage_numargs)
+        # top not specified when function was called
+        if len(args) != 2:
+            parser.error(errormessage_numargs)
 
     # get top folder/file: last argument always is folder/file
     top = args[-1]

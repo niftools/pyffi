@@ -99,6 +99,29 @@ class ByteArray:
         result._pos = self._pos + index
         return result
 
+def bspackq(value):
+    """bsdiff has a special way of storing long integers in a file.
+    Unsigned is as usual, but signed is done by putting a 0x80 over the
+    msb."""
+    packvalue = struct.pack("<q", abs(value))
+    if value < 0:
+        packvalue = packvalue[:7] + chr(ord(packvalue[-1]) | 0x80)
+    return packvalue
+
+def bsunpackq(packvalue):
+    """Inverse of L{bspackq}.
+
+    >>> bsunpackq(bspackq(12345))
+    12345
+    >>> bsunpackq(bspackq(-12345))
+    -12345
+    """
+    if (ord(packvalue[-1]) & 0x80):
+        packvalue = packvalue[:7] + chr(ord(packvalue[-1]) & 0x7f)
+        return -struct.unpack("<q", packvalue)[0]
+    else:
+        return struct.unpack("<q", packvalue)[0]
+
 def split(I, V, start, length, h):
     if length < 16:
         k = start
