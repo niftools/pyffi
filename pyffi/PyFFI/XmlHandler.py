@@ -61,7 +61,7 @@ class StructAttribute(object):
         If there is no template type, then this variable will equal
         C{NoneType}.
     @type template: C{str} or L{BasicBase} or L{StructBase} or
-        L{type(NoneType)}
+        C{type(NoneType)}
     @ivar arg: The argument of this member variable.
     @type arg: C{str} or C{NoneType}
     @ivar arr1: The first array size of this member variable.
