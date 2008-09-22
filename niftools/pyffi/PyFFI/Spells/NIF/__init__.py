@@ -6,6 +6,7 @@ import checkskincenterradius
 import checkskinpartition
 import checktangentspace
 import checktristrip
+import disableparallax
 import dump
 import exportpixeldata
 import ffvt3rskinpartition
