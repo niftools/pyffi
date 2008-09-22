@@ -2,6 +2,8 @@ Version 1.0.5 (***)
 * niftoaster optimize
   - fix for materials named skin, envmap2, etc. (issue #2121098)
   - fix for empty source textures in texdesc (issue #2118481)
+* niftoaster
+  - new spell to disable parallax (issue #2121283)
 * toaster
   - new options --diff and --patch to create and apply patches; interal
   patcher uses bsdiff format, but you can also specify an arbitrary
