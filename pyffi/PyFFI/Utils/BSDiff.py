@@ -27,6 +27,9 @@ True
 True
 True
 True
+
+@todo: Optimize the diff function (runs rather slow at the moment mostly due
+    to the crappy memcmp implementation), and fix bugs in the patch function.
 """
 
 #
