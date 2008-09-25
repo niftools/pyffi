@@ -441,6 +441,9 @@ def diff(oldfile, newfile, patchfile):
     pf.seek(0, os.SEEK_END)
 
 def patch(oldfile, newfile, patchfile):
+    # deactivated for release (there are still some bugs in this function)
+    raise NotImplementedError
+
     # f is patchfile in C function
     f = patchfile
 
