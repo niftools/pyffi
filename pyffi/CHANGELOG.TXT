@@ -1,4 +1,4 @@
-Version 1.0.5 (***)
+Version 1.0.5 (27 Sep 2008)
 * niftoaster optimize
   - fix for materials named skin, envmap2, etc. (issue #2121098)
   - fix for empty source textures in texdesc (issue #2118481)
@@ -9,7 +9,8 @@ Version 1.0.5 (***)
   patcher uses bsdiff format, but you can also specify an arbitrary
   external diff/patch command via --diff-cmd and --patch-cmd options
   (the external command must take three arguments: oldfile, newfile,
-  and patchfile)
+  and patchfile); note that this is still in experimental stage, not ready
+  for production use yet
 
 Version 1.0.4 (18 Sep 2008)
 * niftoaster optimize
