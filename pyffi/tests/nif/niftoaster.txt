@@ -49,6 +49,14 @@ Options:
   --usetheforceluke     pass exceptions while reading files; normally you do
                         not need this, unless you are hacking the xml format
                         description
+  --diff                instead of writing back the file, write a binary patch
+  --patch               apply all binary patches
+  --diff-cmd=DIFFCMD    use ARG as diff command; this command must accept
+                        precisely 3 arguments, oldfile, newfile, and
+                        patchfile.
+  --patch-cmd=PATCHCMD  use ARG as patch command; this command must accept
+                        precisely 3 arguments, oldfile, newfile, and
+                        patchfile.
 
 The --examples switch
 ---------------------
@@ -115,15 +123,18 @@ checkskincenterradius
 checkskinpartition
 checktangentspace
 checktristrip
+disableparallax
 dump
 exportpixeldata
 ffvt3rskinpartition
+fix_detachhavoktristripsdata
 hackcheckskindata
 hackmultiskelroot
 hackskindataidtransform
 hackskinrestpose
 mergeskelandrestpos
 optimize
+optimize_split
 read
 readwrite
 scale
