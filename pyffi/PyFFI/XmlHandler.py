@@ -85,7 +85,8 @@ class StructAttribute(object):
         @param cls: The class where all types reside.
         @param attrs: The xml add tag attribute dictionary."""
         # mandatory parameters
-        self.name = cls.nameAttribute(attrs["name"])
+        self.displayname = attrs["name"]
+        self.name = cls.nameAttribute(self.displayname)
         attrs_type_str = attrs["type"]
         if attrs_type_str != "TEMPLATE":
             try:
