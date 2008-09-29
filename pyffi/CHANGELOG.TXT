@@ -1,4 +1,7 @@
 Version 1.0.6 (***)
+* niftoaster
+  - new fix_addtangentspace spell
+* new internal implementation of bsdiff algorithm
 
 Version 1.0.5 (27 Sep 2008)
 * niftoaster optimize
