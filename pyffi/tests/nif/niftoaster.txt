@@ -127,6 +127,7 @@ disableparallax
 dump
 exportpixeldata
 ffvt3rskinpartition
+fix_addtangentspace
 fix_detachhavoktristripsdata
 hackcheckskindata
 hackmultiskelroot
