@@ -1,3 +1,5 @@
+Version 1.0.6 (***)
+
 Version 1.0.5 (27 Sep 2008)
 * niftoaster optimize
   - fix for materials named skin, envmap2, etc. (issue #2121098)
