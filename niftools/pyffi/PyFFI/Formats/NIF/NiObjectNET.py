@@ -55,6 +55,37 @@ def addExtraData(self, extrablock):
             lastextra = lastextra.nextExtraData
         lastextra.nextExtraData = extrablock
 
+def removeExtraData(self, extrablock):
+    """Remove block from extra data list and extra data chain.
+
+    >>> from PyFFI.Formats.NIF import NifFormat
+    >>> block = NifFormat.NiNode()
+    >>> block.numExtraDataList = 3
+    >>> block.extraDataList.updateSize()
+    >>> extrablock = NifFormat.NiStringExtraData()
+    >>> block.extraDataList[1] = extrablock
+    >>> block.removeExtraData(extrablock)
+    >>> print [extra for extra in block.extraDataList]
+    [None, None]
+    """
+    # remove from list
+    new_extra_list = []
+    for extraother in self.extraDataList:
+        if not extraother is extrablock:
+            new_extra_list.append(extraother)
+    self.numExtraDataList = len(new_extra_list)
+    self.extraDataList.updateSize()
+    for i, extraother in enumerate(new_extra_list):
+        self.extraDataList[i] = extraother
+    # remove from chain
+    if self.extraData is extrablock:
+        self.extraData = extrablock.nextExtraData
+    lastextra = self.extraData
+    while lastextra:
+        if lastextra.nextExtraData is extrablock:
+            lastextra.nextExtraData = lastextra.nextExtraData.nextExtraData
+        lastextra = lastextra.nextExtraData
+
 def getExtraDatas(self):
     """Get a list of all extra data blocks."""
     xtras = [xtra for xtra in self.extraDataList ]
@@ -85,3 +116,7 @@ def getControllers(self):
         ctrls.append(ctrl)
         ctrl = ctrl.nextController
     return ctrls
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
