@@ -11,6 +11,7 @@ import dump
 import exportpixeldata
 import ffvt3rskinpartition
 import fix_addtangentspace
+import fix_deltangentspace
 import fix_detachhavoktristripsdata
 import hackcheckskindata
 import hackmultiskelroot
