@@ -3,6 +3,8 @@ Version 1.0.6 (***)
   - new fix_addtangentspace spell to add missing tangent space blocks
   - new fix_deltangentspace spell to remove tangent space blocks
 * new internal implementation of bsdiff algorithm
+* removed cry dae filter (an improved version of this filter is now
+bundled with ColladaCGF)
 
 Version 1.0.5 (27 Sep 2008)
 * niftoaster optimize
