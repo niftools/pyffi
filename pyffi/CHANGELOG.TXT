@@ -2,6 +2,9 @@ Version 1.0.6 (***)
 * niftoaster
   - new fix_addtangentspace spell to add missing tangent space blocks
   - new fix_deltangentspace spell to remove tangent space blocks
+  - new fix_texturepath spell to change / into \ and to fix corrupted
+  newline characters (which sometimes resulted from older versions of
+  nifskope) in NiSourceTexture file paths
 * new internal implementation of bsdiff algorithm
 * removed cry dae filter (an improved version of this filter is now
 bundled with ColladaCGF)
