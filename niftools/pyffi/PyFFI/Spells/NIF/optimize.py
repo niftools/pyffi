@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 """A spell for optimizing nif files."""
 
 # --------------------------------------------------------------------------
@@ -378,6 +376,7 @@ def optimizeTriBasedGeom(block, striplencutoff = 10.0, stitch = True):
 
     return block
 
+# TODO: use fix_texturepath spell instead
 def fixTexturePath(block, **args):
     """Fix the texture path. Transforms 0x0a into \\n and 0x0d into \\r.
     This fixes a bug in nifs saved with older versions of nifskope.

@@ -13,6 +13,7 @@ import ffvt3rskinpartition
 import fix_addtangentspace
 import fix_deltangentspace
 import fix_detachhavoktristripsdata
+import fix_texturepath
 import hackcheckskindata
 import hackmultiskelroot
 import hackskindataidtransform
