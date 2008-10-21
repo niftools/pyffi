@@ -64,7 +64,7 @@ def testBlock(block, **args):
 
     if (('\n' in block.fileName)
         or ('\r' in block.fileName)
-        or ('\\' in block.fileName)):
+        or ('/' in block.fileName)):
         block.fileName = block.fileName.replace('\n', '\\n')
         block.fileName = block.fileName.replace('\r', '\\r')
         block.fileName = block.fileName.replace('/', '\\')
