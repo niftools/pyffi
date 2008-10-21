@@ -53,6 +53,15 @@ def testBlock(block, **args):
     @param block: The block to fix.
     @type block: L{NifFormat.NiSourceTexture}
     """
+    # does it apply on this block?
+    if not isinstance(block, NifFormat.NiSourceTexture):
+        return
+
+    # is this block excluded?
+    exclude = args.get("exclude", [])
+    if "NiSourceTexture" in exclude:
+        return
+
     if (('\n' in block.fileName)
         or ('\r' in block.fileName)
         or ('\\' in block.fileName):
