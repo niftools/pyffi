@@ -285,6 +285,9 @@ Section
 
 have_maya:
     ; key, that means that Maya 2008 is installed
+    ; make sure site-packages directory exists
+    ; (this prevents CopyFiles to go wrong if it does not exist)
+    CreateDirectory "$MAYAINST\Python\Lib\site-packages"
     ; Synchronize PyFFI (CopyFiles does a recursive copy)
     RMDir /r "$MAYAINST\Python\Lib\site-packages\PyFFI"
     CopyFiles "$PYTHONPATH\Lib\site-packages\PyFFI" "$MAYAINST\Python\Lib\site-packages"
