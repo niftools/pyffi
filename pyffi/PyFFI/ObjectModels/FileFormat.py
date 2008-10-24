@@ -66,6 +66,8 @@ class FileFormat(object):
         This default implementation simply returns zero at all times,
         and works for formats that are not versioned.
 
+        Override for versioned formats.
+
         @param version_str: The version string.
         @type version_str: str
         @return: A version integer.
@@ -85,6 +87,8 @@ class FileFormat(object):
             Returns C{(-1, 0)} if file is of known format but the particular
             version not supported.
             Returns C{(-2, 0)} if format is not known.
+
+        @todo: The plan is eventually to use the L{Data} class for this.
         """
         raise NotImplementedError
 
@@ -108,6 +112,8 @@ class FileFormat(object):
             attrname += part.capitalize()
         return attrname
 
+    # TODO: port nameClass(name) from XsdFileFormat
+
     @classmethod
     def read(cls, stream, version = None, user_version = None, **kwargs):
         """Read a file. Override this function.
@@ -121,6 +127,8 @@ class FileFormat(object):
         @param kwargs: Extra keyword arguments.
         @return: A tuple of objects (typically, header, blocks, and footer)
             describing the file.
+
+        @todo: The plan is eventually to use the L{Data} class for this.
         """
         raise NotImplementedError
 
@@ -139,6 +147,8 @@ class FileFormat(object):
         @param user_version: The user version number.
         @type user_version: int
         @param kwargs: Extra keyword arguments (e.g. header, block list, ...)
+
+        @todo: The plan is eventually to use the L{Data} class for this.
         """
         raise NotImplementedError
 
@@ -159,6 +169,8 @@ class FileFormat(object):
         @type raisereaderror: bool
         @param verbose: Verbosity level.
         @type verbose: int
+
+        @todo: Eventually this will be superseded by L{walkData}.
         """
         for result in cls.walkFile(
             top, topdown = topdown,
@@ -187,6 +199,8 @@ class FileFormat(object):
         @type raisereaderror: bool
         @param verbose: Verbosity level.
         @type verbose: int
+
+        @todo: Eventually this will be superseded by L{walkData}.
         """
         # now walk over all these files in directory top
         for filename in Utils.walk(top, topdown, onerror = None,
@@ -233,6 +247,69 @@ Warning: read failed due corrupt file, corrupt format description, or bug.""")
                 stream.close()
 
     @classmethod
+    def walkData(cls, top, topdown = True,
+                 raisereaderror = False, verbose = 0, mode = 'rb',
+                 read = True, inspect = False):
+        """A generator which yields the data of all files in
+        directory top whose filename matches the regular expression
+        cls.re_filename. The argument top can also be a file instead of a
+        directory. Errors coming from os.walk are ignored.
+
+        Note that the caller is not responsible for closing the stream.
+
+        This function is for instance used by L{PyFFI.Spells} to implement
+        modifying a file after reading and parsing.
+
+        @param top: The top folder.
+        @type top: C{str}
+        @param topdown: Determines whether subdirectories should be iterated
+            over first.
+        @type topdown: C{bool}
+        @param raisereaderror: Should read errors raise an exception, or
+            should they be ignored?
+        @type raisereaderror: C{bool}
+        @param verbose: Verbosity level.
+        @type verbose: C{int}
+        @param inspect: Whether to inspect the file (ignored when the read
+            argument is C{True}).
+        @type inspect: C{bool}
+        @param read: Whether to read the file completely.
+        @type read: C{bool}
+
+        @status: Not yet functional. For the time being, fall back on the other
+            walk functions.
+        """
+        # now walk over all these files in directory top
+        for filename in Utils.walk(top, topdown, onerror = None,
+                                   re_filename = cls.re_filename):
+            if verbose >= 1:
+                print("reading %s" % filename)
+            stream = open(filename, mode)
+            try:
+                try:
+                    # return data for the stream
+                    data = cls.Data()
+                    if read:
+                        data.read(stream)
+                    elif inspect:
+                        data.inspect(stream)
+                    yield stream, data
+                except StandardError:
+                    # an error occurred during reading or inspecting
+                    # this should not happen: means that the file is
+                    # corrupt, or that the xsd is corrupt
+                    if verbose >= 1:
+                        print("""\
+Warning: read failed due to either a corrupt file, a corrupt xsd, or a bug.""")
+                    if verbose >= 2:
+                        Utils.hexDump(stream)
+                    if raisereaderror:
+                        raise
+            finally:
+                stream.close()
+
+
+    @classmethod
     def getRoots(cls, *readresult):
         """Returns list of all root blocks. Used by L{PyFFI.QSkope}
         and L{PyFFI.Spells}.
@@ -240,6 +317,8 @@ Warning: read failed due corrupt file, corrupt format description, or bug.""")
         @param readresult: Result from L{walk} or L{read}.
         @type readresult: tuple
         @return: list of root blocks
+
+        @todo: The plan is eventually to use the L{Data} class for this.
         """
         return []
 
@@ -251,6 +330,8 @@ Warning: read failed due corrupt file, corrupt format description, or bug.""")
         @param readresult: Result from L{walk} or L{read}.
         @type readresult: tuple
         @return: list of blocks
+
+        @todo: The plan is eventually to use the L{Data} class for this.
         """
         return []
 

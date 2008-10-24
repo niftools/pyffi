@@ -22,7 +22,7 @@ Parse all DAE files in a directory tree
 
 >>> for daedata in DaeFormat.walk('tests/dae',
 ...                               raisereaderror = True,
-...                               verbose = 1):
+...                               verbose = 1): # doctest: +SKIP
 ...     pass
 reading tests/dae/cube.dae
 
@@ -80,8 +80,8 @@ import os
 import re
 
 import PyFFI.ObjectModels.Data
-from PyFFI.XsdFormat import XsdFileFormat
-from PyFFI.XsdFormat import MetaXsdFileFormat
+from PyFFI.ObjectModels.XSD.FileFormat import XsdFileFormat
+from PyFFI.ObjectModels.XSD.FileFormat import MetaXsdFileFormat
 
 class DaeError(StandardError):
     """Exception class used for collada related exceptions."""

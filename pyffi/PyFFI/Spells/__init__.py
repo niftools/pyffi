@@ -500,6 +500,10 @@ def printspells(formatspellsmodule):
     for spell in dir(formatspellsmodule):
         if spell[:2] == '__':
             continue
+        # this is just a hack for the moment; the list of spells will be
+        # stored elsewhere in a future version
+        if spell in ("PyFFI", "NifSpell"):
+            continue
         print(spell)
 
 def toaster(format=None, formatspellsmodule=None, examples=None):

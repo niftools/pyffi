@@ -1,5 +1,7 @@
-"""Parses XML Schema Definition (XSD) file and set up representation of
-the XML schema as a bunch of classes."""
+"""This module provides a base class and a metaclass for parsing an XSD
+schema and providing an interface for writing XML files that follow this
+schema.
+"""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -38,9 +40,115 @@ the XML schema as a bunch of classes."""
 #
 # ***** END LICENSE BLOCK *****
 
-import xml.sax
-from types import NoneType, FunctionType, TypeType
+import PyFFI.ObjectModels.FileFormat
+from PyFFI import Utils
+
+import os.path
 import sys
+from types import NoneType, FunctionType, TypeType
+import xml.sax
+
+class MetaXsdFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
+    """The MetaXsdFileFormat metaclass transforms the XSD description of a
+    xml format into a bunch of classes which can be directly used to
+    manipulate files in this format.
+
+    The actual implementation of the parser is delegated to
+    L{PyFFI.XsdHandler}.
+    """
+
+    def __init__(cls, name, bases, dct):
+        """This function constitutes the core of the class generation
+        process. For instance, we declare DaeFormat to have metaclass
+        MetaXsdFileFormat, so upon creation of the DaeFormat class,
+        the __init__ function is called, with
+
+        @param cls: The class created using MetaXsdFileFormat, for example
+            DaeFormat.
+        @param name: The name of the class, for example 'DaeFormat'.
+        @param bases: The base classes, usually (object,).
+        @param dct: A dictionary of class attributes, such as 'xsdFileName'.
+        """
+        super(MetaXsdFileFormat, cls).__init__(name, bases, dct)
+
+        # consistency checks
+        if not 'xsdFileName' in dct:
+            raise TypeError("class %s : missing xsdFileName attribute" % cls)
+
+        # set up XML parser
+        parser = xml.sax.make_parser()
+        parser.setContentHandler(XsdSaxHandler(cls, name, bases, dct))
+
+        # open XSD file
+        if not 'xsdFilePath' in dct:
+            xsdfile = open(dct['xsdFileName'])
+        else:
+            for filepath in dct['xsdFilePath']:
+                if not filepath:
+                    continue
+                try:
+                    xsdfile = open(os.path.join(filepath, dct['xsdFileName']))
+                except IOError:
+                    continue
+                break
+            else:
+                raise IOError("'%s' not found in any of the directories %s"%(
+                    dct['xsdFileName'], dct['xsdFilePath']))
+
+        # parse the XSD file: control is now passed on to XsdSaxHandler
+        # which takes care of the class creation
+        try:
+            parser.parse(xsdfile)
+        finally:
+            xsdfile.close()
+
+class XsdFileFormat(PyFFI.ObjectModels.FileFormat.FileFormat):
+    """This class can be used as a base class for file formats. It implements
+    a number of useful functions such as walking over directory trees and a
+    default attribute naming function.
+    """
+
+    # override this with a regular expression for the file extension of
+    # the format you are implementing
+    re_filename = None
+
+    @staticmethod
+    def nameAttribute(name):
+        """Converts an attribute name, as in the xsd file, into a name usable
+        by python.
+
+        @param name: The attribute name.
+        @type name: str
+        @return: Reformatted attribute name, useable by python.
+
+        >>> XsdFileFormat.nameAttribute('tHis is A Silly naME')
+        'this_is_a_silly_name'
+        """
+
+        # str(name) converts name to string in case name is a unicode string
+        parts = str(name).replace(":", "_").split()
+        return "_".join(part.lower() for part in parts)
+
+    @staticmethod
+    def nameClass(name):
+        """Converts a class name, as in the xsd file, into a name usable
+        by python.
+
+        @param name: The class name.
+        @type name: str
+        @return: Reformatted class name, useable by python.
+
+        >>> XsdFileFormat.nameClass('this IS a sillyNAME')
+        'ThisISASillyNAME'
+        """
+
+        # str(name) converts name to string in case name is a unicode string
+        partss = [part.split("_") for part in str(name).split()]
+        attrname = ""
+        for parts in partss:
+            for part in parts:
+                attrname += part[0].upper() + part[1:]
+        return attrname
 
 class XsdError(StandardError):
     """The XSD handler will throw this exception if something goes wrong while
