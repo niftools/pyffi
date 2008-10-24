@@ -266,7 +266,7 @@ Warning: read failed due corrupt file, corrupt format description, or bug.""")
         @param verbose: Verbosity level.
         @type verbose: C{int}
         @param mode: The mode in which to open files.
-        @type verbose: C{str}
+        @type mode: C{str}
 
         @status: Not yet functional. For the time being, fall back on the other
             walk functions.
