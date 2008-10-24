@@ -95,7 +95,7 @@ def getMopperOriginScaleCode(vertices, triangles):
     goes wrong (e.g. if mopp generator fails, or if mopper.exe cannot be
     run on the current platform).
 
-    Call L{showMopperCredits} before calling this function if you need to credit
+    Call L{getMopperCredits} before calling this function if you need to credit
     havok in a console application that uses this function.
 
     For example, creating a mopp for the standard cube:
