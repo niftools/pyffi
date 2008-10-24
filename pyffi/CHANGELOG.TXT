@@ -1,4 +1,4 @@
-Version 1.0.6 (***)
+Version 1.1.0 (***)
 * niftoaster
   - new fix_addtangentspace spell to add missing tangent space blocks
   - new fix_deltangentspace spell to remove tangent space blocks
@@ -8,6 +8,11 @@ Version 1.0.6 (***)
 * new internal implementation of bsdiff algorithm
 * removed cry dae filter (an improved version of this filter is now
 bundled with ColladaCGF)
+* reorganization of file format description code
+  - all generic format description specific code has been moved to the
+  PyFFI.ObjectModels.FileFormat module
+  - all xml description specific code has been moved to the
+  PyFFI.ObjectModels.XML.FileFormat module
 
 Version 1.0.5 (27 Sep 2008)
 * niftoaster optimize
