@@ -13,6 +13,8 @@ bundled with ColladaCGF)
   PyFFI.ObjectModels.FileFormat module
   - all xml description specific code has been moved to the
   PyFFI.ObjectModels.XML.FileFormat module
+  - new NifData class which now implements all the nif file read and write
+  functions
 
 Version 1.0.5 (27 Sep 2008)
 * niftoaster optimize
