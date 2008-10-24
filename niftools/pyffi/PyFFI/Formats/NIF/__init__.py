@@ -6,6 +6,28 @@ Examples
 Read a NIF file
 ---------------
 
+>>> stream = open('tests/nif/test.nif', 'rb')
+>>> data = NifData()
+>>> # inspect is optional; it will not read the actual blocks
+>>> data.inspect(stream)
+>>> hex(data.version)
+'0x14010003'
+>>> data.user_version
+0
+>>> print [blocktype for blocktype in data.header.blockTypes]
+['NiNode', 'NiTriShape', 'NiTriShapeData']
+>>> data.roots # blocks have not been read yet, so this is an empty list
+[]
+>>> data.read(stream)
+>>> for root in data.roots:
+...     for block in root.tree():
+...         if isinstance(block, NifFormat.NiNode):
+...             print block.name
+test
+
+The old deprecated method (for doctesting purposes only; in new code, use the
+above method with L{NifData}!):
+
 >>> # get version and user version, and read nif file
 >>> f = open('tests/nif/test.nif', 'rb')
 >>> version, user_version = NifFormat.getVersion(f)
@@ -401,8 +423,10 @@ class NifData(PyFFI.ObjectModels.Data.Data):
         self.user_version = user_version
         # create new header
         self.header = NifFormat.Header()
-        # empty list of root blocks
+        # empty list of root blocks (this encodes the footer)
         self.roots = []
+        # empty list of blocks
+        self.blocks = []
 
     def inspectVersionOnly(self, stream):
         """This function checks the version only, and is faster than the usual
@@ -414,7 +438,7 @@ class NifData(PyFFI.ObjectModels.Data.Data):
         a nif file without having to parse even the header.
 
         @param stream: The stream from which to read.
-        @type stream: file
+        @type stream: C{file}
         @raise C{ValueError}: If the stream does not contain a nif file.
         """
         pos = stream.tell()
@@ -463,25 +487,329 @@ header version field""")
         Call this function if you only need to inspect the header of the nif.
 
         @param stream: The file to inspect.
-        @type stream: file
+        @type stream: C{file}
         """
-        raise NotImplementedError
+        pos = stream.tell()
+        try:
+            self.inspectVersionOnly(stream)
+            self.header.read(stream, version=self.version,
+                             user_version=self.user_version)
+        finally:
+            stream.seek(pos)
 
-    def read(self, stream):
-        """Read nif data from stream.
+    def read(self, stream, verbose=0):
+        """Read a nif file. Does not reset stream position.
 
-        @param stream: The file to read from.
-        @type stream: file
+        @param stream: The stream from which to read.
+        @type stream: C{file}
+        @param verbose: The level of verbosity.
+        @type verbose: C{int}
         """
-        raise NotImplementedError
+        # read header
+        if verbose >= 1:
+            print "reading block at 0x%08X..."%stream.tell()
+        self.inspectVersionOnly(stream)
+        self.header.read(stream, version=self.version,
+                         user_version=self.user_version)
+        if verbose >= 2:
+            print self.header
 
-    def write(self, stream):
-        """Write nif data to stream.
+        # list of root blocks
+        # for versions < 3.3.0.13 this list is updated through the
+        # "Top Level Object" string while reading the blocks
+        # for more recent versions, this list is updated at the end when the
+        # footer is read
+        self.roots = []
 
-        @param stream: The file to write to.
+        # read the blocks
+        link_stack = [] # list of indices, as they are added to the stack
+        string_list = [str(s) for s in self.header.strings]
+        block_dct = {} # maps block index to actual block
+        self.blocks = [] # records all blocks as read from file in order
+        block_num = 0 # the current block numner
+
+        while True:
+            if self.version < 0x0303000D:
+                # check if this is a 'Top Level Object'
+                pos = stream.tell()
+                top_level_str = NifFormat.SizedString()
+                top_level_str.read(stream)
+                top_level_str = str(top_level_str)
+                if top_level_str == "Top Level Object":
+                    is_root = True
+                else:
+                    is_root = False
+                    stream.seek(pos)
+            else:
+                # signal as no root for now, roots are added when the footer
+                # is read
+                is_root = False
+
+            # get block name
+            if self.version >= 0x05000001:
+                if self.version <= 0x0A01006A:
+                    dummy, = struct.unpack('<I', stream.read(4))
+                    if dummy != 0:
+                        raise NifFormat.NifError(
+                            'non-zero block tag 0x%08X at 0x%08X)'
+                            %(dummy, stream.tell()))
+                # note the 0xfff mask: required for the NiPhysX blocks
+                block_type = self.header.blockTypes[
+                    self.header.blockTypeIndex[block_num] & 0xfff]
+            else:
+                block_type = NifFormat.SizedString()
+                block_type.read(stream)
+                block_type = str(block_type.getValue())
+            # get the block index
+            if self.version >= 0x0303000D:
+                # for these versions the block index is simply the block number
+                block_index = block_num
+            else:
+                # earlier versions
+                # the number of blocks is not in the header
+                # and a special block type string marks the end of the file
+                if block_type == "End Of File": break
+                # read the block index, which is probably the memory
+                # location of the object when it was written to
+                # memory
+                else:
+                    block_index, = struct.unpack('<I', stream.read(4))
+                    if block_dct.has_key(block_index):
+                        raise NifFormat.NifError(
+                            'duplicate block index (0x%08X at 0x%08X)'
+                            %(block_index, stream.tell()))
+            # create and read block
+            try:
+                block = getattr(NifFormat, block_type)()
+            except AttributeError:
+                raise NifFormat.NifError("unknown block type '%s'" % block_type)
+            if verbose >= 1:
+                print "reading block at 0x%08X..."%stream.tell()
+            try:
+                block.read(
+                    stream,
+                    version = self.version, user_version = self.user_version,
+                    link_stack = link_stack, string_list = string_list)
+            except:
+                if verbose >= 1:
+                    print "reading failed"
+                if verbose >= 2:
+                    print "link stack ", link_stack
+                    print "block that failed:"
+                    print block
+                elif verbose >= 1:
+                    print block.__class__
+                raise
+            #print "*** " + block_type + " ***" # debug
+            #print block                        # debug
+            block_dct[block_index] = block
+            self.blocks.append(block)
+            if verbose >= 2:
+                print block
+            elif verbose >= 1:
+                print block.__class__
+            # check block size
+            if self.version >= 0x14020007:
+                calculated_size = block.getSize(version = self.version,
+                                                user_version = self.user_version)
+                if calculated_size != self.header.blockSize[block_num]:
+                    print("""
+WARNING: block size check failed: corrupt nif file or bad nif.xml?
+         skipping %i bytes in %s""" 
+                          % (self.header.blockSize[block_num] - calculated_size,
+                             block.__class__.__name__))
+                    # skip bytes that were missed
+                    stream.seek(self.header.blockSize[block_num] - calculated_size, 1)
+            # add block to roots if flagged as such
+            if is_root:
+                self.roots.append(block)
+            # check if we are done
+            block_num += 1
+            if self.version >= 0x0303000D:
+                if block_num >= self.header.numBlocks:
+                    break
+
+        # read footer
+        ftr = NifFormat.Footer()
+        ftr.read(
+            stream,
+            version = self.version, user_version = self.user_version,
+            link_stack = link_stack)
+
+        # check if we are at the end of the file
+        if stream.read(1) != '':
+            raise NifFormat.NifError('end of file not reached: corrupt nif file?')
+
+        # fix links in blocks and footer (header has no links)
+        for block in self.blocks:
+            block.fixLinks(
+                version = self.version, user_version = self.user_version,
+                block_dct = block_dct, link_stack = link_stack)
+        ftr.fixLinks(
+            version = self.version, user_version = self.user_version,
+            block_dct = block_dct, link_stack= link_stack)
+        # the link stack should be empty now
+        if link_stack:
+            raise NifFormat.NifError('not all links have been popped from the stack (bug?)')
+        # add root objects in footer to roots list
+        if self.version >= 0x0303000D:
+            for root in ftr.roots:
+                self.roots.append(root)
+
+    def write(self, stream, verbose=0):
+        """Write a nif file.
+
+        @param stream: The stream to which to write.
         @type stream: file
+        @param verbose: The level of verbosity.
+        @type verbose: int
         """
-        raise NotImplementedError
+        # set up index and type dictionary
+        self.blocks = [] # list of all blocks to be written
+        block_index_dct = {} # maps block to block index
+        block_type_list = [] # list of all block type strings
+        block_type_dct = {} # maps block to block type string index
+        string_list = []
+        for root in self.roots:
+            self._makeBlockList(root,
+                                block_index_dct,
+                                block_type_list, block_type_dct)
+            for block in root.tree():
+                string_list.extend(
+                    block.getStrings(
+                        version = self.version, user_version = self.user_version))
+        string_list = list(set(string_list)) # ensure unique elements
+        #print string_list # debug
+
+        self.header.userVersion = self.user_version # TODO dedicated type for userVersion similar to FileVersion
+        # for oblivion CS; apparently this is the version of the bhk blocks
+        self.header.userVersion2 = 11
+        self.header.numBlocks = len(self.blocks)
+        self.header.numBlockTypes = len(block_type_list)
+        self.header.blockTypes.updateSize()
+        for i, block_type in enumerate(block_type_list):
+            self.header.blockTypes[i] = block_type
+        self.header.blockTypeIndex.updateSize()
+        for i, block in enumerate(self.blocks):
+            self.header.blockTypeIndex[i] = block_type_dct[block]
+        self.header.numStrings = len(string_list)
+        if string_list:
+            self.header.maxStringLength = max([len(s) for s in string_list])
+        else:
+            self.header.maxStringLength = 0
+        self.header.strings.updateSize()
+        for i, s in enumerate(string_list):
+            self.header.strings[i] = s
+        self.header.blockSize.updateSize()
+        for i, block in enumerate(self.blocks):
+            self.header.blockSize[i] = block.getSize(
+                version = self.version, user_version = self.user_version)
+        if verbose >= 2:
+            print hdr
+
+        # set up footer
+        ftr = NifFormat.Footer()
+        ftr.numRoots = len(self.roots)
+        ftr.roots.updateSize()
+        for i, root in enumerate(self.roots):
+            ftr.roots[i] = root
+
+        # write the file
+        self.header.write(
+            stream,
+            version = self.version, user_version = self.user_version,
+            block_index_dct = block_index_dct)
+        for block in self.blocks:
+            # signal top level object if block is a root object
+            if self.version < 0x0303000D and block in self.roots:
+                s = NifFormat.SizedString()
+                s.setValue("Top Level Object")
+                s.write(stream)
+            if self.version >= 0x05000001:
+                if self.version <= 0x0A01006A:
+                    # write zero dummy separator
+                    stream.write('\x00\x00\x00\x00')
+            else:
+                # write block type string
+                s = NifFormat.SizedString()
+                assert(block_type_list[block_type_dct[block]] \
+                       == block.__class__.__name__) # debug
+                s.setValue(block.__class__.__name__)
+                s.write(stream)
+            # write block index
+            if verbose >= 1:
+                print "writing block %i..."%block_index_dct[block]
+            if self.version < 0x0303000D:
+                stream.write(struct.pack('<i', block_index_dct[block]))
+            # write block
+            block.write(
+                stream,
+                version = self.version, user_version = self.user_version,
+                block_index_dct = block_index_dct, string_list = string_list)
+        if self.version < 0x0303000D:
+            s = NifFormat.SizedString()
+            s.setValue("End Of File")
+            s.write(stream)
+        ftr.write(
+            stream,
+            version = self.version, user_version = self.user_version,
+            block_index_dct = block_index_dct)
+
+    def _makeBlockList(
+        self, root, block_index_dct, block_type_list, block_type_dct):
+        """This is a helper function for write to set up the list of all blocks,
+        the block index map, and the block type map.
+
+        @param root: The root block, whose tree is to be added to
+            the block list.
+        @type root: L{NifFormat.NiObject}
+        @param block_index_dct: Dictionary mapping blocks in self.blocks to
+            their block index.
+        @type block_index_dct: dict
+        @param block_type_list: List of all block types.
+        @type block_type_list: list of str
+        @param block_type_dct: Dictionary mapping blocks in self.blocks to
+            their block type index.
+        @type block_type_dct: dict
+        """
+        # block already listed? if so, return
+        if root in self.blocks:
+            return
+        # add block type to block type dictionary
+        block_type = root.__class__.__name__
+        try:
+            block_type_dct[root] = block_type_list.index(block_type)
+        except ValueError:
+            block_type_dct[root] = len(block_type_list)
+            block_type_list.append(block_type)
+
+        # special case: add bhkConstraint entities before bhkConstraint
+        # (these are actually links, not refs)
+        if isinstance(root, NifFormat.bhkConstraint):
+            for entity in root.entities:
+                self._makeBlockList(
+                    entity, block_index_dct, block_type_list, block_type_dct)
+
+        # add children that come before the block
+        for child in root.getRefs(version = self.version,
+                                  user_version = self.user_version):
+            if NifFormat._blockChildBeforeParent(child):
+                self._makeBlockList(
+                    child, block_index_dct, block_type_list, block_type_dct)
+
+        # add the block
+        if self.version >= 0x0303000D:
+            block_index_dct[root] = len(self.blocks)
+        else:
+            block_index_dct[root] = id(root)
+        self.blocks.append(root)
+
+        # add children that come after the block
+        for child in root.getRefs(version = self.version,
+                                  user_version = self.user_version):
+            if not NifFormat._blockChildBeforeParent(child):
+                self._makeBlockList(
+                    child, block_index_dct, block_type_list, block_type_dct)
 
 class NifFormat(XmlFileFormat):
     __metaclass__ = MetaXmlFileFormat
@@ -1018,175 +1346,17 @@ but got instance of %s' % (self._template, value.__class__))
     @classmethod
     def read(cls, stream, version = None, user_version = None,
              rootsonly = True, verbose = 0):
-        """Read a nif file.
-
-        @param stream: The stream from which to read.
-        @type stream: file
-        @param version: The version as obtained by L{getVersion}.
-        @type version: int
-        @param user_version: The user version as obtained by L{getVersion}.
-        @type user_version: int
-        @param rootsonly: Whether to return the list of roots only (default).
-            If C{False} then will return header, blocks, footer.
-        @type rootsonly: bool
-        @param verbose: The level of verbosity.
-        @type verbose: int
+        """@deprecated: Use the L{NifData} class instead of this function.
+        @warning: version and user_version arguments are currently ignored.
         """
-        # read header
-        if verbose >= 1:
-            print "reading block at 0x%08X..."%stream.tell()
-        hdr = cls.Header()
-        hdr.read(stream, version = version, user_version = user_version)
-        if verbose >= 2:
-            print hdr
-
-        # list of root blocks
-        # for versions < 3.3.0.13 this list is updated through the
-        # "Top Level Object" string while reading the blocks
-        # for more recent versions, this list is updated at the end when the
-        # footer is read
-        roots = []
-
-        # read the blocks
-        link_stack = [] # list of indices, as they are added to the stack
-        string_list = [ str(s) for s in hdr.strings ]
-        block_dct = {} # maps block index to actual block
-        block_list = [] # records all blocks as read from file in order
-        block_num = 0 # the current block numner
-
-        while True:
-            if version < 0x0303000D:
-                # check if this is a 'Top Level Object'
-                pos = stream.tell()
-                top_level_str = cls.SizedString()
-                top_level_str.read(stream)
-                top_level_str = str(top_level_str)
-                if top_level_str == "Top Level Object":
-                    is_root = True
-                else:
-                    is_root = False
-                    stream.seek(pos)
-            else:
-                # signal as no root for now, roots are added when the footer
-                # is read
-                is_root = False
-
-            # get block name
-            if version >= 0x05000001:
-                if version <= 0x0A01006A:
-                    dummy, = struct.unpack('<I', stream.read(4))
-                    if dummy != 0:
-                        raise cls.NifError(
-                            'non-zero block tag 0x%08X at 0x%08X)'
-                            %(dummy, stream.tell()))
-                # note the 0xfff mask: required for the NiPhysX blocks
-                block_type = hdr.blockTypes[
-                    hdr.blockTypeIndex[block_num] & 0xfff]
-            else:
-                block_type = cls.SizedString()
-                block_type.read(stream)
-                block_type = str(block_type.getValue())
-            # get the block index
-            if version >= 0x0303000D:
-                # for these versions the block index is simply the block number
-                block_index = block_num
-            else:
-                # earlier versions
-                # the number of blocks is not in the header
-                # and a special block type string marks the end of the file
-                if block_type == "End Of File": break
-                # read the block index, which is probably the memory
-                # location of the object when it was written to
-                # memory
-                else:
-                    block_index, = struct.unpack('<I', stream.read(4))
-                    if block_dct.has_key(block_index):
-                        raise cls.NifError(
-                            'duplicate block index (0x%08X at 0x%08X)'
-                            %(block_index, stream.tell()))
-            # create and read block
-            try:
-                block = getattr(cls, block_type)()
-            except AttributeError:
-                raise cls.NifError("unknown block type '%s'" % block_type)
-            if verbose >= 1:
-                print "reading block at 0x%08X..."%stream.tell()
-            try:
-                block.read(
-                    stream,
-                    version = version, user_version = user_version,
-                    link_stack = link_stack, string_list = string_list)
-            except:
-                if verbose >= 1:
-                    print "reading failed"
-                if verbose >= 2:
-                    print "link stack ", link_stack
-                    print "block that failed:"
-                    print block
-                elif verbose >= 1:
-                    print block.__class__
-                raise
-            #print "*** " + block_type + " ***" # debug
-            #print block                        # debug
-            block_dct[block_index] = block
-            block_list.append(block)
-            if verbose >= 2:
-                print block
-            elif verbose >= 1:
-                print block.__class__
-            # check block size
-            if version >= 0x14020007:
-                calculated_size = block.getSize(version = version,
-                                                user_version = user_version)
-                if calculated_size != hdr.blockSize[block_num]:
-                    print("""
-WARNING: block size check failed: corrupt nif file or bad nif.xml?
-         skipping %i bytes in %s""" 
-                          % (hdr.blockSize[block_num] - calculated_size,
-                             block.__class__.__name__))
-                    # skip bytes that were missed
-                    stream.seek(hdr.blockSize[block_num] - calculated_size, 1)
-            # add block to roots if flagged as such
-            if is_root:
-                roots.append(block)
-            # check if we are done
-            block_num += 1
-            if version >= 0x0303000D:
-                if block_num >= hdr.numBlocks:
-                    break
-
-        # read footer
-        ftr = cls.Footer()
-        ftr.read(
-            stream,
-            version = version, user_version = user_version,
-            link_stack = link_stack)
-
-        # check if we are at the end of the file
-        if stream.read(1) != '':
-            raise cls.NifError('end of file not reached: corrupt nif file?')
-
-        # fix links in blocks and footer (header has no links)
-        for block in block_list:
-            block.fixLinks(
-                version = version, user_version = user_version,
-                block_dct = block_dct, link_stack = link_stack)
-        ftr.fixLinks(
-            version = version, user_version = user_version,
-            block_dct = block_dct, link_stack= link_stack)
-        # the link stack should be empty now
-        if link_stack:
-            raise cls.NifError('not all links have been popped from the stack (bug?)')
-        # add root objects in footer to roots list
-        if version >= 0x0303000D:
-            for root in ftr.roots:
-                roots.append(root)
-
+        # read the nif file
+        data = NifData()
+        data.read(stream)
         # return all root objects
         if rootsonly:
-            return roots
+            return data.roots
         else:
-            return hdr, block_list, ftr
+            raise RuntimeError("no longer supported, use NifData.read instead")
 
     @classmethod
     def write(cls, stream, version = None, user_version = None,
@@ -1210,175 +1380,12 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
         @param verbose: The level of verbosity.
         @type verbose: int
         """
-        # set up index and type dictionary
-        block_list = [] # list of all blocks to be written
-        block_index_dct = {} # maps block to block index
-        block_type_list = [] # list of all block type strings
-        block_type_dct = {} # maps block to block type string index
-        string_list = []
-        for root in roots:
-            cls._makeBlockList(version, user_version, root,
-                               block_list, block_index_dct,
-                               block_type_list, block_type_dct)
-            for block in root.tree():
-                string_list.extend(
-                    block.getStrings(
-                        version = version, user_version = user_version))
-        string_list = list(set(string_list)) # ensure unique elements
-        #print string_list # debug
-
-        # set up header
-        if header is None:
-            hdr = cls.Header()
-        else:
-            assert(isinstance(header, cls.Header))
-            hdr = header
-
-        hdr.userVersion = user_version # TODO dedicated type for userVersion similar to FileVersion
-        # for oblivion CS; apparently this is the version of the bhk blocks
-        hdr.userVersion2 = 11
-        hdr.numBlocks = len(block_list)
-        hdr.numBlockTypes = len(block_type_list)
-        hdr.blockTypes.updateSize()
-        for i, block_type in enumerate(block_type_list):
-            hdr.blockTypes[i] = block_type
-        hdr.blockTypeIndex.updateSize()
-        for i, block in enumerate(block_list):
-            hdr.blockTypeIndex[i] = block_type_dct[block]
-        hdr.numStrings = len(string_list)
-        if string_list:
-            hdr.maxStringLength = max([len(s) for s in string_list])
-        else:
-            hdr.maxStringLength = 0
-        hdr.strings.updateSize()
-        for i, s in enumerate(string_list):
-            hdr.strings[i] = s
-        hdr.blockSize.updateSize()
-        for i, block in enumerate(block_list):
-            hdr.blockSize[i] = block.getSize(
-                version = version, user_version = user_version)
-        if verbose >= 2:
-            print hdr
-
-        # set up footer
-        ftr = cls.Footer()
-        ftr.numRoots = len(roots)
-        ftr.roots.updateSize()
-        for i, root in enumerate(roots):
-            ftr.roots[i] = root
-
-        # write the file
-        hdr.write(
-            stream,
-            version = version, user_version = user_version,
-            block_index_dct = block_index_dct)
-        for block in block_list:
-            # signal top level object if block is a root object
-            if version < 0x0303000D and block in roots:
-                s = cls.SizedString()
-                s.setValue("Top Level Object")
-                s.write(stream)
-            if version >= 0x05000001:
-                if version <= 0x0A01006A:
-                    # write zero dummy separator
-                    stream.write('\x00\x00\x00\x00')
-            else:
-                # write block type string
-                s = cls.SizedString()
-                assert(block_type_list[block_type_dct[block]] \
-                       == block.__class__.__name__) # debug
-                s.setValue(block.__class__.__name__)
-                s.write(stream)
-            # write block index
-            if verbose >= 1:
-                print "writing block %i..."%block_index_dct[block]
-            if version < 0x0303000D:
-                stream.write(struct.pack('<i', block_index_dct[block]))
-            # write block
-            block.write(
-                stream,
-                version = version, user_version = user_version,
-                block_index_dct = block_index_dct, string_list = string_list)
-        if version < 0x0303000D:
-            s = cls.SizedString()
-            s.setValue("End Of File")
-            s.write(stream)
-        ftr.write(
-            stream,
-            version = version, user_version = user_version,
-            block_index_dct = block_index_dct)
-
-    @classmethod
-    def _makeBlockList(
-        cls, version, user_version, root,
-        block_list, block_index_dct, block_type_list, block_type_dct):
-        """This is a helper function for write to set up the list of all blocks,
-        the block index map, and the block type map.
-
-        @param version: The version number.
-        @type version: int
-        @param user_version: The user version number.
-        @type user_version: int
-        @param root: The root block, whose tree is to be added to
-            the block list.
-        @type root: L{NifFormat.NiObject}
-        @param block_list: The list of blocks that have already been added,
-            and to which new blocks will be added.
-        @type block_list: list of L{NifFormat.NiObject}s
-        @param block_index_dct: Dictionary mapping blocks in block_list to
-            their block index.
-        @type block_index_dct: dict
-        @param block_type_list: List of all block types.
-        @type block_type_list: list of str
-        @param block_type_dct: Dictionary mapping blocks in block_list to
-            their block type index.
-        @type block_type_dct: dict
-        """
-        # block already listed? if so, return
-        if root in block_list:
-            return
-        # add block type to block type dictionary
-        block_type = root.__class__.__name__
-        try:
-            block_type_dct[root] = block_type_list.index(block_type)
-        except ValueError:
-            block_type_dct[root] = len(block_type_list)
-            block_type_list.append(block_type)
-
-        # special case: add bhkConstraint entities before bhkConstraint
-        # (these are actually links, not refs)
-        if isinstance(root, cls.bhkConstraint):
-            for entity in root.entities:
-                cls._makeBlockList(
-                    version, user_version, entity,
-                    block_list, block_index_dct,
-                    block_type_list, block_type_dct)
-
-        # add children that come before the block
-        for child in root.getRefs(version = version,
-                                  user_version = user_version):
-            if cls._blockChildBeforeParent(child):
-                cls._makeBlockList(
-                    version, user_version, child,
-                    block_list,
-                    block_index_dct, block_type_list, block_type_dct)
-
-        # add the block
-        if version >= 0x0303000D:
-            block_index_dct[root] = len(block_list)
-        else:
-            block_index_dct[root] = id(root)
-        block_list.append(root)
-
-        # add children that come after the block
-        for child in root.getRefs(version = version,
-                                  user_version = user_version):
-            if not cls._blockChildBeforeParent(child):
-                cls._makeBlockList(
-                    version, user_version, child,
-                    block_list,
-                    block_index_dct, block_type_list, block_type_dct)
-
+        data = NifData(version=version, user_version=user_version)
+        data.roots = roots
+        if isinstance(header, cls.Header):
+            data.header = header
+        data.write(stream, verbose=verbose)
+ 
     @classmethod
     def _blockChildBeforeParent(cls, block):
         """Determine whether block comes before its parent or not, depending
