@@ -407,7 +407,23 @@ from PyFFI.ObjectModels.Editable import EditableBoolComboBox
 import PyFFI.ObjectModels.Data
 
 class NifData(PyFFI.ObjectModels.Data.Data):
-    """A class to contain the actual nif data."""
+    """A class to contain the actual nif data.
+
+    Note that L{header} and L{blocks} are not automatically kept in sync with
+    the rest of the nif data, but they are resynchronized when calling
+    L{write}.
+
+    @ivar version: The nif version.
+    @type version: C{int}
+    @ivar user_version: The nif user version.
+    @type user_version: C{int}
+    @ivar roots: List of root blocks.
+    @type roots: C{list} of L{NifFormat.NiObject}
+    @ivar header: The nif header.
+    @type header: L{NifFormat.Header}
+    @ivar blocks: List of blocks.
+    @type blocks: C{list} of L{NifFormat.NiObject}
+    """
 
     def __init__(self, version = None, user_version = None):
         """Initialize nif data. By default, this creates an empty nif document
@@ -657,7 +673,9 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
                 self.roots.append(root)
 
     def write(self, stream, verbose=0):
-        """Write a nif file.
+        """Write a nif file. The L{header} and the L{blocks} are recalculated
+        from the tree at L{roots} (e.g. list of block types, number of blocks,
+        list of block types, list of strings, list of block sizes etc.).
 
         @param stream: The stream to which to write.
         @type stream: file
