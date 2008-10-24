@@ -20,16 +20,16 @@ Read a CGF file
 >>> # print all chunks
 >>> for chunk in chunks:
 ...     print chunk # doctest: +ELLIPSIS
-<class 'PyFFI.XmlHandler.SourceInfoChunk'> instance at ...
+<class 'PyFFI.ObjectModels.XML.FileFormat.SourceInfoChunk'> instance at ...
 * sourceFile : <EMPTY STRING>
 * date : Fri Sep 28 22:40:44 2007
 * author : blender@BLENDER
 <BLANKLINE>
-<class 'PyFFI.XmlHandler.TimingChunk'> instance at ...
+<class 'PyFFI.ObjectModels.XML.FileFormat.TimingChunk'> instance at ...
 * secsPerTick : 0.000208333338378
 * ticksPerFrame : 160
 * globalRange :
-    <class 'PyFFI.XmlHandler.RangeEntity'> instance at ...
+    <class 'PyFFI.ObjectModels.XML.FileFormat.RangeEntity'> instance at ...
     * name : GlobalRange
     * start : 0
     * end : 100
@@ -79,7 +79,7 @@ Create a CGF file from scratch
 >>> # print all chunks
 >>> for chunk in chunks:
 ...     print chunk # doctest: +ELLIPSIS
-<class 'PyFFI.XmlHandler.NodeChunk'> instance at 0x...
+<class 'PyFFI.ObjectModels.XML.FileFormat.NodeChunk'> instance at 0x...
 * name : hello
 * object : None
 * parent : None
@@ -98,7 +98,7 @@ Create a CGF file from scratch
     [  0.000  0.000  0.000  0.000 ]
 * pos : [  0.000  0.000  0.000 ]
 * rot :
-    <class 'PyFFI.XmlHandler.Quat'> instance at 0x...
+    <class 'PyFFI.ObjectModels.XML.FileFormat.Quat'> instance at 0x...
     * x : 0.0
     * y : 0.0
     * z : 0.0
@@ -110,9 +110,9 @@ Create a CGF file from scratch
 * propertyString : <EMPTY STRING>
 * children :
     <class 'PyFFI.ObjectModels.XML.Array.Array'> instance at 0x...
-    0: <class 'PyFFI.XmlHandler.NodeChunk'> instance at 0x...
+    0: <class 'PyFFI.ObjectModels.XML.FileFormat.NodeChunk'> instance at 0x...
 <BLANKLINE>
-<class 'PyFFI.XmlHandler.NodeChunk'> instance at 0x...
+<class 'PyFFI.ObjectModels.XML.FileFormat.NodeChunk'> instance at 0x...
 * name : world
 * object : None
 * parent : None
@@ -131,7 +131,7 @@ Create a CGF file from scratch
     [  0.000  0.000  0.000  0.000 ]
 * pos : [  0.000  0.000  0.000 ]
 * rot :
-    <class 'PyFFI.XmlHandler.Quat'> instance at 0x...
+    <class 'PyFFI.ObjectModels.XML.FileFormat.Quat'> instance at 0x...
     * x : 0.0
     * y : 0.0
     * z : 0.0
@@ -188,8 +188,8 @@ import struct, os, re
 
 from types import NoneType
 
-from PyFFI import XmlFileFormat
-from PyFFI import MetaXmlFileFormat
+from PyFFI.ObjectModels.XML.FileFormat import XmlFileFormat
+from PyFFI.ObjectModels.XML.FileFormat import MetaXmlFileFormat
 from PyFFI import Utils
 from PyFFI import Common
 from PyFFI.ObjectModels.XML.Basic import BasicBase

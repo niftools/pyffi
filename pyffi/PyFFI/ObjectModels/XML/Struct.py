@@ -151,7 +151,7 @@ class StructBase(object):
 
     >>> from PyFFI.ObjectModels.XML.Basic import BasicBase
     >>> from PyFFI.ObjectModels.XML.Expression import Expression
-    >>> from PyFFI.XmlHandler import StructAttribute as Attr
+    >>> from PyFFI.ObjectModels.XML.FileFormat import StructAttribute as Attr
     >>> class SimpleFormat(object):
     ...     class UInt(BasicBase):
     ...         _isTemplate = False

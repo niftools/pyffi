@@ -63,18 +63,155 @@ import PyFFI.Spells.applypatch
 import PyFFI.Utils.BSDiff
 
 class Spell:
-    """Spell base class.
+    """Spell base class. A spell takes a nif and then does something
+    useful with it.
 
-    @ivar options: Dictionary which stores all options.
+    @ivar toaster: The caller of the spell.
+    @type toaster: L{Toaster}
+    """
+    def __init__(self, toaster):
+        """Initialize the spell, given the toaster.
+
+        @param toaster: The caller of the spell.
+        @type toaster: L{Toaster}
+        """
+        self.toaster = toaster
+
+class Toaster:
+    """Toaster base class. Toasters run spells on large quantities of files.
+    They load each file and pass the data structure to any number of spells.
+
+    @cvar FileFormat: The file format class.
+    @type FileFormat: C{type(L{FileFormat})}
+    @ivar spells: List of spell classes.
+    @type spells: C{list} of C{type(L{Spell})}
+    @ivar options: The options of the toaster.
     @type options: C{dict}
     """
-    def __init__(self, **options):
-        """Initialize the spell, given the options.
+    def __init__(self, *spells, **options):
+        """Initialize and run the toaster.
 
-        @arg options: The options passed to the spell (typically these are
-            taken from the command line and passed via the toaster).
+        @param spells: List of spells.
+        @type spells: C{list} of C{type(L{Spell})}
+        @param options: The options (as keyword arguments).
+        @type options: C{dict}
         """
+        self.spells = spells
         self.options = options
+
+    def testPath(top, format = None, spellmodule = None, **kwargs):
+        """Walk over all files in a directory tree and cast a particular spell
+        on every file.
+
+        @param top: The directory or file to test.
+        @type top: str
+        @param format: The format class, such as L{PyFFI.NIF.NifFormat}.
+        @type format: L{PyFFI.XmlFileFormat} subclass
+        @param spellmodule: The actual spell module.
+        @type spellmodule: module
+        @param kwargs: Extra keyword arguments that will be passed to the spell,
+            such as
+              - verbose: Level of verbosity.
+              - raisetesterror: Whether to raise errors that occur while casting
+                  the spell.
+              - raisereaderror: Whether to raise errors that occur while reading
+                  the file.
+              - exclude: List of blocks to exclude from the spell.
+              - include: List of blocks to include in the spell.
+              - prefix: File prefix when writing back.
+              - createpatch: Whether to write back the result as a patch.
+        @type kwargs: dict
+        """
+        if format is None:
+            raise ValueError("you must specify a format argument")
+        if spellmodule is None:
+            raise ValueError("you must specify a spellmodule argument")
+
+        readonly = getattr(spellmodule, "__readonly__", True)
+        raisereaderror = kwargs.get("raisereaderror", True)
+        verbose = kwargs.get("verbose", 1)
+        raisetesterror = kwargs.get("raisetesterror", False)
+        pause = kwargs.get("pause", False)
+        interactive = kwargs.get("interactive", True)
+        dryrun = kwargs.get("dryrun", False)
+        prefix = kwargs.get("prefix", "")
+        createpatch = kwargs.get("createpatch", False)
+        applypatch = kwargs.get("applypatch", False)
+        testRoot = getattr(spellmodule, "testRoot", None)
+        testBlock = getattr(spellmodule, "testBlock", None)
+        testFile = getattr(spellmodule, "testFile", None)
+
+        # warning
+        if ((not readonly) and (not dryrun) and not(prefix) and not(createpatch)
+            and interactive):
+            print("""\
+    This script will modify your files, in particular if something goes wrong it
+    may destroy them. Make a backup of your files before running this script.
+    """)
+            if not raw_input(
+                "Are you sure that you want to proceed? [n/y] ") in ("y", "Y"):
+                if pause:
+                    raw_input("Script aborted by user.")
+                else:
+                    print("Script aborted by user.")
+                return
+
+        # remind, walkresult is stream, version, user_version, and anything
+        # returned by format.read appended to it
+        # these are exactly the arguments accepted by write, so it identifies
+        # the file uniquely
+        for walkresult in format.walkFile(
+            top, raisereaderror=raisereaderror,
+            verbose=verbose, mode='rb' if readonly else 'r+b'):
+
+            # result from read
+            readresult = walkresult[3:]
+
+            try:
+                # cast all spells
+                if testRoot:
+                    for block in format.getRoots(*readresult):
+                        if isBlockAdmissible(block = block,
+                                             exclude = kwargs["exclude"],
+                                             include = kwargs["include"]):
+                            testRoot(block, **kwargs)
+                if testBlock:
+                    for block in format.getBlocks(*readresult):
+                        if isBlockAdmissible(block = block,
+                                             exclude = kwargs["exclude"],
+                                             include = kwargs["include"]):
+                            testBlock(block, **kwargs)
+                if testFile:
+                    testFile(*walkresult, **kwargs)
+
+                # save file back to disk if not readonly
+                if not readonly:
+                    if not dryrun:
+                        if createpatch:
+                            testFileCreatePatch(format, *walkresult, **kwargs)
+                        elif prefix:
+                            testFilePrefixwrite(format, *walkresult, **kwargs)
+                        else:
+                            testFileOverwrite(format, *walkresult, **kwargs)
+                    else:
+                        # write back to a temporary file
+                        testFileTempwrite(format, *walkresult, **kwargs)
+            except StandardError:
+                # walkresult[0] is the stream
+                print("""\
+*** TEST FAILED ON %-51s ***
+*** If you were running a script that came with PyFFI, then            ***
+*** please report this as a bug (include the file) on                  ***
+*** http://sourceforge.net/tracker/?group_id=199269                    ***
+""" % walkresult[0].name)
+                # if raising test errors, reraise the exception
+                if raisetesterror:
+                    raise
+
+            # force free memory (this helps when parsing many very large files)
+            del readresult
+            del walkresult
+            gc.collect()
 
 def testFileTempwrite(format, *walkresult, **kwargs):
     """Useful as testFile which simply writes back the file

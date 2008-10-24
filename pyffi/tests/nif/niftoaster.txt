@@ -158,7 +158,7 @@ NifError: unknown block type 'NiInvalid!'
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "--usetheforceluke", "readwrite", "tests/nif/"]
 >>> niftoaster.main() # doctest: +ELLIPSIS
 reading tests/nif/invalid.nif
-Warning: read failed due to either a corrupt file, a corrupt xml, or a bug.
+Warning: read failed due corrupt file, corrupt format description, or bug.
 reading tests/nif/test.nif
   writing to temporary file...
 Finished.

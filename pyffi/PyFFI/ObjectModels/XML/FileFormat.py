@@ -1,5 +1,6 @@
-"""Parses file format description in XML format and set up representation of
-the file format in memory, as a bunch of classes."""
+"""Format classes and metaclasses for binary file formats described by an xml
+file, and xml handler for converting the xml description into Python classes.
+"""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -38,14 +39,77 @@ the file format in memory, as a bunch of classes."""
 #
 # ***** END LICENSE BLOCK *****
 
-import xml.sax
 from types import NoneType, FunctionType, TypeType
+import os.path
 import sys
+import xml.sax
 
+import PyFFI.ObjectModels.FileFormat
 from PyFFI.ObjectModels.XML.Struct     import StructBase
 from PyFFI.ObjectModels.XML.BitStruct  import BitStructBase
 from PyFFI.ObjectModels.XML.Enum       import EnumBase
 from PyFFI.ObjectModels.XML.Expression import Expression
+
+class MetaXmlFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
+    """The MetaXmlFileFormat metaclass transforms the XML description of a
+    file format into a bunch of classes which can be directly used to
+    manipulate files in this format.
+
+    See L{PyFFI.Formats.NIF.NifFormat} for an example of how to use
+    L{MetaXmlFileFormat}.
+
+    The actual implementation of the parser is delegated to PyFFI.ObjectModels.XML.FileFormat.
+    """
+    def __init__(cls, name, bases, dct):
+        """This function constitutes the core of the class generation
+        process. For instance, we declare NifFormat to have metaclass
+        MetaXmlFileFormat, so upon creation of the NifFormat class,
+        the __init__ function is called, with
+
+        @param cls: The class created using MetaXmlFileFormat, for example
+            NifFormat.
+        @param name: The name of the class, for example 'NifFormat'.
+        @param bases: The base classes, usually (object,).
+        @param dct: A dictionary of class attributes, such as 'xmlFileName'.
+        """
+
+        super(MetaXmlFileFormat, cls).__init__(name, bases, dct)
+
+        # consistency checks
+        if not 'xmlFileName' in dct:
+            raise TypeError("class %s : missing xmlFileName attribute" % cls)
+
+        # set up XML parser
+        parser = xml.sax.make_parser()
+        parser.setContentHandler(XmlSaxHandler(cls, name, bases, dct))
+
+        # open XML file
+        if not 'xmlFilePath' in dct:
+            xmlfile = open(dct['xmlFileName'])
+        else:
+            for filepath in dct['xmlFilePath']:
+                if not filepath:
+                    continue
+                try:
+                    xmlfile = open(os.path.join(filepath, dct['xmlFileName']))
+                except IOError:
+                    continue
+                break
+            else:
+                raise IOError("'%s' not found in any of the directories %s"%(
+                    dct['xmlFileName'], dct['xmlFilePath']))
+
+        # parse the XML file: control is now passed on to XmlSaxHandler
+        # which takes care of the class creation
+        try:
+            parser.parse(xmlfile)
+        finally:
+            xmlfile.close()
+
+class XmlFileFormat(PyFFI.ObjectModels.FileFormat.FileFormat):
+    """This class can be used as a base class for file formats
+    described by an xml file."""
+    pass
 
 class StructAttribute(object):
     """Helper class to collect attribute data of struct add tags.

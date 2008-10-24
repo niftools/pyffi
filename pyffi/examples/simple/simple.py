@@ -1,6 +1,6 @@
 import os
-from PyFFI import MetaXmlFileFormat
-from PyFFI import XmlFileFormat
+from PyFFI.ObjectModels.XML.FileFormat import MetaXmlFileFormat
+from PyFFI.ObjectModels.XML.FileFormat import XmlFileFormat
 from PyFFI import Common
 
 class SimpleFormat(XmlFileFormat):
