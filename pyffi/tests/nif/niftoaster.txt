@@ -128,7 +128,9 @@ dump
 exportpixeldata
 ffvt3rskinpartition
 fix_addtangentspace
+fix_deltangentspace
 fix_detachhavoktristripsdata
+fix_texturepath
 hackcheckskindata
 hackmultiskelroot
 hackskindataidtransform
