@@ -1,12 +1,22 @@
 """
-PyFFI provides a metaclass for parsing a file format description
-in XML format.
+The Python File Format Interface (briefly, PyFFI) is a Python library for
+processing block structured binary files.
+
+PyFFI aims to make it easy to manipulate
+binary files in a Python environment. Starting from a file format
+description written in XML, PyFFI creates customizable Python classes
+to read and write file blocks as described by the XML. Currently,
+PyFFI supports the NetImmerse/Gamebryo NIF and KFM formats,
+CryTek's CGF format, the DDS format, and the TGA format. Many tools
+for files used by 3D games, such as a stripifier, and a tangent space
+calculator, are included in PyFFI as well.
 
 Using PyFFI
 ===========
 
 If you simply wish to use PyFFI with a format that's already implemented,
 refer to the documentation of that library:
+
   - L{PyFFI.Formats.NIF}
   - L{PyFFI.Formats.KFM}
   - L{PyFFI.Formats.CGF}
