@@ -57,6 +57,7 @@ import os
 import os.path
 import subprocess
 import tempfile
+from types import NoneType
 
 import PyFFI # for PyFFI.__version__
 import PyFFI.Spells.applypatch
@@ -66,16 +67,66 @@ class Spell:
     """Spell base class. A spell takes a nif and then does something
     useful with it.
 
-    @ivar toaster: The caller of the spell.
-    @type toaster: L{Toaster}
+    @cvar Data: The data type this spell acts on.
+    @type Data: L{PyFFI.ObjectModels.Data.Data}
+    @ivar stream: The nif stream.
+    @type stream: C{file}
+    @ivar options: The options.
+    @type options: C{dict}
     """
-    def __init__(self, toaster):
-        """Initialize the spell, given the toaster.
 
-        @param toaster: The caller of the spell.
-        @type toaster: L{Toaster}
+    Data = NoneType
+
+    def __init__(self, stream, **options):
+        """Initialize and start the spell casting process:
+          - create a L{Data} instance.
+          - inspect the stream, using the instance just created
+          - call L{atSpellEntry}
+          - if it returns C{True} then read the stream, and call
+            L{cast} for each block in the data tree; the spell
+            recurses into the children of the block only if this
+            function returns C{True} on the block.
+          - call L{atSpellExit}
+
+        @param stream: The nif stream.
+        @type stream: C{file}
+        @param options: The options (as keyword arguments).
+        @type options: C{dict}
         """
-        self.toaster = toaster
+        self.stream = stream
+        self.options = options
+        self.data = self.Data()
+        if not self.atSpellEntry():
+            return
+        for i in xrange(self.data.getGlobalTreeNumChildren()):
+            block = self.data.getGlobalTreeChild(i)
+            self.cast(block)
+
+    def atSpellEntry(self):
+        self.data.inspect()
+        # check if spell block type is found
+        # check if version applies
+        return False
+
+    def cast(self):
+        """Cast the spell on the nif."""
+        pass
+
+    def atSpellExit(self):
+        # do we need to write back the file?
+        pass
+
+    @classmethod
+    def atToasterEntry(cls):
+        """This callback is called just before the toaster starts processing
+        all files."""
+        pass
+
+    @classmethod
+    def atToasterExit(cls):
+        """This callback is called when the toaster has finished processing
+        all files."""
+        pass
 
 class Toaster:
     """Toaster base class. Toasters run spells on large quantities of files.
@@ -88,6 +139,9 @@ class Toaster:
     @ivar options: The options of the toaster.
     @type options: C{dict}
     """
+
+    FileFormat = NoneType # override this when subclassing
+
     def __init__(self, *spells, **options):
         """Initialize and run the toaster.
 
@@ -99,35 +153,15 @@ class Toaster:
         self.spells = spells
         self.options = options
 
-    def testPath(top, format = None, spellmodule = None, **kwargs):
-        """Walk over all files in a directory tree and cast a particular spell
+    def toast(top):
+        """Walk over all files in a directory tree and cast spells
         on every file.
 
-        @param top: The directory or file to test.
+        @param top: The directory or file to toast.
         @type top: str
-        @param format: The format class, such as L{PyFFI.NIF.NifFormat}.
-        @type format: L{PyFFI.XmlFileFormat} subclass
-        @param spellmodule: The actual spell module.
-        @type spellmodule: module
-        @param kwargs: Extra keyword arguments that will be passed to the spell,
-            such as
-              - verbose: Level of verbosity.
-              - raisetesterror: Whether to raise errors that occur while casting
-                  the spell.
-              - raisereaderror: Whether to raise errors that occur while reading
-                  the file.
-              - exclude: List of blocks to exclude from the spell.
-              - include: List of blocks to include in the spell.
-              - prefix: File prefix when writing back.
-              - createpatch: Whether to write back the result as a patch.
-        @type kwargs: dict
         """
-        if format is None:
-            raise ValueError("you must specify a format argument")
-        if spellmodule is None:
-            raise ValueError("you must specify a spellmodule argument")
 
-        readonly = getattr(spellmodule, "__readonly__", True)
+        readonly = getattr(options, "__readonly__", True)
         raisereaderror = kwargs.get("raisereaderror", True)
         verbose = kwargs.get("verbose", 1)
         raisetesterror = kwargs.get("raisetesterror", False)
@@ -145,9 +179,9 @@ class Toaster:
         if ((not readonly) and (not dryrun) and not(prefix) and not(createpatch)
             and interactive):
             print("""\
-    This script will modify your files, in particular if something goes wrong it
-    may destroy them. Make a backup of your files before running this script.
-    """)
+This script will modify your files, in particular if something goes wrong it
+may destroy them. Make a backup of your files before running this script.
+""")
             if not raw_input(
                 "Are you sure that you want to proceed? [n/y] ") in ("y", "Y"):
                 if pause:
@@ -156,13 +190,15 @@ class Toaster:
                     print("Script aborted by user.")
                 return
 
-        # remind, walkresult is stream, version, user_version, and anything
-        # returned by format.read appended to it
-        # these are exactly the arguments accepted by write, so it identifies
-        # the file uniquely
-        for walkresult in format.walkFile(
+        # inspect but do not yet read
+        for stream, data in FileFormat.walkData(
             top, raisereaderror=raisereaderror,
-            verbose=verbose, mode='rb' if readonly else 'r+b'):
+            verbose=verbose, mode='rb' if readonly else 'r+b',
+            inspect=True,read=False):
+
+            # iterate over all spells, and check if any of them must be cast
+            #for spell in self.spells:
+            #    if spell.
 
             # result from read
             readresult = walkresult[3:]
