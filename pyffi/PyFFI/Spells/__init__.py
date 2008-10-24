@@ -62,6 +62,20 @@ import PyFFI # for PyFFI.__version__
 import PyFFI.Spells.applypatch
 import PyFFI.Utils.BSDiff
 
+class Spell:
+    """Spell base class.
+
+    @ivar options: Dictionary which stores all options.
+    @type options: C{dict}
+    """
+    def __init__(self, **options):
+        """Initialize the spell, given the options.
+
+        @arg options: The options passed to the spell (typically these are
+            taken from the command line and passed via the toaster).
+        """
+        self.options = options
+
 def testFileTempwrite(format, *walkresult, **kwargs):
     """Useful as testFile which simply writes back the file
     to a temporary file and raises an exception if the write fails.
