@@ -311,8 +311,11 @@ class StructBase(object):
                 text += '* %s :\n' % attr.name
                 for attr_str in attr_str_lines:
                     text += '    %s\n' % attr_str
-            else:
+            elif attr_str_lines:
                 text += '* %s : %s\n' % (attr.name, attr_str_lines[0])
+            else:
+                #print getattr(self, "_%s_value_" % attr.name)
+                text += '* %s : <EMPTY>\n' % attr.name
         return text
 
     def read(self, stream, **kwargs):
