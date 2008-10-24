@@ -382,6 +382,106 @@ from PyFFI import Utils
 from PyFFI import Common
 from PyFFI.ObjectModels.XML.Basic import BasicBase
 from PyFFI.ObjectModels.Editable import EditableBoolComboBox
+import PyFFI.ObjectModels.Data
+
+class NifData(PyFFI.ObjectModels.Data.Data):
+    """A class to contain the actual nif data."""
+
+    def __init__(self, version = None, user_version = None):
+        """Initialize nif data. By default, this creates an empty nif document
+        of the given version and user version.
+
+        @param version: The version.
+        @type version: C{int}
+        @param user_version: The user version.
+        @type user_version: C{int}
+        """
+        # the version and user version are stored outside the header structure
+        self.version = version
+        self.user_version = user_version
+        # create new header
+        self.header = NifFormat.Header()
+        # empty list of root blocks
+        self.roots = []
+
+    def inspectVersionOnly(self, stream):
+        """This function checks the version only, and is faster than the usual
+        inspect function (which reads the full header). Sets the L{version} and
+        L{user_version} instance variables if the stream contains a valid
+        nif file.
+
+        Call this function if you simply wish to check that a file is
+        a nif file without having to parse even the header.
+
+        @param stream: The stream from which to read.
+        @type stream: file
+        @raise C{ValueError}: If the stream does not contain a nif file.
+        """
+        pos = stream.tell()
+        try:
+            s = stream.readline(64).rstrip()
+        finally:
+            stream.seek(pos)
+        if s.startswith("NetImmerse File Format, Version " ):
+            version_str = s[32:]
+        elif s.startswith("Gamebryo File Format, Version "):
+            version_str = s[30:]
+        else:
+            raise ValueError("not a nif file")
+        try:
+            ver = NifFormat.versionNumber(version_str)
+        except:
+            raise ValueError("nif version %s not supported" % version_str)
+        if not ver in NifFormat.versions.values():
+            raise ValueError("nif version %s not supported" % version_str)
+        # check version integer and user version
+        userver = 0
+        if ver >= 0x0303000D:
+            ver_int = None
+            try:
+                stream.readline(64)
+                ver_int, = struct.unpack('<I', stream.read(4))
+                if ver_int != ver:
+                    raise ValueError("""\
+corrupted nif file: header version string does not correspond with
+header version field""")
+                if ver >= 0x14000004:
+                    stream.read(1)
+                if ver >= 0x0A010000:
+                    userver, = struct.unpack('<I', stream.read(4))
+            finally:
+                stream.seek(pos)
+        self.version = ver
+        self.user_version = userver
+
+    # overriding PyFFI.ObjectModels.Data.Data methods
+
+    def inspect(self, stream):
+        """Quickly checks whether the stream appears to contain
+        nif data, and read the nif header. Resets stream to original position.
+
+        Call this function if you only need to inspect the header of the nif.
+
+        @param stream: The file to inspect.
+        @type stream: file
+        """
+        raise NotImplementedError
+
+    def read(self, stream):
+        """Read nif data from stream.
+
+        @param stream: The file to read from.
+        @type stream: file
+        """
+        raise NotImplementedError
+
+    def write(self, stream):
+        """Write nif data to stream.
+
+        @param stream: The file to write to.
+        @type stream: file
+        """
+        raise NotImplementedError
 
 class NifFormat(XmlFileFormat):
     __metaclass__ = MetaXmlFileFormat
@@ -898,47 +998,22 @@ but got instance of %s' % (self._template, value.__class__))
 
     @classmethod
     def getVersion(cls, stream):
-        """Returns version and user version number, if version is supported.
+        """Wrapper around L{NifData.inspectVersionOnly}.
 
         @param stream: The stream from which to read.
         @type stream: file
         @return: The version and user version of the file.
             Returns C{(-1, 0)} if a nif file but version not supported.
             Returns C{(-2, 0)} if not a nif file.
+        @deprecated: Use L{NifData.inspect} instead.
         """
-        pos = stream.tell()
+        data = NifData()
         try:
-            s = stream.readline(64).rstrip()
-        finally:
-            stream.seek(pos)
-        if s.startswith("NetImmerse File Format, Version " ):
-            version_str = s[32:]
-        elif s.startswith("Gamebryo File Format, Version "):
-            version_str = s[30:]
+            data.inspectVersionOnly(stream)
+        except ValueError:
+            return (-2, 0)
         else:
-            return -2, 0 # not a nif file
-        try:
-            ver = cls.versionNumber(version_str)
-        except:
-            return -1, 0 # version not supported
-        if not ver in cls.versions.values():
-            return -1, 0 # unsupported version
-        # check version integer and user version
-        userver = 0
-        if ver >= 0x0303000D:
-            ver_int = None
-            try:
-                stream.readline(64)
-                ver_int, = struct.unpack('<I', stream.read(4))
-                if ver_int != ver:
-                    return -2, 0 # not a nif file
-                if ver >= 0x14000004:
-                    stream.read(1)
-                if ver >= 0x0A010000:
-                    userver, = struct.unpack('<I', stream.read(4))
-            finally:
-                stream.seek(pos)
-        return ver, userver
+            return data.version, data.user_version
 
     @classmethod
     def read(cls, stream, version = None, user_version = None,
