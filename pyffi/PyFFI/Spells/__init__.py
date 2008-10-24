@@ -67,63 +67,101 @@ class Spell:
     """Spell base class. A spell takes a nif and then does something
     useful with it.
 
-    @cvar Data: The data type this spell acts on.
-    @type Data: L{PyFFI.ObjectModels.Data.Data}
-    @ivar stream: The nif stream.
-    @type stream: C{file}
+    @ivar toaster: The toaster this spell is called from.
+    @type toaster: L{Toaster}
+    @ivar data: The data this spell acts on.
+    @type data: L{PyFFI.ObjectModels.Data.Data}
     @ivar options: The options.
     @type options: C{dict}
     """
 
-    Data = NoneType
+    # spells are readonly by default
+    readonly = True
 
-    def __init__(self, stream, **options):
-        """Initialize and start the spell casting process:
-          - create a L{Data} instance.
-          - inspect the stream, using the instance just created
-          - call L{atSpellEntry}
-          - if it returns C{True} then read the stream, and call
-            L{cast} for each block in the data tree; the spell
-            recurses into the children of the block only if this
-            function returns C{True} on the block.
-          - call L{atSpellExit}
+    def __init__(self, toaster, data, options):
+        """Initialize the spell data.
 
-        @param stream: The nif stream.
-        @type stream: C{file}
+        @param data: The file data.
+        @type data: L{PyFFI.ObjectModels.Data.Data}
         @param options: The options (as keyword arguments).
         @type options: C{dict}
         """
-        self.stream = stream
+        self.toaster = toaster
+        self.data = data
         self.options = options
-        self.data = self.Data()
-        if not self.atSpellEntry():
-            return
-        for i in xrange(self.data.getGlobalTreeNumChildren()):
-            block = self.data.getGlobalTreeChild(i)
-            self.cast(block)
 
-    def atSpellEntry(self):
-        self.data.inspect()
-        # check if spell block type is found
+    def inspectdata(self):
+        """This is called after L{PyFFI.ObjectModels.Data.Data.inspect} has
+        been called, and before L{PyFFI.ObjectModels.Data.Data.read} is
+        called.
+
+        @return: C{True} if the file must be processed, C{False} otherwise.
+        @rtype: C{bool}
+        """
         # check if version applies
+        # for nif: check if spell block type is found
+        return True
+
+    def inspectblock(self, block):
+        """Check if a block should be tested or not, based on exclude and
+        include options passed on the command line.
+
+        @param block: The block to check.
+        @type block: L{PyFFI.ObjectModels.XML.Struct.StructBase}
+
+        @return: C{True} if the block must be processed, C{False} otherwise.
+        @rtype: C{bool}
+        """
+        if not self.options.get("include"):
+            # everything is included
+            return not(block.__class__.__name__ in self.options.get("exclude"))
+        else:
+            # if it is in exclude, exclude it
+            if block.__class__.__name__ in self.options.get("exclude"):
+                return False
+            else:
+                # else only include it if it is in the include list
+                return (block.__class__.__name__ in self.options.get("include"))
+
+    def recurse(self, block):
+        """Helper function which calls L{inspectblock} on the block,
+        if succesful then L{cast} on the block, and if this is
+        succesful it recursively goes on with the block's children.
+
+        You should not need to override this function, normally.
+        """
+        # if inspection is succesful
+        if self.inspectblock(block):
+            # cast the spell on the block
+            if self.cast(block):
+                # cast returned True so recurse to children
+                # we use the abstract tree functions to parse the tree
+                # these are format independent!
+                for i in xrange(block.getGlobalTreeNumChildren()):
+                    child = block.getGlobalTreeChild(i)
+                    self.recurse(child)
+
+    def cast(self, block):
+        """Cast the spell on the given block. First called with block equal to
+        L{data}, then for all roots of data, then the children, grandchildren,
+        and so on.
+
+        Typically, you will override this function to perform a particular
+        operation on a block type.
+
+        @return: C{True} if the children must be processed, C{False} otherwise.
+        @rtype: C{bool}
+        """
         return False
 
-    def cast(self):
-        """Cast the spell on the nif."""
-        pass
-
-    def atSpellExit(self):
-        # do we need to write back the file?
-        pass
-
     @classmethod
-    def atToasterEntry(cls):
+    def atToasterEntry(cls, toaster):
         """This callback is called just before the toaster starts processing
         all files."""
         pass
 
     @classmethod
-    def atToasterExit(cls):
+    def atToasterExit(cls, toaster):
         """This callback is called when the toaster has finished processing
         all files."""
         pass
@@ -142,7 +180,7 @@ class Toaster:
 
     FileFormat = NoneType # override this when subclassing
 
-    def __init__(self, *spells, **options):
+    def __init__(self, spells, options):
         """Initialize and run the toaster.
 
         @param spells: List of spells.
@@ -152,8 +190,11 @@ class Toaster:
         """
         self.spells = spells
         self.options = options
+        # the combined spells are readonly if and only if all spells are
+        # readonly
+        self.readonly = all(spellclass.readonly for spellclass in self.spells)
 
-    def toast(top):
+    def toast(self, top):
         """Walk over all files in a directory tree and cast spells
         on every file.
 
@@ -161,19 +202,21 @@ class Toaster:
         @type top: str
         """
 
-        readonly = getattr(options, "__readonly__", True)
-        raisereaderror = kwargs.get("raisereaderror", True)
-        verbose = kwargs.get("verbose", 1)
-        raisetesterror = kwargs.get("raisetesterror", False)
-        pause = kwargs.get("pause", False)
-        interactive = kwargs.get("interactive", True)
-        dryrun = kwargs.get("dryrun", False)
-        prefix = kwargs.get("prefix", "")
-        createpatch = kwargs.get("createpatch", False)
-        applypatch = kwargs.get("applypatch", False)
-        testRoot = getattr(spellmodule, "testRoot", None)
-        testBlock = getattr(spellmodule, "testBlock", None)
-        testFile = getattr(spellmodule, "testFile", None)
+        ### raisereaderror is ignored in this implementation!!!
+        ### new-style toaster has it functionally equal to
+        ### raisetesterror
+        #raisereaderror = options.get("raisereaderror", True)
+        verbose = options.get("verbose", 1)
+        raisetesterror = options.get("raisetesterror", False)
+        pause = options.get("pause", False)
+        interactive = options.get("interactive", True)
+        dryrun = options.get("dryrun", False)
+        prefix = options.get("prefix", "")
+        createpatch = optionss.get("createpatch", False)
+        applypatch = options.get("applypatch", False)
+        #testRoot = getattr(spellmodule, "testRoot", None)
+        #testBlock = getattr(spellmodule, "testBlock", None)
+        #testFile = getattr(spellmodule, "testFile", None)
 
         # warning
         if ((not readonly) and (not dryrun) and not(prefix) and not(createpatch)
@@ -190,64 +233,67 @@ may destroy them. Make a backup of your files before running this script.
                     print("Script aborted by user.")
                 return
 
-        # inspect but do not yet read
+        # spell entry code
+        for spellclass in self.spells:
+            spellclass.atToasterEntry(self)
+
+        # walk over all streams, and create a data instance for each of them
+        # inspect the file but do not yet read in full
         for stream, data in FileFormat.walkData(
-            top, raisereaderror=raisereaderror,
-            verbose=verbose, mode='rb' if readonly else 'r+b',
-            inspect=True,read=False):
+            top, verbose=verbose, mode='rb' if readonly else 'r+b'):
 
-            # iterate over all spells, and check if any of them must be cast
-            #for spell in self.spells:
-            #    if spell.
+            try: 
+                # inspect the file (reads only the header)
+                data.inspect(stream)
+ 
+                # create spell instances
+                spellinstances = [spellclass(toaster, data, options) 
+                                  for spellclass in self.spells]
+                
+                # select those spells that must be cast
+                spellinstances = [spell for spell in spellinstances
+                                  if spell.inspectdata()]
 
-            # result from read
-            readresult = walkresult[3:]
+                # if there are any spells that apply
+                if spellinstances:
+                    # now read the file
+                    data.read(stream)
+                    
+                    # for the spells that remain, parse their tree
+                    for spell in spellinstances:
+                        spell.recurse(data)
 
-            try:
-                # cast all spells
-                if testRoot:
-                    for block in format.getRoots(*readresult):
-                        if isBlockAdmissible(block = block,
-                                             exclude = kwargs["exclude"],
-                                             include = kwargs["include"]):
-                            testRoot(block, **kwargs)
-                if testBlock:
-                    for block in format.getBlocks(*readresult):
-                        if isBlockAdmissible(block = block,
-                                             exclude = kwargs["exclude"],
-                                             include = kwargs["include"]):
-                            testBlock(block, **kwargs)
-                if testFile:
-                    testFile(*walkresult, **kwargs)
-
-                # save file back to disk if not readonly
-                if not readonly:
-                    if not dryrun:
-                        if createpatch:
-                            testFileCreatePatch(format, *walkresult, **kwargs)
-                        elif prefix:
-                            testFilePrefixwrite(format, *walkresult, **kwargs)
+                    # save file back to disk if not readonly
+                    if not readonly:
+                        if not dryrun:
+                            if createpatch:
+                                testFileCreatePatch(format, *walkresult, **kwargs)
+                            elif prefix:
+                                testFilePrefixwrite(format, *walkresult, **kwargs)
+                            else:
+                                testFileOverwrite(format, *walkresult, **kwargs)
                         else:
-                            testFileOverwrite(format, *walkresult, **kwargs)
-                    else:
-                        # write back to a temporary file
-                        testFileTempwrite(format, *walkresult, **kwargs)
+                            # write back to a temporary file
+                            testFileTempwrite(format, *walkresult, **kwargs)
             except StandardError:
-                # walkresult[0] is the stream
                 print("""\
 *** TEST FAILED ON %-51s ***
 *** If you were running a script that came with PyFFI, then            ***
 *** please report this as a bug (include the file) on                  ***
 *** http://sourceforge.net/tracker/?group_id=199269                    ***
-""" % walkresult[0].name)
+""" % stream.name)
                 # if raising test errors, reraise the exception
                 if raisetesterror:
                     raise
 
             # force free memory (this helps when parsing many very large files)
-            del readresult
-            del walkresult
+            del spellinstances
+            del spell
             gc.collect()
+
+        # spell exit code
+        for spellclass in self.spells:
+            spellclass.atToasterExit(self)
 
 def testFileTempwrite(format, *walkresult, **kwargs):
     """Useful as testFile which simply writes back the file

@@ -247,9 +247,7 @@ Warning: read failed due corrupt file, corrupt format description, or bug.""")
                 stream.close()
 
     @classmethod
-    def walkData(cls, top, topdown = True,
-                 raisereaderror = False, verbose = 0, mode = 'rb',
-                 read = True, inspect = False):
+    def walkData(cls, top, topdown=True, verbose=0, mode='rb'):
         """A generator which yields the data of all files in
         directory top whose filename matches the regular expression
         cls.re_filename. The argument top can also be a file instead of a
@@ -265,16 +263,10 @@ Warning: read failed due corrupt file, corrupt format description, or bug.""")
         @param topdown: Determines whether subdirectories should be iterated
             over first.
         @type topdown: C{bool}
-        @param raisereaderror: Should read errors raise an exception, or
-            should they be ignored?
-        @type raisereaderror: C{bool}
         @param verbose: Verbosity level.
         @type verbose: C{int}
-        @param inspect: Whether to inspect the file (ignored when the read
-            argument is C{True}).
-        @type inspect: C{bool}
-        @param read: Whether to read the file completely.
-        @type read: C{bool}
+        @param mode: The mode in which to open files.
+        @type verbose: C{str}
 
         @status: Not yet functional. For the time being, fall back on the other
             walk functions.
@@ -288,11 +280,9 @@ Warning: read failed due corrupt file, corrupt format description, or bug.""")
             try:
                 try:
                     # return data for the stream
+                    # the caller can call data.read(stream),
+                    # or data.inspect(stream), etc.
                     data = cls.Data()
-                    if read:
-                        data.read(stream)
-                    elif inspect:
-                        data.inspect(stream)
                     yield stream, data
                 except StandardError:
                     # an error occurred during reading or inspecting
