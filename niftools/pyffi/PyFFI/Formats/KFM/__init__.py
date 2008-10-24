@@ -116,8 +116,8 @@ The Guild 2 0x01024B00
 
 import struct, os, re
 
-from PyFFI import XmlFileFormat
-from PyFFI import MetaXmlFileFormat
+from PyFFI.ObjectModels.XML.FileFormat import XmlFileFormat
+from PyFFI.ObjectModels.XML.FileFormat import MetaXmlFileFormat
 from PyFFI import Utils
 from PyFFI import Common
 from PyFFI.ObjectModels.XML.Basic import BasicBase

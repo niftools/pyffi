@@ -29,7 +29,7 @@ Parse all NIF files in a directory tree
 ...                             verbose = 1):
 ...     pass
 reading tests/nif/invalid.nif
-Warning: read failed due to either a corrupt file, a corrupt xml, or a bug.
+Warning: read failed due corrupt file, corrupt format description, or bug.
 reading tests/nif/test.nif
 
 Create a NIF model from scratch and write to file
@@ -376,8 +376,8 @@ True
 
 import struct, os, re
 
-from PyFFI import XmlFileFormat
-from PyFFI import MetaXmlFileFormat
+from PyFFI.ObjectModels.XML.FileFormat import XmlFileFormat
+from PyFFI.ObjectModels.XML.FileFormat import MetaXmlFileFormat
 from PyFFI import Utils
 from PyFFI import Common
 from PyFFI.ObjectModels.XML.Basic import BasicBase

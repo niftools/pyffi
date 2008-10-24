@@ -1,3 +1,7 @@
+import PyFFI.Spells
+
+# import all spells
+
 import checkbhkbodycenter
 import checkcenterradius
 import checkconvexshape
@@ -28,3 +32,8 @@ import texdump
 import updatecenterradius
 import updatemopp
 import updateskinpartition
+
+class NifSpell(PyFFI.Spells.Spell):
+    """Base class for spells for nif files."""
+    pass
+
