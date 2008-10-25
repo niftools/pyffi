@@ -277,7 +277,7 @@ may destroy them. Make a backup of your files before running this script.
 
         # toast entry code
         self.spellclasses = [spellclass for spellclass in self.spellclasses
-                             if spellclass.toastentry(self)
+                             if spellclass.toastentry(self)]
 
         # if there are no spells left, quit early!
         if not self.spellclasses:
