@@ -1,4 +1,5 @@
 import PyFFI.Spells
+import PyFFI.Formats.NIF
 
 # import all spells
 
@@ -33,7 +34,43 @@ import updatecenterradius
 import updatemopp
 import updateskinpartition
 
+
 class NifSpell(PyFFI.Spells.Spell):
     """Base class for spells for nif files."""
     pass
+
+class NifToaster(PyFFI.Spells.Toaster):
+    """Base class for toasting nif files."""
+    FILEFORMAT = PyFFI.Formats.NIF.NifFormat
+    SPELLS = [
+        checkbhkbodycenter,
+        checkcenterradius,
+        checkconvexshape,
+        checkmopp,
+        checkskincenterradius,
+        checkskinpartition,
+        checktangentspace,
+        checktristrip,
+        disableparallax,
+        dump,
+        exportpixeldata,
+        ffvt3rskinpartition,
+        fix_addtangentspace,
+        fix_deltangentspace,
+        fix_detachhavoktristripsdata,
+        fix_texturepath,
+        hackcheckskindata,
+        hackmultiskelroot,
+        hackskindataidtransform,
+        hackskinrestpose,
+        mergeskelandrestpos,
+        optimize,
+        optimize_split,
+        read,
+        readwrite,
+        scale,
+        texdump,
+        updatecenterradius,
+        updatemopp,
+        updateskinpartition]
 
