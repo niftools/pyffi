@@ -86,7 +86,7 @@ class Spell:
         @param data: The file data.
         @type data: L{PyFFI.ObjectModels.Data.Data}
         @param stream: The file stream.
-        @type stream: Cfile}
+        @type stream: C{file}
         """
         self.toaster = toaster
         self.data = data
@@ -224,28 +224,199 @@ class Toaster:
     """Toaster base class. Toasters run spells on large quantities of files.
     They load each file and pass the data structure to any number of spells.
 
-    @cvar FileFormat: The file format class.
-    @type FileFormat: C{type(L{FileFormat})}
-    @ivar spells: List of spell classes.
-    @type spells: C{list} of C{type(L{Spell})}
+    @cvar FILEFORMAT: The file format class.
+    @type FILEFORMAT: C{type(L{FileFormat})}
+    @cvar SPELLS: List of all available spell classes.
+    @type SPELLS: C{list} of C{type(L{Spell})}
+    @cvar EXAMPLES: Description of example use.
+    @type EXAMPLES: C{str}
+    @ivar spellclasses: List of spell classes for the particular instance (must
+        be a subset of L{SPELLS}).
+    @type spellclasses: C{list} of C{type(L{Spell})}
     @ivar options: The options of the toaster.
     @type options: C{dict}
     """
 
-    FileFormat = NoneType # override this when subclassing
+    FILEFORMAT = NoneType # override when subclassing
+    SPELLS = [] # override when subclassing
+    EXAMPLES = "" # override when subclassing
 
-    def __init__(self, spellclasses, options):
-        """Initialize and run the toaster.
+    def __init__(self, spellclasses=None, options=None):
+        """Initialize the toaster.
 
         @param spellclasses: List of spell classes.
         @type spellclasses: C{list} of C{type(L{Spell})}
         @param options: The options (as keyword arguments).
         @type options: C{dict}
         """
-        self.spellclasses = spellclasses
-        self.options = options
+        self.spellclasses = spellclasses if spellclasses else []
+        self.options = options if options else {}
+
+    def cli(self):
+        """Command line interface: initializes spell classes and options from
+        the command line, and run the L{toast} method.
+        """
+        # parse options and positional arguments
+        usage = "%prog [options] <spell1> <spell2> ... <file>|<folder>"
+        description = """Apply the spells <spell1>, <spell2>, and so on,
+on <file>, or recursively on <folder>."""
+        errormessage_numargs = """incorrect number of arguments
+(use the --help option for help)"""
+
+        parser = optparse.OptionParser(
+            usage,
+            version="%%prog (PyFFI %s)" % PyFFI.__version__,
+            description=description)
+        parser.add_option("--help-spell", dest="helpspell",
+                          action="store_true",
+                          help="show help specific to the given spells")
+        parser.add_option("--examples", dest="examples",
+                          action="store_true",
+                          help="show examples of usage and exit")
+        parser.add_option("--spells", dest="spells",
+                          action="store_true",
+                          help="list all spells and exit")
+        parser.add_option("-a", "--arg", dest="arg",
+                          type="string",
+                          metavar="ARG",
+                          help="pass argument ARG to each spell")
+        parser.add_option("-x", "--exclude", dest="exclude",
+                          type="string",
+                          action="append",
+                          metavar="EXCLUDE",
+                          help="exclude block type EXCLUDE from spell; \
+exclude multiple block types by specifying this option more than once")
+        parser.add_option("-i", "--include", dest="include",
+                          type="string",
+                          action="append",
+                          metavar="INCLUDE",
+                          help="include only block type INCLUDE in spell; \
+if this option is not specified, then all block types are included except \
+those specified under --exclude; \
+include multiple block types by specifying this option more than once")
+        parser.add_option("-r", "--raise", dest="raisetesterror",
+                          action="store_true",
+                          help="raise exception on errors during the spell; \
+useful for debugging spells")
+        parser.add_option("--noninteractive", dest="interactive",
+                          action="store_false",
+                          help="run a non-interactive session (overwrites \
+files without warning)")
+        parser.add_option("-v", "--verbose", dest="verbose",
+                          type="int",
+                          metavar="VERBOSE",
+                          help="verbosity level: 0, 1, or 2 [default: %default]")
+        parser.add_option("-p", "--pause", dest="pause",
+                          action="store_true",
+                          help="pause when done")
+        parser.add_option("--dry-run", dest="dryrun",
+                          action="store_true",
+                          help="for spells that modify files, \
+save the modification to a temporary file instead of writing it back to the \
+original file; useful for debugging spells")
+        parser.add_option("--prefix", dest="prefix",
+                          type="string",
+                          metavar="PREFIX",
+                          help="for spells that modify files, \
+prepend PREFIX to file name")
+### no longer used
+#        parser.add_option("--usetheforceluke", dest="raisereaderror",
+#                          action="store_false",
+#                          help="""pass exceptions while reading files;
+#normally you do not need this, unless you are hacking the xml format
+#description""")
+        parser.add_option("--diff", dest="createpatch",
+                          action="store_true",
+                          help="""instead of writing back the file, write a \
+binary patch""")
+        parser.add_option("--patch", dest="applypatch",
+                          action="store_true",
+                          help="""apply all binary patches""")
+        parser.add_option("--diff-cmd", dest="diffcmd",
+                          type="string",
+                          help="""use ARG as diff command; this command must \
+accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
+        parser.add_option("--patch-cmd", dest="patchcmd",
+                          type="string",
+                          help="""use ARG as patch command; this command must \
+accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
+        parser.set_defaults(raisetesterror=False, verbose=1, pause=False,
+                            exclude=[], include=[], examples=False,
+                            spells=False,
+                            #raisereaderror=True, ### no longer used
+                            interactive=True,
+                            helpspell=False, dryrun=False, prefix="", arg="",
+                            createpatch=False, applypatch=False, diffcmd="")
+        (options, args) = parser.parse_args()
+
+        # check errors
+        if options.createpatch and options.applypatch:
+            parser.error("options --diff and --patch are mutually exclusive")
+        if options.diffcmd and not(options.createpatch):
+            parser.error("option --diff-cmd can only be used with --diff")
+        if options.patchcmd and not(options.applypatch):
+            parser.error("option --patch-cmd can only be used with --patch")
+
+        # check if we had examples and/or spells: quit
+        if options.spells:
+            for spellclass in self.SPELLS:
+                print spellclass.__name__
+            return
+        if options.examples:
+            print(self.EXAMPLES)
+            return
+
+        # spell name not specified when function was called
+        if len(args) < 1:
+            parser.error(errormessage_numargs)
+
+        # check if we are applying patches
+        if options.applypatch:
+            if len(args) > 1:
+                parser.error("when using --patch, do not specify a spell")
+            # set spell class to applying patch
+            self.spellclasses = [PyFFI.Spells.applypatch.Spell]
+        else:
+            # get spell names
+            spellnames = args[:-1]
+            # get spell classes
+            self.spellclasses = [spellclass for spellclass in self.SPELLS
+                                 if spellclass.__name__ in spellnames]
+
+            if options.helpspell:
+                # TODO: format the docstring
+                for spellclass in self.spellclasses:
+                    print(spellclass.__doc__)
+                return
+
+            # top not specified when function was called
+            if len(args) < 2:
+                parser.error(errormessage_numargs)
+
+        # get top folder/file: last argument always is folder/file
+        top = args[-1]
+
+        # convert options to dictionary
+        self.options = {}
+        for optionname in dir(options):
+            # skip default attributes of optparse.Values
+            if not optionname in dir(optparse.Values):
+                self.options[optionname] = getattr(options, optionname)
+
+        self.toast(top)
+
+        # signal the end
+        if options.pause and options.interactive:
+            raw_input("Finished.")
+        else:
+            print("Finished.")
 
     def readonly(self):
+        """Returns whether the toaster has all readonly spells, or not.
+
+        @return: C{True} if toaster is readonly, C{False} otherwise.
+        @rtype: C{bool}
+        """
         # the combined spells are readonly if and only if all spells are
         # readonly
         return all(spellclass.readonly
@@ -300,7 +471,7 @@ may destroy them. Make a backup of your files before running this script.
 
         # walk over all streams, and create a data instance for each of them
         # inspect the file but do not yet read in full
-        for stream, data in FileFormat.walkData(
+        for stream, data in FILEFORMAT.walkData(
             top, verbose=verbose, mode='rb' if readonly else 'r+b'):
 
             try: 
