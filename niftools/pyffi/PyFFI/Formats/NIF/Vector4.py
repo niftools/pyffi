@@ -63,11 +63,12 @@ def getVector3(self):
 def __str__(self):
     return "[ %6.3f %6.3f %6.3f %6.3f ]"%(self.x, self.y, self.z, self.w)
 
-def __eq__(self, x):
+def __eq__(self, rhs):
     if isinstance(rhs, NoneType):
         return False
     if not isinstance(rhs, self.cls.Vector4):
-        raise TypeError("do not know how to compare Vector4 and %s"%x.__class__)
+        raise TypeError(
+            "do not know how to compare Vector4 and %s" % rhs.__class__)
     if abs(self.x - rhs.x) > self.cls._EPSILON: return False
     if abs(self.y - rhs.y) > self.cls._EPSILON: return False
     if abs(self.z - rhs.z) > self.cls._EPSILON: return False
