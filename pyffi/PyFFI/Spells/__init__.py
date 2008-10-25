@@ -910,7 +910,7 @@ def printspells(formatspellsmodule):
             continue
         # this is just a hack for the moment; the list of spells will be
         # stored elsewhere in a future version
-        if spell in ("PyFFI", "NifSpell"):
+        if spell in ("PyFFI", "NifSpell", "NifToaster"):
             continue
         print(spell)
 
