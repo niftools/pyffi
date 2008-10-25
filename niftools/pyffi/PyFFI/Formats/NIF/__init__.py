@@ -444,6 +444,19 @@ class NifData(PyFFI.ObjectModels.Data.Data):
         # empty list of blocks
         self.blocks = []
 
+    # GlobalTreeBranch
+
+    def getGlobalTreeNumChildren(self):
+        return len(self.roots)
+
+    def getGlobalTreeChild(self, row):
+        return self.roots[row]
+
+    def getGlobalTreeChildRow(self, child):
+        return self.roots.index(child)
+
+    # Data
+
     def inspectVersionOnly(self, stream):
         """This function checks the version only, and is faster than the usual
         inspect function (which reads the full header). Sets the L{version} and
