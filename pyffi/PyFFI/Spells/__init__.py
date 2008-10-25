@@ -228,28 +228,30 @@ class _MetaCompatSpell(type):
         # make sure all test functions in the module exist (this makes it
         # easier on the wrapper implementation)
         if not hasattr(dct["SPELLMODULE"], "testFile"):
-            dct["SPELLMODULE"].testFile = dct["stub"]
+            dct["SPELLMODULE"].testFile = cls.stub
         if not hasattr(dct["SPELLMODULE"], "testRoot"):
-            dct["SPELLMODULE"].testRoot = dct["stub"]
+            dct["SPELLMODULE"].testRoot = cls.stub
         if not hasattr(dct["SPELLMODULE"], "testBlock"):
-            dct["SPELLMODULE"].testBlock = dct["stub"]
+            dct["SPELLMODULE"].testBlock = cls.stub
         # set readonly class variable
         dct["READONLY"] = getattr(dct["SPELLMODULE"], "__readonly__", True)
         # set documentation
         dct["__doc__"] = getattr(dct["SPELLMODULE"], "__doc__", "Undocumented.")
         # create the derived class
-        super(_MetaCompatSpell, cls)(name, bases, dct)
-
-class _CompatSpell(Spell):
-    """This is a spell class that can be instantiated from an old-style spell
-    module. DO NOT USE FOR NEW SPELLS! Only for backwards compatibility.
-    """
-    SPELLMODULE = None
+        super(_MetaCompatSpell, cls).__init__(name, bases, dct)
 
     @staticmethod
     def stub(*args, **kwargs):
         """Stub function."""
         pass
+
+class _CompatSpell(Spell):
+    """This is a spell class that can be instantiated from an
+    old-style spell module. DO NOT USE FOR NEW SPELLS! Only for
+    backwards compatibility.
+    """
+    SPELLMODULE = type("spellmod", (object,), {}) # stub
+    __metaclass__ = _MetaCompatSpell
 
     def testFile(self, *args, **kwargs):
         self.SPELLMODULE.testFile(*args, **kwargs)
@@ -283,24 +285,32 @@ class _CompatSpell(Spell):
                           self.data.roots,
                           **self.toaster.options)
 
-def _CompatSpellFactory(spellmod):
-    """Create new-style spell class from old-style spell module.
-
-    @param spellmod: The old-style spell module.
-    @type spellmod: C{ModuleType}
-    @return: The new-style spell class.
-    @rtype: C{type(L{Spell})}
-    """
-    return type(spellmod.__name__.split(".")[-1], (_CompatSpell,),
-                {"SPELLMODULE": spellmod})
-
 class _MetaCompatToaster(type):
+    """Metaclass for L{Toaster} which converts old-style module spells into
+    new-style class spells.
+
+    This is only for temporary use until all spells have been converted to
+    the new class system.
+    """
+
     def __init__(cls, name, bases, dct):
         # check the list of spells, and convert old-style modules to new-style
         # classes
         for i, spellclass in enumerate(dct["SPELLS"]):
             if isinstance(spellclass, ModuleType):
-                dct["SPELLS"][i] = _CompatSpellFactory(spellclass)
+                dct["SPELLS"][i] = cls.CompatSpellFactory(spellclass)
+
+    def CompatSpellFactory(cls, spellmod):
+        """Create new-style spell class from old-style spell module.
+
+        @param spellmod: The old-style spell module.
+        @type spellmod: C{ModuleType}
+        @return: The new-style spell class.
+        @rtype: C{type(L{Spell})}
+        """
+        return type(spellmod.__name__.split(".")[-1], (_CompatSpell,),
+                    {"SPELLMODULE": spellmod})
+
 
 class Toaster:
     """Toaster base class. Toasters run spells on large quantities of files.
