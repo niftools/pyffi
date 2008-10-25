@@ -54,7 +54,7 @@ class MetaXsdFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
     manipulate files in this format.
 
     The actual implementation of the parser is delegated to
-    L{PyFFI.XsdHandler}.
+    L{XsdSaxHandler}.
     """
 
     def __init__(cls, name, bases, dct):
