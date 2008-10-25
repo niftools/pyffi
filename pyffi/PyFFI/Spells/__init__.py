@@ -64,7 +64,7 @@ import PyFFI.Spells.applypatch
 import PyFFI.Utils.BSDiff
 
 class Spell:
-    """Spell base class. A spell takes a nif and then does something
+    """Spell base class. A spell takes a data file and then does something
     useful with it.
 
     @ivar toaster: The toaster this spell is called from.
@@ -99,93 +99,107 @@ class Spell:
         # for nif: check if spell block type is found
         return True
 
-    def inspectblock(self, block):
-        """Check if spell should be cast on this block or not, based on
-        exclude and include options passed on the command line.
+    def inspectbranch(self, branch):
+        """Check if spell should be cast on this branch or not, based on
+        exclude and include options passed on the command line. You should
+        not need to override this function: if you need additional checks on
+        whether a branch must be parsed or not, override the L{spellentry}
+        method.
 
-        @param block: The block to check.
-        @type block: L{PyFFI.ObjectModels.Tree.GlobalTreeBranch}
+        @param branch: The branch to check.
+        @type branch: L{PyFFI.ObjectModels.Tree.GlobalTreeBranch}
 
-        @return: C{True} if the block must be processed, C{False} otherwise.
+        @return: C{True} if the branch must be processed, C{False} otherwise.
         @rtype: C{bool}
         """
         # always cast spell on the root data element
-        if isinstance(block, PyFFI.ObjectModels.Data.Data):
+        if isinstance(branch, PyFFI.ObjectModels.Data.Data):
             return True
         # not a root, so check include and exclude options
         include = self.toaster.options.get("include", [])
         exclude = self.toaster.options.get("exclude", [])
         if not include:
             # everything is included
-            return not(block.__class__.__name__ in exclude)
+            return not(branch.__class__.__name__ in exclude)
         else:
             # if it is in exclude, exclude it
-            if block.__class__.__name__ in exclude:
+            if branch.__class__.__name__ in exclude:
                 return False
             else:
                 # else only include it if it is in the include list
-                return (block.__class__.__name__ in include)
+                return (branch.__class__.__name__ in include)
 
-    def recurse(self, block=None):
-        """Helper function which calls L{inspectblock} on the block,
-        if successful then L{spellentry} on the block, and if this is
-        succesful it recursively goes on with the block's children.
-        Once all children are done, it calls L{spellexit}.
+    def recurse(self, branch=None):
+        """Helper function which calls L{inspectbranch} on the branch,
+        if successful then L{spellentry} on the branch, and if this is
+        succesful it calls L{recurse} on the branch's children, and
+        once all children are done, it calls L{spellexit}.
 
         You should not need to override this function, normally.
 
-        @param block: The block to start the recursion from, or C{None}
+        @param branch: The branch to start the recursion from, or C{None}
             to recurse the whole tree.
-        @type block: L{PyFFI.ObjectModels.Tree.GlobalTreeBranch}
+        @type branch: L{PyFFI.ObjectModels.Tree.GlobalTreeBranch}
         """
         # when called without arguments, recurse over the whole tree
-        if block is None:
-            block = self.data
+        if branch is None:
+            branch = self.data
         # if inspection is succesful
-        if self.inspectblock(block):
-            # cast the spell on the block
-            if self.spellentry(block):
+        if self.inspectbranch(branch):
+            # cast the spell on the branch
+            if self.spellentry(branch):
                 # spell returned True so recurse to children
                 # we use the abstract tree functions to parse the tree
                 # these are format independent!
-                for i in xrange(block.getGlobalTreeNumChildren()):
-                    child = block.getGlobalTreeChild(i)
+                for i in xrange(branch.getGlobalTreeNumChildren()):
+                    child = branch.getGlobalTreeChild(i)
                     self.recurse(child)
-                self.spellexit(block)
+                self.spellexit(branch)
 
-    def spellentry(self, block):
-        """Cast the spell on the given block. First called with block equal to
+    def spellentry(self, branch):
+        """Cast the spell on the given branch. First called with branch equal to
         L{data}, then for all roots of data, then the children, grandchildren,
         and so on.
+        The default implementation simply returns C{True}.
 
-        Typically, you will override this function to perform a particular
-        operation on a block type.
+        Typically, you will override this function to perform an operation
+        on a particular block type and/or to stop recursion at particular
+        block types.
 
-        @param block: The block to cast the spell on.
-        @type block: L{PyFFI.ObjectModels.Tree.GlobalTreeBranch}
+        @param branch: The branch to cast the spell on.
+        @type branch: L{PyFFI.ObjectModels.Tree.GlobalTreeBranch}
         @return: C{True} if the children must be processed, C{False} otherwise.
         @rtype: C{bool}
         """
         return True
 
-    def spellexit(self, block):
-        """Cast a spell on the given block, after all its children,
+    def spellexit(self, branch):
+        """Cast a spell on the given branch, after all its children,
         grandchildren, have been processed.
 
         Typically, you will override this function to perform a particular
         operation on a block type, but you rely on the fact that the children
         must have been processed first.
 
-        @param block: The block to cast the spell on.
-        @type block: L{PyFFI.ObjectModels.Tree.GlobalTreeBranch}
+        @param branch: The branch to cast the spell on.
+        @type branch: L{PyFFI.ObjectModels.Tree.GlobalTreeBranch}
         """
         pass
 
     @classmethod
     def toastentry(cls, toaster):
         """Called just before the toaster starts processing
-        all files."""
-        pass
+        all files. If it returns C{False}, then the spell is not used.
+        The default implementation simply returns C{True}.
+
+        For example, if the spell only acts on a particular block type, but
+        that block type is excluded, then you can use this function to flag
+        that this spell can be skipped.
+
+        @return: C{True} if the spell applies, C{False} otherwise.
+        @rtype: C{bool}
+        """
+        return True
 
     @classmethod
     def toastexit(cls, toaster):
@@ -261,9 +275,15 @@ may destroy them. Make a backup of your files before running this script.
                     print("Script aborted by user.")
                 return
 
-        # spell entry code
-        for spellclass in self.spellclasses:
-            spellclass.toastentry(self)
+        # toast entry code
+        self.spellclasses = [spellclass for spellclass in self.spellclasses
+                             if spellclass.toastentry(self)
+
+        # if there are no spells left, quit early!
+        if not self.spellclasses:
+            if verbose:
+                print("no spells apply! quiting early...")
+            return
 
         # walk over all streams, and create a data instance for each of them
         # inspect the file but do not yet read in full
@@ -319,7 +339,7 @@ may destroy them. Make a backup of your files before running this script.
             del spell
             gc.collect()
 
-        # spell exit code
+        # toast exit code
         for spellclass in self.spellclasses:
             spellclass.toastexit(self)
 
