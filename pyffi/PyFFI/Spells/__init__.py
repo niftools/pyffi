@@ -57,16 +57,18 @@ import os
 import os.path
 import subprocess
 import tempfile
-from types import NoneType
+from types import NoneType, ModuleType
 
 import PyFFI # for PyFFI.__version__
 import PyFFI.Spells.applypatch
 import PyFFI.Utils.BSDiff
 
-class Spell:
+class Spell(object):
     """Spell base class. A spell takes a data file and then does something
     useful with it.
 
+    @cvar READONLY: Whether the spell is read only or not.
+    @type READONLY: C{bool}
     @ivar toaster: The toaster this spell is called from.
     @type toaster: L{Toaster}
     @ivar data: The data this spell acts on.
@@ -76,7 +78,7 @@ class Spell:
     """
 
     # spells are readonly by default
-    readonly = True
+    READONLY = True
 
     def __init__(self, toaster, data, stream):
         """Initialize the spell data.
@@ -220,6 +222,86 @@ class Spell:
         """
         pass
 
+class _MetaCompatSpell(type):
+    """Metaclass for compatibility spell factory."""
+    def __init__(cls, name, bases, dct):
+        # make sure all test functions in the module exist (this makes it
+        # easier on the wrapper implementation)
+        if not hasattr(dct["SPELLMODULE"], "testFile"):
+            dct["SPELLMODULE"].testFile = dct["stub"]
+        if not hasattr(dct["SPELLMODULE"], "testRoot"):
+            dct["SPELLMODULE"].testRoot = dct["stub"]
+        if not hasattr(dct["SPELLMODULE"], "testBlock"):
+            dct["SPELLMODULE"].testBlock = dct["stub"]
+        # set readonly class variable
+        dct["READONLY"] = getattr(dct["SPELLMODULE"], "__readonly__", True)
+        # set documentation
+        dct["__doc__"] = getattr(dct["SPELLMODULE"], "__doc__", "Undocumented.")
+        # create the derived class
+        super(_MetaCompatSpell, cls)(name, bases, dct)
+
+class _CompatSpell(Spell):
+    """This is a spell class that can be instantiated from an old-style spell
+    module. DO NOT USE FOR NEW SPELLS! Only for backwards compatibility.
+    """
+    SPELLMODULE = None
+
+    @staticmethod
+    def stub(*args, **kwargs):
+        """Stub function."""
+        pass
+
+    def testFile(self, *args, **kwargs):
+        self.SPELLMODULE.testFile(*args, **kwargs)
+
+    def testBlock(self, *args, **kwargs):
+        self.SPELLMODULE.testBlock(*args, **kwargs)
+
+    def testRoot(self, *args, **kwargs):
+        self.SPELLMODULE.testRoot(*args, **kwargs)
+
+    def spellentry(self, branch):
+        if isinstance(branch, PyFFI.ObjectModels.Data.Data):
+            # the beginning; start with testing the roots
+            for i in xrange(branch.getGlobalTreeNumChildren()):
+                # the roots in the old system are the children of the data root
+                root = branch.getGlobalTreeChild(i)
+                self.testRoot(root, **self.toaster.options)
+        else:
+            # it is not the root data branch, 
+            # now do the usual blocks
+            self.testBlock(branch, **self.toaster.options)
+        # enable further recursion in all cases
+        return True
+
+    def spellexit(self, branch):
+        """Calls the testFile function."""
+        if isinstance(branch, PyFFI.ObjectModels.Data.Data):
+            # the root branch, so this is at the very end
+            self.testFile(self.stream,
+                          self.data.version, self.data.user_version,
+                          self.data.roots,
+                          **self.toaster.options)
+
+def _CompatSpellFactory(spellmod):
+    """Create new-style spell class from old-style spell module.
+
+    @param spellmod: The old-style spell module.
+    @type spellmod: C{ModuleType}
+    @return: The new-style spell class.
+    @rtype: C{type(L{Spell})}
+    """
+    return type(spellmod.__name__.split(".")[-1], (_CompatSpell,),
+                {"SPELLMODULE": spellmod})
+
+class _MetaCompatToaster(type):
+    def __init__(cls, name, bases, dct):
+        # check the list of spells, and convert old-style modules to new-style
+        # classes
+        for i, spellclass in enumerate(dct["SPELLS"]):
+            if isinstance(spellclass, ModuleType):
+                dct["SPELLS"][i] = _CompatSpellFactory(spellclass)
+
 class Toaster:
     """Toaster base class. Toasters run spells on large quantities of files.
     They load each file and pass the data structure to any number of spells.
@@ -240,6 +322,8 @@ class Toaster:
     FILEFORMAT = NoneType # override when subclassing
     SPELLS = [] # override when subclassing
     EXAMPLES = "" # override when subclassing
+
+    __metaclass__ = _MetaCompatToaster # for compatibility
 
     def __init__(self, spellclasses=None, options=None):
         """Initialize the toaster.
@@ -419,7 +503,7 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
         """
         # the combined spells are readonly if and only if all spells are
         # readonly
-        return all(spellclass.readonly
+        return all(spellclass.READONLY
                    for spellclass in self.spellclasses)
 
     def toast(self, top):
@@ -472,7 +556,7 @@ may destroy them. Make a backup of your files before running this script.
         # walk over all streams, and create a data instance for each of them
         # inspect the file but do not yet read in full
         for stream, data in FILEFORMAT.walkData(
-            top, verbose=verbose, mode='rb' if readonly else 'r+b'):
+            top, verbose=verbose, mode='rb' if self.readonly() else 'r+b'):
 
             try: 
                 # inspect the file (reads only the header)
@@ -496,7 +580,7 @@ may destroy them. Make a backup of your files before running this script.
                         spell.recurse()
 
                     # save file back to disk if not readonly
-                    if not readonly:
+                    if not self.readonly():
                         if not dryrun:
                             if createpatch:
                                 self._writepatch(stream, data)
