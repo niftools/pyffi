@@ -227,20 +227,20 @@ class Spell(object):
 class _MetaCompatSpell(type):
     """Metaclass for compatibility spell factory."""
     def __init__(cls, name, bases, dct):
-        # make sure all test functions in the module exist (this makes it
-        # easier on the wrapper implementation)
-        if not hasattr(dct["SPELLMODULE"], "testFile"):
-            dct["SPELLMODULE"].testFile = cls.stub
-        if not hasattr(dct["SPELLMODULE"], "testRoot"):
-            dct["SPELLMODULE"].testRoot = cls.stub
-        if not hasattr(dct["SPELLMODULE"], "testBlock"):
-            dct["SPELLMODULE"].testBlock = cls.stub
-        # set readonly class variable
-        dct["READONLY"] = getattr(dct["SPELLMODULE"], "__readonly__", True)
-        # set documentation
-        dct["__doc__"] = getattr(dct["SPELLMODULE"], "__doc__", "Undocumented.")
         # create the derived class
         super(_MetaCompatSpell, cls).__init__(name, bases, dct)
+        # make sure all test functions in the module exist (this makes it
+        # easier on the wrapper implementation)
+        if not hasattr(cls.SPELLMODULE, "testFile"):
+            cls.SPELLMODULE.testFile = cls.stub
+        if not hasattr(cls.SPELLMODULE, "testRoot"):
+            cls.SPELLMODULE.testRoot = cls.stub
+        if not hasattr(cls.SPELLMODULE, "testBlock"):
+            cls.SPELLMODULE.testBlock = cls.stub
+        # set readonly class variable
+        cls.READONLY = getattr(cls.SPELLMODULE, "__readonly__", True)
+        # set documentation
+        cls.__doc__ = getattr(cls.SPELLMODULE, "__doc__", "Undocumented.")
 
     @staticmethod
     def stub(*args, **kwargs):
@@ -314,7 +314,7 @@ class _MetaCompatToaster(type):
                     {"SPELLMODULE": spellmod})
 
 
-class Toaster:
+class Toaster(object):
     """Toaster base class. Toasters run spells on large quantities of files.
     They load each file and pass the data structure to any number of spells.
 
