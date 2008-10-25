@@ -39,7 +39,7 @@
 
 from PyFFI import Utils
 
-import PyFFI.ObjectModels.Data
+import PyFFI.ObjectModels.Tree
 
 class MetaFileFormat(type):
     """The MetaFileFormat metaclass is an abstract base class for transforming
@@ -63,7 +63,43 @@ class FileFormat(object):
     re_filename = None
 
     # override this with the data instance for this format
-    Data = PyFFI.ObjectModels.Data.Data # TODO embed directly into this class
+    class Data(PyFFI.ObjectModels.Tree.GlobalTreeBranch):
+        """Base class for representing data in a particular format.
+        Override this class to implement reading and writing.
+        """
+
+        def inspect(self, stream):
+            """Quickly checks whether the stream appears to contain
+            data of a particular format. Resets stream to original position.
+            Call this function if you simply wish to check that a file is
+            of a particular format without having to parse it completely.
+
+            Override this method.
+
+            @param stream: The file to inspect.
+            @type stream: file
+            @return: C{True} if stream is of particular format, C{False}
+                otherwise.
+            """
+            raise NotImplementedError
+
+        def read(self, stream):
+            """Read data of particular format from stream.
+            Override this method.
+
+            @param stream: The file to read from.
+            @type stream: file
+            """
+            raise NotImplementedError
+
+        def write(self, stream):
+            """Write data of particular format to stream.
+            Override this method.
+
+            @param stream: The file to write to.
+            @type stream: file
+            """
+            raise NotImplementedError
 
     @staticmethod
     def versionNumber(version_str):

@@ -79,7 +79,7 @@ import struct
 import os
 import re
 
-import PyFFI.ObjectModels.Data
+import PyFFI.ObjectModels.FileFormat
 from PyFFI.ObjectModels.XSD.FileFormat import XsdFileFormat
 from PyFFI.ObjectModels.XSD.FileFormat import MetaXsdFileFormat
 
@@ -87,7 +87,7 @@ class DaeError(StandardError):
     """Exception class used for collada related exceptions."""
     pass
 
-class DaeData(PyFFI.ObjectModels.Data.Data):
+class DaeData(PyFFI.ObjectModels.FileFormat.FileFormat.Data):
     """A class to contain the actual collada data."""
 
     def __init__(self, version = 0x01040100):
@@ -116,7 +116,7 @@ class DaeData(PyFFI.ObjectModels.Data.Data):
         """
         return self._rootelement.version
 
-    # overriding PyFFI.ObjectModels.Data.Data methods
+    # overriding PyFFI.ObjectModels.FileFormat.FileFormat.Data methods
 
     def inspect(self, stream):
         """Quickly checks whether the stream appears to contain

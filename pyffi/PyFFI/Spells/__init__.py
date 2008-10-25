@@ -73,7 +73,7 @@ class Spell(object):
     @ivar toaster: The toaster this spell is called from.
     @type toaster: L{Toaster}
     @ivar data: The data this spell acts on.
-    @type data: L{PyFFI.ObjectModels.Data.Data}
+    @type data: L{PyFFI.ObjectModels.FileFormat.FileFormat.Data}
     @ivar stream: The current file being processed.
     @type stream: C{file}
     """
@@ -87,7 +87,7 @@ class Spell(object):
         @param toaster: The toaster this spell is called from.
         @type toaster: L{Toaster}
         @param data: The file data.
-        @type data: L{PyFFI.ObjectModels.Data.Data}
+        @type data: L{PyFFI.ObjectModels.FileFormat.FileFormat.Data}
         @param stream: The file stream.
         @type stream: C{file}
         """
@@ -96,8 +96,8 @@ class Spell(object):
         self.stream = stream
 
     def inspectdata(self):
-        """This is called after L{PyFFI.ObjectModels.Data.Data.inspect} has
-        been called, and before L{PyFFI.ObjectModels.Data.Data.read} is
+        """This is called after L{PyFFI.ObjectModels.FileFormat.FileFormat.Data.inspect} has
+        been called, and before L{PyFFI.ObjectModels.FileFormat.FileFormat.Data.read} is
         called.
 
         @return: C{True} if the file must be processed, C{False} otherwise.
@@ -121,7 +121,7 @@ class Spell(object):
         @rtype: C{bool}
         """
         # always cast spell on the root data element
-        if isinstance(branch, PyFFI.ObjectModels.Data.Data):
+        if isinstance(branch, PyFFI.ObjectModels.FileFormat.FileFormat.Data):
             return True
         # not a root, so check include and exclude options
         include = self.toaster.options.get("include", [])
@@ -304,7 +304,7 @@ class _CompatSpell(Spell):
         self.SPELLMODULE.testRoot(*args, **kwargs)
 
     def spellentry(self, branch):
-        if isinstance(branch, PyFFI.ObjectModels.Data.Data):
+        if isinstance(branch, PyFFI.ObjectModels.FileFormat.FileFormat.Data):
             # the beginning; start with testing the roots
             for i in xrange(branch.getGlobalTreeNumChildren()):
                 # the roots in the old system are the children of the data root
@@ -319,7 +319,7 @@ class _CompatSpell(Spell):
 
     def spellexit(self, branch):
         """Calls the testFile function."""
-        if isinstance(branch, PyFFI.ObjectModels.Data.Data):
+        if isinstance(branch, PyFFI.ObjectModels.FileFormat.FileFormat.Data):
             # the root branch, so this is at the very end
             self.testFile(self.stream,
                           self.data.version, self.data.user_version,
