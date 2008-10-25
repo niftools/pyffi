@@ -225,6 +225,44 @@ class Spell(object):
         """
         pass
 
+class SpellPatch(Spell):
+    """A spell for applying a patch on files."""
+    def inspectdata(self):
+        """There is no need to read the whole file, so we apply the patch
+        already at inspection stage, and stop the spell process by returning
+        C{False}.
+    
+        @return: C{False}
+        @rtype: C{bool}
+        """
+        # do the usual inspection rules
+        if not Spell.inspectdata(self):
+            return False
+        # get the patch command (if there is one)
+        patchcmd = self.toaster.options.get("patchcmd")
+        # first argument is always the stream, by convention
+        oldfile = self.stream
+        oldfilename = oldfile.name
+        newfilename = oldfilename + ".patched"
+        patchfilename = oldfilename + ".patch"
+        if self.toaster.options.get('verbose'):
+            print("  writing %s..." % newfilename)
+        if not patchcmd:
+            patchfile = open(patchfilename, "rb")
+            newfile = open(newfilename, "wb")
+            try:
+                PyFFI.Utils.BSDiff.patch(oldfile, newfile, patchfile)
+            finally:
+                newfile.close()
+                patchfile.close()
+        else:
+            # close all files before calling external command
+            oldfile.close()
+            subprocess.call([patchcmd, oldfilename, newfilename, patchfilename])
+
+        # do not go further, spell is done
+        return False
+
 class _MetaCompatSpell(type):
     """Metaclass for compatibility spell factory."""
     def __init__(cls, name, bases, dct):
@@ -472,7 +510,7 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
             if len(args) > 1:
                 parser.error("when using --patch, do not specify a spell")
             # set spell class to applying patch
-            self.spellclasses = [PyFFI.Spells.applypatch.Spell]
+            self.spellclasses = [SpellPatch]
         else:
             # get spell names
             spellnames = args[:-1]
@@ -646,7 +684,8 @@ may destroy them. Make a backup of your files before running this script.
         """
         # first argument is always the stream, by convention
         head, tail = os.path.split(stream.name)
-        outstream = open(os.path.join(head, kwargs["prefix"] + tail), "wb")
+        outstream = open(os.path.join(head, self.options["prefix"] + tail),
+                         "wb")
         try:
             if self.options.get('verbose'):
                 print("  writing %s..." % outstream.name)

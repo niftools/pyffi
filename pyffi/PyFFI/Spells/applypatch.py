@@ -43,8 +43,6 @@ import subprocess
 
 import PyFFI.Utils.BSDiff
 
-# TODO prevent spell from reading the full file (testFile -> testIsApplicable?)
-
 # TODO: ditch the .patched suffix and set flag that this spell overwrites files
 #__readonly__ = False
 
