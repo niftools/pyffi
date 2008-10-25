@@ -856,6 +856,8 @@ class NifFormat(XmlFileFormat):
     StringIndex = Common.UInt
     SizedString = Common.SizedString
 
+    Data = NifData # TODO embed directly into this class
+
     # implementation of nif-specific basic types
 
     class StringOffset(Common.Int):
