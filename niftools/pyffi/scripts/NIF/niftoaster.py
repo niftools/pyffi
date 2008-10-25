@@ -42,7 +42,7 @@ a nif specific wrapper around L{PyFFI.Spells.toaster}."""
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-from PyFFI.Spells import toaster
+#from PyFFI.Spells import toaster
 from PyFFI.Formats.NIF import NifFormat
 import PyFFI.Spells.NIF
 
@@ -88,8 +88,9 @@ recursively, for Freedom Force vs. The 3rd Reich
     python niftoaster.py -a 100 scale "c:\\zoo2"
 """
 
-    toaster(format=NifFormat, formatspellsmodule=PyFFI.Spells.NIF,
-            examples=examples)
+#    toaster(format=NifFormat, formatspellsmodule=PyFFI.Spells.NIF,
+#            examples=examples)
+    PyFFI.Spells.NIF.NifToaster().cli()
 
 # if script is called...
 if __name__ == "__main__":
