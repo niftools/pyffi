@@ -71,21 +71,26 @@ class Spell:
     @type toaster: L{Toaster}
     @ivar data: The data this spell acts on.
     @type data: L{PyFFI.ObjectModels.Data.Data}
+    @ivar stream: The current file being processed.
+    @type stream: C{file}
     """
 
     # spells are readonly by default
     readonly = True
 
-    def __init__(self, toaster, data):
+    def __init__(self, toaster, data, stream):
         """Initialize the spell data.
 
         @param toaster: The toaster this spell is called from.
         @type toaster: L{Toaster}
         @param data: The file data.
         @type data: L{PyFFI.ObjectModels.Data.Data}
+        @param stream: The file stream.
+        @type stream: Cfile}
         """
         self.toaster = toaster
         self.data = data
+        self.stream = stream
 
     def inspectdata(self):
         """This is called after L{PyFFI.ObjectModels.Data.Data.inspect} has
@@ -194,8 +199,12 @@ class Spell:
 
         For example, if the spell only acts on a particular block type, but
         that block type is excluded, then you can use this function to flag
-        that this spell can be skipped.
+        that this spell can be skipped. You can also use this function to
+        initialize statistics data to be aggregated from files, to
+        initialize a log file, and so.
 
+        @param toaster: The toaster this spell is called from.
+        @type toaster: L{Toaster}
         @return: C{True} if the spell applies, C{False} otherwise.
         @rtype: C{bool}
         """
@@ -204,7 +213,11 @@ class Spell:
     @classmethod
     def toastexit(cls, toaster):
         """Called when the toaster has finished processing
-        all files."""
+        all files.
+
+        @param toaster: The toaster this spell is called from.
+        @type toaster: L{Toaster}
+        """
         pass
 
 class Toaster:
@@ -231,10 +244,12 @@ class Toaster:
         """
         self.spellclasses = spellclasses
         self.options = options
+
+    def readonly(self):
         # the combined spells are readonly if and only if all spells are
         # readonly
-        self.readonly = all(spellclass.readonly
-                            for spellclass in self.spellclasses)
+        return all(spellclass.readonly
+                   for spellclass in self.spellclasses)
 
     def toast(self, top):
         """Walk over all files in a directory tree and cast spells
@@ -256,12 +271,10 @@ class Toaster:
         prefix = self.options.get("prefix", "")
         createpatch = self.options.get("createpatch", False)
         applypatch = self.options.get("applypatch", False)
-        #testRoot = getattr(spellmodule, "testRoot", None)
-        #testBlock = getattr(spellmodule, "testBlock", None)
-        #testFile = getattr(spellmodule, "testFile", None)
 
         # warning
-        if ((not readonly) and (not dryrun) and not(prefix) and not(createpatch)
+        if ((not self.readonly()) and (not dryrun)
+            and (not prefix) and (not createpatch)
             and interactive):
             print("""\
 This script will modify your files, in particular if something goes wrong it
@@ -295,7 +308,7 @@ may destroy them. Make a backup of your files before running this script.
                 data.inspect(stream)
  
                 # create spell instances
-                spells = [spellclass(toaster, data)
+                spells = [spellclass(toaster, data, stream)
                           for spellclass in self.spellclasses]
                 
                 # select those spells that must be cast
