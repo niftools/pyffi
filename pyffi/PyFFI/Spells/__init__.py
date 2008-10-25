@@ -71,24 +71,21 @@ class Spell:
     @type toaster: L{Toaster}
     @ivar data: The data this spell acts on.
     @type data: L{PyFFI.ObjectModels.Data.Data}
-    @ivar options: The options.
-    @type options: C{dict}
     """
 
     # spells are readonly by default
     readonly = True
 
-    def __init__(self, toaster, data, options):
+    def __init__(self, toaster, data):
         """Initialize the spell data.
 
+        @param toaster: The toaster this spell is called from.
+        @type toaster: L{Toaster}
         @param data: The file data.
         @type data: L{PyFFI.ObjectModels.Data.Data}
-        @param options: The options (as keyword arguments).
-        @type options: C{dict}
         """
         self.toaster = toaster
         self.data = data
-        self.options = options
 
     def inspectdata(self):
         """This is called after L{PyFFI.ObjectModels.Data.Data.inspect} has
@@ -103,45 +100,60 @@ class Spell:
         return True
 
     def inspectblock(self, block):
-        """Check if a block should be tested or not, based on exclude and
-        include options passed on the command line.
+        """Check if spell should be cast on this block or not, based on
+        exclude and include options passed on the command line.
 
         @param block: The block to check.
-        @type block: L{PyFFI.ObjectModels.XML.Struct.StructBase}
+        @type block: L{PyFFI.ObjectModels.Tree.GlobalTreeBranch}
 
         @return: C{True} if the block must be processed, C{False} otherwise.
         @rtype: C{bool}
         """
-        if not self.options.get("include"):
+        # always cast spell on the root data element
+        if isinstance(block, PyFFI.ObjectModels.Data.Data):
+            return True
+        # not a root, so check include and exclude options
+        include = self.toaster.options.get("include", [])
+        exclude = self.toaster.options.get("exclude", [])
+        if not include:
             # everything is included
-            return not(block.__class__.__name__ in self.options.get("exclude"))
+            return not(block.__class__.__name__ in exclude)
         else:
             # if it is in exclude, exclude it
-            if block.__class__.__name__ in self.options.get("exclude"):
+            if block.__class__.__name__ in exclude:
                 return False
             else:
                 # else only include it if it is in the include list
-                return (block.__class__.__name__ in self.options.get("include"))
+                return (block.__class__.__name__ in include)
 
-    def recurse(self, block):
+    def recurse(self, block=None):
         """Helper function which calls L{inspectblock} on the block,
-        if succesful then L{cast} on the block, and if this is
+        if successful then L{spellentry} on the block, and if this is
         succesful it recursively goes on with the block's children.
+        Once all children are done, it calls L{spellexit}.
 
         You should not need to override this function, normally.
+
+        @param block: The block to start the recursion from, or C{None}
+            to recurse the whole tree.
+        @type block: L{PyFFI.ObjectModels.Tree.GlobalTreeBranch}
         """
+        # when called without arguments, recurse over the whole tree
+        if block is None:
+            block = self.data
         # if inspection is succesful
         if self.inspectblock(block):
             # cast the spell on the block
-            if self.cast(block):
-                # cast returned True so recurse to children
+            if self.spellentry(block):
+                # spell returned True so recurse to children
                 # we use the abstract tree functions to parse the tree
                 # these are format independent!
                 for i in xrange(block.getGlobalTreeNumChildren()):
                     child = block.getGlobalTreeChild(i)
                     self.recurse(child)
+                self.spellexit(block)
 
-    def cast(self, block):
+    def spellentry(self, block):
         """Cast the spell on the given block. First called with block equal to
         L{data}, then for all roots of data, then the children, grandchildren,
         and so on.
@@ -149,20 +161,35 @@ class Spell:
         Typically, you will override this function to perform a particular
         operation on a block type.
 
+        @param block: The block to cast the spell on.
+        @type block: L{PyFFI.ObjectModels.Tree.GlobalTreeBranch}
         @return: C{True} if the children must be processed, C{False} otherwise.
         @rtype: C{bool}
         """
-        return False
+        return True
+
+    def spellexit(self, block):
+        """Cast a spell on the given block, after all its children,
+        grandchildren, have been processed.
+
+        Typically, you will override this function to perform a particular
+        operation on a block type, but you rely on the fact that the children
+        must have been processed first.
+
+        @param block: The block to cast the spell on.
+        @type block: L{PyFFI.ObjectModels.Tree.GlobalTreeBranch}
+        """
+        pass
 
     @classmethod
-    def atToasterEntry(cls, toaster):
-        """This callback is called just before the toaster starts processing
+    def toastentry(cls, toaster):
+        """Called just before the toaster starts processing
         all files."""
         pass
 
     @classmethod
-    def atToasterExit(cls, toaster):
-        """This callback is called when the toaster has finished processing
+    def toastexit(cls, toaster):
+        """Called when the toaster has finished processing
         all files."""
         pass
 
@@ -180,19 +207,20 @@ class Toaster:
 
     FileFormat = NoneType # override this when subclassing
 
-    def __init__(self, spells, options):
+    def __init__(self, spellclasses, options):
         """Initialize and run the toaster.
 
-        @param spells: List of spells.
-        @type spells: C{list} of C{type(L{Spell})}
+        @param spellclasses: List of spell classes.
+        @type spellclasses: C{list} of C{type(L{Spell})}
         @param options: The options (as keyword arguments).
         @type options: C{dict}
         """
-        self.spells = spells
+        self.spellclasses = spellclasses
         self.options = options
         # the combined spells are readonly if and only if all spells are
         # readonly
-        self.readonly = all(spellclass.readonly for spellclass in self.spells)
+        self.readonly = all(spellclass.readonly
+                            for spellclass in self.spellclasses)
 
     def toast(self, top):
         """Walk over all files in a directory tree and cast spells
@@ -234,8 +262,8 @@ may destroy them. Make a backup of your files before running this script.
                 return
 
         # spell entry code
-        for spellclass in self.spells:
-            spellclass.atToasterEntry(self)
+        for spellclass in self.spellclasses:
+            spellclass.toastentry(self)
 
         # walk over all streams, and create a data instance for each of them
         # inspect the file but do not yet read in full
@@ -247,34 +275,34 @@ may destroy them. Make a backup of your files before running this script.
                 data.inspect(stream)
  
                 # create spell instances
-                spellinstances = [spellclass(toaster, data, options) 
-                                  for spellclass in self.spells]
+                spells = [spellclass(toaster, data)
+                          for spellclass in self.spellclasses]
                 
                 # select those spells that must be cast
-                spellinstances = [spell for spell in spellinstances
-                                  if spell.inspectdata()]
+                spells = [spell for spell in spells
+                          if spell.inspectdata()]
 
                 # if there are any spells that apply
-                if spellinstances:
-                    # now read the file
+                if spells:
+                    # read the full file
                     data.read(stream)
                     
-                    # for the spells that remain, parse their tree
-                    for spell in spellinstances:
-                        spell.recurse(data)
+                    # cast the spell on the data tree
+                    for spell in spells:
+                        spell.recurse()
 
                     # save file back to disk if not readonly
                     if not readonly:
                         if not dryrun:
                             if createpatch:
-                                testFileCreatePatch(format, *walkresult, **kwargs)
+                                self._writepatch(stream, data)
                             elif prefix:
-                                testFilePrefixwrite(format, *walkresult, **kwargs)
+                                self._writeprefix(stream, data)
                             else:
-                                testFileOverwrite(format, *walkresult, **kwargs)
+                                self._writeover(stream, data)
                         else:
                             # write back to a temporary file
-                            testFileTempwrite(format, *walkresult, **kwargs)
+                            self._writetemp(stream, data)
             except StandardError:
                 print("""\
 *** TEST FAILED ON %-51s ***
@@ -287,13 +315,13 @@ may destroy them. Make a backup of your files before running this script.
                     raise
 
             # force free memory (this helps when parsing many very large files)
-            del spellinstances
+            del spells
             del spell
             gc.collect()
 
         # spell exit code
-        for spellclass in self.spells:
-            spellclass.atToasterExit(self)
+        for spellclass in self.spellclasses:
+            spellclass.toastexit(self)
 
 def testFileTempwrite(format, *walkresult, **kwargs):
     """Useful as testFile which simply writes back the file
