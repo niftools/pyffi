@@ -626,5 +626,11 @@ class StructBase(object):
         MeshMorphTargetChunk in the cgf format is an example)."""
         return None
 
+    def getGlobalTreeNumChildren(self):
+        return len(self.getRefs())
+
+    def getGlobalTreeChild(self, row):
+        return self.getRefs()[row]
+
 from PyFFI.ObjectModels.XML.Basic import BasicBase
 from PyFFI.ObjectModels.XML.Array import Array

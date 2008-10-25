@@ -150,6 +150,8 @@ class Spell(object):
         """
         # when called without arguments, recurse over the whole tree
         if branch is None:
+            if self.toaster.options.get("verbose"):
+                print("=== " + self.__class__.__name__ + " ===")
             branch = self.data
         # if inspection is succesful
         if self.inspectbranch(branch):
@@ -573,7 +575,7 @@ may destroy them. Make a backup of your files before running this script.
                 data.inspect(stream)
  
                 # create spell instances
-                spells = [spellclass(toaster, data, stream)
+                spells = [spellclass(self, data, stream)
                           for spellclass in self.spellclasses]
                 
                 # select those spells that must be cast
