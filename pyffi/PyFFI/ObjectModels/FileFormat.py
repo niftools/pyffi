@@ -39,6 +39,8 @@
 
 from PyFFI import Utils
 
+import PyFFI.ObjectModels.Data
+
 class MetaFileFormat(type):
     """The MetaFileFormat metaclass is an abstract base class for transforming
     a file format description into classes which can be directly used to
@@ -59,6 +61,9 @@ class FileFormat(object):
     # override this with a regular expression for the file extension of
     # the format you are implementing
     re_filename = None
+
+    # override this with the data instance for this format
+    Data = PyFFI.ObjectModels.Data.Data # TODO embed directly into this class
 
     @staticmethod
     def versionNumber(version_str):
@@ -278,23 +283,11 @@ Warning: read failed due corrupt file, corrupt format description, or bug.""")
                 print("reading %s" % filename)
             stream = open(filename, mode)
             try:
-                try:
-                    # return data for the stream
-                    # the caller can call data.read(stream),
-                    # or data.inspect(stream), etc.
-                    data = cls.Data()
-                    yield stream, data
-                except StandardError:
-                    # an error occurred during reading or inspecting
-                    # this should not happen: means that the file is
-                    # corrupt, or that the xsd is corrupt
-                    if verbose >= 1:
-                        print("""\
-Warning: read failed due to either a corrupt file, a corrupt xsd, or a bug.""")
-                    if verbose >= 2:
-                        Utils.hexDump(stream)
-                    if raisereaderror:
-                        raise
+                # return data for the stream
+                # the caller can call data.read(stream),
+                # or data.inspect(stream), etc.
+                data = cls.Data()
+                yield stream, data
             finally:
                 stream.close()
 
