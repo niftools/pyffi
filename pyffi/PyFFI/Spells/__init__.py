@@ -62,6 +62,7 @@ from types import NoneType, ModuleType
 import PyFFI # for PyFFI.__version__
 import PyFFI.Spells.applypatch
 import PyFFI.Utils.BSDiff
+import PyFFI.ObjectModels.FileFormat # PyFFI.ObjectModels.FileFormat.FileFormat
 
 class Spell(object):
     """Spell base class. A spell takes a data file and then does something
@@ -331,7 +332,7 @@ class Toaster(object):
     @type options: C{dict}
     """
 
-    FILEFORMAT = NoneType # override when subclassing
+    FILEFORMAT = PyFFI.ObjectModels.FileFormat.FileFormat # override
     SPELLS = [] # override when subclassing
     EXAMPLES = "" # override when subclassing
 
@@ -595,14 +596,14 @@ may destroy them. Make a backup of your files before running this script.
                     if not self.readonly():
                         if not dryrun:
                             if createpatch:
-                                self._writepatch(stream, data)
+                                self.writepatch(stream, data)
                             elif prefix:
-                                self._writeprefix(stream, data)
+                                self.writeprefix(stream, data)
                             else:
-                                self._writeover(stream, data)
+                                self.writeover(stream, data)
                         else:
                             # write back to a temporary file
-                            self._writetemp(stream, data)
+                            self.writetemp(stream, data)
             except StandardError:
                 print("""\
 *** TEST FAILED ON %-51s ***
@@ -622,6 +623,102 @@ may destroy them. Make a backup of your files before running this script.
         # toast exit code
         for spellclass in self.spellclasses:
             spellclass.toastexit(self)
+
+    def writetemp(self, stream, data):
+        """Writes the data to a temporary file and raises an exception if the
+        write fails.
+        """
+        if self.options.get('verbose'):
+            print("  writing to temporary file...")
+        outstream = tempfile.TemporaryFile()
+        try:
+            try:
+                data.write(outstream)
+            except StandardError:
+                print "  write failed!!!"
+                raise
+        finally:
+            outstream.close()
+
+    def writeprefix(self, stream, data):
+        """Writes the data to a file, appending a prefix to the original file
+        name.
+        """
+        # first argument is always the stream, by convention
+        head, tail = os.path.split(stream.name)
+        outstream = open(os.path.join(head, kwargs["prefix"] + tail), "wb")
+        try:
+            if self.options.get('verbose'):
+                print("  writing %s..." % outstream.name)
+            try:
+                data.write(outstream)
+            except StandardError:
+                print "  write failed!!!"
+                raise
+        finally:
+            outstream.close()
+
+    def writeover(self, stream, data):
+        """Overwrites original file with data, but restores file if fails."""
+        # first argument is always the stream, by convention
+        stream.seek(0)
+        backup = stream.read(-1)
+        stream.seek(0)
+        if self.options.get('verbose'):
+            print("  writing %s..." % stream.name)
+        try:
+            data.write(stream)
+        except: # not just StandardError, also CTRL-C
+            print "  write failed!!! attempt to restore original file..."
+            stream.seek(0)
+            stream.write(backup)
+            stream.truncate()
+            raise
+        stream.truncate()
+
+    def writepatch(self, stream, data):
+        """Creates a binary patch for the updated file."""
+        diffcmd = self.options.get('diffcmd')
+        # create a temporary file that won't get deleted when closed
+        newfile = tempfile.NamedTemporaryFile()
+        newfilename = newfile.name
+        newfile.close()
+        newfile = open(newfilename, "w+b")
+        if self.options.get('verbose'):
+            print("  writing to temporary file...")
+        try:
+            data.write(newfile)
+        except: # not just StandardError, also CTRL-C
+            print "  write failed!!!"
+            raise
+        if not diffcmd:
+            # use internal differ
+            oldfile = stream
+            oldfile.seek(0)
+            newfile.seek(0)
+            patchfile = open(oldfile.name + ".patch", "wb")
+            if self.options.get('verbose'):
+                print("  writing patch...")
+            PyFFI.Utils.BSDiff.diff(oldfile, newfile, patchfile)
+            patchfile.close()
+            newfile.close()
+        else:
+            # use external diff command
+            oldfile = stream
+            oldfilename = oldfile.name
+            patchfilename = oldfilename + ".patch"
+            # close all files before calling external command
+            oldfile.close()
+            newfile.close()
+            if self.options.get('verbose'):
+                print("  calling %s..." % diffcmd)
+            subprocess.call([diffcmd, oldfilename, newfilename, patchfilename])
+        # delete temporary file
+        os.remove(newfilename)
+
+###########################
+### OLD DEPRECATED CODE ###
+###########################
 
 def testFileTempwrite(format, *walkresult, **kwargs):
     """Useful as testFile which simply writes back the file

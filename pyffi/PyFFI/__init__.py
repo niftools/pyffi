@@ -16,12 +16,12 @@ Using PyFFI
 
 If you simply wish to use PyFFI with a format that's already implemented,
 refer to the documentation of that library:
-
   - L{PyFFI.Formats.NIF}
   - L{PyFFI.Formats.KFM}
   - L{PyFFI.Formats.CGF}
   - L{PyFFI.Formats.DDS}
   - L{PyFFI.Formats.TGA}
+  - L{PyFFI.Formats.DAE}
 
 Supporting New File Formats
 ===========================
