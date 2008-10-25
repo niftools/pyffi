@@ -404,9 +404,9 @@ from PyFFI import Utils
 from PyFFI import Common
 from PyFFI.ObjectModels.XML.Basic import BasicBase
 from PyFFI.ObjectModels.Editable import EditableBoolComboBox
-import PyFFI.ObjectModels.Data
+import PyFFI.ObjectModels.FileFormat
 
-class NifData(PyFFI.ObjectModels.Data.Data):
+class NifData(PyFFI.ObjectModels.FileFormat.FileFormat.Data):
     """A class to contain the actual nif data.
 
     Note that L{header} and L{blocks} are not automatically kept in sync with
@@ -507,7 +507,7 @@ header version field""")
         self.version = ver
         self.user_version = userver
 
-    # overriding PyFFI.ObjectModels.Data.Data methods
+    # overriding PyFFI.ObjectModels.FileFormat.FileFormat.Data methods
 
     def inspect(self, stream):
         """Quickly checks whether the stream appears to contain
