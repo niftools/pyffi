@@ -91,6 +91,7 @@ class NifToaster(Toaster):
         checktristrip,
         disableparallax,
         PyFFI.Spells.NIF.dump.SpellDumpAll,
+        PyFFI.Spells.NIF.dump.SpellDumpTex,
         exportpixeldata,
         ffvt3rskinpartition,
         PyFFI.Spells.NIF.fix.SpellAddTangentSpace,
@@ -105,7 +106,6 @@ class NifToaster(Toaster):
         optimize,
         optimize_split,
         scale,
-        texdump,
         updatecenterradius,
         updatemopp,
         updateskinpartition]

@@ -45,10 +45,10 @@
 if __name__ == "__main__":
     print("""The niftexdump.py script is deprecated and will be removed
 from a future PyFFI release. The texdumper has been integrated with
-PyFFI's spell system. Hence, to texdump nif files, run the texdump spell
+PyFFI's spell system. Hence, to texdump nif files, run the dump_tex spell
 with the niftoaster. That is, type
 
-  \\Python25\\python.exe \\Python25\\Scripts\\niftoaster.py texdump ...
+  \\Python25\\python.exe \\Python25\\Scripts\\niftoaster.py dump_tex ...
 
 instead of
 

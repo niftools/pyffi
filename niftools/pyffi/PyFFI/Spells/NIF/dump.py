@@ -119,3 +119,46 @@ class SpellDumpAll(NifSpell):
         self.toaster.msg(dumpBlock(branch))
         # continue recursion
         return True
+
+class SpellDumpTex(NifSpell):
+    """Dump the texture and material info of all geometries."""
+
+    SPELLNAME = "dump_tex"
+
+    def branchinspect(self, branch):
+        # stick to main tree nodes, and material and texture properties
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiTexturingProperty,
+                                   NifFormat.NiMaterialProperty))
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiTexturingProperty):
+            for textype in ('Base', 'Dark', 'Detail', 'Gloss', 'Glow',
+                            'BumpMap', 'Decal0', 'Decal1', 'Decal2', 'Decal3'):
+                if getattr(branch, 'has%sTexture' % textype):
+                    texdesc = getattr(branch,
+                                      '%s%sTexture'
+                                      % (textype[0].lower(), textype[1:]))
+                    if texdesc.source:
+                        if texdesc.source.useExternal:
+                            filename = texdesc.source.fileName
+                        else:
+                            filename = '(pixel data packed in file)'
+                    else:
+                        filename = '(no texture file)'
+                    self.toaster.msg("[%s] %s" % (textype, filename))
+            self.toaster.msg("apply mode %i" % branch.applyMode)
+            # stop recursion
+            return False
+        elif isinstance(branch, NifFormat.NiMaterialProperty):
+            for coltype in ['ambient', 'diffuse', 'specular', 'emissive']:
+                col = getattr(branch, '%sColor' % coltype)
+                self.toaster.msg('%-10s %4.2f %4.2f %4.2f'
+                                 % (coltype, col.r, col.g, col.b))
+            self.toaster.msg('glossiness %f' % branch.glossiness)
+            self.toaster.msg('alpha      %f' % branch.alpha)
+            # stop recursion
+            return False
+        else:
+            # keep looking for blocks of interest
+            return True
