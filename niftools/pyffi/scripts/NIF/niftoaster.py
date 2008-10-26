@@ -57,7 +57,6 @@ from PyFFI.Spells.NIF import \
     dump, \
     exportpixeldata, \
     ffvt3rskinpartition, \
-    fix_addtangentspace, \
     fix, \
     fix_detachhavoktristripsdata, \
     fix_texturepath, \
@@ -92,7 +91,7 @@ class NifToaster(Toaster):
         dump,
         exportpixeldata,
         ffvt3rskinpartition,
-        fix.SpellAddTangentSpace,
+	fix.SpellAddTangentSpace,
         fix.SpellDelTangentSpace,
         fix_detachhavoktristripsdata,
         fix_texturepath,
