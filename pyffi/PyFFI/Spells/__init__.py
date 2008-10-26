@@ -420,6 +420,8 @@ class Toaster(object):
     @type SPELLS: C{list} of C{type(L{Spell})}
     @cvar EXAMPLES: Description of example use.
     @type EXAMPLES: C{str}
+    @cvar ALIASDICT: Dictionary with aliases for spells.
+    @type ALIASDICT: C{dict}
     @ivar spellclasses: List of spell classes for the particular instance (must
         be a subset of L{SPELLS}).
     @type spellclasses: C{list} of C{type(L{Spell})}
@@ -434,6 +436,7 @@ class Toaster(object):
     FILEFORMAT = PyFFI.ObjectModels.FileFormat.FileFormat # override
     SPELLS = [] # override when subclassing
     EXAMPLES = "" # override when subclassing
+    ALIASDICT = {} # override when subclassing
 
     __metaclass__ = _MetaCompatToaster # for compatibility
 
@@ -610,6 +613,15 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
             # get spell classes
             self.spellclasses = []
             for spellname in spellnames:
+                # convert old names
+                if spellname in self.ALIASDICT:
+                    print("""\
+WARNING: the %s spell is deprecated
+         and will be removed from a future release
+         use the %s spell as a replacement"""
+                          % (spellname, self.ALIASDICT[spellname]))
+                    spellname = self.ALIASDICT[spellname]
+                # find the spell
                 spellklasses = [spellclass for spellclass in self.SPELLS
                                 if spellclass.SPELLNAME == spellname]
                 if not spellklasses:
