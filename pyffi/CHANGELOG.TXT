@@ -11,10 +11,26 @@ bundled with ColladaCGF)
 * reorganization of file format description code
   - all generic format description specific code has been moved to the
   PyFFI.ObjectModels.FileFormat module
-  - all xml description specific code has been moved to the
-  PyFFI.ObjectModels.XML.FileFormat module
-  - new NifData class which now implements all the nif file read and write
-  functions
+  - all xml/xsd description specific code has been moved to the
+  PyFFI.ObjectModels.XML/XSD.FileFormat modules
+  - new NifFormat.Data class which now implements all the nif file read and
+  write functions
+* completely revamped spell system, which makes it much easier to customize
+spells (thanks to tazpn for some useful suggestions)
+  - toaster can call multiple spells at once
+  - toaster takes spell classes instead of modules
+  - for backwards compatibility, there is a class factory which turns any old
+  spell module into a new spell class (the Toaster class will automatically
+  convert any modules that it finds in its list of spells, so you do not need
+  to be worried about call the factory explicitly)
+  - early inspection of the header is possible, to avoid having to read all of
+  the file if no blocks of interest are present
+  - possibility to prevent the spell to cast itself on particular branches
+  (mostly useful to speed up the spell casting process)
+  - spells have callbacks for global initialization and finalization of
+  data within the toaster
+  - possibility to write output to a log file instead of to sys.stdout
+  - better messaging system (auto indentation, list nif tree as spell runs)
 
 Version 1.0.5 (27 Sep 2008)
 * niftoaster optimize
