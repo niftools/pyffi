@@ -126,7 +126,7 @@ disableparallax
 dump
 dump_tex
 exportpixeldata
-ffvt3rskinpartition
+fix_ffvt3rskinpartition
 fix_addtangentspace
 fix_deltangentspace
 fix_detachhavoktristripsdata
@@ -167,6 +167,10 @@ NifError: unknown block type 'NiInvalid!'
     writing to temporary file
       comparing file sizes
 === tests/nif/test_dump_tex.nif ===
+  --- check_readwrite ---
+    writing to temporary file
+      comparing file sizes
+=== tests/nif/test_fix_ffvt3rskinpartition.nif ===
   --- check_readwrite ---
     writing to temporary file
       comparing file sizes
