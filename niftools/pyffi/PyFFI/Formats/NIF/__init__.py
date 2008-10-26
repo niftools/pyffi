@@ -56,6 +56,7 @@ reading tests/nif/invalid.nif
 Warning: read failed due corrupt file, corrupt format description, or bug.
 reading tests/nif/test.nif
 reading tests/nif/test_dump_tex.nif
+reading tests/nif/test_fix_ffvt3rskinpartition.nif
 
 Create a NIF model from scratch and write to file
 -------------------------------------------------
