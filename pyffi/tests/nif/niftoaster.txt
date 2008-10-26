@@ -46,9 +46,6 @@ Options:
                         original file; useful for debugging spells
   --prefix=PREFIX       for spells that modify files, prepend PREFIX to file
                         name
-  --usetheforceluke     pass exceptions while reading files; normally you do
-                        not need this, unless you are hacking the xml format
-                        description
   --diff                instead of writing back the file, write a binary patch
   --patch               apply all binary patches
   --diff-cmd=DIFFCMD    use ARG as diff command; this command must accept
@@ -146,18 +143,18 @@ updatecenterradius
 updatemopp
 updateskinpartition
 
-The --usetheforceluke switch
-----------------------------
+The readwrite spell and the --raise switch
+------------------------------------------
 
 >>> import sys
 >>> sys.path.append("scripts/NIF")
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--verbose=1", "readwrite", "tests/nif/"]
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "readwrite", "tests/nif/"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
 Traceback (most recent call last):
     ...
 NifError: unknown block type 'NiInvalid!'
->>> sys.argv = ["niftoaster.py", "--verbose=1", "--usetheforceluke", "readwrite", "tests/nif/"]
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "readwrite", "tests/nif/"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
 reading tests/nif/invalid.nif
 Warning: read failed due corrupt file, corrupt format description, or bug.
