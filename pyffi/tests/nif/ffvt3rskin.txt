@@ -7,7 +7,7 @@ Doctests for the ffvt3rskinpartition spell
 >>> sys.path.append("scripts/NIF")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "ffvt3rskinpartition", "--verbose=1", "--noninteractive", "tests/nif/test.nif"]
->>> niftoaster.main()
+>>> niftoaster.NifToaster().cli()
 reading tests/nif/test.nif
   writing tests/nif/test.nif...
 Finished.

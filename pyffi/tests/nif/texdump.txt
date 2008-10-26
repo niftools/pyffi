@@ -7,7 +7,7 @@ Doctests for the texdump spell
 >>> sys.path.append("scripts/NIF")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "texdump", "--verbose=1", "tests/nif/test.nif"]
->>> niftoaster.main()
+>>> niftoaster.NifToaster().cli()
 reading tests/nif/test.nif
   geometry [NiTriShape] Cube
 Finished.

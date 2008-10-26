@@ -9,7 +9,7 @@ The --help switch
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--help"]
 >>> try:
-...     niftoaster.main()
+...     niftoaster.NifToaster().cli()
 ... except SystemExit: # --help uses sys.exit()
 ...     pass
 Usage: niftoaster.py [options] <spell> <file>|<folder>
@@ -65,7 +65,7 @@ The --examples switch
 >>> sys.path.append("scripts/NIF")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--examples"]
->>> niftoaster.main() # doctest: +REPORT_NDIFF
+>>> niftoaster.NifToaster().cli() # doctest: +REPORT_NDIFF
 * check if PyFFI can read all files in current directory
   (python version of nifskope's xml checker):
 <BLANKLINE>
@@ -114,7 +114,7 @@ The --spells switch
 >>> sys.path.append("scripts/NIF")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--spells"]
->>> niftoaster.main()
+>>> niftoaster.NifToaster().cli()
 checkbhkbodycenter
 checkcenterradius
 checkconvexshape
@@ -153,12 +153,12 @@ The --usetheforceluke switch
 >>> sys.path.append("scripts/NIF")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "readwrite", "tests/nif/"]
->>> niftoaster.main() # doctest: +ELLIPSIS
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
 Traceback (most recent call last):
     ...
 NifError: unknown block type 'NiInvalid!'
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "--usetheforceluke", "readwrite", "tests/nif/"]
->>> niftoaster.main() # doctest: +ELLIPSIS
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
 reading tests/nif/invalid.nif
 Warning: read failed due corrupt file, corrupt format description, or bug.
 reading tests/nif/test.nif
