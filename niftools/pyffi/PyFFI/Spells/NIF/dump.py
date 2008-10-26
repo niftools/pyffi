@@ -1,4 +1,4 @@
-"""A spell for dumping particular blocks from nifs."""
+"""Spells for dumping particular blocks from nifs."""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
@@ -40,6 +40,7 @@
 # --------------------------------------------------------------------------
 
 from PyFFI.Formats.NIF import NifFormat
+from PyFFI.Spells.NIF import NifSpell
 
 def dumpArray(arr):
     """Format an array.
@@ -108,11 +109,13 @@ def dumpAttr(attr):
     else:
         return str(attr)
 
-def testBlock(block, **args):
-    """Print block.
+class SpellDumpAll(NifSpell):
+    """Dump the whole nif file."""
 
-    @param block: The block to print.
-    @type block: L{NifFormat.NiObject}
-    """
-    print dumpBlock(block)
+    SPELLNAME = "dump"
 
+    def branchentry(self, branch):
+        # dump it
+        self.toaster.msg(dumpBlock(branch))
+        # continue recursion
+        return True

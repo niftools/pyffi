@@ -46,6 +46,7 @@ from PyFFI.Formats.NIF import NifFormat
 from PyFFI.Spells import Toaster
 import PyFFI.Spells.check
 import PyFFI.Spells.NIF.check
+import PyFFI.Spells.NIF.dump
 import PyFFI.Spells.NIF.fix
 from PyFFI.Spells.NIF import \
     checkbhkbodycenter, \
@@ -57,7 +58,6 @@ from PyFFI.Spells.NIF import \
     checktangentspace, \
     checktristrip, \
     disableparallax, \
-    dump, \
     exportpixeldata, \
     ffvt3rskinpartition, \
     fix_detachhavoktristripsdata, \
@@ -90,7 +90,7 @@ class NifToaster(Toaster):
         checktangentspace,
         checktristrip,
         disableparallax,
-        dump,
+        PyFFI.Spells.NIF.dump.SpellDumpAll,
         exportpixeldata,
         ffvt3rskinpartition,
         PyFFI.Spells.NIF.fix.SpellAddTangentSpace,
