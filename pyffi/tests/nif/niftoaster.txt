@@ -12,18 +12,18 @@ The --help switch
 ...     niftoaster.NifToaster().cli()
 ... except SystemExit: # --help uses sys.exit()
 ...     pass
-Usage: niftoaster.py [options] <spell> <file>|<folder>
+Usage: niftoaster.py [options] <spell1> <spell2> ... <file>|<folder>
 <BLANKLINE>
-Apply a spell "PyFFI.Spells.NIF.<spell>" on <file>, or recursively on
+Apply the spells <spell1>, <spell2>, and so on, on <file>, or recursively on
 <folder>.
 <BLANKLINE>
 Options:
   --version             show program's version number and exit
   -h, --help            show this help message and exit
-  --help-spell          show help specific to the given spell
+  --help-spell          show help specific to the given spells
   --examples            show examples of usage and exit
   --spells              list all spells and exit
-  -a ARG, --arg=ARG     pass argument ARG to spell
+  -a ARG, --arg=ARG     pass argument ARG to each spell
   -x EXCLUDE, --exclude=EXCLUDE
                         exclude block type EXCLUDE from spell; exclude
                         multiple block types by specifying this option more
