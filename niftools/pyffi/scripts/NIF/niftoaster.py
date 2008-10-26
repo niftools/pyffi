@@ -60,7 +60,6 @@ from PyFFI.Spells.NIF import \
     disableparallax, \
     exportpixeldata, \
     fix_detachhavoktristripsdata, \
-    fix_texturepath, \
     hackcheckskindata, \
     hackmultiskelroot, \
     hackskindataidtransform, \
@@ -95,7 +94,7 @@ class NifToaster(Toaster):
         PyFFI.Spells.NIF.fix.SpellAddTangentSpace,
         PyFFI.Spells.NIF.fix.SpellDelTangentSpace,
         fix_detachhavoktristripsdata,
-        fix_texturepath,
+        PyFFI.Spells.NIF.fix.SpellFixTexturePath,
         hackcheckskindata,
         hackmultiskelroot,
         hackskindataidtransform,

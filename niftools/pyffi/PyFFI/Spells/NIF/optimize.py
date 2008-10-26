@@ -1,4 +1,4 @@
-"""A spell for optimizing nif files."""
+"""Spells for optimizing nif files."""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****

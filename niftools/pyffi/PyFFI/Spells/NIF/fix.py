@@ -128,3 +128,36 @@ class SpellFFVT3RSkinPartition(NifSpell):
         else:
             # recurse further
             return True
+
+class SpellFixTexturePath(NifSpell):
+    """Fix the texture path. Transforms 0x0a into \\n and 0x0d into \\r.
+    This fixes a bug in nifs saved with older versions of nifskope.
+    Also transforms / into \\. This fixes problems when packing files into
+    a bsa archive."""
+
+    SPELLNAME = "fix_texturepath"
+    READONLY = False
+
+    def datainspect(self):
+        # only run the spell if there are NiSourceTexture blocks
+        return self.data.header.hasBlockType(NifFormat.NiSourceTexture)
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch, texturing properties and source
+        # textures
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiTexturingProperty,
+                                   NifFormat.NiSourceTexture))
+    
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiSourceTexture):
+            if (('\n' in branch.fileName)
+                or ('\r' in branch.fileName)
+                or ('/' in branch.fileName)):
+                branch.fileName = branch.fileName.replace('\n', '\\n')
+                branch.fileName = branch.fileName.replace('\r', '\\r')
+                branch.fileName = branch.fileName.replace('/', '\\')
+                self.toaster.msg("fixed file name '%s'" % branch.fileName)
+            return False
+        else:
+            return True
