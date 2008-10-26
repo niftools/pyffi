@@ -50,6 +50,8 @@ from PyFFI.Formats.KFM import KfmFormat
 from PyFFI.Formats.DDS import DdsFormat
 from PyFFI.Formats.TGA import TgaFormat
 
+from PyFFI.ObjectModels.FileFormat import FileFormat
+
 from types import NoneType
 
 # implementation details:
@@ -183,16 +185,15 @@ class QSkope(QtGui.QMainWindow):
         then raises ValueError. Sets the self.header, self.roots, self.footer,
         self.Format, and self.formatArgs variables."""
         # try reading as a nif file
-        version, user_version = NifFormat.getVersion(stream)
-        # if not succesful: raise an exception
-        if version < 0:
-            raise ValueError("not a nif file")
+        data = NifFormat.Data()
+        data.read(stream)
         # if succesful: parse the file and save information about it
-        self.header, self.roots, self.footer = NifFormat.read(
-            stream, version = version, user_version = user_version,
-            rootsonly = False)
+        ### TODO: in global view, use data as root element!!
+        self.header = data.header
+        self.roots = data.roots
+        self.footer = None # no footer anymore
         self.Format = NifFormat
-        self.formatArgs = (version, user_version)
+        self.formatArgs = (data,)
 
     def openCgfFile(self, stream = None):
         """Read cgf file from stream. If stream does not contain a cgf file,
@@ -339,11 +340,12 @@ class QSkope(QtGui.QMainWindow):
             # check type of file
             if issubclass(self.Format, NifFormat):
                 # write nif file
-                NifFormat.write(stream,
-                                version = self.formatArgs[0],
-                                user_version = self.formatArgs[1],
-                                roots = [ blk for blk in self.footer.roots ],
-                                header = self.header)
+                self.formatArgs[0].write(stream)
+                #NifFormat.write(stream,
+                #                version = self.formatArgs[0],
+                #                user_version = self.formatArgs[1],
+                #                roots = [ blk for blk in self.footer.roots ],
+                #                header = self.header)
             elif issubclass(self.Format, CgfFormat):
                 # write cgf file
                 CgfFormat.write(stream,
