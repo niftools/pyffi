@@ -1,14 +1,13 @@
-"""The PyFFI.Spells module bundles scripts for running hacking, surgery, and
-validation spells. It is originally based on wz's NifTester module, although not
-much of the original code that is left in this module.
+"""This module bundles scripts for running hacking, surgery, and
+validation spells. It is originally based on wz's NifTester module, although
+nothing of wz's original code is left in this module.
 
-These three functions in the spell script are called:
+Derive your custom spells from the L{Spell} class, and include them in the
+L{Toaster.SPELLS} variable of your toaster.
 
- - testRoot(block): will be called on every root block in the file
- - testBlock(block): will be called on every block in the file
- - testFile(stream, version, user_version, ...): will be called on every file
-
-Not all of these three functions need to be present.
+Spells can also run independently of toasters, and be applied on branches
+directly. The recommended way of doing this is via the L{Spell.recurse}
+function.
 """
 
 # --------------------------------------------------------------------------
@@ -588,7 +587,7 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
         # check if we had examples and/or spells: quit
         if options.spells:
             for spellclass in self.SPELLS:
-                self.msg(spellclass.__name__)
+                self.msg(spellclass.SPELLNAME)
             return
         if options.examples:
             self.msg(self.EXAMPLES)
@@ -666,6 +665,15 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
         @type top: str
         """
 
+        # toast entry code and spell selection
+        self.spellclasses = [spellclass for spellclass in self.spellclasses
+                             if spellclass.toastentry(self)]
+
+        # if there are no spells left, quit early!
+        if not self.spellclasses:
+            self.msg("no spells apply! quiting early...")
+            return
+
         ### raisereaderror is ignored in this implementation!!!
         ### new-style toaster has it functionally equal to
         ### raisetesterror
@@ -694,15 +702,6 @@ may destroy them. Make a backup of your files before running this script.
                 else:
                     print("Script aborted by user.")
                 return
-
-        # toast entry code
-        self.spellclasses = [spellclass for spellclass in self.spellclasses
-                             if spellclass.toastentry(self)]
-
-        # if there are no spells left, quit early!
-        if not self.spellclasses:
-            self.msg("no spells apply! quiting early...")
-            return
 
         # walk over all streams, and create a data instance for each of them
         # inspect the file but do not yet read in full
