@@ -31,6 +31,7 @@ spells (thanks to tazpn for some useful suggestions)
   data within the toaster
   - possibility to write output to a log file instead of to sys.stdout
   - better messaging system (auto indentation, list nif tree as spell runs)
+  - support for spell hierarchies and spell grouping
 
 Version 1.0.5 (27 Sep 2008)
 * niftoaster optimize
