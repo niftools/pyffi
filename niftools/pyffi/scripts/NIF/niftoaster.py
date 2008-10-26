@@ -109,10 +109,14 @@ class NifToaster(Toaster):
         updatecenterradius,
         updatemopp,
         updateskinpartition]
+    ALIASDICT = {
+        "texdump": "dump_tex",
+        "read": "check_read",
+        "readwrite": "check_readwrite"}
     EXAMPLES = """* check if PyFFI can read all files in current directory
   (python version of nifskope's xml checker):
 
-    python niftoaster.py read .
+    python niftoaster.py check_read .
 
 * optimize all nif files a directory tree, recursively
 
@@ -120,7 +124,7 @@ class NifToaster(Toaster):
 
 * print texture information of all nif files a directory tree, recursively
 
-    python niftoaster.py texdump /path/to/your/nifs/
+    python niftoaster.py dump_tex /path/to/your/nifs/
 
 * update/generate mopps of all nif files a directory tree, recursively
 
