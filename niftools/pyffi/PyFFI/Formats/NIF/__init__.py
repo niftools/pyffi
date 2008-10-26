@@ -396,7 +396,7 @@ True
 #
 # ***** END LICENSE BLOCK *****
 
-import struct, os, re
+import struct, os, re, warnings
 
 from PyFFI.ObjectModels.XML.FileFormat import XmlFileFormat
 from PyFFI.ObjectModels.XML.FileFormat import MetaXmlFileFormat
@@ -1366,6 +1366,7 @@ but got instance of %s' % (self._template, value.__class__))
             Returns C{(-2, 0)} if not a nif file.
         @deprecated: Use L{NifFormat.Data.inspect} instead.
         """
+        warnings.warn("use NifFormat.Data.inspect", DeprecationWarning)
         data = NifFormat.Data()
         try:
             data.inspectVersionOnly(stream)
@@ -1380,6 +1381,7 @@ but got instance of %s' % (self._template, value.__class__))
         """@deprecated: Use the L{NifFormat.Data} class instead of this function.
         @warning: version and user_version arguments are currently ignored.
         """
+        warnings.warn("use NifFormat.Data.read", DeprecationWarning)
         # read the nif file
         data = NifFormat.Data()
         data.read(stream)
@@ -1393,7 +1395,9 @@ but got instance of %s' % (self._template, value.__class__))
     def write(cls, stream, version = None, user_version = None,
               roots = None,
               header = None, verbose = 0):
-        """Write a nif file.
+        """
+        @deprecated: Use the L{NifFormat.Data} class instead of
+            this function.
 
         @param stream: The stream to which to write.
         @type stream: file
@@ -1411,6 +1415,7 @@ but got instance of %s' % (self._template, value.__class__))
         @param verbose: The level of verbosity.
         @type verbose: int
         """
+        warnings.warn("use NifFormat.Data.write", DeprecationWarning)
         data = NifFormat.Data(version=version, user_version=user_version)
         data.roots = roots
         if isinstance(header, cls.Header):
@@ -1421,6 +1426,8 @@ but got instance of %s' % (self._template, value.__class__))
     def _blockChildBeforeParent(cls, block):
         """Determine whether block comes before its parent or not, depending
         on the block type.
+
+        @todo: Move to the L{NifFormat.Data} class.
 
         @param block: The block to test.
         @type block: L{NifFormat.NiObject}
@@ -1434,10 +1441,13 @@ but got instance of %s' % (self._template, value.__class__))
         """Returns list of all root blocks. Used by L{PyFFI.QSkope}
         and L{PyFFI.Spells}.
 
+        @deprecated: Use the L{NifFormat.Data} class instead of this function.
+
         @param readresult: Result from L{walk} or L{read}.
         @type readresult: tuple
         @return: list of root blocks
         """
+        warnings.warn("use NifFormat.Data.getGlobalTreeChildren", DeprecationWarning)
         return readresult[0]
 
     @classmethod
@@ -1445,10 +1455,13 @@ but got instance of %s' % (self._template, value.__class__))
         """Returns list of all blocks. Used by L{PyFFI.QSkope}
         and L{PyFFI.Spells}.
 
+        @deprecated: Use the L{NifFormat.Data} class instead of this function.
+
         @param readresult: Result from L{walk} or L{read}.
         @type readresult: tuple
         @return: list of blocks
         """
+        warnings.warn("use NifFormat.Data.getGlobalTree", DeprecationWarning)
         # start with empty list
         blocks = []
         # go over all blocks from all roots
