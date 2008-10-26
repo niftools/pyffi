@@ -92,7 +92,7 @@ class NifToaster(Toaster):
         dump,
         exportpixeldata,
         ffvt3rskinpartition,
-        fix_addtangentspace,
+        fix.SpellAddTangentSpace,
         fix.SpellDelTangentSpace,
         fix_detachhavoktristripsdata,
         fix_texturepath,
