@@ -93,7 +93,7 @@ class NifToaster(Toaster):
         PyFFI.Spells.NIF.dump.SpellDumpAll,
         PyFFI.Spells.NIF.dump.SpellDumpTex,
         exportpixeldata,
-        ffvt3rskinpartition,
+        PyFFI.Spells.NIF.fix.SpellFFVT3RSkinPartition,
         PyFFI.Spells.NIF.fix.SpellAddTangentSpace,
         PyFFI.Spells.NIF.fix.SpellDelTangentSpace,
         fix_detachhavoktristripsdata,
@@ -112,7 +112,8 @@ class NifToaster(Toaster):
     ALIASDICT = {
         "texdump": "dump_tex",
         "read": "check_read",
-        "readwrite": "check_readwrite"}
+        "readwrite": "check_readwrite",
+        "ffvt3rskinpartition": "fix_ffvt3rskinpartition"}
     EXAMPLES = """* check if PyFFI can read all files in current directory
   (python version of nifskope's xml checker):
 

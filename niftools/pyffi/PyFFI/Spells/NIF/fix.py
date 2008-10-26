@@ -96,6 +96,35 @@ class SpellAddTangentSpace(NifSpell):
             branch.updateTangentSpace()
             # all extra blocks here done; no need to recurse further
             return False
-        # recurse further
-        return True
+        else:
+            # recurse further
+            return True
 
+class SpellFFVT3RSkinPartition(NifSpell):
+    """Create or update skin partition, with settings that work for Freedom
+    Force vs. The 3rd Reich."""
+
+    SPELLNAME = "fix_ffvt3rskinpartition"
+    READONLY = False
+
+    def datainspect(self):
+        return self.data.header.hasBlockType(NifFormat.NiSkinInstance)
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch
+        return isinstance(branch, NifFormat.NiAVObject)
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiTriBasedGeom):
+            # if the branch has skinning info
+            if branch.skinInstance:
+                # then update the skin partition
+                self.toaster.msg("updating skin partition")
+                branch.updateSkinPartition(
+                    maxbonesperpartition=4, maxbonespervertex=4,
+                    stripify=False, verbose=0, padbones=True)
+            return False
+            # done; no need to recurse further in this branch
+        else:
+            # recurse further
+            return True
