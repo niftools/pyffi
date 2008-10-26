@@ -132,7 +132,7 @@ class KfmFormat(XmlFileFormat):
     # path of class customizers
     clsFilePath = os.path.dirname(__file__)
     # file name regular expression match
-    re_filename = re.compile(r'^.*\.kfm$', re.IGNORECASE)
+    RE_FILENAME = re.compile(r'^.*\.kfm$', re.IGNORECASE)
     # used for comparing floats
     _EPSILON = 0.0001
 

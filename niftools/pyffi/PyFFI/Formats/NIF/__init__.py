@@ -853,7 +853,7 @@ class NifFormat(XmlFileFormat):
     # .kf are nif files containing keyframes
     # .kfa are nif files containing keyframes in DAoC style
     # .nifcache are Empire Earth II nif files
-    re_filename = re.compile(r'^.*\.(nif|kf|kfa|nifcache)$', re.IGNORECASE)
+    RE_FILENAME = re.compile(r'^.*\.(nif|kf|kfa|nifcache)$', re.IGNORECASE)
     # used for comparing floats
     _EPSILON = 0.0001
 
