@@ -95,7 +95,7 @@ class TgaFormat(XmlFileFormat):
     # used for comparing floats
     _EPSILON = 0.0001
     # filter for recognizing tga files by extension
-    re_filename = re.compile(r'^.*\.tga$', re.IGNORECASE)
+    RE_FILENAME = re.compile(r'^.*\.tga$', re.IGNORECASE)
 
     # basic types
     int = Common.Int

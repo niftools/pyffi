@@ -607,9 +607,12 @@ may destroy them. Make a backup of your files before running this script.
         # walk over all streams, and create a data instance for each of them
         # inspect the file but do not yet read in full
         for stream, data in self.FILEFORMAT.walkData(
-            top, verbose=verbose, mode='rb' if self.readonly() else 'r+b'):
+            top, mode='rb' if self.readonly() else 'r+b'):
 
             try: 
+                if verbose:
+                    print("reading %s..." % stream.name)
+
                 # inspect the file (reads only the header)
                 data.inspect(stream)
  

@@ -104,7 +104,7 @@ class DdsFormat(XmlFileFormat):
     # path of class customizers
     clsFilePath = os.path.dirname(__file__)
     # file name regular expression match
-    re_filename = re.compile(r'^.*\.dds$', re.IGNORECASE)
+    RE_FILENAME = re.compile(r'^.*\.dds$', re.IGNORECASE)
     # used for comparing floats
     _EPSILON = 0.0001
 

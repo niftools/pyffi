@@ -53,14 +53,21 @@ class MetaFileFormat(type):
     pass
 
 class FileFormat(object):
-    """This class can be used as a base class for file formats. It implements
-    a number of useful functions such as walking over directory trees and a
-    default attribute naming function.
+    """This class is the base class for all file formats. It implements
+    a number of useful functions such as walking over directory trees
+    (L{walkData}) and a default attribute naming function (L{nameAttribute}).
+    It also implements the base class for representing file data
+    (L{FileFormat.Data}).
+
+    @cvar RE_FILENAME: Regular expression for matching filenames of this file
+        type.
+    @type RE_FILENAME: C{SRE_Pattern} (that is, the result of a C{re.compile}
+        call)
     """
 
     # override this with a regular expression for the file extension of
     # the format you are implementing
-    re_filename = None
+    RE_FILENAME = None
 
     # override this with the data instance for this format
     class Data(PyFFI.ObjectModels.Tree.GlobalTreeBranch):
@@ -197,7 +204,7 @@ class FileFormat(object):
     def walk(cls, top, topdown = True, raisereaderror = False, verbose = 0):
         """A generator which yields the cls.read result of all files in
         directory top whose filename matches the regular expression
-        cls.re_filename. The argument top can also be a file instead of a
+        L{RE_FILENAME}. The argument top can also be a file instead of a
         directory. Errors coming from os.walk are ignored.
 
         @param top: The top folder.
@@ -245,7 +252,7 @@ class FileFormat(object):
         """
         # now walk over all these files in directory top
         for filename in Utils.walk(top, topdown, onerror = None,
-                                   re_filename = cls.re_filename):
+                                   re_filename = cls.RE_FILENAME):
             if verbose >= 1:
                 print("reading %s" % filename)
             stream = open(filename, mode)
@@ -288,10 +295,10 @@ Warning: read failed due corrupt file, corrupt format description, or bug.""")
                 stream.close()
 
     @classmethod
-    def walkData(cls, top, topdown=True, verbose=0, mode='rb'):
+    def walkData(cls, top, topdown=True, mode='rb'):
         """A generator which yields the data of all files in
         directory top whose filename matches the regular expression
-        cls.re_filename. The argument top can also be a file instead of a
+        L{RE_FILENAME}. The argument top can also be a file instead of a
         directory. Errors coming from os.walk are ignored.
 
         Note that the caller is not responsible for closing the stream.
@@ -304,8 +311,6 @@ Warning: read failed due corrupt file, corrupt format description, or bug.""")
         @param topdown: Determines whether subdirectories should be iterated
             over first.
         @type topdown: C{bool}
-        @param verbose: Verbosity level.
-        @type verbose: C{int}
         @param mode: The mode in which to open files.
         @type mode: C{str}
 
@@ -313,10 +318,8 @@ Warning: read failed due corrupt file, corrupt format description, or bug.""")
             walk functions.
         """
         # now walk over all these files in directory top
-        for filename in Utils.walk(top, topdown, onerror = None,
-                                   re_filename = cls.re_filename):
-            if verbose >= 1:
-                print("reading %s" % filename)
+        for filename in Utils.walk(top, topdown, onerror=None,
+                                   re_filename=cls.RE_FILENAME):
             stream = open(filename, mode)
             try:
                 # return data for the stream

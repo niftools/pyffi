@@ -204,7 +204,7 @@ class CgfFormat(XmlFileFormat):
     clsFilePath = os.path.dirname(__file__) # path of class customizers
     EPSILON = 0.0001 # used for comparing floats
     # regular expression for file name extension matching on cgf files
-    re_filename = re.compile(r'^.*\.(cgf|cga|chr|caf)$', re.IGNORECASE)
+    RE_FILENAME = re.compile(r'^.*\.(cgf|cga|chr|caf)$', re.IGNORECASE)
 
     # version and user version for far cry
     VER_FARCRY = 0x744

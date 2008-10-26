@@ -108,10 +108,6 @@ class XsdFileFormat(PyFFI.ObjectModels.FileFormat.FileFormat):
     default attribute naming function.
     """
 
-    # override this with a regular expression for the file extension of
-    # the format you are implementing
-    re_filename = None
-
     @staticmethod
     def nameAttribute(name):
         """Converts an attribute name, as in the xsd file, into a name usable
