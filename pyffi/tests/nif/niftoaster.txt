@@ -66,7 +66,7 @@ The --examples switch
 * check if PyFFI can read all files in current directory
   (python version of nifskope's xml checker):
 <BLANKLINE>
-    python niftoaster.py read .
+    python niftoaster.py check_read .
 <BLANKLINE>
 * optimize all nif files a directory tree, recursively
 <BLANKLINE>
@@ -74,7 +74,7 @@ The --examples switch
 <BLANKLINE>
 * print texture information of all nif files a directory tree, recursively
 <BLANKLINE>
-    python niftoaster.py texdump /path/to/your/nifs/
+    python niftoaster.py dump_tex /path/to/your/nifs/
 <BLANKLINE>
 * update/generate mopps of all nif files a directory tree, recursively
 <BLANKLINE>
@@ -124,6 +124,7 @@ checktangentspace
 checktristrip
 disableparallax
 dump
+dump_tex
 exportpixeldata
 ffvt3rskinpartition
 fix_addtangentspace
@@ -138,7 +139,6 @@ mergeskelandrestpos
 optimize
 optimize_split
 scale
-texdump
 updatecenterradius
 updatemopp
 updateskinpartition

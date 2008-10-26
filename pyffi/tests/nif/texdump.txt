@@ -1,4 +1,4 @@
-Doctests for the texdump spell
+Doctests for the dump_tex spell
 ==============================
 
 @todo: some more advanced test
@@ -6,9 +6,11 @@ Doctests for the texdump spell
 >>> import sys
 >>> sys.path.append("scripts/NIF")
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "texdump", "--verbose=1", "tests/nif/test.nif"]
+>>> sys.argv = ["niftoaster.py", "dump_tex", "tests/nif/test.nif"]
 >>> niftoaster.NifToaster().cli()
-reading tests/nif/test.nif
-  geometry [NiTriShape] Cube
+=== tests/nif/test.nif ===
+  --- dump_tex ---
+    ~~~ NiNode [test] ~~~
+      ~~~ NiTriShape [Cube] ~~~
 Finished.
 
