@@ -607,9 +607,17 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
         else:
             # get spell names
             spellnames = args[:-1]
+            # check for unknown spells
+            unknownspellnames = [
+                spellname for spellname in spellnames
+                if not(spellname in [spellclass.SPELLNAME
+                                     for spellclass in self.SPELLS])]
+            if unknownspellnames:
+                parser.error("unknown spells: %s"
+                             % ", ".join(unknownspellnames))
             # get spell classes
             self.spellclasses = [spellclass for spellclass in self.SPELLS
-                                 if spellclass.__name__ in spellnames]
+                                 if spellclass.SPELLNAME in spellnames]
 
             if options.helpspell:
                 # TODO: format the docstring
