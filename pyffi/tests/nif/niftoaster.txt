@@ -166,5 +166,9 @@ NifError: unknown block type 'NiInvalid!'
   --- check_readwrite ---
     writing to temporary file
       comparing file sizes
+=== tests/nif/test_dump_tex.nif ===
+  --- check_readwrite ---
+    writing to temporary file
+      comparing file sizes
 Finished.
 

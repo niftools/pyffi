@@ -6,11 +6,22 @@ Doctests for the dump_tex spell
 >>> import sys
 >>> sys.path.append("scripts/NIF")
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "dump_tex", "tests/nif/test.nif"]
+>>> sys.argv = ["niftoaster.py", "dump_tex", "tests/nif/test_dump_tex.nif"]
 >>> niftoaster.NifToaster().cli()
-=== tests/nif/test.nif ===
+=== tests/nif/test_dump_tex.nif ===
   --- dump_tex ---
     ~~~ NiNode [test] ~~~
       ~~~ NiTriShape [Cube] ~~~
+        ~~~ NiMaterialProperty [CubeMaterial] ~~~
+          ambient    0.76 0.43 0.43
+          diffuse    0.92 0.77 0.09
+          specular   0.45 0.19 0.77
+          emissive   0.00 0.00 0.00
+          glossiness 123.000000
+          alpha      0.560000
+        ~~~ NiTexturingProperty [] ~~~
+          [Base] bitmap2.dds
+          [Detail] bitmap1.dds
+          apply mode 2
 Finished.
 
