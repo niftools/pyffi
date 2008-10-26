@@ -44,6 +44,9 @@ a nif specific wrapper around L{PyFFI.Spells.Toaster}."""
 
 from PyFFI.Formats.NIF import NifFormat
 from PyFFI.Spells import Toaster
+import PyFFI.Spells.check
+import PyFFI.Spells.NIF.check
+import PyFFI.Spells.NIF.fix
 from PyFFI.Spells.NIF import \
     checkbhkbodycenter, \
     checkcenterradius, \
@@ -57,7 +60,6 @@ from PyFFI.Spells.NIF import \
     dump, \
     exportpixeldata, \
     ffvt3rskinpartition, \
-    fix, \
     fix_detachhavoktristripsdata, \
     fix_texturepath, \
     hackcheckskindata, \
@@ -67,8 +69,6 @@ from PyFFI.Spells.NIF import \
     mergeskelandrestpos, \
     optimize, \
     optimize_split, \
-    read, \
-    readwrite, \
     scale, \
     texdump, \
     updatecenterradius, \
@@ -79,6 +79,8 @@ class NifToaster(Toaster):
     """Class for toasting nif files, using any of the available spells."""
     FILEFORMAT = NifFormat
     SPELLS = [
+        PyFFI.Spells.check.SpellRead,
+        PyFFI.Spells.NIF.check.SpellReadWrite,
         checkbhkbodycenter,
         checkcenterradius,
         checkconvexshape,
@@ -91,8 +93,8 @@ class NifToaster(Toaster):
         dump,
         exportpixeldata,
         ffvt3rskinpartition,
-	fix.SpellAddTangentSpace,
-        fix.SpellDelTangentSpace,
+        PyFFI.Spells.NIF.fix.SpellAddTangentSpace,
+        PyFFI.Spells.NIF.fix.SpellDelTangentSpace,
         fix_detachhavoktristripsdata,
         fix_texturepath,
         hackcheckskindata,
@@ -102,8 +104,6 @@ class NifToaster(Toaster):
         mergeskelandrestpos,
         optimize,
         optimize_split,
-        read,
-        readwrite,
         scale,
         texdump,
         updatecenterradius,
