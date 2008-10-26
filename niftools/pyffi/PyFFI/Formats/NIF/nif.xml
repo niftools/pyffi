@@ -1758,8 +1758,8 @@
         <add name="Data" type="Ref" template="NiMorphData">Geometry morphing data index.</add>
         <add name="Always Update" type="byte">Always Update</add>
         <add name="Num Interpolators" type="uint" ver1="10.1.0.106">The number of interpolator objects.</add>
-        <add name="Interpolators" type="Ref" template="NiInterpolator" arr1="Num Interpolators" ver1="10.1.0.106" ver2="20.2.0.7">List of interpolators.</add>
-        <add name="Interpolator Weights" type="MorphWeight" arr1="Num Interpolators" ver1="20.2.0.8">Weighted Interpolators?</add>
+        <add name="Interpolators" type="Ref" template="NiInterpolator" arr1="Num Interpolators" ver1="10.1.0.106" ver2="20.2.0.6">List of interpolators.</add>
+        <add name="Interpolator Weights" type="MorphWeight" arr1="Num Interpolators" ver1="20.2.0.7">Weighted Interpolators?</add>
         <add name="Num Unknown Ints" type="uint" ver1="20.0.0.4" userver="10">A count.</add>
         <add name="Unknown Ints" type="uint" arr1="Num Unknown Ints" ver1="20.0.0.4" userver="10">Unknown.</add>
         <add name="Num Unknown Ints" type="uint" ver1="20.0.0.4" userver="11">A count.</add>
@@ -2479,7 +2479,7 @@
         Unknown.
     </niobject>
 
-    <niobject name="NiSwitchNode" abstract="1" inherit="NiNode">
+    <niobject name="NiSwitchNode" abstract="0" inherit="NiNode">
         A node used to switch between branches, such as for LOD levels?
     </niobject>
 
@@ -2752,7 +2752,7 @@
 
     <niobject name="NiPSysColliderManager" abstract="0" inherit="NiPSysModifier" ver1="10.2.0.0">
         Particle modifier that adds a defined shape to act as a collision object for particles to interact with.
-        <add name="Collider" type="Ref" template="NiPSysPlanarCollider">Link to a NiPSysPlanarCollider or NiPSysSphericalCollider.</add>
+        <add name="Collider" type="Ref" template="NiPSysCollider">Link to a NiPSysPlanarCollider or NiPSysSphericalCollider.</add>
     </niobject>
 
     <niobject name="NiPSysColorModifier" abstract="0" inherit="NiPSysModifier" ver1="10.1.0.0">
@@ -2987,7 +2987,7 @@
     <niobject name="NiSpotLight" abstract="0" inherit="NiPointLight" ver1="20.0.0.4">
         A spot.
         <add name="Cutoff Angle" type="float">The opening angle of the spot.</add>
-        <add name="Unknown Float" type="float" ver1="20.3.0.1">Unknown</add>
+        <add name="Unknown Float" type="float" ver1="20.2.0.7">Unknown</add>
         <add name="Exponent" type="float">Describes the distribution of light. (see: glLight)</add>
     </niobject>
     
@@ -3543,6 +3543,65 @@
         <add name="Unknown Int 7" type="uint">Unknown</add>
         <add name="Pixel Data" type="byte" arr1="Num Faces" arr2="Num Pixels">Raw pixel data holding the mipmaps.  Mipmap zero is the full-size texture and they get smaller by half as the number increases.</add>
     </niobject>
+
+    <niobject name="NiRoomGroup" inherit="NiNode">
+        Grouping node for nodes in a Portal
+        <add name="Shell Link" type="Ptr" template="NiNode" >Outer Shell Geometry Node?</add>
+        <add name="Num Rooms" type="int">Number of rooms in this group</add>
+        <add name="Rooms" type="Ptr" template="NiRoom" arr1="Num Rooms">Rooms associated with this group.</add>
+    </niobject>
+       
+    <niobject name="NiRoom" inherit="NiNode">
+        Grouping node for nodes in a Portal
+        <add name="Num Walls" type="int">Number of walls in a room?</add>
+        <add name="Wall Plane" type="Vector4" arr1="Num Walls">Face normal and unknown value.</add>
+        <add name="Num In Portals" type="int">Number of doors into room</add>
+        <add name="In Portals" type="Ptr" template="NiPortal" arr1="Num In Portals">Number of portals into room</add>
+        <add name="Num Portals 2" type="int">Number of doors out of room</add>
+        <add name="Portals 2" type="Ptr" template="NiPortal" arr1="Num Portals 2">Number of portals out of room</add>
+        <add name="Num Items" type="int">Number of unknowns</add>
+        <add name="Items" type="Ptr" template="NiAVObject" arr1="Num Items">All geometry associated with room.</add>
+    </niobject>
+    
+    <niobject name="NiPortal" inherit="NiAVObject">
+        A Portal
+        <add name="Unknown Flags" type="Flags">Unknown flags.</add>
+        <add name="Unknown Short 1" type="short">Unknown</add>
+        <add name="Num Vertices" type="ushort">Number of vertices in this polygon</add>
+        <add name="Vertices" type="Vector3" arr1="Num Vertices">Vertices</add>
+        <add name="Target" type="Ptr" template="NiNode">Target portal or room</add>
+    </niobject>
+
+    <!-- Red Ocean Custom Objects
+    <niobject name="Object" inherit="NiNode" ver1="10.2.0.0">
+        Red Ocean Object class
+        <add name="Unknown Short 1" type="short">Unknown</add>
+        <add name="Unknown Link 1" type="Ref" template="NiObject">Unknown</add>
+        <add name="Unknown Short 2" type="short">Unknown</add>
+        <add name="Unknown Short 3" type="short">Unknown</add>
+        <add name="Unknown Float 1" type="float">Unknown</add>
+    </niobject>
+    
+    <niobject name="BoundingBoxExtraData" inherit="NiExtraData" ver1="10.2.0.0">
+        Red Ocean Bounding Box
+        <add name="Flags" type="Flags">Unknown</add>
+        <add name="Center?" type="Vector3">Center of box?</add>
+        <add name="Extent?" type="Vector3">Extents of box?</add>
+    </niobject>
+    
+    <niobject name="Door" inherit="Object" ver1="10.2.0.0">
+        Red Ocean Object class
+        <add name="Unknown Short 1" type="short">Unknown</add>
+        <add name="Unknown Float 1" type="float">Unknowns</add>
+        <add name="Unknown Float 2" type="float">Unknowns</add>
+        <add name="Unknown Short 2" type="short">Unknown</add>
+        <add name="Unknown Int 1" type="int">Unknown</add>
+        <add name="Unknown Short 3" type="short">Unknown</add>
+        <add name="Unknown Bool 1" type="bool">Unknown</add>
+        <add name="Unknown Short 4" type="short">Unknown</add>
+        <add name="Unknown Float 3" type="float">Unknowns</add>
+    </niobject>
+    -->
     
 </niftoolsxml>
 

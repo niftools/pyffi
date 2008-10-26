@@ -670,8 +670,8 @@ class NifFormat(XmlFileFormat):
                                                     user_version = self.user_version)
                     if calculated_size != self.header.blockSize[block_num]:
                         print("""
-    WARNING: block size check failed: corrupt nif file or bad nif.xml?
-             skipping %i bytes in %s""" 
+WARNING: block size check failed: corrupt nif file or bad nif.xml?
+         skipping %i bytes in %s""" 
                               % (self.header.blockSize[block_num] - calculated_size,
                                  block.__class__.__name__))
                         # skip bytes that were missed
