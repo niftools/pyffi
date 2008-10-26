@@ -1,4 +1,4 @@
-"""Spell to delete Oblivion tangent space blocks."""
+"""Module which contains all spells that 'fix' something in a nif."""
 
 from PyFFI.Formats.NIF import NifFormat
 from PyFFI.Spells.NIF import NifSpell
@@ -10,7 +10,7 @@ class SpellDelTangentSpace(NifSpell):
     READONLY = False
 
     def datainspect(self):
-        return self.data.header.hasBlockType(NifFormat.NiBinaryExtraData):
+        return self.data.header.hasBlockType(NifFormat.NiBinaryExtraData)
 
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiTriBasedGeom):
