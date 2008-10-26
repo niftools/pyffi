@@ -56,8 +56,9 @@ import optparse
 import os
 import os.path
 import subprocess
+import sys # sys.stdout
 import tempfile
-from types import NoneType, ModuleType
+from types import ModuleType # for _MetaCompatToaster
 
 import PyFFI # for PyFFI.__version__
 import PyFFI.Spells.applypatch
@@ -66,10 +67,14 @@ import PyFFI.ObjectModels.FileFormat # PyFFI.ObjectModels.FileFormat.FileFormat
 
 class Spell(object):
     """Spell base class. A spell takes a data file and then does something
-    useful with it.
+    useful with it. The main entry point for spells is L{recurse}, so if you
+    are writing new spells, start with reading the documentation with
+    L{recurse}.
 
     @cvar READONLY: Whether the spell is read only or not.
     @type READONLY: C{bool}
+    @cvar SPELLNAME: How to refer to the spell from the command line.
+    @type SPELLNAME: C{str}
     @ivar toaster: The toaster this spell is called from.
     @type toaster: L{Toaster}
     @ivar data: The data this spell acts on.
@@ -80,6 +85,7 @@ class Spell(object):
 
     # spells are readonly by default
     READONLY = True
+    SPELLNAME = None
 
     def __init__(self, toaster, data, stream):
         """Initialize the spell data.
@@ -95,9 +101,9 @@ class Spell(object):
         self.data = data
         self.stream = stream
 
-    def inspectdata(self):
-        """This is called after L{PyFFI.ObjectModels.FileFormat.FileFormat.Data.inspect} has
-        been called, and before L{PyFFI.ObjectModels.FileFormat.FileFormat.Data.read} is
+    def _datainspect(self):
+        """This is called after C{L{data}.inspect} has
+        been called, and before C{L{data}.read} is
         called.
 
         @return: C{True} if the file must be processed, C{False} otherwise.
@@ -107,25 +113,35 @@ class Spell(object):
         # for nif: check if spell block type is found
         return True
 
-    def inspectbranch(self, branch):
+    def datainspect(self):
+        """This is called after C{L{data}.inspect} has
+        been called, and before C{L{data}.read} is
+        called. Override this function for customization.
+
+        @return: C{True} if the file must be processed, C{False} otherwise.
+        @rtype: C{bool}
+        """
+        return True
+
+    def _branchinspect(self, branch):
         """Check if spell should be cast on this branch or not, based on
         exclude and include options passed on the command line. You should
         not need to override this function: if you need additional checks on
-        whether a branch must be parsed or not, override the L{spellentry}
+        whether a branch must be parsed or not, override the L{branchinspect}
         method.
 
         @param branch: The branch to check.
         @type branch: L{PyFFI.ObjectModels.Tree.GlobalTreeBranch}
-
         @return: C{True} if the branch must be processed, C{False} otherwise.
         @rtype: C{bool}
         """
-        # always cast spell on the root data element
-        if isinstance(branch, PyFFI.ObjectModels.FileFormat.FileFormat.Data):
-            return True
         # not a root, so check include and exclude options
         include = self.toaster.options.get("include", [])
         exclude = self.toaster.options.get("exclude", [])
+        # shortcut for common case (speeds up the check in most cases)
+        if not include and not exclude:
+            return True
+        # special cases
         if not include:
             # everything is included
             return not(branch.__class__.__name__ in exclude)
@@ -137,13 +153,30 @@ class Spell(object):
                 # else only include it if it is in the include list
                 return (branch.__class__.__name__ in include)
 
-    def recurse(self, branch=None):
-        """Helper function which calls L{inspectbranch} on the branch,
-        if successful then L{spellentry} on the branch, and if this is
-        succesful it calls L{recurse} on the branch's children, and
-        once all children are done, it calls L{spellexit}.
+    def branchinspect(self, branch):
+        """Like L{_branchinspect}, but for customization: can be overridden to
+        perform an extra inspection (the default implementation always
+        returns C{True}).
 
-        You should not need to override this function, normally.
+        @param branch: The branch to check.
+        @type branch: L{PyFFI.ObjectModels.Tree.GlobalTreeBranch}
+        @return: C{True} if the branch must be processed, C{False} otherwise.
+        @rtype: C{bool}
+        """
+        return True
+
+    def recurse(self, branch=None):
+        """Helper function which calls L{_branchinspect} and L{branchinspect}
+        on the branch,
+        if both successful then L{branchentry} on the branch, and if this is
+        succesful it calls L{recurse} on the branch's children, and
+        once all children are done, it calls L{branchexit}.
+
+        Note that L{_branchinspect} and L{branchinspect} are not called upon
+        first entry of this function, that is, when called with L{data} as
+        branch argument. Use L{datainspect} to stop recursion into this branch.
+
+        Do not override this function.
 
         @param branch: The branch to start the recursion from, or C{None}
             to recurse the whole tree.
@@ -151,25 +184,53 @@ class Spell(object):
         """
         # when called without arguments, recurse over the whole tree
         if branch is None:
-            if self.toaster.options.get("verbose"):
-                print("=== " + self.__class__.__name__ + " ===")
             branch = self.data
-        # if inspection is succesful
-        if self.inspectbranch(branch):
-            # cast the spell on the branch
-            if self.spellentry(branch):
+        # the root data element: datainspect has already been called
+        if branch is self.data:
+            self.toaster.msgblockbegin(
+                "--- %s ---" % self.SPELLNAME)
+            if self.dataentry():
                 # spell returned True so recurse to children
                 # we use the abstract tree functions to parse the tree
                 # these are format independent!
                 for i in xrange(branch.getGlobalTreeNumChildren()):
                     child = branch.getGlobalTreeChild(i)
                     self.recurse(child)
-                self.spellexit(branch)
+                self.dataexit()
+            self.toaster.msgblockend()
+        elif self._branchinspect(branch) and self.branchinspect(branch):
+            self.toaster.msgblockbegin(
+                """~~~ %s [%s] ~~~"""
+                % (branch.__class__.__name__,
+                   branch.getGlobalTreeDataDisplay()))
+            # cast the spell on the branch
+            if self.branchentry(branch):
+                # spell returned True so recurse to children
+                # we use the abstract tree functions to parse the tree
+                # these are format independent!
+                for i in xrange(branch.getGlobalTreeNumChildren()):
+                    child = branch.getGlobalTreeChild(i)
+                    self.recurse(child)
+                self.branchexit(branch)
+            self.toaster.msgblockend()
 
-    def spellentry(self, branch):
+    def dataentry(self):
+        """Called before all blocks are recursed.
+        The default implementation simply returns C{True}.
+        You can access the data via C{self.L{data}}, and unlike in the
+        L{datainspect} method, the full file has been processed at this stage.
+
+        Typically, you will override this function to perform a global
+        operation on the file data.
+
+        @return: C{True} if the children must be processed, C{False} otherwise.
+        @rtype: C{bool}
+        """
+        return True
+
+    def branchentry(self, branch):
         """Cast the spell on the given branch. First called with branch equal to
-        L{data}, then for all roots of data, then the children, grandchildren,
-        and so on.
+        L{data}'s children, then the grandchildren, and so on.
         The default implementation simply returns C{True}.
 
         Typically, you will override this function to perform an operation
@@ -183,9 +244,10 @@ class Spell(object):
         """
         return True
 
-    def spellexit(self, branch):
+    def branchexit(self, branch):
         """Cast a spell on the given branch, after all its children,
-        grandchildren, have been processed.
+        grandchildren, have been processed, if L{branchentry} returned
+        C{True} on the given branch.
 
         Typically, you will override this function to perform a particular
         operation on a block type, but you rely on the fact that the children
@@ -193,6 +255,16 @@ class Spell(object):
 
         @param branch: The branch to cast the spell on.
         @type branch: L{PyFFI.ObjectModels.Tree.GlobalTreeBranch}
+        """
+        pass
+
+    def dataexit(self):
+        """Called after all blocks have been processed, if L{dataentry}
+        returned C{True}.
+
+        Typically, you will override this function to perform a final spell
+        operation, such as writing back the file in a special way, or making a
+        summary log.
         """
         pass
 
@@ -227,7 +299,10 @@ class Spell(object):
 
 class SpellPatch(Spell):
     """A spell for applying a patch on files."""
-    def inspectdata(self):
+
+    SPELLNAME = "applypatch"
+
+    def datainspect(self):
         """There is no need to read the whole file, so we apply the patch
         already at inspection stage, and stop the spell process by returning
         C{False}.
@@ -235,9 +310,6 @@ class SpellPatch(Spell):
         @return: C{False}
         @rtype: C{bool}
         """
-        # do the usual inspection rules
-        if not Spell.inspectdata(self):
-            return False
         # get the patch command (if there is one)
         patchcmd = self.toaster.options.get("patchcmd")
         # first argument is always the stream, by convention
@@ -268,63 +340,48 @@ class _MetaCompatSpell(type):
     def __init__(cls, name, bases, dct):
         # create the derived class
         super(_MetaCompatSpell, cls).__init__(name, bases, dct)
-        # make sure all test functions in the module exist (this makes it
-        # easier on the wrapper implementation)
-        if not hasattr(cls.SPELLMODULE, "testFile"):
-            cls.SPELLMODULE.testFile = cls.stub
-        if not hasattr(cls.SPELLMODULE, "testRoot"):
-            cls.SPELLMODULE.testRoot = cls.stub
-        if not hasattr(cls.SPELLMODULE, "testBlock"):
-            cls.SPELLMODULE.testBlock = cls.stub
         # set readonly class variable
         cls.READONLY = getattr(cls.SPELLMODULE, "__readonly__", True)
+        # spell name is the last component of the name of the module
+        cls.SPELLNAME = cls.SPELLMODULE.__name__.split(".")[-1]
         # set documentation
         cls.__doc__ = getattr(cls.SPELLMODULE, "__doc__", "Undocumented.")
-
-    @staticmethod
-    def stub(*args, **kwargs):
-        """Stub function."""
-        pass
 
 class _CompatSpell(Spell):
     """This is a spell class that can be instantiated from an
     old-style spell module. DO NOT USE FOR NEW SPELLS! Only for
-    backwards compatibility.
+    backwards compatibility with the nif spells.
     """
     SPELLMODULE = type("spellmod", (object,), {}) # stub
     __metaclass__ = _MetaCompatSpell
 
-    def testFile(self, *args, **kwargs):
-        self.SPELLMODULE.testFile(*args, **kwargs)
+    def branchinspect(self, branch):
+        return hasattr(self.SPELLMODULE, "testBlock")
 
-    def testBlock(self, *args, **kwargs):
-        self.SPELLMODULE.testBlock(*args, **kwargs)
-
-    def testRoot(self, *args, **kwargs):
-        self.SPELLMODULE.testRoot(*args, **kwargs)
-
-    def spellentry(self, branch):
-        if isinstance(branch, PyFFI.ObjectModels.FileFormat.FileFormat.Data):
-            # the beginning; start with testing the roots
-            for i in xrange(branch.getGlobalTreeNumChildren()):
-                # the roots in the old system are the children of the data root
-                root = branch.getGlobalTreeChild(i)
-                self.testRoot(root, **self.toaster.options)
-        else:
-            # it is not the root data branch, 
-            # now do the usual blocks
-            self.testBlock(branch, **self.toaster.options)
-        # enable further recursion in all cases
+    def dataentry(self):
+        # the beginning; start with testing the roots
+        if hasattr(self.SPELLMODULE, "testRoot"):
+            for i in xrange(self.data.getGlobalTreeNumChildren()):
+                # the roots in the old system are children of data root
+                root = self.data.getGlobalTreeChild(i)
+                self.SPELLMODULE.testRoot(root, **self.toaster.options)
+        # continue recursion
         return True
 
-    def spellexit(self, branch):
+    def branchentry(self, branch):
+        # test the block
+        self.SPELLMODULE.testBlock(branch, **self.toaster.options)
+        # continue recursion
+        return True
+
+    def dataexit(self):
         """Calls the testFile function."""
-        if isinstance(branch, PyFFI.ObjectModels.FileFormat.FileFormat.Data):
-            # the root branch, so this is at the very end
-            self.testFile(self.stream,
-                          self.data.version, self.data.user_version,
-                          self.data.roots,
-                          **self.toaster.options)
+        if hasattr(self.SPELLMODULE, "testFile"):
+            self.SPELLMODULE.testFile(
+                self.stream,
+                self.data.version, self.data.user_version,
+                self.data.roots,
+                **self.toaster.options)
 
 class _MetaCompatToaster(type):
     """Metaclass for L{Toaster} which converts old-style module spells into
@@ -335,11 +392,12 @@ class _MetaCompatToaster(type):
     """
 
     def __init__(cls, name, bases, dct):
-        # check the list of spells, and convert old-style modules to new-style
-        # classes
-        for i, spellclass in enumerate(dct["SPELLS"]):
+        """Check the list of spells, and convert old-style modules to new-style
+        classes."""
+        super(_MetaCompatToaster, cls).__init__(name, bases, dct)
+        for i, spellclass in enumerate(cls.SPELLS):
             if isinstance(spellclass, ModuleType):
-                dct["SPELLS"][i] = cls.CompatSpellFactory(spellclass)
+                cls.SPELLS[i] = cls.CompatSpellFactory(spellclass)
 
     def CompatSpellFactory(cls, spellmod):
         """Create new-style spell class from old-style spell module.
@@ -368,6 +426,10 @@ class Toaster(object):
     @type spellclasses: C{list} of C{type(L{Spell})}
     @ivar options: The options of the toaster.
     @type options: C{dict}
+    @ivar indent: Current level of indentation for messages.
+    @type indent: C{int}
+    @ivar logstream: File where to write output to (default is C{sys.stdout}).
+    @type logstream: C{file}
     """
 
     FILEFORMAT = PyFFI.ObjectModels.FileFormat.FileFormat # override
@@ -376,16 +438,47 @@ class Toaster(object):
 
     __metaclass__ = _MetaCompatToaster # for compatibility
 
-    def __init__(self, spellclasses=None, options=None):
+    def __init__(self, spellclasses=None, options=None, logstream=None):
         """Initialize the toaster.
 
         @param spellclasses: List of spell classes.
         @type spellclasses: C{list} of C{type(L{Spell})}
         @param options: The options (as keyword arguments).
         @type options: C{dict}
+        @param logstream: Where to write the log (default is C{sys.stdout}).
+        @type logstream: C{file}
         """
         self.spellclasses = spellclasses if spellclasses else []
         self.options = options if options else {}
+        self.indent = 0
+        self.logstream = sys.stdout if logstream is None else logstream
+
+    def msg(self, message, level=0):
+        """Write message to the L{logstream}, if verbosity is at least the
+        given level.
+
+        @param message: The message to write.
+        @type message: C{str}
+        @param level: Verbosity level of the message. The message is only
+            logged if C{L{options}["verbosity"]} is at least this value.
+        @type level: C{int}
+        """
+        if level <= self.options.get("verbosity", 0):
+            print >>self.logstream, "  " * self.indent + message
+
+    def msgblockbegin(self, message, level=0):
+        """Acts like L{msg}, but also increases L{indent} after writing the
+        message."""
+        self.msg(message, level)
+        self.indent += 1
+
+    def msgblockend(self, message=None, level=0):
+        """Acts like L{msg}, but also decreases L{indent} before writing the
+        message, but if the message argument is C{None}, then no message is
+        printed."""
+        self.indent -= 1
+        if not(message is None):
+            self.msg(message, level)
 
     def cli(self):
         """Command line interface: initializes spell classes and options from
@@ -495,10 +588,10 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
         # check if we had examples and/or spells: quit
         if options.spells:
             for spellclass in self.SPELLS:
-                print spellclass.__name__
+                self.msg(spellclass.__name__)
             return
         if options.examples:
-            print(self.EXAMPLES)
+            self.msg(self.EXAMPLES)
             return
 
         # spell name not specified when function was called
@@ -521,7 +614,7 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
             if options.helpspell:
                 # TODO: format the docstring
                 for spellclass in self.spellclasses:
-                    print(spellclass.__doc__)
+                    self.msg(spellclass.__doc__)
                 return
 
             # top not specified when function was called
@@ -600,8 +693,7 @@ may destroy them. Make a backup of your files before running this script.
 
         # if there are no spells left, quit early!
         if not self.spellclasses:
-            if verbose:
-                print("no spells apply! quiting early...")
+            self.msg("no spells apply! quiting early...")
             return
 
         # walk over all streams, and create a data instance for each of them
@@ -610,8 +702,7 @@ may destroy them. Make a backup of your files before running this script.
             top, mode='rb' if self.readonly() else 'r+b'):
 
             try: 
-                if verbose:
-                    print("reading %s..." % stream.name)
+                self.msgblockbegin("=== %s ===" % stream.name)
 
                 # inspect the file (reads only the header)
                 data.inspect(stream)
@@ -622,7 +713,7 @@ may destroy them. Make a backup of your files before running this script.
                 
                 # select those spells that must be cast
                 spells = [spell for spell in spells
-                          if spell.inspectdata()]
+                          if spell._datainspect() and spell.datainspect()]
 
                 # if there are any spells that apply
                 if spells:
@@ -648,13 +739,15 @@ may destroy them. Make a backup of your files before running this script.
             except StandardError:
                 print("""\
 *** TEST FAILED ON %-51s ***
-*** If you were running a script that came with PyFFI, then            ***
+*** If you were running a spell that came with PyFFI, then             ***
 *** please report this as a bug (include the file) on                  ***
 *** http://sourceforge.net/tracker/?group_id=199269                    ***
 """ % stream.name)
                 # if raising test errors, reraise the exception
                 if raisetesterror:
                     raise
+            finally:
+                self.msgblockend()
 
             # force free memory (this helps when parsing many very large files)
             del spells
@@ -669,14 +762,13 @@ may destroy them. Make a backup of your files before running this script.
         """Writes the data to a temporary file and raises an exception if the
         write fails.
         """
-        if self.options.get('verbose'):
-            print("  writing to temporary file...")
+        self.msg("writing to temporary file")
         outstream = tempfile.TemporaryFile()
         try:
             try:
                 data.write(outstream)
             except StandardError:
-                print "  write failed!!!"
+                self.msg("write failed!!!")
                 raise
         finally:
             outstream.close()
@@ -690,12 +782,11 @@ may destroy them. Make a backup of your files before running this script.
         outstream = open(os.path.join(head, self.options["prefix"] + tail),
                          "wb")
         try:
-            if self.options.get('verbose'):
-                print("  writing %s..." % outstream.name)
+            self.msg("writing %s" % outstream.name)
             try:
                 data.write(outstream)
             except StandardError:
-                print "  write failed!!!"
+                self.msg("write failed!!!")
                 raise
         finally:
             outstream.close()
@@ -706,12 +797,11 @@ may destroy them. Make a backup of your files before running this script.
         stream.seek(0)
         backup = stream.read(-1)
         stream.seek(0)
-        if self.options.get('verbose'):
-            print("  writing %s..." % stream.name)
+        self.msg("writing %s" % stream.name)
         try:
             data.write(stream)
         except: # not just StandardError, also CTRL-C
-            print "  write failed!!! attempt to restore original file..."
+            self.msg("write failed!!! attempting to restore original file...")
             stream.seek(0)
             stream.write(backup)
             stream.truncate()
@@ -726,12 +816,11 @@ may destroy them. Make a backup of your files before running this script.
         newfilename = newfile.name
         newfile.close()
         newfile = open(newfilename, "w+b")
-        if self.options.get('verbose'):
-            print("  writing to temporary file...")
+        self.msg("writing to temporary file")
         try:
             data.write(newfile)
         except: # not just StandardError, also CTRL-C
-            print "  write failed!!!"
+            self.msg("write failed!!!")
             raise
         if not diffcmd:
             # use internal differ
@@ -739,8 +828,7 @@ may destroy them. Make a backup of your files before running this script.
             oldfile.seek(0)
             newfile.seek(0)
             patchfile = open(oldfile.name + ".patch", "wb")
-            if self.options.get('verbose'):
-                print("  writing patch...")
+            self.msg("writing patch")
             PyFFI.Utils.BSDiff.diff(oldfile, newfile, patchfile)
             patchfile.close()
             newfile.close()
@@ -752,8 +840,7 @@ may destroy them. Make a backup of your files before running this script.
             # close all files before calling external command
             oldfile.close()
             newfile.close()
-            if self.options.get('verbose'):
-                print("  calling %s..." % diffcmd)
+            self.msg("calling %s" % diffcmd)
             subprocess.call([diffcmd, oldfilename, newfilename, patchfilename])
         # delete temporary file
         os.remove(newfilename)
