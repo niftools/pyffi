@@ -49,7 +49,7 @@ for mod in mods:
 # various regression tests (outside documentation)
 suite.addTest(doctest.DocFileSuite('tests/nif/niftoaster.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/optimize.txt'))
-suite.addTest(doctest.DocFileSuite('tests/nif/texdump.txt'))
+suite.addTest(doctest.DocFileSuite('tests/nif/dump_tex.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/ffvt3rskin.txt'))
 suite.addTest(doctest.DocFileSuite('tests/om_simpletype.txt'))
 suite.addTest(doctest.DocFileSuite('tests/om_arraytype.txt'))
