@@ -463,7 +463,8 @@ class Toaster(object):
         @type level: C{int}
         """
         if level <= self.options.get("verbosity", 0):
-            print >>self.logstream, "  " * self.indent + message
+            for line in message.split("\n"):
+                print >>self.logstream, "  " * self.indent + line
 
     def msgblockbegin(self, message, level=0):
         """Acts like L{msg}, but also increases L{indent} after writing the
