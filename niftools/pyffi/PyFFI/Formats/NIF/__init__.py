@@ -46,13 +46,16 @@ test
 Parse all NIF files in a directory tree
 ---------------------------------------
 
->>> for roots in NifFormat.walk('tests/nif',
-...                             raisereaderror = False,
-...                             verbose = 1):
-...     pass
+>>> for stream, data in NifFormat.walkData('tests/nif'):
+...     try:
+...         print("reading %s" % stream.name)
+...         data.read(stream)
+...     except StandardError:
+...         print("Warning: read failed due corrupt file, corrupt format description, or bug.")
 reading tests/nif/invalid.nif
 Warning: read failed due corrupt file, corrupt format description, or bug.
 reading tests/nif/test.nif
+reading tests/nif/test_dump_tex.nif
 
 Create a NIF model from scratch and write to file
 -------------------------------------------------
