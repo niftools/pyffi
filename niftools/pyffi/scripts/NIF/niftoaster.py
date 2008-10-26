@@ -59,7 +59,6 @@ from PyFFI.Spells.NIF import \
     checktristrip, \
     disableparallax, \
     exportpixeldata, \
-    ffvt3rskinpartition, \
     fix_detachhavoktristripsdata, \
     fix_texturepath, \
     hackcheckskindata, \
@@ -70,7 +69,6 @@ from PyFFI.Spells.NIF import \
     optimize, \
     optimize_split, \
     scale, \
-    texdump, \
     updatecenterradius, \
     updatemopp, \
     updateskinpartition
