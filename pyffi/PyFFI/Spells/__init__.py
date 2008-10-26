@@ -74,6 +74,9 @@ class Spell(object):
     @type READONLY: C{bool}
     @cvar SPELLNAME: How to refer to the spell from the command line.
     @type SPELLNAME: C{str}
+    @cvar SPELLCHILDREN: Other spells to call first (also useful for grouping
+        spells together).
+    @type SPELLCHILDREN: C{list} of C{type(L{Spell})}
     @ivar toaster: The toaster this spell is called from.
     @type toaster: L{Toaster}
     @ivar data: The data this spell acts on.
@@ -85,6 +88,7 @@ class Spell(object):
     # spells are readonly by default
     READONLY = True
     SPELLNAME = None
+    SPELLCHILDREN = []
 
     def __init__(self, toaster, data, stream):
         """Initialize the spell data.
@@ -99,6 +103,17 @@ class Spell(object):
         self.toaster = toaster
         self.data = data
         self.stream = stream
+
+    @classmethod
+    def getspellgroup(cls):
+        """Return list of spell groups of all L{CHILDREN}, and C{self}.
+        This is the list of all spells that are executed when files are
+        toasted with this spell.
+        """
+        return(reduce(lambda x, y: x + y,
+                      [child.getspellgroup() for child in cls.SPELLCHILDREN],
+                      [])
+               + [cls])
 
     def _datainspect(self):
         """This is called after C{L{data}.inspect} has
@@ -629,7 +644,7 @@ WARNING: the %s spell is deprecated
                 if len(spellklasses) > 1:
                     parser.error("multiple spells are called %s (BUG?)"
                                  % spellname)
-                self.spellclasses.extend(spellklasses)
+                self.spellclasses.extend(spellklasses[0].getspellgroup())
 
             if options.helpspell:
                 # TODO: format the docstring
