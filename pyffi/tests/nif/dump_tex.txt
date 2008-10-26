@@ -24,4 +24,41 @@ Doctests for the dump_tex spell
           [Detail] bitmap1.dds
           apply mode 2
 Finished.
+>>> sys.argv = ["niftoaster.py", "dump_tex", "tests/nif/test_fix_ffvt3rskinpartition.nif"]
+>>> niftoaster.NifToaster().cli()
+=== tests/nif/test_fix_ffvt3rskinpartition.nif ===
+  --- dump_tex ---
+    ~~~ NiNode [Bip01] ~~~
+      ~~~ NiNode [Bip01 Pelvis] ~~~
+        ~~~ NiNode [Bip01 Spine] ~~~
+          ~~~ NiNode [Bip01 Spine1] ~~~
+            ~~~ NiNode [Bip01 Spine2] ~~~
+              ~~~ NiNode [Bip01 Neck] ~~~
+                ~~~ NiNode [Bip01 Head] ~~~
+                ~~~ NiNode [Bip01 L Clavicle] ~~~
+                  ~~~ NiNode [Bip01 L UpperArm] ~~~
+                    ~~~ NiNode [Bip01 L Forearm] ~~~
+                ~~~ NiNode [Bip01 R Clavicle] ~~~
+                  ~~~ NiNode [Bip01 R UpperArm] ~~~
+                    ~~~ NiNode [Bip01 R Forearm] ~~~
+          ~~~ NiNode [Bip01 L Thigh] ~~~
+            ~~~ NiNode [Bip01 L Calf] ~~~
+              ~~~ NiNode [Bip01 L Foot] ~~~
+                ~~~ NiNode [Bip01 L Toe0] ~~~
+          ~~~ NiNode [Bip01 R Thigh] ~~~
+            ~~~ NiNode [Bip01 R Calf] ~~~
+              ~~~ NiNode [Bip01 R Foot] ~~~
+                ~~~ NiNode [Bip01 R Toe0] ~~~
+      ~~~ NiTriShape [Body] ~~~
+        ~~~ NiTexturingProperty [] ~~~
+          [Base] body.dds
+          apply mode 2
+        ~~~ NiMaterialProperty [Material] ~~~
+          ambient    0.50 0.50 0.50
+          diffuse    1.00 1.00 1.00
+          specular   0.50 0.50 0.50
+          emissive   0.00 0.00 0.00
+          glossiness 12.500000
+          alpha      1.000000
+Finished.
 
