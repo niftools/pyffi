@@ -1,24 +1,24 @@
-"""Check tangent space and tangent space calculation."""
+"""Spell to delete Oblivion tangent space blocks."""
 
 from PyFFI.Formats.NIF import NifFormat
+from PyFFI.Spells.NIF import NifSpell
 
-import struct
+class SpellDelTangentSpace(NifSpell):
+    """Delete tangentspace if it is present."""
 
-# flag overwrite
-__readonly__ = False
+    SPELLNAME = "fix_deltangentspace"
+    READONLY = False
 
-def testBlock(block, **args):
-    """Add tangentspace if it is missing.
+    def datainspect(self):
+        return self.data.header.hasBlockType(NifFormat.NiBinaryExtraData):
 
-    @param block: The block to test.
-    @type block: L{NifFormat.NiTriBasedGeom}
-    """
-    # does it apply on this block?
-    if not isinstance(block, NifFormat.NiTriBasedGeom): return
-    # does this block have tangent space data?
-    for extra in block.getExtraDatas():
-        if isinstance(extra, NifFormat.NiBinaryExtraData):
-            if extra.name == 'Tangent space (binormal & tangent vectors)':
-                block.removeExtraData(extra)
-                print("removing tangent space from block '%s'" % block.name)
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiTriBasedGeom):
+            # does this block have tangent space data?
+            for extra in branch.getExtraDatas():
+                if isinstance(extra, NifFormat.NiBinaryExtraData):
+                    if (extra.name ==
+                        'Tangent space (binormal & tangent vectors)'):
+                        self.toaster.msg("removing tangent space block")
+                        branch.removeExtraData(extra)
 
