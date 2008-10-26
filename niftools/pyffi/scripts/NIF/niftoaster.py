@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """A script for casting spells on nif files. This script is essentially
-a nif specific wrapper around L{PyFFI.Spells.toaster}."""
+a nif specific wrapper around L{PyFFI.Spells.Toaster}."""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
@@ -42,12 +42,75 @@ a nif specific wrapper around L{PyFFI.Spells.toaster}."""
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-#from PyFFI.Spells import toaster
 from PyFFI.Formats.NIF import NifFormat
-import PyFFI.Spells.NIF
+from PyFFI.Spells import Toaster
+from PyFFI.Spells.NIF import \
+    checkbhkbodycenter, \
+    checkcenterradius, \
+    checkconvexshape, \
+    checkmopp, \
+    checkskincenterradius, \
+    checkskinpartition, \
+    checktangentspace, \
+    checktristrip, \
+    disableparallax, \
+    dump, \
+    exportpixeldata, \
+    ffvt3rskinpartition, \
+    fix_addtangentspace, \
+    fix, \
+    fix_detachhavoktristripsdata, \
+    fix_texturepath, \
+    hackcheckskindata, \
+    hackmultiskelroot, \
+    hackskindataidtransform, \
+    hackskinrestpose, \
+    mergeskelandrestpos, \
+    optimize, \
+    optimize_split, \
+    read, \
+    readwrite, \
+    scale, \
+    texdump, \
+    updatecenterradius, \
+    updatemopp, \
+    updateskinpartition
 
-def main():
-    examples = """* check if PyFFI can read all files in current directory
+class NifToaster(Toaster):
+    """Class for toasting nif files, using any of the available spells."""
+    FILEFORMAT = NifFormat
+    SPELLS = [
+        checkbhkbodycenter,
+        checkcenterradius,
+        checkconvexshape,
+        checkmopp,
+        checkskincenterradius,
+        checkskinpartition,
+        checktangentspace,
+        checktristrip,
+        disableparallax,
+        dump,
+        exportpixeldata,
+        ffvt3rskinpartition,
+        fix_addtangentspace,
+        fix.SpellDelTangentSpace,
+        fix_detachhavoktristripsdata,
+        fix_texturepath,
+        hackcheckskindata,
+        hackmultiskelroot,
+        hackskindataidtransform,
+        hackskinrestpose,
+        mergeskelandrestpos,
+        optimize,
+        optimize_split,
+        read,
+        readwrite,
+        scale,
+        texdump,
+        updatecenterradius,
+        updatemopp,
+        updateskinpartition]
+    EXAMPLES = """* check if PyFFI can read all files in current directory
   (python version of nifskope's xml checker):
 
     python niftoaster.py read .
@@ -88,11 +151,7 @@ recursively, for Freedom Force vs. The 3rd Reich
     python niftoaster.py -a 100 scale "c:\\zoo2"
 """
 
-#    toaster(format=NifFormat, formatspellsmodule=PyFFI.Spells.NIF,
-#            examples=examples)
-    PyFFI.Spells.NIF.NifToaster().cli()
-
 # if script is called...
 if __name__ == "__main__":
-    main()
+    NifToaster().cli()
 

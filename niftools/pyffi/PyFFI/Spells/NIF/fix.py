@@ -12,6 +12,10 @@ class SpellDelTangentSpace(NifSpell):
     def datainspect(self):
         return self.data.header.hasBlockType(NifFormat.NiBinaryExtraData)
 
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch
+        return isinstance(branch, NifFormat.NiAVObject)
+
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiTriBasedGeom):
             # does this block have tangent space data?
@@ -21,4 +25,8 @@ class SpellDelTangentSpace(NifSpell):
                         'Tangent space (binormal & tangent vectors)'):
                         self.toaster.msg("removing tangent space block")
                         branch.removeExtraData(extra)
+            # all extra blocks here done; no need to recurse further
+            return False
+        # recurse further
+        return True
 
