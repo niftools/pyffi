@@ -64,26 +64,7 @@ import PyFFI.Spells.applypatch
 import PyFFI.Utils.BSDiff
 import PyFFI.ObjectModels.FileFormat # PyFFI.ObjectModels.FileFormat.FileFormat
 
-class SpellGroup(object):
-    """Defines a spell group, without actually defining a spell in itself.
-
-    @cvar SPELLCHILDREN: Other spells to call first (also useful for grouping
-        spells together).
-    @type SPELLCHILDREN: C{list} of C{type(L{SpellGroup})}
-    """
-    SPELLCHILDREN = []
-
-    @classmethod
-    def getspellgroup(cls):
-        """Return list of spell groups of all L{CHILDREN}.
-        This is the list of all spells that are executed when files are
-        toasted with this spell.
-        """
-        return reduce(lambda x, y: x + y,
-                      [child.getspellgroup() for child in cls.SPELLCHILDREN],
-                      [])
-
-class Spell(SpellGroup):
+class Spell(object):
     """Spell base class. A spell takes a data file and then does something
     useful with it. The main entry point for spells is L{recurse}, so if you
     are writing new spells, start with reading the documentation with
@@ -118,18 +99,6 @@ class Spell(SpellGroup):
         self.toaster = toaster
         self.data = data
         self.stream = stream
-
-    @classmethod
-    def getspellgroup(cls):
-        """Return list of spell groups of all L{CHILDREN}, and C{cls}.
-        This is the list of all spells that are executed when files are
-        toasted with this spell.
-        """
-        # TODO: how to call SpellGroup.getspellgroup with cls as argument???
-        return(reduce(lambda x, y: x + y,
-                      [child.getspellgroup() for child in cls.SPELLCHILDREN],
-                      [])
-               + [cls])
 
     def _datainspect(self):
         """This is called after C{L{data}.inspect} has
@@ -448,14 +417,14 @@ class Toaster(object):
     @cvar FILEFORMAT: The file format class.
     @type FILEFORMAT: C{type(L{FileFormat})}
     @cvar SPELLS: List of all available spell classes.
-    @type SPELLS: C{list} of C{type(L{SpellGroup})}
+    @type SPELLS: C{list} of C{type(L{Spell})}
     @cvar EXAMPLES: Description of example use.
     @type EXAMPLES: C{str}
     @cvar ALIASDICT: Dictionary with aliases for spells.
     @type ALIASDICT: C{dict}
     @ivar spellclasses: List of spell classes for the particular instance (must
         be a subset of L{SPELLS}).
-    @type spellclasses: C{list} of C{type(L{SpellGroup})}
+    @type spellclasses: C{list} of C{type(L{Spell})}
     @ivar options: The options of the toaster.
     @type options: C{dict}
     @ivar indent: Current level of indentation for messages.
@@ -475,7 +444,7 @@ class Toaster(object):
         """Initialize the toaster.
 
         @param spellclasses: List of spell classes.
-        @type spellclasses: C{list} of C{type(L{SpellGroup})}
+        @type spellclasses: C{list} of C{type(L{Spell})}
         @param options: The options (as keyword arguments).
         @type options: C{dict}
         @param logstream: Where to write the log (default is C{sys.stdout}).
@@ -660,7 +629,7 @@ WARNING: the %s spell is deprecated
                 if len(spellklasses) > 1:
                     parser.error("multiple spells are called %s (BUG?)"
                                  % spellname)
-                self.spellclasses.extend(spellklasses[0].getspellgroup())
+                self.spellclasses.extend(spellklasses)
 
             if options.helpspell:
                 # TODO: format the docstring
