@@ -102,5 +102,6 @@ class SpellNodeNamesByFlag(NifSpell):
         if isinstance(branch, NifFormat.NiAVObject):
             if not branch.flags in self.toaster.flagdict:
                 self.toaster.flagdict[branch.flags] = []
-            self.toaster.flagdict[branch.flags].append(branch.name)
+            if not branch.name in self.toaster.flagdict[branch.flags]:
+                self.toaster.flagdict[branch.flags].append(branch.name)
         return True
