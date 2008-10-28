@@ -114,6 +114,7 @@ The --spells switch
 >>> niftoaster.NifToaster().cli()
 check_read
 check_readwrite
+check_nodenamesbyflag
 checkbhkbodycenter
 checkcenterradius
 checkconvexshape
