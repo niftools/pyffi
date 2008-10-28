@@ -41,6 +41,7 @@
 
 import tempfile
 
+from PyFFI.Formats.NIF import NifFormat
 from PyFFI.Spells.NIF import NifSpell
 
 class SpellReadWrite(NifSpell):
@@ -76,3 +77,30 @@ class SpellReadWrite(NifSpell):
 
         # spell is finished: prevent recursing into the tree
         return False
+
+class SpellNodeNamesByFlag(NifSpell):
+    """This spell goes over all nif files, and at the end, it gives a summary
+    of which node names where used with particular flags."""
+
+    SPELLNAME = "check_nodenamesbyflag"
+
+    @classmethod
+    def toastentry(cls, toaster):
+        toaster.flagdict = {}
+        return True
+
+    @classmethod
+    def toastexit(cls, toaster):
+        for flag, names in toaster.flagdict.iteritems():
+            print flag, names
+
+    def branchinspect(self, branch):
+        # stick to main tree
+        return isinstance(branch, NifFormat.NiAVObject)
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiAVObject):
+            if not branch.flags in self.toaster.flagdict:
+                self.toaster.flagdict[branch.flags] = []
+            self.toaster.flagdict[branch.flags].append(branch.name)
+        return True

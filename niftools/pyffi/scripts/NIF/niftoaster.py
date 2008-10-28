@@ -78,6 +78,7 @@ class NifToaster(Toaster):
     SPELLS = [
         PyFFI.Spells.check.SpellRead,
         PyFFI.Spells.NIF.check.SpellReadWrite,
+        PyFFI.Spells.NIF.check.SpellNodeNamesByFlag,
         checkbhkbodycenter,
         checkcenterradius,
         checkconvexshape,
