@@ -296,6 +296,55 @@ class Spell(object):
         """
         pass
 
+class SpellGroupParallel(Spell):
+     """Run a given list of spells in parallel (i.e. with only a single
+     recursion in the tree. THIS CLASS IS NOT YET FINALIZED.
+
+     @cvar SPELLS: List of spells to run in parallel.
+     @type SPELLS: C{list} of C{type(L{Spell})}
+     """
+
+     SPELLCLASSES = []
+     ACTIVESPELLCLASSES = []
+
+     def __init__(self, toaster, data, stream):
+         Spell.__init__(self, toaster, data, stream)
+         self.activespells = [spellclass(toaster, data, stream)
+                              for spellclass in self.ACTIVESPELLCLASSES]
+
+     def datainspect(self):
+         self.activespells = [spell for spell in self.activespells
+                              if spell.datainspect()]
+         return bool(self.activespells)
+
+     def branchinspect(self, branch):
+         return any(spell.branchinspect(branch) for spell in self.activespells)
+
+     def dataentry(self):
+         self.activespells = [spell for spell in self.activespells
+                              if spell.dataentry()]
+         return bool(self.activespells)
+
+     def branchentry(self, branch):
+         return any(spell.branchentry(branch) for spell in self.activespells)
+
+     def branchexit(self, branch):
+         for spell in self.activespells:
+             spell.branchexit(branch)
+
+     @classmethod
+     def toastentry(cls):
+         cls.ACTIVESPELLCLASSES = [
+             spellclass for spellclass in cls.SPELLS
+             if spellclass.toastentry()]
+         return bool(cls.ACTIVESPELLCLASSES)
+
+     @classmethod
+     def toastexit(cls):
+         for spellclass in cls.ACTIVESPELLCLASSES:
+             spellclass.toastexit(cls)
+         
+
 class SpellApplyPatch(Spell):
     """A spell for applying a patch on files."""
 
