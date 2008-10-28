@@ -296,7 +296,7 @@ class Spell(object):
         """
         pass
 
-class SpellPatch(Spell):
+class SpellApplyPatch(Spell):
     """A spell for applying a patch on files."""
 
     SPELLNAME = "applypatch"
@@ -606,7 +606,7 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
             if len(args) > 1:
                 parser.error("when using --patch, do not specify a spell")
             # set spell class to applying patch
-            self.spellclasses = [SpellPatch]
+            self.spellclasses = [SpellApplyPatch]
         else:
             # get spell names
             spellnames = args[:-1]
