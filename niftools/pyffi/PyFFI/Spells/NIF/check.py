@@ -94,6 +94,9 @@ class SpellNodeNamesByFlag(NifSpell):
         for flag, names in toaster.flagdict.iteritems():
             print flag, names
 
+    def datainspect(self):
+        return self.data.header.hasBlockType(NifFormat.NiNode)
+
     def branchinspect(self, branch):
         # stick to main tree
         return isinstance(branch, NifFormat.NiAVObject)
@@ -104,4 +107,7 @@ class SpellNodeNamesByFlag(NifSpell):
                 self.toaster.flagdict[branch.flags] = []
             if not branch.name in self.toaster.flagdict[branch.flags]:
                 self.toaster.flagdict[branch.flags].append(branch.name)
-        return True
+            return True
+        else:
+            return False
+
