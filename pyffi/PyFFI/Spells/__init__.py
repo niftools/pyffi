@@ -108,8 +108,7 @@ class Spell(object):
         @return: C{True} if the file must be processed, C{False} otherwise.
         @rtype: C{bool}
         """
-        # check if version applies
-        # for nif: check if spell block type is found
+        # for the moment, this does nothing
         return True
 
     def datainspect(self):
@@ -120,6 +119,8 @@ class Spell(object):
         @return: C{True} if the file must be processed, C{False} otherwise.
         @rtype: C{bool}
         """
+        # for nif: check if version applies, or
+        # check if spell block type is found
         return True
 
     def _branchinspect(self, branch):
@@ -296,54 +297,97 @@ class Spell(object):
         """
         pass
 
-class SpellGroupParallel(Spell):
-     """Run a given list of spells in parallel (i.e. with only a single
-     recursion in the tree. THIS CLASS IS NOT YET FINALIZED.
+class SpellGroupBase(Spell):
+    """Base class for grouping spells. This implements all the spell grouping
+    functions that fall outside of the actual recursing (L{__init__},
+    L{toastentry}, L{_datainspect}, L{datainspect}, and L{toastexit}).
 
-     @cvar SPELLS: List of spells to run in parallel.
-     @type SPELLS: C{list} of C{type(L{Spell})}
+    @cvar SPELLCLASSES: List of spells of this group.
+    @type SPELLCLASSES: C{list} of C{type(L{Spell})}
+    @cvar ACTIVESPELLCLASSES: List of active spells of this
+        groups. This list is automatically built when L{toastentry} is
+        called.
+    @type ACTIVESPELLCLASSES: C{list} of C{type(L{Spell})}
+    @ivar spells: List of active spell instances.
+    @type spells: C{list} of L{Spell}
+    """
+    SPELLCLASSES = []
+    ACTIVESPELLCLASSES = []
+
+    def __init__(self, toaster, data, stream):
+        """Initialize the spell data for all given spells.
+
+        @param toaster: The toaster this spell is called from.
+        @type toaster: L{Toaster}
+        @param data: The file data.
+        @type data: L{PyFFI.ObjectModels.FileFormat.FileFormat.Data}
+        @param stream: The file stream.
+        @type stream: C{file}
+        """
+        # call base class constructor
+        Spell.__init__(self, toaster, data, stream)
+        # set up the list of spells
+        self.spells = [spellclass(self, data, stream)
+                       for spellclass in self.ACTIVESPELLCLASSES]
+
+    def _datainspect(self):
+        """Inspect every spell with L{Spell._datainspect} and keep
+        those spells that must be cast."""
+        self.spells = [spell for spell in self.spells
+                       if spell._datainspect()]
+        return bool(self.spells)
+
+    def datainspect(self):
+        """Inspect every spell with L{Spell.datainspect} and keep
+        those spells that must be cast."""
+        self.spells = [spell for spell in self.spells
+                       if spell.datainspect()]
+        return bool(self.spells)
+
+    @classmethod
+    def toastentry(cls, toaster):
+        cls.ACTIVESPELLCLASSES = [
+            spellclass for spellclass in cls.SPELLCLASSES
+            if spellclass.toastentry(self)]
+        return bool(cls.ACTIVESPELLCLASSES)
+
+    @classmethod
+    def toastexit(cls, toaster):
+        for spellclass in cls.ACTIVESPELLCLASSES:
+            spellclass.toastexit(self)
+
+class SpellGroupSeriesBase(SpellGroupBase):
+    """Base class for running spells in series."""
+    def recurse(self, branch=None):
+        """Recurse spells in series."""
+        for spell in self.spells:
+            spell.recurse(branch)
+
+class SpellGroupParallelBase(Spell):
+     """Base class for running spells in parallel (that is, with only
+     a single recursion in the tree).
      """
 
-     SPELLCLASSES = []
-     ACTIVESPELLCLASSES = []
-
-     def __init__(self, toaster, data, stream):
-         Spell.__init__(self, toaster, data, stream)
-         self.activespells = [spellclass(toaster, data, stream)
-                              for spellclass in self.ACTIVESPELLCLASSES]
-
-     def datainspect(self):
-         self.activespells = [spell for spell in self.activespells
-                              if spell.datainspect()]
-         return bool(self.activespells)
-
-     def branchinspect(self, branch):
-         return any(spell.branchinspect(branch) for spell in self.activespells)
-
-     def dataentry(self):
-         self.activespells = [spell for spell in self.activespells
-                              if spell.dataentry()]
-         return bool(self.activespells)
-
      def branchentry(self, branch):
-         return any(spell.branchentry(branch) for spell in self.activespells)
+         return any(spell.branchentry(branch) for spell in self.spells)
 
      def branchexit(self, branch):
-         for spell in self.activespells:
+         for spell in self.spells:
              spell.branchexit(branch)
 
-     @classmethod
-     def toastentry(cls):
-         cls.ACTIVESPELLCLASSES = [
-             spellclass for spellclass in cls.SPELLS
-             if spellclass.toastentry()]
-         return bool(cls.ACTIVESPELLCLASSES)
+def SpellGroupSeries(*args):
+    """Class factory for grouping spells in series."""
+    return type("".join(spellclass.__name__ for spellclass in args),
+                (SpellGroupSeriesBase,),
+                {"SPELLNAME":
+                     "|".join(spellclass.SPELLNAME for spellclass in args)})
 
-     @classmethod
-     def toastexit(cls):
-         for spellclass in cls.ACTIVESPELLCLASSES:
-             spellclass.toastexit(cls)
-         
+def SpellGroupParallel(*args):
+    """Class factory for grouping spells in parallel."""
+    return type("".join(spellclass.__name__ for spellclass in args),
+                (SpellGroupParallelBase,),
+                {"SPELLNAME":
+                     "&".join(spellclass.SPELLNAME for spellclass in args)})
 
 class SpellApplyPatch(Spell):
     """A spell for applying a patch on files."""
