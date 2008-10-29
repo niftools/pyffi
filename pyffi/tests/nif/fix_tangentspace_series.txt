@@ -1,0 +1,20 @@
+Doctests for the tangentspace spells, and running spells in series
+==================================================================
+
+>>> import sys
+>>> sys.path.append("scripts/NIF")
+>>> import niftoaster
+>>> sys.argv = ["niftoaster.py", "fix_deltangentspace", "fix_addtangentspace", "--dry-run", "--noninteractive", "tests/nif/test_fix_tangentspace.nif"]
+>>> niftoaster.NifToaster().cli()
+=== tests/nif/test_fix_tangentspace.nif ===
+  --- fix_deltangentspace ---
+    ~~~ NiNode [Scene Root] ~~~
+      ~~~ NiTriStrips [Sphere] ~~~
+        removing tangent space block
+  --- fix_addtangentspace ---
+    ~~~ NiNode [Scene Root] ~~~
+      ~~~ NiTriStrips [Sphere] ~~~
+        adding tangent space
+  writing to temporary file
+Finished.
+
