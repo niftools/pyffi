@@ -327,7 +327,7 @@ class SpellGroupBase(Spell):
         # call base class constructor
         Spell.__init__(self, toaster, data, stream)
         # set up the list of spells
-        self.spells = [spellclass(self, data, stream)
+        self.spells = [spellclass(toaster, data, stream)
                        for spellclass in self.ACTIVESPELLCLASSES]
 
     def _datainspect(self):
@@ -348,13 +348,13 @@ class SpellGroupBase(Spell):
     def toastentry(cls, toaster):
         cls.ACTIVESPELLCLASSES = [
             spellclass for spellclass in cls.SPELLCLASSES
-            if spellclass.toastentry(self)]
+            if spellclass.toastentry(toaster)]
         return bool(cls.ACTIVESPELLCLASSES)
 
     @classmethod
     def toastexit(cls, toaster):
         for spellclass in cls.ACTIVESPELLCLASSES:
-            spellclass.toastexit(self)
+            spellclass.toastexit(toaster)
 
 class SpellGroupSeriesBase(SpellGroupBase):
     """Base class for running spells in series."""
@@ -379,15 +379,21 @@ def SpellGroupSeries(*args):
     """Class factory for grouping spells in series."""
     return type("".join(spellclass.__name__ for spellclass in args),
                 (SpellGroupSeriesBase,),
-                {"SPELLNAME":
-                     "|".join(spellclass.SPELLNAME for spellclass in args)})
+                {"SPELLCLASSES": args,
+                 "SPELLNAME":
+                     "|".join(spellclass.SPELLNAME for spellclass in args),
+                 "READONLY": 
+                      all(spellclass.READONLY for spellclass in args)})
 
 def SpellGroupParallel(*args):
     """Class factory for grouping spells in parallel."""
     return type("".join(spellclass.__name__ for spellclass in args),
                 (SpellGroupParallelBase,),
-                {"SPELLNAME":
-                     "&".join(spellclass.SPELLNAME for spellclass in args)})
+                {"SPELLCLASSES": args,
+                 "SPELLNAME":
+                     "&".join(spellclass.SPELLNAME for spellclass in args),
+                 "READONLY": 
+                      all(spellclass.READONLY for spellclass in args)})
 
 class SpellApplyPatch(Spell):
     """A spell for applying a patch on files."""
@@ -533,17 +539,17 @@ class Toaster(object):
 
     __metaclass__ = _MetaCompatToaster # for compatibility
 
-    def __init__(self, spellclasses=None, options=None, logstream=None):
+    def __init__(self, spellclass=None, options=None, logstream=None):
         """Initialize the toaster.
 
-        @param spellclasses: List of spell classes.
-        @type spellclasses: C{list} of C{type(L{Spell})}
+        @param spellclass: The spell class.
+        @type spellclass: C{type(L{Spell})}
         @param options: The options (as keyword arguments).
         @type options: C{dict}
         @param logstream: Where to write the log (default is C{sys.stdout}).
         @type logstream: C{file}
         """
-        self.spellclasses = spellclasses if spellclasses else []
+        self.spellclass = spellclass
         self.options = options if options else {}
         self.indent = 0
         self.logstream = sys.stdout if logstream is None else logstream
@@ -699,12 +705,12 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
             if len(args) > 1:
                 parser.error("when using --patch, do not specify a spell")
             # set spell class to applying patch
-            self.spellclasses = [SpellApplyPatch]
+            self.spellclass = SpellApplyPatch
         else:
             # get spell names
             spellnames = args[:-1]
             # get spell classes
-            self.spellclasses = []
+            spellclasses = []
             for spellname in spellnames:
                 # convert old names
                 if spellname in self.ALIASDICT:
@@ -722,12 +728,13 @@ WARNING: the %s spell is deprecated
                 if len(spellklasses) > 1:
                     parser.error("multiple spells are called %s (BUG?)"
                                  % spellname)
-                self.spellclasses.extend(spellklasses)
+                spellclasses.extend(spellklasses)
+            # create series of spells
+            self.spellclass = SpellGroupSeries(*spellclasses)
 
             if options.helpspell:
                 # TODO: format the docstring
-                for spellclass in self.spellclasses:
-                    self.msg(spellclass.__doc__)
+                self.msg(self.spellclass.__doc__)
                 return
 
             # top not specified when function was called
@@ -752,17 +759,6 @@ WARNING: the %s spell is deprecated
         else:
             print("Finished.")
 
-    def readonly(self):
-        """Returns whether the toaster has all readonly spells, or not.
-
-        @return: C{True} if toaster is readonly, C{False} otherwise.
-        @rtype: C{bool}
-        """
-        # the combined spells are readonly if and only if all spells are
-        # readonly
-        return all(spellclass.READONLY
-                   for spellclass in self.spellclasses)
-
     def toast(self, top):
         """Walk over all files in a directory tree and cast spells
         on every file.
@@ -771,13 +767,9 @@ WARNING: the %s spell is deprecated
         @type top: str
         """
 
-        # toast entry code and spell selection
-        self.spellclasses = [spellclass for spellclass in self.spellclasses
-                             if spellclass.toastentry(self)]
-
-        # if there are no spells left, quit early!
-        if not self.spellclasses:
-            self.msg("no spells apply! quiting early...")
+        # toast entry code
+        if not self.spellclass.toastentry(self):
+            self.msg("spell does not apply! quiting early...")
             return
 
         ### raisereaderror is ignored in this implementation!!!
@@ -794,7 +786,7 @@ WARNING: the %s spell is deprecated
         applypatch = self.options.get("applypatch", False)
 
         # warning
-        if ((not self.readonly()) and (not dryrun)
+        if ((not self.spellclass.READONLY) and (not dryrun)
             and (not prefix) and (not createpatch)
             and interactive):
             print("""\
@@ -812,7 +804,7 @@ may destroy them. Make a backup of your files before running this script.
         # walk over all streams, and create a data instance for each of them
         # inspect the file but do not yet read in full
         for stream, data in self.FILEFORMAT.walkData(
-            top, mode='rb' if self.readonly() else 'r+b'):
+            top, mode='rb' if self.spellclass.READONLY else 'r+b'):
 
             try: 
                 self.msgblockbegin("=== %s ===" % stream.name)
@@ -820,25 +812,19 @@ may destroy them. Make a backup of your files before running this script.
                 # inspect the file (reads only the header)
                 data.inspect(stream)
  
-                # create spell instances
-                spells = [spellclass(self, data, stream)
-                          for spellclass in self.spellclasses]
+                # create spell instance
+                spell = self.spellclass(self, data, stream)
                 
-                # select those spells that must be cast
-                spells = [spell for spell in spells
-                          if spell._datainspect() and spell.datainspect()]
-
-                # if there are any spells that apply
-                if spells:
+                # inspect the spell instance
+                if spell._datainspect() and spell.datainspect():
                     # read the full file
                     data.read(stream)
                     
                     # cast the spell on the data tree
-                    for spell in spells:
-                        spell.recurse()
+                    spell.recurse()
 
                     # save file back to disk if not readonly
-                    if not self.readonly():
+                    if not self.spellclass.READONLY:
                         if not dryrun:
                             if createpatch:
                                 self.writepatch(stream, data)
@@ -863,13 +849,11 @@ may destroy them. Make a backup of your files before running this script.
                 self.msgblockend()
 
             # force free memory (this helps when parsing many very large files)
-            del spells
             del spell
             gc.collect()
 
         # toast exit code
-        for spellclass in self.spellclasses:
-            spellclass.toastexit(self)
+        self.spellclass.toastexit(self)
 
     def writetemp(self, stream, data):
         """Writes the data to a temporary file and raises an exception if the

@@ -175,6 +175,10 @@ NifError: unknown block type 'NiInvalid!'
   --- check_readwrite ---
     writing to temporary file
       comparing file sizes
+=== tests/nif/test_fix_tangentspace.nif ===
+  --- check_readwrite ---
+    writing to temporary file
+      comparing file sizes
 === tests/nif/test_fix_texturepath.nif ===
   --- check_readwrite ---
     writing to temporary file
