@@ -54,6 +54,7 @@ Options:
   --patch-cmd=PATCHCMD  use ARG as patch command; this command must accept
                         precisely 3 arguments, oldfile, newfile, and
                         patchfile.
+  --series              run spells in series rather than in parallel
 
 The --examples switch
 ---------------------

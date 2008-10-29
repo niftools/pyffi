@@ -330,19 +330,27 @@ class SpellGroupBase(Spell):
         self.spells = [spellclass(toaster, data, stream)
                        for spellclass in self.ACTIVESPELLCLASSES]
 
-    def _datainspect(self):
-        """Inspect every spell with L{Spell._datainspect} and keep
-        those spells that must be cast."""
-        self.spells = [spell for spell in self.spells
-                       if spell._datainspect()]
-        return bool(self.spells)
-
     def datainspect(self):
         """Inspect every spell with L{Spell.datainspect} and keep
         those spells that must be cast."""
         self.spells = [spell for spell in self.spells
                        if spell.datainspect()]
         return bool(self.spells)
+
+    def dataentry(self):
+        """Look into every spell with L{Spell.dataentry}."""
+        self.spells = [spell for spell in self.spells
+                       if spell.dataentry()]
+        return bool(self.spells)
+
+    def dataexit(self):
+        """Look into every spell with L{Spell.dataentry}."""
+        for spell in self.spells:
+            spell.dataexit()
+
+    def branchinspect(self, branch):
+        """Inspect every spell with L{Spell.branchinspect}."""
+        return any(spell.branchinspect(branch) for spell in self.spells)
 
     @classmethod
     def toastentry(cls, toaster):
@@ -363,11 +371,10 @@ class SpellGroupSeriesBase(SpellGroupBase):
         for spell in self.spells:
             spell.recurse(branch)
 
-class SpellGroupParallelBase(Spell):
+class SpellGroupParallelBase(SpellGroupBase):
      """Base class for running spells in parallel (that is, with only
      a single recursion in the tree).
      """
-
      def branchentry(self, branch):
          return any(spell.branchentry(branch) for spell in self.spells)
 
@@ -381,7 +388,7 @@ def SpellGroupSeries(*args):
                 (SpellGroupSeriesBase,),
                 {"SPELLCLASSES": args,
                  "SPELLNAME":
-                     "|".join(spellclass.SPELLNAME for spellclass in args),
+                     " | ".join(spellclass.SPELLNAME for spellclass in args),
                  "READONLY": 
                       all(spellclass.READONLY for spellclass in args)})
 
@@ -391,7 +398,7 @@ def SpellGroupParallel(*args):
                 (SpellGroupParallelBase,),
                 {"SPELLCLASSES": args,
                  "SPELLNAME":
-                     "&".join(spellclass.SPELLNAME for spellclass in args),
+                     " & ".join(spellclass.SPELLNAME for spellclass in args),
                  "READONLY": 
                       all(spellclass.READONLY for spellclass in args)})
 
@@ -670,13 +677,17 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
                           type="string",
                           help="""use ARG as patch command; this command must \
 accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
+        parser.add_option("--series", dest="series",
+                          action="store_true",
+                          help="run spells in series rather than in parallel")
         parser.set_defaults(raisetesterror=False, verbose=1, pause=False,
                             exclude=[], include=[], examples=False,
                             spells=False,
                             #raisereaderror=True, ### no longer used
                             interactive=True,
                             helpspell=False, dryrun=False, prefix="", arg="",
-                            createpatch=False, applypatch=False, diffcmd="")
+                            createpatch=False, applypatch=False, diffcmd="",
+                            series=False)
         (options, args) = parser.parse_args()
 
         # check errors
@@ -729,8 +740,11 @@ WARNING: the %s spell is deprecated
                     parser.error("multiple spells are called %s (BUG?)"
                                  % spellname)
                 spellclasses.extend(spellklasses)
-            # create series of spells
-            self.spellclass = SpellGroupSeries(*spellclasses)
+            # create group of spells
+            if options.series:
+                self.spellclass = SpellGroupSeries(*spellclasses)
+            else:
+                self.spellclass = SpellGroupParallel(*spellclasses)
 
             if options.helpspell:
                 # TODO: format the docstring
