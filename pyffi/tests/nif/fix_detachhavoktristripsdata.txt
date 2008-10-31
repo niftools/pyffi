@@ -11,6 +11,7 @@ NifToaster check
 >>> niftoaster.NifToaster().cli()
 === tests/nif/test_fix_detachhavoktristripsdata.nif ===
   --- fix_detachhavoktristripsdata ---
+detaching data of MiddleWolfRug01:0 from havok tree
   writing to temporary file
 Finished.
 
@@ -23,8 +24,17 @@ Explicit check
 >>> data = NifFormat.Data()
 >>> stream = open("tests/nif/test_fix_detachhavoktristripsdata.nif", "rb")
 >>> data.read(stream)
+>>> # check that data is shared
+>>> data.roots[0].children[0].collisionObject.body.shape.subShapes[0].stripsData[0] is data.roots[0].children[0].data
+True
+>>> # run the spell that fixes this
 >>> #spell = fix.SpellDetachHavokTriStripsData(data=data, stream=stream)
 >>> import PyFFI.Spells
 >>> from PyFFI.Spells.NIF import fix_detachhavoktristripsdata
 >>> spell = PyFFI.Spells.CompatSpellFactory(fix_detachhavoktristripsdata)(data=data, stream=stream)
->>> spell.recurse()
+>>> spell.recurse() # should not say anything but old style spells still use print...
+detaching data of MiddleWolfRug01:0 from havok tree
+>>> # check that data is no longer shared
+>>> data.roots[0].children[0].collisionObject.body.shape.subShapes[0].stripsData[0] is data.roots[0].children[0].data
+False
+

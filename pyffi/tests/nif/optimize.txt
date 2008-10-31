@@ -35,7 +35,8 @@ This script will modify your files, in particular if something goes wrong it
 may destroy them. Make a backup of your files before running this script.
 <BLANKLINE>
 Are you sure that you want to proceed? [n/y] y
-reading tests/nif/_test.nif
+=== tests/nif/_test.nif ===
+  --- optimize ---
 checking for duplicate source textures
 checking for duplicate properties
 removing duplicate and empty children
@@ -64,7 +65,8 @@ Non-interactive
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "optimize", "--noninteractive", "--verbose=1", "tests/nif/_test.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
-reading tests/nif/_test.nif
+=== tests/nif/_test.nif ===
+  --- optimize ---
 checking for duplicate source textures
 checking for duplicate properties
 removing duplicate and empty children
