@@ -325,7 +325,7 @@ class SpellGroupBase(Spell):
         @type stream: C{file}
         """
         # call base class constructor
-        Spell.__init__(self, toaster, data, stream)
+        Spell.__init__(self, toaster=toaster, data=data, stream=stream)
         # set up the list of spells
         self.spells = [spellclass(toaster=toaster, data=data, stream=stream)
                        for spellclass in self.ACTIVESPELLCLASSES]
@@ -336,21 +336,6 @@ class SpellGroupBase(Spell):
         self.spells = [spell for spell in self.spells
                        if spell.datainspect()]
         return bool(self.spells)
-
-    def dataentry(self):
-        """Look into every spell with L{Spell.dataentry}."""
-        self.spells = [spell for spell in self.spells
-                       if spell.dataentry()]
-        return bool(self.spells)
-
-    def dataexit(self):
-        """Look into every spell with L{Spell.dataentry}."""
-        for spell in self.spells:
-            spell.dataexit()
-
-    def branchinspect(self, branch):
-        """Inspect every spell with L{Spell.branchinspect}."""
-        return any(spell.branchinspect(branch) for spell in self.spells)
 
     @classmethod
     def toastentry(cls, toaster):
@@ -372,15 +357,30 @@ class SpellGroupSeriesBase(SpellGroupBase):
             spell.recurse(branch)
 
 class SpellGroupParallelBase(SpellGroupBase):
-     """Base class for running spells in parallel (that is, with only
-     a single recursion in the tree).
-     """
-     def branchentry(self, branch):
-         return any(spell.branchentry(branch) for spell in self.spells)
+    """Base class for running spells in parallel (that is, with only
+    a single recursion in the tree).
+    """
+    def branchinspect(self, branch):
+        """Inspect every spell with L{Spell.branchinspect}."""
+        return any(spell.branchinspect(branch) for spell in self.spells)
 
-     def branchexit(self, branch):
-         for spell in self.spells:
+    def branchentry(self, branch):
+        return any(spell.branchentry(branch) for spell in self.spells)
+
+    def branchexit(self, branch):
+        for spell in self.spells:
              spell.branchexit(branch)
+
+    def dataentry(self):
+        """Look into every spell with L{Spell.dataentry}."""
+        self.spells = [spell for spell in self.spells
+                       if spell.dataentry()]
+        return bool(self.spells)
+
+    def dataexit(self):
+        """Look into every spell with L{Spell.dataexit}."""
+        for spell in self.spells:
+            spell.dataexit()
 
 def SpellGroupSeries(*args):
     """Class factory for grouping spells in series."""
@@ -753,10 +753,13 @@ WARNING: the %s spell is deprecated
                                  % spellname)
                 spellclasses.extend(spellklasses)
             # create group of spells
-            if options.series:
-                self.spellclass = SpellGroupSeries(*spellclasses)
+            if len(spellclasses) > 1:
+                if options.series:
+                    self.spellclass = SpellGroupSeries(*spellclasses)
+                else:
+                    self.spellclass = SpellGroupParallel(*spellclasses)
             else:
-                self.spellclass = SpellGroupParallel(*spellclasses)
+                self.spellclass = spellclasses[0]
 
             if options.helpspell:
                 # TODO: format the docstring
