@@ -1,4 +1,4 @@
-"""Module which contains all spells that 'fix' something in a nif."""
+"""Module which contains all spells that fix something in a nif."""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
@@ -161,3 +161,52 @@ class SpellFixTexturePath(NifSpell):
             return False
         else:
             return True
+
+# the next spell solves issue #2065018, MiddleWolfRug01.NIF
+class SpellFixDetachHavokTriStripsData(NifSpell):
+    """For NiTriStrips if their NiTriStripsData also occurs in a
+    bhkNiTriStripsShape, make deep copy of data in havok. This is
+    mainly useful as a preperation for other spells that act on
+    NiTriStripsData, to ensure that the havok data remains untouched."""
+
+    SPELLNAME = "fix_detachhavoktristripsdata"
+    READONLY = False
+
+    def __init__(self, *args, **kwargs):
+        NifSpell.__init__(self, *args, **kwargs)
+        # provides the bhknitristripsshapes within the current NiTriStrips
+        self.bhknitristripsshapes = None
+
+    def datainspect(self):
+        # only run the spell if there are bhkNiTriStripsShape blocks
+        return self.data.header.hasBlockType(NifFormat.bhkNiTriStripsShape)
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch and collision branch
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.bhkCollisionObject,
+                                   NifFormat.bhkRefObject))
+    
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.bhkNiTriStripsShape):
+            self.bhknitristripsshapes.append(branch)
+            # stop recursion
+            return False
+        elif isinstance(branch, NifFormat.NiTriStrips):
+            # initialize list of havok strip shapes
+            self.bhknitristripsshapes = []
+            # keep recursing into the havok tree
+            return True
+        else:
+            return True
+
+    def branchexit(self, branch):
+        if isinstance(branch, NifFormat.NiTriStrips):
+            for bhknitristripsshape in self.bhknitristripsshapes:
+                for i, data in enumerate(bhknitristripsshape.stripsData):
+                    if data is branch.data:
+                        # detach!
+                        self.msg("detaching havok data")
+                        bhknitristripsshape.stripsData[i] = NifFormat.NiTriStripsData().deepcopy(data)
+            # reset the list
+            self.bhknitristripsshapes = None
