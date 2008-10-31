@@ -101,6 +101,7 @@ class NifToaster(Toaster):
         hackskinrestpose,
         mergeskelandrestpos,
         optimize,
+        optimize.SpellOptimize, # experimental version of the above, not yet fully functional
         optimize_split,
         scale,
         updatecenterradius,

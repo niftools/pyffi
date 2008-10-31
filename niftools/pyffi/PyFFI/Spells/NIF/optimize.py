@@ -59,10 +59,11 @@ __examples__ = """* Standard usage:
     python nifoptimize.py --exclude=NiMaterialProperty /path/to/copy/of/my/nifs
 """
 
-class SpellOptimize(PyFFI.Spells.SpellGroupSeries(
-    PyFFI.Spells.NIF.fix.SpellDetachHavokTriStripsData,
-    PyFFI.Spells.SpellGroupParallel(
-        PyFFI.Spells.NIF.fix.SpellFixTexturePath))):
+class SpellOptimize(
+    PyFFI.Spells.SpellGroupSeries(
+        PyFFI.Spells.SpellGroupParallel(
+            PyFFI.Spells.NIF.fix.SpellDetachHavokTriStripsData,
+            PyFFI.Spells.NIF.fix.SpellFixTexturePath))):
     """Global fixer and optimizer spell."""
     SPELLNAME = "optimize_experimental"
 
