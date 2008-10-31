@@ -58,58 +58,6 @@ __examples__ = """* Standard usage:
     python nifoptimize.py --exclude=NiMaterialProperty /path/to/copy/of/my/nifs
 """
 
-def isequalTriGeomData(shape1, shape2):
-    """Compare two NiTriShapeData/NiTriStripsData blocks, checks if they
-    describe the same geometry.
-
-    @param shape1: A shape.
-    @type shape1: L{NifFormat.NiTriBasedGeomData}
-    @param shape2: Another shape.
-    @type shape2: L{NifFormat.NiTriBasedGeomData}
-    @return: C{True} if the shapes are equivalent, C{False} otherwise.
-    """
-    # check for object identity
-    if shape1 is shape2:
-        return True
-
-    # check class
-    if not isinstance(shape1, shape2.__class__) \
-        or not isinstance(shape2, shape1.__class__):
-        return False
-
-    # check some trivial things first
-    for attribute in (
-        "numVertices", "keepFlags", "compressFlags", "hasVertices",
-        "numUvSets", "hasNormals", "center", "radius",
-        "hasVertexColors", "hasUv", "consistencyFlags"):
-        if getattr(shape1, attribute) != getattr(shape2, attribute):
-            return False
-
-    # check vertices (this includes uvs, vcols and normals)
-    verthashes1 = [hsh for hsh in shape1.getVertexHashGenerator()]
-    verthashes2 = [hsh for hsh in shape2.getVertexHashGenerator()]
-    for hash1 in verthashes1:
-        if not hash1 in verthashes2:
-            return False
-    for hash2 in verthashes2:
-        if not hash2 in verthashes1:
-            return False
-
-    # check triangle list
-    triangles1 = [tuple(verthashes1[i] for i in tri)
-                  for tri in shape1.getTriangles()]
-    triangles2 = [tuple(verthashes2[i] for i in tri)
-                  for tri in shape2.getTriangles()]
-    for tri1 in triangles1:
-        if not tri1 in triangles2:
-            return False
-    for tri2 in triangles2:
-        if not tri2 in triangles1:
-            return False
-
-    # looks pretty identical!
-    return True
-
 def triangulateTriStrips(block):
     """Takes a NiTriStrip block and returns an equivalent NiTriShape block.
 
@@ -581,7 +529,7 @@ def testRoot(root, **args):
         if isinstance(block, (NifFormat.NiTriShape, NifFormat.NiTriStrips)):
             # check with all shapes that were already exported
             for shape in triShapeDataList:
-                if isequalTriGeomData(shape.data, block.data):
+                if shape.data.isInterchangeable(block.data):
                     # match! so merge
                     block.data = shape.data
                     print("  merging shape data of shape %s with shape %s"
