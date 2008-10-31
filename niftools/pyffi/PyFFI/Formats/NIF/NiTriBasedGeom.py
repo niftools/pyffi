@@ -557,3 +557,33 @@ def updateSkinCenterRadius(self):
         skindatablock.boundingSphereOffset.y = center.y
         skindatablock.boundingSphereOffset.z = center.z
         skindatablock.boundingSphereRadius = radius
+
+def getInterchangeableTriShape(self):
+    """Returns a NiTriShape block that is geometrically interchangeable."""
+    # copy the shape (first to NiTriBasedGeom and then to NiTriShape)
+    shape = self.cls.NiTriShape().deepcopy(
+        self.cls.NiTriBasedGeom().deepcopy(self))
+    # copy the geometry without strips
+    shapedata = self.cls.NiTriShapeData().deepcopy(
+        self.cls.NiTriBasedGeomData().deepcopy(self.data))
+    # update the shape data
+    shapedata.setTriangles(self.data.getTriangles())
+    # relink the shape data
+    shape.data = shapedata
+    # and return the result
+    return shape
+
+def getInterchangeableTriStrips(self):
+    """Returns a NiTriStrips block that is geometrically interchangeable."""
+    # copy the shape (first to NiTriBasedGeom and then to NiTriStrips)
+    strips = self.cls.NiTriStrips().deepcopy(
+        self.cls.NiTriBasedGeom().deepcopy(self))
+    # copy the geometry without triangles
+    stripsdata = self.cls.NiTriStripsData().deepcopy(
+        self.cls.NiTriBasedGeomData().deepcopy(self.data))
+    # update the shape data
+    stripsdata.setTriangles(self.data.getTriangles())
+    # relink the shape data
+    strips.data = stripsdata
+    # and return the result
+    return strips
