@@ -356,6 +356,24 @@ class SpellGroupSeriesBase(SpellGroupBase):
         for spell in self.spells:
             spell.recurse(branch)
 
+    # the following functions must NEVER be called in series of spells
+    # everything is handled by the recurse function
+
+    def branchinspect(self, branch):
+        raise RuntimeError("use recurse")
+
+    def branchentry(self, branch):
+        raise RuntimeError("use recurse")
+
+    def dataexit(self):
+        raise RuntimeError("use recurse")
+
+    def dataentry(self):
+        raise RuntimeError("use recurse")
+
+    def dataexit(self):
+        raise RuntimeError("use recurse")
+
 class SpellGroupParallelBase(SpellGroupBase):
     """Base class for running spells in parallel (that is, with only
     a single recursion in the tree).
