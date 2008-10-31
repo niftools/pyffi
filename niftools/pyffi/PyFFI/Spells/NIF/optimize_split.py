@@ -43,7 +43,6 @@ which results in nif files that run much smoother in the engine."""
 from itertools import izip
 
 from PyFFI.Formats.NIF import NifFormat
-from PyFFI.Spells.NIF import fix_detachhavoktristripsdata
 
 # set flag to overwrite files
 __readonly__ = False
@@ -168,8 +167,6 @@ def testRoot(root, **args):
     @param root: The root of the tree.
     @type root: L{NifFormat.NiObject}
     """
-    # detach havok tristripsdata
-    fix_detachhavoktristripsdata.testRoot(root, **args)
 
     # check which blocks to exclude
     exclude = args.get("exclude", [])

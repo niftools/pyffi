@@ -43,7 +43,8 @@ from itertools import izip
 
 from PyFFI.Formats.NIF import NifFormat
 from PyFFI.Utils import TriStrip
-from PyFFI.Spells.NIF import fix_detachhavoktristripsdata
+import PyFFI.Spells
+import PyFFI.Spells.NIF.fix
 
 # set flag to overwrite files
 __readonly__ = False
@@ -57,6 +58,13 @@ __examples__ = """* Standard usage:
 
     python nifoptimize.py --exclude=NiMaterialProperty /path/to/copy/of/my/nifs
 """
+
+class SpellOptimize(PyFFI.Spells.SpellGroupSeries(
+    PyFFI.Spells.NIF.fix.SpellDetachHavokTriStripsData,
+    PyFFI.Spells.SpellGroupParallel(
+        PyFFI.Spells.NIF.fix.SpellFixTexturePath))):
+    """Global fixer and optimizer spell."""
+    SPELLNAME = "optimize_experimental"
 
 def triangulateTriStrips(block):
     """Takes a NiTriStrip block and returns an equivalent NiTriShape block.
@@ -294,20 +302,6 @@ def optimizeTriBasedGeom(block, striplencutoff = 10.0, stitch = True):
 
     return block
 
-# TODO: use fix_texturepath spell instead
-def fixTexturePath(block, **args):
-    """Fix the texture path. Transforms 0x0a into \\n and 0x0d into \\r.
-    This fixes a bug in nifs saved with older versions of nifskope.
-
-    @param block: The block to fix.
-    @type block: L{NifFormat.NiSourceTexture}
-    """
-    if ('\n' in block.fileName) or ('\r' in block.fileName):
-        block.fileName = block.fileName.replace('\n', '\\n')
-        block.fileName = block.fileName.replace('\r', '\\r')
-        print("fixing corrupted file name")
-        print("  %s" % block.fileName)
-
 def testRoot(root, **args):
     """Optimize the tree at root. This is the main entry point for the
     nifoptimize script.
@@ -318,9 +312,6 @@ def testRoot(root, **args):
     # check which blocks to exclude
     exclude = args.get("exclude", [])
 
-    # detach havok tree tristripsdata
-    fix_detachhavoktristripsdata.testRoot(root, **args)
-
     # initialize hash maps
     # (each of these dictionaries maps a block hash to an actual block of
     # the given type)
@@ -329,12 +320,6 @@ def testRoot(root, **args):
 
     # get list of all blocks
     block_list = [ block for block in root.tree(unique = True) ]
-
-    # fix source texture path
-    for block in block_list:
-        if isinstance(block, NifFormat.NiSourceTexture) \
-            and not "NiSourceTexture" in exclude:
-            fixTexturePath(block)
 
     # clamp corrupted material alpha values
     if not "NiMaterialProperty" in exclude:

@@ -60,6 +60,8 @@ reading tests/nif/test_fix_detachhavoktristripsdata.nif
 reading tests/nif/test_fix_ffvt3rskinpartition.nif
 reading tests/nif/test_fix_tangentspace.nif
 reading tests/nif/test_fix_texturepath.nif
+reading tests/nif/test_opt_dupgeomdata.nif
+reading tests/nif/test_opt_dupverts.nif
 
 Create a NIF model from scratch and write to file
 -------------------------------------------------
