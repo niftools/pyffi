@@ -163,7 +163,7 @@ class SpellFixTexturePath(NifSpell):
             return True
 
 # the next spell solves issue #2065018, MiddleWolfRug01.NIF
-class SpellFixDetachHavokTriStripsData(NifSpell):
+class SpellDetachHavokTriStripsData(NifSpell):
     """For NiTriStrips if their NiTriStripsData also occurs in a
     bhkNiTriStripsShape, make deep copy of data in havok. This is
     mainly useful as a preperation for other spells that act on
@@ -206,7 +206,7 @@ class SpellFixDetachHavokTriStripsData(NifSpell):
                 for i, data in enumerate(bhknitristripsshape.stripsData):
                     if data is branch.data:
                         # detach!
-                        self.msg("detaching havok data")
+                        self.toaster.msg("detaching havok data")
                         bhknitristripsshape.stripsData[i] = NifFormat.NiTriStripsData().deepcopy(data)
             # reset the list
             self.bhknitristripsshapes = None
