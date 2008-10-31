@@ -16,7 +16,8 @@ bundled with ColladaCGF)
   - new NifFormat.Data class which now implements all the nif file read and
   write functions
 * completely revamped spell system, which makes it much easier to customize
-spells (thanks to tazpn for some useful suggestions)
+spells, and also enables more efficient implementations (thanks to tazpn for
+some useful suggestions, see issue #2122196)
   - toaster can call multiple spells at once
   - toaster takes spell classes instead of modules
   - for backwards compatibility, there is a class factory which turns any old
@@ -31,7 +32,8 @@ spells (thanks to tazpn for some useful suggestions)
   data within the toaster
   - possibility to write output to a log file instead of to sys.stdout
   - better messaging system (auto indentation, list nif tree as spell runs)
-  - support for spell hierarchies and spell grouping
+  - support for spell hierarchies and spell grouping, in parallel or in series
+  or any combination of these
 
 Version 1.0.5 (27 Sep 2008)
 * niftoaster optimize
