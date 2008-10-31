@@ -1,0 +1,27 @@
+Doctests for the fix_detachhavoktristripsdata spell
+===================================================
+
+NifToaster check
+----------------
+
+>>> import sys
+>>> sys.path.append("scripts/NIF")
+>>> import niftoaster
+>>> sys.argv = ["niftoaster.py", "fix_detachhavoktristripsdata", "--dry-run", "--noninteractive", "tests/nif/test_fix_detachhavoktristripsdata.nif"]
+>>> niftoaster.NifToaster().cli()
+=== tests/nif/test_fix_detachhavoktristripsdata.nif ===
+  --- fix_detachhavoktristripsdata ---
+  writing to temporary file
+Finished.
+
+Explicit check
+--------------
+
+>>> from PyFFI.Formats.NIF import NifFormat
+>>> from PyFFI.Spells.NIF import fix
+>>> from PyFFI.Spells import Toaster
+>>> data = NifFormat.Data()
+>>> stream = open("tests/nif/test_fix_detachhavoktristripsdata.nif", "rb")
+>>> data.read(stream)
+>>> spell = fix.SpellDetachHavokTriStripsData(data=data, stream=stream)
+>>> spell.recurse()

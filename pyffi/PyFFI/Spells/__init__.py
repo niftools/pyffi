@@ -86,19 +86,19 @@ class Spell(object):
     READONLY = True
     SPELLNAME = None
 
-    def __init__(self, toaster, data, stream):
+    def __init__(self, toaster=None, data=None, stream=None):
         """Initialize the spell data.
 
-        @param toaster: The toaster this spell is called from.
-        @type toaster: L{Toaster}
-        @param data: The file data.
+        @kwarg data: The file data.
         @type data: L{PyFFI.ObjectModels.FileFormat.FileFormat.Data}
-        @param stream: The file stream.
+        @kwarg stream: The file stream.
         @type stream: C{file}
+        @kwarg toaster: The toaster this spell is called from (optional).
+        @type toaster: L{Toaster}
         """
-        self.toaster = toaster
         self.data = data
         self.stream = stream
+        self.toaster = toaster if toaster else Toaster()
 
     def _datainspect(self):
         """This is called after C{L{data}.inspect} has
@@ -327,7 +327,7 @@ class SpellGroupBase(Spell):
         # call base class constructor
         Spell.__init__(self, toaster, data, stream)
         # set up the list of spells
-        self.spells = [spellclass(toaster, data, stream)
+        self.spells = [spellclass(toaster=toaster, data=data, stream=stream)
                        for spellclass in self.ACTIVESPELLCLASSES]
 
     def datainspect(self):
@@ -827,7 +827,7 @@ may destroy them. Make a backup of your files before running this script.
                 data.inspect(stream)
  
                 # create spell instance
-                spell = self.spellclass(self, data, stream)
+                spell = self.spellclass(toaster=self, data=data, stream=stream)
                 
                 # inspect the spell instance
                 if spell._datainspect() and spell.datainspect():
