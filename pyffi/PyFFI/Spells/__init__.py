@@ -488,6 +488,17 @@ class _CompatSpell(Spell):
                 self.data.roots,
                 **self.toaster.options)
 
+def CompatSpellFactory(spellmod):
+    """Create new-style spell class from old-style spell module.
+
+    @param spellmod: The old-style spell module.
+    @type spellmod: C{ModuleType}
+    @return: The new-style spell class.
+    @rtype: C{type(L{Spell})}
+    """
+    return type(spellmod.__name__.split(".")[-1], (_CompatSpell,),
+                {"SPELLMODULE": spellmod})
+
 class _MetaCompatToaster(type):
     """Metaclass for L{Toaster} which converts old-style module spells into
     new-style class spells.
@@ -502,19 +513,7 @@ class _MetaCompatToaster(type):
         super(_MetaCompatToaster, cls).__init__(name, bases, dct)
         for i, spellclass in enumerate(cls.SPELLS):
             if isinstance(spellclass, ModuleType):
-                cls.SPELLS[i] = cls.CompatSpellFactory(spellclass)
-
-    def CompatSpellFactory(cls, spellmod):
-        """Create new-style spell class from old-style spell module.
-
-        @param spellmod: The old-style spell module.
-        @type spellmod: C{ModuleType}
-        @return: The new-style spell class.
-        @rtype: C{type(L{Spell})}
-        """
-        return type(spellmod.__name__.split(".")[-1], (_CompatSpell,),
-                    {"SPELLMODULE": spellmod})
-
+                cls.SPELLS[i] = CompatSpellFactory(spellclass)
 
 class Toaster(object):
     """Toaster base class. Toasters run spells on large quantities of files.

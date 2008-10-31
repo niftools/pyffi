@@ -23,5 +23,8 @@ Explicit check
 >>> data = NifFormat.Data()
 >>> stream = open("tests/nif/test_fix_detachhavoktristripsdata.nif", "rb")
 >>> data.read(stream)
->>> spell = fix.SpellDetachHavokTriStripsData(data=data, stream=stream)
+>>> #spell = fix.SpellDetachHavokTriStripsData(data=data, stream=stream)
+>>> import PyFFI.Spells
+>>> from PyFFI.Spells.NIF import fix_detachhavoktristripsdata
+>>> spell = PyFFI.Spells.CompatSpellFactory(fix_detachhavoktristripsdata)(data=data, stream=stream)
 >>> spell.recurse()
