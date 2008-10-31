@@ -422,8 +422,7 @@ class SpellApplyPatch(Spell):
         oldfilename = oldfile.name
         newfilename = oldfilename + ".patched"
         patchfilename = oldfilename + ".patch"
-        if self.toaster.options.get('verbose'):
-            print("  writing %s..." % newfilename)
+        self.toaster.msg("writing %s..." % newfilename)
         if not patchcmd:
             patchfile = open(patchfilename, "rb")
             newfile = open(newfilename, "wb")
@@ -562,15 +561,22 @@ class Toaster(object):
 
     def msg(self, message, level=0):
         """Write message to the L{logstream}, if verbosity is at least the
-        given level.
+        given level. The default level is 0. If verbosity is not defined,
+        then it is assumed to be -1, that is, the function does not print
+        anything.
 
         @param message: The message to write.
         @type message: C{str}
         @param level: Verbosity level of the message. The message is only
-            logged if C{L{options}["verbosity"]} is at least this value.
+            logged if C{L{options}["verbose"]} is at least this value. Must
+            be non-negative.
         @type level: C{int}
         """
-        if level <= self.options.get("verbosity", 0):
+        # check level
+        if level < 0:
+            raise ValueError("message level must be non-negative")
+        # if verbosity is not defined, use -1: never print anything
+        if level <= self.options.get("verbose", -1):
             for line in message.split("\n"):
                 print >>self.logstream, "  " * self.indent + line
 
@@ -689,6 +695,13 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
                             series=False)
         (options, args) = parser.parse_args()
 
+        # convert options to dictionary
+        self.options = {}
+        for optionname in dir(options):
+            # skip default attributes of optparse.Values
+            if not optionname in dir(optparse.Values):
+                self.options[optionname] = getattr(options, optionname)
+
         # check errors
         if options.createpatch and options.applypatch:
             parser.error("options --diff and --patch are mutually exclusive")
@@ -757,13 +770,6 @@ WARNING: the %s spell is deprecated
         # get top folder/file: last argument always is folder/file
         top = args[-1]
 
-        # convert options to dictionary
-        self.options = {}
-        for optionname in dir(options):
-            # skip default attributes of optparse.Values
-            if not optionname in dir(optparse.Values):
-                self.options[optionname] = getattr(options, optionname)
-
         self.toast(top)
 
         # signal the end
@@ -789,10 +795,27 @@ WARNING: the %s spell is deprecated
         ### new-style toaster has it functionally equal to
         ### raisetesterror
         #raisereaderror = self.options.get("raisereaderror", True)
-        verbose = self.options.get("verbose", 1)
-        raisetesterror = self.options.get("raisetesterror", False)
+
+        # some defaults are different from the defaults defined in
+        # the cli function: these defaults are reasonable for when the
+        # toaster is called NOT from the command line
+        # whereas the cli function defines defaults that are reasonable
+        # when the toaster is called from the command line
+        # in particular, when calling from the command line, the script
+        # is much more verbose by default
+
+        # default verbosity is -1: do not print anything (!= cli default)
+        verbose = self.options.get("verbose", -1)
+
+        # raise test errors by default so caller can know what happened
+        # (!= cli default)
+        raisetesterror = self.options.get("raisetesterror", True)
+
         pause = self.options.get("pause", False)
-        interactive = self.options.get("interactive", True)
+
+        # do not ask for confirmation (!= cli default)
+        interactive = self.options.get("interactive", False)
+
         dryrun = self.options.get("dryrun", False)
         prefix = self.options.get("prefix", "")
         createpatch = self.options.get("createpatch", False)
