@@ -1,6 +1,53 @@
-# --------------------------------------------------------------------------
-# NifFormat.NiGeometryData
-# Custom functions for NiGeometryData.
+"""Custom functions for NiGeometryData.
+
+>>> from PyFFI.Formats.NIF import NifFormat
+>>> geomdata = NifFormat.NiGeometryData()
+>>> geomdata.numVertices = 3
+>>> geomdata.hasVertices = True
+>>> geomdata.hasNormals = True
+>>> geomdata.hasVertexColors = True
+>>> geomdata.numUvSets = 2
+>>> geomdata.vertices.updateSize()
+>>> geomdata.normals.updateSize()
+>>> geomdata.vertexColors.updateSize()
+>>> geomdata.uvSets.updateSize()
+>>> geomdata.vertices[0].x = 1
+>>> geomdata.vertices[0].y = 2
+>>> geomdata.vertices[0].z = 3
+>>> geomdata.vertices[1].x = 4
+>>> geomdata.vertices[1].y = 5
+>>> geomdata.vertices[1].z = 6
+>>> geomdata.vertices[2].x = 1.200001
+>>> geomdata.vertices[2].y = 3.400001
+>>> geomdata.vertices[2].z = 5.600001
+>>> geomdata.normals[0].x = 0
+>>> geomdata.normals[0].y = 0
+>>> geomdata.normals[0].z = 1
+>>> geomdata.normals[1].x = 0
+>>> geomdata.normals[1].y = 1
+>>> geomdata.normals[1].z = 0
+>>> geomdata.normals[2].x = 1
+>>> geomdata.normals[2].y = 0
+>>> geomdata.normals[2].z = 0
+>>> geomdata.vertexColors[1].r = 0.310001
+>>> geomdata.vertexColors[1].g = 0.320001
+>>> geomdata.vertexColors[1].b = 0.330001
+>>> geomdata.vertexColors[1].a = 0.340001
+>>> geomdata.uvSets[0][0].u = 0.990001
+>>> geomdata.uvSets[0][0].v = 0.980001
+>>> geomdata.uvSets[0][2].u = 0.970001
+>>> geomdata.uvSets[0][2].v = 0.960001
+>>> geomdata.uvSets[1][0].v = 0.910001
+>>> geomdata.uvSets[1][0].v = 0.920001
+>>> geomdata.uvSets[1][2].v = 0.930001
+>>> geomdata.uvSets[1][2].v = 0.940001
+>>> for h in geomdata.getVertexHashGenerator():
+...     print h
+(1000, 2000, 3000, 0, 0, 1000, 99000, 98000, 0, 92000, 0, 0, 0, 0)
+(4000, 5000, 6000, 0, 1000, 0, 0, 0, 0, 0, 310, 320, 330, 340)
+(1200, 3400, 5600, 1000, 0, 0, 97000, 96000, 0, 94000, 0, 0, 0, 0)
+"""
+
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -86,3 +133,48 @@ def applyScale(self, scale):
     self.center.y *= scale
     self.center.z *= scale
     self.radius *= scale
+
+def getVertexHashGenerator(self,
+                           vertexprecision=3, normalprecision=3,
+                           uvprecision=5, vcolprecision=3):
+    """Generator which produces a tuple of integers for each
+    (vertex, normal, uv, vcol), to ease detection of duplicate vertices.
+    The precision parameters denote number of significant digits.
+
+    Default for uvprecision is higher than default for the rest because
+    for very large models the uv coordinates can be very close together.
+
+    @param vertexprecision: Precision to be used for vertices.
+    @type vertexprecision: float
+    @param normalprecision: Precision to be used for normals.
+    @type normalprecision: float
+    @param uvprecision: Precision to be used for uvs.
+    @type uvprecision: float
+    @param vcolprecision: Precision to be used for vertex colors.
+    @type vcolprecision: float
+    @return: A generator yielding a hash value for each vertex.
+    """
+    verts = self.vertices if self.hasVertices else None
+    norms = self.normals if self.hasNormals else None
+    uvsets = self.uvSets if len(self.uvSets) else None
+    vcols = self.vertexColors if self.hasVertexColors else None
+    vertexfactor = 10 ** vertexprecision
+    normalfactor = 10 ** normalprecision
+    uvfactor = 10 ** uvprecision
+    vcolfactor = 10 ** vcolprecision
+    for i in xrange(self.numVertices):
+        h = []
+        if verts:
+            h.extend([int(x * vertexfactor)
+                     for x in [verts[i].x, verts[i].y, verts[i].z]])
+        if norms:
+            h.extend([int(x * normalfactor)
+                      for x in [norms[i].x, norms[i].y, norms[i].z]])
+        if uvsets:
+            for uvset in uvsets:
+                h.extend([int(x*uvfactor) for x in [uvset[i].u, uvset[i].v]])
+        if vcols:
+            h.extend([int(x * vcolfactor)
+                      for x in [vcols[i].r, vcols[i].g,
+                                vcols[i].b, vcols[i].a]])
+        yield tuple(h)

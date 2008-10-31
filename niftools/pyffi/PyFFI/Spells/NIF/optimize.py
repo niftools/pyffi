@@ -86,8 +86,8 @@ def isequalTriGeomData(shape1, shape2):
             return False
 
     # check vertices (this includes uvs, vcols and normals)
-    verthashes1 = [hsh for hsh in vertexHash(shape1)]
-    verthashes2 = [hsh for hsh in vertexHash(shape2)]
+    verthashes1 = [hsh for hsh in shape1.getVertexHashGenerator()]
+    verthashes2 = [hsh for hsh in shape2.getVertexHashGenerator()]
     for hash1 in verthashes1:
         if not hash1 in verthashes2:
             return False
@@ -109,36 +109,6 @@ def isequalTriGeomData(shape1, shape2):
 
     # looks pretty identical!
     return True
-
-def vertexHash(block, precision = 200):
-    """Generator which identifies unique vertices.
-
-    @param block: A shape data block.
-    @type block: L{NifFormat.NiGeometryData}
-    @param precision: Precision to be used for floats.
-    @type precision: int
-    @return: A generator yielding a hash value for each vertex.
-    """
-    verts = block.vertices if block.hasVertices else None
-    norms = block.normals if block.hasNormals else None
-    uvsets = block.uvSets if len(block.uvSets) else None
-    vcols = block.vertexColors if block.hasVertexColors else None
-    for i in xrange(block.numVertices):
-        h = []
-        if verts:
-            h.extend([int(x * precision)
-                     for x in [verts[i].x, verts[i].y, verts[i].z]])
-        if norms:
-            h.extend([int(x * precision)
-                      for x in [norms[i].x, norms[i].y, norms[i].z]])
-        if uvsets:
-            for uvset in uvsets:
-                h.extend([int(x*precision) for x in [uvset[i].u, uvset[i].v]])
-        if vcols:
-            h.extend([int(x * precision)
-                      for x in [vcols[i].r, vcols[i].g,
-                                vcols[i].b, vcols[i].a]])
-        yield tuple(h)
 
 def triangulateTriStrips(block):
     """Takes a NiTriStrip block and returns an equivalent NiTriShape block.
@@ -215,7 +185,7 @@ def optimizeTriBasedGeom(block, striplencutoff = 10.0, stitch = True):
     v_map_inverse = [] # inverse: map new index to old index
     k_map = {} # maps hash to new vertex index
     index = 0  # new vertex index for next vertex
-    for i, vhash in enumerate(vertexHash(data)):
+    for i, vhash in enumerate(data.getVertexHashGenerator()):
         try:
             k = k_map[vhash]
         except KeyError:
