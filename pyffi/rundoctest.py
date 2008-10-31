@@ -20,6 +20,7 @@ import PyFFI.Utils.Inertia
 import PyFFI.Utils.TangentSpace
 import PyFFI.Utils.Mopp
 import PyFFI.Formats.NIF
+import PyFFI.Formats.NIF.NiGeometryData
 import PyFFI.Formats.NIF.NiTriStripsData
 import PyFFI.Formats.NIF.NiTriShapeData
 import PyFFI.Formats.NIF.NiGeometry
