@@ -1,4 +1,7 @@
 Version 1.1.0 (***)
+* nif format: a large number of functions have moved from the optimizer spell
+to the main interface, so they can be easily used in other scripts without
+having to import this spell module
 * niftoaster
   - new fix_addtangentspace spell to add missing tangent space blocks
   - new fix_deltangentspace spell to remove tangent space blocks
