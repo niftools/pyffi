@@ -67,48 +67,6 @@ class SpellOptimize(
     """Global fixer and optimizer spell."""
     SPELLNAME = "optimize_experimental"
 
-def triangulateTriStrips(block):
-    """Takes a NiTriStrip block and returns an equivalent NiTriShape block.
-
-    @param block: The block to triangulate.
-    @type block: L{NifFormat.NiTriStrips}
-    @return: An equivalent L{NifFormat.NiTriShape} block.
-    """
-    assert(isinstance(block, NifFormat.NiTriStrips))
-    # copy the shape (first to NiTriBasedGeom and then to NiTriShape)
-    shape = NifFormat.NiTriShape().deepcopy(
-        NifFormat.NiTriBasedGeom().deepcopy(block))
-    # copy the geometry without strips
-    shapedata = NifFormat.NiTriShapeData().deepcopy(
-        NifFormat.NiTriBasedGeomData().deepcopy(block.data))
-    # update the shape data
-    shapedata.setTriangles(block.data.getTriangles())
-    # relink the shape data
-    shape.data = shapedata
-    # and return the result
-    return shape
-
-def stripifyTriShape(block):
-    """Takes a NiTriShape block and returns an equivalent NiTriStrips block.
-
-    @param block: The block to stripify.
-    @type block: L{NifFormat.NiTriShape}
-    @return: An equivalent L{NifFormat.NiTriStrips} block.
-    """
-    assert(isinstance(block, NifFormat.NiTriShape))
-    # copy the shape (first to NiTriBasedGeom and then to NiTriStrips)
-    strips = NifFormat.NiTriStrips().deepcopy(
-        NifFormat.NiTriBasedGeom().deepcopy(block))
-    # copy the geometry without triangles
-    stripsdata = NifFormat.NiTriStripsData().deepcopy(
-        NifFormat.NiTriBasedGeomData().deepcopy(block.data))
-    # update the shape data
-    stripsdata.setTriangles(block.data.getTriangles())
-    # relink the shape data
-    strips.data = stripsdata
-    # and return the result
-    return strips
-
 def optimizeTriBasedGeom(block, striplencutoff = 10.0, stitch = True):
     """Optimize a NiTriStrips or NiTriShape block:
       - remove duplicate vertices
@@ -221,7 +179,7 @@ def optimizeTriBasedGeom(block, striplencutoff = 10.0, stitch = True):
         print "  (strip length was %i and is now %i)" % (origlen, newlen)
     elif isinstance(block, NifFormat.NiTriShape):
         print "  stripifying"
-        block = stripifyTriShape(block)
+        block = block.getInterchangeableTriStrips(block)
         data = block.data
     # average, weighed towards large strips
     if isinstance(block, NifFormat.NiTriStrips):
@@ -232,7 +190,7 @@ def optimizeTriBasedGeom(block, striplencutoff = 10.0, stitch = True):
         if avgstriplen < striplencutoff:
             print("  average strip length less than %f so triangulating"
                   % striplencutoff)
-            block = triangulateTriStrips(block)
+            block = block.getInterchangeableTriShape()
         elif stitch:
             print("  stitching strips (using %i stitches)"
                   % len(data.getStrips()))
