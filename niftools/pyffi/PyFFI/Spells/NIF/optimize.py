@@ -44,6 +44,7 @@ from itertools import izip
 from PyFFI.Formats.NIF import NifFormat
 from PyFFI.Utils import TriStrip
 import PyFFI.Spells
+import PyFFI.Spells.NIF
 import PyFFI.Spells.NIF.fix
 
 # set flag to overwrite files
@@ -58,6 +59,59 @@ __examples__ = """* Standard usage:
 
     python nifoptimize.py --exclude=NiMaterialProperty /path/to/copy/of/my/nifs
 """
+
+class SpellCleanRefLists(PyFFI.Spells.NIF.NifSpell):
+    """Remove empty and duplicate entries in reference lists."""
+
+    SPELLNAME = "opt_cleanreflists"
+    READONLY = False
+
+    def datainspect(self):
+        # so far, only reference lists in NiObjectNET blocks, NiAVObject
+        # blocks, and NiNode blocks are checked
+        return self.data.header.hasBlockType(NifFormat.NiObjectNET)
+
+    def branchinspect(self, branch):
+        # only inspect the NiObjectNET branch
+        return isinstance(branch, NifFormat.NiObjectNET)
+
+    def cleanreflist(self, reflist, category):
+        """Return a cleaned copy of the given list of references."""
+        # delete empty references
+        cleanlist = reflist[:]
+        if None in cleanlist:
+            self.toaster.msg("removing empty %s references" % category)
+            cleanlist = [ref for ref in cleanlist if not ref is None]
+        # delete duplicate references
+        cleanlistcopy = cleanlist[:]
+        cleanlist = []
+        for ref in cleanlistcopy:
+            if ref in cleanlist:
+                self.toaster.msg("removing duplicate %s reference" % category)
+            else:
+                cleanlist.append(ref)
+        # done
+        return cleanlist
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiObjectNET):
+            # clean extra data
+            branch.setExtraDatas(
+                self.cleanreflist(branch.getExtraDatas(), "extra"))
+        if isinstance(branch, NifFormat.NiAVObject):
+            # clean properties
+            branch.setProperties(
+                self.cleanreflist(branch.getProperties(), "property"))
+        if isinstance(branch, NifFormat.NiNode):
+            # clean children
+            branch.setChildren(
+                self.cleanreflist(branch.getChildren(), "child"))
+            # clean effects
+            branch.setEffects(
+                self.cleanreflist(branch.getEffects(), "effect"))
+        # recurse further
+        return True
+
 
 class SpellOptimize(
     PyFFI.Spells.SpellGroupSeries(
