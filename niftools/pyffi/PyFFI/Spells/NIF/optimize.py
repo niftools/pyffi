@@ -63,7 +63,8 @@ class SpellOptimize(
     PyFFI.Spells.SpellGroupSeries(
         PyFFI.Spells.SpellGroupParallel(
             PyFFI.Spells.NIF.fix.SpellDetachHavokTriStripsData,
-            PyFFI.Spells.NIF.fix.SpellFixTexturePath))):
+            PyFFI.Spells.NIF.fix.SpellFixTexturePath,
+            PyFFI.Spells.NIF.fix.SpellClampMaterialAlpha))):
     """Global fixer and optimizer spell."""
     SPELLNAME = "optimize_experimental"
 
@@ -179,7 +180,7 @@ def optimizeTriBasedGeom(block, striplencutoff = 10.0, stitch = True):
         print "  (strip length was %i and is now %i)" % (origlen, newlen)
     elif isinstance(block, NifFormat.NiTriShape):
         print "  stripifying"
-        block = block.getInterchangeableTriStrips(block)
+        block = block.getInterchangeableTriStrips()
         data = block.data
     # average, weighed towards large strips
     if isinstance(block, NifFormat.NiTriStrips):
@@ -279,24 +280,6 @@ def testRoot(root, **args):
 
     # get list of all blocks
     block_list = [ block for block in root.tree(unique = True) ]
-
-    # clamp corrupted material alpha values
-    if not "NiMaterialProperty" in exclude:
-        for block in block_list:
-            # skip non-material blocks
-            if not isinstance(block, NifFormat.NiMaterialProperty):
-                continue
-            # check if alpha exceeds usual values
-            if block.alpha > 1:
-                # too large
-                print("clamping alpha value (%f -> 1.0) in material %s"
-                      % (block.alpha, block.name))
-                block.alpha = 1.0
-            elif block.alpha < 0:
-                # too small
-                print("clamping alpha value (%f -> 0.0) in material %s"
-                      % (block.alpha, block.name))
-                block.alpha = 0.0
 
     # join duplicate source textures
     print("checking for duplicate source textures")

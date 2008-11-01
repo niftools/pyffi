@@ -210,3 +210,37 @@ class SpellDetachHavokTriStripsData(NifSpell):
                         bhknitristripsshape.stripsData[i] = NifFormat.NiTriStripsData().deepcopy(data)
             # reset the list
             self.bhknitristripsshapes = None
+
+class SpellClampMaterialAlpha(NifSpell):
+    """Clamp corrupted material alpha values."""
+
+    SPELLNAME = "fix_clampmaterialalpha"
+    READONLY = False
+
+    def datainspect(self):
+        # only run the spell if there are material property blocks
+        return self.data.header.hasBlockType(NifFormat.NiMaterialProperty)
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch, and material properties
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiMaterialProperty))
+    
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiMaterialProperty):
+            # check if alpha exceeds usual values
+            if branch.alpha > 1:
+                # too large
+                self.toaster.msg(
+                    "clamping alpha value (%f -> 1.0)" % branch.alpha)
+                branch.alpha = 1.0
+            elif branch.alpha < 0:
+                # too small
+                self.toaster.msg(
+                    "clamping alpha value (%f -> 0.0)" % branch.alpha)
+                branch.alpha = 0.0
+            # stop recursion
+            return False
+        else:
+            # keep recursing into children
+            return True
