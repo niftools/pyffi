@@ -37,8 +37,9 @@
 #
 # ***** END LICENSE BLOCK *****
 
-from PyFFI import Utils
+import os.path # os.path.altsep
 
+from PyFFI import Utils
 import PyFFI.ObjectModels.Tree
 
 class MetaFileFormat(type):
@@ -254,6 +255,9 @@ class FileFormat(object):
         for filename in Utils.walk(top, topdown, onerror = None,
                                    re_filename = cls.RE_FILENAME):
             if verbose >= 1:
+                if os.path.altsep == "/": # windows
+                    # always use forward slashes (useful for doctests)
+                    filename = filename.replace(os.path.sep, os.path.altsep)
                 print("reading %s" % filename)
             stream = open(filename, mode)
             try:
