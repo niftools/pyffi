@@ -128,10 +128,11 @@ disableparallax
 dump
 dump_tex
 exportpixeldata
-fix_ffvt3rskinpartition
 fix_addtangentspace
+fix_clampmaterialalpha
 fix_deltangentspace
 fix_detachhavoktristripsdata
+fix_ffvt3rskinpartition
 fix_texturepath
 hackcheckskindata
 hackmultiskelroot

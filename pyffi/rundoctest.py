@@ -55,6 +55,7 @@ suite.addTest(doctest.DocFileSuite('tests/nif/ffvt3rskin.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/fix_texturepath.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/fix_tangentspace_series_parallel.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/fix_detachhavoktristripsdata.txt'))
+suite.addTest(doctest.DocFileSuite('tests/nif/fix_clampmaterialalpha.txt'))
 suite.addTest(doctest.DocFileSuite('tests/om_simpletype.txt'))
 suite.addTest(doctest.DocFileSuite('tests/om_arraytype.txt'))
 
