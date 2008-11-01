@@ -45,5 +45,12 @@ def hasBlockType(self, block_type):
     @warning: Only nif versions 10.0.1.0 and up store block types in header,
         so this will always return C{False} on older nifs.
     """
-    return block_type.__name__ in self.blockTypes
-
+    # quick first check, without hierarchy, using simple string comparisons
+    if block_type.__name__ in self.blockTypes:
+        return True
+    # slower check, using isinstance
+    for data_block_type in self.blockTypes:
+        if isinstance(getattr(self.cls, data_block_type), block_type):
+            return True
+    # requested block type is not in nif
+    return False
