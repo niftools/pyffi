@@ -202,5 +202,9 @@ NifError: unknown block type 'NiInvalid!'
   --- check_readwrite ---
     writing to temporary file
       comparing file sizes
+=== tests/nif/test_opt_emptyproperties.nif ===
+  --- check_readwrite ---
+    writing to temporary file
+      comparing file sizes
 Finished.
 

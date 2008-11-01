@@ -1,6 +1,9 @@
 Doctests for the fix_texturepath spell
 ======================================
 
+NifToaster check
+----------------
+
 >>> import sys
 >>> sys.path.append("scripts/NIF")
 >>> import niftoaster
@@ -22,3 +25,26 @@ Doctests for the fix_texturepath spell
           ~~~ NiMaterialProperty [Yellow] ~~~
   writing to temporary file
 Finished.
+
+Explicit check
+--------------
+
+>>> from PyFFI.Formats.NIF import NifFormat
+>>> from PyFFI.Spells.NIF import fix
+>>> from PyFFI.Spells import Toaster
+>>> data = NifFormat.Data()
+>>> stream = open("tests/nif/test_fix_clampmaterialalpha.nif", "rb")
+>>> data.read(stream)
+>>> # check that material alpha is out of range
+>>> data.roots[0].children[0].children[0].properties[0].alpha > 1.01
+True
+>>> data.roots[0].children[0].children[1].properties[0].alpha < -0.01
+True
+>>> # run the spell that fixes this
+>>> spell = fix.SpellClampMaterialAlpha(data=data)
+>>> spell.recurse()
+>>> # check that material alpha are no longer out of range
+>>> "%.3f" % data.roots[0].children[0].children[0].properties[0].alpha
+'1.000'
+>>> "%.3f" % data.roots[0].children[0].children[1].properties[0].alpha
+'0.000'
