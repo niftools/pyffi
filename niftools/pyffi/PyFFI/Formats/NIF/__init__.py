@@ -48,7 +48,8 @@ Parse all NIF files in a directory tree
 
 >>> for stream, data in NifFormat.walkData('tests/nif'):
 ...     try:
-...         print("reading %s" % stream.name)
+...         # the replace call makes the doctest also pass on windows
+...         print("reading %s" % stream.name.replace("\\\\", "/"))
 ...         data.read(stream)
 ...     except StandardError:
 ...         print("Warning: read failed due corrupt file, corrupt format description, or bug.")
@@ -56,6 +57,7 @@ reading tests/nif/invalid.nif
 Warning: read failed due corrupt file, corrupt format description, or bug.
 reading tests/nif/test.nif
 reading tests/nif/test_dump_tex.nif
+reading tests/nif/test_fix_clampmaterialalpha.nif
 reading tests/nif/test_fix_detachhavoktristripsdata.nif
 reading tests/nif/test_fix_ffvt3rskinpartition.nif
 reading tests/nif/test_fix_tangentspace.nif
