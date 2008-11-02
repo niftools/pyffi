@@ -43,4 +43,23 @@ import PyFFI.Spells
 
 class NifSpell(PyFFI.Spells.Spell):
     """Base class for spells for nif files."""
-    pass
+
+    def inspectblocktype(self, blocktype):
+        """This function heuristically checks whether the given block type
+        is used in the nif file, using header information only. When in doubt,
+        it returns C{True}.
+
+        @param block_type: The block type.
+        @type block_type: L{NifFormat.NiObject}
+        @return: C{False} if the nif has no block of the given type,
+            with certainty. C{True} if the nif has the block, or if it
+            cannot be determined.
+        @rtype: C{bool}
+        """
+        try:
+            # try via header
+            return self.data.header.hasBlockType(blocktype)
+        except ValueError:
+            # header does not have the information because nif version is
+            # too old
+            return True
