@@ -88,13 +88,71 @@ def removeExtraData(self, extrablock):
 
 def getExtraDatas(self):
     """Get a list of all extra data blocks."""
-    xtras = [xtra for xtra in self.extraDataList ]
+    xtras = [xtra for xtra in self.extraDataList]
     xtra = self.extraData
     while xtra:
         if not xtra in self.extraDataList:
             xtras.append(xtra)
         xtra = xtra.nextExtraData
     return xtras
+
+def setExtraDatas(self, extralist):
+    """Set all extra data blocks from given list (erases existing data).
+
+    >>> from PyFFI.Formats.NIF import NifFormat
+    >>> node = NifFormat.NiNode()
+    >>> extra1 = NifFormat.NiExtraData()
+    >>> extra1.name = "hello"
+    >>> extra2 = NifFormat.NiExtraData()
+    >>> extra2.name = "world"
+    >>> node.getExtraDatas()
+    []
+    >>> node.setExtraDatas([extra1, extra2])
+    >>> [extra.name for extra in node.getExtraDatas()]
+    ['hello', 'world']
+    >>> [extra.name for extra in node.extraDataList]
+    ['hello', 'world']
+    >>> node.extraData is extra1
+    True
+    >>> extra1.nextExtraData is extra2
+    True
+    >>> extra2.nextExtraData is None
+    True
+    >>> node.setExtraDatas([])
+    >>> node.getExtraDatas()
+    []
+    >>> # now set them the other way around
+    >>> node.setExtraDatas([extra2, extra1])
+    >>> [extra.name for extra in node.getExtraDatas()]
+    ['world', 'hello']
+    >>> [extra.name for extra in node.extraDataList]
+    ['world', 'hello']
+    >>> node.extraData is extra2
+    True
+    >>> extra2.nextExtraData is extra1
+    True
+    >>> extra1.nextExtraData is None
+    True
+
+    @param extralist: List of extra data blocks to add.
+    @type extralist: C{list} of L{NifFormat.NiExtraData}
+    """
+    # set up extra data list
+    self.numExtraDataList = len(extralist)
+    self.extraDataList.updateSize()
+    for i, extra in enumerate(extralist):
+        self.extraDataList[i] = extra
+    # set up extra data chain
+    # first, kill the current chain
+    self.extraData = None
+    # now reconstruct it
+    if extralist:
+        self.extraData = extralist[0]
+        lastextra = self.extraData
+        for extra in extralist[1:]:
+            lastextra.nextExtraData = extra
+            lastextra = extra
+        lastextra.nextExtraData = None
 
 def addController(self, ctrlblock):
     """Add block to controller chain and set target of controller to self."""
