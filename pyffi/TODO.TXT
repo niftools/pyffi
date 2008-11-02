@@ -30,9 +30,6 @@
     in particular, qskope should never have to import from ObjectModels.XXX,
     or Formats.XXX
 
-* improve spell module based on toaster and spell classes to make
-  customization easier
-
 * doctests for all spells
 
 * improve overall documentation, for instance:
