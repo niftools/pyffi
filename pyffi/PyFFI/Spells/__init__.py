@@ -379,11 +379,15 @@ class SpellGroupParallelBase(SpellGroupBase):
     a single recursion in the tree).
     """
     def branchinspect(self, branch):
-        """Inspect every spell with L{Spell.branchinspect}."""
+        """Inspect spells with L{Spell.branchinspect} (not all checks are
+        executed, only keeps going until a spell inspection returns C{True}).
+        """
         return any(spell.branchinspect(branch) for spell in self.spells)
 
     def branchentry(self, branch):
-        return any(spell.branchentry(branch) for spell in self.spells)
+        """Run all spells."""
+        # not using any: we want all entry code to be executed
+        return bool([spell.branchentry(branch) for spell in self.spells])
 
     def branchexit(self, branch):
         for spell in self.spells:
