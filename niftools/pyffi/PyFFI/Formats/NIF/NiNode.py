@@ -1,5 +1,8 @@
 """Custom functions for NiNode.
 
+Doctests
+========
+
 Old test code
 -------------
 
@@ -62,6 +65,38 @@ Children
 ['hello']
 >>> node.addChild(child2)
 >>> [child.name for child in node.children]
+['hello', 'world']
+
+Effects
+-------
+
+>>> from PyFFI.Formats.NIF import NifFormat
+>>> node = NifFormat.NiNode()
+>>> effect1 = NifFormat.NiSpotLight()
+>>> effect1.name = "hello"
+>>> effect2 = NifFormat.NiSpotLight()
+>>> effect2.name = "world"
+>>> node.getEffects()
+[]
+>>> node.setEffects([effect1, effect2])
+>>> [effect.name for effect in node.getEffects()]
+['hello', 'world']
+>>> [effect.name for effect in node.effects]
+['hello', 'world']
+>>> node.setEffects([])
+>>> node.getEffects()
+[]
+>>> # now set them the other way around
+>>> node.setEffects([effect2, effect1])
+>>> [effect.name for effect in node.getEffects()]
+['world', 'hello']
+>>> [effect.name for effect in node.effects]
+['world', 'hello']
+>>> node.removeEffect(effect2)
+>>> [effect.name for effect in node.effects]
+['hello']
+>>> node.addEffect(effect2)
+>>> [effect.name for effect in node.effects]
 ['hello', 'world']
 """
 
@@ -154,12 +189,41 @@ def setChildren(self, childlist):
     for i, child in enumerate(childlist):
         self.children[i] = child
 
-
-
 def addEffect(self, effect):
-    """Add an effect to the list of effects."""
+    """Add an effect to the list of effects.
+
+    @param effect: The effect to add.
+    @type effect: L{NifFormat.NiDynamicEffect}
+    """
     num_effs = self.numEffects
     self.numEffects = num_effs + 1
     self.effects.updateSize()
     self.effects[num_effs] = effect
 
+def removeEffect(self, effect):
+    """Remove a block from the effect list.
+
+    @param effect: The effect to remove.
+    @type effect: L{NifFormat.NiDynamicEffect}
+    """
+    self.setEffects([othereffect for othereffect in self.getEffects()
+                     if not(othereffect is effect)])
+
+def getEffects(self):
+    """Return a list of the effects of the block.
+
+    @return: The list of effects.
+    @rtype: C{list} of L{NifFormat.NiDynamicEffect}
+    """
+    return [effect for effect in self.effects]
+
+def setEffects(self, effectlist):
+    """Set the list of effects from the given list (destroys existing list).
+
+    @param effectlist: The list of effect blocks to set.
+    @type effectlist: C{list} of L{NifFormat.NiDynamicEffect}
+    """
+    self.numEffects = len(effectlist)
+    self.effects.updateSize()
+    for i, effect in enumerate(effectlist):
+        self.effects[i] = effect
