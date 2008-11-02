@@ -77,17 +77,12 @@ class SpellCleanRefLists(PyFFI.Spells.NIF.NifSpell):
 
     def cleanreflist(self, reflist, category):
         """Return a cleaned copy of the given list of references."""
-        # delete empty references
-        cleanlist = reflist[:]
-        if None in cleanlist:
-            self.toaster.msg("removing %i empty %s reference(s)"
-                             % (cleanlist.count(None), category))
-            cleanlist = [ref for ref in cleanlist if not ref is None]
-        # delete duplicate references
-        cleanlistcopy = cleanlist[:]
+        # delete empty and duplicate references
         cleanlist = []
-        for ref in cleanlistcopy:
-            if ref in cleanlist:
+        for ref in reflist:
+            if ref is None:
+                self.toaster.msg("removing empty %s reference" % category)
+            elif ref in cleanlist:
                 self.toaster.msg("removing duplicate %s reference" % category)
             else:
                 cleanlist.append(ref)
