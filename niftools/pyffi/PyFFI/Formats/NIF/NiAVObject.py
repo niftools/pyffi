@@ -37,14 +37,54 @@
 #
 # ***** END LICENSE BLOCK *****
 
-def addProperty(self, propblock):
-    """Add block C{propblock} to property list.
+def addProperty(self, prop):
+    """Add the given property to the property list.
 
-    @param propblock: The property block to add."""
+    @param prop: The property block to add.
+    @type prop: L{NifFormat.NiProperty}
+    """
     num_props = self.numProperties
     self.numProperties = num_props + 1
     self.properties.updateSize()
     self.properties[num_props] = propblock
+
+def getProperties(self):
+    """Return a list of the properties of the block."""
+    return [prop for prop in self.properties]
+
+def setProperties(self, proplist):
+    """Set the list of properties from the given list (destroys existing list).
+
+    >>> from PyFFI.Formats.NIF import NifFormat
+    >>> node = NifFormat.NiNode()
+    >>> prop1 = NifFormat.NiProperty()
+    >>> prop1.name = "hello"
+    >>> prop2 = NifFormat.NiProperty()
+    >>> prop2.name = "world"
+    >>> node.getProperties()
+    []
+    >>> node.setProperties([prop1, prop2])
+    >>> [prop.name for prop in node.getProperties()]
+    ['hello', 'world']
+    >>> [prop.name for prop in node.properties]
+    ['hello', 'world']
+    >>> node.setProperties([])
+    >>> node.getProperties()
+    []
+    >>> # now set them the other way around
+    >>> node.setProperties([prop2, prop1])
+    >>> [prop.name for prop in node.getProperties()]
+    ['world', 'hello']
+    >>> [prop.name for prop in node.properties]
+    ['world', 'hello']
+ 
+    @param proplist: The list of property blocks to set.
+    @type proplist: C{list} of L{NifFormat.NiProperty}
+    """
+    self.numProperties = len(proplist)
+    self.properties.updateSize()
+    for i, prop in enumerate(proplist):
+        self.properties[i] = prop
 
 def getTransform(self, relative_to = None):
     """Return scale, rotation, and translation into a single 4x4 matrix,
