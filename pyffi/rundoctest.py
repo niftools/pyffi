@@ -25,6 +25,7 @@ import PyFFI.Formats.NIF.NiTriStripsData
 import PyFFI.Formats.NIF.NiTriShapeData
 import PyFFI.Formats.NIF.NiGeometry
 import PyFFI.Formats.NIF.NiObjectNET
+import PyFFI.Formats.NIF.NiAVObject
 import PyFFI.Formats.NIF.NiNode
 import PyFFI.Formats.NIF.NiSkinData
 import PyFFI.Formats.NIF.StringPalette
