@@ -40,11 +40,23 @@
 def hasBlockType(self, block_type):
     """Check if header has a particular block type.
 
+    >>> from PyFFI.Formats.NIF import NifFormat
+    >>> data = NifFormat.Data()
+    >>> data.header.hasBlockType(NifFormat.NiAVObject) # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    ValueError: ...
+    >>> # TODO more tests
+
     @param block_type: The block type.
     @type block_type: L{NifFormat.NiObject}
-    @warning: Only nif versions 10.0.1.0 and up store block types in header,
-        so this will always return C{False} on older nifs.
+    @raise C{ValueError}: Only nif versions 10.0.1.0 and up store
+        block types in header. To detect this situation, this function
+        will raise an exception when number of block types is zero.
     """
+    # check if we can check the block types at all
+    if self.numBlockTypes == 0:
+        raise ValueError("header does not store any block types")
     # quick first check, without hierarchy, using simple string comparisons
     if block_type.__name__ in self.blockTypes:
         return True
