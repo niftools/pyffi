@@ -91,7 +91,11 @@ def removeProperty(self, prop):
                         if not(otherprop is prop)])
 
 def getProperties(self):
-    """Return a list of the properties of the block."""
+    """Return a list of the properties of the block.
+
+    @return: The list of properties.
+    @rtype: C{list} of L{NifFormat.NiProperty}
+    """
     return [prop for prop in self.properties]
 
 def setProperties(self, proplist):
