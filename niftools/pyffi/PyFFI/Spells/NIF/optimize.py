@@ -80,7 +80,8 @@ class SpellCleanRefLists(PyFFI.Spells.NIF.NifSpell):
         # delete empty references
         cleanlist = reflist[:]
         if None in cleanlist:
-            self.toaster.msg("removing empty %s references" % category)
+            self.toaster.msg("removing %i empty %s reference(s)"
+                             % (cleanlist.count(None), category))
             cleanlist = [ref for ref in cleanlist if not ref is None]
         # delete duplicate references
         cleanlistcopy = cleanlist[:]
@@ -109,13 +110,14 @@ class SpellCleanRefLists(PyFFI.Spells.NIF.NifSpell):
             # clean effects
             branch.setEffects(
                 self.cleanreflist(branch.getEffects(), "effect"))
-        # recurse further
+        # always recurse further
         return True
 
 
 class SpellOptimize(
     PyFFI.Spells.SpellGroupSeries(
         PyFFI.Spells.SpellGroupParallel(
+            SpellCleanRefLists,
             PyFFI.Spells.NIF.fix.SpellDetachHavokTriStripsData,
             PyFFI.Spells.NIF.fix.SpellFixTexturePath,
             PyFFI.Spells.NIF.fix.SpellClampMaterialAlpha))):

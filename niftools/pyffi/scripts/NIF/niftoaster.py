@@ -48,6 +48,7 @@ import PyFFI.Spells.check
 import PyFFI.Spells.NIF.check
 import PyFFI.Spells.NIF.dump
 import PyFFI.Spells.NIF.fix
+import PyFFI.Spells.NIF.optimize
 from PyFFI.Spells.NIF import \
     checkbhkbodycenter, \
     checkcenterradius, \
@@ -102,7 +103,8 @@ class NifToaster(Toaster):
         hackskinrestpose,
         mergeskelandrestpos,
         optimize,
-        optimize.SpellOptimize, # experimental version of the above, not yet fully functional
+        PyFFI.Spells.NIF.optimize.SpellCleanRefLists,
+        PyFFI.Spells.NIF.optimize.SpellOptimize, # experimental version of the above, not yet fully functional
         optimize_split,
         scale,
         updatecenterradius,
