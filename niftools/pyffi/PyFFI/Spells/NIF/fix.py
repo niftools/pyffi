@@ -49,7 +49,7 @@ class SpellDelTangentSpace(NifSpell):
     READONLY = False
 
     def datainspect(self):
-        return self.data.header.hasBlockType(NifFormat.NiBinaryExtraData)
+        return self.inspectblocktype(NifFormat.NiBinaryExtraData)
 
     def branchinspect(self, branch):
         # only inspect the NiAVObject branch
@@ -76,7 +76,7 @@ class SpellAddTangentSpace(NifSpell):
     READONLY = False
 
     def datainspect(self):
-        return self.data.header.hasBlockType(NifFormat.NiBinaryExtraData)
+        return self.inspectblocktype(NifFormat.NiBinaryExtraData)
 
     def branchinspect(self, branch):
         # only inspect the NiAVObject branch
@@ -108,7 +108,7 @@ class SpellFFVT3RSkinPartition(NifSpell):
     READONLY = False
 
     def datainspect(self):
-        return self.data.header.hasBlockType(NifFormat.NiSkinInstance)
+        return self.inspectblocktype(NifFormat.NiSkinInstance)
 
     def branchinspect(self, branch):
         # only inspect the NiAVObject branch
@@ -140,7 +140,7 @@ class SpellFixTexturePath(NifSpell):
 
     def datainspect(self):
         # only run the spell if there are NiSourceTexture blocks
-        return self.data.header.hasBlockType(NifFormat.NiSourceTexture)
+        return self.inspectblocktype(NifFormat.NiSourceTexture)
 
     def branchinspect(self, branch):
         # only inspect the NiAVObject branch, texturing properties and source
@@ -179,7 +179,7 @@ class SpellDetachHavokTriStripsData(NifSpell):
 
     def datainspect(self):
         # only run the spell if there are bhkNiTriStripsShape blocks
-        return self.data.header.hasBlockType(NifFormat.bhkNiTriStripsShape)
+        return self.inspectblocktype(NifFormat.bhkNiTriStripsShape)
 
     def branchinspect(self, branch):
         # only inspect the NiAVObject branch and collision branch
@@ -219,7 +219,7 @@ class SpellClampMaterialAlpha(NifSpell):
 
     def datainspect(self):
         # only run the spell if there are material property blocks
-        return self.data.header.hasBlockType(NifFormat.NiMaterialProperty)
+        return self.inspectblocktype(NifFormat.NiMaterialProperty)
 
     def branchinspect(self, branch):
         # only inspect the NiAVObject branch, and material properties

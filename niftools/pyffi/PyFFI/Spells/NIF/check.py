@@ -95,7 +95,7 @@ class SpellNodeNamesByFlag(NifSpell):
             print flag, names
 
     def datainspect(self):
-        return self.data.header.hasBlockType(NifFormat.NiNode)
+        return self.inspectblocktype(NifFormat.NiNode)
 
     def branchinspect(self, branch):
         # stick to main tree

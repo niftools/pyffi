@@ -69,7 +69,7 @@ class SpellCleanRefLists(PyFFI.Spells.NIF.NifSpell):
     def datainspect(self):
         # so far, only reference lists in NiObjectNET blocks, NiAVObject
         # blocks, and NiNode blocks are checked
-        return self.data.header.hasBlockType(NifFormat.NiObjectNET)
+        return self.inspectblocktype(NifFormat.NiObjectNET)
 
     def branchinspect(self, branch):
         # only inspect the NiObjectNET branch
