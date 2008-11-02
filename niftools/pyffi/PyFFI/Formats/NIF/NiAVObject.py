@@ -1,4 +1,37 @@
-"""Custom functions for NiAVObject."""
+"""Custom functions for NiAVObject.
+
+Properties
+----------
+
+>>> from PyFFI.Formats.NIF import NifFormat
+>>> node = NifFormat.NiNode()
+>>> prop1 = NifFormat.NiProperty()
+>>> prop1.name = "hello"
+>>> prop2 = NifFormat.NiProperty()
+>>> prop2.name = "world"
+>>> node.getProperties()
+[]
+>>> node.setProperties([prop1, prop2])
+>>> [prop.name for prop in node.getProperties()]
+['hello', 'world']
+>>> [prop.name for prop in node.properties]
+['hello', 'world']
+>>> node.setProperties([])
+>>> node.getProperties()
+[]
+>>> # now set them the other way around
+>>> node.setProperties([prop2, prop1])
+>>> [prop.name for prop in node.getProperties()]
+['world', 'hello']
+>>> [prop.name for prop in node.properties]
+['world', 'hello']
+>>> node.removeProperty(prop2)
+>>> [prop.name for prop in node.properties]
+['hello']
+>>> node.addProperty(prop2)
+>>> [prop.name for prop in node.properties]
+['hello', 'world']
+"""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -46,7 +79,16 @@ def addProperty(self, prop):
     num_props = self.numProperties
     self.numProperties = num_props + 1
     self.properties.updateSize()
-    self.properties[num_props] = propblock
+    self.properties[num_props] = prop
+
+def removeProperty(self, prop):
+    """Remove the given property to the property list.
+
+    @param prop: The property block to remove.
+    @type prop: L{NifFormat.NiProperty}
+    """
+    self.setProperties([otherprop for otherprop in self.getProperties()
+                        if not(otherprop is prop)])
 
 def getProperties(self):
     """Return a list of the properties of the block."""
@@ -55,29 +97,6 @@ def getProperties(self):
 def setProperties(self, proplist):
     """Set the list of properties from the given list (destroys existing list).
 
-    >>> from PyFFI.Formats.NIF import NifFormat
-    >>> node = NifFormat.NiNode()
-    >>> prop1 = NifFormat.NiProperty()
-    >>> prop1.name = "hello"
-    >>> prop2 = NifFormat.NiProperty()
-    >>> prop2.name = "world"
-    >>> node.getProperties()
-    []
-    >>> node.setProperties([prop1, prop2])
-    >>> [prop.name for prop in node.getProperties()]
-    ['hello', 'world']
-    >>> [prop.name for prop in node.properties]
-    ['hello', 'world']
-    >>> node.setProperties([])
-    >>> node.getProperties()
-    []
-    >>> # now set them the other way around
-    >>> node.setProperties([prop2, prop1])
-    >>> [prop.name for prop in node.getProperties()]
-    ['world', 'hello']
-    >>> [prop.name for prop in node.properties]
-    ['world', 'hello']
- 
     @param proplist: The list of property blocks to set.
     @type proplist: C{list} of L{NifFormat.NiProperty}
     """
@@ -86,14 +105,16 @@ def setProperties(self, proplist):
     for i, prop in enumerate(proplist):
         self.properties[i] = prop
 
-def getTransform(self, relative_to = None):
-    """Return scale, rotation, and translation into a single 4x4 matrix,
-    relative to the C{relative_to} block (which should be another NiAVObject
-    connecting to this block). If C{relative_to} is C{None}, then returns the
-    transform stored in C{self}, or equivalently, the target is assumed to be the
-    parent.
+def getTransform(self, relative_to=None):
+    """Return scale, rotation, and translation into a single 4x4
+    matrix, relative to the C{relative_to} block (which should be
+    another NiAVObject connecting to this block). If C{relative_to} is
+    C{None}, then returns the transform stored in C{self}, or
+    equivalently, the target is assumed to be the parent.
 
-    @param relative_to: The block relative to which the transform must be calculated. If C{None}, the local transform is returned."""
+    @param relative_to: The block relative to which the transform must
+        be calculated. If C{None}, the local transform is returned.
+    """
     m = self.cls.Matrix44()
     m.setScaleRotationTranslation(self.scale, self.rotation, self.translation)
     if not relative_to: return m
