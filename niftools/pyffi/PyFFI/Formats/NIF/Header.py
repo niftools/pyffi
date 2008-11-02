@@ -66,7 +66,7 @@ def hasBlockType(self, block_type):
         return True
     # slower check, using isinstance
     for data_block_type in self.blockTypes:
-        if isinstance(getattr(self.cls, data_block_type), block_type):
+        if issubclass(getattr(self.cls, data_block_type), block_type):
             return True
     # requested block type is not in nif
     return False
