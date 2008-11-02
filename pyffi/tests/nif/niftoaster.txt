@@ -140,6 +140,7 @@ hackskindataidtransform
 hackskinrestpose
 mergeskelandrestpos
 optimize
+opt_cleanreflists
 optimize_experimental
 optimize_split
 scale
