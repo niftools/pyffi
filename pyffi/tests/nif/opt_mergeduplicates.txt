@@ -1,0 +1,53 @@
+Doctests for the opt_mergeduplicates spell
+==========================================
+
+NifToaster check
+----------------
+
+>>> import sys
+>>> sys.path.append("scripts/NIF")
+>>> import niftoaster
+>>> sys.argv = ["niftoaster.py", "opt_mergeduplicates", "--dry-run", "--noninteractive", "tests/nif/test_opt_mergeduplicates.nif"]
+>>> niftoaster.NifToaster().cli()
+=== tests/nif/test_opt_mergeduplicates.nif ===
+  --- opt_mergeduplicates ---
+    ~~~ NiNode [Scene Root] ~~~
+      ~~~ NiNode [Cone] ~~~
+        ~~~ NiTriShape [Tri Cone 0] ~~~
+          ~~~ NiMaterialProperty [Red] ~~~
+            clamping alpha value (1000.000000 -> 1.0)
+        ~~~ NiTriShape [Tri Cone 1] ~~~
+          ~~~ NiMaterialProperty [Green] ~~~
+            clamping alpha value (-1000.000000 -> 0.0)
+        ~~~ NiTriShape [Tri Cone 2] ~~~
+          ~~~ NiMaterialProperty [Blue] ~~~
+        ~~~ NiTriShape [Tri Cone 3] ~~~
+          ~~~ NiMaterialProperty [Yellow] ~~~
+  writing to temporary file
+Finished.
+
+Explicit check
+--------------
+
+>>> def has_duplicates(root):
+...     for branch in root.tree():
+...         for otherbranch in root.tree():
+...             if (branch is not otherbranch
+...                 and branch.isExchangeable(otherbranch)):
+...                 return True
+...     return False
+>>> from PyFFI.Formats.NIF import NifFormat
+>>> import PyFFI.Spells.NIF.optimize
+>>> from PyFFI.Spells import Toaster
+>>> data = NifFormat.Data()
+>>> stream = open("tests/nif/test_opt_mergeduplicates.nif", "rb")
+>>> data.read(stream)
+>>> # check that there are duplicates
+>>> has_duplicates(data.roots[0])
+True
+>>> # run the spell that fixes this
+>>> spell = PyFFI.Spells.NIF.optimize.SpellMergeDuplicates(data=data)
+>>> spell.recurse()
+>>> # check that there are no more duplicates
+>>> has_duplicates(data.roots[0])
+False
