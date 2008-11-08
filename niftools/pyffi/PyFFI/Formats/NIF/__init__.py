@@ -967,7 +967,7 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
             return self._value
 
         def setValue(self, value):
-            if value == None:
+            if value is None:
                 self._value = None
             else:
                 if not isinstance(value, self._template):
@@ -1035,6 +1035,30 @@ but got instance of %s' % (self._template, value.__class__))
                 return [self._value]
             else:
                 return []
+
+        def replaceBranch(self, oldbranch, newbranch, **kwargs):
+            """
+            >>> from PyFFI.Formats.NIF import NifFormat
+            >>> x = NifFormat.NiNode()
+            >>> y = NifFormat.NiNode()
+            >>> z = NifFormat.NiNode()
+            >>> x.addChild(y)
+            >>> x.children[0] is y
+            True
+            >>> x.children[0] is z
+            False
+            >>> x.replaceBranch(y, z)
+            >>> x.children[0] is y
+            False
+            >>> x.children[0] is z
+            True
+            >>> x.replaceBranch(z, None)
+            >>> x.children[0] is None
+            True
+            """
+            if self._value is oldbranch:
+                # setValue takes care of template type
+                self.setValue(newbranch)
 
     class Ptr(Ref):
         """A weak reference to another block, used to point up the hierarchy tree. The reference is not returned by the L{getRefs} function to avoid infinite recursion."""
