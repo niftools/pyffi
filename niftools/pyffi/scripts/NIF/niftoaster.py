@@ -104,6 +104,7 @@ class NifToaster(Toaster):
         mergeskelandrestpos,
         optimize,
         PyFFI.Spells.NIF.optimize.SpellCleanRefLists,
+        PyFFI.Spells.NIF.optimize.SpellMergeDuplicates,
         PyFFI.Spells.NIF.optimize.SpellOptimize, # experimental version of the above, not yet fully functional
         optimize_split,
         scale,

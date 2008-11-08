@@ -53,11 +53,11 @@ __readonly__ = False
 # example usage
 __examples__ = """* Standard usage:
 
-    python nifoptimize.py /path/to/copy/of/my/nifs
+    python niftoaster.py optimize /path/to/copy/of/my/nifs
 
 * Optimize, but do not merge NiMaterialProperty blocks:
 
-    python nifoptimize.py --exclude=NiMaterialProperty /path/to/copy/of/my/nifs
+    python niftoaster.py optimize --exclude=NiMaterialProperty /path/to/copy/of/my/nifs
 """
 
 class SpellCleanRefLists(PyFFI.Spells.NIF.NifSpell):
@@ -108,6 +108,12 @@ class SpellCleanRefLists(PyFFI.Spells.NIF.NifSpell):
         # always recurse further
         return True
 
+class SpellMergeDuplicates(PyFFI.Spells.NIF.NifSpell):
+
+    SPELLNAME = "opt_mergeduplicates"
+    READONLY = False
+
+    # TODO: implement
 
 class SpellOptimize(
     PyFFI.Spells.SpellGroupSeries(
