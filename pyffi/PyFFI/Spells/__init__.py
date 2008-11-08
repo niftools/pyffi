@@ -896,6 +896,11 @@ may destroy them. Make a backup of your files before running this script.
                         else:
                             # write back to a temporary file
                             self.writetemp(stream, data)
+
+                # force free memory (helps when parsing many very large files)
+                del spell
+                gc.collect()
+
             except StandardError:
                 print("""\
 *** TEST FAILED ON %-51s ***
@@ -908,10 +913,6 @@ may destroy them. Make a backup of your files before running this script.
                     raise
             finally:
                 self.msgblockend()
-
-            # force free memory (this helps when parsing many very large files)
-            del spell
-            gc.collect()
 
         # toast exit code
         self.spellclass.toastexit(self)
