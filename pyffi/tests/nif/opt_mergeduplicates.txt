@@ -12,17 +12,71 @@ NifToaster check
 === tests/nif/test_opt_mergeduplicates.nif ===
   --- opt_mergeduplicates ---
     ~~~ NiNode [Scene Root] ~~~
+      ~~~ NiVertexColorProperty [] ~~~
+      ~~~ NiZBufferProperty [] ~~~
+      ~~~ NiStencilProperty [] ~~~
+      ~~~ NiDitherProperty [] ~~~
       ~~~ NiNode [Cone] ~~~
-        ~~~ NiTriShape [Tri Cone 0] ~~~
+        merging NiZBufferProperty child
+        merging NiVertexColorProperty child
+        merging NiStencilProperty child
+        merging NiDitherProperty child
+        ~~~ NiZBufferProperty [] ~~~
+        ~~~ NiVertexColorProperty [] ~~~
+        ~~~ NiStencilProperty [] ~~~
+        ~~~ NiDitherProperty [] ~~~
+        ~~~ NiTriStrips [Tri Cone 0] ~~~
+          merging NiSpecularProperty child
+          ~~~ NiTexturingProperty [] ~~~
+            ~~~ NiSourceTexture [] ~~~
           ~~~ NiMaterialProperty [Red] ~~~
-            clamping alpha value (1000.000000 -> 1.0)
-        ~~~ NiTriShape [Tri Cone 1] ~~~
-          ~~~ NiMaterialProperty [Green] ~~~
-            clamping alpha value (-1000.000000 -> 0.0)
-        ~~~ NiTriShape [Tri Cone 2] ~~~
-          ~~~ NiMaterialProperty [Blue] ~~~
-        ~~~ NiTriShape [Tri Cone 3] ~~~
-          ~~~ NiMaterialProperty [Yellow] ~~~
+          ~~~ NiDitherProperty [] ~~~
+        ~~~ NiTriStrips [Tri Cone 1] ~~~
+          merging NiTexturingProperty child
+          merging NiMaterialProperty child
+          merging NiSpecularProperty child
+          ~~~ NiTexturingProperty [] ~~~
+            ~~~ NiSourceTexture [] ~~~
+          ~~~ NiMaterialProperty [Red] ~~~
+          ~~~ NiDitherProperty [] ~~~
+          ~~~ NiAlphaProperty [] ~~~
+        ~~~ NiTriStrips [Tri Cone 2] ~~~
+          merging NiTexturingProperty child
+          merging NiMaterialProperty child
+          merging NiWireframeProperty child
+          merging NiAlphaProperty child
+          ~~~ NiTexturingProperty [] ~~~
+            ~~~ NiSourceTexture [] ~~~
+          ~~~ NiMaterialProperty [Red] ~~~
+          ~~~ NiDitherProperty [] ~~~
+          ~~~ NiAlphaProperty [] ~~~
+        ~~~ NiTriStrips [Tri Cone 3] ~~~
+          merging NiTexturingProperty child
+          merging NiMaterialProperty child
+          merging NiWireframeProperty child
+          merging NiDitherProperty child
+          ~~~ NiTexturingProperty [] ~~~
+            ~~~ NiSourceTexture [] ~~~
+          ~~~ NiMaterialProperty [Red] ~~~
+          ~~~ NiDitherProperty [] ~~~
+          ~~~ NiDitherProperty [] ~~~
+  writing to temporary file
+Finished.
+>>> sys.argv = ["niftoaster.py", "opt_mergeduplicates", "--dry-run", "--noninteractive", "tests/nif/test_opt_dupgeomdata.nif"]
+>>> niftoaster.NifToaster().cli()
+=== tests/nif/test_opt_dupgeomdata.nif ===
+  --- opt_mergeduplicates ---
+    ~~~ NiNode [Scene Root] ~~~
+      ~~~ NiNode [Cube1] ~~~
+        ~~~ NiTriShape [Tri Cube1] ~~~
+        ~~~ NiNode [Cube2] ~~~
+          ~~~ NiTriShape [Tri Cube2] ~~~
+            merging NiTriShapeData child
+          ~~~ NiNode [Cube3] ~~~
+            ~~~ NiTriShape [Tri Cube3] ~~~
+              merging NiTriShapeData child
+            ~~~ NiTriShape [Cube4] ~~~
+              merging NiTriShapeData child
   writing to temporary file
 Finished.
 

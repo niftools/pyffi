@@ -635,6 +635,11 @@ class StructBase(object):
         MeshMorphTargetChunk in the cgf format is an example)."""
         return None
 
+    def getGlobalTreeChildren(self):
+        # TODO replace getRefs with a generator as well
+        for branch in self.getRefs():
+            yield branch
+
     def getGlobalTreeNumChildren(self):
         return len(self.getRefs())
 

@@ -154,6 +154,14 @@ class GlobalTreeBranch(DetailTreeBranch):
         # possible implementation:
         #return self.name if hasattr(self, "name") else ""
 
+    def getGlobalTreeChildren(self):
+        """Generator which yields all children of this item in the global view.
+        Override this method.
+
+        @return: Generator for global tree children.
+        """
+        raise NotImplementedError
+
     def getGlobalTreeNumChildren(self):
         """Return number of children of this item in the global view.
         Override this method.
