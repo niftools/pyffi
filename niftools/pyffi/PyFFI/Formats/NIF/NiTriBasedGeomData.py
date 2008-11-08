@@ -44,16 +44,17 @@ def isInterchangeable(self, other):
     proof but has shown to work in most practical cases.
 
     @param other: Another geometry data block.
-    @type other: L{NifFormat.NiTriBasedGeomData}
+    @type other: L{NifFormat.NiTriBasedGeomData} (if it has another type
+        then the function will always return C{False})
     @return: C{True} if the geometries are equivalent, C{False} otherwise.
     """
-    # type check
-    if not isinstance(other, self.cls.NiTriBasedGeomData):
-        raise TypeError("argument must be of NiTriBasedGeomData type")
-
     # check for object identity
     if self is other:
         return True
+
+    # type check
+    if not isinstance(other, self.cls.NiTriBasedGeomData):
+        return False
 
     # check class
     if not isinstance(self, other.__class__) \

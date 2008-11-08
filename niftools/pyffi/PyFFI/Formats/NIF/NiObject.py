@@ -129,3 +129,10 @@ def _validateTree(self):
         if child in children:
             raise ValueError('cyclic references detected')
         children.append(child)
+
+def isInterchangeable(self, other):
+    """Are the two blocks interchangeable?
+
+    @todo: Rely on AnyType, SimpleType, ComplexType, etc. implementation.
+    """
+    return self is other
