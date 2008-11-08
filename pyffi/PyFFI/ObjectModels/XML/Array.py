@@ -347,13 +347,8 @@ describing number of elements (%i)"%(elemlist.__len__(),len2i))
         of the array."""
         if not self._elementType._hasLinks:
             return
-        if self._count2 == None:
-            for elem in list.__iter__(self):
-                elem.fixLinks(**kwargs)
-        else:
-            for elemlist in list.__iter__(self):
-                for elem in list.__iter__(elemlist):
-                    elem.fixLinks(**kwargs)
+        for elem in self._elementList():
+            elem.fixLinks(**kwargs)
 
     def getLinks(self, **kwargs):
         """Return all links in the array by calling C{getLinks} on all elements
@@ -361,13 +356,8 @@ describing number of elements (%i)"%(elemlist.__len__(),len2i))
         links = []
         if not self._elementType._hasLinks:
             return links
-        if self._count2 == None:
-            for elem in list.__iter__(self):
-                links.extend(elem.getLinks(**kwargs))
-        else:
-            for elemlist in list.__iter__(self):
-                for elem in list.__iter__(elemlist):
-                    links.extend(elem.getLinks(**kwargs))
+        for elem in self._elementList():
+            links.extend(elem.getLinks(**kwargs))
         return links
 
     def getStrings(self, **kwargs):
@@ -376,13 +366,8 @@ describing number of elements (%i)"%(elemlist.__len__(),len2i))
         strings = []
         if not self._elementType._hasStrings:
             return strings
-        if self._count2 == None:
-            for elem in list.__iter__(self):
-                strings.extend(elem.getStrings(**kwargs))
-        else:
-            for elemlist in list.__iter__(self):
-                for elem in list.__iter__(elemlist):
-                    strings.extend(elem.getStrings(**kwargs))
+        for elem in self._elementList():
+            strings.extend(elem.getStrings(**kwargs))
         return strings
 
     def getRefs(self, **kwargs):
@@ -391,38 +376,36 @@ describing number of elements (%i)"%(elemlist.__len__(),len2i))
         links = []
         if not self._elementType._hasLinks:
             return links
-        if self._count2 == None:
-            for elem in list.__iter__(self):
-                links.extend(elem.getRefs(**kwargs))
-        else:
-            for elemlist in list.__iter__(self):
-                for elem in list.__iter__(elemlist):
-                    links.extend(elem.getRefs(**kwargs))
+        for elem in self._elementList():
+            links.extend(elem.getRefs(**kwargs))
         return links
 
     def getSize(self, **kwargs):
         """Calculate the sum of the size of all elements in the array."""
-        size = 0
-        if self._count2 == None:
-            for elem in list.__iter__(self):
-                size += elem.getSize(**kwargs)
-        else:
-            for elemlist in list.__iter__(self):
-                for elem in list.__iter__(elemlist):
-                    size += elem.getSize(**kwargs)
-        return size
+        return sum(
+            (elem.getSize(**kwargs) for elem in self._elementList()), 0)
 
     def getHash(self, **kwargs):
         """Calculate a hash value for the array, as a tuple."""
         hsh = []
-        if self._count2 == None:
+        for elem in self._elementList():
+            hsh.append(elem.getHash(**kwargs))
+        return tuple(hsh)
+
+    def replaceBranch(self, oldbranch, newbranch, **kwargs):
+        """Calculate a hash value for the array, as a tuple."""
+        for elem in self._elementList():
+            elem.replaceBranch(oldbranch, newbranch, **kwargs)
+
+    def _elementList(self, **kwargs):
+        """Generator for listing all elements."""
+        if self._count2 is None:
             for elem in list.__iter__(self):
-                hsh.append(elem.getHash(**kwargs))
+                yield elem
         else:
             for elemlist in list.__iter__(self):
                 for elem in list.__iter__(elemlist):
-                    hsh.append(elem.getHash(**kwargs))
-        return tuple(hsh)
+                    yield elem
 
 from PyFFI.ObjectModels.XML.Basic import BasicBase
 from PyFFI.ObjectModels.XML.Struct import StructBase

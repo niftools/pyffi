@@ -137,6 +137,10 @@ class BasicBase(object):
         identify the object uniquely."""
         raise NotImplementedError
 
+    def replaceBranch(self, oldbranch, newbranch, **kwargs):
+        """Replace a given branch."""
+        pass
+
     #
     # user interface functions come next
     # these functions are named after similar ones in the TreeItem example

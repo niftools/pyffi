@@ -470,8 +470,7 @@ class StructBase(object):
         # calculate size
         size = 0
         for attr in self._filteredAttributeList(version, user_version):
-            size += getattr(self, "_%s_value_" % attr.name).replaceBranch(oldbranch, newbranch, **kwargs)
-        return size
+            getattr(self, "_%s_value_" % attr.name).replaceBranch(oldbranch, newbranch, **kwargs)
 
     @classmethod
     def getGames(cls):
