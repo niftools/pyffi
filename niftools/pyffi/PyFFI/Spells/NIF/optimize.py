@@ -69,7 +69,13 @@ class SpellCleanRefLists(PyFFI.Spells.NIF.NifSpell):
     def datainspect(self):
         # so far, only reference lists in NiObjectNET blocks, NiAVObject
         # blocks, and NiNode blocks are checked
-        return self.inspectblocktype(NifFormat.NiObjectNET)
+        return (self.inspectblocktype(NifFormat.NiObjectNET)
+        # see MadCat221's metstaff.nif:
+        # merging data on PSysMeshEmitter affects particle system
+        # so do not merge child links on this nif (probably we could still
+        # merge other things: this is just a quick hack to make sure the
+        # optimizer won't do anything wrong)
+                and not self.inspectblocktype(NifFormat.NiPSysMeshEmitter))
 
     def branchinspect(self, branch):
         # only inspect the NiObjectNET branch
@@ -118,24 +124,34 @@ class SpellMergeDuplicates(PyFFI.Spells.NIF.NifSpell):
         # list of all branches visited so far
         self.branches = []
 
+    def datainspect(self):
+        # see MadCat221's metstaff.nif:
+        # merging data on PSysMeshEmitter affects particle system
+        # so do not merge shapes on this nif (probably we could still
+        # merge other things: this is just a quick hack to make sure the
+        # optimizer won't do anything wrong)
+        return not self.inspectblocktype(NifFormat.NiPSysMeshEmitter)
+
     def branchinspect(self, branch):
         # only inspect the NiObjectNET branch (merging havok can mess up things)
         return isinstance(branch, NifFormat.NiObjectNET)
 
     def branchentry(self, branch):
-        # iterate over a copy of unique_branches
-        # because this list can change during the loop
-        for child in branch.getLinks():
-            for otherbranch in self.branches:
-                if (child is not otherbranch and
-                    child.isInterchangeable(otherbranch)):
-                    # interchangeable branch found!
-                    self.toaster.msg(
-                        "merging %s child" % child.__class__.__name__)
-                    branch.replaceBranch(child, otherbranch)
-                    break
-            else:
-                self.branches.append(child)
+        for otherbranch in self.branches:
+            if (branch is not otherbranch and
+                branch.isInterchangeable(otherbranch)):
+                # skip properties that have controllers (the
+                # controller data cannot always be reliably checked,
+                # see also issue #2106668)
+                if (isinstance(branch, NifFormat.NiProperty)
+                    and branch.controller):
+                    continue
+                # interchangeable branch found!
+                self.toaster.msg("removing duplicate branch")
+                self.data.replaceGlobalTreeBranch(branch, otherbranch)
+                break
+        else:
+            self.branches.append(branch)
         # continue recursion
         return True
 
@@ -145,7 +161,8 @@ class SpellOptimize(
             SpellCleanRefLists,
             PyFFI.Spells.NIF.fix.SpellDetachHavokTriStripsData,
             PyFFI.Spells.NIF.fix.SpellFixTexturePath,
-            PyFFI.Spells.NIF.fix.SpellClampMaterialAlpha))):
+            PyFFI.Spells.NIF.fix.SpellClampMaterialAlpha),
+        SpellMergeDuplicates)):
     """Global fixer and optimizer spell."""
     SPELLNAME = "optimize_experimental"
 
@@ -353,132 +370,8 @@ def testRoot(root, **args):
     # check which blocks to exclude
     exclude = args.get("exclude", [])
 
-    # initialize hash maps
-    # (each of these dictionaries maps a block hash to an actual block of
-    # the given type)
-    sourceTextures = {}
-    property_map = {}
-
     # get list of all blocks
     block_list = [ block for block in root.tree(unique = True) ]
-
-    # join duplicate source textures
-    print("checking for duplicate source textures")
-    if not "NiSourceTexture" in exclude:
-        for block in block_list:
-            # source texture blocks are children of texturing property blocks
-            if not isinstance(block, NifFormat.NiTexturingProperty):
-                continue
-            # check all textures
-            for tex in ("Base", "Dark", "Detail", "Gloss", "Glow"):
-                if getattr(block, "has%sTexture" % tex):
-                    texdesc = getattr(block, "%sTexture" % tex.lower())
-                    # skip empty textures
-                    if not texdesc.source:
-                        continue
-                    hashvalue = texdesc.source.getHash()
-                    # try to find a matching source texture
-                    try:
-                        new_texdesc_source = sourceTextures[hashvalue]
-                    # if not, save for future reference
-                    except KeyError:
-                        sourceTextures[hashvalue] = texdesc.source
-                    else:
-                        # found a match, so report and reassign
-                        if texdesc.source != new_texdesc_source:
-                            print("  removing duplicate NiSourceTexture block")
-                            texdesc.source = new_texdesc_source
-
-    # joining duplicate properties
-    print("checking for duplicate properties")
-    for block in block_list:
-        # check block type
-        if not isinstance(block, NifFormat.NiAVObject):
-            continue
-
-        # remove duplicate and empty properties within the list
-        proplist = []
-        # construct list of unique and non-empty properties
-        for prop in block.properties:
-            if not(prop is None or prop in proplist):
-                proplist.append(prop)
-        # update block properties with the list just constructed
-        block.numProperties = len(proplist)
-        block.properties.updateSize()
-        for i, prop in enumerate(proplist):
-            block.properties[i] = prop
-
-        # merge properties
-        for i, prop in enumerate(block.properties):
-            # skip properties that have controllers
-            # (the controller data cannot always be reliably checked, see also
-            # issue #2106668)
-            if prop.controller:
-                continue
-            # check if the name of the property is relevant
-            specialnames = ("envmap2", "envmap", "skin", "hair",
-                            "dynalpha", "hidesecret", "lava")
-            if (isinstance(prop, NifFormat.NiMaterialProperty)
-                and prop.name.lower() in specialnames):
-                ignore_strings = False
-            else:
-                ignore_strings = True
-            # calculate property hash
-            prop_class_str = prop.__class__.__name__
-            hashvalue = (prop_class_str,
-                         prop.getHash(ignore_strings = ignore_strings))
-            # skip if excluded
-            if prop_class_str in exclude:
-                continue
-            # join duplicate properties
-            try:
-                new_prop = property_map[hashvalue]
-            except KeyError:
-                property_map[hashvalue] = prop
-            else:
-                if new_prop != prop:
-                    print("  removing duplicate %s block" % prop_class_str)
-                    block.properties[i] = new_prop
-                    property_map[hashvalue] = new_prop
-
-    # fix properties in NiTimeController targets
-    for block in block_list:
-        if isinstance(block, NifFormat.NiTimeController):
-            prop = block.target
-            if not prop:
-                continue
-            prop_class_str = prop.__class__.__name__
-            hashvalue = (prop_class_str,
-                         prop.getHash(ignore_strings = True))
-            if hashvalue in property_map:
-                block.target = property_map[hashvalue]
-
-    # do not optimize shapes if there is particle data
-    # (see MadCat221's metstaff.nif)
-    opt_shapes = True
-    for block in block_list:
-        if isinstance(block, NifFormat.NiPSysMeshEmitter):
-            opt_shapes = False
-
-    print("removing duplicate and empty children")
-    for block in block_list:
-        # skip if we are not optimizing shapes
-        if not opt_shapes:
-            continue
-
-        # check if it is a NiNode
-        if not isinstance(block, NifFormat.NiNode):
-            continue
-
-        # remove duplicate and empty children
-        childlist = []
-        for child in block.children:
-            if not(child is None or child in childlist):
-                childlist.append(child)
-        block.numChildren = len(childlist)
-        block.children.updateSize()
-        for i, child in enumerate(childlist):
-            block.children[i] = child
 
     print("optimizing geometries")
     # first update list of all blocks
@@ -521,29 +414,4 @@ def testRoot(root, **args):
                             "don't know how to replace block %s in %s"
                             % (block.__class__.__name__,
                                otherblock.__class__.__name__))
-
-    # merge shape data
-    # first update list of all blocks
-    block_list = [ block for block in root.tree(unique = True) ]
-    # then set up list of unique shape data blocks
-    # (actually the NiTriShape/NiTriStrips blocks are stored in the list
-    # so we can refer back to their name)
-    triShapeDataList = []
-    for block in block_list:
-        # skip if we are not optimizing shapes
-        if not opt_shapes:
-            continue
-
-        if isinstance(block, (NifFormat.NiTriShape, NifFormat.NiTriStrips)):
-            # check with all shapes that were already exported
-            for shape in triShapeDataList:
-                if shape.data.isInterchangeable(block.data):
-                    # match! so merge
-                    block.data = shape.data
-                    print("  merging shape data of shape %s with shape %s"
-                          % (block.name, shape.name))
-                    break
-            else:
-                # no match, so store for future matching
-                triShapeDataList.append(block)
 

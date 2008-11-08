@@ -547,6 +547,13 @@ class NifFormat(XmlFileFormat):
         def getGlobalTreeChildRow(self, child):
             return self.roots.index(child)
 
+        def replaceGlobalTreeBranch(self, oldbranch, newbranch):
+            for i, root in enumerate(self.roots):
+                if root is oldbranch:
+                    self.roots[i] = newbranch
+                else:
+                    root.replaceGlobalTreeBranch(oldbranch, newbranch)
+
         # DetailTreeBranch
 
         def getDetailTreeNumChildren(self):
@@ -1036,7 +1043,7 @@ but got instance of %s' % (self._template, value.__class__))
             else:
                 return []
 
-        def replaceBranch(self, oldbranch, newbranch, **kwargs):
+        def replaceGlobalTreeBranch(self, oldbranch, newbranch, **kwargs):
             """
             >>> from PyFFI.Formats.NIF import NifFormat
             >>> x = NifFormat.NiNode()
@@ -1047,18 +1054,20 @@ but got instance of %s' % (self._template, value.__class__))
             True
             >>> x.children[0] is z
             False
-            >>> x.replaceBranch(y, z)
+            >>> x.replaceGlobalTreeBranch(y, z)
             >>> x.children[0] is y
             False
             >>> x.children[0] is z
             True
-            >>> x.replaceBranch(z, None)
+            >>> x.replaceGlobalTreeBranch(z, None)
             >>> x.children[0] is None
             True
             """
             if self._value is oldbranch:
                 # setValue takes care of template type
                 self.setValue(newbranch)
+            elif self._value is not None:
+                self._value.replaceGlobalTreeBranch(oldbranch, newbranch)
 
     class Ptr(Ref):
         """A weak reference to another block, used to point up the hierarchy tree. The reference is not returned by the L{getRefs} function to avoid infinite recursion."""
@@ -1075,6 +1084,12 @@ but got instance of %s' % (self._template, value.__class__))
 
         def getHash(self, **kwargs):
             return None
+
+        def replaceGlobalTreeBranch(self, oldbranch, newbranch):
+            # overridden to avoid infinite recursion
+            if self._value is oldbranch:
+                # setValue takes care of template type
+                self.setValue(newbranch)
 
     class LineString(BasicBase):
         """Basic type for strings ending in a newline character (0x0a).
