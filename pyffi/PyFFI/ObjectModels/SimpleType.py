@@ -59,8 +59,8 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType,
     class around the native type and place an extra check in C{__new__}.
 
     Also override L{read} and L{write} if you wish to read and write data
-    of this type, and L{identityGenerator} to implement the L{__eq__} and
-    L{__neq__} methods efficiently.
+    of this type, and L{isInterchangeable} if you wish to declare data as
+    equivalent.
 
     When instantiating simple types which are part of larger objects such as
     L{ArrayType} or L{StructType}, pass these as C{treeparent} keyword argument
@@ -150,6 +150,12 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType,
         @rtype: C{str}
         """
         return self._value.__str__()
+
+    # AnyType
+
+    def isInterchangeable(self, other):
+        """This checks for object identity of the value."""
+        return self._value is other._value
 
     # TreeItem
 

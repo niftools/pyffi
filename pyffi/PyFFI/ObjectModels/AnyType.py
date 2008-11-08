@@ -45,75 +45,43 @@ which generates immutable objects that can be used to identify the object.
 class AnyType(object):
     """Abstract base class from which all types are derived."""
 
-    def read(self, stream, **kwargs):
+    def read(self, stream, version):
         """Read object from file.
 
         @param stream: The stream to read from.
         @type stream: file
+        @param version: Version information.
+        @type version: L{ComplexType}
         """
         raise NotImplementedError
 
-    def write(self, stream, **kwargs):
+    def write(self, stream, version):
         """Write object to file.
 
         @param stream: The stream to write to.
         @type stream: file
+        @param version: Version information.
+        @type version: L{ComplexType}
         """
         raise NotImplementedError
 
-    def identityGenerator(self, **kwargs):
-        """Returns a generator which yields a sequence of integers,
-        such that objects which are "close" to each other, or
-        which can be considered equal for practical purposes, yield
-        the same sequence. This is useful for instance when comparing
+    def isInterchangeable(self, other):
+        """Returns C{True} if objects are exchangeable, that is,
+        "close" enough to each other so they can be considered equal
+        for practical purposes. This is useful for instance when comparing
         data and trying to remove duplicates.
 
-        This function returns a generator so not all of the data needs to
-        be parsed in order to determine non-equality.
+        This default implementation simply checks for object identity.
 
-        @return: A generator for immutable objects.
+        >>> x = AnyType()
+        >>> y = AnyType()
+        >>> x.isInterchangeable(y)
+        False
+        >>> x.isInterchangeable(x)
+        True
+
+        @return: C{True} if objects are close, C{False} otherwise.
+        @rtype: C{bool}
         """
-        raise NotImplementedError
-
-    def __eq__(self, other):
-        """Check equality, using L{identityGenerator}. Do not override this
-        function. Instead, override L{identityGenerator}.
-
-        @param other: The object to compare with.
-        @type other: L{AnyType}
-        @return: C{True} if equal, C{False} otherwise
-        """
-        # type check
-        if not isinstance(other, AnyType):
-            raise TypeError("cannot compare %s and %s"
-                            % (self.__class__.__name__,
-                               other.__class__.__name__))
-        # compare generator results
-        self_idgen = self.identityGenerator()
-        other_idgen = other.identityGenerator()
-        for self_id in self_idgen:
-            try:
-                other_id = other_idgen.next()
-            except StopIteration:
-                # other has less data
-                return False
-            if self_id != other_id:
-                return False
-        # check that other generator is done as well
-        try:
-            other_idgen.next()
-        except StopIteration:
-            return True
-        else:
-            # other has trailing data
-            return False
-
-    def __neq__(self, other):
-        """Check inequality, using L{identityGenerator}.
-
-        @param other: The object to compare with.
-        @type other: L{AnyType}
-        @return: C{False} if equal, C{True} otherwise
-        """
-        return not self.__eq__(other)
+        return self is other
 
