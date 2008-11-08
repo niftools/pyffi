@@ -115,28 +115,29 @@ class SpellMergeDuplicates(PyFFI.Spells.NIF.NifSpell):
 
     def __init__(self, *args, **kwargs):
         PyFFI.Spells.NIF.NifSpell.__init__(self, *args, **kwargs)
-        # list of unique branches visited so far
-        self.unique_branches = []
+        # list of all branches visited so far
+        self.branches = []
+
+    def branchinspect(self, branch):
+        # only inspect the NiObjectNET branch (merging havok can mess up things)
+        return isinstance(branch, NifFormat.NiObjectNET)
 
     def branchentry(self, branch):
         # iterate over a copy of unique_branches
         # because this list can change during the loop
-        for otherbranch in self.unique_branches[:]:
-            for child in branch.getGlobalTreeChildren():
+        for child in branch.getLinks():
+            for otherbranch in self.branches:
                 if (child is not otherbranch and
                     child.isInterchangeable(otherbranch)):
                     # interchangeable branch found!
                     self.toaster.msg(
                         "merging %s child" % child.__class__.__name__)
                     branch.replaceBranch(child, otherbranch)
-                else:
-                    # no interchangeable branch found so add it to the list
-                    # of unique branches
-                    if not(child in self.unique_branches):
-                        self.unique_branches.append(child)
+                    break
+            else:
+                self.branches.append(child)
         # continue recursion
         return True
-
 
 class SpellOptimize(
     PyFFI.Spells.SpellGroupSeries(
