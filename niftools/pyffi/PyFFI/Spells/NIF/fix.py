@@ -181,6 +181,15 @@ class SpellDetachHavokTriStripsData(NifSpell):
         # only run the spell if there are bhkNiTriStripsShape blocks
         return self.inspectblocktype(NifFormat.bhkNiTriStripsShape)
 
+    def dataentry(self):
+        # build list of all NiTriStrips blocks
+        self.nitristrips = [branch for branch in self.data.getGlobalTree()
+                            if isinstance(branch, NifFormat.NiTriStrips)]
+        if self.nitristrips:
+            return True
+        else:
+            return False
+
     def branchinspect(self, branch):
         # only inspect the NiAVObject branch and collision branch
         return isinstance(branch, (NifFormat.NiAVObject,
@@ -189,27 +198,15 @@ class SpellDetachHavokTriStripsData(NifSpell):
     
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.bhkNiTriStripsShape):
-            self.bhknitristripsshapes.append(branch)
-            # stop recursion
-            return False
-        elif isinstance(branch, NifFormat.NiTriStrips):
-            # initialize list of havok strip shapes
-            self.bhknitristripsshapes = []
-            # keep recursing into the havok tree
-            return True
-        else:
-            return True
-
-    def branchexit(self, branch):
-        if isinstance(branch, NifFormat.NiTriStrips):
-            for bhknitristripsshape in self.bhknitristripsshapes:
-                for i, data in enumerate(bhknitristripsshape.stripsData):
-                    if data is branch.data:
+            for i, data in enumerate(branch.stripsData):
+                if data in [otherbranch.data
+                            for otherbranch in self.nitristrips]:
                         # detach!
                         self.toaster.msg("detaching havok data")
-                        bhknitristripsshape.stripsData[i] = NifFormat.NiTriStripsData().deepcopy(data)
-            # reset the list
-            self.bhknitristripsshapes = None
+                        branch.stripsData[i] = NifFormat.NiTriStripsData().deepcopy(data)
+            return False
+        else:
+            return True
 
 class SpellClampMaterialAlpha(NifSpell):
     """Clamp corrupted material alpha values."""

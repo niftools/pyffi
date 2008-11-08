@@ -547,6 +547,10 @@ class NifFormat(XmlFileFormat):
         def getGlobalTreeChildRow(self, child):
             return self.roots.index(child)
 
+        def getGlobalTreeChildren(self):
+            for root in self.roots:
+                yield root
+
         def replaceGlobalTreeBranch(self, oldbranch, newbranch):
             for i, root in enumerate(self.roots):
                 if root is oldbranch:
