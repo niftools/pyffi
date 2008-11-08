@@ -113,7 +113,30 @@ class SpellMergeDuplicates(PyFFI.Spells.NIF.NifSpell):
     SPELLNAME = "opt_mergeduplicates"
     READONLY = False
 
-    # TODO: implement
+    def __init__(self, *args, **kwargs):
+        PyFFI.Spells.NIF.NifSpell.__init__(self, *args, **kwargs)
+        # list of unique branches visited so far
+        self.unique_branches = []
+
+    def branchentry(self, branch):
+        # iterate over a copy of unique_branches
+        # because this list can change during the loop
+        for otherbranch in self.unique_branches[:]:
+            for child in branch.getGlobalTreeChildren():
+                if (child is not otherbranch and
+                    child.isInterchangeable(otherbranch)):
+                    # interchangeable branch found!
+                    self.toaster.msg(
+                        "merging %s child" % child.__class__.__name__)
+                    branch.replaceBranch(child, otherbranch)
+                else:
+                    # no interchangeable branch found so add it to the list
+                    # of unique branches
+                    if not(child in self.unique_branches):
+                        self.unique_branches.append(child)
+        # continue recursion
+        return True
+
 
 class SpellOptimize(
     PyFFI.Spells.SpellGroupSeries(
