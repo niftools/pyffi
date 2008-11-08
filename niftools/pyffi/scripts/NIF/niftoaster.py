@@ -65,7 +65,6 @@ from PyFFI.Spells.NIF import \
     hackskindataidtransform, \
     hackskinrestpose, \
     mergeskelandrestpos, \
-    optimize, \
     optimize_split, \
     scale, \
     updatecenterradius, \
@@ -102,10 +101,10 @@ class NifToaster(Toaster):
         hackskindataidtransform,
         hackskinrestpose,
         mergeskelandrestpos,
-        optimize,
         PyFFI.Spells.NIF.optimize.SpellCleanRefLists,
         PyFFI.Spells.NIF.optimize.SpellMergeDuplicates,
-        PyFFI.Spells.NIF.optimize.SpellOptimize, # experimental version of the above, not yet fully functional
+        PyFFI.Spells.NIF.optimize.SpellOptimizeGeometry,
+        PyFFI.Spells.NIF.optimize.SpellOptimize,
         optimize_split,
         scale,
         updatecenterradius,

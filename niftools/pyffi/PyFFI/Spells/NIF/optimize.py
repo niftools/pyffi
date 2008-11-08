@@ -179,6 +179,16 @@ class SpellOptimizeGeometry(PyFFI.Spells.NIF.NifSpell):
     SPELLNAME = "opt_geometry"
     READONLY = False
 
+    # spell parameters
+    STRIPLENCUTOFF = 10
+    STITCH = True
+
+    def __init__(self, *args, **kwargs):
+        PyFFI.Spells.NIF.NifSpell.__init__(self, *args, **kwargs)
+        # list of all optimized geometries so far
+        # (to avoid optimizing the same geometry twice)
+        self.optimized = []
+
     def datainspect(self):
         # so far, only reference lists in NiObjectNET blocks, NiAVObject
         # blocks, and NiNode blocks are checked
@@ -189,257 +199,206 @@ class SpellOptimizeGeometry(PyFFI.Spells.NIF.NifSpell):
         return isinstance(branch, NifFormat.NiAVObject)
 
     def branchentry(self, branch):
-        # TODO
-        pass
+        """Optimize a NiTriStrips or NiTriShape block:
+          - remove duplicate vertices
+          - stripify if strips are long enough
+          - recalculate skin partition
+          - recalculate tangent space 
 
-def optimizeTriBasedGeom(block, striplencutoff = 10.0, stitch = True):
-    """Optimize a NiTriStrips or NiTriShape block:
-      - remove duplicate vertices
-      - stripify if strips are long enough
-      - recalculate skin partition
-      - recalculate tangent space 
+        @todo: Limit the length of strips (see operation optimization mod for
+            Oblivion!)
+        """
+        if not isinstance(branch, NifFormat.NiTriBasedGeom):
+            # keep recursing
+            return True
 
-    @param block: The shape block.
-    @type block: L{NifFormat.NiTriBasedGeom}
-    @param striplencutoff: Minimum average length for strips (below this
-        length the block is triangulated).
-    @type striplencutoff: float
-    @param stitch: Whether to stitch strips or not.
-    @type stitch: bool
-    @return: An optimized version of the shape.
+        if branch in self.optimized:
+            # already optimized
+            return False
+    
+        # we found a geometry to optimize
 
-    @todo: Limit the length of strips (see operation optimization mod for
-        Oblivion!)
-    """
-    print("optimizing block '%s'" % block.name)
+        # cover degenerate case
+        if branch.data.numVertices < 3:
+            self.toaster.msg("less than 3 vertices: removing branch")
+            self.data.replaceGlobalTreeBranch(branch, None)
+            return False
 
-    # cover degenerate case
-    if block.data.numVertices < 3:
-        print "  less than 3 vertices: removing block"
-        return None
+        # shortcut
+        data = branch.data
 
-    data = block.data
+        self.toaster.msg("removing duplicate vertices")
+        v_map = [0 for i in xrange(data.numVertices)] # maps old index to new index
+        v_map_inverse = [] # inverse: map new index to old index
+        k_map = {} # maps hash to new vertex index
+        index = 0  # new vertex index for next vertex
+        for i, vhash in enumerate(data.getVertexHashGenerator()):
+            try:
+                k = k_map[vhash]
+            except KeyError:
+                # vertex is new
+                k_map[vhash] = index
+                v_map[i] = index
+                v_map_inverse.append(i)
+                index += 1
+            else:
+                # vertex already exists
+                v_map[i] = k
+        del k_map
 
-    print "  removing duplicate vertices"
-    v_map = [0 for i in xrange(data.numVertices)] # maps old index to new index
-    v_map_inverse = [] # inverse: map new index to old index
-    k_map = {} # maps hash to new vertex index
-    index = 0  # new vertex index for next vertex
-    for i, vhash in enumerate(data.getVertexHashGenerator()):
-        try:
-            k = k_map[vhash]
-        except KeyError:
-            # vertex is new
-            k_map[vhash] = index
-            v_map[i] = index
-            v_map_inverse.append(i)
-            index += 1
-        else:
-            # vertex already exists
-            v_map[i] = k
-    del k_map
-
-    new_numvertices = index
-    print("  (num vertices was %i and is now %i)"
-          % (len(v_map), new_numvertices))
-    # copy old data
-    oldverts = [[v.x, v.y, v.z] for v in data.vertices]
-    oldnorms = [[n.x, n.y, n.z] for n in data.normals]
-    olduvs   = [[[uv.u, uv.v] for uv in uvset] for uvset in data.uvSets]
-    oldvcols = [[c.r, c.g, c.b, c.a] for c in data.vertexColors]
-    if block.skinInstance: # for later
-        oldweights = block.getVertexWeights()
-    # set new data
-    data.numVertices = new_numvertices
-    if data.hasVertices:
-        data.vertices.updateSize()
-    if data.hasNormals:
-        data.normals.updateSize()
-    data.uvSets.updateSize()
-    if data.hasVertexColors:
-        data.vertexColors.updateSize()
-    for i, v in enumerate(data.vertices):
-        old_i = v_map_inverse[i]
-        v.x = oldverts[old_i][0]
-        v.y = oldverts[old_i][1]
-        v.z = oldverts[old_i][2]
-    for i, n in enumerate(data.normals):
-        old_i = v_map_inverse[i]
-        n.x = oldnorms[old_i][0]
-        n.y = oldnorms[old_i][1]
-        n.z = oldnorms[old_i][2]
-    for j, uvset in enumerate(data.uvSets):
-        for i, uv in enumerate(uvset):
+        new_numvertices = index
+        self.toaster.msg("(num vertices was %i and is now %i)"
+                         % (len(v_map), new_numvertices))
+        # copy old data
+        oldverts = [[v.x, v.y, v.z] for v in data.vertices]
+        oldnorms = [[n.x, n.y, n.z] for n in data.normals]
+        olduvs   = [[[uv.u, uv.v] for uv in uvset] for uvset in data.uvSets]
+        oldvcols = [[c.r, c.g, c.b, c.a] for c in data.vertexColors]
+        if branch.skinInstance: # for later
+            oldweights = branch.getVertexWeights()
+        # set new data
+        data.numVertices = new_numvertices
+        if data.hasVertices:
+            data.vertices.updateSize()
+        if data.hasNormals:
+            data.normals.updateSize()
+        data.uvSets.updateSize()
+        if data.hasVertexColors:
+            data.vertexColors.updateSize()
+        for i, v in enumerate(data.vertices):
             old_i = v_map_inverse[i]
-            uv.u = olduvs[j][old_i][0]
-            uv.v = olduvs[j][old_i][1]
-    for i, c in enumerate(data.vertexColors):
-        old_i = v_map_inverse[i]
-        c.r = oldvcols[old_i][0]
-        c.g = oldvcols[old_i][1]
-        c.b = oldvcols[old_i][2]
-        c.a = oldvcols[old_i][3]
-    del oldverts
-    del oldnorms
-    del olduvs
-    del oldvcols
+            v.x = oldverts[old_i][0]
+            v.y = oldverts[old_i][1]
+            v.z = oldverts[old_i][2]
+        for i, n in enumerate(data.normals):
+            old_i = v_map_inverse[i]
+            n.x = oldnorms[old_i][0]
+            n.y = oldnorms[old_i][1]
+            n.z = oldnorms[old_i][2]
+        for j, uvset in enumerate(data.uvSets):
+            for i, uv in enumerate(uvset):
+                old_i = v_map_inverse[i]
+                uv.u = olduvs[j][old_i][0]
+                uv.v = olduvs[j][old_i][1]
+        for i, c in enumerate(data.vertexColors):
+            old_i = v_map_inverse[i]
+            c.r = oldvcols[old_i][0]
+            c.g = oldvcols[old_i][1]
+            c.b = oldvcols[old_i][2]
+            c.a = oldvcols[old_i][3]
+        del oldverts
+        del oldnorms
+        del olduvs
+        del oldvcols
 
-    # update vertex indices in strips/triangles
-    if isinstance(block, NifFormat.NiTriStrips):
-        for strip in data.points:
-            for i in xrange(len(strip)):
-                strip[i] = v_map[strip[i]]
-    elif isinstance(block, NifFormat.NiTriShape):
-        for tri in data.triangles:
-            tri.v1 = v_map[tri.v1]
-            tri.v2 = v_map[tri.v2]
-            tri.v3 = v_map[tri.v3]
+        # update vertex indices in strips/triangles
+        if isinstance(branch, NifFormat.NiTriStrips):
+            for strip in data.points:
+                for i in xrange(len(strip)):
+                    strip[i] = v_map[strip[i]]
+        elif isinstance(branch, NifFormat.NiTriShape):
+            for tri in data.triangles:
+                tri.v1 = v_map[tri.v1]
+                tri.v2 = v_map[tri.v2]
+                tri.v3 = v_map[tri.v3]
 
-    # stripify trishape/tristrip
-    if isinstance(block, NifFormat.NiTriStrips):
-        print "  recalculating strips"
-        origlen = sum(i for i in data.stripLengths)
-        data.setTriangles(data.getTriangles())
-        newlen = sum(i for i in data.stripLengths)
-        print "  (strip length was %i and is now %i)" % (origlen, newlen)
-    elif isinstance(block, NifFormat.NiTriShape):
-        print "  stripifying"
-        block = block.getInterchangeableTriStrips()
-        data = block.data
-    # average, weighed towards large strips
-    if isinstance(block, NifFormat.NiTriStrips):
-        # note: the max(1, ...) is to avoid ZeroDivisionError
-        avgstriplen = float(sum(i * i for i in data.stripLengths)) \
-            / max(1, sum(i for i in data.stripLengths))
-        print "  (average strip length is %f)" % avgstriplen
-        if avgstriplen < striplencutoff:
-            print("  average strip length less than %f so triangulating"
-                  % striplencutoff)
-            block = block.getInterchangeableTriShape()
-        elif stitch:
-            print("  stitching strips (using %i stitches)"
-                  % len(data.getStrips()))
-            data.setStrips([TriStrip.stitchStrips(data.getStrips())])
+        # stripify trishape/tristrip
+        if isinstance(branch, NifFormat.NiTriStrips):
+            self.toaster.msg("recalculating strips")
+            origlen = sum(i for i in data.stripLengths)
+            data.setTriangles(data.getTriangles())
+            newlen = sum(i for i in data.stripLengths)
+            self.toaster.msg("(strip length was %i and is now %i)"
+                             % (origlen, newlen))
+        elif isinstance(branch, NifFormat.NiTriShape):
+            self.toaster.msg("stripifying")
+            newbranch = branch.getInterchangeableTriStrips()
+            self.data.replaceGlobalTreeBranch(branch, newbranch)
+            branch = newbranch
+            data = newbranch.data
+        # average, weighed towards large strips
+        if isinstance(branch, NifFormat.NiTriStrips):
+            # note: the max(1, ...) is to avoid ZeroDivisionError
+            avgstriplen = float(sum(i * i for i in data.stripLengths)) \
+                / max(1, sum(i for i in data.stripLengths))
+            self.toaster.msg("(average strip length is %f)" % avgstriplen)
+            if avgstriplen < self.STRIPLENCUTOFF:
+                self.toaster.msg("average strip length < %f so triangulating"
+                                 % self.STRIPLENCUTOFF)
+                newbranch = branch.getInterchangeableTriShape()
+                self.data.replaceGlobalTreeBranch(branch, newbranch)
+                branch = newbranch
+                data = newbranch.data
+            elif self.STITCH:
+                self.toaster.msg("stitching strips (using %i stitches)"
+                                 % len(data.getStrips()))
+                data.setStrips([TriStrip.stitchStrips(data.getStrips())])
 
-    # update skin data
-    if block.skinInstance:
-        print "  update skin data vertex mapping"
-        skindata = block.skinInstance.data
-        newweights = []
-        for i in xrange(new_numvertices):
-            newweights.append(oldweights[v_map_inverse[i]])
-        for bonenum, bonedata in enumerate(skindata.boneList):
-            w = []
-            for i, weightlist in enumerate(newweights):
-                for bonenum_i, weight_i in weightlist:
-                    if bonenum == bonenum_i:
-                        w.append((i, weight_i))
-            bonedata.numVertices = len(w)
-            bonedata.vertexWeights.updateSize()
-            for j, (i, weight_i) in enumerate(w):
-                bonedata.vertexWeights[j].index = i
-                bonedata.vertexWeights[j].weight = weight_i
+        # update skin data
+        if branch.skinInstance:
+            self.toaster.msg("update skin data vertex mapping")
+            skindata = branch.skinInstance.data
+            newweights = []
+            for i in xrange(new_numvertices):
+                newweights.append(oldweights[v_map_inverse[i]])
+            for bonenum, bonedata in enumerate(skindata.boneList):
+                w = []
+                for i, weightlist in enumerate(newweights):
+                    for bonenum_i, weight_i in weightlist:
+                        if bonenum == bonenum_i:
+                            w.append((i, weight_i))
+                bonedata.numVertices = len(w)
+                bonedata.vertexWeights.updateSize()
+                for j, (i, weight_i) in enumerate(w):
+                    bonedata.vertexWeights[j].index = i
+                    bonedata.vertexWeights[j].weight = weight_i
 
-        # update skin partition (only if block already exists)
-        block._validateSkin()
-        skininst = block.skinInstance
-        skinpart = skininst.skinPartition
-        if not skinpart:
-            skinpart = skininst.data.skinPartition
+            # update skin partition (only if branch already exists)
+            branch._validateSkin()
+            skininst = branch.skinInstance
+            skinpart = skininst.skinPartition
+            if not skinpart:
+                skinpart = skininst.data.skinPartition
 
-        if skinpart:
-            print "  updating skin partition"
-            # use Oblivion settings
-            block.updateSkinPartition(
-                maxbonesperpartition = 18, maxbonespervertex = 4,
-                stripify = True, verbose = 0)
+            if skinpart:
+                self.toaster.msg("updating skin partition")
+                # use Oblivion settings
+                branch.updateSkinPartition(
+                    maxbonesperpartition = 18, maxbonespervertex = 4,
+                    stripify = True, verbose = 0)
 
-    # update morph data
-    for morphctrl in block.getControllers():
-        if isinstance(morphctrl, NifFormat.NiGeomMorpherController):
-            morphdata = morphctrl.data
-            # skip empty morph data
-            if not morphdata:
-                continue
-            # convert morphs
-            print("  updating morphs")
-            for morph in morphdata.morphs:
-                # store a copy of the old vectors
-                oldmorphvectors = [(vec.x, vec.y, vec.z)
-                                   for vec in morph.vectors]
-                for old_i, vec in izip(v_map_inverse, morph.vectors):
-                    vec.x = oldmorphvectors[old_i][0]
-                    vec.y = oldmorphvectors[old_i][1]
-                    vec.z = oldmorphvectors[old_i][2]
-                del oldmorphvectors
-            # resize matrices
-            morphdata.numVertices = new_numvertices
-            for morph in morphdata.morphs:
-                 morph.arg = morphdata.numVertices # manual argument passing
-                 morph.vectors.updateSize()
+        # update morph data
+        for morphctrl in branch.getControllers():
+            if isinstance(morphctrl, NifFormat.NiGeomMorpherController):
+                morphdata = morphctrl.data
+                # skip empty morph data
+                if not morphdata:
+                    continue
+                # convert morphs
+                self.toaster.msg("updating morphs")
+                for morph in morphdata.morphs:
+                    # store a copy of the old vectors
+                    oldmorphvectors = [(vec.x, vec.y, vec.z)
+                                       for vec in morph.vectors]
+                    for old_i, vec in izip(v_map_inverse, morph.vectors):
+                        vec.x = oldmorphvectors[old_i][0]
+                        vec.y = oldmorphvectors[old_i][1]
+                        vec.z = oldmorphvectors[old_i][2]
+                    del oldmorphvectors
+                # resize matrices
+                morphdata.numVertices = new_numvertices
+                for morph in morphdata.morphs:
+                     morph.arg = morphdata.numVertices # manual argument passing
+                     morph.vectors.updateSize()
 
-    # recalculate tangent space (only if the block already exists)
-    if block.find(block_name = 'Tangent space (binormal & tangent vectors)',
-                  block_type = NifFormat.NiBinaryExtraData):
-        print "  recalculating tangent space"
-        block.updateTangentSpace()
+        # recalculate tangent space (only if the branch already exists)
+        if branch.find(block_name='Tangent space (binormal & tangent vectors)',
+                       block_type=NifFormat.NiBinaryExtraData):
+            self.toaster.msg("recalculating tangent space")
+            branch.updateTangentSpace()
 
-    return block
-
-def testRoot(root, **args):
-    """Optimize the tree at root. This is the main entry point for the
-    nifoptimize script.
-
-    @param root: The root of the tree.
-    @type root: L{NifFormat.NiObject}
-    """
-    # check which blocks to exclude
-    exclude = args.get("exclude", [])
-
-    # get list of all blocks
-    block_list = [ block for block in root.tree(unique = True) ]
-
-    print("optimizing geometries")
-    # first update list of all blocks
-    block_list = [ block for block in root.tree(unique = True) ]
-    optimized_geometries = []
-    for block in block_list:
-        # optimize geometries
-        if (isinstance(block, NifFormat.NiTriStrips) \
-            and not "NiTriStrips" in exclude) or \
-            (isinstance(block, NifFormat.NiTriShape) \
-            and not "NiTriShape" in exclude):
-            # already optimized? skip!
-            if block in optimized_geometries:
-                continue
-            # optimize
-            newblock = optimizeTriBasedGeom(block)
-            optimized_geometries.append(block)
-            # search for all locations of the block, and replace it
-            if not(newblock is block):
-                optimized_geometries.append(newblock)
-                for otherblock in block_list:
-                    if not(block in otherblock.getLinks()):
-                        continue
-                    if isinstance(otherblock, NifFormat.NiNode):
-                        for i, child in enumerate(otherblock.children):
-                            if child is block:
-                                otherblock.children[i] = newblock
-                    elif isinstance(otherblock, NifFormat.NiTimeController):
-                        if otherblock.target is block:
-                            otherblock.target = newblock
-                    elif isinstance(otherblock, NifFormat.NiDefaultAVObjectPalette):
-                        for i, avobj in enumerate(otherblock.objs):
-                            if avobj.avObject is block:
-                                avobj.avObject = newblock
-                    elif isinstance(otherblock, NifFormat.bhkCollisionObject):
-                        if otherblock.target is block:
-                            otherblock.target = newblock
-                    else:
-                        raise RuntimeError(
-                            "don't know how to replace block %s in %s"
-                            % (block.__class__.__name__,
-                               otherblock.__class__.__name__))
+        # stop recursion
+        return False
 
 class SpellOptimize(
     PyFFI.Spells.SpellGroupSeries(
@@ -451,4 +410,4 @@ class SpellOptimize(
         SpellMergeDuplicates,
         SpellOptimizeGeometry)):
     """Global fixer and optimizer spell."""
-    SPELLNAME = "optimize_experimental"
+    SPELLNAME = "optimize"
