@@ -130,11 +130,16 @@ class SpellMergeDuplicates(PyFFI.Spells.NIF.NifSpell):
         # so do not merge shapes on this nif (probably we could still
         # merge other things: this is just a quick hack to make sure the
         # optimizer won't do anything wrong)
-        return not self.inspectblocktype(NifFormat.NiPSysMeshEmitter)
+        try:
+            return not self.data.header.hasBlockType(NifFormat.NiPSysMeshEmitter)
+        except ValueError:
+            # when in doubt, do the spell
+            return True
 
     def branchinspect(self, branch):
         # only inspect the NiObjectNET branch (merging havok can mess up things)
-        return isinstance(branch, NifFormat.NiObjectNET)
+        return isinstance(branch, (NifFormat.NiObjectNET,
+                                   NifFormat.NiGeometryData))
 
     def branchentry(self, branch):
         for otherbranch in self.branches:
@@ -149,11 +154,13 @@ class SpellMergeDuplicates(PyFFI.Spells.NIF.NifSpell):
                 # interchangeable branch found!
                 self.toaster.msg("removing duplicate branch")
                 self.data.replaceGlobalTreeBranch(branch, otherbranch)
-                break
+                # branch has been replaced, so no need to recurse further
+                return False
         else:
+            # no duplicate found, add to list of visited branches
             self.branches.append(branch)
-        # continue recursion
-        return True
+            # continue recursion
+            return True
 
 class SpellOptimize(
     PyFFI.Spells.SpellGroupSeries(
