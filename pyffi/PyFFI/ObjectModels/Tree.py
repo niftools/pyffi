@@ -189,6 +189,10 @@ class GlobalTreeBranch(DetailTreeBranch):
         """
         raise NotImplementedError
 
+    def replaceGlobalTreeBranch(self, oldbranch, newbranch):
+        """Replace a particular branch in the tree."""
+        raise NotImplementedError
+
 class DetailTreeLeaf(TreeItem):
     """A tree item that does not have any children.
 

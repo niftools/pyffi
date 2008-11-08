@@ -463,14 +463,14 @@ class StructBase(object):
                 getattr(self, "_%s_value_" % attr.name).getHash(**kwargs))
         return tuple(hsh)
 
-    def replaceBranch(self, oldbranch, newbranch, **kwargs):
+    def replaceGlobalTreeBranch(self, oldbranch, newbranch, **kwargs):
         # parse arguments
         version = kwargs.get('version')
         user_version = kwargs.get('user_version')
         # calculate size
         size = 0
         for attr in self._filteredAttributeList(version, user_version):
-            getattr(self, "_%s_value_" % attr.name).replaceBranch(oldbranch, newbranch, **kwargs)
+            getattr(self, "_%s_value_" % attr.name).replaceGlobalTreeBranch(oldbranch, newbranch, **kwargs)
 
     @classmethod
     def getGames(cls):
