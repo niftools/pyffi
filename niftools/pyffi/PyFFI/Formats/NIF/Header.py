@@ -48,15 +48,14 @@ def hasBlockType(self, block_type):
     ValueError: ...
     >>> # TODO more tests
 
+    @raise ValueError: If number of block types is zero (only nif versions
+        10.0.1.0 and up store block types in header).
+
     @param block_type: The block type.
     @type block_type: L{NifFormat.NiObject}
     @return: C{True} if the header's list of block types has the given
         block type, or a subclass of it. C{False} otherwise.
     @rtype: C{bool}
-
-    @raise C{ValueError}: Only nif versions 10.0.1.0 and up store
-        block types in header. To detect this situation, this function
-        will raise an exception when number of block types is zero.
     """
     # check if we can check the block types at all
     if self.numBlockTypes == 0:

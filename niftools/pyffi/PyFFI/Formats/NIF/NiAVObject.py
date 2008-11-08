@@ -1,7 +1,7 @@
 """Custom functions for NiAVObject.
 
 Properties
-----------
+==========
 
 >>> from PyFFI.Formats.NIF import NifFormat
 >>> node = NifFormat.NiNode()
