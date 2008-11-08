@@ -135,4 +135,10 @@ def isInterchangeable(self, other):
 
     @todo: Rely on AnyType, SimpleType, ComplexType, etc. implementation.
     """
-    return self is other
+    if isinstance(self, (self.cls.NiProperty, self.cls.NiSourceTexture)):
+        # use hash for properties and source textures
+        return self.getHash() == other.getHash()
+    else:
+        # for blocks with references: quick check only
+        return self is other
+
