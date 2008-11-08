@@ -45,23 +45,25 @@ which generates immutable objects that can be used to identify the object.
 class AnyType(object):
     """Abstract base class from which all types are derived."""
 
-    def read(self, stream, version):
+    def read(self, stream, data):
         """Read object from file.
 
         @param stream: The stream to read from.
         @type stream: file
-        @param version: Version information.
-        @type version: L{ComplexType}
+        @param data: The data root branch (which contains version
+            information and so on).
+        @type data: L{FileFormat.Data}
         """
         raise NotImplementedError
 
-    def write(self, stream, version):
+    def write(self, stream, data):
         """Write object to file.
 
         @param stream: The stream to write to.
         @type stream: file
-        @param version: Version information.
-        @type version: L{ComplexType}
+        @param data: The data root branch (which contains Version
+            information and so on).
+        @type data: L{FileFormat.Data}
         """
         raise NotImplementedError
 
