@@ -467,9 +467,11 @@ class StructBase(object):
         # parse arguments
         version = kwargs.get('version')
         user_version = kwargs.get('user_version')
-        # calculate size
-        size = 0
         for attr in self._filteredAttributeList(version, user_version):
+            # check if there are any links at all
+            # (this speeds things up considerably)
+            if not attr.type._hasLinks:
+                continue
             getattr(self, "_%s_value_" % attr.name).replaceGlobalTreeBranch(oldbranch, newbranch, **kwargs)
 
     @classmethod
