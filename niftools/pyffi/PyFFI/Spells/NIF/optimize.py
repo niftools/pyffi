@@ -67,15 +67,20 @@ class SpellCleanRefLists(PyFFI.Spells.NIF.NifSpell):
     READONLY = False
 
     def datainspect(self):
-        # so far, only reference lists in NiObjectNET blocks, NiAVObject
-        # blocks, and NiNode blocks are checked
-        return (self.inspectblocktype(NifFormat.NiObjectNET)
         # see MadCat221's metstaff.nif:
         # merging data on PSysMeshEmitter affects particle system
         # so do not merge child links on this nif (probably we could still
         # merge other things: this is just a quick hack to make sure the
         # optimizer won't do anything wrong)
-                and not self.inspectblocktype(NifFormat.NiPSysMeshEmitter))
+        try:
+            if self.data.header.hasBlockType(NifFormat.NiPSysMeshEmitter):
+                return False
+        except ValueError:
+            # when in doubt, assume it does not have this block
+            pass
+        # so far, only reference lists in NiObjectNET blocks, NiAVObject
+        # blocks, and NiNode blocks are checked
+        return self.inspectblocktype(NifFormat.NiObjectNET)
 
     def branchinspect(self, branch):
         # only inspect the NiObjectNET branch
@@ -115,6 +120,7 @@ class SpellCleanRefLists(PyFFI.Spells.NIF.NifSpell):
         return True
 
 class SpellMergeDuplicates(PyFFI.Spells.NIF.NifSpell):
+    """Remove duplicate branches."""
 
     SPELLNAME = "opt_mergeduplicates"
     READONLY = False
@@ -162,16 +168,29 @@ class SpellMergeDuplicates(PyFFI.Spells.NIF.NifSpell):
             # continue recursion
             return True
 
-class SpellOptimize(
-    PyFFI.Spells.SpellGroupSeries(
-        PyFFI.Spells.SpellGroupParallel(
-            SpellCleanRefLists,
-            PyFFI.Spells.NIF.fix.SpellDetachHavokTriStripsData,
-            PyFFI.Spells.NIF.fix.SpellFixTexturePath,
-            PyFFI.Spells.NIF.fix.SpellClampMaterialAlpha),
-        SpellMergeDuplicates)):
-    """Global fixer and optimizer spell."""
-    SPELLNAME = "optimize_experimental"
+class SpellOptimizeGeometry(PyFFI.Spells.NIF.NifSpell):
+    """Optimize all geometries:
+      - remove duplicate vertices
+      - stripify if strips are long enough
+      - recalculate skin partition
+      - recalculate tangent space 
+    """
+
+    SPELLNAME = "opt_geometry"
+    READONLY = False
+
+    def datainspect(self):
+        # so far, only reference lists in NiObjectNET blocks, NiAVObject
+        # blocks, and NiNode blocks are checked
+        return self.inspectblocktype(NifFormat.NiTriBasedGeom)
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch
+        return isinstance(branch, NifFormat.NiAVObject)
+
+    def branchentry(self, branch):
+        # TODO
+        pass
 
 def optimizeTriBasedGeom(block, striplencutoff = 10.0, stitch = True):
     """Optimize a NiTriStrips or NiTriShape block:
@@ -422,3 +441,14 @@ def testRoot(root, **args):
                             % (block.__class__.__name__,
                                otherblock.__class__.__name__))
 
+class SpellOptimize(
+    PyFFI.Spells.SpellGroupSeries(
+        PyFFI.Spells.SpellGroupParallel(
+            SpellCleanRefLists,
+            PyFFI.Spells.NIF.fix.SpellDetachHavokTriStripsData,
+            PyFFI.Spells.NIF.fix.SpellFixTexturePath,
+            PyFFI.Spells.NIF.fix.SpellClampMaterialAlpha),
+        SpellMergeDuplicates,
+        SpellOptimizeGeometry)):
+    """Global fixer and optimizer spell."""
+    SPELLNAME = "optimize_experimental"
