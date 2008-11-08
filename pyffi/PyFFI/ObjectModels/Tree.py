@@ -193,6 +193,15 @@ class GlobalTreeBranch(DetailTreeBranch):
         """Replace a particular branch in the tree."""
         raise NotImplementedError
 
+    def getGlobalTree(self):
+        """Iterate over self, all children, all grandchildren, and so on.
+        Do not override.
+        """
+        yield self
+        for child in self.getGlobalTreeChildren():
+            for branch in child.getGlobalTree():
+                yield branch
+
 class DetailTreeLeaf(TreeItem):
     """A tree item that does not have any children.
 

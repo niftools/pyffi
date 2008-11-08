@@ -17,7 +17,7 @@ NifToaster check
           ~~~ bhkRigidBodyT [] ~~~
             ~~~ bhkListShape [] ~~~
               ~~~ bhkNiTriStripsShape [] ~~~
-        detaching havok data
+                detaching havok data
   writing to temporary file
 Finished.
 

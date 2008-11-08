@@ -139,10 +139,10 @@ hackmultiskelroot
 hackskindataidtransform
 hackskinrestpose
 mergeskelandrestpos
-optimize
 opt_cleanreflists
 opt_mergeduplicates
-optimize_experimental
+opt_geometry
+optimize
 optimize_split
 scale
 updatecenterradius
