@@ -26,11 +26,10 @@ NifToaster check
         ~~~ NiStencilProperty [] ~~~
         ~~~ NiDitherProperty [] ~~~
         ~~~ NiTriStrips [Tri Cone 0] ~~~
-          merging NiSpecularProperty child
           ~~~ NiTexturingProperty [] ~~~
             ~~~ NiSourceTexture [] ~~~
           ~~~ NiMaterialProperty [Red] ~~~
-          ~~~ NiDitherProperty [] ~~~
+          ~~~ NiSpecularProperty [] ~~~
         ~~~ NiTriStrips [Tri Cone 1] ~~~
           merging NiTexturingProperty child
           merging NiMaterialProperty child
@@ -38,17 +37,16 @@ NifToaster check
           ~~~ NiTexturingProperty [] ~~~
             ~~~ NiSourceTexture [] ~~~
           ~~~ NiMaterialProperty [Red] ~~~
-          ~~~ NiDitherProperty [] ~~~
+          ~~~ NiSpecularProperty [] ~~~
           ~~~ NiAlphaProperty [] ~~~
         ~~~ NiTriStrips [Tri Cone 2] ~~~
           merging NiTexturingProperty child
           merging NiMaterialProperty child
-          merging NiWireframeProperty child
           merging NiAlphaProperty child
           ~~~ NiTexturingProperty [] ~~~
             ~~~ NiSourceTexture [] ~~~
           ~~~ NiMaterialProperty [Red] ~~~
-          ~~~ NiDitherProperty [] ~~~
+          ~~~ NiWireframeProperty [] ~~~
           ~~~ NiAlphaProperty [] ~~~
         ~~~ NiTriStrips [Tri Cone 3] ~~~
           merging NiTexturingProperty child
@@ -58,7 +56,7 @@ NifToaster check
           ~~~ NiTexturingProperty [] ~~~
             ~~~ NiSourceTexture [] ~~~
           ~~~ NiMaterialProperty [Red] ~~~
-          ~~~ NiDitherProperty [] ~~~
+          ~~~ NiWireframeProperty [] ~~~
           ~~~ NiDitherProperty [] ~~~
   writing to temporary file
 Finished.
