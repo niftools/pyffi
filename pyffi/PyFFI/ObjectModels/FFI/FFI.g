@@ -13,13 +13,16 @@ tokens {
     // emitted when indentation decreases
     // see NEWLINE for details
     DEDENT;
+    // keywords
+    TYPE='type';
+    FILEFORMAT='fileformat';
 }
 
 // target specific code
 // ====================
 
 // current_indent: lexer variable which measures the current indentation level
-// NEWLINE: special token which works as follows
+// NEWLINE: special lexer token which works as follows
 //    indentation increased by one level: emit INDENT
 //    indentation remained the same: emit NEWLINE
 //    indentation decreased (by any level): emit DEDENT as many as decreased
@@ -44,7 +47,7 @@ NEWLINE
                 indent++;
             }
         )*
-        {   
+        {
             if (indent == current_indent + 1) {
                 current_indent++;
                 emit(new ClassicToken(INDENT, ">"));
@@ -115,16 +118,21 @@ ffi
     ;
 
 formatdef
-    :   'fileformat' FORMATNAME NEWLINE
+    :   longdoc? FILEFORMAT FORMATNAME SHORTDOC? NEWLINE
     ;
 
 typeblock
-    :   'type' COLON INDENT (typedef NEWLINE)* typedef DEDENT
+    :   TYPE COLON INDENT (typedef NEWLINE)* typedef DEDENT
     ;
 
 typedef
-    :   (COMMENT NEWLINE)* TYPENAME COMMENT? // basic type
-    |   (COMMENT NEWLINE)* TYPENAME '=' TYPENAME COMMENT? // alias
+    :   longdoc? TYPENAME SHORTDOC? // basic type
+    |   longdoc? TYPENAME '=' TYPENAME SHORTDOC? // alias
+    ;
+
+// documentation preceeding a definition, with newlines
+longdoc
+    :   (SHORTDOC NEWLINE)+
     ;
 
 /*------------------------------------------------------------------
@@ -133,12 +141,15 @@ typedef
 
 // whitespace and comments
 
-COMMENT
+// documentation following a definition, no newline
+// (on the same line of the definition)
+SHORTDOC
     :   '#' ~('\n')*
     ;
 
 fragment
-DIGIT   :   '0'..'9'
+DIGIT
+    :   '0'..'9'
     ;
 
 fragment
@@ -204,5 +215,5 @@ ESC
 
 // ignore whitespace
 WS
-    : (' ')+ { $channel=HIDDEN; }
+    :   (' ')+ { $channel=HIDDEN; }
     ;

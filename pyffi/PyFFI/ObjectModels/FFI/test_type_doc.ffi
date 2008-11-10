@@ -1,3 +1,6 @@
+# This format is used for representing this or that data.
+# More explanation...
+# That's it!
 fileformat NIF
 
 type:
@@ -9,6 +12,10 @@ type:
     # A simple test type.
     # Has multiple lines commenting it
     Test
+
+
+    # Another test.
+    Test2
 
     Offset = UInt
     ZString
