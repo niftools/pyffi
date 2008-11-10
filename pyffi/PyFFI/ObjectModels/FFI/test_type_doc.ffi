@@ -1,0 +1,15 @@
+fileformat NIF
+
+type:
+    UInt # A 32-bit unsigned integer.
+    Int # A 32-bit signed integer.
+    UShort # A 16-bit unsigned integer.
+    Short # A 16-bit signed integer.
+
+    # A simple test type.
+    # Has multiple lines commenting it
+    Test
+
+    Offset = UInt
+    ZString
+
