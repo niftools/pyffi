@@ -1,7 +1,6 @@
 grammar FFI;
 
 options {
-    // PYTHON
     language = Python;
     output=AST;
     ASTLabelType=CommonTree;
@@ -16,29 +15,103 @@ tokens {
     DEDENT;
 }
 
-// JAVA 
+// target specific code
+// ====================
+
+// current_indent: lexer variable which measures the current indentation level
+// NEWLINE: special token which works as follows
+//    indentation increased by one level: emit INDENT
+//    indentation remained the same: emit NEWLINE
+//    indentation decreased (by any level): emit DEDENT as many as decreased
+
+// JAVA
+
 /*
+
 @lexer::members {
-    // current indentation level
     int current_indent = 0;
 }
+
+NEWLINE
+@init {
+    int indent = 0;
+}
+    :
+        ((('\f')? ('\r')? '\n') | ' ')*
+        (('\f')? ('\r')? '\n')
+        ('    '
+            {
+                indent++;
+            }
+        )*
+        {   
+            if (indent == current_indent + 1) {
+                current_indent++;
+                emit(new ClassicToken(INDENT, ">"));
+            }
+            else if (indent == current_indent) {
+                emit(new ClassicToken(NEWLINE, "\n"));
+            }
+            else if (indent < current_indent) {
+                while (indent < current_indent) {
+                    current_indent--;
+                    emit(new ClassicToken(DEDENT, "<"));
+                }
+            }
+            else {
+                throw new RuntimeException("bad indentation");
+            }
+        }
+    ;
+
 */
+
 // PYTHON
 // note: ANTLR defines Python members on class level, but we want to define an
 //       instance variable, not a class variable, hence it must go in __init__
 //       so we declare the member in __init__
+
+/* */
+
 @lexer::init {
-    # current indentation level
     self.current_indent = 0
 }
 
+NEWLINE
+@init {
+    indent = 0
+}
+    :
+        ((('\f')? ('\r')? '\n') | ' ')*
+        (('\f')? ('\r')? '\n')
+        ('    '
+            {
+                indent += 1
+            }
+        )*
+        {   
+            if (indent == self.current_indent + 1):
+                self.current_indent += 1
+                self.emit(ClassicToken(INDENT, ">"))
+            elif indent == self.current_indent:
+                self.emit(ClassicToken(NEWLINE, "\n"))
+            elif indent < self.current_indent:
+                while indent < self.current_indent:
+                    self.current_indent -= 1
+                    self.emit(ClassicToken(DEDENT, "<"))
+            else:
+                raise RuntimeError("bad indentation")
+        }
+    ;
+
+/* */
 
 /*------------------------------------------------------------------
  * PARSER RULES
  *------------------------------------------------------------------*/
 
 ffi
-    :   formatdef typeblock?
+    :   formatdef typeblock? EOF
     ;
 
 formatdef
@@ -59,7 +132,6 @@ typedef
  *------------------------------------------------------------------*/
 
 // whitespace and comments
-
 
 COMMENT
     :   '#' ~('\n')* '\n' {$channel=HIDDEN;}
@@ -130,77 +202,7 @@ ESC
     :   '\\' .
     ;
 
-// note: emits INDENT and DEDENT instead of NEWLINE if indentation changes
-NEWLINE
-// JAVA
-/*
-@init {
-    int indent = 0;
-}
-*/
-// PYTHON
-@init {
-    indent = 0
-}
-    :   // ignore whitespace at end of line, lines that only consist of whitespace
-        ((('\f')? ('\r')? '\n') | ' ')*
-        // but we need of course at least one real newline
-        (('\f')? ('\r')? '\n')
-        // eat indentation, and count it
-        ('    '
-            // JAVA
-            /*
-            {
-                indent++;
-            }
-            */
-            // PYTHON
-            {
-                indent += 1
-            }
-        )*
-            // indentation increased by one level: emit INDENT
-        // indentation remained the same: emit NEWLINE
-        // indentation decreased (by any level): emit DEDENT as many as there are levels
-        // JAVA
-        /*
-            {   
-            if (indent == current_indent + 1) {
-                current_indent++;
-                emit(new ClassicToken(INDENT, ">"));
-            }
-            else if (indent == current_indent) {
-                emit(new ClassicToken(NEWLINE, "\n"));
-            }
-            else if (indent < current_indent) {
-                while (indent < current_indent) {
-                    current_indent--;
-                    emit(new ClassicToken(DEDENT, "<"));
-                }
-            }
-            else {
-                throw new RuntimeException("bad indentation")
-            }
-        }
-        */
-        // PYTHON
-        {   
-            if (indent == self.current_indent + 1):
-                self.current_indent += 1
-                self.emit(ClassicToken(INDENT, ">"))
-            elif indent == self.current_indent:
-                self.emit(ClassicToken(NEWLINE, "\n"))
-            elif indent < self.current_indent:
-                while indent < self.current_indent:
-                    self.current_indent -= 1
-                    self.emit(ClassicToken(DEDENT, "<"))
-            else:
-                raise RuntimeError("bad indentation")
-        }
-    ;
-
 // ignore whitespace
 WS
     : (' ')+ { $channel=HIDDEN; }
     ;
-
