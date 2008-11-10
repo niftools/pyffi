@@ -1,0 +1,16 @@
+fileformat NIF
+
+type:
+    UInt
+    Int
+    UShort
+    Short
+    Test
+    Offset = UInt
+    UByte
+    StringOffset = UShort
+    Index = UByte
+    LFString
+    ZString
+
+
