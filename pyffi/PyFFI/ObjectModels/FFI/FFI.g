@@ -123,8 +123,8 @@ typeblock
     ;
 
 typedef
-    :   TYPENAME // basic type
-    |   TYPENAME '=' TYPENAME // alias
+    :   (COMMENT NEWLINE)* TYPENAME COMMENT? // basic type
+    |   (COMMENT NEWLINE)* TYPENAME '=' TYPENAME COMMENT? // alias
     ;
 
 /*------------------------------------------------------------------
@@ -134,7 +134,7 @@ typedef
 // whitespace and comments
 
 COMMENT
-    :   '#' ~('\n')* '\n' {$channel=HIDDEN;}
+    :   '#' ~('\n')*
     ;
 
 fragment
