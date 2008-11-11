@@ -104,7 +104,7 @@ base class to extend")
                 continue
             if k in base.__dict__ and not hasattr(v, '__replace'):
                 raise TypeError("%s already has %s" % (repr(base), k))
-            base.__dict__[k] = v
+            setattr(base, k, v)
         # Return the original class
         return base
 
