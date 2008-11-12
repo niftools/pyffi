@@ -96,16 +96,18 @@ class MetaPartial(type):
 base class to extend")
         base = bases[0]
         for k, v in dict.items():
-            if k == '__module__':
-                # Ignore implicit attribute
+            if k in ('__module__', '__metaclass__'):
+                # ignore implicit attribute, and ignore
+                # the MetaPartial __metaclass__ attribute
                 continue
             if k in base.__dict__ and not hasattr(v, '__replace'):
                 raise TypeError("%s already has %s" % (repr(base), k))
             setattr(base, k, v)
-        ### cannot do this, possible metaclass conflict!!!
+        # the next command would create the actual class as defined
+        # (note possible metaclass conflict!!!)
         #return type.__new__(cls, name, bases, dict)
-        ### instead do this:
-        # Return the original class
+        # but we do not actually create it, let it simply be an alias of the
+        # original class
         return base
 
 def replace(f):
