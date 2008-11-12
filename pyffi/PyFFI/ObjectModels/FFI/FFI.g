@@ -33,7 +33,23 @@ tokens {
 /* */
 
 @lexer::members {
+    // keep track of indentation
     int current_indent = 0;
+    
+    // allow multiple tokens to be emitted
+    // (see http://www.antlr.org/wiki/pages/viewpage.action?pageId=3604497)
+    List tokens = new ArrayList();
+    public void emit(Token token) {
+        state.token = token;
+        tokens.add(token);
+    }
+    public Token nextToken() {
+        super.nextToken();
+        if ( tokens.size()==0 ) {
+            return Token.EOF_TOKEN;
+        }
+        return (Token)tokens.remove(0);
+    }
 }
 
 NEWLINE
@@ -41,12 +57,23 @@ NEWLINE
     int indent = 0;
 }
     :
-        ((('\f')? ('\r')? '\n') | ' ')*
-        (('\f')? ('\r')? '\n')
-        ('    '
+        (
+            (('\f')? ('\r')? '\n'
+                {
+                    emit(new ClassicToken(NEWLINE, "\n"));
+                }
+            )
+            |
+            ' ')*
+        (('\f')? ('\r')? '\n'
             {
-                indent++;
+                emit(new ClassicToken(NEWLINE, "\n"));
             }
+        )
+        ('    '
+        {
+            indent++;
+        }
         )*
         {
             if (indent == current_indent + 1) {
@@ -54,7 +81,7 @@ NEWLINE
                 emit(new ClassicToken(INDENT, ">"));
             }
             else if (indent == current_indent) {
-                emit(new ClassicToken(NEWLINE, "\n"));
+                // nothing happens, newline already emitted
             }
             else if (indent < current_indent) {
                 while (indent < current_indent) {
@@ -79,6 +106,11 @@ NEWLINE
 
 @lexer::init {
     self.current_indent = 0
+}
+
+// TODO multiple tokens per lexical symbol
+
+@lexer::members {
 }
 
 NEWLINE
@@ -119,29 +151,47 @@ ffi
     ;
 
 formatdef
-    :   longdoc? FILEFORMAT FORMATNAME SHORTDOC? NEWLINE
+    :   longdoc FILEFORMAT FORMATNAME shortdoc
+    ;
+
+blockbegin
+    :   COLON NEWLINE INDENT
+    ;
+
+blockend
+    :   DEDENT
     ;
 
 typeblock
-    :   TYPE COLON INDENT (typedef NEWLINE)* typedef DEDENT
+    :   TYPE blockbegin typedef+ blockend
     ;
 
 typedef
-    :   longdoc? TYPENAME SHORTDOC? // basic type
-    |   longdoc? TYPENAME '=' TYPENAME SHORTDOC? // alias
+    :   longdoc TYPENAME shortdoc // basic type
+    |   longdoc TYPENAME '=' TYPENAME shortdoc // alias
     ;
 
 classblock
-    :    longdoc? CLASS TYPENAME COLON SHORTDOC? INDENT (fielddef NEWLINE)* fielddef DEDENT    
+    :    longdoc CLASS TYPENAME blockbegin fielddef+ blockend
     ;
 
 fielddef
-    :    longdoc? TYPENAME VARIABLENAME SHORTDOC?
+    :    longdoc TYPENAME VARIABLENAME shortdoc
     ;
 
-// documentation preceeding a definition, with newlines
+// short documentation following a definition, followed by one or more newlines
+// because short style documentation always should come at the end of a definition,
+// it includes the newline(s) that follow the definition (this makes the other parser
+// rules a bit simpler)
+shortdoc
+    :   SHORTDOC? NEWLINE+
+    ;
+
+// documentation preceeding a definition, with single newline following each line of text
+// the number of lines in the documentation is arbitrary, also zero lines is possible (i.e.
+// no documentation at all)
 longdoc
-    :   (SHORTDOC NEWLINE)+
+    :   (SHORTDOC NEWLINE)*
     ;
 
 /*------------------------------------------------------------------
