@@ -5,16 +5,16 @@ martin@v.loewis.de. The 'partial' module is licensed under the Academic Free
 License version 3.0 (http://www.opensource.org/licenses/afl-3.0.php)
 and can be found at http://pypi.python.org/pypi/partial/
 
-To declare a class partial, inherit from PyFFI.Utils.Partial.Partial and from
-the full class:
+To extend an existing class (typically, imported from another file) using
+another class, inherit from the full class and use the MetaPartial metaclass:
 
->>> from PyFFI.Utils.Partial import Partial, replace
->>> class SomeClass:
+>>> class SomeClass(object):
 ...     def original_method(self):
 ...         print("hello world")
 >>> SomeClass().original_method()
 hello world
->>> class ExtendedSomeClass(Partial, SomeClass):
+>>> class ExtendedSomeClass(SomeClass):
+...     __metaclass__ = MetaPartial
 ...     def additional_method(self, arg):
 ...         print(arg)
 ...     # replacing an original method of SomeClass
@@ -36,11 +36,11 @@ for SomeClass).
 If the original class already contains the definitions being added, an
 exception is raised, unless they are decorated with @replace.
 
->>> from PyFFI.Utils.Partial import Partial
->>> class SomeClass:
+>>> class SomeClass(object):
 ...     def original_method(self):
 ...         print("hello world")
->>> class ExtendedSomeClass(Partial, SomeClass):
+>>> class ExtendedSomeClass(SomeClass):
+...     __metaclass__ = MetaPartial
 ...     # replacing without the decorator will raise an exception!
 ...     def original_method(self):
 ...         print("replaced!") # doctest: +ELLIPSIS
@@ -87,17 +87,14 @@ TypeError: ...
 #
 # ***** END LICENSE BLOCK *****
 
-class _MetaPartial(type):
+class MetaPartial(type):
     "Metaclass implementing the hook for partial class definitions."
 
     def __new__(cls, name, bases, dict):
-        if not bases:
-            # It is the class partial itself
-            return type.__new__(cls, name, bases, dict)
-        if len(bases) != 2:
+        if len(bases) != 1:
             raise TypeError("A partial class definition must have only one \
 base class to extend")
-        base = bases[1]
+        base = bases[0]
         for k, v in dict.items():
             if k == '__module__':
                 # Ignore implicit attribute
@@ -105,12 +102,11 @@ base class to extend")
             if k in base.__dict__ and not hasattr(v, '__replace'):
                 raise TypeError("%s already has %s" % (repr(base), k))
             setattr(base, k, v)
+        ### cannot do this, possible metaclass conflict!!!
+        #return type.__new__(cls, name, bases, dict)
+        ### instead do this:
         # Return the original class
         return base
-
-class Partial:
-    "Base class to declare partial classes. See module docstring for details."
-    __metaclass__ = _MetaPartial
 
 def replace(f):
     """Method decorator to indicate that a method shall replace 
@@ -121,3 +117,4 @@ def replace(f):
 if __name__=='__main__':
     import doctest
     doctest.testmod()
+

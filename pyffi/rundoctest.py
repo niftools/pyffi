@@ -22,7 +22,7 @@ import PyFFI.Utils.TangentSpace
 import PyFFI.Utils.Mopp
 import PyFFI.Utils.Partial
 import PyFFI.Formats.NIF
-import PyFFI.Formats.NIF.Header
+import PyFFI.Formats.NIF._Header
 import PyFFI.Formats.NIF.NiGeometryData
 import PyFFI.Formats.NIF.NiTriStripsData
 import PyFFI.Formats.NIF.NiTriShapeData
