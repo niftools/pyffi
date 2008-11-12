@@ -1,4 +1,14 @@
-"""Custom functions for Header."""
+"""Custom functions for Header.
+
+
+>>> from PyFFI.Formats.NIF import NifFormat
+>>> data = NifFormat.Data()
+>>> data.header.hasBlockType(NifFormat.NiAVObject) # doctest: +ELLIPSIS
+Traceback (most recent call last):
+    ...
+ValueError: ...
+>>> # TODO more tests
+"""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -37,35 +47,38 @@
 #
 # ***** END LICENSE BLOCK *****
 
-def hasBlockType(self, block_type):
-    """Check if header has a particular block type.
+from PyFFI.Utils.Partial import MetaPartial
+from PyFFI.Formats.NIF import NifFormat
 
-    >>> from PyFFI.Formats.NIF import NifFormat
-    >>> data = NifFormat.Data()
-    >>> data.header.hasBlockType(NifFormat.NiAVObject) # doctest: +ELLIPSIS
-    Traceback (most recent call last):
-        ...
-    ValueError: ...
-    >>> # TODO more tests
+class _Header(NifFormat.Header):
+    __metaclass__ = MetaPartial
 
-    @raise ValueError: If number of block types is zero (only nif versions
-        10.0.1.0 and up store block types in header).
+    def hasBlockType(self, block_type):
+        """Check if header has a particular block type.
 
-    @param block_type: The block type.
-    @type block_type: L{NifFormat.NiObject}
-    @return: C{True} if the header's list of block types has the given
-        block type, or a subclass of it. C{False} otherwise.
-    @rtype: C{bool}
-    """
-    # check if we can check the block types at all
-    if self.numBlockTypes == 0:
-        raise ValueError("header does not store any block types")
-    # quick first check, without hierarchy, using simple string comparisons
-    if block_type.__name__ in self.blockTypes:
-        return True
-    # slower check, using isinstance
-    for data_block_type in self.blockTypes:
-        if issubclass(getattr(self.cls, data_block_type), block_type):
+        @raise ValueError: If number of block types is zero (only nif versions
+            10.0.1.0 and up store block types in header).
+
+        @param block_type: The block type.
+        @type block_type: L{NifFormat.NiObject}
+        @return: C{True} if the header's list of block types has the given
+            block type, or a subclass of it. C{False} otherwise.
+        @rtype: C{bool}
+        """
+        # check if we can check the block types at all
+        if self.numBlockTypes == 0:
+            raise ValueError("header does not store any block types")
+        # quick first check, without hierarchy, using simple string comparisons
+        if block_type.__name__ in self.blockTypes:
             return True
-    # requested block type is not in nif
-    return False
+        # slower check, using isinstance
+        for data_block_type in self.blockTypes:
+            if issubclass(getattr(NifFormat, data_block_type), block_type):
+                return True
+        # requested block type is not in nif
+        return False
+
+#if __name__=='__main__':
+#    import doctest
+#    doctest.testmod()
+
