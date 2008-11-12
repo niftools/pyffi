@@ -1,7 +1,7 @@
 grammar FFI;
 
 options {
-    language = Python;
+    //language = Python;
     output=AST;
     ASTLabelType=CommonTree;
 }
@@ -14,8 +14,9 @@ tokens {
     // see NEWLINE for details
     DEDENT;
     // keywords
-    TYPE='type';
+    CLASS='class';
     FILEFORMAT='fileformat';
+    TYPE='type';
 }
 
 // target specific code
@@ -29,7 +30,7 @@ tokens {
 
 // JAVA
 
-/*
+/* */
 
 @lexer::members {
     int current_indent = 0;
@@ -67,14 +68,14 @@ NEWLINE
         }
     ;
 
-*/
+/* */
 
 // PYTHON
 // note: ANTLR defines Python members on class level, but we want to define an
 //       instance variable, not a class variable, hence it must go in __init__
 //       so we declare the member in __init__
 
-/* */
+/*
 
 @lexer::init {
     self.current_indent = 0
@@ -107,14 +108,14 @@ NEWLINE
         }
     ;
 
-/* */
+*/
 
 /*------------------------------------------------------------------
  * PARSER RULES
  *------------------------------------------------------------------*/
 
 ffi
-    :   formatdef typeblock? EOF
+    :   formatdef typeblock? classblock* EOF
     ;
 
 formatdef
@@ -128,6 +129,14 @@ typeblock
 typedef
     :   longdoc? TYPENAME SHORTDOC? // basic type
     |   longdoc? TYPENAME '=' TYPENAME SHORTDOC? // alias
+    ;
+
+classblock
+    :    longdoc? CLASS TYPENAME COLON SHORTDOC? INDENT (fielddef NEWLINE)* fielddef DEDENT    
+    ;
+
+fielddef
+    :    longdoc? TYPENAME VARIABLENAME SHORTDOC?
     ;
 
 // documentation preceeding a definition, with newlines
@@ -194,8 +203,8 @@ FORMATNAME
     :   UCLETTER (UCLETTER | DIGITS)*
     ;
 
-// lower_case_with_underscores for attribute names
-ATTRIBUTENAME
+// lower_case_with_underscores for variable names (e.g. fields)
+VARIABLENAME
     :   LCLETTER (LCLETTER | DIGITS | '_')*
     ;
 

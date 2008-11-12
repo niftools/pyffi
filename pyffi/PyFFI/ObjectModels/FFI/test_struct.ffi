@@ -1,0 +1,19 @@
+fileformat TEST
+
+type:
+    UInt
+    Int
+    UShort
+    Short
+    String
+
+# A test structure.
+class Test:
+    String header_string # The header string.
+    Int version # The version.
+    Short num_entities # Number of entities in this file.
+
+    # Another field, with longer
+    # comments.
+    UShort num_objects
+
