@@ -16,6 +16,7 @@ tokens {
     // keywords
     CLASS='class';
     FILEFORMAT='fileformat';
+    PARAMETER='parameter';
     TYPE='type';
 }
 
@@ -147,36 +148,15 @@ NEWLINE
  *------------------------------------------------------------------*/
 
 ffi
-    :   formatdef typeblock? classblock* EOF
+    :   formatdef declarations EOF
     ;
 
 formatdef
     :   longdoc FILEFORMAT FORMATNAME shortdoc
     ;
 
-blockbegin
-    :   COLON NEWLINE INDENT
-    ;
-
-blockend
-    :   DEDENT
-    ;
-
-typeblock
-    :   TYPE blockbegin typedef+ blockend
-    ;
-
-typedef
-    :   longdoc TYPENAME shortdoc // basic type
-    |   longdoc TYPENAME '=' TYPENAME shortdoc // alias
-    ;
-
-classblock
-    :    longdoc CLASS TYPENAME blockbegin fielddef+ blockend
-    ;
-
-fielddef
-    :    longdoc TYPENAME VARIABLENAME shortdoc
+declarations
+    :   typeblock? parameterblock? classblock*
     ;
 
 // short documentation following a definition, followed by one or more newlines
@@ -192,6 +172,35 @@ shortdoc
 // no documentation at all)
 longdoc
     :   (SHORTDOC NEWLINE)*
+    ;
+
+typeblock
+    :   TYPE blockbegin typedef+ blockend
+    ;
+
+parameterblock
+    :   PARAMETER blockbegin fielddef+ blockend
+    ;
+
+classblock
+    :   longdoc CLASS TYPENAME blockbegin declarations fielddef+ blockend
+    ;
+
+blockbegin
+    :   COLON NEWLINE INDENT
+    ;
+
+blockend
+    :   DEDENT
+    ;
+
+typedef
+    :   longdoc TYPENAME shortdoc // basic type
+    |   longdoc TYPENAME '=' TYPENAME shortdoc // alias
+    ;
+
+fielddef
+    :    longdoc TYPENAME VARIABLENAME shortdoc
     ;
 
 /*------------------------------------------------------------------
