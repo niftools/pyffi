@@ -1,0 +1,23 @@
+fileformat TEST
+
+type:
+    UInt
+
+parameter:
+    # paramaters declared at global scope are arguments required for parsing
+    # the binary file (typically, version numbers)
+    UInt version
+    UInt user_version
+    UInt user_version_2
+
+class Key:
+    type:
+        # also test embedded type declarations
+        Float
+
+    parameter:
+        UInt interpolation
+
+    Float time
+    UInt value
+
