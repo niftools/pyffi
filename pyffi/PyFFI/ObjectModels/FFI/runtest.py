@@ -21,6 +21,18 @@ class TestFFI(unittest.TestCase):
         parser = self.createParser("test_type_doc.ffi")
         parser.ffi()
 
+    def testClass(self):
+        parser = self.createParser("test_class.ffi")
+        parser.ffi()
+
+    def testParameter(self):
+        parser = self.createParser("test_parameter.ffi")
+        parser.ffi()
+
+    def testKwargs(self):
+        parser = self.createParser("test_kwargs.ffi")
+        parser.ffi()
+
 
 
 if __name__ == '__main__':

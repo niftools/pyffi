@@ -1,7 +1,7 @@
 grammar FFI;
 
 options {
-    //language = Python;
+    language = Python;
     output=AST;
     ASTLabelType=CommonTree;
 }
@@ -34,7 +34,7 @@ tokens {
 
 // JAVA
 
-/* */
+/*
 
 @lexer::members {
     // keep track of indentation
@@ -99,22 +99,34 @@ NEWLINE
         }
     ;
 
-/* */
+*/
 
 // PYTHON
 // note: ANTLR defines Python members on class level, but we want to define an
 //       instance variable, not a class variable, hence it must go in __init__
 //       so we declare the member in __init__
 
-/*
+/* */
 
 @lexer::init {
     self.current_indent = 0
+    self.token_stack = []
 }
 
-// TODO multiple tokens per lexical symbol
+// multiple tokens per lexical symbol
 
 @lexer::members {
+    def emit(self, token=None):
+        Lexer.emit(self, token)
+        self.token_stack.append(self._state.token)
+
+    def nextToken(self):
+        Lexer.nextToken(self)
+        try:
+            return self.token_stack.pop(0)
+        except IndexError:
+            # pop from empty list raises index error
+            return EOF_TOKEN
 }
 
 NEWLINE
@@ -122,8 +134,19 @@ NEWLINE
     indent = 0
 }
     :
-        ((('\f')? ('\r')? '\n') | ' ')*
-        (('\f')? ('\r')? '\n')
+        (
+            (('\f')? ('\r')? '\n'
+                {
+                    self.emit(ClassicToken(NEWLINE, "\n"));
+                }
+            )
+            |
+            ' ')*
+        (('\f')? ('\r')? '\n'
+            {
+                self.emit(ClassicToken(NEWLINE, "\n"));
+            }
+        )
         ('    '
             {
                 indent += 1
@@ -134,7 +157,7 @@ NEWLINE
                 self.current_indent += 1
                 self.emit(ClassicToken(INDENT, ">"))
             elif indent == self.current_indent:
-                self.emit(ClassicToken(NEWLINE, "\n"))
+                pass
             elif indent < self.current_indent:
                 while indent < self.current_indent:
                     self.current_indent -= 1
@@ -144,7 +167,7 @@ NEWLINE
         }
     ;
 
-*/
+/* */
 
 /*------------------------------------------------------------------
  * PARSER RULES
@@ -203,7 +226,7 @@ typedef
     ;
 
 fielddef
-    :   longdoc TYPENAME VARIABLENAME fieldparameters shortdoc
+    :   longdoc TYPENAME VARIABLENAME fieldparameters? shortdoc
     ;
 
 kwarg
