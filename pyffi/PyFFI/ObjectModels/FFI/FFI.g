@@ -25,9 +25,12 @@ tokens {
 
 // current_indent: lexer variable which measures the current indentation level
 // NEWLINE: special lexer token which works as follows
+//    for every new line: emit NEWLINE
 //    indentation increased by one level: emit INDENT
-//    indentation remained the same: emit NEWLINE
 //    indentation decreased (by any level): emit DEDENT as many as decreased
+
+// to allow multiple tokens to be emitted by the NEWLINE lexer, the emit
+// and nextToken members are customized (this is described on the ANTLR wiki)
 
 // JAVA
 
@@ -159,17 +162,17 @@ declarations
     :   typeblock? parameterblock? classblock*
     ;
 
-// short documentation following a definition, followed by one or more newlines
-// because short style documentation always should come at the end of a definition,
+// Short documentation following a definition, followed by one or more newlines.
+// Because short style documentation always should come at the end of a definition,
 // it includes the newline(s) that follow the definition (this makes the other parser
-// rules a bit simpler)
+// rules a bit simpler).
 shortdoc
     :   SHORTDOC? NEWLINE+
     ;
 
-// documentation preceeding a definition, with single newline following each line of text
+// Documentation preceeding a definition, with single newline following each line of text
 // the number of lines in the documentation is arbitrary, also zero lines is possible (i.e.
-// no documentation at all)
+// no documentation at all).
 longdoc
     :   (SHORTDOC NEWLINE)*
     ;
@@ -200,7 +203,24 @@ typedef
     ;
 
 fielddef
-    :    longdoc TYPENAME VARIABLENAME shortdoc
+    :   longdoc TYPENAME VARIABLENAME fieldparameters shortdoc
+    ;
+
+kwarg
+    :   VARIABLENAME '=' expression
+    ;
+
+fieldparameters
+    :   '(' kwarg (',' kwarg)* ')'
+    ;
+
+// TODO: operators such as and, or, not, ...
+expression
+    :   VARIABLENAME
+    |   INT
+    |   FLOAT
+    |   STRING
+    |   '(' expression ')' // remove brackets
     ;
 
 /*------------------------------------------------------------------

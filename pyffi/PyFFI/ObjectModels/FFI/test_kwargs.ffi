@@ -1,0 +1,20 @@
+fileformat TEST
+
+type:
+    UInt
+    Float
+    String
+
+class Key:
+    parameter:
+        UInt interpolation
+        String description
+
+    Float time(default=0.0)
+    UInt value(default=1)
+
+class InterpolatedKey:
+    String description(default="hello world")
+    UInt interpol(default=3)
+    Key key(interpolation=interpol,description=description)
+
