@@ -39,7 +39,7 @@
 
 from types import *
 
-from PyFFI.Formats.NIF import NifFormat
+from PyFFI.Formats.NIF._NifFormat import NifFormat
 from PyFFI.Utils.Partial import MetaPartial
 
 class _Vector3(NifFormat.Vector3):

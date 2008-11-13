@@ -47,7 +47,7 @@ ValueError: ...
 #
 # ***** END LICENSE BLOCK *****
 
-from PyFFI.Formats.NIF import NifFormat
+from PyFFI.Formats.NIF._NifFormat import NifFormat
 from PyFFI.Utils.Partial import MetaPartial
 
 class _Header(NifFormat.Header):
