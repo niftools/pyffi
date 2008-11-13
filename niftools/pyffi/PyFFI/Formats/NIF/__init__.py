@@ -1536,6 +1536,3 @@ but got instance of %s' % (self._template, value.__class__))
         # return the list
         return blocks
 
-# extend the generated classes
-import PyFFI.Formats.NIF._Header
-
