@@ -630,6 +630,7 @@ but got %s instead"""%name)
             oldsyspath = sys.path
             # note: keep the old sys.path because the customize modules might
             # import other modules (such as math)
+            # old style:
             sys.path = [self.dct['clsFilePath']] + sys.path
             try:
                 # import custom object module
@@ -637,19 +638,18 @@ but got %s instead"""%name)
             except ImportError, err:
                 if str(err) != "No module named " + obj.__name__:
                     raise
-                else:
-                    continue
+            else:
+                # set object's cls argument to give it access to other
+                # objects defined in self.cls
+                obj.cls = self.cls
+                # iterate over all objects defined in the module
+                for objname, objfunc in mod.__dict__.items():
+                    # skip if it is not a function
+                    if not isinstance(objfunc, FunctionType):
+                        continue
+                    setattr(obj, objname, objfunc)
             finally:
                 sys.path = oldsyspath
-            # set object's cls argument to give it access to other objects
-            # defined in self.cls
-            obj.cls = self.cls
-            # iterate over all objects defined in the module
-            for objname, objfunc in mod.__dict__.items():
-                # skip if it is not a function
-                if not isinstance(objfunc, FunctionType):
-                    continue
-                setattr(obj, objname, objfunc)
 
     def characters(self, chars):
         """Add the string C{chars} to the docstring.
@@ -675,3 +675,6 @@ but got %s instead"""%name)
                 else:
                     gamesdict[gamestr] = [
                         self.cls.versions[self.versionString]]
+
+import PyFFI.Formats.NIF._Header
+import PyFFI.Formats.NIF._Vector3
