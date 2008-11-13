@@ -242,6 +242,7 @@ from PyFFI.Formats.NIF._NifFormat import NifFormat
 # class customizers
 
 import PyFFI.Formats.NIF._Header
-import PyFFI.Formats.NIF._Vector3
 import PyFFI.Formats.NIF._Matrix33
+import PyFFI.Formats.NIF._Vector3
+import PyFFI.Formats.NIF._Vector4
 
