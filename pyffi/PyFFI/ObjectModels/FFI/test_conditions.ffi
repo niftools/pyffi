@@ -1,0 +1,30 @@
+fileformat TEST
+
+type:
+    UInt
+    Int
+    UShort
+    Short
+    String
+
+parameter:
+    UInt version
+
+# A test class.
+class Test:
+    Short num_entities
+    UShort num_objects
+    if version:
+        UInt num_properties
+        if num_objects:
+            String object_description
+        elif num_entities:
+            String entity_description
+        else:
+            String dummy_description
+        UInt num_vars
+        Short num_indices
+    else:
+        String another_description
+        Short num_indices
+

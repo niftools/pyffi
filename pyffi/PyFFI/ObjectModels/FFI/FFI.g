@@ -1,7 +1,7 @@
 grammar FFI;
 
 options {
-    language = Python;
+    //language=Python;
     output=AST;
     ASTLabelType=CommonTree;
 }
@@ -15,7 +15,10 @@ tokens {
     DEDENT;
     // keywords
     CLASS='class';
+    ELIF='elif';
+    ELSE='else';
     FILEFORMAT='fileformat';
+    IF='if';
     PARAMETER='parameter';
     TYPE='type';
 }
@@ -34,7 +37,7 @@ tokens {
 
 // JAVA
 
-/*
+/* */
 
 @lexer::members {
     // keep track of indentation
@@ -99,14 +102,14 @@ NEWLINE
         }
     ;
 
-*/
+/* */
 
 // PYTHON
 // note: ANTLR defines Python members on class level, but we want to define an
 //       instance variable, not a class variable, hence it must go in __init__
 //       so we declare the member in __init__
 
-/* */
+/*
 
 @lexer::init {
     self.current_indent = 0
@@ -117,15 +120,20 @@ NEWLINE
 
 @lexer::members {
     def emit(self, token=None):
+        # call the base class method
         Lexer.emit(self, token)
+        # append token to stack
         self.token_stack.append(self._state.token)
 
     def nextToken(self):
+        # call the base class method
         Lexer.nextToken(self)
         try:
+            # pop token from stack
             return self.token_stack.pop(0)
         except IndexError:
             # pop from empty list raises index error
+            # flag end of file
             return EOF_TOKEN
 }
 
@@ -167,7 +175,7 @@ NEWLINE
         }
     ;
 
-/* */
+*/
 
 /*------------------------------------------------------------------
  * PARSER RULES
@@ -209,7 +217,7 @@ parameterblock
     ;
 
 classblock
-    :   longdoc CLASS TYPENAME blockbegin declarations fielddef+ blockend
+    :   longdoc CLASS TYPENAME blockbegin declarations class_fielddefs blockend
     ;
 
 blockbegin
@@ -227,6 +235,17 @@ typedef
 
 fielddef
     :   longdoc TYPENAME VARIABLENAME fieldparameters? shortdoc
+    ;
+
+class_fielddefs_ifelifelse_fragment
+    :
+        IF expression blockbegin class_fielddefs blockend
+        (ELIF expression blockbegin class_fielddefs blockend)*
+        (ELSE blockbegin class_fielddefs blockend)?
+    ;
+
+class_fielddefs
+    :   (class_fielddefs_ifelifelse_fragment | fielddef)+
     ;
 
 kwarg

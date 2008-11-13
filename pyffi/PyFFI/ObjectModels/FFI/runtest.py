@@ -33,7 +33,9 @@ class TestFFI(unittest.TestCase):
         parser = self.createParser("test_kwargs.ffi")
         parser.ffi()
 
-
+    def testConditions(self):
+        parser = self.createParser("test_conditions.ffi")
+        parser.ffi()
 
 if __name__ == '__main__':
     unittest.main()
