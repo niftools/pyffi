@@ -675,6 +675,3 @@ but got %s instead"""%name)
                 else:
                     gamesdict[gamestr] = [
                         self.cls.versions[self.versionString]]
-
-import PyFFI.Formats.NIF._Header
-import PyFFI.Formats.NIF._Vector3
