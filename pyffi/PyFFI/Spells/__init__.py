@@ -131,7 +131,7 @@ class Spell(object):
         method.
 
         @param branch: The branch to check.
-        @type branch: L{PyFFI.ObjectModels.Tree.GlobalTreeBranch}
+        @type branch: L{PyFFI.ObjectModels.Tree.GlobalTreeNode}
         @return: C{True} if the branch must be processed, C{False} otherwise.
         @rtype: C{bool}
         """
@@ -159,7 +159,7 @@ class Spell(object):
         returns C{True}).
 
         @param branch: The branch to check.
-        @type branch: L{PyFFI.ObjectModels.Tree.GlobalTreeBranch}
+        @type branch: L{PyFFI.ObjectModels.Tree.GlobalTreeNode}
         @return: C{True} if the branch must be processed, C{False} otherwise.
         @rtype: C{bool}
         """
@@ -180,7 +180,7 @@ class Spell(object):
 
         @param branch: The branch to start the recursion from, or C{None}
             to recurse the whole tree.
-        @type branch: L{PyFFI.ObjectModels.Tree.GlobalTreeBranch}
+        @type branch: L{PyFFI.ObjectModels.Tree.GlobalTreeNode}
         """
         # when called without arguments, recurse over the whole tree
         if branch is None:
@@ -238,7 +238,7 @@ class Spell(object):
         block types.
 
         @param branch: The branch to cast the spell on.
-        @type branch: L{PyFFI.ObjectModels.Tree.GlobalTreeBranch}
+        @type branch: L{PyFFI.ObjectModels.Tree.GlobalTreeNode}
         @return: C{True} if the children must be processed, C{False} otherwise.
         @rtype: C{bool}
         """
@@ -254,7 +254,7 @@ class Spell(object):
         must have been processed first.
 
         @param branch: The branch to cast the spell on.
-        @type branch: L{PyFFI.ObjectModels.Tree.GlobalTreeBranch}
+        @type branch: L{PyFFI.ObjectModels.Tree.GlobalTreeNode}
         """
         pass
 

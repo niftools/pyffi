@@ -137,7 +137,7 @@ class BasicBase(object):
         identify the object uniquely."""
         raise NotImplementedError
 
-    def replaceGlobalTreeBranch(self, oldbranch, newbranch, **kwargs):
+    def replaceGlobalTreeNode(self, oldbranch, newbranch, **kwargs):
         """Replace a given branch."""
         pass
 

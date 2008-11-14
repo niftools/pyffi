@@ -45,7 +45,7 @@ from types import NoneType
 from functools import partial
 from itertools import izip
 
-from PyFFI.ObjectModels.Tree import GlobalTreeBranch
+from PyFFI.ObjectModels.Tree import GlobalTreeNode
 
 class _MetaStructBase(type):
     """This metaclass checks for the presence of _attrs and _isTemplate
@@ -131,7 +131,7 @@ class _MetaStructBase(type):
         # precalculate the attribute name list
         cls._names = cls._getNames()
 
-class StructBase(GlobalTreeBranch):
+class StructBase(GlobalTreeNode):
     """Base class from which all file struct types are derived.
 
     The StructBase class implements the basic struct interface:
@@ -465,7 +465,7 @@ class StructBase(GlobalTreeBranch):
                 getattr(self, "_%s_value_" % attr.name).getHash(**kwargs))
         return tuple(hsh)
 
-    def replaceGlobalTreeBranch(self, oldbranch, newbranch, **kwargs):
+    def replaceGlobalTreeNode(self, oldbranch, newbranch, **kwargs):
         # parse arguments
         version = kwargs.get('version')
         user_version = kwargs.get('user_version')
@@ -474,7 +474,7 @@ class StructBase(GlobalTreeBranch):
             # (this speeds things up considerably)
             if not attr.type._hasLinks:
                 continue
-            getattr(self, "_%s_value_" % attr.name).replaceGlobalTreeBranch(oldbranch, newbranch, **kwargs)
+            getattr(self, "_%s_value_" % attr.name).replaceGlobalTreeNode(oldbranch, newbranch, **kwargs)
 
     @classmethod
     def getGames(cls):

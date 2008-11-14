@@ -392,10 +392,10 @@ describing number of elements (%i)"%(elemlist.__len__(),len2i))
             hsh.append(elem.getHash(**kwargs))
         return tuple(hsh)
 
-    def replaceGlobalTreeBranch(self, oldbranch, newbranch, **kwargs):
+    def replaceGlobalTreeNode(self, oldbranch, newbranch, **kwargs):
         """Calculate a hash value for the array, as a tuple."""
         for elem in self._elementList():
-            elem.replaceGlobalTreeBranch(oldbranch, newbranch, **kwargs)
+            elem.replaceGlobalTreeNode(oldbranch, newbranch, **kwargs)
 
     def _elementList(self, **kwargs):
         """Generator for listing all elements."""
