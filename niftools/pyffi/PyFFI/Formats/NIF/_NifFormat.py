@@ -359,7 +359,7 @@ class NifFormat(XmlFileFormat):
                 else:
                     root.replaceGlobalNode(oldbranch, newbranch)
 
-        # DetailTreeBranch
+        # DetailTreeNode
 
         def getDetailTreeNumChildren(self):
             return 0 # todo: add children
