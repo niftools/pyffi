@@ -112,7 +112,7 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType,
     @ivar _value: The actual data.
     @type _value: L{_ValueType}
     @ivar _treeparent: The parent of this data in the tree view.
-    @type _treeparent: L{DetailTreeBranch}
+    @type _treeparent: L{DetailTreeNode}
     """
     # value type
     _ValueType = NoneType
@@ -122,7 +122,7 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType,
 
         @keyword treeparent: The L{_treeparent} of the object (default is
             C{None}).
-        @type treeparent: L{DetailTreeBranch} or C{NoneType}
+        @type treeparent: L{DetailTreeNode} or C{NoneType}
         @keyword value: The initial value of the object. This value is passed
             as an argument to L{_ValueType}.
         @type value: L{_ValueType}, or anything acceptable as a first argument
@@ -137,9 +137,9 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType,
         self._treeparent = kwargs.get("treeparent")
         if not isinstance(self._treeparent,
                           (NoneType,
-                           PyFFI.ObjectModels.Tree.DetailTreeBranch)):
+                           PyFFI.ObjectModels.Tree.DetailTreeNode)):
             raise TypeError(
-                "tree parent argument must be a DetailTreeBranch, not a %s"
+                "tree parent argument must be a DetailTreeNode, not a %s"
                 % self._treeparent.__class__.__name__)
 
     def __str__(self):
@@ -163,7 +163,7 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType,
         """Returns L{_treeparent}.
 
         @return: L{_treeparent}.
-        @rtype: L{DetailTreeBranch}
+        @rtype: L{DetailTreeNode}
         """
         return self._treeparent
 

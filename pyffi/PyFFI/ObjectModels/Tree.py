@@ -8,7 +8,7 @@ The classes defined here allow data to be organized in two views: a
 global view which only shows 'top-level' objects (i.e. large file
 blocks, chunks, and so on) and their structure, and a detail view
 which shows the details of a top-level like object, that is, the
-actual data they contain. L{DetailTreeLeaf} and L{DetailTreeBranch} implement
+actual data they contain. L{DetailTreeLeaf} and L{DetailTreeNode} implement
 the detail view side of things. The L{GlobalTreeNode} class implements
 the global view, which does not show any actual data, but only
 structure, hence there is no need for a special C{GlobalTreeLeaf} class.
@@ -84,20 +84,20 @@ class TreeItem(object):
     """Base class used for the detail and global trees. All objects whose data
     is displayed by QSkope derive from this class (such as L{SimpleType} and
     L{ComplexType}). You should never have to derive from this class directly.
-    Instead, use the L{DetailTreeBranch}, L{DetailTreeLeaf}, and
+    Instead, use the L{DetailTreeNode}, L{DetailTreeLeaf}, and
     L{GlobalTreeNode} classes.
     """
 
     def getTreeParent(self):
         """Return parent of this structure. Override this method.
 
-        @return: The parent, which is a L{DetailTreeBranch} instance, or
+        @return: The parent, which is a L{DetailTreeNode} instance, or
             C{None}. If C{self} is a L{GlobalTreeNode} then the parent is also
             a L{GlobalTreeNode}, or C{None}.
         """
         raise NotImplementedError
 
-class DetailTreeBranch(TreeItem):
+class DetailTreeNode(TreeItem):
     """A tree item which may have children."""
 
     def getDetailTreeNumChildren(self):
@@ -135,7 +135,7 @@ class DetailTreeBranch(TreeItem):
         """
         raise NotImplementedError
 
-class GlobalTreeNode(DetailTreeBranch):
+class GlobalTreeNode(DetailTreeNode):
     """A tree branch that can appear summarized as an item in the global view,
     and also fully in the detail view."""
 
