@@ -202,7 +202,7 @@ class GlobalTreeNode(DetailTreeBranch):
         """
         raise NotImplementedError
 
-    def replaceGlobalTreeNode(self, oldbranch, newbranch):
+    def replaceGlobalNode(self, oldbranch, newbranch):
         """Replace a particular branch in the tree/graph."""
         raise NotImplementedError
 

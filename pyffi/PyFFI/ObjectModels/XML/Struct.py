@@ -465,7 +465,7 @@ class StructBase(GlobalTreeNode):
                 getattr(self, "_%s_value_" % attr.name).getHash(**kwargs))
         return tuple(hsh)
 
-    def replaceGlobalTreeNode(self, oldbranch, newbranch, **kwargs):
+    def replaceGlobalNode(self, oldbranch, newbranch, **kwargs):
         # parse arguments
         version = kwargs.get('version')
         user_version = kwargs.get('user_version')
@@ -474,7 +474,7 @@ class StructBase(GlobalTreeNode):
             # (this speeds things up considerably)
             if not attr.type._hasLinks:
                 continue
-            getattr(self, "_%s_value_" % attr.name).replaceGlobalTreeNode(oldbranch, newbranch, **kwargs)
+            getattr(self, "_%s_value_" % attr.name).replaceGlobalNode(oldbranch, newbranch, **kwargs)
 
     @classmethod
     def getGames(cls):
