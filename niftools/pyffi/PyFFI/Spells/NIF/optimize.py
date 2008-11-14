@@ -159,7 +159,7 @@ class SpellMergeDuplicates(PyFFI.Spells.NIF.NifSpell):
                     continue
                 # interchangeable branch found!
                 self.toaster.msg("removing duplicate branch")
-                self.data.replaceGlobalTreeNode(branch, otherbranch)
+                self.data.replaceGlobalNode(branch, otherbranch)
                 # branch has been replaced, so no need to recurse further
                 return False
         else:
@@ -221,7 +221,7 @@ class SpellOptimizeGeometry(PyFFI.Spells.NIF.NifSpell):
         # cover degenerate case
         if branch.data.numVertices < 3:
             self.toaster.msg("less than 3 vertices: removing branch")
-            self.data.replaceGlobalTreeNode(branch, None)
+            self.data.replaceGlobalNode(branch, None)
             return False
 
         # shortcut
@@ -313,7 +313,7 @@ class SpellOptimizeGeometry(PyFFI.Spells.NIF.NifSpell):
         elif isinstance(branch, NifFormat.NiTriShape):
             self.toaster.msg("stripifying")
             newbranch = branch.getInterchangeableTriStrips()
-            self.data.replaceGlobalTreeNode(branch, newbranch)
+            self.data.replaceGlobalNode(branch, newbranch)
             branch = newbranch
             data = newbranch.data
         # average, weighed towards large strips
@@ -326,7 +326,7 @@ class SpellOptimizeGeometry(PyFFI.Spells.NIF.NifSpell):
                 self.toaster.msg("average strip length < %f so triangulating"
                                  % self.STRIPLENCUTOFF)
                 newbranch = branch.getInterchangeableTriShape()
-                self.data.replaceGlobalTreeNode(branch, newbranch)
+                self.data.replaceGlobalNode(branch, newbranch)
                 branch = newbranch
                 data = newbranch.data
             elif self.STITCH:

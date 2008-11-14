@@ -352,12 +352,12 @@ class NifFormat(XmlFileFormat):
             for root in self.roots:
                 yield root
 
-        def replaceGlobalTreeNode(self, oldbranch, newbranch):
+        def replaceGlobalNode(self, oldbranch, newbranch):
             for i, root in enumerate(self.roots):
                 if root is oldbranch:
                     self.roots[i] = newbranch
                 else:
-                    root.replaceGlobalTreeNode(oldbranch, newbranch)
+                    root.replaceGlobalNode(oldbranch, newbranch)
 
         # DetailTreeBranch
 
@@ -848,7 +848,7 @@ but got instance of %s' % (self._template, value.__class__))
             else:
                 return []
 
-        def replaceGlobalTreeNode(self, oldbranch, newbranch, **kwargs):
+        def replaceGlobalNode(self, oldbranch, newbranch, **kwargs):
             """
             >>> from PyFFI.Formats.NIF import NifFormat
             >>> x = NifFormat.NiNode()
@@ -859,12 +859,12 @@ but got instance of %s' % (self._template, value.__class__))
             True
             >>> x.children[0] is z
             False
-            >>> x.replaceGlobalTreeNode(y, z)
+            >>> x.replaceGlobalNode(y, z)
             >>> x.children[0] is y
             False
             >>> x.children[0] is z
             True
-            >>> x.replaceGlobalTreeNode(z, None)
+            >>> x.replaceGlobalNode(z, None)
             >>> x.children[0] is None
             True
             """
@@ -872,7 +872,7 @@ but got instance of %s' % (self._template, value.__class__))
                 # setValue takes care of template type
                 self.setValue(newbranch)
             elif self._value is not None:
-                self._value.replaceGlobalTreeNode(oldbranch, newbranch)
+                self._value.replaceGlobalNode(oldbranch, newbranch)
 
     class Ptr(Ref):
         """A weak reference to another block, used to point up the hierarchy tree. The reference is not returned by the L{getRefs} function to avoid infinite recursion."""
@@ -890,7 +890,7 @@ but got instance of %s' % (self._template, value.__class__))
         def getHash(self, **kwargs):
             return None
 
-        def replaceGlobalTreeNode(self, oldbranch, newbranch):
+        def replaceGlobalNode(self, oldbranch, newbranch):
             # overridden to avoid infinite recursion
             if self._value is oldbranch:
                 # setValue takes care of template type
