@@ -258,6 +258,8 @@ class NifFormat(XmlFileFormat):
         @type version: C{int}
         @ivar user_version: The nif user version.
         @type user_version: C{int}
+        @ivar user_version2: The nif user version 2.
+        @type user_version2: C{int}
         @ivar roots: List of root blocks.
         @type roots: C{list} of L{NifFormat.NiObject}
         @ivar header: The nif header.
@@ -266,7 +268,7 @@ class NifFormat(XmlFileFormat):
         @type blocks: C{list} of L{NifFormat.NiObject}
         """
 
-        def __init__(self, version=None, user_version=None):
+        def __init__(self, version=None, user_version=None, user_version2=None):
             """Initialize nif data. By default, this creates an empty
             nif document of the given version and user version.
 
@@ -275,9 +277,10 @@ class NifFormat(XmlFileFormat):
             @param user_version: The user version.
             @type user_version: C{int}
             """
-            # the version and user version are stored outside the header structure
+            # the version numbers are stored outside the header structure
             self.version = version
             self.user_version = user_version
+            self.user_version2 = user_version2
             # create new header
             self.header = NifFormat.Header()
             # empty list of root blocks (this encodes the footer)
@@ -319,6 +322,7 @@ class NifFormat(XmlFileFormat):
                 raise ValueError("nif version %s not supported" % version_str)
             # check version integer and user version
             userver = 0
+            userver2 = 0
             if ver >= 0x0303000D:
                 ver_int = None
                 try:
@@ -326,16 +330,20 @@ class NifFormat(XmlFileFormat):
                     ver_int, = struct.unpack('<I', stream.read(4))
                     if ver_int != ver:
                         raise ValueError("""\
-    corrupted nif file: header version string does not correspond with
-    header version field""")
+corrupted nif file: header version string does not correspond with
+header version field""")
                     if ver >= 0x14000004:
                         stream.read(1)
                     if ver >= 0x0A010000:
                         userver, = struct.unpack('<I', stream.read(4))
+                        if userver in (10, 11):
+                            stream.read(4) # number of blocks
+                            userver2, = struct.unpack('<I', stream.read(4))
                 finally:
                     stream.seek(pos)
             self.version = ver
             self.user_version = userver
+            self.user_version2 = userver2
 
         # GlobalTreeNode
 
@@ -378,8 +386,7 @@ class NifFormat(XmlFileFormat):
             pos = stream.tell()
             try:
                 self.inspectVersionOnly(stream)
-                self.header.read(stream, version=self.version,
-                                 user_version=self.user_version)
+                self.header.read(stream, data=self)
             finally:
                 stream.seek(pos)
 
@@ -395,8 +402,7 @@ class NifFormat(XmlFileFormat):
             if verbose >= 1:
                 print "reading block at 0x%08X..."%stream.tell()
             self.inspectVersionOnly(stream)
-            self.header.read(stream, version=self.version,
-                             user_version=self.user_version)
+            self.header.read(stream, data=self)
             if verbose >= 2:
                 print self.header
 
@@ -474,8 +480,8 @@ class NifFormat(XmlFileFormat):
                 try:
                     block.read(
                         stream,
-                        version = self.version, user_version = self.user_version,
-                        link_stack = link_stack, string_list = string_list)
+                        data=self,
+                        link_stack=link_stack, string_list=string_list)
                 except:
                     if verbose >= 1:
                         print "reading failed"
@@ -496,8 +502,7 @@ class NifFormat(XmlFileFormat):
                     print block.__class__
                 # check block size
                 if self.version >= 0x14020007:
-                    calculated_size = block.getSize(version = self.version,
-                                                    user_version = self.user_version)
+                    calculated_size = block.getSize(data=self)
                     if calculated_size != self.header.blockSize[block_num]:
                         print("""
 WARNING: block size check failed: corrupt nif file or bad nif.xml?
@@ -519,7 +524,7 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
             ftr = NifFormat.Footer()
             ftr.read(
                 stream,
-                version = self.version, user_version = self.user_version,
+                data=self,
                 link_stack = link_stack)
 
             # check if we are at the end of the file
@@ -529,10 +534,10 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
             # fix links in blocks and footer (header has no links)
             for block in self.blocks:
                 block.fixLinks(
-                    version = self.version, user_version = self.user_version,
+                    data=self,
                     block_dct = block_dct, link_stack = link_stack)
             ftr.fixLinks(
-                version = self.version, user_version = self.user_version,
+                data=self,
                 block_dct = block_dct, link_stack= link_stack)
             # the link stack should be empty now
             if link_stack:
@@ -565,13 +570,13 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
                 for block in root.tree():
                     string_list.extend(
                         block.getStrings(
-                            version = self.version, user_version = self.user_version))
+                            data=self))
             string_list = list(set(string_list)) # ensure unique elements
             #print string_list # debug
 
             self.header.userVersion = self.user_version # TODO dedicated type for userVersion similar to FileVersion
             # for oblivion CS; apparently this is the version of the bhk blocks
-            self.header.userVersion2 = 11
+            self.header.userVersion2 = self.user_version2
             self.header.numBlocks = len(self.blocks)
             self.header.numBlockTypes = len(block_type_list)
             self.header.blockTypes.updateSize()
@@ -590,8 +595,7 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
                 self.header.strings[i] = s
             self.header.blockSize.updateSize()
             for i, block in enumerate(self.blocks):
-                self.header.blockSize[i] = block.getSize(
-                    version = self.version, user_version = self.user_version)
+                self.header.blockSize[i] = block.getSize(data=self)
             if verbose >= 2:
                 print hdr
 
@@ -605,7 +609,7 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
             # write the file
             self.header.write(
                 stream,
-                version = self.version, user_version = self.user_version,
+                data=self,
                 block_index_dct = block_index_dct)
             for block in self.blocks:
                 # signal top level object if block is a root object
@@ -632,7 +636,7 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
                 # write block
                 block.write(
                     stream,
-                    version = self.version, user_version = self.user_version,
+                    data=self,
                     block_index_dct = block_index_dct, string_list = string_list)
             if self.version < 0x0303000D:
                 s = NifFormat.SizedString()
@@ -640,7 +644,7 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
                 s.write(stream)
             ftr.write(
                 stream,
-                version = self.version, user_version = self.user_version,
+                data=self,
                 block_index_dct = block_index_dct)
 
         def _makeBlockList(
@@ -679,8 +683,7 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
                         entity, block_index_dct, block_type_list, block_type_dct)
 
             # add children that come before the block
-            for child in root.getRefs(version = self.version,
-                                      user_version = self.user_version):
+            for child in root.getRefs(data=self):
                 if NifFormat._blockChildBeforeParent(child):
                     self._makeBlockList(
                         child, block_index_dct, block_type_list, block_type_dct)
@@ -693,8 +696,7 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
             self.blocks.append(root)
 
             # add children that come after the block
-            for child in root.getRefs(version = self.version,
-                                      user_version = self.user_version):
+            for child in root.getRefs(data=self):
                 if not NifFormat._blockChildBeforeParent(child):
                     self._makeBlockList(
                         child, block_index_dct, block_type_list, block_type_dct)
@@ -740,7 +742,11 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
                 self._value = False
 
         def getSize(self, **kwargs):
-            if kwargs.get('version', -1) > 0x04000002:
+            try:
+                ver = kwargs['data'].version
+            except KeyError:
+                ver = -1
+            if ver > 0x04000002:
                 return 1
             else:
                 return 4
@@ -749,14 +755,22 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
             return self._value
 
         def read(self, stream, **kwargs):
-            if kwargs.get('version', -1) > 0x04000002:
+            try:
+                ver = kwargs['data'].version
+            except KeyError:
+                ver = -1
+            if ver > 0x04000002:
                 value, = struct.unpack('<B', stream.read(1))
             else:
                 value, = struct.unpack('<I', stream.read(4))
             self._value = bool(value)
 
         def write(self, stream, **kwargs):
-            if kwargs.get('version', -1) > 0x04000002:
+            try:
+                ver = kwargs['data'].version
+            except KeyError:
+                ver = -1
+            if ver > 0x04000002:
                 stream.write(struct.pack('<B', int(self._value)))
             else:
                 stream.write(struct.pack('<I', int(self._value)))
@@ -806,7 +820,11 @@ but got instance of %s' % (self._template, value.__class__))
                 (block -> index).
             """
             if self._value == None: # link by block number
-                if kwargs.get('version', -1) >= 0x0303000D:
+                try:
+                    ver = kwargs['data'].version
+                except KeyError:
+                    ver = -1
+                if ver >= 0x0303000D:
                     stream.write('\xff\xff\xff\xff') # link by number
                 else:
                     stream.write('\x00\x00\x00\x00') # link by pointer
@@ -820,9 +838,14 @@ but got instance of %s' % (self._template, value.__class__))
             @keyword link_stack: The link stack.
             @keyword block_dct: The block dictionary (index -> block).
             """
+            try:
+                ver = kwargs['data'].version
+            except KeyError:
+                ver = -1
+
             block_index = kwargs.get('link_stack').pop(0)
             # case when there's no link
-            if kwargs.get('version', -1) >= 0x0303000D:
+            if ver >= 0x0303000D:
                 if block_index == -1: # link by block number
                     self._value = None
                     return
@@ -951,16 +974,33 @@ but got instance of %s' % (self._template, value.__class__))
             return None
 
         def read(self, stream, **kwargs):
-            version_string = self.versionString(kwargs.get('version'))
+            try:
+                ver = kwargs['data'].version
+            except KeyError:
+                ver = -1
+
+            version_string = self.versionString(ver)
             s = stream.read(len(version_string) + 1)
             if s != version_string + '\x0a':
-                raise ValueError("invalid NIF header: expected '%s' but got '%s'"%(version_string, s[:-1]))
+                raise ValueError(
+                    "invalid NIF header: expected '%s' but got '%s'"
+                    % (version_string, s[:-1]))
 
         def write(self, stream, **kwargs):
-            stream.write(self.versionString(kwargs.get('version')) + '\x0a')
+            try:
+                ver = kwargs['data'].version
+            except KeyError:
+                ver = -1
+
+            stream.write(self.versionString(ver) + '\x0a')
 
         def getSize(self, **kwargs):
-            return len(self.versionString(kwargs.get('version'))) + 1
+            try:
+                ver = kwargs['data'].version
+            except KeyError:
+                ver = -1
+
+            return len(self.versionString(ver)) + 1
 
         @staticmethod
         def versionString(version):
@@ -1007,11 +1047,13 @@ but got instance of %s' % (self._template, value.__class__))
 
         def read(self, stream, **kwargs):
             ver, = struct.unpack('<I', stream.read(4))
-            if ver != kwargs.get('version'):
-                raise ValueError('invalid version number: expected 0x%08X but got 0x%08X'%(version, ver))
+            if ver != kwargs['data'].version:
+                raise ValueError(
+                    'invalid version number: expected 0x%08X but got 0x%08X'
+                    % (kwargs['data'].version, ver))
 
         def write(self, stream, **kwargs):
-            stream.write(struct.pack('<I', kwargs.get('version')))
+            stream.write(struct.pack('<I', kwargs['data'].version))
 
     class ShortString(BasicBase):
         """Another type for strings."""
@@ -1048,14 +1090,23 @@ but got instance of %s' % (self._template, value.__class__))
         _hasStrings = True
 
         def getSize(self, **kwargs):
-            if kwargs.get('version', -1) >= 0x14010003:
+            try:
+                ver = kwargs['data'].version
+            except KeyError:
+                ver = -1
+            if ver >= 0x14010003:
                 return 4
             else:
                 return 4 + len(self._value)
 
         def read(self, stream, **kwargs):
+            try:
+                ver = kwargs['data'].version
+            except KeyError:
+                ver = -1
+
             n, = struct.unpack('<i', stream.read(4))
-            if kwargs.get('version') >= 0x14010003:
+            if ver >= 0x14010003:
                 if n == -1:
                     self._value = ''
                 else:
@@ -1068,7 +1119,12 @@ but got instance of %s' % (self._template, value.__class__))
                 self._value = stream.read(n)
 
         def write(self, stream, **kwargs):
-            if kwargs.get('version') >= 0x14010003:
+            try:
+                ver = kwargs['data'].version
+            except KeyError:
+                ver = -1
+
+            if ver >= 0x14010003:
                 if self._value == '':
                     stream.write(struct.pack('<i', -1))
                 else:
@@ -1185,6 +1241,22 @@ but got instance of %s' % (self._template, value.__class__))
         """Standard nif exception class."""
         pass
 
+    @classmethod
+    def vercondFilter(cls, expression):
+        if expression == "Version":
+            return "version"
+        elif expression == "User Version":
+            return "user_version"
+        elif expression == "User Version 2":
+            return "user_version2"
+        ver = cls.versionNumber(expression)
+        if ver < 0:
+            # not supported?
+            raise ValueError(
+                "cannot recognize version expression '%s'" % expression)
+        else:
+            return ver
+
     @staticmethod
     def versionNumber(version_str):
         """Converts version string into an integer.
@@ -1278,7 +1350,9 @@ but got instance of %s' % (self._template, value.__class__))
         @type verbose: int
         """
         warnings.warn("use NifFormat.Data.write", DeprecationWarning)
-        data = NifFormat.Data(version=version, user_version=user_version)
+        # note: the old way of writing always sets user_version2 = 11
+        data = NifFormat.Data(version=version, user_version=user_version,
+                              user_version2=11)
         data.roots = roots
         if isinstance(header, cls.Header):
             data.header = header
