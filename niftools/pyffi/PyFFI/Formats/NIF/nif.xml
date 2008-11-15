@@ -1001,8 +1001,8 @@
     <compound name="hkTriangle">
         A triangle with extra data used for physics.
         <add name="Triangle" type="Triangle">The triangle.</add>
-        <add name="Unknown Short" type="ushort">Another short, doesn&#039;t look like a vertex index.</add>
-        <add name="Normal" type="Vector3">This is the triangle's normal.</add>
+        <add name="Welding" type="ushort">Additional welding info computed when subshapes are in use.</add>
+        <add name="Normal" type="Vector3" ver2="20.0.0.5">This is the triangle's normal.</add>
     </compound>
 
     <compound name="Morph">
@@ -1566,8 +1566,8 @@
 
     <niobject name="bhkPackedNiTriStripsShape" abstract="0" inherit="bhkShapeCollection" ver1="20.0.0.5">
         A shape constructed from strips data.
-        <add name="Num Sub Shapes" type="ushort">Number of subparts.</add>
-        <add name="Sub Shapes" type="OblivionSubShape" arr1="Num Sub Shapes">The subparts.</add>
+        <add name="Num Sub Shapes" type="ushort" ver2="20.0.0.5">Number of subparts.</add>
+        <add name="Sub Shapes" type="OblivionSubShape" arr1="Num Sub Shapes" ver2="20.0.0.5">The subparts.</add>
         <add name="Unknown Floats" type="float" arr1="9">Unknown. A rotation matrix?</add>
         <add name="Scale" type="float" default="1.0">Scale.</add>
         <add name="Unknown Floats 2" type="float" arr1="3">Unknown. Translation?</add>
