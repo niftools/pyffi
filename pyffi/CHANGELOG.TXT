@@ -43,6 +43,10 @@ some useful suggestions, see issue #2122196)
   - support for spell hierarchies and spell grouping, in parallel or in series
   or any combination of these
 * replaced ad hoc class customization with partial classes
+* xml object model expression parser
+  - implemented not operator
+  - expressions can combine multiple operators (only use this if the result
+  is independent of the order in which these operators are applied)
 
 Version 1.0.5 (27 Sep 2008)
 * niftoaster optimize

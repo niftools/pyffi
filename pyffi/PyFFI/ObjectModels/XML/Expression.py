@@ -75,6 +75,8 @@ class Expression(object):
     False
     >>> bool(Expression('!((1 <= 2) && (2 <= 3))').eval())
     False
+    >>> bool(Expression('(1 <= 2) && (2 <= 3) && (3 <= 4)').eval())
+    True
     """
     operators = [ '==', '!=', '>=', '<=', '&&', '||', '&', '|', '-', '!' ]
     def __init__(self, expr_str, name_filter = None):
@@ -254,13 +256,22 @@ class Expression(object):
         # all that is left is to process the right hand side
         right_startpos, right_endpos = cls._scanBrackets(expr_str, op_endpos+1)
         if right_startpos >= 0:
-            # yes, it is a bracketted expression
+            # yes, we found a bracketted expression
             # so remove brackets and whitespace,
             # and let that be the right hand side
             right_str = expr_str[right_startpos+1:right_endpos].strip()
             # check for trailing junk
             if expr_str[right_endpos+1:] and not expr_str[right_endpos+1:] == ' ':
-                raise ValueError("expression syntax error: unexpected trailing characters '%s'"%expr_str[right_endpos+1:])
+                for op in cls.operators:
+                    if expr_str.find(op) != -1:
+                        break
+                else:
+                    raise ValueError("expression syntax error: unexpected trailing characters '%s'"%expr_str[right_endpos+1:])
+                # trailing characters contain an operator: do not remove
+                # brackets but take
+                # everything to be the right hand side (this happens for
+                # instance in '(x <= y) && (y <= z) && (x != z)')
+                right_str = expr_str[op_endpos+1:].strip()
         else:
             # no, so just take the whole expression as right hand side
             right_str = expr_str[op_endpos+1:].strip()
