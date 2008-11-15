@@ -78,7 +78,7 @@ class Expression(object):
     >>> bool(Expression('(1 <= 2) && (2 <= 3) && (3 <= 4)').eval())
     True
     """
-    operators = [ '==', '!=', '>=', '<=', '&&', '||', '&', '|', '-', '!' ]
+    operators = [ '==', '!=', '>=', '<=', '&&', '||', '&', '|', '-', '!', '<', '>' ]
     def __init__(self, expr_str, name_filter = None):
         try:
             left, self._op, right = self._partition(expr_str)
@@ -136,6 +136,10 @@ class Expression(object):
             return left - right
         elif self._op == '!':
             return not right
+        elif self._op == '>':
+            return int(left > right)
+        elif self._op == '<':
+            return int(left < right)
         else:
             raise NotImplementedError("expression syntax error: operator '" + self._op + "' not implemented")
 
