@@ -1,6 +1,6 @@
-# --------------------------------------------------------------------------
-# PyFFI.ObjectModels.XML.Expression
-# Expression parser (for arr1, arr2, and cond xml attributes of <add> tag).
+"""Expression parser (for arr1, arr2, cond, and vercond xml attributes of
+<add> tag)."""
+
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -40,6 +40,8 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
+import sys # stderr (for debugging)
+
 class Expression(object):
     """This class represents an expression.
 
@@ -65,18 +67,21 @@ class Expression(object):
     AttributeError: 'A' object has no attribute 'c'
     >>> bool(Expression('1 == 1').eval())
     True
+    >>> bool(Expression('(1 == 1)').eval())
+    True
     >>> bool(Expression('1 != 1').eval())
     False
+    >>> bool(Expression('!(1 == 1)').eval())
+    False
+    >>> bool(Expression('!((1 <= 2) && (2 <= 3))').eval())
+    False
     """
-    operators = [ '==', '!=', '>=', '<=', '&&', '||', '&', '|', '-' ]
+    operators = [ '==', '!=', '>=', '<=', '&&', '||', '&', '|', '-', '!' ]
     def __init__(self, expr_str, name_filter = None):
         try:
             left, self._op, right = self._partition(expr_str)
             self._left = self._parse(left, name_filter)
-            if right:
-                self._right = self._parse(right, name_filter)
-            else:
-                self._right = ''
+            self._right = self._parse(right, name_filter)
         except:
             print("error while parsing expression '%s'" % expr_str)
             raise
@@ -84,10 +89,14 @@ class Expression(object):
     def eval(self, data = None):
         """Evaluate the expression to an integer."""
 
+        #print >>sys.stderr, "E", "L", self._left, "O", self._op, "R", self._right
+
         if isinstance(self._left, Expression):
             left = self._left.eval(data)
         elif isinstance(self._left, basestring):
             left = getattr(data, self._left) if self._left != '""' else ""
+        elif self._left is None:
+            pass
         else:
             assert(isinstance(self._left, (int, long))) # debug
             left = self._left
@@ -99,6 +108,8 @@ class Expression(object):
             right = self._right.eval(data)
         elif isinstance(self._right, basestring):
             right = getattr(data, self._right) if self._right != '""' else ""
+        elif self._right is None:
+            pass
         else:
             assert(isinstance(self._right, (int, long))) # debug
             right = self._right
@@ -121,21 +132,27 @@ class Expression(object):
             return left | right
         elif self._op == '-':
             return left - right
+        elif self._op == '!':
+            return not right
         else:
-            raise NotImplementedError("expression syntax error: operator '" + op + "' not implemented")
+            raise NotImplementedError("expression syntax error: operator '" + self._op + "' not implemented")
 
     def __str__(self):
         """Reconstruct the expression to a string."""
 
-        left = str(self._left)
+        left = str(self._left) if not self._left is None else ""
         if not self._op: return left
-        right = str(self._right)
+        right = str(self._right) if not self._right is None else ""
         return left + ' ' + self._op + ' ' + right
 
     @classmethod
     def _parse(cls, expr_str, name_filter = None):
         """Returns an Expression, string, or int, depending on the
         contents of <expr_str>."""
+        #print >>sys.stderr, "P", expr_str
+        if not expr_str:
+            # empty string
+            return None
         # brackets or operators => expression
         if ("(" in expr_str) or (")" in expr_str):
             return Expression(expr_str, name_filter)
@@ -167,7 +184,21 @@ class Expression(object):
         ('a | b', '!=', 'b&c')
         >>> Expression._partition('(a== b) &&(( b!=c)||d )')
         ('a== b', '&&', '( b!=c)||d')
+        >>> Expression._partition('!(1 <= 2)')
+        ('', '!', '(1 <= 2)')
+        >>> Expression._partition('')
+        ('', '', '')
+        >>> Expression._partition('(1 == 1)')
+        ('1 == 1', '', '')
         """
+        # strip whitespace
+        expr_str = expr_str.strip()
+
+        # all operators have a left hand side and a right hand side
+        # except for negation, so let us deal with that case first
+        if expr_str.startswith("!"):
+            return "", "!", expr_str[1:].strip()
+
         # check if the left hand side starts with brackets
         # and if so, find the position of the starting bracket and the ending
         # bracket
@@ -177,6 +208,10 @@ class Expression(object):
             # so remove brackets and whitespace,
             # and let that be the left hand side
             left_str = expr_str[left_startpos+1:left_endpos].strip()
+            # if there is no next token, then just return the expression
+            # without brackets
+            if left_endpos + 1 == len(expr_str):
+                return left_str, "", ""
             # the next token should be the operator
             # find the position where the operator should start
             op_startpos = left_endpos+1
@@ -267,3 +302,8 @@ class Expression(object):
             if startpos != -1 or endpos != -1:
                 raise ValueError("expression syntax error (non-matching brackets?)")
         return (startpos, endpos)
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
+
