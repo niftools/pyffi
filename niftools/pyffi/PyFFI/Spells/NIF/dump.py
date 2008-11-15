@@ -196,7 +196,15 @@ class SpellHtmlReport(NifSpell):
         # spell always applies
         return True
 
+    def _branchinspect(self, branch):
+        # enter every branch
+        # (the base method is called in branch entry)
+        return True
+
     def branchentry(self, branch):
+        # check if this branch must be checked, if not, recurse further
+        if not NifSpell._branchinspect(self, branch):
+            return True
         blocktype = branch.__class__.__name__
         reports = self.toaster.reports_per_blocktype.get(blocktype)
         if not reports:
