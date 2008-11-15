@@ -210,7 +210,7 @@ True
 #
 # ***** END LICENSE BLOCK *****
 
-import struct, os, re, warnings
+import struct, os, re, sys, warnings
 
 from PyFFI.ObjectModels.XML.FileFormat import XmlFileFormat
 from PyFFI.ObjectModels.XML.FileFormat import MetaXmlFileFormat
@@ -894,7 +894,8 @@ but got instance of %s' % (self._template, value.__class__))
             if self._value is oldbranch:
                 # setValue takes care of template type
                 self.setValue(newbranch)
-            elif self._value is not None:
+                #print >>sys.stderr, "replacing", repr(oldbranch), "->", repr(newbranch)
+            if self._value is not None:
                 self._value.replaceGlobalNode(oldbranch, newbranch)
 
     class Ptr(Ref):
@@ -918,6 +919,7 @@ but got instance of %s' % (self._template, value.__class__))
             if self._value is oldbranch:
                 # setValue takes care of template type
                 self.setValue(newbranch)
+                #print >>sys.stderr, "replacing", repr(oldbranch), "->", repr(newbranch)
 
     class LineString(BasicBase):
         """Basic type for strings ending in a newline character (0x0a).
