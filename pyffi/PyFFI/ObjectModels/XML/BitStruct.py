@@ -290,15 +290,12 @@ class BitStructBase(object):
 
     def read(self, stream, **kwargs):
         """Read structure from stream."""
-        # parse arguments
-        version = kwargs.get('version')
-        user_version = kwargs.get('user_version')
         self.arg = kwargs.get('argument')
         # read all attributes
         value = struct.unpack(self._struct, stream.read(self._numbytes))[0]
         # set the structure variables
         bitpos = 0
-        for attr in self._filteredAttributeList(version, user_version):
+        for attr in self._filteredAttributeList(**kwargs):
             #print attr.name # debug
             attrvalue = (value >> bitpos) & ((1 << attr.numbits) - 1)
             setattr(self, attr.name, attrvalue)
@@ -306,14 +303,11 @@ class BitStructBase(object):
 
     def write(self, stream, **kwargs):
         """Write structure to stream."""
-        # parse arguments
-        version = kwargs.get('version')
-        user_version = kwargs.get('user_version')
         self.arg = kwargs.get('argument')
         # write all attributes
         value = 0
         bitpos = 0
-        for attr in self._filteredAttributeList(version, user_version):
+        for attr in self._filteredAttributeList(**kwargs):
             attrvalue = getattr(self, attr.name)
             value |= (attrvalue & ((1 << attr.numbits) - 1)) << bitpos
             bitpos += attr.numbits
@@ -345,12 +339,9 @@ class BitStructBase(object):
 
     def getHash(self, **kwargs):
         """Calculate a hash for the structure, as a tuple."""
-        # parse arguments
-        version = kwargs.get('version')
-        user_version = kwargs.get('user_version')
         # calculate hash
         hsh = []
-        for attr in self._filteredAttributeList(version, user_version):
+        for attr in self._filteredAttributeList(**kwargs):
             hsh.append(getattr(self, attr.name))
         return tuple(hsh)
 
@@ -395,14 +386,21 @@ class BitStructBase(object):
                 names.append(attr.name)
         return names
 
-    def _filteredAttributeList(self, version = None, user_version = None):
+    def _filteredAttributeList(self, version = None, user_version = None,
+                               data=None, **kwargs):
         """Generator for listing all 'active' attributes, that is,
         attributes whose condition evaluates C{True}, whose version
         interval contaions C{version}, and whose user version is
         C{user_version}. C{None} for C{version} or C{user_version} means
         that these checks are ignored. Duplicate names are skipped as
-        well."""
+        well.
+
+        Note: Use data instead of version and user_version (old way will be
+        deprecated)."""
         names = []
+        if data:
+            version = data.version
+            user_version = data.user_version
         for attr in self._attributeList:
             #print attr.name, version, attr.ver1, attr.ver2 # debug
 

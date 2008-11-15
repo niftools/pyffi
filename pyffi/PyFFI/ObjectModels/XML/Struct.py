@@ -323,11 +323,9 @@ class StructBase(GlobalTreeNode):
     def read(self, stream, **kwargs):
         """Read structure from stream."""
         # parse arguments
-        version = kwargs.get('version')
-        user_version = kwargs.get('user_version')
         self.arg = kwargs.get('argument')
         # read all attributes
-        for attr in self._filteredAttributeList(version, user_version):
+        for attr in self._filteredAttributeList(**kwargs):
             # get attribute argument (can only be done at runtime)
             rt_arg = attr.arg if isinstance(attr.arg, (int, long, NoneType)) \
                      else getattr(self, attr.arg)
@@ -348,11 +346,9 @@ class StructBase(GlobalTreeNode):
     def write(self, stream, **kwargs):
         """Write structure to stream."""
         # parse arguments
-        version = kwargs.get('version')
-        user_version = kwargs.get('user_version')
         self.arg = kwargs.get('argument')
         # write all attributes
-        for attr in self._filteredAttributeList(version, user_version):
+        for attr in self._filteredAttributeList(**kwargs):
             # get attribute argument (can only be done at runtime)
             rt_arg = attr.arg if isinstance(attr.arg, (int, long, NoneType)) \
                      else getattr(self, attr.arg)
@@ -373,10 +369,8 @@ class StructBase(GlobalTreeNode):
     def fixLinks(self, **kwargs):
         """Fix links in the structure."""
         # parse arguments
-        version = kwargs.get('version')
-        user_version = kwargs.get('user_version')
         # fix links in all attributes
-        for attr in self._filteredAttributeList(version, user_version):
+        for attr in self._filteredAttributeList(**kwargs):
             # check if there are any links at all
             # (commonly this speeds things up considerably)
             if not attr.type._hasLinks:
@@ -387,12 +381,9 @@ class StructBase(GlobalTreeNode):
 
     def getLinks(self, **kwargs):
         """Get list of all links in the structure."""
-        # parse arguments
-        version = kwargs.get('version')
-        user_version = kwargs.get('user_version')
         # get all links
         links = []
-        for attr in self._filteredAttributeList(version, user_version):
+        for attr in self._filteredAttributeList(**kwargs):
             # check if there are any links at all
             # (this speeds things up considerably)
             if not attr.type._hasLinks:
@@ -405,12 +396,9 @@ class StructBase(GlobalTreeNode):
 
     def getStrings(self, **kwargs):
         """Get list of all strings in the structure."""
-        # parse arguments
-        version = kwargs.get('version')
-        user_version = kwargs.get('user_version')
         # get all strings
         strings = []
-        for attr in self._filteredAttributeList(version, user_version):
+        for attr in self._filteredAttributeList(**kwargs):
             # check if there are any strings at all
             # (this speeds things up considerably)
             if (not attr.type is NoneType) and (not attr.type._hasStrings):
@@ -426,12 +414,9 @@ class StructBase(GlobalTreeNode):
         links that point down the tree. For instance, if you need to parse
         the whole tree starting from the root you would use getRefs and not
         getLinks, as getLinks could result in infinite recursion."""
-        # parse arguments
-        version = kwargs.get('version')
-        user_version = kwargs.get('user_version')
         # get all refs
         refs = []
-        for attr in self._filteredAttributeList(version, user_version):
+        for attr in self._filteredAttributeList(**kwargs):
             # check if there are any links at all
             # (this speeds things up considerably)
             if not attr.type._hasLinks:
@@ -444,32 +429,23 @@ class StructBase(GlobalTreeNode):
 
     def getSize(self, **kwargs):
         """Calculate the structure size in bytes."""
-        # parse arguments
-        version = kwargs.get('version')
-        user_version = kwargs.get('user_version')
         # calculate size
         size = 0
-        for attr in self._filteredAttributeList(version, user_version):
+        for attr in self._filteredAttributeList(**kwargs):
             size += getattr(self, "_%s_value_" % attr.name).getSize(**kwargs)
         return size
 
     def getHash(self, **kwargs):
         """Calculate a hash for the structure, as a tuple."""
-        # parse arguments
-        version = kwargs.get('version')
-        user_version = kwargs.get('user_version')
         # calculate hash
         hsh = []
-        for attr in self._filteredAttributeList(version, user_version):
+        for attr in self._filteredAttributeList(**kwargs):
             hsh.append(
                 getattr(self, "_%s_value_" % attr.name).getHash(**kwargs))
         return tuple(hsh)
 
     def replaceGlobalNode(self, oldbranch, newbranch, **kwargs):
-        # parse arguments
-        version = kwargs.get('version')
-        user_version = kwargs.get('user_version')
-        for attr in self._filteredAttributeList(version, user_version):
+        for attr in self._filteredAttributeList(**kwargs):
             # check if there are any links at all
             # (this speeds things up considerably)
             if not attr.type._hasLinks:
@@ -517,13 +493,21 @@ class StructBase(GlobalTreeNode):
                 names.append(attr.name)
         return names
 
-    def _filteredAttributeList(self, version = None, user_version = None):
+    def _filteredAttributeList(self, version=None, user_version=None,
+                               data=None, **kwargs):
         """Generator for listing all 'active' attributes, that is,
         attributes whose condition evaluates C{True}, whose version
         interval contaions C{version}, and whose user version is
         C{user_version}. C{None} for C{version} or C{user_version} means
         that these checks are ignored. Duplicate names are skipped as
-        well."""
+        well.
+
+        Note: version and user_version arguments are deprecated, use
+        the data argument instead.
+        """
+        if data:
+            version = data.version
+            user_version = data.user_version
         names = []
         for attr in self._attributeList:
             #print attr.name, version, attr.ver1, attr.ver2 # debug
@@ -542,9 +526,15 @@ class StructBase(GlobalTreeNode):
                 continue
             #print "user version check passed" # debug
 
-            # check condition
+            # check conditions
             if not (attr.cond is None) and not attr.cond.eval(self):
                 continue
+
+            if not(version is None or user_version is None
+                   or attr.vercond is None):
+                if not attr.vercond.eval(data):
+                    continue
+
             #print "condition passed" # debug
 
             # skip dupiclate names

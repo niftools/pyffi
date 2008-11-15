@@ -109,7 +109,9 @@ class MetaXmlFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
 class XmlFileFormat(PyFFI.ObjectModels.FileFormat.FileFormat):
     """This class can be used as a base class for file formats
     described by an xml file."""
-    pass
+    @classmethod
+    def vercondFilter(cls, expression):
+        raise NotImplementedError
 
 class StructAttribute(object):
     """Helper class to collect attribute data of struct add tags.
@@ -190,7 +192,8 @@ class StructAttribute(object):
         if self.cond:
             self.cond = Expression(self.cond, cls.nameAttribute)
         if self.vercond:
-            self.vercond = Expression(self.vercond, cls.nameAttribute)
+            self.vercond = Expression(self.vercond, cls.vercondFilter)
+            #print(self.vercond)
         if self.arg:
             try:
                 self.arg = int(self.arg)

@@ -135,7 +135,7 @@ class Expression(object):
         elif self._op == '-':
             return left - right
         elif self._op == '!':
-            return not right
+            return int(not(right))
         elif self._op == '>':
             return int(left > right)
         elif self._op == '<':
