@@ -1215,9 +1215,9 @@
 
     <compound name="DecalVectorArray">
         Array of Vectors for Decal placement in BSDecalPlacementVectorExtraData.
-        <add name="Num Sets" type="short">Number of sets</add>
-        <add name="Vertices" type="Vector3" arr1="Num Sets">Vector XYZ coords</add>
-        <add name="Normals" type="Vector3" arr1="Num Sets">Vector Normals</add>
+        <add name="Num Vectors" type="short">Number of sets</add>
+        <add name="Points" type="Vector3" arr1="Num Vectors">Vector XYZ coords</add>
+        <add name="Normals" type="Vector3" arr1="Num Vectors">Vector Normals</add>
     </compound>
 
 
