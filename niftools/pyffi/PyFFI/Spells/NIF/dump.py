@@ -214,7 +214,7 @@ class SpellHtmlReport(NifSpell):
         row = "<tr>"
         row += "<td>%s</td>" % escape(self.stream.name)
         row += "<td>%s</td>" % escape("0x%08X" % id(branch), self.ENTITIES)
-        for attr in branch._filteredAttributeList():
+        for attr in branch._filteredAttributeList(data=self.data):
             row += ("<td>%s</td>"
                     % escape(dumpAttr(getattr(branch, "_%s_value_"
                                               % attr.name)),
