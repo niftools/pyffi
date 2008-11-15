@@ -89,6 +89,7 @@ class NifToaster(Toaster):
         disableparallax,
         PyFFI.Spells.NIF.dump.SpellDumpAll,
         PyFFI.Spells.NIF.dump.SpellDumpTex,
+        PyFFI.Spells.NIF.dump.SpellHtmlReport,
         exportpixeldata,
         PyFFI.Spells.NIF.fix.SpellAddTangentSpace,
         PyFFI.Spells.NIF.fix.SpellClampMaterialAlpha,

@@ -39,8 +39,17 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
+import BaseHTTPServer
+import webbrowser
+import types
+from xml.sax.saxutils import escape # for htmlreport
+
 from PyFFI.Formats.NIF import NifFormat
 from PyFFI.Spells.NIF import NifSpell
+
+def tohex(value, nbytes=4):
+    """Improved version of hex."""
+    return ("0x%%0%dX" % (2*nbytes)) % (long(str(value)) & (2**(nbytes*8)-1))
 
 def dumpArray(arr):
     """Format an array.
@@ -98,14 +107,25 @@ def dumpAttr(attr):
     if isinstance(attr, (NifFormat.Ref, NifFormat.Ptr)):
         ref = attr.getValue()
         if ref:
-            return "<%s instance at 0x%08X>" % (ref.__class__.__name__,
-                                                id(attr))
+            if (hasattr(ref, "name")):
+                return "<%s:%s:0x%08X>" % (ref.__class__.__name__,
+                                           ref.name, id(attr))
+            else:
+                return "<%s:0x%08X>" % (ref.__class__.__name__,id(attr))
         else:
             return "<None>"
     elif isinstance(attr, list):
         return dumpArray(attr)
     elif isinstance(attr, NifFormat.NiObject):
-        return dumpBlock(attr)
+        raise TypeError("cannot dump NiObject as attribute")
+    elif isinstance(attr, NifFormat.byte):
+        return tohex(attr.getValue(), 1)
+    elif isinstance(attr, (NifFormat.ushort, NifFormat.short)):
+        return tohex(attr.getValue(), 2)
+    elif isinstance(attr, (NifFormat.int, NifFormat.uint)):
+        return tohex(attr.getValue(), 4)
+    elif isinstance(attr, (types.IntType, types.LongType)):
+        return tohex(attr, 4)
     else:
         return str(attr)
 
@@ -162,3 +182,80 @@ class SpellDumpTex(NifSpell):
         else:
             # keep looking for blocks of interest
             return True
+
+class SpellHtmlReport(NifSpell):
+    """Make a html report of selected blocks."""
+
+    SPELLNAME = "dump_htmlreport"
+    ENTITIES = { "\n": "<br/>" }
+
+    @classmethod
+    def toastentry(cls, toaster):
+        # maps each block type to a list of reports for that block type
+        toaster.reports_per_blocktype = {}
+        # spell always applies
+        return True
+
+    def branchentry(self, branch):
+        blocktype = branch.__class__.__name__
+        reports = self.toaster.reports_per_blocktype.get(blocktype)
+        if not reports:
+            # start a new report for this block type
+            row = "<tr>"
+            row += "<th>%s</th>" % "file" 
+            row +=  "<th>%s</th>" % "id" 
+            for attr in branch._filteredAttributeList(data=self.data):
+                row += ("<th>%s</th>"
+                        % escape(attr.displayname, self.ENTITIES))
+            row += "</tr>"
+            reports = [row]
+            self.toaster.reports_per_blocktype[blocktype] = reports
+        
+        row = "<tr>"
+        row += "<td>%s</td>" % escape(self.stream.name)
+        row += "<td>%s</td>" % escape("0x%08X" % id(branch), self.ENTITIES)
+        for attr in branch._filteredAttributeList():
+            row += ("<td>%s</td>"
+                    % escape(dumpAttr(getattr(branch, "_%s_value_"
+                                              % attr.name)),
+                             self.ENTITIES))
+        row += "</tr>"
+        reports.append(row)
+        # keep looking for blocks of interest
+        return True
+
+    @classmethod
+    def toastexit(cls, toaster):
+        rows = []
+        rows.append( "<head>" )
+        rows.append( "<title>Report</title>" )
+        rows.append( "</head>" )
+        rows.append( "<body>" )
+
+        for blocktype, reports in toaster.reports_per_blocktype.iteritems():
+            rows.append("<h1>%s</h1>" % blocktype)
+            rows.append('<table border="1" cellspacing="0">')
+            rows.append("\n".join(reports))
+            rows.append("</table>")
+
+        rows.append("</body>")
+
+        cls.browser("\n".join(rows))
+
+    @classmethod
+    def browser(cls, htmlstr):
+        """Display html in the default web browser without creating a
+        temp file.
+        
+        Instantiates a trivial http server and calls webbrowser.open
+        with a URL to retrieve html from that server.
+        """    
+        class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+            def do_GET(self):
+                bufferSize = 1024*1024
+                for i in xrange(0, len(htmlstr), bufferSize):
+                    self.wfile.write(htmlstr[i:i+bufferSize])
+
+        server = BaseHTTPServer.HTTPServer(('127.0.0.1', 0), RequestHandler)
+        webbrowser.open('http://127.0.0.1:%s' % server.server_port)
+        server.handle_request()           
