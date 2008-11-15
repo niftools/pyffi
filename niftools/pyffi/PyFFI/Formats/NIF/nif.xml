@@ -741,7 +741,7 @@
     <compound name="SkinShape">
         Reference to shape and skin instance.
         <add name="Shape" type="Ptr" template="NiTriBasedGeom">The shape.</add>
-        <add name="Skin Instance" type="Ptr" template="NiSkinInstance">Skinning instance for the shape?</add>
+        <add name="Skin Instance" type="Ref" template="NiSkinInstance">Skinning instance for the shape?</add>
     </compound>
 
     <compound name="SkinShapeGroup" ver1="10.0.1.0">
@@ -2568,11 +2568,11 @@
 
     <niobject name="NiLODNode" abstract="0" inherit="NiSwitchNode" ver1="3.1">
         Level of detail selector. Links to different levels of detail of the same model, used to switch a geometry at a specified distance.
-        <add name="Unknown 4 Bytes" type="byte" arr1="4">Unknown.  0,0,0,0 or 1,0,0,0.</add>
+        <!--<add name="Unknown 4 Bytes" type="byte" arr1="4">Unknown.  0,0,0,0 or 1,0,0,0.</add>-->
         <add name="LOD Center" type="Vector3" ver1="4.0.0.2" ver2="10.0.1.0">Point to calculate distance from for switching?</add>
         <add name="Num LOD Levels" type="uint" ver2="10.0.1.0">Number of levels of detail.</add>
         <add name="LOD Levels" type="LODRange" arr1="Num LOD Levels" ver2="10.0.1.0">The ranges of distance that each level of detail applies in.</add>
-        <add name="Unknown Short" type="ushort" ver1="10.1.0.0">Zero?</add>
+        <!--<add name="Unknown Short" type="ushort" ver1="10.1.0.0">Zero?</add>-->
         <add name="LOD Level Data" type="Ref" template="NiLODData"  ver1="10.1.0.0">Refers to LOD level information, either distance or screen size based.</add>
     </niobject>
 
