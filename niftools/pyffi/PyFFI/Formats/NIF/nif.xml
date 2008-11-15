@@ -292,7 +292,8 @@
         <option value="2" name="PIX_LAY_TRUE_COLOR_32">Texture is in 32-bit true color format.</option>
         <option value="3" name="PIX_LAY_COMPRESSED">Texture is compressed.</option>
         <option value="4" name="PIX_LAY_BUMPMAP">Texture is a grayscale bump map.</option>
-        <option value="5" name="PIX_LAY_DEFAULT">Use default setting.</option>
+        <option value="5" name="PIX_LAY_PALETTISED_4">Texture is in 4-bit paletized format.</option>
+        <option value="6" name="PIX_LAY_DEFAULT">Use default setting.</option>
     </enum>
 
     <enum name="TexClampMode" storage="uint">
