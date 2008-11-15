@@ -167,6 +167,7 @@ class StructAttribute(object):
         self.arr1 = attrs.get("arr1")
         self.arr2 = attrs.get("arr2")
         self.cond = attrs.get("cond")
+        self.vercond = attrs.get("vercond")
         self.ver1 = attrs.get("ver1")
         self.ver2 = attrs.get("ver2")
         self.userver = attrs.get("userver")
@@ -188,6 +189,8 @@ class StructAttribute(object):
             self.arr2 = Expression(self.arr2, cls.nameAttribute)
         if self.cond:
             self.cond = Expression(self.cond, cls.nameAttribute)
+        if self.vercond:
+            self.vercond = Expression(self.vercond, cls.nameAttribute)
         if self.arg:
             try:
                 self.arg = int(self.arg)

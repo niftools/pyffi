@@ -70,12 +70,16 @@ class Expression(object):
     """
     operators = [ '==', '!=', '>=', '<=', '&&', '||', '&', '|', '-' ]
     def __init__(self, expr_str, name_filter = None):
-        left, self._op, right = self._partition(expr_str)
-        self._left = self._parse(left, name_filter)
-        if right:
-            self._right = self._parse(right, name_filter)
-        else:
-            self._right = ''
+        try:
+            left, self._op, right = self._partition(expr_str)
+            self._left = self._parse(left, name_filter)
+            if right:
+                self._right = self._parse(right, name_filter)
+            else:
+                self._right = ''
+        except:
+            print("error while parsing expression '%s'" % expr_str)
+            raise
 
     def eval(self, data = None):
         """Evaluate the expression to an integer."""
