@@ -128,7 +128,30 @@ def dumpAttr(attr):
         return tohex(attr, 4)
     else:
         return str(attr)
+        
+def isBlockAdmissible(block, exclude, include):
+    """Check if a block should be tested or not, based on exclude and include
+    options passed on the command line.
 
+    @param block: The block to check.
+    @type block: L{PyFFI.ObjectModels.XML.Struct.StructBase}
+    @param exclude: List of blocks to exclude.
+    @type exclude: list of str
+    @param include: List of blocks to include.
+    @type include: list of str
+    """
+    if not include:
+        # everything is included
+        return not(block in exclude)
+    else:
+        # if it is in exclude, exclude it
+        if block in exclude:
+            return False
+        else:
+            # else only include it if it is in the include list
+            return (block in include)
+
+    
 class SpellDumpAll(NifSpell):
     """Dump the whole nif file."""
 
@@ -200,6 +223,16 @@ class SpellHtmlReport(NifSpell):
         # enter every branch
         # (the base method is called in branch entry)
         return True
+        
+    def datainspect(self):
+        include = self.toaster.options["include"]
+        exclude = self.toaster.options["exclude"]
+        if self.data and (include or exclude):
+            for block in self.data.header.blockTypes:
+                if isBlockAdmissible(block, exclude, include):
+                    return True
+            return False
+        return True
 
     def branchentry(self, branch):
         # check if this branch must be checked, if not, recurse further
@@ -234,21 +267,24 @@ class SpellHtmlReport(NifSpell):
 
     @classmethod
     def toastexit(cls, toaster):
-        rows = []
-        rows.append( "<head>" )
-        rows.append( "<title>Report</title>" )
-        rows.append( "</head>" )
-        rows.append( "<body>" )
+        if toaster.reports_per_blocktype:
+            rows = []
+            rows.append( "<head>" )
+            rows.append( "<title>Report</title>" )
+            rows.append( "</head>" )
+            rows.append( "<body>" )
 
-        for blocktype, reports in toaster.reports_per_blocktype.iteritems():
-            rows.append("<h1>%s</h1>" % blocktype)
-            rows.append('<table border="1" cellspacing="0">')
-            rows.append("\n".join(reports))
-            rows.append("</table>")
+            for blocktype, reports in toaster.reports_per_blocktype.iteritems():
+                rows.append("<h1>%s</h1>" % blocktype)
+                rows.append('<table border="1" cellspacing="0">')
+                rows.append("\n".join(reports))
+                rows.append("</table>")
 
-        rows.append("</body>")
+            rows.append("</body>")
 
-        cls.browser("\n".join(rows))
+            cls.browser("\n".join(rows))
+        else:
+            toaster.msg('No Report Generated')
 
     @classmethod
     def browser(cls, htmlstr):
