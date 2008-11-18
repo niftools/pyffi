@@ -1,4 +1,4 @@
-Version 1.1.0 (***)
+Version 1.1.0 (18 Nov 2008)
 * nif format:
   - a large number of functions have moved from the optimizer spell to
   to the main interface, so they can be easily used in other scripts
@@ -7,12 +7,21 @@ Version 1.1.0 (***)
   isInterchangeable)
   - new convenience functions in NiObjectNET, NiAVObject, and NiNode
   (setExtraDatas, setProperties, setEffects, setChildren, etc.)
+  - updates for Fallout 3
 * niftoaster
   - new fix_addtangentspace spell to add missing tangent space blocks
   - new fix_deltangentspace spell to remove tangent space blocks
   - new fix_texturepath spell to change / into \ and to fix corrupted
   newline characters (which sometimes resulted from older versions of
   nifskope) in NiSourceTexture file paths
+  - new fix_clampmaterialalpha spell
+  - new fix_detachhavoktristripsdata spell
+  - the ffvt3r skin partition spell is now fix_ffvt3rskinpartition
+  - new opt_cleanreflists spell
+  - new opt_mergeduplicates spell
+  - new opt_geometry spell
+  - the optimize spell is now simply implemented as a combination of other
+  spells
 * new internal implementation of bsdiff algorithm
 * removed cry dae filter (an improved version of this filter is now
 bundled with ColladaCGF)
@@ -42,11 +51,18 @@ some useful suggestions, see issue #2122196)
   - better messaging system (auto indentation, list nif tree as spell runs)
   - support for spell hierarchies and spell grouping, in parallel or in series
   or any combination of these
-* replaced ad hoc class customization with partial classes
+* replaced ad hoc class customization with partial classes (still wip
+converting all the classes)
 * xml object model expression parser
   - implemented not operator
   - expressions can combine multiple operators (only use this if the result
   is independent of the order in which these operators are applied)
+  - new < and > operators
+  - support for vercond attribute for Fallout 3
+* started on a new object model based on an ANTLR parser of a grammar aimed at
+file format descriptions; this parser will eventually yield a more streamlined,
+more optimized, and more customizable version of the current xml object model
+(this is not yet bundled with the release, initial code is on svn)
 
 Version 1.0.5 (27 Sep 2008)
 * niftoaster optimize
