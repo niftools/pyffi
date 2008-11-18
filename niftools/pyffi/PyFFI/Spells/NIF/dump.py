@@ -128,29 +128,6 @@ def dumpAttr(attr):
         return tohex(attr, 4)
     else:
         return str(attr)
-        
-def isBlockAdmissible(block, exclude, include):
-    """Check if a block should be tested or not, based on exclude and include
-    options passed on the command line.
-
-    @param block: The block to check.
-    @type block: L{PyFFI.ObjectModels.XML.Struct.StructBase}
-    @param exclude: List of blocks to exclude.
-    @type exclude: list of str
-    @param include: List of blocks to include.
-    @type include: list of str
-    """
-    if not include:
-        # everything is included
-        return not(block in exclude)
-    else:
-        # if it is in exclude, exclude it
-        if block in exclude:
-            return False
-        else:
-            # else only include it if it is in the include list
-            return (block in include)
-
     
 class SpellDumpAll(NifSpell):
     """Dump the whole nif file."""
@@ -224,16 +201,6 @@ class SpellHtmlReport(NifSpell):
         # (the base method is called in branch entry)
         return True
         
-    def datainspect(self):
-        include = self.toaster.options["include"]
-        exclude = self.toaster.options["exclude"]
-        if self.data and (include or exclude):
-            for block in self.data.header.blockTypes:
-                if isBlockAdmissible(block, exclude, include):
-                    return True
-            return False
-        return True
-
     def branchentry(self, branch):
         # check if this branch must be checked, if not, recurse further
         if not NifSpell._branchinspect(self, branch):
