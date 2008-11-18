@@ -135,23 +135,8 @@ class Spell(object):
         @return: C{True} if the branch must be processed, C{False} otherwise.
         @rtype: C{bool}
         """
-        # not a root, so check include and exclude options
-        include = self.toaster.options.get("include", [])
-        exclude = self.toaster.options.get("exclude", [])
-        # shortcut for common case (speeds up the check in most cases)
-        if not include and not exclude:
-            return True
-        # special cases
-        if not include:
-            # everything is included
-            return not(branch.__class__.__name__ in exclude)
-        else:
-            # if it is in exclude, exclude it
-            if branch.__class__.__name__ in exclude:
-                return False
-            else:
-                # else only include it if it is in the include list
-                return (branch.__class__.__name__ in include)
+        # fall back on the toaster implementation
+        return self.toaster.isadmissiblebranchtype(branch.__class__)
 
     def branchinspect(self, branch):
         """Like L{_branchinspect}, but for customization: can be overridden to
@@ -557,6 +542,10 @@ class Toaster(object):
     @type indent: C{int}
     @ivar logstream: File where to write output to (default is C{sys.stdout}).
     @type logstream: C{file}
+    @ivar include_types: Tuple of types corresponding to C{options.include}.
+    @type include_types: C{tuple}
+    @ivar exclude_types: Tuple of types corresponding to C{options.exclude}.
+    @type exclude_types: C{tuple}
     """
 
     FILEFORMAT = PyFFI.ObjectModels.FileFormat.FileFormat # override
@@ -580,6 +569,14 @@ class Toaster(object):
         self.options = options if options else {}
         self.indent = 0
         self.logstream = sys.stdout if logstream is None else logstream
+        # get list of block types that are included and excluded
+        # these are used on branch checks
+        self.include_types = tuple(
+            getattr(self.FILEFORMAT, block_type)
+            for block_type in self.options.get("include", ()))
+        self.exclude_types = tuple(
+            getattr(self.FILEFORMAT, block_type)
+            for block_type in self.options.get("exclude", ()))
 
     def msg(self, message, level=0):
         """Write message to the L{logstream}, if verbosity is at least the
@@ -615,6 +612,76 @@ class Toaster(object):
         self.indent -= 1
         if not(message is None):
             self.msg(message, level)
+
+    def isadmissiblebranchtype(self, branchtype):
+        """Helper function which checks whether a given branch type should
+        have spells cast on it or not, based in exclude and include options.
+
+        >>> from PyFFI.Formats.NIF import NifFormat
+        >>> class MyToaster(Toaster):
+        ...     FILEFORMAT = NifFormat
+        >>> toaster = MyToaster() # no include or exclude: all admissible
+        >>> toaster.isadmissiblebranchtype(NifFormat.NiProperty)
+        True
+        >>> toaster.isadmissiblebranchtype(NifFormat.NiNode)
+        True
+        >>> toaster.isadmissiblebranchtype(NifFormat.NiAVObject)
+        True
+        >>> toaster.isadmissiblebranchtype(NifFormat.NiLODNode)
+        True
+        >>> toaster.isadmissiblebranchtype(NifFormat.NiMaterialProperty)
+        True
+        >>> toaster = MyToaster(options={"exclude": ["NiProperty", "NiNode"]})
+        >>> toaster.isadmissiblebranchtype(NifFormat.NiProperty)
+        False
+        >>> toaster.isadmissiblebranchtype(NifFormat.NiNode)
+        False
+        >>> toaster.isadmissiblebranchtype(NifFormat.NiAVObject)
+        True
+        >>> toaster.isadmissiblebranchtype(NifFormat.NiLODNode)
+        False
+        >>> toaster.isadmissiblebranchtype(NifFormat.NiMaterialProperty)
+        False
+        >>> toaster = MyToaster(options={"include": ["NiProperty", "NiNode"]})
+        >>> toaster.isadmissiblebranchtype(NifFormat.NiProperty)
+        True
+        >>> toaster.isadmissiblebranchtype(NifFormat.NiNode)
+        True
+        >>> toaster.isadmissiblebranchtype(NifFormat.NiAVObject)
+        False
+        >>> toaster.isadmissiblebranchtype(NifFormat.NiLODNode) # NiNodes are!
+        True
+        >>> toaster.isadmissiblebranchtype(NifFormat.NiMaterialProperty) # NiProperties are!
+        True
+        >>> toaster = MyToaster(options={"include": ["NiProperty", "NiNode"], "exclude": ["NiMaterialProperty", "NiLODNode"]})
+        >>> toaster.isadmissiblebranchtype(NifFormat.NiProperty)
+        True
+        >>> toaster.isadmissiblebranchtype(NifFormat.NiNode)
+        True
+        >>> toaster.isadmissiblebranchtype(NifFormat.NiAVObject)
+        False
+        >>> toaster.isadmissiblebranchtype(NifFormat.NiLODNode)
+        False
+        >>> toaster.isadmissiblebranchtype(NifFormat.NiSwitchNode)
+        True
+        >>> toaster.isadmissiblebranchtype(NifFormat.NiMaterialProperty)
+        False
+        >>> toaster.isadmissiblebranchtype(NifFormat.NiAlphaProperty)
+        True
+        """
+        # check that block is not in exclude...
+        if not issubclass(branchtype, self.exclude_types):
+            # not excluded!
+            # check if it is included
+            if not self.include_types:
+                # if no include list is given, then assume included by default
+                # so, the block is admissible
+                return True
+            elif issubclass(branchtype, self.include_types):
+                # included as well! the block is admissible
+                return True
+        # not admissible
+        return False
 
     def cli(self):
         """Command line interface: initializes spell classes and options from
