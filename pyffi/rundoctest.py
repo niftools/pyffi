@@ -44,6 +44,7 @@ import PyFFI.Formats.KFM
 import PyFFI.Formats.DDS
 import PyFFI.Formats.TGA
 import PyFFI.Formats.DAE
+import PyFFI.Spells
 
 mods = [val for (key, val) in sys.modules.iteritems()
         if key.startswith('PyFFI')]

@@ -127,6 +127,7 @@ checktristrip
 disableparallax
 dump
 dump_tex
+dump_htmlreport
 exportpixeldata
 fix_addtangentspace
 fix_clampmaterialalpha
