@@ -669,6 +669,7 @@ class Toaster(object):
         >>> toaster.isadmissiblebranchtype(NifFormat.NiAlphaProperty)
         True
         """
+        #print("checking %s" % branchtype.__name__) # debug
         # check that block is not in exclude...
         if not issubclass(branchtype, self.exclude_types):
             # not excluded!
@@ -681,6 +682,7 @@ class Toaster(object):
                 # included as well! the block is admissible
                 return True
         # not admissible
+        #print("not admissible") # debug
         return False
 
     def cli(self):
@@ -790,6 +792,14 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
             # skip default attributes of optparse.Values
             if not optionname in dir(optparse.Values):
                 self.options[optionname] = getattr(options, optionname)
+
+        # update include and exclude types
+        self.include_types = tuple(
+            getattr(self.FILEFORMAT, block_type)
+            for block_type in self.options.get("include", ()))
+        self.exclude_types = tuple(
+            getattr(self.FILEFORMAT, block_type)
+            for block_type in self.options.get("exclude", ()))
 
         # check errors
         if options.createpatch and options.applypatch:
