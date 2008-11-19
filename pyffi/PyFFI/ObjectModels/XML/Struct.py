@@ -618,7 +618,7 @@ class StructBase(GlobalTreeNode):
         else:
             raise ValueError("getDetailTreeChildName(self, item): item not found")
 
-    def getGlobalTreeDataDisplay(self):
+    def getGlobalNodeDataDisplay(self):
         """Construct a convenient name for the block itself."""
         return self.name if hasattr(self, "name") else ""
 

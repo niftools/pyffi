@@ -35,12 +35,6 @@ in a hierarchical order.
 The base classes are roughly based on the TreeItem example in the Qt docs:
 http://doc.trolltech.com/4.4/itemviews-simpletreemodel.html
 
-Note that all classes are purely abstract, because they are not
-intended for code reuse, rather, they are intended to define a uniform
-interface to the underlying data. In particular, you can use these
-safely along with other purely abstract base classes in a multiple
-inheritance scheme.
-
 @todo: Still a work in progress, classes are not actually used
 anywhere yet, and names may still change.
 """
@@ -146,15 +140,38 @@ class DetailTreeNode(TreeItem):
         """
         raise NotImplementedError
 
-class GlobalDAGraphNode(GlobalTreeNode):
-    def getGlobalDAGraphChildren(self):
+class GlobalNode(DetailTreeNode):
+    """A node of the global graph."""
+
+    def getGlobalNodeType(self):
+        """The type of this global branch for display purposes.
+        Override this method.
+
+        @return: A string.
+        """
+        raise NotImplementedError
+        # possible implementation:
+        #return self.__class__.__name__
+
+    def getGlobalNodeId(self):
+        """Unique reference id for this global branch for display
+        purposes. Override this method.
+
+        @return: An integer.
+        """
         raise NotImplementedError
 
-class GlobalDGraphNode(GlobalDAGraphNode):
-    def getGlobalDGraphChildren(self):
-        raise NotImplementedError
+    def getGlobalNodeDataDisplay(self):
+        """Very short summary of the data of this global branch for display
+        purposes. Override this method.
 
-class GlobalTreeNode(DetailTreeNode):
+        @return: A string.
+        """
+        raise NotImplementedError
+        # possible implementation:
+        #return self.name if hasattr(self, "name") else ""
+
+class GlobalTreeNode(GlobalNode):
     """A tree branch that can appear summarized as an item in the global view,
     and also fully in the detail view."""
 
@@ -165,33 +182,6 @@ class GlobalTreeNode(DetailTreeNode):
         @rtype: L{GlobalTreeNode} or C{NoneType}
         """
         raise NotImplementedError
-    def getGlobalTreeType(self):
-        """The type of this global branch for display purposes.
-        Override this method.
-
-        @return: A string.
-        """
-        raise NotImplementedError
-        # possible implementation:
-        #return self.__class__.__name__
-
-    def getGlobalTreeId(self):
-        """Unique reference id for this global branch for display
-        purposes. Override this method.
-
-        @return: An integer.
-        """
-        raise NotImplementedError
-
-    def getGlobalTreeDataDisplay(self):
-        """Very short summary of the data of this global branch for display
-        purposes. Override this method.
-
-        @return: A string.
-        """
-        raise NotImplementedError
-        # possible implementation:
-        #return self.name if hasattr(self, "name") else ""
 
     def getGlobalTreeChildren(self):
         """Generator which yields all children of this item in the global view.
@@ -244,6 +234,23 @@ class GlobalTreeNode(DetailTreeNode):
     def updateGlobalTree(self):
         """Recalculate spanning tree."""
         raise NotImplementedError
+
+class GlobalDAGraphNode(GlobalTreeNode):
+    def getGlobalDAGraphChildren(self):
+        return self.getGlobalTreeChildren()
+
+    def updateGlobalDAGraph(self):
+        """Recalculate spanning tree, and DAG."""
+        self.updateGlobalTree()
+
+class GlobalDGraphNode(GlobalDAGraphNode):
+    def getGlobalDGraphChildren(self):
+        """Return all children of this node."""
+        return self.getGlobalDAGraphChildren()
+
+    def updateGlobalDGraph(self):
+        """Recalculate spanning tree, DAG, and directed graph."""
+        self.updateGlobalDAGraph()
 
 class DetailTreeLeaf(TreeItem):
     """A tree item that does not have any children.
