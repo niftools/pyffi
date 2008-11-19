@@ -1,41 +1,45 @@
-"""Base classes for visualizing data (for example with Qt) in a
-double tree view.
+"""Base classes for organizing data (for instance to visualize data
+with Qt, or to run hierarchical checks) in a global graph, and a
+detail tree at each node of the global graph.
 
-The base classes are roughly based on the TreeItem example in the Qt docs:
-http://doc.trolltech.com/4.4/itemviews-simpletreemodel.html
+The classes defined here assume that data can be organized in two
+stages: a global level which only shows 'top-level' objects
+(i.e. large file blocks, chunks, and so on) as nodes and links between
+the nodes via directed arcs, and a detail level which shows the
+details of a top-level object, that is, the actual data they
+contain.
 
-The classes defined here allow data to be organized in two views: a
-global view which only shows 'top-level' objects (i.e. large file
-blocks, chunks, and so on) and their structure, and a detail view
-which shows the details of a top-level like object, that is, the
-actual data they contain. L{DetailTreeLeaf} and L{DetailTreeNode} implement
-the detail view side of things. The L{GlobalTreeNode} class implements
-the global view, which does not show any actual data, but only
-structure, hence there is no need for a special C{GlobalTreeLeaf} class.
+L{DetailTreeLeaf} and L{DetailTreeNode} implement the detail side of
+things. The L{GlobalDGraphNode} class implements the global level,
+which does not show any actual data, but only structure.
 
-Do not use any of the methods of these classes unless you are programming a
-GUI application. In particular, for manipulating the data from within Python
-(e.g. in spells), you should not use them, because there are more convenient
-ways to access the data from within Python directly.
+The global level forms a directed graph where the nodes are data
+blocks and directed edges represent links from one block to
+another. The full graph is implemented in the L{GlobalDGraphNode}
+class.
 
-Note that all classes are purely abstract, because they are not intended
-for code reuse, rather, they are intended to define a uniform interface
-between a GUI application and the underlying data. So you can use these
-safely along with other purely abstract base classes in a multiple
-inheritance scheme.
+This directed graph is assumed to have a (not necessarily unique)
+spanning tree, that is, a subgraph which contains all nodes of the
+original graph, which contains no cycles, and for which each node has
+at most one parent. The spanning tree is implemented in the
+L{GlobalTreeNode} class.
 
-Generally, blocks in a file can refer to each other in arbitrary ways, and
-hence, form a directed graph where the nodes are the blocks and directed
-edges represent links from one block to another. To display these blocks in a
-tree, the graph is assumed to have a spanning tree, that is, a subgraph which
-contains all nodes of the original graph, which contains no cycles, and
-for which each node has at most one parent. The spanning tree is implemented
-in the L{GlobalTreeNode} class. The full graph is implemented in the
-L{GlobalGraphNode} class.
+For some data, a directed acyclic graph, which is not necessarily a
+tree (that is, a single node may have multiple parents), may naturally
+arise as well. This is implemented in the L{GlobalDAGraphNode} class.
 
 The L{PyFFI.ObjectModels.FileFormat.Data} class is the root node of the
 spanning tree. Recursing over this node will visit each node exactly once,
 in a hierarchical order.
+
+The base classes are roughly based on the TreeItem example in the Qt docs:
+http://doc.trolltech.com/4.4/itemviews-simpletreemodel.html
+
+Note that all classes are purely abstract, because they are not
+intended for code reuse, rather, they are intended to define a uniform
+interface to the underlying data. In particular, you can use these
+safely along with other purely abstract base classes in a multiple
+inheritance scheme.
 
 @todo: Still a work in progress, classes are not actually used
 anywhere yet, and names may still change.
@@ -219,11 +223,11 @@ class GlobalTreeNode(DetailTreeNode):
         """Recalculate spanning tree, DAG, and/or full graph."""
         raise NotImplementedError
 
-class GlobalDagNode(GlobalTreeNode):
+class GlobalDAGraphNode(GlobalTreeNode):
     def getGlobalDagChildren(self):
         raise NotImplementedError
 
-class GlobalGraphNode(GlobalDagNode):
+class GlobalDGraphNode(GlobalDAGraphNode):
     def getGlobalGraphChildren(self):
         raise NotImplementedError
 
