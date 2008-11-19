@@ -141,8 +141,17 @@ class DetailTreeNode(TreeItem):
 
         @param item: The child.
         @type item: any
-        @return: The name, as str.
+        @return: The name.
+        @rtype: C{str}
         """
+        raise NotImplementedError
+
+class GlobalDAGraphNode(GlobalTreeNode):
+    def getGlobalDAGraphChildren(self):
+        raise NotImplementedError
+
+class GlobalDGraphNode(GlobalDAGraphNode):
+    def getGlobalDGraphChildren(self):
         raise NotImplementedError
 
 class GlobalTreeNode(DetailTreeNode):
@@ -223,25 +232,17 @@ class GlobalTreeNode(DetailTreeNode):
         """Replace a particular branch in the tree/graph."""
         raise NotImplementedError
 
-    def getGlobalTree(self):
+    def visitGlobalTree(self):
         """Iterate over self, all children, all grandchildren, and so on.
         Do not override.
         """
         yield self
         for child in self.getGlobalTreeChildren():
-            for branch in child.getGlobalTree():
+            for branch in child.visitGlobalTree():
                 yield branch
 
-    def updateGlobalHierarchy(self):
-        """Recalculate spanning tree, DAG, and/or full graph."""
-        raise NotImplementedError
-
-class GlobalDAGraphNode(GlobalTreeNode):
-    def getGlobalDagChildren(self):
-        raise NotImplementedError
-
-class GlobalDGraphNode(GlobalDAGraphNode):
-    def getGlobalGraphChildren(self):
+    def updateGlobalTree(self):
+        """Recalculate spanning tree."""
         raise NotImplementedError
 
 class DetailTreeLeaf(TreeItem):
