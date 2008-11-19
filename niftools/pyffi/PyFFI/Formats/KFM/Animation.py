@@ -37,6 +37,6 @@
 #
 # ***** END LICENSE BLOCK *****
 
-def getGlobalTreeDataDisplay(self):
+def getGlobalNodeDataDisplay(self):
     """Return the kf file name."""
     return self.kfFileName if not self.name else self.name

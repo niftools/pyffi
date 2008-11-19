@@ -345,7 +345,7 @@ header version field""")
             self.user_version = userver
             self.user_version2 = userver2
 
-        # GlobalTreeNode
+        # GlobalTree
 
         def getGlobalTreeNumChildren(self):
             return len(self.roots)
