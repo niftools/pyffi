@@ -45,7 +45,7 @@ from types import NoneType
 from functools import partial
 from itertools import izip
 
-from PyFFI.ObjectModels.Tree import GlobalTreeNode
+from PyFFI.ObjectModels.Tree import GlobalTree
 
 class _MetaStructBase(type):
     """This metaclass checks for the presence of _attrs and _isTemplate
@@ -131,7 +131,7 @@ class _MetaStructBase(type):
         # precalculate the attribute name list
         cls._names = cls._getNames()
 
-class StructBase(GlobalTreeNode):
+class StructBase(GlobalTree):
     """Base class from which all file struct types are derived.
 
     The StructBase class implements the basic struct interface:

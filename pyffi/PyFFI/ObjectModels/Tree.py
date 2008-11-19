@@ -10,23 +10,23 @@ details of a top-level object, that is, the actual data they
 contain.
 
 L{DetailTreeLeaf} and L{DetailTreeNode} implement the detail side of
-things. The L{GlobalDGraphNode} class implements the global level,
+things. The L{GlobalDGraph} class implements the global level,
 which does not show any actual data, but only structure.
 
 The global level forms a directed graph where the nodes are data
 blocks and directed edges represent links from one block to
-another. The full graph is implemented in the L{GlobalDGraphNode}
+another. The full graph is implemented in the L{GlobalDGraph}
 class.
 
 This directed graph is assumed to have a (not necessarily unique)
 spanning tree, that is, a subgraph which contains all nodes of the
 original graph, which contains no cycles, and for which each node has
 at most one parent. The spanning tree is implemented in the
-L{GlobalTreeNode} class.
+L{GlobalTree} class.
 
 For some data, a directed acyclic graph, which is not necessarily a
 tree (that is, a single node may have multiple parents), may naturally
-arise as well. This is implemented in the L{GlobalDAGraphNode} class.
+arise as well. This is implemented in the L{GlobalDAGraph} class.
 
 The L{PyFFI.ObjectModels.FileFormat.Data} class is the root node of the
 spanning tree. Recursing over this node will visit each node exactly once,
@@ -83,7 +83,7 @@ class TreeItem(object):
     is displayed by QSkope derive from this class (such as L{SimpleType} and
     L{ComplexType}). You should never have to derive from this class directly.
     Instead, use the L{DetailTreeNode}, L{DetailTreeLeaf}, and
-    L{GlobalTreeNode} classes.
+    L{GlobalTree} classes.
     """
 
     # TODO: get rid of this and use getDetailTreeParent/getGlobalTreeParent
@@ -171,7 +171,7 @@ class GlobalNode(DetailTreeNode):
         # possible implementation:
         #return self.name if hasattr(self, "name") else ""
 
-class GlobalTreeNode(GlobalNode):
+class GlobalTree(GlobalNode):
     """A tree branch that can appear summarized as an item in the global view,
     and also fully in the detail view."""
 
@@ -179,7 +179,7 @@ class GlobalTreeNode(GlobalNode):
         """Return parent of the spanning tree. Override this method.
 
         @return: The in the graph.
-        @rtype: L{GlobalTreeNode} or C{NoneType}
+        @rtype: L{GlobalTree} or C{NoneType}
         """
         raise NotImplementedError
 
@@ -204,7 +204,7 @@ class GlobalTreeNode(GlobalNode):
 
         @param row: The row number.
         @type row: int
-        @return: The child (must be a L{GlobalTreeNode}).
+        @return: The child (must be a L{GlobalTree}).
         """
         raise NotImplementedError
 
@@ -235,7 +235,7 @@ class GlobalTreeNode(GlobalNode):
         """Recalculate spanning tree."""
         raise NotImplementedError
 
-class GlobalDAGraphNode(GlobalTreeNode):
+class GlobalDAGraph(GlobalTree):
     def getGlobalDAGraphChildren(self):
         return self.getGlobalTreeChildren()
 
@@ -243,7 +243,7 @@ class GlobalDAGraphNode(GlobalTreeNode):
         """Recalculate spanning tree, and DAG."""
         self.updateGlobalTree()
 
-class GlobalDGraphNode(GlobalDAGraphNode):
+class GlobalDGraph(GlobalDAGraph):
     def getGlobalDGraphChildren(self):
         """Return all children of this node."""
         return self.getGlobalDAGraphChildren()

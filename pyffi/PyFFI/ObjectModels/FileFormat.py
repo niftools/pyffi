@@ -71,7 +71,7 @@ class FileFormat(object):
     RE_FILENAME = None
 
     # override this with the data instance for this format
-    class Data(PyFFI.ObjectModels.Tree.GlobalTreeNode):
+    class Data(PyFFI.ObjectModels.Tree.GlobalTree):
         """Base class for representing data in a particular format.
         Override this class to implement reading and writing.
         """
