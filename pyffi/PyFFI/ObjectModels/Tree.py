@@ -92,17 +92,23 @@ class TreeItem(object):
     L{GlobalTreeNode} classes.
     """
 
+    # TODO: get rid of this and use getDetailTreeParent/getGlobalTreeParent
+    # instead
     def getTreeParent(self):
         """Return parent of this structure. Override this method.
-
-        @return: The parent, which is a L{DetailTreeNode} instance, or
-            C{None}. If C{self} is a L{GlobalTreeNode} then the parent is also
-            a L{GlobalTreeNode}, or C{None}.
         """
         raise NotImplementedError
 
 class DetailTreeNode(TreeItem):
     """A tree item which may have children."""
+
+    def getDetailTreeParent(self):
+        """Return detail parent of this structure. Override this method.
+
+        @return: The detail parent
+        @rtype: L{DetailTreeNode} or C{NoneType}
+        """
+        raise NotImplementedError
 
     def getDetailTreeNumChildren(self):
         """Return number of children of this branch.
@@ -143,6 +149,13 @@ class GlobalTreeNode(DetailTreeNode):
     """A tree branch that can appear summarized as an item in the global view,
     and also fully in the detail view."""
 
+    def getGlobalTreeParent(self):
+        """Return parent of the spanning tree. Override this method.
+
+        @return: The in the graph.
+        @rtype: L{GlobalTreeNode} or C{NoneType}
+        """
+        raise NotImplementedError
     def getGlobalTreeType(self):
         """The type of this global branch for display purposes.
         Override this method.
