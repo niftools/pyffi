@@ -222,13 +222,13 @@ class GlobalTree(GlobalNode):
         """Replace a particular branch in the tree/graph."""
         raise NotImplementedError
 
-    def visitGlobalTree(self):
+    def getGlobalTreeIterator(self):
         """Iterate over self, all children, all grandchildren, and so on.
         Do not override.
         """
         yield self
         for child in self.getGlobalTreeChildren():
-            for branch in child.visitGlobalTree():
+            for branch in child.getGlobalTreeIterator():
                 yield branch
 
     def updateGlobalTree(self):
