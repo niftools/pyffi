@@ -1399,7 +1399,7 @@ but got instance of %s' % (self._template, value.__class__))
         @type readresult: tuple
         @return: list of blocks
         """
-        warnings.warn("use NifFormat.Data.visitGlobalTree", DeprecationWarning)
+        warnings.warn("use NifFormat.Data.getGlobalTreeIterator", DeprecationWarning)
         # start with empty list
         blocks = []
         # go over all blocks from all roots
