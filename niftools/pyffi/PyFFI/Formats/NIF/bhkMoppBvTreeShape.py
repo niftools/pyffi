@@ -38,6 +38,7 @@
 # ***** END LICENSE BLOCK *****
 
 import math # math.ceil
+from itertools import izip
 
 from PyFFI.Utils.Mopp import getMopperCredits
 from PyFFI.Utils.Mopp import getMopperOriginScaleCodeWelding
