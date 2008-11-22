@@ -90,10 +90,10 @@ def getMopperCredits():
         outfile.close()
     return creditstr
 
-def getMopperOriginScaleCode(vertices, triangles):
-    """Generate mopp code for given geometry. Raises RuntimeError if something
-    goes wrong (e.g. if mopp generator fails, or if mopper.exe cannot be
-    run on the current platform).
+def getMopperOriginScaleCodeWelding(vertices, triangles, material_indices=None):
+    """Generate mopp code and welding info for given geometry. Raises
+    RuntimeError if something goes wrong (e.g. if mopp generator fails, or if
+    mopper.exe cannot be run on the current platform).
 
     Call L{getMopperCredits} before calling this function if you need to credit
     havok in a console application that uses this function.
@@ -108,7 +108,7 @@ def getMopperOriginScaleCode(vertices, triangles):
     ...     17, 255, 249, 12, 21, 129, 125, 4, 38, 0, 5, 57, 40, 249, 255,
     ...     58, 56, 40, 249, 255, 52, 24, 130, 125, 4, 39, 249, 255, 55, 38,
     ...     249, 255, 48]
-    >>> orig, scale, moppcode = getMopperOriginScaleCode(
+    >>> orig, scale, moppcode, welding_info = getMopperOriginScaleCodeWelding(
     ...     [(1, 1, 1), (0, 0, 0), (0, 0, 1), (0, 1, 0),
     ...      (1, 0, 1), (0, 1, 1), (1, 1, 0), (1, 0, 0)],
     ...     [(0, 4, 6), (1, 6, 7), (2, 1, 4), (3, 1, 2),
@@ -120,6 +120,8 @@ def getMopperOriginScaleCode(vertices, triangles):
     ['-0.010', '-0.010', '-0.010']
     >>> moppcode == expected_moppcode
     True
+    >>> welding_info
+    [15616, 15616, 15616, 15616, 15616, 15616, 15616, 15616, 15616, 15616, 15616, 15616]
 
     @raise RuntimeError: If the mopper has bad output.
     @raise OSError: If the mopper is not found or cannot run.
@@ -128,10 +130,17 @@ def getMopperOriginScaleCode(vertices, triangles):
     @type vertices: list of tuples of floats
     @param triangles: List of triangles (indices referring back to vertex list).
     @type triangles: list of tuples of ints
-    @return: The origin as a tuple of floats, the mopp scale as a float, and
-        the mopp code as a list of ints.
-    @rtype: C{tuple} of C{float}s, C{float}, and C{list} of C{int}s
+    @param material_indices: List of material indices (optional).
+    @type material_indices: list of ints
+    @return: The origin as a tuple of floats, the mopp scale as a float,
+        the mopp code as a list of ints, and the welding info as a list of
+        ints.
+    @rtype: C{tuple} of C{float}s, C{float}, C{list} of C{int}s, and C{list}
+        of C{int}s
     """
+
+    if material_indices is None:
+        material_indices = []
 
     mopper = getMopperPath()
     infile = tempfile.TemporaryFile()
@@ -144,6 +153,9 @@ def getMopperOriginScaleCode(vertices, triangles):
         infile.write("\n%i\n" % len(triangles))
         for tri in triangles:
             infile.write("%i %i %i\n" % tri)
+        infile.write("\n%i\n" % len(material_indices))
+        for matindex in material_indices:
+            infile.write("%i\n" % matindex)
         infile.seek(0)
         # call mopper (raises OSError on failure)
         subprocess.call([mopper, "--"], stdin=infile, stdout=outfile)
@@ -154,13 +166,16 @@ def getMopperOriginScaleCode(vertices, triangles):
             scale = float(outfile.readline())
             moppcodelen = int(outfile.readline())
             moppcode = [int(outfile.readline()) for i in xrange(moppcodelen)]
+            welding_info_len = int(outfile.readline())
+            welding_info = [int(outfile.readline())
+                            for i in xrange(welding_info_len)]
         except ValueError:
             # conversion failed
             raise RuntimeError("invalid mopper output (mopper failed?)")
     finally:
         infile.close()
         outfile.close()
-    return origin, scale, moppcode
+    return origin, scale, moppcode, welding_info
 
 if __name__ == "__main__":
     import doctest
