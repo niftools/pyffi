@@ -1,3 +1,9 @@
+Version 1.1.1 (***)
+* nif format:
+  - updates for Fallout 3 format
+  - mopps take material indices into account and compute welding info
+  (this fixes all mopp multi-material issues)
+
 Version 1.1.0 (18 Nov 2008)
 * nif format:
   - a large number of functions have moved from the optimizer spell to
