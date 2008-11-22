@@ -1001,7 +1001,7 @@
     <compound name="hkTriangle">
         A triangle with extra data used for physics.
         <add name="Triangle" type="Triangle">The triangle.</add>
-        <add name="Welding" type="ushort">Additional welding info computed when subshapes are in use.</add>
+        <add name="Welding Info" type="ushort">Additional havok information on how triangles are welded.</add>
         <add name="Normal" type="Vector3" ver2="20.0.0.5">This is the triangle's normal.</add>
     </compound>
 

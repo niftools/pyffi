@@ -40,7 +40,7 @@
 import math # math.ceil
 
 from PyFFI.Utils.Mopp import getMopperCredits
-from PyFFI.Utils.Mopp import getMopperOriginScaleCode
+from PyFFI.Utils.Mopp import getMopperOriginScaleCodeWelding
 
 def getMassCenterInertia(self, density = 1, solid = True):
     """Return mass, center of gravity, and inertia tensor."""
@@ -60,16 +60,32 @@ def updateOriginScale(self):
     self.scale = (256*256*254) / (0.2+max([maxx-minx,maxy-miny,maxz-minz]))
 
 def updateMopp(self):
-    """Update the MOPP data, scale, and origin."""
+    """Update the MOPP data, scale, and origin, and welding info.
+
+    @deprecated: use updateMoppWelding instead
+    """
+    self.updateMoppWelding()
+
+def updateMoppWelding(self):
+    """Update the MOPP data, scale, and origin, and welding info."""
 
     # first try with PyFFI.Utils.Mopp
     try:
         print(getMopperCredits())
-        origin, scale, mopp \
-        = getMopperOriginScaleCode(
+        # find material indices per triangle
+        material_per_vertex = []
+        for subshape in self.shape.subShapes:
+            material_per_vertex += [subshape.material] * subshape.numVertices
+        material_per_triangle = [
+            material_per_vertex[hktri.triangle.v1]
+            for hktri in self.shape.data.triangles]
+        # compute havok info
+        origin, scale, mopp, welding_infos \
+        = getMopperOriginScaleCodeWelding(
             [vert.asTuple() for vert in self.shape.data.vertices],
             [(hktri.triangle.v1, hktri.triangle.v2, hktri.triangle.v3)
-             for hktri in self.shape.data.triangles])
+             for hktri in self.shape.data.triangles],
+            material_per_triangle)
     except (OSError, RuntimeError):
         print(
             "WARNING: havok mopp generator failed, falling back on simple mopp")
@@ -87,6 +103,11 @@ def updateMopp(self):
     self.moppData.updateSize()
     for i, b in enumerate(mopp):
         self.moppData[i] = b
+
+    # update welding information
+    for hktri, welding_info in izip(self.shape.data.triangles, welding_infos):
+        hktri.weldingInfo = welding_info
+        
 
 def _makeSimpleMopp(self):
     """Make a simple mopp."""
