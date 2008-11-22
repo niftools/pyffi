@@ -761,7 +761,7 @@
 
     <compound name="AVObject">
         Used in NiDefaultAVObjectPalette.
-        <add name="Name" type="string">Object name.</add>
+        <add name="Name" type="SizedString">Object name.</add>
         <add name="AV Object" type="Ptr" template="NiAVObject">Object reference.</add>
     </compound>
 
