@@ -121,7 +121,7 @@ def getMopperOriginScaleCodeWelding(vertices, triangles, material_indices=None):
     >>> moppcode == expected_moppcode
     True
     >>> welding_info
-    [15616, 15616, 15616, 15616, 15616, 15616, 15616, 15616, 15616, 15616, 15616, 15616]
+    [23030, 23247, 23030, 16086, 23247, 23247, 23247, 23247, 23247, 23247, 23247, 16086]
 
     @raise RuntimeError: If the mopper has bad output.
     @raise OSError: If the mopper is not found or cannot run.
