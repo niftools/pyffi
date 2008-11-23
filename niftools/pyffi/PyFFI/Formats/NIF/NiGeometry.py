@@ -320,7 +320,7 @@ def sendBonesToBindPosition(self):
         # transfrom
         if parent_bone in skelroot.children:
             parent_bone.setTransform(parent_offset.getInverse() * self.getTransform(skelroot))
-        # fix the transform of all its the children
+        # fix the transform of all its children
         for j, child_bone in enumerate(skininst.bones):
             if child_bone not in parent_bone.children: continue
             child_offset = skindata.boneList[j].getTransform()
