@@ -227,3 +227,41 @@ def setEffects(self, effectlist):
     self.effects.updateSize()
     for i, effect in enumerate(effectlist):
         self.effects[i] = effect
+
+def mergeExternalSkeletonRoot(self, skelroot):
+    """Attach skinned geometry to self (which will be the new skeleton root of
+    the nif at the given skeleton root). Use this function if you move a
+    skinned geometry from one nif into a new nif file. The bone links will be
+    updated to point to the tree at self, instead of to the external tree.
+    """
+    # sanity check
+    if self.name != skelroot.name:
+        raise ValueError("skeleton root names do not match")
+
+    # get a dictionary mapping bone names to bone blocks
+    bone_dict = {}
+    for block in self.tree():
+        if isinstance(block, self.cls.NiNode):
+            if block.name:
+                if block.name in bone_dict:
+                    raise ValueError(
+                        "multiple NiNodes with name %s" % block.name)
+                bone_dict[block.name] = block
+
+    # add all non-bone children of the skeleton root to self
+    for child in skelroot.getChildren():
+        # skip bones
+        if child.name in bone_dict:
+            continue
+        # not a bone, so add it
+        self.addChild(child)
+        # fix links to skeleton root and bones
+        for externalblock in child.tree():
+            if isinstance(externalblock, self.cls.NiSkinInstance):
+                if not(externalblock.skeletonRoot is skelroot):
+                    raise ValueError(
+                        "expected skeleton root %s but got %s"
+                        % (skelroot.name, externalblock.skeletonRoot.name))
+                externalblock.skeletonRoot = self
+                for i, externalbone in enumerate(externalblock.bones):
+                    externalblock.bones[i] = bone_dict[externalbone.name]
