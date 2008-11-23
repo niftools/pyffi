@@ -39,6 +39,7 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
+from itertools import izip
 import tempfile
 
 from PyFFI.Formats.NIF import NifFormat
@@ -92,7 +93,7 @@ class SpellNodeNamesByFlag(NifSpell):
     @classmethod
     def toastexit(cls, toaster):
         for flag, names in toaster.flagdict.iteritems():
-            print flag, names
+            self.toaster.msg("%s %s" % (flag, names))
 
     def datainspect(self):
         return self.inspectblocktype(NifFormat.NiNode)
@@ -111,3 +112,87 @@ class SpellNodeNamesByFlag(NifSpell):
         else:
             return False
 
+class SpellCompareSkinData(NifSpell):
+    """This spell compares skinning data with a reference nif."""
+
+    SPELLNAME = "check_compareskindata"
+
+    # helper functions (to compare with custom tolerance)
+
+    @staticmethod
+    def are_vectors_equal(oldvec, newvec, tolerance=0.01):
+        return (max([abs(x-y)
+                for (x,y) in izip(oldvec.asList(), newvec.asList())])
+                < tolerance)
+
+    @staticmethod
+    def are_matrices_equal(oldmat, newmat, tolerance=0.01):
+        return (max([max([abs(x-y)
+                     for (x,y) in izip(oldrow, newrow)])
+                    for (oldrow, newrow) in izip(oldmat.asList(),
+                                                 newmat.asList())])
+                < tolerance)
+
+    @staticmethod
+    def are_floats_equal(oldfloat, newfloat, tolerance=0.01):
+        return abs(oldfloat - newfloat) < tolerance
+
+    @classmethod
+    def toastentry(cls, toaster):
+        """Read reference nif file given as argument."""
+        # if no argument given, do not apply spell
+        if "arg" not in toaster.options:
+            return False
+        # read reference nif
+        toaster.refdata = NifFormat.Data()
+        toaster.refdata.read(toaster.options["arg"])
+        # find bone data in reference nif
+        toaster.refbonedata = []
+        for refgeom in refdata.getGlobalTreeIterator():
+            if (isinstance(refgeom, NifFormat.NiGeometry)
+                and refgeom.skinInstance and refgeom.skinInstance.data):
+                toaster.refbonedata += zip(refgeom.skinInstance.bones,
+                                           refgeom.skinInstance.data.boneList)
+        # only apply spell if the reference nif has bone data
+        return bool(toaster.refbonedata)
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.NiSkinData)
+
+    def branchinspect(self, branch):
+        # stick to main tree
+        return isinstance(branch, NifFormat.NiAVObject)
+
+    def branchentry(self, branch):
+        if (isinstance(branch, NifFormat.NiGeometry)
+            and branch.skinInstance and branch.skinInstance.data):
+            for bonenode, bonedata in izip(branch.skinInstance.bones,
+                                           branch.skinInstance.data.boneList):
+                for refbonenode, refbonedata in self.toaster.refbonedata:
+                    if bonenode.name == refbonenode.name:
+                        self.toaster.msg("checking bone %s" % bonenode.name)
+                        # compare
+                        if not self.are_matrices_equal(refbonedata.rotation,
+                                                       bonedata.rotation):
+                            #raise ValueError(
+                            self.toaster.msg(
+                                "rotation mismatch\n%s\n!=\n%s\n"
+                                % (refbonedata.rotation, bonedata.rotation))
+                        if not self.are_vectors_equal(refbonedata.translation,
+                                                      bonedata.translation):
+                            #raise ValueError(
+                            self.toaster.msg(
+                                "translation mismatch\n%s\n!=\n%s\n"
+                                % (refbonedata.translation,
+                                   bonedata.translation))
+                        if not self.are_floats_equal(refbonedata.scale,
+                                                     bonedata.scale):
+                            #raise ValueError(
+                            self.toaster.msg(
+                                "scale mismatch %s != %s"
+                                % (refbonedata.scale, bonedata.scale))
+            # stop in this branch
+            return False
+        else:
+            # keep iterating
+            return True
