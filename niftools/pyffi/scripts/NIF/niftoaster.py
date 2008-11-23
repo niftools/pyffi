@@ -44,6 +44,7 @@ a nif specific wrapper around L{PyFFI.Spells.Toaster}."""
 
 from PyFFI.Formats.NIF import NifFormat
 from PyFFI.Spells import Toaster
+from PyFFI.Spells.NIF import NifToaster as NifToasterBase
 import PyFFI.Spells.check
 import PyFFI.Spells.NIF.check
 import PyFFI.Spells.NIF.dump
@@ -71,9 +72,8 @@ from PyFFI.Spells.NIF import \
     updatemopp, \
     updateskinpartition
 
-class NifToaster(Toaster):
+class NifToaster(NifToasterBase):
     """Class for toasting nif files, using any of the available spells."""
-    FILEFORMAT = NifFormat
     SPELLS = [
         PyFFI.Spells.check.SpellRead,
         PyFFI.Spells.NIF.check.SpellReadWrite,
@@ -160,5 +160,5 @@ recursively, for Freedom Force vs. The 3rd Reich
 
 # if script is called...
 if __name__ == "__main__":
-    NifToaster().cli()
+    MyNifToaster().cli()
 
