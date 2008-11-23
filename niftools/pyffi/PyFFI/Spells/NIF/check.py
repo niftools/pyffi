@@ -41,7 +41,7 @@
 
 from __future__ import with_statement
 from contextlib import closing
-from itertools import izip
+from itertools import izip, repeat
 import tempfile
 
 from PyFFI.Formats.NIF import NifFormat
@@ -154,8 +154,11 @@ class SpellCompareSkinData(NifSpell):
         for refgeom in toaster.refdata.getGlobalTreeIterator():
             if (isinstance(refgeom, NifFormat.NiGeometry)
                 and refgeom.skinInstance and refgeom.skinInstance.data):
-                toaster.refbonedata += zip(refgeom.skinInstance.bones,
-                                           refgeom.skinInstance.data.boneList)
+                toaster.refbonedata += zip(
+                    repeat(refgeom.skinInstance.skeletonRoot),
+                    repeat(refgeom.skinInstance.data),
+                    refgeom.skinInstance.bones,
+                    refgeom.skinInstance.data.boneList)
         # only apply spell if the reference nif has bone data
         return bool(toaster.refbonedata)
 
@@ -169,31 +172,36 @@ class SpellCompareSkinData(NifSpell):
     def branchentry(self, branch):
         if (isinstance(branch, NifFormat.NiGeometry)
             and branch.skinInstance and branch.skinInstance.data):
-            for bonenode, bonedata in izip(branch.skinInstance.bones,
-                                           branch.skinInstance.data.boneList):
-                for refbonenode, refbonedata in self.toaster.refbonedata:
+            for skelroot, skeldata, bonenode, bonedata in izip(
+                repeat(branch.skinInstance.skeletonRoot),
+                repeat(branch.skinInstance.data),
+                branch.skinInstance.bones,
+                branch.skinInstance.data.boneList):
+                for refskelroot, refskeldata, refbonenode, refbonedata \
+                    in self.toaster.refbonedata:
                     if bonenode.name == refbonenode.name:
                         self.toaster.msg("checking bone %s" % bonenode.name)
+                        # calculate total transform matrix that would be applied
+                        # to a vertex in the reference geometry in the position
+                        # of the reference bone
+                        reftransform = (
+                            refbonedata.getTransform()
+                            * refbonenode.getTransform(refskelroot)
+                            * refskeldata.getTransform())
+                        # calculate total transform matrix that would be applied
+                        # to a vertex in this branch in the position of the
+                        # reference bone
+                        branchtransform = (
+                            bonedata.getTransform()
+                            * refbonenode.getTransform(refskelroot) # NOT a typo
+                            * skeldata.getTransform())
                         # compare
-                        if not self.are_matrices_equal(refbonedata.rotation,
-                                                       bonedata.rotation):
+                        if not self.are_matrices_equal(reftransform,
+                                                       branchtransform):
                             #raise ValueError(
                             self.toaster.msg(
-                                "rotation mismatch\n%s\n!=\n%s\n"
-                                % (refbonedata.rotation, bonedata.rotation))
-                        if not self.are_vectors_equal(refbonedata.translation,
-                                                      bonedata.translation):
-                            #raise ValueError(
-                            self.toaster.msg(
-                                "translation mismatch\n%s\n!=\n%s\n"
-                                % (refbonedata.translation,
-                                   bonedata.translation))
-                        if not self.are_floats_equal(refbonedata.scale,
-                                                     bonedata.scale):
-                            #raise ValueError(
-                            self.toaster.msg(
-                                "scale mismatch %s != %s"
-                                % (refbonedata.scale, bonedata.scale))
+                                "transform mismatch\n%s\n!=\n%s\n"
+                                % (reftransform, branchtransform))
             # stop in this branch
             return False
         else:
