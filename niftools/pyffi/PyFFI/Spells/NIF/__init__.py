@@ -87,3 +87,6 @@ class NifSpell(PyFFI.Spells.Spell):
             # header does not have the information because nif version is
             # too old
             return True
+
+class NifToaster(PyFFI.Spells.Toaster):
+    FILEFORMAT = NifFormat
