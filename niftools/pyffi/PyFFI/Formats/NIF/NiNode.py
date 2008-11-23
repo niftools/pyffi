@@ -250,6 +250,9 @@ def mergeExternalSkeletonRoot(self, skelroot):
 
     # add all non-bone children of the skeleton root to self
     for child in skelroot.getChildren():
+        # skip empty children
+        if not child:
+            continue
         # skip bones
         if child.name in bone_dict:
             continue
