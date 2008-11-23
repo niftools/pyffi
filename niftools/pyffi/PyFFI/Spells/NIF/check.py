@@ -180,7 +180,58 @@ class SpellCompareSkinData(NifSpell):
                 for refskelroot, refskeldata, refbonenode, refbonedata \
                     in self.toaster.refbonedata:
                     if bonenode.name == refbonenode.name:
-                        self.toaster.msg("checking bone %s" % bonenode.name)
+                        self.toaster.msgblockbegin("checking bone %s"
+                                                   % bonenode.name)
+
+                        # check that skeleton roots are identical
+                        if skelroot.name == refskelroot.name:
+                            # no extra transform
+                            branchtransform_extra = NifFormat.Matrix44()
+                            branchtransform_extra.setIdentity()
+                        else:
+                            self.toaster.msg(
+                                "skipping: skeleton roots are not identical")
+                            self.toaster.msgblockend()
+                            continue
+
+                            # the following is an experimental way of
+                            # compensating for different skeleton roots
+                            # (disabled by default)
+
+                            # can we find skeleton root of data in reference
+                            # data?
+                            for refskelroot_branch \
+                                in self.toaster.refdata.getGlobalTreeIterator():
+                                if not isinstance(refskelroot_branch,
+                                                  NifFormat.NiAVObject):
+                                    continue
+                                if skelroot.name == refskelroot_branch.name:
+                                    # yes! found!
+                                    #self.toaster.msg(
+                                    #    "found alternative in reference nif")
+                                    branchtransform_extra = \
+                                        refskelroot_branch.getTransform(refskelroot).getInverse()
+                                    break
+                            else:
+                                for skelroot_ref \
+                                    in self.data.getGlobalTreeIterator():
+                                    if not isinstance(skelroot_ref,
+                                                      NifFormat.NiAVObject):
+                                        continue
+                                    if refskelroot.name == skelroot_ref.name:
+                                        # yes! found!
+                                        #self.toaster.msg(
+                                        #    "found alternative in nif")
+                                        branchtransform_extra = \
+                                            skelroot_ref.getTransform(skelroot)
+                                        break
+                                else:
+                                    self.toaster.msgblockbegin("""\
+skipping: skeleton roots are not identical
+          and no alternative found""")
+                                    self.toaster.msgblockend()
+                                    continue
+
                         # calculate total transform matrix that would be applied
                         # to a vertex in the reference geometry in the position
                         # of the reference bone
@@ -194,7 +245,8 @@ class SpellCompareSkinData(NifSpell):
                         branchtransform = (
                             bonedata.getTransform()
                             * refbonenode.getTransform(refskelroot) # NOT a typo
-                            * skeldata.getTransform())
+                            * skeldata.getTransform()
+                            * branchtransform_extra) # skelroot differences
                         # compare
                         if not self.are_matrices_equal(reftransform,
                                                        branchtransform):
@@ -202,6 +254,8 @@ class SpellCompareSkinData(NifSpell):
                             self.toaster.msg(
                                 "transform mismatch\n%s\n!=\n%s\n"
                                 % (reftransform, branchtransform))
+
+                        self.toaster.msgblockend()
             # stop in this branch
             return False
         else:
