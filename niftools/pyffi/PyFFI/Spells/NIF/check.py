@@ -39,6 +39,8 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
+from __future__ import with_statement
+from contextlib import closing
 from itertools import izip
 import tempfile
 
@@ -141,14 +143,15 @@ class SpellCompareSkinData(NifSpell):
     def toastentry(cls, toaster):
         """Read reference nif file given as argument."""
         # if no argument given, do not apply spell
-        if "arg" not in toaster.options:
+        if not toaster.options.get("arg"):
             return False
         # read reference nif
         toaster.refdata = NifFormat.Data()
-        toaster.refdata.read(toaster.options["arg"])
+        with closing(open(toaster.options["arg"], "rb")) as reffile:
+            toaster.refdata.read(reffile)
         # find bone data in reference nif
         toaster.refbonedata = []
-        for refgeom in refdata.getGlobalTreeIterator():
+        for refgeom in toaster.refdata.getGlobalTreeIterator():
             if (isinstance(refgeom, NifFormat.NiGeometry)
                 and refgeom.skinInstance and refgeom.skinInstance.data):
                 toaster.refbonedata += zip(refgeom.skinInstance.bones,
