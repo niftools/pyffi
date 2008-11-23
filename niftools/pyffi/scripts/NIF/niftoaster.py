@@ -78,6 +78,7 @@ class NifToaster(Toaster):
         PyFFI.Spells.check.SpellRead,
         PyFFI.Spells.NIF.check.SpellReadWrite,
         PyFFI.Spells.NIF.check.SpellNodeNamesByFlag,
+        PyFFI.Spells.NIF.check.SpellCompareSkinData,
         checkbhkbodycenter,
         checkcenterradius,
         checkconvexshape,
