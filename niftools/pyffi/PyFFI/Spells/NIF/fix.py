@@ -183,7 +183,7 @@ class SpellDetachHavokTriStripsData(NifSpell):
 
     def dataentry(self):
         # build list of all NiTriStrips blocks
-        self.nitristrips = [branch for branch in self.data.getGlobalNodeIterator()
+        self.nitristrips = [branch for branch in self.data.getGlobalIterator()
                             if isinstance(branch, NifFormat.NiTriStrips)]
         if self.nitristrips:
             return True
