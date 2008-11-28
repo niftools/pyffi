@@ -428,10 +428,10 @@ class BitStructBase(DetailNode):
 
     # DetailNode
 
-    def getDetailChildNodes(self):
+    def getDetailChildNodes(self, edge_type=0):
         """Yield children of this structure."""
         return (item for item in self._items)
 
-    def getDetailChildNames(self):
+    def getDetailChildNames(self, edge_type=0):
         """Yield name of each child."""
         return (name for name in self._names)

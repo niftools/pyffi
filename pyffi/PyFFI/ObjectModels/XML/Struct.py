@@ -586,17 +586,17 @@ class StructBase(GlobalNode):
 
     # DetailNode
 
-    def getDetailChildNodes(self):
+    def getDetailChildNodes(self, edge_type=0):
         """Yield children of this structure."""
         return (item for item in self._items)
 
-    def getDetailChildNames(self):
+    def getDetailChildNames(self, edge_type=0):
         """Yield names of the children of this structure."""
         return (name for name in self._names)
 
     # GlobalNode
 
-    def getGlobalNodeDataDisplay(self):
+    def getGlobalDataDisplay(self):
         """Construct a convenient name for the block itself."""
         return self.name if hasattr(self, "name") else ""
 

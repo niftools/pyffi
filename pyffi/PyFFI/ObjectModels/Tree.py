@@ -10,33 +10,24 @@ details of a top-level object, that is, the actual data they
 contain.
 
 L{DetailNode} implements the detail side of things. The
-L{GlobalDGraph} class implements the global level, which does not show
+L{GlobalNode} class implements the global level, which does not show
 any actual data, but only structure.
 
 The global level forms a directed graph where the nodes are data
 blocks and directed edges represent links from one block to
-another. The full graph is implemented in the L{GlobalDGraph}
-class.
+another.
 
-This directed graph is assumed to have a (not necessarily unique)
-spanning tree, that is, a subgraph which contains all nodes of the
-original graph, which contains no cycles, and for which each node has
-at most one parent. The spanning tree is implemented in the
-L{GlobalNode} class.
+This directed graph is assumed to have a spanning acyclic directed
+graph, that is, a subgraph which contains all nodes of the original
+graph, and which contains no cycles. This graph constitutes of those
+edges which have edge type zero.
 
-For some data, a directed acyclic graph, which is not necessarily a
-tree (that is, a single node may have multiple parents), may naturally
-arise as well. This is implemented in the L{GlobalDAGraph} class.
-
-The L{PyFFI.ObjectModels.FileFormat.Data} class is the root node of the
-spanning tree. Recursing over this node will visit each node exactly once,
-in a hierarchical order.
+The L{PyFFI.ObjectModels.FileFormat.Data} class is the root node of
+the graph. Recursing over all edges of type zero of this node will
+visit each node (possibly more than once) in a hierarchical order.
 
 The base classes are roughly based on the TreeItem example in the Qt docs:
 http://doc.trolltech.com/4.4/itemviews-simpletreemodel.html
-
-@todo: Still a work in progress, classes are not actually used
-anywhere yet, and names may still change.
 """
 
 # --------------------------------------------------------------------------
@@ -78,6 +69,8 @@ anywhere yet, and names may still change.
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
+from itertools import repeat
+
 class DetailNode(object):
     """A node of the detail tree which can have children.
 
@@ -87,7 +80,7 @@ class DetailNode(object):
     implemented.
     """
 
-    def getDetailChildNodes(self):
+    def getDetailChildNodes(self, edge_type=0):
         """Generator which yields all children of this item in the detail view.
 
         Override this method if the node has children.
@@ -97,7 +90,7 @@ class DetailNode(object):
         """
         return (dummy for dummy in ())
 
-    def getDetailChildNames(self):
+    def getDetailChildNames(self, edge_type=0):
         """Generator which yields all child names of this item in the detail
         view.
 
@@ -107,6 +100,14 @@ class DetailNode(object):
         @rtype: generator yielding C{str}s
         """
         return (dummy for dummy in ())
+
+    def getDetailEdgeTypes(self):
+        """Generator which yields all edge types of this item in the
+        detail view, one edge type for each child.
+
+        Override this method if you rely on non-zero edge types.
+        """
+        return repeat(0)
 
     def getDetailDataDisplay(self):
         """Object used to display the instance in the detail view.
@@ -118,96 +119,63 @@ class DetailNode(object):
         """
         return ""
 
+    def getDetailIterator(self, edge_type=0):
+        """Iterate over self, all children, all grandchildren, and so
+        on (only given edge type is followed). Do not override.
+        """
+        yield self
+        for child in self.getDetailChildNodes(edge_type=edge_type):
+            for branch in child.getDetailIterator(edge_type=edge_type):
+                yield branch
+
 class GlobalNode(DetailNode):
     """A node of the global graph that can also appear fully in the detail
     view.
     """
 
-    def getGlobalNodeType(self):
-        """The type of this global branch for display purposes.
-        Override this method.
-
-        @return: A string.
-        """
-        raise NotImplementedError
-        # possible implementation:
-        #return self.__class__.__name__
-
-    def getGlobalNodeId(self):
-        """Unique reference id for this global branch for display
-        purposes. Override this method.
-
-        @return: An integer.
-        """
-        raise NotImplementedError
-
-    def getGlobalNodeDataDisplay(self):
+    def getGlobalDataDisplay(self):
         """Very short summary of the data of this global branch for display
         purposes. Override this method.
 
         @return: A string.
         """
-        raise NotImplementedError
+        return ""
         # possible implementation:
         #return self.name if hasattr(self, "name") else ""
 
-    def getGlobalNodeParent(self):
-        """Return parent of the spanning tree. Override this method.
+    def getGlobalChildNodes(self, edge_type=0):
+        """Generator which yields all children of this item in the
+        global view, of given edge type (default is edges of type 0).
 
-        @return: The in the graph.
-        @rtype: L{GlobalNode} or C{NoneType}
-        """
-        raise NotImplementedError
-
-    def getGlobalNodeChildren(self):
-        """Generator which yields all children of this item in the global view.
         Override this method.
 
-        @return: Generator for global tree children.
+        @param edge_type: If not C{None}, only children for edges of given
+            type are given.
+        @type edge_type: C{int} or C{NoneType}
+
+        @return: Generator for global node children.
+        """
+        return (dummy for dummy in ())
+
+    def getGlobalEdgeTypes(self):
+        """Generator which yields all edge types of this item in the
+        global view, one edge type for each child.
+
+        Override this method if you rely on non-zero edge types.
+        """
+        return repeat(0)
+
+    def replaceGlobalNode(self, oldnode, newnode):
+        """Replace a particular branch in the graph (only edge_type=0 is
+        followed).
         """
         raise NotImplementedError
 
-    def getGlobalNodeNumChildren(self):
-        """Return number of children of this item in the global view.
-        Override this method.
-
-        @return: Number of global children as int.
-        """
-        raise NotImplementedError
-
-    def getGlobalNodeChild(self, row):
-        """Find row'th child for global view. Override this method.
-
-        @param row: The row number.
-        @type row: int
-        @return: The child (must be a L{GlobalNode}).
-        """
-        raise NotImplementedError
-
-    def getGlobalNodeChildRow(self, item):
-        """Find the row number of the given child for global view.
-        Override this method.
-
-        @param item: The child.
-        @type item: any
-        @return: The row, as int.
-        """
-        raise NotImplementedError
-
-    def replaceGlobalNode(self, oldbranch, newbranch):
-        """Replace a particular branch in the tree/graph."""
-        raise NotImplementedError
-
-    def getGlobalNodeIterator(self):
-        """Iterate over self, all children, all grandchildren, and so on.
-        Do not override.
+    def getGlobalIterator(self, edge_type=0):
+        """Iterate over self, all children, all grandchildren, and so
+        on (only given edge_type is followed). Do not override.
         """
         yield self
-        for child in self.getGlobalNodeChildren():
-            for branch in child.getGlobalNodeIterator():
+        for child in self.getGlobalNodeChildren(edge_type=edge_type):
+            for branch in child.getGlobalIterator(edge_type=edge_type):
                 yield branch
-
-    def updateGlobalNode(self):
-        """Recalculate spanning tree."""
-        raise NotImplementedError
-

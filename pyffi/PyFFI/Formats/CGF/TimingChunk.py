@@ -37,6 +37,6 @@
 #
 # ***** END LICENSE BLOCK *****
 
-def getGlobalNodeDataDisplay(self):
+def getGlobalDataDisplay(self):
     """Return a name for the block."""
     return self.globalRange.name

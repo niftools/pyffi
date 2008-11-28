@@ -107,11 +107,11 @@ class _ListWrap(list, DetailNode):
 
     # DetailNode
 
-    def getDetailChildNodes(self):
+    def getDetailChildNodes(self, edge_type=0):
         """Yield children."""
         return (item for item in list.__iter__(self))
 
-    def getDetailChildNames(self):
+    def getDetailChildNames(self, edge_type=0):
         """Yield child names."""
         return ("[%i]" % row for row in xrange(list.__len__(self)))
 
