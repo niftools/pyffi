@@ -47,6 +47,7 @@ from itertools import izip
 import struct
 
 from PyFFI.ObjectModels.Editable import EditableSpinBox # for Bits
+from PyFFI.ObjectModels.Tree import DetailNode
 
 class _MetaBitStructBase(type):
     """This metaclass checks for the presence of a _attrs attribute.
@@ -91,7 +92,7 @@ class _MetaBitStructBase(type):
         # precalculate the attribute name list
         cls._names = cls._getNames()
 
-class Bits(EditableSpinBox):
+class Bits(DetailNode, EditableSpinBox):
     """Basic implementation of a n-bit unsigned integer type (without read
     and write)."""
     def __init__(self, numbits = 1, default = 0, parent = None):
@@ -114,36 +115,11 @@ class Bits(EditableSpinBox):
     def __str__(self):
         return str(self.getValue())
 
-    #
-    # user interface functions come next
-    # these functions are named after similar ones in the TreeItem example
-    # at http://doc.trolltech.com/4.3/itemviews-simpletreemodel.html
-    #
+    # DetailNode
 
-    def getDetailTreeParent(self):
-        """Return parent of this structure."""
-        return self._parent
-
-    def getDetailTreeNumChildren(self):
-        """Return number of items in this structure. Always zero for basic
-        types."""
-        return 0
-
-    def getDetailTreeChild(self, row):
-        """Find item at given row. Should never be called."""
-        raise NotImplementedError
-
-    def getDetailTreeChildRow(self, item):
-        """Find the row number of the given item. Should never be called."""
-        raise NotImplementedError
-
-    def getDetailTreeChildName(self, item):
-        """Find the name of the given item. Should never be called."""
-        raise NotImplementedError
-
-    def getDetailTreeDataDisplay(self):
+    def getDetailDataDisplay(self):
         """Return an object that can be used to display the instance."""
-        return self._value
+        return str(self._value)
 
     # EditableSpinBox functions
 
@@ -159,7 +135,7 @@ class Bits(EditableSpinBox):
     def getEditorMaximum(self):
         return (1 << self._numbits) - 1
 
-class BitStructBase(object):
+class BitStructBase(DetailNode):
     """Base class from which all file bitstruct types are derived.
 
     The BitStructBase class implements the basic bitstruct interface:
@@ -450,47 +426,12 @@ class BitStructBase(object):
         # return self
         yield self
 
-    #
-    # user interface functions come next
-    # these functions are named after similar ones in the TreeItem example
-    # at http://doc.trolltech.com/4.3/itemviews-simpletreemodel.html
-    #
+    # DetailNode
 
-    def getDetailTreeParent(self):
-        """Return parent of this structure."""
-        return self._parent
+    def getDetailChildNodes(self):
+        """Yield children of this structure."""
+        return (item for item in self._items)
 
-    def getDetailTreeNumChildren(self):
-        """Return number of items in this structure."""
-        return len(self._items)
-
-    def getDetailTreeChild(self, row):
-        """Find item at given row."""
-        return self._items[row]
-
-    def getDetailTreeChildRow(self, item):
-        """Find the row number of the given item."""
-        for row, otheritem in enumerate(self._items):
-            if item is otheritem:
-                return row
-        else:
-            raise ValueError("getDetailTreeChildRow(self, item): item not found")
-
-    def getDetailTreeChildName(self, item):
-        """Find the name of the given item."""
-        for otheritem, name in izip(self._items, self._names):
-            if item is otheritem:
-                return name
-        else:
-            raise ValueError("getDetailTreeChildName(self, item): item not found")
-
-    def getGlobalNodeDataDisplay(self):
-        """Construct a convenient name for the block itself."""
-        return self.name if hasattr(self, "name") else ""
-
-    # extra function for global view, override if required
-    def getGlobalTreeParent(self):
-        """This can be used to return a parent of an object, if the parent
-        object does not happen to link to the object (for instance the
-        MeshMorphTargetChunk in the cgf format is an example)."""
-        return None
+    def getDetailChildNames(self):
+        """Yield name of each child."""
+        return (name for name in self._names)

@@ -44,10 +44,10 @@ from types import NoneType
 import PyFFI.ObjectModels.AnyType
 import PyFFI.ObjectModels.Tree
 
-# derives from DetailTreeLeaf because simple types can be displayed in the
+# derives from DetailNode because simple types can be displayed in the
 # detail view, as leafs of the display tree
 class SimpleType(PyFFI.ObjectModels.AnyType.AnyType,
-                 PyFFI.ObjectModels.Tree.DetailTreeLeaf):
+                 PyFFI.ObjectModels.Tree.DetailNode):
     """Base class from which all simple types are derived. Simple
     types contain data which is not divided further into smaller pieces,
     and that can represented efficiently by a (usually native) Python type,
@@ -112,7 +112,7 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType,
     @ivar _value: The actual data.
     @type _value: L{_ValueType}
     @ivar _treeparent: The parent of this data in the tree view.
-    @type _treeparent: L{DetailTreeNode}
+    @type _treeparent: L{DetailNode}
     """
     # value type
     _ValueType = NoneType
@@ -122,7 +122,7 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType,
 
         @keyword treeparent: The L{_treeparent} of the object (default is
             C{None}).
-        @type treeparent: L{DetailTreeNode} or C{NoneType}
+        @type treeparent: L{DetailNode} or C{NoneType}
         @keyword value: The initial value of the object. This value is passed
             as an argument to L{_ValueType}.
         @type value: L{_ValueType}, or anything acceptable as a first argument
@@ -137,9 +137,9 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType,
         self._treeparent = kwargs.get("treeparent")
         if not isinstance(self._treeparent,
                           (NoneType,
-                           PyFFI.ObjectModels.Tree.DetailTreeNode)):
+                           PyFFI.ObjectModels.Tree.DetailNode)):
             raise TypeError(
-                "tree parent argument must be a DetailTreeNode, not a %s"
+                "tree parent argument must be a DetailNode, not a %s"
                 % self._treeparent.__class__.__name__)
 
     def __str__(self):
@@ -163,13 +163,13 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType,
         """Returns L{_treeparent}.
 
         @return: L{_treeparent}.
-        @rtype: L{DetailTreeNode}
+        @rtype: L{DetailNode}
         """
         return self._treeparent
 
-    # DetailTreeLeaf
+    # DetailNode
 
-    def getDetailTreeDataDisplay(self):
+    def getDetailDataDisplay(self):
         """Display string for the detail tree. This implementation is simply
         a wrapper around C{self.L{_value}.__str__()}.
 

@@ -41,12 +41,15 @@
 
 # note: imports are defined at the end to avoid problems with circularity
 
-class _ListWrap(list):
+from PyFFI.ObjectModels.Tree import DetailNode
+
+class _ListWrap(list, DetailNode):
     """A wrapper for list, which uses getValue and setValue for
     getting and setting items of the basic type."""
 
     def __init__(self, element_type, parent = None):
         self._parent = parent
+        self._elementType = element_type
         if issubclass(element_type, BasicBase):
             self._getItemHook = self.getBasicItem
             self._setItemHook = self.setBasicItem
@@ -102,35 +105,21 @@ class _ListWrap(list):
         elements."""
         return list.__getitem__(self, index)
 
-    #
-    # user interface functions come next
-    # these functions are named after similar ones in the TreeItem example
-    # at http://doc.trolltech.com/4.3/itemviews-simpletreemodel.html
-    #
+    # DetailNode
 
-    def getDetailTreeParent(self):
-        """Return parent of this structure."""
-        return self._parent
+    def getDetailChildNodes(self):
+        """Yield children."""
+        return (item for item in list.__iter__(self))
 
-    def getDetailTreeNumChildren(self):
-        """Return number of items in this structure."""
-        return len(self)
+    def getDetailChildNames(self):
+        """Yield child names."""
+        return ("[%i]" % row for row in xrange(list.__len__(self)))
 
-    def getDetailTreeChild(self, row):
-        """Find item at given row."""
-        return list.__getitem__(self, row)
-
-    def getDetailTreeChildRow(self, item):
-        """Find the row number of the given item."""
-        for row, otheritem in enumerate(list.__iter__(self)):
-            if item is otheritem:
-                return row
-        else:
-            raise ValueError("getDetailTreeChildRow(self, item): item not found")
-
-    def getDetailTreeChildName(self, item):
-        """Find the name of the given item."""
-        return "[%i]" % self.getDetailTreeChildRow(item)
+    def getDetailDataDisplay(self):
+        """Display length and type of the array."""
+        if list.__len__(self) > 0:
+            return "%i %s(s)" % (list.__len__(self),
+                                 self._elementType.__name__)
 
 class Array(_ListWrap):
     """A general purpose class for 1 or 2 dimensional arrays consisting of

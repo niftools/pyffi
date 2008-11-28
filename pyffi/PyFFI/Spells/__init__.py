@@ -131,7 +131,7 @@ class Spell(object):
         method.
 
         @param branch: The branch to check.
-        @type branch: L{PyFFI.ObjectModels.Tree.GlobalTree}
+        @type branch: L{PyFFI.ObjectModels.Tree.GlobalNode}
         @return: C{True} if the branch must be processed, C{False} otherwise.
         @rtype: C{bool}
         """
@@ -144,7 +144,7 @@ class Spell(object):
         returns C{True}).
 
         @param branch: The branch to check.
-        @type branch: L{PyFFI.ObjectModels.Tree.GlobalTree}
+        @type branch: L{PyFFI.ObjectModels.Tree.GlobalNode}
         @return: C{True} if the branch must be processed, C{False} otherwise.
         @rtype: C{bool}
         """
@@ -165,7 +165,7 @@ class Spell(object):
 
         @param branch: The branch to start the recursion from, or C{None}
             to recurse the whole tree.
-        @type branch: L{PyFFI.ObjectModels.Tree.GlobalTree}
+        @type branch: L{PyFFI.ObjectModels.Tree.GlobalNode}
         """
         # when called without arguments, recurse over the whole tree
         if branch is None:
@@ -178,8 +178,8 @@ class Spell(object):
                 # spell returned True so recurse to children
                 # we use the abstract tree functions to parse the tree
                 # these are format independent!
-                for i in xrange(branch.getGlobalTreeNumChildren()):
-                    child = branch.getGlobalTreeChild(i)
+                for i in xrange(branch.getGlobalNodeNumChildren()):
+                    child = branch.getGlobalNodeChild(i)
                     self.recurse(child)
                 self.dataexit()
             self.toaster.msgblockend()
@@ -193,8 +193,8 @@ class Spell(object):
                 # spell returned True so recurse to children
                 # we use the abstract tree functions to parse the tree
                 # these are format independent!
-                for i in xrange(branch.getGlobalTreeNumChildren()):
-                    child = branch.getGlobalTreeChild(i)
+                for i in xrange(branch.getGlobalNodeNumChildren()):
+                    child = branch.getGlobalNodeChild(i)
                     self.recurse(child)
                 self.branchexit(branch)
             self.toaster.msgblockend()
@@ -223,7 +223,7 @@ class Spell(object):
         block types.
 
         @param branch: The branch to cast the spell on.
-        @type branch: L{PyFFI.ObjectModels.Tree.GlobalTree}
+        @type branch: L{PyFFI.ObjectModels.Tree.GlobalNode}
         @return: C{True} if the children must be processed, C{False} otherwise.
         @rtype: C{bool}
         """
@@ -239,7 +239,7 @@ class Spell(object):
         must have been processed first.
 
         @param branch: The branch to cast the spell on.
-        @type branch: L{PyFFI.ObjectModels.Tree.GlobalTree}
+        @type branch: L{PyFFI.ObjectModels.Tree.GlobalNode}
         """
         pass
 
@@ -472,9 +472,9 @@ class _CompatSpell(Spell):
     def dataentry(self):
         # the beginning; start with testing the roots
         if hasattr(self.SPELLMODULE, "testRoot"):
-            for i in xrange(self.data.getGlobalTreeNumChildren()):
+            for i in xrange(self.data.getGlobalNodeNumChildren()):
                 # the roots in the old system are children of data root
-                root = self.data.getGlobalTreeChild(i)
+                root = self.data.getGlobalNodeChild(i)
                 self.SPELLMODULE.testRoot(root, **self.toaster.options)
         # continue recursion
         return True

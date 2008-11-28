@@ -9,9 +9,9 @@ the nodes via directed arcs, and a detail level which shows the
 details of a top-level object, that is, the actual data they
 contain.
 
-L{DetailTreeLeaf} and L{DetailTreeNode} implement the detail side of
-things. The L{GlobalDGraph} class implements the global level,
-which does not show any actual data, but only structure.
+L{DetailNode} implements the detail side of things. The
+L{GlobalDGraph} class implements the global level, which does not show
+any actual data, but only structure.
 
 The global level forms a directed graph where the nodes are data
 blocks and directed edges represent links from one block to
@@ -22,7 +22,7 @@ This directed graph is assumed to have a (not necessarily unique)
 spanning tree, that is, a subgraph which contains all nodes of the
 original graph, which contains no cycles, and for which each node has
 at most one parent. The spanning tree is implemented in the
-L{GlobalTree} class.
+L{GlobalNode} class.
 
 For some data, a directed acyclic graph, which is not necessarily a
 tree (that is, a single node may have multiple parents), may naturally
@@ -78,70 +78,50 @@ anywhere yet, and names may still change.
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-class TreeItem(object):
-    """Base class used for the detail and global trees. All objects whose data
-    is displayed by QSkope derive from this class (such as L{SimpleType} and
-    L{ComplexType}). You should never have to derive from this class directly.
-    Instead, use the L{DetailTreeNode}, L{DetailTreeLeaf}, and
-    L{GlobalTree} classes.
+class DetailNode(object):
+    """A node of the detail tree which can have children.
+
+    If the data must be editable, also derive the class from one of
+    the delegate classes defined in L{PyFFI.ObjectModels.Editable},
+    and make sure that the getValue and setValue functions are
+    implemented.
     """
 
-    # TODO: get rid of this and use getDetailTreeParent/getGlobalTreeParent
-    # instead
-    def getTreeParent(self):
-        """Return parent of this structure. Override this method.
+    def getDetailChildNodes(self):
+        """Generator which yields all children of this item in the detail view.
+
+        Override this method if the node has children.
+
+        @return: Generator for detail tree child nodes.
+        @rtype: generator yielding L{DetailNode}s
         """
-        raise NotImplementedError
+        return (dummy for dummy in ())
 
-class DetailTreeNode(TreeItem):
-    """A tree item which may have children."""
+    def getDetailChildNames(self):
+        """Generator which yields all child names of this item in the detail
+        view.
 
-    def getDetailTreeParent(self):
-        """Return detail parent of this structure. Override this method.
+        Override this method if the node has children.
 
-        @return: The detail parent
-        @rtype: L{DetailTreeNode} or C{NoneType}
+        @return: Generator for detail tree child names.
+        @rtype: generator yielding C{str}s
         """
-        raise NotImplementedError
+        return (dummy for dummy in ())
 
-    def getDetailTreeNumChildren(self):
-        """Return number of children of this branch.
-        Override this method.
+    def getDetailDataDisplay(self):
+        """Object used to display the instance in the detail view.
 
-        @return: Number of children as int.
-        """
-        raise NotImplementedError
+        Override this method if the node has data to display in the detail view.
 
-    def getDetailTreeChild(self, row):
-        """Find row'th child. Override this method.
-
-        @param row: The row number.
-        @type row: int
-        @return: The child.
-        """
-        raise NotImplementedError
-
-    def getDetailTreeChildRow(self, item):
-        """Find the row number of the given child. Override this method.
-
-        @param item: The child.
-        @type item: any
-        @return: The row, as int.
-        """
-        raise NotImplementedError
-
-    def getDetailTreeChildName(self, item):
-        """Find the name of the given child. Override this method.
-
-        @param item: The child.
-        @type item: any
-        @return: The name.
+        @return: A string that can be used to display the instance.
         @rtype: C{str}
         """
-        raise NotImplementedError
+        return ""
 
-class GlobalNode(DetailTreeNode):
-    """A node of the global graph."""
+class GlobalNode(DetailNode):
+    """A node of the global graph that can also appear fully in the detail
+    view.
+    """
 
     def getGlobalNodeType(self):
         """The type of this global branch for display purposes.
@@ -171,19 +151,15 @@ class GlobalNode(DetailTreeNode):
         # possible implementation:
         #return self.name if hasattr(self, "name") else ""
 
-class GlobalTree(GlobalNode):
-    """A tree branch that can appear summarized as an item in the global view,
-    and also fully in the detail view."""
-
-    def getGlobalTreeParent(self):
+    def getGlobalNodeParent(self):
         """Return parent of the spanning tree. Override this method.
 
         @return: The in the graph.
-        @rtype: L{GlobalTree} or C{NoneType}
+        @rtype: L{GlobalNode} or C{NoneType}
         """
         raise NotImplementedError
 
-    def getGlobalTreeChildren(self):
+    def getGlobalNodeChildren(self):
         """Generator which yields all children of this item in the global view.
         Override this method.
 
@@ -191,7 +167,7 @@ class GlobalTree(GlobalNode):
         """
         raise NotImplementedError
 
-    def getGlobalTreeNumChildren(self):
+    def getGlobalNodeNumChildren(self):
         """Return number of children of this item in the global view.
         Override this method.
 
@@ -199,16 +175,16 @@ class GlobalTree(GlobalNode):
         """
         raise NotImplementedError
 
-    def getGlobalTreeChild(self, row):
+    def getGlobalNodeChild(self, row):
         """Find row'th child for global view. Override this method.
 
         @param row: The row number.
         @type row: int
-        @return: The child (must be a L{GlobalTree}).
+        @return: The child (must be a L{GlobalNode}).
         """
         raise NotImplementedError
 
-    def getGlobalTreeChildRow(self, item):
+    def getGlobalNodeChildRow(self, item):
         """Find the row number of the given child for global view.
         Override this method.
 
@@ -222,50 +198,16 @@ class GlobalTree(GlobalNode):
         """Replace a particular branch in the tree/graph."""
         raise NotImplementedError
 
-    def getGlobalTreeIterator(self):
+    def getGlobalNodeIterator(self):
         """Iterate over self, all children, all grandchildren, and so on.
         Do not override.
         """
         yield self
-        for child in self.getGlobalTreeChildren():
-            for branch in child.getGlobalTreeIterator():
+        for child in self.getGlobalNodeChildren():
+            for branch in child.getGlobalNodeIterator():
                 yield branch
 
-    def updateGlobalTree(self):
+    def updateGlobalNode(self):
         """Recalculate spanning tree."""
-        raise NotImplementedError
-
-class GlobalDAGraph(GlobalTree):
-    def getGlobalDAGraphChildren(self):
-        return self.getGlobalTreeChildren()
-
-    def updateGlobalDAGraph(self):
-        """Recalculate spanning tree, and DAG."""
-        self.updateGlobalTree()
-
-class GlobalDGraph(GlobalDAGraph):
-    def getGlobalDGraphChildren(self):
-        """Return all children of this node."""
-        return self.getGlobalDAGraphChildren()
-
-    def updateGlobalDGraph(self):
-        """Recalculate spanning tree, DAG, and directed graph."""
-        self.updateGlobalDAGraph()
-
-class DetailTreeLeaf(TreeItem):
-    """A tree item that does not have any children.
-
-    The function L{getDetailTreeDataDisplay} controls the display of the data. If the
-    data must be editable, also derive the class from one of the delegate
-    classes defined in L{PyFFI.ObjectModels.Editable}, and make sure that the
-    getValue and setValue functions are implemented.
-    """
-
-    def getDetailTreeDataDisplay(self):
-        """Return an object that can be used to display the instance.
-        Override this method.
-
-        @return: A string.
-        """
         raise NotImplementedError
 

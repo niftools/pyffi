@@ -389,11 +389,13 @@ class QSkope(QtGui.QMainWindow):
         # if the index is valid, then get the block from its internal pointer
         # and set up the model
         if index.isValid():
-            block = index.internalPointer()
-            if isinstance(block, PyFFI.QSkope.GlobalModel.StructPtr):
-                block = block.ptr
+            globalnode = index.internalPointer()
+            if isinstance(globalnode, PyFFI.QSkope.GlobalModel.StructPtr):
+                globalnode = globalnode.ptr
+            #self.detailModel = PyFFI.QSkope.DetailModel.DetailModel(
+            #    block = block, refnumber_dict = self.globalModel.refNumber)
             self.detailModel = PyFFI.QSkope.DetailModel.DetailModel(
-                block = block, refnumber_dict = self.globalModel.refNumber)
+                globalnode=globalnode)
         else:
             self.detailModel = PyFFI.QSkope.DetailModel.DetailModel()
         # set the widget's model

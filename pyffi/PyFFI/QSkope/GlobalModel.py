@@ -48,7 +48,7 @@ class StructPtr(object):
         """Store the block for future reference."""
         self.ptr = block
 
-    def getDetailTreeNumChildren(self):
+    def getDetailNumChildren(self):
         """Break cycles: no children."""
         return 0
 
@@ -112,7 +112,7 @@ class GlobalModel(QtCore.QAbstractItemModel):
                     # no children
                     self.refDict[ptrblock] = []
                 # check if it has a global tree parent
-                blockparent = block.getGlobalTreeParent()
+                blockparent = block.getGlobalNodeParent()
                 if blockparent and not block in self.refDict[blockparent]:
                     self.parentDict[block] = blockparent
                     self.refDict[blockparent].append(block)

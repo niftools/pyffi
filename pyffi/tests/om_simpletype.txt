@@ -32,9 +32,9 @@ None
 Traceback (most recent call last):
     ...
 TypeError: ...
->>> from PyFFI.ObjectModels.Tree import DetailTreeNode
->>> test = Test(treeparent=DetailTreeNode())
+>>> from PyFFI.ObjectModels.Tree import DetailNode
+>>> test = Test(treeparent=DetailNode())
 >>> test._treeparent # doctest: +ELLIPSIS
-<PyFFI.ObjectModels.Tree.DetailTreeNode object at ...>
+<PyFFI.ObjectModels.Tree.DetailNode object at ...>
 >>> test.getTreeParent() == test._treeparent
 True

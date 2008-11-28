@@ -45,7 +45,7 @@ from types import NoneType
 from functools import partial
 from itertools import izip
 
-from PyFFI.ObjectModels.Tree import GlobalTree
+from PyFFI.ObjectModels.Tree import GlobalNode
 
 class _MetaStructBase(type):
     """This metaclass checks for the presence of _attrs and _isTemplate
@@ -131,7 +131,7 @@ class _MetaStructBase(type):
         # precalculate the attribute name list
         cls._names = cls._getNames()
 
-class StructBase(GlobalTree):
+class StructBase(GlobalNode):
     """Base class from which all file struct types are derived.
 
     The StructBase class implements the basic struct interface:
@@ -584,60 +584,38 @@ class StructBase(GlobalTree):
         # return self
         yield self
 
-    #
-    # user interface functions come next
-    # these functions are named after similar ones in the TreeItem example
-    # at http://doc.trolltech.com/4.3/itemviews-simpletreemodel.html
-    #
+    # DetailNode
 
-    def getDetailTreeParent(self):
-        """Return parent of this structure."""
-        return self._parent
+    def getDetailChildNodes(self):
+        """Yield children of this structure."""
+        return (item for item in self._items)
 
-    def getDetailTreeNumChildren(self):
-        """Return number of items in this structure."""
-        return len(self._items)
+    def getDetailChildNames(self):
+        """Yield names of the children of this structure."""
+        return (name for name in self._names)
 
-    def getDetailTreeChild(self, row):
-        """Find item at given row."""
-        return self._items[row]
-
-    def getDetailTreeChildRow(self, item):
-        """Find the row number of the given item."""
-        for row, otheritem in enumerate(self._items):
-            if item is otheritem:
-                return row
-        else:
-            raise ValueError("getDetailTreeChildRow(self, item): item not found")
-
-    def getDetailTreeChildName(self, item):
-        """Find the name of the given item."""
-        for otheritem, name in izip(self._items, self._names):
-            if item is otheritem:
-                return name
-        else:
-            raise ValueError("getDetailTreeChildName(self, item): item not found")
+    # GlobalNode
 
     def getGlobalNodeDataDisplay(self):
         """Construct a convenient name for the block itself."""
         return self.name if hasattr(self, "name") else ""
 
     # extra function for global view, override if required
-    def getGlobalTreeParent(self):
+    def getGlobalNodeParent(self):
         """This can be used to return a parent of an object, if the parent
         object does not happen to link to the object (for instance the
         MeshMorphTargetChunk in the cgf format is an example)."""
         return None
 
-    def getGlobalTreeChildren(self):
+    def getGlobalNodeChildren(self):
         # TODO replace getRefs with a generator as well
         for branch in self.getRefs():
             yield branch
 
-    def getGlobalTreeNumChildren(self):
+    def getGlobalNodeNumChildren(self):
         return len(self.getRefs())
 
-    def getGlobalTreeChild(self, row):
+    def getGlobalNodeChild(self, row):
         return self.getRefs()[row]
 
 from PyFFI.ObjectModels.XML.Basic import BasicBase

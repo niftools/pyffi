@@ -46,7 +46,7 @@ def applyScale(self, scale):
         morphvert.vertexTarget.y *= scale
         morphvert.vertexTarget.z *= scale
 
-def getGlobalTreeParent(self):
+def getGlobalNodeParent(self):
     """Get the block parent (used for instance in the QSkope global view)."""
     return self.mesh
 

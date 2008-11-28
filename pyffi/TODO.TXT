@@ -6,7 +6,7 @@
     common subclass PyFFI.ObjectModels.ComplexType, use these then as base
     classes for ObjectModels.XML.Array and ObjectModels.XML.StructBase
   - use PyFFI.ObjectModels.Tree for all ObjectModels.XXX implementations
-  - upgrade QSkope and XML model to use GlobalTree instead of the
+  - upgrade QSkope and XML model to use GlobalNode instead of the
     current ad hoc system with Refs
   - improve the abstract ObjectModels.Delegate classes (i.e. naming,
     true abstract base classes, defining a common interface); also perhaps
@@ -15,7 +15,8 @@
   - ditch version and user_version from the ObjectModels interface, and
     instead use ObjectModels.Data as a global root element that contains all
     file information with a minimal format independent interface;
-    implementation plan:
+    implementation plan (this is already partially implemented, namely in the
+    nif format):
     + use abstract Data and Tree base classes fo the XSD parser, in
       subsequent 2.x.x releases
     + update the XML parser to follow the same scheme, when switching from
@@ -50,15 +51,10 @@
 * pep8 conventions
   - resolve all complaints from cheesecake's pep8 checker
 
+* use partial metaclass for all customizers
+
 Unsure things
 -------------
-
-* think about a better class plugin structure (can we use metaclasses for this?)
-  instead of assigning custom methods directly to the class dictionaries
-  create new class encapsulating all methods and let a metaclass do the work
-  (this would also allow for adding methods to the base classes such as
-  BasicBase, StructBase, etc.)? (not sure about this one... current system
-  works although pylint complains a lot about it)
 
 * pep8 case conventions
   these would obviously break backwards compatibility, not sure how to deal

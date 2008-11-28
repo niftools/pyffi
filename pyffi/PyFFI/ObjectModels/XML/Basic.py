@@ -39,7 +39,9 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-class BasicBase(object):
+from PyFFI.ObjectModels.Tree import DetailNode
+
+class BasicBase(DetailNode):
     """Base class from which all basic types are derived.
 
     The BasicBase class implements the interface for basic types.
@@ -147,30 +149,11 @@ class BasicBase(object):
     # at http://doc.trolltech.com/4.3/itemviews-simpletreemodel.html
     #
 
-    def getDetailTreeParent(self):
-        """Return parent of this structure."""
-        return self._parent
+    # DetailNode
 
-    def getDetailTreeNumChildren(self):
-        """Return number of items in this structure. Always zero for basic
-        types."""
-        return 0
-
-    def getDetailTreeChild(self, row):
-        """Find item at given row. Should never be called."""
-        raise RuntimeError
-
-    def getDetailTreeChildRow(self, item):
-        """Find the row number of the given item. Should never be called."""
-        raise RuntimeError
-
-    def getDetailTreeChildName(self, item):
-        """Find the name of the given item. Should never be called."""
-        raise RuntimeError
-
-    def getDetailTreeDataDisplay(self):
+    def getDetailDataDisplay(self):
         """Return an object that can be used to display the instance."""
-        return self.getValue()
+        return str(self.getValue())
 
     # editor functions: default implementation assumes that the value is
     # also suitable for an editor; override if not

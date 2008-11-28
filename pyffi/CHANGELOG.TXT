@@ -3,6 +3,14 @@ Version 1.1.1 (***)
   - updates for Fallout 3 format
   - mopps take material indices into account and compute welding info
   (this fixes all mopp multi-material issues)
+* qskope:
+  - refactored the tree model
+  - all parenting functions are delegated to seperate DetailTree and GlobalTree
+  classes
+  - the DetailNode and GlobalNode classes only implement the minimal
+  functions to calculate the hierarchy, but no longer host the more
+  advanced hierarchy functions and data (this will save memory and
+  speed up regular use of pyffi outside qskope)
 
 Version 1.1.0 (18 Nov 2008)
 * nif format:

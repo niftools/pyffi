@@ -40,6 +40,8 @@ StructBase, Array, and BasicBase instances."""
 
 from PyQt4 import QtCore
 
+from PyFFI.QSkope.DetailTree import DetailTreeItem, DetailTreeItemData
+
 # implementation references:
 # http://doc.trolltech.com/4.3/model-view-programming.html
 # http://doc.trolltech.com/4.3/model-view-model-subclassing.html
@@ -52,15 +54,22 @@ class DetailModel(QtCore.QAbstractItemModel):
     COL_TYPE  = 1
     COL_VALUE = 2
 
-    def __init__(self, parent = None, block = None, refnumber_dict = None):
-        """Initialize the model to display the given block. The refnumber_dict
-        dictionary is used to handle references in the block."""
-        QtCore.QAbstractItemModel.__init__(self, parent)
-        # this list stores the blocks in the view
-        # is a list of NiObjects for the nif format, and a list of Chunks for
-        # the cgf format
-        self.block = block
-        self.refNumber = refnumber_dict if not refnumber_dict is None else {}
+#    def __init__(self, parent = None, block = None, refnumber_dict = None):
+#        """Initialize the model to display the given block. The refnumber_dict
+#        dictionary is used to handle references in the block."""
+#        QtCore.QAbstractItemModel.__init__(self, parent)
+#        # this list stores the blocks in the view
+#        # is a list of NiObjects for the nif format, and a list of Chunks for
+#        # the cgf format
+#        self.block = block
+#        self.refNumber = refnumber_dict if not refnumber_dict is None else {}
+
+    def __init__(self, globalnode=None):
+        """Initialize the model to display the given global node."""
+        QtCore.QAbstractItemModel.__init__(self)
+        self.root_item = DetailTreeItem(
+            data=DetailTreeItemData(node=globalnode))
+        
 
     def flags(self, index):
         """Return flags for the given index: all indices are enabled and
@@ -72,7 +81,8 @@ class DetailModel(QtCore.QAbstractItemModel):
         # determine whether item value can be set
         if index.column() == self.COL_VALUE:
             try:
-                index.internalPointer().getValue()
+                # TODO: find more clever system
+                index.internalPointer().data.node.getValue()
             except AttributeError:
                 pass
             except NotImplementedError:
@@ -90,43 +100,42 @@ class DetailModel(QtCore.QAbstractItemModel):
         if not index.isValid() or role != QtCore.Qt.DisplayRole:
             return QtCore.QVariant()
         # get the data for display
-        data = index.internalPointer()
+        item = index.internalPointer()
 
         # the name column
         if index.column() == self.COL_NAME:
-            return QtCore.QVariant(data.getDetailTreeParent().getDetailTreeChildName(data))
+            return QtCore.QVariant(item.data.name)
 
         # the type column
         elif index.column() == self.COL_TYPE:
-            return QtCore.QVariant(data.__class__.__name__)
+            return QtCore.QVariant(item.data.typename)
 
         # the value column
         elif index.column() == self.COL_VALUE:
-            # get the data value
-            try:
-                datavalue = data.getDetailTreeDataDisplay()
-            except NotImplementedError:
-                # not implemented, so there is no value
-                # but there should be a string representation
-                datavalue = str(data)
-            except AttributeError:
-                # no getValue attribute: so no value
-                return QtCore.QVariant()
-            try:
-                # see if the data is in the blocks list
-                # if so, it is a reference
-                blocknum = self.refNumber[datavalue]
-            except (KeyError, TypeError):
-                # note: TypeError occurs if datavalue is not a hashable type
-                # not a reference: return the datavalue QVariant
-                valuestr = str(datavalue)
-                if len(valuestr) > 128:
+            # see if the data is a reference or not
+            # (TODO: only real global nodes should be GlobalNode!)
+            if True: #not isinstance(item.data.node, GlobalNode):
+                # get the data value
+                try:
+                    datavalue = item.data.display
+                except NotImplementedError:
+                    # not implemented, so there is no value
+                    # but there should be a string representation
+                    datavalue = str(item.data.node)
+                except AttributeError:
+                    # no getValue attribute: so no value
+                    return QtCore.QVariant()
+                if datavalue is None:
+                    # no display
+                    return QtCore.QVariant()
+                if len(datavalue) > 128:
                     return QtCore.QVariant("...")
                 return QtCore.QVariant(
-                    valuestr.replace("\n", " ").replace("\r", " "))
+                    datavalue.replace("\n", " ").replace("\r", " "))
             else:
                 # handle references
-                if not hasattr(datavalue, "name") or not datavalue.name:
+                blocknum = 0 # TODO calculate block index from global graph
+                if not hasattr(item.data.node, "name") or not item.data.node.name:
                     return QtCore.QVariant(
                         "%i [%s]" % (blocknum, datavalue.__class__.__name__))
                 else:
@@ -153,10 +162,10 @@ class DetailModel(QtCore.QAbstractItemModel):
         """Calculate a row count for the given parent index."""
         if not parent.isValid():
             # top level: one row for each attribute
-            return self.block.getDetailTreeNumChildren()
+            return len(self.root_item.children)
         else:
             # get the parent child count
-            return parent.internalPointer().getDetailTreeNumChildren()
+            return len(parent.internalPointer().children)
 
     def columnCount(self, parent = QtCore.QModelIndex()):
         """Return column count."""
@@ -171,25 +180,25 @@ class DetailModel(QtCore.QAbstractItemModel):
         if not parent.isValid():
             # parent is not valid, so we need a top-level object
             # return the row'th attribute
-            data = self.block.getDetailTreeChild(row)
+            item = self.root_item.children[row]
         else:
             # parent is valid, so we need to go get the row'th attribute
             # get the parent pointer
-            data = parent.internalPointer().getDetailTreeChild(row)
-        return self.createIndex(row, column, data)
+            item = parent.internalPointer().children[row]
+        return self.createIndex(row, column, item)
 
     def parent(self, index):
         """Calculate parent of a given index."""
         # get parent structure
-        parentData = index.internalPointer().getDetailTreeParent()
+        parentData = index.internalPointer().parent
         # if parent's parent is None, then index must be a top
         # level object, so return invalid index
-        if parentData.getDetailTreeParent() is None:
+        if parentData.parent is None:
             return QtCore.QModelIndex()
         # if parent's parent is not None, then it must be member of
         # some deeper nested structure, so calculate the row as usual
         else:
-            row = parentData.getDetailTreeParent().getDetailTreeChildRow(parentData)
+            row = parentData.row
         # construct the index
         return self.createIndex(row, 0, parentData)
 
@@ -199,7 +208,7 @@ class DetailModel(QtCore.QAbstractItemModel):
         """
         if role == QtCore.Qt.EditRole:
             # fetch the current data, as a regular Python type
-            data = index.internalPointer()
+            data = index.internalPointer().data
             currentvalue = data.getValue()
             # transform the QVariant value into the right class
             if isinstance(currentvalue, (int, long)):

@@ -272,9 +272,9 @@ class MetaArrayType(type):
         # create the class
         super(MetaArrayType, cls).__init__(name, bases, dct)
 
-# derives from DetailTreeNode because arrays types can be displayed in the
+# derives from DetailNode because arrays types can be displayed in the
 # detail view, as branches of the display tree
-class ArrayType(PyFFI.ObjectModels.Tree.DetailTreeNode):
+class ArrayType(PyFFI.ObjectModels.Tree.DetailNode):
     """Base class from which all array types are derived.
 
     @todo: Finish this class.

@@ -85,7 +85,7 @@ class _MetaEnumBase(type):
         for item, value in izip(cls._enumkeys, cls._enumvalues):
             setattr(cls, item, value)
 
-class EnumBase(BasicBase,EditableComboBox):
+class EnumBase(BasicBase, EditableComboBox):
     __metaclass__ = _MetaEnumBase
     _enumkeys = []
     _enumvalues = []
@@ -159,7 +159,7 @@ class EnumBase(BasicBase,EditableComboBox):
         """Get the item index from the enum value."""
         return self._enumvalues.index(self._value)
 
-    def getDetailTreeDataDisplay(self):
+    def getDetailDataDisplay(self):
         """Return object that can be used to display the instance."""
         try:
             return self._enumkeys[self._enumvalues.index(self._value)]
