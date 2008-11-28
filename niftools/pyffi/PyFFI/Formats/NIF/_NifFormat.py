@@ -345,18 +345,18 @@ header version field""")
             self.user_version = userver
             self.user_version2 = userver2
 
-        # GlobalTree
+        # GlobalNode
 
-        def getGlobalTreeNumChildren(self):
+        def getGlobalNodeNumChildren(self):
             return len(self.roots)
 
-        def getGlobalTreeChild(self, row):
+        def getGlobalNodeChild(self, row):
             return self.roots[row]
 
-        def getGlobalTreeChildRow(self, child):
+        def getGlobalNodeChildRow(self, child):
             return self.roots.index(child)
 
-        def getGlobalTreeChildren(self):
+        def getGlobalNodeChildren(self):
             for root in self.roots:
                 yield root
 
@@ -367,10 +367,10 @@ header version field""")
                 else:
                     root.replaceGlobalNode(oldbranch, newbranch)
 
-        # DetailTreeNode
+        # DetailNode
 
-        def getDetailTreeNumChildren(self):
-            return 0 # todo: add children
+        def getDetailChildNodes(self):
+            return
 
         # overriding PyFFI.ObjectModels.FileFormat.FileFormat.Data methods
 
@@ -1385,7 +1385,7 @@ but got instance of %s' % (self._template, value.__class__))
         @type readresult: tuple
         @return: list of root blocks
         """
-        warnings.warn("use NifFormat.Data.getGlobalTreeChildren", DeprecationWarning)
+        warnings.warn("use NifFormat.Data.getGlobalNodeChildren", DeprecationWarning)
         return readresult[0]
 
     @classmethod
@@ -1399,7 +1399,7 @@ but got instance of %s' % (self._template, value.__class__))
         @type readresult: tuple
         @return: list of blocks
         """
-        warnings.warn("use NifFormat.Data.getGlobalTreeIterator", DeprecationWarning)
+        warnings.warn("use NifFormat.Data.getGlobalNodeIterator", DeprecationWarning)
         # start with empty list
         blocks = []
         # go over all blocks from all roots
