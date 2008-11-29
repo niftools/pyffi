@@ -38,9 +38,11 @@ built from StructBase instances possibly referring to one another."""
 #
 # ***** END LICENSE BLOCK *****
 
+from UserDict import DictMixin
+
 from PyQt4 import QtGui, QtCore
 
-from PyFFI.ObjectModels.XML.Struct import StructBase
+from PyFFI.ObjectModels.Tree import EdgeFilter
 from PyFFI.QSkope.GlobalTree import GlobalTreeItemData, GlobalTreeItem
 
 # implementation references:
@@ -51,18 +53,53 @@ class GlobalModel(QtCore.QAbstractItemModel):
     PyFFI."""
     # column definitions
     NUM_COLUMNS = 3
-    COL_TYPE   = 0
+    COL_TYPE = 0
     COL_NUMBER = 2
-    COL_NAME   = 1
+    COL_NAME = 1
 
-    def __init__(self, parent=None, globalnode=None):
+    class IndexDict(DictMixin):
+        def __init__(self):
+            self.clear()
+
+        def __getitem__(self, key):
+            try:
+                return self.data[id(key)]
+            except KeyError:
+                index = self.free_indices[-1]
+                self.data[id(key)] = index
+                if len(self.free_indices) == 1:
+                    self.free_indices[0] += 1
+                else:
+                    self.free_indices.pop()
+
+        def __delitem__(self, key):
+            # index becomes available
+            self.free_indices.append(self.data[id(key)])
+            # remove it
+            del self.data[id(key)] 
+
+        def clear(self):
+            # all indices larger than the first element
+            # are free as well
+            self.free_indices = [0]
+            self.data = {}
+
+    def __init__(self, parent=None, globalnode=None, edge_filter=EdgeFilter()):
         """Initialize the model to display the given data."""
         QtCore.QAbstractItemModel.__init__(self, parent)
         # set up the tree
         self.root_item = GlobalTreeItem(
-            data=GlobalTreeItemData(node=globalnode))
+            data=GlobalTreeItemData(node=globalnode),
+            edge_filter=edge_filter)
         # set up the index dictionary
-        # TODO
+        self.index_dict = self.IndexDict()
+        self.updateIndexDict(self.root_item)
+
+    def updateIndexDict(self, item):
+        self.index_dict[item.data.node]
+        for child_item in item.children:
+            self.updateIndexDict(child_item)
+            
 
     def flags(self, index):
         """Return flags for the given index: all indices are enabled and
@@ -92,10 +129,8 @@ class GlobalModel(QtCore.QAbstractItemModel):
             return QtCore.QVariant(data.typename)
         elif index.column() == self.COL_NAME:
             return QtCore.QVariant(data.display)
-
         elif index.column() == self.COL_NUMBER:
-            # TODO
-            return QtCore.QVariant()
+            return QtCore.QVariant(self.index_dict[data.node])
 
         # other colums: invalid
         else:

@@ -40,6 +40,7 @@ StructBase, Array, and BasicBase instances."""
 
 from PyQt4 import QtCore
 
+from PyFFI.ObjectModels.Tree import EdgeFilter, GlobalNode
 from PyFFI.QSkope.DetailTree import DetailTreeItem, DetailTreeItemData
 
 # implementation references:
@@ -64,12 +65,17 @@ class DetailModel(QtCore.QAbstractItemModel):
 #        self.block = block
 #        self.refNumber = refnumber_dict if not refnumber_dict is None else {}
 
-    def __init__(self, parent=None, globalnode=None):
-        """Initialize the model to display the given global node."""
+    def __init__(self, parent=None, globalnode=None, globalmodel=None,
+                 edge_filter=EdgeFilter()):
+        """Initialize the model to display the given global node in the
+        detail tree. We also need a reference to the global model to
+        resolve node references.
+        """
         QtCore.QAbstractItemModel.__init__(self, parent)
         self.root_item = DetailTreeItem(
-            data=DetailTreeItemData(node=globalnode))
-        
+            data=DetailTreeItemData(node=globalnode),
+            edge_filter=EdgeFilter())
+        self.globalmodel = globalmodel
 
     def flags(self, index):
         """Return flags for the given index: all indices are enabled and
@@ -112,35 +118,27 @@ class DetailModel(QtCore.QAbstractItemModel):
 
         # the value column
         elif index.column() == self.COL_VALUE:
-            # see if the data is a reference or not
-            # (TODO: only real global nodes should be GlobalNode!)
-            if True: #not isinstance(item.data.node, GlobalNode):
-                # get the data value
-                try:
-                    datavalue = item.data.display
-                except NotImplementedError:
-                    # not implemented, so there is no value
-                    # but there should be a string representation
-                    datavalue = str(item.data.node)
-                except AttributeError:
-                    # no getValue attribute: so no value
-                    return QtCore.QVariant()
-                if datavalue is None:
-                    # no display
-                    return QtCore.QVariant()
-                if len(datavalue) > 128:
-                    return QtCore.QVariant("...")
-                return QtCore.QVariant(
-                    datavalue.replace("\n", " ").replace("\r", " "))
-            else:
-                # handle references
-                blocknum = 0 # TODO calculate block index from global graph
-                if not hasattr(item.data.node, "name") or not item.data.node.name:
+            # get display element
+            display = item.data.display
+            if isinstance(display, GlobalNode):
+                # reference
+                blocknum = self.globalmodel.index_dict[display]
+                if (not hasattr(item.data.node, "name")
+                    or not item.data.node.name):
                     return QtCore.QVariant(
-                        "%i [%s]" % (blocknum, datavalue.__class__.__name__))
+                        "%i [%s]" % (blocknum, display.__class__.__name__))
                 else:
                     return QtCore.QVariant(
-                        "%i (%s)" % (blocknum, datavalue.name))
+                        "%i (%s)" % (blocknum, display.name))
+            elif isinstance(display, basestring):
+                # regular string
+                if len(display) > 32:
+                    display = display[:32] + "..."
+                return QtCore.QVariant(
+                    display.replace("\n", " ").replace("\r", " "))
+            else:
+                raise TypeError("%s: do not know how to display %s"
+                                % (item.data.name, display.__class__.__name__))
 
         # other colums: invalid
         else:

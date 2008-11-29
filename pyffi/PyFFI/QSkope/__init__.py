@@ -365,10 +365,9 @@ class QSkope(QtGui.QMainWindow):
         # and set up the model
         if index.isValid():
             globalnode = index.internalPointer().data.node
-            #self.detailModel = PyFFI.QSkope.DetailModel.DetailModel(
-            #    block = block, refnumber_dict = self.globalModel.refNumber)
             self.detailModel = PyFFI.QSkope.DetailModel.DetailModel(
-                globalnode=globalnode)
+                globalnode=globalnode,
+                globalmodel=self.globalModel)
         else:
             self.detailModel = PyFFI.QSkope.DetailModel.DetailModel()
         # set the widget's model

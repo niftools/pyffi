@@ -80,6 +80,8 @@ class DetailTreeItem(object):
     @type children: C{list} of L{QDetailTreeItem}
     @ivar row: The row number of this node, as child.
     @type row: C{int}
+    @ivar edge_type: The type of edge from the parent of this node to itself.
+    @type edge_type: L{EdgeType}
     """
     def __init__(self, data=None, parent=None, row=0, edge_type=EdgeType(),
                  edge_filter=EdgeFilter()):
