@@ -123,8 +123,7 @@ class DetailModel(QtCore.QAbstractItemModel):
             if isinstance(display, GlobalNode):
                 # reference
                 blocknum = self.globalmodel.index_dict[display]
-                if (not hasattr(item.data.node, "name")
-                    or not item.data.node.name):
+                if (not hasattr(display, "name") or not display.name):
                     return QtCore.QVariant(
                         "%i [%s]" % (blocknum, display.__class__.__name__))
                 else:

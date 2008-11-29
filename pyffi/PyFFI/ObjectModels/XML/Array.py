@@ -115,12 +115,6 @@ class _ListWrap(list, DetailNode):
         """Yield child names."""
         return ("[%i]" % row for row in xrange(list.__len__(self)))
 
-    def getDetailDataDisplay(self):
-        """Display length and type of the array."""
-        if list.__len__(self) > 0:
-            return "%i %s(s)" % (list.__len__(self),
-                                 self._elementType.__name__)
-
 class Array(_ListWrap):
     """A general purpose class for 1 or 2 dimensional arrays consisting of
     either BasicBase or StructBase elements."""
