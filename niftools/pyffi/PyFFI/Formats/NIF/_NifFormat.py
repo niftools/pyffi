@@ -887,6 +887,13 @@ but got instance of %s' % (self._template, value.__class__))
             if self._value is not None:
                 self._value.replaceGlobalNode(oldbranch, newbranch)
 
+        def getDetailDataDisplay(self):
+            # return the node itself, if it is not None
+            if self._value is not None:
+                return self._value
+            else:
+                return "None"
+
     class Ptr(Ref):
         """A weak reference to another block, used to point up the hierarchy tree. The reference is not returned by the L{getRefs} function to avoid infinite recursion."""
         _isTemplate = True
