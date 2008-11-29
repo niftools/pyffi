@@ -219,6 +219,7 @@ from PyFFI import Common
 from PyFFI.ObjectModels.XML.Basic import BasicBase
 from PyFFI.ObjectModels.Editable import EditableBoolComboBox
 import PyFFI.ObjectModels.FileFormat
+from PyFFI.ObjectModels.Tree import EdgeFilter
 
 class NifFormat(XmlFileFormat):
     __metaclass__ = MetaXmlFileFormat
@@ -347,30 +348,18 @@ header version field""")
 
         # GlobalNode
 
-        def getGlobalNodeNumChildren(self):
-            return len(self.roots)
+        def getGlobalChildNodes(self, edge_filter=EdgeFilter()):
+            return (root for root in self.roots)
 
-        def getGlobalNodeChild(self, row):
-            return self.roots[row]
+        # DetailNode
 
-        def getGlobalNodeChildRow(self, child):
-            return self.roots.index(child)
-
-        def getGlobalNodeChildren(self):
-            for root in self.roots:
-                yield root
-
-        def replaceGlobalNode(self, oldbranch, newbranch):
+        def replaceGlobalNode(self, oldbranch, newbranch,
+                              edge_filter=EdgeFilter()):
             for i, root in enumerate(self.roots):
                 if root is oldbranch:
                     self.roots[i] = newbranch
                 else:
                     root.replaceGlobalNode(oldbranch, newbranch)
-
-        # DetailNode
-
-        def getDetailChildNodes(self):
-            return
 
         # overriding PyFFI.ObjectModels.FileFormat.FileFormat.Data methods
 
@@ -1385,7 +1374,7 @@ but got instance of %s' % (self._template, value.__class__))
         @type readresult: tuple
         @return: list of root blocks
         """
-        warnings.warn("use NifFormat.Data.getGlobalNodeChildren", DeprecationWarning)
+        warnings.warn("use NifFormat.Data.getGlobalChildNodes", DeprecationWarning)
         return readresult[0]
 
     @classmethod
