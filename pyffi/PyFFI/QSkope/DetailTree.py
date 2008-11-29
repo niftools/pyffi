@@ -40,7 +40,7 @@
 from itertools import izip
 from types import NoneType
 
-from PyFFI.ObjectModels.Tree import DetailNode
+from PyFFI.ObjectModels.Tree import DetailNode, EdgeType, EdgeFilter
 
 class DetailTreeItemData(object):
     """Stores all data used in the detail view.
@@ -81,7 +81,8 @@ class DetailTreeItem(object):
     @ivar row: The row number of this node, as child.
     @type row: C{int}
     """
-    def __init__(self, data=None, parent=None, row=0, edge_type=0):
+    def __init__(self, data=None, parent=None, row=0, edge_type=EdgeType(),
+                 edge_filter=EdgeFilter()):
         """Initialize the node tree hierarchy from the given data."""
         if not isinstance(data, DetailTreeItemData):
             raise TypeError(
@@ -89,9 +90,8 @@ class DetailTreeItem(object):
         if not isinstance(parent, (NoneType, DetailTreeItem)):
             raise TypeError(
                 "parent must be either None or a DetailTreeItem instance")
-        #if (parent is None) and not isinstance(data.node, GlobalNode):
-        #    raise TypeError(
-        #        "if parent is None then data.node must be GlobalNode instance")
+        if not isinstance(edge_type, EdgeType):
+            raise TypeError("edge_type must be EdgeType instance")
         self.data = data
         self.parent = parent
         self.row = row
@@ -103,6 +103,7 @@ class DetailTreeItem(object):
                 row=childrow,
                 edge_type=child_edge_type)
             for (childrow, (childnode, childname, child_edge_type))
-            in enumerate(izip(data.node.getDetailChildNodes(edge_type=None),
-                              data.node.getDetailChildNames(edge_type=None),
-                              data.node.getDetailEdgeTypes()))]
+            in enumerate(izip(
+                data.node.getDetailChildNodes(edge_filter=edge_filter),
+                data.node.getDetailChildNames(edge_filter=edge_filter),
+                data.node.getDetailChildEdgeTypes(edge_filter=edge_filter)))]

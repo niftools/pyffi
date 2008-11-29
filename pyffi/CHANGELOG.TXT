@@ -11,6 +11,8 @@ Version 1.1.1 (***)
   functions to calculate the hierarchy, but no longer host the more
   advanced hierarchy functions and data (this will save memory and
   speed up regular use of pyffi outside qskope)
+  - EdgeFilter for generic edge type filtering; this is now a
+  parameter for every method that needs to list child nodes
 
 Version 1.1.0 (18 Nov 2008)
 * nif format:

@@ -95,14 +95,8 @@ class QSkope(QtGui.QMainWindow):
         # window title
         self.setWindowTitle("QSkope")
 
-        # set the main application data:
-        # current file and arguments to save back to disk
-        self.header = None
-        self.roots = []
-        self.footer = None
-        self.fileName = None
-        self.Format = NoneType
-        self.formatArgs = () # format dependent
+        # set the main application data
+        self.data = None
 
         # restore geometry
         settings = self.getSettings(versioned = True)
@@ -182,23 +176,19 @@ class QSkope(QtGui.QMainWindow):
 
     def openNifFile(self, stream = None):
         """Read nif file from stream. If stream does not contain a nif file,
-        then raises ValueError. Sets the self.header, self.roots, self.footer,
-        self.Format, and self.formatArgs variables."""
+        then raises ValueError. Sets the self.data variable."""
         # try reading as a nif file
         data = NifFormat.Data()
         data.read(stream)
         # if succesful: parse the file and save information about it
-        ### TODO: in global view, use data as root element!!
-        self.header = data.header
-        self.roots = data.roots
-        self.footer = None # no footer anymore
-        self.Format = NifFormat
-        self.formatArgs = (data,)
+        self.data = data
 
     def openCgfFile(self, stream = None):
         """Read cgf file from stream. If stream does not contain a cgf file,
         then raises ValueError. Sets the self.header, self.roots, self.footer,
         self.Format, and self.formatArgs variables."""
+        # TODO: use data element
+
         # failed... try reading as a cgf file
         version, user_version = CgfFormat.getVersion(stream)
         # if not succesful: raise an exception
@@ -216,6 +206,8 @@ class QSkope(QtGui.QMainWindow):
         """Read kfm file from stream. If stream does not contain a kfm file,
         then raises ValueError. Sets the self.header, self.roots, self.footer,
         self.Format, and self.formatArgs variables."""
+        # TODO: use data element
+
         # try reading as a kfm file
         version, user_version = KfmFormat.getVersion(stream)
         # if not succesful: raise an exception
@@ -231,6 +223,8 @@ class QSkope(QtGui.QMainWindow):
         """Read dds file from stream. If stream does not contain a dds file,
         then raises ValueError. Sets the self.header, self.roots, self.footer,
         self.Format, and self.formatArgs variables."""
+        # TODO: use data element
+
         # try reading as a dds file
         version, user_version = DdsFormat.getVersion(stream)
         # if not succesful: raise an exception
@@ -248,6 +242,8 @@ class QSkope(QtGui.QMainWindow):
         """Read tga file from stream. If stream does not contain a tga file,
         then raises ValueError. Sets the self.header, self.roots, self.footer,
         self.Format, and self.formatArgs variables."""
+        # TODO: use data element
+
         # try reading as a dds file
         version, user_version = TgaFormat.getVersion(stream)
         # if not succesful: raise an exception
@@ -307,7 +303,7 @@ class QSkope(QtGui.QMainWindow):
 
             # set up the models and update the views
             self.globalModel = PyFFI.QSkope.GlobalModel.GlobalModel(
-                header = self.header, roots = self.roots, footer = self.footer)
+                globalnode=self.data)
             self.globalWidget.setModel(self.globalModel)
             self.setDetailModel(
                 self.globalModel.index(0, 0, QtCore.QModelIndex()))
@@ -338,29 +334,8 @@ class QSkope(QtGui.QMainWindow):
             # open stream for writing
             stream = open(filename, "wb")
             # check type of file
-            if issubclass(self.Format, NifFormat):
-                # write nif file
-                self.formatArgs[0].write(stream)
-                #NifFormat.write(stream,
-                #                version = self.formatArgs[0],
-                #                user_version = self.formatArgs[1],
-                #                roots = [ blk for blk in self.footer.roots ],
-                #                header = self.header)
-            elif issubclass(self.Format, CgfFormat):
-                # write cgf file
-                CgfFormat.write(stream,
-                                version = self.formatArgs[0],
-                                user_version = self.formatArgs[1],
-                                filetype = self.formatArgs[2],
-                                chunks = self.roots)
-            elif issubclass(self.Format, KfmFormat):
-                # write nif file
-                KfmFormat.write(stream,
-                                version = self.formatArgs[0],
-                                user_version = self.formatArgs[1],
-                                header = self.header,
-                                animations = self.roots,
-                                footer = self.footer)
+            self.data.write(stream)
+
         except ValueError:
             # update status bar message
             self.statusBar().showMessage("Failed saving %s (see console)"
@@ -389,9 +364,7 @@ class QSkope(QtGui.QMainWindow):
         # if the index is valid, then get the block from its internal pointer
         # and set up the model
         if index.isValid():
-            globalnode = index.internalPointer()
-            if isinstance(globalnode, PyFFI.QSkope.GlobalModel.StructPtr):
-                globalnode = globalnode.ptr
+            globalnode = index.internalPointer().data.node
             #self.detailModel = PyFFI.QSkope.DetailModel.DetailModel(
             #    block = block, refnumber_dict = self.globalModel.refNumber)
             self.detailModel = PyFFI.QSkope.DetailModel.DetailModel(

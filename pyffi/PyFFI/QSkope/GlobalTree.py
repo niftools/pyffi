@@ -40,7 +40,7 @@
 from itertools import izip
 from types import NoneType
 
-from PyFFI.ObjectModels.Tree import GlobalNode
+from PyFFI.ObjectModels.Tree import GlobalNode, EdgeType, EdgeFilter
 
 class GlobalTreeItemData(object):
     """Stores all data used in the detail view.
@@ -80,7 +80,8 @@ class GlobalTreeItem(object):
         may form cycles (or not, this is format dependent).
     @type edge_type: C{int}
     """
-    def __init__(self, data=None, parent=None, row=0, edge_type=0):
+    def __init__(self, data=None, parent=None, row=0, edge_type=EdgeType(),
+                 edge_filter=EdgeFilter()):
         """Initialize the node tree hierarchy from the given data."""
         if not isinstance(data, GlobalTreeItemData):
             raise TypeError(
@@ -88,11 +89,8 @@ class GlobalTreeItem(object):
         if not isinstance(parent, (NoneType, GlobalTreeItem)):
             raise TypeError(
                 "parent must be either None or a GlobalTreeItem instance")
-        #if (parent is None) and not isinstance(data.node, FileFormat.Data):
-        #    raise TypeError(
-        #        "if parent is None then data.node must be Data instance")
-        if not isinstance(edge_type, int):
-            raise TypeError("edge_type must be int instance")
+        if not isinstance(edge_type, EdgeType):
+            raise TypeError("edge_type must be EdgeType instance")
         self.data = data
         self.parent = parent
         self.row = row
@@ -104,5 +102,6 @@ class GlobalTreeItem(object):
                 row=child_row,
                 edge_type=child_edge_type)
             for (child_row, (child_node, child_edge_type))
-            in enumerate(izip(data.node.getGlobalChildNodes(edge_type=None),
-                              data.node.getGlobalEdgeTypes()))]
+            in enumerate(izip(
+                data.node.getGlobalChildNodes(edge_filter=edge_filter),
+                data.node.getGlobalChildEdgeTypes(edge_filter=edge_filter)))]

@@ -64,9 +64,9 @@ class DetailModel(QtCore.QAbstractItemModel):
 #        self.block = block
 #        self.refNumber = refnumber_dict if not refnumber_dict is None else {}
 
-    def __init__(self, globalnode=None):
+    def __init__(self, parent=None, globalnode=None):
         """Initialize the model to display the given global node."""
-        QtCore.QAbstractItemModel.__init__(self)
+        QtCore.QAbstractItemModel.__init__(self, parent)
         self.root_item = DetailTreeItem(
             data=DetailTreeItemData(node=globalnode))
         
@@ -173,9 +173,7 @@ class DetailModel(QtCore.QAbstractItemModel):
         return self.NUM_COLUMNS
 
     def index(self, row, column, parent):
-        """Create an index to item (row, column) of object parent.
-        Internal pointers consist of the BasicBase, StructBase, or Array
-        instance."""
+        """Create an index to item (row, column) of object parent."""
         # check if the parent is valid
         if not parent.isValid():
             # parent is not valid, so we need a top-level object
@@ -190,17 +188,15 @@ class DetailModel(QtCore.QAbstractItemModel):
     def parent(self, index):
         """Calculate parent of a given index."""
         # get parent structure
-        parentData = index.internalPointer().parent
+        parent_item = index.internalPointer().parent
         # if parent's parent is None, then index must be a top
         # level object, so return invalid index
-        if parentData.parent is None:
+        if parent_item.parent is None:
             return QtCore.QModelIndex()
         # if parent's parent is not None, then it must be member of
         # some deeper nested structure, so calculate the row as usual
         else:
-            row = parentData.row
-        # construct the index
-        return self.createIndex(row, 0, parentData)
+            return self.createIndex(parent_item.row, 0, parent_item)
 
     def setData(self, index, value, role):
         """Set data of a given index from given QVariant value. Only

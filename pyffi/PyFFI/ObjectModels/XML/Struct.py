@@ -45,7 +45,7 @@ from types import NoneType
 from functools import partial
 from itertools import izip
 
-from PyFFI.ObjectModels.Tree import GlobalNode
+from PyFFI.ObjectModels.Tree import DetailNode, GlobalNode, EdgeFilter
 
 class _MetaStructBase(type):
     """This metaclass checks for the presence of _attrs and _isTemplate
@@ -497,7 +497,7 @@ class StructBase(GlobalNode):
                                data=None, **kwargs):
         """Generator for listing all 'active' attributes, that is,
         attributes whose condition evaluates C{True}, whose version
-        interval contaions C{version}, and whose user version is
+        interval contains C{version}, and whose user version is
         C{user_version}. C{None} for C{version} or C{user_version} means
         that these checks are ignored. Duplicate names are skipped as
         well.
@@ -586,13 +586,14 @@ class StructBase(GlobalNode):
 
     # DetailNode
 
-    def getDetailChildNodes(self, edge_type=0):
+    def getDetailChildNodes(self, edge_filter=EdgeFilter()):
         """Yield children of this structure."""
         return (item for item in self._items)
 
-    def getDetailChildNames(self, edge_type=0):
+    def getDetailChildNames(self, edge_filter=EdgeFilter()):
         """Yield names of the children of this structure."""
         return (name for name in self._names)
+
 
     # GlobalNode
 
@@ -600,23 +601,10 @@ class StructBase(GlobalNode):
         """Construct a convenient name for the block itself."""
         return self.name if hasattr(self, "name") else ""
 
-    # extra function for global view, override if required
-    def getGlobalNodeParent(self):
-        """This can be used to return a parent of an object, if the parent
-        object does not happen to link to the object (for instance the
-        MeshMorphTargetChunk in the cgf format is an example)."""
-        return None
-
-    def getGlobalNodeChildren(self):
+    def getGlobalChildNodes(self, edge_filter=EdgeFilter()):
         # TODO replace getRefs with a generator as well
         for branch in self.getRefs():
             yield branch
-
-    def getGlobalNodeNumChildren(self):
-        return len(self.getRefs())
-
-    def getGlobalNodeChild(self, row):
-        return self.getRefs()[row]
 
 from PyFFI.ObjectModels.XML.Basic import BasicBase
 from PyFFI.ObjectModels.XML.Array import Array

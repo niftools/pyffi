@@ -178,8 +178,7 @@ class Spell(object):
                 # spell returned True so recurse to children
                 # we use the abstract tree functions to parse the tree
                 # these are format independent!
-                for i in xrange(branch.getGlobalNodeNumChildren()):
-                    child = branch.getGlobalNodeChild(i)
+                for child in branch.getGlobalChildNodes():
                     self.recurse(child)
                 self.dataexit()
             self.toaster.msgblockend()
@@ -193,8 +192,7 @@ class Spell(object):
                 # spell returned True so recurse to children
                 # we use the abstract tree functions to parse the tree
                 # these are format independent!
-                for i in xrange(branch.getGlobalNodeNumChildren()):
-                    child = branch.getGlobalNodeChild(i)
+                for child in branch.getGlobalChildNodes():
                     self.recurse(child)
                 self.branchexit(branch)
             self.toaster.msgblockend()
@@ -472,9 +470,8 @@ class _CompatSpell(Spell):
     def dataentry(self):
         # the beginning; start with testing the roots
         if hasattr(self.SPELLMODULE, "testRoot"):
-            for i in xrange(self.data.getGlobalNodeNumChildren()):
-                # the roots in the old system are children of data root
-                root = self.data.getGlobalNodeChild(i)
+            # the roots in the old system are children of data root
+            for root in self.data.getGlobalChildNodes():
                 self.SPELLMODULE.testRoot(root, **self.toaster.options)
         # continue recursion
         return True

@@ -41,7 +41,7 @@
 
 # note: imports are defined at the end to avoid problems with circularity
 
-from PyFFI.ObjectModels.Tree import DetailNode
+from PyFFI.ObjectModels.Tree import DetailNode, EdgeFilter
 
 class _ListWrap(list, DetailNode):
     """A wrapper for list, which uses getValue and setValue for
@@ -107,11 +107,11 @@ class _ListWrap(list, DetailNode):
 
     # DetailNode
 
-    def getDetailChildNodes(self, edge_type=0):
+    def getDetailChildNodes(self, edge_filter=EdgeFilter()):
         """Yield children."""
         return (item for item in list.__iter__(self))
 
-    def getDetailChildNames(self, edge_type=0):
+    def getDetailChildNames(self, edge_filter=EdgeFilter()):
         """Yield child names."""
         return ("[%i]" % row for row in xrange(list.__len__(self)))
 

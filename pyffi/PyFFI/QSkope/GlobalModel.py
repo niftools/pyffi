@@ -38,19 +38,10 @@ built from StructBase instances possibly referring to one another."""
 #
 # ***** END LICENSE BLOCK *****
 
-from PyFFI.ObjectModels.XML.Struct import StructBase
-
 from PyQt4 import QtGui, QtCore
 
-class StructPtr(object):
-    """A weak reference to a structure, to be used as internal pointer."""
-    def __init__(self, block):
-        """Store the block for future reference."""
-        self.ptr = block
-
-    def getDetailNumChildren(self):
-        """Break cycles: no children."""
-        return 0
+from PyFFI.ObjectModels.XML.Struct import StructBase
+from PyFFI.QSkope.GlobalTree import GlobalTreeItemData, GlobalTreeItem
 
 # implementation references:
 # http://doc.trolltech.com/4.3/model-view-programming.html
@@ -64,80 +55,24 @@ class GlobalModel(QtCore.QAbstractItemModel):
     COL_NUMBER = 2
     COL_NAME   = 1
 
-    def __init__(self, parent = None,
-                 roots = None, header = None, footer = None):
-        """Initialize the model to display the given blocks."""
+    def __init__(self, parent=None, globalnode=None):
+        """Initialize the model to display the given data."""
         QtCore.QAbstractItemModel.__init__(self, parent)
-        self.header = header
-        self.footer = footer
-        # this list stores the blocks in the view
-        # is a list of NiObjects for the nif format, and a list of Chunks for
-        # the cgf format
-        if roots is None:
-            roots = []
-        # set up the tree (avoiding duplicate references)
-        self.refNumber = {}
-        self.parentDict = {}
-        self.refDict = {}
-        for root in roots:
-            for block in root.tree():
-                # create a reference list for this block
-                # if it does not exist already
-                if not block in self.refDict:
-                    self.refDict[block] = []
-                # assign the block a number
-                if not block in self.refNumber:
-                    blocknum = len(self.refNumber)
-                    self.refNumber[block] = blocknum
-                for refblock in block.getRefs():
-                    # each block can have only one parent
-                    if not refblock in self.parentDict:
-                        self.parentDict[refblock] = block
-                        self.refDict[block].append(refblock)
-                for refblock in block.getLinks():
-                    # check all other links
-                    # already added?
-                    if refblock in self.refDict[block]:
-                        continue
-                    # already added as StructPtr?
-                    if refblock in [ blk.ptr
-                                     for blk in self.refDict[block]
-                                     if isinstance(blk, StructPtr) ]:
-                        continue
-                    # create a wrapper around the block
-                    ptrblock = StructPtr(refblock)
-                    # store the references
-                    self.parentDict[ptrblock] = block
-                    self.refDict[block].append(ptrblock)
-                    # no children
-                    self.refDict[ptrblock] = []
-                # check if it has a global tree parent
-                blockparent = block.getGlobalNodeParent()
-                if blockparent and not block in self.refDict[blockparent]:
-                    self.parentDict[block] = blockparent
-                    self.refDict[blockparent].append(block)
-        # get list of actual roots
-        self.roots = []
-        # list over all blocks
-        for root in self.refDict:
-            # if it is already listed: skip
-            if root in self.roots:
-                continue
-            # if it has a parent: skip
-            if root in self.parentDict:
-                continue
-            # it must be an actual root
-            self.roots.append(root)
-        # sort blocks by reference number
-        self.roots.sort(key = lambda block: self.refNumber[block])
+        # set up the tree
+        self.root_item = GlobalTreeItem(
+            data=GlobalTreeItemData(node=globalnode))
+        # set up the index dictionary
+        # TODO
 
     def flags(self, index):
         """Return flags for the given index: all indices are enabled and
         selectable."""
-        # all items are enabled and selectable
+        # all items are selectable
+        # they are enabled if their edge_type is active
         if not index.isValid():
             return QtCore.Qt.ItemFlags()
-        if isinstance(index.internalPointer(), StructBase):
+        item = index.internalPointer()
+        if item.edge_type.active:
             flags = QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
         else:
             flags = QtCore.Qt.ItemIsSelectable
@@ -150,24 +85,17 @@ class GlobalModel(QtCore.QAbstractItemModel):
         if not index.isValid() or role != QtCore.Qt.DisplayRole:
             return QtCore.QVariant()
         # get the data for display
-        data = index.internalPointer()
-        if isinstance(data, StructPtr):
-            data = data.ptr
+        data = index.internalPointer().data
 
         # the type column
         if index.column() == self.COL_TYPE:
-            return QtCore.QVariant(data.__class__.__name__)
+            return QtCore.QVariant(data.typename)
         elif index.column() == self.COL_NAME:
-            if isinstance(data, StructBase):
-                return QtCore.QVariant(data.getGlobalDataDisplay())
-            else:
-                return QtCore.QVariant()
+            return QtCore.QVariant(data.display)
 
         elif index.column() == self.COL_NUMBER:
-            if not data is self.header and not data is self.footer:
-                return QtCore.QVariant(self.refNumber[data])
-            else:
-                return QtCore.QVariant()
+            # TODO
+            return QtCore.QVariant()
 
         # other colums: invalid
         else:
@@ -188,20 +116,10 @@ class GlobalModel(QtCore.QAbstractItemModel):
     def rowCount(self, parent = QtCore.QModelIndex()):
         """Calculate a row count for the given parent index."""
         if not parent.isValid():
-            # top level: one row for each block
-            rows = len(self.roots)
-            if not self.header is None:
-                rows += 1
-            if not self.footer is None:
-                rows += 1
-            return rows
+            return 1
         else:
             # get the parent child count = number of references
-            data = parent.internalPointer()
-            if data is self.header or data is self.footer:
-                return 0
-            else:
-                return len(self.refDict[data])
+            return len(parent.internalPointer().children)
 
     def columnCount(self, parent = QtCore.QModelIndex()):
         """Return column count."""
@@ -209,60 +127,27 @@ class GlobalModel(QtCore.QAbstractItemModel):
         return self.NUM_COLUMNS
 
     def index(self, row, column, parent):
-        """Create an index to item (row, column) of object parent.
-        Internal pointers consist of the BasicBase, StructBase, or Array
-        instance."""
+        """Create an index to item (row, column) of object parent."""
         # check if the parent is valid
         if not parent.isValid():
             # parent is not valid, so we need a top-level object
             # return the index with row'th block as internal pointer
-            if not self.header is None:
-                if row == 0:
-                    data = self.header
-                elif row <= len(self.roots):
-                    data = self.roots[row - 1]
-                elif row == len(self.roots) + 1 and not self.footer is None:
-                    data = self.footer
-                else:
-                    return QtCore.QModelIndex()
-            else:
-                if row < len(self.roots):
-                    data = self.roots[row]
-                elif row == len(self.roots) and not self.footer is None:
-                    data = self.footer
-                else:
-                    return QtCore.QModelIndex()
+            item = self.root_item
         else:
             # parent is valid, so we need to go get the row'th reference
             # get the parent pointer
-            data = self.refDict[parent.internalPointer()][row]
-        return self.createIndex(row, column, data)
+            item = parent.internalPointer().children[row]
+        return self.createIndex(row, column, item)
 
     def parent(self, index):
         """Calculate parent of a given index."""
         # get parent structure
-        if not index.isValid():
+        parent_item = index.internalPointer().parent
+        # if parent's parent is None, then index must be a top
+        # level object, so return invalid index
+        if parent_item is None:
             return QtCore.QModelIndex()
-        data = index.internalPointer()
-        # if no parent, then index must be top level object
-        if data in self.roots or data is self.header or data is self.footer:
-            return QtCore.QModelIndex()
-        # finally, if parent's parent is not None, then it must be member of
+        # if parent's parent is not None, then it must be member of
         # some deeper nested structure, so calculate the row as usual
-        parentData = self.parentDict[data]
-        if parentData in self.roots:
-            # top level parent
-            # row number is index in roots list
-            if not self.header is None:
-                row = self.roots.index(parentData) + 1
-            else:
-                row = self.roots.index(parentData)
         else:
-            # we need the row number of parentData:
-            # 1) get the parent of parentData
-            # 2) get the list of references of the parent of parentData
-            # 3) check the index number of parentData in this list of references
-            row = self.refDict[self.parentDict[parentData]].index(parentData)
-        # construct the index
-        return self.createIndex(row, 0, parentData)
-
+            return self.createIndex(parent_item.row, 0, parent_item)

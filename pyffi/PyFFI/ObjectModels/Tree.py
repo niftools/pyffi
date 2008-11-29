@@ -18,7 +18,7 @@ blocks and directed edges represent links from one block to
 another.
 
 This directed graph is assumed to have a spanning acyclic directed
-graph, that is, a subgraph which contains all nodes of the original
+subgraph, that is, a subgraph which contains all nodes of the original
 graph, and which contains no cycles. This graph constitutes of those
 edges which have edge type zero.
 
@@ -70,6 +70,39 @@ http://doc.trolltech.com/4.4/itemviews-simpletreemodel.html
 # --------------------------------------------------------------------------
 
 from itertools import repeat
+from operator import itemgetter
+
+class EdgeType(tuple):
+    """Represents all possible edge types. By default, there are four
+    types: any edge can be part of the acyclic graph or not, and can
+    be active or not.
+
+    The default edge type is active and acylic.
+    """
+
+    def __new__(cls, active=True, acyclic=True):
+        return tuple.__new__(cls, (active, acyclic))
+
+    active = property(itemgetter(0))
+    acyclic = property(itemgetter(1))
+
+class EdgeFilter(tuple):
+    """A simple filter for edges. The default filter only checks the edge's
+    active and acyclic attributes, and accepts them if both are C{True}.
+    """
+    def __new__(cls, active_filter=True, acyclic_filter=True):
+        return tuple.__new__(cls, (active_filter, acyclic_filter))
+    
+    active_filter = property(itemgetter(0))
+    acyclic_filter = property(itemgetter(1))
+
+    def accept(self, edge_type):
+        if not(self.active_filter is None):
+            if edge_type.active != self.active_filter:
+                return False
+        if not(self.acyclic_filter is None):
+            if edge_type.acyclic != self.acyclic_filter:
+                return False
 
 class DetailNode(object):
     """A node of the detail tree which can have children.
@@ -80,17 +113,20 @@ class DetailNode(object):
     implemented.
     """
 
-    def getDetailChildNodes(self, edge_type=0):
-        """Generator which yields all children of this item in the detail view.
+    def getDetailChildNodes(self, edge_filter=EdgeFilter()):
+        """Generator which yields all children of this item in the
+        detail view (by default, all acyclic and active ones).
 
         Override this method if the node has children.
 
+        @param edge_filter: The edge type to include.
+        @type edge_filter: L{EdgeFilter} or C{NoneType}
         @return: Generator for detail tree child nodes.
         @rtype: generator yielding L{DetailNode}s
         """
         return (dummy for dummy in ())
 
-    def getDetailChildNames(self, edge_type=0):
+    def getDetailChildNames(self, edge_filter=EdgeFilter()):
         """Generator which yields all child names of this item in the detail
         view.
 
@@ -101,13 +137,13 @@ class DetailNode(object):
         """
         return (dummy for dummy in ())
 
-    def getDetailEdgeTypes(self):
+    def getDetailChildEdgeTypes(self, edge_filter=EdgeFilter()):
         """Generator which yields all edge types of this item in the
         detail view, one edge type for each child.
 
-        Override this method if you rely on non-zero edge types.
+        Override this method if you rely on more than one edge type.
         """
-        return repeat(0)
+        return repeat(EdgeType())
 
     def getDetailDataDisplay(self):
         """Object used to display the instance in the detail view.
@@ -119,19 +155,21 @@ class DetailNode(object):
         """
         return ""
 
-    def getDetailIterator(self, edge_type=0):
+    def getDetailIterator(self, edge_filter=EdgeFilter()):
         """Iterate over self, all children, all grandchildren, and so
         on (only given edge type is followed). Do not override.
         """
         yield self
-        for child in self.getDetailChildNodes(edge_type=edge_type):
-            for branch in child.getDetailIterator(edge_type=edge_type):
+        for child in self.getDetailChildNodes(edge_filter=edge_filter):
+            for branch in child.getDetailIterator(edge_filter=edge_filter):
                 yield branch
 
+    def replaceGlobalNode(self, oldnode, newnode, edge_filter=EdgeFilter()):
+        """Replace a particular branch in the graph."""
+        raise NotImplementedError
+
 class GlobalNode(DetailNode):
-    """A node of the global graph that can also appear fully in the detail
-    view.
-    """
+    """A node of the global graph."""
 
     def getGlobalDataDisplay(self):
         """Very short summary of the data of this global branch for display
@@ -143,39 +181,29 @@ class GlobalNode(DetailNode):
         # possible implementation:
         #return self.name if hasattr(self, "name") else ""
 
-    def getGlobalChildNodes(self, edge_type=0):
+    def getGlobalChildNodes(self, edge_filter=EdgeFilter()):
         """Generator which yields all children of this item in the
         global view, of given edge type (default is edges of type 0).
 
         Override this method.
 
-        @param edge_type: If not C{None}, only children for edges of given
-            type are given.
-        @type edge_type: C{int} or C{NoneType}
-
         @return: Generator for global node children.
         """
         return (dummy for dummy in ())
 
-    def getGlobalEdgeTypes(self):
+    def getGlobalChildEdgeTypes(self, edge_filter=EdgeFilter()):
         """Generator which yields all edge types of this item in the
         global view, one edge type for each child.
 
         Override this method if you rely on non-zero edge types.
         """
-        return repeat(0)
+        return repeat(EdgeType())
 
-    def replaceGlobalNode(self, oldnode, newnode):
-        """Replace a particular branch in the graph (only edge_type=0 is
-        followed).
-        """
-        raise NotImplementedError
-
-    def getGlobalIterator(self, edge_type=0):
+    def getGlobalIterator(self, edge_filter=EdgeFilter()):
         """Iterate over self, all children, all grandchildren, and so
-        on (only given edge_type is followed). Do not override.
+        on (only given edge_filter is followed). Do not override.
         """
         yield self
-        for child in self.getGlobalNodeChildren(edge_type=edge_type):
-            for branch in child.getGlobalIterator(edge_type=edge_type):
+        for child in self.getGlobalChildNodes(edge_filter=edge_filter):
+            for branch in child.getGlobalIterator(edge_filter=edge_filter):
                 yield branch
