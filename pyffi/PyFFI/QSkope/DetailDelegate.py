@@ -106,37 +106,37 @@ class DetailDelegate(QtGui.QItemDelegate):
         if not index.isValid():
             return None
         # get the data
-        data = index.internalPointer()
+        node = index.internalPointer().data.node
         # determine editor by checking for delegate base classes
         # (see _checkValidEditor for the correct delegate preference order)
-        if isinstance(data, EditableComboBox):
+        if isinstance(node, EditableComboBox):
             # a general purpose combo box
             editor = QtGui.QComboBox(parent)
-            for key in data.getEditorKeys():
+            for key in node.getEditorKeys():
                 editor.addItem(key)
-        elif isinstance(data, EditableFloatSpinBox):
+        elif isinstance(node, EditableFloatSpinBox):
             # a spinbox for floats
             editor = QtGui.QDoubleSpinBox(parent)
-            editor.setMinimum(data.getEditorMinimum())
-            editor.setMaximum(data.getEditorMaximum())
-            editor.setDecimals(data.getEditorDecimals())
-        elif isinstance(data, EditableSpinBox):
+            editor.setMinimum(node.getEditorMinimum())
+            editor.setMaximum(node.getEditorMaximum())
+            editor.setDecimals(node.getEditorDecimals())
+        elif isinstance(node, EditableSpinBox):
             # an integer spin box
             editor = QtGui.QSpinBox(parent)
-            editor.setMinimum(data.getEditorMinimum())
+            editor.setMinimum(node.getEditorMinimum())
             # work around a qt "bug": maximum must be C type "int"
             # so cannot be larger than 0x7fffffff
-            editor.setMaximum(min(data.getEditorMaximum(), 0x7fffffff))
-        elif isinstance(data, EditableTextEdit):
+            editor.setMaximum(min(node.getEditorMaximum(), 0x7fffffff))
+        elif isinstance(node, EditableTextEdit):
             # a text editor
             editor = QtGui.QTextEdit(parent)
-        elif isinstance(data, EditableLineEdit):
+        elif isinstance(node, EditableLineEdit):
             # a line editor
             editor = QtGui.QLineEdit(parent)
         else:
             return None
         # check validity
-        self._checkValidEditor(data, editor)
+        self._checkValidEditor(node, editor)
         # return the editor
         return editor
 
@@ -146,19 +146,19 @@ class DetailDelegate(QtGui.QItemDelegate):
         if not index.isValid():
             return None
         # determine the data and its value
-        data = index.internalPointer()
-        editorvalue = data.getEditorValue()
+        node = index.internalPointer().data.node
+        editorvalue = node.getEditorValue()
         # check validity of editor
-        self._checkValidEditor(data, editor)
-        # set editor data
+        self._checkValidEditor(node, editor)
+        # set editor node
         # (see _checkValidEditor for the correct delegate preference order)
-        if isinstance(data, EditableComboBox):
+        if isinstance(node, EditableComboBox):
             # a combo box: set the index
             editor.setCurrentIndex(editorvalue)
-        elif isinstance(data, EditableSpinBox):
+        elif isinstance(node, EditableSpinBox):
             # a (possibly float) spinbox: simply set the value
             editor.setValue(editorvalue)
-        elif isinstance(data, EditableLineEdit):
+        elif isinstance(node, EditableLineEdit):
             # a text editor: set the text
             editor.setText(editorvalue)
 
@@ -173,24 +173,24 @@ class DetailDelegate(QtGui.QItemDelegate):
         if not index.isValid():
             return None
         # get the data
-        data = index.internalPointer()
+        node = index.internalPointer().data.node
         # check validity of editor
-        self._checkValidEditor(data, editor)
+        self._checkValidEditor(node, editor)
         # set model data from editor value
         # (see _checkValidEditor for the correct delegate preference order)
-        if isinstance(data, EditableComboBox):
+        if isinstance(node, EditableComboBox):
             # a combo box: get the value from the current index
             editorvalue = editor.currentIndex()
-        elif isinstance(data, EditableSpinBox):
+        elif isinstance(node, EditableSpinBox):
             # a regular (float) spin box
             editorvalue = editor.value()
-        elif isinstance(data, EditableLineEdit):
+        elif isinstance(node, EditableLineEdit):
             # a text editor
             editorvalue = editor.text()
         else:
             # should not happen: no editor
             print("WARNING: cannot set model data for type %s"
-                  % data.__class__.__name__)
+                  % node.__class__.__name__)
             return
         # set the model data
         # EditRole ensures that setData uses setEditorValue to set the data

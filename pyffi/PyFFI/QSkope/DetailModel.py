@@ -87,8 +87,8 @@ class DetailModel(QtCore.QAbstractItemModel):
         # determine whether item value can be set
         if index.column() == self.COL_VALUE:
             try:
-                # TODO: find more clever system
                 index.internalPointer().data.node.getValue()
+                # TODO: find more clever system
             except AttributeError:
                 pass
             except NotImplementedError:
@@ -151,11 +151,11 @@ class DetailModel(QtCore.QAbstractItemModel):
                 return QtCore.QVariant("Type")
             elif section == self.COL_NAME:
                 return QtCore.QVariant("Name")
-            if section == self.COL_VALUE:
+            elif section == self.COL_VALUE:
                 return QtCore.QVariant("Value")
         return QtCore.QVariant()
 
-    def rowCount(self, parent = QtCore.QModelIndex()):
+    def rowCount(self, parent=QtCore.QModelIndex()):
         """Calculate a row count for the given parent index."""
         if not parent.isValid():
             # top level: one row for each attribute
@@ -164,7 +164,7 @@ class DetailModel(QtCore.QAbstractItemModel):
             # get the parent child count
             return len(parent.internalPointer().children)
 
-    def columnCount(self, parent = QtCore.QModelIndex()):
+    def columnCount(self, parent=QtCore.QModelIndex()):
         """Return column count."""
         # column count is constant everywhere
         return self.NUM_COLUMNS
@@ -201,8 +201,8 @@ class DetailModel(QtCore.QAbstractItemModel):
         """
         if role == QtCore.Qt.EditRole:
             # fetch the current data, as a regular Python type
-            data = index.internalPointer().data
-            currentvalue = data.getValue()
+            node = index.internalPointer().data.node
+            currentvalue = node.getValue()
             # transform the QVariant value into the right class
             if isinstance(currentvalue, (int, long)):
                 # use long type to work around QVariant(0xffffffff).toInt() bug
@@ -221,7 +221,7 @@ class DetailModel(QtCore.QAbstractItemModel):
             if not ok:
                 return False
             # set the value (EditRole, so use setEditorValue, not setValue)
-            data.setEditorValue(pyvalue)
+            node.setEditorValue(pyvalue)
             # tell everyone that the data has changed
             self.emit(QtCore.SIGNAL('dataChanged(QModelIndex, QModelIndex)'),
                                     index, index)
