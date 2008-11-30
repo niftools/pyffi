@@ -42,8 +42,9 @@ from PyFFI.Formats.DDS import DdsFormat
 def saveAsDDS(self, stream):
     """Save image as DDS file."""
     # set up header and pixel data
-    header = DdsFormat.Header()
-    data = DdsFormat.PixelData()
+    data = DdsFormat.Data()
+    header = data.header
+    pixeldata = data.pixeldata
 
     # create header, depending on the format
     if self.pixelFormat in (self.cls.PixelFormat.PX_FMT_RGB8,
@@ -68,7 +69,7 @@ def saveAsDDS(self, stream):
         header.caps1.complex = 1
         header.caps1.texture = 1
         header.caps1.mipmap = 1
-        data.setValue(self.pixelData)
+        pixeldata.setValue(self.pixelData)
     elif self.pixelFormat == self.cls.PixelFormat.PX_FMT_DXT1:
         # format used in Megami Tensei: Imagine
         header.flags.caps = 1
@@ -91,7 +92,7 @@ def saveAsDDS(self, stream):
         header.caps1.complex = 1
         header.caps1.texture = 1
         header.caps1.mipmap = 1
-        data.setValue(''.join(self.pixelDataMatrix))
+        pixeldata.setValue(''.join(self.pixelDataMatrix))
     elif self.pixelFormat in (self.cls.PixelFormat.PX_FMT_DXT5,
                               self.cls.PixelFormat.PX_FMT_DXT5_ALT):
         # format used in Megami Tensei: Imagine
@@ -115,9 +116,9 @@ def saveAsDDS(self, stream):
         header.caps1.complex = 1
         header.caps1.texture = 1
         header.caps1.mipmap = 1
-        data.setValue(''.join(self.pixelDataMatrix))
+        pixeldata.setValue(''.join(self.pixelDataMatrix))
     else:
         raise ValueError(
             "cannot save pixel format %i as DDS" % self.pixelFormat)
 
-    DdsFormat.write(stream, version = 9, header = header, pixeldata = data)
+    data.write(stream)
