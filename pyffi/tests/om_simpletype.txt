@@ -6,35 +6,12 @@ Constructor value argument
 
 >>> from PyFFI.ObjectModels.SimpleType import SimpleType
 >>> class Test(SimpleType):
-...     _ValueType = float
+...     ValueType = float
 >>> # note: float("eek!") raises a ValueError
 >>> test = Test(value="eek!") # doctest: +ELLIPSIS
 Traceback (most recent call last):
     ...
 ValueError: ...
 >>> test = Test(value=4.0)
->>> test._value
+>>> test.value
 4.0
-
-Constructor treeparent argument
--------------------------------
-
->>> from PyFFI.ObjectModels.SimpleType import SimpleType
->>> class Test(SimpleType):
-...     _ValueType = int
->>> test = Test()
->>> print(test._treeparent)
-None
->>> test = Test(treeparent=None)
->>> print(test._treeparent)
-None
->>> test = Test(treeparent="eek!") # doctest: +ELLIPSIS
-Traceback (most recent call last):
-    ...
-TypeError: ...
->>> from PyFFI.ObjectModels.Graph import DetailNode
->>> test = Test(treeparent=DetailNode())
->>> test._treeparent # doctest: +ELLIPSIS
-<PyFFI.ObjectModels.Graph.DetailNode object at ...>
->>> test.getTreeParent() == test._treeparent
-True

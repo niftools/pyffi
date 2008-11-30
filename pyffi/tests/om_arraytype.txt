@@ -1,27 +1,77 @@
-Regression tests for PyFFI.ObjectModels.ArrayType
-=================================================
+Various regression tests for PyFFI.ObjectModels.ArrayType.
 
-Array elements must be AnyType
-------------------------------
+ValidatedList
+=============
 
->>> from PyFFI.ObjectModels.ArrayType import ArrayAnyType
->>> class ListOfInts(ArrayAnyType):
-...     _ElementType = int # doctest: +ELLIPSIS
+>>> from PyFFI.ObjectModels.ArrayType import ValidatedList
+>>> class IntList(ValidatedList):
+...     def validate(self, item):
+...         if not isinstance(item, int):
+...             raise TypeError("item must be int")
+>>> x = IntList([1,2,3.0]) # doctest: +ELLIPSIS
 Traceback (most recent call last):
     ...
 TypeError: ...
+>>> x = IntList([1,2,3])
+>>> x[0] = "a" # doctest: +ELLIPSIS
+Traceback (most recent call last):
+    ...
+TypeError: ...
+>>> x[0] = 10
+>>> x[0]
+10
+>>> x.append(3.14) # doctest: +ELLIPSIS
+Traceback (most recent call last):
+    ...
+TypeError: ...
+>>> x.append(314)
+>>> len(x)
+4
+>>> x[-1]
+314
+>>> x.extend([1,2,3,4,"woops"]) # doctest: +ELLIPSIS
+Traceback (most recent call last):
+    ...
+TypeError: ...
+>>> x.extend([1,2,3,4,0])
+>>> len(x)
+9
+>>> x[-2:]
+[4, 0]
+
+AnyArray
+========
+
+Elements must be AnyType
+------------------------
+
+>>> from PyFFI.ObjectModels.ArrayType import UniformArray
+>>> class ListOfInts(UniformArray):
+...     ItemType = int # doctest: +ELLIPSIS
+Traceback (most recent call last):
+    ...
+TypeError: ...
+>>> from PyFFI.ObjectModels.SimpleType import SimpleType
+>>> class MyInt(SimpleType):
+...     ValueType = int
+>>> class ListOfInts(UniformArray):
+...     ItemType = MyInt
+
+UniformArray
+============
 
 The append method
 -----------------
 
+>>> from PyFFI.ObjectModels.ArrayType import UniformArray
 >>> from PyFFI.ObjectModels.SimpleType import SimpleType
 >>> class MyInt(SimpleType):
-...     _ValueType = int
->>> class ListOfInts(ArrayAnyType):
-...     _ElementType = MyInt
+...     ValueType = int
+>>> class ListOfInts(UniformArray):
+...     ItemType = MyInt
 >>> testlist = ListOfInts()
 >>> # append an item
->>> #   item must be type testlist._ElementType, try with invalid type
+>>> #   item must be type testlist.ItemType, try with invalid type
 >>> testlist.append(0) # doctest: +ELLIPSIS
 Traceback (most recent call last):
     ...
@@ -33,21 +83,16 @@ TypeError: ...
 MyInt array:
   [00] 123
 <BLANKLINE>
->>> # item we append should not have anothor parent
->>> # try adding x again...
->>> ListOfInts().append(x) # doctest: +ELLIPSIS
-Traceback (most recent call last):
-    ...
-ValueError: ...
 
 The extend method
 -----------------
 
+>>> from PyFFI.ObjectModels.ArrayType import UniformArray
 >>> from PyFFI.ObjectModels.SimpleType import SimpleType
 >>> class MyInt(SimpleType):
-...     _ValueType = int
->>> class ListOfInts(ArrayAnyType):
-...     _ElementType = MyInt
+...     ValueType = int
+>>> class ListOfInts(UniformArray):
+...     ItemType = MyInt
 >>> testlist = ListOfInts()
 >>> testlist.extend([MyInt(value=val) for val in xrange(2, 10, 2)])
 >>> print(testlist)

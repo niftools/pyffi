@@ -1,11 +1,4 @@
-"""Defines base class for arrays of data.
-
->>> from PyFFI.ObjectModels.SimpleType import SimpleType
->>> class Int(SimpleType):
-...     _ValueType = int
->>> class IntArray(ArrayType):
-...     _ElementType = Int
-"""
+"""Defines base class for arrays of data."""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
@@ -50,51 +43,115 @@ from itertools import izip
 
 import PyFFI.ObjectModels.AnyType
 import PyFFI.ObjectModels.SimpleType
-import PyFFI.ObjectModels.Graph
+from PyFFI.ObjectModels.Graph import EdgeFilter
 
-def _classequality(class1, class2):
-    """Helper function.
-
-    >>> class MyInt(int):
-    ...     pass
-    >>> _classequality(int, MyInt)
-    False
-    >>> _classequality(MyInt, int)
-    False
-    >>> _classequality(int, int)
-    True
-    >>> _classequality(MyInt, MyInt)
-    True
-
-    @return: C{True} if class1 and class2 are subclasses of one another, and
-        C{False} otherwise.
-    @rtype: C{bool}
+class ValidatedList(list):
+    """Abstract base class for lists whose items can be validated (for
+    instance, for type checks).
     """
-    return issubclass(class1, class2) and issubclass(class2, class1)
+    def __init__(self, *args, **kwargs):
+        """Initialize empty list."""
+        list.__init__(self, *args, **kwargs)
+        for item in list.__iter__(self):
+            self.validate(item)
 
-class MetaArrayAnyType(type):
-    """Metaclass for C{ArrayAnyType}. Checks that
-    L{_ElementType<ArrayAnyType._ElementType>} is an
+    @classmethod
+    def validate(cls, item):
+        """Checks that the item can be added to the list."""
+        raise NotImplementedError
+
+    def __setitem__(self, index, item):
+        """Set item at given index."""
+        # set the new item
+        self.validate(item)
+        list.__setitem__(self, index, item)
+
+    def append(self, item):
+        """Validate item and append to list."""
+        self.validate(item)
+        list.append(self, item)
+
+    def extend(self, other):
+        """Validate items and extend list."""
+        # make a list copy of other
+        otherlist = list(other)
+        # validate each item of other
+        for item in otherlist:
+            self.validate(item)
+        # extend
+        list.extend(self, otherlist)
+
+    def insert(self, index, item):
+        """Validate item and insert."""
+        self.validate(item)
+        list.insert(self, index, item)
+
+class AnyArray(ValidatedList, PyFFI.ObjectModels.AnyType.AnyType):
+    """Abstract base class for all array types."""
+
+    _MAXSTR = 16
+
+    def isInterchangeable(self, other):
+        """Check if array's are interchangeable."""
+        # compare classes
+        if not(self.__class__ is other.__class__):
+            return False
+        # compare lengths
+        if list.__len__(self) != list.__len__(other):
+            return False
+        # compare elements
+        for item, otheritem in izip(list.__iter__(self), list.__iter__(other)):
+            if not item.isInterchangeable(otheritem):
+                return False
+        # all elements are interchangeable, so the array is as well
+        return True
+
+    def __str__(self):
+        """String representation.
+
+        @return: String representation.
+        @rtype: C{str}
+        """
+        result = "%s array:\n" % self.ItemType.__name__
+        more = False
+        for itemnum, item in enumerate(self):
+            if itemnum >= self._MAXSTR:
+                more = True
+                break
+            result += "  [%02i] %s\n" % (itemnum, item)
+        if more:
+            result += ("  ...  (%i more following)\n"
+                       % (len(self) - self._MAXSTR))
+        return result
+
+    def getDetailChildNodes(self, edge_filter=EdgeFilter()):
+        return list.__iter__(self)
+
+    def getDetailChildNames(self, edge_filter=EdgeFilter()):
+        return ("[%i]" % i for i in xrange(list.__len__(self)))
+
+class MetaUniformArray(type):
+    """Metaclass for C{ValidatedArray}. Checks that
+    L{ItemType<ArrayAnyType.ItemType>} is an
     L{AnyType<PyFFI.ObjectModels.AnyType.AnyType>} subclass.
     """
     def __init__(cls, name, bases, dct):
         """Initialize array type."""
         # create the class
-        super(MetaArrayAnyType, cls).__init__(name, bases, dct)
+        super(MetaUniformArray, cls).__init__(name, bases, dct)
         # check type of elements
-        if not issubclass(cls._ElementType, PyFFI.ObjectModels.AnyType.AnyType):
-            raise TypeError("array _ElementType must be an AnyType subclass")
+        if not issubclass(cls.ItemType, PyFFI.ObjectModels.AnyType.AnyType):
+            raise TypeError("array ItemType must be an AnyType subclass")
 
-class ArrayAnyType(PyFFI.ObjectModels.AnyType.AnyType):
-    """Wrapper for list of elements of uniform type. Has all of list's
-    methods to ensure that the elements are of type
-    L{_ElementType<ArrayAnyType._ElementType>}, and that their parent is set.
+class UniformArray(AnyArray):
+    """Wrapper for array with elements of the same type; this type must be
+    a subclass of L{PyFFI.ObjectModels.AnyType.AnyType}.
 
     >>> from PyFFI.ObjectModels.SimpleType import SimpleType
     >>> class MyInt(SimpleType):
-    ...     _ValueType = int
-    >>> class ListOfInts(ArrayAnyType):
-    ...     _ElementType = MyInt
+    ...     ValueType = int
+    >>> class ListOfInts(UniformArray):
+    ...     ItemType = MyInt
     >>> testlist = ListOfInts()
     >>> testlist.append(MyInt(value=20))
     >>> testlist.extend([MyInt(value=val) for val in xrange(2, 10, 2)])
@@ -106,185 +163,93 @@ class ArrayAnyType(PyFFI.ObjectModels.AnyType.AnyType):
       [03] 6
       [04] 8
     <BLANKLINE>
-    >>> [item._value for item in testlist[::-2]]
+    >>> [item.value for item in testlist[::-2]]
     [8, 4, 20]
 
-    @cvar _ElementType: Type of the elements of this array.
-    @type _ElementType: L{PyFFI.ObjectModels.AnyType.AnyType}
+    @cvar ItemType: Type of the elements of this array.
+    @type ItemType: L{PyFFI.ObjectModels.AnyType.AnyType}
     @cvar _MAXSTR: Maximum number of elements to write in the L{__str__} method.
     @type _MAXSTR: C{int}
     """
-    __metaclass__ = MetaArrayAnyType
-    _ElementType = PyFFI.ObjectModels.AnyType.AnyType
-    _MAXSTR = 16
 
-    def __init__(self, **kwargs):
-        """Initialize empty list."""
-        super(ArrayAnyType, self).__init__(**kwargs)
-        self._items = []
+    __metaclass__ = MetaUniformArray
+    ItemType = PyFFI.ObjectModels.AnyType.AnyType
 
-    def identityGenerator(self, **kwargs):
-        """Generator for the identity of this array."""
-        # compare length
-        yield len(self._items)
-        # compare elements
-        for item in self._items:
-            for item_id in item.identityGenerator():
-                yield item_id
-
-    def __str__(self):
-        """String representation.
-
-        @return: String representation.
-        @rtype: C{str}
-        """
-        result = "%s array:\n" % self._ElementType.__name__
-        more = False
-        for itemnum, item in enumerate(self._items):
-            if itemnum >= self._MAXSTR:
-                more = True
-                break
-            result += "  [%02i] %s\n" % (itemnum, item)
-        if more:
-            result += ("  ...  (%i more following)\n"
-                       % (len(self._items) - self._MAXSTR))
-        return result
-
-    def _setItemTreeParent(self, item):
-        """Check if item can be added, and sets tree parent (for internal use
-        only, this is called on items before they are added to the array).
-
-        @param item: The item to be checked.
-        @type item: L{_ElementType}
-        @raise C{TypeError}: If item has incompatible type.
-        @raise C{ValueError}: If item already has a tree parent.
-        """
-        # check item
-        if not _classequality(type(item), self._ElementType):
+    @classmethod
+    def validate(cls, item):
+        """Check if item can be added."""
+        if not item.__class__ is cls.ItemType:
             raise TypeError("item has incompatible type (%s, not %s)"
                             % (item.__class__.__name__,
-                               self._ElementType.__name__))
-        # set item parent
-        if item._treeparent is None:
-            item._treeparent = self
-        else:
-            raise ValueError("item already has a tree parent") 
+                               cls.ItemType.__name__))
 
-    def __getitem__(self, index):
-        """Return item at given index.
-
-        @param index: The index.
-        @type index: C{int} or C{slice}
-        @return: Item at given index, or slice.
-        @rtype: L{_ElementType}, or C{list} of L{_ElementType}
-        """
-        return self._items[index]
-
-    def __setitem__(self, index, item):
-        """Set item at given index. Parent of item currently at index has its
-        tree parent removed.
-
-        @param index: The index.
-        @type index: C{int}
-        @param item: Item to set.
-        @type item: L{_ElementType}
-        """
-        # clear parent of previous item
-        self._items[index]._treeparent = None
-        # set the new item
-        self._setItemTreeParent(item)
-        self._items[index] = item
-
-    def __delitem__(self, index):
-        """Remove tree parents of item(s) at index or slice, and
-        remove the items from the array.
-
-        @param index: The index or slice of items to remove.
-        @type index: C{int} or C{slice}
-        """
-        if isinstance(index, slice):
-            for i in xrange(*slice.indices(len(self._items))):
-                self._items[i]._treeparent = None
-        else:
-            self._items[index]._treeparent = None
-        self._items.__del__(index)
-
-    def __iter__(self):
-        return self._items.__iter__()
-
-    def append(self, item):
-        """Set item tree parent and append to array.
-
-        @param item: The item to append.
-        @type item: L{_ElementType}
-        """
-        self._setItemTreeParent(item)
-        self._items.append(item)
-
-    def count(self, item):
-        return self._items.count(item)
-
-    def extend(self, other):
-        """Set tree parent of all items, and extend array.
-
-        @param other: The list to extend with.
-        @type other: C{list} of L{_ElementType}
-        @raise C{TypeError}: If the types of the list items do not match.
-        @raise C{ValueError}: If items already have a tree parent.
-        """
-        # check type of other
-        if not isinstance(other, list):
-            raise TypeError("first argument must be list")
-        # set tree parents and check type
-        for item in other:
-            self._setItemTreeParent(item)
-        # extend
-        self._items.extend(other)
-
-    def index(self, item):
-        return self._items.index(item)
-
-    def insert(self, index, item):
-        self._setItemTreeParent(item)
-        self._items.insert(index, item)
-
-    def pop(self, index=-1):
-        self._items[index]._treeparent = None
-        return self._items.pop(index)
-
-    def remove(self, item):
-        index = self.index(item)
-        self._items[index]._treeparent = None
-        self.__delitem__(index)
-
-    def reverse(self):
-        self._items.reverse()
-
-    def sort(self, cmp=None, key=None, reverse=False):
-        self._items.sort(cmp, key, reverse)
-
-class MetaArrayType(type):
-    """Metaclass for C{ArrayType}."""
+class MetaUniformSimpleArray(type):
+    """Metaclass for C{UniformSimpleArray}. Checks that
+    L{ItemType<ArrayAnyType.ItemType>} is an
+    L{AnyType<PyFFI.ObjectModels.SimpleType.SimpleType>} subclass.
+    """
     def __init__(cls, name, bases, dct):
         """Initialize array type."""
-        # TODO: add base class depending on element type
-        bases = (ArrayAnyType,) + bases
         # create the class
-        super(MetaArrayType, cls).__init__(name, bases, dct)
+        super(MetaUniformSimpleArray, cls).__init__(name, bases, dct)
+        # check type of elements
+        if not issubclass(cls.ItemType, PyFFI.ObjectModels.AnyType.AnyType):
+            raise TypeError("array ItemType must be an AnyType subclass")
 
-# derives from DetailNode because arrays types can be displayed in the
-# detail view, as branches of the display tree
-class ArrayType(PyFFI.ObjectModels.Graph.DetailNode):
-    """Base class from which all array types are derived.
+class UniformSimpleArray(AnyArray):
+    """Base class for array's with direct access to values of simple items.
 
-    @todo: Finish this class.
+    Note that count, index, and remove operations are not implemented
+    (they are computationally and memory very expensive and would use a
+    full copy of the list).
+
+    If you really need them, make a copy of the array's values first
+    using C{list(array.__iter__())} and then call the above mentioned
+    methods on the resulting list of values.
     """
-    __metaclass__ = MetaArrayType
-    _ElementType = PyFFI.ObjectModels.SimpleType.SimpleType
 
-    def __init__(self, **kwargs):
-         """Initialize empty list. For now, no keyword arguments are passed
-         down the class hierarchy.
-         """
-         super(ArrayType, self).__init__()
+    __metaclass__ = MetaUniformSimpleArray
+    ItemType = PyFFI.ObjectModels.SimpleType.SimpleType
 
+    def __getitem__(self, index):
+        # using list base method for speed
+        return list.__getitem__(self, index).value
+
+    def __setitem__(self, index, value):
+        # using list base method to skip validation
+        list.__setitem__(self, index, ItemType(value))
+
+    def __iter__(self):
+        return (item.value for item in list.__iter__(self))
+
+    def __contains__(self, value):
+        return value in (item.value for item in list.__iter__(self))
+
+    def append(self, value):
+        # using list base method to skip validation
+        list.append(self, ItemType(value))
+
+    def count(self, value):
+        raise NotImplementedError
+        # create list of values
+        #list(self.__iter__()).count(value)
+
+    def extend(self, other):
+        """Extend list."""
+        # using list base method to skip validation
+        list.extend(self, (ItemType(value) for value in other))
+
+    def index(value):
+        raise NotImplementedError
+        #return list(self.__iter__()).index(value)
+
+    def insert(self, index, value):
+        """Insert."""
+        # using list base method for speed
+        list.insert(self, index, ItemType(value))
+
+    def pop(self, index=-1):
+        return list.pop(self, index).value
+
+    def remove(self, value):
+        raise NotImplementedError

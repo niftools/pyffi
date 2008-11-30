@@ -42,18 +42,14 @@
 from types import NoneType
 
 import PyFFI.ObjectModels.AnyType
-import PyFFI.ObjectModels.Graph
 
-# derives from DetailNode because simple types can be displayed in the
-# detail view, as leafs of the display tree
-class SimpleType(PyFFI.ObjectModels.AnyType.AnyType,
-                 PyFFI.ObjectModels.Graph.DetailNode):
+class SimpleType(PyFFI.ObjectModels.AnyType.AnyType):
     """Base class from which all simple types are derived. Simple
     types contain data which is not divided further into smaller pieces,
     and that can represented efficiently by a (usually native) Python type,
     typically C{int}, C{float}, or L{str}.
 
-    When overriding this class, set L{_ValueType} to the type used to store
+    When overriding this class, set L{ValueType} to the type used to store
     this data. If it is a native type but requires extra validation
     (for example if not all Python values are admissible), derive a wrapper
     class around the native type and place an extra check in C{__new__}.
@@ -62,14 +58,10 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType,
     of this type, and L{isInterchangeable} if you wish to declare data as
     equivalent.
 
-    When instantiating simple types which are part of larger objects such as
-    L{ArrayType} or L{StructType}, pass these as C{treeparent} keyword argument
-    to the constructor.
-
     A brief example of usage:
 
     >>> class Int(SimpleType):
-    ...     _ValueType = int
+    ...     ValueType = int
     >>> print(Int(value=12345))
     12345
 
@@ -77,18 +69,18 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType,
     custom types that derive from built-in types:
 
     >>> class shortint(int):
-    ...     def __new__(cls, *args, **kwargs):
+    ...     def __new__(cls, value=None):
     ...         # for the sake of example, default value is 3
-    ...         val = int(args[0]) if args else 3
+    ...         val = int(value) if value is not None else 3
     ...         if val < -0x8000 or val > 0x7fff:
     ...             raise ValueError("value %i out of range" % val)
     ...         return super(shortint, cls).__new__(cls, val)
     >>> class Short(SimpleType):
-    ...     _ValueType = shortint
+    ...     ValueType = shortint
     >>> test = Short()
     >>> print(test)
     3
-    >>> test._value = test._ValueType(255)
+    >>> test.value = test.ValueType(255)
     >>> print(test)
     255
     >>> Short(value=100000) # doctest: +ELLIPSIS
@@ -98,83 +90,60 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType,
     >>> print(Short(value=15))
     15
 
-    @warning: When assigning to L{_value}, it is good practice always to use
-        the L{_ValueType} class, as in
+    @warning: When assigning to L{value}, it is good practice always to use
+        the L{ValueType} class, as in
 
-            >>> some._value = some._ValueType(somevalue) # doctest: +SKIP
+            >>> some.value = some.ValueType(somevalue) # doctest: +SKIP
 
         This ensures that the value you assign is indeed of type
-        L{_ValueType} and has an admissible value. If this is violated, you may
+        L{ValueType} and has an admissible value. If this is violated, you may
         encounter hard to debug errors.
 
-    @cvar _ValueType: The type used to store the data.
-    @type _ValueType: C{type}
-    @ivar _value: The actual data.
-    @type _value: L{_ValueType}
-    @ivar _treeparent: The parent of this data in the tree view.
-    @type _treeparent: L{DetailNode}
+    @cvar ValueType: The type used to store the data.
+    @type ValueType: C{type}
+    @ivar value: The actual data.
+    @type value: L{ValueType}
     """
     # value type
-    _ValueType = NoneType
+    ValueType = NoneType
 
-    def __init__(self, **kwargs):
-        """Initialize the type with given value and tree parent.
+    def __init__(self, value=None):
+        """Initialize the type with given value.
 
-        @keyword treeparent: The L{_treeparent} of the object (default is
-            C{None}).
-        @type treeparent: L{DetailNode} or C{NoneType}
-        @keyword value: The initial value of the object. This value is passed
-            as an argument to L{_ValueType}.
-        @type value: L{_ValueType}, or anything acceptable as a first argument
-            to the L{_ValueType} constructor.
+        @keyword value: The initial value of the object. If not
+            C{None}, this value is passed as an argument to
+            L{ValueType}.
+        @type value: C{NoneType}, or anything acceptable as a first
+            argument to the L{ValueType} constructor.
         """
-        # set value
-        if not "value" in kwargs:
-            self._value = self._ValueType()
+        if value is None:
+            self.value = self.ValueType()
         else:
-            self._value = self._ValueType(kwargs["value"])
-        # set tree parent
-        self._treeparent = kwargs.get("treeparent")
-        if not isinstance(self._treeparent,
-                          (NoneType,
-                           PyFFI.ObjectModels.Graph.DetailNode)):
-            raise TypeError(
-                "tree parent argument must be a DetailNode, not a %s"
-                % self._treeparent.__class__.__name__)
+            self.value = self.ValueType(value)
 
     def __str__(self):
         """String representation. This implementation is simply a wrapper
-        around C{self.L{_value}.__str__()}.
+        around C{self.L{value}.__str__()}.
 
         @return: String representation.
         @rtype: C{str}
         """
-        return self._value.__str__()
+        return self.value.__str__()
 
     # AnyType
 
     def isInterchangeable(self, other):
         """This checks for object identity of the value."""
-        return self._value is other._value
-
-    # TreeItem
-
-    def getTreeParent(self):
-        """Returns L{_treeparent}.
-
-        @return: L{_treeparent}.
-        @rtype: L{DetailNode}
-        """
-        return self._treeparent
+        return self.value is other.value
 
     # DetailNode
 
     def getDetailDisplay(self):
         """Display string for the detail tree. This implementation is simply
-        a wrapper around C{self.L{_value}.__str__()}.
+        a wrapper around C{self.L{value}.__str__()}.
 
         @return: String representation.
         @rtype: C{str}
         """
-        return self._value.__str__()
+        return self.value.__str__()
 

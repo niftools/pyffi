@@ -42,7 +42,9 @@ which generates immutable objects that can be used to identify the object.
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-class AnyType(object):
+import PyFFI.ObjectModels.Graph
+
+class AnyType(PyFFI.ObjectModels.Graph.DetailNode):
     """Abstract base class from which all types are derived."""
 
     def read(self, stream, data):
@@ -61,7 +63,7 @@ class AnyType(object):
 
         @param stream: The stream to write to.
         @type stream: file
-        @param data: The data root branch (which contains Version
+        @param data: The data root branch (which contains version
             information and so on).
         @type data: L{FileFormat.Data}
         """
@@ -87,3 +89,8 @@ class AnyType(object):
         """
         return self is other
 
+    def __hash__(self):
+        """AnyType objects are mutable, so raise type error on hash
+        calculation, as they cannot be safely used as dictionary keys.
+        """
+        raise TypeError("AnyType objects are unhashable")
