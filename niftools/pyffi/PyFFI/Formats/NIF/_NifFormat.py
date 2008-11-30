@@ -282,7 +282,7 @@ class NifFormat(XmlFileFormat):
                 else:
                     return "0x%08X" % self.getValue()
 
-            def getDetailDataDisplay(self):
+            def getDetailDisplay(self):
                 return self.__str__()
 
         def __init__(self, version=None, user_version=None, user_version2=None):
@@ -939,7 +939,7 @@ but got instance of %s' % (self._template, value.__class__))
             if self._value is not None:
                 self._value.replaceGlobalNode(oldbranch, newbranch)
 
-        def getDetailDataDisplay(self):
+        def getDetailDisplay(self):
             # return the node itself, if it is not None
             if self._value is not None:
                 return self._value
@@ -1021,7 +1021,7 @@ but got instance of %s' % (self._template, value.__class__))
         def __str__(self):
             return 'NetImmerse/Gamebryo File Format, Version x.x.x.x'
 
-        def getDetailDataDisplay(self):
+        def getDetailDisplay(self):
             return self.__str__()
 
         def getHash(self, **kwargs):
@@ -1109,7 +1109,7 @@ but got instance of %s' % (self._template, value.__class__))
         def write(self, stream, **kwargs):
             stream.write(struct.pack('<I', kwargs['data'].version))
 
-        def getDetailDataDisplay(self):
+        def getDetailDisplay(self):
             return 'x.x.x.x'
 
     class ShortString(BasicBase):
