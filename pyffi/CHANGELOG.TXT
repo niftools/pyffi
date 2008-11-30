@@ -3,6 +3,8 @@ Version 1.1.1 (***)
   - updates for Fallout 3 format
   - mopps take material indices into account and compute welding info
   (this fixes all mopp multi-material issues)
+* dds format:
+  - updated to use the FileFormat.Data method (old inconvenient method removed)
 * qskope:
   - refactored the tree model
   - all parenting functions are delegated to seperate DetailTree and GlobalTree
