@@ -42,7 +42,7 @@ from UserDict import DictMixin
 
 from PyQt4 import QtGui, QtCore
 
-from PyFFI.ObjectModels.Tree import EdgeFilter
+from PyFFI.ObjectModels.Graph import EdgeFilter
 from PyFFI.QSkope.GlobalTree import GlobalTreeItemData, GlobalTreeItem
 
 # implementation references:

@@ -40,7 +40,7 @@
 import os.path # os.path.altsep
 
 from PyFFI import Utils
-import PyFFI.ObjectModels.Tree
+import PyFFI.ObjectModels.Graph
 
 class MetaFileFormat(type):
     """The MetaFileFormat metaclass is an abstract base class for transforming
@@ -71,7 +71,7 @@ class FileFormat(object):
     RE_FILENAME = None
 
     # override this with the data instance for this format
-    class Data(PyFFI.ObjectModels.Tree.GlobalNode):
+    class Data(PyFFI.ObjectModels.Graph.GlobalNode):
         """Base class for representing data in a particular format.
         Override this class to implement reading and writing.
         """

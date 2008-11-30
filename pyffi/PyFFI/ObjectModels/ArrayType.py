@@ -50,7 +50,7 @@ from itertools import izip
 
 import PyFFI.ObjectModels.AnyType
 import PyFFI.ObjectModels.SimpleType
-import PyFFI.ObjectModels.Tree
+import PyFFI.ObjectModels.Graph
 
 def _classequality(class1, class2):
     """Helper function.
@@ -274,7 +274,7 @@ class MetaArrayType(type):
 
 # derives from DetailNode because arrays types can be displayed in the
 # detail view, as branches of the display tree
-class ArrayType(PyFFI.ObjectModels.Tree.DetailNode):
+class ArrayType(PyFFI.ObjectModels.Graph.DetailNode):
     """Base class from which all array types are derived.
 
     @todo: Finish this class.

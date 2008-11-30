@@ -5,7 +5,7 @@
   - derive ObjectModels.ArrayType and ObjectModels.StructType from
     common subclass PyFFI.ObjectModels.ComplexType, use these then as base
     classes for ObjectModels.XML.Array and ObjectModels.XML.StructBase
-  - use PyFFI.ObjectModels.Tree for all ObjectModels.XXX implementations
+  - use PyFFI.ObjectModels.Graph for all ObjectModels.XXX implementations
   - upgrade QSkope and XML model to use GlobalNode instead of the
     current ad hoc system with Refs
   - improve the abstract ObjectModels.Delegate classes (i.e. naming,
@@ -26,7 +26,7 @@
     + remove old method in 4.x.x
   - one of the aims is that qskope no longer relies on any
     ObjectModels.XML/ObjectModels.XSD specific implementations; if it only
-    relies on the abstract base classes in ObjectModels.Tree and
+    relies on the abstract base classes in ObjectModels.Graph and
     ObjectModels.Data then future expansions are a lot easier to cope with;
     in particular, qskope should never have to import from ObjectModels.XXX,
     or Formats.XXX

@@ -40,7 +40,7 @@
 from itertools import izip
 from types import NoneType
 
-from PyFFI.ObjectModels.Tree import DetailNode, EdgeType, EdgeFilter
+from PyFFI.ObjectModels.Graph import DetailNode, EdgeType, EdgeFilter
 
 class DetailTreeItemData(object):
     """Stores all data used in the detail view.

@@ -39,7 +39,7 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-from PyFFI.ObjectModels.Tree import DetailNode
+from PyFFI.ObjectModels.Graph import DetailNode
 
 class BasicBase(DetailNode):
     """Base class from which all basic types are derived.

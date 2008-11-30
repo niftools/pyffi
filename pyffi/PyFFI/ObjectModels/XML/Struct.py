@@ -45,7 +45,7 @@ from types import NoneType
 from functools import partial
 from itertools import izip
 
-from PyFFI.ObjectModels.Tree import DetailNode, GlobalNode, EdgeFilter
+from PyFFI.ObjectModels.Graph import DetailNode, GlobalNode, EdgeFilter
 
 class _MetaStructBase(type):
     """This metaclass checks for the presence of _attrs and _isTemplate

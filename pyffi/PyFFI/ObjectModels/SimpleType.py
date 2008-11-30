@@ -42,12 +42,12 @@
 from types import NoneType
 
 import PyFFI.ObjectModels.AnyType
-import PyFFI.ObjectModels.Tree
+import PyFFI.ObjectModels.Graph
 
 # derives from DetailNode because simple types can be displayed in the
 # detail view, as leafs of the display tree
 class SimpleType(PyFFI.ObjectModels.AnyType.AnyType,
-                 PyFFI.ObjectModels.Tree.DetailNode):
+                 PyFFI.ObjectModels.Graph.DetailNode):
     """Base class from which all simple types are derived. Simple
     types contain data which is not divided further into smaller pieces,
     and that can represented efficiently by a (usually native) Python type,
@@ -137,7 +137,7 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType,
         self._treeparent = kwargs.get("treeparent")
         if not isinstance(self._treeparent,
                           (NoneType,
-                           PyFFI.ObjectModels.Tree.DetailNode)):
+                           PyFFI.ObjectModels.Graph.DetailNode)):
             raise TypeError(
                 "tree parent argument must be a DetailNode, not a %s"
                 % self._treeparent.__class__.__name__)
