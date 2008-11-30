@@ -112,6 +112,7 @@ class AnyArray(ValidatedList, PyFFI.ObjectModels.AnyType.AnyType):
         @return: String representation.
         @rtype: C{str}
         """
+        # TODO use getDetailTypeName
         result = "%s array:\n" % self.ItemType.__name__
         more = False
         for itemnum, item in enumerate(self):
@@ -131,8 +132,8 @@ class AnyArray(ValidatedList, PyFFI.ObjectModels.AnyType.AnyType):
         return ("[%i]" % i for i in xrange(list.__len__(self)))
 
 class MetaUniformArray(type):
-    """Metaclass for C{ValidatedArray}. Checks that
-    L{ItemType<ArrayAnyType.ItemType>} is an
+    """Metaclass for L{UniformArray}. Checks that
+    L{ItemType<UniformArray.ItemType>} is an
     L{AnyType<PyFFI.ObjectModels.AnyType.AnyType>} subclass.
     """
     def __init__(cls, name, bases, dct):
@@ -184,29 +185,21 @@ class UniformArray(AnyArray):
                                cls.ItemType.__name__))
 
 class MetaUniformSimpleArray(type):
-    """Metaclass for C{UniformSimpleArray}. Checks that
-    L{ItemType<ArrayAnyType.ItemType>} is an
-    L{AnyType<PyFFI.ObjectModels.SimpleType.SimpleType>} subclass.
+    """Metaclass for L{UniformSimpleArray}. Checks that
+    L{ItemType<UniformSimpleArray.ItemType>} is an
+    L{SimpleType<PyFFI.ObjectModels.SimpleType.SimpleType>} subclass.
     """
     def __init__(cls, name, bases, dct):
         """Initialize array type."""
         # create the class
         super(MetaUniformSimpleArray, cls).__init__(name, bases, dct)
         # check type of elements
-        if not issubclass(cls.ItemType, PyFFI.ObjectModels.AnyType.AnyType):
-            raise TypeError("array ItemType must be an AnyType subclass")
+        if not issubclass(cls.ItemType,
+                          PyFFI.ObjectModels.SimpleType.SimpleType):
+            raise TypeError("array ItemType must be a SimpleType subclass")
 
 class UniformSimpleArray(AnyArray):
-    """Base class for array's with direct access to values of simple items.
-
-    Note that count, index, and remove operations are not implemented
-    (they are computationally and memory very expensive and would use a
-    full copy of the list).
-
-    If you really need them, make a copy of the array's values first
-    using C{list(array.__iter__())} and then call the above mentioned
-    methods on the resulting list of values.
-    """
+    """Base class for array's with direct access to values of simple items."""
 
     __metaclass__ = MetaUniformSimpleArray
     ItemType = PyFFI.ObjectModels.SimpleType.SimpleType
@@ -217,7 +210,7 @@ class UniformSimpleArray(AnyArray):
 
     def __setitem__(self, index, value):
         # using list base method to skip validation
-        list.__setitem__(self, index, ItemType(value))
+        list.__setitem__(self, index, self.ItemType(value))
 
     def __iter__(self):
         return (item.value for item in list.__iter__(self))
@@ -227,29 +220,30 @@ class UniformSimpleArray(AnyArray):
 
     def append(self, value):
         # using list base method to skip validation
-        list.append(self, ItemType(value))
+        list.append(self, self.ItemType(value))
 
     def count(self, value):
-        raise NotImplementedError
-        # create list of values
-        #list(self.__iter__()).count(value)
+        """@warning: not efficient."""
+        # count in list of values
+        list(self.__iter__()).count(value)
 
     def extend(self, other):
         """Extend list."""
         # using list base method to skip validation
-        list.extend(self, (ItemType(value) for value in other))
+        list.extend(self, (self.ItemType(value) for value in other))
 
-    def index(value):
-        raise NotImplementedError
-        #return list(self.__iter__()).index(value)
+    def index(self, value):
+        """@warning: not efficient."""
+        return list(self.__iter__()).index(value)
 
     def insert(self, index, value):
         """Insert."""
         # using list base method for speed
-        list.insert(self, index, ItemType(value))
+        list.insert(self, index, self.ItemType(value))
 
     def pop(self, index=-1):
         return list.pop(self, index).value
 
     def remove(self, value):
-        raise NotImplementedError
+        """@warning: not efficient."""
+        self.list.pop(self, self.index(value))
