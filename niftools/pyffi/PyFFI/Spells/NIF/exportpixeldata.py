@@ -1,7 +1,6 @@
 """Export image from NiPixelData block as a DDS file."""
 
 from PyFFI.Formats.NIF import NifFormat
-from PyFFI.Formats.DDS import DdsFormat
 import os.path
 
 def testBlock(block, **args):
