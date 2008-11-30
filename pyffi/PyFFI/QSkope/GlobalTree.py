@@ -57,7 +57,7 @@ class GlobalTreeItemData(object):
 
     @property
     def display(self):
-        return self.node.getGlobalDataDisplay()
+        return self.node.getGlobalDisplay()
 
     @property
     def typename(self):

@@ -169,7 +169,7 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType,
 
     # DetailNode
 
-    def getDetailDataDisplay(self):
+    def getDetailDisplay(self):
         """Display string for the detail tree. This implementation is simply
         a wrapper around C{self.L{_value}.__str__()}.
 

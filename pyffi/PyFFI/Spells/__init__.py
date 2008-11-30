@@ -186,7 +186,7 @@ class Spell(object):
             self.toaster.msgblockbegin(
                 """~~~ %s [%s] ~~~"""
                 % (branch.__class__.__name__,
-                   branch.getGlobalDataDisplay()))
+                   branch.getGlobalDisplay()))
             # cast the spell on the branch
             if self.branchentry(branch):
                 # spell returned True so recurse to children

@@ -62,7 +62,7 @@ class DetailTreeItemData(object):
 
     @property
     def display(self):
-        return self.node.getDetailDataDisplay()
+        return self.node.getDetailDisplay()
 
     @property
     def typename(self):

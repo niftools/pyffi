@@ -151,7 +151,7 @@ class BasicBase(DetailNode):
 
     # DetailNode
 
-    def getDetailDataDisplay(self):
+    def getDetailDisplay(self):
         """Return an object that can be used to display the instance."""
         return str(self.getValue())
 

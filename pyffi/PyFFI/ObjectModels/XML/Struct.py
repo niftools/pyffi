@@ -597,7 +597,7 @@ class StructBase(GlobalNode):
 
     # GlobalNode
 
-    def getGlobalDataDisplay(self):
+    def getGlobalDisplay(self):
         """Construct a convenient name for the block itself."""
         return self.name if hasattr(self, "name") else ""
 

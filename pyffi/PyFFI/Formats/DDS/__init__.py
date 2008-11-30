@@ -127,7 +127,7 @@ class DdsFormat(XmlFileFormat):
         def __str__(self):
             return 'DDS'
 
-        def getDetailDataDisplay(self):
+        def getDetailDisplay(self):
             return self.__str__()
 
         def getHash(self, **kwargs):

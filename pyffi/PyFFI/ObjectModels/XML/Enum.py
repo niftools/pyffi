@@ -159,7 +159,7 @@ class EnumBase(BasicBase, EditableComboBox):
         """Get the item index from the enum value."""
         return self._enumvalues.index(self._value)
 
-    def getDetailDataDisplay(self):
+    def getDetailDisplay(self):
         """Return object that can be used to display the instance."""
         try:
             return self._enumkeys[self._enumvalues.index(self._value)]

@@ -145,7 +145,7 @@ class DetailNode(object):
         """
         return repeat(EdgeType())
 
-    def getDetailDataDisplay(self):
+    def getDetailDisplay(self):
         """Object used to display the instance in the detail view.
 
         Override this method if the node has data to display in the detail view.
@@ -171,7 +171,7 @@ class DetailNode(object):
 class GlobalNode(DetailNode):
     """A node of the global graph."""
 
-    def getGlobalDataDisplay(self):
+    def getGlobalDisplay(self):
         """Very short summary of the data of this global branch for display
         purposes. Override this method.
 
