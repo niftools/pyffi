@@ -9,43 +9,39 @@ Read a DDS file
 
 >>> # check and read dds file
 >>> stream = open('tests/dds/test.dds', 'rb')
->>> version, user_version = DdsFormat.getVersion(stream)
->>> if version == -1:
-...     raise RuntimeError('dds version not supported')
-... elif version == -2:
-...     raise RuntimeError('not a dds file')
->>> header, data = DdsFormat.read(stream, version = version)
->>> # print DDS header
->>> print header.size
-124
->>> print header.pixelFormat.size
+>>> data = DdsFormat.Data()
+>>> data.inspect(stream)
+>>> print(data.header.pixelFormat.size)
 32
+>>> print(data.header.height)
+20
+>>> data.read(stream)
+>>> # print DDS header
+>>> print(len(data.pixeldata.getValue()))
+888
 
 Parse all DDS files in a directory tree
 ---------------------------------------
 
->>> for header, pixeldata in DdsFormat.walk('tests/dds',
-...                                         raisereaderror = True,
-...                                         verbose = 1):
-...     pass
-reading tests/dds/test.dds
+>>> for stream, data in DdsFormat.walkData('tests/dds'):
+...     print(stream.name)
+tests/dds/test.dds
 
 Create a DDS file from scratch and write to file
 ------------------------------------------------
 
->>> header = DdsFormat.Header()
+>>> data = DdsFormat.Data()
 >>> from tempfile import TemporaryFile
 >>> stream = TemporaryFile()
->>> DdsFormat.write(stream, version = version, header = header,
-...                 pixeldata = DdsFormat.PixelData())
+>>> data.write(stream)
 
 Get list of versions
 --------------------
 
 >>> for vnum in sorted(DdsFormat.versions.values()):
-...     print '0x%08X'%vnum
-0x00000009
-0x00000010
+...     print('0x%08X'%vnum)
+0x09000000
+0x0A000000
 """
 
 # ***** BEGIN LICENSE BLOCK *****
@@ -93,6 +89,8 @@ from PyFFI.ObjectModels.XML.FileFormat import XmlFileFormat
 from PyFFI.ObjectModels.XML.FileFormat import MetaXmlFileFormat
 from PyFFI import Common
 from PyFFI.ObjectModels.XML.Basic import BasicBase
+import PyFFI.ObjectModels.FileFormat
+from PyFFI.ObjectModels.Graph import EdgeFilter
 
 class DdsFormat(XmlFileFormat):
     """This class implements the DDS format."""
@@ -128,6 +126,9 @@ class DdsFormat(XmlFileFormat):
 
         def __str__(self):
             return 'DDS'
+
+        def getDetailDataDisplay(self):
+            return self.__str__()
 
         def getHash(self, **kwargs):
             """Return a hash value for this value.
@@ -177,79 +178,96 @@ class DdsFormat(XmlFileFormat):
         @return: A version integer.
 
         >>> hex(DdsFormat.versionNumber('DX10'))
-        '0x10'
+        '0xa000000'
         """
-        return { 'DX9' : 0x09, 'DX10' : 0x10 }[version_str]
+        return {'DX9': 0x09000000, 'DX10': 0x0A000000}[version_str]
 
-    @classmethod
-    def getVersion(cls, stream):
-        """Returns 9, 0 if the file is a DX9 DDS file, -1, 0 if it is not
-        supported, and -2, 0 if it is not a DDS file.
+    class Data(PyFFI.ObjectModels.FileFormat.FileFormat.Data):
+        """A class to contain the actual dds data."""
+        def __init__(self, version=0x09000000):
+            self.version = version
+            self.header = DdsFormat.Header()
+            self.pixeldata = DdsFormat.PixelData()
 
-        @param stream: The stream from which to read.
-        @type stream: file
-        @return: 9, 0 for DX9 DDS files, -2, 0 for non-DDS files.
-        """
-        pos = stream.tell()
-        try:
-            hdrstr = stream.read(4)
-        finally:
-            stream.seek(pos)
-        if hdrstr != "DDS ":
-            return -2, 0
-        return 0x09, 0 # TODO DX10
+            # TODO refactor xml model so we can get rid of these
+            self.user_version = 0
+            self.user_version2 = 0
 
-    @classmethod
-    def read(cls, stream, version = None, user_version = None, verbose = 0):
-        """Read a dds file.
+        def inspectQuick(self, stream):
+            """Quickly checks if stream contains DDS data, and gets the
+            version, by looking at the first 8 bytes.
 
-        @param stream: The stream from which to read.
-        @type stream: file
-        @param version: The DDS version obtained by L{getVersion}.
-        @type version: int
-        @param user_version: The user_version obtained by L{getVersion}.
-        @type user_version: int
-        @param verbose: The level of verbosity.
-        @type verbose: int
-        @return: header, pixeldata
-        """
-        # read the file
-        header = cls.Header()
-        header.read(stream, version = version)
-        pixeldata = cls.PixelData()
-        pixeldata.read(stream, version = version)
+            @param stream: The stream to inspect.
+            @type stream: file
+            """
+            pos = stream.tell()
+            try:
+                hdrstr = stream.read(4)
+                if hdrstr != "DDS ":
+                    raise ValueError("not a dds file")
+                size = struct.unpack("<I", stream.read(4))
+                if size == 124:
+                    self.version = 0x09000000 # DX9
+                elif size == 144:
+                    self.version = 0x0A000000 # DX10
+            finally:
+                stream.seek(pos)
 
-        # check if we are at the end of the file
-        if stream.read(1) != '':
-            raise cls.DdsError('end of file not reached: corrupt dds file?')
+        # overriding PyFFI.ObjectModels.FileFormat.FileFormat.Data methods
 
-        return header, pixeldata
+        def inspect(self, stream):
+            """Quickly checks if stream contains DDS data, and reads the
+            header.
 
-    @classmethod
-    def write(cls, stream, version = None, user_version = None,
-              header = None, pixeldata = None,
-              verbose = 0):
-        """Write a dds file.
+            @param stream: The stream to inspect.
+            @type stream: file
+            """
+            pos = stream.tell()
+            try:
+                self.inspectQuick(stream)
+                self.header.read(stream, data=self)
+            finally:
+                stream.seek(pos)
 
-        @param stream: The stream to which to write.
-        @type stream: file
-        @param version: The version number (9 or 10).
-        @type version: int
-        @param user_version: The user version number (ignored so far).
-        @type user_version: int
-        @param header: The dds header.
-        @type header: L{DdsFormat.Header}
-        @param pixeldata: The dds pixel data.
-        @type pixeldata: L{DdsFormat.PixelData}
-        @param verbose: The level of verbosity.
-        @type verbose: int
-        """
-        # TODO: make sure pixel data has correct length
 
-        # write the file
-        # first header
-        assert(isinstance(header, cls.Header))
-        header.write(stream, version = version)
-        # next the pixel data
-        assert(isinstance(pixeldata, cls.PixelData))
-        pixeldata.write(stream, version = version)
+        def read(self, stream, verbose=0):
+            """Read a dds file.
+
+            @param stream: The stream from which to read.
+            @type stream: C{file}
+            @param verbose: The level of verbosity.
+            @type verbose: C{int}
+            """
+            # read the file
+            self.inspectQuick(stream)
+            self.header.read(stream, data=self)
+            self.pixeldata.read(stream, data=self)
+
+            # check if we are at the end of the file
+            if stream.read(1) != '':
+                raise self.DdsError(
+                    'end of file not reached: corrupt dds file?')
+            
+        def write(self, stream, verbose=0):
+            """Write a dds file.
+
+            @param stream: The stream to which to write.
+            @type stream: C{file}
+            @param verbose: The level of verbosity.
+            @type verbose: C{int}
+            """
+            # TODO: make sure pixel data has correct length
+
+            # write the file
+            # first header
+            self.header.write(stream, data=self)
+            # next the pixel data
+            self.pixeldata.write(stream, data=self)
+
+        # DetailNode
+
+        def getDetailChildNodes(self, edge_filter=EdgeFilter()):
+            return self.header.getDetailChildNodes(edge_filter=edge_filter)
+
+        def getDetailChildNames(self, edge_filter=EdgeFilter()):
+            return self.header.getDetailChildNames(edge_filter=edge_filter)

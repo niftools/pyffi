@@ -221,22 +221,13 @@ class QSkope(QtGui.QMainWindow):
 
     def openDdsFile(self, stream = None):
         """Read dds file from stream. If stream does not contain a dds file,
-        then raises ValueError. Sets the self.header, self.roots, self.footer,
-        self.Format, and self.formatArgs variables."""
-        # TODO: use data element
-
-        # try reading as a dds file
-        version, user_version = DdsFormat.getVersion(stream)
-        # if not succesful: raise an exception
-        if version < 0:
-            raise ValueError("not a dds file")
+        then raises ValueError. Sets the self.data variable.
+        """
+        # try reading as a nif file
+        data = DdsFormat.Data()
+        data.read(stream)
         # if succesful: parse the file and save information about it
-        self.header, pixeldata = DdsFormat.read(
-            stream, version = version, user_version = user_version)
-        self.roots = None
-        self.footer = None
-        self.Format = DdsFormat
-        self.formatArgs = (version, user_version)
+        self.data = data
 
     def openTgaFile(self, stream = None):
         """Read tga file from stream. If stream does not contain a tga file,
@@ -244,7 +235,7 @@ class QSkope(QtGui.QMainWindow):
         self.Format, and self.formatArgs variables."""
         # TODO: use data element
 
-        # try reading as a dds file
+        # try reading as a tga file
         version, user_version = TgaFormat.getVersion(stream)
         # if not succesful: raise an exception
         if version < 0:
