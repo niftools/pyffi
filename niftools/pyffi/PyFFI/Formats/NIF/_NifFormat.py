@@ -219,7 +219,7 @@ from PyFFI import Common
 from PyFFI.ObjectModels.XML.Basic import BasicBase
 from PyFFI.ObjectModels.Editable import EditableBoolComboBox
 import PyFFI.ObjectModels.FileFormat
-from PyFFI.ObjectModels.Tree import EdgeFilter
+from PyFFI.ObjectModels.Graph import EdgeFilter
 
 class NifFormat(XmlFileFormat):
     __metaclass__ = MetaXmlFileFormat
@@ -269,6 +269,22 @@ class NifFormat(XmlFileFormat):
         @type blocks: C{list} of L{NifFormat.NiObject}
         """
 
+        class VersionUInt(Common.UInt):
+            def setValue(self, value):
+                if value is None:
+                    self._value = None
+                else:
+                    Common.UInt.setValue(self, value)
+
+            def __str__(self):
+                if self._value is None:
+                    return "None"
+                else:
+                    return "0x%08X" % self.getValue()
+
+            def getDetailDataDisplay(self):
+                return self.__str__()
+
         def __init__(self, version=None, user_version=None, user_version2=None):
             """Initialize nif data. By default, this creates an empty
             nif document of the given version and user version.
@@ -279,15 +295,37 @@ class NifFormat(XmlFileFormat):
             @type user_version: C{int}
             """
             # the version numbers are stored outside the header structure
-            self.version = version
-            self.user_version = user_version
-            self.user_version2 = user_version2
+            self._version_value_ = self.VersionUInt()
+            self._version_value_.setValue(version)
+            self._user_version_value_ = self.VersionUInt()
+            self._user_version_value_.setValue(user_version)
+            self._user_version_2_value_ = self.VersionUInt()
+            self._user_version_2_value_.setValue(user_version2)
             # create new header
             self.header = NifFormat.Header()
             # empty list of root blocks (this encodes the footer)
             self.roots = []
             # empty list of blocks
             self.blocks = []
+
+        def _getVersion(self):
+            return self._version_value_.getValue()
+        def _setVersion(self, value):
+            self._version_value_.setValue(value)
+            
+        def _getUserVersion(self):
+            return self._user_version_value_.getValue()
+        def _setUserVersion(self, value):
+            self._user_version_value_.setValue(value)
+
+        def _getUserVersion2(self):
+            return self._user_version_2_value_.getValue()
+        def _setUserVersion2(self, value):
+            self._user_version_2_value_.setValue(value)
+
+        version = property(_getVersion, _setVersion)
+        user_version = property(_getUserVersion, _setUserVersion)
+        user_version2 = property(_getUserVersion2, _setUserVersion2)
 
         # new functions
 
@@ -359,7 +397,20 @@ header version field""")
                 if root is oldbranch:
                     self.roots[i] = newbranch
                 else:
-                    root.replaceGlobalNode(oldbranch, newbranch)
+                    root.replaceGlobalNode(oldbranch, newbranch,
+                                           edge_filter=edge_filter)
+
+        def getDetailChildNodes(self, edge_filter=EdgeFilter()):
+            yield self._version_value_
+            yield self._user_version_value_
+            yield self._user_version_2_value_
+            yield self.header
+
+        def getDetailChildNames(self, edge_filter=EdgeFilter()):
+            yield "Version"
+            yield "User Version"
+            yield "User Version 2"
+            yield "Header"
 
         # overriding PyFFI.ObjectModels.FileFormat.FileFormat.Data methods
 
@@ -860,7 +911,8 @@ but got instance of %s' % (self._template, value.__class__))
             else:
                 return []
 
-        def replaceGlobalNode(self, oldbranch, newbranch, **kwargs):
+        def replaceGlobalNode(self, oldbranch, newbranch,
+                              edge_filter=EdgeFilter()):
             """
             >>> from PyFFI.Formats.NIF import NifFormat
             >>> x = NifFormat.NiNode()
@@ -910,7 +962,8 @@ but got instance of %s' % (self._template, value.__class__))
         def getHash(self, **kwargs):
             return None
 
-        def replaceGlobalNode(self, oldbranch, newbranch):
+        def replaceGlobalNode(self, oldbranch, newbranch,
+                              edge_filter=EdgeFilter()):
             # overridden to avoid infinite recursion
             if self._value is oldbranch:
                 # setValue takes care of template type
@@ -967,6 +1020,9 @@ but got instance of %s' % (self._template, value.__class__))
     class HeaderString(BasicBase):
         def __str__(self):
             return 'NetImmerse/Gamebryo File Format, Version x.x.x.x'
+
+        def getDetailDataDisplay(self):
+            return self.__str__()
 
         def getHash(self, **kwargs):
             return None
@@ -1052,6 +1108,9 @@ but got instance of %s' % (self._template, value.__class__))
 
         def write(self, stream, **kwargs):
             stream.write(struct.pack('<I', kwargs['data'].version))
+
+        def getDetailDataDisplay(self):
+            return 'x.x.x.x'
 
     class ShortString(BasicBase):
         """Another type for strings."""
