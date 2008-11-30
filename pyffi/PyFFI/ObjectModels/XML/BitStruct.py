@@ -47,7 +47,7 @@ from itertools import izip
 import struct
 
 from PyFFI.ObjectModels.Editable import EditableSpinBox # for Bits
-from PyFFI.ObjectModels.Graph import DetailNode
+from PyFFI.ObjectModels.Graph import DetailNode, EdgeFilter
 
 class _MetaBitStructBase(type):
     """This metaclass checks for the presence of a _attrs attribute.
@@ -428,10 +428,10 @@ class BitStructBase(DetailNode):
 
     # DetailNode
 
-    def getDetailChildNodes(self, edge_type=0):
+    def getDetailChildNodes(self, edge_filter=EdgeFilter()):
         """Yield children of this structure."""
         return (item for item in self._items)
 
-    def getDetailChildNames(self, edge_type=0):
+    def getDetailChildNames(self, edge_filter=EdgeFilter()):
         """Yield name of each child."""
         return (name for name in self._names)
