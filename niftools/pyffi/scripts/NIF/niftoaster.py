@@ -160,5 +160,5 @@ recursively, for Freedom Force vs. The 3rd Reich
 
 # if script is called...
 if __name__ == "__main__":
-    MyNifToaster().cli()
+    NifToaster().cli()
 
