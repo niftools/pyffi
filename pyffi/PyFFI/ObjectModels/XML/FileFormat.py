@@ -273,7 +273,8 @@ class XmlSaxHandler(object, xml.sax.handler.ContentHandler):
     tags_niftools = {
     "niftoolsxml": tagFile,
     "compound": tagStruct,
-    "niobject": tagStruct}
+    "niobject": tagStruct,
+    "bitflags": tagBitStruct}
 
     def __init__(self, cls, name, bases, dct):
         """Set up the xml parser.
@@ -512,8 +513,13 @@ class XmlSaxHandler(object, xml.sax.handler.ContentHandler):
             elif tag == self.tagBitStruct:
                 self.classBase = BitStructBase
                 self.className = attrs["name"]
+                try:
+                    numbytes = int(attrs["numbytes"])
+                except KeyError:
+                    # niftools style: storage attribute
+                    numbytes = getattr(self.cls, attrs["storage"]).getSize()
                 self.classDict = {"_attrs": [], "__doc__": "",
-                                  "_numbytes": int(attrs["numbytes"])}
+                                  "_numbytes": numbytes}
 
             # fileformat -> version
             elif tag == self.tagVersion:
@@ -553,6 +559,28 @@ but got %s instead"""%name)
                 # mandatory parameters
                 self.classDict["_attrs"].append(
                     BitStructAttribute(self.cls, attrs))
+            elif tag == self.tagOption:
+                # niftools compatibility, we have a bitflags field
+                # so convert value into numbits
+                # first, calculate current bit position
+                bitpos = sum(bitattr.numbits
+                             for bitattr in self.classDict["_attrs"])
+                # check if extra bits must be inserted
+                numextrabits = int(attrs["value"]) - bitpos
+                if numextrabits < 0:
+                    raise XmlError("values of bitflags must be increasing")
+                if numextrabits > 0:
+                    self.classDict["_attrs"].append(
+                        BitStructAttribute(
+                            self.cls,
+                            dict(name="Reserved Bits %i"
+                                 % len(self.classDict["_attrs"]),
+                                 numbits=numextrabits)))
+                # add the actual attribute
+                self.classDict["_attrs"].append(
+                    BitStructAttribute(
+                        self.cls,
+                        dict(name=attrs["name"], numbits=1)))
             else:
                 raise XmlError(
                     "only bits tags allowed in struct type declaration")
