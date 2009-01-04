@@ -1,6 +1,6 @@
-"""Defines abstract base class for any type that stores data which is
-readable and writable. This base class also defines a special function
-which generates immutable objects that can be used to identify the object.
+"""Defines abstract base class for any type that stores mutable data
+which is readable and writable, and can check for exchangeable
+alternatives.
 """
 
 # --------------------------------------------------------------------------
