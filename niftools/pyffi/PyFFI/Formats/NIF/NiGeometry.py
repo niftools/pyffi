@@ -230,7 +230,11 @@ def mergeSkeletonRoots(self):
     # look for geometries are in this skeleton root's tree
     # that have a different skeleton root
     # and that share bones with this geometry
-    geoms = [block for block in skelroot.tree() if isinstance(block, self.cls.NiGeometry) and block.isSkin() and block.skinInstance.skeletonRoot != skelroot and set(block.skinInstance.bones) & set(skininst.bones)]
+    geoms = [block for block in skelroot.tree()
+             if (isinstance(block, self.cls.NiGeometry)
+                 and block.isSkin()
+                 and not(block.skinInstance.skeletonRoot is skelroot)
+                 and set(block.skinInstance.bones) & set(skininst.bones))]
 
     # find the root block (direct parent of skeleton root that connects to the geometry) for each of these geometries
     geomroots = {}
