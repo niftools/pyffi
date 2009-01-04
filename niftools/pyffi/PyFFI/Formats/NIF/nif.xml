@@ -28,7 +28,7 @@
     <version num="20.0.0.5">Oblivion</version>
     <version num="20.1.0.3">Megami Tensei: Imagine</version>
     <version num="20.2.0.7">Emerge, Empire Earth III, Fallout 3</version>    
-    <version num="20.2.0.8">Emerge, Empire Earth III</version>
+    <version num="20.2.0.8">Emerge, Empire Earth III, Atlantica</version>
     <!-- version 20.3.0.1 is found in Props/GDCLargeContainer.nif-->
     <version num="20.3.0.1">Emerge</version>
     <!-- version 20.3.0.2 is found in PFX/fx_muzzle_flash_example.nif -->
@@ -106,7 +106,7 @@
     <basic name="LineString" count="0" niflibtype="LineString" nifskopetype="linestring">
         A variable length string that ends with a newline character (0x0A).
     </basic>
-    
+
     <basic name="Ptr" count="0" niflibtype="*" nifskopetype="uplink" istemplate="1">
         A signed 32-bit integer, referring to a object before this one in the hierarchy.  Examples:  Bones, gravity objects.
     </basic>
@@ -122,7 +122,7 @@
     <basic name="StringIndex" count="0" niflibtype="IndexString" nifskopetype="stringindex">
         A 32-bit unsigned integer, used to refer to strings in the header.
     </basic>
-
+    
     <!--Enumerations
         These are like C enums and consist of a list of options.  They can appear
         as parts of compounts or niobjects.-->
@@ -356,7 +356,7 @@
         <option value="6" name="TEST_GREATER_EQUAL">Opposite of TEST_LESS_EQUAL.</option>
         <option value="7" name="TEST_ALWAYS">Test will allways succeed. The Z Buffer value is ignored.</option>
     </enum>
-    
+
     <enum name="StencilAction" storage="uint">
         This enum defines the various actions used in conjunction with the stencil buffer.
         For a detailed description of the individual options please refer to the OpenGL docs.
@@ -367,7 +367,7 @@
         <option value="4" name="ACTION_DECREMENT" />
         <option value="5" name="ACTION_INVERT" />
     </enum>
-    
+
     <enum name="FaceDrawMode" storage="uint">
         This enum lists the different face culling options.
         <option value="0" name="DRAW_CCW_OR_BOTH">use application defaults?</option>
@@ -375,12 +375,12 @@
         <option value="2" name="DRAW_CW">Draw clock wise faces, cull counter clock wise faces. This will flip all the faces.</option>
         <option value="3" name="DRAW_BOTH">Draw double sided faces.</option>
     </enum>
-    
+
     <enum name="MotionSystem" storage="byte">
         The motion system. 4 (Box) is used for everything movable. 7 (Keyframed) is used on statics and animated stuff.
-        
+
         <option value="0" name="MO_SYS_INVALID">Invalid</option>
-        <option value="1" name="MO_SYS_DYNAMIC">A fully-simulated, movable rigid body. At construction time the engine checks the input inertia and selects MO_SYS_SPHERE_INERTIA or MO_SYS_BOX_INERTIA as appropriate.</option>       
+        <option value="1" name="MO_SYS_DYNAMIC">A fully-simulated, movable rigid body. At construction time the engine checks the input inertia and selects MO_SYS_SPHERE_INERTIA or MO_SYS_BOX_INERTIA as appropriate.</option>
         <option value="2" name="MO_SYS_SPHERE">Simulation is performed using a sphere inertia tensor.</option>
         <option value="3" name="MO_SYS_SPHERE_INERTIA">This is the same as MO_SYS_SPHERE_INERTIA, except that simulation of the rigid body is "softened".</option>
         <option value="4" name="MO_SYS_BOX">Simulation is performed using a box inertia tensor.</option>
@@ -390,26 +390,26 @@
         <option value="8" name="MO_SYS_THIN_BOX">A box inertia motion which is optimized for thin boxes and has less stability problems</option>
         <option value="9" name="MO_SYS_CHARACTER">A specialized motion used for character controllers</option>
     </enum>
-    
+
     <enum name="DeactivatorType" storage="byte">
         <option value="0" name="DEACTIVATOR_INVALID">Invalid</option>
         <option value="1" name="DEACTIVATOR_NEVER">This will force the rigid body to never deactivate.</option>
-        <option value="2" name="DEACTIVATOR_SPATIAL">Tells Havok to use a spatial deactivation scheme. This makes use of high and low frequencies of positional motion to determine when deactivation should occur.</option>   
+        <option value="2" name="DEACTIVATOR_SPATIAL">Tells Havok to use a spatial deactivation scheme. This makes use of high and low frequencies of positional motion to determine when deactivation should occur.</option>
     </enum>
-    
+
     <enum name="SolverDeactivation" storage="byte">
         A list of possible solver deactivation settings. This value defines how the
-		solver deactivates objects. The solver works on a per object basis. 	
-		Note: Solver deactivation does not save CPU, but reduces creeping of
-		movable objects in a pile quite dramatically.
+        solver deactivates objects. The solver works on a per object basis.
+        Note: Solver deactivation does not save CPU, but reduces creeping of
+        movable objects in a pile quite dramatically.
         <option value="0" name="SOLVER_DEACTIVATION_INVALID">Invalid</option>
         <option value="1" name="SOLVER_DEACTIVATION_OFF">No solver deactivation</option>
-        <option value="2" name="SOLVER_DEACTIVATION_LOW">Very conservative deactivation, typically no visible artifacts.</option>   
-        <option value="3" name="SOLVER_DEACTIVATION_MEDIUM">Normal deactivation, no serious visible artifacts in most cases</option>   
-        <option value="4" name="SOLVER_DEACTIVATION_HIGH">Fast deactivation, visible artifacts</option>   
-        <option value="5" name="SOLVER_DEACTIVATION_MAX">Very fast deactivation, visible artifacts</option>   
+        <option value="2" name="SOLVER_DEACTIVATION_LOW">Very conservative deactivation, typically no visible artifacts.</option>
+        <option value="3" name="SOLVER_DEACTIVATION_MEDIUM">Normal deactivation, no serious visible artifacts in most cases</option>
+        <option value="4" name="SOLVER_DEACTIVATION_HIGH">Fast deactivation, visible artifacts</option>
+        <option value="5" name="SOLVER_DEACTIVATION_MAX">Very fast deactivation, visible artifacts</option>
     </enum>
-    
+
     <enum name="MotionQuality" storage="byte">
         The motion type. Determines quality of motion?
         <option value="0" name="MO_QUAL_INVALID">Automatically assigned to MO_QUAL_FIXED, MO_QUAL_KEYFRAMED or MO_QUAL_DEBRIS</option>
@@ -422,7 +422,7 @@
         <option value="7" name="MO_QUAL_USER">For user.</option>
         <option value="8" name="MO_QUAL_CHARACTER">Use this for rigid body character controllers</option>
         <option value="9" name="MO_QUAL_KEYFRAMED_REPORT">
-        Use this for moving objects with infinite mass which should report contact points and Toi-collisions against all other bodies, including other fixed and keyframed bodies.
+            Use this for moving objects with infinite mass which should report contact points and Toi-collisions against all other bodies, including other fixed and keyframed bodies.
         </option>
     </enum>
 
@@ -503,12 +503,12 @@
     </enum>
 
     <enum name="ConsistencyType" storage="ushort">
-      Used by NiGeometryData to control the volatility of the mesh.  While they appear to be flags they behave as an enum.
-      <option value="0" name="CT_MUTABLE">Mutable Mesh</option>
-      <option value="16384" name="CT_STATIC">Static Mesh</option>
-      <option value="32768" name="CT_VOLATILE">Volatile Mesh</option>
+        Used by NiGeometryData to control the volatility of the mesh.  While they appear to be flags they behave as an enum.
+        <option value="0" name="CT_MUTABLE">Mutable Mesh</option>
+        <option value="16384" name="CT_STATIC">Static Mesh</option>
+        <option value="32768" name="CT_VOLATILE">Volatile Mesh</option>
     </enum>
-  
+
     <enum name="SortingMode" storage="uint">
         <option value="0" name="SORTING_INHERIT">Inherit</option>
         <option value="1" name="SORTING_OFF">Disable</option>
@@ -520,7 +520,7 @@
         <option value="2" name="PROPAGATE_ALWAYS">Always</option>
         <option value="3" name="PROPAGATE_NEVER">Never</option>
     </enum>
-    
+
     <enum name="CollisionMode" storage="uint">
         <option value="0" name="CM_USE_OBB">Use Bounding Box</option>
         <option value="1" name="CM_USE_TRI">Use Triangles</option>
@@ -545,7 +545,66 @@
         <option value="3" name="RESPONSE_NONE">Do nothing, ignore all the results.</option>
     </enum>
     
-  <!--Compounds
+    <enum name="BSDismemberBodyPartType" storage="ushort">
+        <option value="0" name="BP_TORSO">Torso</option>
+        <option value="1" name="BP_HEAD">Head</option>
+        <option value="2" name="BP_HEAD2">Head 2</option>
+        <option value="3" name="BP_LEFTARM">Left Arm</option>
+        <option value="4" name="BP_LEFTARM2">Left Arm 2</option>
+        <option value="5" name="BP_RIGHTARM">Right Arm</option>
+        <option value="6" name="BP_RIGHTARM2">Right Arm 2</option>
+        <option value="7" name="BP_LEFTLEG">Left Leg</option>
+        <option value="8" name="BP_LEFTLEG2">Left Leg 2</option>
+        <option value="9" name="BP_LEFTLEG3">Left Leg 3</option>
+        <option value="10" name="BP_RIGHTLEG">Right Leg</option>
+        <option value="11" name="BP_RIGHTLEG2">Right Leg 2</option>
+        <option value="12" name="BP_RIGHTLEG3">Right Leg 3</option>
+        <option value="13" name="BP_BRAIN">Brain</option>
+        
+        <option value="101" name="BP_SECTIONCAP_HEAD">Section Cap | Head</option>
+        <option value="102" name="BP_SECTIONCAP_HEAD2">Section Cap | Head 2</option>
+        <option value="103" name="BP_SECTIONCAP_LEFTARM">Section Cap | Left Arm</option>
+        <option value="104" name="BP_SECTIONCAP_LEFTARM2">Section Cap | Left Arm 2</option>
+        <option value="105" name="BP_SECTIONCAP_RIGHTARM">Section Cap | Right Arm</option>
+        <option value="106" name="BP_SECTIONCAP_RIGHTARM2">Section Cap | Right Arm 2</option>
+        <option value="107" name="BP_SECTIONCAP_LEFTLEG">Section Cap | Left Leg</option>
+        <option value="108" name="BP_SECTIONCAP_LEFTLEG2">Section Cap | Left Leg 2</option>
+        <option value="109" name="BP_SECTIONCAP_LEFTLEG3">Section Cap | Left Leg 3</option>
+        <option value="110" name="BP_SECTIONCAP_RIGHTLEG">Section Cap | Right Leg</option>
+        <option value="111" name="BP_SECTIONCAP_RIGHTLEG2">Section Cap | Right Leg 2</option>
+        <option value="112" name="BP_SECTIONCAP_RIGHTLEG3">Section Cap | Right Leg 3</option>
+        <option value="113" name="BP_SECTIONCAP_BRAIN">Section Cap | Brain</option>
+
+        <option value="201" name="BP_TORSOCAP_HEAD">Torso Cap | Head</option>
+        <option value="202" name="BP_TORSOCAP_HEAD2">Torso Cap | Head 2</option>
+        <option value="203" name="BP_TORSOCAP_LEFTARM">Torso Cap | Left Arm</option>
+        <option value="204" name="BP_TORSOCAP_LEFTARM2">Torso Cap | Left Arm 2</option>
+        <option value="205" name="BP_TORSOCAP_RIGHTARM">Torso Cap | Right Arm</option>
+        <option value="206" name="BP_TORSOCAP_RIGHTARM2">Torso Cap | Right Arm 2</option>
+        <option value="207" name="BP_TORSOCAP_LEFTLEG">Torso Cap | Left Leg</option>
+        <option value="208" name="BP_TORSOCAP_LEFTLEG2">Torso Cap | Left Leg 2</option>
+        <option value="209" name="BP_TORSOCAP_LEFTLEG3">Torso Cap | Left Leg 3</option>
+        <option value="210" name="BP_TORSOCAP_RIGHTLEG">Torso Cap | Right Leg</option>
+        <option value="211" name="BP_TORSOCAP_RIGHTLEG2">Torso Cap | Right Leg 2</option>
+        <option value="212" name="BP_TORSOCAP_RIGHTLEG3">Torso Cap | Right Leg 3</option>
+        <option value="213" name="BP_TORSOCAP_BRAIN">Torso Cap | Brain</option>
+
+        <option value="1000" name="BP_TORSOSECTION_HEAD">Torso Section | Head</option>
+        <option value="2000" name="BP_TORSOSECTION_HEAD2">Torso Section | Head 2</option>
+        <option value="3000" name="BP_TORSOSECTION_LEFTARM">Torso Section | Left Arm</option>
+        <option value="4000" name="BP_TORSOSECTION_LEFTARM2">Torso Section | Left Arm 2</option>
+        <option value="5000" name="BP_TORSOSECTION_RIGHTARM">Torso Section | Right Arm</option>
+        <option value="6000" name="BP_TORSOSECTION_RIGHTARM2">Torso Section | Right Arm 2</option>
+        <option value="7000" name="BP_TORSOSECTION_LEFTLEG">Torso Section | Left Leg</option>
+        <option value="8000" name="BP_TORSOSECTION_LEFTLEG2">Torso Section | Left Leg 2</option>
+        <option value="9000" name="BP_TORSOSECTION_LEFTLEG3">Torso Section | Left Leg 3</option>
+        <option value="10000" name="BP_TORSOSECTION_RIGHTLEG">Torso Section | Right Leg</option>
+        <option value="11000" name="BP_TORSOSECTION_RIGHTLEG2">Torso Section | Right Leg 2</option>
+        <option value="12000" name="BP_TORSOSECTION_RIGHTLEG3">Torso Section | Right Leg 3</option>
+        <option value="13000" name="BP_TORSOSECTION_BRAIN">Torso Section | Brain</option>       
+    </enum>
+
+    <!--Compounds
         These are like C structures and are used as sub-parts of more complex
         classes when there are multiple pieces of data repeated in an array.-->
 
@@ -560,13 +619,13 @@
         <add name="String" type="SizedString" ver2="20.0.0.5">The normal string.</add>
         <add name="Index" type="StringIndex" ver1="20.1.0.3">The string index.</add>
     </compound>
-    
+
     <compound name="ByteArray" nifskopetype="bytearray">
         An array of bytes.
         <add name="Data Size" type="uint">The number of bytes in this array</add>
         <add name="Data" type="byte" arr1="Data Size">The bytes which make up the array</add>
     </compound>
-    
+
     <compound name="ByteMatrix" nifskopetype="bytematrix">
         An array of bytes.
         <add name="Data Size 1" type="uint">The number of bytes in this array</add>
@@ -603,9 +662,9 @@
     </compound>
 
     <compound name="FilePath" niflibtype="IndexString" nifskopetype="filepath">
-      A string that contains the path to a file.
-      <add name="String" type="SizedString" ver2="20.0.0.5">The normal string.</add>
-      <add name="Index" type="StringIndex" ver1="20.1.0.3">The string index.</add>
+        A string that contains the path to a file.
+        <add name="String" type="SizedString" ver2="20.0.0.5">The normal string.</add>
+        <add name="Index" type="StringIndex" ver1="20.1.0.3">The string index.</add>
     </compound>
 
     <compound name="Footer">
@@ -1044,14 +1103,14 @@
         <add name="Center" type="Vector3">The sphere's center.</add>
         <add name="Radius" type="float">The sphere's radius.</add>
     </compound>
-    
+
     <compound name="OblivionColFilter">
         Oblivion's ColFilter property for Havok.
         <add name="Layer" type="OblivionLayer">Sets mesh color in Oblivion Construction Set.</add>
         <add name="Col Filter" type="byte">The first bit sets the LINK property and controls whether this body is physically linked to others. The next bit turns collision off. Then, the next bit sets the SCALED property in Oblivion. The next five bits make up the number of this part in a linked body list.</add>
         <add name="Unknown Short" type="ushort">Unknown.</add>
     </compound>
-    
+
     <compound name="OblivionSubShape">
         Havok Information for packed TriStrip shapes.
         <add name="Layer" type="OblivionLayer">Sets mesh color in Oblivion Construction Set.</add>
@@ -1146,27 +1205,27 @@
     </enum>
 
     <compound name="BoxBV">
-      Box Bounding Volume
-      <add name="Center" type="Vector3">Center</add>
-      <add name="Axis" type="Vector3" arr1="3">Axis</add>
-      <add name="Extent" type="float" arr1="3">Extent</add>
+        Box Bounding Volume
+        <add name="Center" type="Vector3">Center</add>
+        <add name="Axis" type="Vector3" arr1="3">Axis</add>
+        <add name="Extent" type="float" arr1="3">Extent</add>
     </compound>
-    
+
     <compound name="CapsuleBV">
-      Capsule Bounding Volume
-      <add name="Center" type="Vector3">Center</add>
-      <add name="Origin" type="Vector3">Origin</add>
-      <!--<add name="Direction" type="Vector3">Direction</add>
+        Capsule Bounding Volume
+        <add name="Center" type="Vector3">Center</add>
+        <add name="Origin" type="Vector3">Origin</add>
+        <!--<add name="Direction" type="Vector3">Direction</add>
       <add name="Radius" type="float">Radius</add>-->
-      <!-- direction and radius seem not present in ffvt3r 10.1.0.0 nifs 
-      instead, there's two floats -->   
-      <add name="Unknown Float 1" type="float">Unknown.</add>
-      <add name="Unknown Float 2" type="float">Unknown.</add>
+        <!-- direction and radius seem not present in ffvt3r 10.1.0.0 nifs 
+      instead, there's two floats -->
+        <add name="Unknown Float 1" type="float">Unknown.</add>
+        <add name="Unknown Float 2" type="float">Unknown.</add>
     </compound>
-    
+
     <compound name="HalfSpaceBV">
-      <add name="Normal" type="Vector3">Normal</add>
-      <add name="Center" type="Vector3">Center</add>
+        <add name="Normal" type="Vector3">Normal</add>
+        <add name="Center" type="Vector3">Center</add>
     </compound>
 
     <compound name="BoundingVolume">
@@ -1182,12 +1241,12 @@
         <add name="Num BV" type="uint">Number of Bounding Volumes.</add>
         <add name="Bounding Volumes" type="BoundingVolume" arr1="Num BV">Bounding Volume.</add>
     </compound>
-    
+
     <compound name="MorphWeight">
         <add name="Interpolator" type="Ref" template="NiInterpolator">Interpolator</add>
         <add name="Weight?" type="float">Weight</add>
     </compound>
-    
+
     <compound name="ArkTexture">
         A texture reference used by NiArkTextureExtraData.
         <add name="Texture Name" type="string" />
@@ -1220,13 +1279,17 @@
         <add name="Normals" type="Vector3" arr1="Num Vectors">Vector Normals</add>
     </compound>
 
+    <bitflags name="BSPartFlag" storage="ushort">
+        Editor flags for the Body Partitions. Its unclear difference between PF_EDITOR_VISIBLE and PF_EDITOR_VISIBLE_2.
+        <option value="0" name="PF_EDITOR_VISIBLE">Visible in Editor</option>
+        <option value="8" name="PF_EDITOR_VISIBLE_2">Visible in Editor</option>
+    </bitflags>
 
     <compound name="BodyPartList">
         Body part list for DismemberSkinInstance
-        <add name="Unknown Short" type="short">Unknown</add>
-        <add name="Body Part" type="short">Unknown</add>
+        <add name="Part Flag" type="BSPartFlag" default="1">Flags related to the Body Partition</add>
+        <add name="Body Part" type="BSDismemberBodyPartType">Body Part Index</add>
     </compound>
-
 
     <!-- NIF Objects
          These are the main units of data that NIF files are arranged in.
@@ -1240,7 +1303,7 @@
     </niobject>
 
     <niobject name="Ni3dsAlphaAnimator" abstract="0" ver2="2.3" inherit="NiObject">
-        Unknown! 
+        Unknown!
         <add name="Unknown 1" type="byte" arr1="40">Unknown.</add>
         <add name="Parent" type="Ref" template="NiObject">The parent?</add>
         <add name="Num 1" type="uint">Unknown.</add>
@@ -1249,7 +1312,7 @@
     </niobject>
 
     <niobject name="Ni3dsAnimationNode" abstract="0" ver2="2.3" inherit="NiObject">
-        Unknown! 
+        Unknown!
         <add name="Name" type="string">Name of this object.</add>
         <add name="Has Data" type="uint">Unknown.</add>
         <add name="Unknown Floats 1" type="float" arr1="21" cond="Has Data">Unknown. Matrix?</add>
@@ -1261,22 +1324,22 @@
     </niobject>
 
     <niobject name="Ni3dsColorAnimator" abstract="0" ver2="2.3" inherit="NiObject">
-        Unknown! 
+        Unknown!
         <add name="Unknown 1" type="byte" arr1="184">Unknown.</add>
     </niobject>
 
     <niobject name="Ni3dsMorphShape" abstract="0" ver2="2.3" inherit="NiObject">
-        Unknown! 
+        Unknown!
         <add name="Unknown 1" type="byte" arr1="14">Unknown.</add>
     </niobject>
 
     <niobject name="Ni3dsParticleSystem" abstract="0" ver2="2.3" inherit="NiObject">
-        Unknown! 
+        Unknown!
         <add name="Unknown 1" type="byte" arr1="14">Unknown.</add>
     </niobject>
 
     <niobject name="Ni3dsPathController" abstract="0" ver2="2.3" inherit="NiObject">
-        Unknown! 
+        Unknown!
         <add name="Unknown 1" type="byte" arr1="20">Unknown.</add>
     </niobject>
 
@@ -1286,7 +1349,7 @@
         <add name="Next Modifier" type="Ref" template="NiParticleModifier">Next particle modifier.</add>
         <add name="Controller" type="Ptr" template="NiParticleSystemController" ver1="4.0.0.2">Points to the particle system controller parent.</add>
     </niobject>
-    
+
     <niobject name="NiPSysCollider" abstract="1" inherit="NiObject">
         Particle system collider.
         <add name="Bounce" type="float">Defines amount of bounce the collider object has.</add>
@@ -1295,7 +1358,7 @@
         <add name="Spawn Modifier" type="Ref" template="NiPSysSpawnModifier">Link to NiPSysSpawnModifier object?</add>
         <add name="Parent" type="Ptr" template="NiObject">Link to parent.</add>
         <add name="Next Collider" type="Ref" template="NiObject">The next collider.</add>
-        <add name="Collider Object" type="Ref" template="NiNode">Links to a NiNode that will define where in object space the collider is located/oriented.</add>
+        <add name="Collider Object" type="Ptr" template="NiNode">Links to a NiNode that will define where in object space the collider is located/oriented.</add>
     </niobject>
 
     <niobject name="bhkRefObject" abstract="1" inherit="NiObject">
@@ -1342,7 +1405,7 @@
         <add name="Unknown 4 Shorts" type="ushort" arr1="4">Unknown.</add>
         <add name="Layer Copy" type="OblivionLayer" default="1">Copy of Layer value?</add>
         <add name="Col Filter Copy" type="byte" default="0">Copy of Col Filter value?</add>
-        <add name="Unknown 7 Shorts" type="ushort" arr1="7">Unknown.</add>
+        <add name="Unknown 7 Shorts" type="ushort" arr1="7" default="0 21280 2481 62977 65535 44 0">Unknown.</add>
         <add name="Translation" type="Vector4"> A vector that moves the body by the specified amount. Only enabled in bhkRigidBodyT objects.</add>
         <add name="Rotation" type="QuaternionXYZW">The rotation Yaw/Pitch/Roll to apply to the body. Only enabled in bhkRigidBodyT objects.</add>
         <add name="Linear Velocity" type="Vector4">Linear velocity.</add>
@@ -1355,7 +1418,7 @@
         <add name="Friction" type="float" default="0.3">The body&#039;s friction.</add>
         <add name="Restitution" type="float" default="0.3">
             The body&#039;s restitution (elasticity).
-            If the restitution is not 0.0 the object will need extra CPU for all new collisions. 
+            If the restitution is not 0.0 the object will need extra CPU for all new collisions.
             Try to set restitution to 0 for maximum performance (e.g. collapsing buildings)
         </add>
         <add name="Max Linear Velocity" type="float" default="250.0">Maximal linear velocity.</add>
@@ -1526,7 +1589,7 @@
         <add name="Num Spheres" type="uint">The number of spheres in this multi sphere shape.</add>
         <add name="Spheres" type="SphereBV" arr1="Num Spheres">This array holds the spheres which make up the multi sphere shape.</add>
     </niobject>
-    
+
     <niobject name="bhkBvTreeShape" abstract="1" inherit="bhkShape">
         A tree-like Havok data structure stored in an assembly-like binary code?
     </niobject>
@@ -1718,15 +1781,15 @@
     <niobject name="NiAVObject" abstract="1" inherit="NiObjectNET">
         Generic node object.
         <add name="Flags" type="Flags" ver1="3.0">Some flags; commonly 0x000C or 0x000A.</add>
-        <add name="Unknown Short 1" type="ushort" ver1="20.2.0.7" vercond="(User Version == 11) &amp;&amp; (User Version 2 > 26)" >Unknown Flag</add>
+        <add name="Unknown Short 1" type="ushort" default="8" ver1="20.2.0.7" vercond="(User Version == 11) &amp;&amp; (User Version 2 > 26)" >Unknown Flag</add>
         <add name="Translation" type="Vector3">The translation vector.</add>
         <add name="Rotation" type="Matrix33">The rotation part of the transformation matrix.</add>
         <add name="Scale" type="float" default="1.0">Scaling part (only uniform scaling is supported).</add>
         <add name="Velocity" type="Vector3" ver2="4.2.2.0">Unknown function. Always seems to be (0, 0, 0)</add>
         <add name="Num Properties" type="uint">The number of property objects referenced.</add>
         <add name="Properties" type="Ref" template="NiProperty" arr1="Num Properties">List of node properties.</add>
-         <add name="Unknown 1" type="uint" arr1="4" ver2="2.3">Always 2,0,2,0.</add>
-         <add name="Unknown 2" type="byte" ver2="2.3">0 or 1.</add>
+        <add name="Unknown 1" type="uint" arr1="4" ver2="2.3">Always 2,0,2,0.</add>
+        <add name="Unknown 2" type="byte" ver2="2.3">0 or 1.</add>
         <add name="Has Bounding Box" type="bool" ver1="3.0" ver2="4.2.2.0">Do we have a bounding box?</add>
         <add name="Bounding Box" type="BoundingBox" cond="Has Bounding Box != 0" ver1="3.0" ver2="4.2.2.0">The bounding box.</add>
         <add name="Collision Object" type="Ref" template="NiCollisionObject" ver1="10.0.1.0">Refers to NiCollisionObject, which is usually a bounding box or other simple collision shape.  In Oblivion this links the Havok objects.</add>
@@ -1791,10 +1854,10 @@
         <add name="Next Controller" type="Ref" template="NiTimeController">Index of the next controller.</add>
         <add name="Flags" type="Flags">
             Controller flags (usually 0x000C). Probably controls loops.
-             Bit 0 : Anim type, 0=APP_TIME 1=APP_INIT
-             Bit 1-2 : Cycle type  00=Loop 01=Reverse 10=Loop
-             Bit 3 : Active
-             Bit 4 : Play backwards
+            Bit 0 : Anim type, 0=APP_TIME 1=APP_INIT
+            Bit 1-2 : Cycle type  00=Loop 01=Reverse 10=Loop
+            Bit 3 : Active
+            Bit 4 : Play backwards
         </add>
         <add name="Frequency" type="float">Frequency (is usually 1.0).</add>
         <add name="Phase" type="float">Phase (usually 0.0).</add>
@@ -1803,10 +1866,10 @@
         <add name="Target" type="Ptr" template="NiObjectNET" ver1="3.3.0.13">Controller target (object index of the first controllable ancestor of this object).</add>
         <add name="Unknown Integer" type="uint" ver2="3.1">Unknown integer.</add>
     </niobject>
-    
+
 
     <niobject name="NiInterpController" abstract="1" inherit="NiTimeController">
-        A controller capable of interpolation?        
+        A controller capable of interpolation?
     </niobject>
 
     <niobject name="NiMultiTargetTransformController" abstract="0" inherit="NiInterpController" ver1="10.2.0.0">
@@ -1829,12 +1892,12 @@
     </niobject>
 
     <niobject name="NiMorphController" abstract="0" inherit="NiInterpController" ver2="3.03">
-        Unknown! Used by Daoc->'healing.nif'. 
+        Unknown! Used by Daoc->'healing.nif'.
     </niobject>
 
     <niobject name="NiMorpherController" abstract="0" inherit="NiInterpController" ver2="3.1">
-        Unknown! Used by Daoc. 
-                <add name="Data" type="Ref" template="NiMorphData">This controller's data.</add>
+        Unknown! Used by Daoc.
+        <add name="Data" type="Ref" template="NiMorphData">This controller's data.</add>
     </niobject>
 
     <niobject name="NiSingleInterpController" abstract="1" inherit="NiInterpController">
@@ -1994,12 +2057,12 @@
         <add name="Num Materials" type="uint" ver1="20.2.0.7">Num Materials</add>
         <add name="Material Name" type="string" arr1="Num Materials" ver1="20.2.0.7">Unknown string.  Shader?</add>
         <add name="Material Extra Data" type="uint" arr1="Num Materials" ver1="20.2.0.7">Unknown integer.</add>
-        <add name="Active Material" type="int" ver1="20.2.0.7" default="-1">Active Material.</add>
+        <add name="Active Material" type="int" ver1="20.2.0.7" default="0">Active Material.</add>
         <add name="Has Shader" type="bool" ver1="10.0.1.0" ver2="20.1.0.3">Shader.</add>
         <add name="Shader Name" type="string" cond="Has Shader != 0" ver1="10.0.1.0" ver2="20.1.0.3">The shader name.</add>
-        <add name="Unknown Integer" type="int" cond="Has Shader != 0" ver1="10.0.1.0">Unknown value, usually -1. (Not a link)</add>
+        <add name="Unknown Integer" type="int" cond="Has Shader != 0" ver1="10.0.1.0" ver2="20.1.0.3">Unknown value, usually -1. (Not a link)</add>
         <add name="Unknown Byte" type="byte" default="255" userver="1">Cyanide extension (only in version 10.2.0.0?).</add>
-        <add name="Dirty Flag" type="bool" ver1="20.2.0.7">Dirty Flag?</add> 
+        <add name="Dirty Flag" type="bool" ver1="20.2.0.7">Dirty Flag?</add>
     </niobject>
 
     <niobject name="NiTriBasedGeom" abstract="1" inherit="NiGeometry">
@@ -2008,7 +2071,7 @@
 
     <niobject name="NiGeometryData" abstract="1" inherit="NiObject">
         Mesh data: vertices, vertex normals, etc.
-        <add name="Name" type="string" ver1="10.2.0.0">Name of this object.</add>
+        <add name="Unknown Int" type="int" ver1="10.2.0.0">Unknown identifier. Always 0</add>
         <add name="Num Vertices" type="ushort">Number of vertices. For NiPSysData this is max particles.</add>
         <add name="Keep Flags" type="byte" ver1="10.1.0.0">Used with NiCollision objects when OBB or TRI is set.</add>
         <add name="Compress Flags" type="byte" ver1="10.1.0.0">Unknown.</add>
@@ -2211,7 +2274,7 @@
         <add name="Unknown Bytes 2" type="byte" arr1="Num Unknown Bytes 2">Unknown.</add>
         <add name="Unknown 5 Ints" type="uint" arr1="5">Unknown.</add>
     </niobject>
-    
+
     <niobject name="NiBlendBoolInterpolator" abstract="0" inherit="NiBlendInterpolator" ver1="20.0.0.5">
         An interpolator for a bool.
         <add name="Bool Value" type="byte">The interpolated bool?</add>
@@ -2249,13 +2312,13 @@
     <niobject name="NiBSplineFloatInterpolator" abstract="1" inherit="NiBSplineInterpolator" ver1="20.0.0.4">
         Unknown.
     </niobject>
-    
+
     <niobject name="NiBSplineCompFloatInterpolator" abstract="0" inherit="NiBSplineFloatInterpolator" ver1="20.0.0.4">
-      Unknown.
-      <add name="Base" type="float">Base value when curve not defined.</add>
-      <add name="Offset" type="uint">Starting offset for the data. (USHRT_MAX for no data.)</add>
-      <add name="Bias" type="float">Bias</add>
-      <add name="Multiplier" type="float">Multiplier</add>
+        Unknown.
+        <add name="Base" type="float">Base value when curve not defined.</add>
+        <add name="Offset" type="uint">Starting offset for the data. (USHRT_MAX for no data.)</add>
+        <add name="Bias" type="float">Bias</add>
+        <add name="Multiplier" type="float">Multiplier</add>
     </niobject>
 
     <niobject name="NiBSplinePoint3Interpolator" abstract="1" inherit="NiBSplineInterpolator" ver1="20.0.0.4">
@@ -2268,13 +2331,13 @@
     </niobject>
 
     <niobject name="NiBSplineTransformInterpolator" abstract="0" inherit="NiBSplineInterpolator" ver1="20.0.0.4">
-      An interpolator for storing transform keyframes via a B-spline.
-      <add name="Translation" type="Vector3">Base translation when translate curve not defined.</add>
-      <add name="Rotation" type="Quaternion">Base rotation when rotation curve not defined.</add>
-      <add name="Scale" type="float">Base scale when scale curve not defined.</add>
-      <add name="Translation Offset" type="uint">Starting offset for the translation data. (USHRT_MAX for no data.)</add>
-      <add name="Rotation Offset" type="uint">Starting offset for the rotation data. (USHRT_MAX for no data.)</add>
-      <add name="Scale Offset" type="uint">Starting offset for the scale data. (USHRT_MAX for no data.)</add>
+        An interpolator for storing transform keyframes via a B-spline.
+        <add name="Translation" type="Vector3">Base translation when translate curve not defined.</add>
+        <add name="Rotation" type="Quaternion">Base rotation when rotation curve not defined.</add>
+        <add name="Scale" type="float">Base scale when scale curve not defined.</add>
+        <add name="Translation Offset" type="uint">Starting offset for the translation data. (USHRT_MAX for no data.)</add>
+        <add name="Rotation Offset" type="uint">Starting offset for the rotation data. (USHRT_MAX for no data.)</add>
+        <add name="Scale Offset" type="uint">Starting offset for the scale data. (USHRT_MAX for no data.)</add>
     </niobject>
 
     <niobject name="NiBSplineCompTransformInterpolator" abstract="0" inherit="NiBSplineTransformInterpolator" ver1="20.0.0.4">
@@ -2367,7 +2430,7 @@
     <niobject name="NiAVObjectPalette" abstract="1" inherit="NiObject">
         Unknown.
     </niobject>
-    
+
     <niobject name="NiDefaultAVObjectPalette" abstract="0" inherit="NiAVObjectPalette">
         Unknown. Refers to a list of objects. Used by NiControllerManager.
         <add name="Unknown Int" type="uint">Unknown.</add>
@@ -2383,12 +2446,12 @@
         Unknown.
         <add name="Flags" type="Flags">1&#039;s Bit: Enable dithering</add>
     </niobject>
-    
+
     <niobject name="NiRollController" abstract="0" inherit="NiSingleInterpController">
         Unknown.
         <add name="Data" type="Ref" template="NiFloatData">The data for the controller.</add>
     </niobject>
-    
+
     <niobject name="NiFloatData" abstract="0" inherit="NiObject">
         Possibly the 1D position along a 3D path.
         <add name="Data" type="KeyGroup" template="float">The keys.</add>
@@ -2687,7 +2750,7 @@
         <add name="Particle Timestamp" type="uint" ver2="3.1">Timestamp of the last update.</add>
         <add name="Particle Unknown Short" type="ushort" ver2="3.1">Unknown short</add>
         <add name="Particle Vertex Id" type="ushort" ver2="3.1">Particle/vertex index matches array index</add>
-        
+
         <add name="Num Particles" type="ushort" ver1="4.0.0.2">Size of the following array. (Maximum number of simultaneous active particles)</add>
         <add name="Num Valid" type="ushort" ver1="4.0.0.2">Number of valid entries in the following array. (Number of active particles at the time the system was saved)</add>
         <add name="Particles" type="Particle" arr1="Num Particles" ver1="4.0.0.2">Individual particle modifiers?</add>
@@ -2697,7 +2760,7 @@
         <add name="Trailer" type="byte" ver1="4.0.0.2">Trailing null byte</add>
         <add name="Color Data" type="Ref" template="NiColorData" ver2="3.1" />
         <add name="Unknown Float 1" type="float" ver2="3.1" />
-        <add name="Unknown Floats 2" arr1="Particle Unknown Short" type="float" ver2="3.1" /> 
+        <add name="Unknown Floats 2" arr1="Particle Unknown Short" type="float" ver2="3.1" />
     </niobject>
 
     <niobject name="NiBSPArrayController" abstract="0" inherit="NiParticleSystemController">
@@ -2733,13 +2796,13 @@
     </enum>
 
     <compound name="ChannelData">
-        Channel data 
+        Channel data
         <add name="Type" type="ChannelType">Channel Type</add>
         <add name="Convention" type="ChannelConvention">Data Storage Convention</add>
         <add name="Bits Per Channel" type="byte">Bits per channel</add>
         <add name="Unknown Byte 1" type="byte">Unknown</add>
     </compound>
-    
+
     <niobject name="ATextureRenderData" abstract="1" inherit="NiObject">
         <add name="Pixel Format" type="PixelFormat">The format of the pixels in this internally stored image.</add>
         <add name="Red Mask" type="uint" ver2="10.2.0.0">0x000000ff (for 24bpp and 32bpp) or 0x00000000 (for 8bpp)</add>
@@ -3009,6 +3072,21 @@
         <add name="Unknown Boolean 3" type="bool">Unknown</add>
         <add name="Unknown Float 4" type="float">Unknown</add>
     </niobject>
+    
+    <niobject name="NiPSysTrailEmitter" abstract="0" inherit="NiPSysEmitter">
+        Guild 2-Specific node
+        <add name="Unknown Int 1" type="int">Unknown</add>
+        <add name="Unknown Float 1" type="float">Unknown</add>
+        <add name="Unknown Float 2" type="float">Unknown</add>
+        <add name="Unknown Float 3" type="float">Unknown</add>
+        <add name="Unknown Int 2" type="int">Unknown</add>
+        <add name="Unknown Float 4" type="float">Unknown</add>
+        <add name="Unknown Int 3" type="int">Unknown</add>
+        <add name="Unknown Float 5" type="float">Unknown</add>
+        <add name="Unknown Int 4" type="int">Unknown</add>
+        <add name="Unknown Float 6" type="float">Unknown</add>
+        <add name="Unknown Float 7" type="float">Unknown</add>
+    </niobject>
 
     <niobject name="NiLightIntensityController" inherit="NiFloatInterpController" ver1="10.2.0.0" ver2="10.2.0.0">
         Unknown controller
@@ -3082,7 +3160,7 @@
         <add name="Bones" type="Ptr" template="NiBone" arr1="Num Bones">List of all armature bones.</add>
         <add name="Bone Data" type="OldSkinData" arr1="Num Bones" arr2="Vertex Counts">Contains skin weight data for each node that this skin is influenced by.</add>
     </niobject>
-    
+
     <niobject name="NiClodSkinInstance" abstract="0" inherit="NiSkinInstance">
         A copy of NISkinInstance for use with NiClod meshes.
     </niobject>
@@ -3135,7 +3213,7 @@
         <add name="Unknown Float" type="float" ver1="20.2.0.7">Unknown</add>
         <add name="Exponent" type="float">Describes the distribution of light. (see: glLight)</add>
     </niobject>
-    
+
     <niobject name="NiStencilProperty" abstract="0" inherit="NiProperty" ver1="4.1.0.12">
         Allows control of stencil testing.
         <add name="Flags" type="Flags" ver2="10.0.1.2">Property flags.</add>
@@ -3148,13 +3226,13 @@
         <add name="Pass Action" type="StencilAction" ver2="20.0.0.5"/>
         <add name="Draw Mode" default="3" type="FaceDrawMode" ver2="20.0.0.5">Used to enabled double sided faces. Default is 3 (DRAW_BOTH).</add>
         <add name="Flags" type="Flags" ver1="20.1.0.3">
-        Property flags:
-           0.. 1 = Stencil Enable
-           1.. 3 = Fail Action
-           4.. 6 = Z Fail Action
-           7.. 9 = Pass Action
-          10..11 = Draw Mode
-          12..15 = Test Func
+            Property flags:
+            0.. 1 = Stencil Enable
+            1.. 3 = Fail Action
+            4.. 6 = Z Fail Action
+            7.. 9 = Pass Action
+            10..11 = Draw Mode
+            12..15 = Test Func
         </add>
         <add name="Stencil Ref" type="uint" ver1="20.1.0.3">Unknown.  Default is 0.</add>
         <add name="Stencil Mask" type="uint" default="4294967295" ver1="20.1.0.3">A bit mask. The default is 0xffffffff.</add>
@@ -3278,7 +3356,7 @@
     </niobject>
 
     <niobject name="NiTriShape" abstract="0" inherit="NiTriBasedGeom">
-      A shape node that refers to singular triangle data.
+        A shape node that refers to singular triangle data.
     </niobject>
 
     <niobject name="NiTriShapeData" abstract="0" inherit="NiTriBasedGeomData">
@@ -3305,13 +3383,13 @@
     </niobject>
 
     <niobject name="NiEnvMappedTriShape" abstract="0" ver1="3.1" ver2="3.1" inherit="NiObjectNET">
-           Unknown
-      <add name="Unknown 1" type="ushort">unknown (=4 - 5)</add>
-      <add name="Unknown Matrix" type="Matrix44">unknown</add>
-      <add name="Num Children" type="uint">The number of child objects.</add>
-      <add name="Children" type="Ref" template="NiAVObject" arr1="Num Children">List of child node object indices.</add>
-      <add name="Child 2" type="Ref" template="NiObject">unknown</add>
-      <add name="Child 3" type="Ref" template="NiObject">unknown</add>
+        Unknown
+        <add name="Unknown 1" type="ushort">unknown (=4 - 5)</add>
+        <add name="Unknown Matrix" type="Matrix44">unknown</add>
+        <add name="Num Children" type="uint">The number of child objects.</add>
+        <add name="Children" type="Ref" template="NiAVObject" arr1="Num Children">List of child node object indices.</add>
+        <add name="Child 2" type="Ref" template="NiObject">unknown</add>
+        <add name="Child 3" type="Ref" template="NiObject">unknown</add>
     </niobject>
 
     <!--
@@ -3329,7 +3407,7 @@
     </niobject>
 
     <niobject name="NiBezierTriangle4" abstract="0" inherit="NiObject">
-      Sub data of NiBezierMesh
+        Sub data of NiBezierMesh
         <add name="Unknown 1" type="uint" arr1="6">unknown</add>
         <add name="Unknown 2" type="ushort">unknown</add>
         <add name="Matrix" type="Matrix33">unknown</add>
@@ -3340,7 +3418,7 @@
         <add name="Unknown 5" type="uint">unknown</add>
         <add name="Unknown 6" type="short" arr1="24">unknown</add>
     </niobject>
-          
+
     <niobject name="NiBezierMesh" abstract="0" inherit="NiAVObject">
         Unknown
         <add name="Num Bezier Triangles" type="uint">references.</add>
@@ -3355,8 +3433,8 @@
         <add name="Count 2" type="ushort">data count 2.</add>
         <add name="Data 2" type="ushort" arr1="Count 2" arr2="4">data count.</add>
     </niobject>
-    
-  
+
+
 
     <niobject name="NiClod" abstract="0" inherit="NiTriBasedGeom">
         A shape node that holds continuous level of detail information.
@@ -3418,7 +3496,7 @@
         <add name="Num Vertices" type="ushort">Number of vertices.</add>
         <add name="Weight" type="float" arr1="Num Vertices">The vertex weights.</add>
     </niobject>
-    
+
     <niobject name="NiVisData" abstract="0" inherit="NiObject">
         Visibility data for a controller.
         <add name="Num Vis Keys" type="uint">The number of visibility keys that follow.</add>
@@ -3463,13 +3541,13 @@
         <add name="Sorting Mode" type="SortingMode" default="SORTING_INHERIT">Sorting</add>
         <add name="Unknown Int 2" type="int" default="-1" ver2="10.2.0.0">Unknown.</add>
     </niobject>
-    
+
     <niobject name="NiSourceCubeMap" abstract="0" inherit="NiSourceTexture">
         Unknown node.  Found in Emerge Demo.
     </niobject>
-    
+
     <niobject name="NiPhysXProp" abstract="0" inherit="NiObjectNET" ver1="20.1.0.7">
-        Unknown PhysX node.  
+        Unknown PhysX node.
         <add name="Unknown Float 1" type="float">Unknown</add>
         <add name="Unknown Int 1" type="uint">Unknown</add>
         <add name="Unknown Refs 1" type="Ref" template="NiObject" arr1="Unknown Int 1">Unknown</add>
@@ -3484,9 +3562,9 @@
         <add name="Unknown Byte 1" type="byte">Unknown</add>
         <add name="Material Desc" type="Ref" template="NiPhysXMaterialDesc" >PhysX Material Description</add>
     </compound>
-    
+
     <niobject name="NiPhysXPropDesc" abstract="0" inherit="NiObject" ver1="20.1.0.7">
-        Unknown PhysX node.  
+        Unknown PhysX node.
         <add name="Num Dests" type="int">Number of NiPhysXActorDesc references</add>
         <add name="Actor Descs" type="Ref" template="NiPhysXActorDesc" arr1="Num Dests">Unknown</add>
         <add name="Num Joints" type="uint">Unknown</add>
@@ -3496,9 +3574,9 @@
         <add name="Material Descs" type="physXMaterialRef"  arr1="Num Materials">PhysX Material Descriptions</add>
         <add name="Unknown Int 2" type="uint">Unknown</add>
     </niobject>
-    
+
     <niobject name="NiPhysXActorDesc" abstract="0" inherit="NiObject" ver1="20.1.0.7">
-        Unknown PhysX node.  
+        Unknown PhysX node.
         <add name="Unknown Int 1" type="int">Unknown</add>
         <add name="Unknown Int 2" type="int">Unknown</add>
         <add name="Unknown Quat 1" type="Quaternion">Unknown</add>
@@ -3515,7 +3593,7 @@
         <add name="Unknown Ref 2" type="Ref" template="NiObject">Unknown</add>
         <add name="Unknown Refs 3" type="Ref" template="NiObject" arr1="Unknown Int 6">Unknown</add>
     </niobject>
-    
+
     <niobject name="NiPhysXBodyDesc" inherit="NiObject" ver1="20.3.0.6">
         Unknown PhysX node.
         <add name="Unknown Bytes" type="byte" arr1="136" ver1="20.3.0.6">Unknown</add>
@@ -3527,7 +3605,7 @@
     </niobject>
 
     <niobject name="NiPhysXShapeDesc" abstract="0" inherit="NiObject" ver1="20.1.0.7">
-        Unknown PhysX node.  
+        Unknown PhysX node.
         <add name="Unknown Int 1" type="int">Unknown</add>
         <add name="Unknown Quat 1" type="Quaternion">Unknown</add>
         <add name="Unknown Quat 2" type="Quaternion">Unknown</add>
@@ -3546,9 +3624,9 @@
         <add name="Unknown Bytes 1" type="byte" arr1="8" ver1="20.3.0.6">Unknown. Wrong, but better than nothing.</add>
         <add name="Mesh Description" type="Ref" template="NiPhysXMeshDesc">PhysX Mesh Description</add>
     </niobject>
-    
+
     <niobject name="NiPhysXMeshDesc" abstract="0" inherit="NiObject" ver1="20.1.0.7">
-        Unknown PhysX node.  
+        Unknown PhysX node.
         <add name="Unknown Short 1" type="short">Unknown</add>
         <add name="Unknown Float 1" type="float">Unknown</add>
         <add name="Unknown Short 2" type="short">Unknown</add>
@@ -3567,14 +3645,14 @@
         <add name="Unknown Ints 1" type="uint" arr1="3328">Unknown</add>
         <add name="Unknown Byte 2" type="byte">Unknown</add>
     </niobject>
-    
+
     <niobject name="NiPhysXMaterialDesc" abstract="0" inherit="NiObject" ver1="20.1.0.7">
-        Unknown node.  
+        Unknown node.
         <add name="Unknown Int" type="uint" arr1="12">Unknown</add>
         <add name="Unknown Byte 1" type="byte">Unknown</add>
         <add name="Unknown Byte 2" type="byte">Unknown</add>
     </niobject>
-    
+
     <niobject name="NiPhysXKinematicSrc" inherit="NiObject" ver1="20.1.0.7">
         Unknown PhysX node.
         <add name="Unknown Bytes" type="byte" arr1="6" ver1="20.3.0.6">Unknown</add>
@@ -3639,7 +3717,7 @@
         <add name="Num Triangles" type="ushort">Number of faces in this polygon</add>
         <add name="Triangle Offset" type="ushort">Triangle offset in shape</add>
     </compound>
-    
+
     <niobject name="NiScreenElementsData" inherit="NiTriShapeData">
         Two dimensional screen elements.
         <add name="Max Polygons" type="ushort">Maximum number of polygons?</add>
@@ -3652,42 +3730,9 @@
         <add name="Used Triangle Points" type="ushort">Number of in-use triangles</add>
         <add name="Unknown UShort 3" type="ushort" default="1">Maximum number of faces</add>
     </niobject>
-    
+
     <niobject name="NiScreenElements" inherit="NiTriShape">
         Two dimensional screen elements.
-    </niobject>
-       
-    <niobject name="NiPersistentSrcTextureRendererData" inherit="NiObject">
-        <add name="Pixel Format" type="PixelFormat">The format of the pixels in this internally stored image.</add>
-        <add name="Red Mask" type="uint" ver2="10.2.0.0">0x000000ff (for 24bpp and 32bpp) or 0x00000000 (for 8bpp)</add>
-        <add name="Green Mask" type="uint" ver2="10.2.0.0">0x0000ff00 (for 24bpp and 32bpp) or 0x00000000 (for 8bpp)</add>
-        <add name="Blue Mask" type="uint" ver2="10.2.0.0">0x00ff0000 (for 24bpp and 32bpp) or 0x00000000 (for 8bpp)</add>
-        <add name="Alpha Mask" type="uint" ver2="10.2.0.0">0xff000000 (for 32bpp) or 0x00000000 (for 24bpp and 8bpp)</add>
-        <add name="Bits Per Pixel" type="byte" ver2="10.2.0.0">Bits per pixel, 0 (?), 8, 24 or 32.</add>
-        <add name="Unknown 3 Bytes" type="byte" arr1="3" ver2="10.2.0.0">Zero?</add>
-        <add name="Unknown 8 Bytes" type="byte" arr1="8" ver2="10.2.0.0">
-            [96,8,130,0,0,65,0,0] if 24 bits per pixel
-            [129,8,130,32,0,65,12,0] if 32 bits per pixel
-            [34,0,0,0,0,0,0,0] if 8 bits per pixel
-            [4,0,0,0,0,0,0,0] if 0 (?) bits per pixel
-        </add>
-        <add name="Unknown Int" type="uint" ver1="10.1.0.0" ver2="10.2.0.0">Seems to always be zero.</add>
-        <add name="Bits Per Pixel" type="byte" ver1="20.0.0.4">Bits per pixel, 0 (?), 8, 24 or 32.</add>
-        <add name="Unknown Int 2" type="int" ver1="20.0.0.4">Unknown.  Could be reference pointer.</add>
-        <add name="Unknown Int 3" type="uint" ver1="20.0.0.4">Seems to always be zero.</add>
-        <add name="Flags" type="byte" ver1="20.0.0.4">Flags</add>
-        <add name="Unknown Int 4" type="uint" ver1="20.0.0.4">Seems to always be zero.</add>
-        <add name="Unknown Byte 1" type="byte" ver1="20.3.0.6">Unknown.</add>
-        <add name="Channels" type="ChannelData" arr1="4" ver1="20.0.0.4">Channel Data</add>       
-        <add name="Palette" type="Ref" template="NiPalette">Link to NiPalette, for 8-bit textures.</add>
-        <add name="Num Mipmaps" type="uint">Number of mipmaps in the texture.</add>
-        <add name="Bytes Per Pixel" type="uint">Bytes per pixel (Bits Per Pixel / 8).</add>
-        <add name="Mipmaps" type="MipMap" arr1="Num Mipmaps">Mipmap descriptions (width, height, offset).</add>
-        <add name="Num Pixels" type="uint">Unknown</add>
-        <add name="Unknown Int 6" type="uint">Unknown</add>
-        <add name="Num Faces" type="uint">Unknown</add>
-        <add name="Unknown Int 7" type="uint">Unknown</add>
-        <add name="Pixel Data" type="byte" arr1="Num Faces" arr2="Num Pixels">Raw pixel data holding the mipmaps.  Mipmap zero is the full-size texture and they get smaller by half as the number increases.</add>
     </niobject>
 
     <niobject name="NiRoomGroup" inherit="NiNode">
@@ -3696,7 +3741,7 @@
         <add name="Num Rooms" type="int">Number of rooms in this group</add>
         <add name="Rooms" type="Ptr" template="NiRoom" arr1="Num Rooms">Rooms associated with this group.</add>
     </niobject>
-       
+
     <niobject name="NiRoom" inherit="NiNode">
         Grouping node for nodes in a Portal
         <add name="Num Walls" type="int">Number of walls in a room?</add>
@@ -3708,7 +3753,7 @@
         <add name="Num Items" type="int">Number of unknowns</add>
         <add name="Items" type="Ptr" template="NiAVObject" arr1="Num Items">All geometry associated with room.</add>
     </niobject>
-    
+
     <niobject name="NiPortal" inherit="NiAVObject">
         A Portal
         <add name="Unknown Flags" type="Flags">Unknown flags.</add>
@@ -3752,25 +3797,61 @@
         Bethesda-specific fade node.
     </niobject>
 
-
     <enum name="BSShaderType" storage="uint">
         The type of animation interpolation (blending) that will be used on the associated key frames.
         <option value="0" name="SHADER_TALL_GRASS">Tall Grass Shader</option>
         <option value="1" name="SHADER_DEFAULT">Standard Lighting Shader</option>
         <option value="10" name="SHADER_SKY">Sky Shader</option>
+		<option value="14" name="SHADER_SKIN">Skin Shader</option>
         <option value="17" name="SHADER_WATER">Water Shader</option>
         <option value="29" name="SHADER_LIGHTING30">Lighting 3.0 Shader</option>
         <option value="32" name="SHADER_TILE">Tiled Shader</option>
         <option value="33" name="SHADER_NOLIGHTING">No Lighting Shader</option>
     </enum>
     
+    <bitflags name="BSShaderFlags" storage="uint">
+        Shader Property Flags
+		<option value="0" name="SF_ZBUFFER_TEST">ZBuffer Test (1=on)</option>
+		<option value="1" name="SF_SHADOW_MAP">Shadow Map</option>
+		<option value="2" name="SF_EXTERNAL_EMITTANCE">External Emittance</option>
+		<option value="3" name="SF_PARALLAX_OCCLUSION">Parallax Occlusion</option>
+		<option value="4" name="SF_DYNAMIC_DECAL">Dynamic Decal</option>
+		<option value="5" name="SF_DECAL">Decal</option>
+		<option value="6" name="SF_UNKNOWN_6">Unknown\Light fade? (if 0 and envmap is on, "envmap light fade" is not present)</option>
+		<option value="7" name="SF_MULTIPLE_TEXTURES">Multiple Textures (base diff/norm become null)</option>
+		<option value="8" name="SF_SHADOW_FRUSTUM">Shadow Frustum</option>
+		<option value="9" name="SF_TREE_BILLBOARD">Tree Billboard</option>
+		<option value="10" name="SF_WINDOW_ENVIRONMENT_MAPPING">Window Environment Mapping</option>
+		<option value="11" name="SF_LOCALMAP_HIDE_SECRET">Localmap Hide Secret</option>
+		<option value="12" name="SF_DYNAMIC_ALPHA">Dynamic Alpha</option>
+		<option value="13" name="SF_HAIR">Hair</option>
+		<option value="14" name="SF_EYE_ENVIRONMENT_MAPPING">Eye Environment Mapping (does not use envmap light fade or envmap scale)</option>
+		<option value="15" name="SF_FIRE_REFRACTION">Fire Refraction (switches on refraction power/period)</option>
+		<option value="16" name="SF_REFRACTION">Refraction (switches on refraction power)</option>
+		<option value="17" name="SF_UNKNOWN_17">Unknown/Crash</option>
+		<option value="18" name="NON_PROJECTIVE_SHADOWS">Non-Projective Shadows</option>
+		<option value="19" name="SF_UNKNOWN_19">Unknown/Crash</option>
+		<option value="20" name="SF_PARALLAX">Parallax</option>
+		<option value="21" name="SF_FACEGEN_SKIN">Facegen\Skin</option>
+		<option value="22" name="SF_UNKNOWN_22">Unknown (Always 0?)</option>
+		<option value="23" name="SF_UNKNOWN_23">Unknown (usually 1)</option>
+		<option value="24" name="SF_ENVIRONMENT_MAPPING">Environment mapping (uses Envmap Scale)</option>
+		<option value="25" name="SF_EMPTY">EMPTY (usually seen w/texture animation)</option>
+		<option value="26" name="SF_SINGLE_PASS">Single Pass (uses same default shader path as diff/norm/spec setup BSSM_ADTS10)</option>
+		<option value="27" name="SF_UNKNOWN_27">Unknown (Always 0?)</option>
+		<option value="28" name="SF_VERTEX_ALPHA">Vertex Alpha</option>
+		<option value="29" name="SF_LOWDDETAIL">Lowddetail (seems to use standard diff/norm/spec shader)</option>
+		<option value="30" name="SF_SKINNED">Skinned.</option>
+		<option value="31" name="SF_UNKNOWN_31">Unknown</option>
+    </bitflags>
+    
     <niobject name="BSShaderProperty" abstract="0" inherit="NiProperty" ver1="20.2.0.7">
         Bethesda-specific Property node
         <add name="Flags" type="Flags" default="1">Unknown</add>
         <add name="Shader Type" type="BSShaderType" default="1">Unknown (Set to 0x21 for NoLighting, 0x11 for Water)</add>
-        <add name="Unknown Flags 1" type="uint" default="0x82000000">Unknown</add>
+        <add name="Shader Flags" type="BSShaderFlags" default="0x82000000">Shader Property Flags</add>
         <add name="Unknown Int 2" type="int" default="1">Unknown</add>
-        <add name="Unknown Float 1" type="float" default="1.0">Unknown</add>
+        <add name="Envmap Scale" type="float" default="1.0">Unknown</add>
     </niobject>
 
     <niobject name="BSShaderLightingProperty" abstract="1" inherit="BSShaderProperty" ver1="20.2.0.7" userver="11">
@@ -3793,15 +3874,22 @@
         Bethesda-specific Shade node.
         <add name="Texture Set" type="Ref" template="BSShaderTextureSet">Texture Set</add>
         <add name="Unknown Float 2" type="float" default="0.0" vercond="(User Version == 11) &amp;&amp; (User Version 2 &gt; 14)">Unknown</add>
-        <add name="Unknown Float 3" type="float" default="0.0" vercond="(User Version == 11) &amp;&amp; (User Version 2 &gt; 14)">Unknown</add>
+        <add name="Refraction Period" type="int" default="0.0" vercond="(User Version == 11) &amp;&amp; (User Version 2 &gt; 14)">Rate of texture movement for refraction shader.</add>
         <add name="Unknown Float 4" type="float" default="4.0" vercond="(User Version == 11) &amp;&amp; (User Version 2 &gt; 24)">Unknown</add>
         <add name="Unknown Float 5" type="float" default="1.0" vercond="(User Version == 11) &amp;&amp; (User Version 2 &gt; 24)">Unknown</add>
     </niobject>
-
+    
     <niobject name="BSShaderTextureSet" abstract="0" inherit="NiObject" ver1="20.2.0.7" userver="11">
-        Bethesda-specific node.
+        Bethesda-specific Texture Set.
         <add name="Num Textures" type="int" default="6">Number of Textures</add>
-        <add name="Textures" type="SizedString" arr1="Num Textures">Textures</add>
+        <add name="Textures" type="SizedString" arr1="Num Textures">Textures.
+            0: Diffuse
+            1: Normal/Gloss
+            2: Environment Mask
+            3: Glow/Skin/Hair
+            4: Height
+            5: Environment
+        </add>
     </niobject>
 
     <niobject name="WaterShaderProperty" abstract="0" inherit="BSShaderProperty" ver1="20.2.0.7" userver="11">
@@ -3863,10 +3951,10 @@
         Bethesda-Specific Particle node.
         <add name="Fade In Percent" type="float">Unknown</add>
         <add name="Fade out Percent" type="float">Unknown</add>
-        <add name="Color 1 End Percent" type="int">Unknown</add>
-        <add name="Color 1 Start Percent" type="int">Unknown</add>
-        <add name="Color 2 End Percent" type="int">Unknown</add>
-        <add name="Color 2 Start Percent" type="int">Unknown</add>
+        <add name="Color 1 End Percent" type="float">Unknown</add>
+        <add name="Color 1 Start Percent" type="float">Unknown</add>
+        <add name="Color 2 End Percent" type="float">Unknown</add>
+        <add name="Color 2 Start Percent" type="float">Unknown</add>
         <add name="Colors" type="Color4" arr1="3">Colors</add>
     </niobject>
 
@@ -3947,7 +4035,7 @@
         <add name="Unknown Short 1" type="short">Unknown</add>
     </niobject>
 
- 
+
     <niobject name="BSRefractionFirePeriodController" abstract="0" inherit="NiTimeController" ver1="20.2.0.7" userver="11">
         Bethesda-specific node.
     </niobject>
@@ -3964,7 +4052,7 @@
         <add name="Num Sub Shapes" type="uint">The number of sub shapes referenced.</add>
         <add name="Sub Shapes" type="Ref" template="bhkShape" arr1="Num Sub Shapes">List of shapes.</add>
         <add name="Material" type="HavokMaterial">The shape&#039;s material.</add>
-        <add name="Unknown Floats" type="float" arr1="6">Unknown. Set to (0.0,0.0,-0.0,0.0,0.0,-0.0), where -0.0 is 0x80000000 in hex.</add>
+        <add name="Unknown Floats" type="float" arr1="6" default="0.0 0.0 -0.0 0.0 0.0 -0.0">Unknown. Set to (0.0,0.0,-0.0,0.0,0.0,-0.0), where -0.0 is 0x80000000 in hex.</add>
         <add name="Unknown Byte 1" type="byte" >Unknown Flag</add>
         <add name="Unknown Float 1" type="float">Unknown Flag</add>
     </niobject>

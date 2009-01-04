@@ -169,6 +169,7 @@ Get list of versions and games
 ...         print '0x%08X'%vnum,
 ...     print
 ? 0x0A000103
+Atlantica 0x14020008
 Axis and Allies 0x0A010000
 Civilization IV 0x04020002 0x04020100 0x04020200 0x0A000100 0x0A010000 \
 0x0A020000 0x14000004
