@@ -92,6 +92,8 @@ def updateMoppWelding(self):
             "WARNING: havok mopp generator failed, falling back on simple mopp")
         self.updateOriginScale()
         mopp = self._makeSimpleMopp()
+        # no welding info
+        welding_infos = []
     else:
         # must use calculated scale and origin
         self.scale = scale
