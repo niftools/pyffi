@@ -241,3 +241,12 @@ class SpellClampMaterialAlpha(NifSpell):
         else:
             # keep recursing into children
             return True
+
+class SpellSendGeometriesToBindPosition(NifSpell):
+    pass
+
+class SpellSendNodesToBindPosition(NifSpell):
+    pass
+
+class SpellApplySkinDeformation(NifSpell):
+    pass
