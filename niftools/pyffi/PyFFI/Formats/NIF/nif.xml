@@ -2081,8 +2081,8 @@
         <add name="BS Num UV Sets" type="ushort" vercond="((Version >= 20.2.0.7) &amp;&amp; (User Version == 11))">Bethesda's version of this field for nif versions 20.2.0.7 and up. Only a single bit denotes whether uv's are present. For example, see meshes/architecture/megaton/megatonrampturn45sml.nif in Fallout 3.</add>
         <add name="Has Normals" type="bool">Do we have lighting normals? These are essential for proper lighting: if not present, the model will only be influenced by ambient light.</add>
         <add name="Normals" type="Vector3" arr1="Num Vertices" cond="Has Normals != 0">The lighting normals.</add>
-        <add name="Binormals" type="Vector3" arr1="Num Vertices" cond="(Has Normals != 0) &amp;&amp; ((Num UV Sets &amp; 61440) | (BS Num UV Sets &amp; 61440))" ver1="10.1.0.0">Unknown. Binormal &amp; tangents? has_normals must be set as well for this field to be present.</add>
-        <add name="Tangents" type="Vector3" arr1="Num Vertices" cond="(Has Normals != 0) &amp;&amp; ((Num UV Sets &amp; 61440) | (BS Num UV Sets &amp; 61440))" ver1="10.1.0.0">Unknown. Binormal &amp; tangents?</add>
+        <add name="Tangents" type="Vector3" arr1="Num Vertices" cond="(Has Normals != 0) &amp;&amp; ((Num UV Sets &amp; 61440) | (BS Num UV Sets &amp; 61440))" ver1="10.1.0.0">Tangent vectors.</add>
+        <add name="Bitangents" type="Vector3" arr1="Num Vertices" cond="(Has Normals != 0) &amp;&amp; ((Num UV Sets &amp; 61440) | (BS Num UV Sets &amp; 61440))" ver1="10.1.0.0">Bitangent vectors.</add>
         <add name="Center" type="Vector3">Center of the bounding box (smallest box that contains all vertices) of the mesh.</add>
         <add name="Radius" type="float">Radius of the mesh: maximal Euclidean distance between the center and all vertices.</add>
         <add name="Has Vertex Colors" type="bool">
