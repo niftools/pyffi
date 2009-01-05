@@ -114,41 +114,6 @@ class SpellNodeNamesByFlag(NifSpell):
         else:
             return False
 
-class SpellFileNamesByNumUvs(NifSpell):
-    """This spell goes over all nif files, and at the end, it gives a summary
-    of which files used particular numUvSets."""
-
-    SPELLNAME = "check_filenamesbynumuvs"
-
-    @classmethod
-    def toastentry(cls, toaster):
-        toaster.flagdict = {}
-        return True
-
-    @classmethod
-    def toastexit(cls, toaster):
-        for flag, names in toaster.flagdict.iteritems():
-            toaster.msg("0x%04X %s" % (flag, names))
-
-    def datainspect(self):
-        return self.inspectblocktype(NifFormat.NiGeometryData)
-
-    def branchinspect(self, branch):
-        # stick to main tree
-        return isinstance(branch, NifFormat.NiAVObject)
-
-    def branchentry(self, branch):
-        if isinstance(branch, NifFormat.NiGeometry):
-            numUvSets = branch.data.numUvSets
-            if not numUvSets in self.toaster.flagdict:
-                self.toaster.flagdict[numUvSets] = []
-            if not self.stream.name in self.toaster.flagdict[numUvSets]:
-                self.toaster.flagdict[numUvSets].append(self.stream.name)
-            return False
-        else:
-            return True
-
-
 class SpellCompareSkinData(NifSpell):
     """This spell compares skinning data with a reference nif."""
 
