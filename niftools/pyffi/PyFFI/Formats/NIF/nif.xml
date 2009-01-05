@@ -1115,7 +1115,7 @@
         Havok Information for packed TriStrip shapes.
         <add name="Layer" type="OblivionLayer">Sets mesh color in Oblivion Construction Set.</add>
         <add name="Col Filter" type="byte">The first bit sets the LINK property and controls whether this body is physically linked to others. The next bit turns collision off. Then, the next bit sets the SCALED property in Oblivion. The next five bits make up the number of this part in a linked body list.</add>
-        <add name="Unknown Short" type="ushort">Unknown.</add>
+        <add name="Unknown Short" type="ushort">Unknown. Perhaps the vertex wielding type?</add>
         <add name="Num Vertices" type="uint">The number of vertices that form this sub shape.</add>
         <add name="Material" type="HavokMaterial">The material of the subshape.</add>
     </compound>
@@ -1599,7 +1599,7 @@
         <add name="Shape" type="Ref" template="bhkShape">The shape.</add>
         <add name="Material" type="HavokMaterial">The shape's material.</add>
         <add name="Unknown 8 Bytes" type="byte" arr1="8">Unknown bytes, probably MOPP Header.</add>
-        <add name="Unknown Float" type="float">Unknown float, might be scale.</add>
+        <add name="Unknown Float" type="float" default="1.0">Unknown float, might be scale.</add>
         <add name="MOPP Data Size" type="uint">Number of bytes for MOPP data.</add>
         <add name="Origin" type="Vector3">Origin of the object in mopp coordinates. This is the minimum of all vertices in the packed shape along each axis, minus 0.1.</add>
         <add name="Scale" type="float">The scaling factor to quantize the MOPP: the quantization factor is equal to 256*256 divided by this number. In Oblivion files, scale is taken equal to 256*256*254 / (size + 0.2) where size is the largest dimension of the bounding box of the packed shape.</add>
@@ -2071,17 +2071,18 @@
 
     <niobject name="NiGeometryData" abstract="1" inherit="NiObject">
         Mesh data: vertices, vertex normals, etc.
-        <add name="Unknown Int" type="int" ver1="10.2.0.0">Unknown identifier. Always 0</add>
+        <add name="Unknown Int" type="int" ver1="10.2.0.0">Unknown identifier. Always 0.</add>
         <add name="Num Vertices" type="ushort">Number of vertices. For NiPSysData this is max particles.</add>
         <add name="Keep Flags" type="byte" ver1="10.1.0.0">Used with NiCollision objects when OBB or TRI is set.</add>
         <add name="Compress Flags" type="byte" ver1="10.1.0.0">Unknown.</add>
         <add name="Has Vertices" type="bool" default="1">Is the vertex array present? (Always non-zero.)</add>
         <add name="Vertices" type="Vector3" arr1="Num Vertices" cond="Has Vertices != 0">The mesh vertices.</add>
-        <add name="Num UV Sets" type="ushort" ver1="10.0.1.0">Methods for saving binormals and tangents saved in upper byte.  Texture flags in lower byte.</add>
+        <add name="Num UV Sets" type="ushort" vercond="((Version >= 10.0.1.0) &amp;&amp; (!((Version >= 20.2.0.7) &amp;&amp; (User Version == 11))))">Methods for saving binormals and tangents saved in upper byte.  Texture flags in lower byte.</add>
+        <add name="BS Num UV Sets" type="ushort" vercond="((Version >= 20.2.0.7) &amp;&amp; (User Version == 11))">Bethesda's version of this field for nif versions 20.2.0.7 and up. Only a single bit denotes whether uv's are present. For example, see meshes/architecture/megaton/megatonrampturn45sml.nif in Fallout 3.</add>
         <add name="Has Normals" type="bool">Do we have lighting normals? These are essential for proper lighting: if not present, the model will only be influenced by ambient light.</add>
         <add name="Normals" type="Vector3" arr1="Num Vertices" cond="Has Normals != 0">The lighting normals.</add>
-        <add name="Binormals" type="Vector3" arr1="Num Vertices" cond="(Has Normals != 0) &amp;&amp; (Num UV Sets &amp; 61440)" ver1="10.1.0.0">Unknown. Binormal &amp; tangents? has_normals must be set as well for this field to be present.</add>
-        <add name="Tangents" type="Vector3" arr1="Num Vertices" cond="(Has Normals != 0) &amp;&amp; (Num UV Sets &amp; 61440)" ver1="10.1.0.0">Unknown. Binormal &amp; tangents?</add>
+        <add name="Binormals" type="Vector3" arr1="Num Vertices" cond="(Has Normals != 0) &amp;&amp; ((Num UV Sets &amp; 61440) | (BS Num UV Sets &amp; 61440))" ver1="10.1.0.0">Unknown. Binormal &amp; tangents? has_normals must be set as well for this field to be present.</add>
+        <add name="Tangents" type="Vector3" arr1="Num Vertices" cond="(Has Normals != 0) &amp;&amp; ((Num UV Sets &amp; 61440) | (BS Num UV Sets &amp; 61440))" ver1="10.1.0.0">Unknown. Binormal &amp; tangents?</add>
         <add name="Center" type="Vector3">Center of the bounding box (smallest box that contains all vertices) of the mesh.</add>
         <add name="Radius" type="float">Radius of the mesh: maximal Euclidean distance between the center and all vertices.</add>
         <add name="Has Vertex Colors" type="bool">
@@ -2098,7 +2099,7 @@
 
             Note: for compatibility with NifTexture, set this value to either 0x00000000 or 0xFFFFFFFF.
         </add>
-        <add name="UV Sets" type="TexCoord" arr1="Num UV Sets &amp; 63" arr2="Num Vertices">The UV texture coordinates. They follow the OpenGL standard: some programs may require you to flip the second coordinate.</add>
+        <add name="UV Sets" type="TexCoord" arr1="(Num UV Sets &amp; 63) | (BS Num Uv Sets &amp; 1)" arr2="Num Vertices">The UV texture coordinates. They follow the OpenGL standard: some programs may require you to flip the second coordinate.</add>
         <add name="Consistency Flags" type="ConsistencyType" ver1="10.0.1.0" default="0">Consistency Flags</add>
         <add name="Additional Data" type="Ref" template="NiAdditionalGeometryData" ver1="20.0.0.4">Unknown.</add>
     </niobject>
