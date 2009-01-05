@@ -6,13 +6,30 @@ PyFFI can be installed in three ways:
 Requirements
 ============
 
-To run PyFFI's graphical file editor, you need PyQt4, which you can download
-from
+To run PyFFI's graphical file editor QSkope, you need PyQt4, which you
+can download from
 
 http://www.riverbankcomputing.co.uk/software/pyqt/download
 
 Manual installation
 ===================
+
+Uninstall
+---------
+
+If you install PyFFI manually, and you already have an older version
+of PyFFI installed, then first uninstall this old version before
+installing the new one.  You can uninstall PyFFI manually simply by
+deleting the PyFFI folder from your Python's site-packages folder,
+which is typically at
+
+C:\Python25\Lib\site-packages\PyFFI
+
+or
+
+/usr/lib/python2.5/site-packages/PyFFI
+
+Note that the Windows installer will perform this step automatically for you.
 
 Via setuptools
 --------------
