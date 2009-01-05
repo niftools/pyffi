@@ -2099,7 +2099,7 @@
 
             Note: for compatibility with NifTexture, set this value to either 0x00000000 or 0xFFFFFFFF.
         </add>
-        <add name="UV Sets" type="TexCoord" arr1="(Num UV Sets &amp; 63) | (BS Num Uv Sets &amp; 1)" arr2="Num Vertices">The UV texture coordinates. They follow the OpenGL standard: some programs may require you to flip the second coordinate.</add>
+        <add name="UV Sets" type="TexCoord" arr1="(Num UV Sets &amp; 63) | (BS Num UV Sets &amp; 1)" arr2="Num Vertices">The UV texture coordinates. They follow the OpenGL standard: some programs may require you to flip the second coordinate.</add>
         <add name="Consistency Flags" type="ConsistencyType" ver1="10.0.1.0" default="0">Consistency Flags</add>
         <add name="Additional Data" type="Ref" template="NiAdditionalGeometryData" ver1="20.0.0.4">Unknown.</add>
     </niobject>
