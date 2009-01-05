@@ -2,7 +2,8 @@ Version 1.1.1 (***)
 * nif format:
   - updates for Fallout 3 format
   - mopps take material indices into account and compute welding info
-  (this fixes all mopp multi-material issues)
+  (attempt to fix mopp multi-material issues, does not yet seem to work though)
+  - support for niftools bitflags by converting it to a bitstruct on the fly
 * dds format:
   - updated to use the FileFormat.Data method (old inconvenient method removed)
 * qskope:
