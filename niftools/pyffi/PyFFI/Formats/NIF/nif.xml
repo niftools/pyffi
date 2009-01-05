@@ -1281,8 +1281,8 @@
 
     <bitflags name="BSPartFlag" storage="ushort">
         Editor flags for the Body Partitions. Its unclear difference between PF_EDITOR_VISIBLE and PF_EDITOR_VISIBLE_2.
-        <option value="0" name="PF_EDITOR_VISIBLE">Visible in Editor</option>
-        <option value="8" name="PF_EDITOR_VISIBLE_2">Visible in Editor</option>
+        <option value="0" name="EDITOR VISIBLE">Visible in Editor</option>
+        <option value="8" name="EDITOR VISIBLE 2">Visible in Editor</option>
     </bitflags>
 
     <compound name="BodyPartList">
@@ -3812,38 +3812,38 @@
     
     <bitflags name="BSShaderFlags" storage="uint">
         Shader Property Flags
-		<option value="0" name="SF_ZBUFFER_TEST">ZBuffer Test (1=on)</option>
-		<option value="1" name="SF_SHADOW_MAP">Shadow Map</option>
-		<option value="2" name="SF_EXTERNAL_EMITTANCE">External Emittance</option>
-		<option value="3" name="SF_PARALLAX_OCCLUSION">Parallax Occlusion</option>
-		<option value="4" name="SF_DYNAMIC_DECAL">Dynamic Decal</option>
-		<option value="5" name="SF_DECAL">Decal</option>
-		<option value="6" name="SF_UNKNOWN_6">Unknown\Light fade? (if 0 and envmap is on, "envmap light fade" is not present)</option>
-		<option value="7" name="SF_MULTIPLE_TEXTURES">Multiple Textures (base diff/norm become null)</option>
-		<option value="8" name="SF_SHADOW_FRUSTUM">Shadow Frustum</option>
-		<option value="9" name="SF_TREE_BILLBOARD">Tree Billboard</option>
-		<option value="10" name="SF_WINDOW_ENVIRONMENT_MAPPING">Window Environment Mapping</option>
-		<option value="11" name="SF_LOCALMAP_HIDE_SECRET">Localmap Hide Secret</option>
-		<option value="12" name="SF_DYNAMIC_ALPHA">Dynamic Alpha</option>
-		<option value="13" name="SF_HAIR">Hair</option>
-		<option value="14" name="SF_EYE_ENVIRONMENT_MAPPING">Eye Environment Mapping (does not use envmap light fade or envmap scale)</option>
-		<option value="15" name="SF_FIRE_REFRACTION">Fire Refraction (switches on refraction power/period)</option>
-		<option value="16" name="SF_REFRACTION">Refraction (switches on refraction power)</option>
-		<option value="17" name="SF_UNKNOWN_17">Unknown/Crash</option>
-		<option value="18" name="NON_PROJECTIVE_SHADOWS">Non-Projective Shadows</option>
-		<option value="19" name="SF_UNKNOWN_19">Unknown/Crash</option>
-		<option value="20" name="SF_PARALLAX">Parallax</option>
-		<option value="21" name="SF_FACEGEN_SKIN">Facegen\Skin</option>
-		<option value="22" name="SF_UNKNOWN_22">Unknown (Always 0?)</option>
-		<option value="23" name="SF_UNKNOWN_23">Unknown (usually 1)</option>
-		<option value="24" name="SF_ENVIRONMENT_MAPPING">Environment mapping (uses Envmap Scale)</option>
-		<option value="25" name="SF_EMPTY">EMPTY (usually seen w/texture animation)</option>
-		<option value="26" name="SF_SINGLE_PASS">Single Pass (uses same default shader path as diff/norm/spec setup BSSM_ADTS10)</option>
-		<option value="27" name="SF_UNKNOWN_27">Unknown (Always 0?)</option>
-		<option value="28" name="SF_VERTEX_ALPHA">Vertex Alpha</option>
-		<option value="29" name="SF_LOWDDETAIL">Lowddetail (seems to use standard diff/norm/spec shader)</option>
-		<option value="30" name="SF_SKINNED">Skinned.</option>
-		<option value="31" name="SF_UNKNOWN_31">Unknown</option>
+		<option value="0" name="ZBUFFER TEST">ZBuffer Test (1=on)</option>
+		<option value="1" name="SHADOW MAP">Shadow Map</option>
+		<option value="2" name="EXTERNAL EMITTANCE">External Emittance</option>
+		<option value="3" name="PARALLAX OCCLUSION">Parallax Occlusion</option>
+		<option value="4" name="DYNAMIC DECAL">Dynamic Decal</option>
+		<option value="5" name="DECAL">Decal</option>
+		<option value="6" name="UNKNOWN 6">Unknown\Light fade? (if 0 and envmap is on, "envmap light fade" is not present)</option>
+		<option value="7" name="MULTIPLE TEXTURES">Multiple Textures (base diff/norm become null)</option>
+		<option value="8" name="SHADOW FRUSTUM">Shadow Frustum</option>
+		<option value="9" name="TREE BILLBOARD">Tree Billboard</option>
+		<option value="10" name="WINDOW ENVIRONMENT MAPPING">Window Environment Mapping</option>
+		<option value="11" name="LOCALMAP HIDE SECRET">Localmap Hide Secret</option>
+		<option value="12" name="DYNAMIC ALPHA">Dynamic Alpha</option>
+		<option value="13" name="HAIR">Hair</option>
+		<option value="14" name="EYE ENVIRONMENT MAPPING">Eye Environment Mapping (does not use envmap light fade or envmap scale)</option>
+		<option value="15" name="FIRE REFRACTION">Fire Refraction (switches on refraction power/period)</option>
+		<option value="16" name="REFRACTION">Refraction (switches on refraction power)</option>
+		<option value="17" name="UNKNOWN 17">Unknown/Crash</option>
+		<option value="18" name="NON PROJECTIVE SHADOWS">Non-Projective Shadows</option>
+		<option value="19" name="UNKNOWN 19">Unknown/Crash</option>
+		<option value="20" name="PARALLAX">Parallax</option>
+		<option value="21" name="FACEGEN SKIN">Facegen\Skin</option>
+		<option value="22" name="UNKNOWN 22">Unknown (Always 0?)</option>
+		<option value="23" name="UNKNOWN 23">Unknown (usually 1)</option>
+		<option value="24" name="ENVIRONMENT MAPPING">Environment mapping (uses Envmap Scale)</option>
+		<option value="25" name="EMPTY">EMPTY (usually seen w/texture animation)</option>
+		<option value="26" name="SINGLE PASS">Single Pass (uses same default shader path as diff/norm/spec setup BSSM_ADTS10)</option>
+		<option value="27" name="UNKNOWN 27">Unknown (Always 0?)</option>
+		<option value="28" name="VERTEX ALPHA">Vertex Alpha</option>
+		<option value="29" name="LOWDDETAIL">Lowddetail (seems to use standard diff/norm/spec shader)</option>
+		<option value="30" name="SKINNED">Skinned.</option>
+		<option value="31" name="UNKNOWN 31">Unknown</option>
     </bitflags>
     
     <niobject name="BSShaderProperty" abstract="0" inherit="NiProperty" ver1="20.2.0.7">
