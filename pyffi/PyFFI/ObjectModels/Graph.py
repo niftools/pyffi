@@ -20,10 +20,10 @@ another.
 This directed graph is assumed to have a spanning acyclic directed
 subgraph, that is, a subgraph which contains all nodes of the original
 graph, and which contains no cycles. This graph constitutes of those
-edges which have edge type zero.
+edges which have the default edge type.
 
 The L{PyFFI.ObjectModels.FileFormat.Data} class is the root node of
-the graph. Recursing over all edges of type zero of this node will
+the graph. Recursing over all edges of default type of this node will
 visit each node (possibly more than once) in a hierarchical order.
 
 The base classes are roughly based on the TreeItem example in the Qt docs:
@@ -195,7 +195,7 @@ class GlobalNode(DetailNode):
         """Generator which yields all edge types of this item in the
         global view, one edge type for each child.
 
-        Override this method if you rely on non-zero edge types.
+        Override this method if you rely on non-default edge types.
         """
         return repeat(EdgeType())
 
