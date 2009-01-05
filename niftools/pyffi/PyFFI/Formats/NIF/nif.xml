@@ -3837,13 +3837,13 @@
 		<option value="22" name="UNKNOWN 22">Unknown (Always 0?)</option>
 		<option value="23" name="UNKNOWN 23">Unknown (usually 1)</option>
 		<option value="24" name="ENVIRONMENT MAPPING">Environment mapping (uses Envmap Scale)</option>
-		<option value="25" name="EMPTY">EMPTY (usually seen w/texture animation)</option>
+		<option value="25" name="EMPTY" default="1">EMPTY (usually seen w/texture animation)</option>
 		<option value="26" name="SINGLE PASS">Single Pass (uses same default shader path as diff/norm/spec setup BSSM_ADTS10)</option>
 		<option value="27" name="UNKNOWN 27">Unknown (Always 0?)</option>
 		<option value="28" name="VERTEX ALPHA">Vertex Alpha</option>
 		<option value="29" name="LOWDDETAIL">Lowddetail (seems to use standard diff/norm/spec shader)</option>
 		<option value="30" name="SKINNED">Skinned.</option>
-		<option value="31" name="UNKNOWN 31">Unknown</option>
+		<option value="31" name="UNKNOWN 31" default="1">Unknown</option>
     </bitflags>
     
     <niobject name="BSShaderProperty" abstract="0" inherit="NiProperty" ver1="20.2.0.7">
@@ -3875,7 +3875,7 @@
         Bethesda-specific Shade node.
         <add name="Texture Set" type="Ref" template="BSShaderTextureSet">Texture Set</add>
         <add name="Unknown Float 2" type="float" default="0.0" vercond="(User Version == 11) &amp;&amp; (User Version 2 &gt; 14)">Unknown</add>
-        <add name="Refraction Period" type="int" default="0.0" vercond="(User Version == 11) &amp;&amp; (User Version 2 &gt; 14)">Rate of texture movement for refraction shader.</add>
+        <add name="Refraction Period" type="int" default="0" vercond="(User Version == 11) &amp;&amp; (User Version 2 &gt; 14)">Rate of texture movement for refraction shader.</add>
         <add name="Unknown Float 4" type="float" default="4.0" vercond="(User Version == 11) &amp;&amp; (User Version 2 &gt; 24)">Unknown</add>
         <add name="Unknown Float 5" type="float" default="1.0" vercond="(User Version == 11) &amp;&amp; (User Version 2 &gt; 24)">Unknown</add>
     </niobject>
