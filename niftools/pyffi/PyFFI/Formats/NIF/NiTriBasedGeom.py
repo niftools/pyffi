@@ -38,10 +38,16 @@
 # ***** END LICENSE BLOCK *****
 
 import struct
+from itertools import izip
+
 from PyFFI.Utils import TriStrip
 
-def updateTangentSpace(self):
-    """Recalculate tangent space data."""
+def updateTangentSpace(self, as_extra=True):
+    """Recalculate tangent space data.
+
+    @param as_extra: Whether to store the tangent space data as extra data
+        (as in Oblivion) or not (as in Fallout 3).
+    """
     # check that self.data exists and is valid
     if not isinstance(self.data, self.cls.NiTriBasedGeomData):
         raise ValueError(
@@ -150,22 +156,37 @@ def updateTangentSpace(self):
                 bin[i].normalize() # should work now
             tan[i] = n.crossproduct(bin[i])
 
-    # if tangent space extra data already exists, use it
-    for block in self.getRefs():
-        if isinstance(block, self.cls.NiBinaryExtraData):
-            if block.name == 'Tangent space (binormal & tangent vectors)':
-                break
-    else:
-    # otherwise, create a new block and link it
-        block = self.cls.NiBinaryExtraData()
-        block.name = 'Tangent space (binormal & tangent vectors)'
-        self.addExtraData(block)
+    if as_extra:
+        # if tangent space extra data already exists, use it
+        for block in self.getRefs():
+            if isinstance(block, self.cls.NiBinaryExtraData):
+                if block.name == 'Tangent space (binormal & tangent vectors)':
+                    break
+        else:
+        # otherwise, create a new block and link it
+            block = self.cls.NiBinaryExtraData()
+            block.name = 'Tangent space (binormal & tangent vectors)'
+            self.addExtraData(block)
 
-    # write the data
-    binarydata = ""
-    for v in tan + bin:
-        binarydata += struct.pack('<fff', v.x, v.y, v.z)
-    block.binaryData = binarydata
+        # write the data
+        binarydata = ""
+        for vec in tan + bin:
+            binarydata += struct.pack('<fff', vec.x, vec.y, vec.z)
+        block.binaryData = binarydata
+    else:
+        # set tangent space flag
+        self.data.numUvSets |= 61440
+        self.data.bsNumUvSets |= 61440
+        self.data.tangents.updateSize()
+        self.data.bitangents.updateSize()
+        for vec, data_tan in izip(tan, self.data.tangents):
+            data_tan.x = vec.x
+            data_tan.y = vec.y
+            data_tan.z = vec.z
+        for vec, data_bitan in izip(bin, self.data.bitangents):
+            data_bitan.x = vec.x
+            data_bitan.y = vec.y
+            data_bitan.z = vec.z
 
 # ported from nifskope/skeleton.cpp:spSkinPartition
 def updateSkinPartition(self,
