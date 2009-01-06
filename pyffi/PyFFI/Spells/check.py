@@ -4,7 +4,7 @@
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
 #
-# Copyright (c) 2007-2008, NIF File Format Library and Tools.
+# Copyright (c) 2007-2009, Python File Format Interface
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -19,7 +19,7 @@
 #      disclaimer in the documentation and/or other materials provided
 #      with the distribution.
 #
-#    * Neither the name of the NIF File Format Library and Tools
+#    * Neither the name of the Python File Format Interface
 #      project nor the names of its contributors may be used to endorse
 #      or promote products derived from this software without specific
 #      prior written permission.
