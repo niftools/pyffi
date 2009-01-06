@@ -138,6 +138,7 @@ Effects
 # ***** END LICENSE BLOCK *****
 
 from itertools import izip
+import logging
 
 def addChild(self, child, front=False):
     """Add block to child list.
@@ -274,7 +275,10 @@ def mergeExternalSkeletonRoot(self, skelroot):
 def sendGeometriesToBindPosition(self):
     """Call this on the skeleton root of geometries. This function will
     transform the geometries, such that all skin data transforms coincide, or
-    at least coincide partially."""
+    at least coincide partially.
+    """
+    # get logger
+    logger = logging.getLogger("PyFFI")
     # maps bone name to bind position transform matrix (relative to
     # skeleton root)
     bone_bind_transform = {}
@@ -295,8 +299,6 @@ def sendGeometriesToBindPosition(self):
                 if bone in geom.skinInstance.bones:
                     sorted_geoms.append(geom)
     geoms = sorted_geoms
-    # DEBUG  
-    #print [geom.name for geom in geoms]
     # now go over all geometries and synchronize their relative bind poses
     for geom in geoms:
         skininst = geom.skinInstance
@@ -313,12 +315,9 @@ def sendGeometriesToBindPosition(self):
                 break
 
         if diff.isIdentity():
-            # DEBUG
-            #print "keeping %s" % geom.name
-            pass
+            logger.debug("keeping %s" % geom.name)
         else:
-            # DEBUG
-            #print "transforming %s" % geom.name
+            logger.debug("transforming %s" % geom.name)
             # fix bone data
             for bonenode, bonedata in izip(skininst.bones, skindata.boneList):
                     bonedata.setTransform(diff.getInverse() * bonedata.getTransform())
@@ -338,4 +337,3 @@ def sendGeometriesToBindPosition(self):
         for bonenode, bonedata in izip(skininst.bones, skindata.boneList):
             bone_bind_transform[bonenode.name] = \
                 bonedata.getTransform().getInverse()
-
