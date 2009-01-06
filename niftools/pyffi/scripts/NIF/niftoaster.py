@@ -42,6 +42,8 @@ a nif specific wrapper around L{PyFFI.Spells.Toaster}."""
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
+import logging
+
 from PyFFI.Formats.NIF import NifFormat
 from PyFFI.Spells import Toaster
 from PyFFI.Spells.NIF import NifToaster as NifToasterBase
@@ -161,5 +163,14 @@ recursively, for Freedom Force vs. The 3rd Reich
 
 # if script is called...
 if __name__ == "__main__":
+    # set up logger
+    logger = logging.getLogger("PyFFI")
+    logger.setLevel(logging.DEBUG)
+    loghandler = logging.StreamHandler()
+    loghandler.setLevel(logging.DEBUG)
+    logformatter = logging.Formatter("%(message)s")
+    loghandler.setFormatter(logformatter)
+    logger.addHandler(loghandler)
+    # call toaster
     NifToaster().cli()
 
