@@ -243,7 +243,41 @@ class SpellClampMaterialAlpha(NifSpell):
             return True
 
 class SpellSendGeometriesToBindPosition(NifSpell):
-    pass
+    """Transform skinned geometries so similar bones have the same bone data,
+    and hence, the same bind position, over all geometries.
+    """
+    SPELLNAME = "fix_sendgeometriestobindposition"
+    READONLY = False
+
+    def datainspect(self):
+        # only run the spell if there are skinned geometries
+        return self.inspectblocktype(NifFormat.NiSkinInstance)
+
+    def dataentry(self):
+        # make list of skeleton roots
+        self.skelrootlist = []
+        for branch in self.data.getGlobalIterator():
+            if isinstance(branch, NifFormat.NiGeometry):
+                if branch.skinInstance:
+                    skelroot = branch.skinInstance.skeletonRoot
+                    if skelroot and not skelroot in self.skelrootlist:
+                        self.skelrootlist.append(skelroot)
+        # only apply spell if there are skeleton roots
+        if self.skelrootlist:
+            return True
+        else:
+            return False
+
+    def branchinspect(self, branch):
+        # only inspect the NiNode branch
+        return isinstance(branch, NifFormat.NiNode)
+    
+    def branchentry(self, branch):
+        if branch in self.skelrootlist:
+            self.toaster.msg("sending geometries to bind position")
+            branch.sendGeometriesToBindPosition()
+        # keep recursing into children
+        return True
 
 class SpellSendNodesToBindPosition(NifSpell):
     pass
