@@ -418,3 +418,45 @@ def __add__(self, x):
     else:
         raise TypeError("do not know how to add Matrix44 and %s"%x.__class__)
 
+def __sub__(self, x):
+    if isinstance(x, (self.cls.Matrix44)):
+        m = self.cls.Matrix44()
+        m.m11 = self.m11 - x.m11
+        m.m12 = self.m12 - x.m12
+        m.m13 = self.m13 - x.m13
+        m.m14 = self.m14 - x.m14
+        m.m21 = self.m21 - x.m21
+        m.m22 = self.m22 - x.m22
+        m.m23 = self.m23 - x.m23
+        m.m24 = self.m24 - x.m24
+        m.m31 = self.m31 - x.m31
+        m.m32 = self.m32 - x.m32
+        m.m33 = self.m33 - x.m33
+        m.m34 = self.m34 - x.m34
+        m.m41 = self.m41 - x.m41
+        m.m42 = self.m42 - x.m42
+        m.m43 = self.m43 - x.m43
+        m.m44 = self.m44 - x.m44
+        return m
+    elif isinstance(x, (int, long, float)):
+        m = self.cls.Matrix44()
+        m.m11 = self.m11 - x
+        m.m12 = self.m12 - x
+        m.m13 = self.m13 - x
+        m.m14 = self.m14 - x
+        m.m21 = self.m21 - x
+        m.m22 = self.m22 - x
+        m.m23 = self.m23 - x
+        m.m24 = self.m24 - x
+        m.m31 = self.m31 - x
+        m.m32 = self.m32 - x
+        m.m33 = self.m33 - x
+        m.m34 = self.m34 - x
+        m.m41 = self.m41 - x
+        m.m42 = self.m42 - x
+        m.m43 = self.m43 - x
+        m.m44 = self.m44 - x
+        return m
+    else:
+        raise TypeError("do not know how to add Matrix44 and %s"%x.__class__)
+
