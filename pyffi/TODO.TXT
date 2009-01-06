@@ -31,6 +31,8 @@
     in particular, qskope should never have to import from ObjectModels.XXX,
     or Formats.XXX
 
+* use logging module for all log actions
+
 * doctests for all spells
 
 * improve overall documentation, for instance:
