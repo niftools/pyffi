@@ -274,12 +274,7 @@ def mergeExternalSkeletonRoot(self, skelroot):
 def sendGeometriesToBindPosition(self):
     """Call this on the skeleton root of geometries. This function will
     transform the geometries, such that all skin data transforms coincide, or
-    at least coincide partially. The function returns a float whose
-    value indicates how close the bind positions between geometries are (0.0
-    means perfect match).
-    """
-    # maximal transform error
-    error = 0.0
+    at least coincide partially."""
     # maps bone name to bind position transform matrix (relative to
     # skeleton root)
     bone_bind_transform = {}
@@ -288,39 +283,45 @@ def sendGeometriesToBindPosition(self):
              if (isinstance(geom, self.cls.NiGeometry)
                  and geom.isSkin()
                  and geom.skinInstance.skeletonRoot is self)]
-    # sort geometries by number of bones (largest number of bones first)
-    # this ensures that "large" geometries serve as reference for "smaller"
+    # sort geometries by bone level
+    # this ensures that "parent" geometries serve as reference for "child"
     # geometries
-    geoms.sort(key=lambda geom: -geom.skinInstance.numBones)
+    sorted_geoms = []
+    for bone in self.tree():
+        if not isinstance(bone, self.cls.NiNode):
+            continue
+        for geom in geoms:
+            if not geom in sorted_geoms:
+                if bone in geom.skinInstance.bones:
+                    sorted_geoms.append(geom)
+    geoms = sorted_geoms
+    # DEBUG  
+    #print [geom.name for geom in geoms]
+    # now go over all geometries and synchronize their relative bind poses
     for geom in geoms:
         skininst = geom.skinInstance
         skindata = skininst.data
-        # differences in transform for this geometry by bone
-        geom_bone_diff = {}
+        # set difference matrix to identity
+        diff = self.cls.Matrix44()
+        diff.setIdentity()
+        # go over all bones in current geometry, see if it has been visited
+        # before
         for bonenode, bonedata in izip(skininst.bones, skindata.boneList):
             if bonenode.name in bone_bind_transform:
-                # store difference
+                # calculate difference
                 diff = bonedata.getTransform() * bone_bind_transform[bonenode.name]
-                geom_bone_diff[bonenode.name] = diff
-            else:
-                # store for future reference
-                bone_bind_transform[bonenode.name] = \
-                    bonedata.getTransform().getInverse()
-                # obviously, no difference
-                diff = self.cls.Matrix44()
-                diff.setIdentity()
-                geom_bone_diff[bonenode.name] = diff
-        # take first diff as reference
-        diff = geom_bone_diff.itervalues().next()
-        # calculate error
-        error = max(error,
-                    max(max(max(abs(x) for x in row)
-                            for row in (otherdiff - diff).asList())
-                        for otherdiff in geom_bone_diff.itervalues()))
-        if not diff.isIdentity():
+                break
+
+        if diff.isIdentity():
+            # DEBUG
+            #print "keeping %s" % geom.name
+            pass
+        else:
+            # DEBUG
+            #print "transforming %s" % geom.name
             # fix bone data
             for bonenode, bonedata in izip(skininst.bones, skindata.boneList):
-                bonedata.setTransform(diff.getInverse() * bonedata.getTransform())
+                    bonedata.setTransform(diff.getInverse() * bonedata.getTransform())
             # transform geometry
             for vert in geom.data.vertices:
                 newvert = vert * diff
@@ -332,6 +333,9 @@ def sendGeometriesToBindPosition(self):
                 norm.x = newnorm.x
                 norm.y = newnorm.y
                 norm.z = newnorm.z
-    # done
-    return error
+
+        # store updated bind position for future reference
+        for bonenode, bonedata in izip(skininst.bones, skindata.boneList):
+            bone_bind_transform[bonenode.name] = \
+                bonedata.getTransform().getInverse()
 
