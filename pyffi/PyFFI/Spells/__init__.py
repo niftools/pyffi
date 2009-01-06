@@ -51,6 +51,7 @@ function.
 
 from cStringIO import StringIO
 import gc
+import logging # Logger
 import optparse
 import os
 import os.path
@@ -537,8 +538,6 @@ class Toaster(object):
     @type options: C{dict}
     @ivar indent: Current level of indentation for messages.
     @type indent: C{int}
-    @ivar logstream: File where to write output to (default is C{sys.stdout}).
-    @type logstream: C{file}
     @ivar include_types: Tuple of types corresponding to C{options.include}.
     @type include_types: C{tuple}
     @ivar exclude_types: Tuple of types corresponding to C{options.exclude}.
@@ -552,20 +551,17 @@ class Toaster(object):
 
     __metaclass__ = _MetaCompatToaster # for compatibility
 
-    def __init__(self, spellclass=None, options=None, logstream=None):
+    def __init__(self, spellclass=None, options=None):
         """Initialize the toaster.
 
         @param spellclass: The spell class.
         @type spellclass: C{type(L{Spell})}
         @param options: The options (as keyword arguments).
         @type options: C{dict}
-        @param logstream: Where to write the log (default is C{sys.stdout}).
-        @type logstream: C{file}
         """
         self.spellclass = spellclass
         self.options = options if options else {}
         self.indent = 0
-        self.logstream = sys.stdout if logstream is None else logstream
         # get list of block types that are included and excluded
         # these are used on branch checks
         self.include_types = tuple(
@@ -576,7 +572,7 @@ class Toaster(object):
             for block_type in self.options.get("exclude", ()))
 
     def msg(self, message, level=0):
-        """Write message to the L{logstream}, if verbosity is at least the
+        """Write log message, if verbosity is at least the
         given level. The default level is 0. If verbosity is not defined,
         then it is assumed to be -1, that is, the function does not print
         anything.
@@ -594,7 +590,7 @@ class Toaster(object):
         # if verbosity is not defined, use -1: never print anything
         if level <= self.options.get("verbose", -1):
             for line in message.split("\n"):
-                print >>self.logstream, "  " * self.indent + line
+                logging.getLogger("PyFFI").info("  " * self.indent + line)
 
     def msgblockbegin(self, message, level=0):
         """Acts like L{msg}, but also increases L{indent} after writing the
