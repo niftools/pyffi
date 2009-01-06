@@ -137,6 +137,8 @@ Effects
 #
 # ***** END LICENSE BLOCK *****
 
+from itertools import izip
+
 def addChild(self, child, front=False):
     """Add block to child list.
 
@@ -281,49 +283,55 @@ def sendGeometriesToBindPosition(self):
     # maps bone name to bind position transform matrix (relative to
     # skeleton root)
     bone_bind_transform = {}
-    for geom in self.tree():
-        if (isinstance(geom, self.cls.NiGeometry)
-            and geom.isSkin()
-            and geom.skinInstance.skeletonRoot is self):
-            skininst = geom.skinInstance
-            skindata = skininst.data
-            # differences in transform for this geometry
-            # by bone
-            geom_bone_diff = {}
+    # find all skinned geometries with self as skeleton root
+    geoms = [geom for geom in self.tree()
+             if (isinstance(geom, self.cls.NiGeometry)
+                 and geom.isSkin()
+                 and geom.skinInstance.skeletonRoot is self)]
+    # sort geometries by number of bones (largest number of bones first)
+    # this ensures that "large" geometries serve as reference for "smaller"
+    # geometries
+    geoms.sort(key=lambda geom: -geom.skinInstance.numBones)
+    for geom in geoms:
+        skininst = geom.skinInstance
+        skindata = skininst.data
+        # differences in transform for this geometry by bone
+        geom_bone_diff = {}
+        for bonenode, bonedata in izip(skininst.bones, skindata.boneList):
+            if bonenode.name in bone_bind_transform:
+                # store difference
+                diff = bonedata.getTransform() * bone_bind_transform[bonenode.name]
+                geom_bone_diff[bonenode.name] = diff
+            else:
+                # store for future reference
+                bone_bind_transform[bonenode.name] = \
+                    bonedata.getTransform().getInverse()
+                # obviously, no difference
+                diff = self.cls.Matrix44()
+                diff.setIdentity()
+                geom_bone_diff[bonenode.name] = diff
+        # take first diff as reference
+        diff = geom_bone_diff.itervalues().next()
+        # calculate error
+        error = max(error,
+                    max(max(max(abs(x) for x in row)
+                            for row in (otherdiff - diff).asList())
+                        for otherdiff in geom_bone_diff.itervalues()))
+        if not diff.isIdentity():
+            # fix bone data
             for bonenode, bonedata in izip(skininst.bones, skindata.boneList):
-                if bonenode.name in bone_bind_transform:
-                    # store difference
-                    diff = bonedata.getTransform() * bone_bind_transform[bonenode.name]
-                    geom_bone_diff[bonenode.name] = diff
-                else:
-                    # store for future reference
-                    bone_bind_transform[bonenode.name] = \
-                        bonedata.getTransform().getInverse()
-                    # obviously, no difference
-                    diff = self.cls.Matrix44()
-                    diff.setIdentity()
-                    geom_bone_diff[bonenode.name] = diff
-            # take first diff as reference
-            diff = geom_bone_diff.itervalues().next()
-            # calculate error
-            error = max(error,
-                        max(max(max(abs(x) for x in row)
-                                for row in (otherdiff - diff).asList())
-                            for otherdiff in geom_bone_diff.itervalues()))
-            if not diff.isIdentity():
-                # fix bone data
-                for bonenode, bonedata in izip(skininst.bones, skindata.boneList):
-                    bonedata.setTransform(diff.getInverse() * bonedata.getTransform())
-                # transform geometry
-                for vert in geom.data.vertices:
-                    newvert = vert * diff
-                    vert.x = newvert.x
-                    vert.y = newvert.y
-                    vert.z = newvert.z
-                for norm in geom.data.normals:
-                    newnorm = norm * diff.getMatrix33()
-                    norm.x = newnorm.x
-                    norm.y = newnorm.y
-                    norm.z = newnorm.z
+                bonedata.setTransform(diff.getInverse() * bonedata.getTransform())
+            # transform geometry
+            for vert in geom.data.vertices:
+                newvert = vert * diff
+                vert.x = newvert.x
+                vert.y = newvert.y
+                vert.z = newvert.z
+            for norm in geom.data.normals:
+                newnorm = norm * diff.getMatrix33()
+                norm.x = newnorm.x
+                norm.y = newnorm.y
+                norm.z = newnorm.z
     # done
     return error
+
