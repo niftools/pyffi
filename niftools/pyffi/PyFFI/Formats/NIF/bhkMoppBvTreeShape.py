@@ -37,8 +37,9 @@
 #
 # ***** END LICENSE BLOCK *****
 
-import math # math.ceil
 from itertools import izip
+import logging
+import math # math.ceil
 
 from PyFFI.Utils.Mopp import getMopperCredits
 from PyFFI.Utils.Mopp import getMopperOriginScaleCodeWelding
@@ -69,6 +70,7 @@ def updateMopp(self):
 
 def updateMoppWelding(self):
     """Update the MOPP data, scale, and origin, and welding info."""
+    logger = logging.getLogger("pyffi.mopp")
 
     # first try with PyFFI.Utils.Mopp
     try:
@@ -88,8 +90,8 @@ def updateMoppWelding(self):
              for hktri in self.shape.data.triangles],
             material_per_triangle)
     except (OSError, RuntimeError):
-        print(
-            "WARNING: havok mopp generator failed, falling back on simple mopp")
+        logger.exception(
+            "Havok mopp generator failed, falling back on simple mopp")
         self.updateOriginScale()
         mopp = self._makeSimpleMopp()
         # no welding info
