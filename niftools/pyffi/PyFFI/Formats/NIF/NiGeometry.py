@@ -309,7 +309,8 @@ def getSkinDeformation(self):
 # ported and extended from niflib::NiNode::GoToSkeletonBindPosition() (r2518)
 def sendBonesToBindPosition(self):
     """Send all bones to their bind position."""
-    if not self.isSkin(): return
+    if not self.isSkin():
+        return
 
     # validate skin and set up quick links
     self._validateSkin()

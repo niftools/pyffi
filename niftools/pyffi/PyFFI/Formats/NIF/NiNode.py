@@ -276,6 +276,10 @@ def sendGeometriesToBindPosition(self):
     """Call this on the skeleton root of geometries. This function will
     transform the geometries, such that all skin data transforms coincide, or
     at least coincide partially.
+
+    @return: A number quantifying the remaining difference between bind
+        positions.
+    @rtype: C{float}
     """
     # get logger
     logger = logging.getLogger("pyffi.nif.ninode")
@@ -363,7 +367,81 @@ def sendGeometriesToBindPosition(self):
             else:
                 bone_bind_transform_inv[bonenode.name] = bonedata.getTransform()
 
-    logger.debug("Bind position error is %f" % error)
+    logger.debug("Geometry bind position error is %f" % error)
     if error > 1e-3:
-        logger.warning("Failed to send all geometries to the same bind position")
+        logger.warning("Failed to send some geometries to bind position")
+    return error
+
+def sendBonesToBindPosition(self):
+    """Call this on the skeleton root of geometries. This function will
+    send all bones of geometries of this skeleton root to their bind position.
+    For best results, call sendGeometriesToBindPosition first.
+
+    @return: A number quantifying the remaining difference between bind
+        positions.
+    @rtype: C{float}
+    """
+    # get logger
+    logger = logging.getLogger("pyffi.nif.ninode")
+    # find all skinned geometries with self as skeleton root
+    skelroot = self
+    geoms = [geom for geom in self.tree()
+             if (isinstance(geom, self.cls.NiGeometry)
+                 and geom.isSkin()
+                 and geom.skinInstance.skeletonRoot is skelroot)]
+
+    # check all bones and bone datas to see if a bind position exists
+    bonelist = []
+    error = 0.0
+    for geom in geoms:
+        skininst = geom.skinInstance
+        skindata = skininst.data
+        for bonenode, bonedata in izip(skininst.bones, skindata.boneList):
+            # make sure all bone data of shared bones coincides
+            for otherbonenode, otherbonedata in bonelist:
+                if bonenode is otherbonenode:
+                    diff = (otherbonedata.getTransform()
+                            - bonedata.getTransform())
+                    error = max(error,
+                                max(max(abs(elem) for elem in row)
+                                    for row in diff.asList()))
+                    if error > 1e-3:
+                        raise ValueError("Cannot send bones to bind position because geometries do not share bind position")
+                    # break the loop
+                    break
+            else:
+                # the loop did not break, so the bone was not yet added
+                # add it now
+                logger.debug("Found bind position data for %s" % bonenode.name)
+                bonelist.append((bonenode, bonedata))
+
+    # reposition the bones
+    for geom in geoms:
+        logger.debug("Sending bones of %s to bind position" % geom.name)
+        geom.sendBonesToBindPosition()
+
+    # validate
+    error = 0.0
+    diff_error = 0.0
+    for geom in geoms:
+        skininst = geom.skinInstance
+        skindata = skininst.data
+        skelroot = self
+        # calculate geometry transform
+        geomtransform = geom.getTransform(skelroot)
+        # check skin data fields (also see NiGeometry.updateBindPosition)
+        for i, bone in enumerate(skininst.bones):
+            diff = (skindata.boneList[i].getTransform()
+                    - geomtransform * bone.getTransform(skelroot).getInverse())
+            # calculate error (sup norm)
+            diff_error = max(max(abs(elem) for elem in row)
+                             for row in diff.asList())
+            if diff_error > 1e-3:
+                logger.warning("Failed to send bone %s to bind position"
+                               % bone.name)
+            error = max(error, diff_error)
+
+    logger.debug("Bone bind position error is %f" % error)
+    if error > 1e-3:
+        logger.warning("Failed to send some bones to bind position")
     return error
