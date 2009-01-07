@@ -440,10 +440,10 @@ header version field""")
             """
             logger = logging.getLogger("pyffi.nif.data")
             # read header
-            logger.info("Reading header at 0x%08X" % stream.tell())
+            logger.debug("Reading header at 0x%08X" % stream.tell())
             self.inspectVersionOnly(stream)
             self.header.read(stream, data=self)
-            logger.debug("%s" % self.header)
+            #logger.debug("%s" % self.header)
 
             # list of root blocks
             # for versions < 3.3.0.13 this list is updated through the
@@ -515,8 +515,8 @@ header version field""")
                 except AttributeError:
                     raise NifFormat.NifError(
                         "unknown block type '%s'" % block_type)
-                logger.info("Reading %s block at 0x%08X"
-                            % (block_type, stream.tell()))
+                logger.debug("Reading %s block at 0x%08X"
+                             % (block_type, stream.tell()))
                 try:
                     block.read(
                         stream,
@@ -639,8 +639,8 @@ Skipping %i bytes in %s""" % (extra_size, block.__class__.__name__))
                 ftr.roots[i] = root
 
             # write the file
-            logger.info("Writing header")
-            logger.debug("%s" % self.header)
+            logger.debug("Writing header")
+            #logger.debug("%s" % self.header)
             self.header.write(
                 stream,
                 data=self,
@@ -663,7 +663,7 @@ Skipping %i bytes in %s""" % (extra_size, block.__class__.__name__))
                     s.setValue(block.__class__.__name__)
                     s.write(stream)
                 # write block index
-                logger.info("Writing %s block" % block.__class__.__name__)
+                logger.debug("Writing %s block" % block.__class__.__name__)
                 if self.version < 0x0303000D:
                     stream.write(struct.pack('<i', block_index_dct[block]))
                 # write block
