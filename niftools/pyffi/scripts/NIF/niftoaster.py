@@ -164,11 +164,11 @@ recursively, for Freedom Force vs. The 3rd Reich
 # if script is called...
 if __name__ == "__main__":
     # set up logger
-    logger = logging.getLogger("PyFFI")
+    logger = logging.getLogger("pyffi")
     logger.setLevel(logging.DEBUG)
     loghandler = logging.StreamHandler()
     loghandler.setLevel(logging.DEBUG)
-    logformatter = logging.Formatter("%(message)s")
+    logformatter = logging.Formatter("%(name)s:%(levelname)s:%(message)s")
     loghandler.setFormatter(logformatter)
     logger.addHandler(loghandler)
     # call toaster
