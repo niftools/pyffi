@@ -590,7 +590,7 @@ class Toaster(object):
         # if verbosity is not defined, use -1: never print anything
         if level <= self.options.get("verbose", -1):
             for line in message.split("\n"):
-                logging.getLogger("PyFFI").info("  " * self.indent + line)
+                logging.getLogger("pyffi.toaster").info("  " * self.indent + line)
 
     def msgblockbegin(self, message, level=0):
         """Acts like L{msg}, but also increases L{indent} after writing the
