@@ -538,6 +538,8 @@ class Toaster(object):
     @type options: C{dict}
     @ivar indent: Current level of indentation for messages.
     @type indent: C{int}
+    @ivar logger: For log messages.
+    @type logger: C{logging.Logger}
     @ivar include_types: Tuple of types corresponding to C{options.include}.
     @type include_types: C{tuple}
     @ivar exclude_types: Tuple of types corresponding to C{options.exclude}.
@@ -562,6 +564,7 @@ class Toaster(object):
         self.spellclass = spellclass
         self.options = options if options else {}
         self.indent = 0
+        self.logger = logging.getLogger("pyffi.toaster")
         # get list of block types that are included and excluded
         # these are used on branch checks
         self.include_types = tuple(
@@ -571,40 +574,29 @@ class Toaster(object):
             getattr(self.FILEFORMAT, block_type)
             for block_type in self.options.get("exclude", ()))
 
-    def msg(self, message, level=0):
-        """Write log message, if verbosity is at least the
-        given level. The default level is 0. If verbosity is not defined,
-        then it is assumed to be -1, that is, the function does not print
-        anything.
+    def msg(self, message):
+        """Write log message with C{L{logger}.info}), taking into account
+        L{indent}.
 
         @param message: The message to write.
         @type message: C{str}
-        @param level: Verbosity level of the message. The message is only
-            logged if C{L{options}["verbose"]} is at least this value. Must
-            be non-negative.
-        @type level: C{int}
         """
-        # check level
-        if level < 0:
-            raise ValueError("message level must be non-negative")
-        # if verbosity is not defined, use -1: never print anything
-        if level <= self.options.get("verbose", -1):
-            for line in message.split("\n"):
-                logging.getLogger("pyffi.toaster").info("  " * self.indent + line)
+        for line in message.split("\n"):
+            self.logger.info("  " * self.indent + line)
 
-    def msgblockbegin(self, message, level=0):
+    def msgblockbegin(self, message):
         """Acts like L{msg}, but also increases L{indent} after writing the
         message."""
-        self.msg(message, level)
+        self.msg(message)
         self.indent += 1
 
-    def msgblockend(self, message=None, level=0):
+    def msgblockend(self, message=None):
         """Acts like L{msg}, but also decreases L{indent} before writing the
         message, but if the message argument is C{None}, then no message is
         printed."""
         self.indent -= 1
         if not(message is None):
-            self.msg(message, level)
+            self.msg(message)
 
     def isadmissiblebranchtype(self, branchtype):
         """Helper function which checks whether a given branch type should
@@ -785,6 +777,14 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
             # skip default attributes of optparse.Values
             if not optionname in dir(optparse.Values):
                 self.options[optionname] = getattr(options, optionname)
+
+        # set verbosity level
+        if self.options["verbose"] <= 0:
+            logging.getLogger("pyffi").setLevel(logging.WARNING)
+        elif self.options["verbose"] == 1:
+            logging.getLogger("pyffi").setLevel(logging.INFO)
+        else:
+            logging.getLogger("pyffi").setLevel(logging.DEBUG)
 
         # update include and exclude types
         self.include_types = tuple(
