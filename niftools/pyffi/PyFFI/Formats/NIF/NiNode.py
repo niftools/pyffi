@@ -278,7 +278,7 @@ def sendGeometriesToBindPosition(self):
     at least coincide partially.
     """
     # get logger
-    logger = logging.getLogger("pyffi")
+    logger = logging.getLogger("pyffi.nif.ninode")
     # maps bone name to bind position transform matrix (relative to
     # skeleton root)
     bone_bind_transform = {}
@@ -311,17 +311,22 @@ def sendGeometriesToBindPosition(self):
         for bonenode, bonedata in izip(skininst.bones, skindata.boneList):
             if bonenode.name in bone_bind_transform:
                 # calculate difference
-                diff = bonedata.getTransform() * bone_bind_transform[bonenode.name]
+                diff = (bonedata.getTransform()
+                        * bone_bind_transform[bonenode.name])
                 break
 
         if diff.isIdentity():
-            logger.debug("keeping %s" % geom.name)
+            logger.debug("%s is already in bind position" % geom.name)
         else:
-            logger.debug("transforming %s" % geom.name)
+            logger.info("fixing %s bind position" % geom.name)
             # fix bone data
             for bonenode, bonedata in izip(skininst.bones, skindata.boneList):
-                    bonedata.setTransform(diff.getInverse() * bonedata.getTransform())
+                logger.debug("transforming bind position of bone %s"
+                             % bonenode.name)
+                bonedata.setTransform(diff.getInverse()
+                                      * bonedata.getTransform())
             # transform geometry
+            logger.debug("transforming vertices and normals")
             for vert in geom.data.vertices:
                 newvert = vert * diff
                 vert.x = newvert.x
@@ -337,3 +342,28 @@ def sendGeometriesToBindPosition(self):
         for bonenode, bonedata in izip(skininst.bones, skindata.boneList):
             bone_bind_transform[bonenode.name] = \
                 bonedata.getTransform().getInverse()
+
+    # validation: check that bones share bind position
+    bone_bind_transform_inv = {}
+    error = 0.0
+    for geom in geoms:
+        skininst = geom.skinInstance
+        skindata = skininst.data
+        # go over all bones in current geometry, see if it has been visited
+        # before
+        for bonenode, bonedata in izip(skininst.bones, skindata.boneList):
+            if bonenode.name in bone_bind_transform_inv:
+                # calculate difference
+                diff = (bonedata.getTransform()
+                        - bone_bind_transform_inv[bonenode.name])
+                # calculate error (sup norm)
+                error = max(error,
+                            max(max(abs(elem) for elem in row)
+                                for row in diff.asList()))
+            else:
+                bone_bind_transform_inv[bonenode.name] = bonedata.getTransform()
+
+    logger.debug("Bind position error is %f" % error)
+    if error > 1e-3:
+        logger.warning("Failed to send all geometries to the same bind position")
+    return error
