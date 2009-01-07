@@ -278,7 +278,7 @@ def sendGeometriesToBindPosition(self):
     at least coincide partially.
     """
     # get logger
-    logger = logging.getLogger("PyFFI")
+    logger = logging.getLogger("pyffi")
     # maps bone name to bind position transform matrix (relative to
     # skeleton root)
     bone_bind_transform = {}

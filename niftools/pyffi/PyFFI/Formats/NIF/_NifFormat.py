@@ -210,7 +210,7 @@ True
 #
 # ***** END LICENSE BLOCK *****
 
-import struct, os, re, sys, warnings
+import struct, os, re, sys, warnings, logging
 
 from PyFFI.ObjectModels.XML.FileFormat import XmlFileFormat
 from PyFFI.ObjectModels.XML.FileFormat import MetaXmlFileFormat
@@ -438,13 +438,12 @@ header version field""")
             @param verbose: The level of verbosity.
             @type verbose: C{int}
             """
+            logger = logging.getLogger("pyffi.nif.data")
             # read header
-            if verbose >= 1:
-                print "reading block at 0x%08X..."%stream.tell()
+            logger.info("Reading header at 0x%08X" % stream.tell())
             self.inspectVersionOnly(stream)
             self.header.read(stream, data=self)
-            if verbose >= 2:
-                print self.header
+            logger.debug("%s" % self.header)
 
             # list of root blocks
             # for versions < 3.3.0.13 this list is updated through the
@@ -514,43 +513,35 @@ header version field""")
                 try:
                     block = getattr(NifFormat, block_type)()
                 except AttributeError:
-                    raise NifFormat.NifError("unknown block type '%s'" % block_type)
-                if verbose >= 1:
-                    print "reading block at 0x%08X..."%stream.tell()
+                    raise NifFormat.NifError(
+                        "unknown block type '%s'" % block_type)
+                logger.info("Reading %s block at 0x%08X"
+                            % (block_type, stream.tell()))
                 try:
                     block.read(
                         stream,
                         data=self,
                         link_stack=link_stack, string_list=string_list)
                 except:
-                    if verbose >= 1:
-                        print "reading failed"
-                    if verbose >= 2:
-                        print "link stack ", link_stack
-                        print "block that failed:"
-                        print block
-                    elif verbose >= 1:
-                        print block.__class__
+                    logger.exception("Reading %s failed" % block.__class__)
+                    #logger.error("link stack: %s" % link_stack)
+                    #logger.error("block that failed:")
+                    #logger.error("%s" % block)
                     raise
-                #print "*** " + block_type + " ***" # debug
-                #print block                        # debug
                 block_dct[block_index] = block
                 self.blocks.append(block)
-                if verbose >= 2:
-                    print block
-                elif verbose >= 1:
-                    print block.__class__
                 # check block size
                 if self.version >= 0x14020007:
+                    logger.debug("Checking block size")
                     calculated_size = block.getSize(data=self)
                     if calculated_size != self.header.blockSize[block_num]:
-                        print("""
-WARNING: block size check failed: corrupt nif file or bad nif.xml?
-         skipping %i bytes in %s""" 
-                              % (self.header.blockSize[block_num] - calculated_size,
-                                 block.__class__.__name__))
+                        extra_size = self.header.blockSize[block_num] - calculated_size
+                        logger.error("""\
+Block size check failed: corrupt nif file or bad nif.xml?""")
+                        logger.error("""\
+Skipping %i bytes in %s""" % (extra_size, block.__class__.__name__))
                         # skip bytes that were missed
-                        stream.seek(self.header.blockSize[block_num] - calculated_size, 1)
+                        stream.seek(extra_size, 1)
                 # add block to roots if flagged as such
                 if is_root:
                     self.roots.append(block)
@@ -597,6 +588,7 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
             @param verbose: The level of verbosity.
             @type verbose: int
             """
+            logger = logging.getLogger("pyffi.nif.data")
             # set up index and type dictionary
             self.blocks = [] # list of all blocks to be written
             block_index_dct = {} # maps block to block index
@@ -636,8 +628,8 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
             self.header.blockSize.updateSize()
             for i, block in enumerate(self.blocks):
                 self.header.blockSize[i] = block.getSize(data=self)
-            if verbose >= 2:
-                print hdr
+            #if verbose >= 2:
+            #    print hdr
 
             # set up footer
             ftr = NifFormat.Footer()
@@ -647,6 +639,8 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
                 ftr.roots[i] = root
 
             # write the file
+            logger.info("Writing header")
+            logger.debug("%s" % self.header)
             self.header.write(
                 stream,
                 data=self,
@@ -669,8 +663,7 @@ WARNING: block size check failed: corrupt nif file or bad nif.xml?
                     s.setValue(block.__class__.__name__)
                     s.write(stream)
                 # write block index
-                if verbose >= 1:
-                    print "writing block %i..."%block_index_dct[block]
+                logger.info("Writing %s block" % block.__class__.__name__)
                 if self.version < 0x0303000D:
                     stream.write(struct.pack('<i', block_index_dct[block]))
                 # write block
