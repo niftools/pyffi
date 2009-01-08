@@ -94,6 +94,8 @@
 #
 # ***** END LICENSE BLOCK *****
 
+import warnings
+
 def isSkin(self):
     """Returns True if geometry is skinned."""
     return self.skinInstance != None
@@ -308,7 +310,15 @@ def getSkinDeformation(self):
 
 # ported and extended from niflib::NiNode::GoToSkeletonBindPosition() (r2518)
 def sendBonesToBindPosition(self):
-    """Send all bones to their bind position."""
+    """Send all bones to their bind position.
+
+    @deprecated: Use L{NifFormat.NiNode.sendBonesToBindPosition} instead of
+        this function.
+    """
+
+    warnings.warn("use NifFormat.NiNode.sendBonesToBindPosition",
+                  DeprecationWarning)
+
     if not self.isSkin():
         return
 
@@ -357,4 +367,3 @@ def updateBindPosition(self):
     # calculate bone offsets
     for i, bone in enumerate(skininst.bones):
          skindata.boneList[i].setTransform(geomtransform * bone.getTransform(skelroot).getInverse())
-

@@ -373,9 +373,9 @@ def sendGeometriesToBindPosition(self):
     return error
 
 def sendBonesToBindPosition(self):
-    """Call this on the skeleton root of geometries. This function will
-    send all bones of geometries of this skeleton root to their bind position.
-    For best results, call sendGeometriesToBindPosition first.
+    """This function will send all bones of geometries of this skeleton root
+    to their bind position. For best results, call
+    L{sendGeometriesToBindPosition} first.
 
     @return: A number quantifying the remaining difference between bind
         positions.
@@ -398,27 +398,109 @@ def sendBonesToBindPosition(self):
         skindata = skininst.data
         for bonenode, bonedata in izip(skininst.bones, skindata.boneList):
             # make sure all bone data of shared bones coincides
-            for otherbonenode, otherbonedata in bonelist:
+            for othergeom, otherbonenode, otherbonedata in bonelist:
                 if bonenode is otherbonenode:
-                    diff = (otherbonedata.getTransform()
-                            - bonedata.getTransform())
-                    error = max(error,
-                                max(max(abs(elem) for elem in row)
-                                    for row in diff.asList()))
-                    if error > 1e-3:
-                        raise ValueError("Cannot send bones to bind position because geometries do not share bind position")
+                    diff = ((otherbonedata.getTransform().getInverse()
+                             *
+                             othergeom.getTransform(skelroot))
+                            -
+                            (bonedata.getTransform().getInverse()
+                             *
+                             geom.getTransform(skelroot)))
+                    if diff.supNorm() > 1e-3:
+                        raise ValueError("""\
+Cannot send bones to bind position because geometries %s and %s \
+do not share the same bind position""" % (geom.name, othergeom.name))
                     # break the loop
                     break
             else:
                 # the loop did not break, so the bone was not yet added
                 # add it now
                 logger.debug("Found bind position data for %s" % bonenode.name)
-                bonelist.append((bonenode, bonedata))
+                bonelist.append((geom, bonenode, bonedata))
 
-    # reposition the bones
-    for geom in geoms:
-        logger.debug("Sending bones of %s to bind position" % geom.name)
-        geom.sendBonesToBindPosition()
+    # numerical stability is a problem, therefore use two different algorithms:
+    # - the first algorithm simply makes all transforms correct by changing
+    # each local bone matrix in such a way that the global matrix relative to
+    # the skeleton root matches the skinning information
+    # - the second algorithm makes the local transforms correct by comparing
+    # with relative skinning information (this is of course an incomplete
+    # check, but it is good enough to fix numerical errors up the hierarchy)
+    #
+    # this approach seems to work well enough in practice
+
+    logger.info("Repositioning bones - first pass")
+    # reposition the bones: algorithm 1
+    # this algorithm is numerically most stable if bones are traversed
+    # in hierarchical order, so first sort the bones
+    sorted_bonelist = []
+    for node in skelroot.tree():
+        if not isinstance(node, self.cls.NiNode):
+            continue
+        for geom, bonenode, bonedata in bonelist:
+            if node is bonenode:
+                sorted_bonelist.append((geom, bonenode, bonedata))
+    bonelist = sorted_bonelist
+    # now reposition the bones
+    for geom, bonenode, bonedata in bonelist:
+        # explanation:
+        # v * CHILD * PARENT * ...
+        # = v * CHILD * DIFF^-1 * DIFF * PARENT * ...
+        # and now choose DIFF such that DIFF * PARENT * ... = desired transform
+
+        # calculate desired transform relative to skeleton root
+        # transform is DIFF * PARENT
+        transform = (bonedata.getTransform().getInverse()
+                     * geom.getTransform(skelroot))
+        # calculate difference
+        diff = transform * bonenode.getTransform(skelroot).getInverse()
+        if not diff.isIdentity():
+            logger.debug("Sending %s to bind position"
+                         % bonenode.name)
+            # fix transform of this node
+            bonenode.setTransform(diff * bonenode.getTransform())
+            # fix transform of all its children
+            diff_inv = diff.getInverse()
+            for childnode in bonenode.children:
+                if childnode:
+                    childnode.setTransform(childnode.getTransform() * diff_inv)
+
+    logger.info("Repositioning bones - second pass")
+    # reposition the bones, using the relative transform method
+    # (this is the old niflib method, also see
+    # NiGeometry.sendBonesToBindPosition)
+    # this method fixes numerical errors that tend to accumulate
+    for parent_geom, parent_bonenode, parent_bonedata in bonelist:
+        # calculate desired transform of parent, relative to skeleton root
+        parent_transform = (parent_bonedata.getTransform().getInverse()
+                            * parent_geom.getTransform(skelroot))
+        # if parent is a child of the skeleton root, then fix its
+        # transfrom
+        if parent_bonenode in skelroot.children:
+            if parent_bonenode.getTransform() != parent_transform:
+                logger.debug("Sending %s to bind position"
+                             % parent_bonenode.name)
+                parent_bonenode.setTransform(parent_transform)
+            else:
+                logger.debug("%s is already in bind position"
+                             % parent_bonenode.name)
+        # fix the transform of all its children
+        for child_geom, child_bonenode, child_bonedata in bonelist:
+            if child_bonenode in parent_bonenode.children:
+                # calculate desired transform of child, relative to
+                # skeleton root
+                child_transform = (child_bonedata.getTransform().getInverse()
+                                   * child_geom.getTransform(skelroot))
+                # calculate transform relative to parent
+                child_relative_transform = (child_transform
+                                            * parent_transform.getInverse())
+                if child_bonenode.getTransform() != child_relative_transform:
+                    logger.debug("Sending %s to bind position"
+                                 % child_bonenode.name)
+                    child_bonenode.setTransform(child_relative_transform)
+                else:
+                    logger.debug("%s is already in bind position"
+                                 % child_bonenode.name)
 
     # validate
     error = 0.0
@@ -431,17 +513,19 @@ def sendBonesToBindPosition(self):
         geomtransform = geom.getTransform(skelroot)
         # check skin data fields (also see NiGeometry.updateBindPosition)
         for i, bone in enumerate(skininst.bones):
-            diff = (skindata.boneList[i].getTransform()
-                    - geomtransform * bone.getTransform(skelroot).getInverse())
+            diff = ((skindata.boneList[i].getTransform().getInverse()
+                     * geomtransform)
+                    - bone.getTransform(skelroot))
             # calculate error (sup norm)
             diff_error = max(max(abs(elem) for elem in row)
                              for row in diff.asList())
             if diff_error > 1e-3:
-                logger.warning("Failed to send bone %s to bind position"
-                               % bone.name)
+                logger.warning(
+                    "Failed to set bind position of bone %s for geometry %s (error is %f)"
+                    % (bone.name, geom.name, diff_error))
             error = max(error, diff_error)
 
-    logger.debug("Bone bind position error is %f" % error)
+    logger.debug("Bone bind position maximal error is %f" % error)
     if error > 1e-3:
         logger.warning("Failed to send some bones to bind position")
     return error
