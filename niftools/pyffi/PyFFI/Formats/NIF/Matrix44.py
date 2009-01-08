@@ -38,6 +38,7 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
+import logging
 from types import *
 
 def asList(self):
@@ -212,9 +213,20 @@ def setScaleRotationTranslation(self, scale, rotation, translation):
         raise TypeError('translation must be Vector3')
 
     if not rotation.isRotation():
-        print "WARNING (setScaleRotationTranslation): improper rotation matrix"
-        print rotation
+        logger = logging.getLogger("pyffi.nif.matrix")
+        mat = rotation * rotation.getTranspose()
+        idmat = self.cls.Matrix33()
+        idmat.setIdentity()
+        error = (mat - idmat).supNorm()
+        logger.warning("improper rotation matrix (error is %f)" % error)
+        logger.debug("  matrix =")
+        for line in str(rotation).split("\n"):
+            logger.debug("    %s" % line)
+        logger.debug("  its determinant = %f" % rotation.getDeterminant())
         #raise ValueError('rotation must be rotation matrix')
+        logger.debug("  matrix * matrix^T =")
+        for line in str(mat).split("\n"):
+            logger.debug("    %s" % line)
 
     self.m14 = 0.0
     self.m24 = 0.0
@@ -458,7 +470,8 @@ def __sub__(self, x):
         m.m44 = self.m44 - x
         return m
     else:
-        raise TypeError("do not know how to add Matrix44 and %s"%x.__class__)
+        raise TypeError("do not know how to substract Matrix44 and %s"
+                        % x.__class__)
 
 def supNorm(self):
     """Calculate supremum norm of matrix (maximum absolute value of all

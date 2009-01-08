@@ -318,3 +318,38 @@ please use left multiplication (vector*matrix)")
 
     def __ne__(self, mat):
         return not self.__eq__(mat)
+
+    def __sub__(self, x):
+        if isinstance(x, (NifFormat.Matrix33)):
+            m = NifFormat.Matrix33()
+            m.m11 = self.m11 - x.m11
+            m.m12 = self.m12 - x.m12
+            m.m13 = self.m13 - x.m13
+            m.m21 = self.m21 - x.m21
+            m.m22 = self.m22 - x.m22
+            m.m23 = self.m23 - x.m23
+            m.m31 = self.m31 - x.m31
+            m.m32 = self.m32 - x.m32
+            m.m33 = self.m33 - x.m33
+            return m
+        elif isinstance(x, (int, long, float)):
+            m = NifFormat.Matrix33()
+            m.m11 = self.m11 - x
+            m.m12 = self.m12 - x
+            m.m13 = self.m13 - x
+            m.m21 = self.m21 - x
+            m.m22 = self.m22 - x
+            m.m23 = self.m23 - x
+            m.m31 = self.m31 - x
+            m.m32 = self.m32 - x
+            m.m33 = self.m33 - x
+            return m
+        else:
+            raise TypeError("do not know how to substract Matrix33 and %s"
+                            % x.__class__)
+
+    def supNorm(self):
+        """Calculate supremum norm of matrix (maximum absolute value of all
+        entries)."""
+        return max(max(abs(elem) for elem in row)
+                   for row in self.asList())
