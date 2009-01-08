@@ -223,7 +223,6 @@ def setScaleRotationTranslation(self, scale, rotation, translation):
         for line in str(rotation).split("\n"):
             logger.debug("    %s" % line)
         logger.debug("  its determinant = %f" % rotation.getDeterminant())
-        #raise ValueError('rotation must be rotation matrix')
         logger.debug("  matrix * matrix^T =")
         for line in str(mat).split("\n"):
             logger.debug("    %s" % line)
@@ -236,7 +235,7 @@ def setScaleRotationTranslation(self, scale, rotation, translation):
     self.setMatrix33(rotation * scale)
     self.setTranslation(translation)
 
-def getInverse(self, fast = True):
+def getInverse(self, fast=True):
     """Calculates inverse (fast assumes isScaleRotationTranslation is True)."""
     def adjoint(m, ii, jj):
         result = []

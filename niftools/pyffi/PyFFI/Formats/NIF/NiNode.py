@@ -319,7 +319,7 @@ def sendGeometriesToBindPosition(self):
                 # (see explanation below)
                 diff = (bonedata.getTransform()
                         * bone_bind_transform[bonenode.name]
-                        * geom.getTransform(skelroot).getInverse())
+                        * geom.getTransform(skelroot).getInverse(fast=False))
                 break
 
         if diff.isIdentity():
@@ -346,7 +346,7 @@ def sendGeometriesToBindPosition(self):
             for bonenode, bonedata in izip(skininst.bones, skindata.boneList):
                 logger.debug("transforming bind position of bone %s"
                              % bonenode.name)
-                bonedata.setTransform(diff.getInverse()
+                bonedata.setTransform(diff.getInverse(fast=False)
                                       * bonedata.getTransform())
             # transform geometry
             logger.debug("transforming vertices and normals")
@@ -364,7 +364,7 @@ def sendGeometriesToBindPosition(self):
         # store updated bind position for future reference
         for bonenode, bonedata in izip(skininst.bones, skindata.boneList):
             bone_bind_transform[bonenode.name] = (
-                bonedata.getTransform().getInverse()
+                bonedata.getTransform().getInverse(fast=False)
                 * geom.getTransform(skelroot))
 
     # validation: check that bones share bind position
@@ -378,7 +378,7 @@ def sendGeometriesToBindPosition(self):
         for bonenode, bonedata in izip(skininst.bones, skindata.boneList):
             if bonenode.name in bone_bind_transform:
                 # calculate difference
-                diff = ((bonedata.getTransform().getInverse()
+                diff = ((bonedata.getTransform().getInverse(fast=False)
                          * geom.getTransform(skelroot))
                         - bone_bind_transform[bonenode.name])
                 # calculate error (sup norm)
@@ -387,7 +387,7 @@ def sendGeometriesToBindPosition(self):
                                 for row in diff.asList()))
             else:
                 bone_bind_transform[bonenode.name] = (
-                    bonedata.getTransform().getInverse()
+                    bonedata.getTransform().getInverse(fast=False)
                     * geom.getTransform(skelroot))
 
     logger.debug("Geometry bind position error is %f" % error)
@@ -423,11 +423,11 @@ def sendBonesToBindPosition(self):
             # make sure all bone data of shared bones coincides
             for othergeom, otherbonenode, otherbonedata in bonelist:
                 if bonenode is otherbonenode:
-                    diff = ((otherbonedata.getTransform().getInverse()
+                    diff = ((otherbonedata.getTransform().getInverse(fast=False)
                              *
                              othergeom.getTransform(skelroot))
                             -
-                            (bonedata.getTransform().getInverse()
+                            (bonedata.getTransform().getInverse(fast=False)
                              *
                              geom.getTransform(skelroot)))
                     if diff.supNorm() > 1e-3:
@@ -471,17 +471,17 @@ def sendBonesToBindPosition(self):
 
         # calculate desired transform relative to skeleton root
         # transform is DIFF * PARENT
-        transform = (bonedata.getTransform().getInverse()
+        transform = (bonedata.getTransform().getInverse(fast=False)
                      * geom.getTransform(skelroot))
         # calculate difference
-        diff = transform * bonenode.getTransform(skelroot).getInverse()
+        diff = transform * bonenode.getTransform(skelroot).getInverse(fast=False)
         if not diff.isIdentity():
             logger.info("Sending %s to bind position"
                         % bonenode.name)
             # fix transform of this node
             bonenode.setTransform(diff * bonenode.getTransform())
             # fix transform of all its children
-            diff_inv = diff.getInverse()
+            diff_inv = diff.getInverse(fast=False)
             for childnode in bonenode.children:
                 if childnode:
                     childnode.setTransform(childnode.getTransform() * diff_inv)
@@ -496,7 +496,7 @@ def sendBonesToBindPosition(self):
     # this method fixes numerical errors that tend to accumulate
     for parent_geom, parent_bonenode, parent_bonedata in bonelist:
         # calculate desired transform of parent, relative to skeleton root
-        parent_transform = (parent_bonedata.getTransform().getInverse()
+        parent_transform = (parent_bonedata.getTransform().getInverse(fast=False)
                             * parent_geom.getTransform(skelroot))
         # if parent is a child of the skeleton root, then fix its
         # transfrom
@@ -513,11 +513,11 @@ def sendBonesToBindPosition(self):
             if child_bonenode in parent_bonenode.children:
                 # calculate desired transform of child, relative to
                 # skeleton root
-                child_transform = (child_bonedata.getTransform().getInverse()
+                child_transform = (child_bonedata.getTransform().getInverse(fast=False)
                                    * child_geom.getTransform(skelroot))
                 # calculate transform relative to parent
                 child_relative_transform = (child_transform
-                                            * parent_transform.getInverse())
+                                            * parent_transform.getInverse(fast=False))
                 if child_bonenode.getTransform() != child_relative_transform:
                     logger.debug("Sending %s to bind position"
                                  % child_bonenode.name)
@@ -537,7 +537,7 @@ def sendBonesToBindPosition(self):
         geomtransform = geom.getTransform(skelroot)
         # check skin data fields (also see NiGeometry.updateBindPosition)
         for i, bone in enumerate(skininst.bones):
-            diff = ((skindata.boneList[i].getTransform().getInverse()
+            diff = ((skindata.boneList[i].getTransform().getInverse(fast=False)
                      * geomtransform)
                     - bone.getTransform(skelroot))
             # calculate error (sup norm)
