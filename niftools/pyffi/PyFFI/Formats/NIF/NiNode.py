@@ -408,9 +408,7 @@ def sendBonesToBindPosition(self):
                              *
                              geom.getTransform(skelroot)))
                     if diff.supNorm() > 1e-3:
-                        raise ValueError("""\
-Cannot send bones to bind position because geometries %s and %s \
-do not share the same bind position""" % (geom.name, othergeom.name))
+                        logger.warning("Geometries %s and %s do not share the same bind position: bone %s will be sent to a position matching only one of these" % (geom.name, othergeom.name, bonenode.name))
                     # break the loop
                     break
             else:
@@ -455,8 +453,8 @@ do not share the same bind position""" % (geom.name, othergeom.name))
         # calculate difference
         diff = transform * bonenode.getTransform(skelroot).getInverse()
         if not diff.isIdentity():
-            logger.debug("Sending %s to bind position"
-                         % bonenode.name)
+            logger.info("Sending %s to bind position"
+                        % bonenode.name)
             # fix transform of this node
             bonenode.setTransform(diff * bonenode.getTransform())
             # fix transform of all its children
@@ -464,6 +462,9 @@ do not share the same bind position""" % (geom.name, othergeom.name))
             for childnode in bonenode.children:
                 if childnode:
                     childnode.setTransform(childnode.getTransform() * diff_inv)
+        else:
+            logger.debug("%s is already in bind position"
+                         % bonenode.name)
 
     logger.info("Repositioning bones - second pass")
     # reposition the bones, using the relative transform method
@@ -478,8 +479,8 @@ do not share the same bind position""" % (geom.name, othergeom.name))
         # transfrom
         if parent_bonenode in skelroot.children:
             if parent_bonenode.getTransform() != parent_transform:
-                logger.debug("Sending %s to bind position"
-                             % parent_bonenode.name)
+                logger.info("Sending %s to bind position"
+                            % parent_bonenode.name)
                 parent_bonenode.setTransform(parent_transform)
             else:
                 logger.debug("%s is already in bind position"
