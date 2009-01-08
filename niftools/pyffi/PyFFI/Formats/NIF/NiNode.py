@@ -285,12 +285,13 @@ def sendGeometriesToBindPosition(self):
     logger = logging.getLogger("pyffi.nif.ninode")
     # maps bone name to bind position transform matrix (relative to
     # skeleton root)
+    skelroot = self
     bone_bind_transform = {}
     # find all skinned geometries with self as skeleton root
     geoms = [geom for geom in self.tree()
              if (isinstance(geom, self.cls.NiGeometry)
                  and geom.isSkin()
-                 and geom.skinInstance.skeletonRoot is self)]
+                 and geom.skinInstance.skeletonRoot is skelroot)]
     # sort geometries by bone level
     # this ensures that "parent" geometries serve as reference for "child"
     # geometries
@@ -315,15 +316,33 @@ def sendGeometriesToBindPosition(self):
         for bonenode, bonedata in izip(skininst.bones, skindata.boneList):
             if bonenode.name in bone_bind_transform:
                 # calculate difference
+                # (see explanation below)
                 diff = (bonedata.getTransform()
-                        * bone_bind_transform[bonenode.name])
+                        * bone_bind_transform[bonenode.name]
+                        * geom.getTransform(skelroot).getInverse())
                 break
 
         if diff.isIdentity():
             logger.debug("%s is already in bind position" % geom.name)
         else:
             logger.info("fixing %s bind position" % geom.name)
-            # fix bone data
+            # explanation:
+            # we must set the bonedata transform T' such that its bone bind
+            # position matrix
+            #   T'^-1 * G
+            # (where T' = the updated bonedata.getTransform()
+            # and G = geom.getTransform(skelroot))
+            # coincides with the desired matrix
+            #   B = bone_bind_transform[bonenode.name]
+            # in other words:
+            #   T' = G * B^-1
+            # or, with diff = D = T * B * G^-1
+            #   T' = D^-1 * T
+            # to keep the geometry in sync, the vertices and normals must
+            # be multiplied with D, e.g. v' = v * D
+            # because the full transform
+            #    v * T * ... = v * D * D^-1 * T * ... = v' * T' * ...
+            # must be kept invariant
             for bonenode, bonedata in izip(skininst.bones, skindata.boneList):
                 logger.debug("transforming bind position of bone %s"
                              % bonenode.name)
@@ -344,11 +363,12 @@ def sendGeometriesToBindPosition(self):
 
         # store updated bind position for future reference
         for bonenode, bonedata in izip(skininst.bones, skindata.boneList):
-            bone_bind_transform[bonenode.name] = \
+            bone_bind_transform[bonenode.name] = (
                 bonedata.getTransform().getInverse()
+                * geom.getTransform(skelroot))
 
     # validation: check that bones share bind position
-    bone_bind_transform_inv = {}
+    bone_bind_transform = {}
     error = 0.0
     for geom in geoms:
         skininst = geom.skinInstance
@@ -356,16 +376,19 @@ def sendGeometriesToBindPosition(self):
         # go over all bones in current geometry, see if it has been visited
         # before
         for bonenode, bonedata in izip(skininst.bones, skindata.boneList):
-            if bonenode.name in bone_bind_transform_inv:
+            if bonenode.name in bone_bind_transform:
                 # calculate difference
-                diff = (bonedata.getTransform()
-                        - bone_bind_transform_inv[bonenode.name])
+                diff = ((bonedata.getTransform().getInverse()
+                         * geom.getTransform(skelroot))
+                        - bone_bind_transform[bonenode.name])
                 # calculate error (sup norm)
                 error = max(error,
                             max(max(abs(elem) for elem in row)
                                 for row in diff.asList()))
             else:
-                bone_bind_transform_inv[bonenode.name] = bonedata.getTransform()
+                bone_bind_transform[bonenode.name] = (
+                    bonedata.getTransform().getInverse()
+                    * geom.getTransform(skelroot))
 
     logger.debug("Geometry bind position error is %f" % error)
     if error > 1e-3:
