@@ -1,4 +1,5 @@
 Version 1.1.1 (***)
+* using logging module for log messages
 * nif format:
   - updates for Fallout 3 format
   - mopps take material indices into account and compute welding info
