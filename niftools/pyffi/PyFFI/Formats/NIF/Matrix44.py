@@ -460,3 +460,9 @@ def __sub__(self, x):
     else:
         raise TypeError("do not know how to add Matrix44 and %s"%x.__class__)
 
+def supNorm(self):
+    """Calculate supremum norm of matrix (maximum absolute value of all
+    entries)."""
+    return max(max(abs(elem) for elem in row)
+               for row in self.asList())
+
