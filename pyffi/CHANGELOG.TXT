@@ -5,6 +5,8 @@ Version 1.1.1 (***)
   - mopps take material indices into account and compute welding info
   (attempt to fix mopp multi-material issues, does not yet seem to work though)
   - support for niftools bitflags by converting it to a bitstruct on the fly
+  - better algorithm for sending bones to bind position
+  - new algorithm to sync geometry bind poses
 * dds format:
   - updated to use the FileFormat.Data method (old inconvenient method removed)
 * qskope:
