@@ -28,31 +28,31 @@ This script will modify your files, in particular if something goes wrong it
 may destroy them. Make a backup of your files before running this script.
 <BLANKLINE>
 Are you sure that you want to proceed? [n/y] n
-Script aborted by user.
-Finished.
+pyffi.toaster:INFO:Script aborted by user.
+pyffi.toaster:INFO:Finished.
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
 This script will modify your files, in particular if something goes wrong it
 may destroy them. Make a backup of your files before running this script.
 <BLANKLINE>
 Are you sure that you want to proceed? [n/y] y
-=== tests/nif/_test.nif ===
-  --- opt_cleanreflists & fix_detachhavoktristripsdata & fix_texturepath & fix_clampmaterialalpha ---
-    ~~~ NiNode [test] ~~~
-      ~~~ NiTriShape [Cube] ~~~
-  --- opt_mergeduplicates ---
-    ~~~ NiNode [test] ~~~
-      ~~~ NiTriShape [Cube] ~~~
-        ~~~ NiTriShapeData [] ~~~
-  --- opt_geometry ---
-    ~~~ NiNode [test] ~~~
-      ~~~ NiTriShape [Cube] ~~~
-        removing duplicate vertices
-        (num vertices was 8 and is now 8)
-        stripifying
-        (average strip length is 8.157895)
-        average strip length < 10.000000 so triangulating
-  writing tests/nif/_test.nif
-Finished.
+pyffi.toaster:INFO:=== tests/nif/_test.nif ===
+pyffi.toaster:INFO:  --- opt_cleanreflists & fix_detachhavoktristripsdata & fix_texturepath & fix_clampmaterialalpha ---
+pyffi.toaster:INFO:    ~~~ NiNode [test] ~~~
+pyffi.toaster:INFO:      ~~~ NiTriShape [Cube] ~~~
+pyffi.toaster:INFO:  --- opt_mergeduplicates ---
+pyffi.toaster:INFO:    ~~~ NiNode [test] ~~~
+pyffi.toaster:INFO:      ~~~ NiTriShape [Cube] ~~~
+pyffi.toaster:INFO:        ~~~ NiTriShapeData [] ~~~
+pyffi.toaster:INFO:  --- opt_geometry ---
+pyffi.toaster:INFO:    ~~~ NiNode [test] ~~~
+pyffi.toaster:INFO:      ~~~ NiTriShape [Cube] ~~~
+pyffi.toaster:INFO:        removing duplicate vertices
+pyffi.toaster:INFO:        (num vertices was 8 and is now 8)
+pyffi.toaster:INFO:        stripifying
+pyffi.toaster:INFO:        (average strip length is 8.157895)
+pyffi.toaster:INFO:        average strip length < 10.000000 so triangulating
+pyffi.toaster:INFO:  writing tests/nif/_test.nif
+pyffi.toaster:INFO:Finished.
 >>> # clean up
 >>> import os
 >>> os.remove("tests/nif/_test.nif")
@@ -69,24 +69,24 @@ Non-interactive
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "optimize", "--noninteractive", "--verbose=1", "tests/nif/_test.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
-=== tests/nif/_test.nif ===
-  --- opt_cleanreflists & fix_detachhavoktristripsdata & fix_texturepath & fix_clampmaterialalpha ---
-    ~~~ NiNode [test] ~~~
-      ~~~ NiTriShape [Cube] ~~~
-  --- opt_mergeduplicates ---
-    ~~~ NiNode [test] ~~~
-      ~~~ NiTriShape [Cube] ~~~
-        ~~~ NiTriShapeData [] ~~~
-  --- opt_geometry ---
-    ~~~ NiNode [test] ~~~
-      ~~~ NiTriShape [Cube] ~~~
-        removing duplicate vertices
-        (num vertices was 8 and is now 8)
-        stripifying
-        (average strip length is 8.157895)
-        average strip length < 10.000000 so triangulating
-  writing tests/nif/_test.nif
-Finished.
+pyffi.toaster:INFO:=== tests/nif/_test.nif ===
+pyffi.toaster:INFO:  --- opt_cleanreflists & fix_detachhavoktristripsdata & fix_texturepath & fix_clampmaterialalpha ---
+pyffi.toaster:INFO:    ~~~ NiNode [test] ~~~
+pyffi.toaster:INFO:      ~~~ NiTriShape [Cube] ~~~
+pyffi.toaster:INFO:  --- opt_mergeduplicates ---
+pyffi.toaster:INFO:    ~~~ NiNode [test] ~~~
+pyffi.toaster:INFO:      ~~~ NiTriShape [Cube] ~~~
+pyffi.toaster:INFO:        ~~~ NiTriShapeData [] ~~~
+pyffi.toaster:INFO:  --- opt_geometry ---
+pyffi.toaster:INFO:    ~~~ NiNode [test] ~~~
+pyffi.toaster:INFO:      ~~~ NiTriShape [Cube] ~~~
+pyffi.toaster:INFO:        removing duplicate vertices
+pyffi.toaster:INFO:        (num vertices was 8 and is now 8)
+pyffi.toaster:INFO:        stripifying
+pyffi.toaster:INFO:        (average strip length is 8.157895)
+pyffi.toaster:INFO:        average strip length < 10.000000 so triangulating
+pyffi.toaster:INFO:  writing tests/nif/_test.nif
+pyffi.toaster:INFO:Finished.
 >>> # clean up
 >>> import os
 >>> os.remove("tests/nif/_test.nif")

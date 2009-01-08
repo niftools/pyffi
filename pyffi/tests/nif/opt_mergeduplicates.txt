@@ -9,79 +9,79 @@ NifToaster check
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "opt_mergeduplicates", "--dry-run", "--noninteractive", "tests/nif/test_opt_mergeduplicates.nif"]
 >>> niftoaster.NifToaster().cli()
-=== tests/nif/test_opt_mergeduplicates.nif ===
-  --- opt_mergeduplicates ---
-    ~~~ NiNode [Scene Root] ~~~
-      ~~~ NiVertexColorProperty [] ~~~
-      ~~~ NiZBufferProperty [] ~~~
-      ~~~ NiStencilProperty [] ~~~
-      ~~~ NiDitherProperty [] ~~~
-      ~~~ NiNode [Cone] ~~~
-        ~~~ NiZBufferProperty [] ~~~
-          removing duplicate branch
-        ~~~ NiVertexColorProperty [] ~~~
-          removing duplicate branch
-        ~~~ NiStencilProperty [] ~~~
-          removing duplicate branch
-        ~~~ NiDitherProperty [] ~~~
-          removing duplicate branch
-        ~~~ NiTriStrips [Tri Cone 0] ~~~
-          ~~~ NiTexturingProperty [] ~~~
-            ~~~ NiSourceTexture [] ~~~
-          ~~~ NiMaterialProperty [Red] ~~~
-          ~~~ NiSpecularProperty [] ~~~
-          ~~~ NiTriStripsData [] ~~~
-        ~~~ NiTriStrips [Tri Cone 1] ~~~
-          ~~~ NiTexturingProperty [] ~~~
-            removing duplicate branch
-          ~~~ NiMaterialProperty [Red] ~~~
-            removing duplicate branch
-          ~~~ NiSpecularProperty [] ~~~
-            removing duplicate branch
-          ~~~ NiAlphaProperty [] ~~~
-          ~~~ NiTriStripsData [] ~~~
-        ~~~ NiTriStrips [Tri Cone 2] ~~~
-          ~~~ NiTexturingProperty [] ~~~
-            removing duplicate branch
-          ~~~ NiMaterialProperty [Red] ~~~
-            removing duplicate branch
-          ~~~ NiWireframeProperty [] ~~~
-          ~~~ NiAlphaProperty [] ~~~
-            removing duplicate branch
-          ~~~ NiTriStripsData [] ~~~
-        ~~~ NiTriStrips [Tri Cone 3] ~~~
-          ~~~ NiTexturingProperty [] ~~~
-            removing duplicate branch
-          ~~~ NiMaterialProperty [Red] ~~~
-            removing duplicate branch
-          ~~~ NiWireframeProperty [] ~~~
-            removing duplicate branch
-          ~~~ NiDitherProperty [] ~~~
-            removing duplicate branch
-          ~~~ NiTriStripsData [] ~~~
-  writing to temporary file
-Finished.
+pyffi.toaster:INFO:=== tests/nif/test_opt_mergeduplicates.nif ===
+pyffi.toaster:INFO:  --- opt_mergeduplicates ---
+pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
+pyffi.toaster:INFO:      ~~~ NiVertexColorProperty [] ~~~
+pyffi.toaster:INFO:      ~~~ NiZBufferProperty [] ~~~
+pyffi.toaster:INFO:      ~~~ NiStencilProperty [] ~~~
+pyffi.toaster:INFO:      ~~~ NiDitherProperty [] ~~~
+pyffi.toaster:INFO:      ~~~ NiNode [Cone] ~~~
+pyffi.toaster:INFO:        ~~~ NiZBufferProperty [] ~~~
+pyffi.toaster:INFO:          removing duplicate branch
+pyffi.toaster:INFO:        ~~~ NiVertexColorProperty [] ~~~
+pyffi.toaster:INFO:          removing duplicate branch
+pyffi.toaster:INFO:        ~~~ NiStencilProperty [] ~~~
+pyffi.toaster:INFO:          removing duplicate branch
+pyffi.toaster:INFO:        ~~~ NiDitherProperty [] ~~~
+pyffi.toaster:INFO:          removing duplicate branch
+pyffi.toaster:INFO:        ~~~ NiTriStrips [Tri Cone 0] ~~~
+pyffi.toaster:INFO:          ~~~ NiTexturingProperty [] ~~~
+pyffi.toaster:INFO:            ~~~ NiSourceTexture [] ~~~
+pyffi.toaster:INFO:          ~~~ NiMaterialProperty [Red] ~~~
+pyffi.toaster:INFO:          ~~~ NiSpecularProperty [] ~~~
+pyffi.toaster:INFO:          ~~~ NiTriStripsData [] ~~~
+pyffi.toaster:INFO:        ~~~ NiTriStrips [Tri Cone 1] ~~~
+pyffi.toaster:INFO:          ~~~ NiTexturingProperty [] ~~~
+pyffi.toaster:INFO:            removing duplicate branch
+pyffi.toaster:INFO:          ~~~ NiMaterialProperty [Red] ~~~
+pyffi.toaster:INFO:            removing duplicate branch
+pyffi.toaster:INFO:          ~~~ NiSpecularProperty [] ~~~
+pyffi.toaster:INFO:            removing duplicate branch
+pyffi.toaster:INFO:          ~~~ NiAlphaProperty [] ~~~
+pyffi.toaster:INFO:          ~~~ NiTriStripsData [] ~~~
+pyffi.toaster:INFO:        ~~~ NiTriStrips [Tri Cone 2] ~~~
+pyffi.toaster:INFO:          ~~~ NiTexturingProperty [] ~~~
+pyffi.toaster:INFO:            removing duplicate branch
+pyffi.toaster:INFO:          ~~~ NiMaterialProperty [Red] ~~~
+pyffi.toaster:INFO:            removing duplicate branch
+pyffi.toaster:INFO:          ~~~ NiWireframeProperty [] ~~~
+pyffi.toaster:INFO:          ~~~ NiAlphaProperty [] ~~~
+pyffi.toaster:INFO:            removing duplicate branch
+pyffi.toaster:INFO:          ~~~ NiTriStripsData [] ~~~
+pyffi.toaster:INFO:        ~~~ NiTriStrips [Tri Cone 3] ~~~
+pyffi.toaster:INFO:          ~~~ NiTexturingProperty [] ~~~
+pyffi.toaster:INFO:            removing duplicate branch
+pyffi.toaster:INFO:          ~~~ NiMaterialProperty [Red] ~~~
+pyffi.toaster:INFO:            removing duplicate branch
+pyffi.toaster:INFO:          ~~~ NiWireframeProperty [] ~~~
+pyffi.toaster:INFO:            removing duplicate branch
+pyffi.toaster:INFO:          ~~~ NiDitherProperty [] ~~~
+pyffi.toaster:INFO:            removing duplicate branch
+pyffi.toaster:INFO:          ~~~ NiTriStripsData [] ~~~
+pyffi.toaster:INFO:  writing to temporary file
+pyffi.toaster:INFO:Finished.
 >>> sys.argv = ["niftoaster.py", "opt_mergeduplicates", "--dry-run", "--noninteractive", "tests/nif/test_opt_dupgeomdata.nif"]
 >>> niftoaster.NifToaster().cli()
-=== tests/nif/test_opt_dupgeomdata.nif ===
-  --- opt_mergeduplicates ---
-    ~~~ NiNode [Scene Root] ~~~
-      ~~~ NiNode [Cube1] ~~~
-        ~~~ NiTriShape [Tri Cube1] ~~~
-          ~~~ NiTriShapeData [] ~~~
-        ~~~ NiNode [Cube2] ~~~
-          ~~~ NiTriShape [Tri Cube2] ~~~
-            ~~~ NiTriShapeData [] ~~~
-              removing duplicate branch
-          ~~~ NiNode [Cube3] ~~~
-            ~~~ NiTriShape [Tri Cube3] ~~~
-              ~~~ NiTriShapeData [] ~~~
-                removing duplicate branch
-            ~~~ NiTriShape [Cube4] ~~~
-              ~~~ NiTriShapeData [] ~~~
-                removing duplicate branch
-  writing to temporary file
-Finished.
+pyffi.toaster:INFO:=== tests/nif/test_opt_dupgeomdata.nif ===
+pyffi.toaster:INFO:  --- opt_mergeduplicates ---
+pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
+pyffi.toaster:INFO:      ~~~ NiNode [Cube1] ~~~
+pyffi.toaster:INFO:        ~~~ NiTriShape [Tri Cube1] ~~~
+pyffi.toaster:INFO:          ~~~ NiTriShapeData [] ~~~
+pyffi.toaster:INFO:        ~~~ NiNode [Cube2] ~~~
+pyffi.toaster:INFO:          ~~~ NiTriShape [Tri Cube2] ~~~
+pyffi.toaster:INFO:            ~~~ NiTriShapeData [] ~~~
+pyffi.toaster:INFO:              removing duplicate branch
+pyffi.toaster:INFO:          ~~~ NiNode [Cube3] ~~~
+pyffi.toaster:INFO:            ~~~ NiTriShape [Tri Cube3] ~~~
+pyffi.toaster:INFO:              ~~~ NiTriShapeData [] ~~~
+pyffi.toaster:INFO:                removing duplicate branch
+pyffi.toaster:INFO:            ~~~ NiTriShape [Cube4] ~~~
+pyffi.toaster:INFO:              ~~~ NiTriShapeData [] ~~~
+pyffi.toaster:INFO:                removing duplicate branch
+pyffi.toaster:INFO:  writing to temporary file
+pyffi.toaster:INFO:Finished.
 
 Explicit check
 --------------
@@ -105,6 +105,56 @@ True
 >>> # run the spell that fixes this
 >>> spell = PyFFI.Spells.NIF.optimize.SpellMergeDuplicates(data=data)
 >>> spell.recurse()
+pyffi.toaster:INFO:--- opt_mergeduplicates ---
+pyffi.toaster:INFO:  ~~~ NiNode [Scene Root] ~~~
+pyffi.toaster:INFO:    ~~~ NiVertexColorProperty [] ~~~
+pyffi.toaster:INFO:    ~~~ NiZBufferProperty [] ~~~
+pyffi.toaster:INFO:    ~~~ NiStencilProperty [] ~~~
+pyffi.toaster:INFO:    ~~~ NiDitherProperty [] ~~~
+pyffi.toaster:INFO:    ~~~ NiNode [Cone] ~~~
+pyffi.toaster:INFO:      ~~~ NiZBufferProperty [] ~~~
+pyffi.toaster:INFO:        removing duplicate branch
+pyffi.toaster:INFO:      ~~~ NiVertexColorProperty [] ~~~
+pyffi.toaster:INFO:        removing duplicate branch
+pyffi.toaster:INFO:      ~~~ NiStencilProperty [] ~~~
+pyffi.toaster:INFO:        removing duplicate branch
+pyffi.toaster:INFO:      ~~~ NiDitherProperty [] ~~~
+pyffi.toaster:INFO:        removing duplicate branch
+pyffi.toaster:INFO:      ~~~ NiTriStrips [Tri Cone 0] ~~~
+pyffi.toaster:INFO:        ~~~ NiTexturingProperty [] ~~~
+pyffi.toaster:INFO:          ~~~ NiSourceTexture [] ~~~
+pyffi.toaster:INFO:        ~~~ NiMaterialProperty [Red] ~~~
+pyffi.toaster:INFO:        ~~~ NiSpecularProperty [] ~~~
+pyffi.toaster:INFO:        ~~~ NiTriStripsData [] ~~~
+pyffi.toaster:INFO:      ~~~ NiTriStrips [Tri Cone 1] ~~~
+pyffi.toaster:INFO:        ~~~ NiTexturingProperty [] ~~~
+pyffi.toaster:INFO:          removing duplicate branch
+pyffi.toaster:INFO:        ~~~ NiMaterialProperty [Red] ~~~
+pyffi.toaster:INFO:          removing duplicate branch
+pyffi.toaster:INFO:        ~~~ NiSpecularProperty [] ~~~
+pyffi.toaster:INFO:          removing duplicate branch
+pyffi.toaster:INFO:        ~~~ NiAlphaProperty [] ~~~
+pyffi.toaster:INFO:        ~~~ NiTriStripsData [] ~~~
+pyffi.toaster:INFO:      ~~~ NiTriStrips [Tri Cone 2] ~~~
+pyffi.toaster:INFO:        ~~~ NiTexturingProperty [] ~~~
+pyffi.toaster:INFO:          removing duplicate branch
+pyffi.toaster:INFO:        ~~~ NiMaterialProperty [Red] ~~~
+pyffi.toaster:INFO:          removing duplicate branch
+pyffi.toaster:INFO:        ~~~ NiWireframeProperty [] ~~~
+pyffi.toaster:INFO:        ~~~ NiAlphaProperty [] ~~~
+pyffi.toaster:INFO:          removing duplicate branch
+pyffi.toaster:INFO:        ~~~ NiTriStripsData [] ~~~
+pyffi.toaster:INFO:      ~~~ NiTriStrips [Tri Cone 3] ~~~
+pyffi.toaster:INFO:        ~~~ NiTexturingProperty [] ~~~
+pyffi.toaster:INFO:          removing duplicate branch
+pyffi.toaster:INFO:        ~~~ NiMaterialProperty [Red] ~~~
+pyffi.toaster:INFO:          removing duplicate branch
+pyffi.toaster:INFO:        ~~~ NiWireframeProperty [] ~~~
+pyffi.toaster:INFO:          removing duplicate branch
+pyffi.toaster:INFO:        ~~~ NiDitherProperty [] ~~~
+pyffi.toaster:INFO:          removing duplicate branch
+pyffi.toaster:INFO:        ~~~ NiTriStripsData [] ~~~
 >>> # check that there are no more duplicates
 >>> has_duplicates(data.roots[0])
 False
+

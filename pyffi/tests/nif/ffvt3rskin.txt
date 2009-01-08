@@ -6,31 +6,31 @@ Doctests for the fix_ffvt3rskinpartition spell
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "fix_ffvt3rskinpartition", "--dry-run", "--noninteractive", "tests/nif/test_fix_ffvt3rskinpartition.nif"]
 >>> niftoaster.NifToaster().cli()
-=== tests/nif/test_fix_ffvt3rskinpartition.nif ===
-  --- fix_ffvt3rskinpartition ---
-    ~~~ NiNode [Bip01] ~~~
-      ~~~ NiNode [Bip01 Pelvis] ~~~
-        ~~~ NiNode [Bip01 Spine] ~~~
-          ~~~ NiNode [Bip01 Spine1] ~~~
-            ~~~ NiNode [Bip01 Spine2] ~~~
-              ~~~ NiNode [Bip01 Neck] ~~~
-                ~~~ NiNode [Bip01 Head] ~~~
-                ~~~ NiNode [Bip01 L Clavicle] ~~~
-                  ~~~ NiNode [Bip01 L UpperArm] ~~~
-                    ~~~ NiNode [Bip01 L Forearm] ~~~
-                ~~~ NiNode [Bip01 R Clavicle] ~~~
-                  ~~~ NiNode [Bip01 R UpperArm] ~~~
-                    ~~~ NiNode [Bip01 R Forearm] ~~~
-          ~~~ NiNode [Bip01 L Thigh] ~~~
-            ~~~ NiNode [Bip01 L Calf] ~~~
-              ~~~ NiNode [Bip01 L Foot] ~~~
-                ~~~ NiNode [Bip01 L Toe0] ~~~
-          ~~~ NiNode [Bip01 R Thigh] ~~~
-            ~~~ NiNode [Bip01 R Calf] ~~~
-              ~~~ NiNode [Bip01 R Foot] ~~~
-                ~~~ NiNode [Bip01 R Toe0] ~~~
-      ~~~ NiTriShape [Body] ~~~
-        updating skin partition
-  writing to temporary file
-Finished.
+pyffi.toaster:INFO:=== tests/nif/test_fix_ffvt3rskinpartition.nif ===
+pyffi.toaster:INFO:  --- fix_ffvt3rskinpartition ---
+pyffi.toaster:INFO:    ~~~ NiNode [Bip01] ~~~
+pyffi.toaster:INFO:      ~~~ NiNode [Bip01 Pelvis] ~~~
+pyffi.toaster:INFO:        ~~~ NiNode [Bip01 Spine] ~~~
+pyffi.toaster:INFO:          ~~~ NiNode [Bip01 Spine1] ~~~
+pyffi.toaster:INFO:            ~~~ NiNode [Bip01 Spine2] ~~~
+pyffi.toaster:INFO:              ~~~ NiNode [Bip01 Neck] ~~~
+pyffi.toaster:INFO:                ~~~ NiNode [Bip01 Head] ~~~
+pyffi.toaster:INFO:                ~~~ NiNode [Bip01 L Clavicle] ~~~
+pyffi.toaster:INFO:                  ~~~ NiNode [Bip01 L UpperArm] ~~~
+pyffi.toaster:INFO:                    ~~~ NiNode [Bip01 L Forearm] ~~~
+pyffi.toaster:INFO:                ~~~ NiNode [Bip01 R Clavicle] ~~~
+pyffi.toaster:INFO:                  ~~~ NiNode [Bip01 R UpperArm] ~~~
+pyffi.toaster:INFO:                    ~~~ NiNode [Bip01 R Forearm] ~~~
+pyffi.toaster:INFO:          ~~~ NiNode [Bip01 L Thigh] ~~~
+pyffi.toaster:INFO:            ~~~ NiNode [Bip01 L Calf] ~~~
+pyffi.toaster:INFO:              ~~~ NiNode [Bip01 L Foot] ~~~
+pyffi.toaster:INFO:                ~~~ NiNode [Bip01 L Toe0] ~~~
+pyffi.toaster:INFO:          ~~~ NiNode [Bip01 R Thigh] ~~~
+pyffi.toaster:INFO:            ~~~ NiNode [Bip01 R Calf] ~~~
+pyffi.toaster:INFO:              ~~~ NiNode [Bip01 R Foot] ~~~
+pyffi.toaster:INFO:                ~~~ NiNode [Bip01 R Toe0] ~~~
+pyffi.toaster:INFO:      ~~~ NiTriShape [Body] ~~~
+pyffi.toaster:INFO:        updating skin partition
+pyffi.toaster:INFO:  writing to temporary file
+pyffi.toaster:INFO:Finished.
 

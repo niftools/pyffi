@@ -805,10 +805,10 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
         # check if we had examples and/or spells: quit
         if options.spells:
             for spellclass in self.SPELLS:
-                self.msg(spellclass.SPELLNAME)
+                print(spellclass.SPELLNAME)
             return
         if options.examples:
-            self.msg(self.EXAMPLES)
+            print(self.EXAMPLES)
             return
 
         # spell name not specified when function was called
@@ -829,11 +829,7 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
             for spellname in spellnames:
                 # convert old names
                 if spellname in self.ALIASDICT:
-                    print("""\
-WARNING: the %s spell is deprecated
-         and will be removed from a future release
-         use the %s spell as a replacement"""
-                          % (spellname, self.ALIASDICT[spellname]))
+                    self.logger.warning("The %s spell is deprecated and will be removed from a future release; use the %s spell as a replacement" % (spellname, self.ALIASDICT[spellname]))
                     spellname = self.ALIASDICT[spellname]
                 # find the spell
                 spellklasses = [spellclass for spellclass in self.SPELLS
@@ -868,10 +864,9 @@ WARNING: the %s spell is deprecated
         self.toast(top)
 
         # signal the end
+        self.logger.info("Finished.")
         if options.pause and options.interactive:
-            raw_input("Finished.")
-        else:
-            print("Finished.")
+            raw_input("Press enter...")
 
     def toast(self, top):
         """Walk over all files in a directory tree and cast spells
@@ -926,10 +921,9 @@ may destroy them. Make a backup of your files before running this script.
 """)
             if not raw_input(
                 "Are you sure that you want to proceed? [n/y] ") in ("y", "Y"):
+                self.logger.info("Script aborted by user.")
                 if pause:
-                    raw_input("Script aborted by user.")
-                else:
-                    print("Script aborted by user.")
+                    raw_input("Press enter...")
                 return
 
         # walk over all streams, and create a data instance for each of them
@@ -972,12 +966,13 @@ may destroy them. Make a backup of your files before running this script.
                 gc.collect()
 
             except StandardError:
-                print("""\
-*** TEST FAILED ON %-51s ***
-*** If you were running a spell that came with PyFFI, then             ***
-*** please report this as a bug (include the file) on                  ***
-*** http://sourceforge.net/tracker/?group_id=199269                    ***
-""" % stream.name)
+                self.logger.error("TEST FAILED ON %s" % stream.name)
+                self.logger.error(
+                    "If you were running a spell that came with PyFFI, then")
+                self.logger.error(
+                    "please report this as a bug (include the file) on")
+                self.logger.error(
+                    "http://sourceforge.net/tracker/?group_id=199269")
                 # if raising test errors, reraise the exception
                 if raisetesterror:
                     raise

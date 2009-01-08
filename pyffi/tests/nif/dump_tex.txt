@@ -8,57 +8,57 @@ Doctests for the dump_tex spell
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "dump_tex", "tests/nif/test_dump_tex.nif"]
 >>> niftoaster.NifToaster().cli()
-=== tests/nif/test_dump_tex.nif ===
-  --- dump_tex ---
-    ~~~ NiNode [test] ~~~
-      ~~~ NiTriShape [Cube] ~~~
-        ~~~ NiMaterialProperty [CubeMaterial] ~~~
-          ambient    0.76 0.43 0.43
-          diffuse    0.92 0.77 0.09
-          specular   0.45 0.19 0.77
-          emissive   0.00 0.00 0.00
-          glossiness 123.000000
-          alpha      0.560000
-        ~~~ NiTexturingProperty [] ~~~
-          [Base] bitmap2.dds
-          [Detail] bitmap1.dds
-          apply mode 2
-Finished.
+pyffi.toaster:INFO:=== tests/nif/test_dump_tex.nif ===
+pyffi.toaster:INFO:  --- dump_tex ---
+pyffi.toaster:INFO:    ~~~ NiNode [test] ~~~
+pyffi.toaster:INFO:      ~~~ NiTriShape [Cube] ~~~
+pyffi.toaster:INFO:        ~~~ NiMaterialProperty [CubeMaterial] ~~~
+pyffi.toaster:INFO:          ambient    0.76 0.43 0.43
+pyffi.toaster:INFO:          diffuse    0.92 0.77 0.09
+pyffi.toaster:INFO:          specular   0.45 0.19 0.77
+pyffi.toaster:INFO:          emissive   0.00 0.00 0.00
+pyffi.toaster:INFO:          glossiness 123.000000
+pyffi.toaster:INFO:          alpha      0.560000
+pyffi.toaster:INFO:        ~~~ NiTexturingProperty [] ~~~
+pyffi.toaster:INFO:          [Base] bitmap2.dds
+pyffi.toaster:INFO:          [Detail] bitmap1.dds
+pyffi.toaster:INFO:          apply mode 2
+pyffi.toaster:INFO:Finished.
 >>> sys.argv = ["niftoaster.py", "dump_tex", "tests/nif/test_fix_ffvt3rskinpartition.nif"]
 >>> niftoaster.NifToaster().cli()
-=== tests/nif/test_fix_ffvt3rskinpartition.nif ===
-  --- dump_tex ---
-    ~~~ NiNode [Bip01] ~~~
-      ~~~ NiNode [Bip01 Pelvis] ~~~
-        ~~~ NiNode [Bip01 Spine] ~~~
-          ~~~ NiNode [Bip01 Spine1] ~~~
-            ~~~ NiNode [Bip01 Spine2] ~~~
-              ~~~ NiNode [Bip01 Neck] ~~~
-                ~~~ NiNode [Bip01 Head] ~~~
-                ~~~ NiNode [Bip01 L Clavicle] ~~~
-                  ~~~ NiNode [Bip01 L UpperArm] ~~~
-                    ~~~ NiNode [Bip01 L Forearm] ~~~
-                ~~~ NiNode [Bip01 R Clavicle] ~~~
-                  ~~~ NiNode [Bip01 R UpperArm] ~~~
-                    ~~~ NiNode [Bip01 R Forearm] ~~~
-          ~~~ NiNode [Bip01 L Thigh] ~~~
-            ~~~ NiNode [Bip01 L Calf] ~~~
-              ~~~ NiNode [Bip01 L Foot] ~~~
-                ~~~ NiNode [Bip01 L Toe0] ~~~
-          ~~~ NiNode [Bip01 R Thigh] ~~~
-            ~~~ NiNode [Bip01 R Calf] ~~~
-              ~~~ NiNode [Bip01 R Foot] ~~~
-                ~~~ NiNode [Bip01 R Toe0] ~~~
-      ~~~ NiTriShape [Body] ~~~
-        ~~~ NiTexturingProperty [] ~~~
-          [Base] body.dds
-          apply mode 2
-        ~~~ NiMaterialProperty [Material] ~~~
-          ambient    0.50 0.50 0.50
-          diffuse    1.00 1.00 1.00
-          specular   0.50 0.50 0.50
-          emissive   0.00 0.00 0.00
-          glossiness 12.500000
-          alpha      1.000000
-Finished.
+pyffi.toaster:INFO:=== tests/nif/test_fix_ffvt3rskinpartition.nif ===
+pyffi.toaster:INFO:  --- dump_tex ---
+pyffi.toaster:INFO:    ~~~ NiNode [Bip01] ~~~
+pyffi.toaster:INFO:      ~~~ NiNode [Bip01 Pelvis] ~~~
+pyffi.toaster:INFO:        ~~~ NiNode [Bip01 Spine] ~~~
+pyffi.toaster:INFO:          ~~~ NiNode [Bip01 Spine1] ~~~
+pyffi.toaster:INFO:            ~~~ NiNode [Bip01 Spine2] ~~~
+pyffi.toaster:INFO:              ~~~ NiNode [Bip01 Neck] ~~~
+pyffi.toaster:INFO:                ~~~ NiNode [Bip01 Head] ~~~
+pyffi.toaster:INFO:                ~~~ NiNode [Bip01 L Clavicle] ~~~
+pyffi.toaster:INFO:                  ~~~ NiNode [Bip01 L UpperArm] ~~~
+pyffi.toaster:INFO:                    ~~~ NiNode [Bip01 L Forearm] ~~~
+pyffi.toaster:INFO:                ~~~ NiNode [Bip01 R Clavicle] ~~~
+pyffi.toaster:INFO:                  ~~~ NiNode [Bip01 R UpperArm] ~~~
+pyffi.toaster:INFO:                    ~~~ NiNode [Bip01 R Forearm] ~~~
+pyffi.toaster:INFO:          ~~~ NiNode [Bip01 L Thigh] ~~~
+pyffi.toaster:INFO:            ~~~ NiNode [Bip01 L Calf] ~~~
+pyffi.toaster:INFO:              ~~~ NiNode [Bip01 L Foot] ~~~
+pyffi.toaster:INFO:                ~~~ NiNode [Bip01 L Toe0] ~~~
+pyffi.toaster:INFO:          ~~~ NiNode [Bip01 R Thigh] ~~~
+pyffi.toaster:INFO:            ~~~ NiNode [Bip01 R Calf] ~~~
+pyffi.toaster:INFO:              ~~~ NiNode [Bip01 R Foot] ~~~
+pyffi.toaster:INFO:                ~~~ NiNode [Bip01 R Toe0] ~~~
+pyffi.toaster:INFO:      ~~~ NiTriShape [Body] ~~~
+pyffi.toaster:INFO:        ~~~ NiTexturingProperty [] ~~~
+pyffi.toaster:INFO:          [Base] body.dds
+pyffi.toaster:INFO:          apply mode 2
+pyffi.toaster:INFO:        ~~~ NiMaterialProperty [Material] ~~~
+pyffi.toaster:INFO:          ambient    0.50 0.50 0.50
+pyffi.toaster:INFO:          diffuse    1.00 1.00 1.00
+pyffi.toaster:INFO:          specular   0.50 0.50 0.50
+pyffi.toaster:INFO:          emissive   0.00 0.00 0.00
+pyffi.toaster:INFO:          glossiness 12.500000
+pyffi.toaster:INFO:          alpha      1.000000
+pyffi.toaster:INFO:Finished.
 

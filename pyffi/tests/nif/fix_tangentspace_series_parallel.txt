@@ -6,26 +6,26 @@ Doctests for the tangentspace spells, and running spells in parallel and series
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "fix_deltangentspace", "fix_addtangentspace", "--dry-run", "--noninteractive", "tests/nif/test_fix_tangentspace.nif"]
 >>> niftoaster.NifToaster().cli()
-=== tests/nif/test_fix_tangentspace.nif ===
-  --- fix_deltangentspace & fix_addtangentspace ---
-    ~~~ NiNode [Scene Root] ~~~
-      ~~~ NiTriStrips [Sphere] ~~~
-        removing tangent space block
-        adding tangent space
-  writing to temporary file
-Finished.
+pyffi.toaster:INFO:=== tests/nif/test_fix_tangentspace.nif ===
+pyffi.toaster:INFO:  --- fix_deltangentspace & fix_addtangentspace ---
+pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
+pyffi.toaster:INFO:      ~~~ NiTriStrips [Sphere] ~~~
+pyffi.toaster:INFO:        removing tangent space block
+pyffi.toaster:INFO:        adding tangent space
+pyffi.toaster:INFO:  writing to temporary file
+pyffi.toaster:INFO:Finished.
 >>> # now run the spells in series
 >>> sys.argv = ["niftoaster.py", "fix_deltangentspace", "fix_addtangentspace", "--series", "--dry-run", "--noninteractive", "tests/nif/test_fix_tangentspace.nif"]
 >>> niftoaster.NifToaster().cli()
-=== tests/nif/test_fix_tangentspace.nif ===
-  --- fix_deltangentspace ---
-    ~~~ NiNode [Scene Root] ~~~
-      ~~~ NiTriStrips [Sphere] ~~~
-        removing tangent space block
-  --- fix_addtangentspace ---
-    ~~~ NiNode [Scene Root] ~~~
-      ~~~ NiTriStrips [Sphere] ~~~
-        adding tangent space
-  writing to temporary file
-Finished.
+pyffi.toaster:INFO:=== tests/nif/test_fix_tangentspace.nif ===
+pyffi.toaster:INFO:  --- fix_deltangentspace ---
+pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
+pyffi.toaster:INFO:      ~~~ NiTriStrips [Sphere] ~~~
+pyffi.toaster:INFO:        removing tangent space block
+pyffi.toaster:INFO:  --- fix_addtangentspace ---
+pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
+pyffi.toaster:INFO:      ~~~ NiTriStrips [Sphere] ~~~
+pyffi.toaster:INFO:        adding tangent space
+pyffi.toaster:INFO:  writing to temporary file
+pyffi.toaster:INFO:Finished.
 

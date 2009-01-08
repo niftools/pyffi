@@ -136,6 +136,8 @@ fix_deltangentspace
 fix_detachhavoktristripsdata
 fix_ffvt3rskinpartition
 fix_texturepath
+fix_sendgeometriestobindposition
+fix_sendbonestobindposition
 hackcheckskindata
 hackmultiskelroot
 hackskindataidtransform
@@ -164,55 +166,54 @@ Traceback (most recent call last):
 NifError: unknown block type 'NiInvalid!'
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "check_readwrite", "tests/nif/"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
-=== tests/nif/invalid.nif ===
-*** TEST FAILED ON tests/nif/invalid.nif                               ***
-*** If you were running a spell that came with PyFFI, then             ***
-*** please report this as a bug (include the file) on                  ***
-*** http://sourceforge.net/tracker/?group_id=199269                    ***
-<BLANKLINE>
-=== tests/nif/test.nif ===
-  --- check_readwrite ---
-    writing to temporary file
-      comparing file sizes
-=== tests/nif/test_dump_tex.nif ===
-  --- check_readwrite ---
-    writing to temporary file
-      comparing file sizes
-=== tests/nif/test_fix_clampmaterialalpha.nif ===
-  --- check_readwrite ---
-    writing to temporary file
-      comparing file sizes
-=== tests/nif/test_fix_detachhavoktristripsdata.nif ===
-  --- check_readwrite ---
-    writing to temporary file
-      comparing file sizes
-=== tests/nif/test_fix_ffvt3rskinpartition.nif ===
-  --- check_readwrite ---
-    writing to temporary file
-      comparing file sizes
-=== tests/nif/test_fix_tangentspace.nif ===
-  --- check_readwrite ---
-    writing to temporary file
-      comparing file sizes
-=== tests/nif/test_fix_texturepath.nif ===
-  --- check_readwrite ---
-    writing to temporary file
-      comparing file sizes
-=== tests/nif/test_opt_dupgeomdata.nif ===
-  --- check_readwrite ---
-    writing to temporary file
-      comparing file sizes
-=== tests/nif/test_opt_dupverts.nif ===
-  --- check_readwrite ---
-    writing to temporary file
-      comparing file sizes
-=== tests/nif/test_opt_emptyproperties.nif ===
-  --- check_readwrite ---
-    writing to temporary file
-      comparing file sizes
-=== tests/nif/test_opt_mergeduplicates.nif ===
-  --- check_readwrite ---
-    writing to temporary file
-      comparing file sizes
-Finished.
+pyffi.toaster:INFO:=== tests/nif/invalid.nif ===
+pyffi.toaster:ERROR:TEST FAILED ON tests/nif/invalid.nif
+pyffi.toaster:ERROR:If you were running a spell that came with PyFFI, then
+pyffi.toaster:ERROR:please report this as a bug (include the file) on
+pyffi.toaster:ERROR:http://sourceforge.net/tracker/?group_id=199269
+pyffi.toaster:INFO:=== tests/nif/test.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_dump_tex.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_fix_clampmaterialalpha.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_fix_detachhavoktristripsdata.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_fix_ffvt3rskinpartition.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_fix_tangentspace.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_fix_texturepath.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_opt_dupgeomdata.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_opt_dupverts.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_opt_emptyproperties.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_opt_mergeduplicates.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:Finished.
 
