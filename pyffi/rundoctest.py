@@ -30,6 +30,7 @@ import PyFFI.Formats.NIF._Matrix33
 import PyFFI.Formats.NIF._Vector3
 import PyFFI.Formats.NIF._Vector4
 import PyFFI.Formats.NIF.NiGeometryData
+import PyFFI.Formats.NIF.NiTriBasedGeomData
 import PyFFI.Formats.NIF.NiTriStripsData
 import PyFFI.Formats.NIF.NiTriShapeData
 import PyFFI.Formats.NIF.NiGeometry
@@ -71,6 +72,7 @@ suite.addTest(doctest.DocFileSuite('tests/nif/opt_mergeduplicates.txt'))
 suite.addTest(doctest.DocFileSuite('tests/om_simpletype.txt'))
 suite.addTest(doctest.DocFileSuite('tests/om_arraytype.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/matrix.txt'))
+suite.addTest(doctest.DocFileSuite('tests/nif/skinpartition.txt'))
 
 # TODO: examples
 #suite.addTest(doctest.DocFileSuite('examples/*.txt'))
