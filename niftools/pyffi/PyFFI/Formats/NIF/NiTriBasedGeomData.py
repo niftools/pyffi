@@ -93,3 +93,52 @@ def isInterchangeable(self, other):
 
     # looks pretty identical!
     return True
+
+def getTriangleIndices(self, triangles):
+    """Yield list of triangle indices (relative to
+    self.getTriangles()) of given triangles. Degenerate triangles in
+    the list are assigned index C{None}.
+
+    >>> from PyFFI.Formats.NIF import NifFormat
+    >>> geomdata = NifFormat.NiTriShapeData()
+    >>> geomdata.setTriangles([(0,1,2),(1,2,3),(2,3,4)])
+    >>> list(geomdata.getTriangleIndices([(1,2,3)]))
+    [1]
+    >>> list(geomdata.getTriangleIndices([(3,1,2)]))
+    [1]
+    >>> list(geomdata.getTriangleIndices([(2,3,1)]))
+    [1]
+    >>> list(geomdata.getTriangleIndices([(1,2,0),(4,2,3)]))
+    [0, 2]
+    >>> list(geomdata.getTriangleIndices([(0,0,0),(4,2,3)]))
+    [None, 2]
+    >>> list(geomdata.getTriangleIndices([(0,3,4),(4,2,3)])) # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    ValueError: ...
+
+    @param triangles: An iterable of triangles to check.
+    @type triangles: iterator or list of tuples of three ints
+    """
+    def triangleHash(triangle):
+        """Calculate hash of a non-degenerate triangle.
+        Returns C{None} if the triangle is degenerate.
+        """
+        if triangle[0] < triangle[1] and triangle[0] < triangle[2]:
+            return hash((triangle[0], triangle[1], triangle[2]))
+        elif triangle[1] < triangle[0] and triangle[1] < triangle[2]:
+            return hash((triangle[1], triangle[2], triangle[0]))
+        elif triangle[2] < triangle[0] and triangle[2] < triangle[1]:
+            return hash((triangle[2], triangle[0], triangle[1]))
+
+    # calculate hashes of all triangles in the geometry
+    self_triangles_hashes = [
+        triangleHash(triangle) for triangle in self.getTriangles()]
+
+    # calculate index of each triangle in the list of triangles
+    for triangle in triangles:
+        triangle_hash = triangleHash(triangle)
+        if triangle_hash is None:
+            yield None
+        else:
+            yield self_triangles_hashes.index(triangle_hash)
