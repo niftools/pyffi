@@ -46,15 +46,20 @@ class _SkinPartition(NifFormat.SkinPartition):
     __metaclass__ = MetaPartial
 
     def getTriangles(self):
-        """Get list of triangles of this partition (mapping into the
-        geometry data vertex list).
+        """Get list of triangles of this partition.
         """
         # strips?
         if self.numStrips:
             for tri in TriStrip.triangulate(self.strips):
-                yield tuple(self.vertexMap[v_index] for v_index in tri)
+                yield tri
         # no strips, do triangles
         else:
             for tri in self.triangles:
-                yield tuple(self.vertexMap[v_index]
-                            for v_index in (tri.v1, tri.v2, tri.v3))
+                yield (tri.v1, tri.v2, tri.v3)
+
+    def getMappedTriangles(self):
+        """Get list of triangles of this partition (mapping into the
+        geometry data vertex list).
+        """
+        for tri in self.getTriangles():
+            yield tuple(self.vertexMap[v_index] for v_index in tri)

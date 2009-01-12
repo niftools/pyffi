@@ -367,3 +367,30 @@ def updateBindPosition(self):
     # calculate bone offsets
     for i, bone in enumerate(skininst.bones):
          skindata.boneList[i].setTransform(geomtransform * bone.getTransform(skelroot).getInverse())
+
+def getSkinPartition(self):
+    """Return the skin partition block."""
+    skininst = self.skinInstance
+    if not skininst:
+        skinpart = None
+    else:
+        skinpart = skininst.skinPartition
+        if not skinpart:
+            skindata = skininst.data
+            if skindata:
+                skinpart = skindata.skinPartition
+
+    return skinpart
+
+def setSkinPartition(self, skinpart):
+    """Set skin partition block."""
+    skininst = self.skinInstance
+    if not skininst:
+        raise ValueError("Geometry has no skin instance.")
+
+    skindata = skininst.data
+    if not skindata:
+        raise ValueError("Geometry has no skin data.")
+
+    skininst.skinPartition = skinpart
+    skindata.skinPartition = skinpart
