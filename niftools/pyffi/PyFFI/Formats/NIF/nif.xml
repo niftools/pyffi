@@ -1280,9 +1280,9 @@
     </compound>
 
     <bitflags name="BSPartFlag" storage="ushort">
-        Editor flags for the Body Partitions. Its unclear difference between PF_EDITOR_VISIBLE and PF_EDITOR_VISIBLE_2.
+        Editor flags for the Body Partitions.
         <option value="0" name="EDITOR VISIBLE">Visible in Editor</option>
-        <option value="8" name="EDITOR VISIBLE 2">Visible in Editor</option>
+        <option value="8" name="START NEW BONESET">Start a new shared boneset.  It is expected this BoneSet and the following sets in the Skin Partition will have the same bones.</option>
     </bitflags>
 
     <compound name="BodyPartList">

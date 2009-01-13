@@ -37,8 +37,9 @@
 #
 # ***** END LICENSE BLOCK *****
 
+from itertools import izip, repeat
+import logging
 import struct
-from itertools import izip
 
 from PyFFI.Utils import TriStrip
 
@@ -190,16 +191,16 @@ def updateTangentSpace(self, as_extra=True):
 
 # ported from nifskope/skeleton.cpp:spSkinPartition
 def updateSkinPartition(self,
-                        maxbonesperpartition = 4, maxbonespervertex = 4,
-                        verbose = 0, stripify = True, stitchstrips = False,
-                        padbones = False):
+                        maxbonesperpartition=4, maxbonespervertex=4,
+                        verbose=0, stripify=True, stitchstrips=False,
+                        padbones=False, facemap=None):
     """Recalculate skin partition data.
 
     @param maxbonesperpartition: Maximum number of bones in each partition.
         The numBones field will not exceed this number.
     @param maxbonespervertex: Maximum number of bones per vertex.
         The numWeightsPerVertex field will be exactly equal to this number.
-    @param verbose: Set verbosity level (0 = completely quiet).
+    @param verbose: Ignored, and deprecated. Set pyffi's log level instead.
     @param stripify: If true, stripify the partitions, otherwise use triangles.
     @param stitchstrips: If stripify is true, then set this to true to stitch
         the strips.
@@ -208,30 +209,43 @@ def updateSkinPartition(self,
         and sorted, per vertex. Raises an exception if maxbonespervertex
         is not equal to maxbonesperpartition (in that case bone indices cannot
         be unique and sorted). This options is required for Freedom Force vs.
-        the 3rd Reich skin partitions."""
+        the 3rd Reich skin partitions.
+    @param facemap: Maps each face to a partition index. Faces with different
+        indices will never appear in the same partition. If the skin instance is
+        a BSDismemberSkinInstance, then these indices are used as body part
+        types, and the partitions in the BSDismemberSkinInstance are updated
+        accordingly. Note that the faces are counted relative to getTriangles.
+    @deprecated: Do not use the verbose argument.
+    """
+    logger = logging.getLogger("pyffi.nif.nitribasedgeom")
+
+    # if facemap not specified, map everything to index 0
+    if facemap is None:
+        facemap = repeat(0)
+
     # shortcuts relevant blocks
-    if not self.skinInstance: return # no skin, nothing to do
+    if not self.skinInstance:
+        # no skin, nothing to do
+        return
     self._validateSkin()
     geomdata = self.data
     skininst = self.skinInstance
     skindata = skininst.data
 
     # get skindata vertex weights
-    if verbose: print "getting vertex weights"
+    logger.debug("Getting vertex weights.")
     weights = self.getVertexWeights()
 
     # count minimum and maximum number of bones per vertex
-    if verbose: print "counting min and max bones per vertex",
     minbones = min(len(weight) for weight in weights)
     maxbones = max(len(weight) for weight in weights)
     if minbones <= 0:
         raise ValueError('bad NiSkinData: some vertices have no weights')
-    if verbose:
-        print "   min", minbones, "   max", maxbones
+    logger.info("Counted minimum of %i and maximum of %i bones per vertex"
+                % (minbones, maxbones))
 
     # reduce bone influences to meet maximum number of bones per vertex
-    if verbose:
-        print "imposing max bones per vertex", maxbonespervertex
+    logger.info("Imposing maximum of %i bones per vertex." % maxbonespervertex)
     lostweight = 0.0
     for weight in weights:
         if len(weight) > maxbonespervertex:
@@ -251,7 +265,9 @@ def updateSkinPartition(self,
 
     # reduce bone influences to meet maximum number of bones per partition
     # (i.e. maximum number of bones per triangle)
-    if verbose: print "imposing max bones per partition", maxbonesperpartition
+    logger.info(
+        "Imposing maximum of %i bones per triangle (and hence, per partition)."
+        % maxbonesperpartition)
 
     triangles = geomdata.getTriangles()
 
@@ -263,7 +279,8 @@ def updateSkinPartition(self,
                 tribones.extend([bonenum for bonenum, boneweight in weights[t]])
             tribones = set(tribones)
             # target met?
-            if len(tribones) <= maxbonesperpartition: break
+            if len(tribones) <= maxbonesperpartition:
+                break
             # no, need to remove a bone
 
             # sum weights for each bone to find the one that least influences
@@ -308,46 +325,58 @@ increase maxbonesperpartition and try again')
                         continue
                     # normalize
                     totalweight = sum([x[1] for x in weight])
-                    for x in weight: x[1] /= totalweight
+                    for x in weight:
+                        x[1] /= totalweight
 
     # split triangles into partitions
-    if verbose: print "creating partitions"
+    logger.info("Creating partitions")
     parts = []
     # keep creating partitions as long as there are triangles left
     while triangles:
         # create a partition
-        part = [set(), []] # bones, triangles
+        part = [set(), [], None] # bones, triangles, partition index
         usedverts = set()
         addtriangles = True
         # keep adding triangles to it as long as the flag is set
         while addtriangles:
             # newtriangles is a list of triangles that have not been added to
-            # the partition
+            # the partition, similar for newfacemap
             newtriangles = []
-            for tri in triangles:
+            newfacemap = []
+            for tri, partindex in izip(triangles, facemap):
                 # find the bones influencing this triangle
                 tribones = []
                 for t in tri:
                     tribones.extend([
                         bonenum for bonenum, boneweight in weights[t]])
                 tribones = set(tribones)
-                # if part has no bones, or if part has all bones of tribones
+                # if part has no bones,
+                # or if part has all bones of tribones and index coincides
                 # then add this triangle to this part
-                if (not part[0]) or (part[0] >= tribones):
+                if ((not part[0])
+                    or (part[0] >= tribones and part[2] == partindex)):
                     part[0] |= tribones
                     part[1].append(tri)
                     usedverts |= set(tri)
+                    # if part was empty, assign it the index
+                    if part[2] is None:
+                        part[2] = partindex
                 else:
                     newtriangles.append(tri)
+                    newfacemap.append(partindex)
             triangles = newtriangles
+            facemap = newfacemap
 
             # if we have room left in the partition
-            # then add an adjacent triangle
+            # then add adjacent triangles
             addtriangles = False
             newtriangles = []
+            newfacemap = []
             if len(part[0]) < maxbonesperpartition:
-                for tri in triangles:
-                    if usedverts & set(tri):
+                for tri, partindex in izip(triangles, facemap):
+                    # if triangle is adjacent, and has same index
+                    # then check if it can be added to the partition
+                    if (usedverts & set(tri)) and (part[2] == partindex):
                         # find the bones influencing this triangle
                         tribones = []
                         for t in tri:
@@ -365,14 +394,17 @@ increase maxbonesperpartition and try again')
                             addtriangles = True
                         else:
                             newtriangles.append(tri)
+                            newfacemap.append(partindex)
                     else:
                         newtriangles.append(tri)
+                        newfacemap.append(partindex)
                 triangles = newtriangles
+                facemap = newfacemap
 
         parts.append(part)
 
     # merge all partitions
-    if verbose: print "merging partitions"
+    logger.info("Merging partitions.")
     merged = True # signals success, in which case do another run
     while merged:
         merged = False
@@ -383,13 +415,19 @@ increase maxbonesperpartition and try again')
         addedparts = set()
         # try all combinations
         for a, parta in enumerate(parts):
-            if a in addedparts: continue
+            if a in addedparts:
+                continue
             newparts.append(parta)
             addedparts.add(a)
             for b, partb in enumerate(parts):
-                if b <= a: continue
-                if b in addedparts: continue
-                if len(parta[0] | partb[0]) <= maxbonesperpartition:
+                if b <= a:
+                    continue
+                if b in addedparts:
+                    continue
+                # if partition indices are the same, and bone limit is not
+                # exceeded, merge them
+                if ((parta[2] == partb[2])
+                    and (len(parta[0] | partb[0]) <= maxbonesperpartition)):
                     parta[0] |= partb[0]
                     parta[1] += partb[1]
                     addedparts.add(b)
@@ -398,8 +436,7 @@ increase maxbonesperpartition and try again')
         parts = newparts
 
     # write the NiSkinPartition
-    if verbose:
-        print "creating NiSkinPartition with %i partitions" % len(parts)
+    logger.info("Skin has %i partitions." % len(parts))
 
     # if skin partition already exists, use it
     if skindata.skinPartition != None:
@@ -418,13 +455,26 @@ increase maxbonesperpartition and try again')
     skinpart.numSkinPartitionBlocks = len(parts)
     skinpart.skinPartitionBlocks.updateSize()
 
+    # for Fallout 3, set dismember partition indices
+    if isinstance(skininst, self.cls.BSDismemberSkinInstance):
+        skininst.numPartitions = len(parts)
+        skininst.partitions.updateSize()
+        for bodypart, part in izip(skininst.partitions, parts):
+            bodypart.bodyPart = part[2]
+            # start new bone set (TODO: optimize partitions for sharing bones)
+            bodypart.partFlag.startNewBoneset = 1
+            # caps are invisible
+            bodypart.partFlag.editorVisible = (part[2] < 100
+                                               or part[2] >= 1000)
+
     for skinpartblock, part in zip(skinpart.skinPartitionBlocks, parts):
         # get sorted list of bones
         bones = sorted(list(part[0]))
         triangles = part[1]
         # get sorted list of vertices
         vertices = set()
-        for tri in triangles: vertices |= set(tri)
+        for tri in triangles:
+            vertices |= set(tri)
         vertices = sorted(list(vertices))
         # remap the vertices
         parttriangles = []
@@ -432,11 +482,12 @@ increase maxbonesperpartition and try again')
             parttriangles.append([vertices.index(t) for t in tri])
         if stripify:
             # stripify the triangles
-            if verbose: print "  stripifying partition", parts.index(part)
+            logger.info("Stripifying partition %i" % parts.index(part))
             strips = TriStrip.stripify(
-                parttriangles, stitchstrips = stitchstrips)
+                parttriangles, stitchstrips=stitchstrips)
             numtriangles = 0
-            for strip in strips: numtriangles += len(strip) - 2
+            for strip in strips:
+                numtriangles += len(strip) - 2
         else:
             numtriangles = len(parttriangles)
 
