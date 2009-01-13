@@ -193,7 +193,8 @@ def updateTangentSpace(self, as_extra=True):
 def updateSkinPartition(self,
                         maxbonesperpartition=4, maxbonespervertex=4,
                         verbose=0, stripify=True, stitchstrips=False,
-                        padbones=False, facemap=None):
+                        padbones=False,
+                        triangles=None, trianglepartmap=None):
     """Recalculate skin partition data.
 
     @param maxbonesperpartition: Maximum number of bones in each partition.
@@ -210,18 +211,21 @@ def updateSkinPartition(self,
         is not equal to maxbonesperpartition (in that case bone indices cannot
         be unique and sorted). This options is required for Freedom Force vs.
         the 3rd Reich skin partitions.
-    @param facemap: Maps each face to a partition index. Faces with different
-        indices will never appear in the same partition. If the skin instance is
-        a BSDismemberSkinInstance, then these indices are used as body part
-        types, and the partitions in the BSDismemberSkinInstance are updated
-        accordingly. Note that the faces are counted relative to getTriangles.
+    @param triangles: The triangles of the partition (if not specified, then
+        this defaults to C{self.data.getTriangles()}.
+    @param trianglepartmap: Maps each triangle to a partition index. Faces with
+        different indices will never appear in the same partition. If the skin
+        instance is a BSDismemberSkinInstance, then these indices are used as
+        body part types, and the partitions in the BSDismemberSkinInstance are
+        updated accordingly. Note that the faces are counted relative to
+        L{triangles}.
     @deprecated: Do not use the verbose argument.
     """
     logger = logging.getLogger("pyffi.nif.nitribasedgeom")
 
-    # if facemap not specified, map everything to index 0
-    if facemap is None:
-        facemap = repeat(0)
+    # if trianglepartmap not specified, map everything to index 0
+    if trianglepartmap is None:
+        trianglepartmap = repeat(0)
 
     # shortcuts relevant blocks
     if not self.skinInstance:
@@ -269,7 +273,8 @@ def updateSkinPartition(self,
         "Imposing maximum of %i bones per triangle (and hence, per partition)."
         % maxbonesperpartition)
 
-    triangles = geomdata.getTriangles()
+    if triangles is None:
+        triangles = geomdata.getTriangles()
 
     for tri in triangles:
         while True:
@@ -340,10 +345,10 @@ increase maxbonesperpartition and try again')
         # keep adding triangles to it as long as the flag is set
         while addtriangles:
             # newtriangles is a list of triangles that have not been added to
-            # the partition, similar for newfacemap
+            # the partition, similar for newtrianglepartmap
             newtriangles = []
-            newfacemap = []
-            for tri, partindex in izip(triangles, facemap):
+            newtrianglepartmap = []
+            for tri, partindex in izip(triangles, trianglepartmap):
                 # find the bones influencing this triangle
                 tribones = []
                 for t in tri:
@@ -354,7 +359,7 @@ increase maxbonesperpartition and try again')
                 # or if part has all bones of tribones and index coincides
                 # then add this triangle to this part
                 if ((not part[0])
-                    or (part[0] >= tribones and part[2] == partindex)):
+                    or ((part[0] >= tribones) and (part[2] == partindex))):
                     part[0] |= tribones
                     part[1].append(tri)
                     usedverts |= set(tri)
@@ -363,17 +368,17 @@ increase maxbonesperpartition and try again')
                         part[2] = partindex
                 else:
                     newtriangles.append(tri)
-                    newfacemap.append(partindex)
+                    newtrianglepartmap.append(partindex)
             triangles = newtriangles
-            facemap = newfacemap
+            trianglepartmap = newtrianglepartmap
 
             # if we have room left in the partition
             # then add adjacent triangles
             addtriangles = False
             newtriangles = []
-            newfacemap = []
+            newtrianglepartmap = []
             if len(part[0]) < maxbonesperpartition:
-                for tri, partindex in izip(triangles, facemap):
+                for tri, partindex in izip(triangles, trianglepartmap):
                     # if triangle is adjacent, and has same index
                     # then check if it can be added to the partition
                     if (usedverts & set(tri)) and (part[2] == partindex):
@@ -394,14 +399,16 @@ increase maxbonesperpartition and try again')
                             addtriangles = True
                         else:
                             newtriangles.append(tri)
-                            newfacemap.append(partindex)
+                            newtrianglepartmap.append(partindex)
                     else:
                         newtriangles.append(tri)
-                        newfacemap.append(partindex)
+                        newtrianglepartmap.append(partindex)
                 triangles = newtriangles
-                facemap = newfacemap
+                trianglepartmap = newtrianglepartmap
 
         parts.append(part)
+
+    logger.info("Created %i small partitions." % len(parts))
 
     # merge all partitions
     logger.info("Merging partitions.")
