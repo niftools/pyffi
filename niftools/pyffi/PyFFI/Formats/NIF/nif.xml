@@ -2556,7 +2556,7 @@
         <add name="Emissive Color" type="Color3">How much light the material emits.</add>
         <add name="Glossiness" type="float">The material&#039;s glossiness.</add>
         <add name="Alpha" type="float">The material transparency (1=non-transparant). Refer to a NiAlphaProperty object in this material&#039;s parent NiTriShape object, when alpha is not 1.</add>
-        <add name="EmitMulti" type="float" vercond="(Version == 20.2.0.7) &amp;&amp; (User Version == 11) &amp;&amp; (User Version 2 > 21)">Unknown</add>
+        <add name="Emit Multi" type="float" vercond="(Version == 20.2.0.7) &amp;&amp; (User Version == 11) &amp;&amp; (User Version 2 > 21)">Unknown</add>
     </niobject>
 
     <niobject name="NiMorphData" abstract="0" inherit="NiObject">
