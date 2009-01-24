@@ -194,7 +194,8 @@ def updateSkinPartition(self,
                         maxbonesperpartition=4, maxbonespervertex=4,
                         verbose=0, stripify=True, stitchstrips=False,
                         padbones=False,
-                        triangles=None, trianglepartmap=None):
+                        triangles=None, trianglepartmap=None,
+                        maximize_bone_sharing=False):
     """Recalculate skin partition data.
 
     @param maxbonesperpartition: Maximum number of bones in each partition.
@@ -219,6 +220,8 @@ def updateSkinPartition(self,
         body part types, and the partitions in the BSDismemberSkinInstance are
         updated accordingly. Note that the faces are counted relative to
         L{triangles}.
+    @param maximize_bone_sharing: Maximize bone sharing between partitions.
+        This option is useful for Fallout 3.
     @deprecated: Do not use the verbose argument.
     """
     logger = logging.getLogger("pyffi.nif.nitribasedgeom")
@@ -462,17 +465,60 @@ increase maxbonesperpartition and try again')
     skinpart.numSkinPartitionBlocks = len(parts)
     skinpart.skinPartitionBlocks.updateSize()
 
+    # maximize bone sharing, if requested
+    if maximize_bone_sharing:
+        logger.info("Maximizing shared bones.")
+        # new list of partitions, sorted to maximize bone sharing
+        newparts = []
+        # as long as there are parts to add
+        while parts:
+            # current set of partitions with shared bones
+            # starts a new set of partitions with shared bones
+            sharedparts = [parts.pop()]
+            sharedboneset = sharedparts[0][0]
+            # go over all other partitions, and try to add them with
+            # shared bones
+            oldparts = parts[:]
+            parts = []
+            for otherpart in oldparts:
+                # check if bones can be added
+                if len(sharedboneset | otherpart[0]) <= maxbonesperpartition:
+                    # ok, we can share bones!
+                    # update set of shared bones
+                    sharedboneset |= otherpart[0]
+                    # add this other partition to list of shared parts
+                    sharedparts.append(otherpart)
+                    # update bone set in all shared parts
+                    for sharedpart in sharedparts:
+                        sharedpart[0] = sharedboneset
+                else:
+                    # not added to sharedparts,
+                    # so we must keep it for the next iteration
+                    parts.append(otherpart)
+            # update list of partitions
+            newparts.extend(sharedparts)
+
+        # store update
+        parts = newparts
+
     # for Fallout 3, set dismember partition indices
     if isinstance(skininst, self.cls.BSDismemberSkinInstance):
         skininst.numPartitions = len(parts)
         skininst.partitions.updateSize()
+        lastpart = None
         for bodypart, part in izip(skininst.partitions, parts):
             bodypart.bodyPart = part[2]
-            # start new bone set (TODO: optimize partitions for sharing bones)
-            bodypart.partFlag.startNewBoneset = 1
+            if (lastpart is None) or (lastpart[0] != part[0]):
+                # start new bone set, if bones are not shared
+                bodypart.partFlag.startNewBoneset = 1
+            else:
+                # do not start new bone set
+                bodypart.partFlag.startNewBoneset = 0
             # caps are invisible
             bodypart.partFlag.editorVisible = (part[2] < 100
                                                or part[2] >= 1000)
+            # store part for next iteration
+            lastpart = part
 
     for skinpartblock, part in zip(skinpart.skinPartitionBlocks, parts):
         # get sorted list of bones
