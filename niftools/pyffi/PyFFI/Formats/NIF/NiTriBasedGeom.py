@@ -574,18 +574,22 @@ maxbonespervertex')
                 else:
                     skinpartblock.boneIndices[i][j] = 0
 
-        # sort weights by bone index (for ffvt3r)
-        if padbones:
-            for i, v in enumerate(vertices):
-                vweights = []
-                for j in xrange(skinpartblock.numWeightsPerVertex):
-                    vweights.append([
-                        skinpartblock.boneIndices[i][j],
-                        skinpartblock.vertexWeights[i][j]])
-                vweights.sort(key = lambda w: w[0])
-                for j in xrange(skinpartblock.numWeightsPerVertex):
-                    skinpartblock.boneIndices[i][j] = vweights[j][0]
-                    skinpartblock.vertexWeights[i][j] = vweights[j][1]
+        # sort weights
+        for i, v in enumerate(vertices):
+            vweights = []
+            for j in xrange(skinpartblock.numWeightsPerVertex):
+                vweights.append([
+                    skinpartblock.boneIndices[i][j],
+                    skinpartblock.vertexWeights[i][j]])
+            if padbones:
+                # by bone index (for ffvt3r)
+                vweights.sort(key=lambda w: w[0])
+            else:
+                # by weight (for fallout 3, largest weight first)
+                vweights.sort(key=lambda w: -w[1])
+            for j in xrange(skinpartblock.numWeightsPerVertex):
+                skinpartblock.boneIndices[i][j] = vweights[j][0]
+                skinpartblock.vertexWeights[i][j] = vweights[j][1]
 
     return lostweight
 
