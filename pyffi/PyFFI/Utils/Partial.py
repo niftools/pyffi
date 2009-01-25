@@ -34,8 +34,10 @@ the name ExtendedSomeClass is of no importance (and becomes an alias
 for SomeClass).
 
 If the original class already contains the definitions being added, an
-exception is raised, unless they are decorated with @replace.
+warning is raised, unless they are decorated with @replace.
 
+>>> import warnings
+>>> warnings.simplefilter("error") # turn warnings into errors
 >>> class SomeClass(object):
 ...     def original_method(self):
 ...         print("hello world")
@@ -46,7 +48,8 @@ exception is raised, unless they are decorated with @replace.
 ...         print("replaced!") # doctest: +ELLIPSIS
 Traceback (most recent call last):
     ...
-TypeError: ...
+RuntimeWarning: ...
+>>> warnings.resetwarnings() # warnings no longer errors
 
 """
 
@@ -87,6 +90,8 @@ TypeError: ...
 #
 # ***** END LICENSE BLOCK *****
 
+import warnings
+
 class MetaPartial(type):
     "Metaclass implementing the hook for partial class definitions."
 
@@ -101,7 +106,9 @@ base class to extend")
                 # the MetaPartial __metaclass__ attribute
                 continue
             if k in base.__dict__ and not hasattr(v, '__replace'):
-                raise TypeError("%s already has %s" % (repr(base), k))
+                #raise TypeError("%s already has %s" % (repr(base), k))
+                warnings.warn("%s already has %s" % (repr(base), k),
+                              RuntimeWarning)
             setattr(base, k, v)
         # the next command would create the actual class as defined
         # (note possible metaclass conflict!!!)
