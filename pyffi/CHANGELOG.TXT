@@ -1,3 +1,5 @@
+Version 1.2.1 (***)
+
 Version 1.2.0 (25 Jan 2009)
 * installer directs to Python 2.5.4 if not installed
 * using logging module for log messages
