@@ -93,4 +93,4 @@ class AnyType(PyFFI.ObjectModels.Graph.DetailNode):
         """AnyType objects are mutable, so raise type error on hash
         calculation, as they cannot be safely used as dictionary keys.
         """
-        raise TypeError("AnyType objects are unhashable")
+        raise TypeError("%s objects are unhashable" % self.__class__.__name__)
