@@ -1,12 +1,26 @@
-Version 1.1.1 (***)
+Version 1.2.0 (25 Jan 2009)
 * using logging module for log messages
 * nif format:
+  - swapping tangents and binormals in xml; renaming binormals to bitangents
+  (see http://www.terathon.com/code/tangent.html)
   - updates for Fallout 3 format
+  - updated skin partition algorithm to work for Fallout 3
+    + new triangles argument
+    + new facemap argument to pre-define partitions (they will be split further
+    if needed to meet constraints)
+    + sort vertex weight list by weight in skin partitions (except if padbones
+    is true; then sorted by bone index, to keep compatibility with ffvt3r)
+    + option to maximize bone sharing
   - mopps take material indices into account and compute welding info
   (attempt to fix mopp multi-material issues, does not yet seem to work though)
   - support for niftools bitflags by converting it to a bitstruct on the fly
-  - better algorithm for sending bones to bind position
-  - new algorithm to sync geometry bind poses
+  - better algorithm for sending bones to bind position, including spells for
+  automating this function over a large number of nifs
+  - disable fast inverse in bind pos functions to increase numerical precision
+  - new algorithm to sync geometry bind poses, along with spell (this fixes
+  many issues with Morrowind imports and a few issues with Fallout 3 imports)
+  - more doctests for various functions
+  - a few more matrix functions (supNorm, substraction)
 * dds format:
   - updated to use the FileFormat.Data method (old inconvenient method removed)
 * qskope:
