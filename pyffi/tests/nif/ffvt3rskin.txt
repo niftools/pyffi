@@ -31,6 +31,13 @@ pyffi.toaster:INFO:              ~~~ NiNode [Bip01 R Foot] ~~~
 pyffi.toaster:INFO:                ~~~ NiNode [Bip01 R Toe0] ~~~
 pyffi.toaster:INFO:      ~~~ NiTriShape [Body] ~~~
 pyffi.toaster:INFO:        updating skin partition
+pyffi.nif.nitribasedgeom:INFO:Counted minimum of 1 and maximum of 3 bones per vertex
+pyffi.nif.nitribasedgeom:INFO:Imposing maximum of 4 bones per vertex.
+pyffi.nif.nitribasedgeom:INFO:Imposing maximum of 4 bones per triangle (and hence, per partition).
+pyffi.nif.nitribasedgeom:INFO:Creating partitions
+pyffi.nif.nitribasedgeom:INFO:Created 12 small partitions.
+pyffi.nif.nitribasedgeom:INFO:Merging partitions.
+pyffi.nif.nitribasedgeom:INFO:Skin has 12 partitions.
 pyffi.toaster:INFO:  writing to temporary file
 pyffi.toaster:INFO:Finished.
 
