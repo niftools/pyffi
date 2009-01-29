@@ -706,7 +706,7 @@ def setGeometry(self,
     # get total number of vertices
     numvertices = sum(len(vertices) for vertices in verticeslist)
     if numvertices > 65535:
-        raise ValueError("cannot store geometry: too many vertices (%i and maximum is 65535)")
+        raise ValueError("cannot store geometry: too many vertices (%i and maximum is 65535)" % numvertices)
     numtriangles = sum(len(triangles) for triangles in triangleslist)
 
     # Far Cry data preparation
