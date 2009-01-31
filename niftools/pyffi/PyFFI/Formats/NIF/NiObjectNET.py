@@ -175,6 +175,13 @@ def getControllers(self):
         ctrl = ctrl.nextController
     return ctrls
 
+def addIntegerExtraData(self, name, value):
+    """Add a particular extra integer data block."""
+    extra = self.cls.NiIntegerExtraData()
+    extra.name = name
+    extra.integerData = value
+    self.addExtraData(extra)
+
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
