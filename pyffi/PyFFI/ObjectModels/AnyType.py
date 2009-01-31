@@ -1,4 +1,4 @@
-"""Defines abstract base class for any type that stores mutable data
+"""Defines base class for any type that stores mutable data
 which is readable and writable, and can check for exchangeable
 alternatives.
 """

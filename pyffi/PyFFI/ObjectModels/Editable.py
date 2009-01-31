@@ -52,6 +52,8 @@ class EditableBase(object):
         Override this method.
 
         @return: A value for the editor.
+        @rtype: any (whatever is appropriate for the particular
+            implementation of the editor)
         """
         raise NotImplementedError
 
@@ -72,6 +74,12 @@ class EditableSpinBox(EditableBase):
     Requirement: getEditorValue must return an C{int}, setEditorValue
     must take an C{int}.
     """
+    def getEditorValue(self):
+        return self.getValue()
+
+    def setEditorValue(self, editorvalue):
+        self.setValue(self, editorvalue)
+
     def getEditorMinimum(self):
         return -0x80000000
 
@@ -83,7 +91,9 @@ class EditableFloatSpinBox(EditableSpinBox):
     contains a float. Override getEditorDecimals to set the number of decimals
     in the editor display.
 
-    Requirement: getValue must return a float."""
+    Requirement: getEditorValue must return a C{float}, setEditorValue
+    must take a C{float}.
+    """
 
     def getEditorDecimals(self):
         return 5
@@ -92,29 +102,36 @@ class EditableLineEdit(EditableBase):
     """Abstract base class for data that can be edited with a single line
     editor.
 
-    Requirement: getValue must return a string."""
+    Requirement: getEditorValue must return a C{str}, setEditorValue
+    must take a C{str}.
+    """
     pass
 
 class EditableTextEdit(EditableLineEdit):
     """Abstract base class for data that can be edited with a multiline editor.
 
-    Requirement: getValue must return a string."""
+    Requirement:  getEditorValue must return a C{str}, setEditorValue
+    must take a C{str}.
+    """
     pass
 
 class EditableComboBox(EditableBase):
     """Abstract base class for data that can be edited with combo boxes.
     This can be used for for instance enum types.
 
-    Requirement: getValue must return an integer."""
+    Requirement: getEditorValue must return an C{int}, setEditorValue
+    must take an C{int} (this integer is the index in the list of keys).
+    """
 
     def getEditorKeys(self):
-        """List or tuple of strings, each string describing an item."""
-        return []
+        """Tuple of strings, each string describing an item."""
+        return ()
 
 class EditableBoolComboBox(EditableComboBox):
-    """Abstract base class for data that can be edited with a bool combo box.
+    """Class for data that can be edited with a bool combo box.
 
-    Requirement: getValue must return a bool."""
+    Requirement: getValue must return a C{bool}, setValue must take a C{bool}.
+    """
     def getEditorKeys(self):
         return ("False", "True")
 
