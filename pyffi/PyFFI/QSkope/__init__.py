@@ -187,20 +187,10 @@ class QSkope(QtGui.QMainWindow):
         """Read cgf file from stream. If stream does not contain a cgf file,
         then raises ValueError. Sets the self.header, self.roots, self.footer,
         self.Format, and self.formatArgs variables."""
-        # TODO: use data element
-
-        # failed... try reading as a cgf file
-        version, user_version = CgfFormat.getVersion(stream)
-        # if not succesful: raise an exception
-        if version < 0:
-            raise ValueError("not a cgf file")
+        data = CgfFormat.Data()
+        data.read(stream)
         # if succesful: parse the file and save information about it
-        filetype, self.roots, versions = CgfFormat.read(
-            stream, version = version, user_version = user_version)
-        self.header = None
-        self.footer = None
-        self.Format = CgfFormat
-        self.formatArgs = (version, user_version, filetype)
+        self.data = data
 
     def openKfmFile(self, stream = None):
         """Read kfm file from stream. If stream does not contain a kfm file,
