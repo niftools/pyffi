@@ -184,7 +184,10 @@ Create a CGF file from scratch
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-import struct, os, re
+import logging
+import struct
+import os
+import re
 
 from types import NoneType
 
@@ -193,6 +196,8 @@ from PyFFI.ObjectModels.XML.FileFormat import MetaXmlFileFormat
 from PyFFI import Utils
 from PyFFI import Common
 from PyFFI.ObjectModels.XML.Basic import BasicBase
+import PyFFI.ObjectModels.FileFormat
+from PyFFI.ObjectModels.Graph import EdgeFilter
 
 class CgfFormat(XmlFileFormat):
     """Stores all information about the cgf file format."""
@@ -226,6 +231,420 @@ class CgfFormat(XmlFileFormat):
     bool = Common.Bool
     String = Common.ZString
     SizedString = Common.SizedString
+
+    class Data(PyFFI.ObjectModels.FileFormat.FileFormat.Data):
+        """A class to contain the actual nif data.
+
+        Note that L{header} and L{blocks} are not automatically kept
+        in sync with the rest of the nif data, but they are
+        resynchronized when calling L{write}.
+
+        @ivar version: The nif version.
+        @type version: C{int}
+        @ivar user_version: The nif user version.
+        @type user_version: C{int}
+        @ivar user_version2: The nif user version 2.
+        @type user_version2: C{int}
+        @ivar roots: List of root blocks.
+        @type roots: C{list} of L{NifFormat.NiObject}
+        @ivar header: The nif header.
+        @type header: L{NifFormat.Header}
+        @ivar blocks: List of blocks.
+        @type blocks: C{list} of L{NifFormat.NiObject}
+        """
+
+        class VersionUInt(Common.UInt):
+            def setValue(self, value):
+                if value is None:
+                    self._value = None
+                else:
+                    Common.UInt.setValue(self, value)
+
+            def __str__(self):
+                if self._value is None:
+                    return "None"
+                else:
+                    return "0x%08X" % self.getValue()
+
+            def getDetailDisplay(self):
+                return self.__str__()
+
+        def __init__(self):
+            """Initialize nif data. By default, this creates an empty
+            nif document of the given version and user version.
+
+            @param version: The version.
+            @type version: C{int}
+            @param user_version: The user version.
+            @type user_version: C{int}
+            """
+            # create new header
+            self.header = CgfFormat.Header()
+            # empty list of chunks
+            self.chunks = []
+            # empty list of versions (one per chunk)
+            self.versions = []
+            # chunk table
+            self.chunk_table = CgfFormat.ChunkTable()
+            # game (auto-detected)
+            # TODO store this in a way that can be displayed by qskope
+            self.game = CgfFormat.UVER_FARCRY
+
+        # new functions
+
+        def inspectVersionOnly(self, stream):
+            """This function checks the version only, and is faster
+            than the usual inspect function (which reads the full
+            chunk table). Sets the L{header} and L{game} instance
+            variables if the stream contains a valid cgf file.
+
+            Call this function if you simply wish to check that a file is
+            a cgf file without having to parse even the header.
+
+            @param stream: The stream from which to read.
+            @type stream: C{file}
+            @raise C{ValueError}: If the stream does not contain a cgf file.
+            """
+            pos = stream.tell()
+            try:
+                signat = stream.read(8)
+                filetype, version, offset = struct.unpack('<III',
+                                                          stream.read(12))
+            except StandardError:
+                # something went wrong with unpack
+                # this means that the file is less than 20 bytes
+                # cannot be a cgf file
+                raise ValueError
+            finally:
+                stream.seek(pos)
+
+            # test the data
+            if signat[:6] != "CryTek":
+                raise ValueError
+            if filetype not in (CgfFormat.FileType.GEOM,
+                                CgfFormat.FileType.ANIM):
+                raise ValueError
+            if version not in CgfFormat.versions.values():
+                raise ValueError
+            # quick and lame game check:
+            # far cry has chunk table at the end, crysis at the start
+            if offset == 0x14:
+                self.game = CgfFormat.UVER_CRYSIS
+            else:
+                self.game = CgfFormat.UVER_FARCRY
+            # load the actual header
+            try:
+                self.header.read(stream)
+            finally:
+                stream.seek(pos)
+
+        # GlobalNode
+
+        def getGlobalChildNodes(self, edge_filter=EdgeFilter()):
+            return (chunk for chunk in self.chunks)
+
+        # DetailNode
+
+        def replaceGlobalNode(self, oldbranch, newbranch,
+                              edge_filter=EdgeFilter()):
+            for i, chunk in enumerate(self.chunks):
+                if chunk is oldbranch:
+                    self.chunks[i] = newbranch
+                else:
+                    chunk.replaceGlobalNode(oldbranch, newbranch,
+                                            edge_filter=edge_filter)
+
+        def getDetailChildNodes(self, edge_filter=EdgeFilter()):
+            yield self.header
+            yield self.chunk_table
+
+        def getDetailChildNames(self, edge_filter=EdgeFilter()):
+            yield "header"
+            yield "chunk table"
+
+        # overriding PyFFI.ObjectModels.FileFormat.FileFormat.Data methods
+
+        def inspect(self, stream):
+            """Quickly checks whether the stream appears to contain
+            cgf data, and read the cgf header and chunk table. Resets stream to
+            original position.
+
+            Call this function if you only need to inspect the header and
+            chunk table.
+
+            @param stream: The file to inspect.
+            @type stream: C{file}
+            """
+            pos = stream.tell()
+            try:
+                self.inspectVersionOnly(stream)
+                self.header.read(stream)
+                stream.seek(self.header.offset)
+                self.chunk_table.read(
+                    stream, version=self.header.version, user_version=self.game)
+            finally:
+                stream.seek(pos)
+
+        def read(self, stream):
+            """Read a cgf file. Does not reset stream position.
+
+            @param stream: The stream from which to read.
+            @type stream: C{file}
+            """
+            validate = True # whether we validate on reading
+            
+            logger = logging.getLogger("pyffi.cgf.data")
+            self.inspect(stream)
+
+            # is it a caf file? these are missing chunk headers on controllers
+            # (note: stream.name may not be a python string for some file
+            # implementations, notably PyQt4, so convert it explicitely)
+            is_caf = (str(stream.name)[-4:].lower() == ".caf")
+
+            chunk_types = [
+                chunk_type for chunk_type in dir(CgfFormat.ChunkType) \
+                if chunk_type[:2] != '__']
+
+            # get the chunk sizes (for double checking that we have all data)
+            if validate:
+                chunk_offsets = [chunkhdr.offset
+                                 for chunkhdr in self.chunk_table.chunkHeaders]
+                chunk_offsets.append(self.header.offset)
+                chunk_sizes = []
+                for chunkhdr in self.chunk_table.chunkHeaders:
+                    next_chunk_offsets = [offset for offset in chunk_offsets
+                                          if offset > chunkhdr.offset]
+                    if next_chunk_offsets:
+                        chunk_sizes.append(min(next_chunk_offsets) - chunkhdr.offset)
+                    else:
+                        stream.seek(0, 2)
+                        chunk_sizes.append(stream.tell() - chunkhdr.offset)
+
+            # read the chunks
+            link_stack = [] # list of chunk identifiers, as added to the stack
+            chunk_dct = {} # maps chunk index to actual chunk
+            self.chunks = [] # records all chunks as read from cgf file in proper order
+            self.versions = [] # records all chunk versions as read from cgf file
+            for chunknum, chunkhdr in enumerate(self.chunk_table.chunkHeaders):
+                # check that id is unique
+                if chunkhdr.id in chunk_dct:
+                    raise ValueError('chunk id %i not unique'%chunkhdr.id)
+
+                # get chunk type
+                for chunk_type in chunk_types:
+                    if getattr(CgfFormat.ChunkType, chunk_type) == chunkhdr.type:
+                        break
+                else:
+                    raise ValueError('unknown chunk type 0x%08X'%chunkhdr.type)
+                #print "%s chunk, version 0x%08X" % (chunk_type, chunkhdr.version)
+                try:
+                    chunk = getattr(CgfFormat, '%sChunk' % chunk_type)()
+                except AttributeError:
+                    raise ValueError(
+                        'undecoded chunk type 0x%08X (%sChunk)'
+                        %(chunkhdr.type, chunk_type))
+                # check the chunk version
+                if not self.game in chunk.getGames():
+                    raise ValueError(
+                        'game %s does not support %sChunk'
+                        % (self.game, chunk_type))
+                if not chunkhdr.version in chunk.getVersions(self.game):
+                    raise ValueError(
+                        'chunk version 0x%08X not supported for game %s and %sChunk'
+                        % (chunkhdr.version, self.game, chunk_type))
+
+                # now read the chunk
+                stream.seek(chunkhdr.offset)
+
+                # in far cry, most chunks start with a copy of chunkhdr
+                # in crysis, more chunks start with chunkhdr
+                # caf files are special: they don't have headers on controllers
+                if not(user_version == CgfFormat.UVER_FARCRY
+                       and chunkhdr.type in [
+                           CgfFormat.ChunkType.SourceInfo,
+                           CgfFormat.ChunkType.BoneNameList,
+                           CgfFormat.ChunkType.BoneLightBinding,
+                           CgfFormat.ChunkType.BoneInitialPos,
+                           CgfFormat.ChunkType.MeshMorphTarget]) \
+                    and not(user_version == CgfFormat.UVER_CRYSIS
+                            and chunkhdr.type in [
+                                CgfFormat.ChunkType.BoneNameList,
+                                CgfFormat.ChunkType.BoneInitialPos]) \
+                    and not(is_caf
+                            and chunkhdr.type in [
+                                CgfFormat.ChunkType.Controller]):
+                    chunkhdr_copy = CgfFormat.ChunkHeader()
+                    chunkhdr_copy.read(stream,
+                                       version = version,
+                                       user_version = user_version)
+                    # check that the copy is valid
+                    # note: chunkhdr_copy.offset != chunkhdr.offset check removed
+                    # as many crysis cgf files have this wrong
+                    if chunkhdr_copy.type != chunkhdr.type \
+                       or chunkhdr_copy.version != chunkhdr.version \
+                       or chunkhdr_copy.id != chunkhdr.id:
+                        raise ValueError(
+                            'chunk starts with invalid header:\n\
+    expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
+                else:
+                    chunkhdr_copy = None
+
+                chunk.read(
+                    stream,
+                    version = chunkhdr.version,
+                    user_version = user_version,
+                    link_stack = link_stack)
+                self.chunks.append(chunk)
+                self.versions.append(chunkhdr.version)
+                chunk_dct[chunkhdr.id] = chunk
+
+                if validate:
+                    # calculate size
+                    size = chunk.getSize(version = chunkhdr.version,
+                                         user_version = user_version)
+                    # take into account header copy
+                    if chunkhdr_copy:
+                        size += chunkhdr_copy.getSize(version = version,
+                                                      user_version = user_version)
+                    # check with number of bytes read
+                    if size != stream.tell() - chunkhdr.offset:
+                        print("""\
+    BUG: getSize returns wrong size when reading %s at 0x%08X
+         actual bytes read is %i, getSize yields %i (expected %i bytes)"""
+                              % (chunk.__class__.__name__,
+                                 chunkhdr.offset,
+                                 size,
+                                 stream.tell() - chunkhdr.offset,
+                                 chunk_sizes[chunknum]))
+                    # check for padding bytes
+                    if chunk_sizes[chunknum] & 3 == 0:
+                        padlen = ((4 - size & 3) & 3)
+                        #assert(stream.read(padlen) == '\x00' * padlen)
+                        size += padlen
+                    # check size
+                    if size != chunk_sizes[chunknum]:
+                        print("""\
+    WARNING: chunk size mismatch when reading %s at 0x%08X
+             %i bytes available, but actual bytes read is %i"""
+                              % (chunk.__class__.__name__,
+                                 chunkhdr.offset,
+                                 chunk_sizes[chunknum], size))
+
+            # fix links
+            for chunk, chunkversion in zip(self.chunks, self.versions):
+                #print chunk.__class__
+                chunk.fixLinks(
+                    version=chunkversion, user_version=self.game,
+                    block_dct=chunk_dct, link_stack=link_stack)
+            if link_stack != []:
+                raise CgfFormat.CgfError(
+                    'not all links have been popped from the stack (bug?)')
+
+        def write(self, stream):
+            """Write a nif file. The L{header} and L{chunk_table} are
+            recalculated from L{chunks}. Returns number of padding bytes
+            written (this is for debugging purposes only).
+
+            @param stream: The stream to which to write.
+            @type stream: file
+            @return: Number of padding bytes written.
+            """
+            logger = logging.getLogger("pyffi.cgf.data")
+            # is it a caf file? these are missing chunk headers on controllers
+            is_caf = (stream.name[-4:].lower() == ".caf")
+
+            # variable to track number of padding bytes
+            total_padding = 0
+
+            # chunk versions
+            self.versions = CgfFormat.getChunkVersions(
+                version=self.header.version,
+                user_version=self.game,
+                chunks=chunks)
+
+            # write header
+            hdr_pos = stream.tell()
+            self.header.offset = -1 # is set at the end
+            self.header.write(
+                stream, version=self.header.version, user_version=self.game)
+
+            # chunk id is simply its index in the chunks list
+            block_index_dct = dict((chunk, i)
+                                   for i, chunk in enumerate(self.chunks))
+
+            # write chunks and add headers to chunk table
+            self.chunk_table = CgfFormat.ChunkTable()
+            self.chunk_table.numChunks = len(chunks)
+            self.chunk_table.chunkHeaders.updateSize()
+            #print(self.chunk_table) # DEBUG
+
+            # crysis: write chunk table now
+            if user_version == CgfFormat.UVER_CRYSIS:
+                hdr.offset = stream.tell()
+                self.chunk_table.write(stream,
+                            version = version, user_version = user_version)
+
+            for chunkhdr, chunk, chunkversion in zip(self.chunk_table.chunkHeaders,
+                                                     chunks, versions):
+                # set up chunk header
+                chunkhdr.type = getattr(
+                    CgfFormat.ChunkType, chunk.__class__.__name__[:-5])
+                chunkhdr.version = chunkversion
+                chunkhdr.offset = stream.tell()
+                chunkhdr.id = block_index_dct[chunk]
+                # write chunk header
+                if not(user_version == CgfFormat.UVER_FARCRY
+                       and chunkhdr.type in [
+                           CgfFormat.ChunkType.SourceInfo,
+                           CgfFormat.ChunkType.BoneNameList,
+                           CgfFormat.ChunkType.BoneLightBinding,
+                           CgfFormat.ChunkType.BoneInitialPos,
+                           CgfFormat.ChunkType.MeshMorphTarget]) \
+                    and not(user_version == CgfFormat.UVER_CRYSIS
+                            and chunkhdr.type in [
+                                CgfFormat.ChunkType.BoneNameList,
+                                CgfFormat.ChunkType.BoneInitialPos]) \
+                    and not(is_caf
+                            and chunkhdr.type in [
+                                CgfFormat.ChunkType.Controller]):
+                    #print(chunkhdr) # DEBUG
+                    chunkhdr.write(stream,
+                                   version = version,
+                                   user_version = user_version)
+                # write chunk
+                chunk.write(
+                    stream, version = chunkversion, user_version = user_version,
+                    block_index_dct = block_index_dct)
+                # write padding bytes to align blocks
+                padlen = (4 - stream.tell() & 3) & 3
+                if padlen:
+                    stream.write( "\x00" * padlen )
+                    total_padding += padlen
+
+            # write/update chunk table
+            if user_version == CgfFormat.UVER_CRYSIS:
+                end_pos = stream.tell()
+                stream.seek(self.header.offset)
+                self.chunk_table.write(
+                    stream, version=self.header.version, user_version=self.game)
+            else:
+                self.header.offset = stream.tell()
+                self.chunk_table.write(
+                    stream, version=self.header.version, user_version=self.game)
+                end_pos = stream.tell()
+
+            # update header
+            stream.seek(hdr_pos)
+            hdr.write(stream, version = version, user_version = user_version)
+
+            # seek end of written data
+            stream.seek(end_pos)
+
+            # return number of padding bytes written
+            return total_padding
+
+
+    # implementation of cgf-specific basic types
 
     class String16(Common.FixedString):
         """String of fixed length 16."""
@@ -497,30 +916,16 @@ WARNING: expected instance of %s
             The returned version is -1 if the file type or chunk table version
             is not supported, and -2 if the file is not a cgf file.
         """
-        pos = stream.tell()
+        data = cls.Data()
         try:
-            signat = stream.read(8)
-            filetype, version, offset = struct.unpack('<III',
-                                                      stream.read(12))
-        except StandardError:
+            data.inspectVersionOnly(stream)
+        except ValueError:
             return -2, 0
-        finally:
-            stream.seek(pos)
-        if signat[:6] != "CryTek":
-            return -2, 0
-        if filetype not in [cls.FileType.GEOM, cls.FileType.ANIM]:
-            return -1, 0
-        if version not in cls.versions.values():
-            return -1, 0
-        # quick and lame game check:
-        # far cry has chunk table at the end, crysis at the start
-        if offset == 0x14:
-            return version, cls.UVER_CRYSIS
         else:
-            return version, cls.UVER_FARCRY
+            return data.header.version, data.game
 
     @classmethod
-    def getGame(cls, version = None, user_version = None):
+    def getGame(cls, version=None, user_version=None):
         """Guess game based on version and user_version. This is the inverse of
         L{getGameVersion}.
 
@@ -538,7 +943,7 @@ WARNING: expected instance of %s
                              (version, user_version))
 
     @classmethod
-    def getGameVersion(cls, game = None):
+    def getGameVersion(cls, game=None):
         """Get version and user_version for a particular game. This is the
         inverse of L{getGame}.
 
@@ -581,308 +986,16 @@ WARNING: expected instance of %s
         return filetype
 
     @classmethod
-    def read(cls, stream, version = None, user_version = None,
-             verbose = 0, validate = True):
-        """Read cgf from stream.
-
-        @param stream: The stream from which to read.
-        @type stream: file
-        @param version: The version as obtained by L{getVersion}.
-        @type version: int
-        @param user_version: The user version as obtained by L{getVersion}.
-        @type user_version: int
-        @param verbose: The level of verbosity.
-        @type verbose: int
-        @param validate: If C{True} then the chunk size as read is compared to
-            the chunk size as expected. If there is a mismatch, then a warning
-            will be printed.
-        @type validate: bool
-        @return: (filetype as int, chunks as list of L{CgfFormat.Chunk}s,
-            versions as list of ints)
-        """
-
-        # game string
-        game = cls.getGame(version = version, user_version = user_version)
-
-        #print version, user_version, game # DEBUG
-
-        # is it a caf file? these are missing chunk headers on controllers
-        # (note: stream.name may not be a python string for some file
-        # implementations, notably PyQt4, so convert it explicitely)
-        is_caf = (str(stream.name)[-4:].lower() == ".caf")
-
-        chunk_types = [
-            chunk_type for chunk_type in dir(cls.ChunkType) \
-            if chunk_type[:2] != '__']
-
-        # read header
-        hdr = cls.Header()
-        hdr.read(stream, version = version, user_version = user_version)
-
-        # read chunk table
-        stream.seek(hdr.offset)
-        table = cls.ChunkTable()
-        table.read(stream, version = version, user_version = user_version)
-
-        # get the chunk sizes (for double checking that we have all data)
-        if validate:
-            chunk_offsets = [chunkhdr.offset for chunkhdr in table.chunkHeaders]
-            chunk_offsets.append(hdr.offset)
-            chunk_sizes = []
-            for chunkhdr in table.chunkHeaders:
-                next_chunk_offsets = [offset for offset in chunk_offsets
-                                      if offset > chunkhdr.offset]
-                if next_chunk_offsets:
-                    chunk_sizes.append(min(next_chunk_offsets) - chunkhdr.offset)
-                else:
-                    stream.seek(0, 2)
-                    chunk_sizes.append(stream.tell() - chunkhdr.offset)
-
-        # read the chunks
-        link_stack = [] # list of chunk identifiers, as added to the stack
-        chunk_dct = {} # maps chunk index to actual chunk
-        chunks = [] # records all chunks as read from cgf file in proper order
-        versions = [] # records all chunk versions as read from cgf file
-        for chunknum, chunkhdr in enumerate(table.chunkHeaders):
-            # check that id is unique
-            if chunkhdr.id in chunk_dct:
-                raise ValueError('chunk id %i not unique'%chunkhdr.id)
-
-            # get chunk type
-            for chunk_type in chunk_types:
-                if getattr(cls.ChunkType, chunk_type) == chunkhdr.type:
-                    break
-            else:
-                raise ValueError('unknown chunk type 0x%08X'%chunkhdr.type)
-            #print "%s chunk, version 0x%08X" % (chunk_type, chunkhdr.version)
-            try:
-                chunk = getattr(cls, '%sChunk' % chunk_type)()
-            except AttributeError:
-                raise ValueError(
-                    'undecoded chunk type 0x%08X (%sChunk)'
-                    %(chunkhdr.type, chunk_type))
-            # check the chunk version
-            if not game in chunk.getGames():
-                raise ValueError(
-                    'game %s does not support %sChunk'
-                    % (game, chunk_type))
-            if not chunkhdr.version in chunk.getVersions(game):
-                raise ValueError(
-                    'chunk version 0x%08X not supported for game %s and %sChunk'
-                    % (chunkhdr.version, game, chunk_type))
-
-            # now read the chunk
-            stream.seek(chunkhdr.offset)
-
-            # in far cry, most chunks start with a copy of chunkhdr
-            # in crysis, more chunks start with chunkhdr
-            # caf files are special: they don't have headers on controllers
-            if not(user_version == cls.UVER_FARCRY
-                   and chunkhdr.type in [
-                       cls.ChunkType.SourceInfo,
-                       cls.ChunkType.BoneNameList,
-                       cls.ChunkType.BoneLightBinding,
-                       cls.ChunkType.BoneInitialPos,
-                       cls.ChunkType.MeshMorphTarget]) \
-                and not(user_version == cls.UVER_CRYSIS
-                        and chunkhdr.type in [
-                            cls.ChunkType.BoneNameList,
-                            cls.ChunkType.BoneInitialPos]) \
-                and not(is_caf
-                        and chunkhdr.type in [
-                            cls.ChunkType.Controller]):
-                chunkhdr_copy = cls.ChunkHeader()
-                chunkhdr_copy.read(stream,
-                                   version = version,
-                                   user_version = user_version)
-                # check that the copy is valid
-                # note: chunkhdr_copy.offset != chunkhdr.offset check removed
-                # as many crysis cgf files have this wrong
-                if chunkhdr_copy.type != chunkhdr.type \
-                   or chunkhdr_copy.version != chunkhdr.version \
-                   or chunkhdr_copy.id != chunkhdr.id:
-                    raise ValueError(
-                        'chunk starts with invalid header:\n\
-expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
-            else:
-                chunkhdr_copy = None
-
-            chunk.read(
-                stream,
-                version = chunkhdr.version,
-                user_version = user_version,
-                link_stack = link_stack)
-            chunks.append(chunk)
-            versions.append(chunkhdr.version)
-            chunk_dct[chunkhdr.id] = chunk
-
-            if validate:
-                # calculate size
-                size = chunk.getSize(version = chunkhdr.version,
-                                     user_version = user_version)
-                # take into account header copy
-                if chunkhdr_copy:
-                    size += chunkhdr_copy.getSize(version = version,
-                                                  user_version = user_version)
-                # check with number of bytes read
-                if size != stream.tell() - chunkhdr.offset:
-                    print("""\
-BUG: getSize returns wrong size when reading %s at 0x%08X
-     actual bytes read is %i, getSize yields %i (expected %i bytes)"""
-                          % (chunk.__class__.__name__,
-                             chunkhdr.offset,
-                             size,
-                             stream.tell() - chunkhdr.offset,
-                             chunk_sizes[chunknum]))
-                # check for padding bytes
-                if chunk_sizes[chunknum] & 3 == 0:
-                    padlen = ((4 - size & 3) & 3)
-                    #assert(stream.read(padlen) == '\x00' * padlen)
-                    size += padlen
-                # check size
-                if size != chunk_sizes[chunknum]:
-                    print("""\
-WARNING: chunk size mismatch when reading %s at 0x%08X
-         %i bytes available, but actual bytes read is %i"""
-                          % (chunk.__class__.__name__,
-                             chunkhdr.offset,
-                             chunk_sizes[chunknum], size))
-
-        # fix links
-        for chunk, chunkversion in zip(chunks, versions):
-            #print chunk.__class__
-            chunk.fixLinks(
-                version = chunkversion, user_version = user_version,
-                block_dct = chunk_dct, link_stack = link_stack)
-        if link_stack != []:
-            raise cls.CgfError(
-                'not all links have been popped from the stack (bug?)')
-
-        return hdr.type, chunks, versions
+    def read(cls, stream, version=None, user_version=None,
+             verbose=0, validate=True):
+        pass
 
     @classmethod
     def write(cls, stream, version = None, user_version = None,
               filetype = None, chunks = None, versions = None,
               verbose = 0):
-        """Write cgf to stream. Returns number of padding bytes written.
-
-        @param stream: The stream to which to write.
-        @type stream: file
-        @param version: The version number.
-        @type version: int
-        @param user_version: The user version number.
-        @type user_version: int
-        @param filetype: The file type, L{FileType.GEOM} or L{FileType.ANIM}.
-        @type filetype: int
-        @param chunks: The file chunks.
-        @type chunks: list of L{CgfFormat.Chunk}s
-        @param versions: The file chunk versions. If C{None} then these will
-            be automatically obtained through L{getChunkVersions}.
-        @type versions: list of ints
-        @param verbose: The level of verbosity.
-        @type verbose: int
-        @return: Number of padding bytes written.
-        """
-
-        # DEBUG
-        #print((stream, version, user_version, filetype, chunks, versions))
-
-        # game string
-        game = cls.getGame(version = version, user_version = user_version)
-        #print(game) # DEBUG
-
-        # is it a caf file? these are missing chunk headers on controllers
-        is_caf = (stream.name[-4:].lower() == ".caf")
-
-        # variable to track number of padding bytes
-        total_padding = 0
-
-        # chunk versions
-        if versions is None:
-            versions = cls.getChunkVersions(version = version,
-                                            user_version = user_version,
-                                            chunks = chunks)
-
-        # write header
-        hdr_pos = stream.tell()
-        hdr = cls.Header()
-        hdr.type = filetype
-        hdr.version = version
-        hdr.offset = -1 # is set at the end
-        hdr.write(stream, version = version, user_version = user_version)
-
-        # chunk id is simply its index in the chunks list
-        block_index_dct = dict((chunk, i) for i, chunk in enumerate(chunks))
-
-        # write chunks and add headers to chunk table
-        table = cls.ChunkTable()
-        table.numChunks = len(chunks)
-        table.chunkHeaders.updateSize()
-        #print(table) # DEBUG
-
-        # crysis: write chunk table now
-        if user_version == cls.UVER_CRYSIS:
-            hdr.offset = stream.tell()
-            table.write(stream,
-                        version = version, user_version = user_version)
-
-        for chunkhdr, chunk, chunkversion in zip(table.chunkHeaders,
-                                                 chunks, versions):
-            # set up chunk header
-            chunkhdr.type = getattr(
-                cls.ChunkType, chunk.__class__.__name__[:-5])
-            chunkhdr.version = chunkversion
-            chunkhdr.offset = stream.tell()
-            chunkhdr.id = block_index_dct[chunk]
-            # write chunk header
-            if not(user_version == cls.UVER_FARCRY
-                   and chunkhdr.type in [
-                       cls.ChunkType.SourceInfo,
-                       cls.ChunkType.BoneNameList,
-                       cls.ChunkType.BoneLightBinding,
-                       cls.ChunkType.BoneInitialPos,
-                       cls.ChunkType.MeshMorphTarget]) \
-                and not(user_version == cls.UVER_CRYSIS
-                        and chunkhdr.type in [
-                            cls.ChunkType.BoneNameList,
-                            cls.ChunkType.BoneInitialPos]) \
-                and not(is_caf
-                        and chunkhdr.type in [
-                            cls.ChunkType.Controller]):
-                #print(chunkhdr) # DEBUG
-                chunkhdr.write(stream,
-                               version = version,
-                               user_version = user_version)
-            # write chunk
-            chunk.write(
-                stream, version = chunkversion, user_version = user_version,
-                block_index_dct = block_index_dct)
-            # write padding bytes to align blocks
-            padlen = (4 - stream.tell() & 3) & 3
-            if padlen:
-                stream.write( "\x00" * padlen )
-                total_padding += padlen
-
-        # write/update chunk table
-        if user_version == cls.UVER_CRYSIS:
-            end_pos = stream.tell()
-            stream.seek(hdr.offset)
-            table.write(stream, version = version, user_version = user_version)
-        else:
-            hdr.offset = stream.tell()
-            table.write(stream, version = version, user_version = user_version)
-            end_pos = stream.tell()
-
-        # update header
-        stream.seek(hdr_pos)
-        hdr.write(stream, version = version, user_version = user_version)
-
-        # seek end of written data
-        stream.seek(end_pos)
-
-        # return number of padding bytes written
-        return total_padding
-
+        pass
+    
     @classmethod
     def getChunkVersions(cls, version = None, user_version = None,
                          chunks = None):
