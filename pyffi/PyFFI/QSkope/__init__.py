@@ -300,13 +300,9 @@ class QSkope(QtGui.QMainWindow):
     def saveFile(self, filename = None):
         """Save changes to disk."""
         # TODO support dds saving as well
-        if issubclass(self.Format, DdsFormat):
-            self.statusBar().showMessage("Saving DDS format not supported")
-            return
-
         # TODO support tga saving as well
-        if issubclass(self.Format, TgaFormat):
-            self.statusBar().showMessage("Saving TGA format not supported")
+        if self.data is None:
+            self.statusBar().showMessage("Saving this format not supported")
             return
 
         # tell user we are saving the file
