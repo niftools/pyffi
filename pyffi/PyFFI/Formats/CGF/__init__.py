@@ -188,6 +188,7 @@ import logging
 import struct
 import os
 import re
+import warnings
 
 from types import NoneType
 
@@ -658,8 +659,8 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
         def update_versions(self):
             """Update L{versions} for the given chunks and game."""
             try:
-                return [max(chunk.getVersions(self.game))
-                        for chunk in self.chunks]
+                self.versions = [max(chunk.getVersions(self.game))
+                                 for chunk in self.chunks]
             except KeyError:
                 raise cls.CgfError("game %s not supported" % self.game)
 
@@ -936,7 +937,9 @@ WARNING: expected instance of %s
         @return: A pair (version, user_version).
             The returned version is -1 if the file type or chunk table version
             is not supported, and -2 if the file is not a cgf file.
+        @deprecated: Use CgfFormat.Data.inspect instead.
         """
+        warnings.warn("use CgfFormat.Data.inspect", DeprecationWarning)
         data = cls.Data()
         try:
             data.inspectVersionOnly(stream)
@@ -950,14 +953,14 @@ WARNING: expected instance of %s
         """Guess game based on version and user_version. This is the inverse of
         L{getGameVersion}.
 
-        Deprecated.
-
         @param version: The version as obtained by L{getVersion}.
         @type version: int
         @param user_version: The user version as obtained by L{getVersion}.
         @type user_version: int
         @return: 'Crysis' or 'Far Cry'
+        @deprecated: Use L{CgfFormat.Data.game} instead.
         """
+        warnings.warn("use CgfFormat.Data.game", DeprecationWarning)
         try:
             return {cls.UVER_FARCRY: "Far Cry",
                     cls.UVER_CRYSIS: "Crysis"}[user_version]
@@ -991,8 +994,6 @@ WARNING: expected instance of %s
         """Returns file type (geometry or animation). Preserves the stream
         position.
 
-        Deprecated.
-
         @param stream: The stream from which to read.
         @type stream: file
         @param version: The version as obtained by L{getVersion}.
@@ -1000,7 +1001,9 @@ WARNING: expected instance of %s
         @param user_version: The user version as obtained by L{getVersion}.
         @type user_version: int
         @return: L{FileType.GEOM} or L{FileType.ANIM}
+        @deprecated: Use L{CgfFormat.Data.header.type} instead.
         """
+        warnings.warn("use CgfFormat.Data.header.type", DeprecationWarning)
         pos = stream.tell()
         try:
             signat = stream.read(8)
@@ -1013,7 +1016,8 @@ WARNING: expected instance of %s
     @classmethod
     def read(cls, stream, version=None, user_version=None,
              verbose=0, validate=True):
-        """Deprecated."""
+        """@deprecated: Use L{CgfFormat.Data.read} instead."""
+        warnings.warn("use CgfFormat.Data.read", DeprecationWarning)
         data = cls.Data()
         data.read(stream)
         return data.header.type, data.chunks, data.versions
@@ -1022,7 +1026,8 @@ WARNING: expected instance of %s
     def write(cls, stream, version = None, user_version = None,
               filetype = None, chunks = None, versions = None,
               verbose = 0):
-        """Deprecated."""
+        """@deprecated: Use L{CgfFormat.Data.write} instead."""
+        warnings.warn("use CgfFormat.Data.write", DeprecationWarning)
         data = cls.Data()
         data.header.type = filetype
         data.header.version = version
@@ -1036,8 +1041,6 @@ WARNING: expected instance of %s
         """Return version of each chunk in the chunk list for the
         given file version and file user version.
 
-        Deprecated. Use L{Data.update_versions} instead.
-
         @param version: The version.
         @type version: int
         @param user_version: The user version.
@@ -1046,7 +1049,9 @@ WARNING: expected instance of %s
         @type chunks: list of L{CgfFormat.Chunk}
         @return: Version of each chunk as list of ints (same length as
             C{chunks}).
+        @deprecated: Use L{Data.update_versions} instead.
         """
+        warnings.warn("use CgfFormat.Data.update_versions", DeprecationWarning)
 
         # game string
         game = cls.getGame(version = version, user_version = user_version)
@@ -1064,8 +1069,9 @@ WARNING: expected instance of %s
         @param readresult: Result from L{walk} or L{read}.
         @type readresult: tuple
         @return: list of root blocks
+        @deprecated: This function simply returns an empty list, and will eventually be removed.
         """
-        # TODO: implement this (if we need it)
+        warnings.warn("do not use the getRoots function", DeprecationWarning)
         return []
 
     @classmethod
@@ -1076,5 +1082,7 @@ WARNING: expected instance of %s
         @param readresult: Result from L{walk} or L{read}.
         @type readresult: tuple
         @return: list of blocks
+        @deprecated: Use L{Data.chunks} instead.
         """
+        warnings.warn("use CgfFormat.Data.chunks", DeprecationWarning)
         return readresult[1]
