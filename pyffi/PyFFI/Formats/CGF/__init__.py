@@ -235,22 +235,18 @@ class CgfFormat(XmlFileFormat):
     class Data(PyFFI.ObjectModels.FileFormat.FileFormat.Data):
         """A class to contain the actual nif data.
 
-        Note that L{header} and L{blocks} are not automatically kept
-        in sync with the rest of the nif data, but they are
+        Note that L{versions} and L{chunk_table} are not automatically kept
+        in sync with the L{chunks}, but they are
         resynchronized when calling L{write}.
 
-        @ivar version: The nif version.
-        @type version: C{int}
-        @ivar user_version: The nif user version.
-        @type user_version: C{int}
-        @ivar user_version2: The nif user version 2.
-        @type user_version2: C{int}
-        @ivar roots: List of root blocks.
-        @type roots: C{list} of L{NifFormat.NiObject}
+        @ivar game: The cgf game.
+        @type game: C{int}
         @ivar header: The nif header.
-        @type header: L{NifFormat.Header}
-        @ivar blocks: List of blocks.
-        @type blocks: C{list} of L{NifFormat.NiObject}
+        @type header: L{CgfFormat.Header}
+        @ivar chunks: List of chunks (the actual data).
+        @type chunks: C{list} of L{CgfFormat.Chunk}
+        @ivar versions: List of chunk versions.
+        @type versions: C{list} of L{int}
         """
 
         class VersionUInt(Common.UInt):
@@ -269,9 +265,11 @@ class CgfFormat(XmlFileFormat):
             def getDetailDisplay(self):
                 return self.__str__()
 
-        def __init__(self):
-            """Initialize nif data. By default, this creates an empty
-            nif document of the given version and user version.
+        def __init__(self, filetype=0xffff0000, game="Far Cry"):
+            # 0xffff0000 = CgfFormat.FileType.GEOM
+
+            """Initialize cgf data. By default, this creates an empty
+            cgf document of the given filetype and game.
 
             @param version: The version.
             @type version: C{int}
@@ -280,6 +278,7 @@ class CgfFormat(XmlFileFormat):
             """
             # create new header
             self.header = CgfFormat.Header()
+            self.header.type = filetype
             # empty list of chunks
             self.chunks = []
             # empty list of versions (one per chunk)
@@ -288,7 +287,7 @@ class CgfFormat(XmlFileFormat):
             self.chunk_table = CgfFormat.ChunkTable()
             # game (auto-detected)
             # TODO store this in a way that can be displayed by qskope
-            self.game = CgfFormat.UVER_FARCRY
+            self.game = game
 
         # new functions
 
@@ -329,9 +328,9 @@ class CgfFormat(XmlFileFormat):
             # quick and lame game check:
             # far cry has chunk table at the end, crysis at the start
             if offset == 0x14:
-                self.game = CgfFormat.UVER_CRYSIS
+                self.game = "Crysis"
             else:
-                self.game = CgfFormat.UVER_FARCRY
+                self.game = "Far Cry"
             # load the actual header
             try:
                 self.header.read(stream)
@@ -375,11 +374,14 @@ class CgfFormat(XmlFileFormat):
             @param stream: The file to inspect.
             @type stream: C{file}
             """
+            logger = logging.getLogger("pyffi.cgf.data")
             pos = stream.tell()
             try:
+                logger.debug("Reading header at 0x%08X." % stream.tell())
                 self.inspectVersionOnly(stream)
                 self.header.read(stream)
                 stream.seek(self.header.offset)
+                logger.debug("Reading chunk table version 0x%08X at 0x%08X." % (self.header.version, stream.tell()))
                 self.chunk_table.read(
                     stream, version=self.header.version, user_version=self.game)
             finally:
@@ -395,6 +397,10 @@ class CgfFormat(XmlFileFormat):
             
             logger = logging.getLogger("pyffi.cgf.data")
             self.inspect(stream)
+            version, user_version = CgfFormat.getGameVersion(self.game)
+            if version != self.header.version:
+                logger.error("Expected version 0x%X for game %s but got 0x%X"
+                             % (version, self.game, self.header.version))
 
             # is it a caf file? these are missing chunk headers on controllers
             # (note: stream.name may not be a python string for some file
@@ -436,7 +442,6 @@ class CgfFormat(XmlFileFormat):
                         break
                 else:
                     raise ValueError('unknown chunk type 0x%08X'%chunkhdr.type)
-                #print "%s chunk, version 0x%08X" % (chunk_type, chunkhdr.version)
                 try:
                     chunk = getattr(CgfFormat, '%sChunk' % chunk_type)()
                 except AttributeError:
@@ -455,6 +460,7 @@ class CgfFormat(XmlFileFormat):
 
                 # now read the chunk
                 stream.seek(chunkhdr.offset)
+                logger.debug("Reading %s chunk version 0x%08X at 0x%08X" % (chunk_type, chunkhdr.version, stream.tell()))
 
                 # in far cry, most chunks start with a copy of chunkhdr
                 # in crysis, more chunks start with chunkhdr
@@ -485,7 +491,7 @@ class CgfFormat(XmlFileFormat):
                        or chunkhdr_copy.id != chunkhdr.id:
                         raise ValueError(
                             'chunk starts with invalid header:\n\
-    expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
+expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
                 else:
                     chunkhdr_copy = None
 
@@ -509,8 +515,8 @@ class CgfFormat(XmlFileFormat):
                     # check with number of bytes read
                     if size != stream.tell() - chunkhdr.offset:
                         print("""\
-    BUG: getSize returns wrong size when reading %s at 0x%08X
-         actual bytes read is %i, getSize yields %i (expected %i bytes)"""
+BUG: getSize returns wrong size when reading %s at 0x%08X
+     actual bytes read is %i, getSize yields %i (expected %i bytes)"""
                               % (chunk.__class__.__name__,
                                  chunkhdr.offset,
                                  size,
@@ -524,8 +530,8 @@ class CgfFormat(XmlFileFormat):
                     # check size
                     if size != chunk_sizes[chunknum]:
                         print("""\
-    WARNING: chunk size mismatch when reading %s at 0x%08X
-             %i bytes available, but actual bytes read is %i"""
+WARNING: chunk size mismatch when reading %s at 0x%08X
+         %i bytes available, but actual bytes read is %i"""
                               % (chunk.__class__.__name__,
                                  chunkhdr.offset,
                                  chunk_sizes[chunknum], size))
@@ -556,11 +562,14 @@ class CgfFormat(XmlFileFormat):
             # variable to track number of padding bytes
             total_padding = 0
 
+            # sanity check on version
+            version, user_version = CgfFormat.getGameVersion(self.game)
+            if version != self.header.version:
+                logger.error("Expected version 0x%X for game %s but got 0x%X"
+                             % (version, self.game, self.header.version))
+
             # chunk versions
-            self.versions = CgfFormat.getChunkVersions(
-                version=self.header.version,
-                user_version=self.game,
-                chunks=chunks)
+            self.update_versions()
 
             # write header
             hdr_pos = stream.tell()
@@ -574,18 +583,20 @@ class CgfFormat(XmlFileFormat):
 
             # write chunks and add headers to chunk table
             self.chunk_table = CgfFormat.ChunkTable()
-            self.chunk_table.numChunks = len(chunks)
+            self.chunk_table.numChunks = len(self.chunks)
             self.chunk_table.chunkHeaders.updateSize()
             #print(self.chunk_table) # DEBUG
 
             # crysis: write chunk table now
             if user_version == CgfFormat.UVER_CRYSIS:
-                hdr.offset = stream.tell()
+                self.header.offset = stream.tell()
                 self.chunk_table.write(stream,
-                            version = version, user_version = user_version)
+                            version=version, user_version=user_version)
 
             for chunkhdr, chunk, chunkversion in zip(self.chunk_table.chunkHeaders,
-                                                     chunks, versions):
+                                                     self.chunks, self.versions):
+                logger.debug("Writing %s chunk version 0x%08X at 0x%08X" % (chunk.__class__.__name__, chunkhdr.version, stream.tell()))
+
                 # set up chunk header
                 chunkhdr.type = getattr(
                     CgfFormat.ChunkType, chunk.__class__.__name__[:-5])
@@ -622,20 +633,21 @@ class CgfFormat(XmlFileFormat):
                     total_padding += padlen
 
             # write/update chunk table
+            logger.debug("Writing chunk table version 0x%08X at 0x%08X" % (self.header.version, stream.tell()))
             if user_version == CgfFormat.UVER_CRYSIS:
                 end_pos = stream.tell()
                 stream.seek(self.header.offset)
                 self.chunk_table.write(
-                    stream, version=self.header.version, user_version=self.game)
+                    stream, version=self.header.version, user_version=user_version)
             else:
                 self.header.offset = stream.tell()
                 self.chunk_table.write(
-                    stream, version=self.header.version, user_version=self.game)
+                    stream, version=self.header.version, user_version=user_version)
                 end_pos = stream.tell()
 
             # update header
             stream.seek(hdr_pos)
-            hdr.write(stream, version = version, user_version = user_version)
+            self.header.write(stream, version=version, user_version=user_version)
 
             # seek end of written data
             stream.seek(end_pos)
@@ -643,6 +655,13 @@ class CgfFormat(XmlFileFormat):
             # return number of padding bytes written
             return total_padding
 
+        def update_versions(self):
+            """Update L{versions} for the given chunks and game."""
+            try:
+                return [max(chunk.getVersions(self.game))
+                        for chunk in self.chunks]
+            except KeyError:
+                raise cls.CgfError("game %s not supported" % self.game)
 
     # implementation of cgf-specific basic types
 
@@ -910,6 +929,8 @@ WARNING: expected instance of %s
         Far Cry is user_version L{CgfFormat.UVER_FARCRY} and Crysis is
         user_version L{CgfFormat.UVER_CRYSIS}. Preserves the stream position.
 
+        Deprecated.
+
         @param stream: The stream from which to read.
         @type stream: file
         @return: A pair (version, user_version).
@@ -928,6 +949,8 @@ WARNING: expected instance of %s
     def getGame(cls, version=None, user_version=None):
         """Guess game based on version and user_version. This is the inverse of
         L{getGameVersion}.
+
+        Deprecated.
 
         @param version: The version as obtained by L{getVersion}.
         @type version: int
@@ -968,6 +991,8 @@ WARNING: expected instance of %s
         """Returns file type (geometry or animation). Preserves the stream
         position.
 
+        Deprecated.
+
         @param stream: The stream from which to read.
         @type stream: file
         @param version: The version as obtained by L{getVersion}.
@@ -988,19 +1013,30 @@ WARNING: expected instance of %s
     @classmethod
     def read(cls, stream, version=None, user_version=None,
              verbose=0, validate=True):
-        pass
+        """Deprecated."""
+        data = cls.Data()
+        data.read(stream)
+        return data.header.type, data.chunks, data.versions
 
     @classmethod
     def write(cls, stream, version = None, user_version = None,
               filetype = None, chunks = None, versions = None,
               verbose = 0):
-        pass
+        """Deprecated."""
+        data = cls.Data()
+        data.header.type = filetype
+        data.header.version = version
+        data.chunks = chunks
+        data.versions = versions
+        return data.write(stream)
     
     @classmethod
     def getChunkVersions(cls, version = None, user_version = None,
                          chunks = None):
         """Return version of each chunk in the chunk list for the
         given file version and file user version.
+
+        Deprecated. Use L{Data.update_versions} instead.
 
         @param version: The version.
         @type version: int
