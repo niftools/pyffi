@@ -42,6 +42,8 @@ a cgf specific wrapper around L{PyFFI.Spells.toaster}."""
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
+import logging
+
 from PyFFI.Spells import toaster
 from PyFFI.Formats.CGF import CgfFormat
 import PyFFI.Spells.CGF
@@ -65,4 +67,12 @@ def main():
 
 # if script is called...
 if __name__ == "__main__":
+    # set up logger
+    logger = logging.getLogger("pyffi")
+    logger.setLevel(logging.DEBUG)
+    loghandler = logging.StreamHandler()
+    loghandler.setLevel(logging.DEBUG)
+    logformatter = logging.Formatter("%(name)s:%(levelname)s:%(message)s")
+    loghandler.setFormatter(logformatter)
+    logger.addHandler(loghandler)
     main()
