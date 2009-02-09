@@ -39,6 +39,7 @@
 #
 # ***** END LICENSE BLOCK *****
 
+import logging
 
 # check if PyQt4 is installed
 try:
@@ -81,4 +82,13 @@ def main():
     sys.exit(app.exec_())
 
 if __name__ == "__main__":
+    # set up logger
+    logger = logging.getLogger("pyffi")
+    logger.setLevel(logging.DEBUG)
+    loghandler = logging.StreamHandler()
+    loghandler.setLevel(logging.DEBUG)
+    logformatter = logging.Formatter("%(name)s:%(levelname)s:%(message)s")
+    loghandler.setFormatter(logformatter)
+    logger.addHandler(loghandler)
+    # run main program
     main()
