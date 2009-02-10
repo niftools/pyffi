@@ -662,7 +662,7 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
                 self.versions = [max(chunk.getVersions(self.game))
                                  for chunk in self.chunks]
             except KeyError:
-                raise cls.CgfError("game %s not supported" % self.game)
+                raise CgfFormat.CgfError("game %s not supported" % self.game)
 
     # implementation of cgf-specific basic types
 
@@ -965,7 +965,7 @@ WARNING: expected instance of %s
             return {cls.UVER_FARCRY: "Far Cry",
                     cls.UVER_CRYSIS: "Crysis"}[user_version]
         except KeyError:
-            raise ValueError("unknown version 0x%X and user version %i" %
+            raise ValueError("unknown version 0x%08X and user version %i" %
                              (version, user_version))
 
     @classmethod
@@ -1033,6 +1033,7 @@ WARNING: expected instance of %s
         data.header.version = version
         data.chunks = chunks
         data.versions = versions
+        data.game = cls.getGame(version=version, user_version=user_version)
         return data.write(stream)
     
     @classmethod
