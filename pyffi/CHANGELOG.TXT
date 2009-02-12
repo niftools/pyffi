@@ -1,3 +1,5 @@
+Version 1.2.2 (***)
+
 Version 1.2.1 (2 Feb 2009)
 * nif format:
   - new addIntegerExtraData function for NiObjectNET
