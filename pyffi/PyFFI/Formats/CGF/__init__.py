@@ -280,17 +280,29 @@ class CgfFormat(XmlFileFormat):
             # create new header
             self.header = CgfFormat.Header()
             self.header.type = filetype
+            self.header.version = 0x744 # no other chunk table versions
             # empty list of chunks
             self.chunks = []
             # empty list of versions (one per chunk)
             self.versions = []
             # chunk table
             self.chunk_table = CgfFormat.ChunkTable()
-            # game (auto-detected)
+            # game
             # TODO store this in a way that can be displayed by qskope
             self.game = game
 
         # new functions
+
+        def version(self):
+            return self.header.version
+
+        def user_version(self):
+            if self.game == "Far Cry":
+                return CgfFormat.UVER_FARCRY
+            elif self.game == "Crysis":
+                return CgfFormat.UVER_CRYSIS
+            else:
+                raise ValueError("unknown game %s" % game)
 
         def inspectVersionOnly(self, stream):
             """This function checks the version only, and is faster
@@ -310,6 +322,8 @@ class CgfFormat(XmlFileFormat):
                 signat = stream.read(8)
                 filetype, version, offset = struct.unpack('<III',
                                                           stream.read(12))
+            except IOError:
+                raise
             except StandardError:
                 # something went wrong with unpack
                 # this means that the file is less than 20 bytes
@@ -384,7 +398,9 @@ class CgfFormat(XmlFileFormat):
                 stream.seek(self.header.offset)
                 logger.debug("Reading chunk table version 0x%08X at 0x%08X." % (self.header.version, stream.tell()))
                 self.chunk_table.read(
-                    stream, version=self.header.version, user_version=self.game)
+                    stream,
+                    version=self.version(),
+                    user_version=self.user_version())
             finally:
                 stream.seek(pos)
 
@@ -398,10 +414,8 @@ class CgfFormat(XmlFileFormat):
             
             logger = logging.getLogger("pyffi.cgf.data")
             self.inspect(stream)
-            version, user_version = CgfFormat.getGameVersion(self.game)
-            if version != self.header.version:
-                logger.error("Expected version 0x%X for game %s but got 0x%X"
-                             % (version, self.game, self.header.version))
+            version = self.version()
+            user_version = self.user_version()
 
             # is it a caf file? these are missing chunk headers on controllers
             # (note: stream.name may not be a python string for some file
@@ -541,7 +555,7 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
             for chunk, chunkversion in zip(self.chunks, self.versions):
                 #print chunk.__class__
                 chunk.fixLinks(
-                    version=chunkversion, user_version=self.game,
+                    version=chunkversion, user_version=user_version,
                     block_dct=chunk_dct, link_stack=link_stack)
             if link_stack != []:
                 raise CgfFormat.CgfError(
@@ -564,10 +578,8 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
             total_padding = 0
 
             # sanity check on version
-            version, user_version = CgfFormat.getGameVersion(self.game)
-            if version != self.header.version:
-                logger.error("Expected version 0x%X for game %s but got 0x%X"
-                             % (version, self.game, self.header.version))
+            version = self.version()
+            user_version = self.user_version()
 
             # chunk versions
             self.update_versions()
@@ -576,7 +588,7 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
             hdr_pos = stream.tell()
             self.header.offset = -1 # is set at the end
             self.header.write(
-                stream, version=self.header.version, user_version=self.game)
+                stream, version=self.header.version, user_version=user_version)
 
             # chunk id is simply its index in the chunks list
             block_index_dct = dict((chunk, i)
@@ -946,7 +958,7 @@ WARNING: expected instance of %s
         except ValueError:
             return -2, 0
         else:
-            return cls.getGameVersion(data.game)
+            return data.version(), data.user_version()
 
     @classmethod
     def getGame(cls, version=None, user_version=None):
@@ -976,6 +988,7 @@ WARNING: expected instance of %s
         @param game: 'Crysis' or 'Far Cry'.
         @type game: str
         @return: The version and user version.
+        @deprecated: Use the version() and user_version() functions instead.
 
         >>> CgfFormat.getGameVersion("Far Cry")
         (1860, 1)
