@@ -946,7 +946,7 @@ WARNING: expected instance of %s
         except ValueError:
             return -2, 0
         else:
-            return data.header.version, data.game
+            return cls.getGameVersion(data.game)
 
     @classmethod
     def getGame(cls, version=None, user_version=None):
