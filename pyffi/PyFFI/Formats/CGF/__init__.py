@@ -272,10 +272,10 @@ class CgfFormat(XmlFileFormat):
             """Initialize cgf data. By default, this creates an empty
             cgf document of the given filetype and game.
 
-            @param version: The version.
-            @type version: C{int}
-            @param user_version: The user version.
-            @type user_version: C{int}
+            @param filetype: The file type (animation, or geometry).
+            @type filetype: C{int}
+            @param game: The game.
+            @type game: C{str}
             """
             # create new header
             self.header = CgfFormat.Header()

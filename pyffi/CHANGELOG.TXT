@@ -1,4 +1,7 @@
 Version 1.2.2 (***)
+* cgf format:
+  - fixed various regression bugs that prevented qskope to run on cgf files
+  - updated to use the new data system
 
 Version 1.2.1 (2 Feb 2009)
 * nif format:
