@@ -355,7 +355,14 @@ class CgfFormat(XmlFileFormat):
         # GlobalNode
 
         def getGlobalChildNodes(self, edge_filter=EdgeFilter()):
-            return (chunk for chunk in self.chunks)
+            """Returns chunks without parent."""
+            # calculate all children of all chunks
+            children = set()
+            for chunk in self.chunks:
+                children |= set(chunk.getGlobalChildNodes())
+            # iterate over all chunks that are NOT in the list of children
+            return (chunk for chunk in self.chunks
+                    if not chunk in children)
 
         # DetailNode
 
