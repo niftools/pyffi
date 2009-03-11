@@ -354,11 +354,10 @@ def qhull3d(vertices, precision = 0.0001, verbose = False):
                               in izip(outer_vertices.iterkeys(), visibility)
                               if visible ]
         # 3. find all edges of visible triangles
-        visible_edges = reduce(operator.add,
-                               [ [ operator.itemgetter(i,j)(visible_triangle)
-                                   for i, j in ((0,1),(1,2),(2,0)) ]
-                                 for visible_triangle in visible_triangles ],
-                               [] )
+        visible_edges = []
+        for visible_triangle in visible_triangles:
+            visible_edges += [operator.itemgetter(i,j)(visible_triangle)
+                              for i, j in ((0,1),(1,2),(2,0))]
         if verbose:
             print "visible edges", visible_edges
         # 4. construct horizon: edges that are not shared with another triangle
@@ -366,10 +365,9 @@ def qhull3d(vertices, precision = 0.0001, verbose = False):
                           if not tuple(reversed(edge)) in visible_edges ]
         # 5. remove visible triangles from list
         # this puts a hole inside the triangle list
-        visible_outer = set(reduce(operator.add,
-                                   ( map(operator.itemgetter(1), outer_verts)
-                                     for outer_verts
-                                     in outer_vertices.itervalues() )))
+        visible_outer = set()
+        for outer_verts in outer_vertices.itervalues():
+            visible_outer |= set(map(operator.itemgetter(1), outer_verts))
         for triangle in visible_triangles:
             if verbose:
                 print "removing", triangle
