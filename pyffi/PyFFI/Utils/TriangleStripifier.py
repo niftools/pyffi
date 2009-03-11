@@ -289,7 +289,7 @@ class ExperimentGLSelector(object):
     StripLenHeuristic = 1.0
     MinStripLength = 0
 
-    BestScore = None
+    BestScore = -1
     BestSample = None
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -388,7 +388,8 @@ class TriangleStripifier(object):
 
     def _FindStartFaceIndex(self, FaceList):
         """Find a good face to start stripification with."""
-        bestfaceindex, bestscore = 0, None
+        bestfaceindex = 0
+        bestscore = 0
         faceindex = -1
 
         for face in FaceList:
@@ -400,7 +401,8 @@ class TriangleStripifier(object):
             # (a score of 3 signifies a lonely face)
             if bestscore < score < 3:
                 bestfaceindex, bestscore = faceindex, score
-                if bestscore >= 2: break
+                if bestscore >= 2:
+                    break
         return bestfaceindex
 
     def _FindGoodResetPoint(self, mesh):
@@ -408,7 +410,7 @@ class TriangleStripifier(object):
         lenFaceList = len(mesh.Faces)
         startstep = lenFaceList / 10
         startidx = self._FindStartFaceIndex(FaceList)
-        while startidx is not None:
+        while True: #startidx is not None:
             for idx in _xwrap(startidx, lenFaceList):
                 face = FaceList[idx]
                 # If this face isn't used by another strip
