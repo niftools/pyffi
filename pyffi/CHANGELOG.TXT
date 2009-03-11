@@ -1,3 +1,6 @@
+Version 1.2.3 (***)
+* removed reduce() calls (to work towards python 3k compatibility)
+
 Version 1.2.2 (15 Feb 2009)
 * cgf format:
   - fixed various regression bugs that prevented qskope to run on cgf files

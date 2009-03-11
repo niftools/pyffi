@@ -169,7 +169,7 @@ complex file formats.
 #
 # ***** END LICENSE BLOCK *****
 
-__version__ = '1.2.2'
+__version__ = '1.2.3'
 
 __hexversion__ = eval('0x%02X%02X%02X'
                       % tuple(int(x) for x in __version__.split('.')))
