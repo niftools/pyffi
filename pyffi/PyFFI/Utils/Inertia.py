@@ -254,11 +254,14 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, solid = Tru
         print("WARNING: mass is nearly zero (%f)" % total_mass)
         return 0, (0,0,0), ((0,0,0),(0,0,0),(0,0,0))
     # weighed average of centers with masses
-    total_center = reduce(vecAdd, ( vecscalarMul(center, mass / total_mass)
-                                    for center, mass
-                                    in izip(centers, masses)))
+    total_center = (0, 0, 0)
+    for center, mass in izip(centers, masses):
+        total_center = vecAdd(total_center,
+                              vecscalarMul(center, mass / total_mass))
     # add covariances, and correct the values
-    total_covariance = reduce(matAdd, covariances)
+    total_covariance = ((0,0,0),(0,0,0),(0,0,0))
+    for covariance in covariances:
+        total_covariance = matAdd(total_covariance, covariance)
     if solid:
         total_covariance = matscalarMul(total_covariance, covariance_correction)
 
