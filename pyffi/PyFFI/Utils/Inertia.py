@@ -75,7 +75,7 @@ def getMassInertiaBox(size, density = 1, solid = True):
     """
     assert(len(size) == 3) # debug
     if solid:
-        mass = density * reduce(operator.mul, size)
+        mass = density * size[0] * size[1] * size[2]
         tmp = tuple(mass * (length ** 2) / 12.0 for length in size)
     else:
         mass = density * sum( x * x for x in size)
@@ -218,10 +218,9 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, solid = Tru
             # C' = det(A) * A * C * A^T
             covariances.append(
                 matscalarMul(
-                    reduce(matMul,
-                           (transform,
-                            covariance_canonical,
-                            transform_transposed)),
+                    matMul(matMul(transform,
+                                  covariance_canonical),
+                           transform_transposed),
                     determinant))
             # m = det(A) / 6.0
             masses.append(determinant / 6.0)
