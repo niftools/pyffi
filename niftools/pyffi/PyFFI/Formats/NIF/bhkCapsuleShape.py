@@ -83,7 +83,7 @@ def getMassCenterInertia(self, density = 1, solid = True):
     assert(vecDistance(matvecMul(transform, (0,0,1)), vec1) < 0.0001)
     assert(abs(matDeterminant(transform) - 1) < 0.0001)
     # transform the inertia tensor
-    inertia = reduce(matMul, (transform_transposed, inertia, transform))
+    inertia = matMul(matMul(transform_transposed, inertia), transform)
     return mass, \
            ((self.firstPoint + self.secondPoint) * 0.5).asTuple(), \
            inertia

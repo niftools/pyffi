@@ -44,13 +44,14 @@ def getMassCenterInertia(self, density = 1, solid = True):
     subshapes_mci = [ subshape.getMassCenterInertia(density = density,
                                                     solid = solid)
                       for subshape in self.subShapes ]
-    total_mass = sum(mass for mass, center, inertia in subshapes_mci)
-    total_center = reduce(vecAdd,
-                          ( vecscalarMul(center, mass / total_mass)
-                            for mass, center, inertia in subshapes_mci ))
-    total_inertia = reduce(matAdd,
-                           ( inertia
-                             for mass, center, inertia in subshapes_mci ))
+    total_mass = 0
+    total_center = (0, 0, 0)
+    total_inertia = ((0, 0, 0), (0, 0, 0), (0, 0, 0))
+    for mass, center, inertia in subshapes_mci:
+        total_mass += mass
+        total_center = vecAdd(total_center,
+                              vecscalarMul(center, mass / total_mass))
+        total_inertia = matAdd(total_inertia, inertia)
     return total_mass, total_center, total_inertia
 
 def addShape(self, shape, front = False):

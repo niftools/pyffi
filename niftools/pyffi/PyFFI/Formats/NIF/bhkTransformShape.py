@@ -61,6 +61,6 @@ def getMassCenterInertia(self, density = 1, solid = True):
     # transform center and inertia
     center = matvecMul(transform, center)
     center = vecAdd(center, translation)
-    inertia = reduce(matMul, (transform_transposed, inertia, transform))
+    inertia = matMul(matMul(transform_transposed, inertia), transform)
     # return updated mass center and inertia
     return mass, center, inertia
