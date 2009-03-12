@@ -37,6 +37,8 @@
 #
 # ***** END LICENSE BLOCK *****
 
+import logging
+
 def asList(self):
     """Return matrix as 4x4 list."""
     return [
@@ -208,30 +210,29 @@ def setScaleRotationTranslation(self, scale, rotation, translation):
         raise TypeError('translation must be Vector3')
 
     if not rotation.isRotation():
-        print "WARNING (setScaleRotationTranslation): improper rotation matrix"
-        print rotation
-        #raise ValueError('rotation must be rotation matrix')
+        logger = logging.getLogger("pyffi.cgf.matrix")
+        mat = rotation * rotation.getTranspose()
+        idmat = self.cls.Matrix33()
+        idmat.setIdentity()
+        error = (mat - idmat).supNorm()
+        logger.warning("improper rotation matrix (error is %f)" % error)
+        logger.debug("  matrix =")
+        for line in str(rotation).split("\n"):
+            logger.debug("    %s" % line)
+        logger.debug("  its determinant = %f" % rotation.getDeterminant())
+        logger.debug("  matrix * matrix^T =")
+        for line in str(mat).split("\n"):
+            logger.debug("    %s" % line)
 
     self.m14 = 0.0
     self.m24 = 0.0
     self.m34 = 0.0
     self.m44 = 1.0
 
-    rotscl = rotation.getCopy()
-    rotscl.m11 *= scale.x
-    rotscl.m12 *= scale.x
-    rotscl.m13 *= scale.x
-    rotscl.m21 *= scale.y
-    rotscl.m22 *= scale.y
-    rotscl.m23 *= scale.y
-    rotscl.m31 *= scale.z
-    rotscl.m32 *= scale.z
-    rotscl.m33 *= scale.z
-
-    self.setMatrix33(rotscl)
+    self.setMatrix33(rotation * scale)
     self.setTranslation(translation)
 
-def getInverse(self, fast = True):
+def getInverse(self, fast=True):
     """Calculates inverse (fast assumes isScaleRotationTranslation is True)."""
     def adjoint(m, ii, jj):
         result = []
@@ -424,4 +425,53 @@ def __add__(self, x):
         return m
     else:
         raise TypeError("do not know how to add Matrix44 and %s"%x.__class__)
+
+def __sub__(self, x):
+    if isinstance(x, (self.cls.Matrix44)):
+        m = self.cls.Matrix44()
+        m.m11 = self.m11 - x.m11
+        m.m12 = self.m12 - x.m12
+        m.m13 = self.m13 - x.m13
+        m.m14 = self.m14 - x.m14
+        m.m21 = self.m21 - x.m21
+        m.m22 = self.m22 - x.m22
+        m.m23 = self.m23 - x.m23
+        m.m24 = self.m24 - x.m24
+        m.m31 = self.m31 - x.m31
+        m.m32 = self.m32 - x.m32
+        m.m33 = self.m33 - x.m33
+        m.m34 = self.m34 - x.m34
+        m.m41 = self.m41 - x.m41
+        m.m42 = self.m42 - x.m42
+        m.m43 = self.m43 - x.m43
+        m.m44 = self.m44 - x.m44
+        return m
+    elif isinstance(x, (int, long, float)):
+        m = self.cls.Matrix44()
+        m.m11 = self.m11 - x
+        m.m12 = self.m12 - x
+        m.m13 = self.m13 - x
+        m.m14 = self.m14 - x
+        m.m21 = self.m21 - x
+        m.m22 = self.m22 - x
+        m.m23 = self.m23 - x
+        m.m24 = self.m24 - x
+        m.m31 = self.m31 - x
+        m.m32 = self.m32 - x
+        m.m33 = self.m33 - x
+        m.m34 = self.m34 - x
+        m.m41 = self.m41 - x
+        m.m42 = self.m42 - x
+        m.m43 = self.m43 - x
+        m.m44 = self.m44 - x
+        return m
+    else:
+        raise TypeError("do not know how to substract Matrix44 and %s"
+                        % x.__class__)
+
+def supNorm(self):
+    """Calculate supremum norm of matrix (maximum absolute value of all
+    entries)."""
+    return max(max(abs(elem) for elem in row)
+               for row in self.asList())
 
