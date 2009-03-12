@@ -98,7 +98,7 @@ What happens in this piece of code?
 Reading and Writing Files
 -------------------------
 
-To read and print the contents of a file of the format described by
+To read the contents of a file of the format described by
 simple.xml::
 
     from simple import SimpleFormat
@@ -106,7 +106,7 @@ simple.xml::
     f = open('somefile.simple', 'rb')
     x.read(f)
     f.close()
-    print x
+    print(x)
 
 Or, to create a new file in this format::
 
