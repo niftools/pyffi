@@ -311,7 +311,6 @@ class ExperimentGLSelector(object):
 
     def Result(self):
         result = self.BestSample
-        #print "SELECTED", self.BestScore, result
         del self.BestScore
         del self.BestSample
         return result
@@ -526,26 +525,6 @@ class TriangleStripifier(object):
                 CleanFacesTask += 1
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-class PrintOnProgress(object):
-    percent = 0.
-    def __init__(self, printline=1, stepcount=20):
-        import sys
-        self.out = sys.stdout
-        self.printline = printline
-        self.out.write("<")
-        self.step = 1./stepcount
-    def __del__(self):
-        import os
-        self.out.write(">")
-        if self.printline:
-            self.out.write(os.linesep)
-    def __call__(self, percent):
-        while percent - self.percent >= self.step:
-            self.out.write("*")
-            self.percent += self.step
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~ Optimization
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -562,7 +541,7 @@ else:
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 if __name__=='__main__':
-    print "Testing..."
+    print("Testing...")
     import time
     import doctest
     import TriangleStripifier as _testmod
@@ -578,14 +557,14 @@ if __name__=='__main__':
     r0 = rows[0]
     for r1 in rows[1:]:
         _MakeSimpleMesh(mesh, _ConjoinMeshData(r0, r1)); r0=r1
-    print mesh
+    print(mesh)
     donemesh = time.clock()
-    print "Meshed:", donemesh, donemesh - startmesh
+    print("Meshed:", donemesh, donemesh - startmesh)
 
     startstrip = time.clock()
     stripifier = TriangleStripifier()
-    stripifier(mesh, OnProgress=PrintOnProgress())
+    stripifier(mesh)
     donestrip = time.clock()
-    print "Stripped", donestrip, donestrip-startstrip
+    print("Stripped", donestrip, donestrip-startstrip)
 
-    print "Test complete."
+    print("Test complete.")
