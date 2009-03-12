@@ -11,13 +11,12 @@ Read a DDS file
 >>> stream = open('tests/dds/test.dds', 'rb')
 >>> data = DdsFormat.Data()
 >>> data.inspect(stream)
->>> print(data.header.pixelFormat.size)
+>>> data.header.pixelFormat.size
 32
->>> print(data.header.height)
+>>> data.header.height
 20
 >>> data.read(stream)
->>> # print DDS header
->>> print(len(data.pixeldata.getValue()))
+>>> len(data.pixeldata.getValue())
 888
 
 Parse all DDS files in a directory tree
@@ -39,7 +38,7 @@ Get list of versions
 --------------------
 
 >>> for vnum in sorted(DdsFormat.versions.values()):
-...     print('0x%08X'%vnum)
+...     print('0x%08X' % vnum)
 0x09000000
 0x0A000000
 """
