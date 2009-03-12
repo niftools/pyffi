@@ -74,7 +74,7 @@ def find_templates():
     templates = set()
     for cls in NifFormat.xmlStruct:
         for attr in cls._attributeList:
-            if attr.template != None and attr.template != NoneType and not issubclass(attr.type, NifFormat.Ref):
+            if attr.template != None and attr.template != type(None) and not issubclass(attr.type, NifFormat.Ref):
                 templates.add(attr.template)
     return templates
 
@@ -164,9 +164,9 @@ def write_struct(cls, ver, hsl_types, f, template):
         s = '  '
 
         # things that can only be determined at runtime (rt_xxx)
-        rt_type = attr.type if attr.type != NoneType \
+        rt_type = attr.type if attr.type != type(None) \
                   else template
-        rt_template = attr.template if attr.template != NoneType \
+        rt_template = attr.template if attr.template != type(None) \
                       else template
 
         # get the attribute type name

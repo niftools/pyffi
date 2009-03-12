@@ -362,7 +362,7 @@ def __rmul__(self, x):
         raise TypeError("do not know how to multiply %s with Matrix44"%x.__class__)
 
 def __eq__(self, m):
-    if isinstance(m, NoneType):
+    if isinstance(m, type(None)):
         return False
     if not isinstance(m, self.cls.Matrix44):
         raise TypeError("do not know how to compare Matrix44 and %s"%m.__class__)

@@ -65,8 +65,6 @@ True
 #
 # ***** END LICENSE BLOCK *****
 
-from types import NoneType
-
 from PyFFI.Formats.NIF._NifFormat import NifFormat
 from PyFFI.Utils.Partial import MetaPartial
 
@@ -99,7 +97,7 @@ class _Vector4(NifFormat.Vector4):
         return "[ %6.3f %6.3f %6.3f %6.3f ]"%(self.x, self.y, self.z, self.w)
 
     def __eq__(self, rhs):
-        if isinstance(rhs, NoneType):
+        if isinstance(rhs, type(None)):
             return False
         if not isinstance(rhs, NifFormat.Vector4):
             raise TypeError(
