@@ -495,7 +495,7 @@ Skipping %i bytes in %s""" % (extra_size, block.__class__.__name__))
                         block.getStrings(
                             data=self))
             string_list = list(set(string_list)) # ensure unique elements
-            #print string_list # debug
+            #print(string_list) # debug
 
             self.header.userVersion = self.user_version # TODO dedicated type for userVersion similar to FileVersion
             # for oblivion CS; apparently this is the version of the bhk blocks
@@ -520,7 +520,7 @@ Skipping %i bytes in %s""" % (extra_size, block.__class__.__name__))
             for i, block in enumerate(self.blocks):
                 self.header.blockSize[i] = block.getSize(data=self)
             #if verbose >= 2:
-            #    print hdr
+            #    print(hdr)
 
             # set up footer
             ftr = NifFormat.Footer()
@@ -819,7 +819,7 @@ but got instance of %s' % (self._template, value.__class__))
             if self._value is oldbranch:
                 # setValue takes care of template type
                 self.setValue(newbranch)
-                #print >>sys.stderr, "replacing", repr(oldbranch), "->", repr(newbranch)
+                #print("replacing", repr(oldbranch), "->", repr(newbranch))
             if self._value is not None:
                 self._value.replaceGlobalNode(oldbranch, newbranch)
 
@@ -852,7 +852,7 @@ but got instance of %s' % (self._template, value.__class__))
             if self._value is oldbranch:
                 # setValue takes care of template type
                 self.setValue(newbranch)
-                #print >>sys.stderr, "replacing", repr(oldbranch), "->", repr(newbranch)
+                #print("replacing", repr(oldbranch), "->", repr(newbranch))
 
     class LineString(BasicBase):
         """Basic type for strings ending in a newline character (0x0a).
