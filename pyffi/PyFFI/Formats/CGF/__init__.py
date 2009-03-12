@@ -17,9 +17,9 @@ Read a CGF file
 >>> filetype, chunks, versions = CgfFormat.read(stream,
 ...                                             version = version,
 ...                                             user_version = user_version)
->>> # print all chunks
+>>> # get all chunks
 >>> for chunk in chunks:
-...     print chunk # doctest: +ELLIPSIS
+...     print(chunk) # doctest: +ELLIPSIS
 <class 'PyFFI.ObjectModels.XML.FileFormat.SourceInfoChunk'> instance at ...
 * sourceFile : <EMPTY STRING>
 * date : Fri Sep 28 22:40:44 2007
@@ -76,9 +76,9 @@ Create a CGF file from scratch
 >>> filetype, chunks, versions = CgfFormat.read(stream,
 ...                                             version = version,
 ...                                             user_version = user_version)
->>> # print all chunks
+>>> # get all chunks
 >>> for chunk in chunks:
-...     print chunk # doctest: +ELLIPSIS
+...     print(chunk) # doctest: +ELLIPSIS
 <class 'PyFFI.ObjectModels.XML.FileFormat.NodeChunk'> instance at 0x...
 * name : hello
 * object : None
@@ -534,14 +534,14 @@ expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
                                                       user_version = user_version)
                     # check with number of bytes read
                     if size != stream.tell() - chunkhdr.offset:
-                        print("""\
-BUG: getSize returns wrong size when reading %s at 0x%08X
-     actual bytes read is %i, getSize yields %i (expected %i bytes)"""
-                              % (chunk.__class__.__name__,
-                                 chunkhdr.offset,
-                                 size,
-                                 stream.tell() - chunkhdr.offset,
-                                 chunk_sizes[chunknum]))
+                        logger.error("""\
+getSize returns wrong size when reading %s at 0x%08X
+actual bytes read is %i, getSize yields %i (expected %i bytes)"""
+                                    % (chunk.__class__.__name__,
+                                       chunkhdr.offset,
+                                       size,
+                                       stream.tell() - chunkhdr.offset,
+                                       chunk_sizes[chunknum]))
                     # check for padding bytes
                     if chunk_sizes[chunknum] & 3 == 0:
                         padlen = ((4 - size & 3) & 3)
@@ -549,16 +549,16 @@ BUG: getSize returns wrong size when reading %s at 0x%08X
                         size += padlen
                     # check size
                     if size != chunk_sizes[chunknum]:
-                        print("""\
-WARNING: chunk size mismatch when reading %s at 0x%08X
-         %i bytes available, but actual bytes read is %i"""
-                              % (chunk.__class__.__name__,
-                                 chunkhdr.offset,
-                                 chunk_sizes[chunknum], size))
+                        logger.warn("""\
+chunk size mismatch when reading %s at 0x%08X
+%i bytes available, but actual bytes read is %i"""
+                                    % (chunk.__class__.__name__,
+                                       chunkhdr.offset,
+                                       chunk_sizes[chunknum], size))
 
             # fix links
             for chunk, chunkversion in zip(self.chunks, self.versions):
-                #print chunk.__class__
+                #print(chunk.__class__)
                 chunk.fixLinks(
                     version=chunkversion, user_version=user_version,
                     block_dct=chunk_dct, link_stack=link_stack)
@@ -830,7 +830,7 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
             @keyword link_stack: The stack containing all block indices.
             @type link_stack: list of ints
             """
-
+            logger = logging.getLogger("pyffi.cgf.data")
             block_index = kwargs.get('link_stack').pop(0)
             # case when there's no link
             if block_index == -1:
@@ -842,7 +842,7 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
             except KeyError:
                 # make this raise an exception when all reference errors
                 # are sorted out
-                print("WARNING: invalid chunk reference (%i)" % block_index)
+                logger.warn("invalid chunk reference (%i)" % block_index)
                 self._value = None
                 return
             if not isinstance(block, self._template):
@@ -853,9 +853,9 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
                 else:
                     # make this raise an exception when all reference errors
                     # are sorted out
-                    print("""\
-WARNING: expected instance of %s
-         but got instance of %s""" % (self._template, block.__class__))
+                    logger.warn("""\
+expected instance of %s
+but got instance of %s""" % (self._template, block.__class__))
             self._value = block
 
         def getLinks(self, **kwargs):

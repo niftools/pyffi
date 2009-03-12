@@ -207,7 +207,7 @@ def setGeometry(self,
     ...                   uvslist = [uvs1, uvs2],
     ...                   matlist = [2,5],
     ...                   colorslist = [colors1, colors2])
-    >>> print chunk # doctest: +ELLIPSIS
+    >>> print(chunk) # doctest: +ELLIPSIS
     <class 'PyFFI.ObjectModels.XML.FileFormat.MeshChunk'> instance at ...
     * hasVertexWeights : False
     * hasVertexColors : True
@@ -401,7 +401,7 @@ def setGeometry(self,
         16: 0
         etc...
     <BLANKLINE>
-    >>> print chunk.meshSubsets # doctest: +ELLIPSIS
+    >>> print(chunk.meshSubsets) # doctest: +ELLIPSIS
     <class 'PyFFI.ObjectModels.XML.FileFormat.MeshSubsetsChunk'> instance at ...
     * flags :
         <class 'PyFFI.ObjectModels.XML.FileFormat.MeshSubsetsFlags'> instance at ...
@@ -429,7 +429,7 @@ def setGeometry(self,
         * radius : 0.707106769...
         * center : [  0.500  0.500  1.000 ]
     <BLANKLINE>
-    >>> print chunk.verticesData # doctest: +ELLIPSIS
+    >>> print(chunk.verticesData) # doctest: +ELLIPSIS
     <class 'PyFFI.ObjectModels.XML.FileFormat.DataStreamChunk'> instance at ...
     * flags : 0
     * dataStreamType : VERTICES
@@ -448,7 +448,7 @@ def setGeometry(self,
         6: [  1.000  0.000  1.000 ]
         7: [  1.000  1.000  1.000 ]
     <BLANKLINE>
-    >>> print chunk.normalsData # doctest: +ELLIPSIS
+    >>> print(chunk.normalsData) # doctest: +ELLIPSIS
     <class 'PyFFI.ObjectModels.XML.FileFormat.DataStreamChunk'> instance at ...
     * flags : 0
     * dataStreamType : NORMALS
@@ -467,7 +467,7 @@ def setGeometry(self,
         6: [  0.000  0.000  1.000 ]
         7: [  0.000  0.000  1.000 ]
     <BLANKLINE>
-    >>> print chunk.indicesData # doctest: +ELLIPSIS
+    >>> print(chunk.indicesData) # doctest: +ELLIPSIS
     <class 'PyFFI.ObjectModels.XML.FileFormat.DataStreamChunk'> instance at ...
     * flags : 0
     * dataStreamType : INDICES
@@ -490,7 +490,7 @@ def setGeometry(self,
         10: 5
         11: 7
     <BLANKLINE>
-    >>> print chunk.uvsData # doctest: +ELLIPSIS
+    >>> print(chunk.uvsData) # doctest: +ELLIPSIS
     <class 'PyFFI.ObjectModels.XML.FileFormat.DataStreamChunk'> instance at ...
     * flags : 0
     * dataStreamType : UVS
@@ -525,7 +525,7 @@ def setGeometry(self,
         * u : 1.0
         * v : 0.0
     <BLANKLINE>
-    >>> print chunk.tangentsData # doctest: +ELLIPSIS
+    >>> print(chunk.tangentsData) # doctest: +ELLIPSIS
     <class 'PyFFI.ObjectModels.XML.FileFormat.DataStreamChunk'> instance at ...
     * flags : 0
     * dataStreamType : TANGENTS
@@ -616,7 +616,7 @@ def setGeometry(self,
         * z : 0
         * w : 32767
     <BLANKLINE>
-    >>> print chunk.colorsData # doctest: +ELLIPSIS
+    >>> print(chunk.colorsData) # doctest: +ELLIPSIS
     <class 'PyFFI.ObjectModels.XML.FileFormat.DataStreamChunk'> instance at ...
     * flags : 0
     * dataStreamType : COLORS

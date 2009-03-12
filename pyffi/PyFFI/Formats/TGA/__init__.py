@@ -15,9 +15,11 @@ Read a TGA file
 ... elif version == -2:
 ...     raise RuntimeError('not a tga file')
 >>> header, data = TgaFormat.read(f, version = version)
->>> # print TGA header
->>> print header.width, header.height
-60 20
+>>> # get TGA header
+>>> header.width
+60
+>>> header.height
+20
 
 Parse all TGA files in a directory tree
 ---------------------------------------

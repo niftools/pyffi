@@ -13,8 +13,8 @@ Read a DAE file
 Traceback (most recent call last):
     ...
 NotImplementedError
->>> # print DAE file
->>> #print daedata.getRootElement()
+>>> # get DAE file root element
+>>> #print(daedata.getRootElement())
 >>> stream.close()
 
 Parse all DAE files in a directory tree
