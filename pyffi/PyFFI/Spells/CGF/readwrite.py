@@ -43,9 +43,9 @@ def testFile(stream,
         stream.seek(0, 2)
         f_tmp.seek(0, 2)
         if stream.tell() != f_tmp.tell():
-            print "original size: %i" % stream.tell()
-            print "written size:  %i" % f_tmp.tell()
-            print "padding:       %i" % total_padding
+            print("original size: %i" % stream.tell())
+            print("written size:  %i" % f_tmp.tell())
+            print("padding:       %i" % total_padding)
             if stream.tell() > f_tmp.tell() or stream.tell() + total_padding < f_tmp.tell():
                 f_tmp.seek(0)
                 f_debug = open("debug.cgf", "wb")

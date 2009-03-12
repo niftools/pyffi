@@ -6,4 +6,4 @@ def testBlock(chunk, **kwargs):
     """Report whether mesh chunk has vertex colors."""
     if isinstance(chunk, CgfFormat.MeshChunk):
         if chunk.hasVertexColors:
-            print "has vertex colors"
+            print("has vertex colors")

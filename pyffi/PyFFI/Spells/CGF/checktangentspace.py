@@ -57,10 +57,10 @@ def testBlock(chunk, **args):
         if vecDistance(norm, cross) > 0.01:
             print(
                 "WARNING: norm not cross product of tangent and binormal")
-            #print "norm                 = %s" % (norm,)
-            #print "tan                  = %s" % (tan,)
-            #print "bin                  = %s" % (bin,)
-            #print "tan bin cross prod   = %s" % (cross,)
+            #print("norm                 = %s" % (norm,))
+            #print("tan                  = %s" % (tan,))
+            #print("bin                  = %s" % (bin,))
+            #print("tan bin cross prod   = %s" % (cross,))
             print("       (error is %f)" % vecDistance(norm, cross))
 
         # compare old with new

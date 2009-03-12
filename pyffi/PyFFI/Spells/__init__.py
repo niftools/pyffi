@@ -886,7 +886,7 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
         # in particular, when calling from the command line, the script
         # is much more verbose by default
 
-        # default verbosity is -1: do not print anything (!= cli default)
+        # default verbosity is -1: do not show anything (!= cli default)
         verbose = self.options.get("verbose", -1)
 
         # raise test errors by default so caller can know what happened
@@ -1322,7 +1322,7 @@ def printexamples(examples):
     @param examples: The string of examples. (Passed via kwargs.)
     @type examples: str
     """
-    # print examples
+    # show examples
     print(examples)
 
 def printspells(formatspellsmodule):
@@ -1331,7 +1331,7 @@ def printspells(formatspellsmodule):
     @param formatspellsmodule: The spells module. (Passed via kwargs.)
     @type formatspellsmodule: module
     """
-    # print all submodules of the spells module
+    # show all submodules of the spells module
     for spell in dir(formatspellsmodule):
         if spell[:2] == '__':
             continue
