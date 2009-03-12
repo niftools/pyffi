@@ -45,15 +45,15 @@
 >>> skininst.bones[3] = bone211
 >>> skindata.numBones = 4
 >>> skindata.boneList.updateSize()
->>> print [ child.name for child in skelroot.children ]
+>>> [child.name for child in skelroot.children]
 ['bone1', 'geom']
 >>> skindata.setTransform(id44)
 >>> for bonedata in skindata.boneList:
 ...     bonedata.setTransform(id44)
 >>> affectedbones = geom.flattenSkin()
->>> print [ bone.name for bone in affectedbones ]
+>>> [bone.name for bone in affectedbones]
 ['bone1', 'bone2', 'bone22', 'bone211']
->>> print [ child.name for child in skelroot.children ]
+>>> [child.name for child in skelroot.children]
 ['geom', 'bone1', 'bone21', 'bone2', 'bone22', 'bone211']
 """
 
@@ -95,6 +95,7 @@
 # ***** END LICENSE BLOCK *****
 
 import warnings
+import logging
 
 def isSkin(self):
     """Returns True if geometry is skinned."""
@@ -302,7 +303,9 @@ def getSkinDeformation(self):
             sumweights[index] += weight
 
     for i, s in enumerate(sumweights):
-        if abs(s - 1.0) > 0.01: print "WARNING: vertex %i has weights not summing to one in getSkinDeformation"
+        if abs(s - 1.0) > 0.01: 
+            logging.getLogger("pyffi.nif.nigeometry").warn(
+                "vertex %i has weights not summing to one" % i)
 
     return vertices, normals
 
