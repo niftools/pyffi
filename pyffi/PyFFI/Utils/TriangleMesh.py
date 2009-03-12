@@ -133,8 +133,6 @@ class FaceMesh(FlyweightGroupObject):
     #~ Constants / Variables / Etc.
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    WarnOnOddities = 0
-
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     #~ Public Methods
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -149,8 +147,6 @@ class FaceMesh(FlyweightGroupObject):
 
     def AddFace(self, v0,v1,v2):
         if v0 == v1 or v1 == v2 or v2 == v0:
-            if self.WarnOnOddities:
-                print "DEGENERATE face", (v0,v1,v2)
             return None
         else:
             face = self._FaceClass(v0,v1,v2)
@@ -180,8 +176,6 @@ class FaceEdgeMesh(FlyweightGroupObject):
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     #~ Constants / Variables / Etc.
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    WarnOnOddities = 0
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     #~ Public Methods
@@ -215,15 +209,10 @@ class FaceEdgeMesh(FlyweightGroupObject):
             self.Edges[ev0,ev1] = edge
 
         edge.Faces.append(face)
-        if self.WarnOnOddities:
-            if len(edge.Faces) > 2:
-                print "ABNORMAL Edge:", edge, edge.Faces
         return edge
 
     def AddFace(self, v0,v1,v2):
         if v0 == v1 or v1 == v2 or v2 == v0:
-            if self.WarnOnOddities:
-                print "DEGENERATE face", (v0,v1,v2)
             return None
         else:
             face = self._FaceClass(v0,v1,v2)
@@ -248,9 +237,7 @@ else:
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 if __name__=='__main__':
-    print "Testing..."
     import doctest
     import TriangleMesh as _testmod
     doctest.testmod(_testmod)
-    print "Test complete."
 
