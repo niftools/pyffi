@@ -38,7 +38,6 @@
 # --------------------------------------------------------------------------
 
 from itertools import izip
-from types import NoneType
 
 from PyFFI.ObjectModels.Graph import DetailNode, EdgeType, EdgeFilter
 
@@ -53,7 +52,7 @@ class DetailTreeItemData(object):
     def __init__(self, node=None, name=None):
         if not isinstance(node, DetailNode):
             raise TypeError("node must be DetailNode instance")
-        if not isinstance(name, (NoneType, basestring)):
+        if not isinstance(name, (type(None), basestring)):
             raise TypeError("name must be None or string instance")
         self.node = node
         self.name = name
@@ -75,7 +74,7 @@ class DetailTreeItem(object):
     @ivar data: The item data.
     @type data: L{DetailTreeItemData}
     @ivar parent: The parent of the node.
-    @type parent: C{NoneType} or L{DetailTreeItem}
+    @type parent: C{type(None)} or L{DetailTreeItem}
     @ivar children: The children of the node.
     @type children: C{list} of L{QDetailTreeItem}
     @ivar row: The row number of this node, as child.
@@ -89,7 +88,7 @@ class DetailTreeItem(object):
         if not isinstance(data, DetailTreeItemData):
             raise TypeError(
                 "data must be a DetailTreeItemData instance")
-        if not isinstance(parent, (NoneType, DetailTreeItem)):
+        if not isinstance(parent, (type(None), DetailTreeItem)):
             raise TypeError(
                 "parent must be either None or a DetailTreeItem instance")
         if not isinstance(edge_type, EdgeType):

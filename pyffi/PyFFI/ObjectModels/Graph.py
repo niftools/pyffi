@@ -120,7 +120,7 @@ class DetailNode(object):
         Override this method if the node has children.
 
         @param edge_filter: The edge type to include.
-        @type edge_filter: L{EdgeFilter} or C{NoneType}
+        @type edge_filter: L{EdgeFilter} or C{type(None)}
         @return: Generator for detail tree child nodes.
         @rtype: generator yielding L{DetailNode}s
         """

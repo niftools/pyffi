@@ -175,7 +175,7 @@ def crossproduct(self, x):
         raise TypeError("do not know how to calculate crossproduct of Vector3 and %s"%x.__class__)
 
 def __eq__(self, x):
-    if isinstance(x, NoneType):
+    if isinstance(x, type(None)):
         return False
     if not isinstance(x, self.cls.Vector3):
         raise TypeError("do not know how to compare Vector3 and %s"%x.__class__)

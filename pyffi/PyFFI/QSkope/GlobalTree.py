@@ -38,7 +38,7 @@
 # --------------------------------------------------------------------------
 
 from itertools import izip
-from types import NoneType
+from types import type(None)
 
 from PyFFI.ObjectModels.Graph import GlobalNode, EdgeType, EdgeFilter
 
@@ -70,7 +70,7 @@ class GlobalTreeItem(object):
     @ivar data: The item data.
     @type data: L{GlobalDetailTreeItemData}
     @ivar parent: The parent of the node.
-    @type parent: C{NoneType} or L{DetailTreeItem}
+    @type parent: C{type(None)} or L{DetailTreeItem}
     @ivar children: The children of the node.
     @type children: C{list} of L{GlobalTreeItem}
     @ivar row: The row number of this node, as child.
@@ -86,7 +86,7 @@ class GlobalTreeItem(object):
         if not isinstance(data, GlobalTreeItemData):
             raise TypeError(
                 "data must be a GlobalTreeItemData instance")
-        if not isinstance(parent, (NoneType, GlobalTreeItem)):
+        if not isinstance(parent, (type(None), GlobalTreeItem)):
             raise TypeError(
                 "parent must be either None or a GlobalTreeItem instance")
         if not isinstance(edge_type, EdgeType):

@@ -52,8 +52,6 @@ from PyFFI.Formats.TGA import TgaFormat
 
 from PyFFI.ObjectModels.FileFormat import FileFormat
 
-from types import NoneType
-
 # implementation details:
 # http://doc.trolltech.com/4.3/qmainwindow.html#details
 class QSkope(QtGui.QMainWindow):

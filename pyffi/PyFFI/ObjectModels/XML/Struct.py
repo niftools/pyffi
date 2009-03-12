@@ -41,7 +41,6 @@
 
 # note: some imports are defined at the end to avoid problems with circularity
 
-from types import NoneType
 from functools import partial
 from itertools import izip
 
@@ -79,7 +78,7 @@ class _MetaStructBase(type):
                     partial(StructBase.getBasicAttribute, name = attr.name),
                     partial(StructBase.setBasicAttribute, name = attr.name),
                     doc=attr.doc))
-            elif attr.type == NoneType and attr.arr1 == None:
+            elif attr.type == type(None) and attr.arr1 == None:
                 # get and set template attributes
                 setattr(cls, attr.name, property(
                     partial(StructBase.getTemplateAttribute, name = attr.name),
@@ -93,7 +92,7 @@ class _MetaStructBase(type):
 
             # check for links and refs and strings
             if not cls._hasLinks:
-                if attr.type != NoneType: # templates!
+                if attr.type != type(None): # templates!
                     # attr.type basestring means forward declaration
                     # we cannot know if it has links, so assume yes
                     if isinstance(attr.type, basestring) or attr.type._hasLinks:
@@ -104,7 +103,7 @@ class _MetaStructBase(type):
                 # to uncomment this if template types contain refs
 
             if not cls._hasRefs:
-                if attr.type != NoneType:
+                if attr.type != type(None):
                     # attr.type basestring means forward declaration
                     # we cannot know if it has refs, so assume yes
                     if isinstance(attr.type, basestring) or attr.type._hasRefs:
@@ -113,7 +112,7 @@ class _MetaStructBase(type):
                 #    cls._hasRefs = True # dito, see comment above
 
             if not cls._hasStrings:
-                if attr.type != NoneType:
+                if attr.type != type(None):
                     # attr.type basestring means forward declaration
                     # we cannot know if it has strings, so assume yes
                     if isinstance(attr.type, basestring) or attr.type._hasStrings:
@@ -210,7 +209,7 @@ class StructBase(GlobalNode):
     # initialize all attributes
     def __init__(self, template = None, argument = None, parent = None):
         """The constructor takes a tempate: any attribute whose type,
-        or template type, is NoneType - which corresponds to
+        or template type, is type(None) - which corresponds to
         TEMPLATE in the xml description - will be replaced by this
         type. The argument is what the ARG xml tags will be replaced with.
 
@@ -241,11 +240,11 @@ class StructBase(GlobalNode):
             names.append(attr.name)
 
             # things that can only be determined at runtime (rt_xxx)
-            rt_type = attr.type if attr.type != NoneType \
+            rt_type = attr.type if attr.type != type(None) \
                       else template
-            rt_template = attr.template if attr.template != NoneType \
+            rt_template = attr.template if attr.template != type(None) \
                           else template
-            rt_arg = attr.arg if isinstance(attr.arg, (int, long, NoneType)) \
+            rt_arg = attr.arg if isinstance(attr.arg, (int, long, type(None))) \
                      else getattr(self, attr.arg)
 
             # instantiate the class, handling arrays at the same time
@@ -327,7 +326,7 @@ class StructBase(GlobalNode):
         # read all attributes
         for attr in self._filteredAttributeList(**kwargs):
             # get attribute argument (can only be done at runtime)
-            rt_arg = attr.arg if isinstance(attr.arg, (int, long, NoneType)) \
+            rt_arg = attr.arg if isinstance(attr.arg, (int, long, type(None))) \
                      else getattr(self, attr.arg)
             kwargs['argument'] = rt_arg
             # read the attribute
@@ -350,7 +349,7 @@ class StructBase(GlobalNode):
         # write all attributes
         for attr in self._filteredAttributeList(**kwargs):
             # get attribute argument (can only be done at runtime)
-            rt_arg = attr.arg if isinstance(attr.arg, (int, long, NoneType)) \
+            rt_arg = attr.arg if isinstance(attr.arg, (int, long, type(None))) \
                      else getattr(self, attr.arg)
             kwargs['argument'] = rt_arg
             # write the attribute
@@ -401,7 +400,7 @@ class StructBase(GlobalNode):
         for attr in self._filteredAttributeList(**kwargs):
             # check if there are any strings at all
             # (this speeds things up considerably)
-            if (not attr.type is NoneType) and (not attr.type._hasStrings):
+            if (not attr.type is type(None)) and (not attr.type._hasStrings):
                 continue
             # extend list of strings
             strings.extend(

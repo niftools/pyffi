@@ -190,8 +190,6 @@ import os
 import re
 import warnings
 
-from types import NoneType
-
 from PyFFI.ObjectModels.XML.FileFormat import XmlFileFormat
 from PyFFI.ObjectModels.XML.FileFormat import MetaXmlFileFormat
 from PyFFI import Utils
@@ -773,7 +771,7 @@ WARNING: chunk size mismatch when reading %s at 0x%08X
         _hasRefs = True
         def __init__(self, **kwargs):
             super(CgfFormat.Ref, self).__init__(**kwargs)
-            self._template = kwargs.get('template', NoneType)
+            self._template = kwargs.get('template', type(None))
             self._value = None
 
         def getValue(self):

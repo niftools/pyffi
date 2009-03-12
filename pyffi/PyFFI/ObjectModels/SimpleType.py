@@ -39,8 +39,6 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-from types import NoneType
-
 import PyFFI.ObjectModels.AnyType
 
 class SimpleType(PyFFI.ObjectModels.AnyType.AnyType):
@@ -105,7 +103,7 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType):
     @type value: L{ValueType}
     """
     # value type
-    ValueType = NoneType
+    ValueType = type(None)
 
     def __init__(self, value=None):
         """Initialize the type with given value.
@@ -113,7 +111,7 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType):
         @keyword value: The initial value of the object. If not
             C{None}, this value is passed as an argument to
             L{ValueType}.
-        @type value: C{NoneType}, or anything acceptable as a first
+        @type value: C{type(None)}, or anything acceptable as a first
             argument to the L{ValueType} constructor.
         """
         if value is None:

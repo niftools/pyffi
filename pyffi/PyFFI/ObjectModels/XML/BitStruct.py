@@ -41,7 +41,6 @@
 
 # note: some imports are defined at the end to avoid problems with circularity
 
-from types import NoneType
 from functools import partial
 from itertools import izip
 import struct
@@ -187,7 +186,7 @@ class BitStructBase(DetailNode):
     # initialize all attributes
     def __init__(self, template = None, argument = None, parent = None):
         """The constructor takes a tempate: any attribute whose type,
-        or template type, is NoneType - which corresponds to
+        or template type, is type(None) - which corresponds to
         TEMPLATE in the xml description - will be replaced by this
         type. The argument is what the ARG xml tags will be replaced with.
 
