@@ -135,7 +135,7 @@ class StructBase(GlobalNode):
 
     The StructBase class implements the basic struct interface:
     it will initialize all attributes using the class interface
-    using the _attrs class variable, print them as strings, and so on.
+    using the _attrs class variable, represent them as strings, and so on.
     The class variable _attrs must be declared every derived class
     interface.
 
@@ -184,7 +184,7 @@ class StructBase(GlobalNode):
     >>> y.c = 3
     >>> y.d.a = 4
     >>> y.d.b = 5
-    >>> print y # doctest:+ELLIPSIS
+    >>> print(y) # doctest:+ELLIPSIS
     <class 'PyFFI.ObjectModels.XML.Struct.Y'> instance at 0x...
     * a : 1
     * b : 2
@@ -315,7 +315,7 @@ class StructBase(GlobalNode):
             elif attr_str_lines:
                 text += '* %s : %s\n' % (attr.name, attr_str_lines[0])
             else:
-                #print getattr(self, "_%s_value_" % attr.name)
+                #print(getattr(self, "_%s_value_" % attr.name))
                 text += '* %s : <EMPTY>\n' % attr.name
         return text
 
@@ -332,15 +332,15 @@ class StructBase(GlobalNode):
             # read the attribute
             getattr(self, "_%s_value_" % attr.name).read(stream, **kwargs)
             ### UNCOMMENT FOR DEBUGGING WHILE READING
-            #print "* %s.%s" % (self.__class__.__name__, attr.name), # debug
+            #print("* %s.%s" % (self.__class__.__name__, attr.name)) # debug
             #val = getattr(self, "_%s_value_" % attr.name) # debug
             #if isinstance(val, BasicBase): # debug
             #    try:
-            #        print val.getValue() # debug
+            #        print(val.getValue()) # debug
             #    except StandardError:
             #        pass
             #else:
-            #    print val.__class__.__name__
+            #    print(val.__class__.__name__)
 
     def write(self, stream, **kwargs):
         """Write structure to stream."""
@@ -355,15 +355,15 @@ class StructBase(GlobalNode):
             # write the attribute
             getattr(self, "_%s_value_" % attr.name).write(stream, **kwargs)
             ### UNCOMMENT FOR DEBUGGING WHILE WRITING
-            #print "* %s.%s" % (self.__class__.__name__, attr.name), # debug
+            #print("* %s.%s" % (self.__class__.__name__, attr.name)) # debug
             #val = getattr(self, "_%s_value_" % attr.name) # debug
             #if isinstance(val, BasicBase): # debug
             #    try:
-            #        print val.getValue() # debug
+            #        print(val.getValue()) # debug
             #    except StandardError:
             #        pass
             #else:
-            #    print val.__class__.__name__
+            #    print(val.__class__.__name__)
 
     def fixLinks(self, **kwargs):
         """Fix links in the structure."""
@@ -374,7 +374,7 @@ class StructBase(GlobalNode):
             # (commonly this speeds things up considerably)
             if not attr.type._hasLinks:
                 continue
-            #print "fixlinks %s" % attr.name
+            #print("fixlinks %s" % attr.name)
             # fix the links in the attribute
             getattr(self, "_%s_value_" % attr.name).fixLinks(**kwargs)
 
@@ -509,7 +509,7 @@ class StructBase(GlobalNode):
             user_version = data.user_version
         names = []
         for attr in self._attributeList:
-            #print attr.name, version, attr.ver1, attr.ver2 # debug
+            #print(attr.name, version, attr.ver1, attr.ver2) # debug
 
             # check version
             if not (version is None):
@@ -517,13 +517,13 @@ class StructBase(GlobalNode):
                     continue
                 if (not (attr.ver2 is None)) and version > attr.ver2:
                     continue
-            #print "version check passed" # debug
+            #print("version check passed") # debug
 
             # check user version
             if not(attr.userver is None or user_version is None) \
                and user_version != attr.userver:
                 continue
-            #print "user version check passed" # debug
+            #print("user version check passed") # debug
 
             # check conditions
             if not (attr.cond is None) and not attr.cond.eval(self):
@@ -534,12 +534,12 @@ class StructBase(GlobalNode):
                 if not attr.vercond.eval(data):
                     continue
 
-            #print "condition passed" # debug
+            #print("condition passed") # debug
 
             # skip dupiclate names
             if attr.name in names:
                 continue
-            #print "duplicate check passed" # debug
+            #print("duplicate check passed") # debug
 
             names.append(attr.name)
             # passed all tests
