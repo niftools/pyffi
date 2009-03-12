@@ -93,11 +93,14 @@ def hexDump(f, numLines = 8):
     >>> f.write('abcdefg\\x0a')
     >>> f.seek(2)
     >>> hexDump(f, 2)
-                00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
+                00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 
     -----------------------------------------------------------
     0x00000000  61 62>63 64 65 66 67 0A                         |abcdefg.        |
     0x00000010                                                  |                |
+    <BLANKLINE>
     """
+
+    dumpstr = ""
 
     pos = f.tell()
     if pos > numLines*8:
@@ -105,24 +108,22 @@ def hexDump(f, numLines = 8):
     else:
         f.seek(0)
     dumppos = f.tell()
-    print "           ",
+    dumpstr += "            "
     for ofs in xrange(16):
-        print "%02X"%ofs,
-    print
-    print "-----------------------------------------------------------"
+        dumpstr += "%02X " % ofs
+    dumpstr += "\n-----------------------------------------------------------\n"
     for i in xrange(numLines):
-        print "0x%08X"%dumppos,
+        dumpstr += "0x%08X " % dumppos
         data = f.read(16)
-        s = ""
         for j, c in enumerate(data):
             if dumppos + j != pos:
-                s += " %02X"%ord(c)
+                dumpstr += " %02X" % ord(c)
             else:
-                s += ">%02X"%ord(c)
+                dumpstr += ">%02X" % ord(c)
         for j in xrange(len(data), 16):
-            s += "   "
+            dumpstr += "   "
             data += " "
-        print s,
-        print "|" + data.translate(chartable) + "|"
+        dumpstr += " |" + data.translate(chartable) + "|\n"
         dumppos += 16
+    print(dumpstr)
 

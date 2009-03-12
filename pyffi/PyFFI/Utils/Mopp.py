@@ -82,7 +82,7 @@ def getMopperCredits():
     mopper = getMopperPath()
     outfile = tempfile.TemporaryFile()
     try:
-        # print license info, credit havok (raises OSError on failure)
+        # get license info, credit havok (raises OSError on failure)
         subprocess.call([mopper], stdout=outfile)
         outfile.seek(0)
         creditstr = outfile.read().replace("\r\n", "\n")
