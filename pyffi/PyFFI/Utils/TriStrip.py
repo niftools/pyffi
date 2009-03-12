@@ -199,31 +199,31 @@ def unstitchStrip(strip):
     >>> triangles = triangulate([strip])
     >>> strips = unstitchStrip(strip)
     >>> _checkStrips(triangles, strips)
-    >>> print strips
+    >>> strips
     [[0, 1, 2], [3, 3, 4, 5, 6, 7, 8]]
     >>> strip = [0,1,2,3,3,4,4,4,5,6,7,8]
     >>> triangles = triangulate([strip])
     >>> strips = unstitchStrip(strip)
     >>> _checkStrips(triangles, strips)
-    >>> print strips
+    >>> strips
     [[0, 1, 2, 3], [4, 4, 5, 6, 7, 8]]
     >>> strip = [0,1,2,3,4,4,4,4,5,6,7,8]
     >>> triangles = triangulate([strip])
     >>> strips = unstitchStrip(strip)
     >>> _checkStrips(triangles, strips)
-    >>> print strips
+    >>> strips
     [[0, 1, 2, 3, 4], [4, 4, 5, 6, 7, 8]]
     >>> strip = [0,1,2,3,4,4,4,4,4,5,6,7,8]
     >>> triangles = triangulate([strip])
     >>> strips = unstitchStrip(strip)
     >>> _checkStrips(triangles, strips)
-    >>> print strips
+    >>> strips
     [[0, 1, 2, 3, 4], [4, 5, 6, 7, 8]]
     >>> strip = [0,0,1,1,2,2,3,3,4,4,4,4,4,5,5,6,6,7,7,8,8]
     >>> triangles = triangulate([strip])
     >>> strips = unstitchStrip(strip)
     >>> _checkStrips(triangles, strips)
-    >>> print strips
+    >>> strips
     []"""
     strips = []
     currentstrip = []
