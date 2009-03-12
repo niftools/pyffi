@@ -41,8 +41,6 @@
 
 import subprocess
 
-import PyFFI.Utils.BSDiff
-
 # TODO: ditch the .patched suffix and set flag that this spell overwrites files
 #__readonly__ = False
 
@@ -55,26 +53,14 @@ def testFile(*walkresult, **kwargs):
     @type kwargs: dict
     """
     patchcmd = kwargs.get("patchcmd")
+    if not patchcmd:
+        raise ValueError("must specify a patch command")
     # first argument is always the stream, by convention
     oldfile = walkresult[0]
     oldfilename = oldfile.name
     newfilename = oldfilename + ".patched"
     patchfilename = oldfilename + ".patch"
-    if not patchcmd:
-        patchfile = open(patchfilename, "rb")
-        newfile = open(newfilename, "wb")
-        try:
-            if kwargs.get('verbose'):
-                print("  writing %s..." % newfilename)
-            #print(walkresult) # DEBUG
-            # walkresult[0] is original file
-            # stream is patched file (to be written)
-            PyFFI.Utils.BSDiff.patch(oldfile, newfile, patchfile)
-        finally:
-            newfile.close()
-            patchfile.close()
-    else:
-        # close all files before calling external command
-        oldfile.close()
-        subprocess.call([patchcmd, oldfilename, newfilename, patchfilename])
+    # close all files before calling external command
+    oldfile.close()
+    subprocess.call([patchcmd, oldfilename, newfilename, patchfilename])
 

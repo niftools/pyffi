@@ -1,5 +1,7 @@
 Version 1.2.3 (***)
-* removed reduce() calls (to work towards python 3k compatibility)
+* removed reduce() calls (py3k compatibility)
+* started on converting print calls (py3k compatibility)
+* removed BSDiff module
 
 Version 1.2.2 (15 Feb 2009)
 * cgf format:

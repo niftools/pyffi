@@ -62,7 +62,6 @@ from types import ModuleType # for _MetaCompatToaster
 
 import PyFFI # for PyFFI.__version__
 import PyFFI.Spells.applypatch
-import PyFFI.Utils.BSDiff
 import PyFFI.ObjectModels.FileFormat # PyFFI.ObjectModels.FileFormat.FileFormat
 
 class Spell(object):
@@ -423,24 +422,17 @@ class SpellApplyPatch(Spell):
         """
         # get the patch command (if there is one)
         patchcmd = self.toaster.options.get("patchcmd")
+        if not patchcmd:
+            raise ValueError("must specify a patch command")
         # first argument is always the stream, by convention
         oldfile = self.stream
         oldfilename = oldfile.name
         newfilename = oldfilename + ".patched"
         patchfilename = oldfilename + ".patch"
         self.toaster.msg("writing %s..." % newfilename)
-        if not patchcmd:
-            patchfile = open(patchfilename, "rb")
-            newfile = open(newfilename, "wb")
-            try:
-                PyFFI.Utils.BSDiff.patch(oldfile, newfile, patchfile)
-            finally:
-                newfile.close()
-                patchfile.close()
-        else:
-            # close all files before calling external command
-            oldfile.close()
-            subprocess.call([patchcmd, oldfilename, newfilename, patchfilename])
+        # close all files before calling external command
+        oldfile.close()
+        subprocess.call([patchcmd, oldfilename, newfilename, patchfilename])
 
         # do not go further, spell is done
         return False
@@ -1035,6 +1027,9 @@ may destroy them. Make a backup of your files before running this script.
     def writepatch(self, stream, data):
         """Creates a binary patch for the updated file."""
         diffcmd = self.options.get('diffcmd')
+        if not diffcmd:
+            raise ValueError("must specify a diff command")
+
         # create a temporary file that won't get deleted when closed
         newfile = tempfile.NamedTemporaryFile()
         newfilename = newfile.name
@@ -1046,26 +1041,15 @@ may destroy them. Make a backup of your files before running this script.
         except: # not just StandardError, also CTRL-C
             self.msg("write failed!!!")
             raise
-        if not diffcmd:
-            # use internal differ
-            oldfile = stream
-            oldfile.seek(0)
-            newfile.seek(0)
-            patchfile = open(oldfile.name + ".patch", "wb")
-            self.msg("writing patch")
-            PyFFI.Utils.BSDiff.diff(oldfile, newfile, patchfile)
-            patchfile.close()
-            newfile.close()
-        else:
-            # use external diff command
-            oldfile = stream
-            oldfilename = oldfile.name
-            patchfilename = oldfilename + ".patch"
-            # close all files before calling external command
-            oldfile.close()
-            newfile.close()
-            self.msg("calling %s" % diffcmd)
-            subprocess.call([diffcmd, oldfilename, newfilename, patchfilename])
+        # use external diff command
+        oldfile = stream
+        oldfilename = oldfile.name
+        patchfilename = oldfilename + ".patch"
+        # close all files before calling external command
+        oldfile.close()
+        newfile.close()
+        self.msg("calling %s" % diffcmd)
+        subprocess.call([diffcmd, oldfilename, newfilename, patchfilename])
         # delete temporary file
         os.remove(newfilename)
 
@@ -1093,7 +1077,7 @@ def testFileTempwrite(format, *walkresult, **kwargs):
         try:
             format.write(*writeargs)
         except StandardError:
-            print "  write failed!!!"
+            print("  write failed!!!")
             raise
     finally:
         stream.close()
@@ -1120,7 +1104,7 @@ def testFilePrefixwrite(format, *walkresult, **kwargs):
         try:
             format.write(*writeargs)
         except StandardError:
-            print "  write failed!!!"
+            print("  write failed!!!")
             raise
     finally:
         stream.close()
@@ -1147,7 +1131,7 @@ def testFileOverwrite(format, *walkresult, **kwargs):
     try:
         format.write(*walkresult)
     except: # not just StandardError, also CTRL-C
-        print "  write failed!!! attempt to restore original file..."
+        print("  write failed!!! attempt to restore original file...")
         stream.seek(0)
         stream.write(backup)
         stream.truncate()
@@ -1166,6 +1150,9 @@ def testFileCreatePatch(format, *walkresult, **kwargs):
     @type kwargs: dict
     """
     diffcmd = kwargs.get('diffcmd')
+    if not diffcmd:
+        raise ValueError("must specify a diff command")
+
     # create a temporary file that won't get deleted when closed
     newfile = tempfile.NamedTemporaryFile()
     newfilename = newfile.name
@@ -1177,31 +1164,19 @@ def testFileCreatePatch(format, *walkresult, **kwargs):
     try:
         format.write(newfile, *walkresult[1:])
     except: # not just StandardError, also CTRL-C
-        print "  write failed!!!"
+        print("  write failed!!!")
         raise
     # first argument is always the stream, by convention
-    if not diffcmd:
-        # use internal differ
-        oldfile = walkresult[0]
-        oldfile.seek(0)
-        newfile.seek(0)
-        patchfile = open(oldfile.name + ".patch", "wb")
-        if kwargs.get('verbose'):
-            print("  writing patch...")
-        PyFFI.Utils.BSDiff.diff(oldfile, newfile, patchfile)
-        patchfile.close()
-        newfile.close()
-    else:
-        # use external diff command
-        oldfile = walkresult[0]
-        oldfilename = oldfile.name
-        patchfilename = oldfilename + ".patch"
-        # close all files before calling external command
-        oldfile.close()
-        newfile.close()
-        if kwargs.get('verbose'):
-            print("  calling %s..." % diffcmd)
-        subprocess.call([diffcmd, oldfilename, newfilename, patchfilename])
+    # use external diff command
+    oldfile = walkresult[0]
+    oldfilename = oldfile.name
+    patchfilename = oldfilename + ".patch"
+    # close all files before calling external command
+    oldfile.close()
+    newfile.close()
+    if kwargs.get('verbose'):
+        print("  calling %s..." % diffcmd)
+    subprocess.call([diffcmd, oldfilename, newfilename, patchfilename])
     # delete temporary file
     os.remove(newfilename)
 
