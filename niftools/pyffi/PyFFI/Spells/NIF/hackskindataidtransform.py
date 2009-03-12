@@ -10,9 +10,9 @@ def testBlock(block, **args):
     try:
         block._validateSkin()
     except ValueError:
-        print "* %s: warning, invalid skin structure" % block.name
+        print("* %s: warning, invalid skin structure" % block.name)
         return
     # do the test
     m = block.skinInstance.data.getTransform()
     if not m.isIdentity():
-        print "* %s:\n%s" % ( block.name, m )
+        print("* %s:\n%s" % ( block.name, m ))

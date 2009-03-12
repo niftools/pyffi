@@ -21,6 +21,6 @@ def testRoot(root, **args):
             skelroots.add(block.skeletonRoot)
 
     if len(skelroots) >= 2:
-        print "multiple skeleton roots detected"
+        print("multiple skeleton roots detected")
         for skelroot in skelroots:
-            print skelroot.name
+            print(skelroot.name)

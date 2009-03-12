@@ -11,7 +11,7 @@ def testBlock(block, **args):
     # does this block have a skin?
     if not block.skinInstance: return
 
-    print "found skin in block '%s'"%block.name
+    print("found skin in block '%s'"%block.name)
     block._validateSkin()
     skininst = block.skinInstance
     skinpart = skininst.skinPartition
@@ -19,7 +19,7 @@ def testBlock(block, **args):
     # TODO copy the skin partition data
 
     lw = block.updateSkinPartition(maxbonesperpartition = 4, maxbonespervertex = 4, verbose = verbose)
-    print 'lost weight from partitioning', lw
+    print('lost weight from partitioning', lw)
     if lw > 0.49: raise ValueError('lost too much weight; bug in partition algorithm?')
 
     # TODO check the skin partition data

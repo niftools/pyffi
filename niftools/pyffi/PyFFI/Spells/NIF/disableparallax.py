@@ -63,6 +63,6 @@ def testBlock(block, **args):
     # is parallax enabled?
     if block.applyMode == 4:
         # yes!
-        print "disabling parallax shader"
+        print("disabling parallax shader")
         block.applyMode = 2
 

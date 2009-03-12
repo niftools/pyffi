@@ -15,8 +15,8 @@ def testBlock(block, **args):
     """
     if not isinstance(block, NifFormat.bhkMoppBvTreeShape):
         return
-    print "mopp length = %i" % block.moppDataSize
-    print "updating mopp data..."
+    print("mopp length = %i" % block.moppDataSize)
+    print("updating mopp data...")
     block.updateMopp()
-    print "mopp length = %i" % block.moppDataSize
+    print("mopp length = %i" % block.moppDataSize)
 

@@ -13,7 +13,7 @@ def testBlock(block, **args):
     # does this block have a skin?
     if not block.skinInstance: return
 
-    print "found skin in block '%s'"%block.name
+    print("found skin in block '%s'"%block.name)
     block._validateSkin()
     skininst = block.skinInstance
     skinpart = skininst.skinPartition
@@ -22,5 +22,5 @@ def testBlock(block, **args):
 
     block.updateSkinPartition(maxbonesperpartition = 4, maxbonespervertex = 4, stripify = False, verbose = verbose, padbones = True)
 
-    #print skininst.data.skinPartition
+    #print(skininst.data.skinPartition)
 

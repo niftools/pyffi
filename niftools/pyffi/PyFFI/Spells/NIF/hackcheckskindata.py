@@ -12,7 +12,7 @@ def testBlock(block, **args):
     try:
         block._validateSkin()
     except ValueError:
-        print "* %s: warning, invalid skin structure" % block.name
+        print("* %s: warning, invalid skin structure" % block.name)
         return
     # calculate the skin instance skeleton root offset
     skininst = block.skinInstance
@@ -21,12 +21,12 @@ def testBlock(block, **args):
     m = skininst.data.getTransform().getInverse()
     n = block.getTransform(skelroot)
     if m != n:
-        print "* %s:"%block.name
-        print "bad skinInstance.data transform"
-        print "calculated:"
-        print n
-        print "effective:"
-        print m
+        print("* %s:"%block.name)
+        print("bad skinInstance.data transform")
+        print("calculated:")
+        print(n)
+        print("effective:")
+        print(m)
         return # do not checking bone offsets if global offset is already wrong
 
     return # disable bone rest position check
@@ -38,12 +38,12 @@ def testBlock(block, **args):
         m = skindata.boneList[i].getTransform().getInverse() * skininst.data.getTransform().getInverse()
         n = bone_block.getTransform(skelroot)
         if m != n:
-            print "* %s:"%bone_block.name
-            print "bone matrix is not aligned"
-            print "first frame:"
-            print n
-            print "rest pose:"
-            print m
+            print("* %s:"%bone_block.name)
+            print("bone matrix is not aligned")
+            print("first frame:")
+            print(n)
+            print("rest pose:")
+            print(m)
         else:
-            print "* %s:"%bone_block.name
-            print "bone matrix is aligned"
+            print("* %s:"%bone_block.name)
+            print("bone matrix is aligned")

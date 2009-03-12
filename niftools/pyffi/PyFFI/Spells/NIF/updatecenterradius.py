@@ -15,9 +15,9 @@ def testBlock(block, **args):
     if not isinstance(block, NifFormat.NiTriBasedGeom):
         return
     if block.data:
-        print "recalculating center and radius"
+        print("recalculating center and radius")
         block.data.updateCenterRadius()
     if block.isSkin():
-        print "recalculating skin center and radius"
+        print("recalculating skin center and radius")
         block.updateSkinCenterRadius()
 

@@ -13,7 +13,7 @@ def testBlock(block, **args):
     """
     if not isinstance(block, NifFormat.bhkMoppBvTreeShape):
         return
-    print "found a mopp"
+    print("found a mopp")
 
     mopp = [b for b in block.moppData]
     o = NifFormat.Vector3()
@@ -22,17 +22,17 @@ def testBlock(block, **args):
     o.z = block.origin.z
     scale = block.scale
 
-    print "recalculating mopp origin and scale"
+    print("recalculating mopp origin and scale")
     block.updateOriginScale()
-    print "(origin  was %s and is now %s)" % (o, block.origin)
-    print "(scale was %s and is now %s)" % (scale,block.scale)
+    print("(origin  was %s and is now %s)" % (o, block.origin))
+    print("(scale was %s and is now %s)" % (scale,block.scale))
 
     if block.origin != o:
         raise ValueError("origin not correctly recalculated")
     if abs(block.scale - scale) > 0.5:
         raise ValueError("scale not correctly recalculated")
 
-    print "parsing mopp"
+    print("parsing mopp")
     # ids = indices of bytes processed, tris = triangle indices
     ids, tris = block.parseMopp(verbose = True)
 
@@ -43,27 +43,27 @@ def testBlock(block, **args):
     missing = [i for i in xrange(block.shape.data.numTriangles)
                if counts[i] != 1]
     if missing:
-        print "some triangles never visited, or visited more than once"
-        print "triangles index, times visited"
+        print("some triangles never visited, or visited more than once")
+        print("triangles index, times visited")
         for i in missing:
-            print i, counts[i]
+            print(i, counts[i])
         error = True
 
     wrong = [i for i in tris if i > block.shape.data.numTriangles]
     if wrong:
-        print "invalid triangle indices"
-        print wrong
+        print("invalid triangle indices")
+        print(wrong)
         error = True
 
     # check bytes
     counts = [ids.count(i) for i in xrange(block.moppDataSize)]
     missing = [i for i in xrange(block.moppDataSize) if counts[i] != 1]
     if missing:
-        print "some bytes never visited, or visited more than once"
-        print "byte index, times visited, value"
+        print("some bytes never visited, or visited more than once")
+        print("byte index, times visited, value")
         for i in missing:
-            print i, counts[i], "0x%02X" % mopp[i],
-            print [mopp[k] for k in xrange(i, min(block.moppDataSize, i + 10))]
+            print(i, counts[i], "0x%02X" % mopp[i])
+            print([mopp[k] for k in xrange(i, min(block.moppDataSize, i + 10))])
         error = True
 
     if error:

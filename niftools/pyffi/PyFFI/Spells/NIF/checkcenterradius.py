@@ -23,14 +23,14 @@ def testBlock(block, **args):
     print("checking %s" % block.name)
     geomdata = block.data
 
-    #print "getting bounding sphere"
+    #print("getting bounding sphere")
     center = NifFormat.Vector3()
     center.x = geomdata.center.x
     center.y = geomdata.center.y
     center.z = geomdata.center.z
     radius = geomdata.radius
 
-    #print "checking all vertices are inside"
+    #print("checking all vertices are inside")
     maxr = 0.0
     maxv = None
     for vert in geomdata.vertices:
@@ -48,15 +48,15 @@ def testBlock(block, **args):
        #    "!!! not all vertices inside bounding sphere (vertex %s, error %s)"
        #    % (v, abs(maxr - radius)))
 
-    #print "recalculating bounding sphere"
+    #print("recalculating bounding sphere")
     geomdata.updateCenterRadius()
 
-    #print "comparing old bounding sphere with new bounding sphere"
+    #print("comparing old bounding sphere with new bounding sphere")
     if center != geomdata.center:
        print(
            "center does not match; original %s, calculated %s"
            % (center, geomdata.center))
     if abs(radius - geomdata.radius) > NifFormat._EPSILON:
        print("radius does not match; original %s, calculated %s"%(radius, geomdata.radius))
-    #print "perfect match!"
+    #print("perfect match!")
 

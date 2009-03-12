@@ -37,7 +37,7 @@ def testBlock(block, **args):
     else:
         return
 
-    print "found tangent space in block '%s'"%block.name
+    print("found tangent space in block '%s'"%block.name)
     # check length
     if 24*block.data.numVertices != len(extra.binaryData):
         raise ValueError(
@@ -50,21 +50,21 @@ def testBlock(block, **args):
     # check orthogonality constraint
     for i, (n, t, b) in enumerate(zip(block.data.normals, old_tan, old_bin)):
         if abs(n * n - 1) > NifFormat._EPSILON:
-            print ('warning: non-unit normal %s (norm %f) at vertex %i'
-                   % (n, (n * n) ** 0.5, i))
+            print('warning: non-unit normal %s (norm %f) at vertex %i'
+                  % (n, (n * n) ** 0.5, i))
         if abs(t * t - 1) > NifFormat._EPSILON:
-            print ('warning: non-unit tangent %s (norm %f) at vertex %i'
-                   % (t, (t * t) ** 0.5, i))
+            print('warning: non-unit tangent %s (norm %f) at vertex %i'
+                  % (t, (t * t) ** 0.5, i))
         if abs(b * b - 1) > NifFormat._EPSILON:
-            print ('warning: non-unit binormal %s (norm %f) at vertex %i'
-                   % (b, (b * b) ** 0.5, i))
+            print('warning: non-unit binormal %s (norm %f) at vertex %i'
+                  % (b, (b * b) ** 0.5, i))
         if abs(n * t) + abs(n * b) > NifFormat._EPSILON:
             volume = n * t.crossproduct(b)
-            print 'warning: non-ortogonal tangent space at vertex %i' % i
-            print 'n * t = %s * %s = %f'%(n, t, n * t)
-            print 'n * b = %s * %s = %f'%(n, b, n * b)
-            print 't * b = %s * %s = %f'%(t, b, t * b)
-            print 'volume = %f' % volume
+            print('warning: non-ortogonal tangent space at vertex %i' % i)
+            print('n * t = %s * %s = %f'%(n, t, n * t))
+            print('n * b = %s * %s = %f'%(n, b, n * b))
+            print('t * b = %s * %s = %f'%(t, b, t * b))
+            print('volume = %f' % volume)
 
     # recalculate the tangent space
     block.updateTangentSpace()
@@ -85,10 +85,10 @@ def testBlock(block, **args):
         for old_f, new_f in zip(t.asList() + b.asList(),
                                 tt.asList() + bb.asList()):
             if abs(old_f - new_f) > 0.3: #NifFormat._EPSILON:
-                #print old_tangentspace
-                #print new_tangentspace
-                print 'old vectors', t, b
-                print 'new vectors', tt, bb
+                #print(old_tangentspace)
+                #print(new_tangentspace)
+                print('old vectors', t, b)
+                print('new vectors', tt, bb)
                 print('calculated tangent space differs from original at \
 vertex %i' % i)
                 break

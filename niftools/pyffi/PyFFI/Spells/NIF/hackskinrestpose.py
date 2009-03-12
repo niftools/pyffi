@@ -8,13 +8,13 @@ def testBlock(block, **args):
     try:
         block._validateSkin()
     except ValueError:
-        print "* %s: warning, invalid skin structure" % block.name
+        print("* %s: warning, invalid skin structure" % block.name)
         return
     dct = block.getBoneRestPositions()
-    print "* %s:" % block.name
+    print("* %s:" % block.name)
     for bone, m in dct.items():
-        print "BONE %s" % bone.name
-        print "REST POSITION (skeleton root coordinates)"
-        print str(m)
-        print "FIRST FRAME POSITION (skeleton root coordinates)"
-        print bone.getTransform(block.skinInstance.skeletonRoot)
+        print("BONE %s" % bone.name)
+        print("REST POSITION (skeleton root coordinates)")
+        print(str(m))
+        print("FIRST FRAME POSITION (skeleton root coordinates)")
+        print(bone.getTransform(block.skinInstance.skeletonRoot))
