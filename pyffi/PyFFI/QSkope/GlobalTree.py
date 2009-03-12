@@ -38,7 +38,6 @@
 # --------------------------------------------------------------------------
 
 from itertools import izip
-from types import type(None)
 
 from PyFFI.ObjectModels.Graph import GlobalNode, EdgeType, EdgeFilter
 
