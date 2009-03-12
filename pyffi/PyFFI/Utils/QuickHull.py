@@ -319,7 +319,7 @@ def qhull3d(vertices, precision = 0.0001, verbose = False):
                          for i, j, k in ((1,0,2), (0,1,3), (0,3,2), (3,1,2)) ])
 
     if verbose:
-        print "starting set", hull_vertices
+        print("starting set", hull_vertices)
 
     # construct list of outer vertices for each triangle
     outer_vertices = {}
@@ -341,7 +341,7 @@ def qhull3d(vertices, precision = 0.0001, verbose = False):
         # calculate pivot point
         pivot = max(outer)[1]
         if verbose:
-            print "pivot", pivot
+            print("pivot", pivot)
         # add it to the list of extreme vertices
         hull_vertices.append(pivot)
         # and update the list of triangles:
@@ -359,7 +359,7 @@ def qhull3d(vertices, precision = 0.0001, verbose = False):
             visible_edges += [operator.itemgetter(i,j)(visible_triangle)
                               for i, j in ((0,1),(1,2),(2,0))]
         if verbose:
-            print "visible edges", visible_edges
+            print("visible edges", visible_edges)
         # 4. construct horizon: edges that are not shared with another triangle
         horizon_edges = [ edge for edge in visible_edges
                           if not tuple(reversed(edge)) in visible_edges ]
@@ -370,7 +370,7 @@ def qhull3d(vertices, precision = 0.0001, verbose = False):
             visible_outer |= set(map(operator.itemgetter(1), outer_verts))
         for triangle in visible_triangles:
             if verbose:
-                print "removing", triangle
+                print("removing", triangle)
             hull_triangles.remove(triangle)
             del outer_vertices[triangle]
         # 6. close triangle list by adding cone from horizon to pivot
@@ -388,7 +388,7 @@ def qhull3d(vertices, precision = 0.0001, verbose = False):
             if newouter:
                 outer_vertices[newtriangle] = newouter
             if verbose:
-                print "adding", newtriangle, newouter
+                print("adding", newtriangle, newouter)
 
     # no triangle has outer vertices anymore
     # so the convex hull is complete!
