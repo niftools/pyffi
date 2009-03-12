@@ -139,7 +139,7 @@ class BitStructBase(DetailNode):
 
     The BitStructBase class implements the basic bitstruct interface:
     it will initialize all attributes using the class interface
-    using the _attrs class variable, print them as strings, and so on.
+    using the _attrs class variable, represent them as strings, and so on.
     The class variable _attrs must be declared every derived class
     interface.
 
@@ -170,7 +170,7 @@ class BitStructBase(DetailNode):
     >>> y = Flags()
     >>> y.a = 5
     >>> y.b = 1
-    >>> print y # doctest:+ELLIPSIS
+    >>> print(y) # doctest:+ELLIPSIS
     <class 'PyFFI.ObjectModels.XML.BitStruct.Flags'> instance at 0x...
     * a : 5
     * b : 1
@@ -271,7 +271,7 @@ class BitStructBase(DetailNode):
         # set the structure variables
         bitpos = 0
         for attr in self._filteredAttributeList(**kwargs):
-            #print attr.name # debug
+            #print(attr.name) # debug
             attrvalue = (value >> bitpos) & ((1 << attr.numbits) - 1)
             setattr(self, attr.name, attrvalue)
             bitpos += attr.numbits
@@ -377,7 +377,7 @@ class BitStructBase(DetailNode):
             version = data.version
             user_version = data.user_version
         for attr in self._attributeList:
-            #print attr.name, version, attr.ver1, attr.ver2 # debug
+            #print(attr.name, version, attr.ver1, attr.ver2) # debug
 
             # check version
             if not (version is None):
@@ -385,23 +385,23 @@ class BitStructBase(DetailNode):
                     continue
                 if (not (attr.ver2 is None)) and version > attr.ver2:
                     continue
-            #print "version check passed" # debug
+            #print("version check passed") # debug
 
             # check user version
             if not(attr.userver is None or user_version is None) \
                and user_version != attr.userver:
                 continue
-            #print "user version check passed" # debug
+            #print("user version check passed") # debug
 
             # check condition
             if not (attr.cond is None) and not attr.cond.eval(self):
                 continue
-            #print "condition passed" # debug
+            #print("condition passed") # debug
 
             # skip dupiclate names
             if attr.name in names:
                 continue
-            #print "duplicate check passed" # debug
+            #print("duplicate check passed") # debug
 
             names.append(attr.name)
             # passed all tests
