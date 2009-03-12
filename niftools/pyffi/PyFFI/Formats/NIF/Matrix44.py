@@ -36,10 +36,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENSE BLOCK *****
-# --------------------------------------------------------------------------
 
 import logging
-from types import *
 
 def asList(self):
     """Return matrix as 4x4 list."""
@@ -192,11 +190,11 @@ def isScaleRotationTranslation(self):
     return True
 
 def getScaleRotationTranslation(self):
-    r = self.getMatrix33()
-    s = r.getScale()
-    r /= s
-    t = self.getTranslation()
-    return (s, r, t)
+    rotscl = self.getMatrix33()
+    scale = rotscl.getScale()
+    rot = rotscl / scale
+    trans = self.getTranslation()
+    return (scale, rot, trans)
 
 def getScaleQuatTranslation(self):
     rotscl = self.getMatrix33()
