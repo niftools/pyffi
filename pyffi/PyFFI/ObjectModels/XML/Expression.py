@@ -91,8 +91,6 @@ class Expression(object):
     def eval(self, data = None):
         """Evaluate the expression to an integer."""
 
-        #print >>sys.stderr, "E", "L", self._left, "O", self._op, "R", self._right
-
         if isinstance(self._left, Expression):
             left = self._left.eval(data)
         elif isinstance(self._left, basestring):
@@ -155,7 +153,6 @@ class Expression(object):
     def _parse(cls, expr_str, name_filter = None):
         """Returns an Expression, string, or int, depending on the
         contents of <expr_str>."""
-        #print >>sys.stderr, "P", expr_str
         if not expr_str:
             # empty string
             return None
@@ -296,7 +293,7 @@ class Expression(object):
         (0, 9)
         >>> s = '  (abc(dd efy 442))xxg'
         >>> startpos, endpos = Expression._scanBrackets(s)
-        >>> print s[startpos+1:endpos]
+        >>> print(s[startpos+1:endpos])
         abc(dd efy 442)
         """
         startpos = -1
