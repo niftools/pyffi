@@ -15,11 +15,11 @@ Read a KFM file
 ... elif version == -2:
 ...     raise RuntimeError('not a kfm file')
 >>> header, animations, footer = KfmFormat.read(f, version = version)
->>> # print all animation file names
->>> print header.nifFileName
+>>> # get all animation file names
+>>> print(header.nifFileName)
 Test.nif
 >>> for anim in animations:
-...     print anim.kfFileName
+...     print(anim.kfFileName)
 Test_MD_Idle.kf
 Test_MD_Run.kf
 Test_MD_Walk.kf
@@ -53,7 +53,8 @@ Create a KFM model from scratch and write to file
 Get list of versions and games
 ------------------------------
 
->>> for vnum in sorted(KfmFormat.versions.values()): print '0x%08X'%vnum
+>>> for vnum in sorted(KfmFormat.versions.values()):
+...     print('0x%08X' % vnum)
 0x01000000
 0x01024B00
 0x0200000B
@@ -61,10 +62,7 @@ Get list of versions and games
 0x0202000B
 >>> for game, versions in sorted(KfmFormat.games.items(),
 ...                              key=lambda x: x[0]):
-...     print game,
-...     for vnum in versions:
-...         print '0x%08X'%vnum,
-...     print
+...     print("%s " % game + " ".join('0x%08X' % vnum for vnum in versions))
 Civilization IV 0x01000000 0x01024B00 0x0200000B
 Emerge 0x0201000B 0x0202000B
 Loki 0x01024B00

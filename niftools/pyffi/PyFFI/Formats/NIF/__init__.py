@@ -36,7 +36,7 @@ above method with L{NifFormat.Data}!):
 ... elif version == -2:
 ...     raise RuntimeError('not a nif file')
 >>> roots = NifFormat.read(f, version = version, user_version = user_version)
->>> # print all NiNode names
+>>> # get all NiNode names
 >>> for root in roots:
 ...     for block in root.tree():
 ...         if isinstance(block, NifFormat.NiNode):
