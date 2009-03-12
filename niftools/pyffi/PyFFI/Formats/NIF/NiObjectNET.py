@@ -65,7 +65,7 @@ def removeExtraData(self, extrablock):
     >>> extrablock = NifFormat.NiStringExtraData()
     >>> block.extraDataList[1] = extrablock
     >>> block.removeExtraData(extrablock)
-    >>> print [extra for extra in block.extraDataList]
+    >>> [extra for extra in block.extraDataList]
     [None, None]
     """
     # remove from list

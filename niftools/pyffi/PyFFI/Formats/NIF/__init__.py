@@ -14,7 +14,7 @@ Read a NIF file
 '0x14010003'
 >>> data.user_version
 0
->>> print [blocktype for blocktype in data.header.blockTypes]
+>>> [blocktype for blocktype in data.header.blockTypes]
 ['NiNode', 'NiTriShape', 'NiTriShapeData']
 >>> data.roots # blocks have not been read yet, so this is an empty list
 []
@@ -22,7 +22,7 @@ Read a NIF file
 >>> for root in data.roots:
 ...     for block in root.tree():
 ...         if isinstance(block, NifFormat.NiNode):
-...             print block.name
+...             print(block.name)
 test
 
 The old deprecated method (for doctesting purposes only; in new code, use the
@@ -40,7 +40,7 @@ above method with L{NifFormat.Data}!):
 >>> for root in roots:
 ...     for block in root.tree():
 ...         if isinstance(block, NifFormat.NiNode):
-...             print block.name
+...             print(block.name)
 test
 
 Parse all NIF files in a directory tree
@@ -134,7 +134,8 @@ Create a NIF model from scratch and write to file
 Get list of versions and games
 ------------------------------
 
->>> for vnum in sorted(NifFormat.versions.values()): print '0x%08X'%vnum
+>>> for vnum in sorted(NifFormat.versions.values()):
+...     print('0x%08X' % vnum)
 0x02030000
 0x03000000
 0x03000300
@@ -164,10 +165,7 @@ Get list of versions and games
 0x14030006
 0x14030009
 >>> for game, versions in sorted(NifFormat.games.items(), key=lambda x: x[0]):
-...     print game,
-...     for vnum in versions:
-...         print '0x%08X'%vnum,
-...     print
+...     print("%s " % game + " ".join('0x%08X' % vnum for vnum in versions))
 ? 0x0A000103
 Atlantica 0x14020008
 Axis and Allies 0x0A010000

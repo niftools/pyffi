@@ -3,22 +3,22 @@
 >>> # a doctest
 >>> from PyFFI.Formats.NIF import NifFormat
 >>> link = NifFormat.ControllerLink()
->>> print link.nodeNameOffset
+>>> link.nodeNameOffset
 -1
 >>> link.setNodeName("Bip01")
->>> print link.nodeNameOffset
+>>> link.nodeNameOffset
 0
->>> print link.getNodeName()
-Bip01
->>> print link.nodeName
-Bip01
+>>> link.getNodeName()
+'Bip01'
+>>> link.nodeName
+'Bip01'
 >>> link.setNodeName("Bip01 Tail")
->>> print link.nodeNameOffset
+>>> link.nodeNameOffset
 6
->>> print link.getNodeName()
-Bip01 Tail
->>> print link.nodeName
-Bip01 Tail
+>>> link.getNodeName()
+'Bip01 Tail'
+>>> link.nodeName
+'Bip01 Tail'
 """
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -86,15 +86,15 @@ def getNodeName(self):
     >>> link.stringPalette = NifFormat.NiStringPalette()
     >>> palette = link.stringPalette.palette
     >>> link.nodeNameOffset = palette.addString("Bip01")
-    >>> print link.getNodeName()
-    Bip01
+    >>> link.getNodeName()
+    'Bip01'
 
     >>> # another doctest
     >>> from PyFFI.Formats.NIF import NifFormat
     >>> link = NifFormat.ControllerLink()
     >>> link.nodeName = "Bip01"
-    >>> print link.getNodeName()
-    Bip01
+    >>> link.getNodeName()
+    'Bip01'
     """
     if self.nodeName:
         return self.nodeName
