@@ -243,7 +243,14 @@ class XmlError(StandardError):
     parsing."""
     pass
 
-class XmlSaxHandler(object, xml.sax.handler.ContentHandler):
+class _SaxContentHandler(object, xml.sax.handler.ContentHandler):
+    pass
+
+# note: we would derive directly from xml.sax.handler.ContentHandler
+# but py25 does not like this class because it is not new style
+# hence the _SaxContentHandler hack, which is a new style class as it
+# derives from object
+class XmlSaxHandler(_SaxContentHandler):
     """This class contains all functions for parsing the xml and converting
     the xml structure into Python classes."""
     tagFile = 1
