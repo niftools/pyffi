@@ -418,7 +418,7 @@ def setGeometry(self,
         * firstVertex : 0
         * numVertices : 4
         * matId : 2
-        * radius : 0.707106769...
+        * radius : 0.7071067...
         * center : [  0.500  0.500  0.000 ]
         1: <class 'PyFFI.ObjectModels.XML.FileFormat.MeshSubset'> instance at ...
         * firstIndex : 6
@@ -426,7 +426,7 @@ def setGeometry(self,
         * firstVertex : 4
         * numVertices : 4
         * matId : 5
-        * radius : 0.707106769...
+        * radius : 0.7071067...
         * center : [  0.500  0.500  1.000 ]
     <BLANKLINE>
     >>> print(chunk.verticesData) # doctest: +ELLIPSIS

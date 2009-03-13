@@ -718,7 +718,7 @@ chunk size mismatch when reading %s at 0x%08X
             @param stream: The stream to read from.
             @type stream: file
             """
-            signat = stream.read(8)
+            signat = stream.read(8).decode("ascii", "replace")
             if signat[:6] != self.__str__()[:6]:
                 raise ValueError(
                     "invalid CGF signature: expected '%s' but got '%s'"
@@ -730,7 +730,7 @@ chunk size mismatch when reading %s at 0x%08X
             @param stream: The stream to read from.
             @type stream: file
             """
-            stream.write(self.__str__())
+            stream.write(self.__str__().encode("ascii"))
 
         def getValue(self):
             """Get signature.

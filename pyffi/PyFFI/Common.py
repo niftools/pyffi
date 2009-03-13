@@ -61,7 +61,7 @@ class Int(BasicBase, EditableSpinBox):
     >>> j.read(tmp)
     >>> hex(j.getValue())
     '0x11223344'
-    >>> i.setValue(0x10000000000L) # doctest: +ELLIPSIS
+    >>> i.setValue(2**40) # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
     ValueError: ...
@@ -70,7 +70,7 @@ class Int(BasicBase, EditableSpinBox):
         ...
     ValueError: cannot convert value 'hello world' to integer
     >>> tmp.seek(0)
-    >>> tmp.write('\x11\x22\x33\x44')
+    >>> tmp.write('\x11\x22\x33\x44'.encode("ascii")) # b'\x11\x22\x33\x44' breaks py25 compatibility
     >>> tmp.seek(0)
     >>> i.read(tmp)
     >>> hex(i.getValue())
@@ -85,14 +85,14 @@ class Int(BasicBase, EditableSpinBox):
     def __init__(self, **kwargs):
         """Initialize the integer."""
         super(Int, self).__init__(**kwargs)
-        self._value = ''.join('\x00' for i in xrange(self._size))
+        self._value = 0
 
     def getValue(self):
         """Return stored value.
 
         @return: The stored value.
         """
-        return struct.unpack('<' + self._struct, self._value)[0]
+        return self._value
 
     def setValue(self, value):
         """Set value to C{value}. Calls C{int(value)} to convert to integer.
@@ -113,7 +113,7 @@ class Int(BasicBase, EditableSpinBox):
                         "cannot convert value '%s' to integer"%value)
         if val < self._min or val > self._max:
             raise ValueError('value out of range (%i)' % val)
-        self._value = struct.pack('<' + self._struct, val)
+        self._value = val
 
     def read(self, stream, **kwargs):
         """Read value from stream.
@@ -121,7 +121,8 @@ class Int(BasicBase, EditableSpinBox):
         @param stream: The stream to read from.
         @type stream: file
         """
-        self._value = stream.read(self._size)
+        self._value = struct.unpack("<" + self._struct,
+                                    stream.read(self._size))[0]
 
     def write(self, stream, **kwargs):
         """Write value to stream.
@@ -129,7 +130,7 @@ class Int(BasicBase, EditableSpinBox):
         @param stream: The stream to write to.
         @type stream: file
         """
-        stream.write(self._value)
+        stream.write(struct.pack('<' + self._struct, self._value))
 
     def __str__(self):
         return str(self.getValue())
@@ -206,7 +207,7 @@ class Bool(UByte, EditableBoolComboBox):
 
         @return: The stored value.
         """
-        return False if self._value == '\x00' else True
+        return bool(self._value)
 
     def setValue(self, value):
         """Set value to C{value}.
@@ -214,7 +215,7 @@ class Bool(UByte, EditableBoolComboBox):
         @param value: The value to assign.
         @type value: bool
         """
-        self._value = '\x01' if value else '\x00'
+        self._value = 1 if value else 0
 
 class Char(BasicBase, EditableLineEdit):
     """Implementation of an 8-bit ASCII character."""
@@ -247,7 +248,7 @@ class Char(BasicBase, EditableLineEdit):
         @param stream: The stream to read from.
         @type stream: file
         """
-        self._value = stream.read(1)
+        self._value = stream.read(1).decode("ascii", "replace")
 
     def write(self, stream, **kwargs):
         """Write value to stream.
@@ -255,7 +256,7 @@ class Char(BasicBase, EditableLineEdit):
         @param stream: The stream to write to.
         @type stream: file
         """
-        stream.write(self._value)
+        stream.write(self._value.encode("ascii"))
 
     def __str__(self):
         return self._value
@@ -280,14 +281,14 @@ class Float(BasicBase, EditableFloatSpinBox):
     def __init__(self, **kwargs):
         """Initialize the float."""
         super(Float, self).__init__(**kwargs)
-        self._value = '\x00\x00\x00\x00'
+        self._value = 0
 
     def getValue(self):
         """Return stored value.
 
         @return: The stored value.
         """
-        return struct.unpack('<f', self._value)[0]
+        return self._value
 
     def setValue(self, value):
         """Set value to C{value}.
@@ -295,7 +296,7 @@ class Float(BasicBase, EditableFloatSpinBox):
         @param value: The value to assign.
         @type value: float
         """
-        self._value = struct.pack('<f', float(value))
+        self._value = float(value)
 
     def read(self, stream, **kwargs):
         """Read value from stream.
@@ -303,7 +304,7 @@ class Float(BasicBase, EditableFloatSpinBox):
         @param stream: The stream to read from.
         @type stream: file
         """
-        self._value = stream.read(4)
+        self._value = struct.unpack('<f', stream.read(4))[0]
 
     def write(self, stream, **kwargs):
         """Write value to stream.
@@ -311,7 +312,7 @@ class Float(BasicBase, EditableFloatSpinBox):
         @param stream: The stream to write to.
         @type stream: file
         """
-        stream.write(self._value)
+        stream.write(struct.pack('<f', self._value))
 
     def getSize(self, **kwargs):
         """Return number of bytes this type occupies in a file.
@@ -388,14 +389,15 @@ class ZString(BasicBase, EditableLineEdit):
         @type stream: file
         """
         i = 0
-        self._value = ''
-        char = ''
-        while char != '\x00':
+        val = ''.encode() # b'' for > py26
+        char = ''.encode() # b'' for > py26
+        while char != '\x00'.encode(): # b'\x00' for > py26
             i += 1
             if i > self._maxlen:
                 raise ValueError('string too long')
-            self._value += char
+            val += char
             char = stream.read(1)
+        self._value = str(val.decode())
 
     def write(self, stream, **kwargs):
         """Write string to stream.
@@ -403,15 +405,15 @@ class ZString(BasicBase, EditableLineEdit):
         @param stream: The stream to write to.
         @type stream: file
         """
-        stream.write(self._value)
-        stream.write('\x00')
+        stream.write(self._value.encode())
+        stream.write('\x00'.encode())
 
     def getSize(self, **kwargs):
         """Return number of bytes this type occupies in a file.
 
         @return: Number of bytes.
         """
-        return len(self._value) + 1
+        return len(self._value.encode()) + 1
 
     def getHash(self, **kwargs):
         """Return a hash value for this string.
@@ -429,7 +431,7 @@ class FixedString(BasicBase, EditableLineEdit):
     >>> class String8(FixedString):
     ...     _len = 8
     >>> s = String8()
-    >>> f.write('abcdefghij')
+    >>> f.write('abcdefghij'.encode())
     >>> f.seek(0)
     >>> s.read(f)
     >>> str(s)
@@ -469,7 +471,7 @@ class FixedString(BasicBase, EditableLineEdit):
         @type value: str
         """
         val = str(value)
-        if len(val) > self._len:
+        if len(val.encode()) > self._len:
             raise ValueError("string '%s' too long" % val)
         self._value = val
 
@@ -479,7 +481,7 @@ class FixedString(BasicBase, EditableLineEdit):
         @param stream: The stream to read from.
         @type stream: file
         """
-        self._value = stream.read(self._len)
+        self._value = str(stream.read(self._len).decode())
         i = self._value.find('\x00')
         if i != -1:
             self._value = self._value[:i]
@@ -490,7 +492,7 @@ class FixedString(BasicBase, EditableLineEdit):
         @param stream: The stream to write to.
         @type stream: file
         """
-        stream.write(self._value.ljust(self._len, "\x00"))
+        stream.write(self._value.encode().ljust(self._len, "\x00".encode()))
 
     def getSize(self, **kwargs):
         """Return number of bytes this type occupies in a file.
@@ -560,7 +562,7 @@ class SizedString(BasicBase, EditableLineEdit):
 
         @return: Number of bytes.
         """
-        return 4 + len(self._value)
+        return 4 + len(self._value.encode())
 
     def getHash(self, **kwargs):
         """Return a hash value for this string.
@@ -579,7 +581,7 @@ class SizedString(BasicBase, EditableLineEdit):
         if length > 10000:
             raise ValueError('string too long (0x%08X at 0x%08X)'
                              % (length, stream.tell()))
-        self._value = stream.read(length)
+        self._value = str(stream.read(length).decode())
 
     def write(self, stream, **kwargs):
         """Write string to stream.
@@ -587,14 +589,15 @@ class SizedString(BasicBase, EditableLineEdit):
         @param stream: The stream to write to.
         @type stream: file
         """
-        stream.write(struct.pack('<I', len(self._value)))
-        stream.write(self._value)
+        encval = self._value.encode()
+        stream.write(struct.pack('<I', len(encval)))
+        stream.write(encval)
 
 class UndecodedData(BasicBase):
     """Basic type for undecoded data trailing at the end of a file."""
     def __init__(self, **kwargs):
         BasicBase.__init__(self, **kwargs)
-        self._value = ''
+        self._value = ''.encode()
 
     def getValue(self):
         """Return stored value.
@@ -607,11 +610,11 @@ class UndecodedData(BasicBase):
         """Set value to C{value}.
 
         @param value: The value to assign.
-        @type value: str
+        @type value: bytes
         """
         if len(value) > 16000000:
             raise ValueError('data too long')
-        self._value = str(value)
+        self._value = value
 
     def __str__(self):
         return '<UNDECODED DATA>'
@@ -646,3 +649,4 @@ class UndecodedData(BasicBase):
         @type stream: file
         """
         stream.write(self._value)
+
