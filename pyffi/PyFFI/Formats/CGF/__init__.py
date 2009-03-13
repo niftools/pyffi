@@ -704,7 +704,7 @@ chunk size mismatch when reading %s at 0x%08X
         _len = 256
 
     class FileSignature(BasicBase):
-        """The CryTek file signature 'CryTex\x00\x00' with which every
+        """The CryTek file signature with which every
         cgf file starts."""
         def __init__(self, **kwargs):
             super(CgfFormat.FileSignature, self).__init__(**kwargs)
