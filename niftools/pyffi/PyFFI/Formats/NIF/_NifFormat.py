@@ -860,7 +860,7 @@ but got instance of %s' % (self._template, value.__class__))
         >>> from tempfile import TemporaryFile
         >>> f = TemporaryFile()
         >>> l = NifFormat.LineString()
-        >>> f.write('abcdefg\\x0a')
+        >>> f.write('abcdefg\\x0a'.encode())
         >>> f.seek(0)
         >>> l.read(f)
         >>> str(l)
@@ -896,10 +896,11 @@ but got instance of %s' % (self._template, value.__class__))
             return self.getValue()
 
         def read(self, stream, **kwargs):
-            self._value = stream.readline().rstrip('\x0a')
+            self._value = str(stream.readline().decode()).strip('\x0a')
 
         def write(self, stream, **kwargs):
-            stream.write("%s\x0a"%self._value)
+            stream.write(self._value.encode())
+            stream.write("\x0a".encode())
 
     class HeaderString(BasicBase):
         def __str__(self):
@@ -918,7 +919,7 @@ but got instance of %s' % (self._template, value.__class__))
                 ver = -1
 
             version_string = self.versionString(ver)
-            s = stream.read(len(version_string) + 1)
+            s = str(stream.read(len(version_string) + 1).decode("ascii", "replace"))
             if s != version_string + '\x0a':
                 raise ValueError(
                     "invalid NIF header: expected '%s' but got '%s'"
@@ -930,7 +931,8 @@ but got instance of %s' % (self._template, value.__class__))
             except KeyError:
                 ver = -1
 
-            stream.write(self.versionString(ver) + '\x0a')
+            stream.write(self.versionString(ver).encode())
+            stream.write('\x0a'.encode())
 
         def getSize(self, **kwargs):
             try:
@@ -1006,7 +1008,7 @@ but got instance of %s' % (self._template, value.__class__))
             return self._value
 
         def setValue(self, value):
-            if len(value) > 254: raise ValueError('string too long')
+            if len(value.encode()) > 254: raise ValueError('string too long')
             self._value = str(value)
 
         def __str__(self):
@@ -1014,18 +1016,19 @@ but got instance of %s' % (self._template, value.__class__))
 
         def getSize(self, **kwargs):
             # length byte + string chars + zero byte
-            return len(self._value) + 2
+            return len(self._value.encode()) + 2
 
         def getHash(self, **kwargs):
             return self.getValue()
 
         def read(self, stream, **kwargs):
             n, = struct.unpack('<B', stream.read(1))
-            self._value = stream.read(n).rstrip('\x00')
+            self._value = str(stream.read(n).decode()).rstrip('\x00')
 
         def write(self, stream, **kwargs):
-            stream.write(struct.pack('<B', len(self._value)+1))
-            stream.write(self._value + '\x00')
+            encval = self._value.encode()
+            stream.write(struct.pack('<B', len(encval)+1))
+            stream.write(encval + '\x00'.encode())
 
     class string(SizedString):
         _hasStrings = True
@@ -1057,7 +1060,7 @@ but got instance of %s' % (self._template, value.__class__))
                         raise ValueError('string index too large (%i)'%n)
             else:
                 if n > 10000: raise ValueError('string too long (0x%08X at 0x%08X)'%(n, stream.tell()))
-                self._value = stream.read(n)
+                self._value = str(stream.read(n).decode())
 
         def write(self, stream, **kwargs):
             try:
@@ -1076,8 +1079,9 @@ but got instance of %s' % (self._template, value.__class__))
                         raise ValueError(
                             "string '%s' not in string list"%self._value)
             else:
-                stream.write(struct.pack('<I', len(self._value)))
-                stream.write(self._value)
+                encval = self._value.encode()
+                stream.write(struct.pack('<I', len(encval)))
+                stream.write(encval)
 
         def getStrings(self, **kwargs):
             if self._value != '':
@@ -1102,7 +1106,7 @@ but got instance of %s' % (self._template, value.__class__))
         and also to prevent data to be dumped by __str__."""
         def __init__(self, **kwargs):
             BasicBase.__init__(self, **kwargs)
-            self.setValue("")
+            self.setValue("".encode()) # b'' for > py25
 
         def getValue(self):
             return self._value
