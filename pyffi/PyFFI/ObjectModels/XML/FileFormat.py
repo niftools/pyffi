@@ -243,14 +243,7 @@ class XmlError(StandardError):
     parsing."""
     pass
 
-class _SaxContentHandler(object, xml.sax.handler.ContentHandler):
-    pass
-
-# note: we would derive directly from xml.sax.handler.ContentHandler
-# but py25 does not like this class because it is not new style
-# hence the _SaxContentHandler hack, which is a new style class as it
-# derives from object
-class XmlSaxHandler(_SaxContentHandler):
+class XmlSaxHandler(xml.sax.handler.ContentHandler):
     """This class contains all functions for parsing the xml and converting
     the xml structure into Python classes."""
     tagFile = 1
@@ -301,8 +294,8 @@ class XmlSaxHandler(_SaxContentHandler):
               - C{self.cls.xmlBitStruct}
               - C{self.cls.xmlStruct}
         """
-        # initialize base class
-        super(XmlSaxHandler, self).__init__()
+        # initialize base class (no super because base class is old style)
+        xml.sax.handler.ContentHandler.__init__(self)
 
         # save dictionary for future use
         self.dct = dct
