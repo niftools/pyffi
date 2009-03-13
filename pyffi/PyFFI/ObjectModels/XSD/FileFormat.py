@@ -151,7 +151,7 @@ class XsdError(StandardError):
     parsing."""
     pass
 
-class XsdSaxHandler(object, xml.sax.handler.ContentHandler):
+class XsdSaxHandler(xml.sax.handler.ContentHandler):
     """This class contains all functions for parsing the xsd and converting
     the schema into Python classes."""
     # xsd elements
@@ -304,8 +304,8 @@ class XsdSaxHandler(object, xml.sax.handler.ContentHandler):
 
     def __init__(self, cls, name, bases, dct):
         """Set up the xsd parser."""
-        # initialize base class
-        super(XsdSaxHandler, self).__init__()
+        # initialize base class (no super because old style base class)
+        xml.sax.handler.ContentHandler.__init__(self)
 
         # xsd prefix (this is set if the first element is read)
         self.prefix = None
