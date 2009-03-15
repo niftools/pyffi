@@ -882,11 +882,12 @@ but got instance of %s' % (self._template, value.__class__))
             return self._value
 
         def setValue(self, value):
-            self._value = str(value).rstrip('\x0a')
+            self._value = Common.asBytes(value).rstrip('\x0a'.encode("ascii"))
 
         def __str__(self):
-            s = BasicBase.__str__(self)
-            if not s: return '<EMPTY STRING>'
+            s = self._value.decode() # might raise unicode error
+            if not s:
+                return '<EMPTY STRING>'
             return s
 
         def getSize(self, **kwargs):
@@ -896,11 +897,11 @@ but got instance of %s' % (self._template, value.__class__))
             return self.getValue()
 
         def read(self, stream, **kwargs):
-            self._value = str(stream.readline().decode()).strip('\x0a')
+            self._value = stream.readline().rstrip('\x0a'.encode("ascii"))
 
         def write(self, stream, **kwargs):
-            stream.write(self._value.encode())
-            stream.write("\x0a".encode())
+            stream.write(self._value)
+            stream.write("\x0a".encode("ascii"))
 
     class HeaderString(BasicBase):
         def __str__(self):
@@ -919,8 +920,8 @@ but got instance of %s' % (self._template, value.__class__))
                 ver = -1
 
             version_string = self.versionString(ver)
-            s = str(stream.read(len(version_string) + 1).decode("ascii", "replace"))
-            if s != version_string + '\x0a':
+            s = stream.read(len(version_string) + 1)
+            if s != (version_string + '\x0a').encode("ascii"):
                 raise ValueError(
                     "invalid NIF header: expected '%s' but got '%s'"
                     % (version_string, s[:-1]))
@@ -931,8 +932,8 @@ but got instance of %s' % (self._template, value.__class__))
             except KeyError:
                 ver = -1
 
-            stream.write(self.versionString(ver).encode())
-            stream.write('\x0a'.encode())
+            stream.write(self.versionString(ver).encode("ascii"))
+            stream.write('\x0a'.encode("ascii"))
 
         def getSize(self, **kwargs):
             try:
@@ -940,7 +941,7 @@ but got instance of %s' % (self._template, value.__class__))
             except KeyError:
                 ver = -1
 
-            return len(self.versionString(ver)) + 1
+            return len(self.versionString(ver).encode("ascii")) + 1
 
         @staticmethod
         def versionString(version):
@@ -1008,27 +1009,28 @@ but got instance of %s' % (self._template, value.__class__))
             return self._value
 
         def setValue(self, value):
-            if len(value.encode()) > 254: raise ValueError('string too long')
-            self._value = str(value)
+            val = Common.asBytes(value)
+            if len(val) > 254:
+                raise ValueError('string too long')
+            self._value = val
 
         def __str__(self):
-            return self._value
+            return self._value.decode() # might raise UnicodeError
 
         def getSize(self, **kwargs):
             # length byte + string chars + zero byte
-            return len(self._value.encode()) + 2
+            return len(self._value) + 2
 
         def getHash(self, **kwargs):
             return self.getValue()
 
         def read(self, stream, **kwargs):
             n, = struct.unpack('<B', stream.read(1))
-            self._value = str(stream.read(n).decode()).rstrip('\x00')
+            self._value = stream.read(n).rstrip('\x00'.encode("ascii"))
 
         def write(self, stream, **kwargs):
-            encval = self._value.encode()
-            stream.write(struct.pack('<B', len(encval)+1))
-            stream.write(encval + '\x00'.encode())
+            stream.write(struct.pack('<B', len(self._value)+1))
+            stream.write(self._value + '\x00'.encode("ascii"))
 
     class string(SizedString):
         _hasStrings = True
@@ -1060,7 +1062,7 @@ but got instance of %s' % (self._template, value.__class__))
                         raise ValueError('string index too large (%i)'%n)
             else:
                 if n > 10000: raise ValueError('string too long (0x%08X at 0x%08X)'%(n, stream.tell()))
-                self._value = str(stream.read(n).decode())
+                self._value = stream.read(n)
 
         def write(self, stream, **kwargs):
             try:
@@ -1079,9 +1081,8 @@ but got instance of %s' % (self._template, value.__class__))
                         raise ValueError(
                             "string '%s' not in string list"%self._value)
             else:
-                encval = self._value.encode()
-                stream.write(struct.pack('<I', len(encval)))
-                stream.write(encval)
+                stream.write(struct.pack('<I', len(self._value)))
+                stream.write(self._value)
 
         def getStrings(self, **kwargs):
             if self._value != '':
