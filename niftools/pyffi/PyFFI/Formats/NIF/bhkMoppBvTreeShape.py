@@ -77,12 +77,10 @@ def updateMoppWelding(self):
         print(getMopperCredits())
         # find material indices per triangle
         material_per_vertex = []
-        if isinstance(self.shape, self.cls.bhkPackedNiTriStripsShape):
+        subshapes = self.shape.subShapes
+        if not subshapes:
             # fallout 3
             subshapes = self.shape.data.subShapes
-        else:
-            # oblivion
-            subshapes = self.shape.subShapes
         for subshape in subshapes:
             material_per_vertex += [subshape.material] * subshape.numVertices
         material_per_triangle = [
