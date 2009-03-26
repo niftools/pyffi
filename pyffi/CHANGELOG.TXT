@@ -1,7 +1,9 @@
 Version 1.2.3 (***)
 * removed reduce() calls (py3k compatibility)
 * started on converting print calls (py3k compatibility)
-* removed BSDiff module
+* removed BSDiff module (not useful, very slow, use external bsdiff instead)
+* nif:
+  - fixed the update mopp spell for fallout 3 nifs
 
 Version 1.2.2 (15 Feb 2009)
 * cgf format:
