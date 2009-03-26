@@ -4,6 +4,7 @@ Version 1.2.3 (***)
 * removed BSDiff module (not useful, very slow, use external bsdiff instead)
 * nif:
   - fixed the update mopp spell for fallout 3 nifs
+  - niftoaster sends to stdout instead of stderr so output can be captured
 
 Version 1.2.2 (15 Feb 2009)
 * cgf format:
