@@ -43,6 +43,7 @@ a nif specific wrapper around L{PyFFI.Spells.Toaster}."""
 # --------------------------------------------------------------------------
 
 import logging
+import sys
 
 from PyFFI.Formats.NIF import NifFormat
 from PyFFI.Spells import Toaster
@@ -167,7 +168,7 @@ if __name__ == "__main__":
     # set up logger
     logger = logging.getLogger("pyffi")
     logger.setLevel(logging.DEBUG)
-    loghandler = logging.StreamHandler()
+    loghandler = logging.StreamHandler(sys.stdout)
     loghandler.setLevel(logging.DEBUG)
     logformatter = logging.Formatter("%(name)s:%(levelname)s:%(message)s")
     loghandler.setFormatter(logformatter)
