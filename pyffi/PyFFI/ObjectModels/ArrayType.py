@@ -87,7 +87,11 @@ class ValidatedList(list):
         list.insert(self, index, item)
 
 class AnyArray(ValidatedList, PyFFI.ObjectModels.AnyType.AnyType):
-    """Abstract base class for all array types."""
+    """Abstract base class for all array types.
+
+    @cvar _MAXSTR: Maximum number of elements to write in the L{__str__} method.
+    @type _MAXSTR: C{int}
+    """
 
     _MAXSTR = 16
 
@@ -150,7 +154,9 @@ class UniformArray(AnyArray):
 
     >>> from PyFFI.ObjectModels.SimpleType import SimpleType
     >>> class MyInt(SimpleType):
-    ...     ValueType = int
+    ...     # in practice one would implement some sort of type checking
+    ...     # for this example we keep it simple
+    ...     pass
     >>> class ListOfInts(UniformArray):
     ...     ItemType = MyInt
     >>> testlist = ListOfInts()
@@ -169,8 +175,6 @@ class UniformArray(AnyArray):
 
     @cvar ItemType: Type of the elements of this array.
     @type ItemType: L{PyFFI.ObjectModels.AnyType.AnyType}
-    @cvar _MAXSTR: Maximum number of elements to write in the L{__str__} method.
-    @type _MAXSTR: C{int}
     """
 
     __metaclass__ = MetaUniformArray
@@ -210,7 +214,7 @@ class UniformSimpleArray(AnyArray):
 
     def __setitem__(self, index, value):
         # using list base method to skip validation
-        list.__setitem__(self, index, self.ItemType(value))
+        list.__getitem__(self, index).value = value
 
     def __iter__(self):
         return (item.value for item in list.__iter__(self))

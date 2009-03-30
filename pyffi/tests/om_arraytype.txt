@@ -53,7 +53,7 @@ Traceback (most recent call last):
 TypeError: ...
 >>> from PyFFI.ObjectModels.SimpleType import SimpleType
 >>> class MyInt(SimpleType):
-...     ValueType = int
+...     pass
 >>> class ListOfInts(UniformArray):
 ...     ItemType = MyInt
 
@@ -66,7 +66,7 @@ The append method
 >>> from PyFFI.ObjectModels.ArrayType import UniformArray
 >>> from PyFFI.ObjectModels.SimpleType import SimpleType
 >>> class MyInt(SimpleType):
-...     ValueType = int
+...     pass
 >>> class ListOfInts(UniformArray):
 ...     ItemType = MyInt
 >>> testlist = ListOfInts()
@@ -90,7 +90,7 @@ The extend method
 >>> from PyFFI.ObjectModels.ArrayType import UniformArray
 >>> from PyFFI.ObjectModels.SimpleType import SimpleType
 >>> class MyInt(SimpleType):
-...     ValueType = int
+...     pass
 >>> class ListOfInts(UniformArray):
 ...     ItemType = MyInt
 >>> testlist = ListOfInts()
