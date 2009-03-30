@@ -5,13 +5,23 @@ Constructor value argument
 --------------------------
 
 >>> from PyFFI.ObjectModels.SimpleType import SimpleType
->>> class Test(SimpleType):
-...     ValueType = float
->>> # note: float("eek!") raises a ValueError
->>> test = Test(value="eek!") # doctest: +ELLIPSIS
-Traceback (most recent call last):
-    ...
-ValueError: ...
->>> test = Test(value=4.0)
+>>> test = SimpleType()
+>>> print(test)
+None
+>>> test = SimpleType(value='eek!')
 >>> test.value
-4.0
+'eek!'
+
+Interchangeability
+------------------
+
+>>> test1 = SimpleType(2)
+>>> test2 = SimpleType(2)
+>>> test1 is test2
+False
+>>> test1.isInterchangeable(test2)
+True
+>>> test2.value = 'hello'
+>>> test1.isInterchangeable(test2)
+False
+
