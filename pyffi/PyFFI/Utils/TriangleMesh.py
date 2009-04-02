@@ -238,6 +238,4 @@ else:
 
 if __name__=='__main__':
     import doctest
-    import TriangleMesh as _testmod
-    doctest.testmod(_testmod)
-
+    doctest.testmod()
