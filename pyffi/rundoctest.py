@@ -4,7 +4,7 @@ import sys
 import unittest
 
 import PyFFI
-import PyFFI.Common
+import PyFFI.ObjectModels.Common
 import PyFFI.ObjectModels.FileFormat
 import PyFFI.ObjectModels.XML.FileFormat
 import PyFFI.ObjectModels.XSD.FileFormat

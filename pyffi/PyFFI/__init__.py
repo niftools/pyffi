@@ -60,7 +60,7 @@ Say this is the contents of simple.py::
     import os
     from PyFFI.XmlFileFormat import MetaXmlFileFormat
     from PyFFI.XmlFileFormat import XmlFileFormat
-    from PyFFI import Common
+    from PyFFI.ObjectModels import Common
 
     class SimpleFormat(XmlFileFormat):
         __metaclass__ = MetaXmlFileFormat
@@ -90,7 +90,7 @@ What happens in this piece of code?
     which would provide the class SimpleFormat.Example with a function
     C{addInteger} in addition to the attributes C{numIntegers} and C{integers}
     which have been created from the XML.
-  - Finally, the PyFFI.Common module implements the most common basic types,
+  - Finally, the PyFFI.ObjectModels.Common module implements the most common basic types,
     such as integers, characters, and floats. In the above example we have
     taken advantage of Common.Int, which defines a signed 32-bit integer,
     exactly the type we need.
