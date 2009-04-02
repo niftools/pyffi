@@ -106,7 +106,7 @@ import struct, os, re, sys, warnings, logging
 from PyFFI.ObjectModels.XML.FileFormat import XmlFileFormat
 from PyFFI.ObjectModels.XML.FileFormat import MetaXmlFileFormat
 from PyFFI import Utils
-from PyFFI import Common
+from PyFFI.ObjectModels import Common
 from PyFFI.ObjectModels.XML.Basic import BasicBase
 from PyFFI.ObjectModels.Editable import EditableBoolComboBox
 import PyFFI.ObjectModels.FileFormat
