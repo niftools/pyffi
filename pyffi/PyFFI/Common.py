@@ -38,11 +38,15 @@
 # ***** END LICENSE BLOCK *****
 
 import struct
+
 from PyFFI.ObjectModels.XML.Basic import BasicBase
 from PyFFI.ObjectModels.Editable import EditableSpinBox
 from PyFFI.ObjectModels.Editable import EditableFloatSpinBox
 from PyFFI.ObjectModels.Editable import EditableLineEdit
 from PyFFI.ObjectModels.Editable import EditableBoolComboBox
+
+_b = "".encode("ascii") # py3k's b""
+_b00 = "\x00".encode("ascii") # py3k's b"\x00"
 
 def asBytes(value, encoding_name=None, encoding_errors=None):
     """Helper function which converts a string to bytes (this is useful for
@@ -59,7 +63,13 @@ def asBytes(value, encoding_name=None, encoding_errors=None):
         else:
             return value.encode(encoding_name, encoding_errors)
     else:
-        # note: only py3k and up would ever get into this code path
+        # hack to check if this python version supports the bytes object
+        try:
+            bytes
+        except NameError:
+            raise TypeError("expected str")
+        # it does, if value is of the bytes type then nothing needs to happen
+        # otherwise, bad type...
         if not isinstance(value, bytes):
             raise TypeError("expected str or bytes")
         return value
@@ -243,7 +253,7 @@ class Char(BasicBase, EditableLineEdit):
     def __init__(self, **kwargs):
         """Initialize the character."""
         super(Char, self).__init__(**kwargs)
-        self._value = '\x00'.encode("ascii") # b'\x00'
+        self._value = _b00
 
     def getValue(self):
         """Return stored value.
@@ -374,7 +384,7 @@ class ZString(BasicBase, EditableLineEdit):
     def __init__(self, **kwargs):
         """Initialize the string."""
         super(ZString, self).__init__(**kwargs)
-        self._value = "".encode() # b""
+        self._value = _b
 
     def __str__(self):
         if not self._value:
@@ -396,7 +406,7 @@ class ZString(BasicBase, EditableLineEdit):
         @type value: C{str} (will be encoded as default) or C{bytes}
         """
         val = asBytes(value)
-        i = val.find('\x00'.encode()) # b"\x00"
+        i = val.find(_b00)
         if i != -1:
             val = val[:i]
         if len(val) > self._maxlen:
@@ -410,9 +420,9 @@ class ZString(BasicBase, EditableLineEdit):
         @type stream: file
         """
         i = 0
-        val = ''.encode() # b'' for > py26
-        char = ''.encode() # b'' for > py26
-        while char != '\x00'.encode("ascii"): # b'\x00' for > py26
+        val = _b
+        char = _b
+        while char != _b00:
             i += 1
             if i > self._maxlen:
                 raise ValueError('string too long')
@@ -427,7 +437,7 @@ class ZString(BasicBase, EditableLineEdit):
         @type stream: file
         """
         stream.write(self._value)
-        stream.write('\x00'.encode("ascii"))
+        stream.write(_b00)
 
     def getSize(self, **kwargs):
         """Return number of bytes this type occupies in a file.
@@ -471,7 +481,7 @@ class FixedString(BasicBase, EditableLineEdit):
     def __init__(self, **kwargs):
         """Initialize the string."""
         super(FixedString, self).__init__(**kwargs)
-        self._value = "".encode() # b""
+        self._value = _b
 
     def __str__(self):
         if not self._value:
@@ -504,7 +514,7 @@ class FixedString(BasicBase, EditableLineEdit):
         @type stream: file
         """
         self._value = stream.read(self._len)
-        i = self._value.find('\x00'.encode()) # b"\x00"
+        i = self._value.find(_b00)
         if i != -1:
             self._value = self._value[:i]
 
@@ -514,7 +524,7 @@ class FixedString(BasicBase, EditableLineEdit):
         @param stream: The stream to write to.
         @type stream: file
         """
-        stream.write(self._value.ljust(self._len, "\x00".encode())) # b"\x00"
+        stream.write(self._value.ljust(self._len, _b00))
 
     def getSize(self, **kwargs):
         """Return number of bytes this type occupies in a file.
@@ -555,7 +565,7 @@ class SizedString(BasicBase, EditableLineEdit):
     def __init__(self, **kwargs):
         """Initialize the string."""
         super(SizedString, self).__init__(**kwargs)
-        self._value = "".encode() # b""
+        self._value = _b
 
     def getValue(self):
         """Return the string.
@@ -619,7 +629,7 @@ class UndecodedData(BasicBase):
     """Basic type for undecoded data trailing at the end of a file."""
     def __init__(self, **kwargs):
         BasicBase.__init__(self, **kwargs)
-        self._value = ''.encode() # b""
+        self._value = _b
 
     def getValue(self):
         """Return stored value.
