@@ -51,18 +51,23 @@ def getMassCenterInertia(self, density = 1, solid = True):
 
 def addShape(self, triangles, normals, vertices, layer = 0, material = 0):
     """Pack the given geometry."""
-    # increase number of shapes
-    num_shapes = self.numSubShapes
-    self.numSubShapes = num_shapes + 1
-    self.subShapes.updateSize()
-    # add the shape
-    self.subShapes[num_shapes].layer = layer
-    self.subShapes[num_shapes].numVertices = len(vertices)
-    self.subShapes[num_shapes].material = material
     # add the shape data
     if not self.data:
         self.data = self.cls.hkPackedNiTriStripsData()
     data = self.data
+    # increase number of shapes
+    num_shapes = self.numSubShapes
+    self.numSubShapes = num_shapes + 1
+    self.subShapes.updateSize()
+    data.numSubShapes = num_shapes + 1
+    data.subShapes.updateSize()
+    # add the shape
+    self.subShapes[num_shapes].layer = layer
+    self.subShapes[num_shapes].numVertices = len(vertices)
+    self.subShapes[num_shapes].material = material
+    data.subShapes[num_shapes].layer = layer
+    data.subShapes[num_shapes].numVertices = len(vertices)
+    data.subShapes[num_shapes].material = material
     firsttriangle = data.numTriangles
     firstvertex = data.numVertices
     data.numTriangles += len(triangles)
