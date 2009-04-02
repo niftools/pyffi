@@ -73,6 +73,7 @@ suite.addTest(doctest.DocFileSuite('tests/om_simpletype.txt'))
 suite.addTest(doctest.DocFileSuite('tests/om_arraytype.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/matrix.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/skinpartition.txt'))
+suite.addTest(doctest.DocFileSuite('tests/nif/bhkpackednitristripsshape.txt'))
 
 # TODO: examples
 #suite.addTest(doctest.DocFileSuite('examples/*.txt'))

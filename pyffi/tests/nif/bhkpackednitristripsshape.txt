@@ -1,0 +1,56 @@
+bhkPackedNiTriStripsShape tests
+===============================
+
+Adding Shapes
+-------------
+
+>>> from PyFFI.Formats.NIF import NifFormat
+>>> shape = NifFormat.bhkPackedNiTriStripsShape()
+>>> shape.numSubShapes
+0
+>>> shape.data is None
+True
+>>> triangles1 = [(0, 1, 2)]
+>>> normals1 = [(1, 0, 0)]
+>>> vertices1 = [(0, 0, 0), (0, 0, 1), (0, 1, 0)]
+>>> triangles2 = [(0, 2, 1), (1, 2, 3)]
+>>> normals2 = [(1, 0, 0), (-1, 0, 0)]
+>>> vertices2 = [(0, 0, 0), (0, 0, 1), (0, 1, 0), (0, 0, 0)]
+>>> shape.addShape(triangles=triangles1, normals=normals1, vertices=vertices1,
+...                layer=1, material=2)
+>>> shape.addShape(triangles=triangles2, normals=normals2, vertices=vertices2,
+...                layer=3, material=4)
+>>> shape.numSubShapes
+2
+>>> shape.subShapes[0].layer
+1
+>>> shape.subShapes[0].numVertices
+3
+>>> shape.subShapes[0].material
+2
+>>> shape.subShapes[1].layer
+3
+>>> shape.subShapes[1].numVertices
+4
+>>> shape.subShapes[1].material
+4
+>>> # for fallout 3 the subshape info is stored in the shape data
+>>> shape.data.numSubShapes
+2
+>>> shape.data.subShapes[0].layer
+1
+>>> shape.data.subShapes[0].numVertices
+3
+>>> shape.data.subShapes[0].material
+2
+>>> shape.data.subShapes[1].layer
+3
+>>> shape.data.subShapes[1].numVertices
+4
+>>> shape.data.subShapes[1].material
+4
+>>> shape.data.numTriangles
+3
+>>> shape.data.numVertices
+7
+
