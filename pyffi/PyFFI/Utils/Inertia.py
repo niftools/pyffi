@@ -124,9 +124,9 @@ def getMassInertiaCapsule(length, radius, density = 1, solid = True):
 def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, solid = True):
     """Return mass, center of gravity, and inertia matrix for a polyhedron.
 
-    >>> import QuickHull
+    >>> from PyFFI.Utils.QuickHull import qhull3d
     >>> box = [(0,0,0),(1,0,0),(0,2,0),(0,0,3),(1,2,0),(0,2,3),(1,0,3),(1,2,3)]
-    >>> vertices, triangles = QuickHull.qhull3d(box)
+    >>> vertices, triangles = qhull3d(box)
     >>> mass, center, inertia = getMassCenterInertiaPolyhedron(
     ...     vertices, triangles, density = 4)
     >>> mass
@@ -136,7 +136,7 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, solid = Tru
     >>> inertia
     ((26.0, 0.0, 0.0), (0.0, 20.0, 0.0), (0.0, 0.0, 10.0))
     >>> poly = [(3,0,0),(0,3,0),(-3,0,0),(0,-3,0),(0,0,3),(0,0,-3)] # very rough approximation of a sphere of radius 2
-    >>> vertices, triangles = QuickHull.qhull3d(poly)
+    >>> vertices, triangles = qhull3d(poly)
     >>> mass, center, inertia = getMassCenterInertiaPolyhedron(
     ...     vertices, triangles, density = 3)
     >>> mass
@@ -167,7 +167,7 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, solid = Tru
     ...         sphere.append((2*s*ct, 2*c*ct, 2*st)) # construct sphere of radius 2
     >>> sphere.append((0,0,2))
     >>> sphere.append((0,0,-2))
-    >>> vertices, triangles = QuickHull.qhull3d(sphere)
+    >>> vertices, triangles = qhull3d(sphere)
     >>> mass, center, inertia = getMassCenterInertiaPolyhedron(
     ...     vertices, triangles, density = 3, solid = True)
     >>> abs(mass - 100.53) < 10 # 3*(4/3)*pi*2^3 = 100.53

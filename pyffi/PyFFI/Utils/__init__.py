@@ -43,11 +43,6 @@
 
 import os
 
-import TriStrip
-import MathUtils
-import Inertia
-import QuickHull
-
 def walk(top, topdown=True, onerror=None, re_filename=None):
     """A variant of os.walk() which also works if top is a file instead of a
     directory, filters files by name, and returns full path. File names are
