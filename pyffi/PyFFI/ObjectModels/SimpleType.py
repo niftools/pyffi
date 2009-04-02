@@ -41,30 +41,32 @@
 
 import PyFFI.ObjectModels.AnyType
 
+class _MetaSimpleType(type):
+    """This metaclass binds the getValue and setValue methods to the
+    value property. We need a metaclass for this because properties are
+    non-polymorphic. Further reading:
+    http://stackoverflow.com/questions/237432/python-properties-and-inheritance
+    http://requires-thinking.blogspot.com/2006/03/note-to-self-python-properties-are-non.html
+    """
+    def __init__(cls, name, bases, dct):
+        # call base class constructor
+        super(_MetaSimpleType, cls).__init__(name, bases, dct)
+        # add value property
+        cls.value = property(cls.getValue, cls.setValue)
+
 class SimpleType(PyFFI.ObjectModels.AnyType.AnyType):
     """Base class from which all simple types are derived. Simple
     types contain data which is not divided further into smaller pieces,
     and that can represented efficiently by a (usually native) Python type,
     typically C{int}, C{float}, or L{str}.
 
-    A brief example of usage (without type checking):
-
-    >>> class Int(SimpleType):
-    ...     def __init__(self, value=None):
-    ...         self.value = 0 if value is None else value
-    >>> print(Int(value=12345))
-    12345
-
-    A slightly more complicated example, demonstrating how to implement
-    type checking:
+    A brief example of usage:
 
     >>> class Short(SimpleType):
     ...     def __init__(self, value=None):
     ...         # for fun, let default value be 3
     ...         self.value = 3 if value is None else value
-    ...     def _get(self):
-    ...         return self._value
-    ...     def _set(self, value):
+    ...     def setValue(self, value):
     ...         # check type
     ...         if not isinstance(value, int):
     ...             raise TypeError("Expected int but got %s."
@@ -73,7 +75,6 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType):
     ...         if value < -0x8000 or value > 0x7fff:
     ...             raise ValueError("Value %i out of range." % value)
     ...         self._value = value
-    ...     value = property(_get, _set)
     >>> print(Short(value=15))
     15
     >>> test = Short()
@@ -95,9 +96,10 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType):
     of this type, and L{isInterchangeable} if you wish to declare data as
     equivalent.
 
-    @ivar value: The actual data.
-    @type value: C{type(None)}, or anything of the appropriate type.
+    @ivar _value: The actual data.
+    @type _value: C{type(None)}, or anything of the appropriate type.
     """
+    __metaclass__ = _MetaSimpleType
 
     def __init__(self, value=None):
         """Initialize the type with given value.
@@ -105,7 +107,7 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType):
         @keyword value: The initial value of the object.
         @type value: C{type(None)}, or anything of the appropriate type.
         """
-        self.value = value
+        self._value = value
 
     def __str__(self):
         """String representation. This implementation is simply a wrapper
@@ -115,6 +117,12 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType):
         @rtype: C{str}
         """
         return self.value.__str__()
+
+    def getValue(self):
+        return self._value
+
+    def setValue(self, value):
+        self._value = value
 
     # AnyType
 
@@ -132,4 +140,3 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType):
         @rtype: C{str}
         """
         return self.value.__str__()
-
