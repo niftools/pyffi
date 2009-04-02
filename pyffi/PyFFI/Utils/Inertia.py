@@ -39,7 +39,7 @@ shapes."""
 # ***** END LICENSE BLOCK *****
 
 import math
-from MathUtils import *
+from PyFFI.Utils.MathUtils import *
 
 # see http://en.wikipedia.org/wiki/List_of_moment_of_inertia_tensors
 

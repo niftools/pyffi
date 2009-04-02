@@ -37,7 +37,7 @@
 #
 # ***** END LICENSE BLOCK *****
 
-from MathUtils import *
+from PyFFI.Utils.MathUtils import *
 
 def getTangentSpace(vertices = None, normals = None, uvs = None,
                     triangles = None, orientation = False,
