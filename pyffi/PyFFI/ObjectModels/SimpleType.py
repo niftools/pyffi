@@ -63,9 +63,9 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType):
     A brief example of usage:
 
     >>> class Short(SimpleType):
-    ...     def __init__(self, value=None):
+    ...     def __init__(self):
     ...         # for fun, let default value be 3
-    ...         self.value = 3 if value is None else value
+    ...         self._value = 3
     ...     def setValue(self, value):
     ...         # check type
     ...         if not isinstance(value, int):
@@ -75,8 +75,6 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType):
     ...         if value < -0x8000 or value > 0x7fff:
     ...             raise ValueError("Value %i out of range." % value)
     ...         self._value = value
-    >>> print(Short(value=15))
-    15
     >>> test = Short()
     >>> print(test)
     3
@@ -96,47 +94,59 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType):
     of this type, and L{isInterchangeable} if you wish to declare data as
     equivalent.
 
-    @ivar _value: The actual data.
+    @ivar _value: The data.
     @type _value: C{type(None)}, or anything of the appropriate type.
+    @ivar value: A property which wraps the actual data. This property always
+        calls L{setValue} to assign the value, and ensures that the value is
+        valid (type, range, ...). Unless you know what you are doing, always
+        use the L{value} property to change the data.
+    @type value: Same as L{_value}.
     """
     __metaclass__ = _MetaSimpleType
 
-    def __init__(self, value=None):
-        """Initialize the type with given value.
-
-        @keyword value: The initial value of the object.
-        @type value: C{type(None)}, or anything of the appropriate type.
-        """
-        self._value = value
+    def __init__(self):
+        """Initialize the value to C{None}."""
+        self._value = None
 
     def __str__(self):
         """String representation. This implementation is simply a wrapper
-        around C{self.L{value}.__str__()}.
+        around C{self.L{_value}.__str__()}.
 
         @return: String representation.
         @rtype: C{str}
         """
-        return self.value.__str__()
+        return self._value.__str__()
 
     def getValue(self):
+        """Return the stored value.
+
+        @return: L{_value}
+        @rtype: Whatever is appropriate.
+        """
         return self._value
 
     def setValue(self, value):
+        """Set stored value. Override this method to enable validation
+        (type checking, range checking, and so on).
+
+        @param value: The value to store.
+        @type value: Whatever is appropriate.
+        """
         self._value = value
 
     # AnyType
 
     def isInterchangeable(self, other):
         """This checks for object identity of the value."""
-        return self.value is other.value
+        return isinstance(other, SimpleType) and (self._value is other._value)
 
     # DetailNode
 
     def getDetailDisplay(self):
         """Display string for the detail tree. This implementation is simply
-        a wrapper around C{self.L{value}.__str__()}.
+        a wrapper around C{self.L{_value}.__str__()}.
 
         @return: String representation.
         @rtype: C{str}
         """
-        return self.value.__str__()
+        return self._value.__str__()

@@ -1,22 +1,38 @@
 Regression tests for L{PyFFI.ObjectModels.SimpleType}
 =====================================================
 
-Constructor value argument
---------------------------
+Constructor
+-----------
 
 >>> from PyFFI.ObjectModels.SimpleType import SimpleType
 >>> test = SimpleType()
 >>> print(test)
 None
->>> test = SimpleType(value='eek!')
->>> test.value
-'eek!'
+>>> print(test.value)
+None
+>>> print(test._value)
+None
+
+Value property
+--------------
+
+>>> from PyFFI.ObjectModels.SimpleType import SimpleType
+>>> test = SimpleType()
+>>> test.value = 'eek!'
+>>> print(test)
+eek!
+>>> print(test.value)
+eek!
+>>> print(test._value)
+eek!
 
 Interchangeability
 ------------------
 
->>> test1 = SimpleType(2)
->>> test2 = SimpleType(2)
+>>> test1 = SimpleType()
+>>> test1.value = 2
+>>> test2 = SimpleType()
+>>> test2.value = 2
 >>> test1 is test2
 False
 >>> test1.isInterchangeable(test2)

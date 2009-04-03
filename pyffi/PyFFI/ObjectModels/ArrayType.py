@@ -156,7 +156,8 @@ class UniformArray(AnyArray):
     >>> class MyInt(SimpleType):
     ...     # in practice one would implement some sort of type checking
     ...     # for this example we keep it simple
-    ...     pass
+    ...     def __init__(self, value=0):
+    ...         self._value = value
     >>> class ListOfInts(UniformArray):
     ...     ItemType = MyInt
     >>> testlist = ListOfInts()

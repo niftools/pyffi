@@ -66,7 +66,8 @@ The append method
 >>> from PyFFI.ObjectModels.ArrayType import UniformArray
 >>> from PyFFI.ObjectModels.SimpleType import SimpleType
 >>> class MyInt(SimpleType):
-...     pass
+...     def __init__(self, value=0):
+...         self._value = value
 >>> class ListOfInts(UniformArray):
 ...     ItemType = MyInt
 >>> testlist = ListOfInts()
@@ -90,7 +91,8 @@ The extend method
 >>> from PyFFI.ObjectModels.ArrayType import UniformArray
 >>> from PyFFI.ObjectModels.SimpleType import SimpleType
 >>> class MyInt(SimpleType):
-...     pass
+...     def __init__(self, value=0):
+...         self._value = value
 >>> class ListOfInts(UniformArray):
 ...     ItemType = MyInt
 >>> testlist = ListOfInts()
