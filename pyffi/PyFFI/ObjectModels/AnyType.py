@@ -47,30 +47,24 @@ import PyFFI.ObjectModels.Graph
 class AnyType(PyFFI.ObjectModels.Graph.DetailNode):
     """Abstract base class from which all types are derived."""
 
-    def read(self, stream, data):
+    def read(self, stream):
         """Read object from file.
 
         @param stream: The stream to read from.
-        @type stream: file
-        @param data: The data root branch (which contains version
-            information and so on).
-        @type data: L{FileFormat.Data}
+        @type stream: C{file}
         """
         raise NotImplementedError
 
-    def write(self, stream, data):
+    def write(self, stream):
         """Write object to file.
 
         @param stream: The stream to write to.
-        @type stream: file
-        @param data: The data root branch (which contains version
-            information and so on).
-        @type data: L{FileFormat.Data}
+        @type stream: C{file}
         """
         raise NotImplementedError
 
     def isInterchangeable(self, other):
-        """Returns C{True} if objects are exchangeable, that is,
+        """Returns C{True} if objects are interchangeable, that is,
         "close" enough to each other so they can be considered equal
         for practical purposes. This is useful for instance when comparing
         data and trying to remove duplicates.
