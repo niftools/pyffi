@@ -4041,15 +4041,15 @@
 
     <niobject name="BSBlastNode" inherit="NiNode" ver1="20.2.0.7" userver="11">
         Bethesda-Specific node.
-        <add name="Unknown byte 1" type="byte">Unknown</add>
-        <add name="Unknown Short 1" type="short">Unknown</add>
+        <add name="Unknown Byte 1" type="byte">Unknown</add>
+        <add name="Unknown Short 2" type="short">Unknown</add><!-- Unknown Short 1 already used in NiNode -->
     </niobject>
 
 
     <niobject name="BSDamageStage" inherit="NiNode" ver1="20.2.0.7" userver="11">
         Bethesda-Specific node.
-        <add name="Unknown byte 1" type="byte">Unknown</add>
-        <add name="Unknown Short 1" type="short">Unknown</add>
+        <add name="Unknown Byte 1" type="byte">Unknown</add>
+        <add name="Unknown Short 2" type="short">Unknown</add><!-- Unknown Short 1 already used in NiNode -->
     </niobject>
 
 
