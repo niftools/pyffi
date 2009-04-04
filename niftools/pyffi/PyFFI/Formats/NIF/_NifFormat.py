@@ -101,7 +101,13 @@ Strings
 #
 # ***** END LICENSE BLOCK *****
 
-import struct, os, re, sys, warnings, logging
+import logging
+import os
+import re
+import struct
+import sys
+import warnings
+import weakref
 
 from PyFFI.ObjectModels.XML.FileFormat import XmlFileFormat
 from PyFFI.ObjectModels.XML.FileFormat import MetaXmlFileFormat
@@ -729,11 +735,13 @@ but got instance of %s' % (self._template, value.__class__))
             return 4
 
         def getHash(self, **kwargs):
-            if self._value: return self._value.getHash(**kwargs)
-            else: return None
+            if self.getValue():
+                return self.getValue().getHash(**kwargs)
+            else:
+                return None
 
         def read(self, stream, **kwargs):
-            self._value = None # fixLinks will set this field
+            self.setValue(None) # fixLinks will set this field
             block_index, = struct.unpack('<i', stream.read(4))
             kwargs.get('link_stack', []).append(block_index)
 
@@ -743,7 +751,8 @@ but got instance of %s' % (self._template, value.__class__))
             @keyword block_index_dct: The dictionary of block indices
                 (block -> index).
             """
-            if self._value == None: # link by block number
+            if self.getValue() is None:
+                # nothing to point to
                 try:
                     ver = kwargs['data'].version
                 except KeyError:
@@ -754,7 +763,7 @@ but got instance of %s' % (self._template, value.__class__))
                     stream.write('\x00\x00\x00\x00') # link by pointer
             else:
                 stream.write(struct.pack(
-                    '<i', kwargs.get('block_index_dct')[self._value]))
+                    '<i', kwargs.get('block_index_dct')[self.getValue()]))
 
         def fixLinks(self, **kwargs):
             """Fix block links.
@@ -771,27 +780,29 @@ but got instance of %s' % (self._template, value.__class__))
             # case when there's no link
             if ver >= 0x0303000D:
                 if block_index == -1: # link by block number
-                    self._value = None
+                    self.setValue(None)
                     return
             else:
                 if block_index == 0: # link by pointer
-                    self._value = None
+                    self.setValue(None)
                     return
             # other case: look up the link and check the link type
             block = kwargs.get('block_dct')[block_index]
             if not isinstance(block, self._template):
                 raise TypeError('expected an instance of %s but got instance of %s'%(self._template, block.__class__))
-            self._value = block
+            self.setValue(block)
 
         def getLinks(self, **kwargs):
-            if self._value != None:
-                return [self._value]
+            val = self.getValue()
+            if val is not None:
+                return [val]
             else:
                 return []
 
         def getRefs(self, **kwargs):
-            if self._value != None:
-                return [self._value]
+            val = self.getValue()
+            if val is not None:
+                return [val]
             else:
                 return []
 
@@ -816,17 +827,17 @@ but got instance of %s' % (self._template, value.__class__))
             >>> x.children[0] is None
             True
             """
-            if self._value is oldbranch:
+            if self.getValue() is oldbranch:
                 # setValue takes care of template type
                 self.setValue(newbranch)
                 #print("replacing", repr(oldbranch), "->", repr(newbranch))
-            if self._value is not None:
-                self._value.replaceGlobalNode(oldbranch, newbranch)
+            if self.getValue() is not None:
+                self.getValue().replaceGlobalNode(oldbranch, newbranch)
 
         def getDetailDisplay(self):
             # return the node itself, if it is not None
-            if self._value is not None:
-                return self._value
+            if self.getValue() is not None:
+                return self.getValue()
             else:
                 return "None"
 
@@ -835,6 +846,20 @@ but got instance of %s' % (self._template, value.__class__))
         _isTemplate = True
         _hasLinks = True
         _hasRefs = False
+
+        # use weak reference to aid garbage collection
+
+        def getValue(self):
+            return self._value() if self._value is not None else None
+
+        def setValue(self, value):
+            if value is None:
+                self._value = None
+            else:
+                if not isinstance(value, self._template):
+                    raise TypeError('expected an instance of %s \
+but got instance of %s' % (self._template, value.__class__))
+                self._value = weakref.ref(value)
 
         def __str__(self):
             # avoid infinite recursion
@@ -849,8 +874,7 @@ but got instance of %s' % (self._template, value.__class__))
         def replaceGlobalNode(self, oldbranch, newbranch,
                               edge_filter=EdgeFilter()):
             # overridden to avoid infinite recursion
-            if self._value is oldbranch:
-                # setValue takes care of template type
+            if self.getValue() is oldbranch:
                 self.setValue(newbranch)
                 #print("replacing", repr(oldbranch), "->", repr(newbranch))
 
