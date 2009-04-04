@@ -103,6 +103,7 @@ class NifToaster(NifToasterBase):
         PyFFI.Spells.NIF.fix.SpellFixTexturePath,
         PyFFI.Spells.NIF.fix.SpellSendGeometriesToBindPosition,
         PyFFI.Spells.NIF.fix.SpellSendBonesToBindPosition,
+        PyFFI.Spells.NIF.fix.SpellStrip,
         hackcheckskindata,
         hackmultiskelroot,
         hackskindataidtransform,
