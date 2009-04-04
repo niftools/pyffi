@@ -325,6 +325,9 @@ maya_check_end:
     WriteRegStr HKCR "NetImmerseFile\shell\Optimize with PyFFI" "" ""
     WriteRegStr HKCR "NetImmerseFile\shell\Optimize with PyFFI\command" "" '"$PYTHONPATH\python.exe" "$PYTHONPATH\Scripts\niftoaster.py" optimize --pause "%1"'
 
+    WriteRegStr HKCR "Folder\shell\Optimize with PyFFI" "" ""
+    WriteRegStr HKCR "Folder\shell\Optimize with PyFFI\command" "" '"$PYTHONPATH\python.exe" "$PYTHONPATH\Scripts\niftoaster.py" optimize --pause "%1"'
+
     WriteRegStr HKCR "NetImmerseFile\shell\Open with QSkope" "" ""
     WriteRegStr HKCR "NetImmerseFile\shell\Open with QSkope\command" "" '"$PYTHONPATH\python.exe" "$PYTHONPATH\Scripts\qskope.py" "%1"'
 
@@ -418,6 +421,7 @@ maya_check_end:
   ; remove registry keys
   DeleteRegKey HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI-py${PYTHONVERSION}"
   DeleteRegKey HKCR "NetImmerseFile\shell\Optimize with PyFFI"
+  DeleteRegKey HKCR "Folder\shell\Optimize with PyFFI"
   DeleteRegKey HKCR "NetImmerseFile\shell\Open with QSkope"
   DeleteRegKey HKCR "CrytekGeometryFile\shell\Open with QSkope"
   DeleteRegKey HKCR "DirectX.DDS.Document\shell\Open with QSkope"
