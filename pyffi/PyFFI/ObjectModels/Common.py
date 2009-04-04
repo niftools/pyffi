@@ -48,31 +48,61 @@ from PyFFI.ObjectModels.Editable import EditableBoolComboBox
 _b = "".encode("ascii") # py3k's b""
 _b00 = "\x00".encode("ascii") # py3k's b"\x00"
 
-def asBytes(value, encoding_name=None, encoding_errors=None):
-    """Helper function which converts a string to bytes (this is useful for
+# supports the bytes object for < py26
+try:
+    bytes
+except NameError:
+    bytes = str # for py25 backwards compatibility
+
+if bytes is str:
+    # < py3k: str for byte strings, unicode for text strings
+    _bytes = str
+    _str = unicode
+else:
+    # >= py3k: bytes for byte strings, str for text strings
+    _bytes = bytes
+    _str = str
+
+def _asBytes(value):
+    """Helper function which converts a string to _bytes (this is useful for
     setValue in all string classes, which use bytes for representation).
 
     @return: The bytes representing the value.
-    @rtype: C{bytes}
+    @rtype: C{_bytes}
+
+    >>> _asBytes(u"\\u00e9defa") == u"\\u00e9defa".encode("utf-8")
+    True
+    >>> _asBytes(123) # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    TypeError: ...
     """
-    if isinstance(value, basestring):
-        if not encoding_name:
-            return value.encode()
-        elif not encoding_errors:
-            return value.encode(encoding_name)
-        else:
-            return value.encode(encoding_name, encoding_errors)
-    else:
-        # hack to check if this python version supports the bytes object
-        try:
-            bytes
-        except NameError:
-            raise TypeError("expected str")
-        # it does, if value is of the bytes type then nothing needs to happen
-        # otherwise, bad type...
-        if not isinstance(value, bytes):
-            raise TypeError("expected str or bytes")
+    if isinstance(value, _bytes):
         return value
+    elif isinstance(value, _str):
+        return value.encode("utf-8", "replace")
+    else:
+        raise TypeError("expected %s or %s" % (_bytes.__name__, _str.__name__))
+
+def _asStr(value):
+    """Helper function to convert bytes back to str. This is used in
+    the __str__ functions for simple string types. If you want a custom
+    encoding, use an explicit decode call on the value.
+    """
+    if not isinstance(value, (_str, _bytes)):
+        raise TypeError("expected %s or %s" % (_bytes.__name__, _str.__name__))
+    elif not value:
+        return '<EMPTY STRING>'
+    elif isinstance(value, str):
+        # this always works regardless of the python version
+        return value
+    elif isinstance(value, _bytes):
+        # >= py3k: simply decode
+        return value.decode("utf-8", "replace")
+    elif isinstance(value, unicode):
+        # < py3k: use ascii encoding to produce a str
+        # (this avoids unicode errors)
+        return value.encode("ascii", "replace")
 
 class Int(BasicBase, EditableSpinBox):
     """Basic implementation of a 32-bit signed integer type. Also serves as a
@@ -268,7 +298,7 @@ class Char(BasicBase, EditableLineEdit):
         @param value: The value to assign (bytes of length 1).
         @type value: bytes
         """
-        #assert(isinstance(value, bytes)) # for py3k
+        assert(isinstance(value, _bytes))
         assert(len(value) == 1)
         self._value = value
 
@@ -289,7 +319,7 @@ class Char(BasicBase, EditableLineEdit):
         stream.write(self._value)
 
     def __str__(self):
-        return self._value
+        return _asStr(self._value)
 
     def getSize(self, **kwargs):
         """Return number of bytes this type occupies in a file.
@@ -387,9 +417,7 @@ class ZString(BasicBase, EditableLineEdit):
         self._value = _b
 
     def __str__(self):
-        if not self._value:
-            return '<EMPTY STRING>'
-        return self._value.decode() # note: might raise a UnicodeError
+        return _asStr(self._value)
 
     def getValue(self):
         """Return the string.
@@ -397,7 +425,7 @@ class ZString(BasicBase, EditableLineEdit):
         @return: The stored string.
         @rtype: C{bytes}
         """
-        return self._value
+        return _asStr(self._value)
 
     def setValue(self, value):
         """Set string to C{value}.
@@ -405,7 +433,7 @@ class ZString(BasicBase, EditableLineEdit):
         @param value: The value to assign.
         @type value: C{str} (will be encoded as default) or C{bytes}
         """
-        val = asBytes(value)
+        val = _asBytes(value)
         i = val.find(_b00)
         if i != -1:
             val = val[:i]
@@ -484,9 +512,7 @@ class FixedString(BasicBase, EditableLineEdit):
         self._value = _b
 
     def __str__(self):
-        if not self._value:
-            return '<EMPTY STRING>'
-        return self._value.decode() # note: might raise a UnicodeError
+        return _asStr(self._value)
 
     def getValue(self):
         """Return the string.
@@ -502,7 +528,7 @@ class FixedString(BasicBase, EditableLineEdit):
         @param value: The value to assign.
         @type value: C{str} (encoded as default) or C{bytes}
         """
-        val = asBytes(value)
+        val = _asBytes(value)
         if len(val) > self._len:
             raise ValueError("string '%s' too long" % val)
         self._value = val
@@ -580,15 +606,13 @@ class SizedString(BasicBase, EditableLineEdit):
         @param value: The value to assign.
         @type value: str
         """
-        val = asBytes(value)
+        val = _asBytes(value)
         if len(val) > 10000:
             raise ValueError('string too long')
         self._value = val
 
     def __str__(self):
-        if not self._value:
-            return '<EMPTY STRING>'
-        return self._value.decode() # might raise UnicodeError
+        return _asStr(self._value)
 
     def getSize(self, **kwargs):
         """Return number of bytes this type occupies in a file.
