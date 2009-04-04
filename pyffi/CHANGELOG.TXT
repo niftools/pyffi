@@ -2,6 +2,8 @@ Version 1.2.4 (***)
 * nif:
   - synced nif.xml with upstream (adds support for Worldshift, bug fixes)
   - using weak references for Ptr type (this aids garbage collection)
+  - added fix_strip niftoaster spell which can remove branches selectively
+  (feature request #2164309)
 
 Version 1.2.3 (2 Apr 2009)
 * removed reduce() calls (py3k compatibility)
