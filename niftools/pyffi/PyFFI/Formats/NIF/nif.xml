@@ -4199,7 +4199,7 @@
 
     <niobject name="BSFrustumFOVController" inherit="NiTimeController">
         Bethesda-specific node.
-        <add name="Unknown Int 1" type="int">Unknown</add>
+        <add name="Interpolator" type="Ref" template="NiFloatInterpolator">Frustrum field of view animation interpolater and data.</add>
     </niobject>
 
     <niobject name="BSDebrisNode" inherit="NiNode" ver1="20.2.0.7" userver="11">
