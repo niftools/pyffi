@@ -138,6 +138,7 @@ fix_ffvt3rskinpartition
 fix_texturepath
 fix_sendgeometriestobindposition
 fix_sendbonestobindposition
+fix_strip
 hackcheckskindata
 hackmultiskelroot
 hackskindataidtransform
