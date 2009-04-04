@@ -3599,7 +3599,7 @@
         <add name="Unknown Quat 1" type="Quaternion">Unknown</add>
         <add name="Unknown Quat 2" type="Quaternion">Unknown</add>
         <add name="Unknown Quat 3" type="Quaternion">Unknown</add>
-        <add name="Unknown Int 3" type="int">Unknown</add>
+        <add name="Unknown Ref 0" type="Ref" template="NiPhysXBodyDesc">Unknown</add>
         <add name="Unknown Int 4" type="float">Unknown</add>
         <add name="Unknown Int 5" type="int">Unknown</add>
         <add name="Unknown Byte 1" type="byte">Unknown</add>
@@ -3640,6 +3640,7 @@
         <add name="Unknown Int 8" type="int">Unknown</add>
         <add name="Unknown Bytes 1" type="byte" arr1="8" ver1="20.3.0.6">Unknown. Wrong, but better than nothing.</add>
         <add name="Mesh Description" type="Ref" template="NiPhysXMeshDesc">PhysX Mesh Description</add>
+        <!-- todo: fix invalid link failure on Ficus.nif from the emerge demo -->
     </niobject>
 
     <niobject name="NiPhysXMeshDesc" abstract="0" inherit="NiObject" ver1="20.1.0.7">
