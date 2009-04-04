@@ -4117,15 +4117,19 @@
 
     <niobject name="BSMultiBoundNode" inherit="NiNode">
         Bethesda-specific node.
-        <add name="Unknown Int 1" type="int">Unknown Flag</add>
+        <add name="Multi Bound" type="Ref" template="BSMultiBound">Unknown.</add>
     </niobject>
 
     <niobject name="BSMultiBound" inherit="NiObject">
         Bethesda-specific node.
-        <add name="Unknown Int 1" type="int">Unknown Flag</add>
+        <add name="Data" type="Ref" template="BSMultiBoundData">Unknown.</add>
     </niobject>
 
-    <niobject name="BSMultiBoundSphere" inherit="NiObject">
+    <niobject name="BSMultiBoundData" inherit="NiObject">
+        Abstract base type for bounding data.
+    </niobject>
+
+    <niobject name="BSMultiBoundSphere" inherit="BSMultiBoundData">
         Bethesda-specific node.
         <add name="Unknown Int 1" type="int">Unknown Flag</add>
         <add name="Unknown Int 2" type="int">Unknown Flag</add>
@@ -4146,7 +4150,7 @@
         <add name="Seg Triangles" type="BSSegmentedTriangle" arr1="Num Seg Triangles">Unknown</add>
     </niobject>
 
-    <niobject name="BSMultiBoundAABB" inherit="NiObject">
+    <niobject name="BSMultiBoundAABB" inherit="BSMultiBoundData">
         Bethesda-specific node.
         <add name="Unknown Floats 1" type="float" arr1="6">Unknown</add>
     </niobject>
