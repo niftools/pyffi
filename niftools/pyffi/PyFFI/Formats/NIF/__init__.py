@@ -154,6 +154,7 @@ Get list of versions and games
 0x0A010065
 0x0A01006A
 0x0A020000
+0x0A040001
 0x14000004
 0x14000005
 0x14010003
@@ -195,6 +196,7 @@ Star Trek: Bridge Commander 0x03000000 0x03010000
 The Guild 2 0x0A010000
 Warhammer 0x14030009
 Wildlife Park 2 0x0A010000 0x0A020000
+Worldshift 0x0A040001
 Zoo Tycoon 2 0x0A000100
 """
 
