@@ -906,13 +906,10 @@ but got instance of %s' % (self._template, value.__class__))
             return self._value
 
         def setValue(self, value):
-            self._value = Common.asBytes(value).rstrip('\x0a'.encode("ascii"))
+            self._value = Common._asBytes(value).rstrip('\x0a'.encode("ascii"))
 
         def __str__(self):
-            s = self._value.decode() # might raise unicode error
-            if not s:
-                return '<EMPTY STRING>'
-            return s
+            return Common._asStr(self._value)
 
         def getSize(self, **kwargs):
             return len(self._value) + 1 # +1 for trailing endline
@@ -1033,13 +1030,13 @@ but got instance of %s' % (self._template, value.__class__))
             return self._value
 
         def setValue(self, value):
-            val = Common.asBytes(value)
+            val = Common._asBytes(value)
             if len(val) > 254:
                 raise ValueError('string too long')
             self._value = val
 
         def __str__(self):
-            return self._value.decode() # might raise UnicodeError
+            return Common._asStr(self._value)
 
         def getSize(self, **kwargs):
             # length byte + string chars + zero byte
