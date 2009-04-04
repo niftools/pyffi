@@ -1,4 +1,7 @@
 Version 1.2.4 (***)
+* nif:
+  - synced nif.xml with upstream (adds support for Worldshift, bug fixes)
+  - using weak references for Ptr type (this aids garbage collection)
 
 Version 1.2.3 (2 Apr 2009)
 * removed reduce() calls (py3k compatibility)
