@@ -5,8 +5,6 @@
 Welcome to PyFFI!
 =================
 
-Current version: |version|
-
 .. include:: ../README.TXT
 
 Documentation
