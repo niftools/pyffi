@@ -13,7 +13,7 @@ Python library for processing block structured binary files:
   <http://www.riverbankcomputing.co.uk/software/pyqt/download>`_), are
   all included.
 
-* **Modular:** Its highly modular design make it easy to add support
+* **Modular:** Its highly modular design makes it easy to add support
   for new formats, and also to extend existing functionality.
 
 Download
