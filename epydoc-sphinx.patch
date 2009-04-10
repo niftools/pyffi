@@ -1,0 +1,16 @@
+Index: src/epydoc/markup/__init__.py
+===================================================================
+--- src/epydoc/markup/__init__.py	(revision 1812)
++++ src/epydoc/markup/__init__.py	(working copy)
+@@ -173,6 +173,11 @@
+     # Keep track of which markup languages have been used so far.
+     MARKUP_LANGUAGES_USED.add(markup)
+ 
++    # This is a quick and dirty way of disabling sphinx extensions.
++    # There surely must be a better way of doing this directly in
++    # :mod:`epydoc.markup.restructuredtext`...
++    docstring = docstring.replace(":mod:", "")
++
+     # Parse the docstring.
+     try: parsed_docstring = parse_docstring(docstring, errors, **options)
+     except KeyboardInterrupt: raise

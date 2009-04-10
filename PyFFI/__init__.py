@@ -11,20 +11,21 @@ CryTek's CGF format, the DDS format, and the TGA format. Many tools
 for files used by 3D games, such as a stripifier, and a tangent space
 calculator, are included in PyFFI as well.
 
-Using PyFFI
-===========
+Supported File Formats
+======================
 
 If you simply wish to use PyFFI with a format that's already implemented,
 refer to the documentation of that library:
-  - L{PyFFI.Formats.NIF}
-  - L{PyFFI.Formats.KFM}
-  - L{PyFFI.Formats.CGF}
-  - L{PyFFI.Formats.DDS}
-  - L{PyFFI.Formats.TGA}
-  - L{PyFFI.Formats.DAE}
 
-Supporting New File Formats
-===========================
+* :mod:`PyFFI.Formats.NIF`
+* :mod:`PyFFI.Formats.KFM`
+* :mod:`PyFFI.Formats.CGF`
+* :mod:`PyFFI.Formats.DDS`
+* :mod:`PyFFI.Formats.TGA`
+* :mod:`PyFFI.Formats.DAE`
+
+Adding Support For New File Formats
+===================================
 
 This section tries to explain how you can implement your own format in PyFFI.
 
@@ -128,9 +129,10 @@ Further References
 
 With the above simple example in mind, you may wish to browse through the
 source code of
-L{PyFFI.Formats.CGF} or L{PyFFI.Formats.NIF} to see how PyFFI works for more
+:mod:`PyFFI.Formats.CGF` or :mod:`PyFFI.Formats.NIF` to see how PyFFI works for more
 complex file formats.
 """
+__docformat__ = "restructuredtext en" # for epydoc
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -173,3 +175,4 @@ __version__ = '1.2.4'
 
 __hexversion__ = eval('0x%02X%02X%02X'
                       % tuple(int(x) for x in __version__.split('.')))
+

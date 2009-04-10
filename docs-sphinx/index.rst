@@ -5,10 +5,10 @@
 Welcome to PyFFI's documentation!
 =================================
 
-Contents:
-
 .. toctree::
    :maxdepth: 2
+
+.. automodule:: PyFFI
 
 Indices and tables
 ==================
@@ -17,4 +17,3 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-.. automodule:: PyFFI
