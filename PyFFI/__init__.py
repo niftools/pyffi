@@ -1,18 +1,6 @@
 """
-The Python File Format Interface (briefly, PyFFI) is a Python library for
-processing block structured binary files.
-
-PyFFI aims to make it easy to manipulate
-binary files in a Python environment. Starting from a file format
-description written in XML, PyFFI creates customizable Python classes
-to read and write file blocks as described by the XML. Currently,
-PyFFI supports the NetImmerse/Gamebryo NIF and KFM formats,
-CryTek's CGF format, the DDS format, and the TGA format. Many tools
-for files used by 3D games, such as a stripifier, and a tangent space
-calculator, are included in PyFFI as well.
-
 Supported File Formats
-======================
+----------------------
 
 If you simply wish to use PyFFI with a format that's already implemented,
 refer to the documentation of that library:
@@ -25,12 +13,12 @@ refer to the documentation of that library:
 * :mod:`PyFFI.Formats.DAE`
 
 Adding Support For New File Formats
-===================================
+-----------------------------------
 
 This section tries to explain how you can implement your own format in PyFFI.
 
 Getting Started
----------------
+^^^^^^^^^^^^^^^
 
 Note that the files which make up the following example can all be found in
 the examples/simple directory of the source distribution of PyFFI.
@@ -97,35 +85,35 @@ What happens in this piece of code?
     exactly the type we need.
 
 Reading and Writing Files
--------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To read the contents of a file of the format described by
 simple.xml::
 
-    from simple import SimpleFormat
-    x = SimpleFormat.Example()
-    f = open('somefile.simple', 'rb')
-    x.read(f)
-    f.close()
-    print(x)
+    >>> from simple import SimpleFormat
+    >>> x = SimpleFormat.Example()
+    >>> f = open('somefile.simple', 'rb')
+    >>> x.read(f)
+    >>> f.close()
+    >>> print(x)
 
 Or, to create a new file in this format::
 
-    from simple import SimpleFormat
-    x = SimpleFormat.Example()
-    x.numIntegers = 5
-    x.integers.updateSize()
-    x.integers[0] = 3
-    x.integers[1] = 1
-    x.integers[2] = 4
-    x.integers[3] = 1
-    x.integers[4] = 5
-    f = open('pi.simple', 'wb')
-    x.write(f)
-    f.close()
+    >>> from simple import SimpleFormat
+    >>> x = SimpleFormat.Example()
+    >>> x.numIntegers = 5
+    >>> x.integers.updateSize()
+    >>> x.integers[0] = 3
+    >>> x.integers[1] = 1
+    >>> x.integers[2] = 4
+    >>> x.integers[3] = 1
+    >>> x.integers[4] = 5
+    >>> f = open('pi.simple', 'wb')
+    >>> x.write(f)
+    >>> f.close()
 
 Further References
-------------------
+^^^^^^^^^^^^^^^^^^
 
 With the above simple example in mind, you may wish to browse through the
 source code of

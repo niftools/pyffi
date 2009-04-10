@@ -1,0 +1,10 @@
+{% extends "!layout.html" %}
+
+{% block rootrellink %}
+        <li><a href="{{ pathto('index') }}">PyFFI home</a>&nbsp;|&nbsp;<a href="apidocs">{{ shorttitle|e }}</a>{{ reldelim1 }}</li>
+{% endblock %}
+
+<!-- disable quick search -->
+{% block sidebarsearch %}
+{% endblock %}
+

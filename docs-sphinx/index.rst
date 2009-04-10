@@ -2,18 +2,28 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to PyFFI's documentation!
-=================================
+Welcome to PyFFI!
+=================
 
-.. toctree::
-   :maxdepth: 2
+Current version: |version|
 
-.. automodule:: PyFFI
+.. include:: ../README.TXT
 
-Indices and tables
-==================
+Documentation
+-------------
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+To learn more, check the `API docs <apidocs>`_.
+
+..
+  .. toctree::
+     :maxdepth: 2
+  
+     contents
+  
+  Indices and tables
+  ==================
+  
+  * :ref:`genindex`
+  * :ref:`modindex`
+  * :ref:`search`
 
