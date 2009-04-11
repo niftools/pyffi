@@ -6,6 +6,12 @@ Version 1.2.4 (***)
   - using weak references for Ptr type (this aids garbage collection)
   - added fix_strip niftoaster spell which can remove branches selectively
   (feature request #2164309)
+* tga:
+  - added support for color map and image data in the xml
+  - uses the new data model
+  - works again in QSkope
+* xml object model:
+  - added support for multiplication and division operators in expressions
 
 Version 1.2.3 (2 Apr 2009)
 * removed reduce() calls (py3k compatibility)
