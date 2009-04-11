@@ -90,27 +90,27 @@ Reading and Writing Files
 To read the contents of a file of the format described by
 simple.xml::
 
-    >>> from simple import SimpleFormat
-    >>> x = SimpleFormat.Example()
-    >>> f = open('somefile.simple', 'rb')
-    >>> x.read(f)
-    >>> f.close()
-    >>> print(x)
+    >>> from simple import SimpleFormat   #doctest: +SKIP
+    >>> x = SimpleFormat.Example()        #doctest: +SKIP
+    >>> f = open('somefile.simple', 'rb') #doctest: +SKIP
+    >>> x.read(f)                         #doctest: +SKIP
+    >>> f.close()                         #doctest: +SKIP
+    >>> print(x)                          #doctest: +SKIP
 
 Or, to create a new file in this format::
 
-    >>> from simple import SimpleFormat
-    >>> x = SimpleFormat.Example()
-    >>> x.numIntegers = 5
-    >>> x.integers.updateSize()
-    >>> x.integers[0] = 3
-    >>> x.integers[1] = 1
-    >>> x.integers[2] = 4
-    >>> x.integers[3] = 1
-    >>> x.integers[4] = 5
-    >>> f = open('pi.simple', 'wb')
-    >>> x.write(f)
-    >>> f.close()
+    >>> from simple import SimpleFormat   #doctest: +SKIP
+    >>> x = SimpleFormat.Example()        #doctest: +SKIP
+    >>> x.numIntegers = 5                 #doctest: +SKIP
+    >>> x.integers.updateSize()           #doctest: +SKIP
+    >>> x.integers[0] = 3                 #doctest: +SKIP
+    >>> x.integers[1] = 1                 #doctest: +SKIP
+    >>> x.integers[2] = 4                 #doctest: +SKIP
+    >>> x.integers[3] = 1                 #doctest: +SKIP
+    >>> x.integers[4] = 5                 #doctest: +SKIP
+    >>> f = open('pi.simple', 'wb')       #doctest: +SKIP
+    >>> x.write(f)                        #doctest: +SKIP
+    >>> f.close()                         #doctest: +SKIP
 
 Further References
 ^^^^^^^^^^^^^^^^^^
