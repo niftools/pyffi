@@ -221,20 +221,11 @@ class QSkope(QtGui.QMainWindow):
         """Read tga file from stream. If stream does not contain a tga file,
         then raises ValueError. Sets the self.header, self.roots, self.footer,
         self.Format, and self.formatArgs variables."""
-        # TODO: use data element
-
-        # try reading as a tga file
-        version, user_version = TgaFormat.getVersion(stream)
-        # if not succesful: raise an exception
-        if version < 0:
-            raise ValueError("not a tga file")
+        # try reading as a nif file
+        data = TgaFormat.Data()
+        data.read(stream)
         # if succesful: parse the file and save information about it
-        self.header, pixeldata = TgaFormat.read(
-            stream, version = version, user_version = user_version)
-        self.roots = None
-        self.footer = None
-        self.Format = TgaFormat
-        self.formatArgs = (version, user_version)
+        self.data = data
 
     def openFile(self, filename = None):
         """Open a file, and set up the view."""
