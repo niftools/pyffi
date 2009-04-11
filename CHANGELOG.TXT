@@ -1,7 +1,7 @@
 Version 1.2.4 (***)
 * nif:
-  - nif optimizer can be run on folders from the windows context menu (right-click on any
-  folder that contains nifs and select "Optimize with PyFFI")
+  - nif optimizer can be run on folders from the windows context menu
+  (right-click on any folder containing nifs and select "Optimize with PyFFI")
   - synced nif.xml with upstream (adds support for Worldshift, bug fixes)
   - using weak references for Ptr type (this aids garbage collection)
   - added fix_strip niftoaster spell which can remove branches selectively
