@@ -63,9 +63,10 @@
         <option value="11" name="RLE_GREY" />
     </enum>
     
-    <enum name="ColormapType" numbytes="1">
-        An unsigned 8-bit integer, describing the colormap type.
-        <option value="0" name="NONE" />
+    <enum name="ColorMapType" numbytes="1">
+        An unsigned 8-bit integer, describing the color map type.
+        <option value="0" name="ABSENT" />
+        <option value="1" name="PRESENT" />
         <!-- TODO: add more -->
     </enum>
 
@@ -76,7 +77,7 @@
     -->
 
     <bitstruct name="TgaFlags" numbytes="1" >
-        <bits name="Has Alpha" numbits="4" />
+        <bits name="Alpha Channel Depth" numbits="4" />
         <bits name="Origin Right" numbits="1" />
         <bits name="Origin Upper" numbits="1" />
         <bits name="Interleave 2 Way" numbits="1" />
@@ -89,20 +90,36 @@
     ***************
     -->
 
+    <struct name="ColorMapEntry">
+        <add name="Data" type="ubyte" arr1="ARG / 8" />
+    </struct>
+
+    <struct name="Pixel">
+        <add name="Data" type="ubyte" arr1="ARG / 8" />
+    </struct>
+
     <struct name="Header">
-        <add name="Id Length" type="ubyte">Unknown.</add>
-        <add name="Colormap Type" type="ColormapType" />
+        <add name="Image Id Length" type="ubyte">Length of the Image ID field.</add>
+        <add name="Color Map Type" type="ColorMapType" />
         <add name="Image Type" type="ImageType" />
-        <add name="Colormap Index" type="ushort" />
-        <add name="Colormap Length" type="ushort" />
-        <add name="Colormap Size" type="ubyte" />
+        <add name="Color Map Index" type="ushort">Offset to the color map table.</add>
+        <add name="Color Map Length" type="ushort">Number of entries.</add>
+        <add name="Color Map Size" type="ubyte">Number of bits per pixel in the color map.</add>
         <add name="X Origin" type="ushort" />
         <add name="Y Origin" type="ushort" />
         <add name="Width" type="ushort" />
         <add name="Height" type="ushort" />
-        <add name="Pixel Size" type="ubyte" />
+        <add name="Pixel Size" type="ubyte">Number of bits per pixel in the image data.</add>
         <add name="Flags" type="TgaFlags" />
+        <add name="Image Id" type="ubyte" arr1="Image Id Length">
+             Image identification.
+        </add>
+        <add name="Color Map" type="ColorMapEntry" cond="Color Map Type != 0" arr1="Color Map Length" arg="Color Map Size">
+            Color lookup table.
+        </add>
+        <add name="Image" arr1="Width" arr2="Height" arg="Pixel Size" type="Pixel">
+             The actual image data.
+        </add>
     </struct>
-
 </fileformat>
 

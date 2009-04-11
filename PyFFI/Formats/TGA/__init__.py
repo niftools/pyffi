@@ -8,36 +8,29 @@ Read a TGA file
 ---------------
 
 >>> # check and read tga file
->>> f = open('tests/tga/test.tga', 'rb')
->>> version = TgaFormat.getVersion(f)
->>> if version == -1:
-...     raise RuntimeError('tga version not supported')
-... elif version == -2:
-...     raise RuntimeError('not a tga file')
->>> header, data = TgaFormat.read(f, version = version)
->>> # get TGA header
->>> header.width
+>>> stream = open('tests/tga/test.tga', 'rb')
+>>> data = TgaFormat.Data()
+>>> data.inspect(stream)
+>>> data.read(stream)
+>>> data.header.width
 60
->>> header.height
+>>> data.header.height
 20
 
 Parse all TGA files in a directory tree
 ---------------------------------------
 
->>> for header, data in TgaFormat.walk('tests/tga',
-...                                    raisereaderror = False,
-...                                    verbose = 1):
-...     pass
-reading tests/tga/test.tga
+>>> for stream, data in TgaFormat.walkData('tests/tga'):
+...     print stream.name
+tests/tga/test.tga
 
 Create a TGA file from scratch and write to file
 ------------------------------------------------
 
->>> header = TgaFormat.Header()
+>>> data = TgaFormat.Data()
 >>> from tempfile import TemporaryFile
->>> f = TemporaryFile()
->>> TgaFormat.write(f, version = version, header = header,
-...                 pixeldata = TgaFormat.PixelData())
+>>> stream = TemporaryFile()
+>>> data.write(stream)
 """
 
 # ***** BEGIN LICENSE BLOCK *****
@@ -84,6 +77,8 @@ from PyFFI.ObjectModels.XML.FileFormat import MetaXmlFileFormat
 from PyFFI import Utils
 from PyFFI.ObjectModels import Common
 from PyFFI.ObjectModels.XML.Basic import BasicBase
+import PyFFI.ObjectModels.FileFormat
+from PyFFI.ObjectModels.Graph import EdgeFilter
 
 class TgaFormat(XmlFileFormat):
     """This class implements the TGA format."""
@@ -110,104 +105,83 @@ class TgaFormat(XmlFileFormat):
     float = Common.Float
     PixelData = Common.UndecodedData
 
-    # exceptions
-    class TgaError(StandardError):
-        """Exception class used for TGA related exceptions."""
-        pass
+    class Data(PyFFI.ObjectModels.FileFormat.FileFormat.Data):
+        """A class to contain the actual tga data."""
+        def __init__(self):
+            # stubs to make things work with XML model
+            self.version = None
+            self.user_version = None
+            self.user_version2 = None
+            # data
+            self.header = TgaFormat.Header()
 
-    @classmethod
-    def getVersion(cls, stream):
-        """Get version and user version.
+        def inspect(self, stream):
+            """Quick heuristic check if stream contains Targa data,
+            by looking at the first 18 bytes.
 
-        Returns (0, 0) if the file looks like a TGA file, (-1, 0) if it is
-        a TGA file but the format is not supported, and (-2, 0) if it is not a
-        TGA file.
+            @param stream: The stream to inspect.
+            @type stream: file
+            """
+            pos = stream.tell()
+            # read header
+            try:
+                id_length, colormap_type, image_type, \
+                colormap_index, colormap_length, colormap_size, \
+                x_origin, y_origin, width, height, \
+                pixel_size, flags = struct.unpack("<BBBHHBHHHHBB",
+                                                  stream.read(18))
+            except struct.error:
+                # could not read 18 bytes
+                # not a TGA file
+                raise ValueError("Not a Targa file.")
+            finally:
+                stream.seek(pos)
+            # check if tga type is valid
+            # check pixel size
+            # check width and height
+            if not(image_type in (1, 2, 3, 9, 10, 11)
+                   and pixel_size in (8, 24, 32)
+                   and width <= 100000
+                   and height <= 100000):
+                raise ValueError("Not a Targa file.")
+            # this looks like a tga file!
 
-        @param stream: The stream from which to read.
-        @type stream: file
-        @return: (0, 0) for TGA files, (-2, 0) for non-TGA files.
-        """
-        pos = stream.tell()
-        # read header
-        try:
-            id_length, colormap_type, image_type, \
-            colormap_index, colormap_length, colormap_size, \
-            x_origin, y_origin, width, height, \
-            pixel_size, flags = struct.unpack("<BBBHHBHHHHBB", stream.read(18))
-        except struct.error:
-            # could not read 18 bytes
-            # not a TGA file
-            return -2, 0
-        finally:
-            stream.seek(pos)
-        # check if tga type is valid
-        if not image_type in (1, 2, 3, 9, 10, 11):
-            return -2, 0
-        # check pixel size
-        if not pixel_size in (8, 24, 32):
-            return -2, 0
-        # check width and height
-        if width >= 100000 or height >= 100000:
-            return -2, 0
-        # this looks like a tga file
-        return 0, 0
+        def read(self, stream):
+            """Read a tga file.
 
-    @classmethod
-    def read(cls, stream, version = None, user_version = None, verbose = 0):
-        """Read a tga file.
+            @param stream: The stream from which to read.
+            @type stream: C{file}
+            @param verbose: The level of verbosity.
+            @type verbose: C{int}
+            """
+            # read the file
+            self.inspect(stream) # quick check
+            self.header.read(stream)
 
-        @param stream: The stream from which to read.
-        @type stream: file
-        @param version: The TGA version obtained by L{getVersion}.
-        @type version: int
-        @param user_version: The TGA user version obtained by L{getVersion}.
-        @type user_version: int
-        @param verbose: The level of verbosity.
-        @type verbose: int
-        @return: header, pixeldata
-        """
-        # read the file
-        header = cls.Header()
-        header.read(stream, version = version, user_version = user_version)
-        pixeldata = cls.PixelData()
-        pixeldata.read(stream, version = version, user_version = user_version)
+            # check if we are at the end of the file
+            #if stream.read(1) != '':
+            #    raise ValueError(
+            #        'end of file not reached: corrupt tga file?')
 
-        # check if we are at the end of the file
-        if stream.read(1) != '':
-            raise cls.TgaError('end of file not reached: corrupt tga file?')
+        def write(self, stream):
+            """Write a tga file.
 
-        return header, pixeldata
+            @param stream: The stream to which to write.
+            @type stream: C{file}
+            @param verbose: The level of verbosity.
+            @type verbose: C{int}
+            """
+            # write the file
+            self.header.write(stream)
 
-    @classmethod
-    def write(cls, stream, version = None, user_version = None,
-              header = None, pixeldata = None,
-              verbose = 0):
-        """Write a tga file.
+        # DetailNode
 
-        @param stream: The stream to which to write.
-        @type stream: file
-        @param version: The version number (usually 0).
-        @type version: int
-        @param user_version: The user version number (usually 0).
-        @type user_version: int
-        @param header: The tga header.
-        @type header: L{TgaFormat.Header}
-        @param pixeldata: The tga pixel data.
-        @type pixeldata: L{TgaFormat.PixelData}
-        @param verbose: The level of verbosity.
-        @type verbose: int
-        """
-        # TODO: make sure pixel data has correct length
+        def getDetailChildNodes(self, edge_filter=EdgeFilter()):
+            return self.header.getDetailChildNodes(edge_filter=edge_filter)
 
-        # write the file
-        # first header
-        assert(isinstance(header, cls.Header))
-        header.write(stream, version = version, user_version = user_version)
-        # next the pixel data
-        assert(isinstance(pixeldata, cls.PixelData))
-        pixeldata.write(stream, version = version, user_version = user_version)
+        def getDetailChildNames(self, edge_filter=EdgeFilter()):
+            return self.header.getDetailChildNames(edge_filter=edge_filter)
 
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
-
