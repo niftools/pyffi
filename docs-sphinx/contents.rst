@@ -9,12 +9,16 @@ PyFFI documentation contents
    :maxdepth: 2
    
    intro
+   pyffi/formats
+
+   glossary
 
 ..
    Possible entries for the future:
-   ......
+   spells
+   utilities
+   object_models
    faq
-   glossary
    changes
    examples
 
