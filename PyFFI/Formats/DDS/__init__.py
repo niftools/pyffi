@@ -203,7 +203,7 @@ class DdsFormat(XmlFileFormat):
             try:
                 hdrstr = stream.read(4)
                 if hdrstr != "DDS ":
-                    raise ValueError("not a dds file")
+                    raise ValueError("Not a DDS file.")
                 size = struct.unpack("<I", stream.read(4))
                 if size == 124:
                     self.version = 0x09000000 # DX9
