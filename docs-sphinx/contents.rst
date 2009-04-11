@@ -9,7 +9,7 @@ PyFFI documentation contents
    :maxdepth: 2
    
    intro
-   pyffi/formats
+   formats
 
    glossary
 
