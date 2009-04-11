@@ -17,8 +17,7 @@ an alternate location where you store your own xml file by means of an
 environment variable. For instance,
 to tell the library to use your version of :file:`cgf.xml`,
 set the :envvar:`CGFXMLPATH` environment variable to the directory where
-:file:`cgf.xml` can be found. If :envvar:`CGFXMLPATH` is set, the library
-will first look there. The environment variables :envvar:`NIFXMLPATH`,
+:file:`cgf.xml` can be found. The environment variables :envvar:`NIFXMLPATH`,
 :envvar:`KFMXMLPATH`, :envvar:`DDSXMLPATH`, and :envvar:`TGAXMLPATH`
 work similarly.
 
