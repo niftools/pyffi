@@ -117,7 +117,7 @@
         <add name="Color Map" type="ColorMapEntry" cond="Color Map Type != 0" arr1="Color Map Length" arg="Color Map Size">
             Color lookup table.
         </add>
-        <add name="Image" arr1="Width" arr2="Height" arg="Pixel Size" type="Pixel">
+        <add name="Image" arr1="Height" arr2="Width" arg="Pixel Size" type="Pixel">
              The actual image data.
         </add>
     </struct>
