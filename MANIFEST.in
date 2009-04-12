@@ -5,6 +5,7 @@ include CHANGELOG.rst
 include AUTHORS.rst
 include TODO.rst
 include THANKS.rst
+include CONTRIBUTE.rst
 include PyFFI/Formats/NIF/nif.xml
 include PyFFI/Formats/KFM/kfm.xml
 include PyFFI/Formats/CGF/cgf.xml

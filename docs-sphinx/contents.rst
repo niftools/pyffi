@@ -11,8 +11,9 @@ PyFFI documentation contents
    intro
    install
    formats
-
    glossary
+
+   contribute
    authors
    license
    changes

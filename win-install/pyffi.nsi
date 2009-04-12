@@ -350,6 +350,9 @@ Section
   Push "$INSTDIR\TODO.rst"
   Push "$INSTDIR\TODO.txt"
   Call unix2dos
+  Push "$INSTDIR\CONTRIBUTE.rst"
+  Push "$INSTDIR\CONTRIBUTE.txt"
+  Call unix2dos
   ; Execute install script from installation directory
   ExecWait "$PYTHONPATH\python.exe setup.py install"
   ; remove build and source directories
@@ -391,6 +394,7 @@ maya_check_end:
   CreateShortCut "$SMPROGRAMS\PyFFI\Readme.lnk" "$INSTDIR\README.txt"
   CreateShortCut "$SMPROGRAMS\PyFFI\Thanks.lnk" "$INSTDIR\THANKS.txt"
   CreateShortCut "$SMPROGRAMS\PyFFI\Todo.lnk" "$INSTDIR\TODO.txt"
+  CreateShortCut "$SMPROGRAMS\PyFFI\Contribute.lnk" "$INSTDIR\CONTRIBUTE.txt"
   CreateShortCut "$SMPROGRAMS\PyFFI\Uninstall.lnk" "$INSTDIR\uninstall.exe"
 
   ; QSkope desktop shortcut
