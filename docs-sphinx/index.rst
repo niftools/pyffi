@@ -10,7 +10,8 @@ Welcome to PyFFI!
 Documentation
 -------------
 
-To learn more, check the `API docs <apidocs>`_.
+* :doc:`General documentation <contents>`
+* `API documentation <apidocs>`_
 
 ..
   .. toctree::

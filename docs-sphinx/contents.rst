@@ -3,7 +3,11 @@
 PyFFI documentation contents
 ============================
 
-**Important note:** please check the Epydoc generated `API docs <apidocs>`_ instead! The API docs are being converted, and this page is just a preview.
+:Release: |version|
+:Date:    |today|
+
+
+**Important note:** The API docs are being converted. In the mean time, check the epydoc generated `API docs <apidocs>`_ for detailed information about each module and each class.
 
 .. toctree::
    :maxdepth: 2
