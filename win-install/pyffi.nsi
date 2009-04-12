@@ -232,7 +232,9 @@ Function unix2dos
     ;    Push "outfile"
     ;    Call unix2dos
     ;
-    ; beware that this function destroys $0 $1 $2
+    ; beware: 
+    ; - this function destroys $0 $1 $2
+    ; - make sure that infile is *not* equal to outfile
 
     ClearErrors
 
@@ -242,7 +244,9 @@ Function unix2dos
     Pop $2
     FileOpen $0 $2 r
 
-    IfErrors unix2dos_done
+    Push $2 ; save name for deleting
+
+    IfErrors unix2dos_done ; failed to open file for reading or writing
 
     ; $0 = file input (opened for reading)
     ; $1 = file output (opened for writing)
@@ -270,6 +274,10 @@ unix2dos_done:
     ; close files
     FileClose $0
     FileClose $1
+
+    ; delete original
+    Pop $0
+    Delete $0
 
 FunctionEnd
 
