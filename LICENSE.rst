@@ -1,4 +1,4 @@
-Copyright (c) 2007-2009, Python File Format Interface
+Copyright © 2007-2009, Python File Format Interface.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -34,9 +34,9 @@ POSSIBILITY OF SUCH DAMAGE.
 =======================================
 
 PyFFI uses Mopper. Copyright 2008 NIF File Format Library and Tools.
-All rights reserved. Run "PyFFI\Utils\mopper.exe --license" for details.
+All rights reserved. Run ``PyFFI/Utils/mopper.exe --license`` for details.
 
 =======================================
 
 Mopper uses Havok. Copyright 1999-2008 Havok.com Inc. (and its Licensors).
-All rights reserved. See www.havok.com for details.
+All rights reserved. See http://www.havok.com for details.

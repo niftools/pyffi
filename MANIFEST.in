@@ -1,10 +1,10 @@
 include README.rst
-include INSTALL.TXT
-include LICENSE.TXT
+include INSTALL.rst
+include LICENSE.rst
 include CHANGELOG.rst
-include AUTHORS.TXT
-include TODO.TXT
-include THANKS.TXT
+include AUTHORS.rst
+include TODO.rst
+include THANKS.rst
 include PyFFI/Formats/NIF/nif.xml
 include PyFFI/Formats/KFM/kfm.xml
 include PyFFI/Formats/CGF/cgf.xml

@@ -9,14 +9,18 @@ PyFFI documentation contents
    :maxdepth: 2
    
    intro
+   install
    formats
 
    glossary
+   authors
+   license
    changes
+   todo
+   thanks
 
 ..
    Possible entries for the future:
-   spells
    utilities
    object_models
    faq

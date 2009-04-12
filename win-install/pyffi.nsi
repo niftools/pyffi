@@ -59,7 +59,7 @@ Var MAYAINST
 !define MUI_WELCOMEPAGE_TEXT  "This wizard will guide you through the installation of PyFFI ${VERSION}.\r\n\r\nIt is recommended that you close all other applications, especially any applications that might be running PyFFI, such as Python, QSkope, Blender, or Maya.\r\n\r\nNote to Win2k/XP/Vista users: you require administrator privileges to install PyFFI successfully."
 !insertmacro MUI_PAGE_WELCOME
 
-!insertmacro MUI_PAGE_LICENSE ../LICENSE.TXT
+!insertmacro MUI_PAGE_LICENSE ../LICENSE.rst
 
 !define MUI_DIRECTORYPAGE_TEXT_TOP "Use the field below to specify the folder where you want the documentation files to be copied to. To specify a different folder, type a new name or use the Browse button to select an existing folder."
 !define MUI_DIRECTORYPAGE_TEXT_DESTINATION "Documentation Folder"
@@ -218,8 +218,8 @@ python_check_end:
 FunctionEnd
 
 Function finishShowReadmeChangelog
-	ExecShell "open" "$INSTDIR\README.TXT"
-	ExecShell "open" "$INSTDIR\CHANGELOG.TXT"
+	ExecShell "open" "$INSTDIR\README.txt"
+	ExecShell "open" "$INSTDIR\CHANGELOG.txt"
 FunctionEnd
 
 Function unix2dos
@@ -313,6 +313,7 @@ Section
   RMDir /r "$INSTDIR\examples"
   RMDir /r "$INSTDIR\tests"
   Delete "$INSTDIR\*.TXT"
+  Delete "$INSTDIR\*.txt"
   Delete "$INSTDIR\*.rst"
 
   ; Install source files and documentation
@@ -321,10 +322,25 @@ Section
   ; Windows does not recognize the rst extension, so copy to TXT
   ; At the same time, force Windows style line endings.
   Push "$INSTDIR\README.rst"
-  Push "$INSTDIR\README.TXT"
+  Push "$INSTDIR\README.txt"
   Call unix2dos
   Push "$INSTDIR\CHANGELOG.rst"
-  Push "$INSTDIR\CHANGELOG.TXT"
+  Push "$INSTDIR\CHANGELOG.txt"
+  Call unix2dos
+  Push "$INSTDIR\AUTHORS.rst"
+  Push "$INSTDIR\AUTHORS.txt"
+  Call unix2dos
+  Push "$INSTDIR\LICENSE.rst"
+  Push "$INSTDIR\LICENSE.txt"
+  Call unix2dos
+  Push "$INSTDIR\INSTALL.rst"
+  Push "$INSTDIR\INSTALL.txt"
+  Call unix2dos
+  Push "$INSTDIR\THANKS.rst"
+  Push "$INSTDIR\THANKS.txt"
+  Call unix2dos
+  Push "$INSTDIR\TODO.rst"
+  Push "$INSTDIR\TODO.txt"
   Call unix2dos
   ; Execute install script from installation directory
   ExecWait "$PYTHONPATH\python.exe setup.py install"
@@ -360,13 +376,13 @@ maya_check_end:
   ; Install shortcuts
   SetOutPath $INSTDIR
   CreateDirectory "$SMPROGRAMS\PyFFI\"
-  CreateShortCut "$SMPROGRAMS\PyFFI\Authors.lnk" "$INSTDIR\AUTHORS.TXT"
-  CreateShortCut "$SMPROGRAMS\PyFFI\ChangeLog.lnk" "$INSTDIR\CHANGELOG.TXT"
+  CreateShortCut "$SMPROGRAMS\PyFFI\Authors.lnk" "$INSTDIR\AUTHORS.txt"
+  CreateShortCut "$SMPROGRAMS\PyFFI\ChangeLog.lnk" "$INSTDIR\CHANGELOG.txt"
   CreateShortCut "$SMPROGRAMS\PyFFI\Documentation.lnk" "$INSTDIR\docs\index.html"
-  CreateShortCut "$SMPROGRAMS\PyFFI\License.lnk" "$INSTDIR\LICENSE.TXT"
-  CreateShortCut "$SMPROGRAMS\PyFFI\Readme.lnk" "$INSTDIR\README.TXT"
-  CreateShortCut "$SMPROGRAMS\PyFFI\Thanks.lnk" "$INSTDIR\THANKS.TXT"
-  CreateShortCut "$SMPROGRAMS\PyFFI\Todo.lnk" "$INSTDIR\TODO.TXT"
+  CreateShortCut "$SMPROGRAMS\PyFFI\License.lnk" "$INSTDIR\LICENSE.txt"
+  CreateShortCut "$SMPROGRAMS\PyFFI\Readme.lnk" "$INSTDIR\README.txt"
+  CreateShortCut "$SMPROGRAMS\PyFFI\Thanks.lnk" "$INSTDIR\THANKS.txt"
+  CreateShortCut "$SMPROGRAMS\PyFFI\Todo.lnk" "$INSTDIR\TODO.txt"
   CreateShortCut "$SMPROGRAMS\PyFFI\Uninstall.lnk" "$INSTDIR\uninstall.exe"
 
   ; QSkope desktop shortcut
@@ -445,10 +461,9 @@ have_python:
 
     ; key, that means that Python is still installed
     !insertmacro UninstallManifestFiles
-    Delete "$INSTDIR\README.TXT" # remove copy of README.rst
-    Delete "$INSTDIR\CHANGELOG.TXT" # remove copy of CHANGELOG.rst
+    Delete "$INSTDIR\*.txt" # remove copies *.rst
 
-	; now also clean up left overs
+    ; now also clean up left overs
     RMDir /r "$PYTHONPATH\Lib\site-packages\PyFFI"
     Delete "$PYTHONPATH\Lib\site-packages\PyFFI*.*"
     Delete "$PYTHONPATH\Scripts\qskope.*"
