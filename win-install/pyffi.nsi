@@ -319,8 +319,13 @@ Section
   !insertmacro InstallManifestFiles
   SetOutPath $INSTDIR
   ; Windows does not recognize the rst extension, so copy to TXT
-  File /oname=README.TXT ..\README.rst
-  File /oname=CHANGELOG.TXT ..\CHANGELOG.rst
+  ; At the same time, force Windows style line endings.
+  Push "$INSTDIR\README.rst"
+  Push "$INSTDIR\README.TXT"
+  Call unix2dos
+  Push "$INSTDIR\CHANGELOG.rst"
+  Push "$INSTDIR\CHANGELOG.TXT"
+  Call unix2dos
   ; Execute install script from installation directory
   ExecWait "$PYTHONPATH\python.exe setup.py install"
   ; remove build and source directories
