@@ -3,8 +3,8 @@ How to contribute
 
 Do you want to fix a bug, improve documentation, or add a new feature?
 
-Getting git/msysgit
-===================
+Get git/msysgit
+===============
 
 If you are on windows, you need `msysgit
 <http://code.google.com/p/msysgit/>`_.  If you are already familiar
@@ -15,8 +15,8 @@ a command line based tool.
 For more information about git and github, the `official github guides
 <http://github.com/guides/home>`_ are a great start.
 
-Tracking the latest source
-==========================
+Track the source
+================
 
 If you simply want to keep track of the latest source code, start a
 shell (or, the Git Bash on windows), and type (this is like "svn checkout")::
@@ -27,8 +27,8 @@ To synchronize your code, type (this is like "svn update")::
 
   git pull
 
-Developing PyFFI
-================
+Development
+===========
 
 Create a fork
 -------------
@@ -75,8 +75,8 @@ system which has both wine and nsis installed)::
 
   makezip.sh
 
-Submitting your updates
------------------------
+Submit your updates
+-------------------
 
 Simply do a `pull request <http://github.com/guides/pull-requests>`_
 if you want your fork to be merged, and your contributions may be
