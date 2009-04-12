@@ -262,11 +262,14 @@ Section
   RMDir /r "$INSTDIR\examples"
   RMDir /r "$INSTDIR\tests"
   Delete "$INSTDIR\*.TXT"
+  Delete "$INSTDIR\*.rst"
 
   ; Install source files and documentation
   !insertmacro InstallManifestFiles
-  ; Execute install script from installation directory
   SetOutPath $INSTDIR
+  ; Windows does not recognize the rst extension, so create README.TXT
+  File /oname=README.TXT ..\README.rst
+  ; Execute install script from installation directory
   ExecWait "$PYTHONPATH\python.exe setup.py install"
   ; remove build and source directories
   RMDir /r "$INSTDIR\build"
@@ -385,7 +388,8 @@ have_python:
 
     ; key, that means that Python is still installed
     !insertmacro UninstallManifestFiles
-	
+    Delete "$INSTDIR\README.TXT" # remove copy of README.rst
+
 	; now also clean up left overs
     RMDir /r "$PYTHONPATH\Lib\site-packages\PyFFI"
     Delete "$PYTHONPATH\Lib\site-packages\PyFFI*.*"

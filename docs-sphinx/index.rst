@@ -5,7 +5,7 @@
 Welcome to PyFFI!
 =================
 
-.. include:: ../README.TXT
+.. include:: ../README.rst
 
 Documentation
 -------------
