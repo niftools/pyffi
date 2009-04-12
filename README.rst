@@ -9,9 +9,9 @@ Python library for processing block structured binary files:
 * **Batteries included:** Many tools for files used by 3D games, such
   as a stripifier, tangent space calculator, 2d/3d hull algorithms,
   inertia calculator, as well as a general purpose file editor
-  :program:`QSkope` (using `PyQt4
+  QSkope (using `PyQt4
   <http://www.riverbankcomputing.co.uk/software/pyqt/download>`_), are
-  all included.
+  included.
 
 * **Modular:** Its highly modular design makes it easy to add support
   for new formats, and also to extend existing functionality.
@@ -44,7 +44,7 @@ Examples
   <http://sourceforge.net/project/screenshots.php?group_id=199269&ssid=75973>`_,
   PyFFI's general purpose file editor.
 
-* The :program:`niftoaster` (PyFFI's "swiss army knife") can for instance
+* The niftoaster (PyFFI's "swiss army knife") can for instance
   `optimize nif files
   <http://cs.elderscrolls.com/constwiki/index.php/Nif_Optimization>`_,
   and much more.
