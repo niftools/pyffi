@@ -55,7 +55,7 @@ Questions? Suggestions?
 * Open an issue at the `tracker
   <http://sourceforge.net/tracker/?group_id=199269>`_.
 
-* You can also come to the ``#niftools`` channel on FreeNode.
+* Or visit the ``#niftools`` channel on FreeNode.
 
 ..
   See http://pyffi.sourceforge.net/ for more information and documentation.
