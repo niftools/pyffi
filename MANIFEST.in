@@ -1,7 +1,7 @@
 include README.rst
 include INSTALL.TXT
 include LICENSE.TXT
-include CHANGELOG.TXT
+include CHANGELOG.rst
 include AUTHORS.TXT
 include TODO.TXT
 include THANKS.TXT

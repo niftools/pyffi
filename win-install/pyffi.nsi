@@ -267,8 +267,9 @@ Section
   ; Install source files and documentation
   !insertmacro InstallManifestFiles
   SetOutPath $INSTDIR
-  ; Windows does not recognize the rst extension, so create README.TXT
+  ; Windows does not recognize the rst extension, so copy to TXT
   File /oname=README.TXT ..\README.rst
+  File /oname=CHANGELOG.TXT ..\CHANGELOG.rst
   ; Execute install script from installation directory
   ExecWait "$PYTHONPATH\python.exe setup.py install"
   ; remove build and source directories
@@ -389,6 +390,7 @@ have_python:
     ; key, that means that Python is still installed
     !insertmacro UninstallManifestFiles
     Delete "$INSTDIR\README.TXT" # remove copy of README.rst
+    Delete "$INSTDIR\CHANGELOG.TXT" # remove copy of CHANGELOG.rst
 
 	; now also clean up left overs
     RMDir /r "$PYTHONPATH\Lib\site-packages\PyFFI"

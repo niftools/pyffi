@@ -12,6 +12,7 @@ PyFFI documentation contents
    formats
 
    glossary
+   changes
 
 ..
    Possible entries for the future:
@@ -19,7 +20,6 @@ PyFFI documentation contents
    utilities
    object_models
    faq
-   changes
    examples
 
 
