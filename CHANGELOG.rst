@@ -46,7 +46,7 @@ Release 1.2.3 (Apr 2, 2009)
     (reported by razorwing)
 
 Release 1.2.2 (Feb 15, 2009)
-=========================
+============================
 
 * cgf format:
 
@@ -55,14 +55,14 @@ Release 1.2.2 (Feb 15, 2009)
   - updated to use the new data system
 
 Release 1.2.1 (Feb 2, 2009)
-=========================
+===========================
 
 * nif format:
 
   - new addIntegerExtraData function for NiObjectNET
 
 Release 1.2.0 (Jan 25, 2009)
-=========================
+============================
 
 * installer directs to Python 2.5.4 if not installed
 
@@ -124,7 +124,7 @@ Release 1.2.0 (Jan 25, 2009)
     parameter for every method that needs to list child nodes
 
 Release 1.1.0 (Nov 18, 2008)
-=========================
+============================
 
 * nif format:
 
@@ -229,7 +229,7 @@ Release 1.1.0 (Nov 18, 2008)
   (this is not yet bundled with the release, initial code is on svn)
 
 Release 1.0.5 (Sep 27, 2008)
-=========================
+============================
 
 * niftoaster optimize
 
@@ -251,14 +251,14 @@ Release 1.0.5 (Sep 27, 2008)
     for production use yet
 
 Release 1.0.4 (Sep 18, 2008)
-=========================
+============================
 
 * niftoaster optimize
 
   - morph data optimization (issue #2116594, fixes "bow" weapons)
 
 Release 1.0.3 (Sep 17, 2008)
-=========================
+============================
 
 * niftoaster optimize
 
@@ -272,12 +272,12 @@ Release 1.0.3 (Sep 17, 2008)
   optimize spell, issue #2068090)
 
 Release 1.0.2 (Sep 15, 2008)
-=========================
+============================
 
 * "negative mass" fix in inertia calculation
 
 Release 1.0.1 (Sep 12, 2008)
-=========================
+============================
 
 * small fix in uninstaller (didn't remove crydaefilter script)
 
@@ -286,7 +286,7 @@ Release 1.0.1 (Sep 12, 2008)
 * bugfixes for niftoaster optimize spell (pyffi issue #2065018)
 
 Release 1.0.0 (Jul 24, 2008)
-=========================
+============================
 
 * new NSIS installer (this solves various issues with Vista, and also
   allows the documentation to be bundled)
@@ -329,7 +329,7 @@ Release 1.0.0 (Jul 24, 2008)
   - "XxxFormat.read(self, stream, version, user_version, ...)" for all
     formats
 
-  - "XxxFormat.write(self, stream, version, user_version, *readresult, ...)"
+  - "XxxFormat.write(self, stream, version, user_version, \*readresult, ...)"
     for all formats
 
   - in particular, CGF format game argument removed from read and
@@ -360,7 +360,7 @@ Release 1.0.0 (Jul 24, 2008)
 * much documentation has been added and improved
 
 Release 0.11.0 (Jun 16, 2008)
-=========================
+=============================
 
 * nif:
 
@@ -380,7 +380,7 @@ Release 0.11.0 (Jun 16, 2008)
   - improved tga file detection heuristic
 
 Release 0.10.10 (Jun 8, 2008)
-=========================
+=============================
 
 * nif:
 
@@ -394,7 +394,7 @@ Release 0.10.10 (Jun 8, 2008)
   - fixed nifoptimize for nifs with invalid normals (niftools issue #1987506)
 
 Release 0.10.9 (May 27, 2008)
-=========================
+=============================
 
 * nif:
 
@@ -403,7 +403,7 @@ Release 0.10.9 (May 27, 2008)
   - fixed bspline scale bug
 
 Release 0.10.8 (Apr 13, 2008)
-=========================
+=============================
 
 * cgf:
 
@@ -417,7 +417,7 @@ Release 0.10.8 (Apr 13, 2008)
     updateAB methods)
 
 Release 0.10.7 (Apr 5, 2008)
-=========================
+============================
 
 * cgf:
 
@@ -439,7 +439,7 @@ Release 0.10.7 (Apr 5, 2008)
   - fixed block order writing of bhkConstraints
 
 Release 0.10.6 (Mar 30, 2008)
-=========================
+=============================
 
 * tga: added missing xml file
 
@@ -463,7 +463,7 @@ Release 0.10.6 (Mar 30, 2008)
 * quick install batch file for windows
 
 Release 0.10.5 (Mar 27, 2008)
-=========================
+=============================
 
 * qskope: make bitstructs editable
 
@@ -474,7 +474,7 @@ Release 0.10.5 (Mar 27, 2008)
   - Set vertex colors in setGeometry function.
 
 Release 0.10.4 (Mar 26, 2008)
-=========================
+=============================
 
 * cgf:
 
@@ -487,7 +487,7 @@ Release 0.10.4 (Mar 26, 2008)
   - setGeometry tangent space update fix if there are no uvs
 
 Release 0.10.3 (Mar 24, 2008)
-=========================
+=============================
 
 * added support for the TGA format
 
@@ -509,7 +509,7 @@ Release 0.10.3 (Mar 24, 2008)
 
 
 Release 0.10.2 (Mar 22, 2008)
-=========================
+=============================
 
 * cgf:
 
@@ -525,7 +525,7 @@ Release 0.10.2 (Mar 22, 2008)
   - a few new findings in decoding the physics data (position and rotation)
 
 Release 0.10.1 (Mar 21, 2008)
-=========================
+=============================
 
 * cgf:
 
@@ -541,13 +541,13 @@ Release 0.10.1 (Mar 21, 2008)
 * qskope: fixed bug which prevented setting material physics type to NONE
 
 Release 0.10.0 (Mar 8, 2008)
-=========================
+============================
 
 * cgf: ported A LOT of stuff from the Crysis Mod SDK 1.2; the most common
   CE2 chunks now read and write successfully
 
 Release 0.9.3 (Mar 7, 2008)
-=========================
+===========================
 
 * cgf:
 
@@ -570,7 +570,7 @@ Release 0.9.3 (Mar 7, 2008)
 * windows installer registers chr extension with qskope
 
 Release 0.9.2 (Feb 26, 2008)
-=========================
+============================
 
 * full support for the xml enum tag type, with improved editor in qskope
 
@@ -596,7 +596,7 @@ Release 0.9.2 (Feb 26, 2008)
 * nif: nifoptimize clamps material alpha to [0,1]
 
 Release 0.9.1 (Feb 22, 2008)
-=========================
+============================
 
 * full support for the xml bitstruct tag (for types that contain bit flags)
 
@@ -615,7 +615,7 @@ Release 0.9.1 (Feb 22, 2008)
   - update skin partition only if block already exists
 
 Release 0.9.0 (Feb 11, 2008)
-=========================
+============================
 
 * added PyFFI.Formats.KFM library for kfm file format
 
@@ -632,7 +632,7 @@ Release 0.9.0 (Feb 11, 2008)
 * niftexdump: bug fixed when reading nifs that have textures without source
 
 Release 0.8.2 (Jan 28, 2008)
-=========================
+============================
 
 * fixed installer bug (nifoptimize would not launch from context menu)
 
@@ -646,7 +646,7 @@ Release 0.8.2 (Jan 28, 2008)
 
 
 Release 0.8.1 (Jan 27, 2008)
-=========================
+============================
 
 * deep copy for structs and arrays
 
@@ -661,7 +661,7 @@ Release 0.8.1 (Jan 27, 2008)
   - throws away empty and/or duplicate children in NiNode lists
 
 Release 0.8.0 (Jan 27, 2008)
-=========================
+============================
 
 * qskope: new general purpose tool for visualizing files loaded with PyFFI
 
@@ -731,7 +731,7 @@ Release 0.7.4 (Dec 26, 2007)
 * updates for controller key types 6, 9, and 10, in cgf xml
 
 Release 0.7.3 (Dec 13, 2007)
-=========================
+============================
 
 * nif: fixed error message when encountering empty block type
 
@@ -741,7 +741,7 @@ Release 0.7.3 (Dec 13, 2007)
   library
 
 Release 0.7.2 (Dec 3, 2007)
-=========================
+===========================
 
 * NifTester: new raisereaderror argument which simplifies the older system and
   yields more instructive backtraces
@@ -751,12 +751,12 @@ Release 0.7.2 (Dec 3, 2007)
   printed, instead of raising an exception
 
 Release 0.7.1 (Nov 27, 2007)
-=========================
+============================
 
 * nif: fixed applyScale in bhkRigidBody
 
 Release 0.7 (Nov 19, 2007)
-=========================
+==========================
 
 * fixed a problem locating the customized functions for Fedora 8 python which 
   does not look in default locations besides sys.path
@@ -787,7 +787,7 @@ Release 0.6 (Nov 3, 2007)
 
 * added a lot more documentation
 
-* refactored all common functions to take **kwargs as argument
+* refactored all common functions to take \*\*kwargs as argument
 
 * read and write functions have the file stream as first non-keyword argument
 
@@ -799,25 +799,25 @@ Release 0.6 (Nov 3, 2007)
 * added more doctests
 
 Release 0.5.2 (Oct 25, 2007)
-=========================
+============================
 
 * added hash functions (useful for identifying and comparing objects)
 
 Release 0.5.1 (Oct 19, 2007)
-=========================
+============================
 
 * fixed a bug in the nif.xml file which prevented Oblivion skeleton.nif files
   to load
 
 Release 0.5 (Oct 19, 2007)
-=========================
+==========================
 
 * new functions to get block size
 
 * various small bugs fixed
 
 * nif: support for new versions (20.2.0.6, 20.2.0.7, 20.2.0.8, 20.3.0.3,
-20.3.0.6, 20.3.0.9)
+  20.3.0.6, 20.3.0.9)
 
 * nif: block sizes are now also written to the nif files, improving support
   for writing 20.2.0.7+ nif versions
@@ -825,7 +825,7 @@ Release 0.5 (Oct 19, 2007)
 * nif: fixed flattenSkin bug (reported by Kikai)
 
 Release 0.4.9 (Oct 13, 2007)
-=========================
+============================
 
 * nif: nifoptimize no longer raises an exception on test errors, unless you
   pass the -r option
@@ -844,7 +844,7 @@ Release 0.4.9 (Oct 13, 2007)
 * nif: doctest for unsupported blocks in nifs
 
 Release 0.4.8 (Oct 7, 2007)
-=========================
+===========================
 
 * cgf: MeshMorphTargetChunk is now supported too
 
@@ -853,12 +853,12 @@ Release 0.4.8 (Oct 7, 2007)
 * nif: added template script for quickly writing new nif scripts
 
 Release 0.4.7 (Oct 4, 2007)
-=========================
+===========================
 
 * nif: new optimizer script
 
 Release 0.4.6 (Sep 29, 2007)
-=========================
+============================
 
 * nif and cgf documentation improved
 
@@ -893,7 +893,7 @@ Release 0.4.6 (Sep 29, 2007)
 * Expression.py: support for empty string check in condition
 	
 Release 0.4.5 (Sep 16, 2007)
-=========================
+============================
 
 * issue warning message instead of raising exception for improper rotation
   matrix in setScaleRotationTranslation
@@ -904,12 +904,12 @@ Release 0.4.5 (Sep 16, 2007)
   Reich
 
 Release 0.4.4 (Sep 2, 2007)
-=========================
+===========================
 
 * added mopp parser and simple mopp generator
 
 Release 0.4.3 (Aug 17, 2007)
-=========================
+============================
 
 * fixed bug that occurred if userver = 0 in the xml (fixes geometry morph data
   in NIF versions 20.0.0.4 and up)
@@ -921,7 +921,7 @@ Release 0.4.3 (Aug 17, 2007)
   - some minor cleanups and more documentation
 
 Release 0.4.2 (Aug 15, 2007)
-=========================
+============================
 
 * kwargs for getRefs
 
@@ -935,7 +935,7 @@ Release 0.4.2 (Aug 15, 2007)
   - new functions to get list of extra data blocks and to add effect
 
 Release 0.4.1 (Aug 14, 2007)
-=========================
+============================
 
 * NIF:
 
@@ -944,7 +944,7 @@ Release 0.4.1 (Aug 14, 2007)
   - fixed bug in bhkListShape.addShape
 
 Release 0.4 (Aug 12, 2007)
-=========================
+==========================
 
 * NIF:
 
@@ -957,7 +957,7 @@ Release 0.4 (Aug 12, 2007)
     the new function updateBindPosition instead
 
 Release 0.3.4 (Aug 11, 2007)
-=========================
+============================
 
 * improved documentation
 
@@ -972,7 +972,7 @@ Release 0.3.4 (Aug 11, 2007)
   - support for the most common oblivion havok blocks
 
 Release 0.3.3 (Aug 8, 2007)
-=========================
+===========================
 
 * NIF:
 
@@ -983,7 +983,7 @@ Release 0.3.3 (Aug 8, 2007)
   - fixed NiGeometry doctest
 
 Release 0.3.2 (Aug 7, 2007)
-=========================
+===========================
 
 * simplified interface (still wip) by using keyword arguments for common
   functions such as read and write
@@ -1000,7 +1000,7 @@ Release 0.3.2 (Aug 7, 2007)
   - added a NiGeometry function to send bones to bind pose
 
 Release 0.3.1 (Aug 6, 2007)
-=========================
+===========================
 
 * NIF:
 
@@ -1022,7 +1022,7 @@ Release 0.3 (Aug 2, 2007)
     experimental
 
 Release 0.2.1 (Jul 29, 2007)
-=========================
+============================
 
 * NIF:
 
@@ -1031,14 +1031,14 @@ Release 0.2.1 (Jul 29, 2007)
   - new option in findChain to fix block type
 
 Release 0.2 (Jul 29, 2007)
-=========================
+==========================
 
 * fixed argument passing when writing arrays
 
 * NIF: added getControllers function to NiObjectNET
 
 Release 0.1 (Jul 22, 2007)
-=========================
+==========================
 
 * bug fixed when writing array of strings
 
