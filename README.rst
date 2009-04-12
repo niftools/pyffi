@@ -1,8 +1,8 @@
 The Python File Format Interface, briefly PyFFI, is an open source
 Python library for processing block structured binary files:
 
-* **Simple:** Easy to read, write, and manipulate complex binary files
-  in a Python environment. Currently, PyFFI supports the
+* **Simple:** Reading, writing, and manipulating complex binary files
+  in a Python environment is easy! Currently, PyFFI supports the
   NetImmerse/Gamebryo NIF and KFM formats, CryTek's CGF format, the
   DDS format, and the TGA format.
 
