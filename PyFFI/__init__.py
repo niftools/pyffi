@@ -1,4 +1,7 @@
 """
+:mod:`PyFFI` --- Interfacing block structured files
+===================================================
+
 Supported File Formats
 ----------------------
 
