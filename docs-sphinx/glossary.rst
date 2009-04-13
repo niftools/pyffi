@@ -1,3 +1,6 @@
+Glossary
+********
+
 .. glossary::
 
    PyFFI
