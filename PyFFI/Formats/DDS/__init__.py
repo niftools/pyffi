@@ -1,6 +1,6 @@
 """
-:mod:`PyFFI.Formats.DDS` --- DirectDraw Surface (.dds)
-======================================================
+.. :mod:`PyFFI.Formats.DDS` --- DirectDraw Surface (.dds)
+   ======================================================
 
 Regression tests
 ----------------

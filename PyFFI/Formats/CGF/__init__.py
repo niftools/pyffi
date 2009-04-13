@@ -1,6 +1,6 @@
 """
-:mod:`PyFFI.Formats.CGF` --- Crytek (.cgf and .cga)
-===================================================
+.. :mod:`PyFFI.Formats.CGF` --- Crytek (.cgf and .cga)
+   ===================================================
 
 Regression tests
 ----------------

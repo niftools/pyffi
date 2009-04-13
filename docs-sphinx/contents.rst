@@ -14,7 +14,7 @@ PyFFI documentation contents
    
    intro
    install
-   pyffi
+   PyFFI
    glossary
 
    contribute

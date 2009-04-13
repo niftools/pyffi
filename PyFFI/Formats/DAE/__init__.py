@@ -1,6 +1,6 @@
 """
-:mod:`PyFFI.Formats.DAE` --- COLLADA (.dae)
-===========================================
+.. :mod:`PyFFI.Formats.DAE` --- COLLADA (.dae)
+   ===========================================
 
 .. warning::
    

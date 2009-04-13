@@ -1,6 +1,6 @@
 """
-:mod:`PyFFI.Formats.TGA` --- Targa (.tga)
-=========================================
+.. :mod:`PyFFI.Formats.TGA` --- Targa (.tga)
+   =========================================
 
 Regression tests
 ----------------

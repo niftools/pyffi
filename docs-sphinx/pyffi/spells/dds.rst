@@ -1,1 +1,0 @@
-.. automodule:: PyFFI.Spells.DDS

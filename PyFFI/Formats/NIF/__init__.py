@@ -1,6 +1,6 @@
 """
-:mod:`PyFFI.Formats.NIF` --- NetImmerse/Gamebryo (.nif and .kf)
-===============================================================
+.. :mod:`PyFFI.Formats.NIF` --- NetImmerse/Gamebryo (.nif and .kf)
+   ===============================================================
 
 Regression tests
 ----------------

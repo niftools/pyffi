@@ -1,6 +1,6 @@
 """
-:mod:`PyFFI.Spells` --- High level file operations
-==================================================
+.. :mod:`PyFFI.Spells` --- High level file operations
+   ==================================================
 
 .. note::
    
@@ -17,12 +17,12 @@ Supported spells
 .. toctree::
    :maxdepth: 2
    
-   spells/cgf
-   spells/dae
-   spells/dds
-   spells/kfm
-   spells/nif
-   spells/tga
+   PyFFI.Spells.CGF
+   PyFFI.Spells.DAE
+   PyFFI.Spells.DDS
+   PyFFI.Spells.KFM
+   PyFFI.Spells.NIF
+   PyFFI.Spells.TGA
 
 Adding new spells
 -----------------

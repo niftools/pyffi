@@ -1,6 +1,6 @@
 """
-:mod:`PyFFI.Spells.NIF` ---  NetImmerse/Gamebryo File/Keyframe (.nif/.kf/.kfa)
-==============================================================================
+.. :mod:`PyFFI.Spells.NIF` ---  NetImmerse/Gamebryo File/Keyframe (.nif/.kf/.kfa)
+   ==============================================================================
 
 .. automodule:: PyFFI.Spells.check
 .. automodule:: PyFFI.Spells.dump

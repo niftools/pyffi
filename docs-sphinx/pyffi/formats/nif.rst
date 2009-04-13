@@ -1,1 +1,0 @@
-.. automodule:: PyFFI.Formats.NIF
