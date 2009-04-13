@@ -1,11 +1,12 @@
 """
-This module implements the CGF file format.
+:mod:`PyFFI.Formats.CGF` --- Crytek (.cgf and .cga)
+===================================================
 
-Examples
-========
+Regression tests
+----------------
 
 Read a CGF file
----------------
+^^^^^^^^^^^^^^^
 
 >>> # get file version and file type, and read cgf file
 >>> stream = open('tests/cgf/test.cgf', 'rb')
@@ -37,7 +38,7 @@ Read a CGF file
 <BLANKLINE>
 
 Parse all CGF files in a directory tree
----------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 >>> for filetype, chunks, versions in CgfFormat.walk('tests/cgf',
 ...                                                  raisereaderror = False,
@@ -46,7 +47,7 @@ Parse all CGF files in a directory tree
 reading tests/cgf/test.cgf
 
 Create a CGF file from scratch
-------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 >>> from PyFFI.Formats.CGF import CgfFormat
 >>> node1 = CgfFormat.NodeChunk()

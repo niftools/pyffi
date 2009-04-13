@@ -1,10 +1,17 @@
-"""This module implements the DAE (collada) file format. Not yet functional.
+"""
+:mod:`PyFFI.Formats.DAE` --- COLLADA (.dae)
+===========================================
 
-Examples
-========
+.. warning::
+   
+   This module is not yet fully implemented, and is certainly not
+   yet useful in its current state.
+
+Regression tests
+----------------
 
 Read a DAE file
----------------
+^^^^^^^^^^^^^^^
 
 >>> # check and read dae file
 >>> stream = open('tests/dae/cube.dae', 'rb')
@@ -18,7 +25,7 @@ NotImplementedError
 >>> stream.close()
 
 Parse all DAE files in a directory tree
----------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 >>> for daedata in DaeFormat.walk('tests/dae',
 ...                               raisereaderror = True,
@@ -27,7 +34,7 @@ Parse all DAE files in a directory tree
 reading tests/dae/cube.dae
 
 Create a DAE file from scratch and write to file
-------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 >>> daedata = DaeFormat.Data()
 >>> from tempfile import TemporaryFile

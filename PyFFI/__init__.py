@@ -2,27 +2,12 @@
 :mod:`PyFFI` --- Interfacing block structured files
 ===================================================
 
-Supported File Formats
-----------------------
-
-If you simply wish to use PyFFI with a format that's already implemented,
-refer to the documentation of that library:
-
-* :mod:`PyFFI.Formats.NIF`
-* :mod:`PyFFI.Formats.KFM`
-* :mod:`PyFFI.Formats.CGF`
-* :mod:`PyFFI.Formats.DDS`
-* :mod:`PyFFI.Formats.TGA`
-* :mod:`PyFFI.Formats.DAE`
-
-If you are developing any of the above file formats, then you can specify
-an alternate location where you store your own xml file by means of an
-environment variable. For instance,
-to tell the library to use your version of :file:`cgf.xml`,
-set the :envvar:`CGFXMLPATH` environment variable to the directory where
-:file:`cgf.xml` can be found. The environment variables :envvar:`NIFXMLPATH`,
-:envvar:`KFMXMLPATH`, :envvar:`DDSXMLPATH`, and :envvar:`TGAXMLPATH`
-work similarly.
+.. toctree::
+   :maxdepth: 2
+   
+   pyffi/formats
+   pyffi/spells
+   pyffi/object_models
 
 Adding Support For New File Formats
 -----------------------------------

@@ -1,11 +1,12 @@
 """
-This module implements the DDS file format.
+:mod:`PyFFI.Formats.DDS` --- DirectDraw Surface (.dds)
+======================================================
 
-Examples
-========
+Regression tests
+----------------
 
 Read a DDS file
----------------
+^^^^^^^^^^^^^^^
 
 >>> # check and read dds file
 >>> stream = open('tests/dds/test.dds', 'rb')
@@ -20,14 +21,14 @@ Read a DDS file
 888
 
 Parse all DDS files in a directory tree
----------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 >>> for stream, data in DdsFormat.walkData('tests/dds'):
 ...     print(stream.name)
 tests/dds/test.dds
 
 Create a DDS file from scratch and write to file
-------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 >>> data = DdsFormat.Data()
 >>> from tempfile import TemporaryFile
@@ -35,7 +36,7 @@ Create a DDS file from scratch and write to file
 >>> data.write(stream)
 
 Get list of versions
---------------------
+^^^^^^^^^^^^^^^^^^^^
 
 >>> for vnum in sorted(DdsFormat.versions.values()):
 ...     print('0x%08X' % vnum)

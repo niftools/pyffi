@@ -1,10 +1,12 @@
-"""This module sets up the NifFormat class, implementing the NIF file format.
+"""
+:mod:`PyFFI.Formats.NIF` --- NetImmerse/Gamebryo (.nif and .kf)
+===============================================================
 
-Examples
-========
+Regression tests
+----------------
 
 Read a NIF file
----------------
+^^^^^^^^^^^^^^^
 
 >>> stream = open('tests/nif/test.nif', 'rb')
 >>> data = NifFormat.Data()
@@ -44,7 +46,7 @@ above method with L{NifFormat.Data}!):
 test
 
 Parse all NIF files in a directory tree
----------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 >>> for stream, data in NifFormat.walkData('tests/nif'):
 ...     try:
@@ -68,7 +70,7 @@ reading tests/nif/test_opt_emptyproperties.nif
 reading tests/nif/test_opt_mergeduplicates.nif
 
 Create a NIF model from scratch and write to file
--------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 >>> root = NifFormat.NiNode()
 >>> root.name = 'Scene Root'
@@ -132,7 +134,7 @@ Create a NIF model from scratch and write to file
 >>> NifFormat.write(f, version = 0x14010003, user_version = 10, roots = [root])
 
 Get list of versions and games
-------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 >>> for vnum in sorted(NifFormat.versions.values()):
 ...     print('0x%08X' % vnum)

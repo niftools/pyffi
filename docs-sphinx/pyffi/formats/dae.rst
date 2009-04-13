@@ -1,0 +1,1 @@
+.. automodule:: PyFFI.Formats.DAE

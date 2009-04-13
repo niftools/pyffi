@@ -1,4 +1,13 @@
-"""Spells for nifs: base class for common functions."""
+"""
+:mod:`PyFFI.Spells.NIF` ---  NetImmerse/Gamebryo File/Keyframe (.nif/.kf/.kfa)
+==============================================================================
+
+.. automodule:: PyFFI.Spells.check
+.. automodule:: PyFFI.Spells.dump
+.. automodule:: PyFFI.Spells.fix
+.. automodule:: PyFFI.Spells.optimize
+"""
+__docformat__= "restructuredtext en" # for epydoc
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****

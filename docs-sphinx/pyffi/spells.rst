@@ -1,0 +1,2 @@
+.. automodule:: PyFFI.Spells
+

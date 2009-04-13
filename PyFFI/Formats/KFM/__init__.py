@@ -1,11 +1,12 @@
 """
-This module implements the KFM file format.
+:mod:`PyFFI.Formats.KFM` --- NetImmerse/Gamebryo Keyframe Motion (.kfm)
+=======================================================================
 
-Examples
-========
+Regression tests
+----------------
 
 Read a KFM file
----------------
+^^^^^^^^^^^^^^^
 
 >>> # get version and user version, and read kfm file
 >>> f = open('tests/kfm/test.kfm', 'rb')
@@ -26,7 +27,7 @@ Test_MD_Walk.kf
 Test_MD_Die.kf
 
 Parse all KFM files in a directory tree
----------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 >>> for header, animations, footer in KfmFormat.walk('tests/kfm',
 ...                                                  raisereaderror = False,
@@ -35,7 +36,7 @@ Parse all KFM files in a directory tree
 reading tests/kfm/test.kfm
 
 Create a KFM model from scratch and write to file
--------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 >>> header = KfmFormat.Header()
 >>> header.nifFileName = "Test.nif"
@@ -51,7 +52,7 @@ Create a KFM model from scratch and write to file
 ...                 header = header, animations = animations)
 
 Get list of versions and games
-------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 >>> for vnum in sorted(KfmFormat.versions.values()):
 ...     print('0x%08X' % vnum)

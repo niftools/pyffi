@@ -1,14 +1,47 @@
-"""This module bundles scripts for running hacking, surgery, and
-validation spells. It is originally based on wz's NifTester module, although
-nothing of wz's original code is left in this module.
-
-Derive your custom spells from the L{Spell} class, and include them in the
-L{Toaster.SPELLS} variable of your toaster.
-
-Spells can also run independently of toasters, and be applied on branches
-directly. The recommended way of doing this is via the L{Spell.recurse}
-function.
 """
+:mod:`PyFFI.Spells` --- High level file operations
+==================================================
+
+.. note::
+   
+   This module is based on wz's NifTester module, although
+   nothing of wz's original code is left in this module.
+
+:term:`Spell <spell>`\ s can also run independently of :term:`toaster`\ s, and be applied
+on branches directly. The recommended way of doing this is via the
+:meth:`Spell.recurse` method.
+
+Supported spells
+----------------
+
+.. toctree::
+   :maxdepth: 2
+   
+   spells/cgf
+   spells/dae
+   spells/dds
+   spells/kfm
+   spells/nif
+   spells/tga
+
+Adding new spells
+-----------------
+
+To create new spells, derive your custom spells from the :class:`Spell`
+class, and include them in the :attr:`Toaster.SPELLS` attribute of your
+toaster.
+
+Abstract base classes
+---------------------
+
+.. autoclass:: Spell
+   :members:
+
+.. autoclass:: Toaster
+   :members:
+
+"""
+__docformat__ = "restructuredtext en" # for epydoc
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****

@@ -1,11 +1,12 @@
 """
-This module implements the TGA file format.
+:mod:`PyFFI.Formats.TGA` --- Targa (.tga)
+=========================================
 
-Examples
-========
+Regression tests
+----------------
 
 Read a TGA file
----------------
+^^^^^^^^^^^^^^^
 
 >>> # check and read tga file
 >>> stream = open('tests/tga/test.tga', 'rb')
@@ -18,14 +19,14 @@ Read a TGA file
 20
 
 Parse all TGA files in a directory tree
----------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 >>> for stream, data in TgaFormat.walkData('tests/tga'):
 ...     print stream.name
 tests/tga/test.tga
 
 Create a TGA file from scratch and write to file
-------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 >>> data = TgaFormat.Data()
 >>> from tempfile import TemporaryFile
