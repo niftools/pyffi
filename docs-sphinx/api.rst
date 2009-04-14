@@ -1,7 +1,6 @@
 .. autosummary::
    :toctree:
    
-   PyFFI
    PyFFI.Formats
    XPyFFI.Formats.CGF
    PyFFI.Formats.DAE

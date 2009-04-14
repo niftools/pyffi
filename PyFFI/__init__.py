@@ -1,6 +1,6 @@
 """
-.. :mod:`PyFFI` --- Interfacing block structured files
-   ===================================================
+:mod:`PyFFI` --- Interfacing block structured files
+===================================================
 
 .. toctree::
    :maxdepth: 3
