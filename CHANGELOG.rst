@@ -1,6 +1,12 @@
 Release 1.2.4 (in development)
 ==============================
 
+* removed deprecated PyFFI.Spells code:
+
+  - old style spells no longer supported
+
+  - all old spells have been converted to the new spell system
+
 * nif:
 
   - nif optimizer can be run on folders from the windows context menu
