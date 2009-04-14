@@ -1,6 +1,6 @@
 """
-.. :mod:`PyFFI.Formats` --- File format interfaces
-   ===============================================
+:mod:`PyFFI.Formats` --- File format interfaces
+===============================================
 
 When experimenting with any of the supported file formats, you can specify
 an alternate location where you store your modified format description by means
