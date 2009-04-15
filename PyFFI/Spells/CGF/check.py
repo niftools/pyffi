@@ -87,6 +87,7 @@ class SpellCheckTangentSpace(CgfSpell):
     """
 
     SPELLNAME = "check_tangentspace"
+    SENSITIVITY = 0.1 # admissible float error (relative to one)
 
     def datainspect(self):
         return self.inspectblocktype(CgfFormat.MeshChunk)
@@ -124,11 +125,11 @@ class SpellCheckTangentSpace(CgfSpell):
                         for x in (oldtangent[1].x,
                                   oldtangent[1].y,
                                   oldtangent[1].z))
-            if abs(vecNorm(norm) - 1) > 0.001:
+            if abs(vecNorm(norm) - 1) > self.SENSITIVITY:
                 self.toaster.logger.warn("normal has non-unit norm")
-            if abs(vecNorm(tan) - 1) > 0.001:
+            if abs(vecNorm(tan) - 1) > self.SENSITIVITY:
                 self.toaster.logger.warn("oldtangent has non-unit norm")
-            if abs(vecNorm(bin) - 1) > 0.001:
+            if abs(vecNorm(bin) - 1) > self.SENSITIVITY:
                 self.toaster.logger.warn("oldbinormal has non-unit norm")
             if (oldtangent[0].w != oldtangent[1].w):
                 raise ValueError(
@@ -142,14 +143,14 @@ class SpellCheckTangentSpace(CgfSpell):
             else:
                 cross = vecCrossProduct(bin, tan)
             crossnorm = vecNorm(cross)
-            if abs(crossnorm - 1) > 0.001:
+            if abs(crossnorm - 1) > self.SENSITIVITY:
                 # a lot of these...
                 self.toaster.logger.warn("tan and bin not orthogonal")
                 self.toaster.logger.warn("%s %s" % (tan, bin))
                 self.toaster.logger.warn("(error is %f)"
                                          % abs(crossnorm - 1))
                 cross = vecscalarMul(cross, 1.0/crossnorm)
-            if vecDistance(norm, cross) > 0.01:
+            if vecDistance(norm, cross) > self.SENSITIVITY:
                 self.toaster.logger.warn(
                     "norm not cross product of tangent and binormal")
                 #self.toaster.logger.warn("norm                 = %s" % (norm,))
@@ -167,7 +168,7 @@ class SpellCheckTangentSpace(CgfSpell):
                     abs(oldtangent[1].x - newtangent[1].x),
                     abs(oldtangent[1].y - newtangent[1].y),
                     abs(oldtangent[1].z - newtangent[1].z),
-                    abs(oldtangent[1].w - newtangent[1].w))) > 100:
+                    abs(oldtangent[1].w - newtangent[1].w))) > self.SENSITIVITY * 32767.0:
                 ntan = tuple(x / 32767.0 for x in (newtangent[0].x, newtangent[0].y, newtangent[0].z))
                 nbin = tuple(x / 32767.0 for x in (newtangent[1].x, newtangent[1].y, newtangent[1].z))
                 self.toaster.logger.warn("old and new tangents differ substantially")

@@ -11,6 +11,9 @@ The --spells switch
 >>> cgftoaster.CgfToaster().cli()
 check_read
 check_readwrite
+check_tangentspace
+check_vcols
+dump
 
 The check_read and check_readwrite spells
 -----------------------------------------
@@ -25,6 +28,8 @@ pyffi.toaster:ERROR:TEST FAILED ON tests/cgf/invalid.cgf
 pyffi.toaster:ERROR:If you were running a spell that came with PyFFI, then
 pyffi.toaster:ERROR:please report this as a bug (include the file) on
 pyffi.toaster:ERROR:http://sourceforge.net/tracker/?group_id=199269
+pyffi.toaster:INFO:=== tests/cgf/monkey.cgf ===
+pyffi.toaster:INFO:  --- check_read ---
 pyffi.toaster:INFO:=== tests/cgf/test.cgf ===
 pyffi.toaster:INFO:  --- check_read ---
 pyffi.toaster:INFO:Finished.
@@ -66,5 +71,24 @@ pyffi.toaster:INFO:          * start : 0
 pyffi.toaster:INFO:          * end : 100
 pyffi.toaster:INFO:      * numSubRanges : 0
 pyffi.toaster:INFO:      
+pyffi.toaster:INFO:Finished.
+
+The check_tangentspace spell
+----------------------------
+
+>>> import sys
+>>> sys.path.append("scripts/CGF")
+>>> import cgftoaster
+>>> sys.argv = ["cgftoaster.py", "--verbose=1", "check_tangentspace", "tests/cgf/monkey.cgf"]
+>>> cgftoaster.CgfToaster().cli() # doctest: +ELLIPSIS
+pyffi.toaster:INFO:=== tests/cgf/monkey.cgf ===
+pyffi.toaster:INFO:  --- check_tangentspace ---
+pyffi.toaster:INFO:    ~~~ NodeChunk [Merged] ~~~
+pyffi.toaster:INFO:      ~~~ MeshChunk [] ~~~
+pyffi.toaster:INFO:        recalculating new tangent space
+pyffi.toaster:INFO:        validating and checking old with new
+pyffi.toaster:WARNING:...
+...
+pyffi.toaster:INFO:    ~~~ NodeChunk [CryExportNode_monkey-CGF-monkey-DoExport-MergeNodes] ~~~
 pyffi.toaster:INFO:Finished.
 

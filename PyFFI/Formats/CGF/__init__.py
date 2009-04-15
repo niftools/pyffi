@@ -45,6 +45,7 @@ Parse all CGF files in a directory tree
 >>> for stream, data in CgfFormat.walkData('tests/cgf'):
 ...     print stream.name
 tests/cgf/invalid.cgf
+tests/cgf/monkey.cgf
 tests/cgf/test.cgf
 
 Create a CGF file from scratch
@@ -58,28 +59,20 @@ Create a CGF file from scratch
 >>> node1.children.updateSize()
 >>> node1.children[0] = node2
 >>> node2.name = "world"
->>> chunks = [node1, node2]
 >>> from tempfile import TemporaryFile
 >>> stream = TemporaryFile()
+>>> data = CgfFormat.Data() # default is far cry
+>>> data.chunks = [node1, node2]
 >>> # note: write returns number of padding bytes
->>> CgfFormat.write(
-...     stream,
-...     version = CgfFormat.VER_FARCRY,
-...     user_version = CgfFormat.UVER_FARCRY,
-...     filetype = CgfFormat.FileType.GEOM,
-...     chunks = chunks)
+>>> data.write(stream)
 0
 >>> stream.seek(0)
->>> version, user_version = CgfFormat.getVersion(stream)
->>> if version == -1:
-...     raise RuntimeError('cgf version not supported')
-... elif version == -2:
-...     raise RuntimeError('not a cgf file')
->>> filetype, chunks, versions = CgfFormat.read(stream,
-...                                             version = version,
-...                                             user_version = user_version)
+>>> data.inspectVersionOnly(stream)
+>>> hex(data.header.version)
+'0x744'
+>>> data.read(stream)
 >>> # get all chunks
->>> for chunk in chunks:
+>>> for chunk in data.chunks:
 ...     print(chunk) # doctest: +ELLIPSIS
 <class 'PyFFI.ObjectModels.XML.FileFormat.NodeChunk'> instance at 0x...
 * name : hello
