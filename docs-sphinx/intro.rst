@@ -8,7 +8,7 @@ Consider an application which processes images stored in for instance
 the Targa format::
 
     >>> # read the file
-    >>> stream = open("test/tga/test.tga", "rb")
+    >>> stream = open("tests/tga/test.tga", "rb")
     >>> data = stream.read()
     >>> # do something with the data...
     >>> data[8] = 20 # change x origin
@@ -64,7 +64,7 @@ stored in the data. Such organized collection is called an
     ...                 stream.write(pixel)
     >>> data = TgaFile()
     >>> # read the file
-    >>> data.read("test/tga/test.tga")
+    >>> data.read("tests/tga/test.tga")
     >>> # do something with the data...
     >>> data.x_origin = 20
     >>> data.y_origin = 20
