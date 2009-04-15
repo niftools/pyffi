@@ -53,7 +53,6 @@ import PyFFI.Formats.CGF
 import PyFFI.Spells.check
 
 # XXX do away with these when converting to new style spells
-import PyFFI.Spells.CGF.checktangentspace
 import PyFFI.Spells.CGF.checkvcols
 
 class CgfToaster(PyFFI.Spells.CGF.CgfToaster):
@@ -61,7 +60,7 @@ class CgfToaster(PyFFI.Spells.CGF.CgfToaster):
     SPELLS = [
         PyFFI.Spells.check.SpellRead,
         PyFFI.Spells.CGF.check.SpellReadWrite,
-        PyFFI.Spells.CGF.checktangentspace,
+        PyFFI.Spells.CGF.check.SpellCheckTangentSpace,
         PyFFI.Spells.CGF.checkvcols,
         PyFFI.Spells.CGF.dump.SpellDumpAll]
     ALIASDICT = {

@@ -39,10 +39,13 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
+from itertools import izip
 from tempfile import TemporaryFile
 
 from PyFFI.Formats.CGF import CgfFormat
 from PyFFI.Spells.CGF import CgfSpell
+# XXX do something about this...
+from PyFFI.Utils.MathUtils import *
 
 class SpellReadWrite(CgfSpell):
     """Like the original read-write spell, but with additional file size
@@ -77,3 +80,100 @@ class SpellReadWrite(CgfSpell):
 
         # spell is finished: prevent recursing into the tree
         return False
+
+class SpellCheckTangentSpace(CgfSpell):
+    """This spell checks the tangent space calculation.
+    Only useful for debugging.
+    """
+
+    SPELLNAME = "check_tangentspace"
+
+    def datainspect(self):
+        return self.inspectblocktype(CgfFormat.MeshChunk)
+
+    def branchinspect(self, branch):
+        return isinstance(branch, (CgfFormat.MeshChunk, CgfFormat.NodeChunk))
+
+    def branchentry(self, branch):
+        if not isinstance(branch, CgfFormat.MeshChunk):            
+            # keep recursing
+            return True
+
+        # get tangents and normals
+        if not (branch.normalsData and branch.tangentsData):
+            return True
+
+        oldtangents = [tangent for tangent in branch.tangentsData.tangents]
+
+        self.toaster.msg("recalculating new tangent space")
+        branch.updateTangentSpace()
+        newtangents = [tangent for tangent in branch.tangentsData.tangents]
+
+        self.toaster.msgblockbegin("validating and checking old with new")
+
+        for norm, oldtangent, newtangent in izip(branch.normalsData.normals,
+                                                 oldtangents, newtangents):
+            #self.toaster.msg("*** %s ***" % (norm,))
+            # check old
+            norm = (norm.x, norm.y, norm.z)
+            tan = tuple(x / 32767.0
+                        for x in (oldtangent[0].x,
+                                  oldtangent[0].y,
+                                  oldtangent[0].z))
+            bin = tuple(x / 32767.0
+                        for x in (oldtangent[1].x,
+                                  oldtangent[1].y,
+                                  oldtangent[1].z))
+            if abs(vecNorm(norm) - 1) > 0.001:
+                self.toaster.logger.warn("normal has non-unit norm")
+            if abs(vecNorm(tan) - 1) > 0.001:
+                self.toaster.logger.warn("oldtangent has non-unit norm")
+            if abs(vecNorm(bin) - 1) > 0.001:
+                self.toaster.logger.warn("oldbinormal has non-unit norm")
+            if (oldtangent[0].w != oldtangent[1].w):
+                raise ValueError(
+                    "inconsistent oldtangent w coordinate (%i != %i)"
+                    % (oldtangent[0].w, oldtangent[1].w))
+            if not (oldtangent[0].w in (-32767, 32767)):
+                raise ValueError(
+                    "invalid oldtangent w coordinate (%i)" % oldtangent[0].w)
+            if oldtangent[0].w > 0:
+                cross = vecCrossProduct(tan, bin)
+            else:
+                cross = vecCrossProduct(bin, tan)
+            crossnorm = vecNorm(cross)
+            if abs(crossnorm - 1) > 0.001:
+                # a lot of these...
+                self.toaster.logger.warn("tan and bin not orthogonal")
+                self.toaster.logger.warn("%s %s" % (tan, bin))
+                self.toaster.logger.warn("(error is %f)"
+                                         % abs(crossnorm - 1))
+                cross = vecscalarMul(cross, 1.0/crossnorm)
+            if vecDistance(norm, cross) > 0.01:
+                self.toaster.logger.warn(
+                    "norm not cross product of tangent and binormal")
+                #self.toaster.logger.warn("norm                 = %s" % (norm,))
+                #self.toaster.logger.warn("tan                  = %s" % (tan,))
+                #self.toaster.logger.warn("bin                  = %s" % (bin,))
+                #self.toaster.logger.warn("tan bin cross prod   = %s" % (cross,))
+                self.toaster.logger.warn(
+                    "(error is %f)" % vecDistance(norm, cross))
+
+            # compare old with new
+            if sum((abs(oldtangent[0].x - newtangent[0].x),
+                    abs(oldtangent[0].y - newtangent[0].y),
+                    abs(oldtangent[0].z - newtangent[0].z),
+                    abs(oldtangent[0].w - newtangent[0].w),
+                    abs(oldtangent[1].x - newtangent[1].x),
+                    abs(oldtangent[1].y - newtangent[1].y),
+                    abs(oldtangent[1].z - newtangent[1].z),
+                    abs(oldtangent[1].w - newtangent[1].w))) > 100:
+                ntan = tuple(x / 32767.0 for x in (newtangent[0].x, newtangent[0].y, newtangent[0].z))
+                nbin = tuple(x / 32767.0 for x in (newtangent[1].x, newtangent[1].y, newtangent[1].z))
+                self.toaster.logger.warn("old and new tangents differ substantially")
+                self.toaster.logger.warn("old tangent")
+                self.toaster.logger.warn("%s %s" % (tan, bin))
+                self.toaster.logger.warn("new tangent")
+                self.toaster.logger.warn("%s %s" % (ntan, nbin))
+
+        self.toaster.msgblockend()
