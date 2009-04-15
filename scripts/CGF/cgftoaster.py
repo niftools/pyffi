@@ -47,6 +47,7 @@ import sys
 
 import PyFFI.Spells
 import PyFFI.Spells.CGF
+import PyFFI.Spells.CGF.check
 import PyFFI.Formats.CGF
 import PyFFI.Spells.check
 
@@ -55,17 +56,16 @@ import PyFFI.Spells.CGF.checktangentspace
 import PyFFI.Spells.CGF.checkvcols
 import PyFFI.Spells.CGF.dump
 import PyFFI.Spells.CGF.readoverwrite
-import PyFFI.Spells.CGF.readwrite
 
 class CgfToaster(PyFFI.Spells.CGF.CgfToaster):
     """Class for toasting cgf files, using any of the available spells."""
     SPELLS = [
         PyFFI.Spells.check.SpellRead,
+        PyFFI.Spells.CGF.check.SpellReadWrite,
         PyFFI.Spells.CGF.checktangentspace,
         PyFFI.Spells.CGF.checkvcols,
         PyFFI.Spells.CGF.dump,
-        PyFFI.Spells.CGF.readoverwrite,
-        PyFFI.Spells.CGF.readwrite]
+        PyFFI.Spells.CGF.readoverwrite]
     ALIASDICT = {
         "read": "check_read",
         "readwrite": "check_readwrite"}
