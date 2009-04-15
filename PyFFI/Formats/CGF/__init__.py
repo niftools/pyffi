@@ -10,16 +10,18 @@ Read a CGF file
 
 >>> # get file version and file type, and read cgf file
 >>> stream = open('tests/cgf/test.cgf', 'rb')
->>> version, user_version = CgfFormat.getVersion(stream)
->>> if version == -1:
-...     raise RuntimeError('cgf version not supported')
-... elif version == -2:
-...     raise RuntimeError('not a cgf file')
->>> filetype, chunks, versions = CgfFormat.read(stream,
-...                                             version = version,
-...                                             user_version = user_version)
+>>> data = CgfFormat.Data()
+>>> # read chunk table only
+>>> data.inspect(stream)
+>>> # check chunk types
+>>> list(chunktype.__name__ for chunktype in data.chunk_table.getChunkTypes())
+['SourceInfoChunk', 'TimingChunk']
+>>> data.chunks # no chunks yet
+[]
+>>> # read full file
+>>> data.read(stream)
 >>> # get all chunks
->>> for chunk in chunks:
+>>> for chunk in data.chunks:
 ...     print(chunk) # doctest: +ELLIPSIS
 <class 'PyFFI.ObjectModels.XML.FileFormat.SourceInfoChunk'> instance at ...
 * sourceFile : <EMPTY STRING>
@@ -40,11 +42,9 @@ Read a CGF file
 Parse all CGF files in a directory tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
->>> for filetype, chunks, versions in CgfFormat.walk('tests/cgf',
-...                                                  raisereaderror = False,
-...                                                  verbose = 1):
-...     pass
-reading tests/cgf/test.cgf
+>>> for stream, data in CgfFormat.walkData('tests/cgf'):
+...     print stream.name
+tests/cgf/test.cgf
 
 Create a CGF file from scratch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -289,6 +289,14 @@ class CgfFormat(XmlFileFormat):
             # game
             # TODO store this in a way that can be displayed by qskope
             self.game = game
+            # map chunk type integers to chunk type classes
+            # XXX should be a CgfFormat class variable... this hack is nasty
+            # XXX move to class level when inheritance is implemented
+            CgfFormat.CHUNK_MAP = dict(
+                (getattr(CgfFormat.ChunkType, chunk_name),
+                 getattr(CgfFormat, '%sChunk' % chunk_name))
+                for chunk_name in CgfFormat.ChunkType._enumkeys
+                if chunk_name != "ANY")
 
         # new functions
 

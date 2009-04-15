@@ -541,6 +541,26 @@ In Python this can be calculated using zlib.crc32(name)</add>
         Base class for all chunks.
     </struct>
 
+    <struct name="GeomNameListChunk">
+        Obsolete, not decoded.
+    </struct>
+
+    <struct name="MtlListChunk">
+        Obsolete, not decoded.
+    </struct>
+
+    <struct name="MRMChunk">
+        Obsolete, not decoded.
+    </struct>
+
+    <struct name="PatchMeshChunk">
+        Obsolete, not decoded.
+    </struct>
+
+    <struct name="ScenePropsChunk">
+        Not decoded. Nowhere used?
+    </struct>
+
     <struct name="AbstractObjectChunk" inherit="Chunk">
         Common parent for HelperChunk and MeshChunk.
     </struct>
