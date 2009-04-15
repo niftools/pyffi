@@ -12,8 +12,8 @@ The --spells switch
 check_read
 check_readwrite
 
-The check_read spell
---------------------
+The check_read and check_readwrite spells
+-----------------------------------------
 
 >>> import sys
 >>> sys.path.append("scripts/CGF")
@@ -26,8 +26,16 @@ pyffi.toaster:ERROR:If you were running a spell that came with PyFFI, then
 pyffi.toaster:ERROR:please report this as a bug (include the file) on
 pyffi.toaster:ERROR:http://sourceforge.net/tracker/?group_id=199269
 pyffi.toaster:INFO:=== tests/cgf/test.cgf ===
+pyffi.toaster:INFO:  --- check_read ---
+pyffi.toaster:INFO:Finished.
+>>> sys.argv = ["cgftoaster.py", "--verbose=1", "check_readwrite", "tests/cgf/test.cgf"]
+>>> cgftoaster.CgfToaster().cli() # doctest: +ELLIPSIS
+pyffi.toaster:INFO:=== tests/cgf/test.cgf ===
 pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:    writing to temporary file
 pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:      original size: 166
+pyffi.toaster:INFO:      written size:  168
+pyffi.toaster:INFO:      padding:       2
 pyffi.toaster:INFO:Finished.
 
