@@ -94,7 +94,6 @@ import tempfile
 from types import ModuleType # for _MetaCompatToaster
 
 import PyFFI # for PyFFI.__version__
-import PyFFI.Spells.applypatch
 import PyFFI.ObjectModels.FileFormat # PyFFI.ObjectModels.FileFormat.FileFormat
 
 class Spell(object):
