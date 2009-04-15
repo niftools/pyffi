@@ -52,16 +52,13 @@ import PyFFI.Spells.CGF.dump
 import PyFFI.Formats.CGF
 import PyFFI.Spells.check
 
-# XXX do away with these when converting to new style spells
-import PyFFI.Spells.CGF.checkvcols
-
 class CgfToaster(PyFFI.Spells.CGF.CgfToaster):
     """Class for toasting cgf files, using any of the available spells."""
     SPELLS = [
         PyFFI.Spells.check.SpellRead,
         PyFFI.Spells.CGF.check.SpellReadWrite,
         PyFFI.Spells.CGF.check.SpellCheckTangentSpace,
-        PyFFI.Spells.CGF.checkvcols,
+        PyFFI.Spells.CGF.check.SpellCheckHasVertexColors,
         PyFFI.Spells.CGF.dump.SpellDumpAll]
     ALIASDICT = {
         "read": "check_read",

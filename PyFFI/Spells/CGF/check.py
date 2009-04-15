@@ -177,3 +177,25 @@ class SpellCheckTangentSpace(CgfSpell):
                 self.toaster.logger.warn("%s %s" % (ntan, nbin))
 
         self.toaster.msgblockend()
+
+class SpellCheckHasVertexColors(CgfSpell):
+    """This spell checks if a model has vertex colors.
+    Only useful for debugging.
+    """
+    # example: farcry/FCData/Objects/Buildings/M03/compound_area/coa_instantshelter_door_cloth.cgf
+
+    SPELLNAME = "check_vcols"
+
+    def datainspect(self):
+        return self.inspectblocktype(CgfFormat.MeshChunk)
+
+    def branchinspect(self, branch):
+        return isinstance(branch, (CgfFormat.MeshChunk, CgfFormat.NodeChunk))
+
+    def branchentry(self, branch):
+        if isinstance(branch, CgfFormat.MeshChunk):
+            if branch.hasVertexColors:
+                self.toaster.msg("has vertex colors!")
+        else:
+            # keep recursing
+            return True
