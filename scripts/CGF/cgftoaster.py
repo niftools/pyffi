@@ -63,8 +63,7 @@ class CgfToaster(PyFFI.Spells.CGF.CgfToaster):
         PyFFI.Spells.CGF.check.SpellReadWrite,
         PyFFI.Spells.CGF.checktangentspace,
         PyFFI.Spells.CGF.checkvcols,
-        PyFFI.Spells.CGF.dump,
-        PyFFI.Spells.CGF.readoverwrite]
+        PyFFI.Spells.CGF.dump]
     ALIASDICT = {
         "read": "check_read",
         "readwrite": "check_readwrite"}
