@@ -8,15 +8,18 @@ Consider an application which processes images stored in for instance
 the Targa format::
 
     >>> # read the file
-    >>> stream = open("test/tga/test.tga", "rb")
-    >>> data = stream.read()
+    >>> stream = open("tests/tga/test.tga", "rb")
+    >>> data = [ord(c) for c in stream.read()] # read bytes
+    >>> stream.close()
     >>> # do something with the data...
     >>> data[8] = 20 # change x origin
     >>> data[10] = 20 # change y origin
     >>> # etc... until we are finished processing the data
     >>> # write the file
-    >>> stream = open("modified.tga", "wb")
-    >>> stream.write(data)
+    >>> from tempfile import TemporaryFile
+    >>> stream = TemporaryFile()
+    >>> stream.write(''.join(chr(x) for x in data))
+    >>> stream.close()
 
 This methodology will work for any file format, but it is usually not
 very convenient. For complex file formats, the *do something with the
@@ -28,6 +31,7 @@ stored in the data. Such organized collection is called an
 :term:`interface`::
 
     >>> import struct
+    >>> from tempfile import TemporaryFile
     >>> class TgaFile:
     ...     """A simple class for reading and writing Targa files."""
     ...     def read(self, filename):
@@ -38,18 +42,23 @@ stored in the data. Such organized collection is called an
     ...         self.x_origin, self.y_origin, self.width, self.height, \
     ...         self.pixel_size, self.flags = struct.unpack("<BBBHHBHHHHBB",
     ...                                                     stream.read(18))
-    ...         self.image_id = stream.read(id_length)
+    ...         self.image_id = stream.read(self.image_id_length)
     ...         if self.colormap_type:
     ...             self.colormap = [
     ...                 stream.read(self.colormap_size >> 3)
     ...                 for i in range(self.colormap_length)]
+    ...         else:
+    ...             self.colormap = []
     ...         self.image = [[stream.read(self.pixel_size >> 3)
     ...                        for i in range(self.width)]
     ...                       for j in range(self.height)]
     ...         stream.close()
-    ...     def write(self, filename):
+    ...     def write(self, filename=None):
     ...         """Read tga file from stream."""
-    ...         stream = open(filename, "wb")
+    ...         if filename:
+    ...             stream = open(filename, "wb")
+    ...         else:
+    ...             stream = TemporaryFile()
     ...         stream.write(struct.pack("<BBBHHBHHHHBB",
     ...             self.image_id_length, self.colormap_type, self.image_type,
     ...             self.colormap_index, self.colormap_length,
@@ -62,15 +71,16 @@ stored in the data. Such organized collection is called an
     ...         for line in self.image:
     ...             for pixel in line:
     ...                 stream.write(pixel)
+    ...         stream.close()
     >>> data = TgaFile()
     >>> # read the file
-    >>> data.read("test/tga/test.tga")
+    >>> data.read("tests/tga/test.tga")
     >>> # do something with the data...
     >>> data.x_origin = 20
     >>> data.y_origin = 20
     >>> # etc... until we are finished processing the data
     >>> # write the file
-    >>> data.write("modified.tga")
+    >>> data.write()
 
 The reading and writing part of the code has become a lot more
 complicated, but the benefit is immediately clear: instead of working
