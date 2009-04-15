@@ -80,14 +80,14 @@ class NifSpell(PyFFI.Spells.Spell):
     def inspectblocktype(self, block_type):
         """This function heuristically checks whether the given block type
         is used in the nif file, using header information only. When in doubt,
-        it returns C{True}.
+        it returns ``True``.
 
         @param block_type: The block type.
-        @type block_type: L{NifFormat.NiObject}
-        @return: C{False} if the nif has no block of the given type,
-            with certainty. C{True} if the nif has the block, or if it
+        @type block_type: :class:`NifFormat.NiObject`
+        @return: ``False`` if the nif has no block of the given type,
+            with certainty. ``True`` if the nif has the block, or if it
             cannot be determined.
-        @rtype: C{bool}
+        @rtype: ``bool``
         """
         try:
             # try via header
