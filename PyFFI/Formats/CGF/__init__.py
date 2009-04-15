@@ -44,6 +44,7 @@ Parse all CGF files in a directory tree
 
 >>> for stream, data in CgfFormat.walkData('tests/cgf'):
 ...     print stream.name
+tests/cgf/invalid.cgf
 tests/cgf/test.cgf
 
 Create a CGF file from scratch

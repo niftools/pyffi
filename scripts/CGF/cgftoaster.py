@@ -55,7 +55,6 @@ import PyFFI.Spells.check
 import PyFFI.Spells.CGF.checktangentspace
 import PyFFI.Spells.CGF.checkvcols
 import PyFFI.Spells.CGF.dump
-import PyFFI.Spells.CGF.readoverwrite
 
 class CgfToaster(PyFFI.Spells.CGF.CgfToaster):
     """Class for toasting cgf files, using any of the available spells."""
