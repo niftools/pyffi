@@ -47,6 +47,7 @@ Parse all CGF files in a directory tree
 tests/cgf/invalid.cgf
 tests/cgf/monkey.cgf
 tests/cgf/test.cgf
+tests/cgf/vcols.cgf
 
 Create a CGF file from scratch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

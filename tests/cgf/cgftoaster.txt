@@ -32,6 +32,8 @@ pyffi.toaster:INFO:=== tests/cgf/monkey.cgf ===
 pyffi.toaster:INFO:  --- check_read ---
 pyffi.toaster:INFO:=== tests/cgf/test.cgf ===
 pyffi.toaster:INFO:  --- check_read ---
+pyffi.toaster:INFO:=== tests/cgf/vcols.cgf ===
+pyffi.toaster:INFO:  --- check_read ---
 pyffi.toaster:INFO:Finished.
 >>> sys.argv = ["cgftoaster.py", "--verbose=1", "check_readwrite", "tests/cgf/test.cgf"]
 >>> cgftoaster.CgfToaster().cli() # doctest: +ELLIPSIS
@@ -90,5 +92,28 @@ pyffi.toaster:INFO:        validating and checking old with new
 pyffi.toaster:WARNING:...
 ...
 pyffi.toaster:INFO:    ~~~ NodeChunk [CryExportNode_monkey-CGF-monkey-DoExport-MergeNodes] ~~~
+pyffi.toaster:INFO:Finished.
+
+The check_vcols spell
+---------------------
+
+>>> import sys
+>>> sys.path.append("scripts/CGF")
+>>> import cgftoaster
+>>> sys.argv = ["cgftoaster.py", "--verbose=1", "check_vcols", "tests/cgf/monkey.cgf"]
+>>> cgftoaster.CgfToaster().cli() # doctest: +ELLIPSIS
+pyffi.toaster:INFO:=== tests/cgf/monkey.cgf ===
+pyffi.toaster:INFO:  --- check_vcols ---
+pyffi.toaster:INFO:    ~~~ NodeChunk [Merged] ~~~
+pyffi.toaster:INFO:      ~~~ MeshChunk [] ~~~
+pyffi.toaster:INFO:    ~~~ NodeChunk [CryExportNode_monkey-CGF-monkey-DoExport-MergeNodes] ~~~
+pyffi.toaster:INFO:Finished.
+>>> sys.argv = ["cgftoaster.py", "--verbose=1", "check_vcols", "tests/cgf/vcols.cgf"]
+>>> cgftoaster.CgfToaster().cli() # doctest: +ELLIPSIS
+pyffi.toaster:INFO:=== tests/cgf/vcols.cgf ===
+pyffi.toaster:INFO:  --- check_vcols ---
+pyffi.toaster:INFO:    ~~~ NodeChunk [Monkey] ~~~
+pyffi.toaster:INFO:      ~~~ MeshChunk [] ~~~
+pyffi.toaster:INFO:        has vertex colors!
 pyffi.toaster:INFO:Finished.
 
