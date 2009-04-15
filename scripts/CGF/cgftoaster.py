@@ -43,13 +43,33 @@ a cgf specific wrapper around L{PyFFI.Spells.toaster}."""
 # --------------------------------------------------------------------------
 
 import logging
+import sys
 
-from PyFFI.Spells import toaster
-from PyFFI.Formats.CGF import CgfFormat
+import PyFFI.Spells
 import PyFFI.Spells.CGF
+import PyFFI.Formats.CGF
+import PyFFI.Spells.check
 
-def main():
-    examples = """* check if PyFFI can read all files in current directory:
+# XXX do away with these when converting to new style spells
+import PyFFI.Spells.CGF.checktangentspace
+import PyFFI.Spells.CGF.checkvcols
+import PyFFI.Spells.CGF.dump
+import PyFFI.Spells.CGF.readoverwrite
+import PyFFI.Spells.CGF.readwrite
+
+class CgfToaster(PyFFI.Spells.CGF.CgfToaster):
+    """Class for toasting cgf files, using any of the available spells."""
+    SPELLS = [
+        PyFFI.Spells.check.SpellRead,
+        PyFFI.Spells.CGF.checktangentspace,
+        PyFFI.Spells.CGF.checkvcols,
+        PyFFI.Spells.CGF.dump,
+        PyFFI.Spells.CGF.readoverwrite,
+        PyFFI.Spells.CGF.readwrite]
+    ALIASDICT = {
+        "read": "check_read",
+        "readwrite": "check_readwrite"}
+    EXAMPLES = """* check if PyFFI can read all files in current directory:
 
     python cgftoaster.py read .
 
@@ -62,17 +82,15 @@ def main():
 
     python -m cProfile -s cumulative cgftoaster.py dump"""
 
-    toaster(format=CgfFormat, formatspellsmodule=PyFFI.Spells.CGF,
-            examples=examples)
-
 # if script is called...
 if __name__ == "__main__":
     # set up logger
     logger = logging.getLogger("pyffi")
     logger.setLevel(logging.DEBUG)
-    loghandler = logging.StreamHandler()
+    loghandler = logging.StreamHandler(sys.stdout)
     loghandler.setLevel(logging.DEBUG)
     logformatter = logging.Formatter("%(name)s:%(levelname)s:%(message)s")
     loghandler.setFormatter(logformatter)
     logger.addHandler(loghandler)
-    main()
+    # call toaster
+    CgfToaster().cli()
