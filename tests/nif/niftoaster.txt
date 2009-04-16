@@ -127,7 +127,7 @@ checktristrip
 dump
 dump_tex
 dump_htmlreport
-exportpixeldata
+dump_pixeldata
 fix_addtangentspace
 fix_clampmaterialalpha
 fix_deltangentspace
@@ -959,4 +959,9 @@ pyffi.toaster:INFO:        ~~~ NiTexturingProperty [] ~~~
 pyffi.toaster:INFO:          disabling parallax shader
 pyffi.toaster:INFO:  writing to temporary file
 pyffi.toaster:INFO:Finished.
+
+The dump_pixeldata spell
+------------------------
+
+XXX Todo: find an open source nif which can be used for testing.
 

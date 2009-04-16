@@ -55,7 +55,6 @@ import PyFFI.Spells.NIF.optimize
 from PyFFI.Spells.NIF import \
     checktangentspace, \
     checktristrip, \
-    exportpixeldata, \
     hackcheckskindata, \
     hackmultiskelroot, \
     hackskindataidtransform, \
@@ -84,7 +83,7 @@ class NifToaster(PyFFI.Spells.NIF.NifToaster):
         PyFFI.Spells.NIF.dump.SpellDumpAll,
         PyFFI.Spells.NIF.dump.SpellDumpTex,
         PyFFI.Spells.NIF.dump.SpellHtmlReport,
-        exportpixeldata,
+        PyFFI.Spells.NIF.dump.SpellExportPixelData,
         PyFFI.Spells.NIF.fix.SpellAddTangentSpace,
         PyFFI.Spells.NIF.fix.SpellClampMaterialAlpha,
         PyFFI.Spells.NIF.fix.SpellDelTangentSpace,
@@ -114,7 +113,8 @@ class NifToaster(PyFFI.Spells.NIF.NifToaster):
         "read": "check_read",
         "readwrite": "check_readwrite",
         "ffvt3rskinpartition": "fix_ffvt3rskinpartition",
-        "disableparallax": "fix_disableparallax"}
+        "disableparallax": "fix_disableparallax",
+        "exportpixeldata": "dump_pixeldata"}
     EXAMPLES = """* check if PyFFI can read all files in current directory
   (python version of nifskope's xml checker):
 

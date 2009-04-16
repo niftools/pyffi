@@ -40,8 +40,10 @@
 # --------------------------------------------------------------------------
 
 import BaseHTTPServer
-import webbrowser
+import os
+import tempfile
 import types
+import webbrowser
 from xml.sax.saxutils import escape # for htmlreport
 
 from PyFFI.Formats.NIF import NifFormat
@@ -270,3 +272,49 @@ class SpellHtmlReport(NifSpell):
         server = BaseHTTPServer.HTTPServer(('127.0.0.1', 0), RequestHandler)
         webbrowser.open('http://127.0.0.1:%s' % server.server_port)
         server.handle_request()           
+
+class SpellExportPixelData(NifSpell):
+    """Export embedded images as DDS files. If the toaster's 'dryrun' option is
+    enabled, the image is written to a temporary file, otherwise, it is written
+    to 'imagexxx.dds' where xxx is chosen in a way that no file is overwritten.
+    """
+    SPELLNAME = "dump_pixeldata"
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.NiPixelData)
+
+    def branchinspect(self, branch):
+        # stick to main tree nodes, and material and texture properties
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiTexturingProperty,
+                                   NifFormat.NiSourceTexture,
+                                   NifFormat.NiPixelData))
+
+    def branchentry(self, branch):
+        if not isinstance(branch, NifFormat.NiPixelData):
+            # keep recursing
+            return True
+        else:
+            self.toaster.msg("found pixel data (format %i)"
+                             % branch.pixelFormat)
+
+            if not self.toaster.options["dryrun"]:
+                n = 0
+                while True:
+                    filename = "image%03i.dds" % n
+                    if not os.path.exists(filename):
+                        break
+                    n += 1
+                self.toaster.msg("saving as %s" % filename)
+                stream = open(filename, "wb")
+            else:
+                self.toaster.msg("saving as temporary file")
+                stream = tempfile.TemporaryFile()
+
+            try:
+                branch.saveAsDDS(stream)
+            finally:
+                stream.close()
+
+            # stop recursing
+            return False
