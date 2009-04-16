@@ -260,7 +260,30 @@ def moppFromTree(self, tree):
 
 # ported and extended from NifVis/bhkMoppBvTreeShape.py
 def parseMopp(self, start = 0, depth = 0, toffset = 0, verbose = False):
-    """If verbose is True then the mopp data is printed while parsed. Returns list of indices into mopp data of the bytes processed and a list of triangle indices encountered."""
+    """The mopp data is printed to the debug channel
+    while parsed. Returns list of indices into mopp data of the bytes
+    processed and a list of triangle indices encountered.
+
+    The verbose argument is ignored (and is deprecated).
+    """
+    class Message:
+        def __init__(self):
+            self.logger = logging.getLogger("pyffi.mopp")
+            self.msg = ""
+
+        def append(self, *args):
+            self.msg += " ".join(str(arg) for arg in args) + " "
+            return self
+
+        def debug(self):
+            if self.msg:
+                self.logger.debug(self.msg)
+                self.msg = ""
+
+        def error(self):
+            self.logger.error(self.msg)
+            self.msg = ""
+
     mopp = self.moppData # shortcut notation
     ids = [] # indices of bytes processed
     tris = [] # triangle indices
@@ -269,32 +292,38 @@ def parseMopp(self, start = 0, depth = 0, toffset = 0, verbose = False):
     while i < self.moppDataSize and not ret:
         # get opcode and print it
         code = mopp[i]
-        print "%4i:"%i + "  "*depth + '0x%02X'%code,
+        msg = Message()
+        msg.append("%4i:"%i + "  "*depth + '0x%02X ' % code)
 
         if code == 0x09:
             # increment triangle offset
             toffset += mopp[i+1]
-            print mopp[i+1], '[ triangle offset += %i, offset is now %i ]'%(mopp[i+1], toffset)
+            msg.append(mopp[i+1])
+            msg.append('%i [ triangle offset += %i, offset is now %i ]'
+                            % (mopp[i+1], mopp[i+1], toffset))
             ids.extend([i,i+1])
             i += 2
 
         elif code in [ 0x0A ]:
             # increment triangle offset
             toffset += mopp[i+1]*256 + mopp[i+2]
-            print mopp[i+1],mopp[i+2], '[ triangle offset += %i, offset is now %i ]'%(mopp[i+1]*256 + mopp[i+2], toffset)
+            msg.append(mopp[i+1],mopp[i+2])
+            msg.append('[ triangle offset += %i, offset is now %i ]'
+                            % (mopp[i+1]*256 + mopp[i+2], toffset))
             ids.extend([i,i+1,i+2])
             i += 3
 
         elif code in [ 0x0B ]:
             # unsure about first two arguments, but the 3rd and 4th set triangle offset
             toffset = 256*mopp[i+3] + mopp[i+4]
-            print mopp[i+1],mopp[i+2],mopp[i+3],mopp[i+4], '[ triangle offset = %i ]'%toffset
+            msg.append(mopp[i+1],mopp[i+2],mopp[i+3],mopp[i+4])
+            msg.append('[ triangle offset = %i ]' % toffset)
             ids.extend([i,i+1,i+2,i+3,i+4])
             i += 5
 
         elif code in xrange(0x30,0x50):
             # triangle compact
-            print '[ triangle %i ]'%(code-0x30+toffset)
+            msg.append('[ triangle %i ]'%(code-0x30+toffset))
             ids.append(i)
             tris.append(code-0x30+toffset)
             i += 1
@@ -302,7 +331,8 @@ def parseMopp(self, start = 0, depth = 0, toffset = 0, verbose = False):
 
         elif code == 0x50:
             # triangle byte
-            print mopp[i+1], '[ triangle %i ]'%(mopp[i+1]+toffset)
+            msg.append(mopp[i+1])
+            msg.append('[ triangle %i ]'%(mopp[i+1]+toffset))
             ids.extend([i,i+1])
             tris.append(mopp[i+1]+toffset)
             i += 2
@@ -311,7 +341,8 @@ def parseMopp(self, start = 0, depth = 0, toffset = 0, verbose = False):
         elif code in [ 0x51 ]:
             # triangle short
             t = mopp[i+1]*256 + mopp[i+2] + toffset
-            print mopp[i+1],mopp[i+2], '[ triangle %i ]'%t
+            msg.append(mopp[i+1],mopp[i+2])
+            msg.append('[ triangle %i ]' % t)
             ids.extend([i,i+1,i+2])
             tris.append(t)
             i += 3
@@ -320,7 +351,8 @@ def parseMopp(self, start = 0, depth = 0, toffset = 0, verbose = False):
         elif code in [ 0x53 ]:
             # triangle short?
             t = mopp[i+3]*256 + mopp[i+4] + toffset
-            print mopp[i+1],mopp[i+2],mopp[i+3],mopp[i+4], '[ triangle %i ]'%t
+            msg.append(mopp[i+1],mopp[i+2],mopp[i+3],mopp[i+4])
+            msg.append('[ triangle %i ]' % t)
             ids.extend([i,i+1,i+2,i+3,i+4])
             tris.append(t)
             i += 5
@@ -328,32 +360,35 @@ def parseMopp(self, start = 0, depth = 0, toffset = 0, verbose = False):
 
         elif code in [ 0x05 ]:
             # byte jump
-            print '[ jump -> %i: ]'%(i+2+mopp[i+1])
+            msg.append('[ jump -> %i: ]'%(i+2+mopp[i+1]))
             ids.extend([i,i+1])
             i += 2+mopp[i+1]
 
         elif code in [ 0x06 ]:
             # short jump
             jump = mopp[i+1]*256 + mopp[i+2]
-            print '[ jump -> %i: ]'%(i+3+jump)
+            msg.append('[ jump -> %i: ]'%(i+3+jump))
             ids.extend([i,i+1,i+2])
             i += 3+jump
 
         elif code in [0x10,0x11,0x12, 0x13,0x14,0x15, 0x16,0x17,0x18, 0x19, 0x1A, 0x1C]:
             # compact if-then-else with two arguments
-            print mopp[i+1], mopp[i+2],
+            msg.append(mopp[i+1], mopp[i+2])
             if code == 0x10:
-                print '[ branch X',
+                msg.append('[ branch X')
             elif code == 0x11:
-                print '[ branch Y',
+                msg.append('[ branch Y')
             elif code == 0x12:
-                print '[ branch Z',
+                msg.append('[ branch Z')
             else:
-                print '[ branch ?',
-            print '-> %i: %i: ]'%(i+4,i+4+mopp[i+3])
-            print "     " + "  "*depth + 'if:'
+                msg.append('[ branch ?')
+            msg.append('-> %i: %i: ]'%(i+4,i+4+mopp[i+3]))
+            msg.debug()
+            msg.append("     " + "  "*depth + 'if:')
+            msg.debug()
             idssub1, trissub1 = self.parseMopp(start = i+4, depth = depth+1, toffset = toffset, verbose = verbose)
-            print "     " + "  "*depth + 'else:'
+            msg.append("     " + "  "*depth + 'else:')
+            msg.debug()
             idssub2, trissub2 = self.parseMopp(start = i+4+mopp[i+3], depth = depth+1, toffset = toffset, verbose = verbose)
             ids.extend([i,i+1,i+2,i+3])
             ids.extend(idssub1)
@@ -364,10 +399,10 @@ def parseMopp(self, start = 0, depth = 0, toffset = 0, verbose = False):
 
         elif code in [0x20,0x21,0x22]:
             # compact if-then-else with one argument
-            print mopp[i+1], '[ branch ? -> %i: %i: ]'%(i+3,i+3+mopp[i+2])
-            print "     " + "  "*depth + 'if:'
+            msg.append(mopp[i+1], '[ branch ? -> %i: %i: ]'%(i+3,i+3+mopp[i+2])).debug()
+            msg.append("     " + "  "*depth + 'if:').debug()
             idssub1, trissub1 = self.parseMopp(start = i+3, depth = depth+1, toffset = toffset, verbose = verbose)
-            print "     " + "  "*depth + 'else:'
+            msg.append("     " + "  "*depth + 'else:').debug()
             idssub2, trissub2 = self.parseMopp(start = i+3+mopp[i+2], depth = depth+1, toffset = toffset, verbose = verbose)
             ids.extend([i,i+1,i+2])
             ids.extend(idssub1)
@@ -379,10 +414,10 @@ def parseMopp(self, start = 0, depth = 0, toffset = 0, verbose = False):
         elif code in [0x23,0x24,0x25]: # short if x <= a then 1; if x > b then 2;
             jump1 = mopp[i+3] * 256 + mopp[i+4]
             jump2 = mopp[i+5] * 256 + mopp[i+6]
-            print mopp[i+1], mopp[i+2], '[ branch ? -> %i: %i: ]'%(i+7+jump1,i+7+jump2)
-            print "     " + "  "*depth + 'if:'
+            msg.append(mopp[i+1], mopp[i+2], '[ branch ? -> %i: %i: ]'%(i+7+jump1,i+7+jump2)).debug()
+            msg.append("     " + "  "*depth + 'if:').debug()
             idssub1, trissub1 = self.parseMopp(start = i+7+jump1, depth = depth+1, toffset = toffset, verbose = verbose)
-            print "     " + "  "*depth + 'else:'
+            msg.append("     " + "  "*depth + 'else:').debug()
             idssub2, trissub2 = self.parseMopp(start = i+7+jump2, depth = depth+1, toffset = toffset, verbose = verbose)
             ids.extend([i,i+1,i+2,i+3,i+4,i+5,i+6])
             ids.extend(idssub1)
@@ -391,31 +426,30 @@ def parseMopp(self, start = 0, depth = 0, toffset = 0, verbose = False):
             tris.extend(trissub2)
             ret = True
         elif code in [0x26,0x27,0x28]:
-            print mopp[i+1], mopp[i+2],
+            msg.append(mopp[i+1], mopp[i+2])
             if code == 0x26:
-                print '[ bound X ]'
+                msg.append('[ bound X ]')
             elif code == 0x27:
-                print '[ bound Y ]'
+                msg.append('[ bound Y ]')
             elif code == 0x28:
-                print '[ bound Z ]'
-            else:
-                print
+                msg.append('[ bound Z ]')
             ids.extend([i,i+1,i+2])
             i += 3
         elif code in [0x01, 0x02, 0x03, 0x04]:
-            print mopp[i+1], mopp[i+2], mopp[i+3], '[ bound XYZ? ]'
+            msg.append(mopp[i+1], mopp[i+2], mopp[i+3], '[ bound XYZ? ]')
             ids.extend([i,i+1,i+2,i+3])
             i += 4
         else:
-            print "unknown mopp code 0x%02X"%code
-            print "following bytes are"
+            msg.append("unknown mopp code 0x%02X"%code).error()
+            msg.append("following bytes are").debug()
             extrabytes = [mopp[j] for j in xrange(i+1,min(self.moppDataSize,i+10))]
             extraindex = [j       for j in xrange(i+1,min(self.moppDataSize,i+10))]
-            print extrabytes
+            msg.append(extrabytes).debug()
             for b, j in zip(extrabytes, extraindex):
                 if j+b+1 < self.moppDataSize:
-                    print "opcode after jump %i is 0x%02X"%(b,mopp[j+b+1]), [mopp[k] for k in xrange(j+b+2,min(self.moppDataSize,j+b+11))]
+                    msg.append("opcode after jump %i is 0x%02X"%(b,mopp[j+b+1]), [mopp[k] for k in xrange(j+b+2,min(self.moppDataSize,j+b+11))]).debug()
             raise ValueError("unknown mopp opcode 0x%02X"%code)
 
-    return ids, tris
+        msg.debug()
 
+    return ids, tris
