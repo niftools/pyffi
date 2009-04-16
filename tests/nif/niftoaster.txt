@@ -112,7 +112,7 @@ The --spells switch
 >>> sys.path.append("scripts/NIF")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--spells"]
->>> niftoaster.NifToaster().cli()
+>>> niftoaster.NifToaster().cli() # doctest: +REPORT_NDIFF
 check_read
 check_readwrite
 check_nodenamesbyflag
@@ -121,7 +121,7 @@ check_bhkbodycenter
 check_centerradius
 check_convexverticesshape
 check_mopp
-checkskincenterradius
+check_skincenterradius
 checkskinpartition
 checktangentspace
 checktristrip
@@ -228,6 +228,10 @@ pyffi.toaster:INFO:=== tests/nif/test_opt_mergeduplicates.nif ===
 pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:    writing to temporary file
 pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_skincenterradius.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
 pyffi.toaster:INFO:Finished.
 
 The check_bhkbodycenter spell
@@ -271,6 +275,45 @@ pyffi.toaster:INFO:          recalculating bounding sphere
 pyffi.toaster:INFO:          comparing old and new spheres
 pyffi.toaster:WARNING:center does not match; original [ -1.000 -0.000  0.000 ], calculated [  0.000 -0.000  0.000 ]
 pyffi.toaster:WARNING:radius does not match; original 10.0, calculated 17.32...
+pyffi.toaster:INFO:Finished.
+
+The check_skincenterradius spell
+--------------------------------
+
+>>> import sys
+>>> sys.path.append("scripts/NIF")
+>>> import niftoaster
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_skincenterradius", "tests/nif/test_skincenterradius.nif"]
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+pyffi.toaster:INFO:=== tests/nif/test_skincenterradius.nif ===
+pyffi.toaster:INFO:  --- check_skincenterradius ---
+pyffi.toaster:INFO:    ~~~ NiNode [Bip01] ~~~
+pyffi.toaster:INFO:      ~~~ NiNode [Bip01 Pelvis] ~~~
+pyffi.toaster:INFO:        ~~~ NiNode [Bip01 Spine] ~~~
+pyffi.toaster:INFO:          ~~~ NiNode [Bip01 Spine1] ~~~
+pyffi.toaster:INFO:            ~~~ NiNode [Bip01 Spine2] ~~~
+pyffi.toaster:INFO:              ~~~ NiNode [Bip01 Neck] ~~~
+pyffi.toaster:INFO:                ~~~ NiNode [Bip01 Head] ~~~
+pyffi.toaster:INFO:                ~~~ NiNode [Bip01 L Clavicle] ~~~
+pyffi.toaster:INFO:                  ~~~ NiNode [Bip01 L UpperArm] ~~~
+pyffi.toaster:INFO:                    ~~~ NiNode [Bip01 L Forearm] ~~~
+pyffi.toaster:INFO:                ~~~ NiNode [Bip01 R Clavicle] ~~~
+pyffi.toaster:INFO:                  ~~~ NiNode [Bip01 R UpperArm] ~~~
+pyffi.toaster:INFO:                    ~~~ NiNode [Bip01 R Forearm] ~~~
+pyffi.toaster:INFO:          ~~~ NiNode [Bip01 L Thigh] ~~~
+pyffi.toaster:INFO:            ~~~ NiNode [Bip01 L Calf] ~~~
+pyffi.toaster:INFO:              ~~~ NiNode [Bip01 L Foot] ~~~
+pyffi.toaster:INFO:                ~~~ NiNode [Bip01 L Toe0] ~~~
+pyffi.toaster:INFO:          ~~~ NiNode [Bip01 R Thigh] ~~~
+pyffi.toaster:INFO:            ~~~ NiNode [Bip01 R Calf] ~~~
+pyffi.toaster:INFO:              ~~~ NiNode [Bip01 R Foot] ~~~
+pyffi.toaster:INFO:                ~~~ NiNode [Bip01 R Toe0] ~~~
+pyffi.toaster:INFO:      ~~~ NiTriShape [Body] ~~~
+pyffi.toaster:INFO:        getting skindata block bounding spheres
+pyffi.toaster:INFO:        recalculating bounding spheres
+pyffi.toaster:INFO:        comparing old and new spheres
+pyffi.toaster:ERROR:Bip01 L Foot center does not match; original [  0.000  0.000  0.000 ], calculated [  3.109  2.224 -0.117 ]
+pyffi.toaster:ERROR:Bip01 L Foot radius does not match; original 0.0, calculated 5.48116622473
 pyffi.toaster:INFO:Finished.
 
 The check_convexverticesshape spell

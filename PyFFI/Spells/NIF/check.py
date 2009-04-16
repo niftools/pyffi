@@ -388,6 +388,51 @@ class SpellCheckCenterRadius(NifSpell):
             # stop recursing
             return False
 
+class SpellCheckSkinCenterRadius(NifSpell):
+    """Recalculate the skindata center and radius for each bone, compare them
+    to the originals, and report mismatches.
+    """
+
+    SPELLNAME = "check_skincenterradius"
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.NiSkinData)
+
+    def branchinspect(self, branch):
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiGeometry))
+
+    def branchentry(self, branch):
+        if not(isinstance(branch, NifFormat.NiGeometry) and branch.isSkin()):
+            # keep recursing
+            return True
+        else:
+            self.toaster.msg("getting skindata block bounding spheres")
+            center = []
+            radius = []
+            for skindatablock in branch.skinInstance.data.boneList:
+                center.append(skindatablock.boundingSphereOffset.getCopy())
+                radius.append(skindatablock.boundingSphereRadius)
+
+            self.toaster.msg("recalculating bounding spheres")
+            branch.updateSkinCenterRadius()
+
+            self.toaster.msg("comparing old and new spheres")
+            for i, skindatablock in enumerate(branch.skinInstance.data.boneList):
+                if center[i] != skindatablock.boundingSphereOffset:
+                    self.toaster.logger.error(
+                        "%s center does not match; original %s, calculated %s"
+                        % (branch.skinInstance.bones[i].name,
+                           center[i], skindatablock.boundingSphereOffset))
+                if abs(radius[i] - skindatablock.boundingSphereRadius) \
+                    > NifFormat._EPSILON:
+                    self.toaster.logger.error(
+                        "%s radius does not match; original %s, calculated %s"
+                        % (branch.skinInstance.bones[i].name,
+                           radius[i], skindatablock.boundingSphereRadius))
+            # stop recursing
+            return False
+
 class SpellCheckConvexVerticesShape(NifSpell):
     """This test checks whether each vertex is the intersection of at least
     three planes.
@@ -431,6 +476,8 @@ class SpellCheckConvexVerticesShape(NifSpell):
                 elif num_intersect == 2:
                     self.toaster.logger.warn(
                         "vertex %s only intersects with two planes" % v)
+            # stop recursing
+            return False
 
 class SpellCheckMopp(NifSpell):
     """Parse and dump mopp trees, and check their validity:
@@ -515,3 +562,6 @@ class SpellCheckMopp(NifSpell):
 
             #if error:
             #    raise ValueError("mopp parsing failed")
+
+            # stop recursing
+            return False
