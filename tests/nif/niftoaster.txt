@@ -117,7 +117,7 @@ check_read
 check_readwrite
 check_nodenamesbyflag
 check_compareskindata
-checkbhkbodycenter
+check_bhkbodycenter
 checkcenterradius
 checkconvexshape
 checkmopp
@@ -216,5 +216,26 @@ pyffi.toaster:INFO:=== tests/nif/test_opt_mergeduplicates.nif ===
 pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:    writing to temporary file
 pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:Finished.
+
+The check_bhkbodycenter spell
+-----------------------------
+
+>>> import sys
+>>> sys.path.append("scripts/NIF")
+>>> import niftoaster
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_bhkbodycenter", "tests/nif/test_fix_detachhavoktristripsdata.nif"]
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+pyffi.toaster:INFO:=== tests/nif/test_fix_detachhavoktristripsdata.nif ===
+pyffi.toaster:INFO:  --- check_bhkbodycenter ---
+pyffi.toaster:INFO:    ~~~ NiNode [MiddleWolfRug01] ~~~
+pyffi.toaster:INFO:      ~~~ NiTriStrips [MiddleWolfRug01:0] ~~~
+pyffi.toaster:INFO:        ~~~ bhkCollisionObject [] ~~~
+pyffi.toaster:INFO:          ~~~ bhkRigidBodyT [] ~~~
+pyffi.toaster:INFO:            getting rigid body mass, center, and inertia
+pyffi.toaster:INFO:            recalculating...
+pyffi.toaster:INFO:            checking center...
+pyffi.toaster:WARNING:center does not match; original [  0.000  0.000  0.000  0.000 ], calculated [ -1.085 18.465  6.887  0.000 ]
+pyffi.toaster:INFO:            checking inertia...
 pyffi.toaster:INFO:Finished.
 

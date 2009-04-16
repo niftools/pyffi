@@ -261,3 +261,64 @@ skipping: skeleton roots are not identical
         else:
             # keep iterating
             return True
+
+class SpellCheckBhkBodyCenter(NifSpell):
+    """Recalculate the center of mass and inertia matrix,
+    compare them to the originals, and report accordingly.
+    """
+
+    SPELLNAME = "check_bhkbodycenter"
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.bhkRigidBody)
+
+    def branchinspect(self, branch):
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.bhkNiCollisionObject,
+                                   NifFormat.bhkRigidBody))
+
+    def branchentry(self, branch):
+        if not isinstance(branch, NifFormat.bhkRigidBody):
+            # keep recursing
+            return True
+        else:
+            self.toaster.msg("getting rigid body mass, center, and inertia")
+            mass = branch.mass
+            center = branch.center.getCopy()
+            inertia = branch.inertia.getCopy()
+
+            self.toaster.msg("recalculating...")
+            branch.updateMassCenterInertia(mass=branch.mass)
+
+            #self.toaster.msg("checking mass...")
+            #if mass != branch.mass:
+            #    #raise ValueError("center does not match; original %s, calculated %s"%(center, branch.center))
+            #    self.toaster.logger.warn("warning: mass does not match; original %s, calculated %s"%(mass, branch.mass))
+            #    # adapt calculated inertia matrix with observed mass
+            #    if mass > 0.001:
+            #        correction = mass / branch.mass
+            #        for i in xrange(12):
+            #            branch.inertia[i] *= correction
+            #else:
+            #    self.toaster.msg("perfect match!")
+
+            self.toaster.msg("checking center...")
+            if center != branch.center:
+                #raise ValueError("center does not match; original %s, calculated %s"%(center, branch.center))
+                self.toaster.logger.warn(
+                    "center does not match; original %s, calculated %s"
+                    % (center, branch.center))
+
+            self.toaster.msg("checking inertia...")
+
+            scale = max(max(abs(x) for x in row) for row in inertia.asList() + branch.inertia.asList())
+            if (max(max(abs(x - y)
+                        for x, y in zip(row1, row2))
+                    for row1, row2 in zip(inertia.asList(), branch.inertia.asList()))
+                > 0.1 * scale):
+                #raise ValueError("center does not match; original %s, calculated %s"%(center, branch.center))
+                self.toaster.logger.warn(
+                    "inertia does not match:\n\noriginal\n%s\n\ncalculated\n%s\n"
+                    % (inertia, branch.inertia))
+            # stop recursing
+            return False
