@@ -54,7 +54,6 @@ import PyFFI.Spells.NIF.dump
 import PyFFI.Spells.NIF.fix
 import PyFFI.Spells.NIF.optimize
 from PyFFI.Spells.NIF import \
-    checkskinpartition, \
     checktangentspace, \
     checktristrip, \
     disableparallax, \
@@ -82,7 +81,6 @@ class NifToaster(NifToasterBase):
         PyFFI.Spells.NIF.check.SpellCheckConvexVerticesShape,
         PyFFI.Spells.NIF.check.SpellCheckMopp,
         PyFFI.Spells.NIF.check.SpellCheckSkinCenterRadius,
-        checkskinpartition,
         checktangentspace,
         checktristrip,
         disableparallax,
