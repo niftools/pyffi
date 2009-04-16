@@ -387,3 +387,47 @@ class SpellCheckCenterRadius(NifSpell):
                    % (radius, branch.radius))
             # stop recursing
             return False
+
+class SpellCheckConvexVerticesShape(NifSpell):
+    """This test checks whether each vertex is the intersection of at least
+    three planes.
+    """
+    SPELLNAME = "check_convexverticesshape"
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.bhkConvexVerticesShape)
+
+    def branchinspect(self, branch):
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.bhkNiCollisionObject,
+                                   NifFormat.bhkRefObject))
+
+    def branchentry(self, branch):
+        if not isinstance(branch, NifFormat.bhkConvexVerticesShape):
+            # keep recursing
+            return True
+        else:
+            self.toaster.msg("checking vertices and planes")
+            for v4 in branch.vertices:
+                v = NifFormat.Vector3()
+                v.x = v4.x
+                v.y = v4.y
+                v.z = v4.z
+                num_intersect = 0
+                for n4 in branch.normals:
+                    n = NifFormat.Vector3()
+                    n.x = n4.x
+                    n.y = n4.y
+                    n.z = n4.z
+                    d   = n4.w
+                    if abs(v * n + d) < 0.01:
+                        num_intersect += 1
+                if num_intersect == 0:
+                    self.toaster.logger.error(
+                        "vertex %s does not intersect with any plane" % v)
+                elif num_intersect == 1:
+                    self.toaster.logger.warn(
+                        "vertex %s only intersects with one plane" % v)
+                elif num_intersect == 2:
+                    self.toaster.logger.warn(
+                        "vertex %s only intersects with two planes" % v)

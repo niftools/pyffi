@@ -54,7 +54,6 @@ import PyFFI.Spells.NIF.dump
 import PyFFI.Spells.NIF.fix
 import PyFFI.Spells.NIF.optimize
 from PyFFI.Spells.NIF import \
-    checkconvexshape, \
     checkmopp, \
     checkskincenterradius, \
     checkskinpartition, \
@@ -82,7 +81,7 @@ class NifToaster(NifToasterBase):
         PyFFI.Spells.NIF.check.SpellCompareSkinData,
         PyFFI.Spells.NIF.check.SpellCheckBhkBodyCenter,
         PyFFI.Spells.NIF.check.SpellCheckCenterRadius,
-        checkconvexshape,
+        PyFFI.Spells.NIF.check.SpellCheckConvexVerticesShape,
         checkmopp,
         checkskincenterradius,
         checkskinpartition,

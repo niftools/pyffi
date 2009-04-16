@@ -119,7 +119,7 @@ check_nodenamesbyflag
 check_compareskindata
 check_bhkbodycenter
 check_centerradius
-checkconvexshape
+check_convexverticesshape
 checkmopp
 checkskincenterradius
 checkskinpartition
@@ -177,6 +177,10 @@ pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:    writing to temporary file
 pyffi.toaster:INFO:      comparing file sizes
 pyffi.toaster:INFO:=== tests/nif/test_centerradius.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_convexverticesshape.nif ===
 pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:    writing to temporary file
 pyffi.toaster:INFO:      comparing file sizes
@@ -263,5 +267,24 @@ pyffi.toaster:INFO:          recalculating bounding sphere
 pyffi.toaster:INFO:          comparing old and new spheres
 pyffi.toaster:WARNING:center does not match; original [ -1.000 -0.000  0.000 ], calculated [  0.000 -0.000  0.000 ]
 pyffi.toaster:WARNING:radius does not match; original 10.0, calculated 17.32...
+pyffi.toaster:INFO:Finished.
+
+The check_convexverticesshape spell
+-----------------------------------
+
+>>> import sys
+>>> sys.path.append("scripts/NIF")
+>>> import niftoaster
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_convexverticesshape", "tests/nif/test_convexverticesshape.nif"]
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+pyffi.toaster:INFO:=== tests/nif/test_convexverticesshape.nif ===
+pyffi.toaster:INFO:  --- check_convexverticesshape ---
+pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
+pyffi.toaster:INFO:      ~~~ bhkCollisionObject [] ~~~
+pyffi.toaster:INFO:        ~~~ bhkRigidBody [] ~~~
+pyffi.toaster:INFO:          ~~~ bhkConvexVerticesShape [] ~~~
+pyffi.toaster:INFO:            checking vertices and planes
+pyffi.toaster:ERROR:vertex [  0.000  0.000  1.500 ] does not intersect with any plane
+pyffi.toaster:INFO:      ~~~ NiTriStrips [Sphere] ~~~
 pyffi.toaster:INFO:Finished.
 
