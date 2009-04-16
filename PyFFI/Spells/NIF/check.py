@@ -431,3 +431,87 @@ class SpellCheckConvexVerticesShape(NifSpell):
                 elif num_intersect == 2:
                     self.toaster.logger.warn(
                         "vertex %s only intersects with two planes" % v)
+
+class SpellCheckMopp(NifSpell):
+    """Parse and dump mopp trees, and check their validity:
+
+    * do they have correct origin and scale?
+    * do they refer to every triangle exactly once?
+    * does the parser visit every byte exactly once?
+
+    Mainly useful to check the heuristic parser and for debugging mopp codes.
+    """
+    SPELLNAME = "check_mopp"
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.bhkMoppBvTreeShape)
+
+    def branchinspect(self, branch):
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.bhkNiCollisionObject,
+                                   NifFormat.bhkRefObject))
+
+    def branchentry(self, branch):
+        if not isinstance(branch, NifFormat.bhkMoppBvTreeShape):
+            # keep recursing
+            return True
+        else:
+            mopp = [b for b in branch.moppData]
+            o = NifFormat.Vector3()
+            o.x = branch.origin.x
+            o.y = branch.origin.y
+            o.z = branch.origin.z
+            scale = branch.scale
+
+            self.toaster.msg("recalculating mopp origin and scale")
+            branch.updateOriginScale()
+
+            if branch.origin != o:
+                self.toaster.logger.warn("origin mismatch")
+                self.toaster.logger.warn("(was %s and is now %s)"
+                                         % (o, branch.origin))
+            if abs(branch.scale - scale) > 0.5:
+                self.toaster.logger.warn("scale mismatch")
+                self.toaster.logger.warn("(was %s and is now %s)"
+                                         % (scale, branch.scale))
+
+            self.toaster.msg("parsing mopp")
+            # ids = indices of bytes processed, tris = triangle indices
+            ids, tris = branch.parseMopp(verbose=True)
+
+            error = False
+
+            # check triangles
+            counts = [tris.count(i) for i in xrange(branch.shape.data.numTriangles)]
+            missing = [i for i in xrange(branch.shape.data.numTriangles)
+                       if counts[i] != 1]
+            if missing:
+                self.toaster.logger.error(
+                    "some triangles never visited, or visited more than once")
+                self.toaster.logger.debug(
+                    "triangles index, times visited")
+                for i in missing:
+                    self.toaster.logger.debug(i, counts[i])
+                error = True
+
+            wrong = [i for i in tris if i > branch.shape.data.numTriangles]
+            if wrong:
+                self.toaster.logger.error("invalid triangle indices")
+                self.toaster.logger.debug(wrong)
+                error = True
+
+            # check bytes
+            counts = [ids.count(i) for i in xrange(branch.moppDataSize)]
+            missing = [i for i in xrange(branch.moppDataSize) if counts[i] != 1]
+            if missing:
+                self.toaster.logger.error(
+                    "some bytes never visited, or visited more than once")
+                self.toaster.logger.debug(
+                    "byte index, times visited, value")
+                for i in missing:
+                    self.toaster.logger.debug(i, counts[i], "0x%02X" % mopp[i])
+                    self.toaster.logger.debug([mopp[k] for k in xrange(i, min(branch.moppDataSize, i + 10))])
+                error = True
+
+            #if error:
+            #    raise ValueError("mopp parsing failed")
