@@ -122,10 +122,8 @@ check_centerradius
 check_convexverticesshape
 check_mopp
 check_skincenterradius
-checkskinpartition
 checktangentspace
 checktristrip
-disableparallax
 dump
 dump_tex
 dump_htmlreport
@@ -134,6 +132,7 @@ fix_addtangentspace
 fix_clampmaterialalpha
 fix_deltangentspace
 fix_detachhavoktristripsdata
+fix_disableparallax
 fix_ffvt3rskinpartition
 fix_texturepath
 fix_sendgeometriestobindposition
@@ -193,6 +192,10 @@ pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:    writing to temporary file
 pyffi.toaster:INFO:      comparing file sizes
 pyffi.toaster:INFO:=== tests/nif/test_fix_detachhavoktristripsdata.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_fix_disableparallax.nif ===
 pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:    writing to temporary file
 pyffi.toaster:INFO:      comparing file sizes
@@ -937,3 +940,23 @@ pyffi.mopp:DEBUG:1044:          0x28  142 178 [ bound Z ]
 pyffi.mopp:DEBUG:1047:          0x26  130 207 [ bound X ] 
 pyffi.mopp:DEBUG:1050:          0x50  35 [ triangle 35 ] 
 pyffi.toaster:INFO:Finished.
+
+The fix_disableparallax spell
+-----------------------------
+
+>>> import sys
+>>> sys.path.append("scripts/NIF")
+>>> import niftoaster
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "--dry-run", "fix_disableparallax", "tests/nif/test_fix_disableparallax.nif"]
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+pyffi.toaster:INFO:=== tests/nif/test_fix_disableparallax.nif ===
+pyffi.toaster:INFO:  --- fix_disableparallax ---
+pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
+pyffi.toaster:INFO:      ~~~ NiTriStrips [Sphere] ~~~
+pyffi.toaster:INFO:        ~~~ NiTexturingProperty [] ~~~
+pyffi.toaster:INFO:      ~~~ NiTriStrips [Sphere 2] ~~~
+pyffi.toaster:INFO:        ~~~ NiTexturingProperty [] ~~~
+pyffi.toaster:INFO:          disabling parallax shader
+pyffi.toaster:INFO:  writing to temporary file
+pyffi.toaster:INFO:Finished.
+

@@ -63,6 +63,7 @@ reading tests/nif/test_convexverticesshape.nif
 reading tests/nif/test_dump_tex.nif
 reading tests/nif/test_fix_clampmaterialalpha.nif
 reading tests/nif/test_fix_detachhavoktristripsdata.nif
+reading tests/nif/test_fix_disableparallax.nif
 reading tests/nif/test_fix_ffvt3rskinpartition.nif
 reading tests/nif/test_fix_tangentspace.nif
 reading tests/nif/test_fix_texturepath.nif

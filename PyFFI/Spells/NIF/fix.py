@@ -347,3 +347,32 @@ class SpellStrip(NifSpell):
         else:
             # this one was not excluded, keep recursing
             return True
+
+class SpellDisableParallax(NifSpell):
+    """Disable parallax shader (for Oblivion, but may work on other nifs too).
+    """
+
+    SPELLNAME = "fix_disableparallax"
+    READONLY = False
+
+    def datainspect(self):
+        # XXX should we check that the nif is Oblivion version?
+        # only run the spell if there are textures
+        return self.inspectblocktype(NifFormat.NiTexturingProperty)
+
+    def branchinspect(self, branch):
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiTexturingProperty))
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiTexturingProperty):
+            # is parallax enabled?
+            if branch.applyMode == 4:
+                # yes!
+                self.toaster.msg("disabling parallax shader")
+                branch.applyMode = 2
+            # stop recursing
+            return False
+        else:
+            # keep recursing
+            return True

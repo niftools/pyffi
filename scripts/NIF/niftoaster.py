@@ -46,9 +46,8 @@ import logging
 import sys
 
 from PyFFI.Formats.NIF import NifFormat
-from PyFFI.Spells import Toaster
-from PyFFI.Spells.NIF import NifToaster as NifToasterBase
 import PyFFI.Spells.check
+import PyFFI.Spells.NIF
 import PyFFI.Spells.NIF.check
 import PyFFI.Spells.NIF.dump
 import PyFFI.Spells.NIF.fix
@@ -56,7 +55,6 @@ import PyFFI.Spells.NIF.optimize
 from PyFFI.Spells.NIF import \
     checktangentspace, \
     checktristrip, \
-    disableparallax, \
     exportpixeldata, \
     hackcheckskindata, \
     hackmultiskelroot, \
@@ -69,7 +67,7 @@ from PyFFI.Spells.NIF import \
     updatemopp, \
     updateskinpartition
 
-class NifToaster(NifToasterBase):
+class NifToaster(PyFFI.Spells.NIF.NifToaster):
     """Class for toasting nif files, using any of the available spells."""
     SPELLS = [
         PyFFI.Spells.check.SpellRead,
@@ -83,7 +81,6 @@ class NifToaster(NifToasterBase):
         PyFFI.Spells.NIF.check.SpellCheckSkinCenterRadius,
         checktangentspace,
         checktristrip,
-        disableparallax,
         PyFFI.Spells.NIF.dump.SpellDumpAll,
         PyFFI.Spells.NIF.dump.SpellDumpTex,
         PyFFI.Spells.NIF.dump.SpellHtmlReport,
@@ -92,6 +89,7 @@ class NifToaster(NifToasterBase):
         PyFFI.Spells.NIF.fix.SpellClampMaterialAlpha,
         PyFFI.Spells.NIF.fix.SpellDelTangentSpace,
         PyFFI.Spells.NIF.fix.SpellDetachHavokTriStripsData,
+        PyFFI.Spells.NIF.fix.SpellDisableParallax,
         PyFFI.Spells.NIF.fix.SpellFFVT3RSkinPartition,
         PyFFI.Spells.NIF.fix.SpellFixTexturePath,
         PyFFI.Spells.NIF.fix.SpellSendGeometriesToBindPosition,
@@ -115,7 +113,8 @@ class NifToaster(NifToasterBase):
         "texdump": "dump_tex",
         "read": "check_read",
         "readwrite": "check_readwrite",
-        "ffvt3rskinpartition": "fix_ffvt3rskinpartition"}
+        "ffvt3rskinpartition": "fix_ffvt3rskinpartition",
+        "disableparallax": "fix_disableparallax"}
     EXAMPLES = """* check if PyFFI can read all files in current directory
   (python version of nifskope's xml checker):
 
