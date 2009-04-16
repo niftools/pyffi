@@ -118,7 +118,7 @@ check_readwrite
 check_nodenamesbyflag
 check_compareskindata
 check_bhkbodycenter
-checkcenterradius
+check_centerradius
 checkconvexshape
 checkmopp
 checkskincenterradius
@@ -166,13 +166,17 @@ Traceback (most recent call last):
     ...
 NifError: unknown block type 'NiInvalid!'
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "check_readwrite", "tests/nif/"]
->>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS +REPORT_NDIFF
 pyffi.toaster:INFO:=== tests/nif/invalid.nif ===
 pyffi.toaster:ERROR:TEST FAILED ON tests/nif/invalid.nif
 pyffi.toaster:ERROR:If you were running a spell that came with PyFFI, then
 pyffi.toaster:ERROR:please report this as a bug (include the file) on
 pyffi.toaster:ERROR:http://sourceforge.net/tracker/?group_id=199269
 pyffi.toaster:INFO:=== tests/nif/test.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_centerradius.nif ===
 pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:    writing to temporary file
 pyffi.toaster:INFO:      comparing file sizes
@@ -237,5 +241,27 @@ pyffi.toaster:INFO:            recalculating...
 pyffi.toaster:INFO:            checking center...
 pyffi.toaster:WARNING:center does not match; original [  0.000  0.000  0.000  0.000 ], calculated [ -1.085 18.465  6.887  0.000 ]
 pyffi.toaster:INFO:            checking inertia...
+pyffi.toaster:INFO:Finished.
+
+The check_centerradius spell
+----------------------------
+
+>>> import sys
+>>> sys.path.append("scripts/NIF")
+>>> import niftoaster
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_centerradius", "tests/nif/test_centerradius.nif"]
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+pyffi.toaster:INFO:=== tests/nif/test_centerradius.nif ===
+pyffi.toaster:INFO:  --- check_centerradius ---
+pyffi.toaster:INFO:    ~~~ NiNode [test] ~~~
+pyffi.toaster:INFO:      ~~~ NiTriShape [Cube] ~~~
+pyffi.toaster:INFO:        ~~~ NiTriShapeData [] ~~~
+pyffi.toaster:INFO:          getting bounding sphere
+pyffi.toaster:INFO:          checking that all vertices are inside
+pyffi.toaster:WARNING:not all vertices inside bounding sphere (vertex [ 10.000 -10.000 -10.000 ], error 7.91647286717)
+pyffi.toaster:INFO:          recalculating bounding sphere
+pyffi.toaster:INFO:          comparing old and new spheres
+pyffi.toaster:WARNING:center does not match; original [ -1.000 -0.000  0.000 ], calculated [  0.000 -0.000  0.000 ]
+pyffi.toaster:WARNING:radius does not match; original 10.0, calculated 17.32...
 pyffi.toaster:INFO:Finished.
 

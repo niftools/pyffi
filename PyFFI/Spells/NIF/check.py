@@ -322,3 +322,68 @@ class SpellCheckBhkBodyCenter(NifSpell):
                     % (inertia, branch.inertia))
             # stop recursing
             return False
+
+class SpellCheckCenterRadius(NifSpell):
+    """Recalculate the center and radius, compare them to the originals,
+    and report mismatches.
+    """
+    # tentative results
+    # -----------------
+    # oblivion: ok
+    # civ4: mostly ok (with very few exceptions: effects/magpie/flock.nif, units/!errorunit/bear.nif, maybe some more)
+    # daoc: ok
+    # morrowind: usually ok (quite some exceptions here)
+    # zoo tycoon 2: mostly ok (except *_Adult_*.nif files)
+
+    SPELLNAME = "check_centerradius"
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.NiGeometry)
+
+    def branchinspect(self, branch):
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiGeometry,
+                                   NifFormat.NiGeometryData))
+
+    def branchentry(self, branch):
+        if not isinstance(branch, NifFormat.NiGeometryData):
+            # keep recursing
+            return True
+        else:
+            self.toaster.msg("getting bounding sphere")
+            center = NifFormat.Vector3()
+            center.x = branch.center.x
+            center.y = branch.center.y
+            center.z = branch.center.z
+            radius = branch.radius
+
+            self.toaster.msg("checking that all vertices are inside")
+            maxr = 0.0
+            maxv = None
+            for vert in branch.vertices:
+                dist = vert - center
+                if dist * dist > maxr:
+                    maxr = dist * dist
+                    maxv = vert
+            maxr = maxr ** 0.5
+
+            if maxr > 1.01 * radius + 0.01:
+                #raise ValueError(
+                self.toaster.logger.warn(
+                   "not all vertices inside bounding sphere (vertex %s, error %s)"
+                   % (maxv, abs(maxr - radius)))
+
+            self.toaster.msg("recalculating bounding sphere")
+            branch.updateCenterRadius()
+
+            self.toaster.msg("comparing old and new spheres")
+            if center != branch.center:
+               self.toaster.logger.warn(
+                   "center does not match; original %s, calculated %s"
+                   % (center, branch.center))
+            if abs(radius - branch.radius) > NifFormat._EPSILON:
+               self.toaster.logger.warn(
+                   "radius does not match; original %s, calculated %s"
+                   % (radius, branch.radius))
+            # stop recursing
+            return False
