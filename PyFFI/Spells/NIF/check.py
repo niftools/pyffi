@@ -46,6 +46,7 @@ import tempfile
 
 from PyFFI.Formats.NIF import NifFormat
 import PyFFI.Spells.NIF
+import PyFFI.Utils.TriStrip # for check_tristrip
 
 class SpellReadWrite(PyFFI.Spells.NIF.NifSpell):
     """Like the original read-write spell, but with additional file size
@@ -640,3 +641,64 @@ class SpellCheckTangentSpace(PyFFI.Spells.NIF.NifSpell):
             
             # don't recurse further
             return False 
+
+class SpellCheckTriStrip(PyFFI.Spells.NIF.NifSpell):
+    """Run the stripifier on all triangles from nif files. This spell is also
+    useful for checking and profiling the stripifierand the
+    stitcher/unstitcher  (for instance it checks that it does not
+    change the geometry).
+
+    Reports at the end with average strip length (this is useful to compare
+    various stripification algorithms over a large collection of geometries).
+    """
+    SPELLNAME = 'check_tristrip'
+
+    @classmethod
+    def toastentry(cls, toaster):
+        toaster.striplengths = []
+        return True
+
+    @classmethod
+    def toastexit(cls, toaster):
+        toaster.msg("average strip length = %f"
+                    % (sum(toaster.striplengths)
+                       / float(len(toaster.striplengths))))
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.NiTriBasedGeomData)
+
+    def branchinspect(self, branch):
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiTriBasedGeomData))
+
+    def branchentry(self, branch):
+        if not isinstance(branch, NifFormat.NiTriBasedGeomData):
+            # keep recursing
+            return True
+        else:
+            # get triangles
+            self.toaster.msg('getting triangles')
+            triangles = branch.getTriangles()
+            self.toaster.msg('calculating strips')
+            try:
+                strips = PyFFI.Utils.TriStrip.stripify(
+                    triangles, stitchstrips=False)
+            except StandardError:
+                self.toaster.logger.error('failed to strip triangles')
+                self.toaster.logger.error('%s' % triangles)
+                raise
+            self.toaster.msg('stripified with %i strips' % len(strips))
+
+            # keep track of strip length
+            self.toaster.striplengths += [len(strip) for strip in strips]
+
+            self.toaster.msg('checking strip triangles')
+            PyFFI.Utils.TriStrip._checkStrips(triangles, strips)
+
+            self.toaster.msg('checking stitched strip triangles')
+            stitchedstrip = PyFFI.Utils.TriStrip.stitchStrips(strips)
+            PyFFI.Utils.TriStrip._checkStrips(triangles, [stitchedstrip])
+
+            self.toaster.msg('checking unstitched strip triangles')
+            unstitchedstrips = PyFFI.Utils.TriStrip.unstitchStrip(stitchedstrip)
+            PyFFI.Utils.TriStrip._checkStrips(triangles, unstitchedstrips)

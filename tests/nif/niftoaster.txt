@@ -123,7 +123,7 @@ check_convexverticesshape
 check_mopp
 check_skincenterradius
 check_tangentspace
-checktristrip
+check_tristrip
 dump
 dump_tex
 dump_htmlreport
@@ -1028,4 +1028,26 @@ pyffi.toaster:WARNING:old: [1.0, 0.0, 0.0]
 pyffi.toaster:WARNING:new: [0.0, 0.0, 1.0]
 pyffi.toaster:WARNING:new: ...
 pyffi.toaster:WARNING:new: ...
+pyffi.toaster:INFO:Finished.
+
+The check_tristrip spell
+------------------------
+
+>>> import sys
+>>> sys.path.append("scripts/NIF")
+>>> import niftoaster
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tristrip", "tests/nif/test_opt_dupverts.nif"]
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+pyffi.toaster:INFO:=== tests/nif/test_opt_dupverts.nif ===
+pyffi.toaster:INFO:  --- check_tristrip ---
+pyffi.toaster:INFO:    ~~~ NiNode [Lowerclass Dunmer Cup Type-1] ~~~
+pyffi.toaster:INFO:      ~~~ NiTriStrips [Lowerclass Dunmer Cup Type-1] ~~~
+pyffi.toaster:INFO:        ~~~ NiTriStripsData [] ~~~
+pyffi.toaster:INFO:          getting triangles
+pyffi.toaster:INFO:          calculating strips
+pyffi.toaster:INFO:          stripified with 120 strips
+pyffi.toaster:INFO:          checking strip triangles
+pyffi.toaster:INFO:          checking stitched strip triangles
+pyffi.toaster:INFO:          checking unstitched strip triangles
+pyffi.toaster:INFO:average strip length = 3.89...
 pyffi.toaster:INFO:Finished.
