@@ -31,6 +31,8 @@ Release 1.2.4 (in development)
 
   - added support for multiplication and division operators in expressions
 
+* fixes for unicode support (prepares for py3k)
+
 Release 1.2.3 (Apr 2, 2009)
 ===========================
 
