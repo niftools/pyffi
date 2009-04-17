@@ -138,7 +138,6 @@ fix_texturepath
 fix_sendgeometriestobindposition
 fix_sendbonestobindposition
 fix_strip
-hackskinrestpose
 mergeskelandrestpos
 opt_cleanreflists
 opt_mergeduplicates
