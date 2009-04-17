@@ -272,6 +272,86 @@ def mergeExternalSkeletonRoot(self, skelroot):
                 for i, externalbone in enumerate(externalblock.bones):
                     externalblock.bones[i] = bone_dict[externalbone.name]
 
+def mergeSkeletonRoots(self):
+    """This function will look for other geometries whose skeleton root is a
+    (possibly indirect) child of this node.
+    It will then reparent those geometries to this node.
+    For example, it will unify the skeleton
+    roots in Morrowind's cliffracer.nif file. This makes it much easier to
+    import skeletons in for instance Blender: there will be only one skeleton
+    root for each bone, over all geometries.
+
+    The merge fails for those geometries whose global skin data transform
+    is not the unit transform.
+
+    Returns list of all new blocks that have been reparented (and added
+    to the skeleton root children list), and a list of blocks for which the
+    merge failed.
+    """
+    logger = logging.getLogger("pyffi.nif.ninode")
+
+    result = [] # list of reparented blocks
+    failed = [] # list of blocks that could not be reparented
+
+    id44 = self.cls.Matrix44()
+    id44.setIdentity()
+
+    # find the root block (direct parent of skeleton root that connects to the geometry) for each of these geometries
+    for geom in self.getGlobalIterator():
+        if not isinstance(geom, self.cls.NiGeometry):
+            # only geometries
+            continue
+        if not geom.isSkin():
+            # only skins
+            continue
+        if geom.skinInstance.skeletonRoot is self:
+            # only if they have a different skeleton root
+            continue
+        logger.debug("trying to rebase %s onto %s" % (geom.name, self.name))
+
+        # XXX We also merge roots if no bones are shared!!
+        # XXX (helps morrowind imports)
+        #if not(set(geom.skinInstance.bones) & set(skininst.bones)):
+        #    # only if bones are shared
+        #    continue
+
+        # check transforms
+        if geom.skinInstance.data.getTransform() != id44:
+            # XXX I think the maths also works out if this is not unit
+            # XXX transform, so try rebase also in this case
+            #or geom.getTransform(geom.skinInstance.skeletonRoot)!= id44):
+            logger.warn(
+                "can't rebase %s: non-unit global skin transform" % geom.name)
+            failed.append(geom)
+            continue # skip this one
+        # find geometry parent
+        geomroot = geom.skinInstance.skeletonRoot.findChain(geom)[-2]
+
+        # make sure we only do each geometry once
+        if geom in result:
+            continue
+        # reparent
+        #geom_transform = geom.getTransform(self)  # not used, see XXX below
+        logger.debug("detaching %s from %s" % (geom.name, geomroot.name))
+        geomroot.removeChild(geom)
+        logger.debug("attaching %s to %s" % (geom.name, self.name))
+        self.addChild(geom)
+        geom.skinInstance.skeletonRoot = self # set its new skeleton root
+
+        # XXX this would help if geometries were in their bind position
+        # XXX but very often this is not the case anyway
+        # XXX so let sendGeometriesToBindPosition handle this
+        # XXX or apply skin deforms...
+        #logger.debug("fixing transforms on %s" % geom.name)
+        #geom.setTransform(geom_transform)
+        #geom.skinInstance.data.setTransform(geom_transform.getInverse())
+
+        # and signal that we reparented this block
+        if geom not in result:
+            result.append(geom)
+
+    return result, failed
+
 def sendGeometriesToBindPosition(self):
     """Call this on the skeleton root of geometries. This function will
     transform the geometries, such that all skin data transforms coincide, or

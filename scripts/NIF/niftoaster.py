@@ -53,7 +53,6 @@ import PyFFI.Spells.NIF.dump
 import PyFFI.Spells.NIF.fix
 import PyFFI.Spells.NIF.optimize
 from PyFFI.Spells.NIF import \
-    mergeskelandrestpos, \
     optimize_split, \
     scale, \
     updatecenterradius, \
@@ -85,10 +84,10 @@ class NifToaster(PyFFI.Spells.NIF.NifToaster):
         PyFFI.Spells.NIF.fix.SpellDisableParallax,
         PyFFI.Spells.NIF.fix.SpellFFVT3RSkinPartition,
         PyFFI.Spells.NIF.fix.SpellFixTexturePath,
+        PyFFI.Spells.NIF.fix.SpellMergeSkeletonRoots,
         PyFFI.Spells.NIF.fix.SpellSendGeometriesToBindPosition,
         PyFFI.Spells.NIF.fix.SpellSendBonesToBindPosition,
         PyFFI.Spells.NIF.fix.SpellStrip,
-        mergeskelandrestpos,
         PyFFI.Spells.NIF.optimize.SpellCleanRefLists,
         PyFFI.Spells.NIF.optimize.SpellMergeDuplicates,
         PyFFI.Spells.NIF.optimize.SpellOptimizeGeometry,

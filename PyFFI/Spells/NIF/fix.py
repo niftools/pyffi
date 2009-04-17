@@ -316,6 +316,45 @@ class SpellSendBonesToBindPosition(NifSpell):
         # keep recursing into children
         return True
 
+class SpellMergeSkeletonRoots(NifSpell):
+    """Merges skeleton roots in the nif file so that no skeleton root has
+    another skeleton root as child. Warns if merge is impossible (this happens
+    if the global skin data of the geometry is not the unit transform).
+    """
+    SPELLNAME = "fix_mergeskeletonroots"
+    READONLY = False
+
+    def datainspect(self):
+        # only run the spell if there are skinned geometries
+        return self.inspectblocktype(NifFormat.NiSkinInstance)
+
+    def dataentry(self):
+        # make list of skeleton roots
+        self.skelrootlist = []
+        for branch in self.data.getGlobalIterator():
+            if isinstance(branch, NifFormat.NiGeometry):
+                if branch.skinInstance:
+                    skelroot = branch.skinInstance.skeletonRoot
+                    if skelroot and not skelroot in self.skelrootlist:
+                        self.skelrootlist.append(skelroot)
+        # only apply spell if there are skeleton roots
+        if self.skelrootlist:
+            return True
+        else:
+            return False
+
+    def branchinspect(self, branch):
+        # only inspect the NiNode branch
+        return isinstance(branch, NifFormat.NiNode)
+    
+    def branchentry(self, branch):
+        if branch in self.skelrootlist:
+            result, failed = branch.mergeSkeletonRoots()
+            for geom in result:
+                self.toaster.msg("reassigned skeleton root of %s" % geom.name)
+        # continue recursion
+        return True
+
 class SpellApplySkinDeformation(NifSpell):
     """Apply skin deformation to nif."""
     # TODO
