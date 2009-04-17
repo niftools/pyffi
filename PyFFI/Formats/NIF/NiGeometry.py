@@ -215,7 +215,8 @@ def mergeSkeletonRoots(self):
 
     Returns list of all new blocks that have been reparented (and added
     to the skeleton root children list), and a list of blocks for which the
-    merge failed."""
+    merge failed.
+    """
     logger = logging.getLogger("pyffi.nif.nigeometry")
 
     if not self.isSkin():
