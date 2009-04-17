@@ -53,7 +53,6 @@ import PyFFI.Spells.NIF.dump
 import PyFFI.Spells.NIF.fix
 import PyFFI.Spells.NIF.optimize
 from PyFFI.Spells.NIF import \
-    hackmultiskelroot, \
     hackskinrestpose, \
     mergeskelandrestpos, \
     optimize_split, \
@@ -90,7 +89,6 @@ class NifToaster(PyFFI.Spells.NIF.NifToaster):
         PyFFI.Spells.NIF.fix.SpellSendGeometriesToBindPosition,
         PyFFI.Spells.NIF.fix.SpellSendBonesToBindPosition,
         PyFFI.Spells.NIF.fix.SpellStrip,
-        hackmultiskelroot,
         hackskinrestpose,
         mergeskelandrestpos,
         PyFFI.Spells.NIF.optimize.SpellCleanRefLists,
