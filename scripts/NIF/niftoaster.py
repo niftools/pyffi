@@ -53,7 +53,6 @@ import PyFFI.Spells.NIF.dump
 import PyFFI.Spells.NIF.fix
 import PyFFI.Spells.NIF.optimize
 from PyFFI.Spells.NIF import \
-    checktangentspace, \
     checktristrip, \
     hackcheckskindata, \
     hackmultiskelroot, \
@@ -78,7 +77,7 @@ class NifToaster(PyFFI.Spells.NIF.NifToaster):
         PyFFI.Spells.NIF.check.SpellCheckConvexVerticesShape,
         PyFFI.Spells.NIF.check.SpellCheckMopp,
         PyFFI.Spells.NIF.check.SpellCheckSkinCenterRadius,
-        checktangentspace,
+        PyFFI.Spells.NIF.check.SpellCheckTangentSpace,
         checktristrip,
         PyFFI.Spells.NIF.dump.SpellDumpAll,
         PyFFI.Spells.NIF.dump.SpellDumpTex,

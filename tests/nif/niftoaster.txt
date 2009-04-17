@@ -122,7 +122,7 @@ check_centerradius
 check_convexverticesshape
 check_mopp
 check_skincenterradius
-checktangentspace
+check_tangentspace
 checktristrip
 dump
 dump_tex
@@ -176,6 +176,22 @@ pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:    writing to temporary file
 pyffi.toaster:INFO:      comparing file sizes
 pyffi.toaster:INFO:=== tests/nif/test_centerradius.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_check_tangentspace1.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_check_tangentspace2.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_check_tangentspace3.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_check_tangentspace4.nif ===
 pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:    writing to temporary file
 pyffi.toaster:INFO:      comparing file sizes
@@ -965,3 +981,51 @@ The dump_pixeldata spell
 
 XXX Todo: find an open source nif which can be used for testing.
 
+The check_tangentspace spell
+----------------------------
+
+>>> import sys
+>>> sys.path.append("scripts/NIF")
+>>> import niftoaster
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tangentspace", "tests/nif/test_check_tangentspace1.nif"]
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+pyffi.toaster:INFO:=== tests/nif/test_check_tangentspace1.nif ===
+pyffi.toaster:INFO:  --- check_tangentspace ---
+pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
+pyffi.toaster:INFO:      ~~~ NiTriStrips [Plane] ~~~
+pyffi.toaster:INFO:        checking tangent space
+pyffi.toaster:INFO:Finished.
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tangentspace", "tests/nif/test_check_tangentspace2.nif"]
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+pyffi.toaster:INFO:=== tests/nif/test_check_tangentspace2.nif ===
+pyffi.toaster:INFO:  --- check_tangentspace ---
+pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
+pyffi.toaster:INFO:      ~~~ NiTriStrips [Plane] ~~~
+pyffi.toaster:INFO:        checking tangent space
+pyffi.toaster:INFO:Finished.
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tangentspace", "tests/nif/test_check_tangentspace3.nif"]
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+Traceback (most recent call last):
+    ...
+ValueError: tangent space data has invalid size, expected 96 bytes but got 95
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tangentspace", "tests/nif/test_check_tangentspace4.nif"]
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+pyffi.toaster:INFO:=== tests/nif/test_check_tangentspace4.nif ===
+pyffi.toaster:INFO:  --- check_tangentspace ---
+pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
+pyffi.toaster:INFO:      ~~~ NiTriStrips [Plane] ~~~
+pyffi.toaster:INFO:        checking tangent space
+pyffi.toaster:WARNING:non-unit tangent [ 123.000 456.000 789.000 ] ...
+pyffi.toaster:WARNING:non-ortogonal tangent space at vertex 0
+pyffi.toaster:WARNING:...
+pyffi.toaster:WARNING:...
+pyffi.toaster:WARNING:...
+pyffi.toaster:WARNING:...
+pyffi.toaster:WARNING:calculated tangent space differs from original at vertex 0
+pyffi.toaster:WARNING:old: [0.0, 0.0, 1.0]
+pyffi.toaster:WARNING:old: [123.0, 456.0, 789.0]
+pyffi.toaster:WARNING:old: [1.0, 0.0, 0.0]
+pyffi.toaster:WARNING:new: [0.0, 0.0, 1.0]
+pyffi.toaster:WARNING:new: ...
+pyffi.toaster:WARNING:new: ...
+pyffi.toaster:INFO:Finished.

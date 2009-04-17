@@ -43,11 +43,62 @@ import struct
 
 from PyFFI.Utils import TriStrip
 
-def updateTangentSpace(self, as_extra=True):
+def getTangentSpace(self):
+    """Return iterator over normal, tangent, bitangent vectors.
+    If the block has no tangent space, then returns None.
+    """
+
+    def bytes2vectors(data, pos, num):
+        for i in xrange(num):
+            # data[pos:pos+12] is not really well implemented, so do this
+            vecdata = ''.join(data[j] for j in xrange(pos, pos + 12))
+            vec = self.cls.Vector3()
+            vec.x, vec.y, vec.z = struct.unpack('<fff', vecdata)
+            yield vec
+            pos += 12
+
+
+    if self.data.numVertices == 0:
+        return ()
+
+    if not self.data.normals:
+        #raise ValueError('geometry has no normals')
+        return None
+
+    if (not self.data.tangents) or (not self.data.bitangents):
+        # no tangents and bitangents at the usual location
+        # perhaps there is Oblivion style data?
+        for extra in self.getExtraDatas():
+            if isinstance(extra, self.cls.NiBinaryExtraData):
+                if extra.name == 'Tangent space (binormal & tangent vectors)':
+                    break
+        else:
+            #raise ValueError('geometry has no tangents')
+            return None
+        if 24 * self.data.numVertices != len(extra.binaryData):
+            raise ValueError(
+                'tangent space data has invalid size, expected %i bytes but got %i'
+                % (24 * self.data.numVertices, len(extra.binaryData)))
+        tangents = bytes2vectors(extra.binaryData,
+                                 0,
+                                 self.data.numVertices)
+        bitangents = bytes2vectors(extra.binaryData,
+                                   12 * self.data.numVertices,
+                                   self.data.numVertices)
+    else:
+        tangents = self.data.tangents
+        bitangents = self.data.bitangents
+
+    return izip(self.data.normals, tangents, bitangents)
+
+def updateTangentSpace(self, as_extra=None):
     """Recalculate tangent space data.
 
     @param as_extra: Whether to store the tangent space data as extra data
-        (as in Oblivion) or not (as in Fallout 3).
+        (as in Oblivion) or not (as in Fallout 3). If not set, switches to
+        Oblivion if an extra data block is found, otherwise does default.
+        Set it to override this detection (for example when using this
+        function to create tangent space data) and force behaviour.
     """
     # check that self.data exists and is valid
     if not isinstance(self.data, self.cls.NiTriBasedGeomData):
@@ -157,23 +208,34 @@ def updateTangentSpace(self, as_extra=True):
                 bin[i].normalize() # should work now
             tan[i] = n.crossproduct(bin[i])
 
+    # find possible extra data block
+    for extra in self.getExtraDatas():
+        if isinstance(extra, self.cls.NiBinaryExtraData):
+            if extra.name == 'Tangent space (binormal & tangent vectors)':
+                break
+    else:
+        extra = None
+
+    # if autodetection is on, do as_extra only if an extra data block is found
+    if as_extra is None:
+        if extra:
+            as_extra = True
+        else:
+            as_extra = False
+
     if as_extra:
         # if tangent space extra data already exists, use it
-        for block in self.getRefs():
-            if isinstance(block, self.cls.NiBinaryExtraData):
-                if block.name == 'Tangent space (binormal & tangent vectors)':
-                    break
-        else:
-        # otherwise, create a new block and link it
-            block = self.cls.NiBinaryExtraData()
-            block.name = 'Tangent space (binormal & tangent vectors)'
-            self.addExtraData(block)
+        if not extra:
+            # otherwise, create a new block and link it
+            extra = self.cls.NiBinaryExtraData()
+            extra.name = 'Tangent space (binormal & tangent vectors)'
+            self.addExtraData(extra)
 
         # write the data
         binarydata = ""
         for vec in tan + bin:
             binarydata += struct.pack('<fff', vec.x, vec.y, vec.z)
-        block.binaryData = binarydata
+        extra.binaryData = binarydata
     else:
         # set tangent space flag
         self.data.numUvSets |= 61440

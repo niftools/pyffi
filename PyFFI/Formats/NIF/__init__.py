@@ -59,6 +59,10 @@ reading tests/nif/invalid.nif
 Warning: read failed due corrupt file, corrupt format description, or bug.
 reading tests/nif/test.nif
 reading tests/nif/test_centerradius.nif
+reading tests/nif/test_check_tangentspace1.nif
+reading tests/nif/test_check_tangentspace2.nif
+reading tests/nif/test_check_tangentspace3.nif
+reading tests/nif/test_check_tangentspace4.nif
 reading tests/nif/test_convexverticesshape.nif
 reading tests/nif/test_dump_tex.nif
 reading tests/nif/test_fix_clampmaterialalpha.nif

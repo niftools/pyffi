@@ -45,9 +45,9 @@ from itertools import izip, repeat
 import tempfile
 
 from PyFFI.Formats.NIF import NifFormat
-from PyFFI.Spells.NIF import NifSpell
+import PyFFI.Spells.NIF
 
-class SpellReadWrite(NifSpell):
+class SpellReadWrite(PyFFI.Spells.NIF.NifSpell):
     """Like the original read-write spell, but with additional file size
     check."""
 
@@ -81,7 +81,7 @@ class SpellReadWrite(NifSpell):
         # spell is finished: prevent recursing into the tree
         return False
 
-class SpellNodeNamesByFlag(NifSpell):
+class SpellNodeNamesByFlag(PyFFI.Spells.NIF.NifSpell):
     """This spell goes over all nif files, and at the end, it gives a summary
     of which node names where used with particular flags."""
 
@@ -114,7 +114,7 @@ class SpellNodeNamesByFlag(NifSpell):
         else:
             return False
 
-class SpellCompareSkinData(NifSpell):
+class SpellCompareSkinData(PyFFI.Spells.NIF.NifSpell):
     """This spell compares skinning data with a reference nif."""
 
     SPELLNAME = "check_compareskindata"
@@ -262,7 +262,7 @@ skipping: skeleton roots are not identical
             # keep iterating
             return True
 
-class SpellCheckBhkBodyCenter(NifSpell):
+class SpellCheckBhkBodyCenter(PyFFI.Spells.NIF.NifSpell):
     """Recalculate the center of mass and inertia matrix,
     compare them to the originals, and report accordingly.
     """
@@ -323,7 +323,7 @@ class SpellCheckBhkBodyCenter(NifSpell):
             # stop recursing
             return False
 
-class SpellCheckCenterRadius(NifSpell):
+class SpellCheckCenterRadius(PyFFI.Spells.NIF.NifSpell):
     """Recalculate the center and radius, compare them to the originals,
     and report mismatches.
     """
@@ -388,7 +388,7 @@ class SpellCheckCenterRadius(NifSpell):
             # stop recursing
             return False
 
-class SpellCheckSkinCenterRadius(NifSpell):
+class SpellCheckSkinCenterRadius(PyFFI.Spells.NIF.NifSpell):
     """Recalculate the skindata center and radius for each bone, compare them
     to the originals, and report mismatches.
     """
@@ -433,7 +433,7 @@ class SpellCheckSkinCenterRadius(NifSpell):
             # stop recursing
             return False
 
-class SpellCheckConvexVerticesShape(NifSpell):
+class SpellCheckConvexVerticesShape(PyFFI.Spells.NIF.NifSpell):
     """This test checks whether each vertex is the intersection of at least
     three planes.
     """
@@ -479,7 +479,7 @@ class SpellCheckConvexVerticesShape(NifSpell):
             # stop recursing
             return False
 
-class SpellCheckMopp(NifSpell):
+class SpellCheckMopp(PyFFI.Spells.NIF.NifSpell):
     """Parse and dump mopp trees, and check their validity:
 
     * do they have correct origin and scale?
@@ -565,3 +565,78 @@ class SpellCheckMopp(NifSpell):
 
             # stop recursing
             return False
+
+class SpellCheckTangentSpace(PyFFI.Spells.NIF.NifSpell):
+    """Check and recalculate the tangent space, compare them to the originals,
+    and report accordingly.
+    """
+    SPELLNAME = 'check_tangentspace'
+    PRECISION = 0.3 #: Difference between values worth warning about.
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.NiTriBasedGeom)
+
+    def branchinspect(self, branch):
+        return isinstance(branch, NifFormat.NiAVObject)
+
+    def branchentry(self, branch):
+        if not isinstance(branch, NifFormat.NiTriBasedGeom):
+            # keep recursing
+            return True
+        else:
+            # get tangent space
+            tangentspace = branch.getTangentSpace()
+            if not tangentspace:
+                # no tangent space present
+                return False
+            self.toaster.msg("checking tangent space")
+            oldspace = [] # we will store the old tangent space here
+            for i, (n, t, b) in enumerate(tangentspace):
+                oldspace.append(n.asList() + t.asList() + b.asList())
+                if abs(n * n - 1) > NifFormat._EPSILON:
+                    self.toaster.logger.warn(
+                        'non-unit normal %s (norm %f) at vertex %i'
+                        % (n, (n * n) ** 0.5, i))
+                if abs(t * t - 1) > NifFormat._EPSILON:
+                    self.toaster.logger.warn(
+                        'non-unit tangent %s (norm %f) at vertex %i'
+                        % (t, (t * t) ** 0.5, i))
+                if abs(b * b - 1) > NifFormat._EPSILON:
+                    self.toaster.logger.warn(
+                        'non-unit binormal %s (norm %f) at vertex %i'
+                        % (b, (b * b) ** 0.5, i))
+                if abs(n * t) + abs(n * b) > NifFormat._EPSILON:
+                    volume = n * t.crossproduct(b)
+                    self.toaster.logger.warn(
+                        'non-ortogonal tangent space at vertex %i' % i)
+                    self.toaster.logger.warn(
+                        'n * t = %s * %s = %f'%(n, t, n * t))
+                    self.toaster.logger.warn(
+                        'n * b = %s * %s = %f'%(n, b, n * b))
+                    self.toaster.logger.warn(
+                        't * b = %s * %s = %f'%(t, b, t * b))
+                    self.toaster.logger.warn(
+                        'volume = %f' % volume)
+            # recalculate the tangent space
+            branch.updateTangentSpace()
+            newspace = [] # we will store the old tangent space here
+            for i, (n, t, b) in enumerate(branch.getTangentSpace()):
+                newspace.append(n.asList() + t.asList() + b.asList())
+            # check if old matches new
+            for i, (old, new) in enumerate(izip(oldspace, newspace)):
+                for oldvalue, newvalue in izip(old, new):
+                    # allow fairly big error
+                    if abs(oldvalue - newvalue) > self.PRECISION:
+                        self.toaster.logger.warn(
+                            'calculated tangent space differs from original '
+                            'at vertex %i' % i)
+                        self.toaster.logger.warn('old: %s' % old[0:3])
+                        self.toaster.logger.warn('old: %s' % old[3:6])
+                        self.toaster.logger.warn('old: %s' % old[6:9])
+                        self.toaster.logger.warn('new: %s' % new[0:3])
+                        self.toaster.logger.warn('new: %s' % new[3:6])
+                        self.toaster.logger.warn('new: %s' % new[6:9])
+                        break
+            
+            # don't recurse further
+            return False 

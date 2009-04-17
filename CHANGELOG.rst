@@ -19,6 +19,9 @@ Release 1.2.4 (in development)
   - added fix_strip niftoaster spell which can remove branches selectively
     (feature request #2164309)
 
+  - new getTangentSpace function for NiTriBasedGeom (works for both Oblivion
+    and Fallout 3 style tangent spaces)
+
 * tga:
 
   - added support for color map and image data in the xml
