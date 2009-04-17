@@ -135,10 +135,10 @@ fix_detachhavoktristripsdata
 fix_disableparallax
 fix_ffvt3rskinpartition
 fix_texturepath
+fix_mergeskeletonroots
 fix_sendgeometriestobindposition
 fix_sendbonestobindposition
 fix_strip
-mergeskelandrestpos
 opt_cleanreflists
 opt_mergeduplicates
 opt_geometry
@@ -212,6 +212,10 @@ pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:    writing to temporary file
 pyffi.toaster:INFO:      comparing file sizes
 pyffi.toaster:INFO:=== tests/nif/test_fix_ffvt3rskinpartition.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_fix_mergeskeletonroots.nif ===
 pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:    writing to temporary file
 pyffi.toaster:INFO:      comparing file sizes
@@ -1046,4 +1050,52 @@ pyffi.toaster:INFO:          checking strip triangles
 pyffi.toaster:INFO:          checking stitched strip triangles
 pyffi.toaster:INFO:          checking unstitched strip triangles
 pyffi.toaster:INFO:average strip length = 3.89...
+pyffi.toaster:INFO:Finished.
+
+The fix_mergeskeletonroots spell
+--------------------------------
+
+>>> import sys
+>>> sys.path.append("scripts/NIF")
+>>> import niftoaster
+>>> sys.argv = ["niftoaster.py", "--verbose=2", "--raise", "--dry-run", "fix_mergeskeletonroots", "tests/nif/test_fix_mergeskeletonroots.nif"]
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+pyffi.toaster:INFO:=== tests/nif/test_fix_mergeskeletonroots.nif ===
+pyffi.nif.data:DEBUG:Reading header at 0x00000000
+pyffi.nif.data:DEBUG:Reading NiNode block at 0x000000D4
+pyffi.nif.data:DEBUG:Reading NiNode block at 0x00000134
+pyffi.nif.data:DEBUG:Reading NiTriStrips block at 0x0000019A
+pyffi.nif.data:DEBUG:Reading NiStencilProperty block at 0x000001F7
+pyffi.nif.data:DEBUG:Reading NiTriStripsData block at 0x00000220
+pyffi.nif.data:DEBUG:Reading NiSkinInstance block at 0x00000324
+pyffi.nif.data:DEBUG:Reading NiSkinData block at 0x00000338
+pyffi.nif.data:DEBUG:Reading NiSkinPartition block at 0x000003FF
+pyffi.nif.data:DEBUG:Reading NiTriStrips block at 0x00000567
+pyffi.nif.data:DEBUG:Reading NiTriStripsData block at 0x000005C2
+pyffi.nif.data:DEBUG:Reading NiSkinInstance block at 0x00000676
+pyffi.nif.data:DEBUG:Reading NiSkinData block at 0x0000068A
+pyffi.nif.data:DEBUG:Reading NiSkinPartition block at 0x00000739
+pyffi.nif.data:DEBUG:Reading NiNode block at 0x00000829
+pyffi.toaster:INFO:  --- fix_mergeskeletonroots ---
+pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
+pyffi.nif.ninode:DEBUG:trying to rebase Sphere onto Scene Root
+pyffi.nif.ninode:DEBUG:detaching Sphere from Armature
+pyffi.nif.ninode:DEBUG:attaching Sphere to Scene Root
+pyffi.toaster:INFO:      reassigned skeleton root of Sphere
+pyffi.toaster:INFO:  writing to temporary file
+pyffi.nif.data:DEBUG:Writing header
+pyffi.nif.data:DEBUG:Writing NiNode block
+pyffi.nif.data:DEBUG:Writing NiNode block
+pyffi.nif.data:DEBUG:Writing NiTriStrips block
+pyffi.nif.data:DEBUG:Writing NiStencilProperty block
+pyffi.nif.data:DEBUG:Writing NiTriStripsData block
+pyffi.nif.data:DEBUG:Writing NiSkinInstance block
+pyffi.nif.data:DEBUG:Writing NiSkinData block
+pyffi.nif.data:DEBUG:Writing NiSkinPartition block
+pyffi.nif.data:DEBUG:Writing NiNode block
+pyffi.nif.data:DEBUG:Writing NiTriStrips block
+pyffi.nif.data:DEBUG:Writing NiTriStripsData block
+pyffi.nif.data:DEBUG:Writing NiSkinInstance block
+pyffi.nif.data:DEBUG:Writing NiSkinData block
+pyffi.nif.data:DEBUG:Writing NiSkinPartition block
 pyffi.toaster:INFO:Finished.
