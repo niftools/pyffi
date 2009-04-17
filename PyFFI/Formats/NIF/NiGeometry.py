@@ -203,23 +203,23 @@ def flattenSkin(self):
 
 
 def mergeSkeletonRoots(self):
-    """This function will look for other geometries
-    1) whose skeleton root is a (possibly indirect) child of the skeleton root
-    of this skin, and
-    2) whose skeleton shares bones with this geometry's skin.
+    """This function will look for other geometries whose skeleton root is a
+    (possibly indirect) child of the skeleton root of this skin.
     It will then reparent those geometries to the skeleton
     root of this geometry. For example, it will unify the skeleton
     roots in Morrowind's cliffracer.nif file. This makes it much easier to
     import skeletons in for instance Blender: there will be only one skeleton
     root for each bone, over all geometries.
 
-    The merge fails if some transforms are not unit transform.
+    The merge fails if some global skin data transforms are not unit transform.
 
     Returns list of all new blocks that have been reparented (and added
     to the skeleton root children list), and a list of blocks for which the
     merge failed."""
+    logger = logging.getLogger("pyffi.nif.nigeometry")
 
-    if not self.isSkin(): return [], [] # nothing to do
+    if not self.isSkin():
+        return [], [] # nothing to do
 
     result = [] # list of reparented blocks
     failed = [] # list of blocks that could not be reparented
@@ -230,34 +230,56 @@ def mergeSkeletonRoots(self):
     id44 = self.cls.Matrix44()
     id44.setIdentity()
 
-    # look for geometries are in this skeleton root's tree
-    # that have a different skeleton root
-    # and that share bones with this geometry
-    geoms = [block for block in skelroot.tree()
-             if (isinstance(block, self.cls.NiGeometry)
-                 and block.isSkin()
-                 and not(block.skinInstance.skeletonRoot is skelroot)
-                 and set(block.skinInstance.bones) & set(skininst.bones))]
-
     # find the root block (direct parent of skeleton root that connects to the geometry) for each of these geometries
-    geomroots = {}
-    for geom in geoms:
+    for geom in skelroot.getGlobalIterator():
+        if not isinstance(geom, self.cls.NiGeometry):
+            # only geometries
+            continue
+        if not geom.isSkin():
+            # only skins
+            continue
+        if geom.skinInstance.skeletonRoot is skelroot:
+            # only if they have a different skeleton root
+            continue
+        logger.debug("trying to rebase %s onto %s" % (geom.name, skelroot.name))
+
+        # XXX We also merge roots if no bones are shared!!
+        # XXX (helps morrowind imports)
+        #if not(set(geom.skinInstance.bones) & set(skininst.bones)):
+        #    # only if bones are shared
+        #    continue
+
         # check transforms
-        if geom.skinInstance.data.getTransform() != id44 or geom.getTransform(geom.skinInstance.skeletonRoot)!= id44:
+        if (geom.skinInstance.data.getTransform() != id44
+            or geom.getTransform(geom.skinInstance.skeletonRoot)!= id44):
             failed.append(geom)
             continue # skip this one
-        # find geometry root block
+        # find geometry parent
         chain = geom.skinInstance.skeletonRoot.findChain(geom)
-        geomroots[geom] = chain[1]
+        geomroot = chain[-2]
 
-    # reparent geometries
-    for geom, geomroot in geomroots.iteritems():
+        # make sure we only do each geometry once
+        if geom in result:
+            continue
         # reparent
-        geom.skinInstance.skeletonRoot.removeChild(geomroot) # detatch geometry from chain
-        skelroot.addChild(geomroot) # attach to new skeleton root
+        geom_transform = geom.getTransform(skelroot)
+        logger.debug("detaching %s from %s" % (geom.name, geomroot.name))
+        geomroot.removeChild(geom)
+        logger.debug("attaching %s to %s" % (geom.name, skelroot.name))
+        skelroot.addChild(geom)
         geom.skinInstance.skeletonRoot = skelroot # set its new skeleton root
-        if geomroot not in result:
-            result.append(geomroot) # and signal that we reparented this block
+
+        # XXX this would help if geometries were in their bind position
+        # XXX but very often this is not the case anyway
+        # XXX so let sendGeometriesToBindPosition handle this
+        # XXX or apply skin deforms...
+        #logger.debug("fixing transforms on %s" % geom.name)
+        #geom.setTransform(geom_transform)
+        #geom.skinInstance.data.setTransform(geom_transform.getInverse())
+
+        # and signal that we reparented this block
+        if geom not in result:
+            result.append(geom)
 
     return result, failed
 

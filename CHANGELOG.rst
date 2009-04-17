@@ -22,6 +22,9 @@ Release 1.2.4 (in development)
   - new getTangentSpace function for NiTriBasedGeom (works for both Oblivion
     and Fallout 3 style tangent spaces)
 
+  - improved mergeSkeletonRoots function (will also merge roots of skins that
+    have no bones in common, this helps a lot with Morrowind imports)
+
 * tga:
 
   - added support for color map and image data in the xml
