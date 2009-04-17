@@ -330,13 +330,27 @@ class SpellMergeSkeletonRoots(NifSpell):
 
     def dataentry(self):
         # make list of skeleton roots
-        self.skelrootlist = []
+        skelroots = []
         for branch in self.data.getGlobalIterator():
             if isinstance(branch, NifFormat.NiGeometry):
                 if branch.skinInstance:
                     skelroot = branch.skinInstance.skeletonRoot
-                    if skelroot and not skelroot in self.skelrootlist:
-                        self.skelrootlist.append(skelroot)
+                    if skelroot and not skelroot in skelroots:
+                        skelroots.append(skelroot)
+        # find the 'root' skeleton roots (those that have no other skeleton
+        # roots as child)
+        self.skelrootlist = set()
+        for skelroot in skelroots:
+            for skelroot_other in skelroots:
+                if skelroot_other is skelroot:
+                    continue
+                if skelroot_other.findChain(skelroot):
+                    # skelroot_other has skelroot as child
+                    # so skelroot is no longer an option
+                    break
+            else:
+                # no skeleton root children!
+                self.skelrootlist.add(skelroot)
         # only apply spell if there are skeleton roots
         if self.skelrootlist:
             return True
@@ -352,8 +366,12 @@ class SpellMergeSkeletonRoots(NifSpell):
             result, failed = branch.mergeSkeletonRoots()
             for geom in result:
                 self.toaster.msg("reassigned skeleton root of %s" % geom.name)
-        # continue recursion
-        return True
+            self.skelrootlist.remove(branch)
+        # continue recursion only if there is still more to come
+        if self.skelrootlist:
+            return True
+        else:
+            return False
 
 class SpellApplySkinDeformation(NifSpell):
     """Apply skin deformation to nif."""
