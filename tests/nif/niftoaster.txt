@@ -140,7 +140,6 @@ fix_sendbonestobindposition
 fix_strip
 hackcheckskindata
 hackmultiskelroot
-hackskindataidtransform
 hackskinrestpose
 mergeskelandrestpos
 opt_cleanreflists

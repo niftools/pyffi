@@ -55,7 +55,6 @@ import PyFFI.Spells.NIF.optimize
 from PyFFI.Spells.NIF import \
     hackcheckskindata, \
     hackmultiskelroot, \
-    hackskindataidtransform, \
     hackskinrestpose, \
     mergeskelandrestpos, \
     optimize_split, \
@@ -94,7 +93,6 @@ class NifToaster(PyFFI.Spells.NIF.NifToaster):
         PyFFI.Spells.NIF.fix.SpellStrip,
         hackcheckskindata,
         hackmultiskelroot,
-        hackskindataidtransform,
         hackskinrestpose,
         mergeskelandrestpos,
         PyFFI.Spells.NIF.optimize.SpellCleanRefLists,
