@@ -273,20 +273,21 @@ def mergeExternalSkeletonRoot(self, skelroot):
                     externalblock.bones[i] = bone_dict[externalbone.name]
 
 def mergeSkeletonRoots(self):
-    """This function will look for other geometries whose skeleton root is a
-    (possibly indirect) child of this node.
-    It will then reparent those geometries to this node.
-    For example, it will unify the skeleton
-    roots in Morrowind's cliffracer.nif file. This makes it much easier to
-    import skeletons in for instance Blender: there will be only one skeleton
+    """This function will look for other geometries whose skeleton
+    root is a (possibly indirect) child of this node. It will then
+    reparent those geometries to this node. For example, it will unify
+    the skeleton roots in Morrowind's cliffracer.nif file, or of the
+    (official) body skins. This makes it much easier to import
+    skeletons in for instance Blender: there will be only one skeleton
     root for each bone, over all geometries.
 
-    The merge fails for those geometries whose global skin data transform
-    is not the unit transform.
+    The merge fails for those geometries whose global skin data
+    transform does not match the inverse geometry transform relative to
+    the skeleton root (the maths does not work out in this case!)
 
-    Returns list of all new blocks that have been reparented (and added
-    to the skeleton root children list), and a list of blocks for which the
-    merge failed.
+    Returns list of all new blocks that have been reparented (and
+    added to the skeleton root children list), and a list of blocks
+    for which the merge failed.
     """
     logger = logging.getLogger("pyffi.nif.ninode")
 
@@ -298,59 +299,53 @@ def mergeSkeletonRoots(self):
 
     # find the root block (direct parent of skeleton root that connects to the geometry) for each of these geometries
     for geom in self.getGlobalIterator():
+        # make sure we only do each geometry once
+        if (geom in result) or (geom in failed):
+            continue
+        # only geometries
         if not isinstance(geom, self.cls.NiGeometry):
-            # only geometries
             continue
+        # only skins
         if not geom.isSkin():
-            # only skins
             continue
+        # only if they have a different skeleton root
         if geom.skinInstance.skeletonRoot is self:
-            # only if they have a different skeleton root
             continue
-        logger.debug("trying to rebase %s onto %s" % (geom.name, self.name))
-
-        # XXX We also merge roots if no bones are shared!!
-        # XXX (helps morrowind imports)
-        #if not(set(geom.skinInstance.bones) & set(skininst.bones)):
-        #    # only if bones are shared
-        #    continue
-
         # check transforms
-        if geom.skinInstance.data.getTransform() != id44:
-            # XXX I think the maths also works out if this is not unit
-            # XXX transform, so try rebase also in this case
-            #or geom.getTransform(geom.skinInstance.skeletonRoot)!= id44):
+        if (geom.skinInstance.data.getTransform()
+            * geom.getTransform(geom.skinInstance.skeletonRoot) != id44):
             logger.warn(
-                "can't rebase %s: non-unit global skin transform" % geom.name)
+                "can't rebase %s: global skin data transform does not match "
+                "geometry transform relative to skeleton root" % geom.name)
             failed.append(geom)
             continue # skip this one
+        # everything ok!
         # find geometry parent
         geomroot = geom.skinInstance.skeletonRoot.findChain(geom)[-2]
-
-        # make sure we only do each geometry once
-        if geom in result:
-            continue
         # reparent
-        #geom_transform = geom.getTransform(self)  # not used, see XXX below
         logger.debug("detaching %s from %s" % (geom.name, geomroot.name))
         geomroot.removeChild(geom)
         logger.debug("attaching %s to %s" % (geom.name, self.name))
         self.addChild(geom)
-        geom.skinInstance.skeletonRoot = self # set its new skeleton root
-
-        # XXX this would help if geometries were in their bind position
-        # XXX but very often this is not the case anyway
-        # XXX so let sendGeometriesToBindPosition handle this
-        # XXX or apply skin deforms...
-        #logger.debug("fixing transforms on %s" % geom.name)
-        #geom.setTransform(geom_transform)
-        #geom.skinInstance.data.setTransform(geom_transform.getInverse())
-
+        # set its new skeleton root
+        geom.skinInstance.skeletonRoot = self
+        # fix transform
+        geom.skinInstance.data.setTransform(
+            geom.getTransform(self).getInverse(fast=False))
         # and signal that we reparented this block
-        if geom not in result:
-            result.append(geom)
+        result.append(geom)
 
     return result, failed
+
+def getSkinnedGeometries(self):
+    """This function yields all skinned geometries which have self as
+    skeleton root.
+    """
+    for geom in self.getGlobalIterator():
+        if (isinstance(geom, self.cls.NiGeometry)
+            and geom.isSkin()
+            and geom.skinInstance.skeletonRoot is self):
+            yield geom
 
 def sendGeometriesToBindPosition(self):
     """Call this on the skeleton root of geometries. This function will
@@ -365,18 +360,14 @@ def sendGeometriesToBindPosition(self):
     logger = logging.getLogger("pyffi.nif.ninode")
     # maps bone name to bind position transform matrix (relative to
     # skeleton root)
-    skelroot = self
     bone_bind_transform = {}
     # find all skinned geometries with self as skeleton root
-    geoms = [geom for geom in self.tree()
-             if (isinstance(geom, self.cls.NiGeometry)
-                 and geom.isSkin()
-                 and geom.skinInstance.skeletonRoot is skelroot)]
+    geoms = list(self.getSkinnedGeometries())
     # sort geometries by bone level
     # this ensures that "parent" geometries serve as reference for "child"
     # geometries
     sorted_geoms = []
-    for bone in self.tree():
+    for bone in self.getGlobalIterator():
         if not isinstance(bone, self.cls.NiNode):
             continue
         for geom in geoms:
@@ -399,7 +390,7 @@ def sendGeometriesToBindPosition(self):
                 # (see explanation below)
                 diff = (bonedata.getTransform()
                         * bone_bind_transform[bonenode.name]
-                        * geom.getTransform(skelroot).getInverse(fast=False))
+                        * geom.getTransform(self).getInverse(fast=False))
                 break
 
         if diff.isIdentity():
@@ -411,7 +402,7 @@ def sendGeometriesToBindPosition(self):
             # position matrix
             #   T'^-1 * G
             # (where T' = the updated bonedata.getTransform()
-            # and G = geom.getTransform(skelroot))
+            # and G = geom.getTransform(self))
             # coincides with the desired matrix
             #   B = bone_bind_transform[bonenode.name]
             # in other words:
@@ -445,7 +436,7 @@ def sendGeometriesToBindPosition(self):
         for bonenode, bonedata in izip(skininst.bones, skindata.boneList):
             bone_bind_transform[bonenode.name] = (
                 bonedata.getTransform().getInverse(fast=False)
-                * geom.getTransform(skelroot))
+                * geom.getTransform(self))
 
     # validation: check that bones share bind position
     bone_bind_transform = {}
@@ -459,7 +450,7 @@ def sendGeometriesToBindPosition(self):
             if bonenode.name in bone_bind_transform:
                 # calculate difference
                 diff = ((bonedata.getTransform().getInverse(fast=False)
-                         * geom.getTransform(skelroot))
+                         * geom.getTransform(self))
                         - bone_bind_transform[bonenode.name])
                 # calculate error (sup norm)
                 error = max(error,
@@ -468,12 +459,142 @@ def sendGeometriesToBindPosition(self):
             else:
                 bone_bind_transform[bonenode.name] = (
                     bonedata.getTransform().getInverse(fast=False)
-                    * geom.getTransform(skelroot))
+                    * geom.getTransform(self))
 
     logger.debug("Geometry bind position error is %f" % error)
     if error > 1e-3:
         logger.warning("Failed to send some geometries to bind position")
     return error
+
+def sendDetachedGeometriesToNodePosition(self):
+    """Some nifs (in particular in Morrowind) have geometries that are skinned
+    but that do not share bones. In such cases, sendGeometriesToBindPosition
+    cannot reposition them. This function will send such geometries to the
+    position of their root node.
+
+    Examples of such nifs are the official Morrowind skins (after merging
+    skeleton roots).
+
+    Returns list of detached geometries that have been moved.
+    """
+    logger = logging.getLogger("pyffi.nif.ninode")
+    geoms = list(self.getSkinnedGeometries())
+
+    # parts the geometries into sets that do not share bone influences
+    # * first construct sets of bones, merge intersecting sets
+    # * then check which geometries belong to which set
+    bonesets = [list(set(geom.skinInstance.bones)) for geom in geoms]
+    # the merged flag signals that we are still merging bones
+    merged = True
+    while merged:
+        merged = False
+        for boneset in bonesets:
+            for other_boneset in bonesets:
+                # skip if sets are identical
+                if other_boneset is boneset:
+                    continue
+                # if not identical, see if they can be merged
+                if set(other_boneset) & set(boneset):
+                    # XXX hackish but works
+                    # calculate union
+                    updated_boneset = list(set(other_boneset) | set(boneset))
+                    # and move all bones into one bone set
+                    del other_boneset[:]
+                    del boneset[:]
+                    boneset += updated_boneset
+                    merged = True
+    # remove empty bone sets
+    bonesets = list(boneset for boneset in bonesets if boneset)
+    logger.debug("bones per partition are")
+    for boneset in bonesets:
+        logger.debug(str([bone.name for bone in boneset]))
+    parts = [[geom for geom in geoms
+                  if set(geom.skinInstance.bones) & set(boneset)]
+                 for boneset in bonesets]
+    logger.debug("geometries per partition are")
+    for part in parts:
+        logger.debug(str([geom.name for geom in part]))
+    # if there is only one set, we are done
+    if len(bonesets) <= 1:
+        logger.debug("no detached geometries")
+        return []
+
+    # next, for each part, move all geometries so the lowest bone matches the
+    # node transform
+    for boneset, part in izip(bonesets, parts):
+        logger.debug("moving part %s" % str([geom.name for geom in part]))
+        # find "lowest" bone in the bone set
+        lowest_dist = None
+        lowest_bonenode = None
+        for bonenode in boneset:
+            dist = len(self.findChain(bonenode))
+            if (lowest_dist is None) or (lowest_dist > dist):
+                lowest_dist = dist
+                lowest_bonenode = bonenode
+        logger.debug("reference bone is %s" % lowest_bonenode.name)
+        # find a geometry that has this bone
+        for geom in part:
+            for bonenode, bonedata in izip(geom.skinInstance.bones,
+                                           geom.skinInstance.data.boneList):
+                if bonenode is lowest_bonenode:
+                    lowest_geom = geom
+                    lowest_bonedata = bonedata
+                    break
+            else:
+                continue
+            break
+        else:
+            raise RuntimeError("no reference geometry with this bone: bug?")
+        # calculate matrix
+        diff = (lowest_bonedata.getTransform()
+                * lowest_bonenode.getTransform(self)
+                * lowest_geom.getTransform(self).getInverse(fast=False))
+        if diff.isIdentity():
+            logger.debug("%s is already in node position"
+                         % lowest_bonenode.name)
+            continue
+        # now go over all geometries and synchronize their position to the
+        # reference bone
+        for geom in part:
+            logger.debug("moving %s" % geom.name)
+            # XXX we're using this trick a few times now
+            # XXX move it to a separate NiGeometry function
+            skininst = geom.skinInstance
+            skindata = skininst.data
+            # explanation:
+            # we must set the bonedata transform T' such that its bone bind
+            # position matrix
+            #   T'^-1 * G
+            # (where T' = the updated lowest_bonedata.getTransform()
+            # and G = geom.getTransform(self))
+            # coincides with the desired matrix
+            #   B = lowest_bonenode.getTransform(self)
+            # in other words:
+            #   T' = G * B^-1
+            # or, with diff = D = T * B * G^-1
+            #   T' = D^-1 * T
+            # to keep the geometry in sync, the vertices and normals must
+            # be multiplied with D, e.g. v' = v * D
+            # because the full transform
+            #    v * T * ... = v * D * D^-1 * T * ... = v' * T' * ...
+            # must be kept invariant
+            for bonenode, bonedata in izip(skininst.bones, skindata.boneList):
+                logger.debug("transforming bind position of bone %s"
+                             % bonenode.name)
+                bonedata.setTransform(diff.getInverse(fast=False)
+                                      * bonedata.getTransform())
+            # transform geometry
+            logger.debug("transforming vertices and normals")
+            for vert in geom.data.vertices:
+                newvert = vert * diff
+                vert.x = newvert.x
+                vert.y = newvert.y
+                vert.z = newvert.z
+            for norm in geom.data.normals:
+                newnorm = norm * diff.getMatrix33()
+                norm.x = newnorm.x
+                norm.y = newnorm.y
+                norm.z = newnorm.z
 
 def sendBonesToBindPosition(self):
     """This function will send all bones of geometries of this skeleton root
@@ -486,16 +607,10 @@ def sendBonesToBindPosition(self):
     """
     # get logger
     logger = logging.getLogger("pyffi.nif.ninode")
-    # find all skinned geometries with self as skeleton root
-    skelroot = self
-    geoms = [geom for geom in self.tree()
-             if (isinstance(geom, self.cls.NiGeometry)
-                 and geom.isSkin()
-                 and geom.skinInstance.skeletonRoot is skelroot)]
-
     # check all bones and bone datas to see if a bind position exists
     bonelist = []
     error = 0.0
+    geoms = list(self.getSkinnedGeometries())
     for geom in geoms:
         skininst = geom.skinInstance
         skindata = skininst.data
@@ -505,11 +620,11 @@ def sendBonesToBindPosition(self):
                 if bonenode is otherbonenode:
                     diff = ((otherbonedata.getTransform().getInverse(fast=False)
                              *
-                             othergeom.getTransform(skelroot))
+                             othergeom.getTransform(self))
                             -
                             (bonedata.getTransform().getInverse(fast=False)
                              *
-                             geom.getTransform(skelroot)))
+                             geom.getTransform(self)))
                     if diff.supNorm() > 1e-3:
                         logger.warning("Geometries %s and %s do not share the same bind position: bone %s will be sent to a position matching only one of these" % (geom.name, othergeom.name, bonenode.name))
                     # break the loop
@@ -535,7 +650,7 @@ def sendBonesToBindPosition(self):
     # this algorithm is numerically most stable if bones are traversed
     # in hierarchical order, so first sort the bones
     sorted_bonelist = []
-    for node in skelroot.tree():
+    for node in self.tree():
         if not isinstance(node, self.cls.NiNode):
             continue
         for geom, bonenode, bonedata in bonelist:
@@ -552,9 +667,9 @@ def sendBonesToBindPosition(self):
         # calculate desired transform relative to skeleton root
         # transform is DIFF * PARENT
         transform = (bonedata.getTransform().getInverse(fast=False)
-                     * geom.getTransform(skelroot))
+                     * geom.getTransform(self))
         # calculate difference
-        diff = transform * bonenode.getTransform(skelroot).getInverse(fast=False)
+        diff = transform * bonenode.getTransform(self).getInverse(fast=False)
         if not diff.isIdentity():
             logger.info("Sending %s to bind position"
                         % bonenode.name)
@@ -569,6 +684,9 @@ def sendBonesToBindPosition(self):
             logger.debug("%s is already in bind position"
                          % bonenode.name)
 
+    # XXX can we ditch the second pass? using getInverse(fast=False) seems to
+    # XXX have resolved all numerical problems
+
     logger.info("Repositioning bones - second pass")
     # reposition the bones, using the relative transform method
     # (this is the old niflib method, also see
@@ -577,10 +695,10 @@ def sendBonesToBindPosition(self):
     for parent_geom, parent_bonenode, parent_bonedata in bonelist:
         # calculate desired transform of parent, relative to skeleton root
         parent_transform = (parent_bonedata.getTransform().getInverse(fast=False)
-                            * parent_geom.getTransform(skelroot))
+                            * parent_geom.getTransform(self))
         # if parent is a child of the skeleton root, then fix its
         # transfrom
-        if parent_bonenode in skelroot.children:
+        if parent_bonenode in self.children:
             if parent_bonenode.getTransform() != parent_transform:
                 logger.info("Sending %s to bind position"
                             % parent_bonenode.name)
@@ -594,7 +712,7 @@ def sendBonesToBindPosition(self):
                 # calculate desired transform of child, relative to
                 # skeleton root
                 child_transform = (child_bonedata.getTransform().getInverse(fast=False)
-                                   * child_geom.getTransform(skelroot))
+                                   * child_geom.getTransform(self))
                 # calculate transform relative to parent
                 child_relative_transform = (child_transform
                                             * parent_transform.getInverse(fast=False))
@@ -612,14 +730,13 @@ def sendBonesToBindPosition(self):
     for geom in geoms:
         skininst = geom.skinInstance
         skindata = skininst.data
-        skelroot = self
         # calculate geometry transform
-        geomtransform = geom.getTransform(skelroot)
+        geomtransform = geom.getTransform(self)
         # check skin data fields (also see NiGeometry.updateBindPosition)
         for i, bone in enumerate(skininst.bones):
             diff = ((skindata.boneList[i].getTransform().getInverse(fast=False)
                      * geomtransform)
-                    - bone.getTransform(skelroot))
+                    - bone.getTransform(self))
             # calculate error (sup norm)
             diff_error = max(max(abs(elem) for elem in row)
                              for row in diff.asList())
