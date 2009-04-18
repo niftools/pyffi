@@ -137,6 +137,7 @@ fix_ffvt3rskinpartition
 fix_texturepath
 fix_mergeskeletonroots
 fix_sendgeometriestobindposition
+fix_senddetachedgeometriestonodeposition
 fix_sendbonestobindposition
 fix_strip
 opt_cleanreflists
@@ -1078,7 +1079,6 @@ pyffi.nif.data:DEBUG:Reading NiSkinPartition block at 0x00000739
 pyffi.nif.data:DEBUG:Reading NiNode block at 0x00000829
 pyffi.toaster:INFO:  --- fix_mergeskeletonroots ---
 pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
-pyffi.nif.ninode:DEBUG:trying to rebase Sphere onto Scene Root
 pyffi.nif.ninode:DEBUG:detaching Sphere from Armature
 pyffi.nif.ninode:DEBUG:attaching Sphere to Scene Root
 pyffi.toaster:INFO:      reassigned skeleton root of Sphere

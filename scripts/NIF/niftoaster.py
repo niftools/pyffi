@@ -86,6 +86,7 @@ class NifToaster(PyFFI.Spells.NIF.NifToaster):
         PyFFI.Spells.NIF.fix.SpellFixTexturePath,
         PyFFI.Spells.NIF.fix.SpellMergeSkeletonRoots,
         PyFFI.Spells.NIF.fix.SpellSendGeometriesToBindPosition,
+        PyFFI.Spells.NIF.fix.SpellSendDetachedGeometriesToNodePosition,
         PyFFI.Spells.NIF.fix.SpellSendBonesToBindPosition,
         PyFFI.Spells.NIF.fix.SpellStrip,
         PyFFI.Spells.NIF.optimize.SpellCleanRefLists,
