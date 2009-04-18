@@ -556,7 +556,7 @@ def sendDetachedGeometriesToNodePosition(self):
         # now go over all geometries and synchronize their position to the
         # reference bone
         for geom in part:
-            logger.debug("moving %s" % geom.name)
+            logger.info("moving %s to node position" % geom.name)
             # XXX we're using this trick a few times now
             # XXX move it to a separate NiGeometry function
             skininst = geom.skinInstance
