@@ -25,6 +25,9 @@ Release 1.2.4 (in development)
   - improved mergeSkeletonRoots function (will also merge roots of skins that
     have no bones in common, this helps a lot with Morrowind imports)
 
+  - new sendDetachedGeometriesToNodePosition function and spell (helps a lot
+    with Morrowind imports)
+
 * tga:
 
   - added support for color map and image data in the xml
