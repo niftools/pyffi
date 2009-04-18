@@ -98,7 +98,9 @@ class NifSpell(PyFFI.Spells.Spell):
             return True
 
 class SpellVisitSkeletonRoots(NifSpell):
-    """Abstract base class for spells that visit all skeleton roots."""
+    """Abstract base class for spells that visit all skeleton roots.
+    Override the skelrootentry method with your implementation.
+    """
 
     def datainspect(self):
         # only run the spell if there are skinned geometries
@@ -106,15 +108,15 @@ class SpellVisitSkeletonRoots(NifSpell):
 
     def dataentry(self):
         # make list of skeleton roots
-        self.skelroots = []
+        self._skelroots = set()
         for branch in self.data.getGlobalIterator():
             if isinstance(branch, NifFormat.NiGeometry):
                 if branch.skinInstance:
                     skelroot = branch.skinInstance.skeletonRoot
-                    if skelroot and not skelroot in self.skelroots:
-                        self.skelroots.append(skelroot)
+                    if skelroot and not(id(skelroot) in self._skelroots):
+                        self._skelroots.add(id(skelroot))
         # only apply spell if there are skeleton roots
-        if self.skelroots:
+        if self._skelroots:
             return True
         else:
             return False
@@ -124,6 +126,14 @@ class SpellVisitSkeletonRoots(NifSpell):
         return isinstance(branch, NifFormat.NiNode)
     
     def branchentry(self, branch):
+        if id(branch) in self._skelroots:
+            self.skelrootentry(branch)
+            self._skelroots.remove(id(branch))
+        # keep recursing into children if there are skeleton roots left
+        return bool(self._skelroots)
+
+    def skelrootentry(self, branch):
+        """Do something with a skeleton root. Return value is ignored."""
         raise NotImplementedError
 
 class NifToaster(PyFFI.Spells.Toaster):

@@ -250,12 +250,9 @@ class SpellSendGeometriesToBindPosition(PyFFI.Spells.NIF.SpellVisitSkeletonRoots
     SPELLNAME = "fix_sendgeometriestobindposition"
     READONLY = False
 
-    def branchentry(self, branch):
-        if branch in self.skelroots:
-            self.toaster.msg("sending geometries to bind position")
-            branch.sendGeometriesToBindPosition()
-        # keep recursing into children
-        return True
+    def skelrootentry(self, branch):
+        self.toaster.msg("sending geometries to bind position")
+        branch.sendGeometriesToBindPosition()
 
 class SpellSendDetachedGeometriesToNodePosition(PyFFI.Spells.NIF.SpellVisitSkeletonRoots):
     """Transform geometries so each set of geometries that shares bones
@@ -264,12 +261,9 @@ class SpellSendDetachedGeometriesToNodePosition(PyFFI.Spells.NIF.SpellVisitSkele
     SPELLNAME = "fix_senddetachedgeometriestonodeposition"
     READONLY = False
 
-    def branchentry(self, branch):
-        if branch in self.skelroots:
-            self.toaster.msg("sending detached geometries to node position")
-            branch.sendDetachedGeometriesToNodePosition()
-        # keep recursing into children
-        return True
+    def skelrootentry(self, branch):
+        self.toaster.msg("sending detached geometries to node position")
+        branch.sendDetachedGeometriesToNodePosition()
 
 class SpellSendBonesToBindPosition(PyFFI.Spells.NIF.SpellVisitSkeletonRoots):
     """Transform bones so bone data agrees with bone transforms,
@@ -278,12 +272,9 @@ class SpellSendBonesToBindPosition(PyFFI.Spells.NIF.SpellVisitSkeletonRoots):
     SPELLNAME = "fix_sendbonestobindposition"
     READONLY = False
 
-    def branchentry(self, branch):
-        if branch in self.skelroots:
-            self.toaster.msg("sending bones to bind position")
-            branch.sendBonesToBindPosition()
-        # keep recursing into children
-        return True
+    def skelrootentry(self, branch):
+        self.toaster.msg("sending bones to bind position")
+        branch.sendBonesToBindPosition()
 
 class SpellMergeSkeletonRoots(NifSpell):
     """Merges skeleton roots in the nif file so that no skeleton root has
