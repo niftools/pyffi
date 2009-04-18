@@ -635,18 +635,10 @@ def sendBonesToBindPosition(self):
                 logger.debug("Found bind position data for %s" % bonenode.name)
                 bonelist.append((geom, bonenode, bonedata))
 
-    # numerical stability is a problem, therefore use two different algorithms:
-    # - the first algorithm simply makes all transforms correct by changing
-    # each local bone matrix in such a way that the global matrix relative to
-    # the skeleton root matches the skinning information
-    # - the second algorithm makes the local transforms correct by comparing
-    # with relative skinning information (this is of course an incomplete
-    # check, but it is good enough to fix numerical errors up the hierarchy)
-    #
-    # this approach seems to work well enough in practice
+    # the algorithm simply makes all transforms correct by changing
+    # each local bone matrix in such a way that the global matrix
+    # relative to the skeleton root matches the skinning information
 
-    logger.info("Repositioning bones - first pass")
-    # reposition the bones: algorithm 1
     # this algorithm is numerically most stable if bones are traversed
     # in hierarchical order, so first sort the bones
     sorted_bonelist = []
@@ -683,46 +675,6 @@ def sendBonesToBindPosition(self):
         else:
             logger.debug("%s is already in bind position"
                          % bonenode.name)
-
-    # XXX can we ditch the second pass? using getInverse(fast=False) seems to
-    # XXX have resolved all numerical problems
-
-    logger.info("Repositioning bones - second pass")
-    # reposition the bones, using the relative transform method
-    # (this is the old niflib method, also see
-    # NiGeometry.sendBonesToBindPosition)
-    # this method fixes numerical errors that tend to accumulate
-    for parent_geom, parent_bonenode, parent_bonedata in bonelist:
-        # calculate desired transform of parent, relative to skeleton root
-        parent_transform = (parent_bonedata.getTransform().getInverse(fast=False)
-                            * parent_geom.getTransform(self))
-        # if parent is a child of the skeleton root, then fix its
-        # transfrom
-        if parent_bonenode in self.children:
-            if parent_bonenode.getTransform() != parent_transform:
-                logger.info("Sending %s to bind position"
-                            % parent_bonenode.name)
-                parent_bonenode.setTransform(parent_transform)
-            else:
-                logger.debug("%s is already in bind position"
-                             % parent_bonenode.name)
-        # fix the transform of all its children
-        for child_geom, child_bonenode, child_bonedata in bonelist:
-            if child_bonenode in parent_bonenode.children:
-                # calculate desired transform of child, relative to
-                # skeleton root
-                child_transform = (child_bonedata.getTransform().getInverse(fast=False)
-                                   * child_geom.getTransform(self))
-                # calculate transform relative to parent
-                child_relative_transform = (child_transform
-                                            * parent_transform.getInverse(fast=False))
-                if child_bonenode.getTransform() != child_relative_transform:
-                    logger.debug("Sending %s to bind position"
-                                 % child_bonenode.name)
-                    child_bonenode.setTransform(child_relative_transform)
-                else:
-                    logger.debug("%s is already in bind position"
-                                 % child_bonenode.name)
 
     # validate
     error = 0.0
