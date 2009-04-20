@@ -53,7 +53,6 @@ import PyFFI.Spells.NIF.dump
 import PyFFI.Spells.NIF.fix
 import PyFFI.Spells.NIF.optimize
 from PyFFI.Spells.NIF import \
-    optimize_split, \
     scale, \
     updatecenterradius, \
     updatemopp, \
@@ -92,8 +91,8 @@ class NifToaster(PyFFI.Spells.NIF.NifToaster):
         PyFFI.Spells.NIF.optimize.SpellCleanRefLists,
         PyFFI.Spells.NIF.optimize.SpellMergeDuplicates,
         PyFFI.Spells.NIF.optimize.SpellOptimizeGeometry,
+        #PyFFI.Spells.NIF.optimize.SpellOptimizeSplit,
         PyFFI.Spells.NIF.optimize.SpellOptimize,
-        optimize_split,
         scale,
         updatecenterradius,
         updatemopp,

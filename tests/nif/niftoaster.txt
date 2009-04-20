@@ -144,7 +144,6 @@ opt_cleanreflists
 opt_mergeduplicates
 opt_geometry
 optimize
-optimize_split
 scale
 updatecenterradius
 updatemopp
