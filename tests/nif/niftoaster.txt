@@ -1094,3 +1094,18 @@ pyffi.nif.data:DEBUG:Writing NiSkinInstance block
 pyffi.nif.data:DEBUG:Writing NiSkinData block
 pyffi.nif.data:DEBUG:Writing NiSkinPartition block
 pyffi.toaster:INFO:Finished.
+
+The fix_scale spell
+-------------------
+
+>>> import sys
+>>> sys.path.append("scripts/NIF")
+>>> import niftoaster
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "--dry-run", "fix_scale", "tests/nif/test_opt_dupverts.nif", "-a", "10"]
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+pyffi.toaster:INFO:=== tests/nif/test_opt_dupverts.nif ===
+pyffi.toaster:INFO:  --- fix_scale ---
+pyffi.toaster:INFO:    ~~~ NiNode [Lowerclass Dunmer Cup Type-1] ~~~
+pyffi.toaster:INFO:      scaling by factor 10.000000
+pyffi.toaster:INFO:  writing to temporary file
+pyffi.toaster:INFO:Finished.

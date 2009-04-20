@@ -401,13 +401,18 @@ class SpellScale(NifSpell):
     READONLY = False
 
     @classmethod
-    def toasterentry(cls, toaster):
-        if not toaster.options.arg:
-            raise ValueError("must specify scale as argument (e.g. -a 10)")
+    def toastentry(cls, toaster):
+        if not toaster.options["arg"]:
+            toaster.logger.warn(
+                "must specify scale as argument (e.g. -a 10) "
+                "to apply spell")
+            return False
+        else:
+            toaster.scale = float(toaster.options["arg"])
+            return True
 
-    def dataentry(self):
-        scale = float(self.toaster.options.arg)
-        self.toaster("scaling by factor %f" % scale)
-        for root in self.data.getGlobalChildren():
-            root.applyScale(scale)
+    def branchentry(self, branch):
+        self.toaster.msg("scaling by factor %f" % self.toaster.scale)
+        branch.applyScale(self.toaster.scale)
+        # never recurse: applyScale works on the full tree
         return False
