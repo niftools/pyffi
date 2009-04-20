@@ -53,7 +53,6 @@ import PyFFI.Spells.NIF.dump
 import PyFFI.Spells.NIF.fix
 import PyFFI.Spells.NIF.optimize
 from PyFFI.Spells.NIF import \
-    scale, \
     updatecenterradius, \
     updatemopp, \
     updateskinpartition
@@ -87,13 +86,13 @@ class NifToaster(PyFFI.Spells.NIF.NifToaster):
         PyFFI.Spells.NIF.fix.SpellSendGeometriesToBindPosition,
         PyFFI.Spells.NIF.fix.SpellSendDetachedGeometriesToNodePosition,
         PyFFI.Spells.NIF.fix.SpellSendBonesToBindPosition,
+        PyFFI.Spells.NIF.fix.SpellScale,
         PyFFI.Spells.NIF.fix.SpellStrip,
         PyFFI.Spells.NIF.optimize.SpellCleanRefLists,
         PyFFI.Spells.NIF.optimize.SpellMergeDuplicates,
         PyFFI.Spells.NIF.optimize.SpellOptimizeGeometry,
         #PyFFI.Spells.NIF.optimize.SpellOptimizeSplit,
         PyFFI.Spells.NIF.optimize.SpellOptimize,
-        scale,
         updatecenterradius,
         updatemopp,
         updateskinpartition]
@@ -103,7 +102,8 @@ class NifToaster(PyFFI.Spells.NIF.NifToaster):
         "readwrite": "check_readwrite",
         "ffvt3rskinpartition": "fix_ffvt3rskinpartition",
         "disableparallax": "fix_disableparallax",
-        "exportpixeldata": "dump_pixeldata"}
+        "exportpixeldata": "dump_pixeldata",
+        "scale": "fix_scale"}
     EXAMPLES = """* check if PyFFI can read all files in current directory
   (python version of nifskope's xml checker):
 
@@ -124,25 +124,21 @@ class NifToaster(PyFFI.Spells.NIF.NifToaster):
 * update/generate skin partitions of all nif files a directory tree,
 recursively, for Freedom Force vs. The 3rd Reich
 
-    python niftoaster.py ffvt3rskinpartition /path/to/your/nifs/
+    python niftoaster.py fix_ffvt3rskinpartition /path/to/your/nifs/
 
 * run the profiler on PyFFI while reading nif files:
 
-    python -m cProfile -s cumulative -o profile_read.txt niftoaster.py read .
+    python -m cProfile -s cumulative -o profile_read.txt niftoaster.py check_read .
 
 * find out time spent on a particular test:
 
-    python -m cProfile -s cumulative niftoaster.py tristrip
-
-* merge skeleton roots and rest positions for all files in current directory:
-
-    python niftoaster.py mergeskelandrestpos .
+    python -m cProfile -s cumulative niftoaster.py check_tristrip
 
 * scale all files in c:\\zoo2 by a factor 100 - useful to
   visualize nif files from games such as Zoo Tycoon 2 that are otherwise too
   small to show up properly in nifskope:
 
-    python niftoaster.py -a 100 scale "c:\\zoo2"
+    python niftoaster.py -a 100 fix_scale "c:\\zoo2"
 """
 
 # if script is called...
