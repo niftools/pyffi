@@ -49,7 +49,7 @@ __docformat__ = "restructuredtext en" # for epydoc
 #
 # ***** END LICENSE BLOCK *****
 
-__version__ = '1.2.4'
+__version__ = '1.2.5'
 
 __hexversion__ = eval('0x%02X%02X%02X'
                       % tuple(int(x) for x in __version__.split('.')))
