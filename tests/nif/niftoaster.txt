@@ -79,7 +79,7 @@ The --examples switch
 <BLANKLINE>
 * update/generate mopps of all nif files a directory tree, recursively
 <BLANKLINE>
-    python niftoaster.py updatemopp /path/to/your/nifs/
+    python niftoaster.py fix_mopp /path/to/your/nifs/
 <BLANKLINE>
 * update/generate skin partitions of all nif files a directory tree,
 recursively, for Freedom Force vs. The 3rd Reich
@@ -132,6 +132,7 @@ fix_disableparallax
 fix_ffvt3rskinpartition
 fix_centerradius
 fix_skincenterradius
+fix_mopp
 fix_texturepath
 fix_mergeskeletonroots
 fix_sendgeometriestobindposition
@@ -143,7 +144,6 @@ opt_cleanreflists
 opt_mergeduplicates
 opt_geometry
 optimize
-updatemopp
 updateskinpartition
 
 The check_readwrite spell and the --raise switch
@@ -1110,3 +1110,31 @@ pyffi.toaster:INFO:    ~~~ NiNode [Lowerclass Dunmer Cup Type-1] ~~~
 pyffi.toaster:INFO:      scaling by factor 10.000000
 pyffi.toaster:INFO:  writing to temporary file
 pyffi.toaster:INFO:Finished.
+
+The fix_mopp spell
+------------------
+
+>>> import sys
+>>> sys.path.append("scripts/NIF")
+>>> import niftoaster
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "--dry-run", "fix_mopp", "tests/nif/test_mopp.nif"]
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+pyffi.toaster:INFO:=== tests/nif/test_mopp.nif ===
+pyffi.toaster:INFO:  --- fix_mopp ---
+pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
+pyffi.toaster:INFO:      ~~~ bhkCollisionObject [] ~~~
+pyffi.toaster:INFO:        ~~~ bhkRigidBody [] ~~~
+pyffi.toaster:INFO:          ~~~ bhkMoppBvTreeShape [] ~~~
+pyffi.toaster:INFO:            updating mopp
+Mopper. Copyright (c) 2008, NIF File Format Library and Tools.
+All rights reserved.
+<BLANKLINE>
+Options:
+  --help      for usage help
+  --license   for licensing details
+<BLANKLINE>
+Mopper uses havok. Copyright 1999-2008 Havok.com Inc. (and its Licensors).
+All Rights Reserved. See www.havok.com for details.
+<BLANKLINE>
+<BLANKLINE>
+pyffi.toaster:INFO:  writing to temporary file

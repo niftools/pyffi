@@ -419,9 +419,27 @@ class SpellScale(NifSpell):
         return False
 
 class SpellFixCenterRadius(PyFFI.Spells.NIF.check.SpellCheckCenterRadius):
+    """Recalculate geometry centers and radii."""
     SPELLNAME = "fix_centerradius"
     READONLY = False
 
 class SpellFixSkinCenterRadius(PyFFI.Spells.NIF.check.SpellCheckSkinCenterRadius):
+    """Recalculate skin centers and radii."""
     SPELLNAME = "fix_skincenterradius"
     READONLY = False
+
+class SpellFixMopp(PyFFI.Spells.NIF.check.SpellCheckMopp):
+    """Recalculate mopp data from collision geometry."""
+    SPELLNAME = "fix_mopp"
+    READONLY = False
+
+    def branchentry(self, branch):
+        # we don't recycle the check mopp code here
+        # that spell does not actually recalculate the mopp at all
+        # it only parses the existing mopp...
+        if not isinstance(branch, NifFormat.bhkMoppBvTreeShape):
+            # keep recursing
+            return True
+        else:
+            self.toaster.msg("updating mopp")
+            branch.updateMopp()

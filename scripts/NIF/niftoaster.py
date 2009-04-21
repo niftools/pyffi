@@ -53,7 +53,6 @@ import PyFFI.Spells.NIF.dump
 import PyFFI.Spells.NIF.fix
 import PyFFI.Spells.NIF.optimize
 from PyFFI.Spells.NIF import \
-    updatemopp, \
     updateskinpartition
 
 class NifToaster(PyFFI.Spells.NIF.NifToaster):
@@ -82,6 +81,7 @@ class NifToaster(PyFFI.Spells.NIF.NifToaster):
         PyFFI.Spells.NIF.fix.SpellFFVT3RSkinPartition,
         PyFFI.Spells.NIF.fix.SpellFixCenterRadius,
         PyFFI.Spells.NIF.fix.SpellFixSkinCenterRadius,
+        PyFFI.Spells.NIF.fix.SpellFixMopp,
         PyFFI.Spells.NIF.fix.SpellFixTexturePath,
         PyFFI.Spells.NIF.fix.SpellMergeSkeletonRoots,
         PyFFI.Spells.NIF.fix.SpellSendGeometriesToBindPosition,
@@ -94,7 +94,6 @@ class NifToaster(PyFFI.Spells.NIF.NifToaster):
         PyFFI.Spells.NIF.optimize.SpellOptimizeGeometry,
         #PyFFI.Spells.NIF.optimize.SpellOptimizeSplit,
         PyFFI.Spells.NIF.optimize.SpellOptimize,
-        updatemopp,
         updateskinpartition]
     ALIASDICT = {
         "texdump": "dump_tex",
@@ -119,7 +118,7 @@ class NifToaster(PyFFI.Spells.NIF.NifToaster):
 
 * update/generate mopps of all nif files a directory tree, recursively
 
-    python niftoaster.py updatemopp /path/to/your/nifs/
+    python niftoaster.py fix_mopp /path/to/your/nifs/
 
 * update/generate skin partitions of all nif files a directory tree,
 recursively, for Freedom Force vs. The 3rd Reich
