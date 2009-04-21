@@ -53,7 +53,6 @@ import PyFFI.Spells.NIF.dump
 import PyFFI.Spells.NIF.fix
 import PyFFI.Spells.NIF.optimize
 from PyFFI.Spells.NIF import \
-    updatecenterradius, \
     updatemopp, \
     updateskinpartition
 
@@ -81,6 +80,8 @@ class NifToaster(PyFFI.Spells.NIF.NifToaster):
         PyFFI.Spells.NIF.fix.SpellDetachHavokTriStripsData,
         PyFFI.Spells.NIF.fix.SpellDisableParallax,
         PyFFI.Spells.NIF.fix.SpellFFVT3RSkinPartition,
+        PyFFI.Spells.NIF.fix.SpellFixCenterRadius,
+        PyFFI.Spells.NIF.fix.SpellFixSkinCenterRadius,
         PyFFI.Spells.NIF.fix.SpellFixTexturePath,
         PyFFI.Spells.NIF.fix.SpellMergeSkeletonRoots,
         PyFFI.Spells.NIF.fix.SpellSendGeometriesToBindPosition,
@@ -93,7 +94,6 @@ class NifToaster(PyFFI.Spells.NIF.NifToaster):
         PyFFI.Spells.NIF.optimize.SpellOptimizeGeometry,
         #PyFFI.Spells.NIF.optimize.SpellOptimizeSplit,
         PyFFI.Spells.NIF.optimize.SpellOptimize,
-        updatecenterradius,
         updatemopp,
         updateskinpartition]
     ALIASDICT = {

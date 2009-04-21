@@ -130,6 +130,8 @@ fix_deltangentspace
 fix_detachhavoktristripsdata
 fix_disableparallax
 fix_ffvt3rskinpartition
+fix_centerradius
+fix_skincenterradius
 fix_texturepath
 fix_mergeskeletonroots
 fix_sendgeometriestobindposition
@@ -141,7 +143,6 @@ opt_cleanreflists
 opt_mergeduplicates
 opt_geometry
 optimize
-updatecenterradius
 updatemopp
 updateskinpartition
 

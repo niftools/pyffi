@@ -42,6 +42,7 @@
 from PyFFI.Formats.NIF import NifFormat
 from PyFFI.Spells.NIF import NifSpell
 import PyFFI.Spells.NIF
+import PyFFI.Spells.NIF.check # recycle checking spells for update spells
 
 class SpellDelTangentSpace(NifSpell):
     """Delete tangentspace if it is present."""
@@ -416,3 +417,11 @@ class SpellScale(NifSpell):
         branch.applyScale(self.toaster.scale)
         # never recurse: applyScale works on the full tree
         return False
+
+class SpellFixCenterRadius(PyFFI.Spells.NIF.check.SpellCheckCenterRadius):
+    SPELLNAME = "fix_centerradius"
+    READONLY = False
+
+class SpellFixSkinCenterRadius(PyFFI.Spells.NIF.check.SpellCheckSkinCenterRadius):
+    SPELLNAME = "fix_skincenterradius"
+    READONLY = False
