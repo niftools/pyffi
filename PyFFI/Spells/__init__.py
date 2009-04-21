@@ -542,10 +542,10 @@ class _MetaCompatToaster(type):
         logger = logging.getLogger("pyffi.toaster") # no self.logger yet
         for i, spellclass in enumerate(cls.SPELLS):
             if isinstance(spellclass, ModuleType):
-                #logger.warn(
-                #    "Old style spells will be removed in a next release. "
-                #    "Please reimplement the %s module using the Spell class. "
-                #    % spellclass.__name__)
+                logger.warn(
+                    "Old style spells will be removed in a next release. "
+                    "Please reimplement the %s module using the Spell class. "
+                    % spellclass.__name__)
                 cls.SPELLS[i] = CompatSpellFactory(spellclass)
 
 class Toaster(object):
