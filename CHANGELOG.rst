@@ -1,11 +1,16 @@
-Release 1.2.4 (in development)
-==============================
+Release 1.2.4 (Apr 21, 2009)
+============================
+
+* Documentation is being converted to Sphinx. Currently some parts of the
+  documentation are slightly broken with epydoc. Hopefully the migration will
+  be complete in a month or so, resolving this issue.
 
 * removed deprecated PyFFI.Spells code:
 
   - old style spells no longer supported
 
-  - all old spells have been converted to the new spell system
+  - almost all old spells have been converted to the new spell system
+    (the few remaining ones will be ported for the next release)
 
 * nif:
 
