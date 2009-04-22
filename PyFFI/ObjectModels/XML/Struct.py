@@ -55,10 +55,10 @@ class _MetaStructBase(type):
     def __init__(cls, name, bases, dct):
         super(_MetaStructBase, cls).__init__(name, bases, dct)
         # consistency checks
-        if not '_attrs' in dct:
-            raise TypeError('%s: missing _attrs attribute'%cls)
-        if not '_isTemplate' in dct:
-            raise TypeError('%s: missing _isTemplate attribute'%cls)
+        #if not '_attrs' in dct:
+        #    raise TypeError('%s: missing _attrs attribute'%cls)
+        #if not '_isTemplate' in dct:
+        #    raise TypeError('%s: missing _isTemplate attribute'%cls)
         # hasLinks, hasRefs, hasStrings, used for optimization of fixLinks,
         # getLinks, getRefs, and getStrings
         # does the type contain a Ref or a Ptr?
@@ -67,7 +67,7 @@ class _MetaStructBase(type):
         cls._hasRefs = getattr(cls, '_hasRefs', False)
         # does the type contain a string?
         cls._hasStrings = getattr(cls, '_hasStrings', False)
-        for attr in dct['_attrs']:
+        for attr in dct.get('_attrs', []):
             # basestring is a forward compound type declaration
             # and issubclass must take a type as first argument
             # hence this hack

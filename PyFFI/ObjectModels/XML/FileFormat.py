@@ -76,7 +76,7 @@ class MetaXmlFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
         super(MetaXmlFileFormat, cls).__init__(name, bases, dct)
 
         # consistency checks
-        if not 'xmlFileName' in dct:
+        if not hasattr(cls, 'xmlFileName'):
             raise TypeError("class %s : missing xmlFileName attribute" % cls)
 
         # set up XML parser
@@ -84,20 +84,20 @@ class MetaXmlFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
         parser.setContentHandler(XmlSaxHandler(cls, name, bases, dct))
 
         # open XML file
-        if not 'xmlFilePath' in dct:
-            xmlfile = open(dct['xmlFileName'])
+        if not hasattr(cls, 'xmlFilePath'):
+            xmlfile = open(cls.xmlFileName)
         else:
-            for filepath in dct['xmlFilePath']:
+            for filepath in cls.xmlFilePath:
                 if not filepath:
                     continue
                 try:
-                    xmlfile = open(os.path.join(filepath, dct['xmlFileName']))
+                    xmlfile = open(os.path.join(filepath, cls.xmlFileName))
                 except IOError:
                     continue
                 break
             else:
                 raise IOError("'%s' not found in any of the directories %s"%(
-                    dct['xmlFileName'], dct['xmlFilePath']))
+                    cls.xmlFileName, cls.xmlFilePath))
 
         # parse the XML file: control is now passed on to XmlSaxHandler
         # which takes care of the class creation
@@ -665,7 +665,7 @@ but got %s instead"""%name)
             # note: keep the old sys.path because the customize modules might
             # import other modules (such as math)
             # old style:
-            sys.path = [self.dct['clsFilePath']] + sys.path
+            sys.path = [self.cls.clsFilePath] + sys.path
             try:
                 # import custom object module
                 mod = __import__(obj.__name__, globals(),  locals(), [])
