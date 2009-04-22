@@ -144,7 +144,6 @@ opt_cleanreflists
 opt_mergeduplicates
 opt_geometry
 optimize
-updateskinpartition
 
 The check_readwrite spell and the --raise switch
 ------------------------------------------------
@@ -1138,3 +1137,4 @@ All Rights Reserved. See www.havok.com for details.
 <BLANKLINE>
 <BLANKLINE>
 pyffi.toaster:INFO:  writing to temporary file
+pyffi.toaster:INFO:Finished.

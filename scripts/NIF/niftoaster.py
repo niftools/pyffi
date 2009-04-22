@@ -52,8 +52,6 @@ import PyFFI.Spells.NIF.check
 import PyFFI.Spells.NIF.dump
 import PyFFI.Spells.NIF.fix
 import PyFFI.Spells.NIF.optimize
-from PyFFI.Spells.NIF import \
-    updateskinpartition
 
 class NifToaster(PyFFI.Spells.NIF.NifToaster):
     """Class for toasting nif files, using any of the available spells."""
@@ -93,8 +91,7 @@ class NifToaster(PyFFI.Spells.NIF.NifToaster):
         PyFFI.Spells.NIF.optimize.SpellMergeDuplicates,
         PyFFI.Spells.NIF.optimize.SpellOptimizeGeometry,
         #PyFFI.Spells.NIF.optimize.SpellOptimizeSplit,
-        PyFFI.Spells.NIF.optimize.SpellOptimize,
-        updateskinpartition]
+        PyFFI.Spells.NIF.optimize.SpellOptimize]
     ALIASDICT = {
         "texdump": "dump_tex",
         "read": "check_read",
