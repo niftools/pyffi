@@ -194,18 +194,9 @@ class QSkope(QtGui.QMainWindow):
         """Read kfm file from stream. If stream does not contain a kfm file,
         then raises ValueError. Sets the self.header, self.roots, self.footer,
         self.Format, and self.formatArgs variables."""
-        # TODO: use data element
-
-        # try reading as a kfm file
-        version, user_version = KfmFormat.getVersion(stream)
-        # if not succesful: raise an exception
-        if version < 0:
-            raise ValueError("not a kfm file")
-        # if succesful: parse the file and save information about it
-        self.header, self.roots, self.footer = KfmFormat.read(
-            stream, version = version, user_version = user_version)
-        self.Format = KfmFormat
-        self.formatArgs = (version, user_version)
+        data = KfmFormat.Data()
+        data.read(stream)
+        self.data = data
 
     def openDdsFile(self, stream = None):
         """Read dds file from stream. If stream does not contain a dds file,
