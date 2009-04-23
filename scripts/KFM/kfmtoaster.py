@@ -42,6 +42,9 @@ a kfm specific wrapper around L{PyFFI.Spells.toaster}."""
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
+import logging
+import sys
+
 from PyFFI.Formats.KFM import KfmFormat
 import PyFFI.Spells.check
 import PyFFI.Spells.KFM
