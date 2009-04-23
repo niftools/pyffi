@@ -116,6 +116,7 @@ from PyFFI.ObjectModels.XML.FileFormat import MetaXmlFileFormat
 from PyFFI import Utils
 from PyFFI.ObjectModels import Common
 from PyFFI.ObjectModels.XML.Basic import BasicBase
+from PyFFI.ObjectModels.Graph import EdgeFilter
 import PyFFI.ObjectModels.FileFormat
 
 class _KfmFormat(XmlFileFormat):
@@ -210,6 +211,11 @@ class _KfmFormat(XmlFileFormat):
             """
             return len(self.versionString(kwargs.get('version'))) \
                    + (1 if not self._doseol else 2)
+
+        # DetailNode
+
+        def getDetailDisplay(self):
+            return str(self)
 
         @staticmethod
         def versionString(version):
@@ -352,9 +358,20 @@ class KfmFormat(_KfmFormat):
             # write the file
             _KfmFormat.Header.write(self, stream, version=self.version)
 
-        # XXX todo: let animation blocks be global nodes
+        # GlobalNode
+
+        def getGlobalChildNodes(self, edge_filter=EdgeFilter()):
+            return (anim for anim in self.animations)
+
+        def getGlobalDisplay(self):
+            """Display the nif file name."""
+            return self.nifFileName
 
     class Animation(_KfmFormat.Animation):
+        def getDetailDisplay(self):
+            """Display the kf file name."""
+            return self.kfFileName if not self.name else self.name
+
         def getGlobalDisplay(self):
             """Display the kf file name."""
             return self.kfFileName if not self.name else self.name
