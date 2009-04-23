@@ -1,0 +1,44 @@
+Doctests for the kfmtoaster script
+==================================
+
+The --spells switch
+-------------------
+
+>>> import sys
+>>> sys.path.append("scripts/KFM")
+>>> import kfmtoaster
+>>> sys.argv = ["kfmtoaster.py", "--spells"]
+>>> kfmtoaster.KfmToaster().cli()
+check_read
+check_readwrite
+dump
+
+The check_read and check_readwrite spells
+-----------------------------------------
+
+>>> import sys
+>>> sys.path.append("scripts/KFM")
+>>> import kfmtoaster
+>>> sys.argv = ["kfmtoaster.py", "--verbose=1", "check_read", "tests/kfm/"]
+>>> kfmtoaster.KfmToaster().cli() # doctest: +ELLIPSIS
+pyffi.toaster:INFO:=== tests/kfm/test.kfm ===
+pyffi.toaster:INFO:  --- check_read ---
+pyffi.toaster:INFO:Finished.
+>>> sys.argv = ["kfmtoaster.py", "--verbose=1", "check_readwrite", "tests/kfm/test.kfm"]
+>>> kfmtoaster.KfmToaster().cli() # doctest: +ELLIPSIS
+pyffi.toaster:INFO:=== tests/kfm/test.kfm ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:  writing to temporary file
+pyffi.toaster:INFO:Finished.
+
+The dump spell
+--------------
+
+>>> import sys
+>>> sys.path.append("scripts/KFM")
+>>> import kfmtoaster
+>>> sys.argv = ["kfmtoaster.py", "--verbose=1", "dump", "tests/kfm/test.kfm"]
+>>> kfmtoaster.KfmToaster().cli() # doctest: +ELLIPSIS
+pyffi.toaster:INFO:=== tests/kfm/test.kfm ===
+pyffi.toaster:INFO:  --- dump ---
+pyffi.toaster:INFO:Finished.

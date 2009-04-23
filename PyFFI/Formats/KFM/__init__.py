@@ -1,6 +1,6 @@
 """
-.. :mod:`PyFFI.Formats.KFM` --- NetImmerse/Gamebryo Keyframe Motion (.kfm)
-   =======================================================================
+:mod:`PyFFI.Formats.KFM` --- NetImmerse/Gamebryo Keyframe Motion (.kfm)
+=======================================================================
 
 Regression tests
 ----------------
@@ -8,18 +8,16 @@ Regression tests
 Read a KFM file
 ^^^^^^^^^^^^^^^
 
->>> # get version and user version, and read kfm file
->>> f = open('tests/kfm/test.kfm', 'rb')
->>> version, user_version = KfmFormat.getVersion(f)
->>> if version == -1:
-...     raise RuntimeError('kfm version not supported')
-... elif version == -2:
-...     raise RuntimeError('not a kfm file')
->>> header, animations, footer = KfmFormat.read(f, version = version)
->>> # get all animation file names
->>> print(header.nifFileName)
+>>> # read kfm file
+>>> stream = open('tests/kfm/test.kfm', 'rb')
+>>> data = KfmFormat.Data()
+>>> data.inspect(stream)
+>>> print(data.nifFileName)
 Test.nif
->>> for anim in animations:
+>>> data.read(stream)
+>>> stream.close()
+>>> # get all animation file names
+>>> for anim in data.animations:
 ...     print(anim.kfFileName)
 Test_MD_Idle.kf
 Test_MD_Run.kf
@@ -29,27 +27,25 @@ Test_MD_Die.kf
 Parse all KFM files in a directory tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
->>> for header, animations, footer in KfmFormat.walk('tests/kfm',
-...                                                  raisereaderror = False,
-...                                                  verbose = 1):
-...     pass
-reading tests/kfm/test.kfm
+>>> for stream, data in KfmFormat.walkData('tests/kfm'):
+...     print stream.name
+tests/kfm/test.kfm
 
 Create a KFM model from scratch and write to file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
->>> header = KfmFormat.Header()
->>> header.nifFileName = "Test.nif"
->>> header.numAnimations = 4
->>> animations = [KfmFormat.Animation() for j in xrange(4)]
->>> animations[0].kfFileName = "Test_MD_Idle.kf"
->>> animations[1].kfFileName = "Test_MD_Run.kf"
->>> animations[2].kfFileName = "Test_MD_Walk.kf"
->>> animations[3].kfFileName = "Test_MD_Die.kf"
+>>> data = KfmFormat.Data(version=0x0202000B)
+>>> data.nifFileName = "Test.nif"
+>>> data.numAnimations = 4
+>>> data.animations.updateSize()
+>>> data.animations[0].kfFileName = "Test_MD_Idle.kf"
+>>> data.animations[1].kfFileName = "Test_MD_Run.kf"
+>>> data.animations[2].kfFileName = "Test_MD_Walk.kf"
+>>> data.animations[3].kfFileName = "Test_MD_Die.kf"
 >>> from tempfile import TemporaryFile
 >>> stream = TemporaryFile()
->>> KfmFormat.write(stream, version = 0x0202000B,
-...                 header = header, animations = animations)
+>>> data.write(stream)
+>>> stream.close()
 
 Get list of versions and games
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -120,8 +116,9 @@ from PyFFI.ObjectModels.XML.FileFormat import MetaXmlFileFormat
 from PyFFI import Utils
 from PyFFI.ObjectModels import Common
 from PyFFI.ObjectModels.XML.Basic import BasicBase
+import PyFFI.ObjectModels.FileFormat
 
-class KfmFormat(XmlFileFormat):
+class _KfmFormat(XmlFileFormat):
     """This class implements the kfm file format."""
     __metaclass__ = MetaXmlFileFormat
     xmlFileName = 'kfm.xml'
@@ -246,11 +243,6 @@ class KfmFormat(XmlFileFormat):
             """
             return self.getValue().lower()
 
-    # exceptions
-    class KfmError(StandardError):
-        """Exception class used for KFM related exceptions."""
-        pass
-
     @staticmethod
     def versionNumber(version_str):
         """Converts version string into an integer.
@@ -289,99 +281,75 @@ class KfmFormat(XmlFileFormat):
                 + (ver_list[2] << 8)
                 + ver_list[3])
 
-    @classmethod
-    def getVersion(cls, stream):
-        """Returns version and user version number, if version is supported.
+class KfmFormat(_KfmFormat):
+    """Customization of generated kfm classes."""
+    class Data(_KfmFormat.Header, PyFFI.ObjectModels.FileFormat.FileFormat.Data):
+        """A class to contain the actual kfm data."""
+        def __init__(self, version=16909312):
+            _KfmFormat.Header.__init__(self)
+            # stubs to make things work with XML model
+            self.version = version
+            self.user_version = None
+            self.user_version2 = None
 
-        @param stream: The stream from which to read.
-        @type stream: file
-        @return: The version and user version of the file.
-            Returns C{(-1, 0)} if a kfm file but version not supported.
-            Returns C{(-2, 0)} if not a kfm file.
-        """
-        pos = stream.tell()
-        try:
-            hdrstr = stream.readline(64).rstrip()
-        finally:
-            stream.seek(pos)
-        if hdrstr.startswith(";Gamebryo KFM File Version " ):
-            version_str = hdrstr[27:]
-        else:
-            # not a kfm file
-            return -2, 0
-        try:
-            ver = cls.versionNumber(version_str)
-        except:
-            # version not supported
-            return -1, 0
-        if not ver in cls.versions.values():
-            # unsupported version
-            return -1, 0
+        def inspect(self, stream):
+            """Quick heuristic check if stream contains KFM data,
+            by looking at the first 64 bytes. Sets version and reads
+            header string.
 
-        return ver, 0
+            @param stream: The stream to inspect.
+            @type stream: file
+            """
+            pos = stream.tell()
+            try:
+                hdrstr = stream.readline(64).rstrip()
+            finally:
+                stream.seek(pos)
+            if hdrstr.startswith(";Gamebryo KFM File Version " ):
+                version_str = hdrstr[27:]
+            else:
+                # not a kfm file
+                raise ValueError("Not a KFM file.")
+            try:
+                ver = KfmFormat.versionNumber(version_str)
+            except:
+                # version not supported
+                raise ValueError("KFM version not supported.")
+            if not ver in KfmFormat.versions.values():
+                # unsupported version
+                raise ValueError("KFM version not supported.")
+            # store version
+            self.version = ver
+            # read header string
+            try:
+                self._headerString_value_.read(stream, version=ver)
+                self._unknownByte_value_.read(stream, version=ver)
+                self._nifFileName_value_.read(stream, version=ver)
+                self._master_value_.read(stream, version=ver)
+            finally:
+                stream.seek(pos)
 
-    @classmethod
-    def read(cls, stream, version = None, user_version = None, verbose = 0):
-        """Read a kfm file.
+        def read(self, stream):
+            """Read a kfm file.
 
-        @param stream: The stream from which to read.
-        @type stream: file
-        @param version: The kfm version obtained by L{getVersion}.
-        @type version: int
-        @param user_version: The kfm user version obtained by L{getVersion}.
-        @type user_version: int
-        @param verbose: The level of verbosity.
-        @type verbose: int
-        @return: header, list of animations, footer
-        """
-        # read the file
-        header = cls.Header()
-        header.read(stream, version = version)
-        animations = [ cls.Animation() for i in xrange(header.numAnimations) ]
-        for anim in animations:
-            anim.read(stream, version = version)
-        footer = cls.Footer()
-        footer.read(stream, version = version)
+            @param stream: The stream from which to read.
+            @type stream: C{file}
+            """
+            # read the file
+            self.inspect(stream) # quick check
+            _KfmFormat.Header.read(self, stream, version=self.version)
 
-        # check if we are at the end of the file
-        if stream.read(1) != '':
-            raise cls.KfmError('end of file not reached: corrupt kfm file?')
+            # check if we are at the end of the file
+            if stream.read(1) != '':
+                raise ValueError('end of file not reached: corrupt kfm file?')
 
-        return header, animations, footer
+        def write(self, stream):
+            """Write a kfm file.
 
-    @classmethod
-    def write(cls, stream, version = None, user_version = None,
-              header = None, animations = None, footer = None,
-              verbose = 0):
-        """Write a kfm file.
+            @param stream: The stream to which to write.
+            @type stream: C{file}
+            """
+            # write the file
+            _KfmFormat.Header.write(self, stream, version=self.version)
 
-        @param stream: The stream to which to write.
-        @type stream: file
-        @param version: The version number.
-        @type version: int
-        @param user_version: The user version number (ignored for now).
-        @type user_version: int
-        @param header: The kfm header.
-        @type header: L{KfmFormat.Header}
-        @param animations: The animation data.
-        @type animations: list of L{KfmFormat.Animation}
-        @param footer: The kfm footer.
-        @type footer: L{KfmFormat.Footer}
-        @param verbose: The level of verbosity.
-        @type verbose: int
-        """
-        # make sure header has correct number of animations
-        header.numAnimations = len(animations)
-        # write the file
-        # first header
-        assert(isinstance(header, cls.Header))
-        header.write(stream, version = version)
-        # next all animations
-        for anim in animations:
-            assert(isinstance(anim, cls.Animation))
-            anim.write(stream, version = version)
-        # finally the footer
-        if footer is None:
-            footer = cls.Footer()
-        assert(isinstance(footer, cls.Footer))
-        footer.write(stream, version = version)
+        # XXX todo: let animation blocks be global nodes

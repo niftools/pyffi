@@ -76,7 +76,7 @@ suite.addTest(doctest.DocFileSuite('tests/nif/matrix.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/skinpartition.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/bhkpackednitristripsshape.txt'))
 suite.addTest(doctest.DocFileSuite('tests/cgf/cgftoaster.txt'))
-#suite.addTest(doctest.DocFileSuite('tests/kfm/kfmtoaster.txt'))
+suite.addTest(doctest.DocFileSuite('tests/kfm/kfmtoaster.txt'))
 suite.addTest(doctest.DocFileSuite('docs-sphinx/intro.rst'))
 
 # TODO: examples

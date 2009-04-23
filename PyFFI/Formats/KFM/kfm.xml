@@ -42,9 +42,7 @@
         <add name="Unknown Float 1" type="float" ver1="16909312" />
         <add name="Unknown Float 2" type="float" ver1="16909312" />
         <add name="Num Animations" type="int" ver1="16909312" />
-    </compound>
-
-    <compound name="Footer">
+        <add name="Animations" type="Animation" arr1="Num Animations" ver1="16909312" />
         <add name="Unknown Int" type="int" ver1="16909312" />
     </compound>
 

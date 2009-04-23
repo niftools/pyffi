@@ -42,18 +42,29 @@ a kfm specific wrapper around L{PyFFI.Spells.toaster}."""
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-from PyFFI.Spells import toaster
 from PyFFI.Formats.KFM import KfmFormat
+import PyFFI.Spells.check
 import PyFFI.Spells.KFM
+import PyFFI.Spells.KFM.dump
 
-def main():
-    examples = """* check if the library can read all files in current directory:
+class KfmToaster(PyFFI.Spells.KFM.KfmToaster):
+    SPELLS = [
+        PyFFI.Spells.check.SpellRead,
+        PyFFI.Spells.check.SpellReadWrite,
+        PyFFI.Spells.KFM.dump.SpellDumpAll]
+    EXAMPLES = """* check if library can read all files in current directory:
 
-    python kfmtoaster.py read ."""
-
-    toaster(format=KfmFormat, formatspellsmodule=PyFFI.Spells.KFM,
-            examples=examples)
+    python kfmtoaster.py check_read ."""
 
 # if script is called...
 if __name__ == "__main__":
-    main()
+    # set up logger
+    logger = logging.getLogger("pyffi")
+    logger.setLevel(logging.DEBUG)
+    loghandler = logging.StreamHandler(sys.stdout)
+    loghandler.setLevel(logging.DEBUG)
+    logformatter = logging.Formatter("%(name)s:%(levelname)s:%(message)s")
+    loghandler.setFormatter(logformatter)
+    logger.addHandler(loghandler)
+    # call toaster
+    KfmToaster().cli()
