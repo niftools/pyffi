@@ -1,6 +1,16 @@
 Release 1.2.5 (in development)
 ==============================
 
+* Updates and fixes for the KFM format.
+
+  - New _KfmFormat base class that just contains the generated code.
+    Customizations are implemented in KfmFormat.
+
+  - The Data element inherits from Header, and Header includes also all
+    animations, so it is more straightforward to edit files.
+
+  - The KFM files open again in QSkope.
+
 Release 1.2.4 (Apr 21, 2009)
 ============================
 
