@@ -289,6 +289,10 @@ class _KfmFormat(XmlFileFormat):
 
 class KfmFormat(_KfmFormat):
     """Customization of generated kfm classes."""
+    # XXX todo:
+    # XXX * deriving from _KfmFormat parses kfm.xml again... find a way to avoid
+    # XXX * the derived classes such as Animation are not instantiated
+    # XXX   in other classes (such as for instance in the Data)
     class Data(_KfmFormat.Header, PyFFI.ObjectModels.FileFormat.FileFormat.Data):
         """A class to contain the actual kfm data."""
         def __init__(self, version=16909312):
@@ -368,6 +372,7 @@ class KfmFormat(_KfmFormat):
             return self.nifFileName
 
     class Animation(_KfmFormat.Animation):
+        # XXX this does not work yet (see todo for KfmFormat)
         def getDetailDisplay(self):
             """Display the kf file name."""
             return self.kfFileName if not self.name else self.name
