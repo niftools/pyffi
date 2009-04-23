@@ -353,3 +353,8 @@ class KfmFormat(_KfmFormat):
             _KfmFormat.Header.write(self, stream, version=self.version)
 
         # XXX todo: let animation blocks be global nodes
+
+    class Animation(_KfmFormat.Animation):
+        def getGlobalDisplay(self):
+            """Display the kf file name."""
+            return self.kfFileName if not self.name else self.name
