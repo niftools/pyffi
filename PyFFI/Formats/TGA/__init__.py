@@ -13,6 +13,7 @@ Read a TGA file
 >>> data = TgaFormat.Data()
 >>> data.inspect(stream)
 >>> data.read(stream)
+>>> stream.close()
 >>> data.header.width
 60
 >>> data.header.height
@@ -32,6 +33,7 @@ Create a TGA file from scratch and write to file
 >>> from tempfile import TemporaryFile
 >>> stream = TemporaryFile()
 >>> data.write(stream)
+>>> stream.close()
 """
 
 # ***** BEGIN LICENSE BLOCK *****
@@ -152,25 +154,21 @@ class TgaFormat(XmlFileFormat):
 
             @param stream: The stream from which to read.
             @type stream: C{file}
-            @param verbose: The level of verbosity.
-            @type verbose: C{int}
             """
             # read the file
             self.inspect(stream) # quick check
             self.header.read(stream)
 
             # check if we are at the end of the file
-            #if stream.read(1) != '':
-            #    raise ValueError(
-            #        'end of file not reached: corrupt tga file?')
+            if stream.read(1) != '':
+                raise ValueError(
+                    'end of file not reached: corrupt tga file?')
 
         def write(self, stream):
             """Write a tga file.
 
             @param stream: The stream to which to write.
             @type stream: C{file}
-            @param verbose: The level of verbosity.
-            @type verbose: C{int}
             """
             # write the file
             self.header.write(stream)
