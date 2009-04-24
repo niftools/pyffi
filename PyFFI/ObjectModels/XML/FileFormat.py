@@ -39,6 +39,8 @@ file, and xml handler for converting the xml description into Python classes.
 #
 # ***** END LICENSE BLOCK *****
 
+import logging
+import time # for timing stuff
 from types import FunctionType
 import os.path
 import sys
@@ -72,6 +74,7 @@ class _MetaXmlFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
         """
 
         super(_MetaXmlFileFormat, cls).__init__(name, bases, dct)
+        logger = logging.getLogger("pyffi.object_models.xml")
 
         # parse XML
         # ---------
@@ -103,10 +106,13 @@ class _MetaXmlFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
 
             # parse the XML file: control is now passed on to XmlSaxHandler
             # which takes care of the class creation
+            logger.debug("Parsing %s and generating classes." % xmlFileName)
+            start = time.clock()
             try:
                 parser.parse(xmlfile)
             finally:
                 xmlfile.close()
+            logger.debug("Parsing finished in %.3f seconds." % (time.clock() - start))
 
         # class customizers
         # -----------------
