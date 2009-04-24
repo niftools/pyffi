@@ -1,9 +1,11 @@
 """
-:mod:`PyFFI.Spells.KFM` ---  NetImmerse/Gamebryo Keyframe Model (.kfm)
-======================================================================
+:mod:`PyFFI.Spells.KFM` ---  NetImmerse/Gamebryo Keyframe Motion (.kfm) spells
+==============================================================================
 
-automodule:: PyFFI.Spells.KFM.check
-automodule:: PyFFI.Spells.KFM.dump
+.. automodule:: PyFFI.Spells.KFM.check
+
+.. automodule:: PyFFI.Spells.KFM.dump
+
 """
 __docformat__= "restructuredtext en" # for epydoc
 

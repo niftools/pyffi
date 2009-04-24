@@ -1,6 +1,6 @@
 """
-.. :mod:`PyFFI.Spells` --- High level file operations
-   ==================================================
+:mod:`PyFFI.Spells` --- High level file operations
+==================================================
 
 .. note::
    
@@ -13,6 +13,14 @@ on branches directly. The recommended way of doing this is via the
 
 Supported spells
 ----------------
+
+.. autoclass:: SpellApplyPatch
+   :show-inheritance:
+   :members:
+   :inherited-members:
+   :undoc-members:
+
+For format specific spells, refer to the following:
 
 .. toctree::
    :maxdepth: 2
@@ -31,14 +39,55 @@ To create new spells, derive your custom spells from the :class:`Spell`
 class, and include them in the :attr:`Toaster.SPELLS` attribute of your
 toaster.
 
-Abstract base classes
----------------------
-
 .. autoclass:: Spell
+   :show-inheritance:
    :members:
+   :inherited-members:
+   :undoc-members:
+
+Grouping spells together
+------------------------
+
+It is also possible to create composite spells, that is, spells that
+simply execute other spells. The following functions and classes can
+be used for this purpose.
+
+.. autofunction:: SpellGroupParallel
+
+.. autofunction:: SpellGroupSeries
+
+.. autoclass:: SpellGroupBase
+   :show-inheritance:
+   :members:
+   :inherited-members:
+   :undoc-members:
+   
+
+.. autoclass:: SpellGroupParallelBase
+   :show-inheritance:
+   :members:
+   :inherited-members:
+   :undoc-members:
+   
+
+.. autoclass:: SpellGroupSeriesBase
+   :show-inheritance:
+   :members:
+   :inherited-members:
+   :undoc-members:
+
+Creating toaster scripts
+------------------------
+
+To create a new toaster script, derive your toaster from the :class:`Toaster`
+class, and set the :attr:`Toaster.FILEFORMAT` attribute of your toaster to
+the file format class of the files it can toast.
 
 .. autoclass:: Toaster
+   :show-inheritance:
    :members:
+   :inherited-members:
+   :undoc-members:
 
 """
 __docformat__ = "restructuredtext en" # for epydoc

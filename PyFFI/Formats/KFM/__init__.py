@@ -71,6 +71,7 @@ Red Ocean 0x01024B00
 Sid Meier's Railroads 0x0200000B
 The Guild 2 0x01024B00
 """
+__docformat__ = "restructuredtext en" # for epydoc
 
 # ***** BEGIN LICENSE BLOCK *****
 #

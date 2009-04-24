@@ -1,8 +1,8 @@
 """
-.. :mod:`PyFFI.Spells.TGA` --- Targa spells
-   ========================================
+:mod:`PyFFI.Spells.TGA` --- Targa spells
+========================================
 
-There are no spells yet, but you are welcome to contribute!
+There are no spells yet.
 """
 __docformat__ = "restructuredtext en" # for epydoc
 
