@@ -76,8 +76,13 @@ class _MetaXmlFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
         super(_MetaXmlFileFormat, cls).__init__(name, bases, dct)
         logger = logging.getLogger("pyffi.object_models.xml")
 
+        # preparation: make deep copy of lists of enums, structs, etc.
+        cls.xmlEnum = cls.xmlEnum[:]
+        cls.xmlAlias = cls.xmlEnum[:]
+        cls.xmlBitStruct = cls.xmlBitStruct[:]
+        cls.xmlStruct = cls.xmlStruct[:]
+
         # parse XML
-        # ---------
 
         # we check dct to avoid parsing the same file more than once in
         # the hierarchy
@@ -114,10 +119,49 @@ class _MetaXmlFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
                 xmlfile.close()
             logger.debug("Parsing finished in %.3f seconds." % (time.clock() - start))
 
-        # class customizers
-        # -----------------
-
-        # XXX todo
+        # class customizers:
+        # for every generated class
+        # check if there is a customizer in the class dictionary
+        logger.debug("Registering %s custom classes." % cls.__name__)
+        start = time.clock()
+        custom_klass_dct = {}
+        # first construct mapping of customized classes
+        for klass in cls.xmlStruct:
+            custom_klass = dct.get(klass.__name__)
+            # klass could be custom_klass, if it is the implementation
+            if custom_klass and not(klass is custom_klass):
+                if not issubclass(custom_klass, klass):
+                    print custom_klass
+                    print klass
+                    raise TypeError(
+                        "%s derives from %s but must derive from %s"
+                        % (custom_klass.__name__,
+                           custom_klass.__bases__[0].__name__,
+                           klass.__name__))
+                logger.debug("Found class customizer for %s" % klass.__name__)
+                custom_klass_dct[klass.__name__] = custom_klass
+        # now fix all references to customized classes
+        for klass in cls.xmlStruct:
+            for attr in klass._attrs:
+                # fix template
+                if attr.template:
+                    try:
+                        attr.template = custom_klass_dct[attr.template.__name__]
+                    except KeyError:
+                        pass
+                    else:
+                        logger.debug("Fixed %s reference in %s.%s"
+                                     % (attr.template.__name__,
+                                        klass.__name__, attr.name))
+                try:
+                    attr.type = custom_klass_dct[attr.type.__name__]
+                except KeyError:
+                    pass
+                else:
+                    logger.debug("Fixed %s reference in %s.%s"
+                                 % (attr.type.__name__,
+                                    klass.__name__, attr.name))
+        logger.debug("Registration finished in %.3f seconds." % (time.clock() - start))
 
 class XmlFileFormat(PyFFI.ObjectModels.FileFormat.FileFormat):
     """This class can be used as a base class for file formats
@@ -127,6 +171,20 @@ class XmlFileFormat(PyFFI.ObjectModels.FileFormat.FileFormat):
     xmlFilePath = None #: Override.
     # XXX remove clsFilePath when customization by subclassing is done
     clsFilePath = None #: Override.
+
+    # We also keep an ordered list of all classes that have been created.
+    # The xmlStruct list includes all xml generated struct classes,
+    # including those that are replaced by a native class in cls (for
+    # instance NifFormat.String). The idea is that these lists should
+    # contain sufficient info from the xml so they can be used to write
+    # other python scripts that would otherwise have to implement their own
+    # xml parser. See makehsl.py for an example of usage.
+    #
+    # (note: no classes are created for basic types, so no list for those)
+    xmlEnum = []
+    xmlAlias = []
+    xmlBitStruct = []
+    xmlStruct = []
 
     @classmethod
     def vercondFilter(cls, expression):
@@ -306,12 +364,6 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
           - Makes an alias C{self.cls} for C{cls}.
           - Initializes a stack C{self.stack} of xml tags.
           - Initializes the current tag.
-          - Creates lists where the created classes will be stored if they
-            ever need to be parsed:
-              - C{self.cls.xmlEnum}
-              - C{self.cls.xmlAlias}
-              - C{self.cls.xmlBitStruct}
-              - C{self.cls.xmlStruct}
         """
         # initialize base class (no super because base class is old style)
         xml.sax.handler.ContentHandler.__init__(self)
@@ -337,20 +389,6 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         # cls needs to be accessed in member functions, so make it an instance
         # member variable
         self.cls = cls
-
-        # We also keep an ordered list of all classes that have been created.
-        # The xmlStruct list includes all xml generated struct classes,
-        # including those that are replaced by a native class in cls (for
-        # instance NifFormat.String). The idea is that these lists should
-        # contain sufficient info from the xml so they can be used to write
-        # other python scripts that would otherwise have to implement their own
-        # xml parser. See makehsl.py for an example of usage.
-        #
-        # (note: no classes are created for basic types, so no list for those)
-        self.cls.xmlEnum = []
-        self.cls.xmlAlias = []
-        self.cls.xmlBitStruct = []
-        self.cls.xmlStruct = []
 
         # elements for creating new classes
         self.className = None
@@ -629,21 +667,23 @@ but got %s instead"""%name)
                      self.tagAlias,
                      self.tagBitStruct):
             # create class
-            class_type = type(
-                str(self.className), (self.classBase,), self.classDict)
             # assign it to cls.<className> if it has not been implemented
             # internally
-            if not self.className in self.cls.__dict__:
+            try:
+                class_type = getattr(self.cls, self.className)
+            except AttributeError:
+                class_type = type(
+                    str(self.className), (self.classBase,), self.classDict)
                 setattr(self.cls, self.className, class_type)
-            # append class to the appropriate list
-            if tag == self.tagStruct:
-                self.cls.xmlStruct.append(class_type)
-            elif tag == self.tagEnum:
-                self.cls.xmlEnum.append(class_type)
-            elif tag == self.tagAlias:
-                self.cls.xmlAlias.append(class_type)
-            elif tag == self.tagBitStruct:
-                self.cls.xmlBitStruct.append(class_type)
+                # append class to the appropriate list
+                if tag == self.tagStruct:
+                    self.cls.xmlStruct.append(class_type)
+                elif tag == self.tagEnum:
+                    self.cls.xmlEnum.append(class_type)
+                elif tag == self.tagAlias:
+                    self.cls.xmlAlias.append(class_type)
+                elif tag == self.tagBitStruct:
+                    self.cls.xmlBitStruct.append(class_type)
             # reset variables
             self.className = None
             self.classDict = None
