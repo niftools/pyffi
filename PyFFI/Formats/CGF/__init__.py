@@ -186,17 +186,15 @@ import os
 import re
 import warnings
 
-from PyFFI.ObjectModels.XML.FileFormat import XmlFileFormat
-from PyFFI.ObjectModels.XML.FileFormat import MetaXmlFileFormat
+import PyFFI.ObjectModels.XML.FileFormat
 from PyFFI import Utils
 from PyFFI.ObjectModels import Common
 from PyFFI.ObjectModels.XML.Basic import BasicBase
 import PyFFI.ObjectModels.FileFormat
 from PyFFI.ObjectModels.Graph import EdgeFilter
 
-class CgfFormat(XmlFileFormat):
+class CgfFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
     """Stores all information about the cgf file format."""
-    __metaclass__ = MetaXmlFileFormat
     xmlFileName = 'cgf.xml'
     # where to look for cgf.xml and in what order: CGFXMLPATH env var,
     # or module directory

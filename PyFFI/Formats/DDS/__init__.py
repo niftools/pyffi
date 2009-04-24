@@ -85,16 +85,14 @@ import struct
 import os
 import re
 
-from PyFFI.ObjectModels.XML.FileFormat import XmlFileFormat
-from PyFFI.ObjectModels.XML.FileFormat import MetaXmlFileFormat
+import PyFFI.ObjectModels.XML.FileFormat
 from PyFFI.ObjectModels import Common
 from PyFFI.ObjectModels.XML.Basic import BasicBase
 import PyFFI.ObjectModels.FileFormat
 from PyFFI.ObjectModels.Graph import EdgeFilter
 
-class DdsFormat(XmlFileFormat):
+class DdsFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
     """This class implements the DDS format."""
-    __metaclass__ = MetaXmlFileFormat
     xmlFileName = 'dds.xml'
     # where to look for dds.xml and in what order:
     # DDSXMLPATH env var, or DdsFormat module directory

@@ -50,15 +50,13 @@ from PyFFI.ObjectModels.XML.BitStruct  import BitStructBase
 from PyFFI.ObjectModels.XML.Enum       import EnumBase
 from PyFFI.ObjectModels.XML.Expression import Expression
 
-class MetaXmlFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
-    """The MetaXmlFileFormat metaclass transforms the XML description of a
-    file format into a bunch of classes which can be directly used to
-    manipulate files in this format.
+class _MetaXmlFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
+    """The MetaXmlFileFormat metaclass transforms the XML description
+    of a file format into a bunch of classes which can be directly
+    used to manipulate files in this format.
 
-    See L{PyFFI.Formats.NIF.NifFormat} for an example of how to use
-    L{MetaXmlFileFormat}.
-
-    The actual implementation of the parser is delegated to PyFFI.ObjectModels.XML.FileFormat.
+    The actual implementation of the parser is delegated to
+    PyFFI.ObjectModels.XML.FileFormat.
     """
     def __init__(cls, name, bases, dct):
         """This function constitutes the core of the class generation
@@ -73,42 +71,57 @@ class MetaXmlFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
         @param dct: A dictionary of class attributes, such as 'xmlFileName'.
         """
 
-        super(MetaXmlFileFormat, cls).__init__(name, bases, dct)
+        super(_MetaXmlFileFormat, cls).__init__(name, bases, dct)
 
-        # consistency checks
-        if not hasattr(cls, 'xmlFileName'):
-            raise TypeError("class %s : missing xmlFileName attribute" % cls)
+        # parse XML
+        # ---------
 
-        # set up XML parser
-        parser = xml.sax.make_parser()
-        parser.setContentHandler(XmlSaxHandler(cls, name, bases, dct))
+        # we check dct to avoid parsing the same file more than once in
+        # the hierarchy
+        xmlFileName = dct.get('xmlFileName')
+        if xmlFileName:
+            # set up XML parser
+            parser = xml.sax.make_parser()
+            parser.setContentHandler(XmlSaxHandler(cls, name, bases, dct))
 
-        # open XML file
-        if not hasattr(cls, 'xmlFilePath'):
-            xmlfile = open(cls.xmlFileName)
-        else:
-            for filepath in cls.xmlFilePath:
-                if not filepath:
-                    continue
-                try:
-                    xmlfile = open(os.path.join(filepath, cls.xmlFileName))
-                except IOError:
-                    continue
-                break
+            # open XML file
+            if not cls.xmlFilePath:
+                xmlfile = open(xmlFileName)
             else:
-                raise IOError("'%s' not found in any of the directories %s"%(
-                    cls.xmlFileName, cls.xmlFilePath))
+                for filepath in cls.xmlFilePath:
+                    if not filepath:
+                        continue
+                    try:
+                        xmlfile = open(os.path.join(filepath, cls.xmlFileName))
+                    except IOError:
+                        continue
+                    break
+                else:
+                    raise IOError(
+                        "'%s' not found in any of the directories %s"
+                        % (xmlFileName, cls.xmlFilePath))
 
-        # parse the XML file: control is now passed on to XmlSaxHandler
-        # which takes care of the class creation
-        try:
-            parser.parse(xmlfile)
-        finally:
-            xmlfile.close()
+            # parse the XML file: control is now passed on to XmlSaxHandler
+            # which takes care of the class creation
+            try:
+                parser.parse(xmlfile)
+            finally:
+                xmlfile.close()
+
+        # class customizers
+        # -----------------
+
+        # XXX todo
 
 class XmlFileFormat(PyFFI.ObjectModels.FileFormat.FileFormat):
     """This class can be used as a base class for file formats
     described by an xml file."""
+    __metaclass__ = _MetaXmlFileFormat
+    xmlFileName = None #: Override.
+    xmlFilePath = None #: Override.
+    # XXX remove clsFilePath when customization by subclassing is done
+    clsFilePath = None #: Override.
+
     @classmethod
     def vercondFilter(cls, expression):
         raise NotImplementedError

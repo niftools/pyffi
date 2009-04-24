@@ -75,17 +75,15 @@ Create a TGA file from scratch and write to file
 
 import struct, os, re
 
-from PyFFI.ObjectModels.XML.FileFormat import XmlFileFormat
-from PyFFI.ObjectModels.XML.FileFormat import MetaXmlFileFormat
+import PyFFI.ObjectModels.XML.FileFormat
 from PyFFI import Utils
 from PyFFI.ObjectModels import Common
 from PyFFI.ObjectModels.XML.Basic import BasicBase
 import PyFFI.ObjectModels.FileFormat
 from PyFFI.ObjectModels.Graph import EdgeFilter
 
-class TgaFormat(XmlFileFormat):
+class TgaFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
     """This class implements the TGA format."""
-    __metaclass__ = MetaXmlFileFormat
     xmlFileName = 'tga.xml'
     # where to look for tga.xml and in what order:
     # TGAXMLPATH env var, or TgaFormat module directory

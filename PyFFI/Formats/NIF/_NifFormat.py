@@ -109,8 +109,7 @@ import sys
 import warnings
 import weakref
 
-from PyFFI.ObjectModels.XML.FileFormat import XmlFileFormat
-from PyFFI.ObjectModels.XML.FileFormat import MetaXmlFileFormat
+import PyFFI.ObjectModels.XML.FileFormat
 from PyFFI import Utils
 from PyFFI.ObjectModels import Common
 from PyFFI.ObjectModels.XML.Basic import BasicBase
@@ -118,8 +117,7 @@ from PyFFI.ObjectModels.Editable import EditableBoolComboBox
 import PyFFI.ObjectModels.FileFormat
 from PyFFI.ObjectModels.Graph import EdgeFilter
 
-class NifFormat(XmlFileFormat):
-    __metaclass__ = MetaXmlFileFormat
+class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
     xmlFileName = 'nif.xml'
     # where to look for nif.xml and in what order: NIFXMLPATH env var,
     # or NifFormat module directory
