@@ -131,8 +131,6 @@ class _MetaXmlFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
             # klass could be custom_klass, if it is the implementation
             if custom_klass and not(klass is custom_klass):
                 if not issubclass(custom_klass, klass):
-                    print custom_klass
-                    print klass
                     raise TypeError(
                         "%s derives from %s but must derive from %s"
                         % (custom_klass.__name__,
@@ -142,6 +140,11 @@ class _MetaXmlFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
                 custom_klass_dct[klass.__name__] = custom_klass
         # now fix all references to customized classes
         for klass in cls.xmlStruct:
+            # replace base classes
+            klass.__bases__ = tuple(
+                custom_klass_dct.get(base.__name__, base)
+                for base in klass.__bases__)
+            # attributes
             for attr in klass._attrs:
                 # fix template
                 if attr.template:
