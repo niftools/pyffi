@@ -57,21 +57,18 @@ be used for this purpose.
 .. autoclass:: SpellGroupBase
    :show-inheritance:
    :members:
-   :inherited-members:
    :undoc-members:
    
 
 .. autoclass:: SpellGroupParallelBase
    :show-inheritance:
    :members:
-   :inherited-members:
    :undoc-members:
    
 
 .. autoclass:: SpellGroupSeriesBase
    :show-inheritance:
    :members:
-   :inherited-members:
    :undoc-members:
 
 Creating toaster scripts
@@ -149,32 +146,44 @@ class Spell(object):
     are writing new spells, start with reading the documentation with
     :meth:`recurse`.
 
-    :ivar toaster: The toaster this spell is called from.
-    :type toaster: :class:`Toaster`
-    :ivar data: The data this spell acts on.
-    :type data: :class:`PyFFI.ObjectModels.FileFormat.FileFormat.Data`
-    :ivar stream: The current file being processed.
-    :type stream: ``file``
+    .. autoattribute:: READONLY
+    .. autoattribute:: SPELLNAME
+    .. autoattribute:: data
+    .. autoattribute:: stream
+    .. autoattribute:: toaster
     """
+
+    data = None
+    """The :class:`~PyFFI.ObjectModels.FileFormat.FileFormat.Data` instance
+    this spell acts on."""
+
+    stream = None
+    """The current ``file`` being processed."""
+
+    toaster = None
+    """The :class:`Toaster` instance this spell is called from."""
 
     # spells are readonly by default
     READONLY = True
-    """Whether the spell is read only or not."""
-
-    #:type READONLY: ``bool``
-    #:type SPELLNAME: ``str``
+    """A ``bool`` which determines whether the spell is read only or
+    not. Default value is ``True``. Override this class attribute, and
+    set to ``False``, when subclassing a spell that must write files
+    back to the disk.
+    """
 
     SPELLNAME = None
-    """How to refer to the spell from the command line."""
+    """A ``str`` describing how to refer to the spell from the command line.
+    Override this class attribute when subclassing.
+    """
 
     def __init__(self, toaster=None, data=None, stream=None):
         """Initialize the spell data.
 
-        :param data: The file data.
-        :type data: :class:`PyFFI.ObjectModels.FileFormat.FileFormat.Data`
-        :param stream: The file stream.
+        :param data: The file :attr:`data`.
+        :type data: :class:`~PyFFI.ObjectModels.FileFormat.FileFormat.Data`
+        :param stream: The file :attr:`stream`.
         :type stream: ``file``
-        :param toaster: The toaster this spell is called from (optional).
+        :param toaster: The :attr:`toaster` this spell is called from (optional).
         :type toaster: :class:`Toaster`
         """
         self.data = data
@@ -193,8 +202,8 @@ class Spell(object):
         return True
 
     def datainspect(self):
-        """This is called after C{L{data}.inspect} has
-        been called, and before C{L{data}.read} is
+        """This is called after C{:attr:`data`.inspect} has
+        been called, and before C{:attr:`data`.read} is
         called. Override this function for customization.
 
         :return: ``True`` if the file must be processed, ``False`` otherwise.
@@ -208,7 +217,7 @@ class Spell(object):
         """Check if spell should be cast on this branch or not, based on
         exclude and include options passed on the command line. You should
         not need to override this function: if you need additional checks on
-        whether a branch must be parsed or not, override the L{branchinspect}
+        whether a branch must be parsed or not, override the :meth:`branchinspect`
         method.
 
         :param branch: The branch to check.
@@ -220,7 +229,7 @@ class Spell(object):
         return self.toaster.isadmissiblebranchtype(branch.__class__)
 
     def branchinspect(self, branch):
-        """Like L{_branchinspect}, but for customization: can be overridden to
+        """Like :meth:`_branchinspect`, but for customization: can be overridden to
         perform an extra inspection (the default implementation always
         returns ``True``).
 
@@ -232,14 +241,14 @@ class Spell(object):
         return True
 
     def recurse(self, branch=None):
-        """Helper function which calls L{_branchinspect} and L{branchinspect}
+        """Helper function which calls :meth:`_branchinspect` and :meth:`branchinspect`
         on the branch,
-        if both successful then L{branchentry} on the branch, and if this is
-        succesful it calls L{recurse} on the branch's children, and
-        once all children are done, it calls L{branchexit}.
+        if both successful then :meth:`branchentry` on the branch, and if this is
+        succesful it calls :meth:`recurse` on the branch's children, and
+        once all children are done, it calls :meth:`branchexit`.
 
-        Note that L{_branchinspect} and L{branchinspect} are not called upon
-        first entry of this function, that is, when called with L{data} as
+        Note that :meth:`_branchinspect` and :meth:`branchinspect` are not called upon
+        first entry of this function, that is, when called with :attr:`data` as
         branch argument. Use L{datainspect} to stop recursion into this branch.
 
         Do not override this function.
@@ -281,7 +290,7 @@ class Spell(object):
     def dataentry(self):
         """Called before all blocks are recursed.
         The default implementation simply returns ``True``.
-        You can access the data via C{self.L{data}}, and unlike in the
+        You can access the data via C{self.:attr:`data`}, and unlike in the
         L{datainspect} method, the full file has been processed at this stage.
 
         Typically, you will override this function to perform a global
@@ -294,7 +303,7 @@ class Spell(object):
 
     def branchentry(self, branch):
         """Cast the spell on the given branch. First called with branch equal to
-        L{data}'s children, then the grandchildren, and so on.
+        :attr:`data`'s children, then the grandchildren, and so on.
         The default implementation simply returns ``True``.
 
         Typically, you will override this function to perform an operation
@@ -310,7 +319,7 @@ class Spell(object):
 
     def branchexit(self, branch):
         """Cast a spell on the given branch, after all its children,
-        grandchildren, have been processed, if L{branchentry} returned
+        grandchildren, have been processed, if :meth:`branchentry` returned
         ``True`` on the given branch.
 
         Typically, you will override this function to perform a particular
@@ -372,7 +381,7 @@ class SpellGroupBase(Spell):
         groups. This list is automatically built when L{toastentry} is
         called.
     :type ACTIVESPELLCLASSES: ``list`` of C{type(L{Spell})}
-    :ivar spells: List of active spell instances.
+    :attr spells: List of active spell instances.
     :type spells: ``list`` of L{Spell}
     """
     SPELLCLASSES = []
@@ -609,18 +618,18 @@ class Toaster(object):
     :type EXAMPLES: ``str``
     @cvar ALIASDICT: Dictionary with aliases for spells.
     :type ALIASDICT: C{dict}
-    :ivar spellclasses: List of spell classes for the particular instance (must
+    :attr spellclasses: List of spell classes for the particular instance (must
         be a subset of L{SPELLS}).
     :type spellclasses: ``list`` of C{type(L{Spell})}
-    :ivar options: The options of the toaster.
+    :attr options: The options of the toaster.
     :type options: C{dict}
-    :ivar indent: Current level of indentation for messages.
+    :attr indent: Current level of indentation for messages.
     :type indent: ``int``
-    :ivar logger: For log messages.
+    :attr logger: For log messages.
     :type logger: C{logging.Logger}
-    :ivar include_types: Tuple of types corresponding to C{options.include}.
+    :attr include_types: Tuple of types corresponding to C{options.include}.
     :type include_types: C{tuple}
-    :ivar exclude_types: Tuple of types corresponding to C{options.exclude}.
+    :attr exclude_types: Tuple of types corresponding to C{options.exclude}.
     :type exclude_types: C{tuple}
     """
 
