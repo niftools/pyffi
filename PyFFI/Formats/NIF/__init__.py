@@ -1463,13 +1463,7 @@ Skipping %i bytes in %s""" % (extra_size, block.__class__.__name__))
 
     # extensions of generated structures
 
-    # XXX this is a *very* ugly hack so we can change the base classes of
-    # XXX anything that derives from object
-    # XXX see http://bugs.python.org/issue672115
-    class object(object):
-        pass
-
-    class Header(object):
+    class Header:
         def hasBlockType(self, block_type):
             """Check if header has a particular block type.
 
@@ -1495,7 +1489,7 @@ Skipping %i bytes in %s""" % (extra_size, block.__class__.__name__))
             # requested block type is not in nif
             return False
 
-    class Matrix33(object):
+    class Matrix33:
         def asList(self):
             """Return matrix as 3x3 list."""
             return [
@@ -1808,7 +1802,7 @@ Skipping %i bytes in %s""" % (extra_size, block.__class__.__name__))
             return max(max(abs(elem) for elem in row)
                        for row in self.asList())
 
-    class Vector3(object):
+    class Vector3:
         def asList(self):
             return [self.x, self.y, self.z]
 
@@ -1959,7 +1953,7 @@ Skipping %i bytes in %s""" % (extra_size, block.__class__.__name__))
         def __ne__(self, x):
             return not self.__eq__(x)
 
-    class Vector4(object):
+    class Vector4:
         """
         Regression tests
         ----------------
@@ -2028,7 +2022,7 @@ Skipping %i bytes in %s""" % (extra_size, block.__class__.__name__))
         def __ne__(self, rhs):
             return not self.__eq__(rhs)
 
-    class SkinPartition(object):
+    class SkinPartition:
         def getTriangles(self):
             """Get list of triangles of this partition.
             """

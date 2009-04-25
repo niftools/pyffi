@@ -686,13 +686,20 @@ but got %s instead"""%name)
                 # overrides a basic type - do nothing
             else:
                 # check if we have a customizer class
-                custom_klass = getattr(self.cls, self.className, None)
-                if custom_klass:
+                if cls_klass:
                     # exists: create and add to base class of customizer
                     gen_klass = type(
                         "_" + str(self.className), self.classBases, self.classDict)
-                    custom_klass.__bases__ += (gen_klass,)
-                    gen_class = custom_klass
+                    # recreate the class, to ensure that the
+                    # metaclass is called!!
+                    # (otherwise, cls_klass does not have correct
+                    # _attributeList, etc.)
+                    cls_klass = type(
+                        cls_klass.__name__,
+                        (gen_klass,) + cls_klass.__bases__,
+                        dict(cls_klass.__dict__))
+                    setattr(self.cls, self.className, cls_klass)
+                    gen_class = cls_klass
                 else:
                     # does not yet exist: create it and assign to class dict
                     gen_klass = type(

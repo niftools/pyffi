@@ -210,8 +210,21 @@ import PyFFI.Utils.TangentSpace
 from PyFFI.ObjectModels.XML.Basic import BasicBase
 from PyFFI.ObjectModels.Graph import EdgeFilter
 
-class _CgfFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
+class _MetaCgfFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat.__metaclass__):
+    """Metaclass which constructs the chunk map during class creation."""
+    def __init__(cls, name, bases, dct):
+        super(_MetaCgfFormat, cls).__init__(name, bases, dct)
+        
+        # map chunk type integers to chunk type classes
+        cls.CHUNK_MAP = dict(
+            (getattr(cls.ChunkType, chunk_name),
+             getattr(cls, '%sChunk' % chunk_name))
+            for chunk_name in cls.ChunkType._enumkeys
+            if chunk_name != "ANY")
+
+class CgfFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
     """Stores all information about the cgf file format."""
+    __metaclass__ = _MetaCgfFormat
     xmlFileName = 'cgf.xml'
     # where to look for cgf.xml and in what order: CGFXMLPATH env var,
     # or module directory
@@ -496,24 +509,6 @@ but got instance of %s""" % (self._template, block.__class__))
         '0x744'
         """
         return int(version_str, 16)
-
-
-
-class _MetaCgfFormat(_CgfFormat.__metaclass__):
-    """Metaclass which constructs the chunk map during class creation."""
-    def __init__(cls, name, bases, dct):
-        super(_MetaCgfFormat, cls).__init__(name, bases, dct)
-        
-        # map chunk type integers to chunk type classes
-        cls.CHUNK_MAP = dict(
-            (getattr(cls.ChunkType, chunk_name),
-             getattr(cls, '%sChunk' % chunk_name))
-            for chunk_name in cls.ChunkType._enumkeys
-            if chunk_name != "ANY")
-
-class CgfFormat(_CgfFormat):
-    """Customized interface to the CGF format."""
-    __metaclass__ = _MetaCgfFormat
 
     # exceptions
     class CgfError(StandardError):
@@ -1135,7 +1130,9 @@ chunk size mismatch when reading %s at 0x%08X
             except KeyError:
                 raise CgfFormat.CgfError("game %s not supported" % self.game)
 
-    class Chunk(_CgfFormat.Chunk):
+    # extensions of generated structures
+
+    class Chunk:
         def tree(self, block_type = None, follow_all = True):
             """A generator for parsing all blocks in the tree (starting from and
             including C{self}).
@@ -1159,7 +1156,7 @@ chunk size mismatch when reading %s at 0x%08X
             """Apply scale factor on data."""
             pass
 
-    class ChunkTable(_CgfFormat.ChunkTable):
+    class ChunkTable:
         def getChunkTypes(self):
             """Iterate all chunk types (in the form of Python classes) referenced
             in this table.
@@ -1167,7 +1164,7 @@ chunk size mismatch when reading %s at 0x%08X
             return (CgfFormat.CHUNK_MAP[chunk_header.type]
                     for chunk_header in self.chunkHeaders)
 
-    class BoneInitialPosChunk(_CgfFormat.BoneInitialPosChunk):
+    class BoneInitialPosChunk:
         def applyScale(self, scale):
             """Apply scale factor on data."""
             if abs(scale - 1.0) < CgfFormat.EPSILON:
@@ -1182,7 +1179,7 @@ chunk size mismatch when reading %s at 0x%08X
             view)."""
             return self.mesh
 
-    class DataStreamChunk(_CgfFormat.DataStreamChunk):
+    class DataStreamChunk:
         def applyScale(self, scale):
             """Apply scale factor on data."""
             if abs(scale - 1.0) < CgfFormat.EPSILON:
@@ -1192,7 +1189,7 @@ chunk size mismatch when reading %s at 0x%08X
                 vert.y *= scale
                 vert.z *= scale
 
-    class Matrix33(_CgfFormat.Matrix33):
+    class Matrix33:
         def asList(self):
             """Return matrix as 3x3 list."""
             return [
@@ -1496,7 +1493,7 @@ chunk size mismatch when reading %s at 0x%08X
         def __ne__(self, mat):
             return not self.__eq__(mat)
 
-    class Matrix44(_CgfFormat.Matrix44):
+    class Matrix44:
         def asList(self):
             """Return matrix as 4x4 list."""
             return [
@@ -1933,7 +1930,7 @@ chunk size mismatch when reading %s at 0x%08X
             return max(max(abs(elem) for elem in row)
                        for row in self.asList())
 
-    class MeshChunk(_CgfFormat.MeshChunk):
+    class MeshChunk:
         def applyScale(self, scale):
             """Apply scale factor on data."""
             if abs(scale - 1.0) < CgfFormat.EPSILON:
@@ -2822,7 +2819,7 @@ chunk size mismatch when reading %s at 0x%08X
                 crytangent[0].z = int(32767 * bin[2])
                 crytangent[0].w = tangent_w
 
-    class MeshMorphTargetChunk(_CgfFormat.MeshMorphTargetChunk):
+    class MeshMorphTargetChunk:
         def applyScale(self, scale):
             """Apply scale factor on data."""
             if abs(scale - 1.0) < CgfFormat.EPSILON:
@@ -2840,7 +2837,7 @@ chunk size mismatch when reading %s at 0x%08X
             """Return a name for the block."""
             return self.targetName
 
-    class MeshSubsetsChunk(_CgfFormat.MeshSubsetsChunk):
+    class MeshSubsetsChunk:
         def applyScale(self, scale):
             """Apply scale factor on data."""
             if abs(scale - 1.0) < CgfFormat.EPSILON:
@@ -2851,7 +2848,7 @@ chunk size mismatch when reading %s at 0x%08X
                 meshsubset.center.y *= scale
                 meshsubset.center.z *= scale
 
-    class MtlChunk(_CgfFormat.MtlChunk):
+    class MtlChunk:
         def getNameShaderScript(self):
             """Extract name, shader, and script."""
             name = self.name
@@ -2895,7 +2892,7 @@ chunk size mismatch when reading %s at 0x%08X
                 mtlshader = ""
             return mtlname, mtlshader, mtlscript
 
-    class NodeChunk(_CgfFormat.NodeChunk):
+    class NodeChunk:
         def getGlobalNodeParent(self):
             """Get the block parent (used for instance in the QSkope global view)."""
             return self.parent
@@ -2925,18 +2922,18 @@ chunk size mismatch when reading %s at 0x%08X
             self.scl.y = scale.y
             self.scl.z = scale.z
 
-    class SourceInfoChunk(_CgfFormat.SourceInfoChunk):
+    class SourceInfoChunk:
         def getGlobalDisplay(self):
             """Return a name for the block."""
             idx = max(self.sourceFile.rfind("\\"), self.sourceFile.rfind("/"))
             return self.sourceFile[idx+1:]
 
-    class TimingChunk(_CgfFormat.TimingChunk):
+    class TimingChunk:
         def getGlobalDisplay(self):
             """Return a name for the block."""
             return self.globalRange.name
 
-    class Vector3(_CgfFormat.Vector3):
+    class Vector3:
         def asList(self):
             return [self.x, self.y, self.z]
 
