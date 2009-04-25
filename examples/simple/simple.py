@@ -1,13 +1,17 @@
 import os
-from PyFFI.ObjectModels.XML.FileFormat import MetaXmlFileFormat
-from PyFFI.ObjectModels.XML.FileFormat import XmlFileFormat
-from PyFFI.ObjectModels import Common
+import PyFFI.ObjectModels.XML.FileFormat
+import PyFFI.ObjectModels.Common
 
-class SimpleFormat(XmlFileFormat):
-    __metaclass__ = MetaXmlFileFormat
+class _SimpleFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
     xmlFileName = 'simple.xml'
     xmlFilePath = [ os.path.dirname(__file__) ]
     clsFilePath = os.path.dirname(__file__)
 
-    int = Common.Int
+    Int = PyFFI.ObjectModels.Common.Int
 
+class SimpleFormat(_SimpleFormat):
+    class Example(_SimpleFormat.Example):
+        def addInteger(self, x):
+            self.numIntegers += 1
+            self.integers.updateSize()
+            self.integers[self.numIntegers-1] = x
