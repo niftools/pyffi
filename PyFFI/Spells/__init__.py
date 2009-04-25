@@ -191,8 +191,8 @@ class Spell(object):
         self.toaster = toaster if toaster else Toaster()
 
     def _datainspect(self):
-        """This is called after :meth:`data.inspect` has
-        been called, and before :meth:`data.read` is
+        """This is called after :meth:`PyFFI.ObjectModels.FileFormat.FileFormat.Data.inspect` has
+        been called, and before :meth:`PyFFI.ObjectModels.FileFormat.FileFormat.Data.read` is
         called.
 
         :return: ``True`` if the file must be processed, ``False`` otherwise.
@@ -202,8 +202,8 @@ class Spell(object):
         return True
 
     def datainspect(self):
-        """This is called after C{:attr:`data`.inspect} has
-        been called, and before C{:attr:`data`.read} is
+        """This is called after :meth:`PyFFI.ObjectModels.FileFormat.FileFormat.Data.inspect` has
+        been called, and before :meth:`PyFFI.ObjectModels.FileFormat.FileFormat.Data.read` is
         called. Override this function for customization.
 
         :return: ``True`` if the file must be processed, ``False`` otherwise.
@@ -221,7 +221,7 @@ class Spell(object):
         method.
 
         :param branch: The branch to check.
-        :type branch: L{PyFFI.ObjectModels.Graph.GlobalNode}
+        :type branch: :class:`~PyFFI.ObjectModels.Graph.GlobalNode`
         :return: ``True`` if the branch must be processed, ``False`` otherwise.
         :rtype: ``bool``
         """
@@ -234,7 +234,7 @@ class Spell(object):
         returns ``True``).
 
         :param branch: The branch to check.
-        :type branch: L{PyFFI.ObjectModels.Graph.GlobalNode}
+        :type branch: :class:`~PyFFI.ObjectModels.Graph.GlobalNode`
         :return: ``True`` if the branch must be processed, ``False`` otherwise.
         :rtype: ``bool``
         """
@@ -255,7 +255,7 @@ class Spell(object):
 
         :param branch: The branch to start the recursion from, or ``None``
             to recurse the whole tree.
-        :type branch: L{PyFFI.ObjectModels.Graph.GlobalNode}
+        :type branch: :class:`~PyFFI.ObjectModels.Graph.GlobalNode`
         """
         # when called without arguments, recurse over the whole tree
         if branch is None:
@@ -311,7 +311,7 @@ class Spell(object):
         block types.
 
         :param branch: The branch to cast the spell on.
-        :type branch: L{PyFFI.ObjectModels.Graph.GlobalNode}
+        :type branch: :class:`~PyFFI.ObjectModels.Graph.GlobalNode`
         :return: ``True`` if the children must be processed, ``False`` otherwise.
         :rtype: ``bool``
         """
@@ -327,7 +327,7 @@ class Spell(object):
         must have been processed first.
 
         :param branch: The branch to cast the spell on.
-        :type branch: L{PyFFI.ObjectModels.Graph.GlobalNode}
+        :type branch: :class:`~PyFFI.ObjectModels.Graph.GlobalNode`
         """
         pass
 
@@ -354,7 +354,7 @@ class Spell(object):
         initialize a log file, and so.
 
         :param toaster: The toaster this spell is called from.
-        :type toaster: L{Toaster}
+        :type toaster: :class:`Toaster`
         :return: ``True`` if the spell applies, ``False`` otherwise.
         :rtype: ``bool``
         """
@@ -366,7 +366,7 @@ class Spell(object):
         all files.
 
         :param toaster: The toaster this spell is called from.
-        :type toaster: L{Toaster}
+        :type toaster: :class:`Toaster`
         """
         pass
 
@@ -391,9 +391,9 @@ class SpellGroupBase(Spell):
         """Initialize the spell data for all given spells.
 
         :param toaster: The toaster this spell is called from.
-        :type toaster: L{Toaster}
+        :type toaster: :class:`Toaster`
         :param data: The file data.
-        :type data: L{PyFFI.ObjectModels.FileFormat.FileFormat.Data}
+        :type data: :class:`PyFFI.ObjectModels.FileFormat.FileFormat.Data`
         :param stream: The file stream.
         :type stream: ``file``
         """
@@ -586,7 +586,7 @@ def CompatSpellFactory(spellmod):
                 {"SPELLMODULE": spellmod})
 
 class _MetaCompatToaster(type):
-    """Metaclass for L{Toaster} which converts old-style module spells into
+    """Metaclass for :class:`Toaster` which converts old-style module spells into
     new-style class spells.
 
     This is only for temporary use until all spells have been converted to
