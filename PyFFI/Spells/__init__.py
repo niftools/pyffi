@@ -249,7 +249,7 @@ class Spell(object):
 
         Note that :meth:`_branchinspect` and :meth:`branchinspect` are not called upon
         first entry of this function, that is, when called with :attr:`data` as
-        branch argument. Use L{datainspect} to stop recursion into this branch.
+        branch argument. Use :meth:`datainspect` to stop recursion into this branch.
 
         Do not override this function.
 
@@ -291,7 +291,7 @@ class Spell(object):
         """Called before all blocks are recursed.
         The default implementation simply returns ``True``.
         You can access the data via C{self.:attr:`data`}, and unlike in the
-        L{datainspect} method, the full file has been processed at this stage.
+        :meth:`datainspect` method, the full file has been processed at this stage.
 
         Typically, you will override this function to perform a global
         operation on the file data.
@@ -332,7 +332,7 @@ class Spell(object):
         pass
 
     def dataexit(self):
-        """Called after all blocks have been processed, if L{dataentry}
+        """Called after all blocks have been processed, if :meth:`dataentry`
         returned ``True``.
 
         Typically, you will override this function to perform a final spell
@@ -373,12 +373,12 @@ class Spell(object):
 class SpellGroupBase(Spell):
     """Base class for grouping spells. This implements all the spell grouping
     functions that fall outside of the actual recursing (L{__init__},
-    L{toastentry}, L{_datainspect}, L{datainspect}, and L{toastexit}).
+    :meth:`toastentry`, :meth:`_datainspect`, :meth:`datainspect`, and :meth:`toastexit`).
 
     @cvar SPELLCLASSES: List of spells of this group.
-    :type SPELLCLASSES: ``list`` of C{type(L{Spell})}
+    :type SPELLCLASSES: ``list`` of :class:`Spell`
     @cvar ACTIVESPELLCLASSES: List of active spells of this
-        groups. This list is automatically built when L{toastentry} is
+        groups. This list is automatically built when :meth:`toastentry` is
         called.
     :type ACTIVESPELLCLASSES: ``list`` of C{type(L{Spell})}
     :attr spells: List of active spell instances.
