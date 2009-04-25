@@ -94,7 +94,7 @@ def getProperties(self):
     """Return a list of the properties of the block.
 
     :return: The list of properties.
-    :rtype: C{list} of L{NifFormat.NiProperty}
+    :rtype: ``list`` of L{NifFormat.NiProperty}
     """
     return [prop for prop in self.properties]
 
@@ -102,7 +102,7 @@ def setProperties(self, proplist):
     """Set the list of properties from the given list (destroys existing list).
 
     :param proplist: The list of property blocks to set.
-    :type proplist: C{list} of L{NifFormat.NiProperty}
+    :type proplist: ``list`` of L{NifFormat.NiProperty}
     """
     self.numProperties = len(proplist)
     self.properties.updateSize()

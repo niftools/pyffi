@@ -233,13 +233,13 @@ class CgfFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
         resynchronized when calling L{write}.
 
         :ivar game: The cgf game.
-        :type game: C{int}
+        :type game: ``int``
         :ivar header: The nif header.
         :type header: L{CgfFormat.Header}
         :ivar chunks: List of chunks (the actual data).
-        :type chunks: C{list} of L{CgfFormat.Chunk}
+        :type chunks: ``list`` of L{CgfFormat.Chunk}
         :ivar versions: List of chunk versions.
-        :type versions: C{list} of L{int}
+        :type versions: ``list`` of L{int}
         """
 
         class VersionUInt(Common.UInt):
@@ -265,9 +265,9 @@ class CgfFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             cgf document of the given filetype and game.
 
             :param filetype: The file type (animation, or geometry).
-            :type filetype: C{int}
+            :type filetype: ``int``
             :param game: The game.
-            :type game: C{str}
+            :type game: ``str``
             """
             # create new header
             self.header = CgfFormat.Header()
@@ -314,7 +314,7 @@ class CgfFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             a cgf file without having to parse even the header.
 
             :param stream: The stream from which to read.
-            :type stream: C{file}
+            :type stream: ``file``
             @raise C{ValueError}: If the stream does not contain a cgf file.
             """
             pos = stream.tell()
@@ -394,7 +394,7 @@ class CgfFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             chunk table.
 
             :param stream: The file to inspect.
-            :type stream: C{file}
+            :type stream: ``file``
             """
             logger = logging.getLogger("pyffi.cgf.data")
             pos = stream.tell()
@@ -415,7 +415,7 @@ class CgfFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             """Read a cgf file. Does not reset stream position.
 
             :param stream: The stream from which to read.
-            :type stream: C{file}
+            :type stream: ``file``
             """
             validate = True # whether we validate on reading
             

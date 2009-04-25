@@ -151,17 +151,17 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
         resynchronized when calling L{write}.
 
         :ivar version: The nif version.
-        :type version: C{int}
+        :type version: ``int``
         :ivar user_version: The nif user version.
-        :type user_version: C{int}
+        :type user_version: ``int``
         :ivar user_version2: The nif user version 2.
-        :type user_version2: C{int}
+        :type user_version2: ``int``
         :ivar roots: List of root blocks.
-        :type roots: C{list} of L{NifFormat.NiObject}
+        :type roots: ``list`` of L{NifFormat.NiObject}
         :ivar header: The nif header.
         :type header: L{NifFormat.Header}
         :ivar blocks: List of blocks.
-        :type blocks: C{list} of L{NifFormat.NiObject}
+        :type blocks: ``list`` of L{NifFormat.NiObject}
         """
 
         class VersionUInt(Common.UInt):
@@ -185,9 +185,9 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             nif document of the given version and user version.
 
             :param version: The version.
-            :type version: C{int}
+            :type version: ``int``
             :param user_version: The user version.
-            :type user_version: C{int}
+            :type user_version: ``int``
             """
             # the version numbers are stored outside the header structure
             self._version_value_ = self.VersionUInt()
@@ -234,7 +234,7 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             a nif file without having to parse even the header.
 
             :param stream: The stream from which to read.
-            :type stream: C{file}
+            :type stream: ``file``
             @raise C{ValueError}: If the stream does not contain a nif file.
             """
             pos = stream.tell()
@@ -316,7 +316,7 @@ header version field""")
             Call this function if you only need to inspect the header of the nif.
 
             :param stream: The file to inspect.
-            :type stream: C{file}
+            :type stream: ``file``
             """
             pos = stream.tell()
             try:
@@ -329,9 +329,9 @@ header version field""")
             """Read a nif file. Does not reset stream position.
 
             :param stream: The stream from which to read.
-            :type stream: C{file}
+            :type stream: ``file``
             :param verbose: The level of verbosity.
-            :type verbose: C{int}
+            :type verbose: ``int``
             """
             logger = logging.getLogger("pyffi.nif.data")
             # read header

@@ -135,7 +135,7 @@ def setExtraDatas(self, extralist):
     True
 
     :param extralist: List of extra data blocks to add.
-    :type extralist: C{list} of L{NifFormat.NiExtraData}
+    :type extralist: ``list`` of L{NifFormat.NiExtraData}
     """
     # set up extra data list
     self.numExtraDataList = len(extralist)

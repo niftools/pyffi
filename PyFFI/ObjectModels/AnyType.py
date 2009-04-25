@@ -51,7 +51,7 @@ class AnyType(PyFFI.ObjectModels.Graph.DetailNode):
         """Read object from file.
 
         :param stream: The stream to read from.
-        :type stream: C{file}
+        :type stream: ``file``
         """
         raise NotImplementedError
 
@@ -59,7 +59,7 @@ class AnyType(PyFFI.ObjectModels.Graph.DetailNode):
         """Write object to file.
 
         :param stream: The stream to write to.
-        :type stream: C{file}
+        :type stream: ``file``
         """
         raise NotImplementedError
 

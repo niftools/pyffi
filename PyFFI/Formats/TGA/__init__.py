@@ -151,7 +151,7 @@ class TgaFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             """Read a tga file.
 
             :param stream: The stream from which to read.
-            :type stream: C{file}
+            :type stream: ``file``
             """
             # read the file
             self.inspect(stream) # quick check
@@ -166,7 +166,7 @@ class TgaFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             """Write a tga file.
 
             :param stream: The stream to which to write.
-            :type stream: C{file}
+            :type stream: ``file``
             """
             # write the file
             self.header.write(stream)

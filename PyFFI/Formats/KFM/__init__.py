@@ -342,7 +342,7 @@ class KfmFormat(_KfmFormat):
             """Read a kfm file.
 
             :param stream: The stream from which to read.
-            :type stream: C{file}
+            :type stream: ``file``
             """
             # read the file
             self.inspect(stream) # quick check
@@ -356,7 +356,7 @@ class KfmFormat(_KfmFormat):
             """Write a kfm file.
 
             :param stream: The stream to which to write.
-            :type stream: C{file}
+            :type stream: ``file``
             """
             # write the file
             _KfmFormat.Header.write(self, stream, version=self.version)

@@ -71,8 +71,8 @@ class EditableSpinBox(EditableBase):
     contains an integer. Override getEditorMinimum and getEditorMaximum to
     set the minimum and maximum values that the spin box may contain.
 
-    Requirement: getEditorValue must return an C{int}, setEditorValue
-    must take an C{int}.
+    Requirement: getEditorValue must return an ``int``, setEditorValue
+    must take an ``int``.
     """
     def getEditorValue(self):
         return self.getValue()
@@ -102,16 +102,16 @@ class EditableLineEdit(EditableBase):
     """Abstract base class for data that can be edited with a single line
     editor.
 
-    Requirement: getEditorValue must return a C{str}, setEditorValue
-    must take a C{str}.
+    Requirement: getEditorValue must return a ``str``, setEditorValue
+    must take a ``str``.
     """
     pass
 
 class EditableTextEdit(EditableLineEdit):
     """Abstract base class for data that can be edited with a multiline editor.
 
-    Requirement:  getEditorValue must return a C{str}, setEditorValue
-    must take a C{str}.
+    Requirement:  getEditorValue must return a ``str``, setEditorValue
+    must take a ``str``.
     """
     pass
 
@@ -119,8 +119,8 @@ class EditableComboBox(EditableBase):
     """Abstract base class for data that can be edited with combo boxes.
     This can be used for for instance enum types.
 
-    Requirement: getEditorValue must return an C{int}, setEditorValue
-    must take an C{int} (this integer is the index in the list of keys).
+    Requirement: getEditorValue must return an ``int``, setEditorValue
+    must take an ``int`` (this integer is the index in the list of keys).
     """
 
     def getEditorKeys(self):

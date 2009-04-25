@@ -47,7 +47,7 @@ class DetailTreeItemData(object):
     :ivar node: The node of the item.
     :type node: L{DetailNode}
     :ivar name: The name of the node (this is usually not stored in the node).
-    :type name: C{str}
+    :type name: ``str``
     """
     def __init__(self, node=None, name=None):
         if not isinstance(node, DetailNode):
@@ -76,9 +76,9 @@ class DetailTreeItem(object):
     :ivar parent: The parent of the node.
     :type parent: C{type(None)} or L{DetailTreeItem}
     :ivar children: The children of the node.
-    :type children: C{list} of L{QDetailTreeItem}
+    :type children: ``list`` of L{QDetailTreeItem}
     :ivar row: The row number of this node, as child.
-    :type row: C{int}
+    :type row: ``int``
     :ivar edge_type: The type of edge from the parent of this node to itself.
     :type edge_type: L{EdgeType}
     """

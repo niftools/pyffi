@@ -51,7 +51,7 @@ def getMopperPath():
     @raise OSError: If mopper.exe is not found.
 
     :return: Path to mopper.exe.
-    :rtype: C{str}
+    :rtype: ``str``
     """
     mopper = os.path.join(os.path.dirname(__file__), "mopper.exe")
     if not os.path.exists(mopper):
@@ -77,7 +77,7 @@ def getMopperCredits():
     @raise OSError: If mopper.exe is not found or cannot run.
 
     :return: Credits string.
-    :rtype: C{str}
+    :rtype: ``str``
     """
     mopper = getMopperPath()
     outfile = tempfile.TemporaryFile()
@@ -135,8 +135,8 @@ def getMopperOriginScaleCodeWelding(vertices, triangles, material_indices=None):
     :return: The origin as a tuple of floats, the mopp scale as a float,
         the mopp code as a list of ints, and the welding info as a list of
         ints.
-    :rtype: C{tuple} of C{float}s, C{float}, C{list} of C{int}s, and C{list}
-        of C{int}s
+    :rtype: C{tuple} of C{float}s, C{float}, ``list`` of ``int``s, and ``list``
+        of ``int``s
     """
 
     if material_indices is None:

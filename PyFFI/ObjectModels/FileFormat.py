@@ -311,12 +311,12 @@ Warning: read failed due corrupt file, corrupt format description, or bug.""")
         modifying a file after reading and parsing.
 
         :param top: The top folder.
-        :type top: C{str}
+        :type top: ``str``
         :param topdown: Determines whether subdirectories should be iterated
             over first.
         :type topdown: ``bool``
         :param mode: The mode in which to open files.
-        :type mode: C{str}
+        :type mode: ``str``
 
         @status: Not yet functional. For the time being, fall back on the other
             walk functions.

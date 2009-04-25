@@ -133,7 +133,7 @@ class DetailNode(object):
         Override this method if the node has children.
 
         :return: Generator for detail tree child names.
-        :rtype: generator yielding C{str}s
+        :rtype: generator yielding ``str``s
         """
         return (dummy for dummy in ())
 
@@ -151,7 +151,7 @@ class DetailNode(object):
         Override this method if the node has data to display in the detail view.
 
         :return: A string that can be used to display the instance.
-        :rtype: C{str}
+        :rtype: ``str``
         """
         return ""
 

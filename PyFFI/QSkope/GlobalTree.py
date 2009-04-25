@@ -71,13 +71,13 @@ class GlobalTreeItem(object):
     :ivar parent: The parent of the node.
     :type parent: C{type(None)} or L{DetailTreeItem}
     :ivar children: The children of the node.
-    :type children: C{list} of L{GlobalTreeItem}
+    :type children: ``list`` of L{GlobalTreeItem}
     :ivar row: The row number of this node, as child.
-    :type row: C{int}
+    :type row: ``int``
     :ivar edge_type: The type of edge from the parent. Default is 0. The 0
         edges must form a spanning directed acyclic graph. Other numbers
         may form cycles (or not, this is format dependent).
-    :type edge_type: C{int}
+    :type edge_type: ``int``
     """
     def __init__(self, data=None, parent=None, row=0, edge_type=EdgeType(),
                  edge_filter=EdgeFilter()):

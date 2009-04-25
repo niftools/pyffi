@@ -367,13 +367,13 @@ class SpellGroupBase(Spell):
     L{toastentry}, L{_datainspect}, L{datainspect}, and L{toastexit}).
 
     @cvar SPELLCLASSES: List of spells of this group.
-    :type SPELLCLASSES: C{list} of C{type(L{Spell})}
+    :type SPELLCLASSES: ``list`` of C{type(L{Spell})}
     @cvar ACTIVESPELLCLASSES: List of active spells of this
         groups. This list is automatically built when L{toastentry} is
         called.
-    :type ACTIVESPELLCLASSES: C{list} of C{type(L{Spell})}
+    :type ACTIVESPELLCLASSES: ``list`` of C{type(L{Spell})}
     :ivar spells: List of active spell instances.
-    :type spells: C{list} of L{Spell}
+    :type spells: ``list`` of L{Spell}
     """
     SPELLCLASSES = []
     ACTIVESPELLCLASSES = []
@@ -386,7 +386,7 @@ class SpellGroupBase(Spell):
         :param data: The file data.
         :type data: L{PyFFI.ObjectModels.FileFormat.FileFormat.Data}
         :param stream: The file stream.
-        :type stream: C{file}
+        :type stream: ``file``
         """
         # call base class constructor
         Spell.__init__(self, toaster=toaster, data=data, stream=stream)
@@ -604,18 +604,18 @@ class Toaster(object):
     @cvar FILEFORMAT: The file format class.
     :type FILEFORMAT: C{type(L{FileFormat})}
     @cvar SPELLS: List of all available spell classes.
-    :type SPELLS: C{list} of C{type(L{Spell})}
+    :type SPELLS: ``list`` of C{type(L{Spell})}
     @cvar EXAMPLES: Description of example use.
-    :type EXAMPLES: C{str}
+    :type EXAMPLES: ``str``
     @cvar ALIASDICT: Dictionary with aliases for spells.
     :type ALIASDICT: C{dict}
     :ivar spellclasses: List of spell classes for the particular instance (must
         be a subset of L{SPELLS}).
-    :type spellclasses: C{list} of C{type(L{Spell})}
+    :type spellclasses: ``list`` of C{type(L{Spell})}
     :ivar options: The options of the toaster.
     :type options: C{dict}
     :ivar indent: Current level of indentation for messages.
-    :type indent: C{int}
+    :type indent: ``int``
     :ivar logger: For log messages.
     :type logger: C{logging.Logger}
     :ivar include_types: Tuple of types corresponding to C{options.include}.
@@ -657,7 +657,7 @@ class Toaster(object):
         L{indent}.
 
         :param message: The message to write.
-        :type message: C{str}
+        :type message: ``str``
         """
         for line in message.split("\n"):
             self.logger.info("  " * self.indent + line)

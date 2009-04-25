@@ -431,7 +431,7 @@ class ZString(BasicBase, EditableLineEdit):
         """Set string to C{value}.
 
         :param value: The value to assign.
-        :type value: C{str} (will be encoded as default) or C{bytes}
+        :type value: ``str`` (will be encoded as default) or C{bytes}
         """
         val = _asBytes(value)
         i = val.find(_b00)
@@ -526,7 +526,7 @@ class FixedString(BasicBase, EditableLineEdit):
         """Set string to C{value}.
 
         :param value: The value to assign.
-        :type value: C{str} (encoded as default) or C{bytes}
+        :type value: ``str`` (encoded as default) or C{bytes}
         """
         val = _asBytes(value)
         if len(val) > self._len:

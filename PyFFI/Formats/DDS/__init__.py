@@ -232,9 +232,9 @@ class DdsFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             """Read a dds file.
 
             :param stream: The stream from which to read.
-            :type stream: C{file}
+            :type stream: ``file``
             :param verbose: The level of verbosity.
-            :type verbose: C{int}
+            :type verbose: ``int``
             """
             # read the file
             self.inspectQuick(stream)
@@ -250,9 +250,9 @@ class DdsFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             """Write a dds file.
 
             :param stream: The stream to which to write.
-            :type stream: C{file}
+            :type stream: ``file``
             :param verbose: The level of verbosity.
-            :type verbose: C{int}
+            :type verbose: ``int``
             """
             # TODO: make sure pixel data has correct length
 

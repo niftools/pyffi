@@ -192,7 +192,7 @@ class IntType(BinarySimpleType, EditableSpinBox):
         """Read value from stream.
 
         :param stream: The stream to read from.
-        :type stream: C{file}
+        :type stream: ``file``
         """
         self._value = struct.unpack('<' + self._struct,
                                     stream.read(self._size))[0]
@@ -201,7 +201,7 @@ class IntType(BinarySimpleType, EditableSpinBox):
         """Write value to stream.
 
         :param stream: The stream to write to.
-        :type stream: C{file}
+        :type stream: ``file``
         """
         stream.write(struct.pack('<' + self._struct, self._value))
 
@@ -399,7 +399,7 @@ class ZString(BinarySimpleType, EditableLineEdit):
         """Set string to C{value}.
 
         :param value: The value to assign.
-        :type value: C{str} (will be encoded as default) or C{bytes}
+        :type value: ``str`` (will be encoded as default) or C{bytes}
         """
         val = _asBytes(value)
         i = val.find(_b00)
@@ -486,7 +486,7 @@ class FixedString(BinarySimpleType, EditableLineEdit):
         """Set string to C{value}.
 
         :param value: The value to assign.
-        :type value: C{str} (encoded as default) or C{bytes}
+        :type value: ``str`` (encoded as default) or C{bytes}
         """
         val = _asBytes(value)
         if len(val) > self._len:

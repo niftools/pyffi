@@ -177,7 +177,7 @@ def getChildren(self):
     """Return a list of the children of the block.
 
     :return: The list of children.
-    :rtype: C{list} of L{NifFormat.NiAVObject}
+    :rtype: ``list`` of L{NifFormat.NiAVObject}
     """
     return [child for child in self.children]
 
@@ -185,7 +185,7 @@ def setChildren(self, childlist):
     """Set the list of children from the given list (destroys existing list).
 
     :param childlist: The list of child blocks to set.
-    :type childlist: C{list} of L{NifFormat.NiAVObject}
+    :type childlist: ``list`` of L{NifFormat.NiAVObject}
     """
     self.numChildren = len(childlist)
     self.children.updateSize()
@@ -216,7 +216,7 @@ def getEffects(self):
     """Return a list of the effects of the block.
 
     :return: The list of effects.
-    :rtype: C{list} of L{NifFormat.NiDynamicEffect}
+    :rtype: ``list`` of L{NifFormat.NiDynamicEffect}
     """
     return [effect for effect in self.effects]
 
@@ -224,7 +224,7 @@ def setEffects(self, effectlist):
     """Set the list of effects from the given list (destroys existing list).
 
     :param effectlist: The list of effect blocks to set.
-    :type effectlist: C{list} of L{NifFormat.NiDynamicEffect}
+    :type effectlist: ``list`` of L{NifFormat.NiDynamicEffect}
     """
     self.numEffects = len(effectlist)
     self.effects.updateSize()

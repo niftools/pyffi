@@ -90,7 +90,7 @@ class AnyArray(ValidatedList, PyFFI.ObjectModels.AnyType.AnyType):
     """Abstract base class for all array types.
 
     @cvar _MAXSTR: Maximum number of elements to write in the L{__str__} method.
-    :type _MAXSTR: C{int}
+    :type _MAXSTR: ``int``
     """
 
     _MAXSTR = 16
@@ -114,7 +114,7 @@ class AnyArray(ValidatedList, PyFFI.ObjectModels.AnyType.AnyType):
         """String representation.
 
         :return: String representation.
-        :rtype: C{str}
+        :rtype: ``str``
         """
         # TODO use getDetailTypeName
         result = "%s array:\n" % self.ItemType.__name__

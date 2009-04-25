@@ -193,20 +193,20 @@ class XmlFileFormat(PyFFI.ObjectModels.FileFormat.FileFormat):
 class StructAttribute(object):
     """Helper class to collect attribute data of struct add tags.
     :ivar name:  The name of this member variable.
-    :type name: C{str}
-    :ivar type: The type of this member variable (type is C{str} for forward
+    :type name: ``str``
+    :ivar type: The type of this member variable (type is ``str`` for forward
         declarations, and resolved to an actual type later).
-    :type type: C{str} or L{BasicBase} or L{StructBase}
+    :type type: ``str`` or L{BasicBase} or L{StructBase}
     :ivar default: The default value of this member variable.
-    :type default: C{str} or C{type(None)}
+    :type default: ``str`` or C{type(None)}
     :ivar template: The template type of this member variable (initially
-        C{str}, resolved to an actual type at the end of the xml parsing).
+        ``str``, resolved to an actual type at the end of the xml parsing).
         If there is no template type, then this variable will equal
         C{type(None)}.
-    :type template: C{str} or L{BasicBase} or L{StructBase} or
+    :type template: ``str`` or L{BasicBase} or L{StructBase} or
         C{type(type(None))}
     :ivar arg: The argument of this member variable.
-    :type arg: C{str} or C{type(None)}
+    :type arg: ``str`` or C{type(None)}
     :ivar arr1: The first array size of this member variable.
     :type arr1: L{Expression} or C{type(None)}
     :ivar arr2: The first array size of this member variable.
@@ -214,11 +214,11 @@ class StructAttribute(object):
     :ivar cond: The condition of this member variable.
     :type cond: L{Expression} or C{type(None)}
     :ivar ver1: The first version this member exists.
-    :type ver1: C{int} or C{type(None)}
+    :type ver1: ``int`` or C{type(None)}
     :ivar ver2: The last version this member exists.
-    :type ver2: C{int} or C{type(None)}
+    :type ver2: ``int`` or C{type(None)}
     :ivar userver: The user version where this member exists.
-    :type userver: C{int} or C{type(None)}
+    :type userver: ``int`` or C{type(None)}
     """
 
     def __init__(self, cls, attrs):
