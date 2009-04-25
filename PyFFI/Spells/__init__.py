@@ -14,12 +14,6 @@ on branches directly. The recommended way of doing this is via the
 Supported spells
 ----------------
 
-.. autoclass:: SpellApplyPatch
-   :show-inheritance:
-   :members:
-   :inherited-members:
-   :undoc-members:
-
 For format specific spells, refer to the following:
 
 .. toctree::
@@ -32,6 +26,10 @@ For format specific spells, refer to the following:
    PyFFI.Spells.NIF
    PyFFI.Spells.TGA
 
+.. autoclass:: SpellApplyPatch
+   :show-inheritance:
+   :members:
+
 Adding new spells
 -----------------
 
@@ -41,9 +39,9 @@ toaster.
 
 .. autoclass:: Spell
    :show-inheritance:
-   :members:
-   :inherited-members:
-   :undoc-members:
+   :members: __init__, recurse, _datainspect, datainspect, _branchinspect,
+             branchinspect, dataentry, dataexit, branchentry,
+             branchexit, toastentry, toastexit
 
 Grouping spells together
 ------------------------
@@ -147,47 +145,49 @@ import PyFFI.ObjectModels.FileFormat # PyFFI.ObjectModels.FileFormat.FileFormat
 
 class Spell(object):
     """Spell base class. A spell takes a data file and then does something
-    useful with it. The main entry point for spells is L{recurse}, so if you
+    useful with it. The main entry point for spells is :meth:`recurse`, so if you
     are writing new spells, start with reading the documentation with
-    L{recurse}.
+    :meth:`recurse`.
 
-    @cvar READONLY: Whether the spell is read only or not.
-    @type READONLY: C{bool}
-    @cvar SPELLNAME: How to refer to the spell from the command line.
-    @type SPELLNAME: C{str}
-    @ivar toaster: The toaster this spell is called from.
-    @type toaster: L{Toaster}
-    @ivar data: The data this spell acts on.
-    @type data: L{PyFFI.ObjectModels.FileFormat.FileFormat.Data}
-    @ivar stream: The current file being processed.
-    @type stream: C{file}
+    :ivar toaster: The toaster this spell is called from.
+    :type toaster: :class:`Toaster`
+    :ivar data: The data this spell acts on.
+    :type data: :class:`PyFFI.ObjectModels.FileFormat.FileFormat.Data`
+    :ivar stream: The current file being processed.
+    :type stream: ``file``
     """
 
     # spells are readonly by default
     READONLY = True
+    """Whether the spell is read only or not."""
+
+    #:type READONLY: ``bool``
+    #:type SPELLNAME: ``str``
+
     SPELLNAME = None
+    """How to refer to the spell from the command line."""
 
     def __init__(self, toaster=None, data=None, stream=None):
         """Initialize the spell data.
 
-        @kwarg data: The file data.
-        @type data: L{PyFFI.ObjectModels.FileFormat.FileFormat.Data}
-        @kwarg stream: The file stream.
-        @type stream: C{file}
-        @kwarg toaster: The toaster this spell is called from (optional).
-        @type toaster: L{Toaster}
+        :param data: The file data.
+        :type data: :class:`PyFFI.ObjectModels.FileFormat.FileFormat.Data`
+        :param stream: The file stream.
+        :type stream: ``file``
+        :param toaster: The toaster this spell is called from (optional).
+        :type toaster: :class:`Toaster`
         """
         self.data = data
         self.stream = stream
         self.toaster = toaster if toaster else Toaster()
 
     def _datainspect(self):
-        """This is called after C{L{data}.inspect} has
-        been called, and before C{L{data}.read} is
+        """This is called after :meth:`data.inspect` has
+        been called, and before :meth:`data.read` is
         called.
 
-        @return: C{True} if the file must be processed, C{False} otherwise.
-        @rtype: C{bool}
+        :return: ``True`` if the file must be processed, ``False`` otherwise.
+        :rtype: ``bool``
         """
         # for the moment, this does nothing
         return True
