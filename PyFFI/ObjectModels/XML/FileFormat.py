@@ -120,56 +120,6 @@ class _MetaXmlFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
                 xmlfile.close()
             logger.debug("Parsing finished in %.3f seconds." % (time.clock() - start))
 
-        # class customizers:
-        # for every generated class
-        # check if there is a customizer in the class dictionary
-        logger.debug("Registering %s custom classes." % cls.__name__)
-        start = time.clock()
-        custom_klass_dct = {}
-        # first construct mapping of customized classes
-        for klass in cls.xmlStruct:
-            custom_klass = dct.get(klass.__name__)
-            # klass could be custom_klass, if it is the implementation
-            if custom_klass and not(klass is custom_klass):
-                if not issubclass(custom_klass, klass):
-                    raise TypeError(
-                        "%s derives from %s but must derive from %s"
-                        % (custom_klass.__name__,
-                           custom_klass.__bases__[0].__name__,
-                           klass.__name__))
-                #logger.debug("Found class customizer for %s" % klass.__name__)
-                custom_klass_dct[klass.__name__] = custom_klass
-        # now fix all references to customized classes
-        for klass in cls.xmlStruct:
-            # replace base classes
-            klass.__bases__ = tuple(
-                custom_klass_dct.get(base.__name__, base)
-                for base in klass.__bases__)
-            # cls attribute
-            # XXX remove this when subclassing is complete
-            klass.cls = cls
-            # attributes
-            for attr in klass._attrs:
-                # fix template
-                if attr.template:
-                    try:
-                        attr.template = custom_klass_dct[attr.template.__name__]
-                    except KeyError:
-                        pass
-                    #else:
-                    #    logger.debug("Fixed %s reference in %s.%s"
-                    #                 % (attr.template.__name__,
-                    #                    klass.__name__, attr.name))
-                try:
-                    attr.type = custom_klass_dct[attr.type.__name__]
-                except KeyError:
-                    pass
-                #else:
-                #    logger.debug("Fixed %s reference in %s.%s"
-                #                 % (attr.type.__name__,
-                #                    klass.__name__, attr.name))
-        logger.debug("Registration finished in %.3f seconds." % (time.clock() - start))
-
 class XmlFileFormat(PyFFI.ObjectModels.FileFormat.FileFormat):
     """This class can be used as a base class for file formats
     described by an xml file."""
@@ -699,6 +649,12 @@ but got %s instead"""%name)
                         (gen_klass,) + cls_klass.__bases__,
                         dict(cls_klass.__dict__))
                     setattr(self.cls, self.className, cls_klass)
+                    # if the class derives from Data, then make an alias
+                    if issubclass(
+                        cls_klass,
+                        PyFFI.ObjectModels.FileFormat.FileFormat.Data):
+                        self.cls.Data = cls_klass
+                    # for the stuff below
                     gen_class = cls_klass
                 else:
                     # does not yet exist: create it and assign to class dict

@@ -34,7 +34,7 @@ tests/kfm/test.kfm
 Create a KFM model from scratch and write to file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
->>> data = KfmFormat.Data(version=0x0202000B)
+>>> data = KfmFormat.Data()
 >>> data.nifFileName = "Test.nif"
 >>> data.numAnimations = 4
 >>> data.animations.updateSize()
@@ -71,7 +71,6 @@ Red Ocean 0x01024B00
 Sid Meier's Railroads 0x0200000B
 The Guild 2 0x01024B00
 """
-__docformat__ = "restructuredtext en" # for epydoc
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -118,8 +117,9 @@ from PyFFI.ObjectModels import Common
 from PyFFI.ObjectModels.XML.Basic import BasicBase
 from PyFFI.ObjectModels.Graph import EdgeFilter
 import PyFFI.ObjectModels.FileFormat
+import PyFFI.ObjectModels.XML.Struct
 
-class _KfmFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
+class KfmFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
     """This class implements the kfm file format."""
     xmlFileName = 'kfm.xml'
     # where to look for kfm.xml and in what order:
@@ -286,20 +286,9 @@ class _KfmFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
                 + (ver_list[2] << 8)
                 + ver_list[3])
 
-class KfmFormat(_KfmFormat):
-    """Customization of generated kfm classes."""
-    # XXX todo:
-    # XXX * deriving from _KfmFormat parses kfm.xml again... find a way to avoid
-    # XXX * the derived classes such as Animation are not instantiated
-    # XXX   in other classes (such as for instance in the Data)
-    class Data(_KfmFormat.Header, PyFFI.ObjectModels.FileFormat.FileFormat.Data):
+    class Header(PyFFI.ObjectModels.FileFormat.FileFormat.Data):
         """A class to contain the actual kfm data."""
-        def __init__(self, version=16909312):
-            _KfmFormat.Header.__init__(self)
-            # stubs to make things work with XML model
-            self.version = version
-            self.user_version = None
-            self.user_version2 = None
+        version = 0x01024B00
 
         def inspect(self, stream):
             """Quick heuristic check if stream contains KFM data,
@@ -314,7 +303,7 @@ class KfmFormat(_KfmFormat):
                 hdrstr = stream.readline(64).rstrip()
             finally:
                 stream.seek(pos)
-            if hdrstr.startswith(";Gamebryo KFM File Version " ):
+            if hdrstr.startswith(";Gamebryo KFM File Version "):
                 version_str = hdrstr[27:]
             else:
                 # not a kfm file
@@ -346,7 +335,8 @@ class KfmFormat(_KfmFormat):
             """
             # read the file
             self.inspect(stream) # quick check
-            _KfmFormat.Header.read(self, stream, version=self.version)
+            PyFFI.ObjectModels.XML.Struct.StructBase.read(
+                self, stream, version=self.version)
 
             # check if we are at the end of the file
             if stream.read(1) != '':
@@ -359,7 +349,8 @@ class KfmFormat(_KfmFormat):
             :type stream: ``file``
             """
             # write the file
-            _KfmFormat.Header.write(self, stream, version=self.version)
+            PyFFI.ObjectModels.XML.Struct.StructBase.write(
+                self, stream, version=self.version)
 
         # GlobalNode
 
@@ -370,7 +361,7 @@ class KfmFormat(_KfmFormat):
             """Display the nif file name."""
             return self.nifFileName
 
-    class Animation(_KfmFormat.Animation):
+    class Animation:
         # XXX this does not work yet (see todo for KfmFormat)
         def getDetailDisplay(self):
             """Display the kf file name."""
