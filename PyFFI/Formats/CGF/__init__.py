@@ -201,14 +201,13 @@ import re
 import warnings
 from itertools import izip
 
-from PyFFI.Utils import MathUtils
-from PyFFI.Utils import TangentSpace
 
-import PyFFI.ObjectModels.XML.FileFormat
-from PyFFI import Utils
 import PyFFI.ObjectModels.Common
-from PyFFI.ObjectModels.XML.Basic import BasicBase
 import PyFFI.ObjectModels.FileFormat
+import PyFFI.ObjectModels.XML.FileFormat
+import PyFFI.Utils.MathUtils
+import PyFFI.Utils.TangentSpace
+from PyFFI.ObjectModels.XML.Basic import BasicBase
 from PyFFI.ObjectModels.Graph import EdgeFilter
 
 class _CgfFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
@@ -2687,7 +2686,7 @@ chunk size mismatch when reading %s at 0x%08X
                 meshsubset.firstVertex = firstvertexindex
                 meshsubset.numVertices = len(vertices)
                 meshsubset.matId = mat
-                center, radius = MathUtils.getCenterRadius(vertices)
+                center, radius = PyFFI.Utils.MathUtils.getCenterRadius(vertices)
                 meshsubset.radius = radius
                 meshsubset.center.x = center[0]
                 meshsubset.center.y = center[1]
@@ -2771,7 +2770,7 @@ chunk size mismatch when reading %s at 0x%08X
                 self.updateTangentSpace()
 
             # set global bounding box
-            minbound, maxbound = MathUtils.getBoundingBox(
+            minbound, maxbound = PyFFI.Utils.MathUtils.getBoundingBox(
                 list(itertools.chain(*verticeslist)))
             self.minBound.x = minbound[0]
             self.minBound.y = minbound[1]
@@ -2791,7 +2790,7 @@ chunk size mismatch when reading %s at 0x%08X
             selftangentsData_iter = iter(self.tangentsData.tangents)
 
             # set Crysis tangents info
-            tangents, binormals, orientations = TangentSpace.getTangentSpace(
+            tangents, binormals, orientations = PyFFI.Utils.TangentSpace.getTangentSpace(
                 vertices = list((vert.x, vert.y, vert.z)
                                 for vert in self.verticesData.vertices),
                 normals = list((norm.x, norm.y, norm.z)
