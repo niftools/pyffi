@@ -144,6 +144,9 @@ class _MetaXmlFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
             klass.__bases__ = tuple(
                 custom_klass_dct.get(base.__name__, base)
                 for base in klass.__bases__)
+            # cls attribute
+            # XXX remove this when subclassing is complete
+            klass.cls = cls
             # attributes
             for attr in klass._attrs:
                 # fix template

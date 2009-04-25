@@ -25,11 +25,6 @@ import PyFFI.Utils.Mopp
 import PyFFI.Utils.Partial
 import PyFFI.Utils.Signal
 import PyFFI.Formats.NIF
-import PyFFI.Formats.NIF._NifFormat
-import PyFFI.Formats.NIF._Header
-import PyFFI.Formats.NIF._Matrix33
-import PyFFI.Formats.NIF._Vector3
-import PyFFI.Formats.NIF._Vector4
 import PyFFI.Formats.NIF.NiGeometryData
 import PyFFI.Formats.NIF.NiTriBasedGeomData
 import PyFFI.Formats.NIF.NiTriStripsData
