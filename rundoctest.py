@@ -22,7 +22,6 @@ import PyFFI.Utils.QuickHull
 import PyFFI.Utils.Inertia
 import PyFFI.Utils.TangentSpace
 import PyFFI.Utils.Mopp
-import PyFFI.Utils.Partial
 import PyFFI.Utils.Signal
 import PyFFI.Formats.NIF
 import PyFFI.Formats.NIF.NiGeometryData
