@@ -41,13 +41,14 @@ file, and xml handler for converting the xml description into Python classes.
 
 import logging
 import time # for timing stuff
-from types import FunctionType
+import types
 import os.path
 import sys
 import xml.sax
 
 import PyFFI.ObjectModels.FileFormat
 from PyFFI.ObjectModels.XML.Struct     import StructBase
+from PyFFI.ObjectModels.XML.Basic      import BasicBase
 from PyFFI.ObjectModels.XML.BitStruct  import BitStructBase
 from PyFFI.ObjectModels.XML.Enum       import EnumBase
 from PyFFI.ObjectModels.XML.Expression import Expression
@@ -399,7 +400,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         # elements for creating new classes
         self.className = None
         self.classDict = None
-        self.classBase = None
+        self.classBases = ()
 
         # elements for basic classes
         self.basicClass = None
@@ -431,7 +432,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
 
         This function sets up all variables for creating the class
         in the C{self.endElement} function. For struct elements, it will set up
-        C{self.className}, C{self.classBase}, and C{self.classDict} which
+        C{self.className}, C{self.classBases}, and C{self.classDict} which
         will be used to create the class by invokation of C{type} in
         C{self.endElement}. For basic, enum, and bitstruct elements, it will
         set up C{self.basicClass} to link to the proper class implemented by
@@ -469,7 +470,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         #
         # For each struct, alias, enum, and bitstruct tag, we shall
         # create a class. So assign to C{self.className} the name of that
-        # class, C{self.classBase} to the base of that class, and
+        # class, C{self.classBases} to the base of that class, and
         # C{self.classDict} to the class dictionary.
         #
         # For a basic tag, C{self.className} is the name of the
@@ -509,13 +510,13 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                     # if that base struct has not yet been assigned to a
                     # class, then we have a problem
                     try:
-                        self.classBase = getattr(self.cls, class_basename)
+                        self.classBases += (getattr(self.cls, class_basename),)
                     except KeyError:
                         raise XmlError(
                             "typo, or forward declaration of struct %s"
                             %class_basename)
                 else:
-                    self.classBase = StructBase
+                    self.classBases = (StructBase,)
                 # istemplate attribute is optional
                 # if not set, then the struct is not a template
                 # set attributes (see class StructBase)
@@ -542,7 +543,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
 
             # fileformat -> enum
             elif tag == self.tagEnum:
-                self.classBase = EnumBase
+                self.classBases += (EnumBase,)
                 self.className = attrs["name"]
                 try:
                     numbytes = int(attrs["numbytes"])
@@ -566,7 +567,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 self.className = attrs["name"]
                 typename = attrs["type"]
                 try:
-                    self.classBase = getattr(self.cls, typename)
+                    self.classBases += (getattr(self.cls, typename),)
                 except AttributeError:
                     raise XmlError(
                         "typo, or forward declaration of type %s"%typename)
@@ -577,7 +578,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
             # this works like an alias for now, will add special
             # BitStruct base class later
             elif tag == self.tagBitStruct:
-                self.classBase = BitStructBase
+                self.classBases += (BitStructBase,)
                 self.className = attrs["name"]
                 try:
                     numbytes = int(attrs["numbytes"])
@@ -679,25 +680,37 @@ but got %s instead"""%name)
             # create class
             # assign it to cls.<className> if it has not been implemented
             # internally
-            try:
-                class_type = getattr(self.cls, self.className)
-            except AttributeError:
-                class_type = type(
-                    str(self.className), (self.classBase,), self.classDict)
-                setattr(self.cls, self.className, class_type)
+            cls_klass = getattr(self.cls, self.className, None)
+            if cls_klass and issubclass(cls_klass, BasicBase):
+                pass
+                # overrides a basic type - do nothing
+            else:
+                # check if we have a customizer class
+                custom_klass = getattr(self.cls, self.className, None)
+                if custom_klass:
+                    # exists: create and add to base class of customizer
+                    gen_klass = type(
+                        "_" + str(self.className), self.classBases, self.classDict)
+                    custom_klass.__bases__ += (gen_klass,)
+                    gen_class = custom_klass
+                else:
+                    # does not yet exist: create it and assign to class dict
+                    gen_klass = type(
+                        str(self.className), self.classBases, self.classDict)
+                    setattr(self.cls, self.className, gen_klass)
                 # append class to the appropriate list
                 if tag == self.tagStruct:
-                    self.cls.xmlStruct.append(class_type)
+                    self.cls.xmlStruct.append(gen_klass)
                 elif tag == self.tagEnum:
-                    self.cls.xmlEnum.append(class_type)
+                    self.cls.xmlEnum.append(gen_klass)
                 elif tag == self.tagAlias:
-                    self.cls.xmlAlias.append(class_type)
+                    self.cls.xmlAlias.append(gen_klass)
                 elif tag == self.tagBitStruct:
-                    self.cls.xmlBitStruct.append(class_type)
+                    self.cls.xmlBitStruct.append(gen_klass)
             # reset variables
             self.className = None
             self.classDict = None
-            self.classBase = None
+            self.classBases = ()
         elif tag == self.tagBasic:
             # link class cls.<className> to self.basicClass
             setattr(self.cls, self.className, self.basicClass)
@@ -748,7 +761,7 @@ but got %s instead"""%name)
                 # iterate over all objects defined in the module
                 for objname, objfunc in mod.__dict__.items():
                     # skip if it is not a function
-                    if not isinstance(objfunc, FunctionType):
+                    if not isinstance(objfunc, types.FunctionType):
                         continue
                     setattr(obj, objname, objfunc)
             finally:

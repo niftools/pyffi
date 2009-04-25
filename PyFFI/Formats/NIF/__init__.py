@@ -308,7 +308,7 @@ from PyFFI.ObjectModels.Editable import EditableBoolComboBox
 from PyFFI.ObjectModels.Graph import EdgeFilter
 from PyFFI.ObjectModels.XML.Basic import BasicBase
 
-class _NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
+class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
     """This class contains the generated classes from the xml."""
 
     xmlFileName = 'nif.xml'
@@ -956,9 +956,6 @@ but got instance of %s' % (self._template, value.__class__))
         while len(ver_list) < 4: ver_list.append(0)
         return (ver_list[0] << 24) + (ver_list[1] << 16) + (ver_list[2] << 8) + ver_list[3]
 
-class NifFormat(_NifFormat):
-    """Interface to the nif format."""
-
     # exceptions
     class NifError(StandardError):
         """Standard nif exception class."""
@@ -1464,7 +1461,15 @@ Skipping %i bytes in %s""" % (extra_size, block.__class__.__name__))
                     self._makeBlockList(
                         child, block_index_dct, block_type_list, block_type_dct)
 
-    class Header(_NifFormat.Header):
+    # extensions of generated structures
+
+    # XXX this is a *very* ugly hack so we can change the base classes of
+    # XXX anything that derives from object
+    # XXX see http://bugs.python.org/issue672115
+    class object(object):
+        pass
+
+    class Header(object):
         def hasBlockType(self, block_type):
             """Check if header has a particular block type.
 
@@ -1490,7 +1495,7 @@ Skipping %i bytes in %s""" % (extra_size, block.__class__.__name__))
             # requested block type is not in nif
             return False
 
-    class Matrix33(_NifFormat.Matrix33):
+    class Matrix33(object):
         def asList(self):
             """Return matrix as 3x3 list."""
             return [
@@ -1803,7 +1808,7 @@ Skipping %i bytes in %s""" % (extra_size, block.__class__.__name__))
             return max(max(abs(elem) for elem in row)
                        for row in self.asList())
 
-    class Vector3(_NifFormat.Vector3):
+    class Vector3(object):
         def asList(self):
             return [self.x, self.y, self.z]
 
@@ -1954,7 +1959,7 @@ Skipping %i bytes in %s""" % (extra_size, block.__class__.__name__))
         def __ne__(self, x):
             return not self.__eq__(x)
 
-    class Vector4(_NifFormat.Vector4):
+    class Vector4(object):
         """
         Regression tests
         ----------------
@@ -2023,7 +2028,7 @@ Skipping %i bytes in %s""" % (extra_size, block.__class__.__name__))
         def __ne__(self, rhs):
             return not self.__eq__(rhs)
 
-    class SkinPartition(_NifFormat.SkinPartition):
+    class SkinPartition(object):
         def getTriangles(self):
             """Get list of triangles of this partition.
             """
