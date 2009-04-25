@@ -136,7 +136,7 @@ class _MetaXmlFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
                         % (custom_klass.__name__,
                            custom_klass.__bases__[0].__name__,
                            klass.__name__))
-                logger.debug("Found class customizer for %s" % klass.__name__)
+                #logger.debug("Found class customizer for %s" % klass.__name__)
                 custom_klass_dct[klass.__name__] = custom_klass
         # now fix all references to customized classes
         for klass in cls.xmlStruct:
@@ -152,18 +152,18 @@ class _MetaXmlFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
                         attr.template = custom_klass_dct[attr.template.__name__]
                     except KeyError:
                         pass
-                    else:
-                        logger.debug("Fixed %s reference in %s.%s"
-                                     % (attr.template.__name__,
-                                        klass.__name__, attr.name))
+                    #else:
+                    #    logger.debug("Fixed %s reference in %s.%s"
+                    #                 % (attr.template.__name__,
+                    #                    klass.__name__, attr.name))
                 try:
                     attr.type = custom_klass_dct[attr.type.__name__]
                 except KeyError:
                     pass
-                else:
-                    logger.debug("Fixed %s reference in %s.%s"
-                                 % (attr.type.__name__,
-                                    klass.__name__, attr.name))
+                #else:
+                #    logger.debug("Fixed %s reference in %s.%s"
+                #                 % (attr.type.__name__,
+                #                    klass.__name__, attr.name))
         logger.debug("Registration finished in %.3f seconds." % (time.clock() - start))
 
 class XmlFileFormat(PyFFI.ObjectModels.FileFormat.FileFormat):
