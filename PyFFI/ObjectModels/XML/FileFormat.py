@@ -639,7 +639,9 @@ but got %s instead"""%name)
                 if cls_klass:
                     # exists: create and add to base class of customizer
                     gen_klass = type(
-                        "_" + str(self.className), self.classBases, self.classDict)
+                        "_" + str(self.className),
+                        self.classBases, self.classDict)
+                    setattr(self.cls, "_" + self.className, gen_klass)
                     # recreate the class, to ensure that the
                     # metaclass is called!!
                     # (otherwise, cls_klass does not have correct
