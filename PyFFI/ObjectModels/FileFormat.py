@@ -317,9 +317,6 @@ Warning: read failed due corrupt file, corrupt format description, or bug.""")
         :type topdown: ``bool``
         :param mode: The mode in which to open files.
         :type mode: ``str``
-
-        @status: Not yet functional. For the time being, fall back on the other
-            walk functions.
         """
         # now walk over all these files in directory top
         for filename in Utils.walk(top, topdown, onerror=None,

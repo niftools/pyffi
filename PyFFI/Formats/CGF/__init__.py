@@ -43,11 +43,24 @@ Parse all CGF files in a directory tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 >>> for stream, data in CgfFormat.walkData('tests/cgf'):
-...     print stream.name
+...     print(stream.name)
+...     try:
+...         data.read(stream)
+...     except StandardError:
+...         print("Warning: read failed due corrupt file, corrupt format description, or bug.")
+...     print(len(data.chunks))
+...     # do something with the chunks
+...     for chunk in data.chunks:
+...         chunk.applyScale(2.0)
 tests/cgf/invalid.cgf
+Warning: read failed due corrupt file, corrupt format description, or bug.
+0
 tests/cgf/monkey.cgf
+14
 tests/cgf/test.cgf
+2
 tests/cgf/vcols.cgf
+6
 
 Create a CGF file from scratch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -193,7 +206,7 @@ from PyFFI.ObjectModels.XML.Basic import BasicBase
 import PyFFI.ObjectModels.FileFormat
 from PyFFI.ObjectModels.Graph import EdgeFilter
 
-class CgfFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
+class _CgfFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
     """Stores all information about the cgf file format."""
     xmlFileName = 'cgf.xml'
     # where to look for cgf.xml and in what order: CGFXMLPATH env var,
@@ -224,6 +237,442 @@ class CgfFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
     bool = PyFFI.ObjectModels.Common.Bool
     String = PyFFI.ObjectModels.Common.ZString
     SizedString = PyFFI.ObjectModels.Common.SizedString
+
+     # implementation of cgf-specific basic types
+
+    class String16(PyFFI.ObjectModels.Common.FixedString):
+        """String of fixed length 16."""
+        _len = 16
+
+    class String32(PyFFI.ObjectModels.Common.FixedString):
+        """String of fixed length 32."""
+        _len = 32
+
+    class String64(PyFFI.ObjectModels.Common.FixedString):
+        """String of fixed length 64."""
+        _len = 64
+
+    class String128(PyFFI.ObjectModels.Common.FixedString):
+        """String of fixed length 128."""
+        _len = 128
+
+    class String256(PyFFI.ObjectModels.Common.FixedString):
+        """String of fixed length 256."""
+        _len = 256
+
+    class FileSignature(BasicBase):
+        """The CryTek file signature with which every
+        cgf file starts."""
+        def __init__(self, **kwargs):
+            super(CgfFormat.FileSignature, self).__init__(**kwargs)
+
+        def __str__(self):
+            return 'CryTek\x00\x00'
+
+        def read(self, stream, **kwargs):
+            """Read signature from stream.
+
+            :param stream: The stream to read from.
+            :type stream: file
+            """
+            signat = stream.read(8)
+            if signat[:6] != self.__str__()[:6].encode("ascii"):
+                raise ValueError(
+                    "invalid CGF signature: expected '%s' but got '%s'"
+                    %(self.__str__(), signat))
+
+        def write(self, stream, **kwargs):
+            """Write signature to stream.
+
+            :param stream: The stream to read from.
+            :type stream: file
+            """
+            stream.write(self.__str__().encode("ascii"))
+
+        def getValue(self):
+            """Get signature.
+
+            :return: The signature.
+            """
+            return self.__str__()
+
+        def setValue(self, value):
+            """Set signature.
+
+            :param value: The value to assign (should be 'Crytek\\x00\\x00').
+            :type value: str
+            """
+            if value != self.__str__():
+                raise ValueError(
+                    "invalid CGF signature: expected '%s' but got '%s'"
+                    %(self.__str__(), value))
+
+        def getSize(self, **kwargs):
+            """Return number of bytes that the signature occupies in a file.
+
+            :return: Number of bytes.
+            """
+            return 8
+
+        def getHash(self, **kwargs):
+            """Return a hash value for the signature.
+
+            :return: An immutable object that can be used as a hash.
+            """
+            return self.__str__()
+
+    class Ref(BasicBase):
+        """Reference to a chunk, up the hierarchy."""
+        _isTemplate = True
+        _hasLinks = True
+        _hasRefs = True
+        def __init__(self, **kwargs):
+            super(CgfFormat.Ref, self).__init__(**kwargs)
+            self._template = kwargs.get('template', type(None))
+            self._value = None
+
+        def getValue(self):
+            """Get chunk being referred to.
+
+            :return: The chunk being referred to.
+            """
+            return self._value
+
+        def setValue(self, value):
+            """Set chunk reference.
+
+            :param value: The value to assign.
+            :type value: L{CgfFormat.Chunk}
+            """
+            if value == None:
+                self._value = None
+            else:
+                if not isinstance(value, self._template):
+                    raise TypeError(
+                        'expected an instance of %s but got instance of %s'
+                        %(self._template, value.__class__))
+                self._value = value
+
+        def read(self, stream, **kwargs):
+            """Read chunk index.
+
+            :param stream: The stream to read from.
+            :type stream: file
+            :keyword link_stack: The stack containing all block indices.
+            :type link_stack: list of ints
+            """
+            self._value = None # fixLinks will set this field
+            block_index, = struct.unpack('<i', stream.read(4))
+            kwargs.get('link_stack', []).append(block_index)
+
+        def write(self, stream, **kwargs):
+            """Write chunk index.
+
+            :param stream: The stream to write to.
+            :type stream: file
+            :keyword block_index_dct: Dictionary mapping blocks to indices.
+            :type block_index_dct: dict
+            """
+            if self._value == None:
+                stream.write('\xff\xff\xff\xff')
+            else:
+                stream.write(struct.pack(
+                    '<i', kwargs.get('block_index_dct')[self._value]))
+
+        def fixLinks(self, **kwargs):
+            """Resolve chunk index into a chunk.
+
+            :keyword block_dct: Dictionary mapping block index to block.
+            :type block_dct: dict
+            :keyword link_stack: The stack containing all block indices.
+            :type link_stack: list of ints
+            """
+            logger = logging.getLogger("pyffi.cgf.data")
+            block_index = kwargs.get('link_stack').pop(0)
+            # case when there's no link
+            if block_index == -1:
+                self._value = None
+                return
+            # other case: look up the link and check the link type
+            try:
+                block = kwargs.get('block_dct')[block_index]
+            except KeyError:
+                # make this raise an exception when all reference errors
+                # are sorted out
+                logger.warn("invalid chunk reference (%i)" % block_index)
+                self._value = None
+                return
+            if not isinstance(block, self._template):
+                if block_index == 0:
+                    # crysis often uses index 0 to refer to an invalid index
+                    # so don't complain on this one
+                    block = None
+                else:
+                    # make this raise an exception when all reference errors
+                    # are sorted out
+                    logger.warn("""\
+expected instance of %s
+but got instance of %s""" % (self._template, block.__class__))
+            self._value = block
+
+        def getLinks(self, **kwargs):
+            """Return the chunk reference.
+
+            :return: Empty list if no reference, or single item list containing
+                the reference.
+            """
+            if self._value != None:
+                return [self._value]
+            else:
+                return []
+
+        def getRefs(self, **kwargs):
+            """Return the chunk reference.
+
+            :return: Empty list if no reference, or single item list containing
+                the reference.
+            """
+            if self._value != None:
+                return [self._value]
+            else:
+                return []
+
+        def __str__(self):
+            # don't recurse
+            if self._value != None:
+                return '%s instance at 0x%08X'\
+                       % (self._value.__class__, id(self._value))
+            else:
+                return 'None'
+
+        def getSize(self, **kwargs):
+            """Return number of bytes this type occupies in a file.
+
+            :return: Number of bytes.
+            """
+            return 4
+
+        def getHash(self, **kwargs):
+            """Return a hash value for the chunk referred to.
+
+            :return: An immutable object that can be used as a hash.
+            """
+            return self._value.getHash() if not self._value is None else None
+
+    class Ptr(Ref):
+        """Reference to a chunk, down the hierarchy."""
+        _isTemplate = True
+        _hasLinks = True
+        _hasRefs = False
+
+        def __str__(self):
+            # avoid infinite recursion
+            if self._value != None:
+                return '%s instance at 0x%08X'\
+                       % (self._value.__class__, id(self._value))
+            else:
+                return 'None'
+
+        def getRefs(self, **kwargs):
+            """Ptr does not point down, so getRefs returns empty list.
+
+            :return: C{[]}
+            """
+            return []
+
+    @staticmethod
+    def versionNumber(version_str):
+        """Converts version string into an integer.
+
+        :param version_str: The version string.
+        :type version_str: str
+        :return: A version integer.
+
+        >>> hex(CgfFormat.versionNumber('744'))
+        '0x744'
+        """
+        return int(version_str, 16)
+
+
+
+class CgfFormat(_CgfFormat):
+    """Customized interface to the CGF format."""
+    # map chunk type integers to chunk type classes
+    CHUNK_MAP = dict(
+        (getattr(_CgfFormat.ChunkType, chunk_name),
+         getattr(_CgfFormat, '%sChunk' % chunk_name))
+        for chunk_name in _CgfFormat.ChunkType._enumkeys
+        if chunk_name != "ANY")
+
+    # exceptions
+    class CgfError(StandardError):
+        """Exception for CGF specific errors."""
+        pass
+
+    @classmethod
+    def getVersion(cls, stream):
+        """Returns version of the chunk table, and game as user_version.
+        Far Cry is user_version L{CgfFormat.UVER_FARCRY} and Crysis is
+        user_version L{CgfFormat.UVER_CRYSIS}. Preserves the stream position.
+
+        Deprecated.
+
+        :param stream: The stream from which to read.
+        :type stream: file
+        :return: A pair (version, user_version).
+            The returned version is -1 if the file type or chunk table version
+            is not supported, and -2 if the file is not a cgf file.
+        @deprecated: Use CgfFormat.Data.inspect instead.
+        """
+        warnings.warn("use CgfFormat.Data.inspect", DeprecationWarning)
+        data = cls.Data()
+        try:
+            data.inspectVersionOnly(stream)
+        except ValueError:
+            return -2, 0
+        else:
+            return data.version(), data.user_version()
+
+    @classmethod
+    def getGame(cls, version=None, user_version=None):
+        """Guess game based on version and user_version. This is the inverse of
+        L{getGameVersion}.
+
+        :param version: The version as obtained by L{getVersion}.
+        :type version: int
+        :param user_version: The user version as obtained by L{getVersion}.
+        :type user_version: int
+        :return: 'Crysis' or 'Far Cry'
+        @deprecated: Use L{CgfFormat.Data.game} instead.
+        """
+        warnings.warn("use CgfFormat.Data.game", DeprecationWarning)
+        try:
+            return {cls.UVER_FARCRY: "Far Cry",
+                    cls.UVER_CRYSIS: "Crysis"}[user_version]
+        except KeyError:
+            raise ValueError("unknown version 0x%08X and user version %i" %
+                             (version, user_version))
+
+    @classmethod
+    def getGameVersion(cls, game=None):
+        """Get version and user_version for a particular game. This is the
+        inverse of L{getGame}.
+
+        :param game: 'Crysis' or 'Far Cry'.
+        :type game: str
+        :return: The version and user version.
+        @deprecated: Use the version() and user_version() functions instead.
+
+        >>> CgfFormat.getGameVersion("Far Cry")
+        (1860, 1)
+        >>> CgfFormat.getGameVersion("Crysis")
+        (1860, 2)
+        """
+        if game == "Far Cry":
+            return cls.VER_FARCRY, cls.UVER_FARCRY
+        elif game == "Crysis":
+            return cls.VER_CRYSIS, cls.UVER_CRYSIS
+        else:
+            raise ValueError("unknown game %s" % game)
+
+    @classmethod
+    def getFileType(cls, stream, version = None, user_version = None):
+        """Returns file type (geometry or animation). Preserves the stream
+        position.
+
+        :param stream: The stream from which to read.
+        :type stream: file
+        :param version: The version as obtained by L{getVersion}.
+        :type version: int
+        :param user_version: The user version as obtained by L{getVersion}.
+        :type user_version: int
+        :return: L{FileType.GEOM} or L{FileType.ANIM}
+        @deprecated: Use L{CgfFormat.Data.header.type} instead.
+        """
+        warnings.warn("use CgfFormat.Data.header.type", DeprecationWarning)
+        pos = stream.tell()
+        try:
+            signat = stream.read(8)
+            filetype, = struct.unpack('<I',
+                                      stream.read(4))
+        finally:
+            stream.seek(pos)
+        return filetype
+
+    @classmethod
+    def read(cls, stream, version=None, user_version=None,
+             verbose=0, validate=True):
+        """@deprecated: Use L{CgfFormat.Data.read} instead."""
+        warnings.warn("use CgfFormat.Data.read", DeprecationWarning)
+        data = cls.Data()
+        data.read(stream)
+        return data.header.type, data.chunks, data.versions
+
+    @classmethod
+    def write(cls, stream, version = None, user_version = None,
+              filetype = None, chunks = None, versions = None,
+              verbose = 0):
+        """@deprecated: Use L{CgfFormat.Data.write} instead."""
+        warnings.warn("use CgfFormat.Data.write", DeprecationWarning)
+        data = cls.Data()
+        data.header.type = filetype
+        data.header.version = version
+        data.chunks = chunks
+        data.versions = versions
+        data.game = cls.getGame(version=version, user_version=user_version)
+        return data.write(stream)
+    
+    @classmethod
+    def getChunkVersions(cls, version = None, user_version = None,
+                         chunks = None):
+        """Return version of each chunk in the chunk list for the
+        given file version and file user version.
+
+        :param version: The version.
+        :type version: int
+        :param user_version: The user version.
+        :type user_version: int
+        :param chunks: List of chunks.
+        :type chunks: list of L{CgfFormat.Chunk}
+        :return: Version of each chunk as list of ints (same length as
+            C{chunks}).
+        @deprecated: Use L{Data.update_versions} instead.
+        """
+        warnings.warn("use CgfFormat.Data.update_versions", DeprecationWarning)
+
+        # game string
+        game = cls.getGame(version = version, user_version = user_version)
+
+        try:
+            return [max(chunk.getVersions(game)) for chunk in chunks]
+        except KeyError:
+            raise cls.CgfError("game %s not supported" % game)
+
+    @classmethod
+    def getRoots(cls, *readresult):
+        """Returns list of all root blocks. Used by L{PyFFI.QSkope}
+        and L{PyFFI.Spells}.
+
+        :param readresult: Result from L{walk} or L{read}.
+        :type readresult: tuple
+        :return: list of root blocks
+        @deprecated: This function simply returns an empty list, and will eventually be removed.
+        """
+        warnings.warn("do not use the getRoots function", DeprecationWarning)
+        return []
+
+    @classmethod
+    def getBlocks(cls, *readresult):
+        """Returns list of all blocks. Used by L{PyFFI.QSkope}
+        and L{PyFFI.Spells}.
+
+        :param readresult: Result from L{walk} or L{read}.
+        :type readresult: tuple
+        :return: list of blocks
+        @deprecated: Use L{Data.chunks} instead.
+        """
+        warnings.warn("use CgfFormat.Data.chunks", DeprecationWarning)
+        return readresult[1]
 
     class Data(PyFFI.ObjectModels.FileFormat.FileFormat.Data):
         """A class to contain the actual nif data.
@@ -282,14 +731,6 @@ class CgfFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             # game
             # TODO store this in a way that can be displayed by qskope
             self.game = game
-            # map chunk type integers to chunk type classes
-            # XXX should be a CgfFormat class variable... this hack is nasty
-            # XXX move to class level when inheritance is implemented
-            CgfFormat.CHUNK_MAP = dict(
-                (getattr(CgfFormat.ChunkType, chunk_name),
-                 getattr(CgfFormat, '%sChunk' % chunk_name))
-                for chunk_name in CgfFormat.ChunkType._enumkeys
-                if chunk_name != "ANY")
 
         # new functions
 
@@ -683,427 +1124,34 @@ chunk size mismatch when reading %s at 0x%08X
             except KeyError:
                 raise CgfFormat.CgfError("game %s not supported" % self.game)
 
-    # implementation of cgf-specific basic types
+    class Chunk(_CgfFormat.Chunk):
+        def tree(self, block_type = None, follow_all = True):
+            """A generator for parsing all blocks in the tree (starting from and
+            including C{self}).
 
-    class String16(PyFFI.ObjectModels.Common.FixedString):
-        """String of fixed length 16."""
-        _len = 16
+            :param block_type: If not ``None``, yield only blocks of the type C{block_type}.
+            :param follow_all: If C{block_type} is not ``None``, then if this is ``True`` the function will parse the whole tree. Otherwise, the function will not follow branches that start by a non-C{block_type} block."""
+            # yield self
+            if not block_type:
+                yield self
+            elif isinstance(self, block_type):
+                yield self
+            elif not follow_all:
+                return # don't recurse further
 
-    class String32(PyFFI.ObjectModels.Common.FixedString):
-        """String of fixed length 32."""
-        _len = 32
+            # yield tree attached to each child
+            for child in self.getRefs():
+                for block in child.tree(block_type = block_type, follow_all = follow_all):
+                    yield block
 
-    class String64(PyFFI.ObjectModels.Common.FixedString):
-        """String of fixed length 64."""
-        _len = 64
+        def applyScale(self, scale):
+            """Apply scale factor on data."""
+            pass
 
-    class String128(PyFFI.ObjectModels.Common.FixedString):
-        """String of fixed length 128."""
-        _len = 128
-
-    class String256(PyFFI.ObjectModels.Common.FixedString):
-        """String of fixed length 256."""
-        _len = 256
-
-    class FileSignature(BasicBase):
-        """The CryTek file signature with which every
-        cgf file starts."""
-        def __init__(self, **kwargs):
-            super(CgfFormat.FileSignature, self).__init__(**kwargs)
-
-        def __str__(self):
-            return 'CryTek\x00\x00'
-
-        def read(self, stream, **kwargs):
-            """Read signature from stream.
-
-            :param stream: The stream to read from.
-            :type stream: file
+    class ChunkTable(_CgfFormat.ChunkTable):
+        def getChunkTypes(self):
+            """Iterate all chunk types (in the form of Python classes) referenced
+            in this table.
             """
-            signat = stream.read(8)
-            if signat[:6] != self.__str__()[:6].encode("ascii"):
-                raise ValueError(
-                    "invalid CGF signature: expected '%s' but got '%s'"
-                    %(self.__str__(), signat))
-
-        def write(self, stream, **kwargs):
-            """Write signature to stream.
-
-            :param stream: The stream to read from.
-            :type stream: file
-            """
-            stream.write(self.__str__().encode("ascii"))
-
-        def getValue(self):
-            """Get signature.
-
-            :return: The signature.
-            """
-            return self.__str__()
-
-        def setValue(self, value):
-            """Set signature.
-
-            :param value: The value to assign (should be 'Crytek\\x00\\x00').
-            :type value: str
-            """
-            if value != self.__str__():
-                raise ValueError(
-                    "invalid CGF signature: expected '%s' but got '%s'"
-                    %(self.__str__(), value))
-
-        def getSize(self, **kwargs):
-            """Return number of bytes that the signature occupies in a file.
-
-            :return: Number of bytes.
-            """
-            return 8
-
-        def getHash(self, **kwargs):
-            """Return a hash value for the signature.
-
-            :return: An immutable object that can be used as a hash.
-            """
-            return self.__str__()
-
-    class Ref(BasicBase):
-        """Reference to a chunk, up the hierarchy."""
-        _isTemplate = True
-        _hasLinks = True
-        _hasRefs = True
-        def __init__(self, **kwargs):
-            super(CgfFormat.Ref, self).__init__(**kwargs)
-            self._template = kwargs.get('template', type(None))
-            self._value = None
-
-        def getValue(self):
-            """Get chunk being referred to.
-
-            :return: The chunk being referred to.
-            """
-            return self._value
-
-        def setValue(self, value):
-            """Set chunk reference.
-
-            :param value: The value to assign.
-            :type value: L{CgfFormat.Chunk}
-            """
-            if value == None:
-                self._value = None
-            else:
-                if not isinstance(value, self._template):
-                    raise TypeError(
-                        'expected an instance of %s but got instance of %s'
-                        %(self._template, value.__class__))
-                self._value = value
-
-        def read(self, stream, **kwargs):
-            """Read chunk index.
-
-            :param stream: The stream to read from.
-            :type stream: file
-            :keyword link_stack: The stack containing all block indices.
-            :type link_stack: list of ints
-            """
-            self._value = None # fixLinks will set this field
-            block_index, = struct.unpack('<i', stream.read(4))
-            kwargs.get('link_stack', []).append(block_index)
-
-        def write(self, stream, **kwargs):
-            """Write chunk index.
-
-            :param stream: The stream to write to.
-            :type stream: file
-            :keyword block_index_dct: Dictionary mapping blocks to indices.
-            :type block_index_dct: dict
-            """
-            if self._value == None:
-                stream.write('\xff\xff\xff\xff')
-            else:
-                stream.write(struct.pack(
-                    '<i', kwargs.get('block_index_dct')[self._value]))
-
-        def fixLinks(self, **kwargs):
-            """Resolve chunk index into a chunk.
-
-            :keyword block_dct: Dictionary mapping block index to block.
-            :type block_dct: dict
-            :keyword link_stack: The stack containing all block indices.
-            :type link_stack: list of ints
-            """
-            logger = logging.getLogger("pyffi.cgf.data")
-            block_index = kwargs.get('link_stack').pop(0)
-            # case when there's no link
-            if block_index == -1:
-                self._value = None
-                return
-            # other case: look up the link and check the link type
-            try:
-                block = kwargs.get('block_dct')[block_index]
-            except KeyError:
-                # make this raise an exception when all reference errors
-                # are sorted out
-                logger.warn("invalid chunk reference (%i)" % block_index)
-                self._value = None
-                return
-            if not isinstance(block, self._template):
-                if block_index == 0:
-                    # crysis often uses index 0 to refer to an invalid index
-                    # so don't complain on this one
-                    block = None
-                else:
-                    # make this raise an exception when all reference errors
-                    # are sorted out
-                    logger.warn("""\
-expected instance of %s
-but got instance of %s""" % (self._template, block.__class__))
-            self._value = block
-
-        def getLinks(self, **kwargs):
-            """Return the chunk reference.
-
-            :return: Empty list if no reference, or single item list containing
-                the reference.
-            """
-            if self._value != None:
-                return [self._value]
-            else:
-                return []
-
-        def getRefs(self, **kwargs):
-            """Return the chunk reference.
-
-            :return: Empty list if no reference, or single item list containing
-                the reference.
-            """
-            if self._value != None:
-                return [self._value]
-            else:
-                return []
-
-        def __str__(self):
-            # don't recurse
-            if self._value != None:
-                return '%s instance at 0x%08X'\
-                       % (self._value.__class__, id(self._value))
-            else:
-                return 'None'
-
-        def getSize(self, **kwargs):
-            """Return number of bytes this type occupies in a file.
-
-            :return: Number of bytes.
-            """
-            return 4
-
-        def getHash(self, **kwargs):
-            """Return a hash value for the chunk referred to.
-
-            :return: An immutable object that can be used as a hash.
-            """
-            return self._value.getHash() if not self._value is None else None
-
-    class Ptr(Ref):
-        """Reference to a chunk, down the hierarchy."""
-        _isTemplate = True
-        _hasLinks = True
-        _hasRefs = False
-
-        def __str__(self):
-            # avoid infinite recursion
-            if self._value != None:
-                return '%s instance at 0x%08X'\
-                       % (self._value.__class__, id(self._value))
-            else:
-                return 'None'
-
-        def getRefs(self, **kwargs):
-            """Ptr does not point down, so getRefs returns empty list.
-
-            :return: C{[]}
-            """
-            return []
-
-    # exceptions
-    class CgfError(StandardError):
-        """Exception for CGF specific errors."""
-        pass
-
-    @staticmethod
-    def versionNumber(version_str):
-        """Converts version string into an integer.
-
-        :param version_str: The version string.
-        :type version_str: str
-        :return: A version integer.
-
-        >>> hex(CgfFormat.versionNumber('744'))
-        '0x744'
-        """
-        return int(version_str, 16)
-
-    @classmethod
-    def getVersion(cls, stream):
-        """Returns version of the chunk table, and game as user_version.
-        Far Cry is user_version L{CgfFormat.UVER_FARCRY} and Crysis is
-        user_version L{CgfFormat.UVER_CRYSIS}. Preserves the stream position.
-
-        Deprecated.
-
-        :param stream: The stream from which to read.
-        :type stream: file
-        :return: A pair (version, user_version).
-            The returned version is -1 if the file type or chunk table version
-            is not supported, and -2 if the file is not a cgf file.
-        @deprecated: Use CgfFormat.Data.inspect instead.
-        """
-        warnings.warn("use CgfFormat.Data.inspect", DeprecationWarning)
-        data = cls.Data()
-        try:
-            data.inspectVersionOnly(stream)
-        except ValueError:
-            return -2, 0
-        else:
-            return data.version(), data.user_version()
-
-    @classmethod
-    def getGame(cls, version=None, user_version=None):
-        """Guess game based on version and user_version. This is the inverse of
-        L{getGameVersion}.
-
-        :param version: The version as obtained by L{getVersion}.
-        :type version: int
-        :param user_version: The user version as obtained by L{getVersion}.
-        :type user_version: int
-        :return: 'Crysis' or 'Far Cry'
-        @deprecated: Use L{CgfFormat.Data.game} instead.
-        """
-        warnings.warn("use CgfFormat.Data.game", DeprecationWarning)
-        try:
-            return {cls.UVER_FARCRY: "Far Cry",
-                    cls.UVER_CRYSIS: "Crysis"}[user_version]
-        except KeyError:
-            raise ValueError("unknown version 0x%08X and user version %i" %
-                             (version, user_version))
-
-    @classmethod
-    def getGameVersion(cls, game=None):
-        """Get version and user_version for a particular game. This is the
-        inverse of L{getGame}.
-
-        :param game: 'Crysis' or 'Far Cry'.
-        :type game: str
-        :return: The version and user version.
-        @deprecated: Use the version() and user_version() functions instead.
-
-        >>> CgfFormat.getGameVersion("Far Cry")
-        (1860, 1)
-        >>> CgfFormat.getGameVersion("Crysis")
-        (1860, 2)
-        """
-        if game == "Far Cry":
-            return cls.VER_FARCRY, cls.UVER_FARCRY
-        elif game == "Crysis":
-            return cls.VER_CRYSIS, cls.UVER_CRYSIS
-        else:
-            raise ValueError("unknown game %s" % game)
-
-    @classmethod
-    def getFileType(cls, stream, version = None, user_version = None):
-        """Returns file type (geometry or animation). Preserves the stream
-        position.
-
-        :param stream: The stream from which to read.
-        :type stream: file
-        :param version: The version as obtained by L{getVersion}.
-        :type version: int
-        :param user_version: The user version as obtained by L{getVersion}.
-        :type user_version: int
-        :return: L{FileType.GEOM} or L{FileType.ANIM}
-        @deprecated: Use L{CgfFormat.Data.header.type} instead.
-        """
-        warnings.warn("use CgfFormat.Data.header.type", DeprecationWarning)
-        pos = stream.tell()
-        try:
-            signat = stream.read(8)
-            filetype, = struct.unpack('<I',
-                                      stream.read(4))
-        finally:
-            stream.seek(pos)
-        return filetype
-
-    @classmethod
-    def read(cls, stream, version=None, user_version=None,
-             verbose=0, validate=True):
-        """@deprecated: Use L{CgfFormat.Data.read} instead."""
-        warnings.warn("use CgfFormat.Data.read", DeprecationWarning)
-        data = cls.Data()
-        data.read(stream)
-        return data.header.type, data.chunks, data.versions
-
-    @classmethod
-    def write(cls, stream, version = None, user_version = None,
-              filetype = None, chunks = None, versions = None,
-              verbose = 0):
-        """@deprecated: Use L{CgfFormat.Data.write} instead."""
-        warnings.warn("use CgfFormat.Data.write", DeprecationWarning)
-        data = cls.Data()
-        data.header.type = filetype
-        data.header.version = version
-        data.chunks = chunks
-        data.versions = versions
-        data.game = cls.getGame(version=version, user_version=user_version)
-        return data.write(stream)
-    
-    @classmethod
-    def getChunkVersions(cls, version = None, user_version = None,
-                         chunks = None):
-        """Return version of each chunk in the chunk list for the
-        given file version and file user version.
-
-        :param version: The version.
-        :type version: int
-        :param user_version: The user version.
-        :type user_version: int
-        :param chunks: List of chunks.
-        :type chunks: list of L{CgfFormat.Chunk}
-        :return: Version of each chunk as list of ints (same length as
-            C{chunks}).
-        @deprecated: Use L{Data.update_versions} instead.
-        """
-        warnings.warn("use CgfFormat.Data.update_versions", DeprecationWarning)
-
-        # game string
-        game = cls.getGame(version = version, user_version = user_version)
-
-        try:
-            return [max(chunk.getVersions(game)) for chunk in chunks]
-        except KeyError:
-            raise cls.CgfError("game %s not supported" % game)
-
-    @classmethod
-    def getRoots(cls, *readresult):
-        """Returns list of all root blocks. Used by L{PyFFI.QSkope}
-        and L{PyFFI.Spells}.
-
-        :param readresult: Result from L{walk} or L{read}.
-        :type readresult: tuple
-        :return: list of root blocks
-        @deprecated: This function simply returns an empty list, and will eventually be removed.
-        """
-        warnings.warn("do not use the getRoots function", DeprecationWarning)
-        return []
-
-    @classmethod
-    def getBlocks(cls, *readresult):
-        """Returns list of all blocks. Used by L{PyFFI.QSkope}
-        and L{PyFFI.Spells}.
-
-        :param readresult: Result from L{walk} or L{read}.
-        :type readresult: tuple
-        :return: list of blocks
-        @deprecated: Use L{Data.chunks} instead.
-        """
-        warnings.warn("use CgfFormat.Data.chunks", DeprecationWarning)
-        return readresult[1]
+            return (CgfFormat.CHUNK_MAP[chunk_header.type]
+                    for chunk_header in self.chunkHeaders)
