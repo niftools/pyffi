@@ -499,14 +499,21 @@ but got instance of %s""" % (self._template, block.__class__))
 
 
 
+class _MetaCgfFormat(_CgfFormat.__metaclass__):
+    """Metaclass which constructs the chunk map during class creation."""
+    def __init__(cls, name, bases, dct):
+        super(_MetaCgfFormat, cls).__init__(name, bases, dct)
+        
+        # map chunk type integers to chunk type classes
+        cls.CHUNK_MAP = dict(
+            (getattr(cls.ChunkType, chunk_name),
+             getattr(cls, '%sChunk' % chunk_name))
+            for chunk_name in cls.ChunkType._enumkeys
+            if chunk_name != "ANY")
+
 class CgfFormat(_CgfFormat):
     """Customized interface to the CGF format."""
-    # map chunk type integers to chunk type classes
-    CHUNK_MAP = dict(
-        (getattr(_CgfFormat.ChunkType, chunk_name),
-         getattr(_CgfFormat, '%sChunk' % chunk_name))
-        for chunk_name in _CgfFormat.ChunkType._enumkeys
-        if chunk_name != "ANY")
+    __metaclass__ = _MetaCgfFormat
 
     # exceptions
     class CgfError(StandardError):
