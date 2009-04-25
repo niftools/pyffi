@@ -11,6 +11,13 @@ Release 1.2.5 (in development)
 
   - The KFM files open again in QSkope.
 
+* Updates for the CGF format.
+
+  - New _CgfFormat base class that just contains the generated code.
+    Customizations are implemented in CgfFormat.
+
+  - CHUNK_MAP no longer constructed in Data.__init__ but in a metaclass.
+
 Release 1.2.4 (Apr 21, 2009)
 ============================
 
