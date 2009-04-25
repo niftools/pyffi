@@ -1,6 +1,6 @@
 """
-.. :mod:`PyFFI.Formats.TGA` --- Targa (.tga)
-   =========================================
+:mod:`PyFFI.Formats.TGA` --- Targa (.tga)
+=========================================
 
 Regression tests
 ----------------
@@ -14,16 +14,16 @@ Read a TGA file
 >>> data.inspect(stream)
 >>> data.read(stream)
 >>> stream.close()
->>> data.header.width
+>>> data.width
 60
->>> data.header.height
+>>> data.height
 20
 
 Parse all TGA files in a directory tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 >>> for stream, data in TgaFormat.walkData('tests/tga'):
-...     print stream.name
+...     print(stream.name)
 tests/tga/test.tga
 
 Create a TGA file from scratch and write to file
@@ -76,9 +76,8 @@ Create a TGA file from scratch and write to file
 import struct, os, re
 
 import PyFFI.ObjectModels.XML.FileFormat
-from PyFFI import Utils
-from PyFFI.ObjectModels import Common
-from PyFFI.ObjectModels.XML.Basic import BasicBase
+import PyFFI.ObjectModels.Common
+import PyFFI.ObjectModels.XML.Struct
 import PyFFI.ObjectModels.FileFormat
 from PyFFI.ObjectModels.Graph import EdgeFilter
 
@@ -87,35 +86,24 @@ class TgaFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
     xmlFileName = 'tga.xml'
     # where to look for tga.xml and in what order:
     # TGAXMLPATH env var, or TgaFormat module directory
-    xmlFilePath = [ os.getenv('TGAXMLPATH'), os.path.dirname(__file__) ]
+    xmlFilePath = [os.getenv('TGAXMLPATH'), os.path.dirname(__file__)]
     # path of class customizers
     clsFilePath = os.path.dirname(__file__)
-    # used for comparing floats
-    _EPSILON = 0.0001
     # filter for recognizing tga files by extension
     RE_FILENAME = re.compile(r'^.*\.tga$', re.IGNORECASE)
 
     # basic types
-    int = Common.Int
-    uint = Common.UInt
-    byte = Common.Byte
-    ubyte = Common.UByte
-    char = Common.Char
-    short = Common.Short
-    ushort = Common.UShort
-    float = Common.Float
-    PixelData = Common.UndecodedData
+    int = PyFFI.ObjectModels.Common.Int
+    uint = PyFFI.ObjectModels.Common.UInt
+    byte = PyFFI.ObjectModels.Common.Byte
+    ubyte = PyFFI.ObjectModels.Common.UByte
+    char = PyFFI.ObjectModels.Common.Char
+    short = PyFFI.ObjectModels.Common.Short
+    ushort = PyFFI.ObjectModels.Common.UShort
+    float = PyFFI.ObjectModels.Common.Float
+    PixelData = PyFFI.ObjectModels.Common.UndecodedData
 
-    class Data(PyFFI.ObjectModels.FileFormat.FileFormat.Data):
-        """A class to contain the actual tga data."""
-        def __init__(self):
-            # stubs to make things work with XML model
-            self.version = None
-            self.user_version = None
-            self.user_version2 = None
-            # data
-            self.header = TgaFormat.Header()
-
+    class Header(PyFFI.ObjectModels.FileFormat.FileFormat.Data):
         def inspect(self, stream):
             """Quick heuristic check if stream contains Targa data,
             by looking at the first 18 bytes.
@@ -123,6 +111,8 @@ class TgaFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             :param stream: The stream to inspect.
             :type stream: file
             """
+            # XXX todo: set some of the actual fields
+
             pos = stream.tell()
             # read header
             try:
@@ -155,29 +145,12 @@ class TgaFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             """
             # read the file
             self.inspect(stream) # quick check
-            self.header.read(stream)
+            PyFFI.ObjectModels.XML.Struct.StructBase.read(self, stream)
 
             # check if we are at the end of the file
             if stream.read(1) != '':
                 raise ValueError(
                     'end of file not reached: corrupt tga file?')
-
-        def write(self, stream):
-            """Write a tga file.
-
-            :param stream: The stream to which to write.
-            :type stream: ``file``
-            """
-            # write the file
-            self.header.write(stream)
-
-        # DetailNode
-
-        def getDetailChildNodes(self, edge_filter=EdgeFilter()):
-            return self.header.getDetailChildNodes(edge_filter=edge_filter)
-
-        def getDetailChildNames(self, edge_filter=EdgeFilter()):
-            return self.header.getDetailChildNames(edge_filter=edge_filter)
 
 if __name__ == '__main__':
     import doctest
