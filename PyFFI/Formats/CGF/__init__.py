@@ -1,6 +1,6 @@
 """
-.. :mod:`PyFFI.Formats.CGF` --- Crytek (.cgf and .cga)
-   ===================================================
+:mod:`PyFFI.Formats.CGF` --- Crytek (.cgf and .cga)
+===================================================
 
 Regression tests
 ----------------
@@ -188,7 +188,7 @@ import warnings
 
 import PyFFI.ObjectModels.XML.FileFormat
 from PyFFI import Utils
-from PyFFI.ObjectModels import Common
+import PyFFI.ObjectModels.Common
 from PyFFI.ObjectModels.XML.Basic import BasicBase
 import PyFFI.ObjectModels.FileFormat
 from PyFFI.ObjectModels.Graph import EdgeFilter
@@ -213,17 +213,17 @@ class CgfFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
     UVER_CRYSIS = 2
 
     # basic types
-    int = Common.Int
-    uint = Common.UInt
-    byte = Common.Byte
-    ubyte = Common.UByte
-    short = Common.Short
-    ushort = Common.UShort
-    char = Common.Char
-    float = Common.Float
-    bool = Common.Bool
-    String = Common.ZString
-    SizedString = Common.SizedString
+    int = PyFFI.ObjectModels.Common.Int
+    uint = PyFFI.ObjectModels.Common.UInt
+    byte = PyFFI.ObjectModels.Common.Byte
+    ubyte = PyFFI.ObjectModels.Common.UByte
+    short = PyFFI.ObjectModels.Common.Short
+    ushort = PyFFI.ObjectModels.Common.UShort
+    char = PyFFI.ObjectModels.Common.Char
+    float = PyFFI.ObjectModels.Common.Float
+    bool = PyFFI.ObjectModels.Common.Bool
+    String = PyFFI.ObjectModels.Common.ZString
+    SizedString = PyFFI.ObjectModels.Common.SizedString
 
     class Data(PyFFI.ObjectModels.FileFormat.FileFormat.Data):
         """A class to contain the actual nif data.
@@ -242,12 +242,12 @@ class CgfFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
         :type versions: ``list`` of L{int}
         """
 
-        class VersionUInt(Common.UInt):
+        class VersionUInt(PyFFI.ObjectModels.Common.UInt):
             def setValue(self, value):
                 if value is None:
                     self._value = None
                 else:
-                    Common.UInt.setValue(self, value)
+                    PyFFI.ObjectModels.Common.UInt.setValue(self, value)
 
             def __str__(self):
                 if self._value is None:
@@ -685,23 +685,23 @@ chunk size mismatch when reading %s at 0x%08X
 
     # implementation of cgf-specific basic types
 
-    class String16(Common.FixedString):
+    class String16(PyFFI.ObjectModels.Common.FixedString):
         """String of fixed length 16."""
         _len = 16
 
-    class String32(Common.FixedString):
+    class String32(PyFFI.ObjectModels.Common.FixedString):
         """String of fixed length 32."""
         _len = 32
 
-    class String64(Common.FixedString):
+    class String64(PyFFI.ObjectModels.Common.FixedString):
         """String of fixed length 64."""
         _len = 64
 
-    class String128(Common.FixedString):
+    class String128(PyFFI.ObjectModels.Common.FixedString):
         """String of fixed length 128."""
         _len = 128
 
-    class String256(Common.FixedString):
+    class String256(PyFFI.ObjectModels.Common.FixedString):
         """String of fixed length 256."""
         _len = 256
 
