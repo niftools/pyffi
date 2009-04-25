@@ -2821,3 +2821,268 @@ chunk size mismatch when reading %s at 0x%08X
                 crytangent[0].y = int(32767 * bin[1])
                 crytangent[0].z = int(32767 * bin[2])
                 crytangent[0].w = tangent_w
+
+    class MeshMorphTargetChunk(_CgfFormat.MeshMorphTargetChunk):
+        def applyScale(self, scale):
+            """Apply scale factor on data."""
+            if abs(scale - 1.0) < CgfFormat.EPSILON:
+                return
+            for morphvert in self.morphVertices:
+                morphvert.vertexTarget.x *= scale
+                morphvert.vertexTarget.y *= scale
+                morphvert.vertexTarget.z *= scale
+
+        def getGlobalNodeParent(self):
+            """Get the block parent (used for instance in the QSkope global view)."""
+            return self.mesh
+
+        def getGlobalDisplay(self):
+            """Return a name for the block."""
+            return self.targetName
+
+    class MeshSubsetsChunk(_CgfFormat.MeshSubsetsChunk):
+        def applyScale(self, scale):
+            """Apply scale factor on data."""
+            if abs(scale - 1.0) < CgfFormat.EPSILON:
+                return
+            for meshsubset in self.meshSubsets:
+                meshsubset.radius *= scale
+                meshsubset.center.x *= scale
+                meshsubset.center.y *= scale
+                meshsubset.center.z *= scale
+
+    class MtlChunk(_CgfFormat.MtlChunk):
+        def getNameShaderScript(self):
+            """Extract name, shader, and script."""
+            name = self.name
+            shader_begin = name.find("(")
+            shader_end = name.find(")")
+            script_begin = name.find("/")
+            if (script_begin != -1):
+                if (name.count("/") != 1):
+                    # must have exactly one script
+                    raise ValueError("%s malformed, has multiple ""/"""%name)
+                mtlscript = name[script_begin+1:]
+            else:
+                mtlscript = ""
+            if (shader_begin != -1): # if a shader was specified
+                mtl_end = shader_begin
+                # must have exactly one shader
+                if (name.count("(") != 1):
+                    # some names are buggy and have "((" instead of "("
+                    # like in jungle_camp_sleeping_barack
+                    # here we handle that case
+                    if name[shader_begin + 1] == "(" \
+                       and name[shader_begin + 1:].count("(") == 1:
+                        shader_begin += 1
+                    else:
+                        raise ValueError("%s malformed, has multiple ""("""%name)
+                if (name.count(")") != 1):
+                    raise ValueError("%s malformed, has multiple "")"""%name)
+                # shader name should non-empty
+                if shader_begin > shader_end:
+                    raise ValueError("%s malformed, ""("" comes after "")"""%name)
+                # script must be immediately followed by the material
+                if (script_begin != -1) and (shader_end + 1 != script_begin):
+                    raise ValueError("%s malformed, shader not followed by script"%name)
+                mtlname = name[:mtl_end]
+                mtlshader = name[shader_begin+1:shader_end]
+            else:
+                if script_begin != -1:
+                    mtlname = name[:script_begin]
+                else:
+                    mtlname = name[:]
+                mtlshader = ""
+            return mtlname, mtlshader, mtlscript
+
+    class NodeChunk(_CgfFormat.NodeChunk):
+        def getGlobalNodeParent(self):
+            """Get the block parent (used for instance in the QSkope global view)."""
+            return self.parent
+
+        def applyScale(self, scale):
+            """Apply scale factor on data."""
+            if abs(scale - 1.0) < CgfFormat.EPSILON:
+                return
+            self.transform.m41 *= scale
+            self.transform.m42 *= scale
+            self.transform.m43 *= scale
+            self.pos.x *= scale
+            self.pos.y *= scale
+            self.pos.z *= scale
+
+        def updatePosRotScl(self):
+            """Update position, rotation, and scale, from the transform."""
+            scale, quat, trans = self.transform.getScaleQuatTranslation()
+            self.pos.x = trans.x
+            self.pos.y = trans.y
+            self.pos.z = trans.z
+            self.rot.x = quat.x
+            self.rot.y = quat.y
+            self.rot.z = quat.z
+            self.rot.w = quat.w
+            self.scl.x = scale.x
+            self.scl.y = scale.y
+            self.scl.z = scale.z
+
+    class SourceInfoChunk(_CgfFormat.SourceInfoChunk):
+        def getGlobalDisplay(self):
+            """Return a name for the block."""
+            idx = max(self.sourceFile.rfind("\\"), self.sourceFile.rfind("/"))
+            return self.sourceFile[idx+1:]
+
+    class TimingChunk(_CgfFormat.TimingChunk):
+        def getGlobalDisplay(self):
+            """Return a name for the block."""
+            return self.globalRange.name
+
+    class Vector3(_CgfFormat.Vector3):
+        def asList(self):
+            return [self.x, self.y, self.z]
+
+        def asTuple(self):
+            return (self.x, self.y, self.z)
+
+        def norm(self):
+            return (self.x*self.x + self.y*self.y + self.z*self.z) ** 0.5
+
+        def normalize(self):
+            norm = self.norm()
+            if norm < CgfFormat.EPSILON:
+                raise ZeroDivisionError('cannot normalize vector %s'%self)
+            self.x /= norm
+            self.y /= norm
+            self.z /= norm
+
+        def getCopy(self):
+            v = CgfFormat.Vector3()
+            v.x = self.x
+            v.y = self.y
+            v.z = self.z
+            return v
+
+        def __str__(self):
+            return "[ %6.3f %6.3f %6.3f ]"%(self.x, self.y, self.z)
+
+        def __mul__(self, x):
+            if isinstance(x, (float, int, long)):
+                v = CgfFormat.Vector3()
+                v.x = self.x * x
+                v.y = self.y * x
+                v.z = self.z * x
+                return v
+            elif isinstance(x, CgfFormat.Vector3):
+                return self.x * x.x + self.y * x.y + self.z * x.z
+            elif isinstance(x, CgfFormat.Matrix33):
+                v = CgfFormat.Vector3()
+                v.x = self.x * x.m11 + self.y * x.m21 + self.z * x.m31
+                v.y = self.x * x.m12 + self.y * x.m22 + self.z * x.m32
+                v.z = self.x * x.m13 + self.y * x.m23 + self.z * x.m33
+                return v
+            elif isinstance(x, CgfFormat.Matrix44):
+                return self * x.getMatrix33() + x.getTranslation()
+            else:
+                raise TypeError("do not know how to multiply Vector3 with %s"%x.__class__)
+
+        def __rmul__(self, x):
+            if isinstance(x, (float, int, long)):
+                v = CgfFormat.Vector3()
+                v.x = x * self.x
+                v.y = x * self.y
+                v.z = x * self.z
+                return v
+            else:
+                raise TypeError("do not know how to multiply %s and Vector3"%x.__class__)
+
+        def __div__(self, x):
+            if isinstance(x, (float, int, long)):
+                v = CgfFormat.Vector3()
+                v.x = self.x / x
+                v.y = self.y / x
+                v.z = self.z / x
+                return v
+            else:
+                raise TypeError("do not know how to divide Vector3 and %s"%x.__class__)
+
+        def __add__(self, x):
+            if isinstance(x, (float, int, long)):
+                v = CgfFormat.Vector3()
+                v.x = self.x + x
+                v.y = self.y + x
+                v.z = self.z + x
+                return v
+            elif isinstance(x, CgfFormat.Vector3):
+                v = CgfFormat.Vector3()
+                v.x = self.x + x.x
+                v.y = self.y + x.y
+                v.z = self.z + x.z
+                return v
+            else:
+                raise TypeError("do not know how to add Vector3 and %s"%x.__class__)
+
+        def __radd__(self, x):
+            if isinstance(x, (float, int, long)):
+                v = CgfFormat.Vector3()
+                v.x = x + self.x
+                v.y = x + self.y
+                v.z = x + self.z
+                return v
+            else:
+                raise TypeError("do not know how to add %s and Vector3"%x.__class__)
+
+        def __sub__(self, x):
+            if isinstance(x, (float, int, long)):
+                v = CgfFormat.Vector3()
+                v.x = self.x - x
+                v.y = self.y - x
+                v.z = self.z - x
+                return v
+            elif isinstance(x, CgfFormat.Vector3):
+                v = CgfFormat.Vector3()
+                v.x = self.x - x.x
+                v.y = self.y - x.y
+                v.z = self.z - x.z
+                return v
+            else:
+                raise TypeError("do not know how to substract Vector3 and %s"%x.__class__)
+
+        def __rsub__(self, x):
+            if isinstance(x, (float, int, long)):
+                v = CgfFormat.Vector3()
+                v.x = x - self.x
+                v.y = x - self.y
+                v.z = x - self.z
+                return v
+            else:
+                raise TypeError("do not know how to substract %s and Vector3"%x.__class__)
+
+        def __neg__(self):
+            v = CgfFormat.Vector3()
+            v.x = -self.x
+            v.y = -self.y
+            v.z = -self.z
+            return v
+
+        # cross product
+        def crossproduct(self, x):
+            if isinstance(x, CgfFormat.Vector3):
+                v = CgfFormat.Vector3()
+                v.x = self.y*x.z - self.z*x.y
+                v.y = self.z*x.x - self.x*x.z
+                v.z = self.x*x.y - self.y*x.x
+                return v
+            else:
+                raise TypeError("do not know how to calculate crossproduct of Vector3 and %s"%x.__class__)
+
+        def __eq__(self, x):
+            if isinstance(x, type(None)):
+                return False
+            if not isinstance(x, CgfFormat.Vector3):
+                raise TypeError("do not know how to compare Vector3 and %s"%x.__class__)
+            if abs(self.x - x.x) > CgfFormat.EPSILON: return False
+            if abs(self.y - x.y) > CgfFormat.EPSILON: return False
+            if abs(self.z - x.z) > CgfFormat.EPSILON: return False
+            return True
+
+        def __ne__(self, x):
+            return not self.__eq__(x)
