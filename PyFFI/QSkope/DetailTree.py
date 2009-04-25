@@ -44,10 +44,10 @@ from PyFFI.ObjectModels.Graph import DetailNode, EdgeType, EdgeFilter
 class DetailTreeItemData(object):
     """Stores all data used in the detail view.
 
-    @ivar node: The node of the item.
-    @type node: L{DetailNode}
-    @ivar name: The name of the node (this is usually not stored in the node).
-    @type name: C{str}
+    :ivar node: The node of the item.
+    :type node: L{DetailNode}
+    :ivar name: The name of the node (this is usually not stored in the node).
+    :type name: C{str}
     """
     def __init__(self, node=None, name=None):
         if not isinstance(node, DetailNode):
@@ -71,16 +71,16 @@ class DetailTreeItem(object):
     """Stores all internal information to vizualize L{DetailNode}s in a
     tree view.
 
-    @ivar data: The item data.
-    @type data: L{DetailTreeItemData}
-    @ivar parent: The parent of the node.
-    @type parent: C{type(None)} or L{DetailTreeItem}
-    @ivar children: The children of the node.
-    @type children: C{list} of L{QDetailTreeItem}
-    @ivar row: The row number of this node, as child.
-    @type row: C{int}
-    @ivar edge_type: The type of edge from the parent of this node to itself.
-    @type edge_type: L{EdgeType}
+    :ivar data: The item data.
+    :type data: L{DetailTreeItemData}
+    :ivar parent: The parent of the node.
+    :type parent: C{type(None)} or L{DetailTreeItem}
+    :ivar children: The children of the node.
+    :type children: C{list} of L{QDetailTreeItem}
+    :ivar row: The row number of this node, as child.
+    :type row: C{int}
+    :ivar edge_type: The type of edge from the parent of this node to itself.
+    :type edge_type: L{EdgeType}
     """
     def __init__(self, data=None, parent=None, row=0, edge_type=EdgeType(),
                  edge_filter=EdgeFilter()):

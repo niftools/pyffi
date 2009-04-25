@@ -232,14 +232,14 @@ class CgfFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
         in sync with the L{chunks}, but they are
         resynchronized when calling L{write}.
 
-        @ivar game: The cgf game.
-        @type game: C{int}
-        @ivar header: The nif header.
-        @type header: L{CgfFormat.Header}
-        @ivar chunks: List of chunks (the actual data).
-        @type chunks: C{list} of L{CgfFormat.Chunk}
-        @ivar versions: List of chunk versions.
-        @type versions: C{list} of L{int}
+        :ivar game: The cgf game.
+        :type game: C{int}
+        :ivar header: The nif header.
+        :type header: L{CgfFormat.Header}
+        :ivar chunks: List of chunks (the actual data).
+        :type chunks: C{list} of L{CgfFormat.Chunk}
+        :ivar versions: List of chunk versions.
+        :type versions: C{list} of L{int}
         """
 
         class VersionUInt(Common.UInt):
@@ -264,10 +264,10 @@ class CgfFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             """Initialize cgf data. By default, this creates an empty
             cgf document of the given filetype and game.
 
-            @param filetype: The file type (animation, or geometry).
-            @type filetype: C{int}
-            @param game: The game.
-            @type game: C{str}
+            :param filetype: The file type (animation, or geometry).
+            :type filetype: C{int}
+            :param game: The game.
+            :type game: C{str}
             """
             # create new header
             self.header = CgfFormat.Header()
@@ -313,8 +313,8 @@ class CgfFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             Call this function if you simply wish to check that a file is
             a cgf file without having to parse even the header.
 
-            @param stream: The stream from which to read.
-            @type stream: C{file}
+            :param stream: The stream from which to read.
+            :type stream: C{file}
             @raise C{ValueError}: If the stream does not contain a cgf file.
             """
             pos = stream.tell()
@@ -393,8 +393,8 @@ class CgfFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             Call this function if you only need to inspect the header and
             chunk table.
 
-            @param stream: The file to inspect.
-            @type stream: C{file}
+            :param stream: The file to inspect.
+            :type stream: C{file}
             """
             logger = logging.getLogger("pyffi.cgf.data")
             pos = stream.tell()
@@ -414,8 +414,8 @@ class CgfFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
         def read(self, stream):
             """Read a cgf file. Does not reset stream position.
 
-            @param stream: The stream from which to read.
-            @type stream: C{file}
+            :param stream: The stream from which to read.
+            :type stream: C{file}
             """
             validate = True # whether we validate on reading
             
@@ -573,9 +573,9 @@ chunk size mismatch when reading %s at 0x%08X
             recalculated from L{chunks}. Returns number of padding bytes
             written (this is for debugging purposes only).
 
-            @param stream: The stream to which to write.
-            @type stream: file
-            @return: Number of padding bytes written.
+            :param stream: The stream to which to write.
+            :type stream: file
+            :return: Number of padding bytes written.
             """
             logger = logging.getLogger("pyffi.cgf.data")
             # is it a caf file? these are missing chunk headers on controllers
@@ -717,8 +717,8 @@ chunk size mismatch when reading %s at 0x%08X
         def read(self, stream, **kwargs):
             """Read signature from stream.
 
-            @param stream: The stream to read from.
-            @type stream: file
+            :param stream: The stream to read from.
+            :type stream: file
             """
             signat = stream.read(8)
             if signat[:6] != self.__str__()[:6].encode("ascii"):
@@ -729,23 +729,23 @@ chunk size mismatch when reading %s at 0x%08X
         def write(self, stream, **kwargs):
             """Write signature to stream.
 
-            @param stream: The stream to read from.
-            @type stream: file
+            :param stream: The stream to read from.
+            :type stream: file
             """
             stream.write(self.__str__().encode("ascii"))
 
         def getValue(self):
             """Get signature.
 
-            @return: The signature.
+            :return: The signature.
             """
             return self.__str__()
 
         def setValue(self, value):
             """Set signature.
 
-            @param value: The value to assign (should be 'Crytek\\x00\\x00').
-            @type value: str
+            :param value: The value to assign (should be 'Crytek\\x00\\x00').
+            :type value: str
             """
             if value != self.__str__():
                 raise ValueError(
@@ -755,14 +755,14 @@ chunk size mismatch when reading %s at 0x%08X
         def getSize(self, **kwargs):
             """Return number of bytes that the signature occupies in a file.
 
-            @return: Number of bytes.
+            :return: Number of bytes.
             """
             return 8
 
         def getHash(self, **kwargs):
             """Return a hash value for the signature.
 
-            @return: An immutable object that can be used as a hash.
+            :return: An immutable object that can be used as a hash.
             """
             return self.__str__()
 
@@ -779,15 +779,15 @@ chunk size mismatch when reading %s at 0x%08X
         def getValue(self):
             """Get chunk being referred to.
 
-            @return: The chunk being referred to.
+            :return: The chunk being referred to.
             """
             return self._value
 
         def setValue(self, value):
             """Set chunk reference.
 
-            @param value: The value to assign.
-            @type value: L{CgfFormat.Chunk}
+            :param value: The value to assign.
+            :type value: L{CgfFormat.Chunk}
             """
             if value == None:
                 self._value = None
@@ -801,10 +801,10 @@ chunk size mismatch when reading %s at 0x%08X
         def read(self, stream, **kwargs):
             """Read chunk index.
 
-            @param stream: The stream to read from.
-            @type stream: file
-            @keyword link_stack: The stack containing all block indices.
-            @type link_stack: list of ints
+            :param stream: The stream to read from.
+            :type stream: file
+            :keyword link_stack: The stack containing all block indices.
+            :type link_stack: list of ints
             """
             self._value = None # fixLinks will set this field
             block_index, = struct.unpack('<i', stream.read(4))
@@ -813,10 +813,10 @@ chunk size mismatch when reading %s at 0x%08X
         def write(self, stream, **kwargs):
             """Write chunk index.
 
-            @param stream: The stream to write to.
-            @type stream: file
-            @keyword block_index_dct: Dictionary mapping blocks to indices.
-            @type block_index_dct: dict
+            :param stream: The stream to write to.
+            :type stream: file
+            :keyword block_index_dct: Dictionary mapping blocks to indices.
+            :type block_index_dct: dict
             """
             if self._value == None:
                 stream.write('\xff\xff\xff\xff')
@@ -827,10 +827,10 @@ chunk size mismatch when reading %s at 0x%08X
         def fixLinks(self, **kwargs):
             """Resolve chunk index into a chunk.
 
-            @keyword block_dct: Dictionary mapping block index to block.
-            @type block_dct: dict
-            @keyword link_stack: The stack containing all block indices.
-            @type link_stack: list of ints
+            :keyword block_dct: Dictionary mapping block index to block.
+            :type block_dct: dict
+            :keyword link_stack: The stack containing all block indices.
+            :type link_stack: list of ints
             """
             logger = logging.getLogger("pyffi.cgf.data")
             block_index = kwargs.get('link_stack').pop(0)
@@ -863,7 +863,7 @@ but got instance of %s""" % (self._template, block.__class__))
         def getLinks(self, **kwargs):
             """Return the chunk reference.
 
-            @return: Empty list if no reference, or single item list containing
+            :return: Empty list if no reference, or single item list containing
                 the reference.
             """
             if self._value != None:
@@ -874,7 +874,7 @@ but got instance of %s""" % (self._template, block.__class__))
         def getRefs(self, **kwargs):
             """Return the chunk reference.
 
-            @return: Empty list if no reference, or single item list containing
+            :return: Empty list if no reference, or single item list containing
                 the reference.
             """
             if self._value != None:
@@ -893,14 +893,14 @@ but got instance of %s""" % (self._template, block.__class__))
         def getSize(self, **kwargs):
             """Return number of bytes this type occupies in a file.
 
-            @return: Number of bytes.
+            :return: Number of bytes.
             """
             return 4
 
         def getHash(self, **kwargs):
             """Return a hash value for the chunk referred to.
 
-            @return: An immutable object that can be used as a hash.
+            :return: An immutable object that can be used as a hash.
             """
             return self._value.getHash() if not self._value is None else None
 
@@ -921,7 +921,7 @@ but got instance of %s""" % (self._template, block.__class__))
         def getRefs(self, **kwargs):
             """Ptr does not point down, so getRefs returns empty list.
 
-            @return: C{[]}
+            :return: C{[]}
             """
             return []
 
@@ -934,9 +934,9 @@ but got instance of %s""" % (self._template, block.__class__))
     def versionNumber(version_str):
         """Converts version string into an integer.
 
-        @param version_str: The version string.
-        @type version_str: str
-        @return: A version integer.
+        :param version_str: The version string.
+        :type version_str: str
+        :return: A version integer.
 
         >>> hex(CgfFormat.versionNumber('744'))
         '0x744'
@@ -951,9 +951,9 @@ but got instance of %s""" % (self._template, block.__class__))
 
         Deprecated.
 
-        @param stream: The stream from which to read.
-        @type stream: file
-        @return: A pair (version, user_version).
+        :param stream: The stream from which to read.
+        :type stream: file
+        :return: A pair (version, user_version).
             The returned version is -1 if the file type or chunk table version
             is not supported, and -2 if the file is not a cgf file.
         @deprecated: Use CgfFormat.Data.inspect instead.
@@ -972,11 +972,11 @@ but got instance of %s""" % (self._template, block.__class__))
         """Guess game based on version and user_version. This is the inverse of
         L{getGameVersion}.
 
-        @param version: The version as obtained by L{getVersion}.
-        @type version: int
-        @param user_version: The user version as obtained by L{getVersion}.
-        @type user_version: int
-        @return: 'Crysis' or 'Far Cry'
+        :param version: The version as obtained by L{getVersion}.
+        :type version: int
+        :param user_version: The user version as obtained by L{getVersion}.
+        :type user_version: int
+        :return: 'Crysis' or 'Far Cry'
         @deprecated: Use L{CgfFormat.Data.game} instead.
         """
         warnings.warn("use CgfFormat.Data.game", DeprecationWarning)
@@ -992,9 +992,9 @@ but got instance of %s""" % (self._template, block.__class__))
         """Get version and user_version for a particular game. This is the
         inverse of L{getGame}.
 
-        @param game: 'Crysis' or 'Far Cry'.
-        @type game: str
-        @return: The version and user version.
+        :param game: 'Crysis' or 'Far Cry'.
+        :type game: str
+        :return: The version and user version.
         @deprecated: Use the version() and user_version() functions instead.
 
         >>> CgfFormat.getGameVersion("Far Cry")
@@ -1014,13 +1014,13 @@ but got instance of %s""" % (self._template, block.__class__))
         """Returns file type (geometry or animation). Preserves the stream
         position.
 
-        @param stream: The stream from which to read.
-        @type stream: file
-        @param version: The version as obtained by L{getVersion}.
-        @type version: int
-        @param user_version: The user version as obtained by L{getVersion}.
-        @type user_version: int
-        @return: L{FileType.GEOM} or L{FileType.ANIM}
+        :param stream: The stream from which to read.
+        :type stream: file
+        :param version: The version as obtained by L{getVersion}.
+        :type version: int
+        :param user_version: The user version as obtained by L{getVersion}.
+        :type user_version: int
+        :return: L{FileType.GEOM} or L{FileType.ANIM}
         @deprecated: Use L{CgfFormat.Data.header.type} instead.
         """
         warnings.warn("use CgfFormat.Data.header.type", DeprecationWarning)
@@ -1062,13 +1062,13 @@ but got instance of %s""" % (self._template, block.__class__))
         """Return version of each chunk in the chunk list for the
         given file version and file user version.
 
-        @param version: The version.
-        @type version: int
-        @param user_version: The user version.
-        @type user_version: int
-        @param chunks: List of chunks.
-        @type chunks: list of L{CgfFormat.Chunk}
-        @return: Version of each chunk as list of ints (same length as
+        :param version: The version.
+        :type version: int
+        :param user_version: The user version.
+        :type user_version: int
+        :param chunks: List of chunks.
+        :type chunks: list of L{CgfFormat.Chunk}
+        :return: Version of each chunk as list of ints (same length as
             C{chunks}).
         @deprecated: Use L{Data.update_versions} instead.
         """
@@ -1087,9 +1087,9 @@ but got instance of %s""" % (self._template, block.__class__))
         """Returns list of all root blocks. Used by L{PyFFI.QSkope}
         and L{PyFFI.Spells}.
 
-        @param readresult: Result from L{walk} or L{read}.
-        @type readresult: tuple
-        @return: list of root blocks
+        :param readresult: Result from L{walk} or L{read}.
+        :type readresult: tuple
+        :return: list of root blocks
         @deprecated: This function simply returns an empty list, and will eventually be removed.
         """
         warnings.warn("do not use the getRoots function", DeprecationWarning)
@@ -1100,9 +1100,9 @@ but got instance of %s""" % (self._template, block.__class__))
         """Returns list of all blocks. Used by L{PyFFI.QSkope}
         and L{PyFFI.Spells}.
 
-        @param readresult: Result from L{walk} or L{read}.
-        @type readresult: tuple
-        @return: list of blocks
+        :param readresult: Result from L{walk} or L{read}.
+        :type readresult: tuple
+        :return: list of blocks
         @deprecated: Use L{Data.chunks} instead.
         """
         warnings.warn("use CgfFormat.Data.chunks", DeprecationWarning)

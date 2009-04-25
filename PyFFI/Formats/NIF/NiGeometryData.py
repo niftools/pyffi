@@ -144,15 +144,15 @@ def getVertexHashGenerator(self,
     Default for uvprecision is higher than default for the rest because
     for very large models the uv coordinates can be very close together.
 
-    @param vertexprecision: Precision to be used for vertices.
-    @type vertexprecision: float
-    @param normalprecision: Precision to be used for normals.
-    @type normalprecision: float
-    @param uvprecision: Precision to be used for uvs.
-    @type uvprecision: float
-    @param vcolprecision: Precision to be used for vertex colors.
-    @type vcolprecision: float
-    @return: A generator yielding a hash value for each vertex.
+    :param vertexprecision: Precision to be used for vertices.
+    :type vertexprecision: float
+    :param normalprecision: Precision to be used for normals.
+    :type normalprecision: float
+    :param uvprecision: Precision to be used for uvs.
+    :type uvprecision: float
+    :param vcolprecision: Precision to be used for vertex colors.
+    :type vcolprecision: float
+    :return: A generator yielding a hash value for each vertex.
     """
     verts = self.vertices if self.hasVertices else None
     norms = self.normals if self.hasNormals else None

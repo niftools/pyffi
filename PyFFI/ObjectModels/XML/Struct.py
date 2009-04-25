@@ -213,11 +213,11 @@ class StructBase(GlobalNode):
         TEMPLATE in the xml description - will be replaced by this
         type. The argument is what the ARG xml tags will be replaced with.
 
-        @param template: If the class takes a template type
+        :param template: If the class takes a template type
             argument, then this argument describes the template type.
-        @param argument: If the class takes a type argument, then
+        :param argument: If the class takes a type argument, then
             it is described here.
-        @param parent: The parent of this instance, that is, the instance this
+        :param parent: The parent of this instance, that is, the instance this
             array is an attribute of."""
         # used to track names of attributes that have already been added
         # is faster than self.__dict__.has_key(...)
@@ -495,9 +495,9 @@ class StructBase(GlobalNode):
     def _filteredAttributeList(self, version=None, user_version=None,
                                data=None, **kwargs):
         """Generator for listing all 'active' attributes, that is,
-        attributes whose condition evaluates C{True}, whose version
+        attributes whose condition evaluates ``True``, whose version
         interval contains C{version}, and whose user version is
-        C{user_version}. C{None} for C{version} or C{user_version} means
+        C{user_version}. ``None`` for C{version} or C{user_version} means
         that these checks are ignored. Duplicate names are skipped as
         well.
 

@@ -63,11 +63,11 @@ class MetaXsdFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
         MetaXsdFileFormat, so upon creation of the DaeFormat class,
         the __init__ function is called, with
 
-        @param cls: The class created using MetaXsdFileFormat, for example
+        :param cls: The class created using MetaXsdFileFormat, for example
             DaeFormat.
-        @param name: The name of the class, for example 'DaeFormat'.
-        @param bases: The base classes, usually (object,).
-        @param dct: A dictionary of class attributes, such as 'xsdFileName'.
+        :param name: The name of the class, for example 'DaeFormat'.
+        :param bases: The base classes, usually (object,).
+        :param dct: A dictionary of class attributes, such as 'xsdFileName'.
         """
         super(MetaXsdFileFormat, cls).__init__(name, bases, dct)
 
@@ -113,9 +113,9 @@ class XsdFileFormat(PyFFI.ObjectModels.FileFormat.FileFormat):
         """Converts an attribute name, as in the xsd file, into a name usable
         by python.
 
-        @param name: The attribute name.
-        @type name: str
-        @return: Reformatted attribute name, useable by python.
+        :param name: The attribute name.
+        :type name: str
+        :return: Reformatted attribute name, useable by python.
 
         >>> XsdFileFormat.nameAttribute('tHis is A Silly naME')
         'this_is_a_silly_name'
@@ -130,9 +130,9 @@ class XsdFileFormat(PyFFI.ObjectModels.FileFormat.FileFormat):
         """Converts a class name, as in the xsd file, into a name usable
         by python.
 
-        @param name: The class name.
-        @type name: str
-        @return: Reformatted class name, useable by python.
+        :param name: The class name.
+        :type name: str
+        :return: Reformatted class name, useable by python.
 
         >>> XsdFileFormat.nameClass('this IS a sillyNAME')
         'ThisISASillyNAME'
@@ -334,8 +334,8 @@ class XsdSaxHandler(xml.sax.handler.ContentHandler):
     def pushTag(self, tag):
         """Push tag on the stack and make it the current tag.
 
-        @param tag: The tag to put on the stack.
-        @type tag: int
+        :param tag: The tag to put on the stack.
+        :type tag: int
         """
         self.stack.insert(0, tag)
         self.currentTag = tag
@@ -344,7 +344,7 @@ class XsdSaxHandler(xml.sax.handler.ContentHandler):
         """Pop the current tag from the stack and return it. Also update
         the current tag.
 
-        @return: The tag popped from the stack.
+        :return: The tag popped from the stack.
         """
         lasttag = self.stack.pop(0)
         try:
@@ -358,8 +358,8 @@ class XsdSaxHandler(xml.sax.handler.ContentHandler):
         The attribute is also automatically added to the current class
         attribute.
 
-        @param attr: The attribute to put on the stack.
-        @type attr: XXX
+        :param attr: The attribute to put on the stack.
+        :type attr: XXX
         """
         if self.classstack == ():
             if (self.currentTag != self.tagSchema):
@@ -380,7 +380,7 @@ schema (it is %i)" % self.currentTag)
         """Pop the current tag from the stack and return it. Also update
         the current tag.
 
-        @return: The tag popped from the stack.
+        :return: The tag popped from the stack.
         """
         lastattr = self.attrstack.pop(0)
         try:
@@ -392,8 +392,8 @@ schema (it is %i)" % self.currentTag)
     def pushClass(self, klass):
         """Push class on the stack and make it the current one.
 
-        @param klass: The class to put on the stack.
-        @type klass: XXX
+        :param klass: The class to put on the stack.
+        :type klass: XXX
         """
         # TODO: declare classes also as attributes!! now everything is global
         self.classstack = self.classstack + (klass,)
@@ -409,9 +409,9 @@ schema (it is %i)" % self.currentTag)
     def getElementTag(self, name):
         """Find tag for named element.
 
-        @param name: The name of the element, including the prefix.
-        @type name: str
-        @return: The tag, as integer (one of the tagXxx constants).
+        :param name: The name of the element, including the prefix.
+        :type name: str
+        :return: The tag, as integer (one of the tagXxx constants).
         """
         # find prefix
         # the prefix can be anything; see comments under the example
@@ -436,8 +436,8 @@ schema (it is %i)" % self.currentTag)
     def startElement(self, name, attrs):
         """Called when parser starts parsing an element called C{name}.
 
-        @param name: The name of the xsd element.
-        @param attrs: A dictionary of attributes of the element.
+        :param name: The name of the xsd element.
+        :param attrs: A dictionary of attributes of the element.
         """
 
         # Check the stack, if the stack does not exist then we must be

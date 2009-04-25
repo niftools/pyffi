@@ -84,10 +84,10 @@ class BasicBase(DetailNode):
     def __init__(self, template = None, argument = None, parent = None):
         """Initializes the instance.
 
-        @param template: type used as template
-        @param argument: argument used to initialize the instance
+        :param template: type used as template
+        :param argument: argument used to initialize the instance
             (see the Struct class).
-        @param parent: The parent of this instance, that is, the instance this
+        :param parent: The parent of this instance, that is, the instance this
             instance is an attribute of."""
         self._parent = parent
 

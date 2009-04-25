@@ -157,17 +157,17 @@ class _KfmFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
         def getHash(self, **kwargs):
             """Return a hash value for this value.
 
-            @return: An immutable object that can be used as a hash.
+            :return: An immutable object that can be used as a hash.
             """
             return None
 
         def read(self, stream, **kwargs):
             """Read header string from stream and check it.
 
-            @param stream: The stream to read from.
-            @type stream: file
-            @keyword version: The file version.
-            @type version: int
+            :param stream: The stream to read from.
+            :type stream: file
+            :keyword version: The file version.
+            :type version: int
             """
             # get the string we expect
             version_string = self.versionString(kwargs.get('version'))
@@ -192,8 +192,8 @@ class _KfmFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
         def write(self, stream, **kwargs):
             """Write the header string to stream.
 
-            @param stream: The stream to write to.
-            @type stream: file
+            :param stream: The stream to write to.
+            :type stream: file
             """
             # write the version string
             stream.write(self.versionString(kwargs.get('version')))
@@ -206,7 +206,7 @@ class _KfmFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
         def getSize(self, **kwargs):
             """Return number of bytes the header string occupies in a file.
 
-            @return: Number of bytes.
+            :return: Number of bytes.
             """
             return len(self.versionString(kwargs.get('version'))) \
                    + (1 if not self._doseol else 2)
@@ -220,9 +220,9 @@ class _KfmFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
         def versionString(version):
             """Transforms version number into a version string.
 
-            @param version: The version number.
-            @type version: int
-            @return: A version string.
+            :param version: The version number.
+            :type version: int
+            :return: A version string.
 
             >>> KfmFormat.HeaderString.versionString(0x0202000b)
             ';Gamebryo KFM File Version 2.2.0.0b'
@@ -244,7 +244,7 @@ class _KfmFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             """Return a hash value for this value.
             For file paths, the hash value is case insensitive.
 
-            @return: An immutable object that can be used as a hash.
+            :return: An immutable object that can be used as a hash.
             """
             return self.getValue().lower()
 
@@ -252,9 +252,9 @@ class _KfmFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
     def versionNumber(version_str):
         """Converts version string into an integer.
 
-        @param version_str: The version string.
-        @type version_str: str
-        @return: A version integer.
+        :param version_str: The version string.
+        :type version_str: str
+        :return: A version integer.
 
         >>> hex(KfmFormat.versionNumber('1.0'))
         '0x1000000'
@@ -306,8 +306,8 @@ class KfmFormat(_KfmFormat):
             by looking at the first 64 bytes. Sets version and reads
             header string.
 
-            @param stream: The stream to inspect.
-            @type stream: file
+            :param stream: The stream to inspect.
+            :type stream: file
             """
             pos = stream.tell()
             try:
@@ -341,8 +341,8 @@ class KfmFormat(_KfmFormat):
         def read(self, stream):
             """Read a kfm file.
 
-            @param stream: The stream from which to read.
-            @type stream: C{file}
+            :param stream: The stream from which to read.
+            :type stream: C{file}
             """
             # read the file
             self.inspect(stream) # quick check
@@ -355,8 +355,8 @@ class KfmFormat(_KfmFormat):
         def write(self, stream):
             """Write a kfm file.
 
-            @param stream: The stream to which to write.
-            @type stream: C{file}
+            :param stream: The stream to which to write.
+            :type stream: C{file}
             """
             # write the file
             _KfmFormat.Header.write(self, stream, version=self.version)

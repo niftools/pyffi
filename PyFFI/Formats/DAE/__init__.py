@@ -111,9 +111,9 @@ class DaeFormat(XsdFileFormat):
             """Initialize collada data. By default, this creates an
             empty collada 1.4.1 root element.
 
-            @param version: The collada version (for instance, 0x01040100 for
+            :param version: The collada version (for instance, 0x01040100 for
                 1.4.1).
-            @type version: int
+            :type version: int
             """
             self._rootelement = None #DaeFormat.Collada()
 
@@ -121,7 +121,7 @@ class DaeFormat(XsdFileFormat):
             """Get the collada root element (for inspecting or manipulating the
             data).
 
-            @return: The root element as L{DaeFormat.Collada}.
+            :return: The root element as L{DaeFormat.Collada}.
             """
             return self._rootelement
 
@@ -129,7 +129,7 @@ class DaeFormat(XsdFileFormat):
             """Get the collada version, as integer (for instance, 1.4.1 would be
             0x01040100).
 
-            @return: The version, as integer.
+            :return: The version, as integer.
             """
             return self._rootelement.version
 
@@ -144,25 +144,25 @@ class DaeFormat(XsdFileFormat):
             Call this function if you simply wish to check that a file is
             a collada file without having to parse it completely.
 
-            @param stream: The file to inspect.
-            @type stream: file
-            @return: C{True} if stream is collada, C{False} otherwise.
+            :param stream: The file to inspect.
+            :type stream: file
+            :return: ``True`` if stream is collada, ``False`` otherwise.
             """
             raise NotImplementedError
 
         def read(self, stream):
             """Read collada data from stream.
 
-            @param stream: The file to read from.
-            @type stream: file
+            :param stream: The file to read from.
+            :type stream: file
             """
             raise NotImplementedError
 
         def write(self, stream):
             """Write collada data to stream.
 
-            @param stream: The file to write to.
-            @type stream: file
+            :param stream: The file to write to.
+            :type stream: file
             """
             raise NotImplementedError
 

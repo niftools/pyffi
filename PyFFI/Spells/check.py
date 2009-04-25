@@ -55,7 +55,7 @@ class SpellRead(Spell):
 class SpellReadWrite(SpellRead):
     """A spell which writes the data to a temporary file (essentially,
     it is like L{SpellRead} but it forces --dry-run and sets READONLY to
-    C{False}.
+    ``False``.
     """
 
     SPELLNAME = "check_readwrite"

@@ -109,10 +109,10 @@ def _appendData(self, data, controlpoints):
 def getShortData(self, offset, num_elements, element_size):
     """Get an iterator to the data.
 
-    @param offset: The offset in the data where to start.
-    @param num_elements: Number of elements to get.
-    @param element_size: Size of a single element.
-    @return: A list of C{num_elements} tuples of size C{element_size}.
+    :param offset: The offset in the data where to start.
+    :param num_elements: Number of elements to get.
+    :param element_size: Size of a single element.
+    :return: A list of C{num_elements} tuples of size C{element_size}.
     """
     return self._getData(
         offset, num_elements, element_size, self.shortControlPoints)
@@ -122,12 +122,12 @@ def getCompData(self, offset, num_elements, element_size, bias, multiplier):
     multiplication factor. If C{x} is the short value, then the returned value
     is C{bias + x * multiplier / 32767.0}.
 
-    @param offset: The offset in the data where to start.
-    @param num_elements: Number of elements to get.
-    @param element_size: Size of a single element.
-    @param bias: Value bias.
-    @param multiplier: Value multiplier.
-    @return: A list of C{num_elements} tuples of size C{element_size}.
+    :param offset: The offset in the data where to start.
+    :param num_elements: Number of elements to get.
+    :param element_size: Size of a single element.
+    :param bias: Value bias.
+    :param multiplier: Value multiplier.
+    :return: A list of C{num_elements} tuples of size C{element_size}.
     """
     for key in self.getShortData(offset, num_elements, element_size):
         yield tuple(bias + x * multiplier / 32767.0 for x in key)
@@ -135,19 +135,19 @@ def getCompData(self, offset, num_elements, element_size, bias, multiplier):
 def appendShortData(self, data):
     """Append data.
 
-    @param data: A list of elements, where each element is a tuple of
+    :param data: A list of elements, where each element is a tuple of
         integers. (Note: cannot be an interator; maybe this restriction
         will be removed in a future version.)
-    @return: The offset at which the data was appended."""
+    :return: The offset at which the data was appended."""
     return self._appendData(data, self.shortControlPoints)
 
 def appendCompData(self, data):
     """Append data as compressed list.
 
-    @param data: A list of elements, where each element is a tuple of
+    :param data: A list of elements, where each element is a tuple of
         integers. (Note: cannot be an interator; maybe this restriction
         will be removed in a future version.)
-    @return: The offset, bias, and multiplier."""
+    :return: The offset, bias, and multiplier."""
     # get extremes
     maxvalue = max(max(datum) for datum in data)
     minvalue = min(min(datum) for datum in data)
@@ -170,10 +170,10 @@ def appendCompData(self, data):
 def getFloatData(self, offset, num_elements, element_size):
     """Get an iterator to the data.
 
-    @param offset: The offset in the data where to start.
-    @param num_elements: Number of elements to get.
-    @param element_size: Size of a single element.
-    @return: A list of C{num_elements} tuples of size C{element_size}.
+    :param offset: The offset in the data where to start.
+    :param num_elements: Number of elements to get.
+    :param element_size: Size of a single element.
+    :return: A list of C{num_elements} tuples of size C{element_size}.
     """
     return self._getData(
         offset, num_elements, element_size, self.floatControlPoints)
@@ -181,10 +181,10 @@ def getFloatData(self, offset, num_elements, element_size):
 def appendFloatData(self, data):
     """Append data.
 
-    @param data: A list of elements, where each element is a tuple of
+    :param data: A list of elements, where each element is a tuple of
         floats. (Note: cannot be an interator; maybe this restriction
         will be removed in a future version.)
-    @return: The offset at which the data was appended."""
+    :return: The offset at which the data was appended."""
     return self._appendData(data, self.floatControlPoints)
 
 if __name__=='__main__':

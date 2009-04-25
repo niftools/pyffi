@@ -66,11 +66,11 @@ class _MetaXmlFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
         MetaXmlFileFormat, so upon creation of the NifFormat class,
         the __init__ function is called, with
 
-        @param cls: The class created using MetaXmlFileFormat, for example
+        :param cls: The class created using MetaXmlFileFormat, for example
             NifFormat.
-        @param name: The name of the class, for example 'NifFormat'.
-        @param bases: The base classes, usually (object,).
-        @param dct: A dictionary of class attributes, such as 'xmlFileName'.
+        :param name: The name of the class, for example 'NifFormat'.
+        :param bases: The base classes, usually (object,).
+        :param dct: A dictionary of class attributes, such as 'xmlFileName'.
         """
 
         super(_MetaXmlFileFormat, cls).__init__(name, bases, dct)
@@ -192,41 +192,41 @@ class XmlFileFormat(PyFFI.ObjectModels.FileFormat.FileFormat):
 
 class StructAttribute(object):
     """Helper class to collect attribute data of struct add tags.
-    @ivar name:  The name of this member variable.
-    @type name: C{str}
-    @ivar type: The type of this member variable (type is C{str} for forward
+    :ivar name:  The name of this member variable.
+    :type name: C{str}
+    :ivar type: The type of this member variable (type is C{str} for forward
         declarations, and resolved to an actual type later).
-    @type type: C{str} or L{BasicBase} or L{StructBase}
-    @ivar default: The default value of this member variable.
-    @type default: C{str} or C{type(None)}
-    @ivar template: The template type of this member variable (initially
+    :type type: C{str} or L{BasicBase} or L{StructBase}
+    :ivar default: The default value of this member variable.
+    :type default: C{str} or C{type(None)}
+    :ivar template: The template type of this member variable (initially
         C{str}, resolved to an actual type at the end of the xml parsing).
         If there is no template type, then this variable will equal
         C{type(None)}.
-    @type template: C{str} or L{BasicBase} or L{StructBase} or
+    :type template: C{str} or L{BasicBase} or L{StructBase} or
         C{type(type(None))}
-    @ivar arg: The argument of this member variable.
-    @type arg: C{str} or C{type(None)}
-    @ivar arr1: The first array size of this member variable.
-    @type arr1: L{Expression} or C{type(None)}
-    @ivar arr2: The first array size of this member variable.
-    @type arr2: L{Expression} or C{type(None)}
-    @ivar cond: The condition of this member variable.
-    @type cond: L{Expression} or C{type(None)}
-    @ivar ver1: The first version this member exists.
-    @type ver1: C{int} or C{type(None)}
-    @ivar ver2: The last version this member exists.
-    @type ver2: C{int} or C{type(None)}
-    @ivar userver: The user version where this member exists.
-    @type userver: C{int} or C{type(None)}
+    :ivar arg: The argument of this member variable.
+    :type arg: C{str} or C{type(None)}
+    :ivar arr1: The first array size of this member variable.
+    :type arr1: L{Expression} or C{type(None)}
+    :ivar arr2: The first array size of this member variable.
+    :type arr2: L{Expression} or C{type(None)}
+    :ivar cond: The condition of this member variable.
+    :type cond: L{Expression} or C{type(None)}
+    :ivar ver1: The first version this member exists.
+    :type ver1: C{int} or C{type(None)}
+    :ivar ver2: The last version this member exists.
+    :type ver2: C{int} or C{type(None)}
+    :ivar userver: The user version where this member exists.
+    :type userver: C{int} or C{type(None)}
     """
 
     def __init__(self, cls, attrs):
         """Initialize attribute from the xml attrs dictionary of an
         add tag.
 
-        @param cls: The class where all types reside.
-        @param attrs: The xml add tag attribute dictionary."""
+        :param cls: The class where all types reside.
+        :param attrs: The xml add tag attribute dictionary."""
         # mandatory parameters
         self.displayname = attrs["name"]
         self.name = cls.nameAttribute(self.displayname)
@@ -290,8 +290,8 @@ class BitStructAttribute(object):
         """Initialize attribute from the xml attrs dictionary of an
         add tag.
 
-        @param cls: The class where all types reside.
-        @param attrs: The xml add tag attribute dictionary."""
+        :param cls: The class where all types reside.
+        :param attrs: The xml add tag attribute dictionary."""
         # mandatory parameters
         self.name = cls.nameAttribute(attrs["name"])
         self.numbits = int(cls.nameAttribute(attrs["numbits"]))
@@ -404,7 +404,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
     def pushTag(self, tag):
         """Push tag C{tag} on the stack and make it the current tag.
 
-        @param tag: The tag to put on the stack."""
+        :param tag: The tag to put on the stack."""
         self.stack.insert(0, tag)
         self.currentTag = tag
 
@@ -412,7 +412,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         """Pop the current tag from the stack and return it. Also update
         the current tag.
 
-        @return: The tag popped from the stack."""
+        :return: The tag popped from the stack."""
         lasttag = self.stack.pop(0)
         try:
             self.currentTag = self.stack[0]
@@ -436,8 +436,8 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         struct metaclass: the class attributes are created exactly from this
         list.
 
-        @param name: The name of the xml element.
-        @param attrs: A dictionary of attributes of the element."""
+        :param name: The name of the xml element.
+        :param attrs: A dictionary of attributes of the element."""
         # get the tag identifier
         try:
             tag = self.tags[name]

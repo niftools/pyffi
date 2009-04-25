@@ -146,13 +146,13 @@ def qdome2d(vertices, base, normal, precision = 0.0001):
     in the plane with normal C{normal}. This is a helper function for
     L{qhull2d}, and should usually not be called directly.
 
-    @param vertices: The vertices to construct the dome from.
-    @param base: Two vertices that serve as a base for the dome.
-    @param normal: Orientation of the projection plane used for calculating
+    :param vertices: The vertices to construct the dome from.
+    :param base: Two vertices that serve as a base for the dome.
+    :param normal: Orientation of the projection plane used for calculating
         distances.
-    @param precision: Distance used to decide whether points lie outside of
+    :param precision: Distance used to decide whether points lie outside of
         the hull or not.
-    @return: A list of vertices that make up a fan of the dome."""
+    :return: A list of vertices that make up a fan of the dome."""
 
     vert0, vert1 = base
     outer = [ (dist, vert)
@@ -202,12 +202,12 @@ def qhull2d(vertices, normal, precision = 0.0001):
     >>> for i in xrange(len(verts) - 1):
     ...      assert(abs(vecDistance(verts[i], verts[i+1]) - dist) < 0.001)
 
-    @param vertices: The vertices to construct the hull from.
-    @param normal: Orientation of the projection plane used for calculating
+    :param vertices: The vertices to construct the hull from.
+    :param normal: Orientation of the projection plane used for calculating
         distances.
-    @param precision: Distance used to decide whether points lie outside of
+    :param precision: Distance used to decide whether points lie outside of
         the hull or not.
-    @return: A list of vertices that make up a fan of extreme points.
+    :return: A list of vertices that make up a fan of extreme points.
     """
     base = basesimplex3d(vertices, precision)
     if len(base) >= 2:
@@ -242,10 +242,10 @@ def basesimplex3d(vertices, precision = 0.0001):
     >>> (1,1,1) in base
     True
 
-    @param vertices: The vertices to construct extreme points from.
-    @param precision: Distance used to decide whether points coincide,
+    :param vertices: The vertices to construct extreme points from.
+    :param precision: Distance used to decide whether points coincide,
         are colinear, or coplanar.
-    @return: A list of one, two, three, or four vertices, depending on the
+    :return: A list of one, two, three, or four vertices, depending on the
         the configuration of the vertices.
     """
     # sort axes by their extent in vertices
@@ -289,14 +289,14 @@ def qhull3d(vertices, precision = 0.0001, verbose = False):
     Considers distances less than C{precision} to be zero (useful to simplify
     the hull of a complex mesh, at the expense of exactness of the hull).
 
-    @param vertices: The vertices to find the hull of.
-    @param precision: Distance used to decide whether points lie outside of
+    :param vertices: The vertices to find the hull of.
+    :param precision: Distance used to decide whether points lie outside of
         the hull or not. Larger numbers mean fewer triangles, but some vertices
         may then end up outside the hull, at a distance of no more than
         C{precision}.
-    @param verbose: Print information about what the algorithm is doing. Only
+    :param verbose: Print information about what the algorithm is doing. Only
         useful for debugging.
-    @return: A list cointaining the extreme points of C{vertices}, and
+    :return: A list cointaining the extreme points of C{vertices}, and
         a list of triangle indices containing the triangles that connect
         all extreme points.
     """

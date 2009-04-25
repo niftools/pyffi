@@ -73,7 +73,7 @@ def setIdentity(self):
     self.m33 = 1.0
 
 def isIdentity(self):
-    """Return C{True} if the matrix is close to identity."""
+    """Return ``True`` if the matrix is close to identity."""
     if  (abs(self.m11 - 1.0) > self.cls.EPSILON
          or abs(self.m12) > self.cls.EPSILON
          or abs(self.m13) > self.cls.EPSILON
@@ -136,7 +136,7 @@ def isScaleRotation(self):
     return True
 
 def isRotation(self):
-    """Returns C{True} if the matrix is a rotation matrix
+    """Returns ``True`` if the matrix is a rotation matrix
     (a member of SO(3))."""
     # NOTE: 0.01 instead of self.cls.EPSILON to work around bad nif files
 

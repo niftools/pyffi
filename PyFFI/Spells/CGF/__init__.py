@@ -67,14 +67,14 @@ class CgfSpell(PyFFI.Spells.Spell):
     def inspectblocktype(self, block_type):
         """This function heuristically checks whether the given block type
         is used in the cgf file, using header information only. When in doubt,
-        it returns C{True}.
+        it returns ``True``.
 
-        @param block_type: The block type.
-        @type block_type: L{CgfFormat.Chunk}
-        @return: C{False} if the cgf has no block of the given type,
-            with certainty. C{True} if the cgf has the block, or if it
+        :param block_type: The block type.
+        :type block_type: L{CgfFormat.Chunk}
+        :return: ``False`` if the cgf has no block of the given type,
+            with certainty. ``True`` if the cgf has the block, or if it
             cannot be determined.
-        @rtype: C{bool}
+        :rtype: ``bool``
         """
         return (block_type in self.data.chunk_table.getChunkTypes())
 

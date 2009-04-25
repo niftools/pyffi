@@ -120,8 +120,8 @@ class TgaFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             """Quick heuristic check if stream contains Targa data,
             by looking at the first 18 bytes.
 
-            @param stream: The stream to inspect.
-            @type stream: file
+            :param stream: The stream to inspect.
+            :type stream: file
             """
             pos = stream.tell()
             # read header
@@ -150,8 +150,8 @@ class TgaFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
         def read(self, stream):
             """Read a tga file.
 
-            @param stream: The stream from which to read.
-            @type stream: C{file}
+            :param stream: The stream from which to read.
+            :type stream: C{file}
             """
             # read the file
             self.inspect(stream) # quick check
@@ -165,8 +165,8 @@ class TgaFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
         def write(self, stream):
             """Write a tga file.
 
-            @param stream: The stream to which to write.
-            @type stream: C{file}
+            :param stream: The stream to which to write.
+            :type stream: C{file}
             """
             # write the file
             self.header.write(stream)

@@ -50,8 +50,8 @@ def getMopperPath():
 
     @raise OSError: If mopper.exe is not found.
 
-    @return: Path to mopper.exe.
-    @rtype: C{str}
+    :return: Path to mopper.exe.
+    :rtype: C{str}
     """
     mopper = os.path.join(os.path.dirname(__file__), "mopper.exe")
     if not os.path.exists(mopper):
@@ -76,8 +76,8 @@ def getMopperCredits():
 
     @raise OSError: If mopper.exe is not found or cannot run.
 
-    @return: Credits string.
-    @rtype: C{str}
+    :return: Credits string.
+    :rtype: C{str}
     """
     mopper = getMopperPath()
     outfile = tempfile.TemporaryFile()
@@ -126,16 +126,16 @@ def getMopperOriginScaleCodeWelding(vertices, triangles, material_indices=None):
     @raise RuntimeError: If the mopper has bad output.
     @raise OSError: If the mopper is not found or cannot run.
 
-    @param vertices: List of vertices.
-    @type vertices: list of tuples of floats
-    @param triangles: List of triangles (indices referring back to vertex list).
-    @type triangles: list of tuples of ints
-    @param material_indices: List of material indices (optional).
-    @type material_indices: list of ints
-    @return: The origin as a tuple of floats, the mopp scale as a float,
+    :param vertices: List of vertices.
+    :type vertices: list of tuples of floats
+    :param triangles: List of triangles (indices referring back to vertex list).
+    :type triangles: list of tuples of ints
+    :param material_indices: List of material indices (optional).
+    :type material_indices: list of ints
+    :return: The origin as a tuple of floats, the mopp scale as a float,
         the mopp code as a list of ints, and the welding info as a list of
         ints.
-    @rtype: C{tuple} of C{float}s, C{float}, C{list} of C{int}s, and C{list}
+    :rtype: C{tuple} of C{float}s, C{float}, C{list} of C{int}s, and C{list}
         of C{int}s
     """
 

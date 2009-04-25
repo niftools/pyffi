@@ -131,15 +131,15 @@ class DdsFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
         def getHash(self, **kwargs):
             """Return a hash value for this value.
 
-            @return: An immutable object that can be used as a hash.
+            :return: An immutable object that can be used as a hash.
             """
             return None
 
         def read(self, stream, **kwargs):
             """Read header string from stream and check it.
 
-            @param stream: The stream to read from.
-            @type stream: file
+            :param stream: The stream to read from.
+            :type stream: file
             """
             hdrstr = stream.read(4)
             # check if the string is correct
@@ -150,15 +150,15 @@ class DdsFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
         def write(self, stream, **kwargs):
             """Write the header string to stream.
 
-            @param stream: The stream to write to.
-            @type stream: file
+            :param stream: The stream to write to.
+            :type stream: file
             """
             stream.write("DDS ")
 
         def getSize(self, **kwargs):
             """Return number of bytes the header string occupies in a file.
 
-            @return: Number of bytes.
+            :return: Number of bytes.
             """
             return 4
 
@@ -171,9 +171,9 @@ class DdsFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
     def versionNumber(version_str):
         """Converts version string into an integer.
 
-        @param version_str: The version string.
-        @type version_str: str
-        @return: A version integer.
+        :param version_str: The version string.
+        :type version_str: str
+        :return: A version integer.
 
         >>> hex(DdsFormat.versionNumber('DX10'))
         '0xa000000'
@@ -195,8 +195,8 @@ class DdsFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             """Quickly checks if stream contains DDS data, and gets the
             version, by looking at the first 8 bytes.
 
-            @param stream: The stream to inspect.
-            @type stream: file
+            :param stream: The stream to inspect.
+            :type stream: file
             """
             pos = stream.tell()
             try:
@@ -217,8 +217,8 @@ class DdsFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             """Quickly checks if stream contains DDS data, and reads the
             header.
 
-            @param stream: The stream to inspect.
-            @type stream: file
+            :param stream: The stream to inspect.
+            :type stream: file
             """
             pos = stream.tell()
             try:
@@ -231,10 +231,10 @@ class DdsFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
         def read(self, stream, verbose=0):
             """Read a dds file.
 
-            @param stream: The stream from which to read.
-            @type stream: C{file}
-            @param verbose: The level of verbosity.
-            @type verbose: C{int}
+            :param stream: The stream from which to read.
+            :type stream: C{file}
+            :param verbose: The level of verbosity.
+            :type verbose: C{int}
             """
             # read the file
             self.inspectQuick(stream)
@@ -249,10 +249,10 @@ class DdsFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
         def write(self, stream, verbose=0):
             """Write a dds file.
 
-            @param stream: The stream to which to write.
-            @type stream: C{file}
-            @param verbose: The level of verbosity.
-            @type verbose: C{int}
+            :param stream: The stream to which to write.
+            :type stream: C{file}
+            :param verbose: The level of verbosity.
+            :type verbose: C{int}
             """
             # TODO: make sure pixel data has correct length
 

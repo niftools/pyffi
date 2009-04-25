@@ -43,10 +43,10 @@ def isInterchangeable(self, other):
     a nif file without affecting the rendering. The check is not fool
     proof but has shown to work in most practical cases.
 
-    @param other: Another geometry data block.
-    @type other: L{NifFormat.NiTriBasedGeomData} (if it has another type
-        then the function will always return C{False})
-    @return: C{True} if the geometries are equivalent, C{False} otherwise.
+    :param other: Another geometry data block.
+    :type other: L{NifFormat.NiTriBasedGeomData} (if it has another type
+        then the function will always return ``False``)
+    :return: ``True`` if the geometries are equivalent, ``False`` otherwise.
     """
     # check for object identity
     if self is other:
@@ -97,7 +97,7 @@ def isInterchangeable(self, other):
 def getTriangleIndices(self, triangles):
     """Yield list of triangle indices (relative to
     self.getTriangles()) of given triangles. Degenerate triangles in
-    the list are assigned index C{None}.
+    the list are assigned index ``None``.
 
     >>> from PyFFI.Formats.NIF import NifFormat
     >>> geomdata = NifFormat.NiTriShapeData()
@@ -117,12 +117,12 @@ def getTriangleIndices(self, triangles):
         ...
     ValueError: ...
 
-    @param triangles: An iterable of triangles to check.
-    @type triangles: iterator or list of tuples of three ints
+    :param triangles: An iterable of triangles to check.
+    :type triangles: iterator or list of tuples of three ints
     """
     def triangleHash(triangle):
         """Calculate hash of a non-degenerate triangle.
-        Returns C{None} if the triangle is degenerate.
+        Returns ``None`` if the triangle is degenerate.
         """
         if triangle[0] < triangle[1] and triangle[0] < triangle[2]:
             return hash((triangle[0], triangle[1], triangle[2]))

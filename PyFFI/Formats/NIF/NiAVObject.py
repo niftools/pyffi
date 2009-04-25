@@ -73,8 +73,8 @@ Properties
 def addProperty(self, prop):
     """Add the given property to the property list.
 
-    @param prop: The property block to add.
-    @type prop: L{NifFormat.NiProperty}
+    :param prop: The property block to add.
+    :type prop: L{NifFormat.NiProperty}
     """
     num_props = self.numProperties
     self.numProperties = num_props + 1
@@ -84,8 +84,8 @@ def addProperty(self, prop):
 def removeProperty(self, prop):
     """Remove the given property to the property list.
 
-    @param prop: The property block to remove.
-    @type prop: L{NifFormat.NiProperty}
+    :param prop: The property block to remove.
+    :type prop: L{NifFormat.NiProperty}
     """
     self.setProperties([otherprop for otherprop in self.getProperties()
                         if not(otherprop is prop)])
@@ -93,16 +93,16 @@ def removeProperty(self, prop):
 def getProperties(self):
     """Return a list of the properties of the block.
 
-    @return: The list of properties.
-    @rtype: C{list} of L{NifFormat.NiProperty}
+    :return: The list of properties.
+    :rtype: C{list} of L{NifFormat.NiProperty}
     """
     return [prop for prop in self.properties]
 
 def setProperties(self, proplist):
     """Set the list of properties from the given list (destroys existing list).
 
-    @param proplist: The list of property blocks to set.
-    @type proplist: C{list} of L{NifFormat.NiProperty}
+    :param proplist: The list of property blocks to set.
+    :type proplist: C{list} of L{NifFormat.NiProperty}
     """
     self.numProperties = len(proplist)
     self.properties.updateSize()
@@ -113,11 +113,11 @@ def getTransform(self, relative_to=None):
     """Return scale, rotation, and translation into a single 4x4
     matrix, relative to the C{relative_to} block (which should be
     another NiAVObject connecting to this block). If C{relative_to} is
-    C{None}, then returns the transform stored in C{self}, or
+    ``None``, then returns the transform stored in C{self}, or
     equivalently, the target is assumed to be the parent.
 
-    @param relative_to: The block relative to which the transform must
-        be calculated. If C{None}, the local transform is returned.
+    :param relative_to: The block relative to which the transform must
+        be calculated. If ``None``, the local transform is returned.
     """
     m = self.cls.Matrix44()
     m.setScaleRotationTranslation(self.scale, self.rotation, self.translation)
@@ -134,7 +134,7 @@ def getTransform(self, relative_to=None):
 def setTransform(self, m):
     """Set rotation, translation, and scale, from a 4x4 matrix.
 
-    @param m: The matrix to which the transform should be set."""
+    :param m: The matrix to which the transform should be set."""
     scale, rotation, translation = m.getScaleRotationTranslation()
 
     self.scale = scale
@@ -156,7 +156,7 @@ def setTransform(self, m):
 def applyScale(self, scale):
     """Apply scale factor on data.
 
-    @param scale: The scale factor."""
+    :param scale: The scale factor."""
     # apply scale on translation
     self.translation.x *= scale
     self.translation.y *= scale

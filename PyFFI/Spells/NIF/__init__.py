@@ -82,12 +82,12 @@ class NifSpell(PyFFI.Spells.Spell):
         is used in the nif file, using header information only. When in doubt,
         it returns ``True``.
 
-        @param block_type: The block type.
-        @type block_type: :class:`NifFormat.NiObject`
-        @return: ``False`` if the nif has no block of the given type,
+        :param block_type: The block type.
+        :type block_type: :class:`NifFormat.NiObject`
+        :return: ``False`` if the nif has no block of the given type,
             with certainty. ``True`` if the nif has the block, or if it
             cannot be determined.
-        @rtype: ``bool``
+        :rtype: ``bool``
         """
         try:
             # try via header

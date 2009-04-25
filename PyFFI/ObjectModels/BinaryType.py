@@ -82,8 +82,8 @@ def _asBytes(value):
     """Helper function which converts a string to _bytes (this is useful for
     setValue in all string classes, which use bytes for representation).
 
-    @return: The bytes representing the value.
-    @rtype: C{_bytes}
+    :return: The bytes representing the value.
+    :rtype: C{_bytes}
 
     >>> _asBytes(u"\\u00e9defa") == u"\\u00e9defa".encode("utf-8")
     True
@@ -168,8 +168,8 @@ class IntType(BinarySimpleType, EditableSpinBox):
     def setValue(self, value):
         """Set value to C{value}. Calls C{int(value)} to convert to integer.
 
-        @param value: The value to assign.
-        @type value: int
+        :param value: The value to assign.
+        :type value: int
         """
         try:
             val = int(value)
@@ -191,8 +191,8 @@ class IntType(BinarySimpleType, EditableSpinBox):
     def read(self, stream):
         """Read value from stream.
 
-        @param stream: The stream to read from.
-        @type stream: C{file}
+        :param stream: The stream to read from.
+        :type stream: C{file}
         """
         self._value = struct.unpack('<' + self._struct,
                                     stream.read(self._size))[0]
@@ -200,8 +200,8 @@ class IntType(BinarySimpleType, EditableSpinBox):
     def write(self, stream):
         """Write value to stream.
 
-        @param stream: The stream to write to.
-        @type stream: C{file}
+        :param stream: The stream to write to.
+        :type stream: C{file}
         """
         stream.write(struct.pack('<' + self._struct, self._value))
 
@@ -210,7 +210,7 @@ class IntType(BinarySimpleType, EditableSpinBox):
     def getSize(self):
         """Return number of bytes this type occupies in a file.
 
-        @return: Number of bytes.
+        :return: Number of bytes.
         """
         return self._size
 
@@ -219,14 +219,14 @@ class IntType(BinarySimpleType, EditableSpinBox):
     def getEditorMinimum(self):
         """Minimum possible value.
 
-        @return: Minimum possible value.
+        :return: Minimum possible value.
         """
         return self._min
 
     def getEditorMaximum(self):
         """Maximum possible value.
 
-        @return: Maximum possible value.
+        :return: Maximum possible value.
         """
         return self._max
 
@@ -271,15 +271,15 @@ class BoolType(UByteType, EditableBoolComboBox):
     def getValue(self):
         """Return stored value.
 
-        @return: The stored value.
+        :return: The stored value.
         """
         return bool(self._value)
 
     def setValue(self, value):
         """Set value to C{value}.
 
-        @param value: The value to assign.
-        @type value: bool
+        :param value: The value to assign.
+        :type value: bool
         """
         if not isinstance(value, bool):
             raise TypeError("expected a bool")
@@ -295,8 +295,8 @@ class CharType(BinarySimpleType, EditableLineEdit):
     def setValue(self, value):
         """Set character to C{value}.
 
-        @param value: The value to assign (bytes of length 1).
-        @type value: bytes
+        :param value: The value to assign (bytes of length 1).
+        :type value: bytes
         """
         assert(isinstance(value, _bytes))
         assert(len(value) == 1)
@@ -305,16 +305,16 @@ class CharType(BinarySimpleType, EditableLineEdit):
     def read(self, stream):
         """Read value from stream.
 
-        @param stream: The stream to read from.
-        @type stream: file
+        :param stream: The stream to read from.
+        :type stream: file
         """
         self._value = stream.read(1)
 
     def write(self, stream):
         """Write value to stream.
 
-        @param stream: The stream to write to.
-        @type stream: file
+        :param stream: The stream to write to.
+        :type stream: file
         """
         stream.write(self._value)
 
@@ -324,7 +324,7 @@ class CharType(BinarySimpleType, EditableLineEdit):
     def getSize(self):
         """Return number of bytes this type occupies in a file.
 
-        @return: Number of bytes.
+        :return: Number of bytes.
         """
         return 1
 
@@ -338,31 +338,31 @@ class Float(BinarySimpleType, EditableFloatSpinBox):
     def setValue(self, value):
         """Set value to C{value}.
 
-        @param value: The value to assign.
-        @type value: float
+        :param value: The value to assign.
+        :type value: float
         """
         self._value = float(value)
 
     def read(self, stream):
         """Read value from stream.
 
-        @param stream: The stream to read from.
-        @type stream: file
+        :param stream: The stream to read from.
+        :type stream: file
         """
         self._value = struct.unpack('<f', stream.read(4))[0]
 
     def write(self, stream):
         """Write value to stream.
 
-        @param stream: The stream to write to.
-        @type stream: file
+        :param stream: The stream to write to.
+        :type stream: file
         """
         stream.write(struct.pack('<f', self._value))
 
     def getSize(self):
         """Return number of bytes this type occupies in a file.
 
-        @return: Number of bytes.
+        :return: Number of bytes.
         """
         return 4
 
@@ -398,8 +398,8 @@ class ZString(BinarySimpleType, EditableLineEdit):
     def setValue(self, value):
         """Set string to C{value}.
 
-        @param value: The value to assign.
-        @type value: C{str} (will be encoded as default) or C{bytes}
+        :param value: The value to assign.
+        :type value: C{str} (will be encoded as default) or C{bytes}
         """
         val = _asBytes(value)
         i = val.find(_b00)
@@ -412,8 +412,8 @@ class ZString(BinarySimpleType, EditableLineEdit):
     def read(self, stream):
         """Read string from stream.
 
-        @param stream: The stream to read from.
-        @type stream: file
+        :param stream: The stream to read from.
+        :type stream: file
         """
         i = 0
         val = _b
@@ -429,8 +429,8 @@ class ZString(BinarySimpleType, EditableLineEdit):
     def write(self, stream):
         """Write string to stream.
 
-        @param stream: The stream to write to.
-        @type stream: file
+        :param stream: The stream to write to.
+        :type stream: file
         """
         stream.write(self._value)
         stream.write(_b00)
@@ -438,7 +438,7 @@ class ZString(BinarySimpleType, EditableLineEdit):
     def getSize(self):
         """Return number of bytes this type occupies in a file.
 
-        @return: Number of bytes.
+        :return: Number of bytes.
         """
         return len(self._value) + 1
 
@@ -477,16 +477,16 @@ class FixedString(BinarySimpleType, EditableLineEdit):
     def getValue(self):
         """Return the string.
 
-        @return: The stored string.
-        @rtype: C{bytes}
+        :return: The stored string.
+        :rtype: C{bytes}
         """
         return self._value
 
     def setValue(self, value):
         """Set string to C{value}.
 
-        @param value: The value to assign.
-        @type value: C{str} (encoded as default) or C{bytes}
+        :param value: The value to assign.
+        :type value: C{str} (encoded as default) or C{bytes}
         """
         val = _asBytes(value)
         if len(val) > self._len:
@@ -496,8 +496,8 @@ class FixedString(BinarySimpleType, EditableLineEdit):
     def read(self, stream):
         """Read string from stream.
 
-        @param stream: The stream to read from.
-        @type stream: file
+        :param stream: The stream to read from.
+        :type stream: file
         """
         self._value = stream.read(self._len)
         i = self._value.find(_b00)
@@ -507,15 +507,15 @@ class FixedString(BinarySimpleType, EditableLineEdit):
     def write(self, stream):
         """Write string to stream.
 
-        @param stream: The stream to write to.
-        @type stream: file
+        :param stream: The stream to write to.
+        :type stream: file
         """
         stream.write(self._value.ljust(self._len, _b00))
 
     def getSize(self):
         """Return number of bytes this type occupies in a file.
 
-        @return: Number of bytes.
+        :return: Number of bytes.
         """
         return self._len
 
@@ -548,15 +548,15 @@ class SizedString(BinarySimpleType, EditableLineEdit):
     def getValue(self):
         """Return the string.
 
-        @return: The stored string.
+        :return: The stored string.
         """
         return self._value
 
     def setValue(self, value):
         """Set string to C{value}.
 
-        @param value: The value to assign.
-        @type value: str
+        :param value: The value to assign.
+        :type value: str
         """
         val = _asBytes(value)
         if len(val) > 10000:
@@ -569,15 +569,15 @@ class SizedString(BinarySimpleType, EditableLineEdit):
     def getSize(self):
         """Return number of bytes this type occupies in a file.
 
-        @return: Number of bytes.
+        :return: Number of bytes.
         """
         return 4 + len(self._value)
 
     def read(self, stream):
         """Read string from stream.
 
-        @param stream: The stream to read from.
-        @type stream: file
+        :param stream: The stream to read from.
+        :type stream: file
         """
         length, = struct.unpack('<I', stream.read(4))
         if length > 10000:
@@ -588,8 +588,8 @@ class SizedString(BinarySimpleType, EditableLineEdit):
     def write(self, stream):
         """Write string to stream.
 
-        @param stream: The stream to write to.
-        @type stream: file
+        :param stream: The stream to write to.
+        :type stream: file
         """
         stream.write(struct.pack('<I', len(self._value)))
         stream.write(self._value)
@@ -602,15 +602,15 @@ class UndecodedData(SimpleType, BinaryType):
     def getValue(self):
         """Return stored value.
 
-        @return: The stored value.
+        :return: The stored value.
         """
         return self._value
 
     def setValue(self, value):
         """Set value to C{value}.
 
-        @param value: The value to assign.
-        @type value: bytes
+        :param value: The value to assign.
+        :type value: bytes
         """
         if len(value) > 16000000:
             raise ValueError('data too long')
@@ -622,7 +622,7 @@ class UndecodedData(SimpleType, BinaryType):
     def getSize(self):
         """Return number of bytes the data occupies in a file.
 
-        @return: Number of bytes.
+        :return: Number of bytes.
         """
         return len(self._value)
 
@@ -630,15 +630,15 @@ class UndecodedData(SimpleType, BinaryType):
         """Read data from stream. Note that this function simply
         reads until the end of the stream.
 
-        @param stream: The stream to read from.
-        @type stream: file
+        :param stream: The stream to read from.
+        :type stream: file
         """
         self._value = stream.read(-1)
 
     def write(self, stream):
         """Write data to stream.
 
-        @param stream: The stream to write to.
-        @type stream: file
+        :param stream: The stream to write to.
+        :type stream: file
         """
         stream.write(self._value)

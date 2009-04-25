@@ -143,11 +143,11 @@ import logging
 def addChild(self, child, front=False):
     """Add block to child list.
 
-    @param child: The child to add.
-    @type child: L{NifFormat.NiAVObject}
-    @kwarg front: Whether to add to the front or to the end of the
+    :param child: The child to add.
+    :type child: L{NifFormat.NiAVObject}
+    :keyword front: Whether to add to the front or to the end of the
         list (default is at end).
-    @type front: C{bool}
+    :type front: ``bool``
     """
     # check if it's already a child
     if child in self.children:
@@ -167,8 +167,8 @@ def addChild(self, child, front=False):
 def removeChild(self, child):
     """Remove a block from the child list.
 
-    @param child: The child to remove.
-    @type child: L{NifFormat.NiAVObject}
+    :param child: The child to remove.
+    :type child: L{NifFormat.NiAVObject}
     """
     self.setChildren([otherchild for otherchild in self.getChildren()
                       if not(otherchild is child)])
@@ -176,16 +176,16 @@ def removeChild(self, child):
 def getChildren(self):
     """Return a list of the children of the block.
 
-    @return: The list of children.
-    @rtype: C{list} of L{NifFormat.NiAVObject}
+    :return: The list of children.
+    :rtype: C{list} of L{NifFormat.NiAVObject}
     """
     return [child for child in self.children]
 
 def setChildren(self, childlist):
     """Set the list of children from the given list (destroys existing list).
 
-    @param childlist: The list of child blocks to set.
-    @type childlist: C{list} of L{NifFormat.NiAVObject}
+    :param childlist: The list of child blocks to set.
+    :type childlist: C{list} of L{NifFormat.NiAVObject}
     """
     self.numChildren = len(childlist)
     self.children.updateSize()
@@ -195,8 +195,8 @@ def setChildren(self, childlist):
 def addEffect(self, effect):
     """Add an effect to the list of effects.
 
-    @param effect: The effect to add.
-    @type effect: L{NifFormat.NiDynamicEffect}
+    :param effect: The effect to add.
+    :type effect: L{NifFormat.NiDynamicEffect}
     """
     num_effs = self.numEffects
     self.numEffects = num_effs + 1
@@ -206,8 +206,8 @@ def addEffect(self, effect):
 def removeEffect(self, effect):
     """Remove a block from the effect list.
 
-    @param effect: The effect to remove.
-    @type effect: L{NifFormat.NiDynamicEffect}
+    :param effect: The effect to remove.
+    :type effect: L{NifFormat.NiDynamicEffect}
     """
     self.setEffects([othereffect for othereffect in self.getEffects()
                      if not(othereffect is effect)])
@@ -215,16 +215,16 @@ def removeEffect(self, effect):
 def getEffects(self):
     """Return a list of the effects of the block.
 
-    @return: The list of effects.
-    @rtype: C{list} of L{NifFormat.NiDynamicEffect}
+    :return: The list of effects.
+    :rtype: C{list} of L{NifFormat.NiDynamicEffect}
     """
     return [effect for effect in self.effects]
 
 def setEffects(self, effectlist):
     """Set the list of effects from the given list (destroys existing list).
 
-    @param effectlist: The list of effect blocks to set.
-    @type effectlist: C{list} of L{NifFormat.NiDynamicEffect}
+    :param effectlist: The list of effect blocks to set.
+    :type effectlist: C{list} of L{NifFormat.NiDynamicEffect}
     """
     self.numEffects = len(effectlist)
     self.effects.updateSize()
@@ -352,9 +352,9 @@ def sendGeometriesToBindPosition(self):
     transform the geometries, such that all skin data transforms coincide, or
     at least coincide partially.
 
-    @return: A number quantifying the remaining difference between bind
+    :return: A number quantifying the remaining difference between bind
         positions.
-    @rtype: C{float}
+    :rtype: C{float}
     """
     # get logger
     logger = logging.getLogger("pyffi.nif.ninode")
@@ -601,9 +601,9 @@ def sendBonesToBindPosition(self):
     to their bind position. For best results, call
     L{sendGeometriesToBindPosition} first.
 
-    @return: A number quantifying the remaining difference between bind
+    :return: A number quantifying the remaining difference between bind
         positions.
-    @rtype: C{float}
+    :rtype: C{float}
     """
     # get logger
     logger = logging.getLogger("pyffi.nif.ninode")

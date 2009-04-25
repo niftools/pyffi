@@ -90,7 +90,7 @@ class AnyArray(ValidatedList, PyFFI.ObjectModels.AnyType.AnyType):
     """Abstract base class for all array types.
 
     @cvar _MAXSTR: Maximum number of elements to write in the L{__str__} method.
-    @type _MAXSTR: C{int}
+    :type _MAXSTR: C{int}
     """
 
     _MAXSTR = 16
@@ -113,8 +113,8 @@ class AnyArray(ValidatedList, PyFFI.ObjectModels.AnyType.AnyType):
     def __str__(self):
         """String representation.
 
-        @return: String representation.
-        @rtype: C{str}
+        :return: String representation.
+        :rtype: C{str}
         """
         # TODO use getDetailTypeName
         result = "%s array:\n" % self.ItemType.__name__
@@ -175,7 +175,7 @@ class UniformArray(AnyArray):
     [8, 4, 20]
 
     @cvar ItemType: Type of the elements of this array.
-    @type ItemType: L{PyFFI.ObjectModels.AnyType.AnyType}
+    :type ItemType: L{PyFFI.ObjectModels.AnyType.AnyType}
     """
 
     __metaclass__ = MetaUniformArray

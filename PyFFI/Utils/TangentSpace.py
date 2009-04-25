@@ -51,14 +51,14 @@ def getTangentSpace(vertices = None, normals = None, uvs = None,
     >>> getTangentSpace(vertices = vertices, normals = normals, uvs = uvs, triangles = triangles)
     ([(0.0, 1.0, 0.0), (0.0, 1.0, 0.0), (0.0, 1.0, 0.0)], [(1.0, 0.0, 0.0), (1.0, 0.0, 0.0), (1.0, 0.0, 0.0)])
 
-    @param vertices: A list of vertices (triples of floats/ints).
-    @param normals: A list of normals (triples of floats/ints).
-    @param uvs: A list of uvs (pairs of floats/ints).
-    @param triangles: A list of triangle indices (triples of ints).
-    @param orientation: Set to C{True} to return orientation (this is used by
+    :param vertices: A list of vertices (triples of floats/ints).
+    :param normals: A list of normals (triples of floats/ints).
+    :param uvs: A list of uvs (pairs of floats/ints).
+    :param triangles: A list of triangle indices (triples of ints).
+    :param orientation: Set to ``True`` to return orientation (this is used by
         for instance Crysis).
-    @return: Two lists of vectors, tangents and binormals. If C{orientation}
-        is C{True}, then returns an extra list with orientations (containing
+    :return: Two lists of vectors, tangents and binormals. If C{orientation}
+        is ``True``, then returns an extra list with orientations (containing
         floats which describe the total signed surface of all faces sharing
         the particular vertex).
     """

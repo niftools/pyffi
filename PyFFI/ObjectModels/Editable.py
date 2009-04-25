@@ -51,8 +51,8 @@ class EditableBase(object):
         """Return data as a value to initialize an editor with.
         Override this method.
 
-        @return: A value for the editor.
-        @rtype: any (whatever is appropriate for the particular
+        :return: A value for the editor.
+        :rtype: any (whatever is appropriate for the particular
             implementation of the editor)
         """
         raise NotImplementedError
@@ -60,8 +60,8 @@ class EditableBase(object):
     def setEditorValue(self, editorvalue):
         """Set data from the editor value. Override this method.
 
-        @param editorvalue: The value of the editor.
-        @type editorvalue: any (whatever is appropriate for the particular
+        :param editorvalue: The value of the editor.
+        :type editorvalue: any (whatever is appropriate for the particular
             implementation of the editor)
         """
         raise NotImplementedError
@@ -130,7 +130,7 @@ class EditableComboBox(EditableBase):
 class EditableBoolComboBox(EditableComboBox):
     """Class for data that can be edited with a bool combo box.
 
-    Requirement: getValue must return a C{bool}, setValue must take a C{bool}.
+    Requirement: getValue must return a ``bool``, setValue must take a ``bool``.
     """
     def getEditorKeys(self):
         return ("False", "True")

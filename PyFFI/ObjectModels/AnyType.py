@@ -50,21 +50,21 @@ class AnyType(PyFFI.ObjectModels.Graph.DetailNode):
     def read(self, stream):
         """Read object from file.
 
-        @param stream: The stream to read from.
-        @type stream: C{file}
+        :param stream: The stream to read from.
+        :type stream: C{file}
         """
         raise NotImplementedError
 
     def write(self, stream):
         """Write object to file.
 
-        @param stream: The stream to write to.
-        @type stream: C{file}
+        :param stream: The stream to write to.
+        :type stream: C{file}
         """
         raise NotImplementedError
 
     def isInterchangeable(self, other):
-        """Returns C{True} if objects are interchangeable, that is,
+        """Returns ``True`` if objects are interchangeable, that is,
         "close" enough to each other so they can be considered equal
         for practical purposes. This is useful for instance when comparing
         data and trying to remove duplicates.
@@ -78,8 +78,8 @@ class AnyType(PyFFI.ObjectModels.Graph.DetailNode):
         >>> x.isInterchangeable(x)
         True
 
-        @return: C{True} if objects are close, C{False} otherwise.
-        @rtype: C{bool}
+        :return: ``True`` if objects are close, ``False`` otherwise.
+        :rtype: ``bool``
         """
         return self is other
 

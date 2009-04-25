@@ -80,7 +80,7 @@ class _Matrix33(NifFormat.Matrix33):
         self.m33 = 1.0
 
     def isIdentity(self):
-        """Return C{True} if the matrix is close to identity."""
+        """Return ``True`` if the matrix is close to identity."""
         if  (abs(self.m11 - 1.0) > NifFormat._EPSILON
              or abs(self.m12) > NifFormat._EPSILON
              or abs(self.m13) > NifFormat._EPSILON
@@ -147,7 +147,7 @@ class _Matrix33(NifFormat.Matrix33):
         return True
 
     def isRotation(self):
-        """Returns C{True} if the matrix is a rotation matrix
+        """Returns ``True`` if the matrix is a rotation matrix
         (a member of SO(3))."""
         # NOTE: 0.01 instead of NifFormat._EPSILON to work around bad nif files
 

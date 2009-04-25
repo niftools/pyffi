@@ -88,7 +88,7 @@ class EdgeType(tuple):
 
 class EdgeFilter(tuple):
     """A simple filter for edges. The default filter only checks the edge's
-    active and acyclic attributes, and accepts them if both are C{True}.
+    active and acyclic attributes, and accepts them if both are ``True``.
     """
     def __new__(cls, active_filter=True, acyclic_filter=True):
         return tuple.__new__(cls, (active_filter, acyclic_filter))
@@ -119,10 +119,10 @@ class DetailNode(object):
 
         Override this method if the node has children.
 
-        @param edge_filter: The edge type to include.
-        @type edge_filter: L{EdgeFilter} or C{type(None)}
-        @return: Generator for detail tree child nodes.
-        @rtype: generator yielding L{DetailNode}s
+        :param edge_filter: The edge type to include.
+        :type edge_filter: L{EdgeFilter} or C{type(None)}
+        :return: Generator for detail tree child nodes.
+        :rtype: generator yielding L{DetailNode}s
         """
         return (dummy for dummy in ())
 
@@ -132,8 +132,8 @@ class DetailNode(object):
 
         Override this method if the node has children.
 
-        @return: Generator for detail tree child names.
-        @rtype: generator yielding C{str}s
+        :return: Generator for detail tree child names.
+        :rtype: generator yielding C{str}s
         """
         return (dummy for dummy in ())
 
@@ -150,8 +150,8 @@ class DetailNode(object):
 
         Override this method if the node has data to display in the detail view.
 
-        @return: A string that can be used to display the instance.
-        @rtype: C{str}
+        :return: A string that can be used to display the instance.
+        :rtype: C{str}
         """
         return ""
 
@@ -175,7 +175,7 @@ class GlobalNode(DetailNode):
         """Very short summary of the data of this global branch for display
         purposes. Override this method.
 
-        @return: A string.
+        :return: A string.
         """
         return ""
         # possible implementation:
@@ -187,7 +187,7 @@ class GlobalNode(DetailNode):
 
         Override this method.
 
-        @return: Generator for global node children.
+        :return: Generator for global node children.
         """
         return (dummy for dummy in ())
 

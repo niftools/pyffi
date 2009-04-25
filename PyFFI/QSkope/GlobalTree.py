@@ -44,8 +44,8 @@ from PyFFI.ObjectModels.Graph import GlobalNode, EdgeType, EdgeFilter
 class GlobalTreeItemData(object):
     """Stores all data used in the detail view.
 
-    @ivar node: The node of the item.
-    @type node: L{DetailNode}
+    :ivar node: The node of the item.
+    :type node: L{DetailNode}
     """
     def __init__(self, node=None):
         if not isinstance(node, GlobalNode):
@@ -66,18 +66,18 @@ class GlobalTreeItem(object):
     """Stores all internal information to vizualize L{GlobalNode}s in a
     tree view.
 
-    @ivar data: The item data.
-    @type data: L{GlobalDetailTreeItemData}
-    @ivar parent: The parent of the node.
-    @type parent: C{type(None)} or L{DetailTreeItem}
-    @ivar children: The children of the node.
-    @type children: C{list} of L{GlobalTreeItem}
-    @ivar row: The row number of this node, as child.
-    @type row: C{int}
-    @ivar edge_type: The type of edge from the parent. Default is 0. The 0
+    :ivar data: The item data.
+    :type data: L{GlobalDetailTreeItemData}
+    :ivar parent: The parent of the node.
+    :type parent: C{type(None)} or L{DetailTreeItem}
+    :ivar children: The children of the node.
+    :type children: C{list} of L{GlobalTreeItem}
+    :ivar row: The row number of this node, as child.
+    :type row: C{int}
+    :ivar edge_type: The type of edge from the parent. Default is 0. The 0
         edges must form a spanning directed acyclic graph. Other numbers
         may form cycles (or not, this is format dependent).
-    @type edge_type: C{int}
+    :type edge_type: C{int}
     """
     def __init__(self, data=None, parent=None, row=0, edge_type=EdgeType(),
                  edge_filter=EdgeFilter()):

@@ -668,12 +668,12 @@ def setGeometry(self,
         * a : 65
     <BLANKLINE>
 
-    @param verticeslist: A list of lists of vertices (one list per material).
-    @param normalslist: A list of lists of normals (one list per material).
-    @param triangleslist: A list of lists of triangles (one list per material).
-    @param matlist: A list of material indices. Optional.
-    @param uvslist: A list of lists of uvs (one list per material). Optional.
-    @param colorslist: A list of lists of RGBA colors (one list per material).
+    :param verticeslist: A list of lists of vertices (one list per material).
+    :param normalslist: A list of lists of normals (one list per material).
+    :param triangleslist: A list of lists of triangles (one list per material).
+    :param matlist: A list of material indices. Optional.
+    :param uvslist: A list of lists of uvs (one list per material). Optional.
+    :param colorslist: A list of lists of RGBA colors (one list per material).
         Optional. Each color is a tuple (r, g, b, a) with each component an
         integer between 0 and 255.
     """

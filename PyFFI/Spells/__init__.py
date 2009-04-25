@@ -197,8 +197,8 @@ class Spell(object):
         been called, and before C{L{data}.read} is
         called. Override this function for customization.
 
-        @return: C{True} if the file must be processed, C{False} otherwise.
-        @rtype: C{bool}
+        :return: ``True`` if the file must be processed, ``False`` otherwise.
+        :rtype: ``bool``
         """
         # for nif: check if version applies, or
         # check if spell block type is found
@@ -211,10 +211,10 @@ class Spell(object):
         whether a branch must be parsed or not, override the L{branchinspect}
         method.
 
-        @param branch: The branch to check.
-        @type branch: L{PyFFI.ObjectModels.Graph.GlobalNode}
-        @return: C{True} if the branch must be processed, C{False} otherwise.
-        @rtype: C{bool}
+        :param branch: The branch to check.
+        :type branch: L{PyFFI.ObjectModels.Graph.GlobalNode}
+        :return: ``True`` if the branch must be processed, ``False`` otherwise.
+        :rtype: ``bool``
         """
         # fall back on the toaster implementation
         return self.toaster.isadmissiblebranchtype(branch.__class__)
@@ -222,12 +222,12 @@ class Spell(object):
     def branchinspect(self, branch):
         """Like L{_branchinspect}, but for customization: can be overridden to
         perform an extra inspection (the default implementation always
-        returns C{True}).
+        returns ``True``).
 
-        @param branch: The branch to check.
-        @type branch: L{PyFFI.ObjectModels.Graph.GlobalNode}
-        @return: C{True} if the branch must be processed, C{False} otherwise.
-        @rtype: C{bool}
+        :param branch: The branch to check.
+        :type branch: L{PyFFI.ObjectModels.Graph.GlobalNode}
+        :return: ``True`` if the branch must be processed, ``False`` otherwise.
+        :rtype: ``bool``
         """
         return True
 
@@ -244,9 +244,9 @@ class Spell(object):
 
         Do not override this function.
 
-        @param branch: The branch to start the recursion from, or C{None}
+        :param branch: The branch to start the recursion from, or ``None``
             to recurse the whole tree.
-        @type branch: L{PyFFI.ObjectModels.Graph.GlobalNode}
+        :type branch: L{PyFFI.ObjectModels.Graph.GlobalNode}
         """
         # when called without arguments, recurse over the whole tree
         if branch is None:
@@ -280,51 +280,51 @@ class Spell(object):
 
     def dataentry(self):
         """Called before all blocks are recursed.
-        The default implementation simply returns C{True}.
+        The default implementation simply returns ``True``.
         You can access the data via C{self.L{data}}, and unlike in the
         L{datainspect} method, the full file has been processed at this stage.
 
         Typically, you will override this function to perform a global
         operation on the file data.
 
-        @return: C{True} if the children must be processed, C{False} otherwise.
-        @rtype: C{bool}
+        :return: ``True`` if the children must be processed, ``False`` otherwise.
+        :rtype: ``bool``
         """
         return True
 
     def branchentry(self, branch):
         """Cast the spell on the given branch. First called with branch equal to
         L{data}'s children, then the grandchildren, and so on.
-        The default implementation simply returns C{True}.
+        The default implementation simply returns ``True``.
 
         Typically, you will override this function to perform an operation
         on a particular block type and/or to stop recursion at particular
         block types.
 
-        @param branch: The branch to cast the spell on.
-        @type branch: L{PyFFI.ObjectModels.Graph.GlobalNode}
-        @return: C{True} if the children must be processed, C{False} otherwise.
-        @rtype: C{bool}
+        :param branch: The branch to cast the spell on.
+        :type branch: L{PyFFI.ObjectModels.Graph.GlobalNode}
+        :return: ``True`` if the children must be processed, ``False`` otherwise.
+        :rtype: ``bool``
         """
         return True
 
     def branchexit(self, branch):
         """Cast a spell on the given branch, after all its children,
         grandchildren, have been processed, if L{branchentry} returned
-        C{True} on the given branch.
+        ``True`` on the given branch.
 
         Typically, you will override this function to perform a particular
         operation on a block type, but you rely on the fact that the children
         must have been processed first.
 
-        @param branch: The branch to cast the spell on.
-        @type branch: L{PyFFI.ObjectModels.Graph.GlobalNode}
+        :param branch: The branch to cast the spell on.
+        :type branch: L{PyFFI.ObjectModels.Graph.GlobalNode}
         """
         pass
 
     def dataexit(self):
         """Called after all blocks have been processed, if L{dataentry}
-        returned C{True}.
+        returned ``True``.
 
         Typically, you will override this function to perform a final spell
         operation, such as writing back the file in a special way, or making a
@@ -335,8 +335,8 @@ class Spell(object):
     @classmethod
     def toastentry(cls, toaster):
         """Called just before the toaster starts processing
-        all files. If it returns C{False}, then the spell is not used.
-        The default implementation simply returns C{True}.
+        all files. If it returns ``False``, then the spell is not used.
+        The default implementation simply returns ``True``.
 
         For example, if the spell only acts on a particular block type, but
         that block type is excluded, then you can use this function to flag
@@ -344,10 +344,10 @@ class Spell(object):
         initialize statistics data to be aggregated from files, to
         initialize a log file, and so.
 
-        @param toaster: The toaster this spell is called from.
-        @type toaster: L{Toaster}
-        @return: C{True} if the spell applies, C{False} otherwise.
-        @rtype: C{bool}
+        :param toaster: The toaster this spell is called from.
+        :type toaster: L{Toaster}
+        :return: ``True`` if the spell applies, ``False`` otherwise.
+        :rtype: ``bool``
         """
         return True
 
@@ -356,8 +356,8 @@ class Spell(object):
         """Called when the toaster has finished processing
         all files.
 
-        @param toaster: The toaster this spell is called from.
-        @type toaster: L{Toaster}
+        :param toaster: The toaster this spell is called from.
+        :type toaster: L{Toaster}
         """
         pass
 
@@ -367,13 +367,13 @@ class SpellGroupBase(Spell):
     L{toastentry}, L{_datainspect}, L{datainspect}, and L{toastexit}).
 
     @cvar SPELLCLASSES: List of spells of this group.
-    @type SPELLCLASSES: C{list} of C{type(L{Spell})}
+    :type SPELLCLASSES: C{list} of C{type(L{Spell})}
     @cvar ACTIVESPELLCLASSES: List of active spells of this
         groups. This list is automatically built when L{toastentry} is
         called.
-    @type ACTIVESPELLCLASSES: C{list} of C{type(L{Spell})}
-    @ivar spells: List of active spell instances.
-    @type spells: C{list} of L{Spell}
+    :type ACTIVESPELLCLASSES: C{list} of C{type(L{Spell})}
+    :ivar spells: List of active spell instances.
+    :type spells: C{list} of L{Spell}
     """
     SPELLCLASSES = []
     ACTIVESPELLCLASSES = []
@@ -381,12 +381,12 @@ class SpellGroupBase(Spell):
     def __init__(self, toaster, data, stream):
         """Initialize the spell data for all given spells.
 
-        @param toaster: The toaster this spell is called from.
-        @type toaster: L{Toaster}
-        @param data: The file data.
-        @type data: L{PyFFI.ObjectModels.FileFormat.FileFormat.Data}
-        @param stream: The file stream.
-        @type stream: C{file}
+        :param toaster: The toaster this spell is called from.
+        :type toaster: L{Toaster}
+        :param data: The file data.
+        :type data: L{PyFFI.ObjectModels.FileFormat.FileFormat.Data}
+        :param stream: The file stream.
+        :type stream: C{file}
         """
         # call base class constructor
         Spell.__init__(self, toaster=toaster, data=data, stream=stream)
@@ -444,7 +444,7 @@ class SpellGroupParallelBase(SpellGroupBase):
     """
     def branchinspect(self, branch):
         """Inspect spells with L{Spell.branchinspect} (not all checks are
-        executed, only keeps going until a spell inspection returns C{True}).
+        executed, only keeps going until a spell inspection returns ``True``).
         """
         return any(spell.branchinspect(branch) for spell in self.spells)
 
@@ -496,10 +496,10 @@ class SpellApplyPatch(Spell):
     def datainspect(self):
         """There is no need to read the whole file, so we apply the patch
         already at inspection stage, and stop the spell process by returning
-        C{False}.
+        ``False``.
     
-        @return: C{False}
-        @rtype: C{bool}
+        :return: ``False``
+        :rtype: ``bool``
         """
         # get the patch command (if there is one)
         patchcmd = self.toaster.options.get("patchcmd")
@@ -568,10 +568,10 @@ class _CompatSpell(Spell):
 def CompatSpellFactory(spellmod):
     """Create new-style spell class from old-style spell module.
 
-    @param spellmod: The old-style spell module.
-    @type spellmod: C{ModuleType}
-    @return: The new-style spell class.
-    @rtype: C{type(L{Spell})}
+    :param spellmod: The old-style spell module.
+    :type spellmod: C{ModuleType}
+    :return: The new-style spell class.
+    :rtype: C{type(L{Spell})}
     """
     return type(spellmod.__name__.split(".")[-1], (_CompatSpell,),
                 {"SPELLMODULE": spellmod})
@@ -602,26 +602,26 @@ class Toaster(object):
     They load each file and pass the data structure to any number of spells.
 
     @cvar FILEFORMAT: The file format class.
-    @type FILEFORMAT: C{type(L{FileFormat})}
+    :type FILEFORMAT: C{type(L{FileFormat})}
     @cvar SPELLS: List of all available spell classes.
-    @type SPELLS: C{list} of C{type(L{Spell})}
+    :type SPELLS: C{list} of C{type(L{Spell})}
     @cvar EXAMPLES: Description of example use.
-    @type EXAMPLES: C{str}
+    :type EXAMPLES: C{str}
     @cvar ALIASDICT: Dictionary with aliases for spells.
-    @type ALIASDICT: C{dict}
-    @ivar spellclasses: List of spell classes for the particular instance (must
+    :type ALIASDICT: C{dict}
+    :ivar spellclasses: List of spell classes for the particular instance (must
         be a subset of L{SPELLS}).
-    @type spellclasses: C{list} of C{type(L{Spell})}
-    @ivar options: The options of the toaster.
-    @type options: C{dict}
-    @ivar indent: Current level of indentation for messages.
-    @type indent: C{int}
-    @ivar logger: For log messages.
-    @type logger: C{logging.Logger}
-    @ivar include_types: Tuple of types corresponding to C{options.include}.
-    @type include_types: C{tuple}
-    @ivar exclude_types: Tuple of types corresponding to C{options.exclude}.
-    @type exclude_types: C{tuple}
+    :type spellclasses: C{list} of C{type(L{Spell})}
+    :ivar options: The options of the toaster.
+    :type options: C{dict}
+    :ivar indent: Current level of indentation for messages.
+    :type indent: C{int}
+    :ivar logger: For log messages.
+    :type logger: C{logging.Logger}
+    :ivar include_types: Tuple of types corresponding to C{options.include}.
+    :type include_types: C{tuple}
+    :ivar exclude_types: Tuple of types corresponding to C{options.exclude}.
+    :type exclude_types: C{tuple}
     """
 
     FILEFORMAT = PyFFI.ObjectModels.FileFormat.FileFormat # override
@@ -634,10 +634,10 @@ class Toaster(object):
     def __init__(self, spellclass=None, options=None):
         """Initialize the toaster.
 
-        @param spellclass: The spell class.
-        @type spellclass: C{type(L{Spell})}
-        @param options: The options (as keyword arguments).
-        @type options: C{dict}
+        :param spellclass: The spell class.
+        :type spellclass: C{type(L{Spell})}
+        :param options: The options (as keyword arguments).
+        :type options: C{dict}
         """
         self.spellclass = spellclass
         self.options = options if options else {}
@@ -656,8 +656,8 @@ class Toaster(object):
         """Write log message with C{L{logger}.info}), taking into account
         L{indent}.
 
-        @param message: The message to write.
-        @type message: C{str}
+        :param message: The message to write.
+        :type message: C{str}
         """
         for line in message.split("\n"):
             self.logger.info("  " * self.indent + line)
@@ -670,7 +670,7 @@ class Toaster(object):
 
     def msgblockend(self, message=None):
         """Acts like L{msg}, but also decreases L{indent} before writing the
-        message, but if the message argument is C{None}, then no message is
+        message, but if the message argument is ``None``, then no message is
         printed."""
         self.indent -= 1
         if not(message is None):
@@ -950,8 +950,8 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
         """Walk over all files in a directory tree and cast spells
         on every file.
 
-        @param top: The directory or file to toast.
-        @type top: str
+        :param top: The directory or file to toast.
+        :type top: str
         """
 
         # toast entry code

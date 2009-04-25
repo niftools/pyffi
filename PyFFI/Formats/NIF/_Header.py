@@ -59,11 +59,11 @@ class _Header(NifFormat.Header):
         @raise ValueError: If number of block types is zero (only nif versions
             10.0.1.0 and up store block types in header).
 
-        @param block_type: The block type.
-        @type block_type: L{NifFormat.NiObject}
-        @return: C{True} if the header's list of block types has the given
-            block type, or a subclass of it. C{False} otherwise.
-        @rtype: C{bool}
+        :param block_type: The block type.
+        :type block_type: L{NifFormat.NiObject}
+        :return: ``True`` if the header's list of block types has the given
+            block type, or a subclass of it. ``False`` otherwise.
+        :rtype: ``bool``
         """
         # check if we can check the block types at all
         if self.numBlockTypes == 0:

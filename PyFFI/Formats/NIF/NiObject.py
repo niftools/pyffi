@@ -68,8 +68,8 @@ def findChain(self, block, block_type = None):
     found, returns an empty list. Does not check whether there is more
     than one branch; if so, the first one found is returned.
 
-    @param block: The block to find a chain to.
-    @param block_type: The type that blocks should have in this chain."""
+    :param block: The block to find a chain to.
+    :param block_type: The type that blocks should have in this chain."""
 
     if self is block: return [self]
     for child in self.getRefs():
@@ -91,10 +91,10 @@ def tree(self, block_type = None, follow_all = True, unique = False):
     """A generator for parsing all blocks in the tree (starting from and
     including C{self}).
 
-    @param block_type: If not C{None}, yield only blocks of the type C{block_type}.
-    @param follow_all: If C{block_type} is not C{None}, then if this is C{True} the function will parse the whole tree. Otherwise, the function will not follow branches that start by a non-C{block_type} block.
+    :param block_type: If not ``None``, yield only blocks of the type C{block_type}.
+    :param follow_all: If C{block_type} is not ``None``, then if this is ``True`` the function will parse the whole tree. Otherwise, the function will not follow branches that start by a non-C{block_type} block.
 
-    @param unique: Whether the generator can return the same block twice or not."""
+    :param unique: Whether the generator can return the same block twice or not."""
     # unique blocks: reduce this to the case of non-unique blocks
     if unique:
         block_list = []

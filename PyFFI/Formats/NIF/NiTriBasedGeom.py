@@ -94,7 +94,7 @@ def getTangentSpace(self):
 def updateTangentSpace(self, as_extra=None):
     """Recalculate tangent space data.
 
-    @param as_extra: Whether to store the tangent space data as extra data
+    :param as_extra: Whether to store the tangent space data as extra data
         (as in Oblivion) or not (as in Fallout 3). If not set, switches to
         Oblivion if an extra data block is found, otherwise does default.
         Set it to override this detection (for example when using this
@@ -260,29 +260,29 @@ def updateSkinPartition(self,
                         maximize_bone_sharing=False):
     """Recalculate skin partition data.
 
-    @param maxbonesperpartition: Maximum number of bones in each partition.
+    :param maxbonesperpartition: Maximum number of bones in each partition.
         The numBones field will not exceed this number.
-    @param maxbonespervertex: Maximum number of bones per vertex.
+    :param maxbonespervertex: Maximum number of bones per vertex.
         The numWeightsPerVertex field will be exactly equal to this number.
-    @param verbose: Ignored, and deprecated. Set pyffi's log level instead.
-    @param stripify: If true, stripify the partitions, otherwise use triangles.
-    @param stitchstrips: If stripify is true, then set this to true to stitch
+    :param verbose: Ignored, and deprecated. Set pyffi's log level instead.
+    :param stripify: If true, stripify the partitions, otherwise use triangles.
+    :param stitchstrips: If stripify is true, then set this to true to stitch
         the strips.
-    @param padbones: Enforces the numbones field to be equal to
+    :param padbones: Enforces the numbones field to be equal to
         maxbonesperpartition. Also ensures that the bone indices are unique
         and sorted, per vertex. Raises an exception if maxbonespervertex
         is not equal to maxbonesperpartition (in that case bone indices cannot
         be unique and sorted). This options is required for Freedom Force vs.
         the 3rd Reich skin partitions.
-    @param triangles: The triangles of the partition (if not specified, then
+    :param triangles: The triangles of the partition (if not specified, then
         this defaults to C{self.data.getTriangles()}.
-    @param trianglepartmap: Maps each triangle to a partition index. Faces with
+    :param trianglepartmap: Maps each triangle to a partition index. Faces with
         different indices will never appear in the same partition. If the skin
         instance is a BSDismemberSkinInstance, then these indices are used as
         body part types, and the partitions in the BSDismemberSkinInstance are
         updated accordingly. Note that the faces are counted relative to
         L{triangles}.
-    @param maximize_bone_sharing: Maximize bone sharing between partitions.
+    :param maximize_bone_sharing: Maximize bone sharing between partitions.
         This option is useful for Fallout 3.
     @deprecated: Do not use the verbose argument.
     """

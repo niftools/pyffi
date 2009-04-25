@@ -150,18 +150,18 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
         in sync with the rest of the nif data, but they are
         resynchronized when calling L{write}.
 
-        @ivar version: The nif version.
-        @type version: C{int}
-        @ivar user_version: The nif user version.
-        @type user_version: C{int}
-        @ivar user_version2: The nif user version 2.
-        @type user_version2: C{int}
-        @ivar roots: List of root blocks.
-        @type roots: C{list} of L{NifFormat.NiObject}
-        @ivar header: The nif header.
-        @type header: L{NifFormat.Header}
-        @ivar blocks: List of blocks.
-        @type blocks: C{list} of L{NifFormat.NiObject}
+        :ivar version: The nif version.
+        :type version: C{int}
+        :ivar user_version: The nif user version.
+        :type user_version: C{int}
+        :ivar user_version2: The nif user version 2.
+        :type user_version2: C{int}
+        :ivar roots: List of root blocks.
+        :type roots: C{list} of L{NifFormat.NiObject}
+        :ivar header: The nif header.
+        :type header: L{NifFormat.Header}
+        :ivar blocks: List of blocks.
+        :type blocks: C{list} of L{NifFormat.NiObject}
         """
 
         class VersionUInt(Common.UInt):
@@ -184,10 +184,10 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             """Initialize nif data. By default, this creates an empty
             nif document of the given version and user version.
 
-            @param version: The version.
-            @type version: C{int}
-            @param user_version: The user version.
-            @type user_version: C{int}
+            :param version: The version.
+            :type version: C{int}
+            :param user_version: The user version.
+            :type user_version: C{int}
             """
             # the version numbers are stored outside the header structure
             self._version_value_ = self.VersionUInt()
@@ -233,8 +233,8 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             Call this function if you simply wish to check that a file is
             a nif file without having to parse even the header.
 
-            @param stream: The stream from which to read.
-            @type stream: C{file}
+            :param stream: The stream from which to read.
+            :type stream: C{file}
             @raise C{ValueError}: If the stream does not contain a nif file.
             """
             pos = stream.tell()
@@ -315,8 +315,8 @@ header version field""")
 
             Call this function if you only need to inspect the header of the nif.
 
-            @param stream: The file to inspect.
-            @type stream: C{file}
+            :param stream: The file to inspect.
+            :type stream: C{file}
             """
             pos = stream.tell()
             try:
@@ -328,10 +328,10 @@ header version field""")
         def read(self, stream, verbose=0):
             """Read a nif file. Does not reset stream position.
 
-            @param stream: The stream from which to read.
-            @type stream: C{file}
-            @param verbose: The level of verbosity.
-            @type verbose: C{int}
+            :param stream: The stream from which to read.
+            :type stream: C{file}
+            :param verbose: The level of verbosity.
+            :type verbose: C{int}
             """
             logger = logging.getLogger("pyffi.nif.data")
             # read header
@@ -478,10 +478,10 @@ Skipping %i bytes in %s""" % (extra_size, block.__class__.__name__))
             from the tree at L{roots} (e.g. list of block types, number of blocks,
             list of block types, list of strings, list of block sizes etc.).
 
-            @param stream: The stream to which to write.
-            @type stream: file
-            @param verbose: The level of verbosity.
-            @type verbose: int
+            :param stream: The stream to which to write.
+            :type stream: file
+            :param verbose: The level of verbosity.
+            :type verbose: int
             """
             logger = logging.getLogger("pyffi.nif.data")
             # set up index and type dictionary
@@ -580,17 +580,17 @@ Skipping %i bytes in %s""" % (extra_size, block.__class__.__name__))
             """This is a helper function for write to set up the list of all blocks,
             the block index map, and the block type map.
 
-            @param root: The root block, whose tree is to be added to
+            :param root: The root block, whose tree is to be added to
                 the block list.
-            @type root: L{NifFormat.NiObject}
-            @param block_index_dct: Dictionary mapping blocks in self.blocks to
+            :type root: L{NifFormat.NiObject}
+            :param block_index_dct: Dictionary mapping blocks in self.blocks to
                 their block index.
-            @type block_index_dct: dict
-            @param block_type_list: List of all block types.
-            @type block_type_list: list of str
-            @param block_type_dct: Dictionary mapping blocks in self.blocks to
+            :type block_index_dct: dict
+            :param block_type_list: List of all block types.
+            :type block_type_list: list of str
+            :param block_type_dct: Dictionary mapping blocks in self.blocks to
                 their block type index.
-            @type block_type_dct: dict
+            :type block_type_dct: dict
             """
             # block already listed? if so, return
             if root in self.blocks:
@@ -746,7 +746,7 @@ but got instance of %s' % (self._template, value.__class__))
         def write(self, stream, **kwargs):
             """Write block reference.
 
-            @keyword block_index_dct: The dictionary of block indices
+            :keyword block_index_dct: The dictionary of block indices
                 (block -> index).
             """
             if self.getValue() is None:
@@ -766,8 +766,8 @@ but got instance of %s' % (self._template, value.__class__))
         def fixLinks(self, **kwargs):
             """Fix block links.
 
-            @keyword link_stack: The link stack.
-            @keyword block_dct: The block dictionary (index -> block).
+            :keyword link_stack: The link stack.
+            :keyword block_dct: The block dictionary (index -> block).
             """
             try:
                 ver = kwargs['data'].version
@@ -1226,9 +1226,9 @@ but got instance of %s' % (self._template, value.__class__))
     def versionNumber(version_str):
         """Converts version string into an integer.
 
-        @param version_str: The version string.
-        @type version_str: str
-        @return: A version integer.
+        :param version_str: The version string.
+        :type version_str: str
+        :return: A version integer.
 
         >>> hex(NifFormat.versionNumber('3.14.15.29'))
         '0x30e0f1d'
@@ -1258,9 +1258,9 @@ but got instance of %s' % (self._template, value.__class__))
     def getVersion(cls, stream):
         """Wrapper around L{NifFormat.Data.inspectVersionOnly}.
 
-        @param stream: The stream from which to read.
-        @type stream: file
-        @return: The version and user version of the file.
+        :param stream: The stream from which to read.
+        :type stream: file
+        :return: The version and user version of the file.
             Returns C{(-1, 0)} if a nif file but version not supported.
             Returns C{(-2, 0)} if not a nif file.
         @deprecated: Use L{NifFormat.Data.inspect} instead.
@@ -1298,21 +1298,21 @@ but got instance of %s' % (self._template, value.__class__))
         @deprecated: Use the L{NifFormat.Data} class instead of
             this function.
 
-        @param stream: The stream to which to write.
-        @type stream: file
-        @param version: The version number.
-        @type version: int
-        @param user_version: The user version number.
-        @type user_version: int
-        @param roots: The list of roots of the NIF tree.
-        @type roots: list of L{NifFormat.NiObject}s
-        @param header: If you pass a header, then this will be used as a basis
+        :param stream: The stream to which to write.
+        :type stream: file
+        :param version: The version number.
+        :type version: int
+        :param user_version: The user version number.
+        :type user_version: int
+        :param roots: The list of roots of the NIF tree.
+        :type roots: list of L{NifFormat.NiObject}s
+        :param header: If you pass a header, then this will be used as a basis
             for writing the header. Note that data in this parameter may be
             changed (for instance the list of block types and list of strings
             will be automatically updated).
-        @type header: L{NifFormat.Header}
-        @param verbose: The level of verbosity.
-        @type verbose: int
+        :type header: L{NifFormat.Header}
+        :param verbose: The level of verbosity.
+        :type verbose: int
         """
         warnings.warn("use NifFormat.Data.write", DeprecationWarning)
         # note: the old way of writing always sets user_version2 = 11
@@ -1330,9 +1330,9 @@ but got instance of %s' % (self._template, value.__class__))
 
         @todo: Move to the L{NifFormat.Data} class.
 
-        @param block: The block to test.
-        @type block: L{NifFormat.NiObject}
-        @return: C{True} if child should come first, C{False} otherwise.
+        :param block: The block to test.
+        :type block: L{NifFormat.NiObject}
+        :return: ``True`` if child should come first, ``False`` otherwise.
         """
         return (isinstance(block, cls.bhkRefObject)
                 and not isinstance(block, cls.bhkConstraint))
@@ -1344,9 +1344,9 @@ but got instance of %s' % (self._template, value.__class__))
 
         @deprecated: Use the L{NifFormat.Data} class instead of this function.
 
-        @param readresult: Result from L{walk} or L{read}.
-        @type readresult: tuple
-        @return: list of root blocks
+        :param readresult: Result from L{walk} or L{read}.
+        :type readresult: tuple
+        :return: list of root blocks
         """
         warnings.warn("use NifFormat.Data.getGlobalChildNodes", DeprecationWarning)
         return readresult[0]
@@ -1358,9 +1358,9 @@ but got instance of %s' % (self._template, value.__class__))
 
         @deprecated: Use the L{NifFormat.Data} class instead of this function.
 
-        @param readresult: Result from L{walk} or L{read}.
-        @type readresult: tuple
-        @return: list of blocks
+        :param readresult: Result from L{walk} or L{read}.
+        :type readresult: tuple
+        :return: list of blocks
         """
         warnings.warn("use NifFormat.Data.getGlobalIterator", DeprecationWarning)
         # start with empty list

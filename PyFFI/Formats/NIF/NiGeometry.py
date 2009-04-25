@@ -117,8 +117,8 @@ def addBone(self, bone, vert_weights):
     After adding all bones, the geometry skinning information should be set
     from the current position of the bones using the L{updateBindPosition} function.
 
-    @param bone: The bone NiNode block.
-    @param vert_weights: A dictionary mapping each influenced vertex index to a vertex weight."""
+    :param bone: The bone NiNode block.
+    :param vert_weights: A dictionary mapping each influenced vertex index to a vertex weight."""
     self._validateSkin()
     skininst = self.skinInstance
     skindata = skininst.data

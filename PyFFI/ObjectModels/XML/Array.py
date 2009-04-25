@@ -128,15 +128,15 @@ class Array(_ListWrap):
         parent = None):
         """Initialize the array type.
 
-        @param element_type: The class describing the type of each element.
-        @param element_type_template: If the class takes a template type
+        :param element_type: The class describing the type of each element.
+        :param element_type_template: If the class takes a template type
             argument, then this argument describes the template type.
-        @param element_type_argument: If the class takes a type argument, then
+        :param element_type_argument: If the class takes a type argument, then
             it is described here.
-        @param count1: An C{Expression} describing the count (first dimension).
-        @param count2: Either C{None}, or an C{Expression} describing the
+        :param count1: An C{Expression} describing the count (first dimension).
+        :param count2: Either ``None``, or an C{Expression} describing the
             second dimension count.
-        @param parent: The parent of this instance, that is, the instance this
+        :param parent: The parent of this instance, that is, the instance this
             array is an attribute of."""
         if count2 is None:
             _ListWrap.__init__(self,

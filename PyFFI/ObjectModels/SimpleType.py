@@ -94,34 +94,34 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType):
     of this type, and L{isInterchangeable} if you wish to declare data as
     equivalent.
 
-    @ivar _value: The data.
-    @type _value: C{type(None)}, or anything of the appropriate type.
-    @ivar value: A property which wraps the actual data. This property always
+    :ivar _value: The data.
+    :type _value: C{type(None)}, or anything of the appropriate type.
+    :ivar value: A property which wraps the actual data. This property always
         calls L{setValue} to assign the value, and ensures that the value is
         valid (type, range, ...). Unless you know what you are doing, always
         use the L{value} property to change the data.
-    @type value: Same as L{_value}.
+    :type value: Same as L{_value}.
     """
     __metaclass__ = _MetaSimpleType
 
     def __init__(self):
-        """Initialize the value to C{None}."""
+        """Initialize the value to ``None``."""
         self._value = None
 
     def __str__(self):
         """String representation. This implementation is simply a wrapper
         around C{self.L{_value}.__str__()}.
 
-        @return: String representation.
-        @rtype: C{str}
+        :return: String representation.
+        :rtype: C{str}
         """
         return self._value.__str__()
 
     def getValue(self):
         """Return the stored value.
 
-        @return: L{_value}
-        @rtype: Whatever is appropriate.
+        :return: L{_value}
+        :rtype: Whatever is appropriate.
         """
         return self._value
 
@@ -129,8 +129,8 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType):
         """Set stored value. Override this method to enable validation
         (type checking, range checking, and so on).
 
-        @param value: The value to store.
-        @type value: Whatever is appropriate.
+        :param value: The value to store.
+        :type value: Whatever is appropriate.
         """
         self._value = value
 
@@ -146,7 +146,7 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType):
         """Display string for the detail tree. This implementation is simply
         a wrapper around C{self.L{_value}.__str__()}.
 
-        @return: String representation.
-        @rtype: C{str}
+        :return: String representation.
+        :rtype: C{str}
         """
         return self._value.__str__()

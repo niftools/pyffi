@@ -62,7 +62,7 @@ class FileFormat(object):
 
     @cvar RE_FILENAME: Regular expression for matching filenames of this file
         type.
-    @type RE_FILENAME: C{SRE_Pattern} (that is, the result of a C{re.compile}
+    :type RE_FILENAME: C{SRE_Pattern} (that is, the result of a C{re.compile}
         call)
     """
 
@@ -84,9 +84,9 @@ class FileFormat(object):
 
             Override this method.
 
-            @param stream: The file to inspect.
-            @type stream: file
-            @return: C{True} if stream is of particular format, C{False}
+            :param stream: The file to inspect.
+            :type stream: file
+            :return: ``True`` if stream is of particular format, ``False``
                 otherwise.
             """
             raise NotImplementedError
@@ -95,8 +95,8 @@ class FileFormat(object):
             """Read data of particular format from stream.
             Override this method.
 
-            @param stream: The file to read from.
-            @type stream: file
+            :param stream: The file to read from.
+            :type stream: file
             """
             raise NotImplementedError
 
@@ -104,8 +104,8 @@ class FileFormat(object):
             """Write data of particular format to stream.
             Override this method.
 
-            @param stream: The file to write to.
-            @type stream: file
+            :param stream: The file to write to.
+            :type stream: file
             """
             raise NotImplementedError
 
@@ -117,9 +117,9 @@ class FileFormat(object):
 
         Override for versioned formats.
 
-        @param version_str: The version string.
-        @type version_str: str
-        @return: A version integer.
+        :param version_str: The version string.
+        :type version_str: str
+        :return: A version integer.
         """
         return 0
 
@@ -130,9 +130,9 @@ class FileFormat(object):
         stream position: for instance, start with
         C{pos = stream.tell()} and end with C{stream.seek(pos)}.
 
-        @param stream: The stream from which to read.
-        @type stream: file
-        @return: The version and user version of the file.
+        :param stream: The stream from which to read.
+        :type stream: file
+        :return: The version and user version of the file.
             Returns C{(-1, 0)} if file is of known format but the particular
             version not supported.
             Returns C{(-2, 0)} if format is not known.
@@ -146,9 +146,9 @@ class FileFormat(object):
         """Converts an attribute name, as in the description file,
         into a name usable by python.
 
-        @param name: The attribute name.
-        @type name: str
-        @return: Reformatted attribute name, useable by python.
+        :param name: The attribute name.
+        :type name: str
+        :return: Reformatted attribute name, useable by python.
 
         >>> FileFormat.nameAttribute('tHis is A Silly naME')
         'thisIsASillyName'
@@ -167,14 +167,14 @@ class FileFormat(object):
     def read(cls, stream, version = None, user_version = None, **kwargs):
         """Read a file. Override this function.
 
-        @param stream: The stream from which to read.
-        @type stream: file
-        @param version: The version as obtained by L{getVersion}.
-        @type version: int
-        @param user_version: The user version as obtained by L{getVersion}.
-        @type user_version: int
-        @param kwargs: Extra keyword arguments.
-        @return: A tuple of objects (typically, header, blocks, and footer)
+        :param stream: The stream from which to read.
+        :type stream: file
+        :param version: The version as obtained by L{getVersion}.
+        :type version: int
+        :param user_version: The user version as obtained by L{getVersion}.
+        :type user_version: int
+        :param kwargs: Extra keyword arguments.
+        :return: A tuple of objects (typically, header, blocks, and footer)
             describing the file.
 
         @todo: The plan is eventually to use the L{Data} class for this.
@@ -189,13 +189,13 @@ class FileFormat(object):
         *read(stream, version, user_version)} would rewrite the original file
         back to the stream as it is.
 
-        @param stream: The stream to which to write.
-        @type stream: file
-        @param version: The version number.
-        @type version: int
-        @param user_version: The user version number.
-        @type user_version: int
-        @param kwargs: Extra keyword arguments (e.g. header, block list, ...)
+        :param stream: The stream to which to write.
+        :type stream: file
+        :param version: The version number.
+        :type version: int
+        :param user_version: The user version number.
+        :type user_version: int
+        :param kwargs: Extra keyword arguments (e.g. header, block list, ...)
 
         @todo: The plan is eventually to use the L{Data} class for this.
         """
@@ -208,16 +208,16 @@ class FileFormat(object):
         L{RE_FILENAME}. The argument top can also be a file instead of a
         directory. Errors coming from os.walk are ignored.
 
-        @param top: The top folder.
-        @type top: str
-        @param topdown: Determines whether subdirectories should be iterated
+        :param top: The top folder.
+        :type top: str
+        :param topdown: Determines whether subdirectories should be iterated
             over first.
-        @type topdown: bool
-        @param raisereaderror: Should read errors raise an exception, or
+        :type topdown: bool
+        :param raisereaderror: Should read errors raise an exception, or
             should they be ignored?
-        @type raisereaderror: bool
-        @param verbose: Verbosity level.
-        @type verbose: int
+        :type raisereaderror: bool
+        :param verbose: Verbosity level.
+        :type verbose: int
 
         @todo: Eventually this will be superseded by L{walkData}.
         """
@@ -238,16 +238,16 @@ class FileFormat(object):
         This function is for instance used by L{PyFFI.Spells} to implement
         modifying a file after reading and parsing.
 
-        @param top: The top folder.
-        @type top: str
-        @param topdown: Determines whether subdirectories should be iterated
+        :param top: The top folder.
+        :type top: str
+        :param topdown: Determines whether subdirectories should be iterated
             over first.
-        @type topdown: bool
-        @param raisereaderror: Should read errors raise an exception, or
+        :type topdown: bool
+        :param raisereaderror: Should read errors raise an exception, or
             should they be ignored?
-        @type raisereaderror: bool
-        @param verbose: Verbosity level.
-        @type verbose: int
+        :type raisereaderror: bool
+        :param verbose: Verbosity level.
+        :type verbose: int
 
         @todo: Eventually this will be superseded by L{walkData}.
         """
@@ -310,13 +310,13 @@ Warning: read failed due corrupt file, corrupt format description, or bug.""")
         This function is for instance used by L{PyFFI.Spells} to implement
         modifying a file after reading and parsing.
 
-        @param top: The top folder.
-        @type top: C{str}
-        @param topdown: Determines whether subdirectories should be iterated
+        :param top: The top folder.
+        :type top: C{str}
+        :param topdown: Determines whether subdirectories should be iterated
             over first.
-        @type topdown: C{bool}
-        @param mode: The mode in which to open files.
-        @type mode: C{str}
+        :type topdown: ``bool``
+        :param mode: The mode in which to open files.
+        :type mode: C{str}
 
         @status: Not yet functional. For the time being, fall back on the other
             walk functions.
@@ -340,9 +340,9 @@ Warning: read failed due corrupt file, corrupt format description, or bug.""")
         """Returns list of all root blocks. Used by L{PyFFI.QSkope}
         and L{PyFFI.Spells}.
 
-        @param readresult: Result from L{walk} or L{read}.
-        @type readresult: tuple
-        @return: list of root blocks
+        :param readresult: Result from L{walk} or L{read}.
+        :type readresult: tuple
+        :return: list of root blocks
 
         @todo: The plan is eventually to use the L{Data} class for this.
         """
@@ -353,9 +353,9 @@ Warning: read failed due corrupt file, corrupt format description, or bug.""")
         """Returns list of all blocks. Used by L{PyFFI.QSkope}
         and L{PyFFI.Spells}.
 
-        @param readresult: Result from L{walk} or L{read}.
-        @type readresult: tuple
-        @return: list of blocks
+        :param readresult: Result from L{walk} or L{read}.
+        :type readresult: tuple
+        :return: list of blocks
 
         @todo: The plan is eventually to use the L{Data} class for this.
         """

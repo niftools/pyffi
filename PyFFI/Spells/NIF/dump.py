@@ -56,9 +56,9 @@ def tohex(value, nbytes=4):
 def dumpArray(arr):
     """Format an array.
 
-    @param arr: An array.
-    @type arr: L{PyFFI.ObjectModels.XML.Array.Array}
-    @return: String describing the array.
+    :param arr: An array.
+    :type arr: L{PyFFI.ObjectModels.XML.Array.Array}
+    :return: String describing the array.
     """
     text = ""
     if arr._count2 == None:
@@ -83,9 +83,9 @@ def dumpArray(arr):
 def dumpBlock(block):
     """Return formatted string for block without following references.
 
-    @param block: The block to print.
-    @type block: L{NifFormat.NiObject}
-    @return: String string describing the block.
+    :param block: The block to print.
+    :type block: L{NifFormat.NiObject}
+    :return: String string describing the block.
     """
     text = '%s instance at 0x%08X\n' % (block.__class__.__name__, id(block))
     for attr in block._filteredAttributeList():
@@ -102,9 +102,9 @@ def dumpBlock(block):
 def dumpAttr(attr):
     """Format an attribute.
 
-    @param attr: The attribute to print.
-    @type attr: (anything goes)
-    @return: String for the attribute.
+    :param attr: The attribute to print.
+    :type attr: (anything goes)
+    :return: String for the attribute.
     """
     if isinstance(attr, (NifFormat.Ref, NifFormat.Ptr)):
         ref = attr.getValue()
