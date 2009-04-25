@@ -520,7 +520,8 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                     "_isTemplate": attrs.get("istemplate") == "1",
                     "_attrs": [],
                     "_games": {},
-                    "__doc__": ""}
+                    "__doc__": "",
+                    "__module__": self.cls.__module__}
 
             # fileformat -> basic
             elif tag == self.tagBasic:
@@ -554,7 +555,8 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                     numbytes = typ.getSize()
                 self.classDict = {"__doc__": "",
                                   "_numbytes": numbytes,
-                                  "_enumkeys": [], "_enumvalues": []}
+                                  "_enumkeys": [], "_enumvalues": [],
+                                  "__module__": self.cls.__module__}
 
             # fileformat -> alias
             elif tag == self.tagAlias:
@@ -565,7 +567,8 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 except AttributeError:
                     raise XmlError(
                         "typo, or forward declaration of type %s"%typename)
-                self.classDict = {"__doc__": ""}
+                self.classDict = {"__doc__": "",
+                                  "__module__": self.cls.__module__}
 
             # fileformat -> bitstruct
             # this works like an alias for now, will add special
@@ -579,7 +582,8 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                     # niftools style: storage attribute
                     numbytes = getattr(self.cls, attrs["storage"]).getSize()
                 self.classDict = {"_attrs": [], "__doc__": "",
-                                  "_numbytes": numbytes}
+                                  "_numbytes": numbytes,
+                                  "__module__": self.cls.__module__}
 
             # fileformat -> version
             elif tag == self.tagVersion:

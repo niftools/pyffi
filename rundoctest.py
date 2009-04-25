@@ -43,7 +43,6 @@ import PyFFI.Formats.NIF.StringPalette
 import PyFFI.Formats.NIF.ControllerLink
 import PyFFI.Formats.NIF.NiBSplineData
 import PyFFI.Formats.CGF
-import PyFFI.Formats.CGF.MeshChunk
 import PyFFI.Formats.KFM
 import PyFFI.Formats.DDS
 import PyFFI.Formats.TGA
