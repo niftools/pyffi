@@ -155,6 +155,7 @@ Get list of versions and games
 0x0A010065
 0x0A01006A
 0x0A020000
+0x0A020001
 0x0A040001
 0x14000004
 0x14000005
@@ -184,7 +185,7 @@ Fallout 3 0x14020007
 Freedom Force 0x04000000 0x04000002
 Freedom Force vs. the 3rd Reich 0x0A010000
 Kohan 2 0x0A010000
-Lazeka 0x14030009
+Lazeska 0x14030009
 Loki 0x0A020000
 Megami Tensei: Imagine 0x14010003
 Morrowind 0x04000002
@@ -198,7 +199,7 @@ Star Trek: Bridge Commander 0x03000000 0x03010000
 The Guild 2 0x0A010000
 Warhammer 0x14030009
 Wildlife Park 2 0x0A010000 0x0A020000
-Worldshift 0x0A040001
+Worldshift 0x0A020001 0x0A040001
 Zoo Tycoon 2 0x0A000100
 
 Reading an unsupported nif file

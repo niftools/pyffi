@@ -24,11 +24,12 @@
     <version num="10.1.0.101">Oblivion</version>
     <version num="10.1.0.106">Oblivion</version>
     <version num="10.2.0.0">Civilization IV, Oblivion, Loki, Pro Cycling Manager, Prison Tycoon, Red Ocean, Wildlife Park 2</version>
+    <version num="10.2.0.1">Worldshift</version>
     <version num="10.4.0.1">Worldshift</version>
     <version num="20.0.0.4">Civilization IV, Oblivion, Sid Meier's Railroads</version>
     <version num="20.0.0.5">Oblivion</version>
     <version num="20.1.0.3">Megami Tensei: Imagine</version>
-    <version num="20.2.0.7">Emerge, Empire Earth III, Fallout 3</version>    
+    <version num="20.2.0.7">Emerge, Empire Earth III, Fallout 3</version>
     <version num="20.2.0.8">Emerge, Empire Earth III, Atlantica</version>
     <!-- version 20.3.0.1 is found in Props/GDCLargeContainer.nif-->
     <version num="20.3.0.1">Emerge</version>
@@ -36,7 +37,7 @@
     <version num="20.3.0.2">Emerge</version>
     <version num="20.3.0.3">Emerge</version>
     <version num="20.3.0.6">Emerge</version>
-    <version num="20.3.0.9">Warhammer, Lazeka</version>
+    <version num="20.3.0.9">Warhammer, Lazeska</version>
 
     <!--Basic Types-->
 
@@ -347,19 +348,30 @@
         <option value="3" name="ALWAYS_FACE_CENTER">Always Face Center.</option>
         <option value="4" name="RIGID_FACE_CENTER">Rigid Face Center.</option>
         <option value="9" name="ROTATE_ABOUT_UP2">The billboard will only rotate around the up axis (same as ROTATE_ABOUT_UP?).</option>
-
     </enum>
 
-    <enum name="CompareMode" storage="uint">
-        This enum contains the options for doing z buffer or stecil buffer tests.
+    <enum name="StencilCompareMode" storage="uint">
+        This enum contains the options for doing stencil buffer tests.
         <option value="0" name="TEST_NEVER">Test will allways return false. Nothing is drawn at all.</option>
+        <option value="1" name="TEST_LESS">The test will only succeed if the pixel is nearer than the previous pixel.</option>
+        <option value="2" name="TEST_EQUAL">Test will only succeed if the z value of the pixel to be drawn is equal to the value of the previous drawn pixel.</option>
+        <option value="3" name="TEST_LESS_EQUAL">Test will succeed if the z value of the pixel to be drawn is smaller than or equal to the value in the Stencil Buffer.</option>
+        <option value="4" name="TEST_GREATER">Opposite of TEST_LESS.</option>
+        <option value="5" name="TEST_NOT_EQUAL">Test will succeed if the z value of the pixel to be drawn is NOT equal to the value of the previously drawn pixel.</option>
+        <option value="6" name="TEST_GREATER_EQUAL">Opposite of TEST_LESS_EQUAL.</option>
+        <option value="7" name="TEST_ALWAYS">Test will allways succeed. The Stencil Buffer value is ignored.</option>
+    </enum>
+
+    <enum name="ZCompareMode" storage="uint">
+        This enum contains the options for doing z buffer tests.
+        <option value="0" name="TEST_ALWAYS">Test will allways succeed. The Z Buffer value is ignored.</option>
         <option value="1" name="TEST_LESS">The test will only succeed if the pixel is nearer than the previous pixel.</option>
         <option value="2" name="TEST_EQUAL">Test will only succeed if the z value of the pixel to be drawn is equal to the value of the previous drawn pixel.</option>
         <option value="3" name="TEST_LESS_EQUAL">Test will succeed if the z value of the pixel to be drawn is smaller than or equal to the value in the Z Buffer.</option>
         <option value="4" name="TEST_GREATER">Opposite of TEST_LESS.</option>
         <option value="5" name="TEST_NOT_EQUAL">Test will succeed if the z value of the pixel to be drawn is NOT equal to the value of the previously drawn pixel.</option>
         <option value="6" name="TEST_GREATER_EQUAL">Opposite of TEST_LESS_EQUAL.</option>
-        <option value="7" name="TEST_ALWAYS">Test will allways succeed. The Z Buffer value is ignored.</option>
+        <option value="7" name="TEST_NEVER">Test will allways return false. Nothing is drawn at all.</option>
     </enum>
 
     <enum name="StencilAction" storage="uint">
@@ -981,14 +993,14 @@
         <add name="Source" type="Ref" template="NiSourceTexture">NiSourceTexture object index.</add>
         <add name="Clamp Mode" type="TexClampMode" default="WRAP_S_WRAP_T" ver2="20.0.0.5">0=clamp S clamp T, 1=clamp S wrap T, 2=wrap S clamp T, 3=wrap S wrap T</add>
         <add name="Filter Mode" type="TexFilterMode" default="FILTER_TRILERP" ver2="20.0.0.5">0=nearest, 1=bilinear, 2=trilinear, 3=..., 4=..., 5=...</add>
-        <add name="Flags" type="Flags" ver1="20.1.0.3">Texture mode flags.</add>
+        <add name="Flags" type="Flags" ver1="20.1.0.3">Texture mode flags. Presumably stores Clamp Mode and Filter Mode?</add>
         <add name="UV Set" type="uint" default="0" ver2="20.0.0.5">The texture coordinate set in NiGeometryData that this texture slot will use.</add>
         <add name="PS2 L" type="short" default="0" ver2="10.4.0.1">PS2 only; from the Freedom Force docs, &quot;L values can range from 0 to 3 and are used to specify how fast a texture gets blurry&quot;.</add>
         <add name="PS2 K" type="short" default="-75" ver2="10.4.0.1">PS2 only; from the Freedom Force docs, &quot;The K value is used as an offset into the mipmap levels and can range from -2047 to 2047. Positive values push the mipmap towards being blurry and negative values make the mipmap sharper.&quot; -75 for most v4.0.0.2 meshes.</add>
         <add name="Unknown1" type="ushort" ver2="4.1.0.12">Unknown, 0 or 0x0101?</add>
         <add name="Has Texture Transform" type="bool" default="false" ver1="10.1.0.0">Determines whether or not the texture&#039;s coordinates are transformed.</add>
         <add name="Translation" type="TexCoord" cond="Has Texture Transform != 0" ver1="10.1.0.0">The amount to translate the texture coordinates in each direction?</add>
-        <add name="Tiling" type="TexCoord" cond="Has Texture Transform != 0" ver1="10.1.0.0">The number of times the texture is tiled in each direction?</add>
+        <add name="Tiling" type="TexCoord" cond="Has Texture Transform != 0" ver1="10.1.0.0" default="1.0, 1.0">The number of times the texture is tiled in each direction?</add>
         <add name="W Rotation" type="float" default="0.0" cond="Has Texture Transform != 0" ver1="10.1.0.0">2D Rotation of texture image around third W axis after U and V.</add>
         <add name="Transform Type?" type="uint" default="0" cond="Has Texture Transform != 0" ver1="10.1.0.0">The texture transform type?  Doesn&#039;t seem to do anything.</add>
         <add name="Center Offset" type="TexCoord" cond="Has Texture Transform != 0" ver1="10.1.0.0">The offset from the origin?</add>
@@ -1975,7 +1987,7 @@
 
     <niobject name="NiFlipController" abstract="0" inherit="NiFloatInterpController">
         Texture flipping controller.
-        <add name="Texture Slot" type="uint">Target texture slot (0=base, 4=glow).</add>
+        <add name="Texture Slot" type="TexType">Target texture slot (0=base, 4=glow).</add>
         <add name="Unknown Int 2" type="uint" ver1="4.0.0.0" ver2="10.1.0.0">0?</add>
         <add name="Delta" type="float" ver2="10.1.0.0">
             Time between two flips.
@@ -1992,7 +2004,7 @@
     </niobject>
 
     <niobject name="NiTextureTransformController" abstract="0" inherit="NiFloatInterpController" ver1="10.1.0.0">
-        Texture transformation controller.
+        Texture transformation controller. The target texture slot should have "Has Texture Transform" enabled.
         <add name="Unknown2" type="byte">Unknown.</add>
         <add name="Texture Slot" type="TexType"> The target texture slot.</add>
         <add name="Operation" type="TexTransform">Determines how this controller animates the UV Coordinates.</add>
@@ -2002,7 +2014,7 @@
     <niobject name="NiLightDimmerController" abstract="0" inherit="NiFloatInterpController" ver1="20.0.0.4">
         Unknown controller.
     </niobject>
-    
+
     <niobject name="NiBoolInterpController" abstract="1" inherit="NiSingleInterpController" ver1="10.2.0.0">
         A controller that interpolates floating point numbers?
     </niobject>
@@ -2423,15 +2435,15 @@
         <add name="Unknown Int 0" type="uint" ver1="10.1.0.106" ver2="10.1.0.106">Unknown.</add>
         <add name="Frequency" type="float" ver1="10.1.0.106">The animation frequency.</add>
         <add name="Start Time" type="float" ver1="10.1.0.106">The controller sequence start time?</add>
+        <add name="Unknown Float 2" type="float" ver1="10.2.0.0" ver2="10.4.0.1">Unknown.</add>
         <add name="Stop Time" type="float" ver1="10.1.0.106">The controller sequence stop time?</add>
-        <add name="Unknown Float 2" type="float" ver1="10.2.0.0" ver2="10.2.0.0">Unknown.</add>
         <add name="Unknown Byte" type="byte" ver1="10.1.0.106" ver2="10.1.0.106">Unknown.</add>
-        <add name="Unknown Int 2" type="int" ver1="10.4.0.1" ver2="10.4.0.1">Unknown.</add>
         <add name="Manager" type="Ptr" template="NiControllerManager" ver1="10.1.0.106">Refers to NiControllerManager which references this object, if any.</add>
         <add name="Target Name" type="string" ver1="10.1.0.106">Name of target node Controller acts on.</add>
         <add name="String Palette" type="Ref" template="NiStringPalette" ver1="10.2.0.0" ver2="20.0.0.5">Refers to NiStringPalette.</add>
         <add name="Unknown Short 1" type="short" ver1="20.2.0.7" vercond="(User Version == 11) &amp;&amp; (User Version 2 >= 24)">Unknown</add>
         <add name="Unknown Short 2" type="short" ver1="20.2.0.7" vercond="(User Version == 11) &amp;&amp; (User Version 2 >= 24) &amp;&amp; (User Version 2 &lt;= 28)">Unknown</add>
+        <add name="Unknown Int 3" type="uint" ver1="20.3.0.9" ver2="20.3.0.9">Unknown, found in some Lazeska .KFs (seems to be 64 when present). Conditions are unknown.</add>
     </niobject>
 
     <niobject name="NiAVObjectPalette" abstract="1" inherit="NiObject">
@@ -2632,7 +2644,7 @@
     </niobject>
 
     <niobject name="NiBSAnimationNode" abstract="0" inherit="NiNode">
-        Bethesda-specific extension of Node with animation properties stored in the flags.
+        Bethesda-specific extension of Node with animation properties stored in the flags, often 42?
     </niobject>
 
     <niobject name="NiBSParticleNode" abstract="0" inherit="NiNode">
@@ -2787,8 +2799,8 @@
         Time controller for a path.
         <add name="Unknown Short 2" type="ushort" ver1="10.1.0.0">Unknown.</add>
         <add name="Unknown Int 1" type="uint">Unknown, always 1?</add>
-        <add name="Unknown Int 2" type="uint">Unknown, always 0?</add>
-        <add name="Unknown Int 3" type="uint">Unknown, always 0?</add>
+        <add name="Unknown Int 2" type="uint">Unknown, often 0? Could be a float?</add>
+        <add name="Unknown Int 3" type="uint">Unknown, often 0? Could be a float?</add>
         <add name="Unknown Short" type="ushort">Unknown, always 0?</add>
         <add name="Pos Data" type="Ref" template="NiPosData">Path controller data index (position data). ?</add>
         <add name="Float Data" type="Ref" template="NiFloatData">Path controller data index (float data). ?</add>
@@ -3235,7 +3247,7 @@
         Allows control of stencil testing.
         <add name="Flags" type="Flags" ver2="10.0.1.2">Property flags.</add>
         <add name="Stencil Enabled" type="byte" ver2="20.0.0.5">Enables or disables the stencil test.</add>
-        <add name="Stencil Function" type="CompareMode" ver2="20.0.0.5">Selects the compare mode function.</add>
+        <add name="Stencil Function" type="StencilCompareMode" ver2="20.0.0.5">Selects the compare mode function (see: glStencilFunc).</add>
         <add name="Stencil Ref" type="uint" ver2="20.0.0.5">Unknown.  Default is 0.</add>
         <add name="Stencil Mask" type="uint" default="4294967295" ver2="20.0.0.5">A bit mask. The default is 0xffffffff.</add>
         <add name="Fail Action" type="StencilAction" ver2="20.0.0.5"/>
@@ -3244,12 +3256,12 @@
         <add name="Draw Mode" default="DRAW_BOTH" type="FaceDrawMode" ver2="20.0.0.5">Used to enabled double sided faces. Default is 3 (DRAW_BOTH).</add>
         <add name="Flags" type="Flags" ver1="20.1.0.3">
             Property flags:
-            0.. 1 = Stencil Enable
-            1.. 3 = Fail Action
-            4.. 6 = Z Fail Action
-            7.. 9 = Pass Action
-            10..11 = Draw Mode
-            12..15 = Test Func
+            Bit 0: Stencil Enable
+            Bits 1-3: Fail Action
+            Bits 4-6: Z Fail Action
+            Bits 7-9: Pass Action
+            Bits 10-11: Draw Mode
+            Bits 12-15: Stencil Function
         </add>
         <add name="Stencil Ref" type="uint" ver1="20.1.0.3">Unknown.  Default is 0.</add>
         <add name="Stencil Mask" type="uint" default="4294967295" ver1="20.1.0.3">A bit mask. The default is 0xffffffff.</add>
@@ -3484,8 +3496,7 @@
     <niobject name="NiUVData" abstract="0" inherit="NiObject">
         Texture coordinate data.
         <add name="UV Groups" type="KeyGroup" template="float" arr1="4">
-            Four UV data groups.  Perhaps the first two control x and y.
-            The existence of the second two is a guess - there are always two zero values following the first two in all official files.
+            Four UV data groups. Appear to be U translation, V translation, U scaling/tiling, V scaling/tiling.
         </add>
     </niobject>
 
@@ -3497,7 +3508,13 @@
 
     <niobject name="NiVertexColorProperty" abstract="0" inherit="NiProperty">
         Property of vertex colors. This object is referred to by the root object of the NIF file whenever some NiTriShapeData object has vertex colors with non-default settings; if not present, vertex colors have vertex_mode=2 and lighting_mode=1.
-        <add name="Flags" type="Flags">Property flags.</add>
+        <add name="Flags" type="Flags">
+            Property flags. Appears to be unused until 20.1.0.3.
+
+            Bits 0-2: Unknown
+            Bit 3: Lighting Mode?
+            Bits 4-5: Vertex Mode?
+        </add>
         <add name="Vertex Mode" type="VertMode" ver2="20.0.0.5">
             Determines how vertex and material colors are mixed.
             related gl function: glColorMaterial
@@ -3535,7 +3552,7 @@
             Bit 0 enables the z test
             Bit 1 controls wether the Z buffer is read only (0) or read/write (1)
         </add>
-        <add name="Function" type="CompareMode" default="TEST_LESS_EQUAL" ver1="4.1.0.12" ver2="20.0.0.5">
+        <add name="Function" type="ZCompareMode" default="TEST_LESS_EQUAL" ver1="4.1.0.12" ver2="20.0.0.5">
             Z-Test function (see: glDepthFunc). In Flags from 20.1.0.3 on.
         </add>
     </niobject>

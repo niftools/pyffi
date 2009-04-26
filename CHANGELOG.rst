@@ -21,6 +21,10 @@ Release 1.2.5 (in development)
 
   - CHUNK_MAP no longer constructed in Data.__init__ but in a metaclass.
 
+* Updates for the NIF format.
+
+  - Synced nif.xml with nifskope's xml (includes fixes for Lazeska).
+
 Release 1.2.4 (Apr 21, 2009)
 ============================
 
