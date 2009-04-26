@@ -4,7 +4,6 @@
 
 There are no spells yet.
 """
-__docformat__ = "restructuredtext en" # for epydoc
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****

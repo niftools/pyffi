@@ -4,7 +4,6 @@
 
 .. todo:: Write documentation.
 """
-__docformat__= "restructuredtext en" # for epydoc
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****

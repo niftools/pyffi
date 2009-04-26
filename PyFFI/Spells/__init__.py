@@ -85,7 +85,6 @@ the file format class of the files it can toast.
    :undoc-members:
 
 """
-__docformat__ = "restructuredtext en" # for epydoc
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****

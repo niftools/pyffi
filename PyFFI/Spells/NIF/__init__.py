@@ -7,7 +7,6 @@
 .. automodule:: PyFFI.Spells.fix
 .. automodule:: PyFFI.Spells.optimize
 """
-__docformat__= "restructuredtext en" # for epydoc
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****

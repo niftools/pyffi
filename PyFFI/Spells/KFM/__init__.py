@@ -7,7 +7,6 @@
 .. automodule:: PyFFI.Spells.KFM.dump
 
 """
-__docformat__= "restructuredtext en" # for epydoc
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
