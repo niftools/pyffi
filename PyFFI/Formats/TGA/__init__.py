@@ -87,8 +87,6 @@ class TgaFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
     # where to look for tga.xml and in what order:
     # TGAXMLPATH env var, or TgaFormat module directory
     xmlFilePath = [os.getenv('TGAXMLPATH'), os.path.dirname(__file__)]
-    # path of class customizers
-    clsFilePath = os.path.dirname(__file__)
     # filter for recognizing tga files by extension
     RE_FILENAME = re.compile(r'^.*\.tga$', re.IGNORECASE)
 

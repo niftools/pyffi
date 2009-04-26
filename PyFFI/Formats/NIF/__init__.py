@@ -325,7 +325,6 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
     # where to look for nif.xml and in what order: NIFXMLPATH env var,
     # or NifFormat module directory
     xmlFilePath = [os.getenv('NIFXMLPATH'), os.path.dirname(__file__)]
-    clsFilePath = os.path.dirname(__file__) # path of class customizers
     # filter for recognizing nif files by extension
     # .kf are nif files containing keyframes
     # .kfa are nif files containing keyframes in DAoC style

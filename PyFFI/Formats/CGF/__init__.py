@@ -229,7 +229,6 @@ class CgfFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
     # where to look for cgf.xml and in what order: CGFXMLPATH env var,
     # or module directory
     xmlFilePath = [os.getenv('CGFXMLPATH'), os.path.dirname(__file__)]
-    clsFilePath = os.path.dirname(__file__) # path of class customizers
     EPSILON = 0.0001 # used for comparing floats
     # regular expression for file name extension matching on cgf files
     RE_FILENAME = re.compile(r'^.*\.(cgf|cga|chr|caf)$', re.IGNORECASE)

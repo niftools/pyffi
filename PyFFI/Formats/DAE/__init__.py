@@ -97,8 +97,6 @@ class DaeFormat(XsdFileFormat):
     # where to look for the xsd file and in what order:
     # DAEXSDPATH env var, or XsdFormat module directory
     xsdFilePath = [os.getenv('DAEXSDPATH'), os.path.dirname(__file__)]
-    # path of class customizers
-    clsFilePath = os.path.dirname(__file__)
     # file name regular expression match
     RE_FILENAME = re.compile(r'^.*\.dae$', re.IGNORECASE)
     # used for comparing floats

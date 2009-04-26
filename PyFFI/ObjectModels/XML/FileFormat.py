@@ -126,8 +126,6 @@ class XmlFileFormat(PyFFI.ObjectModels.FileFormat.FileFormat):
     __metaclass__ = _MetaXmlFileFormat
     xmlFileName = None #: Override.
     xmlFilePath = None #: Override.
-    # XXX remove clsFilePath when customization by subclassing is done
-    clsFilePath = None #: Override.
 
     # We also keep an ordered list of all classes that have been created.
     # The xmlStruct list includes all xml generated struct classes,

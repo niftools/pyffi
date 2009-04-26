@@ -1,10 +1,16 @@
 Release 1.2.5 (in development)
 ==============================
 
-* Updates and fixes for the KFM format.
+* Updates to the XML object model (affects CGF, DDS, KFM, NIF, and TGA).
 
-  - New _KfmFormat base class that just contains the generated code.
-    Customizations are implemented in KfmFormat.
+  - Class customizers are taken immediately from the format class, and not
+    from separate modules --- all code from customization modules has been
+    moved into the main format classes. The result is that parsing is faster
+    by about 50 percent.
+
+  - clsFilePath removed, as it is no longer used.
+
+* Updates and fixes for the KFM format.
 
   - The Data element inherits from Header, and Header includes also all
     animations, so it is more straightforward to edit files.
@@ -12,9 +18,6 @@ Release 1.2.5 (in development)
   - The KFM files open again in QSkope.
 
 * Updates for the CGF format.
-
-  - New _CgfFormat base class that just contains the generated code.
-    Customizations are implemented in CgfFormat.
 
   - CHUNK_MAP no longer constructed in Data.__init__ but in a metaclass.
 
