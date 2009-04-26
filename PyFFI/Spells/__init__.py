@@ -7,14 +7,20 @@
    This module is based on wz's NifTester module, although
    nothing of wz's original code is left in this module.
 
-:term:`Spell <spell>`\ s can also run independently of :term:`toaster`\ s, and be applied
-on branches directly. The recommended way of doing this is via the
-:meth:`Spell.recurse` method.
+A :term:`toaster`, implemented by subclasses of the abstract
+:class:`Toaster` class, walks over all files in a folder, and applies
+one or more transformations on each file. Such transformations are
+called :term:`spell`\ s, and are implemented by subclasses of the
+abstract :class:`Spell` class.
+
+A :term:`spell` can also run independently of a :term:`toaster` and be
+applied on a branch directly. The recommended way of doing this is via
+the :meth:`Spell.recurse` method.
 
 Supported spells
 ----------------
 
-For format specific spells, refer to the following:
+For format specific spells, refer to the corresponding module.
 
 .. toctree::
    :maxdepth: 2
@@ -25,6 +31,9 @@ For format specific spells, refer to the following:
    PyFFI.Spells.KFM
    PyFFI.Spells.NIF
    PyFFI.Spells.TGA
+
+Some spells are applicable on every file format, and those are documented
+here.
 
 .. autoclass:: SpellApplyPatch
    :show-inheritance:
@@ -39,7 +48,8 @@ toaster.
 
 .. autoclass:: Spell
    :show-inheritance:
-   :members: __init__, recurse, _datainspect, datainspect, _branchinspect,
+   :members: READONLY, SPELLNAME, data, stream, toaster,
+             __init__, recurse, _datainspect, datainspect, _branchinspect,
              branchinspect, dataentry, dataexit, branchentry,
              branchexit, toastentry, toastexit
 
@@ -283,7 +293,7 @@ class Spell(object):
     def dataentry(self):
         """Called before all blocks are recursed.
         The default implementation simply returns ``True``.
-        You can access the data via C{self.:attr:`data`}, and unlike in the
+        You can access the data via :attr:`data`, and unlike in the
         :meth:`datainspect` method, the full file has been processed at this stage.
 
         Typically, you will override this function to perform a global
@@ -365,7 +375,7 @@ class Spell(object):
 
 class SpellGroupBase(Spell):
     """Base class for grouping spells. This implements all the spell grouping
-    functions that fall outside of the actual recursing (L{__init__},
+    functions that fall outside of the actual recursing (:meth:`__init__`,
     :meth:`toastentry`, :meth:`_datainspect`, :meth:`datainspect`, and :meth:`toastexit`).
     """
 
@@ -445,7 +455,7 @@ class SpellGroupParallelBase(SpellGroupBase):
     a single recursion in the tree).
     """
     def branchinspect(self, branch):
-        """Inspect spells with L{Spell.branchinspect} (not all checks are
+        """Inspect spells with :meth:`Spell.branchinspect` (not all checks are
         executed, only keeps going until a spell inspection returns ``True``).
         """
         return any(spell.branchinspect(branch) for spell in self.spells)
@@ -460,13 +470,13 @@ class SpellGroupParallelBase(SpellGroupBase):
              spell.branchexit(branch)
 
     def dataentry(self):
-        """Look into every spell with L{Spell.dataentry}."""
+        """Look into every spell with :meth:`Spell.dataentry`."""
         self.spells = [spell for spell in self.spells
                        if spell.dataentry()]
         return bool(self.spells)
 
     def dataexit(self):
-        """Look into every spell with L{Spell.dataexit}."""
+        """Look into every spell with :meth:`Spell.dataexit`."""
         for spell in self.spells:
             spell.dataexit()
 
@@ -578,8 +588,8 @@ class Toaster(object):
             for block_type in self.options.get("exclude", ()))
 
     def msg(self, message):
-        """Write log message with C{L{logger}.info}), taking into account
-        L{indent}.
+        """Write log message with :meth:`logger.info`, taking into account
+        :attr:`indent`.
 
         :param message: The message to write.
         :type message: ``str``
@@ -588,13 +598,13 @@ class Toaster(object):
             self.logger.info("  " * self.indent + line)
 
     def msgblockbegin(self, message):
-        """Acts like L{msg}, but also increases L{indent} after writing the
+        """Acts like :meth:`msg`, but also increases :attr:`indent` after writing the
         message."""
         self.msg(message)
         self.indent += 1
 
     def msgblockend(self, message=None):
-        """Acts like L{msg}, but also decreases L{indent} before writing the
+        """Acts like :meth:`msg`, but also decreases :attr:`indent` before writing the
         message, but if the message argument is ``None``, then no message is
         printed."""
         self.indent -= 1
@@ -675,7 +685,7 @@ class Toaster(object):
 
     def cli(self):
         """Command line interface: initializes spell classes and options from
-        the command line, and run the L{toast} method.
+        the command line, and run the :meth:`toast` method.
         """
         # parse options and positional arguments
         usage = "%prog [options] <spell1> <spell2> ... <file>|<folder>"
