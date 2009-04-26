@@ -1,16 +1,161 @@
-Index: src/epydoc/markup/__init__.py
+Index: src/epydoc/markup/restructuredtext.py
 ===================================================================
---- src/epydoc/markup/__init__.py	(revision 1812)
-+++ src/epydoc/markup/__init__.py	(working copy)
-@@ -173,6 +173,11 @@
-     # Keep track of which markup languages have been used so far.
-     MARKUP_LANGUAGES_USED.add(markup)
+--- src/epydoc/markup/restructuredtext.py	(revision 1812)
++++ src/epydoc/markup/restructuredtext.py	(working copy)
+@@ -729,6 +729,12 @@
  
-+    # This is a quick and dirty way of disabling sphinx extensions.
-+    # There surely must be a better way of doing this directly in
-+    # :mod:`epydoc.markup.restructuredtext`...
-+    docstring = docstring.replace(":mod:", "")
+         HTMLTranslator.visit_emphasis(self, node)
+ 
++    def unknown_visit(self, node):
++        pass
 +
-     # Parse the docstring.
-     try: parsed_docstring = parse_docstring(docstring, errors, **options)
-     except KeyboardInterrupt: raise
++    def unknown_departure(self, node):
++        pass
++
+ def python_code_directive(name, arguments, options, content, lineno,
+                           content_offset, block_text, state, state_machine):
+     """
+@@ -946,3 +952,143 @@
+         docs = [context]
+     return call_graph(docs, docindex, linker, context, **options)
+   
++# register sphinx roles and directives
++import epydoc.docwriter.xlink
++import docutils.parsers.rst.directives.misc
++import docutils.parsers.rst.directives.admonitions
++from docutils.parsers.rst import Directive
++
++# links
++#epydoc.docwriter.xlink.register_api('mod')
++#epydoc.docwriter.xlink.create_api_role('mod', False)
++#epydoc.docwriter.xlink.register_api('class')
++#epydoc.docwriter.xlink.create_api_role('class', False)
++#epydoc.docwriter.xlink.register_api('attr')
++#epydoc.docwriter.xlink.create_api_role('attr', False)
++#epydoc.docwriter.xlink.register_api('meth')
++#epydoc.docwriter.xlink.create_api_role('meth', False)
++
++# markup
++def reference_role(name, rawtext, text, lineno, inliner,
++                   options={}, content=[]):
++    # sphinx extension for references with just last component
++    # not sure how to do this with epydoc...
++    if text.startswith('~'):
++        text = text[1:]
++    #node = docutils.nodes.literal(rawtext, text, **options)
++    #url = ???
++    #if url is not None:
++    #    node = docutils.nodes.reference(rawtext, '', refuri=url, **options)
++    node = docutils.nodes.title_reference(rawtext, text, **options)
++    node.attributes['classes'].append('title_reference')
++    return [node], []
++def literal_role(name, rawtext, text, lineno, inliner,
++                 options={}, content=[]):
++    text = docutils.utils.unescape(text)
++    node = docutils.nodes.literal(rawtext, text, **options)
++    node.attributes['classes'].append('literal')
++    return [node], []
++def strong_role(name, rawtext, text, lineno, inliner,
++                options={}, content=[]):
++    text = docutils.utils.unescape(text)
++    node = docutils.nodes.strong(rawtext, text, **options)
++    node.attributes['classes'].append('strong')
++    return [node], []
++roles.register_local_role('mod', reference_role)
++roles.register_local_role('class', reference_role)
++roles.register_local_role('attr', reference_role)
++roles.register_local_role('meth', reference_role)
++roles.register_local_role('file', literal_role)
++roles.register_local_role('envvar', strong_role)
++
++# advanced stuff that we will ignore
++
++class TocTree(Directive):
++    """
++    Directive to notify Sphinx about the hierarchical structure of the docs,
++    and to include a table-of-contents like tree in the current document.
++    """
++    has_content = True
++    required_arguments = 0
++    optional_arguments = 0
++    final_argument_whitespace = False
++    option_spec = {
++        'maxdepth': int,
++        'glob': directives.flag,
++        'hidden': directives.flag,
++        'numbered': directives.flag,
++    }
++    def run(self):
++        return []
++
++directives.register_directive('toctree', TocTree)
++
++class LiteralInclude(docutils.parsers.rst.directives.misc.Include):
++    """
++    Like ``.. include:: :literal:``, but only warns if the include file is
++    not found, and does not raise errors.  Also has several options for
++    selecting what to include.
++    """
++    required_arguments = 1
++    optional_arguments = 0
++    option_spec = {
++        'linenos': directives.flag,
++        'language': directives.unchanged_required,
++        'encoding': directives.encoding,
++        'pyobject': directives.unchanged_required,
++        'lines': directives.unchanged_required,
++        'start-after': directives.unchanged_required,
++        'end-before': directives.unchanged_required,
++    }
++    def run(self):
++        self.options['literal'] = True
++        return docutils.parsers.rst.directives.misc.Include.run(self)
++
++directives.register_directive('literalinclude', LiteralInclude)
++
++# XXX epydoc just keeps complaining about this one...
++directives.register_directive(
++    'warning', docutils.parsers.rst.directives.admonitions.Warning)
++
++class DefDict(dict):
++    """A dict that returns a default on nonexisting keys."""
++    def __init__(self, default):
++        dict.__init__(self)
++        self.default = default
++    def __getitem__(self, key):
++        try:
++            return dict.__getitem__(self, key)
++        except KeyError:
++            return self.default
++    def __nonzero__(self):
++        # docutils check "if option_spec"
++        return True
++
++identity = lambda x: x
++
++class StubDirective(Directive):
++    """
++    Pretty table containing short signatures and summaries of functions etc.
++    autosummary also generates a (hidden) toctree:: node.
++    """
++    has_content = True
++    required_arguments = 1
++    optional_arguments = 0
++    final_argument_whitespace = True
++    # allow any options to be passed; the options are parsed further
++    # by the selected Documenter
++    option_spec = DefDict(identity)
++
++    def run(self):
++        return []
++
++directives.register_directive('automodule', StubDirective)
++directives.register_directive('autoattribute', StubDirective)
++directives.register_directive('autoclass', StubDirective)
++directives.register_directive('autofunction', StubDirective)
++directives.register_directive('todo', StubDirective)
++
++# XXX just importing these does not work unfortunately
++#import sphinx.roles
++#import sphinx.directives
++#import sphinx.addnodes
