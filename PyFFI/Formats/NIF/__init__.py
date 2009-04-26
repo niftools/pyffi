@@ -184,6 +184,7 @@ Fallout 3 0x14020007
 Freedom Force 0x04000000 0x04000002
 Freedom Force vs. the 3rd Reich 0x0A010000
 Kohan 2 0x0A010000
+Lazeka 0x14030009
 Loki 0x0A020000
 Megami Tensei: Imagine 0x14010003
 Morrowind 0x04000002
