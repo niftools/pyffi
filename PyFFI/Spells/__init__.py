@@ -526,85 +526,6 @@ class SpellApplyPatch(Spell):
         # do not go further, spell is done
         return False
 
-class _MetaCompatSpell(type):
-    """Metaclass for compatibility spell factory."""
-    def __init__(cls, name, bases, dct):
-        # create the derived class
-        super(_MetaCompatSpell, cls).__init__(name, bases, dct)
-        # set readonly class variable
-        cls.READONLY = getattr(cls.SPELLMODULE, "__readonly__", True)
-        # spell name is the last component of the name of the module
-        cls.SPELLNAME = cls.SPELLMODULE.__name__.split(".")[-1]
-        # set documentation
-        cls.__doc__ = getattr(cls.SPELLMODULE, "__doc__", "Undocumented.")
-
-class _CompatSpell(Spell):
-    """This is a spell class that can be instantiated from an
-    old-style spell module. DO NOT USE FOR NEW SPELLS! Only for
-    backwards compatibility with the nif spells.
-    """
-    SPELLMODULE = type("spellmod", (object,), {}) # stub
-    __metaclass__ = _MetaCompatSpell
-
-    def branchinspect(self, branch):
-        return hasattr(self.SPELLMODULE, "testBlock")
-
-    def dataentry(self):
-        # the beginning; start with testing the roots
-        if hasattr(self.SPELLMODULE, "testRoot"):
-            # the roots in the old system are children of data root
-            for root in self.data.getGlobalChildNodes():
-                self.SPELLMODULE.testRoot(root, **self.toaster.options)
-        # continue recursion
-        return True
-
-    def branchentry(self, branch):
-        # test the block
-        self.SPELLMODULE.testBlock(branch, **self.toaster.options)
-        # continue recursion
-        return True
-
-    def dataexit(self):
-        """Calls the testFile function."""
-        if hasattr(self.SPELLMODULE, "testFile"):
-            self.SPELLMODULE.testFile(
-                self.stream,
-                self.data.version, self.data.user_version,
-                self.data.roots,
-                **self.toaster.options)
-
-def CompatSpellFactory(spellmod):
-    """Create new-style spell class from old-style spell module.
-
-    :param spellmod: The old-style spell module.
-    :type spellmod: C{ModuleType}
-    :return: The new-style spell class.
-    :rtype: C{type(L{Spell})}
-    """
-    return type(spellmod.__name__.split(".")[-1], (_CompatSpell,),
-                {"SPELLMODULE": spellmod})
-
-class _MetaCompatToaster(type):
-    """Metaclass for :class:`Toaster` which converts old-style module spells into
-    new-style class spells.
-
-    This is only for temporary use until all spells have been converted to
-    the new class system.
-    """
-
-    def __init__(cls, name, bases, dct):
-        """Check the list of spells, and convert old-style modules to new-style
-        classes."""
-        super(_MetaCompatToaster, cls).__init__(name, bases, dct)
-        logger = logging.getLogger("pyffi.toaster") # no self.logger yet
-        for i, spellclass in enumerate(cls.SPELLS):
-            if isinstance(spellclass, ModuleType):
-                logger.warn(
-                    "Old style spells will be removed in a next release. "
-                    "Please reimplement the %s module using the Spell class. "
-                    % spellclass.__name__)
-                cls.SPELLS[i] = CompatSpellFactory(spellclass)
-
 class Toaster(object):
     """Toaster base class. Toasters run spells on large quantities of files.
     They load each file and pass the data structure to any number of spells.
@@ -636,8 +557,6 @@ class Toaster(object):
     SPELLS = [] # override when subclassing
     EXAMPLES = "" # override when subclassing
     ALIASDICT = {} # override when subclassing
-
-    __metaclass__ = _MetaCompatToaster # for compatibility
 
     def __init__(self, spellclass=None, options=None):
         """Initialize the toaster.
