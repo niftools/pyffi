@@ -1166,8 +1166,8 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             # read header
             logger.debug("Reading header at 0x%08X" % stream.tell())
             self.inspectVersionOnly(stream)
+            logger.debug("Version 0x%08X" % self.version)
             self.header.read(stream, data=self)
-            #logger.debug("%s" % self.header)
 
             # list of root blocks
             # for versions < 3.3.0.13 this list is updated through the
