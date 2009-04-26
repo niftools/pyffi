@@ -2170,7 +2170,7 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             return PyFFI.Utils.Inertia.getMassCenterInertiaPolyhedron(
                 vertices, triangles, density = density, solid = solid)
 
-    class bhklimitedHingeConstraint:
+    class bhkLimitedHingeConstraint:
         def applyScale(self, scale):
             """Scale data."""
             # apply scale on transform
