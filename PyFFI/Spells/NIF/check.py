@@ -702,3 +702,45 @@ class SpellCheckTriStrip(PyFFI.Spells.NIF.NifSpell):
             self.toaster.msg('checking unstitched strip triangles')
             unstitchedstrips = PyFFI.Utils.TriStrip.unstitchStrip(stitchedstrip)
             PyFFI.Utils.TriStrip._checkStrips(triangles, unstitchedstrips)
+
+class SpellCheckVersion(PyFFI.Spells.NIF.NifSpell):
+    """Checks all versions used by the files (without reading the full files).
+    """
+    SPELLNAME = 'check_version'
+
+    @classmethod
+    def toastentry(cls, toaster):
+        toaster.versions = {} # counts number of nifs with version
+        toaster.user_versions = {} # tracks used user version's per version
+        toaster.user_version2s = {} # tracks used user version2's per version
+        return True
+
+    @classmethod
+    def toastexit(cls, toaster):
+        for version in toaster.versions:
+            toaster.msgblockbegin("version 0x%08X" % version)
+            toaster.msg("number of nifs: %s" % toaster.versions[version])
+            toaster.msg("user version:  %s" % toaster.user_versions[version])
+            toaster.msg("user version2: %s" % toaster.user_version2s[version])
+            toaster.msgblockend()
+
+    def datainspect(self):
+        # some shortcuts
+        version = self.data.version
+        user_version = self.data.user_version
+        user_version2 = self.data.user_version2
+        # report
+        self.toaster.msg("version      0x%08X" % version)
+        self.toaster.msg("user version %i" % user_version)
+        self.toaster.msg("user version %i" % user_version2)
+        # update stats
+        if version not in self.toaster.versions:
+            self.toaster.versions[version] = 0
+            self.toaster.user_versions[version] = []
+            self.toaster.user_version2s[version] = []
+        self.toaster.versions[version] += 1
+        if user_version not in self.toaster.user_versions[version]:
+            self.toaster.user_versions[version].append(user_version)
+        if user_version2 not in self.toaster.user_version2s[version]:
+            self.toaster.user_version2s[version].append(user_version2)
+        return False
