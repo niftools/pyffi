@@ -706,32 +706,6 @@ but got %s instead"""%name)
                 if isinstance(attrtype, basestring):
                     attr.type = getattr(self.cls, attrtype)
 
-            # add custom functions to interface
-            # first find the module
-            oldsyspath = sys.path
-            # note: keep the old sys.path because the customize modules might
-            # import other modules (such as math)
-            # old style:
-            sys.path = [self.cls.clsFilePath] + sys.path
-            try:
-                # import custom object module
-                mod = __import__(obj.__name__, globals(),  locals(), [])
-            except ImportError, err:
-                if str(err) != "No module named " + obj.__name__:
-                    raise
-            else:
-                # set object's cls argument to give it access to other
-                # objects defined in self.cls
-                obj.cls = self.cls
-                # iterate over all objects defined in the module
-                for objname, objfunc in mod.__dict__.items():
-                    # skip if it is not a function
-                    if not isinstance(objfunc, types.FunctionType):
-                        continue
-                    setattr(obj, objname, objfunc)
-            finally:
-                sys.path = oldsyspath
-
     def characters(self, chars):
         """Add the string C{chars} to the docstring.
         For version tags, updates the game version list."""
