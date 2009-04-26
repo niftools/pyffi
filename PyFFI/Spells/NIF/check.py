@@ -382,7 +382,7 @@ class SpellCheckCenterRadius(PyFFI.Spells.NIF.NifSpell):
                self.toaster.logger.warn(
                    "center does not match; original %s, calculated %s"
                    % (center, branch.center))
-            if abs(radius - branch.radius) > NifFormat._EPSILON:
+            if abs(radius - branch.radius) > NifFormat.EPSILON:
                self.toaster.logger.warn(
                    "radius does not match; original %s, calculated %s"
                    % (radius, branch.radius))
@@ -426,7 +426,7 @@ class SpellCheckSkinCenterRadius(PyFFI.Spells.NIF.NifSpell):
                         % (branch.skinInstance.bones[i].name,
                            center[i], skindatablock.boundingSphereOffset))
                 if abs(radius[i] - skindatablock.boundingSphereRadius) \
-                    > NifFormat._EPSILON:
+                    > NifFormat.EPSILON:
                     self.toaster.logger.error(
                         "%s radius does not match; original %s, calculated %s"
                         % (branch.skinInstance.bones[i].name,
@@ -594,19 +594,19 @@ class SpellCheckTangentSpace(PyFFI.Spells.NIF.NifSpell):
             oldspace = [] # we will store the old tangent space here
             for i, (n, t, b) in enumerate(tangentspace):
                 oldspace.append(n.asList() + t.asList() + b.asList())
-                if abs(n * n - 1) > NifFormat._EPSILON:
+                if abs(n * n - 1) > NifFormat.EPSILON:
                     self.toaster.logger.warn(
                         'non-unit normal %s (norm %f) at vertex %i'
                         % (n, (n * n) ** 0.5, i))
-                if abs(t * t - 1) > NifFormat._EPSILON:
+                if abs(t * t - 1) > NifFormat.EPSILON:
                     self.toaster.logger.warn(
                         'non-unit tangent %s (norm %f) at vertex %i'
                         % (t, (t * t) ** 0.5, i))
-                if abs(b * b - 1) > NifFormat._EPSILON:
+                if abs(b * b - 1) > NifFormat.EPSILON:
                     self.toaster.logger.warn(
                         'non-unit binormal %s (norm %f) at vertex %i'
                         % (b, (b * b) ** 0.5, i))
-                if abs(n * t) + abs(n * b) > NifFormat._EPSILON:
+                if abs(n * t) + abs(n * b) > NifFormat.EPSILON:
                     volume = n * t.crossproduct(b)
                     self.toaster.logger.warn(
                         'non-ortogonal tangent space at vertex %i' % i)

@@ -144,12 +144,6 @@ class Spell(object):
     useful with it. The main entry point for spells is :meth:`recurse`, so if you
     are writing new spells, start with reading the documentation with
     :meth:`recurse`.
-
-    .. autoattribute:: READONLY
-    .. autoattribute:: SPELLNAME
-    .. autoattribute:: data
-    .. autoattribute:: stream
-    .. autoattribute:: toaster
     """
 
     data = None
@@ -373,18 +367,18 @@ class SpellGroupBase(Spell):
     """Base class for grouping spells. This implements all the spell grouping
     functions that fall outside of the actual recursing (L{__init__},
     :meth:`toastentry`, :meth:`_datainspect`, :meth:`datainspect`, and :meth:`toastexit`).
-
-    @cvar SPELLCLASSES: List of spells of this group.
-    :type SPELLCLASSES: ``list`` of :class:`Spell`
-    @cvar ACTIVESPELLCLASSES: List of active spells of this
-        groups. This list is automatically built when :meth:`toastentry` is
-        called.
-    :type ACTIVESPELLCLASSES: ``list`` of C{type(L{Spell})}
-    :attr spells: List of active spell instances.
-    :type spells: ``list`` of L{Spell}
     """
+
     SPELLCLASSES = []
+    """List of :class:`Spell`\ s of this group (not instantiated)."""
+
     ACTIVESPELLCLASSES = []
+    """List of active spells of this group (not instantiated).
+    This list is automatically built when :meth:`toastentry` is called.
+    """
+
+    spells = []
+    """List of active spell instances."""
 
     def __init__(self, toaster, data, stream):
         """Initialize the spell data for all given spells.
@@ -529,34 +523,38 @@ class SpellApplyPatch(Spell):
 class Toaster(object):
     """Toaster base class. Toasters run spells on large quantities of files.
     They load each file and pass the data structure to any number of spells.
-
-    @cvar FILEFORMAT: The file format class.
-    :type FILEFORMAT: C{type(L{FileFormat})}
-    @cvar SPELLS: List of all available spell classes.
-    :type SPELLS: ``list`` of C{type(L{Spell})}
-    @cvar EXAMPLES: Description of example use.
-    :type EXAMPLES: ``str``
-    @cvar ALIASDICT: Dictionary with aliases for spells.
-    :type ALIASDICT: C{dict}
-    :attr spellclasses: List of spell classes for the particular instance (must
-        be a subset of L{SPELLS}).
-    :type spellclasses: ``list`` of C{type(L{Spell})}
-    :attr options: The options of the toaster.
-    :type options: C{dict}
-    :attr indent: Current level of indentation for messages.
-    :type indent: ``int``
-    :attr logger: For log messages.
-    :type logger: C{logging.Logger}
-    :attr include_types: Tuple of types corresponding to C{options.include}.
-    :type include_types: C{tuple}
-    :attr exclude_types: Tuple of types corresponding to C{options.exclude}.
-    :type exclude_types: C{tuple}
     """
 
-    FILEFORMAT = PyFFI.ObjectModels.FileFormat.FileFormat # override
-    SPELLS = [] # override when subclassing
-    EXAMPLES = "" # override when subclassing
-    ALIASDICT = {} # override when subclassing
+    FILEFORMAT = PyFFI.ObjectModels.FileFormat.FileFormat
+    """The file format class (a subclass of
+    :class:`~PyFFI.ObjectModels.FileFormat.FileFormat`)."""
+
+    SPELLS = []
+    """List of all available :class:`~PyFFI.Spells.Spell` classes."""
+
+    EXAMPLES = ""
+    """Some examples which describe typical use of the toaster."""
+
+    ALIASDICT = {}
+    """Dictionary with aliases for spells."""
+
+    spellclasses = []
+    """List of spell classes of the particular :class:`Toaster` instance."""
+
+    options = {}
+    """The options of the toaster, as ``dict``."""
+
+    indent = 0
+    """An ``int`` which describes the current indentation level for messages."""
+
+    logger = logging.getLogger("pyffi.toaster")
+    """A :class:`logging.Logger` for toaster log messages."""
+
+    include_types = []
+    """Tuple of types corresponding to the include key of :attr:`options`."""
+
+    exclude_types = []
+    """Tuple of types corresponding to the exclude key of :attr:`options`."""
 
     def __init__(self, spellclass=None, options=None):
         """Initialize the toaster.
@@ -564,7 +562,7 @@ class Toaster(object):
         :param spellclass: The spell class.
         :type spellclass: C{type(L{Spell})}
         :param options: The options (as keyword arguments).
-        :type options: C{dict}
+        :type options: ``dict``
         """
         self.spellclass = spellclass
         self.options = options if options else {}

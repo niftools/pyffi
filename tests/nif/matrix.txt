@@ -59,14 +59,14 @@ True
 >>> s, r = mat.getInverse().getScaleRotation()
 >>> print("%.5f"%s)
 3.11526
->>> abs(0.321 - 1/s) < NifFormat._EPSILON
+>>> abs(0.321 - 1/s) < NifFormat.EPSILON
 True
 >>> print(r) # same as print mat.getTranspose() above
 [ -0.434 -0.452  0.779 ]
 [  0.893 -0.103  0.438 ]
 [ -0.117  0.886  0.448 ]
 <BLANKLINE>
->>> abs(mat.getDeterminant() - 0.321 ** 3) < NifFormat._EPSILON
+>>> abs(mat.getDeterminant() - 0.321 ** 3) < NifFormat.EPSILON
 True
 >>> mat *= -2
 >>> print(mat)
@@ -76,7 +76,7 @@ True
 <BLANKLINE>
 >>> print("%.5f"%mat.getScale())
 -0.64200
->>> abs(mat.getDeterminant() + 0.642 ** 3) < NifFormat._EPSILON
+>>> abs(mat.getDeterminant() + 0.642 ** 3) < NifFormat.EPSILON
 True
 >>> mat2 = NifFormat.Matrix44()
 >>> mat2.setIdentity()

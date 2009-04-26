@@ -135,8 +135,8 @@ def getMopperOriginScaleCodeWelding(vertices, triangles, material_indices=None):
     :return: The origin as a tuple of floats, the mopp scale as a float,
         the mopp code as a list of ints, and the welding info as a list of
         ints.
-    :rtype: C{tuple} of C{float}s, C{float}, ``list`` of ``int``s, and ``list``
-        of ``int``s
+    :rtype: ``tuple`` of ``float``\ s, ``float``, ``list`` of ``int``\ s, and ``list``
+        of ``int``\ s
     """
 
     if material_indices is None:

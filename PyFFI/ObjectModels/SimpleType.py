@@ -58,7 +58,7 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType):
     """Base class from which all simple types are derived. Simple
     types contain data which is not divided further into smaller pieces,
     and that can represented efficiently by a (usually native) Python type,
-    typically ``int``, C{float}, or L{str}.
+    typically ``int``, ``float``, or ``str``.
 
     A brief example of usage:
 

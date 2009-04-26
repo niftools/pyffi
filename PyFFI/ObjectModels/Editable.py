@@ -91,8 +91,8 @@ class EditableFloatSpinBox(EditableSpinBox):
     contains a float. Override getEditorDecimals to set the number of decimals
     in the editor display.
 
-    Requirement: getEditorValue must return a C{float}, setEditorValue
-    must take a C{float}.
+    Requirement: getEditorValue must return a ``float``, setEditorValue
+    must take a ``float``.
     """
 
     def getEditorDecimals(self):

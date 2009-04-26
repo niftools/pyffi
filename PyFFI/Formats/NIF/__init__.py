@@ -331,7 +331,7 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
     # .nifcache are Empire Earth II nif files
     RE_FILENAME = re.compile(r'^.*\.(nif|kf|kfa|nifcache)$', re.IGNORECASE)
     # used for comparing floats
-    _EPSILON = 0.0001
+    EPSILON = 0.0001
 
     # basic types
     int = PyFFI.ObjectModels.Common.Int
@@ -1541,15 +1541,15 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
 
         def isIdentity(self):
             """Return ``True`` if the matrix is close to identity."""
-            if  (abs(self.m11 - 1.0) > NifFormat._EPSILON
-                 or abs(self.m12) > NifFormat._EPSILON
-                 or abs(self.m13) > NifFormat._EPSILON
-                 or abs(self.m21) > NifFormat._EPSILON
-                 or abs(self.m22 - 1.0) > NifFormat._EPSILON
-                 or abs(self.m23) > NifFormat._EPSILON
-                 or abs(self.m31) > NifFormat._EPSILON
-                 or abs(self.m32) > NifFormat._EPSILON
-                 or abs(self.m33 - 1.0) > NifFormat._EPSILON):
+            if  (abs(self.m11 - 1.0) > NifFormat.EPSILON
+                 or abs(self.m12) > NifFormat.EPSILON
+                 or abs(self.m13) > NifFormat.EPSILON
+                 or abs(self.m21) > NifFormat.EPSILON
+                 or abs(self.m22 - 1.0) > NifFormat.EPSILON
+                 or abs(self.m23) > NifFormat.EPSILON
+                 or abs(self.m31) > NifFormat.EPSILON
+                 or abs(self.m32) > NifFormat.EPSILON
+                 or abs(self.m33 - 1.0) > NifFormat.EPSILON):
                 return False
             else:
                 return True
@@ -1584,7 +1584,7 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
 
         def isScaleRotation(self):
             """Returns true if the matrix decomposes nicely into scale * rotation."""
-            # NOTE: 0.01 instead of NifFormat._EPSILON to work around bad nif files
+            # NOTE: 0.01 instead of NifFormat.EPSILON to work around bad nif files
 
             # calculate self * self^T
             # this should correspond to
@@ -1609,7 +1609,7 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
         def isRotation(self):
             """Returns ``True`` if the matrix is a rotation matrix
             (a member of SO(3))."""
-            # NOTE: 0.01 instead of NifFormat._EPSILON to work around bad nif files
+            # NOTE: 0.01 instead of NifFormat.EPSILON to work around bad nif files
 
             if not self.isScaleRotation():
                 return False
@@ -1639,7 +1639,7 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             and rotation is a C{Matrix33}. Returns a pair (scale, rotation)."""
             rot = self.getCopy()
             scale = self.getScale()
-            if abs(scale) < NifFormat._EPSILON:
+            if abs(scale) < NifFormat.EPSILON:
                 raise ZeroDivisionError('scale is zero, unable to obtain rotation')
             rot /= scale
             return (scale, rot)
@@ -1670,7 +1670,7 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             quat = NifFormat.Quaternion()
             trace = 1.0 + rot.m11 + rot.m22 + rot.m33
 
-            if trace > NifFormat._EPSILON:
+            if trace > NifFormat.EPSILON:
                 s = (trace ** 0.5) * 2
                 quat.x = -( rot.m32 - rot.m23 ) / s
                 quat.y = -( rot.m13 - rot.m31 ) / s
@@ -1765,15 +1765,15 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             if not isinstance(mat, NifFormat.Matrix33):
                 raise TypeError(
                     "do not know how to compare Matrix33 and %s"%mat.__class__)
-            if (abs(self.m11 - mat.m11) > NifFormat._EPSILON
-                or abs(self.m12 - mat.m12) > NifFormat._EPSILON
-                or abs(self.m13 - mat.m13) > NifFormat._EPSILON
-                or abs(self.m21 - mat.m21) > NifFormat._EPSILON
-                or abs(self.m22 - mat.m22) > NifFormat._EPSILON
-                or abs(self.m23 - mat.m23) > NifFormat._EPSILON
-                or abs(self.m31 - mat.m31) > NifFormat._EPSILON
-                or abs(self.m32 - mat.m32) > NifFormat._EPSILON
-                or abs(self.m33 - mat.m33) > NifFormat._EPSILON):
+            if (abs(self.m11 - mat.m11) > NifFormat.EPSILON
+                or abs(self.m12 - mat.m12) > NifFormat.EPSILON
+                or abs(self.m13 - mat.m13) > NifFormat.EPSILON
+                or abs(self.m21 - mat.m21) > NifFormat.EPSILON
+                or abs(self.m22 - mat.m22) > NifFormat.EPSILON
+                or abs(self.m23 - mat.m23) > NifFormat.EPSILON
+                or abs(self.m31 - mat.m31) > NifFormat.EPSILON
+                or abs(self.m32 - mat.m32) > NifFormat.EPSILON
+                or abs(self.m33 - mat.m33) > NifFormat.EPSILON):
                 return False
             return True
 
@@ -1827,7 +1827,7 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
 
         def normalize(self):
             norm = self.norm()
-            if norm < NifFormat._EPSILON:
+            if norm < NifFormat.EPSILON:
                 raise ZeroDivisionError('cannot normalize vector %s'%self)
             self.x /= norm
             self.y /= norm
@@ -1958,9 +1958,9 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
                 return False
             if not isinstance(x, NifFormat.Vector3):
                 raise TypeError("do not know how to compare Vector3 and %s"%x.__class__)
-            if abs(self.x - x.x) > NifFormat._EPSILON: return False
-            if abs(self.y - x.y) > NifFormat._EPSILON: return False
-            if abs(self.z - x.z) > NifFormat._EPSILON: return False
+            if abs(self.x - x.x) > NifFormat.EPSILON: return False
+            if abs(self.y - x.y) > NifFormat.EPSILON: return False
+            if abs(self.z - x.z) > NifFormat.EPSILON: return False
             return True
 
         def __ne__(self, x):
@@ -2026,10 +2026,10 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             if not isinstance(rhs, NifFormat.Vector4):
                 raise TypeError(
                     "do not know how to compare Vector4 and %s" % rhs.__class__)
-            if abs(self.x - rhs.x) > NifFormat._EPSILON: return False
-            if abs(self.y - rhs.y) > NifFormat._EPSILON: return False
-            if abs(self.z - rhs.z) > NifFormat._EPSILON: return False
-            if abs(self.w - rhs.w) > NifFormat._EPSILON: return False
+            if abs(self.x - rhs.x) > NifFormat.EPSILON: return False
+            if abs(self.y - rhs.y) > NifFormat.EPSILON: return False
+            if abs(self.z - rhs.z) > NifFormat.EPSILON: return False
+            if abs(self.w - rhs.w) > NifFormat.EPSILON: return False
             return True
 
         def __ne__(self, rhs):
@@ -2152,7 +2152,7 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
     class bhkConvexVerticesShape:
         def applyScale(self, scale):
             """Apply scale factor on data."""
-            if abs(scale - 1.0) < NifFormat._EPSILON: return
+            if abs(scale - 1.0) < NifFormat.EPSILON: return
             for v in self.vertices:
                 v.x *= scale
                 v.y *= scale
@@ -3025,7 +3025,7 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
     class hkPackedNiTriStripsData:
         def applyScale(self, scale):
             """Apply scale factor on data."""
-            if abs(scale - 1.0) < NifFormat._EPSILON:
+            if abs(scale - 1.0) < NifFormat.EPSILON:
                 return
             for vert in self.vertices:
                 vert.x *= scale
@@ -3075,15 +3075,15 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
 
         def isIdentity(self):
             """Return ``True`` if the matrix is close to identity."""
-            if  (abs(self.m11 - 1.0) > NifFormat._EPSILON
-                 or abs(self.m12) > NifFormat._EPSILON
-                 or abs(self.m13) > NifFormat._EPSILON
-                 or abs(self.m21) > NifFormat._EPSILON
-                 or abs(self.m22 - 1.0) > NifFormat._EPSILON
-                 or abs(self.m23) > NifFormat._EPSILON
-                 or abs(self.m31) > NifFormat._EPSILON
-                 or abs(self.m32) > NifFormat._EPSILON
-                 or abs(self.m33 - 1.0) > NifFormat._EPSILON):
+            if  (abs(self.m11 - 1.0) > NifFormat.EPSILON
+                 or abs(self.m12) > NifFormat.EPSILON
+                 or abs(self.m13) > NifFormat.EPSILON
+                 or abs(self.m21) > NifFormat.EPSILON
+                 or abs(self.m22 - 1.0) > NifFormat.EPSILON
+                 or abs(self.m23) > NifFormat.EPSILON
+                 or abs(self.m31) > NifFormat.EPSILON
+                 or abs(self.m32) > NifFormat.EPSILON
+                 or abs(self.m33 - 1.0) > NifFormat.EPSILON):
                 return False
             else:
                 return True
@@ -3109,15 +3109,15 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
             if not isinstance(mat, NifFormat.InertiaMatrix):
                 raise TypeError(
                     "do not know how to compare InertiaMatrix and %s"%mat.__class__)
-            if (abs(self.m11 - mat.m11) > NifFormat._EPSILON
-                or abs(self.m12 - mat.m12) > NifFormat._EPSILON
-                or abs(self.m13 - mat.m13) > NifFormat._EPSILON
-                or abs(self.m21 - mat.m21) > NifFormat._EPSILON
-                or abs(self.m22 - mat.m22) > NifFormat._EPSILON
-                or abs(self.m23 - mat.m23) > NifFormat._EPSILON
-                or abs(self.m31 - mat.m31) > NifFormat._EPSILON
-                or abs(self.m32 - mat.m32) > NifFormat._EPSILON
-                or abs(self.m33 - mat.m33) > NifFormat._EPSILON):
+            if (abs(self.m11 - mat.m11) > NifFormat.EPSILON
+                or abs(self.m12 - mat.m12) > NifFormat.EPSILON
+                or abs(self.m13 - mat.m13) > NifFormat.EPSILON
+                or abs(self.m21 - mat.m21) > NifFormat.EPSILON
+                or abs(self.m22 - mat.m22) > NifFormat.EPSILON
+                or abs(self.m23 - mat.m23) > NifFormat.EPSILON
+                or abs(self.m31 - mat.m31) > NifFormat.EPSILON
+                or abs(self.m32 - mat.m32) > NifFormat.EPSILON
+                or abs(self.m33 - mat.m33) > NifFormat.EPSILON):
                 return False
             return True
 
@@ -3201,22 +3201,22 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
 
         def isIdentity(self):
             """Return ``True`` if the matrix is close to identity."""
-            if (abs(self.m11 - 1.0) > NifFormat._EPSILON
-                or abs(self.m12) > NifFormat._EPSILON
-                or abs(self.m13) > NifFormat._EPSILON
-                or abs(self.m14) > NifFormat._EPSILON
-                or abs(self.m21) > NifFormat._EPSILON
-                or abs(self.m22 - 1.0) > NifFormat._EPSILON
-                or abs(self.m23) > NifFormat._EPSILON
-                or abs(self.m24) > NifFormat._EPSILON
-                or abs(self.m31) > NifFormat._EPSILON
-                or abs(self.m32) > NifFormat._EPSILON
-                or abs(self.m33 - 1.0) > NifFormat._EPSILON
-                or abs(self.m34) > NifFormat._EPSILON
-                or abs(self.m41) > NifFormat._EPSILON
-                or abs(self.m42) > NifFormat._EPSILON
-                or abs(self.m43) > NifFormat._EPSILON
-                or abs(self.m44 - 1.0) > NifFormat._EPSILON):
+            if (abs(self.m11 - 1.0) > NifFormat.EPSILON
+                or abs(self.m12) > NifFormat.EPSILON
+                or abs(self.m13) > NifFormat.EPSILON
+                or abs(self.m14) > NifFormat.EPSILON
+                or abs(self.m21) > NifFormat.EPSILON
+                or abs(self.m22 - 1.0) > NifFormat.EPSILON
+                or abs(self.m23) > NifFormat.EPSILON
+                or abs(self.m24) > NifFormat.EPSILON
+                or abs(self.m31) > NifFormat.EPSILON
+                or abs(self.m32) > NifFormat.EPSILON
+                or abs(self.m33 - 1.0) > NifFormat.EPSILON
+                or abs(self.m34) > NifFormat.EPSILON
+                or abs(self.m41) > NifFormat.EPSILON
+                or abs(self.m42) > NifFormat.EPSILON
+                or abs(self.m43) > NifFormat.EPSILON
+                or abs(self.m44 - 1.0) > NifFormat.EPSILON):
                 return False
             else:
                 return True
@@ -3288,10 +3288,10 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
 
         def isScaleRotationTranslation(self):
             if not self.getMatrix33().isScaleRotation(): return False
-            if abs(self.m14) > NifFormat._EPSILON: return False
-            if abs(self.m24) > NifFormat._EPSILON: return False
-            if abs(self.m34) > NifFormat._EPSILON: return False
-            if abs(self.m44 - 1.0) > NifFormat._EPSILON: return False
+            if abs(self.m14) > NifFormat.EPSILON: return False
+            if abs(self.m24) > NifFormat.EPSILON: return False
+            if abs(self.m34) > NifFormat.EPSILON: return False
+            if abs(self.m44 - 1.0) > NifFormat.EPSILON: return False
             return True
 
         def getScaleRotationTranslation(self):
@@ -3377,7 +3377,7 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
                 m = self.asList()
                 nn = [[0.0 for i in xrange(4)] for j in xrange(4)]
                 det = determinant(m)
-                if abs(det) < NifFormat._EPSILON:
+                if abs(det) < NifFormat.EPSILON:
                     raise ZeroDivisionError('cannot invert matrix:\n%s'%self)
                 for i in xrange(4):
                     for j in xrange(4):
@@ -3469,22 +3469,22 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
                 return False
             if not isinstance(m, NifFormat.Matrix44):
                 raise TypeError("do not know how to compare Matrix44 and %s"%m.__class__)
-            if abs(self.m11 - m.m11) > NifFormat._EPSILON: return False
-            if abs(self.m12 - m.m12) > NifFormat._EPSILON: return False
-            if abs(self.m13 - m.m13) > NifFormat._EPSILON: return False
-            if abs(self.m14 - m.m14) > NifFormat._EPSILON: return False
-            if abs(self.m21 - m.m21) > NifFormat._EPSILON: return False
-            if abs(self.m22 - m.m22) > NifFormat._EPSILON: return False
-            if abs(self.m23 - m.m23) > NifFormat._EPSILON: return False
-            if abs(self.m24 - m.m24) > NifFormat._EPSILON: return False
-            if abs(self.m31 - m.m31) > NifFormat._EPSILON: return False
-            if abs(self.m32 - m.m32) > NifFormat._EPSILON: return False
-            if abs(self.m33 - m.m33) > NifFormat._EPSILON: return False
-            if abs(self.m34 - m.m34) > NifFormat._EPSILON: return False
-            if abs(self.m41 - m.m41) > NifFormat._EPSILON: return False
-            if abs(self.m42 - m.m42) > NifFormat._EPSILON: return False
-            if abs(self.m43 - m.m43) > NifFormat._EPSILON: return False
-            if abs(self.m44 - m.m44) > NifFormat._EPSILON: return False
+            if abs(self.m11 - m.m11) > NifFormat.EPSILON: return False
+            if abs(self.m12 - m.m12) > NifFormat.EPSILON: return False
+            if abs(self.m13 - m.m13) > NifFormat.EPSILON: return False
+            if abs(self.m14 - m.m14) > NifFormat.EPSILON: return False
+            if abs(self.m21 - m.m21) > NifFormat.EPSILON: return False
+            if abs(self.m22 - m.m22) > NifFormat.EPSILON: return False
+            if abs(self.m23 - m.m23) > NifFormat.EPSILON: return False
+            if abs(self.m24 - m.m24) > NifFormat.EPSILON: return False
+            if abs(self.m31 - m.m31) > NifFormat.EPSILON: return False
+            if abs(self.m32 - m.m32) > NifFormat.EPSILON: return False
+            if abs(self.m33 - m.m33) > NifFormat.EPSILON: return False
+            if abs(self.m34 - m.m34) > NifFormat.EPSILON: return False
+            if abs(self.m41 - m.m41) > NifFormat.EPSILON: return False
+            if abs(self.m42 - m.m42) > NifFormat.EPSILON: return False
+            if abs(self.m43 - m.m43) > NifFormat.EPSILON: return False
+            if abs(self.m44 - m.m44) > NifFormat.EPSILON: return False
             return True
 
         def __ne__(self, m):
@@ -4043,7 +4043,7 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
 
         def applyScale(self, scale):
             """Apply scale factor on data."""
-            if abs(scale - 1.0) < NifFormat._EPSILON: return
+            if abs(scale - 1.0) < NifFormat.EPSILON: return
             for v in self.vertices:
                 v.x *= scale
                 v.y *= scale
@@ -4735,7 +4735,7 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
 
             :return: A number quantifying the remaining difference between bind
                 positions.
-            :rtype: C{float}
+            :rtype: ``float``
             """
             # get logger
             logger = logging.getLogger("pyffi.nif.ninode")
@@ -4984,7 +4984,7 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
 
             :return: A number quantifying the remaining difference between bind
                 positions.
-            :rtype: C{float}
+            :rtype: ``float``
             """
             # get logger
             logger = logging.getLogger("pyffi.nif.ninode")
@@ -6573,7 +6573,7 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
 
         def normalize(self):
             r = (self.u*self.u + self.v*self.v) ** 0.5
-            if r < NifFormat._EPSILON:
+            if r < NifFormat.EPSILON:
                 raise ZeroDivisionError('cannot normalize vector %s'%self)
             self.u /= r
             self.v /= r
