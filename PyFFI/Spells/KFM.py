@@ -55,9 +55,9 @@ class SpellDumpAll(KfmSpell):
 
     SPELLNAME = "dump"
 
-    def branchentry(self, branch):
-        self.toaster.msg(str(branch))
-        return True
+    def dataentry(self):
+        self.toaster.msg(str(self.data))
+        return False
 
 class KfmToaster(PyFFI.Spells.Toaster):
     """Base class for kfm toasters."""
