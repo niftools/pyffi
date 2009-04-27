@@ -18,6 +18,11 @@ if sys.version_info < (2, 5):
 
 import PyFFI
 
+try:
+    long_description = open("README.rst").read()
+except IOError:
+    long_description = open("README.TXT").read()
+
 setup(
     name = "PyFFI",
     version = PyFFI.__version__,
@@ -31,7 +36,7 @@ setup(
     platforms = ["any"],
     description = "Processing block structured binary files.",
     classifiers = filter(None, classifiers.split("\n")),
-    long_description = open("README.rst").read(),
+    long_description = long_description,
     url = "http://pyffi.sourceforge.net/",
     download_url = "http://sourceforge.net/project/showfiles.php?group_id=199269"
 )
