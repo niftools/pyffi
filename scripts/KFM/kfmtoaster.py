@@ -1,7 +1,8 @@
 #!/usr/bin/python
 
-"""A script for casting spells on kfm files. This script is essentially
-a kfm specific wrapper around L{PyFFI.Spells.toaster}."""
+"""A script for casting spells on kfm files. This script essentially
+sets up the logger and calls :meth:`PyFFI.Spells.KFM.KfmToaster.cli`.
+"""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
@@ -45,19 +46,7 @@ a kfm specific wrapper around L{PyFFI.Spells.toaster}."""
 import logging
 import sys
 
-from PyFFI.Formats.KFM import KfmFormat
-import PyFFI.Spells.check
 import PyFFI.Spells.KFM
-import PyFFI.Spells.KFM.dump
-
-class KfmToaster(PyFFI.Spells.KFM.KfmToaster):
-    SPELLS = [
-        PyFFI.Spells.check.SpellRead,
-        PyFFI.Spells.check.SpellReadWrite,
-        PyFFI.Spells.KFM.dump.SpellDumpAll]
-    EXAMPLES = """* check if library can read all files in current directory:
-
-    python kfmtoaster.py check_read ."""
 
 # if script is called...
 if __name__ == "__main__":
@@ -70,4 +59,4 @@ if __name__ == "__main__":
     loghandler.setFormatter(logformatter)
     logger.addHandler(loghandler)
     # call toaster
-    KfmToaster().cli()
+    PyFFI.Spells.KFM.KfmToaster().cli()

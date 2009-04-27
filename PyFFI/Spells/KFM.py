@@ -1,4 +1,8 @@
-"""Spells for dumping particular blocks from kfms."""
+"""
+:mod:`PyFFI.Spells.KFM` ---  NetImmerse/Gamebryo Keyframe Motion (.kfm) spells
+==============================================================================
+
+"""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
@@ -39,13 +43,31 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-import PyFFI.Spells.KFM
+import PyFFI.Spells
+import PyFFI.Spells.check
+import PyFFI.Formats.KFM
 
-class SpellDumpAll(PyFFI.Spells.KFM.KfmSpell):
-    """Dump the whole nif file."""
+class KfmSpell(PyFFI.Spells.Spell):
+    """Base class for spells for kfm files."""
+
+class SpellDumpAll(KfmSpell):
+    """Dump the whole kfm file."""
 
     SPELLNAME = "dump"
 
     def branchentry(self, branch):
         self.toaster.msg(str(branch))
         return True
+
+class KfmToaster(PyFFI.Spells.Toaster):
+    """Base class for kfm toasters."""
+    FILEFORMAT = PyFFI.Formats.KFM.KfmFormat
+
+    SPELLS = [
+        PyFFI.Spells.check.SpellRead,
+        PyFFI.Spells.check.SpellReadWrite,
+        SpellDumpAll]
+
+    EXAMPLES = """* check if library can read all files in current directory:
+
+    python kfmtoaster.py check_read ."""
