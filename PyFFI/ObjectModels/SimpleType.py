@@ -90,23 +90,21 @@ class SimpleType(PyFFI.ObjectModels.AnyType.AnyType):
         ...
     TypeError: ...
 
-    Also override L{read} and L{write} if you wish to read and write data
-    of this type, and L{isInterchangeable} if you wish to declare data as
+    Also override :meth:`read` and :meth:`write` if you wish to read and write data
+    of this type, and :meth:`isInterchangeable` if you wish to declare data as
     equivalent.
 
-    :ivar _value: The data.
-    :type _value: C{type(None)}, or anything of the appropriate type.
-    :ivar value: A property which wraps the actual data. This property always
-        calls L{setValue} to assign the value, and ensures that the value is
+    .. attribute:: value
+
+        A property which wraps the actual data. This property always
+        calls :meth:`setValue` to assign the value, and ensures that the value is
         valid (type, range, ...). Unless you know what you are doing, always
-        use the L{value} property to change the data.
-    :type value: Same as L{_value}.
+        use the `value` property to change the data.
     """
     __metaclass__ = _MetaSimpleType
 
-    def __init__(self):
-        """Initialize the value to ``None``."""
-        self._value = None
+    _value = None
+    """The data."""
 
     def __str__(self):
         """String representation. This implementation is simply a wrapper
