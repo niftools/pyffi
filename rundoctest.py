@@ -8,6 +8,7 @@ import PyFFI.ObjectModels.Common
 import PyFFI.ObjectModels.FileFormat
 import PyFFI.ObjectModels.XML.FileFormat
 import PyFFI.ObjectModels.XSD.FileFormat
+import PyFFI.ObjectModels.mexscript
 import PyFFI.ObjectModels.AnyType
 import PyFFI.ObjectModels.SimpleType
 import PyFFI.ObjectModels.ArrayType

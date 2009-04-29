@@ -86,13 +86,10 @@ import struct
 import os
 import re
 
-import PyFFI.ObjectModels.FileFormat
-from PyFFI.ObjectModels.XSD.FileFormat import XsdFileFormat
-from PyFFI.ObjectModels.XSD.FileFormat import MetaXsdFileFormat
+import PyFFI.ObjectModels.XSD.FileFormat
 
-class DaeFormat(XsdFileFormat):
+class DaeFormat(PyFFI.ObjectModels.XSD.FileFormat.XsdFileFormat):
     """This class implements the DAE format."""
-    __metaclass__ = MetaXsdFileFormat
     xsdFileName = 'COLLADASchema.xsd'
     # where to look for the xsd file and in what order:
     # DAEXSDPATH env var, or XsdFormat module directory
@@ -102,7 +99,7 @@ class DaeFormat(XsdFileFormat):
     # used for comparing floats
     _EPSILON = 0.0001
 
-    class Data(PyFFI.ObjectModels.FileFormat.FileFormat.Data):
+    class Data(PyFFI.ObjectModels.XSD.FileFormat.XsdFileFormat.Data):
         """A class to contain the actual collada data."""
 
         def __init__(self, version = 0x01040100):

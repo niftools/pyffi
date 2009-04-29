@@ -48,10 +48,30 @@ class MetaFileFormat(type):
     manipulate files in this format.
 
     A file format is implemented as a particular class (a subclass of
-    L{FileFormat}) with class members corresponding to different
+    :class:`FileFormat`) with class members corresponding to different
     (bit)struct types, enum types, basic types, and aliases.
     """
-    pass
+
+    @staticmethod
+    def openfile(filename, filepaths=None):
+        """Find *filename* in given *filepaths*, and open it. Raises IOError if
+        file cannot be opened.
+        """
+        if not filepaths:
+            return open(filename)
+        else:
+            for filepath in filepaths:
+                if not filepath:
+                    continue
+                try:
+                    return open(os.path.join(filepath, filename))
+                except IOError:
+                    continue
+                break
+            else:
+                raise IOError(
+                    "'%s' not found in any of the directories %s"
+                    % (filename, filepaths))
 
 class FileFormat(object):
     """This class is the base class for all file formats. It implements
@@ -66,9 +86,10 @@ class FileFormat(object):
         call)
     """
 
-    # override this with a regular expression for the file extension of
-    # the format you are implementing
     RE_FILENAME = None
+    """Override this with a regular expression for the file extension of
+    the format you are implementing.
+    """
 
     # override this with the data instance for this format
     class Data(PyFFI.ObjectModels.Graph.GlobalNode):

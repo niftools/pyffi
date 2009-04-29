@@ -53,7 +53,7 @@ from PyFFI.ObjectModels.XML.BitStruct  import BitStructBase
 from PyFFI.ObjectModels.XML.Enum       import EnumBase
 from PyFFI.ObjectModels.XML.Expression import Expression
 
-class _MetaXmlFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
+class MetaXmlFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
     """The MetaXmlFileFormat metaclass transforms the XML description
     of a file format into a bunch of classes which can be directly
     used to manipulate files in this format.
@@ -74,8 +74,7 @@ class _MetaXmlFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
         :param dct: A dictionary of class attributes, such as 'xmlFileName'.
         """
 
-        super(_MetaXmlFileFormat, cls).__init__(name, bases, dct)
-        logger = logging.getLogger("pyffi.object_models.xml")
+        super(MetaXmlFileFormat, cls).__init__(name, bases, dct)
 
         # preparation: make deep copy of lists of enums, structs, etc.
         cls.xmlEnum = cls.xmlEnum[:]
@@ -94,38 +93,25 @@ class _MetaXmlFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
             parser.setContentHandler(XmlSaxHandler(cls, name, bases, dct))
 
             # open XML file
-            if not cls.xmlFilePath:
-                xmlfile = open(xmlFileName)
-            else:
-                for filepath in cls.xmlFilePath:
-                    if not filepath:
-                        continue
-                    try:
-                        xmlfile = open(os.path.join(filepath, cls.xmlFileName))
-                    except IOError:
-                        continue
-                    break
-                else:
-                    raise IOError(
-                        "'%s' not found in any of the directories %s"
-                        % (xmlFileName, cls.xmlFilePath))
+            xmlfile = cls.openfile(xmlFileName, cls.xmlFilePath)
 
             # parse the XML file: control is now passed on to XmlSaxHandler
             # which takes care of the class creation
-            logger.debug("Parsing %s and generating classes." % xmlFileName)
+            cls.logger.debug("Parsing %s and generating classes." % xmlFileName)
             start = time.clock()
             try:
                 parser.parse(xmlfile)
             finally:
                 xmlfile.close()
-            logger.debug("Parsing finished in %.3f seconds." % (time.clock() - start))
+            cls.logger.debug("Parsing finished in %.3f seconds." % (time.clock() - start))
 
 class XmlFileFormat(PyFFI.ObjectModels.FileFormat.FileFormat):
     """This class can be used as a base class for file formats
     described by an xml file."""
-    __metaclass__ = _MetaXmlFileFormat
+    __metaclass__ = MetaXmlFileFormat
     xmlFileName = None #: Override.
     xmlFilePath = None #: Override.
+    logger = logging.getLogger("pyffi.object_models.xml")
 
     # We also keep an ordered list of all classes that have been created.
     # The xmlStruct list includes all xml generated struct classes,

@@ -40,13 +40,13 @@ schema.
 #
 # ***** END LICENSE BLOCK *****
 
-import PyFFI.ObjectModels.FileFormat
-from PyFFI import Utils
-
+import logging
 import os.path
 import sys
-from types import FunctionType
+import time
 import xml.sax
+
+import PyFFI.ObjectModels.FileFormat
 
 class MetaXsdFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
     """The MetaXsdFileFormat metaclass transforms the XSD description of a
@@ -71,42 +71,35 @@ class MetaXsdFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
         """
         super(MetaXsdFileFormat, cls).__init__(name, bases, dct)
 
-        # consistency checks
-        if not 'xsdFileName' in dct:
-            raise TypeError("class %s : missing xsdFileName attribute" % cls)
-
-        # set up XML parser
-        parser = xml.sax.make_parser()
-        parser.setContentHandler(XsdSaxHandler(cls, name, bases, dct))
-
         # open XSD file
-        if not 'xsdFilePath' in dct:
-            xsdfile = open(dct['xsdFileName'])
-        else:
-            for filepath in dct['xsdFilePath']:
-                if not filepath:
-                    continue
-                try:
-                    xsdfile = open(os.path.join(filepath, dct['xsdFileName']))
-                except IOError:
-                    continue
-                break
-            else:
-                raise IOError("'%s' not found in any of the directories %s"%(
-                    dct['xsdFileName'], dct['xsdFilePath']))
+        xsdfilename = dct.get('xsdFileName')
+        if xsdfilename:
+            # set up XSD parser
+            parser = xml.sax.make_parser()
+            parser.setContentHandler(XsdSaxHandler(cls, name, bases, dct))
 
-        # parse the XSD file: control is now passed on to XsdSaxHandler
-        # which takes care of the class creation
-        try:
-            parser.parse(xsdfile)
-        finally:
-            xsdfile.close()
+            # open XSD file
+            xsdfile = cls.openfile(xsdfilename, cls.xsdFilePath)
+
+            # parse the XSD file: control is now passed on to XsdSaxHandler
+            # which takes care of the class creation
+            cls.logger.debug("Parsing %s and generating classes." % xsdfilename)
+            start = time.clock()
+            try:
+                parser.parse(xsdfile)
+            finally:
+                xsdfile.close()
+            cls.logger.debug("Parsing finished in %.3f seconds." % (time.clock() - start))
 
 class XsdFileFormat(PyFFI.ObjectModels.FileFormat.FileFormat):
     """This class can be used as a base class for file formats. It implements
     a number of useful functions such as walking over directory trees and a
     default attribute naming function.
     """
+    __metaclass__ = MetaXsdFileFormat
+    xsdFileName = None #: Override.
+    xsdFilePath = None #: Override.
+    logger = logging.getLogger("pyffi.object_models.xsd")
 
     @staticmethod
     def nameAttribute(name):

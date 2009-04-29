@@ -43,45 +43,48 @@ into Python classes.
 import logging
 
 import PyFFI.ObjectModels.FileFormat
+import PyFFI.ObjectModels.SimpleType
 
-class MexScriptFileFormat(PyFFI.ObjectModels.FileFormat.FileFormat):
+class _MetaMexFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
+    """Converts the mex script into an archive parser."""
+
+    def __init__(cls, name, bases, dct):
+        super(_MetaMexScriptFileFormat, cls).__init__(name, bases, dct)
+
+        # open the mex script
+        mexfilename = dct.get('mexfilename')
+        if mexfilename:
+            mexfile = cls.openfile(mexfilename, cls.mexfilepath)
+            # XXX todo: parse the script
+
+class MexFileFormat(PyFFI.ObjectModels.FileFormat.FileFormat):
     """This class can be used as a base class for file formats
-    described by a mexscript file."""
-    mexscript_filename = None #: Override.
-    mexscript_filepath = None #: Override.
-
-    class Blob(PyFFI.ObjectModels.SimpleType):
-        """An uncompressed blob of data."""
-
-        fileformat = None
-        """If the file has a specific format, it is described here by a
-        `PyFFI.ObjectModels.FileFormat.FileFormat` class.
-        """
-
-        def __init__(self):
-            self._value = "" # py3k: bytes object
-
-        def __str__(self):
-            return "<BLOB>"
-
-        def read(self, stream, context):
-            """Read the blob. The lenght is passed as an argument."""
-            self._value = stream.read(context.length)
-
-        def write(self, stream, context):
-            """Write the blob."""
-            self.write(self._value)
+    described by a mexscript file.
+    """
+    mexfilename = None #: Override.
+    mexfilepath = None #: Override.
+    logger = logging.getLogger("pyffi.object_models.mex")
 
     class FileInfo:
         """Stores information about a file in an archive."""
+
+        stream = None
+        """The stream in which the file is archived."""
+
         filename = ""
         """Name of the file."""
+
+        fileformat = None
+        """Potentially, the format of the file."""
         
         offset = None
         """Offset in the archive."""
 
         size = None
         """Compressed size in the archive."""
+
+        compression = None
+        """The type of compression."""
 
         uncompressed_size = None
         """Uncompressed size in the archive."""
@@ -95,17 +98,32 @@ class MexScriptFileFormat(PyFFI.ObjectModels.FileFormat.FileFormat):
         offset_uncompressed_size = None
         """Offset of the uncompressed size in the archive."""
 
-    class Data(PyFFI.ObjectModels.FileFormat.FileFormat.Data):
-        """Process archives described by mexscript files.
-        The interface is similar to that of :class:`TarFile`.
-        """
+        def data(self):
+            """Extract the file data from the archive."""
+            # look up the data in the stream
+            self.stream.seek(self.offset)
+            # read it, and uncompress if needed
+            if self.compression is None:
+                data = self.stream.read(self.size)
+            else:
+                raise NotImplementedError("compression not yet implemented")
+            # convert bytes into the desired format
+            if fileformat is None:
+                return data
+            else:
+                raise NotImplementedError("formatting not yet implemented")
 
-        _fileinfos = []
+    class Data(PyFFI.ObjectModels.FileFormat.FileFormat.Data):
+        """Process archives described by mexscript files."""
+
+        fileinfos = []
         """List of file info's in the data."""
 
         def read(self, stream):
             """Open and read a full archive from stream while parsing the
-            mexscript. The files in the archive are not decoded.
+            mexscript. The files in the archive are not actually read,
+            but their names, location, size, and compression type, are
+            recorded.
 
             If you want to open the archive without processing the
             full list of files, use :meth:`open`.
