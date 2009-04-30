@@ -144,24 +144,6 @@ class FileFormat(object):
         """
         return 0
 
-    @classmethod
-    def getVersion(cls, stream):
-        """Returns version and user version numbers. Override this
-        function. When implementing this function, take care to preserve the
-        stream position: for instance, start with
-        C{pos = stream.tell()} and end with C{stream.seek(pos)}.
-
-        :param stream: The stream from which to read.
-        :type stream: file
-        :return: The version and user version of the file.
-            Returns C{(-1, 0)} if file is of known format but the particular
-            version not supported.
-            Returns C{(-2, 0)} if format is not known.
-
-        @todo: The plan is eventually to use the L{Data} class for this.
-        """
-        raise NotImplementedError
-
     @staticmethod
     def nameAttribute(name):
         """Converts an attribute name, as in the description file,

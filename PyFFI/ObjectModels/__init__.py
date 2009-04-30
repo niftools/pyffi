@@ -1,4 +1,9 @@
-"""This module bundles all file format object models. An object model
+"""
+.. note::
+
+   The documentation of this module is not yet entirely complete.
+
+This module bundles all file format object models. An object model
 is a group of classes whose instances can hold the information
 contained in a file whose format is described in a particular way
 (xml, xsd, and possibly others).
@@ -18,6 +23,4 @@ these data types. Typical implementations are present for integers,
 floats, strings, and so on. Some simple types may also be derived from
 already implemented simple types, if the metadata description allows
 this.
-
-@todo: More explanation.
 """
