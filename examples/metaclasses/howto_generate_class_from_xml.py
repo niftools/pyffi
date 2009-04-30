@@ -3,7 +3,7 @@ be created from an xml file. For simplicity, no actual xml file is involved
 and the class data (attribute names and their default values) is described
 in a dictionary.
 
-The MetaXmlFileFormat class does all the hard work in converting the
+The MetaFileFormat class does all the hard work in converting the
 dictionary data into real classes. The _Block class is a helper class for
 describing an arbitrary structure. _MetaBlock simply checks a _Block class
 for the presence of particular attributes.
@@ -28,7 +28,7 @@ class _Block(object):
     it will initialize all attributes using the class interface
     using the _attrs class variable, print them as strings, and so on.
     The class variable _attrs *must* be declared every derived class
-    interface, see MetaXmlFileFormat.__init__ for an example.
+    interface, see MetaFileFormat.__init__ for an example.
     """
     __metaclass__ = _MetaBlock
     _attrs = ()
@@ -66,14 +66,14 @@ class _Block(object):
             s += str(name) + ' : ' + str(getattr(self, name)) + '\n'
         return s
 
-# The MetaXmlFileFormat class transforms the XML description of a file format
+# The MetaFileFormat class transforms the XML description of a file format
 # into a bunch of classes via the "type(name, bases, dct)" factory.
-# Because its base is type, MetaXmlFileFormat is a metaclass: each file format
+# Because its base is type, MetaFileFormat is a metaclass: each file format
 # corresponds to a separate class with subclasses corresponding to different
 # file block types, compound types, enum types, and basic types.
-class MetaXmlFileFormat(type):
+class MetaFileFormat(type):
     # The following function constitutes the core of the class generation
-    # process. Below, we declare NifFormat to have metaclass MetaXmlFileFormat,
+    # process. Below, we declare NifFormat to have metaclass MetaFileFormat,
     # so upon creation of the NifFormat class, the __init__ function is
     # called, with
     #
@@ -112,11 +112,11 @@ class MetaXmlFileFormat(type):
 
 
 
-# The NifFormat class simply processes nif.xml via MetaXmlFileFormat
+# The NifFormat class simply processes nif.xml via MetaFileFormat
 # which generates subclasses of NifFormat for basic types, compounds,
 # blocks, and enums.
 class NifFormat(object):
-    __metaclass__ = MetaXmlFileFormat
+    __metaclass__ = MetaFileFormat
     xmlFileName = "nif.xml"
 
 # For example, NifFormat.NiNode is now a class representing the NiNode block

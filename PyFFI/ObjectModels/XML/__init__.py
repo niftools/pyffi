@@ -54,7 +54,7 @@ from PyFFI.ObjectModels.XML.Enum       import EnumBase
 from PyFFI.ObjectModels.XML.Expression import Expression
 
 class MetaFileFormat(PyFFI.ObjectModels.MetaFileFormat):
-    """The MetaXmlFileFormat metaclass transforms the XML description
+    """The MetaFileFormat metaclass transforms the XML description
     of a file format into a bunch of classes which can be directly
     used to manipulate files in this format.
 
@@ -64,10 +64,10 @@ class MetaFileFormat(PyFFI.ObjectModels.MetaFileFormat):
     def __init__(cls, name, bases, dct):
         """This function constitutes the core of the class generation
         process. For instance, we declare NifFormat to have metaclass
-        MetaXmlFileFormat, so upon creation of the NifFormat class,
+        MetaFileFormat, so upon creation of the NifFormat class,
         the __init__ function is called, with
 
-        :param cls: The class created using MetaXmlFileFormat, for example
+        :param cls: The class created using MetaFileFormat, for example
             NifFormat.
         :param name: The name of the class, for example 'NifFormat'.
         :param bases: The base classes, usually (object,).

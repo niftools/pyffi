@@ -6,7 +6,8 @@ import unittest
 import PyFFI
 import PyFFI.ObjectModels.Common
 import PyFFI.ObjectModels
-import PyFFI.ObjectModels.XSD.FileFormat
+import PyFFI.ObjectModels.XSD
+import PyFFI.ObjectModels.XML
 import PyFFI.ObjectModels.mex
 import PyFFI.ObjectModels.AnyType
 import PyFFI.ObjectModels.SimpleType

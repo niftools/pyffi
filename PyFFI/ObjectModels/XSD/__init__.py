@@ -48,8 +48,8 @@ import xml.sax
 
 import PyFFI.ObjectModels
 
-class MetaXsdFileFormat(PyFFI.ObjectModels.MetaFileFormat):
-    """The MetaXsdFileFormat metaclass transforms the XSD description of a
+class MetaFileFormat(PyFFI.ObjectModels.MetaFileFormat):
+    """The MetaFileFormat metaclass transforms the XSD description of a
     xml format into a bunch of classes which can be directly used to
     manipulate files in this format.
 
@@ -60,16 +60,16 @@ class MetaXsdFileFormat(PyFFI.ObjectModels.MetaFileFormat):
     def __init__(cls, name, bases, dct):
         """This function constitutes the core of the class generation
         process. For instance, we declare DaeFormat to have metaclass
-        MetaXsdFileFormat, so upon creation of the DaeFormat class,
+        MetaFileFormat, so upon creation of the DaeFormat class,
         the __init__ function is called, with
 
-        :param cls: The class created using MetaXsdFileFormat, for example
+        :param cls: The class created using MetaFileFormat, for example
             DaeFormat.
         :param name: The name of the class, for example 'DaeFormat'.
         :param bases: The base classes, usually (object,).
         :param dct: A dictionary of class attributes, such as 'xsdFileName'.
         """
-        super(MetaXsdFileFormat, cls).__init__(name, bases, dct)
+        super(MetaFileFormat, cls).__init__(name, bases, dct)
 
         # open XSD file
         xsdfilename = dct.get('xsdFileName')
@@ -91,12 +91,12 @@ class MetaXsdFileFormat(PyFFI.ObjectModels.MetaFileFormat):
                 xsdfile.close()
             cls.logger.debug("Parsing finished in %.3f seconds." % (time.clock() - start))
 
-class XsdFileFormat(PyFFI.ObjectModels.FileFormat):
+class FileFormat(PyFFI.ObjectModels.FileFormat):
     """This class can be used as a base class for file formats. It implements
     a number of useful functions such as walking over directory trees and a
     default attribute naming function.
     """
-    __metaclass__ = MetaXsdFileFormat
+    __metaclass__ = MetaFileFormat
     xsdFileName = None #: Override.
     xsdFilePath = None #: Override.
     logger = logging.getLogger("pyffi.object_models.xsd")
@@ -110,7 +110,7 @@ class XsdFileFormat(PyFFI.ObjectModels.FileFormat):
         :type name: str
         :return: Reformatted attribute name, useable by python.
 
-        >>> XsdFileFormat.nameAttribute('tHis is A Silly naME')
+        >>> FileFormat.nameAttribute('tHis is A Silly naME')
         'this_is_a_silly_name'
         """
 
@@ -127,7 +127,7 @@ class XsdFileFormat(PyFFI.ObjectModels.FileFormat):
         :type name: str
         :return: Reformatted class name, useable by python.
 
-        >>> XsdFileFormat.nameClass('this IS a sillyNAME')
+        >>> FileFormat.nameClass('this IS a sillyNAME')
         'ThisISASillyNAME'
         """
 
