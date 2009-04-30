@@ -27,11 +27,15 @@ NotImplementedError
 Parse all DAE files in a directory tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
->>> for daedata in DaeFormat.walk('tests/dae',
-...                               raisereaderror = True,
-...                               verbose = 1): # doctest: +SKIP
-...     pass
+>>> for stream, data in DaeFormat.walkData('tests/dae'):
+...     try:
+...         # the replace call makes the doctest also pass on windows
+...         print("reading %s" % stream.name.replace("\\\\", "/"))
+...         data.read(stream)
+...     except StandardError:
+...         print("Warning: read failed due corrupt file, corrupt format description, or bug.")
 reading tests/dae/cube.dae
+Warning: read failed due corrupt file, corrupt format description, or bug.
 
 Create a DAE file from scratch and write to file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

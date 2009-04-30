@@ -39,7 +39,7 @@
 
 import os.path # os.path.altsep
 
-from PyFFI import Utils
+import PyFFI.Utils
 import PyFFI.ObjectModels.Graph
 
 class MetaFileFormat(type):
@@ -185,141 +185,6 @@ class FileFormat(object):
     # TODO: port nameClass(name) from XsdFileFormat
 
     @classmethod
-    def read(cls, stream, version = None, user_version = None, **kwargs):
-        """Read a file. Override this function.
-
-        :param stream: The stream from which to read.
-        :type stream: file
-        :param version: The version as obtained by L{getVersion}.
-        :type version: int
-        :param user_version: The user version as obtained by L{getVersion}.
-        :type user_version: int
-        :param kwargs: Extra keyword arguments.
-        :return: A tuple of objects (typically, header, blocks, and footer)
-            describing the file.
-
-        @todo: The plan is eventually to use the L{Data} class for this.
-        """
-        raise NotImplementedError
-
-    @classmethod
-    def write(cls, stream, version = None, user_version = None, **kwargs):
-        """Write a file. Override this function.
-        The extra arguments must be organized such that calling
-        C{write(stream, version, user_version,
-        *read(stream, version, user_version)} would rewrite the original file
-        back to the stream as it is.
-
-        :param stream: The stream to which to write.
-        :type stream: file
-        :param version: The version number.
-        :type version: int
-        :param user_version: The user version number.
-        :type user_version: int
-        :param kwargs: Extra keyword arguments (e.g. header, block list, ...)
-
-        @todo: The plan is eventually to use the L{Data} class for this.
-        """
-        raise NotImplementedError
-
-    @classmethod
-    def walk(cls, top, topdown = True, raisereaderror = False, verbose = 0):
-        """A generator which yields the cls.read result of all files in
-        directory top whose filename matches the regular expression
-        L{RE_FILENAME}. The argument top can also be a file instead of a
-        directory. Errors coming from os.walk are ignored.
-
-        :param top: The top folder.
-        :type top: str
-        :param topdown: Determines whether subdirectories should be iterated
-            over first.
-        :type topdown: bool
-        :param raisereaderror: Should read errors raise an exception, or
-            should they be ignored?
-        :type raisereaderror: bool
-        :param verbose: Verbosity level.
-        :type verbose: int
-
-        @todo: Eventually this will be superseded by L{walkData}.
-        """
-        for result in cls.walkFile(
-            top, topdown = topdown,
-            raisereaderror = raisereaderror, verbose = verbose):
-            # discard first two items from result (version and stream)
-            yield result[3:]
-
-    @classmethod
-    def walkFile(cls, top, topdown = True,
-                 raisereaderror = False, verbose = 0, mode = 'rb'):
-        """Like L{walk}, but returns more information:
-        stream, version, user_version, and the result from L{read}.
-
-        Note that the caller is not responsible for closing stream.
-
-        This function is for instance used by L{PyFFI.Spells} to implement
-        modifying a file after reading and parsing.
-
-        :param top: The top folder.
-        :type top: str
-        :param topdown: Determines whether subdirectories should be iterated
-            over first.
-        :type topdown: bool
-        :param raisereaderror: Should read errors raise an exception, or
-            should they be ignored?
-        :type raisereaderror: bool
-        :param verbose: Verbosity level.
-        :type verbose: int
-
-        @todo: Eventually this will be superseded by L{walkData}.
-        """
-        # now walk over all these files in directory top
-        for filename in Utils.walk(top, topdown, onerror = None,
-                                   re_filename = cls.RE_FILENAME):
-            if verbose >= 1:
-                if os.path.altsep == "/": # windows
-                    # always use forward slashes (useful for doctests)
-                    filename = filename.replace(os.path.sep, os.path.altsep)
-                print("reading %s" % filename)
-            stream = open(filename, mode)
-            try:
-                # get the version and user version
-                version, user_version = cls.getVersion(stream)
-                if version >= 0:
-                    # we got it, so now read the file
-                    if verbose >= 2:
-                        print("version      0x%08X" % version)
-                        print("user version 0x%08X" % user_version)
-                    try:
-                        # return (version, stream) + result of read
-                        result = cls.read(stream,
-                                          version = version,
-                                          user_version = user_version)
-                        if not isinstance(result, tuple):
-                            result = (result,)
-                        yield (stream, version, user_version) + result
-                    except StandardError:
-                        # an error occurred during reading
-                        # this should not happen: means that the file is
-                        # corrupt, or that the description is corrupt
-                        if verbose >= 1:
-                            print("""\
-Warning: read failed due corrupt file, corrupt format description, or bug.""")
-                        if verbose >= 2:
-                            Utils.hexDump(stream)
-                        if raisereaderror:
-                            raise
-                # getting version failed, do not raise an exception
-                # but tell user what happened
-                elif version == -1:
-                    if verbose >= 1:
-                        print('version not supported')
-                else:
-                    if verbose >= 1:
-                        print('file format not recognized')
-            finally:
-                stream.close()
-
-    @classmethod
     def walkData(cls, top, topdown=True, mode='rb'):
         """A generator which yields the data of all files in
         directory top whose filename matches the regular expression
@@ -340,8 +205,8 @@ Warning: read failed due corrupt file, corrupt format description, or bug.""")
         :type mode: ``str``
         """
         # now walk over all these files in directory top
-        for filename in Utils.walk(top, topdown, onerror=None,
-                                   re_filename=cls.RE_FILENAME):
+        for filename in PyFFI.Utils.walk(top, topdown, onerror=None,
+                                         re_filename=cls.RE_FILENAME):
             stream = open(filename, mode)
             try:
                 # return data for the stream
@@ -351,31 +216,3 @@ Warning: read failed due corrupt file, corrupt format description, or bug.""")
                 yield stream, data
             finally:
                 stream.close()
-
-
-    @classmethod
-    def getRoots(cls, *readresult):
-        """Returns list of all root blocks. Used by L{PyFFI.QSkope}
-        and L{PyFFI.Spells}.
-
-        :param readresult: Result from L{walk} or L{read}.
-        :type readresult: tuple
-        :return: list of root blocks
-
-        @todo: The plan is eventually to use the L{Data} class for this.
-        """
-        return []
-
-    @classmethod
-    def getBlocks(cls, *readresult):
-        """Returns list of all blocks. Used by L{PyFFI.QSkope}
-        and L{PyFFI.Spells}.
-
-        :param readresult: Result from L{walk} or L{read}.
-        :type readresult: tuple
-        :return: list of blocks
-
-        @todo: The plan is eventually to use the L{Data} class for this.
-        """
-        return []
-
