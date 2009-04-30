@@ -111,7 +111,7 @@ The Guild 2 0x01024B00
 
 import struct, os, re
 
-import PyFFI.ObjectModels.XML.FileFormat
+import PyFFI.ObjectModels.XML
 from PyFFI import Utils
 from PyFFI.ObjectModels import Common
 from PyFFI.ObjectModels.XML.Basic import BasicBase
@@ -119,7 +119,7 @@ from PyFFI.ObjectModels.Graph import EdgeFilter
 import PyFFI.ObjectModels.FileFormat
 import PyFFI.ObjectModels.XML.Struct
 
-class KfmFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
+class KfmFormat(PyFFI.ObjectModels.XML.FileFormat):
     """This class implements the kfm file format."""
     xmlFileName = 'kfm.xml'
     # where to look for kfm.xml and in what order:

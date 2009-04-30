@@ -85,13 +85,13 @@ import struct
 import os
 import re
 
-import PyFFI.ObjectModels.XML.FileFormat
+import PyFFI.ObjectModels.XML
 from PyFFI.ObjectModels import Common
 from PyFFI.ObjectModels.XML.Basic import BasicBase
 import PyFFI.ObjectModels.FileFormat
 from PyFFI.ObjectModels.Graph import EdgeFilter
 
-class DdsFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
+class DdsFormat(PyFFI.ObjectModels.XML.FileFormat):
     """This class implements the DDS format."""
     xmlFileName = 'dds.xml'
     # where to look for dds.xml and in what order:

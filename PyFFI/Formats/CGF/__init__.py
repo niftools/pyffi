@@ -204,13 +204,13 @@ from itertools import izip
 
 import PyFFI.ObjectModels.Common
 import PyFFI.ObjectModels.FileFormat
-import PyFFI.ObjectModels.XML.FileFormat
+import PyFFI.ObjectModels.XML
 import PyFFI.Utils.MathUtils
 import PyFFI.Utils.TangentSpace
 from PyFFI.ObjectModels.XML.Basic import BasicBase
 from PyFFI.ObjectModels.Graph import EdgeFilter
 
-class _MetaCgfFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat.__metaclass__):
+class _MetaCgfFormat(PyFFI.ObjectModels.XML.FileFormat.__metaclass__):
     """Metaclass which constructs the chunk map during class creation."""
     def __init__(cls, name, bases, dct):
         super(_MetaCgfFormat, cls).__init__(name, bases, dct)
@@ -222,7 +222,7 @@ class _MetaCgfFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat.__metaclass
             for chunk_name in cls.ChunkType._enumkeys
             if chunk_name != "ANY")
 
-class CgfFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
+class CgfFormat(PyFFI.ObjectModels.XML.FileFormat):
     """Stores all information about the cgf file format."""
     __metaclass__ = _MetaCgfFormat
     xmlFileName = 'cgf.xml'

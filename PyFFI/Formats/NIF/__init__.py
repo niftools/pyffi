@@ -307,7 +307,7 @@ import weakref
 import PyFFI.Formats.DDS
 import PyFFI.ObjectModels.Common
 import PyFFI.ObjectModels.FileFormat
-import PyFFI.ObjectModels.XML.FileFormat
+import PyFFI.ObjectModels.XML
 import PyFFI.Utils.Inertia
 from PyFFI.Utils.MathUtils import * # XXX todo get rid of from XXX import *
 import PyFFI.Utils.Mopp
@@ -320,7 +320,7 @@ from PyFFI.ObjectModels.XML.Basic import BasicBase
 
 
 
-class NifFormat(PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat):
+class NifFormat(PyFFI.ObjectModels.XML.FileFormat):
     """This class contains the generated classes from the xml."""
 
     xmlFileName = 'nif.xml'

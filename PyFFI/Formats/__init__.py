@@ -52,14 +52,14 @@ Say this is the contents of :file:`simple.py`:
 
 What happens in this piece of code?
 
-  - The :class:`PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat`
+  - The :class:`PyFFI.ObjectModels.XML.FileFormat`
     base class triggers the transformation of xml into Python classes;
     how these classes can be used will be explained further.
 
-  - The :attr:`~PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat.xmlFileName`
+  - The :attr:`~PyFFI.ObjectModels.XML.FileFormat.xmlFileName`
     class attribute provides the name of the xml file that describes
     the structures we wish to generate. The
-    :attr:`~PyFFI.ObjectModels.XML.FileFormat.XmlFileFormat.xmlFilePath`
+    :attr:`~PyFFI.ObjectModels.XML.FileFormat.xmlFilePath`
     attribute gives a list of locations of where to look for this
     file; in our case we have simply chosen to put :file:`simple.xml`
     in the same directory as :file:`simple.py`.

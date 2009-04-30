@@ -53,7 +53,7 @@ from PyFFI.ObjectModels.XML.BitStruct  import BitStructBase
 from PyFFI.ObjectModels.XML.Enum       import EnumBase
 from PyFFI.ObjectModels.XML.Expression import Expression
 
-class MetaXmlFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
+class MetaFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
     """The MetaXmlFileFormat metaclass transforms the XML description
     of a file format into a bunch of classes which can be directly
     used to manipulate files in this format.
@@ -74,7 +74,7 @@ class MetaXmlFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
         :param dct: A dictionary of class attributes, such as 'xmlFileName'.
         """
 
-        super(MetaXmlFileFormat, cls).__init__(name, bases, dct)
+        super(MetaFileFormat, cls).__init__(name, bases, dct)
 
         # preparation: make deep copy of lists of enums, structs, etc.
         cls.xmlEnum = cls.xmlEnum[:]
@@ -105,10 +105,10 @@ class MetaXmlFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
                 xmlfile.close()
             cls.logger.debug("Parsing finished in %.3f seconds." % (time.clock() - start))
 
-class XmlFileFormat(PyFFI.ObjectModels.FileFormat.FileFormat):
+class FileFormat(PyFFI.ObjectModels.FileFormat.FileFormat):
     """This class can be used as a base class for file formats
     described by an xml file."""
-    __metaclass__ = MetaXmlFileFormat
+    __metaclass__ = MetaFileFormat
     xmlFileName = None #: Override.
     xmlFilePath = None #: Override.
     logger = logging.getLogger("pyffi.object_models.xml")
