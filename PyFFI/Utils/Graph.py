@@ -22,7 +22,7 @@ subgraph, that is, a subgraph which contains all nodes of the original
 graph, and which contains no cycles. This graph constitutes of those
 edges which have the default edge type.
 
-The L{PyFFI.ObjectModels.FileFormat.Data} class is the root node of
+The L{PyFFI.ObjectModels.Data} class is the root node of
 the graph. Recursing over all edges of default type of this node will
 visit each node (possibly more than once) in a hierarchical order.
 

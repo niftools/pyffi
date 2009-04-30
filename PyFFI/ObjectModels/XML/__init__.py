@@ -46,14 +46,14 @@ import os.path
 import sys
 import xml.sax
 
-import PyFFI.ObjectModels.FileFormat
+import PyFFI.ObjectModels
 from PyFFI.ObjectModels.XML.Struct     import StructBase
 from PyFFI.ObjectModels.XML.Basic      import BasicBase
 from PyFFI.ObjectModels.XML.BitStruct  import BitStructBase
 from PyFFI.ObjectModels.XML.Enum       import EnumBase
 from PyFFI.ObjectModels.XML.Expression import Expression
 
-class MetaFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
+class MetaFileFormat(PyFFI.ObjectModels.MetaFileFormat):
     """The MetaXmlFileFormat metaclass transforms the XML description
     of a file format into a bunch of classes which can be directly
     used to manipulate files in this format.
@@ -105,7 +105,7 @@ class MetaFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
                 xmlfile.close()
             cls.logger.debug("Parsing finished in %.3f seconds." % (time.clock() - start))
 
-class FileFormat(PyFFI.ObjectModels.FileFormat.FileFormat):
+class FileFormat(PyFFI.ObjectModels.FileFormat):
     """This class can be used as a base class for file formats
     described by an xml file."""
     __metaclass__ = MetaFileFormat
@@ -638,7 +638,7 @@ but got %s instead"""%name)
                     # if the class derives from Data, then make an alias
                     if issubclass(
                         cls_klass,
-                        PyFFI.ObjectModels.FileFormat.FileFormat.Data):
+                        PyFFI.ObjectModels.FileFormat.Data):
                         self.cls.Data = cls_klass
                     # for the stuff below
                     gen_class = cls_klass

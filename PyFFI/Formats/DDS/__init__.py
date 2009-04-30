@@ -88,8 +88,8 @@ import re
 import PyFFI.ObjectModels.XML
 from PyFFI.ObjectModels import Common
 from PyFFI.ObjectModels.XML.Basic import BasicBase
-import PyFFI.ObjectModels.FileFormat
-from PyFFI.ObjectModels.Graph import EdgeFilter
+import PyFFI.ObjectModels
+from PyFFI.Utils.Graph import EdgeFilter
 
 class DdsFormat(PyFFI.ObjectModels.XML.FileFormat):
     """This class implements the DDS format."""
@@ -178,7 +178,7 @@ class DdsFormat(PyFFI.ObjectModels.XML.FileFormat):
         """
         return {'DX9': 0x09000000, 'DX10': 0x0A000000}[version_str]
 
-    class Data(PyFFI.ObjectModels.FileFormat.FileFormat.Data):
+    class Data(PyFFI.ObjectModels.FileFormat.Data):
         """A class to contain the actual dds data."""
         def __init__(self, version=0x09000000):
             self.version = version
@@ -209,7 +209,7 @@ class DdsFormat(PyFFI.ObjectModels.XML.FileFormat):
             finally:
                 stream.seek(pos)
 
-        # overriding PyFFI.ObjectModels.FileFormat.FileFormat.Data methods
+        # overriding PyFFI.ObjectModels.FileFormat.Data methods
 
         def inspect(self, stream):
             """Quickly checks if stream contains DDS data, and reads the

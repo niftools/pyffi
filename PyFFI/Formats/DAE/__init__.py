@@ -132,7 +132,7 @@ class DaeFormat(PyFFI.ObjectModels.XSD.FileFormat.XsdFileFormat):
             """
             return self._rootelement.version
 
-        # overriding PyFFI.ObjectModels.FileFormat.FileFormat.Data methods
+        # overriding PyFFI.ObjectModels.FileFormat.Data methods
 
         def inspect(self, stream):
             """Quickly checks whether the stream appears to contain

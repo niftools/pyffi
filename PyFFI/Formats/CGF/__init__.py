@@ -203,12 +203,12 @@ from itertools import izip
 
 
 import PyFFI.ObjectModels.Common
-import PyFFI.ObjectModels.FileFormat
+import PyFFI.ObjectModels
 import PyFFI.ObjectModels.XML
 import PyFFI.Utils.MathUtils
 import PyFFI.Utils.TangentSpace
 from PyFFI.ObjectModels.XML.Basic import BasicBase
-from PyFFI.ObjectModels.Graph import EdgeFilter
+from PyFFI.Utils.Graph import EdgeFilter
 
 class _MetaCgfFormat(PyFFI.ObjectModels.XML.FileFormat.__metaclass__):
     """Metaclass which constructs the chunk map during class creation."""
@@ -679,7 +679,7 @@ but got instance of %s""" % (self._template, block.__class__))
         warnings.warn("use CgfFormat.Data.chunks", DeprecationWarning)
         return readresult[1]
 
-    class Data(PyFFI.ObjectModels.FileFormat.FileFormat.Data):
+    class Data(PyFFI.ObjectModels.FileFormat.Data):
         """A class to contain the actual nif data.
 
         Note that L{versions} and L{chunk_table} are not automatically kept
@@ -829,7 +829,7 @@ but got instance of %s""" % (self._template, block.__class__))
             yield "header"
             yield "chunk table"
 
-        # overriding PyFFI.ObjectModels.FileFormat.FileFormat.Data methods
+        # overriding PyFFI.ObjectModels.FileFormat.Data methods
 
         def inspect(self, stream):
             """Quickly checks whether the stream appears to contain

@@ -43,7 +43,7 @@ from itertools import izip
 
 import PyFFI.ObjectModels.AnyType
 import PyFFI.ObjectModels.SimpleType
-from PyFFI.ObjectModels.Graph import EdgeFilter
+from PyFFI.Utils.Graph import EdgeFilter
 
 class ValidatedList(list):
     """Abstract base class for lists whose items can be validated (for

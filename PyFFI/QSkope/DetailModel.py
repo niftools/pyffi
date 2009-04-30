@@ -40,7 +40,7 @@ StructBase, Array, and BasicBase instances."""
 
 from PyQt4 import QtCore
 
-from PyFFI.ObjectModels.Graph import EdgeFilter, GlobalNode
+from PyFFI.Utils.Graph import EdgeFilter, GlobalNode
 from PyFFI.QSkope.DetailTree import DetailTreeItem, DetailTreeItemData
 
 # implementation references:

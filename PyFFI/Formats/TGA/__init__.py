@@ -78,8 +78,8 @@ import struct, os, re
 import PyFFI.ObjectModels.XML
 import PyFFI.ObjectModels.Common
 import PyFFI.ObjectModels.XML.Struct
-import PyFFI.ObjectModels.FileFormat
-from PyFFI.ObjectModels.Graph import EdgeFilter
+import PyFFI.ObjectModels
+from PyFFI.Utils.Graph import EdgeFilter
 
 class TgaFormat(PyFFI.ObjectModels.XML.FileFormat):
     """This class implements the TGA format."""
@@ -101,7 +101,7 @@ class TgaFormat(PyFFI.ObjectModels.XML.FileFormat):
     float = PyFFI.ObjectModels.Common.Float
     PixelData = PyFFI.ObjectModels.Common.UndecodedData
 
-    class Header(PyFFI.ObjectModels.FileFormat.FileFormat.Data):
+    class Header(PyFFI.ObjectModels.FileFormat.Data):
         def inspect(self, stream):
             """Quick heuristic check if stream contains Targa data,
             by looking at the first 18 bytes.

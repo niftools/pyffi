@@ -306,7 +306,7 @@ import weakref
 
 import PyFFI.Formats.DDS
 import PyFFI.ObjectModels.Common
-import PyFFI.ObjectModels.FileFormat
+import PyFFI.ObjectModels
 import PyFFI.ObjectModels.XML
 import PyFFI.Utils.Inertia
 from PyFFI.Utils.MathUtils import * # XXX todo get rid of from XXX import *
@@ -315,7 +315,7 @@ import PyFFI.Utils.TriStrip
 import PyFFI.Utils.QuickHull
 # XXX convert the following to absolute imports
 from PyFFI.ObjectModels.Editable import EditableBoolComboBox
-from PyFFI.ObjectModels.Graph import EdgeFilter
+from PyFFI.Utils.Graph import EdgeFilter
 from PyFFI.ObjectModels.XML.Basic import BasicBase
 
 
@@ -974,7 +974,7 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat):
         """Standard nif exception class."""
         pass
 
-    class Data(PyFFI.ObjectModels.FileFormat.FileFormat.Data):
+    class Data(PyFFI.ObjectModels.FileFormat.Data):
         """A class to contain the actual nif data.
 
         Note that L{header} and L{blocks} are not automatically kept
@@ -1138,7 +1138,7 @@ class NifFormat(PyFFI.ObjectModels.XML.FileFormat):
             yield "User Version 2"
             yield "Header"
 
-        # overriding PyFFI.ObjectModels.FileFormat.FileFormat.Data methods
+        # overriding PyFFI.ObjectModels.FileFormat.Data methods
 
         def inspect(self, stream):
             """Quickly checks whether the stream appears to contain

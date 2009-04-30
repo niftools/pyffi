@@ -115,8 +115,8 @@ import PyFFI.ObjectModels.XML
 from PyFFI import Utils
 from PyFFI.ObjectModels import Common
 from PyFFI.ObjectModels.XML.Basic import BasicBase
-from PyFFI.ObjectModels.Graph import EdgeFilter
-import PyFFI.ObjectModels.FileFormat
+from PyFFI.Utils.Graph import EdgeFilter
+import PyFFI.ObjectModels
 import PyFFI.ObjectModels.XML.Struct
 
 class KfmFormat(PyFFI.ObjectModels.XML.FileFormat):
@@ -284,7 +284,7 @@ class KfmFormat(PyFFI.ObjectModels.XML.FileFormat):
                 + (ver_list[2] << 8)
                 + ver_list[3])
 
-    class Header(PyFFI.ObjectModels.FileFormat.FileFormat.Data):
+    class Header(PyFFI.ObjectModels.FileFormat.Data):
         """A class to contain the actual kfm data."""
         version = 0x01024B00
 

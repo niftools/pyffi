@@ -147,7 +147,7 @@ import tempfile
 from types import ModuleType # for _MetaCompatToaster
 
 import PyFFI # for PyFFI.__version__
-import PyFFI.ObjectModels.FileFormat # PyFFI.ObjectModels.FileFormat.FileFormat
+import PyFFI.ObjectModels # PyFFI.ObjectModels.FileFormat
 
 class Spell(object):
     """Spell base class. A spell takes a data file and then does something
@@ -157,7 +157,7 @@ class Spell(object):
     """
 
     data = None
-    """The :class:`~PyFFI.ObjectModels.FileFormat.FileFormat.Data` instance
+    """The :class:`~PyFFI.ObjectModels.FileFormat.Data` instance
     this spell acts on."""
 
     stream = None
@@ -183,7 +183,7 @@ class Spell(object):
         """Initialize the spell data.
 
         :param data: The file :attr:`data`.
-        :type data: :class:`~PyFFI.ObjectModels.FileFormat.FileFormat.Data`
+        :type data: :class:`~PyFFI.ObjectModels.FileFormat.Data`
         :param stream: The file :attr:`stream`.
         :type stream: ``file``
         :param toaster: The :attr:`toaster` this spell is called from (optional).
@@ -194,8 +194,8 @@ class Spell(object):
         self.toaster = toaster if toaster else Toaster()
 
     def _datainspect(self):
-        """This is called after :meth:`PyFFI.ObjectModels.FileFormat.FileFormat.Data.inspect` has
-        been called, and before :meth:`PyFFI.ObjectModels.FileFormat.FileFormat.Data.read` is
+        """This is called after :meth:`PyFFI.ObjectModels.FileFormat.Data.inspect` has
+        been called, and before :meth:`PyFFI.ObjectModels.FileFormat.Data.read` is
         called.
 
         :return: ``True`` if the file must be processed, ``False`` otherwise.
@@ -205,8 +205,8 @@ class Spell(object):
         return True
 
     def datainspect(self):
-        """This is called after :meth:`PyFFI.ObjectModels.FileFormat.FileFormat.Data.inspect` has
-        been called, and before :meth:`PyFFI.ObjectModels.FileFormat.FileFormat.Data.read` is
+        """This is called after :meth:`PyFFI.ObjectModels.FileFormat.Data.inspect` has
+        been called, and before :meth:`PyFFI.ObjectModels.FileFormat.Data.read` is
         called. Override this function for customization.
 
         :return: ``True`` if the file must be processed, ``False`` otherwise.
@@ -224,7 +224,7 @@ class Spell(object):
         method.
 
         :param branch: The branch to check.
-        :type branch: :class:`~PyFFI.ObjectModels.Graph.GlobalNode`
+        :type branch: :class:`~PyFFI.Utils.Graph.GlobalNode`
         :return: ``True`` if the branch must be processed, ``False`` otherwise.
         :rtype: ``bool``
         """
@@ -237,7 +237,7 @@ class Spell(object):
         returns ``True``).
 
         :param branch: The branch to check.
-        :type branch: :class:`~PyFFI.ObjectModels.Graph.GlobalNode`
+        :type branch: :class:`~PyFFI.Utils.Graph.GlobalNode`
         :return: ``True`` if the branch must be processed, ``False`` otherwise.
         :rtype: ``bool``
         """
@@ -258,7 +258,7 @@ class Spell(object):
 
         :param branch: The branch to start the recursion from, or ``None``
             to recurse the whole tree.
-        :type branch: :class:`~PyFFI.ObjectModels.Graph.GlobalNode`
+        :type branch: :class:`~PyFFI.Utils.Graph.GlobalNode`
         """
         # when called without arguments, recurse over the whole tree
         if branch is None:
@@ -314,7 +314,7 @@ class Spell(object):
         block types.
 
         :param branch: The branch to cast the spell on.
-        :type branch: :class:`~PyFFI.ObjectModels.Graph.GlobalNode`
+        :type branch: :class:`~PyFFI.Utils.Graph.GlobalNode`
         :return: ``True`` if the children must be processed, ``False`` otherwise.
         :rtype: ``bool``
         """
@@ -330,7 +330,7 @@ class Spell(object):
         must have been processed first.
 
         :param branch: The branch to cast the spell on.
-        :type branch: :class:`~PyFFI.ObjectModels.Graph.GlobalNode`
+        :type branch: :class:`~PyFFI.Utils.Graph.GlobalNode`
         """
         pass
 
@@ -396,7 +396,7 @@ class SpellGroupBase(Spell):
         :param toaster: The toaster this spell is called from.
         :type toaster: :class:`Toaster`
         :param data: The file data.
-        :type data: :class:`PyFFI.ObjectModels.FileFormat.FileFormat.Data`
+        :type data: :class:`PyFFI.ObjectModels.FileFormat.Data`
         :param stream: The file stream.
         :type stream: ``file``
         """
@@ -535,9 +535,9 @@ class Toaster(object):
     They load each file and pass the data structure to any number of spells.
     """
 
-    FILEFORMAT = PyFFI.ObjectModels.FileFormat.FileFormat
+    FILEFORMAT = PyFFI.ObjectModels.FileFormat
     """The file format class (a subclass of
-    :class:`~PyFFI.ObjectModels.FileFormat.FileFormat`)."""
+    :class:`~PyFFI.ObjectModels.FileFormat`)."""
 
     SPELLS = []
     """List of all available :class:`~PyFFI.Spells.Spell` classes."""

@@ -46,9 +46,9 @@ import sys
 import time
 import xml.sax
 
-import PyFFI.ObjectModels.FileFormat
+import PyFFI.ObjectModels
 
-class MetaXsdFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
+class MetaXsdFileFormat(PyFFI.ObjectModels.MetaFileFormat):
     """The MetaXsdFileFormat metaclass transforms the XSD description of a
     xml format into a bunch of classes which can be directly used to
     manipulate files in this format.
@@ -91,7 +91,7 @@ class MetaXsdFileFormat(PyFFI.ObjectModels.FileFormat.MetaFileFormat):
                 xsdfile.close()
             cls.logger.debug("Parsing finished in %.3f seconds." % (time.clock() - start))
 
-class XsdFileFormat(PyFFI.ObjectModels.FileFormat.FileFormat):
+class XsdFileFormat(PyFFI.ObjectModels.FileFormat):
     """This class can be used as a base class for file formats. It implements
     a number of useful functions such as walking over directory trees and a
     default attribute naming function.

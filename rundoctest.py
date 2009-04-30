@@ -5,7 +5,7 @@ import unittest
 
 import PyFFI
 import PyFFI.ObjectModels.Common
-import PyFFI.ObjectModels.FileFormat
+import PyFFI.ObjectModels
 import PyFFI.ObjectModels.XSD.FileFormat
 import PyFFI.ObjectModels.mex
 import PyFFI.ObjectModels.AnyType
