@@ -1,5 +1,5 @@
 """
-:mod:`PyFFI.spells.TGA` --- Targa spells
+:mod:`PyFFI.spells.tga` --- Targa spells
 ========================================
 
 There are no spells yet.

@@ -46,20 +46,20 @@ import logging
 import sys
 
 import PyFFI.spells
-import PyFFI.spells.CGF
-import PyFFI.spells.CGF.check
-import PyFFI.spells.CGF.dump
+import PyFFI.spells.cgf
+import PyFFI.spells.cgf.check
+import PyFFI.spells.cgf.dump
 import PyFFI.Formats.CGF
 import PyFFI.spells.check
 
-class CgfToaster(PyFFI.spells.CGF.CgfToaster):
+class CgfToaster(PyFFI.spells.cgf.CgfToaster):
     """Class for toasting cgf files, using any of the available spells."""
     SPELLS = [
         PyFFI.spells.check.SpellRead,
-        PyFFI.spells.CGF.check.SpellReadWrite,
-        PyFFI.spells.CGF.check.SpellCheckTangentSpace,
-        PyFFI.spells.CGF.check.SpellCheckHasVertexColors,
-        PyFFI.spells.CGF.dump.SpellDumpAll]
+        PyFFI.spells.cgf.check.SpellReadWrite,
+        PyFFI.spells.cgf.check.SpellCheckTangentSpace,
+        PyFFI.spells.cgf.check.SpellCheckHasVertexColors,
+        PyFFI.spells.cgf.dump.SpellDumpAll]
     ALIASDICT = {
         "read": "check_read",
         "readwrite": "check_readwrite"}

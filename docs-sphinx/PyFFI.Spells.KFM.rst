@@ -1,1 +1,1 @@
-.. automodule:: PyFFI.spells.KFM
+.. automodule:: PyFFI.spells.kfm

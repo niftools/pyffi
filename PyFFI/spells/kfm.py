@@ -1,5 +1,5 @@
 """
-:mod:`PyFFI.spells.KFM` ---  NetImmerse/Gamebryo Keyframe Motion (.kfm) spells
+:mod:`PyFFI.spells.kfm` ---  NetImmerse/Gamebryo Keyframe Motion (.kfm) spells
 ==============================================================================
 
 """

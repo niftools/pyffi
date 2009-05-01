@@ -40,9 +40,9 @@
 # --------------------------------------------------------------------------
 
 from PyFFI.Formats.NIF import NifFormat
-from PyFFI.spells.NIF import NifSpell
-import PyFFI.spells.NIF
-import PyFFI.spells.NIF.check # recycle checking spells for update spells
+from PyFFI.spells.nif import NifSpell
+import PyFFI.spells.nif
+import PyFFI.spells.nif.check # recycle checking spells for update spells
 
 class SpellDelTangentSpace(NifSpell):
     """Delete tangentspace if it is present."""
@@ -244,7 +244,7 @@ class SpellClampMaterialAlpha(NifSpell):
             # keep recursing into children
             return True
 
-class SpellSendGeometriesToBindPosition(PyFFI.spells.NIF.SpellVisitSkeletonRoots):
+class SpellSendGeometriesToBindPosition(PyFFI.spells.nif.SpellVisitSkeletonRoots):
     """Transform skinned geometries so similar bones have the same bone data,
     and hence, the same bind position, over all geometries.
     """
@@ -255,7 +255,7 @@ class SpellSendGeometriesToBindPosition(PyFFI.spells.NIF.SpellVisitSkeletonRoots
         self.toaster.msg("sending geometries to bind position")
         branch.sendGeometriesToBindPosition()
 
-class SpellSendDetachedGeometriesToNodePosition(PyFFI.spells.NIF.SpellVisitSkeletonRoots):
+class SpellSendDetachedGeometriesToNodePosition(PyFFI.spells.nif.SpellVisitSkeletonRoots):
     """Transform geometries so each set of geometries that shares bones
     is aligned with the transform of the root bone of that set.
     """
@@ -266,7 +266,7 @@ class SpellSendDetachedGeometriesToNodePosition(PyFFI.spells.NIF.SpellVisitSkele
         self.toaster.msg("sending detached geometries to node position")
         branch.sendDetachedGeometriesToNodePosition()
 
-class SpellSendBonesToBindPosition(PyFFI.spells.NIF.SpellVisitSkeletonRoots):
+class SpellSendBonesToBindPosition(PyFFI.spells.nif.SpellVisitSkeletonRoots):
     """Transform bones so bone data agrees with bone transforms,
     and hence, all bones are in bind position.
     """
@@ -418,17 +418,17 @@ class SpellScale(NifSpell):
         # never recurse: applyScale works on the full tree
         return False
 
-class SpellFixCenterRadius(PyFFI.spells.NIF.check.SpellCheckCenterRadius):
+class SpellFixCenterRadius(PyFFI.spells.nif.check.SpellCheckCenterRadius):
     """Recalculate geometry centers and radii."""
     SPELLNAME = "fix_centerradius"
     READONLY = False
 
-class SpellFixSkinCenterRadius(PyFFI.spells.NIF.check.SpellCheckSkinCenterRadius):
+class SpellFixSkinCenterRadius(PyFFI.spells.nif.check.SpellCheckSkinCenterRadius):
     """Recalculate skin centers and radii."""
     SPELLNAME = "fix_skincenterradius"
     READONLY = False
 
-class SpellFixMopp(PyFFI.spells.NIF.check.SpellCheckMopp):
+class SpellFixMopp(PyFFI.spells.nif.check.SpellCheckMopp):
     """Recalculate mopp data from collision geometry."""
     SPELLNAME = "fix_mopp"
     READONLY = False

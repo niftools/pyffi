@@ -44,8 +44,8 @@ from itertools import izip
 from PyFFI.Formats.NIF import NifFormat
 import PyFFI.utils.tristrip
 import PyFFI.spells
-import PyFFI.spells.NIF
-import PyFFI.spells.NIF.fix
+import PyFFI.spells.nif
+import PyFFI.spells.nif.fix
 
 # set flag to overwrite files
 __readonly__ = False
@@ -60,7 +60,7 @@ __examples__ = """* Standard usage:
     python niftoaster.py optimize --exclude=NiMaterialProperty /path/to/copy/of/my/nifs
 """
 
-class SpellCleanRefLists(PyFFI.spells.NIF.NifSpell):
+class SpellCleanRefLists(PyFFI.spells.nif.NifSpell):
     """Remove empty and duplicate entries in reference lists."""
 
     SPELLNAME = "opt_cleanreflists"
@@ -119,14 +119,14 @@ class SpellCleanRefLists(PyFFI.spells.NIF.NifSpell):
         # always recurse further
         return True
 
-class SpellMergeDuplicates(PyFFI.spells.NIF.NifSpell):
+class SpellMergeDuplicates(PyFFI.spells.nif.NifSpell):
     """Remove duplicate branches."""
 
     SPELLNAME = "opt_mergeduplicates"
     READONLY = False
 
     def __init__(self, *args, **kwargs):
-        PyFFI.spells.NIF.NifSpell.__init__(self, *args, **kwargs)
+        PyFFI.spells.nif.NifSpell.__init__(self, *args, **kwargs)
         # list of all branches visited so far
         self.branches = []
 
@@ -168,7 +168,7 @@ class SpellMergeDuplicates(PyFFI.spells.NIF.NifSpell):
             # continue recursion
             return True
 
-class SpellOptimizeGeometry(PyFFI.spells.NIF.NifSpell):
+class SpellOptimizeGeometry(PyFFI.spells.nif.NifSpell):
     """Optimize all geometries:
       - remove duplicate vertices
       - stripify if strips are long enough
@@ -184,7 +184,7 @@ class SpellOptimizeGeometry(PyFFI.spells.NIF.NifSpell):
     STITCH = True
 
     def __init__(self, *args, **kwargs):
-        PyFFI.spells.NIF.NifSpell.__init__(self, *args, **kwargs)
+        PyFFI.spells.nif.NifSpell.__init__(self, *args, **kwargs)
         # list of all optimized geometries so far
         # (to avoid optimizing the same geometry twice)
         self.optimized = []
@@ -401,7 +401,7 @@ class SpellOptimizeGeometry(PyFFI.spells.NIF.NifSpell):
         return False
 
 # XXX todo
-class SpellSplitGeometry(PyFFI.spells.NIF.NifSpell):
+class SpellSplitGeometry(PyFFI.spells.nif.NifSpell):
     """Optimize geometry by splitting large models into pieces.
     (This spell is not yet fully implemented!)
     """
@@ -523,7 +523,7 @@ class SpellSplitGeometry(PyFFI.spells.NIF.NifSpell):
         return node
 
     def __init__(self, *args, **kwargs):
-        PyFFI.spells.NIF.NifSpell.__init__(self, *args, **kwargs)
+        PyFFI.spells.nif.NifSpell.__init__(self, *args, **kwargs)
         # list of all optimized geometries so far
         # (to avoid optimizing the same geometry twice)
         self.optimized = []
@@ -569,9 +569,9 @@ class SpellOptimize(
     PyFFI.spells.SpellGroupSeries(
         PyFFI.spells.SpellGroupParallel(
             SpellCleanRefLists,
-            PyFFI.spells.NIF.fix.SpellDetachHavokTriStripsData,
-            PyFFI.spells.NIF.fix.SpellFixTexturePath,
-            PyFFI.spells.NIF.fix.SpellClampMaterialAlpha),
+            PyFFI.spells.nif.fix.SpellDetachHavokTriStripsData,
+            PyFFI.spells.nif.fix.SpellFixTexturePath,
+            PyFFI.spells.nif.fix.SpellClampMaterialAlpha),
         SpellMergeDuplicates,
         SpellOptimizeGeometry)):
     """Global fixer and optimizer spell."""

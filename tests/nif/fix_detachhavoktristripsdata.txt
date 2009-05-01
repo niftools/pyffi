@@ -25,7 +25,7 @@ Explicit check
 --------------
 
 >>> from PyFFI.Formats.NIF import NifFormat
->>> from PyFFI.spells.NIF import fix
+>>> from PyFFI.spells.nif import fix
 >>> from PyFFI.spells import Toaster
 >>> data = NifFormat.Data()
 >>> stream = open("tests/nif/test_fix_detachhavoktristripsdata.nif", "rb")

@@ -43,7 +43,7 @@ from itertools import izip
 from tempfile import TemporaryFile
 
 from PyFFI.Formats.CGF import CgfFormat
-from PyFFI.spells.CGF import CgfSpell
+from PyFFI.spells.cgf import CgfSpell
 # XXX do something about this...
 from PyFFI.utils.mathutils import *
 

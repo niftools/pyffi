@@ -1,5 +1,5 @@
 """
-:mod:`PyFFI.spells.NIF` ---  NetImmerse/Gamebryo File/Keyframe (.nif/.kf/.kfa) spells
+:mod:`PyFFI.spells.nif` ---  NetImmerse/Gamebryo File/Keyframe (.nif/.kf/.kfa) spells
 =====================================================================================
 
 .. automodule:: PyFFI.spells.check

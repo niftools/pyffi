@@ -1,5 +1,5 @@
 """
-:mod:`PyFFI.spells.DDS` --- DirectDraw Surface spells
+:mod:`PyFFI.spells.dds` --- DirectDraw Surface spells
 =====================================================
 
 There are no spells yet.

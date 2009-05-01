@@ -1,5 +1,5 @@
 """
-:mod:`PyFFI.spells.CGF` ---  Crytek Geometry/Animation (.cgf/.cga) spells
+:mod:`PyFFI.spells.cgf` ---  Crytek Geometry/Animation (.cgf/.cga) spells
 =========================================================================
 
 .. todo:: Write documentation.
