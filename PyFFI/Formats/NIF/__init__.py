@@ -307,7 +307,7 @@ import weakref
 import PyFFI.Formats.DDS
 import PyFFI.ObjectModels.Common
 import PyFFI.ObjectModels
-import PyFFI.ObjectModels.XML
+import PyFFI.ObjectModels.xml
 import PyFFI.Utils.Inertia
 from PyFFI.Utils.MathUtils import * # XXX todo get rid of from XXX import *
 import PyFFI.Utils.Mopp
@@ -316,11 +316,11 @@ import PyFFI.Utils.QuickHull
 # XXX convert the following to absolute imports
 from PyFFI.ObjectModels.Editable import EditableBoolComboBox
 from PyFFI.Utils.Graph import EdgeFilter
-from PyFFI.ObjectModels.XML.Basic import BasicBase
+from PyFFI.ObjectModels.xml.Basic import BasicBase
 
 
 
-class NifFormat(PyFFI.ObjectModels.XML.FileFormat):
+class NifFormat(PyFFI.ObjectModels.xml.FileFormat):
     """This class contains the generated classes from the xml."""
 
     xmlFileName = 'nif.xml'

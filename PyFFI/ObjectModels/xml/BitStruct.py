@@ -154,9 +154,9 @@ class BitStructBase(DetailNode):
 
     See the PyFFI.XmlHandler class for a more advanced example.
 
-    >>> from PyFFI.ObjectModels.XML.Basic import BasicBase
-    >>> from PyFFI.ObjectModels.XML.Expression import Expression
-    >>> from PyFFI.ObjectModels.XML import BitStructAttribute as Attr
+    >>> from PyFFI.ObjectModels.xml.Basic import BasicBase
+    >>> from PyFFI.ObjectModels.xml.Expression import Expression
+    >>> from PyFFI.ObjectModels.xml import BitStructAttribute as Attr
     >>> class SimpleFormat(object):
     ...     @staticmethod
     ...     def nameAttribute(name):
@@ -171,7 +171,7 @@ class BitStructBase(DetailNode):
     >>> y.a = 5
     >>> y.b = 1
     >>> print(y) # doctest:+ELLIPSIS
-    <class 'PyFFI.ObjectModels.XML.BitStruct.Flags'> instance at 0x...
+    <class 'PyFFI.ObjectModels.xml.BitStruct.Flags'> instance at 0x...
     * a : 5
     * b : 1
     <BLANKLINE>

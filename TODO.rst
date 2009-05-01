@@ -4,13 +4,13 @@
    
    refactoring plans
 
-   - common base classes for PyFFI.ObjectModels.XML.BasicBase/StructBase and
-     PyFFI.ObjectModels.XSD.SimpleType/ComplexType
+   - common base classes for PyFFI.ObjectModels.xml.BasicBase/StructBase and
+     PyFFI.ObjectModels.xsd.SimpleType/ComplexType
      (e.g. PyFFI.ObjectModel.SimpleType/ComplexType)
 
    - derive ObjectModels.ArrayType and ObjectModels.StructType from
      common subclass PyFFI.ObjectModels.ComplexType, use these then as base
-     classes for ObjectModels.XML.Array and ObjectModels.XML.StructBase
+     classes for ObjectModels.xml.Array and ObjectModels.xml.StructBase
 
 
    - use PyFFI.Utils.Graph for all ObjectModels.XXX implementations
@@ -41,7 +41,7 @@
 	+ remove old method in 4.x.x
 
    - one of the aims is that qskope no longer relies on any
-     ObjectModels.XML/ObjectModels.XSD specific implementations; if it only
+     ObjectModels.xml/ObjectModels.xsd specific implementations; if it only
      relies on the abstract base classes in ObjectModels.Graph and
      ObjectModels.Data then future expansions are a lot easier to cope with;
      in particular, qskope should never have to import from ObjectModels.XXX,

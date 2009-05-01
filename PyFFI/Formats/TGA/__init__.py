@@ -75,13 +75,13 @@ Create a TGA file from scratch and write to file
 
 import struct, os, re
 
-import PyFFI.ObjectModels.XML
+import PyFFI.ObjectModels.xml
 import PyFFI.ObjectModels.Common
-import PyFFI.ObjectModels.XML.Struct
+import PyFFI.ObjectModels.xml.Struct
 import PyFFI.ObjectModels
 from PyFFI.Utils.Graph import EdgeFilter
 
-class TgaFormat(PyFFI.ObjectModels.XML.FileFormat):
+class TgaFormat(PyFFI.ObjectModels.xml.FileFormat):
     """This class implements the TGA format."""
     xmlFileName = 'tga.xml'
     # where to look for tga.xml and in what order:
@@ -143,7 +143,7 @@ class TgaFormat(PyFFI.ObjectModels.XML.FileFormat):
             """
             # read the file
             self.inspect(stream) # quick check
-            PyFFI.ObjectModels.XML.Struct.StructBase.read(self, stream)
+            PyFFI.ObjectModels.xml.Struct.StructBase.read(self, stream)
 
             # check if we are at the end of the file
             if stream.read(1) != '':

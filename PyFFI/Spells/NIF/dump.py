@@ -57,7 +57,7 @@ def dumpArray(arr):
     """Format an array.
 
     :param arr: An array.
-    :type arr: L{PyFFI.ObjectModels.XML.Array.Array}
+    :type arr: L{PyFFI.ObjectModels.xml.Array.Array}
     :return: String describing the array.
     """
     text = ""

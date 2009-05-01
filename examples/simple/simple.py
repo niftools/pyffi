@@ -1,8 +1,8 @@
 import os
-import PyFFI.ObjectModels.XML
+import PyFFI.ObjectModels.xml
 import PyFFI.ObjectModels.Common
 
-class SimpleFormat(PyFFI.ObjectModels.XML.FileFormat):
+class SimpleFormat(PyFFI.ObjectModels.xml.FileFormat):
     xmlFileName = 'simple.xml'
     xmlFilePath = [ os.path.dirname(__file__) ]
 

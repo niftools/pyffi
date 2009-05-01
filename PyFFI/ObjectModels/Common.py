@@ -39,7 +39,7 @@
 
 import struct
 
-from PyFFI.ObjectModels.XML.Basic import BasicBase
+from PyFFI.ObjectModels.xml.Basic import BasicBase
 from PyFFI.ObjectModels.Editable import EditableSpinBox
 from PyFFI.ObjectModels.Editable import EditableFloatSpinBox
 from PyFFI.ObjectModels.Editable import EditableLineEdit

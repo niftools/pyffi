@@ -66,7 +66,7 @@ from types import *
 from string import maketrans
 
 from PyFFI.Formats.NIF import NifFormat
-from PyFFI.ObjectModels.XML.Basic import BasicBase
+from PyFFI.ObjectModels.xml.Basic import BasicBase
 
 def find_templates():
     # find all types that are used as a template (excluding the ones

@@ -111,15 +111,15 @@ The Guild 2 0x01024B00
 
 import struct, os, re
 
-import PyFFI.ObjectModels.XML
+import PyFFI.ObjectModels.xml
 from PyFFI import Utils
 from PyFFI.ObjectModels import Common
-from PyFFI.ObjectModels.XML.Basic import BasicBase
+from PyFFI.ObjectModels.xml.Basic import BasicBase
 from PyFFI.Utils.Graph import EdgeFilter
 import PyFFI.ObjectModels
-import PyFFI.ObjectModels.XML.Struct
+import PyFFI.ObjectModels.xml.Struct
 
-class KfmFormat(PyFFI.ObjectModels.XML.FileFormat):
+class KfmFormat(PyFFI.ObjectModels.xml.FileFormat):
     """This class implements the kfm file format."""
     xmlFileName = 'kfm.xml'
     # where to look for kfm.xml and in what order:
@@ -333,7 +333,7 @@ class KfmFormat(PyFFI.ObjectModels.XML.FileFormat):
             """
             # read the file
             self.inspect(stream) # quick check
-            PyFFI.ObjectModels.XML.Struct.StructBase.read(
+            PyFFI.ObjectModels.xml.Struct.StructBase.read(
                 self, stream, version=self.version)
 
             # check if we are at the end of the file
@@ -347,7 +347,7 @@ class KfmFormat(PyFFI.ObjectModels.XML.FileFormat):
             :type stream: ``file``
             """
             # write the file
-            PyFFI.ObjectModels.XML.Struct.StructBase.write(
+            PyFFI.ObjectModels.xml.Struct.StructBase.write(
                 self, stream, version=self.version)
 
         # GlobalNode

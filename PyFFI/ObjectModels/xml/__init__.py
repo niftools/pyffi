@@ -47,11 +47,11 @@ import sys
 import xml.sax
 
 import PyFFI.ObjectModels
-from PyFFI.ObjectModels.XML.Struct     import StructBase
-from PyFFI.ObjectModels.XML.Basic      import BasicBase
-from PyFFI.ObjectModels.XML.BitStruct  import BitStructBase
-from PyFFI.ObjectModels.XML.Enum       import EnumBase
-from PyFFI.ObjectModels.XML.Expression import Expression
+from PyFFI.ObjectModels.xml.Struct     import StructBase
+from PyFFI.ObjectModels.xml.Basic      import BasicBase
+from PyFFI.ObjectModels.xml.BitStruct  import BitStructBase
+from PyFFI.ObjectModels.xml.Enum       import EnumBase
+from PyFFI.ObjectModels.xml.Expression import Expression
 
 class MetaFileFormat(PyFFI.ObjectModels.MetaFileFormat):
     """The MetaFileFormat metaclass transforms the XML description
@@ -59,7 +59,7 @@ class MetaFileFormat(PyFFI.ObjectModels.MetaFileFormat):
     used to manipulate files in this format.
 
     The actual implementation of the parser is delegated to
-    PyFFI.ObjectModels.XML.FileFormat.
+    PyFFI.ObjectModels.xml.FileFormat.
     """
     def __init__(cls, name, bases, dct):
         """This function constitutes the core of the class generation

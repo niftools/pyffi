@@ -150,9 +150,9 @@ class StructBase(GlobalNode):
 
     See the PyFFI.XmlHandler class for a more advanced example.
 
-    >>> from PyFFI.ObjectModels.XML.Basic import BasicBase
-    >>> from PyFFI.ObjectModels.XML.Expression import Expression
-    >>> from PyFFI.ObjectModels.XML import StructAttribute as Attr
+    >>> from PyFFI.ObjectModels.xml.Basic import BasicBase
+    >>> from PyFFI.ObjectModels.xml.Expression import Expression
+    >>> from PyFFI.ObjectModels.xml import StructAttribute as Attr
     >>> class SimpleFormat(object):
     ...     class UInt(BasicBase):
     ...         _isTemplate = False
@@ -185,12 +185,12 @@ class StructBase(GlobalNode):
     >>> y.d.a = 4
     >>> y.d.b = 5
     >>> print(y) # doctest:+ELLIPSIS
-    <class 'PyFFI.ObjectModels.XML.Struct.Y'> instance at 0x...
+    <class 'PyFFI.ObjectModels.xml.Struct.Y'> instance at 0x...
     * a : 1
     * b : 2
     * c : 3
     * d :
-        <class 'PyFFI.ObjectModels.XML.Struct.X'> instance at 0x...
+        <class 'PyFFI.ObjectModels.xml.Struct.X'> instance at 0x...
         * a : 4
         * b : 5
     <BLANKLINE>
@@ -605,5 +605,5 @@ class StructBase(GlobalNode):
         for branch in self.getRefs():
             yield branch
 
-from PyFFI.ObjectModels.XML.Basic import BasicBase
-from PyFFI.ObjectModels.XML.Array import Array
+from PyFFI.ObjectModels.xml.Basic import BasicBase
+from PyFFI.ObjectModels.xml.Array import Array
