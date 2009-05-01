@@ -94,8 +94,8 @@ Explicit check
 ...                 return True
 ...     return False
 >>> from PyFFI.Formats.NIF import NifFormat
->>> import PyFFI.Spells.NIF.optimize
->>> from PyFFI.Spells import Toaster
+>>> import PyFFI.spells.NIF.optimize
+>>> from PyFFI.spells import Toaster
 >>> data = NifFormat.Data()
 >>> stream = open("tests/nif/test_opt_mergeduplicates.nif", "rb")
 >>> data.read(stream)
@@ -103,7 +103,7 @@ Explicit check
 >>> has_duplicates(data.roots[0])
 True
 >>> # run the spell that fixes this
->>> spell = PyFFI.Spells.NIF.optimize.SpellMergeDuplicates(data=data)
+>>> spell = PyFFI.spells.NIF.optimize.SpellMergeDuplicates(data=data)
 >>> spell.recurse()
 pyffi.toaster:INFO:--- opt_mergeduplicates ---
 pyffi.toaster:INFO:  ~~~ NiNode [Scene Root] ~~~

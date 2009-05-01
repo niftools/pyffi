@@ -30,8 +30,8 @@ Explicit check
 --------------
 
 >>> from PyFFI.Formats.NIF import NifFormat
->>> from PyFFI.Spells.NIF import fix
->>> from PyFFI.Spells import Toaster
+>>> from PyFFI.spells.NIF import fix
+>>> from PyFFI.spells import Toaster
 >>> data = NifFormat.Data()
 >>> stream = open("tests/nif/test_fix_clampmaterialalpha.nif", "rb")
 >>> data.read(stream)

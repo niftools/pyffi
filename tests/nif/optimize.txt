@@ -13,8 +13,8 @@ Interactive
 >>> inputfunc("is the input working? ")
 is the input working? yes it is
 'yes it is'
->>> import PyFFI.Spells
->>> PyFFI.Spells.Toaster.toast.func_globals['raw_input'] = inputfunc
+>>> import PyFFI.spells
+>>> PyFFI.spells.Toaster.toast.func_globals['raw_input'] = inputfunc
 >>> # copy file to avoid overwriting
 >>> import shutil
 >>> shutil.copyfile("tests/nif/test.nif", "tests/nif/_test.nif")

@@ -42,8 +42,8 @@ from UserDict import DictMixin
 
 from PyQt4 import QtGui, QtCore
 
-from PyFFI.Utils.Graph import EdgeFilter
-from PyFFI.QSkope.GlobalTree import GlobalTreeItemData, GlobalTreeItem
+from PyFFI.utils.Graph import EdgeFilter
+from PyFFI.qskope.GlobalTree import GlobalTreeItemData, GlobalTreeItem
 
 # implementation references:
 # http://doc.trolltech.com/4.3/model-view-programming.html

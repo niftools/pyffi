@@ -6,7 +6,7 @@
    :maxdepth: 3
    
    PyFFI.Formats
-   PyFFI.Spells
+   PyFFI.spells
    PyFFI.object_models
 
 """

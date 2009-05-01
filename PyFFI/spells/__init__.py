@@ -1,5 +1,5 @@
 """
-:mod:`PyFFI.Spells` --- High level file operations
+:mod:`PyFFI.spells` --- High level file operations
 ==================================================
 
 .. note::
@@ -25,12 +25,12 @@ For format specific spells, refer to the corresponding module.
 .. toctree::
    :maxdepth: 2
    
-   PyFFI.Spells.CGF
-   PyFFI.Spells.DAE
-   PyFFI.Spells.DDS
-   PyFFI.Spells.KFM
-   PyFFI.Spells.NIF
-   PyFFI.Spells.TGA
+   PyFFI.spells.CGF
+   PyFFI.spells.DAE
+   PyFFI.spells.DDS
+   PyFFI.spells.KFM
+   PyFFI.spells.NIF
+   PyFFI.spells.TGA
 
 Some spells are applicable on every file format, and those are documented
 here.
@@ -224,7 +224,7 @@ class Spell(object):
         method.
 
         :param branch: The branch to check.
-        :type branch: :class:`~PyFFI.Utils.Graph.GlobalNode`
+        :type branch: :class:`~PyFFI.utils.Graph.GlobalNode`
         :return: ``True`` if the branch must be processed, ``False`` otherwise.
         :rtype: ``bool``
         """
@@ -237,7 +237,7 @@ class Spell(object):
         returns ``True``).
 
         :param branch: The branch to check.
-        :type branch: :class:`~PyFFI.Utils.Graph.GlobalNode`
+        :type branch: :class:`~PyFFI.utils.Graph.GlobalNode`
         :return: ``True`` if the branch must be processed, ``False`` otherwise.
         :rtype: ``bool``
         """
@@ -258,7 +258,7 @@ class Spell(object):
 
         :param branch: The branch to start the recursion from, or ``None``
             to recurse the whole tree.
-        :type branch: :class:`~PyFFI.Utils.Graph.GlobalNode`
+        :type branch: :class:`~PyFFI.utils.Graph.GlobalNode`
         """
         # when called without arguments, recurse over the whole tree
         if branch is None:
@@ -314,7 +314,7 @@ class Spell(object):
         block types.
 
         :param branch: The branch to cast the spell on.
-        :type branch: :class:`~PyFFI.Utils.Graph.GlobalNode`
+        :type branch: :class:`~PyFFI.utils.Graph.GlobalNode`
         :return: ``True`` if the children must be processed, ``False`` otherwise.
         :rtype: ``bool``
         """
@@ -330,7 +330,7 @@ class Spell(object):
         must have been processed first.
 
         :param branch: The branch to cast the spell on.
-        :type branch: :class:`~PyFFI.Utils.Graph.GlobalNode`
+        :type branch: :class:`~PyFFI.utils.Graph.GlobalNode`
         """
         pass
 
@@ -540,7 +540,7 @@ class Toaster(object):
     :class:`~PyFFI.object_models.FileFormat`)."""
 
     SPELLS = []
-    """List of all available :class:`~PyFFI.Spells.Spell` classes."""
+    """List of all available :class:`~PyFFI.spells.Spell` classes."""
 
     EXAMPLES = ""
     """Some examples which describe typical use of the toaster."""

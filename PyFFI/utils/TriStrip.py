@@ -39,8 +39,8 @@ and triangulation of strips."""
 #
 # ***** END LICENSE BLOCK *****
 
-from PyFFI.Utils.TriangleStripifier import TriangleStripifier
-from PyFFI.Utils.TriangleMesh import FaceEdgeMesh
+from PyFFI.utils.TriangleStripifier import TriangleStripifier
+from PyFFI.utils.TriangleMesh import FaceEdgeMesh
 
 def triangulate(strips):
     """A generator for iterating over the faces in a set of

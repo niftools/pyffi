@@ -1,5 +1,5 @@
 """
-:mod:`PyFFI.Spells.DDS` --- DirectDraw Surface spells
+:mod:`PyFFI.spells.DDS` --- DirectDraw Surface spells
 =====================================================
 
 There are no spells yet.
@@ -44,12 +44,12 @@ There are no spells yet.
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-import PyFFI.Spells
+import PyFFI.spells
 from PyFFI.Formats.DDS import DdsFormat
 
-class DdsSpell(PyFFI.Spells.Spell):
+class DdsSpell(PyFFI.spells.Spell):
     """Base class for spells for dds files."""
     pass
 
-class DdsToaster(PyFFI.Spells.Toaster):
+class DdsToaster(PyFFI.spells.Toaster):
     FILEFORMAT = DdsFormat

@@ -1,1 +1,1 @@
-.. automodule:: PyFFI.Spells
+.. automodule:: PyFFI.spells

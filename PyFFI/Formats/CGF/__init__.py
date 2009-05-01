@@ -205,10 +205,10 @@ from itertools import izip
 import PyFFI.object_models.Common
 import PyFFI.object_models
 import PyFFI.object_models.xml
-import PyFFI.Utils.MathUtils
-import PyFFI.Utils.TangentSpace
+import PyFFI.utils.MathUtils
+import PyFFI.utils.TangentSpace
 from PyFFI.object_models.xml.Basic import BasicBase
-from PyFFI.Utils.Graph import EdgeFilter
+from PyFFI.utils.Graph import EdgeFilter
 
 class _MetaCgfFormat(PyFFI.object_models.xml.FileFormat.__metaclass__):
     """Metaclass which constructs the chunk map during class creation."""
@@ -655,8 +655,8 @@ but got instance of %s""" % (self._template, block.__class__))
 
     @classmethod
     def getRoots(cls, *readresult):
-        """Returns list of all root blocks. Used by L{PyFFI.QSkope}
-        and L{PyFFI.Spells}.
+        """Returns list of all root blocks. Used by L{PyFFI.qskope}
+        and L{PyFFI.spells}.
 
         :param readresult: Result from L{walk} or L{read}.
         :type readresult: tuple
@@ -668,8 +668,8 @@ but got instance of %s""" % (self._template, block.__class__))
 
     @classmethod
     def getBlocks(cls, *readresult):
-        """Returns list of all blocks. Used by L{PyFFI.QSkope}
-        and L{PyFFI.Spells}.
+        """Returns list of all blocks. Used by L{PyFFI.qskope}
+        and L{PyFFI.spells}.
 
         :param readresult: Result from L{walk} or L{read}.
         :type readresult: tuple
@@ -2689,7 +2689,7 @@ chunk size mismatch when reading %s at 0x%08X
                 meshsubset.firstVertex = firstvertexindex
                 meshsubset.numVertices = len(vertices)
                 meshsubset.matId = mat
-                center, radius = PyFFI.Utils.MathUtils.getCenterRadius(vertices)
+                center, radius = PyFFI.utils.MathUtils.getCenterRadius(vertices)
                 meshsubset.radius = radius
                 meshsubset.center.x = center[0]
                 meshsubset.center.y = center[1]
@@ -2773,7 +2773,7 @@ chunk size mismatch when reading %s at 0x%08X
                 self.updateTangentSpace()
 
             # set global bounding box
-            minbound, maxbound = PyFFI.Utils.MathUtils.getBoundingBox(
+            minbound, maxbound = PyFFI.utils.MathUtils.getBoundingBox(
                 list(itertools.chain(*verticeslist)))
             self.minBound.x = minbound[0]
             self.minBound.y = minbound[1]
@@ -2793,7 +2793,7 @@ chunk size mismatch when reading %s at 0x%08X
             selftangentsData_iter = iter(self.tangentsData.tangents)
 
             # set Crysis tangents info
-            tangents, binormals, orientations = PyFFI.Utils.TangentSpace.getTangentSpace(
+            tangents, binormals, orientations = PyFFI.utils.TangentSpace.getTangentSpace(
                 vertices = list((vert.x, vert.y, vert.z)
                                 for vert in self.verticesData.vertices),
                 normals = list((norm.x, norm.y, norm.z)

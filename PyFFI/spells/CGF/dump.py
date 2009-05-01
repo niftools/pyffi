@@ -40,7 +40,7 @@
 # --------------------------------------------------------------------------
 
 from PyFFI.Formats.CGF import CgfFormat
-import PyFFI.Spells.CGF
+import PyFFI.spells.CGF
 
 def dumpBlock(chunk):
     # XXX figure out how to get the version
@@ -48,7 +48,7 @@ def dumpBlock(chunk):
     #      % (i, chunk.__class__.__name__, version))
     return str(chunk)
 
-class SpellDumpAll(PyFFI.Spells.CGF.CgfSpell):
+class SpellDumpAll(PyFFI.spells.CGF.CgfSpell):
     """Dump the whole file."""
 
     SPELLNAME = "dump"

@@ -45,10 +45,10 @@ from itertools import izip, repeat
 import tempfile
 
 from PyFFI.Formats.NIF import NifFormat
-import PyFFI.Spells.NIF
-import PyFFI.Utils.TriStrip # for check_tristrip
+import PyFFI.spells.NIF
+import PyFFI.utils.TriStrip # for check_tristrip
 
-class SpellReadWrite(PyFFI.Spells.NIF.NifSpell):
+class SpellReadWrite(PyFFI.spells.NIF.NifSpell):
     """Like the original read-write spell, but with additional file size
     check."""
 
@@ -82,7 +82,7 @@ class SpellReadWrite(PyFFI.Spells.NIF.NifSpell):
         # spell is finished: prevent recursing into the tree
         return False
 
-class SpellNodeNamesByFlag(PyFFI.Spells.NIF.NifSpell):
+class SpellNodeNamesByFlag(PyFFI.spells.NIF.NifSpell):
     """This spell goes over all nif files, and at the end, it gives a summary
     of which node names where used with particular flags."""
 
@@ -115,7 +115,7 @@ class SpellNodeNamesByFlag(PyFFI.Spells.NIF.NifSpell):
         else:
             return False
 
-class SpellCompareSkinData(PyFFI.Spells.NIF.NifSpell):
+class SpellCompareSkinData(PyFFI.spells.NIF.NifSpell):
     """This spell compares skinning data with a reference nif."""
 
     SPELLNAME = "check_compareskindata"
@@ -263,7 +263,7 @@ skipping: skeleton roots are not identical
             # keep iterating
             return True
 
-class SpellCheckBhkBodyCenter(PyFFI.Spells.NIF.NifSpell):
+class SpellCheckBhkBodyCenter(PyFFI.spells.NIF.NifSpell):
     """Recalculate the center of mass and inertia matrix,
     compare them to the originals, and report accordingly.
     """
@@ -324,7 +324,7 @@ class SpellCheckBhkBodyCenter(PyFFI.Spells.NIF.NifSpell):
             # stop recursing
             return False
 
-class SpellCheckCenterRadius(PyFFI.Spells.NIF.NifSpell):
+class SpellCheckCenterRadius(PyFFI.spells.NIF.NifSpell):
     """Recalculate the center and radius, compare them to the originals,
     and report mismatches.
     """
@@ -389,7 +389,7 @@ class SpellCheckCenterRadius(PyFFI.Spells.NIF.NifSpell):
             # stop recursing
             return False
 
-class SpellCheckSkinCenterRadius(PyFFI.Spells.NIF.NifSpell):
+class SpellCheckSkinCenterRadius(PyFFI.spells.NIF.NifSpell):
     """Recalculate the skindata center and radius for each bone, compare them
     to the originals, and report mismatches.
     """
@@ -434,7 +434,7 @@ class SpellCheckSkinCenterRadius(PyFFI.Spells.NIF.NifSpell):
             # stop recursing
             return False
 
-class SpellCheckConvexVerticesShape(PyFFI.Spells.NIF.NifSpell):
+class SpellCheckConvexVerticesShape(PyFFI.spells.NIF.NifSpell):
     """This test checks whether each vertex is the intersection of at least
     three planes.
     """
@@ -480,7 +480,7 @@ class SpellCheckConvexVerticesShape(PyFFI.Spells.NIF.NifSpell):
             # stop recursing
             return False
 
-class SpellCheckMopp(PyFFI.Spells.NIF.NifSpell):
+class SpellCheckMopp(PyFFI.spells.NIF.NifSpell):
     """Parse and dump mopp trees, and check their validity:
 
     * do they have correct origin and scale?
@@ -567,7 +567,7 @@ class SpellCheckMopp(PyFFI.Spells.NIF.NifSpell):
             # stop recursing
             return False
 
-class SpellCheckTangentSpace(PyFFI.Spells.NIF.NifSpell):
+class SpellCheckTangentSpace(PyFFI.spells.NIF.NifSpell):
     """Check and recalculate the tangent space, compare them to the originals,
     and report accordingly.
     """
@@ -642,7 +642,7 @@ class SpellCheckTangentSpace(PyFFI.Spells.NIF.NifSpell):
             # don't recurse further
             return False 
 
-class SpellCheckTriStrip(PyFFI.Spells.NIF.NifSpell):
+class SpellCheckTriStrip(PyFFI.spells.NIF.NifSpell):
     """Run the stripifier on all triangles from nif files. This spell is also
     useful for checking and profiling the stripifierand the
     stitcher/unstitcher  (for instance it checks that it does not
@@ -681,7 +681,7 @@ class SpellCheckTriStrip(PyFFI.Spells.NIF.NifSpell):
             triangles = branch.getTriangles()
             self.toaster.msg('calculating strips')
             try:
-                strips = PyFFI.Utils.TriStrip.stripify(
+                strips = PyFFI.utils.TriStrip.stripify(
                     triangles, stitchstrips=False)
             except StandardError:
                 self.toaster.logger.error('failed to strip triangles')
@@ -693,17 +693,17 @@ class SpellCheckTriStrip(PyFFI.Spells.NIF.NifSpell):
             self.toaster.striplengths += [len(strip) for strip in strips]
 
             self.toaster.msg('checking strip triangles')
-            PyFFI.Utils.TriStrip._checkStrips(triangles, strips)
+            PyFFI.utils.TriStrip._checkStrips(triangles, strips)
 
             self.toaster.msg('checking stitched strip triangles')
-            stitchedstrip = PyFFI.Utils.TriStrip.stitchStrips(strips)
-            PyFFI.Utils.TriStrip._checkStrips(triangles, [stitchedstrip])
+            stitchedstrip = PyFFI.utils.TriStrip.stitchStrips(strips)
+            PyFFI.utils.TriStrip._checkStrips(triangles, [stitchedstrip])
 
             self.toaster.msg('checking unstitched strip triangles')
-            unstitchedstrips = PyFFI.Utils.TriStrip.unstitchStrip(stitchedstrip)
-            PyFFI.Utils.TriStrip._checkStrips(triangles, unstitchedstrips)
+            unstitchedstrips = PyFFI.utils.TriStrip.unstitchStrip(stitchedstrip)
+            PyFFI.utils.TriStrip._checkStrips(triangles, unstitchedstrips)
 
-class SpellCheckVersion(PyFFI.Spells.NIF.NifSpell):
+class SpellCheckVersion(PyFFI.spells.NIF.NifSpell):
     """Checks all versions used by the files (without reading the full files).
     """
     SPELLNAME = 'check_version'

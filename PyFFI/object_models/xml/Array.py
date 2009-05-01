@@ -41,7 +41,7 @@
 
 # note: imports are defined at the end to avoid problems with circularity
 
-from PyFFI.Utils.Graph import DetailNode, EdgeFilter
+from PyFFI.utils.Graph import DetailNode, EdgeFilter
 
 class _ListWrap(list, DetailNode):
     """A wrapper for list, which uses getValue and setValue for

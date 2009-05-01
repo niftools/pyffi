@@ -112,10 +112,9 @@ The Guild 2 0x01024B00
 import struct, os, re
 
 import PyFFI.object_models.xml
-from PyFFI import Utils
 from PyFFI.object_models import Common
 from PyFFI.object_models.xml.Basic import BasicBase
-from PyFFI.Utils.Graph import EdgeFilter
+from PyFFI.utils.Graph import EdgeFilter
 import PyFFI.object_models
 import PyFFI.object_models.xml.Struct
 

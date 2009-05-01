@@ -1,1 +1,1 @@
-.. automodule:: PyFFI.Spells.CGF
+.. automodule:: PyFFI.spells.CGF

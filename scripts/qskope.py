@@ -51,7 +51,7 @@ except ImportError:
     raise
 
 # import the main QSkope window class
-from PyFFI.QSkope import QSkope
+from PyFFI.qskope import QSkope
 
 # system and option parsing functions
 import sys

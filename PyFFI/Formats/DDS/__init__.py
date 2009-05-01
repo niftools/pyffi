@@ -89,7 +89,7 @@ import PyFFI.object_models.xml
 from PyFFI.object_models import Common
 from PyFFI.object_models.xml.Basic import BasicBase
 import PyFFI.object_models
-from PyFFI.Utils.Graph import EdgeFilter
+from PyFFI.utils.Graph import EdgeFilter
 
 class DdsFormat(PyFFI.object_models.xml.FileFormat):
     """This class implements the DDS format."""

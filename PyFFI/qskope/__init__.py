@@ -39,9 +39,9 @@
 
 from PyQt4 import QtGui, QtCore
 
-import PyFFI.QSkope.GlobalModel
-import PyFFI.QSkope.DetailModel
-import PyFFI.QSkope.DetailDelegate
+import PyFFI.qskope.GlobalModel
+import PyFFI.qskope.DetailModel
+import PyFFI.qskope.DetailDelegate
 
 import PyFFI
 from PyFFI.Formats.NIF import NifFormat
@@ -70,7 +70,7 @@ class QSkope(QtGui.QMainWindow):
 
         # set up the detail model view
         self.detailWidget = QtGui.QTreeView()
-        self.detailDelegate = PyFFI.QSkope.DetailDelegate.DetailDelegate()
+        self.detailDelegate = PyFFI.qskope.DetailDelegate.DetailDelegate()
         self.detailWidget.setItemDelegate(self.detailDelegate)
         self.detailWidget.setAlternatingRowColors(True)
 
@@ -263,7 +263,7 @@ class QSkope(QtGui.QMainWindow):
             self.statusBar().showMessage("Finished reading %s" % filename)
 
             # set up the models and update the views
-            self.globalModel = PyFFI.QSkope.GlobalModel.GlobalModel(
+            self.globalModel = PyFFI.qskope.GlobalModel.GlobalModel(
                 globalnode=self.data)
             self.globalWidget.setModel(self.globalModel)
             self.setDetailModel(
@@ -322,11 +322,11 @@ class QSkope(QtGui.QMainWindow):
         # and set up the model
         if index.isValid():
             globalnode = index.internalPointer().data.node
-            self.detailModel = PyFFI.QSkope.DetailModel.DetailModel(
+            self.detailModel = PyFFI.qskope.DetailModel.DetailModel(
                 globalnode=globalnode,
                 globalmodel=self.globalModel)
         else:
-            self.detailModel = PyFFI.QSkope.DetailModel.DetailModel()
+            self.detailModel = PyFFI.qskope.DetailModel.DetailModel()
         # set the widget's model
         self.detailWidget.setModel(self.detailModel)
 

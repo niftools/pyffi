@@ -13,7 +13,7 @@
      classes for object_models.xml.Array and object_models.xml.StructBase
 
 
-   - use PyFFI.Utils.Graph for all object_models.XXX implementations
+   - use PyFFI.utils.Graph for all object_models.XXX implementations
 
    - upgrade QSkope and XML model to use GlobalNode instead of the
      current ad hoc system with Refs
@@ -67,7 +67,7 @@
     * move all regression tests to the tests directory (but keep useful examples
       in the docstrings!)
 
-    * add spell support for qskope directly using the PyFFI.Spells module
+    * add spell support for qskope directly using the PyFFI.spells module
 
     * allow qskope to create new spells, from a user supplied spells module
 

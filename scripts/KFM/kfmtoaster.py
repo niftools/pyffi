@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """A script for casting spells on kfm files. This script essentially
-sets up the logger and calls :meth:`PyFFI.Spells.KFM.KfmToaster.cli`.
+sets up the logger and calls :meth:`PyFFI.spells.KFM.KfmToaster.cli`.
 """
 
 # --------------------------------------------------------------------------
@@ -46,7 +46,7 @@ sets up the logger and calls :meth:`PyFFI.Spells.KFM.KfmToaster.cli`.
 import logging
 import sys
 
-import PyFFI.Spells.KFM
+import PyFFI.spells.KFM
 
 # if script is called...
 if __name__ == "__main__":
@@ -59,4 +59,4 @@ if __name__ == "__main__":
     loghandler.setFormatter(logformatter)
     logger.addHandler(loghandler)
     # call toaster
-    PyFFI.Spells.KFM.KfmToaster().cli()
+    PyFFI.spells.KFM.KfmToaster().cli()

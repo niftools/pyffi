@@ -16,21 +16,21 @@ import PyFFI.object_models.BinaryType
 import PyFFI.object_models.xml.Basic
 import PyFFI.object_models.xml.Struct
 import PyFFI.object_models.xml.Expression
-import PyFFI.Utils
-import PyFFI.Utils.TriStrip
-import PyFFI.Utils.MathUtils
-import PyFFI.Utils.QuickHull
-import PyFFI.Utils.Inertia
-import PyFFI.Utils.TangentSpace
-import PyFFI.Utils.Mopp
-import PyFFI.Utils.Signal
+import PyFFI.utils
+import PyFFI.utils.TriStrip
+import PyFFI.utils.MathUtils
+import PyFFI.utils.QuickHull
+import PyFFI.utils.Inertia
+import PyFFI.utils.TangentSpace
+import PyFFI.utils.Mopp
+import PyFFI.utils.Signal
 import PyFFI.Formats.NIF
 import PyFFI.Formats.CGF
 import PyFFI.Formats.KFM
 import PyFFI.Formats.DDS
 import PyFFI.Formats.TGA
 import PyFFI.Formats.DAE
-import PyFFI.Spells
+import PyFFI.spells
 
 mods = [val for (key, val) in sys.modules.iteritems()
         if key.startswith('PyFFI')]

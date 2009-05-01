@@ -42,9 +42,9 @@ alternatives.
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-import PyFFI.Utils.Graph
+import PyFFI.utils.Graph
 
-class AnyType(PyFFI.Utils.Graph.DetailNode):
+class AnyType(PyFFI.utils.Graph.DetailNode):
     """Abstract base class from which all types are derived."""
 
     def read(self, stream):

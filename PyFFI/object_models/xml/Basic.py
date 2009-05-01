@@ -39,7 +39,7 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-from PyFFI.Utils.Graph import DetailNode
+from PyFFI.utils.Graph import DetailNode
 
 class BasicBase(DetailNode):
     """Base class from which all basic types are derived.

@@ -1,5 +1,5 @@
 """
-:mod:`PyFFI.Spells.KFM` ---  NetImmerse/Gamebryo Keyframe Motion (.kfm) spells
+:mod:`PyFFI.spells.KFM` ---  NetImmerse/Gamebryo Keyframe Motion (.kfm) spells
 ==============================================================================
 
 """
@@ -43,11 +43,11 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-import PyFFI.Spells
-import PyFFI.Spells.check
+import PyFFI.spells
+import PyFFI.spells.check
 import PyFFI.Formats.KFM
 
-class KfmSpell(PyFFI.Spells.Spell):
+class KfmSpell(PyFFI.spells.Spell):
     """Base class for spells for kfm files."""
 
 class SpellDumpAll(KfmSpell):
@@ -59,13 +59,13 @@ class SpellDumpAll(KfmSpell):
         self.toaster.msg(str(self.data))
         return False
 
-class KfmToaster(PyFFI.Spells.Toaster):
+class KfmToaster(PyFFI.spells.Toaster):
     """Base class for kfm toasters."""
     FILEFORMAT = PyFFI.Formats.KFM.KfmFormat
 
     SPELLS = [
-        PyFFI.Spells.check.SpellRead,
-        PyFFI.Spells.check.SpellReadWrite,
+        PyFFI.spells.check.SpellRead,
+        PyFFI.spells.check.SpellReadWrite,
         SpellDumpAll]
 
     EXAMPLES = """* check if library can read all files in current directory:

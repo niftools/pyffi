@@ -1,5 +1,5 @@
 """
-:mod:`PyFFI.Spells.CGF` ---  Crytek Geometry/Animation (.cgf/.cga) spells
+:mod:`PyFFI.spells.CGF` ---  Crytek Geometry/Animation (.cgf/.cga) spells
 =========================================================================
 
 .. todo:: Write documentation.
@@ -44,15 +44,15 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-import PyFFI.Spells
+import PyFFI.spells
 from PyFFI.Formats.CGF import CgfFormat
 
-class CgfSpell(PyFFI.Spells.Spell):
+class CgfSpell(PyFFI.spells.Spell):
     """Base class for spells for cgf files."""
 
     def _datainspect(self):
         # call base method
-        if not PyFFI.Spells.Spell._datainspect(self):
+        if not PyFFI.spells.Spell._datainspect(self):
             return False
 
         # shortcut for common case (speeds up the check in most cases)
@@ -77,6 +77,6 @@ class CgfSpell(PyFFI.Spells.Spell):
         """
         return (block_type in self.data.chunk_table.getChunkTypes())
 
-class CgfToaster(PyFFI.Spells.Toaster):
+class CgfToaster(PyFFI.spells.Toaster):
     FILEFORMAT = CgfFormat
 

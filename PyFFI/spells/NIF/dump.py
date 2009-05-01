@@ -47,7 +47,7 @@ import webbrowser
 from xml.sax.saxutils import escape # for htmlreport
 
 from PyFFI.Formats.NIF import NifFormat
-from PyFFI.Spells.NIF import NifSpell
+from PyFFI.spells.NIF import NifSpell
 
 def tohex(value, nbytes=4):
     """Improved version of hex."""
