@@ -4,27 +4,27 @@
    
    refactoring plans
 
-   - common base classes for PyFFI.ObjectModels.xml.BasicBase/StructBase and
-     PyFFI.ObjectModels.xsd.SimpleType/ComplexType
+   - common base classes for PyFFI.object_models.xml.BasicBase/StructBase and
+     PyFFI.object_models.xsd.SimpleType/ComplexType
      (e.g. PyFFI.ObjectModel.SimpleType/ComplexType)
 
-   - derive ObjectModels.ArrayType and ObjectModels.StructType from
-     common subclass PyFFI.ObjectModels.ComplexType, use these then as base
-     classes for ObjectModels.xml.Array and ObjectModels.xml.StructBase
+   - derive object_models.ArrayType and object_models.StructType from
+     common subclass PyFFI.object_models.ComplexType, use these then as base
+     classes for object_models.xml.Array and object_models.xml.StructBase
 
 
-   - use PyFFI.Utils.Graph for all ObjectModels.XXX implementations
+   - use PyFFI.Utils.Graph for all object_models.XXX implementations
 
    - upgrade QSkope and XML model to use GlobalNode instead of the
      current ad hoc system with Refs
 
-   - improve the abstract ObjectModels.Delegate classes (i.e. naming,
+   - improve the abstract object_models.Delegate classes (i.e. naming,
      true abstract base classes, defining a common interface); also perhaps
      think about deriving these delegate classes from TreeLeaf (only leafs have
      editors!)?
 
-   - ditch version and user_version from the ObjectModels interface, and
-     instead use ObjectModels.Data as a global root element that contains all
+   - ditch version and user_version from the object_models interface, and
+     instead use object_models.Data as a global root element that contains all
      file information with a minimal format independent interface;
      implementation plan (this is already partially implemented, namely in the
      nif format):
@@ -41,10 +41,10 @@
 	+ remove old method in 4.x.x
 
    - one of the aims is that qskope no longer relies on any
-     ObjectModels.xml/ObjectModels.xsd specific implementations; if it only
-     relies on the abstract base classes in ObjectModels.Graph and
-     ObjectModels.Data then future expansions are a lot easier to cope with;
-     in particular, qskope should never have to import from ObjectModels.XXX,
+     object_models.xml/object_models.xsd specific implementations; if it only
+     relies on the abstract base classes in object_models.Graph and
+     object_models.Data then future expansions are a lot easier to cope with;
+     in particular, qskope should never have to import from object_models.XXX,
      or Formats.XXX
 
 .. todo::

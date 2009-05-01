@@ -42,10 +42,10 @@ into Python classes.
 
 import logging
 
-import PyFFI.ObjectModels
-import PyFFI.ObjectModels.SimpleType
+import PyFFI.object_models
+import PyFFI.object_models.SimpleType
 
-class _MetaMexFileFormat(PyFFI.ObjectModels.MetaFileFormat):
+class _MetaMexFileFormat(PyFFI.object_models.MetaFileFormat):
     """Converts the mex script into an archive parser."""
 
     def __init__(cls, name, bases, dct):
@@ -57,7 +57,7 @@ class _MetaMexFileFormat(PyFFI.ObjectModels.MetaFileFormat):
             mexfile = cls.openfile(mexfilename, cls.mexfilepath)
             # XXX todo: parse the script
 
-class MexFileFormat(PyFFI.ObjectModels.FileFormat):
+class MexFileFormat(PyFFI.object_models.FileFormat):
     """This class can be used as a base class for file formats
     described by a mexscript file.
     """
@@ -113,7 +113,7 @@ class MexFileFormat(PyFFI.ObjectModels.FileFormat):
             else:
                 raise NotImplementedError("formatting not yet implemented")
 
-    class Data(PyFFI.ObjectModels.FileFormat.Data):
+    class Data(PyFFI.object_models.FileFormat.Data):
         """Process archives described by mexscript files."""
 
         fileinfos = []

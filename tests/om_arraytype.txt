@@ -1,9 +1,9 @@
-Various regression tests for PyFFI.ObjectModels.ArrayType.
+Various regression tests for PyFFI.object_models.ArrayType.
 
 ValidatedList
 =============
 
->>> from PyFFI.ObjectModels.ArrayType import ValidatedList
+>>> from PyFFI.object_models.ArrayType import ValidatedList
 >>> class IntList(ValidatedList):
 ...     def validate(self, item):
 ...         if not isinstance(item, int):
@@ -45,13 +45,13 @@ AnyArray
 Elements must be AnyType
 ------------------------
 
->>> from PyFFI.ObjectModels.ArrayType import UniformArray
+>>> from PyFFI.object_models.ArrayType import UniformArray
 >>> class ListOfInts(UniformArray):
 ...     ItemType = int # doctest: +ELLIPSIS
 Traceback (most recent call last):
     ...
 TypeError: ...
->>> from PyFFI.ObjectModels.SimpleType import SimpleType
+>>> from PyFFI.object_models.SimpleType import SimpleType
 >>> class MyInt(SimpleType):
 ...     pass
 >>> class ListOfInts(UniformArray):
@@ -63,8 +63,8 @@ UniformArray
 The append method
 -----------------
 
->>> from PyFFI.ObjectModels.ArrayType import UniformArray
->>> from PyFFI.ObjectModels.SimpleType import SimpleType
+>>> from PyFFI.object_models.ArrayType import UniformArray
+>>> from PyFFI.object_models.SimpleType import SimpleType
 >>> class MyInt(SimpleType):
 ...     def __init__(self, value=0):
 ...         self._value = value
@@ -88,8 +88,8 @@ MyInt array:
 The extend method
 -----------------
 
->>> from PyFFI.ObjectModels.ArrayType import UniformArray
->>> from PyFFI.ObjectModels.SimpleType import SimpleType
+>>> from PyFFI.object_models.ArrayType import UniformArray
+>>> from PyFFI.object_models.SimpleType import SimpleType
 >>> class MyInt(SimpleType):
 ...     def __init__(self, value=0):
 ...         self._value = value

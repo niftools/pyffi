@@ -41,8 +41,8 @@
 
 from itertools import izip
 
-import PyFFI.ObjectModels.AnyType
-import PyFFI.ObjectModels.SimpleType
+import PyFFI.object_models.AnyType
+import PyFFI.object_models.SimpleType
 from PyFFI.Utils.Graph import EdgeFilter
 
 class ValidatedList(list):
@@ -86,7 +86,7 @@ class ValidatedList(list):
         self.validate(item)
         list.insert(self, index, item)
 
-class AnyArray(ValidatedList, PyFFI.ObjectModels.AnyType.AnyType):
+class AnyArray(ValidatedList, PyFFI.object_models.AnyType.AnyType):
     """Abstract base class for all array types.
 
     @cvar _MAXSTR: Maximum number of elements to write in the L{__str__} method.
@@ -138,21 +138,21 @@ class AnyArray(ValidatedList, PyFFI.ObjectModels.AnyType.AnyType):
 class MetaUniformArray(type):
     """Metaclass for L{UniformArray}. Checks that
     L{ItemType<UniformArray.ItemType>} is an
-    L{AnyType<PyFFI.ObjectModels.AnyType.AnyType>} subclass.
+    L{AnyType<PyFFI.object_models.AnyType.AnyType>} subclass.
     """
     def __init__(cls, name, bases, dct):
         """Initialize array type."""
         # create the class
         super(MetaUniformArray, cls).__init__(name, bases, dct)
         # check type of elements
-        if not issubclass(cls.ItemType, PyFFI.ObjectModels.AnyType.AnyType):
+        if not issubclass(cls.ItemType, PyFFI.object_models.AnyType.AnyType):
             raise TypeError("array ItemType must be an AnyType subclass")
 
 class UniformArray(AnyArray):
     """Wrapper for array with elements of the same type; this type must be
-    a subclass of L{PyFFI.ObjectModels.AnyType.AnyType}.
+    a subclass of L{PyFFI.object_models.AnyType.AnyType}.
 
-    >>> from PyFFI.ObjectModels.SimpleType import SimpleType
+    >>> from PyFFI.object_models.SimpleType import SimpleType
     >>> class MyInt(SimpleType):
     ...     # in practice one would implement some sort of type checking
     ...     # for this example we keep it simple
@@ -175,11 +175,11 @@ class UniformArray(AnyArray):
     [8, 4, 20]
 
     @cvar ItemType: Type of the elements of this array.
-    :type ItemType: L{PyFFI.ObjectModels.AnyType.AnyType}
+    :type ItemType: L{PyFFI.object_models.AnyType.AnyType}
     """
 
     __metaclass__ = MetaUniformArray
-    ItemType = PyFFI.ObjectModels.AnyType.AnyType
+    ItemType = PyFFI.object_models.AnyType.AnyType
 
     @classmethod
     def validate(cls, item):
@@ -192,7 +192,7 @@ class UniformArray(AnyArray):
 class MetaUniformSimpleArray(type):
     """Metaclass for L{UniformSimpleArray}. Checks that
     L{ItemType<UniformSimpleArray.ItemType>} is an
-    L{SimpleType<PyFFI.ObjectModels.SimpleType.SimpleType>} subclass.
+    L{SimpleType<PyFFI.object_models.SimpleType.SimpleType>} subclass.
     """
     def __init__(cls, name, bases, dct):
         """Initialize array type."""
@@ -200,14 +200,14 @@ class MetaUniformSimpleArray(type):
         super(MetaUniformSimpleArray, cls).__init__(name, bases, dct)
         # check type of elements
         if not issubclass(cls.ItemType,
-                          PyFFI.ObjectModels.SimpleType.SimpleType):
+                          PyFFI.object_models.SimpleType.SimpleType):
             raise TypeError("array ItemType must be a SimpleType subclass")
 
 class UniformSimpleArray(AnyArray):
     """Base class for array's with direct access to values of simple items."""
 
     __metaclass__ = MetaUniformSimpleArray
-    ItemType = PyFFI.ObjectModels.SimpleType.SimpleType
+    ItemType = PyFFI.object_models.SimpleType.SimpleType
 
     def __getitem__(self, index):
         # using list base method for speed

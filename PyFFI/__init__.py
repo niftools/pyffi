@@ -7,7 +7,7 @@
    
    PyFFI.Formats
    PyFFI.Spells
-   PyFFI.ObjectModels
+   PyFFI.object_models
 
 """
 

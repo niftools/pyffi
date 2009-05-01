@@ -1,10 +1,10 @@
-Regression tests for L{PyFFI.ObjectModels.SimpleType}
+Regression tests for L{PyFFI.object_models.SimpleType}
 =====================================================
 
 Constructor
 -----------
 
->>> from PyFFI.ObjectModels.SimpleType import SimpleType
+>>> from PyFFI.object_models.SimpleType import SimpleType
 >>> test = SimpleType()
 >>> print(test)
 None
@@ -16,7 +16,7 @@ None
 Value property
 --------------
 
->>> from PyFFI.ObjectModels.SimpleType import SimpleType
+>>> from PyFFI.object_models.SimpleType import SimpleType
 >>> test = SimpleType()
 >>> test.value = 'eek!'
 >>> print(test)

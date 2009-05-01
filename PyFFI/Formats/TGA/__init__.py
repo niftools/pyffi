@@ -75,13 +75,13 @@ Create a TGA file from scratch and write to file
 
 import struct, os, re
 
-import PyFFI.ObjectModels.xml
-import PyFFI.ObjectModels.Common
-import PyFFI.ObjectModels.xml.Struct
-import PyFFI.ObjectModels
+import PyFFI.object_models.xml
+import PyFFI.object_models.Common
+import PyFFI.object_models.xml.Struct
+import PyFFI.object_models
 from PyFFI.Utils.Graph import EdgeFilter
 
-class TgaFormat(PyFFI.ObjectModels.xml.FileFormat):
+class TgaFormat(PyFFI.object_models.xml.FileFormat):
     """This class implements the TGA format."""
     xmlFileName = 'tga.xml'
     # where to look for tga.xml and in what order:
@@ -91,17 +91,17 @@ class TgaFormat(PyFFI.ObjectModels.xml.FileFormat):
     RE_FILENAME = re.compile(r'^.*\.tga$', re.IGNORECASE)
 
     # basic types
-    int = PyFFI.ObjectModels.Common.Int
-    uint = PyFFI.ObjectModels.Common.UInt
-    byte = PyFFI.ObjectModels.Common.Byte
-    ubyte = PyFFI.ObjectModels.Common.UByte
-    char = PyFFI.ObjectModels.Common.Char
-    short = PyFFI.ObjectModels.Common.Short
-    ushort = PyFFI.ObjectModels.Common.UShort
-    float = PyFFI.ObjectModels.Common.Float
-    PixelData = PyFFI.ObjectModels.Common.UndecodedData
+    int = PyFFI.object_models.Common.Int
+    uint = PyFFI.object_models.Common.UInt
+    byte = PyFFI.object_models.Common.Byte
+    ubyte = PyFFI.object_models.Common.UByte
+    char = PyFFI.object_models.Common.Char
+    short = PyFFI.object_models.Common.Short
+    ushort = PyFFI.object_models.Common.UShort
+    float = PyFFI.object_models.Common.Float
+    PixelData = PyFFI.object_models.Common.UndecodedData
 
-    class Header(PyFFI.ObjectModels.FileFormat.Data):
+    class Header(PyFFI.object_models.FileFormat.Data):
         def inspect(self, stream):
             """Quick heuristic check if stream contains Targa data,
             by looking at the first 18 bytes.
@@ -143,7 +143,7 @@ class TgaFormat(PyFFI.ObjectModels.xml.FileFormat):
             """
             # read the file
             self.inspect(stream) # quick check
-            PyFFI.ObjectModels.xml.Struct.StructBase.read(self, stream)
+            PyFFI.object_models.xml.Struct.StructBase.read(self, stream)
 
             # check if we are at the end of the file
             if stream.read(1) != '':

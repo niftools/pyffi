@@ -46,20 +46,20 @@ import os.path
 import sys
 import xml.sax
 
-import PyFFI.ObjectModels
-from PyFFI.ObjectModels.xml.Struct     import StructBase
-from PyFFI.ObjectModels.xml.Basic      import BasicBase
-from PyFFI.ObjectModels.xml.BitStruct  import BitStructBase
-from PyFFI.ObjectModels.xml.Enum       import EnumBase
-from PyFFI.ObjectModels.xml.Expression import Expression
+import PyFFI.object_models
+from PyFFI.object_models.xml.Struct     import StructBase
+from PyFFI.object_models.xml.Basic      import BasicBase
+from PyFFI.object_models.xml.BitStruct  import BitStructBase
+from PyFFI.object_models.xml.Enum       import EnumBase
+from PyFFI.object_models.xml.Expression import Expression
 
-class MetaFileFormat(PyFFI.ObjectModels.MetaFileFormat):
+class MetaFileFormat(PyFFI.object_models.MetaFileFormat):
     """The MetaFileFormat metaclass transforms the XML description
     of a file format into a bunch of classes which can be directly
     used to manipulate files in this format.
 
     The actual implementation of the parser is delegated to
-    PyFFI.ObjectModels.xml.FileFormat.
+    PyFFI.object_models.xml.FileFormat.
     """
     def __init__(cls, name, bases, dct):
         """This function constitutes the core of the class generation
@@ -105,7 +105,7 @@ class MetaFileFormat(PyFFI.ObjectModels.MetaFileFormat):
                 xmlfile.close()
             cls.logger.debug("Parsing finished in %.3f seconds." % (time.clock() - start))
 
-class FileFormat(PyFFI.ObjectModels.FileFormat):
+class FileFormat(PyFFI.object_models.FileFormat):
     """This class can be used as a base class for file formats
     described by an xml file."""
     __metaclass__ = MetaFileFormat
@@ -638,7 +638,7 @@ but got %s instead"""%name)
                     # if the class derives from Data, then make an alias
                     if issubclass(
                         cls_klass,
-                        PyFFI.ObjectModels.FileFormat.Data):
+                        PyFFI.object_models.FileFormat.Data):
                         self.cls.Data = cls_klass
                     # for the stuff below
                     gen_class = cls_klass

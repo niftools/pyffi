@@ -390,5 +390,5 @@ describing number of elements (%i)"%(elemlist.__len__(),len2i))
                 for elem in list.__iter__(elemlist):
                     yield elem
 
-from PyFFI.ObjectModels.xml.Basic import BasicBase
-from PyFFI.ObjectModels.xml.Struct import StructBase
+from PyFFI.object_models.xml.Basic import BasicBase
+from PyFFI.object_models.xml.Struct import StructBase

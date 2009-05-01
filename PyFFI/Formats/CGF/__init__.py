@@ -97,7 +97,7 @@ Create a CGF file from scratch
 * isGroupHead : False
 * isGroupMember : False
 * reserved1 :
-    <class 'PyFFI.ObjectModels.xml.Array.Array'> instance at 0x...
+    <class 'PyFFI.object_models.xml.Array.Array'> instance at 0x...
     0: 0
     1: 0
 * transform :
@@ -118,7 +118,7 @@ Create a CGF file from scratch
 * sclCtrl : None
 * propertyString : <EMPTY STRING>
 * children :
-    <class 'PyFFI.ObjectModels.xml.Array.Array'> instance at 0x...
+    <class 'PyFFI.object_models.xml.Array.Array'> instance at 0x...
     0: <class 'PyFFI.Formats.CGF.NodeChunk'> instance at 0x...
 <BLANKLINE>
 <class 'PyFFI.Formats.CGF.NodeChunk'> instance at 0x...
@@ -130,7 +130,7 @@ Create a CGF file from scratch
 * isGroupHead : False
 * isGroupMember : False
 * reserved1 :
-    <class 'PyFFI.ObjectModels.xml.Array.Array'> instance at 0x...
+    <class 'PyFFI.object_models.xml.Array.Array'> instance at 0x...
     0: 0
     1: 0
 * transform :
@@ -150,7 +150,7 @@ Create a CGF file from scratch
 * rotCtrl : None
 * sclCtrl : None
 * propertyString : <EMPTY STRING>
-* children : <class 'PyFFI.ObjectModels.xml.Array.Array'> instance at 0x...
+* children : <class 'PyFFI.object_models.xml.Array.Array'> instance at 0x...
 <BLANKLINE>
 """
 
@@ -202,15 +202,15 @@ import warnings
 from itertools import izip
 
 
-import PyFFI.ObjectModels.Common
-import PyFFI.ObjectModels
-import PyFFI.ObjectModels.xml
+import PyFFI.object_models.Common
+import PyFFI.object_models
+import PyFFI.object_models.xml
 import PyFFI.Utils.MathUtils
 import PyFFI.Utils.TangentSpace
-from PyFFI.ObjectModels.xml.Basic import BasicBase
+from PyFFI.object_models.xml.Basic import BasicBase
 from PyFFI.Utils.Graph import EdgeFilter
 
-class _MetaCgfFormat(PyFFI.ObjectModels.xml.FileFormat.__metaclass__):
+class _MetaCgfFormat(PyFFI.object_models.xml.FileFormat.__metaclass__):
     """Metaclass which constructs the chunk map during class creation."""
     def __init__(cls, name, bases, dct):
         super(_MetaCgfFormat, cls).__init__(name, bases, dct)
@@ -222,7 +222,7 @@ class _MetaCgfFormat(PyFFI.ObjectModels.xml.FileFormat.__metaclass__):
             for chunk_name in cls.ChunkType._enumkeys
             if chunk_name != "ANY")
 
-class CgfFormat(PyFFI.ObjectModels.xml.FileFormat):
+class CgfFormat(PyFFI.object_models.xml.FileFormat):
     """Stores all information about the cgf file format."""
     __metaclass__ = _MetaCgfFormat
     xmlFileName = 'cgf.xml'
@@ -242,37 +242,37 @@ class CgfFormat(PyFFI.ObjectModels.xml.FileFormat):
     UVER_CRYSIS = 2
 
     # basic types
-    int = PyFFI.ObjectModels.Common.Int
-    uint = PyFFI.ObjectModels.Common.UInt
-    byte = PyFFI.ObjectModels.Common.Byte
-    ubyte = PyFFI.ObjectModels.Common.UByte
-    short = PyFFI.ObjectModels.Common.Short
-    ushort = PyFFI.ObjectModels.Common.UShort
-    char = PyFFI.ObjectModels.Common.Char
-    float = PyFFI.ObjectModels.Common.Float
-    bool = PyFFI.ObjectModels.Common.Bool
-    String = PyFFI.ObjectModels.Common.ZString
-    SizedString = PyFFI.ObjectModels.Common.SizedString
+    int = PyFFI.object_models.Common.Int
+    uint = PyFFI.object_models.Common.UInt
+    byte = PyFFI.object_models.Common.Byte
+    ubyte = PyFFI.object_models.Common.UByte
+    short = PyFFI.object_models.Common.Short
+    ushort = PyFFI.object_models.Common.UShort
+    char = PyFFI.object_models.Common.Char
+    float = PyFFI.object_models.Common.Float
+    bool = PyFFI.object_models.Common.Bool
+    String = PyFFI.object_models.Common.ZString
+    SizedString = PyFFI.object_models.Common.SizedString
 
      # implementation of cgf-specific basic types
 
-    class String16(PyFFI.ObjectModels.Common.FixedString):
+    class String16(PyFFI.object_models.Common.FixedString):
         """String of fixed length 16."""
         _len = 16
 
-    class String32(PyFFI.ObjectModels.Common.FixedString):
+    class String32(PyFFI.object_models.Common.FixedString):
         """String of fixed length 32."""
         _len = 32
 
-    class String64(PyFFI.ObjectModels.Common.FixedString):
+    class String64(PyFFI.object_models.Common.FixedString):
         """String of fixed length 64."""
         _len = 64
 
-    class String128(PyFFI.ObjectModels.Common.FixedString):
+    class String128(PyFFI.object_models.Common.FixedString):
         """String of fixed length 128."""
         _len = 128
 
-    class String256(PyFFI.ObjectModels.Common.FixedString):
+    class String256(PyFFI.object_models.Common.FixedString):
         """String of fixed length 256."""
         _len = 256
 
@@ -679,7 +679,7 @@ but got instance of %s""" % (self._template, block.__class__))
         warnings.warn("use CgfFormat.Data.chunks", DeprecationWarning)
         return readresult[1]
 
-    class Data(PyFFI.ObjectModels.FileFormat.Data):
+    class Data(PyFFI.object_models.FileFormat.Data):
         """A class to contain the actual nif data.
 
         Note that L{versions} and L{chunk_table} are not automatically kept
@@ -696,12 +696,12 @@ but got instance of %s""" % (self._template, block.__class__))
         :type versions: ``list`` of L{int}
         """
 
-        class VersionUInt(PyFFI.ObjectModels.Common.UInt):
+        class VersionUInt(PyFFI.object_models.Common.UInt):
             def setValue(self, value):
                 if value is None:
                     self._value = None
                 else:
-                    PyFFI.ObjectModels.Common.UInt.setValue(self, value)
+                    PyFFI.object_models.Common.UInt.setValue(self, value)
 
             def __str__(self):
                 if self._value is None:
@@ -829,7 +829,7 @@ but got instance of %s""" % (self._template, block.__class__))
             yield "header"
             yield "chunk table"
 
-        # overriding PyFFI.ObjectModels.FileFormat.Data methods
+        # overriding PyFFI.object_models.FileFormat.Data methods
 
         def inspect(self, stream):
             """Quickly checks whether the stream appears to contain
@@ -2113,7 +2113,7 @@ chunk size mismatch when reading %s at 0x%08X
             * meshSubsets : <class 'PyFFI.Formats.CGF.MeshSubsetsChunk'> instance at ...
             * vertAnim : None
             * vertices :
-                <class 'PyFFI.ObjectModels.xml.Array.Array'> instance at ...
+                <class 'PyFFI.object_models.xml.Array.Array'> instance at ...
                 0: <class 'PyFFI.Formats.CGF.Vertex'> instance at ...
                 * p : [  0.000  0.000  0.000 ]
                 * n : [  0.000  0.000 -1.000 ]
@@ -2139,7 +2139,7 @@ chunk size mismatch when reading %s at 0x%08X
                 * p : [  1.000  1.000  1.000 ]
                 * n : [  0.000  0.000  1.000 ]
             * faces :
-                <class 'PyFFI.ObjectModels.xml.Array.Array'> instance at ...
+                <class 'PyFFI.object_models.xml.Array.Array'> instance at ...
                 0: <class 'PyFFI.Formats.CGF.Face'> instance at ...
                 * v0 : 0
                 * v1 : 1
@@ -2165,7 +2165,7 @@ chunk size mismatch when reading %s at 0x%08X
                 * material : 5
                 * smGroup : 1
             * uvs :
-                <class 'PyFFI.ObjectModels.xml.Array.Array'> instance at ...
+                <class 'PyFFI.object_models.xml.Array.Array'> instance at ...
                 0: <class 'PyFFI.Formats.CGF.UV'> instance at ...
                 * u : 0.0
                 * v : 0.0
@@ -2191,7 +2191,7 @@ chunk size mismatch when reading %s at 0x%08X
                 * u : 1.0
                 * v : 1.0
             * uvFaces :
-                <class 'PyFFI.ObjectModels.xml.Array.Array'> instance at ...
+                <class 'PyFFI.object_models.xml.Array.Array'> instance at ...
                 0: <class 'PyFFI.Formats.CGF.UVFace'> instance at ...
                 * t0 : 0
                 * t1 : 1
@@ -2209,7 +2209,7 @@ chunk size mismatch when reading %s at 0x%08X
                 * t1 : 5
                 * t2 : 7
             * vertexColors :
-                <class 'PyFFI.ObjectModels.xml.Array.Array'> instance at ...
+                <class 'PyFFI.object_models.xml.Array.Array'> instance at ...
                 0: <class 'PyFFI.Formats.CGF.IRGB'> instance at ...
                 * r : 0
                 * g : 1
@@ -2255,13 +2255,13 @@ chunk size mismatch when reading %s at 0x%08X
             * faceMapData : None
             * vertMatsData : None
             * reservedData :
-                <class 'PyFFI.ObjectModels.xml.Array.Array'> instance at ...
+                <class 'PyFFI.object_models.xml.Array.Array'> instance at ...
                 0: None
                 1: None
                 2: None
                 3: None
             * physicsData :
-                <class 'PyFFI.ObjectModels.xml.Array.Array'> instance at ...
+                <class 'PyFFI.object_models.xml.Array.Array'> instance at ...
                 0: None
                 1: None
                 2: None
@@ -2269,7 +2269,7 @@ chunk size mismatch when reading %s at 0x%08X
             * minBound : [  0.000  0.000  0.000 ]
             * maxBound : [  1.000  1.000  1.000 ]
             * reserved3 :
-                <class 'PyFFI.ObjectModels.xml.Array.Array'> instance at ...
+                <class 'PyFFI.object_models.xml.Array.Array'> instance at ...
                 0: 0
                 1: 0
                 2: 0
@@ -2299,7 +2299,7 @@ chunk size mismatch when reading %s at 0x%08X
             * reserved1 : 0
             * reserved2 : 0
             * meshSubsets :
-                <class 'PyFFI.ObjectModels.xml.Array.Array'> instance at ...
+                <class 'PyFFI.object_models.xml.Array.Array'> instance at ...
                 0: <class 'PyFFI.Formats.CGF.MeshSubset'> instance at ...
                 * firstIndex : 0
                 * numIndices : 6
@@ -2326,7 +2326,7 @@ chunk size mismatch when reading %s at 0x%08X
             * reserved1 : 0
             * reserved2 : 0
             * vertices :
-                <class 'PyFFI.ObjectModels.xml.Array.Array'> instance at ...
+                <class 'PyFFI.object_models.xml.Array.Array'> instance at ...
                 0: [  0.000  0.000  0.000 ]
                 1: [  0.000  1.000  0.000 ]
                 2: [  1.000  0.000  0.000 ]
@@ -2345,7 +2345,7 @@ chunk size mismatch when reading %s at 0x%08X
             * reserved1 : 0
             * reserved2 : 0
             * normals :
-                <class 'PyFFI.ObjectModels.xml.Array.Array'> instance at ...
+                <class 'PyFFI.object_models.xml.Array.Array'> instance at ...
                 0: [  0.000  0.000 -1.000 ]
                 1: [  0.000  0.000 -1.000 ]
                 2: [  0.000  0.000 -1.000 ]
@@ -2364,7 +2364,7 @@ chunk size mismatch when reading %s at 0x%08X
             * reserved1 : 0
             * reserved2 : 0
             * indices :
-                <class 'PyFFI.ObjectModels.xml.Array.Array'> instance at ...
+                <class 'PyFFI.object_models.xml.Array.Array'> instance at ...
                 0: 0
                 1: 1
                 2: 2
@@ -2387,7 +2387,7 @@ chunk size mismatch when reading %s at 0x%08X
             * reserved1 : 0
             * reserved2 : 0
             * uvs :
-                <class 'PyFFI.ObjectModels.xml.Array.Array'> instance at ...
+                <class 'PyFFI.object_models.xml.Array.Array'> instance at ...
                 0: <class 'PyFFI.Formats.CGF.UV'> instance at ...
                 * u : 0.0
                 * v : 1.0
@@ -2422,7 +2422,7 @@ chunk size mismatch when reading %s at 0x%08X
             * reserved1 : 0
             * reserved2 : 0
             * tangents :
-                <class 'PyFFI.ObjectModels.xml.Array.Array'> instance at ...
+                <class 'PyFFI.object_models.xml.Array.Array'> instance at ...
                 0, 0: <class 'PyFFI.Formats.CGF.Tangent'> instance at ...
                 * x : 32767
                 * y : 0
@@ -2513,7 +2513,7 @@ chunk size mismatch when reading %s at 0x%08X
             * reserved1 : 0
             * reserved2 : 0
             * rgbaColors :
-                <class 'PyFFI.ObjectModels.xml.Array.Array'> instance at ...
+                <class 'PyFFI.object_models.xml.Array.Array'> instance at ...
                 0: <class 'PyFFI.Formats.CGF.IRGBA'> instance at ...
                 * r : 0
                 * g : 1

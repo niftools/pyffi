@@ -50,7 +50,7 @@ from PyFFI.Formats.KFM import KfmFormat
 from PyFFI.Formats.DDS import DdsFormat
 from PyFFI.Formats.TGA import TgaFormat
 
-from PyFFI.ObjectModels import FileFormat
+from PyFFI.object_models import FileFormat
 
 # implementation details:
 # http://doc.trolltech.com/4.3/qmainwindow.html#details

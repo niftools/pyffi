@@ -7,5 +7,5 @@
    PyFFI.Formats.KFM
    XPyFFI.Formats.NIF
    PyFFI.Formats.TGA
-   PyFFI.ObjectModels
+   PyFFI.object_models
 

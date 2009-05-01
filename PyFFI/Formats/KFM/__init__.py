@@ -111,15 +111,15 @@ The Guild 2 0x01024B00
 
 import struct, os, re
 
-import PyFFI.ObjectModels.xml
+import PyFFI.object_models.xml
 from PyFFI import Utils
-from PyFFI.ObjectModels import Common
-from PyFFI.ObjectModels.xml.Basic import BasicBase
+from PyFFI.object_models import Common
+from PyFFI.object_models.xml.Basic import BasicBase
 from PyFFI.Utils.Graph import EdgeFilter
-import PyFFI.ObjectModels
-import PyFFI.ObjectModels.xml.Struct
+import PyFFI.object_models
+import PyFFI.object_models.xml.Struct
 
-class KfmFormat(PyFFI.ObjectModels.xml.FileFormat):
+class KfmFormat(PyFFI.object_models.xml.FileFormat):
     """This class implements the kfm file format."""
     xmlFileName = 'kfm.xml'
     # where to look for kfm.xml and in what order:
@@ -284,7 +284,7 @@ class KfmFormat(PyFFI.ObjectModels.xml.FileFormat):
                 + (ver_list[2] << 8)
                 + ver_list[3])
 
-    class Header(PyFFI.ObjectModels.FileFormat.Data):
+    class Header(PyFFI.object_models.FileFormat.Data):
         """A class to contain the actual kfm data."""
         version = 0x01024B00
 
@@ -333,7 +333,7 @@ class KfmFormat(PyFFI.ObjectModels.xml.FileFormat):
             """
             # read the file
             self.inspect(stream) # quick check
-            PyFFI.ObjectModels.xml.Struct.StructBase.read(
+            PyFFI.object_models.xml.Struct.StructBase.read(
                 self, stream, version=self.version)
 
             # check if we are at the end of the file
@@ -347,7 +347,7 @@ class KfmFormat(PyFFI.ObjectModels.xml.FileFormat):
             :type stream: ``file``
             """
             # write the file
-            PyFFI.ObjectModels.xml.Struct.StructBase.write(
+            PyFFI.object_models.xml.Struct.StructBase.write(
                 self, stream, version=self.version)
 
         # GlobalNode

@@ -305,22 +305,22 @@ import warnings
 import weakref
 
 import PyFFI.Formats.DDS
-import PyFFI.ObjectModels.Common
-import PyFFI.ObjectModels
-import PyFFI.ObjectModels.xml
+import PyFFI.object_models.Common
+import PyFFI.object_models
+import PyFFI.object_models.xml
 import PyFFI.Utils.Inertia
 from PyFFI.Utils.MathUtils import * # XXX todo get rid of from XXX import *
 import PyFFI.Utils.Mopp
 import PyFFI.Utils.TriStrip
 import PyFFI.Utils.QuickHull
 # XXX convert the following to absolute imports
-from PyFFI.ObjectModels.Editable import EditableBoolComboBox
+from PyFFI.object_models.Editable import EditableBoolComboBox
 from PyFFI.Utils.Graph import EdgeFilter
-from PyFFI.ObjectModels.xml.Basic import BasicBase
+from PyFFI.object_models.xml.Basic import BasicBase
 
 
 
-class NifFormat(PyFFI.ObjectModels.xml.FileFormat):
+class NifFormat(PyFFI.object_models.xml.FileFormat):
     """This class contains the generated classes from the xml."""
 
     xmlFileName = 'nif.xml'
@@ -336,23 +336,23 @@ class NifFormat(PyFFI.ObjectModels.xml.FileFormat):
     EPSILON = 0.0001
 
     # basic types
-    int = PyFFI.ObjectModels.Common.Int
-    uint = PyFFI.ObjectModels.Common.UInt
-    byte = PyFFI.ObjectModels.Common.UByte # not a typo
-    char = PyFFI.ObjectModels.Common.Char
-    short = PyFFI.ObjectModels.Common.Short
-    ushort = PyFFI.ObjectModels.Common.UShort
-    float = PyFFI.ObjectModels.Common.Float
-    BlockTypeIndex = PyFFI.ObjectModels.Common.UShort
-    StringIndex = PyFFI.ObjectModels.Common.UInt
-    SizedString = PyFFI.ObjectModels.Common.SizedString
+    int = PyFFI.object_models.Common.Int
+    uint = PyFFI.object_models.Common.UInt
+    byte = PyFFI.object_models.Common.UByte # not a typo
+    char = PyFFI.object_models.Common.Char
+    short = PyFFI.object_models.Common.Short
+    ushort = PyFFI.object_models.Common.UShort
+    float = PyFFI.object_models.Common.Float
+    BlockTypeIndex = PyFFI.object_models.Common.UShort
+    StringIndex = PyFFI.object_models.Common.UInt
+    SizedString = PyFFI.object_models.Common.SizedString
 
     # implementation of nif-specific basic types
 
-    class StringOffset(PyFFI.ObjectModels.Common.Int):
+    class StringOffset(PyFFI.object_models.Common.Int):
         """This is just an integer with -1 as default value."""
         def __init__(self, **kwargs):
-            PyFFI.ObjectModels.Common.Int.__init__(self, **kwargs)
+            PyFFI.object_models.Common.Int.__init__(self, **kwargs)
             self.setValue(-1)
 
     class bool(BasicBase, EditableBoolComboBox):
@@ -421,7 +421,7 @@ class NifFormat(PyFFI.ObjectModels.xml.FileFormat):
             else:
                 stream.write(struct.pack('<I', int(self._value)))
 
-    class Flags(PyFFI.ObjectModels.Common.UShort):
+    class Flags(PyFFI.object_models.Common.UShort):
         def __str__(self):
             return hex(self.getValue())
 
@@ -624,10 +624,10 @@ class NifFormat(PyFFI.ObjectModels.xml.FileFormat):
             return self._value
 
         def setValue(self, value):
-            self._value = PyFFI.ObjectModels.Common._asBytes(value).rstrip('\x0a'.encode("ascii"))
+            self._value = PyFFI.object_models.Common._asBytes(value).rstrip('\x0a'.encode("ascii"))
 
         def __str__(self):
-            return PyFFI.ObjectModels.Common._asStr(self._value)
+            return PyFFI.object_models.Common._asStr(self._value)
 
         def getSize(self, **kwargs):
             return len(self._value) + 1 # +1 for trailing endline
@@ -748,13 +748,13 @@ class NifFormat(PyFFI.ObjectModels.xml.FileFormat):
             return self._value
 
         def setValue(self, value):
-            val = PyFFI.ObjectModels.Common._asBytes(value)
+            val = PyFFI.object_models.Common._asBytes(value)
             if len(val) > 254:
                 raise ValueError('string too long')
             self._value = val
 
         def __str__(self):
-            return PyFFI.ObjectModels.Common._asStr(self._value)
+            return PyFFI.object_models.Common._asStr(self._value)
 
         def getSize(self, **kwargs):
             # length byte + string chars + zero byte
@@ -974,7 +974,7 @@ class NifFormat(PyFFI.ObjectModels.xml.FileFormat):
         """Standard nif exception class."""
         pass
 
-    class Data(PyFFI.ObjectModels.FileFormat.Data):
+    class Data(PyFFI.object_models.FileFormat.Data):
         """A class to contain the actual nif data.
 
         Note that L{header} and L{blocks} are not automatically kept
@@ -995,12 +995,12 @@ class NifFormat(PyFFI.ObjectModels.xml.FileFormat):
         :type blocks: ``list`` of L{NifFormat.NiObject}
         """
 
-        class VersionUInt(PyFFI.ObjectModels.Common.UInt):
+        class VersionUInt(PyFFI.object_models.Common.UInt):
             def setValue(self, value):
                 if value is None:
                     self._value = None
                 else:
-                    PyFFI.ObjectModels.Common.UInt.setValue(self, value)
+                    PyFFI.object_models.Common.UInt.setValue(self, value)
 
             def __str__(self):
                 if self._value is None:
@@ -1138,7 +1138,7 @@ class NifFormat(PyFFI.ObjectModels.xml.FileFormat):
             yield "User Version 2"
             yield "Header"
 
-        # overriding PyFFI.ObjectModels.FileFormat.Data methods
+        # overriding PyFFI.object_models.FileFormat.Data methods
 
         def inspect(self, stream):
             """Quickly checks whether the stream appears to contain
