@@ -79,7 +79,7 @@ import PyFFI.object_models.xml
 import PyFFI.object_models.Common
 import PyFFI.object_models.xml.Struct
 import PyFFI.object_models
-from PyFFI.utils.Graph import EdgeFilter
+from PyFFI.utils.graph import EdgeFilter
 
 class TgaFormat(PyFFI.object_models.xml.FileFormat):
     """This class implements the TGA format."""

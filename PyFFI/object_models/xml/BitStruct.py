@@ -46,7 +46,7 @@ from itertools import izip
 import struct
 
 from PyFFI.object_models.Editable import EditableSpinBox # for Bits
-from PyFFI.utils.Graph import DetailNode, EdgeFilter
+from PyFFI.utils.graph import DetailNode, EdgeFilter
 
 class _MetaBitStructBase(type):
     """This metaclass checks for the presence of a _attrs attribute.

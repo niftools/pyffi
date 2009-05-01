@@ -46,7 +46,7 @@ import tempfile
 
 from PyFFI.Formats.NIF import NifFormat
 import PyFFI.spells.NIF
-import PyFFI.utils.TriStrip # for check_tristrip
+import PyFFI.utils.tristrip # for check_tristrip
 
 class SpellReadWrite(PyFFI.spells.NIF.NifSpell):
     """Like the original read-write spell, but with additional file size
@@ -681,7 +681,7 @@ class SpellCheckTriStrip(PyFFI.spells.NIF.NifSpell):
             triangles = branch.getTriangles()
             self.toaster.msg('calculating strips')
             try:
-                strips = PyFFI.utils.TriStrip.stripify(
+                strips = PyFFI.utils.tristrip.stripify(
                     triangles, stitchstrips=False)
             except StandardError:
                 self.toaster.logger.error('failed to strip triangles')
@@ -693,15 +693,15 @@ class SpellCheckTriStrip(PyFFI.spells.NIF.NifSpell):
             self.toaster.striplengths += [len(strip) for strip in strips]
 
             self.toaster.msg('checking strip triangles')
-            PyFFI.utils.TriStrip._checkStrips(triangles, strips)
+            PyFFI.utils.tristrip._checkStrips(triangles, strips)
 
             self.toaster.msg('checking stitched strip triangles')
-            stitchedstrip = PyFFI.utils.TriStrip.stitchStrips(strips)
-            PyFFI.utils.TriStrip._checkStrips(triangles, [stitchedstrip])
+            stitchedstrip = PyFFI.utils.tristrip.stitchStrips(strips)
+            PyFFI.utils.tristrip._checkStrips(triangles, [stitchedstrip])
 
             self.toaster.msg('checking unstitched strip triangles')
-            unstitchedstrips = PyFFI.utils.TriStrip.unstitchStrip(stitchedstrip)
-            PyFFI.utils.TriStrip._checkStrips(triangles, unstitchedstrips)
+            unstitchedstrips = PyFFI.utils.tristrip.unstitchStrip(stitchedstrip)
+            PyFFI.utils.tristrip._checkStrips(triangles, unstitchedstrips)
 
 class SpellCheckVersion(PyFFI.spells.NIF.NifSpell):
     """Checks all versions used by the files (without reading the full files).

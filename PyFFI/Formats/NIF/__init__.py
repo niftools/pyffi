@@ -308,14 +308,14 @@ import PyFFI.Formats.DDS
 import PyFFI.object_models.Common
 import PyFFI.object_models
 import PyFFI.object_models.xml
-import PyFFI.utils.Inertia
-from PyFFI.utils.MathUtils import * # XXX todo get rid of from XXX import *
-import PyFFI.utils.Mopp
-import PyFFI.utils.TriStrip
-import PyFFI.utils.QuickHull
+import PyFFI.utils.inertia
+from PyFFI.utils.math import * # XXX todo get rid of from XXX import *
+import PyFFI.utils.mopp
+import PyFFI.utils.tristrip
+import PyFFI.utils.quickhull
 # XXX convert the following to absolute imports
 from PyFFI.object_models.Editable import EditableBoolComboBox
-from PyFFI.utils.Graph import EdgeFilter
+from PyFFI.utils.graph import EdgeFilter
 from PyFFI.object_models.xml.Basic import BasicBase
 
 
@@ -2043,7 +2043,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
             """
             # strips?
             if self.numStrips:
-                for tri in PyFFI.utils.TriStrip.triangulate(self.strips):
+                for tri in PyFFI.utils.tristrip.triangulate(self.strips):
                     yield tri
             # no strips, do triangles
             else:
@@ -2073,7 +2073,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
             """Return mass, center, and inertia tensor."""
             # the dimensions describe half the size of the box in each dimension
             # so the length of a single edge is dimension.dir * 2
-            mass, inertia = PyFFI.utils.Inertia.getMassInertiaBox(
+            mass, inertia = PyFFI.utils.inertia.getMassInertiaBox(
                 (self.dimensions.x * 2, self.dimensions.y * 2, self.dimensions.z * 2),
                 density = density, solid = solid)
             return mass, (0,0,0), inertia
@@ -2099,7 +2099,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
             """Return mass, center, and inertia tensor."""
             # (assumes self.radius == self.radius1 == self.radius2)
             length = (self.firstPoint - self.secondPoint).norm()
-            mass, inertia = PyFFI.utils.Inertia.getMassInertiaCapsule(
+            mass, inertia = PyFFI.utils.inertia.getMassInertiaCapsule(
                 radius = self.radius, length = length,
                 density = density, solid = solid)
             # now fix inertia so it is expressed in the right coordinates
@@ -2165,10 +2165,10 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
         def getMassCenterInertia(self, density = 1, solid = True):
             """Return mass, center, and inertia tensor."""
             # first find an enumeration of all triangles making up the convex shape
-            vertices, triangles = PyFFI.utils.QuickHull.qhull3d(
+            vertices, triangles = PyFFI.utils.quickhull.qhull3d(
                 [vert.asTuple() for vert in self.vertices])
             # now calculate mass, center, and inertia
-            return PyFFI.utils.Inertia.getMassCenterInertiaPolyhedron(
+            return PyFFI.utils.inertia.getMassCenterInertiaPolyhedron(
                 vertices, triangles, density = density, solid = solid)
 
     class bhkLimitedHingeConstraint:
@@ -2293,9 +2293,9 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
             """Update the MOPP data, scale, and origin, and welding info."""
             logger = logging.getLogger("pyffi.mopp")
 
-            # first try with PyFFI.utils.Mopp
+            # first try with PyFFI.utils.mopp
             try:
-                print(PyFFI.utils.Mopp.getMopperCredits())
+                print(PyFFI.utils.mopp.getMopperCredits())
                 # find material indices per triangle
                 material_per_vertex = []
                 subshapes = self.shape.subShapes
@@ -2309,7 +2309,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
                     for hktri in self.shape.data.triangles]
                 # compute havok info
                 origin, scale, mopp, welding_infos \
-                = PyFFI.utils.Mopp.getMopperOriginScaleCodeWelding(
+                = PyFFI.utils.mopp.getMopperOriginScaleCodeWelding(
                     [vert.asTuple() for vert in self.shape.data.vertices],
                     [(hktri.triangle.v1, hktri.triangle.v2, hktri.triangle.v3)
                      for hktri in self.shape.data.triangles],
@@ -2681,7 +2681,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
             subshapes_mci = [
                 (mass, center, inertia)
                 for (mass, inertia), center in
-                izip( ( PyFFI.utils.Inertia.getMassInertiaSphere(radius = sphere.radius,
+                izip( ( PyFFI.utils.inertia.getMassInertiaSphere(radius = sphere.radius,
                                                                  density = density, solid = solid)
                         for sphere in self.spheres ),
                       ( sphere.center.asTuple() for sphere in self.spheres ) ) ]
@@ -2702,7 +2702,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
             subshapes_mci = []
             for data in self.stripsData:
                 subshapes_mci.append(
-                    PyFFI.utils.Inertia.getMassCenterInertiaPolyhedron(
+                    PyFFI.utils.inertia.getMassCenterInertiaPolyhedron(
                         [ vert.asTuple() for vert in data.vertices ],
                         [ triangle for triangle in data.getTriangles() ],
                         density = density, solid = solid))
@@ -2721,7 +2721,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
     class bhkPackedNiTriStripsShape:
         def getMassCenterInertia(self, density = 1, solid = True):
             """Return mass, center, and inertia tensor."""
-            return PyFFI.utils.Inertia.getMassCenterInertiaPolyhedron(
+            return PyFFI.utils.inertia.getMassCenterInertiaPolyhedron(
                 [ vert.asTuple() for vert in self.data.vertices ],
                 [ ( hktriangle.triangle.v1,
                     hktriangle.triangle.v2,
@@ -2868,7 +2868,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
             """Return mass, center, and inertia tensor."""
             # the dimensions describe half the size of the box in each dimension
             # so the length of a single edge is dimension.dir * 2
-            mass, inertia = PyFFI.utils.Inertia.getMassInertiaSphere(
+            mass, inertia = PyFFI.utils.inertia.getMassInertiaSphere(
                 self.radius, density = density, solid = solid)
             return mass, (0,0,0), inertia
 
@@ -6173,7 +6173,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
                 if stripify:
                     # stripify the triangles
                     logger.info("Stripifying partition %i" % parts.index(part))
-                    strips = PyFFI.utils.TriStrip.stripify(
+                    strips = PyFFI.utils.tristrip.stripify(
                         parttriangles, stitchstrips=stitchstrips)
                     numtriangles = 0
                     for strip in strips:
@@ -6393,10 +6393,10 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
                 dst_t.v1, dst_t.v2, dst_t.v3 = src.next()
 
         def getStrips(self):
-            return PyFFI.utils.TriStrip.stripify(self.getTriangles())
+            return PyFFI.utils.tristrip.stripify(self.getTriangles())
 
         def setStrips(self, strips):
-            self.setTriangles(PyFFI.utils.TriStrip.triangulate(strips))
+            self.setTriangles(PyFFI.utils.tristrip.triangulate(strips))
 
     class NiTriStripsData:
         """
@@ -6416,10 +6416,10 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
         [(0, 2, 1), (1, 2, 3), (2, 4, 3)]
         """
         def getTriangles(self):
-            return PyFFI.utils.TriStrip.triangulate(self.points)
+            return PyFFI.utils.tristrip.triangulate(self.points)
 
         def setTriangles(self, triangles, stitchstrips = False):
-            self.setStrips(PyFFI.utils.TriStrip.stripify(triangles, stitchstrips = stitchstrips))
+            self.setStrips(PyFFI.utils.tristrip.stripify(triangles, stitchstrips = stitchstrips))
 
         def getStrips(self):
             return [[i for i in strip] for strip in self.points]

@@ -45,7 +45,7 @@ from tempfile import TemporaryFile
 from PyFFI.Formats.CGF import CgfFormat
 from PyFFI.spells.CGF import CgfSpell
 # XXX do something about this...
-from PyFFI.utils.MathUtils import *
+from PyFFI.utils.math import *
 
 class SpellReadWrite(CgfSpell):
     """Like the original read-write spell, but with additional file size

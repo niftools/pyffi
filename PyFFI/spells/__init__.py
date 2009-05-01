@@ -224,7 +224,7 @@ class Spell(object):
         method.
 
         :param branch: The branch to check.
-        :type branch: :class:`~PyFFI.utils.Graph.GlobalNode`
+        :type branch: :class:`~PyFFI.utils.graph.GlobalNode`
         :return: ``True`` if the branch must be processed, ``False`` otherwise.
         :rtype: ``bool``
         """
@@ -237,7 +237,7 @@ class Spell(object):
         returns ``True``).
 
         :param branch: The branch to check.
-        :type branch: :class:`~PyFFI.utils.Graph.GlobalNode`
+        :type branch: :class:`~PyFFI.utils.graph.GlobalNode`
         :return: ``True`` if the branch must be processed, ``False`` otherwise.
         :rtype: ``bool``
         """
@@ -258,7 +258,7 @@ class Spell(object):
 
         :param branch: The branch to start the recursion from, or ``None``
             to recurse the whole tree.
-        :type branch: :class:`~PyFFI.utils.Graph.GlobalNode`
+        :type branch: :class:`~PyFFI.utils.graph.GlobalNode`
         """
         # when called without arguments, recurse over the whole tree
         if branch is None:
@@ -314,7 +314,7 @@ class Spell(object):
         block types.
 
         :param branch: The branch to cast the spell on.
-        :type branch: :class:`~PyFFI.utils.Graph.GlobalNode`
+        :type branch: :class:`~PyFFI.utils.graph.GlobalNode`
         :return: ``True`` if the children must be processed, ``False`` otherwise.
         :rtype: ``bool``
         """
@@ -330,7 +330,7 @@ class Spell(object):
         must have been processed first.
 
         :param branch: The branch to cast the spell on.
-        :type branch: :class:`~PyFFI.utils.Graph.GlobalNode`
+        :type branch: :class:`~PyFFI.utils.graph.GlobalNode`
         """
         pass
 

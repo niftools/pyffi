@@ -13,7 +13,7 @@
      classes for object_models.xml.Array and object_models.xml.StructBase
 
 
-   - use PyFFI.utils.Graph for all object_models.XXX implementations
+   - use PyFFI.utils.graph for all object_models.XXX implementations
 
    - upgrade QSkope and XML model to use GlobalNode instead of the
      current ad hoc system with Refs

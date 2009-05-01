@@ -114,7 +114,7 @@ import struct, os, re
 import PyFFI.object_models.xml
 from PyFFI.object_models import Common
 from PyFFI.object_models.xml.Basic import BasicBase
-from PyFFI.utils.Graph import EdgeFilter
+from PyFFI.utils.graph import EdgeFilter
 import PyFFI.object_models
 import PyFFI.object_models.xml.Struct
 

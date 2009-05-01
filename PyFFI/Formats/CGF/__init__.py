@@ -205,10 +205,10 @@ from itertools import izip
 import PyFFI.object_models.Common
 import PyFFI.object_models
 import PyFFI.object_models.xml
-import PyFFI.utils.MathUtils
-import PyFFI.utils.TangentSpace
+import PyFFI.utils.math
+import PyFFI.utils.tangentspace
 from PyFFI.object_models.xml.Basic import BasicBase
-from PyFFI.utils.Graph import EdgeFilter
+from PyFFI.utils.graph import EdgeFilter
 
 class _MetaCgfFormat(PyFFI.object_models.xml.FileFormat.__metaclass__):
     """Metaclass which constructs the chunk map during class creation."""
@@ -2689,7 +2689,7 @@ chunk size mismatch when reading %s at 0x%08X
                 meshsubset.firstVertex = firstvertexindex
                 meshsubset.numVertices = len(vertices)
                 meshsubset.matId = mat
-                center, radius = PyFFI.utils.MathUtils.getCenterRadius(vertices)
+                center, radius = PyFFI.utils.math.getCenterRadius(vertices)
                 meshsubset.radius = radius
                 meshsubset.center.x = center[0]
                 meshsubset.center.y = center[1]
@@ -2773,7 +2773,7 @@ chunk size mismatch when reading %s at 0x%08X
                 self.updateTangentSpace()
 
             # set global bounding box
-            minbound, maxbound = PyFFI.utils.MathUtils.getBoundingBox(
+            minbound, maxbound = PyFFI.utils.math.getBoundingBox(
                 list(itertools.chain(*verticeslist)))
             self.minBound.x = minbound[0]
             self.minBound.y = minbound[1]
@@ -2793,7 +2793,7 @@ chunk size mismatch when reading %s at 0x%08X
             selftangentsData_iter = iter(self.tangentsData.tangents)
 
             # set Crysis tangents info
-            tangents, binormals, orientations = PyFFI.utils.TangentSpace.getTangentSpace(
+            tangents, binormals, orientations = PyFFI.utils.tangentspace.getTangentSpace(
                 vertices = list((vert.x, vert.y, vert.z)
                                 for vert in self.verticesData.vertices),
                 normals = list((norm.x, norm.y, norm.z)

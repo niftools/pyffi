@@ -42,7 +42,7 @@
 from itertools import izip
 
 from PyFFI.Formats.NIF import NifFormat
-from PyFFI.utils import TriStrip
+import PyFFI.utils.tristrip
 import PyFFI.spells
 import PyFFI.spells.NIF
 import PyFFI.spells.NIF.fix
@@ -332,7 +332,7 @@ class SpellOptimizeGeometry(PyFFI.spells.NIF.NifSpell):
             elif self.STITCH:
                 self.toaster.msg("stitching strips (using %i stitches)"
                                  % len(data.getStrips()))
-                data.setStrips([TriStrip.stitchStrips(data.getStrips())])
+                data.setStrips([PyFFI.utils.tristrip.stitchStrips(data.getStrips())])
 
         # update skin data
         if branch.skinInstance:
