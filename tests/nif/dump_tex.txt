@@ -4,7 +4,7 @@ Doctests for the dump_tex spell
 @todo: some more advanced test
 
 >>> import sys
->>> sys.path.append("scripts/NIF")
+>>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "dump_tex", "tests/nif/test_dump_tex.nif"]
 >>> niftoaster.NifToaster().cli()

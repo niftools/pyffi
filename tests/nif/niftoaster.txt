@@ -5,7 +5,7 @@ The --help switch
 -----------------
 
 >>> import sys
->>> sys.path.append("scripts/NIF")
+>>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--help"]
 >>> try:
@@ -60,7 +60,7 @@ The --examples switch
 ---------------------
 
 >>> import sys
->>> sys.path.append("scripts/NIF")
+>>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--examples"]
 >>> niftoaster.NifToaster().cli() # doctest: +REPORT_NDIFF
@@ -105,7 +105,7 @@ The --spells switch
 -------------------
 
 >>> import sys
->>> sys.path.append("scripts/NIF")
+>>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--spells"]
 >>> niftoaster.NifToaster().cli() # doctest: +REPORT_NDIFF
@@ -150,7 +150,7 @@ The check_readwrite spell and the --raise switch
 ------------------------------------------------
 
 >>> import sys
->>> sys.path.append("scripts/NIF")
+>>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_readwrite", "tests/nif/"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
@@ -254,7 +254,7 @@ The check_bhkbodycenter spell
 -----------------------------
 
 >>> import sys
->>> sys.path.append("scripts/NIF")
+>>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_bhkbodycenter", "tests/nif/test_fix_detachhavoktristripsdata.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
@@ -275,7 +275,7 @@ The check_centerradius spell
 ----------------------------
 
 >>> import sys
->>> sys.path.append("scripts/NIF")
+>>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_centerradius", "tests/nif/test_centerradius.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
@@ -297,7 +297,7 @@ The check_skincenterradius spell
 --------------------------------
 
 >>> import sys
->>> sys.path.append("scripts/NIF")
+>>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_skincenterradius", "tests/nif/test_skincenterradius.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
@@ -336,7 +336,7 @@ The check_convexverticesshape spell
 -----------------------------------
 
 >>> import sys
->>> sys.path.append("scripts/NIF")
+>>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_convexverticesshape", "tests/nif/test_convexverticesshape.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
@@ -355,7 +355,7 @@ The check_mopp spell
 --------------------
 
 >>> import sys
->>> sys.path.append("scripts/NIF")
+>>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--verbose=2", "--raise", "check_mopp", "tests/nif/test_mopp.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
@@ -959,7 +959,7 @@ The fix_disableparallax spell
 -----------------------------
 
 >>> import sys
->>> sys.path.append("scripts/NIF")
+>>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "--dry-run", "fix_disableparallax", "tests/nif/test_fix_disableparallax.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
@@ -983,7 +983,7 @@ The check_tangentspace spell
 ----------------------------
 
 >>> import sys
->>> sys.path.append("scripts/NIF")
+>>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tangentspace", "tests/nif/test_check_tangentspace1.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
@@ -1032,7 +1032,7 @@ The check_tristrip spell
 ------------------------
 
 >>> import sys
->>> sys.path.append("scripts/NIF")
+>>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tristrip", "tests/nif/test_opt_dupverts.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
@@ -1054,7 +1054,7 @@ The fix_mergeskeletonroots spell
 --------------------------------
 
 >>> import sys
->>> sys.path.append("scripts/NIF")
+>>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--verbose=2", "--raise", "--dry-run", "fix_mergeskeletonroots", "tests/nif/test_fix_mergeskeletonroots.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
@@ -1102,7 +1102,7 @@ The fix_scale spell
 -------------------
 
 >>> import sys
->>> sys.path.append("scripts/NIF")
+>>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "--dry-run", "fix_scale", "tests/nif/test_opt_dupverts.nif", "-a", "10"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
@@ -1117,7 +1117,7 @@ The fix_mopp spell
 ------------------
 
 >>> import sys
->>> sys.path.append("scripts/NIF")
+>>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "--dry-run", "fix_mopp", "tests/nif/test_mopp.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
@@ -1146,7 +1146,7 @@ The check_version spell
 -----------------------
 
 >>> import sys
->>> sys.path.append("scripts/NIF")
+>>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "check_version", "tests/nif", "-a", "10"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS

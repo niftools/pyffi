@@ -5,7 +5,7 @@ The --spells switch
 -------------------
 
 >>> import sys
->>> sys.path.append("scripts/CGF")
+>>> sys.path.append("scripts/cgf")
 >>> import cgftoaster
 >>> sys.argv = ["cgftoaster.py", "--spells"]
 >>> cgftoaster.CgfToaster().cli()
@@ -19,7 +19,7 @@ The check_read and check_readwrite spells
 -----------------------------------------
 
 >>> import sys
->>> sys.path.append("scripts/CGF")
+>>> sys.path.append("scripts/cgf")
 >>> import cgftoaster
 >>> sys.argv = ["cgftoaster.py", "--verbose=1", "check_read", "tests/cgf/"]
 >>> cgftoaster.CgfToaster().cli() # doctest: +ELLIPSIS
@@ -50,7 +50,7 @@ The dump spell
 --------------
 
 >>> import sys
->>> sys.path.append("scripts/CGF")
+>>> sys.path.append("scripts/cgf")
 >>> import cgftoaster
 >>> sys.argv = ["cgftoaster.py", "--verbose=1", "dump", "tests/cgf/test.cgf"]
 >>> cgftoaster.CgfToaster().cli() # doctest: +ELLIPSIS
@@ -79,7 +79,7 @@ The check_tangentspace spell
 ----------------------------
 
 >>> import sys
->>> sys.path.append("scripts/CGF")
+>>> sys.path.append("scripts/cgf")
 >>> import cgftoaster
 >>> sys.argv = ["cgftoaster.py", "--verbose=1", "check_tangentspace", "tests/cgf/monkey.cgf"]
 >>> cgftoaster.CgfToaster().cli() # doctest: +ELLIPSIS
@@ -98,7 +98,7 @@ The check_vcols spell
 ---------------------
 
 >>> import sys
->>> sys.path.append("scripts/CGF")
+>>> sys.path.append("scripts/cgf")
 >>> import cgftoaster
 >>> sys.argv = ["cgftoaster.py", "--verbose=1", "check_vcols", "tests/cgf/monkey.cgf"]
 >>> cgftoaster.CgfToaster().cli() # doctest: +ELLIPSIS
