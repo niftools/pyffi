@@ -18,7 +18,7 @@ import PyFFI.object_models.xml.Struct
 import PyFFI.object_models.xml.Expression
 import PyFFI.utils
 import PyFFI.utils.tristrip
-import PyFFI.utils.math
+import PyFFI.utils.mathutils
 import PyFFI.utils.quickhull
 import PyFFI.utils.inertia
 import PyFFI.utils.tangentspace

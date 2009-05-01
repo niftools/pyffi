@@ -309,7 +309,7 @@ import PyFFI.object_models.Common
 import PyFFI.object_models
 import PyFFI.object_models.xml
 import PyFFI.utils.inertia
-from PyFFI.utils.math import * # XXX todo get rid of from XXX import *
+from PyFFI.utils.mathutils import * # XXX todo get rid of from XXX import *
 import PyFFI.utils.mopp
 import PyFFI.utils.tristrip
 import PyFFI.utils.quickhull

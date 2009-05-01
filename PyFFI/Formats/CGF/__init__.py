@@ -205,7 +205,7 @@ from itertools import izip
 import PyFFI.object_models.Common
 import PyFFI.object_models
 import PyFFI.object_models.xml
-import PyFFI.utils.math
+import PyFFI.utils.mathutils
 import PyFFI.utils.tangentspace
 from PyFFI.object_models.xml.Basic import BasicBase
 from PyFFI.utils.graph import EdgeFilter
@@ -2689,7 +2689,7 @@ chunk size mismatch when reading %s at 0x%08X
                 meshsubset.firstVertex = firstvertexindex
                 meshsubset.numVertices = len(vertices)
                 meshsubset.matId = mat
-                center, radius = PyFFI.utils.math.getCenterRadius(vertices)
+                center, radius = PyFFI.utils.mathutils.getCenterRadius(vertices)
                 meshsubset.radius = radius
                 meshsubset.center.x = center[0]
                 meshsubset.center.y = center[1]
@@ -2773,7 +2773,7 @@ chunk size mismatch when reading %s at 0x%08X
                 self.updateTangentSpace()
 
             # set global bounding box
-            minbound, maxbound = PyFFI.utils.math.getBoundingBox(
+            minbound, maxbound = PyFFI.utils.mathutils.getBoundingBox(
                 list(itertools.chain(*verticeslist)))
             self.minBound.x = minbound[0]
             self.minBound.y = minbound[1]
