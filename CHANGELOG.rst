@@ -25,6 +25,13 @@ Release 1.2.5 (in development)
 
   - Synced nif.xml with nifskope's xml (includes fixes for Lazeska).
 
+* Updated internal module names (everything except PyFFI.Formats.XXX) to follow
+  pep8 naming conventions. PyFFI.Formats.XXX will be renamed to
+  pyffi.formats.xxx for py3k (to avoid breaking too many scripts now).
+
+* Removed deprecated scripts (niftexdump, nifdump, ffvt3rskinpartition,
+  nifoptimize).
+
 Release 1.2.4 (Apr 21, 2009)
 ============================
 
