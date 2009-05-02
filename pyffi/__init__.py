@@ -48,7 +48,7 @@
 #
 # ***** END LICENSE BLOCK *****
 
-__version__ = '1.2.5'
+__version__ = '2.0.0'
 
 __hexversion__ = eval('0x%02X%02X%02X'
                       % tuple(int(x) for x in __version__.split('.')))

@@ -1,4 +1,4 @@
-Release 1.2.5 (in development)
+Release 2.0.0 (in development)
 ==============================
 
 * Updates to the XML object model (affects CGF, DDS, KFM, NIF, and TGA).
@@ -25,9 +25,8 @@ Release 1.2.5 (in development)
 
   - Synced nif.xml with nifskope's xml (includes fixes for Lazeska).
 
-* Updated internal module names (everything except PyFFI.Formats.XXX) to follow
-  pep8 naming conventions. PyFFI.Formats.XXX will be renamed to
-  pyffi.formats.xxx for py3k (to avoid breaking too many scripts now).
+* Updated module names to follow pep8 naming conventions: all modules have
+  lower case names.
 
 * Removed deprecated scripts (niftexdump, nifdump, ffvt3rskinpartition,
   nifoptimize).
