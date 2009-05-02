@@ -1,1 +1,1 @@
-.. automodule:: PyFFI
+.. automodule:: pyffi

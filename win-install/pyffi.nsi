@@ -202,7 +202,7 @@ Function .onInit
   IfErrors 0 python_check_end
 
      ; no key, that means that Python is not installed
-     MessageBox MB_OK "You need Python ${PYTHONVERSION} to use pyffi. Pressing OK will take you to the Python ${PYTHONVERSION} download page. Please download and run the Python ${PYTHONVERSION} windows installer. When you are done, rerun the PyFFI installer."
+     MessageBox MB_OK "You need Python ${PYTHONVERSION} to use PyFFI. Pressing OK will take you to the Python ${PYTHONVERSION} download page. Please download and run the Python ${PYTHONVERSION} windows installer. When you are done, rerun the PyFFI installer."
      StrCpy $0 "http://www.python.org/download/releases/2.5.4/"
      Call openLinkNewWindow
      Abort ; causes installer to quit
@@ -294,7 +294,7 @@ Section
   SetShellVarContext all
 
   ; Clean up old versions and clutter
-  !insertmacro UninstallManifestFiles
+  ; !insertmacro UninstallManifestFiles ; slow, recursive remove is much faster
   RMDir /r "$PYTHONPATH\Lib\site-packages\PyFFI"
   RMDir /r "$PYTHONPATH\Lib\site-packages\NifTester"
   RMDir /r "$PYTHONPATH\Lib\site-packages\NifVis"
@@ -304,6 +304,9 @@ Section
   Delete "$PYTHONPATH\Lib\site-packages\PyFFI*.*"
   Delete "$PYTHONPATH\Removepyffi.exe"
   Delete "$PYTHONPATH\PyFFI-wininst.log"
+  RMDir /r "$PYTHONPATH\Lib\site-packages\pyffi"
+  Delete "$PYTHONPATH\Lib\site-packages\pyffi*.*"
+  Delete "$PYTHONPATH\pyffi-wininst.log"
   Delete "$PYTHONPATH\Scripts\qskope.*"
   Delete "$PYTHONPATH\Scripts\cgftoaster.*"
   Delete "$PYTHONPATH\Scripts\kfmtoaster.*"
@@ -357,7 +360,7 @@ Section
   ExecWait "$PYTHONPATH\python.exe setup.py install"
   ; remove build and source directories
   RMDir /r "$INSTDIR\build"
-  RMDir /r "$INSTDIR\PyFFI"
+  RMDir /r "$INSTDIR\pyffi"
   RMDir /r "$INSTDIR\scripts"
   Delete "$INSTDIR\setup.py"
 
@@ -377,7 +380,8 @@ have_maya:
     CreateDirectory "$MAYAINST\Python\Lib\site-packages"
     ; Synchronize PyFFI (CopyFiles does a recursive copy)
     RMDir /r "$MAYAINST\Python\Lib\site-packages\PyFFI"
-    CopyFiles "$PYTHONPATH\Lib\site-packages\PyFFI" "$MAYAINST\Python\Lib\site-packages"
+    RMDir /r "$MAYAINST\Python\Lib\site-packages\pyffi"
+    CopyFiles "$PYTHONPATH\Lib\site-packages\pyffi" "$MAYAINST\Python\Lib\site-packages"
 
 maya_check_end:
 
@@ -476,8 +480,8 @@ have_python:
     Delete "$INSTDIR\*.txt" # remove copies *.rst
 
     ; now also clean up left overs
-    RMDir /r "$PYTHONPATH\Lib\site-packages\PyFFI"
-    Delete "$PYTHONPATH\Lib\site-packages\PyFFI*.*"
+    RMDir /r "$PYTHONPATH\Lib\site-packages\pyffi"
+    Delete "$PYTHONPATH\Lib\site-packages\pyffi*.*"
     Delete "$PYTHONPATH\Scripts\qskope.*"
     Delete "$PYTHONPATH\Scripts\cgftoaster.*"
     Delete "$PYTHONPATH\Scripts\kfmtoaster.*"
@@ -503,7 +507,7 @@ python_check_end:
 have_maya:
     ; key, that means that Maya 2008 is installed
     ; remove PyFFI
-    RMDir /r "$MAYAINST\Python\Lib\site-packages\PyFFI"
+    RMDir /r "$MAYAINST\Python\Lib\site-packages\pyffi"
 
 maya_check_end:
 

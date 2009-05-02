@@ -5,7 +5,7 @@ Glossary
 
    PyFFI
      Python File Format Interface. Also see :term:`file`,
-     :term:`interface`, and :mod:`PyFFI`.
+     :term:`interface`, and :mod:`pyffi`.
 
    file
      A byte stream.

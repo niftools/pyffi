@@ -1,5 +1,5 @@
 """
-:mod:`PyFFI` --- Interfacing block structured files
+:mod:`pyffi` --- Interfacing block structured files
 ===================================================
 
 .. toctree::

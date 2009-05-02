@@ -52,13 +52,12 @@ Change to the PyFFI directory and run the setup script::
 Uninstall
 =========
 
-You can uninstall PyFFI manually simply by
-deleting the PyFFI folder from your Python's site-packages folder,
-which is typically at::
+You can uninstall PyFFI manually simply by deleting the :file:`pyffi`
+folder from your Python's :file:`site-packages` folder, which is typically
+at::
 
-  C:\Python25\Lib\site-packages\PyFFI
+  C:\Python25\Lib\site-packages\pyffi
 
 or::
 
-  /usr/lib/python2.5/site-packages/PyFFI
-
+  /usr/lib/python2.5/site-packages/pyffi

@@ -34,7 +34,7 @@ POSSIBILITY OF SUCH DAMAGE.
 =======================================
 
 PyFFI uses Mopper. Copyright 2008 NIF File Format Library and Tools.
-All rights reserved. Run ``PyFFI/Utils/mopper.exe --license`` for details.
+All rights reserved. Run ``pyffi/utils/mopper.exe --license`` for details.
 
 =======================================
 

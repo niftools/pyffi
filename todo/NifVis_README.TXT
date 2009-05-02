@@ -8,11 +8,7 @@ to install setuptools, and then either
 
 $ easy_install PyFFI
 
-or (if you want the development code of PyFFI)
-
-$ easy_install http://pyffi.svn.sourceforge.net/svnroot/pyffi/trunk/
-
-to download and install PyFFI you need. All scripts will reside in the Python
+All scripts will reside in the Python
 scripts folder on Windows, or in /usr/bin on linux. For NifVis you also need:
 
 $ easy_install PyOpenGL

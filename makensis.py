@@ -40,7 +40,7 @@ def writeinstallnsh(filedict, nsh):
 def writeuninstallnsh(filedict, nsh):
     nsh.write("!macro UninstallManifestFiles\n")
     for path in sorted(filedict.keys()):
-        if path.startswith("PyFFI"):
+        if path.startswith("pyffi"):
             nsh.writelines([removeslashdot("  Delete $PYTHONPATH\\Lib\\site-packages\\%s\\%s\n"
                                            % (path, filename))
                             for filename in sorted(filedict[path])])
