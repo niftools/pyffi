@@ -36,6 +36,7 @@
 SetCompressor /SOLID lzma
 
 !include "MUI.nsh"
+!include "LogicLib.nsh"
 
 ; list of files, generated from MANIFEST file
 ; this also defines VERSION and PYTHONVERSION
@@ -364,26 +365,28 @@ Section
   RMDir /r "$INSTDIR\scripts"
   Delete "$INSTDIR\setup.py"
 
-  ; check if Maya 2008 is installed
+  ; check if Maya 2008/2009 is installed
 
-  ClearErrors
-  ReadRegStr $MAYAINST HKLM SOFTWARE\Autodesk\Maya\2008\Setup\InstallPath "MAYA_INSTALL_LOCATION"
-  IfErrors 0 have_maya
-  ReadRegStr $MAYAINST HKCU SOFTWARE\Autodesk\Maya\2008\Setup\InstallPath "MAYA_INSTALL_LOCATION"
-  IfErrors 0 have_maya
-  Goto maya_check_end
+  ${For} $0 "2008" "2009"
+    ClearErrors
+    ReadRegStr $MAYAINST HKLM SOFTWARE\Autodesk\Maya\$0\Setup\InstallPath "MAYA_INSTALL_LOCATION"
+    IfErrors 0 have_maya
+    ReadRegStr $MAYAINST HKCU SOFTWARE\Autodesk\Maya\$0\Setup\InstallPath "MAYA_INSTALL_LOCATION"
+    IfErrors 0 have_maya
+    Goto maya_check_end
 
 have_maya:
-    ; key, that means that Maya 2008 is installed
-    ; make sure site-packages directory exists
-    ; (this prevents CopyFiles to go wrong if it does not exist)
-    CreateDirectory "$MAYAINST\Python\Lib\site-packages"
-    ; Synchronize PyFFI (CopyFiles does a recursive copy)
-    RMDir /r "$MAYAINST\Python\Lib\site-packages\PyFFI"
-    RMDir /r "$MAYAINST\Python\Lib\site-packages\pyffi"
-    CopyFiles "$PYTHONPATH\Lib\site-packages\pyffi" "$MAYAINST\Python\Lib\site-packages"
-
+      ; key, that means that Maya is installed
+      ; make sure site-packages directory exists
+      ; (this prevents CopyFiles to go wrong if it does not exist)
+      CreateDirectory "$MAYAINST\Python\Lib\site-packages"
+      ; Synchronize PyFFI (CopyFiles does a recursive copy)
+      RMDir /r "$MAYAINST\Python\Lib\site-packages\PyFFI"
+      RMDir /r "$MAYAINST\Python\Lib\site-packages\pyffi"
+      CopyFiles "$PYTHONPATH\Lib\site-packages\pyffi" "$MAYAINST\Python\Lib\site-packages"
+  
 maya_check_end:
+  ${Next}
 
   ; Clean up possibly previously installed shortcuts
   Delete "$SMPROGRAMS\PyFFI\*.*"

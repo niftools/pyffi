@@ -1,6 +1,8 @@
 Release 2.0.0 (in development)
 ==============================
 
+* Windows installer now detects Maya 2009 as well.
+
 * Updates to the XML object model (affects CGF, DDS, KFM, NIF, and TGA).
 
   - Class customizers are taken immediately from the format class, and not
