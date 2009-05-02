@@ -2,7 +2,7 @@ Release 2.0.0 (in development)
 ==============================
 
 * Windows installer now detects Maya 2008 and Maya 2009, and their 64 bit
-  variants, and installs itself for every Maya version that is found.
+  variants, and can install itself into every Maya version that is found.
 
 * Updates to the XML object model (affects CGF, DDS, KFM, NIF, and TGA).
 
@@ -24,15 +24,17 @@ Release 2.0.0 (in development)
 
   - CHUNK_MAP no longer constructed in Data.__init__ but in a metaclass.
 
+  - Deprecated functions in CgfFormat have been removed.
+
 * Updates for the NIF format.
 
   - Synced nif.xml with nifskope's xml (includes fixes for Lazeska).
 
+  - Removed deprecated scripts (niftexdump, nifdump, ffvt3rskinpartition,
+    nifoptimize).
+
 * Updated module names to follow pep8 naming conventions: all modules have
   lower case names.
-
-* Removed deprecated scripts (niftexdump, nifdump, ffvt3rskinpartition,
-  nifoptimize).
 
 Release 1.2.4 (Apr 21, 2009)
 ============================
