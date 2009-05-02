@@ -45,7 +45,7 @@ There are no spells yet.
 # --------------------------------------------------------------------------
 
 import pyffi.spells
-from pyffi.Formats.DDS import DdsFormat
+from pyffi.formats.DDS import DdsFormat
 
 class DdsSpell(pyffi.spells.Spell):
     """Base class for spells for dds files."""

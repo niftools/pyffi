@@ -39,7 +39,7 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-from pyffi.Formats.CGF import CgfFormat
+from pyffi.formats.CGF import CgfFormat
 import pyffi.spells.cgf
 
 def dumpBlock(chunk):

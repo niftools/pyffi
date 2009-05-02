@@ -1,5 +1,5 @@
 """
-:mod:`pyffi.Formats` --- File format interfaces
+:mod:`pyffi.formats` --- File format interfaces
 ===============================================
 
 When experimenting with any of the supported file formats, you can specify
@@ -17,12 +17,12 @@ Supported formats
 .. toctree::
    :maxdepth: 2
    
-   pyffi.Formats.CGF
-   pyffi.Formats.DAE
-   pyffi.Formats.DDS
-   pyffi.Formats.KFM
-   pyffi.Formats.NIF
-   pyffi.Formats.TGA
+   pyffi.formats.CGF
+   pyffi.formats.DAE
+   pyffi.formats.DDS
+   pyffi.formats.KFM
+   pyffi.formats.NIF
+   pyffi.formats.TGA
 
 Adding new formats
 ------------------
@@ -93,7 +93,7 @@ Further References
 ^^^^^^^^^^^^^^^^^^
 
 With the above simple example in mind, you may wish to browse through
-the source code of :mod:`pyffi.Formats.CGF` or
-:mod:`pyffi.Formats.NIF` to see how pyffi works for more complex file
+the source code of :mod:`pyffi.formats.CGF` or
+:mod:`pyffi.formats.NIF` to see how pyffi works for more complex file
 formats.
 """

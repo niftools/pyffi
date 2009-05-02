@@ -1,5 +1,5 @@
 """
-:mod:`pyffi.Formats.NIF` --- NetImmerse/Gamebryo (.nif and .kf)
+:mod:`pyffi.formats.NIF` --- NetImmerse/Gamebryo (.nif and .kf)
 ===============================================================
 
 Regression tests
@@ -304,7 +304,7 @@ import sys
 import warnings
 import weakref
 
-import pyffi.Formats.DDS
+import pyffi.formats.DDS
 import pyffi.object_models.Common
 import pyffi.object_models
 import pyffi.object_models.xml
@@ -526,7 +526,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
         def replaceGlobalNode(self, oldbranch, newbranch,
                               edge_filter=EdgeFilter()):
             """
-            >>> from pyffi.Formats.NIF import NifFormat
+            >>> from pyffi.formats.NIF import NifFormat
             >>> x = NifFormat.NiNode()
             >>> y = NifFormat.NiNode()
             >>> z = NifFormat.NiNode()
@@ -1973,7 +1973,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
         Regression tests
         ----------------
 
-        >>> from pyffi.Formats.NIF import NifFormat
+        >>> from pyffi.formats.NIF import NifFormat
         >>> vec = NifFormat.Vector4()
         >>> vec.x = 1.0
         >>> vec.y = 2.0
@@ -2917,7 +2917,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
         Regression test
         ---------------
 
-        >>> from pyffi.Formats.NIF import NifFormat
+        >>> from pyffi.formats.NIF import NifFormat
         >>> link = NifFormat.ControllerLink()
         >>> link.nodeNameOffset
         -1
@@ -2960,7 +2960,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             """Return the node name.
 
             >>> # a doctest
-            >>> from pyffi.Formats.NIF import NifFormat
+            >>> from pyffi.formats.NIF import NifFormat
             >>> link = NifFormat.ControllerLink()
             >>> link.stringPalette = NifFormat.NiStringPalette()
             >>> palette = link.stringPalette.palette
@@ -2969,7 +2969,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             'Bip01'
 
             >>> # another doctest
-            >>> from pyffi.Formats.NIF import NifFormat
+            >>> from pyffi.formats.NIF import NifFormat
             >>> link = NifFormat.ControllerLink()
             >>> link.nodeName = "Bip01"
             >>> link.getNodeName()
@@ -3588,7 +3588,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
         Properties
         ==========
 
-        >>> from pyffi.Formats.NIF import NifFormat
+        >>> from pyffi.formats.NIF import NifFormat
         >>> node = NifFormat.NiNode()
         >>> prop1 = NifFormat.NiProperty()
         >>> prop1.name = "hello"
@@ -3747,7 +3747,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
     class NiBSplineData:
         """
         >>> # a doctest
-        >>> from pyffi.Formats.NIF import NifFormat
+        >>> from pyffi.formats.NIF import NifFormat
         >>> block = NifFormat.NiBSplineData()
         >>> block.numShortControlPoints = 50
         >>> block.shortControlPoints.updateSize()
@@ -3961,7 +3961,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
 
     class NiGeometryData:
         """
-        >>> from pyffi.Formats.NIF import NifFormat
+        >>> from pyffi.formats.NIF import NifFormat
         >>> geomdata = NifFormat.NiGeometryData()
         >>> geomdata.numVertices = 3
         >>> geomdata.hasVertices = True
@@ -4102,7 +4102,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
 
     class NiGeometry:
         """
-        >>> from pyffi.Formats.NIF import NifFormat
+        >>> from pyffi.formats.NIF import NifFormat
         >>> id44 = NifFormat.Matrix44()
         >>> id44.setIdentity()
         >>> skelroot = NifFormat.NiNode()
@@ -4430,7 +4430,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
         Old test code
         -------------
 
-        >>> from pyffi.Formats.NIF import NifFormat
+        >>> from pyffi.formats.NIF import NifFormat
         >>> x = NifFormat.NiNode()
         >>> y = NifFormat.NiNode()
         >>> z = NifFormat.NiNode()
@@ -4462,7 +4462,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
         Children
         --------
 
-        >>> from pyffi.Formats.NIF import NifFormat
+        >>> from pyffi.formats.NIF import NifFormat
         >>> node = NifFormat.NiNode()
         >>> child1 = NifFormat.NiNode()
         >>> child1.name = "hello"
@@ -4494,7 +4494,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
         Effects
         -------
 
-        >>> from pyffi.Formats.NIF import NifFormat
+        >>> from pyffi.formats.NIF import NifFormat
         >>> node = NifFormat.NiNode()
         >>> effect1 = NifFormat.NiSpotLight()
         >>> effect1.name = "hello"
@@ -5108,7 +5108,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
         def removeExtraData(self, extrablock):
             """Remove block from extra data list and extra data chain.
 
-            >>> from pyffi.Formats.NIF import NifFormat
+            >>> from pyffi.formats.NIF import NifFormat
             >>> block = NifFormat.NiNode()
             >>> block.numExtraDataList = 3
             >>> block.extraDataList.updateSize()
@@ -5149,7 +5149,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
         def setExtraDatas(self, extralist):
             """Set all extra data blocks from given list (erases existing data).
 
-            >>> from pyffi.Formats.NIF import NifFormat
+            >>> from pyffi.formats.NIF import NifFormat
             >>> node = NifFormat.NiNode()
             >>> extra1 = NifFormat.NiExtraData()
             >>> extra1.name = "hello"
@@ -5341,7 +5341,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
         def saveAsDDS(self, stream):
             """Save image as DDS file."""
             # set up header and pixel data
-            data = pyffi.Formats.DDS.DdsFormat.Data()
+            data = pyffi.formats.DDS.DdsFormat.Data()
             header = data.header
             pixeldata = data.pixeldata
 
@@ -5382,7 +5382,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                 header.linearSize = 0
                 header.mipmapCount = len(self.mipmaps)
                 header.pixelFormat.flags.fourcc = 1
-                header.pixelFormat.fourcc = pyffi.Formats.DDS.DdsFormat.FourCC.DXT1
+                header.pixelFormat.fourcc = pyffi.formats.DDS.DdsFormat.FourCC.DXT1
                 header.pixelFormat.bitCount = 0
                 header.pixelFormat.rMask = 0
                 header.pixelFormat.gMask = 0
@@ -5406,7 +5406,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                 header.linearSize = 0
                 header.mipmapCount = len(self.mipmaps)
                 header.pixelFormat.flags.fourcc = 1
-                header.pixelFormat.fourcc = pyffi.Formats.DDS.DdsFormat.FourCC.DXT5
+                header.pixelFormat.fourcc = pyffi.formats.DDS.DdsFormat.FourCC.DXT5
                 header.pixelFormat.bitCount = 0
                 header.pixelFormat.rMask = 0
                 header.pixelFormat.gMask = 0
@@ -5452,7 +5452,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
         def applyScale(self, scale):
             """Apply scale factor on data.
 
-            >>> from pyffi.Formats.NIF import NifFormat
+            >>> from pyffi.formats.NIF import NifFormat
             >>> id44 = NifFormat.Matrix44()
             >>> id44.setIdentity()
             >>> skelroot = NifFormat.NiNode()
@@ -5572,7 +5572,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             self.getTriangles()) of given triangles. Degenerate triangles in
             the list are assigned index ``None``.
 
-            >>> from pyffi.Formats.NIF import NifFormat
+            >>> from pyffi.formats.NIF import NifFormat
             >>> geomdata = NifFormat.NiTriShapeData()
             >>> geomdata.setTriangles([(0,1,2),(1,2,3),(2,3,4)])
             >>> list(geomdata.getTriangleIndices([(1,2,3)]))
@@ -6358,7 +6358,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
         """
         Example usage:
 
-        >>> from pyffi.Formats.NIF import NifFormat
+        >>> from pyffi.formats.NIF import NifFormat
         >>> block = NifFormat.NiTriShapeData()
         >>> block.setTriangles([(0,1,2),(2,1,3),(2,3,4)])
         >>> block.getStrips()
@@ -6402,7 +6402,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
         """
         Example usage:
 
-        >>> from pyffi.Formats.NIF import NifFormat
+        >>> from pyffi.formats.NIF import NifFormat
         >>> block = NifFormat.NiTriStripsData()
         >>> block.setTriangles([(0,1,2),(2,1,3),(2,3,4)])
         >>> block.getStrips()
@@ -6491,7 +6491,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
         def getString(self, offset):
             """Return string at given offset.
 
-            >>> from pyffi.Formats.NIF import NifFormat
+            >>> from pyffi.formats.NIF import NifFormat
             >>> pal = NifFormat.StringPalette()
             >>> pal.addString("abc")
             0
@@ -6525,7 +6525,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
         def getAllStrings(self):
             """Return a list of all strings.
 
-            >>> from pyffi.Formats.NIF import NifFormat
+            >>> from pyffi.formats.NIF import NifFormat
             >>> pal = NifFormat.StringPalette()
             >>> pal.addString("abc")
             0
@@ -6542,7 +6542,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             """Adds string to palette (will recycle existing strings if possible) and
             return offset to the string in the palette.
 
-            >>> from pyffi.Formats.NIF import NifFormat
+            >>> from pyffi.formats.NIF import NifFormat
             >>> pal = NifFormat.StringPalette()
             >>> pal.addString("abc")
             0

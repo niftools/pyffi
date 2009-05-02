@@ -41,7 +41,7 @@
 
 from itertools import izip
 
-from pyffi.Formats.NIF import NifFormat
+from pyffi.formats.NIF import NifFormat
 import pyffi.utils.tristrip
 import pyffi.spells
 import pyffi.spells.nif

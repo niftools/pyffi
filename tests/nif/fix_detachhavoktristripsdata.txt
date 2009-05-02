@@ -24,7 +24,7 @@ pyffi.toaster:INFO:Finished.
 Explicit check
 --------------
 
->>> from pyffi.Formats.NIF import NifFormat
+>>> from pyffi.formats.NIF import NifFormat
 >>> from pyffi.spells.nif import fix
 >>> from pyffi.spells import Toaster
 >>> data = NifFormat.Data()

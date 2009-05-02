@@ -39,7 +39,7 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-from pyffi.Formats.NIF import NifFormat
+from pyffi.formats.NIF import NifFormat
 from pyffi.spells.nif import NifSpell
 import pyffi.spells.nif
 import pyffi.spells.nif.check # recycle checking spells for update spells

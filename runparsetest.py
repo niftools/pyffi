@@ -55,9 +55,9 @@ loghandler.setFormatter(logformatter)
 logger.addHandler(loghandler)
 
 # import all format classes
-import pyffi.Formats.CGF
-import pyffi.Formats.DAE
-import pyffi.Formats.DDS
-import pyffi.Formats.KFM
-import pyffi.Formats.NIF
-import pyffi.Formats.TGA
+import pyffi.formats.CGF
+import pyffi.formats.DAE
+import pyffi.formats.DDS
+import pyffi.formats.KFM
+import pyffi.formats.NIF
+import pyffi.formats.TGA

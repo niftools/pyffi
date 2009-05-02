@@ -1,4 +1,4 @@
-from pyffi.Formats.NIF import NifFormat
+from pyffi.formats.NIF import NifFormat
 from OpenGL.GL import *
 
 

@@ -1,5 +1,5 @@
 """
-:mod:`pyffi.Formats.TGA` --- Targa (.tga)
+:mod:`pyffi.formats.TGA` --- Targa (.tga)
 =========================================
 
 Regression tests

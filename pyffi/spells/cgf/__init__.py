@@ -45,7 +45,7 @@
 # --------------------------------------------------------------------------
 
 import pyffi.spells
-from pyffi.Formats.CGF import CgfFormat
+from pyffi.formats.CGF import CgfFormat
 
 class CgfSpell(pyffi.spells.Spell):
     """Base class for spells for cgf files."""

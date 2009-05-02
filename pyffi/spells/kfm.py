@@ -45,7 +45,7 @@
 
 import pyffi.spells
 import pyffi.spells.check
-import pyffi.Formats.KFM
+import pyffi.formats.KFM
 
 class KfmSpell(pyffi.spells.Spell):
     """Base class for spells for kfm files."""
@@ -61,7 +61,7 @@ class SpellDumpAll(KfmSpell):
 
 class KfmToaster(pyffi.spells.Toaster):
     """Base class for kfm toasters."""
-    FILEFORMAT = pyffi.Formats.KFM.KfmFormat
+    FILEFORMAT = pyffi.formats.KFM.KfmFormat
 
     SPELLS = [
         pyffi.spells.check.SpellRead,

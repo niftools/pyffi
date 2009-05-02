@@ -93,7 +93,7 @@ Explicit check
 ...                 and branch.isInterchangeable(otherbranch)):
 ...                 return True
 ...     return False
->>> from pyffi.Formats.NIF import NifFormat
+>>> from pyffi.formats.NIF import NifFormat
 >>> import pyffi.spells.nif.optimize
 >>> from pyffi.spells import Toaster
 >>> data = NifFormat.Data()
