@@ -48,7 +48,7 @@
 # --------------------------------------------------------------------------
 
 import pyffi.spells
-from pyffi.formats.NIF import NifFormat
+from pyffi.formats.nif import NifFormat
 
 class NifSpell(pyffi.spells.Spell):
     """Base class for spells for nif files."""

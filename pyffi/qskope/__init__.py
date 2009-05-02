@@ -44,11 +44,11 @@ import pyffi.qskope.DetailModel
 import pyffi.qskope.DetailDelegate
 
 import pyffi
-from pyffi.formats.NIF import NifFormat
-from pyffi.formats.CGF import CgfFormat
-from pyffi.formats.KFM import KfmFormat
-from pyffi.formats.DDS import DdsFormat
-from pyffi.formats.TGA import TgaFormat
+from pyffi.formats.nif import NifFormat
+from pyffi.formats.cgf import CgfFormat
+from pyffi.formats.kfm import KfmFormat
+from pyffi.formats.dds import DdsFormat
+from pyffi.formats.tga import TgaFormat
 
 from pyffi.object_models import FileFormat
 

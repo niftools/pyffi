@@ -1,11 +1,11 @@
 .. autosummary::
    :toctree:
    
-   Xpyffi.formats.CGF
-   pyffi.formats.DAE
-   pyffi.formats.DDS
-   pyffi.formats.KFM
-   Xpyffi.formats.NIF
-   pyffi.formats.TGA
+   Xpyffi.formats.cgf
+   pyffi.formats.dae
+   pyffi.formats.dds
+   pyffi.formats.kfm
+   Xpyffi.formats.nif
+   pyffi.formats.tga
    pyffi.object_models
 

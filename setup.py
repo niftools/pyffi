@@ -26,7 +26,7 @@ except IOError:
 setup(
     name = "PyFFI",
     version = pyffi.__version__,
-    packages = ['pyffi', 'pyffi.object_models', 'pyffi.object_models.xml', 'pyffi.object_models.xsd', 'pyffi.utils', 'pyffi.formats', 'pyffi.formats.NIF', 'pyffi.formats.KFM', 'pyffi.formats.CGF', 'pyffi.formats.DDS', 'pyffi.formats.TGA', 'pyffi.spells', 'pyffi.spells.cgf', 'pyffi.spells.nif', 'pyffi.qskope', 'pyffi.formats.DAE'],
+    packages = ['pyffi', 'pyffi.object_models', 'pyffi.object_models.xml', 'pyffi.object_models.xsd', 'pyffi.utils', 'pyffi.formats', 'pyffi.formats.nif', 'pyffi.formats.kfm', 'pyffi.formats.cgf', 'pyffi.formats.dds', 'pyffi.formats.tga', 'pyffi.spells', 'pyffi.spells.cgf', 'pyffi.spells.nif', 'pyffi.qskope', 'pyffi.formats.dae'],
     package_data = {'': ['*.xml', '*.xsd', '*.dll', '*.exe']}, # include xml, xsd, dll, and exe files
     scripts = ['scripts/nif/nifmakehsl.py', 'scripts/nif/niftoaster.py', 'scripts/cgf/cgftoaster.py', 'scripts/kfm/kfmtoaster.py', 'scripts/qskope.py'],
     author = "Amorilia",

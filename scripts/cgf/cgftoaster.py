@@ -49,7 +49,7 @@ import pyffi.spells
 import pyffi.spells.cgf
 import pyffi.spells.cgf.check
 import pyffi.spells.cgf.dump
-import pyffi.formats.CGF
+import pyffi.formats.cgf
 import pyffi.spells.check
 
 class CgfToaster(pyffi.spells.cgf.CgfToaster):

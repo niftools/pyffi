@@ -1,5 +1,5 @@
 """
-:mod:`pyffi.formats.KFM` --- NetImmerse/Gamebryo Keyframe Motion (.kfm)
+:mod:`pyffi.formats.kfm` --- NetImmerse/Gamebryo Keyframe Motion (.kfm)
 =======================================================================
 
 Regression tests

@@ -23,12 +23,12 @@ import pyffi.utils.quickhull
 import pyffi.utils.inertia
 import pyffi.utils.tangentspace
 import pyffi.utils.mopp
-import pyffi.formats.NIF
-import pyffi.formats.CGF
-import pyffi.formats.KFM
-import pyffi.formats.DDS
-import pyffi.formats.TGA
-import pyffi.formats.DAE
+import pyffi.formats.nif
+import pyffi.formats.cgf
+import pyffi.formats.kfm
+import pyffi.formats.dds
+import pyffi.formats.tga
+import pyffi.formats.dae
 import pyffi.spells
 
 mods = [val for (key, val) in sys.modules.iteritems()

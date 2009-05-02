@@ -4,7 +4,7 @@ bhkPackedNiTriStripsShape tests
 Adding Shapes
 -------------
 
->>> from pyffi.formats.NIF import NifFormat
+>>> from pyffi.formats.nif import NifFormat
 >>> shape = NifFormat.bhkPackedNiTriStripsShape()
 >>> shape.numSubShapes
 0

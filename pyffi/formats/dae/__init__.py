@@ -1,5 +1,5 @@
 """
-.. :mod:`pyffi.formats.DAE` --- COLLADA (.dae)
+.. :mod:`pyffi.formats.dae` --- COLLADA (.dae)
    ===========================================
 
 .. warning::

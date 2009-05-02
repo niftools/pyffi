@@ -44,7 +44,7 @@ from contextlib import closing
 from itertools import izip, repeat
 import tempfile
 
-from pyffi.formats.NIF import NifFormat
+from pyffi.formats.nif import NifFormat
 import pyffi.spells.nif
 import pyffi.utils.tristrip # for check_tristrip
 

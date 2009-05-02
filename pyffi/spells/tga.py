@@ -45,7 +45,7 @@ There are no spells yet.
 # --------------------------------------------------------------------------
 
 import pyffi.spells
-from pyffi.formats.TGA import TgaFormat
+from pyffi.formats.tga import TgaFormat
 
 class TgaSpell(pyffi.spells.Spell):
     """Base class for spells for tga files."""

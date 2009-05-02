@@ -17,12 +17,12 @@ Supported formats
 .. toctree::
    :maxdepth: 2
    
-   pyffi.formats.CGF
-   pyffi.formats.DAE
-   pyffi.formats.DDS
-   pyffi.formats.KFM
-   pyffi.formats.NIF
-   pyffi.formats.TGA
+   pyffi.formats.cgf
+   pyffi.formats.dae
+   pyffi.formats.dds
+   pyffi.formats.kfm
+   pyffi.formats.nif
+   pyffi.formats.tga
 
 Adding new formats
 ------------------
@@ -93,7 +93,7 @@ Further References
 ^^^^^^^^^^^^^^^^^^
 
 With the above simple example in mind, you may wish to browse through
-the source code of :mod:`pyffi.formats.CGF` or
-:mod:`pyffi.formats.NIF` to see how pyffi works for more complex file
+the source code of :mod:`pyffi.formats.cgf` or
+:mod:`pyffi.formats.nif` to see how pyffi works for more complex file
 formats.
 """

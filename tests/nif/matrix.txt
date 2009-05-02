@@ -4,7 +4,7 @@ Matrix tests
 Scale, rotation, and translation
 --------------------------------
 
->>> from pyffi.formats.NIF import NifFormat
+>>> from pyffi.formats.nif import NifFormat
 >>> mat = NifFormat.Matrix44()
 >>> mat.setIdentity()
 >>> print(mat)
@@ -114,7 +114,7 @@ True
 supNorm
 -------
 
->>> from pyffi.formats.NIF import NifFormat
+>>> from pyffi.formats.nif import NifFormat
 >>> mat = NifFormat.Matrix44()
 >>> mat.setIdentity()
 >>> mat.supNorm()

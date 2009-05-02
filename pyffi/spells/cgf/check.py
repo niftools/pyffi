@@ -42,7 +42,7 @@
 from itertools import izip
 from tempfile import TemporaryFile
 
-from pyffi.formats.CGF import CgfFormat
+from pyffi.formats.cgf import CgfFormat
 from pyffi.spells.cgf import CgfSpell
 # XXX do something about this...
 from pyffi.utils.mathutils import *

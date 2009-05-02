@@ -615,7 +615,7 @@ class Toaster(object):
         """Helper function which checks whether a given branch type should
         have spells cast on it or not, based in exclude and include options.
 
-        >>> from pyffi.formats.NIF import NifFormat
+        >>> from pyffi.formats.nif import NifFormat
         >>> class MyToaster(Toaster):
         ...     FILEFORMAT = NifFormat
         >>> toaster = MyToaster() # no include or exclude: all admissible

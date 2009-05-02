@@ -45,7 +45,7 @@ a nif specific wrapper around L{pyffi.spells.Toaster}."""
 import logging
 import sys
 
-from pyffi.formats.NIF import NifFormat
+from pyffi.formats.nif import NifFormat
 import pyffi.spells.check
 import pyffi.spells.nif
 import pyffi.spells.nif.check

@@ -46,7 +46,7 @@ import types
 import webbrowser
 from xml.sax.saxutils import escape # for htmlreport
 
-from pyffi.formats.NIF import NifFormat
+from pyffi.formats.nif import NifFormat
 from pyffi.spells.nif import NifSpell
 
 def tohex(value, nbytes=4):
