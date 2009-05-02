@@ -6,12 +6,12 @@ include AUTHORS.rst
 include TODO.rst
 include THANKS.rst
 include CONTRIBUTE.rst
-include pyffi/Formats/NIF/nif.xml
-include pyffi/Formats/KFM/kfm.xml
-include pyffi/Formats/CGF/cgf.xml
-include pyffi/Formats/DDS/dds.xml
-include pyffi/Formats/TGA/tga.xml
-include pyffi/Formats/DAE/COLLADASchema.xsd
+include pyffi/formats/nif/nif.xml
+include pyffi/formats/kfm/kfm.xml
+include pyffi/formats/cgf/cgf.xml
+include pyffi/formats/dds/dds.xml
+include pyffi/formats/tga/tga.xml
+include pyffi/formats/dae/COLLADASchema.xsd
 include pyffi/utils/mopper.exe
 recursive-include examples *.py
 include examples/simple/simple.xml
