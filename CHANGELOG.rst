@@ -1,7 +1,8 @@
 Release 2.0.0 (in development)
 ==============================
 
-* Windows installer now detects Maya 2009 as well.
+* Windows installer now detects Maya 2008 and Maya 2009, and their 64 bit
+  variants, and installs itself for every Maya version that is found.
 
 * Updates to the XML object model (affects CGF, DDS, KFM, NIF, and TGA).
 
