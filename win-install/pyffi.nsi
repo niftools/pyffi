@@ -367,7 +367,12 @@ Section
 
   ; check if Maya 2008/2009 is installed
 
-  ${For} $0 "2008" "2008-x64" "2009" "2009-x64"
+  Push "2009-x64"
+  Push "2009"
+  Push "2008-x64"
+  Push "2008"
+  ${For} $1 1 4
+    Pop $0
     ClearErrors
     ReadRegStr $MAYAINST HKLM SOFTWARE\Autodesk\Maya\$0\Setup\InstallPath "MAYA_INSTALL_LOCATION"
     IfErrors 0 have_maya
@@ -376,6 +381,7 @@ Section
     Goto maya_check_end
 
 have_maya:
+      MessageBox MB_YESNO "Install PyFFI for Maya $0?" IDNO maya_check_end
       ; key, that means that Maya is installed
       ; make sure site-packages directory exists
       ; (this prevents CopyFiles to go wrong if it does not exist)
