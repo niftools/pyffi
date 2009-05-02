@@ -4,16 +4,16 @@
    
    refactoring plans
 
-   - common base classes for PyFFI.object_models.xml.BasicBase/StructBase and
-     PyFFI.object_models.xsd.SimpleType/ComplexType
-     (e.g. PyFFI.ObjectModel.SimpleType/ComplexType)
+   - common base classes for pyffi.object_models.xml.BasicBase/StructBase and
+     pyffi.object_models.xsd.SimpleType/ComplexType
+     (e.g. pyffi.ObjectModel.SimpleType/ComplexType)
 
    - derive object_models.ArrayType and object_models.StructType from
-     common subclass PyFFI.object_models.ComplexType, use these then as base
+     common subclass pyffi.object_models.ComplexType, use these then as base
      classes for object_models.xml.Array and object_models.xml.StructBase
 
 
-   - use PyFFI.utils.graph for all object_models.XXX implementations
+   - use pyffi.utils.graph for all object_models.XXX implementations
 
    - upgrade QSkope and XML model to use GlobalNode instead of the
      current ad hoc system with Refs
@@ -67,7 +67,7 @@
     * move all regression tests to the tests directory (but keep useful examples
       in the docstrings!)
 
-    * add spell support for qskope directly using the PyFFI.spells module
+    * add spell support for qskope directly using the pyffi.spells module
 
     * allow qskope to create new spells, from a user supplied spells module
 

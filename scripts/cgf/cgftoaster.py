@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """A script for casting spells on cgf files. This script is essentially
-a cgf specific wrapper around L{PyFFI.spells.toaster}."""
+a cgf specific wrapper around L{pyffi.spells.toaster}."""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
@@ -45,21 +45,21 @@ a cgf specific wrapper around L{PyFFI.spells.toaster}."""
 import logging
 import sys
 
-import PyFFI.spells
-import PyFFI.spells.cgf
-import PyFFI.spells.cgf.check
-import PyFFI.spells.cgf.dump
-import PyFFI.Formats.CGF
-import PyFFI.spells.check
+import pyffi.spells
+import pyffi.spells.cgf
+import pyffi.spells.cgf.check
+import pyffi.spells.cgf.dump
+import pyffi.Formats.CGF
+import pyffi.spells.check
 
-class CgfToaster(PyFFI.spells.cgf.CgfToaster):
+class CgfToaster(pyffi.spells.cgf.CgfToaster):
     """Class for toasting cgf files, using any of the available spells."""
     SPELLS = [
-        PyFFI.spells.check.SpellRead,
-        PyFFI.spells.cgf.check.SpellReadWrite,
-        PyFFI.spells.cgf.check.SpellCheckTangentSpace,
-        PyFFI.spells.cgf.check.SpellCheckHasVertexColors,
-        PyFFI.spells.cgf.dump.SpellDumpAll]
+        pyffi.spells.check.SpellRead,
+        pyffi.spells.cgf.check.SpellReadWrite,
+        pyffi.spells.cgf.check.SpellCheckTangentSpace,
+        pyffi.spells.cgf.check.SpellCheckHasVertexColors,
+        pyffi.spells.cgf.dump.SpellDumpAll]
     ALIASDICT = {
         "read": "check_read",
         "readwrite": "check_readwrite"}

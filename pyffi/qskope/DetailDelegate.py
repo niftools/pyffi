@@ -41,11 +41,11 @@ from PyQt4 import QtCore, QtGui
 
 # each delegate type corresponds to a QtGui delegate type
 # (see _checkValidEditor for more details)
-from PyFFI.object_models.Editable import EditableComboBox     # -> QComboBox
-from PyFFI.object_models.Editable import EditableFloatSpinBox # -> QDoubleSpinBox
-from PyFFI.object_models.Editable import EditableSpinBox      # -> QSpinBox
-from PyFFI.object_models.Editable import EditableTextEdit     # -> QTextEdit
-from PyFFI.object_models.Editable import EditableLineEdit     # -> QLineEdit
+from pyffi.object_models.Editable import EditableComboBox     # -> QComboBox
+from pyffi.object_models.Editable import EditableFloatSpinBox # -> QDoubleSpinBox
+from pyffi.object_models.Editable import EditableSpinBox      # -> QSpinBox
+from pyffi.object_models.Editable import EditableTextEdit     # -> QTextEdit
+from pyffi.object_models.Editable import EditableLineEdit     # -> QLineEdit
 
 # implementation details:
 # http://doc.trolltech.com/4.3/model-view-delegate.html

@@ -45,8 +45,8 @@ from functools import partial
 from itertools import izip
 import struct
 
-from PyFFI.object_models.Editable import EditableSpinBox # for Bits
-from PyFFI.utils.graph import DetailNode, EdgeFilter
+from pyffi.object_models.Editable import EditableSpinBox # for Bits
+from pyffi.utils.graph import DetailNode, EdgeFilter
 
 class _MetaBitStructBase(type):
     """This metaclass checks for the presence of a _attrs attribute.
@@ -152,11 +152,11 @@ class BitStructBase(DetailNode):
     property which invokes the getAttribute and setAttribute
     functions, as demonstrated below.
 
-    See the PyFFI.XmlHandler class for a more advanced example.
+    See the pyffi.XmlHandler class for a more advanced example.
 
-    >>> from PyFFI.object_models.xml.Basic import BasicBase
-    >>> from PyFFI.object_models.xml.Expression import Expression
-    >>> from PyFFI.object_models.xml import BitStructAttribute as Attr
+    >>> from pyffi.object_models.xml.Basic import BasicBase
+    >>> from pyffi.object_models.xml.Expression import Expression
+    >>> from pyffi.object_models.xml import BitStructAttribute as Attr
     >>> class SimpleFormat(object):
     ...     @staticmethod
     ...     def nameAttribute(name):
@@ -171,7 +171,7 @@ class BitStructBase(DetailNode):
     >>> y.a = 5
     >>> y.b = 1
     >>> print(y) # doctest:+ELLIPSIS
-    <class 'PyFFI.object_models.xml.BitStruct.Flags'> instance at 0x...
+    <class 'pyffi.object_models.xml.BitStruct.Flags'> instance at 0x...
     * a : 5
     * b : 1
     <BLANKLINE>

@@ -39,7 +39,7 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-import PyFFI.object_models.AnyType
+import pyffi.object_models.AnyType
 
 class _MetaSimpleType(type):
     """This metaclass binds the getValue and setValue methods to the
@@ -54,7 +54,7 @@ class _MetaSimpleType(type):
         # add value property
         cls.value = property(cls.getValue, cls.setValue)
 
-class SimpleType(PyFFI.object_models.AnyType.AnyType):
+class SimpleType(pyffi.object_models.AnyType.AnyType):
     """Base class from which all simple types are derived. Simple
     types contain data which is not divided further into smaller pieces,
     and that can represented efficiently by a (usually native) Python type,

@@ -3,36 +3,36 @@ import logging
 import sys
 import unittest
 
-import PyFFI
-import PyFFI.object_models.Common
-import PyFFI.object_models
-import PyFFI.object_models.xsd
-import PyFFI.object_models.xml
-import PyFFI.object_models.mex
-import PyFFI.object_models.AnyType
-import PyFFI.object_models.SimpleType
-import PyFFI.object_models.ArrayType
-import PyFFI.object_models.BinaryType
-import PyFFI.object_models.xml.Basic
-import PyFFI.object_models.xml.Struct
-import PyFFI.object_models.xml.Expression
-import PyFFI.utils
-import PyFFI.utils.tristrip
-import PyFFI.utils.mathutils
-import PyFFI.utils.quickhull
-import PyFFI.utils.inertia
-import PyFFI.utils.tangentspace
-import PyFFI.utils.mopp
-import PyFFI.Formats.NIF
-import PyFFI.Formats.CGF
-import PyFFI.Formats.KFM
-import PyFFI.Formats.DDS
-import PyFFI.Formats.TGA
-import PyFFI.Formats.DAE
-import PyFFI.spells
+import pyffi
+import pyffi.object_models.Common
+import pyffi.object_models
+import pyffi.object_models.xsd
+import pyffi.object_models.xml
+import pyffi.object_models.mex
+import pyffi.object_models.AnyType
+import pyffi.object_models.SimpleType
+import pyffi.object_models.ArrayType
+import pyffi.object_models.BinaryType
+import pyffi.object_models.xml.Basic
+import pyffi.object_models.xml.Struct
+import pyffi.object_models.xml.Expression
+import pyffi.utils
+import pyffi.utils.tristrip
+import pyffi.utils.mathutils
+import pyffi.utils.quickhull
+import pyffi.utils.inertia
+import pyffi.utils.tangentspace
+import pyffi.utils.mopp
+import pyffi.Formats.NIF
+import pyffi.Formats.CGF
+import pyffi.Formats.KFM
+import pyffi.Formats.DDS
+import pyffi.Formats.TGA
+import pyffi.Formats.DAE
+import pyffi.spells
 
 mods = [val for (key, val) in sys.modules.iteritems()
-        if key.startswith('PyFFI')]
+        if key.startswith('pyffi')]
 
 suite = unittest.TestSuite()
 for mod in mods:

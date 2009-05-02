@@ -1,5 +1,5 @@
 """
-:mod:`PyFFI.spells.tga` --- Targa spells
+:mod:`pyffi.spells.tga` --- Targa spells
 ========================================
 
 There are no spells yet.
@@ -44,12 +44,12 @@ There are no spells yet.
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-import PyFFI.spells
-from PyFFI.Formats.TGA import TgaFormat
+import pyffi.spells
+from pyffi.Formats.TGA import TgaFormat
 
-class TgaSpell(PyFFI.spells.Spell):
+class TgaSpell(pyffi.spells.Spell):
     """Base class for spells for tga files."""
     pass
 
-class TgaToaster(PyFFI.spells.Toaster):
+class TgaToaster(pyffi.spells.Toaster):
     FILEFORMAT = TgaFormat

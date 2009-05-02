@@ -1,5 +1,5 @@
 """
-.. :mod:`PyFFI.Formats.DDS` --- DirectDraw Surface (.dds)
+.. :mod:`pyffi.Formats.DDS` --- DirectDraw Surface (.dds)
    ======================================================
 
 Regression tests
@@ -85,13 +85,13 @@ import struct
 import os
 import re
 
-import PyFFI.object_models.xml
-from PyFFI.object_models import Common
-from PyFFI.object_models.xml.Basic import BasicBase
-import PyFFI.object_models
-from PyFFI.utils.graph import EdgeFilter
+import pyffi.object_models.xml
+from pyffi.object_models import Common
+from pyffi.object_models.xml.Basic import BasicBase
+import pyffi.object_models
+from pyffi.utils.graph import EdgeFilter
 
-class DdsFormat(PyFFI.object_models.xml.FileFormat):
+class DdsFormat(pyffi.object_models.xml.FileFormat):
     """This class implements the DDS format."""
     xmlFileName = 'dds.xml'
     # where to look for dds.xml and in what order:
@@ -178,7 +178,7 @@ class DdsFormat(PyFFI.object_models.xml.FileFormat):
         """
         return {'DX9': 0x09000000, 'DX10': 0x0A000000}[version_str]
 
-    class Data(PyFFI.object_models.FileFormat.Data):
+    class Data(pyffi.object_models.FileFormat.Data):
         """A class to contain the actual dds data."""
         def __init__(self, version=0x09000000):
             self.version = version
@@ -209,7 +209,7 @@ class DdsFormat(PyFFI.object_models.xml.FileFormat):
             finally:
                 stream.seek(pos)
 
-        # overriding PyFFI.object_models.FileFormat.Data methods
+        # overriding pyffi.object_models.FileFormat.Data methods
 
         def inspect(self, stream):
             """Quickly checks if stream contains DDS data, and reads the

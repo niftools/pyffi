@@ -1,5 +1,5 @@
 """
-:mod:`PyFFI.Formats.KFM` --- NetImmerse/Gamebryo Keyframe Motion (.kfm)
+:mod:`pyffi.Formats.KFM` --- NetImmerse/Gamebryo Keyframe Motion (.kfm)
 =======================================================================
 
 Regression tests
@@ -111,14 +111,14 @@ The Guild 2 0x01024B00
 
 import struct, os, re
 
-import PyFFI.object_models.xml
-from PyFFI.object_models import Common
-from PyFFI.object_models.xml.Basic import BasicBase
-from PyFFI.utils.graph import EdgeFilter
-import PyFFI.object_models
-import PyFFI.object_models.xml.Struct
+import pyffi.object_models.xml
+from pyffi.object_models import Common
+from pyffi.object_models.xml.Basic import BasicBase
+from pyffi.utils.graph import EdgeFilter
+import pyffi.object_models
+import pyffi.object_models.xml.Struct
 
-class KfmFormat(PyFFI.object_models.xml.FileFormat):
+class KfmFormat(pyffi.object_models.xml.FileFormat):
     """This class implements the kfm file format."""
     xmlFileName = 'kfm.xml'
     # where to look for kfm.xml and in what order:
@@ -283,7 +283,7 @@ class KfmFormat(PyFFI.object_models.xml.FileFormat):
                 + (ver_list[2] << 8)
                 + ver_list[3])
 
-    class Header(PyFFI.object_models.FileFormat.Data):
+    class Header(pyffi.object_models.FileFormat.Data):
         """A class to contain the actual kfm data."""
         version = 0x01024B00
 
@@ -332,7 +332,7 @@ class KfmFormat(PyFFI.object_models.xml.FileFormat):
             """
             # read the file
             self.inspect(stream) # quick check
-            PyFFI.object_models.xml.Struct.StructBase.read(
+            pyffi.object_models.xml.Struct.StructBase.read(
                 self, stream, version=self.version)
 
             # check if we are at the end of the file
@@ -346,7 +346,7 @@ class KfmFormat(PyFFI.object_models.xml.FileFormat):
             :type stream: ``file``
             """
             # write the file
-            PyFFI.object_models.xml.Struct.StructBase.write(
+            pyffi.object_models.xml.Struct.StructBase.write(
                 self, stream, version=self.version)
 
         # GlobalNode

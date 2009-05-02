@@ -1,4 +1,4 @@
-from PyFFI.Formats.NIF import NifFormat
+from pyffi.Formats.NIF import NifFormat
 
 TypeRegistry = {}
 BlockRegistry = []

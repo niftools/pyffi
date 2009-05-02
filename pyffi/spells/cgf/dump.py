@@ -39,8 +39,8 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-from PyFFI.Formats.CGF import CgfFormat
-import PyFFI.spells.cgf
+from pyffi.Formats.CGF import CgfFormat
+import pyffi.spells.cgf
 
 def dumpBlock(chunk):
     # XXX figure out how to get the version
@@ -48,7 +48,7 @@ def dumpBlock(chunk):
     #      % (i, chunk.__class__.__name__, version))
     return str(chunk)
 
-class SpellDumpAll(PyFFI.spells.cgf.CgfSpell):
+class SpellDumpAll(pyffi.spells.cgf.CgfSpell):
     """Dump the whole file."""
 
     SPELLNAME = "dump"

@@ -135,7 +135,7 @@ A random shape
 #
 # ***** END LICENSE BLOCK *****
 
-from PyFFI.utils.mathutils import *
+from pyffi.utils.mathutils import *
 from itertools import izip
 import operator
 

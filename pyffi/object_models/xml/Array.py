@@ -41,7 +41,7 @@
 
 # note: imports are defined at the end to avoid problems with circularity
 
-from PyFFI.utils.graph import DetailNode, EdgeFilter
+from pyffi.utils.graph import DetailNode, EdgeFilter
 
 class _ListWrap(list, DetailNode):
     """A wrapper for list, which uses getValue and setValue for
@@ -390,5 +390,5 @@ describing number of elements (%i)"%(elemlist.__len__(),len2i))
                 for elem in list.__iter__(elemlist):
                     yield elem
 
-from PyFFI.object_models.xml.Basic import BasicBase
-from PyFFI.object_models.xml.Struct import StructBase
+from pyffi.object_models.xml.Basic import BasicBase
+from pyffi.object_models.xml.Struct import StructBase

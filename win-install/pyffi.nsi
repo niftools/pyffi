@@ -202,7 +202,7 @@ Function .onInit
   IfErrors 0 python_check_end
 
      ; no key, that means that Python is not installed
-     MessageBox MB_OK "You need Python ${PYTHONVERSION} to use PyFFI. Pressing OK will take you to the Python ${PYTHONVERSION} download page. Please download and run the Python ${PYTHONVERSION} windows installer. When you are done, rerun the PyFFI installer."
+     MessageBox MB_OK "You need Python ${PYTHONVERSION} to use pyffi. Pressing OK will take you to the Python ${PYTHONVERSION} download page. Please download and run the Python ${PYTHONVERSION} windows installer. When you are done, rerun the PyFFI installer."
      StrCpy $0 "http://www.python.org/download/releases/2.5.4/"
      Call openLinkNewWindow
      Abort ; causes installer to quit
@@ -302,7 +302,7 @@ Section
   RMDir /r "$PYTHONPATH\Lib\site-packages\CgfTester"
   RMDir /r "$PYTHONPATH\Lib\site-packages\qskopelib"
   Delete "$PYTHONPATH\Lib\site-packages\PyFFI*.*"
-  Delete "$PYTHONPATH\RemovePyFFI.exe"
+  Delete "$PYTHONPATH\Removepyffi.exe"
   Delete "$PYTHONPATH\PyFFI-wininst.log"
   Delete "$PYTHONPATH\Scripts\qskope.*"
   Delete "$PYTHONPATH\Scripts\cgftoaster.*"

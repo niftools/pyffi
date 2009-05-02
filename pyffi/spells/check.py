@@ -40,7 +40,7 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-from PyFFI.spells import Spell
+from pyffi.spells import Spell
 
 class SpellRead(Spell):
     """A spell which does nothing, besides reading the file."""

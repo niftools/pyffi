@@ -29,9 +29,9 @@ pyffi.toaster:INFO:Finished.
 Explicit check
 --------------
 
->>> from PyFFI.Formats.NIF import NifFormat
->>> from PyFFI.spells.nif import fix
->>> from PyFFI.spells import Toaster
+>>> from pyffi.Formats.NIF import NifFormat
+>>> from pyffi.spells.nif import fix
+>>> from pyffi.spells import Toaster
 >>> data = NifFormat.Data()
 >>> stream = open("tests/nif/test_fix_clampmaterialalpha.nif", "rb")
 >>> data.read(stream)

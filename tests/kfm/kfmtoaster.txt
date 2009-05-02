@@ -6,8 +6,8 @@ The --spells switch
 
 >>> import sys
 >>> sys.argv = ["kfmtoaster.py", "--spells"]
->>> import PyFFI.spells.kfm
->>> PyFFI.spells.kfm.KfmToaster().cli()
+>>> import pyffi.spells.kfm
+>>> pyffi.spells.kfm.KfmToaster().cli()
 check_read
 check_readwrite
 dump
@@ -17,13 +17,13 @@ The check_read and check_readwrite spells
 
 >>> import sys
 >>> sys.argv = ["kfmtoaster.py", "--verbose=1", "check_read", "tests/kfm/"]
->>> import PyFFI.spells.kfm
->>> PyFFI.spells.kfm.KfmToaster().cli() # doctest: +ELLIPSIS
+>>> import pyffi.spells.kfm
+>>> pyffi.spells.kfm.KfmToaster().cli() # doctest: +ELLIPSIS
 pyffi.toaster:INFO:=== tests/kfm/test.kfm ===
 pyffi.toaster:INFO:  --- check_read ---
 pyffi.toaster:INFO:Finished.
 >>> sys.argv = ["kfmtoaster.py", "--verbose=1", "check_readwrite", "tests/kfm/test.kfm"]
->>> PyFFI.spells.kfm.KfmToaster().cli() # doctest: +ELLIPSIS
+>>> pyffi.spells.kfm.KfmToaster().cli() # doctest: +ELLIPSIS
 pyffi.toaster:INFO:=== tests/kfm/test.kfm ===
 pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:  writing to temporary file
@@ -34,11 +34,11 @@ The dump spell
 
 >>> import sys
 >>> sys.argv = ["kfmtoaster.py", "--verbose=1", "dump", "tests/kfm/test.kfm"]
->>> import PyFFI.spells.kfm
->>> PyFFI.spells.kfm.KfmToaster().cli() # doctest: +ELLIPSIS
+>>> import pyffi.spells.kfm
+>>> pyffi.spells.kfm.KfmToaster().cli() # doctest: +ELLIPSIS
 pyffi.toaster:INFO:=== tests/kfm/test.kfm ===
 pyffi.toaster:INFO:  --- dump ---
-pyffi.toaster:INFO:    <class 'PyFFI.Formats.KFM.Header'> instance at ...
+pyffi.toaster:INFO:    <class 'pyffi.Formats.KFM.Header'> instance at ...
 pyffi.toaster:INFO:    * headerString : ;Gamebryo KFM File Version x.x.x.x
 pyffi.toaster:INFO:    * textString : <UNDECODED DATA>
 pyffi.toaster:INFO:    * unknownByte : 0
@@ -50,35 +50,35 @@ pyffi.toaster:INFO:    * unknownFloat1 : 0.0
 pyffi.toaster:INFO:    * unknownFloat2 : 0.0
 pyffi.toaster:INFO:    * numAnimations : 4
 pyffi.toaster:INFO:    * animations :
-pyffi.toaster:INFO:        <class 'PyFFI.object_models.xml.Array.Array'> instance at ...
-pyffi.toaster:INFO:        0: <class 'PyFFI.Formats.KFM.Animation'> instance at ...
+pyffi.toaster:INFO:        <class 'pyffi.object_models.xml.Array.Array'> instance at ...
+pyffi.toaster:INFO:        0: <class 'pyffi.Formats.KFM.Animation'> instance at ...
 pyffi.toaster:INFO:        * eventCode : 0
 pyffi.toaster:INFO:        * name : <EMPTY STRING>
 pyffi.toaster:INFO:        * kfFileName : Test_MD_Idle.kf
 pyffi.toaster:INFO:        * index : 0
 pyffi.toaster:INFO:        * numTransitions : 0
-pyffi.toaster:INFO:        * transitions : <class 'PyFFI.object_models.xml.Array.Array'> instance at ...
-pyffi.toaster:INFO:        1: <class 'PyFFI.Formats.KFM.Animation'> instance at ...
+pyffi.toaster:INFO:        * transitions : <class 'pyffi.object_models.xml.Array.Array'> instance at ...
+pyffi.toaster:INFO:        1: <class 'pyffi.Formats.KFM.Animation'> instance at ...
 pyffi.toaster:INFO:        * eventCode : 0
 pyffi.toaster:INFO:        * name : <EMPTY STRING>
 pyffi.toaster:INFO:        * kfFileName : Test_MD_Run.kf
 pyffi.toaster:INFO:        * index : 0
 pyffi.toaster:INFO:        * numTransitions : 0
-pyffi.toaster:INFO:        * transitions : <class 'PyFFI.object_models.xml.Array.Array'> instance at ...
-pyffi.toaster:INFO:        2: <class 'PyFFI.Formats.KFM.Animation'> instance at ...
+pyffi.toaster:INFO:        * transitions : <class 'pyffi.object_models.xml.Array.Array'> instance at ...
+pyffi.toaster:INFO:        2: <class 'pyffi.Formats.KFM.Animation'> instance at ...
 pyffi.toaster:INFO:        * eventCode : 0
 pyffi.toaster:INFO:        * name : <EMPTY STRING>
 pyffi.toaster:INFO:        * kfFileName : Test_MD_Walk.kf
 pyffi.toaster:INFO:        * index : 0
 pyffi.toaster:INFO:        * numTransitions : 0
-pyffi.toaster:INFO:        * transitions : <class 'PyFFI.object_models.xml.Array.Array'> instance at ...
-pyffi.toaster:INFO:        3: <class 'PyFFI.Formats.KFM.Animation'> instance at ...
+pyffi.toaster:INFO:        * transitions : <class 'pyffi.object_models.xml.Array.Array'> instance at ...
+pyffi.toaster:INFO:        3: <class 'pyffi.Formats.KFM.Animation'> instance at ...
 pyffi.toaster:INFO:        * eventCode : 0
 pyffi.toaster:INFO:        * name : <EMPTY STRING>
 pyffi.toaster:INFO:        * kfFileName : Test_MD_Die.kf
 pyffi.toaster:INFO:        * index : 0
 pyffi.toaster:INFO:        * numTransitions : 0
-pyffi.toaster:INFO:        * transitions : <class 'PyFFI.object_models.xml.Array.Array'> instance at ...
+pyffi.toaster:INFO:        * transitions : <class 'pyffi.object_models.xml.Array.Array'> instance at ...
 pyffi.toaster:INFO:    * unknownInt : 0
 pyffi.toaster:INFO:    
 pyffi.toaster:INFO:Finished.

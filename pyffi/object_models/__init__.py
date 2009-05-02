@@ -64,8 +64,8 @@ this.
 
 import os.path # os.path.altsep
 
-import PyFFI.utils
-import PyFFI.utils.graph
+import pyffi.utils
+import pyffi.utils.graph
 
 class MetaFileFormat(type):
     """The MetaFileFormat metaclass is an abstract base class for transforming
@@ -117,7 +117,7 @@ class FileFormat(object):
     """
 
     # override this with the data instance for this format
-    class Data(PyFFI.utils.graph.GlobalNode):
+    class Data(pyffi.utils.graph.GlobalNode):
         """Base class for representing data in a particular format.
         Override this class to implement reading and writing.
         """
@@ -200,7 +200,7 @@ class FileFormat(object):
 
         Note that the caller is not responsible for closing the stream.
 
-        This function is for instance used by L{PyFFI.spells} to implement
+        This function is for instance used by L{pyffi.spells} to implement
         modifying a file after reading and parsing.
 
         :param top: The top folder.
@@ -212,7 +212,7 @@ class FileFormat(object):
         :type mode: ``str``
         """
         # now walk over all these files in directory top
-        for filename in PyFFI.utils.walk(top, topdown, onerror=None,
+        for filename in pyffi.utils.walk(top, topdown, onerror=None,
                                          re_filename=cls.RE_FILENAME):
             stream = open(filename, mode)
             try:

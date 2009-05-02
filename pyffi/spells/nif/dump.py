@@ -46,8 +46,8 @@ import types
 import webbrowser
 from xml.sax.saxutils import escape # for htmlreport
 
-from PyFFI.Formats.NIF import NifFormat
-from PyFFI.spells.nif import NifSpell
+from pyffi.Formats.NIF import NifFormat
+from pyffi.spells.nif import NifSpell
 
 def tohex(value, nbytes=4):
     """Improved version of hex."""
@@ -57,7 +57,7 @@ def dumpArray(arr):
     """Format an array.
 
     :param arr: An array.
-    :type arr: L{PyFFI.object_models.xml.Array.Array}
+    :type arr: L{pyffi.object_models.xml.Array.Array}
     :return: String describing the array.
     """
     text = ""

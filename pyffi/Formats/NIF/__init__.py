@@ -1,5 +1,5 @@
 """
-:mod:`PyFFI.Formats.NIF` --- NetImmerse/Gamebryo (.nif and .kf)
+:mod:`pyffi.Formats.NIF` --- NetImmerse/Gamebryo (.nif and .kf)
 ===============================================================
 
 Regression tests
@@ -304,23 +304,23 @@ import sys
 import warnings
 import weakref
 
-import PyFFI.Formats.DDS
-import PyFFI.object_models.Common
-import PyFFI.object_models
-import PyFFI.object_models.xml
-import PyFFI.utils.inertia
-from PyFFI.utils.mathutils import * # XXX todo get rid of from XXX import *
-import PyFFI.utils.mopp
-import PyFFI.utils.tristrip
-import PyFFI.utils.quickhull
+import pyffi.Formats.DDS
+import pyffi.object_models.Common
+import pyffi.object_models
+import pyffi.object_models.xml
+import pyffi.utils.inertia
+from pyffi.utils.mathutils import * # XXX todo get rid of from XXX import *
+import pyffi.utils.mopp
+import pyffi.utils.tristrip
+import pyffi.utils.quickhull
 # XXX convert the following to absolute imports
-from PyFFI.object_models.Editable import EditableBoolComboBox
-from PyFFI.utils.graph import EdgeFilter
-from PyFFI.object_models.xml.Basic import BasicBase
+from pyffi.object_models.Editable import EditableBoolComboBox
+from pyffi.utils.graph import EdgeFilter
+from pyffi.object_models.xml.Basic import BasicBase
 
 
 
-class NifFormat(PyFFI.object_models.xml.FileFormat):
+class NifFormat(pyffi.object_models.xml.FileFormat):
     """This class contains the generated classes from the xml."""
 
     xmlFileName = 'nif.xml'
@@ -336,23 +336,23 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
     EPSILON = 0.0001
 
     # basic types
-    int = PyFFI.object_models.Common.Int
-    uint = PyFFI.object_models.Common.UInt
-    byte = PyFFI.object_models.Common.UByte # not a typo
-    char = PyFFI.object_models.Common.Char
-    short = PyFFI.object_models.Common.Short
-    ushort = PyFFI.object_models.Common.UShort
-    float = PyFFI.object_models.Common.Float
-    BlockTypeIndex = PyFFI.object_models.Common.UShort
-    StringIndex = PyFFI.object_models.Common.UInt
-    SizedString = PyFFI.object_models.Common.SizedString
+    int = pyffi.object_models.Common.Int
+    uint = pyffi.object_models.Common.UInt
+    byte = pyffi.object_models.Common.UByte # not a typo
+    char = pyffi.object_models.Common.Char
+    short = pyffi.object_models.Common.Short
+    ushort = pyffi.object_models.Common.UShort
+    float = pyffi.object_models.Common.Float
+    BlockTypeIndex = pyffi.object_models.Common.UShort
+    StringIndex = pyffi.object_models.Common.UInt
+    SizedString = pyffi.object_models.Common.SizedString
 
     # implementation of nif-specific basic types
 
-    class StringOffset(PyFFI.object_models.Common.Int):
+    class StringOffset(pyffi.object_models.Common.Int):
         """This is just an integer with -1 as default value."""
         def __init__(self, **kwargs):
-            PyFFI.object_models.Common.Int.__init__(self, **kwargs)
+            pyffi.object_models.Common.Int.__init__(self, **kwargs)
             self.setValue(-1)
 
     class bool(BasicBase, EditableBoolComboBox):
@@ -421,7 +421,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
             else:
                 stream.write(struct.pack('<I', int(self._value)))
 
-    class Flags(PyFFI.object_models.Common.UShort):
+    class Flags(pyffi.object_models.Common.UShort):
         def __str__(self):
             return hex(self.getValue())
 
@@ -526,7 +526,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
         def replaceGlobalNode(self, oldbranch, newbranch,
                               edge_filter=EdgeFilter()):
             """
-            >>> from PyFFI.Formats.NIF import NifFormat
+            >>> from pyffi.Formats.NIF import NifFormat
             >>> x = NifFormat.NiNode()
             >>> y = NifFormat.NiNode()
             >>> z = NifFormat.NiNode()
@@ -624,10 +624,10 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
             return self._value
 
         def setValue(self, value):
-            self._value = PyFFI.object_models.Common._asBytes(value).rstrip('\x0a'.encode("ascii"))
+            self._value = pyffi.object_models.Common._asBytes(value).rstrip('\x0a'.encode("ascii"))
 
         def __str__(self):
-            return PyFFI.object_models.Common._asStr(self._value)
+            return pyffi.object_models.Common._asStr(self._value)
 
         def getSize(self, **kwargs):
             return len(self._value) + 1 # +1 for trailing endline
@@ -748,13 +748,13 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
             return self._value
 
         def setValue(self, value):
-            val = PyFFI.object_models.Common._asBytes(value)
+            val = pyffi.object_models.Common._asBytes(value)
             if len(val) > 254:
                 raise ValueError('string too long')
             self._value = val
 
         def __str__(self):
-            return PyFFI.object_models.Common._asStr(self._value)
+            return pyffi.object_models.Common._asStr(self._value)
 
         def getSize(self, **kwargs):
             # length byte + string chars + zero byte
@@ -974,7 +974,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
         """Standard nif exception class."""
         pass
 
-    class Data(PyFFI.object_models.FileFormat.Data):
+    class Data(pyffi.object_models.FileFormat.Data):
         """A class to contain the actual nif data.
 
         Note that L{header} and L{blocks} are not automatically kept
@@ -995,12 +995,12 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
         :type blocks: ``list`` of L{NifFormat.NiObject}
         """
 
-        class VersionUInt(PyFFI.object_models.Common.UInt):
+        class VersionUInt(pyffi.object_models.Common.UInt):
             def setValue(self, value):
                 if value is None:
                     self._value = None
                 else:
-                    PyFFI.object_models.Common.UInt.setValue(self, value)
+                    pyffi.object_models.Common.UInt.setValue(self, value)
 
             def __str__(self):
                 if self._value is None:
@@ -1138,7 +1138,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
             yield "User Version 2"
             yield "Header"
 
-        # overriding PyFFI.object_models.FileFormat.Data methods
+        # overriding pyffi.object_models.FileFormat.Data methods
 
         def inspect(self, stream):
             """Quickly checks whether the stream appears to contain
@@ -1973,7 +1973,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
         Regression tests
         ----------------
 
-        >>> from PyFFI.Formats.NIF import NifFormat
+        >>> from pyffi.Formats.NIF import NifFormat
         >>> vec = NifFormat.Vector4()
         >>> vec.x = 1.0
         >>> vec.y = 2.0
@@ -2043,7 +2043,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
             """
             # strips?
             if self.numStrips:
-                for tri in PyFFI.utils.tristrip.triangulate(self.strips):
+                for tri in pyffi.utils.tristrip.triangulate(self.strips):
                     yield tri
             # no strips, do triangles
             else:
@@ -2073,7 +2073,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
             """Return mass, center, and inertia tensor."""
             # the dimensions describe half the size of the box in each dimension
             # so the length of a single edge is dimension.dir * 2
-            mass, inertia = PyFFI.utils.inertia.getMassInertiaBox(
+            mass, inertia = pyffi.utils.inertia.getMassInertiaBox(
                 (self.dimensions.x * 2, self.dimensions.y * 2, self.dimensions.z * 2),
                 density = density, solid = solid)
             return mass, (0,0,0), inertia
@@ -2099,7 +2099,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
             """Return mass, center, and inertia tensor."""
             # (assumes self.radius == self.radius1 == self.radius2)
             length = (self.firstPoint - self.secondPoint).norm()
-            mass, inertia = PyFFI.utils.inertia.getMassInertiaCapsule(
+            mass, inertia = pyffi.utils.inertia.getMassInertiaCapsule(
                 radius = self.radius, length = length,
                 density = density, solid = solid)
             # now fix inertia so it is expressed in the right coordinates
@@ -2165,10 +2165,10 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
         def getMassCenterInertia(self, density = 1, solid = True):
             """Return mass, center, and inertia tensor."""
             # first find an enumeration of all triangles making up the convex shape
-            vertices, triangles = PyFFI.utils.quickhull.qhull3d(
+            vertices, triangles = pyffi.utils.quickhull.qhull3d(
                 [vert.asTuple() for vert in self.vertices])
             # now calculate mass, center, and inertia
-            return PyFFI.utils.inertia.getMassCenterInertiaPolyhedron(
+            return pyffi.utils.inertia.getMassCenterInertiaPolyhedron(
                 vertices, triangles, density = density, solid = solid)
 
     class bhkLimitedHingeConstraint:
@@ -2293,9 +2293,9 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
             """Update the MOPP data, scale, and origin, and welding info."""
             logger = logging.getLogger("pyffi.mopp")
 
-            # first try with PyFFI.utils.mopp
+            # first try with pyffi.utils.mopp
             try:
-                print(PyFFI.utils.mopp.getMopperCredits())
+                print(pyffi.utils.mopp.getMopperCredits())
                 # find material indices per triangle
                 material_per_vertex = []
                 subshapes = self.shape.subShapes
@@ -2309,7 +2309,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
                     for hktri in self.shape.data.triangles]
                 # compute havok info
                 origin, scale, mopp, welding_infos \
-                = PyFFI.utils.mopp.getMopperOriginScaleCodeWelding(
+                = pyffi.utils.mopp.getMopperOriginScaleCodeWelding(
                     [vert.asTuple() for vert in self.shape.data.vertices],
                     [(hktri.triangle.v1, hktri.triangle.v2, hktri.triangle.v3)
                      for hktri in self.shape.data.triangles],
@@ -2681,7 +2681,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
             subshapes_mci = [
                 (mass, center, inertia)
                 for (mass, inertia), center in
-                izip( ( PyFFI.utils.inertia.getMassInertiaSphere(radius = sphere.radius,
+                izip( ( pyffi.utils.inertia.getMassInertiaSphere(radius = sphere.radius,
                                                                  density = density, solid = solid)
                         for sphere in self.spheres ),
                       ( sphere.center.asTuple() for sphere in self.spheres ) ) ]
@@ -2702,7 +2702,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
             subshapes_mci = []
             for data in self.stripsData:
                 subshapes_mci.append(
-                    PyFFI.utils.inertia.getMassCenterInertiaPolyhedron(
+                    pyffi.utils.inertia.getMassCenterInertiaPolyhedron(
                         [ vert.asTuple() for vert in data.vertices ],
                         [ triangle for triangle in data.getTriangles() ],
                         density = density, solid = solid))
@@ -2721,7 +2721,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
     class bhkPackedNiTriStripsShape:
         def getMassCenterInertia(self, density = 1, solid = True):
             """Return mass, center, and inertia tensor."""
-            return PyFFI.utils.inertia.getMassCenterInertiaPolyhedron(
+            return pyffi.utils.inertia.getMassCenterInertiaPolyhedron(
                 [ vert.asTuple() for vert in self.data.vertices ],
                 [ ( hktriangle.triangle.v1,
                     hktriangle.triangle.v2,
@@ -2868,7 +2868,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
             """Return mass, center, and inertia tensor."""
             # the dimensions describe half the size of the box in each dimension
             # so the length of a single edge is dimension.dir * 2
-            mass, inertia = PyFFI.utils.inertia.getMassInertiaSphere(
+            mass, inertia = pyffi.utils.inertia.getMassInertiaSphere(
                 self.radius, density = density, solid = solid)
             return mass, (0,0,0), inertia
 
@@ -2917,7 +2917,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
         Regression test
         ---------------
 
-        >>> from PyFFI.Formats.NIF import NifFormat
+        >>> from pyffi.Formats.NIF import NifFormat
         >>> link = NifFormat.ControllerLink()
         >>> link.nodeNameOffset
         -1
@@ -2960,7 +2960,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
             """Return the node name.
 
             >>> # a doctest
-            >>> from PyFFI.Formats.NIF import NifFormat
+            >>> from pyffi.Formats.NIF import NifFormat
             >>> link = NifFormat.ControllerLink()
             >>> link.stringPalette = NifFormat.NiStringPalette()
             >>> palette = link.stringPalette.palette
@@ -2969,7 +2969,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
             'Bip01'
 
             >>> # another doctest
-            >>> from PyFFI.Formats.NIF import NifFormat
+            >>> from pyffi.Formats.NIF import NifFormat
             >>> link = NifFormat.ControllerLink()
             >>> link.nodeName = "Bip01"
             >>> link.getNodeName()
@@ -3588,7 +3588,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
         Properties
         ==========
 
-        >>> from PyFFI.Formats.NIF import NifFormat
+        >>> from pyffi.Formats.NIF import NifFormat
         >>> node = NifFormat.NiNode()
         >>> prop1 = NifFormat.NiProperty()
         >>> prop1.name = "hello"
@@ -3747,7 +3747,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
     class NiBSplineData:
         """
         >>> # a doctest
-        >>> from PyFFI.Formats.NIF import NifFormat
+        >>> from pyffi.Formats.NIF import NifFormat
         >>> block = NifFormat.NiBSplineData()
         >>> block.numShortControlPoints = 50
         >>> block.shortControlPoints.updateSize()
@@ -3961,7 +3961,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
 
     class NiGeometryData:
         """
-        >>> from PyFFI.Formats.NIF import NifFormat
+        >>> from pyffi.Formats.NIF import NifFormat
         >>> geomdata = NifFormat.NiGeometryData()
         >>> geomdata.numVertices = 3
         >>> geomdata.hasVertices = True
@@ -4102,7 +4102,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
 
     class NiGeometry:
         """
-        >>> from PyFFI.Formats.NIF import NifFormat
+        >>> from pyffi.Formats.NIF import NifFormat
         >>> id44 = NifFormat.Matrix44()
         >>> id44.setIdentity()
         >>> skelroot = NifFormat.NiNode()
@@ -4430,7 +4430,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
         Old test code
         -------------
 
-        >>> from PyFFI.Formats.NIF import NifFormat
+        >>> from pyffi.Formats.NIF import NifFormat
         >>> x = NifFormat.NiNode()
         >>> y = NifFormat.NiNode()
         >>> z = NifFormat.NiNode()
@@ -4462,7 +4462,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
         Children
         --------
 
-        >>> from PyFFI.Formats.NIF import NifFormat
+        >>> from pyffi.Formats.NIF import NifFormat
         >>> node = NifFormat.NiNode()
         >>> child1 = NifFormat.NiNode()
         >>> child1.name = "hello"
@@ -4494,7 +4494,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
         Effects
         -------
 
-        >>> from PyFFI.Formats.NIF import NifFormat
+        >>> from pyffi.Formats.NIF import NifFormat
         >>> node = NifFormat.NiNode()
         >>> effect1 = NifFormat.NiSpotLight()
         >>> effect1.name = "hello"
@@ -5108,7 +5108,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
         def removeExtraData(self, extrablock):
             """Remove block from extra data list and extra data chain.
 
-            >>> from PyFFI.Formats.NIF import NifFormat
+            >>> from pyffi.Formats.NIF import NifFormat
             >>> block = NifFormat.NiNode()
             >>> block.numExtraDataList = 3
             >>> block.extraDataList.updateSize()
@@ -5149,7 +5149,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
         def setExtraDatas(self, extralist):
             """Set all extra data blocks from given list (erases existing data).
 
-            >>> from PyFFI.Formats.NIF import NifFormat
+            >>> from pyffi.Formats.NIF import NifFormat
             >>> node = NifFormat.NiNode()
             >>> extra1 = NifFormat.NiExtraData()
             >>> extra1.name = "hello"
@@ -5341,7 +5341,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
         def saveAsDDS(self, stream):
             """Save image as DDS file."""
             # set up header and pixel data
-            data = PyFFI.Formats.DDS.DdsFormat.Data()
+            data = pyffi.Formats.DDS.DdsFormat.Data()
             header = data.header
             pixeldata = data.pixeldata
 
@@ -5382,7 +5382,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
                 header.linearSize = 0
                 header.mipmapCount = len(self.mipmaps)
                 header.pixelFormat.flags.fourcc = 1
-                header.pixelFormat.fourcc = PyFFI.Formats.DDS.DdsFormat.FourCC.DXT1
+                header.pixelFormat.fourcc = pyffi.Formats.DDS.DdsFormat.FourCC.DXT1
                 header.pixelFormat.bitCount = 0
                 header.pixelFormat.rMask = 0
                 header.pixelFormat.gMask = 0
@@ -5406,7 +5406,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
                 header.linearSize = 0
                 header.mipmapCount = len(self.mipmaps)
                 header.pixelFormat.flags.fourcc = 1
-                header.pixelFormat.fourcc = PyFFI.Formats.DDS.DdsFormat.FourCC.DXT5
+                header.pixelFormat.fourcc = pyffi.Formats.DDS.DdsFormat.FourCC.DXT5
                 header.pixelFormat.bitCount = 0
                 header.pixelFormat.rMask = 0
                 header.pixelFormat.gMask = 0
@@ -5452,7 +5452,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
         def applyScale(self, scale):
             """Apply scale factor on data.
 
-            >>> from PyFFI.Formats.NIF import NifFormat
+            >>> from pyffi.Formats.NIF import NifFormat
             >>> id44 = NifFormat.Matrix44()
             >>> id44.setIdentity()
             >>> skelroot = NifFormat.NiNode()
@@ -5572,7 +5572,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
             self.getTriangles()) of given triangles. Degenerate triangles in
             the list are assigned index ``None``.
 
-            >>> from PyFFI.Formats.NIF import NifFormat
+            >>> from pyffi.Formats.NIF import NifFormat
             >>> geomdata = NifFormat.NiTriShapeData()
             >>> geomdata.setTriangles([(0,1,2),(1,2,3),(2,3,4)])
             >>> list(geomdata.getTriangleIndices([(1,2,3)]))
@@ -6173,7 +6173,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
                 if stripify:
                     # stripify the triangles
                     logger.info("Stripifying partition %i" % parts.index(part))
-                    strips = PyFFI.utils.tristrip.stripify(
+                    strips = pyffi.utils.tristrip.stripify(
                         parttriangles, stitchstrips=stitchstrips)
                     numtriangles = 0
                     for strip in strips:
@@ -6358,7 +6358,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
         """
         Example usage:
 
-        >>> from PyFFI.Formats.NIF import NifFormat
+        >>> from pyffi.Formats.NIF import NifFormat
         >>> block = NifFormat.NiTriShapeData()
         >>> block.setTriangles([(0,1,2),(2,1,3),(2,3,4)])
         >>> block.getStrips()
@@ -6393,16 +6393,16 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
                 dst_t.v1, dst_t.v2, dst_t.v3 = src.next()
 
         def getStrips(self):
-            return PyFFI.utils.tristrip.stripify(self.getTriangles())
+            return pyffi.utils.tristrip.stripify(self.getTriangles())
 
         def setStrips(self, strips):
-            self.setTriangles(PyFFI.utils.tristrip.triangulate(strips))
+            self.setTriangles(pyffi.utils.tristrip.triangulate(strips))
 
     class NiTriStripsData:
         """
         Example usage:
 
-        >>> from PyFFI.Formats.NIF import NifFormat
+        >>> from pyffi.Formats.NIF import NifFormat
         >>> block = NifFormat.NiTriStripsData()
         >>> block.setTriangles([(0,1,2),(2,1,3),(2,3,4)])
         >>> block.getStrips()
@@ -6416,10 +6416,10 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
         [(0, 2, 1), (1, 2, 3), (2, 4, 3)]
         """
         def getTriangles(self):
-            return PyFFI.utils.tristrip.triangulate(self.points)
+            return pyffi.utils.tristrip.triangulate(self.points)
 
         def setTriangles(self, triangles, stitchstrips = False):
-            self.setStrips(PyFFI.utils.tristrip.stripify(triangles, stitchstrips = stitchstrips))
+            self.setStrips(pyffi.utils.tristrip.stripify(triangles, stitchstrips = stitchstrips))
 
         def getStrips(self):
             return [[i for i in strip] for strip in self.points]
@@ -6491,7 +6491,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
         def getString(self, offset):
             """Return string at given offset.
 
-            >>> from PyFFI.Formats.NIF import NifFormat
+            >>> from pyffi.Formats.NIF import NifFormat
             >>> pal = NifFormat.StringPalette()
             >>> pal.addString("abc")
             0
@@ -6525,7 +6525,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
         def getAllStrings(self):
             """Return a list of all strings.
 
-            >>> from PyFFI.Formats.NIF import NifFormat
+            >>> from pyffi.Formats.NIF import NifFormat
             >>> pal = NifFormat.StringPalette()
             >>> pal.addString("abc")
             0
@@ -6542,7 +6542,7 @@ class NifFormat(PyFFI.object_models.xml.FileFormat):
             """Adds string to palette (will recycle existing strings if possible) and
             return offset to the string in the palette.
 
-            >>> from PyFFI.Formats.NIF import NifFormat
+            >>> from pyffi.Formats.NIF import NifFormat
             >>> pal = NifFormat.StringPalette()
             >>> pal.addString("abc")
             0

@@ -1,1 +1,1 @@
-.. automodule:: PyFFI.spells.nif
+.. automodule:: pyffi.spells.nif

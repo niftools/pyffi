@@ -22,7 +22,7 @@ subgraph, that is, a subgraph which contains all nodes of the original
 graph, and which contains no cycles. This graph constitutes of those
 edges which have the default edge type.
 
-The L{PyFFI.object_models.Data} class is the root node of
+The L{pyffi.object_models.Data} class is the root node of
 the graph. Recursing over all edges of default type of this node will
 visit each node (possibly more than once) in a hierarchical order.
 
@@ -108,7 +108,7 @@ class DetailNode(object):
     """A node of the detail tree which can have children.
 
     If the data must be editable, also derive the class from one of
-    the delegate classes defined in L{PyFFI.object_models.Editable},
+    the delegate classes defined in L{pyffi.object_models.Editable},
     and make sure that the getValue and setValue functions are
     implemented.
     """

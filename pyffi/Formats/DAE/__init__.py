@@ -1,5 +1,5 @@
 """
-.. :mod:`PyFFI.Formats.DAE` --- COLLADA (.dae)
+.. :mod:`pyffi.Formats.DAE` --- COLLADA (.dae)
    ===========================================
 
 .. warning::
@@ -90,9 +90,9 @@ import struct
 import os
 import re
 
-import PyFFI.object_models.xsd
+import pyffi.object_models.xsd
 
-class DaeFormat(PyFFI.object_models.xsd.FileFormat):
+class DaeFormat(pyffi.object_models.xsd.FileFormat):
     """This class implements the DAE format."""
     xsdFileName = 'COLLADASchema.xsd'
     # where to look for the xsd file and in what order:
@@ -103,7 +103,7 @@ class DaeFormat(PyFFI.object_models.xsd.FileFormat):
     # used for comparing floats
     _EPSILON = 0.0001
 
-    class Data(PyFFI.object_models.xsd.FileFormat.Data):
+    class Data(pyffi.object_models.xsd.FileFormat.Data):
         """A class to contain the actual collada data."""
 
         def __init__(self, version = 0x01040100):
@@ -132,7 +132,7 @@ class DaeFormat(PyFFI.object_models.xsd.FileFormat):
             """
             return self._rootelement.version
 
-        # overriding PyFFI.object_models.FileFormat.Data methods
+        # overriding pyffi.object_models.FileFormat.Data methods
 
         def inspect(self, stream):
             """Quickly checks whether the stream appears to contain

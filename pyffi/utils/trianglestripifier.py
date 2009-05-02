@@ -47,7 +47,7 @@ output in all circumstances.
 #
 # ***** END LICENSE BLOCK *****
 
-import PyFFI.utils.trianglemesh as Mesh
+import pyffi.utils.trianglemesh as Mesh
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~ Definitions

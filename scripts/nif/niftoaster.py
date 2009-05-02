@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """A script for casting spells on nif files. This script is essentially
-a nif specific wrapper around L{PyFFI.spells.Toaster}."""
+a nif specific wrapper around L{pyffi.spells.Toaster}."""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
@@ -45,54 +45,54 @@ a nif specific wrapper around L{PyFFI.spells.Toaster}."""
 import logging
 import sys
 
-from PyFFI.Formats.NIF import NifFormat
-import PyFFI.spells.check
-import PyFFI.spells.nif
-import PyFFI.spells.nif.check
-import PyFFI.spells.nif.dump
-import PyFFI.spells.nif.fix
-import PyFFI.spells.nif.optimize
+from pyffi.Formats.NIF import NifFormat
+import pyffi.spells.check
+import pyffi.spells.nif
+import pyffi.spells.nif.check
+import pyffi.spells.nif.dump
+import pyffi.spells.nif.fix
+import pyffi.spells.nif.optimize
 
-class NifToaster(PyFFI.spells.nif.NifToaster):
+class NifToaster(pyffi.spells.nif.NifToaster):
     """Class for toasting nif files, using any of the available spells."""
     SPELLS = [
-        PyFFI.spells.check.SpellRead,
-        PyFFI.spells.nif.check.SpellReadWrite,
-        PyFFI.spells.nif.check.SpellNodeNamesByFlag,
-        PyFFI.spells.nif.check.SpellCompareSkinData,
-        PyFFI.spells.nif.check.SpellCheckBhkBodyCenter,
-        PyFFI.spells.nif.check.SpellCheckCenterRadius,
-        PyFFI.spells.nif.check.SpellCheckConvexVerticesShape,
-        PyFFI.spells.nif.check.SpellCheckMopp,
-        PyFFI.spells.nif.check.SpellCheckSkinCenterRadius,
-        PyFFI.spells.nif.check.SpellCheckTangentSpace,
-        PyFFI.spells.nif.check.SpellCheckTriStrip,
-        PyFFI.spells.nif.check.SpellCheckVersion,
-        PyFFI.spells.nif.dump.SpellDumpAll,
-        PyFFI.spells.nif.dump.SpellDumpTex,
-        PyFFI.spells.nif.dump.SpellHtmlReport,
-        PyFFI.spells.nif.dump.SpellExportPixelData,
-        PyFFI.spells.nif.fix.SpellAddTangentSpace,
-        PyFFI.spells.nif.fix.SpellClampMaterialAlpha,
-        PyFFI.spells.nif.fix.SpellDelTangentSpace,
-        PyFFI.spells.nif.fix.SpellDetachHavokTriStripsData,
-        PyFFI.spells.nif.fix.SpellDisableParallax,
-        PyFFI.spells.nif.fix.SpellFFVT3RSkinPartition,
-        PyFFI.spells.nif.fix.SpellFixCenterRadius,
-        PyFFI.spells.nif.fix.SpellFixSkinCenterRadius,
-        PyFFI.spells.nif.fix.SpellFixMopp,
-        PyFFI.spells.nif.fix.SpellFixTexturePath,
-        PyFFI.spells.nif.fix.SpellMergeSkeletonRoots,
-        PyFFI.spells.nif.fix.SpellSendGeometriesToBindPosition,
-        PyFFI.spells.nif.fix.SpellSendDetachedGeometriesToNodePosition,
-        PyFFI.spells.nif.fix.SpellSendBonesToBindPosition,
-        PyFFI.spells.nif.fix.SpellScale,
-        PyFFI.spells.nif.fix.SpellStrip,
-        PyFFI.spells.nif.optimize.SpellCleanRefLists,
-        PyFFI.spells.nif.optimize.SpellMergeDuplicates,
-        PyFFI.spells.nif.optimize.SpellOptimizeGeometry,
-        #PyFFI.spells.nif.optimize.SpellOptimizeSplit,
-        PyFFI.spells.nif.optimize.SpellOptimize]
+        pyffi.spells.check.SpellRead,
+        pyffi.spells.nif.check.SpellReadWrite,
+        pyffi.spells.nif.check.SpellNodeNamesByFlag,
+        pyffi.spells.nif.check.SpellCompareSkinData,
+        pyffi.spells.nif.check.SpellCheckBhkBodyCenter,
+        pyffi.spells.nif.check.SpellCheckCenterRadius,
+        pyffi.spells.nif.check.SpellCheckConvexVerticesShape,
+        pyffi.spells.nif.check.SpellCheckMopp,
+        pyffi.spells.nif.check.SpellCheckSkinCenterRadius,
+        pyffi.spells.nif.check.SpellCheckTangentSpace,
+        pyffi.spells.nif.check.SpellCheckTriStrip,
+        pyffi.spells.nif.check.SpellCheckVersion,
+        pyffi.spells.nif.dump.SpellDumpAll,
+        pyffi.spells.nif.dump.SpellDumpTex,
+        pyffi.spells.nif.dump.SpellHtmlReport,
+        pyffi.spells.nif.dump.SpellExportPixelData,
+        pyffi.spells.nif.fix.SpellAddTangentSpace,
+        pyffi.spells.nif.fix.SpellClampMaterialAlpha,
+        pyffi.spells.nif.fix.SpellDelTangentSpace,
+        pyffi.spells.nif.fix.SpellDetachHavokTriStripsData,
+        pyffi.spells.nif.fix.SpellDisableParallax,
+        pyffi.spells.nif.fix.SpellFFVT3RSkinPartition,
+        pyffi.spells.nif.fix.SpellFixCenterRadius,
+        pyffi.spells.nif.fix.SpellFixSkinCenterRadius,
+        pyffi.spells.nif.fix.SpellFixMopp,
+        pyffi.spells.nif.fix.SpellFixTexturePath,
+        pyffi.spells.nif.fix.SpellMergeSkeletonRoots,
+        pyffi.spells.nif.fix.SpellSendGeometriesToBindPosition,
+        pyffi.spells.nif.fix.SpellSendDetachedGeometriesToNodePosition,
+        pyffi.spells.nif.fix.SpellSendBonesToBindPosition,
+        pyffi.spells.nif.fix.SpellScale,
+        pyffi.spells.nif.fix.SpellStrip,
+        pyffi.spells.nif.optimize.SpellCleanRefLists,
+        pyffi.spells.nif.optimize.SpellMergeDuplicates,
+        pyffi.spells.nif.optimize.SpellOptimizeGeometry,
+        #pyffi.spells.nif.optimize.SpellOptimizeSplit,
+        pyffi.spells.nif.optimize.SpellOptimize]
     ALIASDICT = {
         "texdump": "dump_tex",
         "read": "check_read",

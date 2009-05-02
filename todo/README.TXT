@@ -1,1 +1,1 @@
-The NifVis module will eventually be merged with the PyFFI.spells.nif spells.
+The NifVis module will eventually be merged with the pyffi.spells.nif spells.

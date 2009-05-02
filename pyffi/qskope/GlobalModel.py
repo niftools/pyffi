@@ -42,15 +42,15 @@ from UserDict import DictMixin
 
 from PyQt4 import QtGui, QtCore
 
-from PyFFI.utils.graph import EdgeFilter
-from PyFFI.qskope.GlobalTree import GlobalTreeItemData, GlobalTreeItem
+from pyffi.utils.graph import EdgeFilter
+from pyffi.qskope.GlobalTree import GlobalTreeItemData, GlobalTreeItem
 
 # implementation references:
 # http://doc.trolltech.com/4.3/model-view-programming.html
 # http://doc.trolltech.com/4.3/model-view-model-subclassing.html
 class GlobalModel(QtCore.QAbstractItemModel):
     """General purpose model for QModelIndexed access to data loaded with
-    PyFFI."""
+    pyffi."""
     # column definitions
     NUM_COLUMNS = 3
     COL_TYPE = 0

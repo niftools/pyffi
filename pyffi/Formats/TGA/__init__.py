@@ -1,5 +1,5 @@
 """
-:mod:`PyFFI.Formats.TGA` --- Targa (.tga)
+:mod:`pyffi.Formats.TGA` --- Targa (.tga)
 =========================================
 
 Regression tests
@@ -75,13 +75,13 @@ Create a TGA file from scratch and write to file
 
 import struct, os, re
 
-import PyFFI.object_models.xml
-import PyFFI.object_models.Common
-import PyFFI.object_models.xml.Struct
-import PyFFI.object_models
-from PyFFI.utils.graph import EdgeFilter
+import pyffi.object_models.xml
+import pyffi.object_models.Common
+import pyffi.object_models.xml.Struct
+import pyffi.object_models
+from pyffi.utils.graph import EdgeFilter
 
-class TgaFormat(PyFFI.object_models.xml.FileFormat):
+class TgaFormat(pyffi.object_models.xml.FileFormat):
     """This class implements the TGA format."""
     xmlFileName = 'tga.xml'
     # where to look for tga.xml and in what order:
@@ -91,17 +91,17 @@ class TgaFormat(PyFFI.object_models.xml.FileFormat):
     RE_FILENAME = re.compile(r'^.*\.tga$', re.IGNORECASE)
 
     # basic types
-    int = PyFFI.object_models.Common.Int
-    uint = PyFFI.object_models.Common.UInt
-    byte = PyFFI.object_models.Common.Byte
-    ubyte = PyFFI.object_models.Common.UByte
-    char = PyFFI.object_models.Common.Char
-    short = PyFFI.object_models.Common.Short
-    ushort = PyFFI.object_models.Common.UShort
-    float = PyFFI.object_models.Common.Float
-    PixelData = PyFFI.object_models.Common.UndecodedData
+    int = pyffi.object_models.Common.Int
+    uint = pyffi.object_models.Common.UInt
+    byte = pyffi.object_models.Common.Byte
+    ubyte = pyffi.object_models.Common.UByte
+    char = pyffi.object_models.Common.Char
+    short = pyffi.object_models.Common.Short
+    ushort = pyffi.object_models.Common.UShort
+    float = pyffi.object_models.Common.Float
+    PixelData = pyffi.object_models.Common.UndecodedData
 
-    class Header(PyFFI.object_models.FileFormat.Data):
+    class Header(pyffi.object_models.FileFormat.Data):
         def inspect(self, stream):
             """Quick heuristic check if stream contains Targa data,
             by looking at the first 18 bytes.
@@ -143,7 +143,7 @@ class TgaFormat(PyFFI.object_models.xml.FileFormat):
             """
             # read the file
             self.inspect(stream) # quick check
-            PyFFI.object_models.xml.Struct.StructBase.read(self, stream)
+            pyffi.object_models.xml.Struct.StructBase.read(self, stream)
 
             # check if we are at the end of the file
             if stream.read(1) != '':

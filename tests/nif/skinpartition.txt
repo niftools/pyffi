@@ -5,7 +5,7 @@ Regression tests for NifFormat.SkinPartition
 getTriangles
 ------------
 
->>> from PyFFI.Formats.NIF import NifFormat
+>>> from pyffi.Formats.NIF import NifFormat
 >>> part = NifFormat.SkinPartition()
 >>> part.numVertices = 8
 >>> part.vertexMap.updateSize()
@@ -36,7 +36,7 @@ getTriangles
 >>> list(part.getMappedTriangles())
 [(2, 4, 6), (4, 5, 6), (6, 5, 3), (0, 1, 7)]
 
->>> from PyFFI.Formats.NIF import NifFormat
+>>> from pyffi.Formats.NIF import NifFormat
 >>> part = NifFormat.SkinPartition()
 >>> part.numVertices = 8
 >>> part.vertexMap.updateSize()

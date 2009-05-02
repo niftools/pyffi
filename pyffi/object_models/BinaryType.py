@@ -39,12 +39,12 @@
 
 import struct
 
-from PyFFI.object_models.AnyType import AnyType
-from PyFFI.object_models.SimpleType import SimpleType
-from PyFFI.object_models.Editable import EditableSpinBox
-from PyFFI.object_models.Editable import EditableFloatSpinBox
-from PyFFI.object_models.Editable import EditableLineEdit
-from PyFFI.object_models.Editable import EditableBoolComboBox
+from pyffi.object_models.AnyType import AnyType
+from pyffi.object_models.SimpleType import SimpleType
+from pyffi.object_models.Editable import EditableSpinBox
+from pyffi.object_models.Editable import EditableFloatSpinBox
+from pyffi.object_models.Editable import EditableLineEdit
+from pyffi.object_models.Editable import EditableBoolComboBox
 
 # Base classes
 

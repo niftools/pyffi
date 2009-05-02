@@ -12,7 +12,7 @@
 # serve to show the default value.
 
 import sys, os
-import PyFFI # for its version
+import pyffi # for its version
 
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
@@ -45,9 +45,9 @@ copyright = '2007-2009, Amorilia'
 # other places throughout the built documents.
 #
 # The short X.Y version.
-version = PyFFI.__version__
+version = pyffi.__version__
 # The full version, including alpha/beta/rc tags.
-release = PyFFI.__version__
+release = pyffi.__version__
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:

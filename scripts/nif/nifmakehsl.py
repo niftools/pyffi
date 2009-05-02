@@ -65,8 +65,8 @@ import sys
 from types import *
 from string import maketrans
 
-from PyFFI.Formats.NIF import NifFormat
-from PyFFI.object_models.xml.Basic import BasicBase
+from pyffi.Formats.NIF import NifFormat
+from pyffi.object_models.xml.Basic import BasicBase
 
 def find_templates():
     # find all types that are used as a template (excluding the ones

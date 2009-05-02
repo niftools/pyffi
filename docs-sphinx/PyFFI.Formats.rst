@@ -1,1 +1,1 @@
-.. automodule:: PyFFI.Formats
+.. automodule:: pyffi.Formats

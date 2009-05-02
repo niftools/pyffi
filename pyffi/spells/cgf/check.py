@@ -42,10 +42,10 @@
 from itertools import izip
 from tempfile import TemporaryFile
 
-from PyFFI.Formats.CGF import CgfFormat
-from PyFFI.spells.cgf import CgfSpell
+from pyffi.Formats.CGF import CgfFormat
+from pyffi.spells.cgf import CgfSpell
 # XXX do something about this...
-from PyFFI.utils.mathutils import *
+from pyffi.utils.mathutils import *
 
 class SpellReadWrite(CgfSpell):
     """Like the original read-write spell, but with additional file size

@@ -1,5 +1,5 @@
 """
-:mod:`PyFFI.Formats` --- File format interfaces
+:mod:`pyffi.Formats` --- File format interfaces
 ===============================================
 
 When experimenting with any of the supported file formats, you can specify
@@ -17,33 +17,33 @@ Supported formats
 .. toctree::
    :maxdepth: 2
    
-   PyFFI.Formats.CGF
-   PyFFI.Formats.DAE
-   PyFFI.Formats.DDS
-   PyFFI.Formats.KFM
-   PyFFI.Formats.NIF
-   PyFFI.Formats.TGA
+   pyffi.Formats.CGF
+   pyffi.Formats.DAE
+   pyffi.Formats.DDS
+   pyffi.Formats.KFM
+   pyffi.Formats.NIF
+   pyffi.Formats.TGA
 
 Adding new formats
 ------------------
 
-This section tries to explain how you can implement your own format in PyFFI.
+This section tries to explain how you can implement your own format in pyffi.
 
 Getting Started
 ^^^^^^^^^^^^^^^
 
 Note that the files which make up the following example can all be found in
-the examples/simple directory of the source distribution of PyFFI.
+the examples/simple directory of the source distribution of pyffi.
 
 Suppose you have a simple file format, which consists of an integer, followed
 by a list of integers as many as described by the first integer. We start
 by creating an XML file, call it :file:`simple.xml`, which describes this format
-in a way that PyFFI can understand:
+in a way that pyffi can understand:
 
 .. literalinclude:: ../examples/simple/simple.xml
     :language: xml
 
-What PyFFI does is convert this simple XML description into Python classes
+What pyffi does is convert this simple XML description into Python classes
 which automatically can read and write the structure you've just described.
 Say this is the contents of :file:`simple.py`:
 
@@ -52,14 +52,14 @@ Say this is the contents of :file:`simple.py`:
 
 What happens in this piece of code?
 
-  - The :class:`PyFFI.object_models.xml.FileFormat`
+  - The :class:`pyffi.object_models.xml.FileFormat`
     base class triggers the transformation of xml into Python classes;
     how these classes can be used will be explained further.
 
-  - The :attr:`~PyFFI.object_models.xml.FileFormat.xmlFileName`
+  - The :attr:`~pyffi.object_models.xml.FileFormat.xmlFileName`
     class attribute provides the name of the xml file that describes
     the structures we wish to generate. The
-    :attr:`~PyFFI.object_models.xml.FileFormat.xmlFilePath`
+    :attr:`~pyffi.object_models.xml.FileFormat.xmlFilePath`
     attribute gives a list of locations of where to look for this
     file; in our case we have simply chosen to put :file:`simple.xml`
     in the same directory as :file:`simple.py`.
@@ -69,10 +69,10 @@ What happens in this piece of code?
     addition to the attributes :attr:`numIntegers` and
     :attr:`integers` which have been created from the XML.
 
-  - Finally, the :mod:`PyFFI.object_models.Common` module implements
+  - Finally, the :mod:`pyffi.object_models.Common` module implements
     the most common basic types, such as integers, characters, and
     floats. In the above example we have taken advantage of
-    :class:`PyFFI.object_models.Common.Int`, which defines a signed
+    :class:`pyffi.object_models.Common.Int`, which defines a signed
     32-bit integer, exactly the type we need.
 
 Reading and Writing Files
@@ -93,7 +93,7 @@ Further References
 ^^^^^^^^^^^^^^^^^^
 
 With the above simple example in mind, you may wish to browse through
-the source code of :mod:`PyFFI.Formats.CGF` or
-:mod:`PyFFI.Formats.NIF` to see how PyFFI works for more complex file
+the source code of :mod:`pyffi.Formats.CGF` or
+:mod:`pyffi.Formats.NIF` to see how pyffi works for more complex file
 formats.
 """

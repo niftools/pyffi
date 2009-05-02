@@ -39,18 +39,18 @@
 
 from PyQt4 import QtGui, QtCore
 
-import PyFFI.qskope.GlobalModel
-import PyFFI.qskope.DetailModel
-import PyFFI.qskope.DetailDelegate
+import pyffi.qskope.GlobalModel
+import pyffi.qskope.DetailModel
+import pyffi.qskope.DetailDelegate
 
-import PyFFI
-from PyFFI.Formats.NIF import NifFormat
-from PyFFI.Formats.CGF import CgfFormat
-from PyFFI.Formats.KFM import KfmFormat
-from PyFFI.Formats.DDS import DdsFormat
-from PyFFI.Formats.TGA import TgaFormat
+import pyffi
+from pyffi.Formats.NIF import NifFormat
+from pyffi.Formats.CGF import CgfFormat
+from pyffi.Formats.KFM import KfmFormat
+from pyffi.Formats.DDS import DdsFormat
+from pyffi.Formats.TGA import TgaFormat
 
-from PyFFI.object_models import FileFormat
+from pyffi.object_models import FileFormat
 
 # implementation details:
 # http://doc.trolltech.com/4.3/qmainwindow.html#details
@@ -70,7 +70,7 @@ class QSkope(QtGui.QMainWindow):
 
         # set up the detail model view
         self.detailWidget = QtGui.QTreeView()
-        self.detailDelegate = PyFFI.qskope.DetailDelegate.DetailDelegate()
+        self.detailDelegate = pyffi.qskope.DetailDelegate.DetailDelegate()
         self.detailWidget.setItemDelegate(self.detailDelegate)
         self.detailWidget.setAlternatingRowColors(True)
 
@@ -263,7 +263,7 @@ class QSkope(QtGui.QMainWindow):
             self.statusBar().showMessage("Finished reading %s" % filename)
 
             # set up the models and update the views
-            self.globalModel = PyFFI.qskope.GlobalModel.GlobalModel(
+            self.globalModel = pyffi.qskope.GlobalModel.GlobalModel(
                 globalnode=self.data)
             self.globalWidget.setModel(self.globalModel)
             self.setDetailModel(
@@ -310,7 +310,7 @@ class QSkope(QtGui.QMainWindow):
         if not versioned:
             return QtCore.QSettings("PyFFI", "QSkope")
         else:
-            return QtCore.QSettings("PyFFI-%s" % PyFFI.__version__, "QSkope")
+            return QtCore.QSettings("PyFFI-%s" % pyffi.__version__, "QSkope")
 
     #
     # slots
@@ -322,11 +322,11 @@ class QSkope(QtGui.QMainWindow):
         # and set up the model
         if index.isValid():
             globalnode = index.internalPointer().data.node
-            self.detailModel = PyFFI.qskope.DetailModel.DetailModel(
+            self.detailModel = pyffi.qskope.DetailModel.DetailModel(
                 globalnode=globalnode,
                 globalmodel=self.globalModel)
         else:
-            self.detailModel = PyFFI.qskope.DetailModel.DetailModel()
+            self.detailModel = pyffi.qskope.DetailModel.DetailModel()
         # set the widget's model
         self.detailWidget.setModel(self.detailModel)
 
@@ -362,7 +362,7 @@ class QSkope(QtGui.QMainWindow):
         mbox.setWindowTitle("About QSkope")
         mbox.setText("""
 <p>QSkope is a tool bundled with PyFFI for analyzing and editing files whose
-format is supported by PyFFI. QSkope is written in Python.</p>
+format is supported by pyffi. QSkope is written in Python.</p>
 <p>The Python File Format Interface, or briefly PyFFI, is a general purpose
 library to read and write block structured file formats.</p>
 <p>For more informations visit
@@ -374,6 +374,6 @@ on <a href="http://sourceforge.net">SourceForge</a>.</p>
 <p>You are running PyFFI %s.
 The most recent version of PyFFI can always be downloaded from the
 <a href="http://sourceforge.net/project/showfiles.php?group_id=199269">
-PyFFI SourceForge Project page</a>.""" % PyFFI.__version__)
+PyFFI SourceForge Project page</a>.""" % pyffi.__version__)
         # display the window
         mbox.exec_()

@@ -1,5 +1,5 @@
 """
-:mod:`PyFFI.spells` --- High level file operations
+:mod:`pyffi.spells` --- High level file operations
 ==================================================
 
 .. note::
@@ -25,12 +25,12 @@ For format specific spells, refer to the corresponding module.
 .. toctree::
    :maxdepth: 2
    
-   PyFFI.spells.cgf
-   PyFFI.spells.dae
-   PyFFI.spells.dds
-   PyFFI.spells.kfm
-   PyFFI.spells.nif
-   PyFFI.spells.tga
+   pyffi.spells.cgf
+   pyffi.spells.dae
+   pyffi.spells.dds
+   pyffi.spells.kfm
+   pyffi.spells.nif
+   pyffi.spells.tga
 
 Some spells are applicable on every file format, and those are documented
 here.
@@ -146,8 +146,8 @@ import sys # sys.stdout
 import tempfile
 from types import ModuleType # for _MetaCompatToaster
 
-import PyFFI # for PyFFI.__version__
-import PyFFI.object_models # PyFFI.object_models.FileFormat
+import pyffi # for pyffi.__version__
+import pyffi.object_models # pyffi.object_models.FileFormat
 
 class Spell(object):
     """Spell base class. A spell takes a data file and then does something
@@ -157,7 +157,7 @@ class Spell(object):
     """
 
     data = None
-    """The :class:`~PyFFI.object_models.FileFormat.Data` instance
+    """The :class:`~pyffi.object_models.FileFormat.Data` instance
     this spell acts on."""
 
     stream = None
@@ -183,7 +183,7 @@ class Spell(object):
         """Initialize the spell data.
 
         :param data: The file :attr:`data`.
-        :type data: :class:`~PyFFI.object_models.FileFormat.Data`
+        :type data: :class:`~pyffi.object_models.FileFormat.Data`
         :param stream: The file :attr:`stream`.
         :type stream: ``file``
         :param toaster: The :attr:`toaster` this spell is called from (optional).
@@ -194,8 +194,8 @@ class Spell(object):
         self.toaster = toaster if toaster else Toaster()
 
     def _datainspect(self):
-        """This is called after :meth:`PyFFI.object_models.FileFormat.Data.inspect` has
-        been called, and before :meth:`PyFFI.object_models.FileFormat.Data.read` is
+        """This is called after :meth:`pyffi.object_models.FileFormat.Data.inspect` has
+        been called, and before :meth:`pyffi.object_models.FileFormat.Data.read` is
         called.
 
         :return: ``True`` if the file must be processed, ``False`` otherwise.
@@ -205,8 +205,8 @@ class Spell(object):
         return True
 
     def datainspect(self):
-        """This is called after :meth:`PyFFI.object_models.FileFormat.Data.inspect` has
-        been called, and before :meth:`PyFFI.object_models.FileFormat.Data.read` is
+        """This is called after :meth:`pyffi.object_models.FileFormat.Data.inspect` has
+        been called, and before :meth:`pyffi.object_models.FileFormat.Data.read` is
         called. Override this function for customization.
 
         :return: ``True`` if the file must be processed, ``False`` otherwise.
@@ -224,7 +224,7 @@ class Spell(object):
         method.
 
         :param branch: The branch to check.
-        :type branch: :class:`~PyFFI.utils.graph.GlobalNode`
+        :type branch: :class:`~pyffi.utils.graph.GlobalNode`
         :return: ``True`` if the branch must be processed, ``False`` otherwise.
         :rtype: ``bool``
         """
@@ -237,7 +237,7 @@ class Spell(object):
         returns ``True``).
 
         :param branch: The branch to check.
-        :type branch: :class:`~PyFFI.utils.graph.GlobalNode`
+        :type branch: :class:`~pyffi.utils.graph.GlobalNode`
         :return: ``True`` if the branch must be processed, ``False`` otherwise.
         :rtype: ``bool``
         """
@@ -258,7 +258,7 @@ class Spell(object):
 
         :param branch: The branch to start the recursion from, or ``None``
             to recurse the whole tree.
-        :type branch: :class:`~PyFFI.utils.graph.GlobalNode`
+        :type branch: :class:`~pyffi.utils.graph.GlobalNode`
         """
         # when called without arguments, recurse over the whole tree
         if branch is None:
@@ -314,7 +314,7 @@ class Spell(object):
         block types.
 
         :param branch: The branch to cast the spell on.
-        :type branch: :class:`~PyFFI.utils.graph.GlobalNode`
+        :type branch: :class:`~pyffi.utils.graph.GlobalNode`
         :return: ``True`` if the children must be processed, ``False`` otherwise.
         :rtype: ``bool``
         """
@@ -330,7 +330,7 @@ class Spell(object):
         must have been processed first.
 
         :param branch: The branch to cast the spell on.
-        :type branch: :class:`~PyFFI.utils.graph.GlobalNode`
+        :type branch: :class:`~pyffi.utils.graph.GlobalNode`
         """
         pass
 
@@ -396,7 +396,7 @@ class SpellGroupBase(Spell):
         :param toaster: The toaster this spell is called from.
         :type toaster: :class:`Toaster`
         :param data: The file data.
-        :type data: :class:`PyFFI.object_models.FileFormat.Data`
+        :type data: :class:`pyffi.object_models.FileFormat.Data`
         :param stream: The file stream.
         :type stream: ``file``
         """
@@ -535,12 +535,12 @@ class Toaster(object):
     They load each file and pass the data structure to any number of spells.
     """
 
-    FILEFORMAT = PyFFI.object_models.FileFormat
+    FILEFORMAT = pyffi.object_models.FileFormat
     """The file format class (a subclass of
-    :class:`~PyFFI.object_models.FileFormat`)."""
+    :class:`~pyffi.object_models.FileFormat`)."""
 
     SPELLS = []
-    """List of all available :class:`~PyFFI.spells.Spell` classes."""
+    """List of all available :class:`~pyffi.spells.Spell` classes."""
 
     EXAMPLES = ""
     """Some examples which describe typical use of the toaster."""
@@ -615,7 +615,7 @@ class Toaster(object):
         """Helper function which checks whether a given branch type should
         have spells cast on it or not, based in exclude and include options.
 
-        >>> from PyFFI.Formats.NIF import NifFormat
+        >>> from pyffi.Formats.NIF import NifFormat
         >>> class MyToaster(Toaster):
         ...     FILEFORMAT = NifFormat
         >>> toaster = MyToaster() # no include or exclude: all admissible
@@ -696,7 +696,7 @@ on <file>, or recursively on <folder>."""
 
         parser = optparse.OptionParser(
             usage,
-            version="%%prog (PyFFI %s)" % PyFFI.__version__,
+            version="%%prog (PyFFI %s)" % pyffi.__version__,
             description=description)
         parser.add_option("--help-spell", dest="helpspell",
                           action="store_true",

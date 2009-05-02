@@ -2,7 +2,7 @@
 
 import sys # python version
 
-import PyFFI # version
+import pyffi # version
 
 def getfiledict(stream):
     """Get dictionary mapping each directory to a list of files."""
@@ -67,7 +67,7 @@ try:
 !define VERSION "%s"
 !define PYTHONVERSION "%i.%i"
 
-""" % (PyFFI.__version__, sys.version_info[0], sys.version_info[1]))
+""" % (pyffi.__version__, sys.version_info[0], sys.version_info[1]))
     filedict = getfiledict(manifest)
     writeinstallnsh(filedict, nsh)
     writeuninstallnsh(filedict, nsh)

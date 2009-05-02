@@ -44,7 +44,7 @@
 from functools import partial
 from itertools import izip
 
-from PyFFI.utils.graph import DetailNode, GlobalNode, EdgeFilter
+from pyffi.utils.graph import DetailNode, GlobalNode, EdgeFilter
 
 class _MetaStructBase(type):
     """This metaclass checks for the presence of _attrs and _isTemplate
@@ -148,11 +148,11 @@ class StructBase(GlobalNode):
     property which invokes the getAttribute and setAttribute
     functions, as demonstrated below.
 
-    See the PyFFI.XmlHandler class for a more advanced example.
+    See the pyffi.XmlHandler class for a more advanced example.
 
-    >>> from PyFFI.object_models.xml.Basic import BasicBase
-    >>> from PyFFI.object_models.xml.Expression import Expression
-    >>> from PyFFI.object_models.xml import StructAttribute as Attr
+    >>> from pyffi.object_models.xml.Basic import BasicBase
+    >>> from pyffi.object_models.xml.Expression import Expression
+    >>> from pyffi.object_models.xml import StructAttribute as Attr
     >>> class SimpleFormat(object):
     ...     class UInt(BasicBase):
     ...         _isTemplate = False
@@ -185,12 +185,12 @@ class StructBase(GlobalNode):
     >>> y.d.a = 4
     >>> y.d.b = 5
     >>> print(y) # doctest:+ELLIPSIS
-    <class 'PyFFI.object_models.xml.Struct.Y'> instance at 0x...
+    <class 'pyffi.object_models.xml.Struct.Y'> instance at 0x...
     * a : 1
     * b : 2
     * c : 3
     * d :
-        <class 'PyFFI.object_models.xml.Struct.X'> instance at 0x...
+        <class 'pyffi.object_models.xml.Struct.X'> instance at 0x...
         * a : 4
         * b : 5
     <BLANKLINE>
@@ -605,5 +605,5 @@ class StructBase(GlobalNode):
         for branch in self.getRefs():
             yield branch
 
-from PyFFI.object_models.xml.Basic import BasicBase
-from PyFFI.object_models.xml.Array import Array
+from pyffi.object_models.xml.Basic import BasicBase
+from pyffi.object_models.xml.Array import Array

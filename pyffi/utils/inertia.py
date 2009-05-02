@@ -39,7 +39,7 @@ shapes."""
 # ***** END LICENSE BLOCK *****
 
 import math
-from PyFFI.utils.mathutils import *
+from pyffi.utils.mathutils import *
 
 # see http://en.wikipedia.org/wiki/List_of_moment_of_inertia_tensors
 
@@ -124,7 +124,7 @@ def getMassInertiaCapsule(length, radius, density = 1, solid = True):
 def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, solid = True):
     """Return mass, center of gravity, and inertia matrix for a polyhedron.
 
-    >>> from PyFFI.utils.quickhull import qhull3d
+    >>> from pyffi.utils.quickhull import qhull3d
     >>> box = [(0,0,0),(1,0,0),(0,2,0),(0,0,3),(1,2,0),(0,2,3),(1,0,3),(1,2,3)]
     >>> vertices, triangles = qhull3d(box)
     >>> mass, center, inertia = getMassCenterInertiaPolyhedron(

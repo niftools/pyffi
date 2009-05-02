@@ -40,14 +40,14 @@ StructBase, Array, and BasicBase instances."""
 
 from PyQt4 import QtCore
 
-from PyFFI.utils.graph import EdgeFilter, GlobalNode
-from PyFFI.qskope.DetailTree import DetailTreeItem, DetailTreeItemData
+from pyffi.utils.graph import EdgeFilter, GlobalNode
+from pyffi.qskope.DetailTree import DetailTreeItem, DetailTreeItemData
 
 # implementation references:
 # http://doc.trolltech.com/4.3/model-view-programming.html
 # http://doc.trolltech.com/4.3/model-view-model-subclassing.html
 class DetailModel(QtCore.QAbstractItemModel):
-    """General purpose model for QModelIndexed access to PyFFI data structures
+    """General purpose model for QModelIndexed access to pyffi data structures
     such as StructBase, Array, and BasicBase instances."""
     # column definitions
     NUM_COLUMNS = 3

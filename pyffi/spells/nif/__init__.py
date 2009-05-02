@@ -1,11 +1,11 @@
 """
-:mod:`PyFFI.spells.nif` ---  NetImmerse/Gamebryo File/Keyframe (.nif/.kf/.kfa) spells
+:mod:`pyffi.spells.nif` ---  NetImmerse/Gamebryo File/Keyframe (.nif/.kf/.kfa) spells
 =====================================================================================
 
-.. automodule:: PyFFI.spells.check
-.. automodule:: PyFFI.spells.dump
-.. automodule:: PyFFI.spells.fix
-.. automodule:: PyFFI.spells.optimize
+.. automodule:: pyffi.spells.check
+.. automodule:: pyffi.spells.dump
+.. automodule:: pyffi.spells.fix
+.. automodule:: pyffi.spells.optimize
 """
 
 # --------------------------------------------------------------------------
@@ -47,15 +47,15 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-import PyFFI.spells
-from PyFFI.Formats.NIF import NifFormat
+import pyffi.spells
+from pyffi.Formats.NIF import NifFormat
 
-class NifSpell(PyFFI.spells.Spell):
+class NifSpell(pyffi.spells.Spell):
     """Base class for spells for nif files."""
 
     def _datainspect(self):
         # call base method
-        if not PyFFI.spells.Spell._datainspect(self):
+        if not pyffi.spells.Spell._datainspect(self):
             return False
 
         # shortcut for common case (speeds up the check in most cases)
@@ -135,5 +135,5 @@ class SpellVisitSkeletonRoots(NifSpell):
         """Do something with a skeleton root. Return value is ignored."""
         raise NotImplementedError
 
-class NifToaster(PyFFI.spells.Toaster):
+class NifToaster(pyffi.spells.Toaster):
     FILEFORMAT = NifFormat
