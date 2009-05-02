@@ -680,7 +680,7 @@ but got instance of %s""" % (self._template, block.__class__))
         return readresult[1]
 
     class Data(pyffi.object_models.FileFormat.Data):
-        """A class to contain the actual nif data.
+        """A class to contain the actual cgf data.
 
         Note that L{versions} and L{chunk_table} are not automatically kept
         in sync with the L{chunks}, but they are
@@ -688,7 +688,7 @@ but got instance of %s""" % (self._template, block.__class__))
 
         :ivar game: The cgf game.
         :type game: ``int``
-        :ivar header: The nif header.
+        :ivar header: The cgf header.
         :type header: L{CgfFormat.Header}
         :ivar chunks: List of chunks (the actual data).
         :type chunks: ``list`` of L{CgfFormat.Chunk}
@@ -1015,7 +1015,7 @@ chunk size mismatch when reading %s at 0x%08X
                     'not all links have been popped from the stack (bug?)')
 
         def write(self, stream):
-            """Write a nif file. The L{header} and L{chunk_table} are
+            """Write a cgf file. The L{header} and L{chunk_table} are
             recalculated from L{chunks}. Returns number of padding bytes
             written (this is for debugging purposes only).
 
@@ -1269,7 +1269,7 @@ chunk size mismatch when reading %s at 0x%08X
 
         def isScaleRotation(self):
             """Returns true if the matrix decomposes nicely into scale * rotation."""
-            # NOTE: 0.01 instead of CgfFormat.EPSILON to work around bad nif files
+            # NOTE: 0.01 instead of CgfFormat.EPSILON to work around bad files
 
             # calculate self * self^T
             # this should correspond to
@@ -1290,7 +1290,7 @@ chunk size mismatch when reading %s at 0x%08X
         def isRotation(self):
             """Returns ``True`` if the matrix is a rotation matrix
             (a member of SO(3))."""
-            # NOTE: 0.01 instead of CgfFormat.EPSILON to work around bad nif files
+            # NOTE: 0.01 instead of CgfFormat.EPSILON to work around bad files
 
             if not self.isScaleRotation():
                 return False
