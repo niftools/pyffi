@@ -2066,9 +2066,6 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             self.dimensions.z *= scale
             self.minimumSize  *= scale
 
-            # apply scale on all blocks down the hierarchy
-            NifFormat.NiObject.applyScale(self, scale)
-
         def getMassCenterInertia(self, density = 1, solid = True):
             """Return mass, center, and inertia tensor."""
             # the dimensions describe half the size of the box in each dimension
@@ -2091,9 +2088,6 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             self.secondPoint.x *= scale
             self.secondPoint.y *= scale
             self.secondPoint.z *= scale
-
-            # apply scale on all blocks down the hierarchy
-            NifFormat.NiObject.applyScale(self, scale)
 
         def getMassCenterInertia(self, density = 1, solid = True):
             """Return mass, center, and inertia tensor."""
@@ -2182,9 +2176,6 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             self.limitedHinge.pivotB.y *= scale
             self.limitedHinge.pivotB.z *= scale
 
-            # apply scale on all blocks down the hierarchy
-            NifFormat.NiObject.applyScale(self, scale)
-
         def updateAB(self, parent):
             """Update the B data from the A data. The parent argument is simply a
             common parent to the entities."""
@@ -2254,9 +2245,6 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             self.limitedHinge.pivotB.x *= scale
             self.limitedHinge.pivotB.y *= scale
             self.limitedHinge.pivotB.z *= scale
-
-            # apply scale on all blocks down the hierarchy
-            NifFormat.NiObject.applyScale(self, scale)
 
         def updateAB(self, parent):
             """Update the B data from the A data."""
@@ -2777,9 +2765,6 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             self.ragdoll.pivotB.y *= scale
             self.ragdoll.pivotB.z *= scale
 
-            # apply scale on all blocks down the hierarchy
-            NifFormat.NiObject.applyScale(self, scale)
-
         def updateAB(self, parent):
             """Update the B data from the A data."""
             self.ragdoll.updateAB(self.getTransformAB(parent))
@@ -2810,9 +2795,6 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             self.inertia.m32 *= (scale ** 2)
             self.inertia.m33 *= (scale ** 2)
             self.inertia.m34 *= (scale ** 2)
-
-            # apply scale on all blocks down the hierarchy
-            NifFormat.NiObject.applyScale(self, scale)
 
         def updateMassCenterInertia(self, density = 1, solid = True, mass = None):
             """Look at all the objects under this rigid body and update the mass,
@@ -2861,9 +2843,6 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             # apply scale on dimensions
             self.radius *= scale
 
-            # apply scale on all blocks down the hierarchy
-            NifFormat.NiObject.applyScale(self, scale)
-
         def getMassCenterInertia(self, density = 1, solid = True):
             """Return mass, center, and inertia tensor."""
             # the dimensions describe half the size of the box in each dimension
@@ -2879,9 +2858,6 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             self.transform.m14 *= scale
             self.transform.m24 *= scale
             self.transform.m34 *= scale
-
-            # apply scale on all blocks down the hierarchy
-            NifFormat.NiObject.applyScale(self, scale)
 
         def getMassCenterInertia(self, density = 1, solid = True):
             """Return mass, center, and inertia tensor."""
@@ -2908,9 +2884,6 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             self.dimensions.x *= scale
             self.dimensions.y *= scale
             self.dimensions.z *= scale
-
-            # apply scale on all blocks down the hierarchy
-            NifFormat.NiObject.applyScale(self, scale)
 
     class ControllerLink:
         """
@@ -3715,9 +3688,6 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             self.boundingBox.radius.x *= scale
             self.boundingBox.radius.y *= scale
             self.boundingBox.radius.z *= scale
-
-            # apply scale on all blocks down the hierarchy
-            NifFormat.NiObject.applyScale(self, scale)
 
     class NiBSplineCompTransformInterpolator:
         def getTranslations(self):
@@ -5275,11 +5245,11 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             return []
 
         def applyScale(self, scale):
-            """Propagate scale down the hierarchy.
-            Override this method if it contains geometry data that can be scaled.
-            If overridden, call this base method to propagate scale down the hierarchy."""
-            for child in self.getRefs():
-                child.applyScale(scale)
+            """Scale data in this block. This implementation does nothing.
+            Override this method if it contains geometry data that can be
+            scaled.
+            """
+            pass
 
         def tree(self, block_type = None, follow_all = True, unique = False):
             """A generator for parsing all blocks in the tree (starting from and
@@ -5478,7 +5448,20 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             10.0
             >>> skindata.boneList[0].translation.x
             -10.0
-            >>> skelroot.applyScale(0.1)
+            >>> import pyffi.spells.nif.fix
+            >>> import pyffi.spells.nif
+            >>> data = NifFormat.Data()
+            >>> data.roots = [skelroot]
+            >>> toaster = pyffi.spells.nif.NifToaster()
+            >>> toaster.scale = 0.1
+            >>> pyffi.spells.nif.fix.SpellScale(data=data, toaster=toaster).recurse()
+            pyffi.toaster:INFO:--- fix_scale ---
+            pyffi.toaster:INFO:  scaling by factor 0.100000
+            pyffi.toaster:INFO:  ~~~ NiNode [Scene Root] ~~~
+            pyffi.toaster:INFO:    ~~~ NiNode [bone1] ~~~
+            pyffi.toaster:INFO:    ~~~ NiTriShape [] ~~~
+            pyffi.toaster:INFO:      ~~~ NiSkinInstance [] ~~~
+            pyffi.toaster:INFO:        ~~~ NiSkinData [] ~~~
             >>> bone1.translation.x
             1.0
             >>> skindata.boneList[0].translation.x
@@ -5505,9 +5488,6 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             self.translation.x *= scale
             self.translation.y *= scale
             self.translation.z *= scale
-
-            # apply scale on all blocks down the hierarchy
-            NifFormat.NiObject.applyScale(self, scale)
 
     class NiTriBasedGeomData:
         def isInterchangeable(self, other):

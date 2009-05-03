@@ -1108,8 +1108,33 @@ The fix_scale spell
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
 pyffi.toaster:INFO:=== tests/nif/test_opt_dupverts.nif ===
 pyffi.toaster:INFO:  --- fix_scale ---
+pyffi.toaster:INFO:    scaling by factor 10.000000
 pyffi.toaster:INFO:    ~~~ NiNode [Lowerclass Dunmer Cup Type-1] ~~~
-pyffi.toaster:INFO:      scaling by factor 10.000000
+pyffi.toaster:INFO:      ~~~ BSXFlags [BSX] ~~~
+pyffi.toaster:INFO:      ~~~ NiStringExtraData [UPB] ~~~
+pyffi.toaster:INFO:      ~~~ bhkCollisionObject [] ~~~
+pyffi.toaster:INFO:        ~~~ bhkRigidBody [] ~~~
+pyffi.toaster:INFO:          ~~~ bhkListShape [] ~~~
+pyffi.toaster:INFO:            ~~~ bhkTransformShape [] ~~~
+pyffi.toaster:INFO:              ~~~ bhkBoxShape [] ~~~
+pyffi.toaster:INFO:            ~~~ bhkTransformShape [] ~~~
+pyffi.toaster:INFO:              ~~~ bhkBoxShape [] ~~~
+pyffi.toaster:INFO:            ~~~ bhkTransformShape [] ~~~
+pyffi.toaster:INFO:              ~~~ bhkBoxShape [] ~~~
+pyffi.toaster:INFO:            ~~~ bhkTransformShape [] ~~~
+pyffi.toaster:INFO:              ~~~ bhkBoxShape [] ~~~
+pyffi.toaster:INFO:            ~~~ bhkTransformShape [] ~~~
+pyffi.toaster:INFO:              ~~~ bhkBoxShape [] ~~~
+pyffi.toaster:INFO:            ~~~ bhkTransformShape [] ~~~
+pyffi.toaster:INFO:              ~~~ bhkBoxShape [] ~~~
+pyffi.toaster:INFO:            ~~~ bhkTransformShape [] ~~~
+pyffi.toaster:INFO:              ~~~ bhkBoxShape [] ~~~
+pyffi.toaster:INFO:      ~~~ NiTriStrips [Lowerclass Dunmer Cup Type-1] ~~~
+pyffi.toaster:INFO:        ~~~ NiBinaryExtraData [Tangent space (binormal & tangent vectors)] ~~~
+pyffi.toaster:INFO:        ~~~ NiMaterialProperty [WoodInteriorPlain] ~~~
+pyffi.toaster:INFO:        ~~~ NiTexturingProperty [] ~~~
+pyffi.toaster:INFO:          ~~~ NiSourceTexture [] ~~~
+pyffi.toaster:INFO:        ~~~ NiTriStripsData [] ~~~
 pyffi.toaster:INFO:  writing to temporary file
 pyffi.toaster:INFO:Finished.
 

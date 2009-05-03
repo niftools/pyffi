@@ -412,11 +412,19 @@ class SpellScale(NifSpell):
             toaster.scale = float(toaster.options["arg"])
             return True
 
-    def branchentry(self, branch):
+    def dataentry(self):
+        # initialize list of blocks that have been scaled
         self.toaster.msg("scaling by factor %f" % self.toaster.scale)
-        branch.applyScale(self.toaster.scale)
-        # never recurse: applyScale works on the full tree
-        return False
+        self.scaled_branches = []
+        return True
+
+    def branchentry(self, branch):
+        # only scale if not scaled already
+        if branch not in self.scaled_branches:
+            branch.applyScale(self.toaster.scale)
+            self.scaled_branches.append(branch)
+        # continue recursion
+        return True
 
 class SpellFixCenterRadius(pyffi.spells.nif.check.SpellCheckCenterRadius):
     """Recalculate geometry centers and radii."""
