@@ -418,11 +418,13 @@ class SpellScale(NifSpell):
         self.scaled_branches = []
         return True
 
+    def branchinspect(self, branch):
+        # only do every branch once
+        return (branch not in self.scaled_branches)
+
     def branchentry(self, branch):
-        # only scale if not scaled already
-        if branch not in self.scaled_branches:
-            branch.applyScale(self.toaster.scale)
-            self.scaled_branches.append(branch)
+        branch.applyScale(self.toaster.scale)
+        self.scaled_branches.append(branch)
         # continue recursion
         return True
 
