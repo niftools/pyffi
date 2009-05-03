@@ -33,6 +33,10 @@ Release 2.0.0 (in development)
   - Removed deprecated scripts (niftexdump, nifdump, ffvt3rskinpartition,
     nifoptimize).
 
+  - Fixed scaling bug on nifs whose tree has duplicate nodes. Scaling now no
+    longer works recursively, unless you use the scaling spell which handles
+    the duplication correctly.
+
 * Updated module names to follow pep8 naming conventions: all modules have
   lower case names.
 
