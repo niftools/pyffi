@@ -1,5 +1,5 @@
-Release 2.0.0 (in development)
-==============================
+Release 2.0.0 (May 4, 2009)
+===========================
 
 * Windows installer now detects Maya 2008 and Maya 2009, and their 64 bit
   variants, and can install itself into every Maya version that is found.
