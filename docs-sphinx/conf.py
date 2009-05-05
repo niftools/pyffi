@@ -163,18 +163,4 @@ latex_documents = [
 # If false, no module index is generated.
 #latex_use_modindex = True
 
-# customization
-
-def epydoctorest(app, what, name, obj, options, lines):
-    """Convert epydoc string into rest string."""
-    result = []
-    for line in lines:
-        line = line.replace("L{", "`")
-        line = line.replace("}", "`")
-        result.append(line)
-    return result
-
-#def setup(app):
-#    app.connect('autodoc-process-docstring', epydoctorest)
-
 
