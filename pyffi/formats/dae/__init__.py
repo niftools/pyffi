@@ -1,11 +1,18 @@
 """
-.. :mod:`pyffi.formats.dae` --- COLLADA (.dae)
-   ===========================================
+:mod:`pyffi.formats.dae` --- COLLADA (.dae)
+===========================================
 
 .. warning::
    
    This module is not yet fully implemented, and is certainly not
    yet useful in its current state.
+
+Implementation
+--------------
+
+.. autoclass:: DaeFormat
+   :show-inheritance:
+   :members:
 
 Regression tests
 ----------------

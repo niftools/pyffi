@@ -1,6 +1,13 @@
 """
-.. :mod:`pyffi.formats.dds` --- DirectDraw Surface (.dds)
-   ======================================================
+:mod:`pyffi.formats.dds` --- DirectDraw Surface (.dds)
+======================================================
+
+Implementation
+--------------
+
+.. autoclass:: DdsFormat
+   :show-inheritance:
+   :members:
 
 Regression tests
 ----------------

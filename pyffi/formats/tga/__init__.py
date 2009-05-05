@@ -2,6 +2,13 @@
 :mod:`pyffi.formats.tga` --- Targa (.tga)
 =========================================
 
+Implementation
+--------------
+
+.. autoclass:: TgaFormat
+   :show-inheritance:
+   :members:
+
 Regression tests
 ----------------
 

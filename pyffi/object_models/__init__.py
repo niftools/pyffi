@@ -1,28 +1,40 @@
 """
-.. note::
+:mod:`pyffi.object_models` --- File format description engines
+==============================================================
 
-   The documentation of this module is not yet entirely complete.
+.. warning::
+
+   The documentation of this module is very incomplete.
 
 This module bundles all file format object models. An object model
 is a group of classes whose instances can hold the information
 contained in a file whose format is described in a particular way
 (xml, xsd, and possibly others).
 
-There is a strong distinction between types that contain very specific
-simple data (SimpleType) and more complex types that contain groups of
-simple data (ComplexType, with its descendants StructType for named
-lists of objects of different type and ArrayType for indexed lists of
-objects of the same type).
+..
+  There is a strong distinction between types that contain very specific
+  simple data (SimpleType) and more complex types that contain groups of
+  simple data (ComplexType, with its descendants StructType for named
+  lists of objects of different type and ArrayType for indexed lists of
+  objects of the same type).
+  
+  The complex types are generic in that they can be instantiated using
+  metadata (i.e. data describing the structure of the actual file data)
+  from xml, xsd, or any other file format description.
+  
+  For the simple types there are specific classes implementing access to
+  these data types. Typical implementations are present for integers,
+  floats, strings, and so on. Some simple types may also be derived from
+  already implemented simple types, if the metadata description allows
+  this.
 
-The complex types are generic in that they can be instantiated using
-metadata (i.e. data describing the structure of the actual file data)
-from xml, xsd, or any other file format description.
+.. autoclass:: MetaFileFormat
+   :show-inheritance:
+   :members:
 
-For the simple types there are specific classes implementing access to
-these data types. Typical implementations are present for integers,
-floats, strings, and so on. Some simple types may also be derived from
-already implemented simple types, if the metadata description allows
-this.
+.. autoclass:: FileFormat
+   :show-inheritance:
+   :members:
 """
 
 # ***** BEGIN LICENSE BLOCK *****
@@ -68,7 +80,7 @@ import pyffi.utils
 import pyffi.utils.graph
 
 class MetaFileFormat(type):
-    """The MetaFileFormat metaclass is an abstract base class for transforming
+    """This metaclass is an abstract base class for transforming
     a file format description into classes which can be directly used to
     manipulate files in this format.
 
@@ -79,8 +91,13 @@ class MetaFileFormat(type):
 
     @staticmethod
     def openfile(filename, filepaths=None):
-        """Find *filename* in given *filepaths*, and open it. Raises IOError if
-        file cannot be opened.
+        """Find *filename* in given *filepaths*, and open it. Raises
+        ``IOError`` if file cannot be opened.
+
+        :param filename: The file to open.
+        :type filename: ``str``
+        :param filepaths: List of paths where to look for the file.
+        :type filepaths: ``list`` of ``str``\ s
         """
         if not filepaths:
             return open(filename)
@@ -101,19 +118,15 @@ class MetaFileFormat(type):
 class FileFormat(object):
     """This class is the base class for all file formats. It implements
     a number of useful functions such as walking over directory trees
-    (L{walkData}) and a default attribute naming function (L{nameAttribute}).
+    (:meth:`walkData`) and a default attribute naming function
+    (:meth:`nameAttribute`).
     It also implements the base class for representing file data
-    (L{FileFormat.Data}).
-
-    @cvar RE_FILENAME: Regular expression for matching filenames of this file
-        type.
-    :type RE_FILENAME: C{SRE_Pattern} (that is, the result of a C{re.compile}
-        call)
+    (:class:`FileFormat.Data`).
     """
 
     RE_FILENAME = None
-    """Override this with a regular expression for the file extension of
-    the format you are implementing.
+    """Override this with a regular expression (the result of a ``re.compile``
+    call) for the file extension of the format you are implementing.
     """
 
     # override this with the data instance for this format
@@ -142,7 +155,7 @@ class FileFormat(object):
             Override this method.
 
             :param stream: The file to read from.
-            :type stream: file
+            :type stream: ``file``
             """
             raise NotImplementedError
 
@@ -151,7 +164,7 @@ class FileFormat(object):
             Override this method.
 
             :param stream: The file to write to.
-            :type stream: file
+            :type stream: ``file``
             """
             raise NotImplementedError
 
@@ -164,7 +177,7 @@ class FileFormat(object):
         Override for versioned formats.
 
         :param version_str: The version string.
-        :type version_str: str
+        :type version_str: ``str``
         :return: A version integer.
         """
         return 0
@@ -175,7 +188,7 @@ class FileFormat(object):
         into a name usable by python.
 
         :param name: The attribute name.
-        :type name: str
+        :type name: ``str``
         :return: Reformatted attribute name, useable by python.
 
         >>> FileFormat.nameAttribute('tHis is A Silly naME')
@@ -195,12 +208,12 @@ class FileFormat(object):
     def walkData(cls, top, topdown=True, mode='rb'):
         """A generator which yields the data of all files in
         directory top whose filename matches the regular expression
-        L{RE_FILENAME}. The argument top can also be a file instead of a
+        :attr:`RE_FILENAME`. The argument top can also be a file instead of a
         directory. Errors coming from os.walk are ignored.
 
         Note that the caller is not responsible for closing the stream.
 
-        This function is for instance used by L{pyffi.spells} to implement
+        This function is for instance used by :mod:`pyffi.spells` to implement
         modifying a file after reading and parsing.
 
         :param top: The top folder.

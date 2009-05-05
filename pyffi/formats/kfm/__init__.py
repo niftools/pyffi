@@ -2,6 +2,13 @@
 :mod:`pyffi.formats.kfm` --- NetImmerse/Gamebryo Keyframe Motion (.kfm)
 =======================================================================
 
+Implementation
+--------------
+
+.. autoclass:: KfmFormat
+   :show-inheritance:
+   :members:
+
 Regression tests
 ----------------
 

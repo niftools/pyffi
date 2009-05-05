@@ -26,7 +26,7 @@ import pyffi # for its version
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.todo', 'sphinx.ext.autosummary']
 todo_include_todos = True
-autosummary_generate = ["api.rst"]
+autosummary_generate = []
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

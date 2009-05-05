@@ -2,6 +2,13 @@
 :mod:`pyffi.formats.nif` --- NetImmerse/Gamebryo (.nif and .kf)
 ===============================================================
 
+Implementation
+--------------
+
+.. autoclass:: NifFormat
+   :show-inheritance:
+   :members:
+
 Regression tests
 ----------------
 
@@ -1970,9 +1977,6 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
 
     class Vector4:
         """
-        Regression tests
-        ----------------
-
         >>> from pyffi.formats.nif import NifFormat
         >>> vec = NifFormat.Vector4()
         >>> vec.x = 1.0
@@ -2887,9 +2891,6 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
 
     class ControllerLink:
         """
-        Regression test
-        ---------------
-
         >>> from pyffi.formats.nif import NifFormat
         >>> link = NifFormat.ControllerLink()
         >>> link.nodeNameOffset
@@ -3558,9 +3559,6 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
 
     class NiAVObject:
         """
-        Properties
-        ==========
-
         >>> from pyffi.formats.nif import NifFormat
         >>> node = NifFormat.NiNode()
         >>> prop1 = NifFormat.NiProperty()
@@ -4394,12 +4392,6 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
 
     class NiNode:
         """
-        Doctests
-        ========
-
-        Old test code
-        -------------
-
         >>> from pyffi.formats.nif import NifFormat
         >>> x = NifFormat.NiNode()
         >>> y = NifFormat.NiNode()
@@ -4429,9 +4421,6 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
         >>> e in x.effects
         True
 
-        Children
-        --------
-
         >>> from pyffi.formats.nif import NifFormat
         >>> node = NifFormat.NiNode()
         >>> child1 = NifFormat.NiNode()
@@ -4460,9 +4449,6 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
         >>> node.addChild(child2)
         >>> [child.name for child in node.children]
         ['hello', 'world']
-
-        Effects
-        -------
 
         >>> from pyffi.formats.nif import NifFormat
         >>> node = NifFormat.NiNode()

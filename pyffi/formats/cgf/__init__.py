@@ -2,6 +2,13 @@
 :mod:`pyffi.formats.cgf` --- Crytek (.cgf and .cga)
 ===================================================
 
+Implementation
+--------------
+
+.. autoclass:: CgfFormat
+   :show-inheritance:
+   :members:
+
 Regression tests
 ----------------
 
