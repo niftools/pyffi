@@ -232,7 +232,6 @@ class FileFormat(object):
                 # return data for the stream
                 # the caller can call data.read(stream),
                 # or data.inspect(stream), etc.
-                data = cls.Data()
-                yield stream, data
+                yield stream, cls.Data()
             finally:
                 stream.close()

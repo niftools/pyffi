@@ -977,7 +977,7 @@ may destroy them. Make a backup of your files before running this script.
                 # force free memory (helps when parsing many very large files)
                 del stream, data, spell
                 gc.collect()
-                pass
+                pass # to set a breakpoint
 
             except StandardError:
                 self.logger.error("TEST FAILED ON %s" % stream.name)
