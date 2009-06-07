@@ -39,7 +39,9 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-# note: imports are defined at the end to avoid problems with circularity
+# note: some imports are defined at the end to avoid problems with circularity
+
+import weakref
 
 from pyffi.utils.graph import DetailNode, EdgeFilter
 
@@ -48,7 +50,7 @@ class _ListWrap(list, DetailNode):
     getting and setting items of the basic type."""
 
     def __init__(self, element_type, parent = None):
-        self._parent = parent
+        self._parent = weakref.ref(parent) if parent else None
         self._elementType = element_type
         if issubclass(element_type, BasicBase):
             self._getItemHook = self.getBasicItem
@@ -145,7 +147,7 @@ class Array(_ListWrap):
             _ListWrap.__init__(self,
                                element_type = _ListWrap, parent = parent)
         self._elementType = element_type
-        self._parent = parent
+        self._parent = weakref.ref(parent) if parent else None
         self._elementTypeTemplate = element_type_template
         self._elementTypeArgument = element_type_argument
         self._count1 = count1
@@ -172,14 +174,20 @@ class Array(_ListWrap):
     def _len1(self):
         """The length the array should have, obtained by evaluating
         the count1 expression."""
-        return self._count1.eval(self._parent)
+        if self._parent is None:
+            return self._count1.eval()
+        else:
+            return self._count1.eval(self._parent())
 
     def _len2(self, index1):
         """The length the array should have, obtained by evaluating
         the count2 expression."""
         if self._count2 == None:
             raise ValueError('single array treated as double array (bug?)')
-        expr = self._count2.eval(self._parent)
+        if self._parent is None:
+            expr = self._count2.eval()
+        else:
+            expr = self._count2.eval(self._parent())
         if isinstance(expr, (int, long)):
             return expr
         else:

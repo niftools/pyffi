@@ -95,7 +95,8 @@ class Bits(DetailNode, EditableSpinBox):
     """Basic implementation of a n-bit unsigned integer type (without read
     and write)."""
     def __init__(self, numbits = 1, default = 0, parent = None):
-        self._parent = parent
+        # parent disabled for performance
+        #self._parent = weakref.ref(parent) if parent else None
         self._value = default
         self._numbits = numbits
 
@@ -201,8 +202,8 @@ class BitStructBase(DetailNode):
         names = []
         # initialize argument
         self.arg = argument
-        # save parent
-        self._parent = parent
+        # save parent (note: disabled for performance)
+        #self._parent = weakref.ref(parent) if parent else None
         # initialize item list
         # this list is used for instance by qskope to display the structure
         # in a tree view

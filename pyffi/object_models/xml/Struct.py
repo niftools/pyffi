@@ -224,8 +224,8 @@ class StructBase(GlobalNode):
         names = []
         # initialize argument
         self.arg = argument
-        # save parent
-        self._parent = parent
+        # save parent (note: disabled for performance)
+        #self._parent = weakref.ref(parent) if parent else None
         # initialize item list
         # this list is used for instance by qskope to display the structure
         # in a tree view

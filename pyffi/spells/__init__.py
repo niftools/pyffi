@@ -975,8 +975,9 @@ may destroy them. Make a backup of your files before running this script.
                             self.writetemp(stream, data)
 
                 # force free memory (helps when parsing many very large files)
-                del spell
+                del stream, data, spell
                 gc.collect()
+                pass
 
             except StandardError:
                 self.logger.error("TEST FAILED ON %s" % stream.name)

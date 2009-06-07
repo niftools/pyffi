@@ -89,7 +89,9 @@ class BasicBase(DetailNode):
             (see the Struct class).
         :param parent: The parent of this instance, that is, the instance this
             instance is an attribute of."""
-        self._parent = parent
+        # parent disabled for performance
+        #self._parent = weakref.ref(parent) if parent else None
+        pass
 
     # string representation
     def __str__(self):
