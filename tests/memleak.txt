@@ -1,0 +1,10 @@
+$ python -m pdb /usr/bin/niftoaster.py optimize --dry-run /path/to/nifs
+b /usr/lib/python2.5/site-packages/pyffi/spells/__init__.py:980
+cont
+import objgraph
+objgraph.show_most_common_types(limit=20)
+obj = objgraph.by_type('Float')[0]
+objgraph.show_backrefs([obj], max_depth=12)
+obj = objgraph.by_type('NiTriShapeData')[0]
+objgraph.show_backrefs([obj], max_depth=10)
+
