@@ -52,23 +52,25 @@ class _ListWrap(list, DetailNode):
     def __init__(self, element_type, parent = None):
         self._parent = weakref.ref(parent) if parent else None
         self._elementType = element_type
+        # we link to the unbound methods (that is, self.__class__.xxx
+        # instead of self.xxx) to avoid circular references!!
         if issubclass(element_type, BasicBase):
-            self._getItemHook = self.getBasicItem
-            self._setItemHook = self.setBasicItem
-            self._iterItemHook = self.iterBasicItem
+            self._getItemHook = self.__class__.getBasicItem
+            self._setItemHook = self.__class__.setBasicItem
+            self._iterItemHook = self.__class__.iterBasicItem
         else:
-            self._getItemHook = self.getItem
-            self._setItemHook = self._notImplementedHook
-            self._iterItemHook = self.iterItem
+            self._getItemHook = self.__class__.getItem
+            self._setItemHook = self.__class__._notImplementedHook
+            self._iterItemHook = self.__class__.iterItem
 
     def __getitem__(self, index):
-        return self._getItemHook(index)
+        return self._getItemHook(self, index)
 
     def __setitem__(self, index, value):
-        return self._setItemHook(index, value)
+        return self._setItemHook(self, index, value)
 
     def __iter__(self):
-        return self._iterItemHook()
+        return self._iterItemHook(self)
 
     def __contains__(self, value):
         # ensure that the "in" operator uses self.__iter__() rather than
