@@ -84,6 +84,11 @@
         <bits name="Interleave 4 Way" numbits="1" />
     </bitstruct>
 
+    <bitstruct name="RLEHeader" numbytes="1" >
+        <bits name="Count" numbits="7" />
+        <bits name="Is Compressed" numbits="1" />
+    </bitstruct>
+
     <!--
     ***************
     *** structs ***
@@ -96,6 +101,12 @@
 
     <struct name="Pixel">
         <add name="Data" type="ubyte" arr1="ARG / 8" />
+    </struct>
+
+    <struct name="RLEPixels">
+        <add name="Header" type="RLEHeader" />
+	<add name="Uncompressed Pixels" type="Pixel" arg="ARG" cond="Header.Is Compressed == 0" arr1="Header.Count + 1" />
+	<add name="Compressed Pixels" type="Pixel" arg="ARG" cond="Header.Is Compressed == 1"/>
     </struct>
 
     <struct name="Header">
@@ -116,9 +127,6 @@
         </add>
         <add name="Color Map" type="ColorMapEntry" cond="Color Map Type != 0" arr1="Color Map Length" arg="Color Map Size">
             Color lookup table.
-        </add>
-        <add name="Image" arr1="Height" arr2="Width" arg="Pixel Size" type="Pixel">
-             The actual image data.
         </add>
     </struct>
 </fileformat>

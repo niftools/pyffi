@@ -150,12 +150,44 @@ class TgaFormat(pyffi.object_models.xml.FileFormat):
             """
             # read the file
             self.inspect(stream) # quick check
+
+            # header
             pyffi.object_models.xml.Struct.StructBase.read(self, stream)
+
+            # image
+            if self.imageType in (TgaFormat.ImageType.INDEXED,
+                                  TgaFormat.ImageType.RGB,
+                                  TgaFormat.ImageType.GREY):
+                self.image = [TgaFormat.Pixel(argument=self.pixelSize)
+                              for i in xrange(self.width * self.height)]
+                for pixel in self.image:
+                    pixel.read(stream, argument=self.pixelSize)
+            else:
+                self.image = []
+                count = 0
+                while count < self.width * self.height:
+                    pixel = TgaFormat.RLEPixels(argument=self.pixelSize)
+                    pixel.read(stream, argument=self.pixelSize)
+                    self.image.append(pixel)
+                    count += pixel.header.count + 1
 
             # check if we are at the end of the file
             if stream.read(1) != '':
-                raise ValueError(
-                    'end of file not reached: corrupt tga file?')
+                pass
+                #raise ValueError(
+                #    'end of file not reached: corrupt tga file?')
+
+        def getDetailChildNodes(self, edge_filter=EdgeFilter()):
+            for node in pyffi.object_models.xml.Struct.StructBase.getDetailChildNodes(self, edge_filter):
+                yield node
+            for pixel in self.image:
+                yield pixel
+
+        def getDetailChildNames(self, edge_filter=EdgeFilter()):
+            for name in pyffi.object_models.xml.Struct.StructBase.getDetailChildNames(self, edge_filter):
+                yield name
+            for i, pixel in enumerate(self.image):
+                yield str(i)
 
 if __name__ == '__main__':
     import doctest
