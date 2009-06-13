@@ -21,9 +21,9 @@ Read a TGA file
 >>> data.inspect(stream)
 >>> data.read(stream)
 >>> stream.close()
->>> data.width
+>>> data.header.width
 60
->>> data.height
+>>> data.header.height
 20
 
 Parse all TGA files in a directory tree
@@ -89,6 +89,7 @@ import pyffi.object_models.Common
 import pyffi.object_models.xml.Basic
 import pyffi.object_models.xml.Struct
 import pyffi.object_models
+import pyffi.utils.graph
 from pyffi.utils.graph import EdgeFilter
 
 class TgaFormat(pyffi.object_models.xml.FileFormat):
@@ -168,7 +169,49 @@ class TgaFormat(pyffi.object_models.xml.FileFormat):
             """
             return self.__str__()
 
-    class Header(pyffi.object_models.FileFormat.Data):
+    class Image(pyffi.utils.graph.GlobalNode):
+        def __init__(self):
+            # children are either individual pixels, or RLE packets
+            self.children = []
+
+        def read(self, stream, **kwargs):
+            data = kwargs["data"]
+            if data.header.imageType in (TgaFormat.ImageType.INDEXED,
+                                         TgaFormat.ImageType.RGB,
+                                         TgaFormat.ImageType.GREY):
+                self.children = [TgaFormat.Pixel(argument=data.header.pixelSize)
+                                 for i in xrange(data.header.width
+                                                 * data.header.height)]
+                for pixel in self.children:
+                    pixel.read(stream, argument=data.header.pixelSize)
+            else:
+                self.children = []
+                count = 0
+                while count < data.header.width * data.header.height:
+                    pixel = TgaFormat.RLEPixels(argument=data.header.pixelSize)
+                    pixel.read(stream, argument=data.header.pixelSize)
+                    self.children.append(pixel)
+                    count += pixel.header.count + 1
+
+        def write(self, stream, **kwargs):
+            data = kwargs["data"]
+            for child in self.children:
+                child.write(stream, argument=data.header.pixelSize)
+
+        def getDetailChildNodes(self, edge_filter=EdgeFilter()):
+            for child in self.children:
+                yield child
+
+        def getDetailChildNames(self, edge_filter=EdgeFilter()):
+            for i in xrange(len(self.children)):
+                yield str(i)
+
+    class Data(pyffi.object_models.FileFormat.Data):
+        def __init__(self):
+            self.header = TgaFormat.Header()
+            self.image = TgaFormat.Image()
+            self.footer = None # TgaFormat.Footer() is optional
+
         def inspect(self, stream):
             """Quick heuristic check if stream contains Targa data,
             by looking at the first 18 bytes.
@@ -176,7 +219,7 @@ class TgaFormat(pyffi.object_models.xml.FileFormat):
             :param stream: The stream to inspect.
             :type stream: file
             """
-            # XXX todo: set some of the actual fields
+            # XXX todo: set some of the actual fields of the header
 
             pos = stream.tell()
             # read header
@@ -212,25 +255,11 @@ class TgaFormat(pyffi.object_models.xml.FileFormat):
             self.inspect(stream) # quick check
 
             # header
-            pyffi.object_models.xml.Struct.StructBase.read(self, stream)
+            self.header.read(stream)
 
             # image
-            if self.imageType in (TgaFormat.ImageType.INDEXED,
-                                  TgaFormat.ImageType.RGB,
-                                  TgaFormat.ImageType.GREY):
-                self.image = [TgaFormat.Pixel(argument=self.pixelSize)
-                              for i in xrange(self.width * self.height)]
-                for pixel in self.image:
-                    pixel.read(stream, argument=self.pixelSize)
-            else:
-                self.image = []
-                count = 0
-                while count < self.width * self.height:
-                    pixel = TgaFormat.RLEPixels(argument=self.pixelSize)
-                    pixel.read(stream, argument=self.pixelSize)
-                    self.image.append(pixel)
-                    count += pixel.header.count + 1
-
+            self.image.read(stream, data=self)
+            
             # check if we are at the end of the file
             if stream.read(1) == '':
                 self.footer = None
@@ -241,23 +270,26 @@ class TgaFormat(pyffi.object_models.xml.FileFormat):
             self.footer = TgaFormat.Footer()
             self.footer.read(stream)
 
-        def getDetailChildNodes(self, edge_filter=EdgeFilter()):
-            for node in pyffi.object_models.xml.Struct.StructBase.getDetailChildNodes(self, edge_filter):
-                yield node
-            for pixel in self.image:
-                yield pixel
+        def write(self, stream):
+            """Write a tga file.
 
-        def getDetailChildNames(self, edge_filter=EdgeFilter()):
-            for name in pyffi.object_models.xml.Struct.StructBase.getDetailChildNames(self, edge_filter):
-                yield name
-            for i, pixel in enumerate(self.image):
-                yield str(i)
+            :param stream: The stream to write to.
+            :type stream: ``file``
+            """
+            self.header.write(stream)
+            self.image.write(stream, data=self)
+            if self.footer:
+                self.footer.write(stream)
 
         def getGlobalChildNodes(self, edge_filter=EdgeFilter()):
+            yield self.header
+            yield self.image
             if self.footer:
                 yield self.footer
 
         def getGlobalChildNames(self, edge_filter=EdgeFilter()):
+            yield "Header"
+            yield "Image"
             if self.footer:
                 yield "Footer"
 
