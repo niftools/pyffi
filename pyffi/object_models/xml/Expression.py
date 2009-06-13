@@ -79,7 +79,7 @@ class Expression(object):
     True
     """
     operators = [ '==', '!=', '>=', '<=', '&&', '||', '&', '|', '-', '!',
-                  '<', '>', '/', '*' ]
+                  '<', '>', '/', '*', '+' ]
     def __init__(self, expr_str, name_filter = None):
         try:
             left, self._op, right = self._partition(expr_str)
@@ -95,7 +95,12 @@ class Expression(object):
         if isinstance(self._left, Expression):
             left = self._left.eval(data)
         elif isinstance(self._left, basestring):
-            left = getattr(data, self._left) if self._left != '""' else ""
+            if self._left == '""':
+                left = ""
+            else:
+                left = data
+                for part in self._left.split("."):
+                    left = getattr(left, part)
         elif self._left is None:
             pass
         else:
@@ -143,6 +148,8 @@ class Expression(object):
             return int(left / right)
         elif self._op == '*':
             return int(left * right)
+        elif self._op == '+':
+            return left + right
         else:
             raise NotImplementedError("expression syntax error: operator '" + self._op + "' not implemented")
 
