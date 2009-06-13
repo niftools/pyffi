@@ -129,5 +129,12 @@
             Color lookup table.
         </add>
     </struct>
+
+
+    <struct name="Footer">
+        <add name="Extension Offset" type="uint" />
+        <add name="Developer Area Offset" type="uint" />
+        <add name="Signature" type="FooterString" />
+    </struct>
 </fileformat>
 

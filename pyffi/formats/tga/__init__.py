@@ -84,6 +84,7 @@ import struct, os, re
 
 import pyffi.object_models.xml
 import pyffi.object_models.Common
+import pyffi.object_models.xml.Basic
 import pyffi.object_models.xml.Struct
 import pyffi.object_models
 from pyffi.utils.graph import EdgeFilter
@@ -107,6 +108,63 @@ class TgaFormat(pyffi.object_models.xml.FileFormat):
     ushort = pyffi.object_models.Common.UShort
     float = pyffi.object_models.Common.Float
     PixelData = pyffi.object_models.Common.UndecodedData
+
+    class FooterString(pyffi.object_models.xml.Basic.BasicBase):
+        """The Targa footer signature."""
+        def __str__(self):
+            return 'TRUEVISION-XFILE.\x00'
+
+        def read(self, stream, **kwargs):
+            """Read signature from stream.
+
+            :param stream: The stream to read from.
+            :type stream: file
+            """
+            signat = stream.read(18)
+            if signat != self.__str__().encode("ascii"):
+                raise ValueError(
+                    "invalid Targa signature: expected '%s' but got '%s'"
+                    %(self.__str__(), signat))
+
+        def write(self, stream, **kwargs):
+            """Write signature to stream.
+
+            :param stream: The stream to read from.
+            :type stream: file
+            """
+            stream.write(self.__str__().encode("ascii"))
+
+        def getValue(self):
+            """Get signature.
+
+            :return: The signature.
+            """
+            return self.__str__()
+
+        def setValue(self, value):
+            """Set signature.
+
+            :param value: The value to assign.
+            :type value: str
+            """
+            if value != self.__str__():
+                raise ValueError(
+                    "invalid Targa signature: expected '%s' but got '%s'"
+                    %(self.__str__(), value))
+
+        def getSize(self, **kwargs):
+            """Return number of bytes that the signature occupies in a file.
+
+            :return: Number of bytes.
+            """
+            return 18
+
+        def getHash(self, **kwargs):
+            """Return a hash value for the signature.
+
+            :return: An immutable object that can be used as a hash.
+            """
+            return self.__str__()
 
     class Header(pyffi.object_models.FileFormat.Data):
         def inspect(self, stream):
@@ -172,10 +230,14 @@ class TgaFormat(pyffi.object_models.xml.FileFormat):
                     count += pixel.header.count + 1
 
             # check if we are at the end of the file
-            if stream.read(1) != '':
-                pass
-                #raise ValueError(
-                #    'end of file not reached: corrupt tga file?')
+            if stream.read(1) == '':
+                self.footer = None
+                return
+
+            # footer
+            stream.seek(-26, os.SEEK_END)
+            self.footer = TgaFormat.Footer()
+            self.footer.read(stream)
 
         def getDetailChildNodes(self, edge_filter=EdgeFilter()):
             for node in pyffi.object_models.xml.Struct.StructBase.getDetailChildNodes(self, edge_filter):
@@ -188,6 +250,14 @@ class TgaFormat(pyffi.object_models.xml.FileFormat):
                 yield name
             for i, pixel in enumerate(self.image):
                 yield str(i)
+
+        def getGlobalChildNodes(self, edge_filter=EdgeFilter()):
+            if self.footer:
+                yield self.footer
+
+        def getGlobalChildNames(self, edge_filter=EdgeFilter()):
+            if self.footer:
+                yield "Footer"
 
 if __name__ == '__main__':
     import doctest
