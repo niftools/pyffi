@@ -30,8 +30,10 @@ Parse all TGA files in a directory tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 >>> for stream, data in TgaFormat.walkData('tests/tga'):
+...     data.read(stream)
 ...     print(stream.name)
 tests/tga/test.tga
+tests/tga/test_footer.tga
 
 Create a TGA file from scratch and write to file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
