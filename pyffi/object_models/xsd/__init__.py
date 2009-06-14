@@ -139,6 +139,86 @@ class FileFormat(pyffi.object_models.FileFormat):
                 attrname += part[0].upper() + part[1:]
         return attrname
 
+class Fixed(object):
+    """A class whose attributes are fixed.
+
+    >>> class X(Fixed):
+    ...     test = 0
+    >>> x = X()
+    >>> x.test
+    0
+    >>> x.test = 5
+    >>> x.test
+    5
+    >>> x.newattr = 7 # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    AttributeError: ...
+    """
+    def __setattr__(self, name, value):
+        if name not in self.__class__.__dict__:
+            raise AttributeError("Cannot set attribute '%s'." % name)
+        object.__setattr__(self, name, value)
+
+class XsdMetaAttribute(Fixed):
+    class Use:
+        OPTIONAL = 0
+        PROHIBITED = 1
+        REQUIRED = 2
+    # common
+    default = None
+    fixed = None
+    form = None
+    id_ = None
+    name = None
+    ref = None
+    type_ = None
+    annotation = None
+    simple_type = None
+    # in attributes only
+    use = Use.OPTIONAL
+    # in elements only
+    abstract = False
+    block = None
+    final = None
+    nillable = False
+    substitution_group = None
+    complex_type = None
+    unique = None
+    key = None
+    keyref = None
+    # in groups only
+    all_ = None
+    choice = None
+    sequence = None
+    # in elements and in groups only
+    max_occurs = 1
+    min_occurs = 1
+
+class XsdMetaClass(Fixed):
+    # common
+    final = None
+    id_ = None
+    name = None
+    annotation = None
+    # in simple types only
+    restriction = None
+    list_ = None
+    union = None
+    # in complex types only
+    abstract = False
+    block = None
+    mixed = False
+    simple_content = None
+    complex_content = None
+    group = None
+    all_ = None
+    choice = None
+    sequence = None
+    attributes = []
+    # our attributes
+    _fullname = None # for instance: grandparent.parent.name
+
 class XsdError(StandardError):
     """The XSD handler will throw this exception if something goes wrong while
     parsing."""
@@ -307,46 +387,46 @@ class XsdSaxHandler(xml.sax.handler.ContentHandler):
         self.dct = dct
 
         # initialize tag and class stack
-        self.stack = []
-        self.classstack = ()
-        self.attrstack = []
-        # keep track last element of self.stack and self.classstack
+        self.tag_stack = []
+        self.class_stack = []
+        self.attr_stack = []
+        # keep track last element of self.tag_stack and self.class_stack
         # storing this reduces overhead as profiling has shown
-        self.currentTag = None
-        self.currentAttr = None
+        self.current_tag = None
+        self.current_attr = None
 
         # cls needs to be accessed in member functions, so make it an instance
         # member variable
         self.cls = cls
 
         # dictionary for attributes of every class
-        # maps each class to a list of attributes
-        # the "None" class is used for global attributes
-        self.classAttributes = {(): []}
+        # maps each class full name to a list of attributes
+        # the "" class is used for global attributes
+        self.class_attrs_dict = {"": []}
 
-    def pushTag(self, tag):
+    def push_tag(self, tag):
         """Push tag on the stack and make it the current tag.
 
         :param tag: The tag to put on the stack.
         :type tag: int
         """
-        self.stack.insert(0, tag)
-        self.currentTag = tag
+        self.tag_stack.insert(0, tag)
+        self.current_tag = tag
 
-    def popTag(self):
+    def pop_tag(self):
         """Pop the current tag from the stack and return it. Also update
         the current tag.
 
         :return: The tag popped from the stack.
         """
-        lasttag = self.stack.pop(0)
+        lasttag = self.tag_stack.pop(0)
         try:
-            self.currentTag = self.stack[0]
+            self.current_tag = self.tag_stack[0]
         except IndexError:
-            self.currentTag = None
+            self.current_tag = None
         return lasttag
 
-    def pushAttr(self, attr):
+    def push_attr(self, attr):
         """Push attribute on the stack and make it the current attribute.
         The attribute is also automatically added to the current class
         attribute.
@@ -354,52 +434,69 @@ class XsdSaxHandler(xml.sax.handler.ContentHandler):
         :param attr: The attribute to put on the stack.
         :type attr: XXX
         """
-        if self.classstack == ():
-            if (self.currentTag != self.tagSchema):
-                print("WARNING: no current class, but current tag is not \
-schema (it is %i)" % self.currentTag)
-        # DEBUG
-        #print("attribute %s.%s" % (".".join(self.classstack), attr))
-        attrinfo = [attr] # TODO: make this a self-contained class
-        self.attrstack.insert(0, attrinfo)
-        self.currentAttr = attrinfo
+        if not self.class_stack:
+            if (self.current_tag != self.tagSchema):
+                self.cls.logger.warn(
+                    "No current class, but current tag is not schema "
+                    "(it is %i)" % self.current_tag)
+            klass = None
+            fullname = ""
+        else:
+            klass = self.class_stack[-1]
+            fullname = klass._fullname
+        self.cls.logger.debug("attribute %s.%s" % (fullname, attr.name))
+        self.attr_stack.insert(0, attr)
+        self.current_attr = attr
         # TODO: check just the name
-        #if attrinfo in self.classAttributes[self.classstack]:
-        #    print("WARNING: class %s already has %s"
-        #          % (".".join(self.classstack), attr))
-        self.classAttributes[self.classstack].append(attrinfo)
+        if attr.name in (otherattr.name
+                         for otherattr in self.class_attrs_dict[fullname]):
+            self.cls.logger.warn("class %s already has %s"
+                                 % (fullname, attr.name))
+        self.class_attrs_dict[fullname].append(attr)
 
-    def popAttr(self):
+    def pop_attr(self):
         """Pop the current tag from the stack and return it. Also update
         the current tag.
 
         :return: The tag popped from the stack.
         """
-        lastattr = self.attrstack.pop(0)
+        lastattr = self.attr_stack.pop(0)
         try:
-            self.currentAttr = self.attrstack[0]
+            self.current_attr = self.attr_stack[0]
         except IndexError:
-            self.currentAttr = None
+            self.current_attr = None
         return lastattr
 
-    def pushClass(self, klass):
+    def push_class(self, klass):
         """Push class on the stack and make it the current one.
 
         :param klass: The class to put on the stack.
         :type klass: XXX
         """
         # TODO: declare classes also as attributes!! now everything is global
-        self.classstack = self.classstack + (klass,)
-        # DEBUG
-        #print("class %s" % (".".join(self.classstack)))
+
+        # shortcut for fake class
+        if klass is None:
+            self.class_stack.append(None)
+            return
+        # construct full class name
+        if self.class_stack:
+            klass._fullname = self.class_stack[-1]._fullname + "." + klass.name
+        else:
+            klass._fullname = klass.name
+        self.cls.logger.debug("class %s" % klass._fullname)
+        # append class
+        self.class_stack.append(klass)
         # set up empty attribute list
-        self.classAttributes[self.classstack] = []
+        if klass._fullname in self.class_attrs_dict:
+            raise XsdError("Duplicate definition of %s." % klass._fullname)
+        self.class_attrs_dict[klass._fullname] = []
 
-    def popClass(self):
+    def pop_class(self):
         """Pop the current class from the stack."""
-        self.classstack = self.classstack[:-1]
+        return self.class_stack.pop()
 
-    def getElementTag(self, name):
+    def get_element_tag(self, name):
         """Find tag for named element.
 
         :param name: The name of the element, including the prefix.
@@ -437,15 +534,15 @@ schema (it is %i)" % self.currentTag)
         # at the root of the xsd file, and the element must be "xsd:schema".
         # The schema element has no further attributes of interest,
         # so we can exit the function after pushing it on the stack.
-        tag = self.getElementTag(name)
-        if not self.stack:
+        tag = self.get_element_tag(name)
+        if not self.tag_stack:
             if tag != self.tagSchema:
                 raise XsdError("this is not an xsd file")
-            self.pushTag(tag)
+            self.push_tag(tag)
             return
 
         # do a number of things, depending on the tag
-        # self.currentTag reflects the element in which <name> is embedded
+        # self.current_tag reflects the element in which <name> is embedded
         # (it is the last element of the stack)
         if tag == self.tagAnnotation:
             # skip
@@ -453,37 +550,53 @@ schema (it is %i)" % self.currentTag)
         elif tag == self.tagDocumentation:
             # skip (TODO: use for docstring)
             pass
-        elif tag in (self.tagElement, self.tagGroup):
+        elif tag == self.tagGroup:
+            if attrs.get("name"):
+                # attribute definition
+                attr = XsdMetaAttribute()
+                attr.name = self.cls.nameAttribute(attrs.get("name"))
+                attr.type_ = self.cls.nameClass(attrs.get("name"))
+                self.push_attr(attr)
+                # class definition
+                type_ = XsdMetaClass()
+                type_.name = attr.type_
+                self.push_class(type_)
+            elif attrs.get("ref"):
+                # attribute definition only
+                attr = XsdMetaAttribute()
+                attr.name = self.cls.nameAttribute(attrs.get("ref"))
+                attr.type_ = self.cls.nameClass(attrs.get("ref"))
+                attr.ref = attr.name
+                self.push_attr(attr)
+                # push a fake class for symmetry
+                self.push_class(None)
+            else:
+                raise XsdError(
+                    "Invalid group definition: missing name and ref.")
+        elif tag == self.tagElement:
             # create an attribute for the current class
-            # - if it has a type attribute, then the class can be taken from
-            #   that type, otherwise, wait for complexType or simpleType tag
-            # - if the element has a parent, then add it to the parent list of
-            #   attributes, if not, add its type to the list of possible root
-            #   objects
+            # if it has a type attribute, then the class can be taken from
+            # that type, otherwise, wait for complexType or simpleType tag
 
             # all elements must have a declared name
             # the name is either attrs["name"] if declared, or attrs["ref"]
-            # (remove __BUG__ once everything works!)
-            elemname = self.cls.nameAttribute(
-                attrs.get("name", attrs.get("ref", "__BUG__")))
+            attr = XsdMetaAttribute()
+            attr.name = self.cls.nameAttribute(
+                attrs.get("name", attrs.get("ref")))
+            attr.ref = self.cls.nameAttribute(attrs.get("ref"))
 
             # if the type is not defined as an attribute, it must be resolved
-            # later in a simpleType or complexType child
-            typename = self.cls.nameClass(
-                attrs.get("type", self.cls.nameClass(elemname)))
-
-            self.pushAttr(elemname)
-            self.currentAttr.append(typename)
-            if tag == self.tagGroup:
-                self.pushClass(typename)
+            # later in a simpleType or complexType child, or will come from
+            # the reference type
+            attr.type_ = self.cls.nameClass(attrs.get("type", attr.name))
+            self.push_attr(attr)
         elif tag == self.tagAttribute:
             # add an attribute to this element
-            attrname = self.cls.nameAttribute(
-                attrs.get("name", attrs.get("ref", "__BUG__")))
-            typename = self.cls.nameClass(
-                attrs.get("type", self.cls.nameClass(attrname)))
-            self.pushAttr(attrname)
-            self.currentAttr.append(typename)
+            attr = XsdMetaAttribute()
+            attr.name = self.cls.nameAttribute(
+                attrs.get("name", attrs.get("ref")))
+            attr.type_ = self.cls.nameClass(attrs.get("type", attr.name))
+            self.push_attr(attr)
         elif tag in (self.tagSimpleType, self.tagComplexType):
             # create a new simple type
             # if it has a name attribute, then take that as name
@@ -491,38 +604,42 @@ schema (it is %i)" % self.currentTag)
             # element tag, and it makes sense to use the element name
             # as a basis for this type's name (e.g. element "quantity" with
             # simpleType child would be automatically have the class name
-            # QuantityType)
+            # Quantity)
 
             # simpleType must have a name
-            typename = self.cls.nameClass(
-                attrs.get("name", self.currentAttr[0]))
-            self.pushClass(typename)
+            type_ = XsdMetaClass()
+            type_.name = self.cls.nameClass(
+                attrs.get("name", self.current_attr.name))
+            self.push_class(type_)
         else:
             ### uncomment this if all tags are handled 
             #raise XsdError("unhandled element %s" % name)
             pass
 
         # push tag on stack
-        self.pushTag(tag)
+        self.push_tag(tag)
 
     def endElement(self, name):
         """Called at the end of each xml tag.
 
         Creates classes.
         """
-        if not self.stack:
+        if not self.tag_stack:
             raise XsdError("no start element for end element %s" % name)
-        tag = self.getElementTag(name)
-        if self.popTag() != tag:
+        tag = self.get_element_tag(name)
+        if self.pop_tag() != tag:
             raise XsdError("end element %s does not match start element" % name)
         elif tag == self.tagAnnotation:
             return
-        elif tag in (self.tagElement, self.tagGroup):
-            self.popAttr()
-            if tag == self.tagGroup:
-                self.popClass()
+        elif tag == self.tagGroup:
+            # close group class definition
+            self.pop_class()
+            # close attribute
+            self.pop_attr()
+        elif tag == self.tagElement:
+            self.pop_attr()
         elif tag in (self.tagSimpleType, self.tagComplexType):
-            self.popClass()
+            self.pop_class()
         elif tag in []: # TODO
             # create class
             class_type = type(
