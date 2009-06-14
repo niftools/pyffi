@@ -1,3 +1,34 @@
+Release 2.0.1 (in development)
+==============================
+
+* Added pdb session to track cicular references and memory leaks (see
+  issues #2787602 and #2795837 reported by alexkapi12 and
+  xfrancis147).
+
+* Added valgrind script to check memory usage, and to allow keeping
+  track of it between releases (see issues #2787602 and #2795837
+  reported by alexkapi12 and xfrancis147).
+
+* Removed parenting in xml model from everywhere except Array, and
+  using weakrefs to avoid circular references, which helps with
+  garbage collection. Performance should now be slightly improved.
+
+* Updates to xml object model expression syntax.
+
+  - Support for field qualifier '.'.
+
+  - Support for addition '+'.
+
+* Updates to Targa format.
+
+  - Support for RLE compressed Targa files (test file contributed by
+    Alphax, see issue #2790494).
+
+  - Read Targa footer, if present (test file contributed by Alphax,
+    see issue #2790494).
+
+  - Improved interface: header, image, and footer are now global nodes.
+
 Release 2.0.0 (May 4, 2009)
 ===========================
 
