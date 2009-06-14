@@ -394,6 +394,7 @@ class XsdSaxHandler(xml.sax.handler.ContentHandler):
         # storing this reduces overhead as profiling has shown
         self.current_tag = None
         self.current_attr = None
+        self.current_class = None
 
         # cls needs to be accessed in member functions, so make it an instance
         # member variable
@@ -443,9 +444,9 @@ class XsdSaxHandler(xml.sax.handler.ContentHandler):
             fullname = ""
         else:
             klass = self.class_stack[-1]
-            fullname = klass._fullname
+            fullname = klass._meta._fullname
         self.cls.logger.debug("attribute %s.%s" % (fullname, attr.name))
-        self.attr_stack.insert(0, attr)
+        self.attr_stack.append(attr)
         self.current_attr = attr
         # TODO: check just the name
         if attr.name in (otherattr.name
@@ -460,14 +461,14 @@ class XsdSaxHandler(xml.sax.handler.ContentHandler):
 
         :return: The tag popped from the stack.
         """
-        lastattr = self.attr_stack.pop(0)
+        lastattr = self.attr_stack.pop()
         try:
-            self.current_attr = self.attr_stack[0]
+            self.current_attr = self.attr_stack[-1]
         except IndexError:
             self.current_attr = None
         return lastattr
 
-    def push_class(self, klass):
+    def push_class(self, meta_class):
         """Push class on the stack and make it the current one.
 
         :param klass: The class to put on the stack.
@@ -476,25 +477,42 @@ class XsdSaxHandler(xml.sax.handler.ContentHandler):
         # TODO: declare classes also as attributes!! now everything is global
 
         # shortcut for fake class
-        if klass is None:
+        if meta_class is None:
             self.class_stack.append(None)
+            self.current_class = None
             return
+        # create class
+        klass = type(meta_class.name, (),
+                     {"_meta": meta_class,
+                      "__module__": self.cls.__module__})
         # construct full class name
         if self.class_stack:
-            klass._fullname = self.class_stack[-1]._fullname + "." + klass.name
+            klass._meta._fullname = (self.current_class._meta._fullname
+                                     + "." + klass._meta.name)
         else:
-            klass._fullname = klass.name
-        self.cls.logger.debug("class %s" % klass._fullname)
-        # append class
+            klass._meta._fullname = klass._meta.name
+        self.cls.logger.debug("class %s" % klass._meta._fullname)
+        # register class in self.cls and in class stack
+        if self.class_stack:
+            setattr(self.class_stack[-1], klass._meta.name, klass)
+        else:
+            setattr(self.cls, klass._meta.name, klass)
         self.class_stack.append(klass)
+        # update current class
+        self.current_class = klass
         # set up empty attribute list
-        if klass._fullname in self.class_attrs_dict:
-            raise XsdError("Duplicate definition of %s." % klass._fullname)
-        self.class_attrs_dict[klass._fullname] = []
+        if klass._meta._fullname in self.class_attrs_dict:
+            raise XsdError("Duplicate definition of %s." % klass._meta._fullname)
+        self.class_attrs_dict[klass._meta._fullname] = []
 
     def pop_class(self):
         """Pop the current class from the stack."""
-        return self.class_stack.pop()
+        lastclass = self.class_stack.pop()
+        try:
+            self.current_class = self.class_stack[-1]
+        except IndexError:
+            self.current_class = None
+        return lastclass
 
     def get_element_tag(self, name):
         """Find tag for named element.
@@ -558,9 +576,9 @@ class XsdSaxHandler(xml.sax.handler.ContentHandler):
                 attr.type_ = self.cls.nameClass(attrs.get("name"))
                 self.push_attr(attr)
                 # class definition
-                type_ = XsdMetaClass()
-                type_.name = attr.type_
-                self.push_class(type_)
+                meta_class = XsdMetaClass()
+                meta_class.name = attr.type_
+                self.push_class(meta_class)
             elif attrs.get("ref"):
                 # attribute definition only
                 attr = XsdMetaAttribute()
@@ -607,10 +625,10 @@ class XsdSaxHandler(xml.sax.handler.ContentHandler):
             # Quantity)
 
             # simpleType must have a name
-            type_ = XsdMetaClass()
-            type_.name = self.cls.nameClass(
+            meta_class = XsdMetaClass()
+            meta_class.name = self.cls.nameClass(
                 attrs.get("name", self.current_attr.name))
-            self.push_class(type_)
+            self.push_class(meta_class)
         else:
             ### uncomment this if all tags are handled 
             #raise XsdError("unhandled element %s" % name)

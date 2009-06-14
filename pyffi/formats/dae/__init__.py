@@ -21,7 +21,8 @@ Create a DAE file
 ^^^^^^^^^^^^^^^^^
 
 >>> daedata = DaeFormat.Data()
->>> print(daedata.collada)
+>>> print(daedata.collada) # doctest: +ELLIPSIS
+<pyffi.formats.dae.Collada object at ...>
 
 Read a DAE file
 ^^^^^^^^^^^^^^^
