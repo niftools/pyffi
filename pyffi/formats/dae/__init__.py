@@ -17,6 +17,12 @@ Implementation
 Regression tests
 ----------------
 
+Create a DAE file
+^^^^^^^^^^^^^^^^^
+
+>>> daedata = DaeFormat.Data()
+>>> print(daedata.collada)
+
 Read a DAE file
 ^^^^^^^^^^^^^^^
 
@@ -113,7 +119,7 @@ class DaeFormat(pyffi.object_models.xsd.FileFormat):
     class Data(pyffi.object_models.xsd.FileFormat.Data):
         """A class to contain the actual collada data."""
 
-        def __init__(self, version = 0x01040100):
+        def __init__(self, version=0x01040100):
             """Initialize collada data. By default, this creates an
             empty collada 1.4.1 root element.
 
@@ -121,15 +127,8 @@ class DaeFormat(pyffi.object_models.xsd.FileFormat):
                 1.4.1).
             :type version: int
             """
-            self._rootelement = None #DaeFormat.Collada()
-
-        def getRootElement(self):
-            """Get the collada root element (for inspecting or manipulating the
-            data).
-
-            :return: The root element as L{DaeFormat.Collada}.
-            """
-            return self._rootelement
+            # TODO integrate the Collada and Data elements
+            self.collada = DaeFormat.Collada()
 
         def getVersion(self):
             """Get the collada version, as integer (for instance, 1.4.1 would be
@@ -137,7 +136,7 @@ class DaeFormat(pyffi.object_models.xsd.FileFormat):
 
             :return: The version, as integer.
             """
-            return self._rootelement.version
+            return 0x01040100
 
         # overriding pyffi.object_models.FileFormat.Data methods
 
