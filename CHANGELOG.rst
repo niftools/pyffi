@@ -1,6 +1,9 @@
 Release 2.0.1 (in development)
 ==============================
 
+* Updated mopper.exe compiled with msvc 2008 sp1 (fixes issue #2802413,
+  reported by pacmorrowind).
+
 * Added pdb session to track cicular references and memory leaks (see
   issues #2787602 and #2795837 reported by alexkapi12 and
   xfrancis147).

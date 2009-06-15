@@ -150,7 +150,8 @@ Function openLinkNewWindow
   Pop $3
 FunctionEnd
 
-!define DLL_VER "9.00.21022.8"
+; dll version of msvc 2008 SP1 redistributable package
+!define DLL_VER "9.0.30729.1"
 
 Function LocateCallback
 
@@ -175,8 +176,8 @@ Function LocateCallback
 FunctionEnd
 
 Function DownloadDLL
-    MessageBox MB_OK "You will need to download the Microsoft Visual C++ 2008 Redistributable Package in order to run Mopper. Pressing OK will take you to the download page, please follow the instructions on the page that appears."
-    StrCpy $0 "http://www.microsoft.com/downloads/details.aspx?familyid=9b2da534-3e03-4391-8a4d-074b9f2bc1bf&displaylang=en"
+    MessageBox MB_OK "You will need to download the Microsoft Visual C++ 2008 SP1 Redistributable Package in order to run Mopper. Pressing OK will take you to the download page, please follow the instructions on the page that appears."
+    StrCpy $0 "http://www.microsoft.com/downloads/details.aspx?familyid=A5C84275-3B97-4AB7-A40D-3802B2AF5FC2&displaylang=en"
     Call openLinkNewWindow
 FunctionEnd
 
