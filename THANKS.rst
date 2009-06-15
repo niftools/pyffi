@@ -21,3 +21,5 @@ Special thanks go in particular to:
 - Havok, for releasing their SDK without which custom mopp generation would
   not have been possible.
 
+- Karl Norby and Michael Summers for pyxsd, which forms the basis of
+  the xsd object model, used for instance to support Collada.
