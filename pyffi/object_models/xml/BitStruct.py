@@ -160,7 +160,7 @@ class BitStructBase(DetailNode):
     >>> from pyffi.object_models.xml import BitStructAttribute as Attr
     >>> class SimpleFormat(object):
     ...     @staticmethod
-    ...     def nameAttribute(name):
+    ...     def name_attribute(name):
     ...         return name
     >>> class Flags(BitStructBase):
     ...     _numbytes = 1

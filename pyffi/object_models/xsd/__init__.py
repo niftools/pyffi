@@ -102,7 +102,7 @@ class FileFormat(pyffi.object_models.FileFormat):
     logger = logging.getLogger("pyffi.object_models.xsd")
 
     @staticmethod
-    def nameAttribute(name):
+    def name_attribute(name):
         """Converts an attribute name, as in the xsd file, into a name usable
         by python.
 
@@ -110,7 +110,7 @@ class FileFormat(pyffi.object_models.FileFormat):
         :type name: str
         :return: Reformatted attribute name, useable by python.
 
-        >>> FileFormat.nameAttribute('tHis is A Silly naME')
+        >>> FileFormat.name_attribute('tHis is A Silly naME')
         'this_is_a_silly_name'
         """
 
@@ -119,7 +119,7 @@ class FileFormat(pyffi.object_models.FileFormat):
         return "_".join(part.lower() for part in parts)
 
     @staticmethod
-    def nameClass(name):
+    def name_class(name):
         """Converts a class name, as in the xsd file, into a name usable
         by python.
 
@@ -127,7 +127,7 @@ class FileFormat(pyffi.object_models.FileFormat):
         :type name: str
         :return: Reformatted class name, useable by python.
 
-        >>> FileFormat.nameClass('this IS a sillyNAME')
+        >>> FileFormat.name_class('this IS a sillyNAME')
         'ThisISASillyNAME'
         """
 
@@ -572,8 +572,8 @@ class XsdSaxHandler(xml.sax.handler.ContentHandler):
             if attrs.get("name"):
                 # attribute definition
                 attr = XsdMetaAttribute()
-                attr.name = self.cls.nameAttribute(attrs.get("name"))
-                attr.type_ = self.cls.nameClass(attrs.get("name"))
+                attr.name = self.cls.name_attribute(attrs.get("name"))
+                attr.type_ = self.cls.name_class(attrs.get("name"))
                 self.push_attr(attr)
                 # class definition
                 meta_class = XsdMetaClass()
@@ -582,8 +582,8 @@ class XsdSaxHandler(xml.sax.handler.ContentHandler):
             elif attrs.get("ref"):
                 # attribute definition only
                 attr = XsdMetaAttribute()
-                attr.name = self.cls.nameAttribute(attrs.get("ref"))
-                attr.type_ = self.cls.nameClass(attrs.get("ref"))
+                attr.name = self.cls.name_attribute(attrs.get("ref"))
+                attr.type_ = self.cls.name_class(attrs.get("ref"))
                 attr.ref = attr.name
                 self.push_attr(attr)
                 # push a fake class for symmetry
@@ -599,21 +599,21 @@ class XsdSaxHandler(xml.sax.handler.ContentHandler):
             # all elements must have a declared name
             # the name is either attrs["name"] if declared, or attrs["ref"]
             attr = XsdMetaAttribute()
-            attr.name = self.cls.nameAttribute(
+            attr.name = self.cls.name_attribute(
                 attrs.get("name", attrs.get("ref")))
-            attr.ref = self.cls.nameAttribute(attrs.get("ref"))
+            attr.ref = self.cls.name_attribute(attrs.get("ref"))
 
             # if the type is not defined as an attribute, it must be resolved
             # later in a simpleType or complexType child, or will come from
             # the reference type
-            attr.type_ = self.cls.nameClass(attrs.get("type", attr.name))
+            attr.type_ = self.cls.name_class(attrs.get("type", attr.name))
             self.push_attr(attr)
         elif tag == self.tagAttribute:
             # add an attribute to this element
             attr = XsdMetaAttribute()
-            attr.name = self.cls.nameAttribute(
+            attr.name = self.cls.name_attribute(
                 attrs.get("name", attrs.get("ref")))
-            attr.type_ = self.cls.nameClass(attrs.get("type", attr.name))
+            attr.type_ = self.cls.name_class(attrs.get("type", attr.name))
             self.push_attr(attr)
         elif tag in (self.tagSimpleType, self.tagComplexType):
             # create a new simple type
@@ -626,7 +626,7 @@ class XsdSaxHandler(xml.sax.handler.ContentHandler):
 
             # simpleType must have a name
             meta_class = XsdMetaClass()
-            meta_class.name = self.cls.nameClass(
+            meta_class.name = self.cls.name_class(
                 attrs.get("name", self.current_attr.name))
             self.push_class(meta_class)
         else:

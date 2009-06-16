@@ -119,7 +119,7 @@ class FileFormat(object):
     """This class is the base class for all file formats. It implements
     a number of useful functions such as walking over directory trees
     (:meth:`walkData`) and a default attribute naming function
-    (:meth:`nameAttribute`).
+    (:meth:`name_attribute`).
     It also implements the base class for representing file data
     (:class:`FileFormat.Data`).
     """
@@ -183,7 +183,7 @@ class FileFormat(object):
         return 0
 
     @staticmethod
-    def nameAttribute(name):
+    def name_attribute(name):
         """Converts an attribute name, as in the description file,
         into a name usable by python.
 
@@ -191,7 +191,7 @@ class FileFormat(object):
         :type name: ``str``
         :return: Reformatted attribute name, useable by python.
 
-        >>> FileFormat.nameAttribute('tHis is A Silly naME')
+        >>> FileFormat.name_attribute('tHis is A Silly naME')
         'thisIsASillyName'
         """
 
@@ -202,7 +202,7 @@ class FileFormat(object):
             attrname += part.capitalize()
         return attrname
 
-    # TODO: port nameClass(name) from XsdFileFormat
+    # TODO: port name_class(name) from XsdFileFormat
 
     @classmethod
     def walkData(cls, top, topdown=True, mode='rb'):

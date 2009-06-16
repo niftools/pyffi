@@ -170,7 +170,7 @@ class StructAttribute(object):
         :param attrs: The xml add tag attribute dictionary."""
         # mandatory parameters
         self.displayname = attrs["name"]
-        self.name = cls.nameAttribute(self.displayname)
+        self.name = cls.name_attribute(self.displayname)
         attrs_type_str = attrs["type"]
         if attrs_type_str != "TEMPLATE":
             try:
@@ -204,11 +204,11 @@ class StructAttribute(object):
                 # conversion failed; not a big problem
                 self.default = None
         if self.arr1:
-            self.arr1 = Expression(self.arr1, cls.nameAttribute)
+            self.arr1 = Expression(self.arr1, cls.name_attribute)
         if self.arr2:
-            self.arr2 = Expression(self.arr2, cls.nameAttribute)
+            self.arr2 = Expression(self.arr2, cls.name_attribute)
         if self.cond:
-            self.cond = Expression(self.cond, cls.nameAttribute)
+            self.cond = Expression(self.cond, cls.name_attribute)
         if self.vercond:
             self.vercond = Expression(self.vercond, cls.vercondFilter)
             #print(self.vercond)
@@ -216,7 +216,7 @@ class StructAttribute(object):
             try:
                 self.arg = int(self.arg)
             except ValueError:
-                self.arg = cls.nameAttribute(self.arg)
+                self.arg = cls.name_attribute(self.arg)
         if self.userver:
             self.userver = int(self.userver)
         if self.ver1:
@@ -234,8 +234,8 @@ class BitStructAttribute(object):
         :param cls: The class where all types reside.
         :param attrs: The xml add tag attribute dictionary."""
         # mandatory parameters
-        self.name = cls.nameAttribute(attrs["name"])
-        self.numbits = int(cls.nameAttribute(attrs["numbits"]))
+        self.name = cls.name_attribute(attrs["name"])
+        self.numbits = int(cls.name_attribute(attrs["numbits"]))
         # optional parameters
         self.default = attrs.get("default")
         self.cond = attrs.get("cond")
@@ -248,7 +248,7 @@ class BitStructAttribute(object):
         if self.default:
             self.default = int(self.default)
         if self.cond:
-            self.cond = Expression(self.cond, cls.nameAttribute)
+            self.cond = Expression(self.cond, cls.name_attribute)
         if self.userver:
             self.userver = int(self.userver)
         if self.ver1:

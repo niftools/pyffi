@@ -164,7 +164,7 @@ class StructBase(GlobalNode):
     ...         def setValue(self, value):
     ...             self.__value = int(value)
     ...     @staticmethod
-    ...     def nameAttribute(name):
+    ...     def name_attribute(name):
     ...         return name
     >>> class X(StructBase):
     ...     _isTemplate = False
