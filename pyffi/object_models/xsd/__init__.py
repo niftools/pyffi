@@ -74,8 +74,8 @@ class Tree(object):
 
         def __init__(self, element, parent):
             # note: using weak references to avoid reference cycles
-            self.parent = weakref.ref(parent) if parent else None
-            self.schema = self.parent().schema if parent else weakref.ref(self)
+            self.parent = weakref.proxy(parent) if parent else None
+            self.schema = self.parent.schema if parent else weakref.proxy(self)
 
             # create nodes for all children
             self.children = [Tree.node_factory(child, self)
@@ -138,9 +138,9 @@ class Tree(object):
             # construct a class name
             if self.name:
                 class_name = self.name
-            elif isinstance(self.parent(), Tree.Element):
+            elif isinstance(self.parent, Tree.Element):
                 # find element that contains this type
-                class_name = self.parent().name
+                class_name = self.parent.name
             # XXX todo: filter class name so it conforms naming conventions
             if not class_name:
                 raise ValueError("Failed to find class name for complexType.")
