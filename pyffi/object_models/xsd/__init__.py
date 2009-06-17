@@ -64,10 +64,10 @@ class Tree(object):
         """Base class for all nodes in the tree."""
 
         schema = None
-        """A weak reference to the root element of the tree."""
+        """A weak proxy of the root element of the tree."""
 
         parent = None
-        """A weak reference to the parent element of this node, or None."""
+        """A weak proxy of the parent element of this node, or None."""
 
         children = None
         """The child elements of this node."""
@@ -82,10 +82,10 @@ class Tree(object):
                              for child in element.getchildren()]
 
         # note: this corresponds roughly to the 'clsFor' method in pyxsd
-        def class_factory(self):
-            """Generator which yields all classes for the schema."""
+        def class_factory(self, fileformat):
+            """Yields all classes defined under this node."""
             for child in self.children:
-                for class_ in child.class_factory():
+                for class_ in child.class_factory(fileformat):
                     yield class_
 
     class All(Node):
@@ -134,7 +134,7 @@ class Tree(object):
             Tree.Node.__init__(self, element, parent)
             self.name = element.get("name")
 
-        def class_factory(self):
+        def class_factory(self, fileformat):
             # construct a class name
             if self.name:
                 class_name = self.name
@@ -152,7 +152,7 @@ class Tree(object):
             # create class
             class_ = type(class_name, class_bases, class_dict)
             # assign child classes
-            for child_class in Tree.Node.class_factory(self):
+            for child_class in Tree.Node.class_factory(self, fileformat):
                 setattr(class_, child_class.__name__, child_class)
             # yield the generated class
             yield class_
@@ -350,12 +350,11 @@ class MetaFileFormat(pyffi.object_models.MetaFileFormat):
             try:
                 # create nodes for every element in the XSD tree
                 schema = Tree.node_factory(
-                    xml.etree.cElementTree.parse(xsdfile).getroot(),
-                    None)
+                    xml.etree.cElementTree.parse(xsdfile).getroot(), None)
             finally:
                 xsdfile.close()
             # generate classes
-            for class_ in schema.class_factory():
+            for class_ in schema.class_factory(cls):
                 setattr(cls, class_.__name__, class_)
             cls.logger.debug("Parsing finished in %.3f seconds."
                              % (time.clock() - start))
