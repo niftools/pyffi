@@ -47,19 +47,7 @@ import xml.etree.cElementTree
 
 import pyffi.object_models
 
-# XXX not yet used
-#class Form:
-#    qualified = False
-#    """Whether the form is qualified or not."""
-#
-#    def __init__(self, value=None):
-#        if value == "qualified":
-#            self.qualified = True
-#        elif not(value == "unqualified" or not value):
-#            raise ValueError(
-#                "Form must be either 'qualified' or 'unqualified'.")
-
-class Tree:
+class Tree(object):
     """Converts an xsd element tree into a tree of nodes that contain
     all information and methods for creating classes. Each node has a
     class matching the element type. The node constructor
@@ -89,10 +77,11 @@ class Tree:
             self.parent = weakref.ref(parent) if parent else None
             self.schema = self.parent().schema if parent else weakref.ref(self)
 
-            # create class instances for all children
-            self.children = [Tree.factory(child, self)
+            # create nodes for all children
+            self.children = [Tree.node_factory(child, self)
                              for child in element.getchildren()]
 
+        # note: this corresponds roughly to the 'clsFor' method in pyxsd
         def class_factory(self):
             """Generator which yields all classes for the schema."""
             for child in self.children:
@@ -126,8 +115,47 @@ class Tree:
     class ComplexContent(Node):
         pass
 
+    ##http://www.w3.org/TR/2004/REC-xmlschema-1-20041028/structures.html#element-complexType
+    ##<complexType
+    ##  abstract = boolean : false
+    ##  block = (#all | List of (extension | restriction))
+    ##  final = (#all | List of (extension | restriction))
+    ##  id = ID
+    ##  mixed = boolean : false
+    ##  name = NCName
+    ##  {any attributes with non-schema namespace . . .}>
+    ##  Content: (annotation?, (simpleContent | complexContent | ((group | all | choice | sequence)?, ((attribute | attributeGroup)*, anyAttribute?))))
+    ##</complexType>
     class ComplexType(Node):
-        pass
+        name = None
+        """The name of the type."""
+
+        def __init__(self, element, parent):
+            Tree.Node.__init__(self, element, parent)
+            self.name = element.get("name")
+
+        def class_factory(self):
+            # construct a class name
+            if self.name:
+                class_name = self.name
+            elif isinstance(self.parent(), Tree.Element):
+                # find element that contains this type
+                class_name = self.parent().name
+            # XXX todo: filter class name so it conforms naming conventions
+            if not class_name:
+                raise ValueError("Failed to find class name for complexType.")
+            # construct bases
+            class_bases = (object,)
+            # construct class dictionary
+            class_dict = {}
+            class_dict["_node"] = self
+            # create class
+            class_ = type(class_name, class_bases, class_dict)
+            # assign child classes
+            for child_class in Tree.Node.class_factory(self):
+                setattr(class_, child_class.__name__, child_class)
+            # yield the generated class
+            yield class_
 
     class Documentation(Node):
         pass
@@ -248,7 +276,7 @@ class Tree:
         """Version attribute."""
 
         def __init__(self, element, parent):
-            if not parent is None:
+            if parent is not None:
                 raise ValueError("Schema can only occur as root element.")
             Tree.Node.__init__(self, element, parent)
             self.version = element.get("version")
@@ -271,26 +299,21 @@ class Tree:
     class Unique(Node):
         pass
 
-    def __init__(self, root_element):
-        self.root = self.factory(root_element, None)
-
     @classmethod
-    def factory(cls, element, parent):
+    # note: this corresponds to the 'factory' method in pyxsd
+    def node_factory(cls, element, parent):
         """Create an appropriate instance for the given xsd element."""
         # get last part of the tag
         class_name = element.tag.split("}")[-1]
         class_name = class_name[0].upper() + class_name[1:]
         try:
-            #cls.logger.debug("Creating %s instance for %s."
-            #                 % (class_name, xsd_element))
             return getattr(cls, class_name)(element, parent)
         except AttributeError:
-            cls.logger.warn("Unknown element type: making node class %s."
+            cls.logger.warn("Unknown element type: making dummy node class %s."
                             % class_name)
             class_ = type(class_name, (cls.Node,), {})
             setattr(cls, class_name, class_)
             return class_(element, parent)
-
 
 class MetaFileFormat(pyffi.object_models.MetaFileFormat):
     """The MetaFileFormat metaclass transforms the XSD description of a
@@ -321,17 +344,21 @@ class MetaFileFormat(pyffi.object_models.MetaFileFormat):
             # open XSD file
             xsdfile = cls.openfile(xsdfilename, cls.xsdFilePath)
 
-            # parse the XSD file: control is now passed on to Tree
-            # which takes care of the class creation
+            # parse the XSD file
             cls.logger.debug("Parsing %s and generating classes." % xsdfilename)
             start = time.clock()
             try:
-                tree = Tree(xml.etree.cElementTree.parse(xsdfile).getroot())
+                # create nodes for every element in the XSD tree
+                schema = Tree.node_factory(
+                    xml.etree.cElementTree.parse(xsdfile).getroot(),
+                    None)
             finally:
                 xsdfile.close()
-            for class_ in tree.root.class_factory():
+            # generate classes
+            for class_ in schema.class_factory():
                 setattr(cls, class_.__name__, class_)
-            cls.logger.debug("Parsing finished in %.3f seconds." % (time.clock() - start))
+            cls.logger.debug("Parsing finished in %.3f seconds."
+                             % (time.clock() - start))
 
 class FileFormat(pyffi.object_models.FileFormat):
     """This class can be used as a base class for file formats. It implements
@@ -380,74 +407,3 @@ class FileFormat(pyffi.object_models.FileFormat):
             for part in parts:
                 attrname += part[0].upper() + part[1:]
         return attrname
-
-class XsdSaxHandler:
-    """Scheduled for deletion."""
-    # xsd elements
-    # (see http://www.w3.org/TR/xmlschema-0/#indexEl)
-    # xsd attributes
-    # (see http://www.w3.org/TR/xmlschema-0/#indexAttr)
-    attrAbstract = 1
-    attrAttributeFormDefault = 2
-    attrBase = 3
-    attrBlock = 4
-    attrBlockDefault = 5
-    attrDefault = 6
-    attrElementFormDefault = 7
-    attrFinal = 8
-    attrFinalDefault = 9
-    attrFixed = 10
-    attrForm = 11
-    attrItemType = 12
-    attrMemberTypes = 13
-    attrMaxOccurs = 14
-    attrMinOccurs = 15
-    attrMixed = 16
-    attrName = 17
-    attrNamespace = 18
-    attrXsiNoNamespaceSchemaLocation = 19
-    attrXsiNil = 20
-    attrNillable = 21
-    attrProcessContents = 22
-    attrRef = 23
-    attrSchemaLocation = 24
-    attrXsiSchemaLocation = 25
-    attrSubstitutionGroup = 26
-    attrTargetNamespace = 27
-    attrType = 28
-    attrXsiType = 29
-    attrUse = 30
-    attrXpath = 31
-
-    attrs = {
-        "abstract": attrAbstract,
-        "attributeFormDefault": attrAttributeFormDefault,
-        "base": attrBase,
-        "block": attrBlock,
-        "blockDefault": attrBlockDefault,
-        "default": attrDefault,
-        "elementFormDefault": attrElementFormDefault,
-        "final": attrFinal,
-        "finalDefault": attrFinalDefault,
-        "fixed": attrFixed,
-        "form": attrForm,
-        "itemType": attrItemType,
-        "memberTypes": attrMemberTypes,
-        "maxOccurs": attrMaxOccurs,
-        "minOccurs": attrMinOccurs,
-        "mixed": attrMixed,
-        "name": attrName,
-        "namespace": attrNamespace,
-        "xsi:noNamespaceSchemaLocation": attrXsiNoNamespaceSchemaLocation,
-        "xsi:nil": attrXsiNil,
-        "nillable": attrNillable,
-        "processContents": attrProcessContents,
-        "ref": attrRef,
-        "schemaLocation": attrSchemaLocation,
-        "xsi:schemaLocation": attrXsiSchemaLocation,
-        "substitutionGroup": attrSubstitutionGroup,
-        "targetNamespace": attrTargetNamespace,
-        "type": attrType,
-        "xsi:type": attrXsiType,
-        "use": attrUse,
-        "xpath": attrXpath}
