@@ -141,7 +141,8 @@ class Tree(object):
             elif isinstance(self.parent, Tree.Element):
                 # find element that contains this type
                 class_name = self.parent.name
-            # XXX todo: filter class name so it conforms naming conventions
+            # filter class name so it conforms naming conventions
+            class_name = fileformat.name_class(class_name)
             if not class_name:
                 raise ValueError("Failed to find class name for complexType.")
             # construct bases
