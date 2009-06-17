@@ -42,26 +42,62 @@ schema.
 
 import logging
 import time
+import weakref
 import xml.etree.cElementTree
 
 import pyffi.object_models
 
-class NodeTree:
-    """Converts an xsd element tree into a tree of nodes that contain all
-    methods for creating classes. Each node has a class matching the
-    element type.
+# XXX not yet used
+#class Form:
+#    qualified = False
+#    """Whether the form is qualified or not."""
+#
+#    def __init__(self, value=None):
+#        if value == "qualified":
+#            self.qualified = True
+#        elif not(value == "unqualified" or not value):
+#            raise ValueError(
+#                "Form must be either 'qualified' or 'unqualified'.")
+
+class Tree:
+    """Converts an xsd element tree into a tree of nodes that contain
+    all information and methods for creating classes. Each node has a
+    class matching the element type. The node constructor
+    :meth:`Node.__init__` extracts the required information from the
+    element and its children, thereby constructing the tree of nodes.
+    Once the tree is constructed, call the :meth:`Node.class_factory`
+    method to get a list of classes.
     """
+
     logger = logging.getLogger("pyffi.object_models.xsd")
+    """For logging debug messages, warnings, and errors."""
 
     class Node(object):
-        def __init__(self, element, parent=None):
-            # XXX not needed for now
-            #self.element = element
-            #self.parent = weakref.ref(parent) if parent else None
+        """Base class for all nodes in the tree."""
+
+        schema = None
+        """A weak reference to the root element of the tree."""
+
+        parent = None
+        """A weak reference to the parent element of this node, or None."""
+
+        children = None
+        """The child elements of this node."""
+
+        def __init__(self, element, parent):
+            # note: using weak references to avoid reference cycles
+            self.parent = weakref.ref(parent) if parent else None
+            self.schema = self.parent().schema if parent else weakref.ref(self)
 
             # create class instances for all children
-            self.children = [NodeTree.factory(child, self)
+            self.children = [Tree.factory(child, self)
                              for child in element.getchildren()]
+
+        def class_factory(self):
+            """Generator which yields all classes for the schema."""
+            for child in self.children:
+                for class_ in child.class_factory():
+                    yield class_
 
     class All(Node):
         pass
@@ -96,8 +132,47 @@ class NodeTree:
     class Documentation(Node):
         pass
 
+    ##http://www.w3.org/TR/2004/REC-xmlschema-1-20041028/structures.html#element-element
+    ##<element
+    ##  abstract = boolean : false
+    ##  block = (#all | List of (extension | restriction | substitution))
+    ##  default = string
+    ##  final = (#all | List of (extension | restriction))
+    ##  fixed = string
+    ##  form = (qualified | unqualified)
+    ##  id = ID
+    ##  maxOccurs = (nonNegativeInteger | unbounded)  : 1
+    ##  minOccurs = nonNegativeInteger : 1
+    ##  name = NCName
+    ##  nillable = boolean : false
+    ##  ref = QName
+    ##  substitutionGroup = QName
+    ##  type = QName
+    ##  {any attributes with non-schema namespace . . .}>
+    ##  Content: (annotation?, ((simpleType | complexType)?, (unique | key | keyref)*))
+    ##</element>
     class Element(Node):
-        pass
+        name = None
+        """The name of the element."""
+
+        ref = None
+        """If the element is declared elsewhere, then this contains the name
+        of the reference.
+        """
+
+        type_ = None
+        """The type of the element. This determines which attributes,
+        elements, and content, this element can have.
+        """
+
+        def __init__(self, element, parent):
+            Tree.Node.__init__(self, element, parent)
+            self.name = element.get("name")
+            self.ref = element.get("ref")
+            self.type_ = element.get("type")
+            if (not self.name) and (not self.ref):
+                raise ValueError("Element %s has neither name nor ref."
+                                 % element)
 
     class Enumeration(Node):
         pass
@@ -153,12 +228,34 @@ class NodeTree:
     class Restriction(Node):
         pass
 
+    ##http://www.w3.org/TR/2004/REC-xmlschema-1-20041028/structures.html#element-schema
+    ##<schema
+    ##  attributeFormDefault = (qualified | unqualified) : unqualified
+    ##  blockDefault = (#all | List of (extension | restriction | substitution))  : ''
+    ##  elementFormDefault = (qualified | unqualified) : unqualified
+    ##  finalDefault = (#all | List of (extension | restriction | list | union))  : ''
+    ##  id = ID
+    ##  targetNamespace = anyURI
+    ##  version = token
+    ##  xml:lang = language
+    ##  {any attributes with non-schema namespace . . .}>
+    ##  Content: ((include | import | redefine | annotation)*, (((simpleType | complexType | group | attributeGroup) | element | attribute | notation), annotation*)*)
+    ##</schema>
     class Schema(Node):
-        pass
+        """Class wrapper for schema tag."""
+
+        version = None
+        """Version attribute."""
+
+        def __init__(self, element, parent):
+            if not parent is None:
+                raise ValueError("Schema can only occur as root element.")
+            Tree.Node.__init__(self, element, parent)
+            self.version = element.get("version")
 
     class Selector(Node):
         pass
-
+        
     class Sequence(Node):
         pass
 
@@ -175,10 +272,10 @@ class NodeTree:
         pass
 
     def __init__(self, root_element):
-        self.root = self.factory(root_element)
+        self.root = self.factory(root_element, None)
 
     @classmethod
-    def factory(cls, element, parent=None):
+    def factory(cls, element, parent):
         """Create an appropriate instance for the given xsd element."""
         # get last part of the tag
         class_name = element.tag.split("}")[-1]
@@ -201,7 +298,7 @@ class MetaFileFormat(pyffi.object_models.MetaFileFormat):
     manipulate files in this format.
 
     The actual implementation of the parser is delegated to
-    L{XsdSaxHandler}.
+    :class:`Tree`.
     """
 
     def __init__(cls, name, bases, dct):
@@ -224,14 +321,16 @@ class MetaFileFormat(pyffi.object_models.MetaFileFormat):
             # open XSD file
             xsdfile = cls.openfile(xsdfilename, cls.xsdFilePath)
 
-            # parse the XSD file: control is now passed on to NodeTree
+            # parse the XSD file: control is now passed on to Tree
             # which takes care of the class creation
             cls.logger.debug("Parsing %s and generating classes." % xsdfilename)
             start = time.clock()
             try:
-                tree = NodeTree(xml.etree.cElementTree.parse(xsdfile).getroot())
+                tree = Tree(xml.etree.cElementTree.parse(xsdfile).getroot())
             finally:
                 xsdfile.close()
+            for class_ in tree.root.class_factory():
+                setattr(cls, class_.__name__, class_)
             cls.logger.debug("Parsing finished in %.3f seconds." % (time.clock() - start))
 
 class FileFormat(pyffi.object_models.FileFormat):
