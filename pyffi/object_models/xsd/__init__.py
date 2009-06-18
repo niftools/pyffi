@@ -88,6 +88,15 @@ class Tree(object):
                 for class_ in child.class_factory(fileformat):
                     yield class_
 
+        # helper functions
+        @staticmethod
+        def num_occurs(num):
+            """Converts a string to an ``int`` or ``None`` (if unbounded)."""
+            if num == 'unbounded':
+                return None
+            else:
+                return int(num)
+
     class All(Node):
         pass
 
@@ -103,8 +112,41 @@ class Tree(object):
     class Appinfo(Node):
         pass
 
+    ##http://www.w3.org/TR/2004/REC-xmlschema-1-20041028/structures.html#element-attribute
+    ##<attribute
+    ##  default = string
+    ##  fixed = string
+    ##  form = (qualified | unqualified)
+    ##  id = ID
+    ##  name = NCName
+    ##  ref = QName
+    ##  type = QName
+    ##  use = (optional | prohibited | required) : optional
+    ##  {any attributes with non-schema namespace . . .}>
+    ##  Content: (annotation?, simpleType?)
+    ##</attribute>
     class Attribute(Node):
-        pass
+        name = None
+        """The name of the attribute."""
+
+        ref = None
+        """If the attribute is declared elsewhere, then this contains the name
+        of the reference.
+        """
+
+        type_ = None
+        """The type of the attribute. This determines the content this
+        attribute can have.
+        """
+
+        def __init__(self, element, parent):
+            Tree.Node.__init__(self, element, parent)
+            self.name = element.get("name")
+            self.ref = element.get("ref")
+            self.type_ = element.get("type")
+            if (not self.name) and (not self.ref):
+                raise ValueError("Attribute %s has neither name nor ref."
+                                 % element)
 
     class AttributeGroup(Node):
         pass
@@ -141,12 +183,14 @@ class Tree(object):
             elif isinstance(self.parent, Tree.Element):
                 # find element that contains this type
                 class_name = self.parent.name
+            else:
+                raise ValueError(
+                    "complexType has no name attribute and no element parent: "
+                    "cannot determine name.")
             # filter class name so it conforms naming conventions
             class_name = fileformat.name_class(class_name)
-            if not class_name:
-                raise ValueError("Failed to find class name for complexType.")
             # construct bases
-            class_bases = (object,)
+            class_bases = (Type,)
             # construct class dictionary
             class_dict = {}
             class_dict["_node"] = self
@@ -194,11 +238,25 @@ class Tree(object):
         elements, and content, this element can have.
         """
 
+        min_occurs = 1
+        """Minimum number of times the element can occur. ``None``
+        corresponds to unbounded.
+        """
+
+        max_occurs = 1
+        """Maximum number of times the element can occur. ``None``
+        corresponds to unbounded.
+        """
+
         def __init__(self, element, parent):
             Tree.Node.__init__(self, element, parent)
             self.name = element.get("name")
             self.ref = element.get("ref")
             self.type_ = element.get("type")
+            self.min_occurs = self.num_occurs(element.get("minOccurs",
+                                                          self.min_occurs))
+            self.max_occurs = self.num_occurs(element.get("maxOccurs",
+                                                          self.max_occurs))
             if (not self.name) and (not self.ref):
                 raise ValueError("Element %s has neither name nor ref."
                                  % element)
@@ -359,6 +417,14 @@ class MetaFileFormat(pyffi.object_models.MetaFileFormat):
                 setattr(cls, class_.__name__, class_)
             cls.logger.debug("Parsing finished in %.3f seconds."
                              % (time.clock() - start))
+
+class Type(object):
+    _node = None
+
+    def __init__(self):
+        if cls._node is None:
+            return
+        # TODO initialize all attributes
 
 class FileFormat(pyffi.object_models.FileFormat):
     """This class can be used as a base class for file formats. It implements
