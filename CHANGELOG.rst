@@ -32,6 +32,11 @@ Release 2.0.1 (in development)
 
   - Improved interface: header, image, and footer are now global nodes.
 
+* Updates to xsd object model.
+
+  - Classes and attributes for Collada format are now generated (but not
+    yet functional).
+
 Release 2.0.0 (May 4, 2009)
 ===========================
 
