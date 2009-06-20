@@ -53,7 +53,7 @@ class Tree(object):
     class matching the element type. The node constructor
     :meth:`Node.__init__` extracts the required information from the
     element and its children, thereby constructing the tree of nodes.
-    Once the tree is constructed, call the :meth:`Node.class_factory`
+    Once the tree is constructed, call the :meth:`Node.class_walker`
     method to get a list of classes.
     """
 
@@ -72,6 +72,9 @@ class Tree(object):
         children = None
         """The child elements of this node."""
 
+        logger = logging.getLogger("pyffi.object_models.xsd")
+        """For logging debug messages, warnings, and errors."""
+
         def __init__(self, element, parent):
             # note: using weak references to avoid reference cycles
             self.parent = weakref.proxy(parent) if parent else None
@@ -82,11 +85,21 @@ class Tree(object):
                              for child in element.getchildren()]
 
         # note: this corresponds roughly to the 'clsFor' method in pyxsd
-        def class_factory(self, fileformat):
+        def class_walker(self, fileformat):
             """Yields all classes defined under this node."""
             for child in self.children:
-                for class_ in child.class_factory(fileformat):
+                for class_ in child.class_walker(fileformat):
                     yield class_
+
+        def attribute_walker(self, fileformat):
+            """Resolves all attributes."""
+            for child in self.children:
+                child.attribute_walker(fileformat)
+
+        def instantiate(self, inst):
+            """Create attributes on the instance *inst*."""
+            for child in self.children:
+                child.instantiate(inst)
 
         # helper functions
         @staticmethod
@@ -96,6 +109,12 @@ class Tree(object):
                 return None
             else:
                 return int(num)
+
+    class ClassNode(Node):
+        """A node that corresponds to a class."""
+
+        class_ = None
+        """Generated class."""
 
     class All(Node):
         pass
@@ -126,6 +145,10 @@ class Tree(object):
     ##  Content: (annotation?, simpleType?)
     ##</attribute>
     class Attribute(Node):
+        """This class implements the attribute node, and also is a
+        base class for the element node.
+        """
+
         name = None
         """The name of the attribute."""
 
@@ -139,6 +162,12 @@ class Tree(object):
         attribute can have.
         """
 
+        pyname = None
+        """Name for python."""
+
+        pytype = None
+        """Type for python."""
+
         def __init__(self, element, parent):
             Tree.Node.__init__(self, element, parent)
             self.name = element.get("name")
@@ -147,6 +176,64 @@ class Tree(object):
             if (not self.name) and (not self.ref):
                 raise ValueError("Attribute %s has neither name nor ref."
                                  % element)
+
+        def attribute_walker(self, fileformat):
+            # attributes for child nodes
+            Tree.Node.attribute_walker(self, fileformat)
+            # now set attributes for this node
+            if self.name:
+                # could have self._type or not, but should not have a self.ref
+                assert(not self.ref) # debug
+                self.pyname = fileformat.name_attribute(self.name)
+                node = self
+            elif self.ref:
+                # no name and no type should be defined
+                assert(not self.name) # debug
+                assert(not self.type_) # debug
+                self.pyname = fileformat.name_attribute(self.ref)
+                # resolve reference
+                for child in self.schema.children:
+                    if (isinstance(child, self.__class__)
+                        and child.name == self.ref):
+                        node = child
+                        break
+                else:
+                    # exception for xml:base reference
+                    if self.ref == "xml:base":
+                        self.pytype = fileformat.XsString
+                    else:
+                        raise ValueError("Could not resolve reference to '%s'."
+                                         % self.ref)
+                    # done: name and type are resolved
+                    return
+            else:
+                self.logger.error("Attribute without name.")
+            if not node.type_:
+                # resolve it locally
+                for child in node.children:
+                    # remember, ClassNode is simpletype or complextype
+                    if isinstance(child, Tree.ClassNode):
+                        self.pytype = child.class_
+                        break
+                else:
+                    self.logger.warn(
+                        "No type for %s '%s': falling back to xs:anyType."
+                        % (self.__class__.__name__.lower(),
+                           (self.name if self.name else self.ref)))
+                    self.pytype = fileformat.XsAnyType
+            else:
+                # predefined type, or global type?
+                pytypename = fileformat.name_class(node.type_)
+                try:
+                    self.pytype = getattr(fileformat, pytypename)
+                except AttributeError:
+                    raise ValueError(
+                        "Could not resolve type '%s' for %s '%s'."
+                        % (self.type_, self.__class__.__name__.lower(),
+                           self.name if self.name else self.ref))
+
+        def instantiate(self, inst):
+            setattr(inst, self.pyname, self.pytype())
 
     class AttributeGroup(Node):
         pass
@@ -168,15 +255,15 @@ class Tree(object):
     ##  {any attributes with non-schema namespace . . .}>
     ##  Content: (annotation?, (simpleContent | complexContent | ((group | all | choice | sequence)?, ((attribute | attributeGroup)*, anyAttribute?))))
     ##</complexType>
-    class ComplexType(Node):
+    class ComplexType(ClassNode):
         name = None
         """The name of the type."""
 
         def __init__(self, element, parent):
-            Tree.Node.__init__(self, element, parent)
+            Tree.ClassNode.__init__(self, element, parent)
             self.name = element.get("name")
 
-        def class_factory(self, fileformat):
+        def class_walker(self, fileformat):
             # construct a class name
             if self.name:
                 class_name = self.name
@@ -192,15 +279,14 @@ class Tree(object):
             # construct bases
             class_bases = (Type,)
             # construct class dictionary
-            class_dict = {}
-            class_dict["_node"] = self
+            class_dict = dict(_node=self, __module__=fileformat.__module__)
             # create class
-            class_ = type(class_name, class_bases, class_dict)
+            self.class_ = type(class_name, class_bases, class_dict)
             # assign child classes
-            for child_class in Tree.Node.class_factory(self, fileformat):
-                setattr(class_, child_class.__name__, child_class)
+            for child_class in Tree.Node.class_walker(self, fileformat):
+                setattr(self.class_, child_class.__name__, child_class)
             # yield the generated class
-            yield class_
+            yield self.class_
 
     class Documentation(Node):
         pass
@@ -224,20 +310,9 @@ class Tree(object):
     ##  {any attributes with non-schema namespace . . .}>
     ##  Content: (annotation?, ((simpleType | complexType)?, (unique | key | keyref)*))
     ##</element>
-    class Element(Node):
-        name = None
-        """The name of the element."""
-
-        ref = None
-        """If the element is declared elsewhere, then this contains the name
-        of the reference.
-        """
-
-        type_ = None
-        """The type of the element. This determines which attributes,
-        elements, and content, this element can have.
-        """
-
+    # note: techically, an element is not quite an attribute, but for the
+    #       purpose of this library, we can consider it as such
+    class Element(Attribute):
         min_occurs = 1
         """Minimum number of times the element can occur. ``None``
         corresponds to unbounded.
@@ -249,17 +324,18 @@ class Tree(object):
         """
 
         def __init__(self, element, parent):
-            Tree.Node.__init__(self, element, parent)
-            self.name = element.get("name")
-            self.ref = element.get("ref")
-            self.type_ = element.get("type")
+            Tree.Attribute.__init__(self, element, parent)
             self.min_occurs = self.num_occurs(element.get("minOccurs",
                                                           self.min_occurs))
             self.max_occurs = self.num_occurs(element.get("maxOccurs",
                                                           self.max_occurs))
-            if (not self.name) and (not self.ref):
-                raise ValueError("Element %s has neither name nor ref."
-                                 % element)
+
+        def instantiate(self, inst):
+            if self.min_occurs == 1 and self.max_occurs == 1:
+                Tree.Attribute.instantiate(self, inst)
+            else:
+                # XXX todo
+                pass
 
     class Enumeration(Node):
         pass
@@ -349,8 +425,46 @@ class Tree(object):
     class SimpleContent(Node):
         pass
 
-    class SimpleType(Node):
-        pass
+    ##http://www.w3.org/TR/2004/REC-xmlschema-1-20041028/structures.html#element-simpleType
+    ##<simpleType
+    ##  final = (#all | List of (list | union | restriction))
+    ##  id = ID
+    ##  name = NCName
+    ##  {any attributes with non-schema namespace . . .}>
+    ##  Content: (annotation?, (restriction | list | union))
+    ##</simpleType>
+    class SimpleType(ClassNode):
+        name = None
+        """The name of the type."""
+
+        def __init__(self, element, parent):
+            Tree.ClassNode.__init__(self, element, parent)
+            self.name = element.get("name")
+
+        def class_walker(self, fileformat):
+            # construct a class name
+            if self.name:
+                class_name = self.name
+            elif isinstance(self.parent, Tree.Element):
+                # find element that contains this type
+                class_name = self.parent.name
+            else:
+                raise ValueError(
+                    "simpleType has no name attribute and no element parent: "
+                    "cannot determine name.")
+            # filter class name so it conforms naming conventions
+            class_name = fileformat.name_class(class_name)
+            # construct bases
+            class_bases = (Type,)
+            # construct class dictionary
+            class_dict = dict(_node=self)
+            # create class
+            self.class_ = type(class_name, class_bases, class_dict)
+            # assign child classes
+            for child_class in Tree.Node.class_walker(self, fileformat):
+                setattr(self.class_, child_class.__name__, child_class)
+            # yield the generated class
+            yield self.class_
 
     class Union(Node):
         pass
@@ -413,8 +527,10 @@ class MetaFileFormat(pyffi.object_models.MetaFileFormat):
             finally:
                 xsdfile.close()
             # generate classes
-            for class_ in schema.class_factory(cls):
+            for class_ in schema.class_walker(cls):
                 setattr(cls, class_.__name__, class_)
+            # generate attributes
+            schema.attribute_walker(cls)
             cls.logger.debug("Parsing finished in %.3f seconds."
                              % (time.clock() - start))
 
@@ -422,9 +538,10 @@ class Type(object):
     _node = None
 
     def __init__(self):
-        if cls._node is None:
+        if self._node is None:
             return
         # TODO initialize all attributes
+        self._node.instantiate(self)
 
 class FileFormat(pyffi.object_models.FileFormat):
     """This class can be used as a base class for file formats. It implements
@@ -467,9 +584,160 @@ class FileFormat(pyffi.object_models.FileFormat):
         """
 
         # str(name) converts name to string in case name is a unicode string
-        partss = [part.split("_") for part in str(name).split()]
+        partss = [part.replace(":", "_").split("_")
+                  for part in str(name).split()]
         attrname = ""
         for parts in partss:
             for part in parts:
                 attrname += part[0].upper() + part[1:]
         return attrname
+
+
+    # built-in datatypes
+    # http://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html#built-in-datatypes
+
+    class XsAnyType(object):
+        """Abstract base type for all types."""
+        pass
+
+    class XsAnySimpleType(XsAnyType):
+        """Abstract base type for all simple types."""
+        pass
+
+    class XsString(XsAnySimpleType):
+        pass
+
+    class XsBoolean(XsAnySimpleType):
+        pass
+
+    class XsDecimal(XsAnySimpleType):
+        pass
+
+    class XsFloat(XsAnySimpleType):
+        pass
+
+    class XsDouble(XsAnySimpleType):
+        pass
+
+    class XsDuration(XsAnySimpleType):
+        pass
+
+    class XsDateTime(XsAnySimpleType):
+        pass
+
+    class XsTime(XsAnySimpleType):
+        pass
+
+    class XsDate(XsAnySimpleType):
+        pass
+
+    class XsGYearMonth(XsAnySimpleType):
+        pass
+
+    class XsGYear(XsAnySimpleType):
+        pass
+
+    class XsGMonthDay(XsAnySimpleType):
+        pass
+
+    class XsGDay(XsAnySimpleType):
+        pass
+
+    class XsGMonth(XsAnySimpleType):
+        pass
+
+    class XsHexBinary(XsAnySimpleType):
+        pass
+
+    class XsBase64Binary(XsAnySimpleType):
+        pass
+
+    class XsAnyURI(XsAnySimpleType):
+        pass
+
+    class XsQName(XsAnySimpleType):
+        pass
+
+    class XsNOTATION(XsAnySimpleType):
+        pass
+
+    # derived datatypes
+    # http://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html#built-in-derived
+
+    class XsNormalizedString(XsString):
+        pass
+
+    class XsToken(XsNormalizedString):
+        pass
+
+    class XsLanguage(XsToken):
+        pass
+
+    class XsNMTOKEN(XsToken):
+        pass
+
+    class XsNMTOKENS(XsToken):
+        # list
+        pass
+
+    class XsName(XsToken):
+        pass
+
+    class XsNCName(XsName):
+        pass
+
+    class XsID(XsNCName):
+        pass
+
+    class XsIDREF(XsNCName):
+        pass
+
+    class XsIDREFS(XsIDREF):
+        # list
+        pass
+
+    class XsENTITY(XsNCName):
+        pass
+
+    class XsENTITIES(XsENTITY):
+        # list
+        pass
+
+    class XsInteger(XsDecimal):
+        pass
+
+    class XsNonPositiveInteger(XsInteger):
+        pass
+
+    class XsNegativeInteger(XsInteger):
+        pass
+
+    class XsLong(XsInteger):
+        pass
+
+    class XsInt(XsLong):
+        pass
+
+    class XsShort(XsInt):
+        pass
+
+    class XsByte(XsShort):
+        pass
+
+    class XsNonNegativeInteger(XsInteger):
+        pass
+
+    class XsUnsignedLong(XsNonNegativeInteger):
+        pass
+
+    class XsUnsignedInt(XsUnsignedLong):
+        pass
+
+    class XsUnsignedShort(XsUnsignedInt):
+        pass
+
+    class XsUnsignedByte(XsUnsignedShort):
+        pass
+
+    class XsPositiveInteger(XsNonNegativeInteger):
+        pass
