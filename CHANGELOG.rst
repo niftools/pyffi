@@ -1,6 +1,8 @@
 Release 2.0.1 (in development)
 ==============================
 
+* Added Windows installer for Python 2.6.
+
 * Updated mopper.exe compiled with msvc 2008 sp1 (fixes issue #2802413,
   reported by pacmorrowind).
 
