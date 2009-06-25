@@ -205,7 +205,7 @@ Function .onInit
 
      ; no key, that means that Python is not installed
      MessageBox MB_OK "You need Python ${PYTHONVERSION} to use PyFFI. Pressing OK will take you to the Python ${PYTHONVERSION} download page. Please download and run the Python ${PYTHONVERSION} windows installer. When you are done, rerun the PyFFI installer."
-     StrCpy $0 "http://www.python.org/download/releases/2.5.4/"
+     StrCpy $0 "http://www.python.org/download/releases/${PYTHONVERSION}/"
      Call openLinkNewWindow
      Abort ; causes installer to quit
 
