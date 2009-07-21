@@ -38,13 +38,14 @@ SetCompressor /SOLID lzma
 !include "MUI.nsh"
 !include "LogicLib.nsh"
 
+!define PYTHONVERSION "2.6"
+
 ; list of files, generated from MANIFEST file
-; this also defines VERSION and PYTHONVERSION
+; this also defines VERSION
 !include "manifest.nsh"
 
 Name "PyFFI ${VERSION}"
 Var PYTHONPATH
-Var MAYAINST
 
 ; define installer pages
 !define MUI_ABORTWARNING
@@ -287,7 +288,6 @@ Section
   SectionIn RO
 
   ; full PyFFI install takes about 4MB in the Python directory
-  ; plus the same for the Maya directory
   ; the build directory takes about 1.5MB
   ; reserve 15MB extra for the installation to be absolutely on
   ; the safe side
@@ -365,35 +365,6 @@ Section
   RMDir /r "$INSTDIR\pyffi"
   RMDir /r "$INSTDIR\scripts"
   Delete "$INSTDIR\setup.py"
-
-  ; check if Maya 2008/2009 is installed
-
-  Push "2009-x64"
-  Push "2009"
-  Push "2008-x64"
-  Push "2008"
-  ${For} $1 1 4
-    Pop $0
-    ClearErrors
-    ReadRegStr $MAYAINST HKLM SOFTWARE\Autodesk\Maya\$0\Setup\InstallPath "MAYA_INSTALL_LOCATION"
-    IfErrors 0 have_maya
-    ReadRegStr $MAYAINST HKCU SOFTWARE\Autodesk\Maya\$0\Setup\InstallPath "MAYA_INSTALL_LOCATION"
-    IfErrors 0 have_maya
-    Goto maya_check_end
-
-have_maya:
-      MessageBox MB_YESNO "Install PyFFI for Maya $0?" IDNO maya_check_end
-      ; key, that means that Maya is installed
-      ; make sure site-packages directory exists
-      ; (this prevents CopyFiles to go wrong if it does not exist)
-      CreateDirectory "$MAYAINST\Python\Lib\site-packages"
-      ; Synchronize PyFFI (CopyFiles does a recursive copy)
-      RMDir /r "$MAYAINST\Python\Lib\site-packages\PyFFI"
-      RMDir /r "$MAYAINST\Python\Lib\site-packages\pyffi"
-      CopyFiles "$PYTHONPATH\Lib\site-packages\pyffi" "$MAYAINST\Python\Lib\site-packages"
-  
-maya_check_end:
-  ${Next}
 
   ; Clean up possibly previously installed shortcuts
   Delete "$SMPROGRAMS\PyFFI\*.*"
@@ -504,22 +475,6 @@ have_python:
     Delete "$PYTHONPATH\Scripts\crydaefilter.*"
 
 python_check_end:
-
-  ; check if Maya 2008 is installed
-
-  ClearErrors
-  ReadRegStr $MAYAINST HKLM SOFTWARE\Autodesk\Maya\2008\Setup\InstallPath "MAYA_INSTALL_LOCATION"
-  IfErrors 0 have_maya
-  ReadRegStr $MAYAINST HKCU SOFTWARE\Autodesk\Maya\2008\Setup\InstallPath "MAYA_INSTALL_LOCATION"
-  IfErrors 0 have_maya
-  Goto maya_check_end
-
-have_maya:
-    ; key, that means that Maya 2008 is installed
-    ; remove PyFFI
-    RMDir /r "$MAYAINST\Python\Lib\site-packages\pyffi"
-
-maya_check_end:
 
   ; remove registry keys
   DeleteRegKey HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI-py${PYTHONVERSION}"

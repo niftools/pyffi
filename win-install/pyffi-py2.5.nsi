@@ -38,8 +38,10 @@ SetCompressor /SOLID lzma
 !include "MUI.nsh"
 !include "LogicLib.nsh"
 
+!define PYTHONVERSION "2.5"
+
 ; list of files, generated from MANIFEST file
-; this also defines VERSION and PYTHONVERSION
+; this also defines VERSION
 !include "manifest.nsh"
 
 Name "PyFFI ${VERSION}"
