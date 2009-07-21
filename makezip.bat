@@ -34,8 +34,10 @@ rem %PYTHONPATH%\python.exe setup.py sdist --format=bztar
 
 %PYTHONPATH%\python.exe makensis.py
 rem del win-install\pyffi-*.exe
-if exist "%PROGRAMFILES%\NSIS\makensis.exe" "%PROGRAMFILES%\NSIS\makensis.exe" /v3 win-install\pyffi.nsi
-if exist "%PROGRAMFILES(x86)%\NSIS\makensis.exe" "%PROGRAMFILES(x86)%\NSIS\makensis.exe" /v3 win-install\pyffi.nsi
+if exist "%PROGRAMFILES%\NSIS\makensis.exe" "%PROGRAMFILES%\NSIS\makensis.exe" /v3 win-install\pyffi-py2.5.nsi
+if exist "%PROGRAMFILES(x86)%\NSIS\makensis.exe" "%PROGRAMFILES(x86)%\NSIS\makensis.exe" /v3 win-install\pyffi-py2.5.nsi
+if exist "%PROGRAMFILES%\NSIS\makensis.exe" "%PROGRAMFILES%\NSIS\makensis.exe" /v3 win-install\pyffi-py2.6.nsi
+if exist "%PROGRAMFILES(x86)%\NSIS\makensis.exe" "%PROGRAMFILES(x86)%\NSIS\makensis.exe" /v3 win-install\pyffi-py2.6.nsi
 
 :end
 pause

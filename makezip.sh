@@ -16,6 +16,7 @@ python setup.py -q sdist --format=bztar
 # create file list for nsis installer from MANIFEST
 python makensis.py
 
-# create windows installer
-wine ~/.wine/drive_c/Program\ Files/NSIS/makensis.exe /v2 win-install/pyffi.nsi
+# create windows installers
+wine ~/.wine/drive_c/Program\ Files/NSIS/makensis.exe /v2 win-install/pyffi-py2.5.nsi
+wine ~/.wine/drive_c/Program\ Files/NSIS/makensis.exe /v2 win-install/pyffi-py2.6.nsi
 
