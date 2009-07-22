@@ -1,5 +1,5 @@
-Release 2.0.1 (in development)
-==============================
+Release 2.0.1 (Jul 22, 2009)
+============================
 
 * Added Windows installer for Python 2.6.
 
