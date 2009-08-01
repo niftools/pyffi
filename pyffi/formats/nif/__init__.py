@@ -1513,11 +1513,11 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             if self.numBlockTypes == 0:
                 raise ValueError("header does not store any block types")
             # quick first check, without hierarchy, using simple string comparisons
-            if block_type.__name__ in self.blockTypes:
+            if block_type.__name__.encode() in self.blockTypes:
                 return True
             # slower check, using isinstance
             for data_block_type in self.blockTypes:
-                if issubclass(getattr(NifFormat, data_block_type), block_type):
+                if issubclass(getattr(NifFormat, data_block_type.decode()), block_type):
                     return True
             # requested block type is not in nif
             return False
