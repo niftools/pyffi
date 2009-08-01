@@ -4064,6 +4064,14 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             :type vcolprecision: float
             :return: A generator yielding a hash value for each vertex.
             """
+
+            def _int(x):
+                """Convert float to integer, handling NaN gracefully."""
+                try:
+                    return int(x)
+                except ValueError:
+                    return 0
+            
             verts = self.vertices if self.hasVertices else None
             norms = self.normals if self.hasNormals else None
             uvsets = self.uvSets if len(self.uvSets) else None
@@ -4082,7 +4090,10 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                               for x in [norms[i].x, norms[i].y, norms[i].z]])
                 if uvsets:
                     for uvset in uvsets:
-                        h.extend([int(x*uvfactor) for x in [uvset[i].u, uvset[i].v]])
+                        # uvs sometimes have NaN, for example:
+                        # oblivion/meshes/architecture/anvil/anvildooruc01.nif
+                        h.extend([_int(x*uvfactor)
+                                  for x in [uvset[i].u, uvset[i].v]])
                 if vcols:
                     h.extend([int(x * vcolfactor)
                               for x in [vcols[i].r, vcols[i].g,
