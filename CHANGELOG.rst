@@ -9,6 +9,9 @@ Release 2.0.2 (in development)
 * Optimizer can now recover from invalid indices in strips (this fixes
   some nifs mentioned in issue #2795837 by baphometal).
 
+* Skin updater can now recover when some vertices have no weights
+  (this fixes some nifs mentioned in issue #2795837 by baphometal).
+
 * Skip zero weights and add up weights of duplicated bones when
   calculating vertex weights (this fixes some nifs mentioned in issue
   #2795837 by baphometal).
@@ -16,7 +19,6 @@ Release 2.0.2 (in development)
 * The nif optimizer can now handle NiTriShapeData attached as a
   NiTriStrips data block (fixes some corrupt nifs provided by
   baphometal in issue #2795837).
-
 
 Release 2.0.1 (Jul 22, 2009)
 ============================

@@ -5885,7 +5885,12 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             minbones = min(len(weight) for weight in weights)
             maxbones = max(len(weight) for weight in weights)
             if minbones <= 0:
-                raise ValueError('bad NiSkinData: some vertices have no weights')
+                noweights = [v for v, weight in enumerate(weights)
+                             if not weight]
+                #raise ValueError(
+                logger.warn(
+                    'bad NiSkinData: some vertices have no weights %s'
+                    % noweights)
             logger.info("Counted minimum of %i and maximum of %i bones per vertex"
                         % (minbones, maxbones))
 
