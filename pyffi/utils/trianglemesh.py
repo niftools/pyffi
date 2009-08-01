@@ -160,7 +160,7 @@ class FaceEdgeMesh(FlyweightGroupObject):
     >>> mesh = FaceEdgeMesh(); mesh
     <FaceEdgeMesh |edges|=0 |faces|=0>
     >>> i0, i1 = 0, 1
-    >>> for i2 in xrange(2, 8):
+    >>> for i2 in range(2, 8):
     ...     f = mesh.AddFace(i0, i1, i2)
     ...     i0, i1 = i1, i2
     >>> mesh

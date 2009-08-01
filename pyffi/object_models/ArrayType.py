@@ -162,7 +162,7 @@ class UniformArray(AnyArray):
     ...     ItemType = MyInt
     >>> testlist = ListOfInts()
     >>> testlist.append(MyInt(value=20))
-    >>> testlist.extend([MyInt(value=val) for val in xrange(2, 10, 2)])
+    >>> testlist.extend([MyInt(value=val) for val in range(2, 10, 2)])
     >>> print(testlist)
     MyInt array:
       [00] 20

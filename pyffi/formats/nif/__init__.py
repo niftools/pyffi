@@ -3719,7 +3719,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
         >>> block = NifFormat.NiBSplineData()
         >>> block.numShortControlPoints = 50
         >>> block.shortControlPoints.updateSize()
-        >>> for i in xrange(block.numShortControlPoints):
+        >>> for i in range(block.numShortControlPoints):
         ...     block.shortControlPoints[i] = 20 - i
         >>> list(block.getShortData(12, 4, 3))
         [(8, 7, 6), (5, 4, 3), (2, 1, 0), (-1, -2, -3)]
