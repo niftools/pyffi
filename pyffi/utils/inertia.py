@@ -157,11 +157,11 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, solid = Tru
     True
     >>> sphere = []
     >>> N = 10
-    >>> for j in xrange(-N+1, N):
+    >>> for j in range(-N+1, N):
     ...     theta = j * 0.5 * math.pi / N
     ...     st, ct = math.sin(theta), math.cos(theta)
     ...     M = max(3, int(ct * 2 * N + 0.5))
-    ...     for i in xrange(0, M):
+    ...     for i in range(0, M):
     ...         phi = i * 2 * math.pi / M
     ...         s, c = math.sin(phi), math.cos(phi)
     ...         sphere.append((2*s*ct, 2*c*ct, 2*st)) # construct sphere of radius 2
