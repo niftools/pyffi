@@ -292,7 +292,7 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
         del oldvcols
 
         # update vertex indices in strips/triangles
-        if isinstance(branch, NifFormat.NiTriStrips):
+        if isinstance(data, NifFormat.NiTriStripsData):
             for strip in data.points:
                 for i in xrange(len(strip)):
                     try:
@@ -306,28 +306,28 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                             strip[i] = strip[i-1]
                         else:
                             strip[i] = strip[i+1]
-        elif isinstance(branch, NifFormat.NiTriShape):
+        elif isinstance(data, NifFormat.NiTriShapeData):
             for tri in data.triangles:
                 tri.v1 = v_map[tri.v1]
                 tri.v2 = v_map[tri.v2]
                 tri.v3 = v_map[tri.v3]
 
         # stripify trishape/tristrip
-        if isinstance(branch, NifFormat.NiTriStrips):
+        if isinstance(data, NifFormat.NiTriStripsData):
             self.toaster.msg("recalculating strips")
             origlen = sum(i for i in data.stripLengths)
             data.setTriangles(data.getTriangles())
             newlen = sum(i for i in data.stripLengths)
             self.toaster.msg("(strip length was %i and is now %i)"
                              % (origlen, newlen))
-        elif isinstance(branch, NifFormat.NiTriShape):
+        elif isinstance(data, NifFormat.NiTriShapeData):
             self.toaster.msg("stripifying")
             newbranch = branch.getInterchangeableTriStrips()
             self.data.replaceGlobalNode(branch, newbranch)
             branch = newbranch
             data = newbranch.data
         # average, weighed towards large strips
-        if isinstance(branch, NifFormat.NiTriStrips):
+        if isinstance(data, NifFormat.NiTriStripsData):
             # note: the max(1, ...) is to avoid ZeroDivisionError
             avgstriplen = float(sum(i * i for i in data.stripLengths)) \
                 / max(1, sum(i for i in data.stripLengths))
