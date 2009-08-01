@@ -11,7 +11,7 @@ Tetrahedron
 
 >>> import random
 >>> tetrahedron = [(0,0,0),(1,0,0),(0,1,0),(0,0,1)]
->>> for i in xrange(200):
+>>> for i in range(200):
 ...     alpha = random.random()
 ...     beta = random.random()
 ...     gamma = 1 - alpha - beta
@@ -66,7 +66,7 @@ The unit cube
 
 >>> import random
 >>> cube = [(0,0,0),(0,0,1),(0,1,0),(1,0,0),(0,1,1),(1,0,1),(1,1,0),(1,1,1)]
->>> for i in xrange(200):
+>>> for i in range(200):
 ...     cube.append((random.random(), random.random(), random.random()))
 >>> verts, triangles = qhull3d(cube)
 >>> len(triangles) # 6 faces, written as 12 triangles
@@ -79,7 +79,7 @@ A degenerate shape: the unit square
 
 >>> import random
 >>> plane = [(0,0,0),(1,0,0),(0,1,0),(1,1,0)]
->>> for i in xrange(200):
+>>> for i in range(200):
 ...     plane.append((random.random(), random.random(), 0))
 >>> verts, triangles = qhull3d(plane)
 >>> len(verts)
@@ -92,7 +92,7 @@ A random shape
 
 >>> import random
 >>> shape = []
->>> for i in xrange(2000):
+>>> for i in range(2000):
 ...     vert = (random.random(), random.random(), random.random())
 ...     shape.append(vert)
 >>> verts, triangles = qhull3d(shape)
@@ -181,25 +181,25 @@ def qhull2d(vertices, normal, precision = 0.0001):
     >>> import random
     >>> import math
     >>> plane = [(0,0,0),(1,0,0),(0,1,0),(1,1,0)]
-    >>> for i in xrange(200):
+    >>> for i in range(200):
     ...     plane.append((random.random(), random.random(), 0))
     >>> verts = qhull2d(plane, (0,0,1))
     >>> len(verts)
     4
     >>> disc = []
-    >>> for i in xrange(50):
+    >>> for i in range(50):
     ...     theta = (2 * math.pi * i) / 50
     ...     disc.append((0, math.sin(theta), math.cos(theta)))
     >>> verts = qhull2d(disc, (1,0,0))
     >>> len(verts)
     50
-    >>> for i in xrange(400):
+    >>> for i in range(400):
     ...     disc.append((0, 1.4 * random.random() - 0.7, 1.4 * random.random() - 0.7))
     >>> verts = qhull2d(disc, (1,0,0))
     >>> len(verts)
     50
     >>> dist = 2 * math.pi / 50
-    >>> for i in xrange(len(verts) - 1):
+    >>> for i in range(len(verts) - 1):
     ...      assert(abs(vecDistance(verts[i], verts[i+1]) - dist) < 0.001)
 
     :param vertices: The vertices to construct the hull from.
@@ -232,7 +232,7 @@ def basesimplex3d(vertices, precision = 0.0001):
 
     >>> import random
     >>> cube = [(0,0,0),(0,0,1),(0,1,0),(1,0,0),(0,1,1),(1,0,1),(1,1,0),(1,1,1)]
-    >>> for i in xrange(200):
+    >>> for i in range(200):
     ...     cube.append((random.random(), random.random(), random.random()))
     >>> base = basesimplex3d(cube)
     >>> len(base)
