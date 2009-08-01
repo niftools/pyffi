@@ -485,9 +485,9 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                 except KeyError:
                     ver = -1
                 if ver >= 0x0303000D:
-                    stream.write('\xff\xff\xff\xff') # link by number
+                    stream.write(struct.pack("<i", -1)) # link by number
                 else:
-                    stream.write('\x00\x00\x00\x00') # link by pointer
+                    stream.write(struct.pack("<i", 0)) # link by pointer
             else:
                 stream.write(struct.pack(
                     '<i', kwargs.get('block_index_dct')[self.getValue()]))
@@ -752,7 +752,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
         """Another type for strings."""
         def __init__(self, **kwargs):
             BasicBase.__init__(self, **kwargs)
-            self._value = ''
+            self._value = ''.encode("ascii")
 
         def getValue(self):
             return self._value
@@ -779,7 +779,8 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
 
         def write(self, stream, **kwargs):
             stream.write(struct.pack('<B', len(self._value)+1))
-            stream.write(self._value + '\x00'.encode("ascii"))
+            stream.write(self._value)
+            stream.write('\x00'.encode("ascii"))
 
     class string(SizedString):
         _hasStrings = True
