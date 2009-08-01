@@ -6,6 +6,18 @@ Release 2.0.2 (in development)
 * Log warning rather than raising exception on invalid links (fixes issue
   #2818403 reported by abubakr125).
 
+* Optimizer can now recover from invalid indices in strips (this fixes
+  some nifs mentioned in issue #2795837 by baphometal).
+
+* Skip zero weights and add up weights of duplicated bones when
+  calculating vertex weights (this fixes some nifs mentioned in issue
+  #2795837 by baphometal).
+
+* The nif optimizer can now handle NiTriShapeData attached as a
+  NiTriStrips data block (fixes some corrupt nifs provided by
+  baphometal in issue #2795837).
+
+
 Release 2.0.1 (Jul 22, 2009)
 ============================
 
