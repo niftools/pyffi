@@ -1770,6 +1770,9 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                 raise TypeError(
                     "do not know how to divide Matrix33 by %s"%rhs.__class__)
 
+        # py3k
+        __truediv__ = __div__
+
         def __rmul__(self, lhs):
             if isinstance(lhs, (float, int, long)):
                 return self * lhs # commutes
@@ -1898,6 +1901,9 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                 return v
             else:
                 raise TypeError("do not know how to divide Vector3 and %s"%x.__class__)
+
+        # py3k
+        __truediv__ = __div__
 
         def __add__(self, x):
             if isinstance(x, (float, int, long)):
@@ -3440,6 +3446,9 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                 return m
             else:
                 raise TypeError("do not know how to divide Matrix44 by %s"%x.__class__)
+
+        # py3k
+        __truediv__ = __div__
 
         def __rmul__(self, x):
             if isinstance(x, (float, int, long)):
