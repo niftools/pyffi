@@ -78,15 +78,15 @@ def walk(top, topdown=True, onerror=None, re_filename=None):
 #for c in [chr(i) for i in xrange(32,128)]:
 #    table += c
 #table += "."*128
-chartable = '................................ !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.................................................................................................................................'
+chartable = '................................ !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.................................................................................................................................'.encode("ascii")
 
 def hexDump(f, numLines = 8):
     """A function for hexdumping.
 
     >>> from tempfile import TemporaryFile
     >>> f = TemporaryFile()
-    >>> f.write('abcdefg\\x0a')
-    >>> f.seek(2)
+    >>> if f.write('abcdefg\\x0a'.encode("ascii")): pass
+    >>> if f.seek(2): pass # ignore result for py3k
     >>> hexDump(f, 2)
                 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 
     -----------------------------------------------------------
@@ -111,14 +111,20 @@ def hexDump(f, numLines = 8):
         dumpstr += "0x%08X " % dumppos
         data = f.read(16)
         for j, c in enumerate(data):
-            if dumppos + j != pos:
-                dumpstr += " %02X" % ord(c)
+            # py3k: data is bytes object, so c is int already
+            # py2x: data is string, so convert c to int with ord
+            if isinstance(c, int):
+                cc = c
             else:
-                dumpstr += ">%02X" % ord(c)
+                cc = ord(c)
+            if dumppos + j != pos:
+                dumpstr += " %02X" % cc
+            else:
+                dumpstr += ">%02X" % cc
         for j in xrange(len(data), 16):
             dumpstr += "   "
-            data += " "
-        dumpstr += " |" + data.translate(chartable) + "|\n"
+            data += " ".encode("ascii")
+        dumpstr += " |" + data.translate(chartable).decode("ascii") + "|\n"
         dumppos += 16
     print(dumpstr)
 
