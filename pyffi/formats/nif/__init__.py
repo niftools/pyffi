@@ -869,8 +869,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             return self._value
 
         def setValue(self, value):
-            assert(isinstance(value, basestring))
-            self._value = value
+            self._value = pyffi.object_models.Common._asBytes(value)
 
         def getSize(self, **kwargs):
             return len(self._value) + 4
@@ -904,7 +903,8 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             if value:
                 size1 = len(value[0])
             for x in value:
-                assert(isinstance(value, basestring))
+                # TODO fix this for py3k
+                #assert(isinstance(x, basestring))
                 assert(len(x) == size1)
             self._value = value # should be a list of strings of bytes
 
