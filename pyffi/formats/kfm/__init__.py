@@ -343,7 +343,7 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
                 self, stream, version=self.version)
 
             # check if we are at the end of the file
-            if stream.read(1) != '':
+            if stream.read(1):
                 raise ValueError('end of file not reached: corrupt kfm file?')
 
         def write(self, stream):
