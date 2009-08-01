@@ -19,13 +19,13 @@ Read a KFM file
 >>> stream = open('tests/kfm/test.kfm', 'rb')
 >>> data = KfmFormat.Data()
 >>> data.inspect(stream)
->>> print(data.nifFileName)
+>>> print(data.nifFileName.decode("ascii"))
 Test.nif
 >>> data.read(stream)
 >>> stream.close()
 >>> # get all animation file names
 >>> for anim in data.animations:
-...     print(anim.kfFileName)
+...     print(anim.kfFileName.decode("ascii"))
 Test_MD_Idle.kf
 Test_MD_Run.kf
 Test_MD_Walk.kf
@@ -35,7 +35,7 @@ Parse all KFM files in a directory tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 >>> for stream, data in KfmFormat.walkData('tests/kfm'):
-...     print stream.name
+...     print(stream.name)
 tests/kfm/test.kfm
 
 Create a KFM model from scratch and write to file
@@ -178,18 +178,18 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
             # read string from stream
             hdrstr = stream.read(len(version_string))
             # check if the string is correct
-            if hdrstr != version_string:
+            if hdrstr != version_string.encode("ascii"):
                 raise ValueError(
                     "invalid KFM header: expected '%s' but got '%s'"
                     % (version_string, hdrstr))
             # check eol style
             nextchar = stream.read(1)
-            if nextchar == '\x0d':
+            if nextchar == '\x0d'.encode("ascii"):
                 nextchar = stream.read(1)
                 self._doseol = True
             else:
                 self._doseol = False
-            if nextchar != '\x0a':
+            if nextchar != '\x0a'.encode("ascii"):
                 raise ValueError(
                     "invalid KFM header: string does not end on \\n or \\r\\n")
 
@@ -200,12 +200,12 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
             :type stream: file
             """
             # write the version string
-            stream.write(self.versionString(kwargs.get('version')))
+            stream.write(self.versionString(kwargs.get('version')).encode("ascii"))
             # write \n (or \r\n for older versions)
             if self._doseol:
-                stream.write('\x0d\x0a')
+                stream.write('\x0d\x0a'.encode("ascii"))
             else:
-                stream.write('\x0a')
+                stream.write('\x0a'.encode("ascii"))
 
         def getSize(self, **kwargs):
             """Return number of bytes the header string occupies in a file.
@@ -307,8 +307,8 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
                 hdrstr = stream.readline(64).rstrip()
             finally:
                 stream.seek(pos)
-            if hdrstr.startswith(";Gamebryo KFM File Version "):
-                version_str = hdrstr[27:]
+            if hdrstr.startswith(";Gamebryo KFM File Version ".encode("ascii")):
+                version_str = hdrstr[27:].decode("ascii")
             else:
                 # not a kfm file
                 raise ValueError("Not a KFM file.")
