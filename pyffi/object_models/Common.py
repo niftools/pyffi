@@ -117,7 +117,7 @@ class Int(BasicBase, EditableSpinBox):
     >>> i.setValue(0x11223344)
     >>> i.write(tmp)
     >>> j = Int()
-    >>> tmp.seek(0)
+    >>> if tmp.seek(0): pass # ignore result for py3k
     >>> j.read(tmp)
     >>> hex(j.getValue())
     '0x11223344'
@@ -129,9 +129,9 @@ class Int(BasicBase, EditableSpinBox):
     Traceback (most recent call last):
         ...
     ValueError: cannot convert value 'hello world' to integer
-    >>> tmp.seek(0)
-    >>> tmp.write('\x11\x22\x33\x44'.encode("ascii")) # b'\x11\x22\x33\x44'
-    >>> tmp.seek(0)
+    >>> if tmp.seek(0): pass # ignore result for py3k
+    >>> if tmp.write('\x11\x22\x33\x44'.encode("ascii")): pass # b'\x11\x22\x33\x44'
+    >>> if tmp.seek(0): pass # ignore result for py3k
     >>> i.read(tmp)
     >>> hex(i.getValue())
     '0x44332211'
@@ -395,15 +395,15 @@ class ZString(BasicBase, EditableLineEdit):
     >>> from tempfile import TemporaryFile
     >>> f = TemporaryFile()
     >>> s = ZString()
-    >>> f.write('abcdefghijklmnopqrst\\x00'.encode("ascii")) # b'abc...'
-    >>> f.seek(0)
+    >>> if f.write('abcdefghijklmnopqrst\\x00'.encode("ascii")): pass # b'abc...'
+    >>> if f.seek(0): pass # ignore result for py3k
     >>> s.read(f)
     >>> str(s)
     'abcdefghijklmnopqrst'
-    >>> f.seek(0)
+    >>> if f.seek(0): pass # ignore result for py3k
     >>> s.setValue('Hi There!')
     >>> s.write(f)
-    >>> f.seek(0)
+    >>> if f.seek(0): pass # ignore result for py3k
     >>> m = ZString()
     >>> m.read(f)
     >>> str(m)
@@ -490,15 +490,15 @@ class FixedString(BasicBase, EditableLineEdit):
     >>> class String8(FixedString):
     ...     _len = 8
     >>> s = String8()
-    >>> f.write('abcdefghij'.encode())
-    >>> f.seek(0)
+    >>> if f.write('abcdefghij'.encode()): pass # ignore result for py3k
+    >>> if f.seek(0): pass # ignore result for py3k
     >>> s.read(f)
     >>> str(s)
     'abcdefgh'
-    >>> f.seek(0)
+    >>> if f.seek(0): pass # ignore result for py3k
     >>> s.setValue('Hi There')
     >>> s.write(f)
-    >>> f.seek(0)
+    >>> if f.seek(0): pass # ignore result for py3k
     >>> m = String8()
     >>> m.read(f)
     >>> str(m)
@@ -573,15 +573,15 @@ class SizedString(BasicBase, EditableLineEdit):
     >>> from tempfile import TemporaryFile
     >>> f = TemporaryFile()
     >>> s = SizedString()
-    >>> f.write('\\x07\\x00\\x00\\x00abcdefg')
-    >>> f.seek(0)
+    >>> if f.write('\\x07\\x00\\x00\\x00abcdefg'.encode("ascii")): pass # ignore result for py3k
+    >>> if f.seek(0): pass # ignore result for py3k
     >>> s.read(f)
     >>> str(s)
     'abcdefg'
-    >>> f.seek(0)
+    >>> if f.seek(0): pass # ignore result for py3k
     >>> s.setValue('Hi There')
     >>> s.write(f)
-    >>> f.seek(0)
+    >>> if f.seek(0): pass # ignore result for py3k
     >>> m = SizedString()
     >>> m.read(f)
     >>> str(m)
