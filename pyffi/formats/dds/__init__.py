@@ -148,7 +148,7 @@ class DdsFormat(pyffi.object_models.xml.FileFormat):
             """
             hdrstr = stream.read(4)
             # check if the string is correct
-            if hdrstr != "DDS ":
+            if hdrstr != "DDS ".encode("ascii"):
                 raise ValueError(
                     "invalid DDS header: expected 'DDS ' but got '%s'" % hdrstr)
 
@@ -158,7 +158,7 @@ class DdsFormat(pyffi.object_models.xml.FileFormat):
             :param stream: The stream to write to.
             :type stream: file
             """
-            stream.write("DDS ")
+            stream.write("DDS ".encode("ascii"))
 
         def getSize(self, **kwargs):
             """Return number of bytes the header string occupies in a file.
@@ -166,11 +166,6 @@ class DdsFormat(pyffi.object_models.xml.FileFormat):
             :return: Number of bytes.
             """
             return 4
-
-    # exceptions
-    class DdsError(Exception):
-        """Exception class used for DDS related exceptions."""
-        pass
 
     @staticmethod
     def versionNumber(version_str):
@@ -206,7 +201,7 @@ class DdsFormat(pyffi.object_models.xml.FileFormat):
             pos = stream.tell()
             try:
                 hdrstr = stream.read(4)
-                if hdrstr != "DDS ":
+                if hdrstr != "DDS ".encode("ascii"):
                     raise ValueError("Not a DDS file.")
                 size = struct.unpack("<I", stream.read(4))
                 if size == 124:
@@ -247,8 +242,8 @@ class DdsFormat(pyffi.object_models.xml.FileFormat):
             self.pixeldata.read(stream, data=self)
 
             # check if we are at the end of the file
-            if stream.read(1) != '':
-                raise self.DdsError(
+            if stream.read(1):
+                raise ValueError(
                     'end of file not reached: corrupt dds file?')
             
         def write(self, stream, verbose=0):
