@@ -43,7 +43,7 @@ pyffi.toaster:INFO:    * headerString : ;Gamebryo KFM File Version x.x.x.x
 pyffi.toaster:INFO:    * textString : <UNDECODED DATA>
 pyffi.toaster:INFO:    * unknownByte : 0
 pyffi.toaster:INFO:    * nifFileName : Test.nif
-pyffi.toaster:INFO:    * master : <EMPTY STRING>
+pyffi.toaster:INFO:    * master : <None>
 pyffi.toaster:INFO:    * unknownInt1 : 0
 pyffi.toaster:INFO:    * unknownInt2 : 0
 pyffi.toaster:INFO:    * unknownFloat1 : 0.0
@@ -53,28 +53,28 @@ pyffi.toaster:INFO:    * animations :
 pyffi.toaster:INFO:        <class 'pyffi.object_models.xml.Array.Array'> instance at ...
 pyffi.toaster:INFO:        0: <class 'pyffi.formats.kfm.Animation'> instance at ...
 pyffi.toaster:INFO:        * eventCode : 0
-pyffi.toaster:INFO:        * name : <EMPTY STRING>
+pyffi.toaster:INFO:        * name : <None>
 pyffi.toaster:INFO:        * kfFileName : Test_MD_Idle.kf
 pyffi.toaster:INFO:        * index : 0
 pyffi.toaster:INFO:        * numTransitions : 0
 pyffi.toaster:INFO:        * transitions : <class 'pyffi.object_models.xml.Array.Array'> instance at ...
 pyffi.toaster:INFO:        1: <class 'pyffi.formats.kfm.Animation'> instance at ...
 pyffi.toaster:INFO:        * eventCode : 0
-pyffi.toaster:INFO:        * name : <EMPTY STRING>
+pyffi.toaster:INFO:        * name : <None>
 pyffi.toaster:INFO:        * kfFileName : Test_MD_Run.kf
 pyffi.toaster:INFO:        * index : 0
 pyffi.toaster:INFO:        * numTransitions : 0
 pyffi.toaster:INFO:        * transitions : <class 'pyffi.object_models.xml.Array.Array'> instance at ...
 pyffi.toaster:INFO:        2: <class 'pyffi.formats.kfm.Animation'> instance at ...
 pyffi.toaster:INFO:        * eventCode : 0
-pyffi.toaster:INFO:        * name : <EMPTY STRING>
+pyffi.toaster:INFO:        * name : <None>
 pyffi.toaster:INFO:        * kfFileName : Test_MD_Walk.kf
 pyffi.toaster:INFO:        * index : 0
 pyffi.toaster:INFO:        * numTransitions : 0
 pyffi.toaster:INFO:        * transitions : <class 'pyffi.object_models.xml.Array.Array'> instance at ...
 pyffi.toaster:INFO:        3: <class 'pyffi.formats.kfm.Animation'> instance at ...
 pyffi.toaster:INFO:        * eventCode : 0
-pyffi.toaster:INFO:        * name : <EMPTY STRING>
+pyffi.toaster:INFO:        * name : <None>
 pyffi.toaster:INFO:        * kfFileName : Test_MD_Die.kf
 pyffi.toaster:INFO:        * index : 0
 pyffi.toaster:INFO:        * numTransitions : 0

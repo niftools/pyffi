@@ -109,7 +109,7 @@ def _asStr(value):
     if not isinstance(value, (_str, _bytes)):
         raise TypeError("expected %s or %s" % (_bytes.__name__, _str.__name__))
     elif not value:
-        return '<EMPTY STRING>'
+        return ''
     elif isinstance(value, str):
         # this always works regardless of the python version
         return value

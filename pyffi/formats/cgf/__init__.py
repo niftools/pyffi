@@ -31,7 +31,7 @@ Read a CGF file
 >>> for chunk in data.chunks:
 ...     print(chunk) # doctest: +ELLIPSIS
 <class 'pyffi.formats.cgf.SourceInfoChunk'> instance at ...
-* sourceFile : <EMPTY STRING>
+* sourceFile : <None>
 * date : Fri Sep 28 22:40:44 2007
 * author : blender@BLENDER
 <BLANKLINE>
@@ -124,7 +124,7 @@ Create a CGF file from scratch
 * posCtrl : None
 * rotCtrl : None
 * sclCtrl : None
-* propertyString : <EMPTY STRING>
+* propertyString : <None>
 * children :
     <class 'pyffi.object_models.xml.Array.Array'> instance at 0x...
     0: <class 'pyffi.formats.cgf.NodeChunk'> instance at 0x...
@@ -157,7 +157,7 @@ Create a CGF file from scratch
 * posCtrl : None
 * rotCtrl : None
 * sclCtrl : None
-* propertyString : <EMPTY STRING>
+* propertyString : <None>
 * children : <class 'pyffi.object_models.xml.Array.Array'> instance at 0x...
 <BLANKLINE>
 """

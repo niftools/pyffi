@@ -45,6 +45,7 @@ from functools import partial
 from itertools import izip
 
 from pyffi.utils.graph import DetailNode, GlobalNode, EdgeFilter
+import pyffi.object_models.Common
 
 class _MetaStructBase(type):
     """This metaclass checks for the presence of _attrs and _isTemplate
@@ -316,7 +317,7 @@ class StructBase(GlobalNode):
                 text += '* %s : %s\n' % (attr.name, attr_str_lines[0])
             else:
                 #print(getattr(self, "_%s_value_" % attr.name))
-                text += '* %s : <EMPTY>\n' % attr.name
+                text += '* %s : <None>\n' % attr.name
         return text
 
     def read(self, stream, **kwargs):
@@ -598,7 +599,8 @@ class StructBase(GlobalNode):
 
     def getGlobalDisplay(self):
         """Construct a convenient name for the block itself."""
-        return self.name if hasattr(self, "name") else ""
+        return (pyffi.object_models.Common._asStr(self.name)
+                if hasattr(self, "name") else "")
 
     def getGlobalChildNodes(self, edge_filter=EdgeFilter()):
         # TODO replace getRefs with a generator as well
