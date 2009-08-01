@@ -295,7 +295,17 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
         if isinstance(branch, NifFormat.NiTriStrips):
             for strip in data.points:
                 for i in xrange(len(strip)):
-                    strip[i] = v_map[strip[i]]
+                    try:
+                        strip[i] = v_map[strip[i]]
+                    except IndexError:
+                        self.toaster.logger.warn(
+                            "Corrupt nif: bad vertex index in strip (%i); "
+                            "replacing by valid index which might "
+                            "modify your geometry!" % strip[i])
+                        if i > 0:
+                            strip[i] = strip[i-1]
+                        else:
+                            strip[i] = strip[i+1]
         elif isinstance(branch, NifFormat.NiTriShape):
             for tri in data.triangles:
                 tri.v1 = v_map[tri.v1]
