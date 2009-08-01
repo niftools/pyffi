@@ -517,9 +517,13 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                     return
             # other case: look up the link and check the link type
             block = kwargs.get('block_dct')[block_index]
-            if not isinstance(block, self._template):
-                raise TypeError('expected an instance of %s but got instance of %s'%(self._template, block.__class__))
-            self.setValue(block)
+            if isinstance(block, self._template):
+                self.setValue(block)
+            else:
+                #raise TypeError('expected an instance of %s but got instance of %s'%(self._template, block.__class__))
+                logging.getLogger("pyffi.nif.ref").warn(
+                    "Expected an %s but got %s: ignoring reference."
+                    % (self._template, block.__class__))
 
         def getLinks(self, **kwargs):
             val = self.getValue()
