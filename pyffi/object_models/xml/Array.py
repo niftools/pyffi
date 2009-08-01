@@ -254,7 +254,7 @@ class Array(_ListWrap):
         new_size = self._len1()
         if self._count2 == None:
             if new_size < old_size:
-                self.__delslice__(new_size, old_size)
+                del self[new_size:old_size]
             else:
                 for i in xrange(new_size-old_size):
                     elem = self._elementType(
@@ -263,7 +263,7 @@ class Array(_ListWrap):
                     self.append(elem)
         else:
             if new_size < old_size:
-                self.__delslice__(new_size, old_size)
+                del self[new_size:old_size]
             else:
                 for i in xrange(new_size-old_size):
                     self.append(_ListWrap(self._elementType))
@@ -271,7 +271,7 @@ class Array(_ListWrap):
                 old_size_i = len(elemlist)
                 new_size_i = self._len2(i)
                 if new_size_i < old_size_i:
-                    elemlist.__delslice__(new_size_i, old_size_i)
+                    del elemlist[new_size_i:old_size_i]
                 else:
                     for j in xrange(new_size_i-old_size_i):
                         elem = self._elementType(
@@ -287,7 +287,7 @@ class Array(_ListWrap):
         len1 = self._len1()
         if len1 > 2000000:
             raise ValueError('array too long (%i)' % len1)
-        self.__delslice__(0, self.__len__())
+        del self[0:self.__len__()]
         # read array
         if self._count2 == None:
             for i in xrange(len1):
