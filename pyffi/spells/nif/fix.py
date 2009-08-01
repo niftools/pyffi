@@ -153,12 +153,18 @@ class SpellFixTexturePath(NifSpell):
     
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiSourceTexture):
-            if (('\n' in branch.fileName)
-                or ('\r' in branch.fileName)
-                or ('/' in branch.fileName)):
-                branch.fileName = branch.fileName.replace('\n', '\\n')
-                branch.fileName = branch.fileName.replace('\r', '\\r')
-                branch.fileName = branch.fileName.replace('/', '\\')
+            if (('\n'.encode("ascii") in branch.fileName)
+                or ('\r'.encode("ascii") in branch.fileName)
+                or ('/'.encode("ascii") in branch.fileName)):
+                branch.fileName = branch.fileName.replace(
+                    '\n'.encode("ascii"),
+                    '\\n'.encode("ascii"))
+                branch.fileName = branch.fileName.replace(
+                    '\r'.encode("ascii"),
+                    '\\r'.encode("ascii"))
+                branch.fileName = branch.fileName.replace(
+                    '/'.encode("ascii"),
+                    '\\'.encode("ascii"))
                 self.toaster.msg("fixed file name '%s'" % branch.fileName)
             return False
         else:
