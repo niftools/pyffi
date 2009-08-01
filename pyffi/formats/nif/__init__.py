@@ -1080,18 +1080,18 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                 s = stream.readline(64).rstrip()
             finally:
                 stream.seek(pos)
-            if s.startswith("NetImmerse File Format, Version " ):
-                version_str = s[32:]
-            elif s.startswith("Gamebryo File Format, Version "):
-                version_str = s[30:]
+            if s.startswith("NetImmerse File Format, Version ".encode("ascii")):
+                version_str = s[32:].decode("ascii")
+            elif s.startswith("Gamebryo File Format, Version ".encode("ascii")):
+                version_str = s[30:].decode("ascii")
             else:
-                raise ValueError("not a nif file")
+                raise ValueError("Not a nif file.")
             try:
                 ver = NifFormat.versionNumber(version_str)
             except:
-                raise ValueError("nif version %s not supported" % version_str)
+                raise ValueError("Nif version %s not supported." % version_str)
             if not ver in NifFormat.versions.values():
-                raise ValueError("nif version %s not supported" % version_str)
+                raise ValueError("Nif version %s not supported." % version_str)
             # check version integer and user version
             userver = 0
             userver2 = 0
@@ -1102,8 +1102,8 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                     ver_int, = struct.unpack('<I', stream.read(4))
                     if ver_int != ver:
                         raise ValueError(
-                            "corrupted nif file: header version string "
-                            "does not correspond with header version field")
+                            "Corrupted nif file: header version string "
+                            "does not correspond with header version field.")
                     if ver >= 0x14000004:
                         stream.read(1)
                     if ver >= 0x0A010000:
