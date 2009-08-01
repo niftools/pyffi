@@ -616,18 +616,20 @@ but got instance of %s""" % (self._template, block.__class__))
                 # something went wrong with unpack
                 # this means that the file is less than 20 bytes
                 # cannot be a cgf file
-                raise ValueError
+                raise ValueError("File too small to be a cgf file.")
             finally:
                 stream.seek(pos)
 
             # test the data
-            if signat[:6] != "CryTek":
-                raise ValueError
+            if signat[:6] != "CryTek".encode("ascii"):
+                raise ValueError(
+                    "Invalid signature (got '%s' instead of 'CryTek')"
+                    % signat[:6])
             if filetype not in (CgfFormat.FileType.GEOM,
                                 CgfFormat.FileType.ANIM):
-                raise ValueError
+                raise ValueError("Invalid file type.")
             if version not in CgfFormat.versions.values():
-                raise ValueError
+                raise ValueError("Invalid file version.")
             # quick and lame game check:
             # far cry has chunk table at the end, crysis at the start
             if offset == 0x14:
