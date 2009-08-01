@@ -87,7 +87,8 @@ Create a CGF file from scratch
 >>> # note: write returns number of padding bytes
 >>> data.write(stream)
 0
->>> stream.seek(0)
+>>> # py3k returns 0 on seek; this hack removes return code from doctest
+>>> if stream.seek(0): pass
 >>> data.inspectVersionOnly(stream)
 >>> hex(data.header.version)
 '0x744'
@@ -397,7 +398,7 @@ class CgfFormat(pyffi.object_models.xml.FileFormat):
             :type block_index_dct: dict
             """
             if self._value == None:
-                stream.write('\xff\xff\xff\xff')
+                stream.write(struct.pack('<i', -1))
             else:
                 stream.write(struct.pack(
                     '<i', kwargs.get('block_index_dct')[self._value]))
@@ -869,7 +870,7 @@ chunk size mismatch when reading %s at 0x%08X
             """
             logger = logging.getLogger("pyffi.cgf.data")
             # is it a caf file? these are missing chunk headers on controllers
-            is_caf = (stream.name[-4:].lower() == ".caf")
+            is_caf = (str(stream.name)[-4:].lower() == ".caf")
 
             # variable to track number of padding bytes
             total_padding = 0
