@@ -80,7 +80,7 @@ def getMopperCredits():
     :rtype: ``str``
     """
     mopper = getMopperPath()
-    outfile = tempfile.TemporaryFile()
+    outfile = tempfile.TemporaryFile("w+") # not binary
     try:
         # get license info, credit havok (raises OSError on failure)
         subprocess.call([mopper], stdout=outfile)
@@ -143,8 +143,8 @@ def getMopperOriginScaleCodeWelding(vertices, triangles, material_indices=None):
         material_indices = []
 
     mopper = getMopperPath()
-    infile = tempfile.TemporaryFile()
-    outfile = tempfile.TemporaryFile()
+    infile = tempfile.TemporaryFile("w+") # not binary
+    outfile = tempfile.TemporaryFile("w+") # not binary
     try:
         # set up input
         infile.write("%i\n" % len(vertices))
