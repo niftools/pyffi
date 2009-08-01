@@ -217,7 +217,7 @@ import pyffi.utils.tangentspace
 from pyffi.object_models.xml.Basic import BasicBase
 from pyffi.utils.graph import EdgeFilter
 
-class _MetaCgfFormat(pyffi.object_models.xml.FileFormat.__metaclass__):
+class _MetaCgfFormat(pyffi.object_models.xml.MetaFileFormat):
     """Metaclass which constructs the chunk map during class creation."""
     def __init__(cls, name, bases, dct):
         super(_MetaCgfFormat, cls).__init__(name, bases, dct)
