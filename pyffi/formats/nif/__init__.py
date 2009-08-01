@@ -1221,16 +1221,17 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
 
                 # get block name
                 if self.version >= 0x05000001:
+                    # note the 0xfff mask: required for the NiPhysX blocks
+                    block_type = self.header.blockTypes[
+                        self.header.blockTypeIndex[block_num] & 0xfff]
+                    block_type = block_type.decode("ascii")
+                    # read dummy integer
                     if self.version <= 0x0A01006A:
                         dummy, = struct.unpack('<I', stream.read(4))
                         if dummy != 0:
                             raise NifFormat.NifError(
                                 'non-zero block tag 0x%08X at 0x%08X)'
                                 %(dummy, stream.tell()))
-                    # note the 0xfff mask: required for the NiPhysX blocks
-                    block_type = self.header.blockTypes[
-                        self.header.blockTypeIndex[block_num] & 0xfff]
-                    block_type = block_type.decode("ascii")
                 else:
                     block_type = NifFormat.SizedString()
                     block_type.read(stream)
