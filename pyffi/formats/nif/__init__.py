@@ -26,15 +26,18 @@ Read a NIF file
 '0x14010003'
 >>> data.user_version
 0
->>> [blocktype for blocktype in data.header.blockTypes]
-['NiNode', 'NiTriShape', 'NiTriShapeData']
+>>> for blocktype in data.header.blockTypes:
+...     print(blocktype.decode("ascii"))
+NiNode
+NiTriShape
+NiTriShapeData
 >>> data.roots # blocks have not been read yet, so this is an empty list
 []
 >>> data.read(stream)
 >>> for root in data.roots:
 ...     for block in root.tree():
 ...         if isinstance(block, NifFormat.NiNode):
-...             print(block.name)
+...             print(block.name.decode("ascii"))
 test
 >>> stream.close()
 
@@ -800,7 +803,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             n, = struct.unpack('<i', stream.read(4))
             if ver >= 0x14010003:
                 if n == -1:
-                    self._value = ''
+                    self._value = ''.encode("ascii")
                 else:
                     try:
                         self._value = kwargs.get('string_list')[n]
@@ -817,7 +820,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                 ver = -1
 
             if ver >= 0x14010003:
-                if self._value == '':
+                if not self._value:
                     stream.write(struct.pack('<i', -1))
                 else:
                     try:
@@ -831,7 +834,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                 stream.write(self._value)
 
         def getStrings(self, **kwargs):
-            if self._value != '':
+            if self._value:
                 return [self._value]
             else:
                 return []
@@ -1187,7 +1190,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
 
             # read the blocks
             link_stack = [] # list of indices, as they are added to the stack
-            string_list = [str(s) for s in self.header.strings]
+            string_list = [s for s in self.header.strings]
             block_dct = {} # maps block index to actual block
             self.blocks = [] # records all blocks as read from file in order
             block_num = 0 # the current block numner
@@ -1220,10 +1223,11 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                     # note the 0xfff mask: required for the NiPhysX blocks
                     block_type = self.header.blockTypes[
                         self.header.blockTypeIndex[block_num] & 0xfff]
+                    block_type = block_type.decode("ascii")
                 else:
                     block_type = NifFormat.SizedString()
                     block_type.read(stream)
-                    block_type = str(block_type.getValue())
+                    block_type = block_type.getValue().decode("ascii")
                 # get the block index
                 if self.version >= 0x0303000D:
                     # for these versions the block index is simply the block number
@@ -1238,7 +1242,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                     # memory
                     else:
                         block_index, = struct.unpack('<I', stream.read(4))
-                        if block_dct.has_key(block_index):
+                        if block_index in block_dct:
                             raise NifFormat.NifError(
                                 'duplicate block index (0x%08X at 0x%08X)'
                                 %(block_index, stream.tell()))
