@@ -1400,7 +1400,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                 if self.version >= 0x05000001:
                     if self.version <= 0x0A01006A:
                         # write zero dummy separator
-                        stream.write('\x00\x00\x00\x00')
+                        stream.write('\x00\x00\x00\x00'.encode("ascii"))
                 else:
                     # write block type string
                     s = NifFormat.SizedString()
