@@ -407,7 +407,7 @@ class TriangleStripifier(object):
     def _FindGoodResetPoint(self, mesh):
         FaceList = mesh.Faces
         lenFaceList = len(mesh.Faces)
-        startstep = lenFaceList / 10
+        startstep = lenFaceList // 10
         startidx = self._FindStartFaceIndex(FaceList)
         while True: #startidx is not None:
             for idx in _xwrap(startidx, lenFaceList):
