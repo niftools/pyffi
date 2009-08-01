@@ -261,7 +261,7 @@ class TgaFormat(pyffi.object_models.xml.FileFormat):
             self.image.read(stream, data=self)
             
             # check if we are at the end of the file
-            if stream.read(1) == '':
+            if not stream.read(1):
                 self.footer = None
                 return
 
