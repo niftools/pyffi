@@ -200,7 +200,7 @@ class StructAttribute(object):
                 tmp.setValue(self.default)
                 self.default = tmp.getValue()
                 del tmp
-            except StandardError:
+            except Exception:
                 # conversion failed; not a big problem
                 self.default = None
         if self.arr1:
@@ -256,7 +256,7 @@ class BitStructAttribute(object):
         if self.ver2:
             self.ver2 = cls.versionNumber(self.ver2)
 
-class XmlError(StandardError):
+class XmlError(Exception):
     """The XML handler will throw this exception if something goes wrong while
     parsing."""
     pass

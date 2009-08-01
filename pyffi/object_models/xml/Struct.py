@@ -337,7 +337,7 @@ class StructBase(GlobalNode):
             #if isinstance(val, BasicBase): # debug
             #    try:
             #        print(val.getValue()) # debug
-            #    except StandardError:
+            #    except Exception:
             #        pass
             #else:
             #    print(val.__class__.__name__)
@@ -360,7 +360,7 @@ class StructBase(GlobalNode):
             #if isinstance(val, BasicBase): # debug
             #    try:
             #        print(val.getValue()) # debug
-            #    except StandardError:
+            #    except Exception:
             #        pass
             #else:
             #    print(val.__class__.__name__)

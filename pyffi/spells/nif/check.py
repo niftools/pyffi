@@ -73,7 +73,7 @@ class SpellReadWrite(pyffi.spells.nif.NifSpell):
                 f_debug = open("debug.nif", "wb")
                 f_debug.write(f_tmp.read(-1))
                 f_debug.close()
-                raise StandardError('write check failed: file sizes differ (written file saved as debug.nif for inspection)')
+                raise Exception('write check failed: file sizes differ (written file saved as debug.nif for inspection)')
         finally:
             f_tmp.close()
     
@@ -683,7 +683,7 @@ class SpellCheckTriStrip(pyffi.spells.nif.NifSpell):
             try:
                 strips = pyffi.utils.tristrip.stripify(
                     triangles, stitchstrips=False)
-            except StandardError:
+            except Exception:
                 self.toaster.logger.error('failed to strip triangles')
                 self.toaster.logger.error('%s' % triangles)
                 raise

@@ -46,7 +46,7 @@ Parse all NIF files in a directory tree
 ...         # the replace call makes the doctest also pass on windows
 ...         print("reading %s" % stream.name.replace("\\\\", "/"))
 ...         data.read(stream)
-...     except StandardError:
+...     except Exception:
 ...         print("Warning: read failed due corrupt file, corrupt format description, or bug.")
 reading tests/nif/invalid.nif
 Warning: read failed due corrupt file, corrupt format description, or bug.
@@ -977,7 +977,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
         return (ver_list[0] << 24) + (ver_list[1] << 16) + (ver_list[2] << 8) + ver_list[3]
 
     # exceptions
-    class NifError(StandardError):
+    class NifError(Exception):
         """Standard nif exception class."""
         pass
 

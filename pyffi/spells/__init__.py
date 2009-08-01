@@ -979,7 +979,7 @@ may destroy them. Make a backup of your files before running this script.
                 gc.collect()
                 pass # to set a breakpoint
 
-            except StandardError:
+            except Exception:
                 self.logger.error("TEST FAILED ON %s" % stream.name)
                 self.logger.error(
                     "If you were running a spell that came with PyFFI, then")
@@ -1005,7 +1005,7 @@ may destroy them. Make a backup of your files before running this script.
         try:
             try:
                 data.write(outstream)
-            except StandardError:
+            except Exception:
                 self.msg("write failed!!!")
                 raise
         finally:
@@ -1023,7 +1023,7 @@ may destroy them. Make a backup of your files before running this script.
             self.msg("writing %s" % outstream.name)
             try:
                 data.write(outstream)
-            except StandardError:
+            except Exception:
                 self.msg("write failed!!!")
                 raise
         finally:
@@ -1038,7 +1038,7 @@ may destroy them. Make a backup of your files before running this script.
         self.msg("writing %s" % stream.name)
         try:
             data.write(stream)
-        except: # not just StandardError, also CTRL-C
+        except: # not just Exception, also CTRL-C
             self.msg("write failed!!! attempting to restore original file...")
             stream.seek(0)
             stream.write(backup)
@@ -1060,7 +1060,7 @@ may destroy them. Make a backup of your files before running this script.
         self.msg("writing to temporary file")
         try:
             data.write(newfile)
-        except: # not just StandardError, also CTRL-C
+        except: # not just Exception, also CTRL-C
             self.msg("write failed!!!")
             raise
         # use external diff command

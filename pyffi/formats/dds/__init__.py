@@ -168,7 +168,7 @@ class DdsFormat(pyffi.object_models.xml.FileFormat):
             return 4
 
     # exceptions
-    class DdsError(StandardError):
+    class DdsError(Exception):
         """Exception class used for DDS related exceptions."""
         pass
 

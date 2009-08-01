@@ -73,7 +73,7 @@ class SpellReadWrite(CgfSpell):
                     f_debug = open("debug.cgf", "wb")
                     f_debug.write(f_tmp.read(-1))
                     f_debug.close()
-                    raise StandardError('write check failed: file sizes differ by more than padding')
+                    raise Exception('write check failed: file sizes differ by more than padding')
         finally:
             f_tmp.close()
         self.toaster.msgblockend()

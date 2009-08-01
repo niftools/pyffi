@@ -53,7 +53,7 @@ Parse all CGF files in a directory tree
 ...     print(stream.name)
 ...     try:
 ...         data.read(stream)
-...     except StandardError:
+...     except Exception:
 ...         print("Warning: read failed due corrupt file, corrupt format description, or bug.")
 ...     print(len(data.chunks))
 ...     # do something with the chunks
@@ -517,7 +517,7 @@ but got instance of %s""" % (self._template, block.__class__))
         return int(version_str, 16)
 
     # exceptions
-    class CgfError(StandardError):
+    class CgfError(Exception):
         """Exception for CGF specific errors."""
         pass
 
@@ -612,7 +612,7 @@ but got instance of %s""" % (self._template, block.__class__))
                                                           stream.read(12))
             except IOError:
                 raise
-            except StandardError:
+            except Exception:
                 # something went wrong with unpack
                 # this means that the file is less than 20 bytes
                 # cannot be a cgf file

@@ -46,7 +46,7 @@ Parse all DAE files in a directory tree
 ...         # the replace call makes the doctest also pass on windows
 ...         print("reading %s" % stream.name.replace("\\\\", "/"))
 ...         data.read(stream)
-...     except StandardError:
+...     except Exception:
 ...         print("Warning: read failed due corrupt file, corrupt format description, or bug.")
 reading tests/dae/cube.dae
 Warning: read failed due corrupt file, corrupt format description, or bug.
