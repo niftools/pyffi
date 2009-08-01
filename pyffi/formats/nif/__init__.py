@@ -4199,10 +4199,25 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             geomdata = self.data
             skininst = self.skinInstance
             skindata = skininst.data
+            # XXX todo: should we use list of dictionaries for this
+            #           where each dict maps bone number to the weight?
             weights = [[] for i in xrange(geomdata.numVertices)]
             for bonenum, bonedata in enumerate(skindata.boneList):
                 for skinweight in bonedata.vertexWeights:
-                    weights[skinweight.index].append([bonenum, skinweight.weight])
+                    # skip zero weights
+                    if skinweight.weight != 0:
+                        # boneweightlist is the list of (bonenum, weight) pairs that
+                        # we must update now
+                        boneweightlist = weights[skinweight.index]
+                        # is bonenum already in there?
+                        for i, (otherbonenum, otherweight) in enumerate(boneweightlist):
+                            if otherbonenum == bonenum:
+                                # yes! add the weight to the bone
+                                boneweightlist[i][1] += skinweight.weight
+                                break
+                        else:
+                            # nope... so add new [bone, weight] entry
+                            boneweightlist.append([bonenum, skinweight.weight])
             return weights
 
 
