@@ -6470,10 +6470,10 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             0
             >>> pal.addString("def")
             4
-            >>> pal.getString(0)
-            'abc'
-            >>> pal.getString(4)
-            'def'
+            >>> print(pal.getString(0).decode("ascii"))
+            abc
+            >>> print(pal.getString(4).decode("ascii"))
+            def
             >>> pal.getString(5) # doctest: +ELLIPSIS
             Traceback (most recent call last):
                 ...
@@ -6483,17 +6483,19 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                 ...
             ValueError: ...
             """
+            _b00 = pyffi.object_models.Common._b00 # shortcut
             # check that offset isn't too large
             if offset >= len(self.palette):
                 raise ValueError(
                     "StringPalette: getting string at %i but palette is only %i long"
                     % (offset, len(self.palette)))
             # check that a string starts at this offset
-            if offset > 0 and self.palette[offset-1] != "\x00":
+            if offset > 0 and self.palette[offset-1:offset] != _b00:
                 raise ValueError(
-                    "StringPalette: no string starts at offset %i" % offset)
+                    "StringPalette: no string starts at offset %i "
+                    "(palette is %s)" % (offset, self.palette))
             # return the string
-            return self.palette[offset:self.palette.find("\x00", offset)]
+            return self.palette[offset:self.palette.find(_b00, offset)]
 
         def getAllStrings(self):
             """Return a list of all strings.
@@ -6504,12 +6506,16 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             0
             >>> pal.addString("def")
             4
-            >>> pal.getAllStrings()
-            ['abc', 'def']
-            >>> pal.palette
+            >>> for x in pal.getAllStrings():
+            ...     print(x.decode("ascii"))
+            abc
+            def
+            >>> # lstrip magic for py3k
+            >>> print(repr(pal.palette.decode("ascii")).lstrip("u"))
             'abc\\x00def\\x00'
             """
-            return self.palette[:-1].split("\x00")
+            _b00 = pyffi.object_models.Common._b00 # shortcut
+            return self.palette[:-1].split(_b00)
 
         def addString(self, text):
             """Adds string to palette (will recycle existing strings if possible) and
@@ -6523,21 +6529,24 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             0
             >>> pal.addString("def")
             4
-            >>> pal.getString(4)
-            'def'
+            >>> print(pal.getString(4).decode("ascii"))
+            def
             """
+            _b00 = pyffi.object_models.Common._b00 # shortcut
+            # convert text to bytes if necessary
+            text = pyffi.object_models.Common._asBytes(text)
             # check if string is already in the palette
             # ... at the start
-            if text + '\x00' == self.palette[:len(text) + 1]:
+            if text + _b00 == self.palette[:len(text) + 1]:
                 return 0
             # ... or elsewhere
-            offset = self.palette.find('\x00' + text + '\x00')
+            offset = self.palette.find(_b00 + text + _b00)
             if offset != -1:
                 return offset + 1
             # if no match, add the string
             if offset == -1:
                 offset = len(self.palette)
-                self.palette = self.palette + text + "\x00"
+                self.palette = self.palette + text + _b00
                 self.length += len(text) + 1
             # return the offset
             return offset
