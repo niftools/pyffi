@@ -221,7 +221,7 @@ Reading an unsupported nif file
 >>> data.read(stream) # doctest: +ELLIPSIS
 Traceback (most recent call last):
     ...
-NifError: ...
+ValueError: ...
 >>> stream.close()
 
 Template types
@@ -263,8 +263,10 @@ Strings
 >>> extra.textKeys[0].value = "start"
 >>> extra.textKeys[1].time = 2.0
 >>> extra.textKeys[1].value = "end"
->>> extra.getStrings()
-['start', 'end']
+>>> for extrastr in extra.getStrings():
+...     print(extrastr.decode("ascii"))
+start
+end
 """
 
 # ***** BEGIN LICENSE BLOCK *****
@@ -1251,8 +1253,8 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                 try:
                     block = getattr(NifFormat, block_type)()
                 except AttributeError:
-                    raise NifFormat.NifError(
-                        "unknown block type '%s'" % block_type)
+                    raise ValueError(
+                        "Unknown block type '%s'." % block_type)
                 logger.debug("Reading %s block at 0x%08X"
                              % (block_type, stream.tell()))
                 try:
