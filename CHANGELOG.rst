@@ -20,6 +20,9 @@ Release 2.0.2 (in development)
   NiTriStrips data block (fixes some corrupt nifs provided by
   baphometal in issue #2795837).
 
+* Do not attempt to optimize nifs with an insane amount of triangles,
+  but put out a warning instead.
+
 Release 2.0.1 (Jul 22, 2009)
 ============================
 

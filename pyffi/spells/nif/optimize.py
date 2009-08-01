@@ -313,36 +313,43 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                 tri.v3 = v_map[tri.v3]
 
         # stripify trishape/tristrip
-        if isinstance(data, NifFormat.NiTriStripsData):
-            self.toaster.msg("recalculating strips")
-            origlen = sum(i for i in data.stripLengths)
-            data.setTriangles(data.getTriangles())
-            newlen = sum(i for i in data.stripLengths)
-            self.toaster.msg("(strip length was %i and is now %i)"
-                             % (origlen, newlen))
-        elif isinstance(data, NifFormat.NiTriShapeData):
-            self.toaster.msg("stripifying")
-            newbranch = branch.getInterchangeableTriStrips()
-            self.data.replaceGlobalNode(branch, newbranch)
-            branch = newbranch
-            data = newbranch.data
-        # average, weighed towards large strips
-        if isinstance(data, NifFormat.NiTriStripsData):
-            # note: the max(1, ...) is to avoid ZeroDivisionError
-            avgstriplen = float(sum(i * i for i in data.stripLengths)) \
-                / max(1, sum(i for i in data.stripLengths))
-            self.toaster.msg("(average strip length is %f)" % avgstriplen)
-            if avgstriplen < self.STRIPLENCUTOFF:
-                self.toaster.msg("average strip length < %f so triangulating"
-                                 % self.STRIPLENCUTOFF)
-                newbranch = branch.getInterchangeableTriShape()
+        if data.numTriangles > 32000:
+            self.toaster.logger.warn(
+                "Found an insane amount of %i triangles in geometry: "
+                "consider simplifying the mesh "
+                "or breaking it up in smaller parts."
+                % data.numTriangles)
+        else:
+            if isinstance(data, NifFormat.NiTriStripsData):
+                self.toaster.msg("recalculating strips")
+                origlen = sum(i for i in data.stripLengths)
+                data.setTriangles(data.getTriangles())
+                newlen = sum(i for i in data.stripLengths)
+                self.toaster.msg("(strip length was %i and is now %i)"
+                                 % (origlen, newlen))
+            elif isinstance(data, NifFormat.NiTriShapeData):
+                self.toaster.msg("stripifying")
+                newbranch = branch.getInterchangeableTriStrips()
                 self.data.replaceGlobalNode(branch, newbranch)
                 branch = newbranch
                 data = newbranch.data
-            elif self.STITCH:
-                self.toaster.msg("stitching strips (using %i stitches)"
-                                 % len(data.getStrips()))
-                data.setStrips([pyffi.utils.tristrip.stitchStrips(data.getStrips())])
+            # average, weighed towards large strips
+            if isinstance(data, NifFormat.NiTriStripsData):
+                # note: the max(1, ...) is to avoid ZeroDivisionError
+                avgstriplen = float(sum(i * i for i in data.stripLengths)) \
+                    / max(1, sum(i for i in data.stripLengths))
+                self.toaster.msg("(average strip length is %f)" % avgstriplen)
+                if avgstriplen < self.STRIPLENCUTOFF:
+                    self.toaster.msg("average strip length < %f so triangulating"
+                                     % self.STRIPLENCUTOFF)
+                    newbranch = branch.getInterchangeableTriShape()
+                    self.data.replaceGlobalNode(branch, newbranch)
+                    branch = newbranch
+                    data = newbranch.data
+                elif self.STITCH:
+                    self.toaster.msg("stitching strips (using %i stitches)"
+                                     % len(data.getStrips()))
+                    data.setStrips([pyffi.utils.tristrip.stitchStrips(data.getStrips())])
 
         # update skin data
         if branch.skinInstance:
