@@ -673,8 +673,12 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                 ver = kwargs['data'].version
             except KeyError:
                 ver = -1
+            try:
+                neosteam = kwargs['data'].neosteam
+            except KeyError:
+                neosteam = False
 
-            version_string = self.versionString(ver)
+            version_string = self.versionString(ver, neosteam)
             s = stream.read(len(version_string) + 1)
             if s != (version_string + '\x0a').encode("ascii"):
                 raise ValueError(
@@ -686,8 +690,12 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                 ver = kwargs['data'].version
             except KeyError:
                 ver = -1
+            try:
+                neosteam = kwargs['data'].neosteam
+            except KeyError:
+                neosteam = False
 
-            stream.write(self.versionString(ver).encode("ascii"))
+            stream.write(self.versionString(ver, neosteam).encode("ascii"))
             stream.write('\x0a'.encode("ascii"))
 
         def getSize(self, **kwargs):
@@ -699,7 +707,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             return len(self.versionString(ver).encode("ascii")) + 1
 
         @staticmethod
-        def versionString(version):
+        def versionString(version, neosteam=False):
             """Transforms version number into a version string.
 
             >>> NifFormat.HeaderString.versionString(0x03000300)
@@ -710,10 +718,16 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             'NetImmerse File Format, Version 10.0.1.0'
             >>> NifFormat.HeaderString.versionString(0x0A010000)
             'Gamebryo File Format, Version 10.1.0.0'
+            >>> NifFormat.HeaderString.versionString(0x0A010000, neosteam=True)
+            'NS'
             """
             if version == -1 or version is None:
-                raise RuntimeError('no string for version %s'%version)
-            if version <= 0x0A000102:
+                raise ValueError('No string for version %s.'%version)
+            if neosteam:
+                if version != 0x0A010000:
+                    raise ValueError("NeoSteam must have version 0x0A010000.")
+                return "NS"
+            elif version <= 0x0A000102:
                 s = "NetImmerse"
             else:
                 s = "Gamebryo"
@@ -742,14 +756,24 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             return None
 
         def read(self, stream, **kwargs):
+            neosteam = getattr(kwargs['data'], 'neosteam', False)
             ver, = struct.unpack('<I', stream.read(4))
-            if ver != kwargs['data'].version:
+            if neosteam and ver != 0x08F35232:
                 raise ValueError(
-                    'invalid version number: expected 0x%08X but got 0x%08X'
+                    "Invalid NeoSteam version number: "
+                    "expected 0x%08X but got 0x%08X."
+                    % (0x08F35232, ver))
+            elif (not neosteam) and ver != kwargs['data'].version:
+                raise ValueError(
+                    "Invalid version number: expected 0x%08X but got 0x%08X."
                     % (kwargs['data'].version, ver))
 
         def write(self, stream, **kwargs):
-            stream.write(struct.pack('<I', kwargs['data'].version))
+            neosteam = getattr(kwargs['data'], 'neosteam', False)
+            if not neosteam:
+                stream.write(struct.pack('<I', kwargs['data'].version))
+            else:
+                stream.write(struct.pack('<I', 0x08F35232))
 
         def getDetailDisplay(self):
             return 'x.x.x.x'
@@ -968,11 +992,17 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
         '0x1020000'
         >>> hex(NifFormat.versionNumber('3.03'))
         '0x3000300'
+        >>> hex(NifFormat.versionNumber('NS'))
+        '0xa010000'
         """
 
         # 3.03 case is special
         if version_str == '3.03':
             return 0x03000300
+
+        # NS (neosteam) case is special
+        if version_str == 'NS':
+            return 0x0A010000
 
         try:
             ver_list = [int(x) for x in version_str.split('.')]
@@ -1010,6 +1040,8 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
         :type header: L{NifFormat.Header}
         :ivar blocks: List of blocks.
         :type blocks: ``list`` of L{NifFormat.NiObject}
+        :ivar neosteam: Neo Steam style nif?
+        :type neosteam: ``bool``
         """
 
         class VersionUInt(pyffi.object_models.Common.UInt):
@@ -1050,6 +1082,8 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             self.roots = []
             # empty list of blocks
             self.blocks = []
+            # not a neo steam nif
+            self.neosteam = False
 
         def _getVersion(self):
             return self._version_value_.getValue()
@@ -1090,10 +1124,15 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                 s = stream.readline(64).rstrip()
             finally:
                 stream.seek(pos)
+            self.neosteam = False
             if s.startswith("NetImmerse File Format, Version ".encode("ascii")):
                 version_str = s[32:].decode("ascii")
             elif s.startswith("Gamebryo File Format, Version ".encode("ascii")):
                 version_str = s[30:].decode("ascii")
+            elif s.startswith("NS".encode("ascii")):
+                # neosteam
+                version_str = "NS"
+                self.neosteam = True
             else:
                 raise ValueError("Not a nif file.")
             try:
@@ -1110,7 +1149,11 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                 try:
                     stream.readline(64)
                     ver_int, = struct.unpack('<I', stream.read(4))
-                    if ver_int != ver:
+                    # neosteam has a special version integer
+                    if self.neosteam and ver_int != 0x08F35232:
+                        raise ValueError(
+                            "Corrupted nif file: invalid NeoSteam version.")
+                    elif (not self.neosteam) and ver_int != ver:
                         raise ValueError(
                             "Corrupted nif file: header version string "
                             "does not correspond with header version field.")
@@ -1306,7 +1349,8 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
 
             # check if we are at the end of the file
             if stream.read(1):
-                raise NifFormat.NifError('end of file not reached: corrupt nif file?')
+                raise NifFormat.NifError(
+                    'End of file not reached: corrupt nif file?')
 
             # fix links in blocks and footer (header has no links)
             for block in self.blocks:
@@ -1495,6 +1539,26 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                         child, block_index_dct, block_type_list, block_type_dct)
 
     # extensions of generated structures
+
+    class Footer:
+        def read(self, stream, **kwargs):
+            pyffi.object_models.xml.Struct.StructBase.read(
+                self, stream, **kwargs)
+            neosteam = getattr(kwargs['data'], 'neosteam', False)
+            if neosteam:
+                extrabyte, = struct.unpack("<B", stream.read(1))
+                if extrabyte != 0:
+                    raise ValueError(
+                        "Expected trailing zero byte in footer, "
+                        "but got %i instead." % extrabyte)
+            
+        def write(self, stream, **kwargs):
+            pyffi.object_models.xml.Struct.StructBase.write(
+                self, stream, **kwargs)
+            neosteam = getattr(kwargs['data'], 'neosteam', False)
+            if neosteam:
+                stream.write("\x00".encode("ascii"))
+            
 
     class Header:
         def hasBlockType(self, block_type):

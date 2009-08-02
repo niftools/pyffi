@@ -3,6 +3,8 @@ Release 2.0.2 (in development)
 
 * The source has been updated to be Python 3.x compatible via 2to3.
 
+* Added support for NeoSteam header and footer.
+
 * Log warning rather than raising exception on invalid links (fixes issue
   #2818403 reported by abubakr125).
 
