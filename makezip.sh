@@ -1,5 +1,30 @@
 #!/bin/sh
 
+# clean working copy
+
+git clean -x -d -f
+
+# create package for blender
+
+mkdir pyffi-blender
+cp -r pyffi pyffi-blender
+rm pyffi-blender/pyffi/utils/mopper.exe
+rm -r pyffi-blender/pyffi/formats/cgf
+rm -r pyffi-blender/pyffi/formats/dae
+rm -r pyffi-blender/pyffi/formats/kfm
+rm -r pyffi-blender/pyffi/formats/tga
+rm -r pyffi-blender/pyffi/spells/cgf
+rm -r pyffi-blender/pyffi/spells/dae
+rm -r pyffi-blender/pyffi/spells/kfm.py
+rm -r pyffi-blender/pyffi/spells/tga.py
+rm -r pyffi-blender/pyffi/object_models/mex
+rm -r pyffi-blender/pyffi/object_models/xsd
+rm -r pyffi-blender/pyffi/qskope
+rm -r pyffi-blender/pyffi/fileformat.dtd
+cd pyffi-blender
+zip -r9 ../pyffi-blender.zip pyffi
+cd ..
+
 # generate documentation (from the INSTALLED version of PyFFI)
 
 rm -rfv docs
