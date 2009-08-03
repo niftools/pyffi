@@ -2390,7 +2390,14 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                     material_per_triangle)
             except (OSError, RuntimeError):
                 logger.exception(
-                    "Havok mopp generator failed, falling back on simple mopp")
+                    "Havok mopp generator failed, falling back on simple mopp "
+                    "(but collisions may be flawed in-game!)."
+                    "If you are using the PyFFI that was shipped with Blender, "
+                    "and you are on Windows, then you may wish to install the "
+                    "full version of PyFFI from "
+                    "http://pyffi.sourceforge.net/ "
+                    "instead, which includes the (closed source) "
+                    "Havok mopp generator.")
                 self.updateOriginScale()
                 mopp = self._makeSimpleMopp()
                 # no welding info
