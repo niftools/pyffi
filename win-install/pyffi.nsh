@@ -127,7 +127,16 @@ FunctionEnd
   Delete "$0\Scripts\crydaefilter.*"
 !macroend
 
-!macro PostExra
+; checks for installed Python
+; if found, path is stored in $0 and a jump is performed
+!macro PostExtraPyPathCheck PYTHONVERSION label_if_found
+  !ifdef HAVE_SECTION_PYTHON${PYTHONVERSION}
+  StrCpy $0 $PYTHONPATH${PYTHONVERSION}
+  StrCmp $0 "" 0 ${label_if_found}
+  !endif
+!macroend
+
+!macro PostExtra
   ; XXX todo: documentation etc.
 
   SetOutPath $INSTDIR
@@ -171,8 +180,19 @@ FunctionEnd
   CreateShortCut "$SMPROGRAMS\PyFFI\Contribute.lnk" "$INSTDIR\CONTRIBUTE.txt"
   CreateShortCut "$SMPROGRAMS\PyFFI\Uninstall.lnk" "$INSTDIR\uninstall.exe"
 
+  !insertmacro PostExtraPyPathCheck 2.9 install_shortcuts
+  !insertmacro PostExtraPyPathCheck 2.7 install_shortcuts
+  !insertmacro PostExtraPyPathCheck 2.6 install_shortcuts
+  !insertmacro PostExtraPyPathCheck 2.5 install_shortcuts
+
+  ; No version of python installed which can run qskope.
+  MessageBox MB_OK "A version of Python which can run qskope/niftoaster was not found: shortcuts will not be created."
+  GoTo install_shortcuts_end
+
+install_shortcuts:
+
   ; QSkope desktop shortcut
-  CreateShortCut "$DESKTOP\QSkope.lnk" "$PYTHONPATH\python.exe" "$PYTHONPATH\Scripts\qskope.py" "" "" "" "" "QSkope"
+  CreateShortCut "$DESKTOP\QSkope.lnk" "$0\python.exe" "$0\Scripts\qskope.py" "" "" "" "" "QSkope"
 
   ; Set up file associations
   WriteRegStr HKCR ".nif" "" "NetImmerseFile"
@@ -185,13 +205,13 @@ FunctionEnd
     WriteRegStr HKCR "NetImmerseFile\shell" "" "open"
 
     WriteRegStr HKCR "NetImmerseFile\shell\Optimize with PyFFI" "" ""
-    WriteRegStr HKCR "NetImmerseFile\shell\Optimize with PyFFI\command" "" '"$PYTHONPATH\python.exe" "$PYTHONPATH\Scripts\niftoaster.py" optimize --pause "%1"'
+    WriteRegStr HKCR "NetImmerseFile\shell\Optimize with PyFFI\command" "" '"$0\python.exe" "$0\Scripts\niftoaster.py" optimize --pause "%1"'
 
     WriteRegStr HKCR "Folder\shell\Optimize with PyFFI" "" ""
-    WriteRegStr HKCR "Folder\shell\Optimize with PyFFI\command" "" '"$PYTHONPATH\python.exe" "$PYTHONPATH\Scripts\niftoaster.py" optimize --pause "%1"'
+    WriteRegStr HKCR "Folder\shell\Optimize with PyFFI\command" "" '"$0\python.exe" "$0\Scripts\niftoaster.py" optimize --pause "%1"'
 
     WriteRegStr HKCR "NetImmerseFile\shell\Open with QSkope" "" ""
-    WriteRegStr HKCR "NetImmerseFile\shell\Open with QSkope\command" "" '"$PYTHONPATH\python.exe" "$PYTHONPATH\Scripts\qskope.py" "%1"'
+    WriteRegStr HKCR "NetImmerseFile\shell\Open with QSkope\command" "" '"$0\python.exe" "$0\Scripts\qskope.py" "%1"'
 
   WriteRegStr HKCR ".cgf" "" "CrytekGeometryFile"
   WriteRegStr HKCR ".chr" "" "CrytekGeometryFile"
@@ -200,7 +220,7 @@ FunctionEnd
     WriteRegStr HKCR "CrytekGeometryFile\shell" "" "open"
 
     WriteRegStr HKCR "CrytekGeometryFile\shell\Open with QSkope" "" ""
-    WriteRegStr HKCR "CrytekGeometryFile\shell\Open with QSkope\command" "" '"$PYTHONPATH\python.exe" "$PYTHONPATH\Scripts\qskope.py" "%1"'
+    WriteRegStr HKCR "CrytekGeometryFile\shell\Open with QSkope\command" "" '"$0\python.exe" "$0\Scripts\qskope.py" "%1"'
 
   ; no longer in pyffi
   DeleteRegKey HKCR "daefile\shell\Prepare for CryEngine with PyFFI"
@@ -211,7 +231,10 @@ FunctionEnd
     WriteRegStr HKCR "DirectX.DDS.Document\shell" "" "open"
 
     WriteRegStr HKCR "DirectX.DDS.Document\shell\Open with QSkope" "" ""
-    WriteRegStr HKCR "DirectX.DDS.Document\shell\Open with QSkope\command" "" '"$PYTHONPATH\python.exe" "$PYTHONPATH\Scripts\qskope.py" "%1"'
+    WriteRegStr HKCR "DirectX.DDS.Document\shell\Open with QSkope\command" "" '"$0\python.exe" "$0\Scripts\qskope.py" "%1"'
+
+install_shortcuts_end:
+
 !macroend
 
 !macro UnPostExtra
