@@ -3,6 +3,11 @@ Release 2.0.2 (in development)
 
 * The source has been updated to be Python 3.x compatible via 2to3.
 
+* New unified installer which works for all versions of Python and
+  Maya at once (at the moment: 2.5, 2.6, 3.0, 3.1) and also for all
+  versions of Maya that use Python 2.5 (2008 and 2009, including the
+  64 bit variants).
+
 * Added support for NeoSteam header and footer.
 
 * Log warning rather than raising exception on invalid links (fixes issue
