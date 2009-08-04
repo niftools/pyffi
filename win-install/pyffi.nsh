@@ -142,8 +142,26 @@ FunctionEnd
 ; if found, path is stored in $0 and a jump is performed
 !macro PostExtraPyPathCheck PYTHONVERSION label_if_found
   !ifdef HAVE_SECTION_PYTHON${PYTHONVERSION}
+  SectionGetFlags ${Python${PYTHONVERSION}} $0
+  IntOp $1 $0 & ${SF_SELECTED}
+  StrCmp $1 ${SF_SELECTED} 0 pypathcheck${PYTHONVERSION}_end
   StrCpy $0 $PYTHONPATH${PYTHONVERSION}
   StrCmp $0 "" 0 ${label_if_found}
+pypathcheck${PYTHONVERSION}_end:
+  !endif
+!macroend
+
+!macro PostExtraLegacyKeys PYTHONVERSION
+  !ifdef HAVE_SECTION_PYTHON${PYTHONVERSION}
+  SectionGetFlags ${Python${PYTHONVERSION}} $0
+  IntOp $1 $0 & ${SF_SELECTED}
+  StrCmp $1 ${SF_SELECTED} 0 legacykeys${PYTHONVERSION}_end
+  ; Write the uninstall keys & uninstaller for Windows
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI-py${PYTHONVERSION}" "DisplayName" "Python ${PYTHONVERSION} PyFFI-${PRODUCT_VERSION}"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI-py${PYTHONVERSION}" "UninstallString" "$INSTDIR\PyFFI_uninstall.exe"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI-py${PYTHONVERSION}" "InstallLocation" "$INSTDIR"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI-py${PYTHONVERSION}" "Publisher" "Python File Format Interface"
+legacykeys${PYTHONVERSION}_end:
   !endif
 !macroend
 
@@ -196,6 +214,9 @@ FunctionEnd
   CreateShortCut "$SMPROGRAMS\PyFFI\Todo.lnk" "$INSTDIR\TODO.txt"
   CreateShortCut "$SMPROGRAMS\PyFFI\Contribute.lnk" "$INSTDIR\CONTRIBUTE.txt"
   CreateShortCut "$SMPROGRAMS\PyFFI\Uninstall.lnk" "$INSTDIR\uninstall.exe"
+
+  !insertmacro PostExtraLegacyKeys 2.5
+  !insertmacro PostExtraLegacyKeys 2.6
 
   !insertmacro PostExtraPyPathCheck 2.9 install_shortcuts
   !insertmacro PostExtraPyPathCheck 2.7 install_shortcuts
