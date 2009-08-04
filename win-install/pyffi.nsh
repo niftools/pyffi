@@ -137,9 +137,19 @@ FunctionEnd
 !macroend
 
 !macro PostExtra
-  ; XXX todo: documentation etc.
-
   SetOutPath $INSTDIR
+  File ${MISC_SRCDIR}\README.rst
+  File ${MISC_SRCDIR}\INSTALL.rst
+  File ${MISC_SRCDIR}\LICENSE.rst
+  File ${MISC_SRCDIR}\CHANGELOG.rst
+  File ${MISC_SRCDIR}\AUTHORS.rst
+  File ${MISC_SRCDIR}\TODO.rst
+  File ${MISC_SRCDIR}\THANKS.rst
+  File ${MISC_SRCDIR}\CONTRIBUTE.rst
+  File /r ${MISC_SRCDIR}\examples
+  File /r ${MISC_SRCDIR}\tests
+  File /r ${MISC_SRCDIR}\docs
+
   ; Windows does not recognize the rst extension, so copy to TXT
   ; At the same time, force Windows style line endings.
   Push "$INSTDIR\README.rst"
@@ -168,7 +178,6 @@ FunctionEnd
   Call unix2dos
 
   ; Install shortcuts
-  SetOutPath $INSTDIR
   CreateDirectory "$SMPROGRAMS\PyFFI\"
   CreateShortCut "$SMPROGRAMS\PyFFI\Authors.lnk" "$INSTDIR\AUTHORS.txt"
   CreateShortCut "$SMPROGRAMS\PyFFI\ChangeLog.lnk" "$INSTDIR\CHANGELOG.txt"
