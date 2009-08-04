@@ -33,6 +33,17 @@
 ; NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ; SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
 
+Section Documentation Documentation
+  SetOutPath $INSTDIR
+  File /r ${MISC_SRCDIR}\examples
+  File /r ${MISC_SRCDIR}\tests
+  File /r ${MISC_SRCDIR}\docs
+SectionEnd
+
+Section un.Documentation
+  ; cleaning happens in UnPostExtra, so nothing needed here
+SectionEnd
+
 Function unix2dos
     ; strips all CRs
     ; and then converts all LFs into CRLFs
@@ -146,9 +157,6 @@ FunctionEnd
   File ${MISC_SRCDIR}\TODO.rst
   File ${MISC_SRCDIR}\THANKS.rst
   File ${MISC_SRCDIR}\CONTRIBUTE.rst
-  File /r ${MISC_SRCDIR}\examples
-  File /r ${MISC_SRCDIR}\tests
-  File /r ${MISC_SRCDIR}\docs
 
   ; Windows does not recognize the rst extension, so copy to TXT
   ; At the same time, force Windows style line endings.
@@ -193,6 +201,9 @@ FunctionEnd
   !insertmacro PostExtraPyPathCheck 2.7 install_shortcuts
   !insertmacro PostExtraPyPathCheck 2.6 install_shortcuts
   !insertmacro PostExtraPyPathCheck 2.5 install_shortcuts
+  !insertmacro PostExtraPyPathCheck 3.2 install_shortcuts
+  !insertmacro PostExtraPyPathCheck 3.1 install_shortcuts
+  !insertmacro PostExtraPyPathCheck 3.0 install_shortcuts
 
   ; No version of python installed which can run qskope.
   MessageBox MB_OK "A version of Python which can run qskope/niftoaster was not found: shortcuts will not be created."
