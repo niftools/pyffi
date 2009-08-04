@@ -37,11 +37,10 @@ cd ..
 rm MANIFEST
 python setup.py -q sdist --format=zip
 python setup.py -q sdist --format=bztar
+python setup.py --command-packages bdist_nsi bdist_nsi --bitmap=win-install/pyffi_install_164x314.bmp --headerbitmap=win-install/pyffi_install_150x57.bmp --run2to3 --msvc2008sp1 --nshextra=win-install/pyffi.nsh --target-versions=2.5,2.6,2.7,3.0,3.1,3.2
 
-# create file list for nsis installer from MANIFEST
-python makensis.py
-
-# create windows installers
-wine ~/.wine/drive_c/Program\ Files/NSIS/makensis.exe /v2 win-install/pyffi-py2.5.nsi
-wine ~/.wine/drive_c/Program\ Files/NSIS/makensis.exe /v2 win-install/pyffi-py2.6.nsi
+# XXX old way:
+#python makensis.py
+#wine ~/.wine/drive_c/Program\ Files/NSIS/makensis.exe /v2 win-install/pyffi-py2.5.nsi
+#wine ~/.wine/drive_c/Program\ Files/NSIS/makensis.exe /v2 win-install/pyffi-py2.6.nsi
 
