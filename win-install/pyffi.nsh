@@ -34,6 +34,12 @@
 ; SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
 
 Section Documentation Documentation
+  ; first clean up old files
+  RMDir /r "$INSTDIR\docs"
+  RMDir /r "$INSTDIR\examples"
+  RMDir /r "$INSTDIR\tests"
+
+  ; now install new stuff
   SetOutPath $INSTDIR
   File /r ${MISC_SRCDIR}\examples
   File /r ${MISC_SRCDIR}\tests
@@ -41,7 +47,9 @@ Section Documentation Documentation
 SectionEnd
 
 Section un.Documentation
-  ; cleaning happens in UnPostExtra, so nothing needed here
+  RMDir /r "$INSTDIR\docs"
+  RMDir /r "$INSTDIR\examples"
+  RMDir /r "$INSTDIR\tests"
 SectionEnd
 
 Function unix2dos
@@ -298,9 +306,6 @@ install_shortcuts_end:
   RMDir "$SMPROGRAMS\PyFFI"
 
   ; Clean up documentation
-  RMDir /r "$INSTDIR\docs"
-  RMDir /r "$INSTDIR\examples"
-  RMDir /r "$INSTDIR\tests"
   Delete "$INSTDIR\*.TXT"
   Delete "$INSTDIR\*.txt"
   Delete "$INSTDIR\*.rst"
