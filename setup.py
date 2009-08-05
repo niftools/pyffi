@@ -7,6 +7,13 @@ Intended Audience :: Developers
 Intended Audience :: End Users/Desktop
 Topic :: Multimedia :: Graphics :: 3D Modeling
 Programming Language :: Python
+Programming Language :: Python :: 2.5
+Programming Language :: Python :: 2.6
+Programming Language :: Python :: 2.7
+Programming Language :: Python :: 3
+Programming Language :: Python :: 3.0
+Programming Language :: Python :: 3.1
+Programming Language :: Python :: 3.2
 Operating System :: OS Independent"""
 #Topic :: Formats and Protocols :: Data Formats
 
