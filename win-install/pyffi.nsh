@@ -226,7 +226,6 @@ legacykeys${PYTHONVERSION}_end:
   !insertmacro PostExtraLegacyKeys 2.5
   !insertmacro PostExtraLegacyKeys 2.6
 
-  !insertmacro PostExtraPyPathCheck 2.9 install_shortcuts
   !insertmacro PostExtraPyPathCheck 2.7 install_shortcuts
   !insertmacro PostExtraPyPathCheck 2.6 install_shortcuts
   !insertmacro PostExtraPyPathCheck 2.5 install_shortcuts
