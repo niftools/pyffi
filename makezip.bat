@@ -31,13 +31,7 @@ del MANIFEST
 %PYTHONPATH%\python.exe setup.py sdist --format=zip
 rem on windows bztar format is not supported
 rem %PYTHONPATH%\python.exe setup.py sdist --format=bztar
-
-%PYTHONPATH%\python.exe makensis.py
-rem del win-install\pyffi-*.exe
-if exist "%PROGRAMFILES%\NSIS\makensis.exe" "%PROGRAMFILES%\NSIS\makensis.exe" /v3 win-install\pyffi-py2.5.nsi
-if exist "%PROGRAMFILES(x86)%\NSIS\makensis.exe" "%PROGRAMFILES(x86)%\NSIS\makensis.exe" /v3 win-install\pyffi-py2.5.nsi
-if exist "%PROGRAMFILES%\NSIS\makensis.exe" "%PROGRAMFILES%\NSIS\makensis.exe" /v3 win-install\pyffi-py2.6.nsi
-if exist "%PROGRAMFILES(x86)%\NSIS\makensis.exe" "%PROGRAMFILES(x86)%\NSIS\makensis.exe" /v3 win-install\pyffi-py2.6.nsi
+python setup.py --command-packages bdist_nsi bdist_nsi --bitmap=win-install/pyffi_install_164x314.bmp --headerbitmap=win-install/pyffi_install_150x57.bmp --run2to3 --msvc2008sp1 --nshextra=win-install/pyffi.nsh --target-versions=2.5,2.6,2.7,3.0,3.1,3.2
 
 :end
 pause
