@@ -291,7 +291,13 @@ class CgfFormat(pyffi.object_models.xml.FileFormat):
             super(CgfFormat.FileSignature, self).__init__(**kwargs)
 
         def __str__(self):
-            return 'CryTek\x00\x00'
+            return 'XXXXXX'
+
+        def _str(self, game):
+            if game == "Aion":
+                return 'NCAion'.encode("ascii")
+            else:
+                return 'CryTek'.encode("ascii")
 
         def read(self, stream, **kwargs):
             """Read signature from stream.
@@ -299,11 +305,13 @@ class CgfFormat(pyffi.object_models.xml.FileFormat):
             :param stream: The stream to read from.
             :type stream: file
             """
+            game = kwargs['data'].game
+            gamesig = self._str(game)
             signat = stream.read(8)
-            if signat[:6] != self.__str__()[:6].encode("ascii"):
+            if not signat.startswith(gamesig):
                 raise ValueError(
-                    "invalid CGF signature: expected '%s' but got '%s'"
-                    %(self.__str__(), signat))
+                    "invalid CGF signature: expected %s but got %s"
+                    %(gamesig, signat))
 
         def write(self, stream, **kwargs):
             """Write signature to stream.
@@ -311,7 +319,8 @@ class CgfFormat(pyffi.object_models.xml.FileFormat):
             :param stream: The stream to read from.
             :type stream: file
             """
-            stream.write(self.__str__().encode("ascii"))
+            stream.write(
+                self._str(kwargs['data'].game).ljust(8, '\x00'.encode("ascii")))
 
         def getValue(self):
             """Get signature.
@@ -321,15 +330,8 @@ class CgfFormat(pyffi.object_models.xml.FileFormat):
             return self.__str__()
 
         def setValue(self, value):
-            """Set signature.
-
-            :param value: The value to assign (should be 'Crytek\\x00\\x00').
-            :type value: str
-            """
-            if value != self.__str__():
-                raise ValueError(
-                    "invalid CGF signature: expected '%s' but got '%s'"
-                    %(self.__str__(), value))
+            """Not implemented."""
+            raise NotImplementedError("Cannot set signature value.")
 
         def getSize(self, **kwargs):
             """Return number of bytes that the signature occupies in a file.
@@ -590,6 +592,9 @@ but got instance of %s""" % (self._template, block.__class__))
                 return CgfFormat.UVER_FARCRY
             elif self.game == "Crysis":
                 return CgfFormat.UVER_CRYSIS
+            elif self.game == "Aion":
+                # XXX guessing for Aion!
+                return CgfFormat.UVER_FARCRY
             else:
                 raise ValueError("unknown game %s" % game)
 
@@ -622,9 +627,10 @@ but got instance of %s""" % (self._template, block.__class__))
                 stream.seek(pos)
 
             # test the data
-            if signat[:6] != "CryTek".encode("ascii"):
+            if (signat[:6] != "CryTek".encode("ascii")
+                and signat[:6] != "NCAion".encode("ascii")):
                 raise ValueError(
-                    "Invalid signature (got '%s' instead of 'CryTek')"
+                    "Invalid signature (got '%s' instead of 'CryTek' or 'NCAion')"
                     % signat[:6])
             if filetype not in (CgfFormat.FileType.GEOM,
                                 CgfFormat.FileType.ANIM):
@@ -633,13 +639,15 @@ but got instance of %s""" % (self._template, block.__class__))
                 raise ValueError("Invalid file version.")
             # quick and lame game check:
             # far cry has chunk table at the end, crysis at the start
-            if offset == 0x14:
+            if signat[:6] == "NCAion".encode("ascii"):
+                self.game = "Aion"
+            elif offset == 0x14:
                 self.game = "Crysis"
             else:
                 self.game = "Far Cry"
             # load the actual header
             try:
-                self.header.read(stream)
+                self.header.read(stream, data=self)
             finally:
                 stream.seek(pos)
 
@@ -692,7 +700,7 @@ but got instance of %s""" % (self._template, block.__class__))
             try:
                 logger.debug("Reading header at 0x%08X." % stream.tell())
                 self.inspectVersionOnly(stream)
-                self.header.read(stream)
+                self.header.read(stream, data=self)
                 stream.seek(self.header.offset)
                 logger.debug("Reading chunk table version 0x%08X at 0x%08X." % (self.header.version, stream.tell()))
                 self.chunk_table.read(
@@ -886,7 +894,8 @@ chunk size mismatch when reading %s at 0x%08X
             hdr_pos = stream.tell()
             self.header.offset = -1 # is set at the end
             self.header.write(
-                stream, version=self.header.version, user_version=user_version)
+                stream, data=self,
+                version=self.header.version, user_version=user_version)
 
             # chunk id is simply its index in the chunks list
             block_index_dct = dict((chunk, i)
@@ -958,7 +967,8 @@ chunk size mismatch when reading %s at 0x%08X
 
             # update header
             stream.seek(hdr_pos)
-            self.header.write(stream, version=version, user_version=user_version)
+            self.header.write(
+                stream, data=self, version=version, user_version=user_version)
 
             # seek end of written data
             stream.seek(end_pos)
