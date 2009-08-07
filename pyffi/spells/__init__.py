@@ -750,12 +750,6 @@ original file; useful for debugging spells")
                           metavar="PREFIX",
                           help="for spells that modify files, \
 prepend PREFIX to file name")
-### no longer used
-#        parser.add_option("--usetheforceluke", dest="raisereaderror",
-#                          action="store_false",
-#                          help="""pass exceptions while reading files;
-#normally you do not need this, unless you are hacking the xml format
-#description""")
         parser.add_option("--diff", dest="createpatch",
                           action="store_true",
                           help="""instead of writing back the file, write a \
@@ -777,7 +771,6 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
         parser.set_defaults(raisetesterror=False, verbose=1, pause=False,
                             exclude=[], include=[], examples=False,
                             spells=False,
-                            #raisereaderror=True, ### no longer used
                             interactive=True,
                             helpspell=False, dryrun=False, prefix="", arg="",
                             createpatch=False, applypatch=False, diffcmd="",
@@ -893,11 +886,6 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
         if not self.spellclass.toastentry(self):
             self.msg("spell does not apply! quiting early...")
             return
-
-        ### raisereaderror is ignored in this implementation!!!
-        ### new-style toaster has it functionally equal to
-        ### raisetesterror
-        #raisereaderror = self.options.get("raisereaderror", True)
 
         # some defaults are different from the defaults defined in
         # the cli function: these defaults are reasonable for when the
