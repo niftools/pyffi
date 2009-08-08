@@ -144,7 +144,6 @@ import os.path
 import subprocess
 import sys # sys.stdout
 import tempfile
-from types import ModuleType # for _MetaCompatToaster
 
 import pyffi # for pyffi.__version__
 import pyffi.object_models # pyffi.object_models.FileFormat
@@ -929,60 +928,70 @@ may destroy them. Make a backup of your files before running this script.
 
         # walk over all streams, and create a data instance for each of them
         # inspect the file but do not yet read in full
-        for stream, data in self.FILEFORMAT.walkData(
+        for stream in self.FILEFORMAT.walk(
             top, mode='rb' if self.spellclass.READONLY else 'r+b'):
-
-            try: 
-                self.msgblockbegin("=== %s ===" % stream.name)
-
-                # inspect the file (reads only the header)
-                data.inspect(stream)
- 
-                # create spell instance
-                spell = self.spellclass(toaster=self, data=data, stream=stream)
-                
-                # inspect the spell instance
-                if spell._datainspect() and spell.datainspect():
-                    # read the full file
-                    data.read(stream)
-                    
-                    # cast the spell on the data tree
-                    spell.recurse()
-
-                    # save file back to disk if not readonly
-                    if not self.spellclass.READONLY:
-                        if not dryrun:
-                            if createpatch:
-                                self.writepatch(stream, data)
-                            elif prefix:
-                                self.writeprefix(stream, data)
-                            else:
-                                self.writeover(stream, data)
-                        else:
-                            # write back to a temporary file
-                            self.writetemp(stream, data)
-
-                # force free memory (helps when parsing many very large files)
-                del stream, data, spell
-                gc.collect()
-                pass # to set a breakpoint
-
-            except Exception:
-                self.logger.error("TEST FAILED ON %s" % stream.name)
-                self.logger.error(
-                    "If you were running a spell that came with PyFFI, then")
-                self.logger.error(
-                    "please report this as a bug (include the file) on")
-                self.logger.error(
-                    "http://sourceforge.net/tracker/?group_id=199269")
-                # if raising test errors, reraise the exception
-                if raisetesterror:
-                    raise
-            finally:
-                self.msgblockend()
+            self._toast(stream)
+            # force free memory (helps when parsing many very large files)
+            gc.collect()
+            pass # to set a breakpoint
 
         # toast exit code
         self.spellclass.toastexit(self)
+
+    def _toast(self, stream):
+        """Run toaster on particular stream and data.
+        Used as helper function.
+        """
+        dryrun = self.options.get("dryrun", False)
+        prefix = self.options.get("prefix", "")
+        createpatch = self.options.get("createpatch", False)
+        applypatch = self.options.get("applypatch", False)
+        raisetesterror = self.options.get("raisetesterror", True)
+
+        data = self.FILEFORMAT.Data()
+
+        self.msgblockbegin("=== %s ===" % stream.name)
+        try: 
+            # inspect the file (reads only the header)
+            data.inspect(stream)
+
+            # create spell instance
+            spell = self.spellclass(toaster=self, data=data, stream=stream)
+            
+            # inspect the spell instance
+            if spell._datainspect() and spell.datainspect():
+                # read the full file
+                data.read(stream)
+                
+                # cast the spell on the data tree
+                spell.recurse()
+
+                # save file back to disk if not readonly
+                if not self.spellclass.READONLY:
+                    if not dryrun:
+                        if createpatch:
+                            self.writepatch(stream, data)
+                        elif prefix:
+                            self.writeprefix(stream, data)
+                        else:
+                            self.writeover(stream, data)
+                    else:
+                        # write back to a temporary file
+                        self.writetemp(stream, data)
+
+        except Exception:
+            self.logger.error("TEST FAILED ON %s" % stream.name)
+            self.logger.error(
+                "If you were running a spell that came with PyFFI, then")
+            self.logger.error(
+                "please report this as a bug (include the file) on")
+            self.logger.error(
+                "http://sourceforge.net/tracker/?group_id=199269")
+            # if raising test errors, reraise the exception
+            if raisetesterror:
+                raise
+        finally:
+            self.msgblockend()
 
     def writetemp(self, stream, data):
         """Writes the data to a temporary file and raises an exception if the
