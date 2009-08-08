@@ -235,3 +235,32 @@ class FileFormat(object):
                 yield stream, cls.Data()
             finally:
                 stream.close()
+
+    @classmethod
+    def walk(cls, top, topdown=True, mode='rb'):
+        """A generator which yields all files in
+        directory top whose filename matches the regular expression
+        :attr:`RE_FILENAME`. The argument top can also be a file instead of a
+        directory. Errors coming from os.walk are ignored.
+
+        Note that the caller is not responsible for closing the stream.
+
+        This function is for instance used by :mod:`pyffi.spells` to implement
+        modifying a file after reading and parsing.
+
+        :param top: The top folder.
+        :type top: ``str``
+        :param topdown: Determines whether subdirectories should be iterated
+            over first.
+        :type topdown: ``bool``
+        :param mode: The mode in which to open files.
+        :type mode: ``str``
+        """
+        # now walk over all these files in directory top
+        for filename in pyffi.utils.walk(top, topdown, onerror=None,
+                                         re_filename=cls.RE_FILENAME):
+            stream = open(filename, mode)
+            try:
+                yield stream
+            finally:
+                stream.close()
