@@ -930,6 +930,7 @@ may destroy them. Make a backup of your files before running this script.
         # inspect the file but do not yet read in full
         for stream in self.FILEFORMAT.walk(
             top, mode='rb' if self.spellclass.READONLY else 'r+b'):
+            pass # to set a breakpoint
             self._toast(stream)
             # force free memory (helps when parsing many very large files)
             gc.collect()
