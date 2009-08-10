@@ -5,8 +5,10 @@ Release 2.0.2 (in development)
 
 * New unified installer which works for all versions of Python and
   Maya at once (at the moment: 2.5, 2.6, 3.0, 3.1) and also for all
-  versions of Maya that use Python 2.5 (2008 and 2009, including the
-  64 bit variants).
+  versions of Maya that use Python 2.5 and 2.6 (2008, 2009, and 2010,
+  including the 64 bit variants).
+
+* Added support for Aion cgf files.
 
 * Added support for NeoSteam header and footer.
 
