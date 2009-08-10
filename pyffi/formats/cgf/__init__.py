@@ -2153,6 +2153,7 @@ chunk size mismatch when reading %s at 0x%08X
             * numMeshSubsets : 2
             * reserved1 : 0
             * reserved2 : 0
+            * reserved3 : 0
             * meshSubsets :
                 <class 'pyffi.object_models.xml.Array.Array'> instance at ...
                 0: <class 'pyffi.formats.cgf.MeshSubset'> instance at ...

@@ -799,6 +799,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
 <!-- crysis chunks -->
 
     <struct name="MtlNameChunk" inherit="AbstractMtlChunk">
+        <version num="744">Aion</version>
         <version num="800">Crysis</version>
         <add name="Flags 1" type="MtlNameFlags" />
         <add name="Flags 2" type="uint" />
@@ -851,11 +852,14 @@ In Python this can be calculated using zlib.crc32(name)</add>
     </struct>
 
     <struct name="MeshSubsetsChunk" inherit="Chunk">
+        <!-- Aion note: block reads, but data does not seem to match -->
+        <version num="1">Aion</version>
         <version num="800">Crysis</version>
         <add name="Flags" type="MeshSubsetsFlags" />
         <add name="Num Mesh Subsets" type="int" />
         <add name="Reserved 1" type="int" />
         <add name="Reserved 2" type="int" />
+        <add name="Reserved 3" type="int" ver2="1" />
         <add name="Mesh Subsets" type="MeshSubset" arr1="Num Mesh Subsets" />
     </struct>
 

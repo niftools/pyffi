@@ -2,6 +2,10 @@
 
 .. todo::
    
+   Aion caf format (MtlNameChunk header?).
+
+.. todo::
+   
    refactoring plans
 
    - common base classes for pyffi.object_models.xml.BasicBase/StructBase and
