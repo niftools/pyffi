@@ -2,6 +2,7 @@
 <!DOCTYPE fileformat>
 <fileformat>
     <version num="744">Far Cry, Crysis</version>
+    <version num="750">Aion</version>
 
     <!--
     *******************
@@ -567,7 +568,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
 
     <struct name="MeshChunk" inherit="AbstractObjectChunk">
         <version num="623">Far Cry</version>
-        <version num="744">Far Cry</version>
+        <version num="744">Far Cry, Aion</version>
         <version num="800">Crysis</version>
         Geometry.
         <add name="Has Vertex Weights" type="bool" ver2="744" />
@@ -632,13 +633,13 @@ In Python this can be calculated using zlib.crc32(name)</add>
     </struct>
 
     <struct name="BoneAnimChunk" inherit="Chunk">
-        <version num="290">Far Cry, Crysis</version>
+        <version num="290">Far Cry, Crysis, Aion</version>
         <add name="Num Bones" type="uint" />
         <add name="Bones" type="BoneEntity" arr1="Num Bones" />
     </struct>
 
     <struct name="BoneNameListChunk" inherit="Chunk">
-        <version num="745">Far Cry, Crysis</version>
+        <version num="745">Far Cry, Crysis, Aion</version>
         <add name="Num Names" type="uint" />
         <add name="Names" type="String" arr1="Num Names" />
         <add name="Unknown" type="ubyte" />
@@ -672,7 +673,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
     </struct>
 
     <struct name="NodeChunk" inherit="Chunk">
-        <version num="823">Far Cry, Crysis</version>
+        <version num="823">Far Cry, Crysis, Aion</version>
         <add name="Name" type="String64" />
         <add name="Object" type="Ref" template="AbstractObjectChunk">Mesh or helper object chunk.</add>
         <add name="Parent" type="Ptr" template="NodeChunk">Node parent.</add>
@@ -705,6 +706,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <version num="744">Far Cry</version>
         <version num="745">Far Cry</version>
         <version num="746">Far Cry, Crysis</version>
+        <version num="747">Aion</version>
         <add name="Name" type="String64">Material and shader name.</add>
         <add name="Reserved" type="ubyte" arr1="60" ver1="746">Reserved.</add>
         <add name="Alpha Test" type="float" ver1="746">Unknown.</add>
@@ -719,6 +721,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Spec Shininess" type="float" default="0.1" cond="Type == 1" ver1="745">Specular shininess.</add>
         <add name="Self Illum" type="float" cond="Type == 1" ver1="745">Self illumination.</add>
         <add name="Opacity" type="float" default="1.0" cond="Type == 1" ver1="745">Opacity.</add>
+        <add name="Reserved3" type="ubyte" arr1="8" ver1="747">Unknown. Only in Aion.</add>
         <!-- textures -->
         <add name="Tex A" type="TextureMap" cond="Type == 1" ver1="745">Ambient texture settings.</add>
         <add name="Tex D" type="TextureMap" cond="Type == 1">Diffuse texture settings.</add>
@@ -754,7 +757,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
     </struct>
 
     <struct name="TimingChunk" inherit="Chunk">
-        <version num="918">Far Cry, Crysis</version>
+        <version num="918">Far Cry, Crysis, Aion</version>
         <add name="Secs Per Tick" type="float">seconds/ticks</add>
         <add name="Ticks Per Frame" type="int">ticks/frame</add>
         <add name="Global Range" type="RangeEntity">Covers all of the time ranges.</add>
@@ -762,7 +765,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
     </struct>
 
     <struct name="BoneMeshChunk" inherit="MeshChunk">
-        <version num="744">Far Cry, Crysis</version>
+        <version num="744">Far Cry, Crysis, Aion</version>
     </struct>
 
     <struct name="BoneLightBindingChunk" inherit="Chunk">
@@ -772,14 +775,14 @@ In Python this can be calculated using zlib.crc32(name)</add>
     </struct>
 
     <struct name="BoneInitialPosChunk" inherit="Chunk">
-        <version num="1">Far Cry, Crysis</version>
+        <version num="1">Far Cry, Crysis, Aion</version>
         <add name="Mesh" type="Ptr" template="MeshChunk">The mesh with bone info for which these bone initial positions are applicable. There might be some unused bones here as well. There must be the same number of bones as in the other chunks - they are placed in BoneId order.</add>
         <add name="Num Bones" type="uint">Number of bone initial positions.</add>
         <add name="Initial Pos Matrices" type="InitialPosMatrix" arr1="Num Bones" />
     </struct>
 
     <struct name="SourceInfoChunk" inherit="Chunk">
-        <version num="0">Far Cry, Crysis</version>
+        <version num="0">Far Cry, Crysis, Aion</version>
         <add name="Source File" type="String" />
         <add name="Date" type="String" />
         <add name="Author" type="String" />
