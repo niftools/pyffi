@@ -35,6 +35,9 @@ Release 2.0.2 (in development)
 * Do not attempt to optimize nifs with an insane amount of triangles,
   but put out a warning instead.
 
+* Log error rather than raising exception when end of nif file is not
+  reached (fixes issue with sample nif provided by baphometal).
+
 Release 2.0.1 (Jul 22, 2009)
 ============================
 

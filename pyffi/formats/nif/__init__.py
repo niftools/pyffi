@@ -1350,7 +1350,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
 
             # check if we are at the end of the file
             if stream.read(1):
-                raise NifFormat.NifError(
+                logger.error(
                     'End of file not reached: corrupt nif file?')
 
             # fix links in blocks and footer (header has no links)
