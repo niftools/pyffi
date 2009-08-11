@@ -1997,7 +1997,7 @@
     <niobject name="NiPSysGravityStrengthCtlr" abstract="0" inherit="NiPSysModifierFloatCtlr" ver1="20.0.0.5">
         Unknown.
     </niobject>
-    
+
 
     <niobject name="NiFloatInterpController" abstract="1" inherit="NiSingleInterpController" ver1="10.2.0.0">
         A controller that interpolates floating point numbers?
@@ -3329,14 +3329,14 @@
         <add name="PS2 K" type="short" default="-75" ver2="10.2.0.0">-75?</add>
         <add name="Unknown Short" type="ushort" ver2="4.1.0.12">Unknown: 0.</add>
     </niobject>
-    
+
     <niobject name="NiTextureModeProperty" abstract="0" inherit="NiProperty" ver1="3.0" ver2="3.1">
         Unknown
         <add name="Unknown Short" type="short">Unknown. Either 210 or 194.</add>
         <add name="PS2 L" type="short" default="0" ver1="3.1" ver2="10.2.0.0">0?</add>
         <add name="PS2 K" type="short" default="-75" ver1="3.1" ver2="10.2.0.0">-75?</add>
     </niobject>
-    
+
     <niobject name="NiImage" abstract="0" inherit="NiObject" ver1="3.0" ver2="3.1">
         <add name="External" type="byte">0 if the texture is internal to the NIF file.</add>
         <add name="File Name" type="FilePath" cond="External != 0">The filepath to the texture.</add>
@@ -3344,7 +3344,7 @@
         <add name="Unknown Int" type="uint" default="7">Unknown.  Often seems to be 7. Perhaps m_uiMipLevels?</add>
         <add name="Unknown Float" type="float" ver1="3.1" default="128.5">Unknown.  Perhaps fImageScale?</add>
     </niobject>
-    
+
     <niobject name="NiTextureProperty" abstract="0" inherit="NiProperty" ver1="3.0" ver2="3.1">
         <add name="Flags" type="Flags">Property flags.</add>
         <add name="Image" type="Ref" template="NiImage">Link to the texture image.</add>
