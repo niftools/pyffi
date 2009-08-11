@@ -4144,6 +4144,8 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                 try:
                     return int(x)
                 except ValueError:
+                    logging.getLogger("pyffi.nif.nigeometry").warn(
+                        "NaN detected in geometry")
                     return 0
             
             verts = self.vertices if self.hasVertices else None
@@ -4157,10 +4159,10 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             for i in xrange(self.numVertices):
                 h = []
                 if verts:
-                    h.extend([int(x * vertexfactor)
+                    h.extend([_int(x * vertexfactor)
                              for x in [verts[i].x, verts[i].y, verts[i].z]])
                 if norms:
-                    h.extend([int(x * normalfactor)
+                    h.extend([_int(x * normalfactor)
                               for x in [norms[i].x, norms[i].y, norms[i].z]])
                 if uvsets:
                     for uvset in uvsets:
@@ -4169,7 +4171,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                         h.extend([_int(x*uvfactor)
                                   for x in [uvset[i].u, uvset[i].v]])
                 if vcols:
-                    h.extend([int(x * vcolfactor)
+                    h.extend([_int(x * vcolfactor)
                               for x in [vcols[i].r, vcols[i].g,
                                         vcols[i].b, vcols[i].a]])
                 yield tuple(h)

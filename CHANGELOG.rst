@@ -29,6 +29,9 @@ Release 2.0.2 (in development)
   NiTriStrips data block (fixes some corrupt nifs provided by
   baphometal in issue #2795837).
 
+* Optimizer can now recover from NaN values in geometry (sample nifs
+  provided by baphometal).
+
 * Do not attempt to optimize nifs with an insane amount of triangles,
   but put out a warning instead.
 
