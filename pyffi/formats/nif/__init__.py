@@ -3736,7 +3736,9 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             # find chain from relative_to to self
             chain = relative_to.findChain(self, block_type = NifFormat.NiAVObject)
             if not chain:
-                raise ValueError('cannot find a chain of NiAVObject blocks')
+                raise ValueError(
+                    'cannot find a chain of NiAVObject blocks '
+                    'between %s and %s.' % (self.name, relative_to.name))
             # and multiply with all transform matrices (not including relative_to)
             for block in reversed(chain[1:-1]):
                 m *= block.getTransform()
