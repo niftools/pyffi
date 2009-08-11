@@ -4145,7 +4145,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                     return int(x)
                 except ValueError:
                     logging.getLogger("pyffi.nif.nigeometry").warn(
-                        "NaN detected in geometry")
+                        "NaN detected in geometry.")
                     return 0
             
             verts = self.vertices if self.hasVertices else None
