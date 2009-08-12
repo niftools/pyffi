@@ -1,5 +1,5 @@
-Release 2.0.2 (in development)
-==============================
+Release 2.0.2 (Aug 12, 2009)
+============================
 
 * The source has been updated to be Python 3.x compatible via 2to3.
 
