@@ -2469,7 +2469,7 @@
         <add name="String Palette" type="Ref" template="NiStringPalette" ver1="10.2.0.0" ver2="20.0.0.5">Refers to NiStringPalette.</add>
         <add name="Unknown Short 1" type="short" ver1="20.2.0.7" vercond="(User Version == 11) &amp;&amp; (User Version 2 >= 24)">Unknown</add>
         <add name="Unknown Short 2" type="short" ver1="20.2.0.7" vercond="(User Version == 11) &amp;&amp; (User Version 2 >= 24) &amp;&amp; (User Version 2 &lt;= 28)">Unknown</add>
-        <add name="Unknown Int 3" type="uint" ver1="20.3.0.9" ver2="20.3.0.9">Unknown, found in some Lazeska .KFs (seems to be 64 when present). Conditions are unknown.</add>
+        <add name="Unknown Int 3" type="uint" ver1="20.3.0.9" default="64">Unknown, found in some Lazeska and Krazy Rain .KFs (seems to be 64 when present).</add>
     </niobject>
 
     <niobject name="NiAVObjectPalette" abstract="1" inherit="NiObject">
@@ -4273,8 +4273,8 @@
         <add name="Unknown 3" type="uint" default="1" />
         <add name="Unknown 4" type="uint" default="0" />
         <add name="Num Data" type="uint" />
-        <add name="Num Unknown Ints" type="uint" default="1" />
-        <add name="Unknown Ints" type="uint" arr1="Num Unknown Ints" /><!-- flags? -->
+        <add name="Num Data Components" type="uint">Matches the parent NiMesh-&gt;Mesh Data-&gt;Num Data Components field.</add>
+        <add name="Unknown Ints" type="uint" arr1="Num Data Components">Flags per component?</add>
     </niobject>
 
     <niobject name="NiDataStream\x010\x0118" ver1="20.5.0.0" inherit="NiDataStreamBase">
@@ -4295,11 +4295,7 @@
         <add name="Unknown 9" type="byte" default="1" />
     </niobject>
 
-    <niobject name="NiDataStream\x011\x0119" ver1="20.5.0.0" inherit="NiDataStreamBase">
-        Vector data.
-        <add name="Data" type="Vector3" arr1="Num Bytes / 12" />
-        <add name="Unknown 9" type="byte" default="1" />
-    </niobject>
+    <niobject name="NiDataStream\x011\x0119" ver1="20.5.0.0" inherit="NiDataStream\x011\x0118" />
 
     <niobject name="NiDataStream\x011\x0121" ver1="20.5.0.0" inherit="NiDataStreamBase">
     </niobject>
