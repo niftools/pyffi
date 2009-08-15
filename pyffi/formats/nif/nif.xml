@@ -3614,6 +3614,7 @@
         <add name="Num Dests" type="int">Number of NiPhysXTransformDest references</add>
         <add name="Transform Dests" type="Ref" template="NiPhysXTransformDest" arr1="Num Dests">Unknown</add>
         <add name="Unknown Byte" type="byte">Unknown</add>
+        <add name="Unknown Int" type="int" ver1="20.5.0.0">Unknown</add><!-- in Krazy Rain 20.5.0.0 nifs, missing in the copetech 20.3.0.9 nifs -->
         <add name="Prop Description" type="Ref" template="NiPhysXPropDesc">PhysX Property Description.</add>
     </niobject>
 
@@ -3633,6 +3634,10 @@
         <add name="Num Materials" type="uint">Unknown</add>
         <add name="Material Descs" type="physXMaterialRef"  arr1="Num Materials">PhysX Material Descriptions</add>
         <add name="Unknown Int 2" type="uint">Unknown</add>
+        <add name="Unknown Int 3" type="uint" ver1="20.5.0.0">Unknown</add><!-- in Krazy Rain 20.5.0.0 nifs, not in copetech nifs -->
+        <add name="Unknown String 4" type="string" ver1="20.5.0.0">Unknown</add><!-- in Krazy Rain 20.5.0.0 nifs, not in copetech nifs -->
+        <add name="Unknown Int 5" type="uint" ver1="20.5.0.0">Unknown</add><!-- in Krazy Rain 20.5.0.0 nifs, not in copetech nifs -->
+        <add name="Unknown Byte 6" type="byte" ver1="20.5.0.0">Unknown</add><!-- in Krazy Rain 20.5.0.0 nifs, not in copetech nifs -->
     </niobject>
 
     <niobject name="NiPhysXActorDesc" abstract="0" inherit="NiObject" ver1="20.1.0.7">
@@ -3681,7 +3686,7 @@
         <add name="Unknown Int 5" type="int">Unknown</add>
         <add name="Unknown Int 7" type="int">Unknown</add>
         <add name="Unknown Int 8" type="int">Unknown</add>
-        <add name="Unknown Bytes 1" type="byte" arr1="8" ver1="20.3.0.6">Unknown. Wrong, but better than nothing.</add>
+        <!--<add name="Unknown Bytes 1" type="byte" arr1="8" ver1="20.3.0.6">Unknown. Wrong, but better than nothing.</add>-->
         <add name="Mesh Description" type="Ref" template="NiPhysXMeshDesc">PhysX Mesh Description</add>
         <!-- todo: fix invalid link failure on Ficus.nif from the emerge demo -->
     </niobject>
