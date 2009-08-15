@@ -4316,13 +4316,17 @@
     <niobject name="NiDataStream\x013\x015" ver1="20.5.0.0" inherit="NiDataStreamBase">
     </niobject>
 
+    <compound name="DataComponent">
+        <add name="Data Type" type="string">Type of data (POSITION, INDEX, NORMAL, TEXCOORD)</add>
+        <add name="Unknown Int" type="int" default="0" />
+    </compound>
+
     <compound name="MeshData">
         <add name="Data Stream" type="Ref" template="NiDataStreamBase" />
         <add name="Unknown Byte" type="byte" default="0" />
         <add name="Unknown Int 1" type="int" default="1" />
-        <add name="Unknown Int 2" type="int" default="1" />
-        <add name="Data Type" type="string">Type of data (POSITION, INDEX, NORMAL, TEXCOORD)</add>
-        <add name="Unknown Int 4" type="int" default="0" />
+        <add name="Num Data Components" type="int" default="1" />
+        <add name="Data Components" type="DataComponent" arr1="Num Data Components" />
     </compound>
 
     <niobject name="NiMesh" ver1="20.5.0.0" inherit="NiAVObject">
@@ -4333,11 +4337,7 @@
         <add name="Unknown Floats 6" type="float" arr1="4" />
         <add name="Num Mesh Data" type="uint" />
         <add name="Mesh Data" type="MeshData" arr1="Num Mesh Data" />
-        <add name="Unknown Type" type="int" /><!-- just guessing that this denotes some sort of type -->
-        <add name="Unknown Int 7" type="int" cond="Unknown Type >= 1" /><!-- just guessing -->
-        <add name="Unknown Int 8" type="int" cond="Unknown Type >= 2" /><!-- just guessing -->
-        <add name="Unknown Int 9" type="int" cond="Unknown Int 8 != 0" /><!-- just guessing -->
-        <add name="Unknown Int 10" type="int" cond="Unknown Int 8 != 0" /><!-- just guessing -->
+        <add name="Unknown Int 7" type="int" />
     </niobject>
 
     <niobject name="NiMorphWeightsController" ver1="20.5.0.0" inherit="NiTimeController">
