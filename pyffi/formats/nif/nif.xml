@@ -4263,25 +4263,6 @@
     </niobject>
 
     <niobject name="NiDataStreamBase" ver1="20.5.0.0" inherit="NiObject" abstract="1">
-    </niobject>
-
-    <niobject name="NiDataStream\x010\x0118" ver1="20.5.0.0" inherit="NiDataStreamBase">
-        Integer data (such as triangles).
-        <add name="Num Triangle Bytes" type="uint" />
-        <add name="Unknown 2" type="uint" default="0" />
-        <add name="Unknown 3" type="uint" default="1" />
-        <add name="Unknown 4" type="uint" default="0" />
-        <add name="Num Triangle Points" type="uint">Num Triangle Bytes / 2</add>
-        <add name="Unknown 6" type="uint" default="1" />
-        <add name="Unknown 7" type="ushort" default="533" />
-        <add name="Unknown 8" type="ushort" default="1" />
-        <add name="Triangles" type="Triangle" arr1="Num Triangle Bytes / 6" />
-        <add name="Unknown 9" type="byte" default="1" />
-    </niobject>
-
-    <niobject name="NiDataStream\x011\x0118" ver1="20.5.0.0" inherit="NiDataStreamBase">
-        Float data (vertices, normals, uvs).
-
         <add name="Num Bytes" type="uint" />
         <add name="Unknown 2" type="uint" default="0" />
         <add name="Unknown 3" type="uint" default="1" />
@@ -4289,14 +4270,30 @@
         <add name="Num Data" type="uint" />
         <add name="Num Unknown Ints" type="uint" default="1" />
         <add name="Unknown Ints" type="uint" arr1="Num Unknown Ints" /><!-- flags? -->
+    </niobject>
+
+    <niobject name="NiDataStream\x010\x0118" ver1="20.5.0.0" inherit="NiDataStreamBase">
+        Triangles with short indices.
+        <add name="Data" type="ushort" arr1="Num Bytes / 2" />
+        <add name="Unknown 9" type="byte" default="1" />
+    </niobject>
+
+    <niobject name="NiDataStream\x011\x0118" ver1="20.5.0.0" inherit="NiDataStreamBase">
+        Float data (used for vertices, normals, uvs).
         <add name="Data" type="float" arr1="Num Bytes / 4" />
         <add name="Unknown 9" type="byte" default="1" />
     </niobject>
 
     <niobject name="NiDataStream\x010\x0119" ver1="20.5.0.0" inherit="NiDataStreamBase">
+        Triangles with integer indices.
+        <add name="Data" type="uint" arr1="Num Bytes / 4" />
+        <add name="Unknown 9" type="byte" default="1" />
     </niobject>
 
     <niobject name="NiDataStream\x011\x0119" ver1="20.5.0.0" inherit="NiDataStreamBase">
+        Vector data.
+        <add name="Data" type="Vector3" arr1="Num Bytes / 12" />
+        <add name="Unknown 9" type="byte" default="1" />
     </niobject>
 
     <niobject name="NiDataStream\x011\x0121" ver1="20.5.0.0" inherit="NiDataStreamBase">
@@ -4316,11 +4313,11 @@
 
     <compound name="MeshData">
         <add name="Data Stream" type="Ref" template="NiDataStreamBase" />
-        <add name="Unknown Byte" type="byte" />
-        <add name="Unknown Int 1" type="int" />
-        <add name="Unknown Int 2" type="int" />
-        <add name="Unknown Int 3" type="int" />
-        <add name="Unknown Int 4" type="int" />
+        <add name="Unknown Byte" type="byte" default="0" />
+        <add name="Unknown Int 1" type="int" default="1" />
+        <add name="Unknown Int 2" type="int" default="1" />
+        <add name="Data Type" type="string">Type of data (POSITION, INDEX, NORMAL, TEXCOORD)</add>
+        <add name="Unknown Int 4" type="int" default="0" />
     </compound>
 
     <niobject name="NiMesh" ver1="20.5.0.0" inherit="NiAVObject">
