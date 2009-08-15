@@ -38,6 +38,8 @@
     <version num="20.3.0.3">Emerge</version>
     <version num="20.3.0.6">Emerge</version>
     <version num="20.3.0.9">Warhammer, Lazeska</version>
+    <version num="20.5.0.0">KrazyRain</version>
+    <version num="20.6.0.0">KrazyRain</version>
     <version num="30.0.0.2">Emerge</version>
 
     <!--Basic Types-->
@@ -78,17 +80,17 @@
     <basic name="FileVersion" count="0" niflibtype="unsigned int" nifskopetype="fileversion">
         A 32-bit integer that stores the version in hexadecimal format with each byte representing a number in the version string.
 
-        Known versions and their hex representation:
-        4.0.0.2:  0x04000002
-        4.1.0.12:  0x0401000C
-        4.2.0.2:  0x04020002
-        4.2.1.0:  0x04020100
-        4.2.2.0:  0x04020200
-        10.0.1.0:  0x0A000100
-        10.1.0.0:  0x0A010000
-        10.2.0.0:  0x0A020000
-        20.0.0.4:  0x14000004
-        20.0.0.5:  0x14000005
+        Some widely-used versions and their hex representation:
+        4.0.0.2:    0x04000002
+        4.1.0.12:   0x0401000C
+        4.2.0.2:    0x04020002
+        4.2.1.0:    0x04020100
+        4.2.2.0:    0x04020200
+        10.0.1.0:   0x0A000100
+        10.1.0.0:   0x0A010000
+        10.2.0.0:   0x0A020000
+        20.0.0.4:   0x14000004
+        20.0.0.5:   0x14000005
     </basic>
 
     <basic name="Flags" count="0" niflibtype="unsigned short" nifskopetype="flags">
@@ -658,7 +660,8 @@
         <add name="b" type="float">Blue color component.</add>
     </compound>
 
-    <compound name="ByteColor3">
+    <compound name="ByteColor3"><!-- niflibtype="Color3" nifskopetype="color3" -->
+        A color without alpha (red, green, blue).
         <add name="r" type="byte">Red color component.</add>
         <add name="g" type="byte">Green color component.</add>
         <add name="b" type="byte">Blue color component.</add>
@@ -672,7 +675,8 @@
         <add name="a" type="float">Alpha.</add>
     </compound>
 
-    <compound name="ByteColor4">
+    <compound name="ByteColor4"><!-- niflibtype="Color4" nifskopetype="color4" -->
+        A color with alpha (red, green, blue, alpha).
         <add name="r" type="byte">Red color component.</add>
         <add name="g" type="byte">Green color component.</add>
         <add name="b" type="byte">Blue color component.</add>
@@ -876,7 +880,7 @@
         <add name="Export Info 2" type="ShortString">Unknown. Possibly the selected option of the export script. Can be something like &#039;Default Export Script&#039;.</add>
     </compound>
 
-	<!-- Don't use vercond in Header, it breaks niflib -->
+    <!-- Don't use vercond in Header, it breaks niflib -->
     <compound name="Header">
         The NIF file header.
         <add name="Header String" type="HeaderString">&#039;NetImmerse File Format x.x.x.x&#039; (versions &lt;= 10.0.1.2) or &#039;Gamebryo File Format x.x.x.x&#039; (versions &gt;= 10.1.0.0), with x.x.x.x the version written out. Ends with a newline character (0x0A).</add>
@@ -2692,7 +2696,7 @@
     <niobject name="NiPalette" abstract="0" inherit="NiObject" ver1="4.2.2.0">
         A color palette.
         <add name="Unknown Byte" type="byte">Unknown, Usually = 0.</add>
-        <add name="Num Entries" type="uint">The number of palette entries.  Always = 256.</add>
+        <add name="Num Entries" type="uint" default="256">The number of palette entries.  Always = 256.</add>
         <add name="Palette" type="ByteColor4" arr1="256">The color palette.</add>
     </niobject>
 
@@ -4258,13 +4262,365 @@
         <add name="Unknown Ints 1" type="int" arr1="17" />
     </niobject>
 
-    <compound name="NiMesh" ver1="30.0.0.2" inherit="NiTriBasedGeom">
+    <niobject name="NiDataStreamBase" ver1="20.5.0.0" inherit="NiObject" abstract="1">
+    </niobject>
+
+    <niobject name="NiDataStream\x010\x0118" ver1="20.5.0.0" inherit="NiDataStreamBase">
+        Integer data (such as triangles).
+        <add name="Num Triangle Bytes" type="uint" />
+        <add name="Unknown 2" type="uint" default="0" />
+        <add name="Unknown 3" type="uint" default="1" />
+        <add name="Unknown 4" type="uint" default="0" />
+        <add name="Num Triangle Points" type="uint">Num Triangle Bytes / 2</add>
+        <add name="Unknown 6" type="uint" default="1" />
+        <add name="Unknown 7" type="ushort" default="533" />
+        <add name="Unknown 8" type="ushort" default="1" />
+        <add name="Triangles" type="Triangle" arr1="Num Triangle Bytes / 6" />
+        <add name="Unknown 9" type="byte" default="1" />
+    </niobject>
+
+    <niobject name="NiDataStream\x011\x0118" ver1="20.5.0.0" inherit="NiDataStreamBase">
+        Float data (vertices, normals, uvs).
+
+        <add name="Num Bytes" type="uint" />
+        <add name="Unknown 2" type="uint" default="0" />
+        <add name="Unknown 3" type="uint" default="1" />
+        <add name="Unknown 4" type="uint" default="0" />
+        <add name="Num Data" type="uint" />
+        <add name="Num Unknown Ints" type="uint" default="1" />
+        <add name="Unknown Ints" type="uint" arr1="Num Unknown Ints" /><!-- flags? -->
+        <add name="Data" type="float" arr1="Num Bytes / 4" />
+        <add name="Unknown 9" type="byte" default="1" />
+    </niobject>
+
+    <niobject name="NiDataStream\x010\x0119" ver1="20.5.0.0" inherit="NiDataStreamBase">
+    </niobject>
+
+    <niobject name="NiDataStream\x011\x0119" ver1="20.5.0.0" inherit="NiDataStreamBase">
+    </niobject>
+
+    <niobject name="NiDataStream\x011\x0121" ver1="20.5.0.0" inherit="NiDataStreamBase">
+    </niobject>
+
+    <niobject name="NiDataStream\x011\x0124" ver1="20.5.0.0" inherit="NiDataStreamBase">
+    </niobject>
+
+    <niobject name="NiDataStream\x011\x013" ver1="20.5.0.0" inherit="NiDataStreamBase">
+    </niobject>
+
+    <niobject name="NiDataStream\x013\x013" ver1="20.5.0.0" inherit="NiDataStreamBase">
+    </niobject>
+
+    <niobject name="NiDataStream\x013\x015" ver1="20.5.0.0" inherit="NiDataStreamBase">
+    </niobject>
+
+    <compound name="MeshData">
+        <add name="Data Stream" type="Ref" template="NiDataStreamBase" />
+        <add name="Unknown Byte" type="byte" />
+        <add name="Unknown Int 1" type="int" />
+        <add name="Unknown Int 2" type="int" />
+        <add name="Unknown Int 3" type="int" />
+        <add name="Unknown Int 4" type="int" />
     </compound>
 
-    <compound name="NiDataStream\x010\x0118" ver1="30.0.0.2">
-    </compound>
+    <niobject name="NiMesh" ver1="20.5.0.0" inherit="NiAVObject">
+        <add name="Unknown Int 3" type="int" />
+        <add name="Unknown Link" type="Ref" template="NiObject" />
+        <add name="Unknown Int 4" type="int" />
+        <add name="Unknown Int 5" type="int" default="256" />
+        <add name="Unknown Floats 6" type="float" arr1="4" />
+        <add name="Num Mesh Data" type="uint" />
+        <add name="Mesh Data" type="MeshData" arr1="Num Mesh Data" />
+        <add name="Unknown Type" type="int" /><!-- just guessing that this denotes some sort of type -->
+        <add name="Unknown Int 7" type="int" cond="Unknown Type >= 1" /><!-- just guessing -->
+        <add name="Unknown Int 8" type="int" cond="Unknown Type >= 2" /><!-- just guessing -->
+        <add name="Unknown Int 9" type="int" cond="Unknown Int 8 != 0" /><!-- just guessing -->
+        <add name="Unknown Int 10" type="int" cond="Unknown Int 8 != 0" /><!-- just guessing -->
+    </niobject>
 
-    <compound name="NiDataStream\x011\x0118" ver1="30.0.0.2">
-    </compound>
+    <niobject name="NiMorphWeightsController" ver1="20.5.0.0" inherit="NiTimeController">
+    </niobject>
+
+    <niobject name="NiMorphMeshModifier" ver1="20.5.0.0" inherit="NiObject">
+    </niobject>
+
+    <niobject name="NiSkinningMeshModifier" ver1="20.5.0.0" inherit="NiObject">
+    </niobject>
+
+    <niobject name="NiSkinningLODController" ver1="20.5.0.0" inherit="NiTimeController">
+    </niobject>
+
+    <niobject name="NiPSParticleSystem" ver1="20.5.0.0" inherit="NiAVObject">
+        <add name="Unknown 1" type="int"></add>
+        <add name="Unknown 2" type="int"></add>
+        <add name="Unknown 3" type="int"></add>
+        <add name="Unknown 4" type="int"></add>
+        <add name="Unknown 5" type="int"></add>
+        <add name="Unknown 6" type="int"></add>
+        <add name="Unknown 7" type="int"></add>
+        <add name="Unknown 8" type="int"></add>
+        <add name="Unknown 9" type="int"></add>
+        <add name="Unknown 10" type="int"></add>
+        <add name="Unknown 11" type="int"></add>
+        <add name="Unknown 12" type="int"></add>
+        <add name="Unknown 13" type="int"></add>
+        <add name="Unknown 14" type="int"></add>
+        <add name="Unknown 15" type="int"></add>
+        <add name="Unknown 16" type="int"></add>
+        <add name="Unknown 17" type="int"></add>
+        <add name="Unknown 18" type="int"></add>
+        <add name="Unknown 19" type="int"></add>
+        <add name="Unknown 20" type="int"></add>
+    </niobject>
+
+    <niobject name="NiPSMeshParticleSystem" ver1="20.5.0.0" inherit="NiPSParticleSystem">
+        <add name="Unknown 21" type="int"></add>
+        <add name="Unknown 22" type="int"></add>
+        <add name="Unknown 23" type="byte"></add>
+    </niobject>
+
+    <niobject name="NiPSEmitParticlesCtlr" ver1="20.5.0.0" inherit="NiPSysEmitterCtlr">
+    </niobject>
+
+    <niobject name="NiPSForceActiveCtlr" ver1="20.5.0.0" inherit="NiTimeController">
+    </niobject>
+
+    <niobject name="NiPSSimulator" ver1="20.5.0.0" inherit="NiObject">
+        Particle System Simulator?
+        <add name="Unknown 1" type="byte"></add>
+        <add name="Unknown 2" type="byte"></add>
+        <add name="Unknown 3" type="byte"></add>
+        <add name="Unknown 4" type="byte"></add>
+        <add name="Unknown 5" type="byte"></add>
+        <add name="Unknown 6" type="byte"></add>
+        <add name="Unknown 7" type="byte"></add>
+        <add name="Unknown 8" type="byte"></add>
+        <add name="Unknown 9" type="byte"></add>
+        <add name="Unknown 10" type="byte"></add>
+        <add name="Unknown 11" type="byte"></add>
+        <add name="Unknown 12" type="byte"></add>
+        <add name="Num modifiers" type="int"></add>
+        <add name="Modifiers" type="Ref" template="NiObject" arr1="Num modifiers">Modifiers?</add>
+    </niobject>
+
+    <niobject name="NiPSSimulatorGeneralStep" ver1="20.5.0.0" inherit="NiObject">
+        <add name="Unknown 1" type="byte"></add>
+        <add name="Unknown 2" type="float"></add>
+        <add name="Unknown 3" type="float"></add>
+        <add name="Unknown 4" type="float"></add>
+    </niobject>
+
+    <niobject name="NiPSSimulatorForcesStep" ver1="20.5.0.0" inherit="NiObject">
+        <add name="Num links" type="int"></add>
+        <add name="Link" type="Ref" template="NiObject" arr1="Num links"></add>
+    </niobject>
+
+    <niobject name="NiPSSimulatorCollidersStep" ver1="20.5.0.0" inherit="NiObject">
+        <add name="Unknown 1" type="byte"></add>
+        <add name="Unknown 2" type="byte"></add>
+        <add name="Unknown 3" type="byte"></add>
+        <add name="Unknown 4" type="byte"></add>
+    </niobject>
+
+    <niobject name="NiPSSimulatorMeshAlignStep" ver1="20.5.0.0" inherit="NiObject">
+    </niobject>
+
+    <niobject name="NiPSSimulatorFinalStep" ver1="20.5.0.0" inherit="NiObject">
+    </niobject>
+
+    <niobject name="NiPSFacingQuadGenerator" ver1="20.5.0.0" inherit="NiObject">
+        <add name="Unknown 1" type="byte"></add>
+        <add name="Unknown 2" type="byte"></add>
+        <add name="Unknown 3" type="byte"></add>
+        <add name="Unknown 4" type="byte"></add>
+        <add name="Unknown 5" type="byte"></add>
+        <add name="Unknown 6" type="byte"></add>
+        <add name="Unknown 7" type="byte"></add>
+        <add name="Unknown 8" type="byte"></add>
+        <add name="Unknown 9" type="byte"></add>
+        <add name="Unknown 10" type="byte"></add>
+        <add name="Unknown 11" type="byte"></add>
+        <add name="Unknown 12" type="byte"></add>
+    </niobject>
+
+    <niobject name="NiPSBoundUpdater" ver1="20.5.0.0" inherit="NiObject">
+        <add name="Unknown 1" type="byte"></add>
+        <add name="Unknown 2" type="byte"></add>
+    </niobject>
+
+    <niobject name="NiPSDragForce" ver1="20.5.0.0" inherit="NiObject">
+    </niobject>
+
+    <niobject name="NiPSGravityForce" ver1="20.5.0.0" inherit="NiObject">
+        <add name="Unknown 1" type="byte"></add>
+        <add name="Unknown 2" type="byte"></add>
+        <add name="Unknown 3" type="byte"></add>
+        <add name="Unknown 4" type="byte"></add>
+        <add name="Unknown 5" type="byte"></add>
+        <add name="Unknown 6" type="byte"></add>
+        <add name="Unknown 7" type="byte"></add>
+        <add name="Unknown 8" type="byte"></add>
+        <add name="Unknown 9" type="byte"></add>
+        <add name="Unknown 10" type="byte"></add>
+        <add name="Unknown 11" type="byte"></add>
+        <add name="Unknown 12" type="byte"></add>
+        <add name="Unknown 13" type="byte"></add>
+        <add name="Unknown 14" type="byte"></add>
+        <add name="Unknown 15" type="byte"></add>
+        <add name="Unknown 16" type="byte"></add>
+        <add name="Unknown 17" type="byte"></add>
+        <add name="Unknown 18" type="float"></add>
+        <add name="Unknown 19" type="byte"></add>
+        <add name="Unknown 20" type="byte"></add>
+        <add name="Unknown 21" type="byte"></add>
+        <add name="Unknown 22" type="byte"></add>
+        <add name="Unknown 23" type="byte"></add>
+        <add name="Unknown 24" type="byte"></add>
+        <add name="Unknown 25" type="byte"></add>
+        <add name="Unknown 26" type="byte"></add>
+        <add name="Unknown 27" type="byte"></add>
+        <add name="Unknown 28" type="byte"></add>
+        <add name="Unknown 29" type="byte"></add>
+        <add name="Unknown 30" type="byte"></add>
+        <add name="Unknown 31" type="byte"></add>
+        <add name="Unknown 32" type="byte"></add>
+        <add name="Unknown 33" type="byte"></add>
+        <add name="Unknown 34" type="byte"></add>
+        <add name="Unknown 35" type="float"></add>
+        <add name="Unknown 36" type="Ref" template="NiObject">Gravity node?</add>
+    </niobject>
+
+    <niobject name="NiPSBoxEmitter" ver1="20.5.0.0" inherit="NiObject">
+        <add name="Unknown 1" type="byte"></add>
+        <add name="Unknown 2" type="byte"></add>
+        <add name="Unknown 3" type="byte"></add>
+        <add name="Unknown 4" type="byte"></add>
+        <add name="Unknown 5" type="byte"></add>
+        <add name="Unknown 6" type="byte"></add>
+        <add name="Unknown 7" type="byte"></add>
+        <add name="Unknown 8" type="byte"></add>
+        <add name="Unknown 9" type="byte"></add>
+        <add name="Unknown 10" type="byte"></add>
+        <add name="Unknown 11" type="byte"></add>
+        <add name="Unknown 12" type="byte"></add>
+        <add name="Unknown 13" type="byte"></add>
+        <add name="Unknown 14" type="byte"></add>
+        <add name="Unknown 15" type="byte"></add>
+        <add name="Unknown 16" type="byte"></add>
+        <add name="Unknown 17" type="byte"></add>
+        <add name="Unknown 18" type="byte"></add>
+        <add name="Unknown 19" type="byte"></add>
+        <add name="Unknown 20" type="byte"></add>
+        <add name="Unknown 21" type="byte"></add>
+        <add name="Unknown 22" type="byte"></add>
+        <add name="Unknown 23" type="byte"></add>
+        <add name="Unknown 24" type="byte"></add>
+        <add name="Unknown 25" type="byte"></add>
+        <add name="Unknown 26" type="byte"></add>
+        <add name="Unknown 27" type="byte"></add>
+        <add name="Unknown 28" type="byte"></add>
+        <add name="Unknown 29" type="byte"></add>
+        <add name="Unknown 30" type="byte"></add>
+        <add name="Unknown 31" type="byte"></add>
+        <add name="Unknown 32" type="byte"></add>
+        <add name="Unknown 33" type="byte"></add>
+        <add name="Unknown 34" type="byte"></add>
+        <add name="Unknown 35" type="byte"></add>
+        <add name="Unknown 36" type="byte"></add>
+        <add name="Unknown 37" type="byte"></add>
+        <add name="Unknown 38" type="byte"></add>
+        <add name="Unknown 39" type="byte"></add>
+        <add name="Unknown 40" type="byte"></add>
+        <add name="Unknown 41" type="byte"></add>
+        <add name="Unknown 42" type="byte"></add>
+        <add name="Unknown 43" type="byte"></add>
+        <add name="Unknown 44" type="byte"></add>
+        <add name="Unknown 45" type="byte"></add>
+        <add name="Unknown 46" type="byte"></add>
+        <add name="Unknown 47" type="byte"></add>
+        <add name="Unknown 48" type="byte"></add>
+        <add name="Unknown 49" type="byte"></add>
+        <add name="Unknown 50" type="byte"></add>
+        <add name="Unknown 51" type="byte"></add>
+        <add name="Unknown 52" type="byte"></add>
+        <add name="Unknown 53" type="byte"></add>
+        <add name="Unknown 54" type="byte"></add>
+        <add name="Unknown 55" type="byte"></add>
+        <add name="Unknown 56" type="byte"></add>
+        <add name="Unknown 57" type="byte"></add>
+        <add name="Unknown 58" type="byte"></add>
+        <add name="Unknown 59" type="byte"></add>
+        <add name="Unknown 60" type="byte"></add>
+        <add name="Unknown 61" type="byte"></add>
+        <add name="Unknown 62" type="byte"></add>
+        <add name="Unknown 63" type="byte"></add>
+        <add name="Unknown 64" type="byte"></add>
+        <add name="Unknown 65" type="byte"></add>
+        <add name="Unknown 66" type="byte"></add>
+        <add name="Unknown 67" type="byte"></add>
+        <add name="Unknown 68" type="byte"></add>
+        <add name="Unknown 69" type="byte"></add>
+        <add name="Unknown 70" type="byte"></add>
+        <add name="Unknown 71" type="byte"></add>
+        <add name="Unknown 72" type="byte"></add>
+        <add name="Unknown 73" type="byte"></add>
+        <add name="Unknown 74" type="byte"></add>
+        <add name="Unknown 75" type="byte"></add>
+        <add name="Unknown 76" type="byte"></add>
+        <add name="Unknown 77" type="byte"></add>
+        <add name="Unknown 78" type="byte"></add>
+        <add name="Unknown 79" type="byte"></add>
+        <add name="Unknown 80" type="byte"></add>
+        <add name="Unknown 81" type="byte"></add>
+        <add name="Unknown 82" type="byte"></add>
+        <add name="Unknown 83" type="byte"></add>
+        <add name="Unknown 84" type="byte"></add>
+        <add name="Unknown 85" type="byte"></add>
+        <add name="Unknown 86" type="byte"></add>
+        <add name="Unknown 87" type="byte"></add>
+        <add name="Unknown 88" type="byte"></add>
+        <add name="Unknown 89" type="byte"></add>
+        <add name="Unknown 90" type="byte"></add>
+        <add name="Unknown 91" type="byte"></add>
+        <add name="Unknown 92" type="byte"></add>
+        <add name="Unknown 93" type="byte"></add>
+        <add name="Unknown 94" type="byte"></add>
+    </niobject>
+
+    <niobject name="NiPSMeshEmitter" ver1="20.5.0.0" inherit="NiObject">
+        <add name="Name" type="string"></add>
+        <add name="Unknown 1" type="int"></add>
+        <add name="Unknown 2" type="int"></add>
+        <add name="Unknown 3" type="int"></add>
+        <add name="Unknown 4" type="int"></add>
+        <add name="Unknown 5" type="int"></add>
+        <add name="Unknown 6" type="int"></add>
+        <add name="Unknown 7" type="int"></add>
+        <add name="Unknown 8" type="int"></add>
+        <add name="Unknown 9" type="int"></add>
+        <add name="Unknown 10" type="int"></add>
+        <add name="Unknown 11" type="int"></add>
+        <add name="Unknown 12" type="int"></add>
+        <add name="Unknown 13" type="int"></add>
+        <add name="Unknown 14" type="int"></add>
+        <add name="Unknown 15" type="int"></add>
+        <add name="Unknown 16" type="int"></add>
+        <add name="Unknown 17" type="int"></add>
+        <add name="Unknown 18" type="int"></add>
+        <add name="Unknown 19" type="int"></add>
+        <add name="Unknown 20" type="int"></add>
+        <add name="Unknown 21" type="int"></add>
+        <add name="Unknown 22" type="int"></add>
+        <add name="Unknown 23" type="int"></add>
+        <add name="Unknown 24" type="int"></add>
+        <add name="Unknown 25" type="int"></add>
+        <add name="Unknown 26" type="byte"></add>
+        <add name="Unknown 27" type="byte"></add>
+    </niobject>
+
+    <niobject name="NiPSGravityStrengthCtlr" ver1="20.5.0.0." inherit="NiObject">
+    </niobject>
+
+    <!-- vim: set ts=4 sw=4 et: -->
 
 </niftoolsxml>
