@@ -38,6 +38,7 @@
     <version num="20.3.0.3">Emerge</version>
     <version num="20.3.0.6">Emerge</version>
     <version num="20.3.0.9">Warhammer, Lazeska</version>
+    <version num="30.0.0.2">Emerge</version>
 
     <!--Basic Types-->
 
@@ -885,6 +886,7 @@
         <add name="User Version" type="uint" ver1="10.1.0.0">An extra version number, for companies that decide to modify the file format.</add>
         <add name="Num Blocks" type="uint" ver1="3.3.0.13">Number of file objects.</add>
         <add name="User Version 2" type="uint" default="0" cond="(User Version == 10) || (User Version == 11)" ver1="10.1.0.0">This also appears to be the extra user version number and must be set in some circumstances.</add>
+        <add name="Unknown Int 3" type="uint" default="0" ver1="30.0.0.2">Unknown. Possibly User Version 2?</add>
         <add name="Export Info" type="ExportInfo" ver1="10.0.1.2" ver2="10.0.1.2" />
         <add name="Export Info" type="ExportInfo" ver1="10.1.0.0" cond="(User Version == 10) || (User Version == 11)" />
         <add name="Num Block Types" type="ushort" ver1="10.0.1.0">Number of object types in this NIF file.</add>
@@ -4255,5 +4257,14 @@
         Bethesda-Specific node.
         <add name="Unknown Ints 1" type="int" arr1="17" />
     </niobject>
+
+    <compound name="NiMesh" ver1="30.0.0.2" inherit="NiTriBasedGeom">
+    </compound>
+
+    <compound name="NiDataStream\x010\x0118" ver1="30.0.0.2">
+    </compound>
+
+    <compound name="NiDataStream\x011\x0118" ver1="30.0.0.2">
+    </compound>
 
 </niftoolsxml>

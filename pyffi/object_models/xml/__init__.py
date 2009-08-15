@@ -436,6 +436,12 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
             # fileformat -> struct
             if tag == self.tagStruct:
                 self.className = attrs["name"]
+                # convert \xXX to actual characters
+                # currently only \x01 is used, so optimize for this
+                #for i in xrange(32):
+                for i in (1,):
+                    self.className = self.className.replace("\\x%02i" % i,
+                                                            chr(i))
                 # struct types can be organized in a hierarchy
                 # if inherit attribute is defined, then look for corresponding
                 # base block
