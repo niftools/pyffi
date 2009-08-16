@@ -4380,8 +4380,7 @@
     </niobject>
 
     <niobject name="NiPSParticleSystem" ver1="20.5.0.0" inherit="NiAVObject">
-        <add name="Unknown 1" type="int"></add>
-        <add name="Unknown 2" type="int"></add>
+        <!-- note: Unknonw 1 and 2 already in use by NiAVObject -->
         <add name="Unknown 3" type="int"></add>
         <add name="Unknown 4" type="int"></add>
         <add name="Unknown 5" type="int"></add>
@@ -4400,6 +4399,8 @@
         <add name="Unknown 18" type="int"></add>
         <add name="Unknown 19" type="int"></add>
         <add name="Unknown 20" type="int"></add>
+        <add name="Unknown 21" type="int"></add>
+        <add name="Unknown 22" type="int"></add>
     </niobject>
 
     <niobject name="NiPSMeshParticleSystem" ver1="20.5.0.0" inherit="NiPSParticleSystem">
