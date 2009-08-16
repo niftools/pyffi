@@ -4283,7 +4283,7 @@
 
     <niobject name="NiDataStreamUndecoded" ver1="20.5.0.0" inherit="NiDataStreamBase" abstract="1">
         For undecoded data. Temporarily defined until all streams are decoded.
-        <add name="Data" type="blob" arr1="Num Bytes" />
+        <add name="Data" type="byte" nifskopetype="blob" arr1="Num Bytes" />
         <add name="Unknown 9" type="byte" default="1" />
     </niobject>
 
