@@ -889,7 +889,7 @@
         <add name="Endian Type" type="EndianType" default="ENDIAN_LITTLE" ver1="20.0.0.4">Determines the endianness of the data in the file.</add>
         <add name="User Version" type="uint" ver1="10.1.0.0">An extra version number, for companies that decide to modify the file format.</add>
         <add name="Num Blocks" type="uint" ver1="3.3.0.13">Number of file objects.</add>
-        <add name="User Version 2" type="uint" default="0" cond="(User Version == 10) || (User Version == 11)" ver1="10.1.0.0">This also appears to be the extra user version number and must be set in some circumstances.</add>
+        <add name="User Version 2" type="uint" default="0" cond="(User Version == 10) || (User Version == 11)" ver1="10.1.0.0">This also appears to be the extra user version number and must be set in some circumstances. Probably used by Bethesda to denote the Havok version.</add>
         <add name="Unknown Int 3" type="uint" default="0" ver1="30.0.0.2">Unknown. Possibly User Version 2?</add>
         <add name="Export Info" type="ExportInfo" ver1="10.0.1.2" ver2="10.0.1.2" />
         <add name="Export Info" type="ExportInfo" ver1="10.1.0.0" cond="(User Version == 10) || (User Version == 11)" />
@@ -1145,64 +1145,94 @@
         <add name="Material" type="HavokMaterial">The material of the subshape.</add>
     </compound>
 
+    <compound name="MotorDescriptor">
+        <add name="Unknown Float 1" type="float" default="-1000000.0">Unknown</add>
+        <add name="Unknown Float 2" type="float" default="1000000.0">Unknown</add>
+        <add name="Unknown Float 3" type="float" default="0.8">Unknown</add>
+        <add name="Unknown Float 4" type="float" default="1.0">Unknown</add>
+        <add name="Unknown Float 5" type="float" default="2.0">Unknown</add>
+        <add name="Unknown Float 6" type="float" default="1.0">Unknown</add>
+        <add name="Unknown Byte 1" type="byte" default="0">Unknown</add>
+    </compound>
+
     <compound name="RagdollDescriptor">
         This constraint defines a cone in which an object can rotate. The shape of the cone can be controlled in two (orthogonal) directions.
-        <add name="Pivot A" type="Vector4">Point around which the object will rotate.</add>
-        <add name="Plane A" type="Vector4">Defines the orthogonal directions in which the shape can be controlled (namely in this direction, and in the direction orthogonal on this one and Twist A).</add>
-        <add name="Twist A" type="Vector4">Central directed axis of the cone in which the object can rotate. Orthogonal on Plane A.</add>
-        <add name="Pivot B" type="Vector4">Pivot A in second entity coordinate system.</add>
-        <add name="Plane B" type="Vector4">Plane A in second entity coordinate system.</add>
-        <add name="Twist B" type="Vector4">Twist A in second entity coordinate system.</add>
+	<!-- Oblivion -->
+        <add name="Pivot A" type="Vector4" ver2="20.0.0.5">Point around which the object will rotate.</add>
+        <add name="Plane A" type="Vector4" ver2="20.0.0.5">Defines the orthogonal directions in which the shape can be controlled (namely in this direction, and in the direction orthogonal on this one and Twist A).</add>
+        <add name="Twist A" type="Vector4" ver2="20.0.0.5">Central directed axis of the cone in which the object can rotate. Orthogonal on Plane A.</add>
+        <add name="Pivot B" type="Vector4" ver2="20.0.0.5">Pivot A in second entity coordinate system.</add>
+        <add name="Plane B" type="Vector4" ver2="20.0.0.5">Plane A in second entity coordinate system.</add>
+        <add name="Twist B" type="Vector4" ver2="20.0.0.5">Twist A in second entity coordinate system.</add>
+
+	<!-- Fallout 3 -->
+        <add name="Twist A" type="Vector4" ver1="20.2.0.7">Central directed axis of the cone in which the object can rotate. Orthogonal on Plane A.</add>	
+        <add name="Plane A" type="Vector4" ver1="20.2.0.7">Defines the orthogonal directions in which the shape can be controlled (namely in this direction, and in the direction orthogonal on this one and Twist A).</add>
+        <add name="Motor A" type="Vector4" ver1="20.2.0.7">Defines the orthogonal directions in which the shape can be controlled (namely in this direction, and in the direction orthogonal on this one and Twist A).</add>
+        <add name="Pivot A" type="Vector4" ver1="20.2.0.7">Defines the orthogonal directions in which the shape can be controlled (namely in this direction, and in the direction orthogonal on this one and Twist A).</add>
+        <add name="Twist B" type="Vector4" ver1="20.2.0.7">Central directed axis of the cone in which the object can rotate. Orthogonal on Plane A.</add>	
+        <add name="Plane B" type="Vector4" ver1="20.2.0.7">Defines the orthogonal directions in which the shape can be controlled (namely in this direction, and in the direction orthogonal on this one and Twist A).</add>
+        <add name="Motor B" type="Vector4" ver1="20.2.0.7">Defines the orthogonal directions in which the shape can be controlled (namely in this direction, and in the direction orthogonal on this one and Twist A).</add>
+        <add name="Pivot B" type="Vector4" ver1="20.2.0.7">Defines the orthogonal directions in which the shape can be controlled (namely in this direction, and in the direction orthogonal on this one and Twist A).</add>
+
         <add name="Cone Max Angle" type="float">Maximum angle the object can rotate around the vector orthogonal on Plane A and Twist A relative to the Twist A vector. Note that Cone Min Angle is not stored, but is simply minus this angle.</add>
         <add name="Plane Min Angle" type="float">Minimum angle the object can rotate around Plane A, relative to Twist A.</add>
         <add name="Plane Max Angle" type="float">Maximum angle the object can rotate around Plane A, relative to Twist A.</add>
         <add name="Twist Min Angle" type="float">Minimum angle the object can rotate around Twist A, relative to Plane A.</add>
         <add name="Twist Max Angle" type="float">Maximum angle the object can rotate around Twist A, relative to Plane A.</add>
-        <add name="Max Friction" type="float">Maximum friction, typically 0 or 10.</add>
-        <add name="Unknown Float 1" type="float" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Float 2" type="float" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Float 3" type="float" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Float 4" type="float" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Float 5" type="float" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Float 6" type="float" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Float 7" type="float" ver1="20.2.0.7">Unknown</add>
+        <add name="Max Friction" type="float">Maximum friction, typically 0 or 10. In Fallout 3, typically 100.</add>
+
+        <add name="Enable Motor" type="byte" ver1="20.2.0.7">Unknown</add>
+	<add name="Motor" type="MotorDescriptor" cond="Enable Motor" ver1="20.2.0.7" />
     </compound>
 
     <compound name="LimitedHingeDescriptor">
-        <add name="Pivot A" type="Vector4">Pivot point around which the object will rotate.</add>
-        <add name="Axle A" type="Vector4">Axis of rotation.</add>
-        <add name="Perp2 Axle In A1" type="Vector4">Vector in the rotation plane which defines the zero angle.</add>
-        <add name="Perp2 Axle In A2" type="Vector4">Vector in the rotation plane, orthogonal on the previous one, which defines the positive direction of rotation. This is always the vector product of Axle A and Perp2 Axle In A1.</add>
-        <add name="Pivot B" type="Vector4">Pivot A in second entity coordinate system.</add>
-        <add name="Axle B" type="Vector4">Axle A in second entity coordinate system.</add>
-        <add name="Perp2 Axle In B2" type="Vector4">Perp2 Axle In A2 in second entity coordinate system.</add>
+        <!-- Oblivion -->
+        <add name="Pivot A" type="Vector4" ver2="20.0.0.5">Pivot point around which the object will rotate.</add>
+        <add name="Axle A" type="Vector4" ver2="20.0.0.5">Axis of rotation.</add>
+        <add name="Perp2 Axle In A1" type="Vector4" ver2="20.0.0.5">Vector in the rotation plane which defines the zero angle.</add>
+        <add name="Perp2 Axle In A2" type="Vector4" ver2="20.0.0.5">Vector in the rotation plane, orthogonal on the previous one, which defines the positive direction of rotation. This is always the vector product of Axle A and Perp2 Axle In A1.</add>
+        <add name="Pivot B" type="Vector4" ver2="20.0.0.5">Pivot A in second entity coordinate system.</add>
+        <add name="Axle B" type="Vector4" ver2="20.0.0.5">Axle A in second entity coordinate system.</add>
+        <add name="Perp2 Axle In B2" type="Vector4" ver2="20.0.0.5">Perp2 Axle In A2 in second entity coordinate system.</add>
+
+	<!-- Fallout 3 -->
+        <add name="Axle A" type="Vector4" ver1="20.2.0.7">Axis of rotation.</add>
+        <add name="Perp2 Axle In A1" type="Vector4" ver1="20.2.0.7">Vector in the rotation plane which defines the zero angle.</add>
+        <add name="Perp2 Axle In A2" type="Vector4" ver1="20.2.0.7">Vector in the rotation plane, orthogonal on the previous one, which defines the positive direction of rotation. This is always the vector product of Axle A and Perp2 Axle In A1.</add>
+        <add name="Pivot A" type="Vector4" ver1="20.2.0.7">Pivot point around which the object will rotate.</add>
+        <add name="Axle B" type="Vector4" ver1="20.2.0.7">Axle A in second entity coordinate system.</add>
+        <add name="Perp2 Axle In B1" type="Vector4" ver1="20.2.0.7">Perp2 Axle In A1 in second entity coordinate system.</add>
+        <add name="Perp2 Axle In B2" type="Vector4" ver1="20.2.0.7">Perp2 Axle In A2 in second entity coordinate system.</add>
+        <add name="Pivot B" type="Vector4" ver1="20.2.0.7">Pivot A in second entity coordinate system.</add>
+
         <add name="Min Angle" type="float">Minimum rotation angle.</add>
         <add name="Max Angle" type="float">Maximum rotation angle.</add>
-        <add name="Max Friction" type="float">Maximum friction, typically either 0 or 10.</add>
-        <add name="Unknown Float 1" type="float" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Float 2" type="float" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Float 3" type="float" ver1="20.2.0.7">Unknown</add>
+        <add name="Max Friction" type="float">Maximum friction, typically either 0 or 10. In Fallout 3, typically 100.</add>
+
+        <add name="Enable Motor" type="byte" ver1="20.2.0.7">Unknown</add>
+	<add name="Motor" type="MotorDescriptor" cond="Enable Motor" ver1="20.2.0.7" />
     </compound>
 
     <compound name="HingeDescriptor">
-        <add name="Pivot A" type="Vector4">Pivot point around which the object will rotate.</add>
-        <add name="Perp2 Axle In A1" type="Vector4">Vector in the rotation plane which defines the zero angle.</add>
-        <add name="Perp2 Axle In A2" type="Vector4">Vector in the rotation plane, orthogonal on the previous one, which defines the positive direction of rotation.</add>
-        <add name="Pivot B" type="Vector4">Pivot A in second entity coordinate system.</add>
-        <add name="Axle B" type="Vector4">Axle A (vector orthogonal on Perp2 Axles) in second entity coordinate system.</add>
-        <add name="Unknown Float 1" type="float" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Int 2" type="float" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Int 3" type="float" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Int 4" type="float" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Int 5" type="float" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Int 6" type="float" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Int 7" type="float" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Int 8" type="float" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Int 9" type="float" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Int 10" type="float" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Byte 1" type="byte" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Byte 2" type="byte" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Byte 3" type="byte" ver1="20.2.0.7">Unknown</add>
+        <!-- Oblivion -->
+        <add name="Pivot A" type="Vector4" ver2="20.0.0.5">Pivot point around which the object will rotate.</add>
+        <add name="Perp2 Axle In A1" type="Vector4" ver2="20.0.0.5">Vector in the rotation plane which defines the zero angle.</add>
+        <add name="Perp2 Axle In A2" type="Vector4" ver2="20.0.0.5">Vector in the rotation plane, orthogonal on the previous one, which defines the positive direction of rotation.</add>
+        <add name="Pivot B" type="Vector4" ver2="20.0.0.5">Pivot A in second entity coordinate system.</add>
+        <add name="Axle B" type="Vector4" ver2="20.0.0.5">Axle A (vector orthogonal on Perp2 Axles) in second entity coordinate system.</add>
+
+	<!-- Fallout 3 -->
+        <add name="Axle A" type="Vector4" ver1="20.2.0.7">Axis of rotation.</add>
+        <add name="Perp2 Axle In A1" type="Vector4" ver1="20.2.0.7">Vector in the rotation plane which defines the zero angle.</add>
+        <add name="Perp2 Axle In A2" type="Vector4" ver1="20.2.0.7">Vector in the rotation plane, orthogonal on the previous one, which defines the positive direction of rotation. This is always the vector product of Axle A and Perp2 Axle In A1.</add>
+        <add name="Pivot A" type="Vector4" ver1="20.2.0.7">Pivot point around which the object will rotate.</add>
+        <add name="Axle B" type="Vector4" ver1="20.2.0.7">Axle A in second entity coordinate system.</add>
+        <add name="Perp2 Axle In B1" type="Vector4" ver1="20.2.0.7">Perp2 Axle In A1 in second entity coordinate system.</add>
+        <add name="Perp2 Axle In B2" type="Vector4" ver1="20.2.0.7">Perp2 Axle In A2 in second entity coordinate system.</add>
+        <add name="Pivot B" type="Vector4" ver1="20.2.0.7">Pivot A in second entity coordinate system.</add>
+
+	<!-- no friction -->
     </compound>
 
     <compound name="OldSkinData">
@@ -1479,15 +1509,6 @@
     <niobject name="bhkLimitedHingeConstraint" abstract="0" inherit="bhkConstraint" ver1="20.0.0.5">
         Hinge constraint.
         <add name="Limited Hinge" type="LimitedHingeDescriptor">Describes a limited hinge constraint</add>
-        <add name="Unknown Float 1" type="float" ver1="20.2.0.7">Unknown</add>
-        <add name="Is Death Pose" type="byte" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Int 1" type="int" cond="Is Death Pose" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Int 2" type="int" cond="Is Death Pose" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Int 3" type="int" cond="Is Death Pose" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Int 4" type="int" cond="Is Death Pose" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Int 5" type="int" cond="Is Death Pose" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Int 6" type="int" cond="Is Death Pose" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Byte 1" type="byte" cond="Is Death Pose" ver1="20.2.0.7">Unknown</add>
     </niobject>
 
     <niobject name="bhkMalleableConstraint" abstract="0" inherit="bhkConstraint">
@@ -1500,8 +1521,7 @@
         <add name="Hinge" type="HingeDescriptor" cond="Type == 1" />
         <add name="Ragdoll" type="RagdollDescriptor" cond="Type == 7" />
         <add name="Limited Hinge" type="LimitedHingeDescriptor" cond="Type == 2" />
-        <add name="Tau" type="float" />
-        <add name="Unknown Byte 1" type="byte" ver1="20.2.0.7">Unknown</add>
+        <add name="Tau" type="float" ver2="20.0.0.5" /><!-- not in Fallout 3 -->
         <add name="Damping" type="float" />
     </niobject>
 
@@ -1515,35 +1535,39 @@
     <niobject name="bhkRagdollConstraint" abstract="0" inherit="bhkConstraint" ver1="20.0.0.5">
         Ragdoll constraint.
         <add name="Ragdoll" type="RagdollDescriptor">Ragdoll constraint.</add>
-        <add name="Unknown Float 1" type="float" ver1="20.2.0.7">Unknown</add>
-        <add name="Is Death Pose" type="byte" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Int 1" type="int" cond="Is Death Pose" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Int 2" type="int" cond="Is Death Pose" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Int 3" type="int" cond="Is Death Pose" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Int 4" type="int" cond="Is Death Pose" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Int 5" type="int" cond="Is Death Pose" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Int 6" type="int" cond="Is Death Pose" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Byte 1" type="byte" cond="Is Death Pose" ver1="20.2.0.7">Unknown</add>
     </niobject>
 
     <niobject name="bhkPrismaticConstraint" abstract="0" inherit="bhkConstraint" ver1="20.0.0.5">
         A prismatic constraint.
-        <add name="Pivot A" type="Vector4" >Pivot A.</add>
-        <add name="Rotation" type="Vector4" arr1="4">4x4 rotation matrix, rotates the child entity.</add>
-        <add name="Pivot B" type="Vector4" >Pivot B.</add>
-        <add name="Sliding Axis" type="Vector4" >Describes the axis the object is able to travel along. Unit vector.</add>
-        <add name="Plane" type="Vector4" >Plane normal. Describes the plane the object is able to move on.</add>
-        <add name="Min Distance" type="float" >Describe the min distance the object is able to travel.</add>
-        <add name="Max Distance" type="float" >Describe the max distance the object is able to travel.</add>
+
+	<!-- Oblivion -->
+        <add name="Pivot A" type="Vector4" ver2="20.0.0.5">Pivot A.</add>
+        <add name="Rotation Matrix A" type="Vector4" arr1="4" ver2="20.0.0.5">4x4 rotation matrix, rotates the child entity.</add>
+        <add name="Pivot B" type="Vector4" ver2="20.0.0.5">Pivot B.</add>
+        <add name="Sliding B" type="Vector4" ver2="20.0.0.5">Describes the axis the object is able to travel along. Unit vector.</add>
+        <add name="Plane B" type="Vector4" ver2="20.0.0.5">Plane normal. Describes the plane the object is able to move on.</add>
+
+	<!-- Fallout 3 -->
+        <add name="Sliding A" type="Vector4" ver1="20.2.0.7">Describes the axis the object is able to travel along. Unit vector.</add>
+        <add name="Rotation A" type="Vector4" ver1="20.2.0.7">Rotation axis.</add>
+        <add name="Plane A" type="Vector4" ver1="20.2.0.7">Plane normal. Describes the plane the object is able to move on.</add>
+        <add name="Pivot A" type="Vector4" ver1="20.2.0.7">Pivot.</add>
+        <add name="Sliding B" type="Vector4" ver1="20.2.0.7">Describes the axis the object is able to travel along in B coordinates. Unit vector.</add>
+        <add name="Rotation B" type="Vector4" ver1="20.2.0.7">Rotation axis.</add>
+        <add name="Plane B" type="Vector4" ver1="20.2.0.7">Plane normal. Describes the plane the object is able to move on in B coordinates.</add>
+        <add name="Pivot B" type="Vector4" ver1="20.2.0.7">Pivot in B coordinates.</add>
+
+        <add name="Min Distance" type="float">Describe the min distance the object is able to travel.</add>
+
+        <add name="Max Distance" type="float">Describe the max distance the object is able to travel.</add>
         <add name="Friction" type="float" >Friction.</add>
-        <add name="Unknown Byte 1" type="byte" ver1="20.2.0.7">Unknown</add>
+
+        <add name="Unknown Byte 1" type="byte" ver1="20.2.0.7" default="0">Unknown. Do not set this to anything over 0 as it will crash the game.</add>
     </niobject>
 
     <niobject name="bhkHingeConstraint" abstract="0" inherit="bhkConstraint" ver1="20.0.0.5">
         A hinge constraint.
         <add name="Hinge" type="HingeDescriptor">Hinge constraing.</add>
-        <add name="Unknown Float 1" type="float" ver1="20.2.0.7">Unknown</add>
-        <add name="Unknown Byte 1" type="byte" ver1="20.2.0.7">Unknown</add>
     </niobject>
 
 
@@ -2582,11 +2606,11 @@
     <niobject name="NiLookAtInterpolator" abstract="0" inherit="NiInterpolator" ver1="10.2.0.0">
         Unknown.
         <add name="Unknown Short" type="ushort">Unknown.</add>
-        <add name="Look At" type="Ref" template="NiNode">Refers to a Node to focus on.</add>
+        <add name="Look At" type="Ptr" template="NiNode">Refers to a Node to focus on.</add>
         <add name="Target" type="string">Target node name.</add>
-        <add name="Translation" type="Vector3">Translate.</add>
-        <add name="Rotation" type="Quaternion">Rotation.</add>
-        <add name="Scale" type="float">Scale.</add>
+        <add name="Translation" type="Vector3" ver2="20.5.0.0">Translate.</add>
+        <add name="Rotation" type="Quaternion" ver2="20.5.0.0">Rotation.</add>
+        <add name="Scale" type="float" ver2="20.5.0.0">Scale.</add>
         <add name="Unknown Link 1" type="Ref" template="NiPoint3Interpolator">Refers to NiPoint3Interpolator.</add>
         <add name="Unknown Link 2" type="Ref" template="NiFloatInterpolator">Refers to a NiFloatInterpolator.</add>
         <add name="Unknown Link 3" type="Ref" template="NiFloatInterpolator">Refers to a NiFloatInterpolator.</add>
@@ -3345,9 +3369,9 @@
     </niobject>
 
     <niobject name="NiImage" abstract="0" inherit="NiObject" ver1="3.0" ver2="3.1">
-        <add name="External" type="byte">0 if the texture is internal to the NIF file.</add>
-        <add name="File Name" type="FilePath" cond="External != 0">The filepath to the texture.</add>
-        <add name="Image Data" type="Ref" template="NiRawImageData" cond="External == 0">Link to the internally stored image data.</add>
+        <add name="Use External" type="byte">0 if the texture is internal to the NIF file.</add>
+        <add name="File Name" type="FilePath" cond="Use External != 0">The filepath to the texture.</add>
+        <add name="Image Data" type="Ref" template="NiRawImageData" cond="Use External == 0">Link to the internally stored image data.</add>
         <add name="Unknown Int" type="uint" default="7">Unknown.  Often seems to be 7. Perhaps m_uiMipLevels?</add>
         <add name="Unknown Float" type="float" ver1="3.1" default="128.5">Unknown.  Perhaps fImageScale?</add>
     </niobject>
@@ -4339,7 +4363,8 @@
     </compound>
 
     <niobject name="NiMesh" ver1="20.5.0.0" inherit="NiAVObject">
-        <add name="Unknown Int 3" type="int" />
+        <add name="Num Unknown Ints 3" type="uint" />
+        <add name="Unknown Ints 3" type="int" arr1="Num Unknown Ints 3" />
         <add name="Unknown Link" type="Ref" template="NiObject" />
         <add name="Unknown Int 4" type="int" />
         <add name="Unknown Int 5" type="int" default="256" />
@@ -4350,10 +4375,28 @@
         <add name="Modifiers" type="Ref" template="NiObject" arr1="Num Modifiers" /><!-- see Zorsis Zombie_Boy.nif -->
     </niobject>
 
-    <niobject name="NiMorphWeightsController" ver1="20.5.0.0" inherit="NiTimeController">
+    <niobject name="NiMorphWeightsController" ver1="20.5.0.0" inherit="NiInterpController">
+        <add name="Unknown 2" type="int"></add>
+        <add name="Num Interpolators" type="int"></add>
+        <add name="Interpolators" type="Ref" template="NiObject" arr1="Num Interpolators"></add>
+        <add name="Num Unknown 3" type="int"></add>
+        <add name="Unknown 3" type="int" arr1="Num Unknown 3"></add>
     </niobject>
 
     <niobject name="NiMorphMeshModifier" ver1="20.5.0.0" inherit="NiObject">
+        <add name="Unknown 1" type="int"></add>
+        <add name="Unknown 2" type="byte"></add>
+        <add name="Unknown 3" type="byte"></add>
+        <add name="Unknown 4" type="int"></add>
+        <add name="Unknown 5" type="byte"></add>
+        <add name="Unknown 6" type="byte"></add>
+        <add name="Unknown 7" type="byte"></add>
+        <add name="Unknown 8" type="byte"></add>
+        <add name="Unknown 9" type="byte"></add>
+        <add name="Unknown 10" type="int"></add>
+        <add name="Unknown 11" type="int"></add>
+        <add name="Unknown 12" type="int"></add>
+        <add name="Unknown 13" type="int"></add>
     </niobject>
 
     <compound name="BoneData">
@@ -4404,29 +4447,25 @@
     </niobject>
 
     <niobject name="NiPSMeshParticleSystem" ver1="20.5.0.0" inherit="NiPSParticleSystem">
-        <add name="Unknown 21" type="int"></add>
-        <add name="Unknown 22" type="int"></add>
-        <add name="Unknown 23" type="byte"></add>
+        <add name="Unknown 23" type="int"></add>
+        <add name="Unknown 24" type="int"></add>
+        <add name="Unknown 25" type="byte"></add>
     </niobject>
 
     <niobject name="NiPSEmitParticlesCtlr" ver1="20.5.0.0" inherit="NiPSysEmitterCtlr">
     </niobject>
 
     <niobject name="NiPSForceActiveCtlr" ver1="20.5.0.0" inherit="NiTimeController">
+        <add name="Unknown 1" type="int"></add>
+        <add name="Unknown 2" type="int"></add>
     </niobject>
 
     <niobject name="NiPSSimulator" ver1="20.5.0.0" inherit="NiObject">
         Particle System Simulator?
-        <add name="Unknown 1" type="byte"></add>
-        <add name="Unknown 2" type="byte"></add>
-        <add name="Unknown 3" type="byte"></add>
-        <add name="Unknown 4" type="byte"></add>
+        <add name="Unknown 1" type="int"></add>
         <add name="Unknown 5" type="byte"></add>
         <add name="Unknown 6" type="byte"></add>
-        <add name="Unknown 7" type="byte"></add>
-        <add name="Unknown 8" type="byte"></add>
-        <add name="Unknown 9" type="byte"></add>
-        <add name="Unknown 10" type="byte"></add>
+        <add name="Unknown 7" type="int"></add>
         <add name="Unknown 11" type="byte"></add>
         <add name="Unknown 12" type="byte"></add>
         <add name="Num modifiers" type="int"></add>
@@ -4500,6 +4539,16 @@
     </niobject>
 
     <niobject name="NiPSDragForce" ver1="20.5.0.0" inherit="NiObject">
+        <add name="Unknown 1" type="int"></add>
+        <add name="Unknown 2" type="int"></add>
+        <add name="Unknown 3" type="byte"></add>
+        <add name="Unknown 4" type="float"></add>
+        <add name="Unknown 5" type="float"></add>
+        <add name="Unknown 6" type="float"></add>
+        <add name="Unknown 7" type="float"></add>
+        <add name="Unknown 8" type="float"></add>
+        <add name="Unknown 9" type="float"></add>
+        <add name="Unknown 10" type="int"></add>
     </niobject>
 
     <niobject name="NiPSGravityForce" ver1="20.5.0.0" inherit="NiObject">
@@ -4669,7 +4718,9 @@
         <add name="Unknown 27" type="byte"></add>
     </niobject>
 
-    <niobject name="NiPSGravityStrengthCtlr" ver1="20.5.0.0" inherit="NiObject">
+    <niobject name="NiPSGravityStrengthCtlr" ver1="20.5.0.0" inherit="NiTimeController">
+        <add name="Unknown 2" type="int"></add>
+        <add name="Unknown 3" type="int"></add>
     </niobject>
 
     <niobject name="NiPSPlanarCollider" ver1="20.5.0.0" inherit="NiObject">
@@ -4681,6 +4732,11 @@
 	<add name="Unknown Byte 4" type="byte" />
 	<add name="Unknown Floats 5" type="float" arr1="8" />
 	<add name="Unknown Link 6" type="Ref" template="NiNode" />
+    </niobject>
+
+    <niobject name="NiPSEmitterSpeedCtlr" ver1="20.5.0.0" inherit="NiTimeController">
+        <add name="Unknown 2" type="int"></add>
+        <add name="Unknown 3" type="int"></add>
     </niobject>
 
     <!-- vim: set ts=4 sw=4 et: -->
