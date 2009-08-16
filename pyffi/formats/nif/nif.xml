@@ -1001,6 +1001,7 @@
         <add name="Clamp Mode" type="TexClampMode" default="WRAP_S_WRAP_T" ver2="20.0.0.5">0=clamp S clamp T, 1=clamp S wrap T, 2=wrap S clamp T, 3=wrap S wrap T</add>
         <add name="Filter Mode" type="TexFilterMode" default="FILTER_TRILERP" ver2="20.0.0.5">0=nearest, 1=bilinear, 2=trilinear, 3=..., 4=..., 5=...</add>
         <add name="Flags" type="Flags" ver1="20.1.0.3">Texture mode flags. Presumably stores Clamp Mode and Filter Mode?</add>
+        <add name="Unknown short" type="short" ver1="20.6.0.0">Unknown, seems to always be 1</add>
         <add name="UV Set" type="uint" default="0" ver2="20.0.0.5">The texture coordinate set in NiGeometryData that this texture slot will use.</add>
         <add name="PS2 L" type="short" default="0" ver2="10.4.0.1">PS2 only; from the Freedom Force docs, &quot;L values can range from 0 to 3 and are used to specify how fast a texture gets blurry&quot;.</add>
         <add name="PS2 K" type="short" default="-75" ver2="10.4.0.1">PS2 only; from the Freedom Force docs, &quot;The K value is used as an offset into the mipmap levels and can range from -2047 to 2047. Positive values push the mipmap towards being blurry and negative values make the mipmap sharper.&quot; -75 for most v4.0.0.2 meshes.</add>
@@ -4355,7 +4356,24 @@
     <niobject name="NiMorphMeshModifier" ver1="20.5.0.0" inherit="NiObject">
     </niobject>
 
+    <compound name="BoneData">
+        <add name="Rotation" type="Matrix33" />
+	<add name="Unknown Floats" type="float" arr1="8" />
+    </compound>
+
     <niobject name="NiSkinningMeshModifier" ver1="20.5.0.0" inherit="NiObject">
+        <add name="Unknown Int 1" type="int" />
+        <add name="Unknown Short 1" type="short" />
+        <add name="Unknown Int 2" type="int" />
+        <add name="Unknown Short 2" type="short" />
+        <add name="Unknown Int 3" type="int" />
+        <add name="Unknown Short 3" type="short" />
+	<add name="Rotation" type="Matrix33" />
+	<add name="Translation" type="Vector3" />
+	<add name="Scale" type="float" />
+	<add name="Num Bones" type="uint" />
+	<add name="Bones" type="Ptr" template="NiNode" arr1="Num Bones" />
+	<add name="Bone Datas" type="BoneData" arr1="Num Bones" />
     </niobject>
 
     <niobject name="NiSkinningLODController" ver1="20.5.0.0" inherit="NiTimeController">
@@ -4416,6 +4434,12 @@
 
     <niobject name="NiPSSimulatorGeneralStep" ver1="20.5.0.0" inherit="NiObject">
         <add name="Unknown 1" type="byte"></add>
+	<add name="Unknown 11" type="int" cond="Unknown 1 == 3" />
+	<add name="Unknown 12" type="byte" arr1="4" cond="Unknown 1 == 3" />
+	<add name="Unknown 13" type="float" cond="Unknown 1 == 3" />
+	<add name="Unknown 14" type="float" cond="Unknown 1 == 3" /><!-- not sure, sometimes NaN -->
+	<add name="Unknown 15" type="float" cond="Unknown 1 == 3" />
+	<add name="Unknown 16" type="float" cond="Unknown 1 == 3" />
         <add name="Unknown 2" type="float"></add>
         <add name="Unknown 3" type="float"></add>
         <add name="Unknown 4" type="float"></add>
@@ -4427,10 +4451,8 @@
     </niobject>
 
     <niobject name="NiPSSimulatorCollidersStep" ver1="20.5.0.0" inherit="NiObject">
-        <add name="Unknown 1" type="byte"></add>
-        <add name="Unknown 2" type="byte"></add>
-        <add name="Unknown 3" type="byte"></add>
-        <add name="Unknown 4" type="byte"></add>
+        <add name="Num Unknown Links" type="uint"></add>
+        <add name="Unknown Links" type="Ref" template="NiObject" arr1="Num Unknown Links">Particle system colliders? (NiPSXXXCollider)</add>
     </niobject>
 
     <niobject name="NiPSSimulatorMeshAlignStep" ver1="20.5.0.0" inherit="NiObject">
@@ -4456,6 +4478,19 @@
 
     <!-- from Zorsis demo (Scene.nif) -->
     <niobject name="NiShadowGenerator" ver1="20.5.0.0" inherit="NiObject">
+        <!-- inheritance? -->
+        <add name="Name" type="string" />
+        <add name="Unknown Flags" type="ushort" />
+	<add name="Num Unknown Links 1" type="uint" />
+	<add name="Unknown Links 1" type="Ref" template="NiNode" arr1="Num Unknown Links 1" />
+	<add name="Unkown Int 2" type="int" default="0" />
+        <add name="Target" type="Ptr" template="NiLight" />
+	<add name="Unkown Float 4" type="float" default="0.98" />
+	<add name="Unkown Byte 5" type="byte" default="0" />
+	<add name="Unkown Int 6" type="int" default="2" />
+	<add name="Unkown Int 7" type="int" default="0" />
+	<add name="Unkown Int 8" type="int" default="0" />
+	<add name="Unkown Byte 9" type="byte" default="0" />
     </niobject>
 
     <niobject name="NiPSBoundUpdater" ver1="20.5.0.0" inherit="NiObject">
@@ -4633,7 +4668,18 @@
         <add name="Unknown 27" type="byte"></add>
     </niobject>
 
-    <niobject name="NiPSGravityStrengthCtlr" ver1="20.5.0.0." inherit="NiObject">
+    <niobject name="NiPSGravityStrengthCtlr" ver1="20.5.0.0" inherit="NiObject">
+    </niobject>
+
+    <niobject name="NiPSPlanarCollider" ver1="20.5.0.0" inherit="NiObject">
+        <!-- inheritance? -->
+	<add name="Name" type="string" />
+	<add name="Unknown Int 1" type="int" />
+	<add name="Unknown Int 2" type="int" />
+	<add name="Unknown Short 3" type="short" />
+	<add name="Unknown Byte 4" type="byte" />
+	<add name="Unknown Floats 5" type="float" arr1="8" />
+	<add name="Unknown Link 6" type="Ref" template="NiNode" />
     </niobject>
 
     <!-- vim: set ts=4 sw=4 et: -->
