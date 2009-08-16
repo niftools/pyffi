@@ -4281,6 +4281,12 @@
         <add name="Data Component Flags" type="uint" arr1="Num Data Components">Flags per component?</add>
     </niobject>
 
+    <niobject name="NiDataStreamUndecoded" ver1="20.5.0.0" inherit="NiDataStreamBase" abstract="1">
+        For undecoded data. Temporarily defined until all streams are decoded.
+        <add name="Data" type="blob" arr1="Num Bytes" />
+        <add name="Unknown 9" type="byte" default="1" />
+    </niobject>
+
     <niobject name="NiDataStream\x010\x0118" ver1="20.5.0.0" inherit="NiDataStreamBase">
         Triangles with short indices.
         <add name="Data" type="ushort" arr1="Num Bytes / 2" />
@@ -4301,19 +4307,20 @@
 
     <niobject name="NiDataStream\x011\x0119" ver1="20.5.0.0" inherit="NiDataStream\x011\x0118" />
 
-    <niobject name="NiDataStream\x011\x0121" ver1="20.5.0.0" inherit="NiDataStreamBase">
+    <niobject name="NiDataStream\x011\x0121" ver1="20.5.0.0" inherit="NiDataStreamUndecoded">
     </niobject>
 
-    <niobject name="NiDataStream\x011\x0124" ver1="20.5.0.0" inherit="NiDataStreamBase">
+    <niobject name="NiDataStream\x011\x0124" ver1="20.5.0.0" inherit="NiDataStreamUndecoded">
     </niobject>
 
-    <niobject name="NiDataStream\x011\x013" ver1="20.5.0.0" inherit="NiDataStreamBase">
+    <niobject name="NiDataStream\x011\x013" ver1="20.5.0.0" inherit="NiDataStreamUndecoded">
     </niobject>
 
-    <niobject name="NiDataStream\x013\x013" ver1="20.5.0.0" inherit="NiDataStreamBase">
+    <niobject name="NiDataStream\x013\x013" ver1="20.5.0.0" inherit="NiDataStream\x010\x0118">
+        Short data (used for bone palette).
     </niobject>
 
-    <niobject name="NiDataStream\x013\x015" ver1="20.5.0.0" inherit="NiDataStreamBase">
+    <niobject name="NiDataStream\x013\x015" ver1="20.5.0.0" inherit="NiDataStreamUndecoded">
     </niobject>
 
     <compound name="DataComponent">
