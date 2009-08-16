@@ -4267,14 +4267,18 @@
         <add name="Unknown Ints 1" type="int" arr1="17" />
     </niobject>
 
+    <compound name="IndexRange">
+        <add name="First Index" type="uint" />
+        <add name="Num Indices" type="uint" />
+    </compound>
+
     <niobject name="NiDataStreamBase" ver1="20.5.0.0" inherit="NiObject" abstract="1">
         <add name="Num Bytes" type="uint" />
         <add name="Unknown 2" type="uint" default="0" />
-        <add name="Unknown 3" type="uint" default="1" />
-        <add name="Unknown 4" type="uint" default="0" />
-        <add name="Num Data" type="uint" />
+        <add name="Num Index Ranges" type="uint">Matches the parent NiMesh-&gt;Mesh Data-&gt;Num Index Ranges field.</add>
+        <add name="Index Ranges" type="IndexRange" arr1="Num Index Ranges" />
         <add name="Num Data Components" type="uint">Matches the parent NiMesh-&gt;Mesh Data-&gt;Num Data Components field.</add>
-        <add name="Unknown Ints" type="uint" arr1="Num Data Components">Flags per component?</add>
+        <add name="Data Component Flags" type="uint" arr1="Num Data Components">Flags per component?</add>
     </niobject>
 
     <niobject name="NiDataStream\x010\x0118" ver1="20.5.0.0" inherit="NiDataStreamBase">
@@ -4320,7 +4324,8 @@
     <compound name="MeshData">
         <add name="Data Stream" type="Ref" template="NiDataStreamBase" />
         <add name="Unknown Byte" type="byte" default="0" />
-        <add name="Unknown Int 1" type="int" default="1" />
+        <add name="Num Index Ranges" type="ushort" default="1" />
+        <add name="Index Range Slots" type="ushort" arr1="Num Index Ranges" /><!-- these must map into something but not sure what; see Zorsis Zombie_Boy.nif -->
         <add name="Num Data Components" type="int" default="1" />
         <add name="Data Components" type="DataComponent" arr1="Num Data Components" />
     </compound>
@@ -4333,7 +4338,8 @@
         <add name="Unknown Floats 6" type="float" arr1="4" />
         <add name="Num Mesh Data" type="uint" />
         <add name="Mesh Data" type="MeshData" arr1="Num Mesh Data" />
-        <add name="Unknown Int 7" type="int" />
+        <add name="Num Modifiers" type="uint" />
+        <add name="Modifiers" type="Ref" template="NiObject" arr1="Num Modifiers" /><!-- see Zorsis Zombie_Boy.nif -->
     </niobject>
 
     <niobject name="NiMorphWeightsController" ver1="20.5.0.0" inherit="NiTimeController">
@@ -4439,6 +4445,10 @@
         <add name="Unknown 10" type="byte"></add>
         <add name="Unknown 11" type="byte"></add>
         <add name="Unknown 12" type="byte"></add>
+    </niobject>
+
+    <!-- from Zorsis demo (Scene.nif) -->
+    <niobject name="NiShadowGenerator" ver1="20.5.0.0" inherit="NiObject">
     </niobject>
 
     <niobject name="NiPSBoundUpdater" ver1="20.5.0.0" inherit="NiObject">
