@@ -1002,7 +1002,8 @@ In Python this can be calculated using zlib.crc32(name)</add>
     </struct>
 
     <struct name="MeshPhysicsDataChunk" inherit="Chunk">
-        <version num="800">Crysis, Aion</version>
+        <version num="800">Crysis</version>
+        <version num="1">Aion</version>
         <add name="Physics Data Size" type="uint">Size of the physical data at the end of the chunk.</add>
         <add name="Flags" type="uint">Not used?</add>
         <add name="Tetrahedra Data Size" type="uint" />
