@@ -800,8 +800,9 @@ but got instance of %s""" % (self._template, block.__class__))
                     and not(is_caf
                             and chunkhdr.type in [
                                 CgfFormat.ChunkType.Controller]) \
-                    and not((chunkhdr.version == 1) and chunkhdr.type in [
-                        CgfFormat.ChunkType.MeshPhysicsData]):
+                    and not((self.game == "Aion") and chunkhdr.type in [
+                        CgfFormat.ChunkType.MeshPhysicsData,
+                        CgfFormat.ChunkType.MtlName]):
                     chunkhdr_copy = CgfFormat.ChunkHeader()
                     chunkhdr_copy.read(stream,
                                        version = version,
