@@ -746,7 +746,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
     </struct>
 
     <struct name="ControllerChunk" inherit="Chunk">
-        <version num="826">Far Cry, Crysis</version>
+        <version num="826">Far Cry, Crysis, Aion</version>
         <version num="827">Far Cry, Crysis</version>
         <version num="829">Crysis</version>
         <add name="Type" type="CtrlType" ver2="826" />
