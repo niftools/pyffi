@@ -799,7 +799,9 @@ but got instance of %s""" % (self._template, block.__class__))
                                 CgfFormat.ChunkType.BoneInitialPos]) \
                     and not(is_caf
                             and chunkhdr.type in [
-                                CgfFormat.ChunkType.Controller]):
+                                CgfFormat.ChunkType.Controller]) \
+                    and not((chunkhdr.version == 1) and chunkhdr.type in [
+                        CgfFormat.ChunkType.MeshPhysicsData]):
                     chunkhdr_copy = CgfFormat.ChunkHeader()
                     chunkhdr_copy.read(stream,
                                        version = version,
