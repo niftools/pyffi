@@ -4507,14 +4507,58 @@
         <add name="Unknown 28" type="short" cond="Unknown 1 == 4" />
         <add name="Unknown 29" type="short" cond="Unknown 1 == 4" />
 
-        <add name="Unknown 2" type="float"></add>
-        <add name="Unknown 3" type="float"></add>
-        <add name="Unknown 4" type="float"></add>
+        <add name="Unknown 2" type="float" ver2="20.6.0.0"></add>
+        <add name="Unknown 3" type="float" ver2="20.6.0.0"></add>
+        <add name="Unknown 4" type="float" ver2="20.6.0.0"></add>
 
         <add name="Unknown 30" type="int" ver1="30.0.0.2"></add>
-        <add name="Unknown 31" type="int" ver1="30.0.0.2"></add>
-        <add name="Unknown 32" type="int" ver1="30.0.0.2"></add>
-        <add name="Unknown 33" type="short" ver1="30.0.0.2"></add>
+        <add name="Unknown 31" type="byte" ver1="30.0.0.2"></add>
+        <add name="Unknown 53" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
+        <add name="Unknown 54" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
+        <add name="Unknown 55" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
+        <add name="Unknown 56" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
+        <add name="Unknown 57" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
+        <add name="Unknown 58" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
+        <add name="Unknown 59" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
+        <add name="Unknown 60" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
+        <add name="Unknown 61" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
+        <add name="Unknown 62" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
+        <add name="Unknown 63" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
+        <add name="Unknown 64" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
+        <add name="Unknown 65" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
+        <add name="Unknown 66" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
+        <add name="Unknown 67" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
+        <add name="Unknown 68" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
+        <add name="Unknown 69" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
+        <add name="Unknown 70" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
+        <add name="Unknown 71" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
+        <add name="Unknown 72" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
+        <add name="Unknown 73" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
+        <add name="Unknown 74" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
+        <add name="Unknown 75" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
+        <add name="Unknown 76" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
+        <add name="Unknown 32" type="byte" ver1="30.0.0.2"></add>
+        <add name="Unknown 33" type="byte" ver1="30.0.0.2"></add>
+        <add name="Unknown 34" type="byte" ver1="30.0.0.2"></add>
+        <add name="Unknown 35" type="byte" ver1="30.0.0.2"></add>
+        <add name="Unknown 36" type="byte" ver1="30.0.0.2"></add>
+        <add name="Unknown 37" type="byte" ver1="30.0.0.2"></add>
+        <add name="Unknown 38" type="byte" ver1="30.0.0.2"></add>
+        <add name="Unknown 39" type="byte" ver1="30.0.0.2"></add>
+        <add name="Unknown 40" type="byte" ver1="30.0.0.2"></add>
+        <add name="Unknown 41" type="byte" ver1="30.0.0.2"></add>
+        <add name="Unknown 42" type="byte" ver1="30.0.0.2"></add>
+        <add name="Unknown 43" type="byte" ver1="30.0.0.2"></add>
+        <add name="Unknown 44" type="byte" ver1="30.0.0.2"></add>
+        <add name="Unknown 45" type="byte" ver1="30.0.0.2"></add>
+        <add name="Unknown 46" type="byte" ver1="30.0.0.2"></add>
+        <add name="Unknown 47" type="byte" ver1="30.0.0.2"></add>
+        <add name="Unknown 48" type="byte" ver1="30.0.0.2"></add>
+        <add name="Unknown 49" type="byte" ver1="30.0.0.2"></add>
+        <add name="Unknown 50" type="byte" ver1="30.0.0.2"></add>
+        <add name="Unknown 51" type="byte" ver1="30.0.0.2"></add>
+        <add name="Unknown 52" type="byte" ver1="30.0.0.2"></add>
+
     </niobject>
 
     <niobject name="NiPSSimulatorForcesStep" ver1="20.5.0.0" inherit="NiObject">
@@ -4625,28 +4669,29 @@
     </niobject>
 
     <niobject name="NiPSBoxEmitter" ver1="20.5.0.0" inherit="NiObject">
-        <add name="Unknown 1" type="byte"></add>
-        <add name="Unknown 2" type="byte"></add>
+        <add name="Name" type="string"></add>
+        <add name="Unknown 1" type="float"></add>
+        <add name="Unknown 2" type="float"></add>
         <add name="Unknown 3" type="byte"></add>
         <add name="Unknown 4" type="byte"></add>
         <add name="Unknown 5" type="byte"></add>
         <add name="Unknown 6" type="byte"></add>
-        <add name="Unknown 7" type="byte"></add>
+        <add name="Unknown 7" type="float"></add>
         <add name="Unknown 8" type="byte"></add>
         <add name="Unknown 9" type="byte"></add>
         <add name="Unknown 10" type="byte"></add>
         <add name="Unknown 11" type="byte"></add>
-        <add name="Unknown 12" type="byte"></add>
-        <add name="Unknown 13" type="byte"></add>
-        <add name="Unknown 14" type="byte"></add>
-        <add name="Unknown 15" type="byte"></add>
-        <add name="Unknown 16" type="byte"></add>
-        <add name="Unknown 17" type="byte"></add>
-        <add name="Unknown 18" type="byte"></add>
-        <add name="Unknown 19" type="byte"></add>
-        <add name="Unknown 20" type="byte"></add>
-        <add name="Unknown 21" type="byte"></add>
-        <add name="Unknown 22" type="byte"></add>
+        <add name="Unknown 12" type="float"></add>
+        <add name="Unknown 13" type="int"></add>
+        <add name="Unknown 14" type="float"></add>
+        <add name="Unknown 15" type="float"></add>
+        <add name="Unknown 16" type="float"></add>
+        <add name="Unknown 17" type="float"></add>
+        <add name="Unknown 18" type="float"></add>
+        <add name="Unknown 19" type="float"></add>
+        <add name="Unknown 20" type="float"></add>
+        <add name="Unknown 21" type="float"></add>
+        <add name="Unknown 22" type="float"></add>
         <add name="Unknown 23" type="byte"></add>
         <add name="Unknown 24" type="byte"></add>
         <add name="Unknown 25" type="byte"></add>
@@ -4673,52 +4718,6 @@
         <add name="Unknown 46" type="byte"></add>
         <add name="Unknown 47" type="byte"></add>
         <add name="Unknown 48" type="byte"></add>
-        <add name="Unknown 49" type="byte"></add>
-        <add name="Unknown 50" type="byte"></add>
-        <add name="Unknown 51" type="byte"></add>
-        <add name="Unknown 52" type="byte"></add>
-        <add name="Unknown 53" type="byte"></add>
-        <add name="Unknown 54" type="byte"></add>
-        <add name="Unknown 55" type="byte"></add>
-        <add name="Unknown 56" type="byte"></add>
-        <add name="Unknown 57" type="byte"></add>
-        <add name="Unknown 58" type="byte"></add>
-        <add name="Unknown 59" type="byte"></add>
-        <add name="Unknown 60" type="byte"></add>
-        <add name="Unknown 61" type="byte"></add>
-        <add name="Unknown 62" type="byte"></add>
-        <add name="Unknown 63" type="byte"></add>
-        <add name="Unknown 64" type="byte"></add>
-        <add name="Unknown 65" type="byte"></add>
-        <add name="Unknown 66" type="byte"></add>
-        <add name="Unknown 67" type="byte"></add>
-        <add name="Unknown 68" type="byte"></add>
-        <add name="Unknown 69" type="byte"></add>
-        <add name="Unknown 70" type="byte"></add>
-        <add name="Unknown 71" type="byte"></add>
-        <add name="Unknown 72" type="byte"></add>
-        <add name="Unknown 73" type="byte"></add>
-        <add name="Unknown 74" type="byte"></add>
-        <add name="Unknown 75" type="byte"></add>
-        <add name="Unknown 76" type="byte"></add>
-        <add name="Unknown 77" type="byte"></add>
-        <add name="Unknown 78" type="byte"></add>
-        <add name="Unknown 79" type="byte"></add>
-        <add name="Unknown 80" type="byte"></add>
-        <add name="Unknown 81" type="byte"></add>
-        <add name="Unknown 82" type="byte"></add>
-        <add name="Unknown 83" type="byte"></add>
-        <add name="Unknown 84" type="byte"></add>
-        <add name="Unknown 85" type="byte"></add>
-        <add name="Unknown 86" type="byte"></add>
-        <add name="Unknown 87" type="byte"></add>
-        <add name="Unknown 88" type="byte"></add>
-        <add name="Unknown 89" type="byte"></add>
-        <add name="Unknown 90" type="byte"></add>
-        <add name="Unknown 91" type="byte"></add>
-        <add name="Unknown 92" type="byte"></add>
-        <add name="Unknown 93" type="byte"></add>
-        <add name="Unknown 94" type="byte"></add>
     </niobject>
 
     <niobject name="NiPSMeshEmitter" ver1="20.5.0.0" inherit="NiObject">
@@ -4813,6 +4812,56 @@
         <add name="Unknown 23" type="float"></add>
     </niobject>
 
+    <niobject name="NiPSEmitterDeclinationCtlr" ver1="30.0.0.2" inherit="NiPSysModifierCtlr">
+    </niobject>
+    
+    <niobject name="NiPSEmitterDeclinationVarCtlr" ver1="30.0.0.2" inherit="NiPSEmitterDeclinationCtlr">
+    </niobject>
+    
+    <niobject name="NiPSEmitterPlanarAngleCtlr" ver1="30.0.0.2" inherit="NiPSysModifierCtlr">
+    </niobject>
+    
+    <niobject name="NiPSEmitterPlanarAngleVarCtlr" ver1="30.0.0.2" inherit="NiPSEmitterPlanarAngleCtlr">
+    </niobject>
+    
+    <niobject name="NiPSEmitterRotAngleCtlr" ver1="30.0.0.2" inherit="NiPSysModifierCtlr">
+    </niobject>
+    
+    <niobject name="NiPSEmitterRotAngleVarCtlr" ver1="30.0.0.2" inherit="NiPSEmitterRotAngleCtlr">
+    </niobject>
+    
+    <niobject name="NiPSEmitterRotSpeedCtlr" ver1="30.0.0.2" inherit="NiPSysModifierCtlr">
+    </niobject>
+
+    <niobject name="NiPSEmitterRotSpeedVarCtlr" ver1="30.0.0.2" inherit="NiPSEmitterRotSpeedCtlr">
+    </niobject>
+
+    <niobject name="NiPSEmitterLifeSpanCtlr" ver1="30.0.0.2" inherit="NiPSysModifierCtlr">
+    </niobject>
+
+    <niobject name="NiPSBombForce" ver1="30.0.0.2" inherit="NiObject">
+        <add name="Name" type="string"></add>
+        <add name="Unknown 1" type="byte"></add>
+        <add name="Unknown 2" type="int"></add>
+        <add name="Unknown 3" type="int"></add>
+        <add name="Unknown 4" type="int"></add>
+        <add name="Unknown 5" type="int"></add>
+        <add name="Unknown 6" type="int"></add>
+        <add name="Unknown 7" type="int"></add>
+        <add name="Unknown 8" type="int"></add>
+        <add name="Unknown 9" type="int"></add>
+        <add name="Unknown 10" type="int"></add>
+    </niobject>
+
+    <niobject name="NiPSSphericalCollider" ver1="30.0.0.2" inherit="NiObject"><!-- possibly inherit="NiPSysSphericalCollider"? -->
+        <add name="Unknown 1" type="int"></add>
+        <add name="Unknown 2" type="int"></add>
+        <add name="Unknown 3" type="byte"></add>
+        <add name="Unknown 4" type="float"></add>
+        <add name="Unknown 5" type="int"></add>
+        <add name="Unknown 6" type="short"></add>
+        <add name="Unknown 7" type="int"></add>
+    </niobject>
     
     <!-- vim: set ts=4 sw=4 et: -->
 
