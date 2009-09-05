@@ -568,7 +568,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
 
     <struct name="MeshChunk" inherit="AbstractObjectChunk">
         <version num="623">Far Cry</version>
-        <version num="744">Far Cry, Aion</version>
+        <version num="744">Far Cry, Aion, Crysis</version>
         <version num="800">Crysis</version>
         Geometry.
         <add name="Has Vertex Weights" type="bool" ver2="744" />
