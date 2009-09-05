@@ -771,12 +771,15 @@ but got instance of %s""" % (self._template, block.__class__))
                         %(chunkhdr.type, chunk_type))
                 # check the chunk version
                 if not self.game in chunk.getGames():
-                    raise ValueError(
-                        'game %s does not support %sChunk'
+                    logger.error(
+                        'game %s does not support %sChunk; '
+                        'trying anyway'
                         % (self.game, chunk_type))
                 if not chunkhdr.version in chunk.getVersions(self.game):
-                    raise ValueError(
-                        'chunk version 0x%08X not supported for game %s and %sChunk'
+                    logger.error(
+                        'chunk version 0x%08X not supported for '
+                        'game %s and %sChunk; '
+                        'trying anyway'
                         % (chunkhdr.version, self.game, chunk_type))
 
                 # now read the chunk
