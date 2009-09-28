@@ -1,5 +1,10 @@
-Release 2.0.3 (in development)
-==============================
+Release 2.0.3 (Sep 28, 2009)
+============================
+
+* Various bugfixes for the Aion cgf format.
+
+* Updates for nif.xml to support more recent nif versions (20.5.0.0,
+  20.6.0.0, and 30.0.0.2).
 
 Release 2.0.2 (Aug 12, 2009)
 ============================
