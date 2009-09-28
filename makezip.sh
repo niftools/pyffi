@@ -20,5 +20,6 @@ python setup.py --command-packages bdist_nsi bdist_nsi --bitmap=win-install/pyff
 
 # to build with wine: add the -k flag to keep all installer files, and run:
 #cd build/bdist.linux-x86_64/nsi
+#rm ../../../docs/pyffi.formats.nif.NifFormat.NiDataStream?0*; rm ../../../docs/pyffi.formats.nif.NifFormat.NiDataStream?1*; rm ../../../docs/pyffi.formats.nif.NifFormat.NiDataStream?3* # wine gets confused about control characters in file names
 #cat setup.nsi | sed 's/\\home\\/Z:\\home\\/g' | sed 's/\\usr\\/Z:\\usr\\/g' | wine ~/.wine/drive_c/Program\ Files/NSIS/makensis.exe -
 
