@@ -38,6 +38,7 @@
 # ***** END LICENSE BLOCK *****
 
 import struct
+import logging
 
 from pyffi.object_models.xml.Basic import BasicBase
 from pyffi.object_models.Editable import EditableSpinBox
@@ -374,7 +375,12 @@ class Float(BasicBase, EditableFloatSpinBox):
         :param stream: The stream to write to.
         :type stream: file
         """
-        stream.write(struct.pack('<f', self._value))
+        try:
+            stream.write(struct.pack('<f', self._value))
+        except OverflowError:
+            logger = logging.getLogger("pyffi.object_models")
+            logger.warn("float value overflow, writing NaN")
+            stream.write(struct.pack('<I', 0x7fc00000))
 
     def getSize(self, **kwargs):
         """Return number of bytes this type occupies in a file.
