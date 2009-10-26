@@ -39,8 +39,12 @@ and triangulation of strips."""
 #
 # ***** END LICENSE BLOCK *****
 
-from pyffi.utils.trianglestripifier import TriangleStripifier
-from pyffi.utils.trianglemesh import FaceEdgeMesh
+try:
+    import pytristrip
+except ImportError:
+    pytristrip = None
+    from pyffi.utils.trianglestripifier import TriangleStripifier
+    from pyffi.utils.trianglemesh import FaceEdgeMesh
 
 def triangulate(strips):
     """A generator for iterating over the faces in a set of
@@ -117,22 +121,25 @@ def stripify(triangles, stitchstrips = False):
     >>> _checkStrips(triangles, strips) # NvTriStrip gives wrong result
     """
 
-    strips = []
-    # build a mesh from triangles
-    mesh = FaceEdgeMesh()
-    for face in triangles:
-        mesh.AddFace(*face)
+    if pytristrip:
+        strips = pytristrip.stripify(triangles)
+    else:
+        strips = []
+        # build a mesh from triangles
+        mesh = FaceEdgeMesh()
+        for face in triangles:
+            mesh.AddFace(*face)
 
-    # calculate the strip
-    stripifier = TriangleStripifier()
-    stripifier.GLSelector.MinStripLength = 0
-    stripifier.GLSelector.Samples = 10
-    stripifier(mesh)
+        # calculate the strip
+        stripifier = TriangleStripifier()
+        stripifier.GLSelector.MinStripLength = 0
+        stripifier.GLSelector.Samples = 10
+        stripifier(mesh)
 
-    # add the triangles to it
-    strips.extend([face for face in _generateFacesFromTriangles(stripifier.TriangleList)])
-    # add strips
-    strips.extend(stripifier.TriangleStrips)
+        # add the triangles to it
+        strips.extend([face for face in _generateFacesFromTriangles(stripifier.TriangleList)])
+        # add strips
+        strips.extend(stripifier.TriangleStrips)
 
     # stitch the strips if needed
     if stitchstrips: return [stitchStrips(strips)]
