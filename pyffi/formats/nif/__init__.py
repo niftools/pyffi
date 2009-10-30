@@ -5901,6 +5901,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                 extra.binaryData = binarydata
             else:
                 # set tangent space flag
+                # XXX from Sid Meier's Railroad nifs, 4096 is sufficient?
                 self.data.numUvSets |= 61440
                 self.data.bsNumUvSets |= 61440
                 self.data.tangents.updateSize()
