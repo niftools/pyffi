@@ -1,40 +1,40 @@
 """
-:mod:`pyffi.formats.egm` --- EGM (.egm)
+:mod:`pyffi.formats.tri` --- TRI (.tri)
 =======================================
 
 Implementation
 --------------
 
-.. autoclass:: EgmFormat
+.. autoclass:: TriFormat
    :show-inheritance:
    :members:
 
 Regression tests
 ----------------
 
-Read a EGM file
+Read a TRI file
 ^^^^^^^^^^^^^^^
 
->>> # check and read egm file
->>> stream = open('tests/egm/test.egm', 'rb')
->>> data = EgmFormat.Data()
+>>> # check and read tri file
+>>> stream = open('tests/tri/test.tri', 'rb')
+>>> data = TriFormat.Data()
 >>> data.inspect(stream)
 >>> # do some stuff with header?
 >>> #data.header....
 >>> data.read(stream)
 >>> # do some stuff...
 
-Parse all EGM files in a directory tree
+Parse all TRI files in a directory tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
->>> for stream, data in EgmFormat.walkData('tests/egm'):
+>>> for stream, data in TriFormat.walkData('tests/tri'):
 ...     print(stream.name)
-tests/egm/test.egm
+tests/tri/test.tri
 
-Create an EGM file from scratch and write to file
+Create an TRI file from scratch and write to file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
->>> data = EgmFormat.Data()
+>>> data = TriFormat.Data()
 >>> from tempfile import TemporaryFile
 >>> stream = TemporaryFile()
 >>> data.write(stream)
@@ -87,14 +87,14 @@ from pyffi.object_models.xml.Basic import BasicBase
 import pyffi.object_models
 from pyffi.utils.graph import EdgeFilter
 
-class EgmFormat(pyffi.object_models.xml.FileFormat):
-    """This class implements the EGM format."""
-    xmlFileName = 'egm.xml'
-    # where to look for egm.xml and in what order:
-    # EGMXMLPATH env var, or EgmFormat module directory
-    xmlFilePath = [os.getenv('EGMXMLPATH'), os.path.dirname(__file__)]
+class TriFormat(pyffi.object_models.xml.FileFormat):
+    """This class implements the TRI format."""
+    xmlFileName = 'tri.xml'
+    # where to look for tri.xml and in what order:
+    # TRIXMLPATH env var, or TriFormat module directory
+    xmlFilePath = [os.getenv('TRIXMLPATH'), os.path.dirname(__file__)]
     # file name regular expression match
-    RE_FILENAME = re.compile(r'^.*\.egm$', re.IGNORECASE)
+    RE_FILENAME = re.compile(r'^.*\.tri$', re.IGNORECASE)
     # used for comparing floats
     _EPSILON = 0.0001
 
@@ -109,11 +109,11 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
     float = Common.Float
     PixelData = Common.UndecodedData
 
-    # implementation of egm-specific basic types
+    # implementation of tri-specific basic types
 
     # XXX nothing here yet...
 
-    # XXX only need this if egm files are versioned...
+    # XXX only need this if tri files are versioned...
     @staticmethod
     def versionNumber(version_str):
         """Converts version string into an integer.
@@ -122,17 +122,17 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
         :type version_str: str
         :return: A version integer.
 
-        >>> hex(EgmFormat.versionNumber('X'))
+        >>> hex(TriFormat.versionNumber('X'))
         """
         raise NotImplementedError
 
     class Data(pyffi.object_models.FileFormat.Data):
-        """A class to contain the actual egm data."""
+        """A class to contain the actual tri data."""
         def __init__(self):
             pass
 
         def inspectQuick(self, stream):
-            """Quickly checks if stream contains EGM data, and gets the
+            """Quickly checks if stream contains TRI data, and gets the
             version, by looking at the first 8 bytes.
 
             :param stream: The stream to inspect.
@@ -140,14 +140,14 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
             """
             pos = stream.tell()
             try:
-                # XXX check that file is EGM
+                # XXX check that file is TRI
             finally:
                 stream.seek(pos)
 
         # overriding pyffi.object_models.FileFormat.Data methods
 
         def inspect(self, stream):
-            """Quickly checks if stream contains EGM data, and reads the
+            """Quickly checks if stream contains TRI data, and reads the
             header.
 
             :param stream: The stream to inspect.
@@ -162,7 +162,7 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
 
 
         def read(self, stream, verbose=0):
-            """Read a egm file.
+            """Read a tri file.
 
             :param stream: The stream from which to read.
             :type stream: ``file``
@@ -175,10 +175,10 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
             # check if we are at the end of the file
             if stream.read(1):
                 raise ValueError(
-                    'end of file not reached: corrupt egm file?')
+                    'end of file not reached: corrupt tri file?')
             
         def write(self, stream, verbose=0):
-            """Write a egm file.
+            """Write a tri file.
 
             :param stream: The stream to which to write.
             :type stream: ``file``
