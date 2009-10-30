@@ -169,7 +169,7 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
                 stream.seek(pos)
 
 
-        def read(self, stream, verbose=0):
+        def read(self, stream):
             """Read a tri file.
 
             :param stream: The stream from which to read.
@@ -185,7 +185,7 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
                 raise ValueError(
                     'end of file not reached: corrupt tri file?')
             
-        def write(self, stream, verbose=0):
+        def write(self, stream):
             """Write a tri file.
 
             :param stream: The stream to which to write.

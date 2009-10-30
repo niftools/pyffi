@@ -169,7 +169,7 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
                 stream.seek(pos)
 
 
-        def read(self, stream, verbose=0):
+        def read(self, stream):
             """Read a egm file.
 
             :param stream: The stream from which to read.
@@ -185,7 +185,7 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
                 raise ValueError(
                     'end of file not reached: corrupt egm file?')
             
-        def write(self, stream, verbose=0):
+        def write(self, stream):
             """Write a egm file.
 
             :param stream: The stream to which to write.
