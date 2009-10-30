@@ -29,6 +29,8 @@ import pyffi.formats.kfm
 import pyffi.formats.dds
 import pyffi.formats.tga
 import pyffi.formats.dae
+import pyffi.formats.egm
+import pyffi.formats.tri
 import pyffi.spells
 
 mods = [val for (key, val) in sys.modules.iteritems()
