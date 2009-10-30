@@ -146,8 +146,9 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
             """
             pos = stream.tell()
             try:
-                # XXX check that file is EGM
-                pass
+                hdrstr = stream.read(5)
+                if hdrstr != "FREGM".encode("ascii"):
+                    raise ValueError("Not an EGM file.")
             finally:
                 stream.seek(pos)
 

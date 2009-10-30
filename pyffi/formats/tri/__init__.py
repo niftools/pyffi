@@ -146,8 +146,9 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
             """
             pos = stream.tell()
             try:
-                # XXX check that file is TRI
-                pass
+                hdrstr = stream.read(5)
+                if hdrstr != "FRTRI".encode("ascii"):
+                    raise ValueError("Not a TRI file.")
             finally:
                 stream.seek(pos)
 
