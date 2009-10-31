@@ -2,6 +2,9 @@
 :mod:`pyffi.formats.tri` --- TRI (.tri)
 =======================================
 
+A .tri file contains facial expression data, that is, morphs for dynamic
+expressions such as smile, frown, and so on.
+
 Implementation
 --------------
 

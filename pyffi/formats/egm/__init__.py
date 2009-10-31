@@ -2,6 +2,9 @@
 :mod:`pyffi.formats.egm` --- EGM (.egm)
 =======================================
 
+An .egm file contains facial shape modifiers, that is, morphs that modify
+static properties of the face, such as nose size, chin shape, and so on.
+
 Implementation
 --------------
 
