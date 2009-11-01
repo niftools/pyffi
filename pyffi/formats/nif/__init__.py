@@ -146,7 +146,7 @@ Get list of versions and games
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 >>> for vnum in sorted(NifFormat.versions.values()):
-...     print('0x%08X' % vnum)
+...     print('0x%08X' % vnum) # doctest: +REPORT_UDIFF
 0x02030000
 0x03000000
 0x03000300
@@ -177,17 +177,21 @@ Get list of versions and games
 0x14030003
 0x14030006
 0x14030009
+0x14050000
+0x14060000
+0x1E000002
 >>> for game, versions in sorted(NifFormat.games.items(), key=lambda x: x[0]):
-...     print("%s " % game + " ".join('0x%08X' % vnum for vnum in versions))
+...     print("%s " % game + " ".join('0x%08X' % vnum for vnum in versions)) # doctest: +REPORT_UDIFF
 ? 0x0A000103
 Atlantica 0x14020008
 Axis and Allies 0x0A010000
 Civilization IV 0x04020002 0x04020100 0x04020200 0x0A000100 0x0A010000 \
 0x0A020000 0x14000004
 Culpa Innata 0x04020200
-Dark Age of Camelot 0x02030000 0x03000300 0x03010000 0x0401000C 0x04020100 0x04020200 \
-0x0A010000
-Emerge 0x14020007 0x14020008 0x14030001 0x14030002 0x14030003 0x14030006
+Dark Age of Camelot 0x02030000 0x03000300 0x03010000 0x0401000C 0x04020100 \
+0x04020200 0x0A010000
+Emerge 0x14020007 0x14020008 0x14030001 0x14030002 0x14030003 0x14030006 \
+0x1E000002
 Empire Earth II 0x04020200
 Empire Earth III 0x14020007 0x14020008
 Entropia Universe 0x0A010000
@@ -195,6 +199,7 @@ Fallout 3 0x14020007
 Freedom Force 0x04000000 0x04000002
 Freedom Force vs. the 3rd Reich 0x0A010000
 Kohan 2 0x0A010000
+KrazyRain 0x14050000 0x14060000
 Lazeska 0x14030009
 Loki 0x0A020000
 Megami Tensei: Imagine 0x14010003
