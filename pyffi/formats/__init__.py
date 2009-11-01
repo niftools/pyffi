@@ -19,10 +19,12 @@ Supported formats
    
    pyffi.formats.cgf
    pyffi.formats.dae
+   pyffi.formats.egm
    pyffi.formats.dds
    pyffi.formats.kfm
    pyffi.formats.nif
    pyffi.formats.tga
+   pyffi.formats.tri
 
 Adding new formats
 ------------------
