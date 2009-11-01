@@ -176,8 +176,6 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
 
             :param stream: The stream from which to read.
             :type stream: ``file``
-            :param verbose: The level of verbosity.
-            :type verbose: ``int``
             """
             self.inspectQuick(stream)
             # XXX read the file
@@ -192,8 +190,6 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
 
             :param stream: The stream to which to write.
             :type stream: ``file``
-            :param verbose: The level of verbosity.
-            :type verbose: ``int``
             """
             # XXX write the file
 
