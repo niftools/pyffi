@@ -118,7 +118,6 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
 
     # XXX nothing here yet...
 
-    # XXX only need this if tri files are versioned...
     @staticmethod
     def versionNumber(version_str):
         """Converts version string into an integer.
@@ -127,12 +126,17 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
         :type version_str: str
         :return: A version integer.
 
-        >>> hex(TriFormat.versionNumber('X')) # doctest: +ELLIPSIS
-        Traceback (most recent call last):
-            ...
-        NotImplementedError
+        >>> TriFormat.versionNumber('003')
+        3
+        >>> TriFormat.versionNumber('XXX')
+        -1
         """
-        raise NotImplementedError
+        try:
+            # note: always '003' in all files seen so far
+            return int(version_str)
+        except ValueError:
+            # not supported
+            return -1
 
     class Data(pyffi.object_models.FileFormat.Data):
         """A class to contain the actual tri data."""
