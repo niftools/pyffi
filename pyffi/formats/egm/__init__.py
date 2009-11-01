@@ -113,7 +113,6 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
     short = Common.Short
     ushort = Common.UShort
     float = Common.Float
-    PixelData = Common.UndecodedData
 
     # implementation of egm-specific basic types
 

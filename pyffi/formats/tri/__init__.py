@@ -113,7 +113,6 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
     short = Common.Short
     ushort = Common.UShort
     float = Common.Float
-    PixelData = Common.UndecodedData
 
     # implementation of tri-specific basic types
 
