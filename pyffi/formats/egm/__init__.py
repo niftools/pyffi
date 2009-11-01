@@ -118,7 +118,6 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
 
     # XXX nothing here yet...
 
-    # XXX only need this if egm files are versioned...
     @staticmethod
     def versionNumber(version_str):
         """Converts version string into an integer.
@@ -127,12 +126,17 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
         :type version_str: str
         :return: A version integer.
 
-        >>> hex(EgmFormat.versionNumber('X')) # doctest: +ELLIPSIS
-        Traceback (most recent call last):
-            ...
-        NotImplementedError
+        >>> EgmFormat.versionNumber('002')
+        2
+        >>> EgmFormat.versionNumber('XXX')
+        -1
         """
-        raise NotImplementedError
+        try:
+            # note: always '002' in all files seen so far
+            return int(version_str)
+        except ValueError:
+            # not supported
+            return -1
 
     class Data(pyffi.object_models.FileFormat.Data):
         """A class to contain the actual egm data."""
