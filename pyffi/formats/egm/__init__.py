@@ -117,7 +117,7 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
     # implementation of egm-specific basic types
 
     class FileSignature(BasicBase):
-        """Basic type which implements the header of a DDS file."""
+        """Basic type which implements the header of a EGM file."""
         def __init__(self, **kwargs):
             BasicBase.__init__(self, **kwargs)
 
