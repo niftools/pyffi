@@ -116,7 +116,79 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
 
     # implementation of egm-specific basic types
 
-    # XXX nothing here yet...
+    class FileSignature(BasicBase):
+        """Basic type which implements the header of a DDS file."""
+        def __init__(self, **kwargs):
+            BasicBase.__init__(self, **kwargs)
+
+        def __str__(self):
+            return 'FREGM'
+
+        def getDetailDisplay(self):
+            return self.__str__()
+
+        def getHash(self, **kwargs):
+            """Return a hash value for this value.
+
+            :return: An immutable object that can be used as a hash.
+            """
+            return None
+
+        def read(self, stream, **kwargs):
+            """Read header string from stream and check it.
+
+            :param stream: The stream to read from.
+            :type stream: file
+            """
+            hdrstr = stream.read(5)
+            # check if the string is correct
+            if hdrstr != "FREGM".encode("ascii"):
+                raise ValueError(
+                    "invalid EGM header: expected 'FREGM' but got '%s'" % hdrstr)
+
+        def write(self, stream, **kwargs):
+            """Write the header string to stream.
+
+            :param stream: The stream to write to.
+            :type stream: file
+            """
+            stream.write("FREGM".encode("ascii"))
+
+        def getSize(self, **kwargs):
+            """Return number of bytes the header string occupies in a file.
+
+            :return: Number of bytes.
+            """
+            return 5
+
+    class FileVersion(BasicBase):
+        def getValue(self):
+            raise NotImplementedError
+
+        def setValue(self, value):
+            raise NotImplementedError
+
+        def __str__(self):
+            return 'XXX'
+
+        def getSize(self, **kwargs):
+            return 3
+
+        def getHash(self, **kwargs):
+            return None
+
+        def read(self, stream, **kwargs):
+            ver = stream.read(3)
+            if ver != '%03i' % kwargs['data'].version:
+                raise ValueError(
+                    "Invalid version number: expected %03i but got %s."
+                    % (kwargs['data'].version, ver))
+
+        def write(self, stream, **kwargs):
+            stream.write('%03i' % kwargs['data'].version)
+
+        def getDetailDisplay(self):
+            return 'XXX'
 
     @staticmethod
     def versionNumber(version_str):

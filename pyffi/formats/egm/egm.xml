@@ -40,6 +40,14 @@
         A standard 32-bit floating point number.
     </basic>
 
+    <basic name="FileSignature">
+        The string "FREGM".
+    </basic>
+
+    <basic name="FileVersion">
+        A version string such as "002".
+    </basic>
+
     <!--
     *******************
     *** alias types ***
@@ -64,47 +72,53 @@
     ***************
     -->
 
-   <struct name="sRelativeVertex">
-       <add name="x" type="short">
-       <add name="y" type="short">
-       <add name="z" type="short">
+   <struct name="ShortRelativeVertex">
+       <add name="x" type="short" />
+       <add name="y" type="short" />
+       <add name="z" type="short" />
    </struct>
    
    <struct name="MorphRecord">
-       <add name="Scale" type="float"> All the following relative vertices are multiplied by this scale.
-       <add name="VertexList" type="sRelativeVertex" arr1="NumVertices"> Amount to alter the base model corresponding vertex by.
-   </struct>
-   Uses the same formula as a morph in a tri file.
-   Includes morphs for modifier morphs as defined in the tri file. Each set of morphs contain morphs for the base model
-   followed by replacement morphs when a modifier morph is used.
-s   
-   <struct name="HeaderChunk">
-       <add name="Identifier" type="char" arr1="FR"> Always = FR
-       <add name="FileType" type="char" arr1="TRI">  EGM
-       <add name="Version" type="char" arr1="003"> 002 for Oblivion
-       
-       <add name="NumVertices" type="int"> Number of vertices in the base model + Modifier Vertices.
-       <add name="NumSymmetricalMorphs" type="int"> Number of symmetrical morphs. Oblivion = 50.
-       <add name="NumAsymmetricalMorphs" type="int"> Number of asymmetrical morphs. Oblivion = 30.
-       <add name="TimeDateStamp" type="uint"> Time stamp? Always 2001060901 for Oblivon.
-       <add name="Unknown1" type="int"> Always 0.
-       <add name="Unknown2" type="int"> Always 0.
-       <add name="Unknown3" type="int"> Always 0.
-       <add name="Unknown4" type="int"> Always 0.
-       <add name="Unknown5" type="int"> Always 0.
-       <add name="Unknown6" type="int"> Always 0.
-       <add name="Unknown7" type="int"> Always 0.
-       <add name="Unknown8" type="int"> Always 0.
-       <add name="Unknown9" type="int"> Always 0.
-       <add name="Unknown10" type="int"> Always 0.
+       Uses the same formula as a morph in a tri file.  Includes
+       morphs for modifier morphs as defined in the tri file. Each set
+       of morphs contain morphs for the base model followed by
+       replacement morphs when a modifier morph is used.
+
+       Please note that the morph lists do not have a 1:1 relationship
+       with the face shape sliders and a single slider may effect
+       several morphs at the same time.
+       <add name="Scale" type="float">
+            All the following relative vertices are multiplied by this scale.
+       </add>
+       <add name="Vertices" type="ShortRelativeVertex" arr1="ARG">
+            <!-- ARG is Num Vertices -->
+            Amount to alter the base model corresponding vertex by.
+       </add>
    </struct>
 
-   <struct name="DataChunk">
-       <add name="SymMorphList" type="MorphRecord" arr1="NumSymetricalMorphs"> List of symmetrical morphs. Used by symmetrical face sliders.
-       <add name="AsymMorphList" type="MorphRecord" arr1="NumAsymetricalMorphs"> List of asymmetrical morphs. Used by asymmetrical face sliders.
-       
-       Please note that the MorphLists above do not have a 1:1 relationship with the face shape sliders and a single
-       slider may effect several morphs at the same time.
+   <struct name="Header">
+       <add name="Signature" type="FileSignature">Always FREGM</add>
+       <add name="Version" type="FileVersion">002 for Oblivion</add>
+       <add name="Num Vertices" type="int">
+            Number of vertices in the base model + modifier vertices.
+       </add>
+       <add name="Num Sym Morphs" type="int">
+            Number of symmetrical morphs. Oblivion = 50.
+       </add>
+       <add name="Num Asym Morphs" type="int">
+            Number of asymmetrical morphs. Oblivion = 30.
+       </add>
+       <add name="Time Date Stamp" type="uint">
+            Time stamp? Always 2001060901 for Oblivon.
+       </add>
+       <add name="Unknown Ints" type="int" arr1="10">
+            Always 0.
+       </add>
+       <!-- XXX reading these is hardcoded in the Data class -->
+       <!--
+       <add name="Sym Morphs" type="MorphRecord" arr1="Num Sym Morphs"> List of symmetrical morphs. Used by symmetrical face sliders.
+       <add name="Asym Morphs" type="MorphRecord" arr1="Num Asym Morphs"> List of asymmetrical morphs. Used by asymmetrical face sliders.
+       -->
    </struct>
 
 </fileformat>
