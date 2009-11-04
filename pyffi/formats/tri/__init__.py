@@ -116,6 +116,80 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
 
     # implementation of tri-specific basic types
 
+    class FileSignature(BasicBase):
+        """Basic type which implements the header of a TRI file."""
+        def __init__(self, **kwargs):
+            BasicBase.__init__(self, **kwargs)
+
+        def __str__(self):
+            return 'FRTRI'
+
+        def getDetailDisplay(self):
+            return self.__str__()
+
+        def getHash(self, **kwargs):
+            """Return a hash value for this value.
+
+            :return: An immutable object that can be used as a hash.
+            """
+            return None
+
+        def read(self, stream, **kwargs):
+            """Read header string from stream and check it.
+
+            :param stream: The stream to read from.
+            :type stream: file
+            """
+            hdrstr = stream.read(5)
+            # check if the string is correct
+            if hdrstr != "FRTRI".encode("ascii"):
+                raise ValueError(
+                    "invalid TRI header: expected 'FRTRI' but got '%s'" % hdrstr)
+
+        def write(self, stream, **kwargs):
+            """Write the header string to stream.
+
+            :param stream: The stream to write to.
+            :type stream: file
+            """
+            stream.write("FREGM".encode("ascii"))
+
+        def getSize(self, **kwargs):
+            """Return number of bytes the header string occupies in a file.
+
+            :return: Number of bytes.
+            """
+            return 5
+
+    class FileVersion(BasicBase):
+        def getValue(self):
+            raise NotImplementedError
+
+        def setValue(self, value):
+            raise NotImplementedError
+
+        def __str__(self):
+            return 'XXX'
+
+        def getSize(self, **kwargs):
+            return 3
+
+        def getHash(self, **kwargs):
+            return None
+
+        def read(self, stream, **kwargs):
+            ver = stream.read(3)
+            if ver != '%03i' % kwargs['data'].version:
+                raise ValueError(
+                    "Invalid version number: expected %03i but got %s."
+                    % (kwargs['data'].version, ver))
+
+        def write(self, stream, **kwargs):
+            stream.write('%03i' % kwargs['data'].version)
+
+        def getDetailDisplay(self):
+            return 'XXX'
+
     # XXX nothing here yet...
 
     @staticmethod
