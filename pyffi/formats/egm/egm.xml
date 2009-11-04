@@ -64,5 +64,47 @@
     ***************
     -->
 
-</fileformat>
+   <struct name="sRelativeVertex">
+       <add name="x" type="short">
+       <add name="y" type="short">
+       <add name="z" type="short">
+   </struct>
+   
+   <struct name="MorphRecord">
+       <add name="Scale" type="float"> All the following relative vertices are multiplied by this scale.
+       <add name="VertexList" type="sRelativeVertex" arr1="NumVertices"> Amount to alter the base model corresponding vertex by.
+   </struct>
+   Uses the same formula as a morph in a tri file.
+   Includes morphs for modifier morphs as defined in the tri file. Each set of morphs contain morphs for the base model
+   followed by replacement morphs when a modifier morph is used.
+s   
+   <struct name="HeaderChunk">
+       <add name="Identifier" type="char" arr1="FR"> Always = FR
+       <add name="FileType" type="char" arr1="TRI">  EGM
+       <add name="Version" type="char" arr1="003"> 002 for Oblivion
+       
+       <add name="NumVertices" type="int"> Number of vertices in the base model + Modifier Vertices.
+       <add name="NumSymmetricalMorphs" type="int"> Number of symmetrical morphs. Oblivion = 50.
+       <add name="NumAsymmetricalMorphs" type="int"> Number of asymmetrical morphs. Oblivion = 30.
+       <add name="TimeDateStamp" type="uint"> Time stamp? Always 2001060901 for Oblivon.
+       <add name="Unknown1" type="int"> Always 0.
+       <add name="Unknown2" type="int"> Always 0.
+       <add name="Unknown3" type="int"> Always 0.
+       <add name="Unknown4" type="int"> Always 0.
+       <add name="Unknown5" type="int"> Always 0.
+       <add name="Unknown6" type="int"> Always 0.
+       <add name="Unknown7" type="int"> Always 0.
+       <add name="Unknown8" type="int"> Always 0.
+       <add name="Unknown9" type="int"> Always 0.
+       <add name="Unknown10" type="int"> Always 0.
+   </struct>
 
+   <struct name="DataChunk">
+       <add name="SymMorphList" type="MorphRecord" arr1="NumSymetricalMorphs"> List of symmetrical morphs. Used by symmetrical face sliders.
+       <add name="AsymMorphList" type="MorphRecord" arr1="NumAsymetricalMorphs"> List of asymmetrical morphs. Used by asymmetrical face sliders.
+       
+       Please note that the MorphLists above do not have a 1:1 relationship with the face shape sliders and a single
+       slider may effect several morphs at the same time.
+   </struct>
+
+</fileformat>

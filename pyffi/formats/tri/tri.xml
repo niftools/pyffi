@@ -64,5 +64,75 @@
     ***************
     -->
 
-</fileformat>
+   <struct name="fPoint">
+       <add name="x" type="float">
+       <add name="y" type="float">
+       <add name="z" type="float">
+   </struct>
+   <struct name="iTriFace">
+       <add name="Point1Index" type="int">
+       <add name="Point2Index" type="int">
+       <add name="Point3Index" type="int">
+   </struct>
+   <struct name="iQuadFace"> Not used by the Oblivion engine as it's tri based.
+       <add name="Point1Index" type="int">
+       <add name="Point2Index" type="int">
+       <add name="Point3Index" type="int">
+       <add name="Point4Index" type="int">
+   </struct>
+   <struct name="fUV">
+       <add name="U" type="float">
+       <add name="V" type="float">
+   </struct>
+   <struct name="sRelativeVertex">
+       <add name="x" type="short">
+       <add name="y" type="short">
+       <add name="z" type="short">
+   </struct>
+   <struct name="MorphRecord">
+       <add name="NameSize" type="short">                                       Size of the morph's name in bytes including the 0 terminator.
+       <add name="Name" type="char" arr1="NameSize">                            Name of the morph. Zero terminated.
+       <add name="Scale" type="float">                                          All the following relative vertices are multiplied by this scale.
+       <add name="sRelativeVertex" type="sRelativeVertex" arr1="NumModifiers">  Amount to alter the base model corresponding vertex by.
+   </struct>
+   A modifier replaces the vertices from the base model in VertexList with those in the ModifierVertexPool.
+   The ModiferVertexPool counts up from the first modifier onwards. So if you were to take the 4th vertex to be modified
+   in the 2nd Modifier and the size of the 1st was 10 vertices. You would read the modified value from the 14th record of
+   the ModifierVertexPool. Therefore NumModifierVertices = sum of the ModifierList[].NumVerticesToModify.
+   </
+********   End of structure definitions ********
+********   Start of file definition     ********
+********   Start of Header chunk        ********
+    >
+    <struct name="HeaderChunk">
+        <add name="Identifier" type="char" arr1="FR"> Always = FR
+        <add name="FileType" type="char" arr1="TRI">  TRI
+        <add name="Version" type="char" arr1="003"> 003 for Oblivion
+        <add name="NumVertices" type="int"> Number of vertices in the base model.
+        <add name="NumTriFaces" type="int"> Number of 3 sided faces in the model.
+        <add name="NumQuadFaces" type="int"> Number of 4 sided faces in the model. Always 0 for Oblivion.
+        <add name="Unknown1" type="int"> Always 0.
+        <add name="Unknown2" type="int"> Always 0.
+        <add name="NumUVVertices" type="int"> Number of UV vertices in model.
+        <add name="HasUV" type="int"> Does the model have texture UV. Always 1.
+        <add name="NumMorphs" type="int"> Number of relative morphs
+        <add name="NumModifiers" type="int"> Number of absolute morphs
+        <add name="NumModifierVertices" type="int"> Number of vertices that are changed by all the modifiers.
+        <add name="Unknown3" type="int"> Always 0.
+        <add name="Unknown4" type="int"> Always 0.
+        <add name="Unknown5" type="int"> Always 0.
+        <add name="Unknown6" type="int"> Always 0.
+    </struct>
+    <struct name="DataChunk">
+       <add name="VertexList" type="fPoint" arr1="NumVertices"> List of vertices for base model. Indexed from 0
+       <add name="ModifierVertexPool" type="fPoint" arr1="NumModifierVertices"> List of vertices that modify the base model. Indexed from 0.
+       <add name="TriFaceList" type="iTriFaces" arr1="NumTriFaces"> List of 3 sided faces. Each point is indexed to VertexList.
+       <add name="QuadFaceList" type="iQuadFaces" arr1="NumQuadFaces"> List of 4 sided faces. Each point is indexed to VertexList. Not used by Oblivion.
+       <add name="UVVertexList" type="fUV" arr1="NumUVVertices"> List of vertices for the UV of the base model.
+       <add name="UVTriFaceList" type="iTriFaces" arr1="NumTriFaces*HasUV"> List of 3 sided UV faces. Each point is Indexed to UVVertexList. Only used if HasUV=1.
+       <add name="UVQuadFaceList" type="iQuadFaces" arr1="NumQuadFaces*HasUV"> List of 4 sided UV faces. Each point is Indexed to UVVertexList. Only used if HasUV=1.
+       <add name="MorphList" type="MorphRecord" arr1="NumMorphs"> List of morphs.
+       <add name="ModifierList" type="ModifierRecord" arr1="NumModifiers"> List of modifiers.
+     </struct>
 
+</fileformat>
