@@ -34,7 +34,8 @@ Read a EGM file
 >>> data.header.time_date_stamp
 2001060901
 >>> data.read(stream)
->>> print(data.sym_morphs[0])
+>>> data.sym_morphs[0].vertices[0].x
+17249
 
 Parse all EGM files in a directory tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -294,9 +295,9 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
                 EgmFormat.MorphRecord(argument=self.header.num_vertices)
                 for i in xrange(self.header.num_asym_morphs)]
             for morph in self.sym_morphs:
-                morph.read(stream, data=self)
+                morph.read(stream, data=self, argument=morph.arg)
             for morph in self.asym_morphs:
-                morph.read(stream, data=self)
+                morph.read(stream, data=self, argument=morph.arg)
 
             # check if we are at the end of the file
             if stream.read(1):
