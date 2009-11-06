@@ -331,14 +331,14 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
                 morph.write(stream, data=self, argument=morph.arg)
 
         def add_sym_morph(self):
-            """Add a symmetric morph."""
+            """Add a symmetric morph, and return it."""
             morph = EgmFormat.MorphRecord(argument=self.header.num_vertices)
             self.sym_morphs.append(morph)
             self.header.num_sym_morphs = len(self.sym_morphs)
             return morph
 
         def add_asym_morph(self):
-            """Add an asymmetric morph."""
+            """Add an asymmetric morph, and return it."""
             morph = EgmFormat.MorphRecord(argument=self.header.num_vertices)
             self.asym_morphs.append(morph)
             self.header.num_asym_morphs = len(self.asym_morphs)
