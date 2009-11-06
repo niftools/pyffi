@@ -116,8 +116,8 @@
        </add>
        <!-- XXX reading these is hardcoded in the Data class -->
        <!--
-       <add name="Sym Morphs" type="MorphRecord" arr1="Num Sym Morphs"> List of symmetrical morphs. Used by symmetrical face sliders.
-       <add name="Asym Morphs" type="MorphRecord" arr1="Num Asym Morphs"> List of asymmetrical morphs. Used by asymmetrical face sliders.
+       <add name="Sym Morphs" type="MorphRecord" arr1="Num Sym Morphs" arg="Num Vertices"> List of symmetrical morphs. Used by symmetrical face sliders.
+       <add name="Asym Morphs" type="MorphRecord" arr1="Num Asym Morphs" arg="Num Vertices"> List of asymmetrical morphs. Used by asymmetrical face sliders.
        -->
    </struct>
 

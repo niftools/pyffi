@@ -25,19 +25,16 @@ Read a EGM file
 >>> data.version
 2
 >>> data.inspect(stream)
->>> data.header.numVertices
+>>> data.header.num_vertices
 89
->>> data.header.numSymMorphs
+>>> data.header.num_sym_morphs
 50
->>> data.header.numAsymMorphs
+>>> data.header.num_asym_morphs
 30
->>> data.header.timeDateStamp
+>>> data.header.time_date_stamp
 2001060901
->>> data.read(stream) # doctest: +ELLIPSIS
-Traceback (most recent call last):
-    ...
-ValueError: end of file not reached: corrupt egm file?
->>> # do some stuff...
+>>> data.read(stream)
+>>> print(data.sym_morphs[0])
 
 Parse all EGM files in a directory tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -219,12 +216,32 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
             # not supported
             return -1
 
+    @staticmethod
+    def name_attribute(name):
+        """Converts an attribute name, as in the description file,
+        into a name usable by python.
+
+        :param name: The attribute name.
+        :type name: ``str``
+        :return: Reformatted attribute name, useable by python.
+
+        >>> EgmFormat.name_attribute('tHis is A Silly naME')
+        'this_is_a_silly_name'
+        """
+
+        # str(name) converts name to string in case name is a unicode string
+        parts = str(name).split()
+        attrname = parts[0].lower()
+        for part in parts[1:]:
+            attrname += "_" + part.lower()
+        return attrname
+
     class Data(pyffi.object_models.FileFormat.Data):
         """A class to contain the actual egm data."""
         def __init__(self):
             self.header = EgmFormat.Header()
-            self.symMorphs = []
-            self.asymMorphs = []
+            self.sym_morphs = []
+            self.asym_morphs = []
             self.version = 2
             self.user_version = None # not used
 
@@ -267,8 +284,19 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
             :param stream: The stream from which to read.
             :type stream: ``file``
             """
+            # read the file
             self.inspectQuick(stream)
-            # XXX read the file
+            self.header.read(stream, data=self)
+            self.sym_morphs = [
+                EgmFormat.MorphRecord(argument=self.header.num_vertices)
+                for i in xrange(self.header.num_sym_morphs)]
+            self.asym_morphs = [
+                EgmFormat.MorphRecord(argument=self.header.num_vertices)
+                for i in xrange(self.header.num_asym_morphs)]
+            for morph in self.sym_morphs:
+                morph.read(stream, data=self)
+            for morph in self.asym_morphs:
+                morph.read(stream, data=self)
 
             # check if we are at the end of the file
             if stream.read(1):
