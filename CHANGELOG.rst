@@ -3,6 +3,11 @@ Release 2.0.4 (in development)
 
 * Write NaN on float overflow.
 
+* Use pytristrip if it is installed.
+
+* Implemented the FaceGen egm and tri file formats (with help of
+  Scanti and Carver13).
+
 Release 2.0.3 (Sep 28, 2009)
 ============================
 
