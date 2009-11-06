@@ -102,6 +102,7 @@ Create an EGM file from scratch and write to file
 #
 # ***** END LICENSE BLOCK *****
 
+from itertools import izip
 import struct
 import os
 import re
@@ -163,7 +164,8 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
             # check if the string is correct
             if hdrstr != "FREGM".encode("ascii"):
                 raise ValueError(
-                    "invalid EGM header: expected 'FREGM' but got '%s'" % hdrstr)
+                    "invalid EGM header: expected 'FREGM' but got '%s'"
+                    % hdrstr)
 
         def write(self, stream, **kwargs):
             """Write the header string to stream.
@@ -365,3 +367,43 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
                 yield "Sym Morph"
             for morph in self.asym_morphs:
                 yield "Asym Morph"
+
+    class MorphRecord:
+        """
+        >>> # create morph with 3 vertices.
+        >>> morph = EgmFormat.MorphRecord(argument=3)
+        >>> morph.set_relative_vertices(
+        ...     [(3, 5, 2), (1, 3, 2), (-9, 3, -1)])
+        >>> # scale should be 9/32768.0 = 0.0002746...
+        >>> morph.scale # doctest: +ELLIPSIS
+        0.0002746...
+        >>> for vert in morph.get_relative_vertices():
+        ...     print [int(1000 * x + 0.5) for x in vert]
+        [3000, 5000, 2000]
+        [1000, 3000, 2000]
+        [-8999, 3000, -999]
+        """
+        def get_relative_vertices(self):
+            for vert in self.vertices:
+                yield (vert.x * self.scale,
+                       vert.y * self.scale,
+                       vert.z * self.scale)
+
+        def set_relative_vertices(self, vertices):
+            # copy to list
+            vertices = list(vertices)
+            # check length
+            if len(vertices) != self.arg:
+                raise ValueError("expected %i vertices, but got %i"
+                                 % (self.arg, len(vertices)))
+            # get extreme values of morph
+            max_value = max(max(abs(value) for value in vert)
+                            for vert in vertices)
+            # calculate scale
+            self.scale = max_value / 32767.0
+            inv_scale = 1 / self.scale
+            # set vertices
+            for vert, self_vert in izip(vertices, self.vertices):
+                self_vert.x = int(vert[0] * inv_scale)
+                self_vert.y = int(vert[1] * inv_scale)
+                self_vert.z = int(vert[2] * inv_scale)
