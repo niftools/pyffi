@@ -21,9 +21,18 @@ Read a EGM file
 >>> # check and read egm file
 >>> stream = open('tests/egm/mmouthxivilai.egm', 'rb')
 >>> data = EgmFormat.Data()
+>>> data.inspectQuick(stream)
+>>> data.version
+2
 >>> data.inspect(stream)
->>> # do some stuff with header?
->>> #data.header....
+>>> data.header.numVertices
+89
+>>> data.header.numSymMorphs
+50
+>>> data.header.numAsymMorphs
+30
+>>> data.header.timeDateStamp
+2001060901
 >>> data.read(stream) # doctest: +ELLIPSIS
 Traceback (most recent call last):
     ...
@@ -213,7 +222,11 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
     class Data(pyffi.object_models.FileFormat.Data):
         """A class to contain the actual egm data."""
         def __init__(self):
-            pass
+            self.header = EgmFormat.Header()
+            self.symMorphs = []
+            self.asymMorphs = []
+            self.version = 2
+            self.user_version = None # not used
 
         def inspectQuick(self, stream):
             """Quickly checks if stream contains EGM data, and gets the
@@ -227,6 +240,7 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
                 hdrstr = stream.read(5)
                 if hdrstr != "FREGM".encode("ascii"):
                     raise ValueError("Not an EGM file.")
+                self.version = EgmFormat.versionNumber(stream.read(3))
             finally:
                 stream.seek(pos)
 
@@ -242,7 +256,7 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
             pos = stream.tell()
             try:
                 self.inspectQuick(stream)
-                # XXX read header
+                self.header.read(stream, data=self)
             finally:
                 stream.seek(pos)
 
