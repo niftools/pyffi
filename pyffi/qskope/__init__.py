@@ -49,6 +49,7 @@ from pyffi.formats.cgf import CgfFormat
 from pyffi.formats.kfm import KfmFormat
 from pyffi.formats.dds import DdsFormat
 from pyffi.formats.tga import TgaFormat
+from pyffi.formats.egm import EgmFormat
 
 from pyffi.object_models import FileFormat
 
@@ -218,6 +219,14 @@ class QSkope(QtGui.QMainWindow):
         # if succesful: parse the file and save information about it
         self.data = data
 
+    def openEgmFile(self, stream = None):
+        """Read egm file from stream. If stream does not contain a egm file,
+        then raises ValueError. Sets the self.data variable.
+        """
+        data = EgmFormat.Data()
+        data.read(stream)
+        self.data = data
+
     def openFile(self, filename = None):
         """Open a file, and set up the view."""
         # inform user about file being read
@@ -244,11 +253,15 @@ class QSkope(QtGui.QMainWindow):
                             try:
                                 self.openTgaFile(stream)
                             except ValueError:
-                                # all failed: inform user that format is not
-                                # recognized
-                                self.statusBar().showMessage(
-                                    'File format of %s not recognized' % filename)
-                                return
+                                try:
+                                    self.openEgmFile(stream)
+                                except ValueError:
+                                    # all failed: inform user that format is not
+                                    # recognized
+                                    self.statusBar().showMessage(
+                                        'File format of %s not recognized'
+                                        % filename)
+                                    return
         except (ValueError, IOError):
             # update status bar message
             self.statusBar().showMessage("Failed reading %s (see console)"

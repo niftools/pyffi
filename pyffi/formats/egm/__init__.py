@@ -315,11 +315,21 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
         # DetailNode
 
         def getDetailChildNodes(self, edge_filter=EdgeFilter()):
-            return []
-            # XXX todo, for instance:
-            #return self.header.getDetailChildNodes(edge_filter=edge_filter)
+            return self.header.getDetailChildNodes(edge_filter=edge_filter)
 
         def getDetailChildNames(self, edge_filter=EdgeFilter()):
-            return []
-            # XXX todo, for instance:
-            #return self.header.getDetailChildNames(edge_filter=edge_filter)
+            return self.header.getDetailChildNames(edge_filter=edge_filter)
+
+        # GlobalNode
+
+        def getGlobalChildNodes(self, edge_filter=EdgeFilter()):
+            for morph in self.sym_morphs:
+                yield morph
+            for morph in self.asym_morphs:
+                yield morph
+
+        def getGlobalChildNames(self, edge_filter=EdgeFilter()):
+            for morph in self.sym_morphs:
+                yield "Sym Morph"
+            for morph in self.asym_morphs:
+                yield "Asym Morph"
