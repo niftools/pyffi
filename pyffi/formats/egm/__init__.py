@@ -47,7 +47,19 @@ tests/egm/mmouthxivilai.egm
 Create an EGM file from scratch and write to file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
->>> data = EgmFormat.Data()
+>>> data = EgmFormat.Data(num_vertices=10)
+>>> data.header.num_vertices
+10
+>>> morph = data.add_sym_morph()
+>>> len(morph.vertices)
+10
+>>> morph.scale = 0.4
+>>> morph.vertices[0].z = 123
+>>> morph.vertices[9].x = -30000
+>>> morph = data.add_asym_morph()
+>>> morph.scale = 2.3
+>>> morph.vertices[3].z = -5
+>>> morph.vertices[4].x = 99
 >>> from tempfile import TemporaryFile
 >>> stream = TemporaryFile()
 >>> data.write(stream)
@@ -239,11 +251,12 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
 
     class Data(pyffi.object_models.FileFormat.Data):
         """A class to contain the actual egm data."""
-        def __init__(self):
+        def __init__(self, version=2, num_vertices=0):
             self.header = EgmFormat.Header()
+            self.header.num_vertices = num_vertices
             self.sym_morphs = []
             self.asym_morphs = []
-            self.version = 2
+            self.version = version
             self.user_version = None # not used
 
         def inspectQuick(self, stream):
@@ -294,9 +307,7 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
             self.asym_morphs = [
                 EgmFormat.MorphRecord(argument=self.header.num_vertices)
                 for i in xrange(self.header.num_asym_morphs)]
-            for morph in self.sym_morphs:
-                morph.read(stream, data=self, argument=morph.arg)
-            for morph in self.asym_morphs:
+            for morph in self.sym_morphs + self.asym_morphs:
                 morph.read(stream, data=self, argument=morph.arg)
 
             # check if we are at the end of the file
@@ -310,7 +321,28 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
             :param stream: The stream to which to write.
             :type stream: ``file``
             """
-            # XXX write the file
+            # write the file
+            self.header.num_sym_morphs = len(self.sym_morphs)
+            self.header.num_asym_morphs = len(self.asym_morphs)
+            self.header.write(stream, data=self)
+            for morph in self.sym_morphs + self.asym_morphs:
+                if morph.arg != self.header.num_vertices:
+                    raise ValueError("invalid morph length")
+                morph.write(stream, data=self, argument=morph.arg)
+
+        def add_sym_morph(self):
+            """Add a symmetric morph."""
+            morph = EgmFormat.MorphRecord(argument=self.header.num_vertices)
+            self.sym_morphs.append(morph)
+            self.header.num_sym_morphs = len(self.sym_morphs)
+            return morph
+
+        def add_asym_morph(self):
+            """Add an asymmetric morph."""
+            morph = EgmFormat.MorphRecord(argument=self.header.num_vertices)
+            self.asym_morphs.append(morph)
+            self.header.num_asym_morphs = len(self.asym_morphs)
+            return morph
 
         # DetailNode
 
