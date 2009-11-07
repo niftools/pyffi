@@ -10,7 +10,7 @@ Special thanks go in particular to:
 - wz for his support, and for testing of the library, when the first
   version was being written.
 
-- seith for design of the windows installer artwork
+- seith for design of the windows installer artwork.
 
 - Crytek for releasing the Far Cry SDK and Crysis SDK, which contains much
   information about the cgf file format. This has saved many months of hard
