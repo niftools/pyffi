@@ -4,7 +4,7 @@ Python library for processing block structured binary files:
 * **Simple:** Reading, writing, and manipulating complex binary files
   in a Python environment is easy! Currently, PyFFI supports the
   NetImmerse/Gamebryo NIF and KFM formats, CryTek's CGF format, the
-  DDS format, and the TGA format.
+  FaceGen EGM format, the DDS format, and the TGA format.
 
 * **Batteries included:** Many tools for files used by 3D games, such
   as a stripifier, tangent space calculator, 2d/3d hull algorithms,
