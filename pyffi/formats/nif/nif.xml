@@ -2109,9 +2109,13 @@
         <add name="Num Node Groups 2" type="uint">Number of node groups.</add>
         <add name="Node Groups" type="NodeGroup" arr1="Num Node Groups">A list of node groups (each group a sequence of bones).</add>
         <add name="Num Shape Groups" type="uint" ver1="4.2.2.0" userver="0">Number of shape groups.</add>
+        <add name="Num Shape Groups" type="uint" ver1="10.2.0.0" ver2="10.2.0.0" userver="1">Number of shape groups.</add>
         <add name="Shape Groups 1" type="SkinShapeGroup" arr1="Num Shape Groups"  ver1="4.2.2.0" userver="0">List of shape groups.</add>
+        <add name="Shape Groups 1" type="SkinShapeGroup" arr1="Num Shape Groups"  ver1="10.2.0.0" ver2="10.2.0.0" userver="1">List of shape groups.</add>
         <add name="Num Shape Groups 2" type="uint"  ver1="4.2.2.0" userver="0">The size of the second list of shape groups.</add>
+        <add name="Num Shape Groups 2" type="uint"  ver1="10.2.0.0" ver2="10.2.0.0" userver="1">The size of the second list of shape groups.</add>
         <add name="Shape Groups 2" type="Ref" template="NiTriBasedGeom" arr1="Num Shape Groups 2"  ver1="4.2.2.0" userver="0">Group of NiTriShape indices.</add>
+        <add name="Shape Groups 2" type="Ref" template="NiTriBasedGeom" arr1="Num Shape Groups 2"  ver1="10.2.0.0" ver2="10.2.0.0" userver="1">Group of NiTriShape indices.</add>
     </niobject>
 
     <niobject name="NiBSBoneLODController" abstract="0" inherit="NiBoneLODController">
@@ -2588,7 +2592,7 @@
 
     <niobject name="NiKeyframeData" abstract="0" inherit="NiObject">
         Keyframes for mesh animation.
-        <add name="Num Rotation Keys" type="uint">The number of rotation keys.</add>
+        <add name="Num Rotation Keys" type="uint">The number of quaternion rotation keys. If the rotation type is XYZ (type 4) then this *must* be set to 1, and in this case the actual number of keys is stored in the XYZ Rotations field.</add>
         <add name="Rotation Type" type="KeyType" default="0" cond="Num Rotation Keys != 0">The type of interpolation to use for rotation.  Can also be 4 to indicate that separate X, Y, and Z values are used for the rotation instead of Quaternions.</add>
         <add name="Quaternion Keys" type="QuatKey" arg="Rotation Type" template="Quaternion" arr1="Num Rotation Keys" cond="Rotation Type != 4">The rotation keys if Quaternion rotation is used.</add>
         <add name="Unknown Float" type="float" cond="Rotation Type == 4" ver2="10.1.0.0">Possibly a vestigial time value?  Doesn&#039;t appear to be significant.</add>
@@ -4298,13 +4302,20 @@
         <add name="Num Indices" type="uint" />
     </compound>
 
+    <enum name="DataComponentFlag" storage="uint">
+        Describes what sort of data is stored in a NiDataStream
+        <option value="66597" name="UINT_1">Single uint?</option>
+        <option value="132150" name="FLOAT_2">2 floats / Vector2?</option>
+        <option value="197687" name="FLOAT_3">3 floats / Vector3?</option>
+    </enum>
+
     <niobject name="NiDataStreamBase" ver1="20.5.0.0" inherit="NiObject" abstract="1">
         <add name="Num Bytes" type="uint" />
         <add name="Unknown 2" type="uint" default="0" />
         <add name="Num Index Ranges" type="uint">Matches the parent NiMesh-&gt;Mesh Data-&gt;Num Index Ranges field.</add>
         <add name="Index Ranges" type="IndexRange" arr1="Num Index Ranges" />
         <add name="Num Data Components" type="uint">Matches the parent NiMesh-&gt;Mesh Data-&gt;Num Data Components field.</add>
-        <add name="Data Component Flags" type="uint" arr1="Num Data Components">Flags per component?</add>
+        <add name="Data Component Flags" type="DataComponentFlag" arr1="Num Data Components">Flags per component?</add>
     </niobject>
 
     <niobject name="NiDataStreamUndecoded" ver1="20.5.0.0" inherit="NiDataStreamBase" abstract="1">
@@ -4333,9 +4344,8 @@
 
     <niobject name="NiDataStream\x011\x0119" ver1="20.5.0.0" inherit="NiDataStream\x011\x0118" />
 
-    <niobject name="NiDataStream\x011\x0121" ver1="20.5.0.0" inherit="NiDataStreamUndecoded">
-    </niobject>
-
+    <niobject name="NiDataStream\x011\x0121" ver1="20.5.0.0" inherit="NiDataStream\x011\x0118" />
+    
     <niobject name="NiDataStream\x011\x0124" ver1="20.5.0.0" inherit="NiDataStreamUndecoded">
     </niobject>
 
@@ -4350,7 +4360,9 @@
     </niobject>
 
     <compound name="DataComponent">
-        <add name="Data Type" type="string">Type of data (POSITION, INDEX, NORMAL, TEXCOORD)</add>
+        <add name="Data Type" type="string">
+            Type of data (POSITION, POSITION_BP, INDEX, NORMAL, NORMAL_BP, TEXCOORD, BLENDINDICIES, BLENDWEIGHT, BONE_PALETTE)
+        </add>
         <add name="Unknown Int" type="int" default="0" />
     </compound>
 
@@ -4370,7 +4382,7 @@
         <add name="Unknown Int 4" type="int" />
         <add name="Unknown Int 7" type="int" ver1="30.0.0.2" cond="Num Unknown Ints 3 == 1"/>
         <add name="Unknown Int 5" type="int" default="256">Always 256?</add>
-        <add name="Unknown Floats 6" type="float" arr1="4" />
+        <add name="Unknown Floats 6" type="float" arr1="4">Radius?</add>
         <add name="Num Mesh Data" type="uint" />
         <add name="Mesh Data" type="MeshData" arr1="Num Mesh Data" />
         <add name="Num Modifiers" type="uint" />
@@ -4811,7 +4823,7 @@
     <niobject name="NiPSCylinderEmitter" ver1="30.0.0.2" inherit="NiPSSphereEmitter">
         <add name="Unknown 23" type="float"></add>
     </niobject>
-
+    
     <niobject name="NiPSEmitterDeclinationCtlr" ver1="30.0.0.2" inherit="NiPSysModifierCtlr">
     </niobject>
     
@@ -4861,6 +4873,15 @@
         <add name="Unknown 5" type="int"></add>
         <add name="Unknown 6" type="short"></add>
         <add name="Unknown 7" type="int"></add>
+    </niobject>
+
+    <niobject name="NiFurSpringController" ver1="10.2.0.0" userver="1" inherit="NiTimeController"><!-- BloodBowl -->
+        <add name="Unknown Float" type="float"></add>
+        <add name="Unknown Float 2" type="float"></add>
+        <add name="Num Bones" type="uint">The number of node bones referenced as influences.</add>
+        <add name="Bones" type="Ptr" template="NiNode" arr1="Num Bones">List of all armature bones.</add>
+        <add name="Num Bones 2" type="uint">The number of node bones referenced as influences.</add>
+        <add name="Bones 2" type="Ptr" template="NiNode" arr1="Num Bones 2">List of all armature bones.</add>
     </niobject>
     
     <!-- vim: set ts=4 sw=4 et: -->
