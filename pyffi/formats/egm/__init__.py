@@ -346,6 +346,11 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
             self.header.num_asym_morphs = len(self.asym_morphs)
             return morph
 
+        def apply_scale(self, scale):
+            """Apply scale factor to all morphs."""
+            for morph in self.sym_morphs + self.asym_morphs:
+                morph.apply_scale(scale)
+
         # DetailNode
 
         def getDetailChildNodes(self, edge_filter=EdgeFilter()):
