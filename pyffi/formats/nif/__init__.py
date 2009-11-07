@@ -6656,9 +6656,14 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             0
             >>> pal.addString("def")
             4
+            >>> pal.addString("")
+            -1
             >>> print(pal.getString(4).decode("ascii"))
             def
             """
+            # empty text
+            if not text:
+                return -1
             _b00 = pyffi.object_models.Common._b00 # shortcut
             # convert text to bytes if necessary
             text = pyffi.object_models.Common._asBytes(text)
