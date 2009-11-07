@@ -4027,6 +4027,25 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                     for index in xrange(element_size):
                         controlpoints[offset + element * element_size + index] *= scale
 
+    class NiControllerSequence:
+        def addControlledBlock(self):
+            """Create new controlled block, and return it.
+
+            >>> seq = NifFormat.NiControllerSequence()
+            >>> seq.numControlledBlocks
+            0
+            >>> ctrlblock = seq.addControlledBlock()
+            >>> seq.numControlledBlocks
+            1
+            >>> isinstance(ctrlblock, NifFormat.ControllerLink)
+            True
+            """
+            # add to the list
+            num_blocks = self.numControlledBlocks
+            self.numControlledBlocks = num_blocks + 1
+            self.controlledBlocks.updateSize()
+            return self.controlledBlocks[-1]
+
     class NiGeometryData:
         """
         >>> from pyffi.formats.nif import NifFormat
