@@ -281,17 +281,17 @@ class SpellExportPixelData(NifSpell):
     SPELLNAME = "dump_pixeldata"
 
     def datainspect(self):
-        return self.inspectblocktype(NifFormat.NiPixelData)
+        return self.inspectblocktype(NifFormat.ATextureRenderData)
 
     def branchinspect(self, branch):
         # stick to main tree nodes, and material and texture properties
         return isinstance(branch, (NifFormat.NiAVObject,
                                    NifFormat.NiTexturingProperty,
                                    NifFormat.NiSourceTexture,
-                                   NifFormat.NiPixelData))
+                                   NifFormat.ATextureRenderData))
 
     def branchentry(self, branch):
-        if not isinstance(branch, NifFormat.NiPixelData):
+        if not isinstance(branch, NifFormat.ATextureRenderData):
             # keep recursing
             return True
         else:

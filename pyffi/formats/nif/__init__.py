@@ -5440,7 +5440,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                 # for blocks with references: quick check only
                 return self is other
 
-    class NiPixelData:
+    class ATextureRenderData:
         def saveAsDDS(self, stream):
             """Save image as DDS file."""
             # set up header and pixel data
@@ -5494,7 +5494,14 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                 header.caps1.complex = 1
                 header.caps1.texture = 1
                 header.caps1.mipmap = 1
-                pixeldata.setValue(''.join(self.pixelDataMatrix))
+                if isinstance(self,
+                              NifFormat.NiPersistentSrcTextureRendererData):
+                    pixeldata.setValue(
+                        ''.join(
+                            ''.join([chr(x) for x in tex])
+                            for tex in self.pixelData))
+                else:
+                    pixeldata.setValue(''.join(self.pixelDataMatrix))
             elif self.pixelFormat in (NifFormat.PixelFormat.PX_FMT_DXT5,
                                       NifFormat.PixelFormat.PX_FMT_DXT5_ALT):
                 # format used in Megami Tensei: Imagine
