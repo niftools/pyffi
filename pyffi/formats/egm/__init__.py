@@ -407,3 +407,19 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
                 self_vert.x = int(vert[0] * inv_scale)
                 self_vert.y = int(vert[1] * inv_scale)
                 self_vert.z = int(vert[2] * inv_scale)
+
+        def apply_scale(self, scale):
+            """Apply scale factor to data.
+
+            >>> # create morph with 3 vertices.
+            >>> morph = EgmFormat.MorphRecord(argument=3)
+            >>> morph.set_relative_vertices(
+            ...     [(3, 5, 2), (1, 3, 2), (-9, 3, -1)])
+            >>> morph.apply_scale(2)
+            >>> for vert in morph.get_relative_vertices():
+            ...     print [int(1000 * x + 0.5) for x in vert]
+            [6000, 10000, 4000]
+            [2000, 6000, 4000]
+            [-17999, 6000, -1999]
+            """
+            self.scale *= scale
