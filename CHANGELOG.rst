@@ -11,6 +11,9 @@ Release 2.0.4 (in development)
 * The nif dump_pixeldata spell now also dumps NiPersistentSrcTextureRenderData
   (reported by lusht).
 
+* Set TSpace flags 16 to signal presence of tangent space data (fixes Fallout 3
+  issue, reported by Miaximus).
+
 Release 2.0.3 (Sep 28, 2009)
 ============================
 

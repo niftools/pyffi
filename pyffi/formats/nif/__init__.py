@@ -5932,9 +5932,11 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                 extra.binaryData = binarydata
             else:
                 # set tangent space flag
-                # XXX from Sid Meier's Railroad nifs, 4096 is sufficient?
-                self.data.numUvSets |= 61440
-                self.data.bsNumUvSets |= 61440
+                # XXX used to be 61440
+                # XXX from Sid Meier's Railroad & Fallout 3 nifs, 4096 is
+                # XXX sufficient?
+                self.data.numUvSets |= 4096
+                self.data.bsNumUvSets |= 4096
                 self.data.tangents.updateSize()
                 self.data.bitangents.updateSize()
                 for vec, data_tan in izip(tan, self.data.tangents):
