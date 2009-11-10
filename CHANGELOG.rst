@@ -1,5 +1,8 @@
-Release 2.0.4 (Nov 10, 2009)
+Release 2.0.5 (in development)
 ==============================
+
+Release 2.0.4 (Nov 10, 2009)
+============================
 
 * Write NaN on float overflow.
 
