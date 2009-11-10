@@ -1,12 +1,12 @@
-Release 2.0.4 (in development)
+Release 2.0.4 (Nov 10, 2009)
 ==============================
 
 * Write NaN on float overflow.
 
 * Use pytristrip if it is installed.
 
-* Implemented the FaceGen egm and tri file formats (with help of Scanti
-  and Carver13).
+* Implemented the FaceGen egm (done) and tri (in progress) file formats 
+  with help of Scanti and Carver13.
 
 * The nif dump_pixeldata spell now also dumps NiPersistentSrcTextureRenderData
   (reported by lusht).
