@@ -118,6 +118,11 @@ def stripify(triangles, stitchstrips = False):
     >>> _checkStrips(triangles, strips) # NvTriStrip gives wrong result
     >>> triangles = [(1, 2, 3), (4, 5, 6), (6, 5, 7), (8, 5, 9), (4, 10, 9), (8, 3, 11), (8, 10, 3), (12, 13, 6), (14, 2, 15), (16, 13, 15), (16, 2, 3), (3, 2, 1)]
     >>> strips = stripify(triangles)
+    >>> _checkStrips(triangles, strips) # detects bug reported by PacificMorrowind
+    >>> triangles = [(354, 355, 356), (355, 356, 354), (354, 355, 356), (355, 356, 354), (354, 355, 356), (356, 354, 355), (354, 355, 356), (357, 359, 358),
+    ...              (380, 372, 381), (372, 370, 381), (381, 370, 354), (370, 367, 354), (367, 366, 354), (366, 355, 354), (355, 356, 354), (354, 356, 381),
+    ...              (356, 355, 357), (357, 356, 355), (356, 355, 357), (356, 355, 357), (357, 356, 355)]
+    >>> strips = stripify(triangles)
     >>> _checkStrips(triangles, strips) # NvTriStrip gives wrong result
     """
 
