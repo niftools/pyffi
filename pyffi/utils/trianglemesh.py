@@ -185,6 +185,8 @@ class FaceEdgeMesh(FlyweightGroupObject):
         FaceClassName = '%s&%s'%(self.__class__.__name__, FaceClass.__name__)
         self._FaceClass = FaceClass.ClassFlyweightGroup(FaceClassName , mesh=weakref.proxy(self))
         self.Faces = []
+        # set of ordered tuples for all faces, to avoid duplicates
+        self.set_faces = set()
 
         EdgeClassName = '%s&%s'%(self.__class__.__name__, EdgeClass.__name__)
         self._EdgeClass = EdgeClass.ClassFlyweightGroup(EdgeClassName , mesh=weakref.proxy(self))
@@ -215,6 +217,20 @@ class FaceEdgeMesh(FlyweightGroupObject):
         if v0 == v1 or v1 == v2 or v2 == v0:
             return None
         else:
+            # check duplicates
+            if v0 < v1 and v0 < v2:
+                face_index = (v0, v1, v2)
+            elif v1 < v0 and v1 < v2:
+                face_index = (v1, v2, v0)
+            elif v2 < v0 and v2 < v1:
+                face_index = (v2, v0, v1)
+            else:
+                # should *never* happen
+                raise RuntimeError("Internal bug when adding face.")
+            if face_index in self.set_faces:
+                return None
+            # not already in mesh, so add
+            self.set_faces.add(face_index)
             face = self._FaceClass(v0,v1,v2)
             self.Faces.append(face)
             return face
