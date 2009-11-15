@@ -198,7 +198,36 @@ def stripify(triangles, stitchstrips = False):
     else: return strips
 
 def stitchStrips(strips):
-    """Stitch strips keeping stitch size minimal."""
+    """Stitch strips keeping stitch size minimal.
+
+    >>> # stitch length 0 code path
+    >>> stitchStrips([[3,4,5],[0,1,2,3]])
+    [0, 1, 2, 3, 3, 4, 5]
+    >>> stitchStrips([[2,2,3,4],[0,1,2]])
+    [0, 1, 2, 2, 3, 4]
+
+    #>>> stitchStrips([[0,1,2,3],[3,4,5]]) # XXX fails, uses too many stitches
+    #[0, 1, 2, 3, 3, 4, 5]
+
+    >>> # stitch length 1 code path
+    >>> stitchStrips([[2,3,4],[0,1,2]])
+    [0, 1, 2, 2, 2, 3, 4]
+    >>> stitchStrips([[3,3,4,5],[0,1,2,3]])
+    [0, 1, 2, 3, 3, 3, 4, 5]
+
+    >>> # stitch length 2 code path
+    >>> stitchStrips([[7,8,9],[0,1,2,3]])
+    [0, 1, 2, 3, 3, 7, 7, 8, 9]
+    >>> stitchStrips([[7,7,8,9],[0,1,2]])
+    [0, 1, 2, 2, 7, 7, 8, 9]
+
+    >>> # stitch length 3 code path
+    >>> stitchStrips([[7,7,8,9],[0,1,2,3]])
+    [0, 1, 2, 3, 3, 7, 7, 7, 8, 9]
+    >>> stitchStrips([[7,8,9],[0,1,2]])
+    [0, 1, 2, 2, 7, 7, 7, 8, 9]
+    """
+
     result = []
     realstrips = [strip for strip in strips if len(strip) >= 3]
     forward  = [strip[:] for strip in realstrips if strip[0] != strip[1]]
@@ -207,8 +236,15 @@ def stitchStrips(strips):
         # create stitch
         if result:
             winding = len(result) & 1
-            forwardgood = [i for i, s in enumerate(forward) if s[0] == result[-1]]
-            backwardgood = [i for i, s in enumerate(backward) if s[0] == result[-1]]
+            forwardgood = [i for i, s in enumerate(forward)
+                           if s[0] == result[-1]]
+            backwardgood = [i for i, s in enumerate(backward)
+                            if s[0] == result[-1]]
+            # XXX todo: implement appending strip in reverse if possible
+            #reversed_forwardgood = [i for i, s in enumerate(forward)
+            #                        if s[-1] == result[-1]]
+            #reversed_backwardgood = [i for i, s in enumerate(backward)
+            #                         if s[-1] == result[-1]]
             # stitch length 0
             if winding == 0 and forwardgood:
                 strip = forward.pop(forwardgood[0])
