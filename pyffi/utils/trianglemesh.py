@@ -1,6 +1,45 @@
-#!/usr/bin/env python
+# ***** BEGIN LICENSE BLOCK *****
+#
+# Copyright (c) 2007-2009, Python File Format Interface
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+#    * Redistributions of source code must retain the above copyright
+#      notice, this list of conditions and the following disclaimer.
+#
+#    * Redistributions in binary form must reproduce the above
+#      copyright notice, this list of conditions and the following
+#      disclaimer in the documentation and/or other materials provided
+#      with the distribution.
+#
+#    * Neither the name of the Python File Format Interface
+#      project nor the names of its contributors may be used to endorse
+#      or promote products derived from this software without specific
+#      prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# ***** END LICENSE BLOCK *****
+
+# modified from:
 
 # http://techgame.net/projects/Runeblade/browser/trunk/RBRapier/RBRapier/Tools/Geometry/Analysis/TriangleMesh.py?rev=760
+
+# original license:
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##~ License
@@ -28,229 +67,297 @@
 
 import weakref
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#~ Definitions
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+try:
+    WeakSet = weakref.WeakSet
+except AttributeError:
+    # for py2k
+    class WeakSet(object):
+        """Simple weak set implementation.
 
-class FlyweightGroupObject(object):
-    def ClassFlyweightGroup(klass, name, **kw):
-        return type(name, (klass,), kw)
-    ClassFlyweightGroup = classmethod(ClassFlyweightGroup)
-    FlyweightGroup = ClassFlyweightGroup
+        >>> import gc
+        >>> ws = WeakSet()
+        >>> class Test(object):
+        ...     pass
+        >>> x = Test()
+        >>> y = Test()
+        >>> ws.add(x)
+        >>> list(ws)[0] is x
+        True
+        >>> ws.add(y)
+        >>> len(list(ws)) == 2
+        True
+        >>> del x
+        >>> tmp = gc.collect()
+        >>> list(ws)[0] is y
+        True
+        >>> del y
+        >>> tmp = gc.collect()
+        >>> list(ws)
+        []
+        """
+        def __init__(self):
+            self.data = weakref.WeakValueDictionary()
 
-class Edge(FlyweightGroupObject):
+        def add(self, key):
+            self.data[id(key)] = key
+
+        def __iter__(self):
+            return self.data.itervalues()
+
+class Edge:
+    """A directed edge."""
+
     def __init__(self, ev0, ev1):
-        self.ev = (ev0, ev1)
-        self.Faces = []
+        """Edge constructor.
 
-    def __hash__(self):
-        return hash(self.ev)
+        >>> edge = Edge(6, 9)
+        >>> edge.verts
+        (6, 9)
+        >>> edge = Edge(8, 5)
+        >>> edge.verts
+        (8, 5)
+        >>> edge = Edge(3, 3) # doctest: +ELLIPSIS
+        Traceback (most recent call last):
+            ...
+        ValueError: ...
+        """
+        
+        if ev0 == ev1:
+            raise ValueError("Degenerate edge.")
 
-    def __repr__(self):
-        return "<%s ev=%s>" % (self.__class__.__name__, self.ev)
+        self.verts = (ev0, ev1)
+        """Vertices of the edge."""
 
-    def GetCommonVertices(self, otheredge):
-        return [v for v in otheredge.ev if v in self.ev]
-
-    def NextFace(self, face=None):
-        if face is None: idx = 0
-        else: idx = self.Faces.index(face)
-        result = self.Faces[idx-1]
-        if result == face: result = None
-        return result
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-class Face(FlyweightGroupObject):
-    def __init__(self, v0,v1,v2):
-        self.v = (v0,v1,v2)
-    def __eq__(self, other):
-        return self.v == other.v
-    def __ne__(self, other):
-        return self.v != other.v
-    def __cmp__(self, other):
-        return cmp(self.v, other.v)
-
-    def __hash__(self):
-        return hash(self.v)
+        self.faces = WeakSet()
+        """Weak set of faces that have this edge."""
 
     def __repr__(self):
-        return "<%s v=%s>" % (self.__class__.__name__, self.v)
+        """String representation.
 
-    _VertexWindingTable = {1:0, -1:1, -2:0, 2:1}
-    # 1 corresponds to e01 or e12
-    # -1 corresponds to e10 = -e01; or e12 = -e21
-    # 2 corresponds to e20
-    # -2 corresponds to e02 = -e20
+        >>> Edge(1, 2)
+        Edge(1, 2)
+        """
+        return "Edge(%s, %s)" % self.verts
 
-    def GetVertexWinding(self, pv0, pv1):
-        v = list(self.v)
-        delta = v.index(pv1) - v.index(pv0)
-        return self._VertexWindingTable[delta]
+class Face:
+    """An oriented face."""
 
-    def NextVertex(self, vi):
-        idx = list(self.v).index(vi) + 1
-        if idx >= len(self.v):
-            return self.v[0]
-        else: return self.v[idx]
+    def __init__(self, v0, v1, v2):
+        """Construct face from vertices.
 
-    def OtherVertex(self, pv0, pv1):
-        result = [v for v in self.v if v!=pv0 and v!=pv1]
-        if len(result) == 1:
-            return result[0]
-        elif len(result) > 1:
-            raise KeyError, "Expected one vertex, but found many! (%r, %r, %r)" % (self.v, (pv0, pv1), result)
-        else:
-            raise KeyError, "Expected one vertex, but found none! (%r, %r, %r)" % (self.v, (pv0, pv1), result)
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-class EdgedFace(Face):
-    def __init__(self, v0,v1,v2):
-        Face.__init__(self, v0,v1,v2)
-        e01 = self.mesh.AddEdge(v0,v1, weakref.proxy(self))
-        e12 = self.mesh.AddEdge(v1,v2, weakref.proxy(self))
-        e20 = self.mesh.AddEdge(v2,v0, weakref.proxy(self))
-        self.edges = [e01, e12, e20]
-
-    def GetEdge(self, ev0, ev1):
-        assert ev0 != ev1
-        v = list(self.v)
-        idx0,idx1 = v.index(ev0), v.index(ev1)
-        if idx0 > idx1: idx0,idx1 = idx1,idx0
-        if idx0 == 0:
-            if idx1==2: return self.edges[2]
-            else: return self.edges[0]
-        else: return self.edges[1]
-
-    def GetCommonEdges(self, otherface):
-        return [edge for edge in otherface.edges if edge in self.edges]
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-class FaceMesh(FlyweightGroupObject):
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    #~ Constants / Variables / Etc.
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    #~ Public Methods
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    def __init__(self, FaceClass=Face):
-        FaceClassName = '%s&%s'%(self.__class__.__name__, FaceClass.__name__)
-        self._FaceClass = FaceClass.ClassFlyweightGroup(FaceClassName, mesh=weakref.proxy(self))
-        self.Faces = []
-
-    def __repr__(self):
-        return "<%s |faces|=%s>" % (self.__class__.__name__, len(self.Faces))
-
-    def AddFace(self, v0,v1,v2):
+        >>> face = Face(3, 7, 5)
+        >>> face.verts
+        (3, 7, 5)
+        >>> face = Face(9, 8, 2)
+        >>> face.verts
+        (2, 9, 8)
+        >>> face = Face(6, 1, 4)
+        >>> face.verts
+        (1, 4, 6)
+        >>> Face(30, 0, 30) # doctest: +ELLIPSIS
+        Traceback (most recent call last):
+            ...
+        ValueError: ...
+        >>> Face(0, 40, 40) # doctest: +ELLIPSIS
+        Traceback (most recent call last):
+            ...
+        ValueError: ...
+        >>> Face(50, 50, 0) # doctest: +ELLIPSIS
+        Traceback (most recent call last):
+            ...
+        ValueError: ...
+        >>> Face(7, 7, 7) # doctest: +ELLIPSIS
+        Traceback (most recent call last):
+            ...
+        ValueError: ...
+        """
         if v0 == v1 or v1 == v2 or v2 == v0:
-            return None
-        else:
-            face = self._FaceClass(v0,v1,v2)
-            self.Faces.append(face)
-            return face
+            raise ValueError("Degenerate face.")
+        if v0 < v1 and v0 < v2:
+            self.verts = (v0, v1, v2)
+        if v1 < v0 and v1 < v2:
+            self.verts = (v1, v2, v0)
+        if v2 < v0 and v2 < v1:
+            self.verts = (v2, v0, v1)
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-class FaceEdgeMesh(FlyweightGroupObject):
-    """
-    >>> mesh = FaceEdgeMesh(); mesh
-    <FaceEdgeMesh |edges|=0 |faces|=0>
-    >>> i0, i1 = 0, 1
-    >>> for i2 in range(2, 8):
-    ...     f = mesh.AddFace(i0, i1, i2)
-    ...     i0, i1 = i1, i2
-    >>> mesh
-    <FaceEdgeMesh |edges|=13 |faces|=6>
-    >>> face = mesh.Faces[0]; face
-    <FaceEdgeMesh&EdgedFace v=(0, 1, 2)>
-    >>> face.OtherVertex(0,1)
-    2
-    >>> face.GetEdge(2,1)
-    <FaceEdgeMesh&Edge ev=(1, 2)>
-    """
-
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    #~ Constants / Variables / Etc.
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    #~ Public Methods
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    def __init__(self, FaceClass=EdgedFace, EdgeClass=Edge):
-        FaceClassName = '%s&%s'%(self.__class__.__name__, FaceClass.__name__)
-        self._FaceClass = FaceClass.ClassFlyweightGroup(FaceClassName , mesh=weakref.proxy(self))
-        self.Faces = []
-        # set of ordered tuples for all faces, to avoid duplicates
-        self.set_faces = set()
-
-        EdgeClassName = '%s&%s'%(self.__class__.__name__, EdgeClass.__name__)
-        self._EdgeClass = EdgeClass.ClassFlyweightGroup(EdgeClassName , mesh=weakref.proxy(self))
-        self.Edges = {}
+        self.adjacent_faces = (WeakSet(), WeakSet(), WeakSet())
+        """Weak sets of adjacent faces along edge opposite each vertex."""
 
     def __repr__(self):
-        return "<%s |edges|=%s |faces|=%s>" % (self.__class__.__name__, len(self.Edges), len(self.Faces))
+        """String representation.
 
-    def HasEdge(self, ev0, ev1):
-        if ev0 > ev1: ev1,ev0=ev0,ev1
-        return (ev0,ev1) in self.Edges
-    def GetEdge(self, ev0, ev1):
-        if ev0 > ev1: ev1,ev0=ev0,ev1
-        return self.Edges[ev0,ev1]
+        >>> Face(3, 1, 2)
+        Face(1, 2, 3)
+        """
+        return "Face(%s, %s, %s)" % self.verts
 
-    def AddEdge(self, ev0, ev1, face):
-        if ev0 > ev1: ev1,ev0=ev0,ev1
+    def get_next_vertex(self, vi):
+        """Get next vertex of face.
+
+        >>> face = Face(8, 7, 5)
+        >>> face.get_next_vertex(8)
+        7
+        >>> face.get_next_vertex(7)
+        5
+        >>> face.get_next_vertex(5)
+        8
+        >>> face.get_next_vertex(10) # doctest: +ELLIPSIS
+        Traceback (most recent call last):
+            ...
+        ValueError: ...
+        """
+        return self.verts[[1, 2, 0][self.verts.index(vi)]]
+
+    def get_adjacent_faces(self, vi):
+        """Get adjacent faces associated with the edge opposite a vertex."""
+        return self.adjacent_faces[self.verts.index(vi)]
+
+class Mesh:
+    def __init__(self):
+        self.faces = {}
+        """Dictionary of all faces."""
+
+        self.edges = {}
+        """Dictionary of all edges."""
+
+    def _add_edge(self, face, pv0, pv1):
+        """Create new edge for mesh for given face, or return existing
+        edge. Lists of faces of the new/existing edge is also updated,
+        as well as lists of adjacent faces. For internal use only,
+        called on each edge of the face in add_face.
+        """
+        # create edge if not found
         try:
-            edge = self.Edges[ev0,ev1]
+            edge = self.edges[(pv0, pv1)]
         except KeyError:
-            edge = self._EdgeClass(ev0,ev1)
-            self.Edges[ev0,ev1] = edge
+            # create edge
+            edge = Edge(pv0, pv1)
+            self.edges[(pv0, pv1)] = edge
 
-        edge.Faces.append(face)
-        return edge
+        # update edge's faces
+        edge.faces.add(face)
 
-    def AddFace(self, v0,v1,v2):
-        if v0 == v1 or v1 == v2 or v2 == v0:
-            return None
+        # find reverse edge in mesh
+        try:
+            otheredge = self.edges[(pv1, pv0)]
+        except KeyError:
+            pass
         else:
-            # check duplicates
-            if v0 < v1 and v0 < v2:
-                face_index = (v0, v1, v2)
-            elif v1 < v0 and v1 < v2:
-                face_index = (v1, v2, v0)
-            elif v2 < v0 and v2 < v1:
-                face_index = (v2, v0, v1)
-            else:
-                # should *never* happen
-                raise RuntimeError("Internal bug when adding face.")
-            if face_index in self.set_faces:
-                return None
-            # not already in mesh, so add
-            self.set_faces.add(face_index)
-            face = self._FaceClass(v0,v1,v2)
-            self.Faces.append(face)
-            return face
+            # update adjacent faces
+            pv2 = face.get_next_vertex(pv1)
+            for otherface in otheredge.faces:
+                otherpv2 = otherface.get_next_vertex(pv0)
+                face.get_adjacent_faces(pv2).add(otherface)
+                otherface.get_adjacent_faces(otherpv2).add(face)
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#~ Optimization
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    def add_face(self, v0, v1, v2):
+        """Create new face for mesh, or return existing face.
 
-try: import psyco
-except ImportError: pass
-else:
-    psyco.bind(Edge)
-    psyco.bind(Face)
-    psyco.bind(EdgedFace)
-    psyco.bind(FaceMesh)
-    psyco.bind(FaceEdgeMesh)
+        >>> m = Mesh()
+        >>> f0 = m.add_face(0, 1, 2)
+        >>> [list(faces) for faces in f0.adjacent_faces]
+        [[], [], []]
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#~ Testing
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        >>> m = Mesh()
+        >>> f0 = m.add_face(0, 1, 2)
+        >>> f1 = m.add_face(2, 1, 3)
+        >>> f2 = m.add_face(2, 3, 4)
+        >>> len(m.faces)
+        3
+        >>> len(m.edges)
+        9
+        >>> f3 = m.add_face(2, 3, 4)
+        >>> f3 is f2
+        True
+        >>> f4 = m.add_face(10, 11, 12)
+        >>> f5 = m.add_face(12, 10, 11)
+        >>> f6 = m.add_face(11, 12, 10)
+        >>> f4 is f5
+        True
+        >>> f4 is f6
+        True
+        >>> len(m.faces)
+        4
+        >>> len(m.edges)
+        12
+
+
+        0->-1
+         \ / \
+          2-<-3
+          2->-3
+           \ /
+            4
+
+        >>> m = Mesh()
+        >>> f0 = m.add_face(0, 1, 2)
+        >>> f1 = m.add_face(1, 3, 2)
+        >>> f2 = m.add_face(2, 3, 4)
+        >>> list(f0.get_adjacent_faces(0))
+        [Face(1, 3, 2)]
+        >>> list(f0.get_adjacent_faces(1))
+        []
+        >>> list(f0.get_adjacent_faces(2))
+        []
+        >>> list(f1.get_adjacent_faces(1))
+        [Face(2, 3, 4)]
+        >>> list(f1.get_adjacent_faces(3))
+        [Face(0, 1, 2)]
+        >>> list(f1.get_adjacent_faces(2))
+        []
+        >>> list(f2.get_adjacent_faces(2))
+        []
+        >>> list(f2.get_adjacent_faces(3))
+        []
+        >>> list(f2.get_adjacent_faces(4))
+        [Face(1, 3, 2)]
+        >>> # add an extra face, and check changes
+        >>> f3 = m.add_face(2, 3, 5)
+        >>> list(f0.get_adjacent_faces(0))
+        [Face(1, 3, 2)]
+        >>> list(f0.get_adjacent_faces(1))
+        []
+        >>> list(f0.get_adjacent_faces(2))
+        []
+        >>> list(f1.get_adjacent_faces(1)) # extra face here!
+        [Face(2, 3, 4), Face(2, 3, 5)]
+        >>> list(f1.get_adjacent_faces(3))
+        [Face(0, 1, 2)]
+        >>> list(f1.get_adjacent_faces(2))
+        []
+        >>> list(f2.get_adjacent_faces(2))
+        []
+        >>> list(f2.get_adjacent_faces(3))
+        []
+        >>> list(f2.get_adjacent_faces(4))
+        [Face(1, 3, 2)]
+        """
+        face = Face(v0, v1, v2)
+        try:
+            face = self.faces[face.verts]
+        except KeyError:
+            # create edges and update links between faces
+            self._add_edge(face, v0, v1)
+            self._add_edge(face, v1, v2)
+            self._add_edge(face, v2, v0)
+            # register face in mesh
+            self.faces[face.verts] = face
+
+        return face
+
+    def lock(self):
+        """Lock the mesh. Frees memory by clearing the structures
+        which are only used to update the face adjacency lists.
+
+        >>> m = Mesh()
+        >>> f0 = m.add_face(0, 1, 2)
+        >>> m.lock()
+        >>> m.add_face(1, 2, 3) # doctest: +ELLIPSIS
+        Traceback (most recent call last):
+            ...
+        AttributeError: ...
+        """
+        del self.edges
 
 if __name__=='__main__':
     import doctest
