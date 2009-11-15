@@ -74,20 +74,67 @@ def _generateFacesFromTriangles(triangles):
     while True:
         yield (i.next(), i.next(), i.next())
 
+def _sort_triangle_indices(triangles):
+    """Sorts indices of each triangle so lowest index always comes first.
+    Also removes degenerate triangles.
+
+    >>> list(_sort_triangle_indices([(2,1,3),(0,2,6),(9,8,4)]))
+    [(1, 3, 2), (0, 2, 6), (4, 9, 8)]
+    >>> list(_sort_triangle_indices([(2,1,1),(0,2,6),(9,8,4)]))
+    [(0, 2, 6), (4, 9, 8)]
+    """
+    for t0, t1, t2 in triangles:
+        # skip degenerate triangles
+        if t0 == t1 or t1 == t2 or t2 == t0:
+            continue
+        # sort indices
+        if t0 < t1 and t0 < t2:
+            yield (t0, t1, t2)
+        elif t1 < t0 and t1 < t2:
+            yield (t1, t2, t0)
+        elif t2 < t0 and t2 < t1:
+            yield (t2, t0, t1)
+        else:
+            # should *never* happen
+            raise RuntimeError(
+                "Unexpected error while sorting triangle indices.")
+
 def _checkStrips(triangles, strips):
-    strips_triangles = triangulate(strips)
-    for t0,t1,t2 in triangles:
-        if t0 == t1 or t1 == t2 or t2 == t0: continue
-        if (t0,t1,t2) not in strips_triangles \
-           and (t1,t2,t0) not in strips_triangles \
-           and (t2,t0,t1) not in strips_triangles:
-            raise ValueError('triangle %s in triangles but not in strips\ntriangles = %s\nstrips = %s'%((t0,t1,t2),triangles,strips))
-    for t0,t1,t2 in strips_triangles:
-        if t0 == t1 or t1 == t2 or t2 == t0: continue
-        if (t0,t1,t2) not in triangles \
-           and (t1,t2,t0) not in triangles \
-           and (t2,t0,t1) not in triangles:
-            raise ValueError('triangle %s in strips but not in triangles\ntriangles = %s\nstrips = %s'%((t0,t1,t2),triangles,strips))
+    """Checks that triangles and strips describe the same geometry.
+
+    >>> _checkStrips([(0,1,2),(2,1,3)], [[0,1,2,3]])
+    >>> _checkStrips([(0,1,2),(2,1,3)], [[3,2,1,0]])
+    >>> _checkStrips([(0,1,2),(2,1,3)], [[3,2,1,0,1]])
+    >>> _checkStrips([(0,1,2),(2,1,3)], [[3,3,3,2,1,0,1]])
+    >>> _checkStrips([(0,1,2),(2,1,3),(1,0,1)], [[0,1,2,3]])
+    >>> _checkStrips([(0,1,2),(2,1,3),(4,4,4)], [[0,1,2,3]])
+    >>> _checkStrips([(0,1,2),(2,1,3)], [[0,1,2,3], [2,3,4]]) # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    ValueError: ...
+    >>> _checkStrips([(0,1,2),(2,1,3),(2,3,4)], [[0,1,2,3]]) # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    ValueError: ...
+    >>> _checkStrips([(0,1,2),(2,1,3),(2,3,4),(3,8,1)], [[0,1,2,3,7],[9,10,5,9]]) # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    ValueError: ...
+    """
+    # triangulate
+    strips_triangles = set(_sort_triangle_indices(triangulate(strips)))
+    triangles = set(_sort_triangle_indices(triangles))
+    # compare
+    if strips_triangles != triangles:
+        raise ValueError(
+            "triangles and strips do not match\n"
+            "triangles = %s\n"
+            "strips = %s\n"
+            "triangles - strips = %s\n"
+            "strips - triangles = %s\n"
+            % (triangles, strips,
+               triangles - strips_triangles,
+               strips_triangles - triangles))
 
 def stripify(triangles, stitchstrips = False):
     """Converts triangles into a list of strips.
