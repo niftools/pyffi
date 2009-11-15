@@ -660,7 +660,7 @@ class SpellCheckTriStrip(pyffi.spells.nif.NifSpell):
 
     @classmethod
     def toastexit(cls, toaster):
-        toaster.msg("average strip length = %f"
+        toaster.msg("average strip length = %.6f"
                     % (sum(toaster.striplengths)
                        / float(len(toaster.striplengths))))
 
@@ -672,6 +672,57 @@ class SpellCheckTriStrip(pyffi.spells.nif.NifSpell):
                                    NifFormat.NiTriBasedGeomData))
 
     def branchentry(self, branch):
+
+        def report_strip_statistics(triangles, strips):
+            """Print some statistics."""
+            # handle this just in case
+            if not strips:
+                return
+
+            # run check
+            self.toaster.msg('checking strip triangles')
+            pyffi.utils.tristrip._check_strips(triangles, strips)
+
+            if len(strips) == 1:
+                # stitched strip
+                stitchedstrip = strips[0]
+                self.toaster.msg("stitched strip length = %i"
+                                 % len(stitchedstrip))
+                unstitchedstrips = pyffi.utils.tristrip.unstitchStrip(
+                    stitchedstrip)
+                self.toaster.msg("num stitches          = %i"
+                                 % (len(stitchedstrip)
+                                    - sum(len(strip)
+                                          for strip in unstitchedstrips)))
+
+                # run check
+                self.toaster.msg('checking unstitched strip triangles')
+                pyffi.utils.tristrip._check_strips(triangles, unstitchedstrips)
+
+                # test stitching algorithm
+                self.toaster.msg("restitching")
+                restitchedstrip = pyffi.utils.tristrip.stitchStrips(
+                    unstitchedstrips)
+                self.toaster.msg("stitched strip length = %i"
+                                 % len(restitchedstrip))
+                self.toaster.msg("num stitches          = %i"
+                                 % (len(restitchedstrip)
+                                    - sum(len(strip)
+                                          for strip in unstitchedstrips)))
+
+                # run check
+                self.toaster.msg('checking restitched strip triangles')
+                pyffi.utils.tristrip._check_strips(triangles, [restitchedstrip])
+
+            else:
+                unstitchedstrips = strips
+
+            self.toaster.msg("num strips            = %i"
+                             % len(unstitchedstrips))
+            self.toaster.msg("average strip length  = %.3f"
+                             % (sum((len(strip) for strip in unstitchedstrips), 0.0)
+                                / len(unstitchedstrips)))
+
         if not isinstance(branch, NifFormat.NiTriBasedGeomData):
             # keep recursing
             return True
@@ -679,21 +730,22 @@ class SpellCheckTriStrip(pyffi.spells.nif.NifSpell):
             # get triangles
             self.toaster.msg('getting triangles')
             triangles = branch.getTriangles()
-            self.toaster.msg('calculating strips')
+            # report original strip statistics
+            if isinstance(branch, NifFormat.NiTriStripsData):
+                report_strip_statistics(triangles, branch.getStrips())
+            # recalculate strips
+            self.toaster.msg('recalculating strips')
             try:
                 strips = pyffi.utils.tristrip.stripify(
                     triangles, stitchstrips=False)
+                report_strip_statistics(triangles, strips)
             except Exception:
                 self.toaster.logger.error('failed to strip triangles')
                 self.toaster.logger.error('%s' % triangles)
                 raise
-            self.toaster.msg('stripified with %i strips' % len(strips))
 
             # keep track of strip length
             self.toaster.striplengths += [len(strip) for strip in strips]
-
-            self.toaster.msg('checking strip triangles')
-            pyffi.utils.tristrip._check_strips(triangles, strips)
 
             self.toaster.msg('checking stitched strip triangles')
             stitchedstrip = pyffi.utils.tristrip.stitchStrips(strips)
