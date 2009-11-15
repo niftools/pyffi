@@ -454,6 +454,9 @@ def stitchStrips(strips):
     for ostrip, reversed_ostrip in ostrips:
         reversed_ostrip.reverse()
     # start with one of the strips
+    if not ostrips:
+        # no strips!
+        return []
     result = ostrips.pop()[0]
     # go on as long as there are strips left to process
     while ostrips:
