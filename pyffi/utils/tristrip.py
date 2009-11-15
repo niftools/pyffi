@@ -99,24 +99,24 @@ def _sort_triangle_indices(triangles):
             raise RuntimeError(
                 "Unexpected error while sorting triangle indices.")
 
-def _checkStrips(triangles, strips):
+def _check_strips(triangles, strips):
     """Checks that triangles and strips describe the same geometry.
 
-    >>> _checkStrips([(0,1,2),(2,1,3)], [[0,1,2,3]])
-    >>> _checkStrips([(0,1,2),(2,1,3)], [[3,2,1,0]])
-    >>> _checkStrips([(0,1,2),(2,1,3)], [[3,2,1,0,1]])
-    >>> _checkStrips([(0,1,2),(2,1,3)], [[3,3,3,2,1,0,1]])
-    >>> _checkStrips([(0,1,2),(2,1,3),(1,0,1)], [[0,1,2,3]])
-    >>> _checkStrips([(0,1,2),(2,1,3),(4,4,4)], [[0,1,2,3]])
-    >>> _checkStrips([(0,1,2),(2,1,3)], [[0,1,2,3], [2,3,4]]) # doctest: +ELLIPSIS
+    >>> _check_strips([(0,1,2),(2,1,3)], [[0,1,2,3]])
+    >>> _check_strips([(0,1,2),(2,1,3)], [[3,2,1,0]])
+    >>> _check_strips([(0,1,2),(2,1,3)], [[3,2,1,0,1]])
+    >>> _check_strips([(0,1,2),(2,1,3)], [[3,3,3,2,1,0,1]])
+    >>> _check_strips([(0,1,2),(2,1,3),(1,0,1)], [[0,1,2,3]])
+    >>> _check_strips([(0,1,2),(2,1,3),(4,4,4)], [[0,1,2,3]])
+    >>> _check_strips([(0,1,2),(2,1,3)], [[0,1,2,3], [2,3,4]]) # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
     ValueError: ...
-    >>> _checkStrips([(0,1,2),(2,1,3),(2,3,4)], [[0,1,2,3]]) # doctest: +ELLIPSIS
+    >>> _check_strips([(0,1,2),(2,1,3),(2,3,4)], [[0,1,2,3]]) # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
     ValueError: ...
-    >>> _checkStrips([(0,1,2),(2,1,3),(2,3,4),(3,8,1)], [[0,1,2,3,7],[9,10,5,9]]) # doctest: +ELLIPSIS
+    >>> _check_strips([(0,1,2),(2,1,3),(2,3,4),(3,8,1)], [[0,1,2,3,7],[9,10,5,9]]) # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
     ValueError: ...
@@ -144,33 +144,33 @@ def stripify(triangles, stitchstrips = False):
 
     >>> triangles = [(0,1,4),(1,2,4),(2,3,4),(3,0,4)]
     >>> strips = stripify(triangles)
-    >>> _checkStrips(triangles, strips)
+    >>> _check_strips(triangles, strips)
     >>> triangles = [(0, 1, 2), (3, 4, 5), (6, 7, 8), (9, 10, 11), (12, 13, 14), (15, 16, 17), (18, 19, 20), (21, 22, 23)]
     >>> strips = stripify(triangles)
-    >>> _checkStrips(triangles, strips)
+    >>> _check_strips(triangles, strips)
     >>> triangles = [(0, 1, 2), (0, 1, 2)]
     >>> strips = stripify(triangles)
-    >>> _checkStrips(triangles, strips)
+    >>> _check_strips(triangles, strips)
     >>> triangles = [(0, 1, 2), (2, 1, 0)]
     >>> strips = stripify(triangles)
-    >>> _checkStrips(triangles, strips)
+    >>> _check_strips(triangles, strips)
     >>> triangles = [(0, 1, 2), (2, 1, 0), (1, 2, 3)]
     >>> strips = stripify(triangles)
-    >>> _checkStrips(triangles, strips) # NvTriStrip gives wrong result
+    >>> _check_strips(triangles, strips) # NvTriStrip gives wrong result
     >>> triangles = [(0, 1, 2), (0, 1, 3)]
     >>> strips = stripify(triangles)
-    >>> _checkStrips(triangles, strips) # NvTriStrip gives wrong result
+    >>> _check_strips(triangles, strips) # NvTriStrip gives wrong result
     >>> triangles = [(1, 5, 2), (5, 2, 6), (5, 9, 6), (9, 6, 10), (9, 13, 10), (13, 10, 14), (0, 4, 1), (4, 1, 5), (4, 8, 5), (8, 5, 9), (8, 12, 9), (12, 9, 13), (2, 6, 3), (6, 3, 7), (6, 10, 7), (10, 7, 11), (10, 14, 11), (14, 11, 15)]
     >>> strips = stripify(triangles)
-    >>> _checkStrips(triangles, strips) # NvTriStrip gives wrong result
+    >>> _check_strips(triangles, strips) # NvTriStrip gives wrong result
     >>> triangles = [(1, 2, 3), (4, 5, 6), (6, 5, 7), (8, 5, 9), (4, 10, 9), (8, 3, 11), (8, 10, 3), (12, 13, 6), (14, 2, 15), (16, 13, 15), (16, 2, 3), (3, 2, 1)]
     >>> strips = stripify(triangles)
-    >>> _checkStrips(triangles, strips) # detects bug reported by PacificMorrowind
+    >>> _check_strips(triangles, strips) # detects bug reported by PacificMorrowind
     >>> triangles = [(354, 355, 356), (355, 356, 354), (354, 355, 356), (355, 356, 354), (354, 355, 356), (356, 354, 355), (354, 355, 356), (357, 359, 358),
     ...              (380, 372, 381), (372, 370, 381), (381, 370, 354), (370, 367, 354), (367, 366, 354), (366, 355, 354), (355, 356, 354), (354, 356, 381),
     ...              (356, 355, 357), (357, 356, 355), (356, 355, 357), (356, 355, 357), (357, 356, 355)]
     >>> strips = stripify(triangles)
-    >>> _checkStrips(triangles, strips) # NvTriStrip gives wrong result
+    >>> _check_strips(triangles, strips) # NvTriStrip gives wrong result
     """
 
     if pytristrip:
@@ -257,31 +257,31 @@ def unstitchStrip(strip):
     >>> strip = [0,1,2,2,3,3,4,5,6,7,8]
     >>> triangles = triangulate([strip])
     >>> strips = unstitchStrip(strip)
-    >>> _checkStrips(triangles, strips)
+    >>> _check_strips(triangles, strips)
     >>> strips
     [[0, 1, 2], [3, 3, 4, 5, 6, 7, 8]]
     >>> strip = [0,1,2,3,3,4,4,4,5,6,7,8]
     >>> triangles = triangulate([strip])
     >>> strips = unstitchStrip(strip)
-    >>> _checkStrips(triangles, strips)
+    >>> _check_strips(triangles, strips)
     >>> strips
     [[0, 1, 2, 3], [4, 4, 5, 6, 7, 8]]
     >>> strip = [0,1,2,3,4,4,4,4,5,6,7,8]
     >>> triangles = triangulate([strip])
     >>> strips = unstitchStrip(strip)
-    >>> _checkStrips(triangles, strips)
+    >>> _check_strips(triangles, strips)
     >>> strips
     [[0, 1, 2, 3, 4], [4, 4, 5, 6, 7, 8]]
     >>> strip = [0,1,2,3,4,4,4,4,4,5,6,7,8]
     >>> triangles = triangulate([strip])
     >>> strips = unstitchStrip(strip)
-    >>> _checkStrips(triangles, strips)
+    >>> _check_strips(triangles, strips)
     >>> strips
     [[0, 1, 2, 3, 4], [4, 5, 6, 7, 8]]
     >>> strip = [0,0,1,1,2,2,3,3,4,4,4,4,4,5,5,6,6,7,7,8,8]
     >>> triangles = triangulate([strip])
     >>> strips = unstitchStrip(strip)
-    >>> _checkStrips(triangles, strips)
+    >>> _check_strips(triangles, strips)
     >>> strips
     []"""
     strips = []

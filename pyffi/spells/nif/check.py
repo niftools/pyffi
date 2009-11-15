@@ -693,15 +693,15 @@ class SpellCheckTriStrip(pyffi.spells.nif.NifSpell):
             self.toaster.striplengths += [len(strip) for strip in strips]
 
             self.toaster.msg('checking strip triangles')
-            pyffi.utils.tristrip._checkStrips(triangles, strips)
+            pyffi.utils.tristrip._check_strips(triangles, strips)
 
             self.toaster.msg('checking stitched strip triangles')
             stitchedstrip = pyffi.utils.tristrip.stitchStrips(strips)
-            pyffi.utils.tristrip._checkStrips(triangles, [stitchedstrip])
+            pyffi.utils.tristrip._check_strips(triangles, [stitchedstrip])
 
             self.toaster.msg('checking unstitched strip triangles')
             unstitchedstrips = pyffi.utils.tristrip.unstitchStrip(stitchedstrip)
-            pyffi.utils.tristrip._checkStrips(triangles, unstitchedstrips)
+            pyffi.utils.tristrip._check_strips(triangles, unstitchedstrips)
 
 class SpellCheckVersion(pyffi.spells.nif.NifSpell):
     """Checks all versions used by the files (without reading the full files).
