@@ -197,6 +197,203 @@ def stripify(triangles, stitchstrips = False):
     if stitchstrips: return [stitchStrips(strips)]
     else: return strips
 
+class OrientedStrip:
+    """An oriented strip, with stitching support."""
+
+    def __init__(self, strip):
+        """Construct oriented strip from regular strip (i.e. a list).
+
+        Constructors
+        ------------
+
+        >>> ostrip = OrientedStrip([0,1,2,3])
+        >>> ostrip.vertices
+        [0, 1, 2, 3]
+        >>> ostrip.reversed
+        False
+
+        >>> ostrip = OrientedStrip([0,0,1,2,3])
+        >>> ostrip.vertices
+        [0, 1, 2, 3]
+        >>> ostrip.reversed
+        True
+        >>> ostrip2 = OrientedStrip(ostrip)
+        >>> ostrip2.vertices
+        [0, 1, 2, 3]
+        >>> ostrip2.reversed
+        True
+
+        >>> ostrip = OrientedStrip(None) # doctest: +ELLIPSIS
+        Traceback (most recent call last):
+            ...
+        TypeError: ...
+
+        Compactify
+        ----------
+
+        >>> ostrip = OrientedStrip([0,0,0,1,2,3])
+        >>> ostrip.vertices
+        [0, 1, 2, 3]
+        >>> ostrip.reversed
+        False
+        >>> ostrip = OrientedStrip([0,0,0,0,1,2,3])
+        >>> ostrip.vertices
+        [0, 1, 2, 3]
+        >>> ostrip.reversed
+        True
+        >>> ostrip = OrientedStrip([0,0,0,1,2,3,3,3,3])
+        >>> ostrip.vertices
+        [0, 1, 2, 3]
+        >>> ostrip.reversed
+        False
+        >>> ostrip = OrientedStrip([0,0,0,0,1,2,3,3,3,3])
+        >>> ostrip.vertices
+        [0, 1, 2, 3]
+        >>> ostrip.reversed
+        True
+        """
+
+        if isinstance(strip, list):
+            # construct from strip
+            self.vertices = strip[:]
+            self.reversed = False
+            self.compactify()
+        elif isinstance(strip, OrientedStrip):
+            # copy constructor
+            self.vertices = strip.vertices[:]
+            self.reversed = strip.reversed
+        else:
+            raise TypeError(
+                "expected list or OrientedStrip, but got %s"
+                % strip.__class__.__name__)
+
+    def compactify(self):
+        """Remove degenerate faces from front and back."""
+        # remove from front
+        if len(self.vertices) < 3:
+            raise ValueError(
+                "strip must have at least one non-degenerate face")
+        while self.vertices[0] == self.vertices[1]:
+            del self.vertices[0]
+            self.reversed = not self.reversed
+            if len(self.vertices) < 3:
+                raise ValueError(
+                    "strip must have at least one non-degenerate face")
+        # remove from back
+        while self.vertices[-1] == self.vertices[-2]:
+            del self.vertices[-1]
+            if len(self.vertices) < 3:
+                raise ValueError(
+                    "strip must have at least one non-degenerate face")
+
+    def reverse(self):
+        """Reverse vertices."""
+        self.vertices.reverse()
+        if len(self.vertices) & 1:
+            self.reversed = not self.reversed
+
+    def __len__(self):
+        if self.reversed:
+            return len(self.vertices) + 1
+        else:
+            return len(self.vertices)
+
+    def __iter__(self):
+        if self.reversed:
+            yield self.vertices[0]
+        for vert in self.vertices:
+            yield vert
+
+    def __str__(self):
+        """String representation.
+
+        >>> print OrientedStrip([0, 1, 2, 3, 4])
+        [0, 1, 2, 3, 4]
+        >>> print OrientedStrip([0, 0, 1, 2, 3, 4])
+        [0, 0, 1, 2, 3, 4]
+        """
+        return str(list(self))
+
+    def __repr__(self):
+        return "OrientedStrip(%s)" % str(list(self))
+
+    def get_num_stitches(self, other):
+        """Get number of stitches required to glue the vertices of self to
+        other.
+        """
+        # do last vertex of self and first vertex of other match?
+        has_common_vertex = (self.vertices[-1] == other.vertices[0])
+
+        # do windings match?
+        # ... get winding of first face of self
+        winding = self.reversed
+        # ... update winding to last face of self
+        if len(self.vertices) & 1:
+            winding = not winding
+        # ... check if windings match
+        has_winding_match = (winding == other.reversed)
+
+        # append stitches
+        if has_common_vertex:
+            if has_winding_match:
+                return 0
+            else:
+                return 1
+        else:
+            if has_winding_match:
+                return 2
+            else:
+                return 3
+
+    def __add__(self, other):
+        """Combine two strips, using minimal number of stitches.
+
+        >>> # stitch length 0 code path
+        >>> OrientedStrip([0,1,2,3]) + OrientedStrip([3,4,5])
+        OrientedStrip([0, 1, 2, 3, 3, 4, 5])
+        >>> OrientedStrip([0,1,2]) + OrientedStrip([2,2,3,4])
+        OrientedStrip([0, 1, 2, 2, 3, 4])
+
+        >>> # stitch length 1 code path
+        >>> OrientedStrip([0,1,2]) + OrientedStrip([2,3,4])
+        OrientedStrip([0, 1, 2, 2, 2, 3, 4])
+        >>> OrientedStrip([0,1,2,3]) + OrientedStrip([3,3,4,5])
+        OrientedStrip([0, 1, 2, 3, 3, 3, 4, 5])
+
+        >>> # stitch length 2 code path
+        >>> OrientedStrip([0,1,2,3]) + OrientedStrip([7,8,9])
+        OrientedStrip([0, 1, 2, 3, 3, 7, 7, 8, 9])
+        >>> OrientedStrip([0,1,2]) + OrientedStrip([7,7,8,9])
+        OrientedStrip([0, 1, 2, 2, 7, 7, 8, 9])
+
+        >>> # stitch length 3 code path
+        >>> OrientedStrip([0,1,2,3]) + OrientedStrip([7,7,8,9])
+        OrientedStrip([0, 1, 2, 3, 3, 7, 7, 7, 8, 9])
+        >>> OrientedStrip([0,1,2]) + OrientedStrip([7,8,9])
+        OrientedStrip([0, 1, 2, 2, 7, 7, 7, 8, 9])
+        """
+        # make copy of self
+        result = OrientedStrip(self)
+
+        # get number of stitches required
+        num_stitches = self.get_num_stitches(other)
+        if num_stitches >= 4 or num_stitches < 0:
+            # should *never* happen
+            raise RuntimeError("Unexpected error during stitching.")
+
+        # append stitches
+        if num_stitches >= 1:
+            result.vertices.append(self.vertices[-1]) # first stitch
+        if num_stitches >= 2:
+            result.vertices.append(other.vertices[0]) # second stitch
+        if num_stitches >= 3:
+            result.vertices.append(other.vertices[0]) # third stitch
+
+        # append other vertices
+        result.vertices.extend(other.vertices)
+
+        return result
+
 def stitchStrips(strips):
     """Stitch strips keeping stitch size minimal.
 
@@ -206,8 +403,13 @@ def stitchStrips(strips):
     >>> stitchStrips([[2,2,3,4],[0,1,2]])
     [0, 1, 2, 2, 3, 4]
 
-    #>>> stitchStrips([[0,1,2,3],[3,4,5]]) # XXX fails, uses too many stitches
-    #[0, 1, 2, 3, 3, 4, 5]
+    >>> # check result when changing ordering of strips
+    >>> stitchStrips([[0,1,2,3],[3,4,5]])
+    [0, 1, 2, 3, 3, 4, 5]
+
+    >>> # check result when changing direction of strips
+    >>> stitchStrips([[3,2,1,0],[3,4,5]])
+    [0, 1, 2, 3, 3, 4, 5]
 
     >>> # stitch length 1 code path
     >>> stitchStrips([[2,3,4],[0,1,2]])
@@ -221,71 +423,62 @@ def stitchStrips(strips):
     >>> stitchStrips([[7,7,8,9],[0,1,2]])
     [0, 1, 2, 2, 7, 7, 8, 9]
 
-    >>> # stitch length 3 code path
+    >>> # stitch length 3 code path... but algorithm reverses strips so
+    >>> # only 2 stitches are needed (compare with OrientedStrip doctest)
     >>> stitchStrips([[7,7,8,9],[0,1,2,3]])
-    [0, 1, 2, 3, 3, 7, 7, 7, 8, 9]
+    [3, 2, 1, 0, 0, 9, 9, 8, 7]
     >>> stitchStrips([[7,8,9],[0,1,2]])
-    [0, 1, 2, 2, 7, 7, 7, 8, 9]
+    [0, 1, 2, 2, 9, 9, 8, 7]
     """
 
-    result = []
-    realstrips = [strip for strip in strips if len(strip) >= 3]
-    forward  = [strip[:] for strip in realstrips if strip[0] != strip[1]]
-    backward = [strip[1:] for strip in realstrips if strip[0] == strip[1]]
-    while forward or backward:
-        # create stitch
-        if result:
-            winding = len(result) & 1
-            forwardgood = [i for i, s in enumerate(forward)
-                           if s[0] == result[-1]]
-            backwardgood = [i for i, s in enumerate(backward)
-                            if s[0] == result[-1]]
-            # XXX todo: implement appending strip in reverse if possible
-            #reversed_forwardgood = [i for i, s in enumerate(forward)
-            #                        if s[-1] == result[-1]]
-            #reversed_backwardgood = [i for i, s in enumerate(backward)
-            #                         if s[-1] == result[-1]]
-            # stitch length 0
-            if winding == 0 and forwardgood:
-                strip = forward.pop(forwardgood[0])
-            elif winding == 1 and backwardgood:
-                strip = backward.pop(backwardgood[0])
-            # stitch length 1
-            elif winding == 1 and forwardgood:
-                strip = forward.pop(forwardgood[0])
-                result.append(result[-1]) # first stitch
-            elif winding == 0 and backwardgood:
-                strip = backward.pop(backwardgood[0])
-                result.append(result[-1]) # first stitch
-            # stitch length 2
-            elif winding == 0 and forward:
-                strip = forward.pop()
-                result.append(result[-1]) # first stitch
-                result.append(strip[0]) # second stitch
-            elif winding == 1 and backward:
-                strip = backward.pop()
-                result.append(result[-1]) # first stitch
-                result.append(strip[0]) # second stitch
-            # stitch length 3
-            elif winding == 1 and forward:
-                strip = forward.pop()
-                result.append(result[-1]) # first stitch
-                result.append(strip[0]) # second stitch
-                result.append(strip[0]) # third stitch
-            elif winding == 0 and backward:
-                strip = backward.pop()
-                result.append(result[-1]) # first stitch
-                result.append(strip[0]) # second stitch
-                result.append(strip[0]) # third stitch
-        else:
-            if forward:
-                strip = forward.pop()
-            else:
-                strip = backward.pop()
-                result.append(strip[0])
-        # append strip
-        result.extend(strip)
-    return result
+    class ExperimentSelector:
+        """Helper class to select best experiment."""
+        def __init__(self):
+            self.best_ostrip1 = None
+            self.best_ostrip2 = None
+            self.best_num_stitches = None
+            self.best_ostrip_index = None
+
+        def update(self, ostrip_index, ostrip1, ostrip2):
+            num_stitches = ostrip1.get_num_stitches(ostrip2)
+            if ((self.best_num_stitches is None)
+                or (num_stitches < self.best_num_stitches)):
+                self.best_ostrip1 = ostrip1
+                self.best_ostrip2 = ostrip2
+                self.best_ostrip_index = ostrip_index
+                self.best_num_stitches = num_stitches
+
+    # get all strips and their orientation, and their reverse
+    ostrips = [(OrientedStrip(strip), OrientedStrip(strip))
+               for strip in strips if len(strip) >= 3]
+    for ostrip, reversed_ostrip in ostrips:
+        reversed_ostrip.reverse()
+    # start with one of the strips
+    result = ostrips.pop()[0]
+    # go on as long as there are strips left to process
+    while ostrips:
+        selector = ExperimentSelector()
+        
+        for ostrip_index, (ostrip, reversed_ostrip) in enumerate(ostrips):
+            # try various ways of stitching strips
+            selector.update(ostrip_index, result, ostrip)
+            selector.update(ostrip_index, ostrip, result)
+            selector.update(ostrip_index, result, reversed_ostrip)
+            selector.update(ostrip_index, reversed_ostrip, result)
+            # break early if global optimum is already reached
+            if selector.best_num_stitches == 0:
+                break
+        # get best result, and remove strip from ostrips
+        result = selector.best_ostrip1 + selector.best_ostrip2
+        ostrips.pop(selector.best_ostrip_index)
+    # get strip
+    strip = list(result)
+    # check if we can remove first vertex by reversing strip
+    if strip[0] == strip[1] and (len(strip) & 1 == 0):
+        strip = strip[1:]
+        strip.reverse()
+    # return resulting strip
+    return strip
 
 def unstitchStrip(strip):
     """Revert stitched strip back to a set of strips without stitches.

@@ -4,6 +4,9 @@ Release 2.0.5 (in development)
 * Added regression test and fixed rare bug in stripification (reported by
   PacificMorrowind, see issue #2889048).
 
+* Improved strip stitching algorithm: should now be much more efficient, and
+  rarely need 3 stitches.
+
 Release 2.0.4 (Nov 10, 2009)
 ============================
 
