@@ -69,7 +69,7 @@ def triangulate(strips):
 
     return triangles
 
-def _generateFacesFromTriangles(triangles):
+def _generate_faces_from_triangles(triangles):
     i = triangles.__iter__()
     while True:
         yield (i.next(), i.next(), i.next())
@@ -189,7 +189,7 @@ def stripify(triangles, stitchstrips = False):
         stripifier(mesh)
 
         # add the triangles to it
-        strips.extend([face for face in _generateFacesFromTriangles(stripifier.TriangleList)])
+        strips.extend([face for face in _generate_faces_from_triangles(stripifier.TriangleList)])
         # add strips
         strips.extend(stripifier.TriangleStrips)
 
