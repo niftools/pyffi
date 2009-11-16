@@ -47,6 +47,8 @@ output in all circumstances.
 #
 # ***** END LICENSE BLOCK *****
 
+# XXX should use face indices rather than face.verts for stripped_faces set
+
 from collections import deque
 
 from pyffi.utils.trianglemesh import Face, Mesh
@@ -231,18 +233,19 @@ class TriangleStripifier(object):
         self.num_samples = 10
         self.mesh = mesh
         self.start_face_index = 0
+        self.faces = list(self.mesh.faces.itervalues())
 
-    def find_good_reset_point(self):
-        if not self.mesh.faces:
+    def find_good_reset_point(self, stripped_faces):
+        if not self.faces:
             return False
-        self.start_face_index += len(self.mesh.faces) / self.num_samples
-        if self.start_face_index >= len(self.mesh.faces):
-            self.start_face_index -= len(self.mesh.faces)
+        self.start_face_index += len(self.faces) / self.num_samples
+        if self.start_face_index >= len(self.faces):
+            self.start_face_index -= len(self.faces)
         for face_index in itertools.chain(
-            xrange(self.start_face_index, len(self.mesh.faces)),
+            xrange(self.start_face_index, len(self.faces)),
             xrange(0, self.start_face_index)):
-            face = self.mesh.faces[face_index]
-            if face.verts not in self.stripped_faces:
+            face = self.faces[face_index]
+            if face.verts not in stripped_faces:
                 self.start_face_index = face_index
                 return True
         else:
@@ -257,7 +260,7 @@ class TriangleStripifier(object):
             experiments = []
             visited_reset_points = set()
             for sample in xrange(self.num_samples):
-                if not self.find_good_reset_point():
+                if not self.find_good_reset_point(stripped_faces):
                     break
                 exp_face = self.mesh.faces[self.start_face_index]
                 if start_face_index in visited_reset_points:
