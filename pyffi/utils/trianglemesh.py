@@ -66,6 +66,7 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 import weakref
+import operator # itemgetter
 
 try:
     WeakSet = weakref.WeakSet
@@ -179,6 +180,8 @@ class Face:
             self.verts = (v1, v2, v0)
         if v2 < v0 and v2 < v1:
             self.verts = (v2, v0, v1)
+        # no index yet
+        self.index = None
 
         self.adjacent_faces = (WeakSet(), WeakSet(), WeakSet())
         """Weak sets of adjacent faces along edge opposite each vertex."""
@@ -214,10 +217,10 @@ class Face:
 
 class Mesh:
     def __init__(self):
-        self.faces = {}
+        self._faces = {}
         """Dictionary of all faces."""
 
-        self.edges = {}
+        self._edges = {}
         """Dictionary of all edges."""
 
     def _add_edge(self, face, pv0, pv1):
@@ -228,18 +231,18 @@ class Mesh:
         """
         # create edge if not found
         try:
-            edge = self.edges[(pv0, pv1)]
+            edge = self._edges[(pv0, pv1)]
         except KeyError:
             # create edge
             edge = Edge(pv0, pv1)
-            self.edges[(pv0, pv1)] = edge
+            self._edges[(pv0, pv1)] = edge
 
         # update edge's faces
         edge.faces.add(face)
 
         # find reverse edge in mesh
         try:
-            otheredge = self.edges[(pv1, pv0)]
+            otheredge = self._edges[(pv1, pv0)]
         except KeyError:
             pass
         else:
@@ -262,9 +265,9 @@ class Mesh:
         >>> f0 = m.add_face(0, 1, 2)
         >>> f1 = m.add_face(2, 1, 3)
         >>> f2 = m.add_face(2, 3, 4)
-        >>> len(m.faces)
+        >>> len(m._faces)
         3
-        >>> len(m.edges)
+        >>> len(m._edges)
         9
         >>> f3 = m.add_face(2, 3, 4)
         >>> f3 is f2
@@ -276,9 +279,9 @@ class Mesh:
         True
         >>> f4 is f6
         True
-        >>> len(m.faces)
+        >>> len(m._faces)
         4
-        >>> len(m.edges)
+        >>> len(m._edges)
         12
 
 
@@ -334,30 +337,56 @@ class Mesh:
         """
         face = Face(v0, v1, v2)
         try:
-            face = self.faces[face.verts]
+            face = self._faces[face.verts]
         except KeyError:
             # create edges and update links between faces
             self._add_edge(face, v0, v1)
             self._add_edge(face, v1, v2)
             self._add_edge(face, v2, v0)
             # register face in mesh
-            self.faces[face.verts] = face
+            self._faces[face.verts] = face
 
         return face
 
     def lock(self):
         """Lock the mesh. Frees memory by clearing the structures
-        which are only used to update the face adjacency lists.
+        which are only used to update the face adjacency lists. Sets
+        the faces attribute to the sorted list of all faces (sorting helps
+        with ensuring that the strips in faces are "close" together).
 
         >>> m = Mesh()
-        >>> f0 = m.add_face(0, 1, 2)
+        >>> f0 = m.add_face(3, 1, 2)
+        >>> f1 = m.add_face(0, 1, 2)
+        >>> f2 = m.add_face(5, 6, 2)
+        >>> m.faces # doctest: +ELLIPSIS
+        Traceback (most recent call last):
+            ...
+        AttributeError: ...
         >>> m.lock()
+        >>> m.faces # should be sorted
+        [Face(0, 1, 2), Face(1, 2, 3), Face(2, 5, 6)]
+        >>> m._faces # doctest: +ELLIPSIS
+        Traceback (most recent call last):
+            ...
+        AttributeError: ...
+        >>> m._edges # doctest: +ELLIPSIS
+        Traceback (most recent call last):
+            ...
+        AttributeError: ...
         >>> m.add_face(1, 2, 3) # doctest: +ELLIPSIS
         Traceback (most recent call last):
             ...
         AttributeError: ...
         """
-        del self.edges
+        # store faces and set their index
+        self.faces = []
+        for i, (verts, face) in enumerate(sorted(self._faces.iteritems(),
+                                          key=operator.itemgetter(0))):
+            face.index = i
+            self.faces.append(face)
+        # remove helper structures
+        del self._faces
+        del self._edges
 
 if __name__=='__main__':
     import doctest
