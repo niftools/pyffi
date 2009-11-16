@@ -37,7 +37,7 @@
     <version num="20.3.0.2">Emerge</version>
     <version num="20.3.0.3">Emerge</version>
     <version num="20.3.0.6">Emerge</version>
-    <version num="20.3.0.9">Warhammer, Lazeska</version>
+    <version num="20.3.0.9">Warhammer, Lazeska, Divinity 2</version>
     <version num="20.5.0.0">KrazyRain</version>
     <version num="20.6.0.0">KrazyRain</version>
     <version num="30.0.0.2">Emerge</version>
@@ -1118,6 +1118,7 @@
         <add name="Scale" type="float">Scale offset of the skin from this bone in bind position. (Assumption - this is always 1.0 so far)</add>
         <add name="Bounding Sphere Offset" type="Vector3">Translation offset of a bounding sphere holding all vertices. (Note that its a Sphere Containing Axis Aligned Box not a minimum volume Sphere)</add>
         <add name="Bounding Sphere Radius" type="float">Radius for bounding sphere holding all vertices.</add>
+        <add name="Unknown 13 Shorts" type="short" arr1="13" ver1="20.3.0.9" ver2="20.3.0.9" userver="131072">Unknown, always 0?</add>
         <add name="Num Vertices" type="ushort">Number of weighted vertices.</add>
         <add name="Vertex Weights" type="SkinWeight" arr1="Num Vertices" ver2="4.2.1.0">The vertex weights.</add>
         <add name="Vertex Weights" type="SkinWeight" arr1="Num Vertices" ver1="4.2.2.0" cond="ARG != 0">The vertex weights.</add>
@@ -1821,7 +1822,7 @@
     <niobject name="bhkNiCollisionObject" abstract="1" inherit="NiCollisionObject">
         Havok related collision object?
         <add name="Flags" type="ushort" default="1">
-            Set to "1" for most objects. Bits: 0=Active 2=Notify 3=Set Local 6=Reset
+            Set to 1 for most objects, and to 41 for animated objects (OL_ANIM_STATIC). Bits: 0=Active 2=Notify 3=Set Local 6=Reset.
         </add>
         <add name="Body" type="Ref" template="NiObject">Links to the collision object data</add>
     </niobject>
@@ -2116,6 +2117,8 @@
         <add name="Num Shape Groups 2" type="uint"  ver1="10.2.0.0" ver2="10.2.0.0" userver="1">The size of the second list of shape groups.</add>
         <add name="Shape Groups 2" type="Ref" template="NiTriBasedGeom" arr1="Num Shape Groups 2"  ver1="4.2.2.0" userver="0">Group of NiTriShape indices.</add>
         <add name="Shape Groups 2" type="Ref" template="NiTriBasedGeom" arr1="Num Shape Groups 2"  ver1="10.2.0.0" ver2="10.2.0.0" userver="1">Group of NiTriShape indices.</add>
+        <add name="Unknown Int 2" type="int" ver1="20.3.0.9" ver2="20.3.0.9" userver="131072">Unknown.</add>
+        <add name="Unknown Int 3" type="int" ver1="20.3.0.9" ver2="20.3.0.9" userver="131072">Unknown.</add>
     </niobject>
 
     <niobject name="NiBSBoneLODController" abstract="0" inherit="NiBoneLODController">
@@ -2158,6 +2161,7 @@
         <add name="Bitangents" type="Vector3" arr1="Num Vertices" cond="(Has Normals != 0) &amp;&amp; ((Num UV Sets &amp; 61440) | (BS Num UV Sets &amp; 61440))" ver1="10.1.0.0">Bitangent vectors.</add>
         <add name="Center" type="Vector3">Center of the bounding box (smallest box that contains all vertices) of the mesh.</add>
         <add name="Radius" type="float">Radius of the mesh: maximal Euclidean distance between the center and all vertices.</add>
+        <add name="Unknown 13 shorts" type="short" arr1="13" ver1="20.3.0.9" ver2="20.3.0.9" userver="131072">Unknown, always 0?</add>
         <add name="Has Vertex Colors" type="bool">
             Do we have vertex colors? These are usually used to fine-tune the lighting of the model.
 
@@ -2477,6 +2481,8 @@
         <add name="Name" type="string">Name of this object. This is also the name of the action associated with this file. For instance, if the original NIF file is called &quot;demon.nif&quot; and this animation file contains an attack sequence, then the file would be called &quot;demon_attack1.kf&quot; and this field would contain the string &quot;attack1&quot;.</add>
         <add name="Text Keys Name" type="string" ver2="10.1.0.0">Name of following referenced NiTextKeyExtraData class.</add>
         <add name="Text Keys" type="Ref" template="NiTextKeyExtraData" ver2="10.1.0.0">Link to NiTextKeyExtraData.</add>
+        <add name="Unknown Int 4" type="int" ver1="20.3.0.9" ver2="20.3.0.9" userver="131072">Unknown</add>
+        <add name="Unknown Int 5" type="int" ver1="20.3.0.9" ver2="20.3.0.9" userver="131072">Unknown</add>
         <add name="Num Controlled Blocks" type="uint">Number of controlled objects.</add>
         <add name="Unknown Int 1" type="uint" ver1="10.1.0.106">Unknown.</add>
         <add name="Controlled Blocks" type="ControllerLink" arr1="Num Controlled Blocks">Refers to controlled objects.</add>
@@ -2854,8 +2860,8 @@
         Time controller for a path.
         <add name="Unknown Short 2" type="ushort" ver1="10.1.0.0">Unknown.</add>
         <add name="Unknown Int 1" type="uint">Unknown, always 1?</add>
-        <add name="Unknown Int 2" type="uint">Unknown, often 0? Could be a float?</add>
-        <add name="Unknown Int 3" type="uint">Unknown, often 0? Could be a float?</add>
+        <add name="Unknown Float 2" type="float">Unknown, often 0?</add>
+        <add name="Unknown Float 3" type="float">Unknown, often 0?</add>
         <add name="Unknown Short" type="ushort">Unknown, always 0?</add>
         <add name="Pos Data" type="Ref" template="NiPosData">Path controller data index (position data). ?</add>
         <add name="Float Data" type="Ref" template="NiFloatData">Path controller data index (float data). ?</add>
@@ -4302,7 +4308,7 @@
         <add name="Num Indices" type="uint" />
     </compound>
 
-    <enum name="DataComponentFlag" storage="uint">
+    <enum name="MeshDataComponentFlag" storage="uint">
         Describes what sort of data is stored in a NiDataStream
         <option value="66597" name="UINT_1">Single uint?</option>
         <option value="132150" name="FLOAT_2">2 floats / Vector2?</option>
@@ -4314,8 +4320,8 @@
         <add name="Unknown 2" type="uint" default="0" />
         <add name="Num Index Ranges" type="uint">Matches the parent NiMesh-&gt;Mesh Data-&gt;Num Index Ranges field.</add>
         <add name="Index Ranges" type="IndexRange" arr1="Num Index Ranges" />
-        <add name="Num Data Components" type="uint">Matches the parent NiMesh-&gt;Mesh Data-&gt;Num Data Components field.</add>
-        <add name="Data Component Flags" type="DataComponentFlag" arr1="Num Data Components">Flags per component?</add>
+        <add name="Num Components" type="uint">Matches the parent NiMesh-&gt;Mesh Data-&gt;Num Data Components field.</add>
+        <add name="Component Flags" type="MeshDataComponentFlag" arr1="Num Components">Flags per component?</add>
     </niobject>
 
     <niobject name="NiDataStreamUndecoded" ver1="20.5.0.0" inherit="NiDataStreamBase" abstract="1">
@@ -4359,45 +4365,86 @@
     <niobject name="NiDataStream\x013\x015" ver1="20.5.0.0" inherit="NiDataStreamUndecoded">
     </niobject>
 
-    <compound name="DataComponent">
-        <add name="Data Type" type="string">
-            Type of data (POSITION, POSITION_BP, INDEX, NORMAL, NORMAL_BP, TEXCOORD, BLENDINDICIES, BLENDWEIGHT, BONE_PALETTE)
+    <compound name="MeshDataComponent">
+        <add name="Type" type="string">
+            Type of data (POSITION, POSITION_BP, INDEX, NORMAL, NORMAL_BP,
+            TEXCOORD, BLENDINDICES, BLENDWEIGHT, BONE_PALETTE).
         </add>
-        <add name="Unknown Int" type="int" default="0" />
+        <add name="Index" type="uint" default="0">
+            An extra index of the data. For example, if there are 3 uv maps,
+            then the corresponding TEXCOORD data components would have indices
+            0, 1, and 2, respectively.
+        </add>
     </compound>
 
     <compound name="MeshData">
-        <add name="Data Stream" type="Ref" template="NiDataStreamBase" />
-        <add name="Unknown Byte" type="byte" default="0" />
-        <add name="Num Index Ranges" type="ushort" default="1" />
-        <add name="Index Range Slots" type="ushort" arr1="Num Index Ranges" /><!-- these must map into something but not sure what; see Zorsis Zombie_Boy.nif -->
-        <add name="Num Data Components" type="int" default="1" />
-        <add name="Data Components" type="DataComponent" arr1="Num Data Components" />
+        <add name="Stream" type="Ref" template="NiDataStreamBase">
+            Reference to a data stream object which holds the data used by
+            this reference.
+        </add>
+        <add name="Is Per Instance" type="bool" default="0">
+            Sets whether this stream data is per-instance data for use in
+            hardware instancing.
+        </add>
+        <add name="Num Region Indices" type="ushort" default="1">
+            The number of submesh-to-region mappings that this data stream
+            has.
+        </add>
+        <add name="Region Indices" type="ushort" arr1="Num Region Indices">
+            <!-- see Zorsis Zombie_Boy.nif -->
+            A lookup table that maps submeshes to regions.
+        </add>
+        <add name="Num Components" type="int" default="1" />
+        <add name="Components" type="MeshDataComponent" arr1="Num Components" />
     </compound>
 
-    <niobject name="NiMesh" ver1="20.5.0.0" inherit="NiAVObject">
-        <add name="Num Unknown Ints 3" type="uint" />
-        <add name="Unknown Ints 3" type="int" arr1="Num Unknown Ints 3" />
-        <add name="Unknown Link" type="Ref" template="NiObject" />
-        <add name="Unknown Int 4" type="int" />
-        <add name="Unknown Int 7" type="int" ver1="30.0.0.2" cond="Num Unknown Ints 3 == 1"/>
-        <add name="Unknown Int 5" type="int" default="256">Always 256?</add>
-        <add name="Unknown Floats 6" type="float" arr1="4">Radius?</add>
-        <add name="Num Mesh Data" type="uint" />
-        <add name="Mesh Data" type="MeshData" arr1="Num Mesh Data" />
+    <compound name="MaterialData" ver1="20.5.0.0">
+        Data stored per-material by NiRenderObject
+        <add name="Material Name" type="string">The name of the material.</add>
+        <add name="Material Extra Data" type ="uint">Extra data associated with the material?</add>
+    </compound>
+
+    <niobject name="NiRenderObject" ver1="20.5.0.0" inherit="NiAVObject">
+        An object that can be rendered.
+        <add name="Num Materials" type="uint">The number of materials affecting this renderable object.</add>
+        <add name="Material Data" type="MaterialData" arr1="Num Materials">Per-material data.</add>
+        <add name="Active Material" type="int" default="-1">The index of the currently active material.</add>
+        <add name="Material Needs Update Default" type="bool">The initial value for the flag that determines if the internal cached shader is valid.</add>
+    </niobject>
+
+    <enum name="MeshPrimitiveType" storage="uint">
+        Describes the type of primitives stored in a mesh object.
+        <option value="0" name="PRIMITIVE_TRIANGLES">Triangle primitive type.</option>
+        <option value="1" name="PRIMITIVE_TRISTRIPS">Triangle strip primitive type.</option>
+        <option value="2" name="PRIMITIVE_LINESTRIPS">Line strip primitive type.</option>
+        <option value="3" name="PRIMITIVE_QUADS">Quadrilateral primitive type.</option>
+        <option value="4" name="PRIMITIVE_POINTS">Point primitive type.</option>
+    </enum>
+
+    <niobject name="NiMeshModifier" ver1="20.5.0.0" inherit="NiObject">
+        Base class for mesh modifiers.
+    </niobject>
+
+    <niobject name="NiMesh" ver1="20.5.0.0" inherit="NiRenderObject">
+        <add name="Mesh Primitive Type" type="MeshPrimitiveType">The primitive type of the mesh, such as triangles or lines.</add>
+        <add name="Num Submeshes" type="ushort">The number of submeshes contained in this mesh.</add>
+        <add name="Instancing Enabled" type="bool">Sets whether hardware instancing is being used.</add>
+        <add name="Bound" type="SphereBV">The combined bounding volume of all submeshes.</add>
+        <add name="Num Datas" type="uint" />
+        <add name="Datas" type="MeshData" arr1="Num Datas" />
         <add name="Num Modifiers" type="uint" />
-        <add name="Modifiers" type="Ref" template="NiObject" arr1="Num Modifiers" /><!-- see Zorsis Zombie_Boy.nif -->
+        <add name="Modifiers" type="Ref" template="NiMeshModifier" arr1="Num Modifiers" /><!-- see Zorsis Zombie_Boy.nif -->
     </niobject>
 
     <niobject name="NiMorphWeightsController" ver1="20.5.0.0" inherit="NiInterpController">
         <add name="Unknown 2" type="int"></add>
-        <add name="Num Interpolators" type="int"></add>
+        <add name="Num Interpolators" type="uint"></add>
         <add name="Interpolators" type="Ref" template="NiObject" arr1="Num Interpolators"></add>
-        <add name="Num Unknown 3" type="int"></add>
-        <add name="Unknown 3" type="int" arr1="Num Unknown 3"></add>
+        <add name="Num Morph Names" type="uint"></add>
+        <add name="Morph Names" type="string" arr1="Num Morph Names"></add>
     </niobject>
 
-    <niobject name="NiMorphMeshModifier" ver1="20.5.0.0" inherit="NiObject">
+    <niobject name="NiMorphMeshModifier" ver1="20.5.0.0" inherit="NiMeshModifier">
         <add name="Unknown 1" type="int"></add>
         <add name="Unknown 2" type="byte"></add>
         <add name="Unknown 3" type="byte"></add>
@@ -4418,7 +4465,7 @@
         <add name="Unknown Floats" type="float" arr1="8" />
     </compound>
 
-    <niobject name="NiSkinningMeshModifier" ver1="20.5.0.0" inherit="NiObject">
+    <niobject name="NiSkinningMeshModifier" ver1="20.5.0.0" inherit="NiMeshModifier">
         <add name="Unknown Int 1" type="int" />
         <add name="Unknown Short 1" type="short" />
         <add name="Unknown Int 2" type="int" />
