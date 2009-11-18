@@ -47,8 +47,6 @@ output in all circumstances.
 #
 # ***** END LICENSE BLOCK *****
 
-# XXX should use face indices rather than face.verts for stripped_faces set
-
 from collections import deque
 
 from pyffi.utils.trianglemesh import Face, Mesh
@@ -66,7 +64,7 @@ class TriangleStrip(object):
         self.vertices = deque(vertices) if vertices else deque()
         self.reversed_ = reversed_
 
-        # set of verts of stripped faces
+        # set of indices of stripped faces
         self.stripped_faces = stripped_faces if stripped_faces else set()
 
     def __repr__(self):
@@ -77,7 +75,7 @@ class TriangleStrip(object):
     def get_unstripped_adjacent_face(self, face, vi):
         """Get adjacent face which is not yet stripped."""
         for otherface in face.get_adjacent_faces(vi):
-            if otherface not in self.stripped_faces:
+            if otherface.index not in self.stripped_faces:
                 return otherface
 
     def traverse_faces(self, start_vertex, start_face, forward):
@@ -90,7 +88,7 @@ class TriangleStrip(object):
         pv2 = start_face.get_next_vertex(pv1)
         next_face = self.get_unstripped_adjacent_face(start_face, pv0)
         while next_face:
-            self.stripped_faces.add(next_face.verts)
+            self.stripped_faces.add(next_face.index)
             count += 1
             if count & 1:
                 if forward:
@@ -120,21 +118,25 @@ class TriangleStrip(object):
         return count
 
     def build(self, start_vertex, start_face):
+        """Builds the face strip forwards, then backwards. Returns
+        index of start_face.
+        """
         self.faces.clear()
         self.vertices.clear()
         self.reversed_ = False
         v0 = start_vertex
         v1 = start_face.get_next_vertex(v0)
         v2 = start_face.get_next_vertex(v1)
-        self.stripped_faces.add(start_face.verts)
+        self.stripped_faces.add(start_face.index)
         self.faces.append(start_face)
         self.vertices.append(v0)
         self.vertices.append(v1)
         self.vertices.append(v2)
         self.traverse_faces(v0, start_face, True)
-        self.traverse_faces(v2, start_face, False)
+        return self.traverse_faces(v2, start_face, False)
 
     def get_strip(self):
+        """Get strip in forward winding."""
         strip = deque()
         if self._reversed:
             if len(self.vertices) & 1:
@@ -163,6 +165,7 @@ class Experiment(object):
         result.strips = self.strips[:] # copies list, not just a reference to it
 
     def build(self, stripped_faces):
+        """Build strips, starting from start_vertex and start_face."""
         # keep link to set of stripped faces
         self.stripped_faces = stripped_faces
         # build initial strip
@@ -184,6 +187,9 @@ class Experiment(object):
             self.build_adjacent(strip, 0)
 
     def build_adjacent(self, strip, face_index):
+        """Build strips adjacent to given strip, and add them to the
+        experiment. This is a helper function used by build.
+        """
         opposite_vertex = strip.vertices[face_index + 1]
         face = strip.faces[face_index]
         other_face = strip.get_unstripped_adjacent_face(face, opposite_vertex)
@@ -213,6 +219,9 @@ class ExperimentSelector(object):
         self.best_experiment = None
 
     def update(self, experiment):
+        """Updates best experiment with given experiment, if given
+        experiment beats current experiment.
+        """
         score = (sum(len(strip.faces) for strip in experiment.strips)
                  / 1.0 * len(experiment.strips))
         if score > self.best_score:
@@ -220,6 +229,9 @@ class ExperimentSelector(object):
             self.best_experiment = experiment
 
     def clear(self):
+        """Remove best experiment, to start a fresh sequence of
+        experiments.
+        """
         self.best_score = -1.0
         self.best_experiment = None
 
@@ -236,6 +248,11 @@ class TriangleStripifier(object):
         self.faces = list(self.mesh.faces.itervalues())
 
     def find_good_reset_point(self, stripped_faces):
+        """Find a good face to start stripification, potentially
+        after some strips have already been created. Result is
+        stored in start_face_index. Returns True, unless no more
+        faces are left.
+	"""
         if not self.faces:
             return False
         self.start_face_index += len(self.faces) / self.num_samples
@@ -245,7 +262,7 @@ class TriangleStripifier(object):
             xrange(self.start_face_index, len(self.faces)),
             xrange(0, self.start_face_index)):
             face = self.faces[face_index]
-            if face.verts not in stripped_faces:
+            if face.index not in stripped_faces:
                 self.start_face_index = face_index
                 return True
         else:
@@ -253,6 +270,7 @@ class TriangleStripifier(object):
             return False
 
     def find_all_strips(self):
+        """Find all strips."""
         all_strips = []
         stripped_faces = set()
         selector = ExperimentSelector()
