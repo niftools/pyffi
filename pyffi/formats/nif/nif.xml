@@ -974,7 +974,8 @@
         <add name="Keys" type="ns keytbc" template="TEMPLATE" arr1="Num Keys" cond="Key Type == 3">Keys, interpolated with tension, bias, continuity.</add>
     </compound>
 -->
-    <compound name="QuatKey" niflibtype="Key" istemplate="1">
+
+    <compound name="QuatKey" niflibtype="Key" istemplate="1"><!-- TEMPLATE should always be Quaternion -->
         A special version of the key type used for quaternions.  Never has tangents.
         <add name="Time" type="float" ver2="10.1.0.0">Time the key applies.</add>
         <add name="Time" type="float" cond="ARG != 4" ver1="10.1.0.106">Time the key applies.</add>
@@ -4303,52 +4304,123 @@
         <add name="Unknown Ints 1" type="int" arr1="17" />
     </niobject>
 
-    <compound name="IndexRange">
-        <add name="First Index" type="uint" />
+    <compound name="Region">
+        A range of indices, which make up a region (such as a submesh).
+        <add name="Start Index" type="uint" />
         <add name="Num Indices" type="uint" />
     </compound>
 
-    <enum name="MeshDataComponentFlag" storage="uint">
-        Describes what sort of data is stored in a NiDataStream
-        <option value="66597" name="UINT_1">Single uint?</option>
-        <option value="132150" name="FLOAT_2">2 floats / Vector2?</option>
-        <option value="197687" name="FLOAT_3">3 floats / Vector3?</option>
+    <enum name="CloningBehavior" storage="uint">
+        Sets how objects are to be cloned.
+        <option value="0" name="CLONING_SHARE">Share this object pointer with the newly cloned scene.</option>
+        <option value="1" name="CLONING_COPY">Create an exact duplicate of this object for use with the newly cloned scene.</option>
+        <option value="2" name="CLONING_BLANK_COPY">Create a copy of this object for use with the newly cloned stream, leaving some of the data to be written later.</option>
+    </enum>
+
+    <enum name="ComponentFormat" storage="uint">
+        The data format of components.
+        <option value="0x00000000" name="F_UNKNOWN">Unknown, or don't care, format.</option>
+        <option value="0x00010101" name="F_INT8_1"></option>
+        <option value="0x00020102" name="F_INT8_2"></option>
+        <option value="0x00030103" name="F_INT8_3"></option>
+        <option value="0x00040104" name="F_INT8_4"></option>
+        <option value="0x00010105" name="F_UINT8_1"></option>
+        <option value="0x00020106" name="F_UINT8_2"></option>
+        <option value="0x00030107" name="F_UINT8_3"></option>
+        <option value="0x00040108" name="F_UINT8_4"></option>
+        <option value="0x00010109" name="F_NORMINT8_1"></option>
+        <option value="0x0002010A" name="F_NORMINT8_2"></option>
+        <option value="0x0003010B" name="F_NORMINT8_3"></option>
+        <option value="0x0004010C" name="F_NORMINT8_4"></option>
+        <option value="0x0001010D" name="F_NORMUINT8_1"></option>
+        <option value="0x0002010E" name="F_NORMUINT8_2"></option>
+        <option value="0x0003010F" name="F_NORMUINT8_3"></option>
+        <option value="0x00040110" name="F_NORMUINT8_4"></option>
+        <option value="0x00010211" name="F_INT16_1"></option>
+        <option value="0x00020212" name="F_INT16_2"></option>
+        <option value="0x00030213" name="F_INT16_3"></option>
+        <option value="0x00040214" name="F_INT16_4"></option>
+        <option value="0x00010215" name="F_UINT16_1"></option>
+        <option value="0x00020216" name="F_UINT16_2"></option>
+        <option value="0x00030217" name="F_UINT16_3"></option>
+        <option value="0x00040218" name="F_UINT16_4"></option>
+        <option value="0x00010219" name="F_NORMINT16_1"></option>
+        <option value="0x0002021A" name="F_NORMINT16_2"></option>
+        <option value="0x0003021B" name="F_NORMINT16_3"></option>
+        <option value="0x0004021C" name="F_NORMINT16_4"></option>
+        <option value="0x0001021D" name="F_NORMUINT16_1"></option>
+        <option value="0x0002021E" name="F_NORMUINT16_2"></option>
+        <option value="0x0003021F" name="F_NORMUINT16_3"></option>
+        <option value="0x00040220" name="F_NORMUINT16_4"></option>
+        <option value="0x00010421" name="F_INT32_1"></option>
+        <option value="0x00020422" name="F_INT32_2"></option>
+        <option value="0x00030423" name="F_INT32_3"></option>
+        <option value="0x00040424" name="F_INT32_4"></option>
+        <option value="0x00010425" name="F_UINT32_1"></option>
+        <option value="0x00020426" name="F_UINT32_2"></option>
+        <option value="0x00030427" name="F_UINT32_3"></option>
+        <option value="0x00040428" name="F_UINT32_4"></option>
+        <option value="0x00010429" name="F_NORMINT32_1"></option>
+        <option value="0x0002042A" name="F_NORMINT32_2"></option>
+        <option value="0x0003042B" name="F_NORMINT32_3"></option>
+        <option value="0x0004042C" name="F_NORMINT32_4"></option>
+        <option value="0x0001042D" name="F_NORMUINT32_1"></option>
+        <option value="0x0002042E" name="F_NORMUINT32_2"></option>
+        <option value="0x0003042F" name="F_NORMUINT32_3"></option>
+        <option value="0x00040430" name="F_NORMUINT32_4"></option>
+        <option value="0x00010231" name="F_FLOAT16_1"></option>
+        <option value="0x00020232" name="F_FLOAT16_2"></option>
+        <option value="0x00030233" name="F_FLOAT16_3"></option>
+        <option value="0x00040234" name="F_FLOAT16_4"></option>
+        <option value="0x00010435" name="F_FLOAT32_1"></option>
+        <option value="0x00020436" name="F_FLOAT32_2"></option>
+        <option value="0x00030437" name="F_FLOAT32_3"></option>
+        <option value="0x00040438" name="F_FLOAT32_4"></option>
+        <option value="0x00010439" name="F_UINT_10_10_10_L1"></option>
+        <option value="0x0001043A" name="F_NORMINT_10_10_10_L1"></option>
+        <option value="0x0001043B" name="F_NORMINT_11_11_10"></option>
+        <option value="0x0004013C" name="F_NORMUINT8_4_BGRA"></option>
+        <option value="0x0001043D" name="F_NORMINT_10_10_10_2"></option>
+        <option value="0x0001043E" name="F_UINT_10_10_10_2"></option>
     </enum>
 
     <niobject name="NiDataStreamBase" ver1="20.5.0.0" inherit="NiObject" abstract="1">
-        <add name="Num Bytes" type="uint" />
-        <add name="Unknown 2" type="uint" default="0" />
-        <add name="Num Index Ranges" type="uint">Matches the parent NiMesh-&gt;Mesh Data-&gt;Num Index Ranges field.</add>
-        <add name="Index Ranges" type="IndexRange" arr1="Num Index Ranges" />
-        <add name="Num Components" type="uint">Matches the parent NiMesh-&gt;Mesh Data-&gt;Num Data Components field.</add>
-        <add name="Component Flags" type="MeshDataComponentFlag" arr1="Num Components">Flags per component?</add>
+        <add name="Num Bytes" type="uint">The size in bytes of this data stream.</add>
+        <add name="Cloning Behavior" type="CloningBehavior" default="0" />
+        <add name="Num Regions" type="uint">Number of regions (such as submeshes).</add>
+        <add name="Regions" type="Region" arr1="Num Regions">The regions in the mesh. Regions can be used to mark off submeshes which are independent draw calls.</add>
+        <add name="Num Components" type="uint">Number of components of the data (matches corresponding field in MeshData).</add>
+        <add name="Component Formats" type="ComponentFormat" arr1="Num Components">The format of each component in this data stream.</add>
     </niobject>
 
     <niobject name="NiDataStreamUndecoded" ver1="20.5.0.0" inherit="NiDataStreamBase" abstract="1">
         For undecoded data. Temporarily defined until all streams are decoded.
         <add name="Data" type="byte" nifskopetype="blob" arr1="Num Bytes" />
-        <add name="Unknown 9" type="byte" default="1" />
+        <add name="Streamable" type="bool" default="1" />
     </niobject>
 
     <niobject name="NiDataStream\x010\x0118" ver1="20.5.0.0" inherit="NiDataStreamBase">
         Triangles with short indices.
         <add name="Data" type="ushort" arr1="Num Bytes / 2" />
-        <add name="Unknown 9" type="byte" default="1" />
+        <add name="Streamable" type="bool" default="1" />
     </niobject>
 
     <niobject name="NiDataStream\x011\x0118" ver1="20.5.0.0" inherit="NiDataStreamBase">
         Float data (used for vertices, normals, uvs).
         <add name="Data" type="float" arr1="Num Bytes / 4" />
-        <add name="Unknown 9" type="byte" default="1" />
+        <add name="Streamable" type="bool" default="1" />
     </niobject>
 
     <niobject name="NiDataStream\x010\x0119" ver1="20.5.0.0" inherit="NiDataStreamBase">
         Triangles with integer indices.
         <add name="Data" type="uint" arr1="Num Bytes / 4" />
-        <add name="Unknown 9" type="byte" default="1" />
+        <add name="Streamable" type="bool" default="1" />
     </niobject>
 
     <niobject name="NiDataStream\x011\x0119" ver1="20.5.0.0" inherit="NiDataStream\x011\x0118" />
+
+    <niobject name="NiDataStream\x011\x0120" ver1="20.5.0.0" inherit="NiDataStreamUndecoded">
+    </niobject>
 
     <niobject name="NiDataStream\x011\x0121" ver1="20.5.0.0" inherit="NiDataStream\x011\x0118" />
     
@@ -4365,8 +4437,8 @@
     <niobject name="NiDataStream\x013\x015" ver1="20.5.0.0" inherit="NiDataStreamUndecoded">
     </niobject>
 
-    <compound name="MeshDataComponent">
-        <add name="Type" type="string">
+    <compound name="SemanticData">
+        <add name="Name" type="string">
             Type of data (POSITION, POSITION_BP, INDEX, NORMAL, NORMAL_BP,
             TEXCOORD, BLENDINDICES, BLENDWEIGHT, BONE_PALETTE).
         </add>
@@ -4386,16 +4458,16 @@
             Sets whether this stream data is per-instance data for use in
             hardware instancing.
         </add>
-        <add name="Num Region Indices" type="ushort" default="1">
+        <add name="Num Submeshes" type="ushort" default="1">
             The number of submesh-to-region mappings that this data stream
             has.
         </add>
-        <add name="Region Indices" type="ushort" arr1="Num Region Indices">
+        <add name="Submesh To Region Map" type="ushort" arr1="Num Submeshes">
             <!-- see Zorsis Zombie_Boy.nif -->
             A lookup table that maps submeshes to regions.
         </add>
         <add name="Num Components" type="int" default="1" />
-        <add name="Components" type="MeshDataComponent" arr1="Num Components" />
+        <add name="Component Semantics" type="SemanticData" arr1="Num Components">Describes the semantic of each component.</add>
     </compound>
 
     <compound name="MaterialData" ver1="20.5.0.0">
@@ -4414,19 +4486,35 @@
 
     <enum name="MeshPrimitiveType" storage="uint">
         Describes the type of primitives stored in a mesh object.
-        <option value="0" name="PRIMITIVE_TRIANGLES">Triangle primitive type.</option>
-        <option value="1" name="PRIMITIVE_TRISTRIPS">Triangle strip primitive type.</option>
-        <option value="2" name="PRIMITIVE_LINESTRIPS">Line strip primitive type.</option>
-        <option value="3" name="PRIMITIVE_QUADS">Quadrilateral primitive type.</option>
-        <option value="4" name="PRIMITIVE_POINTS">Point primitive type.</option>
+        <option value="0" name="MESH_PRIMITIVE_TRIANGLES">Triangle primitive type.</option>
+        <option value="1" name="MESH_PRIMITIVE_TRISTRIPS">Triangle strip primitive type.</option>
+        <option value="2" name="MESH_PRIMITIVE_LINESTRIPS">Line strip primitive type.</option>
+        <option value="3" name="MESH_PRIMITIVE_QUADS">Quadrilateral primitive type.</option>
+        <option value="4" name="MESH_PRIMITIVE_POINTS">Point primitive type.</option>
+    </enum>
+
+    <enum name="SyncPoint" storage="ushort">
+        Specifies the time when an application must syncronize for some reason.
+        <option value="32768" name="SYNC_ANY">Value used when no specific sync point is desired.</option>
+        <option value="32784" name="SYNC_UPDATE">Synchronize when an object is updated.</option>
+        <option value="32800" name="SYNC_POST_UPDATE">Synchronize when an entire scene graph has been updated.</option>
+        <option value="32816" name="SYNC_VISIBLE">Synchronize when an object is determined to be potentially visible.</option>
+        <option value="32832" name="SYNC_RENDER">Synchronize when an object is rendered.</option>
+        <option value="32848" name="SYNC_PHYSICS_SIMULATE">Synchronize when a physics simulation step is about to begin.</option>
+        <option value="32864" name="SYNC_PHYSICS_COMPLETED">Synchronize when a physics simulation step has produced results.</option>
+        <option value="32880" name="SYNC_REFLECTIONS">Syncronize after all data necessary to calculate reflections is ready.</option>
     </enum>
 
     <niobject name="NiMeshModifier" ver1="20.5.0.0" inherit="NiObject">
         Base class for mesh modifiers.
+        <add name="Num Submit Points" type="uint">The number of submit points used by this mesh modifier.</add>
+        <add name="Submit Points" type="SyncPoint" arr1="Num Submit Points">The submit points used by this mesh modifier</add>
+        <add name="Num Complete Points" type="uint">The number of complete points used by this mesh modifier.</add>
+        <add name="Complete Points" type="SyncPoint" arr1="Num Complete Points">The complete points used by this mesh modifier</add>
     </niobject>
 
     <niobject name="NiMesh" ver1="20.5.0.0" inherit="NiRenderObject">
-        <add name="Mesh Primitive Type" type="MeshPrimitiveType">The primitive type of the mesh, such as triangles or lines.</add>
+        <add name="Primitive Type" type="MeshPrimitiveType">The primitive type of the mesh, such as triangles or lines.</add>
         <add name="Num Submeshes" type="ushort">The number of submeshes contained in this mesh.</add>
         <add name="Instancing Enabled" type="bool">Sets whether hardware instancing is being used.</add>
         <add name="Bound" type="SphereBV">The combined bounding volume of all submeshes.</add>
@@ -4440,44 +4528,48 @@
         <add name="Unknown 2" type="int"></add>
         <add name="Num Interpolators" type="uint"></add>
         <add name="Interpolators" type="Ref" template="NiObject" arr1="Num Interpolators"></add>
-        <add name="Num Morph Names" type="uint"></add>
-        <add name="Morph Names" type="string" arr1="Num Morph Names"></add>
+        <add name="Num Targets" type="uint">The number of morph targets.</add>
+        <add name="Target Names" type="string" arr1="Num Targets">Name of each morph target.</add>
     </niobject>
+
+    <compound name="ElementReference" ver1="20.5.0.0">
+        <add name="Semantic" type="SemanticData">The element semantic.</add>
+        <add name="Normalize Flag" type="uint">Whether or not to normalize the data.</add>
+    </compound>
 
     <niobject name="NiMorphMeshModifier" ver1="20.5.0.0" inherit="NiMeshModifier">
-        <add name="Unknown 1" type="int"></add>
-        <add name="Unknown 2" type="byte"></add>
-        <add name="Unknown 3" type="byte"></add>
-        <add name="Unknown 4" type="int"></add>
-        <add name="Unknown 5" type="byte"></add>
-        <add name="Unknown 6" type="byte"></add>
-        <add name="Unknown 7" type="byte"></add>
-        <add name="Unknown 8" type="byte"></add>
-        <add name="Unknown 9" type="byte"></add>
-        <add name="Unknown 10" type="int"></add>
-        <add name="Unknown 11" type="int"></add>
-        <add name="Unknown 12" type="int"></add>
-        <add name="Unknown 13" type="int"></add>
+        Performs linear-weighted blending between a set of target data streams.
+        <add name="Flags" type="byte">
+            FLAG_RELATIVETARGETS = 0x01
+            FLAG_UPDATENORMALS   = 0x02
+            FLAG_NEEDSUPDATE     = 0x04
+            FLAG_ALWAYSUPDATE    = 0x08
+            FLAG_NEEDSCOMPLETION = 0x10
+            FLAG_SKINNED         = 0x20
+            FLAG_SWSKINNED       = 0x40
+        </add>
+        <add name="Num Targets" type="ushort">The number of morph targets.</add>
+        <add name="Num Elements" type="uint">The number of morphing data stream elements.</add>
+        <add name="Elements" type="ElementReference" arr1="Num Elements">Semantics and normalization of the morphing data stream elements.</add>
     </niobject>
 
-    <compound name="BoneData">
-        <add name="Rotation" type="Matrix33" />
-        <add name="Unknown Floats" type="float" arr1="8" />
+    <compound name="Transform">
+        <add name="Rotation" type="Matrix33">The rotation part of the transformation matrix.</add>
+        <add name="Translation" type="Vector3">The translation vector.</add>
+        <add name="Scale" type="float" default="1.0">Scaling part (only uniform scaling is supported).</add>
     </compound>
 
     <niobject name="NiSkinningMeshModifier" ver1="20.5.0.0" inherit="NiMeshModifier">
-        <add name="Unknown Int 1" type="int" />
-        <add name="Unknown Short 1" type="short" />
-        <add name="Unknown Int 2" type="int" />
-        <add name="Unknown Short 2" type="short" />
-        <add name="Unknown Int 3" type="int" />
-        <add name="Unknown Short 3" type="short" />
-        <add name="Rotation" type="Matrix33" />
-        <add name="Translation" type="Vector3" />
-        <add name="Scale" type="float" />
-        <add name="Num Bones" type="uint" />
-        <add name="Bones" type="Ptr" template="NiNode" arr1="Num Bones" />
-        <add name="Bone Datas" type="BoneData" arr1="Num Bones" />
+        <add name="Flags" type="ushort">
+            USE_SOFTWARE_SKINNING = 0x0001
+            RECOMPUTE_BOUNDS = 0x0002
+        </add>
+        <add name="Skeleton Root" type="Ptr" template="NiAVObject">The root bone of the skeleton.</add><!-- Root Bone Parent -->
+        <add name="Skeleton Transform" type="Transform">The transform that takes the root bone parent coordinate system into the skin coordinate system.</add><!-- Root Bone Parent To Skin Transform -->
+        <add name="Num Bones" type="uint">The number of bones referenced by this mesh modifier.</add>
+        <add name="Bones" type="Ptr" template="NiAVObject" arr1="Num Bones">Pointers to the bone nodes that affect this skin.</add>
+        <add name="Bone Transforms" type="Transform" arr1="Num Bones">The transforms that go from bind-pose space to bone space.</add><!-- Skin To Bone Transforms -->
+        <add name="Bone Bounds" type="SphereBV" cond="Flags &amp; 2" arr1="Num Bones">The bounds of the bones.  Only stored if the RECOMPUTE_BOUNDS bit is set.</add> <!-- Note, "SphereBV" is actually "NiBound."-->
     </niobject>
 
     <niobject name="NiSkinningLODController" ver1="20.5.0.0" inherit="NiTimeController">
@@ -4535,107 +4627,68 @@
         <add name="Unknown 2" type="int"></add>
     </niobject>
 
-    <niobject name="NiPSSimulator" ver1="20.5.0.0" inherit="NiObject">
-        Particle System Simulator?
-        <add name="Unknown 1" type="int"></add>
-        <add name="Unknown 5" type="byte"></add>
-        <add name="Unknown 6" type="byte"></add>
-        <add name="Unknown 7" type="int"></add>
-        <add name="Unknown 11" type="byte"></add>
-        <add name="Unknown 12" type="byte"></add>
-        <add name="Num modifiers" type="int"></add>
-        <add name="Modifiers" type="Ref" template="NiObject" arr1="Num modifiers">Modifiers?</add>
+<niobject name="NiPSSimulator" ver1="20.5.0.0" inherit="NiMeshModifier">
+        The mesh modifier that performs all particle system simulation.
+        <add name="Num Simulation Steps" type="uint">The number of simulation steps in this modifier.</add>
+        <add name="Simulation Steps" type="Ref" template="NiPSSimulatorStep" arr1="Num Simulation Steps">Links to the simulation steps.</add>
     </niobject>
 
-    <niobject name="NiPSSimulatorGeneralStep" ver1="20.5.0.0" inherit="NiObject">
-        <add name="Unknown 1" type="byte"></add>
-        <add name="Unknown 11" type="int" cond="Unknown 1 == 3" />
-        <add name="Unknown 12" type="byte" arr1="4" cond="Unknown 1 == 3" />
-        <add name="Unknown 13" type="float" cond="Unknown 1 == 3" />
-        <add name="Unknown 14" type="float" cond="Unknown 1 == 3" /><!-- not sure, sometimes NaN -->
-        <add name="Unknown 15" type="float" cond="Unknown 1 == 3" />
-        <add name="Unknown 16" type="float" cond="Unknown 1 == 3" />
-
-        <add name="Unknown 21" type="float" cond="Unknown 1 == 4" />
-        <add name="Unknown 22" type="int" cond="Unknown 1 == 4" />
-        <add name="Unknown 23" type="float" cond="Unknown 1 == 4" />
-        <add name="Unknown 24" type="int" cond="Unknown 1 == 4" />
-        <add name="Unknown 25" type="float" cond="Unknown 1 == 4" />
-        <add name="Unknown 26" type="byte" arr1="4" cond="Unknown 1 == 4" />
-        <add name="Unknown 27" type="float" cond="Unknown 1 == 4" />
-        <add name="Unknown 28" type="short" cond="Unknown 1 == 4" />
-        <add name="Unknown 29" type="short" cond="Unknown 1 == 4" />
-
-        <add name="Unknown 2" type="float" ver2="20.6.0.0"></add>
-        <add name="Unknown 3" type="float" ver2="20.6.0.0"></add>
-        <add name="Unknown 4" type="float" ver2="20.6.0.0"></add>
-
-        <add name="Unknown 30" type="int" ver1="30.0.0.2"></add>
-        <add name="Unknown 31" type="byte" ver1="30.0.0.2"></add>
-        <add name="Unknown 53" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
-        <add name="Unknown 54" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
-        <add name="Unknown 55" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
-        <add name="Unknown 56" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
-        <add name="Unknown 57" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
-        <add name="Unknown 58" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
-        <add name="Unknown 59" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
-        <add name="Unknown 60" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
-        <add name="Unknown 61" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
-        <add name="Unknown 62" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
-        <add name="Unknown 63" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
-        <add name="Unknown 64" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
-        <add name="Unknown 65" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
-        <add name="Unknown 66" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
-        <add name="Unknown 67" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
-        <add name="Unknown 68" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
-        <add name="Unknown 69" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
-        <add name="Unknown 70" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
-        <add name="Unknown 71" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
-        <add name="Unknown 72" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
-        <add name="Unknown 73" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
-        <add name="Unknown 74" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
-        <add name="Unknown 75" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
-        <add name="Unknown 76" type="byte" ver1="30.0.0.2" cond="Unknown 31"></add>
-        <add name="Unknown 32" type="byte" ver1="30.0.0.2"></add>
-        <add name="Unknown 33" type="byte" ver1="30.0.0.2"></add>
-        <add name="Unknown 34" type="byte" ver1="30.0.0.2"></add>
-        <add name="Unknown 35" type="byte" ver1="30.0.0.2"></add>
-        <add name="Unknown 36" type="byte" ver1="30.0.0.2"></add>
-        <add name="Unknown 37" type="byte" ver1="30.0.0.2"></add>
-        <add name="Unknown 38" type="byte" ver1="30.0.0.2"></add>
-        <add name="Unknown 39" type="byte" ver1="30.0.0.2"></add>
-        <add name="Unknown 40" type="byte" ver1="30.0.0.2"></add>
-        <add name="Unknown 41" type="byte" ver1="30.0.0.2"></add>
-        <add name="Unknown 42" type="byte" ver1="30.0.0.2"></add>
-        <add name="Unknown 43" type="byte" ver1="30.0.0.2"></add>
-        <add name="Unknown 44" type="byte" ver1="30.0.0.2"></add>
-        <add name="Unknown 45" type="byte" ver1="30.0.0.2"></add>
-        <add name="Unknown 46" type="byte" ver1="30.0.0.2"></add>
-        <add name="Unknown 47" type="byte" ver1="30.0.0.2"></add>
-        <add name="Unknown 48" type="byte" ver1="30.0.0.2"></add>
-        <add name="Unknown 49" type="byte" ver1="30.0.0.2"></add>
-        <add name="Unknown 50" type="byte" ver1="30.0.0.2"></add>
-        <add name="Unknown 51" type="byte" ver1="30.0.0.2"></add>
-        <add name="Unknown 52" type="byte" ver1="30.0.0.2"></add>
-
+    <niobject name="NiPSSimulatorStep" ver1="20.5.0.0" inherit="NiObject" abstract="1">
+        Abstract base class for a single step in the particle system simulation process.  It has no seralized data.
     </niobject>
 
-    <niobject name="NiPSSimulatorForcesStep" ver1="20.5.0.0" inherit="NiObject">
-        <add name="Num links" type="int"></add>
-        <add name="Link" type="Ref" template="NiObject" arr1="Num links"></add>
+    <enum name="PSLoopBehavior" ver1="20.5.0.0" storage="uint">
+        <option name="PS_LOOP_CLAMP_BIRTH" value="0">Key times map such that the first key occurs at the birth of the particle, and times later than the last key get the last key value.</option>
+        <option name="PS_LOOP_CLAMP_DEATH" value="1">Key times map such that the last key occurs at the death of the particle, and times before the initial key time get the value of the initial key.</option>
+        <option name="PS_LOOP_AGESCALE" value="2">Scale the animation to fit the particle lifetime, so that the first key is age zero, and the last key comes at the particle death.</option>
+        <option name="PS_LOOP_LOOP" value="3">The time is converted to one within the time range represented by the keys, as if the key sequence loops forever in the past and future.</option>
+        <option name="PS_LOOP_REFLECT" value="4">The time is reflection looped, as if the keys played forward then backward the forward then backward etc for all time.</option>
+    </enum>
+
+    <niobject name="NiPSSimulatorGeneralStep" ver1="20.5.0.0" inherit="NiPSSimulatorStep">
+        Encapsulates a floodgate kernel that updates particle size, colors, and rotations.
+        <!-- note: the ver2="30.0.0.2" conditions below are just guesses -->
+        <add name="Num Size Keys" type="byte">The number of size animation keys.</add>
+        <add name="Size Keys" type="Key" template="float" arg="1" arr1="Num Size Keys">The particle size keys.</add>
+        <add name="Size Loop Behavior" type="PSLoopBehavior" ver1="30.0.0.2">The loop behavior for the size keys.</add>
+
+        <add name="Unknown 1" type="float" ver2="20.6.0.0" />
+        <add name="Unknown 2" type="float" ver2="20.6.0.0" />
+        <add name="Unknown 3" type="float" ver2="20.6.0.0" />
+
+        <add name="Num Color Keys" type="byte" ver1="30.0.0.2">The number of color animation keys.</add>
+        <add name="Color Keys" type="Key" template="ByteColor4" arg="1" arr1="Num Color Keys" ver1="30.0.0.2">The particle color keys.</add>
+        <add name="Color Loop Behavior" type="PSLoopBehavior" ver1="30.0.0.2">The loop behavior for the color keys.</add>
+        <add name="Num Rotation Keys" type="byte" ver1="30.0.0.2">The number of rotatoin animation keys.</add>
+        <add name="Rotation Keys" type="QuatKey" template="Quaternion" arg="1" arr1="Num Rotation Keys" ver1="30.0.0.2">The particle rotation keys.</add>
+        <add name="Rotation Loop Behavior" type="PSLoopBehavior" ver1="30.0.0.2">The loop behavior for the rotation keys.</add>
+        <add name="Grow Time" type="float" ver1="30.0.0.2"> The the amount of time over which a particle's size is ramped from 0.0 to 1.0 in seconds</add>
+        <add name="Shrink Time" type="float" ver1="30.0.0.2">The the amount of time over which a particle's size is ramped from 1.0 to 0.0 in seconds</add>
+        <add name="Grow Generation" type="ushort" ver1="30.0.0.2">Specifies the particle generation to which the grow effect should be applied. This is usually generation 0, so that newly created particles will grow.</add>
+        <add name="Shrink Generation" type="ushort" ver1="30.0.0.2">Specifies the particle generation to which the shrink effect should be applied. This is usually the highest supported generation for the particle system, so that particles will shrink immediately before getting killed.</add>
     </niobject>
 
-    <niobject name="NiPSSimulatorCollidersStep" ver1="20.5.0.0" inherit="NiObject">
-        <add name="Num Unknown Links" type="uint"></add>
-        <add name="Unknown Links" type="Ref" template="NiObject" arr1="Num Unknown Links">Particle system colliders? (NiPSXXXCollider)</add>
+    <niobject name="NiPSSimulatorForcesStep" ver1="20.5.0.0" inherit="NiPSSimulatorStep">
+        Encapsulates a floodgate kernel that simulates particle forces.
+        <add name="Num Forces" type="uint">The number of forces affecting the particle system.</add>
+        <add name="Forces" type="Ref" template="NiObject" arr1="Num Forces">The forces affecting the particle system.</add><!--Should be NiPSForce-->
     </niobject>
 
-    <niobject name="NiPSSimulatorMeshAlignStep" ver1="20.5.0.0" inherit="NiObject">
-        <add name="Unknown 1" type="int"></add>
-        <add name="Unknown 2" type="byte"></add>
+    <niobject name="NiPSSimulatorCollidersStep" ver1="20.5.0.0" inherit="NiPSSimulatorStep">
+        Encapsulates a floodgate kernel that simulates particle colliders.
+        <add name="Num Colliders" type="uint">The number of colliders affecting the particle system.</add>
+        <add name="Colliders" type="Ref" template="NiObject" arr1="Num Colliders">The colliders affecting the particle system.</add><!--Should be NiPSCollider-->
     </niobject>
 
-    <niobject name="NiPSSimulatorFinalStep" ver1="20.5.0.0" inherit="NiObject">
+    <niobject name="NiPSSimulatorMeshAlignStep" ver1="20.5.0.0" inherit="NiPSSimulatorStep">
+        Encapsulates a floodgate kernel that updates mesh particle alignment and transforms.
+        <add name="Num Rotation Keys" type="byte">The number of rotation keys.</add>
+        <add name="Rotation Keys" type="QuatKey" template="Quaternion" arg="1" arr1="Num Rotation Keys">The particle rotation keys.</add>
+        <add name="Rotation Loop Behavior" type="PSLoopBehavior">The loop behavior for the rotation keys.</add>
+    </niobject>
+
+    <niobject name="NiPSSimulatorFinalStep" ver1="20.5.0.0" inherit="NiPSSimulatorStep">
+        Encapsulates a floodgate kernel that updates particle positions and ages. As indicated by its name, this step should be attached last in the NiPSSimulator mesh modifier.
     </niobject>
 
     <niobject name="NiPSFacingQuadGenerator" ver1="20.5.0.0" inherit="NiObject">
@@ -4920,6 +4973,10 @@
         <add name="Unknown 5" type="int"></add>
         <add name="Unknown 6" type="short"></add>
         <add name="Unknown 7" type="int"></add>
+    </niobject>
+
+    <niobject name="NiPSSpawner" ver1="30.0.0.2" inherit="NiObject">
+        <!-- not yet decoded -->
     </niobject>
 
     <niobject name="NiFurSpringController" ver1="10.2.0.0" userver="1" inherit="NiTimeController"><!-- BloodBowl -->
