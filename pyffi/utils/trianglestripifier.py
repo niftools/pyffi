@@ -47,8 +47,6 @@ output in all circumstances.
 #
 # ***** END LICENSE BLOCK *****
 
-from collections import deque
-
 from pyffi.utils.trianglemesh import Face, Mesh
 
 class TriangleStrip(object):
@@ -60,8 +58,8 @@ class TriangleStrip(object):
     def __init__(self, stripped_faces=None,
                  faces=None, vertices=None, reversed_=False):
         """Initialise the triangle strip."""
-        self.faces = deque(faces) if faces else deque()
-        self.vertices = deque(vertices) if vertices else deque()
+        self.faces = faces if faces else []
+        self.vertices = vertices if vertices else []
         self.reversed_ = reversed_
 
         # set of indices of stripped faces
@@ -99,8 +97,8 @@ class TriangleStrip(object):
                 else:
                     pv0 = pv2
                     pv2 = next_face.get_next_vertex(pv1)
-                    self.vertices.appendleft(pv2)
-                    self.faces.appendleft(next_face)
+                    self.vertices.insert(0, pv2)
+                    self.faces.insert(0, next_face)
                     self.reversed_ = not self.reversed_
             else:
                 if forward:
@@ -111,8 +109,8 @@ class TriangleStrip(object):
                 else:
                     pv0 = pv1
                     pv1 = next_face.get_next_vertex(pv0)
-                    self.vertices.appendleft(pv1)
-                    self.faces.appendleft(next_face)
+                    self.vertices.insert(0, pv1)
+                    self.faces.insert(0, next_face)
                     self.reversed_ = not self.reversed_
             next_face = self.get_unstripped_adjacent_face(start_face, pv0)
         return count
@@ -120,9 +118,26 @@ class TriangleStrip(object):
     def build(self, start_vertex, start_face):
         """Builds the face strip forwards, then backwards. Returns
         index of start_face.
+
+        >>> m = Mesh()
+        >>> face = m.add_face(0, 1, 2)
+        >>> m.lock()
+        >>> t = TriangleStrip()
+        >>> t.build(0, face)
+        0
+        >>> t
+        TriangleStrip(stripped_faces=set([0]), faces=[Face(0, 1, 2)], vertices=[0, 1, 2], reversed_=False)
+        >>> t.build(1, face)
+        0
+        >>> t
+        TriangleStrip(stripped_faces=set([0]), faces=[Face(0, 1, 2)], vertices=[1, 2, 0], reversed_=False)
+        >>> t.build(2, face)
+        0
+        >>> t
+        TriangleStrip(stripped_faces=set([0]), faces=[Face(0, 1, 2)], vertices=[2, 0, 1], reversed_=False)
         """
-        self.faces.clear()
-        self.vertices.clear()
+        del self.faces[:]
+        del self.vertices[:]
         self.reversed_ = False
         v0 = start_vertex
         v1 = start_face.get_next_vertex(v0)
@@ -137,17 +152,17 @@ class TriangleStrip(object):
 
     def get_strip(self):
         """Get strip in forward winding."""
-        strip = deque()
+        strip = []
         if self._reversed:
             if len(self.vertices) & 1:
-                strip = deque(reversed(self.vertices))
+                strip = list(reversed(self.vertices))
             elif len(self.vertices == 4):
-                strip = deque(self.vertices[i] for i in (0, 2, 1, 3))
+                strip = list(self.vertices[i] for i in (0, 2, 1, 3))
             else:
-                strip = deque(self.vertices)
-                strip.appendleft(strip[0])
+                strip = list(self.vertices)
+                strip.insert(0, strip[0])
         else:
-            strip = deque(self.vertices)
+            strip = list(self.vertices)
         return strip
 
 class Experiment(object):
