@@ -1164,7 +1164,11 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                             "Corrupted nif file: header version string "
                             "does not correspond with header version field.")
                     if ver >= 0x14000004:
-                        stream.read(1)
+                        endian_type, = struct.unpack('<B', stream.read(1))
+                        if endian_type == 0:
+                            # big endian!
+                            raise ValueError(
+                                "Big endian nifs not supported.")
                     if ver >= 0x0A010000:
                         userver, = struct.unpack('<I', stream.read(4))
                         if userver in (10, 11):
