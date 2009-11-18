@@ -199,6 +199,22 @@ class TriangleStrip(object):
         TriangleStrip(stripped_faces=set([0, 1, 2, 3]), faces=[Face(1, 3, 2), Face(2, 3, 4), Face(3, 5, 4), Face(4, 5, 6)], vertices=[1, 2, 3, 4, 5, 6], reversed_=True)
         >>> t.get_strip()
         [1, 1, 2, 3, 4, 5, 6]
+
+        Check that strip is reversed to fix winding
+        -------------------------------------------
+
+        >>> m = Mesh()
+        >>> face0 = m.add_face(1, 3, 2)
+        >>> face1 = m.add_face(2, 3, 4)
+        >>> face2 = m.add_face(4, 3, 5)
+        >>> m.lock()
+        >>> t = TriangleStrip()
+        >>> t.build(2, face1)
+        1
+        >>> t
+        TriangleStrip(stripped_faces=set([0, 1, 2]), faces=[Face(1, 3, 2), Face(2, 3, 4), Face(3, 5, 4)], vertices=[1, 2, 3, 4, 5], reversed_=True)
+        >>> t.get_strip()
+        [5, 4, 3, 2, 1]
         """
         del self.faces[:]
         del self.vertices[:]
