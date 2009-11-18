@@ -54,6 +54,15 @@ class SpellReadWrite(pyffi.spells.nif.NifSpell):
 
     SPELLNAME = "check_readwrite"
 
+    def datainspect(self):
+        """Only process nifs if they have all admissible block types.
+        Note that the default rule is to process a nif if it has at
+        least one admissible block type, but for read write spells it
+        makes more sense to impose all.
+        """
+        return all(self.toaster.isadmissiblebranchtype(header_type)
+                   for header_type in self.header_types)
+
     def dataentry(self):
         self.toaster.msgblockbegin("writing to temporary file")
 

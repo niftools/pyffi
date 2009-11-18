@@ -63,18 +63,18 @@ class NifSpell(pyffi.spells.Spell):
             return True
 
         # list of all block types used in the header
-        header_types = [getattr(NifFormat, block_type)
-                        for block_type
-                        in self.data.header.blockTypes]
+        self.header_types = [getattr(NifFormat, block_type)
+                             for block_type
+                             in self.data.header.blockTypes]
 
         # old file formats have no list of block types
         # we cover that here
-        if not header_types:
+        if not self.header_types:
             return True
 
         # check that at least one block type of the header is admissible
         return any(self.toaster.isadmissiblebranchtype(header_type)
-                   for header_type in header_types)
+                   for header_type in self.header_types)
 
     def inspectblocktype(self, block_type):
         """This function heuristically checks whether the given block type
