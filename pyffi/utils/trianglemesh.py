@@ -365,6 +365,12 @@ class Mesh:
         >>> m.lock()
         >>> m.faces # should be sorted
         [Face(0, 1, 2), Face(1, 2, 3), Face(2, 5, 6)]
+        >>> m.faces[0].index
+        0
+        >>> m.faces[1].index
+        1
+        >>> m.faces[2].index
+        2
         >>> m._faces # doctest: +ELLIPSIS
         Traceback (most recent call last):
             ...
