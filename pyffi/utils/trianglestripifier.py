@@ -112,12 +112,15 @@ class TriangleStrip(object):
                     self.vertices.insert(0, pv1)
                     self.faces.insert(0, next_face)
                     self.reversed_ = not self.reversed_
-            next_face = self.get_unstripped_adjacent_face(start_face, pv0)
+            next_face = self.get_unstripped_adjacent_face(next_face, pv0)
         return count
 
     def build(self, start_vertex, start_face):
         """Builds the face strip forwards, then backwards. Returns
         index of start_face.
+
+        Check case of single triangle
+        -----------------------------
 
         >>> m = Mesh()
         >>> face = m.add_face(0, 1, 2)
@@ -143,6 +146,9 @@ class TriangleStrip(object):
         TriangleStrip(stripped_faces=set([0]), faces=[Face(0, 1, 2)], vertices=[2, 0, 1], reversed_=False)
         >>> t.get_strip()
         [2, 0, 1]
+
+        Check case of two triangles, with special strip winding fix
+        -----------------------------------------------------------
 
         >>> m = Mesh()
         >>> face0 = m.add_face(0, 1, 2)
@@ -176,6 +182,23 @@ class TriangleStrip(object):
         TriangleStrip(stripped_faces=set([0, 1]), faces=[Face(1, 3, 2), Face(0, 1, 2)], vertices=[3, 2, 1, 0], reversed_=False)
         >>> t.get_strip()
         [3, 2, 1, 0]
+
+        Check that extra vertex is appended to fix winding
+        --------------------------------------------------
+
+        >>> m = Mesh()
+        >>> face0 = m.add_face(1, 3, 2)
+        >>> face1 = m.add_face(2, 3, 4)
+        >>> face2 = m.add_face(4, 3, 5)
+        >>> face3 = m.add_face(4, 5, 6)
+        >>> m.lock()
+        >>> t = TriangleStrip()
+        >>> t.build(2, face1)
+        1
+        >>> t
+        TriangleStrip(stripped_faces=set([0, 1, 2, 3]), faces=[Face(1, 3, 2), Face(2, 3, 4), Face(3, 5, 4), Face(4, 5, 6)], vertices=[1, 2, 3, 4, 5, 6], reversed_=True)
+        >>> t.get_strip()
+        [1, 1, 2, 3, 4, 5, 6]
         """
         del self.faces[:]
         del self.vertices[:]
