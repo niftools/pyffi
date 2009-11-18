@@ -245,6 +245,27 @@ class TriangleStrip(object):
         False
         >>> t.get_strip()
         [12, 11, 10, 4, 7, 2, 1, 0, 13]
+
+        Mesh which has more than a single strip
+        ---------------------------------------
+
+        >>> m = Mesh()
+        >>> tmp = m.add_face(2, 1, 7) # in strip
+        >>> start_face = m.add_face(0, 1, 2) # in strip
+        >>> tmp = m.add_face(2, 7, 4) # in strip
+        >>> tmp = m.add_face(4, 7, 11) # in strip
+        >>> tmp = m.add_face(5, 3, 2)
+        >>> tmp = m.add_face(1, 0, 8) # in strip
+        >>> tmp = m.add_face(0, 8, 9) # bad orientation!
+        >>> tmp = m.add_face(8, 0, 10) # in strip
+        >>> m.lock()
+        >>> t = TriangleStrip()
+        >>> t.build(0, start_face)
+        2
+        >>> t.vertices
+        [10, 8, 0, 1, 2, 7, 4, 11]
+        >>> t.get_strip()
+        [10, 8, 0, 1, 2, 7, 4, 11]
         """
         del self.faces[:]
         del self.vertices[:]
