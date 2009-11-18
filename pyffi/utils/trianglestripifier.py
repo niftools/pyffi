@@ -215,6 +215,36 @@ class TriangleStrip(object):
         TriangleStrip(stripped_faces=set([0, 1, 2]), faces=[Face(1, 3, 2), Face(2, 3, 4), Face(3, 5, 4)], vertices=[1, 2, 3, 4, 5], reversed_=True)
         >>> t.get_strip()
         [5, 4, 3, 2, 1]
+
+        More complicated mesh
+        ---------------------
+
+        >>> m = Mesh()
+        >>> face0 = m.add_face(0, 1, 2)
+        >>> face1 = m.add_face(2, 1, 7)
+        >>> face2 = m.add_face(2, 7, 4)
+        >>> face3 = m.add_face(5, 3, 2)
+        >>> face4 = m.add_face(2, 1, 9)
+        >>> face5 = m.add_face(4, 7, 10)
+        >>> face6 = m.add_face(4, 10, 11)
+        >>> face7 = m.add_face(11, 10, 12)
+        >>> face8 = m.add_face(1, 0, 13)
+        >>> m.lock()
+        >>> t = TriangleStrip()
+        >>> t.build(7, face1)
+        4
+        >>> t.faces[4] == face1 # check result from build
+        True
+        >>> t.stripped_faces
+        set([0, 1, 2, 5, 6, 7, 8])
+        >>> t.faces
+        [Face(10, 12, 11), Face(4, 10, 11), Face(4, 7, 10), Face(2, 7, 4), Face(1, 7, 2), Face(0, 1, 2), Face(0, 13, 1)]
+        >>> t.vertices
+        [12, 11, 10, 4, 7, 2, 1, 0, 13]
+        >>> t.reversed_
+        False
+        >>> t.get_strip()
+        [12, 11, 10, 4, 7, 2, 1, 0, 13]
         """
         del self.faces[:]
         del self.vertices[:]
