@@ -4572,6 +4572,10 @@
         <add name="Bone Bounds" type="SphereBV" cond="Flags &amp; 2" arr1="Num Bones">The bounds of the bones.  Only stored if the RECOMPUTE_BOUNDS bit is set.</add> <!-- Note, "SphereBV" is actually "NiBound."-->
     </niobject>
 
+    <niobject name="NiInstancingMeshModifier" ver1="20.5.0.0" inherit="NiMeshModifier">
+        <!-- not yet decoded -->
+    </niobject>
+
     <niobject name="NiSkinningLODController" ver1="20.5.0.0" inherit="NiTimeController">
     </niobject>
     
@@ -4976,6 +4980,22 @@
     </niobject>
 
     <niobject name="NiPSSpawner" ver1="30.0.0.2" inherit="NiObject">
+        <!-- not yet decoded -->
+    </niobject>
+
+    <niobject name="NiSequenceData" ver1="30.0.0.2" inherit="NiObject">
+        <!-- not yet decoded -->
+    </niobject>
+
+    <niobject name="NiTransformEvaluator" ver1="30.0.0.2" inherit="NiObject">
+        <!-- not yet decoded -->
+    </niobject>
+
+    <niobject name="NiBSplineCompTransformEvaluator" ver1="30.0.0.2" inherit="NiObject">
+        <!-- not yet decoded -->
+    </niobject>
+
+    <niobject name="NiMeshHWInstance" ver1="30.0.0.2" inherit="NiObject">
         <!-- not yet decoded -->
     </niobject>
 
