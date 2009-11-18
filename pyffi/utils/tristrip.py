@@ -44,7 +44,7 @@ try:
 except ImportError:
     pytristrip = None
     from pyffi.utils.trianglestripifier import TriangleStripifier
-    from pyffi.utils.trianglemesh import FaceEdgeMesh
+    from pyffi.utils.trianglemesh import Mesh
 
 def triangulate(strips):
     """A generator for iterating over the faces in a set of
@@ -178,24 +178,20 @@ def stripify(triangles, stitchstrips = False):
     else:
         strips = []
         # build a mesh from triangles
-        mesh = FaceEdgeMesh()
+        mesh = Mesh()
         for face in triangles:
-            mesh.AddFace(*face)
+            mesh.add_face(*face)
+        mesh.lock()
 
         # calculate the strip
-        stripifier = TriangleStripifier()
-        stripifier.GLSelector.MinStripLength = 0
-        stripifier.GLSelector.Samples = 10
-        stripifier(mesh)
-
-        # add the triangles to it
-        strips.extend([face for face in _generate_faces_from_triangles(stripifier.TriangleList)])
-        # add strips
-        strips.extend(stripifier.TriangleStrips)
+        stripifier = TriangleStripifier(mesh)
+        strips = stripifier.find_all_strips()
 
     # stitch the strips if needed
-    if stitchstrips: return [stitchStrips(strips)]
-    else: return strips
+    if stitchstrips:
+        return [stitchStrips(strips)]
+    else:
+        return strips
 
 class OrientedStrip:
     """An oriented strip, with stitching support."""

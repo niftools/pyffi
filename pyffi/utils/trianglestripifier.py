@@ -47,6 +47,8 @@ output in all circumstances.
 #
 # ***** END LICENSE BLOCK *****
 
+import itertools
+
 from pyffi.utils.trianglemesh import Face, Mesh
 
 class TriangleStrip(object):
@@ -317,7 +319,7 @@ class Experiment(object):
         # build initial strip
         strip = TriangleStrip(stripped_faces=self.stripped_faces)
         strip.build(self.start_vertex, self.start_face)
-        strips.append(strip)
+        self.strips.append(strip)
         num_faces = len(strip.faces)
         if num_faces >= 4:
             self.build_adjacent(strip, num_faces / 2)
@@ -350,7 +352,7 @@ class Experiment(object):
             else:
                 other_vertex = strip.vertices[face_index + 2]
                 face_index = other_strip.build(other_vertex, other_face)
-            strips.append(other_strip)
+            self.strips.append(other_strip)
             if face_index > len(other_strip.faces) / 2:
                 self.build_adjacent(other_strip, face_index - 1)
             elif face_index < len(other_strip.faces) - 1:
@@ -391,7 +393,6 @@ class TriangleStripifier(object):
         self.num_samples = 10
         self.mesh = mesh
         self.start_face_index = 0
-        self.faces = list(self.mesh.faces.itervalues())
 
     def find_good_reset_point(self, stripped_faces):
         """Find a good face to start stripification, potentially
@@ -399,15 +400,15 @@ class TriangleStripifier(object):
         stored in start_face_index. Returns True, unless no more
         faces are left.
 	"""
-        if not self.faces:
+        if not self.mesh.faces:
             return False
-        self.start_face_index += len(self.faces) / self.num_samples
-        if self.start_face_index >= len(self.faces):
-            self.start_face_index -= len(self.faces)
+        self.start_face_index += len(self.mesh.faces) / self.num_samples
+        if self.start_face_index >= len(self.mesh.faces):
+            self.start_face_index -= len(self.mesh.faces)
         for face_index in itertools.chain(
-            xrange(self.start_face_index, len(self.faces)),
+            xrange(self.start_face_index, len(self.mesh.faces)),
             xrange(0, self.start_face_index)):
-            face = self.faces[face_index]
+            face = self.mesh.faces[face_index]
             if face.index not in stripped_faces:
                 self.start_face_index = face_index
                 return True
@@ -427,9 +428,9 @@ class TriangleStripifier(object):
                 if not self.find_good_reset_point(stripped_faces):
                     break
                 exp_face = self.mesh.faces[self.start_face_index]
-                if start_face_index in visited_reset_points:
+                if self.start_face_index in visited_reset_points:
                     continue
-                visited_reset_points.add(start_face_index)
+                visited_reset_points.add(self.start_face_index)
                 for exp_vertex in exp_face.verts:
                     experiments.append(
                         Experiment(start_vertex=exp_vertex,
@@ -444,7 +445,9 @@ class TriangleStripifier(object):
                 experiment.build(stripped_faces=stripped_faces.copy())
                 selector.update(experiment)
             stripped_faces = selector.best_experiment.stripped_faces
-            all_strips.extend(selector.best_experiment.strips)
+            all_strips.extend(
+                (strip.get_strip()
+                 for strip in selector.best_experiment.strips))
             selector.clear()
 
 if __name__=='__main__':
