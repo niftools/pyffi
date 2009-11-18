@@ -127,14 +127,55 @@ class TriangleStrip(object):
         0
         >>> t
         TriangleStrip(stripped_faces=set([0]), faces=[Face(0, 1, 2)], vertices=[0, 1, 2], reversed_=False)
+        >>> t.get_strip()
+        [0, 1, 2]
+        >>> t = TriangleStrip()
         >>> t.build(1, face)
         0
         >>> t
         TriangleStrip(stripped_faces=set([0]), faces=[Face(0, 1, 2)], vertices=[1, 2, 0], reversed_=False)
+        >>> t.get_strip()
+        [1, 2, 0]
+        >>> t = TriangleStrip()
         >>> t.build(2, face)
         0
         >>> t
         TriangleStrip(stripped_faces=set([0]), faces=[Face(0, 1, 2)], vertices=[2, 0, 1], reversed_=False)
+        >>> t.get_strip()
+        [2, 0, 1]
+
+        >>> m = Mesh()
+        >>> face0 = m.add_face(0, 1, 2)
+        >>> face1 = m.add_face(2, 1, 3)
+        >>> m.lock()
+        >>> t = TriangleStrip()
+        >>> t.build(0, face0)
+        0
+        >>> t
+        TriangleStrip(stripped_faces=set([0, 1]), faces=[Face(0, 1, 2), Face(1, 3, 2)], vertices=[0, 1, 2, 3], reversed_=False)
+        >>> t.get_strip()
+        [0, 1, 2, 3]
+        >>> t = TriangleStrip()
+        >>> t.build(1, face0)
+        1
+        >>> t
+        TriangleStrip(stripped_faces=set([0, 1]), faces=[Face(1, 3, 2), Face(0, 1, 2)], vertices=[3, 1, 2, 0], reversed_=True)
+        >>> t.get_strip()
+        [3, 2, 1, 0]
+        >>> t = TriangleStrip()
+        >>> t.build(2, face1)
+        1
+        >>> t
+        TriangleStrip(stripped_faces=set([0, 1]), faces=[Face(0, 1, 2), Face(1, 3, 2)], vertices=[0, 2, 1, 3], reversed_=True)
+        >>> t.get_strip()
+        [0, 1, 2, 3]
+        >>> t = TriangleStrip()
+        >>> t.build(3, face1)
+        0
+        >>> t
+        TriangleStrip(stripped_faces=set([0, 1]), faces=[Face(1, 3, 2), Face(0, 1, 2)], vertices=[3, 2, 1, 0], reversed_=False)
+        >>> t.get_strip()
+        [3, 2, 1, 0]
         """
         del self.faces[:]
         del self.vertices[:]
@@ -153,10 +194,10 @@ class TriangleStrip(object):
     def get_strip(self):
         """Get strip in forward winding."""
         strip = []
-        if self._reversed:
+        if self.reversed_:
             if len(self.vertices) & 1:
                 strip = list(reversed(self.vertices))
-            elif len(self.vertices == 4):
+            elif len(self.vertices) == 4:
                 strip = list(self.vertices[i] for i in (0, 2, 1, 3))
             else:
                 strip = list(self.vertices)
