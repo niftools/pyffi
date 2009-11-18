@@ -65,7 +65,8 @@ class TriangleStrip(object):
         self.reversed_ = reversed_
 
         # set of indices of stripped faces
-        self.stripped_faces = stripped_faces if stripped_faces else set()
+        self.stripped_faces = (stripped_faces
+                               if stripped_faces is not None else set())
 
     def __repr__(self):
         return ("TriangleStrip(stripped_faces=%s, faces=%s, vertices=%s, reversed_=%s)"
