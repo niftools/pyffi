@@ -52,6 +52,7 @@ import pyffi.spells.nif.check
 import pyffi.spells.nif.dump
 import pyffi.spells.nif.fix
 import pyffi.spells.nif.optimize
+import pyffi.spells.nif.modify
 
 class NifToaster(pyffi.spells.nif.NifToaster):
     """Class for toasting nif files, using any of the available spells."""
@@ -92,7 +93,9 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         pyffi.spells.nif.optimize.SpellMergeDuplicates,
         pyffi.spells.nif.optimize.SpellOptimizeGeometry,
         #pyffi.spells.nif.optimize.SpellOptimizeSplit,
-        pyffi.spells.nif.optimize.SpellOptimize]
+        pyffi.spells.nif.optimize.SpellOptimize,
+        pyffi.spells.nif.modify.SpellRetexture
+        ]
     ALIASDICT = {
         "texdump": "dump_tex",
         "read": "check_read",
@@ -106,7 +109,7 @@ class NifToaster(pyffi.spells.nif.NifToaster):
 
     python niftoaster.py check_read .
 
-* optimize all nif files a directory tree, recursively
+* optimize all nif files in a directory tree, recursively
 
     python niftoaster.py optimize /path/to/your/nifs/
 
