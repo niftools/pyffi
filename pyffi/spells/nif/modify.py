@@ -1,4 +1,6 @@
-"""Module which contains all spells that do modification of a non fixing nature to a nif."""
+"""Module which contains all spells that modify a nif (anything that
+is not a fix).
+"""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
@@ -45,20 +47,26 @@ import pyffi.spells.nif
 import pyffi.spells.nif.check # recycle checking spells for update spells
 import os
 
-# base settings to be accessible... to be removed most likely.
-class BaseNames():
-    skip = ''
-    newPath = ''
+class SpellTexturePath(NifSpell):
+    """Changes the texture path while keeping the texture names."""
 
-class SpellRetexture(NifSpell):
-    """Retextures meshes by changing the texture path but not the texture name"""
-
-    SPELLNAME = "modify_retexture"
+    SPELLNAME = "modify_texturepath"
     READONLY = False
-	
-    def init(self):
-       # TODO: Get new texture path but for now simpler and easier for testing the rest of my code... (and does I want it for)
-	   BaseNames.newPath = r'textures\pm\dungeons\bloodyayleid\interior'
+
+    @classmethod
+    def toastentry(cls, toaster):
+        if not toaster.options["arg"]:
+            toaster.logger.warn(
+                "must specify path as argument "
+                "(e.g. -a textures\\pm\\dungeons\\bloodyayleid\\interior) "
+                "to apply spell")
+            return False
+        else:
+            toaster.texture_path = str(toaster.options["arg"])
+            # standardize the path
+            toaster.texture_path = toaster.texture_path.replace("/", os.sep)
+            toaster.texture_path = toaster.texture_path.replace("\\", os.sep)
+            return True
 
     def datainspect(self):
         return self.inspectblocktype(NifFormat.NiSourceTexture)
@@ -71,14 +79,16 @@ class SpellRetexture(NifSpell):
 
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiSourceTexture):
-            curPath = branch.fileName
-            curName = os.path.basename(curPath)
-            newPath = r'textures\pm\dungeons\bloodyayleid\interior'
-            branch.fileName = os.path.join(newPath,curName) 
-            self.toaster.msg("Changing texture path.")
+            old_file_name = str(branch.fileName) # for reporting
+            # note: replace backslashes by os.sep in filename, and
+            # when joined, revert them back, for linux
+            branch.fileName = os.path.join(
+                self.toaster.texture_path,
+                os.path.basename(old_file_name.replace("\\", os.sep))
+                ).replace(os.sep, "\\") 
+            self.toaster.msg("%s -> %s" % (old_file_name, branch.fileName))
             # all textures done no need to recurse further.
             return False
         else:
             # recurse further
             return True
-#-----------------------------------------------------------------------

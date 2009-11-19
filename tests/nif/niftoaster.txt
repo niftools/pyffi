@@ -69,7 +69,7 @@ The --examples switch
 <BLANKLINE>
     python niftoaster.py check_read .
 <BLANKLINE>
-* optimize all nif files a directory tree, recursively
+* optimize all nif files in a directory tree, recursively
 <BLANKLINE>
     python niftoaster.py optimize /path/to/your/nifs/
 <BLANKLINE>
@@ -145,6 +145,7 @@ opt_cleanreflists
 opt_mergeduplicates
 opt_geometry
 optimize
+modify_texturepath
 
 The check_readwrite spell and the --raise switch
 ------------------------------------------------
