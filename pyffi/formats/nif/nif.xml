@@ -4384,7 +4384,28 @@
         <option value="0x0001043E" name="F_UINT_10_10_10_2"></option>
     </enum>
 
+    <enum name="DataStreamUsage" storage="uint">
+        Determines how a data stream is used?
+        <option value="0" name="USAGE_VERTEX_INDEX"></option>
+        <option value="1" name="USAGE_VERTEX"></option>
+        <option value="2" name="USAGE_SHADER_CONSTANT"></option>
+        <option value="3" name="USAGE_USER"></option>
+    </enum>
+    
+    <bitflags name="DataStreamAccess" storage="uint">
+        Determines how the data stream is accessed?
+        <option value="0" name="CPU Read"></option>
+        <option value="1" name="CPU Write Static"></option>
+        <option value="2" name="CPU Write Mutable"></option>
+        <option value="3" name="CPU Write Volatile"></option>
+        <option value="4" name="GPU Read"></option>
+        <option value="5" name="GPU Write"></option>
+        <option value="6" name="CPU Write Static Inititialized"></option>
+    </bitflags>
+
     <niobject name="NiDataStreamBase" ver1="20.5.0.0" inherit="NiObject" abstract="1">
+        <add name="Usage" type="DataStreamUsage" abstract="1"></add>
+        <add name="Access" type="DataStreamAccess" abstract="1"></add>
         <add name="Num Bytes" type="uint">The size in bytes of this data stream.</add>
         <add name="Cloning Behavior" type="CloningBehavior" default="0" />
         <add name="Num Regions" type="uint">Number of regions (such as submeshes).</add>
