@@ -160,6 +160,9 @@ class StructAttribute(object):
     :type ver2: ``int`` or C{type(None)}
     :ivar userver: The user version where this member exists.
     :type userver: ``int`` or C{type(None)}
+    :ivar is_abstract: Whether the attribute is abstract or not (i.e.
+        read and written).
+    :type is_abstract: ``bool``
     """
 
     def __init__(self, cls, attrs):
@@ -192,6 +195,7 @@ class StructAttribute(object):
         self.ver2 = attrs.get("ver2")
         self.userver = attrs.get("userver")
         self.doc = "" # handled in xml parser's characters function
+        self.is_abstract = (attrs.get("abstract") == "1")
 
         # post-processing
         if self.default:

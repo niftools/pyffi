@@ -326,6 +326,9 @@ class StructBase(GlobalNode):
         self.arg = kwargs.get('argument')
         # read all attributes
         for attr in self._filteredAttributeList(**kwargs):
+            # skip abstract attributes
+            if attr.is_abstract:
+                continue
             # get attribute argument (can only be done at runtime)
             rt_arg = attr.arg if isinstance(attr.arg, (int, long, type(None))) \
                      else getattr(self, attr.arg)
@@ -349,6 +352,9 @@ class StructBase(GlobalNode):
         self.arg = kwargs.get('argument')
         # write all attributes
         for attr in self._filteredAttributeList(**kwargs):
+            # skip abstract attributes
+            if attr.is_abstract:
+                continue
             # get attribute argument (can only be done at runtime)
             rt_arg = attr.arg if isinstance(attr.arg, (int, long, type(None))) \
                      else getattr(self, attr.arg)
@@ -432,6 +438,9 @@ class StructBase(GlobalNode):
         # calculate size
         size = 0
         for attr in self._filteredAttributeList(**kwargs):
+            # skip abstract attributes
+            if attr.is_abstract:
+                continue
             size += getattr(self, "_%s_value_" % attr.name).getSize(**kwargs)
         return size
 
