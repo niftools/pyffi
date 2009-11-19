@@ -75,11 +75,8 @@ class SpellRetexture(NifSpell):
             curName = os.path.basename(curPath)
             newPath = r'textures\pm\dungeons\bloodyayleid\interior'
             branch.fileName = os.path.join(newPath,curName) 
-            # no tangent space found
-            #branch.fileName = r'textures\pm\dungeons\bloodyayleid\interior\arwall02.dds'
-            #branch.fileName = r'textures\pm\dungeons\bloodyayleid\interior\arwall01.dds'
             self.toaster.msg("Changing texture path.")
-            # all extra blocks here done; no need to recurse further
+            # all textures done no need to recurse further.
             return False
         else:
             # recurse further
