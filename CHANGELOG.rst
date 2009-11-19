@@ -7,6 +7,13 @@ Release 2.0.5 (in development)
 * Improved strip stitching algorithm: should now be much more efficient, and
   rarely need 3 stitches.
 
+* Added new modify_texturepath niftoaster spell (contributed by
+  PacificMorrowind).
+
+* Various fixes and improvements for 20.5.0.0+ nifs.
+
+* Check endian type when processing nifs.
+
 Release 2.0.4 (Nov 10, 2009)
 ============================
 
