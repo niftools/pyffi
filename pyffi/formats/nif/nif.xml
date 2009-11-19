@@ -4403,7 +4403,7 @@
         <option value="6" name="CPU Write Static Inititialized"></option>
     </bitflags>
 
-    <niobject name="NiDataStreamBase" ver1="20.5.0.0" inherit="NiObject" abstract="1">
+    <niobject name="NiDataStream" ver1="20.5.0.0" inherit="NiObject" abstract="1">
         <add name="Usage" type="DataStreamUsage" abstract="1"></add>
         <add name="Access" type="DataStreamAccess" abstract="1"></add>
         <add name="Num Bytes" type="uint">The size in bytes of this data stream.</add>
@@ -4412,50 +4412,9 @@
         <add name="Regions" type="Region" arr1="Num Regions">The regions in the mesh. Regions can be used to mark off submeshes which are independent draw calls.</add>
         <add name="Num Components" type="uint">Number of components of the data (matches corresponding field in MeshData).</add>
         <add name="Component Formats" type="ComponentFormat" arr1="Num Components">The format of each component in this data stream.</add>
-    </niobject>
-
-    <niobject name="NiDataStreamUndecoded" ver1="20.5.0.0" inherit="NiDataStreamBase" abstract="1">
-        For undecoded data. Temporarily defined until all streams are decoded.
+        <!-- temporarily defined as blob until we have a way to handle this -->
         <add name="Data" type="byte" nifskopetype="blob" arr1="Num Bytes" />
         <add name="Streamable" type="bool" default="1" />
-    </niobject>
-
-    <niobject name="NiDataStream\x010\x0118" ver1="20.5.0.0" inherit="NiDataStreamBase">
-        Triangles with short indices.
-        <add name="Data" type="ushort" arr1="Num Bytes / 2" />
-        <add name="Streamable" type="bool" default="1" />
-    </niobject>
-
-    <niobject name="NiDataStream\x011\x0118" ver1="20.5.0.0" inherit="NiDataStreamBase">
-        Float data (used for vertices, normals, uvs).
-        <add name="Data" type="float" arr1="Num Bytes / 4" />
-        <add name="Streamable" type="bool" default="1" />
-    </niobject>
-
-    <niobject name="NiDataStream\x010\x0119" ver1="20.5.0.0" inherit="NiDataStreamBase">
-        Triangles with integer indices.
-        <add name="Data" type="uint" arr1="Num Bytes / 4" />
-        <add name="Streamable" type="bool" default="1" />
-    </niobject>
-
-    <niobject name="NiDataStream\x011\x0119" ver1="20.5.0.0" inherit="NiDataStream\x011\x0118" />
-
-    <niobject name="NiDataStream\x011\x0120" ver1="20.5.0.0" inherit="NiDataStreamUndecoded">
-    </niobject>
-
-    <niobject name="NiDataStream\x011\x0121" ver1="20.5.0.0" inherit="NiDataStream\x011\x0118" />
-    
-    <niobject name="NiDataStream\x011\x0124" ver1="20.5.0.0" inherit="NiDataStreamUndecoded">
-    </niobject>
-
-    <niobject name="NiDataStream\x011\x013" ver1="20.5.0.0" inherit="NiDataStreamUndecoded">
-    </niobject>
-
-    <niobject name="NiDataStream\x013\x013" ver1="20.5.0.0" inherit="NiDataStream\x010\x0118">
-        Short data (used for bone palette).
-    </niobject>
-
-    <niobject name="NiDataStream\x013\x015" ver1="20.5.0.0" inherit="NiDataStreamUndecoded">
     </niobject>
 
     <compound name="SemanticData">
@@ -4471,7 +4430,7 @@
     </compound>
 
     <compound name="MeshData">
-        <add name="Stream" type="Ref" template="NiDataStreamBase">
+        <add name="Stream" type="Ref" template="NiDataStream">
             Reference to a data stream object which holds the data used by
             this reference.
         </add>

@@ -1279,6 +1279,11 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                     block_type = self.header.blockTypes[
                         self.header.blockTypeIndex[block_num] & 0xfff]
                     block_type = block_type.decode("ascii")
+                    # handle data stream classes
+                    if block_type.startswith("NiDataStream\x01"):
+                        block_type, data_stream_usage, data_stream_access = block_type.split("\x01")
+                        data_stream_usage = int(data_stream_usage)
+                        data_stream_access = int(data_stream_access)
                     # read dummy integer
                     if self.version <= 0x0A01006A:
                         dummy, = struct.unpack('<I', stream.read(4))
@@ -1308,7 +1313,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                             raise NifFormat.NifError(
                                 'duplicate block index (0x%08X at 0x%08X)'
                                 %(block_index, stream.tell()))
-                # create and read block
+                # create the block
                 try:
                     block = getattr(NifFormat, block_type)()
                 except AttributeError:
@@ -1316,6 +1321,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                         "Unknown block type '%s'." % block_type)
                 logger.debug("Reading %s block at 0x%08X"
                              % (block_type, stream.tell()))
+                # read the block
                 try:
                     block.read(
                         stream,
@@ -1327,6 +1333,11 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                     #logger.error("block that failed:")
                     #logger.error("%s" % block)
                     raise
+                # complete NiDataStream data
+                if block_type == "NiDataStream":
+                    block.usage = data_stream_usage
+                    block.access.from_int(data_stream_access)
+                # store block index
                 block_dct[block_index] = block
                 self.blocks.append(block)
                 # check block size
@@ -1517,6 +1528,11 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                 return
             # add block type to block type dictionary
             block_type = root.__class__.__name__
+            # special case: NiDataStream stores part of data in block type list
+            if block_type == "NiDataStream":
+                # XXX assumed here that root.access is version independent!!
+                block_type = "NiDataStream\x01%i\x01%i" % (root.usage,
+                                                           root.access.to_int())
             try:
                 block_type_dct[root] = block_type_list.index(block_type)
             except ValueError:

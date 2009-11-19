@@ -56,9 +56,12 @@ class NifSpell(pyffi.spells.Spell):
     def _datainspect(self):
         # list of all block types used in the header
         # (do this first, spells may depend on this being present)
-        self.header_types = [getattr(NifFormat, block_type)
-                             for block_type
-                             in self.data.header.blockTypes]
+        self.header_types = []
+        for block_type in self.data.header.blockTypes:
+            # handle NiDataStream
+            if block_type.startswith("NiDataStream\x01"):
+                block_type = "NiDataStream"
+            self.header_types.append(getattr(NifFormat, block_type))
 
         # call base method
         if not pyffi.spells.Spell._datainspect(self):
