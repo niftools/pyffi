@@ -176,6 +176,14 @@ class BitStructBase(DetailNode):
     * a : 5
     * b : 1
     <BLANKLINE>
+    >>> y.to_int()
+    13
+    >>> y.from_int(9)
+    >>> print(y) # doctest:+ELLIPSIS
+    <class 'pyffi.object_models.xml.BitStruct.Flags'> instance at 0x...
+    * a : 1
+    * b : 1
+    <BLANKLINE>
     """
 
     __metaclass__ = _MetaBitStructBase
@@ -270,6 +278,10 @@ class BitStructBase(DetailNode):
         # read all attributes
         value = struct.unpack(self._struct, stream.read(self._numbytes))[0]
         # set the structure variables
+        self.from_int(value, **kwargs)
+
+    def from_int(self, value, **kwargs):
+        """Set structure values from integer."""
         bitpos = 0
         for attr in self._filteredAttributeList(**kwargs):
             #print(attr.name) # debug
@@ -277,18 +289,22 @@ class BitStructBase(DetailNode):
             setattr(self, attr.name, attrvalue)
             bitpos += attr.numbits
 
-    def write(self, stream, **kwargs):
-        """Write structure to stream."""
-        self.arg = kwargs.get('argument')
-        # write all attributes
+    def to_int(self, **kwargs):
+        # implementation note: not defined via __int__ because conversion
+        # takes arguments
+        """Get as integer."""
         value = 0
         bitpos = 0
         for attr in self._filteredAttributeList(**kwargs):
             attrvalue = getattr(self, attr.name)
             value |= (attrvalue & ((1 << attr.numbits) - 1)) << bitpos
             bitpos += attr.numbits
-        # write the attribute
-        stream.write(struct.pack(self._struct, value))
+        return value
+
+    def write(self, stream, **kwargs):
+        """Write structure to stream."""
+        self.arg = kwargs.get('argument')
+        stream.write(struct.pack(self._struct, self.to_int(**kwargs)))
 
     def fixLinks(self, **kwargs):
         """Fix links in the structure."""
