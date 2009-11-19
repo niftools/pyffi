@@ -108,7 +108,7 @@
        <add name="Num Asym Morphs" type="int">
             Number of asymmetrical morphs. Oblivion = 30.
        </add>
-       <add name="Time Date Stamp" type="uint">
+       <add name="Time Date Stamp" type="uint" default="2001060901">
             Time stamp? Always 2001060901 for Oblivon.
        </add>
        <add name="Unknown Ints" type="int" arr1="10">
