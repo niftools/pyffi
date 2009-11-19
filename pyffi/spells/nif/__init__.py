@@ -54,6 +54,12 @@ class NifSpell(pyffi.spells.Spell):
     """Base class for spells for nif files."""
 
     def _datainspect(self):
+        # list of all block types used in the header
+        # (do this first, spells may depend on this being present)
+        self.header_types = [getattr(NifFormat, block_type)
+                             for block_type
+                             in self.data.header.blockTypes]
+
         # call base method
         if not pyffi.spells.Spell._datainspect(self):
             return False
@@ -61,11 +67,6 @@ class NifSpell(pyffi.spells.Spell):
         # shortcut for common case (speeds up the check in most cases)
         if not self.toaster.include_types and not self.toaster.exclude_types:
             return True
-
-        # list of all block types used in the header
-        self.header_types = [getattr(NifFormat, block_type)
-                             for block_type
-                             in self.data.header.blockTypes]
 
         # old file formats have no list of block types
         # we cover that here
