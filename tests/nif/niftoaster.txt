@@ -156,7 +156,7 @@ The check_readwrite spell and the --raise switch
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
 Traceback (most recent call last):
     ...
-ValueError: Unknown block type 'NiInvalid!'.
+AttributeError: type object 'NifFormat' has no attribute 'NiInvalid!'
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "check_readwrite", "tests/nif/"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS +REPORT_NDIFF
 pyffi.toaster:INFO:=== tests/nif/invalid.nif ===
@@ -1042,12 +1042,23 @@ pyffi.toaster:INFO:    ~~~ NiNode [Lowerclass Dunmer Cup Type-1] ~~~
 pyffi.toaster:INFO:      ~~~ NiTriStrips [Lowerclass Dunmer Cup Type-1] ~~~
 pyffi.toaster:INFO:        ~~~ NiTriStripsData [] ~~~
 pyffi.toaster:INFO:          getting triangles
-pyffi.toaster:INFO:          calculating strips
-pyffi.toaster:INFO:          stripified with 120 strips
 pyffi.toaster:INFO:          checking strip triangles
+pyffi.toaster:INFO:          stitched strip length = 1247
+pyffi.toaster:INFO:          num stitches          = 617
+pyffi.toaster:INFO:          checking unstitched strip triangles
+pyffi.toaster:INFO:          restitching
+pyffi.toaster:INFO:          stitched strip length = 919
+pyffi.toaster:INFO:          num stitches          = 289
+pyffi.toaster:INFO:          checking restitched strip triangles
+pyffi.toaster:INFO:          num strips            = 208
+pyffi.toaster:INFO:          average strip length  = 3.029
+pyffi.toaster:INFO:          recalculating strips
+pyffi.toaster:INFO:          checking strip triangles
+pyffi.toaster:INFO:          num strips            = 120
+pyffi.toaster:INFO:          average strip length  = 3.892
 pyffi.toaster:INFO:          checking stitched strip triangles
 pyffi.toaster:INFO:          checking unstitched strip triangles
-pyffi.toaster:INFO:average strip length = 3.89...
+pyffi.toaster:INFO:average strip length = 3.891667
 pyffi.toaster:INFO:Finished.
 
 The fix_mergeskeletonroots spell
@@ -1174,11 +1185,12 @@ The check_version spell
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "check_version", "tests/nif", "-a", "10"]
->>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS +REPORT_NDIFF
 pyffi.toaster:INFO:=== tests/nif/invalid.nif ===
-pyffi.toaster:INFO:  version      0x14010003
-pyffi.toaster:INFO:  user version 0
-pyffi.toaster:INFO:  user version 0
+pyffi.toaster:ERROR:TEST FAILED ON tests/nif/invalid.nif
+pyffi.toaster:ERROR:If you were running a spell that came with PyFFI, then
+pyffi.toaster:ERROR:please report this as a bug (include the file) on
+pyffi.toaster:ERROR:http://sourceforge.net/tracker/?group_id=199269
 pyffi.toaster:INFO:=== tests/nif/test.nif ===
 pyffi.toaster:INFO:  version      0x14010003
 pyffi.toaster:INFO:  user version 0
@@ -1276,7 +1288,7 @@ pyffi.toaster:INFO:  number of nifs: 1
 pyffi.toaster:INFO:  user version:  [0]
 pyffi.toaster:INFO:  user version2: [0]
 pyffi.toaster:INFO:version 0x14010003
-pyffi.toaster:INFO:  number of nifs: 4
+pyffi.toaster:INFO:  number of nifs: 3
 pyffi.toaster:INFO:  user version:  [0]
 pyffi.toaster:INFO:  user version2: [0]
 pyffi.toaster:INFO:version 0x14000004
