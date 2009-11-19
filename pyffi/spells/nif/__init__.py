@@ -6,6 +6,7 @@
 .. automodule:: pyffi.spells.dump
 .. automodule:: pyffi.spells.fix
 .. automodule:: pyffi.spells.optimize
+.. automodule:: pyffi.spells.modify
 """
 
 # --------------------------------------------------------------------------
