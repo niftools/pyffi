@@ -92,3 +92,68 @@ class SpellTexturePath(NifSpell):
         else:
             # recurse further
             return True
+
+class SpellReCollision(NifSpell):
+    """Sets the object collision to be a different type"""
+
+    SPELLNAME = "modify_recollision"
+    READONLY = False
+	
+    @classmethod
+    def toastentry(cls, toaster):
+        if not toaster.options["arg"]:
+            toaster.logger.warn(
+                "must specify collision type to change to as argument "
+                "(e.g. -a Static (accepted names: Static, Anim_Static,Clutter,NonCollidable, X?X?X?X?"
+                "to apply spell")
+            return False
+        else:
+            toaster.colType = str(toaster.options["arg"])
+            # standardize the path
+            if toaster.colType != 'Static' and toaster.colType != 'Anim_Static' toaster.colType == 'Clutter': #and other valids once coded in.
+                toaster.logger.warn(
+                    "must specify collision type to change to as argument"
+                    "(e.g. -a Static (accepted names: Static, Anim_Static,Clutter,NonCollidable, X?X?X?X?"
+                    "to apply spell")
+                return False
+            else
+                return True
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.bhkRigidBody)
+  #                                   NifFormat.bhkRigidBodyT)
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.bhkCollisionObject,
+                                   NifFormat.bhkRigidBody,
+                                   NifFormat.bhkRigidBodyT,
+                                   NifFormat.bhkPackedNiTriStripsShape))
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.bhkRigidBody):# or isinstance(branch, NifFormat.bhkRigidBodyT):
+        #will be: if collisiontotype = stringX: to Static:
+            branch.layer = 1
+            branch.layerCopy = 1
+            branch.motionSystem = 7
+            branch.unkownByte1 = 1
+            branch.unkownByte2 = 1
+            branch.qualityType = 1
+            branch.wind = 0
+            branch.solid = True
+#more to add but test as is...
+            # no tangent space found
+            self.toaster.msg("Set Collision to: Static")
+            # all extra blocks here done; no need to recurse further
+            return False
+        if isinstance(branch, NifFormat.bhkPackedNiTriStripsShape):# or isinstance(branch, NifFormat.bhkRigidBodyT):
+        #will be: if collisiontotype = stringX: to Static:
+            branch.subShapes.layer = 1
+            # no tangent space found
+            self.toaster.msg("Set Collision to: Static")
+            # all extra blocks here done; no need to recurse further
+            return False
+        else:
+            # recurse further
+            return True
