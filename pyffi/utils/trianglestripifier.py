@@ -314,7 +314,40 @@ class Experiment(object):
         result.strips = self.strips[:] # copies list, not just a reference to it
 
     def build(self, stripped_faces):
-        """Build strips, starting from start_vertex and start_face."""
+        """Build strips, starting from start_vertex and start_face.
+
+        >>> m = Mesh()
+        >>> tmp = m.add_face(2, 1, 7)
+        >>> s1_face = m.add_face(0, 1, 2)
+        >>> tmp = m.add_face(2, 7, 4) # in strip
+        >>> tmp = m.add_face(4, 7, 11) # in strip
+        >>> tmp = m.add_face(5, 3, 2)
+        >>> tmp = m.add_face(1, 0, 8) # in strip
+        >>> tmp = m.add_face(0, 8, 9) # bad orientation!
+        >>> tmp = m.add_face(8, 0, 10) # in strip
+        >>> tmp = m.add_face(10, 11, 8) # in strip
+        >>> # parallel strip
+        >>> s2_face = m.add_face(0, 2, 21) # in strip
+        >>> tmp = m.add_face(21, 2, 22) # in strip
+        >>> tmp = m.add_face(2, 4, 22) # in strip
+        >>> tmp = m.add_face(21, 24, 0) # in strip
+        >>> tmp = m.add_face(9, 0, 24) # in strip
+        >>> # parallel strip, further down
+        >>> s3_face = m.add_face(8, 11, 31) # in strip
+        >>> tmp = m.add_face(8, 31, 32) # in strip
+        >>> tmp = m.add_face(31, 11, 33) # in strip
+        >>> m.lock()
+        >>> # build experiment
+        >>> exp = Experiment(0, s1_face)
+        >>> exp.build(set())
+        >>> len(exp.strips)
+        2
+        >>> exp.strips[0].get_strip()
+        [11, 4, 7, 2, 1, 0, 8, 10, 11]
+        >>> exp.strips[1].get_strip()
+        [4, 22, 2, 21, 0, 24, 9]
+        >>> # note: with current algorithm [32, 8, 31, 11, 33] is not found
+        """
         # keep link to set of stripped faces
         self.stripped_faces = stripped_faces
         # build initial strip
@@ -371,8 +404,8 @@ class ExperimentSelector(object):
         """Updates best experiment with given experiment, if given
         experiment beats current experiment.
         """
-        score = (sum(len(strip.faces) for strip in experiment.strips)
-                 / 1.0 * len(experiment.strips))
+        score = (sum((len(strip.faces) for strip in experiment.strips), 0.0)
+                 / len(experiment.strips))
         if score > self.best_score:
             self.best_score = score
             self.best_experiment = experiment
@@ -418,7 +451,45 @@ class TriangleStripifier(object):
             return False
 
     def find_all_strips(self):
-        """Find all strips."""
+        """Find all strips.
+
+        Empty mesh
+        ----------
+
+        >>> m = Mesh()
+        >>> m.lock()
+        >>> ts = TriangleStripifier(m)
+        >>> ts.find_all_strips()
+        []
+
+        Full mesh
+        ---------
+
+        >>> m = Mesh()
+        >>> tmp = m.add_face(2, 1, 7)
+        >>> tmp = m.add_face(0, 1, 2)
+        >>> tmp = m.add_face(2, 7, 4) # in strip
+        >>> tmp = m.add_face(4, 7, 11) # in strip
+        >>> tmp = m.add_face(5, 3, 2)
+        >>> tmp = m.add_face(1, 0, 8) # in strip
+        >>> tmp = m.add_face(0, 8, 9) # bad orientation!
+        >>> tmp = m.add_face(8, 0, 10) # in strip
+        >>> tmp = m.add_face(10, 11, 8) # in strip
+        >>> # parallel strip
+        >>> tmp = m.add_face(0, 2, 21) # in strip
+        >>> tmp = m.add_face(21, 2, 22) # in strip
+        >>> tmp = m.add_face(2, 4, 22) # in strip
+        >>> tmp = m.add_face(21, 24, 0) # in strip
+        >>> tmp = m.add_face(9, 0, 24) # in strip
+        >>> # parallel strip, further down
+        >>> tmp = m.add_face(8, 11, 31) # in strip
+        >>> tmp = m.add_face(8, 31, 32) # in strip
+        >>> tmp = m.add_face(31, 11, 33) # in strip
+        >>> m.lock()
+        >>> ts = TriangleStripifier(m)
+        >>> ts.find_all_strips()
+        [[11, 4, 7, 2, 1, 0, 8, 10, 11], [4, 22, 2, 21, 0, 24, 9], [32, 8, 31, 11, 33], [3, 2, 5], [9, 0, 8]]
+        """
         all_strips = []
         stripped_faces = set()
         selector = ExperimentSelector()
