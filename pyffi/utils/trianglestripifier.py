@@ -48,6 +48,7 @@ output in all circumstances.
 # ***** END LICENSE BLOCK *****
 
 import itertools
+import weakref
 
 from pyffi.utils.trianglemesh import Face, Mesh
 
@@ -57,26 +58,22 @@ class TriangleStrip(object):
     Origional can be found at http://developer.nvidia.com/view.asp?IO=nvtristrip_library.
     """
 
-    def __init__(self, stripped_faces=None,
+    def __init__(self, experiment=None,
                  faces=None, vertices=None, reversed_=False):
         """Initialise the triangle strip."""
         self.faces = faces if faces else []
         self.vertices = vertices if vertices else []
         self.reversed_ = reversed_
-
-        # set of indices of stripped faces
-        self.stripped_faces = (stripped_faces
-                               if stripped_faces is not None else set())
+        self.experiment = weakref.proxy(experiment)
 
     def __repr__(self):
-        return ("TriangleStrip(stripped_faces=%s, faces=%s, vertices=%s, reversed_=%s)"
-                % (repr(self.stripped_faces), repr(self.faces),
-                   repr(self.vertices), repr(self.reversed_)))
+        return ("TriangleStrip(faces=%s, vertices=%s, reversed_=%s)"
+                % (repr(self.faces), repr(self.vertices), repr(self.reversed_)))
 
     def get_unstripped_adjacent_face(self, face, vi):
         """Get adjacent face which is not yet stripped."""
         for otherface in face.get_adjacent_faces(vi):
-            if otherface.index not in self.stripped_faces:
+            if self.experiment.is_unstripped(otherface.index):
                 return otherface
 
     def traverse_faces(self, start_vertex, start_face, forward):
@@ -89,7 +86,7 @@ class TriangleStrip(object):
         pv2 = start_face.get_next_vertex(pv1)
         next_face = self.get_unstripped_adjacent_face(start_face, pv0)
         while next_face:
-            self.stripped_faces.add(next_face.index)
+            self.experiment.stripped_faces.add(next_face.index)
             count += 1
             if count & 1:
                 if forward:
@@ -128,25 +125,28 @@ class TriangleStrip(object):
         >>> m = Mesh()
         >>> face = m.add_face(0, 1, 2)
         >>> m.lock()
-        >>> t = TriangleStrip()
+        >>> exp = Experiment(m)
+        >>> t = TriangleStrip(exp)
         >>> t.build(0, face)
         0
         >>> t
-        TriangleStrip(stripped_faces=set([0]), faces=[Face(0, 1, 2)], vertices=[0, 1, 2], reversed_=False)
+        TriangleStrip(faces=[Face(0, 1, 2)], vertices=[0, 1, 2], reversed_=False)
         >>> t.get_strip()
         [0, 1, 2]
-        >>> t = TriangleStrip()
+        >>> exp = Experiment(m)
+        >>> t = TriangleStrip(exp)
         >>> t.build(1, face)
         0
         >>> t
-        TriangleStrip(stripped_faces=set([0]), faces=[Face(0, 1, 2)], vertices=[1, 2, 0], reversed_=False)
+        TriangleStrip(faces=[Face(0, 1, 2)], vertices=[1, 2, 0], reversed_=False)
         >>> t.get_strip()
         [1, 2, 0]
-        >>> t = TriangleStrip()
+        >>> exp = Experiment(m)
+        >>> t = TriangleStrip(exp)
         >>> t.build(2, face)
         0
         >>> t
-        TriangleStrip(stripped_faces=set([0]), faces=[Face(0, 1, 2)], vertices=[2, 0, 1], reversed_=False)
+        TriangleStrip(faces=[Face(0, 1, 2)], vertices=[2, 0, 1], reversed_=False)
         >>> t.get_strip()
         [2, 0, 1]
 
@@ -157,32 +157,36 @@ class TriangleStrip(object):
         >>> face0 = m.add_face(0, 1, 2)
         >>> face1 = m.add_face(2, 1, 3)
         >>> m.lock()
-        >>> t = TriangleStrip()
+        >>> exp = Experiment(m)
+        >>> t = TriangleStrip(exp)
         >>> t.build(0, face0)
         0
         >>> t
-        TriangleStrip(stripped_faces=set([0, 1]), faces=[Face(0, 1, 2), Face(1, 3, 2)], vertices=[0, 1, 2, 3], reversed_=False)
+        TriangleStrip(faces=[Face(0, 1, 2), Face(1, 3, 2)], vertices=[0, 1, 2, 3], reversed_=False)
         >>> t.get_strip()
         [0, 1, 2, 3]
-        >>> t = TriangleStrip()
+        >>> exp = Experiment(m)
+        >>> t = TriangleStrip(exp)
         >>> t.build(1, face0)
         1
         >>> t
-        TriangleStrip(stripped_faces=set([0, 1]), faces=[Face(1, 3, 2), Face(0, 1, 2)], vertices=[3, 1, 2, 0], reversed_=True)
+        TriangleStrip(faces=[Face(1, 3, 2), Face(0, 1, 2)], vertices=[3, 1, 2, 0], reversed_=True)
         >>> t.get_strip()
         [3, 2, 1, 0]
-        >>> t = TriangleStrip()
+        >>> exp = Experiment(m)
+        >>> t = TriangleStrip(exp)
         >>> t.build(2, face1)
         1
         >>> t
-        TriangleStrip(stripped_faces=set([0, 1]), faces=[Face(0, 1, 2), Face(1, 3, 2)], vertices=[0, 2, 1, 3], reversed_=True)
+        TriangleStrip(faces=[Face(0, 1, 2), Face(1, 3, 2)], vertices=[0, 2, 1, 3], reversed_=True)
         >>> t.get_strip()
         [0, 1, 2, 3]
-        >>> t = TriangleStrip()
+        >>> exp = Experiment(m)
+        >>> t = TriangleStrip(exp)
         >>> t.build(3, face1)
         0
         >>> t
-        TriangleStrip(stripped_faces=set([0, 1]), faces=[Face(1, 3, 2), Face(0, 1, 2)], vertices=[3, 2, 1, 0], reversed_=False)
+        TriangleStrip(faces=[Face(1, 3, 2), Face(0, 1, 2)], vertices=[3, 2, 1, 0], reversed_=False)
         >>> t.get_strip()
         [3, 2, 1, 0]
 
@@ -195,11 +199,12 @@ class TriangleStrip(object):
         >>> face2 = m.add_face(4, 3, 5)
         >>> face3 = m.add_face(4, 5, 6)
         >>> m.lock()
-        >>> t = TriangleStrip()
+        >>> exp = Experiment(m)
+        >>> t = TriangleStrip(exp)
         >>> t.build(2, face1)
         1
         >>> t
-        TriangleStrip(stripped_faces=set([0, 1, 2, 3]), faces=[Face(1, 3, 2), Face(2, 3, 4), Face(3, 5, 4), Face(4, 5, 6)], vertices=[1, 2, 3, 4, 5, 6], reversed_=True)
+        TriangleStrip(faces=[Face(1, 3, 2), Face(2, 3, 4), Face(3, 5, 4), Face(4, 5, 6)], vertices=[1, 2, 3, 4, 5, 6], reversed_=True)
         >>> t.get_strip()
         [1, 1, 2, 3, 4, 5, 6]
 
@@ -211,11 +216,12 @@ class TriangleStrip(object):
         >>> face1 = m.add_face(2, 3, 4)
         >>> face2 = m.add_face(4, 3, 5)
         >>> m.lock()
-        >>> t = TriangleStrip()
+        >>> exp = Experiment(m)
+        >>> t = TriangleStrip(exp)
         >>> t.build(2, face1)
         1
         >>> t
-        TriangleStrip(stripped_faces=set([0, 1, 2]), faces=[Face(1, 3, 2), Face(2, 3, 4), Face(3, 5, 4)], vertices=[1, 2, 3, 4, 5], reversed_=True)
+        TriangleStrip(faces=[Face(1, 3, 2), Face(2, 3, 4), Face(3, 5, 4)], vertices=[1, 2, 3, 4, 5], reversed_=True)
         >>> t.get_strip()
         [5, 4, 3, 2, 1]
 
@@ -233,12 +239,13 @@ class TriangleStrip(object):
         >>> face7 = m.add_face(11, 10, 12)
         >>> face8 = m.add_face(1, 0, 13)
         >>> m.lock()
-        >>> t = TriangleStrip()
+        >>> exp = Experiment(m)
+        >>> t = TriangleStrip(exp)
         >>> t.build(7, face1)
         4
         >>> t.faces[4] == face1 # check result from build
         True
-        >>> t.stripped_faces
+        >>> t.experiment.stripped_faces
         set([0, 1, 2, 5, 6, 7, 8])
         >>> t.faces
         [Face(10, 12, 11), Face(4, 10, 11), Face(4, 7, 10), Face(2, 7, 4), Face(1, 7, 2), Face(0, 1, 2), Face(0, 13, 1)]
@@ -262,7 +269,8 @@ class TriangleStrip(object):
         >>> tmp = m.add_face(0, 8, 9) # bad orientation!
         >>> tmp = m.add_face(8, 0, 10) # in strip
         >>> m.lock()
-        >>> t = TriangleStrip()
+        >>> exp = Experiment(m)
+        >>> t = TriangleStrip(exp)
         >>> t.build(0, start_face)
         2
         >>> t.vertices
@@ -276,7 +284,7 @@ class TriangleStrip(object):
         v0 = start_vertex
         v1 = start_face.get_next_vertex(v0)
         v2 = start_face.get_next_vertex(v1)
-        self.stripped_faces.add(start_face.index)
+        self.experiment.stripped_faces.add(start_face.index)
         self.faces.append(start_face)
         self.vertices.append(v0)
         self.vertices.append(v1)
@@ -300,20 +308,34 @@ class TriangleStrip(object):
         return strip
 
 class Experiment(object):
-    def __init__(self, start_vertex, start_face):
-        self.stripped_faces = None
+    num_samples = 3
+    recursion_depth = 3
+
+    def __init__(self, mesh, start_vertex=None, start_face=None, parent=None):
+        self.mesh = mesh
         self.start_vertex = start_vertex
         self.start_face = start_face
-        self.strips = []
+        if parent:
+            self.parent = weakref.proxy(parent)
+            self.level = parent.level + 1
+        else:
+            self.parent = None # root object!
+            self.level = 0
+        self.stripped_faces = set() # faces stripped in this experiment
+        self.strips = [] # strips in this experiment
 
-    def deepcopy(self):
-        # deepcopy could be useful at some point to spawn new
-        # experiments from this experiment
-        result = Experiment(self.start_face, self.start_vertex)
-        result.stripped_faces = self.stripped_faces.copy()
-        result.strips = self.strips[:] # copies list, not just a reference to it
+        # other experiments which build further on this experiment
+        self.children = []
 
-    def build(self, stripped_faces):
+    def is_unstripped(self, face_index):
+        """Find out if a face index is part of current experiment or not."""
+        if face_index in self.stripped_faces:
+            return False
+        elif self.parent:
+            return self.parent.is_unstripped(face_index)
+        return True
+
+    def build(self):
         """Build strips, starting from start_vertex and start_face.
 
         >>> m = Mesh()
@@ -338,35 +360,60 @@ class Experiment(object):
         >>> tmp = m.add_face(31, 11, 33) # in strip
         >>> m.lock()
         >>> # build experiment
-        >>> exp = Experiment(0, s1_face)
-        >>> exp.build(set())
+        >>> root = parent=Experiment(m)
+        >>> exp = Experiment(m, 0, s1_face, parent=root)
+        >>> exp.recursion_depth = 0 # just do a single experiment
+        >>> exp.build() # not yet finished?
+        False
+        >>> exp.score() # average strip length is (7+5)/2 = 6
+        6.0
         >>> len(exp.strips)
         2
         >>> exp.strips[0].get_strip()
         [11, 4, 7, 2, 1, 0, 8, 10, 11]
         >>> exp.strips[1].get_strip()
         [4, 22, 2, 21, 0, 24, 9]
-        >>> # note: with current algorithm [32, 8, 31, 11, 33] is not found
+        >>> # not found with current algorithm
+        >>> #exp.strips[2].get_strip()
+        >>> #[32, 8, 31, 11, 33]
         """
-        # keep link to set of stripped faces
-        self.stripped_faces = stripped_faces
-        # build initial strip
-        strip = TriangleStrip(stripped_faces=self.stripped_faces)
-        strip.build(self.start_vertex, self.start_face)
-        self.strips.append(strip)
-        num_faces = len(strip.faces)
-        if num_faces >= 4:
-            self.build_adjacent(strip, num_faces / 2)
-            self.build_adjacent(strip, num_faces / 2 + 1)
-        elif num_faces == 3:
-            if not self.build_adjacent(strip, 0):
-                self.build_adjacent(strip, 2)
-            self.build_adjacent(strip, 1)
-        elif num_faces == 2:
-            self.build_adjacent(strip, 0)
-            self.build_adjacent(strip, 1)
-        elif num_faces == 1:
-            self.build_adjacent(strip, 0)
+        # build initial strip if this is not the root node
+        if self.parent:
+            strip = TriangleStrip(experiment=self)
+            strip.build(self.start_vertex, self.start_face)
+            self.strips.append(strip)
+            # build adjacent strips
+            num_faces = len(strip.faces)
+            if num_faces >= 4:
+                self.build_adjacent(strip, num_faces / 2)
+                self.build_adjacent(strip, num_faces / 2 + 1)
+            elif num_faces == 3:
+                if not self.build_adjacent(strip, 0):
+                    self.build_adjacent(strip, 2)
+                self.build_adjacent(strip, 1)
+            elif num_faces == 2:
+                self.build_adjacent(strip, 0)
+                self.build_adjacent(strip, 1)
+            elif num_faces == 1:
+                self.build_adjacent(strip, 0)
+
+        # create child experiments if recursion depth not reached
+        if self.level < self.recursion_depth:
+            for face_index in self.find_good_reset_points():
+                exp_face = self.mesh.faces[face_index]
+                for exp_vertex in exp_face.verts:
+                    self.children.append(
+                        Experiment(
+                            self.mesh,
+                            start_vertex=exp_vertex,
+                            start_face=exp_face,
+                            parent=self))
+            # build them
+            for child in self.children:
+                child.build()
+
+        # we have built something, if there are children
+        return bool(self.children)
 
     def build_adjacent(self, strip, face_index):
         """Build strips adjacent to given strip, and add them to the
@@ -379,7 +426,7 @@ class Experiment(object):
             winding = strip.reversed_
             if face_index & 1:
                 winding = not winding
-            other_strip = TriangleStrip(stripped_faces=self.stripped_faces)
+            other_strip = TriangleStrip(experiment=self)
             if winding:
                 other_vertex = strip.vertices[face_index]
                 face_index = other_strip.build(other_vertex, other_face)
@@ -394,28 +441,59 @@ class Experiment(object):
             return True
         return False
 
-class ExperimentSelector(object):
+    def find_good_reset_points(self):
+        """Find a list of (at most) NUM_SAMPLES faces to start
+        stripification, potentially after some strips have already
+        been created. If no more faces are left, then it returns an
+        empty list.
+	"""
+        if not self.mesh.faces:
+            return []
+        reset_points = []
+        if self.start_face is None:
+            reset_point = 0
+        else:
+            reset_point = self.start_face.index
+        for i in xrange(self.num_samples):
+            # get a good guess of where we could start next
+            reset_point += len(self.mesh.faces) / (self.num_samples + 1)
+            if reset_point >= len(self.mesh.faces):
+                reset_point -= len(self.mesh.faces)
+            for face_index in itertools.chain(
+                xrange(reset_point, len(self.mesh.faces)),
+                xrange(0, reset_point)):
+                face = self.mesh.faces[face_index]
+                if self.is_unstripped(face.index):
+                    reset_points.append(face.index)
+                    break
+        return reset_points
 
-    def __init__(self):
-        self.best_score = -1.0
-        self.best_experiment = None
-
-    def update(self, experiment):
-        """Updates best experiment with given experiment, if given
-        experiment beats current experiment.
+    def score(self):
+        """Remove children and find best stripification in current experiment
+        tree. Returns score of experiment.
         """
-        score = (sum((len(strip.faces) for strip in experiment.strips), 0.0)
-                 / len(experiment.strips))
-        if score > self.best_score:
-            self.best_score = score
-            self.best_experiment = experiment
-
-    def clear(self):
-        """Remove best experiment, to start a fresh sequence of
-        experiments.
-        """
-        self.best_score = -1.0
-        self.best_experiment = None
+        # XXX note: we want to optimize for number of strips, so maybe
+        # XXX try -len(self.strips) for score?
+        if self.strips:
+            self_score = (float(sum(len(strip.faces)
+                                    for strip in self.strips))
+                          / len(self.strips))
+        else:
+            self_score = 0.0
+        # there are children: find the one with best score
+        best_child = None
+        best_score = None
+        for child in self.children:
+            score = child.score()
+            if not best_child or score > best_score:
+                best_child = child
+                best_score = score
+        if best_child:
+            self.strips += best_child.strips
+            self.stripped_faces |= best_child.stripped_faces
+            self_score += best_score
+            self.children = []
+        return self_score
 
 class TriangleStripifier(object):
     """
@@ -424,31 +502,9 @@ class TriangleStripifier(object):
     """
 
     def __init__(self, mesh):
-        self.num_samples = 10
+        self.num_samples = 3
         self.mesh = mesh
         self.start_face_index = 0
-
-    def find_good_reset_point(self, stripped_faces):
-        """Find a good face to start stripification, potentially
-        after some strips have already been created. Result is
-        stored in start_face_index. Returns True, unless no more
-        faces are left.
-	"""
-        if not self.mesh.faces:
-            return False
-        self.start_face_index += len(self.mesh.faces) / self.num_samples
-        if self.start_face_index >= len(self.mesh.faces):
-            self.start_face_index -= len(self.mesh.faces)
-        for face_index in itertools.chain(
-            xrange(self.start_face_index, len(self.mesh.faces)),
-            xrange(0, self.start_face_index)):
-            face = self.mesh.faces[face_index]
-            if face.index not in stripped_faces:
-                self.start_face_index = face_index
-                return True
-        else:
-            # we have exhausted all the faces
-            return False
 
     def find_all_strips(self):
         """Find all strips.
@@ -488,39 +544,17 @@ class TriangleStripifier(object):
         >>> m.lock()
         >>> ts = TriangleStripifier(m)
         >>> ts.find_all_strips()
-        [[11, 4, 7, 2, 1, 0, 8, 10, 11], [4, 22, 2, 21, 0, 24, 9], [32, 8, 31, 11, 33], [3, 2, 5], [9, 0, 8]]
+        [[11, 4, 7, 2, 1, 0, 8, 10, 11], [4, 22, 2, 21, 0, 24, 9], [2, 5, 3], [32, 8, 31, 11, 33], [0, 8, 9]]
         """
-        all_strips = []
-        stripped_faces = set()
-        selector = ExperimentSelector()
-        while True:
-            experiments = []
-            visited_reset_points = set()
-            for sample in xrange(self.num_samples):
-                if not self.find_good_reset_point(stripped_faces):
-                    break
-                exp_face = self.mesh.faces[self.start_face_index]
-                if self.start_face_index in visited_reset_points:
-                    continue
-                visited_reset_points.add(self.start_face_index)
-                for exp_vertex in exp_face.verts:
-                    experiments.append(
-                        Experiment(start_vertex=exp_vertex,
-                                   start_face=exp_face))
-            if not experiments:
-                # done!
-                return all_strips
-            # note: use while loop so we only need to keep at most two
-            # experiments at the same time in memory
-            while experiments:
-                experiment = experiments.pop()
-                experiment.build(stripped_faces=stripped_faces.copy())
-                selector.update(experiment)
-            stripped_faces = selector.best_experiment.stripped_faces
-            all_strips.extend(
-                (strip.get_strip()
-                 for strip in selector.best_experiment.strips))
-            selector.clear()
+        experiment = Experiment(self.mesh)
+        # as long as we can keep building the experiment
+        while experiment.build():
+            # score and prune the experiment tree
+            experiment.score()
+        # final scoring
+        experiment.score()
+        return [strip.get_strip()
+                for strip in experiment.strips]
 
 if __name__=='__main__':
     import doctest
