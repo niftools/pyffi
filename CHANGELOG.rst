@@ -7,8 +7,8 @@ Release 2.0.5 (in development)
 * Improved strip stitching algorithm: should now be much more efficient, and
   rarely need 3 stitches.
 
-* Added new modify_texturepath niftoaster spell (contributed by
-  PacificMorrowind).
+* Added new modify_texturepath and modify_collisiontype niftoaster spells
+  (contributed by PacificMorrowind).
 
 * Various fixes and improvements for 20.5.0.0+ nifs.
 

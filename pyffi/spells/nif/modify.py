@@ -96,28 +96,55 @@ class SpellTexturePath(NifSpell):
 class SpellCollisionType(NifSpell):
     """Sets the object collision to be a different type"""
 
-    SPELLNAME = "modify_collisionType"
+    SPELLNAME = "modify_collisiontype"
     READONLY = False
-	
+
+    class CollisionTypeStatic:
+        layer = 1
+        motion_system = 7
+        unkown_byte1 = 1
+        unkown_byte2 = 1
+        quality_type = 1
+        wind = 0
+        solid = True
+
+    class CollisionTypeAnimStatic(CollisionTypeStatic):
+        layer = 2
+        motion_system = 6
+        unknown_byte1 = 2
+        unknown_byte2 = 2
+        quality_type = 2
+
+    class CollisionTypeClutter(CollisionTypeAnimStatic):
+        layer = 4
+        motion_system = 4
+        quality_type = 3
+
+    class CollisionTypeNonCollidable(CollisionTypeStatic):
+        """Same as static except that nothing collides with it."""
+        layer = 15
+
+    COLLISION_TYPE_DICT = {
+        "static": CollisionTypeStatic,
+        "anim_static": CollisionTypeAnimStatic,
+        "clutter": CollisionTypeClutter,
+        "non_collidable": CollisionTypeNonCollidable
+        }
+
     @classmethod
     def toastentry(cls, toaster):
-        if not toaster.options["arg"]:
+        try:
+            toaster.col_type = cls.COLLISION_TYPE_DICT[toaster.options["arg"]]
+        except KeyError:
+            # incorrect arg
             toaster.logger.warn(
                 "must specify collision type to change to as argument "
-                "(e.g. -a Static (accepted names: Static, Anim_Static,Clutter,NonCollidable"
-                "to apply spell")
+                "(e.g. -a static (accepted names: %s) "
+                "to apply spell"
+                % ", ".join(cls.COLLISION_TYPE_DICT.iterkeys()))
             return False
         else:
-            toaster.colType = str(toaster.options["arg"])
-            # check for correct args
-            if toaster.colType != 'Static' and toaster.colType != 'Anim_Static' and toaster.colType != 'Clutter' and toaster.colType != 'NonCollidable':
-                toaster.logger.warn(
-                    "must specify collision type to change to as argument"
-                    "(e.g. -a Static (accepted names: Static, Anim_Static,Clutter,NonCollidable)"
-                    "to apply spell")
-                return False
-            else:
-                return True
+            return True
 
     def datainspect(self):
         return self.inspectblocktype(NifFormat.bhkRigidBody)
@@ -127,56 +154,26 @@ class SpellCollisionType(NifSpell):
         return isinstance(branch, (NifFormat.NiAVObject,
                                    NifFormat.bhkCollisionObject,
                                    NifFormat.bhkRigidBody,
-                                   NifFormat.bhkRigidBodyT,
+                                   NifFormat.bhkMoppBvTreeShape,
                                    NifFormat.bhkPackedNiTriStripsShape))
 
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.bhkRigidBody):
-            if self.toaster.colType == 'Static':
-                branch.layer = 1
-                branch.layerCopy = 1
-                branch.motionSystem = 7
-                branch.unkownByte1 = 1
-                branch.unkownByte2 = 1
-                branch.qualityType = 1
-                branch.wind = 0
-                branch.solid = True
-            elif self.toaster.colType == 'Anim_Static':
-                branch.layer = 2
-                branch.layerCopy = 2
-                branch.motionSystem = 6
-                branch.unkownByte1 = 2
-                branch.unkownByte2 = 2
-                branch.qualityType = 2
-                branch.wind = 0
-                branch.solid = True
-            elif self.toaster.colType == 'Clutter':
-                branch.layer = 4
-                branch.layerCopy = 4
-                branch.motionSystem = 4
-                branch.unkownByte1 = 2
-                branch.unkownByte2 = 2
-                branch.qualityType = 3
-                branch.wind = 0
-                branch.solid = True
-            elif self.toaster.colType == 'NonCollidable': 
-			    #Same as static except that nothing collides with it.
-                branch.layer = 15
-                branch.layerCopy = 15
-                branch.motionSystem = 7
-                branch.unkownByte1 = 1
-                branch.unkownByte2 = 1
-                branch.qualityType = 1
-                branch.wind = 0
-                branch.solid = True
-            self.toaster.msg("Collision set to %s" %(self.toaster.colType))
-            # all collision blocks here done; no need to recurse further
+            branch.layer = self.toaster.col_type.layer
+            branch.layerCopy = self.toaster.col_type.layer
+            branch.motionSystem = self.toaster.col_type.motion_system
+            branch.unknownByte1 = self.toaster.col_type.unknown_byte1
+            branch.unknownByte2 = self.toaster.col_type.unknown_byte1
+            branch.qualityType = self.toaster.col_type.quality_type
+            branch.wind = self.toaster.col_type.wind
+            branch.solid = self.toaster.col_type.solid
+            self.toaster.msg("collision set to %s" % self.toaster.options["arg"])
+            # bhkPackedNiTriStripsShape could be further down, so keep looking
             return True
-        if isinstance(branch, NifFormat.bhkPackedNiTriStripsShape):
-            if self.toaster.colType == 'Static':
-                branch.subShapes.layer = 1
-            #not working... once working extend to other colTypes
-            self.toaster.msg("Set Collision to %s")
+        elif isinstance(branch, NifFormat.bhkPackedNiTriStripsShape):
+            for subshape in branch.subShapes:
+                subshape.layer = self.toaster.col_type.layer
+            self.toaster.msg("collision set to %s" % self.toaster.options["arg"])
             # all extra blocks here done; no need to recurse further
             return False
         else:
