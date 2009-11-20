@@ -48,6 +48,7 @@ output in all circumstances.
 # ***** END LICENSE BLOCK *****
 
 import itertools
+import sys
 import weakref
 
 from pyffi.utils.trianglemesh import Face, Mesh
@@ -308,8 +309,8 @@ class TriangleStrip(object):
         return strip
 
 class Experiment(object):
-    num_samples = 3
-    recursion_depth = 3
+    num_samples = 10
+    recursion_depth = 1
 
     def __init__(self, mesh, start_vertex=None, start_face=None, parent=None):
         self.mesh = mesh
@@ -334,6 +335,13 @@ class Experiment(object):
         elif self.parent:
             return self.parent.is_unstripped(face_index)
         return True
+
+    def get_all_stripped_faces(self):
+        """Use this if you need to call is_unstripped a lot."""
+        if not self.parent:
+            return self.stripped_faces
+        else:
+            return self.stripped_faces | self.parent.get_all_stripped_faces()
 
     def build(self):
         """Build strips, starting from start_vertex and start_face.
@@ -442,31 +450,23 @@ class Experiment(object):
         return False
 
     def find_good_reset_points(self):
-        """Find a list of (at most) NUM_SAMPLES faces to start
+        """Find a list of (at most) num_samples faces to start
         stripification, potentially after some strips have already
         been created. If no more faces are left, then it returns an
         empty list.
 	"""
-        if not self.mesh.faces:
-            return []
+        good_faces = set(xrange(len(self.mesh.faces)))
+        good_faces -= self.get_all_stripped_faces()
+        good_faces = list(sorted(good_faces))
         reset_points = []
-        if self.start_face is None:
-            reset_point = 0
+        stepsize = len(good_faces) / self.num_samples
+        if stepsize > 2:
+            return [good_faces[i]
+                    for i in range(0, len(good_faces), stepsize)]
+        elif good_faces:
+            return [good_faces[0]]
         else:
-            reset_point = self.start_face.index
-        for i in xrange(self.num_samples):
-            # get a good guess of where we could start next
-            reset_point += len(self.mesh.faces) / (self.num_samples + 1)
-            if reset_point >= len(self.mesh.faces):
-                reset_point -= len(self.mesh.faces)
-            for face_index in itertools.chain(
-                xrange(reset_point, len(self.mesh.faces)),
-                xrange(0, reset_point)):
-                face = self.mesh.faces[face_index]
-                if self.is_unstripped(face.index):
-                    reset_points.append(face.index)
-                    break
-        return reset_points
+            return []
 
     def score(self):
         """Remove children and find best stripification in current experiment
@@ -551,6 +551,8 @@ class TriangleStripifier(object):
         while experiment.build():
             # score and prune the experiment tree
             experiment.score()
+            # DEBUG to see progress
+            #print >>sys.stderr, len(experiment.stripped_faces), len(experiment.strips)
         # final scoring
         experiment.score()
         return [strip.get_strip()
