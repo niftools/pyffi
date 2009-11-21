@@ -428,7 +428,6 @@ class TriangleStripifier(object):
     def __init__(self, mesh):
         self.num_samples = 10
         self.mesh = mesh
-        self.start_face_index = 0
 
     def find_all_strips(self):
         """Find all strips.
@@ -479,8 +478,7 @@ class TriangleStripifier(object):
             for sample in random.sample(list(reset_points),
                                         min(self.num_samples,
                                             len(reset_points))):
-                self.start_face_index = sample
-                exp_face = self.mesh.faces[self.start_face_index]
+                exp_face = self.mesh.faces[sample]
                 for exp_vertex in exp_face.verts:
                     experiments.append(
                         Experiment(start_vertex=exp_vertex,
@@ -489,7 +487,7 @@ class TriangleStripifier(object):
                 # done!
                 return all_strips
             # note: use while loop so we only need to keep at most two
-            # experiments at the same time in memory
+            # built experiments at the same time in memory
             while experiments:
                 experiment = experiments.pop()
                 experiment.build(stripped_faces=stripped_faces.copy())
