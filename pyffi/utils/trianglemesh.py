@@ -65,7 +65,6 @@
 #~ Imports
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-import itertools # chain
 import operator # itemgetter
 import weakref
 
@@ -104,7 +103,10 @@ except AttributeError:
             self.data[id(key)] = key
 
         def discard(self, key):
-            del self.data[id(key)]
+            try:
+                del self.data[id(key)]
+            except KeyError:
+                pass
 
         def __iter__(self):
             return self.data.itervalues()
@@ -471,10 +473,7 @@ class Mesh:
         for adj_faces in face.adjacent_faces:
             for adj_face in adj_faces:
                 for adj_adj_faces in adj_face.adjacent_faces:
-                    try:
-                        adj_adj_faces.discard(face)
-                    except KeyError:
-                        pass
+                    adj_adj_faces.discard(face)
 
 if __name__=='__main__':
     import doctest
