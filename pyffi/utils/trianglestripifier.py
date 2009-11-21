@@ -48,6 +48,7 @@ output in all circumstances.
 # ***** END LICENSE BLOCK *****
 
 import itertools
+import random # choice
 
 from pyffi.utils.trianglemesh import Face, Mesh
 
@@ -421,35 +422,13 @@ class ExperimentSelector(object):
 class TriangleStripifier(object):
     """
     Heavily adapted from NvTriStrip.
-    Origional can be found at http://developer.nvidia.com/view.asp?IO=nvtristrip_library.
+    Original can be found at http://developer.nvidia.com/view.asp?IO=nvtristrip_library.
     """
 
     def __init__(self, mesh):
         self.num_samples = 10
         self.mesh = mesh
         self.start_face_index = 0
-
-    def find_good_reset_point(self, stripped_faces):
-        """Find a good face to start stripification, potentially
-        after some strips have already been created. Result is
-        stored in start_face_index. Returns True, unless no more
-        faces are left.
-	"""
-        if not self.mesh.faces:
-            return False
-        self.start_face_index += len(self.mesh.faces) / self.num_samples
-        if self.start_face_index >= len(self.mesh.faces):
-            self.start_face_index -= len(self.mesh.faces)
-        for face_index in itertools.chain(
-            xrange(self.start_face_index, len(self.mesh.faces)),
-            xrange(0, self.start_face_index)):
-            face = self.mesh.faces[face_index]
-            if face.index not in stripped_faces:
-                self.start_face_index = face_index
-                return True
-        else:
-            # we have exhausted all the faces
-            return False
 
     def find_all_strips(self):
         """Find all strips.
@@ -488,22 +467,20 @@ class TriangleStripifier(object):
         >>> tmp = m.add_face(31, 11, 33) # in strip
         >>> m.lock()
         >>> ts = TriangleStripifier(m)
-        >>> ts.find_all_strips()
-        [[11, 4, 7, 2, 1, 0, 8, 10, 11], [4, 22, 2, 21, 0, 24, 9], [32, 8, 31, 11, 33], [3, 2, 5], [9, 0, 8]]
+        >>> sorted(ts.find_all_strips())
+        [[3, 2, 5], [4, 22, 2, 21, 0, 24, 9], [9, 0, 8], [11, 4, 7, 2, 1, 0, 8, 10, 11], [32, 8, 31, 11, 33]]
         """
         all_strips = []
         stripped_faces = set()
         selector = ExperimentSelector()
+        reset_points = set(xrange(len(self.mesh.faces)))
         while True:
             experiments = []
-            visited_reset_points = set()
-            for sample in xrange(self.num_samples):
-                if not self.find_good_reset_point(stripped_faces):
-                    break
+            for sample in random.sample(list(reset_points),
+                                        min(self.num_samples,
+                                            len(reset_points))):
+                self.start_face_index = sample
                 exp_face = self.mesh.faces[self.start_face_index]
-                if self.start_face_index in visited_reset_points:
-                    continue
-                visited_reset_points.add(self.start_face_index)
                 for exp_vertex in exp_face.verts:
                     experiments.append(
                         Experiment(start_vertex=exp_vertex,
@@ -518,6 +495,7 @@ class TriangleStripifier(object):
                 experiment.build(stripped_faces=stripped_faces.copy())
                 selector.update(experiment)
             stripped_faces = selector.best_experiment.stripped_faces
+            reset_points -= stripped_faces
             all_strips.extend(
                 (strip.get_strip()
                  for strip in selector.best_experiment.strips))
