@@ -102,11 +102,12 @@ class SpellCollisionType(NifSpell):
     class CollisionTypeStatic:
         layer = 1
         motion_system = 7
-        unkown_byte1 = 1
-        unkown_byte2 = 1
+        unknown_byte1 = 1
+        unknown_byte2 = 1
         quality_type = 1
         wind = 0
         solid = True
+        mass = 0
 
     class CollisionTypeAnimStatic(CollisionTypeStatic):
         layer = 2
@@ -119,7 +120,12 @@ class SpellCollisionType(NifSpell):
         layer = 4
         motion_system = 4
         quality_type = 3
+        mass = 10
 
+    class CollisionTypeWeapon(CollisionTypeClutter):
+        layer = 5
+        mass = 25
+		
     class CollisionTypeNonCollidable(CollisionTypeStatic):
         """Same as static except that nothing collides with it."""
         layer = 15
@@ -128,6 +134,7 @@ class SpellCollisionType(NifSpell):
         "static": CollisionTypeStatic,
         "anim_static": CollisionTypeAnimStatic,
         "clutter": CollisionTypeClutter,
+        "weapon": CollisionTypeWeapon,
         "non_collidable": CollisionTypeNonCollidable
         }
 
@@ -161,9 +168,10 @@ class SpellCollisionType(NifSpell):
         if isinstance(branch, NifFormat.bhkRigidBody):
             branch.layer = self.toaster.col_type.layer
             branch.layerCopy = self.toaster.col_type.layer
+            branch.mass = self.toaster.col_type.mass
             branch.motionSystem = self.toaster.col_type.motion_system
             branch.unknownByte1 = self.toaster.col_type.unknown_byte1
-            branch.unknownByte2 = self.toaster.col_type.unknown_byte1
+            branch.unknownByte2 = self.toaster.col_type.unknown_byte2
             branch.qualityType = self.toaster.col_type.quality_type
             branch.wind = self.toaster.col_type.wind
             branch.solid = self.toaster.col_type.solid
