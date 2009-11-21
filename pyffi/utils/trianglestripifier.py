@@ -310,7 +310,7 @@ class Experiment(object):
     """
 
     def __init__(self, start_vertex, start_face):
-        self.stripped_faces = None
+        self.stripped_faces = None # this is set when building
         self.start_vertex = start_vertex
         self.start_face = start_face
         self.strips = []
@@ -420,7 +420,8 @@ class ExperimentSelector(object):
         self.best_experiment = None
 
 class TriangleStripifier(object):
-    """
+    """Implementation of a triangle stripifier.
+
     Heavily adapted from NvTriStrip.
     Original can be found at http://developer.nvidia.com/view.asp?IO=nvtristrip_library.
     """
