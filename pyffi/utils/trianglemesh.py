@@ -473,7 +473,10 @@ class Mesh:
         for adj_faces in face.adjacent_faces:
             for adj_face in adj_faces:
                 for adj_adj_faces in adj_face.adjacent_faces:
-                    adj_adj_faces.discard(face)
+                    #adj_adj_faces.discard(face)
+                    # faster:
+                    if id(face) in adj_adj_faces.data:
+                        del adj_adj_faces.data[id(face)]
 
 if __name__=='__main__':
     import doctest
