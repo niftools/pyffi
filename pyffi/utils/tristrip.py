@@ -180,7 +180,11 @@ def stripify(triangles, stitchstrips = False):
         # build a mesh from triangles
         mesh = Mesh()
         for face in triangles:
-            mesh.add_face(*face)
+            try:
+                mesh.add_face(*face)
+            except ValueError:
+                # degenerate face
+                pass
         mesh.lock()
 
         # calculate the strip
