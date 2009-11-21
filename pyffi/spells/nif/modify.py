@@ -175,7 +175,6 @@ class SpellCollisionType(NifSpell):
             branch.qualityType = self.toaster.col_type.quality_type
             branch.wind = self.toaster.col_type.wind
             branch.solid = self.toaster.col_type.solid
-            branch.mass = self.toaster.col_type.mass
             self.toaster.msg("collision set to %s" % self.toaster.options["arg"])
             # bhkPackedNiTriStripsShape could be further down, so keep looking
             return True
