@@ -106,7 +106,7 @@ except AttributeError:
             return self.data.itervalues()
 
 class Edge:
-    """A directed edge."""
+    """A directed edge which keeps track of its faces."""
 
     def __init__(self, ev0, ev1):
         """Edge constructor.
@@ -141,7 +141,7 @@ class Edge:
         return "Edge(%s, %s)" % self.verts
 
 class Face:
-    """An oriented face."""
+    """An oriented face which keeps track its adjacent faces."""
 
     def __init__(self, v0, v1, v2):
         """Construct face from vertices.
@@ -209,19 +209,70 @@ class Face:
             ...
         ValueError: ...
         """
-        return self.verts[[1, 2, 0][self.verts.index(vi)]]
+        return self.verts[(1, 2, 0)[self.verts.index(vi)]]
 
     def get_adjacent_faces(self, vi):
         """Get adjacent faces associated with the edge opposite a vertex."""
         return self.adjacent_faces[self.verts.index(vi)]
 
 class Mesh:
-    def __init__(self):
+    """A mesh of interconnected faces.
+
+    :ivar faces: List of faces of the mesh.
+    :type faces: ``list`` of :class:`Face`"""
+    def __init__(self, faces=None, lock=True):
+        """Initialize a mesh, and optionally assign its faces and lock.
+
+        :param faces: ``None``, or an iterator over faces to assign to
+            the mesh.
+        :type faces: ``Iterable`` or ``type(None)``
+        :param lock: Whether to lock the mesh or not (ignored when
+            `faces` are not specified).
+        :type lock: ``bool``
+        """
         self._faces = {}
         """Dictionary of all faces."""
 
         self._edges = {}
         """Dictionary of all edges."""
+
+        if faces is not None:
+            for v0, v1, v2 in faces:
+                self.add_face(v0, v1, v2)
+            if lock:
+                self.lock()
+
+    def __repr__(self):
+        """String representation. Examples:
+
+        >>> m = Mesh()
+        >>> m
+        Mesh()
+        >>> tmp = m.add_face(1, 2, 3)
+        >>> tmp = m.add_face(3, 2, 4)
+        >>> m
+        Mesh(faces=[(1, 2, 3), (2, 4, 3)], lock=False)
+        >>> m.lock()
+        >>> m
+        Mesh(faces=[(1, 2, 3), (2, 4, 3)])
+        >>> Mesh(faces=[(1, 2, 3),(3, 2, 4)])
+        Mesh(faces=[(1, 2, 3), (2, 4, 3)])
+        """
+        try:
+            self.faces
+        except AttributeError:
+            # unlocked
+            if not self._faces:
+                # special case
+                return "Mesh()"
+            return ("Mesh(faces=[%s], lock=False)"
+                    % ', '.join(repr(faceverts)
+                                for faceverts in sorted(self._faces)))
+        else:
+            # locked
+            return ("Mesh(faces=[%s])"
+                    % ', '.join(repr(face.verts)
+                                for face in self.faces))
 
     def _add_edge(self, face, pv0, pv1):
         """Create new edge for mesh for given face, or return existing
@@ -254,7 +305,8 @@ class Mesh:
                 otherface.get_adjacent_faces(otherpv2).add(face)
 
     def add_face(self, v0, v1, v2):
-        """Create new face for mesh, or return existing face.
+        """Create new face for mesh, or return existing face. List of
+        adjacent faces is also updated.
 
         >>> m = Mesh()
         >>> f0 = m.add_face(0, 1, 2)
@@ -284,13 +336,14 @@ class Mesh:
         >>> len(m._edges)
         12
 
+        Another mesh::
 
-        0->-1
-         \ / \
-          2-<-3
-          2->-3
-           \ /
-            4
+            0->-1
+             \\ / \\
+              2-<-3
+              2->-3
+               \\ /
+                4
 
         >>> m = Mesh()
         >>> f0 = m.add_face(0, 1, 2)
@@ -352,7 +405,7 @@ class Mesh:
         """Lock the mesh. Frees memory by clearing the structures
         which are only used to update the face adjacency lists. Sets
         the faces attribute to the sorted list of all faces (sorting helps
-        with ensuring that the strips in faces are "close" together).
+        with ensuring that the strips in faces are close together).
 
         >>> m = Mesh()
         >>> f0 = m.add_face(3, 1, 2)
