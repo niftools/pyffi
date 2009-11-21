@@ -310,12 +310,12 @@ class Experiment(object):
     """
 
     def __init__(self, start_vertex, start_face):
-        self.stripped_faces = None # this is set when building
+        self.stripped_faces = set()
         self.start_vertex = start_vertex
         self.start_face = start_face
         self.strips = []
 
-    def build(self, stripped_faces):
+    def build(self):
         """Build strips, starting from start_vertex and start_face.
 
         >>> m = Mesh()
@@ -341,7 +341,7 @@ class Experiment(object):
         >>> m.lock()
         >>> # build experiment
         >>> exp = Experiment(0, s1_face)
-        >>> exp.build(set())
+        >>> exp.build()
         >>> len(exp.strips)
         2
         >>> exp.strips[0].get_strip()
@@ -350,12 +350,11 @@ class Experiment(object):
         [4, 22, 2, 21, 0, 24, 9]
         >>> # note: with current algorithm [32, 8, 31, 11, 33] is not found
         """
-        # keep link to set of stripped faces
-        self.stripped_faces = stripped_faces
         # build initial strip
         strip = TriangleStrip(stripped_faces=self.stripped_faces)
         strip.build(self.start_vertex, self.start_face)
         self.strips.append(strip)
+        # build adjacent strips
         num_faces = len(strip.faces)
         if num_faces >= 4:
             face_index = num_faces >> 1 # quick / 2
@@ -472,14 +471,13 @@ class TriangleStripifier(object):
         [[3, 2, 5], [4, 22, 2, 21, 0, 24, 9], [9, 0, 8], [11, 4, 7, 2, 1, 0, 8, 10, 11], [32, 8, 31, 11, 33]]
         """
         all_strips = []
-        stripped_faces = set()
         selector = ExperimentSelector()
-        reset_points = set(xrange(len(self.mesh.faces)))
+        unstripped_faces = set(xrange(len(self.mesh.faces)))
         while True:
             experiments = []
-            for sample in random.sample(list(reset_points),
+            for sample in random.sample(list(unstripped_faces),
                                         min(self.num_samples,
-                                            len(reset_points))):
+                                            len(unstripped_faces))):
                 exp_face = self.mesh.faces[sample]
                 for exp_vertex in exp_face.verts:
                     experiments.append(
@@ -492,10 +490,14 @@ class TriangleStripifier(object):
             # built experiments at the same time in memory
             while experiments:
                 experiment = experiments.pop()
-                experiment.build(stripped_faces=stripped_faces.copy())
+                experiment.build()
                 selector.update(experiment)
-            stripped_faces = selector.best_experiment.stripped_faces
-            reset_points -= stripped_faces
+            unstripped_faces -= selector.best_experiment.stripped_faces
+            # remove stripped faces from mesh
+            for strip in selector.best_experiment.strips:
+                for face in strip.faces:
+                    self.mesh.discard_face(face)
+            # calculate actual strips for experiment
             all_strips.extend(
                 (strip.get_strip()
                  for strip in selector.best_experiment.strips))

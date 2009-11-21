@@ -65,8 +65,9 @@
 #~ Imports
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-import weakref
+import itertools # chain
 import operator # itemgetter
+import weakref
 
 try:
     WeakSet = weakref.WeakSet
@@ -101,6 +102,9 @@ except AttributeError:
 
         def add(self, key):
             self.data[id(key)] = key
+
+        def discard(self, key):
+            del self.data[id(key)]
 
         def __iter__(self):
             return self.data.itervalues()
@@ -446,6 +450,31 @@ class Mesh:
         # remove helper structures
         del self._faces
         del self._edges
+
+    def discard_face(self, face):
+        """Remove the face from the mesh.
+
+        >>> m = Mesh()
+        >>> f0 = m.add_face(0, 1, 2)
+        >>> f1 = m.add_face(1, 3, 2)
+        >>> f2 = m.add_face(2, 3, 4)
+        >>> m.lock()
+        >>> list(f0.get_adjacent_faces(0))
+        [Face(1, 3, 2)]
+        >>> m.discard_face(f1)
+        >>> list(f0.get_adjacent_faces(0))
+        []
+        """
+        # note: don't delete, but set to None, to ensure that other
+        # face indices remain valid
+        self.faces[face.index] = None
+        for adj_faces in face.adjacent_faces:
+            for adj_face in adj_faces:
+                for adj_adj_faces in adj_face.adjacent_faces:
+                    try:
+                        adj_adj_faces.discard(face)
+                    except KeyError:
+                        pass
 
 if __name__=='__main__':
     import doctest
