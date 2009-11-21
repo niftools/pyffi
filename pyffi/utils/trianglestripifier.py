@@ -358,8 +358,9 @@ class Experiment(object):
         self.strips.append(strip)
         num_faces = len(strip.faces)
         if num_faces >= 4:
-            self.build_adjacent(strip, num_faces / 2)
-            self.build_adjacent(strip, num_faces / 2 + 1)
+            face_index = num_faces >> 1 # quick / 2
+            self.build_adjacent(strip, face_index)
+            self.build_adjacent(strip, face_index + 1)
         elif num_faces == 3:
             if not self.build_adjacent(strip, 0):
                 self.build_adjacent(strip, 2)
@@ -389,7 +390,7 @@ class Experiment(object):
                 other_vertex = strip.vertices[face_index + 2]
                 face_index = other_strip.build(other_vertex, other_face)
             self.strips.append(other_strip)
-            if face_index > len(other_strip.faces) / 2:
+            if face_index > (len(other_strip.faces) >> 1): # quick / 2
                 self.build_adjacent(other_strip, face_index - 1)
             elif face_index < len(other_strip.faces) - 1:
                 self.build_adjacent(other_strip, face_index + 1)
