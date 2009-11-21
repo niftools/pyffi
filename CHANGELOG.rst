@@ -4,8 +4,11 @@ Release 2.0.5 (in development)
 * Added regression test and fixed rare bug in stripification (reported by
   PacificMorrowind, see issue #2889048).
 
-* Improved strip stitching algorithm: should now be much more efficient, and
-  rarely need 3 stitches.
+* Improved strip stitching algorithm: *much* more efficient, and
+  now rarely needs more than 2 stitches per strip.
+
+* Improved stripifier algorithm: runs about 30% faster, and usually
+  yields slightly better strips.
 
 * Added new modify_texturepath and modify_collisiontype niftoaster spells
   (contributed by PacificMorrowind).
