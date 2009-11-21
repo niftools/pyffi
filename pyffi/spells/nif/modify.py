@@ -102,8 +102,8 @@ class SpellCollisionType(NifSpell):
     class CollisionTypeStatic:
         layer = 1
         motion_system = 7
-        unkown_byte1 = 1
-        unkown_byte2 = 1
+        unknown_byte1 = 1
+        unknown_byte2 = 1
         quality_type = 1
         wind = 0
         solid = True
@@ -163,7 +163,7 @@ class SpellCollisionType(NifSpell):
             branch.layerCopy = self.toaster.col_type.layer
             branch.motionSystem = self.toaster.col_type.motion_system
             branch.unknownByte1 = self.toaster.col_type.unknown_byte1
-            branch.unknownByte2 = self.toaster.col_type.unknown_byte1
+            branch.unknownByte2 = self.toaster.col_type.unknown_byte2
             branch.qualityType = self.toaster.col_type.quality_type
             branch.wind = self.toaster.col_type.wind
             branch.solid = self.toaster.col_type.solid
