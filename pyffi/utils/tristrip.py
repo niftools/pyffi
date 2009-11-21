@@ -321,13 +321,10 @@ class OrientedStrip:
         has_common_vertex = (self.vertices[-1] == other.vertices[0])
 
         # do windings match?
-        # ... get winding of first face of self
-        winding = self.reversed
-        # ... update winding to last face of self
         if len(self.vertices) & 1:
-            winding = not winding
-        # ... check if windings match
-        has_winding_match = (winding == other.reversed)
+            has_winding_match = (self.reversed != other.reversed)
+        else:
+            has_winding_match = (self.reversed == other.reversed)
 
         # append stitches
         if has_common_vertex:
@@ -457,7 +454,7 @@ def stitchStrips(strips):
     # go on as long as there are strips left to process
     while ostrips:
         selector = ExperimentSelector()
-        
+
         for ostrip_index, (ostrip, reversed_ostrip) in enumerate(ostrips):
             # try various ways of stitching strips
             selector.update(ostrip_index, result, ostrip)
@@ -467,7 +464,8 @@ def stitchStrips(strips):
             # break early if global optimum is already reached
             if selector.best_num_stitches == 0:
                 break
-        # get best result, and remove strip from ostrips
+        # get best result, perform the actual stitching, and remove
+        # strip from ostrips
         result = selector.best_ostrip1 + selector.best_ostrip2
         ostrips.pop(selector.best_ostrip_index)
     # get strip
