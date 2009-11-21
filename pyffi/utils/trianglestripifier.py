@@ -52,16 +52,19 @@ import itertools
 from pyffi.utils.trianglemesh import Face, Mesh
 
 class TriangleStrip(object):
-    """
-    Heavily adapted from NvTriStrip.
-    Origional can be found at http://developer.nvidia.com/view.asp?IO=nvtristrip_library.
+    """A heavily specialized oriented strip of faces.
+
+    Heavily adapted from NvTriStrip and RuneBlade. Originals can be found at
+    http://developer.nvidia.com/view.asp?IO=nvtristrip_library
+    and
+    http://techgame.net/projects/Runeblade/browser/trunk/RBRapier/RBRapier/Tools/Geometry/Analysis/TriangleStripifier.py?rev=760
     """
 
     def __init__(self, stripped_faces=None,
                  faces=None, vertices=None, reversed_=False):
         """Initialise the triangle strip."""
-        self.faces = faces if faces else []
-        self.vertices = vertices if vertices else []
+        self.faces = faces if faces is not None else []
+        self.vertices = vertices if vertices is not None else []
         self.reversed_ = reversed_
 
         # set of indices of stripped faces
@@ -80,8 +83,9 @@ class TriangleStrip(object):
                 return otherface
 
     def traverse_faces(self, start_vertex, start_face, forward):
-        """Building face traversal list starting from the start_face and
-        the edge opposite start_vertex. Returns number of faces added.
+        """Builds a strip traveral of faces starting from the
+        start_face and the edge opposite start_vertex. Returns number
+        of faces added.
         """
         count = 0
         pv0 = start_vertex
@@ -300,18 +304,15 @@ class TriangleStrip(object):
         return strip
 
 class Experiment(object):
+    """A stripification experiment, essentially consisting of a set of
+    adjacent strips.
+    """
+
     def __init__(self, start_vertex, start_face):
         self.stripped_faces = None
         self.start_vertex = start_vertex
         self.start_face = start_face
         self.strips = []
-
-    def deepcopy(self):
-        # deepcopy could be useful at some point to spawn new
-        # experiments from this experiment
-        result = Experiment(self.start_face, self.start_vertex)
-        result.stripped_faces = self.stripped_faces.copy()
-        result.strips = self.strips[:] # copies list, not just a reference to it
 
     def build(self, stripped_faces):
         """Build strips, starting from start_vertex and start_face.
