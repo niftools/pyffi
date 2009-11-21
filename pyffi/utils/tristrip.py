@@ -44,7 +44,7 @@ try:
 except ImportError:
     pytristrip = None
     from pyffi.utils.trianglestripifier import TriangleStripifier
-    from pyffi.utils.trianglemesh import FaceEdgeMesh
+    from pyffi.utils.trianglemesh import Mesh
 
 def triangulate(strips):
     """A generator for iterating over the faces in a set of
@@ -178,24 +178,24 @@ def stripify(triangles, stitchstrips = False):
     else:
         strips = []
         # build a mesh from triangles
-        mesh = FaceEdgeMesh()
+        mesh = Mesh()
         for face in triangles:
-            mesh.AddFace(*face)
+            try:
+                mesh.add_face(*face)
+            except ValueError:
+                # degenerate face
+                pass
+        mesh.lock()
 
         # calculate the strip
-        stripifier = TriangleStripifier()
-        stripifier.GLSelector.MinStripLength = 0
-        stripifier.GLSelector.Samples = 10
-        stripifier(mesh)
-
-        # add the triangles to it
-        strips.extend([face for face in _generate_faces_from_triangles(stripifier.TriangleList)])
-        # add strips
-        strips.extend(stripifier.TriangleStrips)
+        stripifier = TriangleStripifier(mesh)
+        strips = stripifier.find_all_strips()
 
     # stitch the strips if needed
-    if stitchstrips: return [stitchStrips(strips)]
-    else: return strips
+    if stitchstrips:
+        return [stitchStrips(strips)]
+    else:
+        return strips
 
 class OrientedStrip:
     """An oriented strip, with stitching support."""
@@ -325,13 +325,10 @@ class OrientedStrip:
         has_common_vertex = (self.vertices[-1] == other.vertices[0])
 
         # do windings match?
-        # ... get winding of first face of self
-        winding = self.reversed
-        # ... update winding to last face of self
         if len(self.vertices) & 1:
-            winding = not winding
-        # ... check if windings match
-        has_winding_match = (winding == other.reversed)
+            has_winding_match = (self.reversed != other.reversed)
+        else:
+            has_winding_match = (self.reversed == other.reversed)
 
         # append stitches
         if has_common_vertex:
@@ -461,7 +458,7 @@ def stitchStrips(strips):
     # go on as long as there are strips left to process
     while ostrips:
         selector = ExperimentSelector()
-        
+
         for ostrip_index, (ostrip, reversed_ostrip) in enumerate(ostrips):
             # try various ways of stitching strips
             selector.update(ostrip_index, result, ostrip)
@@ -471,7 +468,8 @@ def stitchStrips(strips):
             # break early if global optimum is already reached
             if selector.best_num_stitches == 0:
                 break
-        # get best result, and remove strip from ostrips
+        # get best result, perform the actual stitching, and remove
+        # strip from ostrips
         result = selector.best_ostrip1 + selector.best_ostrip2
         ostrips.pop(selector.best_ostrip_index)
     # get strip
