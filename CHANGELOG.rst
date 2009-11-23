@@ -1,5 +1,5 @@
-Release 2.0.5 (in development)
-==============================
+Release 2.0.5 (Nov 23, 2009)
+============================
 
 * Added regression test and fixed rare bug in stripification (reported by
   PacificMorrowind, see issue #2889048).
@@ -16,6 +16,9 @@ Release 2.0.5 (in development)
 * Various fixes and improvements for 20.5.0.0+ nifs.
 
 * Check endian type when processing nifs.
+
+* Source release now includes missing egm.xml and tri.xml files (reported
+  by skomut, fixes issue #2902125).
 
 Release 2.0.4 (Nov 10, 2009)
 ============================
