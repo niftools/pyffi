@@ -11,6 +11,8 @@ include pyffi/formats/kfm/kfm.xml
 include pyffi/formats/cgf/cgf.xml
 include pyffi/formats/dds/dds.xml
 include pyffi/formats/tga/tga.xml
+include pyffi/formats/egm/egm.xml
+include pyffi/formats/tri/tri.xml
 include pyffi/formats/dae/COLLADASchema.xsd
 include pyffi/utils/mopper.exe
 recursive-include examples *.py
