@@ -374,7 +374,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         self.class_bases = ()
 
         # elements for basic classes
-        self.basicClass = None
+        self.basic_class = None
 
         # elements for versions
         self.versionString = None
@@ -406,7 +406,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         C{self.class_name}, C{self.class_bases}, and C{self.class_dict} which
         will be used to create the class by invokation of C{type} in
         C{self.endElement}. For basic, enum, and bitstruct elements, it will
-        set up C{self.basicClass} to link to the proper class implemented by
+        set up C{self.basic_class} to link to the proper class implemented by
         C{self.cls}. The code also performs sanity checks on the attributes.
 
         For xml add tags, the function will add an entry to the
@@ -445,7 +445,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         # C{self.class_dict} to the class dictionary.
         #
         # For a basic tag, C{self.class_name} is the name of the
-        # class and C{self.basicClass} is the corresponding class in
+        # class and C{self.basic_class} is the corresponding class in
         # C{self.cls}.
         #
         # For a version tag, C{self.versionString} describes the version as a
@@ -514,10 +514,10 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 # Each basic type corresponds to a type defined in C{self.cls}.
                 # The link between basic types and C{self.cls} types is done
                 # via the name of the class.
-                self.basicClass = getattr(self.cls, self.class_name)
+                self.basic_class = getattr(self.cls, self.class_name)
                 # check the class variables
                 is_template = (attrs.get("istemplate") == "1")
-                if self.basicClass._isTemplate != is_template:
+                if self.basic_class._isTemplate != is_template:
                     raise XmlError(
                         'class %s should have _isTemplate = %s'
                         % (self.class_name, is_template))
@@ -709,10 +709,10 @@ but got %s instead""" % name)
             self.class_dict = None
             self.class_bases = ()
         elif tag == self.tag_basic:
-            # link class cls.<class_name> to self.basicClass
-            setattr(self.cls, self.class_name, self.basicClass)
+            # link class cls.<class_name> to self.basic_class
+            setattr(self.cls, self.class_name, self.basic_class)
             # reset variable
-            self.basicClass = None
+            self.basic_class = None
         elif tag == self.tag_version:
             # reset variable
             self.versionString = None
