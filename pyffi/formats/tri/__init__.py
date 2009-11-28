@@ -95,7 +95,7 @@ from pyffi.utils.graph import EdgeFilter
 
 class TriFormat(pyffi.object_models.xml.FileFormat):
     """This class implements the TRI format."""
-    xmlFileName = 'tri.xml'
+    xml_file_name = 'tri.xml'
     # where to look for tri.xml and in what order:
     # TRIXMLPATH env var, or TriFormat module directory
     xmlFilePath = [os.getenv('TRIXMLPATH'), os.path.dirname(__file__)]

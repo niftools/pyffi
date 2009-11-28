@@ -115,7 +115,7 @@ from pyffi.utils.graph import EdgeFilter
 
 class EgmFormat(pyffi.object_models.xml.FileFormat):
     """This class implements the EGM format."""
-    xmlFileName = 'egm.xml'
+    xml_file_name = 'egm.xml'
     # where to look for egm.xml and in what order:
     # EGMXMLPATH env var, or EgmFormat module directory
     xmlFilePath = [os.getenv('EGMXMLPATH'), os.path.dirname(__file__)]

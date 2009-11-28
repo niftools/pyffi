@@ -58,7 +58,7 @@ What happens in this piece of code?
     base class triggers the transformation of xml into Python classes;
     how these classes can be used will be explained further.
 
-  - The :attr:`~pyffi.object_models.xml.FileFormat.xmlFileName`
+  - The :attr:`~pyffi.object_models.xml.FileFormat.xml_file_name`
     class attribute provides the name of the xml file that describes
     the structures we wish to generate. The
     :attr:`~pyffi.object_models.xml.FileFormat.xmlFilePath`

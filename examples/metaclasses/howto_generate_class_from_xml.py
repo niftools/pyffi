@@ -81,11 +81,11 @@ class MetaFileFormat(type):
     #   name  : "NifFormat"
     #   bases : a tuple (object,) since NifFormat is derived from object
     #   dct   : a dictionary describing all attributes of the NifFormat
-    #           class, such as 'xmlFileName'
+    #           class, such as 'xml_file_name'
     #           (in other words, any attribute defined in the class interface
     #           is accessible through dct)
     def __init__(cls, name, bases, dct):
-        # of course we should read the data from file dct['xmlFileName']
+        # of course we should read the data from file dct['xml_file_name']
         # the code below is only a proof of concept
         block_name = 'NiObjectNET'
         block_ancestor = _Block # base of all block classes
@@ -117,7 +117,7 @@ class MetaFileFormat(type):
 # blocks, and enums.
 class NifFormat(object):
     __metaclass__ = MetaFileFormat
-    xmlFileName = "nif.xml"
+    xml_file_name = "nif.xml"
 
 # For example, NifFormat.NiNode is now a class representing the NiNode block
 # type! The _Block class, from which NifFormat.NiNode is derived, takes care

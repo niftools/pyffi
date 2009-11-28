@@ -342,7 +342,7 @@ from pyffi.object_models.xml.basic import BasicBase
 class NifFormat(pyffi.object_models.xml.FileFormat):
     """This class contains the generated classes from the xml."""
 
-    xmlFileName = 'nif.xml'
+    xml_file_name = 'nif.xml'
     # where to look for nif.xml and in what order: NIFXMLPATH env var,
     # or NifFormat module directory
     xmlFilePath = [os.getenv('NIFXMLPATH'), os.path.dirname(__file__)]

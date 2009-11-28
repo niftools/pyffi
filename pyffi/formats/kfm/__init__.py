@@ -127,7 +127,7 @@ import pyffi.object_models.xml.struct_
 
 class KfmFormat(pyffi.object_models.xml.FileFormat):
     """This class implements the kfm file format."""
-    xmlFileName = 'kfm.xml'
+    xml_file_name = 'kfm.xml'
     # where to look for kfm.xml and in what order:
     # KFMXMLPATH env var, or KfmFormat module directory
     xmlFilePath = [os.getenv('KFMXMLPATH'), os.path.dirname(__file__)]

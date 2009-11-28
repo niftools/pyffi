@@ -94,7 +94,7 @@ from pyffi.utils.graph import EdgeFilter
 
 class TgaFormat(pyffi.object_models.xml.FileFormat):
     """This class implements the TGA format."""
-    xmlFileName = 'tga.xml'
+    xml_file_name = 'tga.xml'
     # where to look for tga.xml and in what order:
     # TGAXMLPATH env var, or TgaFormat module directory
     xmlFilePath = [os.getenv('TGAXMLPATH'), os.path.dirname(__file__)]

@@ -100,7 +100,7 @@ from pyffi.utils.graph import EdgeFilter
 
 class DdsFormat(pyffi.object_models.xml.FileFormat):
     """This class implements the DDS format."""
-    xmlFileName = 'dds.xml'
+    xml_file_name = 'dds.xml'
     # where to look for dds.xml and in what order:
     # DDSXMLPATH env var, or DdsFormat module directory
     xmlFilePath = [os.getenv('DDSXMLPATH'), os.path.dirname(__file__)]

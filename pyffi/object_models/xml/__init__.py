@@ -71,7 +71,7 @@ class MetaFileFormat(pyffi.object_models.MetaFileFormat):
             NifFormat.
         :param name: The name of the class, for example 'NifFormat'.
         :param bases: The base classes, usually (object,).
-        :param dct: A dictionary of class attributes, such as 'xmlFileName'.
+        :param dct: A dictionary of class attributes, such as 'xml_file_name'.
         """
 
         super(MetaFileFormat, cls).__init__(name, bases, dct)
@@ -86,18 +86,18 @@ class MetaFileFormat(pyffi.object_models.MetaFileFormat):
 
         # we check dct to avoid parsing the same file more than once in
         # the hierarchy
-        xmlFileName = dct.get('xmlFileName')
-        if xmlFileName:
+        xml_file_name = dct.get('xml_file_name')
+        if xml_file_name:
             # set up XML parser
             parser = xml.sax.make_parser()
             parser.setContentHandler(XmlSaxHandler(cls, name, bases, dct))
 
             # open XML file
-            xmlfile = cls.openfile(xmlFileName, cls.xmlFilePath)
+            xmlfile = cls.openfile(xml_file_name, cls.xmlFilePath)
 
             # parse the XML file: control is now passed on to XmlSaxHandler
             # which takes care of the class creation
-            cls.logger.debug("Parsing %s and generating classes." % xmlFileName)
+            cls.logger.debug("Parsing %s and generating classes." % xml_file_name)
             start = time.clock()
             try:
                 parser.parse(xmlfile)
@@ -109,7 +109,7 @@ class FileFormat(pyffi.object_models.FileFormat):
     """This class can be used as a base class for file formats
     described by an xml file."""
     __metaclass__ = MetaFileFormat
-    xmlFileName = None #: Override.
+    xml_file_name = None #: Override.
     xmlFilePath = None #: Override.
     logger = logging.getLogger("pyffi.object_models.xml")
 

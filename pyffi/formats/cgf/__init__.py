@@ -233,7 +233,7 @@ class _MetaCgfFormat(pyffi.object_models.xml.MetaFileFormat):
 class CgfFormat(pyffi.object_models.xml.FileFormat):
     """Stores all information about the cgf file format."""
     __metaclass__ = _MetaCgfFormat
-    xmlFileName = 'cgf.xml'
+    xml_file_name = 'cgf.xml'
     # where to look for cgf.xml and in what order: CGFXMLPATH env var,
     # or module directory
     xmlFilePath = [os.getenv('CGFXMLPATH'), os.path.dirname(__file__)]
