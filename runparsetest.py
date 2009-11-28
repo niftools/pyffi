@@ -61,3 +61,5 @@ import pyffi.formats.dds
 import pyffi.formats.kfm
 import pyffi.formats.nif
 import pyffi.formats.tga
+import pyffi.formats.egm
+import pyffi.formats.tri
