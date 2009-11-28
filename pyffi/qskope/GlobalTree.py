@@ -69,9 +69,9 @@ class GlobalTreeItem(object):
     :ivar data: The item data.
     :type data: L{GlobalDetailTreeItemData}
     :ivar parent: The parent of the node.
-    :type parent: ``type(None)`` or L{DetailTreeItem}
+    :type parent: ``type(None)`` or :class:`DetailTreeItem`
     :ivar children: The children of the node.
-    :type children: ``list`` of L{GlobalTreeItem}
+    :type children: ``list`` of :class:`GlobalTreeItem`
     :ivar row: The row number of this node, as child.
     :type row: ``int``
     :ivar edge_type: The type of edge from the parent. Default is 0. The 0

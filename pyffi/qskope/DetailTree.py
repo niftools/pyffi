@@ -68,19 +68,19 @@ class DetailTreeItemData(object):
         return self.node.__class__.__name__
 
 class DetailTreeItem(object):
-    """Stores all internal information to vizualize :class:`DetailNode`s in a
+    """Stores all internal information to vizualize :class:`DetailNode`\ s in a
     tree view.
 
     :ivar data: The item data.
-    :type data: L{DetailTreeItemData}
+    :type data: :class:`DetailTreeItemData`
     :ivar parent: The parent of the node.
-    :type parent: ``type(None)`` or L{DetailTreeItem}
+    :type parent: ``type(None)`` or :class:`DetailTreeItem`
     :ivar children: The children of the node.
-    :type children: ``list`` of L{QDetailTreeItem}
+    :type children: ``list`` of :class:`DetailTreeItem`
     :ivar row: The row number of this node, as child.
     :type row: ``int``
     :ivar edge_type: The type of edge from the parent of this node to itself.
-    :type edge_type: L{EdgeType}
+    :type edge_type: :class:`EdgeType`
     """
     def __init__(self, data=None, parent=None, row=0, edge_type=EdgeType(),
                  edge_filter=EdgeFilter()):

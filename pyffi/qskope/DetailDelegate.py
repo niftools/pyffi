@@ -62,11 +62,12 @@ class DetailDelegate(QtGui.QItemDelegate):
         the order in this function, because a class may derive from more than
         one delegate class. So this function determines which editor is
         preferred if this happens. The order is:
-          - ComboBox
-          - FloatSpinBox
-          - SpinBox
-          - TextEdit
-          - LineEdit
+
+        - ComboBox
+        - FloatSpinBox
+        - SpinBox
+        - TextEdit
+        - LineEdit
 
         This function is only used for internal debugging purposes.
         """
