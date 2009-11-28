@@ -369,7 +369,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         self.cls = cls
 
         # elements for creating new classes
-        self.className = None
+        self.class_name = None
         self.classDict = None
         self.classBases = ()
 
@@ -403,7 +403,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
 
         This function sets up all variables for creating the class
         in the C{self.endElement} function. For struct elements, it will set up
-        C{self.className}, C{self.classBases}, and C{self.classDict} which
+        C{self.class_name}, C{self.classBases}, and C{self.classDict} which
         will be used to create the class by invokation of C{type} in
         C{self.endElement}. For basic, enum, and bitstruct elements, it will
         set up C{self.basicClass} to link to the proper class implemented by
@@ -440,11 +440,11 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         # tag in which <name> is embedded.
         #
         # For each struct, alias, enum, and bitstruct tag, we shall
-        # create a class. So assign to C{self.className} the name of that
+        # create a class. So assign to C{self.class_name} the name of that
         # class, C{self.classBases} to the base of that class, and
         # C{self.classDict} to the class dictionary.
         #
-        # For a basic tag, C{self.className} is the name of the
+        # For a basic tag, C{self.class_name} is the name of the
         # class and C{self.basicClass} is the corresponding class in
         # C{self.cls}.
         #
@@ -472,7 +472,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
 
             # fileformat -> struct
             if tag == self.tag_struct:
-                self.className = attrs["name"]
+                self.class_name = attrs["name"]
                 # struct types can be organized in a hierarchy
                 # if inherit attribute is defined, then look for corresponding
                 # base block
@@ -481,7 +481,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 # currently only \x01 is used, so optimize for this
                 #for i in xrange(32):
                 for i in (1,):
-                    self.className = self.className.replace("\\x%02i" % i,
+                    self.class_name = self.class_name.replace("\\x%02i" % i,
                                                             chr(i))
                     if class_basename:
                         class_basename = class_basename.replace("\\x%02i" % i,
@@ -510,22 +510,22 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
 
             # fileformat -> basic
             elif tag == self.tag_basic:
-                self.className = attrs["name"]
+                self.class_name = attrs["name"]
                 # Each basic type corresponds to a type defined in C{self.cls}.
                 # The link between basic types and C{self.cls} types is done
                 # via the name of the class.
-                self.basicClass = getattr(self.cls, self.className)
+                self.basicClass = getattr(self.cls, self.class_name)
                 # check the class variables
                 is_template = (attrs.get("istemplate") == "1")
                 if self.basicClass._isTemplate != is_template:
                     raise XmlError(
                         'class %s should have _isTemplate = %s'
-                        % (self.className, is_template))
+                        % (self.class_name, is_template))
 
             # fileformat -> enum
             elif tag == self.tag_enum:
                 self.classBases += (EnumBase,)
-                self.className = attrs["name"]
+                self.class_name = attrs["name"]
                 try:
                     numbytes = int(attrs["numbytes"])
                 except KeyError:
@@ -546,7 +546,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
 
             # fileformat -> alias
             elif tag == self.tag_alias:
-                self.className = attrs["name"]
+                self.class_name = attrs["name"]
                 typename = attrs["type"]
                 try:
                     self.classBases += (getattr(self.cls, typename),)
@@ -561,7 +561,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
             # BitStruct base class later
             elif tag == self.tag_bit_struct:
                 self.classBases += (BitStructBase,)
-                self.className = attrs["name"]
+                self.class_name = attrs["name"]
                 try:
                     numbytes = int(attrs["numbytes"])
                 except KeyError:
@@ -660,9 +660,9 @@ but got %s instead""" % name)
                      self.tag_alias,
                      self.tag_bit_struct):
             # create class
-            # assign it to cls.<className> if it has not been implemented
+            # assign it to cls.<class_name> if it has not been implemented
             # internally
-            cls_klass = getattr(self.cls, self.className, None)
+            cls_klass = getattr(self.cls, self.class_name, None)
             if cls_klass and issubclass(cls_klass, BasicBase):
                 pass
                 # overrides a basic type - do nothing
@@ -671,9 +671,9 @@ but got %s instead""" % name)
                 if cls_klass:
                     # exists: create and add to base class of customizer
                     gen_klass = type(
-                        "_" + str(self.className),
+                        "_" + str(self.class_name),
                         self.classBases, self.classDict)
-                    setattr(self.cls, "_" + self.className, gen_klass)
+                    setattr(self.cls, "_" + self.class_name, gen_klass)
                     # recreate the class, to ensure that the
                     # metaclass is called!!
                     # (otherwise, cls_klass does not have correct
@@ -682,7 +682,7 @@ but got %s instead""" % name)
                         cls_klass.__name__,
                         (gen_klass,) + cls_klass.__bases__,
                         dict(cls_klass.__dict__))
-                    setattr(self.cls, self.className, cls_klass)
+                    setattr(self.cls, self.class_name, cls_klass)
                     # if the class derives from Data, then make an alias
                     if issubclass(
                         cls_klass,
@@ -693,8 +693,8 @@ but got %s instead""" % name)
                 else:
                     # does not yet exist: create it and assign to class dict
                     gen_klass = type(
-                        str(self.className), self.classBases, self.classDict)
-                    setattr(self.cls, self.className, gen_klass)
+                        str(self.class_name), self.classBases, self.classDict)
+                    setattr(self.cls, self.class_name, gen_klass)
                 # append class to the appropriate list
                 if tag == self.tag_struct:
                     self.cls.xml_struct.append(gen_klass)
@@ -705,12 +705,12 @@ but got %s instead""" % name)
                 elif tag == self.tag_bit_struct:
                     self.cls.xml_bit_struct.append(gen_klass)
             # reset variables
-            self.className = None
+            self.class_name = None
             self.classDict = None
             self.classBases = ()
         elif tag == self.tag_basic:
-            # link class cls.<className> to self.basicClass
-            setattr(self.cls, self.className, self.basicClass)
+            # link class cls.<class_name> to self.basicClass
+            setattr(self.cls, self.class_name, self.basicClass)
             # reset variable
             self.basicClass = None
         elif tag == self.tag_version:
