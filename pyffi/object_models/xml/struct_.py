@@ -72,14 +72,14 @@ class _MetaStructBase(type):
             # basestring is a forward compound type declaration
             # and issubclass must take a type as first argument
             # hence this hack
-            if not isinstance(attr.type, basestring) and \
-                issubclass(attr.type, BasicBase) and attr.arr1 == None:
+            if not isinstance(attr.type_, basestring) and \
+                issubclass(attr.type_, BasicBase) and attr.arr1 == None:
                 # get and set basic attributes
                 setattr(cls, attr.name, property(
                     partial(StructBase.getBasicAttribute, name = attr.name),
                     partial(StructBase.setBasicAttribute, name = attr.name),
                     doc=attr.doc))
-            elif attr.type == type(None) and attr.arr1 == None:
+            elif attr.type_ == type(None) and attr.arr1 == None:
                 # get and set template attributes
                 setattr(cls, attr.name, property(
                     partial(StructBase.getTemplateAttribute, name = attr.name),
@@ -93,10 +93,10 @@ class _MetaStructBase(type):
 
             # check for links and refs and strings
             if not cls._hasLinks:
-                if attr.type != type(None): # templates!
-                    # attr.type basestring means forward declaration
+                if attr.type_ != type(None): # templates!
+                    # attr.type_ basestring means forward declaration
                     # we cannot know if it has links, so assume yes
-                    if isinstance(attr.type, basestring) or attr.type._hasLinks:
+                    if isinstance(attr.type_, basestring) or attr.type_._hasLinks:
                         cls._hasLinks = True
                 #else:
                 #    cls._hasLinks = True
@@ -104,19 +104,19 @@ class _MetaStructBase(type):
                 # to uncomment this if template types contain refs
 
             if not cls._hasRefs:
-                if attr.type != type(None):
-                    # attr.type basestring means forward declaration
+                if attr.type_ != type(None):
+                    # attr.type_ basestring means forward declaration
                     # we cannot know if it has refs, so assume yes
-                    if isinstance(attr.type, basestring) or attr.type._hasRefs:
+                    if isinstance(attr.type_, basestring) or attr.type_._hasRefs:
                         cls._hasRefs = True
                 #else:
                 #    cls._hasRefs = True # dito, see comment above
 
             if not cls._hasStrings:
-                if attr.type != type(None):
-                    # attr.type basestring means forward declaration
+                if attr.type_ != type(None):
+                    # attr.type_ basestring means forward declaration
                     # we cannot know if it has strings, so assume yes
-                    if isinstance(attr.type, basestring) or attr.type._hasStrings:
+                    if isinstance(attr.type_, basestring) or attr.type_._hasStrings:
                         cls._hasStrings = True
                 else:
                     # enabled because there is a template key type that has
@@ -241,7 +241,7 @@ class StructBase(GlobalNode):
             names.append(attr.name)
 
             # things that can only be determined at runtime (rt_xxx)
-            rt_type = attr.type if attr.type != type(None) \
+            rt_type = attr.type_ if attr.type_ != type(None) \
                       else template
             rt_template = attr.template if attr.template != type(None) \
                           else template
@@ -379,7 +379,7 @@ class StructBase(GlobalNode):
         for attr in self._filteredAttributeList(**kwargs):
             # check if there are any links at all
             # (commonly this speeds things up considerably)
-            if not attr.type._hasLinks:
+            if not attr.type_._hasLinks:
                 continue
             #print("fixlinks %s" % attr.name)
             # fix the links in the attribute
@@ -392,7 +392,7 @@ class StructBase(GlobalNode):
         for attr in self._filteredAttributeList(**kwargs):
             # check if there are any links at all
             # (this speeds things up considerably)
-            if not attr.type._hasLinks:
+            if not attr.type_._hasLinks:
                 continue
             # extend list of links
             links.extend(
@@ -407,7 +407,7 @@ class StructBase(GlobalNode):
         for attr in self._filteredAttributeList(**kwargs):
             # check if there are any strings at all
             # (this speeds things up considerably)
-            if (not attr.type is type(None)) and (not attr.type._hasStrings):
+            if (not attr.type_ is type(None)) and (not attr.type_._hasStrings):
                 continue
             # extend list of strings
             strings.extend(
@@ -425,7 +425,7 @@ class StructBase(GlobalNode):
         for attr in self._filteredAttributeList(**kwargs):
             # check if there are any links at all
             # (this speeds things up considerably)
-            if not attr.type._hasLinks:
+            if not attr.type_._hasLinks:
                 continue
             # extend list of refs
             refs.extend(
@@ -457,7 +457,7 @@ class StructBase(GlobalNode):
         for attr in self._filteredAttributeList(**kwargs):
             # check if there are any links at all
             # (this speeds things up considerably)
-            if not attr.type._hasLinks:
+            if not attr.type_._hasLinks:
                 continue
             getattr(self, "_%s_value_" % attr.name).replaceGlobalNode(oldbranch, newbranch, **kwargs)
 

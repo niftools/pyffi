@@ -132,38 +132,62 @@ class FileFormat(pyffi.object_models.FileFormat):
         raise NotImplementedError
 
 class StructAttribute(object):
-    """Helper class to collect attribute data of struct add tags.
-    :ivar name:  The name of this member variable.
-    :type name: ``str``
-    :ivar type: The type of this member variable (type is ``str`` for forward
-        declarations, and resolved to an actual type later).
-    :type type: ``str`` or :class:`BasicBase` or :class:`StructBase`
-    :ivar default: The default value of this member variable.
-    :type default: ``str`` or ``type(None)``
-    :ivar template: The template type of this member variable (initially
-        ``str``, resolved to an actual type at the end of the xml parsing).
-        If there is no template type, then this variable will equal
-        ``type(None)``.
-    :type template: ``str`` or :class:`BasicBase` or :class:`StructBase` or
-        ``type(type(None))``
-    :ivar arg: The argument of this member variable.
-    :type arg: ``str`` or ``type(None)``
-    :ivar arr1: The first array size of this member variable.
-    :type arr1: :class:`Expression` or ``type(None)``
-    :ivar arr2: The first array size of this member variable.
-    :type arr2: :class:`Expression` or ``type(None)``
-    :ivar cond: The condition of this member variable.
-    :type cond: :class:`Expression` or ``type(None)``
-    :ivar ver1: The first version this member exists.
-    :type ver1: ``int`` or ``type(None)``
-    :ivar ver2: The last version this member exists.
-    :type ver2: ``int`` or ``type(None)``
-    :ivar userver: The user version where this member exists.
-    :type userver: ``int`` or ``type(None)``
-    :ivar is_abstract: Whether the attribute is abstract or not (i.e.
-        read and written).
-    :type is_abstract: ``bool``
+    """Helper class to collect attribute data of struct add tags."""
+
+    name = None
+    """The name of this member variable."""
+    
+    type_ = None
+    """The type of this member variable (type is ``str`` for forward
+    declarations, and resolved to :class:`BasicBase` or
+    :class:`StructBase` later).
     """
+
+    default = None
+    """The default value of this member variable."""
+
+    template = None
+    """The template type of this member variable (initially ``str``,
+    resolved to :class:`BasicBase` or :class:`StructBase` at the end
+    of the xml parsing), and if there is no template type, then this
+    variable will equal ``type(None)``.
+    """
+
+    arg = None
+    """The argument of this member variable."""
+
+    arr1 = None
+    """The first array size of this member variable, as
+    :class:`Expression` or ``type(None)``.
+    """
+
+    arr2 = None
+    """The second array size of this member variable, as
+    :class:`Expression` or ``type(None)``.
+    """
+
+    cond = None
+    """The condition of this member variable, as
+    :class:`Expression` or ``type(None)``.
+    """
+
+    ver1 = None
+    """The first version this member exists, as ``int``, and ``None`` if
+    there is no lower limit.
+    """
+
+    ver2 = None
+    """The last version this member exists, as ``int``, and ``None`` if
+    there is no upper limit.
+    """
+
+    userver = None
+    """The user version this member exists, as ``int``, and ``None`` if
+    it exists for all user versions.
+    """
+
+    is_abstract = False
+    """Whether the attribute is abstract or not (read and written)."""
 
     def __init__(self, cls, attrs):
         """Initialize attribute from the xml attrs dictionary of an
@@ -177,12 +201,12 @@ class StructAttribute(object):
         attrs_type_str = attrs["type"]
         if attrs_type_str != "TEMPLATE":
             try:
-                self.type = getattr(cls, attrs_type_str)
+                self.type_ = getattr(cls, attrs_type_str)
             except AttributeError:
                 # forward declaration, resolved at endDocument
-                self.type = attrs_type_str
+                self.type_ = attrs_type_str
         else:
-            self.type = type(None) # type determined at runtime
+            self.type_ = type(None) # type determined at runtime
         # optional parameters
         self.default = attrs.get("default")
         self.template = attrs.get("template") # resolved in endDocument
@@ -200,7 +224,7 @@ class StructAttribute(object):
         # post-processing
         if self.default:
             try:
-                tmp = self.type()
+                tmp = self.type_()
                 tmp.setValue(self.default)
                 self.default = tmp.getValue()
                 del tmp
@@ -699,9 +723,9 @@ but got %s instead"""%name)
                     attr.template = \
                         getattr(self.cls, templ) if templ != "TEMPLATE" \
                         else type(None)
-                attrtype = attr.type
+                attrtype = attr.type_
                 if isinstance(attrtype, basestring):
-                    attr.type = getattr(self.cls, attrtype)
+                    attr.type_ = getattr(self.cls, attrtype)
 
     def characters(self, chars):
         """Add the string C{chars} to the docstring.
