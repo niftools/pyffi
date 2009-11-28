@@ -108,7 +108,7 @@ class SimpleType(AnyType):
 
     def __str__(self):
         """String representation. This implementation is simply a wrapper
-        around C{self.L{_value}.__str__()}.
+        around ``str`` on :attr:`_value`.
 
         :return: String representation.
         :rtype: ``str``
@@ -118,7 +118,7 @@ class SimpleType(AnyType):
     def getValue(self):
         """Return the stored value.
 
-        :return: L{_value}
+        :return: :attr:`_value`
         :rtype: Whatever is appropriate.
         """
         return self._value
@@ -142,7 +142,7 @@ class SimpleType(AnyType):
 
     def getDetailDisplay(self):
         """Display string for the detail tree. This implementation is simply
-        a wrapper around C{self.L{_value}.__str__()}.
+        a wrapper around C{self.:attr:`_value`.__str__()}.
 
         :return: String representation.
         :rtype: ``str``
