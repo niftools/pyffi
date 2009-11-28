@@ -292,35 +292,35 @@ class XmlError(Exception):
 class XmlSaxHandler(xml.sax.handler.ContentHandler):
     """This class contains all functions for parsing the xml and converting
     the xml structure into Python classes."""
-    tagFile = 1
-    tagVersion = 2
-    tagBasic = 3
-    tagAlias = 4
-    tagEnum = 5
-    tagOption = 6
-    tagBitStruct = 7
-    tagStruct = 8
-    tagAttribute = 9
-    tagBits = 10
+    tag_file = 1
+    tag_version = 2
+    tag_basic = 3
+    tag_alias = 4
+    tag_enum = 5
+    tag_option = 6
+    tag_bit_struct = 7
+    tag_struct = 8
+    tag_attribute = 9
+    tag_bits = 10
 
     tags = {
-    "fileformat": tagFile,
-    "version": tagVersion,
-    "basic": tagBasic,
-    "alias": tagAlias,
-    "enum": tagEnum,
-    "option": tagOption,
-    "bitstruct": tagBitStruct,
-    "struct": tagStruct,
-    "bits": tagBits,
-    "add": tagAttribute}
+    "fileformat": tag_file,
+    "version": tag_version,
+    "basic": tag_basic,
+    "alias": tag_alias,
+    "enum": tag_enum,
+    "option": tag_option,
+    "bitstruct": tag_bit_struct,
+    "struct": tag_struct,
+    "bits": tag_bits,
+    "add": tag_attribute}
 
     # for compatibility with niftools
     tags_niftools = {
-    "niftoolsxml": tagFile,
-    "compound": tagStruct,
-    "niobject": tagStruct,
-    "bitflags": tagBitStruct}
+    "niftoolsxml": tag_file,
+    "compound": tag_struct,
+    "niobject": tag_struct,
+    "bitflags": tag_bit_struct}
 
     def __init__(self, cls, name, bases, dct):
         """Set up the xml parser.
@@ -421,7 +421,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         # The fileformat tag has no further attributes of interest,
         # so we can exit the function after pushing the tag on the stack.
         if not self.stack:
-            if tag != self.tagFile:
+            if tag != self.tag_file:
                 raise XmlError("this is not a fileformat xml file")
             self.pushTag(tag)
             return
@@ -441,15 +441,15 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         #
         # For a version tag, C{self.versionString} describes the version as a
         # string.
-        if self.currentTag == self.tagStruct:
+        if self.currentTag == self.tag_struct:
             self.pushTag(tag)
             # struct -> attribute
-            if tag == self.tagAttribute:
+            if tag == self.tag_attribute:
                 # add attribute to class dictionary
                 self.classDict["_attrs"].append(
                     StructAttribute(self.cls, attrs))
             # struct -> version
-            elif tag == self.tagVersion:
+            elif tag == self.tag_version:
                 # set the version string
                 self.versionString = str(attrs["num"])
                 self.cls.versions[self.versionString] = self.cls.versionNumber(
@@ -458,11 +458,11 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
             else:
                 raise XmlError(
                     "only add and version tags allowed in struct declaration")
-        elif self.currentTag == self.tagFile:
+        elif self.currentTag == self.tag_file:
             self.pushTag(tag)
 
             # fileformat -> struct
-            if tag == self.tagStruct:
+            if tag == self.tag_struct:
                 self.className = attrs["name"]
                 # struct types can be organized in a hierarchy
                 # if inherit attribute is defined, then look for corresponding
@@ -499,7 +499,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                     "__module__": self.cls.__module__}
 
             # fileformat -> basic
-            elif tag == self.tagBasic:
+            elif tag == self.tag_basic:
                 self.className = attrs["name"]
                 # Each basic type corresponds to a type defined in C{self.cls}.
                 # The link between basic types and C{self.cls} types is done
@@ -513,7 +513,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                         %(self.className,is_template))
 
             # fileformat -> enum
-            elif tag == self.tagEnum:
+            elif tag == self.tag_enum:
                 self.classBases += (EnumBase,)
                 self.className = attrs["name"]
                 try:
@@ -534,7 +534,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                                   "__module__": self.cls.__module__}
 
             # fileformat -> alias
-            elif tag == self.tagAlias:
+            elif tag == self.tag_alias:
                 self.className = attrs["name"]
                 typename = attrs["type"]
                 try:
@@ -548,7 +548,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
             # fileformat -> bitstruct
             # this works like an alias for now, will add special
             # BitStruct base class later
-            elif tag == self.tagBitStruct:
+            elif tag == self.tag_bit_struct:
                 self.classBases += (BitStructBase,)
                 self.className = attrs["name"]
                 try:
@@ -561,7 +561,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                                   "__module__": self.cls.__module__}
 
             # fileformat -> version
-            elif tag == self.tagVersion:
+            elif tag == self.tag_version:
                 self.versionString = str(attrs["num"])
                 self.cls.versions[self.versionString] = self.cls.versionNumber(
                     self.versionString)
@@ -572,15 +572,15 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
 expected basic, alias, enum, bitstruct, struct, or version,
 but got %s instead"""%name)
 
-        elif self.currentTag == self.tagVersion:
+        elif self.currentTag == self.tag_version:
             raise XmlError("version tag must not contain any sub tags")
 
-        elif self.currentTag == self.tagAlias:
+        elif self.currentTag == self.tag_alias:
             raise XmlError("alias tag must not contain any sub tags")
 
-        elif self.currentTag == self.tagEnum:
+        elif self.currentTag == self.tag_enum:
             self.pushTag(tag)
-            if not tag == self.tagOption:
+            if not tag == self.tag_option:
                 raise XmlError("only option tags allowed in enum declaration")
             value = attrs["value"]
             try:
@@ -592,13 +592,13 @@ but got %s instead"""%name)
             self.classDict["_enumkeys"].append(attrs["name"])
             self.classDict["_enumvalues"].append(value)
 
-        elif self.currentTag == self.tagBitStruct:
+        elif self.currentTag == self.tag_bit_struct:
             self.pushTag(tag)
-            if tag == self.tagBits:
+            if tag == self.tag_bits:
                 # mandatory parameters
                 self.classDict["_attrs"].append(
                     BitStructAttribute(self.cls, attrs))
-            elif tag == self.tagOption:
+            elif tag == self.tag_option:
                 # niftools compatibility, we have a bitflags field
                 # so convert value into numbits
                 # first, calculate current bit position
@@ -642,12 +642,12 @@ but got %s instead"""%name)
                 raise XmlError("error unknown element %s"%name)
         if self.popTag() != tag:
             raise XmlError("mismatching end element tag for element %s"%name)
-        elif tag == self.tagAttribute:
+        elif tag == self.tag_attribute:
             return # improves performance
-        elif tag in (self.tagStruct,
-                     self.tagEnum,
-                     self.tagAlias,
-                     self.tagBitStruct):
+        elif tag in (self.tag_struct,
+                     self.tag_enum,
+                     self.tag_alias,
+                     self.tag_bit_struct):
             # create class
             # assign it to cls.<className> if it has not been implemented
             # internally
@@ -685,24 +685,24 @@ but got %s instead"""%name)
                         str(self.className), self.classBases, self.classDict)
                     setattr(self.cls, self.className, gen_klass)
                 # append class to the appropriate list
-                if tag == self.tagStruct:
+                if tag == self.tag_struct:
                     self.cls.xml_struct.append(gen_klass)
-                elif tag == self.tagEnum:
+                elif tag == self.tag_enum:
                     self.cls.xml_enum.append(gen_klass)
-                elif tag == self.tagAlias:
+                elif tag == self.tag_alias:
                     self.cls.xml_alias.append(gen_klass)
-                elif tag == self.tagBitStruct:
+                elif tag == self.tag_bit_struct:
                     self.cls.xml_bit_struct.append(gen_klass)
             # reset variables
             self.className = None
             self.classDict = None
             self.classBases = ()
-        elif tag == self.tagBasic:
+        elif tag == self.tag_basic:
             # link class cls.<className> to self.basicClass
             setattr(self.cls, self.className, self.basicClass)
             # reset variable
             self.basicClass = None
-        elif tag == self.tagVersion:
+        elif tag == self.tag_version:
             # reset variable
             self.versionString = None
 
@@ -730,16 +730,16 @@ but got %s instead"""%name)
     def characters(self, chars):
         """Add the string C{chars} to the docstring.
         For version tags, updates the game version list."""
-        if self.currentTag in (self.tagAttribute, self.tagBits):
+        if self.currentTag in (self.tag_attribute, self.tag_bits):
             self.classDict["_attrs"][-1].doc += str(chars.strip())
-        elif self.currentTag in (self.tagStruct, self.tagEnum, self.tagAlias):
+        elif self.currentTag in (self.tag_struct, self.tag_enum, self.tag_alias):
             self.classDict["__doc__"] += str(chars.strip())
-        elif self.currentTag == self.tagVersion:
+        elif self.currentTag == self.tag_version:
             # fileformat -> version
-            if self.stack[1] == self.tagFile:
+            if self.stack[1] == self.tag_file:
                 gamesdict = self.cls.games
             # struct -> version
-            elif self.stack[1] == self.tagStruct:
+            elif self.stack[1] == self.tag_struct:
                 gamesdict = self.classDict["_games"]
             else:
                 raise XmlError("version parsing error at '%s'" % chars)
