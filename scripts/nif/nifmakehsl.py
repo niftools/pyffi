@@ -72,7 +72,7 @@ def find_templates():
     # find all types that are used as a template (excluding the ones
     # occuring in Ref & its subclass Ptr)
     templates = set()
-    for cls in NifFormat.xmlStruct:
+    for cls in NifFormat.xml_struct:
         for attr in cls._attributeList:
             if attr.template != None and attr.template != type(None) and not issubclass(attr.type_, NifFormat.Ref):
                 templates.add(attr.template)
@@ -120,7 +120,7 @@ def write_hsl(f, ver, templates):
         write_enum(cls, ver, hsl_types, f)
 
     # write each struct class
-    for cls in NifFormat.xmlStruct:
+    for cls in NifFormat.xml_struct:
         if cls.__name__[:3] == 'ns ': continue # cheat: skip ns types
         if not cls._isTemplate:
             # write regular class
@@ -175,7 +175,7 @@ def write_struct(cls, ver, hsl_types, f, template):
         except KeyError:
             if rt_type in NifFormat.xml_enum:
                 s += rt_type.__name__
-            else: # it's in NifFormat.xmlStruct
+            else: # it's in NifFormat.xml_struct
                 s += 'struct ' + rt_type.__name__
         # get the attribute template type name
         if (not rt_template is None) and (not issubclass(rt_type, NifFormat.Ref)):

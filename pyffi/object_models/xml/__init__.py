@@ -80,7 +80,7 @@ class MetaFileFormat(pyffi.object_models.MetaFileFormat):
         cls.xml_enum = cls.xml_enum[:]
         cls.xml_alias = cls.xml_alias[:]
         cls.xml_bit_struct = cls.xml_bit_struct[:]
-        cls.xmlStruct = cls.xmlStruct[:]
+        cls.xml_struct = cls.xml_struct[:]
 
         # parse XML
 
@@ -114,7 +114,7 @@ class FileFormat(pyffi.object_models.FileFormat):
     logger = logging.getLogger("pyffi.object_models.xml")
 
     # We also keep an ordered list of all classes that have been created.
-    # The xmlStruct list includes all xml generated struct classes,
+    # The xml_struct list includes all xml generated struct classes,
     # including those that are replaced by a native class in cls (for
     # instance NifFormat.String). The idea is that these lists should
     # contain sufficient info from the xml so they can be used to write
@@ -125,7 +125,7 @@ class FileFormat(pyffi.object_models.FileFormat):
     xml_enum = []
     xml_alias = []
     xml_bit_struct = []
-    xmlStruct = []
+    xml_struct = []
 
     @classmethod
     def vercondFilter(cls, expression):
@@ -686,7 +686,7 @@ but got %s instead"""%name)
                     setattr(self.cls, self.className, gen_klass)
                 # append class to the appropriate list
                 if tag == self.tagStruct:
-                    self.cls.xmlStruct.append(gen_klass)
+                    self.cls.xml_struct.append(gen_klass)
                 elif tag == self.tagEnum:
                     self.cls.xml_enum.append(gen_klass)
                 elif tag == self.tagAlias:
