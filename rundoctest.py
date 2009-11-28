@@ -15,8 +15,9 @@ import pyffi.object_models.array_type
 import pyffi.object_models.binary_type
 import pyffi.object_models.xml.basic
 import pyffi.object_models.xml.bit_struct
-import pyffi.object_models.xml.Struct
+import pyffi.object_models.xml.enum
 import pyffi.object_models.xml.Expression
+import pyffi.object_models.xml.Struct
 import pyffi.utils
 import pyffi.utils.tristrip
 import pyffi.utils.mathutils
