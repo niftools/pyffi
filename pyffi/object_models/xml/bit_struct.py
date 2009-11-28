@@ -172,7 +172,7 @@ class BitStructBase(DetailNode):
     >>> y.a = 5
     >>> y.b = 1
     >>> print(y) # doctest:+ELLIPSIS
-    <class 'pyffi.object_models.xml.BitStruct.Flags'> instance at 0x...
+    <class 'pyffi.object_models.xml.bit_struct.Flags'> instance at 0x...
     * a : 5
     * b : 1
     <BLANKLINE>
@@ -180,7 +180,7 @@ class BitStructBase(DetailNode):
     13
     >>> y.from_int(9)
     >>> print(y) # doctest:+ELLIPSIS
-    <class 'pyffi.object_models.xml.BitStruct.Flags'> instance at 0x...
+    <class 'pyffi.object_models.xml.bit_struct.Flags'> instance at 0x...
     * a : 1
     * b : 1
     <BLANKLINE>
