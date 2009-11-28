@@ -93,16 +93,16 @@ class MetaFileFormat(pyffi.object_models.MetaFileFormat):
             parser.setContentHandler(XmlSaxHandler(cls, name, bases, dct))
 
             # open XML file
-            xmlfile = cls.openfile(xml_file_name, cls.xml_file_path)
+            xml_file = cls.openfile(xml_file_name, cls.xml_file_path)
 
             # parse the XML file: control is now passed on to XmlSaxHandler
             # which takes care of the class creation
             cls.logger.debug("Parsing %s and generating classes." % xml_file_name)
             start = time.clock()
             try:
-                parser.parse(xmlfile)
+                parser.parse(xml_file)
             finally:
-                xmlfile.close()
+                xml_file.close()
             cls.logger.debug("Parsing finished in %.3f seconds." % (time.clock() - start))
 
 class FileFormat(pyffi.object_models.FileFormat):
