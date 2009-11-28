@@ -685,7 +685,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             except KeyError:
                 neosteam = False
 
-            version_string = self.versionString(ver, neosteam)
+            version_string = self.version_string(ver, neosteam)
             s = stream.read(len(version_string) + 1)
             if s != (version_string + '\x0a').encode("ascii"):
                 raise ValueError(
@@ -702,7 +702,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             except KeyError:
                 neosteam = False
 
-            stream.write(self.versionString(ver, neosteam).encode("ascii"))
+            stream.write(self.version_string(ver, neosteam).encode("ascii"))
             stream.write('\x0a'.encode("ascii"))
 
         def getSize(self, **kwargs):
@@ -711,21 +711,21 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             except KeyError:
                 ver = -1
 
-            return len(self.versionString(ver).encode("ascii")) + 1
+            return len(self.version_string(ver).encode("ascii")) + 1
 
         @staticmethod
-        def versionString(version, neosteam=False):
+        def version_string(version, neosteam=False):
             """Transforms version number into a version string.
 
-            >>> NifFormat.HeaderString.versionString(0x03000300)
+            >>> NifFormat.HeaderString.version_string(0x03000300)
             'NetImmerse File Format, Version 3.03'
-            >>> NifFormat.HeaderString.versionString(0x03010000)
+            >>> NifFormat.HeaderString.version_string(0x03010000)
             'NetImmerse File Format, Version 3.1'
-            >>> NifFormat.HeaderString.versionString(0x0A000100)
+            >>> NifFormat.HeaderString.version_string(0x0A000100)
             'NetImmerse File Format, Version 10.0.1.0'
-            >>> NifFormat.HeaderString.versionString(0x0A010000)
+            >>> NifFormat.HeaderString.version_string(0x0A010000)
             'Gamebryo File Format, Version 10.1.0.0'
-            >>> NifFormat.HeaderString.versionString(0x0A010000, neosteam=True)
+            >>> NifFormat.HeaderString.version_string(0x0A010000, neosteam=True)
             'NS'
             """
             if version == -1 or version is None:

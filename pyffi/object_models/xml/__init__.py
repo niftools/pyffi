@@ -377,7 +377,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         self.basic_class = None
 
         # elements for versions
-        self.versionString = None
+        self.version_string = None
 
     def pushTag(self, tag):
         """Push tag C{tag} on the stack and make it the current tag.
@@ -448,7 +448,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         # class and C{self.basic_class} is the corresponding class in
         # C{self.cls}.
         #
-        # For a version tag, C{self.versionString} describes the version as a
+        # For a version tag, C{self.version_string} describes the version as a
         # string.
         if self.current_tag == self.tag_struct:
             self.pushTag(tag)
@@ -460,9 +460,9 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
             # struct -> version
             elif tag == self.tag_version:
                 # set the version string
-                self.versionString = str(attrs["num"])
-                self.cls.versions[self.versionString] = self.cls.versionNumber(
-                    self.versionString)
+                self.version_string = str(attrs["num"])
+                self.cls.versions[self.version_string] = self.cls.versionNumber(
+                    self.version_string)
                 # (class_dict["_games"] is updated when reading the characters)
             else:
                 raise XmlError(
@@ -573,9 +573,9 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
 
             # fileformat -> version
             elif tag == self.tag_version:
-                self.versionString = str(attrs["num"])
-                self.cls.versions[self.versionString] = self.cls.versionNumber(
-                    self.versionString)
+                self.version_string = str(attrs["num"])
+                self.cls.versions[self.version_string] = self.cls.versionNumber(
+                    self.version_string)
                 # (self.cls.games is updated when reading the characters)
 
             else:
@@ -715,7 +715,7 @@ but got %s instead""" % name)
             self.basic_class = None
         elif tag == self.tag_version:
             # reset variable
-            self.versionString = None
+            self.version_string = None
 
     def endDocument(self):
         """Called when the xml is completely parsed.
@@ -759,7 +759,7 @@ but got %s instead""" % name)
             for gamestr in (str(g.strip()) for g in chars.split(',')):
                 if gamestr in gamesdict:
                     gamesdict[gamestr].append(
-                        self.cls.versions[self.versionString])
+                        self.cls.versions[self.version_string])
                 else:
                     gamesdict[gamestr] = [
-                        self.cls.versions[self.versionString]]
+                        self.cls.versions[self.version_string]]

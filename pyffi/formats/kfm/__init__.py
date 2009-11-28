@@ -174,7 +174,7 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
             :type version: int
             """
             # get the string we expect
-            version_string = self.versionString(kwargs.get('version'))
+            version_string = self.version_string(kwargs.get('version'))
             # read string from stream
             hdrstr = stream.read(len(version_string))
             # check if the string is correct
@@ -200,7 +200,7 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
             :type stream: file
             """
             # write the version string
-            stream.write(self.versionString(kwargs.get('version')).encode("ascii"))
+            stream.write(self.version_string(kwargs.get('version')).encode("ascii"))
             # write \n (or \r\n for older versions)
             if self._doseol:
                 stream.write('\x0d\x0a'.encode("ascii"))
@@ -212,7 +212,7 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
 
             :return: Number of bytes.
             """
-            return len(self.versionString(kwargs.get('version'))) \
+            return len(self.version_string(kwargs.get('version'))) \
                    + (1 if not self._doseol else 2)
 
         # DetailNode
@@ -221,16 +221,16 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
             return str(self)
 
         @staticmethod
-        def versionString(version):
+        def version_string(version):
             """Transforms version number into a version string.
 
             :param version: The version number.
             :type version: int
             :return: A version string.
 
-            >>> KfmFormat.HeaderString.versionString(0x0202000b)
+            >>> KfmFormat.HeaderString.version_string(0x0202000b)
             ';Gamebryo KFM File Version 2.2.0.0b'
-            >>> KfmFormat.HeaderString.versionString(0x01024b00)
+            >>> KfmFormat.HeaderString.version_string(0x01024b00)
             ';Gamebryo KFM File Version 1.2.4b'
             """
             if version == -1 or version is None:
