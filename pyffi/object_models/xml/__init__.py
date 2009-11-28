@@ -77,8 +77,8 @@ class MetaFileFormat(pyffi.object_models.MetaFileFormat):
         super(MetaFileFormat, cls).__init__(name, bases, dct)
 
         # preparation: make deep copy of lists of enums, structs, etc.
-        cls.xmlEnum = cls.xmlEnum[:]
-        cls.xmlAlias = cls.xmlEnum[:]
+        cls.xml_enum = cls.xml_enum[:]
+        cls.xmlAlias = cls.xmlAlias[:]
         cls.xmlBitStruct = cls.xmlBitStruct[:]
         cls.xmlStruct = cls.xmlStruct[:]
 
@@ -122,7 +122,7 @@ class FileFormat(pyffi.object_models.FileFormat):
     # xml parser. See makehsl.py for an example of usage.
     #
     # (note: no classes are created for basic types, so no list for those)
-    xmlEnum = []
+    xml_enum = []
     xmlAlias = []
     xmlBitStruct = []
     xmlStruct = []
@@ -688,7 +688,7 @@ but got %s instead"""%name)
                 if tag == self.tagStruct:
                     self.cls.xmlStruct.append(gen_klass)
                 elif tag == self.tagEnum:
-                    self.cls.xmlEnum.append(gen_klass)
+                    self.cls.xml_enum.append(gen_klass)
                 elif tag == self.tagAlias:
                     self.cls.xmlAlias.append(gen_klass)
                 elif tag == self.tagBitStruct:

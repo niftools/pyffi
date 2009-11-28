@@ -116,7 +116,7 @@ def write_hsl(f, ver, templates):
 """%ver)
 
     # write each enum class
-    for cls in NifFormat.xmlEnum:
+    for cls in NifFormat.xml_enum:
         write_enum(cls, ver, hsl_types, f)
 
     # write each struct class
@@ -173,7 +173,7 @@ def write_struct(cls, ver, hsl_types, f, template):
         try:
             s += hsl_types[rt_type][0]
         except KeyError:
-            if rt_type in NifFormat.xmlEnum:
+            if rt_type in NifFormat.xml_enum:
                 s += rt_type.__name__
             else: # it's in NifFormat.xmlStruct
                 s += 'struct ' + rt_type.__name__
