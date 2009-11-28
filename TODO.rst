@@ -52,10 +52,6 @@
      or Formats.XXX
 
 .. todo::
-    
-   Use logging module for all log actions.
-
-.. todo::
 
    Doctests for all spells.
 
@@ -86,14 +82,9 @@
 
       - resolve all complaints from cheesecake's pep8 checker
 
-    * use partial metaclass for all customizers
-
     * pep8 case conventions:
-      would obviously break backwards compatibility, not sure how to deal
-      with it... probably this will never be done, gains are minimal and effort
-      is huge.
-      Maybe save this for the py3k transition...
 
-      - lower case for all modules
-      - lower case for all methods and attributes
+      - lower case for all modules (this is done)
+      - lower case for all methods and attributes (in progress, automatic
+        creation of aliases for backwards compatibility is already done)
 
