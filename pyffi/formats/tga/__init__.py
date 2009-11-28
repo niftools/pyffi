@@ -86,7 +86,7 @@ import struct, os, re
 
 import pyffi.object_models.xml
 import pyffi.object_models.common
-import pyffi.object_models.xml.Basic
+import pyffi.object_models.xml.basic
 import pyffi.object_models.xml.Struct
 import pyffi.object_models
 import pyffi.utils.graph
@@ -112,7 +112,7 @@ class TgaFormat(pyffi.object_models.xml.FileFormat):
     float = pyffi.object_models.common.Float
     PixelData = pyffi.object_models.common.UndecodedData
 
-    class FooterString(pyffi.object_models.xml.Basic.BasicBase):
+    class FooterString(pyffi.object_models.xml.basic.BasicBase):
         """The Targa footer signature."""
         def __str__(self):
             return 'TRUEVISION-XFILE.\x00'

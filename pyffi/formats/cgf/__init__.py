@@ -215,7 +215,7 @@ import pyffi.object_models
 import pyffi.object_models.xml
 import pyffi.utils.mathutils
 import pyffi.utils.tangentspace
-from pyffi.object_models.xml.Basic import BasicBase
+from pyffi.object_models.xml.basic import BasicBase
 from pyffi.utils.graph import EdgeFilter
 
 class _MetaCgfFormat(pyffi.object_models.xml.MetaFileFormat):

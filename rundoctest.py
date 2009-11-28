@@ -13,7 +13,7 @@ import pyffi.object_models.any_type
 import pyffi.object_models.simple_type
 import pyffi.object_models.array_type
 import pyffi.object_models.binary_type
-import pyffi.object_models.xml.Basic
+import pyffi.object_models.xml.basic
 import pyffi.object_models.xml.Struct
 import pyffi.object_models.xml.Expression
 import pyffi.utils

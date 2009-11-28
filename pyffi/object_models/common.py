@@ -40,7 +40,7 @@
 import struct
 import logging
 
-from pyffi.object_models.xml.Basic import BasicBase
+from pyffi.object_models.xml.basic import BasicBase
 from pyffi.object_models.editable import EditableSpinBox
 from pyffi.object_models.editable import EditableFloatSpinBox
 from pyffi.object_models.editable import EditableLineEdit

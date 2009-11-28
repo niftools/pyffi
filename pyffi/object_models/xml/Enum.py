@@ -40,7 +40,7 @@
 import struct
 from itertools import izip
 
-from pyffi.object_models.xml.Basic import BasicBase
+from pyffi.object_models.xml.basic import BasicBase
 from pyffi.object_models.editable import EditableComboBox
 
 class _MetaEnumBase(type):

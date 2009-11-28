@@ -8,7 +8,7 @@
    
    refactoring plans
 
-   - common base classes for pyffi.object_models.xml.BasicBase/StructBase and
+   - common base classes for pyffi.object_models.xml.basic.BasicBase/StructBase and
      pyffi.object_models.xsd.SimpleType/ComplexType
      (e.g. pyffi.ObjectModel.SimpleType/ComplexType)
 

@@ -151,7 +151,7 @@ class StructBase(GlobalNode):
 
     See the pyffi.XmlHandler class for a more advanced example.
 
-    >>> from pyffi.object_models.xml.Basic import BasicBase
+    >>> from pyffi.object_models.xml.basic import BasicBase
     >>> from pyffi.object_models.xml.Expression import Expression
     >>> from pyffi.object_models.xml import StructAttribute as Attr
     >>> class SimpleFormat(object):
@@ -616,5 +616,5 @@ class StructBase(GlobalNode):
         for branch in self.getRefs():
             yield branch
 
-from pyffi.object_models.xml.Basic import BasicBase
+from pyffi.object_models.xml.basic import BasicBase
 from pyffi.object_models.xml.array import Array
