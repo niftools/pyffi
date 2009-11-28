@@ -45,7 +45,7 @@ class DetailTreeItemData(object):
     """Stores all data used in the detail view.
 
     :ivar node: The node of the item.
-    :type node: L{DetailNode}
+    :type node: :class:`DetailNode`
     :ivar name: The name of the node (this is usually not stored in the node).
     :type name: ``str``
     """
@@ -68,7 +68,7 @@ class DetailTreeItemData(object):
         return self.node.__class__.__name__
 
 class DetailTreeItem(object):
-    """Stores all internal information to vizualize L{DetailNode}s in a
+    """Stores all internal information to vizualize :class:`DetailNode`s in a
     tree view.
 
     :ivar data: The item data.

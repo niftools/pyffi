@@ -45,7 +45,7 @@ class GlobalTreeItemData(object):
     """Stores all data used in the detail view.
 
     :ivar node: The node of the item.
-    :type node: L{DetailNode}
+    :type node: :class:`DetailNode`
     """
     def __init__(self, node=None):
         if not isinstance(node, GlobalNode):

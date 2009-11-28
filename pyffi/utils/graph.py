@@ -9,8 +9,8 @@ the nodes via directed arcs, and a detail level which shows the
 details of a top-level object, that is, the actual data they
 contain.
 
-L{DetailNode} implements the detail side of things. The
-L{GlobalNode} class implements the global level, which does not show
+:class:`DetailNode` implements the detail side of things. The
+:class:`GlobalNode` class implements the global level, which does not show
 any actual data, but only structure.
 
 The global level forms a directed graph where the nodes are data
@@ -22,7 +22,7 @@ subgraph, that is, a subgraph which contains all nodes of the original
 graph, and which contains no cycles. This graph constitutes of those
 edges which have the default edge type.
 
-The L{pyffi.object_models.Data} class is the root node of
+The :class:`pyffi.object_models.Data` class is the root node of
 the graph. Recursing over all edges of default type of this node will
 visit each node (possibly more than once) in a hierarchical order.
 
@@ -122,7 +122,7 @@ class DetailNode(object):
         :param edge_filter: The edge type to include.
         :type edge_filter: L{EdgeFilter} or C{type(None)}
         :return: Generator for detail tree child nodes.
-        :rtype: generator yielding L{DetailNode}s
+        :rtype: generator yielding :class:`DetailNode`\ s
         """
         return (dummy for dummy in ())
 
@@ -133,7 +133,7 @@ class DetailNode(object):
         Override this method if the node has children.
 
         :return: Generator for detail tree child names.
-        :rtype: generator yielding ``str``s
+        :rtype: generator yielding ``str``\ s
         """
         return (dummy for dummy in ())
 
