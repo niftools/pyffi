@@ -5979,6 +5979,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                                 maximize_bone_sharing=False):
             """Recalculate skin partition data.
 
+            :deprecated: Do not use the verbose argument.
             :param maxbonesperpartition: Maximum number of bones in each partition.
                 The numBones field will not exceed this number.
             :param maxbonespervertex: Maximum number of bones per vertex.
@@ -6003,7 +6004,6 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                 L{triangles}.
             :param maximize_bone_sharing: Maximize bone sharing between partitions.
                 This option is useful for Fallout 3.
-            @deprecated: Do not use the verbose argument.
             """
             logger = logging.getLogger("pyffi.nif.nitribasedgeom")
 
