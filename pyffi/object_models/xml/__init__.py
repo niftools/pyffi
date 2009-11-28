@@ -362,7 +362,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         self.stack = []
         # keep track last element of self.stack
         # storing this reduces overhead as profiling has shown
-        self.currentTag = None
+        self.current_tag = None
 
         # cls needs to be accessed in member functions, so make it an instance
         # member variable
@@ -384,7 +384,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
 
         :param tag: The tag to put on the stack."""
         self.stack.insert(0, tag)
-        self.currentTag = tag
+        self.current_tag = tag
 
     def popTag(self):
         """Pop the current tag from the stack and return it. Also update
@@ -393,9 +393,9 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         :return: The tag popped from the stack."""
         lasttag = self.stack.pop(0)
         try:
-            self.currentTag = self.stack[0]
+            self.current_tag = self.stack[0]
         except IndexError:
-            self.currentTag = None
+            self.current_tag = None
         return lasttag
 
     def startElement(self, name, attrs):
@@ -436,7 +436,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
             return
 
         # Now do a number of things, depending on the tag that was last
-        # pushed on the stack; this is self.currentTag, and reflects the
+        # pushed on the stack; this is self.current_tag, and reflects the
         # tag in which <name> is embedded.
         #
         # For each struct, alias, enum, and bitstruct tag, we shall
@@ -450,7 +450,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         #
         # For a version tag, C{self.versionString} describes the version as a
         # string.
-        if self.currentTag == self.tag_struct:
+        if self.current_tag == self.tag_struct:
             self.pushTag(tag)
             # struct -> attribute
             if tag == self.tag_attribute:
@@ -467,7 +467,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
             else:
                 raise XmlError(
                     "only add and version tags allowed in struct declaration")
-        elif self.currentTag == self.tag_file:
+        elif self.current_tag == self.tag_file:
             self.pushTag(tag)
 
             # fileformat -> struct
@@ -583,13 +583,13 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
 expected basic, alias, enum, bitstruct, struct, or version,
 but got %s instead""" % name)
 
-        elif self.currentTag == self.tag_version:
+        elif self.current_tag == self.tag_version:
             raise XmlError("version tag must not contain any sub tags")
 
-        elif self.currentTag == self.tag_alias:
+        elif self.current_tag == self.tag_alias:
             raise XmlError("alias tag must not contain any sub tags")
 
-        elif self.currentTag == self.tag_enum:
+        elif self.current_tag == self.tag_enum:
             self.pushTag(tag)
             if not tag == self.tag_option:
                 raise XmlError("only option tags allowed in enum declaration")
@@ -603,7 +603,7 @@ but got %s instead""" % name)
             self.classDict["_enumkeys"].append(attrs["name"])
             self.classDict["_enumvalues"].append(value)
 
-        elif self.currentTag == self.tag_bit_struct:
+        elif self.current_tag == self.tag_bit_struct:
             self.pushTag(tag)
             if tag == self.tag_bits:
                 # mandatory parameters
@@ -741,12 +741,12 @@ but got %s instead""" % name)
     def characters(self, chars):
         """Add the string C{chars} to the docstring.
         For version tags, updates the game version list."""
-        if self.currentTag in (self.tag_attribute, self.tag_bits):
+        if self.current_tag in (self.tag_attribute, self.tag_bits):
             self.classDict["_attrs"][-1].doc += str(chars.strip())
-        elif self.currentTag in (self.tag_struct, self.tag_enum,
+        elif self.current_tag in (self.tag_struct, self.tag_enum,
                                  self.tag_alias):
             self.classDict["__doc__"] += str(chars.strip())
-        elif self.currentTag == self.tag_version:
+        elif self.current_tag == self.tag_version:
             # fileformat -> version
             if self.stack[1] == self.tag_file:
                 gamesdict = self.cls.games
