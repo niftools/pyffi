@@ -87,7 +87,7 @@ import struct, os, re
 import pyffi.object_models.xml
 import pyffi.object_models.common
 import pyffi.object_models.xml.basic
-import pyffi.object_models.xml.Struct
+import pyffi.object_models.xml.struct_
 import pyffi.object_models
 import pyffi.utils.graph
 from pyffi.utils.graph import EdgeFilter

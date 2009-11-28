@@ -186,12 +186,12 @@ class StructBase(GlobalNode):
     >>> y.d.a = 4
     >>> y.d.b = 5
     >>> print(y) # doctest:+ELLIPSIS
-    <class 'pyffi.object_models.xml.Struct.Y'> instance at 0x...
+    <class 'pyffi.object_models.xml.struct_.Y'> instance at 0x...
     * a : 1
     * b : 2
     * c : 3
     * d :
-        <class 'pyffi.object_models.xml.Struct.X'> instance at 0x...
+        <class 'pyffi.object_models.xml.struct_.X'> instance at 0x...
         * a : 4
         * b : 5
     <BLANKLINE>

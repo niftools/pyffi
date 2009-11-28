@@ -401,4 +401,4 @@ describing number of elements (%i)"%(elemlist.__len__(),len2i))
                     yield elem
 
 from pyffi.object_models.xml.basic import BasicBase
-from pyffi.object_models.xml.Struct import StructBase
+from pyffi.object_models.xml.struct_ import StructBase

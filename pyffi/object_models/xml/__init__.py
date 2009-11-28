@@ -47,7 +47,7 @@ import sys
 import xml.sax
 
 import pyffi.object_models
-from pyffi.object_models.xml.Struct     import StructBase
+from pyffi.object_models.xml.struct_    import StructBase
 from pyffi.object_models.xml.basic      import BasicBase
 from pyffi.object_models.xml.bit_struct import BitStructBase
 from pyffi.object_models.xml.enum       import EnumBase

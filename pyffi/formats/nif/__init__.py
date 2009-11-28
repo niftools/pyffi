@@ -1569,7 +1569,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
 
     class Footer:
         def read(self, stream, **kwargs):
-            pyffi.object_models.xml.Struct.StructBase.read(
+            pyffi.object_models.xml.struct_.StructBase.read(
                 self, stream, **kwargs)
             neosteam = getattr(kwargs['data'], 'neosteam', False)
             if neosteam:
@@ -1580,7 +1580,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                         "but got %i instead." % extrabyte)
             
         def write(self, stream, **kwargs):
-            pyffi.object_models.xml.Struct.StructBase.write(
+            pyffi.object_models.xml.struct_.StructBase.write(
                 self, stream, **kwargs)
             neosteam = getattr(kwargs['data'], 'neosteam', False)
             if neosteam:

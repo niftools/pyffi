@@ -123,7 +123,7 @@ import pyffi.object_models.common
 from pyffi.object_models.xml.basic import BasicBase
 from pyffi.utils.graph import EdgeFilter
 import pyffi.object_models
-import pyffi.object_models.xml.Struct
+import pyffi.object_models.xml.struct_
 
 class KfmFormat(pyffi.object_models.xml.FileFormat):
     """This class implements the kfm file format."""
@@ -339,7 +339,7 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
             """
             # read the file
             self.inspect(stream) # quick check
-            pyffi.object_models.xml.Struct.StructBase.read(
+            pyffi.object_models.xml.struct_.StructBase.read(
                 self, stream, version=self.version)
 
             # check if we are at the end of the file
@@ -353,7 +353,7 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
             :type stream: ``file``
             """
             # write the file
-            pyffi.object_models.xml.Struct.StructBase.write(
+            pyffi.object_models.xml.struct_.StructBase.write(
                 self, stream, version=self.version)
 
         # GlobalNode
