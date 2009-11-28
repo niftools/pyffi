@@ -53,6 +53,7 @@ from pyffi.object_models.xml.bit_struct import BitStructBase
 from pyffi.object_models.xml.enum       import EnumBase
 from pyffi.object_models.xml.expression import Expression
 
+
 class MetaFileFormat(pyffi.object_models.MetaFileFormat):
     """The MetaFileFormat metaclass transforms the XML description
     of a file format into a bunch of classes which can be directly
@@ -61,6 +62,7 @@ class MetaFileFormat(pyffi.object_models.MetaFileFormat):
     The actual implementation of the parser is delegated to
     pyffi.object_models.xml.FileFormat.
     """
+
     def __init__(cls, name, bases, dct):
         """This function constitutes the core of the class generation
         process. For instance, we declare NifFormat to have metaclass
@@ -97,13 +99,16 @@ class MetaFileFormat(pyffi.object_models.MetaFileFormat):
 
             # parse the XML file: control is now passed on to XmlSaxHandler
             # which takes care of the class creation
-            cls.logger.debug("Parsing %s and generating classes." % xml_file_name)
+            cls.logger.debug("Parsing %s and generating classes."
+                             % xml_file_name)
             start = time.clock()
             try:
                 parser.parse(xml_file)
             finally:
                 xml_file.close()
-            cls.logger.debug("Parsing finished in %.3f seconds." % (time.clock() - start))
+            cls.logger.debug("Parsing finished in %.3f seconds."
+                             % (time.clock() - start))
+
 
 class FileFormat(pyffi.object_models.FileFormat):
     """This class can be used as a base class for file formats
@@ -131,12 +136,13 @@ class FileFormat(pyffi.object_models.FileFormat):
     def vercondFilter(cls, expression):
         raise NotImplementedError
 
+
 class StructAttribute(object):
     """Helper class to collect attribute data of struct add tags."""
 
     name = None
     """The name of this member variable."""
-    
+
     type_ = None
     """The type of this member variable (type is ``str`` for forward
     declarations, and resolved to :class:`BasicBase` or
@@ -252,6 +258,7 @@ class StructAttribute(object):
         if self.ver2:
             self.ver2 = cls.versionNumber(self.ver2)
 
+
 class BitStructAttribute(object):
     """Helper class to collect attribute data of bitstruct bits tags."""
 
@@ -284,10 +291,12 @@ class BitStructAttribute(object):
         if self.ver2:
             self.ver2 = cls.versionNumber(self.ver2)
 
+
 class XmlError(Exception):
     """The XML handler will throw this exception if something goes wrong while
     parsing."""
     pass
+
 
 class XmlSaxHandler(xml.sax.handler.ContentHandler):
     """This class contains all functions for parsing the xml and converting
@@ -414,7 +423,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
             try:
                 tag = self.tags_niftools[name]
             except KeyError:
-                raise XmlError("error unknown element '%s'"%name)
+                raise XmlError("error unknown element '%s'" % name)
 
         # Check the stack, if the stack does not exist then we must be
         # at the root of the xml file, and the tag must be "fileformat".
@@ -481,11 +490,12 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                     # if that base struct has not yet been assigned to a
                     # class, then we have a problem
                     try:
-                        self.classBases += (getattr(self.cls, class_basename),)
+                        self.classBases += (
+                            getattr(self.cls, class_basename), )
                     except KeyError:
                         raise XmlError(
                             "typo, or forward declaration of struct %s"
-                            %class_basename)
+                            % class_basename)
                 else:
                     self.classBases = (StructBase,)
                 # istemplate attribute is optional
@@ -510,7 +520,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 if self.basicClass._isTemplate != is_template:
                     raise XmlError(
                         'class %s should have _isTemplate = %s'
-                        %(self.className,is_template))
+                        % (self.className, is_template))
 
             # fileformat -> enum
             elif tag == self.tag_enum:
@@ -526,7 +536,8 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                         typ = getattr(self.cls, typename)
                     except AttributeError:
                         raise XmlError(
-                            "typo, or forward declaration of type %s"%typename)
+                            "typo, or forward declaration of type %s"
+                            % typename)
                     numbytes = typ.getSize()
                 self.classDict = {"__doc__": "",
                                   "_numbytes": numbytes,
@@ -541,7 +552,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                     self.classBases += (getattr(self.cls, typename),)
                 except AttributeError:
                     raise XmlError(
-                        "typo, or forward declaration of type %s"%typename)
+                        "typo, or forward declaration of type %s" % typename)
                 self.classDict = {"__doc__": "",
                                   "__module__": self.cls.__module__}
 
@@ -570,7 +581,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
             else:
                 raise XmlError("""
 expected basic, alias, enum, bitstruct, struct, or version,
-but got %s instead"""%name)
+but got %s instead""" % name)
 
         elif self.currentTag == self.tag_version:
             raise XmlError("version tag must not contain any sub tags")
@@ -625,23 +636,23 @@ but got %s instead"""%name)
                     "only bits tags allowed in struct type declaration")
 
         else:
-            raise XmlError("unhandled tag %s"%name)
+            raise XmlError("unhandled tag %s" % name)
 
     def endElement(self, name):
         """Called at the end of each xml tag.
 
         Creates classes."""
         if not self.stack:
-            raise XmlError("mismatching end element tag for element %s"%name)
+            raise XmlError("mismatching end element tag for element %s" % name)
         try:
             tag = self.tags[name]
         except KeyError:
             try:
                 tag = self.tags_niftools[name]
             except KeyError:
-                raise XmlError("error unknown element %s"%name)
+                raise XmlError("error unknown element %s" % name)
         if self.popTag() != tag:
-            raise XmlError("mismatching end element tag for element %s"%name)
+            raise XmlError("mismatching end element tag for element %s" % name)
         elif tag == self.tag_attribute:
             return # improves performance
         elif tag in (self.tag_struct,
@@ -732,7 +743,8 @@ but got %s instead"""%name)
         For version tags, updates the game version list."""
         if self.currentTag in (self.tag_attribute, self.tag_bits):
             self.classDict["_attrs"][-1].doc += str(chars.strip())
-        elif self.currentTag in (self.tag_struct, self.tag_enum, self.tag_alias):
+        elif self.currentTag in (self.tag_struct, self.tag_enum,
+                                 self.tag_alias):
             self.classDict["__doc__"] += str(chars.strip())
         elif self.currentTag == self.tag_version:
             # fileformat -> version
