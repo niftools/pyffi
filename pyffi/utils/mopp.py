@@ -48,8 +48,7 @@ def getMopperPath():
     >>> path.endswith("mopper.exe")
     True
 
-    @raise OSError: If mopper.exe is not found.
-
+    :raise ``OSError``: If mopper.exe is not found.
     :return: Path to mopper.exe.
     :rtype: ``str``
     """
@@ -74,8 +73,7 @@ def getMopperCredits():
     <BLANKLINE>
     <BLANKLINE>
 
-    @raise OSError: If mopper.exe is not found or cannot run.
-
+    :raise ``OSError``: If mopper.exe is not found or cannot run.
     :return: Credits string.
     :rtype: ``str``
     """
@@ -123,9 +121,8 @@ def getMopperOriginScaleCodeWelding(vertices, triangles, material_indices=None):
     >>> welding_info
     [23030, 23247, 23030, 16086, 23247, 23247, 23247, 23247, 23247, 23247, 23247, 16086]
 
-    @raise RuntimeError: If the mopper has bad output.
-    @raise OSError: If the mopper is not found or cannot run.
-
+    :raise ``RuntimeError``: If the mopper has bad output.
+    :raise ``OSError``: If the mopper is not found or cannot run.
     :param vertices: List of vertices.
     :type vertices: list of tuples of floats
     :param triangles: List of triangles (indices referring back to vertex list).

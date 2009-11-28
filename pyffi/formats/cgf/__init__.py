@@ -607,9 +607,9 @@ but got instance of %s""" % (self._template, block.__class__))
             Call this function if you simply wish to check that a file is
             a cgf file without having to parse even the header.
 
+            :raise ``ValueError``: If the stream does not contain a cgf file.
             :param stream: The stream from which to read.
             :type stream: ``file``
-            @raise C{ValueError}: If the stream does not contain a cgf file.
             """
             pos = stream.tell()
             try:

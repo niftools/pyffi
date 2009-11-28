@@ -1122,9 +1122,9 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             Call this function if you simply wish to check that a file is
             a nif file without having to parse even the header.
 
+            :raise ``ValueError``: If the stream does not contain a nif file.
             :param stream: The stream from which to read.
             :type stream: ``file``
-            @raise C{ValueError}: If the stream does not contain a nif file.
             """
             pos = stream.tell()
             try:
@@ -1591,8 +1591,9 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
         def hasBlockType(self, block_type):
             """Check if header has a particular block type.
 
-            @raise ValueError: If number of block types is zero (only nif versions
-                10.0.1.0 and up store block types in header).
+            :raise ``ValueError``: If number of block types is zero
+                (only nif versions 10.0.1.0 and up store block types
+                in header).
 
             :param block_type: The block type.
             :type block_type: L{NifFormat.NiObject}
