@@ -370,7 +370,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
 
         # elements for creating new classes
         self.class_name = None
-        self.classDict = None
+        self.class_dict = None
         self.classBases = ()
 
         # elements for basic classes
@@ -403,14 +403,14 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
 
         This function sets up all variables for creating the class
         in the C{self.endElement} function. For struct elements, it will set up
-        C{self.class_name}, C{self.classBases}, and C{self.classDict} which
+        C{self.class_name}, C{self.classBases}, and C{self.class_dict} which
         will be used to create the class by invokation of C{type} in
         C{self.endElement}. For basic, enum, and bitstruct elements, it will
         set up C{self.basicClass} to link to the proper class implemented by
         C{self.cls}. The code also performs sanity checks on the attributes.
 
         For xml add tags, the function will add an entry to the
-        C{self.classDict["_attrs"]} list. Note that this list is used by the
+        C{self.class_dict["_attrs"]} list. Note that this list is used by the
         struct metaclass: the class attributes are created exactly from this
         list.
 
@@ -442,7 +442,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         # For each struct, alias, enum, and bitstruct tag, we shall
         # create a class. So assign to C{self.class_name} the name of that
         # class, C{self.classBases} to the base of that class, and
-        # C{self.classDict} to the class dictionary.
+        # C{self.class_dict} to the class dictionary.
         #
         # For a basic tag, C{self.class_name} is the name of the
         # class and C{self.basicClass} is the corresponding class in
@@ -455,7 +455,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
             # struct -> attribute
             if tag == self.tag_attribute:
                 # add attribute to class dictionary
-                self.classDict["_attrs"].append(
+                self.class_dict["_attrs"].append(
                     StructAttribute(self.cls, attrs))
             # struct -> version
             elif tag == self.tag_version:
@@ -463,7 +463,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 self.versionString = str(attrs["num"])
                 self.cls.versions[self.versionString] = self.cls.versionNumber(
                     self.versionString)
-                # (classDict["_games"] is updated when reading the characters)
+                # (class_dict["_games"] is updated when reading the characters)
             else:
                 raise XmlError(
                     "only add and version tags allowed in struct declaration")
@@ -501,7 +501,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 # istemplate attribute is optional
                 # if not set, then the struct is not a template
                 # set attributes (see class StructBase)
-                self.classDict = {
+                self.class_dict = {
                     "_isTemplate": attrs.get("istemplate") == "1",
                     "_attrs": [],
                     "_games": {},
@@ -539,7 +539,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                             "typo, or forward declaration of type %s"
                             % typename)
                     numbytes = typ.getSize()
-                self.classDict = {"__doc__": "",
+                self.class_dict = {"__doc__": "",
                                   "_numbytes": numbytes,
                                   "_enumkeys": [], "_enumvalues": [],
                                   "__module__": self.cls.__module__}
@@ -553,7 +553,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 except AttributeError:
                     raise XmlError(
                         "typo, or forward declaration of type %s" % typename)
-                self.classDict = {"__doc__": "",
+                self.class_dict = {"__doc__": "",
                                   "__module__": self.cls.__module__}
 
             # fileformat -> bitstruct
@@ -567,7 +567,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 except KeyError:
                     # niftools style: storage attribute
                     numbytes = getattr(self.cls, attrs["storage"]).getSize()
-                self.classDict = {"_attrs": [], "__doc__": "",
+                self.class_dict = {"_attrs": [], "__doc__": "",
                                   "_numbytes": numbytes,
                                   "__module__": self.cls.__module__}
 
@@ -600,34 +600,34 @@ but got %s instead""" % name)
                 value = long(value)
             except ValueError:
                 value = long(value, 16)
-            self.classDict["_enumkeys"].append(attrs["name"])
-            self.classDict["_enumvalues"].append(value)
+            self.class_dict["_enumkeys"].append(attrs["name"])
+            self.class_dict["_enumvalues"].append(value)
 
         elif self.current_tag == self.tag_bit_struct:
             self.pushTag(tag)
             if tag == self.tag_bits:
                 # mandatory parameters
-                self.classDict["_attrs"].append(
+                self.class_dict["_attrs"].append(
                     BitStructAttribute(self.cls, attrs))
             elif tag == self.tag_option:
                 # niftools compatibility, we have a bitflags field
                 # so convert value into numbits
                 # first, calculate current bit position
                 bitpos = sum(bitattr.numbits
-                             for bitattr in self.classDict["_attrs"])
+                             for bitattr in self.class_dict["_attrs"])
                 # check if extra bits must be inserted
                 numextrabits = int(attrs["value"]) - bitpos
                 if numextrabits < 0:
                     raise XmlError("values of bitflags must be increasing")
                 if numextrabits > 0:
-                    self.classDict["_attrs"].append(
+                    self.class_dict["_attrs"].append(
                         BitStructAttribute(
                             self.cls,
                             dict(name="Reserved Bits %i"
-                                 % len(self.classDict["_attrs"]),
+                                 % len(self.class_dict["_attrs"]),
                                  numbits=numextrabits)))
                 # add the actual attribute
-                self.classDict["_attrs"].append(
+                self.class_dict["_attrs"].append(
                     BitStructAttribute(
                         self.cls,
                         dict(name=attrs["name"], numbits=1)))
@@ -672,7 +672,7 @@ but got %s instead""" % name)
                     # exists: create and add to base class of customizer
                     gen_klass = type(
                         "_" + str(self.class_name),
-                        self.classBases, self.classDict)
+                        self.classBases, self.class_dict)
                     setattr(self.cls, "_" + self.class_name, gen_klass)
                     # recreate the class, to ensure that the
                     # metaclass is called!!
@@ -693,7 +693,7 @@ but got %s instead""" % name)
                 else:
                     # does not yet exist: create it and assign to class dict
                     gen_klass = type(
-                        str(self.class_name), self.classBases, self.classDict)
+                        str(self.class_name), self.classBases, self.class_dict)
                     setattr(self.cls, self.class_name, gen_klass)
                 # append class to the appropriate list
                 if tag == self.tag_struct:
@@ -706,7 +706,7 @@ but got %s instead""" % name)
                     self.cls.xml_bit_struct.append(gen_klass)
             # reset variables
             self.class_name = None
-            self.classDict = None
+            self.class_dict = None
             self.classBases = ()
         elif tag == self.tag_basic:
             # link class cls.<class_name> to self.basicClass
@@ -742,17 +742,17 @@ but got %s instead""" % name)
         """Add the string C{chars} to the docstring.
         For version tags, updates the game version list."""
         if self.current_tag in (self.tag_attribute, self.tag_bits):
-            self.classDict["_attrs"][-1].doc += str(chars.strip())
+            self.class_dict["_attrs"][-1].doc += str(chars.strip())
         elif self.current_tag in (self.tag_struct, self.tag_enum,
                                  self.tag_alias):
-            self.classDict["__doc__"] += str(chars.strip())
+            self.class_dict["__doc__"] += str(chars.strip())
         elif self.current_tag == self.tag_version:
             # fileformat -> version
             if self.stack[1] == self.tag_file:
                 gamesdict = self.cls.games
             # struct -> version
             elif self.stack[1] == self.tag_struct:
-                gamesdict = self.classDict["_games"]
+                gamesdict = self.class_dict["_games"]
             else:
                 raise XmlError("version parsing error at '%s'" % chars)
             # update the gamesdict dictionary
