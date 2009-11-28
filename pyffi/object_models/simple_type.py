@@ -52,7 +52,8 @@ class _MetaSimpleType(type):
         # call base class constructor
         super(_MetaSimpleType, cls).__init__(name, bases, dct)
         # add value property
-        cls.value = property(cls.getValue, cls.setValue)
+        cls.value = property(cls.getValue, cls.setValue,
+                             None, cls.value.__doc__)
 
 class SimpleType(AnyType):
     """Base class from which all simple types are derived. Simple
@@ -93,15 +94,21 @@ class SimpleType(AnyType):
     Also override :meth:`read` and :meth:`write` if you wish to read and write data
     of this type, and :meth:`isInterchangeable` if you wish to declare data as
     equivalent.
-
-    .. attribute:: value
-
-        A property which wraps the actual data. This property always
-        calls :meth:`setValue` to assign the value, and ensures that the value is
-        valid (type, range, ...). Unless you know what you are doing, always
-        use the `value` property to change the data.
     """
+
     __metaclass__ = _MetaSimpleType
+
+    # added here for documentation purposes - actually set in
+    # metaclass
+    @property
+    def value(self):
+        """A property which wraps the actual data. This property
+        always calls :meth:`setValue` to assign the value, and ensures
+        that the value is valid (type, range, ...). Unless you know
+        what you are doing, always use the `value` property to change
+        the data.
+        """
+        return None
 
     _value = None
     """The data."""
@@ -118,7 +125,7 @@ class SimpleType(AnyType):
     def getValue(self):
         """Return the stored value.
 
-        :return: :attr:`_value`
+        :return: The stored value.
         :rtype: Whatever is appropriate.
         """
         return self._value
