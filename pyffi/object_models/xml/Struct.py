@@ -617,4 +617,4 @@ class StructBase(GlobalNode):
             yield branch
 
 from pyffi.object_models.xml.Basic import BasicBase
-from pyffi.object_models.xml.Array import Array
+from pyffi.object_models.xml.array import Array

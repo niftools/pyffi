@@ -105,7 +105,7 @@ Create a CGF file from scratch
 * isGroupHead : False
 * isGroupMember : False
 * reserved1 :
-    <class 'pyffi.object_models.xml.Array.Array'> instance at 0x...
+    <class 'pyffi.object_models.xml.array.Array'> instance at 0x...
     0: 0
     1: 0
 * transform :
@@ -126,7 +126,7 @@ Create a CGF file from scratch
 * sclCtrl : None
 * propertyString : <None>
 * children :
-    <class 'pyffi.object_models.xml.Array.Array'> instance at 0x...
+    <class 'pyffi.object_models.xml.array.Array'> instance at 0x...
     0: <class 'pyffi.formats.cgf.NodeChunk'> instance at 0x...
 <BLANKLINE>
 <class 'pyffi.formats.cgf.NodeChunk'> instance at 0x...
@@ -138,7 +138,7 @@ Create a CGF file from scratch
 * isGroupHead : False
 * isGroupMember : False
 * reserved1 :
-    <class 'pyffi.object_models.xml.Array.Array'> instance at 0x...
+    <class 'pyffi.object_models.xml.array.Array'> instance at 0x...
     0: 0
     1: 0
 * transform :
@@ -158,7 +158,7 @@ Create a CGF file from scratch
 * rotCtrl : None
 * sclCtrl : None
 * propertyString : <None>
-* children : <class 'pyffi.object_models.xml.Array.Array'> instance at 0x...
+* children : <class 'pyffi.object_models.xml.array.Array'> instance at 0x...
 <BLANKLINE>
 """
 
@@ -1974,7 +1974,7 @@ chunk size mismatch when reading %s at 0x%08X
             * meshSubsets : <class 'pyffi.formats.cgf.MeshSubsetsChunk'> instance at ...
             * vertAnim : None
             * vertices :
-                <class 'pyffi.object_models.xml.Array.Array'> instance at ...
+                <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0: <class 'pyffi.formats.cgf.Vertex'> instance at ...
                 * p : [  0.000  0.000  0.000 ]
                 * n : [  0.000  0.000 -1.000 ]
@@ -2000,7 +2000,7 @@ chunk size mismatch when reading %s at 0x%08X
                 * p : [  1.000  1.000  1.000 ]
                 * n : [  0.000  0.000  1.000 ]
             * faces :
-                <class 'pyffi.object_models.xml.Array.Array'> instance at ...
+                <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0: <class 'pyffi.formats.cgf.Face'> instance at ...
                 * v0 : 0
                 * v1 : 1
@@ -2026,7 +2026,7 @@ chunk size mismatch when reading %s at 0x%08X
                 * material : 5
                 * smGroup : 1
             * uvs :
-                <class 'pyffi.object_models.xml.Array.Array'> instance at ...
+                <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0: <class 'pyffi.formats.cgf.UV'> instance at ...
                 * u : 0.0
                 * v : 0.0
@@ -2052,7 +2052,7 @@ chunk size mismatch when reading %s at 0x%08X
                 * u : 1.0
                 * v : 1.0
             * uvFaces :
-                <class 'pyffi.object_models.xml.Array.Array'> instance at ...
+                <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0: <class 'pyffi.formats.cgf.UVFace'> instance at ...
                 * t0 : 0
                 * t1 : 1
@@ -2070,7 +2070,7 @@ chunk size mismatch when reading %s at 0x%08X
                 * t1 : 5
                 * t2 : 7
             * vertexColors :
-                <class 'pyffi.object_models.xml.Array.Array'> instance at ...
+                <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0: <class 'pyffi.formats.cgf.IRGB'> instance at ...
                 * r : 0
                 * g : 1
@@ -2116,13 +2116,13 @@ chunk size mismatch when reading %s at 0x%08X
             * faceMapData : None
             * vertMatsData : None
             * reservedData :
-                <class 'pyffi.object_models.xml.Array.Array'> instance at ...
+                <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0: None
                 1: None
                 2: None
                 3: None
             * physicsData :
-                <class 'pyffi.object_models.xml.Array.Array'> instance at ...
+                <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0: None
                 1: None
                 2: None
@@ -2130,7 +2130,7 @@ chunk size mismatch when reading %s at 0x%08X
             * minBound : [  0.000  0.000  0.000 ]
             * maxBound : [  1.000  1.000  1.000 ]
             * reserved3 :
-                <class 'pyffi.object_models.xml.Array.Array'> instance at ...
+                <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0: 0
                 1: 0
                 2: 0
@@ -2161,7 +2161,7 @@ chunk size mismatch when reading %s at 0x%08X
             * reserved2 : 0
             * reserved3 : 0
             * meshSubsets :
-                <class 'pyffi.object_models.xml.Array.Array'> instance at ...
+                <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0: <class 'pyffi.formats.cgf.MeshSubset'> instance at ...
                 * firstIndex : 0
                 * numIndices : 6
@@ -2188,7 +2188,7 @@ chunk size mismatch when reading %s at 0x%08X
             * reserved1 : 0
             * reserved2 : 0
             * vertices :
-                <class 'pyffi.object_models.xml.Array.Array'> instance at ...
+                <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0: [  0.000  0.000  0.000 ]
                 1: [  0.000  1.000  0.000 ]
                 2: [  1.000  0.000  0.000 ]
@@ -2207,7 +2207,7 @@ chunk size mismatch when reading %s at 0x%08X
             * reserved1 : 0
             * reserved2 : 0
             * normals :
-                <class 'pyffi.object_models.xml.Array.Array'> instance at ...
+                <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0: [  0.000  0.000 -1.000 ]
                 1: [  0.000  0.000 -1.000 ]
                 2: [  0.000  0.000 -1.000 ]
@@ -2226,7 +2226,7 @@ chunk size mismatch when reading %s at 0x%08X
             * reserved1 : 0
             * reserved2 : 0
             * indices :
-                <class 'pyffi.object_models.xml.Array.Array'> instance at ...
+                <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0: 0
                 1: 1
                 2: 2
@@ -2249,7 +2249,7 @@ chunk size mismatch when reading %s at 0x%08X
             * reserved1 : 0
             * reserved2 : 0
             * uvs :
-                <class 'pyffi.object_models.xml.Array.Array'> instance at ...
+                <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0: <class 'pyffi.formats.cgf.UV'> instance at ...
                 * u : 0.0
                 * v : 1.0
@@ -2284,7 +2284,7 @@ chunk size mismatch when reading %s at 0x%08X
             * reserved1 : 0
             * reserved2 : 0
             * tangents :
-                <class 'pyffi.object_models.xml.Array.Array'> instance at ...
+                <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0, 0: <class 'pyffi.formats.cgf.Tangent'> instance at ...
                 * x : 32767
                 * y : 0
@@ -2375,7 +2375,7 @@ chunk size mismatch when reading %s at 0x%08X
             * reserved1 : 0
             * reserved2 : 0
             * rgbaColors :
-                <class 'pyffi.object_models.xml.Array.Array'> instance at ...
+                <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0: <class 'pyffi.formats.cgf.IRGBA'> instance at ...
                 * r : 0
                 * g : 1
