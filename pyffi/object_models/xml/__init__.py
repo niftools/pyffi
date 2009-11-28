@@ -371,7 +371,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         # elements for creating new classes
         self.class_name = None
         self.class_dict = None
-        self.classBases = ()
+        self.class_bases = ()
 
         # elements for basic classes
         self.basicClass = None
@@ -403,7 +403,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
 
         This function sets up all variables for creating the class
         in the C{self.endElement} function. For struct elements, it will set up
-        C{self.class_name}, C{self.classBases}, and C{self.class_dict} which
+        C{self.class_name}, C{self.class_bases}, and C{self.class_dict} which
         will be used to create the class by invokation of C{type} in
         C{self.endElement}. For basic, enum, and bitstruct elements, it will
         set up C{self.basicClass} to link to the proper class implemented by
@@ -441,7 +441,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         #
         # For each struct, alias, enum, and bitstruct tag, we shall
         # create a class. So assign to C{self.class_name} the name of that
-        # class, C{self.classBases} to the base of that class, and
+        # class, C{self.class_bases} to the base of that class, and
         # C{self.class_dict} to the class dictionary.
         #
         # For a basic tag, C{self.class_name} is the name of the
@@ -490,14 +490,14 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                     # if that base struct has not yet been assigned to a
                     # class, then we have a problem
                     try:
-                        self.classBases += (
+                        self.class_bases += (
                             getattr(self.cls, class_basename), )
                     except KeyError:
                         raise XmlError(
                             "typo, or forward declaration of struct %s"
                             % class_basename)
                 else:
-                    self.classBases = (StructBase,)
+                    self.class_bases = (StructBase,)
                 # istemplate attribute is optional
                 # if not set, then the struct is not a template
                 # set attributes (see class StructBase)
@@ -524,7 +524,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
 
             # fileformat -> enum
             elif tag == self.tag_enum:
-                self.classBases += (EnumBase,)
+                self.class_bases += (EnumBase,)
                 self.class_name = attrs["name"]
                 try:
                     numbytes = int(attrs["numbytes"])
@@ -549,7 +549,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 self.class_name = attrs["name"]
                 typename = attrs["type"]
                 try:
-                    self.classBases += (getattr(self.cls, typename),)
+                    self.class_bases += (getattr(self.cls, typename),)
                 except AttributeError:
                     raise XmlError(
                         "typo, or forward declaration of type %s" % typename)
@@ -560,7 +560,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
             # this works like an alias for now, will add special
             # BitStruct base class later
             elif tag == self.tag_bit_struct:
-                self.classBases += (BitStructBase,)
+                self.class_bases += (BitStructBase,)
                 self.class_name = attrs["name"]
                 try:
                     numbytes = int(attrs["numbytes"])
@@ -672,7 +672,7 @@ but got %s instead""" % name)
                     # exists: create and add to base class of customizer
                     gen_klass = type(
                         "_" + str(self.class_name),
-                        self.classBases, self.class_dict)
+                        self.class_bases, self.class_dict)
                     setattr(self.cls, "_" + self.class_name, gen_klass)
                     # recreate the class, to ensure that the
                     # metaclass is called!!
@@ -693,7 +693,7 @@ but got %s instead""" % name)
                 else:
                     # does not yet exist: create it and assign to class dict
                     gen_klass = type(
-                        str(self.class_name), self.classBases, self.class_dict)
+                        str(self.class_name), self.class_bases, self.class_dict)
                     setattr(self.cls, self.class_name, gen_klass)
                 # append class to the appropriate list
                 if tag == self.tag_struct:
@@ -707,7 +707,7 @@ but got %s instead""" % name)
             # reset variables
             self.class_name = None
             self.class_dict = None
-            self.classBases = ()
+            self.class_bases = ()
         elif tag == self.tag_basic:
             # link class cls.<class_name> to self.basicClass
             setattr(self.cls, self.class_name, self.basicClass)
