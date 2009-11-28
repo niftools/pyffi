@@ -664,8 +664,9 @@ but got %s instead""" % name)
             # internally
             cls_klass = getattr(self.cls, self.class_name, None)
             if cls_klass and issubclass(cls_klass, BasicBase):
-                pass
-                # overrides a basic type - do nothing
+                # overrides a basic type - not much to do
+                # add non-pep8 stuff
+                self.cls._add_non_pep8_attributes(cls_klass)
             else:
                 # check if we have a customizer class
                 if cls_klass:
@@ -674,6 +675,8 @@ but got %s instead""" % name)
                         "_" + str(self.class_name),
                         self.class_bases, self.class_dict)
                     setattr(self.cls, "_" + self.class_name, gen_klass)
+                    # add non-pep8 stuff
+                    self.cls._add_non_pep8_attributes(gen_klass)
                     # recreate the class, to ensure that the
                     # metaclass is called!!
                     # (otherwise, cls_klass does not have correct
@@ -683,6 +686,8 @@ but got %s instead""" % name)
                         (gen_klass,) + cls_klass.__bases__,
                         dict(cls_klass.__dict__))
                     setattr(self.cls, self.class_name, cls_klass)
+                    # and again, add non-pep8 stuff
+                    self.cls._add_non_pep8_attributes(cls_klass)
                     # if the class derives from Data, then make an alias
                     if issubclass(
                         cls_klass,
@@ -695,6 +700,8 @@ but got %s instead""" % name)
                     gen_klass = type(
                         str(self.class_name), self.class_bases, self.class_dict)
                     setattr(self.cls, self.class_name, gen_klass)
+                    # add non-pep8 stuff
+                    self.cls._add_non_pep8_attributes(gen_klass)
                 # append class to the appropriate list
                 if tag == self.tag_struct:
                     self.cls.xml_struct.append(gen_klass)
@@ -711,6 +718,8 @@ but got %s instead""" % name)
         elif tag == self.tag_basic:
             # link class cls.<class_name> to self.basic_class
             setattr(self.cls, self.class_name, self.basic_class)
+            # add non-pep8 stuff
+            self.cls._add_non_pep8_attributes(self.basic_class)
             # reset variable
             self.basic_class = None
         elif tag == self.tag_version:

@@ -353,6 +353,8 @@ class NifFormat(FileFormat):
     RE_FILENAME = re.compile(r'^.*\.(nif|kf|kfa|nifcache)$', re.IGNORECASE)
     # used for comparing floats
     EPSILON = 0.0001
+    # activate compatibility wrappers
+    _NON_PEP8 = True
 
     # basic types
     int = pyffi.object_models.common.Int

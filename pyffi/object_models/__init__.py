@@ -74,10 +74,13 @@ contained in a file whose format is described in a particular way
 #
 # ***** END LICENSE BLOCK *****
 
+import logging
 import os.path # os.path.altsep
+import sys # version_info
 
 import pyffi.utils
 import pyffi.utils.graph
+
 
 class MetaFileFormat(type):
     """This metaclass is an abstract base class for transforming
@@ -115,6 +118,7 @@ class MetaFileFormat(type):
                     "'%s' not found in any of the directories %s"
                     % (filename, filepaths))
 
+
 class FileFormat(object):
     """This class is the base class for all file formats. It implements
     a number of useful functions such as walking over directory trees
@@ -127,6 +131,11 @@ class FileFormat(object):
     RE_FILENAME = None
     """Override this with a regular expression (the result of a ``re.compile``
     call) for the file extension of the format you are implementing.
+    """
+
+    _NON_PEP8 = False
+    """Flags whether to make a non-pep8 alias for every pep8 attribute,
+    where required.
     """
 
     # override this with the data instance for this format
@@ -264,3 +273,53 @@ class FileFormat(object):
                 yield stream
             finally:
                 stream.close()
+
+    # XXX next method will be removed once python 2 compatibility is dropped
+    @classmethod
+    def _add_non_pep8_attributes(cls, klass):
+        """Adds non-pep8 compatibility wrappers.
+
+        >>> class A:
+        ...     @staticmethod
+        ...     def some_function(x):
+        ...         print(x)
+        >>> class XFormat(FileFormat):
+        ...     _NON_PEP8 = True
+        >>> XFormat._add_non_pep8_attributes(A)
+        >>> A.some_function("hello")
+        hello
+        >>> A.someFunction("hello")
+        hello
+        """
+        # do we need it?
+        if not cls._NON_PEP8:
+            return
+
+        # also drop old interface for py3k
+        if sys.version_info[0] >= 3:
+            return
+
+        logger = logging.getLogger("pyffi.object_models")
+        # note: copy of dictionary, because we modify it during iteration
+        for name, obj in list(klass.__dict__.iteritems()):
+            if isinstance(obj, (int, long)):
+                # skip constants
+                continue
+            if name.startswith("_"):
+                # skip non-public attributes
+                continue
+            if name.find("_") == -1:
+                # skip non-pep8 style attributes
+                continue
+            # note: now, obj should be a property or a function
+            # convert into an "old style" attribute
+            components = name.split("_")
+            newname = components[0]
+            newname += ''.join(component.capitalize()
+                               for component in components[1:])
+            # TODO create wrapper for obj so we can
+            # warn when deprecated attributes/methods are used
+            setattr(klass, newname, obj)
+            # debug message (runparsetest will show these)
+            logger.debug("Added %s alias for %s"
+                         % (newname, name))
