@@ -41,10 +41,10 @@ import struct
 import logging
 
 from pyffi.object_models.xml.Basic import BasicBase
-from pyffi.object_models.Editable import EditableSpinBox
-from pyffi.object_models.Editable import EditableFloatSpinBox
-from pyffi.object_models.Editable import EditableLineEdit
-from pyffi.object_models.Editable import EditableBoolComboBox
+from pyffi.object_models.editable import EditableSpinBox
+from pyffi.object_models.editable import EditableFloatSpinBox
+from pyffi.object_models.editable import EditableLineEdit
+from pyffi.object_models.editable import EditableBoolComboBox
 
 _b = "".encode("ascii") # py3k's b""
 _b00 = "\x00".encode("ascii") # py3k's b"\x00"

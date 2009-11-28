@@ -108,7 +108,7 @@ class DetailNode(object):
     """A node of the detail tree which can have children.
 
     If the data must be editable, also derive the class from one of
-    the delegate classes defined in L{pyffi.object_models.Editable},
+    the delegate classes defined in L{pyffi.object_models.editable},
     and make sure that the getValue and setValue functions are
     implemented.
     """

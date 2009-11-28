@@ -333,7 +333,7 @@ import pyffi.utils.mopp
 import pyffi.utils.tristrip
 import pyffi.utils.quickhull
 # XXX convert the following to absolute imports
-from pyffi.object_models.Editable import EditableBoolComboBox
+from pyffi.object_models.editable import EditableBoolComboBox
 from pyffi.utils.graph import EdgeFilter
 from pyffi.object_models.xml.Basic import BasicBase
 

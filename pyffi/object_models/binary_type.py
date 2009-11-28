@@ -41,10 +41,10 @@ import struct
 
 from pyffi.object_models.any_type import AnyType
 from pyffi.object_models.simple_type import SimpleType
-from pyffi.object_models.Editable import EditableSpinBox
-from pyffi.object_models.Editable import EditableFloatSpinBox
-from pyffi.object_models.Editable import EditableLineEdit
-from pyffi.object_models.Editable import EditableBoolComboBox
+from pyffi.object_models.editable import EditableSpinBox
+from pyffi.object_models.editable import EditableFloatSpinBox
+from pyffi.object_models.editable import EditableLineEdit
+from pyffi.object_models.editable import EditableBoolComboBox
 
 # Base classes
 

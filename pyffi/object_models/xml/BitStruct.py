@@ -45,7 +45,7 @@ from functools import partial
 from itertools import izip
 import struct
 
-from pyffi.object_models.Editable import EditableSpinBox # for Bits
+from pyffi.object_models.editable import EditableSpinBox # for Bits
 from pyffi.utils.graph import DetailNode, EdgeFilter
 
 class _MetaBitStructBase(type):
