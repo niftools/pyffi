@@ -49,7 +49,7 @@ pyffi.toaster:INFO:      ~~~ NiTriShape [Cube] ~~~
 pyffi.toaster:INFO:        removing duplicate vertices
 pyffi.toaster:INFO:        (num vertices was 8 and is now 8)
 pyffi.toaster:INFO:        stripifying
-pyffi.toaster:INFO:        (average strip length is 8.157895)
+pyffi.toaster:INFO:        (average strip length is 9.842105)
 pyffi.toaster:INFO:        average strip length < 10.000000 so triangulating
 pyffi.toaster:INFO:  writing tests/nif/_test.nif
 pyffi.toaster:INFO:Finished.
@@ -83,7 +83,7 @@ pyffi.toaster:INFO:      ~~~ NiTriShape [Cube] ~~~
 pyffi.toaster:INFO:        removing duplicate vertices
 pyffi.toaster:INFO:        (num vertices was 8 and is now 8)
 pyffi.toaster:INFO:        stripifying
-pyffi.toaster:INFO:        (average strip length is 8.157895)
+pyffi.toaster:INFO:        (average strip length is 9.842105)
 pyffi.toaster:INFO:        average strip length < 10.000000 so triangulating
 pyffi.toaster:INFO:  writing tests/nif/_test.nif
 pyffi.toaster:INFO:Finished.

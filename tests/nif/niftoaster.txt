@@ -146,6 +146,7 @@ opt_mergeduplicates
 opt_geometry
 optimize
 modify_texturepath
+modify_collisiontype
 
 The check_readwrite spell and the --raise switch
 ------------------------------------------------
@@ -1056,10 +1057,10 @@ pyffi.toaster:INFO:          average strip length  = 3.029
 pyffi.toaster:INFO:          recalculating strips
 pyffi.toaster:INFO:          checking strip triangles
 pyffi.toaster:INFO:          num strips            = 120
-pyffi.toaster:INFO:          average strip length  = 3.892
+pyffi.toaster:INFO:          average strip length  = 3.792
 pyffi.toaster:INFO:          checking stitched strip triangles
 pyffi.toaster:INFO:          checking unstitched strip triangles
-pyffi.toaster:INFO:average strip length = 3.891667
+pyffi.toaster:INFO:average strip length = 3.791667
 pyffi.toaster:INFO:Finished.
 
 The fix_mergeskeletonroots spell

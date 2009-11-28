@@ -6511,12 +6511,12 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
         >>> block = NifFormat.NiTriShapeData()
         >>> block.setTriangles([(0,1,2),(2,1,3),(2,3,4)])
         >>> block.getStrips()
-        [[4, 4, 3, 2, 1, 0]]
+        [[0, 1, 2, 3, 4]]
         >>> block.getTriangles()
         [(0, 1, 2), (2, 1, 3), (2, 3, 4)]
         >>> block.setStrips([[1,0,1,2,3,4]])
         >>> block.getStrips()
-        [[0, 0, 1, 2, 3, 4]]
+        [[4, 3, 2, 1, 0]]
         >>> block.getTriangles()
         [(0, 2, 1), (1, 2, 3), (2, 4, 3)]
         """
@@ -6555,9 +6555,9 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
         >>> block = NifFormat.NiTriStripsData()
         >>> block.setTriangles([(0,1,2),(2,1,3),(2,3,4)])
         >>> block.getStrips()
-        [[4, 4, 3, 2, 1, 0]]
+        [[0, 1, 2, 3, 4]]
         >>> block.getTriangles()
-        [(4, 2, 3), (3, 2, 1), (2, 0, 1)]
+        [(0, 1, 2), (1, 3, 2), (2, 3, 4)]
         >>> block.setStrips([[1,0,1,2,3,4]])
         >>> block.getStrips()
         [[1, 0, 1, 2, 3, 4]]
