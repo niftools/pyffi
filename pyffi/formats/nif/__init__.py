@@ -324,7 +324,7 @@ import warnings
 import weakref
 
 import pyffi.formats.dds
-import pyffi.object_models.Common
+import pyffi.object_models.common
 import pyffi.object_models
 import pyffi.object_models.xml
 import pyffi.utils.inertia
@@ -355,23 +355,23 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
     EPSILON = 0.0001
 
     # basic types
-    int = pyffi.object_models.Common.Int
-    uint = pyffi.object_models.Common.UInt
-    byte = pyffi.object_models.Common.UByte # not a typo
-    char = pyffi.object_models.Common.Char
-    short = pyffi.object_models.Common.Short
-    ushort = pyffi.object_models.Common.UShort
-    float = pyffi.object_models.Common.Float
-    BlockTypeIndex = pyffi.object_models.Common.UShort
-    StringIndex = pyffi.object_models.Common.UInt
-    SizedString = pyffi.object_models.Common.SizedString
+    int = pyffi.object_models.common.Int
+    uint = pyffi.object_models.common.UInt
+    byte = pyffi.object_models.common.UByte # not a typo
+    char = pyffi.object_models.common.Char
+    short = pyffi.object_models.common.Short
+    ushort = pyffi.object_models.common.UShort
+    float = pyffi.object_models.common.Float
+    BlockTypeIndex = pyffi.object_models.common.UShort
+    StringIndex = pyffi.object_models.common.UInt
+    SizedString = pyffi.object_models.common.SizedString
 
     # implementation of nif-specific basic types
 
-    class StringOffset(pyffi.object_models.Common.Int):
+    class StringOffset(pyffi.object_models.common.Int):
         """This is just an integer with -1 as default value."""
         def __init__(self, **kwargs):
-            pyffi.object_models.Common.Int.__init__(self, **kwargs)
+            pyffi.object_models.common.Int.__init__(self, **kwargs)
             self.setValue(-1)
 
     class bool(BasicBase, EditableBoolComboBox):
@@ -440,7 +440,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             else:
                 stream.write(struct.pack('<I', int(self._value)))
 
-    class Flags(pyffi.object_models.Common.UShort):
+    class Flags(pyffi.object_models.common.UShort):
         def __str__(self):
             return hex(self.getValue())
 
@@ -647,10 +647,10 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             return self._value
 
         def setValue(self, value):
-            self._value = pyffi.object_models.Common._asBytes(value).rstrip('\x0a'.encode("ascii"))
+            self._value = pyffi.object_models.common._asBytes(value).rstrip('\x0a'.encode("ascii"))
 
         def __str__(self):
-            return pyffi.object_models.Common._asStr(self._value)
+            return pyffi.object_models.common._asStr(self._value)
 
         def getSize(self, **kwargs):
             return len(self._value) + 1 # +1 for trailing endline
@@ -795,13 +795,13 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             return self._value
 
         def setValue(self, value):
-            val = pyffi.object_models.Common._asBytes(value)
+            val = pyffi.object_models.common._asBytes(value)
             if len(val) > 254:
                 raise ValueError('string too long')
             self._value = val
 
         def __str__(self):
-            return pyffi.object_models.Common._asStr(self._value)
+            return pyffi.object_models.common._asStr(self._value)
 
         def getSize(self, **kwargs):
             # length byte + string chars + zero byte
@@ -900,7 +900,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             return self._value
 
         def setValue(self, value):
-            self._value = pyffi.object_models.Common._asBytes(value)
+            self._value = pyffi.object_models.common._asBytes(value)
 
         def getSize(self, **kwargs):
             return len(self._value) + 4
@@ -1051,12 +1051,12 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
         :type neosteam: ``bool``
         """
 
-        class VersionUInt(pyffi.object_models.Common.UInt):
+        class VersionUInt(pyffi.object_models.common.UInt):
             def setValue(self, value):
                 if value is None:
                     self._value = None
                 else:
-                    pyffi.object_models.Common.UInt.setValue(self, value)
+                    pyffi.object_models.common.UInt.setValue(self, value)
 
             def __str__(self):
                 if self._value is None:
@@ -6659,7 +6659,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                 ...
             ValueError: ...
             """
-            _b00 = pyffi.object_models.Common._b00 # shortcut
+            _b00 = pyffi.object_models.common._b00 # shortcut
             # check that offset isn't too large
             if offset >= len(self.palette):
                 raise ValueError(
@@ -6690,7 +6690,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             >>> print(repr(pal.palette.decode("ascii")).lstrip("u"))
             'abc\\x00def\\x00'
             """
-            _b00 = pyffi.object_models.Common._b00 # shortcut
+            _b00 = pyffi.object_models.common._b00 # shortcut
             return self.palette[:-1].split(_b00)
 
         def addString(self, text):
@@ -6713,9 +6713,9 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
             # empty text
             if not text:
                 return -1
-            _b00 = pyffi.object_models.Common._b00 # shortcut
+            _b00 = pyffi.object_models.common._b00 # shortcut
             # convert text to bytes if necessary
-            text = pyffi.object_models.Common._asBytes(text)
+            text = pyffi.object_models.common._asBytes(text)
             # check if string is already in the palette
             # ... at the start
             if text + _b00 == self.palette[:len(text) + 1]:

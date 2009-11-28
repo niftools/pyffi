@@ -85,7 +85,7 @@ Create a TGA file from scratch and write to file
 import struct, os, re
 
 import pyffi.object_models.xml
-import pyffi.object_models.Common
+import pyffi.object_models.common
 import pyffi.object_models.xml.Basic
 import pyffi.object_models.xml.Struct
 import pyffi.object_models
@@ -102,15 +102,15 @@ class TgaFormat(pyffi.object_models.xml.FileFormat):
     RE_FILENAME = re.compile(r'^.*\.tga$', re.IGNORECASE)
 
     # basic types
-    int = pyffi.object_models.Common.Int
-    uint = pyffi.object_models.Common.UInt
-    byte = pyffi.object_models.Common.Byte
-    ubyte = pyffi.object_models.Common.UByte
-    char = pyffi.object_models.Common.Char
-    short = pyffi.object_models.Common.Short
-    ushort = pyffi.object_models.Common.UShort
-    float = pyffi.object_models.Common.Float
-    PixelData = pyffi.object_models.Common.UndecodedData
+    int = pyffi.object_models.common.Int
+    uint = pyffi.object_models.common.UInt
+    byte = pyffi.object_models.common.Byte
+    ubyte = pyffi.object_models.common.UByte
+    char = pyffi.object_models.common.Char
+    short = pyffi.object_models.common.Short
+    ushort = pyffi.object_models.common.UShort
+    float = pyffi.object_models.common.Float
+    PixelData = pyffi.object_models.common.UndecodedData
 
     class FooterString(pyffi.object_models.xml.Basic.BasicBase):
         """The Targa footer signature."""

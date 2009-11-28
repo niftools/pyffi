@@ -71,10 +71,10 @@ What happens in this piece of code?
     addition to the attributes :attr:`numIntegers` and
     :attr:`integers` which have been created from the XML.
 
-  - Finally, the :mod:`pyffi.object_models.Common` module implements
+  - Finally, the :mod:`pyffi.object_models.common` module implements
     the most common basic types, such as integers, characters, and
     floats. In the above example we have taken advantage of
-    :class:`pyffi.object_models.Common.Int`, which defines a signed
+    :class:`pyffi.object_models.common.Int`, which defines a signed
     32-bit integer, exactly the type we need.
 
 Reading and Writing Files

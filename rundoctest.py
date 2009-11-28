@@ -4,7 +4,7 @@ import sys
 import unittest
 
 import pyffi
-import pyffi.object_models.Common
+import pyffi.object_models.common
 import pyffi.object_models
 import pyffi.object_models.xsd
 import pyffi.object_models.xml

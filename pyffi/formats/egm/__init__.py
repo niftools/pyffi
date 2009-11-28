@@ -108,7 +108,7 @@ import os
 import re
 
 import pyffi.object_models.xml
-from pyffi.object_models import Common
+import pyffi.object_models.common
 from pyffi.object_models.xml.Basic import BasicBase
 import pyffi.object_models
 from pyffi.utils.graph import EdgeFilter
@@ -125,14 +125,14 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
     _EPSILON = 0.0001
 
     # basic types
-    int = Common.Int
-    uint = Common.UInt
-    byte = Common.Byte
-    ubyte = Common.UByte
-    char = Common.Char
-    short = Common.Short
-    ushort = Common.UShort
-    float = Common.Float
+    int = pyffi.object_models.common.Int
+    uint = pyffi.object_models.common.UInt
+    byte = pyffi.object_models.common.Byte
+    ubyte = pyffi.object_models.common.UByte
+    char = pyffi.object_models.common.Char
+    short = pyffi.object_models.common.Short
+    ushort = pyffi.object_models.common.UShort
+    float = pyffi.object_models.common.Float
 
     # implementation of egm-specific basic types
 

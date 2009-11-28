@@ -45,7 +45,7 @@ from functools import partial
 from itertools import izip
 
 from pyffi.utils.graph import DetailNode, GlobalNode, EdgeFilter
-import pyffi.object_models.Common
+import pyffi.object_models.common
 
 class _MetaStructBase(type):
     """This metaclass checks for the presence of _attrs and _isTemplate
@@ -608,7 +608,7 @@ class StructBase(GlobalNode):
 
     def getGlobalDisplay(self):
         """Construct a convenient name for the block itself."""
-        return (pyffi.object_models.Common._asStr(self.name)
+        return (pyffi.object_models.common._asStr(self.name)
                 if hasattr(self, "name") else "")
 
     def getGlobalChildNodes(self, edge_filter=EdgeFilter()):

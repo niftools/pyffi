@@ -119,7 +119,7 @@ The Guild 2 0x01024B00
 import struct, os, re
 
 import pyffi.object_models.xml
-from pyffi.object_models import Common
+import pyffi.object_models.common
 from pyffi.object_models.xml.Basic import BasicBase
 from pyffi.utils.graph import EdgeFilter
 import pyffi.object_models
@@ -137,15 +137,15 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
     _EPSILON = 0.0001
 
     # basic types
-    int = Common.Int
-    uint = Common.UInt
-    byte = Common.UByte # not a typo
-    char = Common.Char
-    short = Common.Short
-    ushort = Common.UShort
-    float = Common.Float
-    SizedString = Common.SizedString
-    TextString = Common.UndecodedData # for text (used by older kfm versions)
+    int = pyffi.object_models.common.Int
+    uint = pyffi.object_models.common.UInt
+    byte = pyffi.object_models.common.UByte # not a typo
+    char = pyffi.object_models.common.Char
+    short = pyffi.object_models.common.Short
+    ushort = pyffi.object_models.common.UShort
+    float = pyffi.object_models.common.Float
+    SizedString = pyffi.object_models.common.SizedString
+    TextString = pyffi.object_models.common.UndecodedData # for text (used by older kfm versions)
 
     # implementation of kfm-specific basic types
 

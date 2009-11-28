@@ -210,7 +210,7 @@ import warnings
 from itertools import izip
 
 
-import pyffi.object_models.Common
+import pyffi.object_models.common
 import pyffi.object_models
 import pyffi.object_models.xml
 import pyffi.utils.mathutils
@@ -250,37 +250,37 @@ class CgfFormat(pyffi.object_models.xml.FileFormat):
     UVER_CRYSIS = 2
 
     # basic types
-    int = pyffi.object_models.Common.Int
-    uint = pyffi.object_models.Common.UInt
-    byte = pyffi.object_models.Common.Byte
-    ubyte = pyffi.object_models.Common.UByte
-    short = pyffi.object_models.Common.Short
-    ushort = pyffi.object_models.Common.UShort
-    char = pyffi.object_models.Common.Char
-    float = pyffi.object_models.Common.Float
-    bool = pyffi.object_models.Common.Bool
-    String = pyffi.object_models.Common.ZString
-    SizedString = pyffi.object_models.Common.SizedString
+    int = pyffi.object_models.common.Int
+    uint = pyffi.object_models.common.UInt
+    byte = pyffi.object_models.common.Byte
+    ubyte = pyffi.object_models.common.UByte
+    short = pyffi.object_models.common.Short
+    ushort = pyffi.object_models.common.UShort
+    char = pyffi.object_models.common.Char
+    float = pyffi.object_models.common.Float
+    bool = pyffi.object_models.common.Bool
+    String = pyffi.object_models.common.ZString
+    SizedString = pyffi.object_models.common.SizedString
 
      # implementation of cgf-specific basic types
 
-    class String16(pyffi.object_models.Common.FixedString):
+    class String16(pyffi.object_models.common.FixedString):
         """String of fixed length 16."""
         _len = 16
 
-    class String32(pyffi.object_models.Common.FixedString):
+    class String32(pyffi.object_models.common.FixedString):
         """String of fixed length 32."""
         _len = 32
 
-    class String64(pyffi.object_models.Common.FixedString):
+    class String64(pyffi.object_models.common.FixedString):
         """String of fixed length 64."""
         _len = 64
 
-    class String128(pyffi.object_models.Common.FixedString):
+    class String128(pyffi.object_models.common.FixedString):
         """String of fixed length 128."""
         _len = 128
 
-    class String256(pyffi.object_models.Common.FixedString):
+    class String256(pyffi.object_models.common.FixedString):
         """String of fixed length 256."""
         _len = 256
 
@@ -541,12 +541,12 @@ but got instance of %s""" % (self._template, block.__class__))
         :type versions: ``list`` of L{int}
         """
 
-        class VersionUInt(pyffi.object_models.Common.UInt):
+        class VersionUInt(pyffi.object_models.common.UInt):
             def setValue(self, value):
                 if value is None:
                     self._value = None
                 else:
-                    pyffi.object_models.Common.UInt.setValue(self, value)
+                    pyffi.object_models.common.UInt.setValue(self, value)
 
             def __str__(self):
                 if self._value is None:

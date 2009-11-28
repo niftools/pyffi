@@ -1,6 +1,6 @@
 import os
 import pyffi.object_models.xml
-import pyffi.object_models.Common
+import pyffi.object_models.common
 
 class SimpleFormat(pyffi.object_models.xml.FileFormat):
     xmlFileName = 'simple.xml'
@@ -8,7 +8,7 @@ class SimpleFormat(pyffi.object_models.xml.FileFormat):
 
     # basic types
 
-    Int = pyffi.object_models.Common.Int
+    Int = pyffi.object_models.common.Int
 
     # extensions of generated types
 
