@@ -74,7 +74,7 @@ class DetailTreeItem(object):
     :ivar data: The item data.
     :type data: L{DetailTreeItemData}
     :ivar parent: The parent of the node.
-    :type parent: C{type(None)} or L{DetailTreeItem}
+    :type parent: ``type(None)`` or L{DetailTreeItem}
     :ivar children: The children of the node.
     :type children: ``list`` of L{QDetailTreeItem}
     :ivar row: The row number of this node, as child.

@@ -139,27 +139,27 @@ class StructAttribute(object):
         declarations, and resolved to an actual type later).
     :type type: ``str`` or L{BasicBase} or L{StructBase}
     :ivar default: The default value of this member variable.
-    :type default: ``str`` or C{type(None)}
+    :type default: ``str`` or ``type(None)``
     :ivar template: The template type of this member variable (initially
         ``str``, resolved to an actual type at the end of the xml parsing).
         If there is no template type, then this variable will equal
-        C{type(None)}.
+        ``type(None)``.
     :type template: ``str`` or L{BasicBase} or L{StructBase} or
         C{type(type(None))}
     :ivar arg: The argument of this member variable.
-    :type arg: ``str`` or C{type(None)}
+    :type arg: ``str`` or ``type(None)``
     :ivar arr1: The first array size of this member variable.
-    :type arr1: L{Expression} or C{type(None)}
+    :type arr1: L{Expression} or ``type(None)``
     :ivar arr2: The first array size of this member variable.
-    :type arr2: L{Expression} or C{type(None)}
+    :type arr2: L{Expression} or ``type(None)``
     :ivar cond: The condition of this member variable.
-    :type cond: L{Expression} or C{type(None)}
+    :type cond: L{Expression} or ``type(None)``
     :ivar ver1: The first version this member exists.
-    :type ver1: ``int`` or C{type(None)}
+    :type ver1: ``int`` or ``type(None)``
     :ivar ver2: The last version this member exists.
-    :type ver2: ``int`` or C{type(None)}
+    :type ver2: ``int`` or ``type(None)``
     :ivar userver: The user version where this member exists.
-    :type userver: ``int`` or C{type(None)}
+    :type userver: ``int`` or ``type(None)``
     :ivar is_abstract: Whether the attribute is abstract or not (i.e.
         read and written).
     :type is_abstract: ``bool``

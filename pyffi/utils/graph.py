@@ -108,7 +108,7 @@ class DetailNode(object):
     """A node of the detail tree which can have children.
 
     If the data must be editable, also derive the class from one of
-    the delegate classes defined in L{pyffi.object_models.editable},
+    the delegate classes defined in :mod:`pyffi.object_models.editable`,
     and make sure that the getValue and setValue functions are
     implemented.
     """
@@ -120,7 +120,7 @@ class DetailNode(object):
         Override this method if the node has children.
 
         :param edge_filter: The edge type to include.
-        :type edge_filter: L{EdgeFilter} or C{type(None)}
+        :type edge_filter: :class:`EdgeFilter` or ``type(None)``
         :return: Generator for detail tree child nodes.
         :rtype: generator yielding :class:`DetailNode`\ s
         """
