@@ -39,7 +39,7 @@
 
 import struct
 
-from pyffi.object_models.AnyType import AnyType
+from pyffi.object_models.any_type import AnyType
 from pyffi.object_models.SimpleType import SimpleType
 from pyffi.object_models.Editable import EditableSpinBox
 from pyffi.object_models.Editable import EditableFloatSpinBox

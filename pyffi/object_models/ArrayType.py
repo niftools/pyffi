@@ -41,7 +41,7 @@
 
 from itertools import izip
 
-import pyffi.object_models.AnyType
+from pyffi.object_models.any_type import AnyType
 import pyffi.object_models.SimpleType
 from pyffi.utils.graph import EdgeFilter
 
@@ -86,7 +86,7 @@ class ValidatedList(list):
         self.validate(item)
         list.insert(self, index, item)
 
-class AnyArray(ValidatedList, pyffi.object_models.AnyType.AnyType):
+class AnyArray(ValidatedList, AnyType):
     """Abstract base class for all array types.
 
     @cvar _MAXSTR: Maximum number of elements to write in the L{__str__} method.
@@ -138,19 +138,19 @@ class AnyArray(ValidatedList, pyffi.object_models.AnyType.AnyType):
 class MetaUniformArray(type):
     """Metaclass for L{UniformArray}. Checks that
     L{ItemType<UniformArray.ItemType>} is an
-    L{AnyType<pyffi.object_models.AnyType.AnyType>} subclass.
+    L{AnyType<pyffi.object_models.any_type.AnyType>} subclass.
     """
     def __init__(cls, name, bases, dct):
         """Initialize array type."""
         # create the class
         super(MetaUniformArray, cls).__init__(name, bases, dct)
         # check type of elements
-        if not issubclass(cls.ItemType, pyffi.object_models.AnyType.AnyType):
+        if not issubclass(cls.ItemType, AnyType):
             raise TypeError("array ItemType must be an AnyType subclass")
 
 class UniformArray(AnyArray):
     """Wrapper for array with elements of the same type; this type must be
-    a subclass of L{pyffi.object_models.AnyType.AnyType}.
+    a subclass of L{pyffi.object_models.any_type.AnyType}.
 
     >>> from pyffi.object_models.SimpleType import SimpleType
     >>> class MyInt(SimpleType):
@@ -175,11 +175,11 @@ class UniformArray(AnyArray):
     [8, 4, 20]
 
     @cvar ItemType: Type of the elements of this array.
-    :type ItemType: L{pyffi.object_models.AnyType.AnyType}
+    :type ItemType: L{pyffi.object_models.any_type.AnyType}
     """
 
     __metaclass__ = MetaUniformArray
-    ItemType = pyffi.object_models.AnyType.AnyType
+    ItemType = AnyType
 
     @classmethod
     def validate(cls, item):
