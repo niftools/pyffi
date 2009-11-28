@@ -326,7 +326,7 @@ import weakref
 import pyffi.formats.dds
 import pyffi.object_models.common
 import pyffi.object_models
-import pyffi.object_models.xml
+from pyffi.object_models.xml import FileFormat
 import pyffi.utils.inertia
 from pyffi.utils.mathutils import * # XXX todo get rid of from XXX import *
 import pyffi.utils.mopp
@@ -336,12 +336,12 @@ import pyffi.utils.quickhull
 from pyffi.object_models.editable import EditableBoolComboBox
 from pyffi.utils.graph import EdgeFilter
 from pyffi.object_models.xml.basic import BasicBase
+from pyffi.object_models.xml.struct_ import StructBase
 
 
 
-class NifFormat(pyffi.object_models.xml.FileFormat):
+class NifFormat(FileFormat):
     """This class contains the generated classes from the xml."""
-
     xml_file_name = 'nif.xml'
     # where to look for nif.xml and in what order: NIFXMLPATH env var,
     # or NifFormat module directory
@@ -1569,8 +1569,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
 
     class Footer:
         def read(self, stream, **kwargs):
-            pyffi.object_models.xml.struct_.StructBase.read(
-                self, stream, **kwargs)
+            StructBase.read(self, stream, **kwargs)
             neosteam = getattr(kwargs['data'], 'neosteam', False)
             if neosteam:
                 extrabyte, = struct.unpack("<B", stream.read(1))
@@ -1580,8 +1579,7 @@ class NifFormat(pyffi.object_models.xml.FileFormat):
                         "but got %i instead." % extrabyte)
             
         def write(self, stream, **kwargs):
-            pyffi.object_models.xml.struct_.StructBase.write(
-                self, stream, **kwargs)
+            StructBase.write(self, stream, **kwargs)
             neosteam = getattr(kwargs['data'], 'neosteam', False)
             if neosteam:
                 stream.write("\x00".encode("ascii"))
