@@ -10,7 +10,7 @@ import pyffi.object_models.xsd
 import pyffi.object_models.xml
 import pyffi.object_models.mex
 import pyffi.object_models.any_type
-import pyffi.object_models.SimpleType
+import pyffi.object_models.simple_type
 import pyffi.object_models.ArrayType
 import pyffi.object_models.BinaryType
 import pyffi.object_models.xml.Basic

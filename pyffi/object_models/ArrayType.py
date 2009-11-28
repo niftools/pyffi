@@ -42,7 +42,7 @@
 from itertools import izip
 
 from pyffi.object_models.any_type import AnyType
-import pyffi.object_models.SimpleType
+import pyffi.object_models.simple_type
 from pyffi.utils.graph import EdgeFilter
 
 class ValidatedList(list):
@@ -152,7 +152,7 @@ class UniformArray(AnyArray):
     """Wrapper for array with elements of the same type; this type must be
     a subclass of L{pyffi.object_models.any_type.AnyType}.
 
-    >>> from pyffi.object_models.SimpleType import SimpleType
+    >>> from pyffi.object_models.simple_type import SimpleType
     >>> class MyInt(SimpleType):
     ...     # in practice one would implement some sort of type checking
     ...     # for this example we keep it simple
@@ -192,7 +192,7 @@ class UniformArray(AnyArray):
 class MetaUniformSimpleArray(type):
     """Metaclass for L{UniformSimpleArray}. Checks that
     L{ItemType<UniformSimpleArray.ItemType>} is an
-    L{SimpleType<pyffi.object_models.SimpleType.SimpleType>} subclass.
+    L{SimpleType<pyffi.object_models.simple_type.SimpleType>} subclass.
     """
     def __init__(cls, name, bases, dct):
         """Initialize array type."""
@@ -200,14 +200,14 @@ class MetaUniformSimpleArray(type):
         super(MetaUniformSimpleArray, cls).__init__(name, bases, dct)
         # check type of elements
         if not issubclass(cls.ItemType,
-                          pyffi.object_models.SimpleType.SimpleType):
+                          pyffi.object_models.simple_type.SimpleType):
             raise TypeError("array ItemType must be a SimpleType subclass")
 
 class UniformSimpleArray(AnyArray):
     """Base class for array's with direct access to values of simple items."""
 
     __metaclass__ = MetaUniformSimpleArray
-    ItemType = pyffi.object_models.SimpleType.SimpleType
+    ItemType = pyffi.object_models.simple_type.SimpleType
 
     def __getitem__(self, index):
         # using list base method for speed

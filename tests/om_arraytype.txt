@@ -51,7 +51,7 @@ Elements must be AnyType
 Traceback (most recent call last):
     ...
 TypeError: ...
->>> from pyffi.object_models.SimpleType import SimpleType
+>>> from pyffi.object_models.simple_type import SimpleType
 >>> class MyInt(SimpleType):
 ...     pass
 >>> class ListOfInts(UniformArray):
@@ -64,7 +64,7 @@ The append method
 -----------------
 
 >>> from pyffi.object_models.ArrayType import UniformArray
->>> from pyffi.object_models.SimpleType import SimpleType
+>>> from pyffi.object_models.simple_type import SimpleType
 >>> class MyInt(SimpleType):
 ...     def __init__(self, value=0):
 ...         self._value = value
@@ -89,7 +89,7 @@ The extend method
 -----------------
 
 >>> from pyffi.object_models.ArrayType import UniformArray
->>> from pyffi.object_models.SimpleType import SimpleType
+>>> from pyffi.object_models.simple_type import SimpleType
 >>> class MyInt(SimpleType):
 ...     def __init__(self, value=0):
 ...         self._value = value

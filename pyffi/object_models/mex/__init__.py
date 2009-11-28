@@ -43,7 +43,7 @@ into Python classes.
 import logging
 
 import pyffi.object_models
-import pyffi.object_models.SimpleType
+import pyffi.object_models.simple_type
 
 class _MetaMexFileFormat(pyffi.object_models.MetaFileFormat):
     """Converts the mex script into an archive parser."""
