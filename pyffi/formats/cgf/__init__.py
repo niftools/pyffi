@@ -236,7 +236,7 @@ class CgfFormat(pyffi.object_models.xml.FileFormat):
     xml_file_name = 'cgf.xml'
     # where to look for cgf.xml and in what order: CGFXMLPATH env var,
     # or module directory
-    xmlFilePath = [os.getenv('CGFXMLPATH'), os.path.dirname(__file__)]
+    xml_file_path = [os.getenv('CGFXMLPATH'), os.path.dirname(__file__)]
     EPSILON = 0.0001 # used for comparing floats
     # regular expression for file name extension matching on cgf files
     RE_FILENAME = re.compile(r'^.*\.(cgf|cga|chr|caf)$', re.IGNORECASE)

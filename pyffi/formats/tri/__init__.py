@@ -98,7 +98,7 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
     xml_file_name = 'tri.xml'
     # where to look for tri.xml and in what order:
     # TRIXMLPATH env var, or TriFormat module directory
-    xmlFilePath = [os.getenv('TRIXMLPATH'), os.path.dirname(__file__)]
+    xml_file_path = [os.getenv('TRIXMLPATH'), os.path.dirname(__file__)]
     # file name regular expression match
     RE_FILENAME = re.compile(r'^.*\.tri$', re.IGNORECASE)
     # used for comparing floats

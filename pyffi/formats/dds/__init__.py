@@ -103,7 +103,7 @@ class DdsFormat(pyffi.object_models.xml.FileFormat):
     xml_file_name = 'dds.xml'
     # where to look for dds.xml and in what order:
     # DDSXMLPATH env var, or DdsFormat module directory
-    xmlFilePath = [os.getenv('DDSXMLPATH'), os.path.dirname(__file__)]
+    xml_file_path = [os.getenv('DDSXMLPATH'), os.path.dirname(__file__)]
     # file name regular expression match
     RE_FILENAME = re.compile(r'^.*\.dds$', re.IGNORECASE)
     # used for comparing floats

@@ -4,7 +4,7 @@ import pyffi.object_models.common
 
 class SimpleFormat(pyffi.object_models.xml.FileFormat):
     xml_file_name = 'simple.xml'
-    xmlFilePath = [ os.path.dirname(__file__) ]
+    xml_file_path = [ os.path.dirname(__file__) ]
 
     # basic types
 

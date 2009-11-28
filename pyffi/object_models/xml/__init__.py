@@ -93,7 +93,7 @@ class MetaFileFormat(pyffi.object_models.MetaFileFormat):
             parser.setContentHandler(XmlSaxHandler(cls, name, bases, dct))
 
             # open XML file
-            xmlfile = cls.openfile(xml_file_name, cls.xmlFilePath)
+            xmlfile = cls.openfile(xml_file_name, cls.xml_file_path)
 
             # parse the XML file: control is now passed on to XmlSaxHandler
             # which takes care of the class creation
@@ -110,7 +110,7 @@ class FileFormat(pyffi.object_models.FileFormat):
     described by an xml file."""
     __metaclass__ = MetaFileFormat
     xml_file_name = None #: Override.
-    xmlFilePath = None #: Override.
+    xml_file_path = None #: Override.
     logger = logging.getLogger("pyffi.object_models.xml")
 
     # We also keep an ordered list of all classes that have been created.

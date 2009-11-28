@@ -118,7 +118,7 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
     xml_file_name = 'egm.xml'
     # where to look for egm.xml and in what order:
     # EGMXMLPATH env var, or EgmFormat module directory
-    xmlFilePath = [os.getenv('EGMXMLPATH'), os.path.dirname(__file__)]
+    xml_file_path = [os.getenv('EGMXMLPATH'), os.path.dirname(__file__)]
     # file name regular expression match
     RE_FILENAME = re.compile(r'^.*\.egm$', re.IGNORECASE)
     # used for comparing floats

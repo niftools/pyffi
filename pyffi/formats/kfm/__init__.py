@@ -130,7 +130,7 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
     xml_file_name = 'kfm.xml'
     # where to look for kfm.xml and in what order:
     # KFMXMLPATH env var, or KfmFormat module directory
-    xmlFilePath = [os.getenv('KFMXMLPATH'), os.path.dirname(__file__)]
+    xml_file_path = [os.getenv('KFMXMLPATH'), os.path.dirname(__file__)]
     # file name regular expression match
     RE_FILENAME = re.compile(r'^.*\.kfm$', re.IGNORECASE)
     # used for comparing floats

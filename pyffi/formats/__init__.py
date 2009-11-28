@@ -61,7 +61,7 @@ What happens in this piece of code?
   - The :attr:`~pyffi.object_models.xml.FileFormat.xml_file_name`
     class attribute provides the name of the xml file that describes
     the structures we wish to generate. The
-    :attr:`~pyffi.object_models.xml.FileFormat.xmlFilePath`
+    :attr:`~pyffi.object_models.xml.FileFormat.xml_file_path`
     attribute gives a list of locations of where to look for this
     file; in our case we have simply chosen to put :file:`simple.xml`
     in the same directory as :file:`simple.py`.
