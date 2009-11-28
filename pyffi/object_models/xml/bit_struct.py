@@ -156,7 +156,7 @@ class BitStructBase(DetailNode):
     See the pyffi.XmlHandler class for a more advanced example.
 
     >>> from pyffi.object_models.xml.basic import BasicBase
-    >>> from pyffi.object_models.xml.Expression import Expression
+    >>> from pyffi.object_models.xml.expression import Expression
     >>> from pyffi.object_models.xml import BitStructAttribute as Attr
     >>> class SimpleFormat(object):
     ...     @staticmethod

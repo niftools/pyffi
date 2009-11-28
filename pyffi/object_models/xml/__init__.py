@@ -51,7 +51,7 @@ from pyffi.object_models.xml.Struct     import StructBase
 from pyffi.object_models.xml.basic      import BasicBase
 from pyffi.object_models.xml.bit_struct import BitStructBase
 from pyffi.object_models.xml.enum       import EnumBase
-from pyffi.object_models.xml.Expression import Expression
+from pyffi.object_models.xml.expression import Expression
 
 class MetaFileFormat(pyffi.object_models.MetaFileFormat):
     """The MetaFileFormat metaclass transforms the XML description
