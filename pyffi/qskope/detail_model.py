@@ -41,7 +41,7 @@ StructBase, Array, and BasicBase instances."""
 from PyQt4 import QtCore
 
 from pyffi.utils.graph import EdgeFilter, GlobalNode
-from pyffi.qskope.DetailTree import DetailTreeItem, DetailTreeItemData
+from pyffi.qskope.detail_tree import DetailTreeItem, DetailTreeItemData
 
 # implementation references:
 # http://doc.trolltech.com/4.3/model-view-programming.html
