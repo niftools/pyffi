@@ -1,9 +1,9 @@
-Various regression tests for pyffi.object_models.ArrayType.
+Various regression tests for pyffi.object_models.array_type.
 
 ValidatedList
 =============
 
->>> from pyffi.object_models.ArrayType import ValidatedList
+>>> from pyffi.object_models.array_type import ValidatedList
 >>> class IntList(ValidatedList):
 ...     def validate(self, item):
 ...         if not isinstance(item, int):
@@ -45,7 +45,7 @@ AnyArray
 Elements must be AnyType
 ------------------------
 
->>> from pyffi.object_models.ArrayType import UniformArray
+>>> from pyffi.object_models.array_type import UniformArray
 >>> class ListOfInts(UniformArray):
 ...     ItemType = int # doctest: +ELLIPSIS
 Traceback (most recent call last):
@@ -63,7 +63,7 @@ UniformArray
 The append method
 -----------------
 
->>> from pyffi.object_models.ArrayType import UniformArray
+>>> from pyffi.object_models.array_type import UniformArray
 >>> from pyffi.object_models.simple_type import SimpleType
 >>> class MyInt(SimpleType):
 ...     def __init__(self, value=0):
@@ -88,7 +88,7 @@ MyInt array:
 The extend method
 -----------------
 
->>> from pyffi.object_models.ArrayType import UniformArray
+>>> from pyffi.object_models.array_type import UniformArray
 >>> from pyffi.object_models.simple_type import SimpleType
 >>> class MyInt(SimpleType):
 ...     def __init__(self, value=0):

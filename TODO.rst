@@ -12,7 +12,7 @@
      pyffi.object_models.xsd.SimpleType/ComplexType
      (e.g. pyffi.ObjectModel.SimpleType/ComplexType)
 
-   - derive object_models.ArrayType and object_models.StructType from
+   - derive object_models.array_type and object_models.StructType from
      common subclass pyffi.object_models.ComplexType, use these then as base
      classes for object_models.xml.Array and object_models.xml.StructBase
 
