@@ -1,3 +1,8 @@
+Release 2.0.6 (in development)
+==============================
+
+* Renamed some internal modules for pep8 compliance.
+
 Release 2.0.5 (Nov 23, 2009)
 ============================
 
