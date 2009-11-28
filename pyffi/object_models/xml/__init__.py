@@ -79,7 +79,7 @@ class MetaFileFormat(pyffi.object_models.MetaFileFormat):
         # preparation: make deep copy of lists of enums, structs, etc.
         cls.xml_enum = cls.xml_enum[:]
         cls.xml_alias = cls.xml_alias[:]
-        cls.xmlBitStruct = cls.xmlBitStruct[:]
+        cls.xml_bit_struct = cls.xml_bit_struct[:]
         cls.xmlStruct = cls.xmlStruct[:]
 
         # parse XML
@@ -124,7 +124,7 @@ class FileFormat(pyffi.object_models.FileFormat):
     # (note: no classes are created for basic types, so no list for those)
     xml_enum = []
     xml_alias = []
-    xmlBitStruct = []
+    xml_bit_struct = []
     xmlStruct = []
 
     @classmethod
@@ -692,7 +692,7 @@ but got %s instead"""%name)
                 elif tag == self.tagAlias:
                     self.cls.xml_alias.append(gen_klass)
                 elif tag == self.tagBitStruct:
-                    self.cls.xmlBitStruct.append(gen_klass)
+                    self.cls.xml_bit_struct.append(gen_klass)
             # reset variables
             self.className = None
             self.classDict = None
