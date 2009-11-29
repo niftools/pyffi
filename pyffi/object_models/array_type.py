@@ -95,7 +95,7 @@ class AnyArray(ValidatedList, AnyType):
 
     _MAXSTR = 16
 
-    def isInterchangeable(self, other):
+    def is_interchangeable(self, other):
         """Check if array's are interchangeable."""
         # compare classes
         if not(self.__class__ is other.__class__):
@@ -105,7 +105,7 @@ class AnyArray(ValidatedList, AnyType):
             return False
         # compare elements
         for item, otheritem in izip(list.__iter__(self), list.__iter__(other)):
-            if not item.isInterchangeable(otheritem):
+            if not item.is_interchangeable(otheritem):
                 return False
         # all elements are interchangeable, so the array is as well
         return True

@@ -35,9 +35,9 @@ Interchangeability
 >>> test2.value = 2
 >>> test1 is test2
 False
->>> test1.isInterchangeable(test2)
+>>> test1.is_interchangeable(test2)
 True
 >>> test2.value = 'hello'
->>> test1.isInterchangeable(test2)
+>>> test1.is_interchangeable(test2)
 False
 

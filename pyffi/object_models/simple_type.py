@@ -92,7 +92,7 @@ class SimpleType(AnyType):
     TypeError: ...
 
     Also override :meth:`read` and :meth:`write` if you wish to read and write data
-    of this type, and :meth:`isInterchangeable` if you wish to declare data as
+    of this type, and :meth:`is_interchangeable` if you wish to declare data as
     equivalent.
     """
 
@@ -141,7 +141,7 @@ class SimpleType(AnyType):
 
     # AnyType
 
-    def isInterchangeable(self, other):
+    def is_interchangeable(self, other):
         """This checks for object identity of the value."""
         return isinstance(other, SimpleType) and (self._value is other._value)
 

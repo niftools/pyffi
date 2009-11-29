@@ -63,7 +63,7 @@ class AnyType(pyffi.utils.graph.DetailNode):
         """
         raise NotImplementedError
 
-    def isInterchangeable(self, other):
+    def is_interchangeable(self, other):
         """Returns ``True`` if objects are interchangeable, that is,
         "close" enough to each other so they can be considered equal
         for practical purposes. This is useful for instance when comparing
@@ -73,9 +73,9 @@ class AnyType(pyffi.utils.graph.DetailNode):
 
         >>> x = AnyType()
         >>> y = AnyType()
-        >>> x.isInterchangeable(y)
+        >>> x.is_interchangeable(y)
         False
-        >>> x.isInterchangeable(x)
+        >>> x.is_interchangeable(x)
         True
 
         :return: ``True`` if objects are close, ``False`` otherwise.
