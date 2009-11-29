@@ -20,8 +20,8 @@ pyffi.toaster:INFO:          emissive   0.00 0.00 0.00
 pyffi.toaster:INFO:          glossiness 123.000000
 pyffi.toaster:INFO:          alpha      0.560000
 pyffi.toaster:INFO:        ~~~ NiTexturingProperty [] ~~~
-pyffi.toaster:INFO:          [Base] bitmap2.dds
-pyffi.toaster:INFO:          [Detail] bitmap1.dds
+pyffi.toaster:INFO:          [base] bitmap2.dds
+pyffi.toaster:INFO:          [detail] bitmap1.dds
 pyffi.toaster:INFO:          apply mode 2
 pyffi.toaster:INFO:Finished.
 >>> sys.argv = ["niftoaster.py", "dump_tex", "tests/nif/test_fix_ffvt3rskinpartition.nif"]
@@ -51,7 +51,7 @@ pyffi.toaster:INFO:              ~~~ NiNode [Bip01 R Foot] ~~~
 pyffi.toaster:INFO:                ~~~ NiNode [Bip01 R Toe0] ~~~
 pyffi.toaster:INFO:      ~~~ NiTriShape [Body] ~~~
 pyffi.toaster:INFO:        ~~~ NiTexturingProperty [] ~~~
-pyffi.toaster:INFO:          [Base] body.dds
+pyffi.toaster:INFO:          [base] body.dds
 pyffi.toaster:INFO:          apply mode 2
 pyffi.toaster:INFO:        ~~~ NiMaterialProperty [Material] ~~~
 pyffi.toaster:INFO:          ambient    0.50 0.50 0.50
