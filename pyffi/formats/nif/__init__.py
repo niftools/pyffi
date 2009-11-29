@@ -649,10 +649,10 @@ class NifFormat(FileFormat):
             return self._value
 
         def set_value(self, value):
-            self._value = pyffi.object_models.common._asBytes(value).rstrip('\x0a'.encode("ascii"))
+            self._value = pyffi.object_models.common._as_bytes(value).rstrip('\x0a'.encode("ascii"))
 
         def __str__(self):
-            return pyffi.object_models.common._asStr(self._value)
+            return pyffi.object_models.common._as_str(self._value)
 
         def get_size(self, **kwargs):
             return len(self._value) + 1 # +1 for trailing endline
@@ -797,13 +797,13 @@ class NifFormat(FileFormat):
             return self._value
 
         def set_value(self, value):
-            val = pyffi.object_models.common._asBytes(value)
+            val = pyffi.object_models.common._as_bytes(value)
             if len(val) > 254:
                 raise ValueError('string too long')
             self._value = val
 
         def __str__(self):
-            return pyffi.object_models.common._asStr(self._value)
+            return pyffi.object_models.common._as_str(self._value)
 
         def get_size(self, **kwargs):
             # length byte + string chars + zero byte
@@ -902,7 +902,7 @@ class NifFormat(FileFormat):
             return self._value
 
         def set_value(self, value):
-            self._value = pyffi.object_models.common._asBytes(value)
+            self._value = pyffi.object_models.common._as_bytes(value)
 
         def get_size(self, **kwargs):
             return len(self._value) + 4
@@ -6716,7 +6716,7 @@ class NifFormat(FileFormat):
                 return -1
             _b00 = pyffi.object_models.common._b00 # shortcut
             # convert text to bytes if necessary
-            text = pyffi.object_models.common._asBytes(text)
+            text = pyffi.object_models.common._as_bytes(text)
             # check if string is already in the palette
             # ... at the start
             if text + _b00 == self.palette[:len(text) + 1]:

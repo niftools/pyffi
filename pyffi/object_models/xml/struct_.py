@@ -608,7 +608,7 @@ class StructBase(GlobalNode):
 
     def get_global_display(self):
         """Construct a convenient name for the block itself."""
-        return (pyffi.object_models.common._asStr(self.name)
+        return (pyffi.object_models.common._as_str(self.name)
                 if hasattr(self, "name") else "")
 
     def get_global_child_nodes(self, edge_filter=EdgeFilter()):

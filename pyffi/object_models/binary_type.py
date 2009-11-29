@@ -78,7 +78,7 @@ else:
     _bytes = bytes
     _str = str
 
-def _asBytes(value):
+def _as_bytes(value):
     """Helper function which converts a string to _bytes (this is useful for
     set_value in all string classes, which use bytes for representation).
 
@@ -86,10 +86,10 @@ def _asBytes(value):
     :rtype: C{_bytes}
 
     >>> # following doctest fails on py3k, hence disabled
-    >>> _asBytes(u"\\u00e9defa") == u"\\u00e9defa".encode("utf-8") # doctest: +SKIP
+    >>> _as_bytes(u"\\u00e9defa") == u"\\u00e9defa".encode("utf-8") # doctest: +SKIP
     True
 
-    >>> _asBytes(123) # doctest: +ELLIPSIS
+    >>> _as_bytes(123) # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
     TypeError: ...
@@ -101,7 +101,7 @@ def _asBytes(value):
     else:
         raise TypeError("expected %s or %s" % (_bytes.__name__, _str.__name__))
 
-def _asStr(value):
+def _as_str(value):
     """Helper function to convert bytes back to str. This is used in
     the __str__ functions for simple string types. If you want a custom
     encoding, use an explicit decode call on the value.
@@ -321,7 +321,7 @@ class CharType(BinarySimpleType, EditableLineEdit):
         stream.write(self._value)
 
     def __str__(self):
-        return _asStr(self._value)
+        return _as_str(self._value)
 
     def get_size(self):
         """Return number of bytes this type occupies in a file.
@@ -395,7 +395,7 @@ class ZString(BinarySimpleType, EditableLineEdit):
         self._value = _b
 
     def __str__(self):
-        return _asStr(self._value)
+        return _as_str(self._value)
 
     def set_value(self, value):
         """Set string to C{value}.
@@ -403,7 +403,7 @@ class ZString(BinarySimpleType, EditableLineEdit):
         :param value: The value to assign.
         :type value: ``str`` (will be encoded as default) or C{bytes}
         """
-        val = _asBytes(value)
+        val = _as_bytes(value)
         i = val.find(_b00)
         if i != -1:
             val = val[:i]
@@ -474,7 +474,7 @@ class FixedString(BinarySimpleType, EditableLineEdit):
         self._value = _b
 
     def __str__(self):
-        return _asStr(self._value)
+        return _as_str(self._value)
 
     def get_value(self):
         """Return the string.
@@ -490,7 +490,7 @@ class FixedString(BinarySimpleType, EditableLineEdit):
         :param value: The value to assign.
         :type value: ``str`` (encoded as default) or C{bytes}
         """
-        val = _asBytes(value)
+        val = _as_bytes(value)
         if len(val) > self._len:
             raise ValueError("string '%s' too long" % val)
         self._value = val
@@ -560,13 +560,13 @@ class SizedString(BinarySimpleType, EditableLineEdit):
         :param value: The value to assign.
         :type value: str
         """
-        val = _asBytes(value)
+        val = _as_bytes(value)
         if len(val) > 10000:
             raise ValueError('string too long')
         self._value = val
 
     def __str__(self):
-        return _asStr(self._value)
+        return _as_str(self._value)
 
     def get_size(self):
         """Return number of bytes this type occupies in a file.
