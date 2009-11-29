@@ -58,20 +58,20 @@ pyffi.toaster:INFO:=== tests/cgf/test.cgf ===
 pyffi.toaster:INFO:  --- dump ---
 pyffi.toaster:INFO:    ~~~ SourceInfoChunk [] ~~~
 pyffi.toaster:INFO:      <class 'pyffi.formats.cgf.SourceInfoChunk'> instance at 0x...
-pyffi.toaster:INFO:      * sourceFile : <None>
+pyffi.toaster:INFO:      * source_file : <None>
 pyffi.toaster:INFO:      * date : Fri Sep 28 22:40:44 2007
 pyffi.toaster:INFO:      * author : blender@BLENDER
 pyffi.toaster:INFO:      
 pyffi.toaster:INFO:    ~~~ TimingChunk [GlobalRange] ~~~
 pyffi.toaster:INFO:      <class 'pyffi.formats.cgf.TimingChunk'> instance at 0x...
-pyffi.toaster:INFO:      * secsPerTick : 0.0002083...
-pyffi.toaster:INFO:      * ticksPerFrame : 160
-pyffi.toaster:INFO:      * globalRange :
+pyffi.toaster:INFO:      * secs_per_tick : 0.0002083...
+pyffi.toaster:INFO:      * ticks_per_frame : 160
+pyffi.toaster:INFO:      * global_range :
 pyffi.toaster:INFO:          <class 'pyffi.formats.cgf.RangeEntity'> instance at 0x...
 pyffi.toaster:INFO:          * name : GlobalRange
 pyffi.toaster:INFO:          * start : 0
 pyffi.toaster:INFO:          * end : 100
-pyffi.toaster:INFO:      * numSubRanges : 0
+pyffi.toaster:INFO:      * num_sub_ranges : 0
 pyffi.toaster:INFO:      
 pyffi.toaster:INFO:Finished.
 
