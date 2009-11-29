@@ -109,11 +109,11 @@ class DetailNode(object):
 
     If the data must be editable, also derive the class from one of
     the delegate classes defined in :mod:`pyffi.object_models.editable`,
-    and make sure that the getValue and setValue functions are
+    and make sure that the get_value and set_value functions are
     implemented.
     """
 
-    def getDetailChildNodes(self, edge_filter=EdgeFilter()):
+    def get_detail_child_nodes(self, edge_filter=EdgeFilter()):
         """Generator which yields all children of this item in the
         detail view (by default, all acyclic and active ones).
 
@@ -126,7 +126,7 @@ class DetailNode(object):
         """
         return (dummy for dummy in ())
 
-    def getDetailChildNames(self, edge_filter=EdgeFilter()):
+    def get_detail_child_names(self, edge_filter=EdgeFilter()):
         """Generator which yields all child names of this item in the detail
         view.
 
@@ -145,7 +145,7 @@ class DetailNode(object):
         """
         return repeat(EdgeType())
 
-    def getDetailDisplay(self):
+    def get_detail_display(self):
         """Object used to display the instance in the detail view.
 
         Override this method if the node has data to display in the detail view.
@@ -160,18 +160,18 @@ class DetailNode(object):
         on (only given edge type is followed). Do not override.
         """
         yield self
-        for child in self.getDetailChildNodes(edge_filter=edge_filter):
+        for child in self.get_detail_child_nodes(edge_filter=edge_filter):
             for branch in child.getDetailIterator(edge_filter=edge_filter):
                 yield branch
 
-    def replaceGlobalNode(self, oldnode, newnode, edge_filter=EdgeFilter()):
+    def replace_global_node(self, oldnode, newnode, edge_filter=EdgeFilter()):
         """Replace a particular branch in the graph."""
         raise NotImplementedError
 
 class GlobalNode(DetailNode):
     """A node of the global graph."""
 
-    def getGlobalDisplay(self):
+    def get_global_display(self):
         """Very short summary of the data of this global branch for display
         purposes. Override this method.
 
@@ -181,7 +181,7 @@ class GlobalNode(DetailNode):
         # possible implementation:
         #return self.name if hasattr(self, "name") else ""
 
-    def getGlobalChildNodes(self, edge_filter=EdgeFilter()):
+    def get_global_child_nodes(self, edge_filter=EdgeFilter()):
         """Generator which yields all children of this item in the
         global view, of given edge type (default is edges of type 0).
 
@@ -204,6 +204,6 @@ class GlobalNode(DetailNode):
         on (only given edge_filter is followed). Do not override.
         """
         yield self
-        for child in self.getGlobalChildNodes(edge_filter=edge_filter):
+        for child in self.get_global_child_nodes(edge_filter=edge_filter):
             for branch in child.getGlobalIterator(edge_filter=edge_filter):
                 yield branch

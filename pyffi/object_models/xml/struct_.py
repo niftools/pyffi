@@ -60,14 +60,14 @@ class _MetaStructBase(type):
         #    raise TypeError('%s: missing _attrs attribute'%cls)
         #if not '_isTemplate' in dct:
         #    raise TypeError('%s: missing _isTemplate attribute'%cls)
-        # hasLinks, hasRefs, hasStrings, used for optimization of fixLinks,
-        # getLinks, getRefs, and getStrings
+        # has_links, has_refs, has_strings, used for optimization of fix_links,
+        # get_links, get_refs, and get_strings
         # does the type contain a Ref or a Ptr?
-        cls._hasLinks = getattr(cls, '_hasLinks', False)
+        cls._has_links = getattr(cls, '_has_links', False)
         # does the type contain a Ref?
-        cls._hasRefs = getattr(cls, '_hasRefs', False)
+        cls._has_refs = getattr(cls, '_has_refs', False)
         # does the type contain a string?
-        cls._hasStrings = getattr(cls, '_hasStrings', False)
+        cls._has_strings = getattr(cls, '_has_strings', False)
         for attr in dct.get('_attrs', []):
             # basestring is a forward compound type declaration
             # and issubclass must take a type as first argument
@@ -92,36 +92,36 @@ class _MetaStructBase(type):
                     doc=attr.doc))
 
             # check for links and refs and strings
-            if not cls._hasLinks:
+            if not cls._has_links:
                 if attr.type_ != type(None): # templates!
                     # attr.type_ basestring means forward declaration
                     # we cannot know if it has links, so assume yes
-                    if isinstance(attr.type_, basestring) or attr.type_._hasLinks:
-                        cls._hasLinks = True
+                    if isinstance(attr.type_, basestring) or attr.type_._has_links:
+                        cls._has_links = True
                 #else:
-                #    cls._hasLinks = True
+                #    cls._has_links = True
                 # or false... we can't know at this point... might be necessary
                 # to uncomment this if template types contain refs
 
-            if not cls._hasRefs:
+            if not cls._has_refs:
                 if attr.type_ != type(None):
                     # attr.type_ basestring means forward declaration
                     # we cannot know if it has refs, so assume yes
-                    if isinstance(attr.type_, basestring) or attr.type_._hasRefs:
-                        cls._hasRefs = True
+                    if isinstance(attr.type_, basestring) or attr.type_._has_refs:
+                        cls._has_refs = True
                 #else:
-                #    cls._hasRefs = True # dito, see comment above
+                #    cls._has_refs = True # dito, see comment above
 
-            if not cls._hasStrings:
+            if not cls._has_strings:
                 if attr.type_ != type(None):
                     # attr.type_ basestring means forward declaration
                     # we cannot know if it has strings, so assume yes
-                    if isinstance(attr.type_, basestring) or attr.type_._hasStrings:
-                        cls._hasStrings = True
+                    if isinstance(attr.type_, basestring) or attr.type_._has_strings:
+                        cls._has_strings = True
                 else:
                     # enabled because there is a template key type that has
                     # strings
-                    cls._hasStrings = True
+                    cls._has_strings = True
 
         # precalculate the attribute list
         # profiling shows that this speeds up most of the StructBase methods
@@ -160,9 +160,9 @@ class StructBase(GlobalNode):
     ...         def __init__(self, **kwargs):
     ...             BasicBase.__init__(self, **kwargs)
     ...             self.__value = 0
-    ...         def getValue(self):
+    ...         def get_value(self):
     ...             return self.__value
-    ...         def setValue(self, value):
+    ...         def set_value(self, value):
     ...             self.__value = int(value)
     ...     @staticmethod
     ...     def name_attribute(name):
@@ -254,7 +254,7 @@ class StructBase(GlobalNode):
                     template = rt_template, argument = rt_arg,
                     parent = self)
                 if attr.default != None:
-                    attr_instance.setValue(attr.default)
+                    attr_instance.set_value(attr.default)
             elif attr.arr2 == None:
                 attr_instance = Array(
                     element_type = rt_type,
@@ -340,7 +340,7 @@ class StructBase(GlobalNode):
             #val = getattr(self, "_%s_value_" % attr.name) # debug
             #if isinstance(val, BasicBase): # debug
             #    try:
-            #        print(val.getValue()) # debug
+            #        print(val.get_value()) # debug
             #    except Exception:
             #        pass
             #else:
@@ -366,74 +366,74 @@ class StructBase(GlobalNode):
             #val = getattr(self, "_%s_value_" % attr.name) # debug
             #if isinstance(val, BasicBase): # debug
             #    try:
-            #        print(val.getValue()) # debug
+            #        print(val.get_value()) # debug
             #    except Exception:
             #        pass
             #else:
             #    print(val.__class__.__name__)
 
-    def fixLinks(self, **kwargs):
+    def fix_links(self, **kwargs):
         """Fix links in the structure."""
         # parse arguments
         # fix links in all attributes
         for attr in self._filteredAttributeList(**kwargs):
             # check if there are any links at all
             # (commonly this speeds things up considerably)
-            if not attr.type_._hasLinks:
+            if not attr.type_._has_links:
                 continue
             #print("fixlinks %s" % attr.name)
             # fix the links in the attribute
-            getattr(self, "_%s_value_" % attr.name).fixLinks(**kwargs)
+            getattr(self, "_%s_value_" % attr.name).fix_links(**kwargs)
 
-    def getLinks(self, **kwargs):
+    def get_links(self, **kwargs):
         """Get list of all links in the structure."""
         # get all links
         links = []
         for attr in self._filteredAttributeList(**kwargs):
             # check if there are any links at all
             # (this speeds things up considerably)
-            if not attr.type_._hasLinks:
+            if not attr.type_._has_links:
                 continue
             # extend list of links
             links.extend(
-                getattr(self, "_" + attr.name + "_value_").getLinks(**kwargs))
+                getattr(self, "_" + attr.name + "_value_").get_links(**kwargs))
         # return the list of all links in all attributes
         return links
 
-    def getStrings(self, **kwargs):
+    def get_strings(self, **kwargs):
         """Get list of all strings in the structure."""
         # get all strings
         strings = []
         for attr in self._filteredAttributeList(**kwargs):
             # check if there are any strings at all
             # (this speeds things up considerably)
-            if (not attr.type_ is type(None)) and (not attr.type_._hasStrings):
+            if (not attr.type_ is type(None)) and (not attr.type_._has_strings):
                 continue
             # extend list of strings
             strings.extend(
-                getattr(self, "_%s_value_" % attr.name).getStrings(**kwargs))
+                getattr(self, "_%s_value_" % attr.name).get_strings(**kwargs))
         # return the list of all strings in all attributes
         return strings
 
-    def getRefs(self, **kwargs):
+    def get_refs(self, **kwargs):
         """Get list of all references in the structure. Refs are
         links that point down the tree. For instance, if you need to parse
-        the whole tree starting from the root you would use getRefs and not
-        getLinks, as getLinks could result in infinite recursion."""
+        the whole tree starting from the root you would use get_refs and not
+        get_links, as get_links could result in infinite recursion."""
         # get all refs
         refs = []
         for attr in self._filteredAttributeList(**kwargs):
             # check if there are any links at all
             # (this speeds things up considerably)
-            if not attr.type_._hasLinks:
+            if not attr.type_._has_links:
                 continue
             # extend list of refs
             refs.extend(
-                getattr(self, "_%s_value_" % attr.name).getRefs(**kwargs))
+                getattr(self, "_%s_value_" % attr.name).get_refs(**kwargs))
         # return the list of all refs in all attributes
         return refs
 
-    def getSize(self, **kwargs):
+    def get_size(self, **kwargs):
         """Calculate the structure size in bytes."""
         # calculate size
         size = 0
@@ -441,25 +441,25 @@ class StructBase(GlobalNode):
             # skip abstract attributes
             if attr.is_abstract:
                 continue
-            size += getattr(self, "_%s_value_" % attr.name).getSize(**kwargs)
+            size += getattr(self, "_%s_value_" % attr.name).get_size(**kwargs)
         return size
 
-    def getHash(self, **kwargs):
+    def get_hash(self, **kwargs):
         """Calculate a hash for the structure, as a tuple."""
         # calculate hash
         hsh = []
         for attr in self._filteredAttributeList(**kwargs):
             hsh.append(
-                getattr(self, "_%s_value_" % attr.name).getHash(**kwargs))
+                getattr(self, "_%s_value_" % attr.name).get_hash(**kwargs))
         return tuple(hsh)
 
-    def replaceGlobalNode(self, oldbranch, newbranch, **kwargs):
+    def replace_global_node(self, oldbranch, newbranch, **kwargs):
         for attr in self._filteredAttributeList(**kwargs):
             # check if there are any links at all
             # (this speeds things up considerably)
-            if not attr.type_._hasLinks:
+            if not attr.type_._has_links:
                 continue
-            getattr(self, "_%s_value_" % attr.name).replaceGlobalNode(oldbranch, newbranch, **kwargs)
+            getattr(self, "_%s_value_" % attr.name).replace_global_node(oldbranch, newbranch, **kwargs)
 
     @classmethod
     def getGames(cls):
@@ -562,13 +562,13 @@ class StructBase(GlobalNode):
 
     def getBasicAttribute(self, name):
         """Get a basic attribute."""
-        return getattr(self, "_" + name + "_value_").getValue()
+        return getattr(self, "_" + name + "_value_").get_value()
 
     # important note: to apply partial(setAttribute, name = 'xyz') the
     # name argument must be last
     def setBasicAttribute(self, value, name):
         """Set the value of a basic attribute."""
-        getattr(self, "_" + name + "_value_").setValue(value)
+        getattr(self, "_" + name + "_value_").set_value(value)
 
     def getTemplateAttribute(self, name):
         """Get a template attribute."""
@@ -595,25 +595,25 @@ class StructBase(GlobalNode):
 
     # DetailNode
 
-    def getDetailChildNodes(self, edge_filter=EdgeFilter()):
+    def get_detail_child_nodes(self, edge_filter=EdgeFilter()):
         """Yield children of this structure."""
         return (item for item in self._items)
 
-    def getDetailChildNames(self, edge_filter=EdgeFilter()):
+    def get_detail_child_names(self, edge_filter=EdgeFilter()):
         """Yield names of the children of this structure."""
         return (name for name in self._names)
 
 
     # GlobalNode
 
-    def getGlobalDisplay(self):
+    def get_global_display(self):
         """Construct a convenient name for the block itself."""
         return (pyffi.object_models.common._asStr(self.name)
                 if hasattr(self, "name") else "")
 
-    def getGlobalChildNodes(self, edge_filter=EdgeFilter()):
-        # TODO replace getRefs with a generator as well
-        for branch in self.getRefs():
+    def get_global_child_nodes(self, edge_filter=EdgeFilter()):
+        # TODO replace get_refs with a generator as well
+        for branch in self.get_refs():
             yield branch
 
 from pyffi.object_models.xml.basic import BasicBase

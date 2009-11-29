@@ -164,7 +164,7 @@ class QSkope(QtGui.QMainWindow):
     def closeEvent(self, event):
         """Called when the application is closed. Saves the settings."""
         settings = self.getSettings(versioned = True)
-        settings.setValue("MainWindow/geometry",
+        settings.set_value("MainWindow/geometry",
                           QtCore.QVariant(self.saveGeometry()))
         QtGui.QMainWindow.closeEvent(self, event)
 

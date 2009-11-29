@@ -46,7 +46,7 @@ class BasicBase(DetailNode):
 
     The BasicBase class implements the interface for basic types.
     All basic types are derived from this class.
-    They must override read, write, getValue, and setValue.
+    They must override read, write, get_value, and set_value.
 
     >>> import struct
     >>> class UInt(BasicBase):
@@ -58,28 +58,28 @@ class BasicBase(DetailNode):
     ...     def write(self, version = None, user_version = None, f = None,
     ...               block_index_dct = {}, argument = None):
     ...         f.write(struct.pack('<I', self.__value))
-    ...     def getValue(self):
+    ...     def get_value(self):
     ...         return self.__value
-    ...     def setValue(self, value):
+    ...     def set_value(self, value):
     ...         self.__value = int(value)
     >>> x = UInt()
-    >>> x.setValue('123')
-    >>> x.getValue()
+    >>> x.set_value('123')
+    >>> x.get_value()
     123
-    >>> class Test(BasicBase): # bad: read, write, getValue, and setValue are
+    >>> class Test(BasicBase): # bad: read, write, get_value, and set_value are
     ...                        # not implemented
     ...     pass
     >>> x = Test() # doctest: +ELLIPSIS
-    >>> x.setValue('123') # doctest: +ELLIPSIS
+    >>> x.set_value('123') # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
     NotImplementedError
     """
 
     _isTemplate = False # is it a template type?
-    _hasLinks = False # does the type contain a Ref or a Ptr?
-    _hasRefs = False # does the type contain a Ref?
-    _hasStrings = False # does the type contain a string?
+    _has_links = False # does the type contain a Ref or a Ptr?
+    _has_refs = False # does the type contain a Ref?
+    _has_strings = False # does the type contain a string?
 
     def __init__(self, template = None, argument = None, parent = None):
         """Initializes the instance.
@@ -96,7 +96,7 @@ class BasicBase(DetailNode):
     # string representation
     def __str__(self):
         """Return string representation."""
-        return str(self.getValue())
+        return str(self.get_value())
 
     def read(self, stream, **kwargs):
         """Read object from file."""
@@ -106,42 +106,42 @@ class BasicBase(DetailNode):
         """Write object to file."""
         raise NotImplementedError
 
-    def fixLinks(self, **kwargs):
+    def fix_links(self, **kwargs):
         """Fix links. Called when all objects have been read, and converts
         block indices into blocks."""
         pass
 
-    def getLinks(self, **kwargs):
+    def get_links(self, **kwargs):
         """Return all links referred to in this object."""
         return []
 
-    def getStrings(self, **kwargs):
+    def get_strings(self, **kwargs):
         """Return all strings used by this object."""
         return []
 
-    def getRefs(self, **kwargs):
+    def get_refs(self, **kwargs):
         """Return all references (excluding weak pointers) used by this
         object."""
         return []
 
-    def getValue(self):
+    def get_value(self):
         """Return object value."""
         raise NotImplementedError
 
-    def setValue(self, value):
+    def set_value(self, value):
         """Set object value."""
         raise NotImplementedError
 
-    def getSize(self, **kwargs):
+    def get_size(self, **kwargs):
         """Returns size of the object in bytes."""
         raise NotImplementedError
 
-    def getHash(self, **kwargs):
+    def get_hash(self, **kwargs):
         """Returns a hash value (an immutable object) that can be used to
         identify the object uniquely."""
         raise NotImplementedError
 
-    def replaceGlobalNode(self, oldbranch, newbranch, **kwargs):
+    def replace_global_node(self, oldbranch, newbranch, **kwargs):
         """Replace a given branch."""
         pass
 
@@ -153,18 +153,18 @@ class BasicBase(DetailNode):
 
     # DetailNode
 
-    def getDetailDisplay(self):
+    def get_detail_display(self):
         """Return an object that can be used to display the instance."""
-        return str(self.getValue())
+        return str(self.get_value())
 
     # editor functions: default implementation assumes that the value is
     # also suitable for an editor; override if not
 
-    def getEditorValue(self):
+    def get_editor_value(self):
         """Return value suitable for editor."""
-        return self.getValue()
+        return self.get_value()
 
-    def setEditorValue(self, editorvalue):
+    def set_editor_value(self, editorvalue):
         """Set value from editor value."""
-        return self.setValue(editorvalue)
+        return self.set_value(editorvalue)
 

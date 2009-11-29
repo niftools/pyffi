@@ -56,7 +56,7 @@ class GlobalTreeItemData(object):
 
     @property
     def display(self):
-        return self.node.getGlobalDisplay()
+        return self.node.get_global_display()
 
     @property
     def typename(self):
@@ -102,5 +102,5 @@ class GlobalTreeItem(object):
                 edge_type=child_edge_type)
             for (child_row, (child_node, child_edge_type))
             in enumerate(izip(
-                data.node.getGlobalChildNodes(edge_filter=edge_filter),
+                data.node.get_global_child_nodes(edge_filter=edge_filter),
                 data.node.getGlobalChildEdgeTypes(edge_filter=edge_filter)))]

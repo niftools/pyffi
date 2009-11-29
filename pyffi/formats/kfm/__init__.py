@@ -160,7 +160,7 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
         def __str__(self):
             return ';Gamebryo KFM File Version x.x.x.x'
 
-        def getHash(self, **kwargs):
+        def get_hash(self, **kwargs):
             """Return a hash value for this value.
 
             :return: An immutable object that can be used as a hash.
@@ -209,7 +209,7 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
             else:
                 stream.write('\x0a'.encode("ascii"))
 
-        def getSize(self, **kwargs):
+        def get_size(self, **kwargs):
             """Return number of bytes the header string occupies in a file.
 
             :return: Number of bytes.
@@ -219,7 +219,7 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
 
         # DetailNode
 
-        def getDetailDisplay(self):
+        def get_detail_display(self):
             return str(self)
 
         @staticmethod
@@ -246,13 +246,13 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
 
     # other types with internal implementation
     class FilePath(SizedString):
-        def getHash(self, **kwargs):
+        def get_hash(self, **kwargs):
             """Return a hash value for this value.
             For file paths, the hash value is case insensitive.
 
             :return: An immutable object that can be used as a hash.
             """
-            return self.getValue().lower()
+            return self.get_value().lower()
 
     @staticmethod
     def versionNumber(version_str):
@@ -360,19 +360,19 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
 
         # GlobalNode
 
-        def getGlobalChildNodes(self, edge_filter=EdgeFilter()):
+        def get_global_child_nodes(self, edge_filter=EdgeFilter()):
             return (anim for anim in self.animations)
 
-        def getGlobalDisplay(self):
+        def get_global_display(self):
             """Display the nif file name."""
             return self.nifFileName
 
     class Animation:
         # XXX this does not work yet (see todo for KfmFormat)
-        def getDetailDisplay(self):
+        def get_detail_display(self):
             """Display the kf file name."""
             return self.kfFileName if not self.name else self.name
 
-        def getGlobalDisplay(self):
+        def get_global_display(self):
             """Display the kf file name."""
             return self.kfFileName if not self.name else self.name

@@ -46,7 +46,7 @@ import weakref
 from pyffi.utils.graph import DetailNode, EdgeFilter
 
 class _ListWrap(list, DetailNode):
-    """A wrapper for list, which uses getValue and setValue for
+    """A wrapper for list, which uses get_value and set_value for
     getting and setting items of the basic type."""
 
     def __init__(self, element_type, parent = None):
@@ -85,10 +85,10 @@ class _ListWrap(list, DetailNode):
         raise NotImplementedError
 
     def iterBasicItem(self):
-        """Iterator which calls C{getValue()} on all items. Applies when
+        """Iterator which calls C{get_value()} on all items. Applies when
         the list has BasicBase elements."""
         for elem in list.__iter__(self):
-            yield elem.getValue()
+            yield elem.get_value()
 
     def iterItem(self):
         """Iterator over all items. Applies when the list does not have
@@ -97,12 +97,12 @@ class _ListWrap(list, DetailNode):
             yield elem
 
     def getBasicItem(self, index):
-        """Item getter which calls C{getValue()} on the C{index}'d item."""
-        return list.__getitem__(self, index).getValue()
+        """Item getter which calls C{get_value()} on the C{index}'d item."""
+        return list.__getitem__(self, index).get_value()
 
     def setBasicItem(self, index, value):
-        """Item setter which calls C{setValue()} on the C{index}'d item."""
-        return list.__getitem__(self, index).setValue(value)
+        """Item setter which calls C{set_value()} on the C{index}'d item."""
+        return list.__getitem__(self, index).set_value(value)
 
     def getItem(self, index):
         """Regular item getter, used when the list does not have BasicBase
@@ -111,11 +111,11 @@ class _ListWrap(list, DetailNode):
 
     # DetailNode
 
-    def getDetailChildNodes(self, edge_filter=EdgeFilter()):
+    def get_detail_child_nodes(self, edge_filter=EdgeFilter()):
         """Yield children."""
         return (item for item in list.__iter__(self))
 
-    def getDetailChildNames(self, edge_filter=EdgeFilter()):
+    def get_detail_child_names(self, edge_filter=EdgeFilter()):
         """Yield child names."""
         return ("[%i]" % row for row in xrange(list.__len__(self)))
 
@@ -335,60 +335,60 @@ describing number of elements (%i)"%(elemlist.__len__(),len2i))
                 for elem in list.__iter__(elemlist):
                     elem.write(stream, **kwargs)
 
-    def fixLinks(self, **kwargs):
-        """Fix the links in the array by calling C{fixLinks} on all elements
+    def fix_links(self, **kwargs):
+        """Fix the links in the array by calling C{fix_links} on all elements
         of the array."""
-        if not self._elementType._hasLinks:
+        if not self._elementType._has_links:
             return
         for elem in self._elementList():
-            elem.fixLinks(**kwargs)
+            elem.fix_links(**kwargs)
 
-    def getLinks(self, **kwargs):
-        """Return all links in the array by calling C{getLinks} on all elements
+    def get_links(self, **kwargs):
+        """Return all links in the array by calling C{get_links} on all elements
         of the array."""
         links = []
-        if not self._elementType._hasLinks:
+        if not self._elementType._has_links:
             return links
         for elem in self._elementList():
-            links.extend(elem.getLinks(**kwargs))
+            links.extend(elem.get_links(**kwargs))
         return links
 
-    def getStrings(self, **kwargs):
-        """Return all strings in the array by calling C{getStrings} on all
+    def get_strings(self, **kwargs):
+        """Return all strings in the array by calling C{get_strings} on all
         elements of the array."""
         strings = []
-        if not self._elementType._hasStrings:
+        if not self._elementType._has_strings:
             return strings
         for elem in self._elementList():
-            strings.extend(elem.getStrings(**kwargs))
+            strings.extend(elem.get_strings(**kwargs))
         return strings
 
-    def getRefs(self, **kwargs):
-        """Return all references in the array by calling C{getRefs} on all
+    def get_refs(self, **kwargs):
+        """Return all references in the array by calling C{get_refs} on all
         elements of the array."""
         links = []
-        if not self._elementType._hasLinks:
+        if not self._elementType._has_links:
             return links
         for elem in self._elementList():
-            links.extend(elem.getRefs(**kwargs))
+            links.extend(elem.get_refs(**kwargs))
         return links
 
-    def getSize(self, **kwargs):
+    def get_size(self, **kwargs):
         """Calculate the sum of the size of all elements in the array."""
         return sum(
-            (elem.getSize(**kwargs) for elem in self._elementList()), 0)
+            (elem.get_size(**kwargs) for elem in self._elementList()), 0)
 
-    def getHash(self, **kwargs):
+    def get_hash(self, **kwargs):
         """Calculate a hash value for the array, as a tuple."""
         hsh = []
         for elem in self._elementList():
-            hsh.append(elem.getHash(**kwargs))
+            hsh.append(elem.get_hash(**kwargs))
         return tuple(hsh)
 
-    def replaceGlobalNode(self, oldbranch, newbranch, **kwargs):
+    def replace_global_node(self, oldbranch, newbranch, **kwargs):
         """Calculate a hash value for the array, as a tuple."""
         for elem in self._elementList():
-            elem.replaceGlobalNode(oldbranch, newbranch, **kwargs)
+            elem.replace_global_node(oldbranch, newbranch, **kwargs)
 
     def _elementList(self, **kwargs):
         """Generator for listing all elements."""

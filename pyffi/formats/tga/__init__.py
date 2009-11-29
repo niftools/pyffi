@@ -139,14 +139,14 @@ class TgaFormat(pyffi.object_models.xml.FileFormat):
             """
             stream.write(self.__str__().encode("ascii"))
 
-        def getValue(self):
+        def get_value(self):
             """Get signature.
 
             :return: The signature.
             """
             return self.__str__()
 
-        def setValue(self, value):
+        def set_value(self, value):
             """Set signature.
 
             :param value: The value to assign.
@@ -157,14 +157,14 @@ class TgaFormat(pyffi.object_models.xml.FileFormat):
                     "invalid Targa signature: expected '%s' but got '%s'"
                     %(self.__str__(), value))
 
-        def getSize(self, **kwargs):
+        def get_size(self, **kwargs):
             """Return number of bytes that the signature occupies in a file.
 
             :return: Number of bytes.
             """
             return 18
 
-        def getHash(self, **kwargs):
+        def get_hash(self, **kwargs):
             """Return a hash value for the signature.
 
             :return: An immutable object that can be used as a hash.
@@ -200,11 +200,11 @@ class TgaFormat(pyffi.object_models.xml.FileFormat):
             for child in self.children:
                 child.write(stream, argument=data.header.pixelSize)
 
-        def getDetailChildNodes(self, edge_filter=EdgeFilter()):
+        def get_detail_child_nodes(self, edge_filter=EdgeFilter()):
             for child in self.children:
                 yield child
 
-        def getDetailChildNames(self, edge_filter=EdgeFilter()):
+        def get_detail_child_names(self, edge_filter=EdgeFilter()):
             for i in xrange(len(self.children)):
                 yield str(i)
 
@@ -283,7 +283,7 @@ class TgaFormat(pyffi.object_models.xml.FileFormat):
             if self.footer:
                 self.footer.write(stream)
 
-        def getGlobalChildNodes(self, edge_filter=EdgeFilter()):
+        def get_global_child_nodes(self, edge_filter=EdgeFilter()):
             yield self.header
             yield self.image
             if self.footer:

@@ -148,7 +148,7 @@ class DetailDelegate(QtGui.QItemDelegate):
             return None
         # determine the data and its value
         node = index.internalPointer().data.node
-        editorvalue = node.getEditorValue()
+        editorvalue = node.get_editor_value()
         # check validity of editor
         self._checkValidEditor(node, editor)
         # set editor node
@@ -158,7 +158,7 @@ class DetailDelegate(QtGui.QItemDelegate):
             editor.setCurrentIndex(editorvalue)
         elif isinstance(node, EditableSpinBox):
             # a (possibly float) spinbox: simply set the value
-            editor.setValue(editorvalue)
+            editor.set_value(editorvalue)
         elif isinstance(node, EditableLineEdit):
             # a text editor: set the text
             editor.setText(editorvalue)
@@ -194,6 +194,6 @@ class DetailDelegate(QtGui.QItemDelegate):
                   % node.__class__.__name__)
             return
         # set the model data
-        # EditRole ensures that setData uses setEditorValue to set the data
+        # EditRole ensures that setData uses set_editor_value to set the data
         model.setData(index, QtCore.QVariant(editorvalue), QtCore.Qt.EditRole)
 

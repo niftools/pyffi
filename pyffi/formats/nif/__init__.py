@@ -243,9 +243,9 @@ Template types
 Links
 ^^^^^
 
->>> NifFormat.NiNode._hasLinks
+>>> NifFormat.NiNode._has_links
 True
->>> NifFormat.NiBone._hasLinks
+>>> NifFormat.NiBone._has_links
 True
 >>> skelroot = NifFormat.NiNode()
 >>> geom = NifFormat.NiTriShape()
@@ -449,8 +449,8 @@ class NifFormat(FileFormat):
     class Ref(BasicBase):
         """Reference to another block."""
         _isTemplate = True
-        _hasLinks = True
-        _hasRefs = True
+        _has_links = True
+        _has_refs = True
         def __init__(self, **kwargs):
             BasicBase.__init__(self, **kwargs)
             self._template = kwargs.get("template")
@@ -586,8 +586,8 @@ class NifFormat(FileFormat):
     class Ptr(Ref):
         """A weak reference to another block, used to point up the hierarchy tree. The reference is not returned by the L{get_refs} function to avoid infinite recursion."""
         _isTemplate = True
-        _hasLinks = True
-        _hasRefs = False
+        _has_links = True
+        _has_refs = False
 
         # use weak reference to aid garbage collection
 
@@ -822,7 +822,7 @@ class NifFormat(FileFormat):
             stream.write('\x00'.encode("ascii"))
 
     class string(SizedString):
-        _hasStrings = True
+        _has_strings = True
 
         def get_size(self, **kwargs):
             try:
@@ -1185,7 +1185,7 @@ class NifFormat(FileFormat):
 
         # GlobalNode
 
-        def getGlobalChildNodes(self, edge_filter=EdgeFilter()):
+        def get_global_child_nodes(self, edge_filter=EdgeFilter()):
             return (root for root in self.roots)
 
         # DetailNode
@@ -1199,13 +1199,13 @@ class NifFormat(FileFormat):
                     root.replace_global_node(oldbranch, newbranch,
                                            edge_filter=edge_filter)
 
-        def getDetailChildNodes(self, edge_filter=EdgeFilter()):
+        def get_detail_child_nodes(self, edge_filter=EdgeFilter()):
             yield self._version_value_
             yield self._user_version_value_
             yield self._user_version_2_value_
             yield self.header
 
-        def getDetailChildNames(self, edge_filter=EdgeFilter()):
+        def get_detail_child_names(self, edge_filter=EdgeFilter()):
             yield "Version"
             yield "User Version"
             yield "User Version 2"
@@ -2276,7 +2276,7 @@ class NifFormat(FileFormat):
             vertices, triangles = pyffi.utils.quickhull.qhull3d(
                 [vert.as_tuple() for vert in self.vertices])
             # now calculate mass, center, and inertia
-            return pyffi.utils.inertia.get_mass_center_inertiaPolyhedron(
+            return pyffi.utils.inertia.get_mass_center_inertia_polyhedron(
                 vertices, triangles, density = density, solid = solid)
 
     class bhkLimitedHingeConstraint:
@@ -2811,7 +2811,7 @@ class NifFormat(FileFormat):
             subshapes_mci = []
             for data in self.strips_data:
                 subshapes_mci.append(
-                    pyffi.utils.inertia.get_mass_center_inertiaPolyhedron(
+                    pyffi.utils.inertia.get_mass_center_inertia_polyhedron(
                         [ vert.as_tuple() for vert in data.vertices ],
                         [ triangle for triangle in data.get_triangles() ],
                         density = density, solid = solid))
@@ -2830,7 +2830,7 @@ class NifFormat(FileFormat):
     class bhkPackedNiTriStripsShape:
         def get_mass_center_inertia(self, density = 1, solid = True):
             """Return mass, center, and inertia tensor."""
-            return pyffi.utils.inertia.get_mass_center_inertiaPolyhedron(
+            return pyffi.utils.inertia.get_mass_center_inertia_polyhedron(
                 [ vert.as_tuple() for vert in self.data.vertices ],
                 [ ( hktriangle.triangle.v_1,
                     hktriangle.triangle.v_2,

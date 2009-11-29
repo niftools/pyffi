@@ -71,11 +71,11 @@ class _MetaEnumBase(type):
         # template type?
         cls._isTemplate = False
         # does the type contain a Ref or a Ptr?
-        cls._hasLinks = False
+        cls._has_links = False
         # does the type contain a Ref?
-        cls._hasRefs = False
+        cls._has_refs = False
         # does the type contain a string?
-        cls._hasStrings = False
+        cls._has_strings = False
 
         # for other read/write checking
         cls._min = 0
@@ -99,11 +99,11 @@ class EnumBase(BasicBase, EditableComboBox):
         super(EnumBase, self).__init__(**kwargs)
         self._value = 0
 
-    def getValue(self):
+    def get_value(self):
         """Return stored value."""
         return self._value
 
-    def setValue(self, value):
+    def set_value(self, value):
         """Set value to C{value}."""
         try:
             val = int(value)
@@ -130,18 +130,18 @@ class EnumBase(BasicBase, EditableComboBox):
 
     def __str__(self):
         try:
-            return self._enumkeys[self._enumvalues.index(self.getValue())]
+            return self._enumkeys[self._enumvalues.index(self.get_value())]
         except ValueError:
             # not in _enumvalues list
-            return "<INVALID (%i)>" % self.getValue()
+            return "<INVALID (%i)>" % self.get_value()
 
-    def getSize(self, **kwargs):
+    def get_size(self, **kwargs):
         """Return size of this type."""
         return self._numbytes
 
-    def getHash(self, **kwargs):
+    def get_hash(self, **kwargs):
         """Return a hash value for this value."""
-        return self.getValue()
+        return self.get_value()
 
     #
     # EditableComboBox methods
@@ -151,15 +151,15 @@ class EnumBase(BasicBase, EditableComboBox):
         """List or tuple of strings, each string describing an item."""
         return self._enumkeys
 
-    def setEditorValue(self, index):
+    def set_editor_value(self, index):
         """Set value from item index."""
-        self.setValue(self._enumvalues[index])
+        self.set_value(self._enumvalues[index])
 
-    def getEditorValue(self):
+    def get_editor_value(self):
         """Get the item index from the enum value."""
         return self._enumvalues.index(self._value)
 
-    def getDetailDisplay(self):
+    def get_detail_display(self):
         """Return object that can be used to display the instance."""
         try:
             return self._enumkeys[self._enumvalues.index(self._value)]

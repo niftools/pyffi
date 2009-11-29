@@ -66,7 +66,7 @@ else:
 
 def _asBytes(value):
     """Helper function which converts a string to _bytes (this is useful for
-    setValue in all string classes, which use bytes for representation).
+    set_value in all string classes, which use bytes for representation).
 
     :return: The bytes representing the value.
     :rtype: C{_bytes}
@@ -114,21 +114,21 @@ class Int(BasicBase, EditableSpinBox):
     >>> from tempfile import TemporaryFile
     >>> tmp = TemporaryFile()
     >>> i = Int()
-    >>> i.setValue(-1)
-    >>> i.getValue()
+    >>> i.set_value(-1)
+    >>> i.get_value()
     -1
-    >>> i.setValue(0x11223344)
+    >>> i.set_value(0x11223344)
     >>> i.write(tmp)
     >>> j = Int()
     >>> if tmp.seek(0): pass # ignore result for py3k
     >>> j.read(tmp)
-    >>> hex(j.getValue())
+    >>> hex(j.get_value())
     '0x11223344'
-    >>> i.setValue(2**40) # doctest: +ELLIPSIS
+    >>> i.set_value(2**40) # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
     ValueError: ...
-    >>> i.setValue('hello world')
+    >>> i.set_value('hello world')
     Traceback (most recent call last):
         ...
     ValueError: cannot convert value 'hello world' to integer
@@ -136,7 +136,7 @@ class Int(BasicBase, EditableSpinBox):
     >>> if tmp.write('\x11\x22\x33\x44'.encode("ascii")): pass # b'\x11\x22\x33\x44'
     >>> if tmp.seek(0): pass # ignore result for py3k
     >>> i.read(tmp)
-    >>> hex(i.getValue())
+    >>> hex(i.get_value())
     '0x44332211'
     """
 
@@ -150,14 +150,14 @@ class Int(BasicBase, EditableSpinBox):
         super(Int, self).__init__(**kwargs)
         self._value = 0
 
-    def getValue(self):
+    def get_value(self):
         """Return stored value.
 
         :return: The stored value.
         """
         return self._value
 
-    def setValue(self, value):
+    def set_value(self, value):
         """Set value to C{value}. Calls C{int(value)} to convert to integer.
 
         :param value: The value to assign.
@@ -196,22 +196,22 @@ class Int(BasicBase, EditableSpinBox):
         stream.write(struct.pack('<' + self._struct, self._value))
 
     def __str__(self):
-        return str(self.getValue())
+        return str(self.get_value())
 
     @classmethod
-    def getSize(cls, **kwargs):
+    def get_size(cls, **kwargs):
         """Return number of bytes this type occupies in a file.
 
         :return: Number of bytes.
         """
         return cls._size
 
-    def getHash(self, **kwargs):
+    def get_hash(self, **kwargs):
         """Return a hash value for this value.
 
         :return: An immutable object that can be used as a hash.
         """
-        return self.getValue()
+        return self.get_value()
 
     def getEditorMinimum(self):
         """Minimum possible value.
@@ -265,14 +265,14 @@ class UShort(UInt):
 class Bool(UByte, EditableBoolComboBox):
     """Simple bool implementation."""
 
-    def getValue(self):
+    def get_value(self):
         """Return stored value.
 
         :return: The stored value.
         """
         return bool(self._value)
 
-    def setValue(self, value):
+    def set_value(self, value):
         """Set value to C{value}.
 
         :param value: The value to assign.
@@ -288,14 +288,14 @@ class Char(BasicBase, EditableLineEdit):
         super(Char, self).__init__(**kwargs)
         self._value = _b00
 
-    def getValue(self):
+    def get_value(self):
         """Return stored value.
 
         :return: The stored value.
         """
         return self._value
 
-    def setValue(self, value):
+    def set_value(self, value):
         """Set character to C{value}.
 
         :param value: The value to assign (bytes of length 1).
@@ -324,19 +324,19 @@ class Char(BasicBase, EditableLineEdit):
     def __str__(self):
         return _asStr(self._value)
 
-    def getSize(self, **kwargs):
+    def get_size(self, **kwargs):
         """Return number of bytes this type occupies in a file.
 
         :return: Number of bytes.
         """
         return 1
 
-    def getHash(self, **kwargs):
+    def get_hash(self, **kwargs):
         """Return a hash value for this value.
 
         :return: An immutable object that can be used as a hash.
         """
-        self.getValue()
+        self.get_value()
 
 class Float(BasicBase, EditableFloatSpinBox):
     """Implementation of a 32-bit float."""
@@ -346,14 +346,14 @@ class Float(BasicBase, EditableFloatSpinBox):
         super(Float, self).__init__(**kwargs)
         self._value = 0
 
-    def getValue(self):
+    def get_value(self):
         """Return stored value.
 
         :return: The stored value.
         """
         return self._value
 
-    def setValue(self, value):
+    def set_value(self, value):
         """Set value to C{value}.
 
         :param value: The value to assign.
@@ -382,20 +382,20 @@ class Float(BasicBase, EditableFloatSpinBox):
             logger.warn("float value overflow, writing NaN")
             stream.write(struct.pack('<I', 0x7fc00000))
 
-    def getSize(self, **kwargs):
+    def get_size(self, **kwargs):
         """Return number of bytes this type occupies in a file.
 
         :return: Number of bytes.
         """
         return 4
 
-    def getHash(self, **kwargs):
+    def get_hash(self, **kwargs):
         """Return a hash value for this value. Currently implemented
         with precision 1/200.
 
         :return: An immutable object that can be used as a hash.
         """
-        return int(self.getValue()*200)
+        return int(self.get_value()*200)
 
 class ZString(BasicBase, EditableLineEdit):
     """String of variable length (null terminated).
@@ -409,7 +409,7 @@ class ZString(BasicBase, EditableLineEdit):
     >>> str(s)
     'abcdefghijklmnopqrst'
     >>> if f.seek(0): pass # ignore result for py3k
-    >>> s.setValue('Hi There!')
+    >>> s.set_value('Hi There!')
     >>> s.write(f)
     >>> if f.seek(0): pass # ignore result for py3k
     >>> m = ZString()
@@ -427,7 +427,7 @@ class ZString(BasicBase, EditableLineEdit):
     def __str__(self):
         return _asStr(self._value)
 
-    def getValue(self):
+    def get_value(self):
         """Return the string.
 
         :return: The stored string.
@@ -435,7 +435,7 @@ class ZString(BasicBase, EditableLineEdit):
         """
         return _asStr(self._value)
 
-    def setValue(self, value):
+    def set_value(self, value):
         """Set string to C{value}.
 
         :param value: The value to assign.
@@ -475,14 +475,14 @@ class ZString(BasicBase, EditableLineEdit):
         stream.write(self._value)
         stream.write(_b00)
 
-    def getSize(self, **kwargs):
+    def get_size(self, **kwargs):
         """Return number of bytes this type occupies in a file.
 
         :return: Number of bytes.
         """
         return len(self._value) + 1
 
-    def getHash(self, **kwargs):
+    def get_hash(self, **kwargs):
         """Return a hash value for this string.
 
         :return: An immutable object that can be used as a hash.
@@ -504,7 +504,7 @@ class FixedString(BasicBase, EditableLineEdit):
     >>> str(s)
     'abcdefgh'
     >>> if f.seek(0): pass # ignore result for py3k
-    >>> s.setValue('Hi There')
+    >>> s.set_value('Hi There')
     >>> s.write(f)
     >>> if f.seek(0): pass # ignore result for py3k
     >>> m = String8()
@@ -522,7 +522,7 @@ class FixedString(BasicBase, EditableLineEdit):
     def __str__(self):
         return _asStr(self._value)
 
-    def getValue(self):
+    def get_value(self):
         """Return the string.
 
         :return: The stored string.
@@ -530,7 +530,7 @@ class FixedString(BasicBase, EditableLineEdit):
         """
         return self._value
 
-    def setValue(self, value):
+    def set_value(self, value):
         """Set string to C{value}.
 
         :param value: The value to assign.
@@ -560,14 +560,14 @@ class FixedString(BasicBase, EditableLineEdit):
         """
         stream.write(self._value.ljust(self._len, _b00))
 
-    def getSize(self, **kwargs):
+    def get_size(self, **kwargs):
         """Return number of bytes this type occupies in a file.
 
         :return: Number of bytes.
         """
         return self._len
 
-    def getHash(self, **kwargs):
+    def get_hash(self, **kwargs):
         """Return a hash value for this string.
 
         :return: An immutable object that can be used as a hash.
@@ -587,7 +587,7 @@ class SizedString(BasicBase, EditableLineEdit):
     >>> str(s)
     'abcdefg'
     >>> if f.seek(0): pass # ignore result for py3k
-    >>> s.setValue('Hi There')
+    >>> s.set_value('Hi There')
     >>> s.write(f)
     >>> if f.seek(0): pass # ignore result for py3k
     >>> m = SizedString()
@@ -601,14 +601,14 @@ class SizedString(BasicBase, EditableLineEdit):
         super(SizedString, self).__init__(**kwargs)
         self._value = _b
 
-    def getValue(self):
+    def get_value(self):
         """Return the string.
 
         :return: The stored string.
         """
         return self._value
 
-    def setValue(self, value):
+    def set_value(self, value):
         """Set string to C{value}.
 
         :param value: The value to assign.
@@ -622,19 +622,19 @@ class SizedString(BasicBase, EditableLineEdit):
     def __str__(self):
         return _asStr(self._value)
 
-    def getSize(self, **kwargs):
+    def get_size(self, **kwargs):
         """Return number of bytes this type occupies in a file.
 
         :return: Number of bytes.
         """
         return 4 + len(self._value)
 
-    def getHash(self, **kwargs):
+    def get_hash(self, **kwargs):
         """Return a hash value for this string.
 
         :return: An immutable object that can be used as a hash.
         """
-        return self.getValue()
+        return self.get_value()
 
     def read(self, stream, **kwargs):
         """Read string from stream.
@@ -663,14 +663,14 @@ class UndecodedData(BasicBase):
         BasicBase.__init__(self, **kwargs)
         self._value = _b
 
-    def getValue(self):
+    def get_value(self):
         """Return stored value.
 
         :return: The stored value.
         """
         return self._value
 
-    def setValue(self, value):
+    def set_value(self, value):
         """Set value to C{value}.
 
         :param value: The value to assign.
@@ -683,19 +683,19 @@ class UndecodedData(BasicBase):
     def __str__(self):
         return '<UNDECODED DATA>'
 
-    def getSize(self, **kwargs):
+    def get_size(self, **kwargs):
         """Return number of bytes the data occupies in a file.
 
         :return: Number of bytes.
         """
         return len(self._value)
 
-    def getHash(self, **kwargs):
+    def get_hash(self, **kwargs):
         """Return a hash value for this value.
 
         :return: An immutable object that can be used as a hash.
         """
-        return self.getValue()
+        return self.get_value()
 
     def read(self, stream, **kwargs):
         """Read data from stream. Note that this function simply

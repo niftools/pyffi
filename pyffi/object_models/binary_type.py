@@ -50,7 +50,7 @@ from pyffi.object_models.editable import EditableBoolComboBox
 
 class BinaryType(AnyType):
     """Abstract base class for binary data types."""
-    def getSize(self):
+    def get_size(self):
         raise NotImplementedError
 
 class BinarySimpleType(SimpleType, BinaryType):
@@ -80,7 +80,7 @@ else:
 
 def _asBytes(value):
     """Helper function which converts a string to _bytes (this is useful for
-    setValue in all string classes, which use bytes for representation).
+    set_value in all string classes, which use bytes for representation).
 
     :return: The bytes representing the value.
     :rtype: C{_bytes}
@@ -167,7 +167,7 @@ class IntType(BinarySimpleType, EditableSpinBox):
         """Initialize the integer."""
         self._value = 0
 
-    def setValue(self, value):
+    def set_value(self, value):
         """Set value to C{value}. Calls C{int(value)} to convert to integer.
 
         :param value: The value to assign.
@@ -209,7 +209,7 @@ class IntType(BinarySimpleType, EditableSpinBox):
 
     # BinaryType
 
-    def getSize(self):
+    def get_size(self):
         """Return number of bytes this type occupies in a file.
 
         :return: Number of bytes.
@@ -270,14 +270,14 @@ class UShortType(UIntType):
 class BoolType(UByteType, EditableBoolComboBox):
     """Simple bool implementation."""
 
-    def getValue(self):
+    def get_value(self):
         """Return stored value.
 
         :return: The stored value.
         """
         return bool(self._value)
 
-    def setValue(self, value):
+    def set_value(self, value):
         """Set value to C{value}.
 
         :param value: The value to assign.
@@ -294,7 +294,7 @@ class CharType(BinarySimpleType, EditableLineEdit):
         """Initialize the character."""
         self._value = _b00
 
-    def setValue(self, value):
+    def set_value(self, value):
         """Set character to C{value}.
 
         :param value: The value to assign (bytes of length 1).
@@ -323,7 +323,7 @@ class CharType(BinarySimpleType, EditableLineEdit):
     def __str__(self):
         return _asStr(self._value)
 
-    def getSize(self):
+    def get_size(self):
         """Return number of bytes this type occupies in a file.
 
         :return: Number of bytes.
@@ -337,7 +337,7 @@ class Float(BinarySimpleType, EditableFloatSpinBox):
         """Initialize the float."""
         self._value = 0.0
 
-    def setValue(self, value):
+    def set_value(self, value):
         """Set value to C{value}.
 
         :param value: The value to assign.
@@ -361,7 +361,7 @@ class Float(BinarySimpleType, EditableFloatSpinBox):
         """
         stream.write(struct.pack('<f', self._value))
 
-    def getSize(self):
+    def get_size(self):
         """Return number of bytes this type occupies in a file.
 
         :return: Number of bytes.
@@ -397,7 +397,7 @@ class ZString(BinarySimpleType, EditableLineEdit):
     def __str__(self):
         return _asStr(self._value)
 
-    def setValue(self, value):
+    def set_value(self, value):
         """Set string to C{value}.
 
         :param value: The value to assign.
@@ -437,7 +437,7 @@ class ZString(BinarySimpleType, EditableLineEdit):
         stream.write(self._value)
         stream.write(_b00)
 
-    def getSize(self):
+    def get_size(self):
         """Return number of bytes this type occupies in a file.
 
         :return: Number of bytes.
@@ -476,7 +476,7 @@ class FixedString(BinarySimpleType, EditableLineEdit):
     def __str__(self):
         return _asStr(self._value)
 
-    def getValue(self):
+    def get_value(self):
         """Return the string.
 
         :return: The stored string.
@@ -484,7 +484,7 @@ class FixedString(BinarySimpleType, EditableLineEdit):
         """
         return self._value
 
-    def setValue(self, value):
+    def set_value(self, value):
         """Set string to C{value}.
 
         :param value: The value to assign.
@@ -514,7 +514,7 @@ class FixedString(BinarySimpleType, EditableLineEdit):
         """
         stream.write(self._value.ljust(self._len, _b00))
 
-    def getSize(self):
+    def get_size(self):
         """Return number of bytes this type occupies in a file.
 
         :return: Number of bytes.
@@ -534,7 +534,7 @@ class SizedString(BinarySimpleType, EditableLineEdit):
     >>> str(s)
     'abcdefg'
     >>> if f.seek(0): pass # ignore result for py3k
-    >>> s.setValue('Hi There')
+    >>> s.set_value('Hi There')
     >>> s.write(f)
     >>> if f.seek(0): pass # ignore result for py3k
     >>> m = SizedString()
@@ -547,14 +547,14 @@ class SizedString(BinarySimpleType, EditableLineEdit):
         """Initialize the string."""
         self._value = _b
 
-    def getValue(self):
+    def get_value(self):
         """Return the string.
 
         :return: The stored string.
         """
         return self._value
 
-    def setValue(self, value):
+    def set_value(self, value):
         """Set string to C{value}.
 
         :param value: The value to assign.
@@ -568,7 +568,7 @@ class SizedString(BinarySimpleType, EditableLineEdit):
     def __str__(self):
         return _asStr(self._value)
 
-    def getSize(self):
+    def get_size(self):
         """Return number of bytes this type occupies in a file.
 
         :return: Number of bytes.
@@ -601,14 +601,14 @@ class UndecodedData(SimpleType, BinaryType):
     def __init__(self):
         self._value = _b
 
-    def getValue(self):
+    def get_value(self):
         """Return stored value.
 
         :return: The stored value.
         """
         return self._value
 
-    def setValue(self, value):
+    def set_value(self, value):
         """Set value to C{value}.
 
         :param value: The value to assign.
@@ -621,7 +621,7 @@ class UndecodedData(SimpleType, BinaryType):
     def __str__(self):
         return '<UNDECODED DATA>'
 
-    def getSize(self):
+    def get_size(self):
         """Return number of bytes the data occupies in a file.
 
         :return: Number of bytes.

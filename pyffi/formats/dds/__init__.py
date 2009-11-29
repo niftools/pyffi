@@ -24,7 +24,7 @@ Read a DDS file
 >>> data.header.height
 20
 >>> data.read(stream)
->>> len(data.pixeldata.getValue())
+>>> len(data.pixeldata.get_value())
 888
 
 Parse all DDS files in a directory tree
@@ -132,10 +132,10 @@ class DdsFormat(pyffi.object_models.xml.FileFormat):
         def __str__(self):
             return 'DDS'
 
-        def getDetailDisplay(self):
+        def get_detail_display(self):
             return self.__str__()
 
-        def getHash(self, **kwargs):
+        def get_hash(self, **kwargs):
             """Return a hash value for this value.
 
             :return: An immutable object that can be used as a hash.
@@ -162,7 +162,7 @@ class DdsFormat(pyffi.object_models.xml.FileFormat):
             """
             stream.write("DDS ".encode("ascii"))
 
-        def getSize(self, **kwargs):
+        def get_size(self, **kwargs):
             """Return number of bytes the header string occupies in a file.
 
             :return: Number of bytes.
@@ -266,8 +266,8 @@ class DdsFormat(pyffi.object_models.xml.FileFormat):
 
         # DetailNode
 
-        def getDetailChildNodes(self, edge_filter=EdgeFilter()):
-            return self.header.getDetailChildNodes(edge_filter=edge_filter)
+        def get_detail_child_nodes(self, edge_filter=EdgeFilter()):
+            return self.header.get_detail_child_nodes(edge_filter=edge_filter)
 
-        def getDetailChildNames(self, edge_filter=EdgeFilter()):
-            return self.header.getDetailChildNames(edge_filter=edge_filter)
+        def get_detail_child_names(self, edge_filter=EdgeFilter()):
+            return self.header.get_detail_child_names(edge_filter=edge_filter)

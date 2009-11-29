@@ -73,11 +73,11 @@ class _MetaBitStructBase(type):
         # template type?
         cls._isTemplate = False
         # does the type contain a Ref or a Ptr?
-        cls._hasLinks = False
+        cls._has_links = False
         # does the type contain a Ref?
-        cls._hasRefs = False
+        cls._has_refs = False
         # does the type contain a string?
-        cls._hasStrings = False
+        cls._has_strings = False
         for attr in dct['_attrs']:
             # get and set basic attributes
             setattr(cls, attr.name, property(
@@ -100,11 +100,11 @@ class Bits(DetailNode, EditableSpinBox):
         self._value = default
         self._numbits = numbits
 
-    def getValue(self):
+    def get_value(self):
         """Return stored value."""
         return self._value
 
-    def setValue(self, value):
+    def set_value(self, value):
         """Set value to C{value}."""
         if not isinstance(value, (int, long)):
             raise TypeError("bitstruct attribute must be integer")
@@ -113,21 +113,21 @@ class Bits(DetailNode, EditableSpinBox):
         self._value = value
 
     def __str__(self):
-        return str(self.getValue())
+        return str(self.get_value())
 
     # DetailNode
 
-    def getDetailDisplay(self):
+    def get_detail_display(self):
         """Return an object that can be used to display the instance."""
         return str(self._value)
 
     # EditableSpinBox functions
 
-    def getEditorValue(self):
-        return self.getValue()
+    def get_editor_value(self):
+        return self.get_value()
 
-    def setEditorValue(self, editorvalue):
-        self.setValue(editorvalue)
+    def set_editor_value(self, editorvalue):
+        self.set_value(editorvalue)
 
     def getEditorMinimum(self):
         return 0
@@ -306,30 +306,30 @@ class BitStructBase(DetailNode):
         self.arg = kwargs.get('argument')
         stream.write(struct.pack(self._struct, self.to_int(**kwargs)))
 
-    def fixLinks(self, **kwargs):
+    def fix_links(self, **kwargs):
         """Fix links in the structure."""
         return
 
-    def getLinks(self, **kwargs):
+    def get_links(self, **kwargs):
         """Get list of all links in the structure."""
         return []
 
-    def getStrings(self, **kwargs):
+    def get_strings(self, **kwargs):
         """Get list of all strings in the structure."""
         return []
 
-    def getRefs(self, **kwargs):
+    def get_refs(self, **kwargs):
         """Get list of all references in the structure. Refs are
         links that point down the tree. For instance, if you need to parse
-        the whole tree starting from the root you would use getRefs and not
-        getLinks, as getLinks could result in infinite recursion."""
+        the whole tree starting from the root you would use get_refs and not
+        get_links, as get_links could result in infinite recursion."""
         return []
 
-    def getSize(self, **kwargs):
+    def get_size(self, **kwargs):
         """Calculate the structure size in bytes."""
         return self._numbytes
 
-    def getHash(self, **kwargs):
+    def get_hash(self, **kwargs):
         """Calculate a hash for the structure, as a tuple."""
         # calculate hash
         hsh = []
@@ -427,13 +427,13 @@ class BitStructBase(DetailNode):
 
     def getAttribute(self, name):
         """Get a basic attribute."""
-        return getattr(self, "_" + name + "_value_").getValue()
+        return getattr(self, "_" + name + "_value_").get_value()
 
     # important note: to apply partial(setAttribute, name = 'xyz') the
     # name argument must be last
     def setAttribute(self, value, name):
         """Set the value of a basic attribute."""
-        getattr(self, "_" + name + "_value_").setValue(value)
+        getattr(self, "_" + name + "_value_").set_value(value)
 
     def tree(self):
         """A generator for parsing all blocks in the tree (starting from and
@@ -444,10 +444,10 @@ class BitStructBase(DetailNode):
 
     # DetailNode
 
-    def getDetailChildNodes(self, edge_filter=EdgeFilter()):
+    def get_detail_child_nodes(self, edge_filter=EdgeFilter()):
         """Yield children of this structure."""
         return (item for item in self._items)
 
-    def getDetailChildNames(self, edge_filter=EdgeFilter()):
+    def get_detail_child_names(self, edge_filter=EdgeFilter()):
         """Yield name of each child."""
         return (name for name in self._names)

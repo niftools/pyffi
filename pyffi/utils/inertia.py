@@ -121,13 +121,13 @@ def getMassInertiaCapsule(length, radius, density = 1, solid = True):
 # The function is an implementation of the Blow and Binstock algorithm,
 # extended for the case where the polygon is a surface (set parameter
 # solid = False).
-def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, solid = True):
+def get_mass_center_inertia_polyhedron(vertices, triangles, density = 1, solid = True):
     """Return mass, center of gravity, and inertia matrix for a polyhedron.
 
     >>> from pyffi.utils.quickhull import qhull3d
     >>> box = [(0,0,0),(1,0,0),(0,2,0),(0,0,3),(1,2,0),(0,2,3),(1,0,3),(1,2,3)]
     >>> vertices, triangles = qhull3d(box)
-    >>> mass, center, inertia = getMassCenterInertiaPolyhedron(
+    >>> mass, center, inertia = get_mass_center_inertia_polyhedron(
     ...     vertices, triangles, density = 4)
     >>> mass
     24.0
@@ -137,7 +137,7 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, solid = Tru
     ((26.0, 0.0, 0.0), (0.0, 20.0, 0.0), (0.0, 0.0, 10.0))
     >>> poly = [(3,0,0),(0,3,0),(-3,0,0),(0,-3,0),(0,0,3),(0,0,-3)] # very rough approximation of a sphere of radius 2
     >>> vertices, triangles = qhull3d(poly)
-    >>> mass, center, inertia = getMassCenterInertiaPolyhedron(
+    >>> mass, center, inertia = get_mass_center_inertia_polyhedron(
     ...     vertices, triangles, density = 3)
     >>> mass
     108.0
@@ -168,7 +168,7 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, solid = Tru
     >>> sphere.append((0,0,2))
     >>> sphere.append((0,0,-2))
     >>> vertices, triangles = qhull3d(sphere)
-    >>> mass, center, inertia = getMassCenterInertiaPolyhedron(
+    >>> mass, center, inertia = get_mass_center_inertia_polyhedron(
     ...     vertices, triangles, density = 3, solid = True)
     >>> abs(mass - 100.53) < 10 # 3*(4/3)*pi*2^3 = 100.53
     True
@@ -176,7 +176,7 @@ def getMassCenterInertiaPolyhedron(vertices, triangles, density = 1, solid = Tru
     True
     >>> abs(inertia[0][0] - 160.84) < 10
     True
-    >>> mass, center, inertia = getMassCenterInertiaPolyhedron(
+    >>> mass, center, inertia = get_mass_center_inertia_polyhedron(
     ...     vertices, triangles, density = 3, solid = False)
     >>> abs(mass - 150.79) < 10 # 3*4*pi*2^2 = 150.79
     True

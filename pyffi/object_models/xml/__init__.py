@@ -231,8 +231,8 @@ class StructAttribute(object):
         if self.default:
             try:
                 tmp = self.type_()
-                tmp.setValue(self.default)
-                self.default = tmp.getValue()
+                tmp.set_value(self.default)
+                self.default = tmp.get_value()
                 del tmp
             except Exception:
                 # conversion failed; not a big problem
@@ -538,7 +538,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                         raise XmlError(
                             "typo, or forward declaration of type %s"
                             % typename)
-                    numbytes = typ.getSize()
+                    numbytes = typ.get_size()
                 self.class_dict = {"__doc__": "",
                                   "_numbytes": numbytes,
                                   "_enumkeys": [], "_enumvalues": [],
@@ -566,7 +566,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                     numbytes = int(attrs["numbytes"])
                 except KeyError:
                     # niftools style: storage attribute
-                    numbytes = getattr(self.cls, attrs["storage"]).getSize()
+                    numbytes = getattr(self.cls, attrs["storage"]).get_size()
                 self.class_dict = {"_attrs": [], "__doc__": "",
                                   "_numbytes": numbytes,
                                   "__module__": self.cls.__module__}

@@ -87,7 +87,7 @@ class DetailModel(QtCore.QAbstractItemModel):
         # determine whether item value can be set
         if index.column() == self.COL_VALUE:
             try:
-                index.internalPointer().data.node.getValue()
+                index.internalPointer().data.node.get_value()
                 # TODO: find more clever system
             except AttributeError:
                 pass
@@ -202,7 +202,7 @@ class DetailModel(QtCore.QAbstractItemModel):
         if role == QtCore.Qt.EditRole:
             # fetch the current data, as a regular Python type
             node = index.internalPointer().data.node
-            currentvalue = node.getValue()
+            currentvalue = node.get_value()
             # transform the QVariant value into the right class
             if isinstance(currentvalue, (int, long)):
                 # use long type to work around QVariant(0xffffffff).toInt() bug
@@ -220,8 +220,8 @@ class DetailModel(QtCore.QAbstractItemModel):
             # check if conversion worked
             if not ok:
                 return False
-            # set the value (EditRole, so use setEditorValue, not setValue)
-            node.setEditorValue(pyvalue)
+            # set the value (EditRole, so use set_editor_value, not set_value)
+            node.set_editor_value(pyvalue)
             # tell everyone that the data has changed
             self.emit(QtCore.SIGNAL('dataChanged(QModelIndex, QModelIndex)'),
                                     index, index)

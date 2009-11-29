@@ -270,7 +270,7 @@ class Spell(object):
                 # spell returned True so recurse to children
                 # we use the abstract tree functions to parse the tree
                 # these are format independent!
-                for child in branch.getGlobalChildNodes():
+                for child in branch.get_global_child_nodes():
                     self.recurse(child)
                 self.dataexit()
             self.toaster.msgblockend()
@@ -278,13 +278,13 @@ class Spell(object):
             self.toaster.msgblockbegin(
                 """~~~ %s [%s] ~~~"""
                 % (branch.__class__.__name__,
-                   branch.getGlobalDisplay()))
+                   branch.get_global_display()))
             # cast the spell on the branch
             if self.branchentry(branch):
                 # spell returned True so recurse to children
                 # we use the abstract tree functions to parse the tree
                 # these are format independent!
-                for child in branch.getGlobalChildNodes():
+                for child in branch.get_global_child_nodes():
                     self.recurse(child)
                 self.branchexit(branch)
             self.toaster.msgblockend()

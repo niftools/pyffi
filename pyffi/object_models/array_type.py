@@ -129,10 +129,10 @@ class AnyArray(ValidatedList, AnyType):
                        % (len(self) - self._MAXSTR))
         return result
 
-    def getDetailChildNodes(self, edge_filter=EdgeFilter()):
+    def get_detail_child_nodes(self, edge_filter=EdgeFilter()):
         return list.__iter__(self)
 
-    def getDetailChildNames(self, edge_filter=EdgeFilter()):
+    def get_detail_child_names(self, edge_filter=EdgeFilter()):
         return ("[%i]" % i for i in xrange(list.__len__(self)))
 
 class MetaUniformArray(type):

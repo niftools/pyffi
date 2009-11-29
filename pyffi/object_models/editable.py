@@ -4,7 +4,7 @@ These abstract base classes provide an abstract layer for editing data in a
 graphical user interface.
 
 @todo: Make these into true abstract base classes, and implement and use the
-    getEditorValue and setEditorValue functions in non-abstract derived
+    get_editor_value and set_editor_value functions in non-abstract derived
     classes.
 """
 
@@ -47,7 +47,7 @@ graphical user interface.
 
 class EditableBase(object):
     """The base class for all delegates."""
-    def getEditorValue(self):
+    def get_editor_value(self):
         """Return data as a value to initialize an editor with.
         Override this method.
 
@@ -57,7 +57,7 @@ class EditableBase(object):
         """
         raise NotImplementedError
 
-    def setEditorValue(self, editorvalue):
+    def set_editor_value(self, editorvalue):
         """Set data from the editor value. Override this method.
 
         :param editorvalue: The value of the editor.
@@ -71,14 +71,14 @@ class EditableSpinBox(EditableBase):
     contains an integer. Override getEditorMinimum and getEditorMaximum to
     set the minimum and maximum values that the spin box may contain.
 
-    Requirement: getEditorValue must return an ``int``, setEditorValue
+    Requirement: get_editor_value must return an ``int``, set_editor_value
     must take an ``int``.
     """
-    def getEditorValue(self):
-        return self.getValue()
+    def get_editor_value(self):
+        return self.get_value()
 
-    def setEditorValue(self, editorvalue):
-        self.setValue(self, editorvalue)
+    def set_editor_value(self, editorvalue):
+        self.set_value(self, editorvalue)
 
     def getEditorMinimum(self):
         return -0x80000000
@@ -91,7 +91,7 @@ class EditableFloatSpinBox(EditableSpinBox):
     contains a float. Override getEditorDecimals to set the number of decimals
     in the editor display.
 
-    Requirement: getEditorValue must return a ``float``, setEditorValue
+    Requirement: get_editor_value must return a ``float``, set_editor_value
     must take a ``float``.
     """
 
@@ -102,7 +102,7 @@ class EditableLineEdit(EditableBase):
     """Abstract base class for data that can be edited with a single line
     editor.
 
-    Requirement: getEditorValue must return a ``str``, setEditorValue
+    Requirement: get_editor_value must return a ``str``, set_editor_value
     must take a ``str``.
     """
     pass
@@ -110,7 +110,7 @@ class EditableLineEdit(EditableBase):
 class EditableTextEdit(EditableLineEdit):
     """Abstract base class for data that can be edited with a multiline editor.
 
-    Requirement:  getEditorValue must return a ``str``, setEditorValue
+    Requirement:  get_editor_value must return a ``str``, set_editor_value
     must take a ``str``.
     """
     pass
@@ -119,7 +119,7 @@ class EditableComboBox(EditableBase):
     """Abstract base class for data that can be edited with combo boxes.
     This can be used for for instance enum types.
 
-    Requirement: getEditorValue must return an ``int``, setEditorValue
+    Requirement: get_editor_value must return an ``int``, set_editor_value
     must take an ``int`` (this integer is the index in the list of keys).
     """
 
@@ -130,19 +130,19 @@ class EditableComboBox(EditableBase):
 class EditableBoolComboBox(EditableComboBox):
     """Class for data that can be edited with a bool combo box.
 
-    Requirement: getValue must return a ``bool``, setValue must take a ``bool``.
+    Requirement: get_value must return a ``bool``, set_value must take a ``bool``.
     """
     def getEditorKeys(self):
         return ("False", "True")
 
-    def setEditorValue(self, editorvalue):
+    def set_editor_value(self, editorvalue):
         if editorvalue == 0:
-            self.setValue(False)
+            self.set_value(False)
         elif editorvalue == 1:
-            self.setValue(True)
+            self.set_value(True)
         else:
             raise ValueError("no value for index %i" % editorvalue)
 
-    def getEditorValue(self):
-        return 1 if self.getValue() else 0
+    def get_editor_value(self):
+        return 1 if self.get_value() else 0
 

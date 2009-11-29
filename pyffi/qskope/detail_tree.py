@@ -61,7 +61,7 @@ class DetailTreeItemData(object):
 
     @property
     def display(self):
-        return self.node.getDetailDisplay()
+        return self.node.get_detail_display()
 
     @property
     def typename(self):
@@ -105,6 +105,6 @@ class DetailTreeItem(object):
                 edge_type=child_edge_type)
             for (childrow, (childnode, childname, child_edge_type))
             in enumerate(izip(
-                data.node.getDetailChildNodes(edge_filter=edge_filter),
-                data.node.getDetailChildNames(edge_filter=edge_filter),
+                data.node.get_detail_child_nodes(edge_filter=edge_filter),
+                data.node.get_detail_child_names(edge_filter=edge_filter),
                 data.node.getDetailChildEdgeTypes(edge_filter=edge_filter)))]

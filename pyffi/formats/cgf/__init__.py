@@ -324,25 +324,25 @@ class CgfFormat(pyffi.object_models.xml.FileFormat):
             stream.write(
                 self._str(kwargs['data'].game).ljust(8, '\x00'.encode("ascii")))
 
-        def getValue(self):
+        def get_value(self):
             """Get signature.
 
             :return: The signature.
             """
             return self.__str__()
 
-        def setValue(self, value):
+        def set_value(self, value):
             """Not implemented."""
             raise NotImplementedError("Cannot set signature value.")
 
-        def getSize(self, **kwargs):
+        def get_size(self, **kwargs):
             """Return number of bytes that the signature occupies in a file.
 
             :return: Number of bytes.
             """
             return 8
 
-        def getHash(self, **kwargs):
+        def get_hash(self, **kwargs):
             """Return a hash value for the signature.
 
             :return: An immutable object that can be used as a hash.
@@ -352,21 +352,21 @@ class CgfFormat(pyffi.object_models.xml.FileFormat):
     class Ref(BasicBase):
         """Reference to a chunk, up the hierarchy."""
         _isTemplate = True
-        _hasLinks = True
-        _hasRefs = True
+        _has_links = True
+        _has_refs = True
         def __init__(self, **kwargs):
             super(CgfFormat.Ref, self).__init__(**kwargs)
             self._template = kwargs.get('template', type(None))
             self._value = None
 
-        def getValue(self):
+        def get_value(self):
             """Get chunk being referred to.
 
             :return: The chunk being referred to.
             """
             return self._value
 
-        def setValue(self, value):
+        def set_value(self, value):
             """Set chunk reference.
 
             :param value: The value to assign.
@@ -389,7 +389,7 @@ class CgfFormat(pyffi.object_models.xml.FileFormat):
             :keyword link_stack: The stack containing all block indices.
             :type link_stack: list of ints
             """
-            self._value = None # fixLinks will set this field
+            self._value = None # fix_links will set this field
             block_index, = struct.unpack('<i', stream.read(4))
             kwargs.get('link_stack', []).append(block_index)
 
@@ -407,7 +407,7 @@ class CgfFormat(pyffi.object_models.xml.FileFormat):
                 stream.write(struct.pack(
                     '<i', kwargs.get('block_index_dct')[self._value]))
 
-        def fixLinks(self, **kwargs):
+        def fix_links(self, **kwargs):
             """Resolve chunk index into a chunk.
 
             :keyword block_dct: Dictionary mapping block index to block.
@@ -443,7 +443,7 @@ expected instance of %s
 but got instance of %s""" % (self._template, block.__class__))
             self._value = block
 
-        def getLinks(self, **kwargs):
+        def get_links(self, **kwargs):
             """Return the chunk reference.
 
             :return: Empty list if no reference, or single item list containing
@@ -454,7 +454,7 @@ but got instance of %s""" % (self._template, block.__class__))
             else:
                 return []
 
-        def getRefs(self, **kwargs):
+        def get_refs(self, **kwargs):
             """Return the chunk reference.
 
             :return: Empty list if no reference, or single item list containing
@@ -473,25 +473,25 @@ but got instance of %s""" % (self._template, block.__class__))
             else:
                 return 'None'
 
-        def getSize(self, **kwargs):
+        def get_size(self, **kwargs):
             """Return number of bytes this type occupies in a file.
 
             :return: Number of bytes.
             """
             return 4
 
-        def getHash(self, **kwargs):
+        def get_hash(self, **kwargs):
             """Return a hash value for the chunk referred to.
 
             :return: An immutable object that can be used as a hash.
             """
-            return self._value.getHash() if not self._value is None else None
+            return self._value.get_hash() if not self._value is None else None
 
     class Ptr(Ref):
         """Reference to a chunk, down the hierarchy."""
         _isTemplate = True
-        _hasLinks = True
-        _hasRefs = False
+        _has_links = True
+        _has_refs = False
 
         def __str__(self):
             # avoid infinite recursion
@@ -501,8 +501,8 @@ but got instance of %s""" % (self._template, block.__class__))
             else:
                 return 'None'
 
-        def getRefs(self, **kwargs):
-            """Ptr does not point down, so getRefs returns empty list.
+        def get_refs(self, **kwargs):
+            """Ptr does not point down, so get_refs returns empty list.
 
             :return: C{[]}
             """
@@ -544,19 +544,19 @@ but got instance of %s""" % (self._template, block.__class__))
         """
 
         class VersionUInt(pyffi.object_models.common.UInt):
-            def setValue(self, value):
+            def set_value(self, value):
                 if value is None:
                     self._value = None
                 else:
-                    pyffi.object_models.common.UInt.setValue(self, value)
+                    pyffi.object_models.common.UInt.set_value(self, value)
 
             def __str__(self):
                 if self._value is None:
                     return "None"
                 else:
-                    return "0x%08X" % self.getValue()
+                    return "0x%08X" % self.get_value()
 
-            def getDetailDisplay(self):
+            def get_detail_display(self):
                 return self.__str__()
 
         def __init__(self, filetype=0xffff0000, game="Far Cry"):
@@ -655,32 +655,32 @@ but got instance of %s""" % (self._template, block.__class__))
 
         # GlobalNode
 
-        def getGlobalChildNodes(self, edge_filter=EdgeFilter()):
+        def get_global_child_nodes(self, edge_filter=EdgeFilter()):
             """Returns chunks without parent."""
             # calculate all children of all chunks
             children = set()
             for chunk in self.chunks:
-                children |= set(chunk.getGlobalChildNodes())
+                children |= set(chunk.get_global_child_nodes())
             # iterate over all chunks that are NOT in the list of children
             return (chunk for chunk in self.chunks
                     if not chunk in children)
 
         # DetailNode
 
-        def replaceGlobalNode(self, oldbranch, newbranch,
+        def replace_global_node(self, oldbranch, newbranch,
                               edge_filter=EdgeFilter()):
             for i, chunk in enumerate(self.chunks):
                 if chunk is oldbranch:
                     self.chunks[i] = newbranch
                 else:
-                    chunk.replaceGlobalNode(oldbranch, newbranch,
+                    chunk.replace_global_node(oldbranch, newbranch,
                                             edge_filter=edge_filter)
 
-        def getDetailChildNodes(self, edge_filter=EdgeFilter()):
+        def get_detail_child_nodes(self, edge_filter=EdgeFilter()):
             yield self.header
             yield self.chunk_table
 
-        def getDetailChildNames(self, edge_filter=EdgeFilter()):
+        def get_detail_child_names(self, edge_filter=EdgeFilter()):
             yield "header"
             yield "chunk table"
 
@@ -835,17 +835,17 @@ expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
 
                 if validate:
                     # calculate size
-                    size = chunk.getSize(version = chunkhdr.version,
+                    size = chunk.get_size(version = chunkhdr.version,
                                          user_version = user_version)
                     # take into account header copy
                     if chunkhdr_copy:
-                        size += chunkhdr_copy.getSize(version = version,
+                        size += chunkhdr_copy.get_size(version = version,
                                                       user_version = user_version)
                     # check with number of bytes read
                     if size != stream.tell() - chunkhdr.offset:
                         logger.error("""\
-getSize returns wrong size when reading %s at 0x%08X
-actual bytes read is %i, getSize yields %i (expected %i bytes)"""
+get_size returns wrong size when reading %s at 0x%08X
+actual bytes read is %i, get_size yields %i (expected %i bytes)"""
                                     % (chunk.__class__.__name__,
                                        chunkhdr.offset,
                                        size,
@@ -868,7 +868,7 @@ chunk size mismatch when reading %s at 0x%08X
             # fix links
             for chunk, chunkversion in zip(self.chunks, self.versions):
                 #print(chunk.__class__)
-                chunk.fixLinks(
+                chunk.fix_links(
                     version=chunkversion, user_version=user_version,
                     block_dct=chunk_dct, link_stack=link_stack)
             if link_stack != []:
@@ -1010,7 +1010,7 @@ chunk size mismatch when reading %s at 0x%08X
                 return # don't recurse further
 
             # yield tree attached to each child
-            for child in self.getRefs():
+            for child in self.get_refs():
                 for block in child.tree(block_type = block_type, follow_all = follow_all):
                     yield block
 
@@ -2698,7 +2698,7 @@ chunk size mismatch when reading %s at 0x%08X
             """Get the block parent (used for instance in the QSkope global view)."""
             return self.mesh
 
-        def getGlobalDisplay(self):
+        def get_global_display(self):
             """Return a name for the block."""
             return self.targetName
 
@@ -2788,13 +2788,13 @@ chunk size mismatch when reading %s at 0x%08X
             self.scl.z = scale.z
 
     class SourceInfoChunk:
-        def getGlobalDisplay(self):
+        def get_global_display(self):
             """Return a name for the block."""
             idx = max(self.sourceFile.rfind("\\"), self.sourceFile.rfind("/"))
             return self.sourceFile[idx+1:]
 
     class TimingChunk:
-        def getGlobalDisplay(self):
+        def get_global_display(self):
             """Return a name for the block."""
             return self.globalRange.name
 

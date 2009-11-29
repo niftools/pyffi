@@ -42,7 +42,7 @@
 from pyffi.object_models.any_type import AnyType
 
 class _MetaSimpleType(type):
-    """This metaclass binds the getValue and setValue methods to the
+    """This metaclass binds the get_value and set_value methods to the
     value property. We need a metaclass for this because properties are
     non-polymorphic. Further reading:
     http://stackoverflow.com/questions/237432/python-properties-and-inheritance
@@ -52,7 +52,7 @@ class _MetaSimpleType(type):
         # call base class constructor
         super(_MetaSimpleType, cls).__init__(name, bases, dct)
         # add value property
-        cls.value = property(cls.getValue, cls.setValue,
+        cls.value = property(cls.get_value, cls.set_value,
                              None, cls.value.__doc__)
 
 class SimpleType(AnyType):
@@ -67,7 +67,7 @@ class SimpleType(AnyType):
     ...     def __init__(self):
     ...         # for fun, let default value be 3
     ...         self._value = 3
-    ...     def setValue(self, value):
+    ...     def set_value(self, value):
     ...         # check type
     ...         if not isinstance(value, int):
     ...             raise TypeError("Expected int but got %s."
@@ -103,7 +103,7 @@ class SimpleType(AnyType):
     @property
     def value(self):
         """A property which wraps the actual data. This property
-        always calls :meth:`setValue` to assign the value, and ensures
+        always calls :meth:`set_value` to assign the value, and ensures
         that the value is valid (type, range, ...). Unless you know
         what you are doing, always use the `value` property to change
         the data.
@@ -122,7 +122,7 @@ class SimpleType(AnyType):
         """
         return self._value.__str__()
 
-    def getValue(self):
+    def get_value(self):
         """Return the stored value.
 
         :return: The stored value.
@@ -130,7 +130,7 @@ class SimpleType(AnyType):
         """
         return self._value
 
-    def setValue(self, value):
+    def set_value(self, value):
         """Set stored value. Override this method to enable validation
         (type checking, range checking, and so on).
 
@@ -147,7 +147,7 @@ class SimpleType(AnyType):
 
     # DetailNode
 
-    def getDetailDisplay(self):
+    def get_detail_display(self):
         """Display string for the detail tree. This implementation is simply
         a wrapper around C{self.:attr:`_value`.__str__()}.
 

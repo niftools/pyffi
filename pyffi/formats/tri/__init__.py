@@ -124,10 +124,10 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
         def __str__(self):
             return 'FRTRI'
 
-        def getDetailDisplay(self):
+        def get_detail_display(self):
             return self.__str__()
 
-        def getHash(self, **kwargs):
+        def get_hash(self, **kwargs):
             """Return a hash value for this value.
 
             :return: An immutable object that can be used as a hash.
@@ -154,7 +154,7 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
             """
             stream.write("FREGM".encode("ascii"))
 
-        def getSize(self, **kwargs):
+        def get_size(self, **kwargs):
             """Return number of bytes the header string occupies in a file.
 
             :return: Number of bytes.
@@ -162,19 +162,19 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
             return 5
 
     class FileVersion(BasicBase):
-        def getValue(self):
+        def get_value(self):
             raise NotImplementedError
 
-        def setValue(self, value):
+        def set_value(self, value):
             raise NotImplementedError
 
         def __str__(self):
             return 'XXX'
 
-        def getSize(self, **kwargs):
+        def get_size(self, **kwargs):
             return 3
 
-        def getHash(self, **kwargs):
+        def get_hash(self, **kwargs):
             return None
 
         def read(self, stream, **kwargs):
@@ -187,7 +187,7 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
         def write(self, stream, **kwargs):
             stream.write('%03i' % kwargs['data'].version)
 
-        def getDetailDisplay(self):
+        def get_detail_display(self):
             return 'XXX'
 
     # XXX nothing here yet...
@@ -273,12 +273,12 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
 
         # DetailNode
 
-        def getDetailChildNodes(self, edge_filter=EdgeFilter()):
+        def get_detail_child_nodes(self, edge_filter=EdgeFilter()):
             return []
             # XXX todo, for instance:
-            #return self.header.getDetailChildNodes(edge_filter=edge_filter)
+            #return self.header.get_detail_child_nodes(edge_filter=edge_filter)
 
-        def getDetailChildNames(self, edge_filter=EdgeFilter()):
+        def get_detail_child_names(self, edge_filter=EdgeFilter()):
             return []
             # XXX todo, for instance:
-            #return self.header.getDetailChildNames(edge_filter=edge_filter)
+            #return self.header.get_detail_child_names(edge_filter=edge_filter)
