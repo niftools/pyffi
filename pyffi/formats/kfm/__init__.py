@@ -44,7 +44,7 @@ Create a KFM model from scratch and write to file
 >>> data = KfmFormat.Data()
 >>> data.nifFileName = "Test.nif"
 >>> data.numAnimations = 4
->>> data.animations.updateSize()
+>>> data.animations.update_size()
 >>> data.animations[0].kfFileName = "Test_MD_Idle.kf"
 >>> data.animations[1].kfFileName = "Test_MD_Run.kf"
 >>> data.animations[2].kfFileName = "Test_MD_Walk.kf"

@@ -103,18 +103,18 @@ Create a NIF model from scratch and write to file
 >>> strips.data = data
 >>> data.num_vertices = 5
 >>> data.has_vertices = True
->>> data.vertices.updateSize()
+>>> data.vertices.update_size()
 >>> for i, v in enumerate(data.vertices):
 ...     v.x = 1.0+i/10.0
 ...     v.y = 0.2+1.0/(i+1)
 ...     v.z = 0.03
 >>> data.update_center_radius()
 >>> data.num_strips = 2
->>> data.strip_lengths.updateSize()
+>>> data.strip_lengths.update_size()
 >>> data.strip_lengths[0] = 3
 >>> data.strip_lengths[1] = 4
 >>> data.has_points = True
->>> data.points.updateSize()
+>>> data.points.update_size()
 >>> data.points[0][0] = 0
 >>> data.points[0][1] = 1
 >>> data.points[0][2] = 2
@@ -124,12 +124,12 @@ Create a NIF model from scratch and write to file
 >>> data.points[1][3] = 4
 >>> data.num_uv_sets = 1
 >>> data.has_uv = True
->>> data.uv_sets.updateSize()
+>>> data.uv_sets.update_size()
 >>> for i, v in enumerate(data.uv_sets[0]):
 ...     v.u = 1.0-i/10.0
 ...     v.v = 1.0/(i+1)
 >>> data.has_normals = True
->>> data.normals.updateSize()
+>>> data.normals.update_size()
 >>> for i, v in enumerate(data.normals):
 ...     v.x = 0.0
 ...     v.y = 0.0
@@ -236,7 +236,7 @@ Template types
 
 >>> block = NifFormat.NiTextKeyExtraData()
 >>> block.num_text_keys = 1
->>> block.text_keys.updateSize()
+>>> block.text_keys.update_size()
 >>> block.text_keys[0].time = 1.0
 >>> block.text_keys[0].value = 'hi'
 
@@ -265,7 +265,7 @@ Strings
 
 >>> extra = NifFormat.NiTextKeyExtraData()
 >>> extra.num_text_keys = 2
->>> extra.text_keys.updateSize()
+>>> extra.text_keys.update_size()
 >>> extra.text_keys[0].time = 0.0
 >>> extra.text_keys[0].value = "start"
 >>> extra.text_keys[1].time = 2.0
@@ -1425,10 +1425,10 @@ class NifFormat(FileFormat):
             self.header.user_version_2 = self.user_version2
             self.header.num_blocks = len(self.blocks)
             self.header.num_block_types = len(block_type_list)
-            self.header.block_types.updateSize()
+            self.header.block_types.update_size()
             for i, block_type in enumerate(block_type_list):
                 self.header.block_types[i] = block_type
-            self.header.block_type_index.updateSize()
+            self.header.block_type_index.update_size()
             for i, block in enumerate(self.blocks):
                 self.header.block_type_index[i] = block_type_dct[block]
             self.header.num_strings = len(string_list)
@@ -1436,10 +1436,10 @@ class NifFormat(FileFormat):
                 self.header.max_string_length = max([len(s) for s in string_list])
             else:
                 self.header.max_string_length = 0
-            self.header.strings.updateSize()
+            self.header.strings.update_size()
             for i, s in enumerate(string_list):
                 self.header.strings[i] = s
-            self.header.block_size.updateSize()
+            self.header.block_size.update_size()
             for i, block in enumerate(self.blocks):
                 self.header.block_size[i] = block.get_size(data=self)
             #if verbose >= 2:
@@ -1448,7 +1448,7 @@ class NifFormat(FileFormat):
             # set up footer
             ftr = NifFormat.Footer()
             ftr.num_roots = len(self.roots)
-            ftr.roots.updateSize()
+            ftr.roots.update_size()
             for i, root in enumerate(self.roots):
                 ftr.roots[i] = root
 
@@ -2318,7 +2318,7 @@ class NifFormat(FileFormat):
             # increase number of shapes
             num_shapes = self.num_sub_shapes
             self.num_sub_shapes = num_shapes + 1
-            self.sub_shapes.updateSize()
+            self.sub_shapes.update_size()
             # add the shape
             if not front:
                 self.sub_shapes[num_shapes] = shape
@@ -2328,7 +2328,7 @@ class NifFormat(FileFormat):
                 self.sub_shapes[0] = shape
             # expand list of unknown ints as well
             self.num_unknown_ints = num_shapes + 1
-            self.unknown_ints.updateSize()
+            self.unknown_ints.update_size()
 
         def remove_shape(self, shape):
             """Remove a shape from the shape list."""
@@ -2336,12 +2336,12 @@ class NifFormat(FileFormat):
             shapes = [s for s in self.sub_shapes if s != shape]
             # set sub_shapes to this list
             self.num_sub_shapes = len(shapes)
-            self.sub_shapes.updateSize()
+            self.sub_shapes.update_size()
             for i, s in enumerate(shapes):
                 self.sub_shapes[i] = s
             # update unknown ints
             self.num_unknown_ints = len(shapes)
-            self.unknown_ints.updateSize()
+            self.unknown_ints.update_size()
 
     class bhkMalleableConstraint:
         def apply_scale(self, scale):
@@ -2439,7 +2439,7 @@ class NifFormat(FileFormat):
 
             # delete mopp and replace with new data
             self.mopp_data_size = len(mopp)
-            self.mopp_data.updateSize()
+            self.mopp_data.update_size()
             for i, b in enumerate(mopp):
                 self.mopp_data[i] = b
 
@@ -2847,9 +2847,9 @@ class NifFormat(FileFormat):
             # increase number of shapes
             num_shapes = self.num_sub_shapes
             self.num_sub_shapes = num_shapes + 1
-            self.sub_shapes.updateSize()
+            self.sub_shapes.update_size()
             data.num_sub_shapes = num_shapes + 1
-            data.sub_shapes.updateSize()
+            data.sub_shapes.update_size()
             # add the shape
             self.sub_shapes[num_shapes].layer = layer
             self.sub_shapes[num_shapes].num_vertices = len(vertices)
@@ -2860,7 +2860,7 @@ class NifFormat(FileFormat):
             firsttriangle = data.num_triangles
             firstvertex = data.num_vertices
             data.num_triangles += len(triangles)
-            data.triangles.updateSize()
+            data.triangles.update_size()
             for tdata, t, n in zip(data.triangles[firsttriangle:], triangles, normals):
                 tdata.triangle.v_1 = t[0] + firstvertex
                 tdata.triangle.v_2 = t[1] + firstvertex
@@ -2869,7 +2869,7 @@ class NifFormat(FileFormat):
                 tdata.normal.y = n[1]
                 tdata.normal.z = n[2]
             data.num_vertices += len(vertices)
-            data.vertices.updateSize()
+            data.vertices.update_size()
             for vdata, v in zip(data.vertices[firstvertex:], vertices):
                 vdata.x = v[0] / 7.0
                 vdata.y = v[1] / 7.0
@@ -3716,7 +3716,7 @@ class NifFormat(FileFormat):
             """
             num_props = self.num_properties
             self.num_properties = num_props + 1
-            self.properties.updateSize()
+            self.properties.update_size()
             self.properties[num_props] = prop
 
         def remove_property(self, prop):
@@ -3743,7 +3743,7 @@ class NifFormat(FileFormat):
             :type proplist: ``list`` of L{NifFormat.NiProperty}
             """
             self.num_properties = len(proplist)
-            self.properties.updateSize()
+            self.properties.update_size()
             for i, prop in enumerate(proplist):
                 self.properties[i] = prop
 
@@ -3840,7 +3840,7 @@ class NifFormat(FileFormat):
         >>> from pyffi.formats.nif import NifFormat
         >>> block = NifFormat.NiBSplineData()
         >>> block.num_short_control_points = 50
-        >>> block.short_control_points.updateSize()
+        >>> block.short_control_points.update_size()
         >>> for i in range(block.num_short_control_points):
         ...     block.short_control_points[i] = 20 - i
         >>> list(block.get_short_data(12, 4, 3))
@@ -3896,7 +3896,7 @@ class NifFormat(FileFormat):
             else:
                 raise ValueError("internal error while appending data")
             # update size
-            controlpoints.updateSize()
+            controlpoints.update_size()
             # store the data
             for element, datum in enumerate(data):
                 for index, value in enumerate(datum):
@@ -4065,7 +4065,7 @@ class NifFormat(FileFormat):
             # add to the list
             num_blocks = self.num_controlled_blocks
             self.num_controlled_blocks = num_blocks + 1
-            self.controlled_blocks.updateSize()
+            self.controlled_blocks.update_size()
             return self.controlled_blocks[-1]
 
     class NiGeometryData:
@@ -4077,10 +4077,10 @@ class NifFormat(FileFormat):
         >>> geomdata.has_normals = True
         >>> geomdata.has_vertex_colors = True
         >>> geomdata.num_uv_sets = 2
-        >>> geomdata.vertices.updateSize()
-        >>> geomdata.normals.updateSize()
-        >>> geomdata.vertex_colors.updateSize()
-        >>> geomdata.uv_sets.updateSize()
+        >>> geomdata.vertices.update_size()
+        >>> geomdata.normals.update_size()
+        >>> geomdata.vertex_colors.update_size()
+        >>> geomdata.uv_sets.update_size()
         >>> geomdata.vertices[0].x = 1
         >>> geomdata.vertices[0].y = 2
         >>> geomdata.vertices[0].z = 3
@@ -4262,13 +4262,13 @@ class NifFormat(FileFormat):
         >>> skininst.skeleton_root = skelroot
         >>> skininst.data = skindata
         >>> skininst.num_bones = 4
-        >>> skininst.bones.updateSize()
+        >>> skininst.bones.update_size()
         >>> skininst.bones[0] = bone1
         >>> skininst.bones[1] = bone2
         >>> skininst.bones[2] = bone22
         >>> skininst.bones[3] = bone211
         >>> skindata.num_bones = 4
-        >>> skindata.bone_list.updateSize()
+        >>> skindata.bone_list.update_size()
         >>> [child.name for child in skelroot.children]
         ['bone1', 'geom']
         >>> skindata.set_transform(id44)
@@ -4309,14 +4309,14 @@ class NifFormat(FileFormat):
 
             bone_index = skininst.num_bones
             skininst.num_bones = bone_index+1
-            skininst.bones.updateSize()
+            skininst.bones.update_size()
             skininst.bones[bone_index] = bone
             skindata.num_bones = bone_index+1
-            skindata.bone_list.updateSize()
+            skindata.bone_list.update_size()
             skinbonedata = skindata.bone_list[bone_index]
             # set vertex weights
             skinbonedata.num_vertices = len(vert_weights)
-            skinbonedata.vertex_weights.updateSize()
+            skinbonedata.vertex_weights.update_size()
             for i, (vert_index, vert_weight) in enumerate(vert_weights.iteritems()):
                 skinbonedata.vertex_weights[i].index = vert_index
                 skinbonedata.vertex_weights[i].weight = vert_weight
@@ -4388,7 +4388,7 @@ class NifFormat(FileFormat):
                 for child in bone_block.children:
                     bone_parent.add_child(child)
                 bone_block.num_children = 0
-                bone_block.children.updateSize() # = remove_child on each child
+                bone_block.children.update_size() # = remove_child on each child
                 # set new bone transform
                 bone_block.set_transform(bone_block.get_transform(skelroot))
                 # reparent bone block
@@ -4566,7 +4566,7 @@ class NifFormat(FileFormat):
         >>> y = NifFormat.NiNode()
         >>> z = NifFormat.NiNode()
         >>> x.num_children =1
-        >>> x.children.updateSize()
+        >>> x.children.update_size()
         >>> y in x.children
         False
         >>> x.children[0] = y
@@ -4663,7 +4663,7 @@ class NifFormat(FileFormat):
             # increase number of children
             num_children = self.num_children
             self.num_children = num_children + 1
-            self.children.updateSize()
+            self.children.update_size()
             # add the child
             if not front:
                 self.children[num_children] = child
@@ -4696,7 +4696,7 @@ class NifFormat(FileFormat):
             :type childlist: ``list`` of L{NifFormat.NiAVObject}
             """
             self.num_children = len(childlist)
-            self.children.updateSize()
+            self.children.update_size()
             for i, child in enumerate(childlist):
                 self.children[i] = child
 
@@ -4708,7 +4708,7 @@ class NifFormat(FileFormat):
             """
             num_effs = self.num_effects
             self.num_effects = num_effs + 1
-            self.effects.updateSize()
+            self.effects.update_size()
             self.effects[num_effs] = effect
 
         def remove_effect(self, effect):
@@ -4735,7 +4735,7 @@ class NifFormat(FileFormat):
             :type effectlist: ``list`` of L{NifFormat.NiDynamicEffect}
             """
             self.num_effects = len(effectlist)
-            self.effects.updateSize()
+            self.effects.update_size()
             for i, effect in enumerate(effectlist):
                 self.effects[i] = effect
 
@@ -5219,7 +5219,7 @@ class NifFormat(FileFormat):
             # add to the list
             num_extra = self.num_extra_data_list
             self.num_extra_data_list = num_extra + 1
-            self.extra_data_list.updateSize()
+            self.extra_data_list.update_size()
             self.extra_data_list[num_extra] = extrablock
             # add to the chain
             if not self.extra_data:
@@ -5236,7 +5236,7 @@ class NifFormat(FileFormat):
             >>> from pyffi.formats.nif import NifFormat
             >>> block = NifFormat.NiNode()
             >>> block.num_extra_data_list = 3
-            >>> block.extra_data_list.updateSize()
+            >>> block.extra_data_list.update_size()
             >>> extrablock = NifFormat.NiStringExtraData()
             >>> block.extra_data_list[1] = extrablock
             >>> block.remove_extra_data(extrablock)
@@ -5249,7 +5249,7 @@ class NifFormat(FileFormat):
                 if not extraother is extrablock:
                     new_extra_list.append(extraother)
             self.num_extra_data_list = len(new_extra_list)
-            self.extra_data_list.updateSize()
+            self.extra_data_list.update_size()
             for i, extraother in enumerate(new_extra_list):
                 self.extra_data_list[i] = extraother
             # remove from chain
@@ -5314,7 +5314,7 @@ class NifFormat(FileFormat):
             """
             # set up extra data list
             self.num_extra_data_list = len(extralist)
-            self.extra_data_list.updateSize()
+            self.extra_data_list.update_size()
             for i, extra in enumerate(extralist):
                 self.extra_data_list[i] = extra
             # set up extra data chain
@@ -5959,8 +5959,8 @@ class NifFormat(FileFormat):
                 # XXX sufficient?
                 self.data.num_uv_sets |= 4096
                 self.data.bs_num_uv_sets |= 4096
-                self.data.tangents.updateSize()
-                self.data.bitangents.updateSize()
+                self.data.tangents.update_size()
+                self.data.bitangents.update_size()
                 for vec, data_tan in izip(tan, self.data.tangents):
                     data_tan.x = vec.x
                     data_tan.y = vec.y
@@ -6250,7 +6250,7 @@ class NifFormat(FileFormat):
 
             # set number of partitions
             skinpart.num_skin_partition_blocks = len(parts)
-            skinpart.skin_partition_blocks.updateSize()
+            skinpart.skin_partition_blocks.update_size()
 
             # maximize bone sharing, if requested
             if maximize_bone_sharing:
@@ -6291,7 +6291,7 @@ class NifFormat(FileFormat):
             # for Fallout 3, set dismember partition indices
             if isinstance(skininst, NifFormat.BSDismemberSkinInstance):
                 skininst.num_partitions = len(parts)
-                skininst.partitions.updateSize()
+                skininst.partitions.update_size()
                 lastpart = None
                 for bodypart, part in izip(skininst.partitions, parts):
                     bodypart.body_part = part[2]
@@ -6352,17 +6352,17 @@ class NifFormat(FileFormat):
                 # engine doesn't like that, it seems to want exactly 4 even if there
                 # are fewer
                 skinpartblock.num_weights_per_vertex = maxbonespervertex
-                skinpartblock.bones.updateSize()
+                skinpartblock.bones.update_size()
                 for i, bonenum in enumerate(bones):
                     skinpartblock.bones[i] = bonenum
                 for i in xrange(len(bones), skinpartblock.num_bones):
                     skinpartblock.bones[i] = 0 # dummy bone slots refer to first bone
                 skinpartblock.has_vertex_map = True
-                skinpartblock.vertex_map.updateSize()
+                skinpartblock.vertex_map.update_size()
                 for i, v in enumerate(vertices):
                     skinpartblock.vertex_map[i] = v
                 skinpartblock.has_vertex_weights = True
-                skinpartblock.vertex_weights.updateSize()
+                skinpartblock.vertex_weights.update_size()
                 for i, v in enumerate(vertices):
                     for j in xrange(skinpartblock.num_weights_per_vertex):
                         if j < len(weights[v]):
@@ -6371,26 +6371,26 @@ class NifFormat(FileFormat):
                             skinpartblock.vertex_weights[i][j] = 0.0
                 if stripify:
                     skinpartblock.has_faces = True
-                    skinpartblock.strip_lengths.updateSize()
+                    skinpartblock.strip_lengths.update_size()
                     for i, strip in enumerate(strips):
                         skinpartblock.strip_lengths[i] = len(strip)
-                    skinpartblock.strips.updateSize()
+                    skinpartblock.strips.update_size()
                     for i, strip in enumerate(strips):
                         for j, v in enumerate(strip):
                             skinpartblock.strips[i][j] = v
                 else:
                     skinpartblock.has_faces = True
                     # clear strip lengths array
-                    skinpartblock.strip_lengths.updateSize()
+                    skinpartblock.strip_lengths.update_size()
                     # clear strips array
-                    skinpartblock.strips.updateSize()
-                    skinpartblock.triangles.updateSize()
+                    skinpartblock.strips.update_size()
+                    skinpartblock.triangles.update_size()
                     for i, (v_1,v_2,v_3) in enumerate(parttriangles):
                         skinpartblock.triangles[i].v_1 = v_1
                         skinpartblock.triangles[i].v_2 = v_2
                         skinpartblock.triangles[i].v_3 = v_3
                 skinpartblock.has_bone_indices = True
-                skinpartblock.bone_indices.updateSize()
+                skinpartblock.bone_indices.update_size()
                 for i, v in enumerate(vertices):
                     # the boneindices set keeps track of indices that have not been
                     # used yet
@@ -6533,7 +6533,7 @@ class NifFormat(FileFormat):
             self.num_triangles = n
             self.num_triangle_points = 3*n
             self.has_triangles = (n > 0)
-            self.triangles.updateSize()
+            self.triangles.update_size()
 
             # copy triangles
             src = triangles.__iter__()
@@ -6577,13 +6577,13 @@ class NifFormat(FileFormat):
         def set_strips(self, strips):
             # initialize strips array
             self.num_strips = len(strips)
-            self.strip_lengths.updateSize()
+            self.strip_lengths.update_size()
             numtriangles = 0
             for i, strip in enumerate(strips):
                 self.strip_lengths[i] = len(strip)
                 numtriangles += len(strip) - 2
             self.num_triangles = numtriangles
-            self.points.updateSize()
+            self.points.update_size()
             self.has_points = (len(strips) > 0)
 
             # copy strips

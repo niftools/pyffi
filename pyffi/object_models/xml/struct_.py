@@ -293,7 +293,7 @@ class StructBase(GlobalNode):
             if isinstance(attrvalue, StructBase):
                 attrvalue.deepcopy(getattr(block, attr.name))
             elif isinstance(attrvalue, Array):
-                attrvalue.updateSize()
+                attrvalue.update_size()
                 attrvalue.deepcopy(getattr(block, attr.name))
             else:
                 setattr(self, attr.name, getattr(block, attr.name))

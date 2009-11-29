@@ -15,5 +15,5 @@ class SimpleFormat(pyffi.object_models.xml.FileFormat):
     class Example:
         def addInteger(self, x):
             self.numIntegers += 1
-            self.integers.updateSize()
+            self.integers.update_size()
             self.integers[self.numIntegers-1] = x

@@ -204,7 +204,7 @@ class Array(_ListWrap):
                 if isinstance(attrvalue, StructBase):
                     attrvalue.deepcopy(block[i])
                 elif isinstance(attrvalue, Array):
-                    attrvalue.updateSize()
+                    attrvalue.update_size()
                     attrvalue.deepcopy(block[i])
                 else:
                     self[i] = block[i]
@@ -215,7 +215,7 @@ class Array(_ListWrap):
                     if isinstance(attrvalue, StructBase):
                         attrvalue.deepcopy(block[i][j])
                     elif isinstance(attrvalue, Array):
-                        attrvalue.updateSize()
+                        attrvalue.update_size()
                         attrvalue.deepcopy(block[i][j])
                     else:
                         self[i][j] = block[i][j]
@@ -246,7 +246,7 @@ class Array(_ListWrap):
                     break
         return text
 
-    def updateSize(self):
+    def update_size(self):
         """Update the array size. Call this function whenever the size
         parameters change in C{parent}."""
         ## TODO also update row numbers

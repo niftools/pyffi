@@ -1,7 +1,7 @@
 from simple import SimpleFormat
 x = SimpleFormat.Example()
 x.numIntegers = 5
-x.integers.updateSize()
+x.integers.update_size()
 x.integers[0] = 3
 x.integers[1] = 1
 x.integers[2] = 4

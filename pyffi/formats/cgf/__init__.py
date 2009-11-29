@@ -77,7 +77,7 @@ Create a CGF file from scratch
 >>> node1.name = "hello"
 >>> node2 = CgfFormat.NodeChunk()
 >>> node1.num_children = 1
->>> node1.children.updateSize()
+>>> node1.children.update_size()
 >>> node1.children[0] = node2
 >>> node2.name = "world"
 >>> from tempfile import TemporaryFile
@@ -912,7 +912,7 @@ chunk size mismatch when reading %s at 0x%08X
             # write chunks and add headers to chunk table
             self.chunk_table = CgfFormat.ChunkTable()
             self.chunk_table.numChunks = len(self.chunks)
-            self.chunk_table.chunkHeaders.updateSize()
+            self.chunk_table.chunkHeaders.update_size()
             #print(self.chunk_table) # DEBUG
 
             # crysis: write chunk table now
@@ -1900,20 +1900,20 @@ chunk size mismatch when reading %s at 0x%08X
             Returns list of chunks that have been added."""
             # Far Cry
             self.numVertices = len(vertices)
-            self.vertices.updateSize()
+            self.vertices.update_size()
 
             # Crysis
             self.verticesData = CgfFormat.DataStreamChunk()
             self.verticesData.dataStreamType = CgfFormat.DataStreamType.VERTICES
             self.verticesData.bytesPerElement = 12
             self.verticesData.numElements = len(vertices)
-            self.verticesData.vertices.updateSize()
+            self.verticesData.vertices.update_size()
 
             self.normalsData = CgfFormat.DataStreamChunk()
             self.normalsData.dataStreamType = CgfFormat.DataStreamType.NORMALS
             self.normalsData.bytesPerElement = 12
             self.normalsData.numElements = len(vertices)
-            self.normalsData.normals.updateSize()
+            self.normalsData.normals.update_size()
 
             # set vertex coordinates and normals for Far Cry
             for cryvert, vert, norm in izip(self.vertices, vertices, normals):
@@ -2465,20 +2465,20 @@ chunk size mismatch when reading %s at 0x%08X
 
             # Far Cry data preparation
             self.numVertices = numvertices
-            self.vertices.updateSize()
+            self.vertices.update_size()
             selfvertices_iter = iter(self.vertices)
             self.numFaces = numtriangles
-            self.faces.updateSize()
+            self.faces.update_size()
             selffaces_iter = iter(self.faces)
             if not uvslist is None:
                 self.numUvs = numvertices
-                self.uvs.updateSize()
-                self.uvFaces.updateSize()
+                self.uvs.update_size()
+                self.uvFaces.update_size()
                 selfuvs_iter = iter(self.uvs)
                 selfuvFaces_iter = iter(self.uvFaces)
             if not colorslist is None:
                 self.hasVertexColors = True
-                self.vertexColors.updateSize()
+                self.vertexColors.update_size()
                 selfvertexColors_iter = iter(self.vertexColors)
 
             # Crysis data preparation
@@ -2488,21 +2488,21 @@ chunk size mismatch when reading %s at 0x%08X
             self.verticesData.dataStreamType = CgfFormat.DataStreamType.VERTICES
             self.verticesData.bytesPerElement = 12
             self.verticesData.numElements = numvertices
-            self.verticesData.vertices.updateSize()
+            self.verticesData.vertices.update_size()
             selfverticesData_iter = iter(self.verticesData.vertices)
 
             self.normalsData = CgfFormat.DataStreamChunk()
             self.normalsData.dataStreamType = CgfFormat.DataStreamType.NORMALS
             self.normalsData.bytesPerElement = 12
             self.normalsData.numElements = numvertices
-            self.normalsData.normals.updateSize()
+            self.normalsData.normals.update_size()
             selfnormalsData_iter = iter(self.normalsData.normals)
 
             self.indicesData = CgfFormat.DataStreamChunk()
             self.indicesData.dataStreamType = CgfFormat.DataStreamType.INDICES
             self.indicesData.bytesPerElement = 2
             self.indicesData.numElements = numtriangles * 3
-            self.indicesData.indices.updateSize()
+            self.indicesData.indices.update_size()
 
             if not uvslist is None:
                 # uvs
@@ -2510,7 +2510,7 @@ chunk size mismatch when reading %s at 0x%08X
                 self.uvsData.dataStreamType = CgfFormat.DataStreamType.UVS
                 self.uvsData.bytesPerElement = 8
                 self.uvsData.numElements = numvertices
-                self.uvsData.uvs.updateSize()
+                self.uvsData.uvs.update_size()
                 selfuvsData_iter = iter(self.uvsData.uvs)
                 # have tangent space
                 has_tangentspace = True
@@ -2524,13 +2524,13 @@ chunk size mismatch when reading %s at 0x%08X
                 self.colorsData.dataStreamType = CgfFormat.DataStreamType.COLORS
                 self.colorsData.bytesPerElement = 4
                 self.colorsData.numElements = numvertices
-                self.colorsData.rgbaColors.updateSize()
+                self.colorsData.rgbaColors.update_size()
                 selfcolorsData_iter = iter(self.colorsData.rgbaColors)
 
             self.numMeshSubsets = len(verticeslist)
             self.meshSubsets = CgfFormat.MeshSubsetsChunk()
             self.meshSubsets.numMeshSubsets = self.numMeshSubsets
-            self.meshSubsets.meshSubsets.updateSize()
+            self.meshSubsets.meshSubsets.update_size()
 
             # set up default iterators
             if matlist is None:
@@ -2655,7 +2655,7 @@ chunk size mismatch when reading %s at 0x%08X
             self.tangentsData.dataStreamType = CgfFormat.DataStreamType.TANGENTS
             self.tangentsData.bytesPerElement = 16
             self.tangentsData.numElements = self.numVertices
-            self.tangentsData.tangents.updateSize()
+            self.tangentsData.tangents.update_size()
             selftangentsData_iter = iter(self.tangentsData.tangents)
 
             # set Crysis tangents info

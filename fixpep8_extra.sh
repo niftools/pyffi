@@ -39,4 +39,5 @@ find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exe
 find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exec perl -pi -w -e 's/getGlobalIterator/get_global_iterator/g' {} \;
 find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exec perl -pi -w -e 's/attributeList/attribute_list/g' {} \;
 find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exec perl -pi -w -e 's/isTemplate/is_template/g' {} \;
+find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exec perl -pi -w -e 's/updateSize/update_size/g' {} \;
 

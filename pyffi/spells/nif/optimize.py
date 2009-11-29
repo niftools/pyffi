@@ -259,12 +259,12 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
         # set new data
         data.num_vertices = new_numvertices
         if data.has_vertices:
-            data.vertices.updateSize()
+            data.vertices.update_size()
         if data.has_normals:
-            data.normals.updateSize()
-        data.uv_sets.updateSize()
+            data.normals.update_size()
+        data.uv_sets.update_size()
         if data.has_vertex_colors:
-            data.vertex_colors.updateSize()
+            data.vertex_colors.update_size()
         for i, v in enumerate(data.vertices):
             old_i = v_map_inverse[i]
             v.x = oldverts[old_i][0]
@@ -365,7 +365,7 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                         if bonenum == bonenum_i:
                             w.append((i, weight_i))
                 bonedata.num_vertices = len(w)
-                bonedata.vertex_weights.updateSize()
+                bonedata.vertex_weights.update_size()
                 for j, (i, weight_i) in enumerate(w):
                     bonedata.vertex_weights[j].index = i
                     bonedata.vertex_weights[j].weight = weight_i
@@ -406,7 +406,7 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                 morphdata.num_vertices = new_numvertices
                 for morph in morphdata.morphs:
                      morph.arg = morphdata.num_vertices # manual argument passing
-                     morph.vectors.updateSize()
+                     morph.vectors.update_size()
 
         # recalculate tangent space (only if the branch already exists)
         if branch.find(block_name='Tangent space (binormal & tangent vectors)',
@@ -441,24 +441,24 @@ class SpellSplitGeometry(pyffi.spells.nif.NifSpell):
         except KeyError:
             v_map[sourceindex] = destdata.num_vertices
             destdata.num_vertices += 1
-            destdata.vertices.updateSize()
+            destdata.vertices.update_size()
             destdata.vertices[-1].x = sourcedata.vertices[sourceindex].x
             destdata.vertices[-1].y = sourcedata.vertices[sourceindex].y
             destdata.vertices[-1].z = sourcedata.vertices[sourceindex].z
             if sourcedata.has_normals:
-                destdata.normals.updateSize()
+                destdata.normals.update_size()
                 destdata.normals[-1].x = sourcedata.normals[sourceindex].x
                 destdata.normals[-1].y = sourcedata.normals[sourceindex].y
                 destdata.normals[-1].z = sourcedata.normals[sourceindex].z
             if sourcedata.has_vertex_colors:
-                destdata.vertex_colors.updateSize()
+                destdata.vertex_colors.update_size()
                 destdata.vertex_colors[-1].r = sourcedata.vertex_colors[sourceindex].r
                 destdata.vertex_colors[-1].g = sourcedata.vertex_colors[sourceindex].g
                 destdata.vertex_colors[-1].b = sourcedata.vertex_colors[sourceindex].b
                 destdata.vertex_colors[-1].a = sourcedata.vertex_colors[sourceindex].a
             if sourcedata.has_uv:
                 for sourceuvset, destuvset in izip(sourcedata.uv_sets, destdata.uv_sets):
-                    destuvset.updateSize()
+                    destuvset.update_size()
                     destuvset[-1].u = sourceuvset[sourceindex].u
                     destuvset[-1].v = sourceuvset[sourceindex].v
             return destdata.num_vertices
@@ -471,7 +471,7 @@ class SpellSplitGeometry(pyffi.spells.nif.NifSpell):
             destdata.addVertex(sourceindex)
             for sourceindex in sourcetriangle]
         destdata.num_triangles += 1
-        destdata.triangles.updateSize()
+        destdata.triangles.update_size()
         destdata.triangles[-1].v_1 = desttriangle[0]
         destdata.triangles[-1].v_2 = desttriangle[0]
         destdata.triangles[-1].v_3 = desttriangle[0]
@@ -518,7 +518,7 @@ class SpellSplitGeometry(pyffi.spells.nif.NifSpell):
                 geomsplit.data.has_vertex_colors = geom.data.has_vertex_colors
                 geomsplit.data.num_uv_sets = geom.data.num_uv_sets
                 geomsplit.data.has_uv = geom.data.has_uv
-                geomsplit.data.uv_sets.updateSize()
+                geomsplit.data.uv_sets.update_size()
                 # assign it a random triangle
                 triangle = triangles.pop(0)
                 addTriangle(triangle, v_map, geom.data, geomsplit.data)
