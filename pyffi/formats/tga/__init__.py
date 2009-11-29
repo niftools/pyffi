@@ -178,27 +178,27 @@ class TgaFormat(pyffi.object_models.xml.FileFormat):
 
         def read(self, stream, **kwargs):
             data = kwargs["data"]
-            if data.header.imageType in (TgaFormat.ImageType.INDEXED,
+            if data.header.image_type in (TgaFormat.ImageType.INDEXED,
                                          TgaFormat.ImageType.RGB,
                                          TgaFormat.ImageType.GREY):
-                self.children = [TgaFormat.Pixel(argument=data.header.pixelSize)
+                self.children = [TgaFormat.Pixel(argument=data.header.pixel_size)
                                  for i in xrange(data.header.width
                                                  * data.header.height)]
                 for pixel in self.children:
-                    pixel.read(stream, argument=data.header.pixelSize)
+                    pixel.read(stream, argument=data.header.pixel_size)
             else:
                 self.children = []
                 count = 0
                 while count < data.header.width * data.header.height:
-                    pixel = TgaFormat.RLEPixels(argument=data.header.pixelSize)
-                    pixel.read(stream, argument=data.header.pixelSize)
+                    pixel = TgaFormat.RLEPixels(argument=data.header.pixel_size)
+                    pixel.read(stream, argument=data.header.pixel_size)
                     self.children.append(pixel)
                     count += pixel.header.count + 1
 
         def write(self, stream, **kwargs):
             data = kwargs["data"]
             for child in self.children:
-                child.write(stream, argument=data.header.pixelSize)
+                child.write(stream, argument=data.header.pixel_size)
 
         def get_detail_child_nodes(self, edge_filter=EdgeFilter()):
             for child in self.children:
