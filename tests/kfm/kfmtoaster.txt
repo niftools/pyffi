@@ -35,50 +35,50 @@ The dump spell
 >>> import sys
 >>> sys.argv = ["kfmtoaster.py", "--verbose=1", "dump", "tests/kfm/test.kfm"]
 >>> import pyffi.spells.kfm
->>> pyffi.spells.kfm.KfmToaster().cli() # doctest: +ELLIPSIS
+>>> pyffi.spells.kfm.KfmToaster().cli() # doctest: +ELLIPSIS +REPORT_UDIFF
 pyffi.toaster:INFO:=== tests/kfm/test.kfm ===
 pyffi.toaster:INFO:  --- dump ---
 pyffi.toaster:INFO:    <class 'pyffi.formats.kfm.Header'> instance at ...
-pyffi.toaster:INFO:    * headerString : ;Gamebryo KFM File Version x.x.x.x
-pyffi.toaster:INFO:    * textString : <UNDECODED DATA>
-pyffi.toaster:INFO:    * unknownByte : 0
-pyffi.toaster:INFO:    * nifFileName : Test.nif
+pyffi.toaster:INFO:    * header_string : ;Gamebryo KFM File Version x.x.x.x
+pyffi.toaster:INFO:    * text_string : <UNDECODED DATA>
+pyffi.toaster:INFO:    * unknown_byte : 0
+pyffi.toaster:INFO:    * nif_file_name : Test.nif
 pyffi.toaster:INFO:    * master : <None>
-pyffi.toaster:INFO:    * unknownInt1 : 0
-pyffi.toaster:INFO:    * unknownInt2 : 0
-pyffi.toaster:INFO:    * unknownFloat1 : 0.0
-pyffi.toaster:INFO:    * unknownFloat2 : 0.0
-pyffi.toaster:INFO:    * numAnimations : 4
+pyffi.toaster:INFO:    * unknown_int_1 : 0
+pyffi.toaster:INFO:    * unknown_int_2 : 0
+pyffi.toaster:INFO:    * unknown_float_1 : 0.0
+pyffi.toaster:INFO:    * unknown_float_2 : 0.0
+pyffi.toaster:INFO:    * num_animations : 4
 pyffi.toaster:INFO:    * animations :
 pyffi.toaster:INFO:        <class 'pyffi.object_models.xml.array.Array'> instance at ...
 pyffi.toaster:INFO:        0: <class 'pyffi.formats.kfm.Animation'> instance at ...
-pyffi.toaster:INFO:        * eventCode : 0
+pyffi.toaster:INFO:        * event_code : 0
 pyffi.toaster:INFO:        * name : <None>
-pyffi.toaster:INFO:        * kfFileName : Test_MD_Idle.kf
+pyffi.toaster:INFO:        * kf_file_name : Test_MD_Idle.kf
 pyffi.toaster:INFO:        * index : 0
-pyffi.toaster:INFO:        * numTransitions : 0
+pyffi.toaster:INFO:        * num_transitions : 0
 pyffi.toaster:INFO:        * transitions : <class 'pyffi.object_models.xml.array.Array'> instance at ...
 pyffi.toaster:INFO:        1: <class 'pyffi.formats.kfm.Animation'> instance at ...
-pyffi.toaster:INFO:        * eventCode : 0
+pyffi.toaster:INFO:        * event_code : 0
 pyffi.toaster:INFO:        * name : <None>
-pyffi.toaster:INFO:        * kfFileName : Test_MD_Run.kf
+pyffi.toaster:INFO:        * kf_file_name : Test_MD_Run.kf
 pyffi.toaster:INFO:        * index : 0
-pyffi.toaster:INFO:        * numTransitions : 0
+pyffi.toaster:INFO:        * num_transitions : 0
 pyffi.toaster:INFO:        * transitions : <class 'pyffi.object_models.xml.array.Array'> instance at ...
 pyffi.toaster:INFO:        2: <class 'pyffi.formats.kfm.Animation'> instance at ...
-pyffi.toaster:INFO:        * eventCode : 0
+pyffi.toaster:INFO:        * event_code : 0
 pyffi.toaster:INFO:        * name : <None>
-pyffi.toaster:INFO:        * kfFileName : Test_MD_Walk.kf
+pyffi.toaster:INFO:        * kf_file_name : Test_MD_Walk.kf
 pyffi.toaster:INFO:        * index : 0
-pyffi.toaster:INFO:        * numTransitions : 0
+pyffi.toaster:INFO:        * num_transitions : 0
 pyffi.toaster:INFO:        * transitions : <class 'pyffi.object_models.xml.array.Array'> instance at ...
 pyffi.toaster:INFO:        3: <class 'pyffi.formats.kfm.Animation'> instance at ...
-pyffi.toaster:INFO:        * eventCode : 0
+pyffi.toaster:INFO:        * event_code : 0
 pyffi.toaster:INFO:        * name : <None>
-pyffi.toaster:INFO:        * kfFileName : Test_MD_Die.kf
+pyffi.toaster:INFO:        * kf_file_name : Test_MD_Die.kf
 pyffi.toaster:INFO:        * index : 0
-pyffi.toaster:INFO:        * numTransitions : 0
+pyffi.toaster:INFO:        * num_transitions : 0
 pyffi.toaster:INFO:        * transitions : <class 'pyffi.object_models.xml.array.Array'> instance at ...
-pyffi.toaster:INFO:    * unknownInt : 0
+pyffi.toaster:INFO:    * unknown_int : 0
 pyffi.toaster:INFO:    
 pyffi.toaster:INFO:Finished.

@@ -326,9 +326,9 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
             self.version = ver
             # read header string
             try:
-                self._headerString_value_.read(stream, version=ver)
-                self._unknownByte_value_.read(stream, version=ver)
-                self._nifFileName_value_.read(stream, version=ver)
+                self._header_string_value_.read(stream, version=ver)
+                self._unknown_byte_value_.read(stream, version=ver)
+                self._nif_file_name_value_.read(stream, version=ver)
                 self._master_value_.read(stream, version=ver)
             finally:
                 stream.seek(pos)
