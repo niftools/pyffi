@@ -113,7 +113,7 @@ class SpellVisitSkeletonRoots(NifSpell):
     def dataentry(self):
         # make list of skeleton roots
         self._skelroots = set()
-        for branch in self.data.getGlobalIterator():
+        for branch in self.data.get_global_iterator():
             if isinstance(branch, NifFormat.NiGeometry):
                 if branch.skin_instance:
                     skelroot = branch.skin_instance.skeleton_root

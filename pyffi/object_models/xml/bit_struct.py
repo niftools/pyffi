@@ -81,15 +81,15 @@ class _MetaBitStructBase(type):
         for attr in dct['_attrs']:
             # get and set basic attributes
             setattr(cls, attr.name, property(
-                partial(BitStructBase.getAttribute, name = attr.name),
-                partial(BitStructBase.setAttribute, name = attr.name),
+                partial(BitStructBase.get_attribute, name = attr.name),
+                partial(BitStructBase.set_attribute, name = attr.name),
                 doc=attr.doc))
 
         # precalculate the attribute list
-        cls._attributeList = cls._getAttributeList()
+        cls._attributeList = cls._get_attribute_list()
 
         # precalculate the attribute name list
-        cls._names = cls._getNames()
+        cls._names = cls._get_names()
 
 class Bits(DetailNode, EditableSpinBox):
     """Basic implementation of a n-bit unsigned integer type (without read
@@ -150,7 +150,7 @@ class BitStructBase(DetailNode):
     instance.
 
     Direct access to the attributes is implemented using a <name>
-    property which invokes the getAttribute and setAttribute
+    property which invokes the get_attribute and set_attribute
     functions, as demonstrated below.
 
     See the pyffi.XmlHandler class for a more advanced example.
@@ -243,9 +243,9 @@ class BitStructBase(DetailNode):
         subclass of the other). Returns self."""
         # check class lineage
         if isinstance(self, block.__class__):
-            attrlist = block._filteredAttributeList()
+            attrlist = block._get_filtered_attribute_list()
         elif isinstance(block, self.__class__):
-            attrlist = self._filteredAttributeList()
+            attrlist = self._get_filtered_attribute_list()
         else:
             raise ValueError("deepcopy: classes %s and %s unrelated"
                              % (self.__class__.__name__, block.__class__.__name__))
@@ -260,7 +260,7 @@ class BitStructBase(DetailNode):
         text = '%s instance at 0x%08X\n' % (self.__class__, id(self))
         # used to track names of attributes that have already been added
         # is faster than self.__dict__.has_key(...)
-        for attr in self._filteredAttributeList():
+        for attr in self._get_filtered_attribute_list():
             # append string
             attr_str_lines = str(
                 getattr(self, "_%s_value_" % attr.name)).splitlines()
@@ -283,7 +283,7 @@ class BitStructBase(DetailNode):
     def from_int(self, value, **kwargs):
         """Set structure values from integer."""
         bitpos = 0
-        for attr in self._filteredAttributeList(**kwargs):
+        for attr in self._get_filtered_attribute_list(**kwargs):
             #print(attr.name) # debug
             attrvalue = (value >> bitpos) & ((1 << attr.numbits) - 1)
             setattr(self, attr.name, attrvalue)
@@ -295,7 +295,7 @@ class BitStructBase(DetailNode):
         """Get as integer."""
         value = 0
         bitpos = 0
-        for attr in self._filteredAttributeList(**kwargs):
+        for attr in self._get_filtered_attribute_list(**kwargs):
             attrvalue = getattr(self, attr.name)
             value |= (attrvalue & ((1 << attr.numbits) - 1)) << bitpos
             bitpos += attr.numbits
@@ -333,42 +333,42 @@ class BitStructBase(DetailNode):
         """Calculate a hash for the structure, as a tuple."""
         # calculate hash
         hsh = []
-        for attr in self._filteredAttributeList(**kwargs):
+        for attr in self._get_filtered_attribute_list(**kwargs):
             hsh.append(getattr(self, attr.name))
         return tuple(hsh)
 
     @classmethod
-    def getGames(cls):
+    def get_games(cls):
         """Get games for which this block is supported."""
         return list(cls._games.iterkeys())
 
     @classmethod
-    def getVersions(cls, game):
+    def get_versions(cls, game):
         """Get versions supported for C{game}."""
         return cls._games[game]
 
     @classmethod
-    def _getAttributeList(cls):
+    def _get_attribute_list(cls):
         """Calculate the list of all attributes of this structure."""
         # string of attributes of base classes of cls
         attrs = []
         for base in cls.__bases__:
             try:
-                attrs.extend(base._getAttributeList())
+                attrs.extend(base._get_attribute_list())
             except AttributeError: # when base class is "object"
                 pass
         attrs.extend(cls._attrs)
         return attrs
 
     @classmethod
-    def _getNames(cls):
+    def _get_names(cls):
         """Calculate the list of all attributes names in this structure.
         Skips duplicate names."""
         # string of attributes of base classes of cls
         names = []
         #for base in cls.__bases__:
         #    try:
-        #        names.extend(base._getNames())
+        #        names.extend(base._get_names())
         #    except AttributeError: # when base class is "object"
         #        pass
         for attr in cls._attrs:
@@ -378,7 +378,7 @@ class BitStructBase(DetailNode):
                 names.append(attr.name)
         return names
 
-    def _filteredAttributeList(self, version = None, user_version = None,
+    def _get_filtered_attribute_list(self, version = None, user_version = None,
                                data=None, **kwargs):
         """Generator for listing all 'active' attributes, that is,
         attributes whose condition evaluates ``True``, whose version
@@ -425,13 +425,13 @@ class BitStructBase(DetailNode):
             # so yield the attribute
             yield attr
 
-    def getAttribute(self, name):
+    def get_attribute(self, name):
         """Get a basic attribute."""
         return getattr(self, "_" + name + "_value_").get_value()
 
-    # important note: to apply partial(setAttribute, name = 'xyz') the
+    # important note: to apply partial(set_attribute, name = 'xyz') the
     # name argument must be last
-    def setAttribute(self, value, name):
+    def set_attribute(self, value, name):
         """Set the value of a basic attribute."""
         getattr(self, "_" + name + "_value_").set_value(value)
 

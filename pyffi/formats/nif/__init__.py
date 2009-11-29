@@ -4806,7 +4806,7 @@ class NifFormat(FileFormat):
             id44.set_identity()
 
             # find the root block (direct parent of skeleton root that connects to the geometry) for each of these geometries
-            for geom in self.getGlobalIterator():
+            for geom in self.get_global_iterator():
                 # make sure we only do each geometry once
                 if (geom in result) or (geom in failed):
                     continue
@@ -4849,7 +4849,7 @@ class NifFormat(FileFormat):
             """This function yields all skinned geometries which have self as
             skeleton root.
             """
-            for geom in self.getGlobalIterator():
+            for geom in self.get_global_iterator():
                 if (isinstance(geom, NifFormat.NiGeometry)
                     and geom.is_skin()
                     and geom.skin_instance.skeleton_root is self):
@@ -4875,7 +4875,7 @@ class NifFormat(FileFormat):
             # this ensures that "parent" geometries serve as reference for "child"
             # geometries
             sorted_geoms = []
-            for bone in self.getGlobalIterator():
+            for bone in self.get_global_iterator():
                 if not isinstance(bone, NifFormat.NiNode):
                     continue
                 for geom in geoms:

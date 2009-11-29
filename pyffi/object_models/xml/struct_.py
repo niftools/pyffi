@@ -76,19 +76,19 @@ class _MetaStructBase(type):
                 issubclass(attr.type_, BasicBase) and attr.arr1 == None:
                 # get and set basic attributes
                 setattr(cls, attr.name, property(
-                    partial(StructBase.getBasicAttribute, name = attr.name),
-                    partial(StructBase.setBasicAttribute, name = attr.name),
+                    partial(StructBase.get_basic_attribute, name = attr.name),
+                    partial(StructBase.set_basic_attribute, name = attr.name),
                     doc=attr.doc))
             elif attr.type_ == type(None) and attr.arr1 == None:
                 # get and set template attributes
                 setattr(cls, attr.name, property(
-                    partial(StructBase.getTemplateAttribute, name = attr.name),
-                    partial(StructBase.setTemplateAttribute, name = attr.name),
+                    partial(StructBase.get_template_attribute, name = attr.name),
+                    partial(StructBase.set_template_attribute, name = attr.name),
                     doc=attr.doc))
             else:
                 # other types of attributes: get only
                 setattr(cls, attr.name, property(
-                    partial(StructBase.getAttribute, name = attr.name),
+                    partial(StructBase.get_attribute, name = attr.name),
                     doc=attr.doc))
 
             # check for links and refs and strings
@@ -126,10 +126,10 @@ class _MetaStructBase(type):
         # precalculate the attribute list
         # profiling shows that this speeds up most of the StructBase methods
         # that rely on parsing the attribute list
-        cls._attributeList = cls._getAttributeList()
+        cls._attributeList = cls._get_attribute_list()
 
         # precalculate the attribute name list
-        cls._names = cls._getNames()
+        cls._names = cls._get_names()
 
 class StructBase(GlobalNode):
     """Base class from which all file struct types are derived.
@@ -146,7 +146,7 @@ class StructBase(GlobalNode):
     instance.
 
     Direct access to the attributes is implemented using a <name>
-    property which invokes the getAttribute and setAttribute
+    property which invokes the get_attribute and set_attribute
     functions, as demonstrated below.
 
     See the pyffi.XmlHandler class for a more advanced example.
@@ -281,9 +281,9 @@ class StructBase(GlobalNode):
         subclass of the other). Returns self."""
         # check class lineage
         if isinstance(self, block.__class__):
-            attrlist = block._filteredAttributeList()
+            attrlist = block._get_filtered_attribute_list()
         elif isinstance(block, self.__class__):
-            attrlist = self._filteredAttributeList()
+            attrlist = self._get_filtered_attribute_list()
         else:
             raise ValueError("deepcopy: classes %s and %s unrelated"
                              % (self.__class__.__name__, block.__class__.__name__))
@@ -305,7 +305,7 @@ class StructBase(GlobalNode):
         text = '%s instance at 0x%08X\n' % (self.__class__, id(self))
         # used to track names of attributes that have already been added
         # is faster than self.__dict__.has_key(...)
-        for attr in self._filteredAttributeList():
+        for attr in self._get_filtered_attribute_list():
             # append string
             attr_str_lines = str(
                 getattr(self, "_%s_value_" % attr.name)).splitlines()
@@ -325,7 +325,7 @@ class StructBase(GlobalNode):
         # parse arguments
         self.arg = kwargs.get('argument')
         # read all attributes
-        for attr in self._filteredAttributeList(**kwargs):
+        for attr in self._get_filtered_attribute_list(**kwargs):
             # skip abstract attributes
             if attr.is_abstract:
                 continue
@@ -351,7 +351,7 @@ class StructBase(GlobalNode):
         # parse arguments
         self.arg = kwargs.get('argument')
         # write all attributes
-        for attr in self._filteredAttributeList(**kwargs):
+        for attr in self._get_filtered_attribute_list(**kwargs):
             # skip abstract attributes
             if attr.is_abstract:
                 continue
@@ -376,7 +376,7 @@ class StructBase(GlobalNode):
         """Fix links in the structure."""
         # parse arguments
         # fix links in all attributes
-        for attr in self._filteredAttributeList(**kwargs):
+        for attr in self._get_filtered_attribute_list(**kwargs):
             # check if there are any links at all
             # (commonly this speeds things up considerably)
             if not attr.type_._has_links:
@@ -389,7 +389,7 @@ class StructBase(GlobalNode):
         """Get list of all links in the structure."""
         # get all links
         links = []
-        for attr in self._filteredAttributeList(**kwargs):
+        for attr in self._get_filtered_attribute_list(**kwargs):
             # check if there are any links at all
             # (this speeds things up considerably)
             if not attr.type_._has_links:
@@ -404,7 +404,7 @@ class StructBase(GlobalNode):
         """Get list of all strings in the structure."""
         # get all strings
         strings = []
-        for attr in self._filteredAttributeList(**kwargs):
+        for attr in self._get_filtered_attribute_list(**kwargs):
             # check if there are any strings at all
             # (this speeds things up considerably)
             if (not attr.type_ is type(None)) and (not attr.type_._has_strings):
@@ -422,7 +422,7 @@ class StructBase(GlobalNode):
         get_links, as get_links could result in infinite recursion."""
         # get all refs
         refs = []
-        for attr in self._filteredAttributeList(**kwargs):
+        for attr in self._get_filtered_attribute_list(**kwargs):
             # check if there are any links at all
             # (this speeds things up considerably)
             if not attr.type_._has_links:
@@ -437,7 +437,7 @@ class StructBase(GlobalNode):
         """Calculate the structure size in bytes."""
         # calculate size
         size = 0
-        for attr in self._filteredAttributeList(**kwargs):
+        for attr in self._get_filtered_attribute_list(**kwargs):
             # skip abstract attributes
             if attr.is_abstract:
                 continue
@@ -448,13 +448,13 @@ class StructBase(GlobalNode):
         """Calculate a hash for the structure, as a tuple."""
         # calculate hash
         hsh = []
-        for attr in self._filteredAttributeList(**kwargs):
+        for attr in self._get_filtered_attribute_list(**kwargs):
             hsh.append(
                 getattr(self, "_%s_value_" % attr.name).get_hash(**kwargs))
         return tuple(hsh)
 
     def replace_global_node(self, oldbranch, newbranch, **kwargs):
-        for attr in self._filteredAttributeList(**kwargs):
+        for attr in self._get_filtered_attribute_list(**kwargs):
             # check if there are any links at all
             # (this speeds things up considerably)
             if not attr.type_._has_links:
@@ -462,37 +462,37 @@ class StructBase(GlobalNode):
             getattr(self, "_%s_value_" % attr.name).replace_global_node(oldbranch, newbranch, **kwargs)
 
     @classmethod
-    def getGames(cls):
+    def get_games(cls):
         """Get games for which this block is supported."""
         return list(cls._games.iterkeys())
 
     @classmethod
-    def getVersions(cls, game):
+    def get_versions(cls, game):
         """Get versions supported for C{game}."""
         return cls._games[game]
 
     @classmethod
-    def _getAttributeList(cls):
+    def _get_attribute_list(cls):
         """Calculate the list of all attributes of this structure."""
         # string of attributes of base classes of cls
         attrs = []
         for base in cls.__bases__:
             try:
-                attrs.extend(base._getAttributeList())
+                attrs.extend(base._get_attribute_list())
             except AttributeError: # when base class is "object"
                 pass
         attrs.extend(cls._attrs)
         return attrs
 
     @classmethod
-    def _getNames(cls):
+    def _get_names(cls):
         """Calculate the list of all attributes names in this structure.
         Skips duplicate names."""
         # string of attributes of base classes of cls
         names = []
         for base in cls.__bases__:
             try:
-                names.extend(base._getNames())
+                names.extend(base._get_names())
             except AttributeError: # when base class is "object"
                 pass
         for attr in cls._attrs:
@@ -502,7 +502,7 @@ class StructBase(GlobalNode):
                 names.append(attr.name)
         return names
 
-    def _filteredAttributeList(self, version=None, user_version=None,
+    def _get_filtered_attribute_list(self, version=None, user_version=None,
                                data=None, **kwargs):
         """Generator for listing all 'active' attributes, that is,
         attributes whose condition evaluates ``True``, whose version
@@ -556,33 +556,33 @@ class StructBase(GlobalNode):
             # so yield the attribute
             yield attr
 
-    def getAttribute(self, name):
+    def get_attribute(self, name):
         """Get a (non-basic) attribute."""
         return getattr(self, "_" + name + "_value_")
 
-    def getBasicAttribute(self, name):
+    def get_basic_attribute(self, name):
         """Get a basic attribute."""
         return getattr(self, "_" + name + "_value_").get_value()
 
-    # important note: to apply partial(setAttribute, name = 'xyz') the
+    # important note: to apply partial(set_attribute, name = 'xyz') the
     # name argument must be last
-    def setBasicAttribute(self, value, name):
+    def set_basic_attribute(self, value, name):
         """Set the value of a basic attribute."""
         getattr(self, "_" + name + "_value_").set_value(value)
 
-    def getTemplateAttribute(self, name):
+    def get_template_attribute(self, name):
         """Get a template attribute."""
         try:
-            return self.getBasicAttribute(name)
+            return self.get_basic_attribute(name)
         except AttributeError:
-            return self.getAttribute(name)
+            return self.get_attribute(name)
 
-    # important note: to apply partial(setAttribute, name = 'xyz') the
+    # important note: to apply partial(set_attribute, name = 'xyz') the
     # name argument must be last
-    def setTemplateAttribute(self, value, name):
+    def set_template_attribute(self, value, name):
         """Set the value of a template attribute."""
         try:
-            self.setBasicAttribute(value, name)
+            self.set_basic_attribute(value, name)
         except AttributeError:
             raise NotImplementedError("cannot set '%s' attribute"%name)
 

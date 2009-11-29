@@ -107,4 +107,4 @@ class DetailTreeItem(object):
             in enumerate(izip(
                 data.node.get_detail_child_nodes(edge_filter=edge_filter),
                 data.node.get_detail_child_names(edge_filter=edge_filter),
-                data.node.getDetailChildEdgeTypes(edge_filter=edge_filter)))]
+                data.node.get_detail_child_edge_types(edge_filter=edge_filter)))]

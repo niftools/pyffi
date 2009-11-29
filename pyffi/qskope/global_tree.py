@@ -103,4 +103,4 @@ class GlobalTreeItem(object):
             for (child_row, (child_node, child_edge_type))
             in enumerate(izip(
                 data.node.get_global_child_nodes(edge_filter=edge_filter),
-                data.node.getGlobalChildEdgeTypes(edge_filter=edge_filter)))]
+                data.node.get_global_child_edge_types(edge_filter=edge_filter)))]

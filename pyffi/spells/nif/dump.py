@@ -88,7 +88,7 @@ def dumpBlock(block):
     :return: String string describing the block.
     """
     text = '%s instance at 0x%08X\n' % (block.__class__.__name__, id(block))
-    for attr in block._filteredAttributeList():
+    for attr in block._get_filtered_attribute_list():
         attr_str_lines = \
             dumpAttr(getattr(block, "_%s_value_" % attr.name)).splitlines()
         if len(attr_str_lines) > 1:
@@ -214,7 +214,7 @@ class SpellHtmlReport(NifSpell):
             row = "<tr>"
             row += "<th>%s</th>" % "file" 
             row +=  "<th>%s</th>" % "id" 
-            for attr in branch._filteredAttributeList(data=self.data):
+            for attr in branch._get_filtered_attribute_list(data=self.data):
                 row += ("<th>%s</th>"
                         % escape(attr.displayname, self.ENTITIES))
             row += "</tr>"
@@ -224,7 +224,7 @@ class SpellHtmlReport(NifSpell):
         row = "<tr>"
         row += "<td>%s</td>" % escape(self.stream.name)
         row += "<td>%s</td>" % escape("0x%08X" % id(branch), self.ENTITIES)
-        for attr in branch._filteredAttributeList(data=self.data):
+        for attr in branch._get_filtered_attribute_list(data=self.data):
             row += ("<td>%s</td>"
                     % escape(dumpAttr(getattr(branch, "_%s_value_"
                                               % attr.name)),

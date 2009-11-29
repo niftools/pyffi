@@ -161,7 +161,7 @@ class SpellCompareSkinData(pyffi.spells.nif.NifSpell):
             toaster.refdata.read(reffile)
         # find bone data in reference nif
         toaster.refbonedata = []
-        for refgeom in toaster.refdata.getGlobalIterator():
+        for refgeom in toaster.refdata.get_global_iterator():
             if (isinstance(refgeom, NifFormat.NiGeometry)
                 and refgeom.skin_instance and refgeom.skin_instance.data):
                 toaster.refbonedata += zip(
@@ -211,7 +211,7 @@ class SpellCompareSkinData(pyffi.spells.nif.NifSpell):
                             # can we find skeleton root of data in reference
                             # data?
                             for refskelroot_branch \
-                                in self.toaster.refdata.getGlobalIterator():
+                                in self.toaster.refdata.get_global_iterator():
                                 if not isinstance(refskelroot_branch,
                                                   NifFormat.NiAVObject):
                                     continue
@@ -224,7 +224,7 @@ class SpellCompareSkinData(pyffi.spells.nif.NifSpell):
                                     break
                             else:
                                 for skelroot_ref \
-                                    in self.data.getGlobalIterator():
+                                    in self.data.get_global_iterator():
                                     if not isinstance(skelroot_ref,
                                                       NifFormat.NiAVObject):
                                         continue

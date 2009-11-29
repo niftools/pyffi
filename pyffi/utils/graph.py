@@ -137,7 +137,7 @@ class DetailNode(object):
         """
         return (dummy for dummy in ())
 
-    def getDetailChildEdgeTypes(self, edge_filter=EdgeFilter()):
+    def get_detail_child_edge_types(self, edge_filter=EdgeFilter()):
         """Generator which yields all edge types of this item in the
         detail view, one edge type for each child.
 
@@ -155,13 +155,13 @@ class DetailNode(object):
         """
         return ""
 
-    def getDetailIterator(self, edge_filter=EdgeFilter()):
+    def get_detail_iterator(self, edge_filter=EdgeFilter()):
         """Iterate over self, all children, all grandchildren, and so
         on (only given edge type is followed). Do not override.
         """
         yield self
         for child in self.get_detail_child_nodes(edge_filter=edge_filter):
-            for branch in child.getDetailIterator(edge_filter=edge_filter):
+            for branch in child.get_detail_iterator(edge_filter=edge_filter):
                 yield branch
 
     def replace_global_node(self, oldnode, newnode, edge_filter=EdgeFilter()):
@@ -191,7 +191,7 @@ class GlobalNode(DetailNode):
         """
         return (dummy for dummy in ())
 
-    def getGlobalChildEdgeTypes(self, edge_filter=EdgeFilter()):
+    def get_global_child_edge_types(self, edge_filter=EdgeFilter()):
         """Generator which yields all edge types of this item in the
         global view, one edge type for each child.
 
@@ -199,11 +199,11 @@ class GlobalNode(DetailNode):
         """
         return repeat(EdgeType())
 
-    def getGlobalIterator(self, edge_filter=EdgeFilter()):
+    def get_global_iterator(self, edge_filter=EdgeFilter()):
         """Iterate over self, all children, all grandchildren, and so
         on (only given edge_filter is followed). Do not override.
         """
         yield self
         for child in self.get_global_child_nodes(edge_filter=edge_filter):
-            for branch in child.getGlobalIterator(edge_filter=edge_filter):
+            for branch in child.get_global_iterator(edge_filter=edge_filter):
                 yield branch

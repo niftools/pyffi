@@ -772,12 +772,12 @@ but got instance of %s""" % (self._template, block.__class__))
                         'undecoded chunk type 0x%08X (%sChunk)'
                         %(chunkhdr.type, chunk_type))
                 # check the chunk version
-                if not self.game in chunk.getGames():
+                if not self.game in chunk.get_games():
                     logger.error(
                         'game %s does not support %sChunk; '
                         'trying anyway'
                         % (self.game, chunk_type))
-                if not chunkhdr.version in chunk.getVersions(self.game):
+                if not chunkhdr.version in chunk.get_versions(self.game):
                     logger.error(
                         'chunk version 0x%08X not supported for '
                         'game %s and %sChunk; '
@@ -987,7 +987,7 @@ chunk size mismatch when reading %s at 0x%08X
         def update_versions(self):
             """Update L{versions} for the given chunks and game."""
             try:
-                self.versions = [max(chunk.getVersions(self.game))
+                self.versions = [max(chunk.get_versions(self.game))
                                  for chunk in self.chunks]
             except KeyError:
                 raise CgfFormat.CgfError("game %s not supported" % self.game)
