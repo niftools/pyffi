@@ -1870,7 +1870,7 @@ chunk size mismatch when reading %s at 0x%08X
                     for i in xrange(meshsubset.numIndices // 3):
                         yield meshsubset.matId
 
-        def getUVs(self):
+        def getUvs(self):
             """Generator for all uv coordinates."""
             if self.uvs:
                 for uv in self.uvs:
@@ -1878,6 +1878,8 @@ chunk size mismatch when reading %s at 0x%08X
             elif self.uvsData:
                 for uv in self.uvsData.uvs:
                     yield uv.u, 1.0 - uv.v # OpenGL fix!
+
+        getUVs = getUvs # compatibility
 
         def getUVTriangles(self):
             """Generator for all uv triangles."""
