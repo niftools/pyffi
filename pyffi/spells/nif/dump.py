@@ -155,12 +155,12 @@ class SpellDumpTex(NifSpell):
 
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiTexturingProperty):
-            for textype in ('Base', 'Dark', 'Detail', 'Gloss', 'Glow',
-                            'BumpMap', 'Decal0', 'Decal1', 'Decal2', 'Decal3'):
-                if getattr(branch, 'has%sTexture' % textype):
+            for textype in ('base', 'dark', 'detail', 'gloss', 'glow',
+                            'bump_map', 'decal_0', 'decal_1', 'decal_2',
+                            'decal_3'):
+                if getattr(branch, 'has_%s_texture' % textype):
                     texdesc = getattr(branch,
-                                      '%s%sTexture'
-                                      % (textype[0].lower(), textype[1:]))
+                                      '%s_texture' % textype)
                     if texdesc.source:
                         if texdesc.source.use_external:
                             filename = texdesc.source.file_name
@@ -174,7 +174,7 @@ class SpellDumpTex(NifSpell):
             return False
         elif isinstance(branch, NifFormat.NiMaterialProperty):
             for coltype in ['ambient', 'diffuse', 'specular', 'emissive']:
-                col = getattr(branch, '%sColor' % coltype)
+                col = getattr(branch, '%s_color' % coltype)
                 self.toaster.msg('%-10s %4.2f %4.2f %4.2f'
                                  % (coltype, col.r, col.g, col.b))
             self.toaster.msg('glossiness %f' % branch.glossiness)
