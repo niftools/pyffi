@@ -5463,7 +5463,7 @@ class NifFormat(FileFormat):
                 return self is other
 
     class ATextureRenderData:
-        def saveAsDDS(self, stream):
+        def saveAsDds(self, stream):
             """Save image as DDS file."""
             # set up header and pixel data
             data = pyffi.formats.dds.DdsFormat.Data()

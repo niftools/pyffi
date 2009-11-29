@@ -312,7 +312,7 @@ class SpellExportPixelData(NifSpell):
                 stream = tempfile.TemporaryFile()
 
             try:
-                branch.saveAsDDS(stream)
+                branch.saveAsDds(stream)
             finally:
                 stream.close()
 
