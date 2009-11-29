@@ -147,7 +147,7 @@ class EnumBase(BasicBase, EditableComboBox):
     # EditableComboBox methods
     #
 
-    def getEditorKeys(self):
+    def get_editor_keys(self):
         """List or tuple of strings, each string describing an item."""
         return self._enumkeys
 

@@ -113,14 +113,14 @@ class DetailDelegate(QtGui.QItemDelegate):
         if isinstance(node, EditableComboBox):
             # a general purpose combo box
             editor = QtGui.QComboBox(parent)
-            for key in node.getEditorKeys():
+            for key in node.get_editor_keys():
                 editor.addItem(key)
         elif isinstance(node, EditableFloatSpinBox):
             # a spinbox for floats
             editor = QtGui.QDoubleSpinBox(parent)
             editor.setMinimum(node.get_editor_minimum())
             editor.setMaximum(node.get_editor_maximum())
-            editor.setDecimals(node.getEditorDecimals())
+            editor.setDecimals(node.get_editor_decimals())
         elif isinstance(node, EditableSpinBox):
             # an integer spin box
             editor = QtGui.QSpinBox(parent)

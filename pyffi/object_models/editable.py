@@ -88,14 +88,14 @@ class EditableSpinBox(EditableBase):
 
 class EditableFloatSpinBox(EditableSpinBox):
     """Abstract base class for data that can be edited with a spin box that
-    contains a float. Override getEditorDecimals to set the number of decimals
+    contains a float. Override get_editor_decimals to set the number of decimals
     in the editor display.
 
     Requirement: get_editor_value must return a ``float``, set_editor_value
     must take a ``float``.
     """
 
-    def getEditorDecimals(self):
+    def get_editor_decimals(self):
         return 5
 
 class EditableLineEdit(EditableBase):
@@ -123,7 +123,7 @@ class EditableComboBox(EditableBase):
     must take an ``int`` (this integer is the index in the list of keys).
     """
 
-    def getEditorKeys(self):
+    def get_editor_keys(self):
         """Tuple of strings, each string describing an item."""
         return ()
 
@@ -132,7 +132,7 @@ class EditableBoolComboBox(EditableComboBox):
 
     Requirement: get_value must return a ``bool``, set_value must take a ``bool``.
     """
-    def getEditorKeys(self):
+    def get_editor_keys(self):
         return ("False", "True")
 
     def set_editor_value(self, editorvalue):
