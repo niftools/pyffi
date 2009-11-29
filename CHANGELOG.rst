@@ -3,6 +3,10 @@ Release 2.0.6 (in development)
 
 * Renamed some internal modules for pep8 compliance.
 
+* All classes and attributes are now in pep8 style. For compatibility,
+  camelCase attributes are generated too (however this will be dropped for
+  py3k).
+
 Release 2.0.5 (Nov 23, 2009)
 ============================
 
