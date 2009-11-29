@@ -60,12 +60,12 @@ class SpellDelTangentSpace(NifSpell):
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiTriBasedGeom):
             # does this block have tangent space data?
-            for extra in branch.getExtraDatas():
+            for extra in branch.get_extra_datas():
                 if isinstance(extra, NifFormat.NiBinaryExtraData):
                     if (extra.name ==
                         'Tangent space (binormal & tangent vectors)'):
                         self.toaster.msg("removing tangent space block")
-                        branch.removeExtraData(extra)
+                        branch.remove_extra_data(extra)
             # all extra blocks here done; no need to recurse further
             return False
         # recurse further
@@ -87,7 +87,7 @@ class SpellAddTangentSpace(NifSpell):
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiTriBasedGeom):
             # does this block have tangent space data?
-            for extra in branch.getExtraDatas():
+            for extra in branch.get_extra_datas():
                 if isinstance(extra, NifFormat.NiBinaryExtraData):
                     if (extra.name ==
                         'Tangent space (binormal & tangent vectors)'):
@@ -95,7 +95,7 @@ class SpellAddTangentSpace(NifSpell):
                         return False
             # no tangent space found
             self.toaster.msg("adding tangent space")
-            branch.updateTangentSpace()
+            branch.update_tangent_space()
             # all extra blocks here done; no need to recurse further
             return False
         else:
@@ -119,10 +119,10 @@ class SpellFFVT3RSkinPartition(NifSpell):
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiTriBasedGeom):
             # if the branch has skinning info
-            if branch.skinInstance:
+            if branch.skin_instance:
                 # then update the skin partition
                 self.toaster.msg("updating skin partition")
-                branch.updateSkinPartition(
+                branch.update_skin_partition(
                     maxbonesperpartition=4, maxbonespervertex=4,
                     stripify=False, verbose=0, padbones=True)
             return False
@@ -153,19 +153,19 @@ class SpellFixTexturePath(NifSpell):
     
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiSourceTexture):
-            if (('\n'.encode("ascii") in branch.fileName)
-                or ('\r'.encode("ascii") in branch.fileName)
-                or ('/'.encode("ascii") in branch.fileName)):
-                branch.fileName = branch.fileName.replace(
+            if (('\n'.encode("ascii") in branch.file_name)
+                or ('\r'.encode("ascii") in branch.file_name)
+                or ('/'.encode("ascii") in branch.file_name)):
+                branch.file_name = branch.file_name.replace(
                     '\n'.encode("ascii"),
                     '\\n'.encode("ascii"))
-                branch.fileName = branch.fileName.replace(
+                branch.file_name = branch.file_name.replace(
                     '\r'.encode("ascii"),
                     '\\r'.encode("ascii"))
-                branch.fileName = branch.fileName.replace(
+                branch.file_name = branch.file_name.replace(
                     '/'.encode("ascii"),
                     '\\'.encode("ascii"))
-                self.toaster.msg("fixed file name '%s'" % branch.fileName)
+                self.toaster.msg("fixed file name '%s'" % branch.file_name)
             return False
         else:
             return True
@@ -206,12 +206,12 @@ class SpellDetachHavokTriStripsData(NifSpell):
     
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.bhkNiTriStripsShape):
-            for i, data in enumerate(branch.stripsData):
+            for i, data in enumerate(branch.strips_data):
                 if data in [otherbranch.data
                             for otherbranch in self.nitristrips]:
                         # detach!
                         self.toaster.msg("detaching havok data")
-                        branch.stripsData[i] = NifFormat.NiTriStripsData().deepcopy(data)
+                        branch.strips_data[i] = NifFormat.NiTriStripsData().deepcopy(data)
             return False
         else:
             return True
@@ -259,7 +259,7 @@ class SpellSendGeometriesToBindPosition(pyffi.spells.nif.SpellVisitSkeletonRoots
 
     def skelrootentry(self, branch):
         self.toaster.msg("sending geometries to bind position")
-        branch.sendGeometriesToBindPosition()
+        branch.send_geometries_to_bind_position()
 
 class SpellSendDetachedGeometriesToNodePosition(pyffi.spells.nif.SpellVisitSkeletonRoots):
     """Transform geometries so each set of geometries that shares bones
@@ -270,7 +270,7 @@ class SpellSendDetachedGeometriesToNodePosition(pyffi.spells.nif.SpellVisitSkele
 
     def skelrootentry(self, branch):
         self.toaster.msg("sending detached geometries to node position")
-        branch.sendDetachedGeometriesToNodePosition()
+        branch.send_detached_geometries_to_node_position()
 
 class SpellSendBonesToBindPosition(pyffi.spells.nif.SpellVisitSkeletonRoots):
     """Transform bones so bone data agrees with bone transforms,
@@ -281,7 +281,7 @@ class SpellSendBonesToBindPosition(pyffi.spells.nif.SpellVisitSkeletonRoots):
 
     def skelrootentry(self, branch):
         self.toaster.msg("sending bones to bind position")
-        branch.sendBonesToBindPosition()
+        branch.send_bones_to_bind_position()
 
 class SpellMergeSkeletonRoots(NifSpell):
     """Merges skeleton roots in the nif file so that no skeleton root has
@@ -300,8 +300,8 @@ class SpellMergeSkeletonRoots(NifSpell):
         skelroots = []
         for branch in self.data.getGlobalIterator():
             if isinstance(branch, NifFormat.NiGeometry):
-                if branch.skinInstance:
-                    skelroot = branch.skinInstance.skeletonRoot
+                if branch.skin_instance:
+                    skelroot = branch.skin_instance.skeleton_root
                     if skelroot and not skelroot in skelroots:
                         skelroots.append(skelroot)
         # find the 'root' skeleton roots (those that have no other skeleton
@@ -311,7 +311,7 @@ class SpellMergeSkeletonRoots(NifSpell):
             for skelroot_other in skelroots:
                 if skelroot_other is skelroot:
                     continue
-                if skelroot_other.findChain(skelroot):
+                if skelroot_other.find_chain(skelroot):
                     # skelroot_other has skelroot as child
                     # so skelroot is no longer an option
                     break
@@ -330,7 +330,7 @@ class SpellMergeSkeletonRoots(NifSpell):
     
     def branchentry(self, branch):
         if branch in self.skelrootlist:
-            result, failed = branch.mergeSkeletonRoots()
+            result, failed = branch.merge_skeleton_roots()
             for geom in result:
                 self.toaster.msg("reassigned skeleton root of %s" % geom.name)
             self.skelrootlist.remove(branch)
@@ -365,7 +365,7 @@ class SpellStrip(NifSpell):
         if not self.toaster.isadmissiblebranchtype(branch.__class__):
             # it is, wipe it out
             self.toaster.msg("stripping this branch")
-            self.data.replaceGlobalNode(branch, None)
+            self.data.replace_global_node(branch, None)
             # do not recurse further
             return False
         else:
@@ -391,10 +391,10 @@ class SpellDisableParallax(NifSpell):
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiTexturingProperty):
             # is parallax enabled?
-            if branch.applyMode == 4:
+            if branch.apply_mode == 4:
                 # yes!
                 self.toaster.msg("disabling parallax shader")
-                branch.applyMode = 2
+                branch.apply_mode = 2
             # stop recursing
             return False
         else:
@@ -429,7 +429,7 @@ class SpellScale(NifSpell):
         return (branch not in self.scaled_branches)
 
     def branchentry(self, branch):
-        branch.applyScale(self.toaster.scale)
+        branch.apply_scale(self.toaster.scale)
         self.scaled_branches.append(branch)
         # continue recursion
         return True
@@ -458,4 +458,4 @@ class SpellFixMopp(pyffi.spells.nif.check.SpellCheckMopp):
             return True
         else:
             self.toaster.msg("updating mopp")
-            branch.updateMopp()
+            branch.update_mopp()

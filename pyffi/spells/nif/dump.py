@@ -61,7 +61,7 @@ def dumpArray(arr):
     :return: String describing the array.
     """
     text = ""
-    if arr._count2 == None:
+    if arr._count_2 == None:
         for i, element in enumerate(list.__iter__(arr)):
             if i > 16:
                 text += "etc...\n"
@@ -107,7 +107,7 @@ def dumpAttr(attr):
     :return: String for the attribute.
     """
     if isinstance(attr, (NifFormat.Ref, NifFormat.Ptr)):
-        ref = attr.getValue()
+        ref = attr.get_value()
         if ref:
             if (hasattr(ref, "name")):
                 return "<%s:%s:0x%08X>" % (ref.__class__.__name__,
@@ -121,11 +121,11 @@ def dumpAttr(attr):
     elif isinstance(attr, NifFormat.NiObject):
         raise TypeError("cannot dump NiObject as attribute")
     elif isinstance(attr, NifFormat.byte):
-        return tohex(attr.getValue(), 1)
+        return tohex(attr.get_value(), 1)
     elif isinstance(attr, (NifFormat.ushort, NifFormat.short)):
-        return tohex(attr.getValue(), 2)
+        return tohex(attr.get_value(), 2)
     elif isinstance(attr, (NifFormat.int, NifFormat.uint)):
-        return tohex(attr.getValue(), 4)
+        return tohex(attr.get_value(), 4)
     elif isinstance(attr, (types.IntType, types.LongType)):
         return tohex(attr, 4)
     else:
@@ -162,14 +162,14 @@ class SpellDumpTex(NifSpell):
                                       '%s%sTexture'
                                       % (textype[0].lower(), textype[1:]))
                     if texdesc.source:
-                        if texdesc.source.useExternal:
-                            filename = texdesc.source.fileName
+                        if texdesc.source.use_external:
+                            filename = texdesc.source.file_name
                         else:
                             filename = '(pixel data packed in file)'
                     else:
                         filename = '(no texture file)'
                     self.toaster.msg("[%s] %s" % (textype, filename))
-            self.toaster.msg("apply mode %i" % branch.applyMode)
+            self.toaster.msg("apply mode %i" % branch.apply_mode)
             # stop recursion
             return False
         elif isinstance(branch, NifFormat.NiMaterialProperty):
@@ -296,7 +296,7 @@ class SpellExportPixelData(NifSpell):
             return True
         else:
             self.toaster.msg("found pixel data (format %i)"
-                             % branch.pixelFormat)
+                             % branch.pixel_format)
 
             if not self.toaster.options["dryrun"]:
                 n = 0
@@ -312,7 +312,7 @@ class SpellExportPixelData(NifSpell):
                 stream = tempfile.TemporaryFile()
 
             try:
-                branch.saveAsDds(stream)
+                branch.save_as_dds(stream)
             finally:
                 stream.close()
 

@@ -79,14 +79,14 @@ class SpellTexturePath(NifSpell):
 
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiSourceTexture):
-            old_file_name = str(branch.fileName) # for reporting
+            old_file_name = str(branch.file_name) # for reporting
             # note: replace backslashes by os.sep in filename, and
             # when joined, revert them back, for linux
-            branch.fileName = os.path.join(
+            branch.file_name = os.path.join(
                 self.toaster.texture_path,
                 os.path.basename(old_file_name.replace("\\", os.sep))
                 ).replace(os.sep, "\\") 
-            self.toaster.msg("%s -> %s" % (old_file_name, branch.fileName))
+            self.toaster.msg("%s -> %s" % (old_file_name, branch.file_name))
             # all textures done no need to recurse further.
             return False
         else:
@@ -167,19 +167,19 @@ class SpellCollisionType(NifSpell):
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.bhkRigidBody):
             branch.layer = self.toaster.col_type.layer
-            branch.layerCopy = self.toaster.col_type.layer
+            branch.layer_copy = self.toaster.col_type.layer
             branch.mass = self.toaster.col_type.mass
-            branch.motionSystem = self.toaster.col_type.motion_system
-            branch.unknownByte1 = self.toaster.col_type.unknown_byte1
-            branch.unknownByte2 = self.toaster.col_type.unknown_byte2
-            branch.qualityType = self.toaster.col_type.quality_type
+            branch.motion_system = self.toaster.col_type.motion_system
+            branch.unknown_byte_1 = self.toaster.col_type.unknown_byte1
+            branch.unknown_byte_2 = self.toaster.col_type.unknown_byte2
+            branch.quality_type = self.toaster.col_type.quality_type
             branch.wind = self.toaster.col_type.wind
             branch.solid = self.toaster.col_type.solid
             self.toaster.msg("collision set to %s" % self.toaster.options["arg"])
             # bhkPackedNiTriStripsShape could be further down, so keep looking
             return True
         elif isinstance(branch, NifFormat.bhkPackedNiTriStripsShape):
-            for subshape in branch.subShapes:
+            for subshape in branch.sub_shapes:
                 subshape.layer = self.toaster.col_type.layer
             self.toaster.msg("collision set to %s" % self.toaster.options["arg"])
             # all extra blocks here done; no need to recurse further

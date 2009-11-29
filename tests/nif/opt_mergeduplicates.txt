@@ -90,7 +90,7 @@ Explicit check
 ...     for branch in root.tree():
 ...         for otherbranch in root.tree():
 ...             if (branch is not otherbranch
-...                 and branch.isInterchangeable(otherbranch)):
+...                 and branch.is_interchangeable(otherbranch)):
 ...                 return True
 ...     return False
 >>> from pyffi.formats.nif import NifFormat

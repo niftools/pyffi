@@ -58,7 +58,7 @@ class NifSpell(pyffi.spells.Spell):
         # list of all block types used in the header
         # (do this first, spells may depend on this being present)
         self.header_types = []
-        for block_type in self.data.header.blockTypes:
+        for block_type in self.data.header.block_types:
             # handle NiDataStream
             if block_type.startswith("NiDataStream\x01"):
                 block_type = "NiDataStream"
@@ -95,7 +95,7 @@ class NifSpell(pyffi.spells.Spell):
         """
         try:
             # try via header
-            return self.data.header.hasBlockType(block_type)
+            return self.data.header.has_block_type(block_type)
         except ValueError:
             # header does not have the information because nif version is
             # too old
@@ -115,8 +115,8 @@ class SpellVisitSkeletonRoots(NifSpell):
         self._skelroots = set()
         for branch in self.data.getGlobalIterator():
             if isinstance(branch, NifFormat.NiGeometry):
-                if branch.skinInstance:
-                    skelroot = branch.skinInstance.skeletonRoot
+                if branch.skin_instance:
+                    skelroot = branch.skin_instance.skeleton_root
                     if skelroot and not(id(skelroot) in self._skelroots):
                         self._skelroots.add(id(skelroot))
         # only apply spell if there are skeleton roots

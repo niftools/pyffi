@@ -31,7 +31,7 @@ Explicit check
 >>> stream = open("tests/nif/test_fix_detachhavoktristripsdata.nif", "rb")
 >>> data.read(stream)
 >>> # check that data is shared
->>> data.roots[0].children[0].collisionObject.body.shape.subShapes[0].stripsData[0] is data.roots[0].children[0].data
+>>> data.roots[0].children[0].collision_object.body.shape.sub_shapes[0].strips_data[0] is data.roots[0].children[0].data
 True
 >>> # run the spell that fixes this
 >>> spell = fix.SpellDetachHavokTriStripsData(data=data)
@@ -45,6 +45,6 @@ pyffi.toaster:INFO:          ~~~ bhkListShape [] ~~~
 pyffi.toaster:INFO:            ~~~ bhkNiTriStripsShape [] ~~~
 pyffi.toaster:INFO:              detaching havok data
 >>> # check that data is no longer shared
->>> data.roots[0].children[0].collisionObject.body.shape.subShapes[0].stripsData[0] is data.roots[0].children[0].data
+>>> data.roots[0].children[0].collision_object.body.shape.sub_shapes[0].strips_data[0] is data.roots[0].children[0].data
 False
 
