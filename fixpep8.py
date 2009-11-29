@@ -87,6 +87,9 @@ def make_shell_script(format_class, sh_file):
             sh_file.write(
                 "echo %i%% - %s : %s\n"
                 % (int((100 * i + 0.5) / len(names)), name, newname))
+            print(
+                "%i%% - %s : %s"
+                % (int((100 * i + 0.5) / len(names)), name, newname))
             sh_file.write(
                 "find . -type f "
                 "\( -name \"*.py\" -or -name \"*.txt\" \) -not -wholename \"*git*\" "
