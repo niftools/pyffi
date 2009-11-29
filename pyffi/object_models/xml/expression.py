@@ -113,7 +113,10 @@ class Expression(object):
         if isinstance(self._right, Expression):
             right = self._right.eval(data)
         elif isinstance(self._right, basestring):
-            right = getattr(data, self._right) if self._right != '""' else ""
+            if (not self._right) or self._right == '""':
+                right = ""
+            else:
+                right = getattr(data, self._right)
         elif self._right is None:
             pass
         else:
