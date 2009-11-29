@@ -448,7 +448,7 @@ class NifFormat(FileFormat):
 
     class Ref(BasicBase):
         """Reference to another block."""
-        _isTemplate = True
+        _is_template = True
         _has_links = True
         _has_refs = True
         def __init__(self, **kwargs):
@@ -585,7 +585,7 @@ class NifFormat(FileFormat):
 
     class Ptr(Ref):
         """A weak reference to another block, used to point up the hierarchy tree. The reference is not returned by the L{get_refs} function to avoid infinite recursion."""
-        _isTemplate = True
+        _is_template = True
         _has_links = True
         _has_refs = False
 

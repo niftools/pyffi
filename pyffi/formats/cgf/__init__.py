@@ -351,7 +351,7 @@ class CgfFormat(pyffi.object_models.xml.FileFormat):
 
     class Ref(BasicBase):
         """Reference to a chunk, up the hierarchy."""
-        _isTemplate = True
+        _is_template = True
         _has_links = True
         _has_refs = True
         def __init__(self, **kwargs):
@@ -489,7 +489,7 @@ but got instance of %s""" % (self._template, block.__class__))
 
     class Ptr(Ref):
         """Reference to a chunk, down the hierarchy."""
-        _isTemplate = True
+        _is_template = True
         _has_links = True
         _has_refs = False
 

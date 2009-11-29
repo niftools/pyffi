@@ -502,7 +502,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 # if not set, then the struct is not a template
                 # set attributes (see class StructBase)
                 self.class_dict = {
-                    "_isTemplate": attrs.get("istemplate") == "1",
+                    "_is_template": attrs.get("istemplate") == "1",
                     "_attrs": [],
                     "_games": {},
                     "__doc__": "",
@@ -517,9 +517,9 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 self.basic_class = getattr(self.cls, self.class_name)
                 # check the class variables
                 is_template = (attrs.get("istemplate") == "1")
-                if self.basic_class._isTemplate != is_template:
+                if self.basic_class._is_template != is_template:
                     raise XmlError(
-                        'class %s should have _isTemplate = %s'
+                        'class %s should have _is_template = %s'
                         % (self.class_name, is_template))
 
             # fileformat -> enum
@@ -680,7 +680,7 @@ but got %s instead""" % name)
                     # recreate the class, to ensure that the
                     # metaclass is called!!
                     # (otherwise, cls_klass does not have correct
-                    # _attributeList, etc.)
+                    # _attribute_list, etc.)
                     cls_klass = type(
                         cls_klass.__name__,
                         (gen_klass,) + cls_klass.__bases__,

@@ -69,7 +69,7 @@ class _MetaEnumBase(type):
             raise RuntimeError("unsupported enum numbytes")
 
         # template type?
-        cls._isTemplate = False
+        cls._is_template = False
         # does the type contain a Ref or a Ptr?
         cls._has_links = False
         # does the type contain a Ref?

@@ -76,7 +76,7 @@ class BasicBase(DetailNode):
     NotImplementedError
     """
 
-    _isTemplate = False # is it a template type?
+    _is_template = False # is it a template type?
     _has_links = False # does the type contain a Ref or a Ptr?
     _has_refs = False # does the type contain a Ref?
     _has_strings = False # does the type contain a string?

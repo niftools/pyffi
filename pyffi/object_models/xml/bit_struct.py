@@ -71,7 +71,7 @@ class _MetaBitStructBase(type):
             raise RuntimeError("unsupported bitstruct numbytes")
 
         # template type?
-        cls._isTemplate = False
+        cls._is_template = False
         # does the type contain a Ref or a Ptr?
         cls._has_links = False
         # does the type contain a Ref?
@@ -86,7 +86,7 @@ class _MetaBitStructBase(type):
                 doc=attr.doc))
 
         # precalculate the attribute list
-        cls._attributeList = cls._get_attribute_list()
+        cls._attribute_list = cls._get_attribute_list()
 
         # precalculate the attribute name list
         cls._names = cls._get_names()
@@ -217,7 +217,7 @@ class BitStructBase(DetailNode):
         # in a tree view
         self._items = []
         # initialize attributes
-        for attr in self._attributeList:
+        for attr in self._attribute_list:
             # skip attributes with dupiclate names
             if attr.name in names:
                 continue
@@ -393,7 +393,7 @@ class BitStructBase(DetailNode):
         if data:
             version = data.version
             user_version = data.user_version
-        for attr in self._attributeList:
+        for attr in self._attribute_list:
             #print(attr.name, version, attr.ver1, attr.ver2) # debug
 
             # check version

@@ -48,7 +48,7 @@ from pyffi.utils.graph import DetailNode, GlobalNode, EdgeFilter
 import pyffi.object_models.common
 
 class _MetaStructBase(type):
-    """This metaclass checks for the presence of _attrs and _isTemplate
+    """This metaclass checks for the presence of _attrs and _is_template
     attributes. For each attribute in _attrs, an
     <attrname> property is generated which gets and sets basic types,
     and gets other types (struct and array). Used as metaclass of
@@ -58,8 +58,8 @@ class _MetaStructBase(type):
         # consistency checks
         #if not '_attrs' in dct:
         #    raise TypeError('%s: missing _attrs attribute'%cls)
-        #if not '_isTemplate' in dct:
-        #    raise TypeError('%s: missing _isTemplate attribute'%cls)
+        #if not '_is_template' in dct:
+        #    raise TypeError('%s: missing _is_template attribute'%cls)
         # has_links, has_refs, has_strings, used for optimization of fix_links,
         # get_links, get_refs, and get_strings
         # does the type contain a Ref or a Ptr?
@@ -126,7 +126,7 @@ class _MetaStructBase(type):
         # precalculate the attribute list
         # profiling shows that this speeds up most of the StructBase methods
         # that rely on parsing the attribute list
-        cls._attributeList = cls._get_attribute_list()
+        cls._attribute_list = cls._get_attribute_list()
 
         # precalculate the attribute name list
         cls._names = cls._get_names()
@@ -156,7 +156,7 @@ class StructBase(GlobalNode):
     >>> from pyffi.object_models.xml import StructAttribute as Attr
     >>> class SimpleFormat(object):
     ...     class UInt(BasicBase):
-    ...         _isTemplate = False
+    ...         _is_template = False
     ...         def __init__(self, **kwargs):
     ...             BasicBase.__init__(self, **kwargs)
     ...             self.__value = 0
@@ -168,13 +168,13 @@ class StructBase(GlobalNode):
     ...     def name_attribute(name):
     ...         return name
     >>> class X(StructBase):
-    ...     _isTemplate = False
+    ...     _is_template = False
     ...     _attrs = [
     ...         Attr(SimpleFormat, dict(name = 'a', type = 'UInt')),
     ...         Attr(SimpleFormat, dict(name = 'b', type = 'UInt'))]
     >>> SimpleFormat.X = X
     >>> class Y(X):
-    ...     _isTemplate = False
+    ...     _is_template = False
     ...     _attrs = [
     ...         Attr(SimpleFormat, dict(name = 'c', type = 'UInt')),
     ...         Attr(SimpleFormat, dict(name = 'd', type = 'X', cond = 'c == 3'))]
@@ -203,7 +203,7 @@ class StructBase(GlobalNode):
 
     __metaclass__ = _MetaStructBase
 
-    _isTemplate = False
+    _is_template = False
     _attrs = []
     _games = {}
 
@@ -232,7 +232,7 @@ class StructBase(GlobalNode):
         # in a tree view
         self._items = []
         # initialize attributes
-        for attr in self._attributeList:
+        for attr in self._attribute_list:
             # skip attributes with dupiclate names
             # (for this to work properly, duplicates must have the same
             # type, template, argument, arr1, and arr2)
@@ -518,7 +518,7 @@ class StructBase(GlobalNode):
             version = data.version
             user_version = data.user_version
         names = []
-        for attr in self._attributeList:
+        for attr in self._attribute_list:
             #print(attr.name, version, attr.ver1, attr.ver2) # debug
 
             # check version
