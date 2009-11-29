@@ -19,13 +19,13 @@ Read a KFM file
 >>> stream = open('tests/kfm/test.kfm', 'rb')
 >>> data = KfmFormat.Data()
 >>> data.inspect(stream)
->>> print(data.nifFileName.decode("ascii"))
+>>> print(data.nif_file_name.decode("ascii"))
 Test.nif
 >>> data.read(stream)
 >>> stream.close()
 >>> # get all animation file names
 >>> for anim in data.animations:
-...     print(anim.kfFileName.decode("ascii"))
+...     print(anim.kf_file_name.decode("ascii"))
 Test_MD_Idle.kf
 Test_MD_Run.kf
 Test_MD_Walk.kf
@@ -42,13 +42,13 @@ Create a KFM model from scratch and write to file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 >>> data = KfmFormat.Data()
->>> data.nifFileName = "Test.nif"
->>> data.numAnimations = 4
+>>> data.nif_file_name = "Test.nif"
+>>> data.num_animations = 4
 >>> data.animations.update_size()
->>> data.animations[0].kfFileName = "Test_MD_Idle.kf"
->>> data.animations[1].kfFileName = "Test_MD_Run.kf"
->>> data.animations[2].kfFileName = "Test_MD_Walk.kf"
->>> data.animations[3].kfFileName = "Test_MD_Die.kf"
+>>> data.animations[0].kf_file_name = "Test_MD_Idle.kf"
+>>> data.animations[1].kf_file_name = "Test_MD_Run.kf"
+>>> data.animations[2].kf_file_name = "Test_MD_Walk.kf"
+>>> data.animations[3].kf_file_name = "Test_MD_Die.kf"
 >>> from tempfile import TemporaryFile
 >>> stream = TemporaryFile()
 >>> data.write(stream)
@@ -365,14 +365,14 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
 
         def get_global_display(self):
             """Display the nif file name."""
-            return self.nifFileName
+            return self.nif_file_name
 
     class Animation:
         # XXX this does not work yet (see todo for KfmFormat)
         def get_detail_display(self):
             """Display the kf file name."""
-            return self.kfFileName if not self.name else self.name
+            return self.kf_file_name if not self.name else self.name
 
         def get_global_display(self):
             """Display the kf file name."""
-            return self.kfFileName if not self.name else self.name
+            return self.kf_file_name if not self.name else self.name

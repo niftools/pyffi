@@ -68,7 +68,7 @@ class EditableBase(object):
 
 class EditableSpinBox(EditableBase):
     """Abstract base class for data that can be edited with a spin box that
-    contains an integer. Override getEditorMinimum and getEditorMaximum to
+    contains an integer. Override get_editor_minimum and get_editor_maximum to
     set the minimum and maximum values that the spin box may contain.
 
     Requirement: get_editor_value must return an ``int``, set_editor_value
@@ -80,10 +80,10 @@ class EditableSpinBox(EditableBase):
     def set_editor_value(self, editorvalue):
         self.set_value(self, editorvalue)
 
-    def getEditorMinimum(self):
+    def get_editor_minimum(self):
         return -0x80000000
 
-    def getEditorMaximum(self):
+    def get_editor_maximum(self):
         return 0x7fffffff
 
 class EditableFloatSpinBox(EditableSpinBox):

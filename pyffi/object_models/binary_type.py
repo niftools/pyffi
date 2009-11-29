@@ -218,14 +218,14 @@ class IntType(BinarySimpleType, EditableSpinBox):
 
     # EditableSpinBox
 
-    def getEditorMinimum(self):
+    def get_editor_minimum(self):
         """Minimum possible value.
 
         :return: Minimum possible value.
         """
         return self._min
 
-    def getEditorMaximum(self):
+    def get_editor_maximum(self):
         """Maximum possible value.
 
         :return: Maximum possible value.

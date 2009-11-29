@@ -118,16 +118,16 @@ class DetailDelegate(QtGui.QItemDelegate):
         elif isinstance(node, EditableFloatSpinBox):
             # a spinbox for floats
             editor = QtGui.QDoubleSpinBox(parent)
-            editor.setMinimum(node.getEditorMinimum())
-            editor.setMaximum(node.getEditorMaximum())
+            editor.setMinimum(node.get_editor_minimum())
+            editor.setMaximum(node.get_editor_maximum())
             editor.setDecimals(node.getEditorDecimals())
         elif isinstance(node, EditableSpinBox):
             # an integer spin box
             editor = QtGui.QSpinBox(parent)
-            editor.setMinimum(node.getEditorMinimum())
+            editor.setMinimum(node.get_editor_minimum())
             # work around a qt "bug": maximum must be C type "int"
             # so cannot be larger than 0x7fffffff
-            editor.setMaximum(min(node.getEditorMaximum(), 0x7fffffff))
+            editor.setMaximum(min(node.get_editor_maximum(), 0x7fffffff))
         elif isinstance(node, EditableTextEdit):
             # a text editor
             editor = QtGui.QTextEdit(parent)
