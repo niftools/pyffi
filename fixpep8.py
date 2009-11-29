@@ -52,6 +52,7 @@ import pyffi.formats.nif
 import pyffi.formats.tga
 
 from pyffi.object_models.xml.struct_ import StructBase
+from pyffi.object_models.xml.basic import BasicBase
 
 def make_shell_script(format_class, sh_file):
     # get set of names to convert
@@ -62,12 +63,12 @@ def make_shell_script(format_class, sh_file):
             continue
         klass = getattr(format_class, klass_name)
         try:
-            is_struct = issubclass(klass, StructBase)
+            is_struct = issubclass(klass, (StructBase, BasicBase))
         except TypeError:
             # klass is not a class
             continue
         if not is_struct:
-            # klass is not a struct class
+            # klass is not a struct/basic class
             continue
         for name, obj in list(klass.__dict__.iteritems()):
             if isinstance(obj, (int, long)):
