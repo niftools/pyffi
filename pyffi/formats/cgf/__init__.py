@@ -31,19 +31,19 @@ Read a CGF file
 >>> for chunk in data.chunks:
 ...     print(chunk) # doctest: +ELLIPSIS
 <class 'pyffi.formats.cgf.SourceInfoChunk'> instance at ...
-* sourceFile : <None>
+* source_file : <None>
 * date : Fri Sep 28 22:40:44 2007
 * author : blender@BLENDER
 <BLANKLINE>
 <class 'pyffi.formats.cgf.TimingChunk'> instance at ...
-* secsPerTick : 0.000208333338378
-* ticksPerFrame : 160
-* globalRange :
+* secs_per_tick : 0.000208333338378
+* ticks_per_frame : 160
+* global_range :
     <class 'pyffi.formats.cgf.RangeEntity'> instance at ...
     * name : GlobalRange
     * start : 0
     * end : 100
-* numSubRanges : 0
+* num_sub_ranges : 0
 <BLANKLINE>
 
 Parse all CGF files in a directory tree
@@ -76,7 +76,7 @@ Create a CGF file from scratch
 >>> node1 = CgfFormat.NodeChunk()
 >>> node1.name = "hello"
 >>> node2 = CgfFormat.NodeChunk()
->>> node1.numChildren = 1
+>>> node1.num_children = 1
 >>> node1.children.updateSize()
 >>> node1.children[0] = node2
 >>> node2.name = "world"
@@ -100,11 +100,11 @@ Create a CGF file from scratch
 * name : hello
 * object : None
 * parent : None
-* numChildren : 1
+* num_children : 1
 * material : None
-* isGroupHead : False
-* isGroupMember : False
-* reserved1 :
+* is_group_head : False
+* is_group_member : False
+* reserved_1 :
     <class 'pyffi.object_models.xml.array.Array'> instance at 0x...
     0: 0
     1: 0
@@ -121,10 +121,10 @@ Create a CGF file from scratch
     * z : 0.0
     * w : 0.0
 * scl : [  0.000  0.000  0.000 ]
-* posCtrl : None
-* rotCtrl : None
-* sclCtrl : None
-* propertyString : <None>
+* pos_ctrl : None
+* rot_ctrl : None
+* scl_ctrl : None
+* property_string : <None>
 * children :
     <class 'pyffi.object_models.xml.array.Array'> instance at 0x...
     0: <class 'pyffi.formats.cgf.NodeChunk'> instance at 0x...
@@ -133,11 +133,11 @@ Create a CGF file from scratch
 * name : world
 * object : None
 * parent : None
-* numChildren : 0
+* num_children : 0
 * material : None
-* isGroupHead : False
-* isGroupMember : False
-* reserved1 :
+* is_group_head : False
+* is_group_member : False
+* reserved_1 :
     <class 'pyffi.object_models.xml.array.Array'> instance at 0x...
     0: 0
     1: 0
@@ -154,10 +154,10 @@ Create a CGF file from scratch
     * z : 0.0
     * w : 0.0
 * scl : [  0.000  0.000  0.000 ]
-* posCtrl : None
-* rotCtrl : None
-* sclCtrl : None
-* propertyString : <None>
+* pos_ctrl : None
+* rot_ctrl : None
+* scl_ctrl : None
+* property_string : <None>
 * children : <class 'pyffi.object_models.xml.array.Array'> instance at 0x...
 <BLANKLINE>
 """
@@ -1958,23 +1958,23 @@ chunk size mismatch when reading %s at 0x%08X
             ...                   uvslist = [uvs1, uvs2],
             ...                   matlist = [2,5],
             ...                   colorslist = [colors1, colors2])
-            >>> print(chunk) # doctest: +ELLIPSIS
+            >>> print(chunk) # doctest: +ELLIPSIS +REPORT_UDIFF
             <class 'pyffi.formats.cgf.MeshChunk'> instance at ...
-            * hasVertexWeights : False
-            * hasVertexColors : True
-            * inWorldSpace : False
-            * reserved1 : 0
-            * reserved2 : 0
-            * flags1 : 0
-            * flags2 : 0
-            * numVertices : 8
-            * numIndices : 12
-            * numUvs : 8
-            * numFaces : 4
+            * has_vertex_weights : False
+            * has_vertex_colors : True
+            * in_world_space : False
+            * reserved_1 : 0
+            * reserved_2 : 0
+            * flags_1 : 0
+            * flags_2 : 0
+            * num_vertices : 8
+            * num_indices : 12
+            * num_uvs : 8
+            * num_faces : 4
             * material : None
-            * numMeshSubsets : 2
-            * meshSubsets : <class 'pyffi.formats.cgf.MeshSubsetsChunk'> instance at ...
-            * vertAnim : None
+            * num_mesh_subsets : 2
+            * mesh_subsets : <class 'pyffi.formats.cgf.MeshSubsetsChunk'> instance at ...
+            * vert_anim : None
             * vertices :
                 <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0: <class 'pyffi.formats.cgf.Vertex'> instance at ...
@@ -2004,29 +2004,29 @@ chunk size mismatch when reading %s at 0x%08X
             * faces :
                 <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0: <class 'pyffi.formats.cgf.Face'> instance at ...
-                * v0 : 0
-                * v1 : 1
-                * v2 : 2
+                * v_0 : 0
+                * v_1 : 1
+                * v_2 : 2
                 * material : 2
-                * smGroup : 1
+                * sm_group : 1
                 1: <class 'pyffi.formats.cgf.Face'> instance at ...
-                * v0 : 2
-                * v1 : 1
-                * v2 : 3
+                * v_0 : 2
+                * v_1 : 1
+                * v_2 : 3
                 * material : 2
-                * smGroup : 1
+                * sm_group : 1
                 2: <class 'pyffi.formats.cgf.Face'> instance at ...
-                * v0 : 4
-                * v1 : 5
-                * v2 : 6
+                * v_0 : 4
+                * v_1 : 5
+                * v_2 : 6
                 * material : 5
-                * smGroup : 1
+                * sm_group : 1
                 3: <class 'pyffi.formats.cgf.Face'> instance at ...
-                * v0 : 6
-                * v1 : 5
-                * v2 : 7
+                * v_0 : 6
+                * v_1 : 5
+                * v_2 : 7
                 * material : 5
-                * smGroup : 1
+                * sm_group : 1
             * uvs :
                 <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0: <class 'pyffi.formats.cgf.UV'> instance at ...
@@ -2053,25 +2053,25 @@ chunk size mismatch when reading %s at 0x%08X
                 7: <class 'pyffi.formats.cgf.UV'> instance at ...
                 * u : 1.0
                 * v : 1.0
-            * uvFaces :
+            * uv_faces :
                 <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0: <class 'pyffi.formats.cgf.UVFace'> instance at ...
-                * t0 : 0
-                * t1 : 1
-                * t2 : 2
+                * t_0 : 0
+                * t_1 : 1
+                * t_2 : 2
                 1: <class 'pyffi.formats.cgf.UVFace'> instance at ...
-                * t0 : 2
-                * t1 : 1
-                * t2 : 3
+                * t_0 : 2
+                * t_1 : 1
+                * t_2 : 3
                 2: <class 'pyffi.formats.cgf.UVFace'> instance at ...
-                * t0 : 4
-                * t1 : 5
-                * t2 : 6
+                * t_0 : 4
+                * t_1 : 5
+                * t_2 : 6
                 3: <class 'pyffi.formats.cgf.UVFace'> instance at ...
-                * t0 : 6
-                * t1 : 5
-                * t2 : 7
-            * vertexColors :
+                * t_0 : 6
+                * t_1 : 5
+                * t_2 : 7
+            * vertex_colors :
                 <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0: <class 'pyffi.formats.cgf.IRGB'> instance at ...
                 * r : 0
@@ -2105,33 +2105,33 @@ chunk size mismatch when reading %s at 0x%08X
                 * r : 62
                 * g : 63
                 * b : 64
-            * verticesData : <class 'pyffi.formats.cgf.DataStreamChunk'> instance at ...
-            * normalsData : <class 'pyffi.formats.cgf.DataStreamChunk'> instance at ...
-            * uvsData : <class 'pyffi.formats.cgf.DataStreamChunk'> instance at ...
-            * colorsData : <class 'pyffi.formats.cgf.DataStreamChunk'> instance at ...
-            * colors2Data : None
-            * indicesData : <class 'pyffi.formats.cgf.DataStreamChunk'> instance at ...
-            * tangentsData : <class 'pyffi.formats.cgf.DataStreamChunk'> instance at ...
-            * shCoeffsData : None
-            * shapeDeformationData : None
-            * boneMapData : None
-            * faceMapData : None
-            * vertMatsData : None
-            * reservedData :
+            * vertices_data : <class 'pyffi.formats.cgf.DataStreamChunk'> instance at ...
+            * normals_data : <class 'pyffi.formats.cgf.DataStreamChunk'> instance at ...
+            * uvs_data : <class 'pyffi.formats.cgf.DataStreamChunk'> instance at ...
+            * colors_data : <class 'pyffi.formats.cgf.DataStreamChunk'> instance at ...
+            * colors_2_data : None
+            * indices_data : <class 'pyffi.formats.cgf.DataStreamChunk'> instance at ...
+            * tangents_data : <class 'pyffi.formats.cgf.DataStreamChunk'> instance at ...
+            * sh_coeffs_data : None
+            * shape_deformation_data : None
+            * bone_map_data : None
+            * face_map_data : None
+            * vert_mats_data : None
+            * reserved_data :
                 <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0: None
                 1: None
                 2: None
                 3: None
-            * physicsData :
+            * physics_data :
                 <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0: None
                 1: None
                 2: None
                 3: None
-            * minBound : [  0.000  0.000  0.000 ]
-            * maxBound : [  1.000  1.000  1.000 ]
-            * reserved3 :
+            * min_bound : [  0.000  0.000  0.000 ]
+            * max_bound : [  1.000  1.000  1.000 ]
+            * reserved_3 :
                 <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0: 0
                 1: 0
@@ -2152,43 +2152,43 @@ chunk size mismatch when reading %s at 0x%08X
                 16: 0
                 etc...
             <BLANKLINE>
-            >>> print(chunk.meshSubsets) # doctest: +ELLIPSIS
+            >>> print(chunk.mesh_subsets) # doctest: +ELLIPSIS
             <class 'pyffi.formats.cgf.MeshSubsetsChunk'> instance at ...
             * flags :
                 <class 'pyffi.formats.cgf.MeshSubsetsFlags'> instance at ...
-                * shHasDecomprMat : 0
-                * boneIndices : 0
-            * numMeshSubsets : 2
-            * reserved1 : 0
-            * reserved2 : 0
-            * reserved3 : 0
-            * meshSubsets :
+                * sh_has_decompr_mat : 0
+                * bone_indices : 0
+            * num_mesh_subsets : 2
+            * reserved_1 : 0
+            * reserved_2 : 0
+            * reserved_3 : 0
+            * mesh_subsets :
                 <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0: <class 'pyffi.formats.cgf.MeshSubset'> instance at ...
-                * firstIndex : 0
-                * numIndices : 6
-                * firstVertex : 0
-                * numVertices : 4
-                * matId : 2
+                * first_index : 0
+                * num_indices : 6
+                * first_vertex : 0
+                * num_vertices : 4
+                * mat_id : 2
                 * radius : 0.7071067...
                 * center : [  0.500  0.500  0.000 ]
                 1: <class 'pyffi.formats.cgf.MeshSubset'> instance at ...
-                * firstIndex : 6
-                * numIndices : 6
-                * firstVertex : 4
-                * numVertices : 4
-                * matId : 5
+                * first_index : 6
+                * num_indices : 6
+                * first_vertex : 4
+                * num_vertices : 4
+                * mat_id : 5
                 * radius : 0.7071067...
                 * center : [  0.500  0.500  1.000 ]
             <BLANKLINE>
-            >>> print(chunk.verticesData) # doctest: +ELLIPSIS
+            >>> print(chunk.vertices_data) # doctest: +ELLIPSIS
             <class 'pyffi.formats.cgf.DataStreamChunk'> instance at ...
             * flags : 0
-            * dataStreamType : VERTICES
-            * numElements : 8
-            * bytesPerElement : 12
-            * reserved1 : 0
-            * reserved2 : 0
+            * data_stream_type : VERTICES
+            * num_elements : 8
+            * bytes_per_element : 12
+            * reserved_1 : 0
+            * reserved_2 : 0
             * vertices :
                 <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0: [  0.000  0.000  0.000 ]
@@ -2200,14 +2200,14 @@ chunk size mismatch when reading %s at 0x%08X
                 6: [  1.000  0.000  1.000 ]
                 7: [  1.000  1.000  1.000 ]
             <BLANKLINE>
-            >>> print(chunk.normalsData) # doctest: +ELLIPSIS
+            >>> print(chunk.normals_data) # doctest: +ELLIPSIS
             <class 'pyffi.formats.cgf.DataStreamChunk'> instance at ...
             * flags : 0
-            * dataStreamType : NORMALS
-            * numElements : 8
-            * bytesPerElement : 12
-            * reserved1 : 0
-            * reserved2 : 0
+            * data_stream_type : NORMALS
+            * num_elements : 8
+            * bytes_per_element : 12
+            * reserved_1 : 0
+            * reserved_2 : 0
             * normals :
                 <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0: [  0.000  0.000 -1.000 ]
@@ -2219,14 +2219,14 @@ chunk size mismatch when reading %s at 0x%08X
                 6: [  0.000  0.000  1.000 ]
                 7: [  0.000  0.000  1.000 ]
             <BLANKLINE>
-            >>> print(chunk.indicesData) # doctest: +ELLIPSIS
+            >>> print(chunk.indices_data) # doctest: +ELLIPSIS
             <class 'pyffi.formats.cgf.DataStreamChunk'> instance at ...
             * flags : 0
-            * dataStreamType : INDICES
-            * numElements : 12
-            * bytesPerElement : 2
-            * reserved1 : 0
-            * reserved2 : 0
+            * data_stream_type : INDICES
+            * num_elements : 12
+            * bytes_per_element : 2
+            * reserved_1 : 0
+            * reserved_2 : 0
             * indices :
                 <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0: 0
@@ -2242,14 +2242,14 @@ chunk size mismatch when reading %s at 0x%08X
                 10: 5
                 11: 7
             <BLANKLINE>
-            >>> print(chunk.uvsData) # doctest: +ELLIPSIS
+            >>> print(chunk.uvs_data) # doctest: +ELLIPSIS
             <class 'pyffi.formats.cgf.DataStreamChunk'> instance at ...
             * flags : 0
-            * dataStreamType : UVS
-            * numElements : 8
-            * bytesPerElement : 8
-            * reserved1 : 0
-            * reserved2 : 0
+            * data_stream_type : UVS
+            * num_elements : 8
+            * bytes_per_element : 8
+            * reserved_1 : 0
+            * reserved_2 : 0
             * uvs :
                 <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0: <class 'pyffi.formats.cgf.UV'> instance at ...
@@ -2277,14 +2277,14 @@ chunk size mismatch when reading %s at 0x%08X
                 * u : 1.0
                 * v : 0.0
             <BLANKLINE>
-            >>> print(chunk.tangentsData) # doctest: +ELLIPSIS
+            >>> print(chunk.tangents_data) # doctest: +ELLIPSIS
             <class 'pyffi.formats.cgf.DataStreamChunk'> instance at ...
             * flags : 0
-            * dataStreamType : TANGENTS
-            * numElements : 8
-            * bytesPerElement : 16
-            * reserved1 : 0
-            * reserved2 : 0
+            * data_stream_type : TANGENTS
+            * num_elements : 8
+            * bytes_per_element : 16
+            * reserved_1 : 0
+            * reserved_2 : 0
             * tangents :
                 <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0, 0: <class 'pyffi.formats.cgf.Tangent'> instance at ...
@@ -2368,15 +2368,15 @@ chunk size mismatch when reading %s at 0x%08X
                 * z : 0
                 * w : 32767
             <BLANKLINE>
-            >>> print(chunk.colorsData) # doctest: +ELLIPSIS
+            >>> print(chunk.colors_data) # doctest: +ELLIPSIS
             <class 'pyffi.formats.cgf.DataStreamChunk'> instance at ...
             * flags : 0
-            * dataStreamType : COLORS
-            * numElements : 8
-            * bytesPerElement : 4
-            * reserved1 : 0
-            * reserved2 : 0
-            * rgbaColors :
+            * data_stream_type : COLORS
+            * num_elements : 8
+            * bytes_per_element : 4
+            * reserved_1 : 0
+            * reserved_2 : 0
+            * rgba_colors :
                 <class 'pyffi.object_models.xml.array.Array'> instance at ...
                 0: <class 'pyffi.formats.cgf.IRGBA'> instance at ...
                 * r : 0
