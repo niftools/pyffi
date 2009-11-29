@@ -76,6 +76,7 @@ contained in a file whose format is described in a particular way
 
 import logging
 import os.path # os.path.altsep
+import re # compile
 import sys # version_info
 
 import pyffi.utils
@@ -138,6 +139,23 @@ class FileFormat(object):
     where required.
     """
 
+    # precompiled regular expressions, used in name_parts
+
+    _RE_NAME_SEP = re.compile('[_\W]+')
+    """Matches seperators for splitting names."""
+    
+    _RE_NAME_DIGITS = re.compile('([0-9]+)|([a-zA-Z]+)')
+    """Matches digits or characters for splitting names."""
+
+    _RE_NAME_CAMEL = re.compile('([A-Z][a-z]*)|([a-z]+)')
+    """Finds components of camelCase and CamelCase names."""
+
+    _RE_NAME_LC = re.compile('[a-z]')
+    """Matches a lower case character."""
+
+    _RE_NAME_UC = re.compile('[A-Z]')
+    """Matches an upper case character."""
+
     # override this with the data instance for this format
     class Data(pyffi.utils.graph.GlobalNode):
         """Base class for representing data in a particular format.
@@ -191,8 +209,64 @@ class FileFormat(object):
         """
         return 0
 
-    @staticmethod
-    def name_attribute(name):
+    @classmethod
+    def name_parts(cls, name):
+        """Intelligently split a name into parts:
+
+        * first, split at non-alphanumeric characters
+        * next, seperate digits from characters
+        * finally, if some part has mixed case, it must be
+          camel case so split it further at upper case characters
+
+        >>> FileFormat.name_parts("hello_world")
+        ['hello', 'world']
+        >>> FileFormat.name_parts("HELLO_WORLD")
+        ['HELLO', 'WORLD']
+        >>> FileFormat.name_parts("HelloWorld")
+        ['Hello', 'World']
+        >>> FileFormat.name_parts("helloWorld")
+        ['hello', 'World']
+        >>> FileFormat.name_parts("xs:NMTOKEN")
+        ['xs', 'NMTOKEN']
+        >>> FileFormat.name_parts("xs:NCName")
+        ['xs', 'N', 'C', 'Name']
+        >>> FileFormat.name_parts('this IS a sillyNAME')
+        ['this', 'IS', 'a', 'silly' , 'N', 'A', 'M', 'E']
+        >>> FileFormat.name_parts('tHis is A Silly naME')
+        ['t', 'His', 'is', 'A', 'Silly' , 'na', 'M', 'E']
+        """
+        # str(name) converts name to string in case it is a py2k
+        # unicode string
+        name = str(name)
+        # separate at symbols
+        parts = cls._RE_NAME_SEP.split(name)
+        # seperate digits
+        newparts = []
+        for part in parts:
+            for part_groups in cls._RE_NAME_DIGITS.findall(part):
+                for group in part_groups:
+                    if group:
+                        newparts.append(group)
+                        break
+        parts = newparts
+        # separate at upper case characters for CamelCase and camelCase words
+        newparts = []
+        for part in parts:
+            if cls._RE_NAME_LC.search(part) and cls._RE_NAME_UC.search(part):
+                # find the camel bumps
+                for part_groups in cls._RE_NAME_CAMEL.findall(part):
+                    for group in part_groups:
+                        if group:
+                            newparts.append(group)
+                            break
+            else:
+                newparts.append(part)
+        parts = newparts
+        # return result
+        return parts
+
+    @classmethod
+    def name_attribute(cls, name):
         """Converts an attribute name, as in the description file,
         into a name usable by python.
 
@@ -201,17 +275,28 @@ class FileFormat(object):
         :return: Reformatted attribute name, useable by python.
 
         >>> FileFormat.name_attribute('tHis is A Silly naME')
-        'thisIsASillyName'
+        't_his_is_a_silly_na_m_e'
+        >>> FileFormat.name_attribute('Test:Something')
+        'test_something'
+        >>> FileFormat.name_attribute('unknown?')
+        'unknown'
         """
+        return '_'.join(part.lower() for part in cls.name_parts(name))
 
-        # str(name) converts name to string in case name is a unicode string
-        parts = str(name).split()
-        attrname = parts[0].lower()
-        for part in parts[1:]:
-            attrname += part.capitalize()
-        return attrname
+    @classmethod
+    def name_class(cls, name):
+        """Converts a class name, as in the xsd file, into a name usable
+        by python.
 
-    # TODO: port name_class(name) from XsdFileFormat
+        :param name: The class name.
+        :type name: str
+        :return: Reformatted class name, useable by python.
+
+        >>> FileFormat.name_class('this IS a sillyNAME')
+        'ThisIsASillyNAME'
+        """
+        return ''.join(part.capitalize()
+                       for part in cls.name_parts(name))
 
     @classmethod
     def walkData(cls, top, topdown=True, mode='rb'):

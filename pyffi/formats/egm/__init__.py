@@ -231,26 +231,6 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
             # not supported
             return -1
 
-    @staticmethod
-    def name_attribute(name):
-        """Converts an attribute name, as in the description file,
-        into a name usable by python.
-
-        :param name: The attribute name.
-        :type name: ``str``
-        :return: Reformatted attribute name, useable by python.
-
-        >>> EgmFormat.name_attribute('tHis is A Silly naME')
-        'this_is_a_silly_name'
-        """
-
-        # str(name) converts name to string in case name is a unicode string
-        parts = str(name).split()
-        attrname = parts[0].lower()
-        for part in parts[1:]:
-            attrname += "_" + part.lower()
-        return attrname
-
     class Data(pyffi.object_models.FileFormat.Data):
         """A class to contain the actual egm data."""
         def __init__(self, version=2, num_vertices=0):

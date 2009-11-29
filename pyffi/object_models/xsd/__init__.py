@@ -228,8 +228,9 @@ class Tree(object):
                     self.pytype = getattr(fileformat, pytypename)
                 except AttributeError:
                     raise ValueError(
-                        "Could not resolve type '%s' for %s '%s'."
-                        % (self.type_, self.__class__.__name__.lower(),
+                        "Could not resolve type '%s' (%s) for %s '%s'."
+                        % (self.type_, pytypename,
+                           self.__class__.__name__.lower(),
                            self.name if self.name else self.ref))
 
         def instantiate(self, inst):
@@ -553,45 +554,13 @@ class FileFormat(pyffi.object_models.FileFormat):
     xsdFilePath = None #: Override.
     logger = logging.getLogger("pyffi.object_models.xsd")
 
-    @staticmethod
-    def name_attribute(name):
-        """Converts an attribute name, as in the xsd file, into a name usable
-        by python.
-
-        :param name: The attribute name.
-        :type name: str
-        :return: Reformatted attribute name, useable by python.
-
-        >>> FileFormat.name_attribute('tHis is A Silly naME')
-        'this_is_a_silly_name'
-        """
-
-        # str(name) converts name to string in case name is a unicode string
-        parts = str(name).replace(":", "_").split()
-        return "_".join(part.lower() for part in parts)
-
-    @staticmethod
-    def name_class(name):
-        """Converts a class name, as in the xsd file, into a name usable
-        by python.
-
-        :param name: The class name.
-        :type name: str
-        :return: Reformatted class name, useable by python.
-
-        >>> FileFormat.name_class('this IS a sillyNAME')
-        'ThisISASillyNAME'
-        """
-
-        # str(name) converts name to string in case name is a unicode string
-        partss = [part.replace(":", "_").split("_")
-                  for part in str(name).split()]
-        attrname = ""
-        for parts in partss:
-            for part in parts:
-                attrname += part[0].upper() + part[1:]
-        return attrname
-
+    @classmethod
+    def name_parts(cls, name):
+        # introduces extra splits for some names
+        name = name.replace("NMTOKEN", "NM_TOKEN") # name token
+        name = name.replace("IDREF", "ID_REF") # identifier reference
+        # do the split
+        return pyffi.object_models.FileFormat.name_parts(name)
 
     # built-in datatypes
     # http://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html#built-in-datatypes
@@ -658,7 +627,7 @@ class FileFormat(pyffi.object_models.FileFormat):
     class XsQName(XsAnySimpleType):
         pass
 
-    class XsNOTATION(XsAnySimpleType):
+    class XsNotation(XsAnySimpleType):
         pass
 
     # derived datatypes
@@ -673,33 +642,39 @@ class FileFormat(pyffi.object_models.FileFormat):
     class XsLanguage(XsToken):
         pass
 
-    class XsNMTOKEN(XsToken):
+    class XsNmToken(XsToken):
         pass
 
-    class XsNMTOKENS(XsToken):
+    class XsNmTokens(XsToken):
         # list
         pass
 
     class XsName(XsToken):
+        """Name represents XML Names. See
+        http://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html#Name
+        """
         pass
 
     class XsNCName(XsName):
+        """NCName represents XML "non-colonized" Names. See
+        http://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html#NCName
+        """
         pass
 
-    class XsID(XsNCName):
+    class XsId(XsNCName):
         pass
 
-    class XsIDREF(XsNCName):
+    class XsIdRef(XsNCName):
         pass
 
-    class XsIDREFS(XsIDREF):
+    class XsIdRefs(XsIdRef):
         # list
         pass
 
-    class XsENTITY(XsNCName):
+    class XsEntity(XsNCName):
         pass
 
-    class XsENTITIES(XsENTITY):
+    class XsEntities(XsEntity):
         # list
         pass
 
