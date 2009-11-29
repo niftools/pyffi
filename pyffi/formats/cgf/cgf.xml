@@ -580,7 +580,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Flags 2" type="uint" ver1="800" />
         <add name="Num Vertices" type="uint" />
         <add name="Num Indices" type="uint" ver1="800">Number of indices (each triangle has 3 indices, so this is the number of triangles times 3).</add>
-        <add name="Num UVs" type="uint" ver2="744" />
+        <add name="Num Uvs" type="uint" ver2="744" />
         <add name="Num Faces" type="uint" ver2="744" />
         <add name="Material" type="Ref" template="MtlChunk" ver2="623">Material chunk.</add>
         <!-- mesh chunks of version 0x623 never encountered, and the next field is very confusing, so deleted -->
@@ -593,15 +593,15 @@ In Python this can be calculated using zlib.crc32(name)</add>
         
         <add name="Faces" type="Face" arr1="Num Faces" ver2="744" />
         
-        <add name="UVs" type="UV" arr1="Num UVs" ver2="744" />
-        <add name="UV Faces" type="UVFace" arr1="Num Faces" cond="Num UVs" ver2="744" />
+        <add name="Uvs" type="UV" arr1="Num Uvs" ver2="744" />
+        <add name="Uv Faces" type="UVFace" arr1="Num Faces" cond="Num Uvs" ver2="744" />
 
         <add name="Vertex Weights" type="VertexWeight" arr1="Num Vertices" cond="Has Vertex Weights" ver2="744" />
         <add name="Vertex Colors" type="IRGB" arr1="Num Vertices" cond="Has Vertex Colors" ver2="744" />
 
         <add name="Vertices Data" type="Ref" template="DataStreamChunk" ver1="800" />
         <add name="Normals Data" type="Ref" template="DataStreamChunk" ver1="800" />
-        <add name="UVs Data" type="Ref" template="DataStreamChunk" ver1="800" />
+        <add name="Uvs Data" type="Ref" template="DataStreamChunk" ver1="800" />
         <add name="Colors Data" type="Ref" template="DataStreamChunk" ver1="800" />
         <add name="Colors 2 Data" type="Ref" template="DataStreamChunk" ver1="800" />
         <add name="Indices Data" type="Ref" template="DataStreamChunk" ver1="800" />
@@ -838,7 +838,7 @@ In Python this can be calculated using zlib.crc32(name)</add>
         <add name="Reserved 2" type="uint" />
         <add name="Vertices" type="Vector3" arr1="Num Elements" cond="Data Stream Type == 0" />
         <add name="Normals" type="Vector3" arr1="Num Elements" cond="Data Stream Type == 1" />
-        <add name="UVs" type="UV" arr1="Num Elements" cond="Data Stream Type == 2" />
+        <add name="Uvs" type="UV" arr1="Num Elements" cond="Data Stream Type == 2" />
         <add name="RGB Colors" type="IRGB" arr1="Num Elements" cond="(Data Stream Type == 3) &amp;&amp; (Bytes Per Element == 3)" />
         <add name="RGBA Colors" type="IRGBA" arr1="Num Elements" cond="(Data Stream Type == 3) &amp;&amp; (Bytes Per Element == 4)" />
         <add name="Colors 2" type="IRGBA" arr1="Num Elements" cond="Data Stream Type == 4" />
