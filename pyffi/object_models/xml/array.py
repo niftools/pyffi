@@ -55,22 +55,22 @@ class _ListWrap(list, DetailNode):
         # we link to the unbound methods (that is, self.__class__.xxx
         # instead of self.xxx) to avoid circular references!!
         if issubclass(element_type, BasicBase):
-            self._getItemHook = self.__class__.getBasicItem
-            self._setItemHook = self.__class__.setBasicItem
-            self._iterItemHook = self.__class__.iterBasicItem
+            self._get_item_hook = self.__class__.get_basic_item
+            self._set_item_hook = self.__class__.set_basic_item
+            self._iter_item_hook = self.__class__.iter_basic_item
         else:
-            self._getItemHook = self.__class__.getItem
-            self._setItemHook = self.__class__._notImplementedHook
-            self._iterItemHook = self.__class__.iterItem
+            self._get_item_hook = self.__class__.get_item
+            self._set_item_hook = self.__class__._not_implemented_hook
+            self._iter_item_hook = self.__class__.iter_item
 
     def __getitem__(self, index):
-        return self._getItemHook(self, index)
+        return self._get_item_hook(self, index)
 
     def __setitem__(self, index, value):
-        return self._setItemHook(self, index, value)
+        return self._set_item_hook(self, index, value)
 
     def __iter__(self):
-        return self._iterItemHook(self)
+        return self._iter_item_hook(self)
 
     def __contains__(self, value):
         # ensure that the "in" operator uses self.__iter__() rather than
@@ -80,31 +80,31 @@ class _ListWrap(list, DetailNode):
                 return True
         return False
 
-    def _notImplementedHook(self, *args):
+    def _not_implemented_hook(self, *args):
         """A hook for members that are not implemented."""
         raise NotImplementedError
 
-    def iterBasicItem(self):
+    def iter_basic_item(self):
         """Iterator which calls C{get_value()} on all items. Applies when
         the list has BasicBase elements."""
         for elem in list.__iter__(self):
             yield elem.get_value()
 
-    def iterItem(self):
+    def iter_item(self):
         """Iterator over all items. Applies when the list does not have
         BasicBase elements."""
         for elem in list.__iter__(self):
             yield elem
 
-    def getBasicItem(self, index):
+    def get_basic_item(self, index):
         """Item getter which calls C{get_value()} on the C{index}'d item."""
         return list.__getitem__(self, index).get_value()
 
-    def setBasicItem(self, index, value):
+    def set_basic_item(self, index, value):
         """Item setter which calls C{set_value()} on the C{index}'d item."""
         return list.__getitem__(self, index).set_value(value)
 
-    def getItem(self, index):
+    def get_item(self, index):
         """Regular item getter, used when the list does not have BasicBase
         elements."""
         return list.__getitem__(self, index)

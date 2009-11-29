@@ -43,4 +43,13 @@ find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exe
 find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exec perl -pi -w -e 's/isInterchangeable/is_interchangeable/g' {} \;
 find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exec perl -pi -w -e 's/getEditorDecimals/get_editor_decimals/g' {} \;
 find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exec perl -pi -w -e 's/getEditorKeys/get_editor_keys/g' {} \;
+find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exec perl -pi -w -e 's/getItemHook/get_item_hook/g' {} \;
+find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exec perl -pi -w -e 's/setItemHook/set_item_hook/g' {} \;
+find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exec perl -pi -w -e 's/iterItemHook/iter_item_hook/g' {} \;
+find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exec perl -pi -w -e 's/notImplementedHook/not_implemented_hook/g' {} \;
+find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exec perl -pi -w -e 's/iterBasicItem/iter_basic_item/g' {} \;
+find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exec perl -pi -w -e 's/iterItem/iter_item/g' {} \;
+find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exec perl -pi -w -e 's/getBasicItem/get_basic_item/g' {} \;
+find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exec perl -pi -w -e 's/setBasicItem/set_basic_item/g' {} \;
+find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exec perl -pi -w -e 's/getItem/get_item/g' {} \;
 
