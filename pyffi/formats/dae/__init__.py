@@ -22,7 +22,7 @@ Create a DAE file
 
 >>> daedata = DaeFormat.Data()
 >>> print(daedata.collada) # doctest: +ELLIPSIS
-<pyffi.formats.dae.COLLADA object at ...>
+<pyffi.formats.dae.Collada object at ...>
 
 Read a DAE file
 ^^^^^^^^^^^^^^^
@@ -129,7 +129,7 @@ class DaeFormat(pyffi.object_models.xsd.FileFormat):
             :type version: int
             """
             # TODO integrate the Collada and Data elements
-            self.collada = DaeFormat.COLLADA()
+            self.collada = DaeFormat.Collada()
 
         def getVersion(self):
             """Get the collada version, as integer (for instance, 1.4.1 would be
