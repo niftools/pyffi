@@ -231,9 +231,9 @@ class FileFormat(object):
         >>> FileFormat.name_parts("xs:NCName")
         ['xs', 'N', 'C', 'Name']
         >>> FileFormat.name_parts('this IS a sillyNAME')
-        ['this', 'IS', 'a', 'silly' , 'N', 'A', 'M', 'E']
+        ['this', 'IS', 'a', 'silly', 'N', 'A', 'M', 'E']
         >>> FileFormat.name_parts('tHis is A Silly naME')
-        ['t', 'His', 'is', 'A', 'Silly' , 'na', 'M', 'E']
+        ['t', 'His', 'is', 'A', 'Silly', 'na', 'M', 'E']
         """
         # str(name) converts name to string in case it is a py2k
         # unicode string
