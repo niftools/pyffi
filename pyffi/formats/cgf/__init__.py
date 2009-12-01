@@ -1892,7 +1892,7 @@ chunk size mismatch when reading %s at 0x%08X
                 while True:
                     yield it.next(), it.next(), it.next()
 
-        getUVTriangles = getUvTriangles
+        getUVTriangles = getUvTriangles # compatibility
 
         ### DEPRECATED: USE setGeometry INSTEAD ###
         def setVerticesNormals(self, vertices, normals):
