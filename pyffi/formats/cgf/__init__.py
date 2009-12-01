@@ -1879,8 +1879,6 @@ chunk size mismatch when reading %s at 0x%08X
                 for uv in self.uvs_data.uvs:
                     yield uv.u, 1.0 - uv.v # OpenGL fix!
 
-        get_u_vs = get_uvs # compatibility
-
         def get_uv_triangles(self):
             """Generator for all uv triangles."""
             if self.uv_faces:
@@ -1891,8 +1889,6 @@ chunk size mismatch when reading %s at 0x%08X
                 it = iter(self.indices_data.indices)
                 while True:
                     yield it.next(), it.next(), it.next()
-
-        get_u_v_triangles = get_uv_triangles # compatibility
 
         ### DEPRECATED: USE set_geometry INSTEAD ###
         def set_vertices_normals(self, vertices, normals):
