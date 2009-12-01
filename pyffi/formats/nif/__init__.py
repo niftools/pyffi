@@ -5476,21 +5476,21 @@ class NifFormat(FileFormat):
                 header.flags.height = 1
                 header.flags.width = 1
                 header.flags.pixel_format = 1
-                header.flags.mipmapCount = 1
-                header.flags.linearSize = 1
+                header.flags.mipmap_count = 1
+                header.flags.linear_size = 1
                 header.height = self.mipmaps[0].height
                 header.width = self.mipmaps[0].width
-                header.linearSize = len(self.pixel_data)
-                header.mipmapCount = len(self.mipmaps)
+                header.linear_size = len(self.pixel_data)
+                header.mipmap_count = len(self.mipmaps)
                 header.pixel_format.flags.rgb = 1
-                header.pixel_format.bitCount = self.bits_per_pixel
-                header.pixel_format.rMask = self.red_mask
-                header.pixel_format.gMask = self.green_mask
-                header.pixel_format.bMask = self.blue_mask
-                header.pixel_format.aMask = self.alpha_mask
-                header.caps1.complex = 1
-                header.caps1.texture = 1
-                header.caps1.mipmap = 1
+                header.pixel_format.bit_count = self.bits_per_pixel
+                header.pixel_format.r_mask = self.red_mask
+                header.pixel_format.g_mask = self.green_mask
+                header.pixel_format.b_mask = self.blue_mask
+                header.pixel_format.a_mask = self.alpha_mask
+                header.caps_1.complex = 1
+                header.caps_1.texture = 1
+                header.caps_1.mipmap = 1
                 pixeldata.set_value(self.pixel_data)
             elif self.pixel_format == NifFormat.PixelFormat.PX_FMT_DXT1:
                 # format used in Megami Tensei: Imagine
@@ -5498,22 +5498,22 @@ class NifFormat(FileFormat):
                 header.flags.height = 1
                 header.flags.width = 1
                 header.flags.pixel_format = 1
-                header.flags.mipmapCount = 1
-                header.flags.linearSize = 0
+                header.flags.mipmap_count = 1
+                header.flags.linear_size = 0
                 header.height = self.mipmaps[0].height
                 header.width = self.mipmaps[0].width
-                header.linearSize = 0
-                header.mipmapCount = len(self.mipmaps)
+                header.linear_size = 0
+                header.mipmap_count = len(self.mipmaps)
                 header.pixel_format.flags.fourcc = 1
                 header.pixel_format.fourcc = pyffi.formats.dds.DdsFormat.FourCC.DXT1
-                header.pixel_format.bitCount = 0
-                header.pixel_format.rMask = 0
-                header.pixel_format.gMask = 0
-                header.pixel_format.bMask = 0
-                header.pixel_format.aMask = 0
-                header.caps1.complex = 1
-                header.caps1.texture = 1
-                header.caps1.mipmap = 1
+                header.pixel_format.bit_count = 0
+                header.pixel_format.r_mask = 0
+                header.pixel_format.g_mask = 0
+                header.pixel_format.b_mask = 0
+                header.pixel_format.a_mask = 0
+                header.caps_1.complex = 1
+                header.caps_1.texture = 1
+                header.caps_1.mipmap = 1
                 if isinstance(self,
                               NifFormat.NiPersistentSrcTextureRendererData):
                     pixeldata.set_value(
@@ -5529,22 +5529,22 @@ class NifFormat(FileFormat):
                 header.flags.height = 1
                 header.flags.width = 1
                 header.flags.pixel_format = 1
-                header.flags.mipmapCount = 1
-                header.flags.linearSize = 0
+                header.flags.mipmap_count = 1
+                header.flags.linear_size = 0
                 header.height = self.mipmaps[0].height
                 header.width = self.mipmaps[0].width
-                header.linearSize = 0
-                header.mipmapCount = len(self.mipmaps)
+                header.linear_size = 0
+                header.mipmap_count = len(self.mipmaps)
                 header.pixel_format.flags.fourcc = 1
                 header.pixel_format.fourcc = pyffi.formats.dds.DdsFormat.FourCC.DXT5
-                header.pixel_format.bitCount = 0
-                header.pixel_format.rMask = 0
-                header.pixel_format.gMask = 0
-                header.pixel_format.bMask = 0
-                header.pixel_format.aMask = 0
-                header.caps1.complex = 1
-                header.caps1.texture = 1
-                header.caps1.mipmap = 1
+                header.pixel_format.bit_count = 0
+                header.pixel_format.r_mask = 0
+                header.pixel_format.g_mask = 0
+                header.pixel_format.b_mask = 0
+                header.pixel_format.a_mask = 0
+                header.caps_1.complex = 1
+                header.caps_1.texture = 1
+                header.caps_1.mipmap = 1
                 pixeldata.set_value(''.join(self.pixel_data_matrix))
             else:
                 raise ValueError(

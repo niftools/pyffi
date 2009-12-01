@@ -19,7 +19,7 @@ Read a DDS file
 >>> stream = open('tests/dds/test.dds', 'rb')
 >>> data = DdsFormat.Data()
 >>> data.inspect(stream)
->>> data.header.pixelFormat.size
+>>> data.header.pixel_format.size
 32
 >>> data.header.height
 20
