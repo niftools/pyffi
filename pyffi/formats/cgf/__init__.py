@@ -240,8 +240,6 @@ class CgfFormat(pyffi.object_models.xml.FileFormat):
     EPSILON = 0.0001 # used for comparing floats
     # regular expression for file name extension matching on cgf files
     RE_FILENAME = re.compile(r'^.*\.(cgf|cga|chr|caf)$', re.IGNORECASE)
-    # activate compatibility wrappers
-    _NON_PEP8 = True
 
     # version and user version for far cry
     VER_FARCRY = 0x744
