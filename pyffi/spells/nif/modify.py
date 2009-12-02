@@ -192,7 +192,7 @@ class SpellAnimationTime(NifSpell):
 
     SPELLNAME = "modify_scaleanimationtime"
     READONLY = False
-
+    
     @classmethod
     def toastentry(cls, toaster):
         if not toaster.options["arg"]:
@@ -202,14 +202,14 @@ class SpellAnimationTime(NifSpell):
                 "to apply spell")
             return False
         else:
-            toaster.animation_scale = int(toaster.options["arg"]) #change to decimal when connected to internet and can look up that.
+            toaster.animation_scale = float(toaster.options["arg"]) #does float have enough accuracy?
             return True
 
     def datainspect(self):
         return self.inspectblocktype(NifFormat.NiTransformData)
 
     def branchinspect(self, branch):
-        # only inspect the NiAVObject branch <hmmm maybe... trying this anyways>
+        # only inspect the NiAVObject branch
         return isinstance(branch, (NifFormat.NiAVObject,
                                    NifFormat.NiTransformController,
                                    NifFormat.NiTransformInterpolator,
