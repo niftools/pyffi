@@ -217,11 +217,16 @@ class SpellAnimationTime(NifSpell):
 
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiTransformData):
-            #branch.rotation_type = 3 #this line works... confirmed
-            #translations = branch.translations
+            if branch.rotation_type == 4:
+                for key in branch.xyz_rotations.keys:
+                    key.time = (key.time * self.toaster.animation_scale)
+            else:
+                for key in branch.quaternion_keys:
+                    key.time = (key.time * self.toaster.animation_scale)
             for key in branch.translations.keys:
                 key.time = (key.time * self.toaster.animation_scale)
-            # ADD IN OTHER KEYS HERE
+            for key in branch.scales.keys:
+                key.time = (key.time * self.toaster.animation_scale)
             # no children of NiTransformData so no need to recurse further.
             return False
         else:
