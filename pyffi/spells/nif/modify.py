@@ -187,3 +187,44 @@ class SpellCollisionType(NifSpell):
         else:
             # recurse further
             return True
+class SpellAnimationTime(NifSpell):
+    """Scales the animation time."""
+
+    SPELLNAME = "modify_scaleanimationtime"
+    READONLY = False
+
+    @classmethod
+    def toastentry(cls, toaster):
+        if not toaster.options["arg"]:
+            toaster.logger.warn(
+                "must specify scaling number as argument "
+                "(e.g. -a 0.6) "
+                "to apply spell")
+            return False
+        else:
+            toaster.animation_scale = int(toaster.options["arg"]) #change to decimal when connected to internet and can look up that.
+            return True
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.NiTransformData)
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch <hmmm maybe... trying this anyways>
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiTransformController,
+                                   NifFormat.NiTransformInterpolator,
+                                   NifFormat.NiTransformData))
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiTransformData):
+            #branch.rotation_type = 3 #this line works... confirmed
+            #translations = branch.translations
+            for key in branch.translations.keys:
+                key.time = (key.time * self.toaster.animation_scale)
+            # ADD IN OTHER KEYS HERE
+            # no children of NiTransformData so no need to recurse further.
+            return False
+        else:
+            # recurse further
+            return True
+
