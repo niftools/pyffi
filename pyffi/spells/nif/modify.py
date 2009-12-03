@@ -187,8 +187,10 @@ class SpellCollisionType(NifSpell):
         else:
             # recurse further
             return True
-class SpellAnimationTime(NifSpell):
+
+class SpellScaleAnimationTime(NifSpell):
     """Scales the animation time."""
+    # XXX only scales NiTransformData (no controllers, or other data)
 
     SPELLNAME = "modify_scaleanimationtime"
     READONLY = False
@@ -198,19 +200,20 @@ class SpellAnimationTime(NifSpell):
         if not toaster.options["arg"]:
             toaster.logger.warn(
                 "must specify scaling number as argument "
-                "(e.g. -a 0.6) "
-                "to apply spell")
+                "(e.g. -a 0.6) to apply spell")
             return False
         else:
-            toaster.animation_scale = float(toaster.options["arg"]) #does float have enough accuracy?
+            toaster.animation_scale = float(toaster.options["arg"])
             return True
 
     def datainspect(self):
         return self.inspectblocktype(NifFormat.NiTransformData)
 
     def branchinspect(self, branch):
-        # only inspect the NiAVObject branch
+        # inspect the NiAVObject branch, and NiControllerSequence
+        # branch (for kf files)
         return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiControllerSequence,
                                    NifFormat.NiTransformController,
                                    NifFormat.NiTransformInterpolator,
                                    NifFormat.NiTransformData))
@@ -219,14 +222,14 @@ class SpellAnimationTime(NifSpell):
         if isinstance(branch, NifFormat.NiTransformData):
             if branch.rotation_type == 4:
                 for key in branch.xyz_rotations.keys:
-                    key.time = (key.time * self.toaster.animation_scale)
+                    key.time *= self.toaster.animation_scale
             else:
                 for key in branch.quaternion_keys:
-                    key.time = (key.time * self.toaster.animation_scale)
+                    key.time *= self.toaster.animation_scale
             for key in branch.translations.keys:
-                key.time = (key.time * self.toaster.animation_scale)
+                key.time *= self.toaster.animation_scale
             for key in branch.scales.keys:
-                key.time = (key.time * self.toaster.animation_scale)
+                key.time *= self.toaster.animation_scale
             # no children of NiTransformData so no need to recurse further.
             return False
         else:
