@@ -147,6 +147,7 @@ opt_geometry
 optimize
 modify_texturepath
 modify_collisiontype
+modify_scaleanimationtime
 
 The check_readwrite spell and the --raise switch
 ------------------------------------------------
