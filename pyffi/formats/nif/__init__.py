@@ -1607,6 +1607,9 @@ class NifFormat(FileFormat):
                 return True
             # slower check, using isinstance
             for data_block_type in self.block_types:
+                # NiDataStreams are special
+                if data_block_type.startswith("NiDataStream\x01"):
+                    data_block_type = "NiDataStream"
                 if issubclass(getattr(NifFormat, data_block_type.decode()), block_type):
                     return True
             # requested block type is not in nif
