@@ -187,10 +187,10 @@ class SpellCollisionType(NifSpell):
         else:
             # recurse further
             return True
-class SpellAnimationTime(NifSpell):
-    """Scales the animation time."""
+class SpellAnimationTimeNif(NifSpell):
+    """Scales the animation time in nif files."""
 
-    SPELLNAME = "modify_scaleanimationtime"
+    SPELLNAME = "modify_scaleanimationtimenif"
     READONLY = False
     
     @classmethod
@@ -202,7 +202,7 @@ class SpellAnimationTime(NifSpell):
                 "to apply spell")
             return False
         else:
-            toaster.animation_scale = float(toaster.options["arg"]) #does float have enough accuracy?
+            toaster.animation_scale = float(toaster.options["arg"])
             return True
 
     def datainspect(self):
@@ -218,7 +218,11 @@ class SpellAnimationTime(NifSpell):
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiTransformData):
             if branch.rotation_type == 4:
-                for key in branch.xyz_rotations.keys:
+                for key in branch.xyz_rotations[0].keys:
+                    key.time = (key.time * self.toaster.animation_scale)
+                for key in branch.xyz_rotations[1].keys:
+                    key.time = (key.time * self.toaster.animation_scale)
+                for key in branch.xyz_rotations[2].keys:
                     key.time = (key.time * self.toaster.animation_scale)
             else:
                 for key in branch.quaternion_keys:
@@ -233,3 +237,52 @@ class SpellAnimationTime(NifSpell):
             # recurse further
             return True
 
+class SpellAnimationTimeKf(NifSpell):
+    """Scales the animation time in kf files."""
+
+    SPELLNAME = "modify_scaleanimationtimekf"
+    READONLY = False
+    
+    @classmethod
+    def toastentry(cls, toaster):
+        if not toaster.options["arg"]:
+            toaster.logger.warn(
+                "must specify scaling number as argument "
+                "(e.g. -a 0.6) "
+                "to apply spell")
+            return False
+        else:
+            toaster.animation_scale = float(toaster.options["arg"])
+            return True
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.NiTransformData)
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiControllerSequence,
+                                   NifFormat.NiTransformInterpolator,
+                                   NifFormat.NiTransformData))
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiTransformData):
+            if branch.rotation_type == 4:
+                for key in branch.xyz_rotations[0].keys:
+                    key.time = (key.time * self.toaster.animation_scale)
+                for key in branch.xyz_rotations[1].keys:
+                    key.time = (key.time * self.toaster.animation_scale)
+                for key in branch.xyz_rotations[2].keys:
+                    key.time = (key.time * self.toaster.animation_scale)
+            else:
+                for key in branch.quaternion_keys:
+                    key.time = (key.time * self.toaster.animation_scale)
+            for key in branch.translations.keys:
+                key.time = (key.time * self.toaster.animation_scale)
+            for key in branch.scales.keys:
+                key.time = (key.time * self.toaster.animation_scale)
+            # no children of NiTransformData so no need to recurse further.
+            return False
+        else:
+            # recurse further
+            return True
