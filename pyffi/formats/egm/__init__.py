@@ -347,7 +347,7 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
             for morph in self.asym_morphs:
                 yield morph
 
-        def getGlobalChildNames(self, edge_filter=EdgeFilter()):
+        def get_global_child_names(self, edge_filter=EdgeFilter()):
             for morph in self.sym_morphs:
                 yield "Sym Morph"
             for morph in self.asym_morphs:

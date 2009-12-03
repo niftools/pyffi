@@ -20,6 +20,7 @@ find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exe
 find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exec perl -pi -w -e 's/getDetailChildNodes/get_detail_child_nodes/g' {} \;
 find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exec perl -pi -w -e 's/getGlobalChildNodes/get_global_child_nodes/g' {} \;
 find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exec perl -pi -w -e 's/getDetailChildNames/get_detail_child_names/g' {} \;
+find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exec perl -pi -w -e 's/getGlobalChildNames/get_global_child_names/g' {} \;
 find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exec perl -pi -w -e 's/get_mass_center_inertiaPolyhedron/get_mass_center_inertia_polyhedron/g' {} \;
 find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exec perl -pi -w -e 's/getMassCenterInertiaPolyhedron/get_mass_center_inertia_polyhedron/g' {} \;
 find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exec perl -pi -w -e 's/getGames/get_games/g' {} \;

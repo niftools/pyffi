@@ -100,8 +100,6 @@ class TgaFormat(pyffi.object_models.xml.FileFormat):
     xml_file_path = [os.getenv('TGAXMLPATH'), os.path.dirname(__file__)]
     # filter for recognizing tga files by extension
     RE_FILENAME = re.compile(r'^.*\.tga$', re.IGNORECASE)
-    # activate compatibility wrappers
-    _NON_PEP8 = True
 
     # basic types
     int = pyffi.object_models.common.Int
@@ -291,7 +289,7 @@ class TgaFormat(pyffi.object_models.xml.FileFormat):
             if self.footer:
                 yield self.footer
 
-        def getGlobalChildNames(self, edge_filter=EdgeFilter()):
+        def get_global_child_names(self, edge_filter=EdgeFilter()):
             yield "Header"
             yield "Image"
             if self.footer:

@@ -19,7 +19,7 @@ Read a DDS file
 >>> stream = open('tests/dds/test.dds', 'rb')
 >>> data = DdsFormat.Data()
 >>> data.inspect(stream)
->>> data.header.pixelFormat.size
+>>> data.header.pixel_format.size
 32
 >>> data.header.height
 20
@@ -108,8 +108,6 @@ class DdsFormat(pyffi.object_models.xml.FileFormat):
     RE_FILENAME = re.compile(r'^.*\.dds$', re.IGNORECASE)
     # used for comparing floats
     _EPSILON = 0.0001
-    # activate compatibility wrappers
-    _NON_PEP8 = True
 
     # basic types
     int = pyffi.object_models.common.Int

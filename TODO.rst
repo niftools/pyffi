@@ -8,6 +8,8 @@
    
    refactoring plans
 
+   - what's up with get_global_child_names?
+
    - common base classes for pyffi.object_models.xml.basic.BasicBase/StructBase and
      pyffi.object_models.xsd.SimpleType/ComplexType
      (e.g. pyffi.ObjectModel.SimpleType/ComplexType)

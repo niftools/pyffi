@@ -21,7 +21,7 @@ Read a CGF file
 >>> # read chunk table only
 >>> data.inspect(stream)
 >>> # check chunk types
->>> list(chunktype.__name__ for chunktype in data.chunk_table.getChunkTypes())
+>>> list(chunktype.__name__ for chunktype in data.chunk_table.get_chunk_types())
 ['SourceInfoChunk', 'TimingChunk']
 >>> data.chunks # no chunks yet
 []
@@ -58,7 +58,7 @@ Parse all CGF files in a directory tree
 ...     print(len(data.chunks))
 ...     # do something with the chunks
 ...     for chunk in data.chunks:
-...         chunk.applyScale(2.0)
+...         chunk.apply_scale(2.0)
 tests/cgf/invalid.cgf
 Warning: read failed due corrupt file, corrupt format description, or bug.
 0
@@ -240,8 +240,6 @@ class CgfFormat(pyffi.object_models.xml.FileFormat):
     EPSILON = 0.0001 # used for comparing floats
     # regular expression for file name extension matching on cgf files
     RE_FILENAME = re.compile(r'^.*\.(cgf|cga|chr|caf)$', re.IGNORECASE)
-    # activate compatibility wrappers
-    _NON_PEP8 = True
 
     # version and user version for far cry
     VER_FARCRY = 0x744
@@ -737,10 +735,10 @@ but got instance of %s""" % (self._template, block.__class__))
             # get the chunk sizes (for double checking that we have all data)
             if validate:
                 chunk_offsets = [chunkhdr.offset
-                                 for chunkhdr in self.chunk_table.chunkHeaders]
+                                 for chunkhdr in self.chunk_table.chunk_headers]
                 chunk_offsets.append(self.header.offset)
                 chunk_sizes = []
-                for chunkhdr in self.chunk_table.chunkHeaders:
+                for chunkhdr in self.chunk_table.chunk_headers:
                     next_chunk_offsets = [offset for offset in chunk_offsets
                                           if offset > chunkhdr.offset]
                     if next_chunk_offsets:
@@ -754,7 +752,7 @@ but got instance of %s""" % (self._template, block.__class__))
             chunk_dct = {} # maps chunk index to actual chunk
             self.chunks = [] # records all chunks as read from cgf file in proper order
             self.versions = [] # records all chunk versions as read from cgf file
-            for chunknum, chunkhdr in enumerate(self.chunk_table.chunkHeaders):
+            for chunknum, chunkhdr in enumerate(self.chunk_table.chunk_headers):
                 # check that id is unique
                 if chunkhdr.id in chunk_dct:
                     raise ValueError('chunk id %i not unique'%chunkhdr.id)
@@ -911,8 +909,8 @@ chunk size mismatch when reading %s at 0x%08X
 
             # write chunks and add headers to chunk table
             self.chunk_table = CgfFormat.ChunkTable()
-            self.chunk_table.numChunks = len(self.chunks)
-            self.chunk_table.chunkHeaders.update_size()
+            self.chunk_table.num_chunks = len(self.chunks)
+            self.chunk_table.chunk_headers.update_size()
             #print(self.chunk_table) # DEBUG
 
             # crysis: write chunk table now
@@ -921,7 +919,7 @@ chunk size mismatch when reading %s at 0x%08X
                 self.chunk_table.write(stream,
                             version=version, user_version=user_version)
 
-            for chunkhdr, chunk, chunkversion in zip(self.chunk_table.chunkHeaders,
+            for chunkhdr, chunk, chunkversion in zip(self.chunk_table.chunk_headers,
                                                      self.chunks, self.versions):
                 logger.debug("Writing %s chunk version 0x%08X at 0x%08X" % (chunk.__class__.__name__, chunkhdr.version, stream.tell()))
 
@@ -1014,35 +1012,35 @@ chunk size mismatch when reading %s at 0x%08X
                 for block in child.tree(block_type = block_type, follow_all = follow_all):
                     yield block
 
-        def applyScale(self, scale):
+        def apply_scale(self, scale):
             """Apply scale factor on data."""
             pass
 
     class ChunkTable:
-        def getChunkTypes(self):
+        def get_chunk_types(self):
             """Iterate all chunk types (in the form of Python classes) referenced
             in this table.
             """
             return (CgfFormat.CHUNK_MAP[chunk_header.type]
-                    for chunk_header in self.chunkHeaders)
+                    for chunk_header in self.chunk_headers)
 
     class BoneInitialPosChunk:
-        def applyScale(self, scale):
+        def apply_scale(self, scale):
             """Apply scale factor on data."""
             if abs(scale - 1.0) < CgfFormat.EPSILON:
                 return
-            for mat in self.initialPosMatrices:
+            for mat in self.initial_pos_matrices:
                 mat.pos.x *= scale
                 mat.pos.y *= scale
                 mat.pos.z *= scale
 
-        def getGlobalNodeParent(self):
+        def get_global_node_parent(self):
             """Get the block parent (used for instance in the QSkope global
             view)."""
             return self.mesh
 
     class DataStreamChunk:
-        def applyScale(self, scale):
+        def apply_scale(self, scale):
             """Apply scale factor on data."""
             if abs(scale - 1.0) < CgfFormat.EPSILON:
                 return
@@ -1052,85 +1050,85 @@ chunk size mismatch when reading %s at 0x%08X
                 vert.z *= scale
 
     class Matrix33:
-        def asList(self):
+        def as_list(self):
             """Return matrix as 3x3 list."""
             return [
-                [self.m11, self.m12, self.m13],
-                [self.m21, self.m22, self.m23],
-                [self.m31, self.m32, self.m33]
+                [self.m_11, self.m_12, self.m_13],
+                [self.m_21, self.m_22, self.m_23],
+                [self.m_31, self.m_32, self.m_33]
                 ]
 
-        def asTuple(self):
+        def as_tuple(self):
             """Return matrix as 3x3 tuple."""
             return (
-                (self.m11, self.m12, self.m13),
-                (self.m21, self.m22, self.m23),
-                (self.m31, self.m32, self.m33)
+                (self.m_11, self.m_12, self.m_13),
+                (self.m_21, self.m_22, self.m_23),
+                (self.m_31, self.m_32, self.m_33)
                 )
 
         def __str__(self):
             return(
                 "[ %6.3f %6.3f %6.3f ]\n[ %6.3f %6.3f %6.3f ]\n[ %6.3f %6.3f %6.3f ]\n"
-                % (self.m11, self.m12, self.m13,
-                   self.m21, self.m22, self.m23,
-                   self.m31, self.m32, self.m33))
+                % (self.m_11, self.m_12, self.m_13,
+                   self.m_21, self.m_22, self.m_23,
+                   self.m_31, self.m_32, self.m_33))
 
-        def setIdentity(self):
+        def set_identity(self):
             """Set to identity matrix."""
-            self.m11 = 1.0
-            self.m12 = 0.0
-            self.m13 = 0.0
-            self.m21 = 0.0
-            self.m22 = 1.0
-            self.m23 = 0.0
-            self.m31 = 0.0
-            self.m32 = 0.0
-            self.m33 = 1.0
+            self.m_11 = 1.0
+            self.m_12 = 0.0
+            self.m_13 = 0.0
+            self.m_21 = 0.0
+            self.m_22 = 1.0
+            self.m_23 = 0.0
+            self.m_31 = 0.0
+            self.m_32 = 0.0
+            self.m_33 = 1.0
 
-        def isIdentity(self):
+        def is_identity(self):
             """Return ``True`` if the matrix is close to identity."""
-            if  (abs(self.m11 - 1.0) > CgfFormat.EPSILON
-                 or abs(self.m12) > CgfFormat.EPSILON
-                 or abs(self.m13) > CgfFormat.EPSILON
-                 or abs(self.m21) > CgfFormat.EPSILON
-                 or abs(self.m22 - 1.0) > CgfFormat.EPSILON
-                 or abs(self.m23) > CgfFormat.EPSILON
-                 or abs(self.m31) > CgfFormat.EPSILON
-                 or abs(self.m32) > CgfFormat.EPSILON
-                 or abs(self.m33 - 1.0) > CgfFormat.EPSILON):
+            if  (abs(self.m_11 - 1.0) > CgfFormat.EPSILON
+                 or abs(self.m_12) > CgfFormat.EPSILON
+                 or abs(self.m_13) > CgfFormat.EPSILON
+                 or abs(self.m_21) > CgfFormat.EPSILON
+                 or abs(self.m_22 - 1.0) > CgfFormat.EPSILON
+                 or abs(self.m_23) > CgfFormat.EPSILON
+                 or abs(self.m_31) > CgfFormat.EPSILON
+                 or abs(self.m_32) > CgfFormat.EPSILON
+                 or abs(self.m_33 - 1.0) > CgfFormat.EPSILON):
                 return False
             else:
                 return True
 
-        def getCopy(self):
+        def get_copy(self):
             """Return a copy of the matrix."""
             mat = CgfFormat.Matrix33()
-            mat.m11 = self.m11
-            mat.m12 = self.m12
-            mat.m13 = self.m13
-            mat.m21 = self.m21
-            mat.m22 = self.m22
-            mat.m23 = self.m23
-            mat.m31 = self.m31
-            mat.m32 = self.m32
-            mat.m33 = self.m33
+            mat.m_11 = self.m_11
+            mat.m_12 = self.m_12
+            mat.m_13 = self.m_13
+            mat.m_21 = self.m_21
+            mat.m_22 = self.m_22
+            mat.m_23 = self.m_23
+            mat.m_31 = self.m_31
+            mat.m_32 = self.m_32
+            mat.m_33 = self.m_33
             return mat
 
-        def getTranspose(self):
+        def get_transpose(self):
             """Get transposed of the matrix."""
             mat = CgfFormat.Matrix33()
-            mat.m11 = self.m11
-            mat.m12 = self.m21
-            mat.m13 = self.m31
-            mat.m21 = self.m12
-            mat.m22 = self.m22
-            mat.m23 = self.m32
-            mat.m31 = self.m13
-            mat.m32 = self.m23
-            mat.m33 = self.m33
+            mat.m_11 = self.m_11
+            mat.m_12 = self.m_21
+            mat.m_13 = self.m_31
+            mat.m_21 = self.m_12
+            mat.m_22 = self.m_22
+            mat.m_23 = self.m_32
+            mat.m_31 = self.m_13
+            mat.m_32 = self.m_23
+            mat.m_33 = self.m_33
             return mat
 
-        def isScaleRotation(self):
+        def is_scale_rotation(self):
             """Returns true if the matrix decomposes nicely into scale * rotation."""
             # NOTE: 0.01 instead of CgfFormat.EPSILON to work around bad files
 
@@ -1139,174 +1137,174 @@ chunk size mismatch when reading %s at 0x%08X
             # (scale * rotation) * (scale * rotation)^T
             # = scale * rotation * rotation^T * scale^T
             # = scale * scale^T
-            self_transpose = self.getTranspose()
+            self_transpose = self.get_transpose()
             mat = self * self_transpose
 
             # off diagonal elements should be zero
-            if (abs(mat.m12) + abs(mat.m13)
-                + abs(mat.m21) + abs(mat.m23)
-                + abs(mat.m31) + abs(mat.m32)) > 0.01:
+            if (abs(mat.m_12) + abs(mat.m_13)
+                + abs(mat.m_21) + abs(mat.m_23)
+                + abs(mat.m_31) + abs(mat.m_32)) > 0.01:
                 return False
 
             return True
 
-        def isRotation(self):
+        def is_rotation(self):
             """Returns ``True`` if the matrix is a rotation matrix
             (a member of SO(3))."""
             # NOTE: 0.01 instead of CgfFormat.EPSILON to work around bad files
 
-            if not self.isScaleRotation():
+            if not self.is_scale_rotation():
                 return False
-            scale = self.getScale()
+            scale = self.get_scale()
             if abs(scale.x - 1.0) > 0.01 \
                or abs(scale.y - 1.0) > 0.01 \
                or abs(scale.z - 1.0) > 0.01:
                 return False
             return True
 
-        def getDeterminant(self):
+        def get_determinant(self):
             """Return determinant."""
-            return (self.m11*self.m22*self.m33
-                    +self.m12*self.m23*self.m31
-                    +self.m13*self.m21*self.m32
-                    -self.m31*self.m22*self.m13
-                    -self.m21*self.m12*self.m33
-                    -self.m11*self.m32*self.m23)
+            return (self.m_11*self.m_22*self.m_33
+                    +self.m_12*self.m_23*self.m_31
+                    +self.m_13*self.m_21*self.m_32
+                    -self.m_31*self.m_22*self.m_13
+                    -self.m_21*self.m_12*self.m_33
+                    -self.m_11*self.m_32*self.m_23)
 
-        def getScale(self):
-            """Gets the scale (assuming isScaleRotation is true!)."""
+        def get_scale(self):
+            """Gets the scale (assuming is_scale_rotation is true!)."""
             # calculate self * self^T
             # this should correspond to
             # (rotation * scale)* (rotation * scale)^T
             # = scale * scale^T
             # = diagonal matrix with scales squared on the diagonal
-            mat = self * self.getTranspose()
+            mat = self * self.get_transpose()
 
             scale = CgfFormat.Vector3()
-            scale.x = mat.m11 ** 0.5
-            scale.y = mat.m22 ** 0.5
-            scale.z = mat.m33 ** 0.5
+            scale.x = mat.m_11 ** 0.5
+            scale.y = mat.m_22 ** 0.5
+            scale.z = mat.m_33 ** 0.5
 
-            if self.getDeterminant() < 0:
+            if self.get_determinant() < 0:
                 return -scale
             else:
                 return scale
 
-        def getScaleRotation(self):
+        def get_scale_rotation(self):
             """Decompose the matrix into scale and rotation, where scale is a float
             and rotation is a C{Matrix33}. Returns a pair (scale, rotation)."""
-            rot = self.getCopy()
-            scale = self.getScale()
-            if min(abs(x) for x in scale.asTuple()) < CgfFormat.EPSILON:
+            rot = self.get_copy()
+            scale = self.get_scale()
+            if min(abs(x) for x in scale.as_tuple()) < CgfFormat.EPSILON:
                 raise ZeroDivisionError('scale is zero, unable to obtain rotation')
-            rot.m11 /= scale.x
-            rot.m12 /= scale.x
-            rot.m13 /= scale.x
-            rot.m21 /= scale.y
-            rot.m22 /= scale.y
-            rot.m23 /= scale.y
-            rot.m31 /= scale.z
-            rot.m32 /= scale.z
-            rot.m33 /= scale.z
+            rot.m_11 /= scale.x
+            rot.m_12 /= scale.x
+            rot.m_13 /= scale.x
+            rot.m_21 /= scale.y
+            rot.m_22 /= scale.y
+            rot.m_23 /= scale.y
+            rot.m_31 /= scale.z
+            rot.m_32 /= scale.z
+            rot.m_33 /= scale.z
             return (scale, rot)
 
-        def setScaleRotation(self, scale, rotation):
+        def set_scale_rotation(self, scale, rotation):
             """Compose the matrix as the product of scale * rotation."""
             if not isinstance(scale, CgfFormat.Vector3):
                 raise TypeError('scale must be Vector3')
             if not isinstance(rotation, CgfFormat.Matrix33):
                 raise TypeError('rotation must be Matrix33')
 
-            if not rotation.isRotation():
+            if not rotation.is_rotation():
                 raise ValueError('rotation must be rotation matrix')
 
-            self.m11 = rotation.m11 * scale.x
-            self.m12 = rotation.m12 * scale.x
-            self.m13 = rotation.m13 * scale.x
-            self.m21 = rotation.m21 * scale.y
-            self.m22 = rotation.m22 * scale.y
-            self.m23 = rotation.m23 * scale.y
-            self.m31 = rotation.m31 * scale.z
-            self.m32 = rotation.m32 * scale.z
-            self.m33 = rotation.m33 * scale.z
+            self.m_11 = rotation.m_11 * scale.x
+            self.m_12 = rotation.m_12 * scale.x
+            self.m_13 = rotation.m_13 * scale.x
+            self.m_21 = rotation.m_21 * scale.y
+            self.m_22 = rotation.m_22 * scale.y
+            self.m_23 = rotation.m_23 * scale.y
+            self.m_31 = rotation.m_31 * scale.z
+            self.m_32 = rotation.m_32 * scale.z
+            self.m_33 = rotation.m_33 * scale.z
 
-        def getScaleQuat(self):
+        def get_scale_quat(self):
             """Decompose matrix into scale and quaternion."""
-            scale, rot = self.getScaleRotation()
+            scale, rot = self.get_scale_rotation()
             quat = CgfFormat.Quat()
-            trace = 1.0 + rot.m11 + rot.m22 + rot.m33
+            trace = 1.0 + rot.m_11 + rot.m_22 + rot.m_33
 
             if trace > CgfFormat.EPSILON:
                 s = (trace ** 0.5) * 2
-                quat.x = -( rot.m32 - rot.m23 ) / s
-                quat.y = -( rot.m13 - rot.m31 ) / s
-                quat.z = -( rot.m21 - rot.m12 ) / s
+                quat.x = -( rot.m_32 - rot.m_23 ) / s
+                quat.y = -( rot.m_13 - rot.m_31 ) / s
+                quat.z = -( rot.m_21 - rot.m_12 ) / s
                 quat.w = 0.25 * s
-            elif rot.m11 > max((rot.m22, rot.m33)):
-                s  = (( 1.0 + rot.m11 - rot.m22 - rot.m33 ) ** 0.5) * 2
+            elif rot.m_11 > max((rot.m_22, rot.m_33)):
+                s  = (( 1.0 + rot.m_11 - rot.m_22 - rot.m_33 ) ** 0.5) * 2
                 quat.x = 0.25 * s
-                quat.y = (rot.m21 + rot.m12 ) / s
-                quat.z = (rot.m13 + rot.m31 ) / s
-                quat.w = -(rot.m32 - rot.m23 ) / s
-            elif rot.m22 > rot.m33:
-                s  = (( 1.0 + rot.m22 - rot.m11 - rot.m33 ) ** 0.5) * 2
-                quat.x = (rot.m21 + rot.m12 ) / s
+                quat.y = (rot.m_21 + rot.m_12 ) / s
+                quat.z = (rot.m_13 + rot.m_31 ) / s
+                quat.w = -(rot.m_32 - rot.m_23 ) / s
+            elif rot.m_22 > rot.m_33:
+                s  = (( 1.0 + rot.m_22 - rot.m_11 - rot.m_33 ) ** 0.5) * 2
+                quat.x = (rot.m_21 + rot.m_12 ) / s
                 quat.y = 0.25 * s
-                quat.z = (rot.m32 + rot.m23 ) / s
-                quat.w = -(rot.m13 - rot.m31 ) / s
+                quat.z = (rot.m_32 + rot.m_23 ) / s
+                quat.w = -(rot.m_13 - rot.m_31 ) / s
             else:
-                s  = (( 1.0 + rot.m33 - rot.m11 - rot.m22 ) ** 0.5) * 2
-                quat.x = (rot.m13 + rot.m31 ) / s
-                quat.y = (rot.m32 + rot.m23 ) / s
+                s  = (( 1.0 + rot.m_33 - rot.m_11 - rot.m_22 ) ** 0.5) * 2
+                quat.x = (rot.m_13 + rot.m_31 ) / s
+                quat.y = (rot.m_32 + rot.m_23 ) / s
                 quat.z = 0.25 * s
-                quat.w = -(rot.m21 - rot.m12 ) / s
+                quat.w = -(rot.m_21 - rot.m_12 ) / s
 
             return scale, quat
 
 
-        def getInverse(self):
-            """Get inverse (assuming isScaleRotation is true!)."""
+        def get_inverse(self):
+            """Get inverse (assuming is_scale_rotation is true!)."""
             # transpose inverts rotation but keeps the scale
             # dividing by scale^2 inverts the scale as well
-            scale = self.getScale()
-            mat = self.getTranspose()
-            mat.m11 /= scale.x ** 2
-            mat.m12 /= scale.x ** 2
-            mat.m13 /= scale.x ** 2
-            mat.m21 /= scale.y ** 2
-            mat.m22 /= scale.y ** 2
-            mat.m23 /= scale.y ** 2
-            mat.m31 /= scale.z ** 2
-            mat.m32 /= scale.z ** 2
-            mat.m33 /= scale.z ** 2
+            scale = self.get_scale()
+            mat = self.get_transpose()
+            mat.m_11 /= scale.x ** 2
+            mat.m_12 /= scale.x ** 2
+            mat.m_13 /= scale.x ** 2
+            mat.m_21 /= scale.y ** 2
+            mat.m_22 /= scale.y ** 2
+            mat.m_23 /= scale.y ** 2
+            mat.m_31 /= scale.z ** 2
+            mat.m_32 /= scale.z ** 2
+            mat.m_33 /= scale.z ** 2
 
         def __mul__(self, rhs):
             if isinstance(rhs, (float, int, long)):
                 mat = CgfFormat.Matrix33()
-                mat.m11 = self.m11 * rhs
-                mat.m12 = self.m12 * rhs
-                mat.m13 = self.m13 * rhs
-                mat.m21 = self.m21 * rhs
-                mat.m22 = self.m22 * rhs
-                mat.m23 = self.m23 * rhs
-                mat.m31 = self.m31 * rhs
-                mat.m32 = self.m32 * rhs
-                mat.m33 = self.m33 * rhs
+                mat.m_11 = self.m_11 * rhs
+                mat.m_12 = self.m_12 * rhs
+                mat.m_13 = self.m_13 * rhs
+                mat.m_21 = self.m_21 * rhs
+                mat.m_22 = self.m_22 * rhs
+                mat.m_23 = self.m_23 * rhs
+                mat.m_31 = self.m_31 * rhs
+                mat.m_32 = self.m_32 * rhs
+                mat.m_33 = self.m_33 * rhs
                 return mat
             elif isinstance(rhs, CgfFormat.Vector3):
                 raise TypeError("matrix*vector not supported;\
         please use left multiplication (vector*matrix)")
             elif isinstance(rhs, CgfFormat.Matrix33):
                 mat = CgfFormat.Matrix33()
-                mat.m11 = self.m11 * rhs.m11 + self.m12 * rhs.m21 + self.m13 * rhs.m31
-                mat.m12 = self.m11 * rhs.m12 + self.m12 * rhs.m22 + self.m13 * rhs.m32
-                mat.m13 = self.m11 * rhs.m13 + self.m12 * rhs.m23 + self.m13 * rhs.m33
-                mat.m21 = self.m21 * rhs.m11 + self.m22 * rhs.m21 + self.m23 * rhs.m31
-                mat.m22 = self.m21 * rhs.m12 + self.m22 * rhs.m22 + self.m23 * rhs.m32
-                mat.m23 = self.m21 * rhs.m13 + self.m22 * rhs.m23 + self.m23 * rhs.m33
-                mat.m31 = self.m31 * rhs.m11 + self.m32 * rhs.m21 + self.m33 * rhs.m31
-                mat.m32 = self.m31 * rhs.m12 + self.m32 * rhs.m22 + self.m33 * rhs.m32
-                mat.m33 = self.m31 * rhs.m13 + self.m32 * rhs.m23 + self.m33 * rhs.m33
+                mat.m_11 = self.m_11 * rhs.m_11 + self.m_12 * rhs.m_21 + self.m_13 * rhs.m_31
+                mat.m_12 = self.m_11 * rhs.m_12 + self.m_12 * rhs.m_22 + self.m_13 * rhs.m_32
+                mat.m_13 = self.m_11 * rhs.m_13 + self.m_12 * rhs.m_23 + self.m_13 * rhs.m_33
+                mat.m_21 = self.m_21 * rhs.m_11 + self.m_22 * rhs.m_21 + self.m_23 * rhs.m_31
+                mat.m_22 = self.m_21 * rhs.m_12 + self.m_22 * rhs.m_22 + self.m_23 * rhs.m_32
+                mat.m_23 = self.m_21 * rhs.m_13 + self.m_22 * rhs.m_23 + self.m_23 * rhs.m_33
+                mat.m_31 = self.m_31 * rhs.m_11 + self.m_32 * rhs.m_21 + self.m_33 * rhs.m_31
+                mat.m_32 = self.m_31 * rhs.m_12 + self.m_32 * rhs.m_22 + self.m_33 * rhs.m_32
+                mat.m_33 = self.m_31 * rhs.m_13 + self.m_32 * rhs.m_23 + self.m_33 * rhs.m_33
                 return mat
             else:
                 raise TypeError(
@@ -1315,15 +1313,15 @@ chunk size mismatch when reading %s at 0x%08X
         def __div__(self, rhs):
             if isinstance(rhs, (float, int, long)):
                 mat = CgfFormat.Matrix33()
-                mat.m11 = self.m11 / rhs
-                mat.m12 = self.m12 / rhs
-                mat.m13 = self.m13 / rhs
-                mat.m21 = self.m21 / rhs
-                mat.m22 = self.m22 / rhs
-                mat.m23 = self.m23 / rhs
-                mat.m31 = self.m31 / rhs
-                mat.m32 = self.m32 / rhs
-                mat.m33 = self.m33 / rhs
+                mat.m_11 = self.m_11 / rhs
+                mat.m_12 = self.m_12 / rhs
+                mat.m_13 = self.m_13 / rhs
+                mat.m_21 = self.m_21 / rhs
+                mat.m_22 = self.m_22 / rhs
+                mat.m_23 = self.m_23 / rhs
+                mat.m_31 = self.m_31 / rhs
+                mat.m_32 = self.m_32 / rhs
+                mat.m_33 = self.m_33 / rhs
                 return mat
             else:
                 raise TypeError(
@@ -1340,15 +1338,15 @@ chunk size mismatch when reading %s at 0x%08X
             if not isinstance(mat, CgfFormat.Matrix33):
                 raise TypeError(
                     "do not know how to compare Matrix33 and %s"%mat.__class__)
-            if (abs(self.m11 - mat.m11) > CgfFormat.EPSILON
-                or abs(self.m12 - mat.m12) > CgfFormat.EPSILON
-                or abs(self.m13 - mat.m13) > CgfFormat.EPSILON
-                or abs(self.m21 - mat.m21) > CgfFormat.EPSILON
-                or abs(self.m22 - mat.m22) > CgfFormat.EPSILON
-                or abs(self.m23 - mat.m23) > CgfFormat.EPSILON
-                or abs(self.m31 - mat.m31) > CgfFormat.EPSILON
-                or abs(self.m32 - mat.m32) > CgfFormat.EPSILON
-                or abs(self.m33 - mat.m33) > CgfFormat.EPSILON):
+            if (abs(self.m_11 - mat.m_11) > CgfFormat.EPSILON
+                or abs(self.m_12 - mat.m_12) > CgfFormat.EPSILON
+                or abs(self.m_13 - mat.m_13) > CgfFormat.EPSILON
+                or abs(self.m_21 - mat.m_21) > CgfFormat.EPSILON
+                or abs(self.m_22 - mat.m_22) > CgfFormat.EPSILON
+                or abs(self.m_23 - mat.m_23) > CgfFormat.EPSILON
+                or abs(self.m_31 - mat.m_31) > CgfFormat.EPSILON
+                or abs(self.m_32 - mat.m_32) > CgfFormat.EPSILON
+                or abs(self.m_33 - mat.m_33) > CgfFormat.EPSILON):
                 return False
             return True
 
@@ -1356,30 +1354,30 @@ chunk size mismatch when reading %s at 0x%08X
             return not self.__eq__(mat)
 
     class Matrix44:
-        def asList(self):
+        def as_list(self):
             """Return matrix as 4x4 list."""
             return [
-                [self.m11, self.m12, self.m13, self.m14],
-                [self.m21, self.m22, self.m23, self.m24],
-                [self.m31, self.m32, self.m33, self.m34],
-                [self.m41, self.m42, self.m43, self.m44]
+                [self.m_11, self.m_12, self.m_13, self.m_14],
+                [self.m_21, self.m_22, self.m_23, self.m_24],
+                [self.m_31, self.m_32, self.m_33, self.m_34],
+                [self.m_41, self.m_42, self.m_43, self.m_44]
                 ]
 
-        def asTuple(self):
+        def as_tuple(self):
             """Return matrix as 4x4 tuple."""
             return (
-                (self.m11, self.m12, self.m13, self.m14),
-                (self.m21, self.m22, self.m23, self.m24),
-                (self.m31, self.m32, self.m33, self.m34),
-                (self.m41, self.m42, self.m43, self.m44)
+                (self.m_11, self.m_12, self.m_13, self.m_14),
+                (self.m_21, self.m_22, self.m_23, self.m_24),
+                (self.m_31, self.m_32, self.m_33, self.m_34),
+                (self.m_41, self.m_42, self.m_43, self.m_44)
                 )
 
-        def setRows(self, row0, row1, row2, row3):
+        def set_rows(self, row0, row1, row2, row3):
             """Set matrix from rows."""
-            self.m11, self.m12, self.m13, self.m14 = row0
-            self.m21, self.m22, self.m23, self.m24 = row1
-            self.m31, self.m32, self.m33, self.m34 = row2
-            self.m41, self.m42, self.m43, self.m44 = row3
+            self.m_11, self.m_12, self.m_13, self.m_14 = row0
+            self.m_21, self.m_22, self.m_23, self.m_24 = row1
+            self.m_31, self.m_32, self.m_33, self.m_34 = row2
+            self.m_41, self.m_42, self.m_43, self.m_44 = row3
 
         def __str__(self):
             return(
@@ -1387,138 +1385,138 @@ chunk size mismatch when reading %s at 0x%08X
                 '[ %6.3f %6.3f %6.3f %6.3f ]\n'
                 '[ %6.3f %6.3f %6.3f %6.3f ]\n'
                 '[ %6.3f %6.3f %6.3f %6.3f ]\n'
-                % (self.m11, self.m12, self.m13, self.m14,
-                   self.m21, self.m22, self.m23, self.m24,
-                   self.m31, self.m32, self.m33, self.m34,
-                   self.m41, self.m42, self.m43, self.m44))
+                % (self.m_11, self.m_12, self.m_13, self.m_14,
+                   self.m_21, self.m_22, self.m_23, self.m_24,
+                   self.m_31, self.m_32, self.m_33, self.m_34,
+                   self.m_41, self.m_42, self.m_43, self.m_44))
 
-        def setIdentity(self):
+        def set_identity(self):
             """Set to identity matrix."""
-            self.m11 = 1.0
-            self.m12 = 0.0
-            self.m13 = 0.0
-            self.m14 = 0.0
-            self.m21 = 0.0
-            self.m22 = 1.0
-            self.m23 = 0.0
-            self.m24 = 0.0
-            self.m31 = 0.0
-            self.m32 = 0.0
-            self.m33 = 1.0
-            self.m34 = 0.0
-            self.m41 = 0.0
-            self.m42 = 0.0
-            self.m43 = 0.0
-            self.m44 = 1.0
+            self.m_11 = 1.0
+            self.m_12 = 0.0
+            self.m_13 = 0.0
+            self.m_14 = 0.0
+            self.m_21 = 0.0
+            self.m_22 = 1.0
+            self.m_23 = 0.0
+            self.m_24 = 0.0
+            self.m_31 = 0.0
+            self.m_32 = 0.0
+            self.m_33 = 1.0
+            self.m_34 = 0.0
+            self.m_41 = 0.0
+            self.m_42 = 0.0
+            self.m_43 = 0.0
+            self.m_44 = 1.0
 
-        def isIdentity(self):
+        def is_identity(self):
             """Return ``True`` if the matrix is close to identity."""
-            if (abs(self.m11 - 1.0) > CgfFormat.EPSILON
-                or abs(self.m12) > CgfFormat.EPSILON
-                or abs(self.m13) > CgfFormat.EPSILON
-                or abs(self.m14) > CgfFormat.EPSILON
-                or abs(self.m21) > CgfFormat.EPSILON
-                or abs(self.m22 - 1.0) > CgfFormat.EPSILON
-                or abs(self.m23) > CgfFormat.EPSILON
-                or abs(self.m24) > CgfFormat.EPSILON
-                or abs(self.m31) > CgfFormat.EPSILON
-                or abs(self.m32) > CgfFormat.EPSILON
-                or abs(self.m33 - 1.0) > CgfFormat.EPSILON
-                or abs(self.m34) > CgfFormat.EPSILON
-                or abs(self.m41) > CgfFormat.EPSILON
-                or abs(self.m42) > CgfFormat.EPSILON
-                or abs(self.m43) > CgfFormat.EPSILON
-                or abs(self.m44 - 1.0) > CgfFormat.EPSILON):
+            if (abs(self.m_11 - 1.0) > CgfFormat.EPSILON
+                or abs(self.m_12) > CgfFormat.EPSILON
+                or abs(self.m_13) > CgfFormat.EPSILON
+                or abs(self.m_14) > CgfFormat.EPSILON
+                or abs(self.m_21) > CgfFormat.EPSILON
+                or abs(self.m_22 - 1.0) > CgfFormat.EPSILON
+                or abs(self.m_23) > CgfFormat.EPSILON
+                or abs(self.m_24) > CgfFormat.EPSILON
+                or abs(self.m_31) > CgfFormat.EPSILON
+                or abs(self.m_32) > CgfFormat.EPSILON
+                or abs(self.m_33 - 1.0) > CgfFormat.EPSILON
+                or abs(self.m_34) > CgfFormat.EPSILON
+                or abs(self.m_41) > CgfFormat.EPSILON
+                or abs(self.m_42) > CgfFormat.EPSILON
+                or abs(self.m_43) > CgfFormat.EPSILON
+                or abs(self.m_44 - 1.0) > CgfFormat.EPSILON):
                 return False
             else:
                 return True
 
-        def getCopy(self):
+        def get_copy(self):
             """Create a copy of the matrix."""
             mat = CgfFormat.Matrix44()
-            mat.m11 = self.m11
-            mat.m12 = self.m12
-            mat.m13 = self.m13
-            mat.m14 = self.m14
-            mat.m21 = self.m21
-            mat.m22 = self.m22
-            mat.m23 = self.m23
-            mat.m24 = self.m24
-            mat.m31 = self.m31
-            mat.m32 = self.m32
-            mat.m33 = self.m33
-            mat.m34 = self.m34
-            mat.m41 = self.m41
-            mat.m42 = self.m42
-            mat.m43 = self.m43
-            mat.m44 = self.m44
+            mat.m_11 = self.m_11
+            mat.m_12 = self.m_12
+            mat.m_13 = self.m_13
+            mat.m_14 = self.m_14
+            mat.m_21 = self.m_21
+            mat.m_22 = self.m_22
+            mat.m_23 = self.m_23
+            mat.m_24 = self.m_24
+            mat.m_31 = self.m_31
+            mat.m_32 = self.m_32
+            mat.m_33 = self.m_33
+            mat.m_34 = self.m_34
+            mat.m_41 = self.m_41
+            mat.m_42 = self.m_42
+            mat.m_43 = self.m_43
+            mat.m_44 = self.m_44
             return mat
 
-        def getMatrix33(self):
+        def get_matrix_33(self):
             """Returns upper left 3x3 part."""
             m = CgfFormat.Matrix33()
-            m.m11 = self.m11
-            m.m12 = self.m12
-            m.m13 = self.m13
-            m.m21 = self.m21
-            m.m22 = self.m22
-            m.m23 = self.m23
-            m.m31 = self.m31
-            m.m32 = self.m32
-            m.m33 = self.m33
+            m.m_11 = self.m_11
+            m.m_12 = self.m_12
+            m.m_13 = self.m_13
+            m.m_21 = self.m_21
+            m.m_22 = self.m_22
+            m.m_23 = self.m_23
+            m.m_31 = self.m_31
+            m.m_32 = self.m_32
+            m.m_33 = self.m_33
             return m
 
-        def setMatrix33(self, m):
+        def set_matrix_33(self, m):
             """Sets upper left 3x3 part."""
             if not isinstance(m, CgfFormat.Matrix33):
                 raise TypeError('argument must be Matrix33')
-            self.m11 = m.m11
-            self.m12 = m.m12
-            self.m13 = m.m13
-            self.m21 = m.m21
-            self.m22 = m.m22
-            self.m23 = m.m23
-            self.m31 = m.m31
-            self.m32 = m.m32
-            self.m33 = m.m33
+            self.m_11 = m.m_11
+            self.m_12 = m.m_12
+            self.m_13 = m.m_13
+            self.m_21 = m.m_21
+            self.m_22 = m.m_22
+            self.m_23 = m.m_23
+            self.m_31 = m.m_31
+            self.m_32 = m.m_32
+            self.m_33 = m.m_33
 
-        def getTranslation(self):
+        def get_translation(self):
             """Returns lower left 1x3 part."""
             t = CgfFormat.Vector3()
-            t.x = self.m41
-            t.y = self.m42
-            t.z = self.m43
+            t.x = self.m_41
+            t.y = self.m_42
+            t.z = self.m_43
             return t
 
-        def setTranslation(self, translation):
+        def set_translation(self, translation):
             """Returns lower left 1x3 part."""
             if not isinstance(translation, CgfFormat.Vector3):
                 raise TypeError('argument must be Vector3')
-            self.m41 = translation.x
-            self.m42 = translation.y
-            self.m43 = translation.z
+            self.m_41 = translation.x
+            self.m_42 = translation.y
+            self.m_43 = translation.z
 
-        def isScaleRotationTranslation(self):
-            if not self.getMatrix33().isScaleRotation(): return False
-            if abs(self.m14) > CgfFormat.EPSILON: return False
-            if abs(self.m24) > CgfFormat.EPSILON: return False
-            if abs(self.m34) > CgfFormat.EPSILON: return False
-            if abs(self.m44 - 1.0) > CgfFormat.EPSILON: return False
+        def is_scale_rotation_translation(self):
+            if not self.get_matrix_33().is_scale_rotation(): return False
+            if abs(self.m_14) > CgfFormat.EPSILON: return False
+            if abs(self.m_24) > CgfFormat.EPSILON: return False
+            if abs(self.m_34) > CgfFormat.EPSILON: return False
+            if abs(self.m_44 - 1.0) > CgfFormat.EPSILON: return False
             return True
 
-        def getScaleRotationTranslation(self):
-            rotscl = self.getMatrix33()
-            scale, rot = rotscl.getScaleRotation()
-            trans = self.getTranslation()
+        def get_scale_rotation_translation(self):
+            rotscl = self.get_matrix_33()
+            scale, rot = rotscl.get_scale_rotation()
+            trans = self.get_translation()
             return (scale, rot, trans)
 
-        def getScaleQuatTranslation(self):
-            rotscl = self.getMatrix33()
-            scale, quat = rotscl.getScaleQuat()
-            trans = self.getTranslation()
+        def get_scale_quat_translation(self):
+            rotscl = self.get_matrix_33()
+            scale, quat = rotscl.get_scale_quat()
+            trans = self.get_translation()
             return (scale, quat, trans)
 
-        def setScaleRotationTranslation(self, scale, rotation, translation):
+        def set_scale_rotation_translation(self, scale, rotation, translation):
             if not isinstance(scale, CgfFormat.Vector3):
                 raise TypeError('scale must be Vector3')
             if not isinstance(rotation, CgfFormat.Matrix33):
@@ -1526,31 +1524,31 @@ chunk size mismatch when reading %s at 0x%08X
             if not isinstance(translation, CgfFormat.Vector3):
                 raise TypeError('translation must be Vector3')
 
-            if not rotation.isRotation():
+            if not rotation.is_rotation():
                 logger = logging.getLogger("pyffi.cgf.matrix")
-                mat = rotation * rotation.getTranspose()
+                mat = rotation * rotation.get_transpose()
                 idmat = CgfFormat.Matrix33()
-                idmat.setIdentity()
-                error = (mat - idmat).supNorm()
+                idmat.set_identity()
+                error = (mat - idmat).sup_norm()
                 logger.warning("improper rotation matrix (error is %f)" % error)
                 logger.debug("  matrix =")
                 for line in str(rotation).split("\n"):
                     logger.debug("    %s" % line)
-                logger.debug("  its determinant = %f" % rotation.getDeterminant())
+                logger.debug("  its determinant = %f" % rotation.get_determinant())
                 logger.debug("  matrix * matrix^T =")
                 for line in str(mat).split("\n"):
                     logger.debug("    %s" % line)
 
-            self.m14 = 0.0
-            self.m24 = 0.0
-            self.m34 = 0.0
-            self.m44 = 1.0
+            self.m_14 = 0.0
+            self.m_24 = 0.0
+            self.m_34 = 0.0
+            self.m_44 = 1.0
 
-            self.setMatrix33(rotation * scale)
-            self.setTranslation(translation)
+            self.set_matrix_33(rotation * scale)
+            self.set_translation(translation)
 
-        def getInverse(self, fast=True):
-            """Calculates inverse (fast assumes isScaleRotationTranslation is True)."""
+        def get_inverse(self, fast=True):
+            """Calculates inverse (fast assumes is_scale_rotation_translation is True)."""
             def adjoint(m, ii, jj):
                 result = []
                 for i, row in enumerate(m):
@@ -1573,19 +1571,19 @@ chunk size mismatch when reading %s at 0x%08X
                 return result
 
             if fast:
-                m = self.getMatrix33().getInverse()
-                t = -(self.getTranslation() * m)
+                m = self.get_matrix_33().get_inverse()
+                t = -(self.get_translation() * m)
 
                 n = CgfFormat.Matrix44()
-                n.m14 = 0.0
-                n.m24 = 0.0
-                n.m34 = 0.0
-                n.m44 = 1.0
-                n.setMatrix33(m)
-                n.setTranslation(t)
+                n.m_14 = 0.0
+                n.m_24 = 0.0
+                n.m_34 = 0.0
+                n.m_44 = 1.0
+                n.set_matrix_33(m)
+                n.set_translation(t)
                 return n
             else:
-                m = self.asList()
+                m = self.as_list()
                 nn = [[0.0 for i in xrange(4)] for j in xrange(4)]
                 det = determinant(m)
                 if abs(det) < CgfFormat.EPSILON:
@@ -1597,28 +1595,28 @@ chunk size mismatch when reading %s at 0x%08X
                         else:
                             nn[j][i] = determinant(adjoint(m, i, j)) / det
                 n = CgfFormat.Matrix44()
-                n.setRows(*nn)
+                n.set_rows(*nn)
                 return n
 
         def __mul__(self, x):
             if isinstance(x, (float, int, long)):
                 m = CgfFormat.Matrix44()
-                m.m11 = self.m11 * x
-                m.m12 = self.m12 * x
-                m.m13 = self.m13 * x
-                m.m14 = self.m14 * x
-                m.m21 = self.m21 * x
-                m.m22 = self.m22 * x
-                m.m23 = self.m23 * x
-                m.m24 = self.m24 * x
-                m.m31 = self.m31 * x
-                m.m32 = self.m32 * x
-                m.m33 = self.m33 * x
-                m.m34 = self.m34 * x
-                m.m41 = self.m41 * x
-                m.m42 = self.m42 * x
-                m.m43 = self.m43 * x
-                m.m44 = self.m44 * x
+                m.m_11 = self.m_11 * x
+                m.m_12 = self.m_12 * x
+                m.m_13 = self.m_13 * x
+                m.m_14 = self.m_14 * x
+                m.m_21 = self.m_21 * x
+                m.m_22 = self.m_22 * x
+                m.m_23 = self.m_23 * x
+                m.m_24 = self.m_24 * x
+                m.m_31 = self.m_31 * x
+                m.m_32 = self.m_32 * x
+                m.m_33 = self.m_33 * x
+                m.m_34 = self.m_34 * x
+                m.m_41 = self.m_41 * x
+                m.m_42 = self.m_42 * x
+                m.m_43 = self.m_43 * x
+                m.m_44 = self.m_44 * x
                 return m
             elif isinstance(x, CgfFormat.Vector3):
                 raise TypeError("matrix*vector not supported; please use left multiplication (vector*matrix)")
@@ -1626,22 +1624,22 @@ chunk size mismatch when reading %s at 0x%08X
                 raise TypeError("matrix*vector not supported; please use left multiplication (vector*matrix)")
             elif isinstance(x, CgfFormat.Matrix44):
                 m = CgfFormat.Matrix44()
-                m.m11 = self.m11 * x.m11  +  self.m12 * x.m21  +  self.m13 * x.m31  +  self.m14 * x.m41
-                m.m12 = self.m11 * x.m12  +  self.m12 * x.m22  +  self.m13 * x.m32  +  self.m14 * x.m42
-                m.m13 = self.m11 * x.m13  +  self.m12 * x.m23  +  self.m13 * x.m33  +  self.m14 * x.m43
-                m.m14 = self.m11 * x.m14  +  self.m12 * x.m24  +  self.m13 * x.m34  +  self.m14 * x.m44
-                m.m21 = self.m21 * x.m11  +  self.m22 * x.m21  +  self.m23 * x.m31  +  self.m24 * x.m41
-                m.m22 = self.m21 * x.m12  +  self.m22 * x.m22  +  self.m23 * x.m32  +  self.m24 * x.m42
-                m.m23 = self.m21 * x.m13  +  self.m22 * x.m23  +  self.m23 * x.m33  +  self.m24 * x.m43
-                m.m24 = self.m21 * x.m14  +  self.m22 * x.m24  +  self.m23 * x.m34  +  self.m24 * x.m44
-                m.m31 = self.m31 * x.m11  +  self.m32 * x.m21  +  self.m33 * x.m31  +  self.m34 * x.m41
-                m.m32 = self.m31 * x.m12  +  self.m32 * x.m22  +  self.m33 * x.m32  +  self.m34 * x.m42
-                m.m33 = self.m31 * x.m13  +  self.m32 * x.m23  +  self.m33 * x.m33  +  self.m34 * x.m43
-                m.m34 = self.m31 * x.m14  +  self.m32 * x.m24  +  self.m33 * x.m34  +  self.m34 * x.m44
-                m.m41 = self.m41 * x.m11  +  self.m42 * x.m21  +  self.m43 * x.m31  +  self.m44 * x.m41
-                m.m42 = self.m41 * x.m12  +  self.m42 * x.m22  +  self.m43 * x.m32  +  self.m44 * x.m42
-                m.m43 = self.m41 * x.m13  +  self.m42 * x.m23  +  self.m43 * x.m33  +  self.m44 * x.m43
-                m.m44 = self.m41 * x.m14  +  self.m42 * x.m24  +  self.m43 * x.m34  +  self.m44 * x.m44
+                m.m_11 = self.m_11 * x.m_11  +  self.m_12 * x.m_21  +  self.m_13 * x.m_31  +  self.m_14 * x.m_41
+                m.m_12 = self.m_11 * x.m_12  +  self.m_12 * x.m_22  +  self.m_13 * x.m_32  +  self.m_14 * x.m_42
+                m.m_13 = self.m_11 * x.m_13  +  self.m_12 * x.m_23  +  self.m_13 * x.m_33  +  self.m_14 * x.m_43
+                m.m_14 = self.m_11 * x.m_14  +  self.m_12 * x.m_24  +  self.m_13 * x.m_34  +  self.m_14 * x.m_44
+                m.m_21 = self.m_21 * x.m_11  +  self.m_22 * x.m_21  +  self.m_23 * x.m_31  +  self.m_24 * x.m_41
+                m.m_22 = self.m_21 * x.m_12  +  self.m_22 * x.m_22  +  self.m_23 * x.m_32  +  self.m_24 * x.m_42
+                m.m_23 = self.m_21 * x.m_13  +  self.m_22 * x.m_23  +  self.m_23 * x.m_33  +  self.m_24 * x.m_43
+                m.m_24 = self.m_21 * x.m_14  +  self.m_22 * x.m_24  +  self.m_23 * x.m_34  +  self.m_24 * x.m_44
+                m.m_31 = self.m_31 * x.m_11  +  self.m_32 * x.m_21  +  self.m_33 * x.m_31  +  self.m_34 * x.m_41
+                m.m_32 = self.m_31 * x.m_12  +  self.m_32 * x.m_22  +  self.m_33 * x.m_32  +  self.m_34 * x.m_42
+                m.m_33 = self.m_31 * x.m_13  +  self.m_32 * x.m_23  +  self.m_33 * x.m_33  +  self.m_34 * x.m_43
+                m.m_34 = self.m_31 * x.m_14  +  self.m_32 * x.m_24  +  self.m_33 * x.m_34  +  self.m_34 * x.m_44
+                m.m_41 = self.m_41 * x.m_11  +  self.m_42 * x.m_21  +  self.m_43 * x.m_31  +  self.m_44 * x.m_41
+                m.m_42 = self.m_41 * x.m_12  +  self.m_42 * x.m_22  +  self.m_43 * x.m_32  +  self.m_44 * x.m_42
+                m.m_43 = self.m_41 * x.m_13  +  self.m_42 * x.m_23  +  self.m_43 * x.m_33  +  self.m_44 * x.m_43
+                m.m_44 = self.m_41 * x.m_14  +  self.m_42 * x.m_24  +  self.m_43 * x.m_34  +  self.m_44 * x.m_44
                 return m
             else:
                 raise TypeError("do not know how to multiply Matrix44 with %s"%x.__class__)
@@ -1649,22 +1647,22 @@ chunk size mismatch when reading %s at 0x%08X
         def __div__(self, x):
             if isinstance(x, (float, int, long)):
                 m = CgfFormat.Matrix44()
-                m.m11 = self.m11 / x
-                m.m12 = self.m12 / x
-                m.m13 = self.m13 / x
-                m.m14 = self.m14 / x
-                m.m21 = self.m21 / x
-                m.m22 = self.m22 / x
-                m.m23 = self.m23 / x
-                m.m24 = self.m24 / x
-                m.m31 = self.m31 / x
-                m.m32 = self.m32 / x
-                m.m33 = self.m33 / x
-                m.m34 = self.m34 / x
-                m.m41 = self.m41 / x
-                m.m42 = self.m42 / x
-                m.m43 = self.m43 / x
-                m.m44 = self.m44 / x
+                m.m_11 = self.m_11 / x
+                m.m_12 = self.m_12 / x
+                m.m_13 = self.m_13 / x
+                m.m_14 = self.m_14 / x
+                m.m_21 = self.m_21 / x
+                m.m_22 = self.m_22 / x
+                m.m_23 = self.m_23 / x
+                m.m_24 = self.m_24 / x
+                m.m_31 = self.m_31 / x
+                m.m_32 = self.m_32 / x
+                m.m_33 = self.m_33 / x
+                m.m_34 = self.m_34 / x
+                m.m_41 = self.m_41 / x
+                m.m_42 = self.m_42 / x
+                m.m_43 = self.m_43 / x
+                m.m_44 = self.m_44 / x
                 return m
             else:
                 raise TypeError("do not know how to divide Matrix44 by %s"%x.__class__)
@@ -1680,22 +1678,22 @@ chunk size mismatch when reading %s at 0x%08X
                 return False
             if not isinstance(m, CgfFormat.Matrix44):
                 raise TypeError("do not know how to compare Matrix44 and %s"%m.__class__)
-            if abs(self.m11 - m.m11) > CgfFormat.EPSILON: return False
-            if abs(self.m12 - m.m12) > CgfFormat.EPSILON: return False
-            if abs(self.m13 - m.m13) > CgfFormat.EPSILON: return False
-            if abs(self.m14 - m.m14) > CgfFormat.EPSILON: return False
-            if abs(self.m21 - m.m21) > CgfFormat.EPSILON: return False
-            if abs(self.m22 - m.m22) > CgfFormat.EPSILON: return False
-            if abs(self.m23 - m.m23) > CgfFormat.EPSILON: return False
-            if abs(self.m24 - m.m24) > CgfFormat.EPSILON: return False
-            if abs(self.m31 - m.m31) > CgfFormat.EPSILON: return False
-            if abs(self.m32 - m.m32) > CgfFormat.EPSILON: return False
-            if abs(self.m33 - m.m33) > CgfFormat.EPSILON: return False
-            if abs(self.m34 - m.m34) > CgfFormat.EPSILON: return False
-            if abs(self.m41 - m.m41) > CgfFormat.EPSILON: return False
-            if abs(self.m42 - m.m42) > CgfFormat.EPSILON: return False
-            if abs(self.m43 - m.m43) > CgfFormat.EPSILON: return False
-            if abs(self.m44 - m.m44) > CgfFormat.EPSILON: return False
+            if abs(self.m_11 - m.m_11) > CgfFormat.EPSILON: return False
+            if abs(self.m_12 - m.m_12) > CgfFormat.EPSILON: return False
+            if abs(self.m_13 - m.m_13) > CgfFormat.EPSILON: return False
+            if abs(self.m_14 - m.m_14) > CgfFormat.EPSILON: return False
+            if abs(self.m_21 - m.m_21) > CgfFormat.EPSILON: return False
+            if abs(self.m_22 - m.m_22) > CgfFormat.EPSILON: return False
+            if abs(self.m_23 - m.m_23) > CgfFormat.EPSILON: return False
+            if abs(self.m_24 - m.m_24) > CgfFormat.EPSILON: return False
+            if abs(self.m_31 - m.m_31) > CgfFormat.EPSILON: return False
+            if abs(self.m_32 - m.m_32) > CgfFormat.EPSILON: return False
+            if abs(self.m_33 - m.m_33) > CgfFormat.EPSILON: return False
+            if abs(self.m_34 - m.m_34) > CgfFormat.EPSILON: return False
+            if abs(self.m_41 - m.m_41) > CgfFormat.EPSILON: return False
+            if abs(self.m_42 - m.m_42) > CgfFormat.EPSILON: return False
+            if abs(self.m_43 - m.m_43) > CgfFormat.EPSILON: return False
+            if abs(self.m_44 - m.m_44) > CgfFormat.EPSILON: return False
             return True
 
         def __ne__(self, m):
@@ -1704,41 +1702,41 @@ chunk size mismatch when reading %s at 0x%08X
         def __add__(self, x):
             if isinstance(x, (CgfFormat.Matrix44)):
                 m = CgfFormat.Matrix44()
-                m.m11 = self.m11 + x.m11
-                m.m12 = self.m12 + x.m12
-                m.m13 = self.m13 + x.m13
-                m.m14 = self.m14 + x.m14
-                m.m21 = self.m21 + x.m21
-                m.m22 = self.m22 + x.m22
-                m.m23 = self.m23 + x.m23
-                m.m24 = self.m24 + x.m24
-                m.m31 = self.m31 + x.m31
-                m.m32 = self.m32 + x.m32
-                m.m33 = self.m33 + x.m33
-                m.m34 = self.m34 + x.m34
-                m.m41 = self.m41 + x.m41
-                m.m42 = self.m42 + x.m42
-                m.m43 = self.m43 + x.m43
-                m.m44 = self.m44 + x.m44
+                m.m_11 = self.m_11 + x.m_11
+                m.m_12 = self.m_12 + x.m_12
+                m.m_13 = self.m_13 + x.m_13
+                m.m_14 = self.m_14 + x.m_14
+                m.m_21 = self.m_21 + x.m_21
+                m.m_22 = self.m_22 + x.m_22
+                m.m_23 = self.m_23 + x.m_23
+                m.m_24 = self.m_24 + x.m_24
+                m.m_31 = self.m_31 + x.m_31
+                m.m_32 = self.m_32 + x.m_32
+                m.m_33 = self.m_33 + x.m_33
+                m.m_34 = self.m_34 + x.m_34
+                m.m_41 = self.m_41 + x.m_41
+                m.m_42 = self.m_42 + x.m_42
+                m.m_43 = self.m_43 + x.m_43
+                m.m_44 = self.m_44 + x.m_44
                 return m
             elif isinstance(x, (int, long, float)):
                 m = CgfFormat.Matrix44()
-                m.m11 = self.m11 + x
-                m.m12 = self.m12 + x
-                m.m13 = self.m13 + x
-                m.m14 = self.m14 + x
-                m.m21 = self.m21 + x
-                m.m22 = self.m22 + x
-                m.m23 = self.m23 + x
-                m.m24 = self.m24 + x
-                m.m31 = self.m31 + x
-                m.m32 = self.m32 + x
-                m.m33 = self.m33 + x
-                m.m34 = self.m34 + x
-                m.m41 = self.m41 + x
-                m.m42 = self.m42 + x
-                m.m43 = self.m43 + x
-                m.m44 = self.m44 + x
+                m.m_11 = self.m_11 + x
+                m.m_12 = self.m_12 + x
+                m.m_13 = self.m_13 + x
+                m.m_14 = self.m_14 + x
+                m.m_21 = self.m_21 + x
+                m.m_22 = self.m_22 + x
+                m.m_23 = self.m_23 + x
+                m.m_24 = self.m_24 + x
+                m.m_31 = self.m_31 + x
+                m.m_32 = self.m_32 + x
+                m.m_33 = self.m_33 + x
+                m.m_34 = self.m_34 + x
+                m.m_41 = self.m_41 + x
+                m.m_42 = self.m_42 + x
+                m.m_43 = self.m_43 + x
+                m.m_44 = self.m_44 + x
                 return m
             else:
                 raise TypeError("do not know how to add Matrix44 and %s"%x.__class__)
@@ -1746,54 +1744,54 @@ chunk size mismatch when reading %s at 0x%08X
         def __sub__(self, x):
             if isinstance(x, (CgfFormat.Matrix44)):
                 m = CgfFormat.Matrix44()
-                m.m11 = self.m11 - x.m11
-                m.m12 = self.m12 - x.m12
-                m.m13 = self.m13 - x.m13
-                m.m14 = self.m14 - x.m14
-                m.m21 = self.m21 - x.m21
-                m.m22 = self.m22 - x.m22
-                m.m23 = self.m23 - x.m23
-                m.m24 = self.m24 - x.m24
-                m.m31 = self.m31 - x.m31
-                m.m32 = self.m32 - x.m32
-                m.m33 = self.m33 - x.m33
-                m.m34 = self.m34 - x.m34
-                m.m41 = self.m41 - x.m41
-                m.m42 = self.m42 - x.m42
-                m.m43 = self.m43 - x.m43
-                m.m44 = self.m44 - x.m44
+                m.m_11 = self.m_11 - x.m_11
+                m.m_12 = self.m_12 - x.m_12
+                m.m_13 = self.m_13 - x.m_13
+                m.m_14 = self.m_14 - x.m_14
+                m.m_21 = self.m_21 - x.m_21
+                m.m_22 = self.m_22 - x.m_22
+                m.m_23 = self.m_23 - x.m_23
+                m.m_24 = self.m_24 - x.m_24
+                m.m_31 = self.m_31 - x.m_31
+                m.m_32 = self.m_32 - x.m_32
+                m.m_33 = self.m_33 - x.m_33
+                m.m_34 = self.m_34 - x.m_34
+                m.m_41 = self.m_41 - x.m_41
+                m.m_42 = self.m_42 - x.m_42
+                m.m_43 = self.m_43 - x.m_43
+                m.m_44 = self.m_44 - x.m_44
                 return m
             elif isinstance(x, (int, long, float)):
                 m = CgfFormat.Matrix44()
-                m.m11 = self.m11 - x
-                m.m12 = self.m12 - x
-                m.m13 = self.m13 - x
-                m.m14 = self.m14 - x
-                m.m21 = self.m21 - x
-                m.m22 = self.m22 - x
-                m.m23 = self.m23 - x
-                m.m24 = self.m24 - x
-                m.m31 = self.m31 - x
-                m.m32 = self.m32 - x
-                m.m33 = self.m33 - x
-                m.m34 = self.m34 - x
-                m.m41 = self.m41 - x
-                m.m42 = self.m42 - x
-                m.m43 = self.m43 - x
-                m.m44 = self.m44 - x
+                m.m_11 = self.m_11 - x
+                m.m_12 = self.m_12 - x
+                m.m_13 = self.m_13 - x
+                m.m_14 = self.m_14 - x
+                m.m_21 = self.m_21 - x
+                m.m_22 = self.m_22 - x
+                m.m_23 = self.m_23 - x
+                m.m_24 = self.m_24 - x
+                m.m_31 = self.m_31 - x
+                m.m_32 = self.m_32 - x
+                m.m_33 = self.m_33 - x
+                m.m_34 = self.m_34 - x
+                m.m_41 = self.m_41 - x
+                m.m_42 = self.m_42 - x
+                m.m_43 = self.m_43 - x
+                m.m_44 = self.m_44 - x
                 return m
             else:
                 raise TypeError("do not know how to substract Matrix44 and %s"
                                 % x.__class__)
 
-        def supNorm(self):
+        def sup_norm(self):
             """Calculate supremum norm of matrix (maximum absolute value of all
             entries)."""
             return max(max(abs(elem) for elem in row)
-                       for row in self.asList())
+                       for row in self.as_list())
 
     class MeshChunk:
-        def applyScale(self, scale):
+        def apply_scale(self, scale):
             """Apply scale factor on data."""
             if abs(scale - 1.0) < CgfFormat.EPSILON:
                 return
@@ -1802,118 +1800,116 @@ chunk size mismatch when reading %s at 0x%08X
                 vert.p.y *= scale
                 vert.p.z *= scale
 
-            self.minBound.x *= scale
-            self.minBound.y *= scale
-            self.minBound.z *= scale
-            self.maxBound.x *= scale
-            self.maxBound.y *= scale
-            self.maxBound.z *= scale
+            self.min_bound.x *= scale
+            self.min_bound.y *= scale
+            self.min_bound.z *= scale
+            self.max_bound.x *= scale
+            self.max_bound.y *= scale
+            self.max_bound.z *= scale
 
-        def getVertices(self):
+        def get_vertices(self):
             """Generator for all vertices."""
             if self.vertices:
                 for vert in self.vertices:
                     yield vert.p
-            elif self.verticesData:
-                for vert in self.verticesData.vertices:
+            elif self.vertices_data:
+                for vert in self.vertices_data.vertices:
                     yield vert
 
-        def getNormals(self):
+        def get_normals(self):
             """Generator for all normals."""
             if self.vertices:
                 for vert in self.vertices:
                     yield vert.n
-            elif self.normalsData:
-                for norm in self.normalsData.normals:
+            elif self.normals_data:
+                for norm in self.normals_data.normals:
                     yield norm
 
-        def getColors(self):
+        def get_colors(self):
             """Generator for all vertex colors."""
-            if self.vertexColors:
-                for color in self.vertexColors:
+            if self.vertex_colors:
+                for color in self.vertex_colors:
                     # Far Cry has no alpha channel
                     yield (color.r, color.g, color.b, 255)
-            elif self.colorsData:
-                if self.colorsData.rgbColors:
-                    for color in self.colorsData.rgbColors:
+            elif self.colors_data:
+                if self.colors_data.rgb_colors:
+                    for color in self.colors_data.rgb_colors:
                         yield (color.r, color.g, color.b, 255)
-                elif self.colorsData.rgbaColors:
-                    for color in self.colorsData.rgbaColors:
+                elif self.colors_data.rgba_colors:
+                    for color in self.colors_data.rgba_colors:
                         yield (color.r, color.g, color.b, color.a)
 
-        def getNumTriangles(self):
+        def get_num_triangles(self):
             """Get number of triangles."""
             if self.faces:
-                return self.numFaces
-            elif self.indicesData:
-                return self.indicesData.numElements // 3
+                return self.num_faces
+            elif self.indices_data:
+                return self.indices_data.num_elements // 3
             else:
                 return 0
 
-        def getTriangles(self):
+        def get_triangles(self):
             """Generator for all triangles."""
             if self.faces:
                 for face in self.faces:
-                    yield face.v0, face.v1, face.v2
-            elif self.indicesData:
-                it = iter(self.indicesData.indices)
+                    yield face.v_0, face.v_1, face.v_2
+            elif self.indices_data:
+                it = iter(self.indices_data.indices)
                 while True:
                    yield it.next(), it.next(), it.next()
 
-        def getMaterialIndices(self):
+        def get_material_indices(self):
             """Generator for all materials (per triangle)."""
             if self.faces:
                 for face in self.faces:
                     yield face.material
-            elif self.meshSubsets:
-                for meshsubset in self.meshSubsets.meshSubsets:
-                    for i in xrange(meshsubset.numIndices // 3):
-                        yield meshsubset.matId
+            elif self.mesh_subsets:
+                for meshsubset in self.mesh_subsets.mesh_subsets:
+                    for i in xrange(meshsubset.num_indices // 3):
+                        yield meshsubset.mat_id
 
-        def getUvs(self):
+        def get_uvs(self):
             """Generator for all uv coordinates."""
             if self.uvs:
                 for uv in self.uvs:
                     yield uv.u, uv.v
-            elif self.uvsData:
-                for uv in self.uvsData.uvs:
+            elif self.uvs_data:
+                for uv in self.uvs_data.uvs:
                     yield uv.u, 1.0 - uv.v # OpenGL fix!
 
-        getUVs = getUvs # compatibility
-
-        def getUVTriangles(self):
+        def get_uv_triangles(self):
             """Generator for all uv triangles."""
-            if self.uvFaces:
-                for uvface in self.uvFaces:
-                    yield uvface.t0, uvface.t1, uvface.t2
-            elif self.indicesData:
+            if self.uv_faces:
+                for uvface in self.uv_faces:
+                    yield uvface.t_0, uvface.t_1, uvface.t_2
+            elif self.indices_data:
                 # Crysis: UV triangles coincide with triangles
-                it = iter(self.indicesData.indices)
+                it = iter(self.indices_data.indices)
                 while True:
                     yield it.next(), it.next(), it.next()
 
-        ### DEPRECATED: USE setGeometry INSTEAD ###
-        def setVerticesNormals(self, vertices, normals):
-            """B{Deprecated. Use L{setGeometry} instead.} Set vertices and normals. This used to be the first function to call
+        ### DEPRECATED: USE set_geometry INSTEAD ###
+        def set_vertices_normals(self, vertices, normals):
+            """B{Deprecated. Use L{set_geometry} instead.} Set vertices and normals. This used to be the first function to call
             when setting mesh geometry data.
 
             Returns list of chunks that have been added."""
             # Far Cry
-            self.numVertices = len(vertices)
+            self.num_vertices = len(vertices)
             self.vertices.update_size()
 
             # Crysis
-            self.verticesData = CgfFormat.DataStreamChunk()
-            self.verticesData.dataStreamType = CgfFormat.DataStreamType.VERTICES
-            self.verticesData.bytesPerElement = 12
-            self.verticesData.numElements = len(vertices)
-            self.verticesData.vertices.update_size()
+            self.vertices_data = CgfFormat.DataStreamChunk()
+            self.vertices_data.data_stream_type = CgfFormat.DataStreamType.VERTICES
+            self.vertices_data.bytes_per_element = 12
+            self.vertices_data.num_elements = len(vertices)
+            self.vertices_data.vertices.update_size()
 
-            self.normalsData = CgfFormat.DataStreamChunk()
-            self.normalsData.dataStreamType = CgfFormat.DataStreamType.NORMALS
-            self.normalsData.bytesPerElement = 12
-            self.normalsData.numElements = len(vertices)
-            self.normalsData.normals.update_size()
+            self.normals_data = CgfFormat.DataStreamChunk()
+            self.normals_data.data_stream_type = CgfFormat.DataStreamType.NORMALS
+            self.normals_data.bytes_per_element = 12
+            self.normals_data.num_elements = len(vertices)
+            self.normals_data.normals.update_size()
 
             # set vertex coordinates and normals for Far Cry
             for cryvert, vert, norm in izip(self.vertices, vertices, normals):
@@ -1925,8 +1921,8 @@ chunk size mismatch when reading %s at 0x%08X
                 cryvert.n.z = norm[2]
 
             # set vertex coordinates and normals for Crysis
-            for cryvert, crynorm, vert, norm in izip(self.verticesData.vertices,
-                                                     self.normalsData.normals,
+            for cryvert, crynorm, vert, norm in izip(self.vertices_data.vertices,
+                                                     self.normals_data.normals,
                                                      vertices, normals):
                 cryvert.x = vert[0]
                 cryvert.y = vert[1]
@@ -1936,7 +1932,7 @@ chunk size mismatch when reading %s at 0x%08X
                 crynorm.z = norm[2]
 
         ### STILL WIP!!! ###
-        def setGeometry(self,
+        def set_geometry(self,
                         verticeslist = None, normalslist = None,
                         triangleslist = None, matlist = None,
                         uvslist = None, colorslist = None):
@@ -1953,13 +1949,13 @@ chunk size mismatch when reading %s at 0x%08X
             >>> uvs1 = [(0,0),(0,1),(1,0),(1,1)]
             >>> uvs2 = [(0,0),(0,1),(1,0),(1,1)]
             >>> colors1 = [(0,1,2,3),(4,5,6,7),(8,9,10,11),(12,13,14,15)]
-            >>> colors2 = [(50,51,52,53),(54,55,56,57),(58,59,60,61),(62,63,64,65)]
-            >>> chunk.setGeometry(verticeslist = [vertices1, vertices2],
+            >>> colors_2 = [(50,51,52,53),(54,55,56,57),(58,59,60,61),(62,63,64,65)]
+            >>> chunk.set_geometry(verticeslist = [vertices1, vertices2],
             ...                   normalslist = [normals1, normals2],
             ...                   triangleslist = [triangles1, triangles2],
             ...                   uvslist = [uvs1, uvs2],
             ...                   matlist = [2,5],
-            ...                   colorslist = [colors1, colors2])
+            ...                   colorslist = [colors1, colors_2])
             >>> print(chunk) # doctest: +ELLIPSIS +REPORT_UDIFF
             <class 'pyffi.formats.cgf.MeshChunk'> instance at ...
             * has_vertex_weights : False
@@ -2464,54 +2460,54 @@ chunk size mismatch when reading %s at 0x%08X
             numtriangles = sum(len(triangles) for triangles in triangleslist)
 
             # Far Cry data preparation
-            self.numVertices = numvertices
+            self.num_vertices = numvertices
             self.vertices.update_size()
             selfvertices_iter = iter(self.vertices)
-            self.numFaces = numtriangles
+            self.num_faces = numtriangles
             self.faces.update_size()
             selffaces_iter = iter(self.faces)
             if not uvslist is None:
-                self.numUvs = numvertices
+                self.num_uvs = numvertices
                 self.uvs.update_size()
-                self.uvFaces.update_size()
+                self.uv_faces.update_size()
                 selfuvs_iter = iter(self.uvs)
-                selfuvFaces_iter = iter(self.uvFaces)
+                selfuv_faces_iter = iter(self.uv_faces)
             if not colorslist is None:
-                self.hasVertexColors = True
-                self.vertexColors.update_size()
-                selfvertexColors_iter = iter(self.vertexColors)
+                self.has_vertex_colors = True
+                self.vertex_colors.update_size()
+                selfvertex_colors_iter = iter(self.vertex_colors)
 
             # Crysis data preparation
-            self.numIndices = numtriangles * 3
+            self.num_indices = numtriangles * 3
 
-            self.verticesData = CgfFormat.DataStreamChunk()
-            self.verticesData.dataStreamType = CgfFormat.DataStreamType.VERTICES
-            self.verticesData.bytesPerElement = 12
-            self.verticesData.numElements = numvertices
-            self.verticesData.vertices.update_size()
-            selfverticesData_iter = iter(self.verticesData.vertices)
+            self.vertices_data = CgfFormat.DataStreamChunk()
+            self.vertices_data.data_stream_type = CgfFormat.DataStreamType.VERTICES
+            self.vertices_data.bytes_per_element = 12
+            self.vertices_data.num_elements = numvertices
+            self.vertices_data.vertices.update_size()
+            selfvertices_data_iter = iter(self.vertices_data.vertices)
 
-            self.normalsData = CgfFormat.DataStreamChunk()
-            self.normalsData.dataStreamType = CgfFormat.DataStreamType.NORMALS
-            self.normalsData.bytesPerElement = 12
-            self.normalsData.numElements = numvertices
-            self.normalsData.normals.update_size()
-            selfnormalsData_iter = iter(self.normalsData.normals)
+            self.normals_data = CgfFormat.DataStreamChunk()
+            self.normals_data.data_stream_type = CgfFormat.DataStreamType.NORMALS
+            self.normals_data.bytes_per_element = 12
+            self.normals_data.num_elements = numvertices
+            self.normals_data.normals.update_size()
+            selfnormals_data_iter = iter(self.normals_data.normals)
 
-            self.indicesData = CgfFormat.DataStreamChunk()
-            self.indicesData.dataStreamType = CgfFormat.DataStreamType.INDICES
-            self.indicesData.bytesPerElement = 2
-            self.indicesData.numElements = numtriangles * 3
-            self.indicesData.indices.update_size()
+            self.indices_data = CgfFormat.DataStreamChunk()
+            self.indices_data.data_stream_type = CgfFormat.DataStreamType.INDICES
+            self.indices_data.bytes_per_element = 2
+            self.indices_data.num_elements = numtriangles * 3
+            self.indices_data.indices.update_size()
 
             if not uvslist is None:
                 # uvs
-                self.uvsData = CgfFormat.DataStreamChunk()
-                self.uvsData.dataStreamType = CgfFormat.DataStreamType.UVS
-                self.uvsData.bytesPerElement = 8
-                self.uvsData.numElements = numvertices
-                self.uvsData.uvs.update_size()
-                selfuvsData_iter = iter(self.uvsData.uvs)
+                self.uvs_data = CgfFormat.DataStreamChunk()
+                self.uvs_data.data_stream_type = CgfFormat.DataStreamType.UVS
+                self.uvs_data.bytes_per_element = 8
+                self.uvs_data.num_elements = numvertices
+                self.uvs_data.uvs.update_size()
+                selfuvs_data_iter = iter(self.uvs_data.uvs)
                 # have tangent space
                 has_tangentspace = True
             else:
@@ -2520,17 +2516,17 @@ chunk size mismatch when reading %s at 0x%08X
 
             if not colorslist is None:
                 # vertex colors
-                self.colorsData = CgfFormat.DataStreamChunk()
-                self.colorsData.dataStreamType = CgfFormat.DataStreamType.COLORS
-                self.colorsData.bytesPerElement = 4
-                self.colorsData.numElements = numvertices
-                self.colorsData.rgbaColors.update_size()
-                selfcolorsData_iter = iter(self.colorsData.rgbaColors)
+                self.colors_data = CgfFormat.DataStreamChunk()
+                self.colors_data.data_stream_type = CgfFormat.DataStreamType.COLORS
+                self.colors_data.bytes_per_element = 4
+                self.colors_data.num_elements = numvertices
+                self.colors_data.rgba_colors.update_size()
+                selfcolors_data_iter = iter(self.colors_data.rgba_colors)
 
-            self.numMeshSubsets = len(verticeslist)
-            self.meshSubsets = CgfFormat.MeshSubsetsChunk()
-            self.meshSubsets.numMeshSubsets = self.numMeshSubsets
-            self.meshSubsets.meshSubsets.update_size()
+            self.num_mesh_subsets = len(verticeslist)
+            self.mesh_subsets = CgfFormat.MeshSubsetsChunk()
+            self.mesh_subsets.num_mesh_subsets = self.num_mesh_subsets
+            self.mesh_subsets.mesh_subsets.update_size()
 
             # set up default iterators
             if matlist is None:
@@ -2547,14 +2543,14 @@ chunk size mismatch when reading %s at 0x%08X
                 verticeslist, normalslist,
                 triangleslist, matlist,
                 uvslist, colorslist,
-                self.meshSubsets.meshSubsets):
+                self.mesh_subsets.mesh_subsets):
 
                 # set Crysis mesh subset info
-                meshsubset.firstIndex = firstindicesindex
-                meshsubset.numIndices = len(triangles) * 3
-                meshsubset.firstVertex = firstvertexindex
-                meshsubset.numVertices = len(vertices)
-                meshsubset.matId = mat
+                meshsubset.first_index = firstindicesindex
+                meshsubset.num_indices = len(triangles) * 3
+                meshsubset.first_vertex = firstvertexindex
+                meshsubset.num_vertices = len(vertices)
+                meshsubset.mat_id = mat
                 center, radius = pyffi.utils.mathutils.getCenterRadius(vertices)
                 meshsubset.radius = radius
                 meshsubset.center.x = center[0]
@@ -2573,8 +2569,8 @@ chunk size mismatch when reading %s at 0x%08X
 
                 # set vertex coordinates and normals for Crysis
                 for vert, norm in izip(vertices, normals):
-                    cryvert = selfverticesData_iter.next()
-                    crynorm = selfnormalsData_iter.next()
+                    cryvert = selfvertices_data_iter.next()
+                    crynorm = selfnormals_data_iter.next()
                     cryvert.x = vert[0]
                     cryvert.y = vert[1]
                     cryvert.z = vert[2]
@@ -2585,23 +2581,23 @@ chunk size mismatch when reading %s at 0x%08X
                 # set Far Cry face info
                 for triangle in triangles:
                     cryface = selffaces_iter.next()
-                    cryface.v0 = triangle[0] + firstvertexindex
-                    cryface.v1 = triangle[1] + firstvertexindex
-                    cryface.v2 = triangle[2] + firstvertexindex
+                    cryface.v_0 = triangle[0] + firstvertexindex
+                    cryface.v_1 = triangle[1] + firstvertexindex
+                    cryface.v_2 = triangle[2] + firstvertexindex
                     cryface.material = mat
 
                 # set Crysis face info
                 for i, vertexindex in enumerate(itertools.chain(*triangles)):
-                    self.indicesData.indices[i + firstindicesindex] \
+                    self.indices_data.indices[i + firstindicesindex] \
                         = vertexindex + firstvertexindex
 
                 if not uvs is None:
                     # set Far Cry uv info
                     for triangle in triangles:
-                        cryuvface = selfuvFaces_iter.next()
-                        cryuvface.t0 = triangle[0] + firstvertexindex
-                        cryuvface.t1 = triangle[1] + firstvertexindex
-                        cryuvface.t2 = triangle[2] + firstvertexindex
+                        cryuvface = selfuv_faces_iter.next()
+                        cryuvface.t_0 = triangle[0] + firstvertexindex
+                        cryuvface.t_1 = triangle[1] + firstvertexindex
+                        cryuvface.t_2 = triangle[2] + firstvertexindex
                     for uv in uvs:
                         cryuv = selfuvs_iter.next()
                         cryuv.u = uv[0]
@@ -2609,14 +2605,14 @@ chunk size mismatch when reading %s at 0x%08X
 
                     # set Crysis uv info
                     for uv in uvs:
-                        cryuv = selfuvsData_iter.next()
+                        cryuv = selfuvs_data_iter.next()
                         cryuv.u = uv[0]
                         cryuv.v = 1.0 - uv[1] # OpenGL fix
 
                 if not colors is None:
                     # set Far Cry color info
                     for color in colors:
-                        crycolor = selfvertexColors_iter.next()
+                        crycolor = selfvertex_colors_iter.next()
                         crycolor.r = color[0]
                         crycolor.g = color[1]
                         crycolor.b = color[2]
@@ -2624,7 +2620,7 @@ chunk size mismatch when reading %s at 0x%08X
 
                     # set Crysis color info
                     for color in colors:
-                        crycolor = selfcolorsData_iter.next()
+                        crycolor = selfcolors_data_iter.next()
                         crycolor.r = color[0]
                         crycolor.g = color[1]
                         crycolor.b = color[2]
@@ -2636,40 +2632,40 @@ chunk size mismatch when reading %s at 0x%08X
 
             # update tangent space
             if has_tangentspace:
-                self.updateTangentSpace()
+                self.update_tangent_space()
 
             # set global bounding box
             minbound, maxbound = pyffi.utils.mathutils.getBoundingBox(
                 list(itertools.chain(*verticeslist)))
-            self.minBound.x = minbound[0]
-            self.minBound.y = minbound[1]
-            self.minBound.z = minbound[2]
-            self.maxBound.x = maxbound[0]
-            self.maxBound.y = maxbound[1]
-            self.maxBound.z = maxbound[2]
+            self.min_bound.x = minbound[0]
+            self.min_bound.y = minbound[1]
+            self.min_bound.z = minbound[2]
+            self.max_bound.x = maxbound[0]
+            self.max_bound.y = maxbound[1]
+            self.max_bound.z = maxbound[2]
 
-        def updateTangentSpace(self):
+        def update_tangent_space(self):
             """Recalculate tangent space data."""
             # set up tangent space
-            self.tangentsData = CgfFormat.DataStreamChunk()
-            self.tangentsData.dataStreamType = CgfFormat.DataStreamType.TANGENTS
-            self.tangentsData.bytesPerElement = 16
-            self.tangentsData.numElements = self.numVertices
-            self.tangentsData.tangents.update_size()
-            selftangentsData_iter = iter(self.tangentsData.tangents)
+            self.tangents_data = CgfFormat.DataStreamChunk()
+            self.tangents_data.data_stream_type = CgfFormat.DataStreamType.TANGENTS
+            self.tangents_data.bytes_per_element = 16
+            self.tangents_data.num_elements = self.num_vertices
+            self.tangents_data.tangents.update_size()
+            selftangents_data_iter = iter(self.tangents_data.tangents)
 
             # set Crysis tangents info
             tangents, binormals, orientations = pyffi.utils.tangentspace.getTangentSpace(
                 vertices = list((vert.x, vert.y, vert.z)
-                                for vert in self.verticesData.vertices),
+                                for vert in self.vertices_data.vertices),
                 normals = list((norm.x, norm.y, norm.z)
-                                for norm in self.normalsData.normals),
+                                for norm in self.normals_data.normals),
                 uvs = list((uv.u, uv.v)
-                           for uv in self.uvsData.uvs),
-                triangles = list(self.getTriangles()),
+                           for uv in self.uvs_data.uvs),
+                triangles = list(self.get_triangles()),
                 orientation = True)
 
-            for crytangent, tan, bin, orient in izip(self.tangentsData.tangents,
+            for crytangent, tan, bin, orient in izip(self.tangents_data.tangents,
                                                      tangents, binormals, orientations):
                 if orient > 0:
                     tangent_w = 32767
@@ -2685,36 +2681,36 @@ chunk size mismatch when reading %s at 0x%08X
                 crytangent[0].w = tangent_w
 
     class MeshMorphTargetChunk:
-        def applyScale(self, scale):
+        def apply_scale(self, scale):
             """Apply scale factor on data."""
             if abs(scale - 1.0) < CgfFormat.EPSILON:
                 return
-            for morphvert in self.morphVertices:
-                morphvert.vertexTarget.x *= scale
-                morphvert.vertexTarget.y *= scale
-                morphvert.vertexTarget.z *= scale
+            for morphvert in self.morph_vertices:
+                morphvert.vertex_target.x *= scale
+                morphvert.vertex_target.y *= scale
+                morphvert.vertex_target.z *= scale
 
-        def getGlobalNodeParent(self):
+        def get_global_node_parent(self):
             """Get the block parent (used for instance in the QSkope global view)."""
             return self.mesh
 
         def get_global_display(self):
             """Return a name for the block."""
-            return self.targetName
+            return self.target_name
 
     class MeshSubsetsChunk:
-        def applyScale(self, scale):
+        def apply_scale(self, scale):
             """Apply scale factor on data."""
             if abs(scale - 1.0) < CgfFormat.EPSILON:
                 return
-            for meshsubset in self.meshSubsets:
+            for meshsubset in self.mesh_subsets:
                 meshsubset.radius *= scale
                 meshsubset.center.x *= scale
                 meshsubset.center.y *= scale
                 meshsubset.center.z *= scale
 
     class MtlChunk:
-        def getNameShaderScript(self):
+        def get_name_shader_script(self):
             """Extract name, shader, and script."""
             name = self.name
             shader_begin = name.find("(")
@@ -2758,24 +2754,24 @@ chunk size mismatch when reading %s at 0x%08X
             return mtlname, mtlshader, mtlscript
 
     class NodeChunk:
-        def getGlobalNodeParent(self):
+        def get_global_node_parent(self):
             """Get the block parent (used for instance in the QSkope global view)."""
             return self.parent
 
-        def applyScale(self, scale):
+        def apply_scale(self, scale):
             """Apply scale factor on data."""
             if abs(scale - 1.0) < CgfFormat.EPSILON:
                 return
-            self.transform.m41 *= scale
-            self.transform.m42 *= scale
-            self.transform.m43 *= scale
+            self.transform.m_41 *= scale
+            self.transform.m_42 *= scale
+            self.transform.m_43 *= scale
             self.pos.x *= scale
             self.pos.y *= scale
             self.pos.z *= scale
 
-        def updatePosRotScl(self):
+        def update_pos_rot_scl(self):
             """Update position, rotation, and scale, from the transform."""
-            scale, quat, trans = self.transform.getScaleQuatTranslation()
+            scale, quat, trans = self.transform.get_scale_quat_translation()
             self.pos.x = trans.x
             self.pos.y = trans.y
             self.pos.z = trans.z
@@ -2790,19 +2786,19 @@ chunk size mismatch when reading %s at 0x%08X
     class SourceInfoChunk:
         def get_global_display(self):
             """Return a name for the block."""
-            idx = max(self.sourceFile.rfind("\\"), self.sourceFile.rfind("/"))
-            return self.sourceFile[idx+1:]
+            idx = max(self.source_file.rfind("\\"), self.source_file.rfind("/"))
+            return self.source_file[idx+1:]
 
     class TimingChunk:
         def get_global_display(self):
             """Return a name for the block."""
-            return self.globalRange.name
+            return self.global_range.name
 
     class Vector3:
-        def asList(self):
+        def as_list(self):
             return [self.x, self.y, self.z]
 
-        def asTuple(self):
+        def as_tuple(self):
             return (self.x, self.y, self.z)
 
         def norm(self):
@@ -2816,7 +2812,7 @@ chunk size mismatch when reading %s at 0x%08X
             self.y /= norm
             self.z /= norm
 
-        def getCopy(self):
+        def get_copy(self):
             v = CgfFormat.Vector3()
             v.x = self.x
             v.y = self.y
@@ -2837,12 +2833,12 @@ chunk size mismatch when reading %s at 0x%08X
                 return self.x * x.x + self.y * x.y + self.z * x.z
             elif isinstance(x, CgfFormat.Matrix33):
                 v = CgfFormat.Vector3()
-                v.x = self.x * x.m11 + self.y * x.m21 + self.z * x.m31
-                v.y = self.x * x.m12 + self.y * x.m22 + self.z * x.m32
-                v.z = self.x * x.m13 + self.y * x.m23 + self.z * x.m33
+                v.x = self.x * x.m_11 + self.y * x.m_21 + self.z * x.m_31
+                v.y = self.x * x.m_12 + self.y * x.m_22 + self.z * x.m_32
+                v.z = self.x * x.m_13 + self.y * x.m_23 + self.z * x.m_33
                 return v
             elif isinstance(x, CgfFormat.Matrix44):
-                return self * x.getMatrix33() + x.getTranslation()
+                return self * x.get_matrix_33() + x.get_translation()
             else:
                 raise TypeError("do not know how to multiply Vector3 with %s"%x.__class__)
 

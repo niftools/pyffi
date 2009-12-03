@@ -101,18 +101,18 @@ class SpellCheckTangentSpace(CgfSpell):
             return True
 
         # get tangents and normals
-        if not (branch.normalsData and branch.tangentsData):
+        if not (branch.normals_data and branch.tangents_data):
             return True
 
-        oldtangents = [tangent for tangent in branch.tangentsData.tangents]
+        oldtangents = [tangent for tangent in branch.tangents_data.tangents]
 
         self.toaster.msg("recalculating new tangent space")
-        branch.updateTangentSpace()
-        newtangents = [tangent for tangent in branch.tangentsData.tangents]
+        branch.update_tangent_space()
+        newtangents = [tangent for tangent in branch.tangents_data.tangents]
 
         self.toaster.msgblockbegin("validating and checking old with new")
 
-        for norm, oldtangent, newtangent in izip(branch.normalsData.normals,
+        for norm, oldtangent, newtangent in izip(branch.normals_data.normals,
                                                  oldtangents, newtangents):
             #self.toaster.msg("*** %s ***" % (norm,))
             # check old
@@ -195,7 +195,7 @@ class SpellCheckHasVertexColors(CgfSpell):
 
     def branchentry(self, branch):
         if isinstance(branch, CgfFormat.MeshChunk):
-            if branch.hasVertexColors:
+            if branch.has_vertex_colors:
                 self.toaster.msg("has vertex colors!")
         else:
             # keep recursing

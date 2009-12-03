@@ -61,7 +61,7 @@ class CgfSpell(pyffi.spells.Spell):
 
         # check that at least one block type of the header is admissible
         return any(self.toaster.isadmissiblebranchtype(header_type)
-                   for header_type in self.data.chunk_table.getChunkTypes())
+                   for header_type in self.data.chunk_table.get_chunk_types())
 
     def inspectblocktype(self, block_type):
         """This function heuristically checks whether the given block type
@@ -75,7 +75,7 @@ class CgfSpell(pyffi.spells.Spell):
             cannot be determined.
         :rtype: ``bool``
         """
-        return (block_type in self.data.chunk_table.getChunkTypes())
+        return (block_type in self.data.chunk_table.get_chunk_types())
 
 class CgfToaster(pyffi.spells.Toaster):
     FILEFORMAT = CgfFormat
