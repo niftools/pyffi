@@ -217,7 +217,8 @@ class SpellScaleAnimationTime(NifSpell):
                                    NifFormat.NiControllerSequence,
                                    NifFormat.NiTransformController,
                                    NifFormat.NiTransformInterpolator,
-                                   NifFormat.NiTransformData))
+                                   NifFormat.NiTransformData,
+                                   NifFormat.NiTextKeyExtraData))
 
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiTransformData):
@@ -239,6 +240,11 @@ class SpellScaleAnimationTime(NifSpell):
             return False
         if isinstance(branch, NifFormat.NiControllerSequence):
             branch.stop_time *= self.toaster.animation_scale
+            # probably children of NiControllerSequence so need to recurse further.
+            return True
+        if isinstance(branch, NifFormat.NiTextKeyExtraData):
+            for key in branch.text_keys:
+                key.time *= self.toaster.animation_scale
             # probably children of NiControllerSequence so need to recurse further.
             return True
         else:
