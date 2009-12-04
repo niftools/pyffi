@@ -245,8 +245,8 @@ class SpellScaleAnimationTime(NifSpell):
         if isinstance(branch, NifFormat.NiTextKeyExtraData):
             for key in branch.text_keys:
                 key.time *= self.toaster.animation_scale
-            # probably children of NiControllerSequence so need to recurse further.
-            return True
+            # No children of NiTextKeyExtraData so no need to recurse further.
+            return False
         else:
             # recurse further
             return True
