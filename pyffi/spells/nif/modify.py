@@ -237,6 +237,10 @@ class SpellScaleAnimationTime(NifSpell):
                 key.time *= self.toaster.animation_scale
             # no children of NiTransformData so no need to recurse further.
             return False
+        if isinstance(branch, NifFormat.NiControllerSequence):
+            branch.stop_time *= self.toaster.animation_scale
+            # probably children of NiControllerSequence so need to recurse further.
+            return True
         else:
             # recurse further
             return True
