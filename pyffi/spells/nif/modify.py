@@ -213,6 +213,7 @@ class SpellScaleAnimationTime(NifSpell):
         # inspect the NiAVObject branch, and NiControllerSequence
         # branch (for kf files)
         return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiControllerManager,
                                    NifFormat.NiControllerSequence,
                                    NifFormat.NiTransformController,
                                    NifFormat.NiTransformInterpolator,
