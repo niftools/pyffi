@@ -23,7 +23,16 @@ Read a TRI file
 >>> data = TriFormat.Data()
 >>> data.inspect(stream)
 >>> # do some stuff with header?
->>> #data.header....
+>>> data.num_vertices
+89
+>>> data.num_tri_faces
+215
+>>> data.num_quad_faces
+0
+>>> data.num_uvs
+89
+>>> data.num_morphs
+18
 >>> data.read(stream) # doctest: +ELLIPSIS
 Traceback (most recent call last):
     ...
@@ -101,8 +110,6 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
     xml_file_path = [os.getenv('TRIXMLPATH'), os.path.dirname(__file__)]
     # file name regular expression match
     RE_FILENAME = re.compile(r'^.*\.tri$', re.IGNORECASE)
-    # used for comparing floats
-    _EPSILON = 0.0001
 
     # basic types
     int = pyffi.object_models.common.Int
@@ -144,7 +151,8 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
             # check if the string is correct
             if hdrstr != "FRTRI".encode("ascii"):
                 raise ValueError(
-                    "invalid TRI header: expected 'FRTRI' but got '%s'" % hdrstr)
+                    "invalid TRI header: expected 'FRTRI' but got '%s'"
+                    % hdrstr)
 
         def write(self, stream, **kwargs):
             """Write the header string to stream.
@@ -162,35 +170,31 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
             return 5
 
     class FileVersion(BasicBase):
+        _value = 3
+
         def get_value(self):
-            raise NotImplementedError
+            return self._value
 
         def set_value(self, value):
-            raise NotImplementedError
+            self._value = int(value)
 
         def __str__(self):
-            return 'XXX'
+            return '%03i' % self._value
 
         def get_size(self, **kwargs):
             return 3
 
         def get_hash(self, **kwargs):
-            return None
+            return self._value
 
         def read(self, stream, **kwargs):
-            ver = stream.read(3)
-            if ver != '%03i' % kwargs['data'].version:
-                raise ValueError(
-                    "Invalid version number: expected %03i but got %s."
-                    % (kwargs['data'].version, ver))
+            self._value = TriFormat.version_number(stream.read(3))
 
         def write(self, stream, **kwargs):
-            stream.write('%03i' % kwargs['data'].version)
+            stream.write('%03i' % self._value)
 
         def get_detail_display(self):
-            return 'XXX'
-
-    # XXX nothing here yet...
+            return self.__str__()
 
     @staticmethod
     def version_number(version_str):
@@ -212,31 +216,28 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
             # not supported
             return -1
 
-    class Data(pyffi.object_models.FileFormat.Data):
+    class Header(pyffi.object_models.FileFormat.Data):
         """A class to contain the actual tri data."""
-        def __init__(self):
-            pass
 
         def inspect_quick(self, stream):
-            """Quickly checks if stream contains TRI data, and gets the
-            version, by looking at the first 8 bytes.
+            """Quickly checks if stream contains TRI data, by looking at
+            the first 8 bytes. Reads the signature and the version.
 
             :param stream: The stream to inspect.
             :type stream: file
             """
             pos = stream.tell()
             try:
-                hdrstr = stream.read(5)
-                if hdrstr != "FRTRI".encode("ascii"):
-                    raise ValueError("Not a TRI file.")
+                self._signature_value_.read(stream)
+                self._version_value_.read(stream)
             finally:
                 stream.seek(pos)
 
         # overriding pyffi.object_models.FileFormat.Data methods
 
         def inspect(self, stream):
-            """Quickly checks if stream contains TRI data, and reads the
-            header.
+            """Quickly checks if stream contains TRI data, and reads
+            everything up to the arrays.
 
             :param stream: The stream to inspect.
             :type stream: file
@@ -244,7 +245,18 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
             pos = stream.tell()
             try:
                 self.inspect_quick(stream)
-                # XXX read header
+                self._signature_value_.read(stream)
+                self._version_value_.read(stream)
+                self._num_vertices_value_.read(stream)
+                self._num_tri_faces_value_.read(stream)
+                self._num_quad_faces_value_.read(stream)
+                self._unknown_1_value_.read(stream)
+                self._unknown_2_value_.read(stream)
+                self._num_uvs_value_.read(stream)
+                self._has_uv_value_.read(stream)
+                self._num_morphs_value_.read(stream)
+                self._num_modifiers_value_.read(stream)
+                self._num_modifier_vertices_value_.read(stream)
             finally:
                 stream.seek(pos)
 
@@ -256,7 +268,8 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
             :type stream: ``file``
             """
             self.inspect_quick(stream)
-            # XXX read the file
+            pyffi.object_models.xml.struct_.StructBase.read(
+                self, stream, version=self.version)
 
             # check if we are at the end of the file
             if stream.read(1):
@@ -269,16 +282,15 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
             :param stream: The stream to which to write.
             :type stream: ``file``
             """
-            # XXX write the file
+            pyffi.object_models.xml.struct_.StructBase.write(
+                self, stream, version=self.version)
 
-        # DetailNode
+        # GlobalNode
 
-        def get_detail_child_nodes(self, edge_filter=EdgeFilter()):
-            return []
-            # XXX todo, for instance:
-            #return self.header.get_detail_child_nodes(edge_filter=edge_filter)
+        def get_global_child_nodes(self, edge_filter=EdgeFilter()):
+            return ([morph for morph in self.morphs]
+                    + [morph for morph in self.modifiers])
 
-        def get_detail_child_names(self, edge_filter=EdgeFilter()):
-            return []
-            # XXX todo, for instance:
-            #return self.header.get_detail_child_names(edge_filter=edge_filter)
+if __name__=='__main__':
+    import doctest
+    doctest.testmod()
