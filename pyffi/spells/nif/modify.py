@@ -312,8 +312,11 @@ class SpellReverseAnimation(NifSpell):
             # no children of NiTransformData so no need to recurse further.
             return False
         elif isinstance(branch, NifFormat.NiTextKeyExtraData):
+            temporary_branch_copy = branch.text_keys
+            i = (len(temporary_branch_copy) - 1)
             for key in branch.text_keys:
-                key.time = ((key.time * -1) + branch.text_keys[-1].time)
+                key.value = temporary_branch_copy[i].value
+                i -= 1
             # No children of NiTextKeyExtraData so no need to recurse further.
             return False
         elif isinstance(branch, NifFormat.NiFloatData):
