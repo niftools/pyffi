@@ -507,14 +507,14 @@ but got instance of %s""" % (self._template, block.__class__))
             return []
 
     @staticmethod
-    def versionNumber(version_str):
+    def version_number(version_str):
         """Converts version string into an integer.
 
         :param version_str: The version string.
         :type version_str: str
         :return: A version integer.
 
-        >>> hex(CgfFormat.versionNumber('744'))
+        >>> hex(CgfFormat.version_number('744'))
         '0x744'
         """
         return int(version_str, 16)

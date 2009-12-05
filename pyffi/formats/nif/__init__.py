@@ -977,7 +977,7 @@ class NifFormat(FileFormat):
             return "user_version"
         elif expression == "User Version 2":
             return "user_version2"
-        ver = cls.versionNumber(expression)
+        ver = cls.version_number(expression)
         if ver < 0:
             # not supported?
             raise ValueError(
@@ -986,20 +986,20 @@ class NifFormat(FileFormat):
             return ver
 
     @staticmethod
-    def versionNumber(version_str):
+    def version_number(version_str):
         """Converts version string into an integer.
 
         :param version_str: The version string.
         :type version_str: str
         :return: A version integer.
 
-        >>> hex(NifFormat.versionNumber('3.14.15.29'))
+        >>> hex(NifFormat.version_number('3.14.15.29'))
         '0x30e0f1d'
-        >>> hex(NifFormat.versionNumber('1.2'))
+        >>> hex(NifFormat.version_number('1.2'))
         '0x1020000'
-        >>> hex(NifFormat.versionNumber('3.03'))
+        >>> hex(NifFormat.version_number('3.03'))
         '0x3000300'
-        >>> hex(NifFormat.versionNumber('NS'))
+        >>> hex(NifFormat.version_number('NS'))
         '0xa010000'
         """
 
@@ -1143,7 +1143,7 @@ class NifFormat(FileFormat):
             else:
                 raise ValueError("Not a nif file.")
             try:
-                ver = NifFormat.versionNumber(version_str)
+                ver = NifFormat.version_number(version_str)
             except:
                 raise ValueError("Nif version %s not supported." % version_str)
             if not ver in NifFormat.versions.values():

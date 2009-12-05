@@ -196,7 +196,7 @@ class FileFormat(object):
             raise NotImplementedError
 
     @staticmethod
-    def versionNumber(version_str):
+    def version_number(version_str):
         """Converts version string into an integer.
         This default implementation simply returns zero at all times,
         and works for formats that are not versioned.
