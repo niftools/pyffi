@@ -207,7 +207,7 @@ class SpellScaleAnimationTime(NifSpell):
             return True
 
     def datainspect(self):
-        return self.inspectblocktype(NifFormat.NiTransformData)
+        return self.inspectblocktype(NifFormat.NiObject) #returns more than needed but only way to ensure catches all types of animations
 
     def branchinspect(self, branch):
         # inspect the NiAVObject branch, and NiControllerSequence
@@ -219,7 +219,10 @@ class SpellScaleAnimationTime(NifSpell):
                                    NifFormat.NiTransformInterpolator,
                                    NifFormat.NiTransformData,
                                    NifFormat.NiTextKeyExtraData,
-                                   NifFormat.NiTimeController))
+                                   NifFormat.NiTimeController,
+                                   NifFormat.NiGeomMorpherController,
+                                   NifFormat.NiFloatInterpolator,
+                                   NifFormat.NiFloatData))
 
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiTransformData):
@@ -251,6 +254,15 @@ class SpellScaleAnimationTime(NifSpell):
         elif isinstance(branch, NifFormat.NiTimeController):
             branch.stop_time *= self.toaster.animation_scale
             # maybe (unsure) children of NiTimeController so might(?) need to recurse further.
+            return True
+        elif isinstance(branch, NifFormat.NiGeomMorpherController):
+            branch.stop_time *= self.toaster.animation_scale
+            # Children of NiGeomMorphController so need to recurse further.
+            return True
+        elif isinstance(branch, NifFormat.NiFloatData):
+            for key in branch.data.keys:
+                key.time *= self.toaster.animation_scale
+            # Children of NiGeomMorphController so need to recurse further.
             return True
         else:
             # recurse further
