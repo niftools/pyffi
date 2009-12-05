@@ -68,9 +68,9 @@
     ***************
     -->
 
-   <struct name="ShortStringZ">
+   <struct name="SizedStringZ">
        A null terminated string, with length short.
-       <add name="Length" type="ushort">The string length.</add>
+       <add name="Length" type="uint">The string length.</add>
        <add name="Value" type="char" arr1="Length">
            The string, null terminated
        </add>
@@ -121,7 +121,7 @@
        NewVertex[CurrentVertex] = VertexList[CurrentVertex]+(MorphList[CurrentMorph].VertexList[CurrentVertex]*scale*MorphAmount);
        MorphAmount: 0 = no morphing, 1 = total morphing. 
 
-       <add name="Name" type="ShortStringZ">
+       <add name="Name" type="SizedStringZ">
            Name of the morph.
        </add>
        <add name="Scale" type="float">
@@ -134,7 +134,7 @@
    </struct>
 
    <struct name="ModifierRecord"> 
-       <add name="Name" type="ShortStringZ">
+       <add name="Name" type="SizedStringZ">
            Name of the Modifier.
        </add>
        <add name="Num Vertices To Modify" type="int"/>

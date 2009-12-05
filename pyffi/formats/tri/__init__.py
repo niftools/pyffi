@@ -34,10 +34,9 @@ Read a TRI file
 >>> data.num_morphs
 18
 >>> data.read(stream) # doctest: +ELLIPSIS
-Traceback (most recent call last):
-    ...
-ValueError: end of file not reached: corrupt tri file?
->>> # do some stuff...
+>>> print [morph.name for morph in data.morphs]
+['Fear', 'Surprise', 'Aah', 'BigAah', 'BMP', 'ChJSh', 'DST', 'Eee', 'Eh', \
+'FV', 'I', 'K', 'N', 'Oh', 'OohQ', 'R', 'Th', 'W']
 
 Parse all TRI files in a directory tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -122,6 +121,36 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
     float = pyffi.object_models.common.Float
 
     # implementation of tri-specific basic types
+
+    class SizedStringZ(pyffi.object_models.common.SizedString):
+
+        def get_size(self, **kwargs):
+            """Return number of bytes this type occupies in a file.
+
+            :return: Number of bytes.
+            """
+            return (
+                1 +
+                pyffi.object_models.common.SizedString.get_size(self, **kwargs)
+                )
+
+        def read(self, stream, **kwargs):
+            """Read string from stream.
+
+            :param stream: The stream to read from.
+            :type stream: file
+            """
+            pyffi.object_models.common.SizedString.read(self, stream, **kwargs)
+            self._value = self._value.rstrip(pyffi.object_models.common._b00)
+
+        def write(self, stream, **kwargs):
+            """Write string to stream.
+
+            :param stream: The stream to write to.
+            :type stream: file
+            """
+            pyffi.object_models.common.SizedString.write(self, stream, **kwargs)
+            stream.write(pyffi.object_models.common._b00)
 
     class FileSignature(BasicBase):
         """Basic type which implements the header of a TRI file."""
