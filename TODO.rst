@@ -16,7 +16,7 @@
 
    - derive object_models.array_type and object_models.StructType from
      common subclass pyffi.object_models.ComplexType, use these then as base
-     classes for object_models.xml.array and object_models.xml.struct_.StructBase
+     classes for object_models.xml.array and object_models.xml.struct\_.StructBase
 
 
    - use pyffi.utils.graph for all object_models.XXX implementations
