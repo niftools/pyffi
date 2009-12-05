@@ -190,7 +190,6 @@ class SpellCollisionType(NifSpell):
 
 class SpellScaleAnimationTime(NifSpell):
     """Scales the animation time."""
-    # XXX only scales NiTransformData (no controllers, or other data)
 
     SPELLNAME = "modify_scaleanimationtime"
     READONLY = False
@@ -262,8 +261,66 @@ class SpellScaleAnimationTime(NifSpell):
         elif isinstance(branch, NifFormat.NiFloatData):
             for key in branch.data.keys:
                 key.time *= self.toaster.animation_scale
-            # Children of NiGeomMorphController so need to recurse further.
+            # No children of NiFloatData so no need to recurse further.
+            return False
+        else:
+            # recurse further
             return True
+
+class SpellReverseAnimation(NifSpell):
+    """Reverses the animation by reversing the time."""
+    # XXX only scales NiTransformData (no controllers, or other data)
+
+    SPELLNAME = "modify_reverseanimation"
+    READONLY = False
+
+    def datainspect(self):
+        #returns more than needed but only way to ensure catches all types of animations.
+        return self.inspectblocktype(NifFormat.NiObject) 
+
+    def branchinspect(self, branch):
+        # inspect the NiAVObject branch, and NiControllerSequence
+        # branch (for kf files)
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiControllerManager,
+                                   NifFormat.NiControllerSequence,
+                                   NifFormat.NiTransformController,
+                                   NifFormat.NiTransformInterpolator,
+                                   NifFormat.NiTransformData,
+                                   NifFormat.NiTextKeyExtraData,
+                                   NifFormat.NiTimeController,
+                                   NifFormat.NiGeomMorpherController,
+                                   NifFormat.NiFloatInterpolator,
+                                   NifFormat.NiFloatData))
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiTransformData):
+            if branch.rotation_type == 4:
+                for key in branch.xyz_rotations[0].keys:
+                    key.time = ((key.time * -1) + branch.xyz_rotations[0].keys[-1].time)
+                for key in branch.xyz_rotations[1].keys:
+                    key.time = ((key.time * -1) + branch.xyz_rotations[1].keys[-1].time)
+                for key in branch.xyz_rotations[2].keys:
+                    key.time = ((key.time * -1) + branch.xyz_rotations[2].keys[-1].time)
+            else:
+                for key in branch.quaternion_keys:
+                    key.time = ((key.time * -1) + branch.quaternion_keys[-1].time)
+            for key in branch.translations.keys:
+                key.time = ((key.time * -1) + branch.translations.keys[-1].time)
+            for key in branch.scales.keys:
+                key.time = ((key.time * -1) + branch.scales.keys[-1].time)
+            # no children of NiTransformData so no need to recurse further.
+            return False
+        elif isinstance(branch, NifFormat.NiTextKeyExtraData):
+            for key in branch.text_keys:
+                key.time = ((key.time * -1) + branch.text_keys[-1].time)
+            # No children of NiTextKeyExtraData so no need to recurse further.
+            return False
+        elif isinstance(branch, NifFormat.NiFloatData):
+            for key in branch.data.keys:
+                key.time = ((key.time * -1) + branch.data.keys[-1].time)
+            # No children of NiFloatData so no need to recurse further.
+            return False
         else:
             # recurse further
             return True

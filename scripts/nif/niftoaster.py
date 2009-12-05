@@ -96,7 +96,8 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         pyffi.spells.nif.optimize.SpellOptimize,
         pyffi.spells.nif.modify.SpellTexturePath,
         pyffi.spells.nif.modify.SpellCollisionType,
-        pyffi.spells.nif.modify.SpellScaleAnimationTime
+        pyffi.spells.nif.modify.SpellScaleAnimationTime,
+        pyffi.spells.nif.modify.SpellReverseAnimation
         ]
     ALIASDICT = {
         "texdump": "dump_tex",
