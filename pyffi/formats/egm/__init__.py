@@ -21,7 +21,7 @@ Read a EGM file
 >>> # check and read egm file
 >>> stream = open('tests/egm/mmouthxivilai.egm', 'rb')
 >>> data = EgmFormat.Data()
->>> data.inspectQuick(stream)
+>>> data.inspect_quick(stream)
 >>> data.version
 2
 >>> data.inspect(stream)
@@ -212,16 +212,16 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
             return 'XXX'
 
     @staticmethod
-    def versionNumber(version_str):
+    def version_number(version_str):
         """Converts version string into an integer.
 
         :param version_str: The version string.
         :type version_str: str
         :return: A version integer.
 
-        >>> EgmFormat.versionNumber('002')
+        >>> EgmFormat.version_number('002')
         2
-        >>> EgmFormat.versionNumber('XXX')
+        >>> EgmFormat.version_number('XXX')
         -1
         """
         try:
@@ -241,7 +241,7 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
             self.version = version
             self.user_version = None # not used
 
-        def inspectQuick(self, stream):
+        def inspect_quick(self, stream):
             """Quickly checks if stream contains EGM data, and gets the
             version, by looking at the first 8 bytes.
 
@@ -253,7 +253,7 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
                 hdrstr = stream.read(5)
                 if hdrstr != "FREGM".encode("ascii"):
                     raise ValueError("Not an EGM file.")
-                self.version = EgmFormat.versionNumber(stream.read(3))
+                self.version = EgmFormat.version_number(stream.read(3))
             finally:
                 stream.seek(pos)
 
@@ -268,7 +268,7 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
             """
             pos = stream.tell()
             try:
-                self.inspectQuick(stream)
+                self.inspect_quick(stream)
                 self.header.read(stream, data=self)
             finally:
                 stream.seek(pos)
@@ -281,7 +281,7 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
             :type stream: ``file``
             """
             # read the file
-            self.inspectQuick(stream)
+            self.inspect_quick(stream)
             self.header.read(stream, data=self)
             self.sym_morphs = [
                 EgmFormat.MorphRecord(argument=self.header.num_vertices)

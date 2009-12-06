@@ -55,4 +55,6 @@ find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exe
 find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exec perl -pi -w -e 's/getItem/get_item/g' {} \;
 find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exec perl -pi -w -e 's/_asStr/_as_str/g' {} \;
 find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exec perl -pi -w -e 's/_asBytes/_as_bytes/g' {} \;
+find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exec perl -pi -w -e 's/versionNumber/version_number/g' {} \;
+find . -type f \( -name "*.py" -or -name "*.txt" \) -not -wholename "*git*" -exec perl -pi -w -e 's/inspectQuick/inspect_quick/g' {} \;
 

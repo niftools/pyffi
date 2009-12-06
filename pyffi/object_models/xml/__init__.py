@@ -254,9 +254,9 @@ class StructAttribute(object):
         if self.userver:
             self.userver = int(self.userver)
         if self.ver1:
-            self.ver1 = cls.versionNumber(self.ver1)
+            self.ver1 = cls.version_number(self.ver1)
         if self.ver2:
-            self.ver2 = cls.versionNumber(self.ver2)
+            self.ver2 = cls.version_number(self.ver2)
 
 
 class BitStructAttribute(object):
@@ -287,9 +287,9 @@ class BitStructAttribute(object):
         if self.userver:
             self.userver = int(self.userver)
         if self.ver1:
-            self.ver1 = cls.versionNumber(self.ver1)
+            self.ver1 = cls.version_number(self.ver1)
         if self.ver2:
-            self.ver2 = cls.versionNumber(self.ver2)
+            self.ver2 = cls.version_number(self.ver2)
 
 
 class XmlError(Exception):
@@ -461,7 +461,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
             elif tag == self.tag_version:
                 # set the version string
                 self.version_string = str(attrs["num"])
-                self.cls.versions[self.version_string] = self.cls.versionNumber(
+                self.cls.versions[self.version_string] = self.cls.version_number(
                     self.version_string)
                 # (class_dict["_games"] is updated when reading the characters)
             else:
@@ -565,7 +565,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
             # fileformat -> version
             elif tag == self.tag_version:
                 self.version_string = str(attrs["num"])
-                self.cls.versions[self.version_string] = self.cls.versionNumber(
+                self.cls.versions[self.version_string] = self.cls.version_number(
                     self.version_string)
                 # (self.cls.games is updated when reading the characters)
 

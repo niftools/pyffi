@@ -253,18 +253,18 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
             return self.get_value().lower()
 
     @staticmethod
-    def versionNumber(version_str):
+    def version_number(version_str):
         """Converts version string into an integer.
 
         :param version_str: The version string.
         :type version_str: str
         :return: A version integer.
 
-        >>> hex(KfmFormat.versionNumber('1.0'))
+        >>> hex(KfmFormat.version_number('1.0'))
         '0x1000000'
-        >>> hex(KfmFormat.versionNumber('1.2.4b'))
+        >>> hex(KfmFormat.version_number('1.2.4b'))
         '0x1024b00'
-        >>> hex(KfmFormat.versionNumber('2.2.0.0b'))
+        >>> hex(KfmFormat.version_number('2.2.0.0b'))
         '0x202000b'
         """
 
@@ -313,7 +313,7 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
                 # not a kfm file
                 raise ValueError("Not a KFM file.")
             try:
-                ver = KfmFormat.versionNumber(version_str)
+                ver = KfmFormat.version_number(version_str)
             except:
                 # version not supported
                 raise ValueError("KFM version not supported.")

@@ -168,14 +168,14 @@ class DdsFormat(pyffi.object_models.xml.FileFormat):
             return 4
 
     @staticmethod
-    def versionNumber(version_str):
+    def version_number(version_str):
         """Converts version string into an integer.
 
         :param version_str: The version string.
         :type version_str: str
         :return: A version integer.
 
-        >>> hex(DdsFormat.versionNumber('DX10'))
+        >>> hex(DdsFormat.version_number('DX10'))
         '0xa000000'
         """
         return {'DX9': 0x09000000, 'DX10': 0x0A000000}[version_str]
@@ -191,7 +191,7 @@ class DdsFormat(pyffi.object_models.xml.FileFormat):
             self.user_version = 0
             self.user_version2 = 0
 
-        def inspectQuick(self, stream):
+        def inspect_quick(self, stream):
             """Quickly checks if stream contains DDS data, and gets the
             version, by looking at the first 8 bytes.
 
@@ -222,7 +222,7 @@ class DdsFormat(pyffi.object_models.xml.FileFormat):
             """
             pos = stream.tell()
             try:
-                self.inspectQuick(stream)
+                self.inspect_quick(stream)
                 self.header.read(stream, data=self)
             finally:
                 stream.seek(pos)
@@ -237,7 +237,7 @@ class DdsFormat(pyffi.object_models.xml.FileFormat):
             :type verbose: ``int``
             """
             # read the file
-            self.inspectQuick(stream)
+            self.inspect_quick(stream)
             self.header.read(stream, data=self)
             self.pixeldata.read(stream, data=self)
 

@@ -193,16 +193,16 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
     # XXX nothing here yet...
 
     @staticmethod
-    def versionNumber(version_str):
+    def version_number(version_str):
         """Converts version string into an integer.
 
         :param version_str: The version string.
         :type version_str: str
         :return: A version integer.
 
-        >>> TriFormat.versionNumber('003')
+        >>> TriFormat.version_number('003')
         3
-        >>> TriFormat.versionNumber('XXX')
+        >>> TriFormat.version_number('XXX')
         -1
         """
         try:
@@ -217,7 +217,7 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
         def __init__(self):
             pass
 
-        def inspectQuick(self, stream):
+        def inspect_quick(self, stream):
             """Quickly checks if stream contains TRI data, and gets the
             version, by looking at the first 8 bytes.
 
@@ -243,7 +243,7 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
             """
             pos = stream.tell()
             try:
-                self.inspectQuick(stream)
+                self.inspect_quick(stream)
                 # XXX read header
             finally:
                 stream.seek(pos)
@@ -255,7 +255,7 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
             :param stream: The stream from which to read.
             :type stream: ``file``
             """
-            self.inspectQuick(stream)
+            self.inspect_quick(stream)
             # XXX read the file
 
             # check if we are at the end of the file
