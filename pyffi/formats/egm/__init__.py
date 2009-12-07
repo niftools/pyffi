@@ -121,8 +121,6 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
     xml_file_path = [os.getenv('EGMXMLPATH'), os.path.dirname(__file__)]
     # file name regular expression match
     RE_FILENAME = re.compile(r'^.*\.egm$', re.IGNORECASE)
-    # used for comparing floats
-    _EPSILON = 0.0001
 
     # basic types
     int = pyffi.object_models.common.Int

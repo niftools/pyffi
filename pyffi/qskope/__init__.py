@@ -50,6 +50,7 @@ from pyffi.formats.kfm import KfmFormat
 from pyffi.formats.dds import DdsFormat
 from pyffi.formats.tga import TgaFormat
 from pyffi.formats.egm import EgmFormat
+from pyffi.formats.tri import TriFormat
 
 from pyffi.object_models import FileFormat
 
@@ -173,60 +174,6 @@ class QSkope(QtGui.QMainWindow):
     # various helper functions
     #
 
-    def openNifFile(self, stream = None):
-        """Read nif file from stream. If stream does not contain a nif file,
-        then raises ValueError. Sets the self.data variable."""
-        # try reading as a nif file
-        data = NifFormat.Data()
-        data.read(stream)
-        # if succesful: parse the file and save information about it
-        self.data = data
-
-    def openCgfFile(self, stream = None):
-        """Read cgf file from stream. If stream does not contain a cgf file,
-        then raises ValueError. Sets the self.header, self.roots, self.footer,
-        self.Format, and self.formatArgs variables."""
-        data = CgfFormat.Data()
-        data.read(stream)
-        # if succesful: parse the file and save information about it
-        self.data = data
-
-    def openKfmFile(self, stream = None):
-        """Read kfm file from stream. If stream does not contain a kfm file,
-        then raises ValueError. Sets the self.header, self.roots, self.footer,
-        self.Format, and self.formatArgs variables."""
-        data = KfmFormat.Data()
-        data.read(stream)
-        self.data = data
-
-    def openDdsFile(self, stream = None):
-        """Read dds file from stream. If stream does not contain a dds file,
-        then raises ValueError. Sets the self.data variable.
-        """
-        # try reading as a nif file
-        data = DdsFormat.Data()
-        data.read(stream)
-        # if succesful: parse the file and save information about it
-        self.data = data
-
-    def openTgaFile(self, stream = None):
-        """Read tga file from stream. If stream does not contain a tga file,
-        then raises ValueError. Sets the self.header, self.roots, self.footer,
-        self.Format, and self.formatArgs variables."""
-        # try reading as a nif file
-        data = TgaFormat.Data()
-        data.read(stream)
-        # if succesful: parse the file and save information about it
-        self.data = data
-
-    def openEgmFile(self, stream = None):
-        """Read egm file from stream. If stream does not contain a egm file,
-        then raises ValueError. Sets the self.data variable.
-        """
-        data = EgmFormat.Data()
-        data.read(stream)
-        self.data = data
-
     def openFile(self, filename = None):
         """Open a file, and set up the view."""
         # inform user about file being read
@@ -237,31 +184,24 @@ class QSkope(QtGui.QMainWindow):
         try:
             stream = open(filename, "rb")
             # try reading as a nif file
-            try:
-                self.openNifFile(stream)
-            except ValueError:
-                # failed... try reading as a cgf file
+            for Format in (NifFormat, CgfFormat, KfmFormat, DdsFormat,
+                           TgaFormat, EgmFormat, TriFormat):
+                self.data = Format.Data()
                 try:
-                    self.openCgfFile(stream)
+                    self.data.read(stream)
                 except ValueError:
-                    try:
-                        self.openKfmFile(stream)
-                    except ValueError:
-                        try:
-                            self.openDdsFile(stream)
-                        except ValueError:
-                            try:
-                                self.openTgaFile(stream)
-                            except ValueError:
-                                try:
-                                    self.openEgmFile(stream)
-                                except ValueError:
-                                    # all failed: inform user that format is not
-                                    # recognized
-                                    self.statusBar().showMessage(
-                                        'File format of %s not recognized'
-                                        % filename)
-                                    return
+                    # failed, try next format
+                    continue
+                else:
+                    break
+            else:
+                # all failed: inform user that format
+                # is not recognized
+                self.statusBar().showMessage(
+                    'File format of %s not recognized'
+                    % filename)
+                return
+
         except (ValueError, IOError):
             # update status bar message
             self.statusBar().showMessage("Failed reading %s (see console)"
