@@ -1,4 +1,7 @@
-"""Module which contains all spells that fix something in a nif."""
+"""
+:mod:`pyffi.spells.nif.fix` ---  spells to fix errors
+=====================================================
+Module which contains all spells that fix something in a nif."""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
