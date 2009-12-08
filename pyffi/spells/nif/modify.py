@@ -1,5 +1,7 @@
-"""Module which contains all spells that modify a nif (anything that
-is not a fix).
+"""
+:mod:`pyffi.spells.nif.modify` ---  spells to make modifications
+=================================================================
+Module which contains all spells that modify a nif (anything thatis not a fix).
 """
 
 # --------------------------------------------------------------------------
@@ -219,7 +221,6 @@ class SpellScaleAnimationTime(NifSpell):
                                    NifFormat.NiTransformData,
                                    NifFormat.NiTextKeyExtraData,
                                    NifFormat.NiTimeController,
-                                   NifFormat.NiGeomMorpherController,
                                    NifFormat.NiFloatInterpolator,
                                    NifFormat.NiFloatData))
 
@@ -256,10 +257,6 @@ class SpellScaleAnimationTime(NifSpell):
             branch.stop_time *= self.toaster.animation_scale
             # recurse further into children of NiTimeController
             return True
-        elif isinstance(branch, NifFormat.NiGeomMorpherController):
-            branch.stop_time *= self.toaster.animation_scale
-            # Children of NiGeomMorphController so need to recurse further.
-            return True
         elif isinstance(branch, NifFormat.NiFloatData):
             for key in branch.data.keys:
                 key.time *= self.toaster.animation_scale
@@ -291,39 +288,50 @@ class SpellReverseAnimation(NifSpell):
                                    NifFormat.NiTransformData,
                                    NifFormat.NiTextKeyExtraData,
                                    NifFormat.NiTimeController,
-                                   NifFormat.NiGeomMorpherController,
                                    NifFormat.NiFloatInterpolator,
                                    NifFormat.NiFloatData))
 
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiTransformData):
             if branch.rotation_type == 4:
-                for key in branch.xyz_rotations[0].keys:
-                    key.time = ((key.time * -1) + branch.xyz_rotations[0].keys[-1].time)
-                for key in branch.xyz_rotations[1].keys:
-                    key.time = ((key.time * -1) + branch.xyz_rotations[1].keys[-1].time)
-                for key in branch.xyz_rotations[2].keys:
-                    key.time = ((key.time * -1) + branch.xyz_rotations[2].keys[-1].time)
+                key_new_values = reversed([key.value for key in branch.xyz_rotations[0].keys])
+                for key, key_new_value in zip(branch.xyz_rotations[0].keys, key_new_values):
+                    key.value = key_new_value
+                key_new_values = reversed([key.value for key in branch.xyz_rotations[1].keys])
+                for key, key_new_value in zip(branch.xyz_rotations[1].keys, key_new_values):
+                    key.value = key_new_value
+                key_new_values = reversed([key.value for key in branch.xyz_rotations[2].keys])
+                for key, key_new_value in zip(branch.xyz_rotations[2].keys, key_new_values):
+                    key.value = key_new_value
             else:
-                for key in branch.quaternion_keys:
-                    key.time = ((key.time * -1) + branch.quaternion_keys[-1].time)
-            for key in branch.translations.keys:
-                key.time = ((key.time * -1) + branch.translations.keys[-1].time)
-            for key in branch.scales.keys:
-                key.time = ((key.time * -1) + branch.scales.keys[-1].time)
+                if branch.rotation_type == 3:
+                    key_new_values = reversed([key.tbc for key in branch.quaternion_keys])
+                    for key, key_new_value in zip(branch.quaternion_keys, key_new_values):
+                        key.tbc = key_new_value
+                else:
+                    key_new_values = reversed([key.value for key in branch.quaternion_keys])
+                    for key, key_new_value in zip(branch.quaternion_keys, key_new_values):
+                        print key.value
+                        #key.value = key.value
+			#for key in branch.quaternion_keys:
+            key_new_values = reversed([key.value for key in branch.translations.keys])
+            for key, key_new_value in zip(branch.translations.keys, key_new_values):
+                key.value = key_new_value
+            key_new_values = reversed([key.value for key in branch.scales.keys])
+            for key, key_new_value in zip(branch.scales.keys, key_new_values):
+                key.value = key_new_value
             # no children of NiTransformData so no need to recurse further.
             return False
         elif isinstance(branch, NifFormat.NiTextKeyExtraData):
-            temporary_branch_copy = branch.text_keys
-            i = (len(temporary_branch_copy) - 1)
-            for key in branch.text_keys:
-                key.value = temporary_branch_copy[i].value
-                i -= 1
+            key_new_values = reversed([key.value for key in branch.text_keys])
+            for key, key_new_value in zip(branch.text_keys, key_new_values):
+                key.value = key_new_value
             # No children of NiTextKeyExtraData so no need to recurse further.
             return False
         elif isinstance(branch, NifFormat.NiFloatData):
-            for key in branch.data.keys:
-                key.time = ((key.time * -1) + branch.data.keys[-1].time)
+            key_new_values = reversed([key.value for key in branch.text_keys])
+            for key, key_new_value in zip(branch.text_keys, key_new_values):
+                key.value = key_new_value
             # No children of NiFloatData so no need to recurse further.
             return False
         else:

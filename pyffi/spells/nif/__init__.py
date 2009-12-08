@@ -2,11 +2,11 @@
 :mod:`pyffi.spells.nif` ---  NetImmerse/Gamebryo File/Keyframe (.nif/.kf/.kfa) spells
 =====================================================================================
 
-.. automodule:: pyffi.spells.check
-.. automodule:: pyffi.spells.dump
-.. automodule:: pyffi.spells.fix
-.. automodule:: pyffi.spells.optimize
-.. automodule:: pyffi.spells.modify
+.. automodule:: pyffi.spells.nif.check
+.. automodule:: pyffi.spells.nif.dump
+.. automodule:: pyffi.spells.nif.fix
+.. automodule:: pyffi.spells.nif.optimize
+.. automodule:: pyffi.spells.nif.modify
 """
 
 # --------------------------------------------------------------------------
