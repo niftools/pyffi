@@ -1,7 +1,7 @@
 """
 :mod:`pyffi.spells.nif.modify` ---  spells to make modifications
 =================================================================
-Module which contains all spells that modify a nif (anything thatis not a fix).
+Module which contains all spells that modify a nif.
 """
 
 # --------------------------------------------------------------------------
@@ -311,12 +311,10 @@ class SpellReverseAnimation(NifSpell):
                 else:
                     key_new_values = reversed([key.value for key in branch.quaternion_keys])
                     for key, key_new_value in zip(branch.quaternion_keys, key_new_values):
-                        print key.value
-                        #key.value = key.value
-			#for key in branch.quaternion_keys:
+                        print key.value #should be 'key.value = key_new_value' but NOT WORKING
             key_new_values = reversed([key.value for key in branch.translations.keys])
             for key, key_new_value in zip(branch.translations.keys, key_new_values):
-                key.value = key_new_value
+                print key.value #should be 'key.value = key_new_value' but not working either!
             key_new_values = reversed([key.value for key in branch.scales.keys])
             for key, key_new_value in zip(branch.scales.keys, key_new_values):
                 key.value = key_new_value
@@ -329,8 +327,8 @@ class SpellReverseAnimation(NifSpell):
             # No children of NiTextKeyExtraData so no need to recurse further.
             return False
         elif isinstance(branch, NifFormat.NiFloatData):
-            key_new_values = reversed([key.value for key in branch.text_keys])
-            for key, key_new_value in zip(branch.text_keys, key_new_values):
+            key_new_values = reversed([key.value for key in branch.data.keys])
+            for key, key_new_value in zip(branch.data.keys, key_new_values):
                 key.value = key_new_value
             # No children of NiFloatData so no need to recurse further.
             return False
