@@ -1,7 +1,23 @@
 """
 :mod:`pyffi.spells.nif.fix` ---  spells to fix errors
-=====================================================
-Module which contains all spells that fix something in a nif."""
+-----------------------------------------------------
+Module which contains all spells that fix something in a nif.
+The available spells are Delete Tangent Space, Add Tangent Space
+
+Delete Tangent Space:
+Deletes the NiBinaryExtraData which stores the binormal and
+tangent vectors. Call on Windows by running a command prompt
+or batch file with this code:
+    cd %pythondir%
+    python.exe Scripts/niftoaster.py fix_deltangentspace "%filepath%"
+	
+Add Tangent Space:
+Adds the NiBinaryExtraData which stores the binormal and
+tangent vectors, if there is not one already.
+Call on Windows by running a command prompt or batch file with this code:
+    cd %pythondir%
+    python.exe Scripts/niftoaster.py fix_addtangentspace "%filepath%"
+"""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
