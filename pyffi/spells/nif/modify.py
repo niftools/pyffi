@@ -316,10 +316,10 @@ class SpellReverseAnimation(NifSpell):
                         key.value.y = new_key_value.y
                         key.value.z = new_key_value.z
             key_new_values = reversed([key.value for key in branch.translations.keys])
-            for key, key_new_value in zip(branch.translations.keys, key_new_values):return
-                #key.value.x = new_key_value.x
-                #key.value.y = new_key_value.y
-                #key.value.z = new_key_value.z
+            for key, key_new_value in zip(branch.translations.keys, key_new_values):
+                key.value.x = key_new_value.x
+                key.value.y = key_new_value.y
+                key.value.z = key_new_value.z
             key_new_values = reversed([key.value for key in branch.scales.keys])
             for key, key_new_value in zip(branch.scales.keys, key_new_values):
                 key.value = key_new_value
