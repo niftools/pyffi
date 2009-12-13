@@ -310,11 +310,16 @@ class SpellReverseAnimation(NifSpell):
                         key.tbc = key_new_value
                 else:
                     key_new_values = reversed([key.value for key in branch.quaternion_keys])
-                    for key, key_new_value in zip(branch.quaternion_keys, key_new_values):
-                        print key.value #should be 'key.value = key_new_value' but NOT WORKING
+                    for key, new_key_value in zip(branch.quaternion_keys, key_new_values):
+                        key.value.w = new_key_value.w
+                        key.value.x = new_key_value.x
+                        key.value.y = new_key_value.y
+                        key.value.z = new_key_value.z
             key_new_values = reversed([key.value for key in branch.translations.keys])
-            for key, key_new_value in zip(branch.translations.keys, key_new_values):
-                print key.value #should be 'key.value = key_new_value' but not working either!
+            for key, key_new_value in zip(branch.translations.keys, key_new_values):return
+                #key.value.x = new_key_value.x
+                #key.value.y = new_key_value.y
+                #key.value.z = new_key_value.z
             key_new_values = reversed([key.value for key in branch.scales.keys])
             for key, key_new_value in zip(branch.scales.keys, key_new_values):
                 key.value = key_new_value
