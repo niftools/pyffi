@@ -354,3 +354,65 @@ class SpellReverseAnimation(NifSpell):
         else:
             # recurse further
             return True
+class SpellCollisionMaterial(NifSpell):
+    """Sets the object's collision material to be a different type"""
+
+    SPELLNAME = "modify_collisionmaterial"
+    READONLY = False
+
+    class CollisionMaterialStone:
+        material = 0
+
+    class CollisionMaterialCloth:
+        material = 1
+
+    class CollisionMaterialMetal:
+        material = 5
+
+    COLLISION_MATERIAL_DICT = {
+        "stone": CollisionMaterialStone,
+        "cloth": CollisionMaterialCloth,
+        "metal": CollisionMaterialMetal
+        }
+
+    @classmethod
+    def toastentry(cls, toaster):
+        try:
+            toaster.col_material = cls.COLLISION_MATERIAL_DICT[toaster.options["arg"]]
+        except KeyError:
+            # incorrect arg
+            toaster.logger.warn(
+                "must specify collision material to change to as argument "
+                "(e.g. -a Stone (accepted names: %s) "
+                "to apply spell"
+                % ", ".join(cls.COLLISION_MATERIAL_DICT.iterkeys()))
+            return False
+        else:
+            return True
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.bhkShape)
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.bhkCollisionObject,
+                                   NifFormat.bhkRigidBody,
+                                   NifFormat.bhkShape))
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.bhkShape):
+            branch.material = self.toaster.col_material.material
+            self.toaster.msg("collision material set to %s" % self.toaster.options["arg"])
+            # bhkPackedNiTriStripsShape could be further down, so keep looking
+            return True
+        elif isinstance(branch, NifFormat.bhkPackedNiTriStripsShape) or isinstance(branch, NifFormat.hkPackedNiTriStripsData):
+            for subshape in branch.sub_shapes:
+                subshape.material = self.toaster.col_type.material
+            self.toaster.msg("collision material set to %s" % self.toaster.options["arg"])
+            # all extra blocks here done; no need to recurse further
+            return False
+        else:
+            # recurse further
+            return True
+
