@@ -118,6 +118,10 @@ class SpellCollisionType(NifSpell):
         unknown_byte2 = 2
         quality_type = 2
 
+    class CollisionTypeTerrain(CollisionTypeStatic):
+        layer = 14
+        motion_system = 7
+
     class CollisionTypeClutter(CollisionTypeAnimStatic):
         layer = 4
         motion_system = 4
@@ -129,14 +133,15 @@ class SpellCollisionType(NifSpell):
         mass = 25
 		
     class CollisionTypeNonCollidable(CollisionTypeStatic):
-        """Same as static except that nothing collides with it."""
         layer = 15
+        motion_system = 7
 
     COLLISION_TYPE_DICT = {
         "static": CollisionTypeStatic,
         "anim_static": CollisionTypeAnimStatic,
         "clutter": CollisionTypeClutter,
         "weapon": CollisionTypeWeapon,
+        "terrain": CollisionTypeTerrain,
         "non_collidable": CollisionTypeNonCollidable
         }
 
