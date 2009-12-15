@@ -23,4 +23,16 @@ Contributors
 
   - mopp generator using the Havok SDK
   - suggestions for improving the spells module
+  
+* Scanti
 
+  - EGM & TRI format info
+
+* Carver13
+
+  - EGM & TRI format xml
+
+* PacificMorrowind (pacmorrowind@sourceforge.net)
+
+  - some nif/kf modifying spells
+  

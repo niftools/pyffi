@@ -1,0 +1,129 @@
+To continue the PyFFiing discussions, a new thread is needed... not as needed as I thought since there is one still active (when last one got locked a couple weeks ago I was planning on starting a nice brand new one... but doing so anyways. However this thread a tad different... it is bit official (done by a part time PyFFI programmer (that would be me) and with Amorilia's (the head programmer and creator of PyFFI) go ahead), and has a bunch more info that hasn't really been on the radar of modders before.
+
+Quick Links:
+[list][url="http://www.bethsoft.com/bgsforums/index.php?showtopic=1014947"]PyFFI Thread 5[/url]
+[url="http://www.bethsoft.com/bgsforums/index.php?showtopic=976098"]PyFFI thread 4[/url]
+[url="http://www.bethsoft.com/bgsforums/index.php?showtopic=890860"]PyFFI thread 3[/url]
+PyFFI thread 2 - too old and has been purged.
+PyFFI thread 1 - too old and has been purged.
+url="http://pyffi.sourceforge.net/"]PyFFI - [b]Py[/b]thon [b]F[/b]ile [b]F[/b]ormat [b]I[/b]nterface's Documentation[/url] 
+[url="http://www.python.org/download/releases/2.6.4/"]Python 2.6.4[/url] (required to Run PyFFI)
+[url="http://sourceforge.net/project/showfiles.php?group_id=199269"]PyFFI's Download page[/url]
+[url="http://sourceforge.net/tracker/?group_id=199269"]PyFFI's Sourceforge Tracker[/url] sub-trackers for bugs, requests etc.
+[url="http://github.com/amorilia/pyffi"]Amorilia's Github code repository of the latest in development scripts [/url] (ie the earliest that you can see changes/additions that will be in the next release is here)
+[url="http://github.com/PacificMorrowind/pyffi"]Pacific Morrowind's fork of the latest in development files[/url] (has my changes before review, so may be less stable/have more bugs... but also have the earliest of my changes/additions)
+Just for mod users wanting to patch their meshes with very little chance of errors (but only a some meshes supported):
+[list][url="http://www.tesnexus.com/downloads/file.php?id=19899"]OnmyojiOmn's PyFFI Patch Scripts[/url](Thanks to OnmyojiOmn creating the patching method!)
+[url="http://www.tesnexus.com/downloads/file.php?id=19911"]PyFFI-ed Mesh Patches[/url] (patches for vanilla, OOO HF, Operation Optimization, etc.) (won't work for GOTY)
+[/list]
+For mod users/makers wanting to optimize all their meshes:
+[list] Get PyFFI
+then consider getting: [url="http://www.tesnexus.com/downloads/file.php?id=25423"]PyFFI Automation Utility[/url] (not required but has nice features such as making PyFFI run as multiple processes, there by taking proper advantage of the CPU power of most computers, optimized files are saved to a separate folder that you select, etc)
+[/list]
+[/list]
+
+[b]What is PyFFI?[/b]
+PyFFI stands for [b]Py[/b]thon [b]F[/b]ile [b]F[/b]ormat [b]I[/b]nterface's and was written almost entirely by Amorilia (Contributors: wz, taarna23, seith, tazpn, Scanti, Carver13, PacificMorrowind)
+
+[b]What is of interest for Oblivion modding right now is what it can do with nif/kf files:[/b]
+It contains a script called niftoaster.py which is an python wrapper script that runs other scripts on files fed to it. Niftoaster can do a whole host of things to nifs/kfs including: optimizing  models, fixing many different model errors, changing the collision type/material of nifs etc. etc. It is also highly extendable to do whatever you want.
+One of the most important spells (the name for each of the scripts) is Optimize; it actually runs a whole bunch of the fixing and optimizing spells in tandem; for mod users it is really the only one you're interested in; and for a lot of mod makers it is also the only one your interested in.
+
+[b]Why Should You Care?[/b]
+Really you don't have to; however, if you make meshes you should, do retexturing etc. or if you want to try and squeeze a little bit of extra performance out of Oblivion.
+
+[size=5][b]Instructions for mod users (and modders)[/b][/size]
+- download & install [url="http://www.python.org/download/releases/2.6.4/"]Python 2.6.4[/url]
+- download & install [url="http://sourceforge.net/project/showfiles.php?group_id=199269"]PyFFI[/url] latest version (as of December 14, 2009 it is 2.0.5)
+- Optionally download & install [url="http://www.tesnexus.com/downloads/file.php?id=25423"]PyFFI Automation Utility[/url]
+
+Then either run [url="http://www.tesnexus.com/downloads/file.php?id=25423"]PyFFI Automation Utility[/url] if using it or just copy the meshes you want to optimize to a folder outside your oblivion dir, and from that folder delete any files that have an egm (which would be files in a folder that are in the nature of helmet.nif and another by the name of helmet.egm), most open helmets and hair have egms. Then either right click that folder and select 'Optimize with PyFFI' or (easier) create a txt file, past this code: [code]@echo off
+:\
+cd C:\%pythonpath%
+@echo "Processing folder 1 of 1"
+python.exe Scripts/niftoaster.py optimize --noninteractive "C:\path\to\your\meshes" > "C:\path\to\your\meshes\log.txt"
+Pause
+[/code] in, and replace the %pythonpath% with the path to your python directory (by default it is C:/Python26), replace "C:\path\to\your\meshes" with the real path to your meshes. and save it as *whateveryouwant*.bat and double click the file. [b]Remember, make backups just in case[/b] (unless using [url="http://www.tesnexus.com/downloads/file.php?id=25423"]PyFFI Automation Utility[/url], in which case it will automatically make backups). With the batch process/command line/right click folder->Optimize call, PyFFI will open any .nif, .kf, .kfa, .nifcache files, but unless it finds optimizable data types (geometries) it won't do anything to them - it will just open and close without saving. If there are optimizable data types, whether or not any optimization is possible the file will be saved (overwriting the original).
+
+[b]Example of PyFFI in Action doing the Optimize spell:[/b]
+[code]reading C:\PyFFI_Op\Weapons\braided\claymorefine.nif
+checking for duplicate source textures
+checking for duplicate properties
+removing duplicate and empty children
+optimizing geometries
+optimizing block 'Claymore:0'
+  removing duplicate vertices
+  (num vertices was 732 and is now 615)
+  recalculating strips
+  (strip length was 1518 and is now 1188)
+  (average strip length is 20.917508)
+  stitching strips (using 103 stitches)
+  recalculating tangent space
+  writing C:\PyFFI_Op\Weapons\braided\claymorefine.nif...[/code]
+
+If you've used PyFFI before, previous to v.1.0.0 of PyFFI did not triangulate NifTriStrips with lengths less than 10. Unfortunatly this causes Oblivion issues and while cause frame stuttering, and on low performance machines can virtually halt the game.
+
+In addition, the 3dsMax NifTools exporter bloats the exported nif file with duplicate everything (or very nearly duplicate everything). This is a known problem, which I believe is due to 3dsMax and not directly to the NifTools.
+
+Blender and Maya do not suffer this problem. 
+Though that does not mean that duplicate data will not appear in meshes made with Blender or Maya.[/size]
+
+[b]FAQ?[/b]
+Q - Is it safe?
+A - Yes; many Oblivion players and modders have run it on thousands of nifs with no problems. There is of course the potential for problems but if so as long as you made a backup it is relatively painless to revert some meshes. Of course there are some meshes that you should NOT run it on (any with egms is the main type) - if you do run it on them you will likely run into problems.
+
+Q - Is there a visual quality loss?
+A - No, PyFFI removes duplicate and empty data from the nif file.
+
+Q- What's the latest version of PyFFI?
+A- As at December 13th 2009, 2.0.5 (and 2.0.6 is in development)
+
+Q- Are there any meshes that I should not put through PyFFI?
+A- Yes, there are some meshes that can cause problems. 
+ [list] - any with egms (most open helmets and hair)
+ - problems have been previously reported with both bows and creatures but both are [b]fixed[/b]
+ - a problem has been reported on the meshes/dungeons/misc/rootshavoc01.nif (and related 02,03,04,05,06 an 07 nifs), by Sproaty. [i]Under investigation[i]
+[/list]
+
+Q- I got a weird bunch of test in the command line/in the log file after running PyFFI, what does it mean?
+A - Usually that would be in the form of something like this:
+[code]*** TEST FAILED ON C:\PyFFI_Op\XMSGroundFleshContainer01.nif	***
+*** If you were running a script that came with PyFFI, then		***
+*** please report this as a bug (include the file) on			***
+*** [url="http://sourceforge.net/tracker/?group_id=199269"]http://sourceforge.net/tracker/?group_id=199269[/url]			***[/code]
+It means that there is something about the nif that PyFFI doesn't know what to do with or something like that, or sometimes a bug in the spell. If you get that it means the file will not have been optimized and will have been left unchanged so no fixing is necessary to play with it. However if you can report that here or on the sourceforge tracker if you have a sourceforge account, it can probably be fixed. To be fixed we would need a) to know what spell you were running b) a copy of the nif or kf.
+
+[size=5][b]Instructions for moddelers/animators/other modders[/b][/size]
+- download & install [url="http://www.python.org/download/releases/2.6.4/"]Python 2.6.4[/url]
+- download & install [url="http://sourceforge.net/project/showfiles.php?group_id=199269"]PyFFI[/url] latest version (as of December 14, 2009 it is 2.0.5)
+
+You're doing what I consider the funnest part of Oblivion... and with PyFFI, you get some nice tools to make your work faster (in some cases saving dozens of hours), easier, and less headache.
+
+As well as the Optimize spell (which you should run, though if you use Blender to make your meshes you almost certainly don't need to) you also get:
+[list]modify_texturepath (for retexturers more than modelers)
+modify_collisiontype
+modify_scaleanimationtime (in version 2.0.6)
+modify_reverseanimation (in version 2.0.6, only my fork currently)
+and lots of other stuff but those are some of most important that aren't run by Optimize.
+[/list]
+
+modify_collisiontype: lets you quickly (in seconds) and accurately and on as many nifs as you want at once, change to collision type to anything that is supported (and easy to add more if desired). A real boon for Max users until the nifscripts properly support non-static collision export. The format for calling it is batch file/command prompt of:
+[code]cd C:\Python26
+python.exe Scripts/niftoaster.py modify_collisiontype -a static "C:\meshes"[/code] (replacing as need the mesh path and the python path, and static with the type of collision desired)
+
+modify_scaleanimationtime: as usual real quick and easy method to: slow down or speed up animations. will change the speed of basically any animation type (not tested on bsplines yet) called by: 
+[code]cd C:\Python26
+python.exe Scripts/niftoaster.py modify_scaleaniamtiontime -a 0.6 "C:\meshes"[/code] (replacing as need the mesh path and the python path and the number with the desired multiplier)
+
+modify_reverseanimations: as usual real quick and easy method to do something... in this case reverse an animation - ie make a close animation from an open animation for a door etc.
+[code]cd C:\Python26
+python.exe Scripts/niftoaster.py modify_reverseanimation "C:\meshes"[/code] (unteste for bspline type animations so far)
+
+modify_texturepath: lets you quickly (in seconds or minutes depending on number of nifs) and accurately and on as many nifs as you want at once, change the source texture paths from x/x/wall01.dds to /whateveryouwant/wall01.dds - a real boon when it comes to retexturing a whole tileset. The format for calling it is batch file/command prompt of:
+[code]cd C:\Python26
+python.exe Scripts/niftoaster.py modify_texturepath -a textures/PM/BloodyAyleid/ "C:\meshes"[/code] (replacing as need the mesh path and the python path, and the texture path with the desired texture path).
+
+Now I'm sure some of you are thinking hmm none of those do anything for me but I sure could use something that batch changed X... but I don't know any Python oh well. Never fear; if you want a script you can always ask - not promising it will get done, but significantly more likely than without asking (and if you don't believe me just ask DaMage).
+
+As always if something isn't clear ask and someone knowledgeable will try to answer.
+Pacific Morrowind

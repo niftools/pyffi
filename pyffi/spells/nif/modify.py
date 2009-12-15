@@ -272,8 +272,7 @@ class SpellScaleAnimationTime(NifSpell):
             return True
 
 class SpellReverseAnimation(NifSpell):
-    """Reverses the animation by reversing the time."""
-    # XXX only scales NiTransformData (no controllers, or other data)
+    """Reverses the animation by reversing datas in relation to the time."""
 
     SPELLNAME = "modify_reverseanimation"
     READONLY = False
