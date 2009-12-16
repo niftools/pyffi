@@ -460,9 +460,33 @@ class SpellDelAlphaProperty(NifSpell):
 
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiTriBasedGeom):
-            # does this block have tangent space data?
+            # does this block have an Alpha property?
             for prop in branch.get_properties():
                 if isinstance(extra, NifFormat.NiAlphaProperty):
+                        branch.remove_property(prop)
+            # all extra blocks here done; no need to recurse further
+            return True
+        # recurse further
+        return True
+class SpellDelSpecularProperty(NifSpell):
+    """Delete specular property if it is present."""
+
+    SPELLNAME = "modify_delspecularprop"
+    READONLY = False
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.NiTriBasedGeom)
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch
+        return isinstance(branch, NifFormat.NiAVObject,
+                                  NifFormat.NiTriBasedGeom)
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiTriBasedGeom):
+            # does this block have a specular property?
+            for prop in branch.get_properties():
+                if isinstance(extra, NifFormat.NiSpecularProperty):
                         branch.remove_property(prop)
             # all extra blocks here done; no need to recurse further
             return True

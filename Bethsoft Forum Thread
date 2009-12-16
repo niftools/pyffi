@@ -16,7 +16,7 @@ Just for mod users wanting to patch their meshes with very little chance of erro
 [list][url="http://www.tesnexus.com/downloads/file.php?id=19899"]OnmyojiOmn's PyFFI Patch Scripts[/url](Thanks to OnmyojiOmn creating the patching method!)
 [url="http://www.tesnexus.com/downloads/file.php?id=19911"]PyFFI-ed Mesh Patches[/url] (patches for vanilla, OOO HF, Operation Optimization, etc.) (won't work for GOTY)
 [/list]
-For mod users/makers wanting to optimize all their meshes:
+For mod users/makers wanting to optimize all (or some) of their meshes:
 [list] Get PyFFI
 then consider getting: [url="http://www.tesnexus.com/downloads/file.php?id=25423"]PyFFI Automation Utility[/url] (not required but has nice features such as making PyFFI run as multiple processes, there by taking proper advantage of the CPU power of most computers, optimized files are saved to a separate folder that you select, etc)
 [/list]
