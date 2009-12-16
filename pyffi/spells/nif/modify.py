@@ -486,9 +486,43 @@ class SpellDelSpecularProperty(NifSpell):
         if isinstance(branch, NifFormat.NiTriBasedGeom):
             # does this block have a specular property?
             for prop in branch.get_properties():
-                if isinstance(extra, NifFormat.NiSpecularProperty):
+                if isinstance(prop, NifFormat.NiSpecularProperty):
                         branch.remove_property(prop)
-            # all extra blocks here done; no need to recurse further
+            # all property blocks here done; no need to recurse further
             return True
         # recurse further
         return True
+
+class SpellDelBSXextradatas(NifSpell):
+    """Delete tangentspace if it is present."""
+
+    SPELLNAME = "fix_delBSXflags"
+    READONLY = False
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.BSXFlags)
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch
+        return isinstance(branch, NifFormat.NiNode)
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiNode):
+            # does this block have BSX Flags?
+            for extra in branch.get_extra_datas():
+                if isinstance(extra, NifFormat.BSXFlags):
+                    branch.remove_extra_data(extra)
+            # all extra blocks here done; no need to recurse further
+            return False
+        # recurse further
+        return True
+		
+class SpellMakeFarNif(
+    pyffi.spells.SpellGroupSeries(
+        pyffi.spells.SpellGroupParallel(
+            SpellDelVertexColorProperty,
+            SpellDelAlphaProperty,
+            SpellDelSpecularProperty)
+        )):
+    """Spell to make _far type nifs."""
+    SPELLNAME = "modify_makefarnif"
