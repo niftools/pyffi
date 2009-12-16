@@ -434,9 +434,9 @@ class SpellDelVertexColorProperty(NifSpell):
         if isinstance(branch, NifFormat.NiTriBasedGeom):
             # does this block have tangent space data?
             for prop in branch.get_properties():
-                if isinstance(extra, NifFormat.NiVertexColorProperty):
+                if isinstance(prop, NifFormat.NiVertexColorProperty):
                         branch.remove_property(prop)
-            # all extra blocks here done but not the geometry data so need to recurse further
+            # all property blocks here done but not the geometry data so need to recurse further
             return True
         if isinstance(branch, NifFormat.NiTriBasedGeomData):
             branch.has_vertex_colors = 0
@@ -462,9 +462,9 @@ class SpellDelAlphaProperty(NifSpell):
         if isinstance(branch, NifFormat.NiTriBasedGeom):
             # does this block have an Alpha property?
             for prop in branch.get_properties():
-                if isinstance(extra, NifFormat.NiAlphaProperty):
+                if isinstance(prop, NifFormat.NiAlphaProperty):
                         branch.remove_property(prop)
-            # all extra blocks here done; no need to recurse further
+            # all property blocks here done; no need to recurse further
             return True
         # recurse further
         return True
