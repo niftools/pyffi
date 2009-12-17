@@ -596,11 +596,35 @@ class SpellDelFleshShapes(NifSpell):
                             if prop.name == "Skin" or prop.name == "skin":
                                 branch.remove_child(child)
                                 self.toaster.msg("%s removed from %s" % (child.name, branch.name))
-            # all children here done; no need to recurse further
-            return False
+            # could have child NiNodes so need to recurse further
+            return True
         # recurse further
         return True
 	
+class SpellDelCollisionData(NifSpell):
+    """Deletes any Collision data present."""
+
+    SPELLNAME = "modify_delcollision"
+    READONLY = False
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.NiNode)
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                  NifFormat.NiNode))
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiNode):
+            if branch.collision_object != None: 
+                branch.collision_object = None
+                self.toaster.msg("Collision removed from %s" % (branch.name))
+            # could have child NiNodes so need to recurse further
+            return True
+        # recurse further
+        return True
+		
 class SpellMakeFarNif(
     pyffi.spells.SpellGroupSeries(
         pyffi.spells.SpellGroupParallel(
@@ -609,7 +633,8 @@ class SpellMakeFarNif(
             SpellDelSpecularProperty,
             SpellDelBSXextradatas,
             SpellDelNiStringExtraDatas,
-            SpellDelNiBinaryExtraData)
+            SpellDelNiBinaryExtraData,
+            SpellDelCollisionData)
         )):
     """Spell to make _far type nifs."""
     SPELLNAME = "modify_makefarnif"
