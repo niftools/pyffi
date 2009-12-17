@@ -426,9 +426,9 @@ class SpellDelVertexColorProperty(NifSpell):
 
     def branchinspect(self, branch):
         # only inspect the NiAVObject branch
-        return isinstance(branch, NifFormat.NiAVObject,
+        return isinstance(branch, (NifFormat.NiAVObject,
                                   NifFormat.NiTriBasedGeom,
-                                  NifFormat.NiTriBasedGeomData)
+                                  NifFormat.NiTriBasedGeomData))
 
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiTriBasedGeom):
@@ -438,12 +438,13 @@ class SpellDelVertexColorProperty(NifSpell):
                         branch.remove_property(prop)
             # all property blocks here done but not the geometry data so need to recurse further
             return True
-        if isinstance(branch, NifFormat.NiTriBasedGeomData):
+        elif isinstance(branch, NifFormat.NiTriBasedGeomData):
             branch.has_vertex_colors = 0
             # no chilren; no need to recurse further
             return False
         # recurse further
         return True
+
 class SpellDelAlphaProperty(NifSpell):
     """Delete alpha property if it is present."""
 
@@ -455,8 +456,8 @@ class SpellDelAlphaProperty(NifSpell):
 
     def branchinspect(self, branch):
         # only inspect the NiAVObject branch
-        return isinstance(branch, NifFormat.NiAVObject,
-                                  NifFormat.NiTriBasedGeom)
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                  NifFormat.NiTriBasedGeom))
 
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiTriBasedGeom):
@@ -479,8 +480,8 @@ class SpellDelSpecularProperty(NifSpell):
 
     def branchinspect(self, branch):
         # only inspect the NiAVObject branch
-        return isinstance(branch, NifFormat.NiAVObject,
-                                  NifFormat.NiTriBasedGeom)
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                  NifFormat.NiTriBasedGeom))
 
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiTriBasedGeom):
