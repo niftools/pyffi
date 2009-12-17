@@ -495,7 +495,7 @@ class SpellDelSpecularProperty(NifSpell):
         return True
 
 class SpellDelBSXextradatas(NifSpell):
-    """Delete tangentspace if it is present."""
+    """Delete BSXflags if any are present."""
 
     SPELLNAME = "fix_delBSXflags"
     READONLY = False
@@ -505,7 +505,8 @@ class SpellDelBSXextradatas(NifSpell):
 
     def branchinspect(self, branch):
         # only inspect the NiAVObject branch
-        return isinstance(branch, NifFormat.NiNode)
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                  NifFormat.NiNode))
 
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiNode):
@@ -518,12 +519,69 @@ class SpellDelBSXextradatas(NifSpell):
         # recurse further
         return True
 		
+class SpellDelNiStringExtraDatas(NifSpell):
+    """Delete NiSringExtraDatas if they are present."""
+
+    SPELLNAME = "fix_delnistringextradatas"
+    READONLY = False
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.NiStringExtraData)
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                  NifFormat.NiNode,
+                                  NifFormat.NiTriBasedGeom))
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiNode):
+            # does this block have BSX Flags?
+            for extra in branch.get_extra_datas():
+                if isinstance(extra, NifFormat.NiStringExtraData):
+                    branch.remove_extra_data(extra)
+                    self.toaster.msg("NiStringExtraData removed from %s" % (branch.name))
+            # all extra blocks here done; no need to recurse further
+            return False
+        # recurse further
+        return True
+
+class SpellDelNiBinaryExtraData(NifSpell):
+    """Delete NiBinaryExtraDatas if they are present."""
+
+    SPELLNAME = "fix_delnibinaryextradata"
+    READONLY = False
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.NiBinaryExtraData)
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                  NifFormat.NiNode,
+                                  NifFormat.NiTriBasedGeom))
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiTriBasedGeom):
+            # does this block have BSX Flags?
+            for extra in branch.get_extra_datas():
+                if isinstance(extra, NifFormat.NiBinaryExtraData):
+                    branch.remove_extra_data(extra)
+                    self.toaster.msg("NiBinaryExtraData removed from %s" % (branch.name))
+            # all extra blocks here done; no need to recurse further
+            return False
+        # recurse further
+        return True
+	
 class SpellMakeFarNif(
     pyffi.spells.SpellGroupSeries(
         pyffi.spells.SpellGroupParallel(
             SpellDelVertexColorProperty,
             SpellDelAlphaProperty,
-            SpellDelSpecularProperty)
+            SpellDelSpecularProperty,
+            SpellDelBSXextradatas,
+            SpellDelNiStringExtraDatas,
+            SpellDelNiBinaryExtraData)
         )):
     """Spell to make _far type nifs."""
     SPELLNAME = "modify_makefarnif"

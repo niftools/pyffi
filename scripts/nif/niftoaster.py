@@ -103,7 +103,9 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         pyffi.spells.nif.modify.SpellDelAlphaProperty,
         pyffi.spells.nif.modify.SpellDelSpecularProperty,
         pyffi.spells.nif.modify.SpellDelBSXextradatas,
-        pyffi.spells.nif.modify.SpellMakeFarNif
+        pyffi.spells.nif.modify.SpellMakeFarNif,
+        pyffi.spells.nif.modify.SpellDelNiStringExtraDatas,
+        pyffi.spells.nif.modify.SpellDelNiBinaryExtraData
         ]
     ALIASDICT = {
         "texdump": "dump_tex",
