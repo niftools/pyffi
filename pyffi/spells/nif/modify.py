@@ -497,7 +497,7 @@ class SpellDelSpecularProperty(NifSpell):
 class SpellDelBSXextradatas(NifSpell):
     """Delete BSXflags if any are present."""
 
-    SPELLNAME = "fix_delBSXflags"
+    SPELLNAME = "modify_delBSXflags"
     READONLY = False
 
     def datainspect(self):
@@ -522,7 +522,7 @@ class SpellDelBSXextradatas(NifSpell):
 class SpellDelNiStringExtraDatas(NifSpell):
     """Delete NiSringExtraDatas if they are present."""
 
-    SPELLNAME = "fix_delnistringextradatas"
+    SPELLNAME = "modify_delnistringextradatas"
     READONLY = False
 
     def datainspect(self):
@@ -549,7 +549,7 @@ class SpellDelNiStringExtraDatas(NifSpell):
 class SpellDelNiBinaryExtraData(NifSpell):
     """Delete NiBinaryExtraDatas if they are present."""
 
-    SPELLNAME = "fix_delnibinaryextradata"
+    SPELLNAME = "modify_delnibinaryextradata"
     READONLY = False
 
     def datainspect(self):
