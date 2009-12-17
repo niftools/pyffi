@@ -573,6 +573,34 @@ class SpellDelNiBinaryExtraData(NifSpell):
         # recurse further
         return True
 	
+class SpellDelFleshShapes(NifSpell):
+    """Delete any Geometries with a material name of 'skin'"""
+
+    SPELLNAME = "modify_delfleshshapes" #not a nice name... maybe rename?
+    READONLY = False
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.NiMaterialProperty)
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                  NifFormat.NiNode))
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiNode):
+            for child in branch.get_children():
+                if isinstance(child, NifFormat.NiTriBasedGeom):
+                    for prop in child.get_properties():
+                        if isinstance(prop, NifFormat.NiMaterialProperty):
+                            if prop.name == "Skin" or prop.name == "skin":
+                                branch.remove_child(child)
+                                self.toaster.msg("%s removed from %s" % (child.name, branch.name))
+            # all children here done; no need to recurse further
+            return False
+        # recurse further
+        return True
+	
 class SpellMakeFarNif(
     pyffi.spells.SpellGroupSeries(
         pyffi.spells.SpellGroupParallel(
