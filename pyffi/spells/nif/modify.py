@@ -645,6 +645,12 @@ class SpellDelAnimation(NifSpell):
                 self.toaster.msg("Animation removed from %s" % (branch.name))
             # could have children so need to recurse further
             return True
+        elif isinstance(branch, NifFormat.NiNode):
+            for child in branch.get_children():
+                if isinstance(child, NifFormat.NiTimeController):
+                    branch.remove_child(child)
+                    self.toaster.msg("Animation removed from %s" % (branch.name))
+            
         # recurse further
         return True
 		
