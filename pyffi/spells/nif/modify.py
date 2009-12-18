@@ -652,7 +652,7 @@ class SpellDelParallaxFlags(NifSpell):
             # recurse further
             return True
 class SpellLowResTexturePath(NifSpell):
-    """Changes the texture path by prepending 'lowres' - used mainly for making _far.nifs"""
+    """Changes the texture path by replacing 'textures/*' with 'textures/lowres/*' - used mainly for making _far.nifs"""
 
     SPELLNAME = "modify_texturepathlowres"
     READONLY = False
@@ -669,14 +669,9 @@ class SpellLowResTexturePath(NifSpell):
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiSourceTexture):
             if ('lowres'.encode("ascii") not in branch.file_name):
-                old_file_name = str(branch.file_name) # for reporting
-                # note: replace backslashes by os.sep in filename, and
-                # when joined, revert them back, for linux
-                branch.file_name = os.path.join(
-                    'lowres',
-                    (old_file_name.replace("\\", os.sep))
-                    ).replace(os.sep, "\\") 
-                self.toaster.msg("%s -> %s" % (old_file_name, branch.file_name))
+                branch.file_name = branch.file_name.replace(
+                    "textures", "textures\\lowres").replace(os.sep, "\\")
+                self.toaster.msg("Texture path changed to %s" % (branch.file_name))
             # all textures done no need to recurse further.
             return False
         else:
