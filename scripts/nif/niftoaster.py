@@ -107,7 +107,8 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         pyffi.spells.nif.modify.SpellDelNiStringExtraDatas,
         pyffi.spells.nif.modify.SpellDelFleshShapes,
         pyffi.spells.nif.modify.SpellDelCollisionData,
-        pyffi.spells.nif.modify.SpellDelParallaxFlags
+        pyffi.spells.nif.modify.SpellDelParallaxFlags,
+        pyffi.spells.nif.modify.SpellLowResTexturePath
         ]
     ALIASDICT = {
         "texdump": "dump_tex",

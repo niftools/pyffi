@@ -651,6 +651,37 @@ class SpellDelParallaxFlags(NifSpell):
         else:
             # recurse further
             return True
+class SpellLowResTexturePath(NifSpell):
+    """Changes the texture path by prepending 'lowres' - used mainly for making _far.nifs"""
+
+    SPELLNAME = "modify_texturepathlowres"
+    READONLY = False
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.NiSourceTexture)
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiTexturingProperty,
+                                   NifFormat.NiSourceTexture))
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiSourceTexture):
+            if ('lowres'.encode("ascii") not in branch.file_name):
+                old_file_name = str(branch.file_name) # for reporting
+                # note: replace backslashes by os.sep in filename, and
+                # when joined, revert them back, for linux
+                branch.file_name = os.path.join(
+                    'lowres',
+                    (old_file_name.replace("\\", os.sep))
+                    ).replace(os.sep, "\\") 
+                self.toaster.msg("%s -> %s" % (old_file_name, branch.file_name))
+            # all textures done no need to recurse further.
+            return False
+        else:
+            # recurse further
+            return True
 class SpellMakeFarNif(
     pyffi.spells.SpellGroupSeries(
         pyffi.spells.SpellGroupParallel(
@@ -662,7 +693,8 @@ class SpellMakeFarNif(
             pyffi.spells.nif.fix.SpellDelTangentSpace,
             SpellDelCollisionData,
             SpellDelAnimation,
-            SpellDelParallaxFlags),
+            SpellDelParallaxFlags,
+            SpellLowResTexturePath),
         pyffi.spells.nif.optimize.SpellOptimize
         )):
     """Spell to make _far type nifs."""
