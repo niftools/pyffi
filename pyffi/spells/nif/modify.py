@@ -546,33 +546,6 @@ class SpellDelNiStringExtraDatas(NifSpell):
         # recurse further
         return True
 
-class SpellDelNiBinaryExtraData(NifSpell):
-    """Delete NiBinaryExtraDatas if they are present."""
-
-    SPELLNAME = "modify_delnibinaryextradata"
-    READONLY = False
-
-    def datainspect(self):
-        return self.inspectblocktype(NifFormat.NiBinaryExtraData)
-
-    def branchinspect(self, branch):
-        # only inspect the NiAVObject branch
-        return isinstance(branch, (NifFormat.NiAVObject,
-                                  NifFormat.NiNode,
-                                  NifFormat.NiTriBasedGeom))
-
-    def branchentry(self, branch):
-        if isinstance(branch, NifFormat.NiTriBasedGeom):
-            # does this block have BSX Flags?
-            for extra in branch.get_extra_datas():
-                if isinstance(extra, NifFormat.NiBinaryExtraData):
-                    branch.remove_extra_data(extra)
-                    self.toaster.msg("NiBinaryExtraData removed from %s" % (branch.name))
-            # all extra blocks here done; no need to recurse further
-            return False
-        # recurse further
-        return True
-	
 class SpellDelFleshShapes(NifSpell):
     """Delete any Geometries with a material name of 'skin'"""
 
@@ -662,7 +635,7 @@ class SpellMakeFarNif(
             SpellDelSpecularProperty,
             SpellDelBSXextradatas,
             SpellDelNiStringExtraDatas,
-            SpellDelNiBinaryExtraData,
+            pyffi.spells.nif.fix.SpellDelTangentSpace,
             SpellDelCollisionData,
             SpellDelAnimation),
         pyffi.spells.nif.optimize.SpellOptimize
