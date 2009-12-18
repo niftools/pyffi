@@ -625,6 +625,29 @@ class SpellDelCollisionData(NifSpell):
         # recurse further
         return True
 		
+class SpellDelAnimation(NifSpell):
+    """Deletes any Animation data present."""
+
+    SPELLNAME = "modify_delanimation"
+    READONLY = False
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.NiNode)
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch
+        return isinstance(branch, (NifFormat.NiAVObject))
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiAVObject):
+            if branch.controller != None: 
+                branch.controller = None
+                self.toaster.msg("Animation removed from %s" % (branch.name))
+            # could have children so need to recurse further
+            return True
+        # recurse further
+        return True
+		
 class SpellMakeFarNif(
     pyffi.spells.SpellGroupSeries(
         pyffi.spells.SpellGroupParallel(
@@ -634,7 +657,9 @@ class SpellMakeFarNif(
             SpellDelBSXextradatas,
             SpellDelNiStringExtraDatas,
             SpellDelNiBinaryExtraData,
-            SpellDelCollisionData)
+            SpellDelCollisionData,
+            SpellDelAnimation),
+        pyffi.spells.nif.optimize.SpellOptimize
         )):
     """Spell to make _far type nifs."""
     SPELLNAME = "modify_makefarnif"
