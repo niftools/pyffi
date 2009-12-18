@@ -627,6 +627,30 @@ class SpellDelAnimation(NifSpell):
         # recurse further
         return True
 		
+class SpellDelParallaxFlags(NifSpell):
+    """Changes any NiTexturingProperties that use ApplyMode HiLight2 to use Modulate """
+
+    SPELLNAME = "modify_delparallaxflags"
+    READONLY = False
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.NiTexturingProperty)
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiTexturingProperty))
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiTexturingProperty):
+            if branch.apply_mode == 4:
+                branch.apply_mode = 2
+                self.toaster.msg("Parallax flag removed from %s" % (branch.name))
+            # all textures done no need to recurse further.
+            return False
+        else:
+            # recurse further
+            return True
 class SpellMakeFarNif(
     pyffi.spells.SpellGroupSeries(
         pyffi.spells.SpellGroupParallel(
@@ -637,7 +661,8 @@ class SpellMakeFarNif(
             SpellDelNiStringExtraDatas,
             pyffi.spells.nif.fix.SpellDelTangentSpace,
             SpellDelCollisionData,
-            SpellDelAnimation),
+            SpellDelAnimation,
+            SpellDelParallaxFlags),
         pyffi.spells.nif.optimize.SpellOptimize
         )):
     """Spell to make _far type nifs."""

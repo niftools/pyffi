@@ -146,7 +146,7 @@
         <option value="1" name="APPLY_DECAL">For placing images on the object like stickers.</option>
         <option value="2" name="APPLY_MODULATE">Modulates existing color. (Default)</option>
         <option value="3" name="APPLY_HILIGHT">PS2 Only.  Function Unknown.</option>
-        <option value="4" name="APPLY_HILIGHT2">PS2 Only.  Function Unknown.</option>
+        <option value="4" name="APPLY_HILIGHT2">Parallax Flag in some Oblivion meshes.</option>
     </enum>
 
     <enum name="TexType" storage="uint">
