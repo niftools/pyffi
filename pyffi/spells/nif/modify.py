@@ -452,6 +452,16 @@ class SpellDelBlocks(NifSpell):
     SPELLNAME = "modify_delblocks"
     READONLY = False
 
+    def is_branch_to_be_deleted(self, branch):
+        """Returns ``True`` for those branches that must be deleted.
+        The default implementation returns ``True`` for branches that
+        are not admissible as specified by include/exclude options of
+        the toaster. Override in subclasses that must delete specific
+        branches.
+        """
+        # check if it is excluded or not
+        return not self.toaster.is_admissible_branch_class(branch.__class__)
+
     def _branchinspect(self, branch):
         """This spell inspects every branch, also the non-admissible ones,
         therefore we must override this method.
@@ -459,11 +469,10 @@ class SpellDelBlocks(NifSpell):
         return True
 
     def branchentry(self, branch):
-        """Strip branch if it is admissible (as specified by include/exclude
-        options of the toaster).
+        """Strip branch if it is flagged for deletion.
         """
-        # check if it is excluded or not
-        if not self.toaster.is_admissible_branch_class(branch.__class__):
+        # check if it is to be deleted or not
+        if self.is_branch_to_be_deleted(branch):
             # it is, wipe it out
             self.toaster.msg("stripping this branch")
             self.data.replace_global_node(branch, None)
