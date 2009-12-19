@@ -182,13 +182,15 @@ class SpellCollisionType(NifSpell):
             branch.quality_type = self.toaster.col_type.quality_type
             branch.wind = self.toaster.col_type.wind
             branch.solid = self.toaster.col_type.solid
-            self.toaster.msg("collision set to %s" % self.toaster.options["arg"])
+            self.toaster.msg("collision set to %s"
+                             % self.toaster.options["arg"])
             # bhkPackedNiTriStripsShape could be further down, so keep looking
             return True
         elif isinstance(branch, NifFormat.bhkPackedNiTriStripsShape):
             for subshape in branch.sub_shapes:
                 subshape.layer = self.toaster.col_type.layer
-            self.toaster.msg("collision set to %s" % self.toaster.options["arg"])
+            self.toaster.msg("collision set to %s"
+                             % self.toaster.options["arg"])
             # all extra blocks here done; no need to recurse further
             return False
         else:
@@ -213,7 +215,9 @@ class SpellScaleAnimationTime(NifSpell):
             return True
 
     def datainspect(self):
-        return self.inspectblocktype(NifFormat.NiObject) #returns more than needed but only way to ensure catches all types of animations
+        # returns more than needed but easiest way to ensure it catches all
+        # types of animations
+        return True
 
     def branchinspect(self, branch):
         # inspect the NiAVObject branch, and NiControllerSequence
@@ -278,8 +282,9 @@ class SpellReverseAnimation(NifSpell):
     READONLY = False
 
     def datainspect(self):
-        #returns more than needed but only way to ensure catches all types of animations.
-        return self.inspectblocktype(NifFormat.NiObject) 
+        # returns more than needed but easiest way to ensure it catches all
+        # types of animations
+        return True
 
     def branchinspect(self, branch):
         # inspect the NiAVObject branch, and NiControllerSequence
@@ -383,7 +388,7 @@ class SpellCollisionMaterial(NifSpell):
             # incorrect arg
             toaster.logger.warn(
                 "must specify collision material to change to as argument "
-                "(e.g. -a Stone (accepted names: %s) "
+                "(e.g. -a stone (accepted names: %s) "
                 "to apply spell"
                 % ", ".join(cls.COLLISION_MATERIAL_DICT.iterkeys()))
             return False
@@ -649,7 +654,7 @@ class SpellAddStencilProperty(NifSpell):
         # recurse further
         return True
 
-# TODO: implement via modify_delbranches
+# TODO: implement via modify_delbranches?
 class SpellMakeFarNif(
     pyffi.spells.SpellGroupSeries(
         pyffi.spells.SpellGroupParallel(
