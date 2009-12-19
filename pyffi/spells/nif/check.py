@@ -60,7 +60,7 @@ class SpellReadWrite(pyffi.spells.nif.NifSpell):
         least one admissible block type, but for read write spells it
         makes more sense to impose all.
         """
-        return all(self.toaster.isadmissiblebranchtype(header_type)
+        return all(self.toaster.is_admissible_branch_class(header_type)
                    for header_type in self.header_types)
 
     def dataentry(self):

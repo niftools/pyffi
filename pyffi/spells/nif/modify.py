@@ -463,7 +463,7 @@ class SpellDelBlocks(NifSpell):
         options of the toaster).
         """
         # check if it is excluded or not
-        if not self.toaster.isadmissiblebranchtype(branch.__class__):
+        if not self.toaster.is_admissible_branch_class(branch.__class__):
             # it is, wipe it out
             self.toaster.msg("stripping this branch")
             self.data.replace_global_node(branch, None)

@@ -228,7 +228,7 @@ class Spell(object):
         :rtype: ``bool``
         """
         # fall back on the toaster implementation
-        return self.toaster.isadmissiblebranchtype(branch.__class__)
+        return self.toaster.is_admissible_branch_class(branch.__class__)
 
     def branchinspect(self, branch):
         """Like :meth:`_branchinspect`, but for customization: can be overridden to
@@ -610,7 +610,7 @@ class Toaster(object):
         if not(message is None):
             self.msg(message)
 
-    def isadmissiblebranchtype(self, branchtype):
+    def is_admissible_branch_class(self, branchtype):
         """Helper function which checks whether a given branch type should
         have spells cast on it or not, based in exclude and include options.
 
@@ -618,52 +618,52 @@ class Toaster(object):
         >>> class MyToaster(Toaster):
         ...     FILEFORMAT = NifFormat
         >>> toaster = MyToaster() # no include or exclude: all admissible
-        >>> toaster.isadmissiblebranchtype(NifFormat.NiProperty)
+        >>> toaster.is_admissible_branch_class(NifFormat.NiProperty)
         True
-        >>> toaster.isadmissiblebranchtype(NifFormat.NiNode)
+        >>> toaster.is_admissible_branch_class(NifFormat.NiNode)
         True
-        >>> toaster.isadmissiblebranchtype(NifFormat.NiAVObject)
+        >>> toaster.is_admissible_branch_class(NifFormat.NiAVObject)
         True
-        >>> toaster.isadmissiblebranchtype(NifFormat.NiLODNode)
+        >>> toaster.is_admissible_branch_class(NifFormat.NiLODNode)
         True
-        >>> toaster.isadmissiblebranchtype(NifFormat.NiMaterialProperty)
+        >>> toaster.is_admissible_branch_class(NifFormat.NiMaterialProperty)
         True
         >>> toaster = MyToaster(options={"exclude": ["NiProperty", "NiNode"]})
-        >>> toaster.isadmissiblebranchtype(NifFormat.NiProperty)
+        >>> toaster.is_admissible_branch_class(NifFormat.NiProperty)
         False
-        >>> toaster.isadmissiblebranchtype(NifFormat.NiNode)
+        >>> toaster.is_admissible_branch_class(NifFormat.NiNode)
         False
-        >>> toaster.isadmissiblebranchtype(NifFormat.NiAVObject)
+        >>> toaster.is_admissible_branch_class(NifFormat.NiAVObject)
         True
-        >>> toaster.isadmissiblebranchtype(NifFormat.NiLODNode)
+        >>> toaster.is_admissible_branch_class(NifFormat.NiLODNode)
         False
-        >>> toaster.isadmissiblebranchtype(NifFormat.NiMaterialProperty)
+        >>> toaster.is_admissible_branch_class(NifFormat.NiMaterialProperty)
         False
         >>> toaster = MyToaster(options={"include": ["NiProperty", "NiNode"]})
-        >>> toaster.isadmissiblebranchtype(NifFormat.NiProperty)
+        >>> toaster.is_admissible_branch_class(NifFormat.NiProperty)
         True
-        >>> toaster.isadmissiblebranchtype(NifFormat.NiNode)
+        >>> toaster.is_admissible_branch_class(NifFormat.NiNode)
         True
-        >>> toaster.isadmissiblebranchtype(NifFormat.NiAVObject)
+        >>> toaster.is_admissible_branch_class(NifFormat.NiAVObject)
         False
-        >>> toaster.isadmissiblebranchtype(NifFormat.NiLODNode) # NiNodes are!
+        >>> toaster.is_admissible_branch_class(NifFormat.NiLODNode) # NiNodes are!
         True
-        >>> toaster.isadmissiblebranchtype(NifFormat.NiMaterialProperty) # NiProperties are!
+        >>> toaster.is_admissible_branch_class(NifFormat.NiMaterialProperty) # NiProperties are!
         True
         >>> toaster = MyToaster(options={"include": ["NiProperty", "NiNode"], "exclude": ["NiMaterialProperty", "NiLODNode"]})
-        >>> toaster.isadmissiblebranchtype(NifFormat.NiProperty)
+        >>> toaster.is_admissible_branch_class(NifFormat.NiProperty)
         True
-        >>> toaster.isadmissiblebranchtype(NifFormat.NiNode)
+        >>> toaster.is_admissible_branch_class(NifFormat.NiNode)
         True
-        >>> toaster.isadmissiblebranchtype(NifFormat.NiAVObject)
+        >>> toaster.is_admissible_branch_class(NifFormat.NiAVObject)
         False
-        >>> toaster.isadmissiblebranchtype(NifFormat.NiLODNode)
+        >>> toaster.is_admissible_branch_class(NifFormat.NiLODNode)
         False
-        >>> toaster.isadmissiblebranchtype(NifFormat.NiSwitchNode)
+        >>> toaster.is_admissible_branch_class(NifFormat.NiSwitchNode)
         True
-        >>> toaster.isadmissiblebranchtype(NifFormat.NiMaterialProperty)
+        >>> toaster.is_admissible_branch_class(NifFormat.NiMaterialProperty)
         False
-        >>> toaster.isadmissiblebranchtype(NifFormat.NiAlphaProperty)
+        >>> toaster.is_admissible_branch_class(NifFormat.NiAlphaProperty)
         True
         """
         #print("checking %s" % branchtype.__name__) # debug

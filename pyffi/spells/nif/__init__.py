@@ -84,7 +84,7 @@ class NifSpell(pyffi.spells.Spell):
             return True
 
         # check that at least one block type of the header is admissible
-        return any(self.toaster.isadmissiblebranchtype(header_type)
+        return any(self.toaster.is_admissible_branch_class(header_type)
                    for header_type in self.header_types)
 
     def inspectblocktype(self, block_type):
