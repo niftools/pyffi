@@ -828,7 +828,11 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
             self.spellclass = SpellApplyPatch
         else:
             # get spell names
-            spellnames = args[:-1]
+            if options.helpspell:
+                # special case: --spell-help would not have a path specified
+                spellnames = args[:]
+            else:
+                spellnames = args[:-1]
             # get spell classes
             spellclasses = []
             for spellname in spellnames:
