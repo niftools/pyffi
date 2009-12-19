@@ -457,12 +457,12 @@ class SpellDelBranches(NifSpell):
             # this one was not excluded, keep recursing
             return True
 
-class _SpellDelBranchClasses(NifSpell):
+class _SpellDelBranchClasses(SpellDelBranches):
     """Delete blocks that match a given list. Only useful as base class
     for other spells.
     """
 
-    BRANCH_CLASSES_TO_BE_DELETED = []
+    BRANCH_CLASSES_TO_BE_DELETED = ()
     """List of branch classes that have to be deleted."""
 
     def datainspect(self):
@@ -507,7 +507,7 @@ class SpellDelAlphaProperty(_SpellDelBranchClasses):
     """Delete alpha property if it is present."""
 
     SPELLNAME = "modify_delalphaprop"
-    BRANCH_CLASSES_TO_BE_DELETED = [NifFormat.NiAlphaProperty]
+    BRANCH_CLASSES_TO_BE_DELETED = (NifFormat.NiAlphaProperty,)
 
 # identical to niftoaster.py modify_delbranches -x NiSpecularProperty
 # delete?
@@ -515,7 +515,7 @@ class SpellDelSpecularProperty(_SpellDelBranchClasses):
     """Delete specular property if it is present."""
 
     SPELLNAME = "modify_delspecularprop"
-    BRANCH_CLASSES_TO_BE_DELETED = [NifFormat.NiSpecularProperty]
+    BRANCH_CLASSES_TO_BE_DELETED = (NifFormat.NiSpecularProperty,)
 
 # identical to niftoaster.py modify_delbranches -x BSXFlags
 # delete?
@@ -523,7 +523,7 @@ class SpellDelBSXFlags(_SpellDelBranchClasses):
     """Delete BSXFlags if any are present."""
 
     SPELLNAME = "modify_delbsxflags"
-    BRANCH_CLASSES_TO_BE_DELETED = [NifFormat.BSXFlags]
+    BRANCH_CLASSES_TO_BE_DELETED = (NifFormat.BSXFlags,)
 		
 # identical to niftoaster.py modify_delbranches -x NiStringExtraData
 # delete?
@@ -531,7 +531,7 @@ class SpellDelStringExtraDatas(_SpellDelBranchClasses):
     """Delete NiSringExtraDatas if they are present."""
 
     SPELLNAME = "modify_delstringextradatas"
-    BRANCH_CLASSES_TO_BE_DELETED = [NifFormat.NiStringExtraData]
+    BRANCH_CLASSES_TO_BE_DELETED = (NifFormat.NiStringExtraData,)
 
 class SpellDelFleshShapes(SpellDelBranches):
     """Delete any geometries with a material name of 'skin'"""
@@ -559,7 +559,7 @@ class SpellDelCollisionData(_SpellDelBranchClasses):
     """Deletes any Collision data present."""
 
     SPELLNAME = "modify_delcollision"
-    BRANCH_CLASSES_TO_BE_DELETED = [NifFormat.NiCollisionObject]
+    BRANCH_CLASSES_TO_BE_DELETED = (NifFormat.NiCollisionObject,)
 
 # identical to niftoaster.py modify_delbranches -x NiTimeController
 # delete?
@@ -567,7 +567,7 @@ class SpellDelAnimation(_SpellDelBranchClasses):
     """Deletes any animation data present."""
 
     SPELLNAME = "modify_delanimation"
-    BRANCH_CLASSES_TO_BE_DELETED = [NifFormat.NiTimeController]
+    BRANCH_CLASSES_TO_BE_DELETED = (NifFormat.NiTimeController,)
 
 class SpellDisableParallax(NifSpell):
     """Disable parallax shader (for Oblivion, but may work on other nifs too).
