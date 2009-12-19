@@ -462,9 +462,8 @@ class _SpellDelBranchClasses(NifSpell):
 
     def datainspect(self):
         return any(
-            self.inspectblocktype(
-                branch_class
-                for brach_class in self.BRANCH_CLASSES_TO_BE_DELETED))
+            self.inspectblocktype(branch_class)
+            for branch_class in self.BRANCH_CLASSES_TO_BE_DELETED)
 
     def is_branch_to_be_deleted(self, branch):
         return isinstance(branch, self.BRANCH_CLASSES_TO_BE_DELETED)
@@ -532,7 +531,7 @@ class SpellDelStringExtraDatas(_SpellDelBranchClasses):
 class SpellDelFleshShapes(SpellDelBranches):
     """Delete any geometries with a material name of 'skin'"""
 
-    # modify_delskinmaterials?
+    # modify_delskinshapes?
     SPELLNAME = "modify_delfleshshapes" #not a nice name... maybe rename?
 
     def is_branch_to_be_deleted(self, branch):
@@ -634,19 +633,18 @@ class SpellAddStencilProperty(NifSpell):
 
     def branchinspect(self, branch):
         # only inspect the NiAVObject branch
-        return isinstance(branch, (NifFormat.NiAVObject,
-                                  NifFormat.NiTriBasedGeom))
+        return isinstance(branch, NifFormat.NiAVObject)
 
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiTriBasedGeom):
-            # does this block have an Stencil property?
+            # does this block have an stencil property?
             for prop in branch.get_properties():
                 if isinstance(prop, NifFormat.NiStencilProperty):
                     return False
-            # No stencil property found
+            # no stencil property found
             self.toaster.msg("adding NiStencilProperty")
             branch.add_property(NifFormat.NiStencilProperty)
-			# No geometry children, no need to recurse further
+            # no geometry children, no need to recurse further
             return False
         # recurse further
         return True
