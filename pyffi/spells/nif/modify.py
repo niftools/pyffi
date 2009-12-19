@@ -540,8 +540,8 @@ class SpellDelFleshShapes(SpellDelBranches):
             for prop in branch.get_properties():
                 if isinstance(prop, NifFormat.NiMaterialProperty):
                     if prop.name.lower() == "skin":
-                    # skin material, delete
-                    return True
+                        # skin material, delete
+                        return True
         # do not delete anything else
         return False
 
