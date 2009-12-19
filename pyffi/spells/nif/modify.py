@@ -452,6 +452,23 @@ class SpellDelBranches(NifSpell):
             # this one was not excluded, keep recursing
             return True
 
+class _SpellDelBranchClasses(NifSpell):
+    """Delete blocks that match a given list. Only useful as base class
+    for other spells.
+    """
+
+    BRANCH_CLASSES_TO_BE_DELETED = []
+    """List of branch classes that have to be deleted."""
+
+    def datainspect(self):
+        return any(
+            self.inspectblocktype(
+                branch_class
+                for brach_class in self.BRANCH_CLASSES_TO_BE_DELETED))
+
+    def is_branch_to_be_deleted(self, branch):
+        return isinstance(branch, self.BRANCH_CLASSES_TO_BE_DELETED)
+
 class SpellDelVertexColor(SpellDelBranches):
     """Delete vertex color properties and vertex color data."""
 
@@ -466,8 +483,8 @@ class SpellDelVertexColor(SpellDelBranches):
     def branchinspect(self, branch):
         # only inspect the NiAVObject branch
         return isinstance(branch, (NifFormat.NiAVObject,
-                                   NifFormat.NiTriBasedGeom,
-                                   NifFormat.NiTriBasedGeomData))
+                                   NifFormat.NiTriBasedGeomData,
+                                   NifFormat.NiVertexColorProperty))
 
     def branchentry(self, branch):
         # delete vertex color property
@@ -482,196 +499,71 @@ class SpellDelVertexColor(SpellDelBranches):
 
 # identical to niftoaster.py modify_delbranches -x NiAlphaProperty
 # delete?
-class SpellDelAlphaProperty(NifSpell):
+class SpellDelAlphaProperty(_SpellDelBranchClasses):
     """Delete alpha property if it is present."""
 
     SPELLNAME = "modify_delalphaprop"
-    READONLY = False
-
-    def datainspect(self):
-        return self.inspectblocktype(NifFormat.NiTriBasedGeom)
-
-    def branchinspect(self, branch):
-        # only inspect the NiAVObject branch
-        return isinstance(branch, (NifFormat.NiAVObject,
-                                  NifFormat.NiTriBasedGeom))
-
-    def branchentry(self, branch):
-        if isinstance(branch, NifFormat.NiTriBasedGeom):
-            # does this block have an Alpha property?
-            for prop in branch.get_properties():
-                if isinstance(prop, NifFormat.NiAlphaProperty):
-                    branch.remove_property(prop)
-            # all property blocks here done; no need to recurse further
-            return True
-        # recurse further
-        return True
+    BRANCH_CLASSES_TO_BE_DELETED = [NifFormat.NiAlphaProperty]
 
 # identical to niftoaster.py modify_delbranches -x NiSpecularProperty
 # delete?
-class SpellDelSpecularProperty(NifSpell):
+class SpellDelSpecularProperty(_SpellDelBranchClasses):
     """Delete specular property if it is present."""
 
     SPELLNAME = "modify_delspecularprop"
-    READONLY = False
+    BRANCH_CLASSES_TO_BE_DELETED = [NifFormat.NiSpecularProperty]
 
-    def datainspect(self):
-        return self.inspectblocktype(NifFormat.NiTriBasedGeom)
-
-    def branchinspect(self, branch):
-        # only inspect the NiAVObject branch
-        return isinstance(branch, (NifFormat.NiAVObject,
-                                  NifFormat.NiTriBasedGeom))
-
-    def branchentry(self, branch):
-        if isinstance(branch, NifFormat.NiTriBasedGeom):
-            # does this block have a specular property?
-            for prop in branch.get_properties():
-                if isinstance(prop, NifFormat.NiSpecularProperty):
-                        branch.remove_property(prop)
-            # all property blocks here done; no need to recurse further
-            return True
-        # recurse further
-        return True
-
-# identical to niftoaster.py modify_delbranches -x NiBSXFlags
+# identical to niftoaster.py modify_delbranches -x BSXFlags
 # delete?
-class SpellDelBSXextradatas(NifSpell):
-    """Delete BSXflags if any are present."""
+class SpellDelBSXFlags(_SpellDelBranchClasses):
+    """Delete BSXFlags if any are present."""
 
-    SPELLNAME = "modify_delBSXflags"
-    READONLY = False
-
-    def datainspect(self):
-        return self.inspectblocktype(NifFormat.BSXFlags)
-
-    def branchinspect(self, branch):
-        # only inspect the NiAVObject branch
-        return isinstance(branch, (NifFormat.NiAVObject,
-                                  NifFormat.NiNode))
-
-    def branchentry(self, branch):
-        if isinstance(branch, NifFormat.NiNode):
-            # does this block have BSX Flags?
-            for extra in branch.get_extra_datas():
-                if isinstance(extra, NifFormat.BSXFlags):
-                    branch.remove_extra_data(extra)
-            # all extra blocks here done; no need to recurse further
-            return False
-        # recurse further
-        return True
+    SPELLNAME = "modify_delbsxflags"
+    BRANCH_CLASSES_TO_BE_DELETED = [NifFormat.BSXFlags]
 		
 # identical to niftoaster.py modify_delbranches -x NiStringExtraData
 # delete?
-class SpellDelNiStringExtraDatas(NifSpell):
+class SpellDelStringExtraDatas(_SpellDelBranchClasses):
     """Delete NiSringExtraDatas if they are present."""
 
-    SPELLNAME = "modify_delnistringextradatas"
-    READONLY = False
+    SPELLNAME = "modify_delstringextradatas"
+    BRANCH_CLASSES_TO_BE_DELETED = [NifFormat.NiStringExtraData]
 
-    def datainspect(self):
-        return self.inspectblocktype(NifFormat.NiStringExtraData)
-
-    def branchinspect(self, branch):
-        # only inspect the NiAVObject branch
-        return isinstance(branch, (NifFormat.NiAVObject,
-                                  NifFormat.NiNode,
-                                  NifFormat.NiTriBasedGeom))
-
-    def branchentry(self, branch):
-        if isinstance(branch, NifFormat.NiNode):
-            # does this block have BSX Flags?
-            for extra in branch.get_extra_datas():
-                if isinstance(extra, NifFormat.NiStringExtraData):
-                    branch.remove_extra_data(extra)
-                    self.toaster.msg("NiStringExtraData removed from %s" % (branch.name))
-            # all extra blocks here done; no need to recurse further
-            return False
-        # recurse further
-        return True
-
-class SpellDelFleshShapes(NifSpell):
-    """Delete any Geometries with a material name of 'skin'"""
+class SpellDelFleshShapes(SpellDelBranches):
+    """Delete any geometries with a material name of 'skin'"""
 
     # modify_delskinmaterials?
     SPELLNAME = "modify_delfleshshapes" #not a nice name... maybe rename?
-    READONLY = False
 
-    def datainspect(self):
-        return self.inspectblocktype(NifFormat.NiMaterialProperty)
+    def is_branch_to_be_deleted(self, branch):
+        if isinstance(branch, NifFormat.NiTriBasedGeom):
+            for prop in branch.get_properties():
+                if isinstance(prop, NifFormat.NiMaterialProperty):
+                    if prop.name.lower() == "skin":
+                    # skin material, delete
+                    return True
+        # do not delete anything else
+        return False
 
     def branchinspect(self, branch):
         # only inspect the NiAVObject branch
-        return isinstance(branch, (NifFormat.NiAVObject,
-                                   NifFormat.NiTriBasedGeom,
-                                   NifFormat.NiMaterialProperty))
-
-    def branchentry(self, branch):
-        if isinstance(branch, NifFormat.NiMaterialProperty):
-            if branch.name.lower() == "skin":
-                self.toaster.msg("stripping this branch")
-                self.data.replace_global_node(branch, None)
-            # do not recurse further
-            return False
-        # recurse further
-        return True
+        return isinstance(branch, NifFormat.NiAVObject)
 
 # identical to niftoaster.py modify_delbranches -x NiCollisionObject
 # delete?
-class SpellDelCollisionData(NifSpell):
+class SpellDelCollisionData(_SpellDelBranchClasses):
     """Deletes any Collision data present."""
 
     SPELLNAME = "modify_delcollision"
-    READONLY = False
+    BRANCH_CLASSES_TO_BE_DELETED = [NifFormat.NiCollisionObject]
 
-    def datainspect(self):
-        return self.inspectblocktype(NifFormat.NiNode)
-
-    def branchinspect(self, branch):
-        # only inspect the NiAVObject branch
-        return isinstance(branch, (NifFormat.NiAVObject,
-                                   NifFormat.NiNode))
-
-    def branchentry(self, branch):
-        if isinstance(branch, NifFormat.NiNode):
-            if branch.collision_object != None: 
-                branch.collision_object = None
-                self.toaster.msg("Collision removed from %s" % (branch.name))
-            # could have child NiNodes so need to recurse further
-            return True
-        # recurse further
-        return True
-		
 # identical to niftoaster.py modify_delbranches -x NiTimeController
 # delete?
-class SpellDelAnimation(NifSpell):
-    """Deletes any Animation data present."""
+class SpellDelAnimation(_SpellDelBranchClasses):
+    """Deletes any animation data present."""
 
     SPELLNAME = "modify_delanimation"
-    READONLY = False
-
-    def datainspect(self):
-        return self.inspectblocktype(NifFormat.NiNode)
-
-    def branchinspect(self, branch):
-        # only inspect the NiAVObject branch
-        return isinstance(branch, (NifFormat.NiAVObject))
-
-    def branchentry(self, branch):
-        if isinstance(branch, NifFormat.NiAVObject):
-            if branch.controller != None: 
-                branch.controller = None
-                self.toaster.msg("Animation removed from %s" % (branch.name))
-            # could have children so need to recurse further
-            return True
-        elif isinstance(branch, NifFormat.NiNode):
-            for child in branch.get_children():
-                if isinstance(child, NifFormat.NiTimeController):
-                    branch.remove_child(child)
-                    self.toaster.msg("Animation removed from %s" % (branch.name))
-            
-        # recurse further
-        return True
+    BRANCH_CLASSES_TO_BE_DELETED = [NifFormat.NiTimeController]
 
 class SpellDisableParallax(NifSpell):
     """Disable parallax shader (for Oblivion, but may work on other nifs too).
@@ -719,10 +611,12 @@ class SpellLowResTexturePath(NifSpell):
 
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiSourceTexture):
+            # XXX use (branch.file_name.find('lowres') == -1)?
             if ('lowres'.encode("ascii") not in branch.file_name):
                 branch.file_name = branch.file_name.replace(
                     "textures", "textures\\lowres").replace(os.sep, "\\")
-                self.toaster.msg("Texture path changed to %s" % (branch.file_name))
+                self.toaster.msg("Texture path changed to %s"
+                                 % (branch.file_name))
             # all textures done no need to recurse further.
             return False
         else:
@@ -764,8 +658,8 @@ class SpellMakeFarNif(
             SpellDelVertexColor,
             SpellDelAlphaProperty,
             SpellDelSpecularProperty,
-            SpellDelBSXextradatas,
-            SpellDelNiStringExtraDatas,
+            SpellDelBSXFlags,
+            SpellDelStringExtraDatas,
             pyffi.spells.nif.fix.SpellDelTangentSpace,
             SpellDelCollisionData,
             SpellDelAnimation,
