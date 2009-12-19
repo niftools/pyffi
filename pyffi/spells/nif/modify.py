@@ -416,36 +416,6 @@ class SpellCollisionMaterial(NifSpell):
             # recurse further
             return True
 
-class SpellDelVertexColorProperty(NifSpell):
-    """Delete vertex color property if it is present."""
-
-    SPELLNAME = "modify_delvertexcolor"
-    READONLY = False
-
-    def datainspect(self):
-        return self.inspectblocktype(NifFormat.NiTriBasedGeom)
-
-    def branchinspect(self, branch):
-        # only inspect the NiAVObject branch
-        return isinstance(branch, (NifFormat.NiAVObject,
-                                  NifFormat.NiTriBasedGeom,
-                                  NifFormat.NiTriBasedGeomData))
-
-    def branchentry(self, branch):
-        if isinstance(branch, NifFormat.NiTriBasedGeom):
-            # does this block have tangent space data?
-            for prop in branch.get_properties():
-                if isinstance(prop, NifFormat.NiVertexColorProperty):
-                        branch.remove_property(prop)
-            # all property blocks here done but not the geometry data so need to recurse further
-            return True
-        elif isinstance(branch, NifFormat.NiTriBasedGeomData):
-            branch.has_vertex_colors = 0
-            # no chilren; no need to recurse further
-            return False
-        # recurse further
-        return True
-
 class SpellDelBranches(NifSpell):
     """Delete blocks that match the exclude list."""
 
@@ -481,6 +451,36 @@ class SpellDelBranches(NifSpell):
         else:
             # this one was not excluded, keep recursing
             return True
+
+class SpellDelVertexColorProperty(NifSpell):
+    """Delete vertex color property if it is present."""
+
+    SPELLNAME = "modify_delvertexcolor"
+    READONLY = False
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.NiTriBasedGeom)
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                  NifFormat.NiTriBasedGeom,
+                                  NifFormat.NiTriBasedGeomData))
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiTriBasedGeom):
+            # does this block have tangent space data?
+            for prop in branch.get_properties():
+                if isinstance(prop, NifFormat.NiVertexColorProperty):
+                        branch.remove_property(prop)
+            # all property blocks here done but not the geometry data so need to recurse further
+            return True
+        elif isinstance(branch, NifFormat.NiTriBasedGeomData):
+            branch.has_vertex_colors = 0
+            # no chilren; no need to recurse further
+            return False
+        # recurse further
+        return True
 
 # identical to niftoaster.py modify_delbranches -x NiAlphaProperty
 # delete?
