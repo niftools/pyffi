@@ -9,7 +9,7 @@ Release 2.0.6 (in development)
 
 * Renamed a few niftoaster spells.
 
-  - fix_strip -> modify_delblocks
+  - fix_strip -> modify_delbranches
 
   - fix_disableparallax -> modify_disableparallax
 

@@ -140,7 +140,7 @@ fix_sendgeometriestobindposition
 fix_senddetachedgeometriestonodeposition
 fix_sendbonestobindposition
 fix_scale
-modify_delblocks
+modify_delbranches
 opt_cleanreflists
 opt_mergeduplicates
 opt_geometry

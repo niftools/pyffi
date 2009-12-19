@@ -446,10 +446,10 @@ class SpellDelVertexColorProperty(NifSpell):
         # recurse further
         return True
 
-class SpellDelBlocks(NifSpell):
+class SpellDelBranches(NifSpell):
     """Delete blocks that match the exclude list."""
 
-    SPELLNAME = "modify_delblocks"
+    SPELLNAME = "modify_delbranches"
     READONLY = False
 
     def is_branch_to_be_deleted(self, branch):
@@ -482,7 +482,7 @@ class SpellDelBlocks(NifSpell):
             # this one was not excluded, keep recursing
             return True
 
-# identical to niftoaster.py modify_delblocks -x NiAlphaProperty
+# identical to niftoaster.py modify_delbranches -x NiAlphaProperty
 # delete?
 class SpellDelAlphaProperty(NifSpell):
     """Delete alpha property if it is present."""
@@ -509,7 +509,7 @@ class SpellDelAlphaProperty(NifSpell):
         # recurse further
         return True
 
-# identical to niftoaster.py modify_delblocks -x NiSpecularProperty
+# identical to niftoaster.py modify_delbranches -x NiSpecularProperty
 # delete?
 class SpellDelSpecularProperty(NifSpell):
     """Delete specular property if it is present."""
@@ -536,7 +536,7 @@ class SpellDelSpecularProperty(NifSpell):
         # recurse further
         return True
 
-# identical to niftoaster.py modify_delblocks -x NiBSXFlags
+# identical to niftoaster.py modify_delbranches -x NiBSXFlags
 # delete?
 class SpellDelBSXextradatas(NifSpell):
     """Delete BSXflags if any are present."""
@@ -563,7 +563,7 @@ class SpellDelBSXextradatas(NifSpell):
         # recurse further
         return True
 		
-# identical to niftoaster.py modify_delblocks -x NiStringExtraData
+# identical to niftoaster.py modify_delbranches -x NiStringExtraData
 # delete?
 class SpellDelNiStringExtraDatas(NifSpell):
     """Delete NiSringExtraDatas if they are present."""
@@ -618,7 +618,7 @@ class SpellDelFleshShapes(NifSpell):
         # recurse further
         return True
 
-# identical to niftoaster.py modify_delblocks -x NiCollisionObject
+# identical to niftoaster.py modify_delbranches -x NiCollisionObject
 # delete?
 class SpellDelCollisionData(NifSpell):
     """Deletes any Collision data present."""
@@ -644,7 +644,7 @@ class SpellDelCollisionData(NifSpell):
         # recurse further
         return True
 		
-# identical to niftoaster.py modify_delblocks -x NiTimeController
+# identical to niftoaster.py modify_delbranches -x NiTimeController
 # delete?
 class SpellDelAnimation(NifSpell):
     """Deletes any Animation data present."""
@@ -759,7 +759,7 @@ class SpellAddStencilProperty(NifSpell):
         # recurse further
         return True
 
-# TODO: implement via modify_delblocks
+# TODO: implement via modify_delbranches
 class SpellMakeFarNif(
     pyffi.spells.SpellGroupSeries(
         pyffi.spells.SpellGroupParallel(
