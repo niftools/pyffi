@@ -364,35 +364,6 @@ class SpellApplySkinDeformation(NifSpell):
     # TODO
     pass
 
-class SpellDisableParallax(NifSpell):
-    """Disable parallax shader (for Oblivion, but may work on other nifs too).
-    """
-
-    SPELLNAME = "fix_disableparallax"
-    READONLY = False
-
-    def datainspect(self):
-        # XXX should we check that the nif is Oblivion version?
-        # only run the spell if there are textures
-        return self.inspectblocktype(NifFormat.NiTexturingProperty)
-
-    def branchinspect(self, branch):
-        return isinstance(branch, (NifFormat.NiAVObject,
-                                   NifFormat.NiTexturingProperty))
-
-    def branchentry(self, branch):
-        if isinstance(branch, NifFormat.NiTexturingProperty):
-            # is parallax enabled?
-            if branch.apply_mode == 4:
-                # yes!
-                self.toaster.msg("disabling parallax shader")
-                branch.apply_mode = 2
-            # stop recursing
-            return False
-        else:
-            # keep recursing
-            return True
-
 class SpellScale(NifSpell):
     """Scale a model."""
 

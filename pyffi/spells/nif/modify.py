@@ -665,30 +665,34 @@ class SpellDelAnimation(NifSpell):
             
         # recurse further
         return True
-		
-class SpellDelParallaxFlags(NifSpell):
-    """Changes any NiTexturingProperties that use ApplyMode HiLight2 to use Modulate """
 
-    SPELLNAME = "modify_delparallaxflags"
+class SpellDisableParallax(NifSpell):
+    """Disable parallax shader (for Oblivion, but may work on other nifs too).
+    """
+
+    SPELLNAME = "modify_disableparallax"
     READONLY = False
 
     def datainspect(self):
+        # XXX should we check that the nif is Oblivion version?
+        # only run the spell if there are textures
         return self.inspectblocktype(NifFormat.NiTexturingProperty)
 
     def branchinspect(self, branch):
-        # only inspect the NiAVObject branch
         return isinstance(branch, (NifFormat.NiAVObject,
                                    NifFormat.NiTexturingProperty))
 
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiTexturingProperty):
+            # is parallax enabled?
             if branch.apply_mode == 4:
+                # yes!
+                self.toaster.msg("disabling parallax shader")
                 branch.apply_mode = 2
-                self.toaster.msg("Parallax flag removed from %s" % (branch.name))
-            # all textures done no need to recurse further.
+            # stop recursing
             return False
         else:
-            # recurse further
+            # keep recursing
             return True
 
 class SpellLowResTexturePath(NifSpell):
@@ -758,7 +762,7 @@ class SpellMakeFarNif(
             pyffi.spells.nif.fix.SpellDelTangentSpace,
             SpellDelCollisionData,
             SpellDelAnimation,
-            SpellDelParallaxFlags,
+            SpellDisableParallax,
             SpellLowResTexturePath),
         pyffi.spells.nif.optimize.SpellOptimize
         )):

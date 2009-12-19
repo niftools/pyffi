@@ -77,7 +77,7 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         pyffi.spells.nif.fix.SpellClampMaterialAlpha,
         pyffi.spells.nif.fix.SpellDelTangentSpace,
         pyffi.spells.nif.fix.SpellDetachHavokTriStripsData,
-        pyffi.spells.nif.fix.SpellDisableParallax,
+        pyffi.spells.nif.modify.SpellDisableParallax,
         pyffi.spells.nif.fix.SpellFFVT3RSkinPartition,
         pyffi.spells.nif.fix.SpellFixCenterRadius,
         pyffi.spells.nif.fix.SpellFixSkinCenterRadius,
@@ -107,7 +107,6 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         pyffi.spells.nif.modify.SpellDelNiStringExtraDatas,
         pyffi.spells.nif.modify.SpellDelFleshShapes,
         pyffi.spells.nif.modify.SpellDelCollisionData,
-        pyffi.spells.nif.modify.SpellDelParallaxFlags,
         pyffi.spells.nif.modify.SpellLowResTexturePath,
         pyffi.spells.nif.modify.SpellAddStencilProperty,
         pyffi.spells.nif.modify.SpellMakeFleshlessNif

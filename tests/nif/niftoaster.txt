@@ -129,7 +129,7 @@ fix_addtangentspace
 fix_clampmaterialalpha
 fix_deltangentspace
 fix_detachhavoktristripsdata
-fix_disableparallax
+modify_disableparallax
 fix_ffvt3rskinpartition
 fix_centerradius
 fix_skincenterradius
@@ -140,7 +140,7 @@ fix_sendgeometriestobindposition
 fix_senddetachedgeometriestonodeposition
 fix_sendbonestobindposition
 fix_scale
-fix_strip
+modify_delblocks
 opt_cleanreflists
 opt_mergeduplicates
 opt_geometry
@@ -958,16 +958,16 @@ pyffi.mopp:DEBUG:1047:          0x26  130 207 [ bound X ]
 pyffi.mopp:DEBUG:1050:          0x50  35 [ triangle 35 ] 
 pyffi.toaster:INFO:Finished.
 
-The fix_disableparallax spell
------------------------------
+The modify_disableparallax spell
+--------------------------------
 
 >>> import sys
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "--dry-run", "fix_disableparallax", "tests/nif/test_fix_disableparallax.nif"]
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "--dry-run", "modify_disableparallax", "tests/nif/test_fix_disableparallax.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
 pyffi.toaster:INFO:=== tests/nif/test_fix_disableparallax.nif ===
-pyffi.toaster:INFO:  --- fix_disableparallax ---
+pyffi.toaster:INFO:  --- modify_disableparallax ---
 pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
 pyffi.toaster:INFO:      ~~~ NiTriStrips [Sphere] ~~~
 pyffi.toaster:INFO:        ~~~ NiTexturingProperty [] ~~~
