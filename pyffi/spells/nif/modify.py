@@ -495,7 +495,9 @@ class SpellDelVertexColor(SpellDelBranches):
         SpellDelBranches.branchentry(self, branch)
         # reset vertex color flags
         if isinstance(branch, NifFormat.NiTriBasedGeomData):
-            branch.has_vertex_colors = 0
+            if branch.has_vertex_colors:
+                self.toaster.msg("removing vertex colors")
+                branch.has_vertex_colors = False
             # no children; no need to recurse further
             return False
         # recurse further
