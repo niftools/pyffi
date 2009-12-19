@@ -452,11 +452,13 @@ class SpellDelBranches(NifSpell):
             # this one was not excluded, keep recursing
             return True
 
-class SpellDelVertexColorProperty(NifSpell):
-    """Delete vertex color property if it is present."""
+class SpellDelVertexColor(SpellDelBranches):
+    """Delete vertex color properties and vertex color data."""
 
     SPELLNAME = "modify_delvertexcolor"
-    READONLY = False
+
+    def is_branch_to_be_deleted(self, branch):
+        return isinstance(branch, NifFormat.NiVertexColorProperty)
 
     def datainspect(self):
         return self.inspectblocktype(NifFormat.NiTriBasedGeom)
@@ -464,20 +466,16 @@ class SpellDelVertexColorProperty(NifSpell):
     def branchinspect(self, branch):
         # only inspect the NiAVObject branch
         return isinstance(branch, (NifFormat.NiAVObject,
-                                  NifFormat.NiTriBasedGeom,
-                                  NifFormat.NiTriBasedGeomData))
+                                   NifFormat.NiTriBasedGeom,
+                                   NifFormat.NiTriBasedGeomData))
 
     def branchentry(self, branch):
-        if isinstance(branch, NifFormat.NiTriBasedGeom):
-            # does this block have tangent space data?
-            for prop in branch.get_properties():
-                if isinstance(prop, NifFormat.NiVertexColorProperty):
-                        branch.remove_property(prop)
-            # all property blocks here done but not the geometry data so need to recurse further
-            return True
-        elif isinstance(branch, NifFormat.NiTriBasedGeomData):
+        # delete vertex color property
+        SpellDelBranches.branchentry(self, branch)
+        # reset vertex color flags
+        if isinstance(branch, NifFormat.NiTriBasedGeomData):
             branch.has_vertex_colors = 0
-            # no chilren; no need to recurse further
+            # no children; no need to recurse further
             return False
         # recurse further
         return True
@@ -763,7 +761,7 @@ class SpellAddStencilProperty(NifSpell):
 class SpellMakeFarNif(
     pyffi.spells.SpellGroupSeries(
         pyffi.spells.SpellGroupParallel(
-            SpellDelVertexColorProperty,
+            SpellDelVertexColor,
             SpellDelAlphaProperty,
             SpellDelSpecularProperty,
             SpellDelBSXextradatas,
