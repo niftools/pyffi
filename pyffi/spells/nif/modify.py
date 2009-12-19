@@ -586,6 +586,7 @@ class SpellDelNiStringExtraDatas(NifSpell):
 class SpellDelFleshShapes(NifSpell):
     """Delete any Geometries with a material name of 'skin'"""
 
+    # modify_delskinmaterials?
     SPELLNAME = "modify_delfleshshapes" #not a nice name... maybe rename?
     READONLY = False
 
@@ -595,22 +596,21 @@ class SpellDelFleshShapes(NifSpell):
     def branchinspect(self, branch):
         # only inspect the NiAVObject branch
         return isinstance(branch, (NifFormat.NiAVObject,
-                                  NifFormat.NiNode))
+                                   NifFormat.NiTriBasedGeom,
+                                   NifFormat.NiMaterialProperty))
 
     def branchentry(self, branch):
-        if isinstance(branch, NifFormat.NiNode):
-            for child in branch.get_children():
-                if isinstance(child, NifFormat.NiTriBasedGeom):
-                    for prop in child.get_properties():
-                        if isinstance(prop, NifFormat.NiMaterialProperty):
-                            if prop.name == "Skin" or prop.name == "skin":
-                                branch.remove_child(child)
-                                self.toaster.msg("%s removed from %s" % (child.name, branch.name))
-            # could have child NiNodes so need to recurse further
-            return True
+        if isinstance(branch, NifFormat.NiMaterialProperty):
+            if branch.name.lower() == "skin":
+                self.toaster.msg("stripping this branch")
+                self.data.replace_global_node(branch, None)
+            # do not recurse further
+            return False
         # recurse further
         return True
-	
+
+# identical to niftoaster.py modify_delblocks -x NiCollisionObject
+# delete?
 class SpellDelCollisionData(NifSpell):
     """Deletes any Collision data present."""
 
