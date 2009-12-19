@@ -623,7 +623,7 @@ class SpellDelCollisionData(NifSpell):
     def branchinspect(self, branch):
         # only inspect the NiAVObject branch
         return isinstance(branch, (NifFormat.NiAVObject,
-                                  NifFormat.NiNode))
+                                   NifFormat.NiNode))
 
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiNode):
@@ -635,6 +635,8 @@ class SpellDelCollisionData(NifSpell):
         # recurse further
         return True
 		
+# identical to niftoaster.py modify_delblocks -x NiTimeController
+# delete?
 class SpellDelAnimation(NifSpell):
     """Deletes any Animation data present."""
 
@@ -688,6 +690,7 @@ class SpellDelParallaxFlags(NifSpell):
         else:
             # recurse further
             return True
+
 class SpellLowResTexturePath(NifSpell):
     """Changes the texture path by replacing 'textures/*' with 'textures/lowres/*' - used mainly for making _far.nifs"""
 
@@ -714,6 +717,7 @@ class SpellLowResTexturePath(NifSpell):
         else:
             # recurse further
             return True
+
 class SpellAddStencilProperty(NifSpell):
     """Adds a NiStencilProperty to each geometry if it is not present."""
 
@@ -733,15 +737,16 @@ class SpellAddStencilProperty(NifSpell):
             # does this block have an Stencil property?
             for prop in branch.get_properties():
                 if isinstance(prop, NifFormat.NiStencilProperty):
-                    return false
+                    return False
             # No stencil property found
             self.toaster.msg("adding NiStencilProperty")
-            branch.add_property(NiStencilProperty)
+            branch.add_property(NifFormat.NiStencilProperty)
 			# No geometry children, no need to recurse further
             return False
         # recurse further
         return True
 
+# TODO: implement via modify_delblocks
 class SpellMakeFarNif(
     pyffi.spells.SpellGroupSeries(
         pyffi.spells.SpellGroupParallel(
