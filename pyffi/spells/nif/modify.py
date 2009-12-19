@@ -464,11 +464,12 @@ class SpellDelAlphaProperty(NifSpell):
             # does this block have an Alpha property?
             for prop in branch.get_properties():
                 if isinstance(prop, NifFormat.NiAlphaProperty):
-                        branch.remove_property(prop)
+                    branch.remove_property(prop)
             # all property blocks here done; no need to recurse further
             return True
         # recurse further
         return True
+
 class SpellDelSpecularProperty(NifSpell):
     """Delete specular property if it is present."""
 
@@ -677,6 +678,34 @@ class SpellLowResTexturePath(NifSpell):
         else:
             # recurse further
             return True
+class SpellAddStencilProperty(NifSpell):
+    """Adds a NiStencilProperty to each geometry if it is not present."""
+
+    SPELLNAME = "modify_addstencilprop"
+    READONLY = False
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.NiTriBasedGeom)
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                  NifFormat.NiTriBasedGeom))
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiTriBasedGeom):
+            # does this block have an Stencil property?
+            for prop in branch.get_properties():
+                if isinstance(prop, NifFormat.NiStencilProperty):
+                    return false
+            # No stencil property found
+            self.toaster.msg("adding NiStencilProperty")
+            branch.add_property(NiStencilProperty)
+			# No geometry children, no need to recurse further
+            return False
+        # recurse further
+        return True
+
 class SpellMakeFarNif(
     pyffi.spells.SpellGroupSeries(
         pyffi.spells.SpellGroupParallel(
@@ -694,3 +723,12 @@ class SpellMakeFarNif(
         )):
     """Spell to make _far type nifs."""
     SPELLNAME = "modify_makefarnif"
+
+class SpellMakeFleshlessNif(
+    pyffi.spells.SpellGroupSeries(
+        pyffi.spells.SpellGroupParallel(
+            SpellDelFleshShapes,
+            SpellAddStencilProperty)
+        )):
+    """Spell to make fleshless CMR (Custom Model Races) clothing type nifs."""
+    SPELLNAME = "modify_makefleshlessnif"
