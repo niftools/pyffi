@@ -7,6 +7,8 @@ Release 2.0.6 (in development)
   camelCase attributes are generated too (however this will be dropped for
   py3k).
 
+* Renamed niftoaster spell fix_strip to modify_delblocks.
+
 Release 2.0.5 (Nov 23, 2009)
 ============================
 

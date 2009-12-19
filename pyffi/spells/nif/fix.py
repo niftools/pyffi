@@ -364,33 +364,6 @@ class SpellApplySkinDeformation(NifSpell):
     # TODO
     pass
 
-class SpellStrip(NifSpell):
-    """Delete blocks that match the exclude list."""
-
-    SPELLNAME = "fix_strip"
-    READONLY = False
-
-    def _branchinspect(self, branch):
-        """This spell inspects every branch, also the non-admissible ones,
-        therefore we must override this method.
-        """
-        return True
-
-    def branchentry(self, branch):
-        """Strip branch if it is admissible (as specified by include/exclude
-        options of the toaster).
-        """
-        # check if it is excluded or not
-        if not self.toaster.isadmissiblebranchtype(branch.__class__):
-            # it is, wipe it out
-            self.toaster.msg("stripping this branch")
-            self.data.replace_global_node(branch, None)
-            # do not recurse further
-            return False
-        else:
-            # this one was not excluded, keep recursing
-            return True
-
 class SpellDisableParallax(NifSpell):
     """Disable parallax shader (for Oblivion, but may work on other nifs too).
     """

@@ -88,7 +88,7 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         pyffi.spells.nif.fix.SpellSendDetachedGeometriesToNodePosition,
         pyffi.spells.nif.fix.SpellSendBonesToBindPosition,
         pyffi.spells.nif.fix.SpellScale,
-        pyffi.spells.nif.fix.SpellStrip,
+        pyffi.spells.nif.modify.SpellDelBlocks,
         pyffi.spells.nif.optimize.SpellCleanRefLists,
         pyffi.spells.nif.optimize.SpellMergeDuplicates,
         pyffi.spells.nif.optimize.SpellOptimizeGeometry,
