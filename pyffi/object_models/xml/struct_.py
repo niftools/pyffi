@@ -199,6 +199,20 @@ class StructBase(GlobalNode):
     Traceback (most recent call last):
         ...
     AttributeError: can't set attribute
+    >>> x = X()
+    >>> x.a = 8
+    >>> x.b = 9
+    >>> y.d = x
+    >>> print(y) # doctest:+ELLIPSIS
+    <class 'pyffi.object_models.xml.struct_.Y'> instance at 0x...
+    * a : 1
+    * b : 2
+    * c : 3
+    * d :
+        <class 'pyffi.object_models.xml.struct_.X'> instance at 0x...
+        * a : 8
+        * b : 9
+    <BLANKLINE>
     """
 
     __metaclass__ = _MetaStructBase
