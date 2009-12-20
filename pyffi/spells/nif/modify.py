@@ -47,6 +47,7 @@ from pyffi.formats.nif import NifFormat
 from pyffi.spells.nif import NifSpell
 import pyffi.spells.nif
 import pyffi.spells.nif.check # recycle checking spells for update spells
+import pyffi.spells.nif.fix
 
 from itertools import izip
 import os
