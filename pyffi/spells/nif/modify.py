@@ -48,6 +48,7 @@ from pyffi.spells.nif import NifSpell
 import pyffi.spells.nif
 import pyffi.spells.nif.check # recycle checking spells for update spells
 import pyffi.spells.nif.fix
+import pyffi.spells.nif.optimize
 
 from itertools import izip
 import os
