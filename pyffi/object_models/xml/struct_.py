@@ -614,7 +614,7 @@ class StructBase(GlobalNode):
         try:
             self.set_basic_attribute(value, name)
         except AttributeError:
-            raise NotImplementedError("cannot set '%s' attribute"%name)
+            self.set_attribute(value, name)
 
     def tree(self):
         """A generator for parsing all blocks in the tree (starting from and

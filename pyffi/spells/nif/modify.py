@@ -47,6 +47,8 @@ from pyffi.formats.nif import NifFormat
 from pyffi.spells.nif import NifSpell
 import pyffi.spells.nif
 import pyffi.spells.nif.check # recycle checking spells for update spells
+
+from itertools import izip
 import os
 
 class SpellTexturePath(NifSpell):
@@ -290,70 +292,43 @@ class SpellReverseAnimation(NifSpell):
         # inspect the NiAVObject branch, and NiControllerSequence
         # branch (for kf files)
         return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiTimeController,
+                                   NifFormat.NiInterpolator,
                                    NifFormat.NiControllerManager,
                                    NifFormat.NiControllerSequence,
-                                   NifFormat.NiTransformController,
-                                   NifFormat.NiTransformInterpolator,
-                                   NifFormat.NiTransformData,
+                                   NifFormat.NiKeyframeData,
                                    NifFormat.NiTextKeyExtraData,
-                                   NifFormat.NiTimeController,
-                                   NifFormat.NiFloatInterpolator,
                                    NifFormat.NiFloatData))
 
     def branchentry(self, branch):
-        if isinstance(branch, NifFormat.NiTransformData):
+
+        def reverse_keys(keys):
+            """Helper function to reverse keys."""
+            # copy the values
+            key_values = [key.value for key in keys]
+            # reverse them
+            for key, new_value in izip(keys, reversed(key_values)):
+                key.value = new_value
+
+        if isinstance(branch, NifFormat.NiKeyframeData):
+            # (this also covers NiTransformData)
             if branch.rotation_type == 4:
-                key_new_values = reversed([key.value for key in branch.xyz_rotations[0].keys])
-                for key, key_new_value in zip(branch.xyz_rotations[0].keys, key_new_values):
-                    key.value = key_new_value
-                key_new_values = reversed([key.value for key in branch.xyz_rotations[1].keys])
-                for key, key_new_value in zip(branch.xyz_rotations[1].keys, key_new_values):
-                    key.value = key_new_value
-                key_new_values = reversed([key.value for key in branch.xyz_rotations[2].keys])
-                for key, key_new_value in zip(branch.xyz_rotations[2].keys, key_new_values):
-                    key.value = key_new_value
+                reverse_keys(branch.xyz_rotations[0].keys)
+                reverse_keys(branch.xyz_rotations[1].keys)
+                reverse_keys(branch.xyz_rotations[2].keys)
             else:
-                if branch.rotation_type == 3:
-                    key_new_values_t = reversed([key.tbc.t for key in branch.quaternion_keys])
-                    key_new_values_b = reversed([key.tbc.b for key in branch.quaternion_keys])
-                    key_new_values_c = reversed([key.tbc.c for key in branch.quaternion_keys])
-                    for key, t, b, c in zip(branch.quaternion_keys, key_new_values_t, key_new_values_b, key_new_values_c):
-                        key.tbc.t = t
-                        key.tbc.b = b
-                        key.tbc.c = c
-                else:
-                    key_new_values_w = reversed([key.value.w for key in branch.quaternion_keys])
-                    key_new_values_x = reversed([key.value.x for key in branch.quaternion_keys])
-                    key_new_values_y = reversed([key.value.y for key in branch.quaternion_keys])
-                    key_new_values_z = reversed([key.value.z for key in branch.quaternion_keys])
-                    for key, w, x, y, z in zip(branch.quaternion_keys, key_new_values_w, key_new_values_x, key_new_values_y, key_new_values_z):
-                        key.value.w = w
-                        key.value.x = x
-                        key.value.y = y
-                        key.value.z = z
-            key_new_values_x = reversed([key.value.x for key in branch.translations.keys])
-            key_new_values_y = reversed([key.value.y for key in branch.translations.keys])
-            key_new_values_z = reversed([key.value.z for key in branch.translations.keys])
-            for key, x, y, z in zip(branch.translations.keys, key_new_values_x, key_new_values_y, key_new_values_z,):
-                key.value.x = x
-                key.value.y = y
-                key.value.z = z
-            key_new_values = reversed([key.value for key in branch.scales.keys])
-            for key, key_new_value in zip(branch.scales.keys, key_new_values):
-                key.value = key_new_value
-            # no children of NiTransformData so no need to recurse further.
+                reverse_keys(branch.quaternion_keys)
+            reverse_keys(branch.translations.keys)
+            reverse_keys(branch.scales.keys)
+            # no children of NiTransformData so no need to recurse further
             return False
         elif isinstance(branch, NifFormat.NiTextKeyExtraData):
-            key_new_values = reversed([key.value for key in branch.text_keys])
-            for key, key_new_value in zip(branch.text_keys, key_new_values):
-                key.value = key_new_value
-            # No children of NiTextKeyExtraData so no need to recurse further.
+            reverse_keys(branch.text_keys)
+            # no children of NiTextKeyExtraData so no need to recurse further
             return False
         elif isinstance(branch, NifFormat.NiFloatData):
-            key_new_values = reversed([key.value for key in branch.data.keys])
-            for key, key_new_value in zip(branch.data.keys, key_new_values):
-                key.value = key_new_value
-            # No children of NiFloatData so no need to recurse further.
+            reverse_keys(branch.data.keys)
+            # no children of NiFloatData so no need to recurse further
             return False
         else:
             # recurse further
