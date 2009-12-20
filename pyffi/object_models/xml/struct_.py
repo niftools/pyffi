@@ -55,13 +55,6 @@ class _MetaStructBase(type):
     StructBase."""
     def __init__(cls, name, bases, dct):
         super(_MetaStructBase, cls).__init__(name, bases, dct)
-        # consistency checks
-        #if not '_attrs' in dct:
-        #    raise TypeError('%s: missing _attrs attribute'%cls)
-        #if not '_is_template' in dct:
-        #    raise TypeError('%s: missing _is_template attribute'%cls)
-        # has_links, has_refs, has_strings, used for optimization of fix_links,
-        # get_links, get_refs, and get_strings
         # does the type contain a Ref or a Ptr?
         cls._has_links = getattr(cls, '_has_links', False)
         # does the type contain a Ref?
@@ -95,7 +88,7 @@ class _MetaStructBase(type):
             else:
                 # other types of attributes: get only
                 setattr(cls, attr.name, property(
-                    partial(StructBase.get_attribute, name = attr.name),
+                    partial(StructBase.get_attribute, name=attr.name),
                     doc=attr.doc))
 
             # check for links and refs and strings
@@ -103,7 +96,8 @@ class _MetaStructBase(type):
                 if attr.type_ != type(None): # templates!
                     # attr.type_ basestring means forward declaration
                     # we cannot know if it has links, so assume yes
-                    if isinstance(attr.type_, basestring) or attr.type_._has_links:
+                    if (isinstance(attr.type_, basestring)
+                        or attr.type_._has_links):
                         cls._has_links = True
                 #else:
                 #    cls._has_links = True
@@ -114,7 +108,8 @@ class _MetaStructBase(type):
                 if attr.type_ != type(None):
                     # attr.type_ basestring means forward declaration
                     # we cannot know if it has refs, so assume yes
-                    if isinstance(attr.type_, basestring) or attr.type_._has_refs:
+                    if (isinstance(attr.type_, basestring)
+                        or attr.type_._has_refs):
                         cls._has_refs = True
                 #else:
                 #    cls._has_refs = True # dito, see comment above
@@ -123,7 +118,8 @@ class _MetaStructBase(type):
                 if attr.type_ != type(None):
                     # attr.type_ basestring means forward declaration
                     # we cannot know if it has strings, so assume yes
-                    if isinstance(attr.type_, basestring) or attr.type_._has_strings:
+                    if (isinstance(attr.type_, basestring)
+                        or attr.type_._has_strings):
                         cls._has_strings = True
                 else:
                     # enabled because there is a template key type that has
