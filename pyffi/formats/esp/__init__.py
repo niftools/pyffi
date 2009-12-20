@@ -1,6 +1,6 @@
 """
-:mod:`pyffi.formats.esp` --- Elder Scrolls plugin/master/save files (.esp, .esm and .ess)
-=======================================
+:mod:`pyffi.formats.esp` --- Elder Scrolls plugin/master/save files (.esp, .esm, and .ess)
+==========================================================================================
 
 Implementation
 --------------
@@ -15,7 +15,7 @@ Regression tests
 Read a ESP file
 ^^^^^^^^^^^^^^^
 
->>> # check and read egm file
+>>> # check and read esp file
 >>> stream = open('tests/esp/test.esp', 'rb')
 >>> data = EspFormat.Data()
 >>> data.inspect(stream)
@@ -82,17 +82,17 @@ import os
 import re
 
 import pyffi.object_models.xml
-from pyffi.object_models import Common
-from pyffi.object_models.xml.Basic import BasicBase
+import pyffi.object_models.common
+from pyffi.object_models.xml.basic import BasicBase
 import pyffi.object_models
 from pyffi.utils.graph import EdgeFilter
 
 class EspFormat(pyffi.object_models.xml.FileFormat):
     """This class implements the ESP format."""
-    xmlFileName = 'esp.xml'
+    xml_file_name = 'esp.xml'
     # where to look for esp.xml and in what order:
     # ESPXMLPATH env var, or EspFormat module directory
-    xmlFilePath = [os.getenv('ESPXMLPATH'), os.path.dirname(__file__)]
+    xml_file_path = [os.getenv('ESPXMLPATH'), os.path.dirname(__file__)]
     # filter for recognizing esp files by extension
     # .ess are users save games encoded similarly to esp files 
     # .esm are esp files with an bit set in the header.
@@ -101,29 +101,28 @@ class EspFormat(pyffi.object_models.xml.FileFormat):
     _EPSILON = 0.0001
 
     # basic types
-    int = Common.Int
-    uint = Common.UInt
-    byte = Common.Byte
-    ubyte = Common.UByte
-    char = Common.Char
-    short = Common.Short
-    ushort = Common.UShort
-    float = Common.Float
-    PixelData = Common.UndecodedData
+    int = pyffi.object_models.common.Int
+    uint = pyffi.object_models.common.UInt
+    byte = pyffi.object_models.common.Byte
+    ubyte = pyffi.object_models.common.UByte
+    char = pyffi.object_models.common.Char
+    short = pyffi.object_models.common.Short
+    ushort = pyffi.object_models.common.UShort
+    float = pyffi.object_models.common.Float
 
     # implementation of esp-specific basic types
 
     # XXX nothing here yet...
 
     @staticmethod
-    def versionNumber(version_str):
+    def version_number(version_str):
         """Converts version string into an integer.
 
         :param version_str: The version string.
         :type version_str: str
         :return: A version integer.
 
-        >>> hex(EspFormat.versionNumber('X'))
+        >>> hex(EspFormat.version_number('X'))
         """
         raise NotImplementedError
 
@@ -132,7 +131,7 @@ class EspFormat(pyffi.object_models.xml.FileFormat):
         def __init__(self):
             pass
 
-        def inspectQuick(self, stream):
+        def inspect_quick(self, stream):
             """Quickly checks if stream contains ESP data, and gets the
             version, by looking at the first 8 bytes.
 
@@ -142,6 +141,7 @@ class EspFormat(pyffi.object_models.xml.FileFormat):
             pos = stream.tell()
             try:
                 # XXX check that file is ESP
+                pass
             finally:
                 stream.seek(pos)
 
@@ -156,7 +156,7 @@ class EspFormat(pyffi.object_models.xml.FileFormat):
             """
             pos = stream.tell()
             try:
-                self.inspectQuick(stream)
+                self.inspect_quick(stream)
                 # XXX read header
             finally:
                 stream.seek(pos)
@@ -170,7 +170,7 @@ class EspFormat(pyffi.object_models.xml.FileFormat):
             :param verbose: The level of verbosity.
             :type verbose: ``int``
             """
-            self.inspectQuick(stream)
+            self.inspect_quick(stream)
             # XXX read the file
 
             # check if we are at the end of the file
@@ -179,7 +179,7 @@ class EspFormat(pyffi.object_models.xml.FileFormat):
                     'end of file not reached: corrupt esp file?')
             
         def write(self, stream, verbose=0):
-            """Write a egm file.
+            """Write a esp file.
 
             :param stream: The stream to which to write.
             :type stream: ``file``
@@ -190,11 +190,12 @@ class EspFormat(pyffi.object_models.xml.FileFormat):
 
         # DetailNode
 
-        def getDetailChildNodes(self, edge_filter=EdgeFilter()):
+        def get_detail_child_nodes(self, edge_filter=EdgeFilter()):
             return []
             # XXX todo, for instance:
-            #return self.header.getDetailChildNodes(edge_filter=edge_filter)
+            #return self.header.get_detail_child_nodes(edge_filter=edge_filter)
 
-        def getDetailChildNames(self, edge_filter=EdgeFilter()):
+        def get_detail_child_names(self, edge_filter=EdgeFilter()):
+            return []
             # XXX todo, for instance:
-            #return self.header.getDetailChildNames(edge_filter=edge_filter)
+            #return self.header.get_detail_child_names(edge_filter=edge_filter)
