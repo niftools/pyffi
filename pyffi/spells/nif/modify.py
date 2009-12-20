@@ -225,53 +225,47 @@ class SpellScaleAnimationTime(NifSpell):
         # inspect the NiAVObject branch, and NiControllerSequence
         # branch (for kf files)
         return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiTimeController,
+                                   NifFormat.NiInterpolator,
                                    NifFormat.NiControllerManager,
                                    NifFormat.NiControllerSequence,
-                                   NifFormat.NiTransformController,
-                                   NifFormat.NiTransformInterpolator,
-                                   NifFormat.NiTransformData,
+                                   NifFormat.NiKeyframeData,
                                    NifFormat.NiTextKeyExtraData,
-                                   NifFormat.NiTimeController,
-                                   NifFormat.NiFloatInterpolator,
                                    NifFormat.NiFloatData))
 
     def branchentry(self, branch):
-        if isinstance(branch, NifFormat.NiTransformData):
+
+        def scale_key_times(keys):
+            """Helper function to scale key times."""
+            for key in keys:
+                key.time *= self.toaster.animation_scale
+
+        if isinstance(branch, NifFormat.NiKeyframeData):
             if branch.rotation_type == 4:
-                for key in branch.xyz_rotations[0].keys:
-                    key.time *= self.toaster.animation_scale
-                for key in branch.xyz_rotations[1].keys:
-                    key.time *= self.toaster.animation_scale
-                for key in branch.xyz_rotations[2].keys:
-                    key.time *= self.toaster.animation_scale
+                scale_key_times(branch.xyz_rotations[0].keys)
+                scale_key_times(branch.xyz_rotations[1].keys)
+                scale_key_times(branch.xyz_rotations[2].keys)
             else:
-                for key in branch.quaternion_keys:
-                    key.time *= self.toaster.animation_scale
-            for key in branch.translations.keys:
-                key.time *= self.toaster.animation_scale
-            for key in branch.scales.keys:
-                key.time *= self.toaster.animation_scale
-            # no children of NiTransformData so no need to recurse
-            # further
+                scale_key_times(branch.quaternion_keys)
+            scale_key_times(branch.translations.keys)
+            scale_key_times(branch.scales.keys)
+            # no children of NiKeyframeData so no need to recurse further
             return False
         elif isinstance(branch, NifFormat.NiControllerSequence):
             branch.stop_time *= self.toaster.animation_scale
             # recurse further into children of NiControllerSequence
             return True
         elif isinstance(branch, NifFormat.NiTextKeyExtraData):
-            for key in branch.text_keys:
-                key.time *= self.toaster.animation_scale
-            # no children of NiTextKeyExtraData so no need to recurse
-            # further
+            scale_key_times(branch.text_keys)
+            # no children of NiTextKeyExtraData so no need to recurse further
             return False
         elif isinstance(branch, NifFormat.NiTimeController):
             branch.stop_time *= self.toaster.animation_scale
             # recurse further into children of NiTimeController
             return True
         elif isinstance(branch, NifFormat.NiFloatData):
-            for key in branch.data.keys:
-                key.time *= self.toaster.animation_scale
-            # No children of NiFloatData so no need to recurse further.
+            scale_key_times(branch.data.keys)
+            # no children of NiFloatData so no need to recurse further
             return False
         else:
             # recurse further
