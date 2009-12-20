@@ -74,6 +74,7 @@ reading tests/nif/test_opt_dupverts.nif
 reading tests/nif/test_opt_emptyproperties.nif
 reading tests/nif/test_opt_mergeduplicates.nif
 reading tests/nif/test_skincenterradius.nif
+reading tests/nif/test_vertexcolor.nif
 
 Create a NIF model from scratch and write to file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
