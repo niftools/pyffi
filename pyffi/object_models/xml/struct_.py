@@ -73,17 +73,24 @@ class _MetaStructBase(type):
             # and issubclass must take a type as first argument
             # hence this hack
             if not isinstance(attr.type_, basestring) and \
-                issubclass(attr.type_, BasicBase) and attr.arr1 == None:
+                issubclass(attr.type_, BasicBase) and attr.arr1 is None:
                 # get and set basic attributes
                 setattr(cls, attr.name, property(
-                    partial(StructBase.get_basic_attribute, name = attr.name),
-                    partial(StructBase.set_basic_attribute, name = attr.name),
+                    partial(StructBase.get_basic_attribute, name=attr.name),
+                    partial(StructBase.set_basic_attribute, name=attr.name),
                     doc=attr.doc))
-            elif attr.type_ == type(None) and attr.arr1 == None:
+            elif not isinstance(attr.type_, basestring) and \
+                issubclass(attr.type_, StructBase) and attr.arr1 is None:
+                # get and set struct attributes
+                setattr(cls, attr.name, property(
+                    partial(StructBase.get_attribute, name=attr.name),
+                    partial(StructBase.set_attribute, name=attr.name),
+                    doc=attr.doc))
+            elif attr.type_ == type(None) and attr.arr1 is None:
                 # get and set template attributes
                 setattr(cls, attr.name, property(
-                    partial(StructBase.get_template_attribute, name = attr.name),
-                    partial(StructBase.set_template_attribute, name = attr.name),
+                    partial(StructBase.get_template_attribute, name=attr.name),
+                    partial(StructBase.set_template_attribute, name=attr.name),
                     doc=attr.doc))
             else:
                 # other types of attributes: get only
@@ -198,7 +205,7 @@ class StructBase(GlobalNode):
     >>> y.d = 1
     Traceback (most recent call last):
         ...
-    AttributeError: can't set attribute
+    TypeError: expected X but got int
     >>> x = X()
     >>> x.a = 8
     >>> x.b = 9
@@ -573,6 +580,19 @@ class StructBase(GlobalNode):
     def get_attribute(self, name):
         """Get a (non-basic) attribute."""
         return getattr(self, "_" + name + "_value_")
+
+    # important note: to apply partial(set_attribute, name = 'xyz') the
+    # name argument must be last
+    def set_attribute(self, value, name):
+        """Set a (non-basic) attribute."""
+        # check class
+        attr = getattr(self, "_" + name + "_value_")
+        if attr.__class__ is not value.__class__:
+            raise TypeError("expected %s but got %s"
+                            % (attr.__class__.__name__,
+                               value.__class__.__name__))
+        # set it
+        setattr(self, "_" + name + "_value_", value)
 
     def get_basic_attribute(self, name):
         """Get a basic attribute."""
