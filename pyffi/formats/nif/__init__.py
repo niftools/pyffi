@@ -4070,6 +4070,48 @@ class NifFormat(FileFormat):
             self.controlled_blocks.update_size()
             return self.controlled_blocks[-1]
 
+        def clean_string_palette(self):
+            """Remove unused strings from string palette.
+
+            >>> seq = NifFormat.NiControllerSequence()
+            >>> seq.string_palette = NifFormat.NiStringPalette()
+            >>> block = seq.add_controlled_block()
+            >>> block.string_palette = seq.string_palette
+            >>> block.set_variable_1("there")
+            >>> block.set_node_name("hello")
+            >>> block.string_palette.palette.add_string("test")
+            12
+            >>> seq.string_palette.palette.get_all_strings()
+            ['there', 'hello', 'test']
+            >>> seq.clean_string_palette()
+            >>> seq.string_palette.palette.get_all_strings()
+            ['hello', 'there']
+            >>> block.get_variable_1()
+            'there'
+            >>> block.get_node_name()
+            'hello'
+            """
+            # first convert the controlled block strings to the old style
+            # (storing the actual string, and not just an offset into the
+            # string palette)
+            for block in self.controlled_blocks:
+                block.node_name = block.get_node_name()
+                block.property_type = block.get_property_type()
+                block.controller_type = block.get_controller_type()
+                block.variable_1 = block.get_variable_1()
+                block.variable_2 = block.get_variable_2()
+                # ensure single string palette for all controlled blocks
+                block.string_palette = self.string_palette
+            # clear the palette
+            self.string_palette.palette.clear()
+            # and then convert old style back to new style
+            for block in self.controlled_blocks:
+                block.set_node_name(block.node_name)
+                block.set_property_type(block.property_type)
+                block.set_controller_type(block.controller_type)
+                block.set_variable_1(block.variable_1)
+                block.set_variable_2(block.variable_2)
+
     class NiGeometryData:
         """
         >>> from pyffi.formats.nif import NifFormat
