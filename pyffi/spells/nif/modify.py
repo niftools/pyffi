@@ -678,6 +678,9 @@ class SpellSubstituteStringPalette(
     def substitute(self, old_string):
         """Returns modified string, and reports if string was modified.
         """
+        if not old_string:
+            # leave empty strings be
+            return old_string
         new_string = self.toaster.regex.sub(self.toaster.sub, old_string)
         if old_string != new_string:
             self.toaster.msg("%s -> %s" % (old_string, new_string))
