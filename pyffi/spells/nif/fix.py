@@ -1,22 +1,78 @@
 """
 :mod:`pyffi.spells.nif.fix` ---  spells to fix errors
------------------------------------------------------
-Module which contains all spells that fix something in a nif.
-The available spells are Delete Tangent Space, Add Tangent Space
+=====================================================
 
-Delete Tangent Space:
-Deletes the NiBinaryExtraData which stores the binormal and
-tangent vectors. Call on Windows by running a command prompt
-or batch file with this code:
-    cd %pythondir%
-    python.exe Scripts/niftoaster.py fix_deltangentspace "%filepath%"
-	
-Add Tangent Space:
-Adds the NiBinaryExtraData which stores the binormal and
-tangent vectors, if there is not one already.
-Call on Windows by running a command prompt or batch file with this code:
-    cd %pythondir%
-    python.exe Scripts/niftoaster.py fix_addtangentspace "%filepath%"
+Module which contains all spells that fix something in a nif.
+
+Implementation
+--------------
+
+.. autoclass:: SpellDelTangentSpace
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellAddTangentSpace
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellFFVT3RSkinPartition
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellFixTexturePath
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellDetachHavokTriStripsData
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellClampMaterialAlpha
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellSendGeometriesToBindPosition
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellSendDetachedGeometriesToNodePosition
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellSendBonesToBindPosition
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellMergeSkeletonRoots
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellApplySkinDeformation
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellScale
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellFixCenterRadius
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellFixSkinCenterRadius
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellFixMopp
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellCleanStringPalette
+   :show-inheritance:
+   :members:
+
+Regression tests
+----------------
 """
 
 # --------------------------------------------------------------------------
@@ -422,3 +478,103 @@ class SpellFixMopp(pyffi.spells.nif.check.SpellCheckMopp):
         else:
             self.toaster.msg("updating mopp")
             branch.update_mopp()
+
+class SpellCleanStringPalette(NifSpell):
+    """Remove unused strings from string palette."""
+
+    SPELLNAME = "fix_cleanstringpalette"
+    READONLY = False
+
+    def datainspect(self):
+        # only run the spell if there is a controller sequence block
+        return self.inspectblocktype(NifFormat.NiControllerSequence)
+
+    def branchinspect(self, branch):
+        # only inspect branches where NiControllerSequence can occur
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiControllerManager,
+                                   NifFormat.NiControllerSequence))
+
+    def branchentry(self, branch):
+        """Cleans string palette of either a single controller sequence,
+        or of all controller sequences in a controller manager.
+
+        >>> seq = NifFormat.NiControllerSequence()
+        >>> seq.string_palette = NifFormat.NiStringPalette()
+        >>> block = seq.add_controlled_block()
+        >>> block.string_palette = seq.string_palette
+        >>> block.set_variable_1("there")
+        >>> block.set_node_name("hello")
+        >>> block.string_palette.palette.add_string("test")
+        12
+        >>> seq.string_palette.palette.get_all_strings()
+        ['there', 'hello', 'test']
+        >>> SpellCleanStringPalette().branchentry(seq)
+        pyffi.toaster:INFO:cleaning string palette
+        pyffi.toaster:INFO:removed 1 unused string(s)
+        False
+        >>> seq.string_palette.palette.get_all_strings()
+        ['hello', 'there']
+        >>> block.get_variable_1()
+        'there'
+        >>> block.get_node_name()
+        'hello'
+        """
+        if isinstance(branch, (NifFormat.NiControllerManager,
+                               NifFormat.NiControllerSequence)):
+            # get list of controller sequences
+            if isinstance(branch, NifFormat.NiControllerManager):
+                # multiple controller sequences sharing a single
+                # string palette
+                if not branch.controller_sequences:
+                    # no controller sequences: nothing to do
+                    return False
+                controller_sequences = branch.controller_sequences
+            else:
+                # unmanaged controller sequence
+                controller_sequences = [branch]
+            # and clean their string palettes
+            self.toaster.msg("cleaning string palette")
+            # use the first string palette as reference
+            string_palette = controller_sequences[0].string_palette
+            palette = string_palette.palette
+            # 1) calculate number of strings, for reporting
+            #    (this assumes that all blocks already use the same
+            #    string palette!)
+            num_strings = len(palette.get_all_strings())
+            # 2) remove unused strings
+            # first convert the controlled block strings to the old style
+            # (storing the actual string, and not just an offset into the
+            # string palette)
+            for controller_sequence in controller_sequences:
+                for block in controller_sequence.controlled_blocks:
+                    # set old style strings from string palette strings
+                    block.node_name = block.get_node_name()
+                    block.property_type = block.get_property_type()
+                    block.controller_type = block.get_controller_type()
+                    block.variable_1 = block.get_variable_1()
+                    block.variable_2 = block.get_variable_2()
+                    # ensure single string palette for all controlled blocks
+                    block.string_palette = string_palette
+                # ensure single string palette for all controller sequences
+                controller_sequence.string_palette = string_palette
+            # clear the palette
+            palette.clear()
+            # and then convert old style back to new style
+            for controller_sequence in controller_sequences:
+                for block in controller_sequence.controlled_blocks:
+                    block.set_node_name(block.node_name)
+                    block.set_property_type(block.property_type)
+                    block.set_controller_type(block.controller_type)
+                    block.set_variable_1(block.variable_1)
+                    block.set_variable_2(block.variable_2)
+            # 3) calculate number of removed strings, for reporting
+            num_removed_strings = num_strings - len(palette.get_all_strings())
+            if num_removed_strings:
+                self.toaster.msg("removed %i unused string(s)"
+                                 % num_removed_strings)
+            # do not recurse further
+            return False
+        else:
+            # keep looking for managers or sequences
+            return True

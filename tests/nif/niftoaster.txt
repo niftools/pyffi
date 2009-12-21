@@ -140,6 +140,7 @@ fix_sendgeometriestobindposition
 fix_senddetachedgeometriestonodeposition
 fix_sendbonestobindposition
 fix_scale
+fix_cleanstringpalette
 modify_delbranches
 opt_cleanreflists
 opt_mergeduplicates
@@ -213,6 +214,10 @@ pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:    writing to temporary file
 pyffi.toaster:INFO:      comparing file sizes
 pyffi.toaster:INFO:=== tests/nif/test_fix_clampmaterialalpha.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_fix_cleanstringpalette.nif ===
 pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:    writing to temporary file
 pyffi.toaster:INFO:      comparing file sizes
@@ -1247,6 +1252,10 @@ pyffi.toaster:INFO:=== tests/nif/test_fix_clampmaterialalpha.nif ===
 pyffi.toaster:INFO:  version      0x0A000100
 pyffi.toaster:INFO:  user version 0
 pyffi.toaster:INFO:  user version 0
+pyffi.toaster:INFO:=== tests/nif/test_fix_cleanstringpalette.nif ===
+pyffi.toaster:INFO:  version      0x14000005
+pyffi.toaster:INFO:  user version 11
+pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:=== tests/nif/test_fix_detachhavoktristripsdata.nif ===
 pyffi.toaster:INFO:  version      0x14000005
 pyffi.toaster:INFO:  user version 11
@@ -1320,7 +1329,7 @@ pyffi.toaster:INFO:  number of nifs: 4
 pyffi.toaster:INFO:  user version:  [0]
 pyffi.toaster:INFO:  user version2: [0]
 pyffi.toaster:INFO:version 0x14000005
-pyffi.toaster:INFO:  number of nifs: 8
+pyffi.toaster:INFO:  number of nifs: 9
 pyffi.toaster:INFO:  user version:  [11]
 pyffi.toaster:INFO:  user version2: [11]
 pyffi.toaster:INFO:version 0x14020007

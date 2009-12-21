@@ -34,6 +34,10 @@ import pyffi.formats.dae
 import pyffi.formats.egm
 import pyffi.formats.tri
 import pyffi.spells
+import pyffi.spells.nif
+import pyffi.spells.nif.fix
+import pyffi.spells.nif.modify
+import pyffi.spells.nif.check
 
 mods = [val for (key, val) in sys.modules.iteritems()
         if key.startswith('pyffi')]
@@ -57,6 +61,7 @@ suite.addTest(doctest.DocFileSuite('tests/nif/fix_clampmaterialalpha.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/opt_mergeduplicates.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/modify_delbranches.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/modify_delvertexcolor.txt'))
+suite.addTest(doctest.DocFileSuite('tests/nif/fix_cleanstringpalette.txt'))
 suite.addTest(doctest.DocFileSuite('tests/om_simpletype.txt'))
 suite.addTest(doctest.DocFileSuite('tests/om_arraytype.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/matrix.txt'))
