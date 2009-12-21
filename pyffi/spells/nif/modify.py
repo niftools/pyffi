@@ -52,6 +52,7 @@ import pyffi.spells.nif.optimize
 
 from itertools import izip
 import os
+import re # for modify_substitutestringpalette
 
 class SpellTexturePath(NifSpell):
     """Changes the texture path while keeping the texture names."""
@@ -654,3 +655,30 @@ class SpellMakeFleshlessNif(
         )):
     """Spell to make fleshless CMR (Custom Model Races) clothing type nifs."""
     SPELLNAME = "modify_makefleshlessnif"
+
+class SpellSubstituteStringPalette(
+    pyffi.spells.nif.fix.SpellCleanStringPalette):
+    """Substitute strings in a string palette."""
+
+    SPELLNAME = "modify_substitutestringpalette"
+
+    @classmethod
+    def toastentry(cls, toaster):
+        arg = toaster.options["arg"]
+        if not arg:
+            # missing arg
+            toaster.logger.warn(
+                "must specify regular expression and substitution as argument "
+                "(e.g. -a /Bip01/Bip02) to apply spell")
+            return False
+        dummy, toaster.regex, toaster.sub = arg.split(arg[0])
+        toaster.regex = re.compile(toaster.regex)
+        return True    
+
+    def substitute(self, old_string):
+        """Returns modified string, and reports if string was modified.
+        """
+        new_string = self.toaster.regex.sub(self.toaster.sub, old_string)
+        if old_string != new_string:
+            self.toaster.msg("%s -> %s" % (old_string, new_string))
+        return new_string

@@ -162,6 +162,7 @@ modify_delcollision
 modify_texturepathlowres
 modify_addstencilprop
 modify_makefleshlessnif
+modify_substitutestringpalette
 
 The check_readwrite spell and the --raise switch
 ------------------------------------------------

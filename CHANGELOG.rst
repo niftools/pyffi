@@ -17,6 +17,9 @@ Release 2.0.6 (in development)
 
   - fix_cleanstringpalette: removes unused strings from string palette
 
+  - modify_substitutestringpalette: regular expression substitution of
+    strings in a string palette
+
   - XXX more here
 
 Release 2.0.5 (Nov 23, 2009)

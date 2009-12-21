@@ -485,9 +485,16 @@ class SpellCleanStringPalette(NifSpell):
     SPELLNAME = "fix_cleanstringpalette"
     READONLY = False
 
+    def substitute(self, old_string):
+        """Helper function to substitute strings in the string palette,
+        to allow subclasses of this spell can modify the strings.
+        This implementation returns string unmodified.
+        """
+        return old_string
+
     def datainspect(self):
-        # only run the spell if there is a controller sequence block
-        return self.inspectblocktype(NifFormat.NiControllerSequence)
+        # only run the spell if there is a string palette block
+        return self.inspectblocktype(NifFormat.NiStringPalette)
 
     def branchinspect(self, branch):
         # only inspect branches where NiControllerSequence can occur
@@ -496,7 +503,7 @@ class SpellCleanStringPalette(NifSpell):
                                    NifFormat.NiControllerSequence))
 
     def branchentry(self, branch):
-        """Cleans string palette of either a single controller sequence,
+        """Parses string palette of either a single controller sequence,
         or of all controller sequences in a controller manager.
 
         >>> seq = NifFormat.NiControllerSequence()
@@ -510,8 +517,7 @@ class SpellCleanStringPalette(NifSpell):
         >>> seq.string_palette.palette.get_all_strings()
         ['there', 'hello', 'test']
         >>> SpellCleanStringPalette().branchentry(seq)
-        pyffi.toaster:INFO:cleaning string palette
-        pyffi.toaster:INFO:removed 1 unused string(s)
+        pyffi.toaster:INFO:parsing string palette
         False
         >>> seq.string_palette.palette.get_all_strings()
         ['hello', 'there']
@@ -534,7 +540,7 @@ class SpellCleanStringPalette(NifSpell):
                 # unmanaged controller sequence
                 controller_sequences = [branch]
             # and clean their string palettes
-            self.toaster.msg("cleaning string palette")
+            self.toaster.msg("parsing string palette")
             # use the first string palette as reference
             string_palette = controller_sequences[0].string_palette
             palette = string_palette.palette
@@ -542,18 +548,18 @@ class SpellCleanStringPalette(NifSpell):
             #    (this assumes that all blocks already use the same
             #    string palette!)
             num_strings = len(palette.get_all_strings())
-            # 2) remove unused strings
+            # 2) substitute strings
             # first convert the controlled block strings to the old style
             # (storing the actual string, and not just an offset into the
             # string palette)
             for controller_sequence in controller_sequences:
                 for block in controller_sequence.controlled_blocks:
                     # set old style strings from string palette strings
-                    block.node_name = block.get_node_name()
-                    block.property_type = block.get_property_type()
-                    block.controller_type = block.get_controller_type()
-                    block.variable_1 = block.get_variable_1()
-                    block.variable_2 = block.get_variable_2()
+                    block.node_name = self.substitute(block.get_node_name())
+                    block.property_type = self.substitute(block.get_property_type())
+                    block.controller_type = self.substitute(block.get_controller_type())
+                    block.variable_1 = self.substitute(block.get_variable_1())
+                    block.variable_2 = self.substitute(block.get_variable_2())
                     # ensure single string palette for all controlled blocks
                     block.string_palette = string_palette
                 # ensure single string palette for all controller sequences
@@ -568,11 +574,6 @@ class SpellCleanStringPalette(NifSpell):
                     block.set_controller_type(block.controller_type)
                     block.set_variable_1(block.variable_1)
                     block.set_variable_2(block.variable_2)
-            # 3) calculate number of removed strings, for reporting
-            num_removed_strings = num_strings - len(palette.get_all_strings())
-            if num_removed_strings:
-                self.toaster.msg("removed %i unused string(s)"
-                                 % num_removed_strings)
             # do not recurse further
             return False
         else:

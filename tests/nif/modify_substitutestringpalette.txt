@@ -1,5 +1,5 @@
-Doctests for the fix_cleanstringpalette spell
-=============================================
+Doctests for the modify_substitutestringpalette spell
+=====================================================
 
 NifToaster check
 ----------------
@@ -12,24 +12,28 @@ NifToaster check
 >>> data.read(open(filename, "rb"))
 >>> print(data.roots[0].controller.controller_sequences[0].string_palette.palette.get_all_strings())
 ['Test', 'Hello', 'People', 'NiTransformController', 'Test NonAccum', 'Useless', 'Crap']
->>> # clean
+>>> # substitute
 >>> import sys
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--prefix", "_", "--noninteractive", "fix_cleanstringpalette", filename]
+>>> sys.argv = ["niftoaster.py", "--prefix", "_", "--noninteractive", "modify_substitutestringpalette", "-a", "/Test/Woops", filename]
 >>> niftoaster.NifToaster().cli()
 pyffi.toaster:INFO:=== tests/nif/test_fix_cleanstringpalette.nif ===
-pyffi.toaster:INFO:  --- fix_cleanstringpalette ---
+pyffi.toaster:INFO:  --- modify_substitutestringpalette ---
 pyffi.toaster:INFO:    ~~~ NiNode [TestCleanStringPalette] ~~~
 pyffi.toaster:INFO:      ~~~ NiControllerManager [] ~~~
 pyffi.toaster:INFO:        parsing string palette
+pyffi.toaster:INFO:        Test -> Woops
+pyffi.toaster:INFO:        Test NonAccum -> Woops NonAccum
+pyffi.toaster:INFO:        Test -> Woops
+pyffi.toaster:INFO:        Test NonAccum -> Woops NonAccum
 pyffi.toaster:INFO:  writing tests/nif/_test_fix_cleanstringpalette.nif
 pyffi.toaster:INFO:Finished.
 >>> # check cleaned palette
 >>> data = NifFormat.Data()
 >>> data.read(open(outfilename, "rb"))
 >>> print(data.roots[0].controller.controller_sequences[0].string_palette.palette.get_all_strings())
-['Test', 'NiTransformController', 'Test NonAccum']
+['Woops', 'NiTransformController', 'Woops NonAccum']
 >>> # clean up
 >>> import os
 >>> os.remove(outfilename)
