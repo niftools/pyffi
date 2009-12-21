@@ -6666,7 +6666,8 @@ class NifFormat(FileFormat):
             # check that offset isn't too large
             if offset >= len(self.palette):
                 raise ValueError(
-                    "StringPalette: getting string at %i but palette is only %i long"
+                    "StringPalette: getting string at %i "
+                    "but palette is only %i long"
                     % (offset, len(self.palette)))
             # check that a string starts at this offset
             if offset > 0 and self.palette[offset-1:offset] != _b00:
@@ -6689,7 +6690,7 @@ class NifFormat(FileFormat):
             ...     print(x.decode("ascii"))
             abc
             def
-            >>> # lstrip magic for py3k
+            >>> # pal.palette.decode("ascii") needs lstrip magic for py3k
             >>> print(repr(pal.palette.decode("ascii")).lstrip("u"))
             'abc\\x00def\\x00'
             """
@@ -6734,6 +6735,26 @@ class NifFormat(FileFormat):
                 self.length += len(text) + 1
             # return the offset
             return offset
+
+        def clear(self):
+            """Clear all strings in the palette.
+
+            >>> from pyffi.formats.nif import NifFormat
+            >>> pal = NifFormat.StringPalette()
+            >>> pal.add_string("abc")
+            0
+            >>> pal.add_string("def")
+            4
+            >>> # pal.palette.decode("ascii") needs lstrip magic for py3k
+            >>> print(repr(pal.palette.decode("ascii")).lstrip("u"))
+            'abc\\x00def\\x00'
+            >>> pal.clear()
+            >>> # pal.palette.decode("ascii") needs lstrip magic for py3k
+            >>> print(repr(pal.palette.decode("ascii")).lstrip("u"))
+            ''
+            """
+            self.palette = pyffi.object_models.common._b # empty bytes object
+            self.length = 0
 
     class TexCoord:
         def as_list(self):
