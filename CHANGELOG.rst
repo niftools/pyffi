@@ -13,6 +13,12 @@ Release 2.0.6 (in development)
 
   - fix_disableparallax -> modify_disableparallax
 
+* New niftoaster spells.
+
+  - fix_cleanstringpalette: removes unused strings from string palette
+
+  - XXX more here
+
 Release 2.0.5 (Nov 23, 2009)
 ============================
 
