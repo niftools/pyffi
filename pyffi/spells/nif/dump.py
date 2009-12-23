@@ -61,7 +61,7 @@ def dumpArray(arr):
     :return: String describing the array.
     """
     text = ""
-    if arr._count_2 == None:
+    if arr._count2 == None:
         for i, element in enumerate(list.__iter__(arr)):
             if i > 16:
                 text += "etc...\n"
