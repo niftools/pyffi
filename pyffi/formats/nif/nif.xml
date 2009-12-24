@@ -130,7 +130,7 @@
     
     <!--Enumerations
         These are like C enums and consist of a list of options.  They can appear
-        as parts of compounts or niobjects.-->
+        as parts of compounds or niobjects.-->
 
     <enum name="AlphaFormat" storage="uint">
         An unsigned 32-bit integer, describing how transparency is handled in a texture.
