@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fileformat>
+<espxml>
+    <version num=??? />Morrowind</version>
+    <version num=??? />Oblivion</version>
+    <version num=??? />Fallout3</version>
+
+    <!--
+    *******************
+    *** basic types ***
+    *******************
+    -->
+
+    <basic name="ubyte">
+        An unsigned 8-bit integer.
+    </basic>
+
+    <basic name="byte">
+        A signed 8-bit integer.
+    </basic>
+
+    <basic name="ushort">
+        An unsigned 16-bit integer.
+    </basic>
+
+    <basic name="short">
+        A signed 16-bit integer.
+    </basic>
+
+    <basic name="uint">
+        An unsigned 32-bit integer.
+    </basic>
+
+    <basic name="int">
+        A signed 32-bit integer.
+    </basic>
+
+    <basic name="char">
+        An 8-bit character.
+    </basic>
+
+    <basic name="float">
+        A standard 32-bit floating point number.
+    </basic>
+
+    <!--
+    *******************
+    *** alias types ***
+    *******************
+    -->
+
+    
+    <!--
+    ******************
+    *** enum types ***
+    ******************
+    -->
+
+    
+    <!--
+    ******************
+    *** bitstructs ***
+    ******************
+    -->
+
+
+
+    <!--
+    ***************
+    *** structs ***
+    ***************
+    -->
+
+
+</espxml>
+
