@@ -52,9 +52,10 @@ import pyffi.spells.nif.optimize
 
 from itertools import izip
 import os
-import re # for modify_substitutestringpalette
+import re # for modify_substitutestringpalette and modify_substitutetexturepath
 
-class SpellTexturePath(NifSpell):
+class SpellTexturePath(
+    pyffi.spells.nif.fix.SpellFixTexturePath):
     """Changes the texture path while keeping the texture names."""
 
     SPELLNAME = "modify_texturepath"
@@ -75,30 +76,15 @@ class SpellTexturePath(NifSpell):
             toaster.texture_path = toaster.texture_path.replace("\\", os.sep)
             return True
 
-    def datainspect(self):
-        return self.inspectblocktype(NifFormat.NiSourceTexture)
-
-    def branchinspect(self, branch):
-        # only inspect the NiAVObject branch
-        return isinstance(branch, (NifFormat.NiAVObject,
-                                   NifFormat.NiTexturingProperty,
-                                   NifFormat.NiSourceTexture))
-
-    def branchentry(self, branch):
-        if isinstance(branch, NifFormat.NiSourceTexture):
-            old_file_name = str(branch.file_name) # for reporting
-            # note: replace backslashes by os.sep in filename, and
-            # when joined, revert them back, for linux
-            branch.file_name = os.path.join(
-                self.toaster.texture_path,
-                os.path.basename(old_file_name.replace("\\", os.sep))
-                ).replace(os.sep, "\\") 
-            self.toaster.msg("%s -> %s" % (old_file_name, branch.file_name))
-            # all textures done no need to recurse further.
-            return False
-        else:
-            # recurse further
-            return True
+    def substitute(self, old_path):
+        # note: replace backslashes by os.sep in filename, and
+        # when joined, revert them back, for linux
+        new_path = os.path.join(
+            self.toaster.texture_path,
+            os.path.basename(old_file_name.replace("\\", os.sep))
+            ).replace(os.sep, "\\") 
+        self.toaster.msg("%s -> %s" % (old_path, new_path))
+        return new_path
 
 class SpellCollisionType(NifSpell):
     """Sets the object collision to be a different type"""
