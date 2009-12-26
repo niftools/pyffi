@@ -6,8 +6,8 @@ include AUTHORS.rst
 include TODO.rst
 include THANKS.rst
 include CONTRIBUTE.rst
-include pyffi/formats/nif/nif.xml
-include pyffi/formats/kfm/kfm.xml
+include pyffi/formats/nif/nifxml/nif.xml
+include pyffi/formats/kfm/kfmxml/kfm.xml
 include pyffi/formats/cgf/cgf.xml
 include pyffi/formats/dds/dds.xml
 include pyffi/formats/tga/tga.xml
