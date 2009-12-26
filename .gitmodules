@@ -1,0 +1,3 @@
+[submodule "pyffi/formats/nif/nifxml"]
+	path = pyffi/formats/nif/nifxml
+	url = git://niftools.git.sourceforge.net/gitroot/niftools/nifxml
