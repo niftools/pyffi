@@ -8,10 +8,15 @@ if not defined PYTHONPATH (
 set PYTHONPATH=C:\Python25
 )
 
+rem Fallback if Python 2.5 is not installed: try 2.6
+if not exist %PYTHONPATH% (
+set PYTHONPATH=C:\Python26
+)
+
 rem not found... complain and quit
 if not defined PYTHONPATH (
 echo.
-echo Python 2.5 not found!
+echo Python not found!
 echo.
 goto end
 )
