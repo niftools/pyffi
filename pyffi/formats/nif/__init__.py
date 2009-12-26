@@ -347,7 +347,8 @@ class NifFormat(FileFormat):
     xml_file_name = 'nif.xml'
     # where to look for nif.xml and in what order: NIFXMLPATH env var,
     # or NifFormat module directory
-    xml_file_path = [os.getenv('NIFXMLPATH'), os.path.dirname(__file__)]
+    xml_file_path = [os.getenv('NIFXMLPATH'),
+                     os.path.join(os.path.dirname(__file__), "nifxml")]
     # filter for recognizing nif files by extension
     # .kf are nif files containing keyframes
     # .kfa are nif files containing keyframes in DAoC style
