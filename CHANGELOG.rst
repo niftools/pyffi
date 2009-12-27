@@ -22,6 +22,8 @@ Release 2.0.6 (in development)
 
   - XXX more here
 
+* Bugfix for niftoaster dump spell.
+
 Release 2.0.5 (Nov 23, 2009)
 ============================
 
