@@ -361,7 +361,7 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
         >>> morph.scale # doctest: +ELLIPSIS
         0.0002746...
         >>> for vert in morph.get_relative_vertices():
-        ...     print [int(1000 * x + 0.5) for x in vert]
+        ...     print([int(1000 * x + 0.5) for x in vert])
         [3000, 5000, 2000]
         [1000, 3000, 2000]
         [-8999, 3000, -999]
@@ -400,7 +400,7 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
             ...     [(3, 5, 2), (1, 3, 2), (-9, 3, -1)])
             >>> morph.apply_scale(2)
             >>> for vert in morph.get_relative_vertices():
-            ...     print [int(1000 * x + 0.5) for x in vert]
+            ...     print([int(1000 * x + 0.5) for x in vert])
             [6000, 10000, 4000]
             [2000, 6000, 4000]
             [-17999, 6000, -1999]
