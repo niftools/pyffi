@@ -1610,6 +1610,7 @@ class NifFormat(FileFormat):
                 return True
             # slower check, using isinstance
             for data_block_type in self.block_types:
+                data_block_type = data_block_type.decode("ascii")
                 # NiDataStreams are special
                 if data_block_type.startswith("NiDataStream\x01"):
                     data_block_type = "NiDataStream"
