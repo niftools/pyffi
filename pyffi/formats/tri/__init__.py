@@ -34,7 +34,7 @@ Read a TRI file
 >>> data.num_morphs
 18
 >>> data.read(stream) # doctest: +ELLIPSIS
->>> print [morph.name for morph in data.morphs]
+>>> print([morph.name.decode("ascii") for morph in data.morphs])
 ['Fear', 'Surprise', 'Aah', 'BigAah', 'BMP', 'ChJSh', 'DST', 'Eee', 'Eh', \
 'FV', 'I', 'K', 'N', 'Oh', 'OohQ', 'R', 'Th', 'W']
 
@@ -217,10 +217,11 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
             return self._value
 
         def read(self, stream, **kwargs):
-            self._value = TriFormat.version_number(stream.read(3))
+            self._value = TriFormat.version_number(
+                stream.read(3).decode("ascii"))
 
         def write(self, stream, **kwargs):
-            stream.write('%03i' % self._value)
+            stream.write(('%03i' % self._value).encode("ascii"))
 
         def get_detail_display(self):
             return self.__str__()
