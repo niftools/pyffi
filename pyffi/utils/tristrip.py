@@ -307,9 +307,9 @@ class OrientedStrip:
     def __str__(self):
         """String representation.
 
-        >>> print OrientedStrip([0, 1, 2, 3, 4])
+        >>> print(OrientedStrip([0, 1, 2, 3, 4]))
         [0, 1, 2, 3, 4]
-        >>> print OrientedStrip([0, 0, 1, 2, 3, 4])
+        >>> print(OrientedStrip([0, 0, 1, 2, 3, 4]))
         [0, 0, 1, 2, 3, 4]
         """
         return str(list(self))
