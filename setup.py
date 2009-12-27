@@ -41,9 +41,7 @@ setup(
         'pyffi.utils',
         'pyffi.formats',
         'pyffi.formats.nif',
-        'pyffi.formats.nif.nifxml',
         'pyffi.formats.kfm',
-        'pyffi.formats.kfm.kfmxml',
         'pyffi.formats.cgf',
         'pyffi.formats.dds',
         'pyffi.formats.tga',
@@ -54,7 +52,10 @@ setup(
         'pyffi.spells.nif',
         'pyffi.qskope',
         'pyffi.formats.dae'],
-    package_data = {'': ['*.xml', '*.xsd', '*.dll', '*.exe']}, # include xml, xsd, dll, and exe files
+    # include xml, xsd, dll, and exe files
+    package_data = {'': ['*.xml', '*.xsd', '*.dll', '*.exe'],
+                    'pyffi.formats.nif': ['nifxml/nif.xml'],
+                    'pyffi.formats.kfm': ['kfmxml/kfm.xml']},
     scripts = ['scripts/nif/nifmakehsl.py', 'scripts/nif/niftoaster.py', 'scripts/cgf/cgftoaster.py', 'scripts/kfm/kfmtoaster.py', 'scripts/qskope.py'],
     author = "Amorilia",
     author_email = "amorilia@users.sourceforge.net",
