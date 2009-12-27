@@ -81,7 +81,7 @@ class SpellTexturePath(
         # when joined, revert them back, for linux
         new_path = os.path.join(
             self.toaster.texture_path,
-            os.path.basename(old_file_name.replace("\\", os.sep))
+            os.path.basename(old_path.replace("\\", os.sep))
             ).replace(os.sep, "\\") 
         self.toaster.msg("%s -> %s" % (old_path, new_path))
         return new_path
