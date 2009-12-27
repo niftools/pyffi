@@ -198,13 +198,13 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
 
         def read(self, stream, **kwargs):
             ver = stream.read(3)
-            if ver != '%03i' % kwargs['data'].version:
+            if ver != ('%03i' % kwargs['data'].version).encode("ascii"):
                 raise ValueError(
-                    "Invalid version number: expected %03i but got %s."
+                    "Invalid version number: expected b'%03i' but got %s."
                     % (kwargs['data'].version, ver))
 
         def write(self, stream, **kwargs):
-            stream.write('%03i' % kwargs['data'].version)
+            stream.write(('%03i' % kwargs['data'].version).encode("ascii"))
 
         def get_detail_display(self):
             return 'XXX'
