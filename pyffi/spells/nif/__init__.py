@@ -65,6 +65,7 @@ class NifSpell(pyffi.spells.Spell):
         # (do this first, spells may depend on this being present)
         self.header_types = []
         for block_type in self.data.header.block_types:
+            block_type = block_type.decode("ascii")
             # handle NiDataStream
             if block_type.startswith("NiDataStream\x01"):
                 block_type = "NiDataStream"
