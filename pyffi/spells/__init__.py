@@ -139,7 +139,11 @@ from copy import deepcopy
 from cStringIO import StringIO
 import gc
 import logging # Logger
-import multiprocessing # Pool
+try:
+    import multiprocessing # Pool
+except ImportError:
+    # < py26
+    multiprocessing = None
 import optparse
 import os
 import os.path
@@ -640,6 +644,10 @@ class Toaster(object):
         if self.options["patchcmd"] and not(self.options["applypatch"]):
             raise ValueError(
                 "option --patch-cmd can only be used with --patch")
+        if (multiprocessing is None) and self.options["multiprocessing"]:
+            self.logger.warn(
+                "multiprocessing not supported on this platform")
+            self.options["multiprocessing"] = False
         # update include and exclude types
         self.include_types = tuple(
             getattr(self.FILEFORMAT, block_type)
