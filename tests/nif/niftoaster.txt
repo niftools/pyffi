@@ -55,6 +55,16 @@ Options:
                         precisely 3 arguments, oldfile, newfile, and
                         patchfile.
   --series              run spells in series rather than in parallel
+  --skip=SKIP           skip all files whose names match the regular
+			expression SKIP (takes precedence over --only); if
+			specified multiple times, the expressions are 'ored'
+			together
+  --only=ONLY           only toast files whose names (i) match the regular
+			expression ONLY, and (ii) do not match any regular
+			expression specified with --skip; if specified
+			multiple times, the expressions are 'ored' together;
+			if not specified, all files are toasted by default,
+			except those listed with --skip
 
 The --examples switch
 ---------------------
@@ -275,6 +285,47 @@ pyffi.toaster:INFO:=== tests/nif/test_vertexcolor.nif ===
 pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:    writing to temporary file
 pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:Finished.
+
+The --skip and --only switches
+------------------------------
+
+>>> import sys
+>>> sys.path.append("scripts/nif")
+>>> import niftoaster
+>>> sys.argv = "niftoaster.py --skip .*texture.* --skip .*skin.* --only .*fix.* --only .*center.* check_read tests/nif/".split()
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+pyffi.toaster:INFO:=== tests/nif/invalid.nif (skipped) ===
+pyffi.toaster:INFO:=== tests/nif/test.nif (skipped) ===
+pyffi.toaster:INFO:=== tests/nif/test_centerradius.nif ===
+pyffi.toaster:INFO:  --- check_read ---
+pyffi.toaster:INFO:=== tests/nif/test_check_tangentspace1.nif (skipped) ===
+pyffi.toaster:INFO:=== tests/nif/test_check_tangentspace2.nif (skipped) ===
+pyffi.toaster:INFO:=== tests/nif/test_check_tangentspace3.nif (skipped) ===
+pyffi.toaster:INFO:=== tests/nif/test_check_tangentspace4.nif (skipped) ===
+pyffi.toaster:INFO:=== tests/nif/test_convexverticesshape.nif (skipped) ===
+pyffi.toaster:INFO:=== tests/nif/test_dump_tex.nif (skipped) ===
+pyffi.toaster:INFO:=== tests/nif/test_fix_clampmaterialalpha.nif ===
+pyffi.toaster:INFO:  --- check_read ---
+pyffi.toaster:INFO:=== tests/nif/test_fix_cleanstringpalette.nif ===
+pyffi.toaster:INFO:  --- check_read ---
+pyffi.toaster:INFO:=== tests/nif/test_fix_detachhavoktristripsdata.nif ===
+pyffi.toaster:INFO:  --- check_read ---
+pyffi.toaster:INFO:=== tests/nif/test_fix_disableparallax.nif ===
+pyffi.toaster:INFO:  --- check_read ---
+pyffi.toaster:INFO:=== tests/nif/test_fix_ffvt3rskinpartition.nif (skipped) ===
+pyffi.toaster:INFO:=== tests/nif/test_fix_mergeskeletonroots.nif ===
+pyffi.toaster:INFO:  --- check_read ---
+pyffi.toaster:INFO:=== tests/nif/test_fix_tangentspace.nif ===
+pyffi.toaster:INFO:  --- check_read ---
+pyffi.toaster:INFO:=== tests/nif/test_fix_texturepath.nif (skipped) ===
+pyffi.toaster:INFO:=== tests/nif/test_mopp.nif (skipped) ===
+pyffi.toaster:INFO:=== tests/nif/test_opt_dupgeomdata.nif (skipped) ===
+pyffi.toaster:INFO:=== tests/nif/test_opt_dupverts.nif (skipped) ===
+pyffi.toaster:INFO:=== tests/nif/test_opt_emptyproperties.nif (skipped) ===
+pyffi.toaster:INFO:=== tests/nif/test_opt_mergeduplicates.nif (skipped) ===
+pyffi.toaster:INFO:=== tests/nif/test_skincenterradius.nif (skipped) ===
+pyffi.toaster:INFO:=== tests/nif/test_vertexcolor.nif (skipped) ===
 pyffi.toaster:INFO:Finished.
 
 The check_bhkbodycenter spell

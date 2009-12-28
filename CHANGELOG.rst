@@ -24,6 +24,8 @@ Release 2.0.6 (in development)
 
 * Bugfix for niftoaster dump spell.
 
+* New --skip and --only toaster options to toast files by regular expression.
+
 Release 2.0.5 (Nov 23, 2009)
 ============================
 

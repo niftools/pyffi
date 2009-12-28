@@ -2,12 +2,6 @@
 
 .. todo::
 
-   - Add option to toaster to skip files that match a regular
-     expression.
-
-   - Add option to toaster to toast only those files that match a
-     regular expression.
-
    - Add multithreading support to toaster (branching a separate
      Python process for each file to save memory).
 

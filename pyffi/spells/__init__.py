@@ -141,6 +141,7 @@ import logging # Logger
 import optparse
 import os
 import os.path
+import re # for regex parsing (--skip, --only)
 import subprocess
 import sys # sys.stdout
 import tempfile
@@ -565,6 +566,14 @@ class Toaster(object):
     exclude_types = []
     """Tuple of types corresponding to the exclude key of :attr:`options`."""
 
+    only_regexs = []
+    """Tuple of regular expressions corresponding to the only key of
+    :attr:`options`."""
+
+    skip_regexs = []
+    """Tuple of regular expressions corresponding to the skip key of
+    :attr:`options`."""
+
     def __init__(self, spellclass=None, options=None):
         """Initialize the toaster.
 
@@ -688,10 +697,11 @@ class Toaster(object):
         """
         # parse options and positional arguments
         usage = "%prog [options] <spell1> <spell2> ... <file>|<folder>"
-        description = """Apply the spells <spell1>, <spell2>, and so on,
-on <file>, or recursively on <folder>."""
-        errormessage_numargs = """incorrect number of arguments
-(use the --help option for help)"""
+        description = (
+            "Apply the spells <spell1>, <spell2>, and so on,"
+            " on <file>, or recursively on <folder>.")
+        errormessage_numargs = (
+            "incorrect number of arguments (use the --help option for help)")
 
         parser = optparse.OptionParser(
             usage,
@@ -767,13 +777,35 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
         parser.add_option("--series", dest="series",
                           action="store_true",
                           help="run spells in series rather than in parallel")
+        parser.add_option("--skip", dest="skip",
+                          type="string",
+                          action="append",
+                          metavar="SKIP",
+                          help=
+                          "skip all files whose names match the regular"
+                          " expression SKIP (takes precedence over --only);"
+                          " if specified multiple times, the expressions are"
+                          " 'ored' together")
+        parser.add_option("--only", dest="only",
+                          type="string",
+                          action="append",
+                          metavar="ONLY",
+                          help=
+                          "only toast files whose names (i) match the"
+                          " regular expression ONLY, and (ii) do not match"
+                          " any regular expression specified with --skip;"
+                          " if specified multiple times, the expressions are"
+                          " 'ored' together; if not specified, all files"
+                          " are toasted by default, except those listed"
+                          " with --skip")
         parser.set_defaults(raisetesterror=False, verbose=1, pause=False,
                             exclude=[], include=[], examples=False,
                             spells=False,
                             interactive=True,
                             helpspell=False, dryrun=False, prefix="", arg="",
                             createpatch=False, applypatch=False, diffcmd="",
-                            series=False)
+                            series=False,
+                            skip=[], only=[])
         (options, args) = parser.parse_args()
 
         # convert options to dictionary
@@ -798,6 +830,12 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
         self.exclude_types = tuple(
             getattr(self.FILEFORMAT, block_type)
             for block_type in self.options.get("exclude", ()))
+
+        # update skip and only regular expressions
+        self.skip_regexs = tuple(
+            re.compile(regex) for regex in self.options.get("skip", ()))
+        self.only_regexs = tuple(
+            re.compile(regex) for regex in self.options.get("only", ()))
 
         # check errors
         if options.createpatch and options.applypatch:
@@ -877,6 +915,23 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
         if options.pause and options.interactive:
             raw_input("Press enter...")
 
+    def inspect_filename(self, filename):
+        """Returns whether to toast a filename or not, based on
+        skip_regexs and only_regexs.
+        """
+        if any(regex.match(filename) for regex in self.skip_regexs):
+            # matches some --skip regex, so do not toast
+            return False
+        if not self.only_regexs:
+            # --only not specified: then by default we match all files
+            return True
+        if any(regex.match(filename) for regex in self.only_regexs):
+            # matches at least one --only regex, so toast
+            return True
+        else:
+            # no --only matches, so do not toast
+            return False
+
     def toast(self, top):
         """Walk over all files in a directory tree and cast spells
         on every file.
@@ -947,6 +1002,11 @@ may destroy them. Make a backup of your files before running this script.
         """Run toaster on particular stream and data.
         Used as helper function.
         """
+        # inspect the file name
+        if not self.inspect_filename(stream.name):
+            self.msg("=== %s (skipped) ===" % stream.name)
+            return
+
         dryrun = self.options.get("dryrun", False)
         prefix = self.options.get("prefix", "")
         createpatch = self.options.get("createpatch", False)
@@ -956,7 +1016,7 @@ may destroy them. Make a backup of your files before running this script.
         data = self.FILEFORMAT.Data()
 
         self.msgblockbegin("=== %s ===" % stream.name)
-        try: 
+        try:
             # inspect the file (reads only the header)
             data.inspect(stream)
 
