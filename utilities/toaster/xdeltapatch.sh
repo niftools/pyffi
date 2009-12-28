@@ -1,3 +1,4 @@
 #!/bin/sh
-xdelta patch $1 $2 $3
+# $1=old, $2=new, $3=patch
+xdelta patch $3 $1 $2
 
