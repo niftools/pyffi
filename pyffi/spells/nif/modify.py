@@ -44,6 +44,7 @@ Module which contains all spells that modify a nif.
 # --------------------------------------------------------------------------
 
 from pyffi.formats.nif import NifFormat
+from pyffi.object_models.common import _as_bytes
 from pyffi.spells.nif import NifSpell
 import pyffi.spells.nif
 import pyffi.spells.nif.check # recycle checking spells for update spells
@@ -658,7 +659,8 @@ class SpellSubstituteStringPalette(
                 "(e.g. -a /Bip01/Bip02) to apply spell")
             return False
         dummy, toaster.regex, toaster.sub = arg.split(arg[0])
-        toaster.regex = re.compile(toaster.regex)
+        toaster.sub = _as_bytes(toaster.sub)
+        toaster.regex = re.compile(_as_bytes(toaster.regex))
         return True    
 
     def substitute(self, old_string):
@@ -688,7 +690,8 @@ class SpellSubstituteTexturePath(
                 "(e.g. -a /architecture/city) to apply spell")
             return False
         dummy, toaster.regex, toaster.sub = arg.split(arg[0])
-        toaster.regex = re.compile(toaster.regex)
+        toaster.sub = _as_bytes(toaster.sub)
+        toaster.regex = re.compile(_as_bytes(toaster.regex))
         return True    
 
     def substitute(self, old_path):
