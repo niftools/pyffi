@@ -135,9 +135,11 @@ the file format class of the files it can toast.
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
+from copy import deepcopy
 from cStringIO import StringIO
 import gc
 import logging # Logger
+import multiprocessing # Pool
 import optparse
 import os
 import os.path
@@ -514,7 +516,7 @@ class SpellApplyPatch(Spell):
         :rtype: ``bool``
         """
         # get the patch command (if there is one)
-        patchcmd = self.toaster.options.get("patchcmd")
+        patchcmd = self.toaster.options["patchcmd"]
         if not patchcmd:
             raise ValueError("must specify a patch command")
         # first argument is always the stream, by convention
@@ -529,6 +531,14 @@ class SpellApplyPatch(Spell):
 
         # do not go further, spell is done
         return False
+
+def _toaster_multiprocessing(args):
+    """For multiprocessing. This function creates a new toaster, with the
+    given options and spells, and calls the toaster on filename.
+    """
+    toasterclass, filename, options, spellnames = args
+    toaster = toasterclass(options=options, spellnames=spellnames)
+    toaster.toast(filename)
 
 class Toaster(object):
     """Toaster base class. Toasters run spells on large quantities of files.
@@ -548,11 +558,24 @@ class Toaster(object):
     ALIASDICT = {}
     """Dictionary with aliases for spells."""
 
-    spellclasses = []
+    DEFAULT_OPTIONS = dict(
+        raisetesterror=False, verbose=1, pause=False,
+        exclude=[], include=[], examples=False,
+        spells=False,
+        interactive=True,
+        helpspell=False, dryrun=False, prefix="", arg="",
+        createpatch=False, applypatch=False, diffcmd="", patchcmd="",
+        series=False,
+        skip=[], only=[],
+        multiprocessing=False)
+
     """List of spell classes of the particular :class:`Toaster` instance."""
 
     options = {}
     """The options of the toaster, as ``dict``."""
+
+    spellnames = {}
+    """A list of the names of the spells."""
 
     indent = 0
     """An ``int`` which describes the current indentation level for messages."""
@@ -574,26 +597,92 @@ class Toaster(object):
     """Tuple of regular expressions corresponding to the skip key of
     :attr:`options`."""
 
-    def __init__(self, spellclass=None, options=None):
+    def __init__(self, spellclass=None, options=None, spellnames=None):
         """Initialize the toaster.
 
-        :param spellclass: The spell class.
-        :type spellclass: C{type(L{Spell})}
+        :param spellclass: Deprecated, use spellnames.
+        :type spellclass: :class:`Spell`
         :param options: The options (as keyword arguments).
         :type options: ``dict``
+        :param spellnames: List of names of spells.
+        :type spellnames: ``list`` of ``str``
         """
-        self.spellclass = spellclass
-        self.options = options if options else {}
+        self.options = deepcopy(self.DEFAULT_OPTIONS)
+        self.spellnames = spellnames
+        if options:
+            self.options.update(options)
         self.indent = 0
         self.logger = logging.getLogger("pyffi.toaster")
-        # get list of block types that are included and excluded
-        # these are used on branch checks
+        # update options and spell class
+        self._update_options()
+        if spellnames:
+            self._update_spellclass()
+        else:
+            # deprecated
+            self.spellclass = spellclass
+
+    def _update_options(self):
+        """Synchronize some fields with given options."""
+        # set verbosity level
+        if self.options["verbose"] <= 0:
+            logging.getLogger("pyffi").setLevel(logging.WARNING)
+        elif self.options["verbose"] == 1:
+            logging.getLogger("pyffi").setLevel(logging.INFO)
+        else:
+            logging.getLogger("pyffi").setLevel(logging.DEBUG)
+        # check errors
+        if self.options["createpatch"] and self.options["applypatch"]:
+            raise ValueError(
+                "options --diff and --patch are mutually exclusive")
+        if self.options["diffcmd"] and not(self.options["createpatch"]):
+            raise ValueError(
+                "option --diff-cmd can only be used with --diff")
+        if self.options["patchcmd"] and not(self.options["applypatch"]):
+            raise ValueError(
+                "option --patch-cmd can only be used with --patch")
+        # update include and exclude types
         self.include_types = tuple(
             getattr(self.FILEFORMAT, block_type)
-            for block_type in self.options.get("include", ()))
+            for block_type in self.options["include"])
         self.exclude_types = tuple(
             getattr(self.FILEFORMAT, block_type)
-            for block_type in self.options.get("exclude", ()))
+            for block_type in self.options["exclude"])
+        # update skip and only regular expressions
+        self.skip_regexs = tuple(
+            re.compile(regex) for regex in self.options["skip"])
+        self.only_regexs = tuple(
+            re.compile(regex) for regex in self.options["only"])
+
+    def _update_spellclass(self):
+        """Update spell class from given list of spell names."""
+        # get spell classes
+        spellclasses = []
+        for spellname in self.spellnames:
+            # convert old names
+            if spellname in self.ALIASDICT:
+                self.logger.warning(
+                    "The %s spell is deprecated and will be removed"
+                    " from a future release; use the %s spell as a"
+                    " replacement" % (spellname, self.ALIASDICT[spellname]))
+                spellname = self.ALIASDICT[spellname]
+            # find the spell
+            spellklasses = [spellclass for spellclass in self.SPELLS
+                            if spellclass.SPELLNAME == spellname]
+            if not spellklasses:
+                raise ValueError(
+                    "%s is not a known spell" % spellname)
+            if len(spellklasses) > 1:
+                raise ValueError(
+                    "multiple spells are called %s (BUG?)" % spellname)
+            spellclasses.extend(spellklasses)
+        # create group of spells
+        if len(spellclasses) > 1:
+            if self.options["series"]:
+                self.spellclass = SpellGroupSeries(*spellclasses)
+            else:
+                self.spellclass = SpellGroupParallel(*spellclasses)
+        else:
+            self.spellclass = spellclasses[0]
 
     def msg(self, message):
         """Write log message with :meth:`logger.info`, taking into account
@@ -798,14 +887,11 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
                           " 'ored' together; if not specified, all files"
                           " are toasted by default, except those listed"
                           " with --skip")
-        parser.set_defaults(raisetesterror=False, verbose=1, pause=False,
-                            exclude=[], include=[], examples=False,
-                            spells=False,
-                            interactive=True,
-                            helpspell=False, dryrun=False, prefix="", arg="",
-                            createpatch=False, applypatch=False, diffcmd="",
-                            series=False,
-                            skip=[], only=[])
+        parser.add_option(
+            "--multiprocessing", dest="multiprocessing",
+            action="store_true",
+            help="enable multiprocessing")
+        parser.set_defaults(**deepcopy(self.DEFAULT_OPTIONS))
         (options, args) = parser.parse_args()
 
         # convert options to dictionary
@@ -815,35 +901,8 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
             if not optionname in dir(optparse.Values):
                 self.options[optionname] = getattr(options, optionname)
 
-        # set verbosity level
-        if self.options["verbose"] <= 0:
-            logging.getLogger("pyffi").setLevel(logging.WARNING)
-        elif self.options["verbose"] == 1:
-            logging.getLogger("pyffi").setLevel(logging.INFO)
-        else:
-            logging.getLogger("pyffi").setLevel(logging.DEBUG)
-
-        # update include and exclude types
-        self.include_types = tuple(
-            getattr(self.FILEFORMAT, block_type)
-            for block_type in self.options.get("include", ()))
-        self.exclude_types = tuple(
-            getattr(self.FILEFORMAT, block_type)
-            for block_type in self.options.get("exclude", ()))
-
-        # update skip and only regular expressions
-        self.skip_regexs = tuple(
-            re.compile(regex) for regex in self.options.get("skip", ()))
-        self.only_regexs = tuple(
-            re.compile(regex) for regex in self.options.get("only", ()))
-
-        # check errors
-        if options.createpatch and options.applypatch:
-            parser.error("options --diff and --patch are mutually exclusive")
-        if options.diffcmd and not(options.createpatch):
-            parser.error("option --diff-cmd can only be used with --diff")
-        if options.patchcmd and not(options.applypatch):
-            parser.error("option --patch-cmd can only be used with --patch")
+        # update options
+        self._update_options()
 
         # check if we had examples and/or spells: quit
         if options.spells:
@@ -868,33 +927,12 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
             # get spell names
             if options.helpspell:
                 # special case: --spell-help would not have a path specified
-                spellnames = args[:]
+                self.spellnames = args[:]
             else:
-                spellnames = args[:-1]
-            # get spell classes
-            spellclasses = []
-            for spellname in spellnames:
-                # convert old names
-                if spellname in self.ALIASDICT:
-                    self.logger.warning("The %s spell is deprecated and will be removed from a future release; use the %s spell as a replacement" % (spellname, self.ALIASDICT[spellname]))
-                    spellname = self.ALIASDICT[spellname]
-                # find the spell
-                spellklasses = [spellclass for spellclass in self.SPELLS
-                                if spellclass.SPELLNAME == spellname]
-                if not spellklasses:
-                    parser.error("%s is not a known spell" % spellname)
-                if len(spellklasses) > 1:
-                    parser.error("multiple spells are called %s (BUG?)"
-                                 % spellname)
-                spellclasses.extend(spellklasses)
-            # create group of spells
-            if len(spellclasses) > 1:
-                if options.series:
-                    self.spellclass = SpellGroupSeries(*spellclasses)
-                else:
-                    self.spellclass = SpellGroupParallel(*spellclasses)
-            else:
-                self.spellclass = spellclasses[0]
+                self.spellnames = args[:-1]
+
+            # update the spell class
+            self._update_spellclass()
 
             if options.helpspell:
                 # TODO: format the docstring
@@ -969,6 +1007,7 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
         prefix = self.options.get("prefix", "")
         createpatch = self.options.get("createpatch", False)
         applypatch = self.options.get("applypatch", False)
+        enable_multiprocessing = self.options.get("multiprocessing", False)
 
         # warning
         if ((not self.spellclass.READONLY) and (not dryrun)
@@ -987,13 +1026,28 @@ may destroy them. Make a backup of your files before running this script.
 
         # walk over all streams, and create a data instance for each of them
         # inspect the file but do not yet read in full
-        for stream in self.FILEFORMAT.walk(
-            top, mode='rb' if self.spellclass.READONLY else 'r+b'):
-            pass # to set a breakpoint
-            self._toast(stream)
-            # force free memory (helps when parsing many very large files)
-            gc.collect()
-            pass # to set a breakpoint
+        if not enable_multiprocessing:
+            for stream in self.FILEFORMAT.walk(
+                top, mode='rb' if self.spellclass.READONLY else 'r+b'):
+                pass # to set a breakpoint
+                self._toast(stream)
+                # force free memory (helps when parsing many very large files)
+                gc.collect()
+                pass # to set a breakpoint
+        else:
+            pool_options = deepcopy(self.options)
+            pool_options["multiprocessing"] = False
+            self.msg("toasting with %i threads" % multiprocessing.cpu_count())
+            pool = multiprocessing.Pool()
+            result = pool.map_async(
+                _toaster_multiprocessing,
+                ((self.__class__, filename, pool_options, self.spellnames)
+                 for filename in pyffi.utils.walk(
+                     top, onerror=None,
+                     re_filename=self.FILEFORMAT.RE_FILENAME)))
+            # specify timeout, so CTRL-C works
+            # 99999999 is about 3 years, should be long enough... :-)
+            result.get(timeout=99999999)
 
         # toast exit code
         self.spellclass.toastexit(self)
@@ -1136,3 +1190,4 @@ may destroy them. Make a backup of your files before running this script.
         subprocess.call([diffcmd, oldfilename, newfilename, patchfilename])
         # delete temporary file
         os.remove(newfilename)
+        

@@ -65,6 +65,7 @@ Options:
 			multiple times, the expressions are 'ored' together;
 			if not specified, all files are toasted by default,
 			except those listed with --skip
+  --multiprocessing     enable multiprocessing
 
 The --examples switch
 ---------------------

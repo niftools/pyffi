@@ -2,9 +2,6 @@
 
 .. todo::
 
-   - Add multithreading support to toaster (branching a separate
-     Python process for each file to save memory).
-
    - Write dedicated utilities to optimize particular games (start
      with Oblivion, maybe eventually also do Fallout 3, Morrowind,
      etc.).
