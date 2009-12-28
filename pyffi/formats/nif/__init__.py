@@ -1614,7 +1614,7 @@ class NifFormat(FileFormat):
                 # NiDataStreams are special
                 if data_block_type.startswith("NiDataStream\x01"):
                     data_block_type = "NiDataStream"
-                if issubclass(getattr(NifFormat, data_block_type.decode()), block_type):
+                if issubclass(getattr(NifFormat, data_block_type), block_type):
                     return True
             # requested block type is not in nif
             return False
