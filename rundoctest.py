@@ -6,7 +6,6 @@ import unittest
 import pyffi
 import pyffi.object_models.common
 import pyffi.object_models
-import pyffi.object_models.xsd
 import pyffi.object_models.xml
 import pyffi.object_models.mex
 import pyffi.object_models.any_type
@@ -30,7 +29,6 @@ import pyffi.formats.cgf
 import pyffi.formats.kfm
 import pyffi.formats.dds
 import pyffi.formats.tga
-import pyffi.formats.dae
 import pyffi.formats.egm
 import pyffi.formats.tri
 import pyffi.spells
@@ -38,6 +36,10 @@ import pyffi.spells.nif
 import pyffi.spells.nif.fix
 import pyffi.spells.nif.modify
 import pyffi.spells.nif.check
+# these two do not yet work on py3k
+if sys.version_info[0] < 3:
+    import pyffi.object_models.xsd
+    import pyffi.formats.dae
 
 mods = [val for (key, val) in sys.modules.iteritems()
         if key.startswith('pyffi')]
