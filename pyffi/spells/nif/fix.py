@@ -214,7 +214,14 @@ class SpellFixTexturePath(NifSpell):
 
     SPELLNAME = "fix_texturepath"
     READONLY = False
-
+	
+    def substitute(self, old_path):
+        """Helper function to allow subclasses of this spell to
+        change part of the path with minimum of code.
+        This implementation returns path unmodified.
+        """
+        return old_path
+		
     def datainspect(self):
         # only run the spell if there are NiSourceTexture blocks
         return self.inspectblocktype(NifFormat.NiSourceTexture)
@@ -228,6 +235,7 @@ class SpellFixTexturePath(NifSpell):
     
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiSourceTexture):
+            branch.file_name = self.substitute(branch.file_name)
             if (('\n'.encode("ascii") in branch.file_name)
                 or ('\r'.encode("ascii") in branch.file_name)
                 or ('/'.encode("ascii") in branch.file_name)):

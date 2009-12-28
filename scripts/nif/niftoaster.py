@@ -112,6 +112,7 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         pyffi.spells.nif.modify.SpellAddStencilProperty,
         pyffi.spells.nif.modify.SpellMakeFleshlessNif,
         pyffi.spells.nif.modify.SpellSubstituteStringPalette,
+        pyffi.spells.nif.modify.SpellSubstituteTexturePath
         ]
     ALIASDICT = {
         "texdump": "dump_tex",
