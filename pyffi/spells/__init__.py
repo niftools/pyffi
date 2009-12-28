@@ -1037,6 +1037,7 @@ may destroy them. Make a backup of your files before running this script.
         else:
             pool_options = deepcopy(self.options)
             pool_options["multiprocessing"] = False
+            pool_options["interactive"] = False
             self.msg("toasting with %i threads" % multiprocessing.cpu_count())
             pool = multiprocessing.Pool()
             result = pool.map_async(
