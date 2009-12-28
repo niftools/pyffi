@@ -9,7 +9,7 @@ the Targa format::
 
     >>> # read the file
     >>> stream = open("tests/tga/test.tga", "rb")
-    >>> data = [ord(c) for c in stream.read()] # read bytes
+    >>> data = bytearray(stream.read()) # read bytes
     >>> stream.close()
     >>> # do something with the data...
     >>> data[8] = 20 # change x origin
@@ -18,7 +18,7 @@ the Targa format::
     >>> # write the file
     >>> from tempfile import TemporaryFile
     >>> stream = TemporaryFile()
-    >>> stream.write(''.join(chr(x) for x in data))
+    >>> dummy = stream.write(data) # py3k returns number of bytes written
     >>> stream.close()
 
 This methodology will work for any file format, but it is usually not
