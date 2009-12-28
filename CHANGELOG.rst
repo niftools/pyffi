@@ -26,7 +26,7 @@ Release 2.0.6 (in development)
 
 * New --skip and --only toaster options to toast files by regular expression.
 
-* New --multiprocessing toaster option which enables multithreaded toasting.
+* New --jobs toaster option which enables multithreaded toasting.
 
 * The niftoaster opt_geometry spell now always skips nif files when a
   similarly named tri or egm file is found.

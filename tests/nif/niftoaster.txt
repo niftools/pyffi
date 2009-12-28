@@ -24,21 +24,20 @@ Options:
   --examples            show examples of usage and exit
   --spells              list all spells and exit
   -a ARG, --arg=ARG     pass argument ARG to each spell
-  -x EXCLUDE, --exclude=EXCLUDE
-                        exclude block type EXCLUDE from spell; exclude
+  -x BLOCK, --exclude=BLOCK
+                        exclude block type BLOCK from spell; exclude multiple
+                        block types by specifying this option more than once
+  -i BLOCK, --include=BLOCK
+                        include only block type BLOCK in spell; if this option
+                        is not specified, then all block types are included
+                        except those specified under --exclude; include
                         multiple block types by specifying this option more
                         than once
-  -i INCLUDE, --include=INCLUDE
-                        include only block type INCLUDE in spell; if this
-                        option is not specified, then all block types are
-                        included except those specified under --exclude;
-                        include multiple block types by specifying this option
-                        more than once
   -r, --raise           raise exception on errors during the spell; useful for
                         debugging spells
   --noninteractive      run a non-interactive session (overwrites files
                         without warning)
-  -v VERBOSE, --verbose=VERBOSE
+  -v LEVEL, --verbose=LEVEL
                         verbosity level: 0, 1, or 2 [default: 1]
   -p, --pause           pause when done
   --dry-run             for spells that modify files, save the modification to
@@ -48,24 +47,24 @@ Options:
                         name
   --diff                instead of writing back the file, write a binary patch
   --patch               apply all binary patches
-  --diff-cmd=DIFFCMD    use ARG as diff command; this command must accept
+  --diff-cmd=CMD        use CMD as diff command; this command must accept
                         precisely 3 arguments, oldfile, newfile, and
                         patchfile.
-  --patch-cmd=PATCHCMD  use ARG as patch command; this command must accept
+  --patch-cmd=CMD       use CMD as patch command; this command must accept
                         precisely 3 arguments, oldfile, newfile, and
                         patchfile.
   --series              run spells in series rather than in parallel
-  --skip=SKIP           skip all files whose names match the regular
-			expression SKIP (takes precedence over --only); if
+  --skip=REGEX          skip all files whose names match the regular
+			expression REGEX (takes precedence over --only); if
 			specified multiple times, the expressions are 'ored'
 			together
-  --only=ONLY           only toast files whose names (i) match the regular
-			expression ONLY, and (ii) do not match any regular
+  --only=REGEX          only toast files whose names (i) match the regular
+			expression REGEX, and (ii) do not match any regular
 			expression specified with --skip; if specified
 			multiple times, the expressions are 'ored' together;
 			if not specified, all files are toasted by default,
 			except those listed with --skip
-  --multiprocessing     enable multiprocessing
+  -j N, --jobs=N        allow N jobs at once [default: 1]
 
 The --examples switch
 ---------------------

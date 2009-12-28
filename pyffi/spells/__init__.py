@@ -536,7 +536,7 @@ class SpellApplyPatch(Spell):
         # do not go further, spell is done
         return False
 
-def _toaster_multiprocessing(args):
+def _toaster_job(args):
     """For multiprocessing. This function creates a new toaster, with the
     given options and spells, and calls the toaster on filename.
     """
@@ -571,7 +571,7 @@ class Toaster(object):
         createpatch=False, applypatch=False, diffcmd="", patchcmd="",
         series=False,
         skip=[], only=[],
-        multiprocessing=False)
+        jobs=1)
 
     """List of spell classes of the particular :class:`Toaster` instance."""
 
@@ -644,10 +644,10 @@ class Toaster(object):
         if self.options["patchcmd"] and not(self.options["applypatch"]):
             raise ValueError(
                 "option --patch-cmd can only be used with --patch")
-        if (multiprocessing is None) and self.options["multiprocessing"]:
+        if (multiprocessing is None) and self.options["jobs"] > 1:
             self.logger.warn(
                 "multiprocessing not supported on this platform")
-            self.options["multiprocessing"] = False
+            self.options["jobs"] = 1
         # update include and exclude types
         self.include_types = tuple(
             getattr(self.FILEFORMAT, block_type)
@@ -820,14 +820,14 @@ class Toaster(object):
         parser.add_option("-x", "--exclude", dest="exclude",
                           type="string",
                           action="append",
-                          metavar="EXCLUDE",
-                          help="exclude block type EXCLUDE from spell; \
+                          metavar="BLOCK",
+                          help="exclude block type BLOCK from spell; \
 exclude multiple block types by specifying this option more than once")
         parser.add_option("-i", "--include", dest="include",
                           type="string",
                           action="append",
-                          metavar="INCLUDE",
-                          help="include only block type INCLUDE in spell; \
+                          metavar="BLOCK",
+                          help="include only block type BLOCK in spell; \
 if this option is not specified, then all block types are included except \
 those specified under --exclude; \
 include multiple block types by specifying this option more than once")
@@ -841,7 +841,7 @@ useful for debugging spells")
 files without warning)")
         parser.add_option("-v", "--verbose", dest="verbose",
                           type="int",
-                          metavar="VERBOSE",
+                          metavar="LEVEL",
                           help="verbosity level: 0, 1, or 2 [default: %default]")
         parser.add_option("-p", "--pause", dest="pause",
                           action="store_true",
@@ -865,11 +865,13 @@ binary patch""")
                           help="""apply all binary patches""")
         parser.add_option("--diff-cmd", dest="diffcmd",
                           type="string",
-                          help="""use ARG as diff command; this command must \
+                          metavar="CMD",
+                          help="""use CMD as diff command; this command must \
 accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
         parser.add_option("--patch-cmd", dest="patchcmd",
                           type="string",
-                          help="""use ARG as patch command; this command must \
+                          metavar="CMD",
+                          help="""use CMD as patch command; this command must \
 accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
         parser.add_option("--series", dest="series",
                           action="store_true",
@@ -877,28 +879,29 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
         parser.add_option("--skip", dest="skip",
                           type="string",
                           action="append",
-                          metavar="SKIP",
+                          metavar="REGEX",
                           help=
                           "skip all files whose names match the regular"
-                          " expression SKIP (takes precedence over --only);"
+                          " expression REGEX (takes precedence over --only);"
                           " if specified multiple times, the expressions are"
                           " 'ored' together")
         parser.add_option("--only", dest="only",
                           type="string",
                           action="append",
-                          metavar="ONLY",
+                          metavar="REGEX",
                           help=
                           "only toast files whose names (i) match the"
-                          " regular expression ONLY, and (ii) do not match"
+                          " regular expression REGEX, and (ii) do not match"
                           " any regular expression specified with --skip;"
                           " if specified multiple times, the expressions are"
                           " 'ored' together; if not specified, all files"
                           " are toasted by default, except those listed"
                           " with --skip")
         parser.add_option(
-            "--multiprocessing", dest="multiprocessing",
-            action="store_true",
-            help="enable multiprocessing")
+            "-j", "--jobs", dest="jobs",
+            type="int",
+            metavar="N",
+            help="allow N jobs at once [default: %default]")
         parser.set_defaults(**deepcopy(self.DEFAULT_OPTIONS))
         (options, args) = parser.parse_args()
 
@@ -1015,7 +1018,7 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
         prefix = self.options.get("prefix", "")
         createpatch = self.options.get("createpatch", False)
         applypatch = self.options.get("applypatch", False)
-        enable_multiprocessing = self.options.get("multiprocessing", False)
+        jobs = self.options.get("jobs", 1)
 
         # warning
         if ((not self.spellclass.READONLY) and (not dryrun)
@@ -1034,7 +1037,7 @@ may destroy them. Make a backup of your files before running this script.
 
         # walk over all streams, and create a data instance for each of them
         # inspect the file but do not yet read in full
-        if not enable_multiprocessing:
+        if jobs == 1:
             for stream in self.FILEFORMAT.walk(
                 top, mode='rb' if self.spellclass.READONLY else 'r+b'):
                 pass # to set a breakpoint
@@ -1044,12 +1047,12 @@ may destroy them. Make a backup of your files before running this script.
                 pass # to set a breakpoint
         else:
             pool_options = deepcopy(self.options)
-            pool_options["multiprocessing"] = False
+            pool_options["jobs"] = 1
             pool_options["interactive"] = False
-            self.msg("toasting with %i threads" % multiprocessing.cpu_count())
-            pool = multiprocessing.Pool()
+            self.msg("toasting with %i threads" % jobs)
+            pool = multiprocessing.Pool(processes=jobs)
             result = pool.map_async(
-                _toaster_multiprocessing,
+                _toaster_job,
                 ((self.__class__, filename, pool_options, self.spellnames)
                  for filename in pyffi.utils.walk(
                      top, onerror=None,
@@ -1057,6 +1060,7 @@ may destroy them. Make a backup of your files before running this script.
             # specify timeout, so CTRL-C works
             # 99999999 is about 3 years, should be long enough... :-)
             result.get(timeout=99999999)
+                
 
         # toast exit code
         self.spellclass.toastexit(self)
