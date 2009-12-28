@@ -1,6 +1,25 @@
 .. todolist::
 
 .. todo::
+
+   - Add option to toaster to skip files that match a regular
+     expression.
+
+   - Add option to toaster to toast only those files that match a
+     regular expression.
+
+   - Add multithreading support to toaster (branching a separate
+     Python process for each file to save memory).
+
+   - Optimize spell should skip nifs if there is also an egm or tri
+     file. (In the long term, also optimize these egm and tri files
+     along with the nif.)
+
+   - Write dedicated utilities to optimize particular games (start
+     with Oblivion, maybe eventually also do Fallout 3, Morrowind,
+     etc.).
+
+.. todo::
    
    Aion caf format (MtlNameChunk header?).
 
