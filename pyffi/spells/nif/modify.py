@@ -55,7 +55,7 @@ import os
 import re # for modify_substitutestringpalette and modify_substitutetexturepath
 
 class SpellTexturePath(
-    pyffi.spells.nif.fix.SpellFixTexturePath):
+    pyffi.spells.nif.fix.SpellParseTexturePath):
     """Changes the texture path while keeping the texture names."""
 
     SPELLNAME = "modify_texturepath"

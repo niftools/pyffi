@@ -206,22 +206,21 @@ class SpellFFVT3RSkinPartition(NifSpell):
             # recurse further
             return True
 
-class SpellFixTexturePath(NifSpell):
-    """Fix the texture path. Transforms 0x0a into \\n and 0x0d into \\r.
-    This fixes a bug in nifs saved with older versions of nifskope.
-    Also transforms / into \\. This fixes problems when packing files into
-    a bsa archive."""
+class SpellParseTexturePath(NifSpell):
+    """Base class for spells which must parse all texture paths, with
+    hook for texture path substitution.
+    """
 
-    SPELLNAME = "fix_texturepath"
+    # abstract spell, so no spell name
     READONLY = False
-	
+
     def substitute(self, old_path):
         """Helper function to allow subclasses of this spell to
         change part of the path with minimum of code.
         This implementation returns path unmodified.
         """
         return old_path
-		
+
     def datainspect(self):
         # only run the spell if there are NiSourceTexture blocks
         return self.inspectblocktype(NifFormat.NiSourceTexture)
@@ -236,22 +235,33 @@ class SpellFixTexturePath(NifSpell):
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiSourceTexture):
             branch.file_name = self.substitute(branch.file_name)
-            if (('\n'.encode("ascii") in branch.file_name)
-                or ('\r'.encode("ascii") in branch.file_name)
-                or ('/'.encode("ascii") in branch.file_name)):
-                branch.file_name = branch.file_name.replace(
-                    '\n'.encode("ascii"),
-                    '\\n'.encode("ascii"))
-                branch.file_name = branch.file_name.replace(
-                    '\r'.encode("ascii"),
-                    '\\r'.encode("ascii"))
-                branch.file_name = branch.file_name.replace(
-                    '/'.encode("ascii"),
-                    '\\'.encode("ascii"))
-                self.toaster.msg("fixed file name '%s'" % branch.file_name)
             return False
         else:
             return True
+
+class SpellFixTexturePath(SpellParseTexturePath):
+    """Fix the texture path. Transforms 0x0a into \\n and 0x0d into \\r.
+    This fixes a bug in nifs saved with older versions of nifskope.
+    Also transforms / into \\. This fixes problems when packing files into
+    a bsa archive.
+    """
+
+    SPELLNAME = "fix_texturepath"
+	
+    def substitute(self, old_path):
+        new_path = old_path
+        new_path = new_path.replace(
+            '\n'.encode("ascii"),
+            '\\n'.encode("ascii"))
+        new_path = new_path.replace(
+            '\r'.encode("ascii"),
+            '\\r'.encode("ascii"))
+        new_path = new_path.replace(
+            '/'.encode("ascii"),
+            '\\'.encode("ascii"))
+        if new_path != old_path:
+            self.toaster.msg("fixed file name '%s'" % new_path)
+        return new_path
 
 # the next spell solves issue #2065018, MiddleWolfRug01.NIF
 class SpellDetachHavokTriStripsData(NifSpell):
