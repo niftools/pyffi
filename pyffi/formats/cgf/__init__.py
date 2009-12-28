@@ -955,7 +955,7 @@ chunk size mismatch when reading %s at 0x%08X
                 # write padding bytes to align blocks
                 padlen = (4 - stream.tell() & 3) & 3
                 if padlen:
-                    stream.write( "\x00" * padlen )
+                    stream.write("\x00".encode("ascii") * padlen)
                     total_padding += padlen
 
             # write/update chunk table
