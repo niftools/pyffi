@@ -40,6 +40,7 @@
 # --------------------------------------------------------------------------
 
 from itertools import izip
+import os.path # exists
 
 from pyffi.formats.nif import NifFormat
 import pyffi.utils.tristrip
@@ -190,6 +191,11 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
         self.optimized = []
 
     def datainspect(self):
+        # do not optimize if an egm or tri file is detected
+        filename = self.stream.name
+        if (os.path.exists(filename[:-3] + "egm")
+            or os.path.exists(filename[:-3] + "tri")):
+            return False
         # so far, only reference lists in NiObjectNET blocks, NiAVObject
         # blocks, and NiNode blocks are checked
         return self.inspectblocktype(NifFormat.NiTriBasedGeom)

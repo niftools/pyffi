@@ -91,3 +91,21 @@ pyffi.toaster:INFO:Finished.
 >>> import os
 >>> os.remove("tests/nif/_test.nif")
 
+Egm and tri files
+-----------------
+
+>>> import sys
+>>> import os
+>>> sys.path.append("scripts/nif")
+>>> import niftoaster
+>>> sys.argv = ["niftoaster.py", "opt_geometry", "--noninteractive", "--dry-run", "tests/nif/test_opt_dupverts.nif"]
+>>> open("tests/nif/test_opt_dupverts.egm", "w").close()
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+pyffi.toaster:INFO:=== tests/nif/test_opt_dupverts.nif ===
+pyffi.toaster:INFO:Finished.
+>>> os.remove("tests/nif/test_opt_dupverts.egm")
+>>> open("tests/nif/test_opt_dupverts.tri", "w").close()
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+pyffi.toaster:INFO:=== tests/nif/test_opt_dupverts.nif ===
+pyffi.toaster:INFO:Finished.
+>>> os.remove("tests/nif/test_opt_dupverts.tri")
