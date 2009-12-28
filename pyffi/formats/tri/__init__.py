@@ -34,7 +34,7 @@ Read a TRI file
 >>> data.num_morphs
 18
 >>> data.read(stream) # doctest: +ELLIPSIS
->>> print([morph.name.decode("ascii") for morph in data.morphs])
+>>> print([str(morph.name.decode("ascii")) for morph in data.morphs])
 ['Fear', 'Surprise', 'Aah', 'BigAah', 'BMP', 'ChJSh', 'DST', 'Eee', 'Eh', \
 'FV', 'I', 'K', 'N', 'Oh', 'OohQ', 'R', 'Th', 'W']
 
