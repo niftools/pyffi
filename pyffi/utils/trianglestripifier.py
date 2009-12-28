@@ -430,6 +430,43 @@ class TriangleStripifier(object):
         self.num_samples = 10
         self.mesh = mesh
 
+    @staticmethod
+    def sample(population, k):
+        """Return a k length list of unique elements chosen from the
+        population sequence. Used for random sampling without
+        replacement. Deterministic version of random.sample (being
+        deterministic means that it is easier to test).
+
+        >>> TriangleStripifier.sample(range(10), 1)
+        [0]
+        >>> TriangleStripifier.sample(range(10), 2)
+        [0, 9]
+        >>> TriangleStripifier.sample(range(10), 3)
+        [0, 4, 9]
+        >>> TriangleStripifier.sample(range(10), 4)
+        [0, 3, 6, 9]
+        >>> TriangleStripifier.sample(range(10), 5)
+        [0, 2, 4, 6, 9]
+        >>> TriangleStripifier.sample(range(10), 6)
+        [0, 1, 3, 5, 7, 9]
+        >>> TriangleStripifier.sample(range(10), 7)
+        [0, 1, 3, 4, 6, 7, 9]
+        >>> TriangleStripifier.sample(range(10), 8)
+        [0, 1, 2, 3, 5, 6, 7, 9]
+        >>> TriangleStripifier.sample(range(10), 9)
+        [0, 1, 2, 3, 4, 5, 6, 7, 9]
+        >>> TriangleStripifier.sample(range(10), 10)
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        """
+        if k == 1:
+            # corner case
+            return [population[0]]
+        else:
+            # all other cases
+            return [
+                population[int((i * (float(len(population)) - 1)) / (k - 1))]
+                for i in xrange(k)]
+
     def find_all_strips(self):
         """Find all strips.
 
@@ -475,9 +512,12 @@ class TriangleStripifier(object):
         unstripped_faces = set(xrange(len(self.mesh.faces)))
         while True:
             experiments = []
-            for sample in random.sample(list(unstripped_faces),
-                                        min(self.num_samples,
-                                            len(unstripped_faces))):
+            # note: using deterministic self.sample
+            # instead of existing random.sample in python
+            # because deterministic version is easier to test
+            for sample in self.sample(list(unstripped_faces),
+                                      min(self.num_samples,
+                                          len(unstripped_faces))):
                 exp_face = self.mesh.faces[sample]
                 for exp_vertex in exp_face.verts:
                     experiments.append(
