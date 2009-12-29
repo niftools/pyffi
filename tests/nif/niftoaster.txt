@@ -294,7 +294,7 @@ The --skip and --only switches
 >>> import sys
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
->>> sys.argv = "niftoaster.py --skip .*texture.* --skip .*skin.* --only .*fix.* --only .*center.* check_read tests/nif/".split()
+>>> sys.argv = "niftoaster.py --skip texture --skip skin --only fix --only center check_read tests/nif/".split()
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
 pyffi.toaster:INFO:=== tests/nif/invalid.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test.nif (skipped) ===
