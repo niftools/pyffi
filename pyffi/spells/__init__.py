@@ -567,7 +567,7 @@ class Toaster(object):
         exclude=[], include=[], examples=False,
         spells=False,
         interactive=True,
-        helpspell=False, dryrun=False, prefix="", arg="",
+        helpspell=False, dryrun=False, prefix="", suffix="", arg="",
         createpatch=False, applypatch=False, diffcmd="", patchcmd="",
         series=False,
         skip=[], only=[],
@@ -856,6 +856,12 @@ original file; useful for debugging spells")
                           metavar="PREFIX",
                           help="for spells that modify files, \
 prepend PREFIX to file name")
+        parser.add_option("--suffix", dest="suffix",
+                          type="string",
+                          metavar="SUFFIX",
+                          help="for spells that modify files, \
+append SUFFIX to file name")
+
         parser.add_option("--diff", dest="createpatch",
                           action="store_true",
                           help="""instead of writing back the file, write a \
@@ -1016,6 +1022,7 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
 
         dryrun = self.options.get("dryrun", False)
         prefix = self.options.get("prefix", "")
+        suffix = self.options.get("suffix", "")
         createpatch = self.options.get("createpatch", False)
         applypatch = self.options.get("applypatch", False)
         jobs = self.options.get("jobs", 1)
@@ -1023,7 +1030,7 @@ accept precisely 3 arguments, oldfile, newfile, and patchfile.""")
         # warning
         if ((not self.spellclass.READONLY) and (not dryrun)
             and (not prefix) and (not createpatch)
-            and interactive):
+            and interactive and (not suffix)):
             print("""\
 This script will modify your files, in particular if something goes wrong it
 may destroy them. Make a backup of your files before running this script.
@@ -1076,6 +1083,7 @@ may destroy them. Make a backup of your files before running this script.
 
         dryrun = self.options.get("dryrun", False)
         prefix = self.options.get("prefix", "")
+        suffix = self.options.get("suffix", "")
         createpatch = self.options.get("createpatch", False)
         applypatch = self.options.get("applypatch", False)
         raisetesterror = self.options.get("raisetesterror", True)
@@ -1105,6 +1113,8 @@ may destroy them. Make a backup of your files before running this script.
                             self.writepatch(stream, data)
                         elif prefix:
                             self.writeprefix(stream, data)
+                        elif suffix:
+                            self.writesuffix(stream, data)
                         else:
                             self.writeover(stream, data)
                     else:
@@ -1141,12 +1151,30 @@ may destroy them. Make a backup of your files before running this script.
             outstream.close()
 
     def writeprefix(self, stream, data):
-        """Writes the data to a file, appending a prefix to the original file
+        """Writes the data to a file, prepending a prefix to the original file
         name.
         """
         # first argument is always the stream, by convention
         head, tail = os.path.split(stream.name)
         outstream = open(os.path.join(head, self.options["prefix"] + tail),
+                         "wb")
+        try:
+            self.msg("writing %s" % outstream.name)
+            try:
+                data.write(outstream)
+            except Exception:
+                self.msg("write failed!!!")
+                raise
+        finally:
+            outstream.close()
+
+    def writesuffix(self, stream, data):
+        """Writes the data to a file, appending a suffix to the original file
+        name.
+        """
+        # first argument is always the stream, by convention
+        root, ext = os.path.splitext(stream.name)
+        outstream = open(root + self.options["suffix"] + ext,
                          "wb")
         try:
             self.msg("writing %s" % outstream.name)
