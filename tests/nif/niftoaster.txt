@@ -48,8 +48,8 @@ Options:
                         precisely 3 arguments: 'CMD oldfile newfile
                         patchfile'.
   -p, --pause           pause when done
-  --prefix=PREFIX       prepend PREFIX when saving modification instead of
-                        overwriting the original
+  --prefix=PREFIX       prepend PREFIX to file name when saving modification
+                        instead of overwriting the original
   -r, --raise           raise exception on errors during the spell (for
                         debugging)
   --refresh=REFRESH     start new process pool every JOBS * REFRESH files if
@@ -61,6 +61,8 @@ Options:
                         expression REGEX (takes precedence over --only); if
                         specified multiple times, the expressions are 'ored'
   --spells              list all spells and exit
+  --suffix=SUFFIX       append SUFFIX to file name when saving modification
+                        instead of overwriting the original
   -v LEVEL, --verbose=LEVEL
                         verbosity level: 0, 1, or 2 [default: 1]
   -x BLOCK, --exclude=BLOCK

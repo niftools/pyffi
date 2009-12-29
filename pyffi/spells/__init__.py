@@ -887,7 +887,7 @@ class Toaster(object):
             type="string",
             metavar="PREFIX",
             help=
-            "prepend PREFIX when saving modification"
+            "prepend PREFIX to file name when saving modification"
             " instead of overwriting the original")
         parser.add_option(
             "-r", "--raise", dest="raisetesterror",
@@ -919,11 +919,12 @@ class Toaster(object):
             "--spells", dest="spells",
             action="store_true",
             help="list all spells and exit")
-        parser.add_option("--suffix", dest="suffix",
-                          type="string",
-                          metavar="SUFFIX",
-                          help="for spells that modify files, \
-append SUFFIX to file name")
+        parser.add_option(
+            "--suffix", dest="suffix",
+            type="string",
+            metavar="SUFFIX",
+            help="append SUFFIX to file name when saving modification"
+            " instead of overwriting the original")
         parser.add_option(
             "-v", "--verbose", dest="verbose",
             type="int",
