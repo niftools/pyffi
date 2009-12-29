@@ -864,8 +864,8 @@ class Toaster(object):
             metavar="REGEX",
             help=
             "only toast files whose names"
-            " (i) match the regular expression REGEX, and"
-            " (ii) do not match any regular expression specified with --skip;"
+            " (i) contain the regular expression REGEX, and"
+            " (ii) do not contain any regular expression specified with --skip;"
             " if specified multiple times, the expressions are 'ored'")
         parser.add_option(
             "--patch", dest="applypatch",
@@ -912,7 +912,7 @@ class Toaster(object):
             action="append",
             metavar="REGEX",
             help=
-            "skip all files whose names match the regular expression REGEX"
+            "skip all files whose names contain the regular expression REGEX"
             " (takes precedence over --only);"
             " if specified multiple times, the expressions are 'ored'")
         parser.add_option(
@@ -998,17 +998,17 @@ class Toaster(object):
         """Returns whether to toast a filename or not, based on
         skip_regexs and only_regexs.
         """
-        if any(regex.match(filename) for regex in self.skip_regexs):
-            # matches some --skip regex, so do not toast
+        if any(regex.search(filename) for regex in self.skip_regexs):
+            # found some --skip regex, so do not toast
             return False
         if not self.only_regexs:
-            # --only not specified: then by default we match all files
+            # --only not specified: then by default take all files
             return True
-        if any(regex.match(filename) for regex in self.only_regexs):
-            # matches at least one --only regex, so toast
+        if any(regex.search(filename) for regex in self.only_regexs):
+            # found at least one --only regex, so toast
             return True
         else:
-            # no --only matches, so do not toast
+            # no --only found, so do not toast
             return False
 
     def toast(self, top):

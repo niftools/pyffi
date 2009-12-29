@@ -39,8 +39,8 @@ Options:
   -j JOBS, --jobs=JOBS  allow JOBS jobs at once [default: 1]
   --noninteractive      non-interactive session (overwrites files without
                         warning)
-  --only=REGEX          only toast files whose names (i) match the regular
-                        expression REGEX, and (ii) do not match any regular
+  --only=REGEX          only toast files whose names (i) contain the regular
+                        expression REGEX, and (ii) do not contain any regular
                         expression specified with --skip; if specified
                         multiple times, the expressions are 'ored'
   --patch               apply all binary patches
@@ -57,7 +57,7 @@ Options:
                         files, this prevents leaking memory on some operating
                         systems) [default: 32]
   --series              run spells in series rather than in parallel
-  --skip=REGEX          skip all files whose names match the regular
+  --skip=REGEX          skip all files whose names contain the regular
                         expression REGEX (takes precedence over --only); if
                         specified multiple times, the expressions are 'ored'
   --spells              list all spells and exit
