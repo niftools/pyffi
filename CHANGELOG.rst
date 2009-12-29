@@ -24,6 +24,9 @@ Release 2.0.6 (in development)
 
 * Bugfix for niftoaster dump spell.
 
+* New --suffix option for toaster (similar to the already existing --prefix
+  option).
+
 * New --skip and --only toaster options to toast files by regular expression.
 
 * New --jobs toaster option which enables multithreaded toasting.

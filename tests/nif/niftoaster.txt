@@ -331,6 +331,19 @@ pyffi.toaster:INFO:=== tests/nif/test_skincenterradius.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_vertexcolor.nif (skipped) ===
 pyffi.toaster:INFO:Finished.
 
+The --prefix and --suffix switches
+----------------------------------
+
+>>> import sys, os, os.path
+>>> sys.path.append("scripts/nif")
+>>> import niftoaster
+>>> sys.argv = "niftoaster.py --verbose=0 --prefix=pre_ --suffix=_suf --noninteractive optimize tests/nif/test.nif".split()
+>>> niftoaster.NifToaster().cli()
+>>> os.path.exists("tests/nif/pre_test_suf.nif")
+True
+>>> os.remove("tests/nif/pre_test_suf.nif")
+
+
 The check_bhkbodycenter spell
 -----------------------------
 

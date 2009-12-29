@@ -1164,10 +1164,8 @@ may destroy them. Make a backup of your files before running this script.
                     if not dryrun:
                         if createpatch:
                             self.writepatch(stream, data)
-                        elif prefix:
-                            self.writeprefix(stream, data)
-                        elif suffix:
-                            self.writesuffix(stream, data)
+                        elif prefix or suffix:
+                            self.write_prefix_suffix(stream, data)
                         else:
                             self.writeover(stream, data)
                     else:
@@ -1203,32 +1201,17 @@ may destroy them. Make a backup of your files before running this script.
         finally:
             outstream.close()
 
-    def writeprefix(self, stream, data):
-        """Writes the data to a file, prepending a prefix to the original file
-        name.
+    def write_prefix_suffix(self, stream, data):
+        """Writes the data to a file, prepending a prefix and/or
+        appending a suffix to the original file name.
         """
-        # first argument is always the stream, by convention
         head, tail = os.path.split(stream.name)
-        outstream = open(os.path.join(head, self.options["prefix"] + tail),
-                         "wb")
-        try:
-            self.msg("writing %s" % outstream.name)
-            try:
-                data.write(outstream)
-            except Exception:
-                self.msg("write failed!!!")
-                raise
-        finally:
-            outstream.close()
-
-    def writesuffix(self, stream, data):
-        """Writes the data to a file, appending a suffix to the original file
-        name.
-        """
-        # first argument is always the stream, by convention
-        root, ext = os.path.splitext(stream.name)
-        outstream = open(root + self.options["suffix"] + ext,
-                         "wb")
+        root, ext = os.path.splitext(tail)
+        outstream = open(
+            os.path.join(
+                head,
+                self.options["prefix"] + root + self.options["suffix"] + ext),
+            "wb")
         try:
             self.msg("writing %s" % outstream.name)
             try:
