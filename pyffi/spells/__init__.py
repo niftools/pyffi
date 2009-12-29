@@ -543,7 +543,8 @@ def _toaster_job(args):
     """
     toasterclass, filename, options, spellnames = args
     toaster = toasterclass(options=options, spellnames=spellnames)
-    toaster.toast(filename)
+    stream = open(filename, mode='rb' if toaster.spellclass.READONLY else 'r+b')
+    toaster._toast(stream)
 
 class Toaster(object):
     """Toaster base class. Toasters run spells on large quantities of files.
@@ -1048,12 +1049,14 @@ class Toaster(object):
             all_files = pyffi.utils.walk(
                 top, onerror=None,
                 re_filename=self.FILEFORMAT.RE_FILENAME)
-            file_pool = True
-            while file_pool:
+            while True:
                 # fetch chunksize files from all files
                 file_pool = [
                     filename for i, filename in izip(
                         xrange(chunksize), all_files)]
+                if not file_pool:
+                    # done!
+                    break
                 # sort files by size
                 file_pool.sort(key=os.path.getsize, reverse=True)
                 yield file_pool
@@ -1127,9 +1130,6 @@ may destroy them. Make a backup of your files before running this script.
                 gc.collect()
                 pass # to set a breakpoint
         else:
-            pool_options = deepcopy(self.options)
-            pool_options["jobs"] = 1
-            pool_options["interactive"] = False
             chunksize = self.options["refresh"] * self.options["jobs"]
             self.msg("toasting with %i threads in chunks of %i files"
                      % (jobs, chunksize))
@@ -1143,7 +1143,7 @@ may destroy them. Make a backup of your files before running this script.
                 # in the pool) are processed in parallel
                 result = pool.map_async(
                     _toaster_job,
-                    ((self.__class__, filename, pool_options, self.spellnames)
+                    ((self.__class__, filename, self.options, self.spellnames)
                      for filename in file_pool),
                     chunksize=1)
                 # specify timeout, so CTRL-C works
