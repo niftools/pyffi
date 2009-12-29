@@ -33,37 +33,34 @@ Options:
                         except those specified under --exclude; include
                         multiple block types by specifying this option more
                         than once
-  -r, --raise           raise exception on errors during the spell; useful for
-                        debugging spells
-  --noninteractive      run a non-interactive session (overwrites files
-                        without warning)
+  -r, --raise           raise exception on errors during the spell (for
+                        debugging)
+  --noninteractive      non-interactive session (overwrites files without
+                        warning)
   -v LEVEL, --verbose=LEVEL
                         verbosity level: 0, 1, or 2 [default: 1]
   -p, --pause           pause when done
-  --dry-run             for spells that modify files, save the modification to
-                        a temporary file instead of writing it back to the
-                        original file; useful for debugging spells
-  --prefix=PREFIX       for spells that modify files, prepend PREFIX to file
-                        name
-  --diff                instead of writing back the file, write a binary patch
+  --dry-run             save modification to temporary file instead of
+                        overwriting the original (for debugging)
+  --prefix=PREFIX       prepend PREFIX when saving modification instead of
+                        overwriting the original
+  --diff                write a binary patch instead of overwriting the
+                        original
   --patch               apply all binary patches
   --diff-cmd=CMD        use CMD as diff command; this command must accept
-                        precisely 3 arguments, oldfile, newfile, and
-                        patchfile.
+                        precisely 3 arguments: 'CMD oldfile newfile
+                        patchfile'.
   --patch-cmd=CMD       use CMD as patch command; this command must accept
-                        precisely 3 arguments, oldfile, newfile, and
-                        patchfile.
+                        precisely 3 arguments: 'CMD oldfile newfile
+                        patchfile'.
   --series              run spells in series rather than in parallel
   --skip=REGEX          skip all files whose names match the regular
-			expression REGEX (takes precedence over --only); if
-			specified multiple times, the expressions are 'ored'
-			together
+                        expression REGEX (takes precedence over --only); if
+                        specified multiple times, the expressions are 'ored'
   --only=REGEX          only toast files whose names (i) match the regular
-			expression REGEX, and (ii) do not match any regular
-			expression specified with --skip; if specified
-			multiple times, the expressions are 'ored' together;
-			if not specified, all files are toasted by default,
-			except those listed with --skip
+                        expression REGEX, and (ii) do not match any regular
+                        expression specified with --skip; if specified
+                        multiple times, the expressions are 'ored'
   -j N, --jobs=N        allow N jobs at once [default: 1]
 
 The --examples switch
