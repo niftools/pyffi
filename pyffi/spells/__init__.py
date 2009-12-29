@@ -138,6 +138,7 @@ the file format class of the files it can toast.
 from copy import deepcopy
 from cStringIO import StringIO
 import gc
+from itertools import izip
 import logging # Logger
 try:
     import multiprocessing # Pool
@@ -146,7 +147,7 @@ except ImportError:
     multiprocessing = None
 import optparse
 import os
-import os.path
+import os.path # getsize, split, join
 import re # for regex parsing (--skip, --only)
 import subprocess
 import sys # sys.stdout
@@ -571,7 +572,7 @@ class Toaster(object):
         createpatch=False, applypatch=False, diffcmd="", patchcmd="",
         series=False,
         skip=[], only=[],
-        jobs=1)
+        jobs=1, refresh=32)
 
     """List of spell classes of the particular :class:`Toaster` instance."""
 
@@ -850,8 +851,8 @@ class Toaster(object):
         parser.add_option(
             "-j", "--jobs", dest="jobs",
             type="int",
-            metavar="N",
-            help="allow N jobs at once [default: %default]")
+            metavar="JOBS",
+            help="allow JOBS jobs at once [default: %default]")
         parser.add_option(
             "--noninteractive", dest="interactive",
             action="store_false",
@@ -892,6 +893,15 @@ class Toaster(object):
             "-r", "--raise", dest="raisetesterror",
             action="store_true",
             help="raise exception on errors during the spell (for debugging)")
+        parser.add_option(
+            "--refresh", dest="refresh",
+            type="int",
+            metavar="REFRESH",
+            help=
+            "start new process pool every JOBS * REFRESH files"
+            " if JOBS is 2 or more"
+            " (when processing a large number of files, this prevents"
+            " leaking memory on some operating systems) [default: %default]")
         parser.add_option(
             "--series", dest="series",
             action="store_true",
@@ -1009,6 +1019,23 @@ class Toaster(object):
         :type top: str
         """
 
+        def file_pools(chunksize):
+            """Helper function which generates list of files, sorted by size,
+            in chunks of given size.
+            """
+            all_files = pyffi.utils.walk(
+                top, onerror=None,
+                re_filename=self.FILEFORMAT.RE_FILENAME)
+            file_pool = True
+            while file_pool:
+                # fetch chunksize files from all files
+                file_pool = [
+                    filename for i, filename in izip(
+                        xrange(chunksize), all_files)]
+                # sort files by size
+                file_pool.sort(key=os.path.getsize, reverse=True)
+                yield file_pool
+
         # toast entry code
         if not self.spellclass.toastentry(self):
             self.msg("spell does not apply! quiting early...")
@@ -1069,18 +1096,24 @@ may destroy them. Make a backup of your files before running this script.
             pool_options = deepcopy(self.options)
             pool_options["jobs"] = 1
             pool_options["interactive"] = False
+            chunksize = self.options["refresh"] * self.options["jobs"]
             self.msg("toasting with %i threads" % jobs)
-            pool = multiprocessing.Pool(processes=jobs)
-            result = pool.map_async(
-                _toaster_job,
-                ((self.__class__, filename, pool_options, self.spellnames)
-                 for filename in pyffi.utils.walk(
-                     top, onerror=None,
-                     re_filename=self.FILEFORMAT.RE_FILENAME)))
-            # specify timeout, so CTRL-C works
-            # 99999999 is about 3 years, should be long enough... :-)
-            result.get(timeout=99999999)
-                
+            for file_pool in file_pools(chunksize):
+                self.logger.debug("process file pool:")
+                for filename in file_pool:
+                    self.logger.debug("  " + filename)
+                pool = multiprocessing.Pool(processes=jobs)
+                # force chunksize=1 for the pool
+                # this makes sure that the largest files (which come first
+                # in the pool) are processed in parallel
+                result = pool.map_async(
+                    _toaster_job,
+                    ((self.__class__, filename, pool_options, self.spellnames)
+                     for filename in file_pool),
+                    chunksize=1)
+                # specify timeout, so CTRL-C works
+                # 99999999 is about 3 years, should be long enough... :-)
+                result.get(timeout=99999999)
 
         # toast exit code
         self.spellclass.toastexit(self)

@@ -36,7 +36,7 @@ Options:
                         except those specified under --exclude; include
                         multiple block types by specifying this option more
                         than once
-  -j N, --jobs=N        allow N jobs at once [default: 1]
+  -j JOBS, --jobs=JOBS  allow JOBS jobs at once [default: 1]
   --noninteractive      non-interactive session (overwrites files without
                         warning)
   --only=REGEX          only toast files whose names (i) match the regular
@@ -52,6 +52,10 @@ Options:
                         overwriting the original
   -r, --raise           raise exception on errors during the spell (for
                         debugging)
+  --refresh=REFRESH     start new process pool every JOBS * REFRESH files if
+                        JOBS is 2 or more (when processing a large number of
+                        files, this prevents leaking memory on some operating
+                        systems) [default: 32]
   --series              run spells in series rather than in parallel
   --skip=REGEX          skip all files whose names match the regular
                         expression REGEX (takes precedence over --only); if

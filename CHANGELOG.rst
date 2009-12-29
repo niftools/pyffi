@@ -28,6 +28,9 @@ Release 2.0.6 (in development)
 
 * New --jobs toaster option which enables multithreaded toasting.
 
+* Added workaround for memory leaks (at the moment requires --jobs >= 2 to be
+  functional).
+
 * The niftoaster opt_geometry spell now always skips nif files when a
   similarly named tri or egm file is found.
 
