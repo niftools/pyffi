@@ -618,7 +618,6 @@ class Toaster(object):
         if options:
             self.options.update(options)
         self.indent = 0
-        self.logger = logging.getLogger("pyffi.toaster")
         # update options and spell class
         self._update_options()
         if spellnames:
