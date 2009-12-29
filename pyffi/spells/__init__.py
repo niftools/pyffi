@@ -805,30 +805,38 @@ class Toaster(object):
             version="%%prog (PyFFI %s)" % pyffi.__version__,
             description=description)
         parser.add_option(
-            "--help-spell", dest="helpspell",
-            action="store_true",
-            help="show help specific to the given spells")
-        parser.add_option(
-            "--examples", dest="examples",
-            action="store_true",
-            help="show examples of usage and exit")
-        parser.add_option(
-            "--spells", dest="spells",
-            action="store_true",
-            help="list all spells and exit")
-        parser.add_option(
             "-a", "--arg", dest="arg",
             type="string",
             metavar="ARG",
             help="pass argument ARG to each spell")
         parser.add_option(
-            "-x", "--exclude", dest="exclude",
-            type="string",
-            action="append",
-            metavar="BLOCK",
+            "--diff", dest="createpatch",
+            action="store_true",
             help=
-            "exclude block type BLOCK from spell; exclude multiple"
-            " block types by specifying this option more than once")
+            "write a binary patch"
+            " instead of overwriting the original")
+        parser.add_option(
+            "--diff-cmd", dest="diffcmd",
+            type="string",
+            metavar="CMD",
+            help=
+            "use CMD as diff command; this command must accept precisely"
+            " 3 arguments: 'CMD oldfile newfile patchfile'.")
+        parser.add_option(
+            "--dry-run", dest="dryrun",
+            action="store_true",
+            help=
+            "save modification to temporary file"
+            " instead of overwriting the original"
+            " (for debugging)")
+        parser.add_option(
+            "--examples", dest="examples",
+            action="store_true",
+            help="show examples of usage and exit")
+        parser.add_option(
+            "--help-spell", dest="helpspell",
+            action="store_true",
+            help="show help specific to the given spells")
         parser.add_option(
             "-i", "--include", dest="include",
             type="string",
@@ -840,29 +848,39 @@ class Toaster(object):
             " those specified under --exclude; include multiple block"
             " types by specifying this option more than once")
         parser.add_option(
-            "-r", "--raise", dest="raisetesterror",
-            action="store_true",
-            help="raise exception on errors during the spell (for debugging)")
+            "-j", "--jobs", dest="jobs",
+            type="int",
+            metavar="N",
+            help="allow N jobs at once [default: %default]")
         parser.add_option(
             "--noninteractive", dest="interactive",
             action="store_false",
             help="non-interactive session (overwrites files without warning)")
         parser.add_option(
-            "-v", "--verbose", dest="verbose",
-            type="int",
-            metavar="LEVEL",
-            help="verbosity level: 0, 1, or 2 [default: %default]")
+            "--only", dest="only",
+            type="string",
+            action="append",
+            metavar="REGEX",
+            help=
+            "only toast files whose names"
+            " (i) match the regular expression REGEX, and"
+            " (ii) do not match any regular expression specified with --skip;"
+            " if specified multiple times, the expressions are 'ored'")
+        parser.add_option(
+            "--patch", dest="applypatch",
+            action="store_true",
+            help="apply all binary patches")
+        parser.add_option(
+            "--patch-cmd", dest="patchcmd",
+            type="string",
+            metavar="CMD",
+            help=
+            "use CMD as patch command; this command must accept precisely "
+            "3 arguments: 'CMD oldfile newfile patchfile'.""")
         parser.add_option(
             "-p", "--pause", dest="pause",
             action="store_true",
             help="pause when done")
-        parser.add_option(
-            "--dry-run", dest="dryrun",
-            action="store_true",
-            help=
-            "save modification to temporary file"
-            " instead of overwriting the original"
-            " (for debugging)")
         parser.add_option(
             "--prefix", dest="prefix",
             type="string",
@@ -871,29 +889,9 @@ class Toaster(object):
             "prepend PREFIX when saving modification"
             " instead of overwriting the original")
         parser.add_option(
-            "--diff", dest="createpatch",
+            "-r", "--raise", dest="raisetesterror",
             action="store_true",
-            help=
-            "write a binary patch"
-            " instead of overwriting the original")
-        parser.add_option(
-            "--patch", dest="applypatch",
-            action="store_true",
-            help="apply all binary patches")
-        parser.add_option(
-            "--diff-cmd", dest="diffcmd",
-            type="string",
-            metavar="CMD",
-            help=
-            "use CMD as diff command; this command must accept precisely"
-            " 3 arguments: 'CMD oldfile newfile patchfile'.")
-        parser.add_option(
-            "--patch-cmd", dest="patchcmd",
-            type="string",
-            metavar="CMD",
-            help=
-            "use CMD as patch command; this command must accept precisely "
-            "3 arguments: 'CMD oldfile newfile patchfile'.""")
+            help="raise exception on errors during the spell (for debugging)")
         parser.add_option(
             "--series", dest="series",
             action="store_true",
@@ -908,20 +906,22 @@ class Toaster(object):
             " (takes precedence over --only);"
             " if specified multiple times, the expressions are 'ored'")
         parser.add_option(
-            "--only", dest="only",
+            "--spells", dest="spells",
+            action="store_true",
+            help="list all spells and exit")
+        parser.add_option(
+            "-v", "--verbose", dest="verbose",
+            type="int",
+            metavar="LEVEL",
+            help="verbosity level: 0, 1, or 2 [default: %default]")
+        parser.add_option(
+            "-x", "--exclude", dest="exclude",
             type="string",
             action="append",
-            metavar="REGEX",
+            metavar="BLOCK",
             help=
-            "only toast files whose names"
-            " (i) match the regular expression REGEX, and"
-            " (ii) do not match any regular expression specified with --skip;"
-            " if specified multiple times, the expressions are 'ored'")
-        parser.add_option(
-            "-j", "--jobs", dest="jobs",
-            type="int",
-            metavar="N",
-            help="allow N jobs at once [default: %default]")
+            "exclude block type BLOCK from spell; exclude multiple"
+            " block types by specifying this option more than once")
         parser.set_defaults(**deepcopy(self.DEFAULT_OPTIONS))
         (options, args) = parser.parse_args()
 
