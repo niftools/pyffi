@@ -572,7 +572,8 @@ class Toaster(object):
         createpatch=False, applypatch=False, diffcmd="", patchcmd="",
         series=False,
         skip=[], only=[],
-        jobs=1, refresh=32)
+        jobs=1, refresh=32,
+        sourcedir="", destdir="")
 
     """List of spell classes of the particular :class:`Toaster` instance."""
 
@@ -645,6 +646,7 @@ class Toaster(object):
         if self.options["patchcmd"] and not(self.options["applypatch"]):
             raise ValueError(
                 "option --patch-cmd can only be used with --patch")
+        # multiprocessing available?
         if (multiprocessing is None) and self.options["jobs"] > 1:
             self.logger.warn(
                 "multiprocessing not supported on this platform")
@@ -811,6 +813,15 @@ class Toaster(object):
             metavar="ARG",
             help="pass argument ARG to each spell")
         parser.add_option(
+            "--dest-dir", dest="destdir",
+            type="string",
+            metavar="DESTDIR",
+            help=
+            "write files to DESTDIR"
+            " instead of overwriting the original;"
+            " this is done by replacing SOURCEDIR by DESTDIR"
+            " in all source file paths")
+        parser.add_option(
             "--diff", dest="createpatch",
             action="store_true",
             help=
@@ -915,6 +926,12 @@ class Toaster(object):
             "skip all files whose names contain the regular expression REGEX"
             " (takes precedence over --only);"
             " if specified multiple times, the expressions are 'ored'")
+        parser.add_option(
+            "--source-dir", dest="sourcedir",
+            type="string",
+            metavar="SOURCEDIR",
+            help=
+            "see --dest-dir")
         parser.add_option(
             "--spells", dest="spells",
             action="store_true",
@@ -1055,13 +1072,6 @@ class Toaster(object):
         # in particular, when calling from the command line, the script
         # is much more verbose by default
 
-        # default verbosity is -1: do not show anything (!= cli default)
-        verbose = self.options.get("verbose", -1)
-
-        # raise test errors by default so caller can know what happened
-        # (!= cli default)
-        raisetesterror = self.options.get("raisetesterror", True)
-
         pause = self.options.get("pause", False)
 
         # do not ask for confirmation (!= cli default)
@@ -1070,14 +1080,32 @@ class Toaster(object):
         dryrun = self.options.get("dryrun", False)
         prefix = self.options.get("prefix", "")
         suffix = self.options.get("suffix", "")
+        destdir = self.options.get("destdir", "")
+        sourcedir = self.options.get("sourcedir", "")
         createpatch = self.options.get("createpatch", False)
         applypatch = self.options.get("applypatch", False)
         jobs = self.options.get("jobs", 1)
 
+        # get source directory if not specified
+        if not sourcedir:
+            # set default source directory
+            if os.path.isfile(top):
+                sourcedir = os.path.dirname(top)
+            else:
+                sourcedir = top
+            # store the option (so spells can use it)
+            self.options["sourcedir"] = sourcedir
+
+        # check that top starts with sourcedir
+        if not top.startswith(sourcedir):
+            raise ValueError(
+                "invalid --source-dir: %s does not start with %s"
+                % (top, sourcedir))
+
         # warning
         if ((not self.spellclass.READONLY) and (not dryrun)
             and (not prefix) and (not createpatch)
-            and interactive and (not suffix)):
+            and interactive and (not suffix) and (not destdir)):
             print("""\
 This script will modify your files, in particular if something goes wrong it
 may destroy them. Make a backup of your files before running this script.
@@ -1104,7 +1132,8 @@ may destroy them. Make a backup of your files before running this script.
             pool_options["jobs"] = 1
             pool_options["interactive"] = False
             chunksize = self.options["refresh"] * self.options["jobs"]
-            self.msg("toasting with %i threads" % jobs)
+            self.msg("toasting with %i threads in chunks of %i files"
+                     % (jobs, chunksize))
             for file_pool in file_pools(chunksize):
                 self.logger.debug("process file pool:")
                 for filename in file_pool:
@@ -1134,13 +1163,6 @@ may destroy them. Make a backup of your files before running this script.
             self.msg("=== %s (skipped) ===" % stream.name)
             return
 
-        dryrun = self.options.get("dryrun", False)
-        prefix = self.options.get("prefix", "")
-        suffix = self.options.get("suffix", "")
-        createpatch = self.options.get("createpatch", False)
-        applypatch = self.options.get("applypatch", False)
-        raisetesterror = self.options.get("raisetesterror", True)
-
         data = self.FILEFORMAT.Data()
 
         self.msgblockbegin("=== %s ===" % stream.name)
@@ -1161,16 +1183,10 @@ may destroy them. Make a backup of your files before running this script.
 
                 # save file back to disk if not readonly
                 if not self.spellclass.READONLY:
-                    if not dryrun:
-                        if createpatch:
-                            self.writepatch(stream, data)
-                        elif prefix or suffix:
-                            self.write_prefix_suffix(stream, data)
-                        else:
-                            self.writeover(stream, data)
+                    if self.options["createpatch"]:
+                        self.writepatch(stream, data)
                     else:
-                        # write back to a temporary file
-                        self.writetemp(stream, data)
+                        self.write(stream, data)
 
         except Exception:
             self.logger.error("TEST FAILED ON %s" % stream.name)
@@ -1181,63 +1197,69 @@ may destroy them. Make a backup of your files before running this script.
             self.logger.error(
                 "http://sourceforge.net/tracker/?group_id=199269")
             # if raising test errors, reraise the exception
-            if raisetesterror:
+            if self.options["raisetesterror"]:
                 raise
         finally:
             self.msgblockend()
 
-    def writetemp(self, stream, data):
-        """Writes the data to a temporary file and raises an exception if the
-        write fails.
-        """
-        self.msg("writing to temporary file")
-        outstream = tempfile.TemporaryFile()
-        try:
-            try:
-                data.write(outstream)
-            except Exception:
-                self.msg("write failed!!!")
-                raise
-        finally:
-            outstream.close()
-
-    def write_prefix_suffix(self, stream, data):
-        """Writes the data to a file, prepending a prefix and/or
-        appending a suffix to the original file name.
-        """
-        head, tail = os.path.split(stream.name)
-        root, ext = os.path.splitext(tail)
-        outstream = open(
-            os.path.join(
+    def open_outstream(self, stream):
+        """Return a stream where result can be written to."""
+        if self.options["dryrun"]:
+            self.msg("writing to temporary file")
+            return tempfile.TemporaryFile()
+        elif (self.options["destdir"]
+            or self.options["prefix"] or self.options["suffix"]):
+            head, tail = os.path.split(stream.name)
+            root, ext = os.path.splitext(tail)
+            if self.options["destdir"]:
+                if not self.options["sourcedir"]:
+                    raise ValueError(
+                        "--dest-dir specified without --source-dir (bug?)")
+                if not head.startswith(self.options["sourcedir"]):
+                    # already checked elsewhere, but you never know...
+                    raise ValueError(
+                        "invalid --source-dir: %s does not start with %s"
+                        % (stream.name, sourcedir))
+                head = head.replace(
+                    self.options["sourcedir"], self.options["destdir"], 1)
+                if not os.path.exists(head):
+                    self.logger.info("creating destination path %s" % head)
+                    os.makedirs(head)
+            filename =  os.path.join(
                 head,
-                self.options["prefix"] + root + self.options["suffix"] + ext),
-            "wb")
+                self.options["prefix"] + root + self.options["suffix"] + ext)
+            self.msg("writing %s" % filename)
+            return open(filename, "wb")
+        else:
+            # return original stream
+            self.msg("overwriting %s" % stream.name)
+            return stream
+
+    def write(self, stream, data):
+        """Writes the data to data and raises an exception if the
+        write fails, but restores file if fails on overwrite.
+        """
+        outstream = self.open_outstream(stream)
+        if stream is outstream:
+            # make backup
+            stream.seek(0)
+            backup = stream.read(-1)
+            stream.seek(0)
         try:
-            self.msg("writing %s" % outstream.name)
             try:
                 data.write(outstream)
-            except Exception:
+            except: # not just Exception, also CTRL-C
                 self.msg("write failed!!!")
+                if stream is outstream:
+                    self.msg("attempting to restore original file...")
+                    stream.seek(0)
+                    stream.write(backup)
+                    stream.truncate()
                 raise
+            if stream is outstream:
+                stream.truncate()
         finally:
             outstream.close()
-
-    def writeover(self, stream, data):
-        """Overwrites original file with data, but restores file if fails."""
-        # first argument is always the stream, by convention
-        stream.seek(0)
-        backup = stream.read(-1)
-        stream.seek(0)
-        self.msg("writing %s" % stream.name)
-        try:
-            data.write(stream)
-        except: # not just Exception, also CTRL-C
-            self.msg("write failed!!! attempting to restore original file...")
-            stream.seek(0)
-            stream.write(backup)
-            stream.truncate()
-            raise
-        stream.truncate()
 
     def writepatch(self, stream, data):
         """Creates a binary patch for the updated file."""
@@ -1245,12 +1267,10 @@ may destroy them. Make a backup of your files before running this script.
         if not diffcmd:
             raise ValueError("must specify a diff command")
 
+
         # create a temporary file that won't get deleted when closed
-        newfile = tempfile.NamedTemporaryFile()
-        newfilename = newfile.name
-        newfile.close()
-        newfile = open(newfilename, "w+b")
-        self.msg("writing to temporary file")
+        self.options["suffix"] = ".tmp"
+        newfile = self.open_outstream(stream)
         try:
             data.write(newfile)
         except: # not just Exception, also CTRL-C
@@ -1259,7 +1279,7 @@ may destroy them. Make a backup of your files before running this script.
         # use external diff command
         oldfile = stream
         oldfilename = oldfile.name
-        patchfilename = oldfilename + ".patch"
+        patchfilename = newfile.name[:-4] + ".patch"
         # close all files before calling external command
         oldfile.close()
         newfile.close()

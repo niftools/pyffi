@@ -11,7 +11,7 @@ The --help switch
 >>> try:
 ...     niftoaster.NifToaster().cli()
 ... except SystemExit: # --help uses sys.exit()
-...     pass
+...     pass # doctest: +REPORT_UDIFF
 Usage: niftoaster.py [options] <spell1> <spell2> ... <file>|<folder>
 <BLANKLINE>
 Apply the spells <spell1>, <spell2>, and so on, on <file>, or recursively on
@@ -21,6 +21,9 @@ Options:
   --version             show program's version number and exit
   -h, --help            show this help message and exit
   -a ARG, --arg=ARG     pass argument ARG to each spell
+  --dest-dir=DESTDIR    write files to DESTDIR instead of overwriting the
+                        original; this is done by replacing SOURCEDIR by
+                        DESTDIR in all source file paths
   --diff                write a binary patch instead of overwriting the
                         original
   --diff-cmd=CMD        use CMD as diff command; this command must accept
@@ -60,6 +63,8 @@ Options:
   --skip=REGEX          skip all files whose names contain the regular
                         expression REGEX (takes precedence over --only); if
                         specified multiple times, the expressions are 'ored'
+  --source-dir=SOURCEDIR
+                        see --dest-dir
   --spells              list all spells and exit
   --suffix=SUFFIX       append SUFFIX to file name when saving modification
                         instead of overwriting the original

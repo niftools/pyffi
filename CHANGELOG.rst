@@ -31,6 +31,9 @@ Release 2.0.6 (in development)
 
 * New --jobs toaster option which enables multithreaded toasting.
 
+* New --source-dir and --dest-dir options to save toasted nifs in a given
+  destination folder.
+
 * Added workaround for memory leaks (at the moment requires --jobs >= 2 to be
   functional).
 
