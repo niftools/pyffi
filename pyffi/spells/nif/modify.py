@@ -633,14 +633,16 @@ class SpellMakeFarNif(
     """Spell to make _far type nifs."""
     SPELLNAME = "modify_makefarnif"
 
-class SpellMakeFleshlessNif(
+class SpellMakeSkinlessNif(
     pyffi.spells.SpellGroupSeries(
         pyffi.spells.SpellGroupParallel(
-            SpellDelFleshShapes,
+            SpellDelSkinShapes,
             SpellAddStencilProperty)
         )):
-    """Spell to make fleshless CMR (Custom Model Races) clothing type nifs."""
-    SPELLNAME = "modify_makefleshlessnif"
+    """Spell to make fleshless CMR (Custom Model Races) 
+       clothing/armour type nifs.
+    """
+    SPELLNAME = "modify_makeskinlessnif"
 
 class SpellSubstituteStringPalette(
     pyffi.spells.nif.fix.SpellCleanStringPalette):
