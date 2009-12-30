@@ -494,11 +494,10 @@ class SpellDelStringExtraDatas(_SpellDelBranchClasses):
     SPELLNAME = "modify_delstringextradatas"
     BRANCH_CLASSES_TO_BE_DELETED = (NifFormat.NiStringExtraData,)
 
-class SpellDelFleshShapes(SpellDelBranches):
+class SpellDelSkinShapes(SpellDelBranches):
     """Delete any geometries with a material name of 'skin'"""
 
-    # modify_delskinshapes?
-    SPELLNAME = "modify_delfleshshapes" #not a nice name... maybe rename?
+    SPELLNAME = "modify_delskinshapes"
 
     def is_branch_to_be_deleted(self, branch):
         if isinstance(branch, NifFormat.NiTriBasedGeom):
