@@ -15,12 +15,35 @@ Release 2.0.6 (in development)
 
 * New niftoaster spells.
 
-  - fix_cleanstringpalette: removes unused strings from string palette
+  - fix_cleanstringpalette: removes unused strings from string palette.
 
   - modify_substitutestringpalette: regular expression substitution of
-    strings in a string palette
+    strings in a string palette.
 
-  - XXX more here
+  - modify_scaleanimationtime: numeric scaling of animations.
+  
+  - modify_reverseanimation: reverses an animation (ie useful for making
+    only an open animation and then running this to get a close animation).
+    
+  - modify_collisionmaterial: sets any collision materials in a nif to
+    specified type.
+    
+  - modify_delskinshapes: Delete any geometries with a material name of
+    'skin'
+    
+  - modify_texturepathlowres: Changes the texture path by replacing 
+    'textures/*' with 'textures/lowres/*'. used mainly for making _far.nifs.
+    
+  - modify_addstencilprop: Adds a NiStencilProperty to each geometry if it is
+    not present.
+  
+  - modify_substitutetexturepath: regular expression substitution of
+    a texture path.
+    
+  - modify_makeskinlessnif: Spell to make fleshless CMR (Custom Model Races) 
+    clothing/armour type nifs. (runs modify_delskinshapes and modify_addstencilprop)
+    
+  - modify_makefarnif: Spell to make _far type nifs.
 
 * Bugfix for niftoaster dump spell.
 
