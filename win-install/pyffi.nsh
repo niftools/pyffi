@@ -148,28 +148,28 @@ FunctionEnd
 
 ; checks for installed Python
 ; if found, path is stored in $0 and a jump is performed
-!macro PostExtraPyPathCheck PYTHONVERSION label_if_found
-  !ifdef HAVE_SECTION_PYTHON${PYTHONVERSION}
-  SectionGetFlags ${Python${PYTHONVERSION}} $0
+!macro PostExtraPyPathCheck label if_found if_not_found
+  !ifdef HAVE_SECTION_${label}
+  SectionGetFlags ${section_${label}} $0
   IntOp $1 $0 & ${SF_SELECTED}
-  StrCmp $1 ${SF_SELECTED} 0 pypathcheck${PYTHONVERSION}_end
-  StrCpy $0 $PYTHONPATH${PYTHONVERSION}
-  StrCmp $0 "" 0 ${label_if_found}
-pypathcheck${PYTHONVERSION}_end:
+  StrCmp $1 ${SF_SELECTED} 0 ${if_not_found}
+  StrCpy $0 $PATH_${label}
+  StrCmp $0 "" ${if_not_found} ${if_found}
   !endif
 !macroend
 
-!macro PostExtraLegacyKeys PYTHONVERSION
-  !ifdef HAVE_SECTION_PYTHON${PYTHONVERSION}
-  SectionGetFlags ${Python${PYTHONVERSION}} $0
+!macro PostExtraLegacyKeys label py_version
+  !ifdef HAVE_SECTION_${label}
+  SectionGetFlags ${section_${label}} $0
   IntOp $1 $0 & ${SF_SELECTED}
-  StrCmp $1 ${SF_SELECTED} 0 legacykeys${PYTHONVERSION}_end
+  StrCmp $1 ${SF_SELECTED} 0 legacykeys_end_${label}
   ; Write the uninstall keys & uninstaller for Windows
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI-py${PYTHONVERSION}" "DisplayName" "Python ${PYTHONVERSION} PyFFI-${PRODUCT_VERSION}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI-py${PYTHONVERSION}" "UninstallString" "$INSTDIR\PyFFI_uninstall.exe"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI-py${PYTHONVERSION}" "InstallLocation" "$INSTDIR"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI-py${PYTHONVERSION}" "Publisher" "Python File Format Interface"
-legacykeys${PYTHONVERSION}_end:
+  SetRegView 32
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI-py${py_version}" "DisplayName" "Python ${py_version} PyFFI-${PRODUCT_VERSION}"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI-py${py_version}" "UninstallString" "$INSTDIR\PyFFI_uninstall.exe"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI-py${py_version}" "InstallLocation" "$INSTDIR"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI-py${py_version}" "Publisher" "Python File Format Interface"
+legacykeys_end_${label}:
   !endif
 !macroend
 
@@ -223,15 +223,22 @@ legacykeys${PYTHONVERSION}_end:
   CreateShortCut "$SMPROGRAMS\PyFFI\Contribute.lnk" "$INSTDIR\CONTRIBUTE.txt"
   CreateShortCut "$SMPROGRAMS\PyFFI\Uninstall.lnk" "$INSTDIR\uninstall.exe"
 
-  !insertmacro PostExtraLegacyKeys 2.5
-  !insertmacro PostExtraLegacyKeys 2.6
+  !insertmacro PostExtraLegacyKeys python_2_5_32 2.5
+  !insertmacro PostExtraLegacyKeys python_2_6_32 2.6
 
-  !insertmacro PostExtraPyPathCheck 2.7 install_shortcuts
-  !insertmacro PostExtraPyPathCheck 2.6 install_shortcuts
-  !insertmacro PostExtraPyPathCheck 2.5 install_shortcuts
-  !insertmacro PostExtraPyPathCheck 3.2 install_shortcuts
-  !insertmacro PostExtraPyPathCheck 3.1 install_shortcuts
-  !insertmacro PostExtraPyPathCheck 3.0 install_shortcuts
+  !insertmacro PostExtraPyPathCheck python_3_2_64 install_shortcuts 0
+  !insertmacro PostExtraPyPathCheck python_3_2_32 install_shortcuts 0
+  !insertmacro PostExtraPyPathCheck python_3_1_64 install_shortcuts 0
+  !insertmacro PostExtraPyPathCheck python_3_1_32 install_shortcuts 0
+  !insertmacro PostExtraPyPathCheck python_3_0_64 install_shortcuts 0
+  !insertmacro PostExtraPyPathCheck python_3_0_32 install_shortcuts 0
+  !insertmacro PostExtraPyPathCheck python_2_7_64 install_shortcuts 0
+  !insertmacro PostExtraPyPathCheck python_2_7_32 install_shortcuts 0
+  !insertmacro PostExtraPyPathCheck python_2_6_64 install_shortcuts 0
+  !insertmacro PostExtraPyPathCheck python_2_6_32 install_shortcuts 0
+  ; 2.5 64 bit has problem with xml support
+  ;!insertmacro PostExtraPyPathCheck python_2_5_64 install_shortcuts 0
+  !insertmacro PostExtraPyPathCheck python_2_5_32 install_shortcuts 0
 
   ; No version of python installed which can run qskope.
   MessageBox MB_OK "A version of Python which can run qskope/niftoaster was not found: shortcuts will not be created."
@@ -243,6 +250,7 @@ install_shortcuts:
   CreateShortCut "$DESKTOP\QSkope.lnk" "$0\python.exe" "$0\Scripts\qskope.py" "" "" "" "" "QSkope"
 
   ; Set up file associations
+  SetRegView 32
   WriteRegStr HKCR ".nif" "" "NetImmerseFile"
   WriteRegStr HKCR ".nifcache" "" "NetImmerseFile"
   WriteRegStr HKCR ".kf" "" "NetImmerseFile"
@@ -287,6 +295,7 @@ install_shortcuts_end:
 
 !macro UnPostExtra
   ; Remove registry keys
+  SetRegView 32
   DeleteRegKey HKCR "NetImmerseFile\shell\Optimize with PyFFI"
   DeleteRegKey HKCR "Folder\shell\Optimize with PyFFI"
   DeleteRegKey HKCR "NetImmerseFile\shell\Open with QSkope"
