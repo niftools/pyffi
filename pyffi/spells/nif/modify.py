@@ -558,25 +558,22 @@ class SpellDisableParallax(NifSpell):
             # keep recursing
             return True
 
-class SpellLowResTexturePath(
-    pyffi.spells.nif.fix.SpellParseTexturePath):
-    """Changes the texture path by replacing 'textures/*' with 
-    'textures/lowres/*' - used mainly for making _far.nifs
+class SpellLowResTexturePath(SpellSubstituteTexturePath):
+    """Changes the texture path by replacing 'textures\\*' with 
+    'textures\\lowres\\*' - used mainly for making _far.nifs
     """
 
     SPELLNAME = "modify_texturepathlowres"
-    READONLY = False
+
+    @classmethod
+    def toastentry(cls, toaster):
+        toaster.sub = _as_bytes("textures\\\\lowres\\\\")
+        toaster.regex = re.compile(_as_bytes("^textures\\\\"), re.IGNORECASE)
+        return True
 
     def substitute(self, old_path):
-        # note: replace backslashes by os.sep in filename, and
-        # when joined, revert them back, for linux
-        if ('lowres'.encode("ascii") not in branch.file_name):
-            new_path = old_path.replace(
-                'textures',
-                'textures//lowres'
-                ) 
-            self.toaster.msg("%s -> %s" % (old_path, new_path))
-            return new_path
+        if (_as_bytes('\\lowres\\') not in old_path.lower()):
+            return SpellSubstituteTexturePath.substitute(self, old_path)
         else:
             return old_path
 
@@ -698,4 +695,4 @@ class SpellSubstituteTexturePath(
         if old_path != new_path:
             self.toaster.msg("%s -> %s" % (old_path, new_path))
         return new_path
-        
+
