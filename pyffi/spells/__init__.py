@@ -541,9 +541,45 @@ def _toaster_job(args):
     """For multiprocessing. This function creates a new toaster, with the
     given options and spells, and calls the toaster on filename.
     """
+
+    class fake_logger:
+        """Simple logger which works well along with multiprocessing
+        on all platforms.
+        """
+        @staticmethod
+        def _log(level, msg):
+            # do not actually log, just print
+            print("pyffi.toaster:%i:%s:%s"
+                  % (multiprocessing.current_process().pid,
+                     level, msg))
+        @staticmethod
+        def error(msg):
+            fake_logger._log("ERROR", msg)
+        @staticmethod
+        def warn(msg):
+            fake_logger._log("WARNING", msg)
+        @staticmethod
+        def info(msg):
+            fake_logger._log("INFO", msg)
+        @staticmethod
+        def debug(msg):
+            fake_logger._log("DEBUG", msg)
+
     toasterclass, filename, options, spellnames = args
-    toaster = toasterclass(options=options, spellnames=spellnames)
-    toaster.toast(filename)
+    toaster = toasterclass(options=options, spellnames=spellnames,
+                           logger=fake_logger)
+
+    # toast entry code
+    if not toaster.spellclass.toastentry(toaster):
+        self.msg("spell does not apply! quiting early...")
+        return
+
+    # toast single file
+    stream = open(filename, mode='rb' if toaster.spellclass.READONLY else 'r+b')
+    toaster._toast(stream)
+
+    # toast exit code
+    toaster.spellclass.toastexit(toaster)
 
 class Toaster(object):
     """Toaster base class. Toasters run spells on large quantities of files.
@@ -603,7 +639,8 @@ class Toaster(object):
     """Tuple of regular expressions corresponding to the skip key of
     :attr:`options`."""
 
-    def __init__(self, spellclass=None, options=None, spellnames=None):
+    def __init__(self, spellclass=None, options=None, spellnames=None,
+                 logger=None):
         """Initialize the toaster.
 
         :param spellclass: Deprecated, use spellnames.
@@ -615,10 +652,12 @@ class Toaster(object):
         """
         self.options = deepcopy(self.DEFAULT_OPTIONS)
         self.spellnames = spellnames
+        if logger:
+            # override default logger
+            self.logger = logger
         if options:
             self.options.update(options)
         self.indent = 0
-        self.logger = logging.getLogger("pyffi.toaster")
         # update options and spell class
         self._update_options()
         if spellnames:
@@ -1049,12 +1088,14 @@ class Toaster(object):
             all_files = pyffi.utils.walk(
                 top, onerror=None,
                 re_filename=self.FILEFORMAT.RE_FILENAME)
-            file_pool = True
-            while file_pool:
+            while True:
                 # fetch chunksize files from all files
                 file_pool = [
                     filename for i, filename in izip(
                         xrange(chunksize), all_files)]
+                if not file_pool:
+                    # done!
+                    break
                 # sort files by size
                 file_pool.sort(key=os.path.getsize, reverse=True)
                 yield file_pool
@@ -1128,9 +1169,6 @@ may destroy them. Make a backup of your files before running this script.
                 gc.collect()
                 pass # to set a breakpoint
         else:
-            pool_options = deepcopy(self.options)
-            pool_options["jobs"] = 1
-            pool_options["interactive"] = False
             chunksize = self.options["refresh"] * self.options["jobs"]
             self.msg("toasting with %i threads in chunks of %i files"
                      % (jobs, chunksize))
@@ -1144,12 +1182,12 @@ may destroy them. Make a backup of your files before running this script.
                 # in the pool) are processed in parallel
                 result = pool.map_async(
                     _toaster_job,
-                    ((self.__class__, filename, pool_options, self.spellnames)
+                    ((self.__class__, filename, self.options, self.spellnames)
                      for filename in file_pool),
                     chunksize=1)
                 # specify timeout, so CTRL-C works
                 # 99999999 is about 3 years, should be long enough... :-)
-                result.get(timeout=99999999)
+                result.wait(timeout=99999999)
 
         # toast exit code
         self.spellclass.toastexit(self)

@@ -494,11 +494,10 @@ class SpellDelStringExtraDatas(_SpellDelBranchClasses):
     SPELLNAME = "modify_delstringextradatas"
     BRANCH_CLASSES_TO_BE_DELETED = (NifFormat.NiStringExtraData,)
 
-class SpellDelFleshShapes(SpellDelBranches):
+class SpellDelSkinShapes(SpellDelBranches):
     """Delete any geometries with a material name of 'skin'"""
 
-    # modify_delskinshapes?
-    SPELLNAME = "modify_delfleshshapes" #not a nice name... maybe rename?
+    SPELLNAME = "modify_delskinshapes"
 
     def is_branch_to_be_deleted(self, branch):
         if isinstance(branch, NifFormat.NiTriBasedGeom):
@@ -559,34 +558,27 @@ class SpellDisableParallax(NifSpell):
             # keep recursing
             return True
 
-class SpellLowResTexturePath(NifSpell):
-    """Changes the texture path by replacing 'textures/*' with 'textures/lowres/*' - used mainly for making _far.nifs"""
+class SpellLowResTexturePath(
+    pyffi.spells.nif.fix.SpellParseTexturePath):
+    """Changes the texture path by replacing 'textures/*' with 
+    'textures/lowres/*' - used mainly for making _far.nifs
+    """
 
     SPELLNAME = "modify_texturepathlowres"
     READONLY = False
 
-    def datainspect(self):
-        return self.inspectblocktype(NifFormat.NiSourceTexture)
-
-    def branchinspect(self, branch):
-        # only inspect the NiAVObject branch
-        return isinstance(branch, (NifFormat.NiAVObject,
-                                   NifFormat.NiTexturingProperty,
-                                   NifFormat.NiSourceTexture))
-
-    def branchentry(self, branch):
-        if isinstance(branch, NifFormat.NiSourceTexture):
-            # XXX use (branch.file_name.find('lowres') == -1)?
-            if ('lowres'.encode("ascii") not in branch.file_name):
-                branch.file_name = branch.file_name.replace(
-                    "textures", "textures\\lowres").replace(os.sep, "\\")
-                self.toaster.msg("Texture path changed to %s"
-                                 % (branch.file_name))
-            # all textures done no need to recurse further.
-            return False
+    def substitute(self, old_path):
+        # note: replace backslashes by os.sep in filename, and
+        # when joined, revert them back, for linux
+        if ('lowres'.encode("ascii") not in branch.file_name):
+            new_path = old_path.replace(
+                'textures',
+                'textures//lowres'
+                ) 
+            self.toaster.msg("%s -> %s" % (old_path, new_path))
+            return new_path
         else:
-            # recurse further
-            return True
+            return old_path
 
 class SpellAddStencilProperty(NifSpell):
     """Adds a NiStencilProperty to each geometry if it is not present."""
@@ -634,14 +626,16 @@ class SpellMakeFarNif(
     """Spell to make _far type nifs."""
     SPELLNAME = "modify_makefarnif"
 
-class SpellMakeFleshlessNif(
+class SpellMakeSkinlessNif(
     pyffi.spells.SpellGroupSeries(
         pyffi.spells.SpellGroupParallel(
-            SpellDelFleshShapes,
+            SpellDelSkinShapes,
             SpellAddStencilProperty)
         )):
-    """Spell to make fleshless CMR (Custom Model Races) clothing type nifs."""
-    SPELLNAME = "modify_makefleshlessnif"
+    """Spell to make fleshless CMR (Custom Model Races) 
+       clothing/armour type nifs.
+    """
+    SPELLNAME = "modify_makeskinlessnif"
 
 class SpellSubstituteStringPalette(
     pyffi.spells.nif.fix.SpellCleanStringPalette):

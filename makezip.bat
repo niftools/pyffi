@@ -5,12 +5,12 @@ set PYTHONPATH=
 for /f "tokens=3* delims=	 " %%A in ('reg.exe query "HKLM\SOFTWARE\Python\PythonCore\2.5\InstallPath\" \ve') do set PYTHONPATH="%%B"
 rem TODO fix for Vista
 if not defined PYTHONPATH (
-set PYTHONPATH=C:\Python25
+set PYTHONPATH=C:\Python26
 )
 
-rem Fallback if Python 2.5 is not installed: try 2.6
+rem Fallback if Python 2.6 is not installed: try 2.5
 if not exist %PYTHONPATH% (
-set PYTHONPATH=C:\Python26
+set PYTHONPATH=C:\Python25
 )
 
 rem not found... complain and quit
