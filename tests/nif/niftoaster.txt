@@ -201,6 +201,10 @@ pyffi.toaster:ERROR:TEST FAILED ON tests/nif/invalid.nif
 pyffi.toaster:ERROR:If you were running a spell that came with PyFFI, then
 pyffi.toaster:ERROR:please report this as a bug (include the file) on
 pyffi.toaster:ERROR:http://sourceforge.net/tracker/?group_id=199269
+pyffi.toaster:INFO:=== tests/nif/nds.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
 pyffi.toaster:INFO:=== tests/nif/test.nif ===
 pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:    writing to temporary file
@@ -304,6 +308,7 @@ The --skip and --only switches
 >>> sys.argv = "niftoaster.py --skip texture --skip skin --only fix --only center check_read tests/nif/".split()
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
 pyffi.toaster:INFO:=== tests/nif/invalid.nif (skipped) ===
+pyffi.toaster:INFO:=== tests/nif/nds.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_centerradius.nif ===
 pyffi.toaster:INFO:  --- check_read ---
@@ -1290,6 +1295,10 @@ pyffi.toaster:ERROR:TEST FAILED ON tests/nif/invalid.nif
 pyffi.toaster:ERROR:If you were running a spell that came with PyFFI, then
 pyffi.toaster:ERROR:please report this as a bug (include the file) on
 pyffi.toaster:ERROR:http://sourceforge.net/tracker/?group_id=199269
+pyffi.toaster:INFO:=== tests/nif/nds.nif ===
+pyffi.toaster:INFO:  version      0x14020008
+pyffi.toaster:INFO:  user version 0
+pyffi.toaster:INFO:  user version 0
 pyffi.toaster:INFO:=== tests/nif/test.nif ===
 pyffi.toaster:INFO:  version      0x14010003
 pyffi.toaster:INFO:  user version 0
@@ -1410,4 +1419,8 @@ pyffi.toaster:INFO:version 0x14020007
 pyffi.toaster:INFO:  number of nifs: 2
 pyffi.toaster:INFO:  user version:  [11]
 pyffi.toaster:INFO:  user version2: [34]
+pyffi.toaster:INFO:version 0x14020008
+pyffi.toaster:INFO:  number of nifs: 1
+pyffi.toaster:INFO:  user version:  [0]
+pyffi.toaster:INFO:  user version2: [0]
 pyffi.toaster:INFO:Finished.

@@ -53,6 +53,7 @@ Parse all NIF files in a directory tree
 ...         print("Warning: read failed due corrupt file, corrupt format description, or bug.")
 reading tests/nif/invalid.nif
 Warning: read failed due corrupt file, corrupt format description, or bug.
+reading tests/nif/nds.nif
 reading tests/nif/test.nif
 reading tests/nif/test_centerradius.nif
 reading tests/nif/test_check_tangentspace1.nif
@@ -687,8 +688,12 @@ class NifFormat(FileFormat):
                 neosteam = kwargs['data'].neosteam
             except KeyError:
                 neosteam = False
+            try:
+                nds = kwargs['data'].nds
+            except KeyError:
+                nds = False
 
-            version_string = self.version_string(ver, neosteam)
+            version_string = self.version_string(ver, neosteam, nds)
             s = stream.read(len(version_string) + 1)
             if s != (version_string + '\x0a').encode("ascii"):
                 raise ValueError(
@@ -704,8 +709,12 @@ class NifFormat(FileFormat):
                 neosteam = kwargs['data'].neosteam
             except KeyError:
                 neosteam = False
+            try:
+                nds = kwargs['data'].nds
+            except KeyError:
+                nds = False
 
-            stream.write(self.version_string(ver, neosteam).encode("ascii"))
+            stream.write(self.version_string(ver, neosteam, nds).encode("ascii"))
             stream.write('\x0a'.encode("ascii"))
 
         def get_size(self, **kwargs):
@@ -717,7 +726,7 @@ class NifFormat(FileFormat):
             return len(self.version_string(ver).encode("ascii")) + 1
 
         @staticmethod
-        def version_string(version, neosteam=False):
+        def version_string(version, neosteam=False, nds=False):
             """Transforms version number into a version string.
 
             >>> NifFormat.HeaderString.version_string(0x03000300)
@@ -730,6 +739,8 @@ class NifFormat(FileFormat):
             'Gamebryo File Format, Version 10.1.0.0'
             >>> NifFormat.HeaderString.version_string(0x0A010000, neosteam=True)
             'NS'
+            >>> NifFormat.HeaderString.version_string(0x14020008, nds=True)
+            'NDSNIF....@....@...., Version 20.2.0.8'
             """
             if version == -1 or version is None:
                 raise ValueError('No string for version %s.'%version)
@@ -747,7 +758,10 @@ class NifFormat(FileFormat):
                 v = "%i.%i"%((version >> 24) & 0xff, (version >> 16) & 0xff)
             else:
                 v = "%i.%i.%i.%i"%((version >> 24) & 0xff, (version >> 16) & 0xff, (version >> 8) & 0xff, version & 0xff)
-            return "%s File Format, Version %s"%(s, v)
+            if nds:
+                return "NDSNIF....@....@...., Version %s" % v
+            else:
+                return "%s File Format, Version %s" % (s, v)
 
     class FileVersion(BasicBase):
         def get_value(self):
@@ -767,23 +781,33 @@ class NifFormat(FileFormat):
 
         def read(self, stream, **kwargs):
             neosteam = getattr(kwargs['data'], 'neosteam', False)
+            nds = getattr(kwargs['data'], 'nds', False)
             ver, = struct.unpack('<I', stream.read(4))
             if neosteam and ver != 0x08F35232:
                 raise ValueError(
                     "Invalid NeoSteam version number: "
                     "expected 0x%08X but got 0x%08X."
                     % (0x08F35232, ver))
-            elif (not neosteam) and ver != kwargs['data'].version:
+            elif nds and ver != 0x73615F67:
+                raise ValueError(
+                    "Invalid NDS version number: "
+                    "expected 0x%08X but got 0x%08X."
+                    % (0x73615F67, ver))
+            elif ((not neosteam) and (not nds)
+                  and (ver != kwargs['data'].version)):
                 raise ValueError(
                     "Invalid version number: expected 0x%08X but got 0x%08X."
                     % (kwargs['data'].version, ver))
 
         def write(self, stream, **kwargs):
             neosteam = getattr(kwargs['data'], 'neosteam', False)
-            if not neosteam:
-                stream.write(struct.pack('<I', kwargs['data'].version))
-            else:
+            nds = getattr(kwargs['data'], 'nds', False)
+            if neosteam:
                 stream.write(struct.pack('<I', 0x08F35232))
+            elif nds:
+                stream.write(struct.pack('<I', 0x73615F67))
+            else:
+                stream.write(struct.pack('<I', kwargs['data'].version))
 
         def get_detail_display(self):
             return 'x.x.x.x'
@@ -1052,6 +1076,8 @@ class NifFormat(FileFormat):
         :type blocks: ``list`` of L{NifFormat.NiObject}
         :ivar neosteam: Neo Steam style nif?
         :type neosteam: ``bool``
+        :ivar nds: NDS style nif (e.g. Atlantica)?
+        :type nds: ``bool``
         """
 
         class VersionUInt(pyffi.object_models.common.UInt):
@@ -1094,6 +1120,8 @@ class NifFormat(FileFormat):
             self.blocks = []
             # not a neo steam nif
             self.neosteam = False
+            # not an NDS style nif (atlantica)
+            self.nds = False
 
         def _getVersion(self):
             return self._version_value_.get_value()
@@ -1135,6 +1163,7 @@ class NifFormat(FileFormat):
             finally:
                 stream.seek(pos)
             self.neosteam = False
+            self.nds = False
             if s.startswith("NetImmerse File Format, Version ".encode("ascii")):
                 version_str = s[32:].decode("ascii")
             elif s.startswith("Gamebryo File Format, Version ".encode("ascii")):
@@ -1143,6 +1172,9 @@ class NifFormat(FileFormat):
                 # neosteam
                 version_str = "NS"
                 self.neosteam = True
+            elif s.startswith("NDSNIF....@....@...., Version ".encode("ascii")):
+                version_str = s[30:].decode("ascii")
+                self.nds = True
             else:
                 raise ValueError("Not a nif file.")
             try:
@@ -1163,10 +1195,14 @@ class NifFormat(FileFormat):
                     if self.neosteam and ver_int != 0x08F35232:
                         raise ValueError(
                             "Corrupted nif file: invalid NeoSteam version.")
-                    elif (not self.neosteam) and ver_int != ver:
+                    elif self.nds and ver_int != 0x73615F67:
                         raise ValueError(
-                            "Corrupted nif file: header version string "
-                            "does not correspond with header version field.")
+                            "Corrupted nif file: invalid NDS version.")
+                    elif (not self.neosteam) and (not self.nds) and ver_int != ver:
+                        raise ValueError(
+                            "Corrupted nif file: header version string %s"
+                            " does not correspond with header version field"
+                            " 0x%08X." % (version_str, ver_int))
                     if ver >= 0x14000004:
                         endian_type, = struct.unpack('<B', stream.read(1))
                         if endian_type == 0:

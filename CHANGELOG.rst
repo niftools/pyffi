@@ -63,6 +63,8 @@ Release 2.0.6 (in development)
 * The niftoaster opt_geometry spell now always skips nif files when a
   similarly named tri or egm file is found.
 
+* Added support for Atlantica nifs.
+
 Release 2.0.5 (Nov 23, 2009)
 ============================
 
