@@ -87,6 +87,56 @@ class SpellTexturePath(
         self.toaster.msg("%s -> %s" % (old_path, new_path))
         return new_path
 
+class SpellSubstituteTexturePath(
+    pyffi.spells.nif.fix.SpellFixTexturePath):
+    """Runs a regex replacement on texture paths."""
+
+    SPELLNAME = "modify_substitutetexturepath"
+
+    @classmethod
+    def toastentry(cls, toaster):
+        arg = toaster.options["arg"]
+        if not arg:
+            # missing arg
+            toaster.logger.warn(
+                "must specify regular expression and substitution as argument "
+                "(e.g. -a /architecture/city) to apply spell")
+            return False
+        dummy, toaster.regex, toaster.sub = arg.split(arg[0])
+        toaster.sub = _as_bytes(toaster.sub)
+        toaster.regex = re.compile(_as_bytes(toaster.regex))
+        return True    
+
+    def substitute(self, old_path):
+        """Returns modified texture path, and reports if path was modified.
+        """
+        if not old_path:
+            # leave empty path be
+            return old_path
+        new_path = self.toaster.regex.sub(self.toaster.sub, old_path)
+        if old_path != new_path:
+            self.toaster.msg("%s -> %s" % (old_path, new_path))
+        return new_path
+
+class SpellLowResTexturePath(SpellSubstituteTexturePath):
+    """Changes the texture path by replacing 'textures\\*' with 
+    'textures\\lowres\\*' - used mainly for making _far.nifs
+    """
+
+    SPELLNAME = "modify_texturepathlowres"
+
+    @classmethod
+    def toastentry(cls, toaster):
+        toaster.sub = _as_bytes("textures\\\\lowres\\\\")
+        toaster.regex = re.compile(_as_bytes("^textures\\\\"), re.IGNORECASE)
+        return True
+
+    def substitute(self, old_path):
+        if (_as_bytes('\\lowres\\') not in old_path.lower()):
+            return SpellSubstituteTexturePath.substitute(self, old_path)
+        else:
+            return old_path
+
 class SpellCollisionType(NifSpell):
     """Sets the object collision to be a different type"""
 
@@ -558,25 +608,6 @@ class SpellDisableParallax(NifSpell):
             # keep recursing
             return True
 
-class SpellLowResTexturePath(SpellSubstituteTexturePath):
-    """Changes the texture path by replacing 'textures\\*' with 
-    'textures\\lowres\\*' - used mainly for making _far.nifs
-    """
-
-    SPELLNAME = "modify_texturepathlowres"
-
-    @classmethod
-    def toastentry(cls, toaster):
-        toaster.sub = _as_bytes("textures\\\\lowres\\\\")
-        toaster.regex = re.compile(_as_bytes("^textures\\\\"), re.IGNORECASE)
-        return True
-
-    def substitute(self, old_path):
-        if (_as_bytes('\\lowres\\') not in old_path.lower()):
-            return SpellSubstituteTexturePath.substitute(self, old_path)
-        else:
-            return old_path
-
 class SpellAddStencilProperty(NifSpell):
     """Adds a NiStencilProperty to each geometry if it is not present."""
 
@@ -664,35 +695,4 @@ class SpellSubstituteStringPalette(
         if old_string != new_string:
             self.toaster.msg("%s -> %s" % (old_string, new_string))
         return new_string
-
-class SpellSubstituteTexturePath(
-    pyffi.spells.nif.fix.SpellFixTexturePath):
-    """Runs a regex replacement on texture paths."""
-
-    SPELLNAME = "modify_substitutetexturepath"
-
-    @classmethod
-    def toastentry(cls, toaster):
-        arg = toaster.options["arg"]
-        if not arg:
-            # missing arg
-            toaster.logger.warn(
-                "must specify regular expression and substitution as argument "
-                "(e.g. -a /architecture/city) to apply spell")
-            return False
-        dummy, toaster.regex, toaster.sub = arg.split(arg[0])
-        toaster.sub = _as_bytes(toaster.sub)
-        toaster.regex = re.compile(_as_bytes(toaster.regex))
-        return True    
-
-    def substitute(self, old_path):
-        """Returns modified texture path, and reports if path was modified.
-        """
-        if not old_path:
-            # leave empty path be
-            return old_path
-        new_path = self.toaster.regex.sub(self.toaster.sub, old_path)
-        if old_path != new_path:
-            self.toaster.msg("%s -> %s" % (old_path, new_path))
-        return new_path
 
