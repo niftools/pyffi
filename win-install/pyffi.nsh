@@ -148,13 +148,13 @@ FunctionEnd
 
 ; checks for installed Python
 ; if found, path is stored in $0 and a jump is performed
-!macro PostExtraPyPathCheck label if_found if_not_found
+!macro PostExtraPyPathCheck label if_found
   !ifdef HAVE_SECTION_${label}
   SectionGetFlags ${section_${label}} $0
   IntOp $1 $0 & ${SF_SELECTED}
-  StrCmp $1 ${SF_SELECTED} 0 ${if_not_found}
-  StrCpy $0 $PATH_${label}
-  StrCmp $0 "" ${if_not_found} ${if_found}
+  StrCmp $1 ${SF_SELECTED} 0 extra_py_path_check_not_found_${label}
+  StrCmp "$PATH_${label}" "" 0 ${if_found}
+extra_py_path_check_not_found_${label}:
   !endif
 !macroend
 
@@ -226,19 +226,19 @@ legacykeys_end_${label}:
   !insertmacro PostExtraLegacyKeys python_2_5_32 2.5
   !insertmacro PostExtraLegacyKeys python_2_6_32 2.6
 
-  !insertmacro PostExtraPyPathCheck python_3_2_64 install_shortcuts 0
-  !insertmacro PostExtraPyPathCheck python_3_2_32 install_shortcuts 0
-  !insertmacro PostExtraPyPathCheck python_3_1_64 install_shortcuts 0
-  !insertmacro PostExtraPyPathCheck python_3_1_32 install_shortcuts 0
-  !insertmacro PostExtraPyPathCheck python_3_0_64 install_shortcuts 0
-  !insertmacro PostExtraPyPathCheck python_3_0_32 install_shortcuts 0
-  !insertmacro PostExtraPyPathCheck python_2_7_64 install_shortcuts 0
-  !insertmacro PostExtraPyPathCheck python_2_7_32 install_shortcuts 0
-  !insertmacro PostExtraPyPathCheck python_2_6_64 install_shortcuts 0
-  !insertmacro PostExtraPyPathCheck python_2_6_32 install_shortcuts 0
+  !insertmacro PostExtraPyPathCheck python_3_2_64 install_shortcuts
+  !insertmacro PostExtraPyPathCheck python_3_2_32 install_shortcuts
+  !insertmacro PostExtraPyPathCheck python_3_1_64 install_shortcuts
+  !insertmacro PostExtraPyPathCheck python_3_1_32 install_shortcuts
+  !insertmacro PostExtraPyPathCheck python_3_0_64 install_shortcuts
+  !insertmacro PostExtraPyPathCheck python_3_0_32 install_shortcuts
+  !insertmacro PostExtraPyPathCheck python_2_7_64 install_shortcuts
+  !insertmacro PostExtraPyPathCheck python_2_7_32 install_shortcuts
+  !insertmacro PostExtraPyPathCheck python_2_6_64 install_shortcuts
+  !insertmacro PostExtraPyPathCheck python_2_6_32 install_shortcuts
   ; 2.5 64 bit has problem with xml support
-  ;!insertmacro PostExtraPyPathCheck python_2_5_64 install_shortcuts 0
-  !insertmacro PostExtraPyPathCheck python_2_5_32 install_shortcuts 0
+  ;!insertmacro PostExtraPyPathCheck python_2_5_64 install_shortcuts
+  !insertmacro PostExtraPyPathCheck python_2_5_32 install_shortcuts
 
   ; No version of python installed which can run qskope.
   MessageBox MB_OK "A version of Python which can run qskope/niftoaster was not found: shortcuts will not be created."
