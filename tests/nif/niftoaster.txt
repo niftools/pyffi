@@ -175,11 +175,11 @@ modify_delspecularprop
 modify_delbsxflags
 modify_makefarnif
 modify_delstringextradatas
-modify_delfleshshapes
+modify_delskinshapes
 modify_delcollision
 modify_texturepathlowres
 modify_addstencilprop
-modify_makefleshlessnif
+modify_makeskinlessnif
 modify_substitutestringpalette
 modify_substitutetexturepath
 
