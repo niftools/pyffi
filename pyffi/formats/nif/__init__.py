@@ -54,6 +54,7 @@ Parse all NIF files in a directory tree
 reading tests/nif/invalid.nif
 Warning: read failed due corrupt file, corrupt format description, or bug.
 reading tests/nif/nds.nif
+reading tests/nif/neosteam.nif
 reading tests/nif/test.nif
 reading tests/nif/test_centerradius.nif
 reading tests/nif/test_check_tangentspace1.nif
