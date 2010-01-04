@@ -65,6 +65,8 @@ Release 2.0.6 (in development)
 
 * Added support for Atlantica nifs.
 
+* Added support for Joymaster Interactive Howling Sword nifs.
+
 Release 2.0.5 (Nov 23, 2009)
 ============================
 

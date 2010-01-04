@@ -355,7 +355,7 @@ class NifFormat(FileFormat):
     # .kf are nif files containing keyframes
     # .kfa are nif files containing keyframes in DAoC style
     # .nifcache are Empire Earth II nif files
-    RE_FILENAME = re.compile(r'^.*\.(nif|kf|kfa|nifcache)$', re.IGNORECASE)
+    RE_FILENAME = re.compile(r'^.*\.(nif|kf|kfa|nifcache|jmi)$', re.IGNORECASE)
     # used for comparing floats
     EPSILON = 0.0001
 
@@ -736,6 +736,9 @@ class NifFormat(FileFormat):
             >>> NifFormat.HeaderString.version_string(0x14020008,
             ...                                       modification="ndoors")
             'NDSNIF....@....@...., Version 20.2.0.8'
+            >>> NifFormat.HeaderString.version_string(0x14030009,
+            ...                                       modification="jmihs1")
+            'Joymaster HS1 Object Format - (JMI), Version 20.3.0.9'
             """
             if version == -1 or version is None:
                 raise ValueError('No string for version %s.'%version)
@@ -753,10 +756,12 @@ class NifFormat(FileFormat):
                 v = "%i.%i"%((version >> 24) & 0xff, (version >> 16) & 0xff)
             else:
                 v = "%i.%i.%i.%i"%((version >> 24) & 0xff, (version >> 16) & 0xff, (version >> 8) & 0xff, version & 0xff)
-            if modification == "ndoors":
-                return "NDSNIF....@....@...., Version %s" % v
-            else:
+            if not modification:
                 return "%s File Format, Version %s" % (s, v)
+            elif modification == "ndoors":
+                return "NDSNIF....@....@...., Version %s" % v
+            elif modification == "jmihs1":
+                return "Joymaster HS1 Object Format - (JMI), Version %s" % v
 
     class FileVersion(BasicBase):
         def get_value(self):
@@ -777,7 +782,7 @@ class NifFormat(FileFormat):
         def read(self, stream, **kwargs):
             modification = getattr(kwargs['data'], 'modification', None)
             ver, = struct.unpack('<I', stream.read(4))
-            if not modification:
+            if (not modification) or modification == "jmihs1":
                 if ver != kwargs['data'].version:
                     raise ValueError(
                         "Invalid version number: "
@@ -801,7 +806,7 @@ class NifFormat(FileFormat):
 
         def write(self, stream, **kwargs):
             modification = getattr(kwargs['data'], 'modification', None)
-            if not modification:
+            if (not modification) or modification == "jmihs1":
                 stream.write(struct.pack('<I', kwargs['data'].version))
             elif modification == "neosteam":
                 stream.write(struct.pack('<I', 0x08F35232))
@@ -1076,8 +1081,8 @@ class NifFormat(FileFormat):
         :type header: L{NifFormat.Header}
         :ivar blocks: List of blocks.
         :type blocks: ``list`` of L{NifFormat.NiObject}
-        :ivar modification: Neo Steam ("neosteam") or Ndoors ("ndoors") style nif?
-        :type neosteam: ``str``
+        :ivar modification: Neo Steam ("neosteam") or Ndoors ("ndoors") or Joymaster Interactive Howling Sword ("jmihs1") style nif?
+        :type modification: ``str``
         """
 
         class VersionUInt(pyffi.object_models.common.UInt):
@@ -1172,6 +1177,9 @@ class NifFormat(FileFormat):
             elif s.startswith("NDSNIF....@....@...., Version ".encode("ascii")):
                 version_str = s[30:].decode("ascii")
                 self.modification = "ndoors"
+            elif s.startswith("Joymaster HS1 Object Format - (JMI), Version ".encode("ascii")):
+                version_str = s[45:].decode("ascii")
+                self.modification = "jmihs1"
             else:
                 raise ValueError("Not a nif file.")
             try:
@@ -1189,18 +1197,20 @@ class NifFormat(FileFormat):
                     stream.readline(64)
                     ver_int, = struct.unpack('<I', stream.read(4))
                     # neosteam and ndoors have a special version integer
-                    if self.modification:
-                        if self.modification == "neosteam" and ver_int != 0x08F35232:
+                    if (not self.modification) or self.modification == "jmihs1":
+                        if ver_int != ver:
+                            raise ValueError(
+                                "Corrupted nif file: header version string %s"
+                                " does not correspond with header version field"
+                                " 0x%08X." % (version_str, ver_int))
+                    elif self.modification == "neosteam":
+                        if ver_int != 0x08F35232:
                             raise ValueError(
                                 "Corrupted nif file: invalid NeoSteam version.")
-                        elif self.modification == "ndoors" and ver_int != 0x73615F67:
+                    elif self.modification == "ndoors":
+                        if ver_int != 0x73615F67:
                             raise ValueError(
                                 "Corrupted nif file: invalid Ndoors version.")
-                    elif ver_int != ver:
-                        raise ValueError(
-                            "Corrupted nif file: header version string %s"
-                            " does not correspond with header version field"
-                            " 0x%08X." % (version_str, ver_int))
                     if ver >= 0x14000004:
                         endian_type, = struct.unpack('<B', stream.read(1))
                         if endian_type == 0:
