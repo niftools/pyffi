@@ -44,6 +44,7 @@ import os.path # exists
 
 from pyffi.formats.nif import NifFormat
 import pyffi.utils.tristrip
+import pyffi.utils.vertex_cache
 import pyffi.spells
 import pyffi.spells.nif
 import pyffi.spells.nif.fix
@@ -230,9 +231,26 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
             self.data.replace_global_node(branch, None)
             return False
 
+        if branch.data.num_triangles > 32000:
+            self.toaster.logger.warn(
+                "Found an insane amount of %i triangles in geometry: "
+                "consider simplifying the mesh "
+                "or breaking it up in smaller parts."
+                % data.num_triangles)
+            return False
+
         # shortcut
         data = branch.data
 
+        # triangulate
+        if isinstance(data, NifFormat.NiTriStripsData):
+            self.toaster.msg("triangulating")
+            newbranch = branch.get_interchangeable_tri_shape()
+            self.data.replace_global_node(branch, newbranch)
+            branch = newbranch
+            data = newbranch.data
+
+        # removing duplicate vertices
         self.toaster.msg("removing duplicate vertices")
         v_map = [0 for i in xrange(data.num_vertices)] # maps old index to new index
         v_map_inverse = [] # inverse: map new index to old index
@@ -255,6 +273,34 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
         new_numvertices = index
         self.toaster.msg("(num vertices was %i and is now %i)"
                          % (len(v_map), new_numvertices))
+
+        # optimizing triangle ordering
+        # first, get new triangle indices, with duplicates removed
+        # (vertex, normal, etc. coordinates will be updated later)
+        triangles = [(v_map[v0], v_map[v1], v_map[v2])
+                      for v0, v1, v2 in data.get_triangles()]
+        old_atvr = pyffi.utils.vertex_cache.average_transform_to_vertex_ratio(
+            data.get_triangles())
+        self.toaster.msg("optimizing triangle ordering for vertex cache")
+        data.set_triangles(
+            pyffi.utils.vertex_cache.get_cache_optimized_triangles(
+                triangles))
+        new_atvr = pyffi.utils.vertex_cache.average_transform_to_vertex_ratio(
+            data.get_triangles())
+        self.toaster.msg(
+            "(ATVR was %.3f and is now %.3f)" % (old_atvr, new_atvr))
+
+        # optimize triangles to have sequentially ordered indices
+        self.toaster.msg("optimizing vertex ordering for vertex cache")
+        v_map_opt = pyffi.utils.vertex_cache.get_cache_optimized_vertex_map(
+            data.get_triangles())
+        data.set_triangles([(v_map_opt[v0], v_map_opt[v1], v_map_opt[v2])
+                            for v0, v1, v2 in data.get_triangles()])
+        # update vertex map and its inverse
+        for i in xrange(data.num_vertices):
+            v_map[i] = v_map_opt[v_map[i]]
+            v_map_inverse[v_map[i]] = i
+
         # copy old data
         oldverts = [[v.x, v.y, v.z] for v in data.vertices]
         oldnorms = [[n.x, n.y, n.z] for n in data.normals]
@@ -296,66 +342,6 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
         del oldnorms
         del olduvs
         del oldvcols
-
-        # update vertex indices in strips/triangles
-        if isinstance(data, NifFormat.NiTriStripsData):
-            for strip in data.points:
-                for i in xrange(len(strip)):
-                    try:
-                        strip[i] = v_map[strip[i]]
-                    except IndexError:
-                        self.toaster.logger.warn(
-                            "Corrupt nif: bad vertex index in strip (%i); "
-                            "replacing by valid index which might "
-                            "modify your geometry!" % strip[i])
-                        if i > 0:
-                            strip[i] = strip[i-1]
-                        else:
-                            strip[i] = strip[i+1]
-        elif isinstance(data, NifFormat.NiTriShapeData):
-            for tri in data.triangles:
-                tri.v_1 = v_map[tri.v_1]
-                tri.v_2 = v_map[tri.v_2]
-                tri.v_3 = v_map[tri.v_3]
-
-        # stripify trishape/tristrip
-        if data.num_triangles > 32000:
-            self.toaster.logger.warn(
-                "Found an insane amount of %i triangles in geometry: "
-                "consider simplifying the mesh "
-                "or breaking it up in smaller parts."
-                % data.num_triangles)
-        else:
-            if isinstance(data, NifFormat.NiTriStripsData):
-                self.toaster.msg("recalculating strips")
-                origlen = sum(i for i in data.strip_lengths)
-                data.set_triangles(data.get_triangles())
-                newlen = sum(i for i in data.strip_lengths)
-                self.toaster.msg("(strip length was %i and is now %i)"
-                                 % (origlen, newlen))
-            elif isinstance(data, NifFormat.NiTriShapeData):
-                self.toaster.msg("stripifying")
-                newbranch = branch.get_interchangeable_tri_strips()
-                self.data.replace_global_node(branch, newbranch)
-                branch = newbranch
-                data = newbranch.data
-            # average, weighed towards large strips
-            if isinstance(data, NifFormat.NiTriStripsData):
-                # note: the max(1, ...) is to avoid ZeroDivisionError
-                avgstriplen = float(sum(i * i for i in data.strip_lengths)) \
-                    / max(1, sum(i for i in data.strip_lengths))
-                self.toaster.msg("(average strip length is %f)" % avgstriplen)
-                if avgstriplen < self.STRIPLENCUTOFF:
-                    self.toaster.msg("average strip length < %f so triangulating"
-                                     % self.STRIPLENCUTOFF)
-                    newbranch = branch.get_interchangeable_tri_shape()
-                    self.data.replace_global_node(branch, newbranch)
-                    branch = newbranch
-                    data = newbranch.data
-                elif self.STITCH:
-                    self.toaster.msg("stitching strips (using %i stitches)"
-                                     % len(data.get_strips()))
-                    data.set_strips([pyffi.utils.tristrip.stitchStrips(data.get_strips())])
 
         # update skin data
         if branch.skin_instance:
