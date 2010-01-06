@@ -58,14 +58,14 @@ class VertexInfo:
     VALENCE_BOOST_POWER = 0.5
 
     def __init__(self, cache_position=-1, score=-1,
-                 face_indices=None):
+                 triangle_indices=None):
         self.cache_position = cache_position
         self.score = score
-        self.face_indices = ([] if face_indices is None
-                             else face_indices)
+        self.triangle_indices = ([] if triangle_indices is None
+                             else triangle_indices)
 
     def update_score(self):
-        if not self.face_indices:
+        if not self.triangle_indices:
             # no triangle needs this vertex
             self.score = -1
             return
@@ -83,9 +83,9 @@ class VertexInfo:
 
         # bonus points for having low number of triangles still in use
         self.score += self.VALENCE_BOOST_SCALE * (
-            len(self.face_indices) ** (-self.VALENCE_BOOST_POWER))
+            len(self.triangle_indices) ** (-self.VALENCE_BOOST_POWER))
 
-class FaceInfo:
+class TriangleInfo:
     def __init__(self, added=False, score=0.0, vertex_indices=None):
         self.added = False
         self.score = 0.0
@@ -97,48 +97,48 @@ class Mesh:
     are used by which vertex, and vertex cache positions.
     """
 
-    def __init__(self, faces):
-        """Initialize mesh from given set of faces.
+    def __init__(self, triangles):
+        """Initialize mesh from given set of triangles.
 
         Empty mesh
         ----------
 
-        >>> Mesh([]).face_infos
+        >>> Mesh([]).triangle_infos
         []
 
         Single triangle mesh (with degenerate)
         --------------------------------------
 
         >>> m = Mesh([(0,1,2), (1,2,0)])
-        >>> [vertex_info.face_indices for vertex_info in m.vertex_infos]
+        >>> [vertex_info.triangle_indices for vertex_info in m.vertex_infos]
         [[0], [0], [0]]
-        >>> [face_info.vertex_indices for face_info in m.face_infos]
+        >>> [triangle_info.vertex_indices for triangle_info in m.triangle_infos]
         [(0, 1, 2)]
 
         Double triangle mesh
         --------------------
 
         >>> m = Mesh([(0,1,2), (2,1,3)])
-        >>> [vertex_info.face_indices for vertex_info in m.vertex_infos]
+        >>> [vertex_info.triangle_indices for vertex_info in m.vertex_infos]
         [[0], [0, 1], [0, 1], [1]]
-        >>> [face_info.vertex_indices for face_info in m.face_infos]
+        >>> [triangle_info.vertex_indices for triangle_info in m.triangle_infos]
         [(0, 1, 2), (1, 3, 2)]
         """
-        # initialize vertex and face information, and vertex cache
+        # initialize vertex and triangle information, and vertex cache
         self.vertex_infos = []
-        self.face_infos = []
+        self.triangle_infos = []
         # add all vertices
-        if faces:
-            num_vertices = max(max(verts) for verts in faces) + 1
+        if triangles:
+            num_vertices = max(max(verts) for verts in triangles) + 1
         else:
             num_vertices = 0
         self.vertex_infos = [VertexInfo() for i in xrange(num_vertices)]
-        # add all faces
-        _added_faces = set([])
-        face_index = 0
-        for v0, v1, v2 in faces:
+        # add all triangles
+        _added_triangles = set([])
+        triangle_index = 0
+        for v0, v1, v2 in triangles:
             if v0 == v1 or v1 == v2 or v2 == v0:
-                # skip degenerate faces
+                # skip degenerate triangles
                 continue
             if v0 < v1 and v0 < v2:
                 verts = (v0, v1, v2)
@@ -146,54 +146,54 @@ class Mesh:
                 verts = (v1, v2, v0)
             elif v2 < v0 and v2 < v1:
                 verts = (v2, v0, v1)
-            if verts not in _added_faces:
-                self.face_infos.append(FaceInfo(vertex_indices=verts))
+            if verts not in _added_triangles:
+                self.triangle_infos.append(TriangleInfo(vertex_indices=verts))
                 for vertex in verts:
-                    self.vertex_infos[vertex].face_indices.append(
-                        face_index)
-                face_index += 1
-                _added_faces.add(verts)
+                    self.vertex_infos[vertex].triangle_indices.append(
+                        triangle_index)
+                triangle_index += 1
+                _added_triangles.add(verts)
         # calculate score of all vertices
         for vertex_info in self.vertex_infos:
             vertex_info.update_score()
         # calculate score of all triangles
-        for face_info in self.face_infos:
-            face_info.score = sum(
+        for triangle_info in self.triangle_infos:
+            triangle_info.score = sum(
                 self.vertex_infos[vertex].score
-                for vertex in face_info.vertex_indices)
+                for vertex in triangle_info.vertex_indices)
 
-    def get_cache_optimized_faces(self):
-        """Reorder faces in a cache efficient way.
+    def get_cache_optimized_triangles(self):
+        """Reorder triangles in a cache efficient way.
 
         >>> m = Mesh([(0,1,2), (7,8,9),(2,3,4)])
-        >>> m.get_cache_optimized_faces()
+        >>> m.get_cache_optimized_triangles()
         [(7, 8, 9), (0, 1, 2), (2, 3, 4)]
         """
-        faces = []
+        triangles = []
         cache = collections.deque()
-        while any(not face_info.added for face_info in self.face_infos):
-            # pick face with highest score
-            best_face_index, best_face_info = max(
-                (face
-                 for face in enumerate(self.face_infos)
-                 if not face[1].added),
-                key=lambda face: face[1].score)
+        while any(not triangle_info.added for triangle_info in self.triangle_infos):
+            # pick triangle with highest score
+            best_triangle_index, best_triangle_info = max(
+                (triangle
+                 for triangle in enumerate(self.triangle_infos)
+                 if not triangle[1].added),
+                key=lambda triangle: triangle[1].score)
             # mark as added
-            best_face_info.added = True
-            # append to ordered list of faces
-            faces.append(best_face_info.vertex_indices)
-            # keep list of vertices and faces whose score we will need
+            best_triangle_info.added = True
+            # append to ordered list of triangles
+            triangles.append(best_triangle_info.vertex_indices)
+            # keep list of vertices and triangles whose score we will need
             # to update
             updated_vertices = set([])
-            updated_faces = set([])
-            # for each vertex in the just added face
-            for vertex in best_face_info.vertex_indices:
+            updated_triangles = set([])
+            # for each vertex in the just added triangle
+            for vertex in best_triangle_info.vertex_indices:
                 vertex_info = self.vertex_infos[vertex]
-                # update face indices
-                vertex_info.face_indices.remove(best_face_index)
+                # update triangle indices
+                vertex_info.triangle_indices.remove(best_triangle_index)
                 # must update its score
                 updated_vertices.add(vertex)
-                updated_faces.update(vertex_info.face_indices)
+                updated_triangles.update(vertex_info.triangle_indices)
                 # add vertices to cache (score is updated later)
                 if vertex not in cache:
                     cache.appendleft(vertex)
@@ -206,26 +206,68 @@ class Mesh:
                         removed_vertex_info.cache_position = -1
                         # must update its score
                         updated_vertices.add(removed_vertex)
-                        updated_faces.update(removed_vertex_info.face_indices)
+                        updated_triangles.update(removed_vertex_info.triangle_indices)
             # for each vertex in the cache (this includes those from the
-            # just added face)
+            # just added triangle)
             for i, vertex in enumerate(cache):
                 vertex_info = self.vertex_infos[vertex]
                 # update cache positions
                 vertex_info.cache_position = i
                 # must update its score
                 updated_vertices.add(vertex)
-                updated_faces.update(vertex_info.face_indices)
+                updated_triangles.update(vertex_info.triangle_indices)
             # update scores
             for vertex in updated_vertices:
                 self.vertex_infos[vertex].update_score()
-            for face in updated_faces:
-                face_info = self.face_infos[face]
-                face_info.score = sum(
+            for triangle in updated_triangles:
+                triangle_info = self.triangle_infos[triangle]
+                triangle_info.score = sum(
                     self.vertex_infos[vertex].score
-                    for vertex in face_info.vertex_indices)
+                    for vertex in triangle_info.vertex_indices)
         # return result
-        return faces
+        return triangles
+
+def get_cache_optimized_triangles(triangles):
+    mesh = Mesh(triangles)
+    return mesh.get_cache_optimized_triangles()
+
+def get_cache_optimized_vertex_map(triangles):
+    """Map vertices so triangles have consequetive indices.
+
+    >>> get_cache_optimized_vertex_map([(5,2,1),(0,2,3)])
+    [3, 2, 1, 4, None, 0]
+    """
+    num_vertices = max(max(triangle) for triangle in triangles) + 1
+    vertex_map = [None for i in xrange(num_vertices)]
+    new_vertex = 0
+    for triangle in triangles:
+        for old_vertex in triangle:
+            if vertex_map[old_vertex] is None:
+                vertex_map[old_vertex] = new_vertex
+                new_vertex += 1
+    return vertex_map
+
+def average_transform_to_vertex_ratio(triangles, cache_size=32):
+    """Calculate number of transforms per vertex for a given cache size
+    and ordering of triangles. See
+    http://castano.ludicon.com/blog/2009/01/29/acmr/
+    """
+    cache = collections.deque(maxlen=cache_size)
+    # get number of vertices
+    vertices = set([])
+    for triangle in triangles:
+        vertices.update(triangle)
+    # get number of cache misses (each miss needs a transform)
+    num_misses = 0
+    for triangle in triangles:
+        for vertex in triangle:
+            if vertex in cache:
+                pass
+            else:
+                cache.appendleft(vertex)
+                num_misses += 1
+    # return result
+    return num_misses / float(len(vertices))
 
 if __name__=='__main__':
     import doctest
