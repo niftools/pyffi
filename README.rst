@@ -26,7 +26,14 @@ or install it with::
     easy_install -U PyFFI
 
 To get the latest (but possibly unstable) code, clone PyFFI from its
-`Git repository <http://github.com/amorilia/pyffi>`_. If you wish to
+`Git repository <http://github.com/amorilia/pyffi>`_::
+
+    git clone --recursive git://github.com/amorilia/pyffi.git
+
+Be sure to use the --recursive flag to ensure that you also get all
+of the submodules.
+
+If you wish to
 code on PyFFI and send your contributions back upstream, get a `github
 account <https://github.com/signup/free>`_ and `fork PyFFI
 <http://github.com/guides/fork-a-project-and-submit-your-modifications>`_.
