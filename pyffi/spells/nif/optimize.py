@@ -236,7 +236,7 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                 "Found an insane amount of %i triangles in geometry: "
                 "consider simplifying the mesh "
                 "or breaking it up in smaller parts."
-                % data.num_triangles)
+                % branch.data.num_triangles)
             return False
 
         # shortcut
