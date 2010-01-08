@@ -1,6 +1,10 @@
 Release 2.0.6 (in development)
 ==============================
 
+* Improved windows installer.
+
+* Compatibility fix for Python 2.5 users (reported by mac1415).
+
 * Renamed some internal modules for pep8 compliance.
 
 * All classes and attributes are now in pep8 style. For compatibility,

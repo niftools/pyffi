@@ -339,11 +339,15 @@ class Face:
             ...
         ValueError: ...
         """
-        return self.verts[(1, 2, 0)[self.verts.index(vi)]]
+        # XXX using list(self.verts) instead of self.verts
+        # XXX for Python 2.5 compatibility
+        return self.verts[(1, 2, 0)[list(self.verts).index(vi)]]
 
     def get_adjacent_faces(self, vi):
         """Get adjacent faces associated with the edge opposite a vertex."""
-        return self.adjacent_faces[self.verts.index(vi)]
+        # XXX using list(self.verts) instead of self.verts
+        # XXX for Python 2.5 compatibility
+        return self.adjacent_faces[list(self.verts).index(vi)]
 
 class Mesh:
     """A mesh of interconnected faces.
