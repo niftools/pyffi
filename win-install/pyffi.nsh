@@ -153,7 +153,8 @@ FunctionEnd
   SectionGetFlags ${section_${label}} $0
   IntOp $1 $0 & ${SF_SELECTED}
   StrCmp $1 ${SF_SELECTED} 0 extra_py_path_check_not_found_${label}
-  StrCmp "$PATH_${label}" "" 0 ${if_found}
+  StrCpy $0 $PATH_${label}
+  StrCmp $0 "" 0 ${if_found}
 extra_py_path_check_not_found_${label}:
   !endif
 !macroend
