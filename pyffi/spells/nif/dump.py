@@ -95,8 +95,10 @@ def dumpBlock(block):
             text += '* %s :\n' % attr.name
             for attr_str in attr_str_lines:
                 text += '    %s\n' % attr_str
-        else:
+        elif attr_str_lines:
             text += '* %s : %s\n' % (attr.name, attr_str_lines[0])
+        else:
+            text = '* %s : <None>\n' % attr.name
     return text
 
 def dumpAttr(attr):
