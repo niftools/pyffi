@@ -1,5 +1,5 @@
-Release 2.0.6 (in development)
-==============================
+Release 2.1.0 (Jan 10, 2010)
+============================
 
 * Improved windows installer.
 
