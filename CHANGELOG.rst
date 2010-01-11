@@ -1,5 +1,8 @@
-Release 2.1.1 (in development)
+Release 2.1.1 (Jan 11, 2010)
 ==============================
+
+* Accidently released corrupted nif.xml (affected Fallout 3), so this is just
+  a quick bugfix release including the correct nif.xml.
 
 Release 2.1.0 (Jan 10, 2010)
 ============================
