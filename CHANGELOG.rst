@@ -1,3 +1,8 @@
+Release 2.1.2 (in development)
+==============================
+
+* Fallout 3 skin partition flag bugfix.
+
 Release 2.1.1 (Jan 11, 2010)
 ==============================
 

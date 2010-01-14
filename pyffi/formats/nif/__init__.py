@@ -6346,13 +6346,13 @@ class NifFormat(FileFormat):
                     bodypart.body_part = part[2]
                     if (lastpart is None) or (lastpart[0] != part[0]):
                         # start new bone set, if bones are not shared
-                        bodypart.part_flag.startNewBoneset = 1
+                        bodypart.part_flag.start_new_boneset = 1
                     else:
                         # do not start new bone set
-                        bodypart.part_flag.startNewBoneset = 0
+                        bodypart.part_flag.start_new_boneset = 0
                     # caps are invisible
-                    bodypart.part_flag.editorVisible = (part[2] < 100
-                                                       or part[2] >= 1000)
+                    bodypart.part_flag.editor_visible = (part[2] < 100
+                                                         or part[2] >= 1000)
                     # store part for next iteration
                     lastpart = part
 
