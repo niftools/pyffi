@@ -1,10 +1,10 @@
 Release 2.1.2 (in development)
 ==============================
 
-* Fallout 3 skin partition flag bugfix.
+* Fallout 3 skin partition flag bugfix (reported by Ghostwalker71).
 
 Release 2.1.1 (Jan 11, 2010)
-==============================
+============================
 
 * Accidently released corrupted nif.xml (affected Fallout 3), so this is just
   a quick bugfix release including the correct nif.xml.
