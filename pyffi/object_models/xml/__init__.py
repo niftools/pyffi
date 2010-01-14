@@ -204,7 +204,11 @@ class StructAttribute(object):
         # mandatory parameters
         self.displayname = attrs["name"]
         self.name = cls.name_attribute(self.displayname)
-        attrs_type_str = attrs["type"]
+        try:
+            attrs_type_str = attrs["type"]
+        except KeyError:
+            raise AttributeError("'%s' is missing a type attribute"
+                                 % self.displayname)
         if attrs_type_str != "TEMPLATE":
             try:
                 self.type_ = getattr(cls, attrs_type_str)
