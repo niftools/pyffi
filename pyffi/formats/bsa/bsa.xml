@@ -47,8 +47,8 @@
     -->
 
     <bitstruct name="ArchiveFlags" numbytes="4">
-        <bits name="Has Folder Records" numbits="1" />
-        <bits name="Has File Records" numbits="1" />
+        <bits name="Has Folder Records" numbits="1" default="1" />
+        <bits name="Has File Records" numbits="1" default="1" />
         <bits name="Is Compressed" numbits="1" />
         <bits name="Unknown 4" numbits="1" />
         <bits name="Unknown 5" numbits="1">
@@ -62,13 +62,13 @@
             bCheckRuntimeCollisions INI settings in Oblivion.ini.
             Also somehow related to is_compressed.
         </bits>
-        <bits name="Unknown 9" default="1" numbits="1">
+        <bits name="Unknown 9" numbits="1" default="1">
             Unknown, but observed being set in official BSA files.
         </bits>
-        <bits name="Unknown 10" default="1" numbits="1">
+        <bits name="Unknown 10" numbits="1" default="1">
             Unknown, but observed being set in official BSA files.
         </bits>
-        <bits name="Unknown 11" default="1" numbits="1">
+        <bits name="Unknown 11" numbits="1" default="1">
             Unknown, but observed being set in official BSA files.
         </bits>
     </bitstruct>
@@ -102,7 +102,8 @@
        <add name="Offset" type="UInt32">
            Absolute position in file where raw file data starts.
        </add>
-       <add name="Name" type="ZString" abstract="1" /><!-- written after all folders and files -->
+       <!-- the following field is written after all folders and files -->
+       <add name="Name" type="ZString" abstract="1" />
    </struct>
 
    <struct name="Folder">
@@ -113,8 +114,9 @@
        <add name="Offset" type="UInt32">
            Absolute position in file where file data starts.
        </add>
-       <add name="Name" type="BZString" abstract="1" /><!-- written after all folders -->
-       <add name="Files" type="File" arr1="Num Files" abstract="1" /><!-- written after all folders -->
+       <!-- the following two fields are written after all folders -->
+       <add name="Name" type="BZString" abstract="1" />
+       <add name="Files" type="File" arr1="Num Files" abstract="1" />
    </struct>
 
    <struct name="Header">

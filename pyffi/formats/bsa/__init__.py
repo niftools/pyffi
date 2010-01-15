@@ -88,6 +88,7 @@ Create an BSA file from scratch and write to file
 # ***** END LICENSE BLOCK *****
 
 from itertools import izip
+import logging
 import struct
 import os
 import re
@@ -238,23 +239,41 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
             :param stream: The stream from which to read.
             :type stream: ``file``
             """
-            # read the file
+            logger = logging.getLogger("pyffi.bsa.data")
+
+            # inspect
             self.inspect_quick(stream)
+
+            # read file
+            logger.debug("Reading header at 0x%08X." % stream.tell())
             BsaFormat._Header.read(self, stream, data=self)
+            logger.debug("Reading folder records at 0x%08X." % stream.tell())
             self.folders.read(stream, data=self)
+            logger.debug(
+                "Reading folder names and file records at 0x%08X."
+                % stream.tell())
             for folder in self.folders:
                 folder._name_value_.read(stream, data=self)
                 folder._files_value_.read(stream, data=self)
+            logger.debug("Reading file names at 0x%08X." % stream.tell())
             for folder in self.folders:
                 for file_ in folder.files:
                     file_._name_value_.read(stream, data=self)
-                    
+
+            # "read" the files
+            logger.debug(
+                "Seeking end of raw file data at 0x%08X." % stream.tell())
+            total_num_bytes = 0
+            for folder in self.folders:
+                for file_ in folder.files:
+                    total_num_bytes += file_.file_size.num_bytes
+            stream.seek(total_num_bytes, os.SEEK_CUR)
 
             # check if we are at the end of the file
-            #if stream.read(1):
-            #    raise ValueError(
-            #        'end of file not reached: corrupt bsa file?')
-            
+            if stream.read(1):
+                raise ValueError(
+                    'end of file not reached: corrupt bsa file?')
+
         def write(self, stream):
             """Write a bsa file.
 
