@@ -3,6 +3,10 @@ Release 2.1.2 (in development)
 
 * Fallout 3 skin partition flag bugfix (reported by Ghostwalker71).
 
+* Fixed bug in optimize spell, when has_vertex_colors was False but vertex
+  color array was present (reported by Baphometal, debugged by
+  PacificMorrowind).
+
 Release 2.1.1 (Jan 11, 2010)
 ============================
 

@@ -266,32 +266,33 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
         data.num_vertices = new_numvertices
         if data.has_vertices:
             data.vertices.update_size()
+            for i, v in enumerate(data.vertices):
+                old_i = v_map_inverse[i]
+                v.x = oldverts[old_i][0]
+                v.y = oldverts[old_i][1]
+                v.z = oldverts[old_i][2]
         if data.has_normals:
             data.normals.update_size()
+            for i, n in enumerate(data.normals):
+                old_i = v_map_inverse[i]
+                n.x = oldnorms[old_i][0]
+                n.y = oldnorms[old_i][1]
+                n.z = oldnorms[old_i][2]
+        # XXX todo: if ...has_uv_sets...:
         data.uv_sets.update_size()
-        if data.has_vertex_colors:
-            data.vertex_colors.update_size()
-        for i, v in enumerate(data.vertices):
-            old_i = v_map_inverse[i]
-            v.x = oldverts[old_i][0]
-            v.y = oldverts[old_i][1]
-            v.z = oldverts[old_i][2]
-        for i, n in enumerate(data.normals):
-            old_i = v_map_inverse[i]
-            n.x = oldnorms[old_i][0]
-            n.y = oldnorms[old_i][1]
-            n.z = oldnorms[old_i][2]
         for j, uvset in enumerate(data.uv_sets):
             for i, uv in enumerate(uvset):
                 old_i = v_map_inverse[i]
                 uv.u = olduvs[j][old_i][0]
                 uv.v = olduvs[j][old_i][1]
-        for i, c in enumerate(data.vertex_colors):
-            old_i = v_map_inverse[i]
-            c.r = oldvcols[old_i][0]
-            c.g = oldvcols[old_i][1]
-            c.b = oldvcols[old_i][2]
-            c.a = oldvcols[old_i][3]
+        if data.has_vertex_colors:
+            data.vertex_colors.update_size()
+            for i, c in enumerate(data.vertex_colors):
+                old_i = v_map_inverse[i]
+                c.r = oldvcols[old_i][0]
+                c.g = oldvcols[old_i][1]
+                c.b = oldvcols[old_i][2]
+                c.a = oldvcols[old_i][3]
         del oldverts
         del oldnorms
         del olduvs
