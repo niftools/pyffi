@@ -47,6 +47,7 @@ setup(
         'pyffi.formats.tga',
         'pyffi.formats.egm',
         'pyffi.formats.tri',
+        'pyffi.formats.bsa',
         'pyffi.spells',
         'pyffi.spells.cgf',
         'pyffi.spells.nif',
