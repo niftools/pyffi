@@ -109,6 +109,7 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
 
     # basic types
     UInt32 = pyffi.object_models.common.UInt
+    ZString = pyffi.object_models.common.ZString
 
     # implementation of bsa-specific basic types
 
@@ -244,6 +245,10 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
             for folder in self.folders:
                 folder._name_value_.read(stream, data=self)
                 folder._files_value_.read(stream, data=self)
+            for folder in self.folders:
+                for file_ in folder.files:
+                    file_._name_value_.read(stream, data=self)
+                    
 
             # check if we are at the end of the file
             #if stream.read(1):

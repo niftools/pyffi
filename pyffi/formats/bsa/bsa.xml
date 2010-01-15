@@ -16,8 +16,12 @@
         An unsigned 64-bit integer.
     </basic>
 
-    <basic name="BZString">
+    <basic name="ZString">
         A null terminated string.
+    </basic>
+
+    <basic name="BZString">
+        A null terminated string, with byte prefix for length.
     </basic>
 
     <basic name="FileSignature">
@@ -98,7 +102,7 @@
        <add name="Offset" type="UInt32">
            Absolute position in file where raw file data starts.
        </add>
-       <add name="Name" type="BZString" abstract="1" /><!-- written after all folders and files -->
+       <add name="Name" type="ZString" abstract="1" /><!-- written after all folders and files -->
    </struct>
 
    <struct name="Folder">
