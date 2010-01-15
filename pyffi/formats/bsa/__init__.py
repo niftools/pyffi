@@ -109,10 +109,16 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
 
     # basic types
     UInt32 = pyffi.object_models.common.UInt
-    UInt64 = pyffi.object_models.common.UInt64
     ZString = pyffi.object_models.common.ZString
 
     # implementation of bsa-specific basic types
+
+    class Hash(pyffi.object_models.common.UInt64):
+        def __str__(self):
+            return "0x%016X" % self._value
+
+        def get_detail_display(self):
+            return self.__str__()
 
     class FileSignature(BasicBase):
         """Basic type which implements the header of a BSA file."""
@@ -220,7 +226,8 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
             :type stream: ``file``
             """
             # read the file
-            self.inspect(stream)
+            self.inspect_quick(stream)
+            BsaFormat._Header.read(self, stream, data=self)
             self.folders.read(stream, data=self)
 
             # check if we are at the end of the file
