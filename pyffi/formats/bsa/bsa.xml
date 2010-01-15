@@ -24,8 +24,8 @@
         A null terminated string, with byte prefix for length.
     </basic>
 
-    <basic name="FileSignature">
-        "BSA\x00".
+    <basic name="FileVersion">
+        "BSA\x00" + version, or "\x00\x01\x00\x00".
     </basic>
 
     <!--
@@ -96,6 +96,19 @@
     ***************
     -->
 
+   <struct name="OldFile">
+       <add name="Data Size" type="UInt32" />
+       <add name="Data Offset" type="UInt32">
+           Relative position in file where raw file data starts.
+       </add>
+       <!-- the following field is written after all files -->
+       <add name="Name Offset" type="UInt32" abstract="1" />
+       <!-- the following field is written after all offsets -->
+       <add name="Name" type="ZString" abstract="1" />
+       <!-- the following field is written after all names -->
+       <add name="Name Hash" type="Hash" abstract="1" />
+   </struct>
+
    <struct name="File">
        <add name="Name Hash" type="Hash" />
        <add name="File Size" type="FileSize" />
@@ -120,25 +133,34 @@
    </struct>
 
    <struct name="Header">
-       <add name="Signature" type="FileSignature">Always BSA\x00</add>
-       <add name="Version" type="UInt32">103 for Oblivion</add>
-       <add name="Offset" type="UInt32" default="36">
+       <add name="Version" type="FileVersion">
+           BSA\x00 + version for Oblivion and up,
+           \x00\x01\x00\x00 for Morrowind.
+       </add>
+       <!-- Morrowind -->
+       <add name="Old File Hashes Offset" type="UInt32" ver2="0" />
+       <add name="Num Old Files" type="UInt32" ver2="0" />
+       <add name="Old Files" type="OldFile" arr1="Num Old Files" ver2="0" abstract="1" />
+       <!-- Oblivion -->
+       <add name="Folders Offset" type="UInt32" default="36" ver1="103">
            Position in file where folder data starts.
        </add>
-       <add name="Archive Flags" type="ArchiveFlags">Various settings.</add>
-       <add name="Num Folders" type="UInt32" />
-       <add name="Num Files" type="UInt32" />
-       <add name="Total Folder Name Length" type="UInt32">
+       <add name="Archive Flags" type="ArchiveFlags" ver1="103">
+           Various settings.
+       </add>
+       <add name="Num Folders" type="UInt32" ver1="103" />
+       <add name="Num Files" type="UInt32" ver1="103" />
+       <add name="Total Folder Name Length" type="UInt32" ver1="103">
            Total length of all folder names, including \0's but not including
            the prefixed length byte.
        </add>
-       <add name="Total File Name Length" type="UInt32">
+       <add name="Total File Name Length" type="UInt32" ver1="103">
            Total length of all file names, including \0's.
        </add>
-       <add name="File Flags" type="FileFlags">
+       <add name="File Flags" type="FileFlags" ver1="103">
            Seems to indicate what kinds of files are in the archive.
        </add>
-       <add name="Folders" type="Folder" arr1="Num Folders" abstract="1" />
+       <add name="Folders" type="Folder" arr1="Num Folders" abstract="1" ver1="103" />
    </struct>
 
 </fileformat>

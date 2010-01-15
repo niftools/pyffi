@@ -130,27 +130,14 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
             self._value = stream.read(length)[:-1] # strip trailing null byte
 
         def write(self, stream, data=None):
-            stream.write(struct.pack('<I', len(self._value)))
+            stream.write(struct.pack('<B', len(self._value)))
             stream.write(self._value)
             stream.write(struct.pack('<B', 0))
 
-    class FileSignature(BasicBase):
+    class FileVersion(pyffi.object_models.common.UInt):
         """Basic type which implements the header of a BSA file."""
         def __init__(self, **kwargs):
             BasicBase.__init__(self, **kwargs)
-
-        def __str__(self):
-            return 'BSA'
-
-        def get_detail_display(self):
-            return self.__str__()
-
-        def get_hash(self, **kwargs):
-            """Return a hash value for this value.
-
-            :return: An immutable object that can be used as a hash.
-            """
-            return None
 
         def read(self, stream, **kwargs):
             """Read header string from stream and check it.
@@ -160,10 +147,17 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
             """
             hdrstr = stream.read(4)
             # check if the string is correct
-            if hdrstr != "BSA\x00".encode("ascii"):
+            if hdrstr == "\x00\x01\x00\x00".encode("ascii"):
+                # morrowind style, set version too!
+                self._value = 0
+            elif hdrstr == "BSA\x00".encode("ascii"):
+                # oblivion an up: read version
+                self._value, = struct.unpack("<I", stream.read(4))
+            else:
                 raise ValueError(
-                    "invalid BSA header: expected 'BSA\\x00' but got '%s'"
-                    % hdrstr)
+                    "invalid BSA header:"
+                    " expected '\\x00\\x01\\x00\\x00' or 'BSA\\x00'"
+                    " but got '%s'" % hdrstr)
 
         def write(self, stream, **kwargs):
             """Write the header string to stream.
@@ -171,7 +165,11 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
             :param stream: The stream to write to.
             :type stream: file
             """
-            stream.write("BSA\x00".encode("ascii"))
+            if self._value >= 103:
+                stream.write("BSA\x00".encode("ascii"))
+                stream.write(struct.pack("<I", self._value))
+            else:
+                stream.write("\x00\x01\x00\x00".encode("ascii"))
 
         def get_size(self, **kwargs):
             """Return number of bytes the header string occupies in a file.
@@ -212,8 +210,7 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
             """
             pos = stream.tell()
             try:
-                self._signature_value_.read(stream)
-                self._version_value_.read(stream)
+                self._version_value_.read(stream, data=self)
             finally:
                 stream.seek(pos)
 
@@ -247,27 +244,48 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
             # read file
             logger.debug("Reading header at 0x%08X." % stream.tell())
             BsaFormat._Header.read(self, stream, data=self)
-            logger.debug("Reading folder records at 0x%08X." % stream.tell())
-            self.folders.read(stream, data=self)
-            logger.debug(
-                "Reading folder names and file records at 0x%08X."
-                % stream.tell())
-            for folder in self.folders:
-                folder._name_value_.read(stream, data=self)
-                folder._files_value_.read(stream, data=self)
-            logger.debug("Reading file names at 0x%08X." % stream.tell())
-            for folder in self.folders:
-                for file_ in folder.files:
-                    file_._name_value_.read(stream, data=self)
-
-            # "read" the files
-            logger.debug(
-                "Seeking end of raw file data at 0x%08X." % stream.tell())
-            total_num_bytes = 0
-            for folder in self.folders:
-                for file_ in folder.files:
-                    total_num_bytes += file_.file_size.num_bytes
-            stream.seek(total_num_bytes, os.SEEK_CUR)
+            if self.version == 0:
+                # morrowind
+                logger.debug("Reading file records at 0x%08X." % stream.tell())
+                self.old_files.read(stream, data=self)
+                logger.debug("Reading file name offsets at 0x%08X." % stream.tell())
+                for old_file in self.old_files:
+                    old_file._name_offset_value_.read(stream, data=self)
+                logger.debug("Reading file names at 0x%08X." % stream.tell())
+                for old_file in self.old_files:
+                    old_file._name_value_.read(stream, data=self)
+                logger.debug("Reading file hashes at 0x%08X." % stream.tell())
+                for old_file in self.old_files:
+                    old_file._name_hash_value_.read(stream, data=self)
+                # "read" the files
+                logger.debug(
+                    "Seeking end of raw file data at 0x%08X." % stream.tell())
+                total_num_bytes = 0
+                for old_file in self.old_files:
+                    total_num_bytes += old_file.data_size
+                stream.seek(total_num_bytes, os.SEEK_CUR)
+            else:
+                # oblivion and up
+                logger.debug("Reading folder records at 0x%08X." % stream.tell())
+                self.folders.read(stream, data=self)
+                logger.debug(
+                    "Reading folder names and file records at 0x%08X."
+                    % stream.tell())
+                for folder in self.folders:
+                    folder._name_value_.read(stream, data=self)
+                    folder._files_value_.read(stream, data=self)
+                logger.debug("Reading file names at 0x%08X." % stream.tell())
+                for folder in self.folders:
+                    for file_ in folder.files:
+                        file_._name_value_.read(stream, data=self)
+                # "read" the files
+                logger.debug(
+                    "Seeking end of raw file data at 0x%08X." % stream.tell())
+                total_num_bytes = 0
+                for folder in self.folders:
+                    for file_ in folder.files:
+                        total_num_bytes += file_.file_size.num_bytes
+                stream.seek(total_num_bytes, os.SEEK_CUR)
 
             # check if we are at the end of the file
             if stream.read(1):
