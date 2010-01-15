@@ -108,7 +108,8 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
     RE_FILENAME = re.compile(r'^.*\.bsa$', re.IGNORECASE)
 
     # basic types
-    uint = pyffi.object_models.common.UInt
+    UInt32 = pyffi.object_models.common.UInt
+    UInt64 = pyffi.object_models.common.UInt64
     ZString = pyffi.object_models.common.ZString
 
     # implementation of bsa-specific basic types

@@ -8,7 +8,11 @@
     *******************
     -->
 
-    <basic name="uint">
+    <basic name="UInt32">
+        An unsigned 32-bit integer.
+    </basic>
+
+    <basic name="UInt64">
         An unsigned 32-bit integer.
     </basic>
 
@@ -81,20 +85,20 @@
     -->
 
    <struct name="File">
-       <add name="Name Hash" type="uint" />
+       <add name="Name Hash" type="UInt64" />
        <add name="File Size" type="FileSize" />
-       <add name="Offset" type="uint">
+       <add name="Offset" type="UInt32">
            Absolute position in file where raw file data starts.
        </add>
        <add name="Name" type="ZString" abstract="1" /><!-- written after all folders and files -->
    </struct>
 
    <struct name="Folder">
-       <add name="Name Hash" type="uint" />
-       <add name="Num Files" type="uint">
+       <add name="Name Hash" type="UInt64" />
+       <add name="Num Files" type="UInt32">
            Number of files in this folder.
        </add>
-       <add name="Offset" type="uint">
+       <add name="Offset" type="UInt32">
            Absolute position in file where file data starts.
        </add>
        <add name="Name" type="ZString" abstract="1" /><!-- written after all folders -->
@@ -103,18 +107,18 @@
 
    <struct name="Header">
        <add name="Signature" type="FileSignature">Always BSA\x00</add>
-       <add name="Version" type="uint">103 for Oblivion</add>
-       <add name="Offset" type="uint" default="36">
+       <add name="Version" type="UInt32">103 for Oblivion</add>
+       <add name="Offset" type="UInt32" default="36">
            Position in file where folder data starts.
        </add>
        <add name="Archive Flags" type="ArchiveFlags">Various settings.</add>
-       <add name="Num Folders" type="uint" />
-       <add name="Num Files" type="uint" />
-       <add name="Total Folder Name Length" type="uint">
+       <add name="Num Folders" type="UInt32" />
+       <add name="Num Files" type="UInt32" />
+       <add name="Total Folder Name Length" type="UInt32">
            Total length of all folder names, including \0's but not including
            the prefixed length byte.
        </add>
-       <add name="Total File Name Length" type="uint">
+       <add name="Total File Name Length" type="UInt32">
            Total length of all file names, including \0's.
        </add>
        <add name="File Flags" type="FileFlags">
