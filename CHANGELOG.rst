@@ -7,6 +7,8 @@ Release 2.1.2 (in development)
   color array was present (reported by Baphometal, debugged by
   PacificMorrowind).
 
+* Initial bsa file support (Morrowind, Oblivion, and Fallout 3).
+
 Release 2.1.1 (Jan 11, 2010)
 ============================
 
