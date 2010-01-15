@@ -109,7 +109,6 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
 
     # basic types
     UInt32 = pyffi.object_models.common.UInt
-    ZString = pyffi.object_models.common.ZString
 
     # implementation of bsa-specific basic types
 
@@ -119,6 +118,19 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
 
         def get_detail_display(self):
             return self.__str__()
+
+    class BZString(pyffi.object_models.common.SizedString):
+        def get_size(self, **kwargs):
+            return 2 + len(self._value)
+
+        def read(self, stream, data=None):
+            length, = struct.unpack('<B', stream.read(1))
+            self._value = stream.read(length)[:-1] # strip trailing null byte
+
+        def write(self, stream, data=None):
+            stream.write(struct.pack('<I', len(self._value)))
+            stream.write(self._value)
+            stream.write(struct.pack('<B', 0))
 
     class FileSignature(BasicBase):
         """Basic type which implements the header of a BSA file."""
@@ -229,6 +241,9 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
             self.inspect_quick(stream)
             BsaFormat._Header.read(self, stream, data=self)
             self.folders.read(stream, data=self)
+            for folder in self.folders:
+                folder._name_value_.read(stream, data=self)
+                folder._files_value_.read(stream, data=self)
 
             # check if we are at the end of the file
             #if stream.read(1):

@@ -16,7 +16,7 @@
         An unsigned 64-bit integer.
     </basic>
 
-    <basic name="ZString">
+    <basic name="BZString">
         A null terminated string.
     </basic>
 
@@ -98,7 +98,7 @@
        <add name="Offset" type="UInt32">
            Absolute position in file where raw file data starts.
        </add>
-       <add name="Name" type="ZString" abstract="1" /><!-- written after all folders and files -->
+       <add name="Name" type="BZString" abstract="1" /><!-- written after all folders and files -->
    </struct>
 
    <struct name="Folder">
@@ -109,7 +109,7 @@
        <add name="Offset" type="UInt32">
            Absolute position in file where file data starts.
        </add>
-       <add name="Name" type="ZString" abstract="1" /><!-- written after all folders -->
+       <add name="Name" type="BZString" abstract="1" /><!-- written after all folders -->
        <add name="Files" type="File" arr1="Num Files" abstract="1" /><!-- written after all folders -->
    </struct>
 
