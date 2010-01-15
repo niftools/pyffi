@@ -180,6 +180,7 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
 
     class Header(pyffi.object_models.FileFormat.Data):
         """A class to contain the actual bsa data."""
+        user_version = None # not used
 
         def inspect_quick(self, stream):
             """Quickly checks if stream contains BSA data, and gets the
@@ -219,12 +220,12 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
             """
             # read the file
             self.inspect(stream)
-            self.folders.read(self, stream, data=self)
+            self.folders.read(stream, data=self)
 
             # check if we are at the end of the file
-            if stream.read(1):
-                raise ValueError(
-                    'end of file not reached: corrupt bsa file?')
+            #if stream.read(1):
+            #    raise ValueError(
+            #        'end of file not reached: corrupt bsa file?')
             
         def write(self, stream):
             """Write a bsa file.
