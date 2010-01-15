@@ -203,6 +203,7 @@ Entropia Universe 0x0A010000
 Fallout 3 0x14020007
 Freedom Force 0x04000000 0x04000002
 Freedom Force vs. the 3rd Reich 0x0A010000
+Howling Sword 0x14030009
 Kohan 2 0x0A010000
 KrazyRain 0x14050000 0x14060000
 Lazeska 0x14030009
