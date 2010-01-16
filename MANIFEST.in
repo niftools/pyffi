@@ -13,6 +13,7 @@ include pyffi/formats/dds/dds.xml
 include pyffi/formats/tga/tga.xml
 include pyffi/formats/egm/egm.xml
 include pyffi/formats/tri/tri.xml
+include pyffi/formats/bsa/bsa.xml
 include pyffi/formats/dae/COLLADASchema.xsd
 include pyffi/utils/mopper.exe
 recursive-include examples *.py
