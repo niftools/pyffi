@@ -227,19 +227,20 @@ legacykeys_end_${label}:
   !insertmacro PostExtraLegacyKeys python_2_5_32 2.5
   !insertmacro PostExtraLegacyKeys python_2_6_32 2.6
 
-  !insertmacro PostExtraPyPathCheck python_3_2_64 install_shortcuts
+  ; first check 32 bit: PyQt4 can only be installed for these...
   !insertmacro PostExtraPyPathCheck python_3_2_32 install_shortcuts
-  !insertmacro PostExtraPyPathCheck python_3_1_64 install_shortcuts
   !insertmacro PostExtraPyPathCheck python_3_1_32 install_shortcuts
-  !insertmacro PostExtraPyPathCheck python_3_0_64 install_shortcuts
   !insertmacro PostExtraPyPathCheck python_3_0_32 install_shortcuts
-  !insertmacro PostExtraPyPathCheck python_2_7_64 install_shortcuts
   !insertmacro PostExtraPyPathCheck python_2_7_32 install_shortcuts
-  !insertmacro PostExtraPyPathCheck python_2_6_64 install_shortcuts
   !insertmacro PostExtraPyPathCheck python_2_6_32 install_shortcuts
+  !insertmacro PostExtraPyPathCheck python_2_5_32 install_shortcuts
+  !insertmacro PostExtraPyPathCheck python_3_2_64 install_shortcuts
+  !insertmacro PostExtraPyPathCheck python_3_1_64 install_shortcuts
+  !insertmacro PostExtraPyPathCheck python_3_0_64 install_shortcuts
+  !insertmacro PostExtraPyPathCheck python_2_7_64 install_shortcuts
+  !insertmacro PostExtraPyPathCheck python_2_6_64 install_shortcuts
   ; 2.5 64 bit has problem with xml support
   ;!insertmacro PostExtraPyPathCheck python_2_5_64 install_shortcuts
-  !insertmacro PostExtraPyPathCheck python_2_5_32 install_shortcuts
 
   ; No version of python installed which can run qskope.
   MessageBox MB_OK "A version of Python which can run qskope/niftoaster was not found: shortcuts will not be created."

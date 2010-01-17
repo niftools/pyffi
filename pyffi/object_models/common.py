@@ -234,6 +234,20 @@ class UInt(Int):
     _struct = 'I'
     _size = 4
 
+class Int64(Int):
+    """Implementation of a 64-bit signed integer type."""
+    _min = -0x8000000000000000
+    _max = 0x7fffffffffffffff
+    _struct = 'q'
+    _size = 8
+
+class UInt64(Int):
+    """Implementation of a 64-bit unsigned integer type."""
+    _min = 0
+    _max = 0xffffffffffffffff
+    _struct = 'Q'
+    _size = 8
+
 class Byte(Int):
     """Implementation of a 8-bit signed integer type."""
     _min = -0x80

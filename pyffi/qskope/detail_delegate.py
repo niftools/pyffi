@@ -158,7 +158,7 @@ class DetailDelegate(QtGui.QItemDelegate):
             editor.setCurrentIndex(editorvalue)
         elif isinstance(node, EditableSpinBox):
             # a (possibly float) spinbox: simply set the value
-            editor.set_value(editorvalue)
+            editor.setValue(editorvalue)
         elif isinstance(node, EditableLineEdit):
             # a text editor: set the text
             editor.setText(editorvalue)

@@ -1,5 +1,25 @@
-Release 2.0.6 (in development)
+Release 2.1.3 (in development)
 ==============================
+
+Release 2.1.2 (Jan 16, 2010)
+============================
+
+* Fallout 3 skin partition flag bugfix (reported by Ghostwalker71).
+
+* Fixed bug in optimize spell, when has_vertex_colors was False but vertex
+  color array was present (reported by Baphometal, debugged by
+  PacificMorrowind).
+
+* Initial bsa file support (Morrowind, Oblivion, and Fallout 3).
+
+Release 2.1.1 (Jan 11, 2010)
+============================
+
+* Accidently released corrupted nif.xml (affected Fallout 3), so this is just
+  a quick bugfix release including the correct nif.xml.
+
+Release 2.1.0 (Jan 10, 2010)
+============================
 
 * Improved windows installer.
 

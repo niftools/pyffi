@@ -203,6 +203,7 @@ Entropia Universe 0x0A010000
 Fallout 3 0x14020007
 Freedom Force 0x04000000 0x04000002
 Freedom Force vs. the 3rd Reich 0x0A010000
+Howling Sword 0x14030009
 Kohan 2 0x0A010000
 KrazyRain 0x14050000 0x14060000
 Lazeska 0x14030009
@@ -327,6 +328,7 @@ import sys
 import warnings
 import weakref
 
+import pyffi.formats.bsa
 import pyffi.formats.dds
 import pyffi.object_models.common
 import pyffi.object_models
@@ -356,6 +358,8 @@ class NifFormat(FileFormat):
     # .kfa are nif files containing keyframes in DAoC style
     # .nifcache are Empire Earth II nif files
     RE_FILENAME = re.compile(r'^.*\.(nif|kf|kfa|nifcache|jmi)$', re.IGNORECASE)
+    # archives
+    ARCHIVE_CLASSES = [pyffi.formats.bsa.BsaFormat]
     # used for comparing floats
     EPSILON = 0.0001
 
@@ -6346,13 +6350,13 @@ class NifFormat(FileFormat):
                     bodypart.body_part = part[2]
                     if (lastpart is None) or (lastpart[0] != part[0]):
                         # start new bone set, if bones are not shared
-                        bodypart.part_flag.startNewBoneset = 1
+                        bodypart.part_flag.start_new_boneset = 1
                     else:
                         # do not start new bone set
-                        bodypart.part_flag.startNewBoneset = 0
+                        bodypart.part_flag.start_new_boneset = 0
                     # caps are invisible
-                    bodypart.part_flag.editorVisible = (part[2] < 100
-                                                       or part[2] >= 1000)
+                    bodypart.part_flag.editor_visible = (part[2] < 100
+                                                         or part[2] >= 1000)
                     # store part for next iteration
                     lastpart = part
 

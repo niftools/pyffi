@@ -18,9 +18,10 @@ Supported formats
    :maxdepth: 2
    
    pyffi.formats.cgf
+   pyffi.formats.bsa
    pyffi.formats.dae
-   pyffi.formats.egm
    pyffi.formats.dds
+   pyffi.formats.egm
    pyffi.formats.kfm
    pyffi.formats.nif
    pyffi.formats.tga

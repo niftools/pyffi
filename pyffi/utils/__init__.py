@@ -59,7 +59,7 @@ def walk(top, topdown=True, onerror=None, re_filename=None):
     """
     if os.path.isfile(top):
         dirpath, filename = os.path.split(top)
-        if re_filename != None:
+        if re_filename:
             if re_filename.match(filename):
                 yield top
         else:
@@ -68,7 +68,7 @@ def walk(top, topdown=True, onerror=None, re_filename=None):
         for dirpath, dirnames, filenames in os.walk(top):
             filenames = sorted(filenames)
             for filename in filenames:
-                if re_filename != None:
+                if re_filename:
                     if re_filename.match(filename):
                         yield os.path.join(dirpath, filename)
                 else:

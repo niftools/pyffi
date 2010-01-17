@@ -609,7 +609,8 @@ class Toaster(object):
         series=False,
         skip=[], only=[],
         jobs=1, refresh=32,
-        sourcedir="", destdir="")
+        sourcedir="", destdir="",
+        archives=False)
 
     """List of spell classes of the particular :class:`Toaster` instance."""
 
@@ -847,6 +848,10 @@ class Toaster(object):
             version="%%prog (PyFFI %s)" % pyffi.__version__,
             description=description)
         parser.add_option(
+            "--archives", dest="archives",
+            action="store_true",
+            help="also parse files inside archives")
+        parser.add_option(
             "-a", "--arg", dest="arg",
             type="string",
             metavar="ARG",
@@ -1049,7 +1054,10 @@ class Toaster(object):
         # get top folder/file: last argument always is folder/file
         top = args[-1]
 
-        self.toast(top)
+        if not self.options["archives"]:
+            self.toast(top)
+        else:
+            self.toast_archives(top)
 
         # signal the end
         self.logger.info("Finished.")
@@ -1191,6 +1199,36 @@ may destroy them. Make a backup of your files before running this script.
 
         # toast exit code
         self.spellclass.toastexit(self)
+
+    def toast_archives(self, top):
+        """Toast all files in all archives."""
+        if not self.FILEFORMAT.ARCHIVE_CLASSES:
+            self.logger.info("No known archives contain this file format.")
+        # walk over all files, and pick archives as we go
+        for filename_in in pyffi.utils.walk(top):
+            for ARCHIVE_CLASS in self.FILEFORMAT.ARCHIVE_CLASSES:
+                # check if extension matches
+                if not ARCHIVE_CLASS.RE_FILENAME.match(filename_in):
+                    continue
+                # open the archive
+                try:
+                    archive_in = ARCHIVE_CLASS.Data(name=filename_in, mode='r')
+                except ValueError:
+                    self.logger.warn("archive format not recognized, skipped")
+                    continue
+                # toast all members in the archive
+                # and save them to a temporary archive as we go
+                if not self.spellclass.READONLY:
+                    for member in archive_in.get_members():
+                        self._toast_member(member)
+                else:
+                    file_out = tempfile.TemporaryFile()
+                    archive_out = ARCHIVE_CLASS.Data(fileobj=file_out, mode='w')
+                    for member in archive_in.get_members():
+                        self._toast(member)
+                        archive_out.add(member)
+                    archive_out.close()
+                archive_in.close()
 
     def _toast(self, stream):
         """Run toaster on particular stream and data.

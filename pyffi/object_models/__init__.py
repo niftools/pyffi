@@ -134,9 +134,9 @@ class FileFormat(object):
     call) for the file extension of the format you are implementing.
     """
 
-    _NON_PEP8 = False
-    """Flags whether to make a non-pep8 alias for every pep8 attribute,
-    where required.
+    ARCHIVE_CLASSES = []
+    """Override this with a list of archive formats that may contain
+    files of the format.
     """
 
     # precompiled regular expressions, used in name_parts
@@ -359,52 +359,51 @@ class FileFormat(object):
             finally:
                 stream.close()
 
-    # XXX next method will be removed once python 2 compatibility is dropped
-    @classmethod
-    def _add_non_pep8_attributes(cls, klass):
-        """Adds non-pep8 compatibility wrappers.
+class ArchiveFileFormat(FileFormat):
+    """This class is the base class for all archive file formats. It
+    implements incremental reading and writing of archive files.
+    """
 
-        >>> class A:
-        ...     @staticmethod
-        ...     def some_function(x):
-        ...         print(x)
-        >>> class XFormat(FileFormat):
-        ...     _NON_PEP8 = True
-        >>> XFormat._add_non_pep8_attributes(A)
-        >>> A.some_function("hello")
-        hello
-        >>> A.someFunction("hello")
-        hello
+    class Data(FileFormat.Data):
+        """Base class for representing archive data.
+        Override this class to implement incremental reading and writing.
         """
-        # do we need it?
-        if not cls._NON_PEP8:
-            return
 
-        # also drop old interface for py3k
-        if sys.version_info[0] >= 3:
-            return
+        _stream = None
+        """The file stream associated with the archive."""
 
-        logger = logging.getLogger("pyffi.object_models")
-        # note: copy of dictionary, because we modify it during iteration
-        for name, obj in list(klass.__dict__.iteritems()):
-            if isinstance(obj, (int, long)):
-                # skip constants
-                continue
-            if name.startswith("_"):
-                # skip non-public attributes
-                continue
-            if name.find("_") == -1:
-                # skip non-pep8 style attributes
-                continue
-            # note: now, obj should be a property or a function
-            # convert into an "old style" attribute
-            components = name.split("_")
-            newname = components[0]
-            newname += ''.join(component.capitalize()
-                               for component in components[1:])
-            # TODO create wrapper for obj so we can
-            # warn when deprecated attributes/methods are used
-            setattr(klass, newname, obj)
-            # debug message (runparsetest will show these)
-            logger.debug("Added %s alias for %s"
-                         % (newname, name))
+        def __init__(self, name=None, mode=None, fileobj=None):
+            """Sets _stream and _mode."""
+            # at least:
+            #self._stream = fileobj if fileobj else open(name, mode)
+            raise NotImplementedError
+
+        def get_members(self):
+            raise NotImplementedError
+
+        def set_members(self, members):
+            raise NotImplementedError
+
+        def close(self):
+            # at least:
+            #self._stream.close()
+            raise NotImplementedError
+
+        def read(self, stream):
+            self.__init__(mode='r', stream=stream)
+
+        def write(self, stream):
+            if self._stream == stream:
+                raise ValueError("cannot write back to the same stream")
+            # get all members from the old stream
+            members = list(self.get_members())
+            self.__init__(mode='w', fileobj=stream)
+            # set all members to the new stream
+            self.set_members(members)
+
+class ArchiveMember(object):
+    stream = None
+    """Temporary file stream which contains the extracted data."""
+
+    name = None
+    """Name of the file as recorded in the archive."""

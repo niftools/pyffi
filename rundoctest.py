@@ -31,6 +31,7 @@ import pyffi.formats.dds
 import pyffi.formats.tga
 import pyffi.formats.egm
 import pyffi.formats.tri
+import pyffi.formats.bsa
 import pyffi.spells
 import pyffi.spells.nif
 import pyffi.spells.nif.fix
