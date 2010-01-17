@@ -1212,7 +1212,7 @@ may destroy them. Make a backup of your files before running this script.
                     continue
                 # open the archive
                 try:
-                    archive_in = ARCHIVE_CLASS(name=filename_in, mode='r')
+                    archive_in = ARCHIVE_CLASS.Data(name=filename_in, mode='r')
                 except ValueError:
                     self.logger.warn("archive format not recognized, skipped")
                     continue
@@ -1222,8 +1222,8 @@ may destroy them. Make a backup of your files before running this script.
                     for member in archive_in.get_members():
                         self._toast_member(member)
                 else:
-                    file_out = tempfile.NamedTemporaryFile(delete=False)
-                    archive_out = ARCHIVE_CLASS(fileobj=file_out, mode='w')
+                    file_out = tempfile.TemporaryFile()
+                    archive_out = ARCHIVE_CLASS.Data(fileobj=file_out, mode='w')
                     for member in archive_in.get_members():
                         self._toast(member)
                         archive_out.add(member)

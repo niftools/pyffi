@@ -364,24 +364,46 @@ class ArchiveFileFormat(FileFormat):
     implements incremental reading and writing of archive files.
     """
 
+    class Data(FileFormat.Data):
+        """Base class for representing archive data.
+        Override this class to implement incremental reading and writing.
+        """
+
+        _stream = None
+        """The file stream associated with the archive."""
+
+        def __init__(self, name=None, mode=None, fileobj=None):
+            """Sets _stream and _mode."""
+            # at least:
+            #self._stream = fileobj if fileobj else open(name, mode)
+            raise NotImplementedError
+
+        def get_members(self):
+            raise NotImplementedError
+
+        def set_members(self, members):
+            raise NotImplementedError
+
+        def close(self):
+            # at least:
+            #self._stream.close()
+            raise NotImplementedError
+
+        def read(self, stream):
+            self.__init__(mode='r', stream=stream)
+
+        def write(self, stream):
+            if self._stream == stream:
+                raise ValueError("cannot write back to the same stream")
+            # get all members from the old stream
+            members = list(self.get_members())
+            self.__init__(mode='w', fileobj=stream)
+            # set all members to the new stream
+            self.set_members(members)
+
+class ArchiveMember(object):
     stream = None
-    """The file stream associated with the archive."""
+    """Temporary file stream which contains the extracted data."""
 
-    mode = None
-    """The mode in which the archive is operating (either 'r' or 'w')."""
-
-    def __init__(name=None, mode=None, fileobj=None):
-        if fileobj:
-            self.stream = fileobj
-        else:
-            self.stream = open(name, mode)
-        self.mode = mode
-
-    def get_members(self):
-        raise NotImplementedError
-
-    def add(self, member):
-        raise NotImplementedError
-
-    def close(self):
-        self.stream.close()
+    name = None
+    """Name of the file as recorded in the archive."""
