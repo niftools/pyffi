@@ -609,7 +609,8 @@ class Toaster(object):
         series=False,
         skip=[], only=[],
         jobs=1, refresh=32,
-        sourcedir="", destdir="")
+        sourcedir="", destdir="",
+        archives=False)
 
     """List of spell classes of the particular :class:`Toaster` instance."""
 
@@ -846,6 +847,10 @@ class Toaster(object):
             usage,
             version="%%prog (PyFFI %s)" % pyffi.__version__,
             description=description)
+        parser.add_option(
+            "--archives", dest="archives",
+            action="store_true",
+            help="also parse files inside archives")
         parser.add_option(
             "-a", "--arg", dest="arg",
             type="string",
