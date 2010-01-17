@@ -358,3 +358,30 @@ class FileFormat(object):
                 yield stream
             finally:
                 stream.close()
+
+class ArchiveFileFormat(FileFormat):
+    """This class is the base class for all archive file formats. It
+    implements incremental reading and writing of archive files.
+    """
+
+    stream = None
+    """The file stream associated with the archive."""
+
+    mode = None
+    """The mode in which the archive is operating (either 'r' or 'w')."""
+
+    def __init__(name=None, mode=None, fileobj=None):
+        if fileobj:
+            self.stream = fileobj
+        else:
+            self.stream = open(name, mode)
+        self.mode = mode
+
+    def get_members(self):
+        raise NotImplementedError
+
+    def add(self, member):
+        raise NotImplementedError
+
+    def close(self):
+        self.stream.close()

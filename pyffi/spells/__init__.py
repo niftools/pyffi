@@ -1212,7 +1212,7 @@ may destroy them. Make a backup of your files before running this script.
                     continue
                 # open the archive
                 try:
-                    archive_in = ARCHIVE_CLASS.open(name=filename_in, mode='r')
+                    archive_in = ARCHIVE_CLASS(name=filename_in, mode='r')
                 except ValueError:
                     self.logger.warn("archive format not recognized, skipped")
                     continue
