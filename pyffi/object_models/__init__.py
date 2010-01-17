@@ -134,6 +134,11 @@ class FileFormat(object):
     call) for the file extension of the format you are implementing.
     """
 
+    ARCHIVE_CLASSES = []
+    """Override this with a list of archive formats that may contain
+    files of the format.
+    """
+
     # precompiled regular expressions, used in name_parts
 
     _RE_NAME_SEP = re.compile('[_\W]+')
