@@ -328,6 +328,7 @@ import sys
 import warnings
 import weakref
 
+import pyffi.formats.bsa
 import pyffi.formats.dds
 import pyffi.object_models.common
 import pyffi.object_models
@@ -357,6 +358,8 @@ class NifFormat(FileFormat):
     # .kfa are nif files containing keyframes in DAoC style
     # .nifcache are Empire Earth II nif files
     RE_FILENAME = re.compile(r'^.*\.(nif|kf|kfa|nifcache|jmi)$', re.IGNORECASE)
+    # archives
+    ARCHIVE_CLASSES = [pyffi.formats.bsa.BsaFormat]
     # used for comparing floats
     EPSILON = 0.0001
 
