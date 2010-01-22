@@ -600,3 +600,41 @@ class SpellOptimize(
     """Global fixer and optimizer spell."""
     SPELLNAME = "optimize"
 
+class SpellDelUnusedBones(pyffi.spells.nif.NifSpell):
+    """Remove empty and duplicate entries in reference lists."""
+
+    SPELLNAME = "opt_delunusedbones"
+    READONLY = False
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.NiSkinInstance)
+
+    def branchinspect(self, branch):
+        # only inspect the NiNode branch
+        return isinstance(branch, NifFormat.NiNode)
+
+    def branchentry(self, branch):
+        bones = []
+        if isinstance(branch, NifFormat.NiNode):
+            # populate bone list
+            for child in branch.get_children():
+                if isinstance(child, NifFormat.NiTriBasedGeom):
+                    skinnode = child.skin_instance
+                    for bone in skinnode.bones:
+                        bones.append(bone.name)
+            print bones
+            # remove unused bones
+            # calling again in case the skin isn't flattened.
+            for child in branch.get_children():
+                if isinstance(child, NifFormat.NiNode):
+                    # is it a bone node
+                    if child.name[:3].lower() == 'bip':
+                        # if bone not refed by any skinInstance delete it
+                        # however if bone has children its somewhat a funny nif and 
+                        # probably we don't want to delete the bone so skip if that's the case.
+                        if child.name not in bones and child.num_children == 0:
+                            branch.remove_child(child)
+                            self.toaster.msg("Unreferenced bone %s removed" % child.name)
+        # No need to recurse further (at least for OB/FO3 skinned nifs)
+        return False
+        
