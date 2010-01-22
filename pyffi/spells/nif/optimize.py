@@ -622,7 +622,6 @@ class SpellDelUnusedBones(pyffi.spells.nif.NifSpell):
                     skinnode = child.skin_instance
                     for bone in skinnode.bones:
                         bones.append(bone.name)
-            print bones
             # remove unused bones
             # calling again in case the skin isn't flattened.
             for child in branch.get_children():
@@ -630,7 +629,7 @@ class SpellDelUnusedBones(pyffi.spells.nif.NifSpell):
                     # is it a bone node
                     if child.name[:3].lower() == 'bip':
                         # if bone not refed by any skinInstance delete it
-                        # however if bone has children its somewhat a funny nif and 
+                        # however if bone has children its a somewhat a funny nif and 
                         # probably we don't want to delete the bone so skip if that's the case.
                         if child.name not in bones and child.num_children == 0:
                             branch.remove_child(child)
