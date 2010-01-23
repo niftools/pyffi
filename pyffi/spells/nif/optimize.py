@@ -607,33 +607,27 @@ class SpellDelUnusedBones(pyffi.spells.nif.NifSpell):
     READONLY = False
 
     def datainspect(self):
+        # only run the spell if there are skinned geometries
         return self.inspectblocktype(NifFormat.NiSkinInstance)
+
+    def dataentry(self):
+        # make list of used bones
+        self._used_bones = set()
+        for branch in self.data.get_global_iterator():
+            if isinstance(branch, NifFormat.NiGeometry):
+                if branch.skin_instance:
+                    self._used_bones |= set(branch.skin_instance.bones)
+        return True
 
     def branchinspect(self, branch):
         # only inspect the NiNode branch
         return isinstance(branch, NifFormat.NiNode)
-
+    
     def branchentry(self, branch):
-        bones = []
         if isinstance(branch, NifFormat.NiNode):
-            # populate bone list
-            for child in branch.get_children():
-                if isinstance(child, NifFormat.NiTriBasedGeom):
-                    skinnode = child.skin_instance
-                    for bone in skinnode.bones:
-                        bones.append(bone.name)
-            # remove unused bones
-            # calling again in case the skin isn't flattened.
-            for child in branch.get_children():
-                if isinstance(child, NifFormat.NiNode):
-                    # is it a bone node
-                    if child.name[:3].lower() == 'bip':
-                        # if bone not refed by any skinInstance delete it
-                        # however if bone has children its a somewhat a funny nif and 
-                        # probably we don't want to delete the bone so skip if that's the case.
-                        if child.name not in bones and child.num_children == 0:
-                            branch.remove_child(child)
-                            self.toaster.msg("Unreferenced bone %s removed" % child.name)
-        # No need to recurse further (at least for OB/FO3 skinned nifs)
-        return False
-        
+            if not branch.children and branch not in self._used_bones:
+                self.toaster.msg("removing unreferenced bone")
+                self.data.replace_global_node(branch, None)
+                # no need to recurse further
+                return False
+        return True
