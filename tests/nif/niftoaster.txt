@@ -20,6 +20,7 @@ Apply the spells <spell1>, <spell2>, and so on, on <file>, or recursively on
 Options:
   --version             show program's version number and exit
   -h, --help            show this help message and exit
+  --archives            also parse files inside archives
   -a ARG, --arg=ARG     pass argument ARG to each spell
   --dest-dir=DESTDIR    write files to DESTDIR instead of overwriting the
                         original; this is done by replacing SOURCEDIR by
@@ -164,6 +165,7 @@ opt_cleanreflists
 opt_mergeduplicates
 opt_geometry
 optimize
+opt_delunusedbones
 modify_texturepath
 modify_collisiontype
 modify_scaleanimationtime
@@ -277,6 +279,10 @@ pyffi.toaster:INFO:=== tests/nif/test_mopp.nif ===
 pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:    writing to temporary file
 pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_opt_delunusedbones.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
 pyffi.toaster:INFO:=== tests/nif/test_opt_dupgeomdata.nif ===
 pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:    writing to temporary file
@@ -338,6 +344,7 @@ pyffi.toaster:INFO:=== tests/nif/test_fix_tangentspace.nif ===
 pyffi.toaster:INFO:  --- check_read ---
 pyffi.toaster:INFO:=== tests/nif/test_fix_texturepath.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_mopp.nif (skipped) ===
+pyffi.toaster:INFO:=== tests/nif/test_opt_delunusedbones.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_opt_dupgeomdata.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_opt_dupverts.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_opt_emptyproperties.nif (skipped) ===
@@ -1376,6 +1383,10 @@ pyffi.toaster:INFO:=== tests/nif/test_mopp.nif ===
 pyffi.toaster:INFO:  version      0x14000005
 pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:  user version 11
+pyffi.toaster:INFO:=== tests/nif/test_opt_delunusedbones.nif ===
+pyffi.toaster:INFO:  version      0x0A010000
+pyffi.toaster:INFO:  user version 0
+pyffi.toaster:INFO:  user version 0
 pyffi.toaster:INFO:=== tests/nif/test_opt_dupgeomdata.nif ===
 pyffi.toaster:INFO:  version      0x04000002
 pyffi.toaster:INFO:  user version 0
@@ -1401,7 +1412,7 @@ pyffi.toaster:INFO:  version      0x14000005
 pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:version 0x0A010000
-pyffi.toaster:INFO:  number of nifs: 3
+pyffi.toaster:INFO:  number of nifs: 4
 pyffi.toaster:INFO:  user version:  [0]
 pyffi.toaster:INFO:  user version2: [0]
 pyffi.toaster:INFO:version 0x0A000100
