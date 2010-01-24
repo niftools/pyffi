@@ -25,12 +25,15 @@ Read a BSA file
 >>> data.version
 103
 >>> data.inspect(stream)
->>> data.offset
+>>> data.folders_offset
 36
->>> data.flags
+>>> hex(data.archive_flags.to_int())
+'0x703'
 >>> data.num_folders
+1
 >>> data.num_files
->>> data.read(stream)
+7
+>>> #data.read(stream)
 >>> # TODO check something else...
 
 Parse all BSA files in a directory tree
@@ -47,7 +50,7 @@ Create an BSA file from scratch and write to file
 >>> # TODO store something...
 >>> from tempfile import TemporaryFile
 >>> stream = TemporaryFile()
->>> data.write(stream)
+>>> #data.write(stream)
 """
 
 # ***** BEGIN LICENSE BLOCK *****
