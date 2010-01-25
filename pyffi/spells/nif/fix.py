@@ -597,3 +597,44 @@ class SpellCleanStringPalette(NifSpell):
         else:
             # keep looking for managers or sequences
             return True
+
+class SpellDelJunkBranches(pyffi.spells.nif.NifSpell):
+    """Remove empty and duplicate entries in reference lists."""
+    #VERY Experimental... not fully working.
+    SPELLNAME = "fix_deljunkbranches"
+    READONLY = False
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.NiAVObject)
+
+    def dataentry(self):
+        # make list of used bones
+        self._good_nodes = set()
+        self._good_geoms = []
+        for branch in self.data.get_global_iterator():
+            if isinstance(branch, NifFormat.NiAVObject):
+                if branch.properties:
+                    self._good_nodes |= set(branch.properties)
+            if isinstance(branch, NifFormat.NiGeometry):
+                if branch.data:
+                    self._good_geoms.append(branch.data)
+        print self._good_nodes
+        print self._good_geoms
+        return True
+        
+    def branchinspect(self, branch):
+        # only inspect the NiNode branch
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiProperty,
+                                   NifFormat.NiGeometryData))
+                                   
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiProperty):
+            if not branch in self._good_nodes:
+                self.toaster.msg("junk branch %s removed" % branch.name)
+                self.data.replace_global_node(branch, None) #this function makes it fail if the junk branch is NOT parented to NiNode 0; fine otherwise...
+        elif isinstance(branch, NifFormat.NiGeometryData):
+            if not branch in self._good_geoms:
+                self.toaster.msg("junk NiGeometryData removed")
+                self.data.replace_global_node(branch, None) #this is the same.
+        return True
