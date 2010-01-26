@@ -696,3 +696,39 @@ class SpellSubstituteStringPalette(
             self.toaster.msg("%s -> %s" % (old_string, new_string))
         return new_string
 
+class SpellChangeBonePriorities(NifSpell):
+    """Changes controlled block priorities based on controlled block name."""
+
+    SPELLNAME = "modify_bonepriorities"
+    READONLY = False
+
+    @classmethod
+    def toastentry(cls, toaster):
+        if not toaster.options["arg"]:
+            toaster.logger.warn(
+                "must specify bone(s) and priority(ies) as argument "
+                "(e.g. -a 'bip01|50|bip01 spine|10') to apply spell "
+                "make sure all bone names in lowercase")
+            return False
+        else:
+            toaster.change_bones = toaster.options["arg"].split('|')
+            print toaster.change_bones[1]
+            return True
+
+    def datainspect(self):
+        # returns only if nif/kf contains NiSequence
+        return self.inspectblocktype(NifFormat.NiSequence)
+        
+    def branchinspect(self, branch):
+        # inspect the NiAVObject and NiSequence branches
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiSequence))
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiSequence):
+            for controlled_block in branch.controlled_blocks:
+                if controlled_block.get_node_name().lower() in self.toaster.change_bones:
+                    controlled_block.priority = self.toaster.change_bones[(
+                        self.toaster.change_bones.index(controlled_block.get_node_name().lower()) + 1)]
+                    self.toaster.msg("%s priority changed to %d" % (controlled_block.get_node_name(), controlled_block.priority))
+        return True

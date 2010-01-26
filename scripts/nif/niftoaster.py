@@ -114,7 +114,8 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         pyffi.spells.nif.modify.SpellMakeSkinlessNif,
         pyffi.spells.nif.modify.SpellSubstituteStringPalette,
         pyffi.spells.nif.modify.SpellSubstituteTexturePath,
-        pyffi.spells.nif.fix.SpellDelJunkBranches
+        pyffi.spells.nif.fix.SpellDelJunkBranches,
+        pyffi.spells.nif.modify.SpellChangeBonePriorities
         ]
     ALIASDICT = {
         "texdump": "dump_tex",
