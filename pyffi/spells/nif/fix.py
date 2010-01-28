@@ -599,8 +599,8 @@ class SpellCleanStringPalette(NifSpell):
             return True
 
 class SpellDelJunkBranches(pyffi.spells.nif.NifSpell):
-    """Remove empty and duplicate entries in reference lists."""
-    #VERY Experimental... not fully working.
+    """Remove properties and datas that are present but unused in the nif."""
+
     SPELLNAME = "fix_deljunkbranches"
     READONLY = False
 
@@ -608,9 +608,10 @@ class SpellDelJunkBranches(pyffi.spells.nif.NifSpell):
         return self.inspectblocktype(NifFormat.NiAVObject)
 
     def dataentry(self):
-        # make list of used bones
+        # make list of good items, and clean up roots if needed
         self._good_nodes = set()
         self._good_geoms = []
+        self._good_roots = []
         for branch in self.data.get_global_iterator():
             if isinstance(branch, NifFormat.NiAVObject):
                 if branch.properties:
@@ -618,8 +619,20 @@ class SpellDelJunkBranches(pyffi.spells.nif.NifSpell):
             if isinstance(branch, NifFormat.NiGeometry):
                 if branch.data:
                     self._good_geoms.append(branch.data)
-        print self._good_nodes
-        print self._good_geoms
+        for root in self.data.roots:
+            if isinstance(root, NifFormat.NiNode):
+                self._good_roots.append(root)
+            elif isinstance(root, NifFormat.NiCamera):
+                self._good_roots.append(root)
+        if not self.data.roots == self._good_roots:
+            msg = ''
+            self.data.roots = self._good_roots
+            if len(self._good_roots) > 1:
+                for root in self._good_roots:
+                    msg += root.name+', '
+            else:
+                msg = self._good_roots[0].name
+            self.toaster.msg("Roots set to %s" % msg)
         return True
         
     def branchinspect(self, branch):
@@ -632,9 +645,9 @@ class SpellDelJunkBranches(pyffi.spells.nif.NifSpell):
         if isinstance(branch, NifFormat.NiProperty):
             if not branch in self._good_nodes:
                 self.toaster.msg("junk branch %s removed" % branch.name)
-                self.data.replace_global_node(branch, None) #this function makes it fail if the junk branch is NOT parented to NiNode 0; fine otherwise...
+                self.data.replace_global_node(branch, None)
         elif isinstance(branch, NifFormat.NiGeometryData):
             if not branch in self._good_geoms:
                 self.toaster.msg("junk NiGeometryData removed")
-                self.data.replace_global_node(branch, None) #this is the same.
+                self.data.replace_global_node(branch, None)
         return True
