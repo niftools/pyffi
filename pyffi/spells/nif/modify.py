@@ -732,3 +732,83 @@ class SpellChangeBonePriorities(NifSpell):
                         self.toaster.change_bones.index(controlled_block.get_node_name().lower()) + 1)]
                     self.toaster.msg("%s priority changed to %d" % (controlled_block.get_node_name(), controlled_block.priority))
         return True
+
+class SpellSetBoneTransRots(NifSpell):
+    """Changes specified bone(s) translations/rotations in their NiTransformInterpolator."""
+
+    SPELLNAME = "modify_bonetransrots"
+    READONLY = False
+
+    @classmethod
+    def toastentry(cls, toaster):
+        if not toaster.options["arg"]:
+            toaster.logger.warn(
+                "must specify bone(s), translation and rotation for each bone as argument "
+                "(e.g. -a 'bip01|7|0|-0.3|1|90|0|0|1') to apply spell "
+                "make sure all bone names in lowercase, first three numbers being translations "
+                "next three being rotation, last being scale, enter X to leave existing value for that value")
+            return False
+        else:
+            toaster.change_bones = toaster.options["arg"].split('|')
+            return True
+
+    def datainspect(self):
+        # returns only if nif/kf contains NiSequence
+        return self.inspectblocktype(NifFormat.NiSequence)
+        
+    def branchinspect(self, branch):
+        # inspect the NiAVObject and NiSequence branches
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiSequence))
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiSequence):
+            for controlled_block in branch.controlled_blocks:
+                if controlled_block.get_node_name().lower() in self.toaster.change_bones:
+                    pos = self.toaster.change_bones.index(controlled_block.get_node_name().lower())
+                    interp = controlled_block.interpolator
+                    if not self.toaster.change_bones[(pos+1)] == 'X': interp.translation.x = self.toaster.change_bones[(pos+1)]
+                    if not self.toaster.change_bones[(pos+2)] == 'X': interp.translation.y = self.toaster.change_bones[(pos+2)]
+                    if not self.toaster.change_bones[(pos+3)] == 'X': interp.translation.z = self.toaster.change_bones[(pos+3)]
+                    if not self.toaster.change_bones[(pos+4)] == 'X': interp.rotation.w = self.toaster.change_bones[(pos+4)]
+                    if not self.toaster.change_bones[(pos+5)] == 'X': interp.rotation.x = self.toaster.change_bones[(pos+5)]
+                    if not self.toaster.change_bones[(pos+6)] == 'X': interp.rotation.y = self.toaster.change_bones[(pos+6)]
+                    if not self.toaster.change_bones[(pos+7)] == 'X': interp.rotation.z = self.toaster.change_bones[(pos+7)]
+                    if not self.toaster.change_bones[(pos+8)] == 'X': interp.scale = self.toaster.change_bones[(pos+8)]
+                    self.toaster.msg("%s rotated/translated/scaled as per argument" % (controlled_block.get_node_name()))
+        return True
+
+class SpellDelBoneTransformData(NifSpell):
+    """Deletes the specified bone(s) NiTransformData(s)."""
+
+    SPELLNAME = "modify_delbonetransformdata"
+    READONLY = False
+
+    @classmethod
+    def toastentry(cls, toaster):
+        if not toaster.options["arg"]:
+            toaster.logger.warn(
+                "must specify bone name(s) as argument "
+                "(e.g. -a 'bip01|bip01 pelvix') to apply spell "
+                "make sure all bone name(s) in lowercase")
+            return False
+        else:
+            toaster.change_bones = toaster.options["arg"].split('|')
+            return True
+
+    def datainspect(self):
+        # returns only if nif/kf contains NiSequence
+        return self.inspectblocktype(NifFormat.NiSequence)
+        
+    def branchinspect(self, branch):
+        # inspect the NiAVObject and NiSequence branches
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiSequence))
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiSequence):
+            for controlled_block in branch.controlled_blocks:
+                if controlled_block.get_node_name().lower() in self.toaster.change_bones:
+                    self.data.replace_global_node(controlled_block.interpolator.data, None)
+                    self.toaster.msg("NiTransformData removed from bone %s" % (controlled_block.get_node_name()))
+        return True
