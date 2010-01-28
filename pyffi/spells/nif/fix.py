@@ -620,9 +620,14 @@ class SpellDelJunkBranches(pyffi.spells.nif.NifSpell):
                 if branch.data:
                     self._good_geoms.append(branch.data)
         for root in self.data.roots:
+            # Regular geometry root node
             if isinstance(root, NifFormat.NiNode):
                 self._good_roots.append(root)
+            # Sometimes listed in roots in vanilla files
             elif isinstance(root, NifFormat.NiCamera):
+                self._good_roots.append(root)
+            # Animation root node
+            elif isinstance(root, NifFormat.NiSequence):
                 self._good_roots.append(root)
         if not self.data.roots == self._good_roots:
             msg = ''
