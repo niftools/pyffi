@@ -512,6 +512,28 @@ class SpellDelVertexColor(SpellDelBranches):
         # recurse further
         return True
 
+# identical to niftoaster.py modify_delbranches -x NiVertexColorProperty
+# delete?
+class SpellDelVertexColorProperty(SpellDelBranches):
+    """Delete vertex color properties."""
+
+    SPELLNAME = "modify_delvertexcolorprop"
+
+    def is_branch_to_be_deleted(self, branch):
+        return isinstance(branch, NifFormat.NiVertexColorProperty)
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.NiTriBasedGeom)
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiTriBasedGeomData,
+                                   NifFormat.NiVertexColorProperty))
+
+    def branchentry(self, branch):
+        return True
+
 # identical to niftoaster.py modify_delbranches -x NiAlphaProperty
 # delete?
 class SpellDelAlphaProperty(_SpellDelBranchClasses):
@@ -639,7 +661,7 @@ class SpellAddStencilProperty(NifSpell):
 class SpellMakeFarNif(
     pyffi.spells.SpellGroupSeries(
         pyffi.spells.SpellGroupParallel(
-            SpellDelVertexColor,
+            SpellDelVertexColorProperty,
             SpellDelAlphaProperty,
             SpellDelSpecularProperty,
             SpellDelBSXFlags,
@@ -650,6 +672,7 @@ class SpellMakeFarNif(
             SpellDisableParallax,
             SpellLowResTexturePath),
         pyffi.spells.nif.optimize.SpellOptimize
+        #TODO: implement vert decreaser.
         )):
     """Spell to make _far type nifs."""
     SPELLNAME = "modify_makefarnif"
