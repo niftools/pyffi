@@ -1,5 +1,30 @@
-"""Spells for optimizing nif files."""
+"""Spells for optimizing nif files.
 
+.. autoclass:: SpellCleanRefLists
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellMergeDuplicates
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellOptimizeGeometry
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellOptimize
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellDetachHavokTriStripsData
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellDelUnusedBones
+   :show-inheritance:
+   :members:
+
+"""
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
 #
