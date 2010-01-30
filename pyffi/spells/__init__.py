@@ -1331,6 +1331,15 @@ may destroy them. Make a backup of your files before running this script.
                     stream.seek(0)
                     stream.write(backup)
                     stream.truncate()
+                else:
+                    outstream_name = outstream.name
+                    self.msg("removing incompletely written file...")
+                    outstream.close()
+                    try:
+                        os.remove(outstream_name)
+                    except OSError:
+                        # temporary stream was removed on close...
+                        pass
                 raise
             if stream is outstream:
                 stream.truncate()
