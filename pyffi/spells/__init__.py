@@ -146,7 +146,7 @@ except ImportError:
     # < py26
     multiprocessing = None
 import optparse
-import os
+import os # remove
 import os.path # getsize, split, join
 import re # for regex parsing (--skip, --only)
 import subprocess
@@ -610,7 +610,8 @@ class Toaster(object):
         skip=[], only=[],
         jobs=1, refresh=32,
         sourcedir="", destdir="",
-        archives=False)
+        archives=False,
+        resume=False)
 
     """List of spell classes of the particular :class:`Toaster` instance."""
 
@@ -958,6 +959,10 @@ class Toaster(object):
             " (when processing a large number of files, this prevents"
             " leaking memory on some operating systems) [default: %default]")
         parser.add_option(
+            "--resume", dest="resume",
+            action="store_true",
+            help="do not overwrite existing files")
+        parser.add_option(
             "--series", dest="series",
             action="store_true",
             help="run spells in series rather than in parallel")
@@ -1239,6 +1244,12 @@ may destroy them. Make a backup of your files before running this script.
             self.msg("=== %s (skipped) ===" % stream.name)
             return
 
+        # check if file exists
+        if self.options["resume"]:
+            if self.open_outstream(stream, test_exists=True):
+                self.msg("=== %s (already done) ===" % stream.name)
+                return
+
         data = self.FILEFORMAT.Data()
 
         self.msgblockbegin("=== %s ===" % stream.name)
@@ -1278,11 +1289,19 @@ may destroy them. Make a backup of your files before running this script.
         finally:
             self.msgblockend()
 
-    def open_outstream(self, stream):
-        """Return a stream where result can be written to."""
+    def open_outstream(self, stream, test_exists=False):
+        """Either return a stream where result can be written to, or
+        in case test_exists is True, test if result would overwrite a
+        file. More specifically, if test_exists is True, then no
+        streams are created, and True is returned if the file
+        already exists, and False is returned otherwise.
+        """
         if self.options["dryrun"]:
-            self.msg("writing to temporary file")
-            return tempfile.TemporaryFile()
+            if test_exists:
+                return False # temporary file never exists
+            else:
+                self.msg("writing to temporary file")
+                return tempfile.TemporaryFile()
         elif (self.options["destdir"]
             or self.options["prefix"] or self.options["suffix"]):
             head, tail = os.path.split(stream.name)
@@ -1299,17 +1318,28 @@ may destroy them. Make a backup of your files before running this script.
                 head = head.replace(
                     self.options["sourcedir"], self.options["destdir"], 1)
                 if not os.path.exists(head):
-                    self.logger.info("creating destination path %s" % head)
-                    os.makedirs(head)
+                    if test_exists:
+                        # path does not exist, so file definitely does
+                        # not exist
+                        return False
+                    else:
+                        self.logger.info("creating destination path %s" % head)
+                        os.makedirs(head)
             filename =  os.path.join(
                 head,
                 self.options["prefix"] + root + self.options["suffix"] + ext)
-            self.msg("writing %s" % filename)
-            return open(filename, "wb")
+            if test_exists:
+                return os.path.exists(filename)
+            else:
+                self.msg("writing %s" % filename)
+                return open(filename, "wb")
         else:
             # return original stream
-            self.msg("overwriting %s" % stream.name)
-            return stream
+            if test_exists:
+                return True # original stream always exists
+            else:
+                self.msg("overwriting %s" % stream.name)
+                return stream
 
     def write(self, stream, data):
         """Writes the data to data and raises an exception if the
