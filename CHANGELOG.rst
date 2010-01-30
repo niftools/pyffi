@@ -1,6 +1,26 @@
 Release 2.1.3 (in development)
 ==============================
 
+* Added toaster option to process files in archives.
+
+* Added toaster option to resume, by skipping existing files in the
+  destination folder.
+
+* Toaster now removes incompletely written files on CTRL-C (to avoid
+  corrupted files).
+
+* Fixed makefarnif spell (now no longer deletes vertex colors).
+
+* New spells
+
+  - opt_delunusedbones
+
+  - modify_bonepriorities
+
+  - XXX more
+
+* Removed unused pep8 attribute conversion code.
+
 Release 2.1.2 (Jan 16, 2010)
 ============================
 
