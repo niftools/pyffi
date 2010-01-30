@@ -17,8 +17,8 @@ Supported formats
 .. toctree::
    :maxdepth: 2
    
-   pyffi.formats.cgf
    pyffi.formats.bsa
+   pyffi.formats.cgf
    pyffi.formats.dae
    pyffi.formats.dds
    pyffi.formats.egm

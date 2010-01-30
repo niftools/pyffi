@@ -2,6 +2,11 @@
 :mod:`pyffi.formats.bsa` --- Bethesda Archive (.bsa)
 ====================================================
 
+.. warning::
+
+   This module is still a work in progress,
+   and is not yet ready for production use.
+
 A .bsa file is an archive format used by Bethesda (Morrowind, Oblivion,
 Fallout 3).
 
