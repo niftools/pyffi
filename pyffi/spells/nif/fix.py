@@ -71,6 +71,10 @@ Implementation
    :show-inheritance:
    :members:
 
+.. autoclass:: SpellDelUnusedRoots
+   :show-inheritance:
+   :members:
+   
 Regression tests
 ----------------
 """
@@ -598,37 +602,29 @@ class SpellCleanStringPalette(NifSpell):
             # keep looking for managers or sequences
             return True
 
-class SpellDelJunkBranches(pyffi.spells.nif.NifSpell):
-    """Remove properties and datas that are present but unused in the nif."""
+class SpellDelUnusedRoots (pyffi.spells.nif.NifSpell):
+    """
+    Remove root branches that shouldn't be root branches and are unused in
+    the file such as NiProperty branches that are not properly parented.
+    """
 
-    SPELLNAME = "fix_deljunkbranches"
+    SPELLNAME = "fix_delunusedroots"
     READONLY = False
 
     def datainspect(self):
         return self.inspectblocktype(NifFormat.NiAVObject)
 
     def dataentry(self):
-        # make list of good items, and clean up roots if needed
-        self._good_nodes = set()
-        self._good_geoms = []
         self._good_roots = []
-        for branch in self.data.get_global_iterator():
-            if isinstance(branch, NifFormat.NiAVObject):
-                if branch.properties:
-                    self._good_nodes |= set(branch.properties)
-            if isinstance(branch, NifFormat.NiGeometry):
-                if branch.data:
-                    self._good_geoms.append(branch.data)
+        # make list of good roots
         for root in self.data.roots:
-            # Regular geometry root node
-            if isinstance(root, NifFormat.NiNode):
+            # good root types
+            if (isinstance(root, NifFormat.NiAVObject) or isinstance(
+                root, NifFormat.NiSequence) or isinstance(root, NifFormat.NiPhysXProp)
+                or isinstance(root, NiSequenceStreamHelper)):
                 self._good_roots.append(root)
-            # Sometimes listed in roots in vanilla files
-            elif isinstance(root, NifFormat.NiCamera):
-                self._good_roots.append(root)
-            # Animation root node
-            elif isinstance(root, NifFormat.NiSequence):
-                self._good_roots.append(root)
+        # if actual roots differ from good roots set roots to good roots
+        # and report. 
         if not self.data.roots == self._good_roots:
             msg = ''
             self.data.roots = self._good_roots
@@ -638,21 +634,5 @@ class SpellDelJunkBranches(pyffi.spells.nif.NifSpell):
             else:
                 msg = self._good_roots[0].name
             self.toaster.msg("Roots set to %s" % msg)
-        return True
-        
-    def branchinspect(self, branch):
-        # only inspect the NiNode branch
-        return isinstance(branch, (NifFormat.NiAVObject,
-                                   NifFormat.NiProperty,
-                                   NifFormat.NiGeometryData))
-                                   
-    def branchentry(self, branch):
-        if isinstance(branch, NifFormat.NiProperty):
-            if not branch in self._good_nodes:
-                self.toaster.msg("junk branch %s removed" % branch.name)
-                self.data.replace_global_node(branch, None)
-        elif isinstance(branch, NifFormat.NiGeometryData):
-            if not branch in self._good_geoms:
-                self.toaster.msg("junk NiGeometryData removed")
-                self.data.replace_global_node(branch, None)
-        return True
+        return False
+
