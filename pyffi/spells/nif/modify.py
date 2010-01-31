@@ -852,6 +852,7 @@ class SpellDelInterpolatorTransformData(NifSpell):
                 if controlled_block.get_node_name().lower() in self.toaster.change_blocks:
                     self.data.replace_global_node(controlled_block.interpolator.data, None)
                     self.toaster.msg("NiTransformData removed from interpolator for %s" % (controlled_block.get_node_name()))
+                    self.toaster.changed = True
         return True
 
 class SpellCollisiontoMOPP(NifSpell):
