@@ -117,7 +117,7 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         pyffi.spells.nif.fix.SpellDelUnusedRoots,
         pyffi.spells.nif.modify.SpellChangeBonePriorities,
         pyffi.spells.nif.modify.SpellSetBoneTransRots,
-        pyffi.spells.nif.modify.SpellDelBoneTransformData
+        pyffi.spells.nif.modify.SpellDelInterpolatorTransformData
         ]
     ALIASDICT = {
         "texdump": "dump_tex",

@@ -802,10 +802,10 @@ class SpellSetBoneTransRots(NifSpell):
                     self.toaster.msg("%s rotated/translated/scaled as per argument" % (controlled_block.get_node_name()))
         return True
 
-class SpellDelBoneTransformData(NifSpell):
+class SpellDelInterpolatorTransformData(NifSpell):
     """Deletes the specified bone(s) NiTransformData(s)."""
 
-    SPELLNAME = "modify_delbonetransformdata"
+    SPELLNAME = "modify_delinterpolatortransformdata"
     READONLY = False
 
     @classmethod
@@ -813,11 +813,11 @@ class SpellDelBoneTransformData(NifSpell):
         if not toaster.options["arg"]:
             toaster.logger.warn(
                 "must specify bone name(s) as argument "
-                "(e.g. -a 'bip01|bip01 pelvix') to apply spell "
+                "(e.g. -a 'bip01|bip01 pelvis') to apply spell "
                 "make sure all bone name(s) in lowercase")
             return False
         else:
-            toaster.change_bones = toaster.options["arg"].split('|')
+            toaster.change_blocks = toaster.options["arg"].split('|')
             return True
 
     def datainspect(self):
