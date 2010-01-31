@@ -730,12 +730,11 @@ class SpellChangeBonePriorities(NifSpell):
         if not toaster.options["arg"]:
             toaster.logger.warn(
                 "must specify bone(s) and priority(ies) as argument "
-                "(e.g. -a 'bip01|50|bip01 spine|10') to apply spell "
+                "(e.g. -a 'bip01:50|bip01 spine:10') to apply spell "
                 "make sure all bone names in lowercase")
             return False
         else:
-            toaster.change_bones = toaster.options["arg"].split('|')
-            print toaster.change_bones[1]
+            toaster.bone_priorities = dict((name.lower(), int(priority)) for (name, priority) in (namepriority.split(":") for namepriority in toaster.options["arg"].split("|")))
             return True
 
     def datainspect(self):
@@ -750,10 +749,12 @@ class SpellChangeBonePriorities(NifSpell):
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiSequence):
             for controlled_block in branch.controlled_blocks:
-                if controlled_block.get_node_name().lower() in self.toaster.change_bones:
-                    controlled_block.priority = self.toaster.change_bones[(
-                        self.toaster.change_bones.index(controlled_block.get_node_name().lower()) + 1)]
+                try:
+                    controlled_block.priority = self.toaster.bone_priorities[controlled_block.get_node_name().lower()]
                     self.toaster.msg("%s priority changed to %d" % (controlled_block.get_node_name(), controlled_block.priority))
+                except KeyError:
+                    # node name not in bone priority list
+                    pass
         return True
 
 class SpellSetBoneTransRots(NifSpell):
