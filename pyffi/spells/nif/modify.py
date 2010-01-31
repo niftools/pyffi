@@ -757,10 +757,10 @@ class SpellChangeBonePriorities(NifSpell):
                     pass
         return True
 
-class SpellSetBoneTransRots(NifSpell):
+class SpellSetInterpolatorTransRotScale(NifSpell):
     """Changes specified bone(s) translations/rotations in their NiTransformInterpolator."""
 
-    SPELLNAME = "modify_bonetransrots"
+    SPELLNAME = "modify_interpolatortransrotscale"
     READONLY = False
 
     @classmethod
@@ -768,12 +768,18 @@ class SpellSetBoneTransRots(NifSpell):
         if not toaster.options["arg"]:
             toaster.logger.warn(
                 "must specify bone(s), translation and rotation for each bone as argument "
-                "(e.g. -a 'bip01|7|0|-0.3|1|90|0|0|1') to apply spell "
+                "(e.g. -a 'bip01:1,2,3;0,0,0,1;1|bip01 spine2:0,0,0;1,0,0,0.5;1') to apply spell "
                 "make sure all bone names in lowercase, first three numbers being translations "
                 "next three being rotation, last being scale, enter X to leave existing value for that value")
             return False
         else:
-            toaster.change_bones = toaster.options["arg"].split('|')
+            def _float(x):
+                if x == "X":
+                    return None
+                else:
+                    return float(x)
+                    
+            toaster.interp_transforms = dict((name.lower(), ([_float(x) for x in trans.split(",")], [_float(x) for x in rot.split(",")], _float(scale))) for (name, (trans, rot, scale)) in ((name, transrotscale.split(";")) for (name, transrotscale) in (name_transrotscale.split(":") for name_transrotscale in toaster.options["arg"].split("|"))))
             return True
 
     def datainspect(self):
@@ -788,18 +794,29 @@ class SpellSetBoneTransRots(NifSpell):
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiSequence):
             for controlled_block in branch.controlled_blocks:
-                if controlled_block.get_node_name().lower() in self.toaster.change_bones:
-                    pos = self.toaster.change_bones.index(controlled_block.get_node_name().lower())
+                try:
+                    (transx, transy, transz), (quatx, quaty, quatz, quatw), scale = self.toaster.interp_transforms[controlled_block.get_node_name().lower()]
                     interp = controlled_block.interpolator
-                    if not self.toaster.change_bones[(pos+1)] == 'X': interp.translation.x = self.toaster.change_bones[(pos+1)]
-                    if not self.toaster.change_bones[(pos+2)] == 'X': interp.translation.y = self.toaster.change_bones[(pos+2)]
-                    if not self.toaster.change_bones[(pos+3)] == 'X': interp.translation.z = self.toaster.change_bones[(pos+3)]
-                    if not self.toaster.change_bones[(pos+4)] == 'X': interp.rotation.w = self.toaster.change_bones[(pos+4)]
-                    if not self.toaster.change_bones[(pos+5)] == 'X': interp.rotation.x = self.toaster.change_bones[(pos+5)]
-                    if not self.toaster.change_bones[(pos+6)] == 'X': interp.rotation.y = self.toaster.change_bones[(pos+6)]
-                    if not self.toaster.change_bones[(pos+7)] == 'X': interp.rotation.z = self.toaster.change_bones[(pos+7)]
-                    if not self.toaster.change_bones[(pos+8)] == 'X': interp.scale = self.toaster.change_bones[(pos+8)]
+                    if transx is not None:
+                        interp.translation.x = transx
+                    if transy is not None:
+                        interp.translation.y = transy
+                    if transz is not None:
+                        interp.translation.z = transz
+                    if quatx is not None:
+                        interp.rotation.x = quatx
+                    if quaty is not None:
+                        interp.rotation.y = quaty
+                    if quatx is not None:
+                        interp.rotation.z = quatz
+                    if quatx is not None:
+                        interp.rotation.w = quatw
+                    if scale is not None:
+                        interp.scale = scale
                     self.toaster.msg("%s rotated/translated/scaled as per argument" % (controlled_block.get_node_name()))
+                except KeyError:
+                    # node name not in change list
+                    pass
         return True
 
 class SpellDelInterpolatorTransformData(NifSpell):
@@ -832,7 +849,51 @@ class SpellDelInterpolatorTransformData(NifSpell):
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiSequence):
             for controlled_block in branch.controlled_blocks:
-                if controlled_block.get_node_name().lower() in self.toaster.change_bones:
+                if controlled_block.get_node_name().lower() in self.toaster.change_blocks:
                     self.data.replace_global_node(controlled_block.interpolator.data, None)
-                    self.toaster.msg("NiTransformData removed from bone %s" % (controlled_block.get_node_name()))
+                    self.toaster.msg("NiTransformData removed from interpolator for %s" % (controlled_block.get_node_name()))
         return True
+
+class SpellCollisiontoMOPP(NifSpell):
+    """transforms the object collision to MOPP - if a vertex based (rather than a basic shape) collision exists"""
+
+    SPELLNAME = "modify_collisiontomopp"
+    READONLY = False
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.bhkNiTriStripsShape)
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.bhkCollisionObject,
+                                   NifFormat.bhkRigidBody,
+                                   NifFormat.bhkNiTriStripsShape))
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.bhkRigidBody):
+            if isinstance(branch.shape, NifFormat.bhkNiTriStripsShape):
+                print 'x'
+            branch.layer = self.toaster.col_type.layer
+            branch.layer_copy = self.toaster.col_type.layer
+            branch.mass = self.toaster.col_type.mass
+            branch.motion_system = self.toaster.col_type.motion_system
+            branch.unknown_byte_1 = self.toaster.col_type.unknown_byte1
+            branch.unknown_byte_2 = self.toaster.col_type.unknown_byte2
+            branch.quality_type = self.toaster.col_type.quality_type
+            branch.wind = self.toaster.col_type.wind
+            branch.solid = self.toaster.col_type.solid
+            self.toaster.msg("collision set to %s"
+                             % self.toaster.options["arg"])
+            # bhkPackedNiTriStripsShape could be further down, so keep looking
+            return True
+        elif isinstance(branch, NifFormat.bhkPackedNiTriStripsShape):
+            for subshape in branch.sub_shapes:
+                subshape.layer = self.toaster.col_type.layer
+            self.toaster.msg("collision set to %s"
+                             % self.toaster.options["arg"])
+            # all extra blocks here done; no need to recurse further
+            return False
+        else:
+            # recurse further
+            return True
