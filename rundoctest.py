@@ -30,6 +30,7 @@ import pyffi.formats.kfm
 import pyffi.formats.dds
 import pyffi.formats.tga
 import pyffi.formats.egm
+import pyffi.formats.esp
 import pyffi.formats.tri
 import pyffi.formats.bsa
 import pyffi.spells

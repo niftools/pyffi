@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE fileformat>
 <espxml>
-    <version num=??? />Morrowind</version>
-    <version num=??? />Oblivion</version>
-    <version num=??? />Fallout3</version>
+    <version num="1.2">Morrowind</version>
+    <version num="0.8">Oblivion</version>
 
     <!--
     *******************
@@ -57,20 +56,44 @@
     -->
 
     
-    <!--
-    ******************
-    *** bitstructs ***
-    ******************
-    -->
+    <!--Compounds
+        These are like C structures and are used as sub-parts of more complex
+        classes when there are multiple pieces of data repeated in an array.-->
 
+    <compound name="SizedString">
+        A string of given length.
+        <add name="Length" type="uint">The string length.</add>
+        <add name="Value" type="char" arr1="Length">The string itself.</add>
+    </compound>
 
+    <compound name="Model">
+        A string of given length.
+        <add name="MODL" type="SizedString">The filepath to the model</add>
+        <add name="MODB" type="float">The model bound radius</add>
+        <add name="MODT" type="?">The texture file has for the model:
+        B1 B0 0F 69 38 7F FB CA 31 30 0F 69 3D 7F FB CA 64 6F 0D 74 28 7E 48 71 B3 B0 11 6D 41 B8 72 A4 33 30 11 6D 46 B8 72 A4 74 65 17 74 53 95 28 20 B1 B0 09 62 06 F6 27 D8 31 30 09 62 0B F6 27 D8 73 73 1C 74 50 B6 9F 72
+        is an example of one. ????: not sure what type to give this.
+        Is not majorly important; records with this unset do not (seem) to cause any errors.
+    </compound>
+    
+    <compound name="Flags">
+    a something or other format record in the format of 0 or 1 for as many flags as the record has active - maximum of 32; if no flags it will be an empty record.
+    </compound>
 
-    <!--
-    ***************
-    *** structs ***
-    ***************
-    -->
+    <!-- Structs-->
 
+    <struct name="Record" abstract="0">
+        Base record class
+        <add name="EDID" type="SizedString">The Editor ID</add>
+    </struct>
+    
+    <struct name="ObjectRecord" inherit="Record">
+        In game objects
+        <add name="FULL" type="SizedString">The in game name</add>
+        <add name="Model" type="Model">The in game model</add>
+        <add name="SCRI" type="uint">Link to the script for the object if there is one; such as: LlathasasBustScript [SCPT:00008036]
+        ????: Not sure what type to give this either.</add>
+    </niobject>
 
 </espxml>
 
