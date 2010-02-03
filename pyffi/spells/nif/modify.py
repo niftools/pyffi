@@ -2,6 +2,83 @@
 :mod:`pyffi.spells.nif.modify` ---  spells to make modifications
 =================================================================
 Module which contains all spells that modify a nif.
+
+.. autoclass:: SpellTexturePath
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellSubstitueTexturePath
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpelLowResTexturePath
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellCollisionType
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellCollisionMaterial
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellScaleAnimationTime
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellReverseAnimation
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellSubstituteStringPalette
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellChangeBonePriorities
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellSetInterpolatorTransRotScale
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellDelInterpolatorTransformData
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellDelBranches
+   :show-inheritance:
+   :members:
+
+.. autoclass:: _SpellDelBranchClasses
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellDelSkinShapes
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellDisableParallax
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellAddStencilProperty
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellDelVertexColor
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellMakeSkinlessNif
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellMakeFarNif
+   :show-inheritance:
+   :members:
+
 """
 
 # --------------------------------------------------------------------------
