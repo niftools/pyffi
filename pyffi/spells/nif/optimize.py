@@ -16,10 +16,6 @@
    :show-inheritance:
    :members:
 
-.. autoclass:: SpellDetachHavokTriStripsData
-   :show-inheritance:
-   :members:
-
 .. autoclass:: SpellDelUnusedBones
    :show-inheritance:
    :members:
