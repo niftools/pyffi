@@ -196,6 +196,7 @@ class Spell(object):
         :param toaster: The :attr:`toaster` this spell is called from (optional).
         :type toaster: :class:`Toaster`
         """
+        self.changed = False
         self.data = data
         self.stream = stream
         self.toaster = toaster if toaster else Toaster()
@@ -1127,7 +1128,9 @@ class Toaster(object):
         # is much more verbose by default
 
         pause = self.options.get("pause", False)
-
+        
+        self.changed = False
+        
         # do not ask for confirmation (!= cli default)
         interactive = self.options.get("interactive", False)
 
@@ -1268,8 +1271,8 @@ may destroy them. Make a backup of your files before running this script.
                 # cast the spell on the data tree
                 spell.recurse()
 
-                # save file back to disk if not readonly
-                if not self.spellclass.READONLY:
+                # save file back to disk if not readonly and the spell changed the file
+                if not self.spellclass.READONLY and self.changed:
                     if self.options["createpatch"]:
                         self.writepatch(stream, data)
                     else:
