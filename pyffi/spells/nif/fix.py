@@ -612,7 +612,21 @@ class SpellDelUnusedRoots(pyffi.spells.nif.NifSpell):
     READONLY = False
 
     def datainspect(self):
-        return self.inspectblocktype(NifFormat.NiAVObject)
+        if self.inspectblocktype(NifFormat.NiAVObject):
+            # check last 8 bytes
+            pos = self.stream.tell()
+            try:
+                self.stream.seek(-8, 2)
+                if self.stream.read(8) == '\x01\x00\x00\x00\x00\x00\x00\x00':
+                    # standard nif with single root: do not remove anything
+                    # and quit early
+                    return False
+                else:
+                    return True
+            finally:
+                self.stream.seek(pos)
+        else:
+            return False
 
     def dataentry(self):
         # make list of good roots
