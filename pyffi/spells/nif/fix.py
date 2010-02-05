@@ -602,10 +602,10 @@ class SpellCleanStringPalette(NifSpell):
             # keep looking for managers or sequences
             return True
 
-class SpellDelUnusedRoots (pyffi.spells.nif.NifSpell):
-    """
-    Remove root branches that shouldn't be root branches and are unused in
-    the file such as NiProperty branches that are not properly parented.
+class SpellDelUnusedRoots(pyffi.spells.nif.NifSpell):
+    """Remove root branches that shouldn't be root branches and are
+    unused in the file such as NiProperty branches that are not
+    properly parented.
     """
 
     SPELLNAME = "fix_delunusedroots"
@@ -615,24 +615,18 @@ class SpellDelUnusedRoots (pyffi.spells.nif.NifSpell):
         return self.inspectblocktype(NifFormat.NiAVObject)
 
     def dataentry(self):
-        self._good_roots = []
         # make list of good roots
-        for root in self.data.roots:
-            # good root types
-            if (isinstance(root, NifFormat.NiAVObject) or isinstance(
-                root, NifFormat.NiSequence) or isinstance(root, NifFormat.NiPhysXProp)
-                or isinstance(root, NiSequenceStreamHelper)):
-                self._good_roots.append(root)
-        # if actual roots differ from good roots set roots to good roots
-        # and report. 
-        if not self.data.roots == self._good_roots:
-            msg = ''
-            self.data.roots = self._good_roots
-            if len(self._good_roots) > 1:
-                for root in self._good_roots:
-                    msg += root.name+', '
-            else:
-                msg = self._good_roots[0].name
-            self.toaster.msg("Roots set to %s" % msg)
+        good_roots = [
+            root for root in self.data.roots
+            if isinstance(root, (NifFormat.NiAVObject,
+                                 NifFormat.NiSequence,
+                                 NifFormat.NiPhysXProp,
+                                 NifFormat.NiSequenceStreamHelper))]
+        # if actual roots differ from good roots set roots to good
+        # roots and report
+        if self.data.roots != good_roots:
+            self.toaster.msg("removing %i bad roots"
+                             % (len(self.data.roots) - len(good_roots)))
+            self.data.roots = good_roots
         return False
 
