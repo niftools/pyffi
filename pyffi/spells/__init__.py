@@ -1275,7 +1275,7 @@ may destroy them. Make a backup of your files before running this script.
 
                 # save file back to disk if not readonly and the spell
                 # changed the file
-                if (not self.spellclass.READONLY) and self.changed:
+                if (not self.spellclass.READONLY) and spell.changed:
                     if self.options["createpatch"]:
                         self.writepatch(stream, data)
                     else:
