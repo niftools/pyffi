@@ -60,6 +60,7 @@ class SpellReadWrite(SpellRead):
 
     SPELLNAME = "check_readwrite"
     READONLY = False
+    changed = True # we want it to write the file back
 
     @classmethod
     def toastentry(cls, toaster):

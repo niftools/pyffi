@@ -462,6 +462,10 @@ class SpellGroupSeriesBase(SpellGroupBase):
     def dataexit(self):
         raise RuntimeError("use recurse")
 
+    @property
+    def changed(self):
+        return any(spell.changed for spell in self.spells)
+
 class SpellGroupParallelBase(SpellGroupBase):
     """Base class for running spells in parallel (that is, with only
     a single recursion in the tree).
@@ -491,6 +495,10 @@ class SpellGroupParallelBase(SpellGroupBase):
         """Look into every spell with :meth:`Spell.dataexit`."""
         for spell in self.spells:
             spell.dataexit()
+
+    @property
+    def changed(self):
+        return any(spell.changed for spell in self.spells)
 
 def SpellGroupSeries(*args):
     """Class factory for grouping spells in series."""
@@ -714,6 +722,8 @@ class Toaster(object):
         """Update spell class from given list of spell names."""
         # get spell classes
         spellclasses = []
+        if not self.spellnames:
+            raise ValueError("no spells specified")
         for spellname in self.spellnames:
             # convert old names
             if spellname in self.ALIASDICT:
