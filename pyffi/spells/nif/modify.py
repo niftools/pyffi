@@ -811,7 +811,11 @@ class SpellChangeBonePriorities(NifSpell):
                 "make sure all bone names in lowercase")
             return False
         else:
-            toaster.bone_priorities = dict((name.lower(), int(priority)) for (name, priority) in (namepriority.split(":") for namepriority in toaster.options["arg"].split("|")))
+            toaster.bone_priorities = dict(
+                (name.lower(), int(priority))
+                for (name, priority) in (
+                    namepriority.split(":")
+                    for namepriority in toaster.options["arg"].split("|")))
             return True
 
     def datainspect(self):
@@ -827,15 +831,20 @@ class SpellChangeBonePriorities(NifSpell):
         if isinstance(branch, NifFormat.NiSequence):
             for controlled_block in branch.controlled_blocks:
                 try:
-                    controlled_block.priority = self.toaster.bone_priorities[controlled_block.get_node_name().lower()]
-                    self.toaster.msg("%s priority changed to %d" % (controlled_block.get_node_name(), controlled_block.priority))
+                    controlled_block.priority = self.toaster.bone_priorities[
+                        controlled_block.get_node_name().lower()]
+                    self.toaster.msg("%s priority changed to %d" %
+                                     (controlled_block.get_node_name(),
+                                      controlled_block.priority))
                 except KeyError:
                     # node name not in bone priority list
                     pass
         return True
 
 class SpellSetInterpolatorTransRotScale(NifSpell):
-    """Changes specified bone(s) translations/rotations in their NiTransformInterpolator."""
+    """Changes specified bone(s) translations/rotations in their
+    NiTransformInterpolator.
+    """
 
     SPELLNAME = "modify_interpolatortransrotscale"
     READONLY = False
@@ -844,10 +853,14 @@ class SpellSetInterpolatorTransRotScale(NifSpell):
     def toastentry(cls, toaster):
         if not toaster.options["arg"]:
             toaster.logger.warn(
-                "must specify bone(s), translation and rotation for each bone as argument "
-                "(e.g. -a 'bip01:1,2,3;0,0,0,1;1|bip01 spine2:0,0,0;1,0,0,0.5;1') to apply spell "
-                "make sure all bone names in lowercase, first three numbers being translations "
-                "next three being rotation, last being scale, enter X to leave existing value for that value")
+                "must specify bone(s), translation and rotation for each"
+                " bone as argument (e.g."
+                " -a 'bip01:1,2,3;0,0,0,1;1|bip01 spine2:0,0,0;1,0,0,0.5;1')"
+                " to apply spell; make sure all bone names are lowercase,"
+                " first three numbers being translation,"
+                " next three being rotation,"
+                " last being scale;"
+                " enter X to leave existing value for that value")
             return False
         else:
             def _float(x):
@@ -856,7 +869,16 @@ class SpellSetInterpolatorTransRotScale(NifSpell):
                 else:
                     return float(x)
                     
-            toaster.interp_transforms = dict((name.lower(), ([_float(x) for x in trans.split(",")], [_float(x) for x in rot.split(",")], _float(scale))) for (name, (trans, rot, scale)) in ((name, transrotscale.split(";")) for (name, transrotscale) in (name_transrotscale.split(":") for name_transrotscale in toaster.options["arg"].split("|"))))
+            toaster.interp_transforms = dict(
+                (name.lower(), ([_float(x) for x in trans.split(",")],
+                                [_float(x) for x in rot.split(",")],
+                                _float(scale)))
+                for (name, (trans, rot, scale)) in (
+                    (name, transrotscale.split(";"))
+                    for (name, transrotscale) in (
+                        name_transrotscale.split(":")
+                        for name_transrotscale
+                        in toaster.options["arg"].split("|"))))
             return True
 
     def datainspect(self):
@@ -890,7 +912,9 @@ class SpellSetInterpolatorTransRotScale(NifSpell):
                         interp.rotation.w = quatw
                     if scale is not None:
                         interp.scale = scale
-                    self.toaster.msg("%s rotated/translated/scaled as per argument" % (controlled_block.get_node_name()))
+                    self.toaster.msg(
+                        "%s rotated/translated/scaled as per argument"
+                        % (controlled_block.get_node_name()))
                 except KeyError:
                     # node name not in change list
                     pass
