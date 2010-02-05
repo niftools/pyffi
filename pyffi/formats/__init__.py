@@ -22,6 +22,7 @@ Supported formats
    pyffi.formats.dae
    pyffi.formats.dds
    pyffi.formats.egm
+   pyffi.formats.esp
    pyffi.formats.kfm
    pyffi.formats.nif
    pyffi.formats.tga

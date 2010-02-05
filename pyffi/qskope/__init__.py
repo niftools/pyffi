@@ -50,6 +50,7 @@ from pyffi.formats.kfm import KfmFormat
 from pyffi.formats.dds import DdsFormat
 from pyffi.formats.tga import TgaFormat
 from pyffi.formats.egm import EgmFormat
+from pyffi.formats.esp import EspFormat
 from pyffi.formats.tri import TriFormat
 from pyffi.formats.bsa import BsaFormat
 
