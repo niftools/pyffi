@@ -107,6 +107,7 @@ from pyffi.object_models.xml.basic import BasicBase
 import pyffi.object_models
 from pyffi.utils.graph import EdgeFilter
 
+
 class BsaFormat(pyffi.object_models.xml.FileFormat):
     """This class implements the BSA format."""
     xml_file_name = 'bsa.xml'
@@ -123,6 +124,7 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
     # implementation of bsa-specific basic types
 
     class Hash(pyffi.object_models.common.UInt64):
+
         def __str__(self):
             return "0x%016X" % self._value
 
@@ -130,6 +132,7 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
             return self.__str__()
 
     class BZString(pyffi.object_models.common.SizedString):
+
         def get_size(self, **kwargs):
             return 2 + len(self._value)
 
@@ -144,6 +147,7 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
 
     class FileVersion(pyffi.object_models.common.UInt):
         """Basic type which implements the header of a BSA file."""
+
         def __init__(self, **kwargs):
             BasicBase.__init__(self, **kwargs)
 
@@ -256,7 +260,8 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
                 # morrowind
                 logger.debug("Reading file records at 0x%08X." % stream.tell())
                 self.old_files.read(stream, data=self)
-                logger.debug("Reading file name offsets at 0x%08X." % stream.tell())
+                logger.debug(
+                    "Reading file name offsets at 0x%08X." % stream.tell())
                 for old_file in self.old_files:
                     old_file._name_offset_value_.read(stream, data=self)
                 logger.debug("Reading file names at 0x%08X." % stream.tell())
@@ -274,7 +279,8 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
                 stream.seek(total_num_bytes, os.SEEK_CUR)
             else:
                 # oblivion and up
-                logger.debug("Reading folder records at 0x%08X." % stream.tell())
+                logger.debug(
+                    "Reading folder records at 0x%08X." % stream.tell())
                 self.folders.read(stream, data=self)
                 logger.debug(
                     "Reading folder names and file records at 0x%08X."
@@ -309,6 +315,6 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
             # write the file
             raise NotImplementedError
 
-if __name__=='__main__':
+if __name__ == '__main__':
     import doctest
     doctest.testmod()
