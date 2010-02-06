@@ -212,6 +212,12 @@ legacykeys_end_${label}:
   Push "$INSTDIR\CONTRIBUTE.txt"
   Call unix2dos
 
+  SetOutPath $INSTDIR\utilities\toaster
+  File ${MISC_SRCDIR}\utilities\toaster\default.ini
+  File ${MISC_SRCDIR}\utilities\toaster\oblivion_optimize.ini
+  CreateDirectory "$INSTDIR\utilities\toaster\in"
+  CreateDirectory "$INSTDIR\utilities\toaster\out"
+
   ; Install shortcuts
   CreateDirectory "$SMPROGRAMS\PyFFI\"
   CreateShortCut "$SMPROGRAMS\PyFFI\Authors.lnk" "$INSTDIR\AUTHORS.txt"
