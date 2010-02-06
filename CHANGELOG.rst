@@ -1,7 +1,7 @@
 Release 2.1.3 (in development)
 ==============================
 
-* Added toaster option to process files in archives.
+* Added toaster option to process files in archives (not yet functional).
 
 * Added toaster option to resume, by skipping existing files in the
   destination folder.
@@ -13,13 +13,17 @@ Release 2.1.3 (in development)
 
 * New spells
 
-  - opt_delunusedbones
+  - fix_delunusedbones
 
   - modify_bonepriorities
 
   - XXX more
 
+* The niftoaster optimize spell now also includes fix_delunusedbones.
+
 * Removed unused pep8 attribute conversion code.
+
+* Toasters can now be configured from an ini file.
 
 Release 2.1.2 (Jan 16, 2010)
 ============================

@@ -104,6 +104,10 @@ class SpellCleanRefLists(pyffi.spells.nif.NifSpell):
         # blocks, and NiNode blocks are checked
         return self.inspectblocktype(NifFormat.NiObjectNET)
 
+    def dataentry(self):
+        self.data.roots = self.cleanreflist(self.data.roots, "root")
+        return True
+
     def branchinspect(self, branch):
         # only inspect the NiObjectNET branch
         return isinstance(branch, NifFormat.NiObjectNET)
@@ -619,6 +623,7 @@ class SpellSplitGeometry(pyffi.spells.nif.NifSpell):
 class SpellOptimize(
     pyffi.spells.SpellGroupSeries(
         pyffi.spells.SpellGroupParallel(
+            pyffi.spells.nif.fix.SpellDelUnusedRoots,
             SpellCleanRefLists,
             pyffi.spells.nif.fix.SpellDetachHavokTriStripsData,
             pyffi.spells.nif.fix.SpellFixTexturePath,
