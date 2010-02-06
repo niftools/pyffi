@@ -638,7 +638,8 @@ class Toaster(object):
         jobs=1, refresh=32,
         sourcedir="", destdir="",
         archives=False,
-        resume=False)
+        resume=False,
+        inifile=[])
 
     """List of spell classes of the particular :class:`Toaster` instance."""
 
@@ -912,6 +913,7 @@ class Toaster(object):
         exclude: ['NiVertexColorProperty', 'NiStencilProperty']
         helpspell: False
         include: []
+        inifile: []
         interactive: True
         jobs: 1
         only: []
@@ -962,8 +964,13 @@ class Toaster(object):
         for optionname, value in self.DEFAULT_OPTIONS.items():
             parser.set("options", optionname,
                        value_to_string(optionname, value))
-        # read config file
+        # read config file(s)
         parser.read(filenames)
+        while parser.get("options", "inifile"):
+            inifile = string_to_value(
+                "inifile", parser.get("options", "inifile"))
+            parser.set("options", "inifile", "")
+            parser.read(inifile)
         # convert options to dictionary
         self.options = {}
         for optionname in self.DEFAULT_OPTIONS:
@@ -1048,6 +1055,15 @@ class Toaster(object):
             " not specified, then all block types are included except"
             " those specified under --exclude; include multiple block"
             " types by specifying this option more than once")
+        parser.add_option(
+            "--ini-file", dest="inifile",
+            type="string",
+            action="append",
+            metavar="FILE",
+            help=
+            "read all options from FILE; if specified, all other arguments"
+            " are ignored; to take options from multiple ini files, specify"
+            " more than once")
         parser.add_option(
             "-j", "--jobs", dest="jobs",
             type="int",
@@ -1150,6 +1166,11 @@ class Toaster(object):
             " block types by specifying this option more than once")
         parser.set_defaults(**deepcopy(self.DEFAULT_OPTIONS))
         (options, args) = parser.parse_args()
+
+        # ini file?
+        if options.inifile:
+            self.ini(options.inifile)
+            return
 
         # convert options to dictionary
         self.options = {}
