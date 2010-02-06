@@ -135,6 +135,7 @@ the file format class of the files it can toast.
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
+from ConfigParser import ConfigParser
 from copy import deepcopy
 from cStringIO import StringIO
 import gc
@@ -550,12 +551,37 @@ class SpellApplyPatch(Spell):
         # do not go further, spell is done
         return False
 
+
+class fake_logger:
+    """Simple logger for testing."""
+    @staticmethod
+    def _log(level, msg):
+        # do not actually log, just print
+        print("pyffi.toaster:%s:%s" % (level, msg))
+
+    @classmethod
+    def error(cls, msg):
+        cls._log("ERROR", msg)
+
+    @classmethod
+    def warn(cls, msg):
+        cls._log("WARNING", msg)
+
+    @classmethod
+    def info(cls, msg):
+        cls._log("INFO", msg)
+
+    @classmethod
+    def debug(cls, msg):
+        cls._log("DEBUG", msg)
+
+
 def _toaster_job(args):
     """For multiprocessing. This function creates a new toaster, with the
     given options and spells, and calls the toaster on filename.
     """
 
-    class fake_logger:
+    class multiprocessing_fake_logger(fake_logger):
         """Simple logger which works well along with multiprocessing
         on all platforms.
         """
@@ -565,22 +591,10 @@ def _toaster_job(args):
             print("pyffi.toaster:%i:%s:%s"
                   % (multiprocessing.current_process().pid,
                      level, msg))
-        @staticmethod
-        def error(msg):
-            fake_logger._log("ERROR", msg)
-        @staticmethod
-        def warn(msg):
-            fake_logger._log("WARNING", msg)
-        @staticmethod
-        def info(msg):
-            fake_logger._log("INFO", msg)
-        @staticmethod
-        def debug(msg):
-            fake_logger._log("DEBUG", msg)
 
     toasterclass, filename, options, spellnames = args
     toaster = toasterclass(options=options, spellnames=spellnames,
-                           logger=fake_logger)
+                           logger=multiprocessing_fake_logger)
 
     # toast entry code
     if not toaster.spellclass.toastentry(toaster):
@@ -846,6 +860,120 @@ class Toaster(object):
         # not admissible
         #print("not admissible") # debug
         return False
+
+    def ini(self, filenames):
+        r"""The ini file interface: initializes spell classes and options from
+        an ini file, and run the :meth:`toast` method.
+
+        >>> import pyffi.spells.nif
+        >>> import pyffi.spells.nif.modify
+        >>> class NifToaster(pyffi.spells.nif.NifToaster):
+        ...     SPELLS = [pyffi.spells.nif.modify.SpellDelBranches]
+        >>> import tempfile
+        >>> cfg = tempfile.NamedTemporaryFile(delete=False)
+        >>> cfg.write("[main]\n")
+        >>> cfg.write("spell = modify_delbranches\n")
+        >>> cfg.write("folder = tests/nif/test_vertexcolor.nif\n")
+        >>> cfg.write("[options]\n")
+        >>> cfg.write("sourcedir = tests/\n")
+        >>> cfg.write("destdir = _tests/\n")
+        >>> cfg.write("exclude = NiVertexColorProperty NiStencilProperty\n")
+        >>> cfg.close()
+        >>> toaster = NifToaster(logger=fake_logger)
+        >>> toaster.ini(cfg.name)
+        pyffi.toaster:INFO:=== tests/nif/test_vertexcolor.nif ===
+        pyffi.toaster:INFO:  --- modify_delbranches ---
+        pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
+        pyffi.toaster:INFO:      ~~~ NiTriStrips [Cube] ~~~
+        pyffi.toaster:INFO:        ~~~ NiStencilProperty [] ~~~
+        pyffi.toaster:INFO:          stripping this branch
+        pyffi.toaster:INFO:        ~~~ NiSpecularProperty [] ~~~
+        pyffi.toaster:INFO:        ~~~ NiMaterialProperty [Material] ~~~
+        pyffi.toaster:INFO:        ~~~ NiVertexColorProperty [] ~~~
+        pyffi.toaster:INFO:          stripping this branch
+        pyffi.toaster:INFO:        ~~~ NiTriStripsData [] ~~~
+        pyffi.toaster:INFO:  writing _tests/nif/test_vertexcolor.nif
+        >>> import os
+        >>> os.remove(cfg.name)
+        >>> os.remove("_tests/nif/test_vertexcolor.nif")
+        >>> os.rmdir("_tests/nif/")
+        >>> os.rmdir("_tests/")
+        >>> for name, value in sorted(toaster.options.items()):
+        ...     print("%s: %s" % (name, value))
+        applypatch: False
+        archives: False
+        arg: 
+        createpatch: False
+        destdir: _tests/
+        diffcmd: 
+        dryrun: False
+        examples: False
+        exclude: ['NiVertexColorProperty', 'NiStencilProperty']
+        helpspell: False
+        include: []
+        interactive: True
+        jobs: 1
+        only: []
+        patchcmd: 
+        pause: False
+        prefix: 
+        raisetesterror: False
+        refresh: 32
+        resume: False
+        series: False
+        skip: []
+        sourcedir: tests/
+        spells: False
+        suffix: 
+        verbose: 1
+        """
+        def value_to_string(optionname, value):
+            if isinstance(self.DEFAULT_OPTIONS[optionname], list):
+                return ' '.join(str(item) for item in value)
+            else:
+                return str(value)
+
+        def string_to_value(optionname, string_):
+            default_value = self.DEFAULT_OPTIONS[optionname]
+            if isinstance(default_value, list):
+                return string_.split()
+            elif isinstance(default_value, bool):
+                if string_ == "True":
+                    return True
+                elif string_ == "False":
+                    return False
+                else:
+                    raise ValueError(
+                        "invalid bool option value %s (must be True or False)"
+                        % string_)
+            elif isinstance(default_value, int):
+                return int(string_)
+            elif isinstance(default_value, str):
+                return str(string_)
+            else:
+                raise RuntimeError(
+                    "invalid option type %s (bug?)"
+                    % self.DEFAULT_OPTIONS[optionname].__class__.__name__)
+
+        parser = ConfigParser()
+        # set defaults in options section
+        parser.add_section("options")
+        for optionname, value in self.DEFAULT_OPTIONS.items():
+            parser.set("options", optionname,
+                       value_to_string(optionname, value))
+        # read config file
+        parser.read(filenames)
+        # convert options to dictionary
+        self.options = {}
+        for optionname in self.DEFAULT_OPTIONS:
+            self.options[optionname] = string_to_value(
+                optionname, parser.get("options", optionname))
+        # update options
+        self._update_options()
+        # get spells and top folder, and toast it
+        self.spellnames = parser.get("main", "spell").split()
+        self._update_spellclass()
+        self.toast(parser.get("main", "folder"))
 
     def cli(self):
         """Command line interface: initializes spell classes and options from
@@ -1414,4 +1542,7 @@ may destroy them. Make a backup of your files before running this script.
         subprocess.call([diffcmd, oldfilename, newfilename, patchfilename])
         # delete temporary file
         os.remove(newfilename)
-        
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
