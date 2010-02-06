@@ -983,6 +983,11 @@ class Toaster(object):
         self._update_spellclass()
         self.toast(parser.get("main", "folder"))
 
+        # signal the end
+        self.logger.info("Finished.")
+        if self.options["pause"] and self.options["interactive"]:
+            raw_input("Press enter...")
+
     def cli(self):
         """Command line interface: initializes spell classes and options from
         the command line, and run the :meth:`toast` method.
