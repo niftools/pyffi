@@ -40,6 +40,9 @@ Options:
                         except those specified under --exclude; include
                         multiple block types by specifying this option more
                         than once
+  --ini-file=FILE       read all options from FILE; if specified, all other
+                        arguments are ignored; to take options from multiple
+                        ini files, specify more than once
   -j JOBS, --jobs=JOBS  allow JOBS jobs at once [default: 1]
   --noninteractive      non-interactive session (overwrites files without
                         warning)
@@ -60,6 +63,7 @@ Options:
                         JOBS is 2 or more (when processing a large number of
                         files, this prevents leaking memory on some operating
                         systems) [default: 32]
+  --resume              do not overwrite existing files
   --series              run spells in series rather than in parallel
   --skip=REGEX          skip all files whose names contain the regular
                         expression REGEX (takes precedence over --only); if
@@ -184,6 +188,10 @@ modify_addstencilprop
 modify_makeskinlessnif
 modify_substitutestringpalette
 modify_substitutetexturepath
+fix_delunusedroots
+modify_bonepriorities
+modify_interpolatortransrotscale
+modify_delinterpolatortransformdata
 
 The check_readwrite spell and the --raise switch
 ------------------------------------------------
