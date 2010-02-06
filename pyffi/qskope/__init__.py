@@ -328,7 +328,7 @@ available via
 on <a href="http://sourceforge.net">SourceForge</a>.</p>
 <p>You are running PyFFI %s.
 The most recent version of PyFFI can always be downloaded from the
-<a href="http://sourceforge.net/project/showfiles.php?group_id=199269">
+<a href="http://sourceforge.net/projects/pyffi/files/">
 PyFFI SourceForge Project page</a>.""" % pyffi.__version__)
         # display the window
         mbox.exec_()

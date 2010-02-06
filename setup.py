@@ -68,5 +68,5 @@ setup(
     classifiers = filter(None, classifiers.split("\n")),
     long_description = long_description,
     url = "http://pyffi.sourceforge.net/",
-    download_url = "http://sourceforge.net/project/showfiles.php?group_id=199269"
+    download_url = "http://sourceforge.net/projects/pyffi/files/"
 )
