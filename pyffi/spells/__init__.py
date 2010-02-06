@@ -1056,20 +1056,16 @@ class Toaster(object):
             if options.helpspell:
                 # special case: --spell-help would not have a path specified
                 self.spellnames = args[:]
-            else:
-                self.spellnames = args[:-1]
-
-            # update the spell class
-            self._update_spellclass()
-
-            if options.helpspell:
-                # TODO: format the docstring
+                self._update_spellclass()
                 self.msg(self.spellclass.__doc__)
                 return
-
             # top not specified when function was called
             if len(args) < 2:
                 parser.error(errormessage_numargs)
+            # all arguments, except the last one, are spells
+            self.spellnames = args[:-1]
+            # update the spell class
+            self._update_spellclass()
 
         # get top folder/file: last argument always is folder/file
         top = args[-1]
