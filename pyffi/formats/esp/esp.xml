@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE fileformat>
-<espxml>
+<fileformat>
     <version num="1.2">Morrowind</version>
     <version num="0.8">Oblivion</version>
 
@@ -68,10 +68,10 @@
         A string of given length.
         <add name="File Path" type="SizedString">The filepath to the model</add>
         <add name="Radius" type="float">The model bound radius</add>
-        <add name="Texture" type="?">The texture file has for the model:
+        <add name="Texture" type="uint">The texture file has for the model:
         B1 B0 0F 69 38 7F FB CA 31 30 0F 69 3D 7F FB CA 64 6F 0D 74 28 7E 48 71 B3 B0 11 6D 41 B8 72 A4 33 30 11 6D 46 B8 72 A4 74 65 17 74 53 95 28 20 B1 B0 09 62 06 F6 27 D8 31 30 09 62 0B F6 27 D8 73 73 1C 74 50 B6 9F 72
         is an example of one. ????: not sure what type to give this.
-        Is not majorly important; records with this unset do not (seem) to cause any errors.
+        Is not majorly important; records with this unset do not (seem) to cause any errors.</add>
     </struct>
     
     <struct name="Flags">
@@ -90,6 +90,5 @@
         <add name="Script" type="uint">Link to the script for the object if there is one; such as: LlathasasBustScript [SCPT:00008036]
         ????: Not sure what type to give this either.</add>
     </struct>
-
-</espxml>
+</fileformat>
 

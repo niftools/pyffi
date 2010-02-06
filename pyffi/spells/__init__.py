@@ -892,6 +892,7 @@ class Toaster(object):
         pyffi.toaster:INFO:        ~~~ NiVertexColorProperty [] ~~~
         pyffi.toaster:INFO:          stripping this branch
         pyffi.toaster:INFO:        ~~~ NiTriStripsData [] ~~~
+        pyffi.toaster:INFO:creating destination path _tests/nif
         pyffi.toaster:INFO:  writing _tests/nif/test_vertexcolor.nif
         >>> import os
         >>> os.remove(cfg.name)
