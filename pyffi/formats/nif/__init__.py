@@ -2416,7 +2416,7 @@ class NifFormat(FileFormat):
 
         def update_a_b(self, parent):
             """Update the B data from the A data."""
-            transformAB = self.get_transform_a_b(parent)
+            transform = self.get_transform_a_b(parent)
             self.limited_hinge.update_a_b(transform)
             self.ragdoll.update_a_b(transform)
 
