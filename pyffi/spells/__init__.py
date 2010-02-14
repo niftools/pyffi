@@ -1481,7 +1481,7 @@ may destroy them. Make a backup of your files before running this script.
                     # already checked elsewhere, but you never know...
                     raise ValueError(
                         "invalid --source-dir: %s does not start with %s"
-                        % (stream.name, sourcedir))
+                        % (stream.name, self.options["sourcedir"]))
                 head = head.replace(
                     self.options["sourcedir"], self.options["destdir"], 1)
                 if not os.path.exists(head):
