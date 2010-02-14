@@ -213,10 +213,18 @@ legacykeys_end_${label}:
   Call unix2dos
 
   SetOutPath $INSTDIR\utilities\toaster
-  File ${MISC_SRCDIR}\utilities\toaster\default.ini
-  File ${MISC_SRCDIR}\utilities\toaster\oblivion_optimize.ini
+  File /oname=default.ini.tmp ${MISC_SRCDIR}\utilities\toaster\default.ini
+  File /oname=oblivion_optimize.ini.tmp ${MISC_SRCDIR}\utilities\toaster\oblivion_optimize.ini
   CreateDirectory "$INSTDIR\utilities\toaster\in"
   CreateDirectory "$INSTDIR\utilities\toaster\out"
+
+  ; force CRLF EOL in ini files
+  Push "$INSTDIR\utilities\toaster\default.ini.tmp"
+  Push "$INSTDIR\utilities\toaster\default.ini"
+  Call unix2dos
+  Push "$INSTDIR\utilities\toaster\oblivion_optimize.ini.tmp"
+  Push "$INSTDIR\utilities\toaster\oblivion_optimize.ini"
+  Call unix2dos
 
   ; Install shortcuts
   CreateDirectory "$SMPROGRAMS\PyFFI\"
