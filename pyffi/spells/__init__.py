@@ -135,6 +135,7 @@ the file format class of the files it can toast.
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
+from ConfigParser import ConfigParser
 from copy import deepcopy
 from cStringIO import StringIO
 import gc
@@ -146,7 +147,7 @@ except ImportError:
     # < py26
     multiprocessing = None
 import optparse
-import os
+import os # remove
 import os.path # getsize, split, join
 import re # for regex parsing (--skip, --only)
 import subprocess
@@ -172,6 +173,11 @@ class Spell(object):
 
     toaster = None
     """The :class:`Toaster` instance this spell is called from."""
+
+    changed = False
+    """Whether the spell changed the data. If ``True``, the file will be
+    written back, otherwise not.
+    """
 
     # spells are readonly by default
     READONLY = True
@@ -457,6 +463,10 @@ class SpellGroupSeriesBase(SpellGroupBase):
     def dataexit(self):
         raise RuntimeError("use recurse")
 
+    @property
+    def changed(self):
+        return any(spell.changed for spell in self.spells)
+
 class SpellGroupParallelBase(SpellGroupBase):
     """Base class for running spells in parallel (that is, with only
     a single recursion in the tree).
@@ -486,6 +496,10 @@ class SpellGroupParallelBase(SpellGroupBase):
         """Look into every spell with :meth:`Spell.dataexit`."""
         for spell in self.spells:
             spell.dataexit()
+
+    @property
+    def changed(self):
+        return any(spell.changed for spell in self.spells)
 
 def SpellGroupSeries(*args):
     """Class factory for grouping spells in series."""
@@ -537,12 +551,37 @@ class SpellApplyPatch(Spell):
         # do not go further, spell is done
         return False
 
+
+class fake_logger:
+    """Simple logger for testing."""
+    @staticmethod
+    def _log(level, msg):
+        # do not actually log, just print
+        print("pyffi.toaster:%s:%s" % (level, msg))
+
+    @classmethod
+    def error(cls, msg):
+        cls._log("ERROR", msg)
+
+    @classmethod
+    def warn(cls, msg):
+        cls._log("WARNING", msg)
+
+    @classmethod
+    def info(cls, msg):
+        cls._log("INFO", msg)
+
+    @classmethod
+    def debug(cls, msg):
+        cls._log("DEBUG", msg)
+
+
 def _toaster_job(args):
     """For multiprocessing. This function creates a new toaster, with the
     given options and spells, and calls the toaster on filename.
     """
 
-    class fake_logger:
+    class multiprocessing_fake_logger(fake_logger):
         """Simple logger which works well along with multiprocessing
         on all platforms.
         """
@@ -552,22 +591,10 @@ def _toaster_job(args):
             print("pyffi.toaster:%i:%s:%s"
                   % (multiprocessing.current_process().pid,
                      level, msg))
-        @staticmethod
-        def error(msg):
-            fake_logger._log("ERROR", msg)
-        @staticmethod
-        def warn(msg):
-            fake_logger._log("WARNING", msg)
-        @staticmethod
-        def info(msg):
-            fake_logger._log("INFO", msg)
-        @staticmethod
-        def debug(msg):
-            fake_logger._log("DEBUG", msg)
 
     toasterclass, filename, options, spellnames = args
     toaster = toasterclass(options=options, spellnames=spellnames,
-                           logger=fake_logger)
+                           logger=multiprocessing_fake_logger)
 
     # toast entry code
     if not toaster.spellclass.toastentry(toaster):
@@ -610,7 +637,9 @@ class Toaster(object):
         skip=[], only=[],
         jobs=1, refresh=32,
         sourcedir="", destdir="",
-        archives=False)
+        archives=False,
+        resume=False,
+        inifile=[])
 
     """List of spell classes of the particular :class:`Toaster` instance."""
 
@@ -708,6 +737,8 @@ class Toaster(object):
         """Update spell class from given list of spell names."""
         # get spell classes
         spellclasses = []
+        if not self.spellnames:
+            raise ValueError("no spells specified")
         for spellname in self.spellnames:
             # convert old names
             if spellname in self.ALIASDICT:
@@ -831,6 +862,132 @@ class Toaster(object):
         #print("not admissible") # debug
         return False
 
+    def ini(self, filenames):
+        r"""The ini file interface: initializes spell classes and options from
+        an ini file, and run the :meth:`toast` method.
+
+        >>> import pyffi.spells.nif
+        >>> import pyffi.spells.nif.modify
+        >>> class NifToaster(pyffi.spells.nif.NifToaster):
+        ...     SPELLS = [pyffi.spells.nif.modify.SpellDelBranches]
+        >>> import tempfile
+        >>> cfg = tempfile.NamedTemporaryFile(delete=False)
+        >>> cfg.write("[main]\n")
+        >>> cfg.write("spell = modify_delbranches\n")
+        >>> cfg.write("folder = tests/nif/test_vertexcolor.nif\n")
+        >>> cfg.write("[options]\n")
+        >>> cfg.write("sourcedir = tests/\n")
+        >>> cfg.write("destdir = _tests/\n")
+        >>> cfg.write("exclude = NiVertexColorProperty NiStencilProperty\n")
+        >>> cfg.close()
+        >>> toaster = NifToaster(logger=fake_logger)
+        >>> toaster.ini(cfg.name)
+        pyffi.toaster:INFO:=== tests/nif/test_vertexcolor.nif ===
+        pyffi.toaster:INFO:  --- modify_delbranches ---
+        pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
+        pyffi.toaster:INFO:      ~~~ NiTriStrips [Cube] ~~~
+        pyffi.toaster:INFO:        ~~~ NiStencilProperty [] ~~~
+        pyffi.toaster:INFO:          stripping this branch
+        pyffi.toaster:INFO:        ~~~ NiSpecularProperty [] ~~~
+        pyffi.toaster:INFO:        ~~~ NiMaterialProperty [Material] ~~~
+        pyffi.toaster:INFO:        ~~~ NiVertexColorProperty [] ~~~
+        pyffi.toaster:INFO:          stripping this branch
+        pyffi.toaster:INFO:        ~~~ NiTriStripsData [] ~~~
+        pyffi.toaster:INFO:creating destination path _tests/nif
+        pyffi.toaster:INFO:  writing _tests/nif/test_vertexcolor.nif
+        >>> import os
+        >>> os.remove(cfg.name)
+        >>> os.remove("_tests/nif/test_vertexcolor.nif")
+        >>> os.rmdir("_tests/nif/")
+        >>> os.rmdir("_tests/")
+        >>> for name, value in sorted(toaster.options.items()):
+        ...     print("%s: %s" % (name, value))
+        applypatch: False
+        archives: False
+        arg: 
+        createpatch: False
+        destdir: _tests/
+        diffcmd: 
+        dryrun: False
+        examples: False
+        exclude: ['NiVertexColorProperty', 'NiStencilProperty']
+        helpspell: False
+        include: []
+        inifile: []
+        interactive: True
+        jobs: 1
+        only: []
+        patchcmd: 
+        pause: False
+        prefix: 
+        raisetesterror: False
+        refresh: 32
+        resume: False
+        series: False
+        skip: []
+        sourcedir: tests/
+        spells: False
+        suffix: 
+        verbose: 1
+        """
+        def value_to_string(optionname, value):
+            if isinstance(self.DEFAULT_OPTIONS[optionname], list):
+                return ' '.join(str(item) for item in value)
+            else:
+                return str(value)
+
+        def string_to_value(optionname, string_):
+            default_value = self.DEFAULT_OPTIONS[optionname]
+            if isinstance(default_value, list):
+                return string_.split()
+            elif isinstance(default_value, bool):
+                if string_ == "True":
+                    return True
+                elif string_ == "False":
+                    return False
+                else:
+                    raise ValueError(
+                        "invalid bool option value %s (must be True or False)"
+                        % string_)
+            elif isinstance(default_value, int):
+                return int(string_)
+            elif isinstance(default_value, str):
+                return str(string_)
+            else:
+                raise RuntimeError(
+                    "invalid option type %s (bug?)"
+                    % self.DEFAULT_OPTIONS[optionname].__class__.__name__)
+
+        parser = ConfigParser()
+        # set defaults in options section
+        parser.add_section("options")
+        for optionname, value in self.DEFAULT_OPTIONS.items():
+            parser.set("options", optionname,
+                       value_to_string(optionname, value))
+        # read config file(s)
+        parser.read(filenames)
+        while parser.get("options", "inifile"):
+            inifile = string_to_value(
+                "inifile", parser.get("options", "inifile"))
+            parser.set("options", "inifile", "")
+            parser.read(inifile)
+        # convert options to dictionary
+        self.options = {}
+        for optionname in self.DEFAULT_OPTIONS:
+            self.options[optionname] = string_to_value(
+                optionname, parser.get("options", optionname))
+        # update options
+        self._update_options()
+        # get spells and top folder, and toast it
+        self.spellnames = parser.get("main", "spell").split()
+        self._update_spellclass()
+        self.toast(parser.get("main", "folder"))
+
+        # signal the end
+        self.logger.info("Finished.")
+        if self.options["pause"] and self.options["interactive"]:
+            raw_input("Press enter...")
+
     def cli(self):
         """Command line interface: initializes spell classes and options from
         the command line, and run the :meth:`toast` method.
@@ -904,6 +1061,15 @@ class Toaster(object):
             " those specified under --exclude; include multiple block"
             " types by specifying this option more than once")
         parser.add_option(
+            "--ini-file", dest="inifile",
+            type="string",
+            action="append",
+            metavar="FILE",
+            help=
+            "read all options from FILE; if specified, all other arguments"
+            " are ignored; to take options from multiple ini files, specify"
+            " more than once")
+        parser.add_option(
             "-j", "--jobs", dest="jobs",
             type="int",
             metavar="JOBS",
@@ -958,6 +1124,10 @@ class Toaster(object):
             " (when processing a large number of files, this prevents"
             " leaking memory on some operating systems) [default: %default]")
         parser.add_option(
+            "--resume", dest="resume",
+            action="store_true",
+            help="do not overwrite existing files")
+        parser.add_option(
             "--series", dest="series",
             action="store_true",
             help="run spells in series rather than in parallel")
@@ -1002,6 +1172,11 @@ class Toaster(object):
         parser.set_defaults(**deepcopy(self.DEFAULT_OPTIONS))
         (options, args) = parser.parse_args()
 
+        # ini file?
+        if options.inifile:
+            self.ini(options.inifile)
+            return
+
         # convert options to dictionary
         self.options = {}
         for optionname in dir(options):
@@ -1036,20 +1211,16 @@ class Toaster(object):
             if options.helpspell:
                 # special case: --spell-help would not have a path specified
                 self.spellnames = args[:]
-            else:
-                self.spellnames = args[:-1]
-
-            # update the spell class
-            self._update_spellclass()
-
-            if options.helpspell:
-                # TODO: format the docstring
+                self._update_spellclass()
                 self.msg(self.spellclass.__doc__)
                 return
-
             # top not specified when function was called
             if len(args) < 2:
                 parser.error(errormessage_numargs)
+            # all arguments, except the last one, are spells
+            self.spellnames = args[:-1]
+            # update the spell class
+            self._update_spellclass()
 
         # get top folder/file: last argument always is folder/file
         top = args[-1]
@@ -1122,7 +1293,7 @@ class Toaster(object):
         # is much more verbose by default
 
         pause = self.options.get("pause", False)
-
+        
         # do not ask for confirmation (!= cli default)
         interactive = self.options.get("interactive", False)
 
@@ -1239,6 +1410,12 @@ may destroy them. Make a backup of your files before running this script.
             self.msg("=== %s (skipped) ===" % stream.name)
             return
 
+        # check if file exists
+        if self.options["resume"]:
+            if self.open_outstream(stream, test_exists=True):
+                self.msg("=== %s (already done) ===" % stream.name)
+                return
+
         data = self.FILEFORMAT.Data()
 
         self.msgblockbegin("=== %s ===" % stream.name)
@@ -1257,8 +1434,9 @@ may destroy them. Make a backup of your files before running this script.
                 # cast the spell on the data tree
                 spell.recurse()
 
-                # save file back to disk if not readonly
-                if not self.spellclass.READONLY:
+                # save file back to disk if not readonly and the spell
+                # changed the file
+                if (not self.spellclass.READONLY) and spell.changed:
                     if self.options["createpatch"]:
                         self.writepatch(stream, data)
                     else:
@@ -1278,11 +1456,19 @@ may destroy them. Make a backup of your files before running this script.
         finally:
             self.msgblockend()
 
-    def open_outstream(self, stream):
-        """Return a stream where result can be written to."""
+    def open_outstream(self, stream, test_exists=False):
+        """Either return a stream where result can be written to, or
+        in case test_exists is True, test if result would overwrite a
+        file. More specifically, if test_exists is True, then no
+        streams are created, and True is returned if the file
+        already exists, and False is returned otherwise.
+        """
         if self.options["dryrun"]:
-            self.msg("writing to temporary file")
-            return tempfile.TemporaryFile()
+            if test_exists:
+                return False # temporary file never exists
+            else:
+                self.msg("writing to temporary file")
+                return tempfile.TemporaryFile()
         elif (self.options["destdir"]
             or self.options["prefix"] or self.options["suffix"]):
             head, tail = os.path.split(stream.name)
@@ -1295,21 +1481,32 @@ may destroy them. Make a backup of your files before running this script.
                     # already checked elsewhere, but you never know...
                     raise ValueError(
                         "invalid --source-dir: %s does not start with %s"
-                        % (stream.name, sourcedir))
+                        % (stream.name, self.options["sourcedir"]))
                 head = head.replace(
                     self.options["sourcedir"], self.options["destdir"], 1)
                 if not os.path.exists(head):
-                    self.logger.info("creating destination path %s" % head)
-                    os.makedirs(head)
+                    if test_exists:
+                        # path does not exist, so file definitely does
+                        # not exist
+                        return False
+                    else:
+                        self.logger.info("creating destination path %s" % head)
+                        os.makedirs(head)
             filename =  os.path.join(
                 head,
                 self.options["prefix"] + root + self.options["suffix"] + ext)
-            self.msg("writing %s" % filename)
-            return open(filename, "wb")
+            if test_exists:
+                return os.path.exists(filename)
+            else:
+                self.msg("writing %s" % filename)
+                return open(filename, "wb")
         else:
             # return original stream
-            self.msg("overwriting %s" % stream.name)
-            return stream
+            if test_exists:
+                return True # original stream always exists
+            else:
+                self.msg("overwriting %s" % stream.name)
+                return stream
 
     def write(self, stream, data):
         """Writes the data to data and raises an exception if the
@@ -1331,6 +1528,15 @@ may destroy them. Make a backup of your files before running this script.
                     stream.seek(0)
                     stream.write(backup)
                     stream.truncate()
+                else:
+                    outstream_name = outstream.name
+                    self.msg("removing incompletely written file...")
+                    outstream.close()
+                    try:
+                        os.remove(outstream_name)
+                    except OSError:
+                        # temporary stream was removed on close...
+                        pass
                 raise
             if stream is outstream:
                 stream.truncate()
@@ -1363,4 +1569,7 @@ may destroy them. Make a backup of your files before running this script.
         subprocess.call([diffcmd, oldfilename, newfilename, patchfilename])
         # delete temporary file
         os.remove(newfilename)
-        
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()

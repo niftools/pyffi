@@ -30,6 +30,7 @@ import pyffi.formats.kfm
 import pyffi.formats.dds
 import pyffi.formats.tga
 import pyffi.formats.egm
+import pyffi.formats.esp
 import pyffi.formats.tri
 import pyffi.formats.bsa
 import pyffi.spells
@@ -71,6 +72,7 @@ suite.addTest(doctest.DocFileSuite('tests/om_arraytype.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/matrix.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/skinpartition.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/bhkpackednitristripsshape.txt'))
+suite.addTest(doctest.DocFileSuite('tests/nif/opt_delunusedbones.txt'))
 suite.addTest(doctest.DocFileSuite('tests/cgf/cgftoaster.txt'))
 suite.addTest(doctest.DocFileSuite('tests/kfm/kfmtoaster.txt'))
 suite.addTest(doctest.DocFileSuite('docs-sphinx/intro.rst'))

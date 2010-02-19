@@ -21,6 +21,8 @@ include examples/simple/simple.xml
 include examples/simple/somefile.simple
 recursive-include tests *.*
 include docs/*.*
+include utilities/toaster/*.ini
+include utilities/toaster/*.sh
 prune *.svn*
 prune *.git*
 

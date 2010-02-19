@@ -1,5 +1,26 @@
-"""Spells for optimizing nif files."""
+"""Spells for optimizing nif files.
 
+.. autoclass:: SpellCleanRefLists
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellMergeDuplicates
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellOptimizeGeometry
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellOptimize
+   :show-inheritance:
+   :members:
+
+.. autoclass:: SpellDelUnusedBones
+   :show-inheritance:
+   :members:
+
+"""
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -84,6 +105,10 @@ class SpellCleanRefLists(pyffi.spells.nif.NifSpell):
         # blocks, and NiNode blocks are checked
         return self.inspectblocktype(NifFormat.NiObjectNET)
 
+    def dataentry(self):
+        self.data.roots = self.cleanreflist(self.data.roots, "root")
+        return True
+
     def branchinspect(self, branch):
         # only inspect the NiObjectNET branch
         return isinstance(branch, NifFormat.NiObjectNET)
@@ -95,8 +120,10 @@ class SpellCleanRefLists(pyffi.spells.nif.NifSpell):
         for ref in reflist:
             if ref is None:
                 self.toaster.msg("removing empty %s reference" % category)
+                self.changed = True
             elif ref in cleanlist:
                 self.toaster.msg("removing duplicate %s reference" % category)
+                self.changed = True
             else:
                 cleanlist.append(ref)
         # done
@@ -139,7 +166,8 @@ class SpellMergeDuplicates(pyffi.spells.nif.NifSpell):
         # merge other things: this is just a quick hack to make sure the
         # optimizer won't do anything wrong)
         try:
-            return not self.data.header.has_block_type(NifFormat.NiPSysMeshEmitter)
+            return not self.data.header.has_block_type(
+                NifFormat.NiPSysMeshEmitter)
         except ValueError:
             # when in doubt, do the spell
             return True
@@ -162,6 +190,7 @@ class SpellMergeDuplicates(pyffi.spells.nif.NifSpell):
                 # interchangeable branch found!
                 self.toaster.msg("removing duplicate branch")
                 self.data.replace_global_node(branch, otherbranch)
+                self.changed = True
                 # branch has been replaced, so no need to recurse further
                 return False
         else:
@@ -224,6 +253,9 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
             return False
     
         # we found a geometry to optimize
+
+        # we're going to change the data
+        self.changed = True
 
         # cover degenerate case
         if branch.data.num_vertices < 3:
@@ -577,6 +609,7 @@ class SpellSplitGeometry(pyffi.spells.nif.NifSpell):
 class SpellOptimize(
     pyffi.spells.SpellGroupSeries(
         pyffi.spells.SpellGroupParallel(
+            pyffi.spells.nif.fix.SpellDelUnusedRoots,
             SpellCleanRefLists,
             pyffi.spells.nif.fix.SpellDetachHavokTriStripsData,
             pyffi.spells.nif.fix.SpellFixTexturePath,
@@ -586,3 +619,35 @@ class SpellOptimize(
     """Global fixer and optimizer spell."""
     SPELLNAME = "optimize"
 
+class SpellDelUnusedBones(pyffi.spells.nif.NifSpell):
+    """Remove empty and duplicate entries in reference lists."""
+
+    SPELLNAME = "opt_delunusedbones"
+    READONLY = False
+
+    def datainspect(self):
+        # only run the spell if there are skinned geometries
+        return self.inspectblocktype(NifFormat.NiSkinInstance)
+
+    def dataentry(self):
+        # make list of used bones
+        self._used_bones = set()
+        for branch in self.data.get_global_iterator():
+            if isinstance(branch, NifFormat.NiGeometry):
+                if branch.skin_instance:
+                    self._used_bones |= set(branch.skin_instance.bones)
+        return True
+
+    def branchinspect(self, branch):
+        # only inspect the NiNode branch
+        return isinstance(branch, NifFormat.NiNode)
+    
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiNode):
+            if not branch.children and branch not in self._used_bones:
+                self.toaster.msg("removing unreferenced bone")
+                self.data.replace_global_node(branch, None)
+                self.changed = True
+                # no need to recurse further
+                return False
+        return True

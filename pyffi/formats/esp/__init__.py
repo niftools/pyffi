@@ -122,9 +122,11 @@ class EspFormat(pyffi.object_models.xml.FileFormat):
         :type version_str: str
         :return: A version integer.
 
-        >>> hex(EspFormat.version_number('X'))
+        >>> hex(EspFormat.version_number('1.2'))
+        '0x102'
         """
-        raise NotImplementedError
+        high, low = version_str.split(".")
+        return (int(high) << 8) + int(low)
 
     class Data(pyffi.object_models.FileFormat.Data):
         """A class to contain the actual esp data."""

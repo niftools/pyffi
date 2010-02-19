@@ -212,6 +212,20 @@ legacykeys_end_${label}:
   Push "$INSTDIR\CONTRIBUTE.txt"
   Call unix2dos
 
+  SetOutPath $INSTDIR\utilities\toaster
+  File /oname=default.ini.tmp ${MISC_SRCDIR}\utilities\toaster\default.ini
+  File /oname=oblivion_optimize.ini.tmp ${MISC_SRCDIR}\utilities\toaster\oblivion_optimize.ini
+  CreateDirectory "$INSTDIR\utilities\toaster\in"
+  CreateDirectory "$INSTDIR\utilities\toaster\out"
+
+  ; force CRLF EOL in ini files
+  Push "$INSTDIR\utilities\toaster\default.ini.tmp"
+  Push "$INSTDIR\utilities\toaster\default.ini"
+  Call unix2dos
+  Push "$INSTDIR\utilities\toaster\oblivion_optimize.ini.tmp"
+  Push "$INSTDIR\utilities\toaster\oblivion_optimize.ini"
+  Call unix2dos
+
   ; Install shortcuts
   CreateDirectory "$SMPROGRAMS\PyFFI\"
   CreateShortCut "$SMPROGRAMS\PyFFI\Authors.lnk" "$INSTDIR\AUTHORS.txt"
@@ -291,6 +305,12 @@ install_shortcuts:
     WriteRegStr HKCR "DirectX.DDS.Document\shell\Open with QSkope" "" ""
     WriteRegStr HKCR "DirectX.DDS.Document\shell\Open with QSkope\command" "" '"$0\python.exe" "$0\Scripts\qskope.py" "%1"'
 
+  WriteRegStr HKCR ".ini" "" "inifile"
+
+    WriteRegStr HKCR "inifile" "" "Configuration Settings"
+    WriteRegStr HKCR "inifile\shell" "" "open"
+    WriteRegStr HKCR "inifile\shell\Run PyFFI\command" "" '"$0\python.exe" "$0\Scripts\niftoaster.py" --ini-file "$INSTDIR\utilities\toaster\default.ini" --ini-file "%1"'
+
 install_shortcuts_end:
 
 !macroend
@@ -303,6 +323,7 @@ install_shortcuts_end:
   DeleteRegKey HKCR "NetImmerseFile\shell\Open with QSkope"
   DeleteRegKey HKCR "CrytekGeometryFile\shell\Open with QSkope"
   DeleteRegKey HKCR "DirectX.DDS.Document\shell\Open with QSkope"
+  DeleteRegKey HKCR "inifile\shell\Run PyFFI"
 
   ; Remove legacy registry keys
   DeleteRegKey HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI-py2.5"

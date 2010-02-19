@@ -4,7 +4,7 @@
 
 .. toctree::
    :maxdepth: 3
-   
+
    pyffi.formats
    pyffi.spells
    pyffi.object_models
@@ -52,4 +52,3 @@ __version__ = '2.1.3'
 
 __hexversion__ = eval('0x%02X%02X%02X'
                       % tuple(int(x) for x in __version__.split('.')))
-

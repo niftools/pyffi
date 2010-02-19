@@ -90,9 +90,3 @@
 
       - resolve all complaints from cheesecake's pep8 checker
 
-    * pep8 case conventions:
-
-      - lower case for all modules (this is done)
-      - lower case for all methods and attributes (in progress, automatic
-        creation of aliases for backwards compatibility is already done)
-

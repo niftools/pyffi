@@ -71,6 +71,10 @@ Implementation
    :show-inheritance:
    :members:
 
+.. autoclass:: SpellDelUnusedRoots
+   :show-inheritance:
+   :members:
+   
 Regression tests
 ----------------
 """
@@ -141,6 +145,7 @@ class SpellDelTangentSpace(NifSpell):
                         'Tangent space (binormal & tangent vectors)'):
                         self.toaster.msg("removing tangent space block")
                         branch.remove_extra_data(extra)
+                        self.changed = True
             # all extra blocks here done; no need to recurse further
             return False
         # recurse further
@@ -171,6 +176,7 @@ class SpellAddTangentSpace(NifSpell):
             # no tangent space found
             self.toaster.msg("adding tangent space")
             branch.update_tangent_space()
+            self.changed = True
             # all extra blocks here done; no need to recurse further
             return False
         else:
@@ -200,6 +206,7 @@ class SpellFFVT3RSkinPartition(NifSpell):
                 branch.update_skin_partition(
                     maxbonesperpartition=4, maxbonespervertex=4,
                     stripify=False, verbose=0, padbones=True)
+                self.changed = True
             return False
             # done; no need to recurse further in this branch
         else:
@@ -261,6 +268,7 @@ class SpellFixTexturePath(SpellParseTexturePath):
             '\\'.encode("ascii"))
         if new_path != old_path:
             self.toaster.msg("fixed file name '%s'" % new_path)
+            self.changed = True
         return new_path
 
 # the next spell solves issue #2065018, MiddleWolfRug01.NIF
@@ -305,6 +313,7 @@ class SpellDetachHavokTriStripsData(NifSpell):
                         # detach!
                         self.toaster.msg("detaching havok data")
                         branch.strips_data[i] = NifFormat.NiTriStripsData().deepcopy(data)
+                        self.changed = True
             return False
         else:
             return True
@@ -332,11 +341,13 @@ class SpellClampMaterialAlpha(NifSpell):
                 self.toaster.msg(
                     "clamping alpha value (%f -> 1.0)" % branch.alpha)
                 branch.alpha = 1.0
+                self.changed = True
             elif branch.alpha < 0:
                 # too small
                 self.toaster.msg(
                     "clamping alpha value (%f -> 0.0)" % branch.alpha)
                 branch.alpha = 0.0
+                self.changed = True
             # stop recursion
             return False
         else:
@@ -353,6 +364,7 @@ class SpellSendGeometriesToBindPosition(pyffi.spells.nif.SpellVisitSkeletonRoots
     def skelrootentry(self, branch):
         self.toaster.msg("sending geometries to bind position")
         branch.send_geometries_to_bind_position()
+        self.changed = True
 
 class SpellSendDetachedGeometriesToNodePosition(pyffi.spells.nif.SpellVisitSkeletonRoots):
     """Transform geometries so each set of geometries that shares bones
@@ -364,6 +376,7 @@ class SpellSendDetachedGeometriesToNodePosition(pyffi.spells.nif.SpellVisitSkele
     def skelrootentry(self, branch):
         self.toaster.msg("sending detached geometries to node position")
         branch.send_detached_geometries_to_node_position()
+        self.changed = True
 
 class SpellSendBonesToBindPosition(pyffi.spells.nif.SpellVisitSkeletonRoots):
     """Transform bones so bone data agrees with bone transforms,
@@ -375,6 +388,7 @@ class SpellSendBonesToBindPosition(pyffi.spells.nif.SpellVisitSkeletonRoots):
     def skelrootentry(self, branch):
         self.toaster.msg("sending bones to bind position")
         branch.send_bones_to_bind_position()
+        self.changed = True
 
 class SpellMergeSkeletonRoots(NifSpell):
     """Merges skeleton roots in the nif file so that no skeleton root has
@@ -424,6 +438,7 @@ class SpellMergeSkeletonRoots(NifSpell):
     def branchentry(self, branch):
         if branch in self.skelrootlist:
             result, failed = branch.merge_skeleton_roots()
+            self.changed = True
             for geom in result:
                 self.toaster.msg("reassigned skeleton root of %s" % geom.name)
             self.skelrootlist.remove(branch)
@@ -467,6 +482,7 @@ class SpellScale(NifSpell):
 
     def branchentry(self, branch):
         branch.apply_scale(self.toaster.scale)
+        self.changed = True
         self.scaled_branches.append(branch)
         # continue recursion
         return True
@@ -496,6 +512,7 @@ class SpellFixMopp(pyffi.spells.nif.check.SpellCheckMopp):
         else:
             self.toaster.msg("updating mopp")
             branch.update_mopp()
+            self.changed = True
 
 class SpellCleanStringPalette(NifSpell):
     """Remove unused strings from string palette."""
@@ -592,8 +609,53 @@ class SpellCleanStringPalette(NifSpell):
                     block.set_controller_type(block.controller_type)
                     block.set_variable_1(block.variable_1)
                     block.set_variable_2(block.variable_2)
+            self.changed = True
             # do not recurse further
             return False
         else:
             # keep looking for managers or sequences
             return True
+
+class SpellDelUnusedRoots(pyffi.spells.nif.NifSpell):
+    """Remove root branches that shouldn't be root branches and are
+    unused in the file such as NiProperty branches that are not
+    properly parented.
+    """
+
+    SPELLNAME = "fix_delunusedroots"
+    READONLY = False
+
+    def datainspect(self):
+        if self.inspectblocktype(NifFormat.NiAVObject):
+            # check last 8 bytes
+            pos = self.stream.tell()
+            try:
+                self.stream.seek(-8, 2)
+                if self.stream.read(8) == '\x01\x00\x00\x00\x00\x00\x00\x00':
+                    # standard nif with single root: do not remove anything
+                    # and quit early without reading the full file
+                    return False
+                else:
+                    return True
+            finally:
+                self.stream.seek(pos)
+        else:
+            return False
+
+    def dataentry(self):
+        # make list of good roots
+        good_roots = [
+            root for root in self.data.roots
+            if isinstance(root, (NifFormat.NiAVObject,
+                                 NifFormat.NiSequence,
+                                 NifFormat.NiPhysXProp,
+                                 NifFormat.NiSequenceStreamHelper))]
+        # if actual roots differ from good roots set roots to good
+        # roots and report
+        if self.data.roots != good_roots:
+            self.toaster.msg("removing %i bad roots"
+                             % (len(self.data.roots) - len(good_roots)))
+            self.data.roots = good_roots
+            self.changed = True
+        return False
+

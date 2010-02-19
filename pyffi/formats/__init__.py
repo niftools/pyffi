@@ -16,12 +16,13 @@ Supported formats
 
 .. toctree::
    :maxdepth: 2
-   
-   pyffi.formats.cgf
+
    pyffi.formats.bsa
+   pyffi.formats.cgf
    pyffi.formats.dae
    pyffi.formats.dds
    pyffi.formats.egm
+   pyffi.formats.esp
    pyffi.formats.kfm
    pyffi.formats.nif
    pyffi.formats.tga
@@ -38,10 +39,10 @@ Getting Started
 Note that the files which make up the following example can all be found in
 the examples/simple directory of the source distribution of pyffi.
 
-Suppose you have a simple file format, which consists of an integer, followed
-by a list of integers as many as described by the first integer. We start
-by creating an XML file, call it :file:`simple.xml`, which describes this format
-in a way that pyffi can understand:
+Suppose you have a simple file format, which consists of an integer,
+followed by a list of integers as many as described by the first
+integer. We start by creating an XML file, call it :file:`simple.xml`,
+which describes this format in a way that pyffi can understand:
 
 .. literalinclude:: ../examples/simple/simple.xml
     :language: xml

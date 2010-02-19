@@ -72,6 +72,7 @@ reading tests/nif/test_fix_mergeskeletonroots.nif
 reading tests/nif/test_fix_tangentspace.nif
 reading tests/nif/test_fix_texturepath.nif
 reading tests/nif/test_mopp.nif
+reading tests/nif/test_opt_delunusedbones.nif
 reading tests/nif/test_opt_dupgeomdata.nif
 reading tests/nif/test_opt_dupverts.nif
 reading tests/nif/test_opt_emptyproperties.nif
@@ -2415,7 +2416,7 @@ class NifFormat(FileFormat):
 
         def update_a_b(self, parent):
             """Update the B data from the A data."""
-            transformAB = self.get_transform_a_b(parent)
+            transform = self.get_transform_a_b(parent)
             self.limited_hinge.update_a_b(transform)
             self.ragdoll.update_a_b(transform)
 

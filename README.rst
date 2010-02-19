@@ -20,7 +20,7 @@ Download
 --------
 
 Get PyFFI from
-`Sourceforge <http://sourceforge.net/project/showfiles.php?group_id=199269>`_,
+`Sourceforge <http://sourceforge.net/projects/pyffi/files/>`_,
 or install it with::
 
     easy_install -U PyFFI
@@ -42,9 +42,9 @@ Examples
 --------
 
 * The `Blender NIF Scripts
-  <http://sourceforge.net/project/showfiles.php?group_id=149157&package_id=166219>`_
+  <https://sourceforge.net/projects/niftools/files/blender_nif_scripts/>`_
   and the `Blender CGF Scripts
-  <http://sourceforge.net/project/showfiles.php?group_id=235915>`_ use
+  <https://sourceforge.net/projects/colladacgf/files/>`_ use
   PyFFI to import and export these files to and from Blender.
 
 * `QSkope
