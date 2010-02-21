@@ -219,9 +219,11 @@ legacykeys_end_${label}:
   CreateDirectory "$INSTDIR\utilities\toaster\out"
 
   ; force CRLF EOL in ini files
+  Delete "$INSTDIR\utilities\toaster\default.ini"
   Push "$INSTDIR\utilities\toaster\default.ini.tmp"
   Push "$INSTDIR\utilities\toaster\default.ini"
   Call unix2dos
+  Delete "$INSTDIR\utilities\toaster\oblivion_optimize.ini"
   Push "$INSTDIR\utilities\toaster\oblivion_optimize.ini.tmp"
   Push "$INSTDIR\utilities\toaster\oblivion_optimize.ini"
   Call unix2dos
@@ -340,4 +342,11 @@ install_shortcuts_end:
   Delete "$INSTDIR\*.TXT"
   Delete "$INSTDIR\*.txt"
   Delete "$INSTDIR\*.rst"
+  Delete "$INSTDIR\utilities\toaster\oblivion_optimize.ini"
+  Delete "$INSTDIR\utilities\toaster\default.ini"
+  RMDir "$INSTDIR\utilities\toaster\in"
+  RMDir "$INSTDIR\utilities\toaster\out"
+  RMDir "$INSTDIR\utilities\toaster"
+  RMDir "$INSTDIR\utilities"
 !macroend
+

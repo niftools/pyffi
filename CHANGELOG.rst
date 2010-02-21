@@ -1,5 +1,8 @@
-Release 2.1.3 (in development)
+Release 2.1.4 (in development)
 ==============================
+
+Release 2.1.3 (20 Feb 2010)
+===========================
 
 * Added toaster option to process files in archives (not yet functional).
 
@@ -17,7 +20,7 @@ Release 2.1.3 (in development)
 
   - modify_bonepriorities
 
-  - XXX more
+  - ... and many more
 
 * The niftoaster optimize spell now also includes fix_delunusedbones.
 
