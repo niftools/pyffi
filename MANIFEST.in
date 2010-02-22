@@ -12,6 +12,7 @@ include pyffi/formats/cgf/cgf.xml
 include pyffi/formats/dds/dds.xml
 include pyffi/formats/tga/tga.xml
 include pyffi/formats/egm/egm.xml
+include pyffi/formats/esp/esp.xml
 include pyffi/formats/tri/tri.xml
 include pyffi/formats/bsa/bsa.xml
 include pyffi/formats/dae/COLLADASchema.xsd
