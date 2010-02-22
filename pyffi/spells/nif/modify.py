@@ -930,9 +930,9 @@ class SpellSetInterpolatorTransRotScale(NifSpell):
                     interp.rotation.x = quatx
                 if quaty is not None:
                     interp.rotation.y = quaty
-                if quatx is not None:
+                if quatz is not None:
                     interp.rotation.z = quatz
-                if quatx is not None:
+                if quatw is not None:
                     interp.rotation.w = quatw
                 if scale is not None:
                     interp.scale = scale
