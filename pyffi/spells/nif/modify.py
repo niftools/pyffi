@@ -996,10 +996,9 @@ class SpellCollisionToMopp(NifSpell):
 
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.bhkRigidBody):
-            if isinstance(branch.shape, NifFormat.bhkNiTriStripsShape) or isinstance(branch.shape, NifFormat.bhkPackedNiTriStrips)
-                #tempshapeholder = NifFormat.bhkNiTriStripsShape.deepcopy(branch.shape)
+            if isinstance(branch.shape, NifFormat.bhkNiTriStripsShape) or isinstance(branch.shape, NifFormat.bhkPackedNiTriStrips):
                 colmopp = NifFormat.bhkMoppBvTreeShape()
-                colmopp.material = branch.material
+                colmopp.material = branch.shape.material
                 colmopp.unknown_8_bytes[0] = 160
                 colmopp.unknown_8_bytes[1] = 13
                 colmopp.unknown_8_bytes[2] = 75
