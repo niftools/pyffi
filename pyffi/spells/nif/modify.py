@@ -996,30 +996,25 @@ class SpellCollisionToMopp(NifSpell):
 
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.bhkRigidBody):
-            self.changed = True
-            if isinstance(branch.shape, NifFormat.bhkNiTriStripsShape):
-                print 'x'
-            branch.layer = self.toaster.col_type.layer
-            branch.layer_copy = self.toaster.col_type.layer
-            branch.mass = self.toaster.col_type.mass
-            branch.motion_system = self.toaster.col_type.motion_system
-            branch.unknown_byte_1 = self.toaster.col_type.unknown_byte1
-            branch.unknown_byte_2 = self.toaster.col_type.unknown_byte2
-            branch.quality_type = self.toaster.col_type.quality_type
-            branch.wind = self.toaster.col_type.wind
-            branch.solid = self.toaster.col_type.solid
-            self.toaster.msg("collision set to %s"
-                             % self.toaster.options["arg"])
-            # bhkPackedNiTriStripsShape could be further down, so keep looking
+            if isinstance(branch.shape, NifFormat.bhkNiTriStripsShape) or isinstance(branch.shape, NifFormat.bhkPackedNiTriStrips)
+                #tempshapeholder = NifFormat.bhkNiTriStripsShape.deepcopy(branch.shape)
+                colmopp = NifFormat.bhkMoppBvTreeShape()
+                colmopp.material = branch.material
+                colmopp.unknown_8_bytes[0] = 160
+                colmopp.unknown_8_bytes[1] = 13
+                colmopp.unknown_8_bytes[2] = 75
+                colmopp.unknown_8_bytes[3] = 1
+                colmopp.unknown_8_bytes[4] = 192
+                colmopp.unknown_8_bytes[5] = 207
+                colmopp.unknown_8_bytes[6] = 144
+                colmopp.unknown_8_bytes[7] = 11
+                colmopp.unknown_float = 1.0
+                colmopp.shape = branch.shape
+                branch.shape = colmopp
+                self.changed = True
+                branch.shape.update_mopp()
+                self.toaster.msg("collision set to MOPP")
             return True
-        elif isinstance(branch, NifFormat.bhkPackedNiTriStripsShape):
-            self.changed = True
-            for subshape in branch.sub_shapes:
-                subshape.layer = self.toaster.col_type.layer
-            self.toaster.msg("collision set to %s"
-                             % self.toaster.options["arg"])
-            # all extra blocks here done; no need to recurse further
-            return False
         else:
             # recurse further
             return True
