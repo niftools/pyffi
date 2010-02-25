@@ -16,13 +16,17 @@ Release 2.1.3 (20 Feb 2010)
 
 * New spells
 
-  - fix_delunusedbones
+  - fix_delunusedroots
 
   - modify_bonepriorities
 
-  - ... and many more
+  - modify_interpolatortransrotscale
+  
+  - modify_delinterpolatortransformdata
+  
+  - opt_delunusedbones
 
-* The niftoaster optimize spell now also includes fix_delunusedbones.
+* The niftoaster optimize spell now also includes fix_delunusedroots.
 
 * Removed unused pep8 attribute conversion code.
 
