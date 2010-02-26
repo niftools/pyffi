@@ -648,6 +648,7 @@ class SpellDelUnusedRoots(pyffi.spells.nif.NifSpell):
             root for root in self.data.roots
             if isinstance(root, (NifFormat.NiAVObject,
                                  NifFormat.NiSequence,
+                                 NifFormat.NiPixelData,
                                  NifFormat.NiPhysXProp,
                                  NifFormat.NiSequenceStreamHelper))]
         # if actual roots differ from good roots set roots to good
