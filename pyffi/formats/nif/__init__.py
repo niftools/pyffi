@@ -2873,6 +2873,12 @@ class NifFormat(FileFormat):
             return total_mass, total_center, total_inertia
 
     class bhkNiTriStripsShape:
+        def get_interchangeable_packed_shape(self):
+            """Returns a bhkPackedNiTriStripsShape block that is geometrically
+            interchangeable.
+            """
+            raise NotImplementedError
+
         def get_mass_center_inertia(self, density = 1, solid = True):
             """Return mass, center, and inertia tensor."""
             # first find mass, center, and inertia of all shapes
