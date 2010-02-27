@@ -2003,6 +2003,11 @@ class NifFormat(FileFormat):
             self.y /= norm
             self.z /= norm
 
+        def normalized(self):
+            vec = self.get_copy()
+            vec.normalize()
+            return vec
+
         def get_copy(self):
             v = NifFormat.Vector3()
             v.x = self.x
@@ -2877,7 +2882,45 @@ class NifFormat(FileFormat):
             """Returns a bhkPackedNiTriStripsShape block that is geometrically
             interchangeable.
             """
-            raise NotImplementedError
+            # get all vertices, triangles, and calculate normals
+            vertices = []
+            normals = []
+            triangles = []
+            for strip in self.strips_data:
+                triangles.extend(
+                    (tri1 + len(vertices),
+                     tri2 + len(vertices),
+                     tri3 + len(vertices))
+                    for tri1, tri2, tri3 in strip.get_triangles())
+                vertices.extend(
+                    # scaling factor 1/7 applied in add_shape later
+                    vert.as_tuple() for vert in strip.vertices)
+                normals.extend(
+                    (strip.vertices[tri2] - strip.vertices[tri1]).crossproduct(
+                        strip.vertices[tri3] - strip.vertices[tri1])
+                    .normalized()
+                    .as_tuple()
+                    for tri1, tri2, tri3 in strip.get_triangles())
+            # create packed shape and add geometry
+            packed = NifFormat.bhkPackedNiTriStripsShape()
+            packed.add_shape(
+                triangles=triangles,
+                normals=normals,
+                vertices=vertices,
+                # default layer 1 (static collision)
+                layer=self.data_layers[0].layer if self.data_layers else 1,
+                material=self.material)
+            # set unknowns
+            packed.unknown_floats[2] = 0.1
+            packed.unknown_floats[4] = 1.0
+            packed.unknown_floats[5] = 1.0
+            packed.unknown_floats[6] = 1.0
+            packed.unknown_floats[8] = 0.1
+            packed.scale = 1.0
+            packed.unknown_floats_2[0] = 1.0
+            packed.unknown_floats_2[1] = 1.0
+            # return result
+            return packed
 
         def get_mass_center_inertia(self, density = 1, solid = True):
             """Return mass, center, and inertia tensor."""
