@@ -1009,6 +1009,8 @@ class SpellCollisionToMopp(NifSpell):
                 colmopp.unknown_8_bytes[6] = 144
                 colmopp.unknown_8_bytes[7] = 11
                 colmopp.unknown_float = 1.0
+                if isinstance(branch.shape, NifFormat.bhkNiTriStripsShape):
+                    branch.shape = branch.shape.get_interchangeable_packed_shape()
                 colmopp.shape = branch.shape
                 branch.shape = colmopp
                 self.changed = True
