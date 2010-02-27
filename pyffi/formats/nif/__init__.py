@@ -2448,7 +2448,11 @@ class NifFormat(FileFormat):
         def update_mopp_welding(self):
             """Update the MOPP data, scale, and origin, and welding info."""
             logger = logging.getLogger("pyffi.mopp")
-
+            # check type of shape
+            if not isinstance(self.shape, NifFormat.bhkPackedNiTriStripsShape):
+                raise ValueError(
+                    "expected bhkPackedNiTriStripsShape on mopp"
+                    " but got %s instead" % self.shape.__class__.__name__)
             # first try with pyffi.utils.mopp
             failed = False
             try:
