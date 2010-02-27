@@ -979,7 +979,7 @@ class SpellDelInterpolatorTransformData(NifSpell):
         return True
 
 class SpellCollisionToMopp(NifSpell):
-    """transforms the object collision to MOPP - if a vertex based (rather than a basic shape) collision exists"""
+    """Transforms non-mopp triangle collisions to the more efficient mopps."""
 
     SPELLNAME = "modify_collisiontomopp"
     READONLY = False
