@@ -2450,8 +2450,12 @@ class NifFormat(FileFormat):
             logger = logging.getLogger("pyffi.mopp")
 
             # first try with pyffi.utils.mopp
+            failed = False
             try:
                 print(pyffi.utils.mopp.getMopperCredits())
+            except (OSError, RuntimeError):
+                failed = True
+            else:
                 # find material indices per triangle
                 material_per_vertex = []
                 subshapes = self.shape.sub_shapes
@@ -2459,18 +2463,31 @@ class NifFormat(FileFormat):
                     # fallout 3
                     subshapes = self.shape.data.sub_shapes
                 for subshape in subshapes:
-                    material_per_vertex += [subshape.material] * subshape.num_vertices
+                    material_per_vertex += (
+                        [subshape.material] * subshape.num_vertices)
                 material_per_triangle = [
                     material_per_vertex[hktri.triangle.v_1]
                     for hktri in self.shape.data.triangles]
                 # compute havok info
-                origin, scale, mopp, welding_infos \
-                = pyffi.utils.mopp.getMopperOriginScaleCodeWelding(
-                    [vert.as_tuple() for vert in self.shape.data.vertices],
-                    [(hktri.triangle.v_1, hktri.triangle.v_2, hktri.triangle.v_3)
-                     for hktri in self.shape.data.triangles],
-                    material_per_triangle)
-            except (OSError, RuntimeError):
+                try:
+                    origin, scale, mopp, welding_infos \
+                    = pyffi.utils.mopp.getMopperOriginScaleCodeWelding(
+                        [vert.as_tuple() for vert in self.shape.data.vertices],
+                        [(hktri.triangle.v_1,
+                          hktri.triangle.v_2,
+                          hktri.triangle.v_3)
+                         for hktri in self.shape.data.triangles],
+                        material_per_triangle)
+                except (OSError, RuntimeError):
+                    failed = True
+                else:
+                    # must use calculated scale and origin
+                    self.scale = scale
+                    self.origin.x = origin[0]
+                    self.origin.y = origin[1]
+                    self.origin.z = origin[2]
+            # if havok's mopper failed, do a simple mopp
+            if failed:
                 logger.exception(
                     "Havok mopp generator failed, falling back on simple mopp "
                     "(but collisions may be flawed in-game!)."
@@ -2484,12 +2501,6 @@ class NifFormat(FileFormat):
                 mopp = self._makeSimpleMopp()
                 # no welding info
                 welding_infos = []
-            else:
-                # must use calculated scale and origin
-                self.scale = scale
-                self.origin.x = origin[0]
-                self.origin.y = origin[1]
-                self.origin.z = origin[2]
 
             # delete mopp and replace with new data
             self.mopp_data_size = len(mopp)
@@ -2500,7 +2511,6 @@ class NifFormat(FileFormat):
             # update welding information
             for hktri, welding_info in izip(self.shape.data.triangles, welding_infos):
                 hktri.welding_info = welding_info
-                
 
         def _makeSimpleMopp(self):
             """Make a simple mopp."""
