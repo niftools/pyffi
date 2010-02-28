@@ -4286,12 +4286,16 @@ class NifFormat(FileFormat):
             vertexprecision=3, normalprecision=3,
             uvprecision=5, vcolprecision=3):
             """Generator which produces a tuple of integers for each
-            (vertex, normal, uv, vcol), to ease detection of duplicate vertices.
-            The precision parameters denote number of significant digits
-            behind the comma.
+            (vertex, normal, uv, vcol), to ease detection of duplicate
+            vertices. The precision parameters denote number of
+            significant digits behind the comma.
 
-            Default for uvprecision is higher than default for the rest because
-            for very large models the uv coordinates can be very close together.
+            Default for uvprecision should really be high because for
+            very large models the uv coordinates can be very close
+            together.
+
+            For vertexprecision, 3 seems usually enough (maybe we'll
+            have to increase this at some point).
 
             :param vertexprecision: Precision to be used for vertices.
             :type vertexprecision: float

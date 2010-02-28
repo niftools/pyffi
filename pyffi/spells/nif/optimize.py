@@ -212,6 +212,10 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
     # spell parameters
     STRIPLENCUTOFF = 10
     STITCH = True
+    VERTEXPRECISION = 3
+    NORMALPRECISION = 3
+    UVPRECISION = 5
+    VCOLPRECISION = 3
 
     def __init__(self, *args, **kwargs):
         pyffi.spells.nif.NifSpell.__init__(self, *args, **kwargs)
@@ -239,7 +243,11 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
         v_map_inverse = [] # inverse: map new index to old index
         k_map = {} # maps hash to new vertex index
         index = 0  # new vertex index for next vertex
-        for i, vhash in enumerate(data.get_vertex_hash_generator()):
+        for i, vhash in enumerate(data.get_vertex_hash_generator(
+            vertexprecision=self.VERTEXPRECISION,
+            normalprecision=self.NORMALPRECISION,
+            uvprecision=self.UVPRECISION,
+            vcolprecision=self.VCOLPRECISION)):
             try:
                 k = k_map[vhash]
             except KeyError:
@@ -748,5 +756,3 @@ class SpellPackCollision(pyffi.spells.nif.NifSpell):
             return False
         # otherwise recurse further
         return True
-
-        
