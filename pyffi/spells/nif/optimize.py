@@ -669,3 +669,51 @@ class SpellDelUnusedBones(pyffi.spells.nif.NifSpell):
                 # no need to recurse further
                 return False
         return True
+
+class SpellReduceGeometry(SpellOptimizeGeometry):
+    """Reduce vertices of all geometries:
+      - remove duplicate & reduce other vertices
+      - stripify if strips are long enough
+      - recalculate skin partition
+      - recalculate tangent space 
+    """
+
+    SPELLNAME = "opt_reducegeometry"
+    READONLY = False
+    
+    @classmethod
+    def toastentry(cls, toaster):
+        if not toaster.options["arg"]:
+            toaster.logger.warn(
+                "must specify degree of reduction as argument "
+                "(e.g. 2 to reduce a little, 1 to reduce more, "
+                "0 to reduce even more, -0.1 is usually the highest "
+                "level of optimization possible before significant "
+                " graphical oddities occur) to to apply spell")
+            return False
+        else:
+            toaster.x = float(toaster.options["arg"])
+            return True
+
+    def optimize_vertices(self, data):
+        x = self.toaster.x
+        self.toaster.msg("reducing vertices")
+        v_map = [0 for i in xrange(data.num_vertices)] # maps old index to new index
+        v_map_inverse = [] # inverse: map new index to old index
+        k_map = {} # maps hash to new vertex index
+        index = 0  # new vertex index for next vertex
+        for i, vhash in enumerate(data.get_vertex_hash_generator(x,x,x,x)):
+            try:
+                k = k_map[vhash]
+            except KeyError:
+                # vertex is new
+                k_map[vhash] = index
+                v_map[i] = index
+                v_map_inverse.append(i)
+                index += 1
+            else:
+                # vertex already exists
+                v_map[i] = k
+        del k_map
+        return v_map, v_map_inverse, index
+        

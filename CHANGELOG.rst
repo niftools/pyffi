@@ -7,6 +7,8 @@ Release 2.1.4 (in development)
 * New spells
 
   - modify_collisiontomopp
+  
+  - opt_reducegeometry
 
 * Windows right-click optimize method now uses default.ini and
   oblivion_optimize.ini.
