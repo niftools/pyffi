@@ -718,7 +718,7 @@ class SpellReduceGeometry(SpellOptimizeGeometry):
         return v_map, v_map_inverse, index
         
 class SpellPackCollision(pyffi.spells.nif.NifSpell):
-    """Remove empty and duplicate entries in reference lists."""
+    """Pack bhkNiTriStripsShape into bhkPackedNiTriStripsShape"""
 
     SPELLNAME = "opt_packcollision"
     READONLY = False
