@@ -3,6 +3,10 @@ Release 2.1.4 (in development)
 
 * Extra names in oblivion_optimize.ini skip list for known mods
   (contributed by Tommy_H).
+  
+* New spells
+
+  - modify_collisiontomopp
 
 * Windows right-click optimize method now uses default.ini and
   oblivion_optimize.ini.
