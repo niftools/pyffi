@@ -252,7 +252,7 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                 # vertex already exists
                 v_map[i] = k
         del k_map
-        return v_map, v_map_inverse, index
+        return v_map, v_map_inverse
         
     def branchentry(self, branch):
         """Optimize a NiTriStrips or NiTriShape block:
@@ -286,9 +286,9 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
         # shortcut
         data = branch.data
 
-        v_map, v_map_inverse, index = self.optimize_vertices(data)
+        v_map, v_map_inverse = self.optimize_vertices(data)
         
-        new_numvertices = index
+        new_numvertices = len(v_map_inverse)
         self.toaster.msg("(num vertices was %i and is now %i)"
                          % (len(v_map), new_numvertices))
         # copy old data
