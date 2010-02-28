@@ -708,7 +708,7 @@ class SpellReduceGeometry(SpellOptimizeGeometry):
             return True
 
 class SpellPackCollision(pyffi.spells.nif.NifSpell):
-    """Pack bhkNiTriStripsShape into bhkPackedNiTriStripsShape"""
+    """Pack bhkNiTriStripsShape into bhkPackedNiTriStripsShape."""
 
     SPELLNAME = "opt_packcollision"
     READONLY = False
@@ -721,20 +721,17 @@ class SpellPackCollision(pyffi.spells.nif.NifSpell):
         # only inspect the NiNode branch
         return isinstance(branch, (NifFormat.NiAVObject,
                                    NifFormat.bhkCollisionObject,
-                                   NifFormat.bhkRigidBody))
+                                   NifFormat.bhkRigidBody,
+                                   NifFormat.bhkMoppBvTreeShape,
+                                   NifFormat.bhkNiTriStripsShape))
     
     def branchentry(self, branch):
-        if isinstance(branch, NifFormat.bhkRigidBody):
-            if isinstance(branch.shape, NifFormat.bhkNiTriStripsShape):
-                branch.shape = branch.shape.get_interchangeable_packed_shape()
-                self.toaster.msg("Collision packed")
-                self.changed = True
-            elif isinstance(branch.shape, NifFormat.bhkMoppBvTreeShape):
-                if isinstance(branch.shape.shape, NifFormat.bhkNiTriStripsShape):
-                    branch.shape.shape = branch.shape.shape.get_interchangeable_packed_shape()
-                    self.toaster.msg("Collision packed")
-                    self.changed = True
-            # Don't need to recurse further
+        if isinstance(branch, NifFormat.bhkNiTriStripsShape):
+            new_branch = branch.get_interchangeable_packed_shape()
+            self.data.replace_global_node(branch, new_branch)
+            self.toaster.msg("collision packed")
+            self.changed = True
+            # don't need to recurse further
             return False
         # otherwise recurse further
         return True
