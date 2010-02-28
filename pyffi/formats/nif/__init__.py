@@ -4281,12 +4281,14 @@ class NifFormat(FileFormat):
             self.center.z *= scale
             self.radius *= scale
 
-        def get_vertex_hash_generator(self,
-                                   vertexprecision=3, normalprecision=3,
-                                   uvprecision=5, vcolprecision=3):
+        def get_vertex_hash_generator(
+            self,
+            vertexprecision=3, normalprecision=3,
+            uvprecision=5, vcolprecision=3):
             """Generator which produces a tuple of integers for each
             (vertex, normal, uv, vcol), to ease detection of duplicate vertices.
-            The precision parameters denote number of significant digits.
+            The precision parameters denote number of significant digits
+            behind the comma.
 
             Default for uvprecision is higher than default for the rest because
             for very large models the uv coordinates can be very close together.
@@ -4325,16 +4327,16 @@ class NifFormat(FileFormat):
                     h.extend([_int(x * vertexfactor)
                              for x in [verts[i].x, verts[i].y, verts[i].z]])
                 if norms:
-                    h.extend([_int(x * normalfactor)
+                    h.extend([_int(x * normalfactor + 0.5)
                               for x in [norms[i].x, norms[i].y, norms[i].z]])
                 if uvsets:
                     for uvset in uvsets:
                         # uvs sometimes have NaN, for example:
                         # oblivion/meshes/architecture/anvil/anvildooruc01.nif
-                        h.extend([_int(x*uvfactor)
+                        h.extend([_int(x*uvfactor + 0.5)
                                   for x in [uvset[i].u, uvset[i].v]])
                 if vcols:
-                    h.extend([_int(x * vcolfactor)
+                    h.extend([_int(x * vcolfactor + 0.5)
                               for x in [vcols[i].r, vcols[i].g,
                                         vcols[i].b, vcols[i].a]])
                 yield tuple(h)
