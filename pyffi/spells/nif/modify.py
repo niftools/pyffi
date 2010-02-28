@@ -985,14 +985,13 @@ class SpellCollisionToMopp(NifSpell):
     READONLY = False
 
     def datainspect(self):
-        return self.inspectblocktype(NifFormat.bhkNiTriStripsShape)
+        return self.inspectblocktype(NifFormat.bhkRigidBody)
 
     def branchinspect(self, branch):
         # only inspect the NiAVObject branch
         return isinstance(branch, (NifFormat.NiAVObject,
                                    NifFormat.bhkCollisionObject,
-                                   NifFormat.bhkRigidBody,
-                                   NifFormat.bhkNiTriStripsShape))
+                                   NifFormat.bhkRigidBody))
 
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.bhkRigidBody):
@@ -1016,7 +1015,8 @@ class SpellCollisionToMopp(NifSpell):
                 self.changed = True
                 branch.shape.update_mopp()
                 self.toaster.msg("collision set to MOPP")
-            return True
+            # Don't need to recurse further
+            return False
         else:
             # recurse further
             return True
