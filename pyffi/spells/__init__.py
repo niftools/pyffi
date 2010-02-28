@@ -887,7 +887,11 @@ class Toaster(object):
         >>> cfg.close()
         >>> toaster = NifToaster(logger=fake_logger)
         >>> import sys
-        >>> sys.argv = ["niftoaster.py", "--ini-file=%s" % cfg.name]
+        >>> sys.argv = [
+        ...     "niftoaster.py",
+        ...     "--ini-file=utilities/toaster/default.ini",
+        ...     "--ini-file=%s" % cfg.name,
+        ...     "--noninteractive", "--jobs=1"]
         >>> toaster.cli()
         pyffi.toaster:INFO:=== tests/nif/test_vertexcolor.nif ===
         pyffi.toaster:INFO:  --- modify_delbranches ---
@@ -922,15 +926,15 @@ class Toaster(object):
         helpspell: False
         include: []
         inifile: 
-        interactive: True
+        interactive: False
         jobs: 1
         only: []
         patchcmd: 
-        pause: False
+        pause: True
         prefix: 
         raisetesterror: False
         refresh: 32
-        resume: False
+        resume: True
         series: False
         skip: ['testing quoted string', 'normal_string']
         sourcedir: tests/
@@ -947,8 +951,10 @@ class Toaster(object):
             for opt_value in shlex.split(opt_values):
                 option.process(opt_str, opt_value, parser.values, parser)
         # get spells and top folder
-        toaster.spellnames.extend(ini_parser.get("main", "spell").split())
-        toaster.top = ini_parser.get("main", "folder")
+        if ini_parser.has_option("main", "spell"):
+            toaster.spellnames.extend(ini_parser.get("main", "spell").split())
+        if ini_parser.has_option("main", "folder"):
+            toaster.top = ini_parser.get("main", "folder")
 
     def cli(self):
         """Command line interface: initializes spell classes and options from

@@ -279,10 +279,10 @@ install_shortcuts:
     WriteRegStr HKCR "NetImmerseFile\shell" "" "open"
 
     WriteRegStr HKCR "NetImmerseFile\shell\Optimize with PyFFI" "" ""
-    WriteRegStr HKCR "NetImmerseFile\shell\Optimize with PyFFI\command" "" '"$0\python.exe" "$0\Scripts\niftoaster.py" optimize --pause "%1"'
+    WriteRegStr HKCR "NetImmerseFile\shell\Optimize with PyFFI\command" "" '"$0\python.exe" "$0\Scripts\niftoaster.py" --ini-file="$INSTDIR\utilities\toaster\default.ini" --ini-file="$INSTDIR\utilities\toaster\oblivion_optimize.ini" --dest-dir= --source-dir= --pause "%1"'
 
     WriteRegStr HKCR "Folder\shell\Optimize with PyFFI" "" ""
-    WriteRegStr HKCR "Folder\shell\Optimize with PyFFI\command" "" '"$0\python.exe" "$0\Scripts\niftoaster.py" optimize --pause "%1"'
+    WriteRegStr HKCR "Folder\shell\Optimize with PyFFI\command" "" '"$0\python.exe" "$0\Scripts\niftoaster.py" --ini-file="$INSTDIR\utilities\toaster\default.ini" --ini-file="$INSTDIR\utilities\toaster\oblivion_optimize.ini" --dest-dir= --source-dir= --pause "%1"'
 
     WriteRegStr HKCR "NetImmerseFile\shell\Open with QSkope" "" ""
     WriteRegStr HKCR "NetImmerseFile\shell\Open with QSkope\command" "" '"$0\python.exe" "$0\Scripts\qskope.py" "%1"'
@@ -311,7 +311,7 @@ install_shortcuts:
 
     WriteRegStr HKCR "inifile" "" "Configuration Settings"
     WriteRegStr HKCR "inifile\shell" "" "open"
-    WriteRegStr HKCR "inifile\shell\Run PyFFI\command" "" '"$0\python.exe" "$0\Scripts\niftoaster.py" --ini-file "$INSTDIR\utilities\toaster\default.ini" --ini-file "%1"'
+    WriteRegStr HKCR "inifile\shell\Run PyFFI\command" "" '"$0\python.exe" "$0\Scripts\niftoaster.py" --ini-file="$INSTDIR\utilities\toaster\default.ini" --ini-file="%1"'
 
 install_shortcuts_end:
 
