@@ -1059,6 +1059,10 @@ class Toaster(object):
             " (ii) do not contain any regular expression specified with --skip;"
             " if specified multiple times, the expressions are 'ored'")
         parser.add_option(
+            "--overwrite", dest="resume",
+            action="store_false",
+            help="overwrite existing files (also see --resume)")
+        parser.add_option(
             "--patch", dest="applypatch",
             action="store_true",
             help="apply all binary patches")
