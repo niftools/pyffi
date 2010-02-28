@@ -233,6 +233,27 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
         # only inspect the NiAVObject branch
         return isinstance(branch, NifFormat.NiAVObject)
 
+    def optimize_vertices(self, data):
+        self.toaster.msg("removing duplicate vertices")
+        v_map = [0 for i in xrange(data.num_vertices)] # maps old index to new index
+        v_map_inverse = [] # inverse: map new index to old index
+        k_map = {} # maps hash to new vertex index
+        index = 0  # new vertex index for next vertex
+        for i, vhash in enumerate(data.get_vertex_hash_generator()):
+            try:
+                k = k_map[vhash]
+            except KeyError:
+                # vertex is new
+                k_map[vhash] = index
+                v_map[i] = index
+                v_map_inverse.append(i)
+                index += 1
+            else:
+                # vertex already exists
+                v_map[i] = k
+        del k_map
+        return v_map, v_map_inverse, index
+        
     def branchentry(self, branch):
         """Optimize a NiTriStrips or NiTriShape block:
           - remove duplicate vertices
@@ -265,25 +286,8 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
         # shortcut
         data = branch.data
 
-        self.toaster.msg("removing duplicate vertices")
-        v_map = [0 for i in xrange(data.num_vertices)] # maps old index to new index
-        v_map_inverse = [] # inverse: map new index to old index
-        k_map = {} # maps hash to new vertex index
-        index = 0  # new vertex index for next vertex
-        for i, vhash in enumerate(data.get_vertex_hash_generator()):
-            try:
-                k = k_map[vhash]
-            except KeyError:
-                # vertex is new
-                k_map[vhash] = index
-                v_map[i] = index
-                v_map_inverse.append(i)
-                index += 1
-            else:
-                # vertex already exists
-                v_map[i] = k
-        del k_map
-
+        v_map, v_map_inverse, index = self.optimize_vertices(data)
+        
         new_numvertices = index
         self.toaster.msg("(num vertices was %i and is now %i)"
                          % (len(v_map), new_numvertices))
