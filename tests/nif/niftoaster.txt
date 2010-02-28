@@ -192,6 +192,7 @@ fix_delunusedroots
 modify_bonepriorities
 modify_interpolatortransrotscale
 modify_delinterpolatortransformdata
+modify_collisiontomopp
 
 The check_readwrite spell and the --raise switch
 ------------------------------------------------
