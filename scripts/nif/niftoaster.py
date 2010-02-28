@@ -120,6 +120,7 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         pyffi.spells.nif.modify.SpellDelInterpolatorTransformData,
         pyffi.spells.nif.modify.SpellCollisionToMopp,
         pyffi.spells.nif.optimize.SpellReduceGeometry,
+        pyffi.spells.nif.optimize.SpellPackCollision
         ]
     ALIASDICT = {
         "texdump": "dump_tex",

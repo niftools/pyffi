@@ -717,3 +717,36 @@ class SpellReduceGeometry(SpellOptimizeGeometry):
         del k_map
         return v_map, v_map_inverse, index
         
+class SpellPackCollision(pyffi.spells.nif.NifSpell):
+    """Remove empty and duplicate entries in reference lists."""
+
+    SPELLNAME = "opt_packcollision"
+    READONLY = False
+
+    def datainspect(self):
+        # only run the spell if there are skinned geometries
+        return self.inspectblocktype(NifFormat.bhkNiTriStripsShape)
+
+    def branchinspect(self, branch):
+        # only inspect the NiNode branch
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.bhkCollisionObject,
+                                   NifFormat.bhkRigidBody))
+    
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.bhkRigidBody):
+            if isinstance(branch.shape, NifFormat.bhkNiTriStripsShape):
+                branch.shape = branch.shape.get_interchangeable_packed_shape()
+                self.toaster.msg("Collision packed")
+                self.changed = True
+            elif isinstance(branch.shape, NifFormat.bhkMoppBvTreeShape):
+                if isinstance(branch.shape.shape, NifFormat.bhkNiTriStripsShape):
+                    branch.shape.shape = branch.shape.shape.get_interchangeable_packed_shape()
+                    self.toaster.msg("Collision packed")
+                    self.changed = True
+            # Don't need to recurse further
+            return False
+        # otherwise recurse further
+        return True
+
+        

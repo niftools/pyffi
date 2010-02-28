@@ -9,6 +9,8 @@ Release 2.1.4 (in development)
   - modify_collisiontomopp
   
   - opt_reducegeometry
+  
+  - opt_packcollision
 
 * Windows right-click optimize method now uses default.ini and
   oblivion_optimize.ini.
