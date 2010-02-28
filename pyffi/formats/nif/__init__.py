@@ -4303,15 +4303,6 @@ class NifFormat(FileFormat):
             :type vcolprecision: float
             :return: A generator yielding a hash value for each vertex.
             """
-
-            def _int(x):
-                """Convert float to integer, handling NaN gracefully."""
-                try:
-                    return int(x)
-                except ValueError:
-                    logging.getLogger("pyffi.nif.nigeometry").warn(
-                        "NaN detected in geometry.")
-                    return 0
             
             verts = self.vertices if self.has_vertices else None
             norms = self.normals if self.has_normals else None
@@ -4324,19 +4315,19 @@ class NifFormat(FileFormat):
             for i in xrange(self.num_vertices):
                 h = []
                 if verts:
-                    h.extend([_int(x * vertexfactor)
+                    h.extend([float_to_int(x * vertexfactor)
                              for x in [verts[i].x, verts[i].y, verts[i].z]])
                 if norms:
-                    h.extend([_int(x * normalfactor + 0.5)
+                    h.extend([float_to_int(x * normalfactor)
                               for x in [norms[i].x, norms[i].y, norms[i].z]])
                 if uvsets:
                     for uvset in uvsets:
                         # uvs sometimes have NaN, for example:
                         # oblivion/meshes/architecture/anvil/anvildooruc01.nif
-                        h.extend([_int(x*uvfactor + 0.5)
+                        h.extend([float_to_int(x*uvfactor)
                                   for x in [uvset[i].u, uvset[i].v]])
                 if vcols:
-                    h.extend([_int(x * vcolfactor + 0.5)
+                    h.extend([float_to_int(x * vcolfactor)
                               for x in [vcols[i].r, vcols[i].g,
                                         vcols[i].b, vcols[i].a]])
                 yield tuple(h)
