@@ -4324,7 +4324,7 @@ class NifFormat(FileFormat):
                     for uvset in uvsets:
                         # uvs sometimes have NaN, for example:
                         # oblivion/meshes/architecture/anvil/anvildooruc01.nif
-                        h.extend([float_to_int(x*uvfactor)
+                        h.extend([float_to_int(x * uvfactor)
                                   for x in [uvset[i].u, uvset[i].v]])
                 if vcols:
                     h.extend([float_to_int(x * vcolfactor)
