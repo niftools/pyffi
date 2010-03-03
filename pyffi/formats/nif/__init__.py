@@ -358,7 +358,9 @@ class NifFormat(FileFormat):
     # .kf are nif files containing keyframes
     # .kfa are nif files containing keyframes in DAoC style
     # .nifcache are Empire Earth II nif files
-    RE_FILENAME = re.compile(r'^.*\.(nif|kf|kfa|nifcache|jmi)$', re.IGNORECASE)
+    # .texcache are Empire Earth II/III packed texture nif files
+    # .pcpatch are Empire Earth II/III packed texture nif files
+    RE_FILENAME = re.compile(r'^.*\.(nif|kf|kfa|nifcache|jmi|texcache|pcpatch)$', re.IGNORECASE)
     # archives
     ARCHIVE_CLASSES = [pyffi.formats.bsa.BsaFormat]
     # used for comparing floats
