@@ -250,7 +250,9 @@ class SpellFixTexturePath(SpellParseTexturePath):
     """Fix the texture path. Transforms 0x0a into \\n and 0x0d into \\r.
     This fixes a bug in nifs saved with older versions of nifskope.
     Also transforms / into \\. This fixes problems when packing files into
-    a bsa archive.
+    a bsa archive. Also if the version is 20.0.0.4 or higher it will check 
+    for bad texture path form of eg C:\program files\bethsoft\ob\textures\file\path.dds
+    and replace it with eg textures\file\path.dds
     """
 
     SPELLNAME = "fix_texturepath"
@@ -266,6 +268,9 @@ class SpellFixTexturePath(SpellParseTexturePath):
         new_path = new_path.replace(
             '/'.encode("ascii"),
             '\\'.encode("ascii"))
+        # if Oblivion, FO3, hopefully any other game files this would be run on also
+        if self.data.version >= 0x14000004 and not new_path.lower().startswith("textures\\"):
+            new_path = "textures\\" + new_path.split("textures\\")[1]
         if new_path != old_path:
             self.toaster.msg("fixed file name '%s'" % new_path)
             self.changed = True
