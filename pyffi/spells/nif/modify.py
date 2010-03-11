@@ -608,25 +608,11 @@ class SpellDelVertexColor(SpellDelBranches):
 
 # identical to niftoaster.py modify_delbranches -x NiVertexColorProperty
 # delete?
-class SpellDelVertexColorProperty(SpellDelBranches):
-    """Delete vertex color properties."""
+class SpellDelVertexColorProperty(_SpellDelBranchClasses):
+    """Delete vertex color property if it is present."""
 
     SPELLNAME = "modify_delvertexcolorprop"
-
-    def is_branch_to_be_deleted(self, branch):
-        return isinstance(branch, NifFormat.NiVertexColorProperty)
-
-    def datainspect(self):
-        return self.inspectblocktype(NifFormat.NiTriBasedGeom)
-
-    def branchinspect(self, branch):
-        # only inspect the NiAVObject branch
-        return isinstance(branch, (NifFormat.NiAVObject,
-                                   NifFormat.NiTriBasedGeomData,
-                                   NifFormat.NiVertexColorProperty))
-
-    def branchentry(self, branch):
-        return True
+    BRANCH_CLASSES_TO_BE_DELETED = (NifFormat.NiVertexColorProperty,)
 
 # identical to niftoaster.py modify_delbranches -x NiAlphaProperty
 # delete?
