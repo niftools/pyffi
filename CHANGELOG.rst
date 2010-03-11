@@ -14,6 +14,9 @@ Release 2.1.4 (in development)
 
 * Windows right-click optimize method now uses default.ini and
   oblivion_optimize.ini.
+  
+* fix_texturepath now fixes paths that include the whole drive path
+  to just the textures//whatever path.
 
 Release 2.1.3 (20 Feb 2010)
 ===========================
