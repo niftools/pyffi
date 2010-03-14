@@ -1508,11 +1508,10 @@ may destroy them. Make a backup of your files before running this script.
                     outstream_name = outstream.name
                     self.msg("removing incompletely written file...")
                     outstream.close()
-                    try:
+                    # temporary streams are removed on close
+                    # so check if it exists before removing
+                    if os.path.exists(outstream_name):
                         os.remove(outstream_name)
-                    except OSError:
-                        # temporary stream was removed on close...
-                        pass
                 raise
             if stream is outstream:
                 stream.truncate()
