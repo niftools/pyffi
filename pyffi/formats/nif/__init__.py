@@ -1339,7 +1339,8 @@ class NifFormat(FileFormat):
                         data_stream_usage = int(data_stream_usage)
                         data_stream_access = int(data_stream_access)
                     # read dummy integer
-                    if self.version <= 0x0A01006A:
+                    # bhk blocks are *not* preceeded by a dummy
+                    if self.version <= 0x0A01006A and not block_type.startswith("bhk"):
                         dummy, = struct.unpack('<I', stream.read(4))
                         if dummy != 0:
                             raise NifFormat.NifError(
