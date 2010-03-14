@@ -18,6 +18,9 @@ Release 2.1.4 (in development)
 * fix_texturepath now fixes paths that include the whole drive path
   to just the textures//whatever path.
 
+* The optimize spell has been fixed to update Fallout 3 style tangent
+  space (fixes issue #2941568, reported by xjdhdr).
+
 Release 2.1.3 (20 Feb 2010)
 ===========================
 
