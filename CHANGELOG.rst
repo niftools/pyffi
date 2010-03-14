@@ -16,7 +16,7 @@ Release 2.1.4 (in development)
   oblivion_optimize.ini.
   
 * fix_texturepath now fixes paths that include the whole drive path
-  to just the textures//whatever path.
+  to just the textures/... path.
 
 * The optimize spell has been fixed to update Fallout 3 style tangent
   space (fixes issue #2941568, reported by xjdhdr).
