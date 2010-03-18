@@ -732,7 +732,7 @@ class SpellAddStencilProperty(NifSpell):
                     return False
             # no stencil property found
             self.toaster.msg("adding NiStencilProperty")
-            branch.add_property(NifFormat.NiStencilProperty)
+            branch.add_property(NifFormat.NiStencilProperty())
             self.changed = True
             # no geometry children, no need to recurse further
             return False
