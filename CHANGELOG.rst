@@ -1,5 +1,5 @@
-Release 2.1.4 (in development)
-==============================
+Release 2.1.4 (19 Mar 2010)
+===========================
 
 * Extra names in oblivion_optimize.ini skip list for known mods
   (contributed by Tommy_H).
