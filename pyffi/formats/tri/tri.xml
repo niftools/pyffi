@@ -142,6 +142,9 @@
        <add name="Vertices To Modify" type="int" arr1="Num Vertices To Modify">
            List of Vertices To Modify.
        </add>
+       <add name="Modifier Vertices" type="Vertex" arr1="Num Vertices To Modify" abstract="1">
+           The actual modifier vertices (copied from Header.modifier_vertices).
+       </add>
    </struct>
 
     <struct name="Header">

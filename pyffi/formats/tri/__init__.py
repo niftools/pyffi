@@ -91,6 +91,7 @@ Create an TRI file from scratch and write to file
 #
 # ***** END LICENSE BLOCK *****
 
+from itertools import chain, izip
 import struct
 import os
 import re
@@ -305,21 +306,121 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
             if stream.read(1):
                 raise ValueError(
                     'end of file not reached: corrupt tri file?')
-            
+
+            # copy modifier vertices into modifier records
+            start_index = 0
+            for modifier in self.modifiers:
+                modifier.modifier_vertices.update_size()
+                for src_vert, dst_vert in izip(
+                    self.modifier_vertices[
+                        start_index:start_index
+                        + modifier.num_vertices_to_modify],
+                    modifier.modifier_vertices):
+                    dst_vert.x = src_vert.x
+                    dst_vert.y = src_vert.y
+                    dst_vert.z = src_vert.z
+                start_index += modifier.num_vertices_to_modify
+
         def write(self, stream):
             """Write a tri file.
 
             :param stream: The stream to which to write.
             :type stream: ``file``
             """
+            # copy modifier vertices from modifier records to header
+            if self.modifiers:
+                self.num_modifier_vertices = sum(
+                    modifier.num_vertices_to_modify
+                    for modifier in self.modifiers)
+                self.modifier_vertices.update_size()
+                for self_vert, vert in izip(
+                    self.modifier_vertices,
+                    chain(*(modifier.modifier_vertices
+                            for modifier in self.modifiers))):
+                    self_vert.x = vert.x
+                    self_vert.y = vert.y
+                    self_vert.z = vert.z
+            else:
+                self.num_modifier_vertices = 0
+                self.modifier_vertices.update_size()
+            # write the data
             pyffi.object_models.xml.struct_.StructBase.write(
                 self, stream, version=self.version)
+
+        def add_morph(self, name=None, relative_vertices=None):
+            """Add a morph."""
+            self.num_morphs += 1
+            self.morphs.update_size()
+            return self.morphs[-1]
+
+        def add_modifier(self, name=None, relative_vertices=None):
+            """Add a modifier."""
+            self.num_modifiers += 1
+            self.modifiers.update_size()
+            return self.modifiers[-1]
 
         # GlobalNode
 
         def get_global_child_nodes(self, edge_filter=EdgeFilter()):
             return ([morph for morph in self.morphs]
                     + [morph for morph in self.modifiers])
+
+    # XXX copied from pyffi.formats.egm.EgmFormat.MorphRecord
+    class MorphRecord:
+        """
+        >>> # create morph with 3 vertices.
+        >>> morph = TriFormat.MorphRecord(argument=3)
+        >>> morph.set_relative_vertices(
+        ...     [(3, 5, 2), (1, 3, 2), (-9, 3, -1)])
+        >>> # scale should be 9/32768.0 = 0.0002746...
+        >>> morph.scale # doctest: +ELLIPSIS
+        0.0002746...
+        >>> for vert in morph.get_relative_vertices():
+        ...     print([int(1000 * x + 0.5) for x in vert])
+        [3000, 5000, 2000]
+        [1000, 3000, 2000]
+        [-8999, 3000, -999]
+        """
+        def get_relative_vertices(self):
+            for vert in self.vertices:
+                yield (vert.x * self.scale,
+                       vert.y * self.scale,
+                       vert.z * self.scale)
+
+        def set_relative_vertices(self, vertices):
+            # copy to list
+            vertices = list(vertices)
+            # check length
+            if len(vertices) != self.arg:
+                raise ValueError("expected %i vertices, but got %i"
+                                 % (self.arg, len(vertices)))
+            # get extreme values of morph
+            max_value = max(max(abs(value) for value in vert)
+                            for vert in vertices)
+            # calculate scale
+            self.scale = max_value / 32767.0
+            inv_scale = 1 / self.scale
+            # set vertices
+            for vert, self_vert in izip(vertices, self.vertices):
+                self_vert.x = int(vert[0] * inv_scale)
+                self_vert.y = int(vert[1] * inv_scale)
+                self_vert.z = int(vert[2] * inv_scale)
+
+        def apply_scale(self, scale):
+            """Apply scale factor to data.
+
+            >>> # create morph with 3 vertices.
+            >>> morph = TriFormat.MorphRecord(argument=3)
+            >>> morph.set_relative_vertices(
+            ...     [(3, 5, 2), (1, 3, 2), (-9, 3, -1)])
+            >>> morph.apply_scale(2)
+            >>> for vert in morph.get_relative_vertices():
+            ...     print([int(1000 * x + 0.5) for x in vert])
+            [6000, 10000, 4000]
+            [2000, 6000, 4000]
+            [-17999, 6000, -1999]
+            """
+            self.scale *= scale
 
 if __name__=='__main__':
     import doctest
