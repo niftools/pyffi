@@ -150,8 +150,9 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
             :param stream: The stream to write to.
             :type stream: file
             """
+            self._value += pyffi.object_models.common._b00
             pyffi.object_models.common.SizedString.write(self, stream, **kwargs)
-            stream.write(pyffi.object_models.common._b00)
+            self._value = self._value.rstrip(pyffi.object_models.common._b00)
 
     class FileSignature(BasicBase):
         """Basic type which implements the header of a TRI file."""
