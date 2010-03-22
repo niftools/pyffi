@@ -108,15 +108,6 @@
    </struct>
 
    <struct name="MorphRecord">
-       A modifier replaces the vertices from the base model in
-       VertexList with those in the ModifierVertexPool. The
-       ModiferVertexPool counts up from the first modifier onwards. So
-       if you were to take the 4th vertex to be modified in the 2nd
-       Modifier and the size of the 1st was 10 vertices. You would
-       read the modified value from the 14th record of the
-       ModifierVertexPool. Therefore NumModifierVertices = sum of the
-       ModifierList[].NumVerticesToModify.
-
        The formula for a morph is:
        NewVertex[CurrentVertex] = VertexList[CurrentVertex]+(MorphList[CurrentMorph].VertexList[CurrentVertex]*scale*MorphAmount);
        MorphAmount: 0 = no morphing, 1 = total morphing. 
@@ -133,7 +124,17 @@
        </add>
    </struct>
 
-   <struct name="ModifierRecord"> 
+   <struct name="ModifierRecord">
+       A modifier replaces the vertices from the base model
+       (Header.vertices) with those in Header.modifier_vertices. Note
+       that Header.modifier_vertices counts up from the first modifier
+       onwards. For example, if you were to take the 4th vertex to be
+       modified in the 2nd modifier and the size of the 1st modifier
+       was 10 vertices, then you would need
+       Header.modifier_vertices[14].  Therefore,
+       Header.num_modifier_vertices =
+       sum(modifier.num_vertices_to_modify for modifier in
+       Header.modifiers).
        <add name="Name" type="SizedStringZ">
            Name of the Modifier.
        </add>
@@ -179,7 +180,7 @@
         <add name="Vertices" type="Vertex" arr1="Num Vertices">
             List of vertices for base model. Indexed from 0.
         </add>
-        <add name="Modifier Vertex Pool" type="Vertex" arr1="Num Modifier Vertices">
+        <add name="Modifier Vertices" type="Vertex" arr1="Num Modifier Vertices">
             List of vertices that modify the base model. Indexed from 0.
         </add>
         <add name="Tri Faces" type="TriFace" arr1="Num Tri Faces">
