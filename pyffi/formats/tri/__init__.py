@@ -189,7 +189,7 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
             :param stream: The stream to write to.
             :type stream: file
             """
-            stream.write("FREGM".encode("ascii"))
+            stream.write("FRTRI".encode("ascii"))
 
         def get_size(self, **kwargs):
             """Return number of bytes the header string occupies in a file.
