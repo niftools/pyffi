@@ -1,6 +1,10 @@
 Release 2.1.5 (in development)
 ==============================
 
+* Improved interface for TRI files, and a bugfix in TRI file writing.
+
+* Added EGT file support.
+
 Release 2.1.4 (19 Mar 2010)
 ===========================
 
