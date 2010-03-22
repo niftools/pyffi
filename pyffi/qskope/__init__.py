@@ -192,8 +192,9 @@ class QSkope(QtGui.QMainWindow):
                 self.data = Format.Data()
                 try:
                     self.data.read(stream)
-                except ValueError:
+                except ValueError as err: #ValueError:
                     # failed, try next format
+                    print(str(err))
                     continue
                 else:
                     break
