@@ -269,6 +269,12 @@ class SpellFixTexturePath(SpellParseTexturePath):
         new_path = new_path.replace(
             '/'.encode("ascii"),
             '\\'.encode("ascii"))
+        # baphometal found some nifs that use double slashes
+        # this causes textures not to show, so here we convert them
+        # back to single slashes
+        new_path = new_path.replace(
+            '\\\\'.encode("ascii"),
+            '\\'.encode("ascii"))
         textures_index = new_path.lower().find("textures\\")
         if textures_index > 0:
             # path contains textures\ at position other than starting

@@ -20,6 +20,7 @@ pyffi.toaster:INFO:          ~~~ NiSourceTexture [] ~~~
 pyffi.toaster:INFO:            fixed file name 'evil\rants\IS\not\good\no\no\test4.dds'
 pyffi.toaster:INFO:          ~~~ NiSourceTexture [] ~~~
 pyffi.toaster:INFO:          ~~~ NiSourceTexture [] ~~~
+pyffi.toaster:INFO:            fixed file name 'doubleslash\test6.dds'
 pyffi.toaster:INFO:  writing to temporary file
 pyffi.toaster:INFO:Finished.
 

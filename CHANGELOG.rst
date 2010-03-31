@@ -5,6 +5,9 @@ Release 2.1.5 (in development)
 
 * Added EGT file support.
 
+* The fix_texturepath spell now also converts double backslash in
+  single backslash (suggested by Baphometal).
+
 Release 2.1.4 (19 Mar 2010)
 ===========================
 
