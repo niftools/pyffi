@@ -2791,7 +2791,7 @@ chunk size mismatch when reading %s at 0x%08X
     class TimingChunk:
         def get_global_display(self):
             """Return a name for the block."""
-            return self.global_range.name
+            return self.global_range.name.decode("utf8", "ignore")
 
     class Vector3:
         def as_list(self):
