@@ -1213,9 +1213,9 @@ pyffi.nif.data:DEBUG:Reading NiSkinPartition block at 0x00000739
 pyffi.nif.data:DEBUG:Reading NiNode block at 0x00000829
 pyffi.toaster:INFO:  --- fix_mergeskeletonroots ---
 pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
-pyffi.nif.ninode:DEBUG:detaching Sphere from Armature
-pyffi.nif.ninode:DEBUG:attaching Sphere to Scene Root
-pyffi.toaster:INFO:      reassigned skeleton root of Sphere
+pyffi.nif.ninode:DEBUG:detaching b'Sphere' from b'Armature'
+pyffi.nif.ninode:DEBUG:attaching b'Sphere' to b'Scene Root'
+pyffi.toaster:INFO:      reassigned skeleton root of b'Sphere'
 pyffi.toaster:INFO:  writing to temporary file
 pyffi.nif.data:DEBUG:Writing header
 pyffi.nif.data:DEBUG:Writing NiNode block
