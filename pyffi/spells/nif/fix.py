@@ -260,28 +260,21 @@ class SpellFixTexturePath(SpellParseTexturePath):
 	
     def substitute(self, old_path):
         new_path = old_path
-        new_path = new_path.replace(
-            '\n'.encode("ascii"),
-            '\\n'.encode("ascii"))
-        new_path = new_path.replace(
-            '\r'.encode("ascii"),
-            '\\r'.encode("ascii"))
-        new_path = new_path.replace(
-            '/'.encode("ascii"),
-            '\\'.encode("ascii"))
+        new_path = new_path.replace(b'\n', b'\\n')
+        new_path = new_path.replace(b'\r', b'\\r')
+        new_path = new_path.replace(b'/',  b'\\')
         # baphometal found some nifs that use double slashes
         # this causes textures not to show, so here we convert them
         # back to single slashes
-        new_path = new_path.replace(
-            '\\\\'.encode("ascii"),
-            '\\'.encode("ascii"))
-        textures_index = new_path.lower().find("textures\\")
+        new_path = new_path.replace(b'\\\\', b'\\')
+        textures_index = new_path.lower().find(b'textures\\')
         if textures_index > 0:
             # path contains textures\ at position other than starting
             # position
             new_path = new_path[textures_index:]
         if new_path != old_path:
-            self.toaster.msg("fixed file name '%s'" % new_path)
+            self.toaster.msg("fixed file name '%s'"
+                             % new_path.decode("utf8", "ignore"))
             self.changed = True
         return new_path
 
