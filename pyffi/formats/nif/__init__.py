@@ -5893,10 +5893,9 @@ class NifFormat(FileFormat):
 
             def bytes2vectors(data, pos, num):
                 for i in range(num):
-                    # data[pos:pos+12] is not really well implemented, so do this
-                    vecdata = ''.join(data[j] for j in range(pos, pos + 12))
                     vec = NifFormat.Vector3()
-                    vec.x, vec.y, vec.z = struct.unpack('<fff', vecdata)
+                    vec.x, vec.y, vec.z = struct.unpack('<fff',
+                                                        data[pos:pos+12])
                     yield vec
                     pos += 12
 
@@ -5959,11 +5958,11 @@ class NifFormat(FileFormat):
             # check that shape has norms and uvs
             if len(uvs) == 0 or len(norms) == 0: return
 
-            bin = []
-            tan = []
+            bins = []
+            tans = []
             for i in range(self.data.num_vertices):
-                bin.append(NifFormat.Vector3())
-                tan.append(NifFormat.Vector3())
+                bins.append(NifFormat.Vector3())
+                tans.append(NifFormat.Vector3())
 
             # calculate tangents and binormals from vertex and texture coordinates
             for t1, t2, t3 in self.data.get_triangles():
@@ -6014,8 +6013,8 @@ class NifFormat(FileFormat):
 
                 # vector combination algorithm could possibly be improved
                 for i in [t1, t2, t3]:
-                    tan[i] += tdir
-                    bin[i] += sdir
+                    tans[i] += tdir
+                    bins[i] += sdir
 
             xvec = NifFormat.Vector3()
             xvec.x = 1.0
@@ -6034,22 +6033,22 @@ class NifFormat(FileFormat):
                     # just pick something in that case
                     n = yvec
                 try:
-                    # turn n, bin, tan into a base via Gram-Schmidt
-                    bin[i] -= n * (n * bin[i])
-                    bin[i].normalize()
-                    tan[i] -= n * (n * tan[i])
-                    tan[i] -= bin[i] * (bin[i] * tan[i])
-                    tan[i].normalize()
+                    # turn n, bins, tans into a base via Gram-Schmidt
+                    bins[i] -= n * (n * bins[i])
+                    bins[i].normalize()
+                    tans[i] -= n * (n * tans[i])
+                    tans[i] -= bins[i] * (bins[i] * tans[i])
+                    tans[i].normalize()
                 except ZeroDivisionError:
                     # insuffient data to set tangent space for this vertex
                     # in that case pick a space
-                    bin[i] = xvec.crossproduct(n)
+                    bins[i] = xvec.crossproduct(n)
                     try:
-                        bin[i].normalize()
+                        bins[i].normalize()
                     except ZeroDivisionError:
-                        bin[i] = yvec.crossproduct(n)
-                        bin[i].normalize() # should work now
-                    tan[i] = n.crossproduct(bin[i])
+                        bins[i] = yvec.crossproduct(n)
+                        bins[i].normalize() # should work now
+                    tans[i] = n.crossproduct(bins[i])
 
             # find possible extra data block
             for extra in self.get_extra_datas():
@@ -6075,10 +6074,10 @@ class NifFormat(FileFormat):
                     self.add_extra_data(extra)
 
                 # write the data
-                binarydata = ""
-                for vec in tan + bin:
+                binarydata = bytearray()
+                for vec in tans + bins:
                     binarydata += struct.pack('<fff', vec.x, vec.y, vec.z)
-                extra.binary_data = binarydata
+                extra.binary_data = bytes(binarydata)
             else:
                 # set tangent space flag
                 # XXX used to be 61440
@@ -6088,14 +6087,14 @@ class NifFormat(FileFormat):
                 self.data.bs_num_uv_sets |= 4096
                 self.data.tangents.update_size()
                 self.data.bitangents.update_size()
-                for vec, data_tan in zip(tan, self.data.tangents):
-                    data_tan.x = vec.x
-                    data_tan.y = vec.y
-                    data_tan.z = vec.z
-                for vec, data_bitan in zip(bin, self.data.bitangents):
-                    data_bitan.x = vec.x
-                    data_bitan.y = vec.y
-                    data_bitan.z = vec.z
+                for vec, data_tans in zip(tans, self.data.tangents):
+                    data_tans.x = vec.x
+                    data_tans.y = vec.y
+                    data_tans.z = vec.z
+                for vec, data_bins in zip(bins, self.data.bitangents):
+                    data_bins.x = vec.x
+                    data_bins.y = vec.y
+                    data_bins.z = vec.z
 
         # ported from nifskope/skeleton.cpp:spSkinPartition
         def update_skin_partition(self,
