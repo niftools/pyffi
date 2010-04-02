@@ -12,7 +12,7 @@ NifToaster check
 >>> data.read(stream)
 >>> # check dummy bone
 >>> print(data.roots[0].children[0].children[0].name)
-Test
+b'Test'
 >>> # run the spell that fixes this
 >>> spell = pyffi.spells.nif.optimize.SpellDelUnusedBones(data=data)
 >>> spell.recurse()

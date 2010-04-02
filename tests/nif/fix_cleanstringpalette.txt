@@ -11,7 +11,7 @@ NifToaster check
 >>> data = NifFormat.Data()
 >>> data.read(open(filename, "rb"))
 >>> print(data.roots[0].controller.controller_sequences[0].string_palette.palette.get_all_strings())
-['Test', 'Hello', 'People', 'NiTransformController', 'Test NonAccum', 'Useless', 'Crap']
+[b'Test', b'Hello', b'People', b'NiTransformController', b'Test NonAccum', b'Useless', b'Crap']
 >>> # clean
 >>> import sys
 >>> sys.path.append("scripts/nif")
@@ -29,7 +29,7 @@ pyffi.toaster:INFO:Finished.
 >>> data = NifFormat.Data()
 >>> data.read(open(outfilename, "rb"))
 >>> print(data.roots[0].controller.controller_sequences[0].string_palette.palette.get_all_strings())
-['Test', 'NiTransformController', 'Test NonAccum']
+[b'Test', b'NiTransformController', b'Test NonAccum']
 >>> # clean up
 >>> import os
 >>> os.remove(outfilename)

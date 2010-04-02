@@ -11,7 +11,7 @@ NifToaster check
 >>> data = NifFormat.Data()
 >>> data.read(open(filename, "rb"))
 >>> print(data.roots[0].controller.controller_sequences[0].string_palette.palette.get_all_strings())
-['Test', 'Hello', 'People', 'NiTransformController', 'Test NonAccum', 'Useless', 'Crap']
+[b'Test', b'Hello', b'People', b'NiTransformController', b'Test NonAccum', b'Useless', b'Crap']
 >>> # substitute
 >>> import sys
 >>> sys.path.append("scripts/nif")
@@ -23,17 +23,17 @@ pyffi.toaster:INFO:  --- modify_substitutestringpalette ---
 pyffi.toaster:INFO:    ~~~ NiNode [TestCleanStringPalette] ~~~
 pyffi.toaster:INFO:      ~~~ NiControllerManager [] ~~~
 pyffi.toaster:INFO:        parsing string palette
-pyffi.toaster:INFO:        Test -> Woops
-pyffi.toaster:INFO:        Test NonAccum -> Woops NonAccum
-pyffi.toaster:INFO:        Test -> Woops
-pyffi.toaster:INFO:        Test NonAccum -> Woops NonAccum
+pyffi.toaster:INFO:        b'Test' -> b'Woops'
+pyffi.toaster:INFO:        b'Test NonAccum' -> b'Woops NonAccum'
+pyffi.toaster:INFO:        b'Test' -> b'Woops'
+pyffi.toaster:INFO:        b'Test NonAccum' -> b'Woops NonAccum'
 pyffi.toaster:INFO:  writing tests/nif/_test_fix_cleanstringpalette.nif
 pyffi.toaster:INFO:Finished.
 >>> # check cleaned palette
 >>> data = NifFormat.Data()
 >>> data.read(open(outfilename, "rb"))
 >>> print(data.roots[0].controller.controller_sequences[0].string_palette.palette.get_all_strings())
-['Woops', 'NiTransformController', 'Woops NonAccum']
+[b'Woops', b'NiTransformController', b'Woops NonAccum']
 >>> # clean up
 >>> import os
 >>> os.remove(outfilename)
