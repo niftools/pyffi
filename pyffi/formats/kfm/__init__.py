@@ -318,7 +318,7 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
             except:
                 # version not supported
                 raise ValueError("KFM version not supported.")
-            if not ver in KfmFormat.versions.values():
+            if not ver in list(KfmFormat.versions.values()):
                 # unsupported version
                 raise ValueError("KFM version not supported.")
             # store version

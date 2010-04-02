@@ -94,7 +94,7 @@ class Expression(object):
 
         if isinstance(self._left, Expression):
             left = self._left.eval(data)
-        elif isinstance(self._left, basestring):
+        elif isinstance(self._left, str):
             if self._left == '""':
                 left = ""
             else:
@@ -104,7 +104,7 @@ class Expression(object):
         elif self._left is None:
             pass
         else:
-            assert(isinstance(self._left, (int, long))) # debug
+            assert(isinstance(self._left, int)) # debug
             left = self._left
 
         if not self._op:
@@ -112,7 +112,7 @@ class Expression(object):
 
         if isinstance(self._right, Expression):
             right = self._right.eval(data)
-        elif isinstance(self._right, basestring):
+        elif isinstance(self._right, str):
             if (not self._right) or self._right == '""':
                 right = ""
             else:
@@ -120,7 +120,7 @@ class Expression(object):
         elif self._right is None:
             pass
         else:
-            assert(isinstance(self._right, (int, long))) # debug
+            assert(isinstance(self._right, int)) # debug
             right = self._right
 
         if self._op == '==':
@@ -184,7 +184,7 @@ class Expression(object):
         except ValueError:
             if name_filter:
                 result = name_filter(expr_str)
-                if isinstance(result, (long, int)):
+                if isinstance(result, int):
                     # XXX this is a workaround for the vercond filter
                     return result
                 else:
@@ -249,7 +249,7 @@ class Expression(object):
             # to avoid confusion between && and &, and || and |,
             # let's first scan for operators of two characters
             # and then for operators of one character
-            for op_endpos in xrange(op_startpos+1, op_startpos-1, -1):
+            for op_endpos in range(op_startpos+1, op_startpos-1, -1):
                 op_str = expr_str[op_startpos:op_endpos+1]
                 if op_str in cls.operators:
                     break
@@ -263,7 +263,7 @@ class Expression(object):
                     raise ValueError("expression syntax error: expected operator before '%s'"%expr_str[op_startpos:])
                 # to avoid confusion between && and &, and || and |,
                 # let's first scan for operators of two characters
-                for op_endpos in xrange(op_startpos+1, op_startpos-1, -1):
+                for op_endpos in range(op_startpos+1, op_startpos-1, -1):
                     op_str = expr_str[op_startpos:op_endpos+1]
                     if op_str in cls.operators:
                         break
@@ -325,7 +325,7 @@ class Expression(object):
         startpos = -1
         endpos = -1
         scandepth = 0
-        for scanpos in xrange(fromIndex, len(expr_str)):
+        for scanpos in range(fromIndex, len(expr_str)):
             scanchar = expr_str[scanpos]
             if scanchar == "(":
                 if startpos == -1:

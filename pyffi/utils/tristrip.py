@@ -60,10 +60,10 @@ def triangulate(strips):
         if len(strip) < 3: continue # skip empty strips
         i = strip.__iter__()
         j = False
-        t1, t2 = i.next(), i.next()
-        for k in xrange(2, len(strip)):
+        t1, t2 = next(i), next(i)
+        for k in range(2, len(strip)):
             j = not j
-            t0, t1, t2 = t1, t2, i.next()
+            t0, t1, t2 = t1, t2, next(i)
             if t0 == t1 or t1 == t2 or t2 == t0: continue
             triangles.append((t0, t1, t2) if j else (t0, t2, t1))
 
@@ -72,7 +72,7 @@ def triangulate(strips):
 def _generate_faces_from_triangles(triangles):
     i = triangles.__iter__()
     while True:
-        yield (i.next(), i.next(), i.next())
+        yield (next(i), next(i), next(i))
 
 def _sort_triangle_indices(triangles):
     """Sorts indices of each triangle so lowest index always comes first.

@@ -39,9 +39,9 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-from __future__ import with_statement
+
 from contextlib import closing
-from itertools import izip, repeat
+from itertools import repeat
 import tempfile
 
 from pyffi.formats.nif import NifFormat
@@ -104,7 +104,7 @@ class SpellNodeNamesByFlag(pyffi.spells.nif.NifSpell):
 
     @classmethod
     def toastexit(cls, toaster):
-        for flag, names in toaster.flagdict.iteritems():
+        for flag, names in toaster.flagdict.items():
             toaster.msg("%s %s" % (flag, names))
 
     def datainspect(self):
@@ -134,14 +134,14 @@ class SpellCompareSkinData(pyffi.spells.nif.NifSpell):
     @staticmethod
     def are_vectors_equal(oldvec, newvec, tolerance=0.01):
         return (max([abs(x-y)
-                for (x,y) in izip(oldvec.as_list(), newvec.as_list())])
+                for (x,y) in zip(oldvec.as_list(), newvec.as_list())])
                 < tolerance)
 
     @staticmethod
     def are_matrices_equal(oldmat, newmat, tolerance=0.01):
         return (max([max([abs(x-y)
-                     for (x,y) in izip(oldrow, newrow)])
-                    for (oldrow, newrow) in izip(oldmat.as_list(),
+                     for (x,y) in zip(oldrow, newrow)])
+                    for (oldrow, newrow) in zip(oldmat.as_list(),
                                                  newmat.as_list())])
                 < tolerance)
 
@@ -164,11 +164,11 @@ class SpellCompareSkinData(pyffi.spells.nif.NifSpell):
         for refgeom in toaster.refdata.get_global_iterator():
             if (isinstance(refgeom, NifFormat.NiGeometry)
                 and refgeom.skin_instance and refgeom.skin_instance.data):
-                toaster.refbonedata += zip(
+                toaster.refbonedata += list(zip(
                     repeat(refgeom.skin_instance.skeleton_root),
                     repeat(refgeom.skin_instance.data),
                     refgeom.skin_instance.bones,
-                    refgeom.skin_instance.data.bone_list)
+                    refgeom.skin_instance.data.bone_list))
         # only apply spell if the reference nif has bone data
         return bool(toaster.refbonedata)
 
@@ -182,7 +182,7 @@ class SpellCompareSkinData(pyffi.spells.nif.NifSpell):
     def branchentry(self, branch):
         if (isinstance(branch, NifFormat.NiGeometry)
             and branch.skin_instance and branch.skin_instance.data):
-            for skelroot, skeldata, bonenode, bonedata in izip(
+            for skelroot, skeldata, bonenode, bonedata in zip(
                 repeat(branch.skin_instance.skeleton_root),
                 repeat(branch.skin_instance.data),
                 branch.skin_instance.bones,
@@ -539,8 +539,8 @@ class SpellCheckMopp(pyffi.spells.nif.NifSpell):
             error = False
 
             # check triangles
-            counts = [tris.count(i) for i in xrange(branch.shape.data.num_triangles)]
-            missing = [i for i in xrange(branch.shape.data.num_triangles)
+            counts = [tris.count(i) for i in range(branch.shape.data.num_triangles)]
+            missing = [i for i in range(branch.shape.data.num_triangles)
                        if counts[i] != 1]
             if missing:
                 self.toaster.logger.error(
@@ -558,8 +558,8 @@ class SpellCheckMopp(pyffi.spells.nif.NifSpell):
                 error = True
 
             # check bytes
-            counts = [ids.count(i) for i in xrange(branch.mopp_data_size)]
-            missing = [i for i in xrange(branch.mopp_data_size) if counts[i] != 1]
+            counts = [ids.count(i) for i in range(branch.mopp_data_size)]
+            missing = [i for i in range(branch.mopp_data_size) if counts[i] != 1]
             if missing:
                 self.toaster.logger.error(
                     "some bytes never visited, or visited more than once")
@@ -567,7 +567,7 @@ class SpellCheckMopp(pyffi.spells.nif.NifSpell):
                     "byte index, times visited, value")
                 for i in missing:
                     self.toaster.logger.debug(i, counts[i], "0x%02X" % mopp[i])
-                    self.toaster.logger.debug([mopp[k] for k in xrange(i, min(branch.mopp_data_size, i + 10))])
+                    self.toaster.logger.debug([mopp[k] for k in range(i, min(branch.mopp_data_size, i + 10))])
                 error = True
 
             #if error:
@@ -633,8 +633,8 @@ class SpellCheckTangentSpace(pyffi.spells.nif.NifSpell):
             for i, (n, t, b) in enumerate(branch.get_tangent_space()):
                 newspace.append(n.as_list() + t.as_list() + b.as_list())
             # check if old matches new
-            for i, (old, new) in enumerate(izip(oldspace, newspace)):
-                for oldvalue, newvalue in izip(old, new):
+            for i, (old, new) in enumerate(zip(oldspace, newspace)):
+                for oldvalue, newvalue in zip(old, new):
                     # allow fairly big error
                     if abs(oldvalue - newvalue) > self.PRECISION:
                         self.toaster.logger.warn(

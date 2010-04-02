@@ -128,7 +128,7 @@ import pyffi.spells.nif.check # recycle checking spells for update spells
 import pyffi.spells.nif.fix
 import pyffi.spells.nif.optimize
 
-from itertools import izip
+
 import os
 import re # for modify_substitutestringpalette and modify_substitutetexturepath
 
@@ -277,7 +277,7 @@ class SpellCollisionType(NifSpell):
                 "must specify collision type to change to as argument "
                 "(e.g. -a static (accepted names: %s) "
                 "to apply spell"
-                % ", ".join(cls.COLLISION_TYPE_DICT.iterkeys()))
+                % ", ".join(iter(cls.COLLISION_TYPE_DICT.keys())))
             return False
         else:
             return True
@@ -428,7 +428,7 @@ class SpellReverseAnimation(NifSpell):
             # copy the values
             key_values = [key.value for key in keys]
             # reverse them
-            for key, new_value in izip(keys, reversed(key_values)):
+            for key, new_value in zip(keys, reversed(key_values)):
                 key.value = new_value
 
         if isinstance(branch, NifFormat.NiKeyframeData):
@@ -489,7 +489,7 @@ class SpellCollisionMaterial(NifSpell):
                 "must specify collision material to change to as argument "
                 "(e.g. -a stone (accepted names: %s) "
                 "to apply spell"
-                % ", ".join(cls.COLLISION_MATERIAL_DICT.iterkeys()))
+                % ", ".join(iter(cls.COLLISION_MATERIAL_DICT.keys())))
             return False
         else:
             return True

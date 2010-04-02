@@ -139,7 +139,7 @@ def write_enum(cls, ver, hsl_types, f):
     ## sort them by value
     #enum_items = sorted(enum_items, key=lambda x: x[1])
     # and write out all name, value pairs
-    enum_items = zip(cls._enumkeys, cls._enumvalues)
+    enum_items = list(zip(cls._enumkeys, cls._enumvalues))
     for const_name, const_value in enum_items[:-1]:
         f.write('  ' + const_name + ' = ' + str(const_value) + ',\n')
     const_name, const_value = enum_items[-1]
@@ -226,7 +226,7 @@ if __name__ == '__main__':
     # list all types used as a template
     templates = find_templates()
     # write out hex structure library for each nif version
-    for ver_str, ver in NifFormat.versions.items():
+    for ver_str, ver in list(NifFormat.versions.items()):
         f = open('nif_' + ver_str.replace('.', '_') + '.hsl', 'w')
         try:
             write_hsl(f, ver, templates)

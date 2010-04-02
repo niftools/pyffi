@@ -37,7 +37,7 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-from itertools import izip
+
 
 from pyffi.utils.graph import DetailNode, EdgeType, EdgeFilter
 
@@ -52,7 +52,7 @@ class DetailTreeItemData(object):
     def __init__(self, node=None, name=None):
         if not isinstance(node, DetailNode):
             raise TypeError("node must be DetailNode instance")
-        if not isinstance(name, (type(None), basestring)):
+        if not isinstance(name, (type(None), str)):
             raise TypeError("name must be None or string instance")
         self.node = node
         self.name = name
@@ -104,7 +104,7 @@ class DetailTreeItem(object):
                 row=childrow,
                 edge_type=child_edge_type)
             for (childrow, (childnode, childname, child_edge_type))
-            in enumerate(izip(
+            in enumerate(zip(
                 data.node.get_detail_child_nodes(edge_filter=edge_filter),
                 data.node.get_detail_child_names(edge_filter=edge_filter),
                 data.node.get_detail_child_edge_types(edge_filter=edge_filter)))]

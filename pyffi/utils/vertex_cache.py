@@ -132,7 +132,7 @@ class Mesh:
             num_vertices = max(max(verts) for verts in triangles) + 1
         else:
             num_vertices = 0
-        self.vertex_infos = [VertexInfo() for i in xrange(num_vertices)]
+        self.vertex_infos = [VertexInfo() for i in range(num_vertices)]
         # add all triangles
         _added_triangles = set([])
         triangle_index = 0
@@ -238,7 +238,7 @@ def get_cache_optimized_vertex_map(triangles):
     [3, 2, 1, 4, None, 0]
     """
     num_vertices = max(max(triangle) for triangle in triangles) + 1
-    vertex_map = [None for i in xrange(num_vertices)]
+    vertex_map = [None for i in range(num_vertices)]
     new_vertex = 0
     for triangle in triangles:
         for old_vertex in triangle:

@@ -159,13 +159,13 @@ def getMopperOriginScaleCodeWelding(vertices, triangles, material_indices=None):
         # process output
         outfile.seek(0)
         try:
-            origin = tuple(float(outfile.readline()) for i in xrange(3))
+            origin = tuple(float(outfile.readline()) for i in range(3))
             scale = float(outfile.readline())
             moppcodelen = int(outfile.readline())
-            moppcode = [int(outfile.readline()) for i in xrange(moppcodelen)]
+            moppcode = [int(outfile.readline()) for i in range(moppcodelen)]
             welding_info_len = int(outfile.readline())
             welding_info = [int(outfile.readline())
-                            for i in xrange(welding_info_len)]
+                            for i in range(welding_info_len)]
         except ValueError:
             # conversion failed
             raise RuntimeError("invalid mopper output (mopper failed?)")

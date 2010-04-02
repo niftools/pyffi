@@ -39,7 +39,7 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-from itertools import izip
+
 from tempfile import TemporaryFile
 
 from pyffi.formats.cgf import CgfFormat
@@ -112,7 +112,7 @@ class SpellCheckTangentSpace(CgfSpell):
 
         self.toaster.msgblockbegin("validating and checking old with new")
 
-        for norm, oldtangent, newtangent in izip(branch.normals_data.normals,
+        for norm, oldtangent, newtangent in zip(branch.normals_data.normals,
                                                  oldtangents, newtangents):
             #self.toaster.msg("*** %s ***" % (norm,))
             # check old

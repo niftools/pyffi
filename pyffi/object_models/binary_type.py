@@ -72,7 +72,7 @@ except NameError:
 if bytes is str:
     # < py3k: str for byte strings, unicode for text strings
     _bytes = str
-    _str = unicode
+    _str = str
 else:
     # >= py3k: bytes for byte strings, str for text strings
     _bytes = bytes
@@ -116,7 +116,7 @@ def _as_str(value):
     elif isinstance(value, _bytes):
         # >= py3k: simply decode
         return value.decode("utf-8", "replace")
-    elif isinstance(value, unicode):
+    elif isinstance(value, str):
         # < py3k: use ascii encoding to produce a str
         # (this avoids unicode errors)
         return value.encode("ascii", "replace")

@@ -78,7 +78,7 @@ Create an EGT file from scratch and write to file
 #
 # ***** END LICENSE BLOCK *****
 
-from itertools import chain, izip
+from itertools import chain
 import struct
 import os
 import re

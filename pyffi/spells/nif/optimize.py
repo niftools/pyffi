@@ -60,7 +60,7 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-from itertools import izip
+
 import os.path # exists
 
 from pyffi.formats.nif import NifFormat
@@ -239,7 +239,7 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
 
     def optimize_vertices(self, data):
         self.toaster.msg("removing duplicate vertices")
-        v_map = [0 for i in xrange(data.num_vertices)] # maps old index to new index
+        v_map = [0 for i in range(data.num_vertices)] # maps old index to new index
         v_map_inverse = [] # inverse: map new index to old index
         k_map = {} # maps hash to new vertex index
         index = 0  # new vertex index for next vertex
@@ -345,7 +345,7 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
         # update vertex indices in strips/triangles
         if isinstance(data, NifFormat.NiTriStripsData):
             for strip in data.points:
-                for i in xrange(len(strip)):
+                for i in range(len(strip)):
                     try:
                         strip[i] = v_map[strip[i]]
                     except IndexError:
@@ -407,7 +407,7 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
             self.toaster.msg("update skin data vertex mapping")
             skindata = branch.skin_instance.data
             newweights = []
-            for i in xrange(new_numvertices):
+            for i in range(new_numvertices):
                 newweights.append(oldweights[v_map_inverse[i]])
             for bonenum, bonedata in enumerate(skindata.bone_list):
                 w = []
@@ -448,7 +448,7 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                     # store a copy of the old vectors
                     oldmorphvectors = [(vec.x, vec.y, vec.z)
                                        for vec in morph.vectors]
-                    for old_i, vec in izip(v_map_inverse, morph.vectors):
+                    for old_i, vec in zip(v_map_inverse, morph.vectors):
                         vec.x = oldmorphvectors[old_i][0]
                         vec.y = oldmorphvectors[old_i][1]
                         vec.z = oldmorphvectors[old_i][2]
@@ -510,7 +510,7 @@ class SpellSplitGeometry(pyffi.spells.nif.NifSpell):
                 destdata.vertex_colors[-1].b = sourcedata.vertex_colors[sourceindex].b
                 destdata.vertex_colors[-1].a = sourcedata.vertex_colors[sourceindex].a
             if sourcedata.has_uv:
-                for sourceuvset, destuvset in izip(sourcedata.uv_sets, destdata.uv_sets):
+                for sourceuvset, destuvset in zip(sourcedata.uv_sets, destdata.uv_sets):
                     destuvset.update_size()
                     destuvset[-1].u = sourceuvset[sourceindex].u
                     destuvset[-1].v = sourceuvset[sourceindex].v

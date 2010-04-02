@@ -104,10 +104,10 @@ def hexDump(f, numLines = 8):
         f.seek(0)
     dumppos = f.tell()
     dumpstr += "            "
-    for ofs in xrange(16):
+    for ofs in range(16):
         dumpstr += "%02X " % ofs
     dumpstr += "\n-----------------------------------------------------------\n"
-    for i in xrange(numLines):
+    for i in range(numLines):
         dumpstr += "0x%08X " % dumppos
         data = f.read(16)
         for j, c in enumerate(data):
@@ -121,7 +121,7 @@ def hexDump(f, numLines = 8):
                 dumpstr += " %02X" % cc
             else:
                 dumpstr += ">%02X" % cc
-        for j in xrange(len(data), 16):
+        for j in range(len(data), 16):
             dumpstr += "   "
             data += " ".encode("ascii")
         dumpstr += " |" + data.translate(chartable).decode("ascii") + "|\n"

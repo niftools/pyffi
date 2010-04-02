@@ -45,7 +45,7 @@ import logging
 try:
     from PyQt4 import QtGui
 except ImportError:
-    raw_input("""PyQt4 not found. Please download and install from
+    input("""PyQt4 not found. Please download and install from
 
   http://www.riverbankcomputing.co.uk/software/pyqt/download""")
     raise

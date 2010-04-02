@@ -42,7 +42,7 @@
 # note: some imports are defined at the end to avoid problems with circularity
 
 from functools import partial
-from itertools import izip
+
 
 from pyffi.utils.graph import DetailNode, GlobalNode, EdgeFilter
 import pyffi.object_models.common
@@ -65,14 +65,14 @@ class _MetaStructBase(type):
             # basestring is a forward compound type declaration
             # and issubclass must take a type as first argument
             # hence this hack
-            if not isinstance(attr.type_, basestring) and \
+            if not isinstance(attr.type_, str) and \
                 issubclass(attr.type_, BasicBase) and attr.arr1 is None:
                 # get and set basic attributes
                 setattr(cls, attr.name, property(
                     partial(StructBase.get_basic_attribute, name=attr.name),
                     partial(StructBase.set_basic_attribute, name=attr.name),
                     doc=attr.doc))
-            elif not isinstance(attr.type_, basestring) and \
+            elif not isinstance(attr.type_, str) and \
                 issubclass(attr.type_, StructBase) and attr.arr1 is None:
                 # get and set struct attributes
                 setattr(cls, attr.name, property(
@@ -96,7 +96,7 @@ class _MetaStructBase(type):
                 if attr.type_ != type(None): # templates!
                     # attr.type_ basestring means forward declaration
                     # we cannot know if it has links, so assume yes
-                    if (isinstance(attr.type_, basestring)
+                    if (isinstance(attr.type_, str)
                         or attr.type_._has_links):
                         cls._has_links = True
                 #else:
@@ -108,7 +108,7 @@ class _MetaStructBase(type):
                 if attr.type_ != type(None):
                     # attr.type_ basestring means forward declaration
                     # we cannot know if it has refs, so assume yes
-                    if (isinstance(attr.type_, basestring)
+                    if (isinstance(attr.type_, str)
                         or attr.type_._has_refs):
                         cls._has_refs = True
                 #else:
@@ -118,7 +118,7 @@ class _MetaStructBase(type):
                 if attr.type_ != type(None):
                     # attr.type_ basestring means forward declaration
                     # we cannot know if it has strings, so assume yes
-                    if (isinstance(attr.type_, basestring)
+                    if (isinstance(attr.type_, str)
                         or attr.type_._has_strings):
                         cls._has_strings = True
                 else:
@@ -134,7 +134,7 @@ class _MetaStructBase(type):
         # precalculate the attribute name list
         cls._names = cls._get_names()
 
-class StructBase(GlobalNode):
+class StructBase(GlobalNode, metaclass=_MetaStructBase):
     """Base class from which all file struct types are derived.
 
     The StructBase class implements the basic struct interface:
@@ -218,8 +218,6 @@ class StructBase(GlobalNode):
     <BLANKLINE>
     """
 
-    __metaclass__ = _MetaStructBase
-
     _is_template = False
     _attrs = []
     _games = {}
@@ -262,7 +260,7 @@ class StructBase(GlobalNode):
                       else template
             rt_template = attr.template if attr.template != type(None) \
                           else template
-            rt_arg = attr.arg if isinstance(attr.arg, (int, long, type(None))) \
+            rt_arg = attr.arg if isinstance(attr.arg, (int, type(None))) \
                      else getattr(self, attr.arg)
 
             # instantiate the class, handling arrays at the same time
@@ -347,7 +345,7 @@ class StructBase(GlobalNode):
             if attr.is_abstract:
                 continue
             # get attribute argument (can only be done at runtime)
-            rt_arg = attr.arg if isinstance(attr.arg, (int, long, type(None))) \
+            rt_arg = attr.arg if isinstance(attr.arg, (int, type(None))) \
                      else getattr(self, attr.arg)
             kwargs['argument'] = rt_arg
             # read the attribute
@@ -373,7 +371,7 @@ class StructBase(GlobalNode):
             if attr.is_abstract:
                 continue
             # get attribute argument (can only be done at runtime)
-            rt_arg = attr.arg if isinstance(attr.arg, (int, long, type(None))) \
+            rt_arg = attr.arg if isinstance(attr.arg, (int, type(None))) \
                      else getattr(self, attr.arg)
             kwargs['argument'] = rt_arg
             # write the attribute
@@ -481,7 +479,7 @@ class StructBase(GlobalNode):
     @classmethod
     def get_games(cls):
         """Get games for which this block is supported."""
-        return list(cls._games.iterkeys())
+        return list(cls._games.keys())
 
     @classmethod
     def get_versions(cls, game):

@@ -573,7 +573,7 @@ class Mesh:
         """
         # store faces and set their index
         self.faces = []
-        for i, (verts, face) in enumerate(sorted(self._faces.iteritems(),
+        for i, (verts, face) in enumerate(sorted(iter(self._faces.items()),
                                           key=operator.itemgetter(0))):
             face.index = i
             self.faces.append(face)

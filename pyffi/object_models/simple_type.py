@@ -55,7 +55,7 @@ class _MetaSimpleType(type):
         cls.value = property(cls.get_value, cls.set_value,
                              None, cls.value.__doc__)
 
-class SimpleType(AnyType):
+class SimpleType(AnyType, metaclass=_MetaSimpleType):
     """Base class from which all simple types are derived. Simple
     types contain data which is not divided further into smaller pieces,
     and that can represented efficiently by a (usually native) Python type,
@@ -95,8 +95,6 @@ class SimpleType(AnyType):
     of this type, and :meth:`is_interchangeable` if you wish to declare data as
     equivalent.
     """
-
-    __metaclass__ = _MetaSimpleType
 
     # added here for documentation purposes - actually set in
     # metaclass

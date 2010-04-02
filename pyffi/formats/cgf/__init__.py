@@ -207,7 +207,7 @@ import struct
 import os
 import re
 import warnings
-from itertools import izip
+
 
 
 import pyffi.object_models.common
@@ -230,9 +230,8 @@ class _MetaCgfFormat(pyffi.object_models.xml.MetaFileFormat):
             for chunk_name in cls.ChunkType._enumkeys
             if chunk_name != "ANY")
 
-class CgfFormat(pyffi.object_models.xml.FileFormat):
+class CgfFormat(pyffi.object_models.xml.FileFormat, metaclass=_MetaCgfFormat):
     """Stores all information about the cgf file format."""
-    __metaclass__ = _MetaCgfFormat
     xml_file_name = 'cgf.xml'
     # where to look for cgf.xml and in what order: CGFXMLPATH env var,
     # or module directory
@@ -635,7 +634,7 @@ but got instance of %s""" % (self._template, block.__class__))
             if filetype not in (CgfFormat.FileType.GEOM,
                                 CgfFormat.FileType.ANIM):
                 raise ValueError("Invalid file type.")
-            if version not in CgfFormat.versions.values():
+            if version not in list(CgfFormat.versions.values()):
                 raise ValueError("Invalid file version.")
             # quick and lame game check:
             # far cry has chunk table at the end, crysis at the start
@@ -1279,7 +1278,7 @@ chunk size mismatch when reading %s at 0x%08X
             mat.m_33 /= scale.z ** 2
 
         def __mul__(self, rhs):
-            if isinstance(rhs, (float, int, long)):
+            if isinstance(rhs, (float, int)):
                 mat = CgfFormat.Matrix33()
                 mat.m_11 = self.m_11 * rhs
                 mat.m_12 = self.m_12 * rhs
@@ -1311,7 +1310,7 @@ chunk size mismatch when reading %s at 0x%08X
                     "do not know how to multiply Matrix33 with %s"%rhs.__class__)
 
         def __div__(self, rhs):
-            if isinstance(rhs, (float, int, long)):
+            if isinstance(rhs, (float, int)):
                 mat = CgfFormat.Matrix33()
                 mat.m_11 = self.m_11 / rhs
                 mat.m_12 = self.m_12 / rhs
@@ -1328,7 +1327,7 @@ chunk size mismatch when reading %s at 0x%08X
                     "do not know how to divide Matrix33 by %s"%rhs.__class__)
 
         def __rmul__(self, lhs):
-            if isinstance(lhs, (float, int, long)):
+            if isinstance(lhs, (float, int)):
                 return self * lhs # commutes
             else:
                 raise TypeError(
@@ -1562,7 +1561,7 @@ chunk size mismatch when reading %s at 0x%08X
                 if len(m) == 2:
                     return m[0][0]*m[1][1] - m[1][0]*m[0][1]
                 result = 0.0
-                for i in xrange(len(m)):
+                for i in range(len(m)):
                     det = determinant(adjoint(m, i, 0))
                     if i & 1:
                         result -= m[i][0] * det
@@ -1584,12 +1583,12 @@ chunk size mismatch when reading %s at 0x%08X
                 return n
             else:
                 m = self.as_list()
-                nn = [[0.0 for i in xrange(4)] for j in xrange(4)]
+                nn = [[0.0 for i in range(4)] for j in range(4)]
                 det = determinant(m)
                 if abs(det) < CgfFormat.EPSILON:
                     raise ZeroDivisionError('cannot invert matrix:\n%s'%self)
-                for i in xrange(4):
-                    for j in xrange(4):
+                for i in range(4):
+                    for j in range(4):
                         if (i+j) & 1:
                             nn[j][i] = -determinant(adjoint(m, i, j)) / det
                         else:
@@ -1599,7 +1598,7 @@ chunk size mismatch when reading %s at 0x%08X
                 return n
 
         def __mul__(self, x):
-            if isinstance(x, (float, int, long)):
+            if isinstance(x, (float, int)):
                 m = CgfFormat.Matrix44()
                 m.m_11 = self.m_11 * x
                 m.m_12 = self.m_12 * x
@@ -1645,7 +1644,7 @@ chunk size mismatch when reading %s at 0x%08X
                 raise TypeError("do not know how to multiply Matrix44 with %s"%x.__class__)
 
         def __div__(self, x):
-            if isinstance(x, (float, int, long)):
+            if isinstance(x, (float, int)):
                 m = CgfFormat.Matrix44()
                 m.m_11 = self.m_11 / x
                 m.m_12 = self.m_12 / x
@@ -1668,7 +1667,7 @@ chunk size mismatch when reading %s at 0x%08X
                 raise TypeError("do not know how to divide Matrix44 by %s"%x.__class__)
 
         def __rmul__(self, x):
-            if isinstance(x, (float, int, long)):
+            if isinstance(x, (float, int)):
                 return self * x
             else:
                 raise TypeError("do not know how to multiply %s with Matrix44"%x.__class__)
@@ -1719,7 +1718,7 @@ chunk size mismatch when reading %s at 0x%08X
                 m.m_43 = self.m_43 + x.m_43
                 m.m_44 = self.m_44 + x.m_44
                 return m
-            elif isinstance(x, (int, long, float)):
+            elif isinstance(x, (int, float)):
                 m = CgfFormat.Matrix44()
                 m.m_11 = self.m_11 + x
                 m.m_12 = self.m_12 + x
@@ -1761,7 +1760,7 @@ chunk size mismatch when reading %s at 0x%08X
                 m.m_43 = self.m_43 - x.m_43
                 m.m_44 = self.m_44 - x.m_44
                 return m
-            elif isinstance(x, (int, long, float)):
+            elif isinstance(x, (int, float)):
                 m = CgfFormat.Matrix44()
                 m.m_11 = self.m_11 - x
                 m.m_12 = self.m_12 - x
@@ -1856,7 +1855,7 @@ chunk size mismatch when reading %s at 0x%08X
             elif self.indices_data:
                 it = iter(self.indices_data.indices)
                 while True:
-                   yield it.next(), it.next(), it.next()
+                   yield next(it), next(it), next(it)
 
         def get_material_indices(self):
             """Generator for all materials (per triangle)."""
@@ -1865,7 +1864,7 @@ chunk size mismatch when reading %s at 0x%08X
                     yield face.material
             elif self.mesh_subsets:
                 for meshsubset in self.mesh_subsets.mesh_subsets:
-                    for i in xrange(meshsubset.num_indices // 3):
+                    for i in range(meshsubset.num_indices // 3):
                         yield meshsubset.mat_id
 
         def get_uvs(self):
@@ -1886,7 +1885,7 @@ chunk size mismatch when reading %s at 0x%08X
                 # Crysis: UV triangles coincide with triangles
                 it = iter(self.indices_data.indices)
                 while True:
-                    yield it.next(), it.next(), it.next()
+                    yield next(it), next(it), next(it)
 
         ### DEPRECATED: USE set_geometry INSTEAD ###
         def set_vertices_normals(self, vertices, normals):
@@ -1912,7 +1911,7 @@ chunk size mismatch when reading %s at 0x%08X
             self.normals_data.normals.update_size()
 
             # set vertex coordinates and normals for Far Cry
-            for cryvert, vert, norm in izip(self.vertices, vertices, normals):
+            for cryvert, vert, norm in zip(self.vertices, vertices, normals):
                 cryvert.p.x = vert[0]
                 cryvert.p.y = vert[1]
                 cryvert.p.z = vert[2]
@@ -1921,7 +1920,7 @@ chunk size mismatch when reading %s at 0x%08X
                 cryvert.n.z = norm[2]
 
             # set vertex coordinates and normals for Crysis
-            for cryvert, crynorm, vert, norm in izip(self.vertices_data.vertices,
+            for cryvert, crynorm, vert, norm in zip(self.vertices_data.vertices,
                                                      self.normals_data.normals,
                                                      vertices, normals):
                 cryvert.x = vert[0]
@@ -2441,15 +2440,15 @@ chunk size mismatch when reading %s at 0x%08X
                 raise ValueError("colorslist must have same length as verticeslist")
 
             # check length of lists in lists
-            for vertices, normals in izip(verticeslist, normalslist):
+            for vertices, normals in zip(verticeslist, normalslist):
                 if len(vertices) != len(normals):
                     raise ValueError("vertex and normal lists must have same length")
             if not uvslist is None:
-                for vertices, uvs in izip(verticeslist, uvslist):
+                for vertices, uvs in zip(verticeslist, uvslist):
                     if len(vertices) != len(uvs):
                         raise ValueError("vertex and uv lists must have same length")
             if not colorslist is None:
-                for vertices, colors in izip(verticeslist, colorslist):
+                for vertices, colors in zip(verticeslist, colorslist):
                     if len(vertices) != len(colors):
                         raise ValueError("vertex and color lists must have same length")
 
@@ -2539,7 +2538,7 @@ chunk size mismatch when reading %s at 0x%08X
             # now iterate over all materials
             firstvertexindex = 0
             firstindicesindex = 0
-            for vertices, normals, triangles, mat, uvs, colors, meshsubset in izip(
+            for vertices, normals, triangles, mat, uvs, colors, meshsubset in zip(
                 verticeslist, normalslist,
                 triangleslist, matlist,
                 uvslist, colorslist,
@@ -2558,8 +2557,8 @@ chunk size mismatch when reading %s at 0x%08X
                 meshsubset.center.z = center[2]
 
                 # set vertex coordinates and normals for Far Cry
-                for vert, norm in izip(vertices, normals):
-                    cryvert = selfvertices_iter.next()
+                for vert, norm in zip(vertices, normals):
+                    cryvert = next(selfvertices_iter)
                     cryvert.p.x = vert[0]
                     cryvert.p.y = vert[1]
                     cryvert.p.z = vert[2]
@@ -2568,9 +2567,9 @@ chunk size mismatch when reading %s at 0x%08X
                     cryvert.n.z = norm[2]
 
                 # set vertex coordinates and normals for Crysis
-                for vert, norm in izip(vertices, normals):
-                    cryvert = selfvertices_data_iter.next()
-                    crynorm = selfnormals_data_iter.next()
+                for vert, norm in zip(vertices, normals):
+                    cryvert = next(selfvertices_data_iter)
+                    crynorm = next(selfnormals_data_iter)
                     cryvert.x = vert[0]
                     cryvert.y = vert[1]
                     cryvert.z = vert[2]
@@ -2580,7 +2579,7 @@ chunk size mismatch when reading %s at 0x%08X
 
                 # set Far Cry face info
                 for triangle in triangles:
-                    cryface = selffaces_iter.next()
+                    cryface = next(selffaces_iter)
                     cryface.v_0 = triangle[0] + firstvertexindex
                     cryface.v_1 = triangle[1] + firstvertexindex
                     cryface.v_2 = triangle[2] + firstvertexindex
@@ -2594,25 +2593,25 @@ chunk size mismatch when reading %s at 0x%08X
                 if not uvs is None:
                     # set Far Cry uv info
                     for triangle in triangles:
-                        cryuvface = selfuv_faces_iter.next()
+                        cryuvface = next(selfuv_faces_iter)
                         cryuvface.t_0 = triangle[0] + firstvertexindex
                         cryuvface.t_1 = triangle[1] + firstvertexindex
                         cryuvface.t_2 = triangle[2] + firstvertexindex
                     for uv in uvs:
-                        cryuv = selfuvs_iter.next()
+                        cryuv = next(selfuvs_iter)
                         cryuv.u = uv[0]
                         cryuv.v = uv[1]
 
                     # set Crysis uv info
                     for uv in uvs:
-                        cryuv = selfuvs_data_iter.next()
+                        cryuv = next(selfuvs_data_iter)
                         cryuv.u = uv[0]
                         cryuv.v = 1.0 - uv[1] # OpenGL fix
 
                 if not colors is None:
                     # set Far Cry color info
                     for color in colors:
-                        crycolor = selfvertex_colors_iter.next()
+                        crycolor = next(selfvertex_colors_iter)
                         crycolor.r = color[0]
                         crycolor.g = color[1]
                         crycolor.b = color[2]
@@ -2620,7 +2619,7 @@ chunk size mismatch when reading %s at 0x%08X
 
                     # set Crysis color info
                     for color in colors:
-                        crycolor = selfcolors_data_iter.next()
+                        crycolor = next(selfcolors_data_iter)
                         crycolor.r = color[0]
                         crycolor.g = color[1]
                         crycolor.b = color[2]
@@ -2665,7 +2664,7 @@ chunk size mismatch when reading %s at 0x%08X
                 triangles = list(self.get_triangles()),
                 orientation = True)
 
-            for crytangent, tan, bin, orient in izip(self.tangents_data.tangents,
+            for crytangent, tan, bin, orient in zip(self.tangents_data.tangents,
                                                      tangents, binormals, orientations):
                 if orient > 0:
                     tangent_w = 32767
@@ -2823,7 +2822,7 @@ chunk size mismatch when reading %s at 0x%08X
             return "[ %6.3f %6.3f %6.3f ]"%(self.x, self.y, self.z)
 
         def __mul__(self, x):
-            if isinstance(x, (float, int, long)):
+            if isinstance(x, (float, int)):
                 v = CgfFormat.Vector3()
                 v.x = self.x * x
                 v.y = self.y * x
@@ -2843,7 +2842,7 @@ chunk size mismatch when reading %s at 0x%08X
                 raise TypeError("do not know how to multiply Vector3 with %s"%x.__class__)
 
         def __rmul__(self, x):
-            if isinstance(x, (float, int, long)):
+            if isinstance(x, (float, int)):
                 v = CgfFormat.Vector3()
                 v.x = x * self.x
                 v.y = x * self.y
@@ -2853,7 +2852,7 @@ chunk size mismatch when reading %s at 0x%08X
                 raise TypeError("do not know how to multiply %s and Vector3"%x.__class__)
 
         def __div__(self, x):
-            if isinstance(x, (float, int, long)):
+            if isinstance(x, (float, int)):
                 v = CgfFormat.Vector3()
                 v.x = self.x / x
                 v.y = self.y / x
@@ -2863,7 +2862,7 @@ chunk size mismatch when reading %s at 0x%08X
                 raise TypeError("do not know how to divide Vector3 and %s"%x.__class__)
 
         def __add__(self, x):
-            if isinstance(x, (float, int, long)):
+            if isinstance(x, (float, int)):
                 v = CgfFormat.Vector3()
                 v.x = self.x + x
                 v.y = self.y + x
@@ -2879,7 +2878,7 @@ chunk size mismatch when reading %s at 0x%08X
                 raise TypeError("do not know how to add Vector3 and %s"%x.__class__)
 
         def __radd__(self, x):
-            if isinstance(x, (float, int, long)):
+            if isinstance(x, (float, int)):
                 v = CgfFormat.Vector3()
                 v.x = x + self.x
                 v.y = x + self.y
@@ -2889,7 +2888,7 @@ chunk size mismatch when reading %s at 0x%08X
                 raise TypeError("do not know how to add %s and Vector3"%x.__class__)
 
         def __sub__(self, x):
-            if isinstance(x, (float, int, long)):
+            if isinstance(x, (float, int)):
                 v = CgfFormat.Vector3()
                 v.x = self.x - x
                 v.y = self.y - x
@@ -2905,7 +2904,7 @@ chunk size mismatch when reading %s at 0x%08X
                 raise TypeError("do not know how to substract Vector3 and %s"%x.__class__)
 
         def __rsub__(self, x):
-            if isinstance(x, (float, int, long)):
+            if isinstance(x, (float, int)):
                 v = CgfFormat.Vector3()
                 v.x = x - self.x
                 v.y = x - self.y

@@ -181,7 +181,7 @@ class TgaFormat(pyffi.object_models.xml.FileFormat):
                                           TgaFormat.ImageType.GREY):
                 self.children = [
                     TgaFormat.Pixel(argument=data.header.pixel_size)
-                    for i in xrange(data.header.width
+                    for i in range(data.header.width
                                     * data.header.height)]
                 for pixel in self.children:
                     pixel.read(stream, argument=data.header.pixel_size)
@@ -205,7 +205,7 @@ class TgaFormat(pyffi.object_models.xml.FileFormat):
                 yield child
 
         def get_detail_child_names(self, edge_filter=EdgeFilter()):
-            for i in xrange(len(self.children)):
+            for i in range(len(self.children)):
                 yield str(i)
 
     class Data(pyffi.object_models.FileFormat.Data):

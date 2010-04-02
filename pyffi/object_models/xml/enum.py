@@ -38,7 +38,7 @@
 # ***** END LICENSE BLOCK *****
 
 import struct
-from itertools import izip
+
 
 from pyffi.object_models.xml.basic import BasicBase
 from pyffi.object_models.editable import EditableComboBox
@@ -82,11 +82,10 @@ class _MetaEnumBase(type):
         cls._max = (1 << (cls._numbytes * 8)) - 1
 
         # set enum values as class attributes
-        for item, value in izip(cls._enumkeys, cls._enumvalues):
+        for item, value in zip(cls._enumkeys, cls._enumvalues):
             setattr(cls, item, value)
 
-class EnumBase(BasicBase, EditableComboBox):
-    __metaclass__ = _MetaEnumBase
+class EnumBase(BasicBase, EditableComboBox, metaclass=_MetaEnumBase):
     _enumkeys = []
     _enumvalues = []
     _numbytes = 1 # default width of an enum

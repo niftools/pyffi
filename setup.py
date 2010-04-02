@@ -66,7 +66,7 @@ setup(
     keywords = "fileformat nif cgf binary interface stripify",
     platforms = ["any"],
     description = "Processing block structured binary files.",
-    classifiers = filter(None, classifiers.split("\n")),
+    classifiers = [_f for _f in classifiers.split("\n") if _f],
     long_description = long_description,
     url = "http://pyffi.sourceforge.net/",
     download_url = "http://sourceforge.net/projects/pyffi/files/"

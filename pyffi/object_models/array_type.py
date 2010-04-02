@@ -39,7 +39,7 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-from itertools import izip
+
 
 from pyffi.object_models.any_type import AnyType
 import pyffi.object_models.simple_type
@@ -104,7 +104,7 @@ class AnyArray(ValidatedList, AnyType):
         if list.__len__(self) != list.__len__(other):
             return False
         # compare elements
-        for item, otheritem in izip(list.__iter__(self), list.__iter__(other)):
+        for item, otheritem in zip(list.__iter__(self), list.__iter__(other)):
             if not item.is_interchangeable(otheritem):
                 return False
         # all elements are interchangeable, so the array is as well
@@ -133,7 +133,7 @@ class AnyArray(ValidatedList, AnyType):
         return list.__iter__(self)
 
     def get_detail_child_names(self, edge_filter=EdgeFilter()):
-        return ("[%i]" % i for i in xrange(list.__len__(self)))
+        return ("[%i]" % i for i in range(list.__len__(self)))
 
 class MetaUniformArray(type):
     """Metaclass for L{UniformArray}. Checks that
@@ -148,7 +148,7 @@ class MetaUniformArray(type):
         if not issubclass(cls.ItemType, AnyType):
             raise TypeError("array ItemType must be an AnyType subclass")
 
-class UniformArray(AnyArray):
+class UniformArray(AnyArray, metaclass=MetaUniformArray):
     """Wrapper for array with elements of the same type; this type must be
     a subclass of L{pyffi.object_models.any_type.AnyType}.
 
@@ -177,8 +177,6 @@ class UniformArray(AnyArray):
     @cvar ItemType: Type of the elements of this array.
     :type ItemType: L{pyffi.object_models.any_type.AnyType}
     """
-
-    __metaclass__ = MetaUniformArray
     ItemType = AnyType
 
     @classmethod
@@ -203,10 +201,8 @@ class MetaUniformSimpleArray(type):
                           pyffi.object_models.simple_type.SimpleType):
             raise TypeError("array ItemType must be a SimpleType subclass")
 
-class UniformSimpleArray(AnyArray):
+class UniformSimpleArray(AnyArray, metaclass=MetaUniformSimpleArray):
     """Base class for array's with direct access to values of simple items."""
-
-    __metaclass__ = MetaUniformSimpleArray
     ItemType = pyffi.object_models.simple_type.SimpleType
 
     def __getitem__(self, index):

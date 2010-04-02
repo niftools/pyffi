@@ -39,7 +39,7 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-import BaseHTTPServer
+import http.server
 import os
 import tempfile
 import types
@@ -51,7 +51,7 @@ from pyffi.spells.nif import NifSpell
 
 def tohex(value, nbytes=4):
     """Improved version of hex."""
-    return ("0x%%0%dX" % (2*nbytes)) % (long(str(value)) & (2**(nbytes*8)-1))
+    return ("0x%%0%dX" % (2*nbytes)) % (int(str(value)) & (2**(nbytes*8)-1))
 
 def dumpArray(arr):
     """Format an array.
@@ -128,7 +128,7 @@ def dumpAttr(attr):
         return tohex(attr.get_value(), 2)
     elif isinstance(attr, (NifFormat.int, NifFormat.uint)):
         return tohex(attr.get_value(), 4)
-    elif isinstance(attr, (types.IntType, types.LongType)):
+    elif isinstance(attr, int):
         return tohex(attr, 4)
     else:
         return str(attr)
@@ -245,7 +245,7 @@ class SpellHtmlReport(NifSpell):
             rows.append( "</head>" )
             rows.append( "<body>" )
 
-            for blocktype, reports in toaster.reports_per_blocktype.iteritems():
+            for blocktype, reports in toaster.reports_per_blocktype.items():
                 rows.append("<h1>%s</h1>" % blocktype)
                 rows.append('<table border="1" cellspacing="0">')
                 rows.append("\n".join(reports))
@@ -265,13 +265,13 @@ class SpellHtmlReport(NifSpell):
         Instantiates a trivial http server and calls webbrowser.open
         with a URL to retrieve html from that server.
         """    
-        class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+        class RequestHandler(http.server.BaseHTTPRequestHandler):
             def do_GET(self):
                 bufferSize = 1024*1024
-                for i in xrange(0, len(htmlstr), bufferSize):
+                for i in range(0, len(htmlstr), bufferSize):
                     self.wfile.write(htmlstr[i:i+bufferSize])
 
-        server = BaseHTTPServer.HTTPServer(('127.0.0.1', 0), RequestHandler)
+        server = http.server.HTTPServer(('127.0.0.1', 0), RequestHandler)
         webbrowser.open('http://127.0.0.1:%s' % server.server_port)
         server.handle_request()           
 

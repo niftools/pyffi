@@ -544,12 +544,11 @@ class Type(object):
         # TODO initialize all attributes
         self._node.instantiate(self)
 
-class FileFormat(pyffi.object_models.FileFormat):
+class FileFormat(pyffi.object_models.FileFormat, metaclass=MetaFileFormat):
     """This class can be used as a base class for file formats. It implements
     a number of useful functions such as walking over directory trees and a
     default attribute naming function.
     """
-    __metaclass__ = MetaFileFormat
     xsdFileName = None #: Override.
     xsdFilePath = None #: Override.
     logger = logging.getLogger("pyffi.object_models.xsd")

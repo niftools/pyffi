@@ -60,8 +60,8 @@ def getMassInertiaSphere(radius, density = 1, solid = True):
         inertia = (2 * mass * (radius ** 2)) / 3
 
     return mass, tuple( tuple( (inertia if i == j else 0)
-                               for i in xrange(3) )
-                        for j in xrange(3) )
+                               for i in range(3) )
+                        for j in range(3) )
 
 def getMassInertiaBox(size, density = 1, solid = True):
     """Return mass and inertia matrix for a box of given size and
@@ -227,12 +227,12 @@ def get_mass_center_inertia_polyhedron(vertices, triangles, density = 1, solid =
             # find center of gravity of the tetrahedron
             centers.append(tuple( 0.25 * sum(vert[i]
                                              for vert in (vert0, vert1, vert2))
-                                  for i in xrange(3) ))
+                                  for i in range(3) ))
         else:
             # find center of gravity of the triangle
             centers.append(tuple( sum(vert[i]
                                       for vert in (vert0, vert1, vert2)) / 3.0
-                                  for i in xrange(3) ))
+                                  for i in range(3) ))
             # find mass of triangle
             # mass is surface, which is half the norm of cross product
             # of two edges
@@ -255,7 +255,7 @@ def get_mass_center_inertia_polyhedron(vertices, triangles, density = 1, solid =
         return 0, (0,0,0), ((0,0,0),(0,0,0),(0,0,0))
     # weighed average of centers with masses
     total_center = (0, 0, 0)
-    for center, mass in izip(centers, masses):
+    for center, mass in zip(centers, masses):
         total_center = vecAdd(total_center,
                               vecscalarMul(center, mass / total_mass))
     # add covariances, and correct the values
@@ -275,10 +275,10 @@ def get_mass_center_inertia_polyhedron(vertices, triangles, density = 1, solid =
     total_covariance = matSub(total_covariance, translate_correction)
 
     # convert covariance matrix into inertia tensor
-    trace = sum(total_covariance[i][i] for i in xrange(3))
+    trace = sum(total_covariance[i][i] for i in range(3))
     trace_matrix = tuple(tuple((trace if i == j else 0)
-                               for i in xrange(3))
-                         for j in xrange(3))
+                               for i in range(3))
+                         for j in range(3))
     total_inertia = matSub(trace_matrix, total_covariance)
 
     # correct for given density

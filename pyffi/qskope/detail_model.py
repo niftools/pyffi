@@ -129,7 +129,7 @@ class DetailModel(QtCore.QAbstractItemModel):
                 else:
                     return QtCore.QVariant(
                         "%i (%s)" % (blocknum, display.name))
-            elif isinstance(display, basestring):
+            elif isinstance(display, str):
                 # regular string
                 if len(display) > 32:
                     display = display[:32] + "..."
@@ -204,12 +204,12 @@ class DetailModel(QtCore.QAbstractItemModel):
             node = index.internalPointer().data.node
             currentvalue = node.get_value()
             # transform the QVariant value into the right class
-            if isinstance(currentvalue, (int, long)):
+            if isinstance(currentvalue, int):
                 # use long type to work around QVariant(0xffffffff).toInt() bug
                 pyvalue, ok = value.toLongLong()
             elif isinstance(currentvalue, float):
                 pyvalue, ok = value.toDouble()
-            elif isinstance(currentvalue, basestring):
+            elif isinstance(currentvalue, str):
                 pyvalue = str(value.toString())
                 ok = True
             elif isinstance(currentvalue, bool):

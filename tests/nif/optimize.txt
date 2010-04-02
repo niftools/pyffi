@@ -14,7 +14,7 @@ Interactive
 is the input working? yes it is
 'yes it is'
 >>> import pyffi.spells
->>> pyffi.spells.Toaster.toast.func_globals['raw_input'] = inputfunc
+>>> pyffi.spells.Toaster.toast.__globals__['input'] = inputfunc
 >>> # copy file to avoid overwriting
 >>> import shutil
 >>> shutil.copyfile("tests/nif/test.nif", "tests/nif/_test.nif")
@@ -109,3 +109,4 @@ pyffi.toaster:INFO:Finished.
 pyffi.toaster:INFO:=== tests/nif/test_opt_dupverts.nif ===
 pyffi.toaster:INFO:Finished.
 >>> os.remove("tests/nif/test_opt_dupverts.tri")
+

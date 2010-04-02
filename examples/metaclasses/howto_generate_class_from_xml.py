@@ -16,12 +16,12 @@ DEBUG = False
 class _MetaBlock(type):
     def __init__(cls, name, bases, dct):
         # consistency checks
-        if not dct.has_key('_attrs'):
+        if '_attrs' not in dct:
             raise TypeError(str(cls) + ': missing _attrs attribute')
-        if not dct.has_key('__doc__'):
+        if '__doc__' not in dct:
             raise TypeError(str(cls) + ': missing __doc__ attribute')
 
-class _Block(object):
+class _Block(object, metaclass=_MetaBlock):
     """Base class from which all file block types are derived.
 
     The _Block class implements the basic block interface:
@@ -30,7 +30,6 @@ class _Block(object):
     The class variable _attrs *must* be declared every derived class
     interface, see MetaFileFormat.__init__ for an example.
     """
-    __metaclass__ = _MetaBlock
     _attrs = ()
     # initialize all _attrs attributes
     def __init__(self):
@@ -99,7 +98,7 @@ class MetaFileFormat(type):
         block_dct['_attrs'] = ( ('name', 'noname'), )
         # create class cls.<block_name>
         setattr(cls, block_name, type(block_name, (block_ancestor,), block_dct))
-        if DEBUG: print 'cls.NiObjectNET: ', dir(cls.NiObjectNET) # debug
+        if DEBUG: print('cls.NiObjectNET: ', dir(cls.NiObjectNET)) # debug
 
         # do another one
         block_name = 'NiNode'
@@ -108,15 +107,14 @@ class MetaFileFormat(type):
         block_dct['__doc__'] = 'Basic node.'
         block_dct['_attrs'] = ( ('translateX', 0.0), ('translateY', 0.0), ('translateZ', 0.0) )
         setattr(cls, block_name, type(block_name, (block_ancestor,), block_dct))
-        if DEBUG: print 'cls.NiNode: ', dir(cls.NiNode) # debug
+        if DEBUG: print('cls.NiNode: ', dir(cls.NiNode)) # debug
 
 
 
 # The NifFormat class simply processes nif.xml via MetaFileFormat
 # which generates subclasses of NifFormat for basic types, compounds,
 # blocks, and enums.
-class NifFormat(object):
-    __metaclass__ = MetaFileFormat
+class NifFormat(object, metaclass=MetaFileFormat):
     xml_file_name = "nif.xml"
 
 # For example, NifFormat.NiNode is now a class representing the NiNode block
@@ -124,12 +122,12 @@ class NifFormat(object):
 # of initialization of all attributes, and printing them.
 
 if DEBUG:
-    print NifFormat
-    print dir(NifFormat)
-    print NifFormat.NiObjectNET
-    print dir(NifFormat.NiObjectNET)
-    print NifFormat.NiNode
-    print dir(NifFormat.NiNode)
+    print(NifFormat)
+    print(dir(NifFormat))
+    print(NifFormat.NiObjectNET)
+    print(dir(NifFormat.NiObjectNET))
+    print(NifFormat.NiNode)
+    print(dir(NifFormat.NiNode))
 
 # as a test, let's create a few blocks, fill them with data, and print them
 blk0 = NifFormat.NiObjectNET()
@@ -142,6 +140,6 @@ blk1.translateX = 1.2
 blk2.name = 'awesome!'
 blk2.translateY = 3.4
 
-print blk0
-print blk1
-print blk2
+print(blk0)
+print(blk1)
+print(blk2)

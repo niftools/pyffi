@@ -319,7 +319,7 @@ end
 #
 # ***** END LICENSE BLOCK *****
 
-from itertools import izip, repeat
+from itertools import repeat
 import logging
 import math # math.pi
 import os
@@ -406,7 +406,7 @@ class NifFormat(FileFormat):
             return self._value
 
         def set_value(self, value):
-            if isinstance(value, basestring):
+            if isinstance(value, str):
                 if value.lower() == 'false':
                     self._value = False
                     return
@@ -993,7 +993,7 @@ class NifFormat(FileFormat):
             size1, = struct.unpack('<I', stream.read(4))
             size2, = struct.unpack('<I', stream.read(4))
             self._value = []
-            for i in xrange(size2):
+            for i in range(size2):
                 self._value.append(stream.read(size1))
 
         def write(self, stream, **kwargs):
@@ -1193,7 +1193,7 @@ class NifFormat(FileFormat):
                 ver = NifFormat.version_number(version_str)
             except:
                 raise ValueError("Nif version %s not supported." % version_str)
-            if not ver in NifFormat.versions.values():
+            if not ver in list(NifFormat.versions.values()):
                 raise ValueError("Nif version %s not supported." % version_str)
             # check version integer and user version
             userver = 0
@@ -1816,7 +1816,7 @@ class NifFormat(FileFormat):
 
         def set_scale_rotation(self, scale, rotation):
             """Compose the matrix as the product of scale * rotation."""
-            if not isinstance(scale, (float, int, long)):
+            if not isinstance(scale, (float, int)):
                 raise TypeError('scale must be float')
             if not isinstance(rotation, NifFormat.Matrix33):
                 raise TypeError('rotation must be Matrix33')
@@ -1875,7 +1875,7 @@ class NifFormat(FileFormat):
             return self.get_transpose() / (self.m_11**2 + self.m_12**2 + self.m_13**2)
 
         def __mul__(self, rhs):
-            if isinstance(rhs, (float, int, long)):
+            if isinstance(rhs, (float, int)):
                 mat = NifFormat.Matrix33()
                 mat.m_11 = self.m_11 * rhs
                 mat.m_12 = self.m_12 * rhs
@@ -1908,7 +1908,7 @@ class NifFormat(FileFormat):
                     "do not know how to multiply Matrix33 with %s"%rhs.__class__)
 
         def __div__(self, rhs):
-            if isinstance(rhs, (float, int, long)):
+            if isinstance(rhs, (float, int)):
                 mat = NifFormat.Matrix33()
                 mat.m_11 = self.m_11 / rhs
                 mat.m_12 = self.m_12 / rhs
@@ -1928,7 +1928,7 @@ class NifFormat(FileFormat):
         __truediv__ = __div__
 
         def __rmul__(self, lhs):
-            if isinstance(lhs, (float, int, long)):
+            if isinstance(lhs, (float, int)):
                 return self * lhs # commutes
             else:
                 raise TypeError(
@@ -1966,7 +1966,7 @@ class NifFormat(FileFormat):
                 m.m_32 = self.m_32 - x.m_32
                 m.m_33 = self.m_33 - x.m_33
                 return m
-            elif isinstance(x, (int, long, float)):
+            elif isinstance(x, (int, float)):
                 m = NifFormat.Matrix33()
                 m.m_11 = self.m_11 - x
                 m.m_12 = self.m_12 - x
@@ -2022,7 +2022,7 @@ class NifFormat(FileFormat):
             return "[ %6.3f %6.3f %6.3f ]"%(self.x, self.y, self.z)
 
         def __mul__(self, x):
-            if isinstance(x, (float, int, long)):
+            if isinstance(x, (float, int)):
                 v = NifFormat.Vector3()
                 v.x = self.x * x
                 v.y = self.y * x
@@ -2042,7 +2042,7 @@ class NifFormat(FileFormat):
                 raise TypeError("do not know how to multiply Vector3 with %s"%x.__class__)
 
         def __rmul__(self, x):
-            if isinstance(x, (float, int, long)):
+            if isinstance(x, (float, int)):
                 v = NifFormat.Vector3()
                 v.x = x * self.x
                 v.y = x * self.y
@@ -2052,7 +2052,7 @@ class NifFormat(FileFormat):
                 raise TypeError("do not know how to multiply %s and Vector3"%x.__class__)
 
         def __div__(self, x):
-            if isinstance(x, (float, int, long)):
+            if isinstance(x, (float, int)):
                 v = NifFormat.Vector3()
                 v.x = self.x / x
                 v.y = self.y / x
@@ -2065,7 +2065,7 @@ class NifFormat(FileFormat):
         __truediv__ = __div__
 
         def __add__(self, x):
-            if isinstance(x, (float, int, long)):
+            if isinstance(x, (float, int)):
                 v = NifFormat.Vector3()
                 v.x = self.x + x
                 v.y = self.y + x
@@ -2081,7 +2081,7 @@ class NifFormat(FileFormat):
                 raise TypeError("do not know how to add Vector3 and %s"%x.__class__)
 
         def __radd__(self, x):
-            if isinstance(x, (float, int, long)):
+            if isinstance(x, (float, int)):
                 v = NifFormat.Vector3()
                 v.x = x + self.x
                 v.y = x + self.y
@@ -2091,7 +2091,7 @@ class NifFormat(FileFormat):
                 raise TypeError("do not know how to add %s and Vector3"%x.__class__)
 
         def __sub__(self, x):
-            if isinstance(x, (float, int, long)):
+            if isinstance(x, (float, int)):
                 v = NifFormat.Vector3()
                 v.x = self.x - x
                 v.y = self.y - x
@@ -2107,7 +2107,7 @@ class NifFormat(FileFormat):
                 raise TypeError("do not know how to substract Vector3 and %s"%x.__class__)
 
         def __rsub__(self, x):
-            if isinstance(x, (float, int, long)):
+            if isinstance(x, (float, int)):
                 v = NifFormat.Vector3()
                 v.x = x - self.x
                 v.y = x - self.y
@@ -2279,7 +2279,7 @@ class NifFormat(FileFormat):
             # find an orthogonal vector to vec1
             index = min(enumerate(vec1), key=lambda val: abs(val[1]))[0]
             vec2 = vecCrossProduct(vec1, tuple((1 if i == index else 0)
-                                               for i in xrange(3)))
+                                               for i in range(3)))
             vec2 = vecscalarMul(vec2, 1/vecNorm(vec2))
             # find an orthogonal vector to vec1 and vec2
             vec3 = vecCrossProduct(vec1, vec2)
@@ -2385,7 +2385,7 @@ class NifFormat(FileFormat):
             if not front:
                 self.sub_shapes[num_shapes] = shape
             else:
-                for i in xrange(num_shapes, 0, -1):
+                for i in range(num_shapes, 0, -1):
                     self.sub_shapes[i] = self.sub_shapes[i-1]
                 self.sub_shapes[0] = shape
             # expand list of unknown ints as well
@@ -2521,7 +2521,7 @@ class NifFormat(FileFormat):
                 self.mopp_data[i] = b
 
             # update welding information
-            for hktri, welding_info in izip(self.shape.data.triangles, welding_infos):
+            for hktri, welding_info in zip(self.shape.data.triangles, welding_infos):
                 hktri.welding_info = welding_info
 
         def _makeSimpleMopp(self):
@@ -2563,7 +2563,7 @@ class NifFormat(FileFormat):
             # but arrows may still fly through
             numtriangles = len(self.shape.data.triangles)
             i = 0x30
-            for t in xrange(numtriangles-1):
+            for t in range(numtriangles-1):
                  mopp.extend([TESTZ, maxz, 0, 1, i])
                  i += 1
                  if i == 0x50:
@@ -2645,7 +2645,7 @@ class NifFormat(FileFormat):
             return [btest, test, self.split_triangles(ts1, bbox1, nextdir), self.split_triangles(ts2, bbox2, nextdir)]
 
         def mopp_from_tree(self, tree):
-            if tree[1][0] in xrange(0x30, 0x52):
+            if tree[1][0] in range(0x30, 0x52):
                 return tree[0] + tree[1]
             mopp = tree[0] + tree[1]
             submopp1 = self.mopp_from_tree(tree[2])
@@ -2727,7 +2727,7 @@ class NifFormat(FileFormat):
                     ids.extend([i,i+1,i+2,i+3,i+4])
                     i += 5
 
-                elif code in xrange(0x30,0x50):
+                elif code in range(0x30,0x50):
                     # triangle compact
                     msg.append('[ triangle %i ]'%(code-0x30+toffset))
                     ids.append(i)
@@ -2848,12 +2848,12 @@ class NifFormat(FileFormat):
                 else:
                     msg.append("unknown mopp code 0x%02X"%code).error()
                     msg.append("following bytes are").debug()
-                    extrabytes = [mopp[j] for j in xrange(i+1,min(self.mopp_data_size,i+10))]
-                    extraindex = [j       for j in xrange(i+1,min(self.mopp_data_size,i+10))]
+                    extrabytes = [mopp[j] for j in range(i+1,min(self.mopp_data_size,i+10))]
+                    extraindex = [j       for j in range(i+1,min(self.mopp_data_size,i+10))]
                     msg.append(extrabytes).debug()
                     for b, j in zip(extrabytes, extraindex):
                         if j+b+1 < self.mopp_data_size:
-                            msg.append("opcode after jump %i is 0x%02X"%(b,mopp[j+b+1]), [mopp[k] for k in xrange(j+b+2,min(self.mopp_data_size,j+b+11))]).debug()
+                            msg.append("opcode after jump %i is 0x%02X"%(b,mopp[j+b+1]), [mopp[k] for k in range(j+b+2,min(self.mopp_data_size,j+b+11))]).debug()
                     raise ValueError("unknown mopp opcode 0x%02X"%code)
 
                 msg.debug()
@@ -2866,7 +2866,7 @@ class NifFormat(FileFormat):
             subshapes_mci = [
                 (mass, center, inertia)
                 for (mass, inertia), center in
-                izip( ( pyffi.utils.inertia.getMassInertiaSphere(radius = sphere.radius,
+                zip( ( pyffi.utils.inertia.getMassInertiaSphere(radius = sphere.radius,
                                                                  density = density, solid = solid)
                         for sphere in self.spheres ),
                       ( sphere.center.as_tuple() for sphere in self.spheres ) ) ]
@@ -3521,7 +3521,7 @@ class NifFormat(FileFormat):
             return (scale, quat, trans)
 
         def set_scale_rotation_translation(self, scale, rotation, translation):
-            if not isinstance(scale, (float, int, long)):
+            if not isinstance(scale, (float, int)):
                 raise TypeError('scale must be float')
             if not isinstance(rotation, NifFormat.Matrix33):
                 raise TypeError('rotation must be Matrix33')
@@ -3566,7 +3566,7 @@ class NifFormat(FileFormat):
                 if len(m) == 2:
                     return m[0][0]*m[1][1] - m[1][0]*m[0][1]
                 result = 0.0
-                for i in xrange(len(m)):
+                for i in range(len(m)):
                     det = determinant(adjoint(m, i, 0))
                     if i & 1:
                         result -= m[i][0] * det
@@ -3588,12 +3588,12 @@ class NifFormat(FileFormat):
                 return n
             else:
                 m = self.as_list()
-                nn = [[0.0 for i in xrange(4)] for j in xrange(4)]
+                nn = [[0.0 for i in range(4)] for j in range(4)]
                 det = determinant(m)
                 if abs(det) < NifFormat.EPSILON:
                     raise ZeroDivisionError('cannot invert matrix:\n%s'%self)
-                for i in xrange(4):
-                    for j in xrange(4):
+                for i in range(4):
+                    for j in range(4):
                         if (i+j) & 1:
                             nn[j][i] = -determinant(adjoint(m, i, j)) / det
                         else:
@@ -3603,7 +3603,7 @@ class NifFormat(FileFormat):
                 return n
 
         def __mul__(self, x):
-            if isinstance(x, (float, int, long)):
+            if isinstance(x, (float, int)):
                 m = NifFormat.Matrix44()
                 m.m_11 = self.m_11 * x
                 m.m_12 = self.m_12 * x
@@ -3649,7 +3649,7 @@ class NifFormat(FileFormat):
                 raise TypeError("do not know how to multiply Matrix44 with %s"%x.__class__)
 
         def __div__(self, x):
-            if isinstance(x, (float, int, long)):
+            if isinstance(x, (float, int)):
                 m = NifFormat.Matrix44()
                 m.m_11 = self.m_11 / x
                 m.m_12 = self.m_12 / x
@@ -3675,7 +3675,7 @@ class NifFormat(FileFormat):
         __truediv__ = __div__
 
         def __rmul__(self, x):
-            if isinstance(x, (float, int, long)):
+            if isinstance(x, (float, int)):
                 return self * x
             else:
                 raise TypeError("do not know how to multiply %s with Matrix44"%x.__class__)
@@ -3726,7 +3726,7 @@ class NifFormat(FileFormat):
                 m.m_43 = self.m_43 + x.m_43
                 m.m_44 = self.m_44 + x.m_44
                 return m
-            elif isinstance(x, (int, long, float)):
+            elif isinstance(x, (int, float)):
                 m = NifFormat.Matrix44()
                 m.m_11 = self.m_11 + x
                 m.m_12 = self.m_12 + x
@@ -3768,7 +3768,7 @@ class NifFormat(FileFormat):
                 m.m_43 = self.m_43 - x.m_43
                 m.m_44 = self.m_44 - x.m_44
                 return m
-            elif isinstance(x, (int, long, float)):
+            elif isinstance(x, (int, float)):
                 m = NifFormat.Matrix44()
                 m.m_11 = self.m_11 - x
                 m.m_12 = self.m_12 - x
@@ -3991,10 +3991,10 @@ class NifFormat(FileFormat):
                     or controlpoints is self.short_control_points):
                 raise ValueError("internal error while appending data")
             # parse the data
-            for element in xrange(num_elements):
+            for element in range(num_elements):
                 yield tuple(
                     controlpoints[offset + element * element_size + index]
-                    for index in xrange(element_size))
+                    for index in range(element_size))
 
         def _appendData(self, data, controlpoints):
             """Helper function for append_float_data and append_short_data. For internal
@@ -4113,7 +4113,7 @@ class NifFormat(FileFormat):
             will return exactly self.basis_data.num_control_points - 1 time points, and
             not self.basis_data.num_control_points as it is now.
             """
-            for i in xrange(self.basis_data.num_control_points):
+            for i in range(self.basis_data.num_control_points):
                 yield self.start_time + (i * (self.stop_time - self.start_time)
                                         / (self.basis_data.num_control_points - 1))
 
@@ -4165,8 +4165,8 @@ class NifFormat(FileFormat):
                 num_elements = self.basis_data.num_control_points
                 element_size = 3
                 controlpoints = self.spline_data.float_control_points
-                for element in xrange(num_elements):
-                    for index in xrange(element_size):
+                for element in range(num_elements):
+                    for index in range(element_size):
                         controlpoints[offset + element * element_size + index] *= scale
 
     class NiControllerSequence:
@@ -4319,7 +4319,7 @@ class NifFormat(FileFormat):
             normalfactor = 10 ** normalprecision
             uvfactor = 10 ** uvprecision
             vcolfactor = 10 ** vcolprecision
-            for i in xrange(self.num_vertices):
+            for i in range(self.num_vertices):
                 h = []
                 if verts:
                     h.extend([float_to_int(x * vertexfactor)
@@ -4434,7 +4434,7 @@ class NifFormat(FileFormat):
             # set vertex weights
             skinbonedata.num_vertices = len(vert_weights)
             skinbonedata.vertex_weights.update_size()
-            for i, (vert_index, vert_weight) in enumerate(vert_weights.iteritems()):
+            for i, (vert_index, vert_weight) in enumerate(iter(vert_weights.items())):
                 skinbonedata.vertex_weights[i].index = vert_index
                 skinbonedata.vertex_weights[i].weight = vert_weight
 
@@ -4452,7 +4452,7 @@ class NifFormat(FileFormat):
             skindata = skininst.data
             # XXX todo: should we use list of dictionaries for this
             #           where each dict maps bone number to the weight?
-            weights = [[] for i in xrange(geomdata.num_vertices)]
+            weights = [[] for i in range(geomdata.num_vertices)]
             for bonenum, bonedata in enumerate(skindata.bone_list):
                 for skinweight in bonedata.vertex_weights:
                     # skip zero weights
@@ -4538,9 +4538,9 @@ class NifFormat(FileFormat):
             skindata = skininst.data
             skelroot = skininst.skeleton_root
 
-            vertices = [ NifFormat.Vector3() for i in xrange(self.data.num_vertices) ]
-            normals = [ NifFormat.Vector3() for i in xrange(self.data.num_vertices) ]
-            sumweights = [ 0.0 for i in xrange(self.data.num_vertices) ]
+            vertices = [ NifFormat.Vector3() for i in range(self.data.num_vertices) ]
+            normals = [ NifFormat.Vector3() for i in range(self.data.num_vertices) ]
+            sumweights = [ 0.0 for i in range(self.data.num_vertices) ]
             skin_offset = skindata.get_transform()
             for i, bone_block in enumerate(skininst.bones):
                 bonedata = skindata.bone_list[i]
@@ -4795,7 +4795,7 @@ class NifFormat(FileFormat):
             if not front:
                 self.children[num_children] = child
             else:
-                for i in xrange(num_children, 0, -1):
+                for i in range(num_children, 0, -1):
                     self.children[i] = self.children[i-1]
                 self.children[0] = child
 
@@ -5019,7 +5019,7 @@ class NifFormat(FileFormat):
                 diff.set_identity()
                 # go over all bones in current geometry, see if it has been visited
                 # before
-                for bonenode, bonedata in izip(skininst.bones, skindata.bone_list):
+                for bonenode, bonedata in zip(skininst.bones, skindata.bone_list):
                     if bonenode.name in bone_bind_transform:
                         # calculate difference
                         # (see explanation below)
@@ -5049,7 +5049,7 @@ class NifFormat(FileFormat):
                     # because the full transform
                     #    v * T * ... = v * D * D^-1 * T * ... = v' * T' * ...
                     # must be kept invariant
-                    for bonenode, bonedata in izip(skininst.bones, skindata.bone_list):
+                    for bonenode, bonedata in zip(skininst.bones, skindata.bone_list):
                         logger.debug("transforming bind position of bone %s"
                                      % bonenode.name)
                         bonedata.set_transform(diff.get_inverse(fast=False)
@@ -5068,7 +5068,7 @@ class NifFormat(FileFormat):
                         norm.z = newnorm.z
 
                 # store updated bind position for future reference
-                for bonenode, bonedata in izip(skininst.bones, skindata.bone_list):
+                for bonenode, bonedata in zip(skininst.bones, skindata.bone_list):
                     bone_bind_transform[bonenode.name] = (
                         bonedata.get_transform().get_inverse(fast=False)
                         * geom.get_transform(self))
@@ -5081,7 +5081,7 @@ class NifFormat(FileFormat):
                 skindata = skininst.data
                 # go over all bones in current geometry, see if it has been visited
                 # before
-                for bonenode, bonedata in izip(skininst.bones, skindata.bone_list):
+                for bonenode, bonedata in zip(skininst.bones, skindata.bone_list):
                     if bonenode.name in bone_bind_transform:
                         # calculate difference
                         diff = ((bonedata.get_transform().get_inverse(fast=False)
@@ -5156,7 +5156,7 @@ class NifFormat(FileFormat):
 
             # next, for each part, move all geometries so the lowest bone matches the
             # node transform
-            for boneset, part in izip(bonesets, parts):
+            for boneset, part in zip(bonesets, parts):
                 logger.debug("moving part %s" % str([geom.name for geom in part]))
                 # find "lowest" bone in the bone set
                 lowest_dist = None
@@ -5169,7 +5169,7 @@ class NifFormat(FileFormat):
                 logger.debug("reference bone is %s" % lowest_bonenode.name)
                 # find a geometry that has this bone
                 for geom in part:
-                    for bonenode, bonedata in izip(geom.skin_instance.bones,
+                    for bonenode, bonedata in zip(geom.skin_instance.bones,
                                                    geom.skin_instance.data.bone_list):
                         if bonenode is lowest_bonenode:
                             lowest_geom = geom
@@ -5213,7 +5213,7 @@ class NifFormat(FileFormat):
                     # because the full transform
                     #    v * T * ... = v * D * D^-1 * T * ... = v' * T' * ...
                     # must be kept invariant
-                    for bonenode, bonedata in izip(skininst.bones, skindata.bone_list):
+                    for bonenode, bonedata in zip(skininst.bones, skindata.bone_list):
                         logger.debug("transforming bind position of bone %s"
                                      % bonenode.name)
                         bonedata.set_transform(diff.get_inverse(fast=False)
@@ -5249,7 +5249,7 @@ class NifFormat(FileFormat):
             for geom in geoms:
                 skininst = geom.skin_instance
                 skindata = skininst.data
-                for bonenode, bonedata in izip(skininst.bones, skindata.bone_list):
+                for bonenode, bonedata in zip(skininst.bones, skindata.bone_list):
                     # make sure all bone data of shared bones coincides
                     for othergeom, otherbonenode, otherbonedata in bonelist:
                         if bonenode is otherbonenode:
@@ -5892,9 +5892,9 @@ class NifFormat(FileFormat):
             """
 
             def bytes2vectors(data, pos, num):
-                for i in xrange(num):
+                for i in range(num):
                     # data[pos:pos+12] is not really well implemented, so do this
-                    vecdata = ''.join(data[j] for j in xrange(pos, pos + 12))
+                    vecdata = ''.join(data[j] for j in range(pos, pos + 12))
                     vec = NifFormat.Vector3()
                     vec.x, vec.y, vec.z = struct.unpack('<fff', vecdata)
                     yield vec
@@ -5932,7 +5932,7 @@ class NifFormat(FileFormat):
                 tangents = self.data.tangents
                 bitangents = self.data.bitangents
 
-            return izip(self.data.normals, tangents, bitangents)
+            return zip(self.data.normals, tangents, bitangents)
 
         def update_tangent_space(self, as_extra=None):
             """Recalculate tangent space data.
@@ -5961,7 +5961,7 @@ class NifFormat(FileFormat):
 
             bin = []
             tan = []
-            for i in xrange(self.data.num_vertices):
+            for i in range(self.data.num_vertices):
                 bin.append(NifFormat.Vector3())
                 tan.append(NifFormat.Vector3())
 
@@ -6025,7 +6025,7 @@ class NifFormat(FileFormat):
             yvec.x = 0.0
             yvec.y = 1.0
             yvec.z = 0.0
-            for i in xrange(self.data.num_vertices):
+            for i in range(self.data.num_vertices):
                 n = norms[i]
                 try:
                     n.normalize()
@@ -6088,11 +6088,11 @@ class NifFormat(FileFormat):
                 self.data.bs_num_uv_sets |= 4096
                 self.data.tangents.update_size()
                 self.data.bitangents.update_size()
-                for vec, data_tan in izip(tan, self.data.tangents):
+                for vec, data_tan in zip(tan, self.data.tangents):
                     data_tan.x = vec.x
                     data_tan.y = vec.y
                     data_tan.z = vec.z
-                for vec, data_bitan in izip(bin, self.data.bitangents):
+                for vec, data_bitan in zip(bin, self.data.bitangents):
                     data_bitan.x = vec.x
                     data_bitan.y = vec.y
                     data_bitan.z = vec.z
@@ -6221,7 +6221,7 @@ class NifFormat(FileFormat):
 
                     # restrict to bones not in the nono set
                     tribonesweights = [
-                        x for x in tribonesweights.items() if x[0] not in nono]
+                        x for x in list(tribonesweights.items()) if x[0] not in nono]
                     if not tribonesweights:
                         raise ValueError(
                             "cannot remove anymore bones in this skin; "
@@ -6265,7 +6265,7 @@ class NifFormat(FileFormat):
                     # the partition, similar for newtrianglepartmap
                     newtriangles = []
                     newtrianglepartmap = []
-                    for tri, partindex in izip(triangles, trianglepartmap):
+                    for tri, partindex in zip(triangles, trianglepartmap):
                         # find the bones influencing this triangle
                         tribones = []
                         for t in tri:
@@ -6295,7 +6295,7 @@ class NifFormat(FileFormat):
                     newtriangles = []
                     newtrianglepartmap = []
                     if len(part[0]) < maxbonesperpartition:
-                        for tri, partindex in izip(triangles, trianglepartmap):
+                        for tri, partindex in zip(triangles, trianglepartmap):
                             # if triangle is adjacent, and has same index
                             # then check if it can be added to the partition
                             if (usedverts & set(tri)) and (part[2] == partindex):
@@ -6420,7 +6420,7 @@ class NifFormat(FileFormat):
                 skininst.num_partitions = len(parts)
                 skininst.partitions.update_size()
                 lastpart = None
-                for bodypart, part in izip(skininst.partitions, parts):
+                for bodypart, part in zip(skininst.partitions, parts):
                     bodypart.body_part = part[2]
                     if (lastpart is None) or (lastpart[0] != part[0]):
                         # start new bone set, if bones are not shared
@@ -6482,7 +6482,7 @@ class NifFormat(FileFormat):
                 skinpartblock.bones.update_size()
                 for i, bonenum in enumerate(bones):
                     skinpartblock.bones[i] = bonenum
-                for i in xrange(len(bones), skinpartblock.num_bones):
+                for i in range(len(bones), skinpartblock.num_bones):
                     skinpartblock.bones[i] = 0 # dummy bone slots refer to first bone
                 skinpartblock.has_vertex_map = True
                 skinpartblock.vertex_map.update_size()
@@ -6491,7 +6491,7 @@ class NifFormat(FileFormat):
                 skinpartblock.has_vertex_weights = True
                 skinpartblock.vertex_weights.update_size()
                 for i, v in enumerate(vertices):
-                    for j in xrange(skinpartblock.num_weights_per_vertex):
+                    for j in range(skinpartblock.num_weights_per_vertex):
                         if j < len(weights[v]):
                             skinpartblock.vertex_weights[i][j] = weights[v][j][1]
                         else:
@@ -6522,10 +6522,10 @@ class NifFormat(FileFormat):
                     # the boneindices set keeps track of indices that have not been
                     # used yet
                     boneindices = set(range(skinpartblock.num_bones))
-                    for j in xrange(len(weights[v])):
+                    for j in range(len(weights[v])):
                         skinpartblock.bone_indices[i][j] = bones.index(weights[v][j][0])
                         boneindices.remove(skinpartblock.bone_indices[i][j])
-                    for j in xrange(len(weights[v]),skinpartblock.num_weights_per_vertex):
+                    for j in range(len(weights[v]),skinpartblock.num_weights_per_vertex):
                         if padbones:
                             # if padbones is True then we have enforced
                             # num_bones == num_weights_per_vertex so this will not trigger
@@ -6537,7 +6537,7 @@ class NifFormat(FileFormat):
                 # sort weights
                 for i, v in enumerate(vertices):
                     vweights = []
-                    for j in xrange(skinpartblock.num_weights_per_vertex):
+                    for j in range(skinpartblock.num_weights_per_vertex):
                         vweights.append([
                             skinpartblock.bone_indices[i][j],
                             skinpartblock.vertex_weights[i][j]])
@@ -6547,7 +6547,7 @@ class NifFormat(FileFormat):
                     else:
                         # by weight (for fallout 3, largest weight first)
                         vweights.sort(key=lambda w: -w[1])
-                    for j in xrange(skinpartblock.num_weights_per_vertex):
+                    for j in range(skinpartblock.num_weights_per_vertex):
                         skinpartblock.bone_indices[i][j] = vweights[j][0]
                         skinpartblock.vertex_weights[i][j] = vweights[j][1]
 
@@ -6665,9 +6665,9 @@ class NifFormat(FileFormat):
             # copy triangles
             src = triangles.__iter__()
             dst = self.triangles.__iter__()
-            for k in xrange(n):
-                dst_t = dst.next()
-                dst_t.v_1, dst_t.v_2, dst_t.v_3 = src.next()
+            for k in range(n):
+                dst_t = next(dst)
+                dst_t.v_1, dst_t.v_2, dst_t.v_3 = next(src)
 
         def get_strips(self):
             return pyffi.utils.tristrip.stripify(self.get_triangles())
@@ -6896,7 +6896,7 @@ class NifFormat(FileFormat):
             return "[ %6.3f %6.3f ]"%(self.u, self.v)
 
         def __mul__(self, x):
-            if isinstance(x, (float, int, long)):
+            if isinstance(x, (float, int)):
                 v = NifFormat.TexCoord()
                 v.u = self.u * x
                 v.v = self.v * x
@@ -6907,7 +6907,7 @@ class NifFormat(FileFormat):
                 raise TypeError("do not know how to multiply TexCoord with %s"%x.__class__)
 
         def __rmul__(self, x):
-            if isinstance(x, (float, int, long)):
+            if isinstance(x, (float, int)):
                 v = NifFormat.TexCoord()
                 v.u = x * self.u
                 v.v = x * self.v
@@ -6916,7 +6916,7 @@ class NifFormat(FileFormat):
                 raise TypeError("do not know how to multiply %s and TexCoord"%x.__class__)
 
         def __add__(self, x):
-            if isinstance(x, (float, int, long)):
+            if isinstance(x, (float, int)):
                 v = NifFormat.TexCoord()
                 v.u = self.u + x
                 v.v = self.v + x
@@ -6930,7 +6930,7 @@ class NifFormat(FileFormat):
                 raise TypeError("do not know how to add TexCoord and %s"%x.__class__)
 
         def __radd__(self, x):
-            if isinstance(x, (float, int, long)):
+            if isinstance(x, (float, int)):
                 v = NifFormat.TexCoord()
                 v.u = x + self.u
                 v.v = x + self.v
@@ -6939,7 +6939,7 @@ class NifFormat(FileFormat):
                 raise TypeError("do not know how to add %s and TexCoord"%x.__class__)
 
         def __sub__(self, x):
-            if isinstance(x, (float, int, long)):
+            if isinstance(x, (float, int)):
                 v = NifFormat.TexCoord()
                 v.u = self.u - x
                 v.v = self.v - x
@@ -6953,7 +6953,7 @@ class NifFormat(FileFormat):
                 raise TypeError("do not know how to substract TexCoord and %s"%x.__class__)
 
         def __rsub__(self, x):
-            if isinstance(x, (float, int, long)):
+            if isinstance(x, (float, int)):
                 v = NifFormat.TexCoord()
                 v.u = x - self.u
                 v.v = x - self.v

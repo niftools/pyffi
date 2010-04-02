@@ -117,7 +117,7 @@ class _ListWrap(list, DetailNode):
 
     def get_detail_child_names(self, edge_filter=EdgeFilter()):
         """Yield child names."""
-        return ("[%i]" % row for row in xrange(list.__len__(self)))
+        return ("[%i]" % row for row in range(list.__len__(self)))
 
 class Array(_ListWrap):
     """A general purpose class for 1 or 2 dimensional arrays consisting of
@@ -156,16 +156,16 @@ class Array(_ListWrap):
         self._count2 = count2
 
         if self._count2 == None:
-            for i in xrange(self._len1()):
+            for i in range(self._len1()):
                 elem_instance = self._elementType(
                         template = self._elementTypeTemplate,
                         argument = self._elementTypeArgument,
                         parent = self)
                 self.append(elem_instance)
         else:
-            for i in xrange(self._len1()):
+            for i in range(self._len1()):
                 elem = _ListWrap(element_type = element_type, parent = self)
-                for j in xrange(self._len2(i)):
+                for j in range(self._len2(i)):
                     elem_instance = self._elementType(
                             template = self._elementTypeTemplate,
                             argument = self._elementTypeArgument,
@@ -190,7 +190,7 @@ class Array(_ListWrap):
             expr = self._count2.eval()
         else:
             expr = self._count2.eval(self._parent())
-        if isinstance(expr, (int, long)):
+        if isinstance(expr, int):
             return expr
         else:
             return expr[index1]
@@ -199,7 +199,7 @@ class Array(_ListWrap):
         """Copy attributes from a given array which needs to have at least as
         many elements (possibly more) as self."""
         if self._count2 == None:
-            for i in xrange(self._len1()):
+            for i in range(self._len1()):
                 attrvalue = self[i]
                 if isinstance(attrvalue, StructBase):
                     attrvalue.deepcopy(block[i])
@@ -209,8 +209,8 @@ class Array(_ListWrap):
                 else:
                     self[i] = block[i]
         else:
-            for i in xrange(self._len1()):
-                for j in xrange(self._len2(i)):
+            for i in range(self._len1()):
+                for j in range(self._len2(i)):
                     attrvalue = self[i][j]
                     if isinstance(attrvalue, StructBase):
                         attrvalue.deepcopy(block[i][j])
@@ -256,7 +256,7 @@ class Array(_ListWrap):
             if new_size < old_size:
                 del self[new_size:old_size]
             else:
-                for i in xrange(new_size-old_size):
+                for i in range(new_size-old_size):
                     elem = self._elementType(
                         template = self._elementTypeTemplate,
                         argument = self._elementTypeArgument)
@@ -265,7 +265,7 @@ class Array(_ListWrap):
             if new_size < old_size:
                 del self[new_size:old_size]
             else:
-                for i in xrange(new_size-old_size):
+                for i in range(new_size-old_size):
                     self.append(_ListWrap(self._elementType))
             for i, elemlist in enumerate(list.__iter__(self)):
                 old_size_i = len(elemlist)
@@ -273,7 +273,7 @@ class Array(_ListWrap):
                 if new_size_i < old_size_i:
                     del elemlist[new_size_i:old_size_i]
                 else:
-                    for j in xrange(new_size_i-old_size_i):
+                    for j in range(new_size_i-old_size_i):
                         elem = self._elementType(
                             template = self._elementTypeTemplate,
                             argument = self._elementTypeArgument)
@@ -290,7 +290,7 @@ class Array(_ListWrap):
         del self[0:self.__len__()]
         # read array
         if self._count2 == None:
-            for i in xrange(len1):
+            for i in range(len1):
                 elem = self._elementType(
                     template = self._elementTypeTemplate,
                     argument = self._elementTypeArgument,
@@ -298,12 +298,12 @@ class Array(_ListWrap):
                 elem.read(stream, **kwargs)
                 self.append(elem)
         else:
-            for i in xrange(len1):
+            for i in range(len1):
                 len2i = self._len2(i)
                 if len2i > 2000000:
                     raise ValueError('array too long (%i)' % len2i)
                 elemlist = _ListWrap(self._elementType, parent = self)
-                for j in xrange(len2i):
+                for j in range(len2i):
                     elem = self._elementType(
                         template = self._elementTypeTemplate,
                         argument = self._elementTypeArgument,

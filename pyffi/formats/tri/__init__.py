@@ -91,7 +91,7 @@ Create an TRI file from scratch and write to file
 #
 # ***** END LICENSE BLOCK *****
 
-from itertools import chain, izip
+from itertools import chain
 import struct
 import os
 import re
@@ -312,7 +312,7 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
             start_index = 0
             for modifier in self.modifiers:
                 modifier.modifier_vertices.update_size()
-                for src_vert, dst_vert in izip(
+                for src_vert, dst_vert in zip(
                     self.modifier_vertices[
                         start_index:start_index
                         + modifier.num_vertices_to_modify],
@@ -334,7 +334,7 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
                     modifier.num_vertices_to_modify
                     for modifier in self.modifiers)
                 self.modifier_vertices.update_size()
-                for self_vert, vert in izip(
+                for self_vert, vert in zip(
                     self.modifier_vertices,
                     chain(*(modifier.modifier_vertices
                             for modifier in self.modifiers))):
@@ -402,7 +402,7 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
             self.scale = max_value / 32767.0
             inv_scale = 1 / self.scale
             # set vertices
-            for vert, self_vert in izip(vertices, self.vertices):
+            for vert, self_vert in zip(vertices, self.vertices):
                 self_vert.x = int(vert[0] * inv_scale)
                 self_vert.y = int(vert[1] * inv_scale)
                 self_vert.z = int(vert[2] * inv_scale)

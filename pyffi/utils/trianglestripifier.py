@@ -465,7 +465,7 @@ class TriangleStripifier(object):
             # all other cases
             return [
                 population[int((i * (float(len(population)) - 1)) / (k - 1))]
-                for i in xrange(k)]
+                for i in range(k)]
 
     def find_all_strips(self):
         """Find all strips.
@@ -509,7 +509,7 @@ class TriangleStripifier(object):
         """
         all_strips = []
         selector = ExperimentSelector()
-        unstripped_faces = set(xrange(len(self.mesh.faces)))
+        unstripped_faces = set(range(len(self.mesh.faces)))
         while True:
             experiments = []
             # note: using deterministic self.sample

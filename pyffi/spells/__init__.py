@@ -135,11 +135,11 @@ the file format class of the files it can toast.
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-from ConfigParser import ConfigParser
+from configparser import ConfigParser
 from copy import deepcopy
-from cStringIO import StringIO
+from io import StringIO
 import gc
-from itertools import izip
+
 import logging # Logger
 try:
     import multiprocessing # Pool
@@ -1209,7 +1209,7 @@ class Toaster(object):
         # signal the end
         self.logger.info("Finished.")
         if options.pause and options.interactive:
-            raw_input("Press enter...")
+            input("Press enter...")
 
     def inspect_filename(self, filename):
         """Returns whether to toast a filename or not, based on
@@ -1246,8 +1246,8 @@ class Toaster(object):
             while True:
                 # fetch chunksize files from all files
                 file_pool = [
-                    filename for i, filename in izip(
-                        xrange(chunksize), all_files)]
+                    filename for i, filename in zip(
+                        range(chunksize), all_files)]
                 if not file_pool:
                     # done!
                     break
@@ -1306,11 +1306,11 @@ class Toaster(object):
 This script will modify your files, in particular if something goes wrong it
 may destroy them. Make a backup of your files before running this script.
 """)
-            if not raw_input(
+            if not input(
                 "Are you sure that you want to proceed? [n/y] ") in ("y", "Y"):
                 self.logger.info("Script aborted by user.")
                 if pause:
-                    raw_input("Press enter...")
+                    input("Press enter...")
                 return
 
         # walk over all streams, and create a data instance for each of them

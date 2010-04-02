@@ -44,7 +44,7 @@ if sys.version_info[0] < 3:
     import pyffi.object_models.xsd
     import pyffi.formats.dae
 
-mods = [val for (key, val) in sys.modules.iteritems()
+mods = [val for (key, val) in sys.modules.items()
         if key.startswith('pyffi')]
 
 suite = unittest.TestSuite()

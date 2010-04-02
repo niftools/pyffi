@@ -68,9 +68,9 @@ def getTangentSpace(vertices = None, normals = None, uvs = None,
         raise ValueError(
             "lists of vertices, normals, and uvs must have the same length")
 
-    bin = [(0,0,0) for i in xrange(len(vertices)) ]
-    tan = [(0,0,0) for i in xrange(len(vertices)) ]
-    orientations = [0 for i in xrange(len(vertices))]
+    bin = [(0,0,0) for i in range(len(vertices)) ]
+    tan = [(0,0,0) for i in range(len(vertices)) ]
+    orientations = [0 for i in range(len(vertices))]
 
     # calculate tangents and binormals from vertex and texture coordinates
     for t1, t2, t3 in triangles:

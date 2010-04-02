@@ -136,7 +136,7 @@ A random shape
 # ***** END LICENSE BLOCK *****
 
 from pyffi.utils.mathutils import *
-from itertools import izip
+
 import operator
 
 # adapted from
@@ -157,7 +157,7 @@ def qdome2d(vertices, base, normal, precision = 0.0001):
     vert0, vert1 = base
     outer = [ (dist, vert)
           for dist, vert
-          in izip( ( vecDotProduct(vecCrossProduct(normal,
+          in zip( ( vecDotProduct(vecCrossProduct(normal,
                                                    vecSub(vert1, vert0)),
                                    vecSub(vert, vert0))
                      for vert in vertices ),
@@ -166,7 +166,7 @@ def qdome2d(vertices, base, normal, precision = 0.0001):
 
     if outer:
         pivot = max(outer)[1]
-        outer_verts = map(operator.itemgetter(1), outer)
+        outer_verts = list(map(operator.itemgetter(1), outer))
         return qdome2d(outer_verts, [vert0, pivot], normal) \
                + qdome2d(outer_verts, [pivot, vert1], normal)[1:]
     else:
@@ -249,7 +249,7 @@ def basesimplex3d(vertices, precision = 0.0001):
         the configuration of the vertices.
     """
     # sort axes by their extent in vertices
-    extents = sorted(range(3),
+    extents = sorted(list(range(3)),
                      key=lambda i:
                      max(vert[i] for vert in vertices)
                      - min(vert[i] for vert in vertices))
@@ -308,7 +308,7 @@ def qhull3d(vertices, precision = 0.0001, verbose = False):
         # coplanar
         hull_vertices = qhull2d(vertices, vecNormal(*hull_vertices))
         return hull_vertices, [ (0, i+1, i+2)
-                                for i in xrange(len(hull_vertices) - 2) ]
+                                for i in range(len(hull_vertices) - 2) ]
     elif len(hull_vertices) <= 2:
         # colinear or singular
         # no triangles for these cases
@@ -327,7 +327,7 @@ def qhull3d(vertices, precision = 0.0001, verbose = False):
         outer = \
             [ (dist, vert)
               for dist, vert
-              in izip( ( vecDistanceTriangle(triangle, vert)
+              in zip( ( vecDistanceTriangle(triangle, vert)
                          for vert in vertices ),
                        vertices )
               if dist > precision ]
@@ -337,8 +337,8 @@ def qhull3d(vertices, precision = 0.0001, verbose = False):
     # as long as there are triangles with outer vertices
     while outer_vertices:
         # grab a triangle and its outer vertices
-        tmp_iter = outer_vertices.iteritems()
-        triangle, outer = tmp_iter.next() # tmp_iter trick to make 2to3 work
+        tmp_iter = iter(outer_vertices.items())
+        triangle, outer = next(tmp_iter) # tmp_iter trick to make 2to3 work
         # calculate pivot point
         pivot = max(outer)[1]
         if verbose:
@@ -348,11 +348,11 @@ def qhull3d(vertices, precision = 0.0001, verbose = False):
         # and update the list of triangles:
         # 1. calculate visibility of triangles to pivot point
         visibility = [ vecDistanceTriangle(othertriangle, pivot) > precision
-                       for othertriangle in outer_vertices.iterkeys() ]
+                       for othertriangle in outer_vertices.keys() ]
         # 2. get list of visible triangles
         visible_triangles = [ othertriangle
                               for othertriangle, visible
-                              in izip(outer_vertices.iterkeys(), visibility)
+                              in zip(iter(outer_vertices.keys()), visibility)
                               if visible ]
         # 3. find all edges of visible triangles
         visible_edges = []
@@ -367,7 +367,7 @@ def qhull3d(vertices, precision = 0.0001, verbose = False):
         # 5. remove visible triangles from list
         # this puts a hole inside the triangle list
         visible_outer = set()
-        for outer_verts in outer_vertices.itervalues():
+        for outer_verts in outer_vertices.values():
             visible_outer |= set(map(operator.itemgetter(1), outer_verts))
         for triangle in visible_triangles:
             if verbose:
@@ -380,7 +380,7 @@ def qhull3d(vertices, precision = 0.0001, verbose = False):
             newtriangle = edge + ( pivot, )
             newouter = \
                 [ (dist, vert)
-                  for dist, vert in izip( ( vecDistanceTriangle(newtriangle,
+                  for dist, vert in zip( ( vecDistanceTriangle(newtriangle,
                                                                 vert)
                                             for vert in visible_outer ),
                                           visible_outer )

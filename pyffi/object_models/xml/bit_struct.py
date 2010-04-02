@@ -42,7 +42,7 @@
 # note: some imports are defined at the end to avoid problems with circularity
 
 from functools import partial
-from itertools import izip
+
 import struct
 
 from pyffi.object_models.editable import EditableSpinBox # for Bits
@@ -106,7 +106,7 @@ class Bits(DetailNode, EditableSpinBox):
 
     def set_value(self, value):
         """Set value to C{value}."""
-        if not isinstance(value, (int, long)):
+        if not isinstance(value, int):
             raise TypeError("bitstruct attribute must be integer")
         if value >> self._numbits:
             raise ValueError('value out of range (%i)' % value)
@@ -135,7 +135,7 @@ class Bits(DetailNode, EditableSpinBox):
     def get_editor_maximum(self):
         return (1 << self._numbits) - 1
 
-class BitStructBase(DetailNode):
+class BitStructBase(DetailNode, metaclass=_MetaBitStructBase):
     """Base class from which all file bitstruct types are derived.
 
     The BitStructBase class implements the basic bitstruct interface:
@@ -185,8 +185,6 @@ class BitStructBase(DetailNode):
     * b : 1
     <BLANKLINE>
     """
-
-    __metaclass__ = _MetaBitStructBase
 
     _attrs = []
     _numbytes = 1 # default width of a bitstruct
@@ -340,7 +338,7 @@ class BitStructBase(DetailNode):
     @classmethod
     def get_games(cls):
         """Get games for which this block is supported."""
-        return list(cls._games.iterkeys())
+        return list(cls._games.keys())
 
     @classmethod
     def get_versions(cls, game):

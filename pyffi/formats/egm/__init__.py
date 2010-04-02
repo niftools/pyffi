@@ -102,7 +102,7 @@ Create an EGM file from scratch and write to file
 #
 # ***** END LICENSE BLOCK *****
 
-from itertools import izip
+
 import struct
 import os
 import re
@@ -283,10 +283,10 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
             self.header.read(stream, data=self)
             self.sym_morphs = [
                 EgmFormat.MorphRecord(argument=self.header.num_vertices)
-                for i in xrange(self.header.num_sym_morphs)]
+                for i in range(self.header.num_sym_morphs)]
             self.asym_morphs = [
                 EgmFormat.MorphRecord(argument=self.header.num_vertices)
-                for i in xrange(self.header.num_asym_morphs)]
+                for i in range(self.header.num_asym_morphs)]
             for morph in self.sym_morphs + self.asym_morphs:
                 morph.read(stream, data=self, argument=morph.arg)
 
@@ -386,7 +386,7 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
             self.scale = max_value / 32767.0
             inv_scale = 1 / self.scale
             # set vertices
-            for vert, self_vert in izip(vertices, self.vertices):
+            for vert, self_vert in zip(vertices, self.vertices):
                 self_vert.x = int(vert[0] * inv_scale)
                 self_vert.y = int(vert[1] * inv_scale)
                 self_vert.z = int(vert[2] * inv_scale)

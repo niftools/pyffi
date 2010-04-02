@@ -95,7 +95,7 @@ Create an BSA file from scratch and write to file
 #
 # ***** END LICENSE BLOCK *****
 
-from itertools import izip
+
 import logging
 import struct
 import os
