@@ -170,7 +170,9 @@ class SpellDumpTex(NifSpell):
                             filename = '(pixel data packed in file)'
                     else:
                         filename = '(no texture file)'
-                    self.toaster.msg("[%s] %s" % (textype, filename))
+                    self.toaster.msg(
+                        "[%s] %s"
+                        % (textype, filename.decode("utf8", "ignore")))
             self.toaster.msg("apply mode %i" % branch.apply_mode)
             # stop recursion
             return False
