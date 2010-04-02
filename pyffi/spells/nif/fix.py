@@ -142,7 +142,7 @@ class SpellDelTangentSpace(NifSpell):
             for extra in branch.get_extra_datas():
                 if isinstance(extra, NifFormat.NiBinaryExtraData):
                     if (extra.name ==
-                        'Tangent space (binormal & tangent vectors)'):
+                        b'Tangent space (binormal & tangent vectors)'):
                         self.toaster.msg("removing tangent space block")
                         branch.remove_extra_data(extra)
                         self.changed = True
@@ -170,7 +170,7 @@ class SpellAddTangentSpace(NifSpell):
             for extra in branch.get_extra_datas():
                 if isinstance(extra, NifFormat.NiBinaryExtraData):
                     if (extra.name ==
-                        'Tangent space (binormal & tangent vectors)'):
+                        b'Tangent space (binormal & tangent vectors)'):
                         # tangent space found, done!
                         return False
             # no tangent space found

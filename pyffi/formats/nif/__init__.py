@@ -5913,7 +5913,7 @@ class NifFormat(FileFormat):
                 # perhaps there is Oblivion style data?
                 for extra in self.get_extra_datas():
                     if isinstance(extra, NifFormat.NiBinaryExtraData):
-                        if extra.name == 'Tangent space (binormal & tangent vectors)':
+                        if extra.name == b'Tangent space (binormal & tangent vectors)':
                             break
                 else:
                     #raise ValueError('geometry has no tangents')
@@ -6054,7 +6054,7 @@ class NifFormat(FileFormat):
             # find possible extra data block
             for extra in self.get_extra_datas():
                 if isinstance(extra, NifFormat.NiBinaryExtraData):
-                    if extra.name == 'Tangent space (binormal & tangent vectors)':
+                    if extra.name == b'Tangent space (binormal & tangent vectors)':
                         break
             else:
                 extra = None
@@ -6071,7 +6071,7 @@ class NifFormat(FileFormat):
                 if not extra:
                     # otherwise, create a new block and link it
                     extra = NifFormat.NiBinaryExtraData()
-                    extra.name = 'Tangent space (binormal & tangent vectors)'
+                    extra.name = b'Tangent space (binormal & tangent vectors)'
                     self.add_extra_data(extra)
 
                 # write the data
