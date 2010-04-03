@@ -876,14 +876,14 @@ class Toaster(object):
         ...     SPELLS = [pyffi.spells.nif.modify.SpellDelBranches]
         >>> import tempfile
         >>> cfg = tempfile.NamedTemporaryFile(delete=False)
-        >>> cfg.write("[main]\n")
-        >>> cfg.write("spell = modify_delbranches\n")
-        >>> cfg.write("folder = tests/nif/test_vertexcolor.nif\n")
-        >>> cfg.write("[options]\n")
-        >>> cfg.write("source-dir = tests/\n")
-        >>> cfg.write("dest-dir = _tests/\n")
-        >>> cfg.write("exclude = NiVertexColorProperty NiStencilProperty\n")
-        >>> cfg.write("skip = 'testing quoted string'    normal_string\n")
+        >>> _ = cfg.write(b"[main]\n")
+        >>> _ = cfg.write(b"spell = modify_delbranches\n")
+        >>> _ = cfg.write(b"folder = tests/nif/test_vertexcolor.nif\n")
+        >>> _ = cfg.write(b"[options]\n")
+        >>> _ = cfg.write(b"source-dir = tests/\n")
+        >>> _ = cfg.write(b"dest-dir = _tests/\n")
+        >>> _ = cfg.write(b"exclude = NiVertexColorProperty NiStencilProperty\n")
+        >>> _ = cfg.write(b"skip = 'testing quoted string'    normal_string\n")
         >>> cfg.close()
         >>> toaster = NifToaster(logger=fake_logger)
         >>> import sys

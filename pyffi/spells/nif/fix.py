@@ -557,16 +557,16 @@ class SpellCleanStringPalette(NifSpell):
         >>> block.string_palette.palette.add_string("test")
         12
         >>> seq.string_palette.palette.get_all_strings()
-        ['there', 'hello', 'test']
+        [b'there', b'hello', b'test']
         >>> SpellCleanStringPalette().branchentry(seq)
         pyffi.toaster:INFO:parsing string palette
         False
         >>> seq.string_palette.palette.get_all_strings()
-        ['hello', 'there']
+        [b'hello', b'there']
         >>> block.get_variable_1()
-        'there'
+        b'there'
         >>> block.get_node_name()
-        'hello'
+        b'hello'
         """
         if isinstance(branch, (NifFormat.NiControllerManager,
                                NifFormat.NiControllerSequence)):

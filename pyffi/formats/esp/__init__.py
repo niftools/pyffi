@@ -143,7 +143,7 @@ class EspFormat(pyffi.object_models.xml.FileFormat):
             pos = stream.tell()
             try:
                 # XXX check that file is ESP
-                if (stream.read(4) != 'TES4'):
+                if (stream.read(4) != b'TES4'):
                     raise ValueError("Not an ESP file.")
             finally:
                 stream.seek(pos)
