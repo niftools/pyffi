@@ -638,14 +638,18 @@ class NifFormat(FileFormat):
         >>> f = TemporaryFile()
         >>> l = NifFormat.LineString()
         >>> f.write('abcdefg\\x0a'.encode())
+        8
         >>> f.seek(0)
+        0
         >>> l.read(f)
         >>> str(l)
         'abcdefg'
         >>> f.seek(0)
+        0
         >>> l.set_value('Hi There')
         >>> l.write(f)
         >>> f.seek(0)
+        0
         >>> m = NifFormat.LineString()
         >>> m.read(f)
         >>> str(m)
@@ -3136,16 +3140,16 @@ class NifFormat(FileFormat):
         >>> link.node_name_offset
         0
         >>> link.get_node_name()
-        'Bip01'
+        b'Bip01'
         >>> link.node_name
-        'Bip01'
+        b'Bip01'
         >>> link.set_node_name("Bip01 Tail")
         >>> link.node_name_offset
         6
         >>> link.get_node_name()
-        'Bip01 Tail'
+        b'Bip01 Tail'
         >>> link.node_name
-        'Bip01 Tail'
+        b'Bip01 Tail'
         """
         def _get_string(self, offset):
             """A wrapper around string_palette.palette.get_string. Used by get_node_name
@@ -3177,14 +3181,14 @@ class NifFormat(FileFormat):
             >>> palette = link.string_palette.palette
             >>> link.node_name_offset = palette.add_string("Bip01")
             >>> link.get_node_name()
-            'Bip01'
+            b'Bip01'
 
             >>> # another doctest
             >>> from pyffi.formats.nif import NifFormat
             >>> link = NifFormat.ControllerLink()
             >>> link.node_name = "Bip01"
             >>> link.get_node_name()
-            'Bip01'
+            b'Bip01'
             """
             if self.node_name:
                 return self.node_name
@@ -3809,24 +3813,24 @@ class NifFormat(FileFormat):
         []
         >>> node.set_properties([prop1, prop2])
         >>> [prop.name for prop in node.get_properties()]
-        ['hello', 'world']
+        [b'hello', b'world']
         >>> [prop.name for prop in node.properties]
-        ['hello', 'world']
+        [b'hello', b'world']
         >>> node.set_properties([])
         >>> node.get_properties()
         []
         >>> # now set them the other way around
         >>> node.set_properties([prop2, prop1])
         >>> [prop.name for prop in node.get_properties()]
-        ['world', 'hello']
+        [b'world', b'hello']
         >>> [prop.name for prop in node.properties]
-        ['world', 'hello']
+        [b'world', b'hello']
         >>> node.remove_property(prop2)
         >>> [prop.name for prop in node.properties]
-        ['hello']
+        [b'hello']
         >>> node.add_property(prop2)
         >>> [prop.name for prop in node.properties]
-        ['hello', 'world']
+        [b'hello', b'world']
         """
         def add_property(self, prop):
             """Add the given property to the property list.
@@ -4387,15 +4391,15 @@ class NifFormat(FileFormat):
         >>> skindata.num_bones = 4
         >>> skindata.bone_list.update_size()
         >>> [child.name for child in skelroot.children]
-        ['bone1', 'geom']
+        [b'bone1', b'geom']
         >>> skindata.set_transform(id44)
         >>> for bonedata in skindata.bone_list:
         ...     bonedata.set_transform(id44)
         >>> affectedbones = geom.flatten_skin()
         >>> [bone.name for bone in affectedbones]
-        ['bone1', 'bone2', 'bone22', 'bone211']
+        [b'bone1', b'bone2', b'bone22', b'bone211']
         >>> [child.name for child in skelroot.children]
-        ['geom', 'bone1', 'bone21', 'bone2', 'bone22', 'bone211']
+        [b'geom', b'bone1', b'bone21', b'bone2', b'bone22', b'bone211']
         """
         def is_skin(self):
             """Returns True if geometry is skinned."""
@@ -4727,24 +4731,24 @@ class NifFormat(FileFormat):
         []
         >>> node.set_children([child1, child_2])
         >>> [child.name for child in node.get_children()]
-        ['hello', 'world']
+        [b'hello', b'world']
         >>> [child.name for child in node.children]
-        ['hello', 'world']
+        [b'hello', b'world']
         >>> node.set_children([])
         >>> node.get_children()
         []
         >>> # now set them the other way around
         >>> node.set_children([child_2, child1])
         >>> [child.name for child in node.get_children()]
-        ['world', 'hello']
+        [b'world', b'hello']
         >>> [child.name for child in node.children]
-        ['world', 'hello']
+        [b'world', b'hello']
         >>> node.remove_child(child_2)
         >>> [child.name for child in node.children]
-        ['hello']
+        [b'hello']
         >>> node.add_child(child_2)
         >>> [child.name for child in node.children]
-        ['hello', 'world']
+        [b'hello', b'world']
 
         >>> from pyffi.formats.nif import NifFormat
         >>> node = NifFormat.NiNode()
@@ -4756,24 +4760,24 @@ class NifFormat(FileFormat):
         []
         >>> node.set_effects([effect1, effect2])
         >>> [effect.name for effect in node.get_effects()]
-        ['hello', 'world']
+        [b'hello', b'world']
         >>> [effect.name for effect in node.effects]
-        ['hello', 'world']
+        [b'hello', b'world']
         >>> node.set_effects([])
         >>> node.get_effects()
         []
         >>> # now set them the other way around
         >>> node.set_effects([effect2, effect1])
         >>> [effect.name for effect in node.get_effects()]
-        ['world', 'hello']
+        [b'world', b'hello']
         >>> [effect.name for effect in node.effects]
-        ['world', 'hello']
+        [b'world', b'hello']
         >>> node.remove_effect(effect2)
         >>> [effect.name for effect in node.effects]
-        ['hello']
+        [b'hello']
         >>> node.add_effect(effect2)
         >>> [effect.name for effect in node.effects]
-        ['hello', 'world']
+        [b'hello', b'world']
         """
         def add_child(self, child, front=False):
             """Add block to child list.
@@ -5411,9 +5415,9 @@ class NifFormat(FileFormat):
             []
             >>> node.set_extra_datas([extra1, extra2])
             >>> [extra.name for extra in node.get_extra_datas()]
-            ['hello', 'world']
+            [b'hello', b'world']
             >>> [extra.name for extra in node.extra_data_list]
-            ['hello', 'world']
+            [b'hello', b'world']
             >>> node.extra_data is extra1
             True
             >>> extra1.next_extra_data is extra2
@@ -5426,9 +5430,9 @@ class NifFormat(FileFormat):
             >>> # now set them the other way around
             >>> node.set_extra_datas([extra2, extra1])
             >>> [extra.name for extra in node.get_extra_datas()]
-            ['world', 'hello']
+            [b'world', b'hello']
             >>> [extra.name for extra in node.extra_data_list]
-            ['world', 'hello']
+            [b'world', b'hello']
             >>> node.extra_data is extra2
             True
             >>> extra2.next_extra_data is extra1

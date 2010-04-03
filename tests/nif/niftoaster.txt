@@ -453,8 +453,8 @@ pyffi.toaster:INFO:      ~~~ NiTriShape [Body] ~~~
 pyffi.toaster:INFO:        getting skindata block bounding spheres
 pyffi.toaster:INFO:        recalculating bounding spheres
 pyffi.toaster:INFO:        comparing old and new spheres
-pyffi.toaster:ERROR:Bip01 L Foot center does not match; original [  0.000  0.000  0.000 ], calculated [  3.109  2.224 -0.117 ]
-pyffi.toaster:ERROR:Bip01 L Foot radius does not match; original 0.0, calculated 5.48116622473
+pyffi.toaster:ERROR:b'Bip01 L Foot' center does not match; original [  0.000  0.000  0.000 ], calculated [  3.109  2.224 -0.117 ]
+pyffi.toaster:ERROR:b'Bip01 L Foot' radius does not match; original 0.0, calculated 5.48116622473
 pyffi.toaster:INFO:Finished.
 
 The check_convexverticesshape spell
