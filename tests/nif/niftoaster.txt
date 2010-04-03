@@ -50,6 +50,7 @@ Options:
                         expression REGEX, and (ii) do not contain any regular
                         expression specified with --skip; if specified
                         multiple times, the expressions are 'ored'
+  --overwrite           overwrite existing files (also see --resume)
   --patch               apply all binary patches
   --patch-cmd=CMD       use CMD as patch command; this command must accept
                         precisely 3 arguments: 'CMD oldfile newfile
@@ -193,6 +194,8 @@ modify_bonepriorities
 modify_interpolatortransrotscale
 modify_delinterpolatortransformdata
 modify_collisiontomopp
+opt_reducegeometry
+opt_packcollision
 
 The check_readwrite spell and the --raise switch
 ------------------------------------------------
