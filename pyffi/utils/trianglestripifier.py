@@ -137,21 +137,21 @@ class TriangleStrip(object):
         >>> t.build(0, face)
         0
         >>> t
-        TriangleStrip(stripped_faces=set([0]), faces=[Face(0, 1, 2)], vertices=[0, 1, 2], reversed_=False)
+        TriangleStrip(stripped_faces={0}, faces=[Face(0, 1, 2)], vertices=[0, 1, 2], reversed_=False)
         >>> t.get_strip()
         [0, 1, 2]
         >>> t = TriangleStrip()
         >>> t.build(1, face)
         0
         >>> t
-        TriangleStrip(stripped_faces=set([0]), faces=[Face(0, 1, 2)], vertices=[1, 2, 0], reversed_=False)
+        TriangleStrip(stripped_faces={0}, faces=[Face(0, 1, 2)], vertices=[1, 2, 0], reversed_=False)
         >>> t.get_strip()
         [1, 2, 0]
         >>> t = TriangleStrip()
         >>> t.build(2, face)
         0
         >>> t
-        TriangleStrip(stripped_faces=set([0]), faces=[Face(0, 1, 2)], vertices=[2, 0, 1], reversed_=False)
+        TriangleStrip(stripped_faces={0}, faces=[Face(0, 1, 2)], vertices=[2, 0, 1], reversed_=False)
         >>> t.get_strip()
         [2, 0, 1]
 
@@ -166,28 +166,28 @@ class TriangleStrip(object):
         >>> t.build(0, face0)
         0
         >>> t
-        TriangleStrip(stripped_faces=set([0, 1]), faces=[Face(0, 1, 2), Face(1, 3, 2)], vertices=[0, 1, 2, 3], reversed_=False)
+        TriangleStrip(stripped_faces={0, 1}, faces=[Face(0, 1, 2), Face(1, 3, 2)], vertices=[0, 1, 2, 3], reversed_=False)
         >>> t.get_strip()
         [0, 1, 2, 3]
         >>> t = TriangleStrip()
         >>> t.build(1, face0)
         1
         >>> t
-        TriangleStrip(stripped_faces=set([0, 1]), faces=[Face(1, 3, 2), Face(0, 1, 2)], vertices=[3, 1, 2, 0], reversed_=True)
+        TriangleStrip(stripped_faces={0, 1}, faces=[Face(1, 3, 2), Face(0, 1, 2)], vertices=[3, 1, 2, 0], reversed_=True)
         >>> t.get_strip()
         [3, 2, 1, 0]
         >>> t = TriangleStrip()
         >>> t.build(2, face1)
         1
         >>> t
-        TriangleStrip(stripped_faces=set([0, 1]), faces=[Face(0, 1, 2), Face(1, 3, 2)], vertices=[0, 2, 1, 3], reversed_=True)
+        TriangleStrip(stripped_faces={0, 1}, faces=[Face(0, 1, 2), Face(1, 3, 2)], vertices=[0, 2, 1, 3], reversed_=True)
         >>> t.get_strip()
         [0, 1, 2, 3]
         >>> t = TriangleStrip()
         >>> t.build(3, face1)
         0
         >>> t
-        TriangleStrip(stripped_faces=set([0, 1]), faces=[Face(1, 3, 2), Face(0, 1, 2)], vertices=[3, 2, 1, 0], reversed_=False)
+        TriangleStrip(stripped_faces={0, 1}, faces=[Face(1, 3, 2), Face(0, 1, 2)], vertices=[3, 2, 1, 0], reversed_=False)
         >>> t.get_strip()
         [3, 2, 1, 0]
 
@@ -204,7 +204,7 @@ class TriangleStrip(object):
         >>> t.build(2, face1)
         1
         >>> t
-        TriangleStrip(stripped_faces=set([0, 1, 2, 3]), faces=[Face(1, 3, 2), Face(2, 3, 4), Face(3, 5, 4), Face(4, 5, 6)], vertices=[1, 2, 3, 4, 5, 6], reversed_=True)
+        TriangleStrip(stripped_faces={0, 1, 2, 3}, faces=[Face(1, 3, 2), Face(2, 3, 4), Face(3, 5, 4), Face(4, 5, 6)], vertices=[1, 2, 3, 4, 5, 6], reversed_=True)
         >>> t.get_strip()
         [1, 1, 2, 3, 4, 5, 6]
 
@@ -220,7 +220,7 @@ class TriangleStrip(object):
         >>> t.build(2, face1)
         1
         >>> t
-        TriangleStrip(stripped_faces=set([0, 1, 2]), faces=[Face(1, 3, 2), Face(2, 3, 4), Face(3, 5, 4)], vertices=[1, 2, 3, 4, 5], reversed_=True)
+        TriangleStrip(stripped_faces={0, 1, 2}, faces=[Face(1, 3, 2), Face(2, 3, 4), Face(3, 5, 4)], vertices=[1, 2, 3, 4, 5], reversed_=True)
         >>> t.get_strip()
         [5, 4, 3, 2, 1]
 
@@ -244,7 +244,7 @@ class TriangleStrip(object):
         >>> t.faces[4] == face1 # check result from build
         True
         >>> t.stripped_faces
-        set([0, 1, 2, 5, 6, 7, 8])
+        {0, 1, 2, 5, 6, 7, 8}
         >>> t.faces
         [Face(10, 12, 11), Face(4, 10, 11), Face(4, 7, 10), Face(2, 7, 4), Face(1, 7, 2), Face(0, 1, 2), Face(0, 13, 1)]
         >>> t.vertices
