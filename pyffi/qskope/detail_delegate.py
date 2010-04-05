@@ -195,5 +195,5 @@ class DetailDelegate(QtGui.QItemDelegate):
             return
         # set the model data
         # EditRole ensures that setData uses set_editor_value to set the data
-        model.setData(index, QtCore.QVariant(editorvalue), QtCore.Qt.EditRole)
+        model.setData(index, editorvalue, QtCore.Qt.EditRole)
 
