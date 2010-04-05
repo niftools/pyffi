@@ -119,9 +119,9 @@ class PskFormat(pyffi.object_models.xml.FileFormat):
         """
         raise NotImplementedError
 
-    class PskData(pyffi.object_models.FileFormat.Data):
+    class Data(pyffi.object_models.FileFormat.Data):
         """A class to contain the actual psk data."""
-        version = 0 # no versioning
+        version = 0 # no versioning, so far
 
         def inspect_quick(self, stream):
             """Quickly checks if stream contains PSK data, by looking at
@@ -132,7 +132,15 @@ class PskFormat(pyffi.object_models.xml.FileFormat):
             """
             pos = stream.tell()
             try:
-                self._header_value_.read(stream)
+                signat = stream.read(8)
+                if signat == b'ACTRHEAD':
+                    self.file_type = 0
+                elif signat == b'ANIMHEAD':
+                    self.file_type = 1
+                else:
+                    raise ValueError(
+                        "Invalid signature (got '%s' instead of"
+                        " b'ANIMHEAD' or b'ACTRHEAD'" % signat)
             finally:
                 stream.seek(pos)
 
@@ -145,6 +153,7 @@ class PskFormat(pyffi.object_models.xml.FileFormat):
             :param stream: The stream to inspect.
             :type stream: file
             """
+            self.inspect_quick(stream)
             pos = stream.tell()
             try:
                 self._header_value_.read(stream)

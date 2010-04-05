@@ -41,6 +41,17 @@
     </basic>
 
     <!--
+    *************
+    *** enums ***
+    *************
+    -->
+
+    <enum name="FileType" storage="uint">
+      <option name="ACTRHEAD" value="0" />
+      <option name="ANIMHEAD" value="1" />
+    </enum>
+
+    <!--
     ***************
     *** structs ***
     ***************
@@ -107,7 +118,7 @@
     <struct name="ChunkHeader">
       File header structure.
       <add name="Chunk Id" type="ZString20">String ID.</add>
-      <add name="Type Flag" type="int">Flags/reserved</add>
+      <add name="Type Flag" type="int" default="1999801">Flags/reserved</add>
       <add name="Data Size" type="int">Size per struct following</add>
       <add name="Data Count" type="int">Number of structs</add>
     </struct>
@@ -186,28 +197,25 @@
       <add name="Data" type="TEMPLATE" arr1="Data Count"/>
     </struct>
 
-    <struct name="PskData">
+    <struct name="Data">
+      <add name="File Type" type="FileType" default="0" abstract="1">
+        The file type (abstract, set on inspection).
+      </add>
       <add name="Header" type="ChunkHeader">
 	When the Typeflag value equals decimal 1999801 or lower it
 	denotes this version 1.0 layout of the PSK file.
       </add>
-      <add name="Points" type="Chunk" template="Vector" />
-      <add name="Wedges" type="Chunk" template="Wedge" />
-      <add name="Faces" type="Chunk" template="Face" />
-      <add name="Materials" type="Chunk" template="Material" />
-      <add name="Bones" type="Chunk" template="Bone" />
-      <add name="Influences" type="Chunk" template="Influence" />
-    </struct>
-
-    <!-- TODO: integrate with PskData -->
-    <struct name="PsaData">
-      <add name="Header" type="ChunkHeader">
-	When the Typeflag value equals decimal 1999801 or lower it
-	denotes this version 1.0 layout of the PSK file.
-      </add>
-      <add name="Bones" type="Chunk" template="Bone" />
-      <add name="Animations" type="Chunk" template="AnimInfoBinary" />
-      <add name="Raw Keys" type="Chunk" template="QuatAnimKey" />
+      <!-- psk files -->
+      <add name="Points" type="Chunk" template="Vector" cond="File Type == 0" />
+      <add name="Wedges" type="Chunk" template="Wedge" cond="File Type == 0" />
+      <add name="Faces" type="Chunk" template="Face" cond="File Type == 0" />
+      <add name="Materials" type="Chunk" template="Material" cond="File Type == 0" />
+      <add name="Bones" type="Chunk" template="Bone" cond="File Type == 0" />
+      <add name="Influences" type="Chunk" template="Influence" cond="File Type == 0" />
+      <!-- psa files -->
+      <add name="Bones" type="Chunk" template="Bone" cond="File Type == 1" />
+      <add name="Animations" type="Chunk" template="AnimInfoBinary" cond="File Type == 1" />
+      <add name="Raw Keys" type="Chunk" template="QuatAnimKey" cond="File Type == 1" />
     </struct>
       
 </fileformat>
