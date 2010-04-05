@@ -103,8 +103,10 @@ class QSkope(QtGui.QMainWindow):
         self.data = None
 
         # restore geometry
-        settings = self.getSettings(versioned = True)
-        self.restoreGeometry(settings.value("MainWindow/geometry"))
+        settings = self.getSettings(versioned=True)
+        geometry = settings.value("MainWindow/geometry")
+        if geometry:
+            self.restoreGeometry(geometry)
 
     def createActions(self):
         """Create the menu actions."""
