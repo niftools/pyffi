@@ -46,33 +46,18 @@ from pyffi.object_models.editable import EditableFloatSpinBox
 from pyffi.object_models.editable import EditableLineEdit
 from pyffi.object_models.editable import EditableBoolComboBox
 
-_b = "".encode("ascii") # py3k's b""
-_b00 = "\x00".encode("ascii") # py3k's b"\x00"
-
-# supports the bytes object for < py26
-try:
-    bytes
-except NameError:
-    bytes = str # for py25 backwards compatibility
-
-if bytes is str:
-    # < py3k: str for byte strings, unicode for text strings
-    _bytes = str
-    _str = str
-else:
-    # >= py3k: bytes for byte strings, str for text strings
-    _bytes = bytes
-    _str = str
+# TODO get rid of these
+_b = b''
+_b00 = b'\x00'
 
 def _as_bytes(value):
-    """Helper function which converts a string to _bytes (this is useful for
+    """Helper function which converts a string to bytes (this is useful for
     set_value in all string classes, which use bytes for representation).
 
     :return: The bytes representing the value.
-    :rtype: C{_bytes}
+    :rtype: C{bytes}
 
-    >>> # following doctest fails on py3k, hence disabled
-    >>> _as_bytes(u"\\u00e9defa") == u"\\u00e9defa".encode("utf-8") # doctest: +SKIP
+    >>> _as_bytes("\\u00e9defa") == "\\u00e9defa".encode("utf-8")
     True
 
     >>> _as_bytes(123) # doctest: +ELLIPSIS
@@ -80,32 +65,24 @@ def _as_bytes(value):
         ...
     TypeError: ...
     """
-    if isinstance(value, _bytes):
-        return value
-    elif isinstance(value, _str):
+    if isinstance(value, str):
         return value.encode("utf-8", "replace")
+    elif isinstance(value, bytes):
+        return value
     else:
-        raise TypeError("expected %s or %s" % (_bytes.__name__, _str.__name__))
+        raise TypeError("expected str")
 
 def _as_str(value):
     """Helper function to convert bytes back to str. This is used in
     the __str__ functions for simple string types. If you want a custom
     encoding, use an explicit decode call on the value.
     """
-    if not isinstance(value, (_str, _bytes)):
-        raise TypeError("expected %s or %s" % (_bytes.__name__, _str.__name__))
-    elif not value:
-        return ''
-    elif isinstance(value, str):
-        # this always works regardless of the python version
-        return value
-    elif isinstance(value, _bytes):
-        # >= py3k: simply decode
+    if isinstance(value, bytes):
         return value.decode("utf-8", "replace")
     elif isinstance(value, str):
-        # < py3k: use ascii encoding to produce a str
-        # (this avoids unicode errors)
-        return value.encode("ascii", "replace")
+        return value
+    else:
+        raise TypeError("expected bytes")
 
 class Int(BasicBase, EditableSpinBox):
     """Basic implementation of a 32-bit signed integer type. Also serves as a
@@ -300,7 +277,7 @@ class Char(BasicBase, EditableLineEdit):
     def __init__(self, **kwargs):
         """Initialize the character."""
         super(Char, self).__init__(**kwargs)
-        self._value = _b00
+        self._value = b'\x00'
 
     def get_value(self):
         """Return stored value.
@@ -315,7 +292,7 @@ class Char(BasicBase, EditableLineEdit):
         :param value: The value to assign (bytes of length 1).
         :type value: bytes
         """
-        assert(isinstance(value, _bytes))
+        assert(isinstance(value, bytes))
         assert(len(value) == 1)
         self._value = value
 
@@ -436,7 +413,7 @@ class ZString(BasicBase, EditableLineEdit):
     def __init__(self, **kwargs):
         """Initialize the string."""
         super(ZString, self).__init__(**kwargs)
-        self._value = _b
+        self._value = b''
 
     def __str__(self):
         return _as_str(self._value)
@@ -456,7 +433,7 @@ class ZString(BasicBase, EditableLineEdit):
         :type value: ``str`` (will be encoded as default) or C{bytes}
         """
         val = _as_bytes(value)
-        i = val.find(_b00)
+        i = val.find(b'\x00')
         if i != -1:
             val = val[:i]
         if len(val) > self._maxlen:
@@ -470,9 +447,9 @@ class ZString(BasicBase, EditableLineEdit):
         :type stream: file
         """
         i = 0
-        val = _b
-        char = _b
-        while char != _b00:
+        val = b''
+        char = b''
+        while char != b'\x00':
             i += 1
             if i > self._maxlen:
                 raise ValueError('string too long')
@@ -487,7 +464,7 @@ class ZString(BasicBase, EditableLineEdit):
         :type stream: file
         """
         stream.write(self._value)
-        stream.write(_b00)
+        stream.write(b'\x00')
 
     def get_size(self, **kwargs):
         """Return number of bytes this type occupies in a file.
@@ -512,15 +489,15 @@ class FixedString(BasicBase, EditableLineEdit):
     >>> class String8(FixedString):
     ...     _len = 8
     >>> s = String8()
-    >>> if f.write('abcdefghij'.encode()): pass # ignore result for py3k
-    >>> if f.seek(0): pass # ignore result for py3k
+    >>> _ = f.write('abcdefghij'.encode())
+    >>> _ = f.seek(0)
     >>> s.read(f)
     >>> str(s)
     'abcdefgh'
-    >>> if f.seek(0): pass # ignore result for py3k
+    >>> _ = f.seek(0)
     >>> s.set_value('Hi There')
     >>> s.write(f)
-    >>> if f.seek(0): pass # ignore result for py3k
+    >>> _ = f.seek(0)
     >>> m = String8()
     >>> m.read(f)
     >>> str(m)
@@ -531,7 +508,7 @@ class FixedString(BasicBase, EditableLineEdit):
     def __init__(self, **kwargs):
         """Initialize the string."""
         super(FixedString, self).__init__(**kwargs)
-        self._value = _b
+        self._value = b''
 
     def __str__(self):
         return _as_str(self._value)
@@ -562,7 +539,7 @@ class FixedString(BasicBase, EditableLineEdit):
         :type stream: file
         """
         self._value = stream.read(self._len)
-        i = self._value.find(_b00)
+        i = self._value.find(b'\x00')
         if i != -1:
             self._value = self._value[:i]
 
@@ -572,7 +549,7 @@ class FixedString(BasicBase, EditableLineEdit):
         :param stream: The stream to write to.
         :type stream: file
         """
-        stream.write(self._value.ljust(self._len, _b00))
+        stream.write(self._value.ljust(self._len, b'\x00'))
 
     def get_size(self, **kwargs):
         """Return number of bytes this type occupies in a file.
@@ -613,7 +590,7 @@ class SizedString(BasicBase, EditableLineEdit):
     def __init__(self, **kwargs):
         """Initialize the string."""
         super(SizedString, self).__init__(**kwargs)
-        self._value = _b
+        self._value = b''
 
     def get_value(self):
         """Return the string.
@@ -675,7 +652,7 @@ class UndecodedData(BasicBase):
     """Basic type for undecoded data trailing at the end of a file."""
     def __init__(self, **kwargs):
         BasicBase.__init__(self, **kwargs)
-        self._value = _b
+        self._value = b''
 
     def get_value(self):
         """Return stored value.
