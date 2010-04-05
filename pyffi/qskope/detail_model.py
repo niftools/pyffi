@@ -104,17 +104,17 @@ class DetailModel(QtCore.QAbstractItemModel):
         # check if the index is valid
         # check if the role is supported
         if not index.isValid() or role != QtCore.Qt.DisplayRole:
-            return QtCore.QVariant()
+            return None
         # get the data for display
         item = index.internalPointer()
 
         # the name column
         if index.column() == self.COL_NAME:
-            return QtCore.QVariant(item.data.name)
+            return item.data.name
 
         # the type column
         elif index.column() == self.COL_TYPE:
-            return QtCore.QVariant(item.data.typename)
+            return item.data.typename
 
         # the value column
         elif index.column() == self.COL_VALUE:
@@ -124,36 +124,33 @@ class DetailModel(QtCore.QAbstractItemModel):
                 # reference
                 blocknum = self.globalmodel.index_dict[display]
                 if (not hasattr(display, "name") or not display.name):
-                    return QtCore.QVariant(
-                        "%i [%s]" % (blocknum, display.__class__.__name__))
+                    return "%i [%s]" % (blocknum, display.__class__.__name__)
                 else:
-                    return QtCore.QVariant(
-                        "%i (%s)" % (blocknum, display.name))
+                    return "%i (%s)" % (blocknum, display.name)
             elif isinstance(display, str):
                 # regular string
                 if len(display) > 32:
                     display = display[:32] + "..."
-                return QtCore.QVariant(
-                    display.replace("\n", " ").replace("\r", " "))
+                return display.replace("\n", " ").replace("\r", " ")
             else:
                 raise TypeError("%s: do not know how to display %s"
                                 % (item.data.name, display.__class__.__name__))
 
         # other colums: invalid
         else:
-            return QtCore.QVariant()
+            return None
 
     def headerData(self, section, orientation, role):
         """Return header data."""
         if (orientation == QtCore.Qt.Horizontal
             and role == QtCore.Qt.DisplayRole):
             if section == self.COL_TYPE:
-                return QtCore.QVariant("Type")
+                return "Type"
             elif section == self.COL_NAME:
-                return QtCore.QVariant("Name")
+                return "Name"
             elif section == self.COL_VALUE:
-                return QtCore.QVariant("Value")
-        return QtCore.QVariant()
+                return "Value"
+        return None
 
     def rowCount(self, parent=QtCore.QModelIndex()):
         """Calculate a row count for the given parent index."""

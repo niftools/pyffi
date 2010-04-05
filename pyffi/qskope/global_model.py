@@ -38,7 +38,7 @@ built from StructBase instances possibly referring to one another."""
 #
 # ***** END LICENSE BLOCK *****
 
-from UserDict import DictMixin
+from collections import MutableMapping
 
 from PyQt4 import QtGui, QtCore
 
@@ -57,7 +57,7 @@ class GlobalModel(QtCore.QAbstractItemModel):
     COL_NUMBER = 2
     COL_NAME = 1
 
-    class IndexDict(DictMixin):
+    class IndexDict(MutableMapping):
         def __init__(self):
             self.clear()
 
@@ -83,6 +83,14 @@ class GlobalModel(QtCore.QAbstractItemModel):
             # are free as well
             self.free_indices = [0]
             self.data = {}
+
+        # override abstract functions which aren't used anyway
+        def __len__(self):
+            raise NotImplementedError()
+        def __setitem__(self):
+            raise NotImplementedError()
+        def __iter__(self):
+            raise NotImplementedError()
 
     def __init__(self, parent=None, globalnode=None, edge_filter=EdgeFilter()):
         """Initialize the model to display the given data."""
@@ -120,33 +128,33 @@ class GlobalModel(QtCore.QAbstractItemModel):
         # check if the index is valid
         # check if the role is supported
         if not index.isValid() or role != QtCore.Qt.DisplayRole:
-            return QtCore.QVariant()
+            return None
         # get the data for display
         data = index.internalPointer().data
 
         # the type column
         if index.column() == self.COL_TYPE:
-            return QtCore.QVariant(data.typename)
+            return data.typename
         elif index.column() == self.COL_NAME:
-            return QtCore.QVariant(data.display)
+            return data.display
         elif index.column() == self.COL_NUMBER:
-            return QtCore.QVariant(self.index_dict[data.node])
+            return self.index_dict[data.node]
 
         # other colums: invalid
         else:
-            return QtCore.QVariant()
+            return None
 
     def headerData(self, section, orientation, role):
         """Return header data."""
         if (orientation == QtCore.Qt.Horizontal
             and role == QtCore.Qt.DisplayRole):
             if section == self.COL_TYPE:
-                return QtCore.QVariant("Type")
+                return "Type"
             elif section == self.COL_NAME:
-                return QtCore.QVariant("Name")
+                return "Name"
             elif section == self.COL_NUMBER:
-                return QtCore.QVariant("#")
-        return QtCore.QVariant()
+                return "#"
+        return None
 
     def rowCount(self, parent = QtCore.QModelIndex()):
         """Calculate a row count for the given parent index."""

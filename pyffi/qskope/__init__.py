@@ -103,8 +103,7 @@ class QSkope(QtGui.QMainWindow):
 
         # restore geometry
         settings = self.getSettings(versioned = True)
-        self.restoreGeometry(
-            settings.value("MainWindow/geometry").toByteArray())
+        self.restoreGeometry(settings.value("MainWindow/geometry"))
 
     def createActions(self):
         """Create the menu actions."""
@@ -168,8 +167,7 @@ class QSkope(QtGui.QMainWindow):
     def closeEvent(self, event):
         """Called when the application is closed. Saves the settings."""
         settings = self.getSettings(versioned = True)
-        settings.setValue("MainWindow/geometry",
-                          QtCore.QVariant(self.saveGeometry()))
+        settings.setValue("MainWindow/geometry", self.saveGeometry())
         QtGui.QMainWindow.closeEvent(self, event)
 
 
