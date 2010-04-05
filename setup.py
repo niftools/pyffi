@@ -7,9 +7,6 @@ Intended Audience :: Developers
 Intended Audience :: End Users/Desktop
 Topic :: Multimedia :: Graphics :: 3D Modeling
 Programming Language :: Python
-Programming Language :: Python :: 2.5
-Programming Language :: Python :: 2.6
-Programming Language :: Python :: 2.7
 Programming Language :: Python :: 3
 Programming Language :: Python :: 3.0
 Programming Language :: Python :: 3.1
@@ -20,8 +17,8 @@ Operating System :: OS Independent"""
 from distutils.core import setup
 import sys
 
-if sys.version_info < (2, 5):
-    raise RuntimeError("PyFFI requires Python 2.5 or higher.")
+if sys.version_info < (3, 0):
+    raise RuntimeError("PyFFI requires Python 3.0 or higher.")
 
 import pyffi
 
