@@ -1,4 +1,4 @@
-Release 2.1.5 (in development)
+Release 2.2.0 (in development)
 ==============================
 
 * Improved interface for TRI files, and a bugfix in TRI file writing.
@@ -7,6 +7,8 @@ Release 2.1.5 (in development)
 
 * The fix_texturepath spell now also converts double backslash in
   single backslash (suggested by Baphometal).
+
+* Added PSK and PSA file support (used by Unreal engine).
 
 Release 2.1.4 (19 Mar 2010)
 ===========================
