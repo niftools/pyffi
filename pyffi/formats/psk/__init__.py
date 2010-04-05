@@ -1,6 +1,6 @@
 """
-:mod:`pyffi.formats.psk` --- Unreal PSK (.psk & .psa)
-=====================================================
+:mod:`pyffi.formats.psk` --- Unreal (.psk & .psa)
+=================================================
 
 A .psk file contains static geometry data, a .psa contains animation
 keyframes.
@@ -109,6 +109,12 @@ class PskFormat(pyffi.object_models.xml.FileFormat):
     ushort = pyffi.object_models.common.UShort
     float = pyffi.object_models.common.Float
 
+    class ZString20(pyffi.object_models.common.FixedString):
+        _len = 20
+
+    class ZString64(pyffi.object_models.common.FixedString):
+        _len = 64
+
     @staticmethod
     def version_number(version_str):
         """Converts version string into an integer.
@@ -134,9 +140,9 @@ class PskFormat(pyffi.object_models.xml.FileFormat):
             try:
                 signat = stream.read(8)
                 if signat == b'ACTRHEAD':
-                    self.file_type = 0
+                    self.file_type = PskFormat.FileType.ACTRHEAD
                 elif signat == b'ANIMHEAD':
-                    self.file_type = 1
+                    self.file_type = PskFormat.FileType.ANIMHEAD
                 else:
                     raise ValueError(
                         "Invalid signature (got '%s' instead of"
@@ -184,6 +190,33 @@ class PskFormat(pyffi.object_models.xml.FileFormat):
             # write the data
             pyffi.object_models.xml.struct_.StructBase.write(
                 self, stream, version=self.version)
+
+        # DetailNode
+
+        def get_detail_child_nodes(self, edge_filter=EdgeFilter()):
+            return self._header_value_.get_detail_child_nodes(
+                edge_filter=edge_filter)
+
+        # GlobalNode
+
+        def get_global_child_nodes(self, edge_filter=EdgeFilter()):
+            if self.file_type == PskFormat.FileType.ACTRHEAD:
+                yield self.points
+                yield self.wedges
+                yield self.faces
+                yield self.materials
+                yield self.bones
+                yield self.influences
+            elif self.file_type == PskFormat.FileType.ANIMHEAD:
+                yield self.bones
+                yield self.animations
+                yield self.raw_keys
+
+    class Chunk:
+        # GlobalNode
+
+        def get_global_display(self):
+            return self.chunk_id.decode("utf8", "ignore")
 
 if __name__=='__main__':
     import doctest
