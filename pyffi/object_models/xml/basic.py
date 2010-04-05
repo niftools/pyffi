@@ -155,7 +155,7 @@ class BasicBase(DetailNode):
 
     def get_detail_display(self):
         """Return an object that can be used to display the instance."""
-        return str(self.get_value())
+        return str(self)
 
     # editor functions: default implementation assumes that the value is
     # also suitable for an editor; override if not
