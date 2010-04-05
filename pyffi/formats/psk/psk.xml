@@ -86,7 +86,8 @@
       <add name="v" type="float" />
     </struct>
     
-    <struct name="JointPos">
+    <!-- originally named JointPos -->
+    <struct name="BonePos">
       A bone: an orientation, and a position, all relative to their parent.
       <add name="Orientation" type="Quat" />
       <add name="Position" type="Vector" />
@@ -140,7 +141,7 @@
       <add name="Flags" type="uint">Reserved.</add>
       <add name="Num Children" type="int">Children (not used).</add>
       <add name="Parent Index" type="int">0/NULL if this is the root bone.</add>
-      <add name="Bone Pos" type="JointPos">Reference position.</add>
+      <add name="Bone Pos" type="BonePos">Reference position.</add>
     </struct>
 
     <!-- not sure why we need this
