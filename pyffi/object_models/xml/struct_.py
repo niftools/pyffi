@@ -440,7 +440,7 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
         for attr in self._get_filtered_attribute_list(**kwargs):
             # check if there are any links at all
             # (this speeds things up considerably)
-            if not attr.type_._has_links:
+            if (not attr.type_ is type(None)) and (not attr.type_._has_links):
                 continue
             # extend list of refs
             refs.extend(
