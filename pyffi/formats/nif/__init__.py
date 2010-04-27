@@ -3244,6 +3244,32 @@ class NifFormat(FileFormat):
                 vert.x *= scale
                 vert.y *= scale
                 vert.z *= scale
+                
+        def get_vertex_hash_generator(
+            self,
+            vertexprecision=3):
+            """Generator which produces a tuple of integers for each
+            vertex to ease detection of duplicate/close enough to remove
+            vertices. The precision parameter denote number of
+            significant digits behind the comma.
+
+            For vertexprecision, 3 seems usually enough (maybe we'll
+            have to increase this at some point).
+
+            :param vertexprecision: Precision to be used for vertices.
+            :type vertexprecision: float
+            :return: A generator yielding a hash value for each vertex.
+            """
+            
+            verts = self.vertices if self.vertices > 0 else None
+            vertexfactor = 10 ** vertexprecision
+            for i in xrange(self.num_vertices):
+                h = []
+                if verts:
+                    h.extend([float_to_int(x * vertexfactor)
+                             for x in [verts[i].x, verts[i].y, verts[i].z]])
+                yield tuple(h)
+
 
     class InertiaMatrix:
         def as_list(self):
