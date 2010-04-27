@@ -730,7 +730,7 @@ class SpellOptimizeCollision(pyffi.spells.nif.NifSpell):
     """Optimize Collision Geometries by removing duplicate vertices"""
 
 
-    SPELLNAME = "opt_optimizecollision"
+    SPELLNAME = "opt_collisiongeometry"
     READONLY = False
 
     def __init__(self, *args, **kwargs):
