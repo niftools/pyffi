@@ -634,18 +634,6 @@ class SpellSplitGeometry(pyffi.spells.nif.NifSpell):
         # stop recursing
         return False
 
-class SpellOptimize(
-    pyffi.spells.SpellGroupSeries(
-        pyffi.spells.SpellGroupParallel(
-            pyffi.spells.nif.fix.SpellDelUnusedRoots,
-            SpellCleanRefLists,
-            pyffi.spells.nif.fix.SpellDetachHavokTriStripsData,
-            pyffi.spells.nif.fix.SpellFixTexturePath,
-            pyffi.spells.nif.fix.SpellClampMaterialAlpha),
-        SpellMergeDuplicates,
-        SpellOptimizeGeometry)):
-    """Global fixer and optimizer spell."""
-    SPELLNAME = "optimize"
 
 class SpellDelUnusedBones(pyffi.spells.nif.NifSpell):
     """Remove empty and duplicate entries in reference lists."""
@@ -737,3 +725,132 @@ class SpellPackCollision(pyffi.spells.nif.NifSpell):
             return False
         # otherwise recurse further
         return True
+        
+class SpellOptimizeCollision(pyffi.spells.nif.NifSpell):
+    """Optimize Collision Geometries by removing duplicate vertices"""
+
+
+    SPELLNAME = "opt_optimizecollision"
+    READONLY = False
+
+    def __init__(self, *args, **kwargs):
+        pyffi.spells.nif.NifSpell.__init__(self, *args, **kwargs)
+        # list of all optimized geometries so far
+        # (to avoid optimizing the same geometry twice)
+        self.optimized = []
+        
+    def datainspect(self):
+        # only run the spell if there are skinned geometries
+        return self.inspectblocktype(NifFormat.hkPackedNiTriStripsData)
+
+    def branchinspect(self, branch):
+        # only inspect the NiNode branch
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.bhkCollisionObject,
+                                   NifFormat.bhkRigidBody,
+                                   NifFormat.bhkMoppBvTreeShape,
+                                   NifFormat.bhkPackedNiTriStripsShape,
+                                   NifFormat.bhkNiTriStripsShape,
+                                   NifFormat.hkPackedNiTriStripsData))
+
+        
+    def optimize_vertices(self, data):
+        self.toaster.msg(_("removing duplicate vertices"))
+        v_map = [0 for i in xrange(data.num_vertices)] # maps old index to new index
+        v_map_inverse = [] # inverse: map new index to old index
+        k_map = {} # maps hash to new vertex index
+        index = 0  # new vertex index for next vertex
+        for i, vhash in enumerate(data.get_vertex_hash_generator(
+            3)):
+            try:
+                k = k_map[vhash]
+            except KeyError:
+                # vertex is new
+                k_map[vhash] = index
+                v_map[i] = index
+                v_map_inverse.append(i)
+                index += 1
+            else:
+                # vertex already exists
+                v_map[i] = k
+        del k_map
+        return v_map, v_map_inverse
+        
+    def branchentry(self, branch):
+        """Optimize a hkPackedNiTriStripsData block:
+          - remove duplicate vertices
+          - rebuild triagle indice
+        """
+        if branch in self.optimized:
+            # already optimized
+            return False
+        
+        # TODO: other collision geometry types
+        if isinstance(branch, NifFormat.hkPackedNiTriStripsData):
+            # we found a geometry to optimize
+
+            # we're going to change the data
+            self.changed = True
+
+            # cover degenerate case
+            if branch.num_vertices < 3:
+                self.toaster.msg(_("less than 3 vertices: removing branch"))
+                self.data.replace_global_node(branch, None)
+                return False
+
+            v_map, v_map_inverse = self.optimize_vertices(branch)
+            
+            new_numvertices = len(v_map_inverse)
+            self.toaster.msg(_("(num vertices in collision shape was %i and is now %i)")
+                             % (len(v_map), new_numvertices))
+            # copy old data
+            oldverts = [[v.x, v.y, v.z] for v in branch.vertices]
+            # set new data
+            branch.num_vertices = new_numvertices
+            branch.vertices.update_size()
+            for i, v in enumerate(branch.vertices):
+                old_i = v_map_inverse[i]
+                v.x = oldverts[old_i][0]
+                v.y = oldverts[old_i][1]
+                v.z = oldverts[old_i][2]
+            del oldverts
+
+            # update vertex indices in triangles
+            new_triangleindice = []
+            i = 0
+            for tri in branch.triangles:
+                tridetail = tri.triangle
+                tridetail.v_1 = v_map[tridetail.v_1]
+                tridetail.v_2 = v_map[tridetail.v_2]
+                tridetail.v_3 = v_map[tridetail.v_3]
+                if tridetail.v_1 == tridetail.v_2 or tridetail.v_2 == tridetail.v_3 or tridetail.v_1 == tridetail.v_3:
+                    continue
+                new_triangleindice.append(i)
+                new_triangleindice[i] = tri
+                i += 1
+            # update num triangles and triangles if needed.    
+            if branch.num_triangles != len(new_triangleindice):
+                self.toaster.msg(_("(num triangles in collision shape was %i and is now %i)")
+                                % (branch.num_triangles, len(new_triangleindice)))
+                branch.num_triangles = len(new_triangleindice)
+                branch.triangles.update_size()
+                for i, tri in enumerate(branch.triangles):
+                    tri = new_triangleindice[i]
+                del new_triangleindice
+
+            return False
+        #keep recursing
+        return True
+class SpellOptimize(
+    pyffi.spells.SpellGroupSeries(
+        pyffi.spells.SpellGroupParallel(
+            pyffi.spells.nif.fix.SpellDelUnusedRoots,
+            SpellCleanRefLists,
+            pyffi.spells.nif.fix.SpellDetachHavokTriStripsData,
+            pyffi.spells.nif.fix.SpellFixTexturePath,
+            pyffi.spells.nif.fix.SpellClampMaterialAlpha),
+        SpellMergeDuplicates,
+        SpellOptimizeGeometry,
+        SpellPackCollision)):
+    """Global fixer and optimizer spell."""
+    SPELLNAME = "optimize"
