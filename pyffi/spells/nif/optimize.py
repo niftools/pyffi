@@ -716,7 +716,7 @@ class SpellPackCollision(pyffi.spells.nif.NifSpell):
     READONLY = False
 
     def datainspect(self):
-        # only run the spell if there are skinned geometries
+        # only run the spell if there are collision geometries.
         return self.inspectblocktype(NifFormat.bhkNiTriStripsShape)
 
     def branchinspect(self, branch):
