@@ -741,7 +741,7 @@ class SpellOptimizeCollision(pyffi.spells.nif.NifSpell):
         
     def datainspect(self):
         # only run the spell if there are skinned geometries
-        return self.inspectblocktype(NifFormat.hkPackedNiTriStripsData)
+        return self.inspectblocktype(NifFormat.bhkRigidBody)
 
     def branchinspect(self, branch):
         # only inspect the NiNode branch
@@ -751,7 +751,8 @@ class SpellOptimizeCollision(pyffi.spells.nif.NifSpell):
                                    NifFormat.bhkMoppBvTreeShape,
                                    NifFormat.bhkPackedNiTriStripsShape,
                                    NifFormat.bhkNiTriStripsShape,
-                                   NifFormat.hkPackedNiTriStripsData))
+                                   NifFormat.hkPackedNiTriStripsData,
+                                   NifFormat.NiTriStripsData))
 
         
     def optimize_vertices(self, data):
@@ -760,8 +761,11 @@ class SpellOptimizeCollision(pyffi.spells.nif.NifSpell):
         v_map_inverse = [] # inverse: map new index to old index
         k_map = {} # maps hash to new vertex index
         index = 0  # new vertex index for next vertex
-        for i, vhash in enumerate(data.get_vertex_hash_generator(
-            3)):
+        if isinstance(data, NifFormat.hkPackedNiTriStripsData):
+            vhash_gen = data.get_vertex_hash_generator(3)
+        elif isinstance(data, NifFormat.NiTriStripsData):
+            vhash_gen = data.get_vertex_hash_generator(3,-2,-2,-2)
+        for i, vhash in enumerate(vhash_gen):
             try:
                 k = k_map[vhash]
             except KeyError:
@@ -776,69 +780,173 @@ class SpellOptimizeCollision(pyffi.spells.nif.NifSpell):
         del k_map
         return v_map, v_map_inverse
         
+    def optimize_hkPackedNiTriStripsData(self,data):
+        v_map, v_map_inverse = self.optimize_vertices(data)
+        
+        new_numvertices = len(v_map_inverse)
+        self.toaster.msg(_("(num vertices in collision shape was %i and is now %i)")
+                         % (len(v_map), new_numvertices))
+        # copy old data
+        oldverts = [[v.x, v.y, v.z] for v in data.vertices]
+        # set new data
+        data.num_vertices = new_numvertices
+        data.vertices.update_size()
+        for i, v in enumerate(data.vertices):
+            old_i = v_map_inverse[i]
+            v.x = oldverts[old_i][0]
+            v.y = oldverts[old_i][1]
+            v.z = oldverts[old_i][2]
+        del oldverts
+
+        # update vertex indices in triangles
+        new_triangleindice = []
+        i = 0
+        for tri in data.triangles:
+            tridetail = tri.triangle
+            tridetail.v_1 = v_map[tridetail.v_1]
+            tridetail.v_2 = v_map[tridetail.v_2]
+            tridetail.v_3 = v_map[tridetail.v_3]
+            if tridetail.v_1 == tridetail.v_2 or tridetail.v_2 == tridetail.v_3 or tridetail.v_1 == tridetail.v_3:
+                continue
+            new_triangleindice.append(i)
+            new_triangleindice[i] = tri
+            i += 1
+        # update num triangles and triangles if needed.    
+        if data.num_triangles != len(new_triangleindice):
+            self.toaster.msg(_("(num triangles in collision shape was %i and is now %i)")
+                            % (data.num_triangles, len(new_triangleindice)))
+            data.num_triangles = len(new_triangleindice)
+            data.triangles.update_size()
+            for i, tri in enumerate(data.triangles):
+                tri = new_triangleindice[i]
+            del new_triangleindice
+        
     def branchentry(self, branch):
-        """Optimize a hkPackedNiTriStripsData block:
+        """Optimize a vertex based collision block:
           - remove duplicate vertices
-          - rebuild triagle indice
+          - rebuild triangle indice and welding info
+          - update MOPP data if applicable.
         """
         if branch in self.optimized:
             # already optimized
             return False
         
         # TODO: other collision geometry types
-        if isinstance(branch, NifFormat.hkPackedNiTriStripsData):
+        if isinstance(branch, NifFormat.bhkMoppBvTreeShape):
+            if isinstance(branch.shape, NifFormat.bhkPackedNiTriStripsShape):
+                if isinstance(branch.shape.data, NifFormat.hkPackedNiTriStripsData):
+                    if branch.shape.data.num_vertices < 3:
+                        self.toaster.msg(_("less than 3 vertices: removing branch"))
+                        self.data.replace_global_node(branch, None)
+                        self.changed = True
+                        return False                
+                    self.optimize_hkPackedNiTriStripsData(branch.shape.data)
+                    # we found a geometry to optimize
+                    self.optimized.append(branch)
+                    self.optimized.append(branch.shape.data)
+                    # we're going to change the data
+                    self.changed = True
+                    if branch.shape.num_sub_shapes == 1:
+                        branch.shape.sub_shapes[0].num_vertices = branch.shape.data.num_vertices
+                    #hmm not sure how to do this for multisubshape collisions (determing what subshapes had vertices removed that is not the setting of num vertices for each of them)... ????
+                    branch.update_mopp_welding()
+                    return False # don't recurese farther
+        elif isinstance(branch, NifFormat.hkPackedNiTriStripsData):
+                    if branch.num_vertices < 3:
+                        self.toaster.msg(_("less than 3 vertices: removing branch"))
+                        self.data.replace_global_node(branch, None)
+                        self.changed = True
+                        return False                
+                    self.optimize_hkPackedNiTriStripsData(branch)
+                    # we found a geometry to optimize
+                    self.optimized.append(branch)
+                    # we're going to change the data
+                    self.changed = True
+                    return False # Don't recurse farther
+        elif isinstance(branch, NifFormat.bhkNiTriStripsShape):
             # we found a geometry to optimize
-
+            self.optimized.append(branch)
             # we're going to change the data
             self.changed = True
-
-            # cover degenerate case
-            if branch.num_vertices < 3:
-                self.toaster.msg(_("less than 3 vertices: removing branch"))
-                self.data.replace_global_node(branch, None)
-                return False
-
-            v_map, v_map_inverse = self.optimize_vertices(branch)
             
-            new_numvertices = len(v_map_inverse)
-            self.toaster.msg(_("(num vertices in collision shape was %i and is now %i)")
-                             % (len(v_map), new_numvertices))
-            # copy old data
-            oldverts = [[v.x, v.y, v.z] for v in branch.vertices]
-            # set new data
-            branch.num_vertices = new_numvertices
-            branch.vertices.update_size()
-            for i, v in enumerate(branch.vertices):
-                old_i = v_map_inverse[i]
-                v.x = oldverts[old_i][0]
-                v.y = oldverts[old_i][1]
-                v.z = oldverts[old_i][2]
-            del oldverts
+            for strips_data in branch.strips_data:
+                self.optimized.append(strips_data)
 
-            # update vertex indices in triangles
-            new_triangleindice = []
-            i = 0
-            for tri in branch.triangles:
-                tridetail = tri.triangle
-                tridetail.v_1 = v_map[tridetail.v_1]
-                tridetail.v_2 = v_map[tridetail.v_2]
-                tridetail.v_3 = v_map[tridetail.v_3]
-                if tridetail.v_1 == tridetail.v_2 or tridetail.v_2 == tridetail.v_3 or tridetail.v_1 == tridetail.v_3:
-                    continue
-                new_triangleindice.append(i)
-                new_triangleindice[i] = tri
-                i += 1
-            # update num triangles and triangles if needed.    
-            if branch.num_triangles != len(new_triangleindice):
-                self.toaster.msg(_("(num triangles in collision shape was %i and is now %i)")
-                                % (branch.num_triangles, len(new_triangleindice)))
-                branch.num_triangles = len(new_triangleindice)
-                branch.triangles.update_size()
-                for i, tri in enumerate(branch.triangles):
-                    tri = new_triangleindice[i]
-                del new_triangleindice
+                # cover degenerate case
+                if strips_data.num_vertices < 3:
+                    self.toaster.msg(_("less than 3 vertices: removing branch"))
+                    self.data.replace_global_node(strips_data, None)
+                    return False
 
-            return False
+                # shortcut
+                v_map, v_map_inverse = self.optimize_vertices(strips_data)
+                
+                new_numvertices = len(v_map_inverse)
+                self.toaster.msg(_("(num vertices was %i and is now %i)")
+                                 % (len(v_map), new_numvertices))
+                # copy old data
+                oldverts = [[v.x, v.y, v.z] for v in strips_data.vertices]
+                oldnorms = [[n.x, n.y, n.z] for n in strips_data.normals]
+                olduvs   = [[[uv.u, uv.v] for uv in uvset] for uvset in strips_data.uv_sets]
+                oldvcols = [[c.r, c.g, c.b, c.a] for c in strips_data.vertex_colors]
+                # set new data
+                strips_data.num_vertices = new_numvertices
+                if strips_data.has_vertices:
+                    strips_data.vertices.update_size()
+                    for i, v in enumerate(strips_data.vertices):
+                        old_i = v_map_inverse[i]
+                        v.x = oldverts[old_i][0]
+                        v.y = oldverts[old_i][1]
+                        v.z = oldverts[old_i][2]
+                if strips_data.has_normals:
+                    strips_data.normals.update_size()
+                    for i, n in enumerate(strips_data.normals):
+                        old_i = v_map_inverse[i]
+                        n.x = oldnorms[old_i][0]
+                        n.y = oldnorms[old_i][1]
+                        n.z = oldnorms[old_i][2]
+                # XXX todo: if ...has_uv_sets...:
+                strips_data.uv_sets.update_size()
+                for j, uvset in enumerate(strips_data.uv_sets):
+                    for i, uv in enumerate(uvset):
+                        old_i = v_map_inverse[i]
+                        uv.u = olduvs[j][old_i][0]
+                        uv.v = olduvs[j][old_i][1]
+                if strips_data.has_vertex_colors:
+                    strips_data.vertex_colors.update_size()
+                    for i, c in enumerate(strips_data.vertex_colors):
+                        old_i = v_map_inverse[i]
+                        c.r = oldvcols[old_i][0]
+                        c.g = oldvcols[old_i][1]
+                        c.b = oldvcols[old_i][2]
+                        c.a = oldvcols[old_i][3]
+                del oldverts
+                del oldnorms
+                del olduvs
+                del oldvcols
+
+                # update vertex indices in strips/triangles
+                for strip in strips_data.points:
+                    for i in xrange(len(strip)):
+                        try:
+                            strip[i] = v_map[strip[i]]
+                        except IndexError:
+                            self.toaster.logger.warn(
+                                _("Corrupt nif: bad vertex index in strip (%i); %s%s") 
+                                % (strip[i],
+                                _("replacing by valid index which might "),
+                                _("modify your geometry!")))
+                            if i > 0:
+                                strip[i] = strip[i-1]
+                            else:
+                                strip[i] = strip[i+1]
+                        #self.toaster.msg(_("recalculating strips"))
+                origlen = sum(i for i in strips_data.strip_lengths)
+                strips_data.set_triangles(strips_data.get_triangles())
+                newlen = sum(i for i in strips_data.strip_lengths)
+                self.toaster.msg(_("(strip length was %i and is now %i)")
+                                 % (origlen, newlen))
+                return False # No need to keep recursing
         #keep recursing
         return True
 class SpellOptimize(
