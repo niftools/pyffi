@@ -959,6 +959,7 @@ class SpellOptimize(
             pyffi.spells.nif.fix.SpellClampMaterialAlpha),
         SpellMergeDuplicates,
         SpellOptimizeGeometry,
-        SpellPackCollision)):
+        SpellPackCollision,
+        SpellOptimizeCollision)):
     """Global fixer and optimizer spell."""
     SPELLNAME = "optimize"
