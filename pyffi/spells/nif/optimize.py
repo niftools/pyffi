@@ -949,6 +949,180 @@ class SpellOptimizeCollision(pyffi.spells.nif.NifSpell):
                 return False # No need to keep recursing
         #keep recursing
         return True
+        
+class SpellOptimizeAnimation(pyffi.spells.nif.NifSpell):
+    """Optimizes animations by removing duplicate keys"""
+
+    SPELLNAME = "opt_optimizeanimation"
+    READONLY = False
+    
+    @classmethod
+    def toastentry(cls, toaster):
+        if not toaster.options["arg"]:
+            cls.significance_check = 4
+        else:
+            cls.significance_check = float(toaster.options["arg"])
+        return True
+
+
+    def datainspect(self):
+        # returns more than needed but easiest way to ensure it catches all
+        # types of animations
+        return True
+
+    def branchinspect(self, branch):
+        # inspect the NiAVObject branch, and NiControllerSequence
+        # branch (for kf files)
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiTimeController,
+                                   NifFormat.NiInterpolator,
+                                   NifFormat.NiControllerManager,
+                                   NifFormat.NiControllerSequence,
+                                   NifFormat.NiKeyframeData,
+                                   NifFormat.NiTextKeyExtraData,
+                                   NifFormat.NiFloatData))
+
+    def optimize_keys(self,keys):
+        """Helper function to optimize the keys."""
+        new_keys = []
+        #compare keys
+        ## types: 0 = float/int values
+        ##        1 = Vector4, Quaternions, QuaternionsWXYZ
+        ##        2 = word values (ie NiTextKeyExtraData)
+        ##        3 = Vector3 values (ie translations)
+        if len(keys) < 3: return keys # no optimization possible?
+        precision = 10**self.significance_check
+        if isinstance(keys[0].value,(float,int)):
+            for i, key in enumerate(keys):
+                if i == 0: # since we don't want to delete the first key even if it is  the same as the last key.
+                    new_keys.append(key)
+                    continue                
+                try:
+                    if int(precision*keys[i-1].value) != int(precision*key.value):
+                        new_keys.append(key)
+                        continue
+                    if int(precision*keys[i+1].value) != int(precision*key.value):
+                        new_keys.append(key)
+                except IndexError:
+                    new_keys.append(key)
+            return new_keys
+        elif isinstance(keys[0].value,(str)):
+            for i, key in enumerate(keys):
+                if i == 0: # since we don't want to delete the first key even if it is  the same as the last key.
+                    new_keys.append(key)
+                    continue 
+                try:
+                    if keys[i-1].value != key.value:
+                        new_keys.append(key)
+                        continue
+                    if keys[i+1].value != key.value:
+                        new_keys.append(key)
+                except IndexError:
+                    new_keys.append(key)
+            return new_keys
+        elif isinstance(keys[0].value,(NifFormat.Vector4,NifFormat.Quaternion,NifFormat.QuaternionXYZW)):
+            tempkey = [[int(keys[0].value.w*precision),int(keys[0].value.x*precision),int(keys[0].value.y*precision),int(keys[0].value.z*precision)],[int(keys[1].value.w*precision),int(keys[1].value.x*precision),int(keys[1].value.y*precision),int(keys[1].value.z*precision)],[int(keys[2].value.w*precision),int(keys[2].value.x*precision),int(keys[2].value.y*precision),int(keys[2].value.z*precision)]]
+            for i, key in enumerate(keys):
+                if i == 0:
+                    new_keys.append(key)
+                    continue
+                tempkey[0] = tempkey[1]
+                tempkey[1] = tempkey[2]
+                tempkey[2] = []
+                try:
+                    tempkey[2].append(int(keys[i+1].value.w*precision))
+                    tempkey[2].append(int(keys[i+1].value.x*precision))
+                    tempkey[2].append(int(keys[i+1].value.y*precision))
+                    tempkey[2].append(int(keys[i+1].value.z*precision))
+                except IndexError:
+                    new_keys.append(key)
+                    continue
+                if tempkey[1] != tempkey[0]:
+                    new_keys.append(key)
+                    continue
+                if tempkey[1] != tempkey[2]:
+                    new_keys.append(key)
+            return new_keys
+        elif isinstance(keys[0].value,(NifFormat.Vector3)):
+            tempkey = [[int(keys[0].value.x*precision),int(keys[0].value.y*precision),int(keys[0].value.z*precision)],[int(keys[1].value.x*precision),int(keys[1].value.y*precision),int(keys[1].value.z*precision)],[int(keys[2].value.x*precision),int(keys[2].value.y*precision),int(keys[2].value.z*precision)]]
+            for i, key in enumerate(keys):
+                if i == 0:
+                    new_keys.append(key)
+                    continue
+                tempkey[0] = tempkey[1]
+                tempkey[1] = tempkey[2]
+                tempkey[2] = []
+                try:
+                    tempkey[2].append(int(keys[i+1].value.x*precision))
+                    tempkey[2].append(int(keys[i+1].value.y*precision))
+                    tempkey[2].append(int(keys[i+1].value.z*precision))
+                except IndexError:
+                    new_keys.append(key)
+                    continue
+                if tempkey[1] != tempkey[0]:
+                    new_keys.append(key)
+                    continue
+                if tempkey[1] != tempkey[2]:
+                    new_keys.append(key)
+            return new_keys
+        else: #something unhandled -- but what?
+            
+            return keys
+            
+    def update_animation(self,old_keygroup,new_keys):
+        self.toaster.msg(_("Num keys was %i and is now %i") % (len(old_keygroup.keys),len(new_keys)))
+        old_keygroup.num_keys = len(new_keys)
+        old_keygroup.keys.update_size()
+        for old_key, new_key in izip(old_keygroup.keys,new_keys):
+            old_key.time = new_key.time
+            old_key.value = new_key.value
+        self.changed = True
+        
+    def update_animation_quaternion(self,old_keygroup,new_keys):
+        self.toaster.msg(_("Num keys was %i and is now %i") % (len(old_keygroup),len(new_keys)))
+        old_keygroup.update_size()
+        for old_key, new_key in izip(old_keygroup,new_keys):
+            old_key.time = new_key.time
+            old_key.value = new_key.value
+        self.changed = True
+
+    def branchentry(self, branch):
+            
+        if isinstance(branch, NifFormat.NiKeyframeData):
+            # (this also covers NiTransformData)
+            if branch.num_rotation_keys != 0:
+                if branch.rotation_type == 4:
+                    for rotation in branch.xyz_rotations:
+                        new_keys = self.optimize_keys(rotation.keys)
+                        if len(new_keys) != rotation.num_keys:
+                            self.update_animation(rotation,new_keys)
+                else:
+                    new_keys = self.optimize_keys(branch.quaternion_keys)
+                    if len(new_keys) != branch.num_rotation_keys:
+                        branch.num_rotation_keys = len(new_keys)
+                        self.update_animation_quaternion(branch.quaternion_keys,new_keys)
+            if branch.translations.num_keys != 0:
+                new_keys = self.optimize_keys(branch.translations.keys)
+                if len(new_keys) != branch.translations.num_keys:
+                    self.update_animation(branch.translations,new_keys)
+            if branch.scales.num_keys != 0:
+                new_keys = self.optimize_keys(branch.scales.keys)
+                if len(new_keys) != branch.scales.num_keys:
+                    self.update_animation(branch.scales,new_keys)
+            # no children of NiKeyframeData so no need to recurse further
+            return False
+        elif isinstance(branch, NifFormat.NiTextKeyExtraData):
+            self.optimize_keys(branch.text_keys)
+            # no children of NiTextKeyExtraData so no need to recurse further
+            return False
+        elif isinstance(branch, NifFormat.NiFloatData):
+            #self.optimize_keys(branch.data.keys)
+            # no children of NiFloatData so no need to recurse further
+            return False
+        else:
+            # recurse further
+            return True 
+        
 class SpellOptimize(
     pyffi.spells.SpellGroupSeries(
         pyffi.spells.SpellGroupParallel(
