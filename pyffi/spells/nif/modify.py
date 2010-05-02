@@ -831,6 +831,7 @@ class SpellChangeBonePriorities(NifSpell):
     def branchinspect(self, branch):
         # inspect the NiAVObject and NiSequence branches
         return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiControllerManager,
                                    NifFormat.NiSequence))
 
     def branchentry(self, branch):
