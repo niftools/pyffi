@@ -7001,3 +7001,7 @@ class NifFormat(FileFormat):
             v.u = -self.u
             v.v = -self.v
             return v
+
+if __name__=='__main__':
+    import doctest
+    doctest.testmod()
