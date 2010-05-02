@@ -48,6 +48,9 @@
 #
 # ***** END LICENSE BLOCK *****
 
+import gettext
+gettext.install('pyffi')
+
 __version__ = '2.1.5'
 
 __hexversion__ = eval('0x%02X%02X%02X'
