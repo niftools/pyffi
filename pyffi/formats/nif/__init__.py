@@ -3275,16 +3275,10 @@ class NifFormat(FileFormat):
             :type vertexprecision: float
             :return: A generator yielding a hash value for each vertex.
             """
-            
-            verts = self.vertices if self.vertices > 0 else None
             vertexfactor = 10 ** vertexprecision
-            for i in xrange(self.num_vertices):
-                h = []
-                if verts:
-                    h.extend([float_to_int(x * vertexfactor)
-                             for x in [verts[i].x, verts[i].y, verts[i].z]])
-                yield tuple(h)
-
+            for vert in self.vertices:
+                yield tuple(float_to_int(value * vertexfactor)
+                            for value in vert.as_list())
 
     class InertiaMatrix:
         def as_list(self):
