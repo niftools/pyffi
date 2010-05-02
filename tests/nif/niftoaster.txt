@@ -197,6 +197,8 @@ modify_delinterpolatortransformdata
 modify_collisiontomopp
 opt_reducegeometry
 opt_packcollision
+opt_collisiongeometry
+opt_optimizeanimation
 
 The check_readwrite spell and the --raise switch
 ------------------------------------------------
