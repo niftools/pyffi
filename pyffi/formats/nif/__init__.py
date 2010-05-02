@@ -3256,6 +3256,21 @@ class NifFormat(FileFormat):
             For vertexprecision, 3 seems usually enough (maybe we'll
             have to increase this at some point).
 
+            >>> data = NifFormat.hkPackedNiTriStripsData()
+            >>> data.num_vertices = 3
+            >>> data.vertices.update_size()
+            >>> data.vertices[0].x = 0.0
+            >>> data.vertices[0].y = 0.1
+            >>> data.vertices[0].z = 0.2
+            >>> data.vertices[1].x = 1.0
+            >>> data.vertices[1].y = 1.1
+            >>> data.vertices[1].z = 1.2
+            >>> data.vertices[2].x = 2.0
+            >>> data.vertices[2].y = 2.1
+            >>> data.vertices[2].z = 2.2
+            >>> [hsh for hsh in data.get_vertex_hash_generator()]
+            [(0, 100, 200), (1000, 1100, 1200), (2000, 2100, 2200)]
+
             :param vertexprecision: Precision to be used for vertices.
             :type vertexprecision: float
             :return: A generator yielding a hash value for each vertex.
