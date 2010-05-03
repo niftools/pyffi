@@ -122,7 +122,7 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         pyffi.spells.nif.modify.SpellCollisionToMopp,
         pyffi.spells.nif.optimize.SpellReduceGeometry,
         pyffi.spells.nif.optimize.SpellPackCollision,
-        pyffi.spells.nif.optimize.SpellOptimizeCollision,
+        pyffi.spells.nif.optimize.SpellOptimizeCollisionGeometry,
         pyffi.spells.nif.optimize.SpellOptimizeAnimation
         ]
     ALIASDICT = {

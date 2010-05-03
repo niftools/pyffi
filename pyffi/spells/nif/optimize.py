@@ -70,6 +70,11 @@ import pyffi.spells
 import pyffi.spells.nif
 import pyffi.spells.nif.fix
 
+# localization
+#import gettext
+#_ = gettext.translation('pyffi').ugettext
+_ = lambda msg: msg # stub, for now
+
 # set flag to overwrite files
 __readonly__ = False
 
@@ -726,9 +731,8 @@ class SpellPackCollision(pyffi.spells.nif.NifSpell):
         # otherwise recurse further
         return True
         
-class SpellOptimizeCollision(pyffi.spells.nif.NifSpell):
-    """Optimize Collision Geometries by removing duplicate vertices"""
-
+class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
+    """Optimize collision geometries by removing duplicate vertices."""
 
     SPELLNAME = "opt_collisiongeometry"
     READONLY = False
@@ -1133,6 +1137,6 @@ class SpellOptimize(
         SpellMergeDuplicates,
         SpellOptimizeGeometry,
         SpellPackCollision,
-        SpellOptimizeCollision)):
+        SpellOptimizeCollisionGeometry)):
     """Global fixer and optimizer spell."""
     SPELLNAME = "optimize"
