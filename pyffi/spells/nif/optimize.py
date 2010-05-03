@@ -745,6 +745,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
 
         
     def optimize_vertices(self, data):
+        """Return map and inverse map based on vertices."""
         self.toaster.msg(_("removing duplicate vertices"))
         if isinstance(data, NifFormat.hkPackedNiTriStripsData):
             vhash_gen = data.get_vertex_hash_generator(3)
@@ -804,37 +805,38 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
             return False
         
         # TODO: other collision geometry types
-        if isinstance(branch, NifFormat.bhkMoppBvTreeShape):
-            if isinstance(branch.shape, NifFormat.bhkPackedNiTriStripsShape):
-                if isinstance(branch.shape.data, NifFormat.hkPackedNiTriStripsData):
-                    if branch.shape.data.num_vertices < 3:
-                        self.toaster.msg(_("less than 3 vertices: removing branch"))
-                        self.data.replace_global_node(branch, None)
-                        self.changed = True
-                        return False                
-                    self.optimize_packed_shape(branch.shape.data)
-                    # we found a geometry to optimize
-                    self.optimized.append(branch)
-                    self.optimized.append(branch.shape.data)
-                    # we're going to change the data
-                    self.changed = True
-                    if branch.shape.num_sub_shapes == 1:
-                        branch.shape.sub_shapes[0].num_vertices = branch.shape.data.num_vertices
-                    #hmm not sure how to do this for multisubshape collisions (determing what subshapes had vertices removed that is not the setting of num vertices for each of them)... ????
-                    branch.update_mopp_welding()
-                    return False # don't recurese farther
+        if (isinstance(branch, NifFormat.bhkMoppBvTreeShape):
+            and isinstance(branch.shape, NifFormat.bhkPackedNiTriStripsShape)
+            and isinstance(branch.shape.data,
+                           NifFormat.hkPackedNiTriStripsData)):
+            if branch.shape.data.num_vertices < 3:
+                self.toaster.msg(_("less than 3 vertices: removing branch"))
+                self.data.replace_global_node(branch, None)
+                self.changed = True
+                return False                
+            self.optimize_packed_shape(branch.shape.data)
+            # we found a geometry to optimize
+            self.optimized.append(branch)
+            self.optimized.append(branch.shape.data)
+            # we're going to change the data
+            self.changed = True
+            if branch.shape.num_sub_shapes == 1:
+                branch.shape.sub_shapes[0].num_vertices = branch.shape.data.num_vertices
+            #hmm not sure how to do this for multisubshape collisions (determing what subshapes had vertices removed that is not the setting of num vertices for each of them)... ????
+            branch.update_mopp_welding()
+            return False # don't recurese farther
         elif isinstance(branch, NifFormat.hkPackedNiTriStripsData):
-                    if branch.num_vertices < 3:
-                        self.toaster.msg(_("less than 3 vertices: removing branch"))
-                        self.data.replace_global_node(branch, None)
-                        self.changed = True
-                        return False                
-                    self.optimize_packed_shape(branch)
-                    # we found a geometry to optimize
-                    self.optimized.append(branch)
-                    # we're going to change the data
-                    self.changed = True
-                    return False # Don't recurse farther
+            if branch.num_vertices < 3:
+                self.toaster.msg(_("less than 3 vertices: removing branch"))
+                self.data.replace_global_node(branch, None)
+                self.changed = True
+                return False                
+            self.optimize_packed_shape(branch)
+            # we found a geometry to optimize
+            self.optimized.append(branch)
+            # we're going to change the data
+            self.changed = True
+            return False # Don't recurse farther
         elif isinstance(branch, NifFormat.bhkNiTriStripsShape):
             # we found a geometry to optimize
             self.optimized.append(branch)
