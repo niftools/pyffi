@@ -17,6 +17,16 @@ NifToaster check
 53
 >>> data.roots[0].collision_object.body.shape.shape.data.num_triangles
 102
+>>> print(str(data.roots[0].collision_object.body.shape.shape.data.triangles[-1])) # doctest: +ELLIPSIS
+<class 'pyffi.formats.nif.hkTriangle'> instance at ...
+* triangle :
+    <class 'pyffi.formats.nif.Triangle'> instance at ...
+    * v_1 : 13
+    * v_2 : 17
+    * v_3 : 5
+* welding_info : 18924
+* normal : [ -0.904  0.197 -0.380 ]
+<BLANKLINE>
 >>> # run the spell that fixes this
 >>> spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionGeometry(data=data)
 >>> spell.recurse()
@@ -48,3 +58,14 @@ pyffi.toaster:INFO:    ~~~ NiTriShape [] ~~~
 51
 >>> data.roots[0].collision_object.body.shape.shape.data.num_triangles
 98
+>>> print(str(data.roots[0].collision_object.body.shape.shape.data.triangles[-1])) # doctest: +ELLIPSIS
+<class 'pyffi.formats.nif.hkTriangle'> instance at ...
+* triangle :
+    <class 'pyffi.formats.nif.Triangle'> instance at ...
+    * v_1 : 12
+    * v_2 : 16
+    * v_3 : 4
+* welding_info : 18924
+* normal : [ -0.904  0.197 -0.380 ]
+<BLANKLINE>
+
