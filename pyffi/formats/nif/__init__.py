@@ -3281,6 +3281,52 @@ class NifFormat(FileFormat):
                 yield tuple(float_to_int(value * vertexfactor)
                             for value in vert.as_list())
 
+        def get_triangle_hash_generator(self):
+            """Generator which produces a tuple of integers, or None
+            in degenerate case, for each triangle to ease detection of
+            duplicate triangles.
+
+            >>> data = NifFormat.hkPackedNiTriStripsData()
+            >>> data.num_triangles = 6
+            >>> data.triangles.update_size()
+            >>> data.triangles[0].triangle.v_1 = 0
+            >>> data.triangles[0].triangle.v_2 = 1
+            >>> data.triangles[0].triangle.v_3 = 2
+            >>> data.triangles[1].triangle.v_1 = 2
+            >>> data.triangles[1].triangle.v_2 = 1
+            >>> data.triangles[1].triangle.v_3 = 3
+            >>> data.triangles[2].triangle.v_1 = 3
+            >>> data.triangles[2].triangle.v_2 = 2
+            >>> data.triangles[2].triangle.v_3 = 1
+            >>> data.triangles[3].triangle.v_1 = 3
+            >>> data.triangles[3].triangle.v_2 = 1
+            >>> data.triangles[3].triangle.v_3 = 2
+            >>> data.triangles[4].triangle.v_1 = 0
+            >>> data.triangles[4].triangle.v_2 = 0
+            >>> data.triangles[4].triangle.v_3 = 3
+            >>> data.triangles[5].triangle.v_1 = 1
+            >>> data.triangles[5].triangle.v_2 = 3
+            >>> data.triangles[5].triangle.v_3 = 4
+            >>> list(data.get_triangle_hash_generator())
+            [(0, 1, 2), (1, 3, 2), (1, 3, 2), (1, 2, 3), None, (1, 3, 4)]
+
+            :return: A generator yielding a hash value for each triangle.
+            """
+            for tri in self.triangles:
+                v_1, v_2, v_3 = tri.triangle.v_1, tri.triangle.v_2, tri.triangle.v_3
+                if v_1 == v_2 or v_2 == v_3 or v_3 == v_1:
+                    # degenerate
+                    yield None
+                elif v_1 < v_2 and v_1 < v_3:
+                    # v_1 smallest
+                    yield v_1, v_2, v_3
+                elif v_2 < v_1 and v_2 < v_3:
+                    # v_2 smallest
+                    yield v_2, v_3, v_1
+                else:
+                    # v_3 smallest
+                    yield v_3, v_1, v_2
+
     class InertiaMatrix:
         def as_list(self):
             """Return matrix as 3x3 list."""
