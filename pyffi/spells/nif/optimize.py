@@ -751,7 +751,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
 
         self.toaster.msg(_("removing duplicate vertices"))
         v_map, v_map_inverse = unique_map(
-            data.get_vertex_hash_generator(self.VERTEX_PRECISION))
+            data.get_vertex_hash_generator(self.VERTEXPRECISION))
         
         new_numvertices = len(v_map_inverse)
         self.toaster.msg(_("(num vertices in collision shape was %i and is now %i)")
@@ -817,7 +817,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
                 self.data.replace_global_node(branch, None)
                 self.changed = True
                 return False                
-            self.optimize_mopp(branch.shape)
+            self.optimize_mopp(branch)
             # we found a geometry to optimize
             self.optimized.append(branch)
             # we're going to change the data
@@ -841,7 +841,10 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
                 # precision of -10 = ignore
                 v_map, v_map_inverse = unique_map(
                     strips_data.get_vertex_hash_generator(
-                        self.VERTEX_PRECISION, -10, -10, -10))
+                        vertexprecision=self.VERTEXPRECISION,
+                        normalprecision=-10,
+                        uvprecision=-10,
+                        vcolprecision=-10))
                 
                 new_numvertices = len(v_map_inverse)
                 self.toaster.msg(_("(num vertices was %i and is now %i)")
