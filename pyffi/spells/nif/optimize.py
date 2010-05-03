@@ -808,7 +808,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
             return False
         
         # TODO: other collision geometry types
-        if (isinstance(branch, NifFormat.bhkMoppBvTreeShape):
+        if (isinstance(branch, NifFormat.bhkMoppBvTreeShape)
             and isinstance(branch.shape, NifFormat.bhkPackedNiTriStripsShape)
             and isinstance(branch.shape.data,
                            NifFormat.hkPackedNiTriStripsData)):
