@@ -751,7 +751,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
 
         self.toaster.msg(_("removing duplicate vertices"))
         v_map, v_map_inverse = unique_map(
-            data.get_vertex_hash_generator(self.VERTEXPRECISION))
+            shape.get_vertex_hash_generator(self.VERTEXPRECISION))
         
         new_numvertices = len(v_map_inverse)
         self.toaster.msg(_("(num vertices in collision shape was %i and is now %i)")
@@ -773,7 +773,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
             tri.triangle.v_3 = v_map[tri.triangle.v_3]
         # remove duplicate triangles
         self.toaster.msg(_("removing duplicate triangles"))
-        t_map, t_map_inverse = unique_map(data.get_triangle_hash_generator())
+        t_map, t_map_inverse = unique_map(shape.get_triangle_hash_generator())
         new_numtriangles = len(t_map_inverse)
         self.toaster.msg(_("(num triangles in collision shape was %i and is now %i)")
                          % (len(t_map), new_numtriangles))
@@ -795,12 +795,36 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
             tri.normal.z = oldtris[old_i][5]
             # note: welding updated later when calling the mopper
         del oldtris
-
+        # fix subshape counts
         if shape.num_sub_shapes == 1:
+            # quick way
             shape.sub_shapes[0].num_vertices = shape.data.num_vertices
-        #hmm not sure how to do this for multisubshape collisions
-        #(determing what subshapes had vertices removed that is
-        #not the setting of num vertices for each of them)... ????
+        else:
+            # slow way if there are two or more subshapes
+
+            # XXX check that this algorithm actually works and find
+            # XXX possibly a faster method
+            old_max_index = -1
+            new_i = 0
+            for sub_shape in shape.sub_shapes:
+                num_vertices = 0
+                # calculate maximal index + 1 in old vertex array
+                old_max_index += sub_shape.num_vertices
+                # let's include all vertices that have old index
+                # strictly less than old_max_index
+                try:
+                    while v_map_inverse[new_i] < old_max_index:
+                        # ok, new_i has admissible old index so
+                        # include it: increase number of vertices in
+                        # this subshape
+                        num_vertices += 1
+                        # and increment new index to check next vertex
+                        new_i += 1
+                except IndexError:
+                    # new_i overflow, so we're done
+                    pass
+                sub_shape.num_vertices = num_vertices
+        # update mopp data and welding info
         mopp.update_mopp_welding()
         
     def branchentry(self, branch):
