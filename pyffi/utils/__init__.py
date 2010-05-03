@@ -128,3 +128,37 @@ def hex_dump(f, num_lines = 8):
         dumppos += 16
     print(dumpstr)
 
+def unique_map(hash_generator):
+    """Return a map and inverse map to indentify unique values based on hash.
+    Useful for removing duplicate data.
+
+    >>> unique_map([])
+    ([], [])
+    >>> unique_map([3,2,6,1])
+    ([0, 1, 2, 3], [0, 1, 2, 3])
+    >>> unique_map([3,1,6,1])
+    ([0, 1, 2, 1], [0, 1, 2])
+    >>> unique_map([3,1,6,1,2,2,9,3,2])
+    ([0, 1, 2, 1, 3, 3, 4, 0, 3], [0, 1, 2, 4, 6])
+    """
+    hash_map = [] # maps old index to new index
+    hash_map_inverse = [] # inverse: map new index to old index
+    hash_index_map = {} # maps hash to new index
+    new_index = 0
+    for old_index, hash_ in enumerate(hash_generator):
+        try:
+            hash_index = hash_index_map[hash_]
+        except KeyError:
+            # hash is new
+            hash_index_map[hash_] = new_index
+            hash_map.append(new_index)
+            hash_map_inverse.append(old_index)
+            new_index += 1
+        else:
+            # hash already exists
+            hash_map.append(hash_index)
+    return hash_map, hash_map_inverse
+
+if __name__=='__main__':
+    import doctest
+    doctest.testmod()
