@@ -825,18 +825,6 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
             #hmm not sure how to do this for multisubshape collisions (determing what subshapes had vertices removed that is not the setting of num vertices for each of them)... ????
             branch.update_mopp_welding()
             return False # don't recurese farther
-        elif isinstance(branch, NifFormat.hkPackedNiTriStripsData):
-            if branch.num_vertices < 3:
-                self.toaster.msg(_("less than 3 vertices: removing branch"))
-                self.data.replace_global_node(branch, None)
-                self.changed = True
-                return False                
-            self.optimize_packed_shape(branch)
-            # we found a geometry to optimize
-            self.optimized.append(branch)
-            # we're going to change the data
-            self.changed = True
-            return False # Don't recurse farther
         elif isinstance(branch, NifFormat.bhkNiTriStripsShape):
             # we found a geometry to optimize
             self.optimized.append(branch)
