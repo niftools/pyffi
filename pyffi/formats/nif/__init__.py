@@ -72,6 +72,7 @@ reading tests/nif/test_fix_mergeskeletonroots.nif
 reading tests/nif/test_fix_tangentspace.nif
 reading tests/nif/test_fix_texturepath.nif
 reading tests/nif/test_mopp.nif
+reading tests/nif/test_opt_collision_mopp.nif
 reading tests/nif/test_opt_delunusedbones.nif
 reading tests/nif/test_opt_dupgeomdata.nif
 reading tests/nif/test_opt_dupverts.nif
