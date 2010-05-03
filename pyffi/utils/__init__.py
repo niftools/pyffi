@@ -129,8 +129,10 @@ def hex_dump(f, num_lines = 8):
     print(dumpstr)
 
 def unique_map(hash_generator):
-    """Return a map and inverse map to indentify unique values based on hash.
-    Useful for removing duplicate data.
+    """Return a map and inverse map to indentify unique values based
+    on hash, which is useful for removing duplicate data. If the hash
+    generator yields None then the value is mapped to None (useful for
+    discarding data).
 
     >>> unique_map([])
     ([], [])
@@ -143,7 +145,7 @@ def unique_map(hash_generator):
     """
     hash_map = [] # maps old index to new index
     hash_map_inverse = [] # inverse: map new index to old index
-    hash_index_map = {} # maps hash to new index
+    hash_index_map = {None: None} # maps hash to new index (default for None)
     new_index = 0
     for old_index, hash_ in enumerate(hash_generator):
         try:

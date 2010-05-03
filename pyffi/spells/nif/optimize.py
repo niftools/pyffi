@@ -761,35 +761,41 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
         # set new data
         data.num_vertices = new_numvertices
         data.vertices.update_size()
-        for i, v in enumerate(data.vertices):
-            old_i = v_map_inverse[i]
+        for old_i, v in izip(v_map_inverse, data.vertices):
             v.x = oldverts[old_i][0]
             v.y = oldverts[old_i][1]
             v.z = oldverts[old_i][2]
         del oldverts
-
         # update vertex indices in triangles
-        new_triangleindice = []
-        i = 0
         for tri in data.triangles:
-            tridetail = tri.triangle
-            tridetail.v_1 = v_map[tridetail.v_1]
-            tridetail.v_2 = v_map[tridetail.v_2]
-            tridetail.v_3 = v_map[tridetail.v_3]
-            if tridetail.v_1 == tridetail.v_2 or tridetail.v_2 == tridetail.v_3 or tridetail.v_1 == tridetail.v_3:
+            tri.triangle.v_1 = v_map[tri.triangle.v_1]
+            tri.triangle.v_2 = v_map[tri.triangle.v_2]
+            tri.triangle.v_3 = v_map[tri.triangle.v_3]
+        # remove duplicate triangles
+        self.toaster.msg(_("removing duplicate triangles"))
+        t_map, t_map_inverse = unique_map(data.get_triangle_hash_generator())
+        new_numtriangles = len(t_map_inverse)
+        self.toaster.msg(_("(num triangles in collision shape was %i and is now %i)")
+                         % (len(t_map), new_numtriangles))
+        # copy old data
+        oldtris = [[tri.triangle.v_1, tri.triangle.v_2, tri.triangle.v_3,
+                    tri.normal.x, tri.normal.y, tri.normal.z]
+                   for tri in data.triangles]
+        # set new data
+        data.num_triangles = new_numtriangles
+        data.triangles.update_size()
+        for old_i, tri in izip(t_map_inverse, data.triangles):
+            if old_i is None:
                 continue
-            new_triangleindice.append(i)
-            new_triangleindice[i] = tri
-            i += 1
-        # update num triangles and triangles if needed.    
-        if data.num_triangles != len(new_triangleindice):
-            self.toaster.msg(_("(num triangles in collision shape was %i and is now %i)")
-                            % (data.num_triangles, len(new_triangleindice)))
-            data.num_triangles = len(new_triangleindice)
-            data.triangles.update_size()
-            for i, tri in enumerate(data.triangles):
-                tri = new_triangleindice[i]
-            del new_triangleindice
+            tri.triangle.v_1 = oldtris[old_i][0]
+            tri.triangle.v_2 = oldtris[old_i][1]
+            tri.triangle.v_3 = oldtris[old_i][2]
+            tri.normal.x = oldtris[old_i][3]
+            tri.normal.y = oldtris[old_i][4]
+            tri.normal.z = oldtris[old_i][5]
+            # note: welding updated later when calling the mopper
+        del oldtris
+
         if shape.num_sub_shapes == 1:
             shape.sub_shapes[0].num_vertices = shape.data.num_vertices
         #hmm not sure how to do this for multisubshape collisions

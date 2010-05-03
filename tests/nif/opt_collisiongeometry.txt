@@ -27,6 +27,7 @@ pyffi.toaster:INFO:      ~~~ bhkRigidBody [] ~~~
 pyffi.toaster:INFO:        ~~~ bhkMoppBvTreeShape [] ~~~
 pyffi.toaster:INFO:          removing duplicate vertices
 pyffi.toaster:INFO:          (num vertices in collision shape was 53 and is now 51)
+pyffi.toaster:INFO:          removing duplicate triangles
 pyffi.toaster:INFO:          (num triangles in collision shape was 102 and is now 98)
 Mopper. Copyright (c) 2008, NIF File Format Library and Tools.
 All rights reserved.
