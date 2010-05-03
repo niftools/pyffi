@@ -65,6 +65,7 @@ from itertools import izip
 import os.path # exists
 
 from pyffi.formats.nif import NifFormat
+from pyffi.utils import unique_map
 import pyffi.utils.tristrip
 import pyffi.spells
 import pyffi.spells.nif
@@ -245,27 +246,11 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
 
     def optimize_vertices(self, data):
         self.toaster.msg("removing duplicate vertices")
-        v_map = [0 for i in xrange(data.num_vertices)] # maps old index to new index
-        v_map_inverse = [] # inverse: map new index to old index
-        k_map = {} # maps hash to new vertex index
-        index = 0  # new vertex index for next vertex
-        for i, vhash in enumerate(data.get_vertex_hash_generator(
+        return unique_map(data.get_vertex_hash_generator(
             vertexprecision=self.VERTEXPRECISION,
             normalprecision=self.NORMALPRECISION,
             uvprecision=self.UVPRECISION,
-            vcolprecision=self.VCOLPRECISION)):
-            try:
-                k = k_map[vhash]
-            except KeyError:
-                # vertex is new
-                k_map[vhash] = index
-                v_map[i] = index
-                v_map_inverse.append(i)
-                index += 1
-            else:
-                # vertex already exists
-                v_map[i] = k
-        return v_map, v_map_inverse
+            vcolprecision=self.VCOLPRECISION))
         
     def branchentry(self, branch):
         """Optimize a NiTriStrips or NiTriShape block:
@@ -761,27 +746,11 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
         
     def optimize_vertices(self, data):
         self.toaster.msg(_("removing duplicate vertices"))
-        v_map = [0 for i in xrange(data.num_vertices)] # maps old index to new index
-        v_map_inverse = [] # inverse: map new index to old index
-        k_map = {} # maps hash to new vertex index
-        index = 0  # new vertex index for next vertex
         if isinstance(data, NifFormat.hkPackedNiTriStripsData):
             vhash_gen = data.get_vertex_hash_generator(3)
         elif isinstance(data, NifFormat.NiTriStripsData):
-            vhash_gen = data.get_vertex_hash_generator(3,-2,-2,-2)
-        for i, vhash in enumerate(vhash_gen):
-            try:
-                k = k_map[vhash]
-            except KeyError:
-                # vertex is new
-                k_map[vhash] = index
-                v_map[i] = index
-                v_map_inverse.append(i)
-                index += 1
-            else:
-                # vertex already exists
-                v_map[i] = k
-        return v_map, v_map_inverse
+            vhash_gen = data.get_vertex_hash_generator(3, -2, -2, -2)
+        return unique_map(vhash_gen)
         
     def optimize_hkPackedNiTriStripsData(self,data):
         v_map, v_map_inverse = self.optimize_vertices(data)
