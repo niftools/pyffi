@@ -721,6 +721,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
 
     SPELLNAME = "opt_collisiongeometry"
     READONLY = False
+    VERTEXPRECISION = 3
 
     def __init__(self, *args, **kwargs):
         pyffi.spells.nif.NifSpell.__init__(self, *args, **kwargs)
@@ -742,19 +743,15 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
                                    NifFormat.bhkNiTriStripsShape,
                                    NifFormat.hkPackedNiTriStripsData,
                                    NifFormat.NiTriStripsData))
+        
+    def optimize_mopp(self, mopp):
+        """Optimize a bhkMoppBvTreeShape."""
+        shape = mopp.shape
+        data = shape.data
 
-        
-    def optimize_vertices(self, data):
-        """Return map and inverse map based on vertices."""
         self.toaster.msg(_("removing duplicate vertices"))
-        if isinstance(data, NifFormat.hkPackedNiTriStripsData):
-            vhash_gen = data.get_vertex_hash_generator(3)
-        elif isinstance(data, NifFormat.NiTriStripsData):
-            vhash_gen = data.get_vertex_hash_generator(3, -2, -2, -2)
-        return unique_map(vhash_gen)
-        
-    def optimize_packed_shape(self,data):
-        v_map, v_map_inverse = self.optimize_vertices(data)
+        v_map, v_map_inverse = unique_map(
+            data.get_vertex_hash_generator(self.VERTEX_PRECISION))
         
         new_numvertices = len(v_map_inverse)
         self.toaster.msg(_("(num vertices in collision shape was %i and is now %i)")
@@ -793,6 +790,12 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
             for i, tri in enumerate(data.triangles):
                 tri = new_triangleindice[i]
             del new_triangleindice
+        if shape.num_sub_shapes == 1:
+            shape.sub_shapes[0].num_vertices = shape.data.num_vertices
+        #hmm not sure how to do this for multisubshape collisions
+        #(determing what subshapes had vertices removed that is
+        #not the setting of num vertices for each of them)... ????
+        mopp.update_mopp_welding()
         
     def branchentry(self, branch):
         """Optimize a vertex based collision block:
@@ -814,16 +817,11 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
                 self.data.replace_global_node(branch, None)
                 self.changed = True
                 return False                
-            self.optimize_packed_shape(branch.shape.data)
+            self.optimize_mopp(branch.shape)
             # we found a geometry to optimize
             self.optimized.append(branch)
-            self.optimized.append(branch.shape.data)
             # we're going to change the data
             self.changed = True
-            if branch.shape.num_sub_shapes == 1:
-                branch.shape.sub_shapes[0].num_vertices = branch.shape.data.num_vertices
-            #hmm not sure how to do this for multisubshape collisions (determing what subshapes had vertices removed that is not the setting of num vertices for each of them)... ????
-            branch.update_mopp_welding()
             return False # don't recurese farther
         elif isinstance(branch, NifFormat.bhkNiTriStripsShape):
             # we found a geometry to optimize
@@ -840,8 +838,10 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
                     self.data.replace_global_node(strips_data, None)
                     return False
 
-                # shortcut
-                v_map, v_map_inverse = self.optimize_vertices(strips_data)
+                # precision of -10 = ignore
+                v_map, v_map_inverse = unique_map(
+                    strips_data.get_vertex_hash_generator(
+                        self.VERTEX_PRECISION, -10, -10, -10))
                 
                 new_numvertices = len(v_map_inverse)
                 self.toaster.msg(_("(num vertices was %i and is now %i)")
