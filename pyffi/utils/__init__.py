@@ -80,14 +80,14 @@ def walk(top, topdown=True, onerror=None, re_filename=None):
 #table += "."*128
 chartable = '................................ !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.................................................................................................................................'.encode("ascii")
 
-def hexDump(f, numLines = 8):
+def hex_dump(f, num_lines = 8):
     """A function for hexdumping.
 
     >>> from tempfile import TemporaryFile
     >>> f = TemporaryFile()
     >>> if f.write('abcdefg\\x0a'.encode("ascii")): pass
     >>> if f.seek(2): pass # ignore result for py3k
-    >>> hexDump(f, 2)
+    >>> hex_dump(f, 2)
                 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 
     -----------------------------------------------------------
     0x00000000  61 62>63 64 65 66 67 0A                         |abcdefg.        |
@@ -98,8 +98,8 @@ def hexDump(f, numLines = 8):
     dumpstr = ""
 
     pos = f.tell()
-    if pos > numLines*8:
-        f.seek((pos-numLines*8) & 0xfffffff0)
+    if pos > num_lines*8:
+        f.seek((pos-num_lines*8) & 0xfffffff0)
     else:
         f.seek(0)
     dumppos = f.tell()
@@ -107,7 +107,7 @@ def hexDump(f, numLines = 8):
     for ofs in xrange(16):
         dumpstr += "%02X " % ofs
     dumpstr += "\n-----------------------------------------------------------\n"
-    for i in xrange(numLines):
+    for i in xrange(num_lines):
         dumpstr += "0x%08X " % dumppos
         data = f.read(16)
         for j, c in enumerate(data):
