@@ -320,7 +320,7 @@ end
 #
 # ***** END LICENSE BLOCK *****
 
-from itertools import izip, repeat
+from itertools import izip, repeat, chain
 import logging
 import math # math.pi
 import os
@@ -2995,6 +2995,98 @@ class NifFormat(FileFormat):
                 vdata.x = v[0] / 7.0
                 vdata.y = v[1] / 7.0
                 vdata.z = v[2] / 7.0
+                
+        def get_vertex_hash_generator(
+            self,
+            vertexprecision=3):
+            """Generator which produces a tuple of integers for each
+            vertex to ease detection of duplicate/close enough to remove
+            vertices. The precision parameter denote number of
+            significant digits behind the comma.
+
+            For vertexprecision, 3 seems usually enough (maybe we'll
+            have to increase this at some point).
+
+            >>> shape = NifFormat.bhkPackedNiTriStripsShape()
+            >>> data = NifFormat.hkPackedNiTriStripsData()
+            >>> shape.data = data
+            >>> shape.num_sub_shapes = 2
+            >>> shape.sub_shapes.update_size()
+            >>> data.num_vertices = 3
+            >>> shape.sub_shapes[0].num_vertices = 2
+            >>> shape.sub_shapes[1].num_vertices = 1
+            >>> data.vertices.update_size()
+            >>> data.vertices[0].x = 0.0
+            >>> data.vertices[0].y = 0.1
+            >>> data.vertices[0].z = 0.2
+            >>> data.vertices[1].x = 1.0
+            >>> data.vertices[1].y = 1.1
+            >>> data.vertices[1].z = 1.2
+            >>> data.vertices[2].x = 2.0
+            >>> data.vertices[2].y = 2.1
+            >>> data.vertices[2].z = 2.2
+            >>> list(shape.get_vertex_hash_generator())
+            [(0, (0, 100, 200)), (0, (1000, 1100, 1200)), (1, (2000, 2100, 2200))]
+
+            :param vertexprecision: Precision to be used for vertices.
+            :type vertexprecision: float
+            :return: A generator yielding a hash value for each vertex.
+            """
+            vertexfactor = 10 ** vertexprecision
+            for matid, vert in izip(chain(*[repeat(i, sub_shape.num_vertices)
+                                            for i, sub_shape
+                                            in enumerate(self.sub_shapes)]),
+                                    self.data.vertices):
+                yield (matid, tuple(float_to_int(value * vertexfactor)
+                                    for value in vert.as_list()))
+
+        def get_triangle_hash_generator(self):
+            """Generator which produces a tuple of integers, or None
+            in degenerate case, for each triangle to ease detection of
+            duplicate triangles.
+
+            >>> shape = NifFormat.bhkPackedNiTriStripsShape()
+            >>> data = NifFormat.hkPackedNiTriStripsData()
+            >>> shape.data = data
+            >>> data.num_triangles = 6
+            >>> data.triangles.update_size()
+            >>> data.triangles[0].triangle.v_1 = 0
+            >>> data.triangles[0].triangle.v_2 = 1
+            >>> data.triangles[0].triangle.v_3 = 2
+            >>> data.triangles[1].triangle.v_1 = 2
+            >>> data.triangles[1].triangle.v_2 = 1
+            >>> data.triangles[1].triangle.v_3 = 3
+            >>> data.triangles[2].triangle.v_1 = 3
+            >>> data.triangles[2].triangle.v_2 = 2
+            >>> data.triangles[2].triangle.v_3 = 1
+            >>> data.triangles[3].triangle.v_1 = 3
+            >>> data.triangles[3].triangle.v_2 = 1
+            >>> data.triangles[3].triangle.v_3 = 2
+            >>> data.triangles[4].triangle.v_1 = 0
+            >>> data.triangles[4].triangle.v_2 = 0
+            >>> data.triangles[4].triangle.v_3 = 3
+            >>> data.triangles[5].triangle.v_1 = 1
+            >>> data.triangles[5].triangle.v_2 = 3
+            >>> data.triangles[5].triangle.v_3 = 4
+            >>> list(shape.get_triangle_hash_generator())
+            [(0, 1, 2), (1, 3, 2), (1, 3, 2), (1, 2, 3), None, (1, 3, 4)]
+
+            :return: A generator yielding a hash value for each triangle.
+            """
+            for tri in self.data.triangles:
+                v_1, v_2, v_3 = tri.triangle.v_1, tri.triangle.v_2, tri.triangle.v_3
+                if v_1 == v_2 or v_2 == v_3 or v_3 == v_1:
+                    # degenerate
+                    yield None
+                elif v_1 < v_2 and v_1 < v_3:
+                    # v_1 smallest
+                    yield v_1, v_2, v_3
+                elif v_2 < v_1 and v_2 < v_3:
+                    # v_2 smallest
+                    yield v_2, v_3, v_1
+                else:
+                    # v_3 smallest
+                    yield v_3, v_1, v_2
 
     class bhkRagdollConstraint:
         def apply_scale(self, scale):
@@ -3245,87 +3337,6 @@ class NifFormat(FileFormat):
                 vert.x *= scale
                 vert.y *= scale
                 vert.z *= scale
-                
-        def get_vertex_hash_generator(
-            self,
-            vertexprecision=3):
-            """Generator which produces a tuple of integers for each
-            vertex to ease detection of duplicate/close enough to remove
-            vertices. The precision parameter denote number of
-            significant digits behind the comma.
-
-            For vertexprecision, 3 seems usually enough (maybe we'll
-            have to increase this at some point).
-
-            >>> data = NifFormat.hkPackedNiTriStripsData()
-            >>> data.num_vertices = 3
-            >>> data.vertices.update_size()
-            >>> data.vertices[0].x = 0.0
-            >>> data.vertices[0].y = 0.1
-            >>> data.vertices[0].z = 0.2
-            >>> data.vertices[1].x = 1.0
-            >>> data.vertices[1].y = 1.1
-            >>> data.vertices[1].z = 1.2
-            >>> data.vertices[2].x = 2.0
-            >>> data.vertices[2].y = 2.1
-            >>> data.vertices[2].z = 2.2
-            >>> [hsh for hsh in data.get_vertex_hash_generator()]
-            [(0, 100, 200), (1000, 1100, 1200), (2000, 2100, 2200)]
-
-            :param vertexprecision: Precision to be used for vertices.
-            :type vertexprecision: float
-            :return: A generator yielding a hash value for each vertex.
-            """
-            vertexfactor = 10 ** vertexprecision
-            for vert in self.vertices:
-                yield tuple(float_to_int(value * vertexfactor)
-                            for value in vert.as_list())
-
-        def get_triangle_hash_generator(self):
-            """Generator which produces a tuple of integers, or None
-            in degenerate case, for each triangle to ease detection of
-            duplicate triangles.
-
-            >>> data = NifFormat.hkPackedNiTriStripsData()
-            >>> data.num_triangles = 6
-            >>> data.triangles.update_size()
-            >>> data.triangles[0].triangle.v_1 = 0
-            >>> data.triangles[0].triangle.v_2 = 1
-            >>> data.triangles[0].triangle.v_3 = 2
-            >>> data.triangles[1].triangle.v_1 = 2
-            >>> data.triangles[1].triangle.v_2 = 1
-            >>> data.triangles[1].triangle.v_3 = 3
-            >>> data.triangles[2].triangle.v_1 = 3
-            >>> data.triangles[2].triangle.v_2 = 2
-            >>> data.triangles[2].triangle.v_3 = 1
-            >>> data.triangles[3].triangle.v_1 = 3
-            >>> data.triangles[3].triangle.v_2 = 1
-            >>> data.triangles[3].triangle.v_3 = 2
-            >>> data.triangles[4].triangle.v_1 = 0
-            >>> data.triangles[4].triangle.v_2 = 0
-            >>> data.triangles[4].triangle.v_3 = 3
-            >>> data.triangles[5].triangle.v_1 = 1
-            >>> data.triangles[5].triangle.v_2 = 3
-            >>> data.triangles[5].triangle.v_3 = 4
-            >>> list(data.get_triangle_hash_generator())
-            [(0, 1, 2), (1, 3, 2), (1, 3, 2), (1, 2, 3), None, (1, 3, 4)]
-
-            :return: A generator yielding a hash value for each triangle.
-            """
-            for tri in self.triangles:
-                v_1, v_2, v_3 = tri.triangle.v_1, tri.triangle.v_2, tri.triangle.v_3
-                if v_1 == v_2 or v_2 == v_3 or v_3 == v_1:
-                    # degenerate
-                    yield None
-                elif v_1 < v_2 and v_1 < v_3:
-                    # v_1 smallest
-                    yield v_1, v_2, v_3
-                elif v_2 < v_1 and v_2 < v_3:
-                    # v_2 smallest
-                    yield v_2, v_3, v_1
-                else:
-                    # v_3 smallest
-                    yield v_3, v_1, v_2
 
     class InertiaMatrix:
         def as_list(self):
