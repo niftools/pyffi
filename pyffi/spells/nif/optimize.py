@@ -260,7 +260,6 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
             else:
                 # vertex already exists
                 v_map[i] = k
-        del k_map
         return v_map, v_map_inverse
         
     def branchentry(self, branch):
@@ -778,7 +777,6 @@ class SpellOptimizeCollision(pyffi.spells.nif.NifSpell):
             else:
                 # vertex already exists
                 v_map[i] = k
-        del k_map
         return v_map, v_map_inverse
         
     def optimize_hkPackedNiTriStripsData(self,data):
