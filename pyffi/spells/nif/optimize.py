@@ -752,7 +752,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
             vhash_gen = data.get_vertex_hash_generator(3, -2, -2, -2)
         return unique_map(vhash_gen)
         
-    def optimize_hkPackedNiTriStripsData(self,data):
+    def optimize_packed_shape(self,data):
         v_map, v_map_inverse = self.optimize_vertices(data)
         
         new_numvertices = len(v_map_inverse)
@@ -812,7 +812,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
                         self.data.replace_global_node(branch, None)
                         self.changed = True
                         return False                
-                    self.optimize_hkPackedNiTriStripsData(branch.shape.data)
+                    self.optimize_packed_shape(branch.shape.data)
                     # we found a geometry to optimize
                     self.optimized.append(branch)
                     self.optimized.append(branch.shape.data)
@@ -829,7 +829,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
                         self.data.replace_global_node(branch, None)
                         self.changed = True
                         return False                
-                    self.optimize_hkPackedNiTriStripsData(branch)
+                    self.optimize_packed_shape(branch)
                     # we found a geometry to optimize
                     self.optimized.append(branch)
                     # we're going to change the data
