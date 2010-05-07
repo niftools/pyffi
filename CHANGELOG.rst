@@ -14,6 +14,8 @@ Release 2.1.5 (in development)
 * Added support for Laxe Lore nifs (reported by bobsobol, issue
   #2995866).
 
+* New spell to optimize collision geometry in nifs.
+
 Release 2.1.4 (19 Mar 2010)
 ===========================
 
