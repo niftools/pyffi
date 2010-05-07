@@ -1129,6 +1129,8 @@ class SpellOptimize(
         SpellMergeDuplicates,
         SpellOptimizeGeometry,
         SpellPackCollision,
-        SpellOptimizeCollisionGeometry)):
+        # XXX disabling for now until it's proven to be stable
+        #SpellOptimizeCollisionGeometry,
+        )):
     """Global fixer and optimizer spell."""
     SPELLNAME = "optimize"
