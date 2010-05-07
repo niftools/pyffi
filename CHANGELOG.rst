@@ -8,6 +8,9 @@ Release 2.1.5 (in development)
 * The fix_texturepath spell now also converts double backslash in
   single backslash (suggested by Baphometal).
 
+* Bugfix in save_as_dds function for newer NiPixelData blocks (reported
+  by norocelmiau).
+
 Release 2.1.4 (19 Mar 2010)
 ===========================
 

@@ -5692,7 +5692,7 @@ class NifFormat(FileFormat):
 
             # create header, depending on the format
             if self.pixel_format in (NifFormat.PixelFormat.PX_FMT_RGB8,
-                                    NifFormat.PixelFormat.PX_FMT_RGBA8):
+                                     NifFormat.PixelFormat.PX_FMT_RGBA8):
                 # uncompressed RGB(A)
                 header.flags.caps = 1
                 header.flags.height = 1
@@ -5706,14 +5706,33 @@ class NifFormat(FileFormat):
                 header.mipmap_count = len(self.mipmaps)
                 header.pixel_format.flags.rgb = 1
                 header.pixel_format.bit_count = self.bits_per_pixel
-                header.pixel_format.r_mask = self.red_mask
-                header.pixel_format.g_mask = self.green_mask
-                header.pixel_format.b_mask = self.blue_mask
-                header.pixel_format.a_mask = self.alpha_mask
+                if not self.channels:
+                    header.pixel_format.r_mask = self.red_mask
+                    header.pixel_format.g_mask = self.green_mask
+                    header.pixel_format.b_mask = self.blue_mask
+                    header.pixel_format.a_mask = self.alpha_mask
+                else:
+                    bit_pos = 0
+                    for i, channel in enumerate(self.channels):
+                        mask = (2 ** channel.bits_per_channel - 1) << bit_pos
+                        if channel.type == NifFormat.ChannelType.CHNL_RED:
+                            header.pixel_format.r_mask = mask
+                        elif channel.type == NifFormat.ChannelType.CHNL_GREEN:
+                            header.pixel_format.g_mask = mask
+                        elif channel.type == NifFormat.ChannelType.CHNL_BLUE:
+                            header.pixel_format.b_mask = mask
+                        elif channel.type == NifFormat.ChannelType.CHNL_ALPHA:
+                            header.pixel_format.a_mask = mask
+                        bit_pos += channel.bits_per_channel
                 header.caps_1.complex = 1
                 header.caps_1.texture = 1
                 header.caps_1.mipmap = 1
-                pixeldata.set_value(self.pixel_data)
+                if self.pixel_data:
+                    # used in older nif versions
+                    pixeldata.set_value(self.pixel_data)
+                else:
+                    # used in newer nif versions
+                    pixeldata.set_value(''.join(self.pixel_data_matrix))
             elif self.pixel_format == NifFormat.PixelFormat.PX_FMT_DXT1:
                 # format used in Megami Tensei: Imagine
                 header.flags.caps = 1
@@ -5745,7 +5764,7 @@ class NifFormat(FileFormat):
                 else:
                     pixeldata.set_value(''.join(self.pixel_data_matrix))
             elif self.pixel_format in (NifFormat.PixelFormat.PX_FMT_DXT5,
-                                      NifFormat.PixelFormat.PX_FMT_DXT5_ALT):
+                                       NifFormat.PixelFormat.PX_FMT_DXT5_ALT):
                 # format used in Megami Tensei: Imagine
                 header.flags.caps = 1
                 header.flags.height = 1
