@@ -764,12 +764,12 @@ class NifFormat(FileFormat):
                 v = "%i.%i"%((version >> 24) & 0xff, (version >> 16) & 0xff)
             else:
                 v = "%i.%i.%i.%i"%((version >> 24) & 0xff, (version >> 16) & 0xff, (version >> 8) & 0xff, version & 0xff)
-            if not modification:
-                return "%s File Format, Version %s" % (s, v)
-            elif modification == "ndoors":
+            if modification == "ndoors":
                 return "NDSNIF....@....@...., Version %s" % v
             elif modification == "jmihs1":
                 return "Joymaster HS1 Object Format - (JMI), Version %s" % v
+            else:
+                return "%s File Format, Version %s" % (s, v)
 
     class FileVersion(BasicBase):
         def get_value(self):
@@ -808,6 +808,12 @@ class NifFormat(FileFormat):
                         "Invalid Ndoors version number: "
                         "expected 0x%08X but got 0x%08X."
                         % (0x73615F67, ver))
+            elif modification == "laxelore":
+                if ver != 0x5A000004:
+                    raise ValueError(
+                        "Invalid Laxe Lore version number: "
+                        "expected 0x%08X but got 0x%08X."
+                        % (0x5A000004, ver))
             else:
                 raise ValueError(
                     "unknown modification: '%s'" % modification)
@@ -820,6 +826,8 @@ class NifFormat(FileFormat):
                 stream.write(struct.pack('<I', 0x08F35232))
             elif modification == "ndoors":
                 stream.write(struct.pack('<I', 0x73615F67))
+            elif modification == "laxelore":
+                stream.write(struct.pack('<I', 0x5A000004))
             else:
                 raise ValueError(
                     "unknown modification: '%s'" % modification)
@@ -1089,7 +1097,7 @@ class NifFormat(FileFormat):
         :type header: L{NifFormat.Header}
         :ivar blocks: List of blocks.
         :type blocks: ``list`` of L{NifFormat.NiObject}
-        :ivar modification: Neo Steam ("neosteam") or Ndoors ("ndoors") or Joymaster Interactive Howling Sword ("jmihs1") style nif?
+        :ivar modification: Neo Steam ("neosteam") or Ndoors ("ndoors") or Joymaster Interactive Howling Sword ("jmihs1") or Laxe Lore ("laxelore") style nif?
         :type modification: ``str``
         """
 
@@ -1204,8 +1212,11 @@ class NifFormat(FileFormat):
                 try:
                     stream.readline(64)
                     ver_int, = struct.unpack('<I', stream.read(4))
+                    # special case for Laxe Lore
+                    if ver_int == 0x5A000004 and ver == 0x14000004:
+                        self.modification = "laxelore"
                     # neosteam and ndoors have a special version integer
-                    if (not self.modification) or self.modification == "jmihs1":
+                    elif (not self.modification) or self.modification == "jmihs1":
                         if ver_int != ver:
                             raise ValueError(
                                 "Corrupted nif file: header version string %s"

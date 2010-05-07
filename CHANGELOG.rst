@@ -9,7 +9,10 @@ Release 2.1.5 (in development)
   single backslash (suggested by Baphometal).
 
 * Bugfix in save_as_dds function for newer NiPixelData blocks (reported
-  by norocelmiau).
+  by norocelmiau, issue #2996800).
+
+* Added support for Laxe Lore nifs (reported by bobsobol, issue
+  #2995866).
 
 Release 2.1.4 (19 Mar 2010)
 ===========================
