@@ -732,7 +732,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
         # set new data
         data.num_vertices = new_numvertices
         data.vertices.update_size()
-        for old_i, v in izip(v_map_inverse, data.vertices):
+        for old_i, v in zip(v_map_inverse, data.vertices):
             v.x = oldverts[old_i][0]
             v.y = oldverts[old_i][1]
             v.z = oldverts[old_i][2]
@@ -755,7 +755,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
         # set new data
         data.num_triangles = new_numtriangles
         data.triangles.update_size()
-        for old_i, tri in izip(t_map_inverse, data.triangles):
+        for old_i, tri in zip(t_map_inverse, data.triangles):
             if old_i is None:
                 continue
             tri.triangle.v_1 = oldtris[old_i][0]
@@ -993,7 +993,7 @@ class SpellOptimizeAnimation(pyffi.spells.nif.NifSpell):
         self.toaster.msg(_("Num keys was %i and is now %i") % (len(old_keygroup.keys),len(new_keys)))
         old_keygroup.num_keys = len(new_keys)
         old_keygroup.keys.update_size()
-        for old_key, new_key in izip(old_keygroup.keys,new_keys):
+        for old_key, new_key in zip(old_keygroup.keys,new_keys):
             old_key.time = new_key.time
             old_key.value = new_key.value
         self.changed = True
@@ -1001,7 +1001,7 @@ class SpellOptimizeAnimation(pyffi.spells.nif.NifSpell):
     def update_animation_quaternion(self,old_keygroup,new_keys):
         self.toaster.msg(_("Num keys was %i and is now %i") % (len(old_keygroup),len(new_keys)))
         old_keygroup.update_size()
-        for old_key, new_key in izip(old_keygroup,new_keys):
+        for old_key, new_key in zip(old_keygroup,new_keys):
             old_key.time = new_key.time
             old_key.value = new_key.value
         self.changed = True

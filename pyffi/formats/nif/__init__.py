@@ -3048,9 +3048,9 @@ class NifFormat(FileFormat):
             :return: A generator yielding a hash value for each vertex.
             """
             vertexfactor = 10 ** vertexprecision
-            for matid, vert in izip(chain(*[repeat(i, sub_shape.num_vertices)
-                                            for i, sub_shape
-                                            in enumerate(self.sub_shapes)]),
+            for matid, vert in zip(chain(*[repeat(i, sub_shape.num_vertices)
+                                           for i, sub_shape
+                                           in enumerate(self.sub_shapes)]),
                                     self.data.vertices):
                 yield (matid, tuple(float_to_int(value * vertexfactor)
                                     for value in vert.as_list()))
