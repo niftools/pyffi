@@ -25,11 +25,11 @@ pyffi.toaster:INFO:  --- modify_allbonepriorities ---
 pyffi.toaster:INFO:    ~~~ NiNode [TestCleanStringPalette] ~~~
 pyffi.toaster:INFO:      ~~~ NiControllerManager [] ~~~
 pyffi.toaster:INFO:        ~~~ NiControllerSequence [Scared] ~~~
-pyffi.toaster:INFO:          Test priority changed to 50
-pyffi.toaster:INFO:          Test NonAccum priority changed to 50
+pyffi.toaster:INFO:          b'Test' priority changed to 50
+pyffi.toaster:INFO:          b'Test NonAccum' priority changed to 50
 pyffi.toaster:INFO:        ~~~ NiControllerSequence [Death] ~~~
-pyffi.toaster:INFO:          Test priority changed to 50
-pyffi.toaster:INFO:          Test NonAccum priority changed to 50
+pyffi.toaster:INFO:          b'Test' priority changed to 50
+pyffi.toaster:INFO:          b'Test NonAccum' priority changed to 50
 pyffi.toaster:INFO:  writing tests/nif/_test_fix_cleanstringpalette.nif
 pyffi.toaster:INFO:Finished.
 >>> # check new bone priorities
