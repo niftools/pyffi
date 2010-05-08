@@ -10,6 +10,14 @@ Release 2.2.0 (in development)
 
 * Added PSK and PSA file support (used by Unreal engine).
 
+* Bugfix in save_as_dds function for newer NiPixelData blocks (reported
+  by norocelmiau, issue #2996800).
+
+* Added support for Laxe Lore nifs (reported by bobsobol, issue
+  #2995866).
+
+* New spell to optimize collision geometry in nifs.
+
 Release 2.1.4 (19 Mar 2010)
 ===========================
 

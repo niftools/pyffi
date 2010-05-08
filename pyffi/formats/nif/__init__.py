@@ -72,6 +72,7 @@ reading tests/nif/test_fix_mergeskeletonroots.nif
 reading tests/nif/test_fix_tangentspace.nif
 reading tests/nif/test_fix_texturepath.nif
 reading tests/nif/test_mopp.nif
+reading tests/nif/test_opt_collision_mopp.nif
 reading tests/nif/test_opt_delunusedbones.nif
 reading tests/nif/test_opt_dupgeomdata.nif
 reading tests/nif/test_opt_dupverts.nif
@@ -319,7 +320,7 @@ end
 #
 # ***** END LICENSE BLOCK *****
 
-from itertools import repeat
+from itertools import repeat, chain
 import logging
 import math # math.pi
 import os
@@ -767,12 +768,12 @@ class NifFormat(FileFormat):
                 v = "%i.%i"%((version >> 24) & 0xff, (version >> 16) & 0xff)
             else:
                 v = "%i.%i.%i.%i"%((version >> 24) & 0xff, (version >> 16) & 0xff, (version >> 8) & 0xff, version & 0xff)
-            if not modification:
-                return "%s File Format, Version %s" % (s, v)
-            elif modification == "ndoors":
+            if modification == "ndoors":
                 return "NDSNIF....@....@...., Version %s" % v
             elif modification == "jmihs1":
                 return "Joymaster HS1 Object Format - (JMI), Version %s" % v
+            else:
+                return "%s File Format, Version %s" % (s, v)
 
     class FileVersion(BasicBase):
         def get_value(self):
@@ -811,6 +812,12 @@ class NifFormat(FileFormat):
                         "Invalid Ndoors version number: "
                         "expected 0x%08X but got 0x%08X."
                         % (0x73615F67, ver))
+            elif modification == "laxelore":
+                if ver != 0x5A000004:
+                    raise ValueError(
+                        "Invalid Laxe Lore version number: "
+                        "expected 0x%08X but got 0x%08X."
+                        % (0x5A000004, ver))
             else:
                 raise ValueError(
                     "unknown modification: '%s'" % modification)
@@ -823,6 +830,8 @@ class NifFormat(FileFormat):
                 stream.write(struct.pack('<I', 0x08F35232))
             elif modification == "ndoors":
                 stream.write(struct.pack('<I', 0x73615F67))
+            elif modification == "laxelore":
+                stream.write(struct.pack('<I', 0x5A000004))
             else:
                 raise ValueError(
                     "unknown modification: '%s'" % modification)
@@ -1092,7 +1101,7 @@ class NifFormat(FileFormat):
         :type header: L{NifFormat.Header}
         :ivar blocks: List of blocks.
         :type blocks: ``list`` of L{NifFormat.NiObject}
-        :ivar modification: Neo Steam ("neosteam") or Ndoors ("ndoors") or Joymaster Interactive Howling Sword ("jmihs1") style nif?
+        :ivar modification: Neo Steam ("neosteam") or Ndoors ("ndoors") or Joymaster Interactive Howling Sword ("jmihs1") or Laxe Lore ("laxelore") style nif?
         :type modification: ``str``
         """
 
@@ -1207,8 +1216,11 @@ class NifFormat(FileFormat):
                 try:
                     stream.readline(64)
                     ver_int, = struct.unpack('<I', stream.read(4))
+                    # special case for Laxe Lore
+                    if ver_int == 0x5A000004 and ver == 0x14000004:
+                        self.modification = "laxelore"
                     # neosteam and ndoors have a special version integer
-                    if (not self.modification) or self.modification == "jmihs1":
+                    elif (not self.modification) or self.modification == "jmihs1":
                         if ver_int != ver:
                             raise ValueError(
                                 "Corrupted nif file: header version string %s"
@@ -2998,6 +3010,98 @@ class NifFormat(FileFormat):
                 vdata.x = v[0] / 7.0
                 vdata.y = v[1] / 7.0
                 vdata.z = v[2] / 7.0
+                
+        def get_vertex_hash_generator(
+            self,
+            vertexprecision=3):
+            """Generator which produces a tuple of integers for each
+            vertex to ease detection of duplicate/close enough to remove
+            vertices. The precision parameter denote number of
+            significant digits behind the comma.
+
+            For vertexprecision, 3 seems usually enough (maybe we'll
+            have to increase this at some point).
+
+            >>> shape = NifFormat.bhkPackedNiTriStripsShape()
+            >>> data = NifFormat.hkPackedNiTriStripsData()
+            >>> shape.data = data
+            >>> shape.num_sub_shapes = 2
+            >>> shape.sub_shapes.update_size()
+            >>> data.num_vertices = 3
+            >>> shape.sub_shapes[0].num_vertices = 2
+            >>> shape.sub_shapes[1].num_vertices = 1
+            >>> data.vertices.update_size()
+            >>> data.vertices[0].x = 0.0
+            >>> data.vertices[0].y = 0.1
+            >>> data.vertices[0].z = 0.2
+            >>> data.vertices[1].x = 1.0
+            >>> data.vertices[1].y = 1.1
+            >>> data.vertices[1].z = 1.2
+            >>> data.vertices[2].x = 2.0
+            >>> data.vertices[2].y = 2.1
+            >>> data.vertices[2].z = 2.2
+            >>> list(shape.get_vertex_hash_generator())
+            [(0, (0, 100, 200)), (0, (1000, 1100, 1200)), (1, (2000, 2100, 2200))]
+
+            :param vertexprecision: Precision to be used for vertices.
+            :type vertexprecision: float
+            :return: A generator yielding a hash value for each vertex.
+            """
+            vertexfactor = 10 ** vertexprecision
+            for matid, vert in izip(chain(*[repeat(i, sub_shape.num_vertices)
+                                            for i, sub_shape
+                                            in enumerate(self.sub_shapes)]),
+                                    self.data.vertices):
+                yield (matid, tuple(float_to_int(value * vertexfactor)
+                                    for value in vert.as_list()))
+
+        def get_triangle_hash_generator(self):
+            """Generator which produces a tuple of integers, or None
+            in degenerate case, for each triangle to ease detection of
+            duplicate triangles.
+
+            >>> shape = NifFormat.bhkPackedNiTriStripsShape()
+            >>> data = NifFormat.hkPackedNiTriStripsData()
+            >>> shape.data = data
+            >>> data.num_triangles = 6
+            >>> data.triangles.update_size()
+            >>> data.triangles[0].triangle.v_1 = 0
+            >>> data.triangles[0].triangle.v_2 = 1
+            >>> data.triangles[0].triangle.v_3 = 2
+            >>> data.triangles[1].triangle.v_1 = 2
+            >>> data.triangles[1].triangle.v_2 = 1
+            >>> data.triangles[1].triangle.v_3 = 3
+            >>> data.triangles[2].triangle.v_1 = 3
+            >>> data.triangles[2].triangle.v_2 = 2
+            >>> data.triangles[2].triangle.v_3 = 1
+            >>> data.triangles[3].triangle.v_1 = 3
+            >>> data.triangles[3].triangle.v_2 = 1
+            >>> data.triangles[3].triangle.v_3 = 2
+            >>> data.triangles[4].triangle.v_1 = 0
+            >>> data.triangles[4].triangle.v_2 = 0
+            >>> data.triangles[4].triangle.v_3 = 3
+            >>> data.triangles[5].triangle.v_1 = 1
+            >>> data.triangles[5].triangle.v_2 = 3
+            >>> data.triangles[5].triangle.v_3 = 4
+            >>> list(shape.get_triangle_hash_generator())
+            [(0, 1, 2), (1, 3, 2), (1, 3, 2), (1, 2, 3), None, (1, 3, 4)]
+
+            :return: A generator yielding a hash value for each triangle.
+            """
+            for tri in self.data.triangles:
+                v_1, v_2, v_3 = tri.triangle.v_1, tri.triangle.v_2, tri.triangle.v_3
+                if v_1 == v_2 or v_2 == v_3 or v_3 == v_1:
+                    # degenerate
+                    yield None
+                elif v_1 < v_2 and v_1 < v_3:
+                    # v_1 smallest
+                    yield v_1, v_2, v_3
+                elif v_2 < v_1 and v_2 < v_3:
+                    # v_2 smallest
+                    yield v_2, v_3, v_1
+                else:
+                    # v_3 smallest
+                    yield v_3, v_1, v_2
 
     class bhkRagdollConstraint:
         def apply_scale(self, scale):
@@ -5603,7 +5707,7 @@ class NifFormat(FileFormat):
 
             # create header, depending on the format
             if self.pixel_format in (NifFormat.PixelFormat.PX_FMT_RGB8,
-                                    NifFormat.PixelFormat.PX_FMT_RGBA8):
+                                     NifFormat.PixelFormat.PX_FMT_RGBA8):
                 # uncompressed RGB(A)
                 header.flags.caps = 1
                 header.flags.height = 1
@@ -5617,14 +5721,33 @@ class NifFormat(FileFormat):
                 header.mipmap_count = len(self.mipmaps)
                 header.pixel_format.flags.rgb = 1
                 header.pixel_format.bit_count = self.bits_per_pixel
-                header.pixel_format.r_mask = self.red_mask
-                header.pixel_format.g_mask = self.green_mask
-                header.pixel_format.b_mask = self.blue_mask
-                header.pixel_format.a_mask = self.alpha_mask
+                if not self.channels:
+                    header.pixel_format.r_mask = self.red_mask
+                    header.pixel_format.g_mask = self.green_mask
+                    header.pixel_format.b_mask = self.blue_mask
+                    header.pixel_format.a_mask = self.alpha_mask
+                else:
+                    bit_pos = 0
+                    for i, channel in enumerate(self.channels):
+                        mask = (2 ** channel.bits_per_channel - 1) << bit_pos
+                        if channel.type == NifFormat.ChannelType.CHNL_RED:
+                            header.pixel_format.r_mask = mask
+                        elif channel.type == NifFormat.ChannelType.CHNL_GREEN:
+                            header.pixel_format.g_mask = mask
+                        elif channel.type == NifFormat.ChannelType.CHNL_BLUE:
+                            header.pixel_format.b_mask = mask
+                        elif channel.type == NifFormat.ChannelType.CHNL_ALPHA:
+                            header.pixel_format.a_mask = mask
+                        bit_pos += channel.bits_per_channel
                 header.caps_1.complex = 1
                 header.caps_1.texture = 1
                 header.caps_1.mipmap = 1
-                pixeldata.set_value(self.pixel_data)
+                if self.pixel_data:
+                    # used in older nif versions
+                    pixeldata.set_value(self.pixel_data)
+                else:
+                    # used in newer nif versions
+                    pixeldata.set_value(''.join(self.pixel_data_matrix))
             elif self.pixel_format == NifFormat.PixelFormat.PX_FMT_DXT1:
                 # format used in Megami Tensei: Imagine
                 header.flags.caps = 1
@@ -5656,7 +5779,7 @@ class NifFormat(FileFormat):
                 else:
                     pixeldata.set_value(''.join(self.pixel_data_matrix))
             elif self.pixel_format in (NifFormat.PixelFormat.PX_FMT_DXT5,
-                                      NifFormat.PixelFormat.PX_FMT_DXT5_ALT):
+                                       NifFormat.PixelFormat.PX_FMT_DXT5_ALT):
                 # format used in Megami Tensei: Imagine
                 header.flags.caps = 1
                 header.flags.height = 1
@@ -6969,3 +7092,7 @@ class NifFormat(FileFormat):
             v.u = -self.u
             v.v = -self.v
             return v
+
+if __name__=='__main__':
+    import doctest
+    doctest.testmod()

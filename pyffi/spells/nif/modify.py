@@ -831,6 +831,7 @@ class SpellChangeBonePriorities(NifSpell):
     def branchinspect(self, branch):
         # inspect the NiAVObject and NiSequence branches
         return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiControllerManager,
                                    NifFormat.NiSequence))
 
     def branchentry(self, branch):
@@ -846,6 +847,36 @@ class SpellChangeBonePriorities(NifSpell):
                 self.toaster.msg("%s priority changed to %d" %
                                  (controlled_block.get_node_name(),
                                   controlled_block.priority))
+        return True
+
+class SpellChangeAllBonePriorities(SpellChangeBonePriorities):
+    """Changes all controlled block priorities to supplied argument."""
+
+    SPELLNAME = "modify_allbonepriorities"
+
+    @classmethod
+    def toastentry(cls, toaster):
+        if not toaster.options["arg"]:
+            toaster.logger.warn(
+                "must specify priority as argument (e.g. -a 20)")
+            return False
+        else:
+            toaster.bone_priority = int(toaster.options["arg"])
+            return True
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiSequence):
+            for controlled_block in branch.controlled_blocks:
+                if controlled_block.priority == self.toaster.bone_priority:
+                    self.toaster.msg("%s priority is already %d" %
+                                     (controlled_block.get_node_name(),
+                                      controlled_block.priority))
+                else:
+                    controlled_block.priority = self.toaster.bone_priority
+                    self.changed = True
+                    self.toaster.msg("%s priority changed to %d" %
+                                     (controlled_block.get_node_name(),
+                                      controlled_block.priority))
         return True
 
 class SpellSetInterpolatorTransRotScale(NifSpell):
