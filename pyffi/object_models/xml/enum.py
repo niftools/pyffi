@@ -60,11 +60,11 @@ class _MetaEnumBase(type):
 
         # check storage type
         if cls._numbytes == 1:
-            cls._struct = '<B'
+            cls._struct = 'B'
         elif cls._numbytes == 2:
-            cls._struct = '<H'
+            cls._struct = 'H'
         elif cls._numbytes == 4:
-            cls._struct = '<I'
+            cls._struct = 'I'
         else:
             raise RuntimeError("unsupported enum numbytes")
 
@@ -122,11 +122,13 @@ class EnumBase(BasicBase, EditableComboBox):
 
     def read(self, stream, **kwargs):
         """Read value from stream."""
-        self._value = struct.unpack(self._struct, stream.read(self._numbytes))[0]
+        self._value = struct.unpack(kwargs["data"].byteorder + self._struct,
+                                    stream.read(self._numbytes))[0]
 
     def write(self, stream, **kwargs):
         """Write value to stream."""
-        stream.write(struct.pack(self._struct, self._value))
+        stream.write(struct.pack(kwargs["data"].byteorder + self._struct,
+                                 self._value))
 
     def __str__(self):
         try:

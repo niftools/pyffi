@@ -16,6 +16,8 @@ Release 2.1.5 (in development)
 
 * New spell to optimize collision geometry in nifs.
 
+* Added big-endian support.
+
 Release 2.1.4 (19 Mar 2010)
 ===========================
 

@@ -109,7 +109,7 @@ def _as_str(value):
 
 class Int(BasicBase, EditableSpinBox):
     """Basic implementation of a 32-bit signed integer type. Also serves as a
-    base class for all other integer types.
+    base class for all other integer types. Follows specified byteorder.
 
     >>> from tempfile import TemporaryFile
     >>> tmp = TemporaryFile()
@@ -184,7 +184,7 @@ class Int(BasicBase, EditableSpinBox):
         :param stream: The stream to read from.
         :type stream: file
         """
-        self._value = struct.unpack("<" + self._struct,
+        self._value = struct.unpack(kwargs["data"].byteorder + self._struct,
                                     stream.read(self._size))[0]
 
     def write(self, stream, **kwargs):
@@ -193,7 +193,7 @@ class Int(BasicBase, EditableSpinBox):
         :param stream: The stream to write to.
         :type stream: file
         """
-        stream.write(struct.pack('<' + self._struct, self._value))
+        stream.write(struct.pack(kwargs["data"].byteorder + self._struct, self._value))
 
     def __str__(self):
         return str(self.get_value())
@@ -275,6 +275,27 @@ class UShort(UInt):
     _max = 0xffff
     _struct = 'H'
     _size = 2
+
+class ULittle32(UInt):
+    """Little endian 32 bit unsigned integer (ignores specified data
+    byteorder).
+    """
+    def read(self, stream, **kwargs):
+        """Read value from stream.
+
+        :param stream: The stream to read from.
+        :type stream: file
+        """
+        self._value = struct.unpack('<' + self._struct,
+                                    stream.read(self._size))[0]
+
+    def write(self, stream, **kwargs):
+        """Write value to stream.
+
+        :param stream: The stream to write to.
+        :type stream: file
+        """
+        stream.write(struct.pack('<' + self._struct, self._value))
 
 class Bool(UByte, EditableBoolComboBox):
     """Simple bool implementation."""
@@ -381,7 +402,8 @@ class Float(BasicBase, EditableFloatSpinBox):
         :param stream: The stream to read from.
         :type stream: file
         """
-        self._value = struct.unpack('<f', stream.read(4))[0]
+        self._value = struct.unpack(kwargs["data"].byteorder + 'f',
+                                    stream.read(4))[0]
 
     def write(self, stream, **kwargs):
         """Write value to stream.
@@ -390,11 +412,13 @@ class Float(BasicBase, EditableFloatSpinBox):
         :type stream: file
         """
         try:
-            stream.write(struct.pack('<f', self._value))
+            stream.write(struct.pack(kwargs["data"].byteorder + 'f',
+                                     self._value))
         except OverflowError:
             logger = logging.getLogger("pyffi.object_models")
             logger.warn("float value overflow, writing NaN")
-            stream.write(struct.pack('<I', 0x7fc00000))
+            stream.write(struct.pack(kwargs["data"].byteorder + 'I',
+                                     0x7fc00000))
 
     def get_size(self, **kwargs):
         """Return number of bytes this type occupies in a file.
@@ -656,7 +680,8 @@ class SizedString(BasicBase, EditableLineEdit):
         :param stream: The stream to read from.
         :type stream: file
         """
-        length, = struct.unpack('<I', stream.read(4))
+        length, = struct.unpack(kwargs["data"].byteorder + 'I',
+                                stream.read(4))
         if length > 10000:
             raise ValueError('string too long (0x%08X at 0x%08X)'
                              % (length, stream.tell()))
@@ -668,7 +693,8 @@ class SizedString(BasicBase, EditableLineEdit):
         :param stream: The stream to write to.
         :type stream: file
         """
-        stream.write(struct.pack('<I', len(self._value)))
+        stream.write(struct.pack(kwargs["data"].byteorder + 'I',
+                                 len(self._value)))
         stream.write(self._value)
 
 class UndecodedData(BasicBase):

@@ -368,6 +368,7 @@ class NifFormat(FileFormat):
     EPSILON = 0.0001
 
     # basic types
+    ulittle32 = pyffi.object_models.common.ULittle32
     int = pyffi.object_models.common.Int
     uint = pyffi.object_models.common.UInt
     byte = pyffi.object_models.common.UByte # not a typo
@@ -438,9 +439,11 @@ class NifFormat(FileFormat):
             except KeyError:
                 ver = -1
             if ver > 0x04000002:
-                value, = struct.unpack('<B', stream.read(1))
+                value, = struct.unpack(kwargs["data"].byteorder + 'B',
+                                       stream.read(1))
             else:
-                value, = struct.unpack('<I', stream.read(4))
+                value, = struct.unpack(kwargs["data"].byteorder + 'I',
+                                       stream.read(4))
             self._value = bool(value)
 
         def write(self, stream, **kwargs):
@@ -449,9 +452,11 @@ class NifFormat(FileFormat):
             except KeyError:
                 ver = -1
             if ver > 0x04000002:
-                stream.write(struct.pack('<B', int(self._value)))
+                stream.write(struct.pack(kwargs["data"].byteorder + 'B',
+                                         int(self._value)))
             else:
-                stream.write(struct.pack('<I', int(self._value)))
+                stream.write(struct.pack(kwargs["data"].byteorder + 'I',
+                                         int(self._value)))
 
     class Flags(pyffi.object_models.common.UShort):
         def __str__(self):
@@ -491,7 +496,8 @@ class NifFormat(FileFormat):
 
         def read(self, stream, **kwargs):
             self.set_value(None) # fix_links will set this field
-            block_index, = struct.unpack('<i', stream.read(4))
+            block_index, = struct.unpack(kwargs["data"].byteorder + 'i',
+                                         stream.read(4))
             kwargs.get('link_stack', []).append(block_index)
 
         def write(self, stream, **kwargs):
@@ -507,12 +513,15 @@ class NifFormat(FileFormat):
                 except KeyError:
                     ver = -1
                 if ver >= 0x0303000D:
-                    stream.write(struct.pack("<i", -1)) # link by number
+                    stream.write(struct.pack(kwargs["data"].byteorder + "i",
+                                             -1)) # link by number
                 else:
-                    stream.write(struct.pack("<i", 0)) # link by pointer
+                    stream.write(struct.pack(kwargs["data"].byteorder + "i",
+                                             0)) # link by pointer
             else:
                 stream.write(struct.pack(
-                    '<i', kwargs.get('block_index_dct')[self.get_value()]))
+                    kwargs["data"].byteorder + 'i',
+                    kwargs.get('block_index_dct')[self.get_value()]))
 
         def fix_links(self, **kwargs):
             """Fix block links.
@@ -789,7 +798,7 @@ class NifFormat(FileFormat):
 
         def read(self, stream, **kwargs):
             modification = getattr(kwargs['data'], 'modification', None)
-            ver, = struct.unpack('<I', stream.read(4))
+            ver, = struct.unpack('<I', stream.read(4)) # always little endian
             if (not modification) or modification == "jmihs1":
                 if ver != kwargs['data'].version:
                     raise ValueError(
@@ -819,6 +828,7 @@ class NifFormat(FileFormat):
                     "unknown modification: '%s'" % modification)
 
         def write(self, stream, **kwargs):
+            # always little endian
             modification = getattr(kwargs['data'], 'modification', None)
             if (not modification) or modification == "jmihs1":
                 stream.write(struct.pack('<I', kwargs['data'].version))
@@ -861,11 +871,13 @@ class NifFormat(FileFormat):
             return self.get_value()
 
         def read(self, stream, **kwargs):
-            n, = struct.unpack('<B', stream.read(1))
+            n, = struct.unpack(kwargs["data"].byteorder + 'B',
+                               stream.read(1))
             self._value = stream.read(n).rstrip('\x00'.encode("ascii"))
 
         def write(self, stream, **kwargs):
-            stream.write(struct.pack('<B', len(self._value)+1))
+            stream.write(struct.pack(kwargs["data"].byteorder + 'B',
+                                     len(self._value)+1))
             stream.write(self._value)
             stream.write('\x00'.encode("ascii"))
 
@@ -888,7 +900,7 @@ class NifFormat(FileFormat):
             except KeyError:
                 ver = -1
 
-            n, = struct.unpack('<i', stream.read(4))
+            n, = struct.unpack(kwargs["data"].byteorder + 'i', stream.read(4))
             if ver >= 0x14010003:
                 if n == -1:
                     self._value = ''.encode("ascii")
@@ -898,7 +910,9 @@ class NifFormat(FileFormat):
                     except IndexError:
                         raise ValueError('string index too large (%i)'%n)
             else:
-                if n > 10000: raise ValueError('string too long (0x%08X at 0x%08X)'%(n, stream.tell()))
+                if n > 10000:
+                    raise ValueError('string too long (0x%08X at 0x%08X)'
+                                     % (n, stream.tell()))
                 self._value = stream.read(n)
 
         def write(self, stream, **kwargs):
@@ -909,16 +923,19 @@ class NifFormat(FileFormat):
 
             if ver >= 0x14010003:
                 if not self._value:
-                    stream.write(struct.pack('<i', -1))
+                    stream.write(
+                        struct.pack(kwargs["data"].byteorder + 'i', -1))
                 else:
                     try:
                         stream.write(struct.pack(
-                            '<i', kwargs.get('string_list').index(self._value)))
+                            kwargs["data"].byteorder + 'i',
+                            kwargs.get('string_list').index(self._value)))
                     except ValueError:
                         raise ValueError(
-                            "string '%s' not in string list"%self._value)
+                            "string '%s' not in string list" % self._value)
             else:
-                stream.write(struct.pack('<I', len(self._value)))
+                stream.write(struct.pack(kwargs["data"].byteorder + 'I',
+                                         len(self._value)))
                 stream.write(self._value)
 
         def get_strings(self, **kwargs):
@@ -959,11 +976,13 @@ class NifFormat(FileFormat):
             return self._value.__hash__()
 
         def read(self, stream, **kwargs):
-            size, = struct.unpack('<I', stream.read(4))
+            size, = struct.unpack(kwargs["data"].byteorder + 'I',
+                                  stream.read(4))
             self._value = stream.read(size)
 
         def write(self, stream, **kwargs):
-            stream.write(struct.pack('<I', len(self._value)))
+            stream.write(struct.pack(kwargs["data"].byteorder + 'I',
+                                     len(self._value)))
             stream.write(self._value)
 
         def __str__(self):
@@ -999,18 +1018,22 @@ class NifFormat(FileFormat):
             return tuple( x.__hash__() for x in self._value )
 
         def read(self, stream, **kwargs):
-            size1, = struct.unpack('<I', stream.read(4))
-            size2, = struct.unpack('<I', stream.read(4))
+            size1, = struct.unpack(kwargs["data"].byteorder + 'I',
+                                   stream.read(4))
+            size2, = struct.unpack(kwargs["data"].byteorder + 'I',
+                                   stream.read(4))
             self._value = []
             for i in xrange(size2):
                 self._value.append(stream.read(size1))
 
         def write(self, stream, **kwargs):
             if self._value:
-                stream.write(struct.pack('<I', len(self._value[0])))
+                stream.write(struct.pack(kwargs["data"].byteorder + 'I',
+                                         len(self._value[0])))
             else:
-                stream.write(struct.pack('<I', 0))
-            stream.write(struct.pack('<I', len(self._value)))
+                stream.write(struct.pack(kwargs["data"].byteorder + 'I', 0))
+            stream.write(struct.pack(kwargs["data"].byteorder + 'I',
+                                     len(self._value)))
             for x in self._value:
                 stream.write(x)
 
@@ -1234,8 +1257,7 @@ class NifFormat(FileFormat):
                         endian_type, = struct.unpack('<B', stream.read(1))
                         if endian_type == 0:
                             # big endian!
-                            raise ValueError(
-                                "Big endian nifs not supported.")
+                            self.byteorder = '>'
                     if ver >= 0x0A010000:
                         userver, = struct.unpack('<I', stream.read(4))
                         if userver in (10, 11):
@@ -1353,7 +1375,8 @@ class NifFormat(FileFormat):
                     # read dummy integer
                     # bhk blocks are *not* preceeded by a dummy
                     if self.version <= 0x0A01006A and not block_type.startswith("bhk"):
-                        dummy, = struct.unpack('<I', stream.read(4))
+                        dummy, = struct.unpack(kwargs["data"].byteorder + 'I',
+                                               stream.read(4))
                         if dummy != 0:
                             raise NifFormat.NifError(
                                 'non-zero block tag 0x%08X at 0x%08X)'
@@ -1375,7 +1398,8 @@ class NifFormat(FileFormat):
                     # location of the object when it was written to
                     # memory
                     else:
-                        block_index, = struct.unpack('<I', stream.read(4))
+                        block_index, = struct.unpack(
+                            kwargs["data"].byteorder + 'I', stream.read(4))
                         if block_index in block_dct:
                             raise NifFormat.NifError(
                                 'duplicate block index (0x%08X at 0x%08X)'
@@ -1544,7 +1568,8 @@ class NifFormat(FileFormat):
                 # write block index
                 logger.debug("Writing %s block" % block.__class__.__name__)
                 if self.version < 0x0303000D:
-                    stream.write(struct.pack('<i', block_index_dct[block]))
+                    stream.write(struct.pack(kwargs["data"].byteorder + 'i',
+                                             block_index_dct[block]))
                 # write block
                 block.write(
                     stream,
@@ -6019,6 +6044,7 @@ class NifFormat(FileFormat):
                     # data[pos:pos+12] is not really well implemented, so do this
                     vecdata = ''.join(data[j] for j in xrange(pos, pos + 12))
                     vec = NifFormat.Vector3()
+                    # XXX byteorder! assuming little endian
                     vec.x, vec.y, vec.z = struct.unpack('<fff', vecdata)
                     yield vec
                     pos += 12
@@ -6200,6 +6226,7 @@ class NifFormat(FileFormat):
                 # write the data
                 binarydata = ""
                 for vec in tan + bin:
+                    # XXX byteorder!! assuming little endian
                     binarydata += struct.pack('<fff', vec.x, vec.y, vec.z)
                 extra.binary_data = binarydata
             else:

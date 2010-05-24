@@ -62,11 +62,11 @@ class _MetaBitStructBase(type):
 
         # check storage type
         if cls._numbytes == 1:
-            cls._struct = '<B'
+            cls._struct = 'B'
         elif cls._numbytes == 2:
-            cls._struct = '<H'
+            cls._struct = 'H'
         elif cls._numbytes == 4:
-            cls._struct = '<I'
+            cls._struct = 'I'
         else:
             raise RuntimeError("unsupported bitstruct numbytes")
 
@@ -276,7 +276,8 @@ class BitStructBase(DetailNode):
         """Read structure from stream."""
         self.arg = kwargs.get('argument')
         # read all attributes
-        value = struct.unpack(self._struct, stream.read(self._numbytes))[0]
+        value = struct.unpack(kwargs["data"].byteorder + self._struct,
+                              stream.read(self._numbytes))[0]
         # set the structure variables
         self.from_int(value, **kwargs)
 
@@ -304,7 +305,8 @@ class BitStructBase(DetailNode):
     def write(self, stream, **kwargs):
         """Write structure to stream."""
         self.arg = kwargs.get('argument')
-        stream.write(struct.pack(self._struct, self.to_int(**kwargs)))
+        stream.write(struct.pack(kwargs["data"].byteorder + self._struct,
+                                 self.to_int(**kwargs)))
 
     def fix_links(self, **kwargs):
         """Fix links in the structure."""
