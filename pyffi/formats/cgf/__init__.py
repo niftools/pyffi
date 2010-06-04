@@ -835,7 +835,12 @@ expected\n%sbut got\n%s'%(chunkhdr, chunkhdr_copy))
 
                 if validate:
                     # calculate size
-                    size = chunk.get_size(self)
+                    # (quick hackish trick with version)
+                    self.version = chunkhdr.version
+                    try:
+                        size = chunk.get_size(self)
+                    finally:
+                        self.version = self.header.version
                     # take into account header copy
                     if chunkhdr_copy:
                         size += chunkhdr_copy.get_size(self)
@@ -865,8 +870,13 @@ chunk size mismatch when reading %s at 0x%08X
 
             # fix links
             for chunk, chunkversion in zip(self.chunks, self.versions):
-                #print(chunk.__class__)
-                chunk.fix_links(self)
+                # (quick hackish trick with version)
+                self.version = chunkhdr.version
+                try:
+                    #print(chunk.__class__)
+                    chunk.fix_links(self)
+                finally:
+                    self.version = self.header.version
             if self._link_stack != []:
                 raise CgfFormat.CgfError(
                     'not all links have been popped from the stack (bug?)')
