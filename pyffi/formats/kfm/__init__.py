@@ -159,14 +159,14 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
         def __str__(self):
             return ';Gamebryo KFM File Version x.x.x.x'
 
-        def get_hash(self, **kwargs):
+        def get_hash(self, data):
             """Return a hash value for this value.
 
             :return: An immutable object that can be used as a hash.
             """
             return None
 
-        def read(self, stream, **kwargs):
+        def read(self, stream, data):
             """Read header string from stream and check it.
 
             :param stream: The stream to read from.
@@ -175,7 +175,7 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
             :type version: int
             """
             # get the string we expect
-            version_string = self.version_string(kwargs.get('version'))
+            version_string = self.version_string(data.version)
             # read string from stream
             hdrstr = stream.read(len(version_string))
             # check if the string is correct
@@ -194,26 +194,26 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
                 raise ValueError(
                     "invalid KFM header: string does not end on \\n or \\r\\n")
 
-        def write(self, stream, **kwargs):
+        def write(self, stream, data):
             """Write the header string to stream.
 
             :param stream: The stream to write to.
             :type stream: file
             """
             # write the version string
-            stream.write(self.version_string(kwargs.get('version')).encode("ascii"))
+            stream.write(self.version_string(data.version).encode("ascii"))
             # write \n (or \r\n for older versions)
             if self._doseol:
                 stream.write('\x0d\x0a'.encode("ascii"))
             else:
                 stream.write('\x0a'.encode("ascii"))
 
-        def get_size(self, **kwargs):
+        def get_size(self, data):
             """Return number of bytes the header string occupies in a file.
 
             :return: Number of bytes.
             """
-            return len(self.version_string(kwargs.get('version'))) \
+            return len(self.version_string(data.version)) \
                    + (1 if not self._doseol else 2)
 
         # DetailNode
@@ -245,7 +245,7 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
 
     # other types with internal implementation
     class FilePath(SizedString):
-        def get_hash(self, **kwargs):
+        def get_hash(self, data):
             """Return a hash value for this value.
             For file paths, the hash value is case insensitive.
 

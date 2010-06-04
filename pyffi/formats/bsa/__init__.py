@@ -133,7 +133,7 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
 
     class BZString(pyffi.object_models.common.SizedString):
 
-        def get_size(self, **kwargs):
+        def get_size(self, data):
             return 2 + len(self._value)
 
         def read(self, stream, data=None):
@@ -151,7 +151,7 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
         def __init__(self, **kwargs):
             BasicBase.__init__(self, **kwargs)
 
-        def read(self, stream, **kwargs):
+        def read(self, stream, data):
             """Read header string from stream and check it.
 
             :param stream: The stream to read from.
@@ -171,7 +171,7 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
                     " expected '\\x00\\x01\\x00\\x00' or 'BSA\\x00'"
                     " but got '%s'" % hdrstr)
 
-        def write(self, stream, **kwargs):
+        def write(self, stream, data):
             """Write the header string to stream.
 
             :param stream: The stream to write to.
@@ -183,7 +183,7 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
             else:
                 stream.write("\x00\x01\x00\x00".encode("ascii"))
 
-        def get_size(self, **kwargs):
+        def get_size(self, data):
             """Return number of bytes the header string occupies in a file.
 
             :return: Number of bytes.

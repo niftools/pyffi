@@ -18,6 +18,9 @@ Release 2.1.5 (in development)
 
 * Added big-endian support.
 
+* Removed ``**kwargs`` argument passing for faster and more transparant
+  implementation.
+
 Release 2.1.4 (19 Mar 2010)
 ===========================
 

@@ -117,7 +117,7 @@ class TgaFormat(pyffi.object_models.xml.FileFormat):
         def __str__(self):
             return 'TRUEVISION-XFILE.\x00'
 
-        def read(self, stream, **kwargs):
+        def read(self, stream, data):
             """Read signature from stream.
 
             :param stream: The stream to read from.
@@ -129,7 +129,7 @@ class TgaFormat(pyffi.object_models.xml.FileFormat):
                     "invalid Targa signature: expected '%s' but got '%s'"
                     %(self.__str__(), signat))
 
-        def write(self, stream, **kwargs):
+        def write(self, stream, data):
             """Write signature to stream.
 
             :param stream: The stream to read from.
@@ -155,14 +155,14 @@ class TgaFormat(pyffi.object_models.xml.FileFormat):
                     "invalid Targa signature: expected '%s' but got '%s'"
                     %(self.__str__(), value))
 
-        def get_size(self, **kwargs):
+        def get_size(self, data):
             """Return number of bytes that the signature occupies in a file.
 
             :return: Number of bytes.
             """
             return 18
 
-        def get_hash(self, **kwargs):
+        def get_hash(self, data):
             """Return a hash value for the signature.
 
             :return: An immutable object that can be used as a hash.
@@ -174,8 +174,8 @@ class TgaFormat(pyffi.object_models.xml.FileFormat):
             # children are either individual pixels, or RLE packets
             self.children = []
 
-        def read(self, stream, **kwargs):
-            data = kwargs["data"]
+        def read(self, stream, data):
+            data = data
             if data.header.image_type in (TgaFormat.ImageType.INDEXED,
                                           TgaFormat.ImageType.RGB,
                                           TgaFormat.ImageType.GREY):
@@ -195,8 +195,8 @@ class TgaFormat(pyffi.object_models.xml.FileFormat):
                     self.children.append(pixel)
                     count += pixel.header.count + 1
 
-        def write(self, stream, **kwargs):
-            data = kwargs["data"]
+        def write(self, stream, data):
+            data = data
             for child in self.children:
                 child.write(stream, argument=data.header.pixel_size)
 

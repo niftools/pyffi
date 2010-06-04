@@ -121,14 +121,14 @@ class EgtFormat(pyffi.object_models.xml.FileFormat):
         def get_detail_display(self):
             return self.__str__()
 
-        def get_hash(self, **kwargs):
+        def get_hash(self, data):
             """Return a hash value for this value.
 
             :return: An immutable object that can be used as a hash.
             """
             return None
 
-        def read(self, stream, **kwargs):
+        def read(self, stream, data):
             """Read header string from stream and check it.
 
             :param stream: The stream to read from.
@@ -141,7 +141,7 @@ class EgtFormat(pyffi.object_models.xml.FileFormat):
                     "invalid EGT header: expected 'FREGT' but got '%s'"
                     % hdrstr)
 
-        def write(self, stream, **kwargs):
+        def write(self, stream, data):
             """Write the header segtng to stream.
 
             :param stream: The stream to write to.
@@ -149,7 +149,7 @@ class EgtFormat(pyffi.object_models.xml.FileFormat):
             """
             stream.write("FREGT".encode("ascii"))
 
-        def get_size(self, **kwargs):
+        def get_size(self, data):
             """Return number of bytes the header segtng occupies in a file.
 
             :return: Number of bytes.
@@ -168,17 +168,17 @@ class EgtFormat(pyffi.object_models.xml.FileFormat):
         def __str__(self):
             return '%03i' % self._value
 
-        def get_size(self, **kwargs):
+        def get_size(self, data):
             return 3
 
-        def get_hash(self, **kwargs):
+        def get_hash(self, data):
             return self._value
 
-        def read(self, stream, **kwargs):
+        def read(self, stream, data):
             self._value = EgtFormat.version_number(
                 stream.read(3).decode("ascii"))
 
-        def write(self, stream, **kwargs):
+        def write(self, stream, data):
             stream.write(('%03i' % self._value).encode("ascii"))
 
         def get_detail_display(self):
@@ -207,6 +207,9 @@ class EgtFormat(pyffi.object_models.xml.FileFormat):
     class Header(pyffi.object_models.FileFormat.Data):
         """A class to contain the actual egt data."""
 
+        version = None
+        user_version = None
+
         def inspect_quick(self, stream):
             """Quickly checks if stream contains EGT data, by looking at
             the first 8 bytes. Reads the signature and the version.
@@ -216,8 +219,8 @@ class EgtFormat(pyffi.object_models.xml.FileFormat):
             """
             pos = stream.tell()
             try:
-                self._signature_value_.read(stream)
-                self._version_value_.read(stream)
+                self._signature_value_.read(stream, self)
+                self._version_value_.read(stream, self)
             finally:
                 stream.seek(pos)
 
@@ -233,12 +236,12 @@ class EgtFormat(pyffi.object_models.xml.FileFormat):
             pos = stream.tell()
             try:
                 self.inspect_quick(stream)
-                self._signature_value_.read(stream)
-                self._version_value_.read(stream)
-                self._width_value_.read(stream)
-                self._height_value_.read(stream)
-                self._num_textures_value_.read(stream)
-                self._unknown_value_.read(stream)
+                self._signature_value_.read(stream, self)
+                self._version_value_.read(stream, self)
+                self._width_value_.read(stream, self)
+                self._height_value_.read(stream, self)
+                self._num_textures_value_.read(stream, self)
+                self._unknown_value_.read(stream, self)
             finally:
                 stream.seek(pos)
 
@@ -251,7 +254,7 @@ class EgtFormat(pyffi.object_models.xml.FileFormat):
             """
             self.inspect_quick(stream)
             pyffi.object_models.xml.struct_.StructBase.read(
-                self, stream, version=self.version)
+                self, stream, self)
 
             # check if we are at the end of the file
             if stream.read(1):
@@ -266,7 +269,7 @@ class EgtFormat(pyffi.object_models.xml.FileFormat):
             """
             # write the data
             pyffi.object_models.xml.struct_.StructBase.write(
-                self, stream, version=self.version)
+                self, stream, self)
 
         # GlobalNode
 
