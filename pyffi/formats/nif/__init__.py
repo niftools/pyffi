@@ -1451,7 +1451,7 @@ class NifFormat(FileFormat):
 
             # read footer
             ftr = NifFormat.Footer()
-            ftr.read(stream, data)
+            ftr.read(stream, self)
 
             # check if we are at the end of the file
             if stream.read(1):
