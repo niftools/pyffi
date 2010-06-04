@@ -32,7 +32,7 @@ Read a BSA file
 >>> data.inspect(stream)
 >>> data.folders_offset
 36
->>> hex(data.archive_flags.to_int())
+>>> hex(data.archive_flags.to_int(data))
 '0x703'
 >>> data.num_folders
 1

@@ -277,7 +277,7 @@ Strings
 >>> extra.text_keys[0].value = "start"
 >>> extra.text_keys[1].time = 2.0
 >>> extra.text_keys[1].value = "end"
->>> for extrastr in extra.get_strings():
+>>> for extrastr in extra.get_strings(None):
 ...     print(extrastr.decode("ascii"))
 start
 end
@@ -672,10 +672,10 @@ class NifFormat(FileFormat):
         def get_hash(self, data):
             return self.get_value()
 
-        def read(self, stream, data):
+        def read(self, stream, data=None):
             self._value = stream.readline().rstrip('\x0a'.encode("ascii"))
 
-        def write(self, stream, data):
+        def write(self, stream, data=None):
             stream.write(self._value)
             stream.write("\x0a".encode("ascii"))
 
@@ -1489,8 +1489,7 @@ class NifFormat(FileFormat):
                                     block_type_list, block_type_dct)
                 for block in root.tree():
                     self._string_list.extend(
-                        block.get_strings(
-                            data=self))
+                        block.get_strings(self))
             self._string_list = list(set(self._string_list)) # ensure unique elements
             #print(self._string_list) # debug
 

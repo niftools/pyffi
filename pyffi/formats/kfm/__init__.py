@@ -294,6 +294,7 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
     class Header(pyffi.object_models.FileFormat.Data):
         """A class to contain the actual kfm data."""
         version = 0x01024B00
+        user_version = None
 
         def inspect(self, stream):
             """Quick heuristic check if stream contains KFM data,
@@ -325,10 +326,10 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
             self.version = ver
             # read header string
             try:
-                self._header_string_value_.read(stream, version=ver)
-                self._unknown_byte_value_.read(stream, version=ver)
-                self._nif_file_name_value_.read(stream, version=ver)
-                self._master_value_.read(stream, version=ver)
+                self._header_string_value_.read(stream, self)
+                self._unknown_byte_value_.read(stream, self)
+                self._nif_file_name_value_.read(stream, self)
+                self._master_value_.read(stream, self)
             finally:
                 stream.seek(pos)
 
@@ -341,7 +342,7 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
             # read the file
             self.inspect(stream) # quick check
             pyffi.object_models.xml.struct_.StructBase.read(
-                self, stream, version=self.version)
+                self, stream, self)
 
             # check if we are at the end of the file
             if stream.read(1):
@@ -355,7 +356,7 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
             """
             # write the file
             pyffi.object_models.xml.struct_.StructBase.write(
-                self, stream, version=self.version)
+                self, stream, self)
 
         # GlobalNode
 

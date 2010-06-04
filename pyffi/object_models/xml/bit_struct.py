@@ -176,9 +176,9 @@ class BitStructBase(DetailNode):
     * a : 5
     * b : 1
     <BLANKLINE>
-    >>> y.to_int()
+    >>> y.to_int(None)
     13
-    >>> y.from_int(9)
+    >>> y.from_int(9, None)
     >>> print(y) # doctest:+ELLIPSIS
     <class 'pyffi.object_models.xml.bit_struct.Flags'> instance at 0x...
     * a : 1

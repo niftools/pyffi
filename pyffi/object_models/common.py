@@ -113,15 +113,17 @@ class Int(BasicBase, EditableSpinBox):
 
     >>> from tempfile import TemporaryFile
     >>> tmp = TemporaryFile()
+    >>> from pyffi.object_models import FileFormat
+    >>> data = FileFormat.Data()
     >>> i = Int()
     >>> i.set_value(-1)
     >>> i.get_value()
     -1
     >>> i.set_value(0x11223344)
-    >>> i.write(tmp)
+    >>> i.write(tmp, data)
     >>> j = Int()
     >>> if tmp.seek(0): pass # ignore result for py3k
-    >>> j.read(tmp)
+    >>> j.read(tmp, data)
     >>> hex(j.get_value())
     '0x11223344'
     >>> i.set_value(2**40) # doctest: +ELLIPSIS
@@ -135,7 +137,7 @@ class Int(BasicBase, EditableSpinBox):
     >>> if tmp.seek(0): pass # ignore result for py3k
     >>> if tmp.write('\x11\x22\x33\x44'.encode("ascii")): pass # b'\x11\x22\x33\x44'
     >>> if tmp.seek(0): pass # ignore result for py3k
-    >>> i.read(tmp)
+    >>> i.read(tmp, data)
     >>> hex(i.get_value())
     '0x44332211'
     """
@@ -487,7 +489,7 @@ class ZString(BasicBase, EditableLineEdit):
             raise ValueError('string too long')
         self._value = val
 
-    def read(self, stream, data):
+    def read(self, stream, data=None):
         """Read string from stream.
 
         :param stream: The stream to read from.
@@ -504,7 +506,7 @@ class ZString(BasicBase, EditableLineEdit):
             char = stream.read(1)
         self._value = val
 
-    def write(self, stream, data):
+    def write(self, stream, data=None):
         """Write string to stream.
 
         :param stream: The stream to write to.
@@ -579,7 +581,7 @@ class FixedString(BasicBase, EditableLineEdit):
             raise ValueError("string '%s' too long" % val)
         self._value = val
 
-    def read(self, stream, data):
+    def read(self, stream, data=None):
         """Read string from stream.
 
         :param stream: The stream to read from.
@@ -590,7 +592,7 @@ class FixedString(BasicBase, EditableLineEdit):
         if i != -1:
             self._value = self._value[:i]
 
-    def write(self, stream, data):
+    def write(self, stream, data=None):
         """Write string to stream.
 
         :param stream: The stream to write to.
@@ -618,18 +620,20 @@ class SizedString(BasicBase, EditableLineEdit):
 
     >>> from tempfile import TemporaryFile
     >>> f = TemporaryFile()
+    >>> from pyffi.object_models import FileFormat
+    >>> data = FileFormat.Data()
     >>> s = SizedString()
     >>> if f.write('\\x07\\x00\\x00\\x00abcdefg'.encode("ascii")): pass # ignore result for py3k
     >>> if f.seek(0): pass # ignore result for py3k
-    >>> s.read(f)
+    >>> s.read(f, data)
     >>> str(s)
     'abcdefg'
     >>> if f.seek(0): pass # ignore result for py3k
     >>> s.set_value('Hi There')
-    >>> s.write(f)
+    >>> s.write(f, data)
     >>> if f.seek(0): pass # ignore result for py3k
     >>> m = SizedString()
-    >>> m.read(f)
+    >>> m.read(f, data)
     >>> str(m)
     'Hi There'
     """
