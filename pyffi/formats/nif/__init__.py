@@ -550,14 +550,14 @@ class NifFormat(FileFormat):
                     "Expected an %s but got %s: ignoring reference."
                     % (self._template, block.__class__))
 
-        def get_links(self, data):
+        def get_links(self, data=None):
             val = self.get_value()
             if val is not None:
                 return [val]
             else:
                 return []
 
-        def get_refs(self, data):
+        def get_refs(self, data=None):
             val = self.get_value()
             if val is not None:
                 return [val]
@@ -624,7 +624,7 @@ class NifFormat(FileFormat):
             # avoid infinite recursion
             return '%s instance at 0x%08X'%(self._value.__class__, id(self._value))
 
-        def get_refs(self, data):
+        def get_refs(self, data=None):
             return []
 
         def get_hash(self, data):

@@ -311,7 +311,7 @@ class BitStructBase(DetailNode):
         """Fix links in the structure."""
         return
 
-    def get_links(self, data):
+    def get_links(self, data=None):
         """Get list of all links in the structure."""
         return []
 
@@ -319,7 +319,7 @@ class BitStructBase(DetailNode):
         """Get list of all strings in the structure."""
         return []
 
-    def get_refs(self, data):
+    def get_refs(self, data=None):
         """Get list of all references in the structure. Refs are
         links that point down the tree. For instance, if you need to parse
         the whole tree starting from the root you would use get_refs and not

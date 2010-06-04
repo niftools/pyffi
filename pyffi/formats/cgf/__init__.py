@@ -435,7 +435,7 @@ expected instance of %s
 but got instance of %s""" % (self._template, block.__class__))
             self._value = block
 
-        def get_links(self, data):
+        def get_links(self, data=None):
             """Return the chunk reference.
 
             :return: Empty list if no reference, or single item list containing
@@ -446,7 +446,7 @@ but got instance of %s""" % (self._template, block.__class__))
             else:
                 return []
 
-        def get_refs(self, data):
+        def get_refs(self, data=None):
             """Return the chunk reference.
 
             :return: Empty list if no reference, or single item list containing
@@ -493,7 +493,7 @@ but got instance of %s""" % (self._template, block.__class__))
             else:
                 return 'None'
 
-        def get_refs(self, data):
+        def get_refs(self, data=None):
             """Ptr does not point down, so get_refs returns empty list.
 
             :return: C{[]}

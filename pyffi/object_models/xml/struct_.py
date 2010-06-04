@@ -401,7 +401,7 @@ class StructBase(GlobalNode):
             # fix the links in the attribute
             getattr(self, "_%s_value_" % attr.name).fix_links(data)
 
-    def get_links(self, data):
+    def get_links(self, data=None):
         """Get list of all links in the structure."""
         # get all links
         links = []
@@ -431,7 +431,7 @@ class StructBase(GlobalNode):
         # return the list of all strings in all attributes
         return strings
 
-    def get_refs(self, data):
+    def get_refs(self, data=None):
         """Get list of all references in the structure. Refs are
         links that point down the tree. For instance, if you need to parse
         the whole tree starting from the root you would use get_refs and not

@@ -112,7 +112,7 @@ class BasicBase(DetailNode):
         block indices into blocks."""
         pass
 
-    def get_links(self, data):
+    def get_links(self, data=None):
         """Return all links referred to in this object."""
         return []
 
@@ -120,7 +120,7 @@ class BasicBase(DetailNode):
         """Return all strings used by this object."""
         return []
 
-    def get_refs(self, data):
+    def get_refs(self, data=None):
         """Return all references (excluding weak pointers) used by this
         object."""
         return []

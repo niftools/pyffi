@@ -345,7 +345,7 @@ describing number of elements (%i)"%(elemlist.__len__(),len2i))
         for elem in self._elementList():
             elem.fix_links(data)
 
-    def get_links(self, data):
+    def get_links(self, data=None):
         """Return all links in the array by calling C{get_links} on all elements
         of the array."""
         links = []
@@ -365,7 +365,7 @@ describing number of elements (%i)"%(elemlist.__len__(),len2i))
             strings.extend(elem.get_strings(data))
         return strings
 
-    def get_refs(self, data):
+    def get_refs(self, data=None):
         """Return all references in the array by calling C{get_refs} on all
         elements of the array."""
         links = []
