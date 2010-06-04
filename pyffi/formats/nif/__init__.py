@@ -501,11 +501,7 @@ class NifFormat(FileFormat):
             data._link_stack.append(block_index)
 
         def write(self, stream, data):
-            """Write block reference.
-
-            :keyword block_index_dct: The dictionary of block indices
-                (block -> index).
-            """
+            """Write block reference."""
             if self.get_value() is None:
                 # nothing to point to
                 try:
@@ -1533,10 +1529,7 @@ class NifFormat(FileFormat):
             # write the file
             logger.debug("Writing header")
             #logger.debug("%s" % self.header)
-            self.header.write(
-                stream,
-                data=self,
-                block_index_dct = block_index_dct)
+            self.header.write(stream, self)
             for block in self.blocks:
                 # signal top level object if block is a root object
                 if self.version < 0x0303000D and block in self.roots:
@@ -1558,17 +1551,14 @@ class NifFormat(FileFormat):
                 logger.debug("Writing %s block" % block.__class__.__name__)
                 if self.version < 0x0303000D:
                     stream.write(struct.pack(data._byte_order + 'i',
-                                             block_index_dct[block]))
+                                             self._block_index_dct[block]))
                 # write block
                 block.write(stream, self)
             if self.version < 0x0303000D:
                 s = NifFormat.SizedString()
                 s.set_value("End Of File")
                 s.write(stream)
-            ftr.write(
-                stream,
-                data=self,
-                block_index_dct = block_index_dct)
+            ftr.write(stream, self)
 
         def _makeBlockList(
             self, root, block_index_dct, block_type_list, block_type_dct):
