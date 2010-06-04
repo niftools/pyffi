@@ -470,12 +470,13 @@ class StructBase(GlobalNode):
         return tuple(hsh)
 
     def replace_global_node(self, oldbranch, newbranch, **kwargs):
-        for attr in self._get_filtered_attribute_list(data):
+        for attr in self._get_filtered_attribute_list():
             # check if there are any links at all
             # (this speeds things up considerably)
             if not attr.type_._has_links:
                 continue
-            getattr(self, "_%s_value_" % attr.name).replace_global_node(oldbranch, newbranch, **kwargs)
+            getattr(self, "_%s_value_" % attr.name).replace_global_node(
+                oldbranch, newbranch, **kwargs)
 
     @classmethod
     def get_games(cls):
