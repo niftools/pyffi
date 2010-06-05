@@ -326,11 +326,11 @@ class BitStructBase(DetailNode):
         get_links, as get_links could result in infinite recursion."""
         return []
 
-    def get_size(self, data):
+    def get_size(self, data=None):
         """Calculate the structure size in bytes."""
         return self._numbytes
 
-    def get_hash(self, data):
+    def get_hash(self, data=None):
         """Calculate a hash for the structure, as a tuple."""
         # calculate hash
         hsh = []

@@ -133,11 +133,11 @@ class BasicBase(DetailNode):
         """Set object value."""
         raise NotImplementedError
 
-    def get_size(self, data):
+    def get_size(self, data=None):
         """Returns size of the object in bytes."""
         raise NotImplementedError
 
-    def get_hash(self, data):
+    def get_hash(self, data=None):
         """Returns a hash value (an immutable object) that can be used to
         identify the object uniquely."""
         raise NotImplementedError

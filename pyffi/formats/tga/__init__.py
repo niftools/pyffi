@@ -155,14 +155,14 @@ class TgaFormat(pyffi.object_models.xml.FileFormat):
                     "invalid Targa signature: expected '%s' but got '%s'"
                     %(self.__str__(), value))
 
-        def get_size(self, data):
+        def get_size(self, data=None):
             """Return number of bytes that the signature occupies in a file.
 
             :return: Number of bytes.
             """
             return 18
 
-        def get_hash(self, data):
+        def get_hash(self, data=None):
             """Return a hash value for the signature.
 
             :return: An immutable object that can be used as a hash.

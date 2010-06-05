@@ -145,7 +145,7 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
         def get_detail_display(self):
             return self.__str__()
 
-        def get_hash(self, data):
+        def get_hash(self, data=None):
             """Return a hash value for this value.
 
             :return: An immutable object that can be used as a hash.
@@ -173,7 +173,7 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
             """
             stream.write("FREGM".encode("ascii"))
 
-        def get_size(self, data):
+        def get_size(self, data=None):
             """Return number of bytes the header string occupies in a file.
 
             :return: Number of bytes.
@@ -190,10 +190,10 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
         def __str__(self):
             return 'XXX'
 
-        def get_size(self, data):
+        def get_size(self, data=None):
             return 3
 
-        def get_hash(self, data):
+        def get_hash(self, data=None):
             return None
 
         def read(self, stream, data):

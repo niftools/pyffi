@@ -333,14 +333,14 @@ class CgfFormat(pyffi.object_models.xml.FileFormat):
             """Not implemented."""
             raise NotImplementedError("Cannot set signature value.")
 
-        def get_size(self, data):
+        def get_size(self, data=None):
             """Return number of bytes that the signature occupies in a file.
 
             :return: Number of bytes.
             """
             return 8
 
-        def get_hash(self, data):
+        def get_hash(self, data=None):
             """Return a hash value for the signature.
 
             :return: An immutable object that can be used as a hash.
@@ -465,14 +465,14 @@ but got instance of %s""" % (self._template, block.__class__))
             else:
                 return 'None'
 
-        def get_size(self, data):
+        def get_size(self, data=None):
             """Return number of bytes this type occupies in a file.
 
             :return: Number of bytes.
             """
             return 4
 
-        def get_hash(self, data):
+        def get_hash(self, data=None):
             """Return a hash value for the chunk referred to.
 
             :return: An immutable object that can be used as a hash.

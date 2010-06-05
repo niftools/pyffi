@@ -137,11 +137,11 @@ class EnumBase(BasicBase, EditableComboBox):
             # not in _enumvalues list
             return "<INVALID (%i)>" % self.get_value()
 
-    def get_size(self, data):
+    def get_size(self, data=None):
         """Return size of this type."""
         return self._numbytes
 
-    def get_hash(self, data):
+    def get_hash(self, data=None):
         """Return a hash value for this value."""
         return self.get_value()
 

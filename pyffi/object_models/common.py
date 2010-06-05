@@ -208,7 +208,7 @@ class Int(BasicBase, EditableSpinBox):
         """
         return cls._size
 
-    def get_hash(self, data):
+    def get_hash(self, data=None):
         """Return a hash value for this value.
 
         :return: An immutable object that can be used as a hash.
@@ -361,14 +361,14 @@ class Char(BasicBase, EditableLineEdit):
     def __str__(self):
         return _as_str(self._value)
 
-    def get_size(self, data):
+    def get_size(self, data=None):
         """Return number of bytes this type occupies in a file.
 
         :return: Number of bytes.
         """
         return 1
 
-    def get_hash(self, data):
+    def get_hash(self, data=None):
         """Return a hash value for this value.
 
         :return: An immutable object that can be used as a hash.
@@ -422,14 +422,14 @@ class Float(BasicBase, EditableFloatSpinBox):
             stream.write(struct.pack(data._byte_order + 'I',
                                      0x7fc00000))
 
-    def get_size(self, data):
+    def get_size(self, data=None):
         """Return number of bytes this type occupies in a file.
 
         :return: Number of bytes.
         """
         return 4
 
-    def get_hash(self, data):
+    def get_hash(self, data=None):
         """Return a hash value for this value. Currently implemented
         with precision 1/200.
 
@@ -515,14 +515,14 @@ class ZString(BasicBase, EditableLineEdit):
         stream.write(self._value)
         stream.write(_b00)
 
-    def get_size(self, data):
+    def get_size(self, data=None):
         """Return number of bytes this type occupies in a file.
 
         :return: Number of bytes.
         """
         return len(self._value) + 1
 
-    def get_hash(self, data):
+    def get_hash(self, data=None):
         """Return a hash value for this string.
 
         :return: An immutable object that can be used as a hash.
@@ -600,14 +600,14 @@ class FixedString(BasicBase, EditableLineEdit):
         """
         stream.write(self._value.ljust(self._len, _b00))
 
-    def get_size(self, data):
+    def get_size(self, data=None):
         """Return number of bytes this type occupies in a file.
 
         :return: Number of bytes.
         """
         return self._len
 
-    def get_hash(self, data):
+    def get_hash(self, data=None):
         """Return a hash value for this string.
 
         :return: An immutable object that can be used as a hash.
@@ -664,14 +664,14 @@ class SizedString(BasicBase, EditableLineEdit):
     def __str__(self):
         return _as_str(self._value)
 
-    def get_size(self, data):
+    def get_size(self, data=None):
         """Return number of bytes this type occupies in a file.
 
         :return: Number of bytes.
         """
         return 4 + len(self._value)
 
-    def get_hash(self, data):
+    def get_hash(self, data=None):
         """Return a hash value for this string.
 
         :return: An immutable object that can be used as a hash.
@@ -727,14 +727,14 @@ class UndecodedData(BasicBase):
     def __str__(self):
         return '<UNDECODED DATA>'
 
-    def get_size(self, data):
+    def get_size(self, data=None):
         """Return number of bytes the data occupies in a file.
 
         :return: Number of bytes.
         """
         return len(self._value)
 
-    def get_hash(self, data):
+    def get_hash(self, data=None):
         """Return a hash value for this value.
 
         :return: An immutable object that can be used as a hash.

@@ -449,7 +449,7 @@ class StructBase(GlobalNode):
         # return the list of all refs in all attributes
         return refs
 
-    def get_size(self, data):
+    def get_size(self, data=None):
         """Calculate the structure size in bytes."""
         # calculate size
         size = 0
@@ -460,7 +460,7 @@ class StructBase(GlobalNode):
             size += getattr(self, "_%s_value_" % attr.name).get_size(data)
         return size
 
-    def get_hash(self, data):
+    def get_hash(self, data=None):
         """Calculate a hash for the structure, as a tuple."""
         # calculate hash
         hsh = []

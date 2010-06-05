@@ -125,7 +125,7 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
 
     class SizedStringZ(pyffi.object_models.common.SizedString):
 
-        def get_size(self, data):
+        def get_size(self, data=None):
             """Return number of bytes this type occupies in a file.
 
             :return: Number of bytes.
@@ -165,7 +165,7 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
         def get_detail_display(self):
             return self.__str__()
 
-        def get_hash(self, data):
+        def get_hash(self, data=None):
             """Return a hash value for this value.
 
             :return: An immutable object that can be used as a hash.
@@ -193,7 +193,7 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
             """
             stream.write("FRTRI".encode("ascii"))
 
-        def get_size(self, data):
+        def get_size(self, data=None):
             """Return number of bytes the header string occupies in a file.
 
             :return: Number of bytes.
@@ -212,10 +212,10 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
         def __str__(self):
             return '%03i' % self._value
 
-        def get_size(self, data):
+        def get_size(self, data=None):
             return 3
 
-        def get_hash(self, data):
+        def get_hash(self, data=None):
             return self._value
 
         def read(self, stream, data):

@@ -375,12 +375,12 @@ describing number of elements (%i)"%(elemlist.__len__(),len2i))
             links.extend(elem.get_refs(data))
         return links
 
-    def get_size(self, data):
+    def get_size(self, data=None):
         """Calculate the sum of the size of all elements in the array."""
         return sum(
             (elem.get_size(data) for elem in self._elementList()), 0)
 
-    def get_hash(self, data):
+    def get_hash(self, data=None):
         """Calculate a hash value for the array, as a tuple."""
         hsh = []
         for elem in self._elementList():
