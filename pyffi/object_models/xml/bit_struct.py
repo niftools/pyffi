@@ -62,11 +62,11 @@ class _MetaBitStructBase(type):
 
         # check storage type
         if cls._numbytes == 1:
-            cls._struct = '<B'
+            cls._struct = 'B'
         elif cls._numbytes == 2:
-            cls._struct = '<H'
+            cls._struct = 'H'
         elif cls._numbytes == 4:
-            cls._struct = '<I'
+            cls._struct = 'I'
         else:
             raise RuntimeError("unsupported bitstruct numbytes")
 
@@ -176,9 +176,9 @@ class BitStructBase(DetailNode, metaclass=_MetaBitStructBase):
     * a : 5
     * b : 1
     <BLANKLINE>
-    >>> y.to_int()
+    >>> y.to_int(None)
     13
-    >>> y.from_int(9)
+    >>> y.from_int(9, None)
     >>> print(y) # doctest:+ELLIPSIS
     <class 'pyffi.object_models.xml.bit_struct.Flags'> instance at 0x...
     * a : 1
@@ -189,6 +189,7 @@ class BitStructBase(DetailNode, metaclass=_MetaBitStructBase):
     _attrs = []
     _numbytes = 1 # default width of a bitstruct
     _games = {}
+    arg = None # default argument
 
     # initialize all attributes
     def __init__(self, template = None, argument = None, parent = None):
@@ -270,68 +271,68 @@ class BitStructBase(DetailNode, metaclass=_MetaBitStructBase):
                 text += '* %s : %s\n' % (attr.name, attr_str_lines[0])
         return text
 
-    def read(self, stream, **kwargs):
+    def read(self, stream, data):
         """Read structure from stream."""
-        self.arg = kwargs.get('argument')
         # read all attributes
-        value = struct.unpack(self._struct, stream.read(self._numbytes))[0]
+        value = struct.unpack(data._byte_order + self._struct,
+                              stream.read(self._numbytes))[0]
         # set the structure variables
-        self.from_int(value, **kwargs)
+        self.from_int(value, data)
 
-    def from_int(self, value, **kwargs):
+    def from_int(self, value, data):
         """Set structure values from integer."""
         bitpos = 0
-        for attr in self._get_filtered_attribute_list(**kwargs):
+        for attr in self._get_filtered_attribute_list(data):
             #print(attr.name) # debug
             attrvalue = (value >> bitpos) & ((1 << attr.numbits) - 1)
             setattr(self, attr.name, attrvalue)
             bitpos += attr.numbits
 
-    def to_int(self, **kwargs):
+    def to_int(self, data):
         # implementation note: not defined via __int__ because conversion
         # takes arguments
         """Get as integer."""
         value = 0
         bitpos = 0
-        for attr in self._get_filtered_attribute_list(**kwargs):
+        for attr in self._get_filtered_attribute_list(data):
             attrvalue = getattr(self, attr.name)
             value |= (attrvalue & ((1 << attr.numbits) - 1)) << bitpos
             bitpos += attr.numbits
         return value
 
-    def write(self, stream, **kwargs):
+    def write(self, stream, data):
         """Write structure to stream."""
-        self.arg = kwargs.get('argument')
-        stream.write(struct.pack(self._struct, self.to_int(**kwargs)))
+        stream.write(struct.pack(data._byte_order + self._struct,
+                                 self.to_int(data)))
 
-    def fix_links(self, **kwargs):
+    def fix_links(self, data):
         """Fix links in the structure."""
         return
 
-    def get_links(self, **kwargs):
+    def get_links(self, data=None):
         """Get list of all links in the structure."""
         return []
 
-    def get_strings(self, **kwargs):
+    def get_strings(self, data):
         """Get list of all strings in the structure."""
         return []
 
-    def get_refs(self, **kwargs):
+    def get_refs(self, data=None):
         """Get list of all references in the structure. Refs are
         links that point down the tree. For instance, if you need to parse
         the whole tree starting from the root you would use get_refs and not
         get_links, as get_links could result in infinite recursion."""
         return []
 
-    def get_size(self, **kwargs):
+    def get_size(self, data=None):
         """Calculate the structure size in bytes."""
         return self._numbytes
 
-    def get_hash(self, **kwargs):
+    def get_hash(self, data=None):
         """Calculate a hash for the structure, as a tuple."""
         # calculate hash
         hsh = []
-        for attr in self._get_filtered_attribute_list(**kwargs):
+        for attr in self._get_filtered_attribute_list(data):
             hsh.append(getattr(self, attr.name))
         return tuple(hsh)
 
@@ -376,8 +377,7 @@ class BitStructBase(DetailNode, metaclass=_MetaBitStructBase):
                 names.append(attr.name)
         return names
 
-    def _get_filtered_attribute_list(self, version = None, user_version = None,
-                               data=None, **kwargs):
+    def _get_filtered_attribute_list(self, data=None):
         """Generator for listing all 'active' attributes, that is,
         attributes whose condition evaluates ``True``, whose version
         interval contaions C{version}, and whose user version is
@@ -391,6 +391,9 @@ class BitStructBase(DetailNode, metaclass=_MetaBitStructBase):
         if data:
             version = data.version
             user_version = data.user_version
+        else:
+            version = None
+            user_version = None
         for attr in self._attribute_list:
             #print(attr.name, version, attr.ver1, attr.ver2) # debug
 

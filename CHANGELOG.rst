@@ -18,6 +18,19 @@ Release 2.2.0 (in development)
 
 * New spell to optimize collision geometry in nifs.
 
+* Added big-endian support.
+
+* Removed ``**kwargs`` argument passing for faster and more transparant
+  implementation (reading and writing is now about 8% faster).
+
+* Do not merge BSShaderProperty blocks (reported by Chaky, niftools issue
+  #3009832).
+
+* Installer now recognizes Maya 2011.
+
+* Fixed NiPSysData read and write for Fallout 3 (reported by Chaky,
+  niftools issue #3010861).
+
 Release 2.1.4 (19 Mar 2010)
 ===========================
 

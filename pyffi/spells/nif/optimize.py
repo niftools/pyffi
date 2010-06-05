@@ -193,6 +193,9 @@ class SpellMergeDuplicates(pyffi.spells.nif.NifSpell):
                 if (isinstance(branch, NifFormat.NiProperty)
                     and branch.controller):
                     continue
+                # skip BSShaderProperty blocks (see niftools issue #3009832)
+                if isinstance(branch, NifFormat.BSShaderProperty):
+                    continue
                 # interchangeable branch found!
                 self.toaster.msg("removing duplicate branch")
                 self.data.replace_global_node(branch, otherbranch)

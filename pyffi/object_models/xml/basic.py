@@ -80,6 +80,7 @@ class BasicBase(DetailNode):
     _has_links = False # does the type contain a Ref or a Ptr?
     _has_refs = False # does the type contain a Ref?
     _has_strings = False # does the type contain a string?
+    arg = None # default argument
 
     def __init__(self, template = None, argument = None, parent = None):
         """Initializes the instance.
@@ -98,28 +99,28 @@ class BasicBase(DetailNode):
         """Return string representation."""
         return str(self.get_value())
 
-    def read(self, stream, **kwargs):
+    def read(self, stream, data):
         """Read object from file."""
         raise NotImplementedError
 
-    def write(self, stream, **kwargs):
+    def write(self, stream, data):
         """Write object to file."""
         raise NotImplementedError
 
-    def fix_links(self, **kwargs):
+    def fix_links(self, data):
         """Fix links. Called when all objects have been read, and converts
         block indices into blocks."""
         pass
 
-    def get_links(self, **kwargs):
+    def get_links(self, data=None):
         """Return all links referred to in this object."""
         return []
 
-    def get_strings(self, **kwargs):
+    def get_strings(self, data):
         """Return all strings used by this object."""
         return []
 
-    def get_refs(self, **kwargs):
+    def get_refs(self, data=None):
         """Return all references (excluding weak pointers) used by this
         object."""
         return []
@@ -132,11 +133,11 @@ class BasicBase(DetailNode):
         """Set object value."""
         raise NotImplementedError
 
-    def get_size(self, **kwargs):
+    def get_size(self, data=None):
         """Returns size of the object in bytes."""
         raise NotImplementedError
 
-    def get_hash(self, **kwargs):
+    def get_hash(self, data=None):
         """Returns a hash value (an immutable object) that can be used to
         identify the object uniquely."""
         raise NotImplementedError

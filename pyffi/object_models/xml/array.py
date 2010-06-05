@@ -123,6 +123,8 @@ class Array(_ListWrap):
     """A general purpose class for 1 or 2 dimensional arrays consisting of
     either BasicBase or StructBase elements."""
 
+    arg = None # default argument
+
     def __init__(
         self,
         element_type = None,
@@ -279,10 +281,10 @@ class Array(_ListWrap):
                             argument = self._elementTypeArgument)
                         elemlist.append(elem)
 
-    def read(self, stream, **kwargs):
+    def read(self, stream, data):
         """Read array from stream."""
         # parse arguments
-        self._elementTypeArgument = kwargs.get('argument')
+        self._elementTypeArgument = self.arg
         # check array size
         len1 = self._len1()
         if len1 > 2000000:
@@ -295,7 +297,7 @@ class Array(_ListWrap):
                     template = self._elementTypeTemplate,
                     argument = self._elementTypeArgument,
                     parent = self)
-                elem.read(stream, **kwargs)
+                elem.read(stream, data)
                 self.append(elem)
         else:
             for i in range(len1):
@@ -308,13 +310,13 @@ class Array(_ListWrap):
                         template = self._elementTypeTemplate,
                         argument = self._elementTypeArgument,
                         parent = elemlist)
-                    elem.read(stream, **kwargs)
+                    elem.read(stream, data)
                     elemlist.append(elem)
                 self.append(elemlist)
 
-    def write(self, stream, **kwargs):
+    def write(self, stream, data):
         """Write array to stream."""
-        self._elementTypeArgument = kwargs.get('argument')
+        self._elementTypeArgument = self.arg
         len1 = self._len1()
         if len1 != self.__len__():
             raise ValueError('array size (%i) different from to field \
@@ -323,7 +325,7 @@ describing number of elements (%i)'%(self.__len__(),len1))
             raise ValueError('array too long (%i)' % len1)
         if self._count2 == None:
             for elem in list.__iter__(self):
-                elem.write(stream, **kwargs)
+                elem.write(stream, data)
         else:
             for i, elemlist in enumerate(list.__iter__(self)):
                 len2i = self._len2(i)
@@ -333,56 +335,56 @@ describing number of elements (%i)"%(elemlist.__len__(),len2i))
                 if len2i > 2000000:
                     raise ValueError('array too long (%i)' % len2i)
                 for elem in list.__iter__(elemlist):
-                    elem.write(stream, **kwargs)
+                    elem.write(stream, data)
 
-    def fix_links(self, **kwargs):
+    def fix_links(self, data):
         """Fix the links in the array by calling C{fix_links} on all elements
         of the array."""
         if not self._elementType._has_links:
             return
         for elem in self._elementList():
-            elem.fix_links(**kwargs)
+            elem.fix_links(data)
 
-    def get_links(self, **kwargs):
+    def get_links(self, data=None):
         """Return all links in the array by calling C{get_links} on all elements
         of the array."""
         links = []
         if not self._elementType._has_links:
             return links
         for elem in self._elementList():
-            links.extend(elem.get_links(**kwargs))
+            links.extend(elem.get_links(data))
         return links
 
-    def get_strings(self, **kwargs):
+    def get_strings(self, data):
         """Return all strings in the array by calling C{get_strings} on all
         elements of the array."""
         strings = []
         if not self._elementType._has_strings:
             return strings
         for elem in self._elementList():
-            strings.extend(elem.get_strings(**kwargs))
+            strings.extend(elem.get_strings(data))
         return strings
 
-    def get_refs(self, **kwargs):
+    def get_refs(self, data=None):
         """Return all references in the array by calling C{get_refs} on all
         elements of the array."""
         links = []
         if not self._elementType._has_links:
             return links
         for elem in self._elementList():
-            links.extend(elem.get_refs(**kwargs))
+            links.extend(elem.get_refs(data))
         return links
 
-    def get_size(self, **kwargs):
+    def get_size(self, data=None):
         """Calculate the sum of the size of all elements in the array."""
         return sum(
-            (elem.get_size(**kwargs) for elem in self._elementList()), 0)
+            (elem.get_size(data) for elem in self._elementList()), 0)
 
-    def get_hash(self, **kwargs):
+    def get_hash(self, data=None):
         """Calculate a hash value for the array, as a tuple."""
         hsh = []
         for elem in self._elementList():
-            hsh.append(elem.get_hash(**kwargs))
+            hsh.append(elem.get_hash(data))
         return tuple(hsh)
 
     def replace_global_node(self, oldbranch, newbranch, **kwargs):

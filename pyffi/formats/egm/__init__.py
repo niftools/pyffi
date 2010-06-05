@@ -145,14 +145,14 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
         def get_detail_display(self):
             return self.__str__()
 
-        def get_hash(self, **kwargs):
+        def get_hash(self, data=None):
             """Return a hash value for this value.
 
             :return: An immutable object that can be used as a hash.
             """
             return None
 
-        def read(self, stream, **kwargs):
+        def read(self, stream, data):
             """Read header string from stream and check it.
 
             :param stream: The stream to read from.
@@ -165,7 +165,7 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
                     "invalid EGM header: expected 'FREGM' but got '%s'"
                     % hdrstr)
 
-        def write(self, stream, **kwargs):
+        def write(self, stream, data):
             """Write the header string to stream.
 
             :param stream: The stream to write to.
@@ -173,7 +173,7 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
             """
             stream.write("FREGM".encode("ascii"))
 
-        def get_size(self, **kwargs):
+        def get_size(self, data=None):
             """Return number of bytes the header string occupies in a file.
 
             :return: Number of bytes.
@@ -190,21 +190,21 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
         def __str__(self):
             return 'XXX'
 
-        def get_size(self, **kwargs):
+        def get_size(self, data=None):
             return 3
 
-        def get_hash(self, **kwargs):
+        def get_hash(self, data=None):
             return None
 
-        def read(self, stream, **kwargs):
+        def read(self, stream, data):
             ver = stream.read(3)
-            if ver != ('%03i' % kwargs['data'].version).encode("ascii"):
+            if ver != ('%03i' % data.version).encode("ascii"):
                 raise ValueError(
                     "Invalid version number: expected b'%03i' but got %s."
-                    % (kwargs['data'].version, ver))
+                    % (data.version, ver))
 
-        def write(self, stream, **kwargs):
-            stream.write(('%03i' % kwargs['data'].version).encode("ascii"))
+        def write(self, stream, data):
+            stream.write(('%03i' % data.version).encode("ascii"))
 
         def get_detail_display(self):
             return 'XXX'
@@ -267,7 +267,7 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
             pos = stream.tell()
             try:
                 self.inspect_quick(stream)
-                self.header.read(stream, data=self)
+                self.header.read(stream, self)
             finally:
                 stream.seek(pos)
 
@@ -280,7 +280,7 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
             """
             # read the file
             self.inspect_quick(stream)
-            self.header.read(stream, data=self)
+            self.header.read(stream, self)
             self.sym_morphs = [
                 EgmFormat.MorphRecord(argument=self.header.num_vertices)
                 for i in range(self.header.num_sym_morphs)]
@@ -288,7 +288,7 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
                 EgmFormat.MorphRecord(argument=self.header.num_vertices)
                 for i in range(self.header.num_asym_morphs)]
             for morph in self.sym_morphs + self.asym_morphs:
-                morph.read(stream, data=self, argument=morph.arg)
+                morph.read(stream, self)
 
             # check if we are at the end of the file
             if stream.read(1):
@@ -304,11 +304,11 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
             # write the file
             self.header.num_sym_morphs = len(self.sym_morphs)
             self.header.num_asym_morphs = len(self.asym_morphs)
-            self.header.write(stream, data=self)
+            self.header.write(stream, self)
             for morph in self.sym_morphs + self.asym_morphs:
                 if morph.arg != self.header.num_vertices:
                     raise ValueError("invalid morph length")
-                morph.write(stream, data=self, argument=morph.arg)
+                morph.write(stream, self)
 
         def add_sym_morph(self):
             """Add a symmetric morph, and return it."""
