@@ -24,6 +24,8 @@ Release 2.1.5 (in development)
 * Do not merge BSShaderProperty blocks (reported by Chaky, niftools issue
   #3009832).
 
+* Installer now recognizes Maya 2011.
+
 Release 2.1.4 (19 Mar 2010)
 ===========================
 
