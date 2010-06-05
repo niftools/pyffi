@@ -7036,6 +7036,17 @@ class NifFormat(FileFormat):
             v.v = -self.v
             return v
 
+    class NiPSysData:
+        def _get_filtered_attribute_list(self, data=None):
+            # simple hack to act as if we force num_vertices = 0
+            for attr in StructBase._get_filtered_attribute_list(self, data):
+                if data and (attr.name in ["vertices",
+                                           "normals", "tangents", "bitangents",
+                                           "vertex_colors", "uv_sets"]):
+                    if data.version >= 0x14020007 and data.user_version == 11:
+                        continue
+                yield attr
+
 if __name__=='__main__':
     import doctest
     doctest.testmod()

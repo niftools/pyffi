@@ -26,6 +26,9 @@ Release 2.1.5 (in development)
 
 * Installer now recognizes Maya 2011.
 
+* Fixed NiPSysData read and write for Fallout 3 (reported by Chaky,
+  niftools issue #3010861).
+
 Release 2.1.4 (19 Mar 2010)
 ===========================
 
