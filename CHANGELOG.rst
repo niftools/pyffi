@@ -21,6 +21,9 @@ Release 2.1.5 (in development)
 * Removed ``**kwargs`` argument passing for faster and more transparant
   implementation (reading and writing is now about 8% faster).
 
+* Do not merge BSShaderProperty blocks (reported by Chaky, niftools issue
+  #3009832).
+
 Release 2.1.4 (19 Mar 2010)
 ===========================
 
