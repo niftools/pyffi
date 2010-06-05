@@ -392,7 +392,7 @@ class CgfFormat(pyffi.object_models.xml.FileFormat, metaclass=_MetaCgfFormat):
             :param stream: The stream to write to.
             :type stream: file
             """
-            if self._value == None:
+            if self._value is None:
                 stream.write(struct.pack('<i', -1))
             else:
                 stream.write(struct.pack(
@@ -536,22 +536,6 @@ but got instance of %s""" % (self._template, block.__class__))
         _link_stack = None
         _block_index_dct = None
         _block_dct = None
-
-        class VersionUInt(pyffi.object_models.common.UInt):
-            def set_value(self, value):
-                if value is None:
-                    self._value = None
-                else:
-                    pyffi.object_models.common.UInt.set_value(self, value)
-
-            def __str__(self):
-                if self._value is None:
-                    return "None"
-                else:
-                    return "0x%08X" % self.get_value()
-
-            def get_detail_display(self):
-                return self.__str__()
 
         def __init__(self, filetype=0xffff0000, game="Far Cry"):
             # 0xffff0000 = CgfFormat.FileType.GEOM
@@ -868,7 +852,7 @@ chunk size mismatch when reading %s at 0x%08X
             # fix links
             for chunk, chunkversion in zip(self.chunks, self.versions):
                 # (quick hackish trick with version)
-                self.version = chunkhdr.version
+                self.version = chunkversion
                 try:
                     #print(chunk.__class__)
                     chunk.fix_links(self)
