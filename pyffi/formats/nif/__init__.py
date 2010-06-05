@@ -882,8 +882,7 @@ class NifFormat(FileFormat):
                 return []
 
         def get_hash(self, data=None):
-            if not kwargs.get('ignore_strings'):
-                return self.get_value()
+            return self.get_value()
 
     # other types with internal implementation
 
