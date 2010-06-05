@@ -1370,7 +1370,7 @@ class NifFormat(FileFormat):
                     # read dummy integer
                     # bhk blocks are *not* preceeded by a dummy
                     if self.version <= 0x0A01006A and not block_type.startswith("bhk"):
-                        dummy, = struct.unpack(data._byte_order + 'I',
+                        dummy, = struct.unpack(self._byte_order + 'I',
                                                stream.read(4))
                         if dummy != 0:
                             raise NifFormat.NifError(
@@ -1394,7 +1394,7 @@ class NifFormat(FileFormat):
                     # memory
                     else:
                         block_index, = struct.unpack(
-                            data._byte_order + 'I', stream.read(4))
+                            self._byte_order + 'I', stream.read(4))
                         if block_index in self._block_dct:
                             raise NifFormat.NifError(
                                 'duplicate block index (0x%08X at 0x%08X)'
@@ -1549,7 +1549,7 @@ class NifFormat(FileFormat):
                 # write block index
                 logger.debug("Writing %s block" % block.__class__.__name__)
                 if self.version < 0x0303000D:
-                    stream.write(struct.pack(data._byte_order + 'i',
+                    stream.write(struct.pack(self._byte_order + 'i',
                                              self._block_index_dct[block]))
                 # write block
                 block.write(stream, self)
