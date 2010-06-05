@@ -133,14 +133,14 @@ class DdsFormat(pyffi.object_models.xml.FileFormat):
         def get_detail_display(self):
             return self.__str__()
 
-        def get_hash(self, **kwargs):
+        def get_hash(self, data=None):
             """Return a hash value for this value.
 
             :return: An immutable object that can be used as a hash.
             """
             return None
 
-        def read(self, stream, **kwargs):
+        def read(self, stream, data):
             """Read header string from stream and check it.
 
             :param stream: The stream to read from.
@@ -152,7 +152,7 @@ class DdsFormat(pyffi.object_models.xml.FileFormat):
                 raise ValueError(
                     "invalid DDS header: expected 'DDS ' but got '%s'" % hdrstr)
 
-        def write(self, stream, **kwargs):
+        def write(self, stream, data):
             """Write the header string to stream.
 
             :param stream: The stream to write to.
@@ -160,7 +160,7 @@ class DdsFormat(pyffi.object_models.xml.FileFormat):
             """
             stream.write("DDS ".encode("ascii"))
 
-        def get_size(self, **kwargs):
+        def get_size(self, data=None):
             """Return number of bytes the header string occupies in a file.
 
             :return: Number of bytes.

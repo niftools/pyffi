@@ -162,7 +162,7 @@ class FileFormat(object):
         Override this class to implement reading and writing.
         """
 
-        byteorder = '<'
+        _byte_order = '<'
         """Set to '<' for little-endian, and '>' for big-endian."""
 
         def inspect(self, stream):
