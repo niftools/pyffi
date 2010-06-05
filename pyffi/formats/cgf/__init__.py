@@ -293,8 +293,8 @@ class CgfFormat(pyffi.object_models.xml.FileFormat):
         def __str__(self):
             return 'XXXXXX'
 
-        def _str(self, game):
-            if game == "Aion":
+        def _str(self, data):
+            if data.game == "Aion":
                 return 'NCAion'.encode("ascii")
             else:
                 return 'CryTek'.encode("ascii")
@@ -305,13 +305,12 @@ class CgfFormat(pyffi.object_models.xml.FileFormat):
             :param stream: The stream to read from.
             :type stream: file
             """
-            game = data.game
-            gamesig = self._str(game)
+            gamesig = self._str(data)
             signat = stream.read(8)
             if not signat.startswith(gamesig):
                 raise ValueError(
                     "invalid CGF signature: expected %s but got %s"
-                    %(gamesig, signat))
+                    % (gamesig, signat))
 
         def write(self, stream, data):
             """Write signature to stream.
@@ -319,8 +318,7 @@ class CgfFormat(pyffi.object_models.xml.FileFormat):
             :param stream: The stream to read from.
             :type stream: file
             """
-            stream.write(
-                self._str(data.game).ljust(8, '\x00'.encode("ascii")))
+            stream.write(self._str(data).ljust(8, '\x00'.encode("ascii")))
 
         def get_value(self):
             """Get signature.
