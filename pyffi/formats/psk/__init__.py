@@ -128,6 +128,7 @@ class PskFormat(pyffi.object_models.xml.FileFormat):
     class Data(pyffi.object_models.FileFormat.Data):
         """A class to contain the actual psk data."""
         version = 0 # no versioning, so far
+        user_version = 0
 
         def inspect_quick(self, stream):
             """Quickly checks if stream contains PSK data, by looking at
@@ -162,7 +163,7 @@ class PskFormat(pyffi.object_models.xml.FileFormat):
             self.inspect_quick(stream)
             pos = stream.tell()
             try:
-                self._header_value_.read(stream)
+                self._header_value_.read(stream, self)
             finally:
                 stream.seek(pos)
 
@@ -174,7 +175,7 @@ class PskFormat(pyffi.object_models.xml.FileFormat):
             """
             self.inspect_quick(stream)
             pyffi.object_models.xml.struct_.StructBase.read(
-                self, stream, version=self.version)
+                self, stream, self)
 
             # check if we are at the end of the file
             if stream.read(1):
@@ -189,7 +190,7 @@ class PskFormat(pyffi.object_models.xml.FileFormat):
             """
             # write the data
             pyffi.object_models.xml.struct_.StructBase.write(
-                self, stream, version=self.version)
+                self, stream, self)
 
         # DetailNode
 
