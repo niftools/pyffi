@@ -805,3 +805,40 @@ class SpellCheckVersion(pyffi.spells.nif.NifSpell):
         if user_version2 not in self.toaster.user_version2s[version]:
             self.toaster.user_version2s[version].append(user_version2)
         return False
+
+class SpellCheckMaterialEmissiveValue(pyffi.spells.nif.NifSpell):
+    """Check (and warn) about potentially bad material emissive values."""
+
+    SPELLNAME = "check_materialemissivevalue"
+    READONLY = False
+
+    def datainspect(self):
+        # only run the spell if there are material property blocks
+        return self.inspectblocktype(NifFormat.NiMaterialProperty)
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch, and material properties
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiMaterialProperty))
+    
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiMaterialProperty):
+            # check if any emissive values exceeds usual values
+            emissive = branch.emissive_color
+            if emissive.r > 0.5:
+                # *potentially too high (there are rare instances that that is not too high but most instances that this is the case it is incorrect)
+                 self.toaster.logger.warn(
+                    "emmisive value r probably too high (%f); manual checking recommended" % emissive.r)
+            if emissive.g > 0.5:
+                # *potentially too high (there are rare instances that that is not too high but most instances that this is the case it is incorrect)
+                 self.toaster.logger.warn(
+                    "emmisive value g probably too high (%f); manual checking recommended" % emissive.g)
+            if emissive.b > 0.5:
+                # *potentially too high (there are rare instances that that is not too high but most instances that this is the case it is incorrect)
+                 self.toaster.logger.warn(
+                    "emmisive value b probably too high (%f); manual checking recommended" % emissive.b)
+            # stop recursion
+            return False
+        else:
+            # keep recursing into children
+            return True
