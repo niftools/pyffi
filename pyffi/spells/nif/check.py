@@ -810,7 +810,6 @@ class SpellCheckMaterialEmissiveValue(pyffi.spells.nif.NifSpell):
     """Check (and warn) about potentially bad material emissive values."""
 
     SPELLNAME = "check_materialemissivevalue"
-    READONLY = False
 
     def datainspect(self):
         # only run the spell if there are material property blocks
@@ -825,18 +824,11 @@ class SpellCheckMaterialEmissiveValue(pyffi.spells.nif.NifSpell):
         if isinstance(branch, NifFormat.NiMaterialProperty):
             # check if any emissive values exceeds usual values
             emissive = branch.emissive_color
-            if emissive.r > 0.5:
-                # *potentially too high (there are rare instances that that is not too high but most instances that this is the case it is incorrect)
+            if emissive.r > 0.5 or emissive.g > 0.5 or emissive.b > 0.5:
+                # *potentially too high (there are some instances (ie most glass, flame, gems, willothewisps etc.) that that is not too high but most other instances (ie ogres!) that this is the case it is incorrect)
                  self.toaster.logger.warn(
-                    "emmisive value r probably too high (%f); manual checking recommended" % emissive.r)
-            if emissive.g > 0.5:
-                # *potentially too high (there are rare instances that that is not too high but most instances that this is the case it is incorrect)
-                 self.toaster.logger.warn(
-                    "emmisive value g probably too high (%f); manual checking recommended" % emissive.g)
-            if emissive.b > 0.5:
-                # *potentially too high (there are rare instances that that is not too high but most instances that this is the case it is incorrect)
-                 self.toaster.logger.warn(
-                    "emmisive value b probably too high (%f); manual checking recommended" % emissive.b)
+                    "emissive value may be too high (highest value: %f); manual checking of %s recommended" % (max(emissive.r,emissive.g,emissive.b), self.stream.name))
+                ##Anyway to if this occurs to stop processing file; some files (ie MMM's goblin blood spray) have a dozen material branches that match this... so really bloats the log; be better to just warn once per file I think. (all methods I can think of waste processing for any other spells).
             # stop recursion
             return False
         else:
