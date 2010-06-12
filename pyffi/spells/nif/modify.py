@@ -1037,3 +1037,68 @@ class SpellCollisionToMopp(NifSpell):
         else:
             # recurse further
             return True
+
+class SpellMirrorAnimation(NifSpell):
+    """Mirrors the animation by switching bones and miroring their x values. 
+    Only useable on creature/character animations (well any animations
+    as long as they have bones in the form of bip01/2 L ****"""
+
+    SPELLNAME = "modify_mirroranimation"
+    READONLY = False
+
+    def datainspect(self):
+        # returns more than needed but easiest way to ensure it catches all
+        # types of animations
+        return True
+        
+    def dataentry(self):
+        # make list of used bones
+        self.old_bone_data = {}
+        for branch in self.data.get_global_iterator():
+            if isinstance(branch, NifFormat.NiControllerSequence):
+                for block in branch.controlled_blocks:
+                    name = block.get_node_name().lower()
+                    if name.startswith('bip01 l') or name.startswith('bip01 r') or name.startswith('bip02 l') or name.startswith('bip02 r'):
+                        self.old_bone_data[name] = [block.interpolator, block.controller, block.priority, block.string_palette, block.node_name_offset, block.controller_type_offset]
+        return True
+
+    def branchinspect(self, branch):
+        # inspect the NiAVObject branch, and NiControllerSequence
+        # branch (for kf files)
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiTimeController,
+                                   NifFormat.NiInterpolator,
+                                   NifFormat.NiControllerManager,
+                                   NifFormat.NiControllerSequence))
+
+    def branchentry(self, branch):
+        old_bone_data = self.old_bone_data
+                
+        if isinstance(branch, NifFormat.NiControllerSequence):
+            for block in branch.controlled_blocks:
+                node_name = block.get_node_name().lower()
+                if ' l ' in node_name: node_name = node_name.replace(' l ', ' r ')
+                elif ' r ' in node_name: node_name = node_name.replace(' r ', ' l ')
+                if node_name in old_bone_data:
+                    self.changed = True
+                    block.interpolator, block.controller, block.priority, block.string_palette, block.node_name_offset, block.controller_type_offset = old_bone_data[node_name]
+                    # and then reverse x movements (since otherwise the movement of f.e. an arm towards the center of the body will be still in the same direction but away from the body
+                    if not block.interpolator: return
+                    ip = block.interpolator
+                    ip.translation.x = -ip.translation.x
+                    ip.rotation.x = -ip.rotation.x
+                    if ip.data:
+                        data = ip.data
+                        if data.translations.num_keys:
+                            for key in data.translations.keys:
+                                key.value.x = -key.value.x
+                        if data.rotation_type == 4:
+                            if data.xyz_rotations[1].num_keys != 0:
+                                for key in data.xyz_rotations[1].keys:
+                                    key.value = -key.value
+                        elif data.num_rotation_keys != 0:
+                            for key in data.quaternion_keys:
+                                key.value.x = -key.value.x
+        else:
+            # recurse further
+            return True
