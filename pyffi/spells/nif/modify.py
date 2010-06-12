@@ -1084,7 +1084,7 @@ class SpellMirrorAnimation(NifSpell):
                     self.changed = True
                     block.interpolator, block.controller, block.priority, block.string_palette, block.node_name_offset, block.controller_type_offset = old_bone_data[node_name]
                     # and then reverse x movements (since otherwise the movement of f.e. an arm towards the center of the body will be still in the same direction but away from the body
-                    if not block.interpolator: return
+                    if not block.interpolator: continue
                     ip = block.interpolator
                     ip.translation.x = -ip.translation.x
                     ip.rotation.x = -ip.rotation.x
