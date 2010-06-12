@@ -1058,9 +1058,10 @@ class SpellMirrorAnimation(NifSpell):
             if isinstance(branch, NifFormat.NiControllerSequence):
                 for block in branch.controlled_blocks:
                     name = block.get_node_name().lower()
-                    if name.startswith('bip01 l') or name.startswith('bip01 r') or name.startswith('bip02 l') or name.startswith('bip02 r'):
+                    if ' r ' in name or ' l ' in name:
                         self.old_bone_data[name] = [block.interpolator, block.controller, block.priority, block.string_palette, block.node_name_offset, block.controller_type_offset]
-        return True
+        if self.old_bone_data:
+            return True
 
     def branchinspect(self, branch):
         # inspect the NiAVObject branch, and NiControllerSequence
