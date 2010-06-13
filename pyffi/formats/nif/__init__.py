@@ -492,17 +492,20 @@ class NifFormat(FileFormat):
         def write(self, stream, data):
             """Write block reference."""
             if self.get_value() is None:
-                # nothing to point to
-                if data.version >= 0x0303000D:
-                    stream.write(struct.pack(data._byte_order + "i",
-                                             -1)) # link by number
-                else:
-                    stream.write(struct.pack(data._byte_order + "i",
-                                             0)) # link by pointer
+                # -1: link by number, 0: link by pointer
+                block_index = -1 if data.version >= 0x0303000D else 0
             else:
-                stream.write(struct.pack(
-                    data._byte_order + 'i',
-                    data._block_index_dct[self.get_value()]))
+                try:
+                    block_index = data._block_index_dct[self.get_value()]
+                except KeyError:
+                    logging.getLogger("pyffi.nif.ref").warn(
+                        "%s block is missing from the nif tree:"
+                        " omitting reference"
+                        % self.get_value().__class__.__name__)
+                    # -1: link by number, 0: link by pointer
+                    block_index = -1 if data.version >= 0x0303000D else 0
+            stream.write(struct.pack(
+                data._byte_order + 'i', block_index))
 
         def fix_links(self, data):
             """Fix block links."""
