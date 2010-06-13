@@ -16,7 +16,9 @@ Release 2.2.0 (in development)
 * Added support for Laxe Lore nifs (reported by bobsobol, issue
   #2995866).
 
-* New spell to optimize collision geometry in nifs.
+* New spells:
+  - opt_collisiongeometry: to optimize collision geometry in nifs.
+  - check_materialemissivevalue: checks (and warns) about high values in material emissive settings.
 
 * Added big-endian support.
 

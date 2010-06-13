@@ -122,7 +122,8 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         pyffi.spells.nif.modify.SpellCollisionToMopp,
         pyffi.spells.nif.optimize.SpellReduceGeometry,
         pyffi.spells.nif.optimize.SpellOptimizeCollisionGeometry,
-        pyffi.spells.nif.optimize.SpellOptimizeAnimation
+        pyffi.spells.nif.optimize.SpellOptimizeAnimation,
+        pyffi.spells.nif.check.SpellCheckMaterialEmissiveValue
         ]
     ALIASDICT = {
         "texdump": "dump_tex",
@@ -141,15 +142,15 @@ class NifToaster(pyffi.spells.nif.NifToaster):
 
     python niftoaster.py optimize /path/to/your/nifs/
 
-* print texture information of all nif files a directory tree, recursively
+* print texture information of all nif files in a directory tree, recursively
 
     python niftoaster.py dump_tex /path/to/your/nifs/
 
-* update/generate mopps of all nif files a directory tree, recursively
+* update/generate mopps of all nif files in a directory tree, recursively
 
     python niftoaster.py fix_mopp /path/to/your/nifs/
 
-* update/generate skin partitions of all nif files a directory tree,
+* update/generate skin partitions of all nif files in a directory tree,
 recursively, for Freedom Force vs. The 3rd Reich
 
     python niftoaster.py fix_ffvt3rskinpartition /path/to/your/nifs/
