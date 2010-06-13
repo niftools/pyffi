@@ -815,7 +815,14 @@ class SpellCheckMaterialEmissiveValue(pyffi.spells.nif.NifSpell):
         # only run the spell if there are material property blocks
         return self.inspectblocktype(NifFormat.NiMaterialProperty)
 
+    def dataentry(self):
+        self.check_emissive_done = False
+        return True
+
     def branchinspect(self, branch):
+        # if we are done, don't recurse further
+        if self.check_emissive_done:
+            return False
         # only inspect the NiAVObject branch, and material properties
         return isinstance(branch, (NifFormat.NiAVObject,
                                    NifFormat.NiMaterialProperty))
@@ -825,10 +832,16 @@ class SpellCheckMaterialEmissiveValue(pyffi.spells.nif.NifSpell):
             # check if any emissive values exceeds usual values
             emissive = branch.emissive_color
             if emissive.r > 0.5 or emissive.g > 0.5 or emissive.b > 0.5:
-                # *potentially too high (there are some instances (ie most glass, flame, gems, willothewisps etc.) that that is not too high but most other instances (ie ogres!) that this is the case it is incorrect)
-                 self.toaster.logger.warn(
-                    "emissive value may be too high (highest value: %f); manual checking of %s recommended" % (max(emissive.r,emissive.g,emissive.b), self.stream.name))
-                ##Anyway to if this occurs to stop processing file; some files (ie MMM's goblin blood spray) have a dozen material branches that match this... so really bloats the log; be better to just warn once per file I think. (all methods I can think of waste processing for any other spells).
+                # potentially too high (there are some instances (i.e.
+                # most glass, flame, gems, willothewisps etc. also any
+                # that have proper glowmaps usually) that that is not 
+                # too high but most other instances (i.e. ogres!) that
+                # this is the case it is incorrect)
+                self.toaster.logger.warn(
+                    "emissive value may be too high (highest value: %f)"
+                    % (max(emissive.r, emissive.g, emissive.b)))
+                # we're done...
+                self.check_emissive_done = True
             # stop recursion
             return False
         else:
