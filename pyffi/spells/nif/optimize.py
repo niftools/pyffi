@@ -749,7 +749,10 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
                     boxshape.dimensions.y = sizey
                     boxshape.dimensions.z = sizez
                     boxshape.minimum_size = min(sizex,sizey,sizez)
-                    boxshape.material = shape.material
+                    if isinstance(shape, NifFormat.bhkPackedNiTriStripsShape):
+                        boxshape.material = shape.sub_shapes[0].material
+                    else:
+                        boxshape.material = shape.material
                     boxshape.radius = 0.1
                     boxshape.unknown_8_bytes[0] = 0x6b
                     boxshape.unknown_8_bytes[1] = 0xee
