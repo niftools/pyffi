@@ -721,22 +721,22 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
         
     def boxshapechecker(self,vertices):
         verts = sorted(vertices,key=attrgetter('x','y','z'))
-        if ((verts[0].x == verts[1].x and verts[2].x and verts[3].x) and
-            (verts[4].x == verts[5].x and verts[6].x and verts[7].x)):
+        if ((verts[0].x == (verts[1].x and verts[2].x and verts[3].x)) and
+            (verts[4].x == (verts[5].x and verts[6].x and verts[7].x))):
             if verts[0].x < 0 and verts[4].x < 0:
                 sizex = (abs(min(verts[0].x,verts[4].x) - max(verts[0].x,verts[4].x))) / 2
             if verts[0].x > 0 and verts[4].x > 0:
                 sizex = (abs(max(verts[0].x,verts[4].x) - min(verts[0].x,verts[4].x))) / 2
             else: sizex = (abs(verts[0].x)+abs(verts[4].x)) / 2
-            if ((verts[0].y == verts[1].y and verts[4].y and verts[5].y) and
-                (verts[2].y == verts[3].y and verts[6].y and verts[7].y)):
+            if ((verts[0].y == (verts[1].y and verts[4].y and verts[5].y)) and
+                (verts[2].y == (verts[3].y and verts[6].y and verts[7].y))):
                 if verts[0].y < 0 and verts[2].y < 0:
                     sizey = (abs(min(verts[0].y,verts[4].y) - max(verts[0].y,verts[4].y))) / 2
                 if verts[0].y > 0 and verts[2].y > 0:
                     sizey = (abs(max(verts[0].y,verts[4].y) - min(verts[0].y,verts[4].y))) / 2
                 else: sizey = (abs(verts[0].y)+abs(verts[2].y)) / 2
-                if ((verts[0].z == verts[2].z and verts[4].z and verts[6].z) and
-                    (verts[1].z == verts[3].z and verts[5].z and verts[7].z)):
+                if ((verts[0].z == (verts[2].z and verts[4].z and verts[6].z)) and
+                    (verts[1].z == (verts[3].z and verts[5].z and verts[7].z))):
                     if verts[0].z < 0 and verts[1].z < 0:
                         sizez = (abs(min(verts[0].z,verts[4].z) - max(verts[0].z,verts[4].z))) / 2
                     if verts[0].z > 0 and verts[1].z > 0:
@@ -763,6 +763,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
                     boxshape.unknown_8_bytes[6] = 0x8e
                     boxshape.unknown_8_bytes[7] = 0x3e
                     self.toaster.msg(_("replaced vertex based collision with bhkBoxShape collision"))
+                    self.changed = True
                     return True
 
     def optimize_mopp(self, mopp):
