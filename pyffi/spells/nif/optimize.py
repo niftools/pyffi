@@ -719,52 +719,65 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
                                    NifFormat.hkPackedNiTriStripsData,
                                    NifFormat.NiTriStripsData))
         
-    def boxshapechecker(self,vertices):
-        verts = sorted(vertices,key=attrgetter('x','y','z'))
-        if ((verts[0].x == verts[1].x and verts[0].x == verts[2].x and verts[2].x == verts[3].x) and
-            (verts[4].x == verts[5].x and verts[4].x == verts[6].x and verts[6].x == verts[7].x)):
-            if verts[0].x < 0 and verts[4].x < 0:
-                sizex = (abs(min(verts[0].x,verts[4].x) - max(verts[0].x,verts[4].x))) / 2
-            if verts[0].x > 0 and verts[4].x > 0:
-                sizex = (abs(max(verts[0].x,verts[4].x) - min(verts[0].x,verts[4].x))) / 2
-            else: sizex = (abs(verts[0].x)+abs(verts[4].x)) / 2
-            if ((verts[0].y == verts[1].y and verts[0].y == verts[4].y and verts[4].y == verts[5].y) and
-                (verts[2].y == verts[3].y and verts[2].y == verts[6].y and verts[6].y == verts[7].y)):
-                if verts[0].y < 0 and verts[2].y < 0:
-                    sizey = (abs(min(verts[0].y,verts[4].y) - max(verts[0].y,verts[4].y))) / 2
-                if verts[0].y > 0 and verts[2].y > 0:
-                    sizey = (abs(max(verts[0].y,verts[4].y) - min(verts[0].y,verts[4].y))) / 2
-                else: sizey = (abs(verts[0].y)+abs(verts[2].y)) / 2
-                if ((verts[0].z == verts[2].z and verts[0].z == verts[4].z and verts[4].z == verts[6].z) and
-                    (verts[1].z == verts[3].z and verts[3].z == verts[5].z and verts[5].z == verts[7].z)):
-                    if verts[0].z < 0 and verts[1].z < 0:
-                        sizez = (abs(min(verts[0].z,verts[4].z) - max(verts[0].z,verts[4].z))) / 2
-                    if verts[0].z > 0 and verts[1].z > 0:
-                        sizez = (abs(max(verts[0].z,verts[4].z) - min(verts[0].z,verts[4].z))) / 2
-                    else: sizez = (abs(verts[0].z)+abs(verts[1].z)) / 2
-                    boxshape = NifFormat.bhkBoxShape()
-                    shape = self.rigidbody.shape # store reference before replacing
-                    self.data.replace_global_node(self.rigidbody.shape, boxshape)
-                    boxshape.dimensions.x = sizex
-                    boxshape.dimensions.y = sizey
-                    boxshape.dimensions.z = sizez
-                    boxshape.minimum_size = min(sizex,sizey,sizez)
-                    if isinstance(shape, NifFormat.bhkPackedNiTriStripsShape):
-                        boxshape.material = shape.sub_shapes[0].material
-                    else:
-                        boxshape.material = shape.material
-                    boxshape.radius = 0.1
-                    boxshape.unknown_8_bytes[0] = 0x6b
-                    boxshape.unknown_8_bytes[1] = 0xee
-                    boxshape.unknown_8_bytes[2] = 0x43
-                    boxshape.unknown_8_bytes[3] = 0x40
-                    boxshape.unknown_8_bytes[4] = 0x3a
-                    boxshape.unknown_8_bytes[5] = 0xef
-                    boxshape.unknown_8_bytes[6] = 0x8e
-                    boxshape.unknown_8_bytes[7] = 0x3e
-                    self.toaster.msg(_("replaced vertex based collision with bhkBoxShape collision"))
-                    self.changed = True
-                    return True
+    def get_box_shape(self, shape, tolerance=1e-6):
+        """Check if the given shape is has a box shape. If so, return an
+        equivalent (bhkConvexTransformShape +) bhkBoxShape.
+
+        Shape should be a bhkPackedNiTriStripsShape or a bhkNiTriStripsShape.
+        """
+        # quick check of number of vertices
+        if len(shape.data.vertices) != 8:
+            # cannot be a box
+            return None
+        # sorted vertices of a unit box
+        unit_box = [(0, 0, 0), (0, 0, 1), (0, 1, 0), (0, 1, 1),
+                    (1, 0, 0), (1, 0, 1), (1, 1, 0), (1, 1, 1)]
+        # take the vertices, sort them, and rescale them to fit in the unit box
+        verts = sorted(list(vert.as_tuple() for vert in shape.data.vertices))
+        min_ = [min(vert[i] for vert in verts) for i in range(3)]
+        size = [max(vert[i] for vert in verts) - min_[i] for i in range(3)]
+        scaled_verts = [tuple((vert[i] - min_[i]) / size[i] for i in range(3))
+                        for vert in verts]
+        # if our vertices are a box, then the scaled_verts should coincide with
+        # unit_box
+        non_boxiness = sum(sum(abs(vert[i] - othervert[i]) for i in range(3))
+                           for vert, othervert in zip(unit_box, scaled_verts))
+        if non_boxiness > tolerance:
+            # not really a box, so return nothing
+            return None
+        # it is a box! replace by a bhkBoxShape
+        boxshape = NifFormat.bhkBoxShape()
+        boxshape.dimensions.x = size[0] / 2
+        boxshape.dimensions.y = size[1] / 2
+        boxshape.dimensions.z = size[2] / 2
+        boxshape.minimum_size = min(size)
+        if isinstance(shape, NifFormat.bhkPackedNiTriStripsShape):
+            boxshape.material = shape.sub_shapes[0].material
+        else:
+            boxshape.material = shape.material
+        boxshape.radius = 0.1
+        boxshape.unknown_8_bytes[0] = 0x6b
+        boxshape.unknown_8_bytes[1] = 0xee
+        boxshape.unknown_8_bytes[2] = 0x43
+        boxshape.unknown_8_bytes[3] = 0x40
+        boxshape.unknown_8_bytes[4] = 0x3a
+        boxshape.unknown_8_bytes[5] = 0xef
+        boxshape.unknown_8_bytes[6] = 0x8e
+        boxshape.unknown_8_bytes[7] = 0x3e
+        # check translation
+        mid = [min_[i] + 0.5 * size[i] for i in range(3)]
+        if sum(abs(mid[i]) for i in range(3)) < tolerance:
+            # no transform needed
+            return boxshape
+        else:
+            # create transform block
+            tfshape = NifFormat.bhkConvexTransformShape()
+            tfshape.shape = boxshape
+            tfshape.material = boxshape.material
+            tfshape.transform.m_14 = mid[0] / 7
+            tfshape.transform.m_24 = mid[1] / 7
+            tfshape.transform.m_34 = mid[2] / 7
+            return tfshape
 
     def optimize_mopp(self, mopp):
         """Optimize a bhkMoppBvTreeShape."""
@@ -881,47 +894,56 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
         elif isinstance(branch, NifFormat.bhkRigidBody):
             self.rigidbody = branch
             if isinstance(branch.shape, NifFormat.bhkNiTriStripsShape):
-                # convert to a packed shape
-                new_shape = branch.shape.get_interchangeable_packed_shape()
-                if new_shape.data.num_vertices < 3:
-                    self.data.replace_global_node(branch, None)
-                    self.toaster.msg(_("less than 3 vertices: removing branch"))
-                    self.optimized.append(branch)
-                elif new_shape.data.num_vertices == 8:
-                    if self.boxshapechecker(new_shape.data.vertices): return  
+                # try to convert to a box shape
+                box_shape = self.get_box_shape(barnch.shape)
+                if box_shape:
+                    # it is a box, replace it
+                    self.data.replace_global_node(branch.shape, box_shape)
+                    self.toaster.msg(_("optimized box collision"))
                 else:
-                    self.data.replace_global_node(branch.shape, new_shape)
-                    self.toaster.msg(_("collision packed"))
-                    # call branchentry again in order to create a mopp for it
-                    self.branchentry(branch)
+                    # convert to a packed shape
+                    new_shape = branch.shape.get_interchangeable_packed_shape()
+                    if new_shape.data.num_vertices < 3:
+                        self.data.replace_global_node(branch, None)
+                        self.toaster.msg(_("less than 3 vertices: removing branch"))
+                        self.optimized.append(branch)
+                    else:
+                        self.data.replace_global_node(branch.shape, new_shape)
+                        self.toaster.msg(_("collision packed"))
+                        # call branchentry again in order to create a mopp for it
+                        self.branchentry(branch)
                 self.changed = True
                 # don't recurse further
                 return False
             elif isinstance(branch.shape,
-                             NifFormat.bhkPackedNiTriStripsShape):
-                if branch.shape.data.num_vertices == 8:
-                    if self.boxshapechecker(branch.shape.data.vertices): return 
-                # packed shape without mopp: add a mopp to it if it is static
-                if any(sub_shape.layer != 1
-                       for sub_shape in branch.shape.sub_shapes):
-                    # no mopps for non-static objects
-                    return False
-                mopp = NifFormat.bhkMoppBvTreeShape()
-                shape = branch.shape # store reference before replacing
-                self.data.replace_global_node(branch.shape, mopp)
-                mopp.shape = shape
-                mopp.material = shape.sub_shapes[0].material
-                mopp.unknown_8_bytes[0] = 160
-                mopp.unknown_8_bytes[1] = 13
-                mopp.unknown_8_bytes[2] = 75
-                mopp.unknown_8_bytes[3] = 1
-                mopp.unknown_8_bytes[4] = 192
-                mopp.unknown_8_bytes[5] = 207
-                mopp.unknown_8_bytes[6] = 144
-                mopp.unknown_8_bytes[7] = 11
-                mopp.unknown_float = 1.0
-                mopp.update_mopp_welding()
-                self.toaster.msg(_("added mopp"))
+                            NifFormat.bhkPackedNiTriStripsShape):
+                box_shape = self.get_box_shape(branch.shape)
+                if box_shape:
+                    # it's a box, replace it
+                    self.data.replace_global_node(branch.shape, box_shape)
+                    self.toaster.msg(_("optimized box collision"))
+                else:
+                    # packed shape without mopp: add a mopp to it if it is static
+                    if any(sub_shape.layer != 1
+                           for sub_shape in branch.shape.sub_shapes):
+                        # no mopps for non-static objects
+                        return False
+                    mopp = NifFormat.bhkMoppBvTreeShape()
+                    shape = branch.shape # store reference before replacing
+                    self.data.replace_global_node(branch.shape, mopp)
+                    mopp.shape = shape
+                    mopp.material = shape.sub_shapes[0].material
+                    mopp.unknown_8_bytes[0] = 160
+                    mopp.unknown_8_bytes[1] = 13
+                    mopp.unknown_8_bytes[2] = 75
+                    mopp.unknown_8_bytes[3] = 1
+                    mopp.unknown_8_bytes[4] = 192
+                    mopp.unknown_8_bytes[5] = 207
+                    mopp.unknown_8_bytes[6] = 144
+                    mopp.unknown_8_bytes[7] = 11
+                    mopp.unknown_float = 1.0
+                    mopp.update_mopp_welding()
+                    self.toaster.msg(_("added mopp"))
                 self.changed = True
                 self.optimized.append(branch)
                 return False
