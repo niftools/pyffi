@@ -774,9 +774,9 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
             tfshape = NifFormat.bhkConvexTransformShape()
             tfshape.shape = boxshape
             tfshape.material = boxshape.material
-            tfshape.transform.m_14 = mid[0] / 7
-            tfshape.transform.m_24 = mid[1] / 7
-            tfshape.transform.m_34 = mid[2] / 7
+            tfshape.transform.m_14 = mid[0]
+            tfshape.transform.m_24 = mid[1]
+            tfshape.transform.m_34 = mid[2]
             return tfshape
 
     def optimize_mopp(self, mopp):
