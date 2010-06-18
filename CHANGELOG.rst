@@ -19,6 +19,7 @@ Release 2.2.0 (in development)
 * New spells:
   - opt_collisiongeometry: to optimize collision geometry in nifs.
   - check_materialemissivevalue: checks (and warns) about high values in material emissive settings.
+  - modify_mirroranimation: mirrors an animation (specifically left to right and vice versa) - use it to for example turn a right hand punch anim into a left hand punch anim.
 
 * Added big-endian support.
 
