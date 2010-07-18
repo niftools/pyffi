@@ -1,14 +1,17 @@
 Release 2.2.0 (in development)
 ==============================
 
+* Added PSK and PSA file support (used by Unreal engine).
+
+Release 2.1.5 (18 July 2010)
+============================
+
 * Improved interface for TRI files, and a bugfix in TRI file writing.
 
 * Added EGT file support.
 
 * The fix_texturepath spell now also converts double backslash in
   single backslash (suggested by Baphometal).
-
-* Added PSK and PSA file support (used by Unreal engine).
 
 * Bugfix in save_as_dds function for newer NiPixelData blocks (reported
   by norocelmiau, issue #2996800).

@@ -97,15 +97,15 @@ The --examples switch
 <BLANKLINE>
     python niftoaster.py optimize /path/to/your/nifs/
 <BLANKLINE>
-* print texture information of all nif files a directory tree, recursively
+* print texture information of all nif files in a directory tree, recursively
 <BLANKLINE>
     python niftoaster.py dump_tex /path/to/your/nifs/
 <BLANKLINE>
-* update/generate mopps of all nif files a directory tree, recursively
+* update/generate mopps of all nif files in a directory tree, recursively
 <BLANKLINE>
     python niftoaster.py fix_mopp /path/to/your/nifs/
 <BLANKLINE>
-* update/generate skin partitions of all nif files a directory tree,
+* update/generate skin partitions of all nif files in a directory tree,
 recursively, for Freedom Force vs. The 3rd Reich
 <BLANKLINE>
     python niftoaster.py fix_ffvt3rskinpartition /path/to/your/nifs/
@@ -198,6 +198,8 @@ modify_collisiontomopp
 opt_reducegeometry
 opt_collisiongeometry
 opt_optimizeanimation
+check_materialemissivevalue
+modify_mirroranimation
 
 The check_readwrite spell and the --raise switch
 ------------------------------------------------
