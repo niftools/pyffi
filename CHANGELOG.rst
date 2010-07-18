@@ -1,5 +1,5 @@
-Release 2.1.5 (in development)
-==============================
+Release 2.1.5 (18 July 2010)
+============================
 
 * Improved interface for TRI files, and a bugfix in TRI file writing.
 
