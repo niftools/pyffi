@@ -2959,7 +2959,7 @@ class NifFormat(FileFormat):
                 
         def get_vertex_hash_generator(
             self,
-            vertexprecision=3):
+            vertexprecision=3, subshape_index=None):
             """Generator which produces a tuple of integers for each
             vertex to ease detection of duplicate/close enough to remove
             vertices. The precision parameter denote number of
@@ -2988,18 +2988,35 @@ class NifFormat(FileFormat):
             >>> data.vertices[2].z = 2.2
             >>> list(shape.get_vertex_hash_generator())
             [(0, (0, 100, 200)), (0, (1000, 1100, 1200)), (1, (2000, 2100, 2200))]
+            >>> list(shape.get_vertex_hash_generator(subshape_index=0))
+            [(0, 100, 200), (1000, 1100, 1200)]
+            >>> list(shape.get_vertex_hash_generator(subshape_index=1))
+            [(2000, 2100, 2200)]
 
             :param vertexprecision: Precision to be used for vertices.
             :type vertexprecision: float
             :return: A generator yielding a hash value for each vertex.
             """
             vertexfactor = 10 ** vertexprecision
-            for matid, vert in izip(chain(*[repeat(i, sub_shape.num_vertices)
-                                            for i, sub_shape
-                                            in enumerate(self.get_sub_shapes())]),
-                                    self.data.vertices):
-                yield (matid, tuple(float_to_int(value * vertexfactor)
-                                    for value in vert.as_list()))
+            if subshape_index is None:
+                for matid, vert in izip(chain(*[repeat(i, sub_shape.num_vertices)
+                                                for i, sub_shape
+                                                in enumerate(self.get_sub_shapes())]),
+                                        self.data.vertices):
+                    yield (matid, tuple(float_to_int(value * vertexfactor)
+                                        for value in vert.as_list()))
+            else:
+                first_vertex = 0
+                for i, subshape in izip(xrange(subshape_index),
+                                        self.get_sub_shapes()):
+                    first_vertex += subshape.num_vertices
+                for vert_index in xrange(
+                    first_vertex,
+                    first_vertex
+                    + self.get_sub_shapes()[subshape_index].num_vertices):
+                    yield tuple(float_to_int(value * vertexfactor)
+                                for value
+                                in self.data.vertices[vert_index].as_list())
 
         def get_triangle_hash_generator(self):
             """Generator which produces a tuple of integers, or None
