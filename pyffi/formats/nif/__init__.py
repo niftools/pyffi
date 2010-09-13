@@ -1957,17 +1957,20 @@ class NifFormat(FileFormat):
         def norm(self):
             return (self.x*self.x + self.y*self.y + self.z*self.z) ** 0.5
 
-        def normalize(self):
+        def normalize(self, ignore_error=False):
             norm = self.norm()
             if norm < NifFormat.EPSILON:
-                raise ZeroDivisionError('cannot normalize vector %s'%self)
+                if not ignore_error:
+                    raise ZeroDivisionError('cannot normalize vector %s'%self)
+                else:
+                    return
             self.x /= norm
             self.y /= norm
             self.z /= norm
 
-        def normalized(self):
+        def normalized(self, ignore_error=False):
             vec = self.get_copy()
-            vec.normalize()
+            vec.normalize(ignore_error=ignore_error)
             return vec
 
         def get_copy(self):
@@ -2856,7 +2859,7 @@ class NifFormat(FileFormat):
                 normals.extend(
                     (strip.vertices[tri2] - strip.vertices[tri1]).crossproduct(
                         strip.vertices[tri3] - strip.vertices[tri1])
-                    .normalized()
+                    .normalized(ignore_error=True)
                     .as_tuple()
                     for tri1, tri2, tri3 in strip.get_triangles())
             # create packed shape and add geometry
