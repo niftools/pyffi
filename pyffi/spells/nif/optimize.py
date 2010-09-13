@@ -653,7 +653,9 @@ class SpellDelUnusedBones(pyffi.spells.nif.NifSpell):
     
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiNode):
-            if not branch.children and branch not in self._used_bones:
+            if ((not branch.children)
+                and (not branch.collision_object)
+                and (branch not in self._used_bones)):
                 self.toaster.msg("removing unreferenced bone")
                 self.data.replace_global_node(branch, None)
                 self.changed = True
