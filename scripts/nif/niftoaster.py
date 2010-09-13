@@ -105,6 +105,8 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         pyffi.spells.nif.modify.SpellDelAlphaProperty,
         pyffi.spells.nif.modify.SpellDelSpecularProperty,
         pyffi.spells.nif.modify.SpellDelBSXFlags,
+        pyffi.spells.nif.modify.SpellDelAnimation,
+        pyffi.spells.nif.modify.SpellCleanFarNif,
         pyffi.spells.nif.modify.SpellMakeFarNif,
         pyffi.spells.nif.modify.SpellDelStringExtraDatas,
         pyffi.spells.nif.modify.SpellDelSkinShapes,

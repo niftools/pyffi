@@ -75,6 +75,10 @@ Module which contains all spells that modify a nif.
    :show-inheritance:
    :members:
 
+.. autoclass:: SpellCleanFarNif
+   :show-inheritance:
+   :members:
+
 .. autoclass:: SpellMakeFarNif
    :show-inheritance:
    :members:
@@ -739,7 +743,32 @@ class SpellAddStencilProperty(NifSpell):
         # recurse further
         return True
 
+# note: this should go into the optimize module
+# but we have to put it here to avoid circular dependencies
+class SpellCleanFarNif(
+    pyffi.spells.SpellGroupParallel(
+        SpellDelVertexColorProperty,
+        SpellDelAlphaProperty,
+        SpellDelSpecularProperty,
+        SpellDelBSXFlags,
+        SpellDelStringExtraDatas,
+        pyffi.spells.nif.fix.SpellDelTangentSpace,
+        SpellDelCollisionData,
+        SpellDelAnimation,
+        SpellDisableParallax)):
+    """Spell to clean _far type nifs (for even more optimizations,
+    combine this with the optimize spell).
+    """
+
+    SPELLNAME = "opt_cleanfarnif"
+
+    # only apply spell on _far files
+    def datainspect(self):
+        return self.stream.name.endswith('_far.nif')
+
 # TODO: implement via modify_delbranches?
+# this is like SpellCleanFarNif but with changing the texture path
+# and optimizing the geometry
 class SpellMakeFarNif(
     pyffi.spells.SpellGroupSeries(
         pyffi.spells.SpellGroupParallel(
