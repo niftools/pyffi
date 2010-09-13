@@ -772,7 +772,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
         # fix subshape counts
         if shape.num_sub_shapes == 1:
             # quick way
-            shape.sub_shapes[0].num_vertices = shape.data.num_vertices
+            shape.get_sub_shapes()[0].num_vertices = shape.data.num_vertices
         else:
             # slow way if there are two or more subshapes
 
@@ -780,7 +780,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
             # XXX possibly a faster method
             old_max_index = -1
             new_i = 0
-            for sub_shape in shape.sub_shapes:
+            for sub_shape in shape.get_sub_shapes():
                 num_vertices = 0
                 # calculate maximal index + 1 in old vertex array
                 old_max_index += sub_shape.num_vertices
@@ -848,14 +848,14 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
                              NifFormat.bhkPackedNiTriStripsShape)):
             # packed shape without mopp: add a mopp to it if it is static
             if any(sub_shape.layer != 1
-                   for sub_shape in branch.shape.sub_shapes):
+                   for sub_shape in branch.shape.get_sub_shapes()):
                 # no mopps for non-static objects
                 return False
             mopp = NifFormat.bhkMoppBvTreeShape()
             shape = branch.shape # store reference before replacing
             self.data.replace_global_node(branch.shape, mopp)
             mopp.shape = shape
-            mopp.material = shape.sub_shapes[0].material
+            mopp.material = shape.get_sub_shapes()[0].material
             mopp.unknown_8_bytes[0] = 160
             mopp.unknown_8_bytes[1] = 13
             mopp.unknown_8_bytes[2] = 75

@@ -2429,11 +2429,7 @@ class NifFormat(FileFormat):
             else:
                 # find material indices per triangle
                 material_per_vertex = []
-                subshapes = self.shape.sub_shapes
-                if not subshapes:
-                    # fallout 3
-                    subshapes = self.shape.data.sub_shapes
-                for subshape in subshapes:
+                for subshape in self.shape.get_sub_shapes():
                     material_per_vertex += (
                         [subshape.material] * subshape.num_vertices)
                 material_per_triangle = [
@@ -2917,6 +2913,13 @@ class NifFormat(FileFormat):
                   for hktriangle in self.data.triangles ],
                 density = density, solid = solid)
 
+        def get_sub_shapes(self):
+            """Return sub shapes (works for both Oblivion and Fallout 3)."""
+            if self.data and self.data.sub_shapes:
+                return self.data.sub_shapes
+            else:
+                return self.sub_shapes
+
         def add_shape(self, triangles, normals, vertices, layer = 0, material = 0):
             """Pack the given geometry."""
             # add the shape data
@@ -2993,7 +2996,7 @@ class NifFormat(FileFormat):
             vertexfactor = 10 ** vertexprecision
             for matid, vert in izip(chain(*[repeat(i, sub_shape.num_vertices)
                                             for i, sub_shape
-                                            in enumerate(self.sub_shapes)]),
+                                            in enumerate(self.get_sub_shapes())]),
                                     self.data.vertices):
                 yield (matid, tuple(float_to_int(value * vertexfactor)
                                     for value in vert.as_list()))
