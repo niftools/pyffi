@@ -311,7 +311,7 @@ class SpellCollisionType(NifSpell):
             return True
         elif isinstance(branch, NifFormat.bhkPackedNiTriStripsShape):
             self.changed = True
-            for subshape in branch.sub_shapes:
+            for subshape in branch.get_sub_shapes():
                 subshape.layer = self.toaster.col_type.layer
             self.toaster.msg("collision set to %s"
                              % self.toaster.options["arg"])
@@ -511,9 +511,9 @@ class SpellCollisionMaterial(NifSpell):
             self.toaster.msg("collision material set to %s" % self.toaster.options["arg"])
             # bhkPackedNiTriStripsShape could be further down, so keep looking
             return True
-        elif isinstance(branch, NifFormat.bhkPackedNiTriStripsShape) or isinstance(branch, NifFormat.hkPackedNiTriStripsData):
+        elif isinstance(branch, NifFormat.bhkPackedNiTriStripsShape):
             self.changed = True
-            for subshape in branch.sub_shapes:
+            for subshape in branch.get_sub_shapes():
                 subshape.material = self.toaster.col_type.material
             self.toaster.msg("collision material set to %s" % self.toaster.options["arg"])
             # all extra blocks here done; no need to recurse further
