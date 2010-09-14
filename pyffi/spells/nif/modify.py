@@ -75,6 +75,10 @@ Module which contains all spells that modify a nif.
    :show-inheritance:
    :members:
 
+.. autoclass:: SpellCleanFarNif
+   :show-inheritance:
+   :members:
+
 .. autoclass:: SpellMakeFarNif
    :show-inheritance:
    :members:
@@ -311,7 +315,7 @@ class SpellCollisionType(NifSpell):
             return True
         elif isinstance(branch, NifFormat.bhkPackedNiTriStripsShape):
             self.changed = True
-            for subshape in branch.sub_shapes:
+            for subshape in branch.get_sub_shapes():
                 subshape.layer = self.toaster.col_type.layer
             self.toaster.msg("collision set to %s"
                              % self.toaster.options["arg"])
@@ -511,9 +515,9 @@ class SpellCollisionMaterial(NifSpell):
             self.toaster.msg("collision material set to %s" % self.toaster.options["arg"])
             # bhkPackedNiTriStripsShape could be further down, so keep looking
             return True
-        elif isinstance(branch, NifFormat.bhkPackedNiTriStripsShape) or isinstance(branch, NifFormat.hkPackedNiTriStripsData):
+        elif isinstance(branch, NifFormat.bhkPackedNiTriStripsShape):
             self.changed = True
-            for subshape in branch.sub_shapes:
+            for subshape in branch.get_sub_shapes():
                 subshape.material = self.toaster.col_type.material
             self.toaster.msg("collision material set to %s" % self.toaster.options["arg"])
             # all extra blocks here done; no need to recurse further
@@ -739,7 +743,32 @@ class SpellAddStencilProperty(NifSpell):
         # recurse further
         return True
 
+# note: this should go into the optimize module
+# but we have to put it here to avoid circular dependencies
+class SpellCleanFarNif(
+    pyffi.spells.SpellGroupParallel(
+        SpellDelVertexColorProperty,
+        SpellDelAlphaProperty,
+        SpellDelSpecularProperty,
+        SpellDelBSXFlags,
+        SpellDelStringExtraDatas,
+        pyffi.spells.nif.fix.SpellDelTangentSpace,
+        SpellDelCollisionData,
+        SpellDelAnimation,
+        SpellDisableParallax)):
+    """Spell to clean _far type nifs (for even more optimizations,
+    combine this with the optimize spell).
+    """
+
+    SPELLNAME = "opt_cleanfarnif"
+
+    # only apply spell on _far files
+    def datainspect(self):
+        return self.stream.name.endswith('_far.nif')
+
 # TODO: implement via modify_delbranches?
+# this is like SpellCleanFarNif but with changing the texture path
+# and optimizing the geometry
 class SpellMakeFarNif(
     pyffi.spells.SpellGroupSeries(
         pyffi.spells.SpellGroupParallel(

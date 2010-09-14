@@ -3,6 +3,25 @@ Release 2.2.0 (in development)
 
 * Added PSK and PSA file support (used by Unreal engine).
 
+Release 2.1.6 (in development)
+==============================
+
+* Fixed opt_collisiongeometry for multimaterial mopps (reported by
+  wildcard_25, see issue #3058096).
+
+* New SpellCleanFarNif spell (suggested by wildcard_25, see issue
+  #3021629).
+
+* Bad normals are now ignored when packing a bhkNiTriStripsShape
+  (fixes issue #3060025).
+
+* The opt_delunusedbones spell no longer removes bones if they have a
+  collision object (fixes issue #3064083).
+
+* If the jobs option is not specified in the toaster, then the number
+  of processors is used---requires Python 2.6 or higher (suggested by
+  chaky2, see issue #3052715, implements issue #3065503).
+
 Release 2.1.5 (18 July 2010)
 ============================
 

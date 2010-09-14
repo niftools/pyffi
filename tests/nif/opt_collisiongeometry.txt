@@ -36,6 +36,7 @@ pyffi.toaster:INFO:    ~~~ bhkCollisionObject [] ~~~
 pyffi.toaster:INFO:      ~~~ bhkRigidBody [] ~~~
 pyffi.toaster:INFO:        ~~~ bhkMoppBvTreeShape [] ~~~
 pyffi.toaster:INFO:          removing duplicate vertices
+pyffi.toaster:INFO:          (processing subshape 0)
 pyffi.toaster:INFO:          (num vertices in collision shape was 53 and is now 51)
 pyffi.toaster:INFO:          removing duplicate triangles
 pyffi.toaster:INFO:          (num triangles in collision shape was 102 and is now 98)
