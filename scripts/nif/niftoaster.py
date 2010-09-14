@@ -96,6 +96,7 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         #pyffi.spells.nif.optimize.SpellOptimizeSplit,
         pyffi.spells.nif.optimize.SpellOptimize,
         pyffi.spells.nif.optimize.SpellDelUnusedBones,
+        pyffi.spells.nif.optimize.SpellDelZeroScale,
         pyffi.spells.nif.modify.SpellTexturePath,
         pyffi.spells.nif.modify.SpellCollisionType,
         pyffi.spells.nif.modify.SpellScaleAnimationTime,

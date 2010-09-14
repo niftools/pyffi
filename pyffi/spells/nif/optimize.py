@@ -662,6 +662,30 @@ class SpellDelUnusedBones(pyffi.spells.nif.NifSpell):
                 return False
         return True
 
+class SpellDelZeroScale(pyffi.spells.nif.NifSpell):
+    """Remove nodes with zero scale."""
+
+    SPELLNAME = "opt_delzeroscale"
+    READONLY = False
+
+    def datainspect(self):
+        # only run the spell if there are scaled objects
+        return self.inspectblocktype(NifFormat.NiAVObject)
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch
+        return isinstance(branch, NifFormat.NiAVObject)
+    
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiAVObject):
+            if branch.scale == 0:
+                self.toaster.msg("removing zero scaled branch")
+                self.data.replace_global_node(branch, None)
+                self.changed = True
+                # no need to recurse further
+                return False
+        return True
+
 class SpellReduceGeometry(SpellOptimizeGeometry):
     """Reduce vertices of all geometries:
       - remove duplicate & reduce other vertices
