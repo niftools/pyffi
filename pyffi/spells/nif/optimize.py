@@ -788,6 +788,13 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
             tri.triangle.v_1 = full_v_map[tri.triangle.v_1]
             tri.triangle.v_2 = full_v_map[tri.triangle.v_2]
             tri.triangle.v_3 = full_v_map[tri.triangle.v_3]
+        # at the moment recreating the mopp will destroy multi material mopps
+        # (this is a bug in the mopper, not sure what it is)
+        # so for now, we keep the mopp intact
+        # and since the mopp code references the triangle indices
+        # we must also keep the triangles intact
+        return
+
         # remove duplicate triangles
         self.toaster.msg(_("removing duplicate triangles"))
         t_map, t_map_inverse = unique_map(shape.get_triangle_hash_generator())
