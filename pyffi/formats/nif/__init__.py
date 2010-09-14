@@ -1421,8 +1421,6 @@ class NifFormat(FileFormat):
 
             :param stream: The stream to which to write.
             :type stream: file
-            :param verbose: The level of verbosity.
-            :type verbose: int
             """
             logger = logging.getLogger("pyffi.nif.data")
             # set up index and type dictionary
