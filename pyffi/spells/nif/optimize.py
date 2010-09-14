@@ -627,9 +627,8 @@ class SpellSplitGeometry(pyffi.spells.nif.NifSpell):
         # stop recursing
         return False
 
-
 class SpellDelUnusedBones(pyffi.spells.nif.NifSpell):
-    """Remove empty and duplicate entries in reference lists."""
+    """Remove nodes that are not used for anything."""
 
     SPELLNAME = "opt_delunusedbones"
     READONLY = False
