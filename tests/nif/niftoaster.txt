@@ -171,6 +171,7 @@ opt_mergeduplicates
 opt_geometry
 optimize
 opt_delunusedbones
+opt_delzeroscale
 modify_texturepath
 modify_collisiontype
 modify_scaleanimationtime
@@ -321,6 +322,10 @@ pyffi.toaster:INFO:=== tests/nif/test_opt_mergeduplicates.nif ===
 pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:    writing to temporary file
 pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_opt_zeroscale.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
 pyffi.toaster:INFO:=== tests/nif/test_skincenterradius.nif ===
 pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:    writing to temporary file
@@ -372,6 +377,7 @@ pyffi.toaster:INFO:=== tests/nif/test_opt_dupgeomdata.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_opt_dupverts.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_opt_emptyproperties.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_opt_mergeduplicates.nif (skipped) ===
+pyffi.toaster:INFO:=== tests/nif/test_opt_zeroscale.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_skincenterradius.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_vertexcolor.nif (skipped) ===
 pyffi.toaster:INFO:Finished.
@@ -1430,6 +1436,10 @@ pyffi.toaster:INFO:=== tests/nif/test_opt_mergeduplicates.nif ===
 pyffi.toaster:INFO:  version      0x14000004
 pyffi.toaster:INFO:  user version 0
 pyffi.toaster:INFO:  user version 0
+pyffi.toaster:INFO:=== tests/nif/test_opt_zeroscale.nif ===
+pyffi.toaster:INFO:  version      0x0A000100
+pyffi.toaster:INFO:  user version 0
+pyffi.toaster:INFO:  user version 0
 pyffi.toaster:INFO:=== tests/nif/test_skincenterradius.nif ===
 pyffi.toaster:INFO:  version      0x0A010000
 pyffi.toaster:INFO:  user version 0
@@ -1443,7 +1453,7 @@ pyffi.toaster:INFO:  number of nifs: 4
 pyffi.toaster:INFO:  user version:  [0]
 pyffi.toaster:INFO:  user version2: [0]
 pyffi.toaster:INFO:version 0x0A000100
-pyffi.toaster:INFO:  number of nifs: 2
+pyffi.toaster:INFO:  number of nifs: 3
 pyffi.toaster:INFO:  user version:  [0]
 pyffi.toaster:INFO:  user version2: [0]
 pyffi.toaster:INFO:version 0x04000002
