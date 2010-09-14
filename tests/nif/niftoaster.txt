@@ -180,6 +180,8 @@ modify_delvertexcolor
 modify_delalphaprop
 modify_delspecularprop
 modify_delbsxflags
+modify_delanimation
+opt_cleanfarnif
 modify_makefarnif
 modify_delstringextradatas
 modify_delskinshapes

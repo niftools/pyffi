@@ -44,6 +44,9 @@ if sys.version_info[0] < 3:
     import pyffi.object_models.xsd
     import pyffi.formats.dae
 
+# force number of jobs to be 1 (multithreading makes doctesting difficult)
+pyffi.spells.Toaster.DEFAULT_OPTIONS["jobs"] = 1
+
 mods = [val for (key, val) in sys.modules.iteritems()
         if key.startswith('pyffi')]
 
