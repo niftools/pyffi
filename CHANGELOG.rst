@@ -20,6 +20,10 @@ Release 2.1.6 (in development)
 * New opt_delzeroscale spell to delete branches with zero scale
   (suggested by chaky2, see issue #3013004).
 
+* The opt_mergeduplicates spell now ignores (non-special) material
+  names, so identical materials with different names will get merged
+  as well (suggested by chaky2, see issue #3013004).
+
 Release 2.1.5 (18 July 2010)
 ============================
 

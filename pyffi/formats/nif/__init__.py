@@ -5664,6 +5664,21 @@ class NifFormat(FileFormat):
                 # for blocks with references: quick check only
                 return self is other
 
+    class NiMaterialProperty:
+        def is_interchangeable(self, other):
+            """Are the two material blocks interchangeable?"""
+            specialnames = ("envmap2", "envmap", "skin", "hair",
+                            "dynalpha", "hidesecret", "lava")
+            if self.__class__ is not other.__class__:
+                return False
+            if (self.name.lower() in specialnames
+                or other.name.lower() in specialnames):
+                # do not ignore name
+                return self.get_hash() == other.get_hash()
+            else:
+                # ignore name
+                return self.get_hash()[1:] == other.get_hash()[1:]
+
     class ATextureRenderData:
         def save_as_dds(self, stream):
             """Save image as DDS file."""

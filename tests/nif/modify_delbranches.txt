@@ -49,7 +49,7 @@ pyffi.toaster:INFO:          ~~~ NiTriStripsData [] ~~~
 pyffi.toaster:INFO:        ~~~ NiTriStrips [Tri Cone 1] ~~~
 pyffi.toaster:INFO:          ~~~ NiTexturingProperty [] ~~~
 pyffi.toaster:INFO:            stripping this branch
-pyffi.toaster:INFO:          ~~~ NiMaterialProperty [Red] ~~~
+pyffi.toaster:INFO:          ~~~ NiMaterialProperty [AlsoRed] ~~~
 pyffi.toaster:INFO:            stripping this branch
 pyffi.toaster:INFO:          ~~~ NiSpecularProperty [] ~~~
 pyffi.toaster:INFO:            stripping this branch
@@ -59,7 +59,7 @@ pyffi.toaster:INFO:          ~~~ NiTriStripsData [] ~~~
 pyffi.toaster:INFO:        ~~~ NiTriStrips [Tri Cone 2] ~~~
 pyffi.toaster:INFO:          ~~~ NiTexturingProperty [] ~~~
 pyffi.toaster:INFO:            stripping this branch
-pyffi.toaster:INFO:          ~~~ NiMaterialProperty [Red] ~~~
+pyffi.toaster:INFO:          ~~~ NiMaterialProperty [Skin] ~~~
 pyffi.toaster:INFO:            stripping this branch
 pyffi.toaster:INFO:          ~~~ NiWireframeProperty [] ~~~
 pyffi.toaster:INFO:            stripping this branch
@@ -125,7 +125,7 @@ pyffi.toaster:INFO:          ~~~ NiTriStripsData [] ~~~
 pyffi.toaster:INFO:        ~~~ NiTriStrips [Tri Cone 1] ~~~
 pyffi.toaster:INFO:          ~~~ NiTexturingProperty [] ~~~
 pyffi.toaster:INFO:            ~~~ NiSourceTexture [] ~~~
-pyffi.toaster:INFO:          ~~~ NiMaterialProperty [Red] ~~~
+pyffi.toaster:INFO:          ~~~ NiMaterialProperty [AlsoRed] ~~~
 pyffi.toaster:INFO:          ~~~ NiSpecularProperty [] ~~~
 pyffi.toaster:INFO:          ~~~ NiAlphaProperty [] ~~~
 pyffi.toaster:INFO:            stripping this branch
@@ -133,7 +133,7 @@ pyffi.toaster:INFO:          ~~~ NiTriStripsData [] ~~~
 pyffi.toaster:INFO:        ~~~ NiTriStrips [Tri Cone 2] ~~~
 pyffi.toaster:INFO:          ~~~ NiTexturingProperty [] ~~~
 pyffi.toaster:INFO:            ~~~ NiSourceTexture [] ~~~
-pyffi.toaster:INFO:          ~~~ NiMaterialProperty [Red] ~~~
+pyffi.toaster:INFO:          ~~~ NiMaterialProperty [Skin] ~~~
 pyffi.toaster:INFO:          ~~~ NiWireframeProperty [] ~~~
 pyffi.toaster:INFO:          ~~~ NiAlphaProperty [] ~~~
 pyffi.toaster:INFO:            stripping this branch
