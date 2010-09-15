@@ -1067,7 +1067,8 @@ class SpellOptimize(
             SpellCleanRefLists,
             pyffi.spells.nif.fix.SpellDetachHavokTriStripsData,
             pyffi.spells.nif.fix.SpellFixTexturePath,
-            pyffi.spells.nif.fix.SpellClampMaterialAlpha),
+            pyffi.spells.nif.fix.SpellClampMaterialAlpha,
+            pyffi.spells.nif.fix.SpellFixBhkSubShapes),
         SpellMergeDuplicates,
         SpellOptimizeGeometry,
         # XXX disabling for now until it's proven to be stable

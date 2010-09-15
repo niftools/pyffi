@@ -24,6 +24,9 @@ Release 2.1.6 (in development)
   names, so identical materials with different names will get merged
   as well (suggested by chaky2, see issue #3013004).
 
+* New spell to fix subshape counts (see issue #3060025, reported by
+  rlibiez), it is included in the optimize spell.
+
 Release 2.1.5 (18 July 2010)
 ============================
 
