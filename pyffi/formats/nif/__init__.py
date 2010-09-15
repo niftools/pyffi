@@ -78,6 +78,7 @@ reading tests/nif/test_opt_dupgeomdata.nif
 reading tests/nif/test_opt_dupverts.nif
 reading tests/nif/test_opt_emptyproperties.nif
 reading tests/nif/test_opt_mergeduplicates.nif
+reading tests/nif/test_opt_zeroscale.nif
 reading tests/nif/test_skincenterradius.nif
 reading tests/nif/test_vertexcolor.nif
 
@@ -1420,8 +1421,6 @@ class NifFormat(FileFormat):
 
             :param stream: The stream to which to write.
             :type stream: file
-            :param verbose: The level of verbosity.
-            :type verbose: int
             """
             logger = logging.getLogger("pyffi.nif.data")
             # set up index and type dictionary
@@ -1957,17 +1956,20 @@ class NifFormat(FileFormat):
         def norm(self):
             return (self.x*self.x + self.y*self.y + self.z*self.z) ** 0.5
 
-        def normalize(self):
+        def normalize(self, ignore_error=False):
             norm = self.norm()
             if norm < NifFormat.EPSILON:
-                raise ZeroDivisionError('cannot normalize vector %s'%self)
+                if not ignore_error:
+                    raise ZeroDivisionError('cannot normalize vector %s'%self)
+                else:
+                    return
             self.x /= norm
             self.y /= norm
             self.z /= norm
 
-        def normalized(self):
+        def normalized(self, ignore_error=False):
             vec = self.get_copy()
-            vec.normalize()
+            vec.normalize(ignore_error=ignore_error)
             return vec
 
         def get_copy(self):
@@ -2429,11 +2431,7 @@ class NifFormat(FileFormat):
             else:
                 # find material indices per triangle
                 material_per_vertex = []
-                subshapes = self.shape.sub_shapes
-                if not subshapes:
-                    # fallout 3
-                    subshapes = self.shape.data.sub_shapes
-                for subshape in subshapes:
+                for subshape in self.shape.get_sub_shapes():
                     material_per_vertex += (
                         [subshape.material] * subshape.num_vertices)
                 material_per_triangle = [
@@ -2860,7 +2858,7 @@ class NifFormat(FileFormat):
                 normals.extend(
                     (strip.vertices[tri2] - strip.vertices[tri1]).crossproduct(
                         strip.vertices[tri3] - strip.vertices[tri1])
-                    .normalized()
+                    .normalized(ignore_error=True)
                     .as_tuple()
                     for tri1, tri2, tri3 in strip.get_triangles())
             # create packed shape and add geometry
@@ -2917,6 +2915,13 @@ class NifFormat(FileFormat):
                   for hktriangle in self.data.triangles ],
                 density = density, solid = solid)
 
+        def get_sub_shapes(self):
+            """Return sub shapes (works for both Oblivion and Fallout 3)."""
+            if self.data and self.data.sub_shapes:
+                return self.data.sub_shapes
+            else:
+                return self.sub_shapes
+
         def add_shape(self, triangles, normals, vertices, layer = 0, material = 0):
             """Pack the given geometry."""
             # add the shape data
@@ -2956,7 +2961,7 @@ class NifFormat(FileFormat):
                 
         def get_vertex_hash_generator(
             self,
-            vertexprecision=3):
+            vertexprecision=3, subshape_index=None):
             """Generator which produces a tuple of integers for each
             vertex to ease detection of duplicate/close enough to remove
             vertices. The precision parameter denote number of
@@ -2985,18 +2990,35 @@ class NifFormat(FileFormat):
             >>> data.vertices[2].z = 2.2
             >>> list(shape.get_vertex_hash_generator())
             [(0, (0, 100, 200)), (0, (1000, 1100, 1200)), (1, (2000, 2100, 2200))]
+            >>> list(shape.get_vertex_hash_generator(subshape_index=0))
+            [(0, 100, 200), (1000, 1100, 1200)]
+            >>> list(shape.get_vertex_hash_generator(subshape_index=1))
+            [(2000, 2100, 2200)]
 
             :param vertexprecision: Precision to be used for vertices.
             :type vertexprecision: float
             :return: A generator yielding a hash value for each vertex.
             """
             vertexfactor = 10 ** vertexprecision
-            for matid, vert in izip(chain(*[repeat(i, sub_shape.num_vertices)
-                                            for i, sub_shape
-                                            in enumerate(self.sub_shapes)]),
-                                    self.data.vertices):
-                yield (matid, tuple(float_to_int(value * vertexfactor)
-                                    for value in vert.as_list()))
+            if subshape_index is None:
+                for matid, vert in izip(chain(*[repeat(i, sub_shape.num_vertices)
+                                                for i, sub_shape
+                                                in enumerate(self.get_sub_shapes())]),
+                                        self.data.vertices):
+                    yield (matid, tuple(float_to_int(value * vertexfactor)
+                                        for value in vert.as_list()))
+            else:
+                first_vertex = 0
+                for i, subshape in izip(xrange(subshape_index),
+                                        self.get_sub_shapes()):
+                    first_vertex += subshape.num_vertices
+                for vert_index in xrange(
+                    first_vertex,
+                    first_vertex
+                    + self.get_sub_shapes()[subshape_index].num_vertices):
+                    yield tuple(float_to_int(value * vertexfactor)
+                                for value
+                                in self.data.vertices[vert_index].as_list())
 
         def get_triangle_hash_generator(self):
             """Generator which produces a tuple of integers, or None
@@ -5639,6 +5661,21 @@ class NifFormat(FileFormat):
             else:
                 # for blocks with references: quick check only
                 return self is other
+
+    class NiMaterialProperty:
+        def is_interchangeable(self, other):
+            """Are the two material blocks interchangeable?"""
+            specialnames = ("envmap2", "envmap", "skin", "hair",
+                            "dynalpha", "hidesecret", "lava")
+            if self.__class__ is not other.__class__:
+                return False
+            if (self.name.lower() in specialnames
+                or other.name.lower() in specialnames):
+                # do not ignore name
+                return self.get_hash() == other.get_hash()
+            else:
+                # ignore name
+                return self.get_hash()[1:] == other.get_hash()[1:]
 
     class ATextureRenderData:
         def save_as_dds(self, stream):

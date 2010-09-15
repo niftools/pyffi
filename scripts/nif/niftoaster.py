@@ -89,6 +89,7 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         pyffi.spells.nif.fix.SpellSendBonesToBindPosition,
         pyffi.spells.nif.fix.SpellScale,
         pyffi.spells.nif.fix.SpellCleanStringPalette,
+        pyffi.spells.nif.fix.SpellFixBhkSubShapes,
         pyffi.spells.nif.modify.SpellDelBranches,
         pyffi.spells.nif.optimize.SpellCleanRefLists,
         pyffi.spells.nif.optimize.SpellMergeDuplicates,
@@ -96,6 +97,7 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         #pyffi.spells.nif.optimize.SpellOptimizeSplit,
         pyffi.spells.nif.optimize.SpellOptimize,
         pyffi.spells.nif.optimize.SpellDelUnusedBones,
+        pyffi.spells.nif.optimize.SpellDelZeroScale,
         pyffi.spells.nif.modify.SpellTexturePath,
         pyffi.spells.nif.modify.SpellCollisionType,
         pyffi.spells.nif.modify.SpellScaleAnimationTime,
@@ -105,6 +107,8 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         pyffi.spells.nif.modify.SpellDelAlphaProperty,
         pyffi.spells.nif.modify.SpellDelSpecularProperty,
         pyffi.spells.nif.modify.SpellDelBSXFlags,
+        pyffi.spells.nif.modify.SpellDelAnimation,
+        pyffi.spells.nif.modify.SpellCleanFarNif,
         pyffi.spells.nif.modify.SpellMakeFarNif,
         pyffi.spells.nif.modify.SpellDelStringExtraDatas,
         pyffi.spells.nif.modify.SpellDelSkinShapes,
@@ -123,7 +127,8 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         pyffi.spells.nif.optimize.SpellReduceGeometry,
         pyffi.spells.nif.optimize.SpellOptimizeCollisionGeometry,
         pyffi.spells.nif.optimize.SpellOptimizeAnimation,
-        pyffi.spells.nif.check.SpellCheckMaterialEmissiveValue
+        pyffi.spells.nif.check.SpellCheckMaterialEmissiveValue,
+        pyffi.spells.nif.modify.SpellMirrorAnimation
         ]
     ALIASDICT = {
         "texdump": "dump_tex",

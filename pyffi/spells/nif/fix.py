@@ -674,3 +674,41 @@ class SpellDelUnusedRoots(pyffi.spells.nif.NifSpell):
             self.changed = True
         return False
 
+class SpellFixBhkSubShapes(NifSpell):
+    """Fix bad subshape vertex counts in bhkPackedNiTriStripsShape blocks."""
+
+    SPELLNAME = "fix_bhksubshapes"
+    READONLY = False
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.bhkPackedNiTriStripsShape)
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch and collision branch
+        return isinstance(branch, (
+            NifFormat.NiAVObject,
+            NifFormat.bhkCollisionObject,
+            NifFormat.bhkRefObject))
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.bhkPackedNiTriStripsShape):
+            if not branch.data:
+                # no data... this is weird, but let's just ignore it
+                return False
+            # calculate number of vertices in subshapes
+            num_verts_in_sub_shapes = sum(
+                (sub_shape.num_vertices
+                 for sub_shape in branch.get_sub_shapes()), 0)
+            if num_verts_in_sub_shapes != branch.data.num_vertices:
+                self.toaster.logger.warn(
+                    "bad subshape vertex count (expected %i, got %i)"
+                    % (branch.data.num_vertices, num_verts_in_sub_shapes))
+                self.toaster.msg("fixing count in last subshape")
+                branch.get_sub_shapes()[-1].num_vertices += (
+                    branch.data.num_vertices - num_verts_in_sub_shapes)
+                # XXX resulting count should be positive!! we're not
+                # checking for this... (if this happens, remove subshapes?)
+            # no need to recurse further
+            return False
+        # recurse further
+        return True

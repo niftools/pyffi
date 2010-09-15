@@ -628,9 +628,8 @@ class SpellSplitGeometry(pyffi.spells.nif.NifSpell):
         # stop recursing
         return False
 
-
 class SpellDelUnusedBones(pyffi.spells.nif.NifSpell):
-    """Remove empty and duplicate entries in reference lists."""
+    """Remove nodes that are not used for anything."""
 
     SPELLNAME = "opt_delunusedbones"
     READONLY = False
@@ -654,8 +653,34 @@ class SpellDelUnusedBones(pyffi.spells.nif.NifSpell):
     
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiNode):
-            if not branch.children and branch not in self._used_bones:
+            if ((not branch.children)
+                and (not branch.collision_object)
+                and (branch not in self._used_bones)):
                 self.toaster.msg("removing unreferenced bone")
+                self.data.replace_global_node(branch, None)
+                self.changed = True
+                # no need to recurse further
+                return False
+        return True
+
+class SpellDelZeroScale(pyffi.spells.nif.NifSpell):
+    """Remove nodes with zero scale."""
+
+    SPELLNAME = "opt_delzeroscale"
+    READONLY = False
+
+    def datainspect(self):
+        # only run the spell if there are scaled objects
+        return self.inspectblocktype(NifFormat.NiAVObject)
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch
+        return isinstance(branch, NifFormat.NiAVObject)
+    
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiAVObject):
+            if branch.scale == 0:
+                self.toaster.msg("removing zero scaled branch")
                 self.data.replace_global_node(branch, None)
                 self.changed = True
                 # no need to recurse further
@@ -784,19 +809,37 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
         shape = mopp.shape
         data = shape.data
 
+        # removing duplicate vertices
         self.toaster.msg(_("removing duplicate vertices"))
-        v_map, v_map_inverse = unique_map(
-            shape.get_vertex_hash_generator(self.VERTEXPRECISION))
-        
-        new_numvertices = len(v_map_inverse)
-        self.toaster.msg(_("(num vertices in collision shape was %i and is now %i)")
-                         % (len(v_map), new_numvertices))
+        # make a joint map for all subshapes
+        # while doing this, also update subshape vertex count
+        full_v_map = []
+        full_v_map_inverse = []
+        for subshape_index, subshape in enumerate(shape.get_sub_shapes()):
+            self.toaster.msg(_("(processing subshape %i)")
+                             % subshape_index)
+            v_map, v_map_inverse = unique_map(
+                shape.get_vertex_hash_generator(
+                    vertexprecision=self.VERTEXPRECISION,
+                    subshape_index=subshape_index))
+            self.toaster.msg(
+                _("(num vertices in collision shape was %i and is now %i)")
+                % (len(v_map), len(v_map_inverse)))
+            # update subshape vertex count
+            subshape.num_vertices = len(v_map_inverse)
+            # update full maps
+            num_vertices = len(full_v_map_inverse)
+            old_num_vertices = len(full_v_map)
+            full_v_map += [num_vertices + i
+                           for i in v_map]
+            full_v_map_inverse += [old_num_vertices + old_i
+                                   for old_i in v_map_inverse]
         # copy old data
         oldverts = [[v.x, v.y, v.z] for v in data.vertices]
         # set new data
-        data.num_vertices = new_numvertices
+        data.num_vertices = len(full_v_map_inverse)
         data.vertices.update_size()
-        for old_i, v in izip(v_map_inverse, data.vertices):
+        for old_i, v in izip(full_v_map_inverse, data.vertices):
             v.x = oldverts[old_i][0]
             v.y = oldverts[old_i][1]
             v.z = oldverts[old_i][2]
@@ -806,9 +849,16 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
             if self.boxshapechecker(data.vertices): return            
         # update vertex indices in triangles
         for tri in data.triangles:
-            tri.triangle.v_1 = v_map[tri.triangle.v_1]
-            tri.triangle.v_2 = v_map[tri.triangle.v_2]
-            tri.triangle.v_3 = v_map[tri.triangle.v_3]
+            tri.triangle.v_1 = full_v_map[tri.triangle.v_1]
+            tri.triangle.v_2 = full_v_map[tri.triangle.v_2]
+            tri.triangle.v_3 = full_v_map[tri.triangle.v_3]
+        # at the moment recreating the mopp will destroy multi material mopps
+        # (this is a bug in the mopper, not sure what it is)
+        # so for now, we keep the mopp intact
+        # and since the mopp code references the triangle indices
+        # we must also keep the triangles intact
+        return
+
         # remove duplicate triangles
         self.toaster.msg(_("removing duplicate triangles"))
         t_map, t_map_inverse = unique_map(shape.get_triangle_hash_generator())
@@ -833,35 +883,6 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
             tri.normal.z = oldtris[old_i][5]
             # note: welding updated later when calling the mopper
         del oldtris
-        # fix subshape counts
-        if shape.num_sub_shapes == 1:
-            # quick way
-            shape.sub_shapes[0].num_vertices = shape.data.num_vertices
-        else:
-            # slow way if there are two or more subshapes
-
-            # XXX check that this algorithm actually works and find
-            # XXX possibly a faster method
-            old_max_index = -1
-            new_i = 0
-            for sub_shape in shape.sub_shapes:
-                num_vertices = 0
-                # calculate maximal index + 1 in old vertex array
-                old_max_index += sub_shape.num_vertices
-                # let's include all vertices that have old index
-                # strictly less than old_max_index
-                try:
-                    while v_map_inverse[new_i] < old_max_index:
-                        # ok, new_i has admissible old index so
-                        # include it: increase number of vertices in
-                        # this subshape
-                        num_vertices += 1
-                        # and increment new index to check next vertex
-                        new_i += 1
-                except IndexError:
-                    # new_i overflow, so we're done
-                    pass
-                sub_shape.num_vertices = num_vertices
         # update mopp data and welding info
         mopp.update_mopp_welding()
         
@@ -929,14 +950,14 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
             else:
                 # packed shape without mopp: add a mopp to it if it is static
                 if any(sub_shape.layer != 1
-                       for sub_shape in branch.shape.sub_shapes):
+                       for sub_shape in branch.shape.get_sub_shapes()):
                     # no mopps for non-static objects
                     return False
                 mopp = NifFormat.bhkMoppBvTreeShape()
                 shape = branch.shape # store reference before replacing
                 self.data.replace_global_node(branch.shape, mopp)
                 mopp.shape = shape
-                mopp.material = shape.sub_shapes[0].material
+                mopp.material = shape.get_sub_shapes()[0].material
                 mopp.unknown_8_bytes[0] = 160
                 mopp.unknown_8_bytes[1] = 13
                 mopp.unknown_8_bytes[2] = 75
@@ -1134,7 +1155,8 @@ class SpellOptimize(
             SpellCleanRefLists,
             pyffi.spells.nif.fix.SpellDetachHavokTriStripsData,
             pyffi.spells.nif.fix.SpellFixTexturePath,
-            pyffi.spells.nif.fix.SpellClampMaterialAlpha),
+            pyffi.spells.nif.fix.SpellClampMaterialAlpha,
+            pyffi.spells.nif.fix.SpellFixBhkSubShapes),
         SpellMergeDuplicates,
         SpellOptimizeGeometry,
         # XXX disabling for now until it's proven to be stable

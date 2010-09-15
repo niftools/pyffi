@@ -75,6 +75,10 @@ Module which contains all spells that modify a nif.
    :show-inheritance:
    :members:
 
+.. autoclass:: SpellCleanFarNif
+   :show-inheritance:
+   :members:
+
 .. autoclass:: SpellMakeFarNif
    :show-inheritance:
    :members:
@@ -311,7 +315,7 @@ class SpellCollisionType(NifSpell):
             return True
         elif isinstance(branch, NifFormat.bhkPackedNiTriStripsShape):
             self.changed = True
-            for subshape in branch.sub_shapes:
+            for subshape in branch.get_sub_shapes():
                 subshape.layer = self.toaster.col_type.layer
             self.toaster.msg("collision set to %s"
                              % self.toaster.options["arg"])
@@ -511,9 +515,9 @@ class SpellCollisionMaterial(NifSpell):
             self.toaster.msg("collision material set to %s" % self.toaster.options["arg"])
             # bhkPackedNiTriStripsShape could be further down, so keep looking
             return True
-        elif isinstance(branch, NifFormat.bhkPackedNiTriStripsShape) or isinstance(branch, NifFormat.hkPackedNiTriStripsData):
+        elif isinstance(branch, NifFormat.bhkPackedNiTriStripsShape):
             self.changed = True
-            for subshape in branch.sub_shapes:
+            for subshape in branch.get_sub_shapes():
                 subshape.material = self.toaster.col_type.material
             self.toaster.msg("collision material set to %s" % self.toaster.options["arg"])
             # all extra blocks here done; no need to recurse further
@@ -739,7 +743,32 @@ class SpellAddStencilProperty(NifSpell):
         # recurse further
         return True
 
+# note: this should go into the optimize module
+# but we have to put it here to avoid circular dependencies
+class SpellCleanFarNif(
+    pyffi.spells.SpellGroupParallel(
+        SpellDelVertexColorProperty,
+        SpellDelAlphaProperty,
+        SpellDelSpecularProperty,
+        SpellDelBSXFlags,
+        SpellDelStringExtraDatas,
+        pyffi.spells.nif.fix.SpellDelTangentSpace,
+        SpellDelCollisionData,
+        SpellDelAnimation,
+        SpellDisableParallax)):
+    """Spell to clean _far type nifs (for even more optimizations,
+    combine this with the optimize spell).
+    """
+
+    SPELLNAME = "opt_cleanfarnif"
+
+    # only apply spell on _far files
+    def datainspect(self):
+        return self.stream.name.endswith('_far.nif')
+
 # TODO: implement via modify_delbranches?
+# this is like SpellCleanFarNif but with changing the texture path
+# and optimizing the geometry
 class SpellMakeFarNif(
     pyffi.spells.SpellGroupSeries(
         pyffi.spells.SpellGroupParallel(
@@ -1034,6 +1063,73 @@ class SpellCollisionToMopp(NifSpell):
                 self.toaster.msg("collision set to MOPP")
             # Don't need to recurse further
             return False
+        else:
+            # recurse further
+            return True
+
+class SpellMirrorAnimation(NifSpell):
+    """Mirrors the animation by switching bones and mirroring their x values. 
+    Only useable on creature/character animations (well any animations
+    as long as they have bones in the form of bip01/2 L ...).
+    """
+
+    SPELLNAME = "modify_mirroranimation"
+    READONLY = False
+
+    def datainspect(self):
+        # returns more than needed but easiest way to ensure it catches all
+        # types of animations
+        return True
+        
+    def dataentry(self):
+        # make list of used bones
+        self.old_bone_data = {}
+        for branch in self.data.get_global_iterator():
+            if isinstance(branch, NifFormat.NiControllerSequence):
+                for block in branch.controlled_blocks:
+                    name = block.get_node_name().lower()
+                    if ' r ' in name or ' l ' in name:
+                        self.old_bone_data[name] = [block.interpolator, block.controller, block.priority, block.string_palette, block.node_name_offset, block.controller_type_offset]
+        if self.old_bone_data:
+            return True
+
+    def branchinspect(self, branch):
+        # inspect the NiAVObject branch, and NiControllerSequence
+        # branch (for kf files)
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiTimeController,
+                                   NifFormat.NiInterpolator,
+                                   NifFormat.NiControllerManager,
+                                   NifFormat.NiControllerSequence))
+
+    def branchentry(self, branch):
+        old_bone_data = self.old_bone_data
+                
+        if isinstance(branch, NifFormat.NiControllerSequence):
+            for block in branch.controlled_blocks:
+                node_name = block.get_node_name().lower()
+                if ' l ' in node_name: node_name = node_name.replace(' l ', ' r ')
+                elif ' r ' in node_name: node_name = node_name.replace(' r ', ' l ')
+                if node_name in old_bone_data:
+                    self.changed = True
+                    block.interpolator, block.controller, block.priority, block.string_palette, block.node_name_offset, block.controller_type_offset = old_bone_data[node_name]
+                    # and then reverse x movements (since otherwise the movement of f.e. an arm towards the center of the body will be still in the same direction but away from the body
+                    if not block.interpolator: continue
+                    ip = block.interpolator
+                    ip.translation.x = -ip.translation.x
+                    ip.rotation.x = -ip.rotation.x
+                    if ip.data:
+                        data = ip.data
+                        if data.translations.num_keys:
+                            for key in data.translations.keys:
+                                key.value.x = -key.value.x
+                        if data.rotation_type == 4:
+                            if data.xyz_rotations[1].num_keys != 0:
+                                for key in data.xyz_rotations[1].keys:
+                                    key.value = -key.value
+                        elif data.num_rotation_keys != 0:
+                            for key in data.quaternion_keys:
+                                key.value.x = -key.value.x
         else:
             # recurse further
             return True

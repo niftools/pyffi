@@ -34,7 +34,7 @@ pyffi.toaster:INFO:          ~~~ NiTriStripsData [] ~~~
 pyffi.toaster:INFO:        ~~~ NiTriStrips [Tri Cone 1] ~~~
 pyffi.toaster:INFO:          ~~~ NiTexturingProperty [] ~~~
 pyffi.toaster:INFO:            removing duplicate branch
-pyffi.toaster:INFO:          ~~~ NiMaterialProperty [Red] ~~~
+pyffi.toaster:INFO:          ~~~ NiMaterialProperty [AlsoRed] ~~~
 pyffi.toaster:INFO:            removing duplicate branch
 pyffi.toaster:INFO:          ~~~ NiSpecularProperty [] ~~~
 pyffi.toaster:INFO:            removing duplicate branch
@@ -43,8 +43,7 @@ pyffi.toaster:INFO:          ~~~ NiTriStripsData [] ~~~
 pyffi.toaster:INFO:        ~~~ NiTriStrips [Tri Cone 2] ~~~
 pyffi.toaster:INFO:          ~~~ NiTexturingProperty [] ~~~
 pyffi.toaster:INFO:            removing duplicate branch
-pyffi.toaster:INFO:          ~~~ NiMaterialProperty [Red] ~~~
-pyffi.toaster:INFO:            removing duplicate branch
+pyffi.toaster:INFO:          ~~~ NiMaterialProperty [Skin] ~~~
 pyffi.toaster:INFO:          ~~~ NiWireframeProperty [] ~~~
 pyffi.toaster:INFO:          ~~~ NiAlphaProperty [] ~~~
 pyffi.toaster:INFO:            removing duplicate branch
@@ -129,7 +128,7 @@ pyffi.toaster:INFO:        ~~~ NiTriStripsData [] ~~~
 pyffi.toaster:INFO:      ~~~ NiTriStrips [Tri Cone 1] ~~~
 pyffi.toaster:INFO:        ~~~ NiTexturingProperty [] ~~~
 pyffi.toaster:INFO:          removing duplicate branch
-pyffi.toaster:INFO:        ~~~ NiMaterialProperty [Red] ~~~
+pyffi.toaster:INFO:        ~~~ NiMaterialProperty [AlsoRed] ~~~
 pyffi.toaster:INFO:          removing duplicate branch
 pyffi.toaster:INFO:        ~~~ NiSpecularProperty [] ~~~
 pyffi.toaster:INFO:          removing duplicate branch
@@ -138,8 +137,7 @@ pyffi.toaster:INFO:        ~~~ NiTriStripsData [] ~~~
 pyffi.toaster:INFO:      ~~~ NiTriStrips [Tri Cone 2] ~~~
 pyffi.toaster:INFO:        ~~~ NiTexturingProperty [] ~~~
 pyffi.toaster:INFO:          removing duplicate branch
-pyffi.toaster:INFO:        ~~~ NiMaterialProperty [Red] ~~~
-pyffi.toaster:INFO:          removing duplicate branch
+pyffi.toaster:INFO:        ~~~ NiMaterialProperty [Skin] ~~~
 pyffi.toaster:INFO:        ~~~ NiWireframeProperty [] ~~~
 pyffi.toaster:INFO:        ~~~ NiAlphaProperty [] ~~~
 pyffi.toaster:INFO:          removing duplicate branch

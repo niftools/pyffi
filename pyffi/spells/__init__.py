@@ -609,6 +609,15 @@ def _toaster_job(args):
     # toast exit code
     toaster.spellclass.toastexit(toaster)
 
+# CPU_COUNT is used for default number of jobs
+if multiprocessing:
+    try:
+        CPU_COUNT = multiprocessing.cpu_count()
+    except NotImplementedError:
+        CPU_COUNT = 1
+else:
+    CPU_COUNT = 1
+
 class Toaster(object):
     """Toaster base class. Toasters run spells on large quantities of files.
     They load each file and pass the data structure to any number of spells.
@@ -636,7 +645,7 @@ class Toaster(object):
         createpatch=False, applypatch=False, diffcmd="", patchcmd="",
         series=False,
         skip=[], only=[],
-        jobs=1, refresh=32,
+        jobs=CPU_COUNT, refresh=32,
         sourcedir="", destdir="",
         archives=False,
         resume=False,
@@ -1280,7 +1289,7 @@ class Toaster(object):
         sourcedir = self.options.get("sourcedir", "")
         createpatch = self.options.get("createpatch", False)
         applypatch = self.options.get("applypatch", False)
-        jobs = self.options.get("jobs", 1)
+        jobs = self.options.get("jobs", CPU_COUNT)
 
         # get source directory if not specified
         if not sourcedir:
