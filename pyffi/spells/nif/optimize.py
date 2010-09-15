@@ -876,6 +876,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
             return False
         
         # TODO: other collision geometry types
+        # (probably should go to separate spells?)
         if (isinstance(branch, NifFormat.bhkMoppBvTreeShape)
             and isinstance(branch.shape, NifFormat.bhkPackedNiTriStripsShape)
             and isinstance(branch.shape.data,
@@ -884,69 +885,72 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
                 self.toaster.msg(_("less than 3 vertices: removing branch"))
                 self.data.replace_global_node(branch, None)
                 self.changed = True
-                return False                
+                return False
+            # XXX try to convert to a box shape
+            # optimize the packed shape
             self.optimize_mopp(branch)
             # we found a geometry to optimize
             self.optimized.append(branch)
             # we're going to change the data
             self.changed = True
             return False # don't recurse farther
-        elif isinstance(branch, NifFormat.bhkRigidBody):
-            self.rigidbody = branch
-            if isinstance(branch.shape, NifFormat.bhkNiTriStripsShape):
-                # try to convert to a box shape
-                box_shape = self.get_box_shape(barnch.shape)
-                if box_shape:
-                    # it is a box, replace it
-                    self.data.replace_global_node(branch.shape, box_shape)
-                    self.toaster.msg(_("optimized box collision"))
+        elif (isinstance(branch, NifFormat.bhkRigidBody)
+              and isinstance(branch.shape, NifFormat.bhkNiTriStripsShape)):
+            # try to convert to a box shape
+            box_shape = self.get_box_shape(branch.shape)
+            if box_shape:
+                # it is a box, replace it
+                self.data.replace_global_node(branch.shape, box_shape)
+                self.toaster.msg(_("optimized box collision"))
+            else:
+                # convert to a packed shape
+                new_shape = branch.shape.get_interchangeable_packed_shape()
+                if new_shape.data.num_vertices < 3:
+                    self.data.replace_global_node(branch, None)
+                    self.toaster.msg(_("less than 3 vertices: removing branch"))
+                    self.optimized.append(branch)
                 else:
-                    # convert to a packed shape
-                    new_shape = branch.shape.get_interchangeable_packed_shape()
-                    if new_shape.data.num_vertices < 3:
-                        self.data.replace_global_node(branch, None)
-                        self.toaster.msg(_("less than 3 vertices: removing branch"))
-                        self.optimized.append(branch)
-                    else:
-                        self.data.replace_global_node(branch.shape, new_shape)
-                        self.toaster.msg(_("collision packed"))
-                        # call branchentry again in order to create a mopp for it
-                        self.branchentry(branch)
-                self.changed = True
-                # don't recurse further
-                return False
-            elif isinstance(branch.shape,
-                            NifFormat.bhkPackedNiTriStripsShape):
-                box_shape = self.get_box_shape(branch.shape)
-                if box_shape:
-                    # it's a box, replace it
-                    self.data.replace_global_node(branch.shape, box_shape)
-                    self.toaster.msg(_("optimized box collision"))
-                else:
-                    # packed shape without mopp: add a mopp to it if it is static
-                    if any(sub_shape.layer != 1
-                           for sub_shape in branch.shape.sub_shapes):
-                        # no mopps for non-static objects
-                        return False
-                    mopp = NifFormat.bhkMoppBvTreeShape()
-                    shape = branch.shape # store reference before replacing
-                    self.data.replace_global_node(branch.shape, mopp)
-                    mopp.shape = shape
-                    mopp.material = shape.sub_shapes[0].material
-                    mopp.unknown_8_bytes[0] = 160
-                    mopp.unknown_8_bytes[1] = 13
-                    mopp.unknown_8_bytes[2] = 75
-                    mopp.unknown_8_bytes[3] = 1
-                    mopp.unknown_8_bytes[4] = 192
-                    mopp.unknown_8_bytes[5] = 207
-                    mopp.unknown_8_bytes[6] = 144
-                    mopp.unknown_8_bytes[7] = 11
-                    mopp.unknown_float = 1.0
-                    mopp.update_mopp_welding()
-                    self.toaster.msg(_("added mopp"))
-                self.changed = True
-                self.optimized.append(branch)
-                return False
+                    self.data.replace_global_node(branch.shape, new_shape)
+                    self.toaster.msg(_("collision packed"))
+                    # call branchentry again in order to create a mopp for it
+                    self.branchentry(branch)
+            self.changed = True
+            self.optimized.append(branch)
+            # don't recurse further
+            return False
+        elif (isinstance(branch, NifFormat.bhkRigidBody)
+              and isinstance(branch.shape,
+                             NifFormat.bhkPackedNiTriStripsShape)):
+            box_shape = self.get_box_shape(branch.shape)
+            if box_shape:
+                # it's a box, replace it
+                self.data.replace_global_node(branch.shape, box_shape)
+                self.toaster.msg(_("optimized box collision"))
+            else:
+                # packed shape without mopp: add a mopp to it if it is static
+                if any(sub_shape.layer != 1
+                       for sub_shape in branch.shape.sub_shapes):
+                    # no mopps for non-static objects
+                    return False
+                mopp = NifFormat.bhkMoppBvTreeShape()
+                shape = branch.shape # store reference before replacing
+                self.data.replace_global_node(branch.shape, mopp)
+                mopp.shape = shape
+                mopp.material = shape.sub_shapes[0].material
+                mopp.unknown_8_bytes[0] = 160
+                mopp.unknown_8_bytes[1] = 13
+                mopp.unknown_8_bytes[2] = 75
+                mopp.unknown_8_bytes[3] = 1
+                mopp.unknown_8_bytes[4] = 192
+                mopp.unknown_8_bytes[5] = 207
+                mopp.unknown_8_bytes[6] = 144
+                mopp.unknown_8_bytes[7] = 11
+                mopp.unknown_float = 1.0
+                mopp.update_mopp_welding()
+                self.toaster.msg(_("added mopp"))
+            self.changed = True
+            self.optimized.append(branch)
+            return False
         #keep recursing
         return True
         
