@@ -50,7 +50,9 @@ Parse all NIF files in a directory tree
 ...         print("reading %s" % stream.name.replace("\\\\", "/"))
 ...         data.read(stream)
 ...     except Exception:
-...         print("Warning: read failed due corrupt file, corrupt format description, or bug.")
+...         print(
+...             "Warning: read failed due corrupt file,"
+...             " corrupt format description, or bug.") # doctest: +REPORT_NDIFF
 reading tests/nif/invalid.nif
 Warning: read failed due corrupt file, corrupt format description, or bug.
 reading tests/nif/nds.nif
@@ -72,7 +74,11 @@ reading tests/nif/test_fix_mergeskeletonroots.nif
 reading tests/nif/test_fix_tangentspace.nif
 reading tests/nif/test_fix_texturepath.nif
 reading tests/nif/test_mopp.nif
+reading tests/nif/test_opt_collision_complex_mopp.nif
 reading tests/nif/test_opt_collision_mopp.nif
+reading tests/nif/test_opt_collision_packed.nif
+reading tests/nif/test_opt_collision_to_boxshape.nif
+reading tests/nif/test_opt_collision_unpacked.nif
 reading tests/nif/test_opt_delunusedbones.nif
 reading tests/nif/test_opt_dupgeomdata.nif
 reading tests/nif/test_opt_dupverts.nif
