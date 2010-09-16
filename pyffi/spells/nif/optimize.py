@@ -858,7 +858,7 @@ class SpellOptimizeCollisionBox(pyffi.spells.nif.NifSpell):
             # packed collision without mopp
             box_shape = self.get_box_shape(branch.shape)
             if box_shape:
-                # it's a box, replace it
+                # it's a box, replace bhkPackedNiTriStripsShape
                 self.data.replace_global_node(branch.shape, box_shape)
                 self.toaster.msg(_("optimized box collision"))
                 self.changed = True
@@ -882,15 +882,17 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
 
     def datainspect(self):
         # only run the spell if there are collisions
-        return self.inspectblocktype(NifFormat.bhkRigidBody)
+        return (
+            self.inspectblocktype(NifFormat.bhkPackedNiTriStripsShape)
+            or self.inspectblocktype(NifFormat.bhkNiTriStripsShape))
 
     def branchinspect(self, branch):
-        # only inspect the NiNode and collision branches
+        # only inspect the collision branches
         return isinstance(branch, (NifFormat.NiAVObject,
                                    NifFormat.bhkCollisionObject,
                                    NifFormat.bhkRigidBody,
                                    NifFormat.bhkMoppBvTreeShape))
-
+        
     def optimize_mopp(self, mopp):
         """Optimize a bhkMoppBvTreeShape."""
         shape = mopp.shape
@@ -973,8 +975,11 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
     def branchentry(self, branch):
         """Optimize a vertex based collision block:
           - remove duplicate vertices
-          - rebuild triangle indice and welding info
-          - update MOPP data if applicable.
+          - rebuild triangle indices and welding info
+          - update mopp data if applicable.
+
+        (note: latter two are skipped at the moment due to
+        multimaterial bug in mopper)
         """
         if branch in self.optimized:
             # already optimized
