@@ -904,7 +904,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
         # while doing this, also update subshape vertex count
         full_v_map = []
         full_v_map_inverse = []
-        for subshape_index, subshape in enumerate(shape.get_sub_shapes()):
+        for subshape_index in range(len(shape.get_sub_shapes())):
             self.toaster.msg(_("(processing subshape %i)")
                              % subshape_index)
             v_map, v_map_inverse = unique_map(
@@ -915,7 +915,12 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
                 _("(num vertices in collision shape was %i and is now %i)")
                 % (len(v_map), len(v_map_inverse)))
             # update subshape vertex count
-            subshape.num_vertices = len(v_map_inverse)
+            if shape.sub_shapes:
+                # oblivion subshapes
+                shape.sub_shapes[subshape_index].num_vertices = len(v_map_inverse)
+            if shape.data.sub_shapes:
+                # fallout 3 subshapes
+                shape.data.sub_shapes[subshape_index].num_vertices = len(v_map_inverse)            
             # update full maps
             num_vertices = len(full_v_map_inverse)
             old_num_vertices = len(full_v_map)
@@ -943,7 +948,8 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
         # so for now, we keep the mopp intact
         # and since the mopp code references the triangle indices
         # we must also keep the triangles intact
-        return
+        if len(shape.get_sub_shapes()) != 1:
+            return
 
         # remove duplicate triangles
         self.toaster.msg(_("removing duplicate triangles"))
