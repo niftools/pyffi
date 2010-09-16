@@ -1216,7 +1216,7 @@ class SpellOptimizeAnimation(pyffi.spells.nif.NifSpell):
             return False
         else:
             # recurse further
-            return True 
+            return True
         
 class SpellOptimize(
     pyffi.spells.SpellGroupSeries(
