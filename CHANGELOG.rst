@@ -54,9 +54,17 @@ Release 2.1.5 (18 July 2010)
   #2995866).
 
 * New spells:
-  - opt_collisiongeometry: to optimize collision geometry in nifs (contributed by PacificMorrowind).
-  - check_materialemissivevalue: checks (and warns) about high values in material emissive settings (contributed by PacificMorrowind).
-  - modify_mirroranimation: mirrors an animation (specifically left to right and vice versa) - use it to for example turn a right hand punch anim into a left hand punch anim (contributed by PacificMorrowind).
+
+  - opt_collisiongeometry: to optimize collision geometry in nifs
+    (contributed by PacificMorrowind).
+
+  - check_materialemissivevalue: checks (and warns) about high values
+    in material emissive settings (contributed by PacificMorrowind).
+
+  - modify_mirroranimation: mirrors an animation (specifically left to
+    right and vice versa) - use it to for example turn a right hand
+    punch anim into a left hand punch anim (contributed by
+    PacificMorrowind).
 
 * Added big-endian support.
 
