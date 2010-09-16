@@ -62,7 +62,6 @@
 # --------------------------------------------------------------------------
 
 from itertools import izip
-from operator import itemgetter, attrgetter
 import os.path # exists
 
 from pyffi.formats.nif import NifFormat
