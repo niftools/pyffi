@@ -1,6 +1,12 @@
 Release 2.1.6 (in development)
 ==============================
 
+* The optimize spell now includes two new spells:
+  opt_collisiongeometry for optimizing triangle based collisions, and
+  opt_collisionbox for optimizing simple box collisions. This should
+  result in faster loads and probably also a small but noticable
+  performance improvement.
+
 * Fixed opt_collisiongeometry for multimaterial mopps (reported by
   wildcard_25, see issue #3058096).
 
@@ -26,6 +32,10 @@ Release 2.1.6 (in development)
 
 * New spell to fix subshape counts (see issue #3060025, reported by
   rlibiez), it is included in the optimize spell.
+
+* New opt_collisionbox spell which automatically converts triangle
+  based box collisions to primitive box collisions, which are much
+  faster in-game (contributed by PacificMorrowind).
 
 Release 2.1.5 (18 July 2010)
 ============================
