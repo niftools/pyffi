@@ -36,7 +36,7 @@ may destroy them. Make a backup of your files before running this script.
 <BLANKLINE>
 Are you sure that you want to proceed? [n/y] y
 pyffi.toaster:INFO:=== tests/nif/_test.nif ===
-pyffi.toaster:INFO:  --- fix_delunusedroots & opt_cleanreflists & fix_detachhavoktristripsdata & fix_texturepath & fix_clampmaterialalpha ---
+pyffi.toaster:INFO:  --- fix_delunusedroots & opt_cleanreflists & fix_detachhavoktristripsdata & fix_texturepath & fix_clampmaterialalpha & fix_bhksubshapes ---
 pyffi.toaster:INFO:    ~~~ NiNode [test] ~~~
 pyffi.toaster:INFO:      ~~~ NiTriShape [Cube] ~~~
 pyffi.toaster:INFO:  --- opt_mergeduplicates ---
@@ -70,7 +70,7 @@ Non-interactive
 >>> sys.argv = ["niftoaster.py", "optimize", "--noninteractive", "--verbose=1", "tests/nif/_test.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
 pyffi.toaster:INFO:=== tests/nif/_test.nif ===
-pyffi.toaster:INFO:  --- fix_delunusedroots & opt_cleanreflists & fix_detachhavoktristripsdata & fix_texturepath & fix_clampmaterialalpha ---
+pyffi.toaster:INFO:  --- fix_delunusedroots & opt_cleanreflists & fix_detachhavoktristripsdata & fix_texturepath & fix_clampmaterialalpha & fix_bhksubshapes ---
 pyffi.toaster:INFO:    ~~~ NiNode [test] ~~~
 pyffi.toaster:INFO:      ~~~ NiTriShape [Cube] ~~~
 pyffi.toaster:INFO:  --- opt_mergeduplicates ---

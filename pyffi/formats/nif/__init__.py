@@ -50,7 +50,9 @@ Parse all NIF files in a directory tree
 ...         print("reading %s" % stream.name.replace("\\\\", "/"))
 ...         data.read(stream)
 ...     except Exception:
-...         print("Warning: read failed due corrupt file, corrupt format description, or bug.")
+...         print(
+...             "Warning: read failed due corrupt file,"
+...             " corrupt format description, or bug.") # doctest: +REPORT_NDIFF
 reading tests/nif/invalid.nif
 Warning: read failed due corrupt file, corrupt format description, or bug.
 reading tests/nif/nds.nif
@@ -72,12 +74,17 @@ reading tests/nif/test_fix_mergeskeletonroots.nif
 reading tests/nif/test_fix_tangentspace.nif
 reading tests/nif/test_fix_texturepath.nif
 reading tests/nif/test_mopp.nif
+reading tests/nif/test_opt_collision_complex_mopp.nif
 reading tests/nif/test_opt_collision_mopp.nif
+reading tests/nif/test_opt_collision_packed.nif
+reading tests/nif/test_opt_collision_to_boxshape.nif
+reading tests/nif/test_opt_collision_unpacked.nif
 reading tests/nif/test_opt_delunusedbones.nif
 reading tests/nif/test_opt_dupgeomdata.nif
 reading tests/nif/test_opt_dupverts.nif
 reading tests/nif/test_opt_emptyproperties.nif
 reading tests/nif/test_opt_mergeduplicates.nif
+reading tests/nif/test_opt_zeroscale.nif
 reading tests/nif/test_skincenterradius.nif
 reading tests/nif/test_vertexcolor.nif
 
@@ -1424,8 +1431,6 @@ class NifFormat(FileFormat):
 
             :param stream: The stream to which to write.
             :type stream: file
-            :param verbose: The level of verbosity.
-            :type verbose: int
             """
             logger = logging.getLogger("pyffi.nif.data")
             # set up index and type dictionary
@@ -5666,6 +5671,21 @@ class NifFormat(FileFormat):
             else:
                 # for blocks with references: quick check only
                 return self is other
+
+    class NiMaterialProperty:
+        def is_interchangeable(self, other):
+            """Are the two material blocks interchangeable?"""
+            specialnames = ("envmap2", "envmap", "skin", "hair",
+                            "dynalpha", "hidesecret", "lava")
+            if self.__class__ is not other.__class__:
+                return False
+            if (self.name.lower() in specialnames
+                or other.name.lower() in specialnames):
+                # do not ignore name
+                return self.get_hash() == other.get_hash()
+            else:
+                # ignore name
+                return self.get_hash()[1:] == other.get_hash()[1:]
 
     class ATextureRenderData:
         def save_as_dds(self, stream):

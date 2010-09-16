@@ -13,14 +13,24 @@ Release 2.1.6 (in development)
   #3021629).
 
 * Bad normals are now ignored when packing a bhkNiTriStripsShape
-  (fixes issue #3060025).
+  (fixes issue #3060025, reported by rlibiez).
 
 * The opt_delunusedbones spell no longer removes bones if they have a
-  collision object (fixes issue #3064083).
+  collision object (fixes issue #3064083, reported by wildcard_25).
 
 * If the jobs option is not specified in the toaster, then the number
   of processors is used---requires Python 2.6 or higher (suggested by
   chaky2, see issue #3052715, implements issue #3065503).
+
+* New opt_delzeroscale spell to delete branches with zero scale
+  (suggested by chaky2, see issue #3013004).
+
+* The opt_mergeduplicates spell now ignores (non-special) material
+  names, so identical materials with different names will get merged
+  as well (suggested by chaky2, see issue #3013004).
+
+* New spell to fix subshape counts (see issue #3060025, reported by
+  rlibiez), it is included in the optimize spell.
 
 Release 2.1.5 (18 July 2010)
 ============================

@@ -1070,7 +1070,8 @@ class SpellCollisionToMopp(NifSpell):
 class SpellMirrorAnimation(NifSpell):
     """Mirrors the animation by switching bones and mirroring their x values. 
     Only useable on creature/character animations (well any animations
-    as long as they have bones in the form of bip01/2 L ****)."""
+    as long as they have bones in the form of bip01/2 L ...).
+    """
 
     SPELLNAME = "modify_mirroranimation"
     READONLY = False

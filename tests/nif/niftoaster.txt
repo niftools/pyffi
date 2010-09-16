@@ -165,12 +165,14 @@ fix_senddetachedgeometriestonodeposition
 fix_sendbonestobindposition
 fix_scale
 fix_cleanstringpalette
+fix_bhksubshapes
 modify_delbranches
 opt_cleanreflists
 opt_mergeduplicates
 opt_geometry
 optimize
 opt_delunusedbones
+opt_delzeroscale
 modify_texturepath
 modify_collisiontype
 modify_scaleanimationtime
@@ -180,6 +182,8 @@ modify_delvertexcolor
 modify_delalphaprop
 modify_delspecularprop
 modify_delbsxflags
+modify_delanimation
+opt_cleanfarnif
 modify_makefarnif
 modify_delstringextradatas
 modify_delskinshapes
@@ -196,6 +200,7 @@ modify_interpolatortransrotscale
 modify_delinterpolatortransformdata
 modify_collisiontomopp
 opt_reducegeometry
+opt_collisionbox
 opt_collisiongeometry
 opt_optimizeanimation
 check_materialemissivevalue
@@ -295,7 +300,23 @@ pyffi.toaster:INFO:=== tests/nif/test_mopp.nif ===
 pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:    writing to temporary file
 pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_opt_collision_complex_mopp.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
 pyffi.toaster:INFO:=== tests/nif/test_opt_collision_mopp.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_opt_collision_packed.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_opt_collision_to_boxshape.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_opt_collision_unpacked.nif ===
 pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:    writing to temporary file
 pyffi.toaster:INFO:      comparing file sizes
@@ -319,6 +340,10 @@ pyffi.toaster:INFO:=== tests/nif/test_opt_mergeduplicates.nif ===
 pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:    writing to temporary file
 pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_opt_zeroscale.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
 pyffi.toaster:INFO:=== tests/nif/test_skincenterradius.nif ===
 pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:    writing to temporary file
@@ -336,7 +361,7 @@ The --skip and --only switches
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = "niftoaster.py --skip texture --skip skin --only fix --only center check_read tests/nif/".split()
->>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS +REPORT_NDIFF
 pyffi.toaster:INFO:=== tests/nif/invalid.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/nds.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/neosteam.nif (skipped) ===
@@ -364,12 +389,17 @@ pyffi.toaster:INFO:=== tests/nif/test_fix_tangentspace.nif ===
 pyffi.toaster:INFO:  --- check_read ---
 pyffi.toaster:INFO:=== tests/nif/test_fix_texturepath.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_mopp.nif (skipped) ===
+pyffi.toaster:INFO:=== tests/nif/test_opt_collision_complex_mopp.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_opt_collision_mopp.nif (skipped) ===
+pyffi.toaster:INFO:=== tests/nif/test_opt_collision_packed.nif (skipped) ===
+pyffi.toaster:INFO:=== tests/nif/test_opt_collision_to_boxshape.nif (skipped) ===
+pyffi.toaster:INFO:=== tests/nif/test_opt_collision_unpacked.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_opt_delunusedbones.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_opt_dupgeomdata.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_opt_dupverts.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_opt_emptyproperties.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_opt_mergeduplicates.nif (skipped) ===
+pyffi.toaster:INFO:=== tests/nif/test_opt_zeroscale.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_skincenterradius.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_vertexcolor.nif (skipped) ===
 pyffi.toaster:INFO:Finished.
@@ -1404,7 +1434,23 @@ pyffi.toaster:INFO:=== tests/nif/test_mopp.nif ===
 pyffi.toaster:INFO:  version      0x14000005
 pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:  user version 11
+pyffi.toaster:INFO:=== tests/nif/test_opt_collision_complex_mopp.nif ===
+pyffi.toaster:INFO:  version      0x14000005
+pyffi.toaster:INFO:  user version 11
+pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:=== tests/nif/test_opt_collision_mopp.nif ===
+pyffi.toaster:INFO:  version      0x14000005
+pyffi.toaster:INFO:  user version 11
+pyffi.toaster:INFO:  user version 11
+pyffi.toaster:INFO:=== tests/nif/test_opt_collision_packed.nif ===
+pyffi.toaster:INFO:  version      0x14000005
+pyffi.toaster:INFO:  user version 11
+pyffi.toaster:INFO:  user version 11
+pyffi.toaster:INFO:=== tests/nif/test_opt_collision_to_boxshape.nif ===
+pyffi.toaster:INFO:  version      0x14000005
+pyffi.toaster:INFO:  user version 11
+pyffi.toaster:INFO:  user version 11
+pyffi.toaster:INFO:=== tests/nif/test_opt_collision_unpacked.nif ===
 pyffi.toaster:INFO:  version      0x14000005
 pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:  user version 11
@@ -1428,6 +1474,10 @@ pyffi.toaster:INFO:=== tests/nif/test_opt_mergeduplicates.nif ===
 pyffi.toaster:INFO:  version      0x14000004
 pyffi.toaster:INFO:  user version 0
 pyffi.toaster:INFO:  user version 0
+pyffi.toaster:INFO:=== tests/nif/test_opt_zeroscale.nif ===
+pyffi.toaster:INFO:  version      0x0A000100
+pyffi.toaster:INFO:  user version 0
+pyffi.toaster:INFO:  user version 0
 pyffi.toaster:INFO:=== tests/nif/test_skincenterradius.nif ===
 pyffi.toaster:INFO:  version      0x0A010000
 pyffi.toaster:INFO:  user version 0
@@ -1441,7 +1491,7 @@ pyffi.toaster:INFO:  number of nifs: 4
 pyffi.toaster:INFO:  user version:  [0]
 pyffi.toaster:INFO:  user version2: [0]
 pyffi.toaster:INFO:version 0x0A000100
-pyffi.toaster:INFO:  number of nifs: 2
+pyffi.toaster:INFO:  number of nifs: 3
 pyffi.toaster:INFO:  user version:  [0]
 pyffi.toaster:INFO:  user version2: [0]
 pyffi.toaster:INFO:version 0x04000002
@@ -1457,7 +1507,7 @@ pyffi.toaster:INFO:  number of nifs: 4
 pyffi.toaster:INFO:  user version:  [0]
 pyffi.toaster:INFO:  user version2: [0]
 pyffi.toaster:INFO:version 0x14000005
-pyffi.toaster:INFO:  number of nifs: 10
+pyffi.toaster:INFO:  number of nifs: 14
 pyffi.toaster:INFO:  user version:  [11]
 pyffi.toaster:INFO:  user version2: [11]
 pyffi.toaster:INFO:version 0x14020007

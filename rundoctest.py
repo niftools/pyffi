@@ -45,6 +45,9 @@ if sys.version_info[0] < 3:
     import pyffi.object_models.xsd
     import pyffi.formats.dae
 
+# force number of jobs to be 1 (multithreading makes doctesting difficult)
+pyffi.spells.Toaster.DEFAULT_OPTIONS["jobs"] = 1
+
 mods = [val for (key, val) in sys.modules.items()
         if key.startswith('pyffi')]
 
@@ -76,7 +79,9 @@ suite.addTest(doctest.DocFileSuite('tests/nif/matrix.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/skinpartition.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/bhkpackednitristripsshape.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/opt_delunusedbones.txt'))
+suite.addTest(doctest.DocFileSuite('tests/nif/opt_delzeroscale.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/opt_collisiongeometry.txt'))
+suite.addTest(doctest.DocFileSuite('tests/nif/opt_collision_to_box_shape.txt'))
 suite.addTest(doctest.DocFileSuite('tests/cgf/cgftoaster.txt'))
 suite.addTest(doctest.DocFileSuite('tests/kfm/kfmtoaster.txt'))
 suite.addTest(doctest.DocFileSuite('docs-sphinx/intro.rst'))
