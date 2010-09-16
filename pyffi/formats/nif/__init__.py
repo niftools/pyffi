@@ -5675,8 +5675,8 @@ class NifFormat(FileFormat):
     class NiMaterialProperty:
         def is_interchangeable(self, other):
             """Are the two material blocks interchangeable?"""
-            specialnames = ("envmap2", "envmap", "skin", "hair",
-                            "dynalpha", "hidesecret", "lava")
+            specialnames = (b"envmap2", b"envmap", b"skin", b"hair",
+                            b"dynalpha", b"hidesecret", b"lava")
             if self.__class__ is not other.__class__:
                 return False
             if (self.name.lower() in specialnames

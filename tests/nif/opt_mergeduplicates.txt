@@ -8,7 +8,7 @@ NifToaster check
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "opt_mergeduplicates", "--dry-run", "--noninteractive", "tests/nif/test_opt_mergeduplicates.nif"]
->>> niftoaster.NifToaster().cli()
+>>> niftoaster.NifToaster().cli() # doctest: +REPORT_NDIFF
 pyffi.toaster:INFO:=== tests/nif/test_opt_mergeduplicates.nif ===
 pyffi.toaster:INFO:  --- opt_mergeduplicates ---
 pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
@@ -103,7 +103,7 @@ Explicit check
 True
 >>> # run the spell that fixes this
 >>> spell = pyffi.spells.nif.optimize.SpellMergeDuplicates(data=data)
->>> spell.recurse()
+>>> spell.recurse() # doctest: +REPORT_NDIFF
 pyffi.toaster:INFO:--- opt_mergeduplicates ---
 pyffi.toaster:INFO:  ~~~ NiNode [Scene Root] ~~~
 pyffi.toaster:INFO:    ~~~ NiVertexColorProperty [] ~~~
