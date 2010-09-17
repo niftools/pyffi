@@ -904,6 +904,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
         # while doing this, also update subshape vertex count
         full_v_map = []
         full_v_map_inverse = []
+        subshape_counts = []
         for subshape_index in range(len(shape.get_sub_shapes())):
             self.toaster.msg(_("(processing subshape %i)")
                              % subshape_index)
@@ -915,12 +916,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
                 _("(num vertices in collision shape was %i and is now %i)")
                 % (len(v_map), len(v_map_inverse)))
             # update subshape vertex count
-            if shape.sub_shapes:
-                # oblivion subshapes
-                shape.sub_shapes[subshape_index].num_vertices = len(v_map_inverse)
-            if shape.data.sub_shapes:
-                # fallout 3 subshapes
-                shape.data.sub_shapes[subshape_index].num_vertices = len(v_map_inverse)            
+            subshape_counts.append(len(v_map_inverse))
             # update full maps
             num_vertices = len(full_v_map_inverse)
             old_num_vertices = len(full_v_map)
@@ -930,6 +926,14 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
                                    for old_i in v_map_inverse]
         # copy old data
         oldverts = [[v.x, v.y, v.z] for v in data.vertices]
+        # set new subshape counts
+        for subshape_index, subshape_count in enumerate(subshape_counts):
+            if shape.sub_shapes:
+                # oblivion subshapes
+                shape.sub_shapes[subshape_index].num_vertices = subshape_count
+            if shape.data.sub_shapes:
+                # fallout 3 subshapes
+                shape.data.sub_shapes[subshape_index].num_vertices = subshape_count            
         # set new data
         data.num_vertices = len(full_v_map_inverse)
         data.vertices.update_size()
