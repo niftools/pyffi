@@ -393,7 +393,8 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                 elif self.STITCH:
                     self.toaster.msg("stitching strips (using %i stitches)"
                                      % len(data.get_strips()))
-                    data.set_strips([pyffi.utils.tristrip.stitchStrips(data.get_strips())])
+                    data.set_strips(
+                        [pyffi.utils.tristrip.stitchStrips(data.get_strips())])
 
         # update skin data
         if branch.skin_instance:
