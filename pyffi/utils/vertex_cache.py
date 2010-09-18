@@ -247,9 +247,14 @@ def stitch_triangles(triangles):
     :param triangles: The triangles (triples of vertex indices).
     :return: A strip (list of vertex indices).
     """
-    strip = OrientedStrip()
+    if not triangles:
+        return []
+    strip = None
     for tri in triangles:
-        strip = strip + OrientedStrip(tri)
+        if strip is not None:
+            strip = strip + OrientedStrip(tri)
+        else:
+            strip = OrientedStrip(tri)
     return strip.vertices
 
 def get_cache_optimized_vertex_map(strips):
