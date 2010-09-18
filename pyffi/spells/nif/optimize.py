@@ -295,31 +295,65 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                          % (len(v_map), new_numvertices))
 
         # optimizing triangle ordering
-        # first, get new triangle indices, with duplicates removed
-        # (vertex, normal, etc. coordinates will be updated later)
-        triangles = [(v_map[v0], v_map[v1], v_map[v2])
-                      for v0, v1, v2 in data.get_triangles()]
+        # first, get new triangle indices, with duplicate vertices removed
+        triangles = list(pyffi.utils.vertex_cache.get_unique_triangles(
+            (v_map[v0], v_map[v1], v_map[v2])
+            for v0, v1, v2 in data.get_triangles()))
         old_atvr = pyffi.utils.vertex_cache.average_transform_to_vertex_ratio(
-            data.get_triangles())
-        self.toaster.msg("optimizing triangle ordering for vertex cache")
-        data.set_triangles(
-            pyffi.utils.vertex_cache.get_cache_optimized_triangles(
-                triangles))
+            triangles)
+        self.toaster.msg("optimizing triangle ordering")
+        new_triangles = pyffi.utils.vertex_cache.get_cache_optimized_triangles(
+            triangles)
         new_atvr = pyffi.utils.vertex_cache.average_transform_to_vertex_ratio(
-            data.get_triangles())
-        self.toaster.msg(
-            "(ATVR was %.3f and is now %.3f)" % (old_atvr, new_atvr))
-
+            new_triangles)
+        if new_atvr < old_atvr:
+            triangles = new_triangles
+            self.toaster.msg(
+                "(ATVR reduced from %.3f to %.3f)" % (old_atvr, new_atvr))
+        else:
+            self.toaster.msg(
+                "(ATVR stable at %.3f)" % old_atvr)            
         # optimize triangles to have sequentially ordered indices
-        self.toaster.msg("optimizing vertex ordering for vertex cache")
+        self.toaster.msg("optimizing vertex ordering")
         v_map_opt = pyffi.utils.vertex_cache.get_cache_optimized_vertex_map(
-            data.get_triangles())
-        data.set_triangles([(v_map_opt[v0], v_map_opt[v1], v_map_opt[v2])
-                            for v0, v1, v2 in data.get_triangles()])
+            triangles)
+        triangles = [(v_map_opt[v0], v_map_opt[v1], v_map_opt[v2])
+                      for v0, v1, v2 in triangles]
         # update vertex map and its inverse
         for i in xrange(data.num_vertices):
             v_map[i] = v_map_opt[v_map[i]]
             v_map_inverse[v_map[i]] = i
+
+        # stripify
+        self.toaster.msg("stripifying")
+        strip = pyffi.utils.vertex_cache.stable_stripify(
+            triangles, stitchstrips=True)[0]
+        #pyffi.utils.tristrip._check_strips(triangles, [strip]) # XXX debug
+        self.toaster.msg("strip size = %i, triangle size = %i"
+                         % (len(strip), 3 * len(triangles)))
+        # decide whether to use strip or triangles as primitive
+        if (len(strip) < 3 * len(triangles)) and (len(strip) < 65536):
+            # use a strip representation
+            if not isinstance(branch, NifFormat.NiTriStrips):
+                self.toaster.msg("replacing branch by NiTriStrips")
+                newbranch = branch.get_interchangeable_tri_strips(
+                    strips=[strip])
+                self.data.replace_global_node(branch, newbranch)
+                branch = newbranch
+                data = newbranch.data
+            else:
+                data.set_strips([strip])
+        else:
+            # use a triangle representation
+            if not isinstance(branch, NifFormat.NiTriShape):
+                self.toaster.msg("replacing branch by NiTriShape")
+                newbranch = branch.get_interchangeable_tri_shape(
+                    triangles=triangles)
+                self.data.replace_global_node(branch, newbranch)
+                branch = newbranch
+                data = newbranch.data
+            else:
+                data.set_triangles(triangles)
 
         # copy old data
         oldverts = [[v.x, v.y, v.z] for v in data.vertices]
