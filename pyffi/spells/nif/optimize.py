@@ -426,7 +426,8 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                 # use Oblivion settings
                 branch.update_skin_partition(
                     maxbonesperpartition = 18, maxbonespervertex = 4,
-                    stripify = True, verbose = 0)
+                    stripify = True, verbose = 0,
+                    stitchstrips=self.STITCH)
 
         # update morph data
         for morphctrl in branch.get_controllers():
