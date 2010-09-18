@@ -6750,7 +6750,7 @@ class NifFormat(FileFormat):
             from the original shape, use the strips argument.
             """
             # copy the shape (first to NiTriBasedGeom and then to NiTriStrips)
-            strips = NifFormat.NiTriStrips().deepcopy(
+            strips_ = NifFormat.NiTriStrips().deepcopy(
                 NifFormat.NiTriBasedGeom().deepcopy(self))
             # copy the geometry without triangles
             stripsdata = NifFormat.NiTriStripsData().deepcopy(
@@ -6761,9 +6761,9 @@ class NifFormat(FileFormat):
             else:
                 stripsdata.set_strips(strips)
             # relink the shape data
-            strips.data = stripsdata
+            strips_.data = stripsdata
             # and return the result
-            return strips
+            return strips_
 
     class NiTriShapeData:
         """
