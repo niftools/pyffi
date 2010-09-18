@@ -45,6 +45,8 @@ http://home.comcast.net/~tom_forsyth/papers/fast_vert_cache_opt.html
 
 import collections
 
+from pyffi.utils.tristrip import OrientedStrip
+
 class VertexInfo:
     """Stores information about a vertex."""
 
@@ -228,39 +230,58 @@ class Mesh:
         return triangles
 
 def get_cache_optimized_triangles(triangles):
+    """Calculate cache optimized triangles, and return the result as
+    a reordered set of triangles or strip of stitched triangles.
+
+    :param triangles: The triangles (triples of vertex indices).
+    :return: A list of reordered triangles.
+    """
     mesh = Mesh(triangles)
     return mesh.get_cache_optimized_triangles()
 
-def get_cache_optimized_vertex_map(triangles):
-    """Map vertices so triangles have consequetive indices.
+def stitch_triangles(triangles):
+    """Stitch all triangles together into a strip without changing the
+    triangle ordering (for example because their ordering is already
+    optimized).
+
+    :param triangles: The triangles (triples of vertex indices).
+    :return: A strip (list of vertex indices).
+    """
+    strip = OrientedStrip()
+    for tri in triangles:
+        strip = strip + OrientedStrip(tri)
+    return strip.vertices
+
+def get_cache_optimized_vertex_map(strips):
+    """Map vertices so triangles/strips have consequetive indices.
 
     >>> get_cache_optimized_vertex_map([(5,2,1),(0,2,3)])
     [3, 2, 1, 4, None, 0]
     """
-    num_vertices = max(max(triangle) for triangle in triangles) + 1
+    num_vertices = max(max(strip) for strip in strips) + 1
     vertex_map = [None for i in xrange(num_vertices)]
     new_vertex = 0
-    for triangle in triangles:
-        for old_vertex in triangle:
+    for strip in strips:
+        for old_vertex in strip:
             if vertex_map[old_vertex] is None:
                 vertex_map[old_vertex] = new_vertex
                 new_vertex += 1
     return vertex_map
 
-def average_transform_to_vertex_ratio(triangles, cache_size=32):
+def average_transform_to_vertex_ratio(strips, cache_size=32):
     """Calculate number of transforms per vertex for a given cache size
-    and ordering of triangles. See
+    and triangles/strips. See
     http://castano.ludicon.com/blog/2009/01/29/acmr/
     """
     cache = collections.deque(maxlen=cache_size)
     # get number of vertices
     vertices = set([])
-    for triangle in triangles:
-        vertices.update(triangle)
+    for strip in strips:
+        vertices.update(strip)
     # get number of cache misses (each miss needs a transform)
     num_misses = 0
-    for triangle in triangles:
-        for vertex in triangle:
+    for strip in strips:
+        for vertex in strip:
             if vertex in cache:
                 pass
             else:
