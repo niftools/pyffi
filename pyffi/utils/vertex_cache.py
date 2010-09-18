@@ -324,7 +324,13 @@ def stable_stripify(triangles, stitchstrips=False):
         result = reduce(lambda x, y: x + y,
                         (OrientedStrip(strip) for strip in strips))
         return [list(result)]
-        
+
+def stripify(triangles, stitchstrips=False):
+    """Stripify triangles, optimizing for the vertex cache."""
+    return stable_stripify(
+        get_cache_optimized_triangles(triangles),
+        stitchstrips=True)
+
 def get_cache_optimized_vertex_map(strips):
     """Map vertices so triangles/strips have consequetive indices.
 

@@ -6559,7 +6559,7 @@ class NifFormat(FileFormat):
                     # stripify the triangles
                     # also update triangle list
                     logger.info("Stripifying partition %i" % parts.index(part))
-                    strips = pyffi.utils.tristrip.stripify(
+                    strips = pyffi.utils.vertex_cache.stripify(
                         triangles, stitchstrips=stitchstrips)
                     numtriangles = 0
                     # calculate number of triangles and get sorted
@@ -6572,6 +6572,9 @@ class NifFormat(FileFormat):
                             if t not in vertices:
                                 vertices.append(t)
                 else:
+                    logger.info("Retriangulating partition %i" % parts.index(part))
+                    triangles = pyffi.utils.vertex_cache.get_cache_optimized_triangles(
+                        triangles)
                     numtriangles = len(triangles)
                     # get sorted list of vertices
                     # for optimal performance, vertices must be sorted
@@ -6777,8 +6780,8 @@ class NifFormat(FileFormat):
         >>> block.get_triangles()
         [(0, 1, 2), (2, 1, 3), (2, 3, 4)]
         >>> block.set_strips([[1,0,1,2,3,4]])
-        >>> block.get_strips()
-        [[4, 3, 2, 1, 0]]
+        >>> block.get_strips() # stripifier keeps geometry but nothing else
+        [[0, 2, 1, 3, 3, 2, 2, 4, 3]]
         >>> block.get_triangles()
         [(0, 2, 1), (1, 2, 3), (2, 4, 3)]
         """
@@ -6804,7 +6807,7 @@ class NifFormat(FileFormat):
                 dst_t.v_1, dst_t.v_2, dst_t.v_3 = src.next()
 
         def get_strips(self):
-            return pyffi.utils.tristrip.stripify(self.get_triangles())
+            return pyffi.utils.vertex_cache.stripify(self.get_triangles())
 
         def set_strips(self, strips):
             self.set_triangles(pyffi.utils.tristrip.triangulate(strips))
@@ -6830,7 +6833,8 @@ class NifFormat(FileFormat):
             return pyffi.utils.tristrip.triangulate(self.points)
 
         def set_triangles(self, triangles, stitchstrips = False):
-            self.set_strips(pyffi.utils.tristrip.stripify(triangles, stitchstrips = stitchstrips))
+            self.set_strips(pyffi.utils.vertex_cache.stripify(
+                triangles, stitchstrips=stitchstrips))
 
         def get_strips(self):
             return [[i for i in strip] for strip in self.points]
