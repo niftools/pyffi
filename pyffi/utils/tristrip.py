@@ -193,7 +193,7 @@ def stripify(triangles, stitchstrips = False):
 
     # stitch the strips if needed
     if stitchstrips:
-        return [stitchStrips(strips)]
+        return [stitch_strips(strips)]
     else:
         return strips
 
@@ -391,40 +391,40 @@ class OrientedStrip:
 
         return result
 
-def stitchStrips(strips):
+def stitch_strips(strips):
     """Stitch strips keeping stitch size minimal.
 
     >>> # stitch length 0 code path
-    >>> stitchStrips([[3,4,5],[0,1,2,3]])
+    >>> stitch_strips([[3,4,5],[0,1,2,3]])
     [0, 1, 2, 3, 3, 4, 5]
-    >>> stitchStrips([[2,2,3,4],[0,1,2]])
+    >>> stitch_strips([[2,2,3,4],[0,1,2]])
     [0, 1, 2, 2, 3, 4]
 
     >>> # check result when changing ordering of strips
-    >>> stitchStrips([[0,1,2,3],[3,4,5]])
+    >>> stitch_strips([[0,1,2,3],[3,4,5]])
     [0, 1, 2, 3, 3, 4, 5]
 
     >>> # check result when changing direction of strips
-    >>> stitchStrips([[3,2,1,0],[3,4,5]])
+    >>> stitch_strips([[3,2,1,0],[3,4,5]])
     [0, 1, 2, 3, 3, 4, 5]
 
     >>> # stitch length 1 code path
-    >>> stitchStrips([[2,3,4],[0,1,2]])
+    >>> stitch_strips([[2,3,4],[0,1,2]])
     [0, 1, 2, 2, 2, 3, 4]
-    >>> stitchStrips([[3,3,4,5],[0,1,2,3]])
+    >>> stitch_strips([[3,3,4,5],[0,1,2,3]])
     [0, 1, 2, 3, 3, 3, 4, 5]
 
     >>> # stitch length 2 code path
-    >>> stitchStrips([[7,8,9],[0,1,2,3]])
+    >>> stitch_strips([[7,8,9],[0,1,2,3]])
     [0, 1, 2, 3, 3, 7, 7, 8, 9]
-    >>> stitchStrips([[7,7,8,9],[0,1,2]])
+    >>> stitch_strips([[7,7,8,9],[0,1,2]])
     [0, 1, 2, 2, 7, 7, 8, 9]
 
     >>> # stitch length 3 code path... but algorithm reverses strips so
     >>> # only 2 stitches are needed (compare with OrientedStrip doctest)
-    >>> stitchStrips([[7,7,8,9],[0,1,2,3]])
+    >>> stitch_strips([[7,7,8,9],[0,1,2,3]])
     [3, 2, 1, 0, 0, 9, 9, 8, 7]
-    >>> stitchStrips([[7,8,9],[0,1,2]])
+    >>> stitch_strips([[7,8,9],[0,1,2]])
     [0, 1, 2, 2, 9, 9, 8, 7]
     """
 

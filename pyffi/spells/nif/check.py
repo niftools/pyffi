@@ -710,7 +710,7 @@ class SpellCheckTriStrip(pyffi.spells.nif.NifSpell):
 
                 # test stitching algorithm
                 self.toaster.msg("restitching")
-                restitchedstrip = pyffi.utils.tristrip.stitchStrips(
+                restitchedstrip = pyffi.utils.tristrip.stitch_strips(
                     unstitchedstrips)
                 self.toaster.msg("stitched strip length = %i"
                                  % len(restitchedstrip))
@@ -757,7 +757,7 @@ class SpellCheckTriStrip(pyffi.spells.nif.NifSpell):
             self.toaster.striplengths += [len(strip) for strip in strips]
 
             self.toaster.msg('checking stitched strip triangles')
-            stitchedstrip = pyffi.utils.tristrip.stitchStrips(strips)
+            stitchedstrip = pyffi.utils.tristrip.stitch_strips(strips)
             pyffi.utils.tristrip._check_strips(triangles, [stitchedstrip])
 
             self.toaster.msg('checking unstitched strip triangles')
