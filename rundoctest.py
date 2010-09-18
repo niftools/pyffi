@@ -19,6 +19,7 @@ import pyffi.object_models.xml.expression
 import pyffi.object_models.xml.struct_
 import pyffi.utils
 import pyffi.utils.tristrip
+import pyffi.utils.vertex_cache
 import pyffi.utils.mathutils
 import pyffi.utils.quickhull
 import pyffi.utils.inertia
