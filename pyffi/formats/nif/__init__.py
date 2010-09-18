@@ -6723,8 +6723,11 @@ class NifFormat(FileFormat):
                 skindatablock.bounding_sphere_offset.z = center.z
                 skindatablock.bounding_sphere_radius = radius
 
-        def get_interchangeable_tri_shape(self):
-            """Returns a NiTriShape block that is geometrically interchangeable."""
+        def get_interchangeable_tri_shape(self, triangles=None):
+            """Returns a NiTriShape block that is geometrically
+            interchangeable. If you do not want to set the triangles
+            from the original shape, use the triangles argument.
+            """
             # copy the shape (first to NiTriBasedGeom and then to NiTriShape)
             shape = NifFormat.NiTriShape().deepcopy(
                 NifFormat.NiTriBasedGeom().deepcopy(self))
@@ -6732,14 +6735,20 @@ class NifFormat(FileFormat):
             shapedata = NifFormat.NiTriShapeData().deepcopy(
                 NifFormat.NiTriBasedGeomData().deepcopy(self.data))
             # update the shape data
-            shapedata.set_triangles(self.data.get_triangles())
+            if triangles is None:
+                shapedata.set_triangles(self.data.get_triangles())
+            else:
+                shapedata.set_triangles(triangles)
             # relink the shape data
             shape.data = shapedata
             # and return the result
             return shape
 
-        def get_interchangeable_tri_strips(self):
-            """Returns a NiTriStrips block that is geometrically interchangeable."""
+        def get_interchangeable_tri_strips(self, strips=None):
+            """Returns a NiTriStrips block that is geometrically
+            interchangeable.  If you do not want to set the strips
+            from the original shape, use the strips argument.
+            """
             # copy the shape (first to NiTriBasedGeom and then to NiTriStrips)
             strips = NifFormat.NiTriStrips().deepcopy(
                 NifFormat.NiTriBasedGeom().deepcopy(self))
@@ -6747,7 +6756,10 @@ class NifFormat(FileFormat):
             stripsdata = NifFormat.NiTriStripsData().deepcopy(
                 NifFormat.NiTriBasedGeomData().deepcopy(self.data))
             # update the shape data
-            stripsdata.set_triangles(self.data.get_triangles())
+            if strips is None:
+                stripsdata.set_strips(self.data.get_strips())
+            else:
+                stripsdata.set_strips(strips)
             # relink the shape data
             strips.data = stripsdata
             # and return the result
