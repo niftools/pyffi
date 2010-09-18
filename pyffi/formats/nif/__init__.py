@@ -6553,14 +6553,26 @@ class NifFormat(FileFormat):
                 # get sorted list of bones
                 bones = sorted(list(part[0]))
                 triangles = part[1]
-                # stripify if needed and get sorted list of vertices
+                logger.info("Optimizing triangle ordering in partition %i"
+                            % parts.index(part))
+                # optimize triangles for vertex cache and calculate strips
+                triangles = pyffi.utils.vertex_cache.get_cache_optimized_triangles(
+                    triangles)
+                strips = pyffi.utils.vertex_cache.stable_stripify(
+                    triangles, stitchstrips=stitchstrips)
+                triangles_size = 3 * len(triangles)
+                strips_size = len(strips) + sum(len(strip) for strip in strips)
                 vertices = []
-                if stripify:
+                # decide whether to use strip or triangles as primitive
+                if stripify is None:
+                    stripifyblock = (
+                        strips_size < triangles_size
+                        and all(len(strip) < 65536 for strip in strips))
+                else:
+                    stripifyblock = stripify
+                if stripifyblock:
                     # stripify the triangles
                     # also update triangle list
-                    logger.info("Stripifying partition %i" % parts.index(part))
-                    strips = pyffi.utils.vertex_cache.stripify(
-                        triangles, stitchstrips=stitchstrips)
                     numtriangles = 0
                     # calculate number of triangles and get sorted
                     # list of vertices
@@ -6572,9 +6584,6 @@ class NifFormat(FileFormat):
                             if t not in vertices:
                                 vertices.append(t)
                 else:
-                    logger.info("Retriangulating partition %i" % parts.index(part))
-                    triangles = pyffi.utils.vertex_cache.get_cache_optimized_triangles(
-                        triangles)
                     numtriangles = len(triangles)
                     # get sorted list of vertices
                     # for optimal performance, vertices must be sorted
@@ -6596,7 +6605,7 @@ class NifFormat(FileFormat):
                     # freedom force vs. the 3rd reich needs exactly 4 bones per
                     # partition on every partition block
                     skinpartblock.num_bones = maxbonesperpartition
-                if stripify:
+                if stripifyblock:
                     skinpartblock.num_strips = len(strips)
                 else:
                     skinpartblock.num_strips = 0
@@ -6621,7 +6630,7 @@ class NifFormat(FileFormat):
                             skinpartblock.vertex_weights[i][j] = weights[v][j][1]
                         else:
                             skinpartblock.vertex_weights[i][j] = 0.0
-                if stripify:
+                if stripifyblock:
                     skinpartblock.has_faces = True
                     skinpartblock.strip_lengths.update_size()
                     for i, strip in enumerate(strips):

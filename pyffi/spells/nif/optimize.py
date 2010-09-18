@@ -221,7 +221,7 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
     READONLY = False
 
     # spell parameters
-    STRIPLENCUTOFF = 10
+    STRIPIFY = None # set to None will select representation of smallest size
     STITCH = True
     VERTEXPRECISION = 3
     NORMALPRECISION = 3
@@ -326,23 +326,31 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
 
         # stripify
         self.toaster.msg("stripifying")
-        strip = pyffi.utils.vertex_cache.stable_stripify(
-            triangles, stitchstrips=True)[0]
-        #pyffi.utils.tristrip._check_strips(triangles, [strip]) # XXX debug
-        self.toaster.msg("strip size = %i, triangle size = %i"
-                         % (len(strip), 3 * len(triangles)))
+        strips = pyffi.utils.vertex_cache.stable_stripify(
+            triangles, stitchstrips=self.STITCH)
+        triangles_size = 3 * len(triangles)
+        strips_size = len(strips) + sum(len(strip) for strip in strips)
+        #pyffi.utils.tristrip._check_strips(triangles, strips) # XXX debug
+        self.toaster.msg("strips size = %i, triangle size = %i"
+                         % (strips_size, triangles_size))
         # decide whether to use strip or triangles as primitive
-        if (len(strip) < 3 * len(triangles)) and (len(strip) < 65536):
+        if self.STRIPIFY is None:
+            stripify = (
+                strips_size < triangles_size
+                and all(len(strip) < 65536 for strip in strips))
+        else:
+            stripify = self.STRIPIFY
+        if stripify:
             # use a strip representation
             if not isinstance(branch, NifFormat.NiTriStrips):
                 self.toaster.msg("replacing branch by NiTriStrips")
                 newbranch = branch.get_interchangeable_tri_strips(
-                    strips=[strip])
+                    strips=strips)
                 self.data.replace_global_node(branch, newbranch)
                 branch = newbranch
                 data = newbranch.data
             else:
-                data.set_strips([strip])
+                data.set_strips(strips)
         else:
             # use a triangle representation
             if not isinstance(branch, NifFormat.NiTriShape):
@@ -429,7 +437,7 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                 # use Oblivion settings
                 branch.update_skin_partition(
                     maxbonesperpartition = 18, maxbonespervertex = 4,
-                    stripify = True, verbose = 0,
+                    stripify=self.STRIPIFY, verbose = 0,
                     stitchstrips=self.STITCH)
 
         # update morph data
