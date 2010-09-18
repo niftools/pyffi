@@ -6553,26 +6553,33 @@ class NifFormat(FileFormat):
                 # get sorted list of bones
                 bones = sorted(list(part[0]))
                 triangles = part[1]
-                # get sorted list of vertices
-                vertices = set()
-                for tri in triangles:
-                    vertices |= set(tri)
-                vertices = sorted(list(vertices))
-                # remap the vertices
-                parttriangles = []
-                for tri in triangles:
-                    parttriangles.append([vertices.index(t) for t in tri])
+                # stripify if needed and get sorted list of vertices
+                vertices = []
                 if stripify:
                     # stripify the triangles
+                    # also update triangle list
                     logger.info("Stripifying partition %i" % parts.index(part))
                     strips = pyffi.utils.tristrip.stripify(
-                        parttriangles, stitchstrips=stitchstrips)
+                        triangles, stitchstrips=stitchstrips)
                     numtriangles = 0
+                    # calculate number of triangles and get sorted
+                    # list of vertices
+                    # for optimal performance, vertices must be sorted
+                    # by strip
                     for strip in strips:
                         numtriangles += len(strip) - 2
+                        for t in strip:
+                            if t not in vertices:
+                                vertices.append(t)
                 else:
-                    numtriangles = len(parttriangles)
-
+                    numtriangles = len(triangles)
+                    # get sorted list of vertices
+                    # for optimal performance, vertices must be sorted
+                    # by triangle
+                    for tri in triangles:
+                        for t in tri:
+                            if t not in vertices:
+                                vertices.append(t)
                 # set all the data
                 skinpartblock.num_vertices = len(vertices)
                 skinpartblock.num_triangles = numtriangles
@@ -6619,7 +6626,7 @@ class NifFormat(FileFormat):
                     skinpartblock.strips.update_size()
                     for i, strip in enumerate(strips):
                         for j, v in enumerate(strip):
-                            skinpartblock.strips[i][j] = v
+                            skinpartblock.strips[i][j] = vertices.index(v)
                 else:
                     skinpartblock.has_faces = True
                     # clear strip lengths array
@@ -6627,10 +6634,10 @@ class NifFormat(FileFormat):
                     # clear strips array
                     skinpartblock.strips.update_size()
                     skinpartblock.triangles.update_size()
-                    for i, (v_1,v_2,v_3) in enumerate(parttriangles):
-                        skinpartblock.triangles[i].v_1 = v_1
-                        skinpartblock.triangles[i].v_2 = v_2
-                        skinpartblock.triangles[i].v_3 = v_3
+                    for i, (v_1,v_2,v_3) in enumerate(triangles):
+                        skinpartblock.triangles[i].v_1 = vertices.index(v_1)
+                        skinpartblock.triangles[i].v_2 = vertices.index(v_2)
+                        skinpartblock.triangles[i].v_3 = vertices.index(v_3)
                 skinpartblock.has_bone_indices = True
                 skinpartblock.bone_indices.update_size()
                 for i, v in enumerate(vertices):
