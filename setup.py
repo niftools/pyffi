@@ -46,6 +46,7 @@ setup(
         'pyffi.formats.dds',
         'pyffi.formats.tga',
         'pyffi.formats.egm',
+        'pyffi.formats.egt',
         'pyffi.formats.esp',
         'pyffi.formats.tri',
         'pyffi.formats.bsa',

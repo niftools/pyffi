@@ -50,7 +50,9 @@ Parse all NIF files in a directory tree
 ...         print("reading %s" % stream.name.replace("\\\\", "/"))
 ...         data.read(stream)
 ...     except Exception:
-...         print("Warning: read failed due corrupt file, corrupt format description, or bug.")
+...         print(
+...             "Warning: read failed due corrupt file,"
+...             " corrupt format description, or bug.") # doctest: +REPORT_NDIFF
 reading tests/nif/invalid.nif
 Warning: read failed due corrupt file, corrupt format description, or bug.
 reading tests/nif/nds.nif
@@ -72,11 +74,17 @@ reading tests/nif/test_fix_mergeskeletonroots.nif
 reading tests/nif/test_fix_tangentspace.nif
 reading tests/nif/test_fix_texturepath.nif
 reading tests/nif/test_mopp.nif
+reading tests/nif/test_opt_collision_complex_mopp.nif
+reading tests/nif/test_opt_collision_mopp.nif
+reading tests/nif/test_opt_collision_packed.nif
+reading tests/nif/test_opt_collision_to_boxshape.nif
+reading tests/nif/test_opt_collision_unpacked.nif
 reading tests/nif/test_opt_delunusedbones.nif
 reading tests/nif/test_opt_dupgeomdata.nif
 reading tests/nif/test_opt_dupverts.nif
 reading tests/nif/test_opt_emptyproperties.nif
 reading tests/nif/test_opt_mergeduplicates.nif
+reading tests/nif/test_opt_zeroscale.nif
 reading tests/nif/test_skincenterradius.nif
 reading tests/nif/test_vertexcolor.nif
 
@@ -198,7 +206,7 @@ Dark Age of Camelot 0x02030000 0x03000300 0x03010000 0x0401000C 0x04020100 \
 Divinity 2 0x14030009
 Emerge 0x14020007 0x14020008 0x14030001 0x14030002 0x14030003 0x14030006 \
 0x1E000002
-Empire Earth II 0x04020200
+Empire Earth II 0x04020200 0x0A010000
 Empire Earth III 0x14020007 0x14020008
 Entropia Universe 0x0A010000
 Fallout 3 0x14020007
@@ -212,7 +220,7 @@ Loki 0x0A020000
 Megami Tensei: Imagine 0x14010003
 Morrowind 0x04000002
 NeoSteam 0x0A010000
-Oblivion 0x0303000D 0x0A000102 0x0A010065 0x0A01006A 0x0A020000 0x14000004 \
+Oblivion 0x0303000D 0x0A000100 0x0A000102 0x0A010065 0x0A01006A 0x0A020000 0x14000004 \
 0x14000005
 Prison Tycoon 0x0A020000
 Pro Cycling Manager 0x0A020000
@@ -276,7 +284,7 @@ Strings
 >>> extra.text_keys[0].value = "start"
 >>> extra.text_keys[1].time = 2.0
 >>> extra.text_keys[1].value = "end"
->>> for extrastr in extra.get_strings():
+>>> for extrastr in extra.get_strings(None):
 ...     print(extrastr.decode("ascii"))
 start
 end
@@ -319,7 +327,7 @@ end
 #
 # ***** END LICENSE BLOCK *****
 
-from itertools import izip, repeat
+from itertools import izip, repeat, chain
 import logging
 import math # math.pi
 import os
@@ -358,13 +366,16 @@ class NifFormat(FileFormat):
     # .kf are nif files containing keyframes
     # .kfa are nif files containing keyframes in DAoC style
     # .nifcache are Empire Earth II nif files
-    RE_FILENAME = re.compile(r'^.*\.(nif|kf|kfa|nifcache|jmi)$', re.IGNORECASE)
+    # .texcache are Empire Earth II/III packed texture nif files
+    # .pcpatch are Empire Earth II/III packed texture nif files
+    RE_FILENAME = re.compile(r'^.*\.(nif|kf|kfa|nifcache|jmi|texcache|pcpatch)$', re.IGNORECASE)
     # archives
     ARCHIVE_CLASSES = [pyffi.formats.bsa.BsaFormat]
     # used for comparing floats
     EPSILON = 0.0001
 
     # basic types
+    ulittle32 = pyffi.object_models.common.ULittle32
     int = pyffi.object_models.common.Int
     uint = pyffi.object_models.common.UInt
     byte = pyffi.object_models.common.UByte # not a typo
@@ -416,39 +427,32 @@ class NifFormat(FileFormat):
             else:
                 self._value = False
 
-        def get_size(self, **kwargs):
-            try:
-                ver = kwargs['data'].version
-            except KeyError:
-                ver = -1
+        def get_size(self, data=None):
+            ver = data.version if data else -1
             if ver > 0x04000002:
                 return 1
             else:
                 return 4
 
-        def get_hash(self, **kwargs):
+        def get_hash(self, data=None):
             return self._value
 
-        def read(self, stream, **kwargs):
-            try:
-                ver = kwargs['data'].version
-            except KeyError:
-                ver = -1
-            if ver > 0x04000002:
-                value, = struct.unpack('<B', stream.read(1))
+        def read(self, stream, data):
+            if data.version > 0x04000002:
+                value, = struct.unpack(data._byte_order + 'B',
+                                       stream.read(1))
             else:
-                value, = struct.unpack('<I', stream.read(4))
+                value, = struct.unpack(data._byte_order + 'I',
+                                       stream.read(4))
             self._value = bool(value)
 
-        def write(self, stream, **kwargs):
-            try:
-                ver = kwargs['data'].version
-            except KeyError:
-                ver = -1
-            if ver > 0x04000002:
-                stream.write(struct.pack('<B', int(self._value)))
+        def write(self, stream, data):
+            if data.version > 0x04000002:
+                stream.write(struct.pack(data._byte_order + 'B',
+                                         int(self._value)))
             else:
-                stream.write(struct.pack('<I', int(self._value)))
+                stream.write(struct.pack(data._byte_order + 'I',
+                                         int(self._value)))
 
     class Flags(pyffi.object_models.common.UShort):
         def __str__(self):
@@ -477,54 +481,44 @@ class NifFormat(FileFormat):
                         % (self._template, value.__class__))
                 self._value = value
 
-        def get_size(self, **kwargs):
+        def get_size(self, data=None):
             return 4
 
-        def get_hash(self, **kwargs):
+        def get_hash(self, data=None):
             if self.get_value():
-                return self.get_value().get_hash(**kwargs)
+                return self.get_value().get_hash(data)
             else:
                 return None
 
-        def read(self, stream, **kwargs):
+        def read(self, stream, data):
             self.set_value(None) # fix_links will set this field
-            block_index, = struct.unpack('<i', stream.read(4))
-            kwargs.get('link_stack', []).append(block_index)
+            block_index, = struct.unpack(data._byte_order + 'i',
+                                         stream.read(4))
+            data._link_stack.append(block_index)
 
-        def write(self, stream, **kwargs):
-            """Write block reference.
-
-            :keyword block_index_dct: The dictionary of block indices
-                (block -> index).
-            """
+        def write(self, stream, data):
+            """Write block reference."""
             if self.get_value() is None:
-                # nothing to point to
-                try:
-                    ver = kwargs['data'].version
-                except KeyError:
-                    ver = -1
-                if ver >= 0x0303000D:
-                    stream.write(struct.pack("<i", -1)) # link by number
-                else:
-                    stream.write(struct.pack("<i", 0)) # link by pointer
+                # -1: link by number, 0: link by pointer
+                block_index = -1 if data.version >= 0x0303000D else 0
             else:
-                stream.write(struct.pack(
-                    '<i', kwargs.get('block_index_dct')[self.get_value()]))
+                try:
+                    block_index = data._block_index_dct[self.get_value()]
+                except KeyError:
+                    logging.getLogger("pyffi.nif.ref").warn(
+                        "%s block is missing from the nif tree:"
+                        " omitting reference"
+                        % self.get_value().__class__.__name__)
+                    # -1: link by number, 0: link by pointer
+                    block_index = -1 if data.version >= 0x0303000D else 0
+            stream.write(struct.pack(
+                data._byte_order + 'i', block_index))
 
-        def fix_links(self, **kwargs):
-            """Fix block links.
-
-            :keyword link_stack: The link stack.
-            :keyword block_dct: The block dictionary (index -> block).
-            """
-            try:
-                ver = kwargs['data'].version
-            except KeyError:
-                ver = -1
-
-            block_index = kwargs.get('link_stack').pop(0)
+        def fix_links(self, data):
+            """Fix block links."""
+            block_index = data._link_stack.pop(0)
             # case when there's no link
-            if ver >= 0x0303000D:
+            if data.version >= 0x0303000D:
                 if block_index == -1: # link by block number
                     self.set_value(None)
                     return
@@ -533,7 +527,7 @@ class NifFormat(FileFormat):
                     self.set_value(None)
                     return
             # other case: look up the link and check the link type
-            block = kwargs.get('block_dct')[block_index]
+            block = data._block_dct[block_index]
             if isinstance(block, self._template):
                 self.set_value(block)
             else:
@@ -542,14 +536,14 @@ class NifFormat(FileFormat):
                     "Expected an %s but got %s: ignoring reference."
                     % (self._template, block.__class__))
 
-        def get_links(self, **kwargs):
+        def get_links(self, data=None):
             val = self.get_value()
             if val is not None:
                 return [val]
             else:
                 return []
 
-        def get_refs(self, **kwargs):
+        def get_refs(self, data=None):
             val = self.get_value()
             if val is not None:
                 return [val]
@@ -557,7 +551,7 @@ class NifFormat(FileFormat):
                 return []
 
         def replace_global_node(self, oldbranch, newbranch,
-                              edge_filter=EdgeFilter()):
+                                edge_filter=EdgeFilter()):
             """
             >>> from pyffi.formats.nif import NifFormat
             >>> x = NifFormat.NiNode()
@@ -616,10 +610,10 @@ class NifFormat(FileFormat):
             # avoid infinite recursion
             return '%s instance at 0x%08X'%(self._value.__class__, id(self._value))
 
-        def get_refs(self, **kwargs):
+        def get_refs(self, data=None):
             return []
 
-        def get_hash(self, **kwargs):
+        def get_hash(self, data=None):
             return None
 
         def replace_global_node(self, oldbranch, newbranch,
@@ -662,16 +656,16 @@ class NifFormat(FileFormat):
         def __str__(self):
             return pyffi.object_models.common._as_str(self._value)
 
-        def get_size(self, **kwargs):
+        def get_size(self, data=None):
             return len(self._value) + 1 # +1 for trailing endline
 
-        def get_hash(self, **kwargs):
+        def get_hash(self, data=None):
             return self.get_value()
 
-        def read(self, stream, **kwargs):
+        def read(self, stream, data=None):
             self._value = stream.readline().rstrip('\x0a'.encode("ascii"))
 
-        def write(self, stream, **kwargs):
+        def write(self, stream, data=None):
             stream.write(self._value)
             stream.write("\x0a".encode("ascii"))
 
@@ -682,45 +676,23 @@ class NifFormat(FileFormat):
         def get_detail_display(self):
             return self.__str__()
 
-        def get_hash(self, **kwargs):
+        def get_hash(self, data=None):
             return None
 
-        def read(self, stream, **kwargs):
-            try:
-                ver = kwargs['data'].version
-            except KeyError:
-                ver = -1
-            try:
-                modification = kwargs['data'].modification
-            except KeyError:
-                modification = None
-
-            version_string = self.version_string(ver, modification)
+        def read(self, stream, data):
+            version_string = self.version_string(data.version, data.modification)
             s = stream.read(len(version_string) + 1)
             if s != (version_string + '\x0a').encode("ascii"):
                 raise ValueError(
                     "invalid NIF header: expected '%s' but got '%s'"
                     % (version_string, s[:-1]))
 
-        def write(self, stream, **kwargs):
-            try:
-                ver = kwargs['data'].version
-            except KeyError:
-                ver = -1
-            try:
-                modification = kwargs['data'].modification
-            except KeyError:
-                modification = None
-
-            stream.write(self.version_string(ver, modification).encode("ascii"))
+        def write(self, stream, data):
+            stream.write(self.version_string(data.version, data.modification).encode("ascii"))
             stream.write('\x0a'.encode("ascii"))
 
-        def get_size(self, **kwargs):
-            try:
-                ver = kwargs['data'].version
-            except KeyError:
-                ver = -1
-
+        def get_size(self, data=None):
+            ver = data.version if data else -1
             return len(self.version_string(ver).encode("ascii")) + 1
 
         @staticmethod
@@ -761,12 +733,12 @@ class NifFormat(FileFormat):
                 v = "%i.%i"%((version >> 24) & 0xff, (version >> 16) & 0xff)
             else:
                 v = "%i.%i.%i.%i"%((version >> 24) & 0xff, (version >> 16) & 0xff, (version >> 8) & 0xff, version & 0xff)
-            if not modification:
-                return "%s File Format, Version %s" % (s, v)
-            elif modification == "ndoors":
+            if modification == "ndoors":
                 return "NDSNIF....@....@...., Version %s" % v
             elif modification == "jmihs1":
                 return "Joymaster HS1 Object Format - (JMI), Version %s" % v
+            else:
+                return "%s File Format, Version %s" % (s, v)
 
     class FileVersion(BasicBase):
         def get_value(self):
@@ -778,21 +750,21 @@ class NifFormat(FileFormat):
         def __str__(self):
             return 'x.x.x.x'
 
-        def get_size(self, **kwargs):
+        def get_size(self, data=None):
             return 4
 
-        def get_hash(self, **kwargs):
+        def get_hash(self, data=None):
             return None
 
-        def read(self, stream, **kwargs):
-            modification = getattr(kwargs['data'], 'modification', None)
-            ver, = struct.unpack('<I', stream.read(4))
+        def read(self, stream, data):
+            modification = data.modification
+            ver, = struct.unpack('<I', stream.read(4)) # always little endian
             if (not modification) or modification == "jmihs1":
-                if ver != kwargs['data'].version:
+                if ver != data.version:
                     raise ValueError(
                         "Invalid version number: "
                         "expected 0x%08X but got 0x%08X."
-                        % (kwargs['data'].version, ver))
+                        % (data.version, ver))
             elif modification == "neosteam":
                 if ver != 0x08F35232:
                     raise ValueError(
@@ -805,18 +777,27 @@ class NifFormat(FileFormat):
                         "Invalid Ndoors version number: "
                         "expected 0x%08X but got 0x%08X."
                         % (0x73615F67, ver))
+            elif modification == "laxelore":
+                if ver != 0x5A000004:
+                    raise ValueError(
+                        "Invalid Laxe Lore version number: "
+                        "expected 0x%08X but got 0x%08X."
+                        % (0x5A000004, ver))
             else:
                 raise ValueError(
                     "unknown modification: '%s'" % modification)
 
-        def write(self, stream, **kwargs):
-            modification = getattr(kwargs['data'], 'modification', None)
+        def write(self, stream, data):
+            # always little endian
+            modification = data.modification
             if (not modification) or modification == "jmihs1":
-                stream.write(struct.pack('<I', kwargs['data'].version))
+                stream.write(struct.pack('<I', data.version))
             elif modification == "neosteam":
                 stream.write(struct.pack('<I', 0x08F35232))
             elif modification == "ndoors":
                 stream.write(struct.pack('<I', 0x73615F67))
+            elif modification == "laxelore":
+                stream.write(struct.pack('<I', 0x5A000004))
             else:
                 raise ValueError(
                     "unknown modification: '%s'" % modification)
@@ -842,89 +823,82 @@ class NifFormat(FileFormat):
         def __str__(self):
             return pyffi.object_models.common._as_str(self._value)
 
-        def get_size(self, **kwargs):
+        def get_size(self, data=None):
             # length byte + string chars + zero byte
             return len(self._value) + 2
 
-        def get_hash(self, **kwargs):
+        def get_hash(self, data=None):
             return self.get_value()
 
-        def read(self, stream, **kwargs):
-            n, = struct.unpack('<B', stream.read(1))
+        def read(self, stream, data):
+            n, = struct.unpack(data._byte_order + 'B',
+                               stream.read(1))
             self._value = stream.read(n).rstrip('\x00'.encode("ascii"))
 
-        def write(self, stream, **kwargs):
-            stream.write(struct.pack('<B', len(self._value)+1))
+        def write(self, stream, data):
+            stream.write(struct.pack(data._byte_order + 'B',
+                                     len(self._value)+1))
             stream.write(self._value)
             stream.write('\x00'.encode("ascii"))
 
     class string(SizedString):
         _has_strings = True
 
-        def get_size(self, **kwargs):
-            try:
-                ver = kwargs['data'].version
-            except KeyError:
-                ver = -1
+        def get_size(self, data=None):
+            ver = data.version if data else -1
             if ver >= 0x14010003:
                 return 4
             else:
                 return 4 + len(self._value)
 
-        def read(self, stream, **kwargs):
-            try:
-                ver = kwargs['data'].version
-            except KeyError:
-                ver = -1
-
-            n, = struct.unpack('<i', stream.read(4))
-            if ver >= 0x14010003:
+        def read(self, stream, data):
+            n, = struct.unpack(data._byte_order + 'i', stream.read(4))
+            if data.version >= 0x14010003:
                 if n == -1:
                     self._value = ''.encode("ascii")
                 else:
                     try:
-                        self._value = kwargs.get('string_list')[n]
+                        self._value = data._string_list[n]
                     except IndexError:
                         raise ValueError('string index too large (%i)'%n)
             else:
-                if n > 10000: raise ValueError('string too long (0x%08X at 0x%08X)'%(n, stream.tell()))
+                if n > 10000:
+                    raise ValueError('string too long (0x%08X at 0x%08X)'
+                                     % (n, stream.tell()))
                 self._value = stream.read(n)
 
-        def write(self, stream, **kwargs):
-            try:
-                ver = kwargs['data'].version
-            except KeyError:
-                ver = -1
-
-            if ver >= 0x14010003:
+        def write(self, stream, data):
+            if data.version >= 0x14010003:
                 if not self._value:
-                    stream.write(struct.pack('<i', -1))
+                    stream.write(
+                        struct.pack(data._byte_order + 'i', -1))
                 else:
                     try:
                         stream.write(struct.pack(
-                            '<i', kwargs.get('string_list').index(self._value)))
+                            data._byte_order + 'i',
+                            data._string_list.index(self._value)))
                     except ValueError:
                         raise ValueError(
-                            "string '%s' not in string list"%self._value)
+                            "string '%s' not in string list" % self._value)
             else:
-                stream.write(struct.pack('<I', len(self._value)))
+                stream.write(struct.pack(data._byte_order + 'I',
+                                         len(self._value)))
                 stream.write(self._value)
 
-        def get_strings(self, **kwargs):
+        def get_strings(self, data):
             if self._value:
                 return [self._value]
             else:
                 return []
 
-        def get_hash(self, **kwargs):
-            if not kwargs.get('ignore_strings'):
-                return self.get_value()
+        def get_hash(self, data=None):
+            return self.get_value()
 
     # other types with internal implementation
 
     class FilePath(string):
         """A file path."""
-        def get_hash(self, **kwargs):
+        def get_hash(self, data=None):
             """Returns a case insensitive hash value."""
             return self.get_value().lower()
 
@@ -941,18 +915,20 @@ class NifFormat(FileFormat):
         def set_value(self, value):
             self._value = pyffi.object_models.common._as_bytes(value)
 
-        def get_size(self, **kwargs):
+        def get_size(self, data=None):
             return len(self._value) + 4
 
-        def get_hash(self, **kwargs):
+        def get_hash(self, data=None):
             return self._value.__hash__()
 
-        def read(self, stream, **kwargs):
-            size, = struct.unpack('<I', stream.read(4))
+        def read(self, stream, data):
+            size, = struct.unpack(data._byte_order + 'I',
+                                  stream.read(4))
             self._value = stream.read(size)
 
-        def write(self, stream, **kwargs):
-            stream.write(struct.pack('<I', len(self._value)))
+        def write(self, stream, data):
+            stream.write(struct.pack(data._byte_order + 'I',
+                                     len(self._value)))
             stream.write(self._value)
 
         def __str__(self):
@@ -978,28 +954,32 @@ class NifFormat(FileFormat):
                 assert(len(x) == size1)
             self._value = value # should be a list of strings of bytes
 
-        def get_size(self, **kwargs):
+        def get_size(self, data=None):
             if len(self._value) == 0:
                 return 8
             else:
                 return len(self._value) * len(self._value[0]) + 8
 
-        def get_hash(self, **kwargs):
+        def get_hash(self, data=None):
             return tuple( x.__hash__() for x in self._value )
 
-        def read(self, stream, **kwargs):
-            size1, = struct.unpack('<I', stream.read(4))
-            size2, = struct.unpack('<I', stream.read(4))
+        def read(self, stream, data):
+            size1, = struct.unpack(data._byte_order + 'I',
+                                   stream.read(4))
+            size2, = struct.unpack(data._byte_order + 'I',
+                                   stream.read(4))
             self._value = []
             for i in xrange(size2):
                 self._value.append(stream.read(size1))
 
-        def write(self, stream, **kwargs):
+        def write(self, stream, data):
             if self._value:
-                stream.write(struct.pack('<I', len(self._value[0])))
+                stream.write(struct.pack(data._byte_order + 'I',
+                                         len(self._value[0])))
             else:
-                stream.write(struct.pack('<I', 0))
-            stream.write(struct.pack('<I', len(self._value)))
+                stream.write(struct.pack(data._byte_order + 'I', 0))
+            stream.write(struct.pack(data._byte_order + 'I',
+                                     len(self._value)))
             for x in self._value:
                 stream.write(x)
 
@@ -1086,9 +1066,14 @@ class NifFormat(FileFormat):
         :type header: L{NifFormat.Header}
         :ivar blocks: List of blocks.
         :type blocks: ``list`` of L{NifFormat.NiObject}
-        :ivar modification: Neo Steam ("neosteam") or Ndoors ("ndoors") or Joymaster Interactive Howling Sword ("jmihs1") style nif?
+        :ivar modification: Neo Steam ("neosteam") or Ndoors ("ndoors") or Joymaster Interactive Howling Sword ("jmihs1") or Laxe Lore ("laxelore") style nif?
         :type modification: ``str``
         """
+
+        _link_stack = None
+        _block_dct = None
+        _string_list = None
+        _block_index_dct = None
 
         class VersionUInt(pyffi.object_models.common.UInt):
             def set_value(self, value):
@@ -1152,7 +1137,7 @@ class NifFormat(FileFormat):
 
         # new functions
 
-        def inspectVersionOnly(self, stream):
+        def inspect_version_only(self, stream):
             """This function checks the version only, and is faster
             than the usual inspect function (which reads the full
             header). Sets the L{version} and L{user_version} instance
@@ -1201,8 +1186,11 @@ class NifFormat(FileFormat):
                 try:
                     stream.readline(64)
                     ver_int, = struct.unpack('<I', stream.read(4))
+                    # special case for Laxe Lore
+                    if ver_int == 0x5A000004 and ver == 0x14000004:
+                        self.modification = "laxelore"
                     # neosteam and ndoors have a special version integer
-                    if (not self.modification) or self.modification == "jmihs1":
+                    elif (not self.modification) or self.modification == "jmihs1":
                         if ver_int != ver:
                             raise ValueError(
                                 "Corrupted nif file: header version string %s"
@@ -1220,8 +1208,7 @@ class NifFormat(FileFormat):
                         endian_type, = struct.unpack('<B', stream.read(1))
                         if endian_type == 0:
                             # big endian!
-                            raise ValueError(
-                                "Big endian nifs not supported.")
+                            self._byte_order = '>'
                     if ver >= 0x0A010000:
                         userver, = struct.unpack('<I', stream.read(4))
                         if userver in (10, 11):
@@ -1274,23 +1261,21 @@ class NifFormat(FileFormat):
             """
             pos = stream.tell()
             try:
-                self.inspectVersionOnly(stream)
+                self.inspect_version_only(stream)
                 self.header.read(stream, data=self)
             finally:
                 stream.seek(pos)
 
-        def read(self, stream, verbose=0):
+        def read(self, stream):
             """Read a nif file. Does not reset stream position.
 
             :param stream: The stream from which to read.
             :type stream: ``file``
-            :param verbose: The level of verbosity.
-            :type verbose: ``int``
             """
             logger = logging.getLogger("pyffi.nif.data")
             # read header
             logger.debug("Reading header at 0x%08X" % stream.tell())
-            self.inspectVersionOnly(stream)
+            self.inspect_version_only(stream)
             logger.debug("Version 0x%08X" % self.version)
             self.header.read(stream, data=self)
 
@@ -1302,9 +1287,9 @@ class NifFormat(FileFormat):
             self.roots = []
 
             # read the blocks
-            link_stack = [] # list of indices, as they are added to the stack
-            string_list = [s for s in self.header.strings]
-            block_dct = {} # maps block index to actual block
+            self._link_stack = [] # list of indices, as they are added to the stack
+            self._string_list = [s for s in self.header.strings]
+            self._block_dct = {} # maps block index to actual block
             self.blocks = [] # records all blocks as read from file in order
             block_num = 0 # the current block numner
 
@@ -1337,15 +1322,17 @@ class NifFormat(FileFormat):
                         data_stream_usage = int(data_stream_usage)
                         data_stream_access = int(data_stream_access)
                     # read dummy integer
-                    if self.version <= 0x0A01006A:
-                        dummy, = struct.unpack('<I', stream.read(4))
+                    # bhk blocks are *not* preceeded by a dummy
+                    if self.version <= 0x0A01006A and not block_type.startswith("bhk"):
+                        dummy, = struct.unpack(self._byte_order + 'I',
+                                               stream.read(4))
                         if dummy != 0:
                             raise NifFormat.NifError(
                                 'non-zero block tag 0x%08X at 0x%08X)'
                                 %(dummy, stream.tell()))
                 else:
                     block_type = NifFormat.SizedString()
-                    block_type.read(stream)
+                    block_type.read(stream, self)
                     block_type = block_type.get_value().decode("ascii")
                 # get the block index
                 if self.version >= 0x0303000D:
@@ -1360,8 +1347,9 @@ class NifFormat(FileFormat):
                     # location of the object when it was written to
                     # memory
                     else:
-                        block_index, = struct.unpack('<I', stream.read(4))
-                        if block_index in block_dct:
+                        block_index, = struct.unpack(
+                            self._byte_order + 'I', stream.read(4))
+                        if block_index in self._block_dct:
                             raise NifFormat.NifError(
                                 'duplicate block index (0x%08X at 0x%08X)'
                                 %(block_index, stream.tell()))
@@ -1375,13 +1363,10 @@ class NifFormat(FileFormat):
                              % (block_type, stream.tell()))
                 # read the block
                 try:
-                    block.read(
-                        stream,
-                        data=self,
-                        link_stack=link_stack, string_list=string_list)
+                    block.read(stream, self)
                 except:
                     logger.exception("Reading %s failed" % block.__class__)
-                    #logger.error("link stack: %s" % link_stack)
+                    #logger.error("link stack: %s" % self._link_stack)
                     #logger.error("block that failed:")
                     #logger.error("%s" % block)
                     raise
@@ -1390,7 +1375,7 @@ class NifFormat(FileFormat):
                     block.usage = data_stream_usage
                     block.access.from_int(data_stream_access)
                 # store block index
-                block_dct[block_index] = block
+                self._block_dct[block_index] = block
                 self.blocks.append(block)
                 # check block size
                 if self.version >= 0x14020007:
@@ -1416,10 +1401,7 @@ class NifFormat(FileFormat):
 
             # read footer
             ftr = NifFormat.Footer()
-            ftr.read(
-                stream,
-                data=self,
-                link_stack = link_stack)
+            ftr.read(stream, self)
 
             # check if we are at the end of the file
             if stream.read(1):
@@ -1428,47 +1410,40 @@ class NifFormat(FileFormat):
 
             # fix links in blocks and footer (header has no links)
             for block in self.blocks:
-                block.fix_links(
-                    data=self,
-                    block_dct = block_dct, link_stack = link_stack)
-            ftr.fix_links(
-                data=self,
-                block_dct = block_dct, link_stack= link_stack)
+                block.fix_links(self)
+            ftr.fix_links(self)
             # the link stack should be empty now
-            if link_stack:
+            if self._link_stack:
                 raise NifFormat.NifError('not all links have been popped from the stack (bug?)')
             # add root objects in footer to roots list
             if self.version >= 0x0303000D:
                 for root in ftr.roots:
                     self.roots.append(root)
 
-        def write(self, stream, verbose=0):
+        def write(self, stream):
             """Write a nif file. The L{header} and the L{blocks} are recalculated
             from the tree at L{roots} (e.g. list of block types, number of blocks,
             list of block types, list of strings, list of block sizes etc.).
 
             :param stream: The stream to which to write.
             :type stream: file
-            :param verbose: The level of verbosity.
-            :type verbose: int
             """
             logger = logging.getLogger("pyffi.nif.data")
             # set up index and type dictionary
             self.blocks = [] # list of all blocks to be written
-            block_index_dct = {} # maps block to block index
+            self._block_index_dct = {} # maps block to block index
             block_type_list = [] # list of all block type strings
             block_type_dct = {} # maps block to block type string index
-            string_list = []
+            self._string_list = []
             for root in self.roots:
                 self._makeBlockList(root,
-                                    block_index_dct,
+                                    self._block_index_dct,
                                     block_type_list, block_type_dct)
                 for block in root.tree():
-                    string_list.extend(
-                        block.get_strings(
-                            data=self))
-            string_list = list(set(string_list)) # ensure unique elements
-            #print(string_list) # debug
+                    self._string_list.extend(
+                        block.get_strings(self))
+            self._string_list = list(set(self._string_list)) # ensure unique elements
+            #print(self._string_list) # debug
 
             self.header.user_version = self.user_version # TODO dedicated type for user_version similar to FileVersion
             # for oblivion CS; apparently this is the version of the bhk blocks
@@ -1481,13 +1456,13 @@ class NifFormat(FileFormat):
             self.header.block_type_index.update_size()
             for i, block in enumerate(self.blocks):
                 self.header.block_type_index[i] = block_type_dct[block]
-            self.header.num_strings = len(string_list)
-            if string_list:
-                self.header.max_string_length = max([len(s) for s in string_list])
+            self.header.num_strings = len(self._string_list)
+            if self._string_list:
+                self.header.max_string_length = max([len(s) for s in self._string_list])
             else:
                 self.header.max_string_length = 0
             self.header.strings.update_size()
-            for i, s in enumerate(string_list):
+            for i, s in enumerate(self._string_list):
                 self.header.strings[i] = s
             self.header.block_size.update_size()
             for i, block in enumerate(self.blocks):
@@ -1505,10 +1480,7 @@ class NifFormat(FileFormat):
             # write the file
             logger.debug("Writing header")
             #logger.debug("%s" % self.header)
-            self.header.write(
-                stream,
-                data=self,
-                block_index_dct = block_index_dct)
+            self.header.write(stream, self)
             for block in self.blocks:
                 # signal top level object if block is a root object
                 if self.version < 0x0303000D and block in self.roots:
@@ -1525,24 +1497,19 @@ class NifFormat(FileFormat):
                     assert(block_type_list[block_type_dct[block]]
                            == block.__class__.__name__) # debug
                     s.set_value(block.__class__.__name__)
-                    s.write(stream)
+                    s.write(stream, self)
                 # write block index
                 logger.debug("Writing %s block" % block.__class__.__name__)
                 if self.version < 0x0303000D:
-                    stream.write(struct.pack('<i', block_index_dct[block]))
+                    stream.write(struct.pack(self._byte_order + 'i',
+                                             self._block_index_dct[block]))
                 # write block
-                block.write(
-                    stream,
-                    data=self,
-                    block_index_dct = block_index_dct, string_list = string_list)
+                block.write(stream, self)
             if self.version < 0x0303000D:
                 s = NifFormat.SizedString()
                 s.set_value("End Of File")
                 s.write(stream)
-            ftr.write(
-                stream,
-                data=self,
-                block_index_dct = block_index_dct)
+            ftr.write(stream, self)
 
         def _makeBlockList(
             self, root, block_index_dct, block_type_list, block_type_dct):
@@ -1620,9 +1587,9 @@ class NifFormat(FileFormat):
     # extensions of generated structures
 
     class Footer:
-        def read(self, stream, **kwargs):
-            StructBase.read(self, stream, **kwargs)
-            modification = getattr(kwargs['data'], 'modification', None)
+        def read(self, stream, data):
+            StructBase.read(self, stream, data)
+            modification = getattr(data, 'modification', None)
             if modification == "neosteam":
                 extrabyte, = struct.unpack("<B", stream.read(1))
                 if extrabyte != 0:
@@ -1630,9 +1597,9 @@ class NifFormat(FileFormat):
                         "Expected trailing zero byte in footer, "
                         "but got %i instead." % extrabyte)
             
-        def write(self, stream, **kwargs):
-            StructBase.write(self, stream, **kwargs)
-            modification = getattr(kwargs['data'], 'modification', None)
+        def write(self, stream, data):
+            StructBase.write(self, stream, data)
+            modification = getattr(data, 'modification', None)
             if modification == "neosteam":
                 stream.write("\x00".encode("ascii"))
             
@@ -1995,13 +1962,21 @@ class NifFormat(FileFormat):
         def norm(self):
             return (self.x*self.x + self.y*self.y + self.z*self.z) ** 0.5
 
-        def normalize(self):
+        def normalize(self, ignore_error=False):
             norm = self.norm()
             if norm < NifFormat.EPSILON:
-                raise ZeroDivisionError('cannot normalize vector %s'%self)
+                if not ignore_error:
+                    raise ZeroDivisionError('cannot normalize vector %s'%self)
+                else:
+                    return
             self.x /= norm
             self.y /= norm
             self.z /= norm
+
+        def normalized(self, ignore_error=False):
+            vec = self.get_copy()
+            vec.normalize(ignore_error=ignore_error)
+            return vec
 
         def get_copy(self):
             v = NifFormat.Vector3()
@@ -2448,29 +2423,46 @@ class NifFormat(FileFormat):
         def update_mopp_welding(self):
             """Update the MOPP data, scale, and origin, and welding info."""
             logger = logging.getLogger("pyffi.mopp")
-
+            # check type of shape
+            if not isinstance(self.shape, NifFormat.bhkPackedNiTriStripsShape):
+                raise ValueError(
+                    "expected bhkPackedNiTriStripsShape on mopp"
+                    " but got %s instead" % self.shape.__class__.__name__)
             # first try with pyffi.utils.mopp
+            failed = False
             try:
                 print(pyffi.utils.mopp.getMopperCredits())
+            except (OSError, RuntimeError):
+                failed = True
+            else:
                 # find material indices per triangle
                 material_per_vertex = []
-                subshapes = self.shape.sub_shapes
-                if not subshapes:
-                    # fallout 3
-                    subshapes = self.shape.data.sub_shapes
-                for subshape in subshapes:
-                    material_per_vertex += [subshape.material] * subshape.num_vertices
+                for subshape in self.shape.get_sub_shapes():
+                    material_per_vertex += (
+                        [subshape.material] * subshape.num_vertices)
                 material_per_triangle = [
                     material_per_vertex[hktri.triangle.v_1]
                     for hktri in self.shape.data.triangles]
                 # compute havok info
-                origin, scale, mopp, welding_infos \
-                = pyffi.utils.mopp.getMopperOriginScaleCodeWelding(
-                    [vert.as_tuple() for vert in self.shape.data.vertices],
-                    [(hktri.triangle.v_1, hktri.triangle.v_2, hktri.triangle.v_3)
-                     for hktri in self.shape.data.triangles],
-                    material_per_triangle)
-            except (OSError, RuntimeError):
+                try:
+                    origin, scale, mopp, welding_infos \
+                    = pyffi.utils.mopp.getMopperOriginScaleCodeWelding(
+                        [vert.as_tuple() for vert in self.shape.data.vertices],
+                        [(hktri.triangle.v_1,
+                          hktri.triangle.v_2,
+                          hktri.triangle.v_3)
+                         for hktri in self.shape.data.triangles],
+                        material_per_triangle)
+                except (OSError, RuntimeError):
+                    failed = True
+                else:
+                    # must use calculated scale and origin
+                    self.scale = scale
+                    self.origin.x = origin[0]
+                    self.origin.y = origin[1]
+                    self.origin.z = origin[2]
+            # if havok's mopper failed, do a simple mopp
+            if failed:
                 logger.exception(
                     "Havok mopp generator failed, falling back on simple mopp "
                     "(but collisions may be flawed in-game!)."
@@ -2484,12 +2476,6 @@ class NifFormat(FileFormat):
                 mopp = self._makeSimpleMopp()
                 # no welding info
                 welding_infos = []
-            else:
-                # must use calculated scale and origin
-                self.scale = scale
-                self.origin.x = origin[0]
-                self.origin.y = origin[1]
-                self.origin.z = origin[2]
 
             # delete mopp and replace with new data
             self.mopp_data_size = len(mopp)
@@ -2500,7 +2486,6 @@ class NifFormat(FileFormat):
             # update welding information
             for hktri, welding_info in izip(self.shape.data.triangles, welding_infos):
                 hktri.welding_info = welding_info
-                
 
         def _makeSimpleMopp(self):
             """Make a simple mopp."""
@@ -2859,6 +2844,50 @@ class NifFormat(FileFormat):
             return total_mass, total_center, total_inertia
 
     class bhkNiTriStripsShape:
+        def get_interchangeable_packed_shape(self):
+            """Returns a bhkPackedNiTriStripsShape block that is geometrically
+            interchangeable.
+            """
+            # get all vertices, triangles, and calculate normals
+            vertices = []
+            normals = []
+            triangles = []
+            for strip in self.strips_data:
+                triangles.extend(
+                    (tri1 + len(vertices),
+                     tri2 + len(vertices),
+                     tri3 + len(vertices))
+                    for tri1, tri2, tri3 in strip.get_triangles())
+                vertices.extend(
+                    # scaling factor 1/7 applied in add_shape later
+                    vert.as_tuple() for vert in strip.vertices)
+                normals.extend(
+                    (strip.vertices[tri2] - strip.vertices[tri1]).crossproduct(
+                        strip.vertices[tri3] - strip.vertices[tri1])
+                    .normalized(ignore_error=True)
+                    .as_tuple()
+                    for tri1, tri2, tri3 in strip.get_triangles())
+            # create packed shape and add geometry
+            packed = NifFormat.bhkPackedNiTriStripsShape()
+            packed.add_shape(
+                triangles=triangles,
+                normals=normals,
+                vertices=vertices,
+                # default layer 1 (static collision)
+                layer=self.data_layers[0].layer if self.data_layers else 1,
+                material=self.material)
+            # set unknowns
+            packed.unknown_floats[2] = 0.1
+            packed.unknown_floats[4] = 1.0
+            packed.unknown_floats[5] = 1.0
+            packed.unknown_floats[6] = 1.0
+            packed.unknown_floats[8] = 0.1
+            packed.scale = 1.0
+            packed.unknown_floats_2[0] = 1.0
+            packed.unknown_floats_2[1] = 1.0
+            # return result
+            return packed
+
         def get_mass_center_inertia(self, density = 1, solid = True):
             """Return mass, center, and inertia tensor."""
             # first find mass, center, and inertia of all shapes
@@ -2891,6 +2920,13 @@ class NifFormat(FileFormat):
                     hktriangle.triangle.v_3 )
                   for hktriangle in self.data.triangles ],
                 density = density, solid = solid)
+
+        def get_sub_shapes(self):
+            """Return sub shapes (works for both Oblivion and Fallout 3)."""
+            if self.data and self.data.sub_shapes:
+                return self.data.sub_shapes
+            else:
+                return self.sub_shapes
 
         def add_shape(self, triangles, normals, vertices, layer = 0, material = 0):
             """Pack the given geometry."""
@@ -2928,6 +2964,115 @@ class NifFormat(FileFormat):
                 vdata.x = v[0] / 7.0
                 vdata.y = v[1] / 7.0
                 vdata.z = v[2] / 7.0
+                
+        def get_vertex_hash_generator(
+            self,
+            vertexprecision=3, subshape_index=None):
+            """Generator which produces a tuple of integers for each
+            vertex to ease detection of duplicate/close enough to remove
+            vertices. The precision parameter denote number of
+            significant digits behind the comma.
+
+            For vertexprecision, 3 seems usually enough (maybe we'll
+            have to increase this at some point).
+
+            >>> shape = NifFormat.bhkPackedNiTriStripsShape()
+            >>> data = NifFormat.hkPackedNiTriStripsData()
+            >>> shape.data = data
+            >>> shape.num_sub_shapes = 2
+            >>> shape.sub_shapes.update_size()
+            >>> data.num_vertices = 3
+            >>> shape.sub_shapes[0].num_vertices = 2
+            >>> shape.sub_shapes[1].num_vertices = 1
+            >>> data.vertices.update_size()
+            >>> data.vertices[0].x = 0.0
+            >>> data.vertices[0].y = 0.1
+            >>> data.vertices[0].z = 0.2
+            >>> data.vertices[1].x = 1.0
+            >>> data.vertices[1].y = 1.1
+            >>> data.vertices[1].z = 1.2
+            >>> data.vertices[2].x = 2.0
+            >>> data.vertices[2].y = 2.1
+            >>> data.vertices[2].z = 2.2
+            >>> list(shape.get_vertex_hash_generator())
+            [(0, (0, 100, 200)), (0, (1000, 1100, 1200)), (1, (2000, 2100, 2200))]
+            >>> list(shape.get_vertex_hash_generator(subshape_index=0))
+            [(0, 100, 200), (1000, 1100, 1200)]
+            >>> list(shape.get_vertex_hash_generator(subshape_index=1))
+            [(2000, 2100, 2200)]
+
+            :param vertexprecision: Precision to be used for vertices.
+            :type vertexprecision: float
+            :return: A generator yielding a hash value for each vertex.
+            """
+            vertexfactor = 10 ** vertexprecision
+            if subshape_index is None:
+                for matid, vert in izip(chain(*[repeat(i, sub_shape.num_vertices)
+                                                for i, sub_shape
+                                                in enumerate(self.get_sub_shapes())]),
+                                        self.data.vertices):
+                    yield (matid, tuple(float_to_int(value * vertexfactor)
+                                        for value in vert.as_list()))
+            else:
+                first_vertex = 0
+                for i, subshape in izip(xrange(subshape_index),
+                                        self.get_sub_shapes()):
+                    first_vertex += subshape.num_vertices
+                for vert_index in xrange(
+                    first_vertex,
+                    first_vertex
+                    + self.get_sub_shapes()[subshape_index].num_vertices):
+                    yield tuple(float_to_int(value * vertexfactor)
+                                for value
+                                in self.data.vertices[vert_index].as_list())
+
+        def get_triangle_hash_generator(self):
+            """Generator which produces a tuple of integers, or None
+            in degenerate case, for each triangle to ease detection of
+            duplicate triangles.
+
+            >>> shape = NifFormat.bhkPackedNiTriStripsShape()
+            >>> data = NifFormat.hkPackedNiTriStripsData()
+            >>> shape.data = data
+            >>> data.num_triangles = 6
+            >>> data.triangles.update_size()
+            >>> data.triangles[0].triangle.v_1 = 0
+            >>> data.triangles[0].triangle.v_2 = 1
+            >>> data.triangles[0].triangle.v_3 = 2
+            >>> data.triangles[1].triangle.v_1 = 2
+            >>> data.triangles[1].triangle.v_2 = 1
+            >>> data.triangles[1].triangle.v_3 = 3
+            >>> data.triangles[2].triangle.v_1 = 3
+            >>> data.triangles[2].triangle.v_2 = 2
+            >>> data.triangles[2].triangle.v_3 = 1
+            >>> data.triangles[3].triangle.v_1 = 3
+            >>> data.triangles[3].triangle.v_2 = 1
+            >>> data.triangles[3].triangle.v_3 = 2
+            >>> data.triangles[4].triangle.v_1 = 0
+            >>> data.triangles[4].triangle.v_2 = 0
+            >>> data.triangles[4].triangle.v_3 = 3
+            >>> data.triangles[5].triangle.v_1 = 1
+            >>> data.triangles[5].triangle.v_2 = 3
+            >>> data.triangles[5].triangle.v_3 = 4
+            >>> list(shape.get_triangle_hash_generator())
+            [(0, 1, 2), (1, 3, 2), (1, 3, 2), (1, 2, 3), None, (1, 3, 4)]
+
+            :return: A generator yielding a hash value for each triangle.
+            """
+            for tri in self.data.triangles:
+                v_1, v_2, v_3 = tri.triangle.v_1, tri.triangle.v_2, tri.triangle.v_3
+                if v_1 == v_2 or v_2 == v_3 or v_3 == v_1:
+                    # degenerate
+                    yield None
+                elif v_1 < v_2 and v_1 < v_3:
+                    # v_1 smallest
+                    yield v_1, v_2, v_3
+                elif v_2 < v_1 and v_2 < v_3:
+                    # v_2 smallest
+                    yield v_2, v_3, v_1
+                else:
+                    # v_3 smallest
+                    yield v_3, v_1, v_2
 
     class bhkRagdollConstraint:
         def apply_scale(self, scale):
@@ -4218,15 +4363,21 @@ class NifFormat(FileFormat):
             self.center.z *= scale
             self.radius *= scale
 
-        def get_vertex_hash_generator(self,
-                                   vertexprecision=3, normalprecision=3,
-                                   uvprecision=5, vcolprecision=3):
+        def get_vertex_hash_generator(
+            self,
+            vertexprecision=3, normalprecision=3,
+            uvprecision=5, vcolprecision=3):
             """Generator which produces a tuple of integers for each
-            (vertex, normal, uv, vcol), to ease detection of duplicate vertices.
-            The precision parameters denote number of significant digits.
+            (vertex, normal, uv, vcol), to ease detection of duplicate
+            vertices. The precision parameters denote number of
+            significant digits behind the comma.
 
-            Default for uvprecision is higher than default for the rest because
-            for very large models the uv coordinates can be very close together.
+            Default for uvprecision should really be high because for
+            very large models the uv coordinates can be very close
+            together.
+
+            For vertexprecision, 3 seems usually enough (maybe we'll
+            have to increase this at some point).
 
             :param vertexprecision: Precision to be used for vertices.
             :type vertexprecision: float
@@ -4238,15 +4389,6 @@ class NifFormat(FileFormat):
             :type vcolprecision: float
             :return: A generator yielding a hash value for each vertex.
             """
-
-            def _int(x):
-                """Convert float to integer, handling NaN gracefully."""
-                try:
-                    return int(x)
-                except ValueError:
-                    logging.getLogger("pyffi.nif.nigeometry").warn(
-                        "NaN detected in geometry.")
-                    return 0
             
             verts = self.vertices if self.has_vertices else None
             norms = self.normals if self.has_normals else None
@@ -4259,19 +4401,19 @@ class NifFormat(FileFormat):
             for i in xrange(self.num_vertices):
                 h = []
                 if verts:
-                    h.extend([_int(x * vertexfactor)
+                    h.extend([float_to_int(x * vertexfactor)
                              for x in [verts[i].x, verts[i].y, verts[i].z]])
                 if norms:
-                    h.extend([_int(x * normalfactor)
+                    h.extend([float_to_int(x * normalfactor)
                               for x in [norms[i].x, norms[i].y, norms[i].z]])
                 if uvsets:
                     for uvset in uvsets:
                         # uvs sometimes have NaN, for example:
                         # oblivion/meshes/architecture/anvil/anvildooruc01.nif
-                        h.extend([_int(x*uvfactor)
+                        h.extend([float_to_int(x * uvfactor)
                                   for x in [uvset[i].u, uvset[i].v]])
                 if vcols:
-                    h.extend([_int(x * vcolfactor)
+                    h.extend([float_to_int(x * vcolfactor)
                               for x in [vcols[i].r, vcols[i].g,
                                         vcols[i].b, vcols[i].a]])
                 yield tuple(h)
@@ -4603,6 +4745,16 @@ class NifFormat(FileFormat):
                 #key.backward.y *= scale
                 #key.backward.z *= scale
                 # what to do with TBC?
+
+    class NiMaterialColorController:
+        def get_target_color(self):
+            """Get target color (works for all nif versions)."""
+            return ((self.flags >> 4) & 7) | self.target_color
+
+        def set_target_color(self, target_color):
+            """Set target color (works for all nif versions)."""
+            self.flags |= (target_color & 7) << 4
+            self.target_color = target_color
 
     class NiMorphData:
         def apply_scale(self, scale):
@@ -5516,6 +5668,21 @@ class NifFormat(FileFormat):
                 # for blocks with references: quick check only
                 return self is other
 
+    class NiMaterialProperty:
+        def is_interchangeable(self, other):
+            """Are the two material blocks interchangeable?"""
+            specialnames = ("envmap2", "envmap", "skin", "hair",
+                            "dynalpha", "hidesecret", "lava")
+            if self.__class__ is not other.__class__:
+                return False
+            if (self.name.lower() in specialnames
+                or other.name.lower() in specialnames):
+                # do not ignore name
+                return self.get_hash() == other.get_hash()
+            else:
+                # ignore name
+                return self.get_hash()[1:] == other.get_hash()[1:]
+
     class ATextureRenderData:
         def save_as_dds(self, stream):
             """Save image as DDS file."""
@@ -5526,7 +5693,7 @@ class NifFormat(FileFormat):
 
             # create header, depending on the format
             if self.pixel_format in (NifFormat.PixelFormat.PX_FMT_RGB8,
-                                    NifFormat.PixelFormat.PX_FMT_RGBA8):
+                                     NifFormat.PixelFormat.PX_FMT_RGBA8):
                 # uncompressed RGB(A)
                 header.flags.caps = 1
                 header.flags.height = 1
@@ -5540,14 +5707,33 @@ class NifFormat(FileFormat):
                 header.mipmap_count = len(self.mipmaps)
                 header.pixel_format.flags.rgb = 1
                 header.pixel_format.bit_count = self.bits_per_pixel
-                header.pixel_format.r_mask = self.red_mask
-                header.pixel_format.g_mask = self.green_mask
-                header.pixel_format.b_mask = self.blue_mask
-                header.pixel_format.a_mask = self.alpha_mask
+                if not self.channels:
+                    header.pixel_format.r_mask = self.red_mask
+                    header.pixel_format.g_mask = self.green_mask
+                    header.pixel_format.b_mask = self.blue_mask
+                    header.pixel_format.a_mask = self.alpha_mask
+                else:
+                    bit_pos = 0
+                    for i, channel in enumerate(self.channels):
+                        mask = (2 ** channel.bits_per_channel - 1) << bit_pos
+                        if channel.type == NifFormat.ChannelType.CHNL_RED:
+                            header.pixel_format.r_mask = mask
+                        elif channel.type == NifFormat.ChannelType.CHNL_GREEN:
+                            header.pixel_format.g_mask = mask
+                        elif channel.type == NifFormat.ChannelType.CHNL_BLUE:
+                            header.pixel_format.b_mask = mask
+                        elif channel.type == NifFormat.ChannelType.CHNL_ALPHA:
+                            header.pixel_format.a_mask = mask
+                        bit_pos += channel.bits_per_channel
                 header.caps_1.complex = 1
                 header.caps_1.texture = 1
                 header.caps_1.mipmap = 1
-                pixeldata.set_value(self.pixel_data)
+                if self.pixel_data:
+                    # used in older nif versions
+                    pixeldata.set_value(self.pixel_data)
+                else:
+                    # used in newer nif versions
+                    pixeldata.set_value(''.join(self.pixel_data_matrix))
             elif self.pixel_format == NifFormat.PixelFormat.PX_FMT_DXT1:
                 # format used in Megami Tensei: Imagine
                 header.flags.caps = 1
@@ -5579,7 +5765,7 @@ class NifFormat(FileFormat):
                 else:
                     pixeldata.set_value(''.join(self.pixel_data_matrix))
             elif self.pixel_format in (NifFormat.PixelFormat.PX_FMT_DXT5,
-                                      NifFormat.PixelFormat.PX_FMT_DXT5_ALT):
+                                       NifFormat.PixelFormat.PX_FMT_DXT5_ALT):
                 # format used in Megami Tensei: Imagine
                 header.flags.caps = 1
                 header.flags.height = 1
@@ -5823,6 +6009,7 @@ class NifFormat(FileFormat):
                     # data[pos:pos+12] is not really well implemented, so do this
                     vecdata = ''.join(data[j] for j in xrange(pos, pos + 12))
                     vec = NifFormat.Vector3()
+                    # XXX _byte_order! assuming little endian
                     vec.x, vec.y, vec.z = struct.unpack('<fff', vecdata)
                     yield vec
                     pos += 12
@@ -6004,6 +6191,7 @@ class NifFormat(FileFormat):
                 # write the data
                 binarydata = ""
                 for vec in tan + bin:
+                    # XXX _byte_order!! assuming little endian
                     binarydata += struct.pack('<fff', vec.x, vec.y, vec.z)
                 extra.binary_data = binarydata
             else:
@@ -6365,26 +6553,33 @@ class NifFormat(FileFormat):
                 # get sorted list of bones
                 bones = sorted(list(part[0]))
                 triangles = part[1]
-                # get sorted list of vertices
-                vertices = set()
-                for tri in triangles:
-                    vertices |= set(tri)
-                vertices = sorted(list(vertices))
-                # remap the vertices
-                parttriangles = []
-                for tri in triangles:
-                    parttriangles.append([vertices.index(t) for t in tri])
+                # stripify if needed and get sorted list of vertices
+                vertices = []
                 if stripify:
                     # stripify the triangles
+                    # also update triangle list
                     logger.info("Stripifying partition %i" % parts.index(part))
                     strips = pyffi.utils.tristrip.stripify(
-                        parttriangles, stitchstrips=stitchstrips)
+                        triangles, stitchstrips=stitchstrips)
                     numtriangles = 0
+                    # calculate number of triangles and get sorted
+                    # list of vertices
+                    # for optimal performance, vertices must be sorted
+                    # by strip
                     for strip in strips:
                         numtriangles += len(strip) - 2
+                        for t in strip:
+                            if t not in vertices:
+                                vertices.append(t)
                 else:
-                    numtriangles = len(parttriangles)
-
+                    numtriangles = len(triangles)
+                    # get sorted list of vertices
+                    # for optimal performance, vertices must be sorted
+                    # by triangle
+                    for tri in triangles:
+                        for t in tri:
+                            if t not in vertices:
+                                vertices.append(t)
                 # set all the data
                 skinpartblock.num_vertices = len(vertices)
                 skinpartblock.num_triangles = numtriangles
@@ -6431,7 +6626,7 @@ class NifFormat(FileFormat):
                     skinpartblock.strips.update_size()
                     for i, strip in enumerate(strips):
                         for j, v in enumerate(strip):
-                            skinpartblock.strips[i][j] = v
+                            skinpartblock.strips[i][j] = vertices.index(v)
                 else:
                     skinpartblock.has_faces = True
                     # clear strip lengths array
@@ -6439,10 +6634,10 @@ class NifFormat(FileFormat):
                     # clear strips array
                     skinpartblock.strips.update_size()
                     skinpartblock.triangles.update_size()
-                    for i, (v_1,v_2,v_3) in enumerate(parttriangles):
-                        skinpartblock.triangles[i].v_1 = v_1
-                        skinpartblock.triangles[i].v_2 = v_2
-                        skinpartblock.triangles[i].v_3 = v_3
+                    for i, (v_1,v_2,v_3) in enumerate(triangles):
+                        skinpartblock.triangles[i].v_1 = vertices.index(v_1)
+                        skinpartblock.triangles[i].v_2 = vertices.index(v_2)
+                        skinpartblock.triangles[i].v_3 = vertices.index(v_3)
                 skinpartblock.has_bone_indices = True
                 skinpartblock.bone_indices.update_size()
                 for i, v in enumerate(vertices):
@@ -6893,3 +7088,18 @@ class NifFormat(FileFormat):
             v.u = -self.u
             v.v = -self.v
             return v
+
+    class NiPSysData:
+        def _get_filtered_attribute_list(self, data=None):
+            # simple hack to act as if we force num_vertices = 0
+            for attr in StructBase._get_filtered_attribute_list(self, data):
+                if data and (attr.name in ["vertices",
+                                           "normals", "tangents", "bitangents",
+                                           "vertex_colors", "uv_sets"]):
+                    if data.version >= 0x14020007 and data.user_version == 11:
+                        continue
+                yield attr
+
+if __name__=='__main__':
+    import doctest
+    doctest.testmod()

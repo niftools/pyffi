@@ -150,6 +150,7 @@ import optparse
 import os # remove
 import os.path # getsize, split, join
 import re # for regex parsing (--skip, --only)
+import shlex # shlex.split for parsing option lists in ini files
 import subprocess
 import sys # sys.stdout
 import tempfile
@@ -608,6 +609,15 @@ def _toaster_job(args):
     # toast exit code
     toaster.spellclass.toastexit(toaster)
 
+# CPU_COUNT is used for default number of jobs
+if multiprocessing:
+    try:
+        CPU_COUNT = multiprocessing.cpu_count()
+    except NotImplementedError:
+        CPU_COUNT = 1
+else:
+    CPU_COUNT = 1
+
 class Toaster(object):
     """Toaster base class. Toasters run spells on large quantities of files.
     They load each file and pass the data structure to any number of spells.
@@ -635,19 +645,22 @@ class Toaster(object):
         createpatch=False, applypatch=False, diffcmd="", patchcmd="",
         series=False,
         skip=[], only=[],
-        jobs=1, refresh=32,
+        jobs=CPU_COUNT, refresh=32,
         sourcedir="", destdir="",
         archives=False,
         resume=False,
-        inifile=[])
+        inifile="")
 
     """List of spell classes of the particular :class:`Toaster` instance."""
 
     options = {}
     """The options of the toaster, as ``dict``."""
 
-    spellnames = {}
+    spellnames = []
     """A list of the names of the spells."""
+
+    top = ""
+    """Name of the top folder to toast."""
 
     indent = 0
     """An ``int`` which describes the current indentation level for messages."""
@@ -681,7 +694,7 @@ class Toaster(object):
         :type spellnames: ``list`` of ``str``
         """
         self.options = deepcopy(self.DEFAULT_OPTIONS)
-        self.spellnames = spellnames
+        self.spellnames = spellnames if spellnames else []
         if logger:
             # override default logger
             self.logger = logger
@@ -862,9 +875,9 @@ class Toaster(object):
         #print("not admissible") # debug
         return False
 
-    def ini(self, filenames):
-        r"""The ini file interface: initializes spell classes and options from
-        an ini file, and run the :meth:`toast` method.
+    @staticmethod
+    def parse_inifile(option, opt, value, parser, toaster=None):
+        r"""Initializes spell classes and options from an ini file.
 
         >>> import pyffi.spells.nif
         >>> import pyffi.spells.nif.modify
@@ -876,12 +889,19 @@ class Toaster(object):
         >>> cfg.write("spell = modify_delbranches\n")
         >>> cfg.write("folder = tests/nif/test_vertexcolor.nif\n")
         >>> cfg.write("[options]\n")
-        >>> cfg.write("sourcedir = tests/\n")
-        >>> cfg.write("destdir = _tests/\n")
+        >>> cfg.write("source-dir = tests/\n")
+        >>> cfg.write("dest-dir = _tests/\n")
         >>> cfg.write("exclude = NiVertexColorProperty NiStencilProperty\n")
+        >>> cfg.write("skip = 'testing quoted string'    normal_string\n")
         >>> cfg.close()
         >>> toaster = NifToaster(logger=fake_logger)
-        >>> toaster.ini(cfg.name)
+        >>> import sys
+        >>> sys.argv = [
+        ...     "niftoaster.py",
+        ...     "--ini-file=utilities/toaster/default.ini",
+        ...     "--ini-file=%s" % cfg.name,
+        ...     "--noninteractive", "--jobs=1"]
+        >>> toaster.cli()
         pyffi.toaster:INFO:=== tests/nif/test_vertexcolor.nif ===
         pyffi.toaster:INFO:  --- modify_delbranches ---
         pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
@@ -895,6 +915,7 @@ class Toaster(object):
         pyffi.toaster:INFO:        ~~~ NiTriStripsData [] ~~~
         pyffi.toaster:INFO:creating destination path _tests/nif
         pyffi.toaster:INFO:  writing _tests/nif/test_vertexcolor.nif
+        pyffi.toaster:INFO:Finished.
         >>> import os
         >>> os.remove(cfg.name)
         >>> os.remove("_tests/nif/test_vertexcolor.nif")
@@ -913,80 +934,36 @@ class Toaster(object):
         exclude: ['NiVertexColorProperty', 'NiStencilProperty']
         helpspell: False
         include: []
-        inifile: []
-        interactive: True
+        inifile: 
+        interactive: False
         jobs: 1
         only: []
         patchcmd: 
-        pause: False
+        pause: True
         prefix: 
         raisetesterror: False
         refresh: 32
-        resume: False
+        resume: True
         series: False
-        skip: []
+        skip: ['testing quoted string', 'normal_string']
         sourcedir: tests/
         spells: False
         suffix: 
         verbose: 1
         """
-        def value_to_string(optionname, value):
-            if isinstance(self.DEFAULT_OPTIONS[optionname], list):
-                return ' '.join(str(item) for item in value)
-            else:
-                return str(value)
-
-        def string_to_value(optionname, string_):
-            default_value = self.DEFAULT_OPTIONS[optionname]
-            if isinstance(default_value, list):
-                return string_.split()
-            elif isinstance(default_value, bool):
-                if string_ == "True":
-                    return True
-                elif string_ == "False":
-                    return False
-                else:
-                    raise ValueError(
-                        "invalid bool option value %s (must be True or False)"
-                        % string_)
-            elif isinstance(default_value, int):
-                return int(string_)
-            elif isinstance(default_value, str):
-                return str(string_)
-            else:
-                raise RuntimeError(
-                    "invalid option type %s (bug?)"
-                    % self.DEFAULT_OPTIONS[optionname].__class__.__name__)
-
-        parser = ConfigParser()
-        # set defaults in options section
-        parser.add_section("options")
-        for optionname, value in self.DEFAULT_OPTIONS.items():
-            parser.set("options", optionname,
-                       value_to_string(optionname, value))
+        ini_parser = ConfigParser()
         # read config file(s)
-        parser.read(filenames)
-        while parser.get("options", "inifile"):
-            inifile = string_to_value(
-                "inifile", parser.get("options", "inifile"))
-            parser.set("options", "inifile", "")
-            parser.read(inifile)
-        # convert options to dictionary
-        self.options = {}
-        for optionname in self.DEFAULT_OPTIONS:
-            self.options[optionname] = string_to_value(
-                optionname, parser.get("options", optionname))
-        # update options
-        self._update_options()
-        # get spells and top folder, and toast it
-        self.spellnames = parser.get("main", "spell").split()
-        self._update_spellclass()
-        self.toast(parser.get("main", "folder"))
-
-        # signal the end
-        self.logger.info("Finished.")
-        if self.options["pause"] and self.options["interactive"]:
-            raw_input("Press enter...")
+        ini_parser.read(value)
+        # process all options
+        for opt_str, opt_values in ini_parser.items("options"):
+            option = parser._long_opt["--" + opt_str]
+            for opt_value in shlex.split(opt_values):
+                option.process(opt_str, opt_value, parser.values, parser)
+        # get spells and top folder
+        if ini_parser.has_option("main", "spell"):
+            toaster.spellnames.extend(ini_parser.get("main", "spell").split())
+        if ini_parser.has_option("main", "folder"):
+            toaster.top = ini_parser.get("main", "folder")
 
     def cli(self):
         """Command line interface: initializes spell classes and options from
@@ -1063,7 +1040,9 @@ class Toaster(object):
         parser.add_option(
             "--ini-file", dest="inifile",
             type="string",
-            action="append",
+            action="callback",
+            callback=self.parse_inifile,
+            callback_kwargs={'toaster': self},
             metavar="FILE",
             help=
             "read all options from FILE; if specified, all other arguments"
@@ -1088,6 +1067,10 @@ class Toaster(object):
             " (i) contain the regular expression REGEX, and"
             " (ii) do not contain any regular expression specified with --skip;"
             " if specified multiple times, the expressions are 'ored'")
+        parser.add_option(
+            "--overwrite", dest="resume",
+            action="store_false",
+            help="overwrite existing files (also see --resume)")
         parser.add_option(
             "--patch", dest="applypatch",
             action="store_true",
@@ -1172,11 +1155,6 @@ class Toaster(object):
         parser.set_defaults(**deepcopy(self.DEFAULT_OPTIONS))
         (options, args) = parser.parse_args()
 
-        # ini file?
-        if options.inifile:
-            self.ini(options.inifile)
-            return
-
         # convert options to dictionary
         self.options = {}
         for optionname in dir(options):
@@ -1196,39 +1174,46 @@ class Toaster(object):
             print(self.EXAMPLES)
             return
 
-        # spell name not specified when function was called
-        if len(args) < 1:
-            parser.error(errormessage_numargs)
-
         # check if we are applying patches
         if options.applypatch:
             if len(args) > 1:
                 parser.error("when using --patch, do not specify a spell")
             # set spell class to applying patch
             self.spellclass = SpellApplyPatch
+            # set top
+            if args:
+                self.top = args[-1]
+            elif not self.top:
+                parser.error("no folder or file specified")
         else:
-            # get spell names
+            # get spell names and top
             if options.helpspell:
-                # special case: --spell-help would not have a path specified
+                # special case: --spell-help would not have a top specified
                 self.spellnames = args[:]
                 self._update_spellclass()
                 self.msg(self.spellclass.__doc__)
                 return
-            # top not specified when function was called
-            if len(args) < 2:
-                parser.error(errormessage_numargs)
-            # all arguments, except the last one, are spells
-            self.spellnames = args[:-1]
+            if not args:
+                # no args: error if no top or no spells
+                if not(self.top and self.spellnames):
+                    parser.error(errormessage_numargs)
+            elif len(args) == 1:
+                # single argument is top, error if no spells
+                if not(self.spellnames):
+                    parser.error(errormessage_numargs)
+                self.top = args[-1]
+            else:
+                # all arguments, except the last one, are spells
+                self.spellnames.extend(args[:-1])
+                # last argument is top
+                self.top = args[-1]
             # update the spell class
             self._update_spellclass()
 
-        # get top folder/file: last argument always is folder/file
-        top = args[-1]
-
         if not self.options["archives"]:
-            self.toast(top)
+            self.toast(self.top)
         else:
-            self.toast_archives(top)
+            self.toast_archives(self.top)
 
         # signal the end
         self.logger.info("Finished.")
@@ -1304,7 +1289,7 @@ class Toaster(object):
         sourcedir = self.options.get("sourcedir", "")
         createpatch = self.options.get("createpatch", False)
         applypatch = self.options.get("applypatch", False)
-        jobs = self.options.get("jobs", 1)
+        jobs = self.options.get("jobs", CPU_COUNT)
 
         # get source directory if not specified
         if not sourcedir:
@@ -1532,11 +1517,10 @@ may destroy them. Make a backup of your files before running this script.
                     outstream_name = outstream.name
                     self.msg("removing incompletely written file...")
                     outstream.close()
-                    try:
+                    # temporary streams are removed on close
+                    # so check if it exists before removing
+                    if os.path.exists(outstream_name):
                         os.remove(outstream_name)
-                    except OSError:
-                        # temporary stream was removed on close...
-                        pass
                 raise
             if stream is outstream:
                 stream.truncate()

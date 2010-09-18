@@ -7,9 +7,9 @@ Python library for processing block structured binary files:
   FaceGen EGM format, the DDS format, and the TGA format.
 
 * **Batteries included:** Many tools for files used by 3D games, such
-  as a stripifier, tangent space calculator, 2d/3d hull algorithms,
-  inertia calculator, as well as a general purpose file editor
-  QSkope (using `PyQt4
+  as optimizers, stripifier, tangent space calculator, 2d/3d hull
+  algorithms, inertia calculator, as well as a general purpose file
+  editor QSkope (using `PyQt4
   <http://www.riverbankcomputing.co.uk/software/pyqt/download>`_), are
   included.
 
@@ -61,8 +61,6 @@ Questions? Suggestions?
 
 * Open an issue at the `tracker
   <http://sourceforge.net/tracker/?group_id=199269>`_.
-
-* Or visit the ``#niftools`` channel on FreeNode.
 
 ..
   See http://pyffi.sourceforge.net/ for more information and documentation.

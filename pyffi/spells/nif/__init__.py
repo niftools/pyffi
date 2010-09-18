@@ -1,12 +1,6 @@
 """
 :mod:`pyffi.spells.nif` ---  NetImmerse/Gamebryo File/Keyframe (.nif/.kf/.kfa) spells
 =====================================================================================
-.. note::
-   
-   In all example code for calling spell calls replace the "%pythondir%" with
-   whatever your python install path is and the "%filepath%" with the path to
-   the folder or specific file (such as "C:/meshes/mesh.nif" (one file) or 
-   "C:/Meshes"(all nif files in folder, recursively)) you want to run the spell on.
 
 .. automodule:: pyffi.spells.nif.check
 .. automodule:: pyffi.spells.nif.dump

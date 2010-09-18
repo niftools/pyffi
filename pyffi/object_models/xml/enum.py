@@ -60,11 +60,11 @@ class _MetaEnumBase(type):
 
         # check storage type
         if cls._numbytes == 1:
-            cls._struct = '<B'
+            cls._struct = 'B'
         elif cls._numbytes == 2:
-            cls._struct = '<H'
+            cls._struct = 'H'
         elif cls._numbytes == 4:
-            cls._struct = '<I'
+            cls._struct = 'I'
         else:
             raise RuntimeError("unsupported enum numbytes")
 
@@ -120,13 +120,15 @@ class EnumBase(BasicBase, EditableComboBox):
             raise ValueError('invalid enum value (%i)' % val)
         self._value = val
 
-    def read(self, stream, **kwargs):
+    def read(self, stream, data):
         """Read value from stream."""
-        self._value = struct.unpack(self._struct, stream.read(self._numbytes))[0]
+        self._value = struct.unpack(data._byte_order + self._struct,
+                                    stream.read(self._numbytes))[0]
 
-    def write(self, stream, **kwargs):
+    def write(self, stream, data):
         """Write value to stream."""
-        stream.write(struct.pack(self._struct, self._value))
+        stream.write(struct.pack(data._byte_order + self._struct,
+                                 self._value))
 
     def __str__(self):
         try:
@@ -135,11 +137,11 @@ class EnumBase(BasicBase, EditableComboBox):
             # not in _enumvalues list
             return "<INVALID (%i)>" % self.get_value()
 
-    def get_size(self, **kwargs):
+    def get_size(self, data=None):
         """Return size of this type."""
         return self._numbytes
 
-    def get_hash(self, **kwargs):
+    def get_hash(self, data=None):
         """Return a hash value for this value."""
         return self.get_value()
 

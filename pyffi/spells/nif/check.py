@@ -697,7 +697,7 @@ class SpellCheckTriStrip(pyffi.spells.nif.NifSpell):
                 stitchedstrip = strips[0]
                 self.toaster.msg("stitched strip length = %i"
                                  % len(stitchedstrip))
-                unstitchedstrips = pyffi.utils.tristrip.unstitchStrip(
+                unstitchedstrips = pyffi.utils.tristrip.unstitch_strip(
                     stitchedstrip)
                 self.toaster.msg("num stitches          = %i"
                                  % (len(stitchedstrip)
@@ -710,7 +710,7 @@ class SpellCheckTriStrip(pyffi.spells.nif.NifSpell):
 
                 # test stitching algorithm
                 self.toaster.msg("restitching")
-                restitchedstrip = pyffi.utils.tristrip.stitchStrips(
+                restitchedstrip = pyffi.utils.tristrip.stitch_strips(
                     unstitchedstrips)
                 self.toaster.msg("stitched strip length = %i"
                                  % len(restitchedstrip))
@@ -757,11 +757,11 @@ class SpellCheckTriStrip(pyffi.spells.nif.NifSpell):
             self.toaster.striplengths += [len(strip) for strip in strips]
 
             self.toaster.msg('checking stitched strip triangles')
-            stitchedstrip = pyffi.utils.tristrip.stitchStrips(strips)
+            stitchedstrip = pyffi.utils.tristrip.stitch_strips(strips)
             pyffi.utils.tristrip._check_strips(triangles, [stitchedstrip])
 
             self.toaster.msg('checking unstitched strip triangles')
-            unstitchedstrips = pyffi.utils.tristrip.unstitchStrip(stitchedstrip)
+            unstitchedstrips = pyffi.utils.tristrip.unstitch_strip(stitchedstrip)
             pyffi.utils.tristrip._check_strips(triangles, unstitchedstrips)
 
 class SpellCheckVersion(pyffi.spells.nif.NifSpell):
@@ -805,3 +805,44 @@ class SpellCheckVersion(pyffi.spells.nif.NifSpell):
         if user_version2 not in self.toaster.user_version2s[version]:
             self.toaster.user_version2s[version].append(user_version2)
         return False
+
+class SpellCheckMaterialEmissiveValue(pyffi.spells.nif.NifSpell):
+    """Check (and warn) about potentially bad material emissive values."""
+
+    SPELLNAME = "check_materialemissivevalue"
+
+    def datainspect(self):
+        # only run the spell if there are material property blocks
+        return self.inspectblocktype(NifFormat.NiMaterialProperty)
+
+    def dataentry(self):
+        self.check_emissive_done = False
+        return True
+
+    def branchinspect(self, branch):
+        # if we are done, don't recurse further
+        if self.check_emissive_done:
+            return False
+        # only inspect the NiAVObject branch, and material properties
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiMaterialProperty))
+    
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiMaterialProperty):
+            # check if any emissive values exceeds usual values
+            emissive = branch.emissive_color
+            if emissive.r > 0.5 or emissive.g > 0.5 or emissive.b > 0.5:
+                # potentially too high (there are some instances (i.e.
+                # most glass, flame, gems, willothewisps etc.) that
+                # that is not too high but most other instances (i.e.
+                # ogres!) that this is the case it is incorrect)
+                self.toaster.logger.warn(
+                    "emissive value may be too high (highest value: %f)"
+                    % (max(emissive.r, emissive.g, emissive.b)))
+                # we're done...
+                self.check_emissive_done = True
+            # stop recursion
+            return False
+        else:
+            # keep recursing into children
+            return True

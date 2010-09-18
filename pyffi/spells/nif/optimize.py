@@ -21,6 +21,7 @@
    :members:
 
 """
+
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -64,11 +65,17 @@ from itertools import izip
 import os.path # exists
 
 from pyffi.formats.nif import NifFormat
+from pyffi.utils import unique_map
 import pyffi.utils.tristrip
 import pyffi.utils.vertex_cache
 import pyffi.spells
 import pyffi.spells.nif
 import pyffi.spells.nif.fix
+
+# localization
+#import gettext
+#_ = gettext.translation('pyffi').ugettext
+_ = lambda msg: msg # stub, for now
 
 # set flag to overwrite files
 __readonly__ = False
@@ -187,6 +194,9 @@ class SpellMergeDuplicates(pyffi.spells.nif.NifSpell):
                 if (isinstance(branch, NifFormat.NiProperty)
                     and branch.controller):
                     continue
+                # skip BSShaderProperty blocks (see niftools issue #3009832)
+                if isinstance(branch, NifFormat.BSShaderProperty):
+                    continue
                 # interchangeable branch found!
                 self.toaster.msg("removing duplicate branch")
                 self.data.replace_global_node(branch, otherbranch)
@@ -213,6 +223,10 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
     # spell parameters
     STRIPLENCUTOFF = 10
     STITCH = True
+    VERTEXPRECISION = 3
+    NORMALPRECISION = 3
+    UVPRECISION = 5
+    VCOLPRECISION = 3
 
     def __init__(self, *args, **kwargs):
         pyffi.spells.nif.NifSpell.__init__(self, *args, **kwargs)
@@ -234,6 +248,14 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
         # only inspect the NiAVObject branch
         return isinstance(branch, NifFormat.NiAVObject)
 
+    def optimize_vertices(self, data):
+        self.toaster.msg("removing duplicate vertices")
+        return unique_map(data.get_vertex_hash_generator(
+            vertexprecision=self.VERTEXPRECISION,
+            normalprecision=self.NORMALPRECISION,
+            uvprecision=self.UVPRECISION,
+            vcolprecision=self.VCOLPRECISION))
+        
     def branchentry(self, branch):
         """Optimize a NiTriStrips or NiTriShape block:
           - remove duplicate vertices
@@ -263,46 +285,12 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
             self.data.replace_global_node(branch, None)
             return False
 
-        if branch.data.num_triangles > 32000:
-            self.toaster.logger.warn(
-                "Found an insane amount of %i triangles in geometry: "
-                "consider simplifying the mesh "
-                "or breaking it up in smaller parts."
-                % branch.data.num_triangles)
-            return False
-
         # shortcut
         data = branch.data
 
-        # triangulate
-        if isinstance(data, NifFormat.NiTriStripsData):
-            self.toaster.msg("triangulating")
-            newbranch = branch.get_interchangeable_tri_shape()
-            self.data.replace_global_node(branch, newbranch)
-            branch = newbranch
-            data = newbranch.data
-
-        # removing duplicate vertices
-        self.toaster.msg("removing duplicate vertices")
-        v_map = [0 for i in xrange(data.num_vertices)] # maps old index to new index
-        v_map_inverse = [] # inverse: map new index to old index
-        k_map = {} # maps hash to new vertex index
-        index = 0  # new vertex index for next vertex
-        for i, vhash in enumerate(data.get_vertex_hash_generator()):
-            try:
-                k = k_map[vhash]
-            except KeyError:
-                # vertex is new
-                k_map[vhash] = index
-                v_map[i] = index
-                v_map_inverse.append(i)
-                index += 1
-            else:
-                # vertex already exists
-                v_map[i] = k
-        del k_map
-
-        new_numvertices = index
+        v_map, v_map_inverse = self.optimize_vertices(data)
+        
+        new_numvertices = len(v_map_inverse)
         self.toaster.msg("(num vertices was %i and is now %i)"
                          % (len(v_map), new_numvertices))
 
@@ -407,7 +395,8 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                 # use Oblivion settings
                 branch.update_skin_partition(
                     maxbonesperpartition = 18, maxbonespervertex = 4,
-                    stripify = True, verbose = 0)
+                    stripify = True, verbose = 0,
+                    stitchstrips=self.STITCH)
 
         # update morph data
         for morphctrl in branch.get_controllers():
@@ -434,8 +423,10 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                      morph.vectors.update_size()
 
         # recalculate tangent space (only if the branch already exists)
-        if branch.find(block_name='Tangent space (binormal & tangent vectors)',
-                       block_type=NifFormat.NiBinaryExtraData):
+        if (branch.find(block_name='Tangent space (binormal & tangent vectors)',
+                        block_type=NifFormat.NiBinaryExtraData)
+            or (data.num_uv_sets & 61440)
+            or (data.bs_num_uv_sets & 61440)):
             self.toaster.msg("recalculating tangent space")
             branch.update_tangent_space()
 
@@ -606,21 +597,8 @@ class SpellSplitGeometry(pyffi.spells.nif.NifSpell):
         # stop recursing
         return False
 
-class SpellOptimize(
-    pyffi.spells.SpellGroupSeries(
-        pyffi.spells.SpellGroupParallel(
-            pyffi.spells.nif.fix.SpellDelUnusedRoots,
-            SpellCleanRefLists,
-            pyffi.spells.nif.fix.SpellDetachHavokTriStripsData,
-            pyffi.spells.nif.fix.SpellFixTexturePath,
-            pyffi.spells.nif.fix.SpellClampMaterialAlpha),
-        SpellMergeDuplicates,
-        SpellOptimizeGeometry)):
-    """Global fixer and optimizer spell."""
-    SPELLNAME = "optimize"
-
 class SpellDelUnusedBones(pyffi.spells.nif.NifSpell):
-    """Remove empty and duplicate entries in reference lists."""
+    """Remove nodes that are not used for anything."""
 
     SPELLNAME = "opt_delunusedbones"
     READONLY = False
@@ -644,10 +622,595 @@ class SpellDelUnusedBones(pyffi.spells.nif.NifSpell):
     
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiNode):
-            if not branch.children and branch not in self._used_bones:
+            if ((not branch.children)
+                and (not branch.collision_object)
+                and (branch not in self._used_bones)):
                 self.toaster.msg("removing unreferenced bone")
                 self.data.replace_global_node(branch, None)
                 self.changed = True
                 # no need to recurse further
                 return False
         return True
+
+class SpellDelZeroScale(pyffi.spells.nif.NifSpell):
+    """Remove nodes with zero scale."""
+
+    SPELLNAME = "opt_delzeroscale"
+    READONLY = False
+
+    def datainspect(self):
+        # only run the spell if there are scaled objects
+        return self.inspectblocktype(NifFormat.NiAVObject)
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch
+        return isinstance(branch, NifFormat.NiAVObject)
+    
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiAVObject):
+            if branch.scale == 0:
+                self.toaster.msg("removing zero scaled branch")
+                self.data.replace_global_node(branch, None)
+                self.changed = True
+                # no need to recurse further
+                return False
+        return True
+
+class SpellReduceGeometry(SpellOptimizeGeometry):
+    """Reduce vertices of all geometries:
+      - remove duplicate & reduce other vertices
+      - stripify if strips are long enough
+      - recalculate skin partition
+      - recalculate tangent space 
+    """
+
+    SPELLNAME = "opt_reducegeometry"
+    READONLY = False
+    
+    @classmethod
+    def toastentry(cls, toaster):
+        if not toaster.options["arg"]:
+            toaster.logger.warn(
+                "must specify degree of reduction as argument "
+                "(e.g. 2 to reduce a little, 1 to reduce more, "
+                "0 to reduce even more, -0.1 is usually the highest "
+                "level of optimization possible before significant "
+                " graphical oddities occur) to to apply spell")
+            return False
+        else:
+            precision = float(toaster.options["arg"])
+            cls.VERTEXPRECISION = precision
+            cls.NORMALPRECISION = max(precision, 0)
+            cls.UVPRECISION = max(precision, 0)
+            cls.VCOLPRECISION = max(precision, 0)
+            return True
+
+class SpellOptimizeCollisionBox(pyffi.spells.nif.NifSpell):
+    """Optimize collision geometries by converting shapes to primitive
+    boxes where appropriate.
+    """
+    SPELLNAME = "opt_collisionbox"
+    READONLY = False
+    VERTEXPRECISION = 3
+
+    def __init__(self, *args, **kwargs):
+        pyffi.spells.nif.NifSpell.__init__(self, *args, **kwargs)
+        # list of all optimized geometries so far
+        # (to avoid optimizing the same geometry twice)
+        self.optimized = []
+        
+    def datainspect(self):
+        # only run the spell if there are collisions
+        return (
+            self.inspectblocktype(NifFormat.bhkPackedNiTriStripsShape)
+            or self.inspectblocktype(NifFormat.bhkNiTriStripsShape))
+
+    def branchinspect(self, branch):
+        # only inspect the collision branches
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.bhkCollisionObject,
+                                   NifFormat.bhkRigidBody,
+                                   NifFormat.bhkMoppBvTreeShape))
+        
+    def get_box_shape(self, shape):
+        """Check if the given shape is has a box shape. If so, return an
+        equivalent (bhkConvexTransformShape +) bhkBoxShape.
+
+        Shape should be a bhkPackedNiTriStripsShape or a bhkNiTriStripsShape.
+        """
+        PRECISION = 100
+
+        # get vertices and material
+        if isinstance(shape, NifFormat.bhkPackedNiTriStripsShape):
+            # multimaterial? cannot use a box
+            if len(shape.get_sub_shapes()) != 1:
+                return None
+            vertices = shape.data.vertices
+            material = shape.get_sub_shapes()[0].material
+            factor = 1.0
+        elif isinstance(shape, NifFormat.bhkNiTriStripsShape):
+            if shape.num_strips_data != 1:
+                return None
+            vertices = shape.strips_data[0].vertices
+            material = shape.material
+            factor = 7.0
+        # sorted vertices of a unit box
+        unit_box = [(0, 0, 0), (0, 0, 1), (0, 1, 0), (0, 1, 1),
+                    (1, 0, 0), (1, 0, 1), (1, 1, 0), (1, 1, 1)]
+        # sort vertices and rescale them to fit in the unit box
+        verts = sorted(list(vert.as_tuple() for vert in vertices))
+        min_ = [min(vert[i] for vert in verts) for i in range(3)]
+        size = [max(vert[i] for vert in verts) - min_[i] for i in range(3)]
+        scaled_verts = sorted(
+            set(tuple(int(0.5 + PRECISION * ((vert[i] - min_[i]) / size[i]))
+                      for i in range(3))
+                for vert in verts))
+        # if our vertices are a box, then the scaled_verts should coincide with
+        # unit_box
+        if len(scaled_verts) != 8:
+            # cannot be a box
+            return None
+        non_boxiness = sum(sum(abs(PRECISION * vert[i] - othervert[i])
+                               for i in range(3))
+                           for vert, othervert in zip(unit_box, scaled_verts))
+        if non_boxiness > 0:
+            # not really a box, so return nothing
+            return None
+        # it is a box! replace by a bhkBoxShape
+        boxshape = NifFormat.bhkBoxShape()
+        boxshape.dimensions.x = size[0] / (2 * factor)
+        boxshape.dimensions.y = size[1] / (2 * factor)
+        boxshape.dimensions.z = size[2] / (2 * factor)
+        boxshape.minimum_size = min(size) / factor
+        boxshape.material = material
+        boxshape.radius = 0.1
+        boxshape.unknown_8_bytes[0] = 0x6b
+        boxshape.unknown_8_bytes[1] = 0xee
+        boxshape.unknown_8_bytes[2] = 0x43
+        boxshape.unknown_8_bytes[3] = 0x40
+        boxshape.unknown_8_bytes[4] = 0x3a
+        boxshape.unknown_8_bytes[5] = 0xef
+        boxshape.unknown_8_bytes[6] = 0x8e
+        boxshape.unknown_8_bytes[7] = 0x3e
+        # check translation
+        mid = [min_[i] + 0.5 * size[i] for i in range(3)]
+        if sum(abs(mid[i]) for i in range(3)) < 1e-6:
+            # no transform needed
+            return boxshape
+        else:
+            # create transform block
+            tfshape = NifFormat.bhkConvexTransformShape()
+            tfshape.shape = boxshape
+            tfshape.material = boxshape.material
+            tfshape.transform.m_14 = mid[0] / factor
+            tfshape.transform.m_24 = mid[1] / factor
+            tfshape.transform.m_34 = mid[2] / factor
+            return tfshape
+        
+    def branchentry(self, branch):
+        """Optimize a vertex based collision block:
+          - remove duplicate vertices
+          - rebuild triangle indice and welding info
+          - update MOPP data if applicable.
+        """
+        if branch in self.optimized:
+            # already optimized
+            return False
+        
+        if (isinstance(branch, NifFormat.bhkMoppBvTreeShape)
+            and isinstance(branch.shape, NifFormat.bhkPackedNiTriStripsShape)
+            and isinstance(branch.shape.data,
+                           NifFormat.hkPackedNiTriStripsData)):
+            # packed collision with mopp
+            box_shape = self.get_box_shape(branch.shape)
+            if box_shape:
+                # it is a box, replace bhkMoppBvTreeShape
+                self.data.replace_global_node(branch, box_shape)
+                self.toaster.msg(_("optimized box collision"))
+                self.changed = True
+                self.optimized.append(branch)
+            return False # don't recurse farther
+        elif (isinstance(branch, NifFormat.bhkRigidBody)
+              and isinstance(branch.shape, NifFormat.bhkNiTriStripsShape)):
+            # unpacked collision
+            box_shape = self.get_box_shape(branch.shape)
+            if box_shape:
+                # it is a box, replace bhkNiTriStripsShape
+                self.data.replace_global_node(branch.shape, box_shape)
+                self.toaster.msg(_("optimized box collision"))
+                self.changed = True
+                self.optimized.append(branch)
+            # don't recurse further
+            return False
+        elif (isinstance(branch, NifFormat.bhkRigidBody)
+              and isinstance(branch.shape,
+                             NifFormat.bhkPackedNiTriStripsShape)):
+            # packed collision without mopp
+            box_shape = self.get_box_shape(branch.shape)
+            if box_shape:
+                # it's a box, replace bhkPackedNiTriStripsShape
+                self.data.replace_global_node(branch.shape, box_shape)
+                self.toaster.msg(_("optimized box collision"))
+                self.changed = True
+                self.optimized.append(branch)
+            return False
+        #keep recursing
+        return True
+
+class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
+    """Optimize collision geometries by removing duplicate vertices."""
+
+    SPELLNAME = "opt_collisiongeometry"
+    READONLY = False
+    VERTEXPRECISION = 3
+
+    def __init__(self, *args, **kwargs):
+        pyffi.spells.nif.NifSpell.__init__(self, *args, **kwargs)
+        # list of all optimized geometries so far
+        # (to avoid optimizing the same geometry twice)
+        self.optimized = []
+
+    def datainspect(self):
+        # only run the spell if there are collisions
+        return (
+            self.inspectblocktype(NifFormat.bhkPackedNiTriStripsShape)
+            or self.inspectblocktype(NifFormat.bhkNiTriStripsShape))
+
+    def branchinspect(self, branch):
+        # only inspect the collision branches
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.bhkCollisionObject,
+                                   NifFormat.bhkRigidBody,
+                                   NifFormat.bhkMoppBvTreeShape))
+        
+    def optimize_mopp(self, mopp):
+        """Optimize a bhkMoppBvTreeShape."""
+        shape = mopp.shape
+        data = shape.data
+
+        # removing duplicate vertices
+        self.toaster.msg(_("removing duplicate vertices"))
+        # make a joint map for all subshapes
+        # while doing this, also update subshape vertex count
+        full_v_map = []
+        full_v_map_inverse = []
+        subshape_counts = []
+        for subshape_index in range(len(shape.get_sub_shapes())):
+            self.toaster.msg(_("(processing subshape %i)")
+                             % subshape_index)
+            v_map, v_map_inverse = unique_map(
+                shape.get_vertex_hash_generator(
+                    vertexprecision=self.VERTEXPRECISION,
+                    subshape_index=subshape_index))
+            self.toaster.msg(
+                _("(num vertices in collision shape was %i and is now %i)")
+                % (len(v_map), len(v_map_inverse)))
+            # update subshape vertex count
+            subshape_counts.append(len(v_map_inverse))
+            # update full maps
+            num_vertices = len(full_v_map_inverse)
+            old_num_vertices = len(full_v_map)
+            full_v_map += [num_vertices + i
+                           for i in v_map]
+            full_v_map_inverse += [old_num_vertices + old_i
+                                   for old_i in v_map_inverse]
+        # copy old data
+        oldverts = [[v.x, v.y, v.z] for v in data.vertices]
+        # set new subshape counts
+        for subshape_index, subshape_count in enumerate(subshape_counts):
+            if shape.sub_shapes:
+                # oblivion subshapes
+                shape.sub_shapes[subshape_index].num_vertices = subshape_count
+            if shape.data.sub_shapes:
+                # fallout 3 subshapes
+                shape.data.sub_shapes[subshape_index].num_vertices = subshape_count            
+        # set new data
+        data.num_vertices = len(full_v_map_inverse)
+        data.vertices.update_size()
+        for old_i, v in izip(full_v_map_inverse, data.vertices):
+            v.x = oldverts[old_i][0]
+            v.y = oldverts[old_i][1]
+            v.z = oldverts[old_i][2]
+        del oldverts
+        # update vertex indices in triangles
+        for tri in data.triangles:
+            tri.triangle.v_1 = full_v_map[tri.triangle.v_1]
+            tri.triangle.v_2 = full_v_map[tri.triangle.v_2]
+            tri.triangle.v_3 = full_v_map[tri.triangle.v_3]
+        # at the moment recreating the mopp will destroy multi material mopps
+        # (this is a bug in the mopper, not sure what it is)
+        # so for now, we keep the mopp intact
+        # and since the mopp code references the triangle indices
+        # we must also keep the triangles intact
+        if len(shape.get_sub_shapes()) != 1:
+            return
+
+        # remove duplicate triangles
+        self.toaster.msg(_("removing duplicate triangles"))
+        t_map, t_map_inverse = unique_map(shape.get_triangle_hash_generator())
+        new_numtriangles = len(t_map_inverse)
+        self.toaster.msg(_("(num triangles in collision shape was %i and is now %i)")
+                         % (len(t_map), new_numtriangles))
+        # copy old data
+        oldtris = [[tri.triangle.v_1, tri.triangle.v_2, tri.triangle.v_3,
+                    tri.normal.x, tri.normal.y, tri.normal.z]
+                   for tri in data.triangles]
+        # set new data
+        data.num_triangles = new_numtriangles
+        data.triangles.update_size()
+        for old_i, tri in izip(t_map_inverse, data.triangles):
+            if old_i is None:
+                continue
+            tri.triangle.v_1 = oldtris[old_i][0]
+            tri.triangle.v_2 = oldtris[old_i][1]
+            tri.triangle.v_3 = oldtris[old_i][2]
+            tri.normal.x = oldtris[old_i][3]
+            tri.normal.y = oldtris[old_i][4]
+            tri.normal.z = oldtris[old_i][5]
+            # note: welding updated later when calling the mopper
+        del oldtris
+        # update mopp data and welding info
+        mopp.update_mopp_welding()
+        
+    def branchentry(self, branch):
+        """Optimize a vertex based collision block:
+          - remove duplicate vertices
+          - rebuild triangle indices and welding info
+          - update mopp data if applicable.
+
+        (note: latter two are skipped at the moment due to
+        multimaterial bug in mopper)
+        """
+        if branch in self.optimized:
+            # already optimized
+            return False
+
+        if (isinstance(branch, NifFormat.bhkMoppBvTreeShape)
+            and isinstance(branch.shape, NifFormat.bhkPackedNiTriStripsShape)
+            and isinstance(branch.shape.data,
+                           NifFormat.hkPackedNiTriStripsData)):
+            # packed collision with mopp
+            self.toaster.msg(_("optimizing mopp"))
+            self.optimize_mopp(branch)
+            if branch.shape.data.num_vertices < 3:
+                self.toaster.msg(_("less than 3 vertices: removing branch"))
+                self.data.replace_global_node(branch, None)
+                self.changed = True
+                return False
+            self.optimized.append(branch)
+            self.changed = True
+            return False
+        elif (isinstance(branch, NifFormat.bhkRigidBody)
+              and isinstance(branch.shape, NifFormat.bhkNiTriStripsShape)):
+            # unpacked collision: convert to packed
+            self.toaster.msg(_("packing collision"))
+            new_shape = branch.shape.get_interchangeable_packed_shape()
+            self.data.replace_global_node(branch.shape, new_shape)
+            # call branchentry again in order to create a mopp for it
+            # so we don't append it to self.optimized yet!!
+            self.branchentry(branch)
+            self.changed = True
+            # don't recurse further
+            return False
+        elif (isinstance(branch, NifFormat.bhkRigidBody)
+              and isinstance(branch.shape,
+                             NifFormat.bhkPackedNiTriStripsShape)):
+            # packed collision without mopp
+            # add a mopp to it if it is static
+            if any(sub_shape.layer != 1
+                   for sub_shape in branch.shape.get_sub_shapes()):
+                # no mopps for non-static objects
+                return False
+            self.toaster.msg(_("adding mopp"))
+            mopp = NifFormat.bhkMoppBvTreeShape()
+            shape = branch.shape # store reference before replacing
+            self.data.replace_global_node(branch.shape, mopp)
+            mopp.shape = shape
+            mopp.material = shape.get_sub_shapes()[0].material
+            mopp.unknown_8_bytes[0] = 160
+            mopp.unknown_8_bytes[1] = 13
+            mopp.unknown_8_bytes[2] = 75
+            mopp.unknown_8_bytes[3] = 1
+            mopp.unknown_8_bytes[4] = 192
+            mopp.unknown_8_bytes[5] = 207
+            mopp.unknown_8_bytes[6] = 144
+            mopp.unknown_8_bytes[7] = 11
+            mopp.unknown_float = 1.0
+            mopp.update_mopp_welding()
+            # call branchentry again in order to optimize the mopp
+            # so we don't append it to self.optimized yet!!
+            self.branchentry(mopp)
+            self.changed = True
+            return False
+        # keep recursing
+        return True
+        
+class SpellOptimizeAnimation(pyffi.spells.nif.NifSpell):
+    """Optimizes animations by removing duplicate keys"""
+
+    SPELLNAME = "opt_optimizeanimation"
+    READONLY = False
+    
+    @classmethod
+    def toastentry(cls, toaster):
+        if not toaster.options["arg"]:
+            cls.significance_check = 4
+        else:
+            cls.significance_check = float(toaster.options["arg"])
+        return True
+
+
+    def datainspect(self):
+        # returns more than needed but easiest way to ensure it catches all
+        # types of animations
+        return True
+
+    def branchinspect(self, branch):
+        # inspect the NiAVObject branch, and NiControllerSequence
+        # branch (for kf files)
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiTimeController,
+                                   NifFormat.NiInterpolator,
+                                   NifFormat.NiControllerManager,
+                                   NifFormat.NiControllerSequence,
+                                   NifFormat.NiKeyframeData,
+                                   NifFormat.NiTextKeyExtraData,
+                                   NifFormat.NiFloatData))
+
+    def optimize_keys(self,keys):
+        """Helper function to optimize the keys."""
+        new_keys = []
+        #compare keys
+        ## types: 0 = float/int values
+        ##        1 = Vector4, Quaternions, QuaternionsWXYZ
+        ##        2 = word values (ie NiTextKeyExtraData)
+        ##        3 = Vector3 values (ie translations)
+        if len(keys) < 3: return keys # no optimization possible?
+        precision = 10**self.significance_check
+        if isinstance(keys[0].value,(float,int)):
+            for i, key in enumerate(keys):
+                if i == 0: # since we don't want to delete the first key even if it is  the same as the last key.
+                    new_keys.append(key)
+                    continue                
+                try:
+                    if int(precision*keys[i-1].value) != int(precision*key.value):
+                        new_keys.append(key)
+                        continue
+                    if int(precision*keys[i+1].value) != int(precision*key.value):
+                        new_keys.append(key)
+                except IndexError:
+                    new_keys.append(key)
+            return new_keys
+        elif isinstance(keys[0].value,(str)):
+            for i, key in enumerate(keys):
+                if i == 0: # since we don't want to delete the first key even if it is  the same as the last key.
+                    new_keys.append(key)
+                    continue 
+                try:
+                    if keys[i-1].value != key.value:
+                        new_keys.append(key)
+                        continue
+                    if keys[i+1].value != key.value:
+                        new_keys.append(key)
+                except IndexError:
+                    new_keys.append(key)
+            return new_keys
+        elif isinstance(keys[0].value,(NifFormat.Vector4,NifFormat.Quaternion,NifFormat.QuaternionXYZW)):
+            tempkey = [[int(keys[0].value.w*precision),int(keys[0].value.x*precision),int(keys[0].value.y*precision),int(keys[0].value.z*precision)],[int(keys[1].value.w*precision),int(keys[1].value.x*precision),int(keys[1].value.y*precision),int(keys[1].value.z*precision)],[int(keys[2].value.w*precision),int(keys[2].value.x*precision),int(keys[2].value.y*precision),int(keys[2].value.z*precision)]]
+            for i, key in enumerate(keys):
+                if i == 0:
+                    new_keys.append(key)
+                    continue
+                tempkey[0] = tempkey[1]
+                tempkey[1] = tempkey[2]
+                tempkey[2] = []
+                try:
+                    tempkey[2].append(int(keys[i+1].value.w*precision))
+                    tempkey[2].append(int(keys[i+1].value.x*precision))
+                    tempkey[2].append(int(keys[i+1].value.y*precision))
+                    tempkey[2].append(int(keys[i+1].value.z*precision))
+                except IndexError:
+                    new_keys.append(key)
+                    continue
+                if tempkey[1] != tempkey[0]:
+                    new_keys.append(key)
+                    continue
+                if tempkey[1] != tempkey[2]:
+                    new_keys.append(key)
+            return new_keys
+        elif isinstance(keys[0].value,(NifFormat.Vector3)):
+            tempkey = [[int(keys[0].value.x*precision),int(keys[0].value.y*precision),int(keys[0].value.z*precision)],[int(keys[1].value.x*precision),int(keys[1].value.y*precision),int(keys[1].value.z*precision)],[int(keys[2].value.x*precision),int(keys[2].value.y*precision),int(keys[2].value.z*precision)]]
+            for i, key in enumerate(keys):
+                if i == 0:
+                    new_keys.append(key)
+                    continue
+                tempkey[0] = tempkey[1]
+                tempkey[1] = tempkey[2]
+                tempkey[2] = []
+                try:
+                    tempkey[2].append(int(keys[i+1].value.x*precision))
+                    tempkey[2].append(int(keys[i+1].value.y*precision))
+                    tempkey[2].append(int(keys[i+1].value.z*precision))
+                except IndexError:
+                    new_keys.append(key)
+                    continue
+                if tempkey[1] != tempkey[0]:
+                    new_keys.append(key)
+                    continue
+                if tempkey[1] != tempkey[2]:
+                    new_keys.append(key)
+            return new_keys
+        else: #something unhandled -- but what?
+            
+            return keys
+            
+    def update_animation(self,old_keygroup,new_keys):
+        self.toaster.msg(_("Num keys was %i and is now %i") % (len(old_keygroup.keys),len(new_keys)))
+        old_keygroup.num_keys = len(new_keys)
+        old_keygroup.keys.update_size()
+        for old_key, new_key in izip(old_keygroup.keys,new_keys):
+            old_key.time = new_key.time
+            old_key.value = new_key.value
+        self.changed = True
+        
+    def update_animation_quaternion(self,old_keygroup,new_keys):
+        self.toaster.msg(_("Num keys was %i and is now %i") % (len(old_keygroup),len(new_keys)))
+        old_keygroup.update_size()
+        for old_key, new_key in izip(old_keygroup,new_keys):
+            old_key.time = new_key.time
+            old_key.value = new_key.value
+        self.changed = True
+
+    def branchentry(self, branch):
+            
+        if isinstance(branch, NifFormat.NiKeyframeData):
+            # (this also covers NiTransformData)
+            if branch.num_rotation_keys != 0:
+                if branch.rotation_type == 4:
+                    for rotation in branch.xyz_rotations:
+                        new_keys = self.optimize_keys(rotation.keys)
+                        if len(new_keys) != rotation.num_keys:
+                            self.update_animation(rotation,new_keys)
+                else:
+                    new_keys = self.optimize_keys(branch.quaternion_keys)
+                    if len(new_keys) != branch.num_rotation_keys:
+                        branch.num_rotation_keys = len(new_keys)
+                        self.update_animation_quaternion(branch.quaternion_keys,new_keys)
+            if branch.translations.num_keys != 0:
+                new_keys = self.optimize_keys(branch.translations.keys)
+                if len(new_keys) != branch.translations.num_keys:
+                    self.update_animation(branch.translations,new_keys)
+            if branch.scales.num_keys != 0:
+                new_keys = self.optimize_keys(branch.scales.keys)
+                if len(new_keys) != branch.scales.num_keys:
+                    self.update_animation(branch.scales,new_keys)
+            # no children of NiKeyframeData so no need to recurse further
+            return False
+        elif isinstance(branch, NifFormat.NiTextKeyExtraData):
+            self.optimize_keys(branch.text_keys)
+            # no children of NiTextKeyExtraData so no need to recurse further
+            return False
+        elif isinstance(branch, NifFormat.NiFloatData):
+            #self.optimize_keys(branch.data.keys)
+            # no children of NiFloatData so no need to recurse further
+            return False
+        else:
+            # recurse further
+            return True
+        
+class SpellOptimize(
+    pyffi.spells.SpellGroupSeries(
+        pyffi.spells.SpellGroupParallel(
+            pyffi.spells.nif.fix.SpellDelUnusedRoots,
+            SpellCleanRefLists,
+            pyffi.spells.nif.fix.SpellDetachHavokTriStripsData,
+            pyffi.spells.nif.fix.SpellFixTexturePath,
+            pyffi.spells.nif.fix.SpellClampMaterialAlpha,
+            pyffi.spells.nif.fix.SpellFixBhkSubShapes),
+        SpellMergeDuplicates,
+        SpellOptimizeGeometry,
+        SpellOptimizeCollisionBox,
+        SpellOptimizeCollisionGeometry,
+        )):
+    """Global fixer and optimizer spell."""
+    SPELLNAME = "optimize"

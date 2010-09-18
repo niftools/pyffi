@@ -89,6 +89,7 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         pyffi.spells.nif.fix.SpellSendBonesToBindPosition,
         pyffi.spells.nif.fix.SpellScale,
         pyffi.spells.nif.fix.SpellCleanStringPalette,
+        pyffi.spells.nif.fix.SpellFixBhkSubShapes,
         pyffi.spells.nif.modify.SpellDelBranches,
         pyffi.spells.nif.optimize.SpellCleanRefLists,
         pyffi.spells.nif.optimize.SpellMergeDuplicates,
@@ -96,6 +97,7 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         #pyffi.spells.nif.optimize.SpellOptimizeSplit,
         pyffi.spells.nif.optimize.SpellOptimize,
         pyffi.spells.nif.optimize.SpellDelUnusedBones,
+        pyffi.spells.nif.optimize.SpellDelZeroScale,
         pyffi.spells.nif.modify.SpellTexturePath,
         pyffi.spells.nif.modify.SpellCollisionType,
         pyffi.spells.nif.modify.SpellScaleAnimationTime,
@@ -105,6 +107,8 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         pyffi.spells.nif.modify.SpellDelAlphaProperty,
         pyffi.spells.nif.modify.SpellDelSpecularProperty,
         pyffi.spells.nif.modify.SpellDelBSXFlags,
+        pyffi.spells.nif.modify.SpellDelAnimation,
+        pyffi.spells.nif.modify.SpellCleanFarNif,
         pyffi.spells.nif.modify.SpellMakeFarNif,
         pyffi.spells.nif.modify.SpellDelStringExtraDatas,
         pyffi.spells.nif.modify.SpellDelSkinShapes,
@@ -116,8 +120,16 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         pyffi.spells.nif.modify.SpellSubstituteTexturePath,
         pyffi.spells.nif.fix.SpellDelUnusedRoots,
         pyffi.spells.nif.modify.SpellChangeBonePriorities,
+        pyffi.spells.nif.modify.SpellChangeAllBonePriorities,
         pyffi.spells.nif.modify.SpellSetInterpolatorTransRotScale,
-        pyffi.spells.nif.modify.SpellDelInterpolatorTransformData
+        pyffi.spells.nif.modify.SpellDelInterpolatorTransformData,
+        pyffi.spells.nif.modify.SpellCollisionToMopp,
+        pyffi.spells.nif.optimize.SpellReduceGeometry,
+        pyffi.spells.nif.optimize.SpellOptimizeCollisionBox,
+        pyffi.spells.nif.optimize.SpellOptimizeCollisionGeometry,
+        pyffi.spells.nif.optimize.SpellOptimizeAnimation,
+        pyffi.spells.nif.check.SpellCheckMaterialEmissiveValue,
+        pyffi.spells.nif.modify.SpellMirrorAnimation
         ]
     ALIASDICT = {
         "texdump": "dump_tex",
@@ -136,15 +148,15 @@ class NifToaster(pyffi.spells.nif.NifToaster):
 
     python niftoaster.py optimize /path/to/your/nifs/
 
-* print texture information of all nif files a directory tree, recursively
+* print texture information of all nif files in a directory tree, recursively
 
     python niftoaster.py dump_tex /path/to/your/nifs/
 
-* update/generate mopps of all nif files a directory tree, recursively
+* update/generate mopps of all nif files in a directory tree, recursively
 
     python niftoaster.py fix_mopp /path/to/your/nifs/
 
-* update/generate skin partitions of all nif files a directory tree,
+* update/generate skin partitions of all nif files in a directory tree,
 recursively, for Freedom Force vs. The 3rd Reich
 
     python niftoaster.py fix_ffvt3rskinpartition /path/to/your/nifs/

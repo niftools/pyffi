@@ -247,10 +247,13 @@ class SpellParseTexturePath(NifSpell):
             return True
 
 class SpellFixTexturePath(SpellParseTexturePath):
-    """Fix the texture path. Transforms 0x0a into \\n and 0x0d into \\r.
-    This fixes a bug in nifs saved with older versions of nifskope.
-    Also transforms / into \\. This fixes problems when packing files into
-    a bsa archive.
+    r"""Fix the texture path. Transforms 0x0a into \n and 0x0d into
+    \r. This fixes a bug in nifs saved with older versions of
+    nifskope. Also transforms / into \. This fixes problems when
+    packing files into a bsa archive. Also if the version is 20.0.0.4
+    or higher it will check for bad texture path form of e.g.
+    c:\program files\bethsoft\ob\textures\file\path.dds and replace it
+    with e.g. textures\file\path.dds.
     """
 
     SPELLNAME = "fix_texturepath"
@@ -266,6 +269,17 @@ class SpellFixTexturePath(SpellParseTexturePath):
         new_path = new_path.replace(
             '/'.encode("ascii"),
             '\\'.encode("ascii"))
+        # baphometal found some nifs that use double slashes
+        # this causes textures not to show, so here we convert them
+        # back to single slashes
+        new_path = new_path.replace(
+            '\\\\'.encode("ascii"),
+            '\\'.encode("ascii"))
+        textures_index = new_path.lower().find("textures\\")
+        if textures_index > 0:
+            # path contains textures\ at position other than starting
+            # position
+            new_path = new_path[textures_index:]
         if new_path != old_path:
             self.toaster.msg("fixed file name '%s'" % new_path)
             self.changed = True
@@ -648,6 +662,7 @@ class SpellDelUnusedRoots(pyffi.spells.nif.NifSpell):
             root for root in self.data.roots
             if isinstance(root, (NifFormat.NiAVObject,
                                  NifFormat.NiSequence,
+                                 NifFormat.NiPixelData,
                                  NifFormat.NiPhysXProp,
                                  NifFormat.NiSequenceStreamHelper))]
         # if actual roots differ from good roots set roots to good
@@ -659,3 +674,41 @@ class SpellDelUnusedRoots(pyffi.spells.nif.NifSpell):
             self.changed = True
         return False
 
+class SpellFixBhkSubShapes(NifSpell):
+    """Fix bad subshape vertex counts in bhkPackedNiTriStripsShape blocks."""
+
+    SPELLNAME = "fix_bhksubshapes"
+    READONLY = False
+
+    def datainspect(self):
+        return self.inspectblocktype(NifFormat.bhkPackedNiTriStripsShape)
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch and collision branch
+        return isinstance(branch, (
+            NifFormat.NiAVObject,
+            NifFormat.bhkCollisionObject,
+            NifFormat.bhkRefObject))
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.bhkPackedNiTriStripsShape):
+            if not branch.data:
+                # no data... this is weird, but let's just ignore it
+                return False
+            # calculate number of vertices in subshapes
+            num_verts_in_sub_shapes = sum(
+                (sub_shape.num_vertices
+                 for sub_shape in branch.get_sub_shapes()), 0)
+            if num_verts_in_sub_shapes != branch.data.num_vertices:
+                self.toaster.logger.warn(
+                    "bad subshape vertex count (expected %i, got %i)"
+                    % (branch.data.num_vertices, num_verts_in_sub_shapes))
+                self.toaster.msg("fixing count in last subshape")
+                branch.get_sub_shapes()[-1].num_vertices += (
+                    branch.data.num_vertices - num_verts_in_sub_shapes)
+                # XXX resulting count should be positive!! we're not
+                # checking for this... (if this happens, remove subshapes?)
+            # no need to recurse further
+            return False
+        # recurse further
+        return True

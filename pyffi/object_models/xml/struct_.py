@@ -223,6 +223,7 @@ class StructBase(GlobalNode):
     _is_template = False
     _attrs = []
     _games = {}
+    arg = None
 
     # initialize all attributes
     def __init__(self, template = None, argument = None, parent = None):
@@ -337,21 +338,20 @@ class StructBase(GlobalNode):
                 text += '* %s : <None>\n' % attr.name
         return text
 
-    def read(self, stream, **kwargs):
+    def read(self, stream, data):
         """Read structure from stream."""
-        # parse arguments
-        self.arg = kwargs.get('argument')
         # read all attributes
-        for attr in self._get_filtered_attribute_list(**kwargs):
+        for attr in self._get_filtered_attribute_list(data):
             # skip abstract attributes
             if attr.is_abstract:
                 continue
             # get attribute argument (can only be done at runtime)
             rt_arg = attr.arg if isinstance(attr.arg, (int, long, type(None))) \
                      else getattr(self, attr.arg)
-            kwargs['argument'] = rt_arg
             # read the attribute
-            getattr(self, "_%s_value_" % attr.name).read(stream, **kwargs)
+            attr_value = getattr(self, "_%s_value_" % attr.name)
+            attr_value.arg = rt_arg
+            attr_value.read(stream, data)
             ### UNCOMMENT FOR DEBUGGING WHILE READING
             #print("* %s.%s" % (self.__class__.__name__, attr.name)) # debug
             #val = getattr(self, "_%s_value_" % attr.name) # debug
@@ -363,21 +363,20 @@ class StructBase(GlobalNode):
             #else:
             #    print(val.__class__.__name__)
 
-    def write(self, stream, **kwargs):
+    def write(self, stream, data):
         """Write structure to stream."""
-        # parse arguments
-        self.arg = kwargs.get('argument')
         # write all attributes
-        for attr in self._get_filtered_attribute_list(**kwargs):
+        for attr in self._get_filtered_attribute_list(data):
             # skip abstract attributes
             if attr.is_abstract:
                 continue
             # get attribute argument (can only be done at runtime)
             rt_arg = attr.arg if isinstance(attr.arg, (int, long, type(None))) \
                      else getattr(self, attr.arg)
-            kwargs['argument'] = rt_arg
             # write the attribute
-            getattr(self, "_%s_value_" % attr.name).write(stream, **kwargs)
+            attr_value = getattr(self, "_%s_value_" % attr.name)
+            attr_value.arg = rt_arg
+            getattr(self, "_%s_value_" % attr.name).write(stream, data)
             ### UNCOMMENT FOR DEBUGGING WHILE WRITING
             #print("* %s.%s" % (self.__class__.__name__, attr.name)) # debug
             #val = getattr(self, "_%s_value_" % attr.name) # debug
@@ -389,94 +388,95 @@ class StructBase(GlobalNode):
             #else:
             #    print(val.__class__.__name__)
 
-    def fix_links(self, **kwargs):
+    def fix_links(self, data):
         """Fix links in the structure."""
         # parse arguments
         # fix links in all attributes
-        for attr in self._get_filtered_attribute_list(**kwargs):
+        for attr in self._get_filtered_attribute_list(data):
             # check if there are any links at all
             # (commonly this speeds things up considerably)
             if not attr.type_._has_links:
                 continue
             #print("fixlinks %s" % attr.name)
             # fix the links in the attribute
-            getattr(self, "_%s_value_" % attr.name).fix_links(**kwargs)
+            getattr(self, "_%s_value_" % attr.name).fix_links(data)
 
-    def get_links(self, **kwargs):
+    def get_links(self, data=None):
         """Get list of all links in the structure."""
         # get all links
         links = []
-        for attr in self._get_filtered_attribute_list(**kwargs):
+        for attr in self._get_filtered_attribute_list(data):
             # check if there are any links at all
             # (this speeds things up considerably)
             if not attr.type_._has_links:
                 continue
             # extend list of links
             links.extend(
-                getattr(self, "_" + attr.name + "_value_").get_links(**kwargs))
+                getattr(self, "_" + attr.name + "_value_").get_links(data))
         # return the list of all links in all attributes
         return links
 
-    def get_strings(self, **kwargs):
+    def get_strings(self, data):
         """Get list of all strings in the structure."""
         # get all strings
         strings = []
-        for attr in self._get_filtered_attribute_list(**kwargs):
+        for attr in self._get_filtered_attribute_list(data):
             # check if there are any strings at all
             # (this speeds things up considerably)
             if (not attr.type_ is type(None)) and (not attr.type_._has_strings):
                 continue
             # extend list of strings
             strings.extend(
-                getattr(self, "_%s_value_" % attr.name).get_strings(**kwargs))
+                getattr(self, "_%s_value_" % attr.name).get_strings(data))
         # return the list of all strings in all attributes
         return strings
 
-    def get_refs(self, **kwargs):
+    def get_refs(self, data=None):
         """Get list of all references in the structure. Refs are
         links that point down the tree. For instance, if you need to parse
         the whole tree starting from the root you would use get_refs and not
         get_links, as get_links could result in infinite recursion."""
         # get all refs
         refs = []
-        for attr in self._get_filtered_attribute_list(**kwargs):
+        for attr in self._get_filtered_attribute_list(data):
             # check if there are any links at all
             # (this speeds things up considerably)
             if not attr.type_._has_links:
                 continue
             # extend list of refs
             refs.extend(
-                getattr(self, "_%s_value_" % attr.name).get_refs(**kwargs))
+                getattr(self, "_%s_value_" % attr.name).get_refs(data))
         # return the list of all refs in all attributes
         return refs
 
-    def get_size(self, **kwargs):
+    def get_size(self, data=None):
         """Calculate the structure size in bytes."""
         # calculate size
         size = 0
-        for attr in self._get_filtered_attribute_list(**kwargs):
+        for attr in self._get_filtered_attribute_list(data):
             # skip abstract attributes
             if attr.is_abstract:
                 continue
-            size += getattr(self, "_%s_value_" % attr.name).get_size(**kwargs)
+            size += getattr(self, "_%s_value_" % attr.name).get_size(data)
         return size
 
-    def get_hash(self, **kwargs):
+    def get_hash(self, data=None):
         """Calculate a hash for the structure, as a tuple."""
         # calculate hash
         hsh = []
-        for attr in self._get_filtered_attribute_list(**kwargs):
+        for attr in self._get_filtered_attribute_list(data):
             hsh.append(
-                getattr(self, "_%s_value_" % attr.name).get_hash(**kwargs))
+                getattr(self, "_%s_value_" % attr.name).get_hash(data))
         return tuple(hsh)
 
     def replace_global_node(self, oldbranch, newbranch, **kwargs):
-        for attr in self._get_filtered_attribute_list(**kwargs):
+        for attr in self._get_filtered_attribute_list():
             # check if there are any links at all
             # (this speeds things up considerably)
             if not attr.type_._has_links:
                 continue
-            getattr(self, "_%s_value_" % attr.name).replace_global_node(oldbranch, newbranch, **kwargs)
+            getattr(self, "_%s_value_" % attr.name).replace_global_node(
+                oldbranch, newbranch, **kwargs)
 
     @classmethod
     def get_games(cls):
@@ -519,8 +519,7 @@ class StructBase(GlobalNode):
                 names.append(attr.name)
         return names
 
-    def _get_filtered_attribute_list(self, version=None, user_version=None,
-                               data=None, **kwargs):
+    def _get_filtered_attribute_list(self, data=None):
         """Generator for listing all 'active' attributes, that is,
         attributes whose condition evaluates ``True``, whose version
         interval contains C{version}, and whose user version is
@@ -531,9 +530,12 @@ class StructBase(GlobalNode):
         Note: version and user_version arguments are deprecated, use
         the data argument instead.
         """
-        if data:
+        if data is not None:
             version = data.version
             user_version = data.user_version
+        else:
+            version = None
+            user_version = None
         names = []
         for attr in self._attribute_list:
             #print(attr.name, version, attr.ver1, attr.ver2) # debug

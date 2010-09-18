@@ -1,5 +1,115 @@
-Release 2.1.3 (in development)
+Release 2.1.6 (in development)
 ==============================
+
+* The optimize spell now includes two new spells:
+  opt_collisiongeometry for optimizing triangle based collisions, and
+  opt_collisionbox for optimizing simple box collisions. This should
+  result in faster loads and probably also a small but noticable
+  performance improvement.
+
+* Fixed opt_collisiongeometry for multimaterial mopps (reported by
+  wildcard_25, see issue #3058096).
+
+* New SpellCleanFarNif spell (suggested by wildcard_25, see issue
+  #3021629).
+
+* Bad normals are now ignored when packing a bhkNiTriStripsShape
+  (fixes issue #3060025, reported by rlibiez).
+
+* The opt_delunusedbones spell no longer removes bones if they have a
+  collision object (fixes issue #3064083, reported by wildcard_25).
+
+* If the jobs option is not specified in the toaster, then the number
+  of processors is used---requires Python 2.6 or higher (suggested by
+  chaky2, see issue #3052715, implements issue #3065503).
+
+* New opt_delzeroscale spell to delete branches with zero scale
+  (suggested by chaky2, see issue #3013004).
+
+* The opt_mergeduplicates spell now ignores (non-special) material
+  names, so identical materials with different names will get merged
+  as well (suggested by chaky2, see issue #3013004).
+
+* New spell to fix subshape counts (see issue #3060025, reported by
+  rlibiez), it is included in the optimize spell.
+
+* New opt_collisionbox spell which automatically converts triangle
+  based box collisions to primitive box collisions, which are much
+  faster in-game (contributed by PacificMorrowind).
+
+* Optimizer spell now stitches strips when calculating skin partitions
+  (improves in-game fps).
+
+* Better vertex map calculation when calculating skin partitions
+  (improves in-game fps).
+
+Release 2.1.5 (18 July 2010)
+============================
+
+* Improved interface for TRI files, and a bugfix in TRI file writing.
+
+* Added EGT file support.
+
+* The fix_texturepath spell now also converts double backslash in
+  single backslash (suggested by Baphometal).
+
+* Bugfix in save_as_dds function for newer NiPixelData blocks (reported
+  by norocelmiau, issue #2996800).
+
+* Added support for Laxe Lore nifs (reported by bobsobol, issue
+  #2995866).
+
+* New spells:
+
+  - opt_collisiongeometry: to optimize collision geometry in nifs
+    (contributed by PacificMorrowind).
+
+  - check_materialemissivevalue: checks (and warns) about high values
+    in material emissive settings (contributed by PacificMorrowind).
+
+  - modify_mirroranimation: mirrors an animation (specifically left to
+    right and vice versa) - use it to for example turn a right hand
+    punch anim into a left hand punch anim (contributed by
+    PacificMorrowind).
+
+* Added big-endian support.
+
+* Removed ``**kwargs`` argument passing for faster and more transparant
+  implementation (reading and writing is now about 8% faster).
+
+* Do not merge BSShaderProperty blocks (reported by Chaky, niftools issue
+  #3009832).
+
+* Installer now recognizes Maya 2011.
+
+* Fixed NiPSysData read and write for Fallout 3 (reported by Chaky,
+  niftools issue #3010861).
+
+Release 2.1.4 (19 Mar 2010)
+===========================
+
+* Extra names in oblivion_optimize.ini skip list for known mods
+  (contributed by Tommy_H).
+  
+* New spells
+
+  - modify_collisiontomopp
+  
+  - opt_reducegeometry
+  
+  - opt_packcollision
+
+* Windows right-click optimize method now uses default.ini and
+  oblivion_optimize.ini.
+  
+* fix_texturepath now fixes paths that include the whole drive path
+  to just the textures/... path.
+
+* The optimize spell has been fixed to update Fallout 3 style tangent
+  space (fixes issue #2941568, reported by xjdhdr).
+
+Release 2.1.3 (20 Feb 2010)
+===========================
 
 * Added toaster option to process files in archives (not yet functional).
 
@@ -13,13 +123,17 @@ Release 2.1.3 (in development)
 
 * New spells
 
-  - fix_delunusedbones
+  - fix_delunusedroots
 
   - modify_bonepriorities
 
-  - XXX more
+  - modify_interpolatortransrotscale
+  
+  - modify_delinterpolatortransformdata
+  
+  - opt_delunusedbones
 
-* The niftoaster optimize spell now also includes fix_delunusedbones.
+* The niftoaster optimize spell now also includes fix_delunusedroots.
 
 * Removed unused pep8 attribute conversion code.
 

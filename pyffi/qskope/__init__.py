@@ -50,6 +50,7 @@ from pyffi.formats.kfm import KfmFormat
 from pyffi.formats.dds import DdsFormat
 from pyffi.formats.tga import TgaFormat
 from pyffi.formats.egm import EgmFormat
+from pyffi.formats.egt import EgtFormat
 from pyffi.formats.esp import EspFormat
 from pyffi.formats.tri import TriFormat
 from pyffi.formats.bsa import BsaFormat
@@ -187,12 +188,14 @@ class QSkope(QtGui.QMainWindow):
             stream = open(filename, "rb")
             # try reading as a nif file
             for Format in (NifFormat, CgfFormat, KfmFormat, DdsFormat,
-                           TgaFormat, EgmFormat, TriFormat, BsaFormat):
+                           TgaFormat, EgmFormat, EspFormat, TriFormat,
+                           EgtFormat, BsaFormat):
                 self.data = Format.Data()
                 try:
                     self.data.read(stream)
-                except ValueError:
+                except ValueError as err: #ValueError:
                     # failed, try next format
+                    print(str(err))
                     continue
                 else:
                     break

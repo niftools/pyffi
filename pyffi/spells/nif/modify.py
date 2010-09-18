@@ -75,6 +75,10 @@ Module which contains all spells that modify a nif.
    :show-inheritance:
    :members:
 
+.. autoclass:: SpellCleanFarNif
+   :show-inheritance:
+   :members:
+
 .. autoclass:: SpellMakeFarNif
    :show-inheritance:
    :members:
@@ -311,7 +315,7 @@ class SpellCollisionType(NifSpell):
             return True
         elif isinstance(branch, NifFormat.bhkPackedNiTriStripsShape):
             self.changed = True
-            for subshape in branch.sub_shapes:
+            for subshape in branch.get_sub_shapes():
                 subshape.layer = self.toaster.col_type.layer
             self.toaster.msg("collision set to %s"
                              % self.toaster.options["arg"])
@@ -511,9 +515,9 @@ class SpellCollisionMaterial(NifSpell):
             self.toaster.msg("collision material set to %s" % self.toaster.options["arg"])
             # bhkPackedNiTriStripsShape could be further down, so keep looking
             return True
-        elif isinstance(branch, NifFormat.bhkPackedNiTriStripsShape) or isinstance(branch, NifFormat.hkPackedNiTriStripsData):
+        elif isinstance(branch, NifFormat.bhkPackedNiTriStripsShape):
             self.changed = True
-            for subshape in branch.sub_shapes:
+            for subshape in branch.get_sub_shapes():
                 subshape.material = self.toaster.col_type.material
             self.toaster.msg("collision material set to %s" % self.toaster.options["arg"])
             # all extra blocks here done; no need to recurse further
@@ -608,25 +612,11 @@ class SpellDelVertexColor(SpellDelBranches):
 
 # identical to niftoaster.py modify_delbranches -x NiVertexColorProperty
 # delete?
-class SpellDelVertexColorProperty(SpellDelBranches):
-    """Delete vertex color properties."""
+class SpellDelVertexColorProperty(_SpellDelBranchClasses):
+    """Delete vertex color property if it is present."""
 
     SPELLNAME = "modify_delvertexcolorprop"
-
-    def is_branch_to_be_deleted(self, branch):
-        return isinstance(branch, NifFormat.NiVertexColorProperty)
-
-    def datainspect(self):
-        return self.inspectblocktype(NifFormat.NiTriBasedGeom)
-
-    def branchinspect(self, branch):
-        # only inspect the NiAVObject branch
-        return isinstance(branch, (NifFormat.NiAVObject,
-                                   NifFormat.NiTriBasedGeomData,
-                                   NifFormat.NiVertexColorProperty))
-
-    def branchentry(self, branch):
-        return True
+    BRANCH_CLASSES_TO_BE_DELETED = (NifFormat.NiVertexColorProperty,)
 
 # identical to niftoaster.py modify_delbranches -x NiAlphaProperty
 # delete?
@@ -746,14 +736,39 @@ class SpellAddStencilProperty(NifSpell):
                     return False
             # no stencil property found
             self.toaster.msg("adding NiStencilProperty")
-            branch.add_property(NifFormat.NiStencilProperty)
+            branch.add_property(NifFormat.NiStencilProperty())
             self.changed = True
             # no geometry children, no need to recurse further
             return False
         # recurse further
         return True
 
+# note: this should go into the optimize module
+# but we have to put it here to avoid circular dependencies
+class SpellCleanFarNif(
+    pyffi.spells.SpellGroupParallel(
+        SpellDelVertexColorProperty,
+        SpellDelAlphaProperty,
+        SpellDelSpecularProperty,
+        SpellDelBSXFlags,
+        SpellDelStringExtraDatas,
+        pyffi.spells.nif.fix.SpellDelTangentSpace,
+        SpellDelCollisionData,
+        SpellDelAnimation,
+        SpellDisableParallax)):
+    """Spell to clean _far type nifs (for even more optimizations,
+    combine this with the optimize spell).
+    """
+
+    SPELLNAME = "opt_cleanfarnif"
+
+    # only apply spell on _far files
+    def datainspect(self):
+        return self.stream.name.endswith('_far.nif')
+
 # TODO: implement via modify_delbranches?
+# this is like SpellCleanFarNif but with changing the texture path
+# and optimizing the geometry
 class SpellMakeFarNif(
     pyffi.spells.SpellGroupSeries(
         pyffi.spells.SpellGroupParallel(
@@ -845,6 +860,7 @@ class SpellChangeBonePriorities(NifSpell):
     def branchinspect(self, branch):
         # inspect the NiAVObject and NiSequence branches
         return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiControllerManager,
                                    NifFormat.NiSequence))
 
     def branchentry(self, branch):
@@ -860,6 +876,36 @@ class SpellChangeBonePriorities(NifSpell):
                 self.toaster.msg("%s priority changed to %d" %
                                  (controlled_block.get_node_name(),
                                   controlled_block.priority))
+        return True
+
+class SpellChangeAllBonePriorities(SpellChangeBonePriorities):
+    """Changes all controlled block priorities to supplied argument."""
+
+    SPELLNAME = "modify_allbonepriorities"
+
+    @classmethod
+    def toastentry(cls, toaster):
+        if not toaster.options["arg"]:
+            toaster.logger.warn(
+                "must specify priority as argument (e.g. -a 20)")
+            return False
+        else:
+            toaster.bone_priority = int(toaster.options["arg"])
+            return True
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiSequence):
+            for controlled_block in branch.controlled_blocks:
+                if controlled_block.priority == self.toaster.bone_priority:
+                    self.toaster.msg("%s priority is already %d" %
+                                     (controlled_block.get_node_name(),
+                                      controlled_block.priority))
+                else:
+                    controlled_block.priority = self.toaster.bone_priority
+                    self.changed = True
+                    self.toaster.msg("%s priority changed to %d" %
+                                     (controlled_block.get_node_name(),
+                                      controlled_block.priority))
         return True
 
 class SpellSetInterpolatorTransRotScale(NifSpell):
@@ -930,9 +976,9 @@ class SpellSetInterpolatorTransRotScale(NifSpell):
                     interp.rotation.x = quatx
                 if quaty is not None:
                     interp.rotation.y = quaty
-                if quatx is not None:
+                if quatz is not None:
                     interp.rotation.z = quatz
-                if quatx is not None:
+                if quatw is not None:
                     interp.rotation.w = quatw
                 if scale is not None:
                     interp.scale = scale
@@ -979,47 +1025,111 @@ class SpellDelInterpolatorTransformData(NifSpell):
         return True
 
 class SpellCollisionToMopp(NifSpell):
-    """transforms the object collision to MOPP - if a vertex based (rather than a basic shape) collision exists"""
+    """Transforms non-mopp triangle collisions to the more efficient mopps."""
 
     SPELLNAME = "modify_collisiontomopp"
     READONLY = False
 
     def datainspect(self):
-        return self.inspectblocktype(NifFormat.bhkNiTriStripsShape)
+        return self.inspectblocktype(NifFormat.bhkRigidBody)
 
     def branchinspect(self, branch):
         # only inspect the NiAVObject branch
         return isinstance(branch, (NifFormat.NiAVObject,
                                    NifFormat.bhkCollisionObject,
-                                   NifFormat.bhkRigidBody,
-                                   NifFormat.bhkNiTriStripsShape))
+                                   NifFormat.bhkRigidBody))
 
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.bhkRigidBody):
-            self.changed = True
-            if isinstance(branch.shape, NifFormat.bhkNiTriStripsShape):
-                print 'x'
-            branch.layer = self.toaster.col_type.layer
-            branch.layer_copy = self.toaster.col_type.layer
-            branch.mass = self.toaster.col_type.mass
-            branch.motion_system = self.toaster.col_type.motion_system
-            branch.unknown_byte_1 = self.toaster.col_type.unknown_byte1
-            branch.unknown_byte_2 = self.toaster.col_type.unknown_byte2
-            branch.quality_type = self.toaster.col_type.quality_type
-            branch.wind = self.toaster.col_type.wind
-            branch.solid = self.toaster.col_type.solid
-            self.toaster.msg("collision set to %s"
-                             % self.toaster.options["arg"])
-            # bhkPackedNiTriStripsShape could be further down, so keep looking
-            return True
-        elif isinstance(branch, NifFormat.bhkPackedNiTriStripsShape):
-            self.changed = True
-            for subshape in branch.sub_shapes:
-                subshape.layer = self.toaster.col_type.layer
-            self.toaster.msg("collision set to %s"
-                             % self.toaster.options["arg"])
-            # all extra blocks here done; no need to recurse further
+            if isinstance(branch.shape, (NifFormat.bhkNiTriStripsShape,
+                                         NifFormat.bhkPackedNiTriStripsShape)):
+                colmopp = NifFormat.bhkMoppBvTreeShape()
+                colmopp.material = branch.shape.material
+                colmopp.unknown_8_bytes[0] = 160
+                colmopp.unknown_8_bytes[1] = 13
+                colmopp.unknown_8_bytes[2] = 75
+                colmopp.unknown_8_bytes[3] = 1
+                colmopp.unknown_8_bytes[4] = 192
+                colmopp.unknown_8_bytes[5] = 207
+                colmopp.unknown_8_bytes[6] = 144
+                colmopp.unknown_8_bytes[7] = 11
+                colmopp.unknown_float = 1.0
+                if isinstance(branch.shape, NifFormat.bhkNiTriStripsShape):
+                    branch.shape = branch.shape.get_interchangeable_packed_shape()
+                colmopp.shape = branch.shape
+                branch.shape = colmopp
+                self.changed = True
+                branch.shape.update_mopp()
+                self.toaster.msg("collision set to MOPP")
+            # Don't need to recurse further
             return False
+        else:
+            # recurse further
+            return True
+
+class SpellMirrorAnimation(NifSpell):
+    """Mirrors the animation by switching bones and mirroring their x values. 
+    Only useable on creature/character animations (well any animations
+    as long as they have bones in the form of bip01/2 L ...).
+    """
+
+    SPELLNAME = "modify_mirroranimation"
+    READONLY = False
+
+    def datainspect(self):
+        # returns more than needed but easiest way to ensure it catches all
+        # types of animations
+        return True
+        
+    def dataentry(self):
+        # make list of used bones
+        self.old_bone_data = {}
+        for branch in self.data.get_global_iterator():
+            if isinstance(branch, NifFormat.NiControllerSequence):
+                for block in branch.controlled_blocks:
+                    name = block.get_node_name().lower()
+                    if ' r ' in name or ' l ' in name:
+                        self.old_bone_data[name] = [block.interpolator, block.controller, block.priority, block.string_palette, block.node_name_offset, block.controller_type_offset]
+        if self.old_bone_data:
+            return True
+
+    def branchinspect(self, branch):
+        # inspect the NiAVObject branch, and NiControllerSequence
+        # branch (for kf files)
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiTimeController,
+                                   NifFormat.NiInterpolator,
+                                   NifFormat.NiControllerManager,
+                                   NifFormat.NiControllerSequence))
+
+    def branchentry(self, branch):
+        old_bone_data = self.old_bone_data
+                
+        if isinstance(branch, NifFormat.NiControllerSequence):
+            for block in branch.controlled_blocks:
+                node_name = block.get_node_name().lower()
+                if ' l ' in node_name: node_name = node_name.replace(' l ', ' r ')
+                elif ' r ' in node_name: node_name = node_name.replace(' r ', ' l ')
+                if node_name in old_bone_data:
+                    self.changed = True
+                    block.interpolator, block.controller, block.priority, block.string_palette, block.node_name_offset, block.controller_type_offset = old_bone_data[node_name]
+                    # and then reverse x movements (since otherwise the movement of f.e. an arm towards the center of the body will be still in the same direction but away from the body
+                    if not block.interpolator: continue
+                    ip = block.interpolator
+                    ip.translation.x = -ip.translation.x
+                    ip.rotation.x = -ip.rotation.x
+                    if ip.data:
+                        data = ip.data
+                        if data.translations.num_keys:
+                            for key in data.translations.keys:
+                                key.value.x = -key.value.x
+                        if data.rotation_type == 4:
+                            if data.xyz_rotations[1].num_keys != 0:
+                                for key in data.xyz_rotations[1].keys:
+                                    key.value = -key.value
+                        elif data.num_rotation_keys != 0:
+                            for key in data.quaternion_keys:
+                                key.value.x = -key.value.x
         else:
             # recurse further
             return True

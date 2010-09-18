@@ -33,6 +33,7 @@ import pyffi.formats.egm
 import pyffi.formats.esp
 import pyffi.formats.tri
 import pyffi.formats.bsa
+import pyffi.formats.egt
 import pyffi.spells
 import pyffi.spells.nif
 import pyffi.spells.nif.fix
@@ -42,6 +43,9 @@ import pyffi.spells.nif.check
 if sys.version_info[0] < 3:
     import pyffi.object_models.xsd
     import pyffi.formats.dae
+
+# force number of jobs to be 1 (multithreading makes doctesting difficult)
+pyffi.spells.Toaster.DEFAULT_OPTIONS["jobs"] = 1
 
 mods = [val for (key, val) in sys.modules.iteritems()
         if key.startswith('pyffi')]
@@ -67,12 +71,16 @@ suite.addTest(doctest.DocFileSuite('tests/nif/modify_delbranches.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/modify_delvertexcolor.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/fix_cleanstringpalette.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/modify_substitutestringpalette.txt'))
+suite.addTest(doctest.DocFileSuite('tests/nif/modify_allbonepriorities.txt'))
 suite.addTest(doctest.DocFileSuite('tests/om_simpletype.txt'))
 suite.addTest(doctest.DocFileSuite('tests/om_arraytype.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/matrix.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/skinpartition.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/bhkpackednitristripsshape.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/opt_delunusedbones.txt'))
+suite.addTest(doctest.DocFileSuite('tests/nif/opt_delzeroscale.txt'))
+suite.addTest(doctest.DocFileSuite('tests/nif/opt_collisiongeometry.txt'))
+suite.addTest(doctest.DocFileSuite('tests/nif/opt_collision_to_box_shape.txt'))
 suite.addTest(doctest.DocFileSuite('tests/cgf/cgftoaster.txt'))
 suite.addTest(doctest.DocFileSuite('tests/kfm/kfmtoaster.txt'))
 suite.addTest(doctest.DocFileSuite('docs-sphinx/intro.rst'))
