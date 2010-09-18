@@ -697,7 +697,7 @@ class SpellCheckTriStrip(pyffi.spells.nif.NifSpell):
                 stitchedstrip = strips[0]
                 self.toaster.msg("stitched strip length = %i"
                                  % len(stitchedstrip))
-                unstitchedstrips = pyffi.utils.tristrip.unstitchStrip(
+                unstitchedstrips = pyffi.utils.tristrip.unstitch_strip(
                     stitchedstrip)
                 self.toaster.msg("num stitches          = %i"
                                  % (len(stitchedstrip)
@@ -761,7 +761,7 @@ class SpellCheckTriStrip(pyffi.spells.nif.NifSpell):
             pyffi.utils.tristrip._check_strips(triangles, [stitchedstrip])
 
             self.toaster.msg('checking unstitched strip triangles')
-            unstitchedstrips = pyffi.utils.tristrip.unstitchStrip(stitchedstrip)
+            unstitchedstrips = pyffi.utils.tristrip.unstitch_strip(stitchedstrip)
             pyffi.utils.tristrip._check_strips(triangles, unstitchedstrips)
 
 class SpellCheckVersion(pyffi.spells.nif.NifSpell):

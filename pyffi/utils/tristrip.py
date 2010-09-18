@@ -481,36 +481,36 @@ def stitch_strips(strips):
     # return resulting strip
     return strip
 
-def unstitchStrip(strip):
+def unstitch_strip(strip):
     """Revert stitched strip back to a set of strips without stitches.
 
     >>> strip = [0,1,2,2,3,3,4,5,6,7,8]
     >>> triangles = triangulate([strip])
-    >>> strips = unstitchStrip(strip)
+    >>> strips = unstitch_strip(strip)
     >>> _check_strips(triangles, strips)
     >>> strips
     [[0, 1, 2], [3, 3, 4, 5, 6, 7, 8]]
     >>> strip = [0,1,2,3,3,4,4,4,5,6,7,8]
     >>> triangles = triangulate([strip])
-    >>> strips = unstitchStrip(strip)
+    >>> strips = unstitch_strip(strip)
     >>> _check_strips(triangles, strips)
     >>> strips
     [[0, 1, 2, 3], [4, 4, 5, 6, 7, 8]]
     >>> strip = [0,1,2,3,4,4,4,4,5,6,7,8]
     >>> triangles = triangulate([strip])
-    >>> strips = unstitchStrip(strip)
+    >>> strips = unstitch_strip(strip)
     >>> _check_strips(triangles, strips)
     >>> strips
     [[0, 1, 2, 3, 4], [4, 4, 5, 6, 7, 8]]
     >>> strip = [0,1,2,3,4,4,4,4,4,5,6,7,8]
     >>> triangles = triangulate([strip])
-    >>> strips = unstitchStrip(strip)
+    >>> strips = unstitch_strip(strip)
     >>> _check_strips(triangles, strips)
     >>> strips
     [[0, 1, 2, 3, 4], [4, 5, 6, 7, 8]]
     >>> strip = [0,0,1,1,2,2,3,3,4,4,4,4,4,5,5,6,6,7,7,8,8]
     >>> triangles = triangulate([strip])
-    >>> strips = unstitchStrip(strip)
+    >>> strips = unstitch_strip(strip)
     >>> _check_strips(triangles, strips)
     >>> strips
     []"""
