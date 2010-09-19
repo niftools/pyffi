@@ -221,7 +221,7 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
     READONLY = False
 
     # spell parameters
-    STRIPIFY = None # set to None will select representation of smallest size
+    STRIPIFY = True # set to None will select representation of smallest size
     STITCH = True
     VERTEXPRECISION = 3
     NORMALPRECISION = 3
