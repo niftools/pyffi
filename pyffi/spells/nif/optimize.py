@@ -67,6 +67,7 @@ import os.path # exists
 from pyffi.formats.nif import NifFormat
 from pyffi.utils import unique_map
 import pyffi.utils.tristrip
+import pyffi.utils.vertex_cache # to report ATVR
 import pyffi.spells
 import pyffi.spells.nif
 import pyffi.spells.nif.fix
@@ -395,6 +396,11 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                                      % len(data.get_strips()))
                     data.set_strips(
                         [pyffi.utils.tristrip.stitch_strips(data.get_strips())])
+        # report ATVR for information
+        self.toaster.msg(
+            "ATVR is %.3f"
+            % pyffi.utils.vertex_cache.average_transform_to_vertex_ratio(
+                data.get_triangles()))
 
         # update skin data
         if branch.skin_instance:
