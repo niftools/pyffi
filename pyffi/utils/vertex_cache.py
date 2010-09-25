@@ -247,7 +247,7 @@ def get_cache_optimized_vertex_map(triangles):
                 new_vertex += 1
     return vertex_map
 
-def average_transform_to_vertex_ratio(triangles, cache_size=32):
+def average_transform_to_vertex_ratio(triangles, cache_size=16):
     """Calculate number of transforms per vertex for a given cache size
     and ordering of triangles. See
     http://castano.ludicon.com/blog/2009/01/29/acmr/

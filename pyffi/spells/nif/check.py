@@ -653,7 +653,7 @@ class SpellCheckTangentSpace(pyffi.spells.nif.NifSpell):
 
 class SpellCheckTriStrip(pyffi.spells.nif.NifSpell):
     """Run the stripifier on all triangles from nif files. This spell is also
-    useful for checking and profiling the stripifierand the
+    useful for checking and profiling the stripifier and the
     stitcher/unstitcher  (for instance it checks that it does not
     change the geometry).
 
