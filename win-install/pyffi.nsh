@@ -40,10 +40,10 @@ Section Documentation Documentation
   RMDir /r "$INSTDIR\tests"
 
   ; now install new stuff
-  SetOutPath $INSTDIR
-  File /r ${MISC_SRCDIR}\examples
-  File /r ${MISC_SRCDIR}\tests
-  File /r ${MISC_SRCDIR}\docs
+  SetOutPath "$INSTDIR"
+  File /r "${MISC_SRCDIR}\examples"
+  File /r "${MISC_SRCDIR}\tests"
+  File /r "${MISC_SRCDIR}\docs"
 SectionEnd
 
 Section un.Documentation
@@ -175,15 +175,15 @@ legacykeys_end_${label}:
 !macroend
 
 !macro PostExtra
-  SetOutPath $INSTDIR
-  File ${MISC_SRCDIR}\README.rst
-  File ${MISC_SRCDIR}\INSTALL.rst
-  File ${MISC_SRCDIR}\LICENSE.rst
-  File ${MISC_SRCDIR}\CHANGELOG.rst
-  File ${MISC_SRCDIR}\AUTHORS.rst
-  File ${MISC_SRCDIR}\TODO.rst
-  File ${MISC_SRCDIR}\THANKS.rst
-  File ${MISC_SRCDIR}\CONTRIBUTE.rst
+  SetOutPath "$INSTDIR"
+  File "${MISC_SRCDIR}\README.rst"
+  File "${MISC_SRCDIR}\INSTALL.rst"
+  File "${MISC_SRCDIR}\LICENSE.rst"
+  File "${MISC_SRCDIR}\CHANGELOG.rst"
+  File "${MISC_SRCDIR}\AUTHORS.rst"
+  File "${MISC_SRCDIR}\TODO.rst"
+  File "${MISC_SRCDIR}\THANKS.rst"
+  File "${MISC_SRCDIR}\CONTRIBUTE.rst"
 
   ; Windows does not recognize the rst extension, so copy to TXT
   ; At the same time, force Windows style line endings.
@@ -212,9 +212,9 @@ legacykeys_end_${label}:
   Push "$INSTDIR\CONTRIBUTE.txt"
   Call unix2dos
 
-  SetOutPath $INSTDIR\utilities\toaster
-  File /oname=default.ini.tmp ${MISC_SRCDIR}\utilities\toaster\default.ini
-  File /oname=oblivion_optimize.ini.tmp ${MISC_SRCDIR}\utilities\toaster\oblivion_optimize.ini
+  SetOutPath "$INSTDIR\utilities\toaster"
+  File /oname=default.ini.tmp "${MISC_SRCDIR}\utilities\toaster\default.ini"
+  File /oname=oblivion_optimize.ini.tmp "${MISC_SRCDIR}\utilities\toaster\oblivion_optimize.ini"
   CreateDirectory "$INSTDIR\utilities\toaster\in"
   CreateDirectory "$INSTDIR\utilities\toaster\out"
 
