@@ -253,9 +253,9 @@ class OrientedStrip:
         True
         """
 
-        if isinstance(strip, list):
+        if isinstance(strip, (list, tuple)):
             # construct from strip
-            self.vertices = strip[:]
+            self.vertices = list(strip)
             self.reversed = False
             self.compactify()
         elif isinstance(strip, OrientedStrip):

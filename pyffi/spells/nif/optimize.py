@@ -67,7 +67,7 @@ import os.path # exists
 from pyffi.formats.nif import NifFormat
 from pyffi.utils import unique_map
 import pyffi.utils.tristrip
-import pyffi.utils.vertex_cache # to report ATVR
+import pyffi.utils.vertex_cache
 import pyffi.spells
 import pyffi.spells.nif
 import pyffi.spells.nif.fix
@@ -221,7 +221,7 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
     READONLY = False
 
     # spell parameters
-    STRIPLENCUTOFF = 10
+    STRIPIFY = False # set to None will select representation of smallest size
     STITCH = True
     VERTEXPRECISION = 3
     NORMALPRECISION = 3
@@ -293,6 +293,76 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
         new_numvertices = len(v_map_inverse)
         self.toaster.msg("(num vertices was %i and is now %i)"
                          % (len(v_map), new_numvertices))
+
+        # optimizing triangle ordering
+        # first, get new triangle indices, with duplicate vertices removed
+        triangles = list(pyffi.utils.vertex_cache.get_unique_triangles(
+            (v_map[v0], v_map[v1], v_map[v2])
+            for v0, v1, v2 in data.get_triangles()))
+        old_atvr = pyffi.utils.vertex_cache.average_transform_to_vertex_ratio(
+            triangles)
+        self.toaster.msg("optimizing triangle ordering")
+        new_triangles = pyffi.utils.vertex_cache.get_cache_optimized_triangles(
+            triangles)
+        new_atvr = pyffi.utils.vertex_cache.average_transform_to_vertex_ratio(
+            new_triangles)
+        if new_atvr < old_atvr:
+            triangles = new_triangles
+            self.toaster.msg(
+                "(ATVR reduced from %.3f to %.3f)" % (old_atvr, new_atvr))
+        else:
+            self.toaster.msg(
+                "(ATVR stable at %.3f)" % old_atvr)            
+        # optimize triangles to have sequentially ordered indices
+        self.toaster.msg("optimizing vertex ordering")
+        v_map_opt = pyffi.utils.vertex_cache.get_cache_optimized_vertex_map(
+            triangles)
+        triangles = [(v_map_opt[v0], v_map_opt[v1], v_map_opt[v2])
+                      for v0, v1, v2 in triangles]
+        # update vertex map and its inverse
+        for i in xrange(data.num_vertices):
+            v_map[i] = v_map_opt[v_map[i]]
+            v_map_inverse[v_map[i]] = i
+
+        # stripify
+        self.toaster.msg("stripifying")
+        strips = pyffi.utils.vertex_cache.stable_stripify(
+            triangles, stitchstrips=self.STITCH)
+        triangles_size = 3 * len(triangles)
+        strips_size = len(strips) + sum(len(strip) for strip in strips)
+        #pyffi.utils.tristrip._check_strips(triangles, strips) # XXX debug
+        self.toaster.msg("strips size = %i, triangle size = %i"
+                         % (strips_size, triangles_size))
+        # decide whether to use strip or triangles as primitive
+        if self.STRIPIFY is None:
+            stripify = (
+                strips_size < triangles_size
+                and all(len(strip) < 65536 for strip in strips))
+        else:
+            stripify = self.STRIPIFY
+        if stripify:
+            # use a strip representation
+            if not isinstance(branch, NifFormat.NiTriStrips):
+                self.toaster.msg("replacing branch by NiTriStrips")
+                newbranch = branch.get_interchangeable_tri_strips(
+                    strips=strips)
+                self.data.replace_global_node(branch, newbranch)
+                branch = newbranch
+                data = newbranch.data
+            else:
+                data.set_strips(strips)
+        else:
+            # use a triangle representation
+            if not isinstance(branch, NifFormat.NiTriShape):
+                self.toaster.msg("replacing branch by NiTriShape")
+                newbranch = branch.get_interchangeable_tri_shape(
+                    triangles=triangles)
+                self.data.replace_global_node(branch, newbranch)
+                branch = newbranch
+                data = newbranch.data
+            else:
+                data.set_triangles(triangles)
+
         # copy old data
         oldverts = [[v.x, v.y, v.z] for v in data.vertices]
         oldnorms = [[n.x, n.y, n.z] for n in data.normals]
@@ -336,72 +406,6 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
         del olduvs
         del oldvcols
 
-        # update vertex indices in strips/triangles
-        if isinstance(data, NifFormat.NiTriStripsData):
-            for strip in data.points:
-                for i in xrange(len(strip)):
-                    try:
-                        strip[i] = v_map[strip[i]]
-                    except IndexError:
-                        self.toaster.logger.warn(
-                            "Corrupt nif: bad vertex index in strip (%i); "
-                            "replacing by valid index which might "
-                            "modify your geometry!" % strip[i])
-                        if i > 0:
-                            strip[i] = strip[i-1]
-                        else:
-                            strip[i] = strip[i+1]
-        elif isinstance(data, NifFormat.NiTriShapeData):
-            for tri in data.triangles:
-                tri.v_1 = v_map[tri.v_1]
-                tri.v_2 = v_map[tri.v_2]
-                tri.v_3 = v_map[tri.v_3]
-
-        # stripify trishape/tristrip
-        if data.num_triangles > 32000:
-            self.toaster.logger.warn(
-                "Found an insane amount of %i triangles in geometry: "
-                "consider simplifying the mesh "
-                "or breaking it up in smaller parts."
-                % data.num_triangles)
-        else:
-            if isinstance(data, NifFormat.NiTriStripsData):
-                self.toaster.msg("recalculating strips")
-                origlen = sum(i for i in data.strip_lengths)
-                data.set_triangles(data.get_triangles())
-                newlen = sum(i for i in data.strip_lengths)
-                self.toaster.msg("(strip length was %i and is now %i)"
-                                 % (origlen, newlen))
-            elif isinstance(data, NifFormat.NiTriShapeData):
-                self.toaster.msg("stripifying")
-                newbranch = branch.get_interchangeable_tri_strips()
-                self.data.replace_global_node(branch, newbranch)
-                branch = newbranch
-                data = newbranch.data
-            # average, weighed towards large strips
-            if isinstance(data, NifFormat.NiTriStripsData):
-                # note: the max(1, ...) is to avoid ZeroDivisionError
-                avgstriplen = float(sum(i * i for i in data.strip_lengths)) \
-                    / max(1, sum(i for i in data.strip_lengths))
-                self.toaster.msg("(average strip length is %f)" % avgstriplen)
-                if avgstriplen < self.STRIPLENCUTOFF:
-                    self.toaster.msg("average strip length < %f so triangulating"
-                                     % self.STRIPLENCUTOFF)
-                    newbranch = branch.get_interchangeable_tri_shape()
-                    self.data.replace_global_node(branch, newbranch)
-                    branch = newbranch
-                    data = newbranch.data
-                elif self.STITCH:
-                    self.toaster.msg("stitching strips (using %i stitches)"
-                                     % len(data.get_strips()))
-                    data.set_strips(
-                        [pyffi.utils.tristrip.stitch_strips(data.get_strips())])
-        # report ATVR for information
-        self.toaster.msg(
-            "ATVR is %.3f"
-            % pyffi.utils.vertex_cache.average_transform_to_vertex_ratio(
-                data.get_triangles()))
-
         # update skin data
         if branch.skin_instance:
             self.toaster.msg("update skin data vertex mapping")
@@ -433,7 +437,7 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                 # use Oblivion settings
                 branch.update_skin_partition(
                     maxbonesperpartition = 18, maxbonespervertex = 4,
-                    stripify = True, verbose = 0,
+                    stripify=self.STRIPIFY, verbose = 0,
                     stitchstrips=self.STITCH)
 
         # update morph data

@@ -45,6 +45,8 @@ http://home.comcast.net/~tom_forsyth/papers/fast_vert_cache_opt.html
 
 import collections
 
+from pyffi.utils.tristrip import OrientedStrip
+
 class VertexInfo:
     """Stores information about a vertex."""
 
@@ -134,25 +136,11 @@ class Mesh:
             num_vertices = 0
         self.vertex_infos = [VertexInfo() for i in xrange(num_vertices)]
         # add all triangles
-        _added_triangles = set([])
-        triangle_index = 0
-        for v0, v1, v2 in triangles:
-            if v0 == v1 or v1 == v2 or v2 == v0:
-                # skip degenerate triangles
-                continue
-            if v0 < v1 and v0 < v2:
-                verts = (v0, v1, v2)
-            elif v1 < v0 and v1 < v2:
-                verts = (v1, v2, v0)
-            elif v2 < v0 and v2 < v1:
-                verts = (v2, v0, v1)
-            if verts not in _added_triangles:
-                self.triangle_infos.append(TriangleInfo(vertex_indices=verts))
-                for vertex in verts:
-                    self.vertex_infos[vertex].triangle_indices.append(
-                        triangle_index)
-                triangle_index += 1
-                _added_triangles.add(verts)
+        for triangle_index, verts in enumerate(get_unique_triangles(triangles)):
+            self.triangle_infos.append(TriangleInfo(vertex_indices=verts))
+            for vertex in verts:
+                self.vertex_infos[vertex].triangle_indices.append(
+                    triangle_index)
         # calculate score of all vertices
         for vertex_info in self.vertex_infos:
             vertex_info.update_score()
@@ -228,39 +216,151 @@ class Mesh:
         return triangles
 
 def get_cache_optimized_triangles(triangles):
+    """Calculate cache optimized triangles, and return the result as
+    a reordered set of triangles or strip of stitched triangles.
+
+    :param triangles: The triangles (triples of vertex indices).
+    :return: A list of reordered triangles.
+    """
     mesh = Mesh(triangles)
     return mesh.get_cache_optimized_triangles()
 
-def get_cache_optimized_vertex_map(triangles):
-    """Map vertices so triangles have consequetive indices.
+def get_unique_triangles(triangles):
+    """Yield unique triangles.
+
+    >>> list(get_unique_triangles([(0, 1, 2), (1, 1, 0), (2, 1, 0), (1, 0, 0)]))
+    [(0, 1, 2), (0, 2, 1)]
+    >>> list(get_unique_triangles([(0, 1, 2), (1, 1, 0), (2, 0, 1)]))
+    [(0, 1, 2)]
+    """
+    _added_triangles = set()
+    for v0, v1, v2 in triangles:
+        if v0 == v1 or v1 == v2 or v2 == v0:
+            # skip degenerate triangles
+            continue
+        if v0 < v1 and v0 < v2:
+            verts = (v0, v1, v2)
+        elif v1 < v0 and v1 < v2:
+            verts = (v1, v2, v0)
+        elif v2 < v0 and v2 < v1:
+            verts = (v2, v0, v1)
+        if verts not in _added_triangles:
+            yield verts
+            _added_triangles.add(verts)
+
+def stable_stripify(triangles, stitchstrips=False):
+    """Stitch all triangles together into a strip without changing the
+    triangle ordering (for example because their ordering is already
+    optimized).
+
+    :param triangles: The triangles (triples of vertex indices).
+    :return: A list of strips (list of vertex indices).
+
+    >>> stable_stripify([(0, 1, 2), (2, 1, 4)])
+    [[0, 1, 2, 4]]
+    >>> stable_stripify([(0, 1, 2), (2, 3, 4)])
+    [[0, 1, 2], [2, 3, 4]]
+    >>> stable_stripify([(0, 1, 2), (2, 1, 3), (2, 3, 4), (1, 4, 5), (5, 4, 6)])
+    [[0, 1, 2, 3, 4], [1, 4, 5, 6]]
+    >>> stable_stripify([(0, 1, 2), (0, 3, 1), (0, 4, 3), (3, 5, 1), (6, 3, 4)])
+    [[2, 0, 1, 3], [0, 4, 3], [3, 5, 1], [6, 3, 4]]
+    """
+    # all orientation preserving triangle permutations
+    indices = ((0, 1, 2), (1, 2, 0), (2, 0, 1))
+    # list of all strips so far
+    strips = []
+    # current strip that is being built
+    strip = []
+    # add a triangle at a time
+    for tri in triangles:
+        if not strip:
+            # empty strip
+            strip.extend(tri)
+        elif len(strip) == 3:
+            # strip with single triangle
+            # see if we can append a vertex
+            # we can rearrange the original strip as well
+            added = False
+            for v0, v1, v2 in indices:
+                for ov0, ov1, ov2 in indices:
+                    if strip[v1] == tri[ov1] and  strip[v2] == tri[ov0]:
+                        strip = [strip[v0], strip[v1], strip[v2], tri[ov2]]
+                        added = True
+                        break
+                if added:
+                    # triangle added: break loop
+                    break
+            if added:
+                # triangle added: process next triangle
+                continue
+            # start new strip
+            strips.append(strip)
+            strip = list(tri)
+        else:
+            # strip with multiple triangles
+            added = False
+            for ov0, ov1, ov2 in indices:
+                if len(strip) & 1:
+                    if strip[-2] == tri[ov1] and  strip[-1] == tri[ov0]:
+                        strip.append(tri[ov2])
+                        added = True
+                        break
+                else:
+                    if strip[-2] == tri[ov0] and  strip[-1] == tri[ov1]:
+                        strip.append(tri[ov2])
+                        added = True
+                        break
+            if added:
+                # triangle added: process next triangle
+                continue
+            # start new strip
+            strips.append(strip)
+            strip = list(tri)
+    # append last strip
+    strips.append(strip)
+    if not stitchstrips or not strips:
+        return strips
+    else:
+        result = reduce(lambda x, y: x + y,
+                        (OrientedStrip(strip) for strip in strips))
+        return [list(result)]
+
+def stripify(triangles, stitchstrips=False):
+    """Stripify triangles, optimizing for the vertex cache."""
+    return stable_stripify(
+        get_cache_optimized_triangles(triangles),
+        stitchstrips=True)
+
+def get_cache_optimized_vertex_map(strips):
+    """Map vertices so triangles/strips have consequetive indices.
 
     >>> get_cache_optimized_vertex_map([(5,2,1),(0,2,3)])
     [3, 2, 1, 4, None, 0]
     """
-    num_vertices = max(max(triangle) for triangle in triangles) + 1
+    num_vertices = max(max(strip) for strip in strips) + 1
     vertex_map = [None for i in xrange(num_vertices)]
     new_vertex = 0
-    for triangle in triangles:
-        for old_vertex in triangle:
+    for strip in strips:
+        for old_vertex in strip:
             if vertex_map[old_vertex] is None:
                 vertex_map[old_vertex] = new_vertex
                 new_vertex += 1
     return vertex_map
 
-def average_transform_to_vertex_ratio(triangles, cache_size=16):
+def average_transform_to_vertex_ratio(strips, cache_size=16):
     """Calculate number of transforms per vertex for a given cache size
-    and ordering of triangles. See
+    and triangles/strips. See
     http://castano.ludicon.com/blog/2009/01/29/acmr/
     """
     cache = collections.deque(maxlen=cache_size)
     # get number of vertices
     vertices = set([])
-    for triangle in triangles:
-        vertices.update(triangle)
+    for strip in strips:
+        vertices.update(strip)
     # get number of cache misses (each miss needs a transform)
     num_misses = 0
-    for triangle in triangles:
-        for vertex in triangle:
+    for strip in strips:
+        for vertex in strip:
             if vertex in cache:
                 pass
             else:

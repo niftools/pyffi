@@ -48,9 +48,12 @@ pyffi.toaster:INFO:    ~~~ NiNode [test] ~~~
 pyffi.toaster:INFO:      ~~~ NiTriShape [Cube] ~~~
 pyffi.toaster:INFO:        removing duplicate vertices
 pyffi.toaster:INFO:        (num vertices was 8 and is now 8)
+pyffi.toaster:INFO:        optimizing triangle ordering
+pyffi.toaster:INFO:        (ATVR stable at 1.000)
+pyffi.toaster:INFO:        optimizing vertex ordering
 pyffi.toaster:INFO:        stripifying
-pyffi.toaster:INFO:        (average strip length is 9.842105)
-pyffi.toaster:INFO:        average strip length < 10.000000 so triangulating
+pyffi.toaster:INFO:        strip size = 30, triangle size = 36
+pyffi.toaster:INFO:        replacing branch by NiTriStrips
 pyffi.toaster:INFO:  overwriting tests/nif/_test.nif
 pyffi.toaster:INFO:Finished.
 >>> # clean up
@@ -82,9 +85,12 @@ pyffi.toaster:INFO:    ~~~ NiNode [test] ~~~
 pyffi.toaster:INFO:      ~~~ NiTriShape [Cube] ~~~
 pyffi.toaster:INFO:        removing duplicate vertices
 pyffi.toaster:INFO:        (num vertices was 8 and is now 8)
+pyffi.toaster:INFO:        optimizing triangle ordering
+pyffi.toaster:INFO:        (ATVR stable at 1.000)
+pyffi.toaster:INFO:        optimizing vertex ordering
 pyffi.toaster:INFO:        stripifying
-pyffi.toaster:INFO:        (average strip length is 9.842105)
-pyffi.toaster:INFO:        average strip length < 10.000000 so triangulating
+pyffi.toaster:INFO:        strip size = 30, triangle size = 36
+pyffi.toaster:INFO:        replacing branch by NiTriStrips
 pyffi.toaster:INFO:  overwriting tests/nif/_test.nif
 pyffi.toaster:INFO:Finished.
 >>> # clean up
@@ -109,3 +115,26 @@ pyffi.toaster:INFO:Finished.
 pyffi.toaster:INFO:=== tests/nif/test_opt_dupverts.nif ===
 pyffi.toaster:INFO:Finished.
 >>> os.remove("tests/nif/test_opt_dupverts.tri")
+
+Duplicate vertex check
+----------------------
+
+>>> from pyffi.formats.nif import NifFormat
+>>> import pyffi.spells.nif.optimize
+>>> from pyffi.spells import Toaster
+>>> data = NifFormat.Data()
+>>> stream = open("tests/nif/test_opt_dupverts.nif", "rb")
+>>> data.read(stream)
+>>> spell = pyffi.spells.nif.optimize.SpellOptimizeGeometry(data=data)
+>>> spell.recurse()
+pyffi.toaster:INFO:--- opt_geometry ---
+pyffi.toaster:INFO:  ~~~ NiNode [Lowerclass Dunmer Cup Type-1] ~~~
+pyffi.toaster:INFO:    ~~~ NiTriStrips [Lowerclass Dunmer Cup Type-1] ~~~
+pyffi.toaster:INFO:      removing duplicate vertices
+pyffi.toaster:INFO:      (num vertices was 303 and is now 169)
+pyffi.toaster:INFO:      optimizing triangle ordering
+pyffi.toaster:INFO:      (ATVR reduced from 1.462 to 1.000)
+pyffi.toaster:INFO:      optimizing vertex ordering
+pyffi.toaster:INFO:      stripifying
+pyffi.toaster:INFO:      strip size = 632, triangle size = 636
+pyffi.toaster:INFO:      recalculating tangent space
