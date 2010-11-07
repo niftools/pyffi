@@ -346,6 +346,7 @@ import pyffi.utils.inertia
 from pyffi.utils.mathutils import * # XXX todo get rid of from XXX import *
 import pyffi.utils.mopp
 import pyffi.utils.tristrip
+import pyffi.utils.vertex_cache
 import pyffi.utils.quickhull
 # XXX convert the following to absolute imports
 from pyffi.object_models.editable import EditableBoolComboBox
