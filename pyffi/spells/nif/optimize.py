@@ -320,7 +320,10 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
         # update vertex map and its inverse
         for i in xrange(data.num_vertices):
             v_map[i] = v_map_opt[v_map[i]]
-            v_map_inverse[v_map[i]] = i
+            # v_map[i] is None if some vertices belong to no triangle
+            # so check for this
+            if v_map[i] is not None:
+                v_map_inverse[v_map[i]] = i
 
         # use a triangle representation
         if not isinstance(branch, NifFormat.NiTriShape):
