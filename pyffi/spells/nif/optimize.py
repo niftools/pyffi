@@ -248,11 +248,18 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
 
     def optimize_vertices(self, data):
         self.toaster.msg("removing duplicate vertices")
-        return unique_map(data.get_vertex_hash_generator(
-            vertexprecision=self.VERTEXPRECISION,
-            normalprecision=self.NORMALPRECISION,
-            uvprecision=self.UVPRECISION,
-            vcolprecision=self.VCOLPRECISION))
+        # get list of used vertices
+        used_verts = set()
+        for tri in data.get_triangles():
+            used_verts.update(tri)
+        # get map, deleting unused vertices
+        return unique_map(
+            (vhash if i in used_verts else None)
+            for i, vhash in enumerate(data.get_vertex_hash_generator(
+                vertexprecision=self.VERTEXPRECISION,
+                normalprecision=self.NORMALPRECISION,
+                uvprecision=self.UVPRECISION,
+                vcolprecision=self.VCOLPRECISION)))
         
     def branchentry(self, branch):
         """Optimize a NiTriStrips or NiTriShape block:
@@ -320,10 +327,8 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                       for v0, v1, v2 in triangles]
         # update vertex map and its inverse
         for i in xrange(data.num_vertices):
-            v_map[i] = v_map_opt[v_map[i]]
-            # v_map[i] is None if some vertices belong to no triangle
-            # so check for this
             if v_map[i] is not None:
+                v_map[i] = v_map_opt[v_map[i]]
                 v_map_inverse[v_map[i]] = i
 
         # use a triangle representation
