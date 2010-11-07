@@ -43,6 +43,8 @@ http://home.comcast.net/~tom_forsyth/papers/fast_vert_cache_opt.html
 #
 # ***** END LICENSE BLOCK *****
 
+from __future__ import division
+
 import collections
 
 from pyffi.utils.tristrip import OrientedStrip
@@ -64,9 +66,72 @@ class VertexInfo:
         self.cache_position = cache_position
         self.score = score
         self.triangle_indices = ([] if triangle_indices is None
-                             else triangle_indices)
+                                 else triangle_indices)
 
     def update_score(self):
+        """Update score:
+
+        * -1 if vertex has no triangles
+        * cache score + valence score otherwise
+
+        where cache score is
+
+        * 0 if vertex is not in cache
+        * 0.75 if vertex has been used very recently
+          (position 0, 1, or 2)
+        * (1 - (cache position - 3) / (32 - 3)) ** 1.5
+          otherwise
+
+        and valence score is 2 * (num triangles ** (-0.5))
+
+        >>> def get_score(cache_position, triangle_indices):
+        ...     vert = VertexInfo(cache_position=cache_position,
+        ...                       triangle_indices=triangle_indices)
+        ...     vert.update_score()
+        ...     return vert.score
+        >>> for cache_position in [-1, 0, 1, 2, 3, 4, 5]:
+        ...     print("cache position = {0}".format(cache_position))
+        ...     for num_triangles in range(4):
+        ...         print("  num triangles = {0} : {1:.3f}"
+        ...               .format(num_triangles,
+        ...                       get_score(cache_position,
+        ...                                 list(range(num_triangles)))))
+        cache position = -1
+          num triangles = 0 : -1.000
+          num triangles = 1 : 2.000
+          num triangles = 2 : 1.414
+          num triangles = 3 : 1.155
+        cache position = 0
+          num triangles = 0 : -1.000
+          num triangles = 1 : 2.750
+          num triangles = 2 : 2.164
+          num triangles = 3 : 1.905
+        cache position = 1
+          num triangles = 0 : -1.000
+          num triangles = 1 : 2.750
+          num triangles = 2 : 2.164
+          num triangles = 3 : 1.905
+        cache position = 2
+          num triangles = 0 : -1.000
+          num triangles = 1 : 2.750
+          num triangles = 2 : 2.164
+          num triangles = 3 : 1.905
+        cache position = 3
+          num triangles = 0 : -1.000
+          num triangles = 1 : 3.000
+          num triangles = 2 : 2.414
+          num triangles = 3 : 2.155
+        cache position = 4
+          num triangles = 0 : -1.000
+          num triangles = 1 : 2.949
+          num triangles = 2 : 2.363
+          num triangles = 3 : 2.103
+        cache position = 5
+          num triangles = 0 : -1.000
+          num triangles = 1 : 2.898
+          num triangles = 2 : 2.313
+          num triangles = 3 : 2.053
+        """
         if not self.triangle_indices:
             # no triangle needs this vertex
             self.score = -1
@@ -75,7 +140,7 @@ class VertexInfo:
         if self.cache_position < 0:
             # not in cache
             self.score = 0
-        elif self.cache_position >= 0 and self.cache_position < 3:
+        elif self.cache_position < 3:
             # used in last triangle
             self.score = self.LAST_TRI_SCORE
         else:
