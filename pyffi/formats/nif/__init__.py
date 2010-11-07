@@ -78,11 +78,13 @@ reading tests/nif/test_opt_collision_complex_mopp.nif
 reading tests/nif/test_opt_collision_mopp.nif
 reading tests/nif/test_opt_collision_packed.nif
 reading tests/nif/test_opt_collision_to_boxshape.nif
+reading tests/nif/test_opt_collision_to_boxshape_notabox.nif
 reading tests/nif/test_opt_collision_unpacked.nif
 reading tests/nif/test_opt_delunusedbones.nif
 reading tests/nif/test_opt_dupgeomdata.nif
 reading tests/nif/test_opt_dupverts.nif
 reading tests/nif/test_opt_emptyproperties.nif
+reading tests/nif/test_opt_grid_layout.nif
 reading tests/nif/test_opt_mergeduplicates.nif
 reading tests/nif/test_opt_zeroscale.nif
 reading tests/nif/test_skincenterradius.nif

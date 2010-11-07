@@ -51,9 +51,6 @@ pyffi.toaster:INFO:        (num vertices was 8 and is now 8)
 pyffi.toaster:INFO:        optimizing triangle ordering
 pyffi.toaster:INFO:        (ATVR stable at 1.000)
 pyffi.toaster:INFO:        optimizing vertex ordering
-pyffi.toaster:INFO:        stripifying
-pyffi.toaster:INFO:        strip size = 30, triangle size = 36
-pyffi.toaster:INFO:        replacing branch by NiTriStrips
 pyffi.toaster:INFO:  overwriting tests/nif/_test.nif
 pyffi.toaster:INFO:Finished.
 >>> # clean up
@@ -88,9 +85,6 @@ pyffi.toaster:INFO:        (num vertices was 8 and is now 8)
 pyffi.toaster:INFO:        optimizing triangle ordering
 pyffi.toaster:INFO:        (ATVR stable at 1.000)
 pyffi.toaster:INFO:        optimizing vertex ordering
-pyffi.toaster:INFO:        stripifying
-pyffi.toaster:INFO:        strip size = 30, triangle size = 36
-pyffi.toaster:INFO:        replacing branch by NiTriStrips
 pyffi.toaster:INFO:  overwriting tests/nif/_test.nif
 pyffi.toaster:INFO:Finished.
 >>> # clean up
@@ -135,6 +129,5 @@ pyffi.toaster:INFO:      (num vertices was 303 and is now 169)
 pyffi.toaster:INFO:      optimizing triangle ordering
 pyffi.toaster:INFO:      (ATVR reduced from 1.462 to 1.000)
 pyffi.toaster:INFO:      optimizing vertex ordering
-pyffi.toaster:INFO:      stripifying
-pyffi.toaster:INFO:      strip size = 632, triangle size = 636
+pyffi.toaster:INFO:      replacing branch by NiTriShape
 pyffi.toaster:INFO:      recalculating tangent space
