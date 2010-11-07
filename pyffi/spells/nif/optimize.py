@@ -212,7 +212,7 @@ class SpellMergeDuplicates(pyffi.spells.nif.NifSpell):
 class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
     """Optimize all geometries:
       - remove duplicate vertices
-      - stripify if strips are long enough
+      - triangulate
       - recalculate skin partition
       - recalculate tangent space 
     """
@@ -221,8 +221,6 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
     READONLY = False
 
     # spell parameters
-    STRIPIFY = False # set to None will select representation of smallest size
-    STITCH = True
     VERTEXPRECISION = 3
     NORMALPRECISION = 3
     UVPRECISION = 5
@@ -259,7 +257,7 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
     def branchentry(self, branch):
         """Optimize a NiTriStrips or NiTriShape block:
           - remove duplicate vertices
-          - stripify if strips are long enough
+          - retriangulate for vertex cache
           - recalculate skin partition
           - recalculate tangent space 
 
@@ -324,44 +322,16 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
             v_map[i] = v_map_opt[v_map[i]]
             v_map_inverse[v_map[i]] = i
 
-        # stripify
-        self.toaster.msg("stripifying")
-        strips = pyffi.utils.vertex_cache.stable_stripify(
-            triangles, stitchstrips=self.STITCH)
-        triangles_size = 3 * len(triangles)
-        strips_size = len(strips) + sum(len(strip) for strip in strips)
-        #pyffi.utils.tristrip._check_strips(triangles, strips) # XXX debug
-        self.toaster.msg("strips size = %i, triangle size = %i"
-                         % (strips_size, triangles_size))
-        # decide whether to use strip or triangles as primitive
-        if self.STRIPIFY is None:
-            stripify = (
-                strips_size < triangles_size
-                and all(len(strip) < 65536 for strip in strips))
+        # use a triangle representation
+        if not isinstance(branch, NifFormat.NiTriShape):
+            self.toaster.msg("replacing branch by NiTriShape")
+            newbranch = branch.get_interchangeable_tri_shape(
+                triangles=triangles)
+            self.data.replace_global_node(branch, newbranch)
+            branch = newbranch
+            data = newbranch.data
         else:
-            stripify = self.STRIPIFY
-        if stripify:
-            # use a strip representation
-            if not isinstance(branch, NifFormat.NiTriStrips):
-                self.toaster.msg("replacing branch by NiTriStrips")
-                newbranch = branch.get_interchangeable_tri_strips(
-                    strips=strips)
-                self.data.replace_global_node(branch, newbranch)
-                branch = newbranch
-                data = newbranch.data
-            else:
-                data.set_strips(strips)
-        else:
-            # use a triangle representation
-            if not isinstance(branch, NifFormat.NiTriShape):
-                self.toaster.msg("replacing branch by NiTriShape")
-                newbranch = branch.get_interchangeable_tri_shape(
-                    triangles=triangles)
-                self.data.replace_global_node(branch, newbranch)
-                branch = newbranch
-                data = newbranch.data
-            else:
-                data.set_triangles(triangles)
+            data.set_triangles(triangles)
 
         # copy old data
         oldverts = [[v.x, v.y, v.z] for v in data.vertices]
@@ -436,9 +406,8 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                 self.toaster.msg("updating skin partition")
                 # use Oblivion settings
                 branch.update_skin_partition(
-                    maxbonesperpartition = 18, maxbonespervertex = 4,
-                    stripify=self.STRIPIFY, verbose = 0,
-                    stitchstrips=self.STITCH)
+                    maxbonesperpartition=18, maxbonespervertex=4,
+                    stripify=False, verbose=0)
 
         # update morph data
         for morphctrl in branch.get_controllers():
@@ -699,12 +668,7 @@ class SpellDelZeroScale(pyffi.spells.nif.NifSpell):
         return True
 
 class SpellReduceGeometry(SpellOptimizeGeometry):
-    """Reduce vertices of all geometries:
-      - remove duplicate & reduce other vertices
-      - stripify if strips are long enough
-      - recalculate skin partition
-      - recalculate tangent space 
-    """
+    """Reduce vertices of all geometries."""
 
     SPELLNAME = "opt_reducegeometry"
     READONLY = False
