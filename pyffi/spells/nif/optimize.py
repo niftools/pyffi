@@ -726,20 +726,29 @@ class SpellOptimizeCollisionBox(pyffi.spells.nif.NifSpell):
         """
         PRECISION = 100
 
-        # get vertices and material
+        # get vertices, triangles, and material
         if isinstance(shape, NifFormat.bhkPackedNiTriStripsShape):
             # multimaterial? cannot use a box
             if len(shape.get_sub_shapes()) != 1:
                 return None
             vertices = shape.data.vertices
+            triangles = [
+                (hk_triangle.triangle.v_1,
+                 hk_triangle.triangle.v_2,
+                 hk_triangle.triangle.v_3)
+                for hk_triangle in shape.data.triangles]
             material = shape.get_sub_shapes()[0].material
             factor = 1.0
         elif isinstance(shape, NifFormat.bhkNiTriStripsShape):
             if shape.num_strips_data != 1:
                 return None
             vertices = shape.strips_data[0].vertices
+            triangles = shape.strips_data[0].get_triangles()
             material = shape.material
             factor = 7.0
+        # check triangles
+        if len(triangles) != 12:
+            return None
         # sorted vertices of a unit box
         unit_box = [(0, 0, 0), (0, 0, 1), (0, 1, 0), (0, 1, 1),
                     (1, 0, 0), (1, 0, 1), (1, 1, 0), (1, 1, 1)]
