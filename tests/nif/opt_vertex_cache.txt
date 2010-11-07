@@ -1,0 +1,17 @@
+Regression test for vertex cache algorithm
+------------------------------------------
+
+>>> from pyffi.formats.nif import NifFormat
+>>> import pyffi.spells.nif.optimize
+>>> data = NifFormat.Data()
+>>> stream = open("tests/nif/test_opt_vertex_cache.nif", "rb")
+>>> data.read(stream)
+>>> # check original data
+>>> data.roots[0].children[0].data.num_vertices
+32
+>>> # run the spell that optimizes this
+>>> spell = pyffi.spells.nif.optimize.SpellOptimizeGeometry(data=data)
+>>> spell.recurse()
+>>> # check optimized data
+>>> data.roots[0].children[0].data.num_vertices
+17
