@@ -61,6 +61,21 @@ class VertexInfo:
     VALENCE_BOOST_SCALE = 2.0
     VALENCE_BOOST_POWER = 0.5
 
+    # calculation of score is precalculated for speed
+
+    CACHE_SCORE = [
+        LAST_TRI_SCORE
+        if cache_position < 3 else
+        ((CACHE_SIZE - cache_position) / (CACHE_SIZE - 3)) ** CACHE_DECAY_POWER
+        for cache_position in range(CACHE_SIZE)]
+
+    VALENCE_SCORE = [
+        VALENCE_BOOST_SCALE * (valence ** (-VALENCE_BOOST_POWER))
+        if valence > 0 else None
+        for valence in range(256)]
+    # implementation note: limitation of 255 triangles per vertex
+    # this is unlikely to be exceeded...
+
     def __init__(self, cache_position=-1, score=-1,
                  triangle_indices=None):
         self.cache_position = cache_position
@@ -141,17 +156,12 @@ class VertexInfo:
         if self.cache_position < 0:
             # not in cache
             self.score = 0
-        elif self.cache_position < 3:
-            # used in last triangle
-            self.score = self.LAST_TRI_SCORE
         else:
-            self.score = (
-                (1.0 - (self.cache_position - 3) / (self.CACHE_SIZE - 3))
-                ** self.CACHE_DECAY_POWER)
+            # use cache score lookup table
+            self.score = self.CACHE_SCORE[self.cache_position]
 
         # bonus points for having low number of triangles still in use
-        self.score += self.VALENCE_BOOST_SCALE * (
-            len(self.triangle_indices) ** (-self.VALENCE_BOOST_POWER))
+        self.score += self.VALENCE_SCORE[len(self.triangle_indices)]
 
 class TriangleInfo:
     def __init__(self, score=0, vertex_indices=None):
