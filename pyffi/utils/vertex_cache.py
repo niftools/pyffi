@@ -65,6 +65,7 @@ class VertexInfo:
                  triangle_indices=None):
         self.cache_position = cache_position
         self.score = score
+        # only triangles that have *not* yet been drawn are in this list
         self.triangle_indices = ([] if triangle_indices is None
                                  else triangle_indices)
 
@@ -153,9 +154,8 @@ class VertexInfo:
             len(self.triangle_indices) ** (-self.VALENCE_BOOST_POWER))
 
 class TriangleInfo:
-    def __init__(self, added=False, score=0.0, vertex_indices=None):
-        self.added = False
-        self.score = 0.0
+    def __init__(self, score=0, vertex_indices=None):
+        self.score = score
         self.vertex_indices = ([] if vertex_indices is None
                                else vertex_indices)
 
@@ -224,21 +224,37 @@ class Mesh:
         """
         triangles = []
         cache = collections.deque()
-        while any(not triangle_info.added for triangle_info in self.triangle_infos):
+        # set of vertex indices whose scores were updated in the previous run
+        updated_vertices = set()
+        # set of triangle indices whose scores were updated in the previous run
+        updated_triangles = set()
+        while (updated_triangles
+               or any(triangle_info for triangle_info in self.triangle_infos)):
             # pick triangle with highest score
-            best_triangle_index, best_triangle_info = max(
-                (triangle
-                 for triangle in enumerate(self.triangle_infos)
-                 if not triangle[1].added),
-                key=lambda triangle: triangle[1].score)
+            if not updated_triangles:
+                # very slow but correct global maximum
+                best_triangle_index, best_triangle_info = max(
+                    (triangle
+                     for triangle in enumerate(self.triangle_infos)
+                     if triangle[1]),
+                    key=lambda triangle: triangle[1].score)
+            else:
+                # if scores of triangles were updated in the previous run
+                # then restrict the search to those
+                # this is suboptimal, but the difference is usually very small
+                # and it is *much* faster (as noted by Forsyth)
+                best_triangle_index = max(
+                    updated_triangles,
+                    key=lambda triangle_index:
+                    self.triangle_infos[triangle_index].score)
+                best_triangle_info = self.triangle_infos[best_triangle_index]
             # mark as added
-            best_triangle_info.added = True
+            self.triangle_infos[best_triangle_index] = None
             # append to ordered list of triangles
             triangles.append(best_triangle_info.vertex_indices)
-            # keep list of vertices and triangles whose score we will need
-            # to update
-            updated_vertices = set([])
-            updated_triangles = set([])
+            # clean lists of vertices and triangles whose score we will update
+            updated_vertices = set()
+            updated_triangles = set()
             # for each vertex in the just added triangle
             for vertex in best_triangle_info.vertex_indices:
                 vertex_info = self.vertex_infos[vertex]
