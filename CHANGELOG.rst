@@ -37,7 +37,7 @@ Release 2.1.6 (in development)
   based box collisions to primitive box collisions, which are much
   faster in-game (contributed by PacificMorrowind).
 
-* Optimizer spell now stitches strips when calculating skin partitions
+* Optimizer spell now uses triangles to represent skin partitions
   (improves in-game fps).
 
 * Better vertex map calculation when calculating skin partitions
