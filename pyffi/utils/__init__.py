@@ -136,8 +136,8 @@ def unique_map(hash_generator):
 
     >>> unique_map([])
     ([], [])
-    >>> unique_map([3,2,6,1])
-    ([0, 1, 2, 3], [0, 1, 2, 3])
+    >>> unique_map([3,2,6,None,1])
+    ([0, 1, 2, None, 3], [0, 1, 2, 4])
     >>> unique_map([3,1,6,1])
     ([0, 1, 2, 1], [0, 1, 2])
     >>> unique_map([3,1,6,1,2,2,9,3,2])
