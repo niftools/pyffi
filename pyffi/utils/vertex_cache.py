@@ -268,12 +268,13 @@ class Mesh:
             # for each vertex in the just added triangle
             for vertex in best_triangle_info.vertex_indices:
                 vertex_info = self.vertex_infos[vertex]
-                # update triangle indices
+                # remove triangle from the triangle list of the vertex
                 vertex_info.triangle_indices.remove(best_triangle_index)
                 # must update its score
                 updated_vertices.add(vertex)
                 updated_triangles.update(vertex_info.triangle_indices)
-                # add vertices to cache (score is updated later)
+            # add each vertex to cache (score is updated later)
+            for vertex in best_triangle_info.vertex_indices:
                 if vertex not in cache:
                     cache.appendleft(vertex)
                     if len(cache) > VertexInfo.CACHE_SIZE:
