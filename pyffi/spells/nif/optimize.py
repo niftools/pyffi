@@ -278,8 +278,9 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
         self.changed = True
 
         # cover degenerate case
-        if branch.data.num_vertices < 3:
-            self.toaster.msg("less than 3 vertices: removing branch")
+        if branch.data.num_vertices < 3 or branch.data.num_triangles == 0:
+            self.toaster.msg(
+                "less than 3 vertices or no triangles: removing branch")
             self.data.replace_global_node(branch, None)
             return False
 
