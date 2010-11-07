@@ -459,7 +459,11 @@ def average_transform_to_vertex_ratio(strips, cache_size=16):
                 cache.appendleft(vertex)
                 num_misses += 1
     # return result
-    return num_misses / float(len(vertices))
+    if vertices:
+        return num_misses / float(len(vertices))
+    else:
+        # no vertices...
+        return 1
 
 if __name__=='__main__':
     import doctest
