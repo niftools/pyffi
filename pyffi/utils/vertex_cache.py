@@ -426,10 +426,20 @@ def stripify(triangles, stitchstrips=False):
 def get_cache_optimized_vertex_map(strips):
     """Map vertices so triangles/strips have consequetive indices.
 
+    >>> get_cache_optimized_vertex_map([])
+    []
+    >>> get_cache_optimized_vertex_map([[]])
+    []
+    >>> get_cache_optimized_vertex_map([[0, 1, 3], []])
+    [0, 1, None, 2]
     >>> get_cache_optimized_vertex_map([(5,2,1),(0,2,3)])
     [3, 2, 1, 4, None, 0]
     """
-    num_vertices = max(max(strip) for strip in strips) + 1
+    if strips:
+        num_vertices = max(max(strip) if strip else -1
+                           for strip in strips) + 1
+    else:
+        num_vertices = 0
     vertex_map = [None for i in xrange(num_vertices)]
     new_vertex = 0
     for strip in strips:
