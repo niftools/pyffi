@@ -348,6 +348,10 @@ pyffi.toaster:INFO:=== tests/nif/test_opt_mergeduplicates.nif ===
 pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:    writing to temporary file
 pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_opt_vertex_cache.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
 pyffi.toaster:INFO:=== tests/nif/test_opt_zeroscale.nif ===
 pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:    writing to temporary file
@@ -409,6 +413,7 @@ pyffi.toaster:INFO:=== tests/nif/test_opt_dupverts.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_opt_emptyproperties.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_opt_grid_layout.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_opt_mergeduplicates.nif (skipped) ===
+pyffi.toaster:INFO:=== tests/nif/test_opt_vertex_cache.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_opt_zeroscale.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_skincenterradius.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_vertexcolor.nif (skipped) ===
@@ -1492,6 +1497,10 @@ pyffi.toaster:INFO:=== tests/nif/test_opt_mergeduplicates.nif ===
 pyffi.toaster:INFO:  version      0x14000004
 pyffi.toaster:INFO:  user version 0
 pyffi.toaster:INFO:  user version 0
+pyffi.toaster:INFO:=== tests/nif/test_opt_vertex_cache.nif ===
+pyffi.toaster:INFO:  version      0x14000005
+pyffi.toaster:INFO:  user version 11
+pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:=== tests/nif/test_opt_zeroscale.nif ===
 pyffi.toaster:INFO:  version      0x0A000100
 pyffi.toaster:INFO:  user version 0
@@ -1525,7 +1534,7 @@ pyffi.toaster:INFO:  number of nifs: 4
 pyffi.toaster:INFO:  user version:  [0]
 pyffi.toaster:INFO:  user version2: [0]
 pyffi.toaster:INFO:version 0x14000005
-pyffi.toaster:INFO:  number of nifs: 16
+pyffi.toaster:INFO:  number of nifs: 17
 pyffi.toaster:INFO:  user version:  [11]
 pyffi.toaster:INFO:  user version2: [11]
 pyffi.toaster:INFO:version 0x14020007

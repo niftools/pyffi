@@ -86,6 +86,7 @@ reading tests/nif/test_opt_dupverts.nif
 reading tests/nif/test_opt_emptyproperties.nif
 reading tests/nif/test_opt_grid_layout.nif
 reading tests/nif/test_opt_mergeduplicates.nif
+reading tests/nif/test_opt_vertex_cache.nif
 reading tests/nif/test_opt_zeroscale.nif
 reading tests/nif/test_skincenterradius.nif
 reading tests/nif/test_vertexcolor.nif
