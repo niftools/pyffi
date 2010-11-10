@@ -72,12 +72,17 @@ for root, dirs, files in os.walk(folder):
                 name = name.strip()
                 total[name].append(float(num))
 
-print("summary of {0} tests:".format(len(total["Frames"])))
-for name, vec in total.iteritems():
-    print("{0:10}: {1:10.3f} +- {2:10.3f}".format(
-        name,
-        mean(vec),
-        1.96 * sd(vec) / (len(vec) ** 0.5)))
+def summary(outfile):
+    print >>outfile, "summary of {0} tests:".format(len(total["Frames"]))
+    for name, vec in total.iteritems():
+        print >> outfile, "{0:10}: {1:10.3f} +- {2:10.3f}".format(
+            name,
+            mean(vec),
+            1.96 * sd(vec) / (len(vec) ** 0.5))
+
+summary(sys.stdout)
+with open(os.path.join(folder, "summary.txt"), "w") as outfile:
+    summary(outfile)
 
 #if __name__ == "__main__":
 #    import doctest
