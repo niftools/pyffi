@@ -6794,7 +6794,7 @@ class NifFormat(FileFormat):
         [(0, 1, 2), (2, 1, 3), (2, 3, 4)]
         >>> block.set_strips([[1,0,1,2,3,4]])
         >>> block.get_strips() # stripifier keeps geometry but nothing else
-        [[0, 2, 1, 3, 3, 2, 2, 4, 3]]
+        [[0, 2, 1, 3], [2, 4, 3]]
         >>> block.get_triangles()
         [(0, 2, 1), (1, 2, 3), (2, 4, 3)]
         """
