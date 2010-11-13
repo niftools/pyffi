@@ -19,6 +19,7 @@ import pyffi.object_models.xml.expression
 import pyffi.object_models.xml.struct_
 import pyffi.utils
 import pyffi.utils.tristrip
+import pyffi.utils.vertex_cache
 import pyffi.utils.mathutils
 import pyffi.utils.quickhull
 import pyffi.utils.inertia
@@ -82,6 +83,7 @@ suite.addTest(doctest.DocFileSuite('tests/nif/opt_delunusedbones.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/opt_delzeroscale.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/opt_collisiongeometry.txt'))
 suite.addTest(doctest.DocFileSuite('tests/nif/opt_collision_to_box_shape.txt'))
+suite.addTest(doctest.DocFileSuite('tests/nif/opt_vertex_cache.txt'))
 suite.addTest(doctest.DocFileSuite('tests/cgf/cgftoaster.txt'))
 suite.addTest(doctest.DocFileSuite('tests/kfm/kfmtoaster.txt'))
 suite.addTest(doctest.DocFileSuite('docs-sphinx/intro.rst'))

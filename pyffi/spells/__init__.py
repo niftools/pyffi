@@ -404,7 +404,7 @@ class SpellGroupBase(Spell):
     spells = []
     """List of active spell instances."""
 
-    def __init__(self, toaster, data, stream):
+    def __init__(self, toaster=None, data=None, stream=None):
         """Initialize the spell data for all given spells.
 
         :param toaster: The toaster this spell is called from.

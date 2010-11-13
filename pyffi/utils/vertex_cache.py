@@ -43,7 +43,11 @@ http://home.comcast.net/~tom_forsyth/papers/fast_vert_cache_opt.html
 #
 # ***** END LICENSE BLOCK *****
 
+from __future__ import division
+
 import collections
+
+from pyffi.utils.tristrip import OrientedStrip
 
 class VertexInfo:
     """Stores information about a vertex."""
@@ -57,14 +61,93 @@ class VertexInfo:
     VALENCE_BOOST_SCALE = 2.0
     VALENCE_BOOST_POWER = 0.5
 
+    # calculation of score is precalculated for speed
+
+    CACHE_SCORE = [
+        LAST_TRI_SCORE
+        if cache_position < 3 else
+        ((CACHE_SIZE - cache_position) / (CACHE_SIZE - 3)) ** CACHE_DECAY_POWER
+        for cache_position in range(CACHE_SIZE)]
+
+    VALENCE_SCORE = [
+        VALENCE_BOOST_SCALE * (valence ** (-VALENCE_BOOST_POWER))
+        if valence > 0 else None
+        for valence in range(256)]
+    # implementation note: limitation of 255 triangles per vertex
+    # this is unlikely to be exceeded...
+
     def __init__(self, cache_position=-1, score=-1,
                  triangle_indices=None):
         self.cache_position = cache_position
         self.score = score
+        # only triangles that have *not* yet been drawn are in this list
         self.triangle_indices = ([] if triangle_indices is None
-                             else triangle_indices)
+                                 else triangle_indices)
 
     def update_score(self):
+        """Update score:
+
+        * -1 if vertex has no triangles
+        * cache score + valence score otherwise
+
+        where cache score is
+
+        * 0 if vertex is not in cache
+        * 0.75 if vertex has been used very recently
+          (position 0, 1, or 2)
+        * (1 - (cache position - 3) / (32 - 3)) ** 1.5
+          otherwise
+
+        and valence score is 2 * (num triangles ** (-0.5))
+
+        >>> def get_score(cache_position, triangle_indices):
+        ...     vert = VertexInfo(cache_position=cache_position,
+        ...                       triangle_indices=triangle_indices)
+        ...     vert.update_score()
+        ...     return vert.score
+        >>> for cache_position in [-1, 0, 1, 2, 3, 4, 5]:
+        ...     print("cache position = {0}".format(cache_position))
+        ...     for num_triangles in range(4):
+        ...         print("  num triangles = {0} : {1:.3f}"
+        ...               .format(num_triangles,
+        ...                       get_score(cache_position,
+        ...                                 list(range(num_triangles)))))
+        cache position = -1
+          num triangles = 0 : -1.000
+          num triangles = 1 : 2.000
+          num triangles = 2 : 1.414
+          num triangles = 3 : 1.155
+        cache position = 0
+          num triangles = 0 : -1.000
+          num triangles = 1 : 2.750
+          num triangles = 2 : 2.164
+          num triangles = 3 : 1.905
+        cache position = 1
+          num triangles = 0 : -1.000
+          num triangles = 1 : 2.750
+          num triangles = 2 : 2.164
+          num triangles = 3 : 1.905
+        cache position = 2
+          num triangles = 0 : -1.000
+          num triangles = 1 : 2.750
+          num triangles = 2 : 2.164
+          num triangles = 3 : 1.905
+        cache position = 3
+          num triangles = 0 : -1.000
+          num triangles = 1 : 3.000
+          num triangles = 2 : 2.414
+          num triangles = 3 : 2.155
+        cache position = 4
+          num triangles = 0 : -1.000
+          num triangles = 1 : 2.949
+          num triangles = 2 : 2.363
+          num triangles = 3 : 2.103
+        cache position = 5
+          num triangles = 0 : -1.000
+          num triangles = 1 : 2.898
+          num triangles = 2 : 2.313
+          num triangles = 3 : 2.053
+        """
         if not self.triangle_indices:
             # no triangle needs this vertex
             self.score = -1
@@ -73,22 +156,16 @@ class VertexInfo:
         if self.cache_position < 0:
             # not in cache
             self.score = 0
-        elif self.cache_position >= 0 and self.cache_position < 3:
-            # used in last triangle
-            self.score = self.LAST_TRI_SCORE
         else:
-            self.score = (
-                (1.0 - (self.cache_position - 3) / (self.CACHE_SIZE - 3))
-                ** self.CACHE_DECAY_POWER)
+            # use cache score lookup table
+            self.score = self.CACHE_SCORE[self.cache_position]
 
         # bonus points for having low number of triangles still in use
-        self.score += self.VALENCE_BOOST_SCALE * (
-            len(self.triangle_indices) ** (-self.VALENCE_BOOST_POWER))
+        self.score += self.VALENCE_SCORE[len(self.triangle_indices)]
 
 class TriangleInfo:
-    def __init__(self, added=False, score=0.0, vertex_indices=None):
-        self.added = False
-        self.score = 0.0
+    def __init__(self, score=0, vertex_indices=None):
+        self.score = score
         self.vertex_indices = ([] if vertex_indices is None
                                else vertex_indices)
 
@@ -134,25 +211,11 @@ class Mesh:
             num_vertices = 0
         self.vertex_infos = [VertexInfo() for i in range(num_vertices)]
         # add all triangles
-        _added_triangles = set([])
-        triangle_index = 0
-        for v0, v1, v2 in triangles:
-            if v0 == v1 or v1 == v2 or v2 == v0:
-                # skip degenerate triangles
-                continue
-            if v0 < v1 and v0 < v2:
-                verts = (v0, v1, v2)
-            elif v1 < v0 and v1 < v2:
-                verts = (v1, v2, v0)
-            elif v2 < v0 and v2 < v1:
-                verts = (v2, v0, v1)
-            if verts not in _added_triangles:
-                self.triangle_infos.append(TriangleInfo(vertex_indices=verts))
-                for vertex in verts:
-                    self.vertex_infos[vertex].triangle_indices.append(
-                        triangle_index)
-                triangle_index += 1
-                _added_triangles.add(verts)
+        for triangle_index, verts in enumerate(get_unique_triangles(triangles)):
+            self.triangle_infos.append(TriangleInfo(vertex_indices=verts))
+            for vertex in verts:
+                self.vertex_infos[vertex].triangle_indices.append(
+                    triangle_index)
         # calculate score of all vertices
         for vertex_info in self.vertex_infos:
             vertex_info.update_score()
@@ -171,30 +234,47 @@ class Mesh:
         """
         triangles = []
         cache = collections.deque()
-        while any(not triangle_info.added for triangle_info in self.triangle_infos):
+        # set of vertex indices whose scores were updated in the previous run
+        updated_vertices = set()
+        # set of triangle indices whose scores were updated in the previous run
+        updated_triangles = set()
+        while (updated_triangles
+               or any(triangle_info for triangle_info in self.triangle_infos)):
             # pick triangle with highest score
-            best_triangle_index, best_triangle_info = max(
-                (triangle
-                 for triangle in enumerate(self.triangle_infos)
-                 if not triangle[1].added),
-                key=lambda triangle: triangle[1].score)
+            if not updated_triangles:
+                # very slow but correct global maximum
+                best_triangle_index, best_triangle_info = max(
+                    (triangle
+                     for triangle in enumerate(self.triangle_infos)
+                     if triangle[1]),
+                    key=lambda triangle: triangle[1].score)
+            else:
+                # if scores of triangles were updated in the previous run
+                # then restrict the search to those
+                # this is suboptimal, but the difference is usually very small
+                # and it is *much* faster (as noted by Forsyth)
+                best_triangle_index = max(
+                    updated_triangles,
+                    key=lambda triangle_index:
+                    self.triangle_infos[triangle_index].score)
+                best_triangle_info = self.triangle_infos[best_triangle_index]
             # mark as added
-            best_triangle_info.added = True
+            self.triangle_infos[best_triangle_index] = None
             # append to ordered list of triangles
             triangles.append(best_triangle_info.vertex_indices)
-            # keep list of vertices and triangles whose score we will need
-            # to update
-            updated_vertices = set([])
-            updated_triangles = set([])
+            # clean lists of vertices and triangles whose score we will update
+            updated_vertices = set()
+            updated_triangles = set()
             # for each vertex in the just added triangle
             for vertex in best_triangle_info.vertex_indices:
                 vertex_info = self.vertex_infos[vertex]
-                # update triangle indices
+                # remove triangle from the triangle list of the vertex
                 vertex_info.triangle_indices.remove(best_triangle_index)
                 # must update its score
                 updated_vertices.add(vertex)
                 updated_triangles.update(vertex_info.triangle_indices)
-                # add vertices to cache (score is updated later)
+            # add each vertex to cache (score is updated later)
+            for vertex in best_triangle_info.vertex_indices:
                 if vertex not in cache:
                     cache.appendleft(vertex)
                     if len(cache) > VertexInfo.CACHE_SIZE:
@@ -228,46 +308,172 @@ class Mesh:
         return triangles
 
 def get_cache_optimized_triangles(triangles):
+    """Calculate cache optimized triangles, and return the result as
+    a reordered set of triangles or strip of stitched triangles.
+
+    :param triangles: The triangles (triples of vertex indices).
+    :return: A list of reordered triangles.
+    """
     mesh = Mesh(triangles)
     return mesh.get_cache_optimized_triangles()
 
-def get_cache_optimized_vertex_map(triangles):
-    """Map vertices so triangles have consequetive indices.
+def get_unique_triangles(triangles):
+    """Yield unique triangles.
 
+    >>> list(get_unique_triangles([(0, 1, 2), (1, 1, 0), (2, 1, 0), (1, 0, 0)]))
+    [(0, 1, 2), (0, 2, 1)]
+    >>> list(get_unique_triangles([(0, 1, 2), (1, 1, 0), (2, 0, 1)]))
+    [(0, 1, 2)]
+    """
+    _added_triangles = set()
+    for v0, v1, v2 in triangles:
+        if v0 == v1 or v1 == v2 or v2 == v0:
+            # skip degenerate triangles
+            continue
+        if v0 < v1 and v0 < v2:
+            verts = (v0, v1, v2)
+        elif v1 < v0 and v1 < v2:
+            verts = (v1, v2, v0)
+        elif v2 < v0 and v2 < v1:
+            verts = (v2, v0, v1)
+        if verts not in _added_triangles:
+            yield verts
+            _added_triangles.add(verts)
+
+def stable_stripify(triangles, stitchstrips=False):
+    """Stitch all triangles together into a strip without changing the
+    triangle ordering (for example because their ordering is already
+    optimized).
+
+    :param triangles: The triangles (triples of vertex indices).
+    :return: A list of strips (list of vertex indices).
+
+    >>> stable_stripify([(0, 1, 2), (2, 1, 4)])
+    [[0, 1, 2, 4]]
+    >>> stable_stripify([(0, 1, 2), (2, 3, 4)])
+    [[0, 1, 2], [2, 3, 4]]
+    >>> stable_stripify([(0, 1, 2), (2, 1, 3), (2, 3, 4), (1, 4, 5), (5, 4, 6)])
+    [[0, 1, 2, 3, 4], [1, 4, 5, 6]]
+    >>> stable_stripify([(0, 1, 2), (0, 3, 1), (0, 4, 3), (3, 5, 1), (6, 3, 4)])
+    [[2, 0, 1, 3], [0, 4, 3], [3, 5, 1], [6, 3, 4]]
+    """
+    # all orientation preserving triangle permutations
+    indices = ((0, 1, 2), (1, 2, 0), (2, 0, 1))
+    # list of all strips so far
+    strips = []
+    # current strip that is being built
+    strip = []
+    # add a triangle at a time
+    for tri in triangles:
+        if not strip:
+            # empty strip
+            strip.extend(tri)
+        elif len(strip) == 3:
+            # strip with single triangle
+            # see if we can append a vertex
+            # we can rearrange the original strip as well
+            added = False
+            for v0, v1, v2 in indices:
+                for ov0, ov1, ov2 in indices:
+                    if strip[v1] == tri[ov1] and  strip[v2] == tri[ov0]:
+                        strip = [strip[v0], strip[v1], strip[v2], tri[ov2]]
+                        added = True
+                        break
+                if added:
+                    # triangle added: break loop
+                    break
+            if added:
+                # triangle added: process next triangle
+                continue
+            # start new strip
+            strips.append(strip)
+            strip = list(tri)
+        else:
+            # strip with multiple triangles
+            added = False
+            for ov0, ov1, ov2 in indices:
+                if len(strip) & 1:
+                    if strip[-2] == tri[ov1] and  strip[-1] == tri[ov0]:
+                        strip.append(tri[ov2])
+                        added = True
+                        break
+                else:
+                    if strip[-2] == tri[ov0] and  strip[-1] == tri[ov1]:
+                        strip.append(tri[ov2])
+                        added = True
+                        break
+            if added:
+                # triangle added: process next triangle
+                continue
+            # start new strip
+            strips.append(strip)
+            strip = list(tri)
+    # append last strip
+    strips.append(strip)
+    if not stitchstrips or not strips:
+        return strips
+    else:
+        result = reduce(lambda x, y: x + y,
+                        (OrientedStrip(strip) for strip in strips))
+        return [list(result)]
+
+def stripify(triangles, stitchstrips=False):
+    """Stripify triangles, optimizing for the vertex cache."""
+    return stable_stripify(
+        get_cache_optimized_triangles(triangles),
+        stitchstrips=True)
+
+def get_cache_optimized_vertex_map(strips):
+    """Map vertices so triangles/strips have consequetive indices.
+
+    >>> get_cache_optimized_vertex_map([])
+    []
+    >>> get_cache_optimized_vertex_map([[]])
+    []
+    >>> get_cache_optimized_vertex_map([[0, 1, 3], []])
+    [0, 1, None, 2]
     >>> get_cache_optimized_vertex_map([(5,2,1),(0,2,3)])
     [3, 2, 1, 4, None, 0]
     """
-    num_vertices = max(max(triangle) for triangle in triangles) + 1
+    if strips:
+        num_vertices = max(max(strip) if strip else -1
+                           for strip in strips) + 1
+    else:
+        num_vertices = 0
     vertex_map = [None for i in range(num_vertices)]
     new_vertex = 0
-    for triangle in triangles:
-        for old_vertex in triangle:
+    for strip in strips:
+        for old_vertex in strip:
             if vertex_map[old_vertex] is None:
                 vertex_map[old_vertex] = new_vertex
                 new_vertex += 1
     return vertex_map
 
-def average_transform_to_vertex_ratio(triangles, cache_size=32):
+def average_transform_to_vertex_ratio(strips, cache_size=16):
     """Calculate number of transforms per vertex for a given cache size
-    and ordering of triangles. See
+    and triangles/strips. See
     http://castano.ludicon.com/blog/2009/01/29/acmr/
     """
     cache = collections.deque(maxlen=cache_size)
     # get number of vertices
     vertices = set([])
-    for triangle in triangles:
-        vertices.update(triangle)
+    for strip in strips:
+        vertices.update(strip)
     # get number of cache misses (each miss needs a transform)
     num_misses = 0
-    for triangle in triangles:
-        for vertex in triangle:
+    for strip in strips:
+        for vertex in strip:
             if vertex in cache:
                 pass
             else:
                 cache.appendleft(vertex)
                 num_misses += 1
     # return result
-    return num_misses / float(len(vertices))
+    if vertices:
+        return num_misses / float(len(vertices))
+    else:
+        # no vertices...
+        return 1
 
 if __name__=='__main__':
     import doctest

@@ -78,12 +78,15 @@ reading tests/nif/test_opt_collision_complex_mopp.nif
 reading tests/nif/test_opt_collision_mopp.nif
 reading tests/nif/test_opt_collision_packed.nif
 reading tests/nif/test_opt_collision_to_boxshape.nif
+reading tests/nif/test_opt_collision_to_boxshape_notabox.nif
 reading tests/nif/test_opt_collision_unpacked.nif
 reading tests/nif/test_opt_delunusedbones.nif
 reading tests/nif/test_opt_dupgeomdata.nif
 reading tests/nif/test_opt_dupverts.nif
 reading tests/nif/test_opt_emptyproperties.nif
+reading tests/nif/test_opt_grid_layout.nif
 reading tests/nif/test_opt_mergeduplicates.nif
+reading tests/nif/test_opt_vertex_cache.nif
 reading tests/nif/test_opt_zeroscale.nif
 reading tests/nif/test_skincenterradius.nif
 reading tests/nif/test_vertexcolor.nif
@@ -346,6 +349,7 @@ import pyffi.utils.inertia
 from pyffi.utils.mathutils import * # XXX todo get rid of from XXX import *
 import pyffi.utils.mopp
 import pyffi.utils.tristrip
+import pyffi.utils.vertex_cache
 import pyffi.utils.quickhull
 # XXX convert the following to absolute imports
 from pyffi.object_models.editable import EditableBoolComboBox
@@ -6556,26 +6560,45 @@ class NifFormat(FileFormat):
                 # get sorted list of bones
                 bones = sorted(list(part[0]))
                 triangles = part[1]
-                # get sorted list of vertices
-                vertices = set()
-                for tri in triangles:
-                    vertices |= set(tri)
-                vertices = sorted(list(vertices))
-                # remap the vertices
-                parttriangles = []
-                for tri in triangles:
-                    parttriangles.append([vertices.index(t) for t in tri])
-                if stripify:
+                logger.info("Optimizing triangle ordering in partition %i"
+                            % parts.index(part))
+                # optimize triangles for vertex cache and calculate strips
+                triangles = pyffi.utils.vertex_cache.get_cache_optimized_triangles(
+                    triangles)
+                strips = pyffi.utils.vertex_cache.stable_stripify(
+                    triangles, stitchstrips=stitchstrips)
+                triangles_size = 3 * len(triangles)
+                strips_size = len(strips) + sum(len(strip) for strip in strips)
+                vertices = []
+                # decide whether to use strip or triangles as primitive
+                if stripify is None:
+                    stripifyblock = (
+                        strips_size < triangles_size
+                        and all(len(strip) < 65536 for strip in strips))
+                else:
+                    stripifyblock = stripify
+                if stripifyblock:
                     # stripify the triangles
-                    logger.info("Stripifying partition %i" % parts.index(part))
-                    strips = pyffi.utils.tristrip.stripify(
-                        parttriangles, stitchstrips=stitchstrips)
+                    # also update triangle list
                     numtriangles = 0
+                    # calculate number of triangles and get sorted
+                    # list of vertices
+                    # for optimal performance, vertices must be sorted
+                    # by strip
                     for strip in strips:
                         numtriangles += len(strip) - 2
+                        for t in strip:
+                            if t not in vertices:
+                                vertices.append(t)
                 else:
-                    numtriangles = len(parttriangles)
-
+                    numtriangles = len(triangles)
+                    # get sorted list of vertices
+                    # for optimal performance, vertices must be sorted
+                    # by triangle
+                    for tri in triangles:
+                        for t in tri:
+                            if t not in vertices:
+                                vertices.append(t)
                 # set all the data
                 skinpartblock.num_vertices = len(vertices)
                 skinpartblock.num_triangles = numtriangles
@@ -6589,7 +6612,7 @@ class NifFormat(FileFormat):
                     # freedom force vs. the 3rd reich needs exactly 4 bones per
                     # partition on every partition block
                     skinpartblock.num_bones = maxbonesperpartition
-                if stripify:
+                if stripifyblock:
                     skinpartblock.num_strips = len(strips)
                 else:
                     skinpartblock.num_strips = 0
@@ -6614,7 +6637,7 @@ class NifFormat(FileFormat):
                             skinpartblock.vertex_weights[i][j] = weights[v][j][1]
                         else:
                             skinpartblock.vertex_weights[i][j] = 0.0
-                if stripify:
+                if stripifyblock:
                     skinpartblock.has_faces = True
                     skinpartblock.strip_lengths.update_size()
                     for i, strip in enumerate(strips):
@@ -6622,7 +6645,7 @@ class NifFormat(FileFormat):
                     skinpartblock.strips.update_size()
                     for i, strip in enumerate(strips):
                         for j, v in enumerate(strip):
-                            skinpartblock.strips[i][j] = v
+                            skinpartblock.strips[i][j] = vertices.index(v)
                 else:
                     skinpartblock.has_faces = True
                     # clear strip lengths array
@@ -6630,10 +6653,10 @@ class NifFormat(FileFormat):
                     # clear strips array
                     skinpartblock.strips.update_size()
                     skinpartblock.triangles.update_size()
-                    for i, (v_1,v_2,v_3) in enumerate(parttriangles):
-                        skinpartblock.triangles[i].v_1 = v_1
-                        skinpartblock.triangles[i].v_2 = v_2
-                        skinpartblock.triangles[i].v_3 = v_3
+                    for i, (v_1,v_2,v_3) in enumerate(triangles):
+                        skinpartblock.triangles[i].v_1 = vertices.index(v_1)
+                        skinpartblock.triangles[i].v_2 = vertices.index(v_2)
+                        skinpartblock.triangles[i].v_3 = vertices.index(v_3)
                 skinpartblock.has_bone_indices = True
                 skinpartblock.bone_indices.update_size()
                 for i, v in enumerate(vertices):
@@ -6719,8 +6742,11 @@ class NifFormat(FileFormat):
                 skindatablock.bounding_sphere_offset.z = center.z
                 skindatablock.bounding_sphere_radius = radius
 
-        def get_interchangeable_tri_shape(self):
-            """Returns a NiTriShape block that is geometrically interchangeable."""
+        def get_interchangeable_tri_shape(self, triangles=None):
+            """Returns a NiTriShape block that is geometrically
+            interchangeable. If you do not want to set the triangles
+            from the original shape, use the triangles argument.
+            """
             # copy the shape (first to NiTriBasedGeom and then to NiTriShape)
             shape = NifFormat.NiTriShape().deepcopy(
                 NifFormat.NiTriBasedGeom().deepcopy(self))
@@ -6728,26 +6754,35 @@ class NifFormat(FileFormat):
             shapedata = NifFormat.NiTriShapeData().deepcopy(
                 NifFormat.NiTriBasedGeomData().deepcopy(self.data))
             # update the shape data
-            shapedata.set_triangles(self.data.get_triangles())
+            if triangles is None:
+                shapedata.set_triangles(self.data.get_triangles())
+            else:
+                shapedata.set_triangles(triangles)
             # relink the shape data
             shape.data = shapedata
             # and return the result
             return shape
 
-        def get_interchangeable_tri_strips(self):
-            """Returns a NiTriStrips block that is geometrically interchangeable."""
+        def get_interchangeable_tri_strips(self, strips=None):
+            """Returns a NiTriStrips block that is geometrically
+            interchangeable.  If you do not want to set the strips
+            from the original shape, use the strips argument.
+            """
             # copy the shape (first to NiTriBasedGeom and then to NiTriStrips)
-            strips = NifFormat.NiTriStrips().deepcopy(
+            strips_ = NifFormat.NiTriStrips().deepcopy(
                 NifFormat.NiTriBasedGeom().deepcopy(self))
             # copy the geometry without triangles
             stripsdata = NifFormat.NiTriStripsData().deepcopy(
                 NifFormat.NiTriBasedGeomData().deepcopy(self.data))
             # update the shape data
-            stripsdata.set_triangles(self.data.get_triangles())
+            if strips is None:
+                stripsdata.set_strips(self.data.get_strips())
+            else:
+                stripsdata.set_strips(strips)
             # relink the shape data
-            strips.data = stripsdata
+            strips_.data = stripsdata
             # and return the result
-            return strips
+            return strips_
 
     class NiTriShapeData:
         """
@@ -6761,8 +6796,8 @@ class NifFormat(FileFormat):
         >>> block.get_triangles()
         [(0, 1, 2), (2, 1, 3), (2, 3, 4)]
         >>> block.set_strips([[1,0,1,2,3,4]])
-        >>> block.get_strips()
-        [[4, 3, 2, 1, 0]]
+        >>> block.get_strips() # stripifier keeps geometry but nothing else
+        [[0, 2, 1, 3, 3, 2, 2, 4, 3]]
         >>> block.get_triangles()
         [(0, 2, 1), (1, 2, 3), (2, 4, 3)]
         """
@@ -6788,7 +6823,7 @@ class NifFormat(FileFormat):
                 dst_t.v_1, dst_t.v_2, dst_t.v_3 = next(src)
 
         def get_strips(self):
-            return pyffi.utils.tristrip.stripify(self.get_triangles())
+            return pyffi.utils.vertex_cache.stripify(self.get_triangles())
 
         def set_strips(self, strips):
             self.set_triangles(pyffi.utils.tristrip.triangulate(strips))
@@ -6814,7 +6849,8 @@ class NifFormat(FileFormat):
             return pyffi.utils.tristrip.triangulate(self.points)
 
         def set_triangles(self, triangles, stitchstrips = False):
-            self.set_strips(pyffi.utils.tristrip.stripify(triangles, stitchstrips = stitchstrips))
+            self.set_strips(pyffi.utils.vertex_cache.stripify(
+                triangles, stitchstrips=stitchstrips))
 
         def get_strips(self):
             return [[i for i in strip] for strip in self.points]

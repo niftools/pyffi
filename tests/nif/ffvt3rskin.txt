@@ -38,6 +38,18 @@ pyffi.nif.nitribasedgeom:INFO:Creating partitions
 pyffi.nif.nitribasedgeom:INFO:Created 12 small partitions.
 pyffi.nif.nitribasedgeom:INFO:Merging partitions.
 pyffi.nif.nitribasedgeom:INFO:Skin has 12 partitions.
+pyffi.nif.nitribasedgeom:INFO:Optimizing triangle ordering in partition 0
+pyffi.nif.nitribasedgeom:INFO:Optimizing triangle ordering in partition 1
+pyffi.nif.nitribasedgeom:INFO:Optimizing triangle ordering in partition 2
+pyffi.nif.nitribasedgeom:INFO:Optimizing triangle ordering in partition 3
+pyffi.nif.nitribasedgeom:INFO:Optimizing triangle ordering in partition 4
+pyffi.nif.nitribasedgeom:INFO:Optimizing triangle ordering in partition 5
+pyffi.nif.nitribasedgeom:INFO:Optimizing triangle ordering in partition 6
+pyffi.nif.nitribasedgeom:INFO:Optimizing triangle ordering in partition 7
+pyffi.nif.nitribasedgeom:INFO:Optimizing triangle ordering in partition 8
+pyffi.nif.nitribasedgeom:INFO:Optimizing triangle ordering in partition 9
+pyffi.nif.nitribasedgeom:INFO:Optimizing triangle ordering in partition 10
+pyffi.nif.nitribasedgeom:INFO:Optimizing triangle ordering in partition 11
 pyffi.toaster:INFO:  writing to temporary file
 pyffi.toaster:INFO:Finished.
 

@@ -696,11 +696,26 @@ class SpellFixBhkSubShapes(NifSpell):
                 self.toaster.logger.warn(
                     "bad subshape vertex count (expected %i, got %i)"
                     % (branch.data.num_vertices, num_verts_in_sub_shapes))
-                self.toaster.msg("fixing count in last subshape")
-                branch.get_sub_shapes()[-1].num_vertices += (
-                    branch.data.num_vertices - num_verts_in_sub_shapes)
-                # XXX resulting count should be positive!! we're not
-                # checking for this... (if this happens, remove subshapes?)
+                # remove or add vertices from subshapes (start with the last)
+                for sub_shape in reversed(branch.get_sub_shapes()):
+                    self.toaster.msg("fixing count in subshape")
+                    # calculate new number of vertices
+                    # if everything were to be fixed with this shape
+                    sub_shape_num_vertices = (
+                        sub_shape.num_vertices
+                        + branch.data.num_vertices
+                        - num_verts_in_sub_shapes)
+                    if sub_shape_num_vertices > 0:
+                        # we can do everything in the last shape
+                        # so do it
+                        sub_shape.num_vertices = sub_shape_num_vertices
+                        break
+                    else:
+                        # too many to remove...
+                        # first remove everything from this shape
+                        # the remainder will come from the following shapes
+                        num_verts_in_sub_shapes -= sub_shape.num_vertices
+                        sub_shape.num_vertices = 0
             # no need to recurse further
             return False
         # recurse further
