@@ -307,7 +307,7 @@ class SpellCheckBhkBodyCenter(pyffi.spells.nif.NifSpell):
             #    # adapt calculated inertia matrix with observed mass
             #    if mass > 0.001:
             #        correction = mass / branch.mass
-            #        for i in xrange(12):
+            #        for i in range(12):
             #            branch.inertia[i] *= correction
             #else:
             #    self.toaster.msg("perfect match!")

@@ -75,7 +75,7 @@ def walk(top, topdown=True, onerror=None, re_filename=None):
                     yield os.path.join(dirpath, filename)
 
 #table = "."*32
-#for c in [chr(i) for i in xrange(32,128)]:
+#for c in [chr(i) for i in range(32,128)]:
 #    table += c
 #table += "."*128
 chartable = '................................ !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.................................................................................................................................'.encode("ascii")

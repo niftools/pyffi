@@ -322,7 +322,7 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
         triangles = [(v_map_opt[v0], v_map_opt[v1], v_map_opt[v2])
                       for v0, v1, v2 in triangles]
         # update vertex map and its inverse
-        for i in xrange(data.num_vertices):
+        for i in range(data.num_vertices):
             try:
                 v_map[i] = v_map_opt[v_map[i]]
             except IndexError:
