@@ -43,6 +43,32 @@ Release 2.1.6 (in development)
 * Better vertex map calculation when calculating skin partitions
   (improves in-game fps).
 
+* Optimizer now always triangulates (improves in-game fps).
+  Stripification will be readded later in a modularized version of the
+  optimizer spell, for those that want minimal file size rather than
+  maximal performance).
+
+* Much faster implementation of vertex cache algorithm (now runs in
+  linear time instead of quadratic time).
+
+* Check triangle count when converting to box shape (fixes issue
+  #3091150).
+
+* Bugfix in vertex map reordering (fixes most nifs reported in issue
+  #3071616).
+
+* Bugfix in vertex cache algorithm (fixes a nif reported in issue
+  #3071616).
+
+* Cover degenerate case in ATVR calculation when there are no vertices
+  (fixes a nif reported in issue #3071616).
+
+* Cover degenerate case when calculating cache optimized vertex map
+  (fixes a nif reported in issue #3071616).
+
+* Remove branches if they have no triangles (again fixes a nif
+  reported in issue #3071616).
+
 Release 2.1.5 (18 July 2010)
 ============================
 
