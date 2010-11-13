@@ -1,5 +1,5 @@
-Release 2.1.6 (in development)
-==============================
+Release 2.1.6 (13 November 2010)
+================================
 
 * The optimize spell now includes two new spells:
   opt_collisiongeometry for optimizing triangle based collisions, and
