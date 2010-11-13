@@ -43,9 +43,8 @@ http://home.comcast.net/~tom_forsyth/papers/fast_vert_cache_opt.html
 #
 # ***** END LICENSE BLOCK *****
 
-from __future__ import division
-
 import collections
+from functools import reduce
 
 from pyffi.utils.tristrip import OrientedStrip
 
