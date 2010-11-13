@@ -57,9 +57,10 @@ def sd(vec):
     m = mean(vec)
     return (float(sum((v - m) ** 2 for v in vec)) / (len(vec) - 1)) ** 0.5
 
-total = {"Frames": [], "Time (ms)": [], "Min": [], "Max": [], "Avg": []}
+total = {}
 folder = sys.argv[1]
 for root, dirs, files in os.walk(folder):
+    total[root] = {"Frames": [], "Time (ms)": [], "Min": [], "Max": [], "Avg": []}
     for name in files:
         if not name.endswith(".csv"):
             continue
@@ -70,14 +71,26 @@ for root, dirs, files in os.walk(folder):
             numbers = rows.next()
             for name, num in zip(header, numbers):
                 name = name.strip()
-                total[name].append(float(num))
+                total[root][name].append(float(num))
 
-print("summary of {0} tests:".format(len(total["Frames"])))
-for name, vec in total.iteritems():
-    print("{0:10}: {1:10.3f} +- {2:10.3f}".format(
-        name,
-        mean(vec),
-        1.96 * sd(vec) / (len(vec) ** 0.5)))
+def summary(outfile):
+    for root in sorted(total):
+        if not total[root]["Frames"]:
+            continue
+        print >>outfile, root
+        print >> outfile, "-" * len(root)
+        print >> outfile
+        print >>outfile, "summary of {0} tests:".format(len(total[root]["Frames"]))
+        for name, vec in total[root].iteritems():
+            print >> outfile, "{0:10}: {1:10.3f} +- {2:10.3f}".format(
+                name,
+                mean(vec),
+                1.96 * sd(vec) / (len(vec) ** 0.5))
+        print >> outfile
+
+summary(sys.stdout)
+with open(os.path.join(folder, "summary.txt"), "w") as outfile:
+    summary(outfile)
 
 #if __name__ == "__main__":
 #    import doctest

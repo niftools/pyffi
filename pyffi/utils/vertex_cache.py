@@ -48,9 +48,8 @@ from functools import reduce
 
 from pyffi.utils.tristrip import OrientedStrip
 
-class VertexInfo:
-    """Stores information about a vertex."""
-
+class VertexScore:
+    """Vertex score calculation."""
     # constants used for scoring algorithm
     CACHE_SIZE = 32 # higher values yield virtually no improvement
     """The size of the modeled cache."""
@@ -60,30 +59,25 @@ class VertexInfo:
     VALENCE_BOOST_SCALE = 2.0
     VALENCE_BOOST_POWER = 0.5
 
-    # calculation of score is precalculated for speed
-
-    CACHE_SCORE = [
-        LAST_TRI_SCORE
-        if cache_position < 3 else
-        ((CACHE_SIZE - cache_position) / (CACHE_SIZE - 3)) ** CACHE_DECAY_POWER
-        for cache_position in range(CACHE_SIZE)]
-
-    VALENCE_SCORE = [
-        VALENCE_BOOST_SCALE * (valence ** (-VALENCE_BOOST_POWER))
-        if valence > 0 else None
-        for valence in range(256)]
     # implementation note: limitation of 255 triangles per vertex
     # this is unlikely to be exceeded...
+    MAX_TRIANGLES_PER_VERTEX = 255
 
-    def __init__(self, cache_position=-1, score=-1,
-                 triangle_indices=None):
-        self.cache_position = cache_position
-        self.score = score
-        # only triangles that have *not* yet been drawn are in this list
-        self.triangle_indices = ([] if triangle_indices is None
-                                 else triangle_indices)
+    def __init__(self):
+        # calculation of score is precalculated for speed
+        self.CACHE_SCORE = [
+            self.LAST_TRI_SCORE
+            if cache_position < 3 else
+            ((self.CACHE_SIZE - cache_position)
+             / (self.CACHE_SIZE - 3)) ** self.CACHE_DECAY_POWER
+            for cache_position in range(self.CACHE_SIZE)]
 
-    def update_score(self):
+        self.VALENCE_SCORE = [
+            self.VALENCE_BOOST_SCALE * (valence ** (-self.VALENCE_BOOST_POWER))
+            if valence > 0 else None
+            for valence in range(self.MAX_TRIANGLES_PER_VERTEX + 1)]
+
+    def update_score(self, vertex_info):
         """Update score:
 
         * -1 if vertex has no triangles
@@ -99,10 +93,11 @@ class VertexInfo:
 
         and valence score is 2 * (num triangles ** (-0.5))
 
+        >>> vertex_score = VertexScore()
         >>> def get_score(cache_position, triangle_indices):
         ...     vert = VertexInfo(cache_position=cache_position,
         ...                       triangle_indices=triangle_indices)
-        ...     vert.update_score()
+        ...     vertex_score.update_score(vert)
         ...     return vert.score
         >>> for cache_position in [-1, 0, 1, 2, 3, 4, 5]:
         ...     print("cache position = {0}".format(cache_position))
@@ -147,20 +142,32 @@ class VertexInfo:
           num triangles = 2 : 2.313
           num triangles = 3 : 2.053
         """
-        if not self.triangle_indices:
+        if not vertex_info.triangle_indices:
             # no triangle needs this vertex
-            self.score = -1
+            vertex_info.score = -1
             return
 
-        if self.cache_position < 0:
+        if vertex_info.cache_position < 0:
             # not in cache
-            self.score = 0
+            vertex_info.score = 0
         else:
             # use cache score lookup table
-            self.score = self.CACHE_SCORE[self.cache_position]
+            vertex_info.score = self.CACHE_SCORE[vertex_info.cache_position]
 
         # bonus points for having low number of triangles still in use
-        self.score += self.VALENCE_SCORE[len(self.triangle_indices)]
+        vertex_info.score += self.VALENCE_SCORE[
+            len(vertex_info.triangle_indices)]
+
+class VertexInfo:
+    """Stores information about a vertex."""
+
+    def __init__(self, cache_position=-1, score=-1,
+                 triangle_indices=None):
+        self.cache_position = cache_position
+        self.score = score
+        # only triangles that have *not* yet been drawn are in this list
+        self.triangle_indices = ([] if triangle_indices is None
+                                 else triangle_indices)
 
 class TriangleInfo:
     def __init__(self, score=0, vertex_indices=None):
@@ -173,7 +180,7 @@ class Mesh:
     are used by which vertex, and vertex cache positions.
     """
 
-    def __init__(self, triangles):
+    def __init__(self, triangles, vertex_score=None):
         """Initialize mesh from given set of triangles.
 
         Empty mesh
@@ -208,6 +215,11 @@ class Mesh:
             num_vertices = max(max(verts) for verts in triangles) + 1
         else:
             num_vertices = 0
+        # scoring algorithm
+        if vertex_score is None:
+            self.vertex_score = VertexScore()
+        else:
+            self.vertex_score = vertex_score
         self.vertex_infos = [VertexInfo() for i in range(num_vertices)]
         # add all triangles
         for triangle_index, verts in enumerate(get_unique_triangles(triangles)):
@@ -217,7 +229,7 @@ class Mesh:
                     triangle_index)
         # calculate score of all vertices
         for vertex_info in self.vertex_infos:
-            vertex_info.update_score()
+            self.vertex_score.update_score(vertex_info)
         # calculate score of all triangles
         for triangle_info in self.triangle_infos:
             triangle_info.score = sum(
@@ -276,7 +288,7 @@ class Mesh:
             for vertex in best_triangle_info.vertex_indices:
                 if vertex not in cache:
                     cache.appendleft(vertex)
-                    if len(cache) > VertexInfo.CACHE_SIZE:
+                    if len(cache) > self.vertex_score.CACHE_SIZE:
                         # cache overflow!
                         # remove vertex from cache
                         removed_vertex = cache.pop()
@@ -297,7 +309,7 @@ class Mesh:
                 updated_triangles.update(vertex_info.triangle_indices)
             # update scores
             for vertex in updated_vertices:
-                self.vertex_infos[vertex].update_score()
+                self.vertex_score.update_score(self.vertex_infos[vertex])
             for triangle in updated_triangles:
                 triangle_info = self.triangle_infos[triangle]
                 triangle_info.score = sum(
