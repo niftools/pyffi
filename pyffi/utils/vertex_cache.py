@@ -433,7 +433,7 @@ def stripify(triangles, stitchstrips=False):
     """Stripify triangles, optimizing for the vertex cache."""
     return stable_stripify(
         get_cache_optimized_triangles(triangles),
-        stitchstrips=True)
+        stitchstrips=stitchstrips)
 
 def get_cache_optimized_vertex_map(strips):
     """Map vertices so triangles/strips have consequetive indices.
