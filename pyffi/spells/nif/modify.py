@@ -7,11 +7,11 @@ Module which contains all spells that modify a nif.
    :show-inheritance:
    :members:
 
-.. autoclass:: SpellSubstitueTexturePath
+.. autoclass:: SpellSubstituteTexturePath
    :show-inheritance:
    :members:
 
-.. autoclass:: SpelLowResTexturePath
+.. autoclass:: SpellLowResTexturePath
    :show-inheritance:
    :members:
 
