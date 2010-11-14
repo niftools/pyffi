@@ -7,13 +7,13 @@ Get git/msysgit
 ===============
 
 If you are on windows, you need `msysgit
-<http://code.google.com/p/msysgit/>`_.  If you are already familiar
+<http://code.google.com/p/msysgit/downloads/list>`_.  If you are already familiar
 with subversion, then, in a nutshell, msysgit is for git what
 TortoiseSVN is for subversion. The main difference is that msysgit is
 a command line based tool.
 
-For more information about git and github, the `official github guides
-<http://github.com/guides/home>`_ are a great start.
+For more information about git and github, the `github help site
+<http://help.github.com>`_ is a great start.
 
 Track the source
 ================
@@ -36,7 +36,7 @@ Create a fork
 * Get a `github account <https://github.com/signup/free>`_.
 
 * `Log in <https://github.com/login>`_ on github and `fork PyFFI
-  <http://github.com/guides/fork-a-project-and-submit-your-modifications>`_
+  <http://help.github.com/forking>`_
   (yes! merging with git is easy so forking is encouraged!).
 
 Use the source
@@ -78,6 +78,6 @@ system which has both wine and nsis installed)::
 Submit your updates
 -------------------
 
-Simply do a `pull request <http://github.com/guides/pull-requests>`_
+Simply do a `pull request <http://help.github.com/pull-requests>`_
 if you want your fork to be merged, and your contributions may be
 included in the next release!
