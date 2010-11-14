@@ -790,7 +790,11 @@ class SpellOptimizeCollisionBox(pyffi.spells.nif.NifSpell):
         boxshape.dimensions.y = size[1] / (2 * factor)
         boxshape.dimensions.z = size[2] / (2 * factor)
         boxshape.minimum_size = min(size) / factor
-        boxshape.material = material
+        try:
+            boxshape.material = material
+        except ValueError:
+            # material has a bad value, this sometimes happens
+            pass
         boxshape.radius = 0.1
         boxshape.unknown_8_bytes[0] = 0x6b
         boxshape.unknown_8_bytes[1] = 0xee
