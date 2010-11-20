@@ -1,3 +1,9 @@
+Release 2.1.7 (in development)
+==============================
+
+* Added support for Fallout New Vegas (contributed by throttlekitty
+  and saiden).
+
 Release 2.1.6 (13 November 2010)
 ================================
 
