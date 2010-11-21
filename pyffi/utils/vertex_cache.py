@@ -181,6 +181,8 @@ class Mesh:
     are used by which vertex, and vertex cache positions.
     """
 
+    _DEBUG = False # to enable debugging of the algorithm
+
     def __init__(self, triangles, vertex_score=None):
         """Initialize mesh from given set of triangles.
 
@@ -253,14 +255,16 @@ class Mesh:
         while (updated_triangles
                or any(triangle_info for triangle_info in self.triangle_infos)):
             # pick triangle with highest score
-            if not updated_triangles:
+            if self._DEBUG or not updated_triangles:
                 # very slow but correct global maximum
                 best_triangle_index, best_triangle_info = max(
                     (triangle
                      for triangle in enumerate(self.triangle_infos)
                      if triangle[1]),
                     key=lambda triangle: triangle[1].score)
-            else:
+            if updated_triangles:
+                if self._DEBUG:
+                    globally_optimal_score = best_triangle_info.score
                 # if scores of triangles were updated in the previous run
                 # then restrict the search to those
                 # this is suboptimal, but the difference is usually very small
@@ -270,6 +274,11 @@ class Mesh:
                     key=lambda triangle_index:
                     self.triangle_infos[triangle_index].score)
                 best_triangle_info = self.triangle_infos[best_triangle_index]
+                if (self._DEBUG and
+                    globally_optimal_score - best_triangle_info.score > 0.01):
+                        print(globally_optimal_score,
+                              globally_optimal_score - best_triangle_info.score,
+                              len(updated_triangles))
             # mark as added
             self.triangle_infos[best_triangle_index] = None
             # append to ordered list of triangles
