@@ -892,6 +892,9 @@ class SpellCheckTrianglesATVR(SpellCheckTriangles):
     """
 
     SPELLNAME = "check_triangles_atvr"
+    INITIAL = [1.5,    0.75, 2.0, 0.5]
+    LOWER =   [0.01, -10.0,  0.1, 0.01]
+    UPPER =   [5.0,    1.0, 10.0, 5.0]
 
     @classmethod
     def toastentry(cls, toaster):
@@ -907,9 +910,13 @@ class SpellCheckTrianglesATVR(SpellCheckTriangles):
         return True
 
     @classmethod
-    def get_atvr(cls, toaster,
-                 cache_decay_power, last_tri_score,
-                 valence_boost_scale, valence_boost_power):
+    def get_atvr(cls, toaster, *args):
+        # check bounds
+        if any(value < lower or value > upper
+               for (lower, value, upper) in zip(
+                   cls.LOWER, args, cls.UPPER)):
+            return 1e30 # infinity
+        cache_decay_power, last_tri_score, valence_boost_scale, valence_boost_power = args
         vertex_score = pyffi.utils.vertex_cache.VertexScore()
         vertex_score.CACHE_DECAY_POWER = cache_decay_power
         vertex_score.LAST_TRI_SCORE = last_tri_score
@@ -934,10 +941,10 @@ class SpellCheckTrianglesATVR(SpellCheckTriangles):
         toaster.msg("found {0} geometries".format(len(toaster.geometries)))
         result = scipy.optimize.anneal(
             lambda x: cls.get_atvr(toaster, *x),
-            numpy.array([1.5, 0.75, 2.0, 0.5]),
+            numpy.array(cls.INITIAL),
             full_output=True,
-            lower=numpy.array([0.01, -10.0, 0.1, 0.1]),
-            upper=numpy.array([5.0, 1.0, 10.0, 5.0]),
+            lower=numpy.array(cls.LOWER),
+            upper=numpy.array(cls.UPPER),
             #maxeval=10,
             #maxaccept=10,
             #maxiter=10,
