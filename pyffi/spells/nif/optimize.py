@@ -409,13 +409,7 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                     bonedata.vertex_weights[j].weight = weight_i
 
             # update skin partition (only if branch already exists)
-            branch._validateSkin()
-            skininst = branch.skin_instance
-            skinpart = skininst.skin_partition
-            if not skinpart:
-                skinpart = skininst.data.skin_partition
-
-            if skinpart:
+            if branch.get_skin_partition():
                 self.toaster.msg("updating skin partition")
                 # use Oblivion settings
                 branch.update_skin_partition(
