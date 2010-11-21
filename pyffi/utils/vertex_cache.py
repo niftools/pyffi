@@ -66,6 +66,9 @@ class VertexScore:
 
     def __init__(self):
         # calculation of score is precalculated for speed
+        self.precalculate()
+
+    def precalculate(self):
         self.CACHE_SCORE = [
             self.LAST_TRI_SCORE
             if cache_position < 3 else

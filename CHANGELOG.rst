@@ -7,6 +7,14 @@ Release 2.1.7 (in development)
 * Updated geometry optimizer to keep dismember body parts, for Fallout
   3 and Fallout New Vegas (fixes issue #3025691 reported by Chaky).
 
+* Added flag to enable debugging in vertex cache algorithm, to assess
+  how suboptimal the solution is on any particular mesh (testing
+  reveals that it finds the globally optimal solution in more than 99%
+  of all iterations, for typical meshes).
+
+* New check_triangles_atvr spell to find optimal parameters for vertex
+  cache algorithm by simulated annealing.
+
 Release 2.1.6 (13 November 2010)
 ================================
 

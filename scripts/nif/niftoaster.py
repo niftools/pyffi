@@ -69,6 +69,8 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         pyffi.spells.nif.check.SpellCheckTangentSpace,
         pyffi.spells.nif.check.SpellCheckTriStrip,
         pyffi.spells.nif.check.SpellCheckVersion,
+        pyffi.spells.nif.check.SpellCheckTriangles,
+        pyffi.spells.nif.check.SpellCheckTrianglesATVR,
         pyffi.spells.nif.dump.SpellDumpAll,
         pyffi.spells.nif.dump.SpellDumpTex,
         pyffi.spells.nif.dump.SpellHtmlReport,
