@@ -4,6 +4,9 @@ Release 2.1.7 (in development)
 * Added support for Fallout New Vegas (contributed by throttlekitty
   and saiden).
 
+* Updated geometry optimizer to keep dismember body parts, for Fallout
+  3 and Fallout New Vegas (fixes issue #3025691 reported by Chaky).
+
 Release 2.1.6 (13 November 2010)
 ================================
 

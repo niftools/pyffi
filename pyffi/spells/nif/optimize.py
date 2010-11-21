@@ -411,10 +411,31 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
             # update skin partition (only if branch already exists)
             if branch.get_skin_partition():
                 self.toaster.msg("updating skin partition")
+                if isinstance(branch.skin_instance,
+                              NifFormat.BSDismemberSkinInstance):
+                    # get body part indices (in the old system!)
+                    triangles, trianglepartmap = (
+                        branch.skin_instance.get_dismember_partitions())
+                    maximize_bone_sharing = True
+                    # update mapping
+                    new_triangles = []
+                    for triangle in triangles:
+                        # XXX it could happen that v_map[i] is None
+                        # XXX these triangles should be removed
+                        new_triangles.append(
+                            tuple(v_map[i] for i in triangle))
+                    triangles = new_triangles
+                else:
+                    # no body parts
+                    triangles = None
+                    trianglepartmap = None
+                    maximize_bone_sharing = False
                 # use Oblivion settings
                 branch.update_skin_partition(
                     maxbonesperpartition=18, maxbonespervertex=4,
-                    stripify=False, verbose=0)
+                    stripify=False, verbose=0,
+                    triangles=triangles, trianglepartmap=trianglepartmap,
+                    maximize_bone_sharing=maximize_bone_sharing)
 
         # update morph data
         for morphctrl in branch.get_controllers():
