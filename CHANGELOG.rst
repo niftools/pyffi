@@ -15,6 +15,9 @@ Release 2.1.7 (in development)
 * New check_triangles_atvr spell to find optimal parameters for vertex
   cache algorithm by simulated annealing.
 
+* Fixed send_geometries_to_bind_position in case skin instance has
+  empty bone references (fixes issue #3114079, reported by drakonnen).
+
 Release 2.1.6 (13 November 2010)
 ================================
 

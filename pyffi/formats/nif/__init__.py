@@ -5115,6 +5115,9 @@ class NifFormat(FileFormat):
                 # go over all bones in current geometry, see if it has been visited
                 # before
                 for bonenode, bonedata in izip(skininst.bones, skindata.bone_list):
+                    # bonenode can be None; see pyffi issue #3114079
+                    if not bonenode:
+                        continue
                     if bonenode.name in bone_bind_transform:
                         # calculate difference
                         # (see explanation below)
@@ -5145,10 +5148,12 @@ class NifFormat(FileFormat):
                     #    v * T * ... = v * D * D^-1 * T * ... = v' * T' * ...
                     # must be kept invariant
                     for bonenode, bonedata in izip(skininst.bones, skindata.bone_list):
-                        logger.debug("transforming bind position of bone %s"
-                                     % bonenode.name)
+                        # bonenode can be None; see pyffi issue #3114079
+                        logger.debug(
+                            "transforming bind position of bone %s"
+                            % bonenode.name if bonenode else "<None>")
                         bonedata.set_transform(diff.get_inverse(fast=False)
-                                              * bonedata.get_transform())
+                                               * bonedata.get_transform())
                     # transform geometry
                     logger.debug("transforming vertices and normals")
                     for vert in geom.data.vertices:
@@ -5164,6 +5169,9 @@ class NifFormat(FileFormat):
 
                 # store updated bind position for future reference
                 for bonenode, bonedata in izip(skininst.bones, skindata.bone_list):
+                    # bonenode can be None; see pyffi issue #3114079
+                    if not bonenode:
+                        continue
                     bone_bind_transform[bonenode.name] = (
                         bonedata.get_transform().get_inverse(fast=False)
                         * geom.get_transform(self))
@@ -5177,6 +5185,9 @@ class NifFormat(FileFormat):
                 # go over all bones in current geometry, see if it has been visited
                 # before
                 for bonenode, bonedata in izip(skininst.bones, skindata.bone_list):
+                    if not bonenode:
+                        # bonenode can be None; see pyffi issue #3114079
+                        continue
                     if bonenode.name in bone_bind_transform:
                         # calculate difference
                         diff = ((bonedata.get_transform().get_inverse(fast=False)
