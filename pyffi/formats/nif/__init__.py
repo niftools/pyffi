@@ -5224,7 +5224,10 @@ class NifFormat(FileFormat):
             # parts the geometries into sets that do not share bone influences
             # * first construct sets of bones, merge intersecting sets
             # * then check which geometries belong to which set
-            bonesets = [list(set(geom.skin_instance.bones)) for geom in geoms]
+            # (note: bone can be None, see issue #3114079)
+            bonesets = [
+                list(set(bone for bone in geom.skin_instance.bones if bone))
+                for geom in geoms]
             # the merged flag signals that we are still merging bones
             merged = True
             while merged:
@@ -5356,6 +5359,9 @@ class NifFormat(FileFormat):
                 skininst = geom.skin_instance
                 skindata = skininst.data
                 for bonenode, bonedata in izip(skininst.bones, skindata.bone_list):
+                    # bonenode can be None; see pyffi issue #3114079
+                    if not bonenode:
+                        continue
                     # make sure all bone data of shared bones coincides
                     for othergeom, otherbonenode, otherbonedata in bonelist:
                         if bonenode is otherbonenode:
@@ -5427,6 +5433,9 @@ class NifFormat(FileFormat):
                 geomtransform = geom.get_transform(self)
                 # check skin data fields (also see NiGeometry.update_bind_position)
                 for i, bone in enumerate(skininst.bones):
+                    # bone can be None; see pyffi issue #3114079
+                    if bone is None:
+                        continue
                     diff = ((skindata.bone_list[i].get_transform().get_inverse(fast=False)
                              * geomtransform)
                             - bone.get_transform(self))
