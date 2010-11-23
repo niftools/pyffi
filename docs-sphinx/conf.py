@@ -39,7 +39,7 @@ master_doc = 'index'
 
 # General substitutions.
 project = 'PyFFI'
-copyright = '2007-2009, Amorilia'
+copyright = '2007-2010, Amorilia'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.

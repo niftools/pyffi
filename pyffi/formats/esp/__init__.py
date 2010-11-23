@@ -42,7 +42,7 @@ Create an ESP file from scratch and write to file
 
 # ***** BEGIN LICENSE BLOCK *****
 #
-# Copyright (c) 2007-2009, Python File Format Interface
+# Copyright (c) 2007-2010, Python File Format Interface
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
