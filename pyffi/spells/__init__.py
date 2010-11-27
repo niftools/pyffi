@@ -555,26 +555,29 @@ class SpellApplyPatch(Spell):
 
 class fake_logger:
     """Simple logger for testing."""
-    @staticmethod
-    def _log(level, msg):
+    level = logging.DEBUG
+
+    @classmethod
+    def _log(cls, level, level_str, msg):
         # do not actually log, just print
-        print("pyffi.toaster:%s:%s" % (level, msg))
+        if level >= cls.level:
+            print("pyffi.toaster:%s:%s" % (level_str, msg))
 
     @classmethod
     def error(cls, msg):
-        cls._log("ERROR", msg)
+        cls._log(logging.ERROR, "ERROR", msg)
 
     @classmethod
     def warn(cls, msg):
-        cls._log("WARNING", msg)
+        cls._log(logging.WARNING, "WARNING", msg)
 
     @classmethod
     def info(cls, msg):
-        cls._log("INFO", msg)
+        cls._log(logging.INFO, "INFO", msg)
 
     @classmethod
     def debug(cls, msg):
-        cls._log("DEBUG", msg)
+        cls._log(logging.DEBUG, "DEBUG", msg)
 
 
 def _toaster_job(args):
@@ -586,14 +589,17 @@ def _toaster_job(args):
         """Simple logger which works well along with multiprocessing
         on all platforms.
         """
-        @staticmethod
-        def _log(level, msg):
+        @classmethod
+        def _log(cls, level, level_str, msg):
             # do not actually log, just print
-            print("pyffi.toaster:%i:%s:%s"
-                  % (multiprocessing.current_process().pid,
-                     level, msg))
+            if level >= cls.level:
+                print("pyffi.toaster:%i:%s:%s"
+                      % (multiprocessing.current_process().pid,
+                         level_str, msg))
 
     toasterclass, filename, options, spellnames = args
+    multiprocessing_fake_logger.level = (
+        logging.getLogger("pyffi").getEffectiveLevel())
     toaster = toasterclass(options=options, spellnames=spellnames,
                            logger=multiprocessing_fake_logger)
 

@@ -20,6 +20,9 @@ Release 2.1.7 (in development)
   send_bones_to_bind_position in case skin instance has empty bone
   references (fixes issue #3114079, reported by drakonnen).
 
+* Fix for verbose option in multithread mode (reported by
+  Gratis_monsta).
+
 Release 2.1.6 (13 November 2010)
 ================================
 
