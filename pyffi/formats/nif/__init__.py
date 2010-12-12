@@ -6084,7 +6084,9 @@ class NifFormat(FileFormat):
 
             return izip(self.data.normals, tangents, bitangents)
 
-        def update_tangent_space(self, as_extra=None):
+        def update_tangent_space(
+            self, as_extra=None,
+            vertexprecision=3, normalprecision=3):
             """Recalculate tangent space data.
 
             :param as_extra: Whether to store the tangent space data as extra data
@@ -6109,16 +6111,31 @@ class NifFormat(FileFormat):
             # check that shape has norms and uvs
             if len(uvs) == 0 or len(norms) == 0: return
 
-            bin = []
-            tan = []
-            for i in xrange(self.data.num_vertices):
-                bin.append(NifFormat.Vector3())
-                tan.append(NifFormat.Vector3())
+            # identify identical (vertex, normal) pairs to avoid issues along
+            # uv seams due to vertex duplication
+            # implementation note: uvprecision and vcolprecision 0
+            # should be enough, but use -2 just to be really sure
+            # that this is ignored
+            v_hash_map = list(
+                self.data.get_vertex_hash_generator(
+                    vertexprecision=vertexprecision,
+                    normalprecision=normalprecision,
+                    uvprecision=-2,
+                    vcolprecision=-2))
+
+            # tangent and binormal dictionaries by vertex hash
+            bin = dict((h, NifFormat.Vector3()) for h in v_hash_map)
+            tan = dict((h, NifFormat.Vector3()) for h in v_hash_map)
 
             # calculate tangents and binormals from vertex and texture coordinates
             for t1, t2, t3 in self.data.get_triangles():
+                # find hash values
+                h1 = v_hash_map[t1]
+                h2 = v_hash_map[t2]
+                h3 = v_hash_map[t3]
                 # skip degenerate triangles
-                if t1 == t2 or t2 == t3 or t3 == t1: continue
+                if h1 == h2 or h2 == h3 or h3 == h1:
+                    continue
 
                 v_1 = verts[t1]
                 v_2 = verts[t2]
@@ -6163,9 +6180,9 @@ class NifFormat(FileFormat):
                     continue # skip triangle
 
                 # vector combination algorithm could possibly be improved
-                for i in [t1, t2, t3]:
-                    tan[i] += tdir
-                    bin[i] += sdir
+                for h in [h1, h2, h3]:
+                    tan[h] += tdir
+                    bin[h] += sdir
 
             xvec = NifFormat.Vector3()
             xvec.x = 1.0
@@ -6175,8 +6192,7 @@ class NifFormat(FileFormat):
             yvec.x = 0.0
             yvec.y = 1.0
             yvec.z = 0.0
-            for i in xrange(self.data.num_vertices):
-                n = norms[i]
+            for n, h in izip(norms, v_hash_map):
                 try:
                     n.normalize()
                 except (ValueError, ZeroDivisionError):
@@ -6185,21 +6201,25 @@ class NifFormat(FileFormat):
                     n = yvec
                 try:
                     # turn n, bin, tan into a base via Gram-Schmidt
-                    bin[i] -= n * (n * bin[i])
-                    bin[i].normalize()
-                    tan[i] -= n * (n * tan[i])
-                    tan[i] -= bin[i] * (bin[i] * tan[i])
-                    tan[i].normalize()
+                    bin[h] -= n * (n * bin[h])
+                    bin[h].normalize()
+                    tan[h] -= n * (n * tan[h])
+                    tan[h] -= bin[h] * (bin[h] * tan[h])
+                    tan[h].normalize()
                 except ZeroDivisionError:
                     # insuffient data to set tangent space for this vertex
                     # in that case pick a space
-                    bin[i] = xvec.crossproduct(n)
+                    bin[h] = xvec.crossproduct(n)
                     try:
-                        bin[i].normalize()
+                        bin[h].normalize()
                     except ZeroDivisionError:
-                        bin[i] = yvec.crossproduct(n)
-                        bin[i].normalize() # should work now
-                    tan[i] = n.crossproduct(bin[i])
+                        bin[h] = yvec.crossproduct(n)
+                        bin[h].normalize() # should work now
+                    tan[h] = n.crossproduct(bin[h])
+
+            # tangent and binormal lists by vertex index
+            tan = [tan[h] for h in v_hash_map]
+            bin = [bin[h] for h in v_hash_map]
 
             # find possible extra data block
             for extra in self.get_extra_datas():

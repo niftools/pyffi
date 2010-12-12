@@ -26,6 +26,9 @@ Release 2.1.7 (in development)
 * Fix optimize spell when no vertices are left after removing duplicate
   vertices and degenerate triangles (reported by Gratis_monsta).
 
+* Fixed tangent space issue along uv seams (reported by Gratis_monsta
+  and Tommy_H, see issue #3120585).
+
 Release 2.1.6 (13 November 2010)
 ================================
 
