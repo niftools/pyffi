@@ -332,7 +332,15 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                 v_map_inverse[v_map[i]] = i
             else:
                 self.toaster.logger.warn("unused vertex")
-        new_numvertices = max(v for v in v_map if v is not None) + 1
+        try:
+            new_numvertices = max(v for v in v_map if v is not None) + 1
+        except ValueError:
+            # max() arg is an empty sequence
+            # this means that there are no vertices
+            self.toaster.msg(
+                "less than 3 vertices or no triangles: removing branch")
+            self.data.replace_global_node(branch, None)
+            return False
         del v_map_inverse[new_numvertices:]
 
         # use a triangle representation

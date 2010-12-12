@@ -23,6 +23,9 @@ Release 2.1.7 (in development)
 * Fix for verbose option in multithread mode (reported by
   Gratis_monsta).
 
+* Fix optimize spell when no vertices are left after removing duplicate
+  vertices and degenerate triangles (reported by Gratis_monsta).
+
 Release 2.1.6 (13 November 2010)
 ================================
 
