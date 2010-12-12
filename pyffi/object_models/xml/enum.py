@@ -37,6 +37,7 @@
 #
 # ***** END LICENSE BLOCK *****
 
+import logging
 import struct
 from itertools import izip
 
@@ -117,8 +118,10 @@ class EnumBase(BasicBase, EditableComboBox):
                     raise ValueError(
                         "cannot convert value '%s' to integer"%value)
         if not val in self._enumvalues:
-            raise ValueError('invalid enum value (%i)' % val)
-        self._value = val
+            logger = logging.getLogger("pyffi.object_models.xml.enum")
+            logger.error('invalid enum value (%i)' % val)
+        else:
+            self._value = val
 
     def read(self, stream, data):
         """Read value from stream."""

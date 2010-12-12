@@ -26,6 +26,9 @@ Release 2.1.7 (in development)
 * Fix optimize spell when no vertices are left after removing duplicate
   vertices and degenerate triangles (reported by Gratis_monsta).
 
+* Log an error instead of raising an exception on invalid enum values
+  (fixes issue #3127161, reported by rlibiez).
+
 Release 2.1.6 (13 November 2010)
 ================================
 
