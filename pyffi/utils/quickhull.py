@@ -102,7 +102,6 @@ Precision
 
 >>> plane = [(0,0,0),(1,0,0),(0,1,0),(1,1,0),(1.001, 0.001, 0)]
 >>> verts, triangles = qhull3d(plane, precision=0.1)
->>> verts
 >>> len(verts)
 4
 >>> len(triangles)
@@ -178,8 +177,8 @@ def qdome2d(vertices, base, normal, precision = 0.0001):
     if outer:
         pivot = max(outer)[1]
         outer_verts = map(operator.itemgetter(1), outer)
-        return qdome2d(outer_verts, [vert0, pivot], normal) \
-               + qdome2d(outer_verts, [pivot, vert1], normal)[1:]
+        return qdome2d(outer_verts, [vert0, pivot], normal, precision) \
+               + qdome2d(outer_verts, [pivot, vert1], normal, precision)[1:]
     else:
         return base
 
@@ -223,8 +222,8 @@ def qhull2d(vertices, normal, precision = 0.0001):
     base = basesimplex3d(vertices, precision)
     if len(base) >= 2:
         vert0, vert1 = base[:2]
-        return qdome2d(vertices, [vert0, vert1], normal) \
-               + qdome2d(vertices, [vert1, vert0], normal)[1:-1]
+        return qdome2d(vertices, [vert0, vert1], normal, precision) \
+               + qdome2d(vertices, [vert1, vert0], normal, precision)[1:-1]
     else:
         return base
 
@@ -317,7 +316,7 @@ def qhull3d(vertices, precision = 0.0001, verbose = False):
     # handle degenerate cases
     if len(hull_vertices) == 3:
         # coplanar
-        hull_vertices = qhull2d(vertices, vecNormal(*hull_vertices))
+        hull_vertices = qhull2d(vertices, vecNormal(*hull_vertices), precision)
         return hull_vertices, [ (0, i+1, i+2)
                                 for i in xrange(len(hull_vertices) - 2) ]
     elif len(hull_vertices) <= 2:
