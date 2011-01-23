@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
 #
-# Copyright (c) 2007-2009, NIF File Format Library and Tools.
+# Copyright (c) 2007-2010, NIF File Format Library and Tools.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -846,3 +846,109 @@ class SpellCheckMaterialEmissiveValue(pyffi.spells.nif.NifSpell):
         else:
             # keep recursing into children
             return True
+
+class SpellCheckTriangles(pyffi.spells.nif.NifSpell):
+    """Base class for spells which need to check all triangles."""
+
+    SPELLNAME = "check_triangles"
+
+    def datainspect(self):
+        # only run the spell if there are geometries
+        return self.inspectblocktype(NifFormat.NiTriBasedGeom)
+
+    @classmethod
+    def toastentry(cls, toaster):
+        toaster.geometries = []
+        return True
+
+    def branchinspect(self, branch):
+        # only inspect the NiAVObject branch
+        return isinstance(branch, NifFormat.NiAVObject)
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiTriBasedGeom):
+            # get triangles
+            self.toaster.geometries.append(branch.data.get_triangles())
+            # stop recursion
+            return False
+        else:
+            # keep recursing into children
+            return True
+
+    @classmethod
+    def toastexit(cls, toaster):
+        toaster.msg("found {0} geometries".format(len(toaster.geometries)))
+
+try:
+    import numpy
+    import scipy.optimize
+except ImportError:
+    numpy = None
+    scipy = None
+
+class SpellCheckTrianglesATVR(SpellCheckTriangles):
+    """Find optimal parameters for vertex cache algorithm by simulated
+    annealing.
+    """
+
+    SPELLNAME = "check_triangles_atvr"
+    INITIAL = [1.5,    0.75, 2.0, 0.5]
+    LOWER =   [0.01, -10.0,  0.1, 0.01]
+    UPPER =   [5.0,    1.0, 10.0, 5.0]
+
+    @classmethod
+    def toastentry(cls, toaster):
+        # call base class method
+        if not SpellCheckTriangles.toastentry(toaster):
+            return False
+        # check that we have numpy and scipy
+        if (numpy is None) or (scipy is None):
+            toaster.logger.error(
+                self.SPELLNAME
+                + " requires numpy and scipy (http://www.scipy.org/)")
+            return False
+        return True
+
+    @classmethod
+    def get_atvr(cls, toaster, *args):
+        # check bounds
+        if any(value < lower or value > upper
+               for (lower, value, upper) in zip(
+                   cls.LOWER, args, cls.UPPER)):
+            return 1e30 # infinity
+        cache_decay_power, last_tri_score, valence_boost_scale, valence_boost_power = args
+        vertex_score = pyffi.utils.vertex_cache.VertexScore()
+        vertex_score.CACHE_DECAY_POWER = cache_decay_power
+        vertex_score.LAST_TRI_SCORE = last_tri_score
+        vertex_score.VALENCE_BOOST_SCALE = valence_boost_scale
+        vertex_score.VALENCE_BOOST_POWER = valence_boost_power
+        vertex_score.precalculate()
+        print("{0:.3f} {1:.3f} {2:.3f} {3:.3f}".format(
+                cache_decay_power, last_tri_score,
+                valence_boost_scale, valence_boost_power))
+        atvr = []
+        for triangles in toaster.geometries:
+            mesh = pyffi.utils.vertex_cache.Mesh(triangles, vertex_score)
+            new_triangles = mesh.get_cache_optimized_triangles()
+            atvr.append(
+                pyffi.utils.vertex_cache.average_transform_to_vertex_ratio(
+                    new_triangles, 32))
+        print(sum(atvr) / len(atvr))
+        return sum(atvr) / len(atvr)
+
+    @classmethod
+    def toastexit(cls, toaster):
+        toaster.msg("found {0} geometries".format(len(toaster.geometries)))
+        result = scipy.optimize.anneal(
+            lambda x: cls.get_atvr(toaster, *x),
+            numpy.array(cls.INITIAL),
+            full_output=True,
+            lower=numpy.array(cls.LOWER),
+            upper=numpy.array(cls.UPPER),
+            #maxeval=10,
+            #maxaccept=10,
+            #maxiter=10,
+            #dwell=10,
+            #feps=0.1,
+            )
+        toaster.msg(str(result))

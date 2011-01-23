@@ -295,7 +295,7 @@ end
 
 # ***** BEGIN LICENSE BLOCK *****
 #
-# Copyright (c) 2007-2009, NIF File Format Library and Tools.
+# Copyright (c) 2007-2010, NIF File Format Library and Tools.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -3213,6 +3213,18 @@ class NifFormat(FileFormat):
             self.dimensions.y *= scale
             self.dimensions.z *= scale
 
+    class BSDismemberSkinInstance:
+        def get_dismember_partitions(self):
+            """Return triangles and body part indices."""
+            triangles = []
+            trianglepartmap = []
+            for bodypart, skinpartblock in zip(
+                self.partitions, self.skin_partition.skin_partition_blocks):
+                part_triangles = list(skinpartblock.get_mapped_triangles())
+                triangles += part_triangles
+                trianglepartmap += [bodypart.body_part] * len(part_triangles)
+            return triangles, trianglepartmap
+
     class ControllerLink:
         """
         >>> from pyffi.formats.nif import NifFormat
@@ -5107,6 +5119,9 @@ class NifFormat(FileFormat):
                 # go over all bones in current geometry, see if it has been visited
                 # before
                 for bonenode, bonedata in zip(skininst.bones, skindata.bone_list):
+                    # bonenode can be None; see pyffi issue #3114079
+                    if not bonenode:
+                        continue
                     if bonenode.name in bone_bind_transform:
                         # calculate difference
                         # (see explanation below)
@@ -5137,10 +5152,12 @@ class NifFormat(FileFormat):
                     #    v * T * ... = v * D * D^-1 * T * ... = v' * T' * ...
                     # must be kept invariant
                     for bonenode, bonedata in zip(skininst.bones, skindata.bone_list):
-                        logger.debug("transforming bind position of bone %s"
-                                     % bonenode.name)
+                        # bonenode can be None; see pyffi issue #3114079
+                        logger.debug(
+                            "transforming bind position of bone %s"
+                            % bonenode.name if bonenode else "<None>")
                         bonedata.set_transform(diff.get_inverse(fast=False)
-                                              * bonedata.get_transform())
+                                               * bonedata.get_transform())
                     # transform geometry
                     logger.debug("transforming vertices and normals")
                     for vert in geom.data.vertices:
@@ -5156,6 +5173,9 @@ class NifFormat(FileFormat):
 
                 # store updated bind position for future reference
                 for bonenode, bonedata in zip(skininst.bones, skindata.bone_list):
+                    # bonenode can be None; see pyffi issue #3114079
+                    if not bonenode:
+                        continue
                     bone_bind_transform[bonenode.name] = (
                         bonedata.get_transform().get_inverse(fast=False)
                         * geom.get_transform(self))
@@ -5169,6 +5189,9 @@ class NifFormat(FileFormat):
                 # go over all bones in current geometry, see if it has been visited
                 # before
                 for bonenode, bonedata in zip(skininst.bones, skindata.bone_list):
+                    if not bonenode:
+                        # bonenode can be None; see pyffi issue #3114079
+                        continue
                     if bonenode.name in bone_bind_transform:
                         # calculate difference
                         diff = ((bonedata.get_transform().get_inverse(fast=False)
@@ -5205,7 +5228,10 @@ class NifFormat(FileFormat):
             # parts the geometries into sets that do not share bone influences
             # * first construct sets of bones, merge intersecting sets
             # * then check which geometries belong to which set
-            bonesets = [list(set(geom.skin_instance.bones)) for geom in geoms]
+            # (note: bone can be None, see issue #3114079)
+            bonesets = [
+                list(set(bone for bone in geom.skin_instance.bones if bone))
+                for geom in geoms]
             # the merged flag signals that we are still merging bones
             merged = True
             while merged:
@@ -5337,6 +5363,9 @@ class NifFormat(FileFormat):
                 skininst = geom.skin_instance
                 skindata = skininst.data
                 for bonenode, bonedata in zip(skininst.bones, skindata.bone_list):
+                    # bonenode can be None; see pyffi issue #3114079
+                    if not bonenode:
+                        continue
                     # make sure all bone data of shared bones coincides
                     for othergeom, otherbonenode, otherbonedata in bonelist:
                         if bonenode is otherbonenode:
@@ -5408,6 +5437,9 @@ class NifFormat(FileFormat):
                 geomtransform = geom.get_transform(self)
                 # check skin data fields (also see NiGeometry.update_bind_position)
                 for i, bone in enumerate(skininst.bones):
+                    # bone can be None; see pyffi issue #3114079
+                    if bone is None:
+                        continue
                     diff = ((skindata.bone_list[i].get_transform().get_inverse(fast=False)
                              * geomtransform)
                             - bone.get_transform(self))
@@ -6055,7 +6087,9 @@ class NifFormat(FileFormat):
 
             return zip(self.data.normals, tangents, bitangents)
 
-        def update_tangent_space(self, as_extra=None):
+        def update_tangent_space(
+            self, as_extra=None,
+            vertexprecision=3, normalprecision=3):
             """Recalculate tangent space data.
 
             :param as_extra: Whether to store the tangent space data as extra data
@@ -6080,16 +6114,31 @@ class NifFormat(FileFormat):
             # check that shape has norms and uvs
             if len(uvs) == 0 or len(norms) == 0: return
 
-            bins = []
-            tans = []
-            for i in range(self.data.num_vertices):
-                bins.append(NifFormat.Vector3())
-                tans.append(NifFormat.Vector3())
+            # identify identical (vertex, normal) pairs to avoid issues along
+            # uv seams due to vertex duplication
+            # implementation note: uvprecision and vcolprecision 0
+            # should be enough, but use -2 just to be really sure
+            # that this is ignored
+            v_hash_map = list(
+                self.data.get_vertex_hash_generator(
+                    vertexprecision=vertexprecision,
+                    normalprecision=normalprecision,
+                    uvprecision=-2,
+                    vcolprecision=-2))
+
+            # tangent and binormal dictionaries by vertex hash
+            bin = dict((h, NifFormat.Vector3()) for h in v_hash_map)
+            tan = dict((h, NifFormat.Vector3()) for h in v_hash_map)
 
             # calculate tangents and binormals from vertex and texture coordinates
             for t1, t2, t3 in self.data.get_triangles():
+                # find hash values
+                h1 = v_hash_map[t1]
+                h2 = v_hash_map[t2]
+                h3 = v_hash_map[t3]
                 # skip degenerate triangles
-                if t1 == t2 or t2 == t3 or t3 == t1: continue
+                if h1 == h2 or h2 == h3 or h3 == h1:
+                    continue
 
                 v_1 = verts[t1]
                 v_2 = verts[t2]
@@ -6134,9 +6183,9 @@ class NifFormat(FileFormat):
                     continue # skip triangle
 
                 # vector combination algorithm could possibly be improved
-                for i in [t1, t2, t3]:
-                    tans[i] += tdir
-                    bins[i] += sdir
+                for h in [h1, h2, h3]:
+                    tan[h] += tdir
+                    bin[h] += sdir
 
             xvec = NifFormat.Vector3()
             xvec.x = 1.0
@@ -6146,8 +6195,7 @@ class NifFormat(FileFormat):
             yvec.x = 0.0
             yvec.y = 1.0
             yvec.z = 0.0
-            for i in range(self.data.num_vertices):
-                n = norms[i]
+            for n, h in zip(norms, v_hash_map):
                 try:
                     n.normalize()
                 except (ValueError, ZeroDivisionError):
@@ -6155,22 +6203,26 @@ class NifFormat(FileFormat):
                     # just pick something in that case
                     n = yvec
                 try:
-                    # turn n, bins, tans into a base via Gram-Schmidt
-                    bins[i] -= n * (n * bins[i])
-                    bins[i].normalize()
-                    tans[i] -= n * (n * tans[i])
-                    tans[i] -= bins[i] * (bins[i] * tans[i])
-                    tans[i].normalize()
+                    # turn n, bin, tan into a base via Gram-Schmidt
+                    bin[h] -= n * (n * bin[h])
+                    bin[h].normalize()
+                    tan[h] -= n * (n * tan[h])
+                    tan[h] -= bin[h] * (bin[h] * tan[h])
+                    tan[h].normalize()
                 except ZeroDivisionError:
                     # insuffient data to set tangent space for this vertex
                     # in that case pick a space
-                    bins[i] = xvec.crossproduct(n)
+                    bin[h] = xvec.crossproduct(n)
                     try:
-                        bins[i].normalize()
+                        bin[h].normalize()
                     except ZeroDivisionError:
-                        bins[i] = yvec.crossproduct(n)
-                        bins[i].normalize() # should work now
-                    tans[i] = n.crossproduct(bins[i])
+                        bin[h] = yvec.crossproduct(n)
+                        bin[h].normalize() # should work now
+                    tan[h] = n.crossproduct(bin[h])
+
+            # tangent and binormal lists by vertex index
+            tan = [tan[h] for h in v_hash_map]
+            bin = [bin[h] for h in v_hash_map]
 
             # find possible extra data block
             for extra in self.get_extra_datas():

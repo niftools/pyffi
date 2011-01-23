@@ -6,7 +6,7 @@ a nif specific wrapper around L{pyffi.spells.Toaster}."""
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
 #
-# Copyright (c) 2007-2009, NIF File Format Library and Tools.
+# Copyright (c) 2007-2010, NIF File Format Library and Tools.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -69,6 +69,8 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         pyffi.spells.nif.check.SpellCheckTangentSpace,
         pyffi.spells.nif.check.SpellCheckTriStrip,
         pyffi.spells.nif.check.SpellCheckVersion,
+        pyffi.spells.nif.check.SpellCheckTriangles,
+        pyffi.spells.nif.check.SpellCheckTrianglesATVR,
         pyffi.spells.nif.dump.SpellDumpAll,
         pyffi.spells.nif.dump.SpellDumpTex,
         pyffi.spells.nif.dump.SpellHtmlReport,

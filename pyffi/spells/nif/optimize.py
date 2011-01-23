@@ -25,7 +25,7 @@
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
 #
-# Copyright (c) 2007-2009, NIF File Format Library and Tools.
+# Copyright (c) 2007-2010, NIF File Format Library and Tools.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -332,7 +332,15 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                 v_map_inverse[v_map[i]] = i
             else:
                 self.toaster.logger.warn("unused vertex")
-        new_numvertices = max(v for v in v_map if v is not None) + 1
+        try:
+            new_numvertices = max(v for v in v_map if v is not None) + 1
+        except ValueError:
+            # max() arg is an empty sequence
+            # this means that there are no vertices
+            self.toaster.msg(
+                "less than 3 vertices or no triangles: removing branch")
+            self.data.replace_global_node(branch, None)
+            return False
         del v_map_inverse[new_numvertices:]
 
         # use a triangle representation
@@ -409,18 +417,33 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                     bonedata.vertex_weights[j].weight = weight_i
 
             # update skin partition (only if branch already exists)
-            branch._validateSkin()
-            skininst = branch.skin_instance
-            skinpart = skininst.skin_partition
-            if not skinpart:
-                skinpart = skininst.data.skin_partition
-
-            if skinpart:
+            if branch.get_skin_partition():
                 self.toaster.msg("updating skin partition")
+                if isinstance(branch.skin_instance,
+                              NifFormat.BSDismemberSkinInstance):
+                    # get body part indices (in the old system!)
+                    triangles, trianglepartmap = (
+                        branch.skin_instance.get_dismember_partitions())
+                    maximize_bone_sharing = True
+                    # update mapping
+                    new_triangles = []
+                    for triangle in triangles:
+                        # XXX it could happen that v_map[i] is None
+                        # XXX these triangles should be removed
+                        new_triangles.append(
+                            tuple(v_map[i] for i in triangle))
+                    triangles = new_triangles
+                else:
+                    # no body parts
+                    triangles = None
+                    trianglepartmap = None
+                    maximize_bone_sharing = False
                 # use Oblivion settings
                 branch.update_skin_partition(
                     maxbonesperpartition=18, maxbonespervertex=4,
-                    stripify=False, verbose=0)
+                    stripify=False, verbose=0,
+                    triangles=triangles, trianglepartmap=trianglepartmap,
+                    maximize_bone_sharing=maximize_bone_sharing)
 
         # update morph data
         for morphctrl in branch.get_controllers():
@@ -769,6 +792,9 @@ class SpellOptimizeCollisionBox(pyffi.spells.nif.NifSpell):
         verts = sorted(list(vert.as_tuple() for vert in vertices))
         min_ = [min(vert[i] for vert in verts) for i in range(3)]
         size = [max(vert[i] for vert in verts) - min_[i] for i in range(3)]
+        if any((s < 1e-10) for s in size):
+            # one of the dimensions is zero, so not a box
+            return None
         scaled_verts = sorted(
             set(tuple(int(0.5 + PRECISION * ((vert[i] - min_[i]) / size[i]))
                       for i in range(3))
@@ -790,7 +816,11 @@ class SpellOptimizeCollisionBox(pyffi.spells.nif.NifSpell):
         boxshape.dimensions.y = size[1] / (2 * factor)
         boxshape.dimensions.z = size[2] / (2 * factor)
         boxshape.minimum_size = min(size) / factor
-        boxshape.material = material
+        try:
+            boxshape.material = material
+        except ValueError:
+            # material has a bad value, this sometimes happens
+            pass
         boxshape.radius = 0.1
         boxshape.unknown_8_bytes[0] = 0x6b
         boxshape.unknown_8_bytes[1] = 0xee

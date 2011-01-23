@@ -2,7 +2,7 @@
 
 # ***** BEGIN LICENSE BLOCK *****
 #
-# Copyright (c) 2007-2009, Python File Format Interface
+# Copyright (c) 2007-2010, Python File Format Interface
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,7 @@
 #
 # ***** END LICENSE BLOCK *****
 
+import logging
 import struct
 
 
@@ -116,8 +117,10 @@ class EnumBase(BasicBase, EditableComboBox, metaclass=_MetaEnumBase):
                     raise ValueError(
                         "cannot convert value '%s' to integer"%value)
         if not val in self._enumvalues:
-            raise ValueError('invalid enum value (%i)' % val)
-        self._value = val
+            logger = logging.getLogger("pyffi.object_models.xml.enum")
+            logger.error('invalid enum value (%i)' % val)
+        else:
+            self._value = val
 
     def read(self, stream, data):
         """Read value from stream."""

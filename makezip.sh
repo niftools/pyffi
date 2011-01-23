@@ -29,9 +29,15 @@ python3 setup.py --command-packages bdist_nsi bdist_nsi --bitmap=win-install/pyf
 
 version=`python3 setup.py -V`
 wcrev=`git log -1 --pretty=format:%h`
+if [ "$1" == "test" ]
+then
+	extversion=$version-$2.$wcrev
+else
+	extversion=$version.$wcrev
+fi
 pushd dist
-mv PyFFI-$version.zip PyFFI-$version.$wcrev.zip
-mv PyFFI-$version.tar.bz2 PyFFI-$version.$wcrev.tar.bz2
-mv PyFFI-$version.win32.exe PyFFI-$version.$wcrev.win32.exe
+mv PyFFI-$version.zip PyFFI-$extversion.zip
+mv PyFFI-$version.tar.bz2 PyFFI-$extversion.tar.bz2
+mv PyFFI-$version.win32.exe PyFFI-$extversion.win32.exe
 popd
 

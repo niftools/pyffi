@@ -3,6 +3,52 @@ Release 2.2.0 (in development)
 
 * Added PSK and PSA file support (used by Unreal engine).
 
+Release 2.1.8 (in development)
+==============================
+
+* Quickhull bugfix for precision argument in degenerate cases
+  (issue #3163949, fix contributed by liuhuanjim013).
+
+* Fixed issue with detecting box shapes on degenerate collision meshes
+  (fixes issue #3145104, reported by Gratis_monsta).
+
+Release 2.1.7 (23 January 2011)
+===============================
+
+* Added support for Fallout New Vegas (contributed by throttlekitty
+  and saiden).
+
+* Updated geometry optimizer to keep dismember body parts, for Fallout
+  3 and Fallout New Vegas (fixes issue #3025691 reported by Chaky).
+
+* Added flag to enable debugging in vertex cache algorithm, to assess
+  how suboptimal the solution is on any particular mesh (testing
+  reveals that it finds the globally optimal solution in more than 99%
+  of all iterations, for typical meshes).
+
+* New check_triangles_atvr spell to find optimal parameters for vertex
+  cache algorithm by simulated annealing.
+
+* Fixed send_geometries_to_bind_position,
+  send_detached_geometries_to_node_position, and
+  send_bones_to_bind_position in case skin instance has empty bone
+  references (fixes issue #3114079, reported by drakonnen).
+
+* Fix for verbose option in multithread mode (reported by
+  Gratis_monsta).
+
+* Fix optimize spell when no vertices are left after removing duplicate
+  vertices and degenerate triangles (reported by Gratis_monsta).
+
+* Fixed tangent space issue along uv seams (reported by Gratis_monsta
+  and Tommy_H, see issue #3120585).
+
+* Log an error instead of raising an exception on invalid enum values
+  (fixes issue #3127161, reported by rlibiez).
+
+* Disabled 2to3 in Windows installer; the Python 3 version of PyFFI
+  will be released separately.
+
 Release 2.1.6 (13 November 2010)
 ================================
 
