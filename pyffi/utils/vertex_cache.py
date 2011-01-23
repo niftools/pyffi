@@ -8,7 +8,7 @@ http://home.comcast.net/~tom_forsyth/papers/fast_vert_cache_opt.html
 
 # ***** BEGIN LICENSE BLOCK *****
 #
-# Copyright (c) 2007-2010, Python File Format Interface
+# Copyright (c) 2007-2011, Python File Format Interface
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
