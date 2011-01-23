@@ -1,5 +1,5 @@
-Release 2.1.7 (in development)
-==============================
+Release 2.1.7 (23 January 2011)
+===============================
 
 * Added support for Fallout New Vegas (contributed by throttlekitty
   and saiden).
@@ -31,6 +31,9 @@ Release 2.1.7 (in development)
 
 * Log an error instead of raising an exception on invalid enum values
   (fixes issue #3127161, reported by rlibiez).
+
+* Disabled 2to3 in Windows installer; the Python 3 version of PyFFI
+  will be released separately.
 
 Release 2.1.6 (13 November 2010)
 ================================
