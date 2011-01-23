@@ -12,6 +12,8 @@ Release 2.1.8 (in development)
 * Fixed issue with detecting box shapes on degenerate collision meshes
   (fixes issue #3145104, reported by Gratis_monsta).
 
+* Ensure that enum has valid default value.
+
 Release 2.1.7 (23 January 2011)
 ===============================
 

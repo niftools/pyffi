@@ -73,6 +73,8 @@ reading tests/nif/test_fix_ffvt3rskinpartition.nif
 reading tests/nif/test_fix_mergeskeletonroots.nif
 reading tests/nif/test_fix_tangentspace.nif
 reading tests/nif/test_fix_texturepath.nif
+reading tests/nif/test_grid_128x128.nif
+reading tests/nif/test_grid_64x64.nif
 reading tests/nif/test_mopp.nif
 reading tests/nif/test_opt_collision_complex_mopp.nif
 reading tests/nif/test_opt_collision_mopp.nif

@@ -145,6 +145,8 @@ check_skincenterradius
 check_tangentspace
 check_tristrip
 check_version
+check_triangles
+check_triangles_atvr
 dump
 dump_tex
 dump_htmlreport
@@ -296,6 +298,14 @@ pyffi.toaster:INFO:=== tests/nif/test_fix_texturepath.nif ===
 pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:    writing to temporary file
 pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_grid_128x128.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
+pyffi.toaster:INFO:=== tests/nif/test_grid_64x64.nif ===
+pyffi.toaster:INFO:  --- check_readwrite ---
+pyffi.toaster:INFO:    writing to temporary file
+pyffi.toaster:INFO:      comparing file sizes
 pyffi.toaster:INFO:=== tests/nif/test_mopp.nif ===
 pyffi.toaster:INFO:  --- check_readwrite ---
 pyffi.toaster:INFO:    writing to temporary file
@@ -400,6 +410,8 @@ pyffi.toaster:INFO:  --- check_read ---
 pyffi.toaster:INFO:=== tests/nif/test_fix_tangentspace.nif ===
 pyffi.toaster:INFO:  --- check_read ---
 pyffi.toaster:INFO:=== tests/nif/test_fix_texturepath.nif (skipped) ===
+pyffi.toaster:INFO:=== tests/nif/test_grid_128x128.nif (skipped) ===
+pyffi.toaster:INFO:=== tests/nif/test_grid_64x64.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_mopp.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_opt_collision_complex_mopp.nif (skipped) ===
 pyffi.toaster:INFO:=== tests/nif/test_opt_collision_mopp.nif (skipped) ===
@@ -1445,6 +1457,14 @@ pyffi.toaster:INFO:=== tests/nif/test_fix_texturepath.nif ===
 pyffi.toaster:INFO:  version      0x14000004
 pyffi.toaster:INFO:  user version 0
 pyffi.toaster:INFO:  user version 0
+pyffi.toaster:INFO:=== tests/nif/test_grid_128x128.nif ===
+pyffi.toaster:INFO:  version      0x14000005
+pyffi.toaster:INFO:  user version 11
+pyffi.toaster:INFO:  user version 11
+pyffi.toaster:INFO:=== tests/nif/test_grid_64x64.nif ===
+pyffi.toaster:INFO:  version      0x14000005
+pyffi.toaster:INFO:  user version 11
+pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:=== tests/nif/test_mopp.nif ===
 pyffi.toaster:INFO:  version      0x14000005
 pyffi.toaster:INFO:  user version 11
@@ -1534,7 +1554,7 @@ pyffi.toaster:INFO:  number of nifs: 4
 pyffi.toaster:INFO:  user version:  [0]
 pyffi.toaster:INFO:  user version2: [0]
 pyffi.toaster:INFO:version 0x14000005
-pyffi.toaster:INFO:  number of nifs: 17
+pyffi.toaster:INFO:  number of nifs: 19
 pyffi.toaster:INFO:  user version:  [11]
 pyffi.toaster:INFO:  user version2: [11]
 pyffi.toaster:INFO:version 0x14020007

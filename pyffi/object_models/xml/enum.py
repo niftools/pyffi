@@ -97,7 +97,7 @@ class EnumBase(BasicBase, EditableComboBox, metaclass=_MetaEnumBase):
 
     def __init__(self, **kwargs):
         super(EnumBase, self).__init__(**kwargs)
-        self._value = 0
+        self._value = self._enumvalues[0]
 
     def get_value(self):
         """Return stored value."""
