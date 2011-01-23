@@ -792,6 +792,9 @@ class SpellOptimizeCollisionBox(pyffi.spells.nif.NifSpell):
         verts = sorted(list(vert.as_tuple() for vert in vertices))
         min_ = [min(vert[i] for vert in verts) for i in range(3)]
         size = [max(vert[i] for vert in verts) - min_[i] for i in range(3)]
+        if any((s < 1e-10) for s in size):
+            # one of the dimensions is zero, so not a box
+            return None
         scaled_verts = sorted(
             set(tuple(int(0.5 + PRECISION * ((vert[i] - min_[i]) / size[i]))
                       for i in range(3))
