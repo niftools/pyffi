@@ -109,6 +109,10 @@ class EspFormat(pyffi.object_models.xml.FileFormat):
     short = pyffi.object_models.common.Short
     ushort = pyffi.object_models.common.UShort
     float = pyffi.object_models.common.Float
+    uint64 = pyffi.object_models.common.UInt64
+    ZString = pyffi.object_models.common.ZString
+    class RecordType(pyffi.object_models.common.FixedString):
+        _len = 4
 
     # implementation of esp-specific basic types
 
@@ -131,7 +135,9 @@ class EspFormat(pyffi.object_models.xml.FileFormat):
     class Data(pyffi.object_models.FileFormat.Data):
         """A class to contain the actual esp data."""
         def __init__(self):
-            pass
+            self.tes4 = EspFormat.TES4()
+            self.version = None
+            self.user_version = None
 
         def inspect_quick(self, stream):
             """Quickly checks if stream contains ESP data, and gets the
@@ -165,40 +171,33 @@ class EspFormat(pyffi.object_models.xml.FileFormat):
                 stream.seek(pos)
 
 
-        def read(self, stream, verbose=0):
+        def read(self, stream):
             """Read a esp file.
 
             :param stream: The stream from which to read.
             :type stream: ``file``
-            :param verbose: The level of verbosity.
-            :type verbose: ``int``
             """
             self.inspect_quick(stream)
-            # XXX read the file
+            self.tes4.read(stream, self)
 
             # check if we are at the end of the file
             if stream.read(1):
-                raise ValueError(
+                #raise ValueError(
+                print(
                     'end of file not reached: corrupt esp file?')
             
-        def write(self, stream, verbose=0):
+        def write(self, stream):
             """Write a esp file.
 
             :param stream: The stream to which to write.
             :type stream: ``file``
-            :param verbose: The level of verbosity.
-            :type verbose: ``int``
             """
-            # XXX write the file
+            self.tes4.write(stream, self)
 
         # DetailNode
 
         def get_detail_child_nodes(self, edge_filter=EdgeFilter()):
-            return []
-            # XXX todo, for instance:
-            #return self.header.get_detail_child_nodes(edge_filter=edge_filter)
+            return self.tes4.get_detail_child_nodes(edge_filter=edge_filter)
 
         def get_detail_child_names(self, edge_filter=EdgeFilter()):
-            return []
-            # XXX todo, for instance:
-            #return self.header.get_detail_child_names(edge_filter=edge_filter)
+            return self.tes4.get_detail_child_names(edge_filter=edge_filter)

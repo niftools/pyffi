@@ -34,12 +34,20 @@
         A signed 32-bit integer.
     </basic>
 
+    <basic name="uint64">
+        An unsigned 64-bit integer.
+    </basic>
+
     <basic name="char">
         An 8-bit character.
     </basic>
 
     <basic name="float">
         A standard 32-bit floating point number.
+    </basic>
+
+    <basic name="ZString">
+        Null terminated string.
     </basic>
 
     <!--
@@ -58,6 +66,87 @@
     
     <!-- Structs -->
 
+    <struct name="RecordType">
+        A FOURCC representing the type of a record.
+        <add name="Value" type="char" arr1="4"></add>
+    </struct>
+
+    <bitstruct name="RecordFlags" numbytes="4">
+        <bits name="Is Esm" numbits="1" />
+        <bits name="Unknown 1" numbits="1" />
+        <bits name="Unknown 2" numbits="1" />
+        <bits name="Unknown 3" numbits="1" />
+        <bits name="Unknown 4" numbits="1" />
+        <bits name="Is Deleted" numbits="1" /><!-- ? -->
+        <bits name="Unknown 5" numbits="1" />
+        <bits name="Unknown 6" numbits="1" />
+        <bits name="Unknown 7" numbits="1" />
+        <bits name="Casts Shadows" numbits="1" />
+        <bits name="Is Persistent" numbits="1" />
+        <bits name="Initially Disabled" numbits="1" /><!-- ? -->
+        <bits name="Unknown 8" numbits="1" />
+        <bits name="Unknown 9" numbits="1" />
+        <bits name="Unknown 10" numbits="1" />
+        <bits name="Is Visible When Distant" numbits="1" />
+        <bits name="Unknown 11" numbits="1" />
+        <bits name="Is Dangerous" numbits="1" />
+        <bits name="Is Compressed" numbits="1" />
+        <bits name="Cannot Wait" numbits="1" /><!-- ? -->
+    </bitstruct>
+
+    <struct name="RecordRevision">
+        <add name="Day" type="ubyte" />
+        <add name="Month" type="ubyte" />
+        <add name="Last User Id" type="ubyte" />
+        <add name="Current User Id" type="ubyte" />
+    </struct>
+
+    <bitstruct name="FormId" numbytes="4">
+        <bits name="Mod Index" numbits="8" />
+        <bits name="Object Index" numbits="24" />
+    </bitstruct>
+
+    <struct name="SubRecord">
+        A subrecord.
+        <add name="Type" type="RecordType">The type of the record.</add>
+        <add name="Data Size" type="uint">Length of the data.</add>
+    </struct>
+
+    <struct name="Record" inherit="SubRecord">
+        A record.
+        <add name="Flags" type="RecordFlags">Various properties.</add>
+        <add name="Form Id" type="FormId">The record identifier.</add>
+        <add name="Revision" type="RecordRevision">Revision information.</add>
+        <add name="Num Sub Records" type="uint" abstract="1">Number of subrecords.</add>
+        <add name="Sub Records" type="SubRecord" arr1="Num Sub Records" abstract="1">Subrecords.</add>
+    </struct>
+
+    <struct name="TES4" inherit="Record">
+    </struct>
+
+    <struct name="HEDR" inherit="SubRecord">
+         <add name="Version" type="float">Version.</add>
+         <add name="Num Records" type="uint">Number of records and groups (not including TES4 record itself).</add>
+         <add name="Next Object Id" type="uint">Next available object id.</add>
+    </struct>
+
+    <struct name="CNAM" inherit="SubRecord">
+         <add name="Author" type="ZString">Author information.</add>
+    </struct>
+
+    <struct name="SNAM" inherit="SubRecord">
+         <add name="Description" type="ZString">Plugin description.</add>
+    </struct>
+
+    <struct name="MAST" inherit="SubRecord">
+         <add name="Master" type="ZString">Master filename.</add>
+    </struct>
+
+    <struct name="DATA" inherit="SubRecord">
+         <add name="File Size" type="uint64">Plugin description.</add>
+    </struct>
+
+<!--
     <struct name="SizedString">
         A string of given length.
         <add name="Length" type="uint">The string length.</add>
@@ -90,5 +179,6 @@
         <add name="Script" type="uint">Link to the script for the object if there is one; such as: LlathasasBustScript [SCPT:00008036]
         ????: Not sure what type to give this either.</add>
     </struct>
+-->
 </fileformat>
 

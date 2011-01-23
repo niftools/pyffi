@@ -63,3 +63,4 @@ import pyffi.formats.nif
 import pyffi.formats.tga
 import pyffi.formats.egm
 import pyffi.formats.tri
+import pyffi.formats.esp
