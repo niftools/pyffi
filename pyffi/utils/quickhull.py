@@ -96,6 +96,17 @@ A random shape
 ...     vert = (random.random(), random.random(), random.random())
 ...     shape.append(vert)
 >>> verts, triangles = qhull3d(shape)
+
+Precision
+---------
+
+>>> plane = [(0,0,0),(1,0,0),(0,1,0),(1,1,0),(1.001, 0.001, 0)]
+>>> verts, triangles = qhull3d(plane, precision=0.1)
+>>> verts
+>>> len(verts)
+4
+>>> len(triangles)
+2
 """
 
 # ***** BEGIN LICENSE BLOCK *****
