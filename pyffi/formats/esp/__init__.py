@@ -132,10 +132,35 @@ class EspFormat(pyffi.object_models.xml.FileFormat):
         high, low = version_str.split(".")
         return (int(high) << 8) + int(low)
 
+    @classmethod
+    def _read_records(cls, stream, data,
+                      parent=None, size=None, num_records=None):
+        """Read records by data size or by number."""
+        records = []
+        while (size > 0) if size is not None else (num_records > 0):
+            pos = stream.tell()
+            record_type = stream.read(4).decode()
+            if parent:
+                record_type = parent.__class__.__name__ + "_" + record_type
+            stream.seek(pos)
+            try:
+                record = getattr(cls, record_type)()
+            except AttributeError:
+                print("unknown record type %s; aborting" % record_type)
+                break
+            records.append(record)
+            record.read(stream, data)
+            if size is not None:
+                size -= stream.tell() - pos #slower: record.get_size()
+            else:
+                num_records -= 1
+        return records
+
     class Data(pyffi.object_models.FileFormat.Data):
         """A class to contain the actual esp data."""
         def __init__(self):
             self.tes4 = EspFormat.TES4()
+            self.records = []
             self.version = None
             self.user_version = None
 
@@ -178,7 +203,14 @@ class EspFormat(pyffi.object_models.xml.FileFormat):
             :type stream: ``file``
             """
             self.inspect_quick(stream)
+            # read header record
             self.tes4.read(stream, self)
+            hedr = self.tes4.get_sub_record("HEDR")
+            if not hedr:
+                print("esp file has no HEDR; aborting")
+                return
+            self.records = EspFormat._read_records(
+                stream, self, num_records=hedr.num_records)
 
             # check if we are at the end of the file
             if stream.read(1):
@@ -201,3 +233,60 @@ class EspFormat(pyffi.object_models.xml.FileFormat):
 
         def get_detail_child_names(self, edge_filter=EdgeFilter()):
             return self.tes4.get_detail_child_names(edge_filter=edge_filter)
+
+        # GlobalNode
+
+        def get_global_child_nodes(self, edge_filter=EdgeFilter()):
+            return self.tes4.sub_records + self.records
+
+    class Record:
+        def __init__(self):
+            pyffi.object_models.xml.struct_.StructBase.__init__(self)
+            self.sub_records = []
+
+        def read(self, stream, data):
+            # read all fields
+            pyffi.object_models.xml.struct_.StructBase.read(
+                self, stream, data)
+            # read all subrecords
+            self.sub_records = EspFormat._read_records(
+                stream, data, parent=self, size=self.data_size)
+
+        def write(self, stream, data):
+            raise NotImplementedError
+
+        # GlobalNode
+
+        def get_global_child_nodes(self, edge_filter=EdgeFilter()):
+            return self.sub_records
+
+        # other functions
+
+        def get_sub_record(self, sub_record_type):
+            """Find first subrecord of given type."""
+            for sub_record in self.sub_records:
+                if sub_record.type == sub_record_type:
+                    return sub_record
+            # not found
+            return None
+
+    class GRUP:
+        def __init__(self):
+            pyffi.object_models.xml.struct_.StructBase.__init__(self)
+            self.records = []
+
+        def read(self, stream, data):
+            # read all fields
+            pyffi.object_models.xml.struct_.StructBase.read(
+                self, stream, data)
+            # read all subrecords
+            self.records = EspFormat._read_records(
+                stream, data, size=self.data_size - 20)
+
+        def write(self, stream, data):
+            raise NotImplementedError
+
+        # GlobalNode
+
+        def get_global_child_nodes(self, edge_filter=EdgeFilter()):
+            return self.records
