@@ -6249,7 +6249,7 @@ class NifFormat(FileFormat):
 
                 # write the data
                 binarydata = bytearray()
-                for vec in tans + bins:
+                for vec in tan + bin:
                     # XXX _byte_order!! assuming little endian
                     binarydata += struct.pack('<fff', vec.x, vec.y, vec.z)
                 extra.binary_data = bytes(binarydata)
@@ -6262,11 +6262,11 @@ class NifFormat(FileFormat):
                 self.data.bs_num_uv_sets |= 4096
                 self.data.tangents.update_size()
                 self.data.bitangents.update_size()
-                for vec, data_tans in zip(tans, self.data.tangents):
+                for vec, data_tans in zip(tan, self.data.tangents):
                     data_tans.x = vec.x
                     data_tans.y = vec.y
                     data_tans.z = vec.z
-                for vec, data_bins in zip(bins, self.data.bitangents):
+                for vec, data_bins in zip(bin, self.data.bitangents):
                     data_bins.x = vec.x
                     data_bins.y = vec.y
                     data_bins.z = vec.z
