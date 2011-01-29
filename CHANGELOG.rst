@@ -9,6 +9,9 @@ Release 2.1.8 (in development)
 
 * Ensure that enum has valid default value.
 
+* Added CStreamableAssetData for Divinity 2 (reported by pertinen,
+  niftools issue #3164929).
+
 Release 2.1.7 (23 January 2011)
 ===============================
 
