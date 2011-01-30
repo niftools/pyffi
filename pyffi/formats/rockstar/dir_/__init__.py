@@ -26,13 +26,13 @@ Read a DIR file
 >>> # read directory
 >>> data.read(stream)
 >>> len(data.files)
-4
+2
 >>> data.files[0].offset
 0
 >>> data.files[0].size
-4
+1
 >>> data.files[0].name
-'Howdy1.txt'
+'hello.txt'
 
 Parse all DIR files in a directory tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
