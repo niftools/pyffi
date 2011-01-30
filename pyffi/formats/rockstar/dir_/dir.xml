@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fileformat>
+<fileformat>
+
+    <!--
+    *******************
+    *** basic types ***
+    *******************
+    -->
+
+    <basic name="UInt">
+        An unsigned 32-bit integer.
+    </basic>
+
+   <basic name="String">
+       A null terminated string occupying 24 bytes.
+   </basic>
+
+    <!--
+    *******************
+    *** alias types ***
+    *******************
+    -->
+
+    <!--
+    ******************
+    *** enum types ***
+    ******************
+    -->
+
+    <!--
+    ******************
+    *** bitstructs ***
+    ******************
+    -->
+
+    <!--
+    ***************
+    *** structs ***
+    ***************
+    -->
+
+   <struct name="File">
+       <add name="Offset" type="UInt"/>
+       <add name="Size" type="UInt"/>
+       <add name="Name" type="String"/>
+   </struct>
+
+</fileformat>

@@ -35,6 +35,7 @@ import pyffi.formats.esp
 import pyffi.formats.tri
 import pyffi.formats.bsa
 import pyffi.formats.egt
+import pyffi.formats.rockstar.dir_
 import pyffi.spells
 import pyffi.spells.nif
 import pyffi.spells.nif.fix
