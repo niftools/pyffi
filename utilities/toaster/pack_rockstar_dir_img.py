@@ -60,4 +60,5 @@ def pack(arcroot):
         dirdata.pack(imgfile, folder)
 
 for arcname in os.listdir(unpack_folder):
-    pack(arcname)
+    if os.path.isdir(os.path.join(unpack_folder, arcname)):
+        pack(arcname)

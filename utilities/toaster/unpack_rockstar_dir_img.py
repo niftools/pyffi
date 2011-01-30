@@ -61,5 +61,6 @@ def unpack(arcroot):
         dirdata.unpack(imgfile, folder)
 
 for arcname in os.listdir(in_folder):
-    if arcname.endswith('.dir'):
+    if (arcname.endswith('.dir')
+        and os.path.isfile(os.path.join(in_folder, arcname))):
         unpack(arcname[:-4])
