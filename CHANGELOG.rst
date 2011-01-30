@@ -16,6 +16,8 @@ Release 2.1.8 (in development)
 
 * Added Rockstar .dir format (used in Bully SE).
 
+* Added Rockstar .dir/.img unpack and pack scripts.
+
 Release 2.1.7 (23 January 2011)
 ===============================
 

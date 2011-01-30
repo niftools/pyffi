@@ -217,6 +217,7 @@ legacykeys_end_${label}:
   File /oname=oblivion_optimize.ini.tmp "${MISC_SRCDIR}\utilities\toaster\oblivion_optimize.ini"
   CreateDirectory "$INSTDIR\utilities\toaster\in"
   CreateDirectory "$INSTDIR\utilities\toaster\out"
+  CreateDirectory "$INSTDIR\utilities\toaster\unpack"
 
   ; force CRLF EOL in ini files
   Delete "$INSTDIR\utilities\toaster\default.ini"
@@ -227,6 +228,9 @@ legacykeys_end_${label}:
   Push "$INSTDIR\utilities\toaster\oblivion_optimize.ini.tmp"
   Push "$INSTDIR\utilities\toaster\oblivion_optimize.ini"
   Call unix2dos
+
+  File "${MISC_SRCDIR}\utilities\toaster\unpack_rockstar_dir_img.py"
+  File "${MISC_SRCDIR}\utilities\toaster\pack_rockstar_dir_img.py"
 
   ; Install shortcuts
   CreateDirectory "$SMPROGRAMS\PyFFI\"
