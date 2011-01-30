@@ -54,6 +54,7 @@ from pyffi.formats.egt import EgtFormat
 from pyffi.formats.esp import EspFormat
 from pyffi.formats.tri import TriFormat
 from pyffi.formats.bsa import BsaFormat
+from pyffi.formats.rockstar.dir_ import DirFormat
 
 from pyffi.object_models import FileFormat
 
@@ -189,7 +190,7 @@ class QSkope(QtGui.QMainWindow):
             # try reading as a nif file
             for Format in (NifFormat, CgfFormat, KfmFormat, DdsFormat,
                            TgaFormat, EgmFormat, EspFormat, TriFormat,
-                           EgtFormat, BsaFormat):
+                           EgtFormat, BsaFormat, DirFormat):
                 self.data = Format.Data()
                 try:
                     self.data.read(stream)

@@ -14,6 +14,8 @@ Release 2.1.8 (in development)
 
 * NiPixelData.save_as_dds fourcc flag bugfix.
 
+* Added Rockstar .dir format (used in Bully SE).
+
 Release 2.1.7 (23 January 2011)
 ===============================
 

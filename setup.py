@@ -50,6 +50,8 @@ setup(
         'pyffi.formats.esp',
         'pyffi.formats.tri',
         'pyffi.formats.bsa',
+        'pyffi.formats.rockstar',
+        'pyffi.formats.rockstar.dir_',
         'pyffi.spells',
         'pyffi.spells.cgf',
         'pyffi.spells.nif',
