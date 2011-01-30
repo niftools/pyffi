@@ -55,6 +55,7 @@ def unpack(arcroot):
     with open(os.path.join(in_folder, arcroot) + '.dir', 'rb') as dirfile:
         dirdata.read(dirfile)
     folder = os.path.join(unpack_folder, arcroot)
+    print("unpacking to %s" % folder)
     os.mkdir(folder)
     with open(os.path.join(in_folder, arcroot) + '.img', 'rb') as imgfile:
         dirdata.unpack(imgfile, folder)

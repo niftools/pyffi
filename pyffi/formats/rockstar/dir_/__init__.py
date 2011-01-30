@@ -129,6 +129,7 @@ class DirFormat(pyffi.object_models.xml.FileFormat):
                     file_record.offset = offset
                     file_record.size = (fileinfo.st_size + 2047) // 2048
                     file_record.name = filename
+                    self.files.append(file_record)
                     offset += file_record.size
 
         def inspect_quick(self, stream):
