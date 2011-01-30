@@ -12,6 +12,8 @@ Release 2.1.8 (in development)
 * Added CStreamableAssetData for Divinity 2 (reported by pertinen,
   niftools issue #3164929).
 
+* NiPixelData.save_as_dds fourcc flag bugfix.
+
 Release 2.1.7 (23 January 2011)
 ===============================
 
