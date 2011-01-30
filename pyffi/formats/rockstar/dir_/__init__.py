@@ -123,7 +123,9 @@ class DirFormat(pyffi.object_models.xml.FileFormat):
             self.files = []
             offset = 0
             if folder:
-                for filename in os.listdir(folder):
+                for filename in sorted(os.listdir(folder)):
+                    if not os.path.isfile(os.path.join(folder, filename)):
+                        continue
                     fileinfo = os.stat(os.path.join(folder, filename))
                     file_record = DirFormat.File()
                     file_record.offset = offset
