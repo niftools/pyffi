@@ -1,6 +1,6 @@
 """
-:mod:`pyffi.formats.rockstar.dir` --- DIR (.dir)
-================================================
+:mod:`pyffi.formats.rockstar.dir_` --- DIR (.dir)
+=================================================
 
 A .dir file simply contains a list of files.
 
@@ -116,8 +116,20 @@ class DirFormat(pyffi.object_models.xml.FileFormat):
         version = None
         user_version = None
 
-        def __init__(self):
+        def __init__(self, folder=None):
+            """Initialize empty file list, or take list of files from
+            a folder.
+            """
             self.files = []
+            offset = 0
+            if folder:
+                for filename in os.listdir(folder):
+                    fileinfo = os.stat(os.path.join(folder, filename))
+                    file_record = DirFormat.File()
+                    file_record.offset = offset
+                    file_record.size = (fileinfo.st_size + 2047) // 2048
+                    file_record.name = filename
+                    offset += file_record.size
 
         def inspect_quick(self, stream):
             """Quickly checks if stream contains DIR data, by looking at
@@ -182,6 +194,31 @@ class DirFormat(pyffi.object_models.xml.FileFormat):
 
         def get_global_child_nodes(self, edge_filter=EdgeFilter()):
             return self.files
+
+        def unpack(self, image, folder):
+            """Unpack all files, whose data resides in the given
+            image, into the given folder.
+            """
+            for file_record in self.files:
+                image.seek(file_record.offset * 2048)
+                with open(os.path.join(folder, file_record.name), 'wb') as data:
+                    data.write(image.read(file_record.size * 2048))
+
+        def pack(self, image, folder):
+            """Pack all files, whose data resides in the given folder,
+            into the given image.
+            """
+            for file_record in self.files:
+                if image.tell() != file_record.offset * 2048:
+                    raise ValueError('file offset mismatch')
+                with open(os.path.join(folder, file_record.name), 'rb') as data:
+                    allbytes = data.read()
+                    size = file_record.size * 2048
+                    if len(allbytes) > size:
+                        raise ValueError('file larger than record size')
+                    image.write(allbytes)
+                    if len(allbytes) < size:
+                        image.write('\x00' * (size - len(allbytes)))
 
 if __name__=='__main__':
     import doctest

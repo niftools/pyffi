@@ -41,9 +41,17 @@
     -->
 
    <struct name="File">
-       <add name="Offset" type="UInt"/>
-       <add name="Size" type="UInt"/>
-       <add name="Name" type="String"/>
+       <add name="Offset" type="UInt">
+           Offset of the file data in the .img file, divided by 2048.
+       </add>
+       <add name="Size" type="UInt">
+           Size of the file data in the .img file, divided by
+           2048. Note that files whose size is not a multiple of 2048
+           are padded by zeros.
+       </add>
+       <add name="Name" type="String">
+           File name.
+       </add>
    </struct>
 
 </fileformat>
