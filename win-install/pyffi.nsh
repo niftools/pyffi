@@ -364,7 +364,8 @@ legacykeys_end_${label}:
 
   CreateDirectory "$INSTDIR\utilities\toaster\in"
   CreateDirectory "$INSTDIR\utilities\toaster\out"
-  CreateDirectory "$INSTDIR\utilities\toaster\patches"
+  ; XXX not yet used
+  ;CreateDirectory "$INSTDIR\utilities\toaster\patches"
   CreateDirectory "$INSTDIR\utilities\toaster\archive_in"
   CreateDirectory "$INSTDIR\utilities\toaster\archive_out"
 
