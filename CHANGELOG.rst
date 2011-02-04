@@ -1,5 +1,5 @@
-Release 2.1.8 (in development)
-==============================
+Release 2.1.8 (4 February 2011)
+===============================
 
 * Quickhull bugfix for precision argument in degenerate cases
   (issue #3163949, fix contributed by liuhuanjim013).
