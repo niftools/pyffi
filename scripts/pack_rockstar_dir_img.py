@@ -1,4 +1,4 @@
-"""Unpack tool for rockstar .dir/.img files."""
+"""Pack tool for rockstar .dir/.img files."""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -39,28 +39,27 @@
 
 import os
 import os.path
+from optparse import OptionParser
 
 from pyffi.formats.rockstar.dir_ import DirFormat
 
-# global configuration options
+# configuration options
 
-in_folder = "in"
-unpack_folder = "unpack"
-out_folder = "out"
+parser = OptionParser(usage="Usage: %prog source_folder destination_folder")
+(options, args) = parser.parse_args()
+unpack_folder, out_folder = args
 
 # actual script
 
-def unpack(arcroot):
-    dirdata = DirFormat.Data()
-    with open(os.path.join(in_folder, arcroot) + '.dir', 'rb') as dirfile:
-        dirdata.read(dirfile)
+def pack(arcroot):
     folder = os.path.join(unpack_folder, arcroot)
-    print("unpacking to %s" % folder)
-    os.mkdir(folder)
-    with open(os.path.join(in_folder, arcroot) + '.img', 'rb') as imgfile:
-        dirdata.unpack(imgfile, folder)
+    print("packing from %s" % folder)
+    dirdata = DirFormat.Data(folder=folder)
+    with open(os.path.join(out_folder, arcroot) + '.dir', 'wb') as dirfile:
+        dirdata.write(dirfile)
+    with open(os.path.join(out_folder, arcroot) + '.img', 'wb') as imgfile:
+        dirdata.pack(imgfile, folder)
 
-for arcname in os.listdir(in_folder):
-    if (arcname.endswith('.dir')
-        and os.path.isfile(os.path.join(in_folder, arcname))):
-        unpack(arcname[:-4])
+for arcname in os.listdir(unpack_folder):
+    if os.path.isdir(os.path.join(unpack_folder, arcname)):
+        pack(arcname)
