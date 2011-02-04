@@ -1,2 +1,2 @@
 @echo off
-PYTHONEXE pack_rockstar_dir_img.py out archive_out
+"PYTHONPATH\python.exe" "PYTHONPATH\Scripts\pack_rockstar_dir_img.py" out archive_out
