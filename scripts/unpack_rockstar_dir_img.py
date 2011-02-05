@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 """An unpack tool for rockstar .dir/.img files.
 
 For example, consider the following folder layout, within the current folder::
