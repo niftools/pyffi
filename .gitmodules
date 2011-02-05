@@ -4,3 +4,6 @@
 [submodule "pyffi/formats/kfm/kfmxml"]
 	path = pyffi/formats/kfm/kfmxml
 	url = git://niftools.git.sourceforge.net/gitroot/niftools/kfmxml
+[submodule "external"]
+	path = external
+	url = git://github.com/amorilia/pyffi-external.git

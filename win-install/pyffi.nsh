@@ -361,11 +361,13 @@ legacykeys_end_${label}:
   File /oname=oblivion_optimize.ini.tmp "${MISC_SRCDIR}\utilities\toaster\oblivion_optimize.ini"
   File /oname=unpack_rockstar_dir_img.bat.tmp "${MISC_SRCDIR}\utilities\toaster\unpack_rockstar_dir_img.bat"
   File /oname=pack_rockstar_dir_img.bat.tmp "${MISC_SRCDIR}\utilities\toaster\pack_rockstar_dir_img.bat"
+  File /oname=make_patch.bat.tmp "${MISC_SRCDIR}\external\make_patch.bat"
+  File /oname=apply_patch.bat.tmp "${MISC_SRCDIR}\external\apply_patch.bat"
+  File "${MISC_SRCDIR}\external\xdelta3.0z.x86-32.exe"
 
   CreateDirectory "$INSTDIR\utilities\toaster\in"
   CreateDirectory "$INSTDIR\utilities\toaster\out"
-  ; XXX not yet used
-  ;CreateDirectory "$INSTDIR\utilities\toaster\patches"
+  CreateDirectory "$INSTDIR\utilities\toaster\patches"
   CreateDirectory "$INSTDIR\utilities\toaster\archive_in"
   CreateDirectory "$INSTDIR\utilities\toaster\archive_out"
 
@@ -385,6 +387,14 @@ legacykeys_end_${label}:
   Delete "$INSTDIR\utilities\toaster\pack_rockstar_dir_img.bat"
   Push "$INSTDIR\utilities\toaster\pack_rockstar_dir_img.bat.tmp"
   Push "$INSTDIR\utilities\toaster\pack_rockstar_dir_img.bat"
+  Call unix2dos
+  Delete "$INSTDIR\utilities\toaster\make_patch.bat"
+  Push "$INSTDIR\utilities\toaster\make_patch.bat.tmp"
+  Push "$INSTDIR\utilities\toaster\make_patch.bat"
+  Call unix2dos
+  Delete "$INSTDIR\utilities\toaster\apply_patch.bat"
+  Push "$INSTDIR\utilities\toaster\apply_patch.bat.tmp"
+  Push "$INSTDIR\utilities\toaster\apply_patch.bat"
   Call unix2dos
 
   ; Install shortcuts
