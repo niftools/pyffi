@@ -39,52 +39,50 @@
 #
 # ***** END LICENSE BLOCK *****
 
+import argparse
+import shutil
 import os
 import os.path
-from argparse import ArgumentParser
 import subprocess
 
 # configuration options
 
-parser = ArgumentParser(description=__doc__)
+parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
     'patch_cmd', metavar="CMD", type=str,
     help="use CMD to apply a patch between files; this command must "
     "accept precisely 3 arguments: 'CMD oldfile newfile patchfile'")
 parser.add_argument(
-    'in_folder', type=str, help="folder with original files")
+    'in_folder', type=str, help="folder for original files")
 parser.add_argument(
-    'out_folder', type=str, help="folder where updated files will be written to")
+    'out_folder', type=str, help="folder for updated files")
 parser.add_argument(
-    'patch_folder', type=str, help="folder with patches")
+    'patch_folder', type=str, help="folder for patch files")
 args = parser.parse_args()
 
 # actual script
 
-def patch_make(in_file, out_file, patch_file):
-    # patch_file must exist by construction of the script
-    if not os.path.exists(patch_file):
-        raise RuntimeError("patch_file %s not found; bug?")
-    # check that in_file exists as well
+def patch_cmd(in_file, out_file, patch_file):
+    # in_file must exist by construction of the script
     if not os.path.exists(in_file):
-        print("skipped %s (no original)" % patch_file)
-        return
+        raise RuntimeError("in file %s not found; bug?")
+    # create folder for out_file, if it does not yet exist
     folder = os.path.split(out_file)[0]
     if not os.path.exists(folder):
         os.mkdir(folder)
-    command = [args.patch_cmd, in_file, out_file, patch_file]
-    print("applying %s" % patch_file)
-    subprocess.call(command)
+    # apply patch_file if it exists
+    if os.path.exists(patch_file):
+        command = [args.patch_cmd, in_file, out_file, patch_file]
+        print("applying %s" % patch_file)
+        subprocess.call(command)
+    else:
+        print("copying %s (no patch file)" % in_file)
+        shutil.copy(in_file, out_file)
 
-for dirpath, dirnames, filenames in os.walk(args.patch_folder):
+for dirpath, dirnames, filenames in os.walk(args.in_folder):
     for filename in filenames:
-        if not filename.endswith(".patch"):
-            print("skipped %s (not a .patch file)"
-                  % os.path.join(dirpath, filename))
-            continue
-        patch_file = os.path.join(dirpath, filename)
-        in_file = patch_file.replace(
-            args.patch_folder, args.in_folder, 1)[:-6]
-        out_file = patch_file.replace(
-            args.patch_folder, args.out_folder, 1)[:-6]
-        patch_make(in_file, out_file, patch_file)
+        in_file = os.path.join(dirpath, filename)
+        out_file = in_file.replace(args.in_folder, args.out_folder, 1)
+        patch_file = in_file.replace(args.in_folder, args.patch_folder, 1)
+        patch_file += ".patch"
+        patch_cmd(in_file, out_file, patch_file)

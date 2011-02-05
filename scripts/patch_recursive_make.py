@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-"""A tool to create binary patches between folders recursively."""
+"""A tool to make binary patches between folders recursively."""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -39,47 +39,50 @@
 #
 # ***** END LICENSE BLOCK *****
 
+import argparse
+import shutil
 import os
 import os.path
-from argparse import ArgumentParser
 import subprocess
 
 # configuration options
 
-parser = ArgumentParser(description=__doc__)
+parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
     'patch_cmd', metavar="CMD", type=str,
-    help="use CMD to create a patch between files; this command must "
+    help="use CMD to make a patch between files; this command must "
     "accept precisely 3 arguments: 'CMD oldfile newfile patchfile'")
 parser.add_argument(
-    'in_folder', type=str, help="folder with original files")
+    'in_folder', type=str, help="folder for original files")
 parser.add_argument(
-    'out_folder', type=str, help="folder with updated files")
+    'out_folder', type=str, help="folder for updated files")
 parser.add_argument(
-    'patch_folder', type=str, help="folder where patches will be written to")
+    'patch_folder', type=str, help="folder for patch files")
 args = parser.parse_args()
 
 # actual script
 
-def patch_make(in_file, out_file, patch_file):
-    # out_file must exist by construction of the script
-    if not os.path.exists(out_file):
-        raise RuntimeError("out_file %s not found; bug?")
-    # check that in_file exists as well
+def patch_cmd(in_file, out_file, patch_file):
+    # in_file must exist by construction of the script
     if not os.path.exists(in_file):
-        print("skipped %s (no original)" % out_file)
-        return
+        raise RuntimeError("in file %s not found; bug?")
+    # create folder for patch_file, if it does not yet exist
     folder = os.path.split(patch_file)[0]
     if not os.path.exists(folder):
         os.mkdir(folder)
-    command = [args.patch_cmd, in_file, out_file, patch_file]
-    print("making %s" % patch_file)
-    subprocess.call(command)
+    # make patch if out_file exists
+    if os.path.exists(out_file):
+        command = [args.patch_cmd, in_file, out_file, patch_file]
+        print("making %s" % patch_file)
+        subprocess.call(command)
+    else:
+        print("skipped %s (no out file)" % in_file)
+        return
 
-for dirpath, dirnames, filenames in os.walk(args.out_folder):
+for dirpath, dirnames, filenames in os.walk(args.in_folder):
     for filename in filenames:
-        out_file = os.path.join(dirpath, filename)
-        in_file = out_file.replace(args.out_folder, args.in_folder, 1)
-        patch_file = out_file.replace(
-            args.out_folder, args.patch_folder, 1) + ".patch"
-        patch_make(in_file, out_file, patch_file)
+        in_file = os.path.join(dirpath, filename)
+        out_file = in_file.replace(args.in_folder, args.out_folder, 1)
+        patch_file = in_file.replace(args.in_folder, args.patch_folder, 1)
+        patch_file += ".patch"
+        patch_cmd(in_file, out_file, patch_file)
