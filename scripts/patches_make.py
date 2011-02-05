@@ -47,10 +47,16 @@ import subprocess
 # configuration options
 
 parser = ArgumentParser(description=__doc__)
-parser.add_argument('patch_cmd', type=str, help="The patch command.")
-parser.add_argument('in_folder', type=str, help="Folder with original files.")
-parser.add_argument('out_folder', type=str, help="Folder with updated files.")
-parser.add_argument('patches_folder', type=str, help="Folder where patches will be written to.")
+parser.add_argument(
+    'patch_cmd', metavar="CMD", type=str,
+    help="use CMD to create a patch between files; this command must "
+    "accept precisely 3 arguments: 'CMD oldfile newfile patchfile'")
+parser.add_argument(
+    'in_folder', type=str, help="folder with original files")
+parser.add_argument(
+    'out_folder', type=str, help="folder with updated files")
+parser.add_argument(
+    'patches_folder', type=str, help="folder where patches will be written to")
 args = parser.parse_args()
 
 # actual script
