@@ -40,3 +40,9 @@ All rights reserved. Run ``pyffi/utils/mopper.exe --license`` for details.
 
 Mopper uses Havok. Copyright 1999-2008 Havok.com Inc. (and its Licensors).
 All rights reserved. See http://www.havok.com for details.
+
+=======================================
+
+PyFFI uses xdelta3. Copyright 2001-2010 Joshua P. MacDonald
+xdelta3 is released under the GPLv2.
+See external/xdelta3.0z/COPYING for details.
