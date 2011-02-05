@@ -298,10 +298,10 @@ FunctionEnd
   !ifdef HAVE_SECTION_${label}
   SectionGetFlags ${section_${label}} $0
   IntOp $1 $0 & ${SF_SELECTED}
-  StrCmp $1 ${SF_SELECTED} 0 extra_py_path_check_not_found_${label}
+  StrCmp $1 ${SF_SELECTED} 0 extra_py_path_check_not_found_${label}_${if_found}
   StrCpy $0 $PATH_${label}
   StrCmp $0 "" 0 ${if_found}
-extra_py_path_check_not_found_${label}:
+extra_py_path_check_not_found_${label}_${if_found}:
   !endif
 !macroend
 
@@ -318,6 +318,15 @@ extra_py_path_check_not_found_${label}:
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI-py${py_version}" "Publisher" "Python File Format Interface"
 legacykeys_end_${label}:
   !endif
+!macroend
+
+!macro PostExtraInstallArgParse label
+  !insertmacro PostExtraPyPathCheck ${label} install_argparse_${label}
+  GoTo install_argparse_end_${label}
+install_argparse_${label}:
+  SetOutPath "$0\Lib\site-packages"
+  File "${MISC_SRCDIR}\external\argparse.py"
+install_argparse_end_${label}:
 !macroend
 
 !macro PostExtra
@@ -400,6 +409,12 @@ legacykeys_end_${label}:
   Push "$INSTDIR\external\apply_patch.bat.tmp"
   Push "$INSTDIR\external\apply_patch.bat"
   Call unix2dos
+
+  ; check if this version of Python needs argparse
+  !insertmacro PostExtraInstallArgParse python_2_5_32
+  !insertmacro PostExtraInstallArgParse python_2_5_64
+  !insertmacro PostExtraInstallArgParse python_2_6_32
+  !insertmacro PostExtraInstallArgParse python_2_6_64
 
   ; Install shortcuts
   CreateDirectory "$SMPROGRAMS\PyFFI\"
