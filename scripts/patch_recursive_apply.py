@@ -56,7 +56,7 @@ parser.add_argument(
 parser.add_argument(
     'out_folder', type=str, help="folder where updated files will be written to")
 parser.add_argument(
-    'patches_folder', type=str, help="folder with patches")
+    'patch_folder', type=str, help="folder with patches")
 args = parser.parse_args()
 
 # actual script
@@ -76,7 +76,7 @@ def patch_make(in_file, out_file, patch_file):
     print("applying %s" % patch_file)
     subprocess.call(command)
 
-for dirpath, dirnames, filenames in os.walk(args.patches_folder):
+for dirpath, dirnames, filenames in os.walk(args.patch_folder):
     for filename in filenames:
         if not filename.endswith(".patch"):
             print("skipped %s (not a .patch file)"
@@ -84,7 +84,7 @@ for dirpath, dirnames, filenames in os.walk(args.patches_folder):
             continue
         patch_file = os.path.join(dirpath, filename)
         in_file = patch_file.replace(
-            args.patches_folder, args.in_folder, 1)[:-6]
+            args.patch_folder, args.in_folder, 1)[:-6]
         out_file = patch_file.replace(
-            args.patches_folder, args.out_folder, 1)[:-6]
+            args.patch_folder, args.out_folder, 1)[:-6]
         patch_make(in_file, out_file, patch_file)

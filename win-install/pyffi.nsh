@@ -382,7 +382,7 @@ install_argparse_end_${label}:
 
   CreateDirectory "$INSTDIR\utilities\toaster\in"
   CreateDirectory "$INSTDIR\utilities\toaster\out"
-  CreateDirectory "$INSTDIR\utilities\toaster\patches"
+  CreateDirectory "$INSTDIR\utilities\toaster\patch"
   CreateDirectory "$INSTDIR\utilities\toaster\archive_in"
   CreateDirectory "$INSTDIR\utilities\toaster\archive_out"
 
@@ -551,7 +551,7 @@ install_shortcuts_end:
   Delete "$INSTDIR\utilities\toaster\*.*"
   RMDir "$INSTDIR\utilities\toaster\archive_in"
   RMDir "$INSTDIR\utilities\toaster\archive_out"
-  RMDir "$INSTDIR\utilities\toaster\patches"
+  RMDir "$INSTDIR\utilities\toaster\patch"
   RMDir "$INSTDIR\utilities\toaster\in"
   RMDir "$INSTDIR\utilities\toaster\out"
   RMDir "$INSTDIR\utilities\toaster"

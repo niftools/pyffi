@@ -56,7 +56,7 @@ parser.add_argument(
 parser.add_argument(
     'out_folder', type=str, help="folder with updated files")
 parser.add_argument(
-    'patches_folder', type=str, help="folder where patches will be written to")
+    'patch_folder', type=str, help="folder where patches will be written to")
 args = parser.parse_args()
 
 # actual script
@@ -81,5 +81,5 @@ for dirpath, dirnames, filenames in os.walk(args.out_folder):
         out_file = os.path.join(dirpath, filename)
         in_file = out_file.replace(args.out_folder, args.in_folder, 1)
         patch_file = out_file.replace(
-            args.out_folder, args.patches_folder, 1) + ".patch"
+            args.out_folder, args.patch_folder, 1) + ".patch"
         patch_make(in_file, out_file, patch_file)
