@@ -1,4 +1,27 @@
-"""Pack tool for rockstar .dir/.img files."""
+#!/usr/bin/python
+
+"""A pack tool for rockstar .dir/.img files.
+
+For example, consider the following folder layout, within the current folder::
+
+  archive/
+  unpacked/Test/*.*
+  unpacked/World/*.*
+
+Within the current folder, call::
+
+  C:\Python26\python.exe C:\Python26\Scripts\unpack_rockstar_dir_img.py unpacked archive
+
+The packed files will then reside in::
+
+  archive/Test.dir
+  archive/Test.img
+  archive/World.dir
+  archive/World.img
+
+Beware that the .img format can only store files whose size is a
+multiple of 2048. Files of a different size are padded with zeros.
+"""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -45,8 +68,15 @@ from pyffi.formats.rockstar.dir_ import DirFormat
 
 # configuration options
 
-parser = OptionParser(usage="Usage: %prog source_folder destination_folder")
+parser = OptionParser(
+    usage=
+    "Usage: %prog source_folder destination_folder\n\n"
+    + __doc__
+    )
 (options, args) = parser.parse_args()
+if len(args) != 2:
+    parser.print_help()
+    exit()
 unpack_folder, out_folder = args
 
 # actual script
