@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-"""A tool to create binary patches between folders recursively."""
+"""A tool to apply binary patches between folders recursively."""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -49,37 +49,42 @@ import subprocess
 parser = ArgumentParser(description=__doc__)
 parser.add_argument(
     'patch_cmd', metavar="CMD", type=str,
-    help="use CMD to create a patch between files; this command must "
+    help="use CMD to apply a patch between files; this command must "
     "accept precisely 3 arguments: 'CMD oldfile newfile patchfile'")
 parser.add_argument(
     'in_folder', type=str, help="folder with original files")
 parser.add_argument(
-    'out_folder', type=str, help="folder with updated files")
+    'out_folder', type=str, help="folder where updated files will be written to")
 parser.add_argument(
-    'patches_folder', type=str, help="folder where patches will be written to")
+    'patches_folder', type=str, help="folder with patches")
 args = parser.parse_args()
 
 # actual script
 
 def patch_make(in_file, out_file, patch_file):
-    # out_file must exist by construction of the script
-    if not os.path.exists(out_file):
-        raise RuntimeError("out_file %s not found; bug?")
+    # patch_file must exist by construction of the script
+    if not os.path.exists(patch_file):
+        raise RuntimeError("patch_file %s not found; bug?")
     # check that in_file exists as well
     if not os.path.exists(in_file):
-        print("skipped %s (no original)" % out_file)
+        print("skipped %s (no original)" % patch_file)
         return
-    folder = os.path.split(patch_file)[0]
+    folder = os.path.split(out_file)[0]
     if not os.path.exists(folder):
         os.mkdir(folder)
     command = [args.patch_cmd, in_file, out_file, patch_file]
-    print("making %s" % patch_file)
+    print("applying %s" % patch_file)
     subprocess.call(command)
 
-for dirpath, dirnames, filenames in os.walk(args.out_folder):
+for dirpath, dirnames, filenames in os.walk(args.patch_folder):
     for filename in filenames:
-        out_file = os.path.join(dirpath, filename)
-        in_file = out_file.replace(args.out_folder, args.in_folder, 1)
-        patch_file = out_file.replace(
-            args.out_folder, args.patches_folder, 1) + ".patch"
+        if not filename.endswith(".patch"):
+            print("skipped %s (not a .patch file)"
+                  % os.path.join(dirpath, filename))
+            continue
+        patch_file = os.path.join(dirpath, filename)
+        in_file = patch_file.replace(
+            args.patch_folder, args.in_folder, 1)[:-6]
+        out_file = patch_file.replace(
+            args.patch_folder, args.out_folder, 1)[:-6]
         patch_make(in_file, out_file, patch_file)
