@@ -1,3 +1,11 @@
+Release 2.1.9 (in development)
+==============================
+
+* Improved documentation of .dir/.img unpack and pack scripts.
+
+* Bugfix in .dir format, so it can now also handle single record
+  images.
+
 Release 2.1.8 (4 February 2011)
 ===============================
 
