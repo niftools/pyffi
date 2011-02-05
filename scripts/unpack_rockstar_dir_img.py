@@ -12,7 +12,7 @@ For example, consider the following folder layout, within the current folder::
 
 Within the current folder, call::
 
-  C:\Python26\python.exe C:\Python26\Scripts\pack_rockstar_dir_img.py archive unpacked
+  C:\Python26\python.exe C:\Python26\Scripts\rockstar_pack_dir_img.py archive unpacked
 
 The unpacked files will then reside in
 

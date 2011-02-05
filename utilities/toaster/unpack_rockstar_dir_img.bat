@@ -9,5 +9,5 @@ rem (or any other .dir/.img files in archive_in/) to
 rem
 rem   in/World/*.*
 rem
-"PYTHONPATH\python.exe" "PYTHONPATH\Scripts\unpack_rockstar_dir_img.py" archive_in in
+"PYTHONPATH\python.exe" "PYTHONPATH\Scripts\rockstar_unpack_dir_img.py" archive_in in
 pause

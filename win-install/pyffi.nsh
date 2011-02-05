@@ -370,8 +370,8 @@ install_argparse_end_${label}:
   SetOutPath "$INSTDIR\utilities\toaster"
   File /oname=default.ini.tmp "${MISC_SRCDIR}\utilities\toaster\default.ini"
   File /oname=oblivion_optimize.ini.tmp "${MISC_SRCDIR}\utilities\toaster\oblivion_optimize.ini"
-  File /oname=unpack_rockstar_dir_img.bat.tmp "${MISC_SRCDIR}\utilities\toaster\unpack_rockstar_dir_img.bat"
-  File /oname=pack_rockstar_dir_img.bat.tmp "${MISC_SRCDIR}\utilities\toaster\pack_rockstar_dir_img.bat"
+  File /oname=rockstar_unpack_dir_img.bat.tmp "${MISC_SRCDIR}\utilities\toaster\rockstar_unpack_dir_img.bat"
+  File /oname=rockstar_pack_dir_img.bat.tmp "${MISC_SRCDIR}\utilities\toaster\rockstar_pack_dir_img.bat"
 
   SetOutPath "$INSTDIR\external"
   File /oname=make_patch.bat.tmp "${MISC_SRCDIR}\external\make_patch.bat"
@@ -393,13 +393,13 @@ install_argparse_end_${label}:
   Push "$INSTDIR\utilities\toaster\oblivion_optimize.ini.tmp"
   Push "$INSTDIR\utilities\toaster\oblivion_optimize.ini"
   Call unix2dos
-  Delete "$INSTDIR\utilities\toaster\unpack_rockstar_dir_img.bat"
-  Push "$INSTDIR\utilities\toaster\unpack_rockstar_dir_img.bat.tmp"
-  Push "$INSTDIR\utilities\toaster\unpack_rockstar_dir_img.bat"
+  Delete "$INSTDIR\utilities\toaster\rockstar_unpack_dir_img.bat"
+  Push "$INSTDIR\utilities\toaster\rockstar_unpack_dir_img.bat.tmp"
+  Push "$INSTDIR\utilities\toaster\rockstar_unpack_dir_img.bat"
   Call unix2dos
-  Delete "$INSTDIR\utilities\toaster\pack_rockstar_dir_img.bat"
-  Push "$INSTDIR\utilities\toaster\pack_rockstar_dir_img.bat.tmp"
-  Push "$INSTDIR\utilities\toaster\pack_rockstar_dir_img.bat"
+  Delete "$INSTDIR\utilities\toaster\rockstar_pack_dir_img.bat"
+  Push "$INSTDIR\utilities\toaster\rockstar_pack_dir_img.bat.tmp"
+  Push "$INSTDIR\utilities\toaster\rockstar_pack_dir_img.bat"
   Call unix2dos
   Delete "$INSTDIR\external\make_patch.bat"
   Push "$INSTDIR\external\make_patch.bat.tmp"
@@ -453,8 +453,8 @@ install_argparse_end_${label}:
 install_shortcuts:
 
   ; set python path in batch files
-  !insertmacro ReplaceInFile "$INSTDIR\utilities\toaster\pack_rockstar_dir_img.bat" PYTHONPATH "$0"
-  !insertmacro ReplaceInFile "$INSTDIR\utilities\toaster\unpack_rockstar_dir_img.bat" PYTHONPATH "$0"
+  !insertmacro ReplaceInFile "$INSTDIR\utilities\toaster\rockstar_pack_dir_img.bat" PYTHONPATH "$0"
+  !insertmacro ReplaceInFile "$INSTDIR\utilities\toaster\rockstar_unpack_dir_img.bat" PYTHONPATH "$0"
 
   ; QSkope desktop shortcut
   CreateShortCut "$DESKTOP\QSkope.lnk" "$0\python.exe" "$0\Scripts\qskope.py" "" "" "" "" "QSkope"
