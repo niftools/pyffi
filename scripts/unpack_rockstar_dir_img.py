@@ -1,8 +1,5 @@
-#!/usr/bin/python
+"""Unpack tool for rockstar .dir/.img files."""
 
-"""A script for debugging the class generation."""
-
-# --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
 #
 # Copyright (c) 2007-2011, Python File Format Interface
@@ -39,28 +36,32 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # ***** END LICENSE BLOCK *****
-# --------------------------------------------------------------------------
 
+import os
+import os.path
+from optparse import OptionParser
 
-import logging
-import sys
+from pyffi.formats.rockstar.dir_ import DirFormat
 
-# set up logger
-logger = logging.getLogger("pyffi")
-logger.setLevel(logging.DEBUG)
-loghandler = logging.StreamHandler(sys.stdout)
-loghandler.setLevel(logging.DEBUG)
-logformatter = logging.Formatter("%(name)s:%(levelname)s:%(message)s")
-loghandler.setFormatter(logformatter)
-logger.addHandler(loghandler)
+# global configuration options
 
-# import all format classes
-import pyffi.formats.cgf
-import pyffi.formats.dae
-import pyffi.formats.dds
-import pyffi.formats.kfm
-import pyffi.formats.nif
-import pyffi.formats.tga
-import pyffi.formats.egm
-import pyffi.formats.tri
-import pyffi.formats.esp
+parser = OptionParser(usage="Usage: %prog source_folder destination_folder")
+(options, args) = parser.parse_args()
+in_folder, unpack_folder = args
+
+# actual script
+
+def unpack(arcroot):
+    dirdata = DirFormat.Data()
+    with open(os.path.join(in_folder, arcroot) + '.dir', 'rb') as dirfile:
+        dirdata.read(dirfile)
+    folder = os.path.join(unpack_folder, arcroot)
+    print("unpacking to %s" % folder)
+    os.mkdir(folder)
+    with open(os.path.join(in_folder, arcroot) + '.img', 'rb') as imgfile:
+        dirdata.unpack(imgfile, folder)
+
+for arcname in os.listdir(in_folder):
+    if (arcname.endswith('.dir')
+        and os.path.isfile(os.path.join(in_folder, arcname))):
+        unpack(arcname[:-4])

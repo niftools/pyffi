@@ -3,8 +3,8 @@ Release 2.2.0 (in development)
 
 * Added PSK and PSA file support (used by Unreal engine).
 
-Release 2.1.8 (in development)
-==============================
+Release 2.1.8 (4 February 2011)
+===============================
 
 * Quickhull bugfix for precision argument in degenerate cases
   (issue #3163949, fix contributed by liuhuanjim013).
@@ -13,6 +13,15 @@ Release 2.1.8 (in development)
   (fixes issue #3145104, reported by Gratis_monsta).
 
 * Ensure that enum has valid default value.
+
+* Added CStreamableAssetData for Divinity 2 (reported by pertinen,
+  niftools issue #3164929).
+
+* NiPixelData.save_as_dds fourcc flag bugfix.
+
+* Added Rockstar .dir format (used in Bully SE).
+
+* Added Rockstar .dir/.img unpack and pack scripts (only tested for Bully SE).
 
 Release 2.1.7 (23 January 2011)
 ===============================

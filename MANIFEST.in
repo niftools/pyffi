@@ -17,6 +17,7 @@ include pyffi/formats/esp/esp.xml
 include pyffi/formats/tri/tri.xml
 include pyffi/formats/bsa/bsa.xml
 include pyffi/formats/psk/psk.xml
+include pyffi/formats/rockstar/dir_/dir.xml
 include pyffi/formats/dae/COLLADASchema.xsd
 include pyffi/utils/mopper.exe
 recursive-include examples *.py

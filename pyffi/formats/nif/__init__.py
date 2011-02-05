@@ -374,7 +374,9 @@ class NifFormat(FileFormat):
     # .nifcache are Empire Earth II nif files
     # .texcache are Empire Earth II/III packed texture nif files
     # .pcpatch are Empire Earth II/III packed texture nif files
-    RE_FILENAME = re.compile(r'^.*\.(nif|kf|kfa|nifcache|jmi|texcache|pcpatch)$', re.IGNORECASE)
+    # .item are Divinity 2 nif files
+    # .nft are Bully SE nif files (containing textures)
+    RE_FILENAME = re.compile(r'^.*\.(nif|kf|kfa|nifcache|jmi|texcache|pcpatch|nft|item)$', re.IGNORECASE)
     # archives
     ARCHIVE_CLASSES = [pyffi.formats.bsa.BsaFormat]
     # used for comparing floats
@@ -5777,7 +5779,7 @@ class NifFormat(FileFormat):
                     # used in newer nif versions
                     pixeldata.set_value(''.join(self.pixel_data_matrix))
             elif self.pixel_format == NifFormat.PixelFormat.PX_FMT_DXT1:
-                # format used in Megami Tensei: Imagine
+                # format used in Megami Tensei: Imagine and Bully SE
                 header.flags.caps = 1
                 header.flags.height = 1
                 header.flags.width = 1
@@ -5788,8 +5790,8 @@ class NifFormat(FileFormat):
                 header.width = self.mipmaps[0].width
                 header.linear_size = 0
                 header.mipmap_count = len(self.mipmaps)
-                header.pixel_format.flags.fourcc = 1
-                header.pixel_format.fourcc = pyffi.formats.dds.DdsFormat.FourCC.DXT1
+                header.pixel_format.flags.four_c_c = 1
+                header.pixel_format.four_c_c = pyffi.formats.dds.DdsFormat.FourCC.DXT1
                 header.pixel_format.bit_count = 0
                 header.pixel_format.r_mask = 0
                 header.pixel_format.g_mask = 0
@@ -5819,8 +5821,8 @@ class NifFormat(FileFormat):
                 header.width = self.mipmaps[0].width
                 header.linear_size = 0
                 header.mipmap_count = len(self.mipmaps)
-                header.pixel_format.flags.fourcc = 1
-                header.pixel_format.fourcc = pyffi.formats.dds.DdsFormat.FourCC.DXT5
+                header.pixel_format.flags.four_c_c = 1
+                header.pixel_format.four_c_c = pyffi.formats.dds.DdsFormat.FourCC.DXT5
                 header.pixel_format.bit_count = 0
                 header.pixel_format.r_mask = 0
                 header.pixel_format.g_mask = 0
