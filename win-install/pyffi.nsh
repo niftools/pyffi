@@ -372,6 +372,8 @@ install_argparse_end_${label}:
   File /oname=oblivion_optimize.ini.tmp "${MISC_SRCDIR}\utilities\toaster\oblivion_optimize.ini"
   File /oname=rockstar_unpack_dir_img.bat.tmp "${MISC_SRCDIR}\utilities\toaster\rockstar_unpack_dir_img.bat"
   File /oname=rockstar_pack_dir_img.bat.tmp "${MISC_SRCDIR}\utilities\toaster\rockstar_pack_dir_img.bat"
+  File /oname=patches_make.bat.tmp "${MISC_SRCDIR}\utilities\toaster\patches_make.bat"
+  File /oname=patches_apply.bat.tmp "${MISC_SRCDIR}\utilities\toaster\patches_apply.bat"
 
   SetOutPath "$INSTDIR\external"
   File /oname=make_patch.bat.tmp "${MISC_SRCDIR}\external\make_patch.bat"
@@ -400,6 +402,14 @@ install_argparse_end_${label}:
   Delete "$INSTDIR\utilities\toaster\rockstar_pack_dir_img.bat"
   Push "$INSTDIR\utilities\toaster\rockstar_pack_dir_img.bat.tmp"
   Push "$INSTDIR\utilities\toaster\rockstar_pack_dir_img.bat"
+  Call unix2dos
+  Delete "$INSTDIR\utilities\toaster\patches_make.bat"
+  Push "$INSTDIR\utilities\toaster\patches_make.bat.tmp"
+  Push "$INSTDIR\utilities\toaster\patches_make.bat"
+  Call unix2dos
+  Delete "$INSTDIR\utilities\toaster\patches_apply.bat"
+  Push "$INSTDIR\utilities\toaster\patches_apply.bat.tmp"
+  Push "$INSTDIR\utilities\toaster\patches_apply.bat"
   Call unix2dos
   Delete "$INSTDIR\external\make_patch.bat"
   Push "$INSTDIR\external\make_patch.bat.tmp"
@@ -455,6 +465,8 @@ install_shortcuts:
   ; set python path in batch files
   !insertmacro ReplaceInFile "$INSTDIR\utilities\toaster\rockstar_pack_dir_img.bat" PYTHONPATH "$0"
   !insertmacro ReplaceInFile "$INSTDIR\utilities\toaster\rockstar_unpack_dir_img.bat" PYTHONPATH "$0"
+  !insertmacro ReplaceInFile "$INSTDIR\utilities\toaster\patches_make.bat" PYTHONPATH "$0"
+  !insertmacro ReplaceInFile "$INSTDIR\utilities\toaster\patches_apply.bat" PYTHONPATH "$0"
 
   ; QSkope desktop shortcut
   CreateShortCut "$DESKTOP\QSkope.lnk" "$0\python.exe" "$0\Scripts\qskope.py" "" "" "" "" "QSkope"
