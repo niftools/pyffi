@@ -376,8 +376,8 @@ install_argparse_end_${label}:
   File /oname=patches_apply.bat.tmp "${MISC_SRCDIR}\utilities\toaster\patches_apply.bat"
 
   SetOutPath "$INSTDIR\external"
-  File /oname=make_patch.bat.tmp "${MISC_SRCDIR}\external\make_patch.bat"
-  File /oname=apply_patch.bat.tmp "${MISC_SRCDIR}\external\apply_patch.bat"
+  File /oname=patch_make.bat.tmp "${MISC_SRCDIR}\external\patch_make.bat"
+  File /oname=patch_apply.bat.tmp "${MISC_SRCDIR}\external\patch_apply.bat"
   File "${MISC_SRCDIR}\external\xdelta3.0z.x86-32.exe"
 
   CreateDirectory "$INSTDIR\utilities\toaster\in"
@@ -411,13 +411,13 @@ install_argparse_end_${label}:
   Push "$INSTDIR\utilities\toaster\patches_apply.bat.tmp"
   Push "$INSTDIR\utilities\toaster\patches_apply.bat"
   Call unix2dos
-  Delete "$INSTDIR\external\make_patch.bat"
-  Push "$INSTDIR\external\make_patch.bat.tmp"
-  Push "$INSTDIR\external\make_patch.bat"
+  Delete "$INSTDIR\external\patch_make.bat"
+  Push "$INSTDIR\external\patch_make.bat.tmp"
+  Push "$INSTDIR\external\patch_make.bat"
   Call unix2dos
-  Delete "$INSTDIR\external\apply_patch.bat"
-  Push "$INSTDIR\external\apply_patch.bat.tmp"
-  Push "$INSTDIR\external\apply_patch.bat"
+  Delete "$INSTDIR\external\patch_apply.bat"
+  Push "$INSTDIR\external\patch_apply.bat.tmp"
+  Push "$INSTDIR\external\patch_apply.bat"
   Call unix2dos
 
   ; check if this version of Python needs argparse

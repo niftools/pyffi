@@ -61,7 +61,7 @@ args = parser.parse_args()
 
 # actual script
 
-def make_patch(in_file, out_file, patch_file):
+def patch_make(in_file, out_file, patch_file):
     # out_file must exist by construction of the script
     if not os.path.exists(out_file):
         raise RuntimeError("out_file %s not found; bug?")
@@ -81,4 +81,4 @@ for dirpath, dirnames, filenames in os.walk(args.out_folder):
         out_file = os.path.join(dirpath, filename)
         in_file = out_file.replace(args.out_folder, args.in_folder, 1)
         patch_file = out_file.replace(args.out_folder, args.patches_folder) + ".patch"
-        make_patch(in_file, out_file, patch_file)
+        patch_make(in_file, out_file, patch_file)
