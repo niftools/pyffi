@@ -6,7 +6,7 @@ Release 2.1.9 (in development)
 * Bugfix in .dir format, so it can now also handle single record
   images.
 
-* Added new script to create patches (functionality is identical to
+* Added new script to make and apply patches (functionality is identical to
   and OnmyojiOmn's and jonwd7's pyffi patcher scripts, but it is
   written in Python to work on all platforms).
 
