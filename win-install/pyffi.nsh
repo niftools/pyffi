@@ -184,10 +184,12 @@ Section Documentation Documentation
   RMDir /r "$INSTDIR\tests"
 
   ; now install new stuff
-  SetOutPath "$INSTDIR"
-  File /r "${MISC_SRCDIR}\examples"
-  File /r "${MISC_SRCDIR}\tests"
-  File /r "${MISC_SRCDIR}\docs"
+  SetOutPath "$INSTDIR\examples\"
+  File /r "${MISC_SRCDIR}\examples\"
+  SetOutPath "$INSTDIR\tests\"
+  File /r "${MISC_SRCDIR}\tests\"
+  SetOutPath "$INSTDIR\docs\"
+  File /r "${MISC_SRCDIR}\docs\"
 SectionEnd
 
 Section un.Documentation
@@ -361,6 +363,8 @@ legacykeys_end_${label}:
   File /oname=oblivion_optimize.ini.tmp "${MISC_SRCDIR}\utilities\toaster\oblivion_optimize.ini"
   File /oname=unpack_rockstar_dir_img.bat.tmp "${MISC_SRCDIR}\utilities\toaster\unpack_rockstar_dir_img.bat"
   File /oname=pack_rockstar_dir_img.bat.tmp "${MISC_SRCDIR}\utilities\toaster\pack_rockstar_dir_img.bat"
+
+  SetOutPath "$INSTDIR\external"
   File /oname=make_patch.bat.tmp "${MISC_SRCDIR}\external\make_patch.bat"
   File /oname=apply_patch.bat.tmp "${MISC_SRCDIR}\external\apply_patch.bat"
   File "${MISC_SRCDIR}\external\xdelta3.0z.x86-32.exe"
@@ -388,13 +392,13 @@ legacykeys_end_${label}:
   Push "$INSTDIR\utilities\toaster\pack_rockstar_dir_img.bat.tmp"
   Push "$INSTDIR\utilities\toaster\pack_rockstar_dir_img.bat"
   Call unix2dos
-  Delete "$INSTDIR\utilities\toaster\make_patch.bat"
-  Push "$INSTDIR\utilities\toaster\make_patch.bat.tmp"
-  Push "$INSTDIR\utilities\toaster\make_patch.bat"
+  Delete "$INSTDIR\external\make_patch.bat"
+  Push "$INSTDIR\external\make_patch.bat.tmp"
+  Push "$INSTDIR\external\make_patch.bat"
   Call unix2dos
-  Delete "$INSTDIR\utilities\toaster\apply_patch.bat"
-  Push "$INSTDIR\utilities\toaster\apply_patch.bat.tmp"
-  Push "$INSTDIR\utilities\toaster\apply_patch.bat"
+  Delete "$INSTDIR\external\apply_patch.bat"
+  Push "$INSTDIR\external\apply_patch.bat.tmp"
+  Push "$INSTDIR\external\apply_patch.bat"
   Call unix2dos
 
   ; Install shortcuts
@@ -515,8 +519,12 @@ install_shortcuts_end:
   Delete "$INSTDIR\*.TXT"
   Delete "$INSTDIR\*.txt"
   Delete "$INSTDIR\*.rst"
-  Delete "$INSTDIR\utilities\toaster\oblivion_optimize.ini"
-  Delete "$INSTDIR\utilities\toaster\default.ini"
+  Delete "$INSTDIR\external\*.*"
+  RMDir "$INSTDIR\external"
+  Delete "$INSTDIR\utilities\toaster\*.*"
+  RMDir "$INSTDIR\utilities\toaster\archive_in"
+  RMDir "$INSTDIR\utilities\toaster\archive_out"
+  RMDir "$INSTDIR\utilities\toaster\patches"
   RMDir "$INSTDIR\utilities\toaster\in"
   RMDir "$INSTDIR\utilities\toaster\out"
   RMDir "$INSTDIR\utilities\toaster"

@@ -26,6 +26,8 @@ recursive-include tests *.*
 include docs/*.*
 include utilities/toaster/*.ini
 include utilities/toaster/*.sh
+recursive-include external *
+exclude external/xdelta*.exe
 prune *.svn*
 prune *.git*
 
