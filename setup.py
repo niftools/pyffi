@@ -68,7 +68,7 @@ setup(
         'scripts/kfm/kfmtoaster.py',
         'scripts/rockstar_pack_dir_img.py',
         'scripts/rockstar_unpack_dir_img.py',
-        'scripts/patches_make.py',
+        'scripts/patch_recursive_make.py',
         'scripts/qskope.py'],
     author = "Amorilia",
     author_email = "amorilia@users.sourceforge.net",
