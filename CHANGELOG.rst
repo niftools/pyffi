@@ -10,6 +10,11 @@ Release 2.1.9 (in development)
   and OnmyojiOmn's and jonwd7's pyffi patcher scripts, but it is
   written in Python to work on all platforms).
 
+* New fix_emptyskeletonroots spell (automatically included in the
+  optimize spell) to fix issues with nifs that do not have their
+  NiSkinInstance skeleton root set (fixes #3174085, reported by
+  xjdhdr).
+
 Release 2.1.8 (4 February 2011)
 ===============================
 

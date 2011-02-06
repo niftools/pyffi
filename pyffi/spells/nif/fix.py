@@ -74,7 +74,11 @@ Implementation
 .. autoclass:: SpellDelUnusedRoots
    :show-inheritance:
    :members:
-   
+
+.. autoclass:: SpellFixEmptySkeletonRoots
+   :show-inheritance:
+   :members:
+
 Regression tests
 ----------------
 """
@@ -727,3 +731,50 @@ class SpellFixBhkSubShapes(NifSpell):
             return False
         # recurse further
         return True
+
+class SpellFixEmptySkeletonRoots(NifSpell):
+    """Fix empty skeleton roots in an as sane as possible way."""
+
+    SPELLNAME = "fix_emptyskeletonroots"
+    READONLY = False
+
+    def datainspect(self):
+        # only run the spell if there is a skin instance block
+        return self.inspectblocktype(NifFormat.NiSkinInstance)
+
+    def dataentry(self):
+        # set skeleton root: first block of data
+        # this is what the engine usually seems to assume if it is not present
+        if not self.data.roots:
+            return False
+        self.skeleton_root = self.data.roots[0]
+        # sanity check
+        if not isinstance(self.skeleton_root, NifFormat.NiAVObject):
+            # we'll fail in this case...
+            self.skeleton_root = None
+            self.toaster.logger.info("no skeleton root candidate")
+            return False
+        return True
+
+    def branchinspect(self, branch):
+        # only inspect branches where NiSkinInstance can occur
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiSkinInstance))
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiSkinInstance):
+            if not branch.skeleton_root:
+                if self.skeleton_root:
+                    self.toaster.logger.warn(
+                        "fixed missing skeleton root")
+                    branch.skeleton_root = self.skeleton_root
+                    self.changed = True
+                else:
+                    self.toaster.logger.error(
+                        "missing skeleton root, "
+                        "but no skeleton root candidate!")
+            # do not recurse further
+            return False
+        else:
+            # keep looking for managers or sequences
+            return True

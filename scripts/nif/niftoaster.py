@@ -92,6 +92,7 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         pyffi.spells.nif.fix.SpellScale,
         pyffi.spells.nif.fix.SpellCleanStringPalette,
         pyffi.spells.nif.fix.SpellFixBhkSubShapes,
+        pyffi.spells.nif.fix.SpellFixEmptySkeletonRoots,
         pyffi.spells.nif.modify.SpellDelBranches,
         pyffi.spells.nif.optimize.SpellCleanRefLists,
         pyffi.spells.nif.optimize.SpellMergeDuplicates,
