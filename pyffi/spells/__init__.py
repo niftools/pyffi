@@ -579,6 +579,9 @@ class fake_logger:
     def debug(cls, msg):
         cls._log(logging.DEBUG, "DEBUG", msg)
 
+    @classmethod
+    def setLevel(cls, level):
+        cls.level = level
 
 def _toaster_job(args):
     """For multiprocessing. This function creates a new toaster, with the
@@ -598,8 +601,6 @@ def _toaster_job(args):
                          level_str, msg))
 
     toasterclass, filename, options, spellnames = args
-    multiprocessing_fake_logger.level = (
-        logging.getLogger("pyffi").getEffectiveLevel())
     toaster = toasterclass(options=options, spellnames=spellnames,
                            logger=multiprocessing_fake_logger)
 
@@ -717,13 +718,16 @@ class Toaster(object):
 
     def _update_options(self):
         """Synchronize some fields with given options."""
-        # set verbosity level
+        # set verbosity level (also of self.logger, in case of a custom one)
         if self.options["verbose"] <= 0:
             logging.getLogger("pyffi").setLevel(logging.WARNING)
+            self.logger.setLevel(logging.WARNING)
         elif self.options["verbose"] == 1:
             logging.getLogger("pyffi").setLevel(logging.INFO)
+            self.logger.setLevel(logging.INFO)
         else:
             logging.getLogger("pyffi").setLevel(logging.DEBUG)
+            self.logger.setLevel(logging.DEBUG)
         # check errors
         if self.options["createpatch"] and self.options["applypatch"]:
             raise ValueError(

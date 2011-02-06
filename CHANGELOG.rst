@@ -15,6 +15,9 @@ Release 2.1.9 (in development)
   NiSkinInstance skeleton root set (fixes #3174085, reported by
   xjdhdr).
 
+* Fixed logging issue on Windows platform with multithreading enabled
+  (fixes issue #3174339, reported by xjdhdr).
+
 Release 2.1.8 (4 February 2011)
 ===============================
 
