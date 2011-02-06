@@ -4500,7 +4500,7 @@ class NifFormat(FileFormat):
             """Returns True if geometry is skinned."""
             return self.skin_instance != None
 
-        def _validateSkin(self):
+        def _validate_skin(self):
             """Check that skinning blocks are valid. Will raise NifError exception
             if not."""
             if self.skin_instance == None: return
@@ -4518,7 +4518,7 @@ class NifFormat(FileFormat):
 
             :param bone: The bone NiNode block.
             :param vert_weights: A dictionary mapping each influenced vertex index to a vertex weight."""
-            self._validateSkin()
+            self._validate_skin()
             skininst = self.skin_instance
             skindata = skininst.data
             skelroot = skininst.skeleton_root
@@ -4545,7 +4545,7 @@ class NifFormat(FileFormat):
             # shortcuts relevant blocks
             if not self.skin_instance:
                 raise NifFormat.NifError('Cannot get vertex weights of geometry without skin.')
-            self._validateSkin()
+            self._validate_skin()
             geomdata = self.data
             skininst = self.skin_instance
             skindata = skininst.data
@@ -4580,7 +4580,7 @@ class NifFormat(FileFormat):
             if not self.is_skin(): return [] # nothing to do
 
             result = [] # list of repositioned bones
-            self._validateSkin() # validate the skin
+            self._validate_skin() # validate the skin
             skininst = self.skin_instance
             skindata = skininst.data
             skelroot = skininst.skeleton_root
@@ -4632,7 +4632,7 @@ class NifFormat(FileFormat):
 
             if not self.is_skin(): return self.data.vertices, self.data.normals
 
-            self._validateSkin()
+            self._validate_skin()
             skininst = self.skin_instance
             skindata = skininst.data
             skelroot = skininst.skeleton_root
@@ -4679,7 +4679,7 @@ class NifFormat(FileFormat):
                 return
 
             # validate skin and set up quick links
-            self._validateSkin()
+            self._validate_skin()
             skininst = self.skin_instance
             skindata = skininst.data
             skelroot = skininst.skeleton_root
@@ -4711,7 +4711,7 @@ class NifFormat(FileFormat):
             if not self.is_skin(): return
 
             # validate skin and set up quick links
-            self._validateSkin()
+            self._validate_skin()
             skininst = self.skin_instance
             skindata = skininst.data
             skelroot = skininst.skeleton_root
@@ -6317,7 +6317,7 @@ class NifFormat(FileFormat):
             if not self.skin_instance:
                 # no skin, nothing to do
                 return
-            self._validateSkin()
+            self._validate_skin()
             geomdata = self.data
             skininst = self.skin_instance
             skindata = skininst.data
@@ -6753,7 +6753,7 @@ class NifFormat(FileFormat):
             # shortcuts relevant blocks
             if not self.skin_instance:
                 return # no skin, nothing to do
-            self._validateSkin()
+            self._validate_skin()
             geomdata = self.data
             skininst = self.skin_instance
             skindata = skininst.data
