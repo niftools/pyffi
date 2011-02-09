@@ -18,6 +18,9 @@ Release 2.1.9 (in development)
 * Fixed logging issue on Windows platform with multithreading enabled
   (fixes issue #3174339, reported by xjdhdr).
 
+* Fixed QSkope shortcut issue when path contains spaces (reported by
+  Brumbek).
+
 Release 2.1.8 (4 February 2011)
 ===============================
 

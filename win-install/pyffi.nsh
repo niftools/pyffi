@@ -469,7 +469,7 @@ install_shortcuts:
   !insertmacro ReplaceInFile "$INSTDIR\utilities\toaster\patch_recursive_apply.bat" PYTHONPATH "$0"
 
   ; QSkope desktop shortcut
-  CreateShortCut "$DESKTOP\QSkope.lnk" "$0\python.exe" "$0\Scripts\qskope.py" "" "" "" "" "QSkope"
+  CreateShortCut "$DESKTOP\QSkope.lnk" '"$0\python.exe"' '"$0\Scripts\qskope.py"' "" "" "" "" "QSkope"
 
   ; Set up file associations
   SetRegView 32
