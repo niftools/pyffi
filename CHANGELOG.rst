@@ -21,6 +21,9 @@ Release 2.1.9 (in development)
 * Fixed QSkope shortcut issue when path contains spaces (reported by
   Brumbek).
 
+* Added support for BSPackedAdditionalGeometryData (reported by
+  Ghostwalker71, niftools issue #3177847).
+
 Release 2.1.8 (4 February 2011)
 ===============================
 
