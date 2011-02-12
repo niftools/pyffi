@@ -203,6 +203,7 @@ Get list of versions and games
 ? 0x0A000103
 Atlantica 0x14020008
 Axis and Allies 0x0A010000
+Bully SE 0x14030009
 Civilization IV 0x04020002 0x04020100 0x04020200 0x0A000100 0x0A010000 \
 0x0A020000 0x14000004
 Culpa Innata 0x04020200
