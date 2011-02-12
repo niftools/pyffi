@@ -205,7 +205,7 @@ class EspFormat(pyffi.object_models.xml.FileFormat):
             self.inspect_quick(stream)
             # read header record
             self.tes4.read(stream, self)
-            hedr = self.tes4.get_sub_record("HEDR")
+            hedr = self.tes4.get_sub_record(b"HEDR")
             if not hedr:
                 print("esp file has no HEDR; aborting")
                 return
