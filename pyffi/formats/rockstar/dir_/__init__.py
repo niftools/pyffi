@@ -146,7 +146,7 @@ class DirFormat(pyffi.object_models.xml.FileFormat):
                 off1, size1, file1 = struct.unpack(
                     "<II24s", stream.read(32))
                 try:
-                    off2 = struct.unpack(
+                    off2, = struct.unpack(
                         "<I", stream.read(4))
                 except struct.error:
                     # this happens if .dir only contains one file record
