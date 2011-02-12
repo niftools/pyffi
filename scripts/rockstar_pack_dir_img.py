@@ -1,4 +1,27 @@
-"""Unpack tool for rockstar .dir/.img files."""
+#!/usr/bin/python
+
+"""A pack tool for rockstar .dir/.img files.
+
+For example, consider the following folder layout, within the current folder::
+
+  archive/
+  unpacked/Test/*.*
+  unpacked/World/*.*
+
+Within the current folder, call::
+
+  C:\Python26\python.exe C:\Python26\Scripts\rockstar_unpack_dir_img.py unpacked archive
+
+The packed files will then reside in::
+
+  archive/Test.dir
+  archive/Test.img
+  archive/World.dir
+  archive/World.img
+
+Beware that the .img format can only store files whose size is a
+multiple of 2048. Files of a different size are padded with zeros.
+"""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -43,25 +66,30 @@ from optparse import OptionParser
 
 from pyffi.formats.rockstar.dir_ import DirFormat
 
-# global configuration options
+# configuration options
 
-parser = OptionParser(usage="Usage: %prog source_folder destination_folder")
+parser = OptionParser(
+    usage=
+    "Usage: %prog source_folder destination_folder\n\n"
+    + __doc__
+    )
 (options, args) = parser.parse_args()
-in_folder, unpack_folder = args
+if len(args) != 2:
+    parser.print_help()
+    exit()
+unpack_folder, out_folder = args
 
 # actual script
 
-def unpack(arcroot):
-    dirdata = DirFormat.Data()
-    with open(os.path.join(in_folder, arcroot) + '.dir', 'rb') as dirfile:
-        dirdata.read(dirfile)
+def pack(arcroot):
     folder = os.path.join(unpack_folder, arcroot)
-    print("unpacking to %s" % folder)
-    os.mkdir(folder)
-    with open(os.path.join(in_folder, arcroot) + '.img', 'rb') as imgfile:
-        dirdata.unpack(imgfile, folder)
+    print("packing from %s" % folder)
+    dirdata = DirFormat.Data(folder=folder)
+    with open(os.path.join(out_folder, arcroot) + '.dir', 'wb') as dirfile:
+        dirdata.write(dirfile)
+    with open(os.path.join(out_folder, arcroot) + '.img', 'wb') as imgfile:
+        dirdata.pack(imgfile, folder)
 
-for arcname in os.listdir(in_folder):
-    if (arcname.endswith('.dir')
-        and os.path.isfile(os.path.join(in_folder, arcname))):
-        unpack(arcname[:-4])
+for arcname in os.listdir(unpack_folder):
+    if os.path.isdir(os.path.join(unpack_folder, arcname)):
+        pack(arcname)

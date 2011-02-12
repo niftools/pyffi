@@ -184,10 +184,12 @@ Section Documentation Documentation
   RMDir /r "$INSTDIR\tests"
 
   ; now install new stuff
-  SetOutPath "$INSTDIR"
-  File /r "${MISC_SRCDIR}\examples"
-  File /r "${MISC_SRCDIR}\tests"
-  File /r "${MISC_SRCDIR}\docs"
+  SetOutPath "$INSTDIR\examples\"
+  File /r "${MISC_SRCDIR}\examples\"
+  SetOutPath "$INSTDIR\tests\"
+  File /r "${MISC_SRCDIR}\tests\"
+  SetOutPath "$INSTDIR\docs\"
+  File /r "${MISC_SRCDIR}\docs\"
 SectionEnd
 
 Section un.Documentation
@@ -296,10 +298,10 @@ FunctionEnd
   !ifdef HAVE_SECTION_${label}
   SectionGetFlags ${section_${label}} $0
   IntOp $1 $0 & ${SF_SELECTED}
-  StrCmp $1 ${SF_SELECTED} 0 extra_py_path_check_not_found_${label}
+  StrCmp $1 ${SF_SELECTED} 0 extra_py_path_check_not_found_${label}_${if_found}
   StrCpy $0 $PATH_${label}
   StrCmp $0 "" 0 ${if_found}
-extra_py_path_check_not_found_${label}:
+extra_py_path_check_not_found_${label}_${if_found}:
   !endif
 !macroend
 
@@ -344,13 +346,19 @@ extra_py_path_check_not_found_${label}:
   SetOutPath "$INSTDIR\utilities\toaster"
   File /oname=default.ini.tmp "${MISC_SRCDIR}\utilities\toaster\default.ini"
   File /oname=oblivion_optimize.ini.tmp "${MISC_SRCDIR}\utilities\toaster\oblivion_optimize.ini"
-  File /oname=unpack_rockstar_dir_img.bat.tmp "${MISC_SRCDIR}\utilities\toaster\unpack_rockstar_dir_img.bat"
-  File /oname=pack_rockstar_dir_img.bat.tmp "${MISC_SRCDIR}\utilities\toaster\pack_rockstar_dir_img.bat"
+  File /oname=rockstar_unpack_dir_img.bat.tmp "${MISC_SRCDIR}\utilities\toaster\rockstar_unpack_dir_img.bat"
+  File /oname=rockstar_pack_dir_img.bat.tmp "${MISC_SRCDIR}\utilities\toaster\rockstar_pack_dir_img.bat"
+  File /oname=patch_recursive_make.bat.tmp "${MISC_SRCDIR}\utilities\toaster\patch_recursive_make.bat"
+  File /oname=patch_recursive_apply.bat.tmp "${MISC_SRCDIR}\utilities\toaster\patch_recursive_apply.bat"
+
+  SetOutPath "$INSTDIR\external"
+  File /oname=patch_make.bat.tmp "${MISC_SRCDIR}\external\patch_make.bat"
+  File /oname=patch_apply.bat.tmp "${MISC_SRCDIR}\external\patch_apply.bat"
+  File "${MISC_SRCDIR}\external\xdelta3.0z.x86-32.exe"
 
   CreateDirectory "$INSTDIR\utilities\toaster\in"
   CreateDirectory "$INSTDIR\utilities\toaster\out"
-  ; XXX not yet used
-  ;CreateDirectory "$INSTDIR\utilities\toaster\patches"
+  CreateDirectory "$INSTDIR\utilities\toaster\patch"
   CreateDirectory "$INSTDIR\utilities\toaster\archive_in"
   CreateDirectory "$INSTDIR\utilities\toaster\archive_out"
 
@@ -363,14 +371,36 @@ extra_py_path_check_not_found_${label}:
   Push "$INSTDIR\utilities\toaster\oblivion_optimize.ini.tmp"
   Push "$INSTDIR\utilities\toaster\oblivion_optimize.ini"
   Call unix2dos
-  Delete "$INSTDIR\utilities\toaster\unpack_rockstar_dir_img.bat"
-  Push "$INSTDIR\utilities\toaster\unpack_rockstar_dir_img.bat.tmp"
-  Push "$INSTDIR\utilities\toaster\unpack_rockstar_dir_img.bat"
+  Delete "$INSTDIR\utilities\toaster\rockstar_unpack_dir_img.bat"
+  Push "$INSTDIR\utilities\toaster\rockstar_unpack_dir_img.bat.tmp"
+  Push "$INSTDIR\utilities\toaster\rockstar_unpack_dir_img.bat"
   Call unix2dos
-  Delete "$INSTDIR\utilities\toaster\pack_rockstar_dir_img.bat"
-  Push "$INSTDIR\utilities\toaster\pack_rockstar_dir_img.bat.tmp"
-  Push "$INSTDIR\utilities\toaster\pack_rockstar_dir_img.bat"
+  Delete "$INSTDIR\utilities\toaster\rockstar_pack_dir_img.bat"
+  Push "$INSTDIR\utilities\toaster\rockstar_pack_dir_img.bat.tmp"
+  Push "$INSTDIR\utilities\toaster\rockstar_pack_dir_img.bat"
   Call unix2dos
+  Delete "$INSTDIR\utilities\toaster\patch_recursive_make.bat"
+  Push "$INSTDIR\utilities\toaster\patch_recursive_make.bat.tmp"
+  Push "$INSTDIR\utilities\toaster\patch_recursive_make.bat"
+  Call unix2dos
+  Delete "$INSTDIR\utilities\toaster\patch_recursive_apply.bat"
+  Push "$INSTDIR\utilities\toaster\patch_recursive_apply.bat.tmp"
+  Push "$INSTDIR\utilities\toaster\patch_recursive_apply.bat"
+  Call unix2dos
+  Delete "$INSTDIR\external\patch_make.bat"
+  Push "$INSTDIR\external\patch_make.bat.tmp"
+  Push "$INSTDIR\external\patch_make.bat"
+  Call unix2dos
+  Delete "$INSTDIR\external\patch_apply.bat"
+  Push "$INSTDIR\external\patch_apply.bat.tmp"
+  Push "$INSTDIR\external\patch_apply.bat"
+  Call unix2dos
+
+  ; check if this version of Python needs argparse
+  !insertmacro PostExtraInstallArgParse python_2_5_32
+  !insertmacro PostExtraInstallArgParse python_2_5_64
+  !insertmacro PostExtraInstallArgParse python_2_6_32
+  !insertmacro PostExtraInstallArgParse python_2_6_64
 
   ; Install shortcuts
   CreateDirectory "$SMPROGRAMS\PyFFI\"
@@ -399,11 +429,13 @@ extra_py_path_check_not_found_${label}:
 install_shortcuts:
 
   ; set python path in batch files
-  !insertmacro ReplaceInFile "$INSTDIR\utilities\toaster\pack_rockstar_dir_img.bat" PYTHONPATH "$0"
-  !insertmacro ReplaceInFile "$INSTDIR\utilities\toaster\unpack_rockstar_dir_img.bat" PYTHONPATH "$0"
+  !insertmacro ReplaceInFile "$INSTDIR\utilities\toaster\rockstar_pack_dir_img.bat" PYTHONPATH "$0"
+  !insertmacro ReplaceInFile "$INSTDIR\utilities\toaster\rockstar_unpack_dir_img.bat" PYTHONPATH "$0"
+  !insertmacro ReplaceInFile "$INSTDIR\utilities\toaster\patch_recursive_make.bat" PYTHONPATH "$0"
+  !insertmacro ReplaceInFile "$INSTDIR\utilities\toaster\patch_recursive_apply.bat" PYTHONPATH "$0"
 
   ; QSkope desktop shortcut
-  CreateShortCut "$DESKTOP\QSkope.lnk" "$0\python.exe" "$0\Scripts\qskope.py" "" "" "" "" "QSkope"
+  CreateShortCut "$DESKTOP\QSkope.lnk" '"$0\python.exe"' '"$0\Scripts\qskope.py"' "" "" "" "" "QSkope"
 
   ; Set up file associations
   SetRegView 32
@@ -480,8 +512,12 @@ install_shortcuts_end:
   Delete "$INSTDIR\*.TXT"
   Delete "$INSTDIR\*.txt"
   Delete "$INSTDIR\*.rst"
-  Delete "$INSTDIR\utilities\toaster\oblivion_optimize.ini"
-  Delete "$INSTDIR\utilities\toaster\default.ini"
+  Delete "$INSTDIR\external\*.*"
+  RMDir "$INSTDIR\external"
+  Delete "$INSTDIR\utilities\toaster\*.*"
+  RMDir "$INSTDIR\utilities\toaster\archive_in"
+  RMDir "$INSTDIR\utilities\toaster\archive_out"
+  RMDir "$INSTDIR\utilities\toaster\patch"
   RMDir "$INSTDIR\utilities\toaster\in"
   RMDir "$INSTDIR\utilities\toaster\out"
   RMDir "$INSTDIR\utilities\toaster"

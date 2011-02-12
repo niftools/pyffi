@@ -3,6 +3,35 @@ Release 2.2.0 (in development)
 
 * Added PSK and PSA file support (used by Unreal engine).
 
+Release 2.1.9 (in development)
+==============================
+
+* Improved documentation of .dir/.img unpack and pack scripts.
+
+* Bugfix in .dir format, so it can now also handle single record
+  images.
+
+* Added new script to make and apply patches (functionality is identical to
+  and OnmyojiOmn's and jonwd7's pyffi patcher scripts, but it is
+  written in Python to work on all platforms).
+
+* New fix_emptyskeletonroots spell (automatically included in the
+  optimize spell) to fix issues with nifs that do not have their
+  NiSkinInstance skeleton root set (fixes #3174085, reported by
+  xjdhdr).
+
+* Fixed logging issue on Windows platform with multithreading enabled
+  (fixes issue #3174339, reported by xjdhdr).
+
+* Fixed QSkope shortcut issue when path contains spaces (reported by
+  Brumbek).
+
+* Added support for BSPackedAdditionalGeometryData (reported by
+  Ghostwalker71, niftools issue #3177847).
+
+* Skip terminal chars in mopper output (fixes issues with running
+  mopper under wine).
+
 Release 2.1.8 (4 February 2011)
 ===============================
 

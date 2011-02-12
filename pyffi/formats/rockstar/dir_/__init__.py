@@ -143,11 +143,17 @@ class DirFormat(pyffi.object_models.xml.FileFormat):
             """
             pos = stream.tell()
             try:
-                off1, size1, file1, off2 = struct.unpack(
-                    "<II24sI", stream.read(36))
+                off1, size1, file1 = struct.unpack(
+                    "<II24s", stream.read(32))
+                try:
+                    off2, = struct.unpack(
+                        "<I", stream.read(4))
+                except struct.error:
+                    # this happens if .dir only contains one file record
+                    off2 = size1
                 if not(off1 == 0
                        #and size1 < 1000 # heuristic
-                       and off2 == off1 + size1
+                       and off2 == size1
                        and file1[-1] == '\x00'):
                     raise ValueError('Not a Rockstar DIR file.')
             finally:
