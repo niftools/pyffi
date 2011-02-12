@@ -41,6 +41,12 @@ import os.path
 import tempfile
 import subprocess
 
+def _skip_terminal_chars(stream):
+    """Skip initial terminal characters (happens when mopper runs via wine)."""
+    firstline = stream.readline()
+    if '\x1b' in firstline:
+        stream.seek(firstline.rfind('\x1b') + 2)
+
 def getMopperPath():
     """Get path to the mopper.
 
@@ -83,6 +89,7 @@ def getMopperCredits():
         # get license info, credit havok (raises OSError on failure)
         subprocess.call([mopper], stdout=outfile)
         outfile.seek(0)
+        _skip_terminal_chars(outfile)
         creditstr = outfile.read().replace("\r\n", "\n")
     finally:
         outfile.close()
@@ -158,6 +165,7 @@ def getMopperOriginScaleCodeWelding(vertices, triangles, material_indices=None):
         subprocess.call([mopper, "--"], stdin=infile, stdout=outfile)
         # process output
         outfile.seek(0)
+        _skip_terminal_chars(outfile)
         try:
             origin = tuple(float(outfile.readline()) for i in xrange(3))
             scale = float(outfile.readline())
