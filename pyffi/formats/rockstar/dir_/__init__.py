@@ -32,7 +32,7 @@ Read a DIR file
 >>> data.files[0].size
 1
 >>> data.files[0].name
-'hello.txt'
+b'hello.txt'
 
 Parse all DIR files in a directory tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -154,7 +154,7 @@ class DirFormat(pyffi.object_models.xml.FileFormat):
                 if not(off1 == 0
                        #and size1 < 1000 # heuristic
                        and off2 == size1
-                       and file1[-1] == '\x00'):
+                       and file1[-1] == 0):
                     raise ValueError('Not a Rockstar DIR file.')
             finally:
                 stream.seek(pos)
