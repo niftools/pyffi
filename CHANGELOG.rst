@@ -27,6 +27,9 @@ Release 2.1.9 (in development)
 * Skip terminal chars in mopper output (fixes issues with running
   mopper under wine).
 
+* Bugfix in patch_recursive_make/apply scripts for "deep" folder
+  layouts (fixes issue 3193914#, reported by xjdhdr).
+
 Release 2.1.8 (4 February 2011)
 ===============================
 
