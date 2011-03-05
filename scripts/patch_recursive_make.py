@@ -69,7 +69,7 @@ def patch_cmd(in_file, out_file, patch_file):
     # create folder for patch_file, if it does not yet exist
     folder = os.path.split(patch_file)[0]
     if not os.path.exists(folder):
-        os.mkdir(folder)
+        os.makedirs(folder)
     # make patch if out_file exists
     if os.path.exists(out_file):
         command = [args.patch_cmd, in_file, out_file, patch_file]
