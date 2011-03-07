@@ -28,7 +28,10 @@ Release 2.1.9 (in development)
   mopper under wine).
 
 * Bugfix in patch_recursive_make/apply scripts for "deep" folder
-  layouts (fixes issue 3193914#, reported by xjdhdr).
+  layouts (fixes issue #3193914, reported by xjdhdr).
+
+* Do not pack collisions in OL_CLUTTER (fixes issue #3194017 reported
+  by Gratis_monsta).
 
 Release 2.1.8 (4 February 2011)
 ===============================
