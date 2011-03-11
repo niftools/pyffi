@@ -33,6 +33,9 @@ Release 2.1.9 (in development)
 * Do not pack collisions in OL_CLUTTER (fixes issue #3194017 reported
   by Gratis_monsta).
 
+* Fixed issue with skipping terminal chars in mopper output on Windows
+  platform (fixes issue #3205569, reported and diagnosed by ulrim).
+
 Release 2.1.8 (4 February 2011)
 ===============================
 
