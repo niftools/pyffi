@@ -690,11 +690,20 @@ class NifFormat(FileFormat):
 
         def read(self, stream, data):
             version_string = self.version_string(data.version, data.modification)
-            s = stream.read(len(version_string) + 1)
-            if s != (version_string + '\x0a').encode("ascii"):
+            s = stream.read(len(version_string))
+            if s != version_string.encode("ascii"):
                 raise ValueError(
                     "invalid NIF header: expected '%s' but got '%s'"
-                    % (version_string, s[:-1]))
+                    % (version_string, s))
+            # for almost all nifs we have version_string + \x0a
+            # but Bully SE has some nifs with version_string + \x0d\x0a
+            # see for example World/BBonusB.nft
+            eol = stream.read(1)
+            if eol == '\x0d'.encode("ascii"):
+                eol = stream.read(1)
+            if eol != '\x0a'.encode("ascii"):
+                raise ValueError(
+                    "invalid NIF header: bad version string eol")
 
         def write(self, stream, data):
             stream.write(self.version_string(data.version, data.modification).encode("ascii"))

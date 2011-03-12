@@ -38,6 +38,8 @@ Release 2.1.9 (in development)
 
 * Updates for Bully SE format (fixes issue reported by Tosyk).
 
+* Bully SE nif header reading fix for BBonusB.nft.
+
 Release 2.1.8 (4 February 2011)
 ===============================
 
