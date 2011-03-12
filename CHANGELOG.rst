@@ -36,6 +36,8 @@ Release 2.1.9 (in development)
 * Fixed issue with skipping terminal chars in mopper output on Windows
   platform (fixes issue #3205569, reported and diagnosed by ulrim).
 
+* Updates for Bully SE format (fixes issue reported by Tosyk).
+
 Release 2.1.8 (4 February 2011)
 ===============================
 
