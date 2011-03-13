@@ -45,6 +45,9 @@ Release 2.1.9 (in development)
 
 * Bugfix for NiMesh read and write.
 
+* Updated dump_pixeldata spell to enable it to export Bully SE's nft
+  files.
+
 Release 2.1.8 (4 February 2011)
 ===============================
 

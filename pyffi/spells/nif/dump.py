@@ -40,6 +40,7 @@
 # --------------------------------------------------------------------------
 
 import BaseHTTPServer
+import ntpath # explicit windows style path manipulations
 import os
 import tempfile
 import types
@@ -293,30 +294,68 @@ class SpellExportPixelData(NifSpell):
                                    NifFormat.ATextureRenderData))
 
     def branchentry(self, branch):
-        if not isinstance(branch, NifFormat.ATextureRenderData):
+        if isinstance(branch, NifFormat.NiSourceTexture) and branch.pixel_data:
+            self.save_as_dds(branch.pixel_data, branch.file_name)
+            return False
+        elif isinstance(branch, NifFormat.ATextureRenderData):
+            self.save_as_dds(branch, os.path.basename(self.stream.name))
+            return False
+        else:
             # keep recursing
             return True
-        else:
-            self.toaster.msg("found pixel data (format %i)"
-                             % branch.pixel_format)
 
-            if not self.toaster.options["dryrun"]:
-                n = 0
-                while True:
-                    filename = "image%03i.dds" % n
-                    if not os.path.exists(filename):
-                        break
-                    n += 1
+    @staticmethod
+    def get_head_root(filename):
+        r"""Transform NiSourceTexture.file_name into something workable.
+
+        >>> SpellExportPixelData.get_head_root("test.tga")
+        ('', 'test')
+        >>> SpellExportPixelData.get_head_root(r"textures\test.tga")
+        ('textures', 'test')
+        >>> SpellExportPixelData.get_head_root(
+        ...     r"Z:\Bully\Temp\Export\Textures\Clothing\P_Pants1\P_Pants1_d.tga")
+        ('textures/clothing/p_pants1', 'p_pants1_d')
+        """
+        # note: have to use ntpath here so we can split correctly
+        # nif convention always uses windows style paths
+        head, tail = ntpath.split(filename)
+        root, ext = ntpath.splitext(tail)
+        # for linux: make paths case insensitive by converting to lower case
+        head = head.lower()
+        root = root.lower()
+        # make relative path for Bully SE
+        tmp1, tmp2, tmp3 = head.partition("\\bully\\temp\\export\\")
+        if tmp2:
+            head = tmp3
+        # for linux: convert backslash to forward slash
+        head = head.replace("\\", "/")
+        return (head, root) if root else ("", "image")
+
+    def get_stream(self, filename):
+        # dry run: no file name
+        if self.toaster.options["dryrun"]:
+            self.toaster.msg("saving as temporary file")
+            return tempfile.TemporaryFile()
+        head, root = self.get_head_root(filename)
+        # create path to image
+        if head:
+            if not os.path.exists(head):
+                self.toaster.msg("creating path %s" % head)
+                os.makedirs(head)
+        # use first available <head>/<root><n>.dds
+        n = 0
+        while True:
+            filename = (
+                os.path.join(head, root)
+                + ("%03i.dds" % n if n != 0 else ".dds"))
+            if not os.path.exists(filename):
                 self.toaster.msg("saving as %s" % filename)
-                stream = open(filename, "wb")
-            else:
-                self.toaster.msg("saving as temporary file")
-                stream = tempfile.TemporaryFile()
+                return open(filename, "wb")
+            n += 1
 
-            try:
-                branch.save_as_dds(stream)
-            finally:
-                stream.close()
-
-            # stop recursing
-            return False
+    def save_as_dds(self, pixeldata, filename):
+        """Save pixeldata as dds file, using the specified filename."""
+        self.toaster.msg("found pixel data (format %i)"
+                         % pixeldata.pixel_format)
+        with self.get_stream(filename) as stream:
+            pixeldata.save_as_dds(stream)
