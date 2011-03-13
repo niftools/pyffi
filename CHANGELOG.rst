@@ -40,7 +40,10 @@ Release 2.1.9 (in development)
 
 * Bully SE nif header reading fix for BBonusB.nft.
 
-* Added initial support for Epic Mickey (reported by Tosyk).
+* Added initial support for Epic Mickey (reported and test files
+  provided by Tosyk).
+
+* Bugfix for NiMesh read and write.
 
 Release 2.1.8 (4 February 2011)
 ===============================
