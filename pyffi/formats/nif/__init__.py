@@ -377,7 +377,8 @@ class NifFormat(FileFormat):
     # .pcpatch are Empire Earth II/III packed texture nif files
     # .item are Divinity 2 nif files
     # .nft are Bully SE nif files (containing textures)
-    RE_FILENAME = re.compile(r'^.*\.(nif|kf|kfa|nifcache|jmi|texcache|pcpatch|nft|item)$', re.IGNORECASE)
+    # .nif_wii are Epic Mickey nif files
+    RE_FILENAME = re.compile(r'^.*\.(nif|kf|kfa|nifcache|jmi|texcache|pcpatch|nft|item|nif_wii)$', re.IGNORECASE)
     # archives
     ARCHIVE_CLASSES = [pyffi.formats.bsa.BsaFormat]
     # used for comparing floats
