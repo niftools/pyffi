@@ -53,11 +53,14 @@ parser.add_argument(
     help="use CMD to make a patch between files; this command must "
     "accept precisely 3 arguments: 'CMD oldfile newfile patchfile'")
 parser.add_argument(
-    'in_folder', type=str, help="folder for original files")
+    'in_folder', type=str,
+    help="folder containing original files")
 parser.add_argument(
-    'out_folder', type=str, help="folder for updated files")
+    'out_folder', type=str,
+    help="folder containing updated files")
 parser.add_argument(
-    'patch_folder', type=str, help="folder for patch files")
+    'patch_folder', type=str,
+    help="folder where patch files will be stored (should be empty)")
 args = parser.parse_args()
 
 # actual script
