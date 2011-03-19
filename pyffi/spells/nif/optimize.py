@@ -274,6 +274,15 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
         if branch in self.optimized:
             # already optimized
             return False
+
+        if branch.data.additional_data:
+            # occurs in fallout nv
+            # not sure how to deal with additional data
+            # so skipping to be on the safe side
+            self.toaster.msg(
+                "mesh has additional geometry data"
+                " which is not well understood: not optimizing")
+            return False
     
         # we found a geometry to optimize
 

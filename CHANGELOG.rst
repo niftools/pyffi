@@ -63,6 +63,9 @@ Release 2.1.9 (in development)
 * Fix vertex cache optimizer to handle more meshes with more than 255
   triangles per vertex (see issue #3218751, reported by krimhorn).
 
+* Skipping meshes that have NiAdditionalGeometryData (until we
+  understand what this data does and how to optimize it).
+
 Release 2.1.8 (4 February 2011)
 ===============================
 
