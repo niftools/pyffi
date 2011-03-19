@@ -57,6 +57,9 @@ Release 2.1.9 (in development)
 * Fix nif optimizer in case it contains tangent space data but no uv
   data (see issue #3218751, reported by krimhorn).
 
+* Handle removal of redundant triangles when updating dismember skin
+  partitions (see issue #3218751, reported by krimhorn).
+
 Release 2.1.8 (4 February 2011)
 ===============================
 

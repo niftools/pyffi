@@ -427,12 +427,18 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                     maximize_bone_sharing = True
                     # update mapping
                     new_triangles = []
-                    for triangle in triangles:
-                        # XXX it could happen that v_map[i] is None
-                        # XXX these triangles should be removed
-                        new_triangles.append(
-                            tuple(v_map[i] for i in triangle))
+                    new_trianglepartmap = []
+                    for triangle, trianglepart in izip(triangles, trianglepartmap):
+                        new_triangle = tuple(v_map[i] for i in triangle)
+                        # it could happen that v_map[i] is None
+                        # these triangles are skipped
+                        # see for instance
+                        # falloutnv/meshes/armor/greatkhans/greatkhan_v3.nif
+                        if new_triangle != (None, None, None):
+                            new_triangles.append(new_triangle)
+                            new_trianglepartmap.append(trianglepart)
                     triangles = new_triangles
+                    trianglepartmap = new_trianglepartmap
                 else:
                     # no body parts
                     triangles = None
