@@ -54,7 +54,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument(
     'patch_cmd', metavar="CMD", type=str,
     help="use CMD to make a patch between files; this command must "
-     "accept at least 3 arguments: 'CMD oldfile newfile patchfile ...'")
+    "accept at least 3 arguments: 'CMD oldfile newfile patchfile ...'")
 parser.add_argument(
     'in_folder', type=str,
     help="folder containing original files")
