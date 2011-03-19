@@ -78,9 +78,6 @@ def patch_cmd(in_file, out_file, patch_file):
         command = [args.patch_cmd, in_file, out_file, patch_file]
         print("applying %s" % patch_file)
         subprocess.call(command)
-    else:
-        print("copying %s (no patch file)" % in_file)
-        shutil.copy(in_file, out_file)
 
 for dirpath, dirnames, filenames in os.walk(args.in_folder):
     for filename in filenames:

@@ -48,6 +48,9 @@ Release 2.1.9 (in development)
 * Updated dump_pixeldata spell to enable it to export Bully SE's nft
   files.
 
+* Disabled copy in patch_recursive_apply script (see issue #3219744,
+  suggested by ulrim).
+
 Release 2.1.8 (4 February 2011)
 ===============================
 
