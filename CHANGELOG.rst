@@ -51,6 +51,9 @@ Release 2.1.9 (in development)
 * Disabled copy in patch_recursive_apply script (see issue #3219744,
   suggested by ulrim).
 
+* Pass additional arguments of patch_recursive_apply/make to the patch
+  command (see issue #3219744, suggested by ulrim).
+
 Release 2.1.8 (4 February 2011)
 ===============================
 
