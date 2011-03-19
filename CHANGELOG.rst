@@ -54,6 +54,9 @@ Release 2.1.9 (in development)
 * Pass additional arguments of patch_recursive_apply/make to the patch
   command (see issue #3219744, suggested by ulrim).
 
+* Fix nif optimizer in case it contains tangent space data but no uv
+  data (see issue #3218751, reported by krimhorn).
+
 Release 2.1.8 (4 February 2011)
 ===============================
 

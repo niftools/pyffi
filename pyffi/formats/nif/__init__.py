@@ -6120,7 +6120,14 @@ class NifFormat(FileFormat):
             if len(self.data.uv_sets) > 0:
                 uvs   = self.data.uv_sets[0]
             else:
-                return # no uv sets so no tangent space
+                # no uv sets so no tangent space
+                # we clear the tangents space flag just
+                # happens in Fallout NV
+                # meshes/architecture/bouldercity/arcadeendl.nif
+                # (see issue #3218751)
+                self.data.num_uv_sets &= ~4096
+                self.data.bs_num_uv_sets &= ~4096
+                return
 
             # check that shape has norms and uvs
             if len(uvs) == 0 or len(norms) == 0: return
