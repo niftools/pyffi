@@ -434,7 +434,8 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                         # these triangles are skipped
                         # see for instance
                         # falloutnv/meshes/armor/greatkhans/greatkhan_v3.nif
-                        if new_triangle != (None, None, None):
+                        # falloutnv/meshes/armor/tunnelsnake01/m/outfitm.nif
+                        if None not in new_triangle:
                             new_triangles.append(new_triangle)
                             new_trianglepartmap.append(trianglepart)
                     triangles = new_triangles
