@@ -60,6 +60,9 @@ Release 2.1.9 (in development)
 * Handle removal of redundant triangles when updating dismember skin
   partitions (see issue #3218751, reported by krimhorn).
 
+* Fix vertex cache optimizer to handle more meshes with more than 255
+  triangles per vertex (see issue #3218751, reported by krimhorn).
+
 Release 2.1.8 (4 February 2011)
 ===============================
 
