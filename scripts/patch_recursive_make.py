@@ -47,18 +47,24 @@ import subprocess
 
 # configuration options
 
-parser = argparse.ArgumentParser(description=__doc__)
+parser = argparse.ArgumentParser(
+    description=__doc__,
+    epilog=
+    "All additional arguments are passed to the patch command CMD.")
 parser.add_argument(
     'patch_cmd', metavar="CMD", type=str,
     help="use CMD to make a patch between files; this command must "
-    "accept precisely 3 arguments: 'CMD oldfile newfile patchfile'")
+    "accept at least 3 arguments: 'CMD oldfile newfile patchfile ...'")
 parser.add_argument(
-    'in_folder', type=str, help="folder for original files")
+    'in_folder', type=str,
+    help="folder containing original files")
 parser.add_argument(
-    'out_folder', type=str, help="folder for updated files")
+    'out_folder', type=str,
+    help="folder containing updated files")
 parser.add_argument(
-    'patch_folder', type=str, help="folder for patch files")
-args = parser.parse_args()
+    'patch_folder', type=str,
+    help="folder where patch files will be stored (should be empty)")
+args, unknown_args = parser.parse_known_args()
 
 # actual script
 
@@ -72,7 +78,7 @@ def patch_cmd(in_file, out_file, patch_file):
         os.makedirs(folder)
     # make patch if out_file exists
     if os.path.exists(out_file):
-        command = [args.patch_cmd, in_file, out_file, patch_file]
+        command = [args.patch_cmd, in_file, out_file, patch_file] + unknown_args
         print("making %s" % patch_file)
         subprocess.call(command)
     else:

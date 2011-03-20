@@ -46,6 +46,8 @@ def _skip_terminal_chars(stream):
     firstline = stream.readline()
     if '\x1b' in firstline:
         stream.seek(firstline.rfind('\x1b') + 2)
+    else:
+        stream.seek(0)
 
 def getMopperPath():
     """Get path to the mopper.

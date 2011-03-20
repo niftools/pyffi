@@ -377,7 +377,8 @@ class NifFormat(FileFormat):
     # .pcpatch are Empire Earth II/III packed texture nif files
     # .item are Divinity 2 nif files
     # .nft are Bully SE nif files (containing textures)
-    RE_FILENAME = re.compile(r'^.*\.(nif|kf|kfa|nifcache|jmi|texcache|pcpatch|nft|item)$', re.IGNORECASE)
+    # .nif_wii are Epic Mickey nif files
+    RE_FILENAME = re.compile(r'^.*\.(nif|kf|kfa|nifcache|jmi|texcache|pcpatch|nft|item|nif_wii)$', re.IGNORECASE)
     # archives
     ARCHIVE_CLASSES = [pyffi.formats.bsa.BsaFormat]
     # used for comparing floats
@@ -694,11 +695,20 @@ class NifFormat(FileFormat):
 
         def read(self, stream, data):
             version_string = self.version_string(data.version, data.modification)
-            s = stream.read(len(version_string) + 1)
-            if s != (version_string + '\x0a').encode("ascii"):
+            s = stream.read(len(version_string))
+            if s != version_string.encode("ascii"):
                 raise ValueError(
                     "invalid NIF header: expected '%s' but got '%s'"
-                    % (version_string, s[:-1]))
+                    % (version_string, s))
+            # for almost all nifs we have version_string + \x0a
+            # but Bully SE has some nifs with version_string + \x0d\x0a
+            # see for example World/BBonusB.nft
+            eol = stream.read(1)
+            if eol == '\x0d'.encode("ascii"):
+                eol = stream.read(1)
+            if eol != '\x0a'.encode("ascii"):
+                raise ValueError(
+                    "invalid NIF header: bad version string eol")
 
         def write(self, stream, data):
             stream.write(self.version_string(data.version, data.modification).encode("ascii"))
@@ -1386,7 +1396,7 @@ class NifFormat(FileFormat):
                 # complete NiDataStream data
                 if block_type == "NiDataStream":
                     block.usage = data_stream_usage
-                    block.access.from_int(data_stream_access)
+                    block.access.from_int(data_stream_access, self)
                 # store block index
                 self._block_dct[block_index] = block
                 self.blocks.append(block)
@@ -1562,9 +1572,8 @@ class NifFormat(FileFormat):
             block_type = root.__class__.__name__
             # special case: NiDataStream stores part of data in block type list
             if block_type == "NiDataStream":
-                # XXX assumed here that root.access is version independent!!
-                block_type = "NiDataStream\x01%i\x01%i" % (root.usage,
-                                                           root.access.to_int())
+                block_type = ("NiDataStream\x01%i\x01%i"
+                              % (root.usage, root.access.to_int(self)))
             try:
                 block_type_dct[root] = block_type_list.index(block_type)
             except ValueError:
@@ -6114,7 +6123,14 @@ class NifFormat(FileFormat):
             if len(self.data.uv_sets) > 0:
                 uvs   = self.data.uv_sets[0]
             else:
-                return # no uv sets so no tangent space
+                # no uv sets so no tangent space
+                # we clear the tangents space flag just
+                # happens in Fallout NV
+                # meshes/architecture/bouldercity/arcadeendl.nif
+                # (see issue #3218751)
+                self.data.num_uv_sets &= ~4096
+                self.data.bs_num_uv_sets &= ~4096
+                return
 
             # check that shape has norms and uvs
             if len(uvs) == 0 or len(norms) == 0: return

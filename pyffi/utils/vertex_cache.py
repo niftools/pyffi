@@ -158,8 +158,11 @@ class VertexScore:
             vertex_info.score = self.CACHE_SCORE[vertex_info.cache_position]
 
         # bonus points for having low number of triangles still in use
+        # note: example mesh with more than 255 triangles per vertex is
+        # falloutnv/meshes/landscape/lod/freesidefortworld/freesidefortworld.level8.x-9.y1.nif
         vertex_info.score += self.VALENCE_SCORE[
-            len(vertex_info.triangle_indices)]
+            min(len(vertex_info.triangle_indices),
+                self.MAX_TRIANGLES_PER_VERTEX)]
 
 class VertexInfo:
     """Stores information about a vertex."""

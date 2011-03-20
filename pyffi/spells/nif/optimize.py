@@ -274,6 +274,15 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
         if branch in self.optimized:
             # already optimized
             return False
+
+        if branch.data.additional_data:
+            # occurs in fallout nv
+            # not sure how to deal with additional data
+            # so skipping to be on the safe side
+            self.toaster.msg(
+                "mesh has additional geometry data"
+                " which is not well understood: not optimizing")
+            return False
     
         # we found a geometry to optimize
 
@@ -427,12 +436,19 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                     maximize_bone_sharing = True
                     # update mapping
                     new_triangles = []
-                    for triangle in triangles:
-                        # XXX it could happen that v_map[i] is None
-                        # XXX these triangles should be removed
-                        new_triangles.append(
-                            tuple(v_map[i] for i in triangle))
+                    new_trianglepartmap = []
+                    for triangle, trianglepart in izip(triangles, trianglepartmap):
+                        new_triangle = tuple(v_map[i] for i in triangle)
+                        # it could happen that v_map[i] is None
+                        # these triangles are skipped
+                        # see for instance
+                        # falloutnv/meshes/armor/greatkhans/greatkhan_v3.nif
+                        # falloutnv/meshes/armor/tunnelsnake01/m/outfitm.nif
+                        if None not in new_triangle:
+                            new_triangles.append(new_triangle)
+                            new_trianglepartmap.append(trianglepart)
                     triangles = new_triangles
+                    trianglepartmap = new_trianglepartmap
                 else:
                     # no body parts
                     triangles = None
@@ -1040,6 +1056,11 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
             return False
         elif (isinstance(branch, NifFormat.bhkRigidBody)
               and isinstance(branch.shape, NifFormat.bhkNiTriStripsShape)):
+            if branch.layer == NifFormat.OblivionLayer.OL_CLUTTER:
+                # packed collisions do not work for clutter
+                # so skip it
+                # see issue #3194017 reported by Gratis_monsta
+                return False
             # unpacked collision: convert to packed
             self.toaster.msg(_("packing collision"))
             new_shape = branch.shape.get_interchangeable_packed_shape()

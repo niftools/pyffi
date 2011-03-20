@@ -33,7 +33,46 @@ Release 2.1.9 (in development)
   mopper under wine).
 
 * Bugfix in patch_recursive_make/apply scripts for "deep" folder
-  layouts (fixes issue 3193914#, reported by xjdhdr).
+  layouts (fixes issue #3193914, reported by xjdhdr).
+
+* Do not pack collisions in OL_CLUTTER (fixes issue #3194017 reported
+  by Gratis_monsta).
+
+* Fixed issue with skipping terminal chars in mopper output on Windows
+  platform (fixes issue #3205569, reported and diagnosed by ulrim).
+
+* Updates for Bully SE format (fixes issue reported by Tosyk).
+
+* Bully SE nif header reading fix for BBonusB.nft.
+
+* Added initial support for Epic Mickey (reported and test files
+  provided by Tosyk).
+
+* Bugfix for NiMesh read and write.
+
+* Updated dump_pixeldata spell to enable it to export Bully SE's nft
+  files.
+
+* Disabled copy in patch_recursive_apply script (see issue #3219744,
+  suggested by ulrim).
+
+* Pass additional arguments of patch_recursive_apply/make to the patch
+  command (see issue #3219744, suggested by ulrim).
+
+* Fix nif optimizer in case it contains tangent space data but no uv
+  data (see issue #3218751, reported by krimhorn).
+
+* Handle removal of redundant triangles when updating dismember skin
+  partitions (see issue #3218751, reported by krimhorn).
+
+* Fix vertex cache optimizer to handle more meshes with more than 255
+  triangles per vertex (see issue #3218751, reported by krimhorn).
+
+* Skipping meshes that have NiAdditionalGeometryData (until we
+  understand what this data does and how to optimize it).
+
+* Sane default settings for bhkRigidBody unknowns to ensure that
+  constraints behave properly (contributed by Koniption).
 
 Release 2.1.8 (4 February 2011)
 ===============================

@@ -42,6 +42,7 @@ import pyffi.spells.nif
 import pyffi.spells.nif.fix
 import pyffi.spells.nif.modify
 import pyffi.spells.nif.check
+import pyffi.spells.nif.dump
 # these two do not yet work on py3k
 if sys.version_info[0] < 3:
     import pyffi.object_models.xsd
