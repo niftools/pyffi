@@ -66,6 +66,9 @@ Release 2.1.9 (in development)
 * Skipping meshes that have NiAdditionalGeometryData (until we
   understand what this data does and how to optimize it).
 
+* Sane default settings for bhkRigidBody unknowns to ensure that
+  constraints behave properly (contributed by Koniption).
+
 Release 2.1.8 (4 February 2011)
 ===============================
 
