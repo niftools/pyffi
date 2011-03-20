@@ -146,7 +146,7 @@ try:
 except ImportError:
     # < py26
     multiprocessing = None
-import optparse
+import argparse
 import os # remove
 import os.path # getsize, split, join
 import re # for regex parsing (--skip, --only)
@@ -885,161 +885,153 @@ class Toaster(object):
         #print("not admissible") # debug
         return False
 
-    @staticmethod
-    def parse_inifile(option, opt, value, parser, toaster=None):
-        r"""Initializes spell classes and options from an ini file.
+    class ActionParseIniFile(argparse.Action):
+        def __call__(self, parser, namespace, values, option_string=None):
+            r"""Initializes spell classes and options from an ini file.
 
-        >>> import pyffi.spells.nif
-        >>> import pyffi.spells.nif.modify
-        >>> class NifToaster(pyffi.spells.nif.NifToaster):
-        ...     SPELLS = [pyffi.spells.nif.modify.SpellDelBranches]
-        >>> import tempfile
-        >>> cfg = tempfile.NamedTemporaryFile(delete=False)
-        >>> cfg.write("[main]\n")
-        >>> cfg.write("spell = modify_delbranches\n")
-        >>> cfg.write("folder = tests/nif/test_vertexcolor.nif\n")
-        >>> cfg.write("[options]\n")
-        >>> cfg.write("source-dir = tests/\n")
-        >>> cfg.write("dest-dir = _tests/\n")
-        >>> cfg.write("exclude = NiVertexColorProperty NiStencilProperty\n")
-        >>> cfg.write("skip = 'testing quoted string'    normal_string\n")
-        >>> cfg.close()
-        >>> toaster = NifToaster(logger=fake_logger)
-        >>> import sys
-        >>> sys.argv = [
-        ...     "niftoaster.py",
-        ...     "--ini-file=utilities/toaster/default.ini",
-        ...     "--ini-file=%s" % cfg.name,
-        ...     "--noninteractive", "--jobs=1"]
-        >>> toaster.cli()
-        pyffi.toaster:INFO:=== tests/nif/test_vertexcolor.nif ===
-        pyffi.toaster:INFO:  --- modify_delbranches ---
-        pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
-        pyffi.toaster:INFO:      ~~~ NiTriStrips [Cube] ~~~
-        pyffi.toaster:INFO:        ~~~ NiStencilProperty [] ~~~
-        pyffi.toaster:INFO:          stripping this branch
-        pyffi.toaster:INFO:        ~~~ NiSpecularProperty [] ~~~
-        pyffi.toaster:INFO:        ~~~ NiMaterialProperty [Material] ~~~
-        pyffi.toaster:INFO:        ~~~ NiVertexColorProperty [] ~~~
-        pyffi.toaster:INFO:          stripping this branch
-        pyffi.toaster:INFO:        ~~~ NiTriStripsData [] ~~~
-        pyffi.toaster:INFO:creating destination path _tests/nif
-        pyffi.toaster:INFO:  writing _tests/nif/test_vertexcolor.nif
-        pyffi.toaster:INFO:Finished.
-        >>> import os
-        >>> os.remove(cfg.name)
-        >>> os.remove("_tests/nif/test_vertexcolor.nif")
-        >>> os.rmdir("_tests/nif/")
-        >>> os.rmdir("_tests/")
-        >>> for name, value in sorted(toaster.options.items()):
-        ...     print("%s: %s" % (name, value))
-        applypatch: False
-        archives: False
-        arg: 
-        createpatch: False
-        destdir: _tests/
-        diffcmd: 
-        dryrun: False
-        examples: False
-        exclude: ['NiVertexColorProperty', 'NiStencilProperty']
-        helpspell: False
-        include: []
-        inifile: 
-        interactive: False
-        jobs: 1
-        only: []
-        patchcmd: 
-        pause: True
-        prefix: 
-        raisetesterror: False
-        refresh: 32
-        resume: True
-        series: False
-        skip: ['testing quoted string', 'normal_string']
-        sourcedir: tests/
-        spells: False
-        suffix: 
-        verbose: 1
-        """
-        ini_parser = ConfigParser()
-        # read config file(s)
-        ini_parser.read(value)
-        # process all options
-        for opt_str, opt_values in ini_parser.items("options"):
-            option = parser._long_opt["--" + opt_str]
-            for opt_value in shlex.split(opt_values):
-                option.process(opt_str, opt_value, parser.values, parser)
-        # get spells and top folder
-        if ini_parser.has_option("main", "spell"):
-            toaster.spellnames.extend(ini_parser.get("main", "spell").split())
-        if ini_parser.has_option("main", "folder"):
-            toaster.top = ini_parser.get("main", "folder")
+            >>> import pyffi.spells.nif
+            >>> import pyffi.spells.nif.modify
+            >>> class NifToaster(pyffi.spells.nif.NifToaster):
+            ...     SPELLS = [pyffi.spells.nif.modify.SpellDelBranches]
+            >>> import tempfile
+            >>> cfg = tempfile.NamedTemporaryFile(delete=False)
+            >>> cfg.write("[main]\n")
+            >>> cfg.write("spell = modify_delbranches\n")
+            >>> cfg.write("folder = tests/nif/test_vertexcolor.nif\n")
+            >>> cfg.write("[options]\n")
+            >>> cfg.write("source-dir = tests/\n")
+            >>> cfg.write("dest-dir = _tests/\n")
+            >>> cfg.write("exclude = NiVertexColorProperty NiStencilProperty\n")
+            >>> cfg.write("skip = 'testing quoted string'    normal_string\n")
+            >>> cfg.close()
+            >>> toaster = NifToaster(logger=fake_logger)
+            >>> import sys
+            >>> sys.argv = [
+            ...     "niftoaster.py",
+            ...     "--ini-file=utilities/toaster/default.ini",
+            ...     "--ini-file=%s" % cfg.name,
+            ...     "--noninteractive", "--jobs=1"]
+            >>> toaster.cli()
+            pyffi.toaster:INFO:=== tests/nif/test_vertexcolor.nif ===
+            pyffi.toaster:INFO:  --- modify_delbranches ---
+            pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
+            pyffi.toaster:INFO:      ~~~ NiTriStrips [Cube] ~~~
+            pyffi.toaster:INFO:        ~~~ NiStencilProperty [] ~~~
+            pyffi.toaster:INFO:          stripping this branch
+            pyffi.toaster:INFO:        ~~~ NiSpecularProperty [] ~~~
+            pyffi.toaster:INFO:        ~~~ NiMaterialProperty [Material] ~~~
+            pyffi.toaster:INFO:        ~~~ NiVertexColorProperty [] ~~~
+            pyffi.toaster:INFO:          stripping this branch
+            pyffi.toaster:INFO:        ~~~ NiTriStripsData [] ~~~
+            pyffi.toaster:INFO:creating destination path _tests/nif
+            pyffi.toaster:INFO:  writing _tests/nif/test_vertexcolor.nif
+            pyffi.toaster:INFO:Finished.
+            >>> import os
+            >>> os.remove(cfg.name)
+            >>> os.remove("_tests/nif/test_vertexcolor.nif")
+            >>> os.rmdir("_tests/nif/")
+            >>> os.rmdir("_tests/")
+            >>> for name, value in sorted(toaster.options.items()):
+            ...     print("%s: %s" % (name, value))
+            applypatch: False
+            archives: False
+            arg: 
+            createpatch: False
+            destdir: _tests/
+            diffcmd: 
+            dryrun: False
+            examples: False
+            exclude: ['NiVertexColorProperty', 'NiStencilProperty']
+            helpspell: False
+            include: []
+            inifile: 
+            interactive: False
+            jobs: 1
+            only: []
+            patchcmd: 
+            pause: True
+            prefix: 
+            raisetesterror: False
+            refresh: 32
+            resume: True
+            series: False
+            skip: ['testing quoted string', 'normal_string']
+            sourcedir: tests/
+            spells: False
+            suffix: 
+            verbose: 1
+            """
+            ini_parser = ConfigParser()
+            # read config file(s)
+            ini_parser.read(option_string)
+            # process all options
+            for opt_str, opt_values in ini_parser.items("options"):
+                parser.parse_args("--" + opt_str, shlex.split(opt_values))
+            # get spells and top folder
+            if ini_parser.has_option("main", "spell"):
+                namespace.spell.extend(ini_parser.get("main", "spell").split())
+            if ini_parser.has_option("main", "folder"):
+                namespace.path = ini_parser.get("main", "folder")
 
     def cli(self):
         """Command line interface: initializes spell classes and options from
         the command line, and run the :meth:`toast` method.
         """
         # parse options and positional arguments
-        usage = "%prog [options] <spell1> <spell2> ... <file>|<folder>"
-        description = (
-            "Apply the spells <spell1>, <spell2>, and so on,"
-            " on <file>, or recursively on <folder>.")
-        errormessage_numargs = (
-            "incorrect number of arguments (use the --help option for help)")
-
-        parser = optparse.OptionParser(
-            usage,
-            version="%%prog (PyFFI %s)" % pyffi.__version__,
-            description=description)
-        parser.add_option(
+        parser = argparse.ArgumentParser(
+            description="Apply spells on a file, or recursively on a folder.")
+        parser.add_argument(
+            "--version", action="version",
+            version="%(prog)s {}".format(pyffi.__version__))
+        parser.add_argument(
             "--archives", dest="archives",
             action="store_true",
             help="also parse files inside archives")
-        parser.add_option(
+        parser.add_argument(
             "-a", "--arg", dest="arg",
-            type="string",
+            type=str,
             metavar="ARG",
             help="pass argument ARG to each spell")
-        parser.add_option(
+        parser.add_argument(
             "--dest-dir", dest="destdir",
-            type="string",
+            type=str,
             metavar="DESTDIR",
             help=
             "write files to DESTDIR"
             " instead of overwriting the original;"
             " this is done by replacing SOURCEDIR by DESTDIR"
             " in all source file paths")
-        parser.add_option(
+        parser.add_argument(
             "--diff", dest="createpatch",
             action="store_true",
             help=
             "write a binary patch"
             " instead of overwriting the original")
-        parser.add_option(
+        parser.add_argument(
             "--diff-cmd", dest="diffcmd",
-            type="string",
+            type=str,
             metavar="CMD",
             help=
             "use CMD as diff command; this command must accept precisely"
             " 3 arguments: 'CMD oldfile newfile patchfile'.")
-        parser.add_option(
+        parser.add_argument(
             "--dry-run", dest="dryrun",
             action="store_true",
             help=
             "save modification to temporary file"
             " instead of overwriting the original"
             " (for debugging)")
-        parser.add_option(
+        parser.add_argument(
             "--examples", dest="examples",
             action="store_true",
             help="show examples of usage and exit")
-        parser.add_option(
+        parser.add_argument(
             "--help-spell", dest="helpspell",
             action="store_true",
             help="show help specific to the given spells")
-        parser.add_option(
+        parser.add_argument(
             "-i", "--include", dest="include",
-            type="string",
+            type=str,
             action="append",
             metavar="BLOCK",
             help=
@@ -1047,29 +1039,27 @@ class Toaster(object):
             " not specified, then all block types are included except"
             " those specified under --exclude; include multiple block"
             " types by specifying this option more than once")
-        parser.add_option(
+        parser.add_argument(
             "--ini-file", dest="inifile",
-            type="string",
-            action="callback",
-            callback=self.parse_inifile,
-            callback_kwargs={'toaster': self},
+            type=str,
+            action=self.ActionParseIniFile,
             metavar="FILE",
             help=
             "read all options from FILE; if specified, all other arguments"
             " are ignored; to take options from multiple ini files, specify"
             " more than once")
-        parser.add_option(
+        parser.add_argument(
             "-j", "--jobs", dest="jobs",
-            type="int",
+            type=int,
             metavar="JOBS",
-            help="allow JOBS jobs at once [default: %default]")
-        parser.add_option(
+            help="allow JOBS jobs at once")# [default: %default]")
+        parser.add_argument(
             "--noninteractive", dest="interactive",
             action="store_false",
             help="non-interactive session (overwrites files without warning)")
-        parser.add_option(
+        parser.add_argument(
             "--only", dest="only",
-            type="string",
+            type=str,
             action="append",
             metavar="REGEX",
             help=
@@ -1077,93 +1067,101 @@ class Toaster(object):
             " (i) contain the regular expression REGEX, and"
             " (ii) do not contain any regular expression specified with --skip;"
             " if specified multiple times, the expressions are 'ored'")
-        parser.add_option(
+        parser.add_argument(
             "--overwrite", dest="resume",
             action="store_false",
             help="overwrite existing files (also see --resume)")
-        parser.add_option(
+        parser.add_argument(
             "--patch", dest="applypatch",
             action="store_true",
             help="apply all binary patches")
-        parser.add_option(
+        parser.add_argument(
             "--patch-cmd", dest="patchcmd",
-            type="string",
+            type=str,
             metavar="CMD",
             help=
             "use CMD as patch command; this command must accept precisely "
             "3 arguments: 'CMD oldfile newfile patchfile'.""")
-        parser.add_option(
+        parser.add_argument(
             "-p", "--pause", dest="pause",
             action="store_true",
             help="pause when done")
-        parser.add_option(
+        parser.add_argument(
             "--prefix", dest="prefix",
-            type="string",
+            type=str,
             metavar="PREFIX",
             help=
             "prepend PREFIX to file name when saving modification"
             " instead of overwriting the original")
-        parser.add_option(
+        parser.add_argument(
             "-r", "--raise", dest="raisetesterror",
             action="store_true",
             help="raise exception on errors during the spell (for debugging)")
-        parser.add_option(
+        parser.add_argument(
             "--refresh", dest="refresh",
-            type="int",
+            type=int,
             metavar="REFRESH",
             help=
             "start new process pool every JOBS * REFRESH files"
             " if JOBS is 2 or more"
             " (when processing a large number of files, this prevents"
-            " leaking memory on some operating systems) [default: %default]")
-        parser.add_option(
+            " leaking memory on some operating systems)")# [default: %default]")
+        parser.add_argument(
             "--resume", dest="resume",
             action="store_true",
             help="do not overwrite existing files")
-        parser.add_option(
+        parser.add_argument(
             "--series", dest="series",
             action="store_true",
             help="run spells in series rather than in parallel")
-        parser.add_option(
+        parser.add_argument(
             "--skip", dest="skip",
-            type="string",
+            type=str,
             action="append",
             metavar="REGEX",
             help=
             "skip all files whose names contain the regular expression REGEX"
             " (takes precedence over --only);"
             " if specified multiple times, the expressions are 'ored'")
-        parser.add_option(
+        parser.add_argument(
             "--source-dir", dest="sourcedir",
-            type="string",
+            type=str,
             metavar="SOURCEDIR",
             help=
             "see --dest-dir")
-        parser.add_option(
+        parser.add_argument(
             "--spells", dest="spells",
             action="store_true",
             help="list all spells and exit")
-        parser.add_option(
+        parser.add_argument(
             "--suffix", dest="suffix",
-            type="string",
+            type=str,
             metavar="SUFFIX",
             help="append SUFFIX to file name when saving modification"
             " instead of overwriting the original")
-        parser.add_option(
+        parser.add_argument(
             "-v", "--verbose", dest="verbose",
-            type="int",
+            type=int,
             metavar="LEVEL",
-            help="verbosity level: 0, 1, or 2 [default: %default]")
-        parser.add_option(
+            help="verbosity level: 0, 1, or 2")# [default: %default]")
+        parser.add_argument(
             "-x", "--exclude", dest="exclude",
-            type="string",
+            type=str,
             action="append",
             metavar="BLOCK",
             help=
             "exclude block type BLOCK from spell; exclude multiple"
             " block types by specifying this option more than once")
+        parser.add_argument(
+            "spell", nargs='+',
+            type=str,
+            help="a spell to execute")
+        parser.add_argument(
+            "path",
+            type=str,
+            help="the path on which to cast the spells")
         parser.set_defaults(**deepcopy(self.DEFAULT_OPTIONS))
-        (options, args) = parser.parse_args()
+        options = parser.parse_args()
 
         # convert options to dictionary
         self.options = {}
