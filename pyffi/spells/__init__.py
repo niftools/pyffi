@@ -394,7 +394,7 @@ class Spell(object):
         spells that write to different file(s) can override this
         method.
         """
-        toaster.get_toast_stream(filename, test_exists=test_exists)
+        return toaster.get_toast_stream(filename, test_exists=test_exists)
 
 class SpellGroupBase(Spell):
     """Base class for grouping spells. This implements all the spell grouping
@@ -1513,7 +1513,7 @@ may destroy them. Make a backup of your files before running this script.
             else:
                 self.msg("writing to temporary file")
                 return tempfile.TemporaryFile()
-        head, root, ext = self.get_toast_head_root_ext(self, filename)
+        head, root, ext = self.get_toast_head_root_ext(filename)
         if not os.path.exists(head):
             if test_exists:
                 # path does not exist, so file definitely does
@@ -1536,7 +1536,7 @@ may destroy them. Make a backup of your files before running this script.
         """Writes the data to data and raises an exception if the
         write fails, but restores file if fails on overwrite.
         """
-        outstream = self.spellclass.get_toast_stream(stream.name)
+        outstream = self.spellclass.get_toast_stream(self, stream.name)
         if stream is outstream:
             # make backup
             stream.seek(0)
@@ -1575,7 +1575,7 @@ may destroy them. Make a backup of your files before running this script.
 
         # create a temporary file that won't get deleted when closed
         self.options["suffix"] = ".tmp"
-        newfile = self.spellclass.get_toast_stream(stream.name)
+        newfile = self.spellclass.get_toast_stream(self, stream.name)
         try:
             data.write(newfile)
         except: # not just Exception, also CTRL-C
