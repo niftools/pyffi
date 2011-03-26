@@ -277,11 +277,26 @@ class SpellHtmlReport(NifSpell):
         server.handle_request()           
 
 class SpellExportPixelData(NifSpell):
-    """Export embedded images as DDS files. If the toaster's 'dryrun' option is
-    enabled, the image is written to a temporary file, otherwise, it is written
-    to 'imagexxx.dds' where xxx is chosen in a way that no file is overwritten.
+    """Export embedded images as DDS files. If the toaster's
+    ``--dryrun`` option is enabled, the image is written to a
+    temporary file, otherwise, if no further path information is
+    stored in the nif, it is written to
+    ``<nifname>-pixeldata-<n>.dds``. If a path is stored in the nif,
+    then the original file path is used.
+
+    The ``--arg`` option is used to strip the folder part of the path
+    and to replace it with something else (this is sometimes useful,
+    such as in Bully nft files).
+
+    The file extension is forced to ``.dds``.
     """
+
     SPELLNAME = "dump_pixeldata"
+
+    def __init__(self, *args, **kwargs):
+        NifSpell.__init__(self, *args, **kwargs)
+        self.pixeldata_counter = 0
+        """Increments on each pixel data block."""
 
     def datainspect(self):
         return self.inspectblocktype(NifFormat.ATextureRenderData)
@@ -294,68 +309,94 @@ class SpellExportPixelData(NifSpell):
                                    NifFormat.ATextureRenderData))
 
     def branchentry(self, branch):
-        if isinstance(branch, NifFormat.NiSourceTexture) and branch.pixel_data:
+
+        if (isinstance(branch, NifFormat.NiSourceTexture)
+            and branch.pixel_data and branch.file_name):
             self.save_as_dds(branch.pixel_data, branch.file_name)
             return False
         elif isinstance(branch, NifFormat.ATextureRenderData):
-            self.save_as_dds(branch, os.path.basename(self.stream.name))
+            filename = "%s-pixeldata-%i" % (
+                os.path.basename(self.stream.name),
+                self.pixeldata_counter)
+            self.save_as_dds(branch, filename)
+            self.pixeldata_counter += 1
             return False
         else:
             # keep recursing
             return True
 
+    @classmethod
+    def get_toast_stream(cls, toaster, filename, test_exists=False):
+        """We do not toast the original file, so stream construction
+        is delegated to :meth:`get_toast_pixeldata_stream`.
+        """
+        if test_exists:
+            return False
+        else:
+            return None
+
     @staticmethod
-    def get_head_root(filename):
+    def get_pixeldata_head_root(texture_filename):
         r"""Transform NiSourceTexture.file_name into something workable.
 
-        >>> SpellExportPixelData.get_head_root("test.tga")
+        >>> SpellExportPixelData.get_pixeldata_head_root("test.tga")
         ('', 'test')
-        >>> SpellExportPixelData.get_head_root(r"textures\test.tga")
+        >>> SpellExportPixelData.get_pixeldata_head_root(r"textures\test.tga")
         ('textures', 'test')
-        >>> SpellExportPixelData.get_head_root(
+        >>> SpellExportPixelData.get_pixeldata_head_root(
         ...     r"Z:\Bully\Temp\Export\Textures\Clothing\P_Pants1\P_Pants1_d.tga")
         ('textures/clothing/p_pants1', 'p_pants1_d')
         """
         # note: have to use ntpath here so we can split correctly
         # nif convention always uses windows style paths
-        head, tail = ntpath.split(filename)
+        head, tail = ntpath.split(texture_filename)
         root, ext = ntpath.splitext(tail)
         # for linux: make paths case insensitive by converting to lower case
         head = head.lower()
         root = root.lower()
+        # XXX following is disabled because not all textures in Bully
+        # XXX actually have this form; use "-a textures" for this game
         # make relative path for Bully SE
-        tmp1, tmp2, tmp3 = head.partition("\\bully\\temp\\export\\")
-        if tmp2:
-            head = tmp3
+        #tmp1, tmp2, tmp3 = head.partition("\\bully\\temp\\export\\")
+        #if tmp2:
+        #    head = tmp3
         # for linux: convert backslash to forward slash
         head = head.replace("\\", "/")
         return (head, root) if root else ("", "image")
 
-    def get_stream(self, filename):
+    def get_toast_pixeldata_stream(self, texture_filename):
         # dry run: no file name
         if self.toaster.options["dryrun"]:
             self.toaster.msg("saving as temporary file")
             return tempfile.TemporaryFile()
-        head, root = self.get_head_root(filename)
-        # create path to image
+        # get head and root, and override head if requested
+        head, root = self.get_pixeldata_head_root(texture_filename)
+        if self.toaster.options["arg"]:
+            head = self.toaster.options["arg"]
+        # create path to file of the to be exported pixeldata
+        toast_head = self.toaster.get_toast_head_root_ext(self.stream.name)[0]
+        head = os.path.join(toast_head, head)
         if head:
             if not os.path.exists(head):
                 self.toaster.msg("creating path %s" % head)
                 os.makedirs(head)
-        # use first available <head>/<root><n>.dds
-        n = 0
-        while True:
-            filename = (
-                os.path.join(head, root)
-                + ("%03i.dds" % n if n != 0 else ".dds"))
-            if not os.path.exists(filename):
-                self.toaster.msg("saving as %s" % filename)
-                return open(filename, "wb")
-            n += 1
+        # create file
+        filename = os.path.join(head, root) + ".dds"
+        if self.toaster.options["resume"]:
+            if os.path.exists(filename):
+                self.toaster.msg("%s (already done)" % filename)
+                return None
+        self.toaster.msg("saving as %s" % filename)
+        return open(filename, "wb")
 
-    def save_as_dds(self, pixeldata, filename):
+    def save_as_dds(self, pixeldata, texture_filename):
         """Save pixeldata as dds file, using the specified filename."""
         self.toaster.msg("found pixel data (format %i)"
                          % pixeldata.pixel_format)
-        with self.get_stream(filename) as stream:
-            pixeldata.save_as_dds(stream)
+        try:
+            stream = self.get_toast_pixeldata_stream(texture_filename)
+            if stream:
+                pixeldata.save_as_dds(stream)
+        finally:
+            if stream:
+                stream.close()

@@ -69,6 +69,8 @@ Release 2.1.9 (26 March 2011)
 * Sane default settings for bhkRigidBody unknowns to ensure that
   constraints behave properly (contributed by Koniption).
 
+* Added ini file to unpack Bully SE .nft files.
+
 Release 2.1.8 (4 February 2011)
 ===============================
 
