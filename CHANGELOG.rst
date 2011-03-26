@@ -1,5 +1,5 @@
-Release 2.1.9 (in development)
-==============================
+Release 2.1.9 (26 March 2011)
+=============================
 
 * Improved documentation of .dir/.img unpack and pack scripts.
 
