@@ -370,6 +370,7 @@ install_argparse_end_${label}:
   SetOutPath "$INSTDIR\utilities\toaster"
   File /oname=default.ini.tmp "${MISC_SRCDIR}\utilities\toaster\default.ini"
   File /oname=oblivion_optimize.ini.tmp "${MISC_SRCDIR}\utilities\toaster\oblivion_optimize.ini"
+  File /oname=bully_unpack_nft.ini.tmp "${MISC_SRCDIR}\utilities\toaster\bully_unpack_nft.ini"
   File /oname=rockstar_unpack_dir_img.bat.tmp "${MISC_SRCDIR}\utilities\toaster\rockstar_unpack_dir_img.bat"
   File /oname=rockstar_pack_dir_img.bat.tmp "${MISC_SRCDIR}\utilities\toaster\rockstar_pack_dir_img.bat"
   File /oname=patch_recursive_make.bat.tmp "${MISC_SRCDIR}\utilities\toaster\patch_recursive_make.bat"
@@ -394,6 +395,10 @@ install_argparse_end_${label}:
   Delete "$INSTDIR\utilities\toaster\oblivion_optimize.ini"
   Push "$INSTDIR\utilities\toaster\oblivion_optimize.ini.tmp"
   Push "$INSTDIR\utilities\toaster\oblivion_optimize.ini"
+  Call unix2dos
+  Delete "$INSTDIR\utilities\toaster\bully_unpack_nft.ini"
+  Push "$INSTDIR\utilities\toaster\bully_unpack_nft.ini.tmp"
+  Push "$INSTDIR\utilities\toaster\bully_unpack_nft.ini"
   Call unix2dos
   Delete "$INSTDIR\utilities\toaster\rockstar_unpack_dir_img.bat"
   Push "$INSTDIR\utilities\toaster\rockstar_unpack_dir_img.bat.tmp"
