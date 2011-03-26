@@ -345,7 +345,7 @@ class SpellExportPixelData(NifSpell):
         ('textures', 'test')
         >>> SpellExportPixelData.get_pixeldata_head_root(
         ...     r"Z:\Bully\Temp\Export\Textures\Clothing\P_Pants1\P_Pants1_d.tga")
-        ('textures/clothing/p_pants1', 'p_pants1_d')
+        ('z:/bully/temp/export/textures/clothing/p_pants1', 'p_pants1_d')
         """
         # note: have to use ntpath here so we can split correctly
         # nif convention always uses windows style paths

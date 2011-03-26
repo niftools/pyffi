@@ -197,6 +197,7 @@ Get list of versions and games
 0x14030009
 0x14050000
 0x14060000
+0x14060500
 0x1E000002
 >>> for game, versions in sorted(NifFormat.games.items(), key=lambda x: x[0]):
 ...     print("%s " % game + " ".join('0x%08X' % vnum for vnum in versions)) # doctest: +REPORT_UDIFF
@@ -215,6 +216,7 @@ Emerge 0x14020007 0x14020008 0x14030001 0x14030002 0x14030003 0x14030006 \
 Empire Earth II 0x04020200 0x0A010000
 Empire Earth III 0x14020007 0x14020008
 Entropia Universe 0x0A010000
+Epic Mickey 0x14060500
 Fallout 3 0x14020007
 Freedom Force 0x04000000 0x04000002
 Freedom Force vs. the 3rd Reich 0x0A010000
