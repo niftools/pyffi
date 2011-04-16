@@ -4,6 +4,10 @@ QSkope is PyFFI's graphical user interface, and enables simple editing of files 
 
 *** changes ***
 
+Check the changelog for full details:
+
+https://github.com/amorilia/pyffi/blob/python25/CHANGELOG.rst
+
 For information on how to use PyFFI, browse the documentation here:
 
 http://pyffi.sourceforge.net/apidocs
