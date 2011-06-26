@@ -294,7 +294,6 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
     class Header(pyffi.object_models.FileFormat.Data):
         """A class to contain the actual kfm data."""
         version = 0x01024B00
-        user_version = None
 
         def inspect(self, stream):
             """Quick heuristic check if stream contains KFM data,

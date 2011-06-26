@@ -250,8 +250,6 @@ class TriFormat(pyffi.object_models.xml.FileFormat):
 
     class Header(pyffi.object_models.FileFormat.Data):
         """A class to contain the actual tri data."""
-        version = None
-        user_version = None
 
         def inspect_quick(self, stream):
             """Quickly checks if stream contains TRI data, by looking at

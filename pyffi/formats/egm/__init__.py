@@ -237,7 +237,6 @@ class EgmFormat(pyffi.object_models.xml.FileFormat):
             self.sym_morphs = []
             self.asym_morphs = []
             self.version = version
-            self.user_version = None # not used
 
         def inspect_quick(self, stream):
             """Quickly checks if stream contains EGM data, and gets the

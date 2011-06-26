@@ -161,8 +161,6 @@ class EspFormat(pyffi.object_models.xml.FileFormat):
         def __init__(self):
             self.tes4 = EspFormat.TES4()
             self.records = []
-            self.version = None
-            self.user_version = None
 
         def inspect_quick(self, stream):
             """Quickly checks if stream contains ESP data, and gets the
