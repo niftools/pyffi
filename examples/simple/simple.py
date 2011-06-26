@@ -12,6 +12,16 @@ class SimpleFormat(pyffi.object_models.xml.FileFormat):
 
     # extensions of generated types
 
+    class Data(pyffi.object_models.xml.FileFormat.Data):
+        def __init__(self):
+            self.example = SimpleFormat.Example()
+
+        def read(self, stream):
+            self.example.read(stream, self)
+
+        def write(self, stream):
+            self.example.write(stream, self)
+
     class Example:
         def addInteger(self, x):
             self.numIntegers += 1
