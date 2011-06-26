@@ -2416,9 +2416,10 @@ class NifFormat(FileFormat):
             self.ragdoll.update_a_b(transform)
 
     class bhkMoppBvTreeShape:
-        def get_mass_center_inertia(self, density = 1, solid = True):
+        def get_mass_center_inertia(self, density=1, solid=True):
             """Return mass, center of gravity, and inertia tensor."""
-            return self.shape.get_mass_center_inertia(density = density, solid = solid)
+            return self.get_shape_mass_center_inertia(
+                density=density, solid=solid)
 
         def update_origin_scale(self):
             """Update scale and origin."""
@@ -3109,6 +3110,22 @@ class NifFormat(FileFormat):
             """Update the B data from the A data."""
             self.ragdoll.update_a_b(self.get_transform_a_b(parent))
 
+    class bhkRefObject:
+        def get_shape_mass_center_inertia(self, density=1, solid=True):
+            """Return mass, center of gravity, and inertia tensor of
+            this object's shape, if self.shape is not None.
+
+            If self.shape is None, then returns zeros for everything.
+            """
+            if not self.shape:
+                mass = 0
+                center = (0, 0, 0)
+                inertia = ((0, 0, 0), (0, 0, 0), (0, 0, 0))
+            else:
+                mass, center, inertia = self.shape.get_mass_center_inertia(
+                    density=density, solid=solid)
+            return mass, center, inertia
+
     class bhkRigidBody:
         def apply_scale(self, scale):
             """Apply scale factor <scale> on data."""
@@ -3136,15 +3153,15 @@ class NifFormat(FileFormat):
             self.inertia.m_33 *= (scale ** 2)
             self.inertia.m_34 *= (scale ** 2)
 
-        def update_mass_center_inertia(self, density = 1, solid = True, mass = None):
+        def update_mass_center_inertia(self, density=1, solid=True, mass=None):
             """Look at all the objects under this rigid body and update the mass,
             center of gravity, and inertia tensor accordingly. If the C{mass} parameter
             is given then the C{density} argument is ignored."""
             if not mass is None:
                 density = 1
 
-            calc_mass, center, inertia = self.shape.get_mass_center_inertia(
-                density = density, solid = solid)
+            calc_mass, center, inertia = self.get_shape_mass_center_inertia(
+                density=density, solid=solid)
 
             self.mass = calc_mass
             self.center.x, self.center.y, self.center.z = center
@@ -3199,11 +3216,11 @@ class NifFormat(FileFormat):
             self.transform.m_24 *= scale
             self.transform.m_34 *= scale
 
-        def get_mass_center_inertia(self, density = 1, solid = True):
+        def get_mass_center_inertia(self, density=1, solid=True):
             """Return mass, center, and inertia tensor."""
             # get shape mass, center, and inertia
-            mass, center, inertia = self.shape.get_mass_center_inertia(density = density,
-                                                                    solid = solid)
+            mass, center, inertia = self.get_shape_mass_center_inertia(
+                density=density, solid=solid)
             # get transform matrix and translation vector
             transform = self.transform.get_matrix_33().as_tuple()
             transform_transposed = matTransposed(transform)

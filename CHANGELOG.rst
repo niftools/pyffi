@@ -4,6 +4,9 @@ Release 2.1.10 (in development)
 * Fixed bspline data methods to handle invalid kfs with missing basis
   data (reported by K'Aviash).
 
+* Fixed mass, center, inertia methods to deal with cases where shape
+  is missing (reported by rlibiez, see niftools issue #3248754).
+
 Release 2.1.9 (26 March 2011)
 =============================
 
