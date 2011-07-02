@@ -248,7 +248,7 @@ def get_mass_center_inertia_polyhedron(vertices, triangles, density = 1, solid =
 
     # accumulate the results
     total_mass = sum(masses)
-    if abs(total_mass) < 0.0001:
+    if total_mass == 0:
         # dimension is probably badly chosen
         #raise ZeroDivisionError("mass is zero (consider calculating inertia with a lower dimension)")
         print("WARNING: mass is nearly zero (%f)" % total_mass)

@@ -7,6 +7,10 @@ Release 2.1.10 (in development)
 * Fixed mass, center, inertia methods to deal with cases where shape
   is missing (reported by rlibiez, see niftools issue #3248754).
 
+* Fixed center calculation of bhkListShape collisions, and fixed zero
+  division error when creating very small collision shapes (reported
+  by Koniption, see issues #3334577 and #3308638).
+
 Release 2.1.9 (26 March 2011)
 =============================
 

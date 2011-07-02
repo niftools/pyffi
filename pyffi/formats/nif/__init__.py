@@ -2353,8 +2353,15 @@ class NifFormat(FileFormat):
             total_mass = 0
             total_center = (0, 0, 0)
             total_inertia = ((0, 0, 0), (0, 0, 0), (0, 0, 0))
+
+            # get total mass
             for mass, center, inertia in subshapes_mci:
                 total_mass += mass
+            if total_mass == 0:
+                return 0, (0, 0, 0), ((0, 0, 0), (0, 0, 0), (0, 0, 0))
+
+            # get average center and inertia
+            for mass, center, inertia in subshapes_mci:
                 total_center = vecAdd(total_center,
                                       vecscalarMul(center, mass / total_mass))
                 total_inertia = matAdd(total_inertia, inertia)
