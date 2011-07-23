@@ -211,9 +211,6 @@ class TgaFormat(pyffi.object_models.xml.FileFormat):
 
     class Data(pyffi.object_models.FileFormat.Data):
 
-        version = None
-        user_version = None
-
         def __init__(self):
             self.header = TgaFormat.Header()
             self.image = TgaFormat.Image()

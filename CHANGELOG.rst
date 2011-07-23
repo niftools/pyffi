@@ -3,8 +3,21 @@ Release 2.2.0 (in development)
 
 * Added PSK and PSA file support (used by Unreal engine).
 
-Release 2.1.9 (in development)
-==============================
+Release 2.1.10 (in development)
+===============================
+
+* Fixed bspline data methods to handle invalid kfs with missing basis
+  data (reported by K'Aviash).
+
+* Fixed mass, center, inertia methods to deal with cases where shape
+  is missing (reported by rlibiez, see niftools issue #3248754).
+
+* Fixed center calculation of bhkListShape collisions, and fixed zero
+  division error when creating very small collision shapes (reported
+  by Koniption, see issues #3334577 and #3308638).
+
+Release 2.1.9 (26 March 2011)
+=============================
 
 * Improved documentation of .dir/.img unpack and pack scripts.
 
@@ -73,6 +86,8 @@ Release 2.1.9 (in development)
 
 * Sane default settings for bhkRigidBody unknowns to ensure that
   constraints behave properly (contributed by Koniption).
+
+* Added ini file to unpack Bully SE .nft files.
 
 Release 2.1.8 (4 February 2011)
 ===============================

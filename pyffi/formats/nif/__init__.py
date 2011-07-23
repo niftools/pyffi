@@ -197,6 +197,7 @@ Get list of versions and games
 0x14030009
 0x14050000
 0x14060000
+0x14060500
 0x1E000002
 >>> for game, versions in sorted(NifFormat.games.items(), key=lambda x: x[0]):
 ...     print("%s " % game + " ".join('0x%08X' % vnum for vnum in versions)) # doctest: +REPORT_UDIFF
@@ -215,6 +216,7 @@ Emerge 0x14020007 0x14020008 0x14030001 0x14030002 0x14030003 0x14030006 \
 Empire Earth II 0x04020200 0x0A010000
 Empire Earth III 0x14020007 0x14020008
 Entropia Universe 0x0A010000
+Epic Mickey 0x14060500
 Fallout 3 0x14020007
 Freedom Force 0x04000000 0x04000002
 Freedom Force vs. the 3rd Reich 0x0A010000
@@ -2355,8 +2357,15 @@ class NifFormat(FileFormat):
             total_mass = 0
             total_center = (0, 0, 0)
             total_inertia = ((0, 0, 0), (0, 0, 0), (0, 0, 0))
+
+            # get total mass
             for mass, center, inertia in subshapes_mci:
                 total_mass += mass
+            if total_mass == 0:
+                return 0, (0, 0, 0), ((0, 0, 0), (0, 0, 0), (0, 0, 0))
+
+            # get average center and inertia
+            for mass, center, inertia in subshapes_mci:
                 total_center = vecAdd(total_center,
                                       vecscalarMul(center, mass / total_mass))
                 total_inertia = matAdd(total_inertia, inertia)
@@ -2418,9 +2427,10 @@ class NifFormat(FileFormat):
             self.ragdoll.update_a_b(transform)
 
     class bhkMoppBvTreeShape:
-        def get_mass_center_inertia(self, density = 1, solid = True):
+        def get_mass_center_inertia(self, density=1, solid=True):
             """Return mass, center of gravity, and inertia tensor."""
-            return self.shape.get_mass_center_inertia(density = density, solid = solid)
+            return self.get_shape_mass_center_inertia(
+                density=density, solid=solid)
 
         def update_origin_scale(self):
             """Update scale and origin."""
@@ -3111,6 +3121,22 @@ class NifFormat(FileFormat):
             """Update the B data from the A data."""
             self.ragdoll.update_a_b(self.get_transform_a_b(parent))
 
+    class bhkRefObject:
+        def get_shape_mass_center_inertia(self, density=1, solid=True):
+            """Return mass, center of gravity, and inertia tensor of
+            this object's shape, if self.shape is not None.
+
+            If self.shape is None, then returns zeros for everything.
+            """
+            if not self.shape:
+                mass = 0
+                center = (0, 0, 0)
+                inertia = ((0, 0, 0), (0, 0, 0), (0, 0, 0))
+            else:
+                mass, center, inertia = self.shape.get_mass_center_inertia(
+                    density=density, solid=solid)
+            return mass, center, inertia
+
     class bhkRigidBody:
         def apply_scale(self, scale):
             """Apply scale factor <scale> on data."""
@@ -3138,15 +3164,15 @@ class NifFormat(FileFormat):
             self.inertia.m_33 *= (scale ** 2)
             self.inertia.m_34 *= (scale ** 2)
 
-        def update_mass_center_inertia(self, density = 1, solid = True, mass = None):
+        def update_mass_center_inertia(self, density=1, solid=True, mass=None):
             """Look at all the objects under this rigid body and update the mass,
             center of gravity, and inertia tensor accordingly. If the C{mass} parameter
             is given then the C{density} argument is ignored."""
             if not mass is None:
                 density = 1
 
-            calc_mass, center, inertia = self.shape.get_mass_center_inertia(
-                density = density, solid = solid)
+            calc_mass, center, inertia = self.get_shape_mass_center_inertia(
+                density=density, solid=solid)
 
             self.mass = calc_mass
             self.center.x, self.center.y, self.center.z = center
@@ -3201,11 +3227,11 @@ class NifFormat(FileFormat):
             self.transform.m_24 *= scale
             self.transform.m_34 *= scale
 
-        def get_mass_center_inertia(self, density = 1, solid = True):
+        def get_mass_center_inertia(self, density=1, solid=True):
             """Return mass, center, and inertia tensor."""
             # get shape mass, center, and inertia
-            mass, center, inertia = self.shape.get_mass_center_inertia(density = density,
-                                                                    solid = solid)
+            mass, center, inertia = self.get_shape_mass_center_inertia(
+                density=density, solid=solid)
             # get transform matrix and translation vector
             transform = self.transform.get_matrix_33().as_tuple()
             transform_transposed = matTransposed(transform)
@@ -4226,14 +4252,24 @@ class NifFormat(FileFormat):
             will return exactly self.basis_data.num_control_points - 1 time points, and
             not self.basis_data.num_control_points as it is now.
             """
+            # is there basis data?
+            if not self.basis_data:
+                return
+            # return all times
             for i in range(self.basis_data.num_control_points):
-                yield self.start_time + (i * (self.stop_time - self.start_time)
-                                        / (self.basis_data.num_control_points - 1))
+                yield (
+                    self.start_time
+                    + (i * (self.stop_time - self.start_time)
+                       / (self.basis_data.num_control_points - 1))
+                    )
 
         def _getFloatKeys(self, offset, element_size):
             """Helper function to get iterator to various keys. Internal use only."""
             # are there keys?
             if offset == 65535:
+                return
+            # is there basis data and spline data?
+            if not self.basis_data or not self.spline_data:
                 return
             # yield all keys
             for key in self.spline_data.get_float_data(offset,
@@ -4245,6 +4281,9 @@ class NifFormat(FileFormat):
             """Helper function to get iterator to various keys. Internal use only."""
             # are there keys?
             if offset == 65535:
+                return
+            # is there basis data and spline data?
+            if not self.basis_data or not self.spline_data:
                 return
             # yield all keys
             for key in self.spline_data.get_comp_data(offset,

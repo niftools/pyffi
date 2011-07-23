@@ -387,6 +387,15 @@ class Spell(object):
         """
         pass
 
+    @classmethod
+    def get_toast_stream(cls, toaster, filename, test_exists=False):
+        """Returns the stream that the toaster will write to. The
+        default implementation calls ``toaster.get_toast_stream``, but
+        spells that write to different file(s) can override this
+        method.
+        """
+        return toaster.get_toast_stream(filename, test_exists=test_exists)
+
 class SpellGroupBase(Spell):
     """Base class for grouping spells. This implements all the spell grouping
     functions that fall outside of the actual recursing (:meth:`__init__`,
@@ -1407,7 +1416,8 @@ may destroy them. Make a backup of your files before running this script.
 
         # check if file exists
         if self.options["resume"]:
-            if self.open_outstream(stream, test_exists=True):
+            if self.spellclass.get_toast_stream(
+                self, stream.name, test_exists=True):
                 self.msg("=== %s (already done) ===" % stream.name)
                 return
 
@@ -1451,8 +1461,47 @@ may destroy them. Make a backup of your files before running this script.
         finally:
             self.msgblockend()
 
-    def open_outstream(self, stream, test_exists=False):
-        """Either return a stream where result can be written to, or
+    def get_toast_head_root_ext(self, filename):
+        """Get the name of where the input file *filename* would
+        be written to by the toaster: head, root, and extension.
+
+        :param filename: The name of the hypothetical file to be
+            toasted.
+        :type filename: :class:`str`
+        :return: The head, root, and extension of the destination, or
+            ``(None, None, None)`` if ``--dryrun`` is specified.
+        :rtype: :class:`tuple` of three :class:`str`\ s
+        """
+        # first cover trivial case
+        if self.options["dryrun"]:
+            return (None, None, None)
+        # split original file up
+        head, tail = os.path.split(filename)
+        root, ext = os.path.splitext(tail)
+        # check if head sourcedir needs replacing by destdir
+        # and do some sanity checks if this is the case
+        if self.options["destdir"]:
+            if not self.options["sourcedir"]:
+                raise ValueError(
+                    "--dest-dir specified without --source-dir")
+            if not head.startswith(self.options["sourcedir"]):
+                raise ValueError(
+                    "invalid --source-dir: %s does not start with %s"
+                    % (filename, self.options["sourcedir"]))
+            head = head.replace(
+                self.options["sourcedir"], self.options["destdir"], 1)
+        return (
+            head,
+            self.options["prefix"] + root + self.options["suffix"],
+            ext,
+            )
+
+    def get_toast_stream(self, filename, test_exists=False):
+        """Calls :meth:`get_toast_head_root_ext(filename)`
+        to determine the name of the toast file, and return
+        a stream for writing accordingly.
+
+        Then return a stream where result can be written to, or
         in case test_exists is True, test if result would overwrite a
         file. More specifically, if test_exists is True, then no
         streams are created, and True is returned if the file
@@ -1464,50 +1513,30 @@ may destroy them. Make a backup of your files before running this script.
             else:
                 self.msg("writing to temporary file")
                 return tempfile.TemporaryFile()
-        elif (self.options["destdir"]
-            or self.options["prefix"] or self.options["suffix"]):
-            head, tail = os.path.split(stream.name)
-            root, ext = os.path.splitext(tail)
-            if self.options["destdir"]:
-                if not self.options["sourcedir"]:
-                    raise ValueError(
-                        "--dest-dir specified without --source-dir (bug?)")
-                if not head.startswith(self.options["sourcedir"]):
-                    # already checked elsewhere, but you never know...
-                    raise ValueError(
-                        "invalid --source-dir: %s does not start with %s"
-                        % (stream.name, self.options["sourcedir"]))
-                head = head.replace(
-                    self.options["sourcedir"], self.options["destdir"], 1)
-                if not os.path.exists(head):
-                    if test_exists:
-                        # path does not exist, so file definitely does
-                        # not exist
-                        return False
-                    else:
-                        self.logger.info("creating destination path %s" % head)
-                        os.makedirs(head)
-            filename =  os.path.join(
-                head,
-                self.options["prefix"] + root + self.options["suffix"] + ext)
+        head, root, ext = self.get_toast_head_root_ext(filename)
+        if not os.path.exists(head):
             if test_exists:
-                return os.path.exists(filename)
+                # path does not exist, so file definitely does
+                # not exist
+                return False
+            else:
+                self.logger.info("creating destination path %s" % head)
+                os.makedirs(head)
+        filename =  os.path.join(head, root + ext)
+        if test_exists:
+            return os.path.exists(filename)
+        else:
+            if os.path.exists(filename):
+                self.msg("overwriting %s" % filename)
             else:
                 self.msg("writing %s" % filename)
-                return open(filename, "wb")
-        else:
-            # return original stream
-            if test_exists:
-                return True # original stream always exists
-            else:
-                self.msg("overwriting %s" % stream.name)
-                return stream
+            return open(filename, "wb")
 
     def write(self, stream, data):
         """Writes the data to data and raises an exception if the
         write fails, but restores file if fails on overwrite.
         """
-        outstream = self.open_outstream(stream)
+        outstream = self.spellclass.get_toast_stream(self, stream.name)
         if stream is outstream:
             # make backup
             stream.seek(0)
@@ -1546,7 +1575,7 @@ may destroy them. Make a backup of your files before running this script.
 
         # create a temporary file that won't get deleted when closed
         self.options["suffix"] = ".tmp"
-        newfile = self.open_outstream(stream)
+        newfile = self.spellclass.get_toast_stream(self, stream.name)
         try:
             data.write(newfile)
         except: # not just Exception, also CTRL-C

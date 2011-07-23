@@ -346,6 +346,8 @@ extra_py_path_check_not_found_${label}_${if_found}:
   SetOutPath "$INSTDIR\utilities\toaster"
   File /oname=default.ini.tmp "${MISC_SRCDIR}\utilities\toaster\default.ini"
   File /oname=oblivion_optimize.ini.tmp "${MISC_SRCDIR}\utilities\toaster\oblivion_optimize.ini"
+  File /oname=bully_unpack_nft.ini.tmp "${MISC_SRCDIR}\utilities\toaster\bully_unpack_nft.ini"
+  File /oname=bully_unpack_nft.bat.tmp "${MISC_SRCDIR}\utilities\toaster\bully_unpack_nft.bat"
   File /oname=rockstar_unpack_dir_img.bat.tmp "${MISC_SRCDIR}\utilities\toaster\rockstar_unpack_dir_img.bat"
   File /oname=rockstar_pack_dir_img.bat.tmp "${MISC_SRCDIR}\utilities\toaster\rockstar_pack_dir_img.bat"
   File /oname=patch_recursive_make.bat.tmp "${MISC_SRCDIR}\utilities\toaster\patch_recursive_make.bat"
@@ -370,6 +372,14 @@ extra_py_path_check_not_found_${label}_${if_found}:
   Delete "$INSTDIR\utilities\toaster\oblivion_optimize.ini"
   Push "$INSTDIR\utilities\toaster\oblivion_optimize.ini.tmp"
   Push "$INSTDIR\utilities\toaster\oblivion_optimize.ini"
+  Call unix2dos
+  Delete "$INSTDIR\utilities\toaster\bully_unpack_nft.ini"
+  Push "$INSTDIR\utilities\toaster\bully_unpack_nft.ini.tmp"
+  Push "$INSTDIR\utilities\toaster\bully_unpack_nft.ini"
+  Call unix2dos
+  Delete "$INSTDIR\utilities\toaster\bully_unpack_nft.bat"
+  Push "$INSTDIR\utilities\toaster\bully_unpack_nft.bat.tmp"
+  Push "$INSTDIR\utilities\toaster\bully_unpack_nft.bat"
   Call unix2dos
   Delete "$INSTDIR\utilities\toaster\rockstar_unpack_dir_img.bat"
   Push "$INSTDIR\utilities\toaster\rockstar_unpack_dir_img.bat.tmp"
@@ -431,6 +441,7 @@ install_shortcuts:
   ; set python path in batch files
   !insertmacro ReplaceInFile "$INSTDIR\utilities\toaster\rockstar_pack_dir_img.bat" PYTHONPATH "$0"
   !insertmacro ReplaceInFile "$INSTDIR\utilities\toaster\rockstar_unpack_dir_img.bat" PYTHONPATH "$0"
+  !insertmacro ReplaceInFile "$INSTDIR\utilities\toaster\bully_unpack_nft.bat" PYTHONPATH "$0"
   !insertmacro ReplaceInFile "$INSTDIR\utilities\toaster\patch_recursive_make.bat" PYTHONPATH "$0"
   !insertmacro ReplaceInFile "$INSTDIR\utilities\toaster\patch_recursive_apply.bat" PYTHONPATH "$0"
 

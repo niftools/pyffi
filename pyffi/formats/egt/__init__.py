@@ -207,9 +207,6 @@ class EgtFormat(pyffi.object_models.xml.FileFormat):
     class Header(pyffi.object_models.FileFormat.Data):
         """A class to contain the actual egt data."""
 
-        version = None
-        user_version = None
-
         def inspect_quick(self, stream):
             """Quickly checks if stream contains EGT data, by looking at
             the first 8 bytes. Reads the signature and the version.

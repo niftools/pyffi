@@ -531,8 +531,6 @@ but got instance of %s""" % (self._template, block.__class__))
         :ivar versions: List of chunk versions.
         :type versions: ``list`` of L{int}
         """
-        version = None
-        user_version = None
         _link_stack = None
         _block_index_dct = None
         _block_dct = None

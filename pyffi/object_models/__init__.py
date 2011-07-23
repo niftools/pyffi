@@ -165,6 +165,12 @@ class FileFormat(object):
         _byte_order = '<'
         """Set to '<' for little-endian, and '>' for big-endian."""
 
+        version = None
+        """Version of the data."""
+
+        user_version = None
+        """User version (additional version field) of the data."""
+
         def inspect(self, stream):
             """Quickly checks whether the stream appears to contain
             data of a particular format. Resets stream to original position.

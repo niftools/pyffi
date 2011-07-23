@@ -211,7 +211,6 @@ class BsaFormat(pyffi.object_models.xml.FileFormat):
 
     class Header(pyffi.object_models.FileFormat.Data):
         """A class to contain the actual bsa data."""
-        user_version = None # not used
 
         def inspect_quick(self, stream):
             """Quickly checks if stream contains BSA data, and gets the

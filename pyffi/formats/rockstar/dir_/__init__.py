@@ -113,8 +113,6 @@ class DirFormat(pyffi.object_models.xml.FileFormat):
 
     class Data(pyffi.object_models.FileFormat.Data):
         """A class to contain the actual dir data."""
-        version = None
-        user_version = None
 
         def __init__(self, folder=None):
             """Initialize empty file list, or take list of files from
