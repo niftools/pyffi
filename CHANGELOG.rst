@@ -11,6 +11,9 @@ Release 2.1.10 (in development)
   division error when creating very small collision shapes (reported
   by Koniption, see issues #3334577 and #3308638).
 
+* Fixed shortcut to uninstaller in programs folder (reported by neomonkeus,
+  see niftools issue #3397540).
+
 Release 2.1.9 (26 March 2011)
 =============================
 

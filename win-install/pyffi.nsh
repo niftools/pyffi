@@ -446,7 +446,7 @@ install_argparse_end_${label}:
   CreateShortCut "$SMPROGRAMS\PyFFI\Thanks.lnk" "$INSTDIR\THANKS.txt"
   CreateShortCut "$SMPROGRAMS\PyFFI\Todo.lnk" "$INSTDIR\TODO.txt"
   CreateShortCut "$SMPROGRAMS\PyFFI\Contribute.lnk" "$INSTDIR\CONTRIBUTE.txt"
-  CreateShortCut "$SMPROGRAMS\PyFFI\Uninstall.lnk" "$INSTDIR\uninstall.exe"
+  CreateShortCut "$SMPROGRAMS\PyFFI\Uninstall.lnk" "$INSTDIR\PyFFI_uninstall.exe"
 
   !insertmacro PostExtraLegacyKeys python_2_5_32 2.5
   !insertmacro PostExtraLegacyKeys python_2_6_32 2.6
