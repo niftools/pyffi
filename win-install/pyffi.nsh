@@ -498,6 +498,7 @@ install_shortcuts:
   !insertmacro ReplaceInFile "$INSTDIR\utilities\toaster\bully_unpack_nft.bat" PYTHONPATH "$0"
   !insertmacro ReplaceInFile "$INSTDIR\utilities\toaster\patch_recursive_make.bat" PYTHONPATH "$0"
   !insertmacro ReplaceInFile "$INSTDIR\utilities\toaster\patch_recursive_apply.bat" PYTHONPATH "$0"
+  !insertmacro ReplaceInFile "$INSTDIR\utilities\toaster\oblivion_optimize.bat" PYTHONPATH "$0"
 
   ; QSkope desktop shortcut
   CreateShortCut "$DESKTOP\QSkope.lnk" '"$0\python.exe"' '"$0\Scripts\qskope.py"' "" "" "" "" "QSkope"
