@@ -23,7 +23,7 @@ echo.
 echo.   Pass 2 - General optimization (filter 2):
 echo.
 echo.       Running PyFFI optimize ...
-"PYTHONPATH\python.exe" "PYTHONPATH\Scripts\niftoaster.py" --ini-file default.ini --ini-file oblivion_optimize_03.ini > oblivion_optimize_03.log 2>&1
+"PYTHONPATH\python.exe" "PYTHONPATH\Scripts\niftoaster.py" --ini-file default.ini --ini-file oblivion_optimize_02.ini > oblivion_optimize_02.log 2>&1
 echo.
 echo.   Done.
 
@@ -32,7 +32,7 @@ echo.
 echo.   Pass 3 - Fixing texture paths:
 echo.
 echo.       Running PyFFI fix_texturepath ...
-"PYTHONPATH\python.exe" "PYTHONPATH\Scripts\niftoaster.py" --ini-file default.ini --ini-file oblivion_optimize_02.ini > oblivion_optimize_02.log 2>&1
+"PYTHONPATH\python.exe" "PYTHONPATH\Scripts\niftoaster.py" --ini-file default.ini --ini-file oblivion_optimize_03.ini > oblivion_optimize_03.log 2>&1
 echo.
 echo.   Done.
 
