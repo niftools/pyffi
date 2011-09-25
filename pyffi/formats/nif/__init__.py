@@ -1507,7 +1507,7 @@ class NifFormat(FileFormat):
                 if self.version < 0x0303000D and block in self.roots:
                     s = NifFormat.SizedString()
                     s.set_value("Top Level Object")
-                    s.write(stream)
+                    s.write(stream, self)
                 if self.version >= 0x05000001:
                     if self.version <= 0x0A01006A:
                         # write zero dummy separator
