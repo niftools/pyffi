@@ -61,7 +61,7 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
-
+from itertools import izip
 import os.path # exists
 
 from pyffi.formats.nif import NifFormat
@@ -331,7 +331,7 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
         triangles = [(v_map_opt[v0], v_map_opt[v1], v_map_opt[v2])
                       for v0, v1, v2 in triangles]
         # update vertex map and its inverse
-        for i in range(data.num_vertices):
+        for i in xrange(data.num_vertices):
             try:
                 v_map[i] = v_map_opt[v_map[i]]
             except IndexError:
@@ -411,7 +411,7 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
             self.toaster.msg("update skin data vertex mapping")
             skindata = branch.skin_instance.data
             newweights = []
-            for i in range(new_numvertices):
+            for i in xrange(new_numvertices):
                 newweights.append(oldweights[v_map_inverse[i]])
             for bonenum, bonedata in enumerate(skindata.bone_list):
                 w = []
@@ -489,7 +489,7 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                     # store a copy of the old vectors
                     oldmorphvectors = [(vec.x, vec.y, vec.z)
                                        for vec in morph.vectors]
-                    for old_i, vec in zip(v_map_inverse, morph.vectors):
+                    for old_i, vec in izip(v_map_inverse, morph.vectors):
                         vec.x = oldmorphvectors[old_i][0]
                         vec.y = oldmorphvectors[old_i][1]
                         vec.z = oldmorphvectors[old_i][2]
@@ -501,7 +501,7 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                     morph.vectors.update_size()
 
         # recalculate tangent space (only if the branch already exists)
-        if (branch.find(block_name=b'Tangent space (binormal & tangent vectors)',
+        if (branch.find(block_name='Tangent space (binormal & tangent vectors)',
                         block_type=NifFormat.NiBinaryExtraData)
             or (data.num_uv_sets & 61440)
             or (data.bs_num_uv_sets & 61440)):
@@ -551,7 +551,7 @@ class SpellSplitGeometry(pyffi.spells.nif.NifSpell):
                 destdata.vertex_colors[-1].b = sourcedata.vertex_colors[sourceindex].b
                 destdata.vertex_colors[-1].a = sourcedata.vertex_colors[sourceindex].a
             if sourcedata.has_uv:
-                for sourceuvset, destuvset in zip(sourcedata.uv_sets, destdata.uv_sets):
+                for sourceuvset, destuvset in izip(sourcedata.uv_sets, destdata.uv_sets):
                     destuvset.update_size()
                     destuvset[-1].u = sourceuvset[sourceindex].u
                     destuvset[-1].v = sourceuvset[sourceindex].v
@@ -996,7 +996,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
         # set new data
         data.num_vertices = len(full_v_map_inverse)
         data.vertices.update_size()
-        for old_i, v in zip(full_v_map_inverse, data.vertices):
+        for old_i, v in izip(full_v_map_inverse, data.vertices):
             v.x = oldverts[old_i][0]
             v.y = oldverts[old_i][1]
             v.z = oldverts[old_i][2]
@@ -1027,7 +1027,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
         # set new data
         data.num_triangles = new_numtriangles
         data.triangles.update_size()
-        for old_i, tri in zip(t_map_inverse, data.triangles):
+        for old_i, tri in izip(t_map_inverse, data.triangles):
             if old_i is None:
                 continue
             tri.triangle.v_1 = oldtris[old_i][0]
@@ -1242,7 +1242,7 @@ class SpellOptimizeAnimation(pyffi.spells.nif.NifSpell):
         self.toaster.msg(_("Num keys was %i and is now %i") % (len(old_keygroup.keys),len(new_keys)))
         old_keygroup.num_keys = len(new_keys)
         old_keygroup.keys.update_size()
-        for old_key, new_key in zip(old_keygroup.keys,new_keys):
+        for old_key, new_key in izip(old_keygroup.keys,new_keys):
             old_key.time = new_key.time
             old_key.value = new_key.value
         self.changed = True
@@ -1250,7 +1250,7 @@ class SpellOptimizeAnimation(pyffi.spells.nif.NifSpell):
     def update_animation_quaternion(self,old_keygroup,new_keys):
         self.toaster.msg(_("Num keys was %i and is now %i") % (len(old_keygroup),len(new_keys)))
         old_keygroup.update_size()
-        for old_key, new_key in zip(old_keygroup,new_keys):
+        for old_key, new_key in izip(old_keygroup,new_keys):
             old_key.time = new_key.time
             old_key.value = new_key.value
         self.changed = True
