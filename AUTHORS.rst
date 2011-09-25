@@ -36,3 +36,6 @@ Contributors
 
   - some nif/kf modifying spells
   
+* Ulrim/Arthmoor
+
+  - optimization kit

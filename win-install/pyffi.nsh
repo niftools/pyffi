@@ -369,7 +369,11 @@ install_argparse_end_${label}:
 
   SetOutPath "$INSTDIR\utilities\toaster"
   File /oname=default.ini.tmp "${MISC_SRCDIR}\utilities\toaster\default.ini"
-  File /oname=oblivion_optimize.ini.tmp "${MISC_SRCDIR}\utilities\toaster\oblivion_optimize.ini"
+  File /oname=oblivion_optimize_01.ini.tmp "${MISC_SRCDIR}\utilities\toaster\oblivion_optimize_01.ini"
+  File /oname=oblivion_optimize_02.ini.tmp "${MISC_SRCDIR}\utilities\toaster\oblivion_optimize_02.ini"
+  File /oname=oblivion_optimize_03.ini.tmp "${MISC_SRCDIR}\utilities\toaster\oblivion_optimize_03.ini"
+  File /oname=oblivion_optimize_04.ini.tmp "${MISC_SRCDIR}\utilities\toaster\oblivion_optimize_04.ini"
+  File /oname=oblivion_optimize.bat.tmp "${MISC_SRCDIR}\utilities\toaster\oblivion_optimize.bat"
   File /oname=bully_unpack_nft.ini.tmp "${MISC_SRCDIR}\utilities\toaster\bully_unpack_nft.ini"
   File /oname=bully_unpack_nft.bat.tmp "${MISC_SRCDIR}\utilities\toaster\bully_unpack_nft.bat"
   File /oname=rockstar_unpack_dir_img.bat.tmp "${MISC_SRCDIR}\utilities\toaster\rockstar_unpack_dir_img.bat"
@@ -393,9 +397,25 @@ install_argparse_end_${label}:
   Push "$INSTDIR\utilities\toaster\default.ini.tmp"
   Push "$INSTDIR\utilities\toaster\default.ini"
   Call unix2dos
-  Delete "$INSTDIR\utilities\toaster\oblivion_optimize.ini"
-  Push "$INSTDIR\utilities\toaster\oblivion_optimize.ini.tmp"
-  Push "$INSTDIR\utilities\toaster\oblivion_optimize.ini"
+  Delete "$INSTDIR\utilities\toaster\oblivion_optimize_01.ini"
+  Push "$INSTDIR\utilities\toaster\oblivion_optimize_01.ini.tmp"
+  Push "$INSTDIR\utilities\toaster\oblivion_optimize_01.ini"
+  Call unix2dos
+  Delete "$INSTDIR\utilities\toaster\oblivion_optimize_02.ini"
+  Push "$INSTDIR\utilities\toaster\oblivion_optimize_02.ini.tmp"
+  Push "$INSTDIR\utilities\toaster\oblivion_optimize_02.ini"
+  Call unix2dos
+  Delete "$INSTDIR\utilities\toaster\oblivion_optimize_03.ini"
+  Push "$INSTDIR\utilities\toaster\oblivion_optimize_03.ini.tmp"
+  Push "$INSTDIR\utilities\toaster\oblivion_optimize_03.ini"
+  Call unix2dos
+  Delete "$INSTDIR\utilities\toaster\oblivion_optimize_04.ini"
+  Push "$INSTDIR\utilities\toaster\oblivion_optimize_04.ini.tmp"
+  Push "$INSTDIR\utilities\toaster\oblivion_optimize_04.ini"
+  Call unix2dos
+  Delete "$INSTDIR\utilities\toaster\oblivion_optimize.bat"
+  Push "$INSTDIR\utilities\toaster\oblivion_optimize.bat.tmp"
+  Push "$INSTDIR\utilities\toaster\oblivion_optimize.bat"
   Call unix2dos
   Delete "$INSTDIR\utilities\toaster\bully_unpack_nft.ini"
   Push "$INSTDIR\utilities\toaster\bully_unpack_nft.ini.tmp"
@@ -478,6 +498,7 @@ install_shortcuts:
   !insertmacro ReplaceInFile "$INSTDIR\utilities\toaster\bully_unpack_nft.bat" PYTHONPATH "$0"
   !insertmacro ReplaceInFile "$INSTDIR\utilities\toaster\patch_recursive_make.bat" PYTHONPATH "$0"
   !insertmacro ReplaceInFile "$INSTDIR\utilities\toaster\patch_recursive_apply.bat" PYTHONPATH "$0"
+  !insertmacro ReplaceInFile "$INSTDIR\utilities\toaster\oblivion_optimize.bat" PYTHONPATH "$0"
 
   ; QSkope desktop shortcut
   CreateShortCut "$DESKTOP\QSkope.lnk" '"$0\python.exe"' '"$0\Scripts\qskope.py"' "" "" "" "" "QSkope"
