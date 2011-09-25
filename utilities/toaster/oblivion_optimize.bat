@@ -36,15 +36,6 @@ echo.       Running PyFFI fix_texturepath ...
 echo.
 echo.   Done.
 
-title PyFFI Oblivion Optimize - Pass 4
-echo.
-echo.   Pass 4 - Optimizing far nifs:
-echo.
-echo.       Running PyFFI opt_cleanfarnif ...
-"PYTHONPATH\python.exe" "PYTHONPATH\Scripts\niftoaster.py" --ini-file default.ini --ini-file oblivion_optimize_04.ini --noninteractive > oblivion_optimize_04.log 2>&1
-echo.
-echo.   Done.
-
 title PyFFI Oblivion Optimize - Done
 echo.
 echo.

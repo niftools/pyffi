@@ -372,7 +372,6 @@ install_argparse_end_${label}:
   File /oname=oblivion_optimize_01.ini.tmp "${MISC_SRCDIR}\utilities\toaster\oblivion_optimize_01.ini"
   File /oname=oblivion_optimize_02.ini.tmp "${MISC_SRCDIR}\utilities\toaster\oblivion_optimize_02.ini"
   File /oname=oblivion_optimize_03.ini.tmp "${MISC_SRCDIR}\utilities\toaster\oblivion_optimize_03.ini"
-  File /oname=oblivion_optimize_04.ini.tmp "${MISC_SRCDIR}\utilities\toaster\oblivion_optimize_04.ini"
   File /oname=oblivion_optimize.bat.tmp "${MISC_SRCDIR}\utilities\toaster\oblivion_optimize.bat"
   File /oname=bully_unpack_nft.ini.tmp "${MISC_SRCDIR}\utilities\toaster\bully_unpack_nft.ini"
   File /oname=bully_unpack_nft.bat.tmp "${MISC_SRCDIR}\utilities\toaster\bully_unpack_nft.bat"
@@ -408,10 +407,6 @@ install_argparse_end_${label}:
   Delete "$INSTDIR\utilities\toaster\oblivion_optimize_03.ini"
   Push "$INSTDIR\utilities\toaster\oblivion_optimize_03.ini.tmp"
   Push "$INSTDIR\utilities\toaster\oblivion_optimize_03.ini"
-  Call unix2dos
-  Delete "$INSTDIR\utilities\toaster\oblivion_optimize_04.ini"
-  Push "$INSTDIR\utilities\toaster\oblivion_optimize_04.ini.tmp"
-  Push "$INSTDIR\utilities\toaster\oblivion_optimize_04.ini"
   Call unix2dos
   Delete "$INSTDIR\utilities\toaster\oblivion_optimize.bat"
   Push "$INSTDIR\utilities\toaster\oblivion_optimize.bat.tmp"
