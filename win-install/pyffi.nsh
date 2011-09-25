@@ -422,7 +422,7 @@ extra_py_path_check_not_found_${label}_${if_found}:
   CreateShortCut "$SMPROGRAMS\PyFFI\Thanks.lnk" "$INSTDIR\THANKS.txt"
   CreateShortCut "$SMPROGRAMS\PyFFI\Todo.lnk" "$INSTDIR\TODO.txt"
   CreateShortCut "$SMPROGRAMS\PyFFI\Contribute.lnk" "$INSTDIR\CONTRIBUTE.txt"
-  CreateShortCut "$SMPROGRAMS\PyFFI\Uninstall.lnk" "$INSTDIR\uninstall.exe"
+  CreateShortCut "$SMPROGRAMS\PyFFI\Uninstall.lnk" "$INSTDIR\PyFFI_uninstall.exe"
 
   ; first check 32 bit: PyQt4 can only be installed for these...
   !insertmacro PostExtraPyPathCheck python_3_2_32 install_shortcuts

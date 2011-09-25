@@ -470,6 +470,21 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                     continue
                 # convert morphs
                 self.toaster.msg("updating morphs")
+                # check size and fix it if needed
+                # (see issue #3395484 reported by rlibiez)
+                # remap of morph vertices works only if
+                # morph.num_vertices == len(v_map)
+                if morphdata.num_vertices != len(v_map):
+                    self.toaster.logger.warn(
+                        "number of vertices in morph ({0}) does not match"
+                        " number of vertices in shape ({1}):"
+                        " resizing morph, graphical glitches might result"
+                        .format(morphdata.num_vertices, len(v_map)))
+                    morphdata.num_vertices = len(v_map)
+                    for morph in morphdata.morphs:
+                        morph.arg = morphdata.num_vertices # manual argument passing
+                        morph.vectors.update_size()
+                # now remap morph vertices
                 for morph in morphdata.morphs:
                     # store a copy of the old vectors
                     oldmorphvectors = [(vec.x, vec.y, vec.z)
@@ -482,8 +497,8 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                 # resize matrices
                 morphdata.num_vertices = new_numvertices
                 for morph in morphdata.morphs:
-                     morph.arg = morphdata.num_vertices # manual argument passing
-                     morph.vectors.update_size()
+                    morph.arg = morphdata.num_vertices # manual argument passing
+                    morph.vectors.update_size()
 
         # recalculate tangent space (only if the branch already exists)
         if (branch.find(block_name=b'Tangent space (binormal & tangent vectors)',

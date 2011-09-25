@@ -16,6 +16,13 @@ Release 2.1.10 (in development)
   division error when creating very small collision shapes (reported
   by Koniption, see issues #3334577 and #3308638).
 
+* Fixed shortcut to uninstaller in programs folder (reported by neomonkeus,
+  see niftools issue #3397540).
+
+* Fixed geometry optimizer to handle cases where number of morph
+  vertices does not match number of shape vertices (reported by
+  rlibiez, see issue #3395484).
+
 Release 2.1.9 (26 March 2011)
 =============================
 
