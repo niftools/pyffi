@@ -1319,7 +1319,7 @@ class NifFormat(FileFormat):
                     # check if this is a 'Top Level Object'
                     pos = stream.tell()
                     top_level_str = NifFormat.SizedString()
-                    top_level_str.read(stream)
+                    top_level_str.read(stream, data=self)
                     top_level_str = str(top_level_str)
                     if top_level_str == "Top Level Object":
                         is_root = True
