@@ -130,7 +130,6 @@ from pyffi.spells.nif import NifSpell
 import pyffi.spells.nif
 import pyffi.spells.nif.check # recycle checking spells for update spells
 import pyffi.spells.nif.fix
-import pyffi.spells.nif.optimize
 
 from itertools import izip
 import os
@@ -760,7 +759,7 @@ class SpellCleanFarNif(
     combine this with the optimize spell).
     """
 
-    SPELLNAME = "opt_cleanfarnif"
+    SPELLNAME = "modify_cleanfarnif"
 
     # only apply spell on _far files
     def datainspect(self):
@@ -770,22 +769,21 @@ class SpellCleanFarNif(
 # this is like SpellCleanFarNif but with changing the texture path
 # and optimizing the geometry
 class SpellMakeFarNif(
-    pyffi.spells.SpellGroupSeries(
-        pyffi.spells.SpellGroupParallel(
-            SpellDelVertexColorProperty,
-            SpellDelAlphaProperty,
-            SpellDelSpecularProperty,
-            SpellDelBSXFlags,
-            SpellDelStringExtraDatas,
-            pyffi.spells.nif.fix.SpellDelTangentSpace,
-            SpellDelCollisionData,
-            SpellDelAnimation,
-            SpellDisableParallax,
-            SpellLowResTexturePath),
-        pyffi.spells.nif.optimize.SpellOptimize
+    pyffi.spells.SpellGroupParallel(
+        SpellDelVertexColorProperty,
+        SpellDelAlphaProperty,
+        SpellDelSpecularProperty,
+        SpellDelBSXFlags,
+        SpellDelStringExtraDatas,
+        pyffi.spells.nif.fix.SpellDelTangentSpace,
+        SpellDelCollisionData,
+        SpellDelAnimation,
+        SpellDisableParallax,
+        SpellLowResTexturePath)):
         #TODO: implement vert decreaser.
-        )):
-    """Spell to make _far type nifs."""
+    """Spell to make _far type nifs (for even more optimizations,
+    combine this with the optimize spell).
+    """
     SPELLNAME = "modify_makefarnif"
 
 class SpellMakeSkinlessNif(

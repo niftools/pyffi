@@ -141,7 +141,9 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         "ffvt3rskinpartition": "fix_ffvt3rskinpartition",
         "disableparallax": "fix_disableparallax",
         "exportpixeldata": "dump_pixeldata",
-        "scale": "fix_scale"}
+        "scale": "fix_scale",
+        "opt_cleanfarnif": "modify_cleanfarnif",
+        }
     EXAMPLES = """* check if PyFFI can read all files in current directory
   (python version of nifskope's xml checker):
 
