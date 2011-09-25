@@ -482,8 +482,8 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                 # resize matrices
                 morphdata.num_vertices = new_numvertices
                 for morph in morphdata.morphs:
-                     morph.arg = morphdata.num_vertices # manual argument passing
-                     morph.vectors.update_size()
+                    morph.arg = morphdata.num_vertices # manual argument passing
+                    morph.vectors.update_size()
 
         # recalculate tangent space (only if the branch already exists)
         if (branch.find(block_name='Tangent space (binormal & tangent vectors)',
