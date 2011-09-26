@@ -421,12 +421,6 @@ extra_py_path_check_not_found_${label}_${if_found}:
   Push "$INSTDIR\external\patch_apply.bat"
   Call unix2dos
 
-  ; check if this version of Python needs argparse
-  !insertmacro PostExtraInstallArgParse python_2_5_32
-  !insertmacro PostExtraInstallArgParse python_2_5_64
-  !insertmacro PostExtraInstallArgParse python_2_6_32
-  !insertmacro PostExtraInstallArgParse python_2_6_64
-
   ; Install shortcuts
   CreateDirectory "$SMPROGRAMS\PyFFI\"
   CreateShortCut "$SMPROGRAMS\PyFFI\Authors.lnk" "$INSTDIR\AUTHORS.txt"
