@@ -141,11 +141,8 @@ from io import StringIO
 import gc
 
 import logging # Logger
-try:
-    import multiprocessing # Pool
-except ImportError:
-    # < py26
-    multiprocessing = None
+import concurrent.futures # ProcessPoolExecutor
+import multiprocessing # current_process, cpu_count
 import optparse
 import os # remove
 import os.path # getsize, split, join
@@ -1359,18 +1356,11 @@ may destroy them. Make a backup of your files before running this script.
                 self.logger.debug("process file pool:")
                 for filename in file_pool:
                     self.logger.debug("  " + filename)
-                pool = multiprocessing.Pool(processes=jobs)
-                # force chunksize=1 for the pool
-                # this makes sure that the largest files (which come first
-                # in the pool) are processed in parallel
-                result = pool.map_async(
-                    _toaster_job,
-                    ((self.__class__, filename, self.options, self.spellnames)
-                     for filename in file_pool),
-                    chunksize=1)
-                # specify timeout, so CTRL-C works
-                # 99999999 is about 3 years, should be long enough... :-)
-                result.wait(timeout=99999999)
+                with concurrent.futures.ProcessPoolExecutor(max_workers=jobs) as executor:
+                    list(executor.map(
+                        _toaster_job,
+                        ((self.__class__, filename, self.options, self.spellnames)
+                         for filename in file_pool)))
 
         # toast exit code
         self.spellclass.toastexit(self)
