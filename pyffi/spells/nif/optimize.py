@@ -71,6 +71,7 @@ import pyffi.utils.vertex_cache
 import pyffi.spells
 import pyffi.spells.nif
 import pyffi.spells.nif.fix
+import pyffi.spells.nif.modify
 
 # localization
 #import gettext
@@ -1294,6 +1295,7 @@ class SpellOptimizeAnimation(pyffi.spells.nif.NifSpell):
         
 class SpellOptimize(
     pyffi.spells.SpellGroupSeries(
+        pyffi.spells.nif.modify.SpellCleanFarNif,
         pyffi.spells.SpellGroupParallel(
             pyffi.spells.nif.fix.SpellDelUnusedRoots,
             SpellCleanRefLists,

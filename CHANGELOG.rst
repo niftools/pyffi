@@ -23,6 +23,12 @@ Release 2.1.10 (in development)
   vertices does not match number of shape vertices (reported by
   rlibiez, see issue #3395484).
 
+* Merged ulrim's optimization kit, along with arthmoor's improved ini
+  files.
+
+* Integrated far nif optimization with the general purpose optimize
+  spell (requested by Gratis_monsta, see issue #3177316).
+
 Release 2.1.9 (26 March 2011)
 =============================
 

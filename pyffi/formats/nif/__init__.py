@@ -1323,7 +1323,7 @@ class NifFormat(FileFormat):
                     # check if this is a 'Top Level Object'
                     pos = stream.tell()
                     top_level_str = NifFormat.SizedString()
-                    top_level_str.read(stream)
+                    top_level_str.read(stream, data=self)
                     top_level_str = str(top_level_str)
                     if top_level_str == "Top Level Object":
                         is_root = True
@@ -1511,7 +1511,7 @@ class NifFormat(FileFormat):
                 if self.version < 0x0303000D and block in self.roots:
                     s = NifFormat.SizedString()
                     s.set_value("Top Level Object")
-                    s.write(stream)
+                    s.write(stream, self)
                 if self.version >= 0x05000001:
                     if self.version <= 0x0A01006A:
                         # write zero dummy separator
