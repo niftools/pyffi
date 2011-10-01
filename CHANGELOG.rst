@@ -24,6 +24,9 @@ Release 2.1.10 (in development)
 * Integrated far nif optimization with the general purpose optimize
   spell (requested by Gratis_monsta, see issue #3177316).
 
+* New shell_optimize.ini for configuring optimization as executed from
+  Windows shell.
+
 Release 2.1.9 (26 March 2011)
 =============================
 
