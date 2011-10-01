@@ -971,15 +971,17 @@ class Toaster(object):
         # read config file(s)
         ini_parser.read(value)
         # process all options
-        for opt_str, opt_values in ini_parser.items("options"):
-            option = parser._long_opt["--" + opt_str]
-            for opt_value in shlex.split(opt_values):
-                option.process(opt_str, opt_value, parser.values, parser)
+        if ini_parser.has_section("options"):
+            for opt_str, opt_values in ini_parser.items("options"):
+                option = parser._long_opt["--" + opt_str]
+                for opt_value in shlex.split(opt_values):
+                    option.process(opt_str, opt_value, parser.values, parser)
         # get spells and top folder
-        if ini_parser.has_option("main", "spell"):
-            toaster.spellnames.extend(ini_parser.get("main", "spell").split())
-        if ini_parser.has_option("main", "folder"):
-            toaster.top = ini_parser.get("main", "folder")
+        if ini_parser.has_section("main"):
+            if ini_parser.has_option("main", "spell"):
+                toaster.spellnames.extend(ini_parser.get("main", "spell").split())
+            if ini_parser.has_option("main", "folder"):
+                toaster.top = ini_parser.get("main", "folder")
 
     def cli(self):
         """Command line interface: initializes spell classes and options from
