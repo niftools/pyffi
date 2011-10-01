@@ -523,10 +523,6 @@ install_shortcuts_end:
   DeleteRegKey HKCR "DirectX.DDS.Document\shell\Open with QSkope"
   DeleteRegKey HKCR "inifile\shell\Run PyFFI"
 
-  ; Remove legacy registry keys
-  DeleteRegKey HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI-py2.5"
-  DeleteRegKey HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\PyFFI-py2.6"
-
   ; remove QSkope shortcut
   Delete "$DESKTOP\QSkope.lnk"
 
