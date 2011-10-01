@@ -27,6 +27,8 @@ Release 2.1.10 (in development)
 * New shell_optimize.ini for configuring optimization as executed from
   Windows shell.
 
+* Allow .ini files that do not have a [main] or [options] section.
+
 Release 2.1.9 (26 March 2011)
 =============================
 
