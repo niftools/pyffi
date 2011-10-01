@@ -369,6 +369,7 @@ install_argparse_end_${label}:
 
   SetOutPath "$INSTDIR\utilities\toaster"
   File /oname=default.ini.tmp "${MISC_SRCDIR}\utilities\toaster\default.ini"
+  File /oname=shell_optimize.ini.tmp "${MISC_SRCDIR}\utilities\toaster\shell_optimize.ini"
   File /oname=oblivion_optimize_01.ini.tmp "${MISC_SRCDIR}\utilities\toaster\oblivion_optimize_01.ini"
   File /oname=oblivion_optimize_02.ini.tmp "${MISC_SRCDIR}\utilities\toaster\oblivion_optimize_02.ini"
   File /oname=oblivion_optimize_03.ini.tmp "${MISC_SRCDIR}\utilities\toaster\oblivion_optimize_03.ini"
@@ -395,6 +396,10 @@ install_argparse_end_${label}:
   Delete "$INSTDIR\utilities\toaster\default.ini"
   Push "$INSTDIR\utilities\toaster\default.ini.tmp"
   Push "$INSTDIR\utilities\toaster\default.ini"
+  Call unix2dos
+  Delete "$INSTDIR\utilities\toaster\shell_optimize.ini"
+  Push "$INSTDIR\utilities\toaster\shell_optimize.ini.tmp"
+  Push "$INSTDIR\utilities\toaster\shell_optimize.ini"
   Call unix2dos
   Delete "$INSTDIR\utilities\toaster\oblivion_optimize_01.ini"
   Push "$INSTDIR\utilities\toaster\oblivion_optimize_01.ini.tmp"
