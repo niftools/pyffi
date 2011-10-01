@@ -29,6 +29,9 @@ Release 2.1.10 (in development)
 
 * Allow .ini files that do not have a [main] or [options] section.
 
+* Fix Windows shell integration to point to the new shell_optimize.ini
+  file (reported by rlibiez, see issue #3415490).
+
 Release 2.1.9 (26 March 2011)
 =============================
 
