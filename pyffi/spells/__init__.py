@@ -1373,6 +1373,8 @@ may destroy them. Make a backup of your files before running this script.
                 # specify timeout, so CTRL-C works
                 # 99999999 is about 3 years, should be long enough... :-)
                 result.wait(timeout=99999999)
+                pool.close()
+                pool.join()
 
         # toast exit code
         self.spellclass.toastexit(self)
