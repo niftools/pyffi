@@ -37,6 +37,9 @@ Release 2.1.10 (in development)
 * Fix Windows shell integration to point to the new shell_optimize.ini
   file (reported by rlibiez, see issue #3415490).
 
+* Fixed zombie process problem on Windows when a toaster was running with
+  multiple jobs (reported by Alphanos, see issue #3390826).
+
 Release 2.1.9 (26 March 2011)
 =============================
 
