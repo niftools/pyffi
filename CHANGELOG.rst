@@ -3,8 +3,8 @@ Release 2.2.0 (in development)
 
 * Added PSK and PSA file support (used by Unreal engine).
 
-Release 2.1.10 (in development)
-===============================
+Release 2.1.10 (Oct 10, 2011)
+=============================
 
 * Fixed bspline data methods to handle invalid kfs with missing basis
   data (reported by K'Aviash).
@@ -40,8 +40,8 @@ Release 2.1.10 (in development)
 * Fixed zombie process problem on Windows when a toaster was running with
   multiple jobs (reported by Alphanos, see issue #3390826).
 
-Release 2.1.9 (26 March 2011)
-=============================
+Release 2.1.9 (Mar 26, 2011)
+============================
 
 * Improved documentation of .dir/.img unpack and pack scripts.
 
@@ -113,8 +113,8 @@ Release 2.1.9 (26 March 2011)
 
 * Added ini file to unpack Bully SE .nft files.
 
-Release 2.1.8 (4 February 2011)
-===============================
+Release 2.1.8 (Feb 4, 2011)
+===========================
 
 * Quickhull bugfix for precision argument in degenerate cases
   (issue #3163949, fix contributed by liuhuanjim013).
@@ -133,8 +133,8 @@ Release 2.1.8 (4 February 2011)
 
 * Added Rockstar .dir/.img unpack and pack scripts (only tested for Bully SE).
 
-Release 2.1.7 (23 January 2011)
-===============================
+Release 2.1.7 (Jan 23, 2011)
+============================
 
 * Added support for Fallout New Vegas (contributed by throttlekitty
   and saiden).
@@ -170,8 +170,8 @@ Release 2.1.7 (23 January 2011)
 * Disabled 2to3 in Windows installer; the Python 3 version of PyFFI
   will be released separately.
 
-Release 2.1.6 (13 November 2010)
-================================
+Release 2.1.6 (Nov 13, 2010)
+============================
 
 * The optimize spell now includes two new spells:
   opt_collisiongeometry for optimizing triangle based collisions, and
@@ -241,7 +241,7 @@ Release 2.1.6 (13 November 2010)
 * Remove branches if they have no triangles (again fixes a nif
   reported in issue #3071616).
 
-Release 2.1.5 (18 July 2010)
+Release 2.1.5 (Jul 18, 2010)
 ============================
 
 * Improved interface for TRI files, and a bugfix in TRI file writing.
@@ -283,8 +283,8 @@ Release 2.1.5 (18 July 2010)
 * Fixed NiPSysData read and write for Fallout 3 (reported by Chaky,
   niftools issue #3010861).
 
-Release 2.1.4 (19 Mar 2010)
-===========================
+Release 2.1.4 (Mar 19, 2010)
+============================
 
 * Extra names in oblivion_optimize.ini skip list for known mods
   (contributed by Tommy_H).
@@ -306,8 +306,8 @@ Release 2.1.4 (19 Mar 2010)
 * The optimize spell has been fixed to update Fallout 3 style tangent
   space (fixes issue #2941568, reported by xjdhdr).
 
-Release 2.1.3 (20 Feb 2010)
-===========================
+Release 2.1.3 (Feb 20, 2010)
+============================
 
 * Added toaster option to process files in archives (not yet functional).
 
