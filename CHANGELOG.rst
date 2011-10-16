@@ -1,3 +1,10 @@
+Release 2.1.11 (in development)
+===============================
+
+* Explicitly use wine for running mopper on non-win32 platforms
+  (fixes issue on Arch Linux, reported by ifss000f, see issue
+  #3423990).
+
 Release 2.1.10 (Oct 10, 2011)
 =============================
 

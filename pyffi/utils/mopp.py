@@ -40,6 +40,7 @@
 import os.path
 import tempfile
 import subprocess
+import sys
 
 def _skip_terminal_chars(stream):
     """Skip initial terminal characters (happens when mopper runs via wine)."""
@@ -164,7 +165,10 @@ def getMopperOriginScaleCodeWelding(vertices, triangles, material_indices=None):
             infile.write("%i\n" % matindex)
         infile.seek(0)
         # call mopper (raises OSError on failure)
-        subprocess.call([mopper, "--"], stdin=infile, stdout=outfile)
+        if sys.platform == "win32":
+            subprocess.call([mopper, "--"], stdin=infile, stdout=outfile)
+        else:
+            subprocess.call(["/usr/bin/wine", mopper, "--"], stdin=infile, stdout=outfile)
         # process output
         outfile.seek(0)
         _skip_terminal_chars(outfile)
