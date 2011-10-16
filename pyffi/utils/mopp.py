@@ -93,7 +93,7 @@ def getMopperCredits():
         if sys.platform == "win32":
             subprocess.call([mopper], stdout=outfile)
         else:
-            subprocess.call(["/usr/bin/wine", mopper], stdout=outfile)
+            subprocess.call(["wine", mopper], stdout=outfile)
         outfile.seek(0)
         _skip_terminal_chars(outfile)
         creditstr = outfile.read().replace("\r\n", "\n")
@@ -171,7 +171,7 @@ def getMopperOriginScaleCodeWelding(vertices, triangles, material_indices=None):
         if sys.platform == "win32":
             subprocess.call([mopper, "--"], stdin=infile, stdout=outfile)
         else:
-            subprocess.call(["/usr/bin/wine", mopper, "--"], stdin=infile, stdout=outfile)
+            subprocess.call(["wine", mopper, "--"], stdin=infile, stdout=outfile)
         # process output
         outfile.seek(0)
         _skip_terminal_chars(outfile)
