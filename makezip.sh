@@ -31,9 +31,9 @@ version=`python3 setup.py -V`
 wcrev=`git log -1 --pretty=format:%h`
 if [ "$1" == "test" ]
 then
-	extversion=$version-$2.$wcrev
+	extversion=py3k-$version-$2.$wcrev
 else
-	extversion=$version.$wcrev
+	extversion=py3k-$version.$wcrev
 fi
 pushd dist
 mv PyFFI-$version.zip PyFFI-$extversion.zip
