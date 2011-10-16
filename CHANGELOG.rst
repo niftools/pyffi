@@ -5,6 +5,9 @@ Release 2.1.11 (in development)
   (fixes issue on Arch Linux, reported by ifss000f, see issue
   #3423990).
 
+* Removed skip list from extra fix_texturepath stage in Oblivion
+  optimization kit.
+
 Release 2.1.10 (Oct 10, 2011)
 =============================
 
