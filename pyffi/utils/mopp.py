@@ -90,7 +90,10 @@ def getMopperCredits():
     outfile = tempfile.TemporaryFile("w+") # not binary
     try:
         # get license info, credit havok (raises OSError on failure)
-        subprocess.call([mopper], stdout=outfile)
+        if sys.platform == "win32":
+            subprocess.call([mopper], stdout=outfile)
+        else:
+            subprocess.call(["/usr/bin/wine", mopper], stdout=outfile)
         outfile.seek(0)
         _skip_terminal_chars(outfile)
         creditstr = outfile.read().replace("\r\n", "\n")
