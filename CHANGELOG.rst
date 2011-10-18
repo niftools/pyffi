@@ -13,6 +13,8 @@ Release 2.1.11 (in development)
 * Removed skip list from extra fix_texturepath stage in Oblivion
   optimization kit.
 
+* Various minor optimizations (contributed by infectedsoundsystem).
+
 Release 2.1.10 (Oct 10, 2011)
 =============================
 
