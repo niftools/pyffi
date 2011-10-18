@@ -364,10 +364,10 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
             data.set_triangles(triangles)
 
         # copy old data
-        oldverts = [[v.x, v.y, v.z] for v in data.vertices]
-        oldnorms = [[n.x, n.y, n.z] for n in data.normals]
-        olduvs   = [[[uv.u, uv.v] for uv in uvset] for uvset in data.uv_sets]
-        oldvcols = [[c.r, c.g, c.b, c.a] for c in data.vertex_colors]
+        oldverts = [(v.x, v.y, v.z) for v in data.vertices]
+        oldnorms = [(n.x, n.y, n.z) for n in data.normals]
+        olduvs   = [[(uv.u, uv.v) for uv in uvset] for uvset in data.uv_sets]
+        oldvcols = [(c.r, c.g, c.b, c.a) for c in data.vertex_colors]
         if branch.skin_instance: # for later
             oldweights = branch.get_vertex_weights()
         # set new data
