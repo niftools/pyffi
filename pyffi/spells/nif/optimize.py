@@ -302,9 +302,8 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
 
         v_map, v_map_inverse = self.optimize_vertices(data)
         
-        new_numvertices = len(v_map_inverse)
         self.toaster.msg("(num vertices was %i and is now %i)"
-                         % (len(v_map), new_numvertices))
+                         % (len(v_map), len(v_map_inverse)))
 
         # optimizing triangle ordering
         # first, get new triangle indices, with duplicate vertices removed
