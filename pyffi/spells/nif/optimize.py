@@ -297,14 +297,15 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
             self.data.replace_global_node(branch, None)
             return False
 
+        self.optimized.append(branch)
+
         # shortcut
         data = branch.data
 
         v_map, v_map_inverse = self.optimize_vertices(data)
         
-        new_numvertices = len(v_map_inverse)
         self.toaster.msg("(num vertices was %i and is now %i)"
-                         % (len(v_map), new_numvertices))
+                         % (len(v_map), len(v_map_inverse)))
 
         # optimizing triangle ordering
         # first, get new triangle indices, with duplicate vertices removed
@@ -365,10 +366,10 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
             data.set_triangles(triangles)
 
         # copy old data
-        oldverts = [[v.x, v.y, v.z] for v in data.vertices]
-        oldnorms = [[n.x, n.y, n.z] for n in data.normals]
-        olduvs   = [[[uv.u, uv.v] for uv in uvset] for uvset in data.uv_sets]
-        oldvcols = [[c.r, c.g, c.b, c.a] for c in data.vertex_colors]
+        oldverts = [(v.x, v.y, v.z) for v in data.vertices]
+        oldnorms = [(n.x, n.y, n.z) for n in data.normals]
+        olduvs   = [[(uv.u, uv.v) for uv in uvset] for uvset in data.uv_sets]
+        oldvcols = [(c.r, c.g, c.b, c.a) for c in data.vertex_colors]
         if branch.skin_instance: # for later
             oldweights = branch.get_vertex_weights()
         # set new data
@@ -985,7 +986,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
             full_v_map_inverse += [old_num_vertices + old_i
                                    for old_i in v_map_inverse]
         # copy old data
-        oldverts = [[v.x, v.y, v.z] for v in data.vertices]
+        oldverts = [(v.x, v.y, v.z) for v in data.vertices]
         # set new subshape counts
         for subshape_index, subshape_count in enumerate(subshape_counts):
             if shape.sub_shapes:
@@ -1022,8 +1023,8 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
         self.toaster.msg(_("(num triangles in collision shape was %i and is now %i)")
                          % (len(t_map), new_numtriangles))
         # copy old data
-        oldtris = [[tri.triangle.v_1, tri.triangle.v_2, tri.triangle.v_3,
-                    tri.normal.x, tri.normal.y, tri.normal.z]
+        oldtris = [(tri.triangle.v_1, tri.triangle.v_2, tri.triangle.v_3,
+                    tri.normal.x, tri.normal.y, tri.normal.z)
                    for tri in data.triangles]
         # set new data
         data.num_triangles = new_numtriangles
