@@ -297,6 +297,8 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
             self.data.replace_global_node(branch, None)
             return False
 
+        self.optimized.append(branch)
+
         # shortcut
         data = branch.data
 
