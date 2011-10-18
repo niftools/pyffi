@@ -3,6 +3,8 @@ Release 2.2.0 (in development)
 
 * Added PSK and PSA file support (used by Unreal engine).
 
+* A py3k fix (contributed by infectedsoundsystem).
+
 Release 2.1.11 (in development)
 ===============================
 
