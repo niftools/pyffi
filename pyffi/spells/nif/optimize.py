@@ -438,7 +438,7 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
                     # update mapping
                     new_triangles = []
                     new_trianglepartmap = []
-                    for triangle, trianglepart in izip(triangles, trianglepartmap):
+                    for triangle, trianglepart in zip(triangles, trianglepartmap):
                         new_triangle = tuple(v_map[i] for i in triangle)
                         # it could happen that v_map[i] is None
                         # these triangles are skipped
