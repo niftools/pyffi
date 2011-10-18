@@ -984,7 +984,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
             full_v_map_inverse += [old_num_vertices + old_i
                                    for old_i in v_map_inverse]
         # copy old data
-        oldverts = [[v.x, v.y, v.z] for v in data.vertices]
+        oldverts = [(v.x, v.y, v.z) for v in data.vertices]
         # set new subshape counts
         for subshape_index, subshape_count in enumerate(subshape_counts):
             if shape.sub_shapes:
@@ -1021,8 +1021,8 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
         self.toaster.msg(_("(num triangles in collision shape was %i and is now %i)")
                          % (len(t_map), new_numtriangles))
         # copy old data
-        oldtris = [[tri.triangle.v_1, tri.triangle.v_2, tri.triangle.v_3,
-                    tri.normal.x, tri.normal.y, tri.normal.z]
+        oldtris = [(tri.triangle.v_1, tri.triangle.v_2, tri.triangle.v_3,
+                    tri.normal.x, tri.normal.y, tri.normal.z)
                    for tri in data.triangles]
         # set new data
         data.num_triangles = new_numtriangles
