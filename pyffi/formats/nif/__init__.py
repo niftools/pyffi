@@ -6269,10 +6269,21 @@ class NifFormat(FileFormat):
                     n = yvec
                 try:
                     # turn n, bin, tan into a base via Gram-Schmidt
-                    bin[h] -= n * (n * bin[h])
+                    scalar = n * bin[h]
+                    bin[h].x -= n.x * scalar
+                    bin[h].y -= n.y * scalar
+                    bin[h].z -= n.z * scalar
                     bin[h].normalize()
-                    tan[h] -= n * (n * tan[h])
-                    tan[h] -= bin[h] * (bin[h] * tan[h])
+
+                    scalar = n * tan[h]
+                    tan[h].x -= n.x * scalar
+                    tan[h].y -= n.y * scalar
+                    tan[h].z -= n.z * scalar
+                    
+                    scalar = bin[h] * tan[h]
+                    tan[h].x -= bin[h].x * scalar
+                    tan[h].y -= bin[h].y * scalar
+                    tan[h].z -= bin[h].z * scalar
                     tan[h].normalize()
                 except ZeroDivisionError:
                     # insuffient data to set tangent space for this vertex
