@@ -168,11 +168,11 @@ recursively, for Freedom Force vs. The 3rd Reich
 
 * run the profiler on PyFFI while reading nif files:
 
-    python -m cProfile -s cumulative -o profile_read.txt niftoaster.py check_read .
+    python -m cProfile -s cumulative -o profile_read.txt niftoaster.py -j 1 check_read .
 
 * find out time spent on a particular test:
 
-    python -m cProfile -s cumulative niftoaster.py check_tristrip
+    python -m cProfile -s cumulative niftoaster.py -j 1 check_tristrip
 
 * scale all files in c:\\zoo2 by a factor 100 - useful to
   visualize nif files from games such as Zoo Tycoon 2 that are otherwise too

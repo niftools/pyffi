@@ -70,11 +70,11 @@ class CgfToaster(pyffi.spells.cgf.CgfToaster):
 * same as above, but also find out profile information on reading cgf
   files:
 
-    python -m cProfile -s cumulative -o profile_read.txt cgftoaster.py read .
+    python -m cProfile -s cumulative -o profile_read.txt cgftoaster.py -j 1 read .
 
 * find out time spent on a particular test:
 
-    python -m cProfile -s cumulative cgftoaster.py dump"""
+    python -m cProfile -s cumulative cgftoaster.py -j 1 dump"""
 
 # if script is called...
 if __name__ == "__main__":
