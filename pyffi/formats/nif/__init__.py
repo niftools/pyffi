@@ -1982,8 +1982,9 @@ class NifFormat(FileFormat):
         def norm(self, sqrt=math.sqrt):
             return sqrt(self.x*self.x + self.y*self.y + self.z*self.z)
 
-        def normalize(self, ignore_error=False):
-            norm = self.norm()
+        def normalize(self, ignore_error=False, sqrt=math.sqrt):
+            # inlining norm() to reduce overhead
+            norm = sqrt(self.x*self.x + self.y*self.y + self.z*self.z)
             if norm < NifFormat.EPSILON:
                 if not ignore_error:
                     raise ZeroDivisionError('cannot normalize vector %s'%self)
