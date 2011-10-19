@@ -6216,10 +6216,9 @@ class NifFormat(FileFormat):
 
                 # contribution of this triangle to tangents and binormals
                 sdir = NifFormat.Vector3()
-                sdir.x = w3w1.v * v_2v_1.x - w2w1.v * v_3v_1.x
-                sdir.y = w3w1.v * v_2v_1.y - w2w1.v * v_3v_1.y
-                sdir.z = w3w1.v * v_2v_1.z - w2w1.v * v_3v_1.z
-                sdir *= r_sign
+                sdir.x = (w3w1.v * v_2v_1.x - w2w1.v * v_3v_1.x) * r_sign
+                sdir.y = (w3w1.v * v_2v_1.y - w2w1.v * v_3v_1.y) * r_sign
+                sdir.z = (w3w1.v * v_2v_1.z - w2w1.v * v_3v_1.z) * r_sign
                 try:
                     sdir.normalize()
                 except ZeroDivisionError: # catches zero vector
@@ -6228,10 +6227,9 @@ class NifFormat(FileFormat):
                     continue # skip triangle
 
                 tdir = NifFormat.Vector3()
-                tdir.x = w2w1.u * v_3v_1.x - w3w1.u * v_2v_1.x
-                tdir.y = w2w1.u * v_3v_1.y - w3w1.u * v_2v_1.y
-                tdir.z = w2w1.u * v_3v_1.z - w3w1.u * v_2v_1.z
-                tdir *= r_sign
+                tdir.x = (w2w1.u * v_3v_1.x - w3w1.u * v_2v_1.x) * r_sign
+                tdir.y = (w2w1.u * v_3v_1.y - w3w1.u * v_2v_1.y) * r_sign
+                tdir.z = (w2w1.u * v_3v_1.z - w3w1.u * v_2v_1.z) * r_sign
                 try:
                     tdir.normalize()
                 except ZeroDivisionError: # catches zero vector
