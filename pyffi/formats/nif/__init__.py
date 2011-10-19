@@ -1979,8 +1979,8 @@ class NifFormat(FileFormat):
         def as_tuple(self):
             return (self.x, self.y, self.z)
 
-        def norm(self):
-            return (self.x*self.x + self.y*self.y + self.z*self.z) ** 0.5
+        def norm(self, sqrt=math.sqrt):
+            return sqrt(self.x*self.x + self.y*self.y + self.z*self.z)
 
         def normalize(self, ignore_error=False):
             norm = self.norm()
