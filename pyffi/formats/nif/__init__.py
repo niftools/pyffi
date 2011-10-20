@@ -1585,11 +1585,15 @@ class NifFormat(FileFormat):
                     self._makeBlockList(
                         entity, block_index_dct, block_type_list, block_type_dct)
 
+            children = root.get_refs(data=self)
+            children_left = []
             # add children that come before the block
-            for child in root.get_refs(data=self):
+            for child in children:
                 if _blockChildBeforeParent(child):
                     self._makeBlockList(
                         child, block_index_dct, block_type_list, block_type_dct)
+                else:
+                    children_left.append(child)
 
             # add the block
             if self.version >= 0x0303000D:
@@ -1599,7 +1603,7 @@ class NifFormat(FileFormat):
             self.blocks.append(root)
 
             # add children that come after the block
-            for child in root.get_refs(data=self):
+            for child in children_left:
                 if not _blockChildBeforeParent(child):
                     self._makeBlockList(
                         child, block_index_dct, block_type_list, block_type_dct)
