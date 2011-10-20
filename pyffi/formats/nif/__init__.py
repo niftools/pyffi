@@ -1594,6 +1594,7 @@ class NifFormat(FileFormat):
                         child, block_index_dct, block_type_list, block_type_dct)
                 else:
                     children_left.append(child)
+            del children
 
             # add the block
             if self.version >= 0x0303000D:
