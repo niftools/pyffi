@@ -541,31 +541,32 @@ class StructBase(GlobalNode):
             #print(attr.name, version, attr.ver1, attr.ver2) # debug
 
             # check version
-            if not (version is None):
-                if (not (attr.ver1 is None)) and version < attr.ver1:
+            if version is not None:
+                if attr.ver1 is not None and version < attr.ver1:
                     continue
-                if (not (attr.ver2 is None)) and version > attr.ver2:
+                if attr.ver2 is not None and version > attr.ver2:
                     continue
             #print("version check passed") # debug
 
             # check user version
-            if not(attr.userver is None or user_version is None) \
-               and user_version != attr.userver:
+            if (attr.userver is not None and user_version is not None
+                and user_version != attr.userver):
                 continue
             #print("user version check passed") # debug
 
             # check conditions
-            if not (attr.cond is None) and not attr.cond.eval(self):
+            if attr.cond is not None and not attr.cond.eval(self):
                 continue
 
-            if not(version is None or user_version is None
-                   or attr.vercond is None):
+            if (version is not None and user_version is not None
+                and attr.vercond is not None):
                 if not attr.vercond.eval(data):
                     continue
 
             #print("condition passed") # debug
 
             # skip dupiclate names
+
             if attr.name in names:
                 continue
             #print("duplicate check passed") # debug
