@@ -162,7 +162,7 @@ class SpellAddTangentSpace(NifSpell):
     READONLY = False
 
     def datainspect(self):
-        return self.inspectblocktype(NifFormat.NiBinaryExtraData)
+        return self.inspectblocktype(NifFormat.NiTriBasedGeom)
 
     def branchinspect(self, branch):
         # only inspect the NiAVObject branch
