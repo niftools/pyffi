@@ -240,7 +240,7 @@ class StructBase(GlobalNode):
             array is an attribute of."""
         # used to track names of attributes that have already been added
         # is faster than self.__dict__.has_key(...)
-        names = []
+        names = set()
         # initialize argument
         self.arg = argument
         # save parent (note: disabled for performance)
@@ -256,7 +256,7 @@ class StructBase(GlobalNode):
             # type, template, argument, arr1, and arr2)
             if attr.name in names:
                 continue
-            names.append(attr.name)
+            names.add(attr.name)
 
             # things that can only be determined at runtime (rt_xxx)
             rt_type = attr.type_ if attr.type_ != type(None) \
@@ -536,7 +536,7 @@ class StructBase(GlobalNode):
         else:
             version = None
             user_version = None
-        names = []
+        names = set()
         for attr in self._attribute_list:
             #print(attr.name, version, attr.ver1, attr.ver2) # debug
 
@@ -571,7 +571,7 @@ class StructBase(GlobalNode):
                 continue
             #print("duplicate check passed") # debug
 
-            names.append(attr.name)
+            names.add(attr.name)
             # passed all tests
             # so yield the attribute
             yield attr
