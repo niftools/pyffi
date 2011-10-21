@@ -1605,9 +1605,8 @@ class NifFormat(FileFormat):
 
             # add children that come after the block
             for child in children_left:
-                if not _blockChildBeforeParent(child):
-                    self._makeBlockList(
-                        child, block_index_dct, block_type_list, block_type_dct)
+                self._makeBlockList(
+                    child, block_index_dct, block_type_list, block_type_dct)
 
     # extensions of generated structures
 
