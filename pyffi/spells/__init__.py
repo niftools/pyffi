@@ -180,7 +180,7 @@ class Spell(object):
     written back, otherwise not.
     """
 
-    report = None
+    reports = None
     """Any information the spell wants to report back to the toaster
     (used for instance for regression testing).
     """
@@ -400,6 +400,11 @@ class Spell(object):
         method.
         """
         return toaster.get_toast_stream(filename, test_exists=test_exists)
+
+    def append_report(self, report):
+        if self.reports is None:
+            self.reports = []
+        self.reports.append(report)
 
 class SpellGroupBase(Spell):
     """Base class for grouping spells. This implements all the spell grouping
@@ -1466,7 +1471,7 @@ may destroy them. Make a backup of your files before running this script.
                         self.writepatch(stream, data)
                     else:
                         self.write(stream, data)
-            self.files_done[stream.name] = spell.report
+            self.files_done[stream.name] = spell.reports
 
         except Exception:
             self.files_failed.add(stream.name)
