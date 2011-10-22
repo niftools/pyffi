@@ -6239,12 +6239,14 @@ class NifFormat(FileFormat):
 
                 # vector combination algorithm could possibly be improved
                 for h in [h1, h2, h3]:
-                    tan[h].x += tdir.x
-                    tan[h].y += tdir.y
-                    tan[h].z += tdir.z
-                    bin[h].x += sdir.x
-                    bin[h].y += sdir.y
-                    bin[h].z += sdir.z
+                    tanh = tan[h]
+                    tanh.x += tdir.x
+                    tanh.y += tdir.y
+                    tanh.z += tdir.z
+                    binh = bin[h]
+                    binh.x += sdir.x
+                    binh.y += sdir.y
+                    binh.z += sdir.z
 
             xvec = NifFormat.Vector3()
             xvec.x = 1.0
