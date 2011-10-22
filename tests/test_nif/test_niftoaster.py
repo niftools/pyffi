@@ -26,14 +26,16 @@ def test_raise():
 def test_no_raise():
     toaster = call_niftoaster(
         "check_readwrite", "tests/nif/invalid.nif")
-    nose.tools.assert_equal(toaster.files_failed, ["tests/nif/invalid.nif"])
+    nose.tools.assert_equal(
+        sorted(toaster.files_failed), ["tests/nif/invalid.nif"])
 
 def test_check_readwrite():
     for filename in ["nds.nif", "neosteam.nif", "test.nif"]:
         fullfilename = "tests/nif/{0}".format(filename)
         toaster = call_niftoaster(
             "--raise", "check_readwrite", fullfilename)
-        nose.tools.assert_equal(toaster.files_done, [fullfilename])
+        nose.tools.assert_equal(
+            sorted(toaster.files_done), [fullfilename])
 
 def test_check_skip_only():
     toaster = call_niftoaster(
@@ -82,8 +84,7 @@ def test_check_skip_only():
             'tests/nif/test_skincenterradius.nif',
             'tests/nif/test_vertexcolor.nif',
             ])
-    nose.tools.assert_equal(
-        toaster.files_failed, [])
+    nose.tools.assert_equal(toaster.files_failed, set([]))
 
 def test_prefix_suffix():
     call_niftoaster(
@@ -93,26 +94,17 @@ def test_prefix_suffix():
     os.remove("tests/nif/pre_test_suf.nif")
 
 def test_check_bhkbodycenter():
-    pass
-"""
->>> import sys
->>> sys.path.append("scripts/nif")
->>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_bhkbodycenter", "tests/nif/test_fix_detachhavoktristripsdata.nif"]
->>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
-pyffi.toaster:INFO:=== tests/nif/test_fix_detachhavoktristripsdata.nif ===
-pyffi.toaster:INFO:  --- check_bhkbodycenter ---
-pyffi.toaster:INFO:    ~~~ NiNode [MiddleWolfRug01] ~~~
-pyffi.toaster:INFO:      ~~~ NiTriStrips [MiddleWolfRug01:0] ~~~
-pyffi.toaster:INFO:        ~~~ bhkCollisionObject [] ~~~
-pyffi.toaster:INFO:          ~~~ bhkRigidBodyT [] ~~~
-pyffi.toaster:INFO:            getting rigid body mass, center, and inertia
-pyffi.toaster:INFO:            recalculating...
-pyffi.toaster:INFO:            checking center...
-pyffi.toaster:WARNING:center does not match; original [  0.000  0.000  0.000  0.000 ], calculated [ -1.085 18.465  6.887  0.000 ]
-pyffi.toaster:INFO:            checking inertia...
-pyffi.toaster:INFO:Finished.
-"""
+    testfile = "tests/nif/test_fix_detachhavoktristripsdata.nif"
+    toaster = call_niftoaster(
+        "check_bhkbodycenter", testfile)
+    orig = toaster.files_done[testfile][0]["center_original"]
+    calc = toaster.files_done[testfile][0]["center_calculated"]
+    nose.tools.assert_equal(orig, (0.0, 0.0, 0.0, 0.0))
+    nose.tools.assert_almost_equal(calc[0], -1.08541444)
+    nose.tools.assert_almost_equal(calc[1], 18.46527444)
+    nose.tools.assert_almost_equal(calc[2], 6.88672184)
+    nose.tools.assert_almost_equal(calc[3], 0.0)
+    
 """
 The check_centerradius spell
 ----------------------------

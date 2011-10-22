@@ -318,6 +318,12 @@ class SpellCheckBhkBodyCenter(pyffi.spells.nif.NifSpell):
                 self.toaster.logger.warn(
                     "center does not match; original %s, calculated %s"
                     % (center, branch.center))
+                if self.report is None:
+                    self.report = []
+                self.report.append({
+                    "center_original": center.as_tuple(),
+                    "center_calculated": branch.center.as_tuple(),
+                    })
 
             self.toaster.msg("checking inertia...")
 
@@ -330,6 +336,12 @@ class SpellCheckBhkBodyCenter(pyffi.spells.nif.NifSpell):
                 self.toaster.logger.warn(
                     "inertia does not match:\n\noriginal\n%s\n\ncalculated\n%s\n"
                     % (inertia, branch.inertia))
+                if self.report is None:
+                    self.report = []
+                self.report.append({
+                    "inertia_original": inertia.as_tuple(),
+                    "inertia_calculated": branch.inertia.as_tuple(),
+                    })
             # stop recursing
             return False
 

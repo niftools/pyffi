@@ -180,6 +180,11 @@ class Spell(object):
     written back, otherwise not.
     """
 
+    report = None
+    """Any information the spell wants to report back to the toaster
+    (used for instance for regression testing).
+    """
+
     # spells are readonly by default
     READONLY = True
     """A ``bool`` which determines whether the spell is read only or
@@ -725,9 +730,9 @@ class Toaster(object):
             # deprecated
             self.spellclass = spellclass
         # track which files toasted succesfully, and which did not
-        self.files_done = []
-        self.files_skipped = []
-        self.files_failed = []
+        self.files_done = {}
+        self.files_skipped = set()
+        self.files_failed = set()
 
     def _update_options(self):
         """Synchronize some fields with given options."""
@@ -1420,7 +1425,7 @@ may destroy them. Make a backup of your files before running this script.
         # inspect the file name
         if not self.inspect_filename(stream.name):
             self.msg("=== %s (skipped) ===" % stream.name)
-            self.files_skipped.append(stream.name)
+            self.files_skipped.add(stream.name)
             return
 
         # check if file exists
@@ -1455,10 +1460,10 @@ may destroy them. Make a backup of your files before running this script.
                         self.writepatch(stream, data)
                     else:
                         self.write(stream, data)
-            self.files_done.append(stream.name)
+            self.files_done[stream.name] = spell.report
 
         except Exception:
-            self.files_failed.append(stream.name)
+            self.files_failed.add(stream.name)
             self.logger.error("TEST FAILED ON %s" % stream.name)
             self.logger.error(
                 "If you were running a spell that came with PyFFI, then")
