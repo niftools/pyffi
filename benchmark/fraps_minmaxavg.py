@@ -53,8 +53,8 @@ for root, dirs, files in os.walk(folder):
         print("parsing {0}".format(name))
         with open(os.path.join(root, name), "rb") as csvfile:
             rows = csv.reader(csvfile)
-            header = rows.next()
-            numbers = rows.next()
+            header = next(rows)
+            numbers = next(rows)
             for name, num in zip(header, numbers):
                 name = name.strip()
                 total[root][name].append(float(num))
@@ -63,16 +63,16 @@ def summary(outfile):
     for root in sorted(total):
         if not total[root]["Frames"]:
             continue
-        print >>outfile, root
-        print >> outfile, "-" * len(root)
-        print >> outfile
-        print >>outfile, "summary of {0} tests:".format(len(total[root]["Frames"]))
-        for name, vec in total[root].iteritems():
-            print >> outfile, "{0:10}: {1:10.3f} +- {2:10.3f}".format(
+        print(root, file=outfile)
+        print("-" * len(root), file=outfile)
+        print(file=outfile)
+        print("summary of {0} tests:".format(len(total[root]["Frames"])), file=outfile)
+        for name, vec in total[root].items():
+            print("{0:10}: {1:10.3f} +- {2:10.3f}".format(
                 name,
                 mean(vec),
-                1.96 * sd(vec) / (len(vec) ** 0.5))
-        print >> outfile
+                1.96 * sd(vec) / (len(vec) ** 0.5)), file=outfile)
+        print(file=outfile)
 
 summary(sys.stdout)
 with open(os.path.join(folder, "summary.txt"), "w") as outfile:

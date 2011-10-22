@@ -57,9 +57,9 @@ for root, dirs, files in os.walk(folder):
 
 def summary(outfile):
     for name, vec in sorted(total.items()):
-        print >>outfile, "{0:10}: {1:10.4f} +- {2:10.4f}".format(
+        print("{0:10}: {1:10.4f} +- {2:10.4f}".format(
             name,
             mean(vec),
-            1.96 * sd(vec) / (len(vec) ** 0.5))
+            1.96 * sd(vec) / (len(vec) ** 0.5)), file=outfile)
 
 summary(sys.stdout)
