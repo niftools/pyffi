@@ -41,7 +41,8 @@ import os
 import sys
 
 def mean(vec):
-    """
+    """Sample mean.
+
     >>> mean([1, 2, 3, 4, 5])
     3.0
     """
@@ -49,7 +50,8 @@ def mean(vec):
     return float(sum(vec)) / len(vec)
 
 def sd(vec):
-    """
+    """Sample standard deviation.
+
     >>> sd([1, 2, 3, 4, 5]) # doctest: +ELLIPSIS
     1.581138...
     """
@@ -80,6 +82,34 @@ def mad(vec):
     """
     m = median(vec)
     return median(abs(x - m) for x in vec)
+
+def iqr(vec):
+    """Interquartile range.
+
+    >>> iqr([88, 8, 53, 93, 70, 9, 87, 23, 29, 45])
+    64
+    >>> iqr([89, 48, 62, 32, 10, 84, 42, 54, 9])
+    30
+    """
+    vec = sorted(vec)
+    mid = (len(vec) - 1) // 2
+    if len(vec) & 1:
+        left = vec[:mid + 1]
+        right = vec[mid:]
+    else:
+        left = vec[:mid + 1]
+        right = vec[mid + 1:]
+    return median(right) - median(left)
+
+def confint(vec, robust=False):
+    """Confidence interval for the population mean at 5% significance."""
+    if not robust:
+        center = mean(vec)
+        bound = 1.96 * sd(vec) / (len(vec) ** 0.5)
+    else:
+        center = median(vec)
+        bound = 1.96 * 1.349 * iqr(vec) / (len(vec) ** 0.5)
+    return center - bound, center + bound
 
 if __name__ == "__main__":
     import doctest
