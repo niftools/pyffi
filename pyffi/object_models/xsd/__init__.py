@@ -524,7 +524,9 @@ class MetaFileFormat(pyffi.object_models.MetaFileFormat):
             try:
                 # create nodes for every element in the XSD tree
                 schema = Tree.node_factory(
-                    xml.etree.cElementTree.parse(xsdfile).getroot(), None)
+                    # XXX cElementTree python bug when running nosetests
+                    #xml.etree.cElementTree.parse(xsdfile).getroot(), None)
+                    xml.etree.ElementTree.parse(xsdfile).getroot(), None)
             finally:
                 xsdfile.close()
             # generate classes
