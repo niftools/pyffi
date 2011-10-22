@@ -724,6 +724,10 @@ class Toaster(object):
         else:
             # deprecated
             self.spellclass = spellclass
+        # track which files toasted succesfully, and which did not
+        self.files_done = []
+        self.files_skipped = []
+        self.files_failed = []
 
     def _update_options(self):
         """Synchronize some fields with given options."""
@@ -1416,6 +1420,7 @@ may destroy them. Make a backup of your files before running this script.
         # inspect the file name
         if not self.inspect_filename(stream.name):
             self.msg("=== %s (skipped) ===" % stream.name)
+            self.files_skipped.append(stream.name)
             return
 
         # check if file exists
@@ -1450,8 +1455,10 @@ may destroy them. Make a backup of your files before running this script.
                         self.writepatch(stream, data)
                     else:
                         self.write(stream, data)
+            self.files_done.append(stream.name)
 
         except Exception:
+            self.files_failed.append(stream.name)
             self.logger.error("TEST FAILED ON %s" % stream.name)
             self.logger.error(
                 "If you were running a spell that came with PyFFI, then")
@@ -1473,7 +1480,7 @@ may destroy them. Make a backup of your files before running this script.
             toasted.
         :type filename: :class:`str`
         :return: The head, root, and extension of the destination, or
-            ``(None, None, None)`` if ``--dryrun`` is specified.
+            ``(None, None, None)`` if ``--dry-run`` is specified.
         :rtype: :class:`tuple` of three :class:`str`\ s
         """
         # first cover trivial case
