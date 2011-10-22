@@ -6239,6 +6239,7 @@ class NifFormat(FileFormat):
 
                 # vector combination algorithm could possibly be improved
                 for h in [h1, h2, h3]:
+                    # addition inlined for speed
                     tanh = tan[h]
                     tanh.x += tdir.x
                     tanh.y += tdir.y
