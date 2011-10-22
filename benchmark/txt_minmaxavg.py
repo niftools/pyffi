@@ -37,10 +37,24 @@
 #
 # ***** END LICENSE BLOCK *****
 
+import argparse
 import os
 import sys
 
-from summary import mean, sd
+from summary import confint
+
+parser = argparse.ArgumentParser(
+    description='Summary statistics about population mean from sample data.')
+parser.add_argument(
+    '--robust', dest='robust', default=False, action='store_true',
+    help='use median and iqr instead of mean and standard deviation',
+    )
+parser.add_argument(
+    'folder', type=str, action='store',
+    help='the folder to process files from',
+    )
+
+args = parser.parse_args()
 
 total = {}
 folder = sys.argv[1]
@@ -57,9 +71,7 @@ for root, dirs, files in os.walk(folder):
 
 def summary(outfile):
     for name, vec in sorted(total.items()):
-        print >>outfile, "{0:10}: {1:10.4f} +- {2:10.4f}".format(
-            name,
-            mean(vec),
-            1.96 * sd(vec) / (len(vec) ** 0.5))
+        low, up = confint(vec, robust=args.robust)
+        print >>outfile, "{0:10}: [{1:10.4f}, {2:10.4f}]".format(name, low, up)
 
 summary(sys.stdout)
