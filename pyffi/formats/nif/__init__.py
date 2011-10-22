@@ -1984,15 +1984,17 @@ class NifFormat(FileFormat):
 
         def normalize(self, ignore_error=False, sqrt=math.sqrt):
             # inlining norm() to reduce overhead
-            norm = sqrt(self.x*self.x + self.y*self.y + self.z*self.z)
-            if norm < NifFormat.EPSILON:
+            try:
+                factor = 1.0 / sqrt(self.x*self.x + self.y*self.y + self.z*self.z)
+            except ZeroDivisionError:
                 if not ignore_error:
-                    raise ZeroDivisionError('cannot normalize vector %s'%self)
+                    raise
                 else:
                     return
-            self.x /= norm
-            self.y /= norm
-            self.z /= norm
+            # inlining multiplication for speed
+            self.x *= factor
+            self.y *= factor
+            self.z *= factor
 
         def normalized(self, ignore_error=False):
             vec = self.get_copy()
