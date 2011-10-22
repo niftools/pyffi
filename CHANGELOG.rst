@@ -8,12 +8,13 @@ Release 2.1.11 (in development)
 * Removed skip list from extra fix_texturepath stage in Oblivion
   optimization kit.
 
-* Various minor optimizations (contributed by infectedsoundsystem).
+* Various optimizations (contributed by infectedsoundsystem). The
+  optimizer spell now runs a fair bit faster.
 
 * Garbage collection call after each spell has been removed as
   profiling showed that a lot of time was spent on it. You can still
-  force the old (slow) behaviour by using the new --gccollect option
-  (or add gccollect = True in your ini file).
+  force the old (slow) behaviour by using the new --gccollect command
+  line option or adding "gccollect = True" in your ini file.
 
 Release 2.1.10 (Oct 10, 2011)
 =============================
