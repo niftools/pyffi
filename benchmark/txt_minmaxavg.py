@@ -37,6 +37,8 @@
 #
 # ***** END LICENSE BLOCK *****
 
+from __future__ import print_function
+
 import argparse
 import os
 import sys
@@ -72,6 +74,6 @@ for root, dirs, files in os.walk(folder):
 def summary(outfile):
     for name, vec in sorted(total.items()):
         low, up = confint(vec, robust=args.robust)
-        print >>outfile, "{0:10}: [{1:10.4f}, {2:10.4f}]".format(name, low, up)
+        print("{0:10}: [{1:10.4f}, {2:10.4f}]".format(name, low, up), file=outfile)
 
 summary(sys.stdout)
