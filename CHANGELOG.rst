@@ -10,6 +10,11 @@ Release 2.1.11 (in development)
 
 * Various minor optimizations (contributed by infectedsoundsystem).
 
+* Garbage collection call after each spell has been removed as
+  profiling showed that a lot of time was spent on it. You can still
+  force the old (slow) behaviour by using the new --gccollect option
+  (or add gccollect = True in your ini file).
+
 Release 2.1.10 (Oct 10, 2011)
 =============================
 

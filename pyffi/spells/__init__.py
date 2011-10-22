@@ -670,6 +670,7 @@ class Toaster(object):
         sourcedir="", destdir="",
         archives=False,
         resume=False,
+        gccollect=False,
         inifile="")
 
     """List of spell classes of the particular :class:`Toaster` instance."""
@@ -1182,6 +1183,12 @@ class Toaster(object):
             help=
             "exclude block type BLOCK from spell; exclude multiple"
             " block types by specifying this option more than once")
+        parser.add_option(
+            "--gccollect", dest="gccollect",
+            action="store_true",
+            help=
+            "run garbage collector after every spell"
+            " (slows down toaster but may save memory)")
         parser.set_defaults(**deepcopy(self.DEFAULT_OPTIONS))
         (options, args) = parser.parse_args()
 
@@ -1357,11 +1364,10 @@ may destroy them. Make a backup of your files before running this script.
         if jobs == 1:
             for stream in self.FILEFORMAT.walk(
                 top, mode='rb' if self.spellclass.READONLY else 'r+b'):
-                pass # to set a breakpoint
                 self._toast(stream)
-                # force free memory (helps when parsing many very large files)
-                gc.collect()
-                pass # to set a breakpoint
+                if self.options["gccollect"]:
+                    # force free memory (helps when parsing many files)
+                    gc.collect()
         else:
             chunksize = self.options["refresh"] * self.options["jobs"]
             self.msg("toasting with %i threads in chunks of %i files"
