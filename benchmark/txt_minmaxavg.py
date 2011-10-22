@@ -1,4 +1,4 @@
-"""Parse all FRAPS generated csv files and print summary info."""
+"""Parse all text files, assumed to contain numbers, and print summary info."""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
@@ -37,7 +37,6 @@
 #
 # ***** END LICENSE BLOCK *****
 
-import csv
 import os
 import sys
 
@@ -46,34 +45,21 @@ from summary import mean, sd
 total = {}
 folder = sys.argv[1]
 for root, dirs, files in os.walk(folder):
-    total[root] = {"Frames": [], "Time (ms)": [], "Min": [], "Max": [], "Avg": []}
     for name in files:
-        if not name.endswith(".csv"):
+        if not name.endswith(".txt"):
             continue
         print("parsing {0}".format(name))
-        with open(os.path.join(root, name), "rb") as csvfile:
-            rows = csv.reader(csvfile)
-            header = rows.next()
-            numbers = rows.next()
-            for name, num in zip(header, numbers):
-                name = name.strip()
-                total[root][name].append(float(num))
+        total[name] = []
+        with open(os.path.join(root, name), "rb") as txtfile:
+            for row in txtfile:
+                row = row.strip()
+                total[name].append(float(row))
 
 def summary(outfile):
-    for root in sorted(total):
-        if not total[root]["Frames"]:
-            continue
-        print >>outfile, root
-        print >> outfile, "-" * len(root)
-        print >> outfile
-        print >>outfile, "summary of {0} tests:".format(len(total[root]["Frames"]))
-        for name, vec in total[root].iteritems():
-            print >> outfile, "{0:10}: {1:10.3f} +- {2:10.3f}".format(
-                name,
-                mean(vec),
-                1.96 * sd(vec) / (len(vec) ** 0.5))
-        print >> outfile
+    for name, vec in sorted(total.items()):
+        print >>outfile, "{0:10}: {1:10.4f} +- {2:10.4f}".format(
+            name,
+            mean(vec),
+            1.96 * sd(vec) / (len(vec) ** 0.5))
 
 summary(sys.stdout)
-with open(os.path.join(folder, "summary.txt"), "w") as outfile:
-    summary(outfile)

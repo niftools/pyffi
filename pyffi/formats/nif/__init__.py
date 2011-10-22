@@ -1983,19 +1983,22 @@ class NifFormat(FileFormat):
         def as_tuple(self):
             return (self.x, self.y, self.z)
 
-        def norm(self):
-            return (self.x*self.x + self.y*self.y + self.z*self.z) ** 0.5
+        def norm(self, sqrt=math.sqrt):
+            return sqrt(self.x*self.x + self.y*self.y + self.z*self.z)
 
-        def normalize(self, ignore_error=False):
-            norm = self.norm()
-            if norm < NifFormat.EPSILON:
+        def normalize(self, ignore_error=False, sqrt=math.sqrt):
+            # inlining norm() to reduce overhead
+            try:
+                factor = 1.0 / sqrt(self.x*self.x + self.y*self.y + self.z*self.z)
+            except ZeroDivisionError:
                 if not ignore_error:
-                    raise ZeroDivisionError('cannot normalize vector %s'%self)
+                    raise
                 else:
                     return
-            self.x /= norm
-            self.y /= norm
-            self.z /= norm
+            # inlining multiplication for speed
+            self.x *= factor
+            self.y *= factor
+            self.z *= factor
 
         def normalized(self, ignore_error=False):
             vec = self.get_copy()
@@ -6219,10 +6222,9 @@ class NifFormat(FileFormat):
 
                 # contribution of this triangle to tangents and binormals
                 sdir = NifFormat.Vector3()
-                sdir.x = w3w1.v * v_2v_1.x - w2w1.v * v_3v_1.x
-                sdir.y = w3w1.v * v_2v_1.y - w2w1.v * v_3v_1.y
-                sdir.z = w3w1.v * v_2v_1.z - w2w1.v * v_3v_1.z
-                sdir *= r_sign
+                sdir.x = (w3w1.v * v_2v_1.x - w2w1.v * v_3v_1.x) * r_sign
+                sdir.y = (w3w1.v * v_2v_1.y - w2w1.v * v_3v_1.y) * r_sign
+                sdir.z = (w3w1.v * v_2v_1.z - w2w1.v * v_3v_1.z) * r_sign
                 try:
                     sdir.normalize()
                 except ZeroDivisionError: # catches zero vector
@@ -6231,10 +6233,9 @@ class NifFormat(FileFormat):
                     continue # skip triangle
 
                 tdir = NifFormat.Vector3()
-                tdir.x = w2w1.u * v_3v_1.x - w3w1.u * v_2v_1.x
-                tdir.y = w2w1.u * v_3v_1.y - w3w1.u * v_2v_1.y
-                tdir.z = w2w1.u * v_3v_1.z - w3w1.u * v_2v_1.z
-                tdir *= r_sign
+                tdir.x = (w2w1.u * v_3v_1.x - w3w1.u * v_2v_1.x) * r_sign
+                tdir.y = (w2w1.u * v_3v_1.y - w3w1.u * v_2v_1.y) * r_sign
+                tdir.z = (w2w1.u * v_3v_1.z - w3w1.u * v_2v_1.z) * r_sign
                 try:
                     tdir.normalize()
                 except ZeroDivisionError: # catches zero vector
@@ -6244,8 +6245,15 @@ class NifFormat(FileFormat):
 
                 # vector combination algorithm could possibly be improved
                 for h in [h1, h2, h3]:
-                    tan[h] += tdir
-                    bin[h] += sdir
+                    # addition inlined for speed
+                    tanh = tan[h]
+                    tanh.x += tdir.x
+                    tanh.y += tdir.y
+                    tanh.z += tdir.z
+                    binh = bin[h]
+                    binh.x += sdir.x
+                    binh.y += sdir.y
+                    binh.z += sdir.z
 
             xvec = NifFormat.Vector3()
             xvec.x = 1.0
@@ -6256,6 +6264,8 @@ class NifFormat(FileFormat):
             yvec.y = 1.0
             yvec.z = 0.0
             for n, h in zip(norms, v_hash_map):
+                binh = bin[h]
+                tanh = tan[h]
                 try:
                     n.normalize()
                 except (ValueError, ZeroDivisionError):
@@ -6264,21 +6274,37 @@ class NifFormat(FileFormat):
                     n = yvec
                 try:
                     # turn n, bin, tan into a base via Gram-Schmidt
-                    bin[h] -= n * (n * bin[h])
-                    bin[h].normalize()
-                    tan[h] -= n * (n * tan[h])
-                    tan[h] -= bin[h] * (bin[h] * tan[h])
-                    tan[h].normalize()
+                    # bin[h] -= n * (n * bin[h])
+                    # inlined for speed
+                    scalar = n * binh
+                    binh.x -= n.x * scalar
+                    binh.y -= n.y * scalar
+                    binh.z -= n.z * scalar
+                    binh.normalize()
+
+                    # tan[h] -= n * (n * tan[h])
+                    # tan[h] -= bin[h] * (bin[h] * tan[h])
+                    # inlined for speed
+                    scalar = n * tanh
+                    tanh.x -= n.x * scalar
+                    tanh.y -= n.y * scalar
+                    tanh.z -= n.z * scalar
+                    
+                    scalar = binh * tanh
+                    tanh.x -= binh.x * scalar
+                    tanh.y -= binh.y * scalar
+                    tanh.z -= binh.z * scalar
+                    tanh.normalize()
                 except ZeroDivisionError:
                     # insuffient data to set tangent space for this vertex
                     # in that case pick a space
-                    bin[h] = xvec.crossproduct(n)
+                    binh = xvec.crossproduct(n)
                     try:
-                        bin[h].normalize()
+                        binh.normalize()
                     except ZeroDivisionError:
-                        bin[h] = yvec.crossproduct(n)
-                        bin[h].normalize() # should work now
-                    tan[h] = n.crossproduct(bin[h])
+                        binh = yvec.crossproduct(n)
+                        binh.normalize() # should work now
+                    tanh = n.crossproduct(binh)
 
             # tangent and binormal lists by vertex index
             tan = [tan[h] for h in v_hash_map]
