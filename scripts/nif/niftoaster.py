@@ -57,6 +57,7 @@ import pyffi.spells.nif.modify
 class NifToaster(pyffi.spells.nif.NifToaster):
     """Class for toasting nif files, using any of the available spells."""
     SPELLS = [
+        pyffi.spells.check.SpellNop,
         pyffi.spells.check.SpellRead,
         pyffi.spells.nif.check.SpellReadWrite,
         pyffi.spells.nif.check.SpellNodeNamesByFlag,

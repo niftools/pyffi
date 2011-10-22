@@ -42,6 +42,15 @@
 
 from pyffi.spells import Spell
 
+class SpellNop(Spell):
+    """A spell which really does nothing. For testing."""
+
+    SPELLNAME = "check_nop"
+    READONLY = True
+
+    def datainspect(self):
+        return False
+
 class SpellRead(Spell):
     """A spell which does nothing, besides reading the file."""
 
