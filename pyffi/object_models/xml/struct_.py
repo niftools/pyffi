@@ -238,7 +238,7 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
             array is an attribute of."""
         # used to track names of attributes that have already been added
         # is faster than self.__dict__.has_key(...)
-        names = []
+        names = set()
         # initialize argument
         self.arg = argument
         # save parent (note: disabled for performance)
@@ -254,7 +254,7 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
             # type, template, argument, arr1, and arr2)
             if attr.name in names:
                 continue
-            names.append(attr.name)
+            names.add(attr.name)
 
             # things that can only be determined at runtime (rt_xxx)
             rt_type = attr.type_ if attr.type_ != type(None) \
@@ -534,41 +534,42 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
         else:
             version = None
             user_version = None
-        names = []
+        names = set()
         for attr in self._attribute_list:
             #print(attr.name, version, attr.ver1, attr.ver2) # debug
 
             # check version
-            if not (version is None):
-                if (not (attr.ver1 is None)) and version < attr.ver1:
+            if version is not None:
+                if attr.ver1 is not None and version < attr.ver1:
                     continue
-                if (not (attr.ver2 is None)) and version > attr.ver2:
+                if attr.ver2 is not None and version > attr.ver2:
                     continue
             #print("version check passed") # debug
 
             # check user version
-            if not(attr.userver is None or user_version is None) \
-               and user_version != attr.userver:
+            if (attr.userver is not None and user_version is not None
+                and user_version != attr.userver):
                 continue
             #print("user version check passed") # debug
 
             # check conditions
-            if not (attr.cond is None) and not attr.cond.eval(self):
+            if attr.cond is not None and not attr.cond.eval(self):
                 continue
 
-            if not(version is None or user_version is None
-                   or attr.vercond is None):
+            if (version is not None and user_version is not None
+                and attr.vercond is not None):
                 if not attr.vercond.eval(data):
                     continue
 
             #print("condition passed") # debug
 
             # skip dupiclate names
+
             if attr.name in names:
                 continue
             #print("duplicate check passed") # debug
 
-            names.append(attr.name)
+            names.add(attr.name)
             # passed all tests
             # so yield the attribute
             yield attr
