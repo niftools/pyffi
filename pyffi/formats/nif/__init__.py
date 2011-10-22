@@ -6261,6 +6261,8 @@ class NifFormat(FileFormat):
             yvec.y = 1.0
             yvec.z = 0.0
             for n, h in izip(norms, v_hash_map):
+                binh = bin[h]
+                tanh = tan[h]
                 try:
                     n.normalize()
                 except (ValueError, ZeroDivisionError):
@@ -6269,32 +6271,32 @@ class NifFormat(FileFormat):
                     n = yvec
                 try:
                     # turn n, bin, tan into a base via Gram-Schmidt
-                    scalar = n * bin[h]
-                    bin[h].x -= n.x * scalar
-                    bin[h].y -= n.y * scalar
-                    bin[h].z -= n.z * scalar
-                    bin[h].normalize()
+                    scalar = n * binh
+                    binh.x -= n.x * scalar
+                    binh.y -= n.y * scalar
+                    binh.z -= n.z * scalar
+                    binh.normalize()
 
-                    scalar = n * tan[h]
-                    tan[h].x -= n.x * scalar
-                    tan[h].y -= n.y * scalar
-                    tan[h].z -= n.z * scalar
+                    scalar = n * tanh
+                    tanh.x -= n.x * scalar
+                    tanh.y -= n.y * scalar
+                    tanh.z -= n.z * scalar
                     
-                    scalar = bin[h] * tan[h]
-                    tan[h].x -= bin[h].x * scalar
-                    tan[h].y -= bin[h].y * scalar
-                    tan[h].z -= bin[h].z * scalar
-                    tan[h].normalize()
+                    scalar = binh * tanh
+                    tanh.x -= binh.x * scalar
+                    tanh.y -= binh.y * scalar
+                    tanh.z -= binh.z * scalar
+                    tanh.normalize()
                 except ZeroDivisionError:
                     # insuffient data to set tangent space for this vertex
                     # in that case pick a space
-                    bin[h] = xvec.crossproduct(n)
+                    binh = xvec.crossproduct(n)
                     try:
-                        bin[h].normalize()
+                        binh.normalize()
                     except ZeroDivisionError:
-                        bin[h] = yvec.crossproduct(n)
-                        bin[h].normalize() # should work now
-                    tan[h] = n.crossproduct(bin[h])
+                        binh = yvec.crossproduct(n)
+                        binh.normalize() # should work now
+                    tanh = n.crossproduct(binh)
 
             # tangent and binormal lists by vertex index
             tan = [tan[h] for h in v_hash_map]
