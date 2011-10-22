@@ -6271,12 +6271,17 @@ class NifFormat(FileFormat):
                     n = yvec
                 try:
                     # turn n, bin, tan into a base via Gram-Schmidt
+                    # bin[h] -= n * (n * bin[h])
+                    # inlined for speed
                     scalar = n * binh
                     binh.x -= n.x * scalar
                     binh.y -= n.y * scalar
                     binh.z -= n.z * scalar
                     binh.normalize()
 
+                    # tan[h] -= n * (n * tan[h])
+                    # tan[h] -= bin[h] * (bin[h] * tan[h])
+                    # inlined for speed
                     scalar = n * tanh
                     tanh.x -= n.x * scalar
                     tanh.y -= n.y * scalar
