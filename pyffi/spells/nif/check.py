@@ -313,17 +313,16 @@ class SpellCheckBhkBodyCenter(pyffi.spells.nif.NifSpell):
             #    self.toaster.msg("perfect match!")
 
             self.toaster.msg("checking center...")
+            report = {}
             if center != branch.center:
                 #raise ValueError("center does not match; original %s, calculated %s"%(center, branch.center))
                 self.toaster.logger.warn(
                     "center does not match; original %s, calculated %s"
                     % (center, branch.center))
-                if self.report is None:
-                    self.report = []
-                self.report.append({
-                    "center_original": center.as_tuple(),
-                    "center_calculated": branch.center.as_tuple(),
-                    })
+                report["center"] = {
+                    "orig": center.as_tuple(),
+                    "calc": branch.center.as_tuple(),
+                    }
 
             self.toaster.msg("checking inertia...")
 
@@ -336,12 +335,12 @@ class SpellCheckBhkBodyCenter(pyffi.spells.nif.NifSpell):
                 self.toaster.logger.warn(
                     "inertia does not match:\n\noriginal\n%s\n\ncalculated\n%s\n"
                     % (inertia, branch.inertia))
-                if self.report is None:
-                    self.report = []
-                self.report.append({
-                    "inertia_original": inertia.as_tuple(),
-                    "inertia_calculated": branch.inertia.as_tuple(),
-                    })
+                report["inertia"] = {
+                    "orig": inertia.as_tuple(),
+                    "calc": branch.inertia.as_tuple(),
+                    }
+            if report:
+                self.append_report(report)
             # stop recursing
             return False
 
@@ -372,6 +371,7 @@ class SpellCheckCenterRadius(pyffi.spells.nif.NifSpell):
             # keep recursing
             return True
         else:
+            report = {}
             self.toaster.msg("getting bounding sphere")
             center = NifFormat.Vector3()
             center.x = branch.center.x
@@ -394,6 +394,7 @@ class SpellCheckCenterRadius(pyffi.spells.nif.NifSpell):
                 self.toaster.logger.warn(
                    "not all vertices inside bounding sphere (vertex %s, error %s)"
                    % (maxv, abs(maxr - radius)))
+                report["vertex_outside"] = maxv.as_tuple()
 
             self.toaster.msg("recalculating bounding sphere")
             branch.update_center_radius()
@@ -403,10 +404,20 @@ class SpellCheckCenterRadius(pyffi.spells.nif.NifSpell):
                self.toaster.logger.warn(
                    "center does not match; original %s, calculated %s"
                    % (center, branch.center))
+               report["center"] = {
+                   "orig": center.as_tuple(),
+                   "calc": branch.center.as_tuple(),
+                   }
             if abs(radius - branch.radius) > NifFormat.EPSILON:
                self.toaster.logger.warn(
                    "radius does not match; original %s, calculated %s"
                    % (radius, branch.radius))
+               report["radius"] = {
+                   "orig": radius,
+                   "calc": branch.radius,
+                   }
+            if report:
+                self.append_report(report)
             # stop recursing
             return False
 

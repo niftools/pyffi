@@ -95,38 +95,29 @@ def test_prefix_suffix():
 
 def test_check_bhkbodycenter():
     testfile = "tests/nif/test_fix_detachhavoktristripsdata.nif"
-    toaster = call_niftoaster(
-        "check_bhkbodycenter", testfile)
-    orig = toaster.files_done[testfile][0]["center_original"]
-    calc = toaster.files_done[testfile][0]["center_calculated"]
+    toaster = call_niftoaster("check_bhkbodycenter", testfile)
+    orig = toaster.files_done[testfile][0]["center"]["orig"]
+    calc = toaster.files_done[testfile][0]["center"]["calc"]
     nose.tools.assert_equal(orig, (0.0, 0.0, 0.0, 0.0))
     nose.tools.assert_almost_equal(calc[0], -1.08541444)
     nose.tools.assert_almost_equal(calc[1], 18.46527444)
     nose.tools.assert_almost_equal(calc[2], 6.88672184)
     nose.tools.assert_almost_equal(calc[3], 0.0)
-    
-"""
-The check_centerradius spell
-----------------------------
 
->>> import sys
->>> sys.path.append("scripts/nif")
->>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_centerradius", "tests/nif/test_centerradius.nif"]
->>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
-pyffi.toaster:INFO:=== tests/nif/test_centerradius.nif ===
-pyffi.toaster:INFO:  --- check_centerradius ---
-pyffi.toaster:INFO:    ~~~ NiNode [test] ~~~
-pyffi.toaster:INFO:      ~~~ NiTriShape [Cube] ~~~
-pyffi.toaster:INFO:        ~~~ NiTriShapeData [] ~~~
-pyffi.toaster:INFO:          getting bounding sphere
-pyffi.toaster:INFO:          checking that all vertices are inside
-pyffi.toaster:WARNING:not all vertices inside bounding sphere (vertex [ 10.000 -10.000 -10.000 ], error 7.91647286717)
-pyffi.toaster:INFO:          recalculating bounding sphere
-pyffi.toaster:INFO:          comparing old and new spheres
-pyffi.toaster:WARNING:center does not match; original [ -1.000 -0.000  0.000 ], calculated [  0.000 -0.000  0.000 ]
-pyffi.toaster:WARNING:radius does not match; original 10.0, calculated 17.32...
-pyffi.toaster:INFO:Finished.
+def test_check_centerradius():
+    testfile = "tests/nif/test_centerradius.nif"
+    toaster = call_niftoaster("check_centerradius", testfile)
+    vertex_outside = toaster.files_done[testfile][0]["vertex_outside"]
+    orig_center = toaster.files_done[testfile][0]["center"]["orig"]
+    calc_center = toaster.files_done[testfile][0]["center"]["calc"]
+    orig_radius = toaster.files_done[testfile][0]["radius"]["orig"]
+    calc_radius = toaster.files_done[testfile][0]["radius"]["calc"]
+    nose.tools.assert_equal(vertex_outside, (10.0, -10.0, -10.0))
+    nose.tools.assert_equal(orig_center, (-1.0, 0.0, 0.0))
+    nose.tools.assert_almost_equal(orig_radius, 10.0)
+    nose.tools.assert_almost_equal(calc_radius, 17.32050890)
+
+"""
 
 The check_skincenterradius spell
 --------------------------------

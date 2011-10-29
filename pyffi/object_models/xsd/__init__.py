@@ -516,7 +516,7 @@ class MetaFileFormat(pyffi.object_models.MetaFileFormat):
         xsdfilename = dct.get('xsdFileName')
         if xsdfilename:
             # open XSD file
-            xsdfile = cls.openfile(xsdfilename, cls.xsdFilePath)
+            xsdfile = cls.openfile(xsdfilename, cls.xsdFilePath, encoding="utf-8")
 
             # parse the XSD file
             cls.logger.debug("Parsing %s and generating classes." % xsdfilename)
