@@ -16,6 +16,8 @@ Release 2.1.11 (in development)
   force the old (slow) behaviour by using the new --gccollect command
   line option or adding "gccollect = True" in your ini file.
 
+* Encoding fix for xsd parsing.
+
 Release 2.1.10 (Oct 10, 2011)
 =============================
 
