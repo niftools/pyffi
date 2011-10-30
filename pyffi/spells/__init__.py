@@ -1201,7 +1201,7 @@ class Toaster(object):
         self.options = {}
         for optionname in dir(options):
             # skip default attributes of optparse.Values
-            if not optionname in dir(optparse.Values):
+            if optionname not in dir(optparse.Values):
                 self.options[optionname] = getattr(options, optionname)
 
         # update options
