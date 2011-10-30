@@ -25,6 +25,10 @@ Release 2.1.11 (in development)
 
 * Encoding fix for xsd parsing.
 
+* Merge duplicates after optimizing geometry to work around
+  de-duplication during geometry optimization phase (fixes issue
+  #3425637, reported by chacky2).
+
 Release 2.1.10 (Oct 10, 2011)
 =============================
 
