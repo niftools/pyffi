@@ -5,6 +5,8 @@ Release 2.2.0 (in development)
 
 * A py3k fix (contributed by infectedsoundsystem).
 
+* Updated installer for Blender 2.5x+.
+
 Release 2.1.11 (in development)
 ===============================
 
