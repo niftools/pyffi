@@ -38,6 +38,6 @@ fi
 pushd dist
 mv PyFFI-$version.zip PyFFI-$extversion.zip
 mv PyFFI-$version.tar.bz2 PyFFI-$extversion.tar.bz2
-mv PyFFI-$version.win32.exe PyFFI-$extversion.win32.exe
+mv PyFFI-$version.win32.exe PyFFI-$extversion.windows.exe
 popd
 
