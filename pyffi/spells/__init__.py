@@ -966,6 +966,7 @@ class Toaster(object):
         dryrun: False
         examples: False
         exclude: ['NiVertexColorProperty', 'NiStencilProperty']
+        gccollect: False
         helpspell: False
         include: []
         inifile: 
