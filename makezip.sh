@@ -12,12 +12,11 @@ then
 	mkdir docs
 	echo "PyFFI test release - documentation not included" > docs/index.html
 else
+	rm -rf docs
 	pushd docs-sphinx
-	# XXX broken
-	#python3 -c 'from epydoc.cli import cli; cli()' -v --output=../docs --name='Python File Format Interface' --url='http://pyffi.sourceforge.net/' --navlink='&nbsp;&nbsp;&nbsp;<a class="navbar" target="_top" href="http://pyffi.sourceforge.net/">Python File Format Interface</a>&nbsp;&nbsp;&nbsp;</th><th class="navbar" align="center">&nbsp;&nbsp;&nbsp;<a class="navbar" target="_top" href="http://sourceforge.net"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=199269" width="88" height="31" border="0" alt="SourceForge.net Logo" /></a>&nbsp;&nbsp;&nbsp;' --docformat="restructuredtext" --top=pyffi pyffi
-	# XXX stub for documentation
-	mkdir ../docs; touch ../docs/index.html
+	make html
 	popd
+	mv docs-sphinx/_build/html/ docs/
 fi
 
 # create source and binary distributions
