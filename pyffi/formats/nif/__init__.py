@@ -8,6 +8,7 @@ Implementation
 .. autoclass:: NifFormat
    :show-inheritance:
    :members:
+   :undoc-members:
 
 Regression tests
 ----------------
