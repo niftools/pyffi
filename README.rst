@@ -36,7 +36,7 @@ of the submodules.
 If you wish to
 code on PyFFI and send your contributions back upstream, get a `github
 account <https://github.com/signup/free>`_ and `fork PyFFI
-<http://github.com/guides/fork-a-project-and-submit-your-modifications>`_.
+<http://help.github.com/fork-a-repo/>`_.
 
 Examples
 --------
