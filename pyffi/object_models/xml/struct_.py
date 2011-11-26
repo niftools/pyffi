@@ -560,8 +560,11 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
                 and attr.vercond is not None):
                 if not attr.vercond.eval(data):
                     continue
-
             #print("condition passed") # debug
+
+            if attr.isinstance_ is not None:
+                if not isinstance(self, attr.isinstance_):
+                    continue
 
             # skip dupiclate names
 

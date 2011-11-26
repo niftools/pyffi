@@ -6,6 +6,8 @@ Release 2.2.1 (in development)
 * The check_readwrite spell now handles file size differences due to
   empty strings.
 
+* Added support for isinstance xml attribute.
+
 Release 2.2.0 (Nov 26, 2011)
 ============================
 
