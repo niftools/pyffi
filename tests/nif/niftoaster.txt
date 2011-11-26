@@ -476,7 +476,7 @@ The check_centerradius spell
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_centerradius", "tests/nif/test_centerradius.nif"]
->>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS +REPORT_NDIFF
 pyffi.toaster:INFO:=== tests/nif/test_centerradius.nif ===
 pyffi.toaster:INFO:  --- check_centerradius ---
 pyffi.toaster:INFO:    ~~~ NiNode [test] ~~~
@@ -484,7 +484,7 @@ pyffi.toaster:INFO:      ~~~ NiTriShape [Cube] ~~~
 pyffi.toaster:INFO:        ~~~ NiTriShapeData [] ~~~
 pyffi.toaster:INFO:          getting bounding sphere
 pyffi.toaster:INFO:          checking that all vertices are inside
-pyffi.toaster:WARNING:not all vertices inside bounding sphere (vertex [ 10.000 -10.000 -10.000 ], error 7.91647286717)
+pyffi.toaster:WARNING:not all vertices inside bounding sphere (vertex [ 10.000 -10.000 -10.000 ], error 7.91647286...)
 pyffi.toaster:INFO:          recalculating bounding sphere
 pyffi.toaster:INFO:          comparing old and new spheres
 pyffi.toaster:WARNING:center does not match; original [ -1.000 -0.000  0.000 ], calculated [  0.000 -0.000  0.000 ]
@@ -498,7 +498,7 @@ The check_skincenterradius spell
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_skincenterradius", "tests/nif/test_skincenterradius.nif"]
->>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS +REPORT_NDIFF
 pyffi.toaster:INFO:=== tests/nif/test_skincenterradius.nif ===
 pyffi.toaster:INFO:  --- check_skincenterradius ---
 pyffi.toaster:INFO:    ~~~ NiNode [Bip01] ~~~
@@ -527,7 +527,7 @@ pyffi.toaster:INFO:        getting skindata block bounding spheres
 pyffi.toaster:INFO:        recalculating bounding spheres
 pyffi.toaster:INFO:        comparing old and new spheres
 pyffi.toaster:ERROR:b'Bip01 L Foot' center does not match; original [  0.000  0.000  0.000 ], calculated [  3.109  2.224 -0.117 ]
-pyffi.toaster:ERROR:b'Bip01 L Foot' radius does not match; original 0.0, calculated 5.48116622473
+pyffi.toaster:ERROR:b'Bip01 L Foot' radius does not match; original 0.0, calculated 5.48116622...
 pyffi.toaster:INFO:Finished.
 
 The check_convexverticesshape spell
@@ -556,7 +556,7 @@ The check_mopp spell
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--verbose=2", "--raise", "check_mopp", "tests/nif/test_mopp.nif"]
->>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS +REPORT_NDIFF
 pyffi.toaster:INFO:=== tests/nif/test_mopp.nif ===
 pyffi.nif.data:DEBUG:Reading header at 0x00000000
 pyffi.nif.data:DEBUG:Version 0x14000005
@@ -576,7 +576,7 @@ pyffi.toaster:INFO:            recalculating mopp origin and scale
 pyffi.toaster:WARNING:origin mismatch
 pyffi.toaster:WARNING:(was [ -1.670 -1.532 -1.444 ] and is now [ -1.760 -1.622 -1.534 ])
 pyffi.toaster:WARNING:scale mismatch
-pyffi.toaster:WARNING:(was 5308158.0 and is now 5020014.51438)
+pyffi.toaster:WARNING:(was 5308158.0 and is now 5020014.514...)
 pyffi.toaster:INFO:            parsing mopp
 pyffi.mopp:DEBUG:   0:0x28  0 254 [ bound Z ] 
 pyffi.mopp:DEBUG:   3:0x27  0 242 [ bound Y ] 
