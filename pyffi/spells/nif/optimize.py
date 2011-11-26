@@ -260,12 +260,15 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
 
     def branchentry(self, branch):
         """Optimize a NiTriStrips or NiTriShape block:
+
           - remove duplicate vertices
           - retriangulate for vertex cache
           - recalculate skin partition
           - recalculate tangent space 
 
-        @todo: Limit the length of strips (see operation optimization mod for
+        .. todo::
+
+            Limit the size of shapes (see operation optimization mod for
             Oblivion!)
         """
         if not isinstance(branch, NifFormat.NiTriBasedGeom):
