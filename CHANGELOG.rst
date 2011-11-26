@@ -1,5 +1,5 @@
-Release 2.2.0 (in development)
-==============================
+Release 2.2.0 (Nov 26, 2011)
+============================
 
 * Added PSK and PSA file support (used by Unreal engine).
 
