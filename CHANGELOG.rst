@@ -7,8 +7,8 @@ Release 2.2.0 (in development)
 
 * Updated installer for Blender 2.5x+.
 
-Release 2.1.11 (in development)
-===============================
+Release 2.1.11 (Nov 26, 2011)
+=============================
 
 * Explicitly use wine for running mopper on non-win32 platforms
   (fixes issue on Arch Linux, reported by ifss000f, see issue
@@ -25,11 +25,14 @@ Release 2.1.11 (in development)
   force the old (slow) behaviour by using the new --gccollect command
   line option or adding "gccollect = True" in your ini file.
 
-* Encoding fix for xsd parsing.
+* Encoding fix for xml and xsd parsing.
 
 * Merge duplicates after optimizing geometry to work around
   de-duplication during geometry optimization phase (fixes issue
   #3425637, reported by chacky2).
+
+* Removed xsd object model and dae format (wasn't functional yet
+  anyway); deferred to py3k.
 
 Release 2.1.10 (Oct 10, 2011)
 =============================

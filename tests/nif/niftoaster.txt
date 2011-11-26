@@ -79,6 +79,8 @@ Options:
   -x BLOCK, --exclude=BLOCK
                         exclude block type BLOCK from spell; exclude multiple
                         block types by specifying this option more than once
+  --gccollect           run garbage collector after every spell (slows down
+                        toaster but may save memory)
 
 The --examples switch
 ---------------------
@@ -133,6 +135,7 @@ The --spells switch
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--spells"]
 >>> niftoaster.NifToaster().cli() # doctest: +REPORT_NDIFF
+check_nop
 check_read
 check_readwrite
 check_nodenamesbyflag
