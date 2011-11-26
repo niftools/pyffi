@@ -5,24 +5,42 @@
 Welcome to PyFFI!
 =================
 
+:Release: |version|
+:Date:    |today|
+
 .. include:: ../README.rst
 
 Documentation
 -------------
 
-* :doc:`General documentation <contents>`
-* `API documentation <apidocs>`_
+.. toctree::
+   :maxdepth: 2
+   
+   intro
+   install
+   pyffi
+
+   contribute
+   authors
+   license
+   changes
+   todo
+   thanks
+   glossary
 
 ..
-  .. toctree::
-     :maxdepth: 2
-  
-     contents
-  
-  Indices and tables
-  ==================
-  
-  * :ref:`genindex`
-  * :ref:`modindex`
-  * :ref:`search`
+   Possible entries for the future:
+   utilities
+   object_models
+   faq
+   examples
 
+Indices and tables
+------------------
+  
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+
+..
+  * :ref:`glossary`
