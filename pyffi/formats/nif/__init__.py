@@ -1237,7 +1237,7 @@ class NifFormat(FileFormat):
                             self._byte_order = '>'
                     if ver >= 0x0A010000:
                         userver, = struct.unpack('<I', stream.read(4))
-                        if userver in (10, 11):
+                        if userver >= 10:
                             stream.read(4) # number of blocks
                             userver2, = struct.unpack('<I', stream.read(4))
                 finally:

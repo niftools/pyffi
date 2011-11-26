@@ -1,6 +1,8 @@
 Release 2.2.1 (in development)
 ==============================
 
+* Added Skyrim version detection.
+
 Release 2.2.0 (Nov 26, 2011)
 ============================
 
