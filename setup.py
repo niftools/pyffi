@@ -37,7 +37,6 @@ setup(
         'pyffi',
         'pyffi.object_models',
         'pyffi.object_models.xml',
-        'pyffi.object_models.xsd',
         'pyffi.utils',
         'pyffi.formats',
         'pyffi.formats.nif',
@@ -56,7 +55,7 @@ setup(
         'pyffi.spells.cgf',
         'pyffi.spells.nif',
         'pyffi.qskope',
-        'pyffi.formats.dae'],
+        ],
     # include xml, xsd, dll, and exe files
     package_data = {'': ['*.xml', '*.xsd', '*.dll', '*.exe'],
                     'pyffi.formats.nif': ['nifxml/nif.xml'],
