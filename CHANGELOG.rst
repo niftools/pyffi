@@ -16,7 +16,7 @@ Release 2.1.11 (Nov 26, 2011)
   force the old (slow) behaviour by using the new --gccollect command
   line option or adding "gccollect = True" in your ini file.
 
-* Encoding fix for xsd parsing.
+* Encoding fix for xml and xsd parsing.
 
 * Merge duplicates after optimizing geometry to work around
   de-duplication during geometry optimization phase (fixes issue
