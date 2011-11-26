@@ -64,6 +64,7 @@ class SpellReadWrite(pyffi.spells.nif.NifSpell):
                    for header_type in self.header_types)
 
     def dataentry(self):
+        num_empty_strings = len([s for s in self.data.header.strings if not s])
         self.toaster.msgblockbegin("writing to temporary file")
 
         f_tmp = tempfile.TemporaryFile()
@@ -78,11 +79,16 @@ class SpellReadWrite(pyffi.spells.nif.NifSpell):
             if self.stream.tell() != f_tmp.tell():
                 self.toaster.msg("original size: %i" % self.stream.tell())
                 self.toaster.msg("written size:  %i" % f_tmp.tell())
-                f_tmp.seek(0)
-                f_debug = open("debug.nif", "wb")
-                f_debug.write(f_tmp.read(-1))
-                f_debug.close()
-                raise Exception('write check failed: file sizes differ (written file saved as debug.nif for inspection)')
+                # could be due to empty strings
+                if self.stream.tell() - f_tmp.tell() == 4 * num_empty_strings:
+                    self.toaster.msg("difference due to %i empty string(s)"
+                                     % num_empty_strings)
+                else:
+                    f_tmp.seek(0)
+                    f_debug = open("debug.nif", "wb")
+                    f_debug.write(f_tmp.read(-1))
+                    f_debug.close()
+                    raise Exception('write check failed: file sizes differ (written file saved as debug.nif for inspection)')
         finally:
             f_tmp.close()
     

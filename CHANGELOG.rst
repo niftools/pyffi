@@ -3,6 +3,9 @@ Release 2.2.1 (in development)
 
 * Added Skyrim version detection.
 
+* The check_readwrite spell now handles file size differences due to
+  empty strings.
+
 Release 2.2.0 (Nov 26, 2011)
 ============================
 
