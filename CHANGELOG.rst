@@ -22,6 +22,9 @@ Release 2.1.11 (Nov 26, 2011)
   de-duplication during geometry optimization phase (fixes issue
   #3425637, reported by chacky2).
 
+* Removed xsd object model and dae format (wasn't functional yet
+  anyway); deferred to py3k.
+
 Release 2.1.10 (Oct 10, 2011)
 =============================
 
