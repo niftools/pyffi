@@ -1587,8 +1587,9 @@ class NifFormat(FileFormat):
             # (these are actually links, not refs)
             if isinstance(root, NifFormat.bhkConstraint):
                 for entity in root.entities:
-                    self._makeBlockList(
-                        entity, block_index_dct, block_type_list, block_type_dct)
+                    if entity is not None:
+                        self._makeBlockList(
+                            entity, block_index_dct, block_type_list, block_type_dct)
 
             children_left = []
             # add children that come before the block
