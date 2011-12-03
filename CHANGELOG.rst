@@ -11,6 +11,8 @@ Release 2.2.1 (in development)
 * Bugfix in nif write method when entities are None (see Skyrim
   meshes/actors/character/character assets/hair/hairlonghumanm.nif).
 
+* Various fixes for Fallout 3 and Fallout NV nifs.
+
 Release 2.2.0 (Nov 26, 2011)
 ============================
 
