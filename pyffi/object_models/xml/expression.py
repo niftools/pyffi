@@ -101,6 +101,8 @@ class Expression(object):
                 left = data
                 for part in self._left.split("."):
                     left = getattr(left, part)
+        elif isinstance(self._left, type):
+            left = isinstance(data, self._left)
         elif self._left is None:
             pass
         else:
@@ -117,6 +119,8 @@ class Expression(object):
                 right = ""
             else:
                 right = getattr(data, self._right)
+        elif isinstance(self._right, type):
+            left = isinstance(data, self._left)
         elif self._right is None:
             pass
         else:
@@ -340,6 +344,16 @@ class Expression(object):
             if startpos != -1 or endpos != -1:
                 raise ValueError("expression syntax error (non-matching brackets?)")
         return (startpos, endpos)
+
+    def map_(self, func):
+        if isinstance(self._left, Expression):
+            self._left.map_(func)
+        else:
+            self._left = func(self._left)
+        if isinstance(self._right, Expression):
+            self._right.map_(func)
+        else:
+            self._right = func(self._right)
 
 if __name__ == "__main__":
     import doctest
