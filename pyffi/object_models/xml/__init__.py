@@ -229,7 +229,6 @@ class StructAttribute(object):
         self.userver = attrs.get("userver")
         self.doc = "" # handled in xml parser's characters function
         self.is_abstract = (attrs.get("abstract") == "1")
-        self.isinstance_ = attrs.get("isinstance") # resolved in endDocument
 
         # post-processing
         if self.default:
@@ -732,9 +731,6 @@ but got %s instead""" % name)
                 attrtype = attr.type_
                 if isinstance(attrtype, str):
                     attr.type_ = getattr(self.cls, attrtype)
-                attr_isinstance = attr.isinstance_
-                if isinstance(attr_isinstance, str):
-                    attr.isinstance_ = getattr(self.cls, attr_isinstance)
 
     def characters(self, chars):
         """Add the string C{chars} to the docstring.

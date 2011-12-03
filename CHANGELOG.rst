@@ -6,8 +6,6 @@ Release 2.2.1 (in development)
 * The check_readwrite spell now handles file size differences due to
   empty strings.
 
-* Added support for isinstance xml attribute.
-
 * Bugfix in nif write method when entities are None (see Skyrim
   meshes/actors/character/character assets/hair/hairlonghumanm.nif).
 
