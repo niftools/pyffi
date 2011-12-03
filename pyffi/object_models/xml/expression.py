@@ -120,7 +120,7 @@ class Expression(object):
             else:
                 right = getattr(data, self._right)
         elif isinstance(self._right, type):
-            left = isinstance(data, self._left)
+            right = isinstance(data, self._right)
         elif self._right is None:
             pass
         else:
