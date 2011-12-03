@@ -182,18 +182,18 @@ class Expression(object):
             return int(expr_str)
         # failed, so return the string, passed through the name filter
         except ValueError:
-            if name_filter:
-                result = name_filter(expr_str)
-                if isinstance(result, int):
-                    # XXX this is a workaround for the vercond filter
-                    return result
-                else:
-                    # apply name filter on each component separately
-                    # (where a dot separates components)
-                    return '.'.join(name_filter(comp)
-                                    for comp in expr_str.split("."))
+            pass
+        if name_filter:
+            result = name_filter(expr_str)
+            if isinstance(result, int):
+                # XXX this is a workaround for the vercond filter
+                return result
             else:
-                return expr_str
+                # apply name filter on each component separately
+                # (where a dot separates components)
+                return '.'.join(name_filter(comp)
+                                for comp in expr_str.split("."))
+        return expr_str
 
     @classmethod
     def _partition(cls, expr_str):
