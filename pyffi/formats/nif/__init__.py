@@ -1014,22 +1014,6 @@ class NifFormat(FileFormat):
             size2 = len(self._value)
             return "< %ix%i Bytes >" % (size2, size1)
 
-    @classmethod
-    def vercondFilter(cls, expression):
-        if expression == "Version":
-            return "version"
-        elif expression == "User Version":
-            return "user_version"
-        elif expression == "User Version 2":
-            return "user_version2"
-        ver = cls.version_number(expression)
-        if ver < 0:
-            # not supported?
-            raise ValueError(
-                "cannot recognize version expression '%s'" % expression)
-        else:
-            return ver
-
     @staticmethod
     def version_number(version_str):
         """Converts version string into an integer.
@@ -1084,8 +1068,8 @@ class NifFormat(FileFormat):
         :type version: ``int``
         :ivar user_version: The nif user version.
         :type user_version: ``int``
-        :ivar user_version2: The nif user version 2.
-        :type user_version2: ``int``
+        :ivar user_version_2: The nif user version 2.
+        :type user_version_2: ``int``
         :ivar roots: List of root blocks.
         :type roots: ``list`` of L{NifFormat.NiObject}
         :ivar header: The nif header.
@@ -1117,7 +1101,7 @@ class NifFormat(FileFormat):
             def get_detail_display(self):
                 return self.__str__()
 
-        def __init__(self, version=0x04000002, user_version=0, user_version2=0):
+        def __init__(self, version=0x04000002, user_version=0, user_version_2=0):
             """Initialize nif data. By default, this creates an empty
             nif document of the given version and user version.
 
@@ -1132,7 +1116,7 @@ class NifFormat(FileFormat):
             self._user_version_value_ = self.VersionUInt()
             self._user_version_value_.set_value(user_version)
             self._user_version_2_value_ = self.VersionUInt()
-            self._user_version_2_value_.set_value(user_version2)
+            self._user_version_2_value_.set_value(user_version_2)
             # create new header
             self.header = NifFormat.Header()
             # empty list of root blocks (this encodes the footer)
@@ -1159,7 +1143,7 @@ class NifFormat(FileFormat):
 
         version = property(_getVersion, _setVersion)
         user_version = property(_getUserVersion, _setUserVersion)
-        user_version2 = property(_getUserVersion2, _setUserVersion2)
+        user_version_2 = property(_getUserVersion2, _setUserVersion2)
 
         # new functions
 
@@ -1244,7 +1228,7 @@ class NifFormat(FileFormat):
                     stream.seek(pos)
             self.version = ver
             self.user_version = userver
-            self.user_version2 = userver2
+            self.user_version_2 = userver2
 
         # GlobalNode
 
@@ -1473,7 +1457,7 @@ class NifFormat(FileFormat):
 
             self.header.user_version = self.user_version # TODO dedicated type for user_version similar to FileVersion
             # for oblivion CS; apparently this is the version of the bhk blocks
-            self.header.user_version_2 = self.user_version2
+            self.header.user_version_2 = self.user_version_2
             self.header.num_blocks = len(self.blocks)
             self.header.num_block_types = len(block_type_list)
             self.header.block_types.update_size()

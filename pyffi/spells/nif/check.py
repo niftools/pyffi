@@ -802,7 +802,7 @@ class SpellCheckVersion(pyffi.spells.nif.NifSpell):
     def toastentry(cls, toaster):
         toaster.versions = {} # counts number of nifs with version
         toaster.user_versions = {} # tracks used user version's per version
-        toaster.user_version2s = {} # tracks used user version2's per version
+        toaster.user_version_2s = {} # tracks used user version2's per version
         return True
 
     @classmethod
@@ -811,28 +811,28 @@ class SpellCheckVersion(pyffi.spells.nif.NifSpell):
             toaster.msgblockbegin("version 0x%08X" % version)
             toaster.msg("number of nifs: %s" % toaster.versions[version])
             toaster.msg("user version:  %s" % toaster.user_versions[version])
-            toaster.msg("user version2: %s" % toaster.user_version2s[version])
+            toaster.msg("user version2: %s" % toaster.user_version_2s[version])
             toaster.msgblockend()
 
     def datainspect(self):
         # some shortcuts
         version = self.data.version
         user_version = self.data.user_version
-        user_version2 = self.data.user_version2
+        user_version_2 = self.data.user_version_2
         # report
         self.toaster.msg("version      0x%08X" % version)
         self.toaster.msg("user version %i" % user_version)
-        self.toaster.msg("user version %i" % user_version2)
+        self.toaster.msg("user version %i" % user_version_2)
         # update stats
         if version not in self.toaster.versions:
             self.toaster.versions[version] = 0
             self.toaster.user_versions[version] = []
-            self.toaster.user_version2s[version] = []
+            self.toaster.user_version_2s[version] = []
         self.toaster.versions[version] += 1
         if user_version not in self.toaster.user_versions[version]:
             self.toaster.user_versions[version].append(user_version)
-        if user_version2 not in self.toaster.user_version2s[version]:
-            self.toaster.user_version2s[version].append(user_version2)
+        if user_version_2 not in self.toaster.user_version_2s[version]:
+            self.toaster.user_version_2s[version].append(user_version_2)
         return False
 
 class SpellCheckMaterialEmissiveValue(pyffi.spells.nif.NifSpell):

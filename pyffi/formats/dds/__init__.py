@@ -189,7 +189,7 @@ class DdsFormat(pyffi.object_models.xml.FileFormat):
 
             # TODO refactor xml model so we can get rid of these
             self.user_version = 0
-            self.user_version2 = 0
+            self.user_version_2 = 0
 
         def inspect_quick(self, stream):
             """Quickly checks if stream contains DDS data, and gets the

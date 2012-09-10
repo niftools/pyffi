@@ -222,7 +222,8 @@ class FileFormat(object):
 
         :param version_str: The version string.
         :type version_str: ``str``
-        :return: A version integer.
+        :return: A version integer. A negative number denotes an
+            invalid version.
         """
         return 0
 

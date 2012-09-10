@@ -131,11 +131,6 @@ class FileFormat(pyffi.object_models.FileFormat, metaclass=MetaFileFormat):
     xml_bit_struct = []
     xml_struct = []
 
-    @classmethod
-    def vercondFilter(cls, expression):
-        raise NotImplementedError
-
-
 class StructAttribute(object):
     """Helper class to collect attribute data of struct add tags."""
 
@@ -247,8 +242,7 @@ class StructAttribute(object):
         if self.cond:
             self.cond = Expression(self.cond, cls.name_attribute)
         if self.vercond:
-            self.vercond = Expression(self.vercond, cls.vercondFilter)
-            #print(self.vercond)
+            self.vercond = Expression(self.vercond, cls.name_attribute)
         if self.arg:
             try:
                 self.arg = int(self.arg)
