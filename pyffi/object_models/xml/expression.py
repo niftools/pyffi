@@ -40,6 +40,7 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
+import re
 import sys # stderr (for debugging)
 
 class Expression(object):
@@ -187,16 +188,19 @@ class Expression(object):
         # failed, so return the string, passed through the name filter
         except ValueError:
             pass
-        if name_filter:
-            result = name_filter(expr_str)
-            if isinstance(result, int):
-                # XXX this is a workaround for the vercond filter
-                return result
-            else:
-                # apply name filter on each component separately
-                # (where a dot separates components)
-                return '.'.join(name_filter(comp)
-                                for comp in expr_str.split("."))
+        m = re.match(r'^([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)$', expr_str)
+        if m:
+            ver = (
+                (int(m.group(1)) << 24)
+                + (int(m.group(2)) << 16)
+                + (int(m.group(3)) << 8)
+                + int(m.group(4))
+                )
+            return ver
+        # apply name filter on each component separately
+        # (where a dot separates components)
+        return '.'.join(name_filter(comp)
+                        for comp in expr_str.split("."))
         return expr_str
 
     @classmethod
