@@ -766,21 +766,12 @@ class NifFormat(FileFormat):
             else:
                 return "%s File Format, Version %s" % (s, v)
 
-    class FileVersion(BasicBase):
-        def get_value(self):
-            raise NotImplementedError
-
-        def set_value(self, value):
-            raise NotImplementedError
+    class FileVersion(pyffi.object_models.common.UInt):
+        def set_value(self):
+            raise NotImplementedError("file version is specified via data")
 
         def __str__(self):
-            return 'x.x.x.x'
-
-        def get_size(self, data=None):
-            return 4
-
-        def get_hash(self, data=None):
-            return None
+            return '0x%08X' % self._value
 
         def read(self, stream, data):
             modification = data.modification
@@ -812,6 +803,7 @@ class NifFormat(FileFormat):
             else:
                 raise ValueError(
                     "unknown modification: '%s'" % modification)
+            self._value = data.version
 
         def write(self, stream, data):
             # always little endian
@@ -829,7 +821,8 @@ class NifFormat(FileFormat):
                     "unknown modification: '%s'" % modification)
 
         def get_detail_display(self):
-            return 'x.x.x.x'
+            # todo: x.x.x.x display?
+            return '0x%08X' % self._value
 
     class ShortString(BasicBase):
         """Another type for strings."""
