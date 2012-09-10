@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 """The qskope script visualizes the structure of PyFFI structures and arrays."""
 
