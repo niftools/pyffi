@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 """A tool to make binary patches between folders recursively."""
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 """A script for casting spells on nif files. This script is essentially
 a nif specific wrapper around L{pyffi.spells.Toaster}."""
