@@ -1511,7 +1511,7 @@ class NifFormat(FileFormat):
             if self.version < 0x0303000D:
                 s = NifFormat.SizedString()
                 s.set_value("End Of File")
-                s.write(stream)
+                s.write(stream, self)
             ftr.write(stream, self)
 
         def _makeBlockList(
