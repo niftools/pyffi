@@ -2893,15 +2893,13 @@ class NifFormat(FileFormat):
                 # default layer 1 (static collision)
                 layer=self.data_layers[0].layer if self.data_layers else 1,
                 material=self.material)
-            # set unknowns
-            packed.unknown_floats[2] = 0.1
-            packed.unknown_floats[4] = 1.0
-            packed.unknown_floats[5] = 1.0
-            packed.unknown_floats[6] = 1.0
-            packed.unknown_floats[8] = 0.1
-            packed.scale = 1.0
-            packed.unknown_floats_2[0] = 1.0
-            packed.unknown_floats_2[1] = 1.0
+            # set scale
+            packed.scale_copy.x = 1.0
+            packed.scale_copy.y = 1.0
+            packed.scale_copy.z = 1.0
+            packed.scale.x = 1.0
+            packed.scale.y = 1.0
+            packed.scale.z = 1.0
             # return result
             return packed
 
