@@ -235,6 +235,7 @@ Prison Tycoon 0x0A020000
 Pro Cycling Manager 0x0A020000
 Red Ocean 0x0A020000
 Sid Meier's Railroads 0x14000004
+Skyrim 0x14020007
 Star Trek: Bridge Commander 0x03000000 0x03010000
 The Guild 2 0x0A010000
 Warhammer 0x14030009
