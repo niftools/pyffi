@@ -5937,7 +5937,7 @@ class NifFormat(FileFormat):
             >>> geom.update_bind_position()
             >>> bone1.translation.x
             10.0
-            >>> skindata.bone_list[0].translation.x
+            >>> skindata.bone_list[0].skin_transform.translation.x
             -10.0
             >>> import pyffi.spells.nif.fix
             >>> import pyffi.spells.nif
@@ -5955,7 +5955,7 @@ class NifFormat(FileFormat):
             pyffi.toaster:INFO:        ~~~ NiSkinData [] ~~~
             >>> bone1.translation.x
             1.0
-            >>> skindata.bone_list[0].translation.x
+            >>> skindata.bone_list[0].skin_transform.translation.x
             -1.0
             """
 
