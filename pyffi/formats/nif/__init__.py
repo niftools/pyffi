@@ -5871,11 +5871,14 @@ class NifFormat(FileFormat):
 
             data.write(stream)
 
-    class NiSkinData:
+    class SkinTransform:
         def get_transform(self):
             """Return scale, rotation, and translation into a single 4x4 matrix."""
             mat = NifFormat.Matrix44()
-            mat.set_scale_rotation_translation(self.scale, self.rotation, self.translation)
+            mat.set_scale_rotation_translation(
+                self.scale,
+                self.rotation,
+                self.translation)
             return mat
 
         def set_transform(self, mat):
@@ -5897,6 +5900,15 @@ class NifFormat(FileFormat):
             self.translation.x = translation.x
             self.translation.y = translation.y
             self.translation.z = translation.z
+
+    class NiSkinData:
+        def get_transform(self):
+            """Return scale, rotation, and translation into a single 4x4 matrix."""
+            return self.skin_transform.get_transform()
+
+        def set_transform(self, mat):
+            """Set rotation, transform, and velocity."""
+            self.skin_transform.set_transform(mat)
 
         def apply_scale(self, scale):
             """Apply scale factor on data.
@@ -5947,14 +5959,14 @@ class NifFormat(FileFormat):
             -1.0
             """
 
-            self.translation.x *= scale
-            self.translation.y *= scale
-            self.translation.z *= scale
+            self.skin_transform.translation.x *= scale
+            self.skin_transform.translation.y *= scale
+            self.skin_transform.translation.z *= scale
 
             for skindata in self.bone_list:
-                skindata.translation.x *= scale
-                skindata.translation.y *= scale
-                skindata.translation.z *= scale
+                skindata.skin_transform.translation.x *= scale
+                skindata.skin_transform.translation.y *= scale
+                skindata.skin_transform.translation.z *= scale
                 skindata.bounding_sphere_offset.x *= scale
                 skindata.bounding_sphere_offset.y *= scale
                 skindata.bounding_sphere_offset.z *= scale
@@ -7013,29 +7025,11 @@ class NifFormat(FileFormat):
     class SkinData:
         def get_transform(self):
             """Return scale, rotation, and translation into a single 4x4 matrix."""
-            m = NifFormat.Matrix44()
-            m.set_scale_rotation_translation(self.scale, self.rotation, self.translation)
-            return m
+            return self.skin_transform.get_transform()
 
-        def set_transform(self, m):
+        def set_transform(self, mat):
             """Set rotation, transform, and velocity."""
-            scale, rotation, translation = m.get_scale_rotation_translation()
-
-            self.scale = scale
-
-            self.rotation.m_11 = rotation.m_11
-            self.rotation.m_12 = rotation.m_12
-            self.rotation.m_13 = rotation.m_13
-            self.rotation.m_21 = rotation.m_21
-            self.rotation.m_22 = rotation.m_22
-            self.rotation.m_23 = rotation.m_23
-            self.rotation.m_31 = rotation.m_31
-            self.rotation.m_32 = rotation.m_32
-            self.rotation.m_33 = rotation.m_33
-
-            self.translation.x = translation.x
-            self.translation.y = translation.y
-            self.translation.z = translation.z
+            self.skin_transform.set_transform(mat)
 
     class StringPalette:
         def get_string(self, offset):
