@@ -1,3 +1,22 @@
-*.bat	eol=crlf
-*.sh	eol=lf
-*.py	eol=lf
+*.bat eol=crlf
+*.ini eol=crlf
+*.nsh eol=crlf
+*.sh  eol=lf
+*.py  text
+*.rst text
+*.txt text
+*.TXT text
+*.in  text
+*.xml text
+*.xsd text
+*.dae text
+*.mtl text
+*.dtd text
+*.patch text
+*.html text
+
+Makefile       eol=lf
+pylintrc       text
+.gitattributes text
+.gitignore     text
+.gitmodules    text
