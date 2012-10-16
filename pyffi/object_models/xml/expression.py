@@ -170,7 +170,7 @@ class Expression(object):
         return left + ' ' + self._op + ' ' + right
 
     @classmethod
-    def _parse(cls, expr_str, name_filter = None):
+    def _parse(cls, expr_str, name_filter=None):
         """Returns an Expression, string, or int, depending on the
         contents of <expr_str>."""
         if not expr_str:
@@ -199,6 +199,8 @@ class Expression(object):
             return ver
         # apply name filter on each component separately
         # (where a dot separates components)
+        if name_filter is None:
+            name_filter = lambda x: x
         return '.'.join(name_filter(comp)
                         for comp in expr_str.split("."))
         return expr_str
