@@ -76,6 +76,7 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         pyffi.spells.nif.dump.SpellDumpTex,
         pyffi.spells.nif.dump.SpellHtmlReport,
         pyffi.spells.nif.dump.SpellExportPixelData,
+        pyffi.spells.nif.dump.SpellDumpPython,
         pyffi.spells.nif.fix.SpellAddTangentSpace,
         pyffi.spells.nif.fix.SpellClampMaterialAlpha,
         pyffi.spells.nif.fix.SpellDelTangentSpace,

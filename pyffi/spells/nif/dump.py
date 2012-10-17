@@ -49,6 +49,8 @@ from xml.sax.saxutils import escape # for htmlreport
 
 from pyffi.formats.nif import NifFormat
 from pyffi.spells.nif import NifSpell
+import pyffi.object_models.xml.array
+import pyffi.object_models.xml.struct_
 
 def tohex(value, nbytes=4):
     """Improved version of hex."""
@@ -402,3 +404,62 @@ class SpellExportPixelData(NifSpell):
         finally:
             if stream:
                 stream.close()
+
+class SpellDumpPython(NifSpell):
+    """Convert a nif into python code."""
+
+    SPELLNAME = "dump_python"
+
+    def print_(self, line):
+        self.lines += [" " * (4 * self.level) + line]
+
+    def print_instance(self, name, _value):
+        if isinstance(_value, (NifFormat.Ref, NifFormat.Ptr)):
+            # later
+            pass
+        elif isinstance(_value, pyffi.object_models.xml.array.Array):
+            # TODO skip if size is zero
+            self.print_("%s.update_size()" % name)
+            if _value._count2 is None:
+                for i, elem in enumerate(list.__iter__(_value)):
+                    self.print_instance("%s[%i]" % (name, i), elem)
+            else:
+                # TODO with name as n_array
+                for i, elemlist in enumerate(list.__iter__(_value)):
+                    for j, elem in enumerate(list.__iter__(elemlist)):
+                        self.print_instance("%s[%i][%i]" % (name, i, j), elem)
+        elif isinstance(_value, pyffi.object_models.xml.basic.BasicBase):
+            # TODO skip if value is default value
+            self.print_("%s = %s" % (name, _value.get_value()))
+        elif isinstance(_value, pyffi.object_models.xml.struct_.StructBase):
+            # TODO skip if value is default value
+            # (print_instance needs return value, and we need to check it)
+            self.print_("with ref(%s) as n_block_%i:" % (name, self.level + 1))
+            self.level += 1
+            for attr in _value._get_filtered_attribute_list(data=self.data):
+                attr_name = "n_block_%i.%s" % (self.level, attr.name)
+                _attr_value = getattr(_value, "_%s_value_" % attr.name)
+                self.print_instance(attr_name, _attr_value)
+            self.level -= 1
+        else:
+            raise RuntimeError("unknown type %s" % _value.__class__)
+
+    def dataentry(self):
+        self.level = 0
+        self.lines = []
+        self.blocks = {}
+        self.print_("from withref import ref")
+        self.print_("from pyffi.formats.nif import NifFormat")
+        return True
+
+    def branchentry(self, branch):
+        blocktype = branch.__class__.__name__
+        blockname = "n_" + blocktype.lower()
+        self.blocks[branch] = blockname
+        self.print_("%s = NifFormat.%s()" % (blockname, blocktype))
+        self.print_instance(blockname, branch)
+        return True
+
+    def dataexit(self):
+        # TODO resolve references
+        print("\n".join(self.lines))
