@@ -475,10 +475,12 @@ class SpellDumpPython(NifSpell):
         self.level = 0
         self.lines = []
         self.blocks = {}
-        self.print_("from withref import ref")
+        self.print_("from pyffi.utils.withref import ref")
         self.print_("from pyffi.formats.nif import NifFormat")
         self.print_()
-        self.print_("def n_create():")
+        self.print_("class Test:")
+        self.level += 1
+        self.print_("def n_create(self):")
         self.level += 1
         # create blocks (data is filled in later)
         for branch in self.data.get_global_iterator():
@@ -496,7 +498,7 @@ class SpellDumpPython(NifSpell):
         self.print_(
             "n_data.roots = ["
             + ", ".join(self.blocks[root] for root in self.data.roots) + "]")
-        self.print_("n_data.version = 0x%s" % hex(self.data.version))
+        self.print_("n_data.version = %s" % hex(self.data.version))
         if self.data.user_version:
             self.print_("n_data.user_version = %s" % self.data.user_version)
         if self.data.user_version_2:
@@ -510,5 +512,7 @@ class SpellDumpPython(NifSpell):
         return True
 
     def dataexit(self):
+        self.print_("return n_data")
+        self.level -= 1
         self.level -= 1
         print("\n".join(self.lines))
