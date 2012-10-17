@@ -410,37 +410,58 @@ class SpellDumpPython(NifSpell):
 
     SPELLNAME = "dump_python"
 
-    def print_(self, line):
-        self.lines += [" " * (4 * self.level) + line]
+    def print_(self, line=None):
+        if line:
+            self.lines += [" " * (4 * self.level) + line]
+        else:
+            self.lines += [""]
 
     def print_instance(self, name, _value):
+        """Print code for assigning *_value* to *name*.
+        Returns ``True`` if actual code was printed.
+        """
         if isinstance(_value, (NifFormat.Ref, NifFormat.Ptr)):
             # later
-            pass
+            return False
         elif isinstance(_value, pyffi.object_models.xml.array.Array):
-            # TODO skip if size is zero
-            self.print_("%s.update_size()" % name)
-            if _value._count2 is None:
-                for i, elem in enumerate(list.__iter__(_value)):
-                    self.print_instance("%s[%i]" % (name, i), elem)
-            else:
-                # TODO with name as n_array
-                for i, elemlist in enumerate(list.__iter__(_value)):
-                    for j, elem in enumerate(list.__iter__(elemlist)):
-                        self.print_instance("%s[%i][%i]" % (name, i, j), elem)
+            result = False
+            if _value:
+                self.print_("%s.update_size()" % name)
+                if _value._count2 is None:
+                    for i, elem in enumerate(list.__iter__(_value)):
+                        if self.print_instance("%s[%i]" % (name, i), elem):
+                            result = True
+                else:
+                    for i, elemlist in enumerate(list.__iter__(_value)):
+                        for j, elem in enumerate(list.__iter__(elemlist)):
+                            if self.print_instance(
+                                "%s[%i][%i]" % (name, i, j), elem):
+
+                                result = True
+            return result
         elif isinstance(_value, pyffi.object_models.xml.basic.BasicBase):
-            # TODO skip if value is default value
-            self.print_("%s = %s" % (name, _value.get_value()))
+            value = _value.get_value()
+            if value != type(_value)().get_value():
+                self.print_("%s = %s" % (name, _value.get_value()))
+                return True
+            else:
+                return False
         elif isinstance(_value, pyffi.object_models.xml.struct_.StructBase):
-            # TODO skip if value is default value
-            # (print_instance needs return value, and we need to check it)
+            result = False
+            # store with statement's line number
+            # we need to remove it later if it contains no code
+            with_line_number = len(self.lines)
             self.print_("with ref(%s) as n_block_%i:" % (name, self.level + 1))
             self.level += 1
             for attr in _value._get_filtered_attribute_list(data=self.data):
                 attr_name = "n_block_%i.%s" % (self.level, attr.name)
                 _attr_value = getattr(_value, "_%s_value_" % attr.name)
-                self.print_instance(attr_name, _attr_value)
+                if self.print_instance(attr_name, _attr_value):
+                    result = True
             self.level -= 1
+            if not result:
+                self.lines.pop(with_line_number)
+            return result
         else:
             raise RuntimeError("unknown type %s" % _value.__class__)
 
@@ -450,6 +471,9 @@ class SpellDumpPython(NifSpell):
         self.blocks = {}
         self.print_("from withref import ref")
         self.print_("from pyffi.formats.nif import NifFormat")
+        self.print_()
+        self.print_("def n_create():")
+        self.level += 1
         return True
 
     def branchentry(self, branch):
@@ -462,4 +486,5 @@ class SpellDumpPython(NifSpell):
 
     def dataexit(self):
         # TODO resolve references
+        self.level -= 1
         print("\n".join(self.lines))
