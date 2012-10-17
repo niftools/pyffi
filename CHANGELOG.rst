@@ -11,6 +11,9 @@ Release 2.2.1 (in development)
 
 * Various fixes for Fallout 3 and Fallout NV nifs.
 
+* New dump_python spell, to generate python code that recreates a nif
+  file.
+
 Release 2.2.0 (Nov 26, 2011)
 ============================
 
