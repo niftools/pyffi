@@ -421,15 +421,21 @@ class SpellDumpPython(NifSpell):
         Returns ``True`` if actual code was printed.
         """
         if isinstance(_value, (NifFormat.Ref, NifFormat.Ptr)):
-            # later
-            return False
+            if _value.get_value() is not None:
+                self.print_(
+                    "%s = %s" % (name, self.blocks[_value.get_value()]))
+                return True
+            else:
+                return False
         elif isinstance(_value, pyffi.object_models.xml.array.Array):
             result = False
             if _value:
                 self.print_("%s.update_size()" % name)
                 if _value._count2 is None:
                     for i, elem in enumerate(list.__iter__(_value)):
-                        if self.print_instance("%s[%i]" % (name, i), elem):
+                        if self.print_instance(
+                            "%s[%i]" % (name, i), elem):
+
                             result = True
                 else:
                     for i, elemlist in enumerate(list.__iter__(_value)):
@@ -474,17 +480,35 @@ class SpellDumpPython(NifSpell):
         self.print_()
         self.print_("def n_create():")
         self.level += 1
+        # create blocks (data is filled in later)
+        for branch in self.data.get_global_iterator():
+            blocktype = branch.__class__.__name__
+            blockname = "n_" + blocktype.lower()
+            num = 1
+            names = set(self.blocks.values())
+            while "%s_%i" % (blockname, num) in names:
+                num += 1
+            blockname = "%s_%i" % (blockname, num)
+            self.blocks[branch] = blockname
+            self.print_("%s = NifFormat.%s()" % (blockname, blocktype))
+        # create data
+        self.print_("n_data = NifFormat.Data()")
+        self.print_(
+            "n_data.roots = ["
+            + ", ".join(self.blocks[root] for root in self.data.roots) + "]")
+        self.print_("n_data.version = 0x%s" % hex(self.data.version))
+        if self.data.user_version:
+            self.print_("n_data.user_version = %s" % self.data.user_version)
+        if self.data.user_version_2:
+            self.print_("n_data.user_version_2 = %s" % self.data.user_version_2)
+        if self.data.modification:
+            self.print_("n_data.modification = %s" % repr(self.data.modification))
         return True
 
     def branchentry(self, branch):
-        blocktype = branch.__class__.__name__
-        blockname = "n_" + blocktype.lower()
-        self.blocks[branch] = blockname
-        self.print_("%s = NifFormat.%s()" % (blockname, blocktype))
-        self.print_instance(blockname, branch)
+        self.print_instance(self.blocks[branch], branch)
         return True
 
     def dataexit(self):
-        # TODO resolve references
         self.level -= 1
         print("\n".join(self.lines))
