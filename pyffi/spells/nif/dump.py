@@ -484,6 +484,8 @@ class SpellDumpPython(NifSpell):
         self.level += 1
         # create blocks (data is filled in later)
         for branch in self.data.get_global_iterator():
+            if branch is self.data:
+                continue
             blocktype = branch.__class__.__name__
             blockname = "n_" + blocktype.lower()
             num = 1
