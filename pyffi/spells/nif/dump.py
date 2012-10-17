@@ -49,6 +49,8 @@ from xml.sax.saxutils import escape # for htmlreport
 
 from pyffi.formats.nif import NifFormat
 from pyffi.spells.nif import NifSpell
+import pyffi.object_models.xml.array
+import pyffi.object_models.xml.struct_
 
 def tohex(value, nbytes=4):
     """Improved version of hex."""
@@ -402,3 +404,119 @@ class SpellExportPixelData(NifSpell):
         finally:
             if stream:
                 stream.close()
+
+class SpellDumpPython(NifSpell):
+    """Convert a nif into python code."""
+
+    SPELLNAME = "dump_python"
+
+    def print_(self, line=None):
+        if line:
+            self.lines += [" " * (4 * self.level) + line]
+        else:
+            self.lines += [""]
+
+    def print_instance(self, name, _value):
+        """Print code for assigning *_value* to *name*.
+        Returns ``True`` if actual code was printed.
+        """
+        if isinstance(_value, (NifFormat.Ref, NifFormat.Ptr)):
+            if _value.get_value() is not None:
+                self.print_(
+                    "%s = %s" % (name, self.blocks[_value.get_value()]))
+                return True
+            else:
+                return False
+        elif isinstance(_value, pyffi.object_models.xml.array.Array):
+            result = False
+            if _value:
+                self.print_("%s.update_size()" % name)
+                if _value._count2 is None:
+                    for i, elem in enumerate(list.__iter__(_value)):
+                        if self.print_instance(
+                            "%s[%i]" % (name, i), elem):
+
+                            result = True
+                else:
+                    for i, elemlist in enumerate(list.__iter__(_value)):
+                        for j, elem in enumerate(list.__iter__(elemlist)):
+                            if self.print_instance(
+                                "%s[%i][%i]" % (name, i, j), elem):
+
+                                result = True
+            return result
+        elif isinstance(_value, pyffi.object_models.xml.basic.BasicBase):
+            value = _value.get_value()
+            if value != type(_value)().get_value():
+                self.print_("%s = %s" % (name, _value.get_value()))
+                return True
+            else:
+                return False
+        elif isinstance(_value, pyffi.object_models.xml.struct_.StructBase):
+            result = False
+            # store with statement's line number
+            # we need to remove it later if it contains no code
+            with_line_number = len(self.lines)
+            # level - 1: the minimal level at this point is 2
+            self.print_("with ref(%s) as n_block_%i:" % (name, self.level - 1))
+            self.level += 1
+            for attr in _value._get_filtered_attribute_list(data=self.data):
+                # level - 2: we just increased the level earlier
+                attr_name = "n_block_%i.%s" % (self.level - 2, attr.name)
+                _attr_value = getattr(_value, "_%s_value_" % attr.name)
+                if self.print_instance(attr_name, _attr_value):
+                    result = True
+            self.level -= 1
+            if not result:
+                self.lines.pop(with_line_number)
+            return result
+        else:
+            raise RuntimeError("unknown type %s" % _value.__class__)
+
+    def dataentry(self):
+        self.level = 0
+        self.lines = []
+        self.blocks = {}
+        self.print_("from pyffi.utils.withref import ref")
+        self.print_("from pyffi.formats.nif import NifFormat")
+        self.print_()
+        self.print_("class Test:")
+        self.level += 1
+        self.print_("def n_create(self):")
+        self.level += 1
+        # create blocks (data is filled in later)
+        for branch in self.data.get_global_iterator():
+            if branch is self.data:
+                continue
+            blocktype = branch.__class__.__name__
+            blockname = "n_" + blocktype.lower()
+            num = 1
+            names = set(self.blocks.values())
+            while "%s_%i" % (blockname, num) in names:
+                num += 1
+            blockname = "%s_%i" % (blockname, num)
+            self.blocks[branch] = blockname
+            self.print_("%s = NifFormat.%s()" % (blockname, blocktype))
+        # create data
+        self.print_("n_data = NifFormat.Data()")
+        self.print_(
+            "n_data.roots = ["
+            + ", ".join(self.blocks[root] for root in self.data.roots) + "]")
+        self.print_("n_data.version = %s" % hex(self.data.version))
+        if self.data.user_version:
+            self.print_("n_data.user_version = %s" % self.data.user_version)
+        if self.data.user_version_2:
+            self.print_("n_data.user_version_2 = %s" % self.data.user_version_2)
+        if self.data.modification:
+            self.print_("n_data.modification = %s" % repr(self.data.modification))
+        return True
+
+    def branchentry(self, branch):
+        self.print_instance(self.blocks[branch], branch)
+        return True
+
+    def dataexit(self):
+        self.print_("return n_data")
+        self.level -= 1
+        self.level -= 1
+        print("\n".join(self.lines))
