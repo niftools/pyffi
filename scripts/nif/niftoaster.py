@@ -126,6 +126,8 @@ class NifToaster(pyffi.spells.nif.NifToaster):
         pyffi.spells.nif.fix.SpellDelUnusedRoots,
         pyffi.spells.nif.modify.SpellChangeBonePriorities,
         pyffi.spells.nif.modify.SpellChangeAllBonePriorities,
+        pyffi.spells.nif.modify.SpellGetBonePriorities,
+        pyffi.spells.nif.modify.SpellSetBonePriorities,
         pyffi.spells.nif.modify.SpellSetInterpolatorTransRotScale,
         pyffi.spells.nif.modify.SpellDelInterpolatorTransformData,
         pyffi.spells.nif.modify.SpellCollisionToMopp,

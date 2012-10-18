@@ -132,8 +132,9 @@ import pyffi.spells.nif.check # recycle checking spells for update spells
 import pyffi.spells.nif.fix
 
 
+import codecs
 import os
-import re # for modify_substitutestringpalette and modify_substitutetexturepath
+import re
 
 class SpellTexturePath(
     pyffi.spells.nif.fix.SpellParseTexturePath):
@@ -904,6 +905,93 @@ class SpellChangeAllBonePriorities(SpellChangeBonePriorities):
                     self.toaster.msg("%s priority changed to %d" %
                                      (controlled_block.get_node_name(),
                                       controlled_block.priority))
+        return True
+
+# should go in dump, but is the counterpart of modify_setbonepriorities
+# therefore maintained here
+class SpellGetBonePriorities(NifSpell):
+    """For each file.nif, dump bone priorites to
+    file_bonepriorities.txt.
+    """
+
+    SPELLNAME = "modify_getbonepriorities"
+
+    def datainspect(self):
+        # continue only if nif/kf contains NiSequence
+        return self.inspectblocktype(NifFormat.NiSequence)
+
+    def dataentry(self):
+        # maps squence name and block name to priority
+        self.bonepriorities = {}
+        return True
+
+    def branchinspect(self, branch):
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiControllerManager,
+                                   NifFormat.NiSequence))
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiSequence):
+            bonepriorities = {}
+            for controlled_block in branch.controlled_blocks:
+                name = controlled_block.get_node_name().decode()
+                priority = controlled_block.priority
+                if name not in bonepriorities:
+                    bonepriorities[name] = priority
+                    #self.toaster.msg("noted %r priority %i" % (name, priority))
+                elif bonepriorities[name] != priority:
+                    self.toaster.logger.warn(
+                        "multiple priorities for %r" % name)
+                    self.toaster.logger.warn(
+                        "(using %i, ignoring %i)"
+                        % (self.bonepriorities[name], priority))
+            sequence = branch.name.decode()
+            if sequence not in self.bonepriorities:
+                self.bonepriorities[sequence] = bonepriorities
+            else:
+                self.toaster.logger.warn(
+                    "multiple sequences named %r,"
+                    " only the first will be recorded" % sequence)
+        return True
+
+    @staticmethod
+    def key(value):
+        name, priority = value
+        return re.sub("( R )|( L )", "", name)
+
+    def dataexit(self):
+        filename, ext = os.path.splitext(self.stream.name)
+        filename = filename + "_bonepriorities.txt"
+        self.toaster.msg("writing %s" % filename)
+        stream = codecs.open(filename, "wb", encoding="ascii")
+        for sequence, bonepriorities in self.bonepriorities.items():
+            print("[%s]" % sequence, file=stream)
+            for name, priority in sorted(bonepriorities.items(), key=self.key):
+                print("%s=%i" % (name, priority), file=stream)
+        self.bonepriorities = {}
+
+class SpellSetBonePriorities(NifSpell):
+    """For each file.nif, restore bone priorites from
+    file_bonepriorities.txt.
+    """
+
+    SPELLNAME = "modify_setbonepriorities"
+    READONLY = False
+
+    def datainspect(self):
+        # returns only if nif/kf contains NiSequence
+        return self.inspectblocktype(NifFormat.NiSequence)
+
+    def branchinspect(self, branch):
+        # inspect the NiAVObject and NiSequence branches
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiControllerManager,
+                                   NifFormat.NiSequence))
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiSequence):
+            # TODO
+            pass
         return True
 
 class SpellSetInterpolatorTransRotScale(NifSpell):
