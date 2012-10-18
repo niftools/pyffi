@@ -1,33 +1,8 @@
 @echo off
 
-rem find python
-set PYTHONPATH=
-for /f "tokens=3* delims=	 " %%A in ('reg.exe query "HKLM\SOFTWARE\Python\PythonCore\2.6\InstallPath\" \ve') do set PYTHONPATH="%%B"
-rem TODO fix for Vista
-if not defined PYTHONPATH (
-set PYTHONPATH=C:\Python26
-)
+rem clean working copy
 
-rem Fallback if Python 2.6 is not installed: try 2.5
-if not exist %PYTHONPATH% (
-set PYTHONPATH=C:\Python25
-)
-
-rem not found... complain and quit
-if not defined PYTHONPATH (
-echo.
-echo Python not found!
-echo.
-goto end
-)
-
-rem python in registry but executable not found... complain and exit
-if not exist %PYTHONPATH%\python.exe (
-echo.
-echo python.exe not found!
-echo.
-goto end
-)
+git clean -x -d -f
 
 rem generate documentation
 
@@ -41,9 +16,24 @@ echo "PyFFI test release - documentation not included" > docs\index.html
 rem create source and binary distributions
 
 del MANIFEST
-%PYTHONPATH%\python.exe setup.py sdist --format=zip
-rem %PYTHONPATH%\python.exe setup.py sdist --format=bztar
-%PYTHONPATH%\python setup.py --command-packages bdist_nsi bdist_nsi --bitmap=win-install/pyffi_install_164x314.bmp --headerbitmap=win-install/pyffi_install_150x57.bmp --msvc2008sp1 --nshextra=win-install/pyffi.nsh --target-versions=2.5,2.6,2.7 --maya --blender
+python setup.py -q sdist --format=zip
+python setup.py --command-packages bdist_nsi bdist_nsi --bitmap=win-install/pyffi_install_164x314.bmp --headerbitmap=win-install/pyffi_install_150x57.bmp --msvc2008sp1 --nshextra=win-install/pyffi.nsh --target-versions=3.0,3.1,3.2 --maya --blender --productkey=py3k --nsis="%NSISHOME%"
+
+for /f "delims=" %%a in ('%PYTHONFOLDER%\python setup.py -V') do set version=%%a
+for /f "delims= " %%a in ('git log -1 --oneline --abbrev-commit') do set wcrev=%%a
+if "%1" == "test" (
+	set extversion=py3k-%version%-%2.%wcrev%
+) else (
+	set extversion=py3k-%version%.%wcrev%
+)
+pushd dist
+mv PyFFI-%version%.zip PyFFI-%extversion%.zip
+mv PyFFI-%version%.win32.exe PyFFI-%extversion%.windows.exe
+popd
+
+set version=
+set wcrev=
+set extversion=
 
 :end
 pause
