@@ -956,6 +956,7 @@ class SpellGetBonePriorities(NifSpell):
 
     @staticmethod
     def key(value):
+        """Strip ' R ' and ' L ' from name so they occur together in list."""
         name, priority = value
         return re.sub("( R )|( L )", "", name)
 
@@ -963,11 +964,12 @@ class SpellGetBonePriorities(NifSpell):
         filename, ext = os.path.splitext(self.stream.name)
         filename = filename + "_bonepriorities.txt"
         self.toaster.msg("writing %s" % filename)
-        stream = codecs.open(filename, "wb", encoding="ascii")
-        for sequence, bonepriorities in self.bonepriorities.items():
-            print("[%s]" % sequence, file=stream)
-            for name, priority in sorted(bonepriorities.items(), key=self.key):
-                print("%s=%i" % (name, priority), file=stream)
+        with codecs.open(filename, "wb", encoding="ascii") as stream:
+            for sequence, bonepriorities in self.bonepriorities.items():
+                print("[%s]" % sequence, file=stream)
+                for name, priority in sorted(bonepriorities.items(),
+                                             key=self.key):
+                    print("%s=%i" % (name, priority), file=stream)
         self.bonepriorities = {}
 
 class SpellSetBonePriorities(NifSpell):
@@ -982,6 +984,34 @@ class SpellSetBonePriorities(NifSpell):
         # returns only if nif/kf contains NiSequence
         return self.inspectblocktype(NifFormat.NiSequence)
 
+    def dataentry(self):
+        filename, ext = os.path.splitext(self.stream.name)
+        filename = filename + "_bonepriorities.txt"
+        if os.path.exists(filename):
+            self.toaster.msg("reading %s" % filename)
+            with codecs.open(filename, "rb", encoding="ascii") as stream:
+                self.bonepriorities = {} # priorities for all sequences
+                sequence = "" # current sequence
+                bonepriorities = {} # priorities for current sequence
+                for line in stream:
+                    m = re.match("\\[(.*)\\]$", line)
+                    if m:
+                        if sequence:
+                            self.bonepriorities[sequence] = bonepriorities
+                        sequence = m.group(1)
+                        bonepriorities = {}
+                    else:
+                        m = re.match("(.*)=([0-9]+)$", line)
+                        if not m:
+                            self.toaster.logger.warn("syntax error in %r" % line)
+                        bonepriorities[m.group(1)] = int(m.group(2))
+                if sequence:
+                    self.bonepriorities[sequence] = bonepriorities
+            return True
+        else:
+            self.toaster.msg("%s not found, skipping" % filename)
+            return False
+
     def branchinspect(self, branch):
         # inspect the NiAVObject and NiSequence branches
         return isinstance(branch, (NifFormat.NiAVObject,
@@ -990,8 +1020,28 @@ class SpellSetBonePriorities(NifSpell):
 
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiSequence):
-            # TODO
-            pass
+            sequence = branch.name.decode()
+            if sequence not in self.bonepriorities:
+                self.toaster.logger.warn(
+                    "sequence %r not listed, skipped" % sequence)
+                return False
+            bonepriorities = self.bonepriorities[sequence]
+            for controlled_block in branch.controlled_blocks:
+                name = controlled_block.get_node_name().decode()
+                if name in bonepriorities:
+                    priority = bonepriorities[name]
+                    if priority != controlled_block.priority:
+                        self.toaster.msg("setting %r priority to %i (was %i)"
+                                         % (name, priority,
+                                            controlled_block.priority))
+                        controlled_block.priority = priority
+                        self.changed = True
+                    else:
+                        self.toaster.msg("%r priority already at %i"
+                                         % (name, priority))
+                else:
+                    self.toaster.logger.warn(
+                        "%r in nif file but not in priority file" % name)
         return True
 
 class SpellSetInterpolatorTransRotScale(NifSpell):
