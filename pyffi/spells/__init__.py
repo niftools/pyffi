@@ -1530,7 +1530,7 @@ may destroy them. Make a backup of your files before running this script.
                 self.msg("writing to temporary file")
                 return tempfile.TemporaryFile()
         head, root, ext = self.get_toast_head_root_ext(filename)
-        if not os.path.exists(head):
+        if head and not os.path.exists(head):
             if test_exists:
                 # path does not exist, so file definitely does
                 # not exist

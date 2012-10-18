@@ -132,8 +132,9 @@ import pyffi.spells.nif.check # recycle checking spells for update spells
 import pyffi.spells.nif.fix
 
 
+import codecs
 import os
-import re # for modify_substitutestringpalette and modify_substitutetexturepath
+import re
 
 class SpellTexturePath(
     pyffi.spells.nif.fix.SpellParseTexturePath):
@@ -904,6 +905,143 @@ class SpellChangeAllBonePriorities(SpellChangeBonePriorities):
                     self.toaster.msg("%s priority changed to %d" %
                                      (controlled_block.get_node_name(),
                                       controlled_block.priority))
+        return True
+
+# should go in dump, but is the counterpart of modify_setbonepriorities
+# therefore maintained here
+class SpellGetBonePriorities(NifSpell):
+    """For each file.nif, dump bone priorites to
+    file_bonepriorities.txt.
+    """
+
+    SPELLNAME = "modify_getbonepriorities"
+
+    def datainspect(self):
+        # continue only if nif/kf contains NiSequence
+        return self.inspectblocktype(NifFormat.NiSequence)
+
+    def dataentry(self):
+        # maps squence name and block name to priority
+        self.bonepriorities = {}
+        return True
+
+    def branchinspect(self, branch):
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiControllerManager,
+                                   NifFormat.NiSequence))
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiSequence):
+            bonepriorities = {}
+            for controlled_block in branch.controlled_blocks:
+                name = controlled_block.get_node_name().decode()
+                priority = controlled_block.priority
+                if name not in bonepriorities:
+                    bonepriorities[name] = priority
+                    #self.toaster.msg("noted %r priority %i" % (name, priority))
+                elif bonepriorities[name] != priority:
+                    self.toaster.logger.warn(
+                        "multiple priorities for %r" % name)
+                    self.toaster.logger.warn(
+                        "(using %i, ignoring %i)"
+                        % (self.bonepriorities[name], priority))
+            sequence = branch.name.decode()
+            if sequence not in self.bonepriorities:
+                self.bonepriorities[sequence] = bonepriorities
+            else:
+                self.toaster.logger.warn(
+                    "multiple sequences named %r,"
+                    " only the first will be recorded" % sequence)
+        return True
+
+    @staticmethod
+    def key(value):
+        """Strip ' R ' and ' L ' from name so they occur together in list."""
+        name, priority = value
+        return re.sub("( R )|( L )", "", name)
+
+    def dataexit(self):
+        filename, ext = os.path.splitext(self.stream.name)
+        filename = filename + "_bonepriorities.txt"
+        self.toaster.msg("writing %s" % filename)
+        with codecs.open(filename, "wb", encoding="ascii") as stream:
+            for sequence, bonepriorities in self.bonepriorities.items():
+                print("[%s]" % sequence, file=stream)
+                for name, priority in sorted(bonepriorities.items(),
+                                             key=self.key):
+                    print("%s=%i" % (name, priority), file=stream)
+        self.bonepriorities = {}
+
+class SpellSetBonePriorities(NifSpell):
+    """For each file.nif, restore bone priorites from
+    file_bonepriorities.txt.
+    """
+
+    SPELLNAME = "modify_setbonepriorities"
+    READONLY = False
+
+    def datainspect(self):
+        # returns only if nif/kf contains NiSequence
+        return self.inspectblocktype(NifFormat.NiSequence)
+
+    def dataentry(self):
+        filename, ext = os.path.splitext(self.stream.name)
+        filename = filename + "_bonepriorities.txt"
+        if os.path.exists(filename):
+            self.toaster.msg("reading %s" % filename)
+            with codecs.open(filename, "rb", encoding="ascii") as stream:
+                self.bonepriorities = {} # priorities for all sequences
+                sequence = "" # current sequence
+                bonepriorities = {} # priorities for current sequence
+                for line in stream:
+                    m = re.match("\\[(.*)\\]$", line)
+                    if m:
+                        if sequence:
+                            self.bonepriorities[sequence] = bonepriorities
+                        sequence = m.group(1)
+                        bonepriorities = {}
+                    else:
+                        m = re.match("(.*)=([0-9]+)$", line)
+                        if not m:
+                            self.toaster.logger.warn("syntax error in %r" % line)
+                        bonepriorities[m.group(1)] = int(m.group(2))
+                if sequence:
+                    self.bonepriorities[sequence] = bonepriorities
+            return True
+        else:
+            self.toaster.msg("%s not found, skipping" % filename)
+            return False
+
+    def branchinspect(self, branch):
+        # inspect the NiAVObject and NiSequence branches
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiControllerManager,
+                                   NifFormat.NiSequence))
+
+    def branchentry(self, branch):
+        if isinstance(branch, NifFormat.NiSequence):
+            sequence = branch.name.decode()
+            if sequence not in self.bonepriorities:
+                self.toaster.logger.warn(
+                    "sequence %r not listed, skipped" % sequence)
+                return False
+            bonepriorities = self.bonepriorities[sequence]
+            for controlled_block in branch.controlled_blocks:
+                name = controlled_block.get_node_name().decode()
+                if name in bonepriorities:
+                    priority = bonepriorities[name]
+                    if priority != controlled_block.priority:
+                        self.toaster.msg("setting %r priority to %i (was %i)"
+                                         % (name, priority,
+                                            controlled_block.priority))
+                        controlled_block.priority = priority
+                        self.changed = True
+                    else:
+                        self.toaster.msg("%r priority already at %i"
+                                         % (name, priority))
+                else:
+                    self.toaster.logger.warn(
+                        "%r in nif file but not in priority file" % name)
         return True
 
 class SpellSetInterpolatorTransRotScale(NifSpell):
