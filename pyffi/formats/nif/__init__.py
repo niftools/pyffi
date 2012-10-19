@@ -7063,9 +7063,14 @@ class NifFormat(FileFormat):
                     % (offset, len(self.palette)))
             # check that a string starts at this offset
             if offset > 0 and self.palette[offset-1:offset] != _b00:
-                raise ValueError(
+                logger = logging.getLogger("pyffi.nif.stringpalette")
+                logger.warning(
                     "StringPalette: no string starts at offset %i "
-                    "(palette is %s)" % (offset, self.palette))
+                    "(string is %s, preceeding character is %s)" % (
+                        offset,
+                        self.palette[offset:self.palette.find(_b00, offset)],
+                        self.palette[offset-1:offset],
+                        ))
             # return the string
             return self.palette[offset:self.palette.find(_b00, offset)]
 

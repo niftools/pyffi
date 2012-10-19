@@ -14,6 +14,9 @@ Release 2.2.1 (in development)
 * New dump_python spell, to generate python code that recreates a nif
   file.
 
+* Accept string palette strings that do not have a null character
+  preceeding it (reported by Koniption).
+
 Release 2.2.0 (Nov 26, 2011)
 ============================
 
