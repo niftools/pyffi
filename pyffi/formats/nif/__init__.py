@@ -3274,10 +3274,10 @@ class NifFormat(FileFormat):
             """A wrapper around string_palette.palette.get_string. Used by get_node_name
             etc. Returns the string at given offset."""
             if offset == -1:
-                return ''
+                return b''
 
             if not self.string_palette:
-                return ''
+                return b''
 
             return self.string_palette.palette.get_string(offset)
 
