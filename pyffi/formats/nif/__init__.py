@@ -3274,10 +3274,10 @@ class NifFormat(FileFormat):
             """A wrapper around string_palette.palette.get_string. Used by get_node_name
             etc. Returns the string at given offset."""
             if offset == -1:
-                return ''
+                return b''
 
             if not self.string_palette:
-                return ''
+                return b''
 
             return self.string_palette.palette.get_string(offset)
 
@@ -7046,9 +7046,8 @@ class NifFormat(FileFormat):
             >>> print(pal.get_string(4).decode("ascii"))
             def
             >>> pal.get_string(5) # doctest: +ELLIPSIS
-            Traceback (most recent call last):
-                ...
-            ValueError: ...
+            pyffi.nif.stringpalette:WARNING:StringPalette: no string starts at offset 5 (string is b'ef', preceeding character is b'd')
+            b'ef'
             >>> pal.get_string(100) # doctest: +ELLIPSIS
             Traceback (most recent call last):
                 ...

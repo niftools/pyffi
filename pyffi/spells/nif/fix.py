@@ -627,6 +627,119 @@ class SpellCleanStringPalette(NifSpell):
             # keep looking for managers or sequences
             return True
 
+class SpellFixFallout3StringOffsets(NifSpell):
+    """Fix Oblivion style kf files to work with Fallout 3, by
+    replacing empty string offsets to point to a null byte.
+    """
+
+    SPELLNAME = "fix_fallout3stringoffsets"
+    READONLY = False
+
+    def datainspect(self):
+        # only run the spell if it looks like an Oblivion kf
+        return (
+            self.data.version == 0x14000005
+            and self.inspectblocktype(NifFormat.NiStringPalette)
+            and self.inspectblocktype(NifFormat.NiControllerSequence)
+            )
+
+    def branchinspect(self, branch):
+        # only inspect branches where NiControllerSequence can occur
+        return isinstance(branch, (NifFormat.NiAVObject,
+                                   NifFormat.NiControllerManager,
+                                   NifFormat.NiControllerSequence))
+
+    def branchentry(self, branch):
+        """Parses string palette of either a single controller sequence,
+        or of all controller sequences in a controller manager.
+
+        >>> seq = NifFormat.NiControllerSequence()
+        >>> seq.string_palette = NifFormat.NiStringPalette()
+        >>> block = seq.add_controlled_block()
+        >>> block.string_palette = seq.string_palette
+        >>> block.set_variable_1("there")
+        >>> block.set_node_name("hello")
+        >>> block.string_palette.palette.add_string("test")
+        12
+        >>> block.node_name_offset
+        6
+        >>> block.property_type_offset
+        -1
+        >>> block.controller_type_offset
+        -1
+        >>> block.variable_1_offset
+        0
+        >>> block.variable_2_offset
+        -1
+        >>> block.get_node_name()
+        b'hello'
+        >>> block.get_property_type()
+        b''
+        >>> block.get_controller_type()
+        b''
+        >>> block.get_variable_1()
+        b'there'
+        >>> block.get_variable_2()
+        b''
+        >>> SpellFixFallout3StringOffsets().branchentry(seq)
+        pyffi.toaster:INFO:updating empty links
+        pyffi.toaster:INFO:updated 'property_type_offset' for b'hello' node
+        pyffi.toaster:INFO:updated 'controller_type_offset' for b'hello' node
+        pyffi.toaster:INFO:updated 'variable_2_offset' for b'hello' node
+        False
+        >>> block.node_name_offset
+        6
+        >>> block.property_type_offset
+        16
+        >>> block.controller_type_offset
+        16
+        >>> block.variable_1_offset
+        0
+        >>> block.variable_2_offset
+        16
+        >>> block.get_node_name()
+        b'hello'
+        >>> block.get_property_type()
+        pyffi.nif.stringpalette:WARNING:StringPalette: no string starts at offset 16 (string is b'', preceeding character is b't')
+        b''
+        >>> block.get_controller_type()
+        pyffi.nif.stringpalette:WARNING:StringPalette: no string starts at offset 16 (string is b'', preceeding character is b't')
+        b''
+        >>> block.get_variable_1()
+        b'there'
+        >>> block.get_variable_2()
+        pyffi.nif.stringpalette:WARNING:StringPalette: no string starts at offset 16 (string is b'', preceeding character is b't')
+        b''
+        """
+        if isinstance(branch,NifFormat.NiControllerSequence):
+            self.toaster.msg("updating empty links")
+            # use the first string palette as reference
+            string_palette = branch.string_palette
+            if not string_palette:
+                self.toaster.logger.warn("empty string palette, skipped")
+                return False
+            palette = string_palette.palette.palette
+            b00_offset = palette.rfind(b'\x00')
+            if b00_offset == -1:
+                self.toaster.logger.error(
+                    "string palette has no null bytes, skipped")
+                return False
+            for block in branch.controlled_blocks:
+                for attr in (
+                    "node_name", "property_type", "controller_type",
+                    "variable_1", "variable_2"):
+                    attr_offset = attr + "_offset"
+                    offset = getattr(block, attr_offset)
+                    if offset == -1:
+                        self.toaster.msg(
+                            "updated %r for %r node"
+                            % (attr_offset, block.get_node_name()))
+                        setattr(block, attr_offset, b00_offset)
+                        self.changed = True
+            return False
+        else:
+            return True
+
 class SpellDelUnusedRoots(pyffi.spells.nif.NifSpell):
     """Remove root branches that shouldn't be root branches and are
     unused in the file such as NiProperty branches that are not
