@@ -994,6 +994,7 @@ class SpellSetBonePriorities(NifSpell):
                 sequence = "" # current sequence
                 bonepriorities = {} # priorities for current sequence
                 for line in stream:
+                    line = line.rstrip('\r\n')
                     m = re.match("\\[(.*)\\]$", line)
                     if m:
                         if sequence:
