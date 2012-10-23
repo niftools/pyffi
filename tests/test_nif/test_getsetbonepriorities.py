@@ -61,3 +61,8 @@ Bip01 Spine=47
         self.check_priorities(self.kffile2, [38, 22, 47])
         os.remove(self.txtfile)
         os.remove(self.kffile2)
+
+class TestGetSetBonePrioritiesFallout3(TestGetSetBonePrioritiesOblivion):
+    kffile = "tests/test_nif/test_controllersequence_fo3.kf"
+    kffile2 = "tests/test_nif/_test_controllersequence_fo3.kf"
+    txtfile = "tests/test_nif/test_controllersequence_fo3_bonepriorities.txt"
