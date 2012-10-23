@@ -201,19 +201,23 @@ class DetailModel(QtCore.QAbstractItemModel):
             node = index.internalPointer().data.node
             currentvalue = node.get_value()
             # transform the QVariant value into the right class
-            if isinstance(currentvalue, int):
-                # use long type to work around QVariant(0xffffffff).toInt() bug
-                pyvalue, ok = value.toLongLong()
-            elif isinstance(currentvalue, float):
-                pyvalue, ok = value.toDouble()
-            elif isinstance(currentvalue, str):
-                pyvalue = str(value.toString())
-                ok = True
-            elif isinstance(currentvalue, bool):
-                pyvalue, ok = value.toBool()
+            if isinstance(value, QtCore.QVariant):
+                if isinstance(currentvalue, int):
+                    # use long type to work around QVariant(0xffffffff).toInt() bug
+                    pyvalue, ok = value.toLongLong()
+                elif isinstance(currentvalue, float):
+                    pyvalue, ok = value.toDouble()
+                elif isinstance(currentvalue, str):
+                    pyvalue = str(value.toString())
+                    ok = True
+                elif isinstance(currentvalue, bool):
+                    pyvalue, ok = value.toBool()
+                else:
+                    # type not supported
+                    return False
             else:
-                # type not supported
-                return False
+                pyvalue = value
+                ok = True
             # check if conversion worked
             if not ok:
                 return False
