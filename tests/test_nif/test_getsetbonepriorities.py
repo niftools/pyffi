@@ -35,16 +35,27 @@ def test_check_get_set_bonepriorities():
 Bip01=27
 Bip01 Pelvis=27
 Bip01 Spine=75
-""")
+""".replace('\n', '\r\n'))
     with codecs.open(txtfile, "wb", encoding="ascii") as stream:
         stream.write("""\
 [TestAction]
 Bip01=33
 Bip01 Pelvis=29
 Bip01 Spine=42
-""")
+""".replace('\r\n', '\n')) # replace probably not needed; just in case
     toaster = call_niftoaster("modify_setbonepriorities", "--prefix=_", kffile)
     nose.tools.assert_equal(list(toaster.files_done), [kffile])
     check_priorities(kffile2, [33, 29, 42])
+    # test crlf write
+    with codecs.open(txtfile, "wb", encoding="ascii") as stream:
+        stream.write("""\
+[TestAction]
+Bip01=38
+Bip01 Pelvis=22
+Bip01 Spine=47
+""".replace('\n', '\r\n'))
+    toaster = call_niftoaster("modify_setbonepriorities", "--prefix=_", kffile)
+    nose.tools.assert_equal(list(toaster.files_done), [kffile])
+    check_priorities(kffile2, [38, 22, 47])
     os.remove(txtfile)
     os.remove(kffile2)

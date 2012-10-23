@@ -966,10 +966,10 @@ class SpellGetBonePriorities(NifSpell):
         self.toaster.msg("writing %s" % filename)
         with codecs.open(filename, "wb", encoding="ascii") as stream:
             for sequence, bonepriorities in self.bonepriorities.items():
-                print("[%s]" % sequence, file=stream)
+                print("[%s]" % sequence, file=stream, end="\r\n")
                 for name, priority in sorted(bonepriorities.items(),
                                              key=self.key):
-                    print("%s=%i" % (name, priority), file=stream)
+                    print("%s=%i" % (name, priority), file=stream, end="\r\n")
         self.bonepriorities = {}
 
 class SpellSetBonePriorities(NifSpell):
@@ -994,6 +994,7 @@ class SpellSetBonePriorities(NifSpell):
                 sequence = "" # current sequence
                 bonepriorities = {} # priorities for current sequence
                 for line in stream:
+                    line = line.rstrip('\r\n')
                     m = re.match("\\[(.*)\\]$", line)
                     if m:
                         if sequence:
