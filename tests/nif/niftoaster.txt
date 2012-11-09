@@ -154,6 +154,7 @@ dump
 dump_tex
 dump_htmlreport
 dump_pixeldata
+dump_python
 fix_addtangentspace
 fix_clampmaterialalpha
 fix_deltangentspace
@@ -170,6 +171,7 @@ fix_senddetachedgeometriestonodeposition
 fix_sendbonestobindposition
 fix_scale
 fix_cleanstringpalette
+fix_fallout3stringoffsets
 fix_bhksubshapes
 fix_emptyskeletonroots
 modify_delbranches
@@ -202,6 +204,8 @@ modify_substitutetexturepath
 fix_delunusedroots
 modify_bonepriorities
 modify_allbonepriorities
+modify_getbonepriorities
+modify_setbonepriorities
 modify_interpolatortransrotscale
 modify_delinterpolatortransformdata
 modify_collisiontomopp
