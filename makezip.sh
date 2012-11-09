@@ -14,7 +14,7 @@ then
 else
 	rm -rf docs
 	pushd docs-sphinx
-	make html
+	make html SPHINXBUILD=sphinx-build-3.2
 	popd
 	mv docs-sphinx/_build/html/ docs/
 fi
