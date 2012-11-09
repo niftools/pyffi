@@ -23,6 +23,8 @@ Release 2.2.1 (in development)
 * New fix_fallout3stringoffsets spell to 'fix' empty offsets in
   Oblivion style kf files, if they are to be used in Fallout 3.
 
+* Installer no longer targets Maya and Blender.
+
 Release 2.2.0 (Nov 26, 2011)
 ============================
 
