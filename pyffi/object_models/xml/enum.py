@@ -118,7 +118,8 @@ class EnumBase(BasicBase, EditableComboBox, metaclass=_MetaEnumBase):
                         "cannot convert value '%s' to integer"%value)
         if not val in self._enumvalues:
             logger = logging.getLogger("pyffi.object_models.xml.enum")
-            logger.error('invalid enum value (%i)' % val)
+            logger.error('invalid enum value (%i) for %s'
+                         % (val, self.__class__.__name__))
         else:
             self._value = val
 
