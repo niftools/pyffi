@@ -3,7 +3,7 @@ StructBase, Array, and BasicBase instances."""
 
 # ***** BEGIN LICENSE BLOCK *****
 #
-# Copyright (c) 2007-2011, Python File Format Interface
+# Copyright (c) 2007-2012, Python File Format Interface
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
