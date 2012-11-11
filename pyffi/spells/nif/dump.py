@@ -448,7 +448,11 @@ class SpellDumpPython(NifSpell):
         elif isinstance(_value, pyffi.object_models.xml.basic.BasicBase):
             value = _value.get_value()
             if value != type(_value)().get_value():
-                self.print_("%s = %s" % (name, _value.get_value()))
+                if isinstance(value, float):
+                    # avoid very long strings for floats by using %g
+                    self.print_("%s = %g" % (name, value))
+                else:
+                    self.print_("%s = %s" % (name, value))
                 return True
             else:
                 return False
