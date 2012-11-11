@@ -417,7 +417,7 @@ class SpellDumpPython(NifSpell):
         else:
             self.lines += [""]
 
-    def print_instance(self, name, _value):
+    def print_instance(self, name, _value, default=None):
         """Print code for assigning *_value* to *name*.
         Returns ``True`` if actual code was printed.
         """
@@ -448,7 +448,9 @@ class SpellDumpPython(NifSpell):
             return result
         elif isinstance(_value, pyffi.object_models.xml.basic.BasicBase):
             value = _value.get_value()
-            if value != type(_value)().get_value():
+            if default is None:
+                default = type(_value)().get_value()
+            if value != default:
                 if isinstance(value, float):
                     # avoid very long strings for floats by using %g
                     self.print_("%s = %g" % (name, value))
@@ -469,7 +471,7 @@ class SpellDumpPython(NifSpell):
                 # level - 2: we just increased the level earlier
                 attr_name = "%s.%s" % (name_alias, attr.name)
                 _attr_value = getattr(_value, "_%s_value_" % attr.name)
-                if self.print_instance(attr_name, _attr_value):
+                if self.print_instance(attr_name, _attr_value, attr.default):
                     result = True
             self.level -= 1
             if not result:
