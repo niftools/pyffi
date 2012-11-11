@@ -39,6 +39,7 @@
 # ***** END LICENSE BLOCK *****
 # --------------------------------------------------------------------------
 
+import codecs
 import http.server
 import ntpath # explicit windows style path manipulations
 import os
@@ -448,7 +449,11 @@ class SpellDumpPython(NifSpell):
         elif isinstance(_value, pyffi.object_models.xml.basic.BasicBase):
             value = _value.get_value()
             if value != type(_value)().get_value():
-                self.print_("%s = %s" % (name, _value.get_value()))
+                if isinstance(value, float):
+                    # avoid very long strings for floats by using %g
+                    self.print_("%s = %g" % (name, value))
+                else:
+                    self.print_("%s = %s" % (name, value))
                 return True
             else:
                 return False
@@ -457,12 +462,12 @@ class SpellDumpPython(NifSpell):
             # store with statement's line number
             # we need to remove it later if it contains no code
             with_line_number = len(self.lines)
-            # level - 1: the minimal level at this point is 2
-            self.print_("with ref(%s) as n_block_%i:" % (name, self.level - 1))
+            name_alias = "n_%s" % _value.__class__.__name__.lower()
+            self.print_("with ref(%s) as %s:" % (name, name_alias))
             self.level += 1
             for attr in _value._get_filtered_attribute_list(data=self.data):
                 # level - 2: we just increased the level earlier
-                attr_name = "n_block_%i.%s" % (self.level - 2, attr.name)
+                attr_name = "%s.%s" % (name_alias, attr.name)
                 _attr_value = getattr(_value, "_%s_value_" % attr.name)
                 if self.print_instance(attr_name, _attr_value):
                     result = True
@@ -479,12 +484,27 @@ class SpellDumpPython(NifSpell):
         self.blocks = {}
         self.print_("from pyffi.utils.withref import ref")
         self.print_("from pyffi.formats.nif import NifFormat")
+        # pep8: two blank lines
         self.print_()
-        self.print_("class Test:")
+        self.print_()
+        # create data
+        self.print_("def n_create_data():")
         self.level += 1
-        self.print_("def n_create(self):")
-        self.level += 1
+        self.print_("n_data = NifFormat.Data()")
+        self.print_("n_data.version = %s" % hex(self.data.version))
+        if self.data.user_version:
+            self.print_("n_data.user_version = %s" % self.data.user_version)
+        if self.data.user_version_2:
+            self.print_("n_data.user_version_2 = %s" % self.data.user_version_2)
+        if self.data.modification:
+            self.print_("n_data.modification = %s" % repr(self.data.modification))
+        self.print_("n_create_blocks(n_data)")
+        self.print_("return n_data")
+        self.level -= 1
+        self.print_()
         # create blocks (data is filled in later)
+        self.print_("def n_create_blocks(n_data):")
+        self.level += 1
         for branch in self.data.get_global_iterator():
             if branch is self.data:
                 continue
@@ -497,18 +517,10 @@ class SpellDumpPython(NifSpell):
             blockname = "%s_%i" % (blockname, num)
             self.blocks[branch] = blockname
             self.print_("%s = NifFormat.%s()" % (blockname, blocktype))
-        # create data
-        self.print_("n_data = NifFormat.Data()")
         self.print_(
             "n_data.roots = ["
             + ", ".join(self.blocks[root] for root in self.data.roots) + "]")
-        self.print_("n_data.version = %s" % hex(self.data.version))
-        if self.data.user_version:
-            self.print_("n_data.user_version = %s" % self.data.user_version)
-        if self.data.user_version_2:
-            self.print_("n_data.user_version_2 = %s" % self.data.user_version_2)
-        if self.data.modification:
-            self.print_("n_data.modification = %s" % repr(self.data.modification))
+        self.print_()
         return True
 
     def branchentry(self, branch):
@@ -518,5 +530,10 @@ class SpellDumpPython(NifSpell):
     def dataexit(self):
         self.print_("return n_data")
         self.level -= 1
-        self.level -= 1
-        print("\n".join(self.lines))
+        # done printing, now write file
+        filename, ext = os.path.splitext(self.stream.name)
+        filename = filename + "_dump.py"
+        self.toaster.msg("writing %s" % filename)
+        with codecs.open(filename, "wb", encoding="ascii") as stream:
+            for line in self.lines:
+                print(line, file=stream)
