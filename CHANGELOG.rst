@@ -3,6 +3,8 @@ Release 2.2.2 (in development)
 
 * Use VERSION file.
 
+* Fix dump_python for correct default values.
+
 Release 2.2.1 (Nov 11, 2012)
 ============================
 
