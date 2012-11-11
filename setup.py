@@ -59,7 +59,9 @@ setup(
     # include xml, xsd, dll, and exe files
     package_data = {'': ['*.xml', '*.xsd', '*.dll', '*.exe'],
                     'pyffi.formats.nif': ['nifxml/nif.xml'],
-                    'pyffi.formats.kfm': ['kfmxml/kfm.xml']},
+                    'pyffi.formats.kfm': ['kfmxml/kfm.xml'],
+                    'pyffi': ['VERSION'],
+                   },
     scripts = [
         'scripts/nif/nifmakehsl.py',
         'scripts/nif/niftoaster.py',
