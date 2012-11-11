@@ -457,7 +457,7 @@ class SpellDumpPython(NifSpell):
             # store with statement's line number
             # we need to remove it later if it contains no code
             with_line_number = len(self.lines)
-            name_alias = "n_%s" % _value.get_value().__class__.__name__
+            name_alias = "n_%s" % _value.__class__.__name__
             self.print_("with ref(%s) as %s:" % (name, name_alias))
             self.level += 1
             for attr in _value._get_filtered_attribute_list(data=self.data):
