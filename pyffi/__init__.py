@@ -48,5 +48,7 @@
 #
 # ***** END LICENSE BLOCK *****
 
-with open("VERSION", "rt") as f:
+import os
+
+with open(os.path.join(os.path.dirname(__file__), "VERSION"), "rt") as f:
     __version__ = f.read().strip()
