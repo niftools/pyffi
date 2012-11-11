@@ -486,9 +486,24 @@ class SpellDumpPython(NifSpell):
         # pep8: two blank lines
         self.print_()
         self.print_()
-        self.print_("def n_create():")
+        # create data
+        self.print_("def n_create_data():")
         self.level += 1
+        self.print_("n_data = NifFormat.Data()")
+        self.print_("n_data.version = %s" % hex(self.data.version))
+        if self.data.user_version:
+            self.print_("n_data.user_version = %s" % self.data.user_version)
+        if self.data.user_version_2:
+            self.print_("n_data.user_version_2 = %s" % self.data.user_version_2)
+        if self.data.modification:
+            self.print_("n_data.modification = %s" % repr(self.data.modification))
+        self.print_("n_create_blocks(n_data)")
+        self.print_("return n_data")
+        self.level -= 1
+        self.print_()
         # create blocks (data is filled in later)
+        self.print_("def n_create_blocks(n_data):")
+        self.level += 1
         for branch in self.data.get_global_iterator():
             if branch is self.data:
                 continue
@@ -501,18 +516,10 @@ class SpellDumpPython(NifSpell):
             blockname = "%s_%i" % (blockname, num)
             self.blocks[branch] = blockname
             self.print_("%s = NifFormat.%s()" % (blockname, blocktype))
-        # create data
-        self.print_("n_data = NifFormat.Data()")
         self.print_(
             "n_data.roots = ["
             + ", ".join(self.blocks[root] for root in self.data.roots) + "]")
-        self.print_("n_data.version = %s" % hex(self.data.version))
-        if self.data.user_version:
-            self.print_("n_data.user_version = %s" % self.data.user_version)
-        if self.data.user_version_2:
-            self.print_("n_data.user_version_2 = %s" % self.data.user_version_2)
-        if self.data.modification:
-            self.print_("n_data.modification = %s" % repr(self.data.modification))
+        self.print_()
         return True
 
     def branchentry(self, branch):
