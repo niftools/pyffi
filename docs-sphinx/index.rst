@@ -5,7 +5,7 @@
 Welcome to PyFFI!
 =================
 
-:Release: |version|
+:Release: |release|
 :Date:    |today|
 
 .. include:: ../README.rst
