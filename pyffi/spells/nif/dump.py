@@ -468,7 +468,6 @@ class SpellDumpPython(NifSpell):
             self.print_("with ref(%s) as %s:" % (name, name_alias))
             self.level += 1
             for attr in _value._get_filtered_attribute_list(data=self.data):
-                # level - 2: we just increased the level earlier
                 attr_name = "%s.%s" % (name_alias, attr.name)
                 _attr_value = getattr(_value, "_%s_value_" % attr.name)
                 if self.print_instance(attr_name, _attr_value, attr.default):
