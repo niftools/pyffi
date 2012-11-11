@@ -479,10 +479,10 @@ class SpellDumpPython(NifSpell):
         self.blocks = {}
         self.print_("from pyffi.utils.withref import ref")
         self.print_("from pyffi.formats.nif import NifFormat")
+        # pep8: two blank lines
         self.print_()
-        self.print_("class Test:")
-        self.level += 1
-        self.print_("def n_create(self):")
+        self.print_()
+        self.print_("def n_create():")
         self.level += 1
         # create blocks (data is filled in later)
         for branch in self.data.get_global_iterator():
@@ -517,6 +517,5 @@ class SpellDumpPython(NifSpell):
 
     def dataexit(self):
         self.print_("return n_data")
-        self.level -= 1
         self.level -= 1
         print("\n".join(self.lines))
