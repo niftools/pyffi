@@ -20,16 +20,17 @@ import sys
 if sys.version_info < (3, 0):
     raise RuntimeError("PyFFI requires Python 3.0 or higher.")
 
-import pyffi
-
 try:
     long_description = open("README.rst").read()
 except IOError:
     long_description = open("README.TXT").read()
 
+with open("pyffi/VERSION", "rt") as f:
+    version = f.read().strip()
+
 setup(
     name = "PyFFI",
-    version = pyffi.__version__,
+    version = version,
     packages = [
         'pyffi',
         'pyffi.object_models',

@@ -1,3 +1,8 @@
+Release 2.2.2 (in development)
+==============================
+
+* Use VERSION file.
+
 Release 2.2.1 (Nov 11, 2012)
 ============================
 
