@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # PyFFI documentation build configuration file, created by
@@ -12,7 +13,6 @@
 # serve to show the default value.
 
 import sys, os
-import pyffi # for its version
 
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
@@ -44,10 +44,11 @@ copyright = '2007-2012, Amorilia'
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
 #
-# The short X.Y version.
-version = pyffi.__version__
 # The full version, including alpha/beta/rc tags.
-release = pyffi.__version__
+with open("../pyffi/VERSION", "rt") as f:
+    release = f.read().strip()
+# The short X.Y version.
+version = '.'.join(release.split('.')[:2])
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:

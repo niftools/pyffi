@@ -1,3 +1,12 @@
+Release 2.2.2 (Nov 17, 2012)
+============================
+
+* Use VERSION file.
+
+* Fix dump_python for correct default values.
+
+* Fix xml for Fallout 3.
+
 Release 2.2.1 (Nov 11, 2012)
 ============================
 
