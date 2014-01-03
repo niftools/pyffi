@@ -3,8 +3,8 @@ Main author
 
 * Amorilia (amorilia@users.sourceforge.net)
 
-Contributors
-------------
+Previous Developers
+-------------------
 
 * wz (wz_@users.sourceforge.net)
 
@@ -14,10 +14,6 @@ Contributors
 * taarna23 (taarna23@users.sourceforge.net)
 
   - extraction of DXT compressed embedded textures for the nif format
-
-* seith (seith@users.sourceforge.net)
-
-  - logo design for the Windows installer
 
 * tazpn (tazpn@users.sourceforge.net)
 
@@ -32,6 +28,9 @@ Contributors
 
   - EGM & TRI format xml
 
+Contributors
+------------
+
 * PacificMorrowind (pacmorrowind@sourceforge.net)
 
   - some nif/kf modifying spells
@@ -39,3 +38,11 @@ Contributors
 * Ulrim/Arthmoor
 
   - optimization kit
+
+* seith (seith@users.sourceforge.net)
+
+  - logo design for the Windows installer
+
+* MoorCroft
+
+  - Patch for BSSTextureSet texture path substitution
