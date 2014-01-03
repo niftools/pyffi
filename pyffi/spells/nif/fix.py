@@ -233,19 +233,33 @@ class SpellParseTexturePath(NifSpell):
         return old_path
 
     def datainspect(self):
-        # only run the spell if there are NiSourceTexture blocks
-        return self.inspectblocktype(NifFormat.NiSourceTexture)
+        # only run the spell if contains 
+        # NiSourceTexture or BSShaderTextureSet blocks
+        if self.inspectblocktype(NifFormat.BSShaderTextureSet):
+            return True
+        elif self.inspectblocktype(NifFormat.NiSourceTexture):
+            return True
+        else:
+            return False
+        
 
     def branchinspect(self, branch):
         # only inspect the NiAVObject branch, texturing properties and source
         # textures
         return isinstance(branch, (NifFormat.NiAVObject,
                                    NifFormat.NiTexturingProperty,
-                                   NifFormat.NiSourceTexture))
+                                   NifFormat.NiSourceTexture,
+                                   NifFormat.BSLightingShaderProperty,
+                                   NifFormat.BSShaderTextureSet))
     
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiSourceTexture):
             branch.file_name = self.substitute(branch.file_name)
+            return False
+
+        elif isinstance(branch, NifFormat.BSShaderTextureSet):
+            for n, tex in enumerate (branch.textures):
+                branch.textures[n] = self.substitute(tex)
             return False
         else:
             return True
@@ -261,7 +275,7 @@ class SpellFixTexturePath(SpellParseTexturePath):
     """
 
     SPELLNAME = "fix_texturepath"
-	
+    
     def substitute(self, old_path):
         new_path = old_path
         new_path = new_path.replace(b'\n', b'\\n')
