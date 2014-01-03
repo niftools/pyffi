@@ -192,8 +192,9 @@ class SpellDumpTex(NifSpell):
             # stop recursion
             return False
         elif isinstance(branch, NifFormat.BSShaderTextureSet):
-            if len(branch.textures) > 0 :
-                for n, tex in enumerate (branch.textures):
+            textures = [path.decode() for path in branch.textures if path.decode() != '']
+            if len(textures) > 0:
+                for n, tex in enumerate (textures):
                     self.toaster.msg('%i: %s' % (n, tex))
             else: 
                 self.toaster.msg('BSShaderTextureSet has no Textures')
