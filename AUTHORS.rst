@@ -43,6 +43,6 @@ Contributors
 
   - logo design for the Windows installer
 
-* MoorCroft
+* MorCroft
 
   - Patch for BSSTextureSet texture path substitution
