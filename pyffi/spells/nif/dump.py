@@ -157,7 +157,9 @@ class SpellDumpTex(NifSpell):
         # stick to main tree nodes, and material and texture properties
         return isinstance(branch, (NifFormat.NiAVObject,
                                    NifFormat.NiTexturingProperty,
-                                   NifFormat.NiMaterialProperty))
+                                   NifFormat.NiMaterialProperty,
+                                   NifFormat.BSLightingShaderProperty,
+                                   NifFormat.BSShaderTextureSet))
 
     def branchentry(self, branch):
         if isinstance(branch, NifFormat.NiTexturingProperty):
@@ -188,6 +190,14 @@ class SpellDumpTex(NifSpell):
             self.toaster.msg('glossiness %f' % branch.glossiness)
             self.toaster.msg('alpha      %f' % branch.alpha)
             # stop recursion
+            return False
+        elif isinstance(branch, NifFormat.BSShaderTextureSet):
+            textures = [path.decode() for path in branch.textures if path.decode() != '']
+            if len(textures) > 0:
+                for n, tex in enumerate (textures):
+                    self.toaster.msg('%i: %s' % (n, tex))
+            else: 
+                self.toaster.msg('BSShaderTextureSet has no Textures')
             return False
         else:
             # keep looking for blocks of interest

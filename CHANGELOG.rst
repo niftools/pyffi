@@ -1,3 +1,11 @@
+Release 2.2.3 (Mar 17, 2014)
+============================
+
+* Update spell texture_path_substitution for BSTextureSet blocks (fix contributed by MorCroft)
+
+* Updated to latest nif.xml, submodules moved to github.
+
+
 Release 2.2.2 (Nov 17, 2012)
 ============================
 
