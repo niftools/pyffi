@@ -6,8 +6,7 @@
 [submodule "external"]
 	path = external
 
-	url = git://github.com/amorilia/pyffi-external.git
-
+	url = https://github.com/niftools/pyffi-external.git
 [submodule "pyffi/formats/kfm/kfmxml"]
 
 	path = pyffi/formats/kfm/kfmxml
