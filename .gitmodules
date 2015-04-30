@@ -1,14 +1,9 @@
 [submodule "pyffi/formats/nif/nifxml"]
-	path = pyffi/formats/nif/nifxml
-
-	url = https://github.com/niftools/nifxml.git
-
+        path = pyffi/formats/nif/nifxml
+        url = https://github.com/niftools/nifxml.git
 [submodule "external"]
-	path = external
-
-	url = https://github.com/niftools/pyffi-external.git
+        path = external
+        url = https://github.com/niftools/pyffi-external.git
 [submodule "pyffi/formats/kfm/kfmxml"]
-
-	path = pyffi/formats/kfm/kfmxml
-
-	url = https://github.com/niftools/kfmxml.git
+        path = pyffi/formats/kfm/kfmxml
+        url = https://github.com/niftools/kfmxml.git
