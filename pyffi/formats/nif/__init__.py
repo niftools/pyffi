@@ -6165,7 +6165,7 @@ class NifFormat(FileFormat):
                 # (see issue #3218751)
                 #self.data.num_uv_sets &= ~4096
                 #self.data.bs_num_uv_sets &= ~4096
-                # This is an error state and the mesh part should no be included in the exported nif.
+                # This is an error state and the mesh part should not be included in the exported nif.
                 # Rather alert the user to fix the offending part.
                 warnings.warn("Part of the exported mesh has Extra Vectors Flags applied without a material or uv set",
                               DeprecationWarning)
