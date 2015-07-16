@@ -6163,8 +6163,13 @@ class NifFormat(FileFormat):
                 # happens in Fallout NV
                 # meshes/architecture/bouldercity/arcadeendl.nif
                 # (see issue #3218751)
-                self.data.num_uv_sets &= ~4096
-                self.data.bs_num_uv_sets &= ~4096
+                #self.data.num_uv_sets &= ~4096
+                #self.data.bs_num_uv_sets &= ~4096
+                self.data.extra_vectors_flags = 0
+                # This is an error state and the mesh part should not be included in the exported nif.
+                # Rather alert the user to fix the offending part.
+                warnings.warn("Part of the exported mesh has Extra Vectors Flags applied without a material or uv set",
+                              DeprecationWarning)
                 return
 
             # check that shape has norms and uvs
@@ -6337,8 +6342,6 @@ class NifFormat(FileFormat):
                 # XXX used to be 61440
                 # XXX from Sid Meier's Railroad & Fallout 3 nifs, 4096 is
                 # XXX sufficient?
-                self.data.num_uv_sets |= 4096
-                self.data.bs_num_uv_sets |= 4096
                 self.data.tangents.update_size()
                 self.data.bitangents.update_size()
                 for vec, data_tans in zip(tan, self.data.tangents):
