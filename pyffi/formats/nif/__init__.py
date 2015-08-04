@@ -2322,17 +2322,17 @@ class NifFormat(FileFormat):
         def apply_scale(self, scale):
             """Scale data."""
             # apply scale on transform
-            self.limited_hinge.pivot_a.x *= scale
-            self.limited_hinge.pivot_a.y *= scale
-            self.limited_hinge.pivot_a.z *= scale
-            self.limited_hinge.pivot_b.x *= scale
-            self.limited_hinge.pivot_b.y *= scale
-            self.limited_hinge.pivot_b.z *= scale
+            self.sub_constraint.limited_hinge.pivot_a.x *= scale
+            self.sub_constraint.limited_hinge.pivot_a.y *= scale
+            self.sub_constraint.limited_hinge.pivot_a.z *= scale
+            self.sub_constraint.limited_hinge.pivot_b.x *= scale
+            self.sub_constraint.limited_hinge.pivot_b.y *= scale
+            self.sub_constraint.limited_hinge.pivot_b.z *= scale
 
         def update_a_b(self, parent):
             """Update the B data from the A data. The parent argument is simply a
             common parent to the entities."""
-            self.limited_hinge.update_a_b(self.get_transform_a_b(parent))
+            self.sub_constraint.limited_hinge.update_a_b(self.get_transform_a_b(parent))
 
     class bhkListShape:
         def get_mass_center_inertia(self, density = 1, solid = True):
@@ -2393,24 +2393,24 @@ class NifFormat(FileFormat):
         def apply_scale(self, scale):
             """Scale data."""
             # apply scale on transform
-            self.ragdoll.pivot_a.x *= scale
-            self.ragdoll.pivot_a.y *= scale
-            self.ragdoll.pivot_a.z *= scale
-            self.ragdoll.pivot_b.x *= scale
-            self.ragdoll.pivot_b.y *= scale
-            self.ragdoll.pivot_b.z *= scale
-            self.limited_hinge.pivot_a.x *= scale
-            self.limited_hinge.pivot_a.y *= scale
-            self.limited_hinge.pivot_a.z *= scale
-            self.limited_hinge.pivot_b.x *= scale
-            self.limited_hinge.pivot_b.y *= scale
-            self.limited_hinge.pivot_b.z *= scale
+            self.sub_constraint.ragdoll.pivot_a.x *= scale
+            self.sub_constraint.ragdoll.pivot_a.y *= scale
+            self.sub_constraint.ragdoll.pivot_a.z *= scale
+            self.sub_constraint.ragdoll.pivot_b.x *= scale
+            self.sub_constraint.ragdoll.pivot_b.y *= scale
+            self.sub_constraint.ragdoll.pivot_b.z *= scale
+            self.sub_constraint.limited_hinge.pivot_a.x *= scale
+            self.sub_constraint.limited_hinge.pivot_a.y *= scale
+            self.sub_constraint.limited_hinge.pivot_a.z *= scale
+            self.sub_constraint.limited_hinge.pivot_b.x *= scale
+            self.sub_constraint.limited_hinge.pivot_b.y *= scale
+            self.sub_constraint.limited_hinge.pivot_b.z *= scale
 
         def update_a_b(self, parent):
             """Update the B data from the A data."""
             transform = self.get_transform_a_b(parent)
-            self.limited_hinge.update_a_b(transform)
-            self.ragdoll.update_a_b(transform)
+            self.sub_constraint.limited_hinge.update_a_b(transform)
+            self.sub_constraint.ragdoll.update_a_b(transform)
 
     class bhkMoppBvTreeShape:
         def get_mass_center_inertia(self, density=1, solid=True):
@@ -6163,8 +6163,13 @@ class NifFormat(FileFormat):
                 # happens in Fallout NV
                 # meshes/architecture/bouldercity/arcadeendl.nif
                 # (see issue #3218751)
-                self.data.num_uv_sets &= ~4096
-                self.data.bs_num_uv_sets &= ~4096
+                #self.data.num_uv_sets &= ~4096
+                #self.data.bs_num_uv_sets &= ~4096
+                self.data.extra_vectors_flags = 0
+                # This is an error state and the mesh part should not be included in the exported nif.
+                # Rather alert the user to fix the offending part.
+                warnings.warn("Part of the exported mesh has Extra Vectors Flags applied without a material or uv set",
+                              DeprecationWarning)
                 return
 
             # check that shape has norms and uvs
@@ -6337,8 +6342,6 @@ class NifFormat(FileFormat):
                 # XXX used to be 61440
                 # XXX from Sid Meier's Railroad & Fallout 3 nifs, 4096 is
                 # XXX sufficient?
-                self.data.num_uv_sets |= 4096
-                self.data.bs_num_uv_sets |= 4096
                 self.data.tangents.update_size()
                 self.data.bitangents.update_size()
                 for vec, data_tans in zip(tan, self.data.tangents):
