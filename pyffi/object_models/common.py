@@ -414,6 +414,73 @@ class Float(BasicBase, EditableFloatSpinBox):
         """
         return int(self.get_value()*200)
 
+
+class HFloat(Float, EditableFloatSpinBox):
+    """Implementation of a 32-bit float."""
+
+    def __init__(self, **kwargs):
+        """Initialize the float."""
+        super(HFloat, self).__init__(**kwargs)
+        self._value = float()
+
+    @classmethod
+    def toFloat(cls, bom, value):
+        exponent = value & 0x00007C00
+        if not exponent: return float()
+        bits = ((value & 32768) << 16) | \
+               ((exponent + 0x0001C000) | (value & 0x3ff)) << 13
+        return struct.unpack(bom+"f", struct.pack(bom+"I", bits))[0]
+
+    @classmethod
+    def fromFloat(cls, bom, value):
+        if value > 131008.000:
+            bits = 0x47FFE000
+        else:
+            bits = struct.unpack(bom+"I", struct.pack(bom+"f", value))[0]
+        if (bits & 0x7FFFFFFF) < 0x38800000: return int()
+        result = ((bits + 0x48000000) & ~0x3ff) | (bits & 0x3ff)
+        return ((result >> 13) & 0xFFFF) | ((bits & 0x80000000) >> 16)
+
+    def read(self, stream, data):
+        """Read value from stream.
+
+        :param stream: The stream to read from.
+        :type stream: file
+        """
+        bom = data._byte_order
+        boi = bom + "H"
+        self._value = HFloat.toFloat(bom, struct.unpack(boi,stream.read(2))[0])
+
+    def write(self, stream, data):
+        """Write value to stream.
+
+        :param stream: The stream to write to.
+        :type stream: file
+        """
+        bom = data._byte_order
+        boi = bom + "H"
+        try:
+            stream.write(struct.pack(bof, HFloat.fromFloat(self._value)))
+        except OverflowError:
+            logger = logging.getLogger("pyffi.object_models")
+            logger.warn("float value overflow, writing NaN")
+            stream.write(struct.pack(boi, 0x7fff))
+
+    def get_size(self, data=None):
+        """Return number of bytes this type occupies in a file.
+
+        :return: Number of bytes.
+        """
+        return 2
+
+    def get_hash(self, data=None):
+        """Return a hash value for this value. Currently implemented
+        with precision 1/200.
+
+        :return: An immutable object that can be used as a hash.
+        """
+        return HFloat.fromFloat(self.get_value())
+
 class ZString(BasicBase, EditableLineEdit):
     """String of variable length (null terminated).
 
