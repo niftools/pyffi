@@ -256,6 +256,8 @@ class SpellHtmlReport(NifSpell):
     def toastexit(cls, toaster):
         if toaster.reports_per_blocktype:
             rows = []
+            rows.append( "<!DOCTYPE html>" )
+            rows.append( "<html>" )
             rows.append( "<head>" )
             rows.append( "<title>Report</title>" )
             rows.append( "</head>" )
@@ -275,6 +277,7 @@ class SpellHtmlReport(NifSpell):
 
     @classmethod
     def browser(cls, htmlstr):
+        htmlbytes = bytes(htmlstr,'UTF-8')
         """Display html in the default web browser without creating a
         temp file.
         
@@ -282,10 +285,15 @@ class SpellHtmlReport(NifSpell):
         with a URL to retrieve html from that server.
         """    
         class RequestHandler(http.server.BaseHTTPRequestHandler):
+            def do_HEAD(self):
+                self.send_response(200)
+                self.send_header("Content-type", "text/html")
+                self.end_headers()
             def do_GET(self):
+                self.do_HEAD()
                 bufferSize = 1024*1024
-                for i in range(0, len(htmlstr), bufferSize):
-                    self.wfile.write(htmlstr[i:i+bufferSize])
+                for i in range(0, len(htmlbytes), bufferSize):
+                    self.wfile.write(htmlbytes[i:i+bufferSize])
 
         server = http.server.HTTPServer(('127.0.0.1', 0), RequestHandler)
         webbrowser.open('http://127.0.0.1:%s' % server.server_port)
