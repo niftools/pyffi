@@ -416,7 +416,7 @@ class Float(BasicBase, EditableFloatSpinBox):
 
 
 class HFloat(Float, EditableFloatSpinBox):
-    """Implementation of a 32-bit float."""
+    """Implementation of a 16-bit float."""
 
     def __init__(self, **kwargs):
         """Initialize the float."""
@@ -475,7 +475,7 @@ class HFloat(Float, EditableFloatSpinBox):
 
     def get_hash(self, data=None):
         """Return a hash value for this value. Currently implemented
-        with precision 1/200.
+        with the short form.
 
         :return: An immutable object that can be used as a hash.
         """
