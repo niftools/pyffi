@@ -460,7 +460,7 @@ class HFloat(Float, EditableFloatSpinBox):
         bom = data._byte_order
         boi = bom + "H"
         try:
-            stream.write(struct.pack(bof, HFloat.fromFloat(self._value)))
+            stream.write(struct.pack(boi, HFloat.fromFloat(bom, self._value)))
         except OverflowError:
             logger = logging.getLogger("pyffi.object_models")
             logger.warn("float value overflow, writing NaN")
