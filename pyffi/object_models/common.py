@@ -423,16 +423,17 @@ class HFloat(Float, EditableFloatSpinBox):
         super(HFloat, self).__init__(**kwargs)
         self._value = float()
 
-    @classmethod
-    def toFloat(cls, bom, value):
+    @staticmethod
+    def toFloatFast(bom, value):
         exponent = value & 0x00007C00
+        mantissa = value & 0x3ff
         if not exponent: return float()
         bits = ((value & 32768) << 16) | \
-               ((exponent + 0x0001C000) | (value & 0x3ff)) << 13
+               ((exponent + 0x0001C000) | mantissa) << 13
         return struct.unpack(bom+"f", struct.pack(bom+"I", bits))[0]
 
-    @classmethod
-    def fromFloat(cls, bom, value):
+    @staticmethod
+    def fromFloatFast(bom, value):
         if value > 131008.000:
             bits = 0x47FFE000
         else:
@@ -440,6 +441,159 @@ class HFloat(Float, EditableFloatSpinBox):
         if (bits & 0x7FFFFFFF) < 0x38800000: return int()
         result = ((bits + 0x48000000) & ~0x3ff) | (bits & 0x3ff)
         return ((result >> 13) & 0xFFFF) | ((bits & 0x80000000) >> 16)
+
+    @staticmethod
+    def half_sub( ha, hb ):
+        return half_add( ha, hb ^ 0x8000 );
+
+    @staticmethod
+    def h_sels( test, a, b ):
+        mask = test >> 31
+        return (a & mask) | (b & ~mask)
+
+    @staticmethod
+    def h_selb( mask, a, b ):
+        return (a & b) | (b & ~mask)
+
+    @staticmethod
+    def h_cntlz( x ):
+        x1  =   x  | (x >> 1)
+        x2  =   x1 >> 2
+        x3  =   x1 | x2
+        x4  =   x3 >> 4
+        x5  =   x3 | x4
+        x6  =   x5 >> 8
+        x7  =   x5 | x6
+        x8  =   x7 >> 16
+        x9  =    x7 | x8
+        xA  =  ~x9
+        xB  =   xA >> 1
+        xC  =   xB & 0x55555555
+        xD  =   xA - xC
+        xE  =   xD & 0x33333333
+        xF  =   xD >> 2
+        x10 =   xF & 0x33333333
+        x11 =   xE + x10
+        x12 =   x11 >> 4
+        x13 =   x11 + x12
+        x14 =   x13 & 0x0f0f0f0f
+        x15 =   x14 >> 8
+        x16 =   x14 + x15
+        x19 =   (x16 + (x16 >> 16)) & 0x0000003f
+        return ( x19 )
+
+    @staticmethod
+    def toFloatAccurate(bom, value):
+        h                     = int(value)
+        h_e_mask              = 0x00007c00
+        h_m_mask              = 0x000003ff
+        h_s_mask              = 0x00008000
+        h_f_s_pos_offset      = 0x00000010
+        h_f_e_pos_offset      = 0x0000000d
+        h_f_bias_offset       = 0x0001c000
+        f_e_mask              = 0x7f800000
+        f_m_mask              = 0x007fffff
+        h_f_e_denorm_bias     = 0x0000007e
+        h_f_m_denorm_sa_bias  = 0x00000008
+        f_e_pos               = 0x00000017
+        h_e_mask_minus_one    = 0x00007bff
+        h_e                   = h & h_e_mask;
+        h_m                   = h & h_m_mask
+        h_s                   = h & h_s_mask
+        h_e_f_bias            = h_e + h_f_bias_offset
+        h_m_nlz               = HFloat.h_cntlz( h_m )
+        f_s                   = h_s << h_f_s_pos_offset
+        f_e                   = h_e_f_bias << h_f_e_pos_offset
+        f_m                   = h_m << h_f_e_pos_offset
+        f_em                  = f_e | f_m
+        h_f_m_sa              = h_m_nlz - h_f_m_denorm_sa_bias
+        f_e_denorm_unpacked   = h_f_e_denorm_bias -   h_f_m_sa
+        h_f_m                 = h_m << h_f_m_sa if h_m else 0
+        f_m_denorm            = h_f_m & f_m_mask
+        f_e_denorm            = f_e_denorm_unpacked << f_e_pos
+        f_em_denorm           = f_e_denorm | f_m_denorm
+        f_em_nan              = f_e_mask | f_m
+        is_e_eqz_msb          = h_e - 1
+        is_m_nez_msb          = -h_m
+        is_e_flagged_msb      = h_e_mask_minus_one - h_e
+        is_zero_msb           = is_e_eqz_msb & ~is_m_nez_msb
+        is_inf_msb            = is_e_flagged_msb & ~is_m_nez_msb
+        is_denorm_msb         = is_m_nez_msb & is_e_eqz_msb
+        is_nan_msb            = is_e_flagged_msb & is_m_nez_msb
+        is_zero               = is_zero_msb >> 31
+        f_zero_result         = f_em & ~is_zero
+        f_denorm_result       = HFloat.h_sels( is_denorm_msb, f_em_denorm, f_zero_result  )
+        f_inf_result          = HFloat.h_sels( is_inf_msb,    f_e_mask,    f_denorm_result)
+        f_nan_result          = HFloat.h_sels( is_nan_msb,    f_em_nan,    f_inf_result   )
+        f_result              = f_s | f_nan_result
+        return struct.unpack(bom+"f", struct.pack(bom+"I", f_result))[0]
+
+    @staticmethod
+    def fromFloatAccurate(bom, value):
+        f                          = struct.unpack(bom+"I", struct.pack(bom+"f", value))[0]
+        one                        = 0x00000001
+        f_s_mask                   = 0x80000000
+        f_e_mask                   = 0x7f800000
+        f_m_mask                   = 0x007fffff
+        f_m_hidden_bit             = 0x00800000
+        f_m_round_bit              = 0x00001000
+        f_snan_mask                = 0x7fc00000
+        f_e_pos                    = 0x00000017
+        h_e_pos                    = 0x0000000a
+        h_e_mask                   = 0x00007c00
+        h_snan_mask                = 0x00007e00
+        h_e_mask_value             = 0x0000001f
+        f_h_s_pos_offset           = 0x00000010
+        f_h_bias_offset            = 0x00000070
+        f_h_m_pos_offset           = 0x0000000d
+        h_nan_min                  = 0x00007c01
+        f_h_e_biased_flag          = 0x0000008f
+        f_s                        =  f & f_s_mask
+        f_e                        =  f & f_e_mask
+        h_s                        =  f_s >> f_h_s_pos_offset
+        f_m                        =  f & f_m_mask
+        f_e_amount                 =  f_e >> f_e_pos
+        f_e_half_bias              =  f_e_amount - f_h_bias_offset
+        f_snan                     =  f & f_snan_mask
+        f_m_round_mask             =  f_m & f_m_round_bit
+        f_m_round_offset           =  f_m_round_mask <<  one
+        f_m_rounded                =  f_m + f_m_round_offset
+        f_m_denorm_sa              =  one - f_e_half_bias
+        f_m_with_hidden            =  f_m_rounded | f_m_hidden_bit
+        f_m_denorm                 =  f_m_with_hidden >> f_m_denorm_sa if f_m_denorm_sa >= 0 else 0
+        h_m_denorm                 =  f_m_denorm >> f_h_m_pos_offset
+        f_m_rounded_overflow       =  f_m_rounded & f_m_hidden_bit
+        m_nan                      =  f_m >> f_h_m_pos_offset
+        h_em_nan                   =  h_e_mask | m_nan
+        h_e_norm_overflow_offset   =  f_e_half_bias + 1
+        h_e_norm_overflow          =  h_e_norm_overflow_offset << h_e_pos
+        h_e_norm                   =  f_e_half_bias << h_e_pos
+        h_m_norm                   =  f_m_rounded >> f_h_m_pos_offset
+        h_em_norm                  =  h_e_norm | h_m_norm
+        is_h_ndenorm_msb           =  f_h_bias_offset - f_e_amount
+        is_f_e_flagged_msb         =  f_h_e_biased_flag - f_e_half_bias
+        is_h_denorm_msb            = ~is_h_ndenorm_msb
+        is_f_m_eqz_msb             =  f_m   - 1
+        is_h_nan_eqz_msb           =  m_nan - 1
+        is_f_inf_msb               =  is_f_e_flagged_msb & is_f_m_eqz_msb
+        is_f_nan_underflow_msb     =  is_f_e_flagged_msb & is_h_nan_eqz_msb
+        is_e_overflow_msb          =  h_e_mask_value - f_e_half_bias
+        is_h_inf_msb               =  is_e_overflow_msb |  is_f_inf_msb
+        is_f_nsnan_msb             =  f_snan - f_snan_mask
+        is_m_norm_overflow_msb     = -f_m_rounded_overflow
+        is_f_snan_msb              = ~is_f_nsnan_msb
+        h_em_overflow_result       = HFloat.h_sels( is_m_norm_overflow_msb, h_e_norm_overflow, h_em_norm                 )
+        h_em_nan_result            = HFloat.h_sels( is_f_e_flagged_msb,     h_em_nan,          h_em_overflow_result      )
+        h_em_nan_underflow_result  = HFloat.h_sels( is_f_nan_underflow_msb, h_nan_min,         h_em_nan_result           )
+        h_em_inf_result            = HFloat.h_sels( is_h_inf_msb,           h_e_mask,          h_em_nan_underflow_result )
+        h_em_denorm_result         = HFloat.h_sels( is_h_denorm_msb,        h_m_denorm,        h_em_inf_result           )
+        h_em_snan_result           = HFloat.h_sels( is_f_snan_msb,          h_snan_mask,       h_em_denorm_result        )
+        h_result                   =  h_s | h_em_snan_result
+        return  h_result
+
+    toFloat = toFloatAccurate
+
+    fromFloat = fromFloatAccurate
 
     def read(self, stream, data):
         """Read value from stream.
