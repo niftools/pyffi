@@ -489,10 +489,11 @@ class NifFormat(FileFormat):
             if value is None:
                 self._value = None
             else:
-                if not isinstance(value, self._template):
-                    raise TypeError(
-                        'expected an instance of %s but got instance of %s'
-                        % (self._template, value.__class__))
+                if self._template != None:
+                    if not isinstance(value, self._template):
+                        raise TypeError(
+                            'expected an instance of %s but got instance of %s'
+                            % (self._template, value.__class__))
                 self._value = value
 
         def get_size(self, data=None):
@@ -542,11 +543,11 @@ class NifFormat(FileFormat):
                     return
             # other case: look up the link and check the link type
             block = data._block_dct[block_index]
-            if isinstance(block, self._template):
-                self.set_value(block)
-            else:
-                #raise TypeError('expected an instance of %s but got instance of %s'%(self._template, block.__class__))
-                logging.getLogger("pyffi.nif.ref").warn(
+            self.set_value(block)
+            if self._template != None:
+                if not isinstance(block, self._template):
+                    #raise TypeError('expected an instance of %s but got instance of %s'%(self._template, block.__class__))
+                    logging.getLogger("pyffi.nif.ref").warn(
                     "Expected an %s but got %s: ignoring reference."
                     % (self._template, block.__class__))
 
@@ -614,10 +615,11 @@ class NifFormat(FileFormat):
             if value is None:
                 self._value = None
             else:
-                if not isinstance(value, self._template):
-                    raise TypeError(
-                        'expected an instance of %s but got instance of %s'
-                        % (self._template, value.__class__))
+                if self._template != None:
+                    if not isinstance(value, self._template):
+                        raise TypeError(
+                            'expected an instance of %s but got instance of %s'
+                            % (self._template, value.__class__))
                 self._value = weakref.ref(value)
 
         def __str__(self):
