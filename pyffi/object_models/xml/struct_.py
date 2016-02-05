@@ -349,6 +349,8 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
             # read the attribute
             attr_value = getattr(self, "_%s_value_" % attr.name)
             attr_value.arg = rt_arg
+            if hasattr(attr, "type_"):
+                attr_value._elementType = attr.type_
             attr_value.read(stream, data)
             ### UNCOMMENT FOR DEBUGGING WHILE READING
             #print("* %s.%s" % (self.__class__.__name__, attr.name)) # debug
