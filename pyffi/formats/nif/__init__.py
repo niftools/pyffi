@@ -4711,8 +4711,7 @@ class NifFormat(FileFormat):
                 this function.
             """
 
-            warnings.warn("use NifFormat.NiNode.send_bones_to_bind_position",
-                          DeprecationWarning)
+            warnings.warn("use NifFormat.NiNode.send_bones_to_bind_position", DeprecationWarning)
 
             if not self.is_skin():
                 return
@@ -6138,9 +6137,7 @@ class NifFormat(FileFormat):
 
             return zip(self.data.normals, tangents, bitangents)
 
-        def update_tangent_space(
-            self, as_extra=None,
-            vertexprecision=3, normalprecision=3):
+        def update_tangent_space(self, as_extra=None, vertexprecision=3, normalprecision=3):
             """Recalculate tangent space data.
 
             :param as_extra: Whether to store the tangent space data as extra data
@@ -6151,27 +6148,18 @@ class NifFormat(FileFormat):
             """
             # check that self.data exists and is valid
             if not isinstance(self.data, NifFormat.NiTriBasedGeomData):
-                raise ValueError(
-                    'cannot update tangent space of a geometry with %s data'
-                    %(self.data.__class__ if self.data else 'no'))
+                raise ValueError('cannot update tangent space of a geometry with %s data'
+                                 %(self.data.__class__ if self.data else 'no'))
 
             verts = self.data.vertices
             norms = self.data.normals
             if len(self.data.uv_sets) > 0:
-                uvs   = self.data.uv_sets[0]
+                uvs = self.data.uv_sets[0]
             else:
-                # no uv sets so no tangent space
-                # we clear the tangents space flag just
-                # happens in Fallout NV
-                # meshes/architecture/bouldercity/arcadeendl.nif
-                # (see issue #3218751)
-                #self.data.num_uv_sets &= ~4096
-                #self.data.bs_num_uv_sets &= ~4096
-                self.data.extra_vectors_flags = 0
                 # This is an error state and the mesh part should not be included in the exported nif.
-                # Rather alert the user to fix the offending part.
-                warnings.warn("Part of the exported mesh has Extra Vectors Flags applied without a material or uv set",
-                              DeprecationWarning)
+                # happens in Fallout NV meshes/architecture/bouldercity/arcadeendl.nif
+                self.data.extra_vectors_flags = 0
+                warnings.warn("Attempting to export mesh without uv data", DeprecationWarning)
                 return
 
             # check that shape has norms and uvs
@@ -6341,9 +6329,9 @@ class NifFormat(FileFormat):
                 extra.binary_data = bytes(binarydata)
             else:
                 # set tangent space flag
+                self.data.extra_vectors_flags = 16
                 # XXX used to be 61440
-                # XXX from Sid Meier's Railroad & Fallout 3 nifs, 4096 is
-                # XXX sufficient?
+                # XXX from Sid Meier's Railroad
                 self.data.tangents.update_size()
                 self.data.bitangents.update_size()
                 for vec, data_tans in zip(tan, self.data.tangents):
@@ -6354,6 +6342,8 @@ class NifFormat(FileFormat):
                     data_bins.x = vec.x
                     data_bins.y = vec.y
                     data_bins.z = vec.z
+                    
+                
 
         # ported from nifskope/skeleton.cpp:spSkinPartition
         def update_skin_partition(self,
