@@ -20,7 +20,7 @@ Download
 --------
 
 Get PyFFI from
-`Sourceforge <https://github.com/niftools/pyffi/releases>`_,
+`Github <https://github.com/niftools/pyffi/releases>`_,
 or install it with::
 
     easy_install -U PyFFI
@@ -29,7 +29,7 @@ or::
     pip3 install PyFFI
 
 To get the latest (but possibly unstable) code, clone PyFFI from its
-`Git repository <http://github.com/amorilia/pyffi>`_::
+`Git repository <http://github.com/niftools/pyffi>`_::
 
     git clone --recursive git://github.com/niftools/pyffi.git
 
@@ -44,7 +44,7 @@ account <https://github.com/signup/free>`_ and `fork PyFFI
 Examples
 --------
 
-* The `Blender NIF Scripts
+* The `Blender NIF Plugin
   <https://github.com/niftools/blender_nif_plugin>`_
   and the `Blender CGF Scripts
   <https://sourceforge.net/projects/colladacgf/files/>`_ use
