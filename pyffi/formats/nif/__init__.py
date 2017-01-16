@@ -2489,7 +2489,7 @@ class NifFormat(FileFormat):
                     "If you are using the PyFFI that was shipped with Blender, "
                     "and you are on Windows, then you may wish to install the "
                     "full version of PyFFI from "
-                    "http://pyffi.sourceforge.net/ "
+                    "https://github.com/niftools/pyffi "
                     "instead, which includes the (closed source) "
                     "Havok mopp generator.")
                 self.update_origin_scale()

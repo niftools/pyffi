@@ -27,7 +27,7 @@ pyffi.toaster:INFO:=== tests/cgf/invalid.cgf ===
 pyffi.toaster:ERROR:TEST FAILED ON tests/cgf/invalid.cgf
 pyffi.toaster:ERROR:If you were running a spell that came with PyFFI, then
 pyffi.toaster:ERROR:please report this as a bug (include the file) on
-pyffi.toaster:ERROR:http://sourceforge.net/tracker/?group_id=199269
+pyffi.toaster:ERROR:https://github.com/niftools/pyffi/issues
 pyffi.toaster:INFO:=== tests/cgf/monkey.cgf ===
 pyffi.toaster:INFO:  --- check_read ---
 pyffi.toaster:INFO:=== tests/cgf/test.cgf ===

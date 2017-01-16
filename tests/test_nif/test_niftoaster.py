@@ -1016,7 +1016,7 @@ pyffi.toaster:INFO:=== tests/nif/invalid.nif ===
 pyffi.toaster:ERROR:TEST FAILED ON tests/nif/invalid.nif
 pyffi.toaster:ERROR:If you were running a spell that came with PyFFI, then
 pyffi.toaster:ERROR:please report this as a bug (include the file) on
-pyffi.toaster:ERROR:http://sourceforge.net/tracker/?group_id=199269
+pyffi.toaster:ERROR:https://github.com/niftools/pyffi/issues
 pyffi.toaster:INFO:=== tests/nif/nds.nif ===
 pyffi.toaster:INFO:  version      0x14020008
 pyffi.toaster:INFO:  user version 0

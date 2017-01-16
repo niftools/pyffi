@@ -46,17 +46,12 @@ Examples
 
 * The `Blender NIF Plugin
   <https://github.com/niftools/blender_nif_plugin>`_
-  and the `Blender CGF Scripts
-  <https://sourceforge.net/projects/colladacgf/files/>`_ use
-  PyFFI to import and export these files to and from Blender.
 
-* `QSkope
-  <http://sourceforge.net/project/screenshots.php?group_id=199269&ssid=75973>`_,
-  PyFFI's general purpose file editor.
+* QSkope PyFFI's general purpose file editor.
 
 * The niftoaster (PyFFI's "swiss army knife") can for instance
   `optimize nif files
-  <http://cs.elderscrolls.com/constwiki/index.php/Nif_Optimization>`_,
+  <http://cs.elderscrolls.com/index.php?title=Nif_Optimization>`_,
   and much more.
 
 Questions? Suggestions?

@@ -1,6 +1,6 @@
 ;
 ; PyFFI Extra Header for Self-Installer for Windows
-; (PyFFI - http://pyffi.sourceforge.net) 
+; (PyFFI - https://github.com/niftools/pyffi)
 ; (NSIS - http://nsis.sourceforge.net)
 ;
 ; Copyright (c) 2007-2012, Python File Format Interface

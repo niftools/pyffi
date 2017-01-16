@@ -6,12 +6,11 @@ Quick Links:
 [url="http://www.bethsoft.com/bgsforums/index.php?showtopic=890860"]PyFFI thread 3[/url]
 PyFFI thread 2 - too old and has been purged.
 PyFFI thread 1 - too old and has been purged.
-url="http://pyffi.sourceforge.net/"]PyFFI - [b]Py[/b]thon [b]F[/b]ile [b]F[/b]ormat [b]I[/b]nterface's Documentation[/url] 
-[url="http://www.python.org/download/releases/2.6.4/"]Python 2.6.4[/url] (required to Run PyFFI)
-[url="http://sourceforge.net/project/showfiles.php?group_id=199269"]PyFFI's Download page[/url]
-[url="http://sourceforge.net/tracker/?group_id=199269"]PyFFI's Sourceforge Tracker[/url] sub-trackers for bugs, requests etc.
-[url="http://github.com/amorilia/pyffi"]Amorilia's Github code repository of the latest in development scripts [/url] (ie the earliest that you can see changes/additions that will be in the next release is here)
-[url="http://github.com/PacificMorrowind/pyffi"]Pacific Morrowind's fork of the latest in development files[/url] (has my changes before review, so may be less stable/have more bugs... but also have the earliest of my changes/additions)
+url="http://www.niftools.org/"]PyFFI - [b]Py[/b]thon [b]F[/b]ile [b]F[/b]ormat [b]I[/b]nterface's Documentation[/url]
+[url="http://www.python.org/download/releases/"]Python 3[/url] (required to Run PyFFI)
+[url="https://github.com/niftools/pyffi/releases"]PyFFI's Download page[/url]
+[url="https://github.com/niftools/pyffi/issues"]PyFFI's Issue Tracker[/url] sub-trackers for bugs, requests etc.
+[url="http://github.com/niftools/pyffi"]PyFFI Github code repository[/url]
 Just for mod users wanting to patch their meshes with very little chance of errors (but only a some meshes supported):
 [list][url="http://www.tesnexus.com/downloads/file.php?id=19899"]OnmyojiOmn's PyFFI Patch Scripts[/url](Thanks to OnmyojiOmn creating the patching method!)
 [url="http://www.tesnexus.com/downloads/file.php?id=19911"]PyFFI-ed Mesh Patches[/url] (patches for vanilla, OOO HF, Operation Optimization, etc.) (won't work for GOTY)
@@ -34,7 +33,7 @@ Really you don't have to; however, if you make meshes you should, do retexturing
 
 [size=5][b]Instructions for mod users (and modders)[/b][/size]
 - download & install [url="http://www.python.org/download/releases/2.6.4/"]Python 2.6.4[/url]
-- download & install [url="http://sourceforge.net/project/showfiles.php?group_id=199269"]PyFFI[/url] latest version (as of December 14, 2009 it is 2.0.5)
+- download & install [url="https://github.com/niftools/pyffi/releases"]PyFFI[/url] latest version
 - Optionally download & install [url="http://www.tesnexus.com/downloads/file.php?id=25423"]PyFFI Automation Utility[/url]
 
 Then either run [url="http://www.tesnexus.com/downloads/file.php?id=25423"]PyFFI Automation Utility[/url] if using it or just copy the meshes you want to optimize to a folder outside your oblivion dir, and from that folder delete any files that have an egm (which would be files in a folder that are in the nature of helmet.nif and another by the name of helmet.egm), most open helmets and hair have egms. Then either right click that folder and select 'Optimize with PyFFI' or (easier) create a txt file, past this code: [code]@echo off
@@ -90,14 +89,14 @@ A - Usually that would be in the form of something like this:
 [code]*** TEST FAILED ON C:\PyFFI_Op\XMSGroundFleshContainer01.nif	***
 *** If you were running a script that came with PyFFI, then		***
 *** please report this as a bug (include the file) on			***
-*** [url="http://sourceforge.net/tracker/?group_id=199269"]http://sourceforge.net/tracker/?group_id=199269[/url]			***[/code]
-It means that there is something about the nif that PyFFI doesn't know what to do with or something like that, or sometimes a bug in the spell. If you get that it means the file will not have been optimized and will have been left unchanged so no fixing is necessary to play with it. However if you can report that here or on the sourceforge tracker if you have a sourceforge account, it can probably be fixed. To be fixed we would need a) to know what spell you were running b) a copy of the nif or kf.
+*** [url="https://github.com/niftools/pyffi/issues"]https://github.com/niftools/pyffi/issues[/url]			***[/code]
+It means that there is something about the nif that PyFFI doesn't know what to do with or something like that, or sometimes a bug in the spell. If you get that it means the file will not have been optimized and will have been left unchanged so no fixing is necessary to play with it. However if you can report that here or on the github issue tracker if you have a github account, it can probably be fixed. To be fixed we would need a) to know what spell you were running b) a copy of the nif or kf.
 
 [size=5][b]Instructions for moddelers/animators/other modders[/b][/size]
 - download & install [url="http://www.python.org/download/releases/2.6.4/"]Python 2.6.4[/url]
-- download & install [url="http://sourceforge.net/project/showfiles.php?group_id=199269"]PyFFI[/url] latest version (as of December 14, 2009 it is 2.0.5)
+- download & install [url="https://github.com/niftools/pyffi/releases"]PyFFI[/url] latest version
 
-You're doing what I consider the funnest part of Oblivion... and with PyFFI, you get some nice tools to make your work faster (in some cases saving dozens of hours), easier, and less headache.
+You're doing what I consider the best part of Oblivion... and with PyFFI, you get some nice tools to make your work faster (in some cases saving dozens of hours), easier, and less headache.
 
 As well as the Optimize spell (which you should run, though if you use Blender to make your meshes you almost certainly don't need to) you also get:
 [list]modify_texturepath (for retexturers more than modelers)

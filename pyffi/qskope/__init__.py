@@ -326,14 +326,14 @@ format is supported by pyffi. QSkope is written in Python.</p>
 <p>The Python File Format Interface, or briefly PyFFI, is a general purpose
 library to read and write block structured file formats.</p>
 <p>For more informations visit
-<a href="http://pyffi.sourceforge.net">http://pyffi.sourceforge.net</a>.</p>
+<a href="https://github.com/niftools/pyffi">https://github.com/niftools/pyffi</a>.</p>
 <p>PyFFI is free software and comes under a BSD license. The source is
 available via
-<a href="http://pyffi.svn.sourceforge.net/viewvc/pyffi/trunk/">svn</a>
-on <a href="http://sourceforge.net">SourceForge</a>.</p>
+<a href="https://github.com/niftools/pyffi">git</a>
+on <a href="https://github.com">Github</a>.</p>
 <p>You are running PyFFI %s.
 The most recent version of PyFFI can always be downloaded from the
-<a href="http://sourceforge.net/projects/pyffi/files/">
-PyFFI SourceForge Project page</a>.""" % pyffi.__version__)
+<a href="https://github.com/niftools/pyffi/releases">
+PyFFI Github Releases page</a>.""" % pyffi.__version__)
         # display the window
         mbox.exec_()
