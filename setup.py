@@ -1,3 +1,6 @@
+import sys
+from distutils.core import setup
+
 """Setup script for PyFFI."""
 
 classifiers = """\
@@ -12,10 +15,7 @@ Programming Language :: Python :: 3.0
 Programming Language :: Python :: 3.1
 Programming Language :: Python :: 3.2
 Operating System :: OS Independent"""
-#Topic :: Formats and Protocols :: Data Formats
-
-from distutils.core import setup
-import sys
+# Topic :: Formats and Protocols :: Data Formats
 
 if sys.version_info < (3, 0):
     raise RuntimeError("PyFFI requires Python 3.0 or higher.")
@@ -29,9 +29,9 @@ with open("pyffi/VERSION", "rt") as f:
     version = f.read().strip()
 
 setup(
-    name = "PyFFI",
-    version = version,
-    packages = [
+    name="PyFFI",
+    version=version,
+    packages=[
         'pyffi',
         'pyffi.object_models',
         'pyffi.object_models.xml',
@@ -57,12 +57,12 @@ setup(
         'pyffi.qskope',
         'pyffi.formats.dae'],
     # include xml, xsd, dll, and exe files
-    package_data = {'': ['*.xml', '*.xsd', '*.dll', '*.exe'],
-                    'pyffi.formats.nif': ['nifxml/nif.xml'],
-                    'pyffi.formats.kfm': ['kfmxml/kfm.xml'],
-                    'pyffi': ['VERSION'],
-                   },
-    scripts = [
+    package_data={'': ['*.xml', '*.xsd', '*.dll', '*.exe'],
+                  'pyffi.formats.nif': ['nifxml/nif.xml'],
+                  'pyffi.formats.kfm': ['kfmxml/kfm.xml'],
+                  'pyffi': ['VERSION'],
+                  },
+    scripts=[
         'scripts/nif/nifmakehsl.py',
         'scripts/nif/niftoaster.py',
         'scripts/cgf/cgftoaster.py',
@@ -72,14 +72,13 @@ setup(
         'scripts/patch_recursive_make.py',
         'scripts/patch_recursive_apply.py',
         'scripts/qskope.py'],
-    author = "Amorilia",
-    author_email = "amorilia@users.sourceforge.net",
-    license = "BSD",
-    keywords = "fileformat nif cgf binary interface stripify",
-    platforms = ["any"],
-    description = "Processing block structured binary files.",
-    classifiers = [_f for _f in classifiers.split("\n") if _f],
-    long_description = long_description,
-    url = "http://pyffi.sourceforge.net/",
-    download_url = "http://sourceforge.net/projects/pyffi/files/"
+    author="Niftools Developers",
+    license="BSD",
+    keywords="fileformat nif cgf binary interface stripify",
+    platforms=["any"],
+    description="Processing block structured binary files.",
+    classifiers=[_f for _f in classifiers.split("\n") if _f],
+    long_description=long_description,
+    url="https://github.com/niftools/pyffi",
+    download_url="https://github.com/niftools/pyffi/releases"
 )

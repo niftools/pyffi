@@ -7,8 +7,8 @@ To run PyFFI's graphical file editor QSkope, you need
 Using the Windows installer
 ===========================
 
-Simply download and run the `Windows installer
-<http://sourceforge.net/project/platformdownload.php?group_id=199269&sel_platform=3089>`_.
+Simply download and run the Windows installer provided in our `Releases
+<https://github.com/niftools/pyffi/releases>`_.
 
 Manual installation
 ===================
@@ -31,7 +31,7 @@ Installing from source package
 ------------------------------
 
 First, get the `source package
-<http://sourceforge.net/project/platformdownload.php?group_id=199269&sel_platform=5359>`_.
+<https://github.com/niftools/pyffi/releases>`_.
 Untar or unzip the source package via either::
 
   tar xfvz PyFFI-x.x.x.tar.gz

@@ -20,15 +20,18 @@ Download
 --------
 
 Get PyFFI from
-`Sourceforge <http://sourceforge.net/projects/pyffi/files/>`_,
+`Github <https://github.com/niftools/pyffi/releases>`_,
 or install it with::
 
     easy_install -U PyFFI
 
-To get the latest (but possibly unstable) code, clone PyFFI from its
-`Git repository <http://github.com/amorilia/pyffi>`_::
+or::
+    pip3 install PyFFI
 
-    git clone --recursive git://github.com/amorilia/pyffi.git
+To get the latest (but possibly unstable) code, clone PyFFI from its
+`Git repository <http://github.com/niftools/pyffi>`_::
+
+    git clone --recursive git://github.com/niftools/pyffi.git
 
 Be sure to use the --recursive flag to ensure that you also get all
 of the submodules.
@@ -41,26 +44,21 @@ account <https://github.com/signup/free>`_ and `fork PyFFI
 Examples
 --------
 
-* The `Blender NIF Scripts
-  <https://sourceforge.net/projects/niftools/files/blender_nif_scripts/>`_
-  and the `Blender CGF Scripts
-  <https://sourceforge.net/projects/colladacgf/files/>`_ use
-  PyFFI to import and export these files to and from Blender.
+* The `Blender NIF Plugin
+  <https://github.com/niftools/blender_nif_plugin>`_
 
-* `QSkope
-  <http://sourceforge.net/project/screenshots.php?group_id=199269&ssid=75973>`_,
-  PyFFI's general purpose file editor.
+* QSkope PyFFI's general purpose file editor.
 
 * The niftoaster (PyFFI's "swiss army knife") can for instance
   `optimize nif files
-  <http://cs.elderscrolls.com/constwiki/index.php/Nif_Optimization>`_,
+  <http://cs.elderscrolls.com/index.php?title=Nif_Optimization>`_,
   and much more.
 
 Questions? Suggestions?
 -----------------------
 
-* Open an issue at the `tracker
-  <http://sourceforge.net/tracker/?group_id=199269>`_.
+* Open an issue at the `issue tracker
+  <https://github.com/niftools/pyffi/issues>`_.
 
 ..
-  See http://pyffi.sourceforge.net/ for more information and documentation.
+  See http://www.niftools.org/ for more information and documentation.
