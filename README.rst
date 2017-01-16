@@ -20,15 +20,18 @@ Download
 --------
 
 Get PyFFI from
-`Sourceforge <http://sourceforge.net/projects/pyffi/files/>`_,
+`Sourceforge <https://github.com/niftools/pyffi/releases>`_,
 or install it with::
 
     easy_install -U PyFFI
 
+or::
+    pip3 install PyFFI
+
 To get the latest (but possibly unstable) code, clone PyFFI from its
 `Git repository <http://github.com/amorilia/pyffi>`_::
 
-    git clone --recursive git://github.com/amorilia/pyffi.git
+    git clone --recursive git://github.com/niftools/pyffi.git
 
 Be sure to use the --recursive flag to ensure that you also get all
 of the submodules.
@@ -42,7 +45,7 @@ Examples
 --------
 
 * The `Blender NIF Scripts
-  <https://sourceforge.net/projects/niftools/files/blender_nif_scripts/>`_
+  <https://github.com/niftools/blender_nif_plugin>`_
   and the `Blender CGF Scripts
   <https://sourceforge.net/projects/colladacgf/files/>`_ use
   PyFFI to import and export these files to and from Blender.
@@ -59,8 +62,8 @@ Examples
 Questions? Suggestions?
 -----------------------
 
-* Open an issue at the `tracker
-  <http://sourceforge.net/tracker/?group_id=199269>`_.
+* Open an issue at the `issue tracker
+  <https://github.com/niftools/pyffi/issues>`_.
 
 ..
-  See http://pyffi.sourceforge.net/ for more information and documentation.
+  See http://www.niftools.org/ for more information and documentation.
