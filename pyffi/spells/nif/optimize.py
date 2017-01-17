@@ -508,7 +508,7 @@ class SpellOptimizeGeometry(pyffi.spells.nif.NifSpell):
         # recalculate tangent space (only if the branch already exists)
         if (branch.find(block_name=b'Tangent space (binormal & tangent vectors)',
                         block_type=NifFormat.NiBinaryExtraData)
-            or (data.num_uv_sets & 61440)):
+                or (data.num_uv_sets & 61440) or (data.extra_vectors_flags & 16)):
             self.toaster.msg("recalculating tangent space")
             branch.update_tangent_space()
 
