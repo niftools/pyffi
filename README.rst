@@ -46,7 +46,7 @@ get a `github account <https://github.com/signup/free>`_ and `fork PyFFI
 
 Testing
 -------
-We love tests, it helps guarantee that things keep working they way
+We love tests, they help guarantee that things keep working they way
 they should. You can run them yourself with the following::
 
     source venv/bin/activate
@@ -58,7 +58,7 @@ or::
 
 Documentation
 -------------
-All our documentation is written in ReST and can generated into HTML,
+All our documentation is written in ReST and can be generated into HTML,
 LaTeX, PDF and more thanks to Sphinx. You can generate it yourself::
 
     source venv/bin/activate
