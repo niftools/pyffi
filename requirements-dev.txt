@@ -1,0 +1,6 @@
+coveralls
+nose
+pdbpp
+pyflakes
+pytest
+sphinx
