@@ -2,12 +2,12 @@ dist: trusty
 sudo: false
 language: python
 python:
-    - "3.2"
-    - "3.3"
-    - "3.4"
-    - "3.5"
-    - "3.6"
-    - "nightly"
+  - "3.2"
+  - "3.3"
+  - "3.4"
+  - "3.5"
+  - "3.6"
+  - "nightly"
 
 matrix:
   fast_finish: true
@@ -16,10 +16,11 @@ install:
   - pip install -r requirements-dev.txt
 
 script:
-  - py.test -v tests
+  - coverage run --source pyffi --branch {envdir}/bin/py.test -v tests
+  - coverage report --omit=pyffi/tests/* --show-missing
 
 after_success:
-    - coveralls
+  - coveralls
 
 notifications:
     email: false
