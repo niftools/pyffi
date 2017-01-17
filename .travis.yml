@@ -1,0 +1,25 @@
+dist: trusty
+sudo: false
+language: python
+python:
+  - "3.3"
+  - "3.4"
+  - "3.5"
+  - "3.6"
+  - "nightly"
+
+matrix:
+  fast_finish: true
+
+install:
+  - pip install -r requirements-dev.txt
+
+script:
+  - py.test --cov pyffi --cov-report=term tests
+  - coverage report --show-missing
+
+after_success:
+  - coveralls
+
+notifications:
+    email: false

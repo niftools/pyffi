@@ -1,4 +1,7 @@
+coveralls
 nose
 pdbpp
+pyflakes
 pytest
+pytest-cov
 sphinx
