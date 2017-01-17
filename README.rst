@@ -18,32 +18,55 @@ Python library for processing block structured binary files:
 
 Download
 --------
-
-Get PyFFI from
-`Github <https://github.com/niftools/pyffi/releases>`_,
+Get PyFFI from `Github <https://github.com/niftools/pyffi/releases>`_,
 or install it with::
 
     easy_install -U PyFFI
 
 or::
+
     pip3 install PyFFI
 
+Developing
+----------
 To get the latest (but possibly unstable) code, clone PyFFI from its
 `Git repository <http://github.com/niftools/pyffi>`_::
 
     git clone --recursive git://github.com/niftools/pyffi.git
+    virtualenv -p python3 venv
+    source venv/bin/activate
+    pip install -r requirements-dev.txt
 
 Be sure to use the --recursive flag to ensure that you also get all
 of the submodules.
 
-If you wish to
-code on PyFFI and send your contributions back upstream, get a `github
-account <https://github.com/signup/free>`_ and `fork PyFFI
+If you wish to code on PyFFI and send your contributions back upstream,
+get a `github account <https://github.com/signup/free>`_ and `fork PyFFI
 <http://help.github.com/fork-a-repo/>`_.
+
+Testing
+-------
+We love tests, it helps guarantee that things keep working they way
+they should. You can run them yourself with the following::
+
+    source venv/bin/activate
+    nosetest -v test
+
+or::
+    source venv/bin/activate
+    py.test -v tests
+
+Documentation
+-------------
+All our documentation is written in ReST and can generated into HTML,
+LaTeX, PDF and more thanks to Sphinx. You can generate it yourself::
+
+    source venv/bin/activate
+    cd docs-sphinx
+    make html
 
 Examples
 --------
-
 * The `Blender NIF Plugin
   <https://github.com/niftools/blender_nif_plugin>`_
 
@@ -56,7 +79,6 @@ Examples
 
 Questions? Suggestions?
 -----------------------
-
 * Open an issue at the `issue tracker
   <https://github.com/niftools/pyffi/issues>`_.
 
