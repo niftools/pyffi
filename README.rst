@@ -1,3 +1,11 @@
+PyFFI
+=====
+.. image:: https://travis-ci.org/niftools/pyffi.png?branch=develop
+    :target: https://travis-ci.org/niftools/pyffi
+
+.. image:: https://coveralls.io/repos/niftools/pyffi/badge.svg?branch=develop
+    :target: https://coveralls.io/r/niftools/pyffi?branch=develop
+
 The Python File Format Interface, briefly PyFFI, is an open source
 Python library for processing block structured binary files:
 
