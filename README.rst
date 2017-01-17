@@ -61,6 +61,7 @@ they should. You can run them yourself with the following::
     nosetest -v test
 
 or::
+
     source venv/bin/activate
     py.test -v tests
 
