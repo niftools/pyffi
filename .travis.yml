@@ -16,8 +16,8 @@ install:
   - pip install -r requirements-dev.txt
 
 script:
-  - coverage run --source pyffi --branch {envdir}/bin/py.test -v tests
-  - coverage report --omit=pyffi/tests/* --show-missing
+  - py.test --cov pyffi --cov-report=term tests
+  - coverage report --show-missing
 
 after_success:
   - coveralls
