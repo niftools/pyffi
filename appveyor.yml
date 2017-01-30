@@ -40,6 +40,7 @@ matrix:
   fast_finish: true
 
 install:
+  - "git submodule update --init --recursive"
   - "ECHO %PYTHON% %PYTHON_VERSION%%APPVEYOR_BUILD_FOLDER%"
   - "set HOME=%APPVEYOR_BUILD_FOLDER%"
   - "%PIP% install -r requirements-dev.txt"
