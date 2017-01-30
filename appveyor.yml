@@ -55,6 +55,7 @@ install:
   - "git submodule update --init --recursive"
   - "ECHO %PYTHON% %PYTHON_VERSION%%APPVEYOR_BUILD_FOLDER%"
   - "set HOME=%APPVEYOR_BUILD_FOLDER%"
+  - "%PIP% install setuptools --upgrade"
   - "%PIP% install coveralls nose pytest pytest-cov twine"
   - "cd %HOME%"
 
