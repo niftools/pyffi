@@ -18,6 +18,12 @@ environment:
       PIP: "%PYTHON%\\Scripts\\pip"
       PYTEST: "%PYTHON%\\Scripts\\py.test"
 
+    - PYTHON: "C:\\Python36"
+      PYTHON_VERSION: "3.6"
+      RUN: "%PYTHON%\\python"
+      PIP: "%PYTHON%\\Scripts\\pip"
+      PYTEST: "%PYTHON%\\Scripts\\py.test"
+
     - PYTHON: "C:\\Python33-x64"
       PYTHON_VERSION: "3.3"
       RUN: "%PYTHON%\\python"
@@ -36,8 +42,14 @@ environment:
       PIP: "%PYTHON%\\Scripts\\pip"
       PYTEST: "%PYTHON%\\Scripts\\py.test"
 
-matrix:
-  fast_finish: true
+    - PYTHON: "C:\\Python36-x64"
+      PYTHON_VERSION: "3.6"
+      RUN: "%PYTHON%\\python"
+      PIP: "%PYTHON%\\Scripts\\pip"
+      PYTEST: "%PYTHON%\\Scripts\\py.test"
+
+#matrix:
+#  fast_finish: true
 
 install:
   - "git submodule update --init --recursive"
