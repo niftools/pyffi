@@ -1,6 +1,6 @@
 coveralls
 nose
-pdbpp
+# pdbpp
 pyflakes
 pytest
 pytest-cov
