@@ -63,6 +63,9 @@ test: off
 build_script:
   - "%PYTEST% --cov pyffi --cov-report=term tests"
 
-#on_success:
-#  - "coveralls"
-#  - "%RUN% -c \"import codecov; codecov.main(token='9c51d155-86c2-4b30-ae60-cba2a13e21a9')\""
+on_success:
+  - "%RUN% setup.py sdist bdist_wheel"
+
+artifacts:
+  # bdist_wheel puts your built wheel in the dist directory
+  - path: dist\*
