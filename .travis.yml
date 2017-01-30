@@ -1,4 +1,8 @@
 dist: trusty
+osx_image: xcode8.2
+os:
+  - linux
+  - osx
 sudo: false
 language: python
 python:
@@ -10,6 +14,8 @@ python:
 
 matrix:
   fast_finish: true
+  allow_failures:
+    - os: osx
 
 install:
   - pip install -r requirements-dev.txt
