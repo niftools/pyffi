@@ -1,3 +1,9 @@
+dist: trusty
+osx_image: xcode8.2
+os:
+  - linux
+  - osx
+sudo: false
 language: python
 python:
   - "nightly"

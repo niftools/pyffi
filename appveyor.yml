@@ -4,37 +4,37 @@ environment:
       PYTHON_VERSION: "3.3"
       RUN: "%PYTHON%\\python"
       PIP: "%PYTHON%\\Scripts\\pip"
-      COV: "%PYTHON%\\Scripts\\coverage"
+      PYTEST: "%PYTHON%\\Scripts\\py.test"
 
     - PYTHON: "C:\\Python34"
       PYTHON_VERSION: "3.4"
       RUN: "%PYTHON%\\python"
       PIP: "%PYTHON%\\Scripts\\pip"
-      COV: "%PYTHON%\\Scripts\\coverage"
+      PYTEST: "%PYTHON%\\Scripts\\py.test"
 
     - PYTHON: "C:\\Python35"
       PYTHON_VERSION: "3.5"
       RUN: "%PYTHON%\\python"
       PIP: "%PYTHON%\\Scripts\\pip"
-      COV: "%PYTHON%\\Scripts\\coverage"
+      PYTEST: "%PYTHON%\\Scripts\\py.test"
 
     - PYTHON: "C:\\Python33-x64"
       PYTHON_VERSION: "3.3"
       RUN: "%PYTHON%\\python"
       PIP: "%PYTHON%\\Scripts\\pip"
-      COV: "%PYTHON%\\Scripts\\coverage"
+      PYTEST: "%PYTHON%\\Scripts\\py.test"
 
     - PYTHON: "C:\\Python34-x64"
       PYTHON_VERSION: "3.4"
       RUN: "%PYTHON%\\python"
       PIP: "%PYTHON%\\Scripts\\pip"
-      COV: "%PYTHON%\\Scripts\\coverage"
+      PYTEST: "%PYTHON%\\Scripts\\py.test"
 
     - PYTHON: "C:\\Python35-x64"
       PYTHON_VERSION: "3.5"
       RUN: "%PYTHON%\\python"
       PIP: "%PYTHON%\\Scripts\\pip"
-      COV: "%PYTHON%\\Scripts\\coverage"
+      PYTEST: "%PYTHON%\\Scripts\\py.test"
 
 matrix:
   fast_finish: true
@@ -48,7 +48,7 @@ install:
 test: off
 
 build_script:
-  - py.test --cov pyffi --cov-report=term tests
+  - "%PYTEST% --cov pyffi --cov-report=term tests"
 
 #on_success:
 #  - "coveralls"
