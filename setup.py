@@ -1,5 +1,5 @@
 import sys
-from distutils.core import setup
+from setuptools import setup
 
 """Setup script for PyFFI."""
 
@@ -10,15 +10,15 @@ Intended Audience :: Developers
 Intended Audience :: End Users/Desktop
 Topic :: Multimedia :: Graphics :: 3D Modeling
 Programming Language :: Python
-Programming Language :: Python :: 3
-Programming Language :: Python :: 3.0
-Programming Language :: Python :: 3.1
-Programming Language :: Python :: 3.2
+Programming Language :: Python :: 3.3
+Programming Language :: Python :: 3.4
+Programming Language :: Python :: 3.5
+Programming Language :: Python :: 3.6
 Operating System :: OS Independent"""
 # Topic :: Formats and Protocols :: Data Formats
 
-if sys.version_info < (3, 0):
-    raise RuntimeError("PyFFI requires Python 3.0 or higher.")
+if sys.version_info < (3, 3):
+    raise RuntimeError("PyFFI requires Python 3.3 or higher.")
 
 try:
     long_description = open("README.rst").read()
