@@ -1,5 +1,6 @@
 *.pyc
 *~
+.coverage
 build/
 .idea/
 venv/
