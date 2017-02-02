@@ -16,7 +16,11 @@ Read a DDS file
 ^^^^^^^^^^^^^^^
 
 >>> # check and read dds file
->>> stream = open('tests/dds/test.dds', 'rb')
+>>> from os.path import dirname, abspath
+>>> root = dirname(dirname(dirname(dirname(abspath(__file__)))))
+>>> format_root = os.path.join(root, 'tests', 'dds')
+>>> file = os.path.join(format_root, 'test.dds')
+>>> stream = open(file, 'rb')
 >>> data = DdsFormat.Data()
 >>> data.inspect(stream)
 >>> data.header.pixel_format.size
@@ -30,9 +34,18 @@ Read a DDS file
 Parse all DDS files in a directory tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
->>> for stream, data in DdsFormat.walkData('tests/dds'):
-...     print(stream.name)
-tests/dds/test.dds
+>>> for stream, data in DdsFormat.walkData(format_root):
+...     try:
+...         # the replace call makes the doctest also pass on windows
+...         os_path = stream.name
+...         split = (os_path.split(os.sep))[-3:]
+...         rejoin = os.path.join(*split).replace(os.sep, "/")
+...         print("reading %s" % rejoin)
+...     except Exception:
+...         print(
+...             "Warning: read failed due corrupt file,"
+...             " corrupt format description, or bug.") # doctest: +REPORT_NDIFF
+reading tests/dds/test.dds
 
 Create a DDS file from scratch and write to file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
