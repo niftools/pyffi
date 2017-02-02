@@ -43,9 +43,3 @@ python -c "import pyffi; print(pyffi.__version__)"
 ## Additional Information
 [Anything else you feel is relevant]
 
-
-
-
-
-
-
