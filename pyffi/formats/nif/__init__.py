@@ -206,6 +206,7 @@ Get list of versions and games
 0x14060000
 0x14060500
 0x1E000002
+0x1E010003
 >>> for game, versions in sorted(NifFormat.games.items(), key=lambda x: x[0]):
 ...     print("%s " % game + " ".join('0x%08X' % vnum for vnum in versions)) # doctest: +REPORT_UDIFF
 ? 0x0A000103
@@ -240,6 +241,8 @@ Oblivion 0x0303000D 0x0A000100 0x0A000102 0x0A010065 0x0A01006A 0x0A020000 0x140
 Prison Tycoon 0x0A020000
 Pro Cycling Manager 0x0A020000
 Red Ocean 0x0A020000
+Rocksmith 0x1E010003
+Rocksmith 2014 0x1E010003
 Sid Meier's Railroads 0x14000004
 Skyrim 0x14020007
 Star Trek: Bridge Commander 0x03000000 0x03010000
