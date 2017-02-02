@@ -20,9 +20,9 @@ Read a NIF file
 ^^^^^^^^^^^^^^^
 
 >>> from os.path import dirname, abspath
->>> d = dirname(dirname(dirname(dirname(abspath(__file__)))))
->>> file = os.path.join(d, 'tests', 'nif', 'test.nif')
->>> stream = open(file, 'rb')
+>>> root = dirname(dirname(dirname(dirname(abspath(__file__)))))
+>>> format_root = os.path.join(root, 'tests', 'nif')
+>>> stream = open(os.path.join(format_root, 'test.nif'), 'rb')
 >>> data = NifFormat.Data()
 >>> # inspect is optional; it will not read the actual blocks
 >>> data.inspect(stream)
@@ -47,8 +47,7 @@ test
 
 Parse all NIF files in a directory tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
->>> dir = os.path.join(d, 'tests', 'nif')
->>> for stream, data in NifFormat.walkData(dir):
+>>> for stream, data in NifFormat.walkData(format_root):
 ...     try:
 ...         # the replace call makes the doctest also pass on windows
 ...         os_path = stream.name

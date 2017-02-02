@@ -21,19 +21,20 @@ Read a PSK file
 >>> # check and read psk file
 >>> from os.path import dirname, abspath
 >>> root = dirname(dirname(dirname(dirname(abspath(__file__)))))
->>> file = os.path.join(root, 'tests', 'psk', 'examplemesh.psk')
+>>> format_root = os.path.join(root, 'tests', 'psk')
+>>> file = os.path.join(format_root, 'examplemesh.psk')
 >>> stream = open(file, 'rb')
 >>> data = PskFormat.Data()
 >>> data.inspect(stream)
 >>> # do some stuff with header?
 >>> data.read(stream) # doctest: +ELLIPSIS
 >>> # do some stuff with data?
+>>> print(stream.name)
 
 Parse all PSK files in a directory tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
->>> dir = os.path.join(root, 'tests', 'psk')
->>> for stream, data in PskFormat.walkData(dir):
+>>> for stream, data in PskFormat.walkData(format_root):
 ...     try:
 ...         # the replace call makes the doctest also pass on windows
 ...         os_path = stream.name
