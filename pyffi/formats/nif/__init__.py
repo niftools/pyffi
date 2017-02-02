@@ -254,8 +254,8 @@ Zoo Tycoon 2 0x0A000100
 
 Reading an unsupported nif file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
->>> stream = open('tests/nif/invalid.nif', 'rb')
+>>> file = os.path.join(d, 'tests', 'nif', 'invalid.nif')
+>>> stream = open(file, 'rb')
 >>> data = NifFormat.Data()
 >>> data.inspect(stream) # the file seems ok on inspection
 >>> data.read(stream) # doctest: +ELLIPSIS
