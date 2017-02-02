@@ -29,7 +29,6 @@ Read a PSK file
 >>> # do some stuff with header?
 >>> data.read(stream) # doctest: +ELLIPSIS
 >>> # do some stuff with data?
->>> print(stream.name)
 
 Parse all PSK files in a directory tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
