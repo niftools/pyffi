@@ -19,7 +19,10 @@ They also provide code examples which you may find useful.
 Read a NIF file
 ^^^^^^^^^^^^^^^
 
->>> stream = open('tests/nif/test.nif', 'rb')
+>>> from os.path import dirname, abspath
+>>> d = dirname(dirname(dirname(dirname(abspath(__file__)))))
+>>> file = os.path.join(d, 'tests', 'nif', 'test.nif')
+>>> stream = open(file, 'rb')
 >>> data = NifFormat.Data()
 >>> # inspect is optional; it will not read the actual blocks
 >>> data.inspect(stream)
@@ -44,11 +47,14 @@ test
 
 Parse all NIF files in a directory tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
->>> for stream, data in NifFormat.walkData('tests/nif'):
+>>> dir = os.path.join(d, 'tests', 'nif')
+>>> for stream, data in NifFormat.walkData(dir):
 ...     try:
 ...         # the replace call makes the doctest also pass on windows
-...         print("reading %s" % stream.name.replace("\\\\", "/"))
+...         os_path = stream.name
+...         split = (os_path.split(os.sep))[-3:]
+...         rejoin = os.path.join(*split).replace(os.sep, "/")
+...         print("reading %s" % rejoin)
 ...         data.read(stream)
 ...     except Exception:
 ...         print(
