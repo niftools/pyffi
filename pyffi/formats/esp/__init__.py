@@ -16,7 +16,11 @@ Read a ESP file
 ^^^^^^^^^^^^^^^
 
 >>> # check and read esp file
->>> stream = open('tests/esp/test.esp', 'rb')
+>>> from os.path import dirname, abspath
+>>> root = dirname(dirname(dirname(dirname(abspath(__file__)))))
+>>> format_root = os.path.join(root, 'tests', 'esp')
+>>> file = os.path.join(format_root, 'test.esp')
+>>> stream = open(file, 'rb')
 >>> data = EspFormat.Data()
 >>> data.inspect(stream)
 >>> # do some stuff with header?
@@ -27,9 +31,18 @@ Read a ESP file
 Parse all ESP files in a directory tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
->>> for stream, data in EspFormat.walkData('tests/esp'):
-...     print(stream.name)
-tests/esp/test.esp
+>>> for stream, data in EspFormat.walkData(format_root):
+...     try:
+...         # the replace call makes the doctest also pass on windows
+...         os_path = stream.name
+...         split = (os_path.split(os.sep))[-3:]
+...         rejoin = os.path.join(*split).replace(os.sep, "/")
+...         print("reading %s" % rejoin)
+...     except Exception:
+...         print(
+...             "Warning: read failed due corrupt file,"
+...             " corrupt format description, or bug.") # doctest: +REPORT_NDIFF
+reading tests/esp/test.esp
 
 Create an ESP file from scratch and write to file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
