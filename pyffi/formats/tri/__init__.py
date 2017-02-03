@@ -19,7 +19,11 @@ Read a TRI file
 ^^^^^^^^^^^^^^^
 
 >>> # check and read tri file
->>> stream = open('tests/tri/mmouthxivilai.tri', 'rb')
+>>> from os.path import dirname, abspath
+>>> root = dirname(dirname(dirname(dirname(abspath(__file__)))))
+>>> format_root = os.path.join(root, 'tests', 'tri')
+>>> file = os.path.join(format_root, 'mmouthxivilai.tri')
+>>> stream = open(file, 'rb')
 >>> data = TriFormat.Data()
 >>> data.inspect(stream)
 >>> # do some stuff with header?
@@ -41,9 +45,18 @@ Read a TRI file
 Parse all TRI files in a directory tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
->>> for stream, data in TriFormat.walkData('tests/tri'):
-...     print(stream.name)
-tests/tri/mmouthxivilai.tri
+>>> for stream, data in TriFormat.walkData(format_root):
+...     try:
+...         # the replace call makes the doctest also pass on windows
+...         os_path = stream.name
+...         split = (os_path.split(os.sep))[-3:]
+...         rejoin = os.path.join(*split).replace(os.sep, "/")
+...         print("reading %s" % rejoin)
+...     except Exception:
+...         print(
+...             "Warning: read failed due corrupt file,"
+...             " corrupt format description, or bug.") # doctest: +REPORT_NDIFF
+reading tests/tri/mmouthxivilai.tri
 
 Create an TRI file from scratch and write to file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
