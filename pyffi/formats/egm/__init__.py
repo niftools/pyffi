@@ -19,9 +19,12 @@ Read a EGM file
 ^^^^^^^^^^^^^^^
 
 >>> # check and read egm file
->>> from os.path import dirname, abspath
->>> root = dirname(dirname(dirname(dirname(abspath(__file__)))))
->>> format_root = os.path.join(root, 'tests', 'egm')
+>>> from os.path import dirname
+>>> dir = __file__
+>>> for i in range(4): #recurse up to root repo dir
+...     dir = dirname(dir)
+>>> repo_root = dir
+>>> format_root = os.path.join(repo_root, 'tests', 'egm')
 >>> file = os.path.join(format_root, 'mmouthxivilai.egm')
 >>> stream = open(file, 'rb')
 >>> data = EgmFormat.Data()

@@ -18,9 +18,12 @@ Read a EGT file
 ^^^^^^^^^^^^^^^
 
 >>> # check and read egt file
->>> from os.path import dirname, abspath
->>> root = dirname(dirname(dirname(dirname(abspath(__file__)))))
->>> format_root = os.path.join(root, 'tests', 'egt')
+>>> from os.path import dirname
+>>> dir = __file__
+>>> for i in range(4): #recurse up to root repo dir
+...     dir = dirname(dir)
+>>> repo_root = dir
+>>> format_root = os.path.join(repo_root, 'tests', 'egt')
 >>> file = os.path.join(format_root, 'test.egt')
 >>> stream = open(file, 'rb')
 >>> data = EgtFormat.Data()

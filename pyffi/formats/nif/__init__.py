@@ -19,9 +19,12 @@ They also provide code examples which you may find useful.
 Read a NIF file
 ^^^^^^^^^^^^^^^
 
->>> from os.path import dirname, abspath
->>> root = dirname(dirname(dirname(dirname(abspath(__file__)))))
->>> format_root = os.path.join(root, 'tests', 'nif')
+>>> from os.path import dirname
+>>> dir = __file__
+>>> for i in range(4): #recurse up to root repo dir
+...     dir = dirname(dir)
+>>> repo_root = dir
+>>> format_root = os.path.join(repo_root, 'tests', 'nif')
 >>> stream = open(os.path.join(format_root, 'test.nif'), 'rb')
 >>> data = NifFormat.Data()
 >>> # inspect is optional; it will not read the actual blocks

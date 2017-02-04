@@ -17,11 +17,12 @@ Read a TGA file
 
 >>> # check and read tga file
 >>> import os
->>> from os.path import dirname, abspath
+>>> from os.path import dirname
 >>> dir = __file__
 >>> for i in range(4): #recurse up to root repo dir
 ...     dir = dirname(dir)
->>> format_root = os.path.join(dir, 'tests', 'tga')
+>>> repo_root = dir
+>>> format_root = os.path.join(repo_root, 'tests', 'tga')
 >>> file = os.path.join(format_root, 'test.tga').replace("\\\\", "/")
 >>> stream = open(file, 'rb')
 >>> data = TgaFormat.Data()

@@ -16,9 +16,12 @@ Read a KFM file
 ^^^^^^^^^^^^^^^
 
 >>> # read kfm file
->>> from os.path import dirname, abspath
->>> root = dirname(dirname(dirname(dirname(abspath(__file__)))))
->>> format_root = os.path.join(root, 'tests', 'kfm')
+>>> from os.path import dirname
+>>> dir = __file__
+>>> for i in range(4): #recurse up to root repo dir
+...     dir = dirname(dir)
+>>> repo_root = dir
+>>> format_root = os.path.join(repo_root, 'tests', 'kfm')
 >>> file = os.path.join(format_root, 'test.kfm')
 >>> stream = open(file, 'rb')
 >>> data = KfmFormat.Data()
@@ -43,7 +46,7 @@ Parse all KFM files in a directory tree
 ...         # the replace call makes the doctest also pass on windows
 ...         os_path = stream.name
 ...         split = (os_path.split(os.sep))[-3:]
-...         rejoin = os.path.join(*split).replace(os.sep, "/")
+...         rejoin = os.path.join(*split).replace("\\\\", "/")
 ...         print("reading %s" % rejoin)
 ...     except Exception:
 ...         print(
