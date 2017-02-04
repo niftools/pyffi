@@ -16,10 +16,13 @@ Read a TGA file
 ^^^^^^^^^^^^^^^
 
 >>> # check and read tga file
+>>> import os
 >>> from os.path import dirname, abspath
->>> root = dirname(dirname(dirname(dirname(abspath(__file__)))))
->>> format_root = os.path.join(root, 'tests', 'tga')
->>> file = os.path.join(format_root, 'test.tga')
+>>> dir = __file__
+>>> for i in range(4): #recurse up to root repo dir
+...     dir = dirname(dir)
+>>> format_root = os.path.join(dir, 'tests', 'tga')
+>>> file = os.path.join(format_root, 'test.tga').replace("\\\\", "/")
 >>> stream = open(file, 'rb')
 >>> data = TgaFormat.Data()
 >>> data.inspect(stream)
@@ -38,7 +41,7 @@ Parse all TGA files in a directory tree
 ...         # the replace call makes the doctest also pass on windows
 ...         os_path = stream.name
 ...         split = (os_path.split(os.sep))[-3:]
-...         rejoin = os.path.join(*split).replace(os.sep, "/")
+...         rejoin = os.path.join(*split).replace("\\\\", "/")
 ...         print("reading %s" % rejoin)
 ...     except Exception:
 ...         print(
