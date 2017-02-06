@@ -27,10 +27,10 @@ Create a DAE file
 Read a DAE file
 ^^^^^^^^^^^^^^^
 >>> from os.path import dirname
->>> dir = __file__
+>>> dirpath = __file__
 >>> for i in range(4): #recurse up to root repo dir
-...     dir = dirname(dir)
->>> repo_root = dir
+...     dirpath = dirname(dirpath)
+>>> repo_root = dirpath
 >>> format_root = os.path.join(repo_root, 'tests', 'dae')
 >>> # check and read dae file
 >>> stream = open(os.path.join(format_root, 'cube.dae'), 'rb')

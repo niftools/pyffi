@@ -17,17 +17,17 @@ Read a KFM file
 
 >>> # read kfm file
 >>> from os.path import dirname
->>> dir = __file__
+>>> dirpath = __file__
 >>> for i in range(4): #recurse up to root repo dir
-...     dir = dirname(dir)
->>> repo_root = dir
+...     dirpath = dirname(dirpath)
+>>> repo_root = dirpath
 >>> format_root = os.path.join(repo_root, 'tests', 'kfm')
 >>> file = os.path.join(format_root, 'test.kfm')
 >>> stream = open(file, 'rb')
 >>> data = KfmFormat.Data()
 >>> data.inspect(stream)
 >>> print(data.nif_file_name.decode("ascii"))
-Test.nif
+Test.kfm
 >>> data.read(stream)
 >>> stream.close()
 >>> # get all animation file names

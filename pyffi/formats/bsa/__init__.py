@@ -24,10 +24,10 @@ Read a BSA file
 ^^^^^^^^^^^^^^^
 >>> # check and read bsa file
 >>> from os.path import dirname
->>> dir = __file__
+>>> dirpath = __file__
 >>> for i in range(4): #recurse up to root repo dir
-...     dir = dirname(dir)
->>> repo_root = dir
+...     dirpath = dirname(dirpath)
+>>> repo_root = dirpath
 >>> format_root = os.path.join(repo_root, 'tests', 'bsa')
 >>> stream = open(os.path.join(format_root, 'test.bsa'), 'rb')
 >>> data = BsaFormat.Data()

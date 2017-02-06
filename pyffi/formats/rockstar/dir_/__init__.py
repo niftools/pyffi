@@ -19,10 +19,10 @@ Read a DIR file
 
 >>> # check and read dir file
 >>> from os.path import dirname
->>> dir = __file__
+>>> dirpath = __file__
 >>> for i in range(5): #recurse up to root repo dir
-...     dir = dirname(dir)
->>> repo_root = dir
+...     dirpath = dirname(dirpath)
+>>> repo_root = dirpath
 >>> format_root = os.path.join(repo_root, 'tests', 'rockstar', 'dir')
 >>> file = os.path.join(format_root, 'test.dir').replace("\\\\", "/")
 >>> stream = open(file, 'rb')
