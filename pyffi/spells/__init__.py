@@ -909,7 +909,17 @@ class Toaster(object):
     @staticmethod
     def parse_inifile(option, opt, value, parser, toaster=None):
         r"""Initializes spell classes and options from an ini file.
-
+        >>> from os.path import dirname
+        >>> dirpath = __file__
+        >>> for i in range(3): #recurse up to root repo dir
+        ...     dirpath = dirname(dirpath)
+        >>> repo_root = dirpath
+        >>> test_root = os.path.join(repo_root, 'tests').replace("\\", "/") #pyffi/test
+        >>> _test_root = os.path.join(repo_root, '_tests').replace("\\", "/")
+        >>> format_root = os.path.join(test_root, 'nif').replace("\\", "/") #pyffi/test/nif
+        >>> _format_root = os.path.join(_test_root, 'nif').replace("\\", "/")
+        >>> file = os.path.join(format_root, 'test_vertexcolor.nif').replace("\\", "/") #pyffi/test/nif/test_*.nif
+        >>> _file = os.path.join(_format_root, 'test_vertexcolor.nif').replace("\\", "/")
         >>> import pyffi.spells.nif
         >>> import pyffi.spells.nif.modify
         >>> class NifToaster(pyffi.spells.nif.NifToaster):
@@ -918,22 +928,23 @@ class Toaster(object):
         >>> cfg = tempfile.NamedTemporaryFile(delete=False)
         >>> _ = cfg.write(b"[main]\n")
         >>> _ = cfg.write(b"spell = modify_delbranches\n")
-        >>> _ = cfg.write(b"folder = tests/nif/test_vertexcolor.nif\n")
+        >>> _ = cfg.write("folder = {0}\n".format(file).encode())
         >>> _ = cfg.write(b"[options]\n")
-        >>> _ = cfg.write(b"source-dir = tests/\n")
-        >>> _ = cfg.write(b"dest-dir = _tests/\n")
+        >>> _ = cfg.write("source-dir = {0}\n".format(test_root).encode())
+        >>> _ = cfg.write("dest-dir = {0}\n".format(_test_root).encode())
         >>> _ = cfg.write(b"exclude = NiVertexColorProperty NiStencilProperty\n")
         >>> _ = cfg.write(b"skip = 'testing quoted string'    normal_string\n")
         >>> cfg.close()
         >>> toaster = NifToaster(logger=fake_logger)
         >>> import sys
+        >>> default_ini = os.path.join(test_root, "utilities", "toaster", "default.ini").replace("\\", "/")
         >>> sys.argv = [
         ...     "niftoaster.py",
-        ...     "--ini-file=utilities/toaster/default.ini",
-        ...     "--ini-file=%s" % cfg.name,
+        ...     "--ini-file={0}".format(default_ini),
+        ...     "--ini-file={0}".format(cfg.name),
         ...     "--noninteractive", "--jobs=1"]
-        >>> toaster.cli()
-        pyffi.toaster:INFO:=== tests/nif/test_vertexcolor.nif ===
+        >>> toaster.cli() # doctest: +ELLIPSIS
+        pyffi.toaster:INFO:=== ...
         pyffi.toaster:INFO:  --- modify_delbranches ---
         pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
         pyffi.toaster:INFO:      ~~~ NiTriStrips [Cube] ~~~
@@ -944,43 +955,43 @@ class Toaster(object):
         pyffi.toaster:INFO:        ~~~ NiVertexColorProperty [] ~~~
         pyffi.toaster:INFO:          stripping this branch
         pyffi.toaster:INFO:        ~~~ NiTriStripsData [] ~~~
-        pyffi.toaster:INFO:creating destination path _tests/nif
-        pyffi.toaster:INFO:  writing _tests/nif/test_vertexcolor.nif
+        pyffi.toaster:INFO:creating destination path ...
+        pyffi.toaster:INFO:  writing ...
         pyffi.toaster:INFO:Finished.
         >>> import os
         >>> os.remove(cfg.name)
-        >>> os.remove("_tests/nif/test_vertexcolor.nif")
-        >>> os.rmdir("_tests/nif/")
-        >>> os.rmdir("_tests/")
+        >>> os.remove(_file)
+        >>> os.rmdir(_format_root)
+        >>> os.rmdir(_test_root)
         >>> for name, value in sorted(toaster.options.items()):
-        ...     print("%s: %s" % (name, value))
+        ...     print("%s: %s" % (name, value)) # doctest: +ELLIPSIS +REPORT_NDIFF +NORMALIZE_WHITESPACE
         applypatch: False
         archives: False
-        arg: 
+        arg:
         createpatch: False
-        destdir: _tests/
-        diffcmd: 
+        destdir: ...
+        diffcmd:
         dryrun: False
         examples: False
         exclude: ['NiVertexColorProperty', 'NiStencilProperty']
         gccollect: False
         helpspell: False
         include: []
-        inifile: 
+        inifile:
         interactive: False
         jobs: 1
         only: []
-        patchcmd: 
-        pause: True
-        prefix: 
+        patchcmd:
+        pause: False
+        prefix:
         raisetesterror: False
         refresh: 32
-        resume: True
+        resume: False
         series: False
         skip: ['testing quoted string', 'normal_string']
-        sourcedir: tests/
+        sourcedir: ...
         spells: False
-        suffix: 
+        suffix:
         verbose: 1
         """
         ini_parser = ConfigParser()
@@ -1430,8 +1441,7 @@ may destroy them. Make a backup of your files before running this script.
 
         # check if file exists
         if self.options["resume"]:
-            if self.spellclass.get_toast_stream(
-                self, stream.name, test_exists=True):
+            if self.spellclass.get_toast_stream(self, stream.name, test_exists=True):
                 self.msg("=== %s (already done) ===" % stream.name)
                 return
 
@@ -1465,12 +1475,9 @@ may destroy them. Make a backup of your files before running this script.
         except Exception:
             self.files_failed.add(stream.name)
             self.logger.error("TEST FAILED ON %s" % stream.name)
-            self.logger.error(
-                "If you were running a spell that came with PyFFI, then")
-            self.logger.error(
-                "please report this as a bug (include the file) on")
-            self.logger.error(
-                "https://github.com/niftools/pyffi/issues")
+            self.logger.error("If you were running a spell that came with PyFFI, then")
+            self.logger.error("please report this as a bug (include the file) on ")
+            self.logger.error("https://github.com/niftools/pyffi/issues")
             # if raising test errors, reraise the exception
             if self.options["raisetesterror"]:
                 raise
@@ -1538,7 +1545,7 @@ may destroy them. Make a backup of your files before running this script.
             else:
                 self.logger.info("creating destination path %s" % head)
                 os.makedirs(head)
-        filename =  os.path.join(head, root + ext)
+        filename = os.path.join(head, root + ext)
         if test_exists:
             return os.path.exists(filename)
         else:
@@ -1611,4 +1618,4 @@ may destroy them. Make a backup of your files before running this script.
 
 if __name__ == '__main__':
     import doctest
-    doctest.testmod()
+    doctest.testmod(optionflags=doctest.ELLIPSIS)
