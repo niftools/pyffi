@@ -65,8 +65,8 @@ for mod in mods:
         pass
 
 # various regression tests (outside documentation)
-filepaths = { 'tests/object_model/simpletype.txt',
-              'tests/object_model/arraytype.txt',
+filepaths = { 'object_model/simpletype.txt',
+              'object_model/arraytype.txt',
              # 'tests/nif/niftoaster.txt',
              # 'tests/nif/optimize.txt',
              # 'tests/nif/dump_tex.txt',
@@ -96,12 +96,8 @@ filepaths = { 'tests/object_model/simpletype.txt',
              # 'docs-sphinx/intro.rst',
              }
 
-root = dirname(dirname(__file__))
 for relpath in filepaths:
-    file = os.path.normpath(os.path.join(root, relpath))
-    suite.addTest(doctest.DocFileSuite(file))
-
-
+    suite.addTest(doctest.DocFileSuite(relpath))
 
 # TODO: examples
 #suite.addTest(doctest.DocFileSuite('examples/*.txt'))
