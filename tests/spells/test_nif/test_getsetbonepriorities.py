@@ -3,12 +3,12 @@
 import codecs
 import os
 import os.path
+
 import nose.tools
-# if nose refuses to show the diffs, uncomment the next line
-#nose.tools.assert_equal.im_self.maxDiff = None
 
 from pyffi.formats.nif import NifFormat
-from tests.test_nif import call_niftoaster
+from tests.spells.test_nif import call_niftoaster
+
 
 class TestGetSetBonePrioritiesOblivion:
     kffile = "tests/test_nif/test_controllersequence.kf"

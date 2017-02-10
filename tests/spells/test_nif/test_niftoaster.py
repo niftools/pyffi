@@ -2,11 +2,11 @@
 
 import os
 import os.path
-import nose.tools
-# if nose refuses to show the diffs, uncomment the next line
-#nose.tools.assert_equal.im_self.maxDiff = None
 
-from tests.test_nif import call_niftoaster
+import nose.tools
+
+from tests.spells.test_nif import call_niftoaster
+
 
 @nose.tools.raises(SystemExit) # --help uses sys.exit()
 def test_help():

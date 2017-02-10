@@ -67,6 +67,7 @@ for mod in mods:
 # various regression tests (outside documentation)
 filepaths = { 'object_model/simpletype.txt',
               'object_model/arraytype.txt',
+              #'cgf/cgftoaster.txt',
              # 'tests/nif/niftoaster.txt',
              # 'tests/nif/optimize.txt',
              # 'tests/nif/dump_tex.txt',
@@ -91,7 +92,7 @@ filepaths = { 'object_model/simpletype.txt',
              # 'tests/nif/opt_collisiongeometry.txt',
              # 'tests/nif/opt_collision_to_box_shape.txt',
              # 'tests/nif/opt_vertex_cache.txt',
-             # 'tests/cgf/cgftoaster.txt',
+
              # 'tests/kfm/kfmtoaster.txt',
              # 'docs-sphinx/intro.rst',
              }

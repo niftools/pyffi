@@ -5,7 +5,8 @@ The --spells switch
 -------------------
 
 >>> import sys
->>> sys.path.append("scripts/cgf")
+>>> sys.path.append("../scripts/cgf")
+>>> print(sys.path)
 >>> import cgftoaster
 >>> sys.argv = ["cgftoaster.py", "--spells"]
 >>> cgftoaster.CgfToaster().cli()
@@ -19,7 +20,7 @@ The check_read and check_readwrite spells
 -----------------------------------------
 
 >>> import sys
->>> sys.path.append("scripts/cgf")
+>>> sys.path.append("../scripts/cgf")
 >>> import cgftoaster
 >>> sys.argv = ["cgftoaster.py", "--verbose=1", "check_read", "tests/cgf/"]
 >>> cgftoaster.CgfToaster().cli() # doctest: +ELLIPSIS
