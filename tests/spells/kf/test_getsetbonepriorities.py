@@ -11,9 +11,9 @@ from tests.spells.test_nif import call_niftoaster
 
 
 class TestGetSetBonePrioritiesOblivion:
-    kffile = "tests/test_nif/test_controllersequence.kf"
-    kffile2 = "tests/test_nif/_test_controllersequence.kf"
-    txtfile = "tests/test_nif/test_controllersequence_bonepriorities.txt"
+    kffile = "tests/spells/kf/test_controllersequence.kf"
+    kffile2 = "tests/spells/kf/_test_controllersequence.kf"
+    txtfile = "tests/spells/kf/test_controllersequence_bonepriorities.txt"
 
     def check_priorities(self, filename, priorities):
         # helper function to check priorities
@@ -63,6 +63,6 @@ Bip01 Spine=47
         os.remove(self.kffile2)
 
 class TestGetSetBonePrioritiesFallout3(TestGetSetBonePrioritiesOblivion):
-    kffile = "tests/test_nif/test_controllersequence_fo3.kf"
-    kffile2 = "tests/test_nif/_test_controllersequence_fo3.kf"
-    txtfile = "tests/test_nif/test_controllersequence_fo3_bonepriorities.txt"
+    kffile = "tests/spells/kf/test_controllersequence_fo3.kf"
+    kffile2 = "tests/spells/kf/_test_controllersequence_fo3.kf"
+    txtfile = "tests/spells/kf/test_controllersequence_fo3_bonepriorities.txt"
