@@ -7,6 +7,7 @@ import nose.tools
 
 from tests.spells.test_nif import call_niftoaster
 
+nif_dir = "tests/formats/nif/"
 
 @nose.tools.raises(SystemExit) # --help uses sys.exit()
 def test_help():
@@ -20,81 +21,74 @@ def test_spells():
 
 @nose.tools.raises(AttributeError)
 def test_raise():
-    toaster = call_niftoaster(
-        "--raise", "check_readwrite", "tests/nif/invalid.nif")
+    toaster = call_niftoaster("--raise", "check_readwrite", nif_dir + "invalid.nif")
 
 def test_no_raise():
-    toaster = call_niftoaster(
-        "check_readwrite", "tests/nif/invalid.nif")
-    nose.tools.assert_equal(
-        sorted(toaster.files_failed), ["tests/nif/invalid.nif"])
+    toaster = call_niftoaster("check_readwrite", nif_dir + "invalid.nif")
+    nose.tools.assert_equal(sorted(toaster.files_failed), [nif_dir + "invalid.nif"])
 
 def test_check_readwrite():
     for filename in ["nds.nif", "neosteam.nif", "test.nif"]:
-        fullfilename = "tests/nif/{0}".format(filename)
-        toaster = call_niftoaster(
-            "--raise", "check_readwrite", fullfilename)
-        nose.tools.assert_equal(
-            sorted(toaster.files_done), [fullfilename])
+        fullfilename = nif_dir + "{0}".format(filename)
+        toaster = call_niftoaster("--raise", "check_readwrite", fullfilename)
+        nose.tools.assert_equal(sorted(toaster.files_done), [fullfilename])
 
 def test_check_skip_only():
     toaster = call_niftoaster(
-        *("--skip texture --skip skin --only fix_t --only center check_nop tests/nif/".split()))
-    nose.tools.assert_equal(
-        sorted(toaster.files_done), [
-            'tests/nif/test_centerradius.nif',
-            'tests/nif/test_fix_tangentspace.nif',
-            ])
+        *("--skip texture --skip skin --only fix_t --only center check_nop tests/formats/nif/".split()))
+    nose.tools.assert_equal(sorted(toaster.files_done),
+        [nif_dir + 'test_centerradius.nif',
+         nif_dir + 'test_fix_tangentspace.nif',])
     nose.tools.assert_equal(
         sorted(toaster.files_skipped), [
-            'tests/nif/invalid.nif',
-            'tests/nif/nds.nif',
-            'tests/nif/neosteam.nif',
-            'tests/nif/test.nif',
-            'tests/nif/test_check_tangentspace1.nif',
-            'tests/nif/test_check_tangentspace2.nif',
-            'tests/nif/test_check_tangentspace3.nif',
-            'tests/nif/test_check_tangentspace4.nif',
-            'tests/nif/test_convexverticesshape.nif',
-            'tests/nif/test_dump_tex.nif',
-            'tests/nif/test_fix_clampmaterialalpha.nif',
-            'tests/nif/test_fix_cleanstringpalette.nif',
-            'tests/nif/test_fix_detachhavoktristripsdata.nif',
-            'tests/nif/test_fix_disableparallax.nif',
-            'tests/nif/test_fix_ffvt3rskinpartition.nif',
-            'tests/nif/test_fix_mergeskeletonroots.nif',
-            'tests/nif/test_fix_texturepath.nif',
-            'tests/nif/test_grid_128x128.nif',
-            'tests/nif/test_grid_64x64.nif',
-            'tests/nif/test_mopp.nif',
-            'tests/nif/test_opt_collision_complex_mopp.nif',
-            'tests/nif/test_opt_collision_mopp.nif',
-            'tests/nif/test_opt_collision_packed.nif',
-            'tests/nif/test_opt_collision_to_boxshape.nif',
-            'tests/nif/test_opt_collision_to_boxshape_notabox.nif',
-            'tests/nif/test_opt_collision_unpacked.nif',
-            'tests/nif/test_opt_delunusedbones.nif',
-            'tests/nif/test_opt_dupgeomdata.nif',
-            'tests/nif/test_opt_dupverts.nif',
-            'tests/nif/test_opt_emptyproperties.nif',
-            'tests/nif/test_opt_grid_layout.nif',
-            'tests/nif/test_opt_mergeduplicates.nif',
-            'tests/nif/test_opt_vertex_cache.nif',
-            'tests/nif/test_opt_zeroscale.nif',
-            'tests/nif/test_skincenterradius.nif',
-            'tests/nif/test_vertexcolor.nif',
+            nif_dir + 'invalid.nif',
+            nif_dir + 'nds.nif',
+            nif_dir + 'neosteam.nif',
+            nif_dir + 'test.nif',
+            nif_dir + 'test_check_tangentspace1.nif',
+            nif_dir + 'test_check_tangentspace2.nif',
+            nif_dir + 'test_check_tangentspace3.nif',
+            nif_dir + 'test_check_tangentspace4.nif',
+            nif_dir + 'test_convexverticesshape.nif',
+            nif_dir + 'test_dump_tex.nif',
+            nif_dir + 'test_fix_clampmaterialalpha.nif',
+            nif_dir + 'test_fix_cleanstringpalette.nif',
+            nif_dir + 'test_fix_detachhavoktristripsdata.nif',
+            nif_dir + 'test_fix_disableparallax.nif',
+            nif_dir + 'test_fix_ffvt3rskinpartition.nif',
+            nif_dir + 'test_fix_mergeskeletonroots.nif',
+            nif_dir + 'test_fix_texturepath.nif',
+            nif_dir + 'test_grid_128x128.nif',
+            nif_dir + 'test_grid_64x64.nif',
+            nif_dir + 'test_mopp.nif',
+            nif_dir + 'test_opt_collision_complex_mopp.nif',
+            nif_dir + 'test_opt_collision_mopp.nif',
+            nif_dir + 'test_opt_collision_packed.nif',
+            nif_dir + 'test_opt_collision_to_boxshape.nif',
+            nif_dir + 'test_opt_collision_to_boxshape_notabox.nif',
+            nif_dir + 'test_opt_collision_unpacked.nif',
+            nif_dir + 'test_opt_delunusedbones.nif',
+            nif_dir + 'test_opt_dupgeomdata.nif',
+            nif_dir + 'test_opt_dupverts.nif',
+            nif_dir + 'test_opt_emptyproperties.nif',
+            nif_dir + 'test_opt_grid_layout.nif',
+            nif_dir + 'test_opt_mergeduplicates.nif',
+            nif_dir + 'test_opt_vertex_cache.nif',
+            nif_dir + 'test_opt_zeroscale.nif',
+            nif_dir + 'test_skincenterradius.nif',
+            nif_dir + 'test_vertexcolor.nif',
             ])
     nose.tools.assert_equal(toaster.files_failed, set([]))
 
 def test_prefix_suffix():
     call_niftoaster(
-        *("--prefix=pre_ --suffix=_suf --noninteractive optimize tests/nif/test.nif".split()))
+        *("--prefix=pre_ --suffix=_suf --noninteractive optimize tests/formats/nif/test.nif".split()))
     nose.tools.assert_equal(
-        os.path.exists("tests/nif/pre_test_suf.nif"), True)
-    os.remove("tests/nif/pre_test_suf.nif")
+        os.path.exists(nif_dir + "pre_test_suf.nif"), True)
+    os.remove(nif_dir + "pre_test_suf.nif")
 
 def test_check_bhkbodycenter():
-    testfile = "tests/nif/test_fix_detachhavoktristripsdata.nif"
+    testfile = nif_dir + "test_fix_detachhavoktristripsdata.nif"
     toaster = call_niftoaster("check_bhkbodycenter", testfile)
     orig = toaster.files_done[testfile][0]["center"]["orig"]
     calc = toaster.files_done[testfile][0]["center"]["calc"]
@@ -105,7 +99,7 @@ def test_check_bhkbodycenter():
     nose.tools.assert_almost_equal(calc[3], 0.0)
 
 def test_check_centerradius():
-    testfile = "tests/nif/test_centerradius.nif"
+    testfile = nif_dir + "test_centerradius.nif"
     toaster = call_niftoaster("check_centerradius", testfile)
     vertex_outside = toaster.files_done[testfile][0]["vertex_outside"]
     orig_center = toaster.files_done[testfile][0]["center"]["orig"]
@@ -125,9 +119,9 @@ The check_skincenterradius spell
 >>> import sys
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_skincenterradius", "tests/nif/test_skincenterradius.nif"]
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_skincenterradius", nif_dir + "test_skincenterradius.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
-pyffi.toaster:INFO:=== tests/nif/test_skincenterradius.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_skincenterradius.nif ===
 pyffi.toaster:INFO:  --- check_skincenterradius ---
 pyffi.toaster:INFO:    ~~~ NiNode [Bip01] ~~~
 pyffi.toaster:INFO:      ~~~ NiNode [Bip01 Pelvis] ~~~
@@ -164,9 +158,9 @@ The check_convexverticesshape spell
 >>> import sys
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_convexverticesshape", "tests/nif/test_convexverticesshape.nif"]
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_convexverticesshape", nif_dir + "test_convexverticesshape.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
-pyffi.toaster:INFO:=== tests/nif/test_convexverticesshape.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_convexverticesshape.nif ===
 pyffi.toaster:INFO:  --- check_convexverticesshape ---
 pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
 pyffi.toaster:INFO:      ~~~ bhkCollisionObject [] ~~~
@@ -183,9 +177,9 @@ The check_mopp spell
 >>> import sys
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--verbose=2", "--raise", "check_mopp", "tests/nif/test_mopp.nif"]
+>>> sys.argv = ["niftoaster.py", "--verbose=2", "--raise", "check_mopp", nif_dir + "test_mopp.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
-pyffi.toaster:INFO:=== tests/nif/test_mopp.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_mopp.nif ===
 pyffi.nif.data:DEBUG:Reading header at 0x00000000
 pyffi.nif.data:DEBUG:Version 0x14000005
 pyffi.nif.data:DEBUG:Reading NiNode block at 0x000000DC
@@ -787,9 +781,9 @@ The modify_disableparallax spell
 >>> import sys
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "--dry-run", "modify_disableparallax", "tests/nif/test_fix_disableparallax.nif"]
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "--dry-run", "modify_disableparallax", nif_dir + "test_fix_disableparallax.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
-pyffi.toaster:INFO:=== tests/nif/test_fix_disableparallax.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_fix_disableparallax.nif ===
 pyffi.toaster:INFO:  --- modify_disableparallax ---
 pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
 pyffi.toaster:INFO:      ~~~ NiTriStrips [Sphere] ~~~
@@ -811,30 +805,30 @@ The check_tangentspace spell
 >>> import sys
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tangentspace", "tests/nif/test_check_tangentspace1.nif"]
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tangentspace", nif_dir + "test_check_tangentspace1.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
-pyffi.toaster:INFO:=== tests/nif/test_check_tangentspace1.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_check_tangentspace1.nif ===
 pyffi.toaster:INFO:  --- check_tangentspace ---
 pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
 pyffi.toaster:INFO:      ~~~ NiTriStrips [Plane] ~~~
 pyffi.toaster:INFO:        checking tangent space
 pyffi.toaster:INFO:Finished.
->>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tangentspace", "tests/nif/test_check_tangentspace2.nif"]
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tangentspace", nif_dir + "test_check_tangentspace2.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
-pyffi.toaster:INFO:=== tests/nif/test_check_tangentspace2.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_check_tangentspace2.nif ===
 pyffi.toaster:INFO:  --- check_tangentspace ---
 pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
 pyffi.toaster:INFO:      ~~~ NiTriStrips [Plane] ~~~
 pyffi.toaster:INFO:        checking tangent space
 pyffi.toaster:INFO:Finished.
->>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tangentspace", "tests/nif/test_check_tangentspace3.nif"]
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tangentspace", nif_dir + "test_check_tangentspace3.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
 Traceback (most recent call last):
     ...
 ValueError: tangent space data has invalid size, expected 96 bytes but got 95
->>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tangentspace", "tests/nif/test_check_tangentspace4.nif"]
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tangentspace", nif_dir + "test_check_tangentspace4.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
-pyffi.toaster:INFO:=== tests/nif/test_check_tangentspace4.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_check_tangentspace4.nif ===
 pyffi.toaster:INFO:  --- check_tangentspace ---
 pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
 pyffi.toaster:INFO:      ~~~ NiTriStrips [Plane] ~~~
@@ -860,9 +854,9 @@ The check_tristrip spell
 >>> import sys
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tristrip", "tests/nif/test_opt_dupverts.nif"]
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tristrip", nif_dir + "test_opt_dupverts.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
-pyffi.toaster:INFO:=== tests/nif/test_opt_dupverts.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_opt_dupverts.nif ===
 pyffi.toaster:INFO:  --- check_tristrip ---
 pyffi.toaster:INFO:    ~~~ NiNode [Lowerclass Dunmer Cup Type-1] ~~~
 pyffi.toaster:INFO:      ~~~ NiTriStrips [Lowerclass Dunmer Cup Type-1] ~~~
@@ -893,9 +887,9 @@ The fix_mergeskeletonroots spell
 >>> import sys
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--verbose=2", "--raise", "--dry-run", "fix_mergeskeletonroots", "tests/nif/test_fix_mergeskeletonroots.nif"]
+>>> sys.argv = ["niftoaster.py", "--verbose=2", "--raise", "--dry-run", "fix_mergeskeletonroots", nif_dir + "test_fix_mergeskeletonroots.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
-pyffi.toaster:INFO:=== tests/nif/test_fix_mergeskeletonroots.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_fix_mergeskeletonroots.nif ===
 pyffi.nif.data:DEBUG:Reading header at 0x00000000
 pyffi.nif.data:DEBUG:Version 0x14000005
 pyffi.nif.data:DEBUG:Reading NiNode block at 0x000000D4
@@ -941,9 +935,9 @@ The fix_scale spell
 >>> import sys
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "--dry-run", "fix_scale", "tests/nif/test_opt_dupverts.nif", "-a", "10"]
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "--dry-run", "fix_scale", nif_dir + "test_opt_dupverts.nif", "-a", "10"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
-pyffi.toaster:INFO:=== tests/nif/test_opt_dupverts.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_opt_dupverts.nif ===
 pyffi.toaster:INFO:  --- fix_scale ---
 pyffi.toaster:INFO:    scaling by factor 10.000000
 pyffi.toaster:INFO:    ~~~ NiNode [Lowerclass Dunmer Cup Type-1] ~~~
@@ -981,9 +975,9 @@ The fix_mopp spell
 >>> import sys
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "--dry-run", "fix_mopp", "tests/nif/test_mopp.nif"]
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "--dry-run", "fix_mopp", nif_dir + "test_mopp.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
-pyffi.toaster:INFO:=== tests/nif/test_mopp.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_mopp.nif ===
 pyffi.toaster:INFO:  --- fix_mopp ---
 pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
 pyffi.toaster:INFO:      ~~~ bhkCollisionObject [] ~~~
@@ -1010,158 +1004,158 @@ The check_version spell
 >>> import sys
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--verbose=1", "check_version", "tests/nif", "-a", "10"]
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "check_version", "tests/spells/nif", "-a", "10"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS +REPORT_NDIFF
-pyffi.toaster:INFO:=== tests/nif/invalid.nif ===
-pyffi.toaster:ERROR:TEST FAILED ON tests/nif/invalid.nif
+pyffi.toaster:INFO:=== tests/formats/nif/invalid.nif ===
+pyffi.toaster:ERROR:TEST FAILED ON tests/formats/nif/invalid.nif
 pyffi.toaster:ERROR:If you were running a spell that came with PyFFI, then
 pyffi.toaster:ERROR:please report this as a bug (include the file) on
 pyffi.toaster:ERROR:https://github.com/niftools/pyffi/issues
-pyffi.toaster:INFO:=== tests/nif/nds.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/nds.nif ===
 pyffi.toaster:INFO:  version      0x14020008
 pyffi.toaster:INFO:  user version 0
 pyffi.toaster:INFO:  user version 0
-pyffi.toaster:INFO:=== tests/nif/neosteam.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/neosteam.nif ===
 pyffi.toaster:INFO:  version      0x0A010000
 pyffi.toaster:INFO:  user version 0
 pyffi.toaster:INFO:  user version 0
-pyffi.toaster:INFO:=== tests/nif/test.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test.nif ===
 pyffi.toaster:INFO:  version      0x14010003
 pyffi.toaster:INFO:  user version 0
 pyffi.toaster:INFO:  user version 0
-pyffi.toaster:INFO:=== tests/nif/test_centerradius.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_centerradius.nif ===
 pyffi.toaster:INFO:  version      0x14010003
 pyffi.toaster:INFO:  user version 0
 pyffi.toaster:INFO:  user version 0
-pyffi.toaster:INFO:=== tests/nif/test_check_tangentspace1.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_check_tangentspace1.nif ===
 pyffi.toaster:INFO:  version      0x14000005
 pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:  user version 11
-pyffi.toaster:INFO:=== tests/nif/test_check_tangentspace2.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_check_tangentspace2.nif ===
 pyffi.toaster:INFO:  version      0x14020007
 pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:  user version 34
-pyffi.toaster:INFO:=== tests/nif/test_check_tangentspace3.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_check_tangentspace3.nif ===
 pyffi.toaster:INFO:  version      0x14000005
 pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:  user version 11
-pyffi.toaster:INFO:=== tests/nif/test_check_tangentspace4.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_check_tangentspace4.nif ===
 pyffi.toaster:INFO:  version      0x14020007
 pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:  user version 34
-pyffi.toaster:INFO:=== tests/nif/test_convexverticesshape.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_convexverticesshape.nif ===
 pyffi.toaster:INFO:  version      0x14000005
 pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:  user version 11
-pyffi.toaster:INFO:=== tests/nif/test_dump_tex.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_dump_tex.nif ===
 pyffi.toaster:INFO:  version      0x14010003
 pyffi.toaster:INFO:  user version 0
 pyffi.toaster:INFO:  user version 0
-pyffi.toaster:INFO:=== tests/nif/test_fix_clampmaterialalpha.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_fix_clampmaterialalpha.nif ===
 pyffi.toaster:INFO:  version      0x0A000100
 pyffi.toaster:INFO:  user version 0
 pyffi.toaster:INFO:  user version 0
-pyffi.toaster:INFO:=== tests/nif/test_fix_cleanstringpalette.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_fix_cleanstringpalette.nif ===
 pyffi.toaster:INFO:  version      0x14000005
 pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:  user version 11
-pyffi.toaster:INFO:=== tests/nif/test_fix_detachhavoktristripsdata.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_fix_detachhavoktristripsdata.nif ===
 pyffi.toaster:INFO:  version      0x14000005
 pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:  user version 11
-pyffi.toaster:INFO:=== tests/nif/test_fix_disableparallax.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_fix_disableparallax.nif ===
 pyffi.toaster:INFO:  version      0x14000004
 pyffi.toaster:INFO:  user version 0
 pyffi.toaster:INFO:  user version 0
-pyffi.toaster:INFO:=== tests/nif/test_fix_ffvt3rskinpartition.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_fix_ffvt3rskinpartition.nif ===
 pyffi.toaster:INFO:  version      0x0A010000
 pyffi.toaster:INFO:  user version 0
 pyffi.toaster:INFO:  user version 0
-pyffi.toaster:INFO:=== tests/nif/test_fix_mergeskeletonroots.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_fix_mergeskeletonroots.nif ===
 pyffi.toaster:INFO:  version      0x14000005
 pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:  user version 11
-pyffi.toaster:INFO:=== tests/nif/test_fix_tangentspace.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_fix_tangentspace.nif ===
 pyffi.toaster:INFO:  version      0x14000004
 pyffi.toaster:INFO:  user version 0
 pyffi.toaster:INFO:  user version 0
-pyffi.toaster:INFO:=== tests/nif/test_fix_texturepath.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_fix_texturepath.nif ===
 pyffi.toaster:INFO:  version      0x14000004
 pyffi.toaster:INFO:  user version 0
 pyffi.toaster:INFO:  user version 0
-pyffi.toaster:INFO:=== tests/nif/test_grid_128x128.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_grid_128x128.nif ===
 pyffi.toaster:INFO:  version      0x14000005
 pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:  user version 11
-pyffi.toaster:INFO:=== tests/nif/test_grid_64x64.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_grid_64x64.nif ===
 pyffi.toaster:INFO:  version      0x14000005
 pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:  user version 11
-pyffi.toaster:INFO:=== tests/nif/test_mopp.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_mopp.nif ===
 pyffi.toaster:INFO:  version      0x14000005
 pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:  user version 11
-pyffi.toaster:INFO:=== tests/nif/test_opt_collision_complex_mopp.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_opt_collision_complex_mopp.nif ===
 pyffi.toaster:INFO:  version      0x14000005
 pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:  user version 11
-pyffi.toaster:INFO:=== tests/nif/test_opt_collision_mopp.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_opt_collision_mopp.nif ===
 pyffi.toaster:INFO:  version      0x14000005
 pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:  user version 11
-pyffi.toaster:INFO:=== tests/nif/test_opt_collision_packed.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_opt_collision_packed.nif ===
 pyffi.toaster:INFO:  version      0x14000005
 pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:  user version 11
-pyffi.toaster:INFO:=== tests/nif/test_opt_collision_to_boxshape.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_opt_collision_to_boxshape.nif ===
 pyffi.toaster:INFO:  version      0x14000005
 pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:  user version 11
-pyffi.toaster:INFO:=== tests/nif/test_opt_collision_to_boxshape_notabox.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_opt_collision_to_boxshape_notabox.nif ===
 pyffi.toaster:INFO:  version      0x14000005
 pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:  user version 11
-pyffi.toaster:INFO:=== tests/nif/test_opt_collision_unpacked.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_opt_collision_unpacked.nif ===
 pyffi.toaster:INFO:  version      0x14000005
 pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:  user version 11
-pyffi.toaster:INFO:=== tests/nif/test_opt_delunusedbones.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_opt_delunusedbones.nif ===
 pyffi.toaster:INFO:  version      0x0A010000
 pyffi.toaster:INFO:  user version 0
 pyffi.toaster:INFO:  user version 0
-pyffi.toaster:INFO:=== tests/nif/test_opt_dupgeomdata.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_opt_dupgeomdata.nif ===
 pyffi.toaster:INFO:  version      0x04000002
 pyffi.toaster:INFO:  user version 0
 pyffi.toaster:INFO:  user version 0
-pyffi.toaster:INFO:=== tests/nif/test_opt_dupverts.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_opt_dupverts.nif ===
 pyffi.toaster:INFO:  version      0x14000005
 pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:  user version 11
-pyffi.toaster:INFO:=== tests/nif/test_opt_emptyproperties.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_opt_emptyproperties.nif ===
 pyffi.toaster:INFO:  version      0x0A000100
 pyffi.toaster:INFO:  user version 0
 pyffi.toaster:INFO:  user version 0
-pyffi.toaster:INFO:=== tests/nif/test_opt_grid_layout.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_opt_grid_layout.nif ===
 pyffi.toaster:INFO:  version      0x14000005
 pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:  user version 11
-pyffi.toaster:INFO:=== tests/nif/test_opt_mergeduplicates.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_opt_mergeduplicates.nif ===
 pyffi.toaster:INFO:  version      0x14000004
 pyffi.toaster:INFO:  user version 0
 pyffi.toaster:INFO:  user version 0
-pyffi.toaster:INFO:=== tests/nif/test_opt_vertex_cache.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_opt_vertex_cache.nif ===
 pyffi.toaster:INFO:  version      0x14000005
 pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:  user version 11
-pyffi.toaster:INFO:=== tests/nif/test_opt_zeroscale.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_opt_zeroscale.nif ===
 pyffi.toaster:INFO:  version      0x0A000100
 pyffi.toaster:INFO:  user version 0
 pyffi.toaster:INFO:  user version 0
-pyffi.toaster:INFO:=== tests/nif/test_skincenterradius.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_skincenterradius.nif ===
 pyffi.toaster:INFO:  version      0x0A010000
 pyffi.toaster:INFO:  user version 0
 pyffi.toaster:INFO:  user version 0
-pyffi.toaster:INFO:=== tests/nif/test_vertexcolor.nif ===
+pyffi.toaster:INFO:=== tests/formats/nif/test_vertexcolor.nif ===
 pyffi.toaster:INFO:  version      0x14000005
 pyffi.toaster:INFO:  user version 11
 pyffi.toaster:INFO:  user version 11
