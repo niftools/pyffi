@@ -16,11 +16,18 @@ Read a KFM file
 ^^^^^^^^^^^^^^^
 
 >>> # read kfm file
->>> stream = open('tests/kfm/test.kfm', 'rb')
+>>> from os.path import dirname
+>>> dirpath = __file__
+>>> for i in range(4): #recurse up to root repo dir
+...     dirpath = dirname(dirpath)
+>>> repo_root = dirpath
+>>> format_root = os.path.join(repo_root, 'tests', 'kfm')
+>>> file = os.path.join(format_root, 'test.kfm')
+>>> stream = open(file, 'rb')
 >>> data = KfmFormat.Data()
 >>> data.inspect(stream)
 >>> print(data.nif_file_name.decode("ascii"))
-Test.nif
+Test.kfm
 >>> data.read(stream)
 >>> stream.close()
 >>> # get all animation file names
@@ -34,9 +41,18 @@ Test_MD_Die.kf
 Parse all KFM files in a directory tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
->>> for stream, data in KfmFormat.walkData('tests/kfm'):
-...     print(stream.name)
-tests/kfm/test.kfm
+>>> for stream, data in KfmFormat.walkData(format_root):
+...     try:
+...         # the replace call makes the doctest also pass on windows
+...         os_path = stream.name
+...         split = (os_path.split(os.sep))[-3:]
+...         rejoin = os.path.join(*split).replace("\\\\", "/")
+...         print("reading %s" % rejoin)
+...     except Exception:
+...         print(
+...             "Warning: read failed due corrupt file,"
+...             " corrupt format description, or bug.") # doctest: +REPORT_NDIFF
+reading tests/kfm/test.kfm
 
 Create a KFM model from scratch and write to file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -18,7 +18,14 @@ Read a EGT file
 ^^^^^^^^^^^^^^^
 
 >>> # check and read egt file
->>> stream = open('tests/egt/test.egt', 'rb')
+>>> from os.path import dirname
+>>> dirpath = __file__
+>>> for i in range(4): #recurse up to root repo dir
+...     dirpath = dirname(dirpath)
+>>> repo_root = dirpath
+>>> format_root = os.path.join(repo_root, 'tests', 'egt')
+>>> file = os.path.join(format_root, 'test.egt')
+>>> stream = open(file, 'rb')
 >>> data = EgtFormat.Data()
 >>> data.inspect(stream)
 >>> # do some stuff with header?
@@ -28,9 +35,18 @@ Read a EGT file
 Parse all EGT files in a directory tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
->>> for stream, data in EgtFormat.walkData('tests/egt'):
-...     print(stream.name)
-tests/egt/test.egt
+>>> for stream, data in EgtFormat.walkData(format_root):
+...     try:
+...         # the replace call makes the doctest also pass on windows
+...         os_path = stream.name
+...         split = (os_path.split(os.sep))[-3:]
+...         rejoin = os.path.join(*split).replace(os.sep, "/")
+...         print("reading %s" % rejoin)
+...     except Exception:
+...         print(
+...             "Warning: read failed due corrupt file,"
+...             " corrupt format description, or bug.") # doctest: +REPORT_NDIFF
+reading tests/egt/test.egt
 
 Create an EGT file from scratch and write to file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

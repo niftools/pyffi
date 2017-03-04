@@ -22,13 +22,18 @@ Create a DAE file
 
 >>> daedata = DaeFormat.Data()
 >>> print(daedata.collada) # doctest: +ELLIPSIS
-<pyffi.formats.dae.Collada object at ...>
+<...Collada object at ...>
 
 Read a DAE file
 ^^^^^^^^^^^^^^^
-
+>>> from os.path import dirname
+>>> dirpath = __file__
+>>> for i in range(4): #recurse up to root repo dir
+...     dirpath = dirname(dirpath)
+>>> repo_root = dirpath
+>>> format_root = os.path.join(repo_root, 'tests', 'dae')
 >>> # check and read dae file
->>> stream = open('tests/dae/cube.dae', 'rb')
+>>> stream = open(os.path.join(format_root, 'cube.dae'), 'rb')
 >>> daedata = DaeFormat.Data()
 >>> daedata.read(stream) # doctest: +ELLIPSIS
 Traceback (most recent call last):
@@ -41,10 +46,13 @@ NotImplementedError
 Parse all DAE files in a directory tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
->>> for stream, data in DaeFormat.walkData('tests/dae'):
+>>> for stream, data in DaeFormat.walkData(format_root):
 ...     try:
 ...         # the replace call makes the doctest also pass on windows
-...         print("reading %s" % stream.name.replace("\\\\", "/"))
+...         os_path = stream.name
+...         split = (os_path.split(os.sep))[-3:]
+...         rejoin = os.path.join(*split).replace(os.sep, "/")
+...         print("reading %s" % rejoin)
 ...         data.read(stream)
 ...     except Exception:
 ...         print("Warning: read failed due corrupt file, corrupt format description, or bug.")

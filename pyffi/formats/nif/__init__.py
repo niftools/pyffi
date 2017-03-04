@@ -19,7 +19,13 @@ They also provide code examples which you may find useful.
 Read a NIF file
 ^^^^^^^^^^^^^^^
 
->>> stream = open('tests/nif/test.nif', 'rb')
+>>> from os.path import dirname
+>>> dirpath = __file__
+>>> for i in range(4): #recurse up to root repo dir
+...     dirpath = dirname(dirpath)
+>>> repo_root = dirpath
+>>> format_root = os.path.join(repo_root, 'tests', 'nif')
+>>> stream = open(os.path.join(format_root, 'test.nif'), 'rb')
 >>> data = NifFormat.Data()
 >>> # inspect is optional; it will not read the actual blocks
 >>> data.inspect(stream)
@@ -44,11 +50,13 @@ test
 
 Parse all NIF files in a directory tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
->>> for stream, data in NifFormat.walkData('tests/nif'):
+>>> for stream, data in NifFormat.walkData(format_root):
 ...     try:
 ...         # the replace call makes the doctest also pass on windows
-...         print("reading %s" % stream.name.replace("\\\\", "/"))
+...         os_path = stream.name
+...         split = (os_path.split(os.sep))[-3:]
+...         rejoin = os.path.join(*split).replace(os.sep, "/")
+...         print("reading %s" % rejoin)
 ...         data.read(stream)
 ...     except Exception:
 ...         print(
@@ -200,6 +208,7 @@ Get list of versions and games
 0x14060000
 0x14060500
 0x1E000002
+0x1E010003
 >>> for game, versions in sorted(NifFormat.games.items(), key=lambda x: x[0]):
 ...     print("%s " % game + " ".join('0x%08X' % vnum for vnum in versions)) # doctest: +REPORT_UDIFF
 ? 0x0A000103
@@ -234,6 +243,8 @@ Oblivion 0x0303000D 0x0A000100 0x0A000102 0x0A010065 0x0A01006A 0x0A020000 0x140
 Prison Tycoon 0x0A020000
 Pro Cycling Manager 0x0A020000
 Red Ocean 0x0A020000
+Rocksmith 0x1E010003
+Rocksmith 2014 0x1E010003
 Sid Meier's Railroads 0x14000004
 Skyrim 0x14020007
 Star Trek: Bridge Commander 0x03000000 0x03010000
@@ -245,8 +256,8 @@ Zoo Tycoon 2 0x0A000100
 
 Reading an unsupported nif file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
->>> stream = open('tests/nif/invalid.nif', 'rb')
+>>> file = os.path.join(format_root, 'invalid.nif')
+>>> stream = open(file, 'rb')
 >>> data = NifFormat.Data()
 >>> data.inspect(stream) # the file seems ok on inspection
 >>> data.read(stream) # doctest: +ELLIPSIS

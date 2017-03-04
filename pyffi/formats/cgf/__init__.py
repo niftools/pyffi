@@ -16,7 +16,13 @@ Read a CGF file
 ^^^^^^^^^^^^^^^
 
 >>> # get file version and file type, and read cgf file
->>> stream = open('tests/cgf/test.cgf', 'rb')
+>>> from os.path import dirname
+>>> dirpath = __file__
+>>> for i in range(4): #recurse up to root repo dir
+...     dirpath = dirname(dirpath)
+>>> repo_root = dirpath
+>>> format_root = os.path.join(repo_root, 'tests', 'cgf')
+>>> stream = open(os.path.join(format_root, 'test.cgf'), 'rb')
 >>> data = CgfFormat.Data()
 >>> # read chunk table only
 >>> data.inspect(stream)
@@ -30,16 +36,16 @@ Read a CGF file
 >>> # get all chunks
 >>> for chunk in data.chunks:
 ...     print(chunk) # doctest: +ELLIPSIS
-<class 'pyffi.formats.cgf.SourceInfoChunk'> instance at ...
+<class '...SourceInfoChunk'> instance at ...
 * source_file : <None>
 * date : Fri Sep 28 22:40:44 2007
 * author : blender@BLENDER
 <BLANKLINE>
-<class 'pyffi.formats.cgf.TimingChunk'> instance at ...
+<class '...TimingChunk'> instance at ...
 * secs_per_tick : 0.0002083333...
 * ticks_per_frame : 160
 * global_range :
-    <class 'pyffi.formats.cgf.RangeEntity'> instance at ...
+    <class '...RangeEntity'> instance at ...
     * name : GlobalRange
     * start : 0
     * end : 100
@@ -49,9 +55,13 @@ Read a CGF file
 Parse all CGF files in a directory tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
->>> for stream, data in CgfFormat.walkData('tests/cgf'):
-...     print(stream.name)
+>>> for stream, data in CgfFormat.walkData(format_root):
 ...     try:
+...         # the replace call makes the doctest also pass on windows
+...         os_path = stream.name
+...         split = (os_path.split(os.sep))[-3:]
+...         rejoin = os.path.join(*split).replace(os.sep, "/")
+...         print("reading %s" % rejoin)
 ...         data.read(stream)
 ...     except Exception:
 ...         print("Warning: read failed due corrupt file, corrupt format description, or bug.")
@@ -59,14 +69,14 @@ Parse all CGF files in a directory tree
 ...     # do something with the chunks
 ...     for chunk in data.chunks:
 ...         chunk.apply_scale(2.0)
-tests/cgf/invalid.cgf
+reading tests/cgf/invalid.cgf
 Warning: read failed due corrupt file, corrupt format description, or bug.
 0
-tests/cgf/monkey.cgf
+reading tests/cgf/monkey.cgf
 14
-tests/cgf/test.cgf
+reading tests/cgf/test.cgf
 2
-tests/cgf/vcols.cgf
+reading tests/cgf/vcols.cgf
 6
 
 Create a CGF file from scratch

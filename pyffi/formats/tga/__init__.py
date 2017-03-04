@@ -16,7 +16,15 @@ Read a TGA file
 ^^^^^^^^^^^^^^^
 
 >>> # check and read tga file
->>> stream = open('tests/tga/test.tga', 'rb')
+>>> import os
+>>> from os.path import dirname
+>>> dirpath = __file__
+>>> for i in range(4): #recurse up to root repo dir
+...     dirpath = dirname(dirpath)
+>>> repo_root = dirpath
+>>> format_root = os.path.join(repo_root, 'tests', 'tga')
+>>> file = os.path.join(format_root, 'test.tga').replace("\\\\", "/")
+>>> stream = open(file, 'rb')
 >>> data = TgaFormat.Data()
 >>> data.inspect(stream)
 >>> data.read(stream)
@@ -29,11 +37,19 @@ Read a TGA file
 Parse all TGA files in a directory tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
->>> for stream, data in TgaFormat.walkData('tests/tga'):
-...     data.read(stream)
-...     print(stream.name)
-tests/tga/test.tga
-tests/tga/test_footer.tga
+>>> for stream, data in TgaFormat.walkData(format_root):
+...     try:
+...         # the replace call makes the doctest also pass on windows
+...         os_path = stream.name
+...         split = (os_path.split(os.sep))[-3:]
+...         rejoin = os.path.join(*split).replace("\\\\", "/")
+...         print("reading %s" % rejoin)
+...     except Exception:
+...         print(
+...             "Warning: read failed due corrupt file,"
+...             " corrupt format description, or bug.") # doctest: +REPORT_NDIFF
+reading tests/tga/test.tga
+reading tests/tga/test_footer.tga
 
 Create a TGA file from scratch and write to file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

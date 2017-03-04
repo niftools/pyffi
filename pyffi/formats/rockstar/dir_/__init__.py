@@ -18,7 +18,14 @@ Read a DIR file
 ^^^^^^^^^^^^^^^
 
 >>> # check and read dir file
->>> stream = open('tests/rockstar/dir/test.dir', 'rb')
+>>> from os.path import dirname
+>>> dirpath = __file__
+>>> for i in range(5): #recurse up to root repo dir
+...     dirpath = dirname(dirpath)
+>>> repo_root = dirpath
+>>> format_root = os.path.join(repo_root, 'tests', 'rockstar', 'dir')
+>>> file = os.path.join(format_root, 'test.dir').replace("\\\\", "/")
+>>> stream = open(file, 'rb')
 >>> data = DirFormat.Data()
 >>> data.inspect(stream)
 >>> # do some stuff with header?
@@ -37,9 +44,18 @@ b'hello.txt'
 Parse all DIR files in a directory tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
->>> for stream, data in DirFormat.walkData('tests/rockstar/dir'):
-...     print(stream.name)
-tests/rockstar/dir/test.dir
+>>> for stream, data in DirFormat.walkData(format_root):
+...     try:
+...         # the replace call makes the doctest also pass on windows
+...         os_path = stream.name
+...         split = (os_path.split(os.sep))[-4:]
+...         rejoin = os.path.join(*split).replace("\\\\", "/")
+...         print("reading %s" % rejoin)
+...     except Exception:
+...         print(
+...             "Warning: read failed due corrupt file,"
+...             " corrupt format description, or bug.") # doctest: +REPORT_NDIFF
+reading tests/rockstar/dir/test.dir
 
 Create an DIR file from scratch and write to file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
