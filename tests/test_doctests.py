@@ -65,10 +65,12 @@ for mod in mods:
         pass
 
 # various regression tests (outside documentation)
-filepaths = { 'object_model/simpletype.txt',
-              'object_model/arraytype.txt',
-              #'cgf/cgftoaster.txt',
-             # 'tests/nif/niftoaster.txt',
+filepaths = {'object_model/simpletype.txt',
+             'object_model/arraytype.txt',
+             'formats/nif/matrix.txt',
+             'formats/nif/skinpartition.txt',
+             # 'formats/nif/niftoaster.txt',
+             'formats/cgf/cgftoaster.txt',
              # 'tests/nif/optimize.txt',
              # 'tests/nif/dump_tex.txt',
              # 'tests/nif/ffvt3rskin.txt',
@@ -84,15 +86,12 @@ filepaths = { 'object_model/simpletype.txt',
              # 'tests/nif/fix_cleanstringpalette.txt',
              # 'tests/nif/modify_substitutestringpalette.txt',
              # 'tests/nif/modify_allbonepriorities.txt',
-             # 'tests/nif/matrix.txt',
-             # 'tests/nif/skinpartition.txt',
              # 'tests/nif/bhkpackednitristripsshape.txt',
              # 'tests/nif/opt_delunusedbones.txt',
              # 'tests/nif/opt_delzeroscale.txt',
              # 'tests/nif/opt_collisiongeometry.txt',
              # 'tests/nif/opt_collision_to_box_shape.txt',
              # 'tests/nif/opt_vertex_cache.txt',
-
              # 'tests/kfm/kfmtoaster.txt',
              # 'docs-sphinx/intro.rst',
              }

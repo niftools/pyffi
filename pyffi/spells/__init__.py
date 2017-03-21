@@ -1476,7 +1476,7 @@ may destroy them. Make a backup of your files before running this script.
             self.files_failed.add(stream.name)
             self.logger.error("TEST FAILED ON %s" % stream.name)
             self.logger.error("If you were running a spell that came with PyFFI, then")
-            self.logger.error("please report this as a bug (include the file) on ")
+            self.logger.error("please report this as a bug (include the file) on")
             self.logger.error("https://github.com/niftools/pyffi/issues")
             # if raising test errors, reraise the exception
             if self.options["raisetesterror"]:
