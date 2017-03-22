@@ -50,28 +50,45 @@ if sys.version_info[0] < 3:
     import pyffi.object_models.xsd
     import pyffi.formats.dae
 
+
+# set up logger
+
+# this is a hack for StreamHandler to make it work with doctest
+# see http://mail.python.org/pipermail/python-list/2007-January/423842.html
+class WrapStdOut(object):
+    def __getattr__(self, name):
+        return getattr(sys.stdout, name)
+
+logger = logging.getLogger("pyffi")
+logger.setLevel(logging.INFO) # skip debug messages
+loghandler = logging.StreamHandler(WrapStdOut())
+loghandler.setLevel(logging.DEBUG)
+logformatter = logging.Formatter("%(name)s:%(levelname)s:%(message)s")
+loghandler.setFormatter(logformatter)
+logger.addHandler(loghandler)
+
 # force number of jobs to be 1 (multithreading makes doctesting difficult)
 pyffi.spells.Toaster.DEFAULT_OPTIONS["jobs"] = 1
 
 mods = [val for (key, val) in sys.modules.items()
         if key.startswith('pyffi')]
 
-suite = unittest.TestSuite()
 for mod in mods:
     try:
         pass
-        #suite.addTest(doctest.DocTestSuite(mod))
-    except ValueError: # no tests
+        # suite.addTest(doctest.DocTestSuite(mod))
+    except ValueError:  # no tests
         pass
 
-# various regression tests (outside documentation)
+suite = unittest.TestSuite()
+
 filepaths = {'object_model/simpletype.txt',
              'object_model/arraytype.txt',
              'formats/nif/matrix.txt',
              'formats/nif/skinpartition.txt',
-             # 'formats/nif/niftoaster.txt',
              'formats/cgf/cgftoaster.txt',
-             # 'tests/nif/optimize.txt',
+             # 'formats/nif/niftoaster.txt',
+             #'spells/nif/optimize.txt',
              # 'tests/nif/dump_tex.txt',
              # 'tests/nif/ffvt3rskin.txt',
              # 'tests/nif/fix_texturepath.txt',
@@ -96,28 +113,17 @@ filepaths = {'object_model/simpletype.txt',
              # 'docs-sphinx/intro.rst',
              }
 
+
+
+# various regression tests (outside documentation)
+
 for relpath in filepaths:
     suite.addTest(doctest.DocFileSuite(relpath))
 
 # TODO: examples
-#suite.addTest(doctest.DocFileSuite('examples/*.txt'))
+# suite.addTest(doctest.DocFileSuite('examples/*.txt'))
 
-# set up logger
-
-# this is a hack for StreamHandler to make it work with doctest
-# see http://mail.python.org/pipermail/python-list/2007-January/423842.html
-class WrapStdOut(object):
-    def __getattr__(self, name):
-        return getattr(sys.stdout, name)
-
-logger = logging.getLogger("pyffi")
-logger.setLevel(logging.INFO) # skip debug messages
-loghandler = logging.StreamHandler(WrapStdOut())
-loghandler.setLevel(logging.DEBUG)
-logformatter = logging.Formatter("%(name)s:%(levelname)s:%(message)s")
-loghandler.setFormatter(logformatter)
-logger.addHandler(loghandler)
-
-# run tests
-unittest.TextTestRunner(verbosity=10).run(suite)
+def test():
+    # run tests
+    unittest.TextTestRunner(verbosity=10).run(suite)
 
