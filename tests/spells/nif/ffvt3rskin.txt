@@ -16,7 +16,7 @@ Doctests for the fix_ffvt3rskinpartition spell
 
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "fix_ffvt3rskinpartition", "--dry-run", "--noninteractive", nif_dir + "test_fix_ffvt3rskinpartition.nif"]
->>> niftoaster.NifToaster().cli()
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS +REPORT_NDIFF
 pyffi.toaster:INFO:=== tests/spells/nif/files/test_fix_ffvt3rskinpartition.nif ===
 pyffi.toaster:INFO:  --- fix_ffvt3rskinpartition ---
 pyffi.toaster:INFO:    ~~~ NiNode [Bip01] ~~~

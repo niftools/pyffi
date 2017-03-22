@@ -17,7 +17,7 @@ Doctests for the tangentspace spells, and running spells in parallel and series
 
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "fix_deltangentspace", "fix_addtangentspace", "--dry-run", "--noninteractive", nif_dir + "test_fix_tangentspace.nif"]
->>> niftoaster.NifToaster().cli()
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS +REPORT_NDIFF
 pyffi.toaster:INFO:=== tests/spells/nif/files/test_fix_tangentspace.nif ===
 pyffi.toaster:INFO:  --- fix_deltangentspace & fix_addtangentspace ---
 pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
@@ -30,7 +30,7 @@ pyffi.toaster:INFO:Finished.
 
 >>> # now run the spells in series
 >>> sys.argv = ["niftoaster.py", "fix_deltangentspace", "fix_addtangentspace", "--series", "--dry-run", "--noninteractive", nif_dir + "test_fix_tangentspace.nif"]
->>> niftoaster.NifToaster().cli()
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS +REPORT_NDIFF
 pyffi.toaster:INFO:=== tests/spells/nif/files/test_fix_tangentspace.nif ===
 pyffi.toaster:INFO:  --- fix_deltangentspace ---
 pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~

@@ -20,7 +20,7 @@ NifToaster check
 
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "fix_detachhavoktristripsdata", "--dry-run", "--noninteractive", nif_dir + "test_fix_detachhavoktristripsdata.nif"]
->>> niftoaster.NifToaster().cli()
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS +REPORT_NDIFF
 pyffi.toaster:INFO:=== tests/spells/nif/files/test_fix_detachhavoktristripsdata.nif ===
 pyffi.toaster:INFO:  --- fix_detachhavoktristripsdata ---
 pyffi.toaster:INFO:    ~~~ NiNode [MiddleWolfRug01] ~~~
@@ -41,7 +41,7 @@ Explicit check
 >>> from pyffi.spells.nif import fix
 >>> from pyffi.spells import Toaster
 >>> data = NifFormat.Data()
->>> stream = open( nif_dir + "test_fix_detachhavoktristripsdata.nif", "rb")
+>>> stream = open(nif_dir + "test_fix_detachhavoktristripsdata.nif", "rb")
 >>> data.read(stream)
 >>> # check that data is shared
 >>> data.roots[0].children[0].collision_object.body.shape.sub_shapes[0].strips_data[0] is data.roots[0].children[0].data
