@@ -21,6 +21,8 @@ Interactive
 >>> nif_dir_out = nif_dir + "out/"
 >>> file_name_out = "_test.nif"
 >>> file_name_full_out = nif_dir_out + file_name_out
+
+
 >>> # this inputfunc hack is very ugly but it allows to simulate user input
 >>> inputlist = ["yes it is", "n", "y"] # list of inputs of this test
 >>> def inputfunc(msg = ""):

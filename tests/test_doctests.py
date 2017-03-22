@@ -87,9 +87,13 @@ filepaths = {'object_model/simpletype.txt',
              'formats/nif/matrix.txt',
              'formats/nif/skinpartition.txt',
              'formats/cgf/cgftoaster.txt',
-             # 'formats/nif/niftoaster.txt',
+             'spells/nif/dump_tex.txt',
+
+             # Contain outstanding issues
              #'spells/nif/optimize.txt',
-             # 'tests/nif/dump_tex.txt',
+             #'spells/egm/optimize.txt',
+             # 'formats/nif/niftoaster.txt',
+
              # 'tests/nif/ffvt3rskin.txt',
              # 'tests/nif/fix_texturepath.txt',
              # 'tests/nif/fix_tangentspace.txt',
