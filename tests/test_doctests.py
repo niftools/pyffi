@@ -94,13 +94,13 @@ filepaths = {'object_model/simpletype.txt',
              'spells/nif/fix_tangentspace_series_parallel.txt',
              'spells/nif/fix_detachhavoktristripsdata.txt',
              'spells/nif/fix_clampmaterialalpha.txt',
+             'spells/nif/modify_delbranches.txt', # pathing
 
              # Contain outstanding issues
              #'spells/nif/optimize.txt',
              #'spells/egm/optimize.txt',
              #'spells/nif/opt_mergeduplicates.txt', #nitrishape issue
              # 'formats/nif/niftoaster.txt',
-             # 'spells/nif/modify_delbranches.txt', # pathing
 
              # 'spells/nif/modify_delvertexcolor.txt',
              # 'spells/nif/fix_cleanstringpalette.txt',

@@ -32,7 +32,7 @@ NifToaster modify_delbranches check
 >>> # strip properties
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--prefix", "_", "--noninteractive", "-x", "NiProperty", "modify_delbranches", file_name_full]
->>> niftoaster.NifToaster().cli() # doctest: +REPORT_NDIFF
+>>> niftoaster.NifToaster().cli() # doctest: +REPORT_NDIFF +ELLIPSIS
 pyffi.toaster:INFO:=== tests/spells/nif/files/test_opt_mergeduplicates.nif ===
 pyffi.toaster:INFO:  --- modify_delbranches ---
 pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
@@ -91,7 +91,7 @@ pyffi.toaster:INFO:            stripping this branch
 pyffi.toaster:INFO:          ~~~ NiDitherProperty [] ~~~
 pyffi.toaster:INFO:            stripping this branch
 pyffi.toaster:INFO:          ~~~ NiTriStripsData [] ~~~
-pyffi.toaster:INFO:  writing tests/spells/nif/files/_test_opt_mergeduplicates.nif
+pyffi.toaster:INFO:  writing tests/spells/nif/files..._test_opt_mergeduplicates.nif
 pyffi.toaster:INFO:Finished.
 >>> # check that file no longer has properties
 >>> data = NifFormat.Data()
@@ -163,7 +163,7 @@ pyffi.toaster:INFO:          ~~~ NiMaterialProperty [Red] ~~~
 pyffi.toaster:INFO:          ~~~ NiWireframeProperty [] ~~~
 pyffi.toaster:INFO:          ~~~ NiDitherProperty [] ~~~
 pyffi.toaster:INFO:          ~~~ NiTriStripsData [] ~~~
-pyffi.toaster:INFO:  writing tests/spells/nif/files/_test_opt_mergeduplicates.nif
+pyffi.toaster:INFO:  writing ..._test_opt_mergeduplicates.nif
 pyffi.toaster:INFO:Finished.
 >>> # check that file no longer has properties
 >>> data = NifFormat.Data()
