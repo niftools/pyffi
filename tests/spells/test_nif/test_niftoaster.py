@@ -9,31 +9,45 @@ from tests.spells.test_nif import call_niftoaster
 
 nif_dir = "tests/spells/nif/files/"
 
-@nose.tools.raises(SystemExit) # --help uses sys.exit()
+
+@nose.tools.raises(SystemExit)  # --help uses sys.exit()
 def test_help():
+    """Tests spell help"""
     call_niftoaster("--help")
 
+
 def test_examples():
+    """Tests example"""
     call_niftoaster("--examples")
 
+
 def test_spells():
+    """Tests spells"""
     call_niftoaster("--spells")
+
 
 @nose.tools.raises(AttributeError)
 def test_raise():
-    toaster = call_niftoaster("--raise", "check_readwrite", nif_dir + "invalid.nif")
+    """Test exception raised on invalid nif"""
+    call_niftoaster("--raise", "check_readwrite", nif_dir + "invalid.nif")
+
 
 def test_no_raise():
+    """Test ignore exception raised on invalid nif"""
     toaster = call_niftoaster("check_readwrite", nif_dir + "invalid.nif")
     nose.tools.assert_equal(sorted(toaster.files_failed), [nif_dir + "invalid.nif"])
 
+
 def test_check_readwrite():
+    """Test basic read nif"""
     for filename in ["nds.nif", "neosteam.nif", "test.nif"]:
-        fullfilename = nif_dir + "{0}".format(filename)
-        toaster = call_niftoaster("--raise", "check_readwrite", fullfilename)
-        nose.tools.assert_equal(sorted(toaster.files_done), [fullfilename])
+        file_path = nif_dir + "{0}".format(filename)
+        toaster = call_niftoaster("--raise", "check_readwrite", file_path)
+        nose.tools.assert_equal(sorted(toaster.files_done), [file_path])
+
 
 def test_check_skip_only():
+    """Test skip nif files using filters and type"""
     toaster = call_niftoaster(
         *("--skip texture --skip skin --only fix_t --only center check_nop {0}".format(nif_dir).split()))
     nose.tools.assert_equal(
@@ -82,13 +96,17 @@ def test_check_skip_only():
             ])
     nose.tools.assert_equal(toaster.files_failed, set([]))
 
+
 def test_prefix_suffix():
+    """Test add prefix and suffix to output"""
     call_niftoaster(
-        *("--prefix=pre_ --suffix=_suf --noninteractive optimize {0}/test.nif".format(nif_dir).split()))
+        *("--prefix=pre_ --suffix=_suf --noninteractive optimize {0}test.nif".format(nif_dir).split()))
     nose.tools.assert_equal(os.path.exists(nif_dir + "pre_test_suf.nif"), True)
     os.remove(nif_dir + "pre_test_suf.nif")
 
+
 def test_check_bhkbodycenter():
+    """Test body centre spell"""
     testfile = nif_dir + "test_fix_detachhavoktristripsdata.nif"
     toaster = call_niftoaster("check_bhkbodycenter", testfile)
     orig = toaster.files_done[testfile][0]["center"]["orig"]
@@ -99,7 +117,9 @@ def test_check_bhkbodycenter():
     nose.tools.assert_almost_equal(calc[2], 6.88672184)
     nose.tools.assert_almost_equal(calc[3], 0.0)
 
+
 def test_check_centerradius():
+    """Test body centre spell"""
     testfile = nif_dir + "test_centerradius.nif"
     toaster = call_niftoaster("check_centerradius", testfile)
     vertex_outside = toaster.files_done[testfile][0]["vertex_outside"]
@@ -113,7 +133,6 @@ def test_check_centerradius():
     nose.tools.assert_almost_equal(calc_radius, 17.32050890)
 
 """
-
 The check_skincenterradius spell
 --------------------------------
 
