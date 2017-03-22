@@ -1,15 +1,27 @@
 Doctests for the fix_detachhavoktristripsdata spell
 ===================================================
 
+
+>>> import os
+>>> from os.path import dirname
+>>> dirpath = __file__
+>>> for i in range(4): #recurse up to root repo dir
+...     dirpath = dirname(dirpath)
+>>> repo_root = dirpath
+>>> script_dir = os.path.join(repo_root, "scripts", "nif")
+>>> import sys
+>>> script = os.path.join(script_dir, "niftoaster.py")
+>>> sys.path.insert(-1, script_dir.replace("\\\\", "/"))
+>>> nif_dir = "tests/spells/nif/files/"
+
+
 NifToaster check
 ----------------
 
->>> import sys
->>> sys.path.append("scripts/nif")
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "fix_detachhavoktristripsdata", "--dry-run", "--noninteractive", "tests/nif/test_fix_detachhavoktristripsdata.nif"]
+>>> sys.argv = ["niftoaster.py", "fix_detachhavoktristripsdata", "--dry-run", "--noninteractive", nif_dir + "test_fix_detachhavoktristripsdata.nif"]
 >>> niftoaster.NifToaster().cli()
-pyffi.toaster:INFO:=== tests/nif/test_fix_detachhavoktristripsdata.nif ===
+pyffi.toaster:INFO:=== tests/spells/nif/files/test_fix_detachhavoktristripsdata.nif ===
 pyffi.toaster:INFO:  --- fix_detachhavoktristripsdata ---
 pyffi.toaster:INFO:    ~~~ NiNode [MiddleWolfRug01] ~~~
 pyffi.toaster:INFO:      ~~~ NiTriStrips [MiddleWolfRug01:0] ~~~
@@ -21,6 +33,7 @@ pyffi.toaster:INFO:                detaching havok data
 pyffi.toaster:INFO:  writing to temporary file
 pyffi.toaster:INFO:Finished.
 
+
 Explicit check
 --------------
 
@@ -28,7 +41,7 @@ Explicit check
 >>> from pyffi.spells.nif import fix
 >>> from pyffi.spells import Toaster
 >>> data = NifFormat.Data()
->>> stream = open("tests/nif/test_fix_detachhavoktristripsdata.nif", "rb")
+>>> stream = open( nif_dir + "test_fix_detachhavoktristripsdata.nif", "rb")
 >>> data.read(stream)
 >>> # check that data is shared
 >>> data.roots[0].children[0].collision_object.body.shape.sub_shapes[0].strips_data[0] is data.roots[0].children[0].data
