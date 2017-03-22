@@ -98,10 +98,10 @@ filepaths = {'object_model/simpletype.txt',
              # Contain outstanding issues
              #'spells/nif/optimize.txt',
              #'spells/egm/optimize.txt',
+             #'spells/nif/opt_mergeduplicates.txt', #nitrishape issue
              # 'formats/nif/niftoaster.txt',
 
-             # 'spells/nif/opt_mergeduplicates.txt',
-             # 'spells/nif/modify_delbranches.txt',
+             #'spells/nif/modify_delbranches.txt',
              # 'spells/nif/modify_delvertexcolor.txt',
              # 'spells/nif/fix_cleanstringpalette.txt',
              # 'spells/nif/modify_substitutestringpalette.txt',
