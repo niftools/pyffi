@@ -7,7 +7,7 @@ import nose.tools
 
 from tests.spells.test_nif import call_niftoaster
 
-nif_dir = "tests/formats/nif/"
+nif_dir = "tests/spells/nif/files/"
 
 @nose.tools.raises(SystemExit) # --help uses sys.exit()
 def test_help():
@@ -35,10 +35,12 @@ def test_check_readwrite():
 
 def test_check_skip_only():
     toaster = call_niftoaster(
-        *("--skip texture --skip skin --only fix_t --only center check_nop tests/formats/nif/".split()))
-    nose.tools.assert_equal(sorted(toaster.files_done),
-        [nif_dir + 'test_centerradius.nif',
-         nif_dir + 'test_fix_tangentspace.nif',])
+        *("--skip texture --skip skin --only fix_t --only center check_nop {0}".format(nif_dir).split()))
+    nose.tools.assert_equal(
+        sorted(toaster.files_done), [
+            nif_dir + 'test_centerradius.nif',
+            nif_dir + 'test_fix_tangentspace.nif',])
+
     nose.tools.assert_equal(
         sorted(toaster.files_skipped), [
             nif_dir + 'invalid.nif',
@@ -82,9 +84,8 @@ def test_check_skip_only():
 
 def test_prefix_suffix():
     call_niftoaster(
-        *("--prefix=pre_ --suffix=_suf --noninteractive optimize tests/formats/nif/test.nif".split()))
-    nose.tools.assert_equal(
-        os.path.exists(nif_dir + "pre_test_suf.nif"), True)
+        *("--prefix=pre_ --suffix=_suf --noninteractive optimize {0}/test.nif".format(nif_dir).split()))
+    nose.tools.assert_equal(os.path.exists(nif_dir + "pre_test_suf.nif"), True)
     os.remove(nif_dir + "pre_test_suf.nif")
 
 def test_check_bhkbodycenter():

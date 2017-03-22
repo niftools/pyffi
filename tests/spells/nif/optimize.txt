@@ -17,7 +17,7 @@ is the input working? yes it is
 >>> pyffi.spells.Toaster.toast.__globals__['input'] = inputfunc
 >>> # copy file to avoid overwriting
 >>> import shutil
->>> shutil.copyfile("tests/nif/test.nif", "tests/nif/_test.nif")
+>>> shutil.copyfile("tests/spells/nif/test.nif", "tests/nif/_test.nif")
 >>> # simulate calling "niftoaster.py optimize --verbose=1 tests/nif/_test.nif"
 >>> import sys
 >>> sys.path.append("scripts/nif")
