@@ -1,12 +1,24 @@
 Doctests for the tangentspace spells, and running spells in parallel and series
 ===============================================================================
 
+
+>>> import os
+>>> from os.path import dirname
+>>> dirpath = __file__
+>>> for i in range(4): #recurse up to root repo dir
+...     dirpath = dirname(dirpath)
+>>> repo_root = dirpath
+>>> script_dir = os.path.join(repo_root, "scripts", "nif")
 >>> import sys
->>> sys.path.append("scripts/nif")
+>>> script = os.path.join(script_dir, "niftoaster.py")
+>>> sys.path.insert(-1, script_dir.replace("\\\\", "/"))
+>>> nif_dir = "tests/spells/nif/files/"
+
+
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "fix_deltangentspace", "fix_addtangentspace", "--dry-run", "--noninteractive", "tests/nif/test_fix_tangentspace.nif"]
+>>> sys.argv = ["niftoaster.py", "fix_deltangentspace", "fix_addtangentspace", "--dry-run", "--noninteractive", nif_dir + "test_fix_tangentspace.nif"]
 >>> niftoaster.NifToaster().cli()
-pyffi.toaster:INFO:=== tests/nif/test_fix_tangentspace.nif ===
+pyffi.toaster:INFO:=== tests/spells/nif/files/test_fix_tangentspace.nif ===
 pyffi.toaster:INFO:  --- fix_deltangentspace & fix_addtangentspace ---
 pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
 pyffi.toaster:INFO:      ~~~ NiTriStrips [Sphere] ~~~
@@ -14,10 +26,12 @@ pyffi.toaster:INFO:        removing tangent space block
 pyffi.toaster:INFO:        adding tangent space
 pyffi.toaster:INFO:  writing to temporary file
 pyffi.toaster:INFO:Finished.
+
+
 >>> # now run the spells in series
->>> sys.argv = ["niftoaster.py", "fix_deltangentspace", "fix_addtangentspace", "--series", "--dry-run", "--noninteractive", "tests/nif/test_fix_tangentspace.nif"]
+>>> sys.argv = ["niftoaster.py", "fix_deltangentspace", "fix_addtangentspace", "--series", "--dry-run", "--noninteractive", nif_dir + "test_fix_tangentspace.nif"]
 >>> niftoaster.NifToaster().cli()
-pyffi.toaster:INFO:=== tests/nif/test_fix_tangentspace.nif ===
+pyffi.toaster:INFO:=== tests/spells/nif/files/test_fix_tangentspace.nif ===
 pyffi.toaster:INFO:  --- fix_deltangentspace ---
 pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
 pyffi.toaster:INFO:      ~~~ NiTriStrips [Sphere] ~~~

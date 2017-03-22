@@ -91,13 +91,13 @@ filepaths = {'object_model/simpletype.txt',
              'spells/nif/fix_texturepath.txt',
              'spells/nif/fix_tangentspace.txt',
              'spells/nif/ffvt3rskin.txt',
+             'spells/nif/fix_tangentspace_series_parallel.txt',
 
              # Contain outstanding issues
              #'spells/nif/optimize.txt',
              #'spells/egm/optimize.txt',
              # 'formats/nif/niftoaster.txt',
 
-             # 'tests/nif/fix_tangentspace_series_parallel.txt',
              # 'tests/nif/fix_detachhavoktristripsdata.txt',
              # 'tests/nif/fix_clampmaterialalpha.txt',
              # 'tests/nif/opt_mergeduplicates.txt',
