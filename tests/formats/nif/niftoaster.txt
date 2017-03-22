@@ -444,8 +444,6 @@ pyffi.toaster:INFO:Finished.
 The --prefix and --suffix switches
 ----------------------------------
 
->>> import sys, os, os.path
->>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = "niftoaster.py --verbose=0 --prefix=pre_ --suffix=_suf --noninteractive optimize tests/formats/nif/test.nif".split()
 >>> niftoaster.NifToaster().cli()
