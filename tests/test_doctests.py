@@ -90,12 +90,14 @@ filepaths = {'object_model/simpletype.txt',
              'spells/nif/dump_tex.txt',
              'spells/nif/ffvt3rskin.txt',
              'spells/nif/fix_clampmaterialalpha.txt',
+             'spells/nif/fix_cleanstringpalette.txt',
              'spells/nif/fix_detachhavoktristripsdata.txt',
              'spells/nif/fix_tangentspace.txt',
              'spells/nif/fix_tangentspace_series_parallel.txt',
              'spells/nif/fix_texturepath.txt',
              'spells/nif/modify_delbranches.txt',
              'spells/nif/modify_delvertexcolor.txt',
+             'spells/nif/modify_substitutestringpalette.txt',
              'spells/nif/optimize.txt',
 
              # Contain outstanding issues
@@ -103,8 +105,6 @@ filepaths = {'object_model/simpletype.txt',
              #'spells/nif/opt_mergeduplicates.txt', #nitrishape issue
              #'formats/nif/niftoaster.txt',
 
-             'spells/nif/fix_cleanstringpalette.txt',
-             # 'spells/nif/modify_substitutestringpalette.txt',
              # 'spells/nif/modify_allbonepriorities.txt',
              # 'spells/nif/bhkpackednitristripsshape.txt',
              # 'spells/nif/opt_delunusedbones.txt',
