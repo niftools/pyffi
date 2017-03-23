@@ -48,6 +48,21 @@ import sys
 
 import pyffi.spells.kfm
 
+
+class KfmToaster(pyffi.spells.Toaster):
+    """Base class for kfm toasters."""
+    FILEFORMAT = pyffi.formats.kfm.KfmFormat
+
+    SPELLS = [
+        pyffi.spells.check.SpellRead,
+        pyffi.spells.check.SpellReadWrite,
+        pyffi.spells.kfm.SpellDumpAll]
+
+    EXAMPLES = """* check if library can read all files in current directory:
+
+    python kfmtoaster.py check_read ."""
+
+
 # if script is called...
 if __name__ == "__main__":
     # set up logger
@@ -59,4 +74,4 @@ if __name__ == "__main__":
     loghandler.setFormatter(logformatter)
     logger.addHandler(loghandler)
     # call toaster
-    pyffi.spells.kfm.KfmToaster().cli()
+    KfmToaster().cli()

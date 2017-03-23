@@ -54,6 +54,7 @@ import pyffi.spells.nif.fix
 import pyffi.spells.nif.optimize
 import pyffi.spells.nif.modify
 
+
 class NifToaster(pyffi.spells.nif.NifToaster):
     """Class for toasting nif files, using any of the available spells."""
     SPELLS = [

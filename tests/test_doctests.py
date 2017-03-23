@@ -84,9 +84,9 @@ suite = unittest.TestSuite()
 
 filepaths = {'object_model/simpletype.txt',
              'object_model/arraytype.txt',
+             'formats/cgf/cgftoaster.txt',
              'formats/nif/matrix.txt',
              'formats/nif/skinpartition.txt',
-             'formats/cgf/cgftoaster.txt',
              'spells/nif/dump_tex.txt',
              'spells/nif/ffvt3rskin.txt',
              'spells/nif/fix_clampmaterialalpha.txt',
@@ -111,12 +111,9 @@ filepaths = {'object_model/simpletype.txt',
              # 'formats/nif/bhkpackednitristripsshape.txt', #havoklayer issue
              # 'spells/nif/opt_collisiongeometry.txt', #havoklayer issue
              # 'spells/nif/opt_collision_to_box_shape.txt', #havoklayer issue
-
-             # 'tests/kfm/kfmtoaster.txt',
-             # 'docs-sphinx/intro.rst',
+             # 'formats/kfm/kfmtoaster.txt', #Not Implemented
+             # 'docs-sphinx/intro.rst', #outside of test dir...
              }
-
-
 
 # various regression tests (outside documentation)
 

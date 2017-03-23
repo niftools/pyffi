@@ -59,15 +59,4 @@ class SpellDumpAll(KfmSpell):
         self.toaster.msg(str(self.data))
         return False
 
-class KfmToaster(pyffi.spells.Toaster):
-    """Base class for kfm toasters."""
-    FILEFORMAT = pyffi.formats.kfm.KfmFormat
 
-    SPELLS = [
-        pyffi.spells.check.SpellRead,
-        pyffi.spells.check.SpellReadWrite,
-        SpellDumpAll]
-
-    EXAMPLES = """* check if library can read all files in current directory:
-
-    python kfmtoaster.py check_read ."""
