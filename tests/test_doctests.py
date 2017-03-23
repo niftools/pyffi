@@ -101,15 +101,15 @@ filepaths = {'object_model/simpletype.txt',
              'spells/nif/modify_substitutestringpalette.txt',
              'spells/nif/optimize.txt',
              'spells/nif/opt_delunusedbones.txt',
+             'spells/nif/opt_delzeroscale.txt',
 
              # Contain outstanding issues
              # 'spells/egm/optimize.txt',
-             #'spells/nif/opt_mergeduplicates.txt', #nitrishape issue
-             #'formats/nif/niftoaster.txt', #havoklayer issue
-             #'formats/nif/bhkpackednitristripsshape.txt', #havoklayer issue
+             # 'spells/nif/opt_mergeduplicates.txt', #nitrishape issue
+             # 'formats/nif/niftoaster.txt', #havoklayer issue
+             # 'formats/nif/bhkpackednitristripsshape.txt', #havoklayer issue
+             # 'spells/nif/opt_collisiongeometry.txt', #havoklayer issue
 
-             # 'spells/nif/opt_delzeroscale.txt',
-             # 'spells/nif/opt_collisiongeometry.txt',
              # 'spells/nif/opt_collision_to_box_shape.txt',
              # 'spells/nif/opt_vertex_cache.txt',
              # 'tests/kfm/kfmtoaster.txt',

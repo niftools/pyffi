@@ -70,7 +70,7 @@ pyffi.toaster:INFO:  --- opt_mergeduplicates ---
 pyffi.toaster:INFO:    ~~~ NiNode [test] ~~~
 pyffi.toaster:INFO:      ~~~ NiTriShape [Cube] ~~~
 pyffi.toaster:INFO:        ~~~ NiTriShapeData [] ~~~
-pyffi.toaster:INFO:  overwriting tests/spells/nif/files/out/_test.nif
+pyffi.toaster:INFO:  overwriting tests/spells/nif/files/out..._test.nif
 pyffi.toaster:INFO:Finished.
 >>> # clean up
 >>> import os
@@ -103,7 +103,7 @@ pyffi.toaster:INFO:  --- opt_mergeduplicates ---
 pyffi.toaster:INFO:    ~~~ NiNode [test] ~~~
 pyffi.toaster:INFO:      ~~~ NiTriShape [Cube] ~~~
 pyffi.toaster:INFO:        ~~~ NiTriShapeData [] ~~~
-pyffi.toaster:INFO:  overwriting tests/spells/nif/files/out/_test.nif
+pyffi.toaster:INFO:  overwriting tests/spells/nif/files/out..._test.nif
 pyffi.toaster:INFO:Finished.
 >>> # clean up
 >>> import os
