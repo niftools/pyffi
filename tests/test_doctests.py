@@ -109,8 +109,8 @@ filepaths = {'object_model/simpletype.txt',
              # 'formats/nif/niftoaster.txt', #havoklayer issue
              # 'formats/nif/bhkpackednitristripsshape.txt', #havoklayer issue
              # 'spells/nif/opt_collisiongeometry.txt', #havoklayer issue
+             # 'spells/nif/opt_collision_to_box_shape.txt', #havoklayer issue
 
-             # 'spells/nif/opt_collision_to_box_shape.txt',
              # 'spells/nif/opt_vertex_cache.txt',
              # 'tests/kfm/kfmtoaster.txt',
              # 'docs-sphinx/intro.rst',
