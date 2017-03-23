@@ -5,25 +5,26 @@ NifToaster check
 ----------------
 
 >>> from pyffi.formats.nif import NifFormat
->>> filename = "tests/nif/test_fix_cleanstringpalette.nif"
->>> outfilename = "tests/nif/_test_fix_cleanstringpalette.nif"
+>>> filename = "tests/spells/nif/files/test_fix_cleanstringpalette.nif"
+>>> outfilename = "tests/spells/nif/files/_test_fix_cleanstringpalette.nif"
 >>> # check current string palette
 >>> data = NifFormat.Data()
 >>> data.read(open(filename, "rb"))
 >>> print(data.roots[0].controller.controller_sequences[0].string_palette.palette.get_all_strings())
 [b'Test', b'Hello', b'People', b'NiTransformController', b'Test NonAccum', b'Useless', b'Crap']
 >>> # clean
+
 >>> import sys
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--prefix", "_", "--noninteractive", "fix_cleanstringpalette", filename]
->>> niftoaster.NifToaster().cli()
-pyffi.toaster:INFO:=== tests/nif/test_fix_cleanstringpalette.nif ===
+>>> niftoaster.NifToaster().cli() # doctest: +REPORT_NDIFF +ELLIPSIS
+pyffi.toaster:INFO:=== tests/spells/nif/files...test_fix_cleanstringpalette.nif ===
 pyffi.toaster:INFO:  --- fix_cleanstringpalette ---
 pyffi.toaster:INFO:    ~~~ NiNode [TestCleanStringPalette] ~~~
 pyffi.toaster:INFO:      ~~~ NiControllerManager [] ~~~
 pyffi.toaster:INFO:        parsing string palette
-pyffi.toaster:INFO:  writing tests/nif/_test_fix_cleanstringpalette.nif
+pyffi.toaster:INFO:  writing tests/spells/nif/files..._test_fix_cleanstringpalette.nif
 pyffi.toaster:INFO:Finished.
 >>> # check cleaned palette
 >>> data = NifFormat.Data()

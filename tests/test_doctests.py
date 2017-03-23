@@ -103,7 +103,7 @@ filepaths = {'object_model/simpletype.txt',
              #'spells/nif/opt_mergeduplicates.txt', #nitrishape issue
              #'formats/nif/niftoaster.txt',
 
-             # 'spells/nif/fix_cleanstringpalette.txt',
+             'spells/nif/fix_cleanstringpalette.txt',
              # 'spells/nif/modify_substitutestringpalette.txt',
              # 'spells/nif/modify_allbonepriorities.txt',
              # 'spells/nif/bhkpackednitristripsshape.txt',
