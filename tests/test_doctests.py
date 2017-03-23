@@ -95,19 +95,19 @@ filepaths = {'object_model/simpletype.txt',
              'spells/nif/fix_tangentspace.txt',
              'spells/nif/fix_tangentspace_series_parallel.txt',
              'spells/nif/fix_texturepath.txt',
+             'spells/nif/modify_allbonepriorities.txt',
              'spells/nif/modify_delbranches.txt',
              'spells/nif/modify_delvertexcolor.txt',
              'spells/nif/modify_substitutestringpalette.txt',
              'spells/nif/optimize.txt',
+             'spells/nif/opt_delunusedbones.txt',
 
              # Contain outstanding issues
              # 'spells/egm/optimize.txt',
              #'spells/nif/opt_mergeduplicates.txt', #nitrishape issue
-             #'formats/nif/niftoaster.txt',
+             #'formats/nif/niftoaster.txt', #havoklayer issue
+             #'formats/nif/bhkpackednitristripsshape.txt', #havoklayer issue
 
-             # 'spells/nif/modify_allbonepriorities.txt',
-             # 'spells/nif/bhkpackednitristripsshape.txt',
-             # 'spells/nif/opt_delunusedbones.txt',
              # 'spells/nif/opt_delzeroscale.txt',
              # 'spells/nif/opt_collisiongeometry.txt',
              # 'spells/nif/opt_collision_to_box_shape.txt',
