@@ -44,11 +44,12 @@
 # --------------------------------------------------------------------------
 
 import pyffi.spells
-import pyffi.spells.check
-import pyffi.formats.kfm
+from pyffi.formats.kfm import KfmFormat
+
 
 class KfmSpell(pyffi.spells.Spell):
     """Base class for spells for kfm files."""
+
 
 class SpellDumpAll(KfmSpell):
     """Dump the whole kfm file."""
@@ -60,3 +61,6 @@ class SpellDumpAll(KfmSpell):
         return False
 
 
+class KfmToaster(pyffi.spells.Toaster):
+    """Base class for kfm toasters."""
+    FILEFORMAT = KfmFormat

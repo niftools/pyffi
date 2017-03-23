@@ -62,7 +62,7 @@ optimizing block 'Claymore:0'
 
 If you've used PyFFI before, previous to v.1.0.0 of PyFFI did not triangulate NifTriStrips with lengths less than 10. Unfortunatly this causes Oblivion issues and while cause frame stuttering, and on low performance machines can virtually halt the game.
 
-In addition, the 3dsMax NifTools exporter bloats the exported nif file with duplicate everything (or very nearly duplicate everything). This is a known problem, which I believe is due to 3dsMax and not directly to the NifTools.
+In addition, the 3dsMax NifTools exporter bloats the exported NIF file with duplicate everything (or very nearly duplicate everything). This is a known problem, which I believe is due to 3dsMax and not directly to the NifTools.
 
 Blender and Maya do not suffer this problem. 
 Though that does not mean that duplicate data will not appear in meshes made with Blender or Maya.[/size]
@@ -72,7 +72,7 @@ Q - Is it safe?
 A - Yes; many Oblivion players and modders have run it on thousands of nifs with no problems. There is of course the potential for problems but if so as long as you made a backup it is relatively painless to revert some meshes. Of course there are some meshes that you should NOT run it on (any with egms is the main type) - if you do run it on them you will likely run into problems.
 
 Q - Is there a visual quality loss?
-A - No, PyFFI removes duplicate and empty data from the nif file.
+A - No, PyFFI removes duplicate and empty data from the NIF file.
 
 Q- What's the latest version of PyFFI?
 A- As at December 13th 2009, 2.0.5 (and 2.0.6 is in development)

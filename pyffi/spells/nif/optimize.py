@@ -1,4 +1,4 @@
-"""Spells for optimizing nif files.
+"""Spells for optimizing NIF files.
 
 .. autoclass:: SpellCleanRefLists
    :show-inheritance:

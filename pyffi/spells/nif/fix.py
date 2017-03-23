@@ -416,7 +416,7 @@ class SpellSendBonesToBindPosition(pyffi.spells.nif.SpellVisitSkeletonRoots):
         self.changed = True
 
 class SpellMergeSkeletonRoots(NifSpell):
-    """Merges skeleton roots in the nif file so that no skeleton root has
+    """Merges skeleton roots in the NIF file so that no skeleton root has
     another skeleton root as child. Warns if merge is impossible (this happens
     if the global skin data of the geometry is not the unit transform).
     """

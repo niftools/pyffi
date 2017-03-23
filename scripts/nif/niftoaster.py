@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-"""A script for casting spells on nif files. This script is essentially
+"""A script for casting spells on NIF files. This script is essentially
 a nif specific wrapper around L{pyffi.spells.Toaster}."""
 
 # --------------------------------------------------------------------------
@@ -45,7 +45,6 @@ a nif specific wrapper around L{pyffi.spells.Toaster}."""
 import logging
 import sys
 
-from pyffi.formats.nif import NifFormat
 import pyffi.spells.check
 import pyffi.spells.nif
 import pyffi.spells.nif.check
@@ -56,7 +55,7 @@ import pyffi.spells.nif.modify
 
 
 class NifToaster(pyffi.spells.nif.NifToaster):
-    """Class for toasting nif files, using any of the available spells."""
+    """Class for toasting NIF files, using any of the available spells."""
     SPELLS = [
         pyffi.spells.check.SpellNop,
         pyffi.spells.check.SpellRead,
@@ -155,24 +154,24 @@ class NifToaster(pyffi.spells.nif.NifToaster):
 
     python niftoaster.py check_read .
 
-* optimize all nif files in a directory tree, recursively
+* optimize all NIF files in a directory tree, recursively
 
     python niftoaster.py optimize /path/to/your/nifs/
 
-* print texture information of all nif files in a directory tree, recursively
+* print texture information of all NIF files in a directory tree, recursively
 
     python niftoaster.py dump_tex /path/to/your/nifs/
 
-* update/generate mopps of all nif files in a directory tree, recursively
+* update/generate mopps of all NIF files in a directory tree, recursively
 
     python niftoaster.py fix_mopp /path/to/your/nifs/
 
-* update/generate skin partitions of all nif files in a directory tree,
+* update/generate skin partitions of all NIF files in a directory tree,
 recursively, for Freedom Force vs. The 3rd Reich
 
     python niftoaster.py fix_ffvt3rskinpartition /path/to/your/nifs/
 
-* run the profiler on PyFFI while reading nif files:
+* run the profiler on PyFFI while reading NIF files:
 
     python -m cProfile -s cumulative -o profile_read.txt niftoaster.py -j 1 check_read .
 
@@ -181,7 +180,7 @@ recursively, for Freedom Force vs. The 3rd Reich
     python -m cProfile -s cumulative niftoaster.py -j 1 check_tristrip
 
 * scale all files in c:\\zoo2 by a factor 100 - useful to
-  visualize nif files from games such as Zoo Tycoon 2 that are otherwise too
+  visualize NIF files from games such as Zoo Tycoon 2 that are otherwise too
   small to show up properly in nifskope:
 
     python niftoaster.py -a 100 fix_scale "c:\\zoo2"

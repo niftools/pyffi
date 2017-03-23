@@ -103,24 +103,24 @@ The --examples switch
 <BLANKLINE>
     python niftoaster.py check_read .
 <BLANKLINE>
-* optimize all nif files in a directory tree, recursively
+* optimize all NIF files in a directory tree, recursively
 <BLANKLINE>
     python niftoaster.py optimize /path/to/your/nifs/
 <BLANKLINE>
-* print texture information of all nif files in a directory tree, recursively
+* print texture information of all NIF files in a directory tree, recursively
 <BLANKLINE>
     python niftoaster.py dump_tex /path/to/your/nifs/
 <BLANKLINE>
-* update/generate mopps of all nif files in a directory tree, recursively
+* update/generate mopps of all NIF files in a directory tree, recursively
 <BLANKLINE>
     python niftoaster.py fix_mopp /path/to/your/nifs/
 <BLANKLINE>
-* update/generate skin partitions of all nif files in a directory tree,
+* update/generate skin partitions of all NIF files in a directory tree,
 recursively, for Freedom Force vs. The 3rd Reich
 <BLANKLINE>
     python niftoaster.py fix_ffvt3rskinpartition /path/to/your/nifs/
 <BLANKLINE>
-* run the profiler on PyFFI while reading nif files:
+* run the profiler on PyFFI while reading NIF files:
 <BLANKLINE>
     python -m cProfile -s cumulative -o profile_read.txt niftoaster.py -j 1 check_read .
 <BLANKLINE>
@@ -129,7 +129,7 @@ recursively, for Freedom Force vs. The 3rd Reich
     python -m cProfile -s cumulative niftoaster.py -j 1 check_tristrip
 <BLANKLINE>
 * scale all files in c:\zoo2 by a factor 100 - useful to
-  visualize nif files from games such as Zoo Tycoon 2 that are otherwise too
+  visualize NIF files from games such as Zoo Tycoon 2 that are otherwise too
   small to show up properly in nifskope:
 <BLANKLINE>
     python niftoaster.py -a 100 fix_scale "c:\zoo2"

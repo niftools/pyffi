@@ -47,7 +47,7 @@ def test_check_readwrite():
 
 
 def test_check_skip_only():
-    """Test skip nif files using filters and type"""
+    """Test skip NIF files using filters and type"""
     toaster = call_niftoaster(
         *("--skip texture --skip skin --only fix_t --only center check_nop {0}".format(nif_dir).split()))
     nose.tools.assert_equal(

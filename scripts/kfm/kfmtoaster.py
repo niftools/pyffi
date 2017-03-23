@@ -46,13 +46,11 @@ sets up the logger and calls :meth:`pyffi.spells.kfm.KfmToaster.cli`.
 import logging
 import sys
 
+import pyffi.spells.check
 import pyffi.spells.kfm
 
 
-class KfmToaster(pyffi.spells.Toaster):
-    """Base class for kfm toasters."""
-    FILEFORMAT = pyffi.formats.kfm.KfmFormat
-
+class KfmToaster(pyffi.spells.kfm.KfmToaster):
     SPELLS = [
         pyffi.spells.check.SpellRead,
         pyffi.spells.check.SpellReadWrite,

@@ -8,7 +8,7 @@ niftoaster = imp.load_module(
 
 
 def call_niftoaster(*args):
-    """Call the Nif cli module"""
+    """Call the NIF cli module"""
     oldargv = sys.argv[:]
     # -j1 to disable multithreading (makes various things impossible)
     sys.argv = ["niftoaster.py", "-j1"] + list(args)

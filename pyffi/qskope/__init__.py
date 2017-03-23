@@ -188,7 +188,7 @@ class QSkope(QtGui.QMainWindow):
         # then read the file
         try:
             stream = open(filename, "rb")
-            # try reading as a nif file
+            # try reading as a NIF file
             for Format in (NifFormat, CgfFormat, KfmFormat, DdsFormat,
                            TgaFormat, EgmFormat, EspFormat, TriFormat,
                            EgtFormat, BsaFormat, PskFormat, DirFormat):

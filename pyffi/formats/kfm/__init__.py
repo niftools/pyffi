@@ -379,15 +379,17 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
             return (anim for anim in self.animations)
 
         def get_global_display(self):
-            """Display the nif file name."""
+            """Display the KFM file name."""
             return self.nif_file_name
 
     class Animation:
         # XXX this does not work yet (see todo for KfmFormat)
         def get_detail_display(self):
-            """Display the kf file name."""
+            """Display the KF file name."""
             return self.kf_file_name if not self.name else self.name
 
         def get_global_display(self):
             """Display the kf file name."""
             return self.kf_file_name if not self.name else self.name
+
+

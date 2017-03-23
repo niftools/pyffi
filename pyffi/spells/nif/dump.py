@@ -138,7 +138,7 @@ def dumpAttr(attr):
         return str(attr)
     
 class SpellDumpAll(NifSpell):
-    """Dump the whole nif file."""
+    """Dump the whole NIF file."""
 
     SPELLNAME = "dump"
 

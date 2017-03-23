@@ -497,7 +497,7 @@ Release 2.1.0 (Jan 10, 2010)
 * Added workaround for memory leaks (at the moment requires --jobs >= 2 to be
   functional).
 
-* The niftoaster opt_geometry spell now always skips nif files when a
+* The niftoaster opt_geometry spell now always skips NIF files when a
   similarly named tri or egm file is found.
 
 * Added support for Atlantica nifs.
@@ -587,7 +587,7 @@ Release 2.0.2 (Aug 12, 2009)
 * Do not attempt to optimize nifs with an insane amount of triangles,
   but put out a warning instead.
 
-* Log error rather than raising exception when end of nif file is not
+* Log error rather than raising exception when end of NIF file is not
   reached (fixes issue with sample nif provided by baphometal).
 
 Release 2.0.1 (Jul 22, 2009)
@@ -874,7 +874,7 @@ Release 1.1.0 (Nov 18, 2008)
   - all xml/xsd description specific code has been moved to the
     PyFFI.ObjectModels.XML/XSD.FileFormat modules
 
-  - new NifFormat.Data class which now implements all the nif file read and
+  - new NifFormat.Data class which now implements all the NIF file read and
     write functions
 
 * completely revamped spell system, which makes it much easier to customize
@@ -1465,7 +1465,7 @@ Release 0.7 (Nov 19, 2007)
 * new inertia library for computing mass, center of gravity, and inertia
   tensors of solid and hollow objects
 
-* nif: fixed order of bhkCollisionObject when writing nif files
+* nif: fixed order of bhkCollisionObject when writing NIF files
 
 * nif: new bhkRigidBody function for updating inertia, center of gravity, and
   mass, for all types of primitives
@@ -1516,7 +1516,7 @@ Release 0.5 (Oct 19, 2007)
 * nif: support for new versions (20.2.0.6, 20.2.0.7, 20.2.0.8, 20.3.0.3,
   20.3.0.6, 20.3.0.9)
 
-* nif: block sizes are now also written to the nif files, improving support
+* nif: block sizes are now also written to the NIF files, improving support
   for writing 20.2.0.7+ nif versions
 
 * nif: fixed flattenSkin bug (reported by Kikai)
@@ -1563,7 +1563,7 @@ Release 0.4.6 (Sep 29, 2007)
 
 * nif: new scripts
 
-  - niftoaster.py for testing and modifying nif files (contributed by wz)
+  - niftoaster.py for testing and modifying NIF files (contributed by wz)
 
   - nifvisualizer.py for visualizing nif blocks (contributed by wz)
 
@@ -1626,7 +1626,7 @@ Release 0.4.2 (Aug 15, 2007)
 
   - fixed bug in skin partition calculation
 
-  - when writing nif files the refs are written in sequence (instead of the
+  - when writing NIF files the refs are written in sequence (instead of the
     links, so missing links will yield an exception, which is a good thing)
 
   - new functions to get list of extra data blocks and to add effect

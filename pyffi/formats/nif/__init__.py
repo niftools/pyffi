@@ -254,7 +254,7 @@ Wildlife Park 2 0x0A010000 0x0A020000
 Worldshift 0x0A020001 0x0A040001
 Zoo Tycoon 2 0x0A000100
 
-Reading an unsupported nif file
+Reading an unsupported NIF file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 >>> file = os.path.join(format_root, 'invalid.nif')
 >>> stream = open(file, 'rb')
@@ -384,15 +384,15 @@ class NifFormat(FileFormat):
     # or NifFormat module directory
     xml_file_path = [os.getenv('NIFXMLPATH'),
                      os.path.join(os.path.dirname(__file__), "nifxml")]
-    # filter for recognizing nif files by extension
-    # .kf are nif files containing keyframes
-    # .kfa are nif files containing keyframes in DAoC style
-    # .nifcache are Empire Earth II nif files
-    # .texcache are Empire Earth II/III packed texture nif files
-    # .pcpatch are Empire Earth II/III packed texture nif files
-    # .item are Divinity 2 nif files
-    # .nft are Bully SE nif files (containing textures)
-    # .nif_wii are Epic Mickey nif files
+    # filter for recognizing NIF files by extension
+    # .kf are NIF files containing keyframes
+    # .kfa are NIF files containing keyframes in DAoC style
+    # .nifcache are Empire Earth II NIF files
+    # .texcache are Empire Earth II/III packed texture NIF files
+    # .pcpatch are Empire Earth II/III packed texture NIF files
+    # .item are Divinity 2 NIF files
+    # .nft are Bully SE NIF files (containing textures)
+    # .nif_wii are Epic Mickey NIF files
     RE_FILENAME = re.compile(r'^.*\.(nif|kf|kfa|nifcache|jmi|texcache|pcpatch|nft|item|nif_wii)$', re.IGNORECASE)
     # archives
     ARCHIVE_CLASSES = [pyffi.formats.bsa.BsaFormat]
@@ -1158,12 +1158,12 @@ class NifFormat(FileFormat):
             """This function checks the version only, and is faster
             than the usual inspect function (which reads the full
             header). Sets the L{version} and L{user_version} instance
-            variables if the stream contains a valid nif file.
+            variables if the stream contains a valid NIF file.
 
             Call this function if you simply wish to check that a file is
-            a nif file without having to parse even the header.
+            a NIF file without having to parse even the header.
 
-            :raise ``ValueError``: If the stream does not contain a nif file.
+            :raise ``ValueError``: If the stream does not contain a NIF file.
             :param stream: The stream from which to read.
             :type stream: ``file``
             """
@@ -1188,7 +1188,7 @@ class NifFormat(FileFormat):
                 version_str = s[45:].decode("ascii")
                 self.modification = "jmihs1"
             else:
-                raise ValueError("Not a nif file.")
+                raise ValueError("Not a NIF file.")
             try:
                 ver = NifFormat.version_number(version_str)
             except:
@@ -1210,17 +1210,17 @@ class NifFormat(FileFormat):
                     elif (not self.modification) or self.modification == "jmihs1":
                         if ver_int != ver:
                             raise ValueError(
-                                "Corrupted nif file: header version string %s"
+                                "Corrupted NIF file: header version string %s"
                                 " does not correspond with header version field"
                                 " 0x%08X." % (version_str, ver_int))
                     elif self.modification == "neosteam":
                         if ver_int != 0x08F35232:
                             raise ValueError(
-                                "Corrupted nif file: invalid NeoSteam version.")
+                                "Corrupted NIF file: invalid NeoSteam version.")
                     elif self.modification == "ndoors":
                         if ver_int != 0x73615F67:
                             raise ValueError(
-                                "Corrupted nif file: invalid Ndoors version.")
+                                "Corrupted NIF file: invalid Ndoors version.")
                     if ver >= 0x14000004:
                         endian_type, = struct.unpack('<B', stream.read(1))
                         if endian_type == 0:
@@ -1284,7 +1284,7 @@ class NifFormat(FileFormat):
                 stream.seek(pos)
 
         def read(self, stream):
-            """Read a nif file. Does not reset stream position.
+            """Read a NIF file. Does not reset stream position.
 
             :param stream: The stream from which to read.
             :type stream: ``file``
@@ -1401,7 +1401,7 @@ class NifFormat(FileFormat):
                     if calculated_size != self.header.block_size[block_num]:
                         extra_size = self.header.block_size[block_num] - calculated_size
                         logger.error(
-                            "Block size check failed: corrupt nif file "
+                            "Block size check failed: corrupt NIF file "
                             "or bad nif.xml?")
                         logger.error("Skipping %i bytes in %s"
                                      % (extra_size, block.__class__.__name__))
@@ -1423,7 +1423,7 @@ class NifFormat(FileFormat):
             # check if we are at the end of the file
             if stream.read(1):
                 logger.error(
-                    'End of file not reached: corrupt nif file?')
+                    'End of file not reached: corrupt NIF file?')
 
             # fix links in blocks and footer (header has no links)
             for block in self.blocks:
@@ -1438,7 +1438,7 @@ class NifFormat(FileFormat):
                     self.roots.append(root)
 
         def write(self, stream):
-            """Write a nif file. The L{header} and the L{blocks} are recalculated
+            """Write a NIF file. The L{header} and the L{blocks} are recalculated
             from the tree at L{roots} (e.g. list of block types, number of blocks,
             list of block types, list of strings, list of block sizes etc.).
 
@@ -1738,7 +1738,7 @@ class NifFormat(FileFormat):
 
         def is_scale_rotation(self):
             """Returns true if the matrix decomposes nicely into scale * rotation."""
-            # NOTE: 0.01 instead of NifFormat.EPSILON to work around bad nif files
+            # NOTE: 0.01 instead of NifFormat.EPSILON to work around bad NIF files
 
             # calculate self * self^T
             # this should correspond to
@@ -1763,7 +1763,7 @@ class NifFormat(FileFormat):
         def is_rotation(self):
             """Returns ``True`` if the matrix is a rotation matrix
             (a member of SO(3))."""
-            # NOTE: 0.01 instead of NifFormat.EPSILON to work around bad nif files
+            # NOTE: 0.01 instead of NifFormat.EPSILON to work around bad NIF files
 
             if not self.is_scale_rotation():
                 return False
@@ -5017,7 +5017,7 @@ class NifFormat(FileFormat):
         def merge_external_skeleton_root(self, skelroot):
             """Attach skinned geometry to self (which will be the new skeleton root of
             the nif at the given skeleton root). Use this function if you move a
-            skinned geometry from one nif into a new nif file. The bone links will be
+            skinned geometry from one nif into a new NIF file. The bone links will be
             updated to point to the tree at self, instead of to the external tree.
             """
             # sanity check
@@ -5996,7 +5996,7 @@ class NifFormat(FileFormat):
         def is_interchangeable(self, other):
             """Heuristically checks if two NiTriBasedGeomData blocks describe
             the same geometry, that is, if they can be used interchangeably in
-            a nif file without affecting the rendering. The check is not fool
+            a NIF file without affecting the rendering. The check is not fool
             proof but has shown to work in most practical cases.
 
             :param other: Another geometry data block.

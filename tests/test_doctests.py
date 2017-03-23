@@ -123,7 +123,9 @@ for relpath in filepaths:
 # TODO: examples
 # suite.addTest(doctest.DocFileSuite('examples/*.txt'))
 
+
 def test():
+    logger.info("Executing Doctests - ")
     # run tests
     unittest.TextTestRunner(verbosity=10).run(suite)
 

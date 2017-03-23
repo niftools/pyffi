@@ -51,8 +51,9 @@
 import pyffi.spells
 from pyffi.formats.nif import NifFormat
 
+
 class NifSpell(pyffi.spells.Spell):
-    """Base class for spells for nif files."""
+    """Base class for spells for NIF files."""
 
     def _datainspect(self):
         # list of all block types used in the header
@@ -84,7 +85,7 @@ class NifSpell(pyffi.spells.Spell):
 
     def inspectblocktype(self, block_type):
         """This function heuristically checks whether the given block type
-        is used in the nif file, using header information only. When in doubt,
+        is used in the NIF file, using header information only. When in doubt,
         it returns ``True``.
 
         :param block_type: The block type.
@@ -101,6 +102,7 @@ class NifSpell(pyffi.spells.Spell):
             # header does not have the information because nif version is
             # too old
             return True
+
 
 class SpellVisitSkeletonRoots(NifSpell):
     """Abstract base class for spells that visit all skeleton roots.
@@ -140,6 +142,7 @@ class SpellVisitSkeletonRoots(NifSpell):
     def skelrootentry(self, branch):
         """Do something with a skeleton root. Return value is ignored."""
         raise NotImplementedError
+
 
 class NifToaster(pyffi.spells.Toaster):
     FILEFORMAT = NifFormat
