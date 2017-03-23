@@ -102,6 +102,7 @@ filepaths = {'object_model/simpletype.txt',
              'spells/nif/optimize.txt',
              'spells/nif/opt_delunusedbones.txt',
              'spells/nif/opt_delzeroscale.txt',
+             'spells/nif/opt_vertex_cache.txt',
 
              # Contain outstanding issues
              # 'spells/egm/optimize.txt',
@@ -111,7 +112,6 @@ filepaths = {'object_model/simpletype.txt',
              # 'spells/nif/opt_collisiongeometry.txt', #havoklayer issue
              # 'spells/nif/opt_collision_to_box_shape.txt', #havoklayer issue
 
-             'spells/nif/opt_vertex_cache.txt',
              # 'tests/kfm/kfmtoaster.txt',
              # 'docs-sphinx/intro.rst',
              }
