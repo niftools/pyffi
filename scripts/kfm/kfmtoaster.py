@@ -46,7 +46,20 @@ sets up the logger and calls :meth:`pyffi.spells.kfm.KfmToaster.cli`.
 import logging
 import sys
 
+import pyffi.spells.check
 import pyffi.spells.kfm
+
+
+class KfmToaster(pyffi.spells.kfm.KfmToaster):
+    SPELLS = [
+        pyffi.spells.check.SpellRead,
+        pyffi.spells.check.SpellReadWrite,
+        pyffi.spells.kfm.SpellDumpAll]
+
+    EXAMPLES = """* check if library can read all files in current directory:
+
+    python kfmtoaster.py check_read ."""
+
 
 # if script is called...
 if __name__ == "__main__":
@@ -59,4 +72,4 @@ if __name__ == "__main__":
     loghandler.setFormatter(logformatter)
     logger.addHandler(loghandler)
     # call toaster
-    pyffi.spells.kfm.KfmToaster().cli()
+    KfmToaster().cli()

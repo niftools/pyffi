@@ -44,11 +44,12 @@
 # --------------------------------------------------------------------------
 
 import pyffi.spells
-import pyffi.spells.check
-import pyffi.formats.kfm
+from pyffi.formats.kfm import KfmFormat
+
 
 class KfmSpell(pyffi.spells.Spell):
     """Base class for spells for kfm files."""
+
 
 class SpellDumpAll(KfmSpell):
     """Dump the whole kfm file."""
@@ -59,15 +60,7 @@ class SpellDumpAll(KfmSpell):
         self.toaster.msg(str(self.data))
         return False
 
+
 class KfmToaster(pyffi.spells.Toaster):
     """Base class for kfm toasters."""
-    FILEFORMAT = pyffi.formats.kfm.KfmFormat
-
-    SPELLS = [
-        pyffi.spells.check.SpellRead,
-        pyffi.spells.check.SpellReadWrite,
-        SpellDumpAll]
-
-    EXAMPLES = """* check if library can read all files in current directory:
-
-    python kfmtoaster.py check_read ."""
+    FILEFORMAT = KfmFormat

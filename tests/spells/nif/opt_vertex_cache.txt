@@ -1,10 +1,13 @@
 Regression test for vertex cache algorithm
 ------------------------------------------
 
+>>> nif_dir = "tests/spells/nif/files/"
+>>> filename = nif_dir + "test_opt_vertex_cache.nif"
+
 >>> from pyffi.formats.nif import NifFormat
 >>> import pyffi.spells.nif.optimize
 >>> data = NifFormat.Data()
->>> stream = open("tests/nif/test_opt_vertex_cache.nif", "rb")
+>>> stream = open(filename, "rb")
 >>> data.read(stream)
 >>> # check original data
 >>> data.roots[0].children[0].data.num_vertices

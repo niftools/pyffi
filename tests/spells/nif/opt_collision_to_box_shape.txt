@@ -4,10 +4,13 @@ Doctests for the opt_collisionbox
 General check
 -------------
 
+>>> nif_dir = "tests/spells/nif/files/"
+>>> filename = nif_dir + "test_opt_collision_to_boxshape.nif"
+
 >>> from pyffi.formats.nif import NifFormat
 >>> import pyffi.spells.nif.optimize
 >>> data = NifFormat.Data()
->>> stream = open("tests/nif/test_opt_collision_to_boxshape.nif", "rb")
+>>> stream = open(filename, "rb")
 >>> data.read(stream)
 >>> # check initial data
 >>> data.roots[0].collision_object.body.shape.sub_shapes[0].num_vertices
@@ -46,10 +49,10 @@ True
 Box conversion from unpacked collision
 --------------------------------------
 
->>> from pyffi.formats.nif import NifFormat
->>> import pyffi.spells.nif.optimize
+>>> filename = nif_dir + "test_opt_collision_unpacked.nif"
+
 >>> data = NifFormat.Data()
->>> stream = open("tests/nif/test_opt_collision_unpacked.nif", "rb")
+>>> stream = open(filename, "rb")
 >>> data.read(stream)
 >>> # check initial data
 >>> data.roots[0].collision_object.body.shape.strips_data[0].num_vertices
@@ -80,10 +83,10 @@ True
 Box conversion from packed collision
 ------------------------------------
 
->>> from pyffi.formats.nif import NifFormat
->>> import pyffi.spells.nif.optimize
+>>> filename = nif_dir + "test_opt_collision_packed.nif"
+
 >>> data = NifFormat.Data()
->>> stream = open("tests/nif/test_opt_collision_packed.nif", "rb")
+>>> stream = open(filename, "rb")
 >>> data.read(stream)
 >>> # check initial data
 >>> data.roots[0].collision_object.body.shape.sub_shapes[0].num_vertices
@@ -114,10 +117,9 @@ True
 Box conversion from mopp collision
 ----------------------------------
 
->>> from pyffi.formats.nif import NifFormat
->>> import pyffi.spells.nif.optimize
+>>> filename = nif_dir + "test_opt_collision_packed.nif"
 >>> data = NifFormat.Data()
->>> stream = open("tests/nif/test_opt_collision_mopp.nif", "rb")
+>>> stream = open(filename, "rb")
 >>> data.read(stream)
 >>> # check initial data
 >>> data.roots[0].collision_object.body.shape.shape.sub_shapes[0].num_vertices
@@ -152,10 +154,9 @@ Another regression test
 Check that a collision mesh which is not a box, but whose vertices
 form a box, is not converted to a box.
 
->>> from pyffi.formats.nif import NifFormat
->>> import pyffi.spells.nif.optimize
+>>> filename = nif_dir + "test_opt_collision_to_boxshape_notabox.nif"
 >>> data = NifFormat.Data()
->>> stream = open("tests/nif/test_opt_collision_to_boxshape_notabox.nif", "rb")
+>>> stream = open(filename, "rb")
 >>> data.read(stream)
 >>> # check initial data
 >>> data.roots[0].collision_object.body.shape.__class__.__name__

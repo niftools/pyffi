@@ -3,12 +3,22 @@ Doctests for the dump_tex spell
 
 @todo: some more advanced test
 
+>>> import os
+>>> from os.path import dirname
+>>> dirpath = __file__
+>>> for i in range(3): #recurse up to root repo dir
+...     dirpath = dirname(dirpath)
+>>> repo_root = dirpath
+>>> script_dir = os.path.join(repo_root, "scripts", "nif")
 >>> import sys
->>> sys.path.append("scripts/nif")
+>>> script = os.path.join(script_dir, "niftoaster.py")
+>>> sys.path.insert(-1, script_dir.replace("\\\\", "/"))
+>>> nif_dir = "tests/spells/nif/files/"
+
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "dump_tex", "tests/nif/test_dump_tex.nif"]
->>> niftoaster.NifToaster().cli()
-pyffi.toaster:INFO:=== tests/nif/test_dump_tex.nif ===
+>>> sys.argv = ["niftoaster.py", "dump_tex", nif_dir + "test_dump_tex.nif"]
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS +REPORT_NDIFF
+pyffi.toaster:INFO:=== tests/spells/nif/files/test_dump_tex.nif ===
 pyffi.toaster:INFO:  --- dump_tex ---
 pyffi.toaster:INFO:    ~~~ NiNode [test] ~~~
 pyffi.toaster:INFO:      ~~~ NiTriShape [Cube] ~~~
@@ -24,9 +34,11 @@ pyffi.toaster:INFO:          [base] bitmap2.dds
 pyffi.toaster:INFO:          [detail] bitmap1.dds
 pyffi.toaster:INFO:          apply mode 2
 pyffi.toaster:INFO:Finished.
->>> sys.argv = ["niftoaster.py", "dump_tex", "tests/nif/test_fix_ffvt3rskinpartition.nif"]
->>> niftoaster.NifToaster().cli()
-pyffi.toaster:INFO:=== tests/nif/test_fix_ffvt3rskinpartition.nif ===
+
+
+>>> sys.argv = ["niftoaster.py", "dump_tex", nif_dir + "test_fix_ffvt3rskinpartition.nif"]
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS +REPORT_NDIFF
+pyffi.toaster:INFO:=== tests/spells/nif/files/test_fix_ffvt3rskinpartition.nif ===
 pyffi.toaster:INFO:  --- dump_tex ---
 pyffi.toaster:INFO:    ~~~ NiNode [Bip01] ~~~
 pyffi.toaster:INFO:      ~~~ NiNode [Bip01 Pelvis] ~~~

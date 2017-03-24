@@ -4,10 +4,11 @@ Doctests for the modify_allbonepriorities spell
 NifToaster check
 ----------------
 
->>> from pyffi.formats.nif import NifFormat
->>> filename = "tests/nif/test_fix_cleanstringpalette.nif"
->>> outfilename = "tests/nif/_test_fix_cleanstringpalette.nif"
+>>> nif_dir = "tests/spells/nif/files/"
+>>> filename = nif_dir + "test_fix_cleanstringpalette.nif"
+>>> outfilename = nif_dir + "_test_fix_cleanstringpalette.nif"
 >>> # check current string palette
+>>> from pyffi.formats.nif import NifFormat
 >>> data = NifFormat.Data()
 >>> data.read(open(filename, "rb"))
 >>> print([block.priority for block in data.roots[0].controller.controller_sequences[0].controlled_blocks])
@@ -19,8 +20,8 @@ NifToaster check
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--prefix", "_", "--noninteractive", "modify_allbonepriorities", "-a", "50", filename]
->>> niftoaster.NifToaster().cli()
-pyffi.toaster:INFO:=== tests/nif/test_fix_cleanstringpalette.nif ===
+>>> niftoaster.NifToaster().cli()  # doctest: +REPORT_NDIFF +ELLIPSIS
+pyffi.toaster:INFO:=== tests/spells/nif/files/test_fix_cleanstringpalette.nif ===
 pyffi.toaster:INFO:  --- modify_allbonepriorities ---
 pyffi.toaster:INFO:    ~~~ NiNode [TestCleanStringPalette] ~~~
 pyffi.toaster:INFO:      ~~~ NiControllerManager [] ~~~
@@ -30,7 +31,7 @@ pyffi.toaster:INFO:          b'Test NonAccum' priority changed to 50
 pyffi.toaster:INFO:        ~~~ NiControllerSequence [Death] ~~~
 pyffi.toaster:INFO:          b'Test' priority changed to 50
 pyffi.toaster:INFO:          b'Test NonAccum' priority changed to 50
-pyffi.toaster:INFO:  writing tests/nif/_test_fix_cleanstringpalette.nif
+pyffi.toaster:INFO:  writing tests/spells/nif/files..._test_fix_cleanstringpalette.nif
 pyffi.toaster:INFO:Finished.
 >>> # check new bone priorities
 >>> data = NifFormat.Data()

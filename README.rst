@@ -82,7 +82,7 @@ Examples
 * QSkope PyFFI's general purpose file editor.
 
 * The niftoaster (PyFFI's "swiss army knife") can for instance
-  `optimize nif files
+  `optimize NIF files
   <http://cs.elderscrolls.com/index.php?title=Nif_Optimization>`_,
   and much more.
 

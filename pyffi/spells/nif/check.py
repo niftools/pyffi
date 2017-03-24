@@ -1,4 +1,4 @@
-"""Module which contains all spells that check something in a nif file."""
+"""Module which contains all spells that check something in a NIF file."""
 
 # --------------------------------------------------------------------------
 # ***** BEGIN LICENSE BLOCK *****
@@ -98,7 +98,7 @@ class SpellReadWrite(pyffi.spells.nif.NifSpell):
         return False
 
 class SpellNodeNamesByFlag(pyffi.spells.nif.NifSpell):
-    """This spell goes over all nif files, and at the end, it gives a summary
+    """This spell goes over all NIF files, and at the end, it gives a summary
     of which node names where used with particular flags."""
 
     SPELLNAME = "check_nodenamesbyflag"
@@ -157,7 +157,7 @@ class SpellCompareSkinData(pyffi.spells.nif.NifSpell):
 
     @classmethod
     def toastentry(cls, toaster):
-        """Read reference nif file given as argument."""
+        """Read reference NIF file given as argument."""
         # if no argument given, do not apply spell
         if not toaster.options.get("arg"):
             return False
@@ -681,7 +681,7 @@ class SpellCheckTangentSpace(pyffi.spells.nif.NifSpell):
             return False 
 
 class SpellCheckTriStrip(pyffi.spells.nif.NifSpell):
-    """Run the stripifier on all triangles from nif files. This spell is also
+    """Run the stripifier on all triangles from NIF files. This spell is also
     useful for checking and profiling the stripifier and the
     stitcher/unstitcher  (for instance it checks that it does not
     change the geometry).

@@ -4,11 +4,14 @@ Doctests for the opt_delunusedbones spell
 NifToaster check
 ----------------
 
+>>> nif_dir = "tests/spells/nif/files/"
+>>> filename = nif_dir + "test_opt_delunusedbones.nif"
+
 >>> from pyffi.formats.nif import NifFormat
 >>> import pyffi.spells.nif.optimize
 >>> from pyffi.spells import Toaster
 >>> data = NifFormat.Data()
->>> stream = open("tests/nif/test_opt_delunusedbones.nif", "rb")
+>>> stream = open(filename, "rb")
 >>> data.read(stream)
 >>> # check dummy bone
 >>> print(data.roots[0].children[0].children[0].name)

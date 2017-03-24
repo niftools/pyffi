@@ -1042,7 +1042,7 @@ class SpellSetBonePriorities(NifSpell):
                                          % (name, priority))
                 else:
                     self.toaster.logger.warn(
-                        "%r in nif file but not in priority file" % name)
+                        "%r in NIF file but not in priority file" % name)
         return True
 
 class SpellSetInterpolatorTransRotScale(NifSpell):

@@ -50,58 +50,6 @@ if sys.version_info[0] < 3:
     import pyffi.object_models.xsd
     import pyffi.formats.dae
 
-# force number of jobs to be 1 (multithreading makes doctesting difficult)
-pyffi.spells.Toaster.DEFAULT_OPTIONS["jobs"] = 1
-
-mods = [val for (key, val) in sys.modules.items()
-        if key.startswith('pyffi')]
-
-suite = unittest.TestSuite()
-for mod in mods:
-    try:
-        pass
-        #suite.addTest(doctest.DocTestSuite(mod))
-    except ValueError: # no tests
-        pass
-
-# various regression tests (outside documentation)
-filepaths = { 'object_model/simpletype.txt',
-              'object_model/arraytype.txt',
-              #'cgf/cgftoaster.txt',
-             # 'tests/nif/niftoaster.txt',
-             # 'tests/nif/optimize.txt',
-             # 'tests/nif/dump_tex.txt',
-             # 'tests/nif/ffvt3rskin.txt',
-             # 'tests/nif/fix_texturepath.txt',
-             # 'tests/nif/fix_tangentspace.txt',
-             # 'tests/nif/fix_tangentspace_series_parallel.txt',
-             # 'tests/nif/fix_detachhavoktristripsdata.txt',
-             # 'tests/nif/fix_clampmaterialalpha.txt',
-             # 'tests/nif/opt_mergeduplicates.txt',
-             # 'tests/nif/modify_delbranches.txt',
-             # 'tests/nif/modify_delbranches.txt',
-             # 'tests/nif/modify_delvertexcolor.txt',
-             # 'tests/nif/fix_cleanstringpalette.txt',
-             # 'tests/nif/modify_substitutestringpalette.txt',
-             # 'tests/nif/modify_allbonepriorities.txt',
-             # 'tests/nif/matrix.txt',
-             # 'tests/nif/skinpartition.txt',
-             # 'tests/nif/bhkpackednitristripsshape.txt',
-             # 'tests/nif/opt_delunusedbones.txt',
-             # 'tests/nif/opt_delzeroscale.txt',
-             # 'tests/nif/opt_collisiongeometry.txt',
-             # 'tests/nif/opt_collision_to_box_shape.txt',
-             # 'tests/nif/opt_vertex_cache.txt',
-
-             # 'tests/kfm/kfmtoaster.txt',
-             # 'docs-sphinx/intro.rst',
-             }
-
-for relpath in filepaths:
-    suite.addTest(doctest.DocFileSuite(relpath))
-
-# TODO: examples
-#suite.addTest(doctest.DocFileSuite('examples/*.txt'))
 
 # set up logger
 
@@ -119,6 +67,65 @@ logformatter = logging.Formatter("%(name)s:%(levelname)s:%(message)s")
 loghandler.setFormatter(logformatter)
 logger.addHandler(loghandler)
 
-# run tests
-unittest.TextTestRunner(verbosity=10).run(suite)
+# force number of jobs to be 1 (multithreading makes doctesting difficult)
+pyffi.spells.Toaster.DEFAULT_OPTIONS["jobs"] = 1
+
+mods = [val for (key, val) in sys.modules.items()
+        if key.startswith('pyffi')]
+
+for mod in mods:
+    try:
+        pass
+        # suite.addTest(doctest.DocTestSuite(mod))
+    except ValueError:  # no tests
+        pass
+
+suite = unittest.TestSuite()
+
+filepaths = {'object_model/simpletype.txt',
+             'object_model/arraytype.txt',
+             'formats/cgf/cgftoaster.txt',
+             'formats/nif/matrix.txt',
+             'formats/nif/skinpartition.txt',
+             'spells/nif/dump_tex.txt',
+             'spells/nif/ffvt3rskin.txt',
+             'spells/nif/fix_clampmaterialalpha.txt',
+             'spells/nif/fix_cleanstringpalette.txt',
+             'spells/nif/fix_detachhavoktristripsdata.txt',
+             'spells/nif/fix_tangentspace.txt',
+             'spells/nif/fix_tangentspace_series_parallel.txt',
+             'spells/nif/fix_texturepath.txt',
+             'spells/nif/modify_allbonepriorities.txt',
+             'spells/nif/modify_delbranches.txt',
+             'spells/nif/modify_delvertexcolor.txt',
+             'spells/nif/modify_substitutestringpalette.txt',
+             'spells/nif/optimize.txt',
+             'spells/nif/opt_delunusedbones.txt',
+             'spells/nif/opt_delzeroscale.txt',
+             'spells/nif/opt_vertex_cache.txt',
+
+             # Contain outstanding issues
+             # 'spells/egm/optimize.txt',
+             # 'spells/nif/opt_mergeduplicates.txt', #nitrishape issue
+             # 'formats/nif/niftoaster.txt', #havoklayer issue
+             # 'formats/nif/bhkpackednitristripsshape.txt', #havoklayer issue
+             # 'spells/nif/opt_collisiongeometry.txt', #havoklayer issue
+             # 'spells/nif/opt_collision_to_box_shape.txt', #havoklayer issue
+             # 'formats/kfm/kfmtoaster.txt', #Not Implemented
+             # 'docs-sphinx/intro.rst', #outside of test dir...
+             }
+
+# various regression tests (outside documentation)
+
+for relpath in filepaths:
+    suite.addTest(doctest.DocFileSuite(relpath))
+
+# TODO: examples
+# suite.addTest(doctest.DocFileSuite('examples/*.txt'))
+
+
+def test():
+    logger.info("Executing Doctests - ")
+    # run tests
+    unittest.TextTestRunner(verbosity=10).run(suite)
 

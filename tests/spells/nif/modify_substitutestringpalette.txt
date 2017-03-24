@@ -5,8 +5,9 @@ NifToaster check
 ----------------
 
 >>> from pyffi.formats.nif import NifFormat
->>> filename = "tests/nif/test_fix_cleanstringpalette.nif"
->>> outfilename = "tests/nif/_test_fix_cleanstringpalette.nif"
+>>> nif_dir = "tests/spells/nif/files/"
+>>> filename = nif_dir + "test_fix_cleanstringpalette.nif"
+>>> outfilename = nif_dir + "_test_fix_cleanstringpalette.nif"
 >>> # check current string palette
 >>> data = NifFormat.Data()
 >>> data.read(open(filename, "rb"))
@@ -17,8 +18,8 @@ NifToaster check
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "--prefix", "_", "--noninteractive", "modify_substitutestringpalette", "-a", "/Test/Woops", filename]
->>> niftoaster.NifToaster().cli()
-pyffi.toaster:INFO:=== tests/nif/test_fix_cleanstringpalette.nif ===
+>>> niftoaster.NifToaster().cli() # doctest: +REPORT_NDIFF +ELLIPSIS
+pyffi.toaster:INFO:=== tests/spells/nif/files...test_fix_cleanstringpalette.nif ===
 pyffi.toaster:INFO:  --- modify_substitutestringpalette ---
 pyffi.toaster:INFO:    ~~~ NiNode [TestCleanStringPalette] ~~~
 pyffi.toaster:INFO:      ~~~ NiControllerManager [] ~~~
@@ -27,7 +28,7 @@ pyffi.toaster:INFO:        b'Test' -> b'Woops'
 pyffi.toaster:INFO:        b'Test NonAccum' -> b'Woops NonAccum'
 pyffi.toaster:INFO:        b'Test' -> b'Woops'
 pyffi.toaster:INFO:        b'Test NonAccum' -> b'Woops NonAccum'
-pyffi.toaster:INFO:  writing tests/nif/_test_fix_cleanstringpalette.nif
+pyffi.toaster:INFO:  writing tests/spells/nif/files..._test_fix_cleanstringpalette.nif
 pyffi.toaster:INFO:Finished.
 >>> # check cleaned palette
 >>> data = NifFormat.Data()
