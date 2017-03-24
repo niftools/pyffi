@@ -21,7 +21,7 @@ Read a ESP file
 >>> for i in range(4): #recurse up to root repo dir
 ...     dirpath = dirname(dirpath)
 >>> repo_root = dirpath
->>> format_root = os.path.join(repo_root, 'tests', 'esp')
+>>> format_root = os.path.join(repo_root, 'tests', 'formats', 'esp')
 >>> file = os.path.join(format_root, 'test.esp')
 >>> stream = open(file, 'rb')
 >>> data = EspFormat.Data()
@@ -38,14 +38,14 @@ Parse all ESP files in a directory tree
 ...     try:
 ...         # the replace call makes the doctest also pass on windows
 ...         os_path = stream.name
-...         split = (os_path.split(os.sep))[-3:]
+...         split = (os_path.split(os.sep))[-4:]
 ...         rejoin = os.path.join(*split).replace(os.sep, "/")
 ...         print("reading %s" % rejoin)
 ...     except Exception:
 ...         print(
 ...             "Warning: read failed due corrupt file,"
 ...             " corrupt format description, or bug.") # doctest: +REPORT_NDIFF
-reading tests/esp/test.esp
+reading tests/formats/esp/test.esp
 
 Create an ESP file from scratch and write to file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -102,6 +102,7 @@ import pyffi.object_models.common
 from pyffi.object_models.xml.basic import BasicBase
 import pyffi.object_models
 from pyffi.utils.graph import EdgeFilter
+
 
 class EspFormat(pyffi.object_models.xml.FileFormat):
     """This class implements the ESP format."""

@@ -916,8 +916,8 @@ class Toaster(object):
         >>> repo_root = dirpath
         >>> test_root = os.path.join(repo_root, 'tests').replace("\\", "/") #pyffi/test
         >>> _test_root = os.path.join(repo_root, '_tests').replace("\\", "/")
-        >>> format_root = os.path.join(test_root, 'nif').replace("\\", "/") #pyffi/test/nif
-        >>> _format_root = os.path.join(_test_root, 'nif').replace("\\", "/")
+        >>> format_root = os.path.join(test_root, 'formats', 'nif', 'files').replace("\\", "/") #pyffi/test/nif
+        >>> _format_root = os.path.join(_test_root, 'formats', 'nif', 'files', 'nif').replace("\\", "/")
         >>> file = os.path.join(format_root, 'test_vertexcolor.nif').replace("\\", "/") #pyffi/test/nif/test_*.nif
         >>> _file = os.path.join(_format_root, 'test_vertexcolor.nif').replace("\\", "/")
         >>> import pyffi.spells.nif
@@ -960,6 +960,7 @@ class Toaster(object):
         pyffi.toaster:INFO:Finished.
         >>> import os
         >>> os.remove(cfg.name)
+        >>> print(_file)
         >>> os.remove(_file)
         >>> os.rmdir(_format_root)
         >>> os.rmdir(_test_root)

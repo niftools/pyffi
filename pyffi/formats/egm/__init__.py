@@ -24,7 +24,7 @@ Read a EGM file
 >>> for i in range(4): #recurse up to root repo dir
 ...     dirpath = dirname(dirpath)
 >>> repo_root = dirpath
->>> format_root = os.path.join(repo_root, 'tests', 'egm')
+>>> format_root = os.path.join(repo_root, 'tests', 'formats', 'egm')
 >>> file = os.path.join(format_root, 'mmouthxivilai.egm')
 >>> stream = open(file, 'rb')
 >>> data = EgmFormat.Data()
@@ -51,14 +51,14 @@ Parse all EGM files in a directory tree
 ...     try:
 ...         # the replace call makes the doctest also pass on windows
 ...         os_path = stream.name
-...         split = (os_path.split(os.sep))[-3:]
+...         split = (os_path.split(os.sep))[-4:]
 ...         rejoin = os.path.join(*split).replace(os.sep, "/")
 ...         print("reading %s" % rejoin)
 ...     except Exception:
 ...         print(
 ...             "Warning: read failed due corrupt file,"
 ...             " corrupt format description, or bug.") # doctest: +REPORT_NDIFF
-reading tests/egm/mmouthxivilai.egm
+reading tests/formats/egm/mmouthxivilai.egm
 
 Create an EGM file from scratch and write to file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

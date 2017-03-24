@@ -73,14 +73,13 @@ pyffi.spells.Toaster.DEFAULT_OPTIONS["jobs"] = 1
 mods = [val for (key, val) in sys.modules.items()
         if key.startswith('pyffi')]
 
+suite = unittest.TestSuite()
+
 for mod in mods:
     try:
-        pass
-        # suite.addTest(doctest.DocTestSuite(mod))
+        suite.addTest(doctest.DocTestSuite(mod))
     except ValueError:  # no tests
         pass
-
-suite = unittest.TestSuite()
 
 filepaths = {'object_model/simpletype.txt',
              'object_model/arraytype.txt',
