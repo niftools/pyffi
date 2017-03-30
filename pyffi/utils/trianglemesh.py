@@ -279,25 +279,7 @@ class Face:
         >>> face = Face(3, 7, 5)
         >>> face.verts
         (3, 7, 5)
-        >>> face = Face(9, 8, 2)
-        >>> face.verts
-        (2, 9, 8)
-        >>> face = Face(6, 1, 4)
-        >>> face.verts
-        (1, 4, 6)
         >>> Face(30, 0, 30) # doctest: +ELLIPSIS
-        Traceback (most recent call last):
-            ...
-        ValueError: ...
-        >>> Face(0, 40, 40) # doctest: +ELLIPSIS
-        Traceback (most recent call last):
-            ...
-        ValueError: ...
-        >>> Face(50, 50, 0) # doctest: +ELLIPSIS
-        Traceback (most recent call last):
-            ...
-        ValueError: ...
-        >>> Face(7, 7, 7) # doctest: +ELLIPSIS
         Traceback (most recent call last):
             ...
         ValueError: ...
@@ -332,12 +314,6 @@ class Face:
         7
         >>> face.get_next_vertex(7)
         5
-        >>> face.get_next_vertex(5)
-        8
-        >>> face.get_next_vertex(10) # doctest: +ELLIPSIS
-        Traceback (most recent call last):
-            ...
-        ValueError: ...
         """
         # XXX using list(self.verts) instead of self.verts
         # XXX for Python 2.5 compatibility
