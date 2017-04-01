@@ -45,6 +45,7 @@ import pyffi.spells.nif.fix
 import pyffi.spells.nif.modify
 import pyffi.spells.nif.check
 import pyffi.spells.nif.dump
+
 # these two do not yet work on py3k
 if sys.version_info[0] < 3:
     import pyffi.object_models.xsd
@@ -59,72 +60,79 @@ class WrapStdOut(object):
     def __getattr__(self, name):
         return getattr(sys.stdout, name)
 
+
 logger = logging.getLogger("pyffi")
-logger.setLevel(logging.INFO) # skip debug messages
+logger.setLevel(logging.INFO)  # skip debug messages
 loghandler = logging.StreamHandler(WrapStdOut())
 loghandler.setLevel(logging.DEBUG)
 logformatter = logging.Formatter("%(name)s:%(levelname)s:%(message)s")
 loghandler.setFormatter(logformatter)
 logger.addHandler(loghandler)
 
-# force number of jobs to be 1 (multithreading makes doctesting difficult)
-pyffi.spells.Toaster.DEFAULT_OPTIONS["jobs"] = 1
 
-mods = [val for (key, val) in sys.modules.items()
-        if key.startswith('pyffi')]
+def create_suite():
+    # force number of jobs to be 1 (multithreading makes doctesting difficult)
+    pyffi.spells.Toaster.DEFAULT_OPTIONS["jobs"] = 1
 
-suite = unittest.TestSuite()
+    mods = [val for (key, val) in sys.modules.items()
+            if key.startswith('pyffi')]
 
-for mod in mods:
-    try:
-        suite.addTest(doctest.DocTestSuite(mod))
-    except ValueError:  # no tests
-        pass
+    suite = unittest.TestSuite()
 
-filepaths = {'object_model/simpletype.txt',
-             'object_model/arraytype.txt',
-             'formats/cgf/cgftoaster.txt',
-             'formats/nif/matrix.txt',
-             'formats/nif/skinpartition.txt',
-             'spells/nif/dump_tex.txt',
-             'spells/nif/ffvt3rskin.txt',
-             'spells/nif/fix_clampmaterialalpha.txt',
-             'spells/nif/fix_cleanstringpalette.txt',
-             'spells/nif/fix_detachhavoktristripsdata.txt',
-             'spells/nif/fix_tangentspace.txt',
-             'spells/nif/fix_tangentspace_series_parallel.txt',
-             'spells/nif/fix_texturepath.txt',
-             'spells/nif/modify_allbonepriorities.txt',
-             'spells/nif/modify_delbranches.txt',
-             'spells/nif/modify_delvertexcolor.txt',
-             'spells/nif/modify_substitutestringpalette.txt',
-             'spells/nif/optimize.txt',
-             'spells/nif/opt_delunusedbones.txt',
-             'spells/nif/opt_delzeroscale.txt',
-             'spells/nif/opt_vertex_cache.txt',
+    for mod in mods:
+        try:
+            suite.addTest(doctest.DocTestSuite(mod))
+        except ValueError:  # no tests
+            pass
 
-             # Contain outstanding issues
-             # 'spells/egm/optimize.txt',
-             # 'spells/nif/opt_mergeduplicates.txt', #nitrishape issue
-             # 'formats/nif/niftoaster.txt', #havoklayer issue
-             # 'formats/nif/bhkpackednitristripsshape.txt', #havoklayer issue
-             # 'spells/nif/opt_collisiongeometry.txt', #havoklayer issue
-             # 'spells/nif/opt_collision_to_box_shape.txt', #havoklayer issue
-             # 'formats/kfm/kfmtoaster.txt', #Not Implemented
-             # 'docs-sphinx/intro.rst', #outside of test dir...
-             }
+    file_paths = {'object_model/simpletype.txt',
+                  'object_model/arraytype.txt',
+                  'formats/cgf/cgftoaster.txt',
+                  'formats/nif/matrix.txt',
+                  'formats/nif/skinpartition.txt',
+                  'spells/nif/dump_tex.txt',
+                  'spells/nif/ffvt3rskin.txt',
+                  'spells/nif/fix_clampmaterialalpha.txt',
+                  'spells/nif/fix_cleanstringpalette.txt',
+                  'spells/nif/fix_detachhavoktristripsdata.txt',
+                  'spells/nif/fix_tangentspace.txt',
+                  'spells/nif/fix_tangentspace_series_parallel.txt',
+                  'spells/nif/fix_texturepath.txt',
+                  'spells/nif/modify_allbonepriorities.txt',
+                  'spells/nif/modify_delbranches.txt',
+                  'spells/nif/modify_delvertexcolor.txt',
+                  'spells/nif/modify_substitutestringpalette.txt',
+                  'spells/nif/optimize.txt',
+                  'spells/nif/opt_delunusedbones.txt',
+                  'spells/nif/opt_delzeroscale.txt',
+                  'spells/nif/opt_vertex_cache.txt',
 
-# various regression tests (outside documentation)
+                  # Contain outstanding issues
+                  # 'spells/egm/optimize.txt',
+                  # 'spells/nif/opt_mergeduplicates.txt', #nitrishape issue
+                  # 'formats/nif/niftoaster.txt', #havoklayer issue
+                  # 'formats/nif/bhkpackednitristripsshape.txt', #havoklayer issue
+                  # 'spells/nif/opt_collisiongeometry.txt', #havoklayer issue
+                  # 'spells/nif/opt_collision_to_box_shape.txt', #havoklayer issue
+                  # 'formats/kfm/kfmtoaster.txt', #Not Implemented
+                  # various regression tests (outside documentation)
+                  # 'docs-sphinx/intro.rst', #outside of test dir...
+                  }
 
-for relpath in filepaths:
-    suite.addTest(doctest.DocFileSuite(relpath))
+    for path in file_paths:
+        suite.addTest(doctest.DocFileSuite(path))
 
-# TODO: examples
-# suite.addTest(doctest.DocFileSuite('examples/*.txt'))
+    # TODO: examples
+    # suite.addTest(doctest.DocFileSuite('examples/*.txt'))
+
+    print(unittest.TextTestRunner().run(suite))
 
 
 def test():
     logger.info("Executing Doctests - ")
     # run tests
-    unittest.TextTestRunner(verbosity=10).run(suite)
+    return create_suite()
 
+
+if __name__ == '__main__':
+    create_suite()
