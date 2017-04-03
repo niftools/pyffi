@@ -459,32 +459,17 @@ class Mesh:
         >>> m = Mesh()
         >>> f0 = m.add_face(3, 1, 2)
         >>> f1 = m.add_face(0, 1, 2)
-        >>> f2 = m.add_face(5, 6, 2)
         >>> m.faces # doctest: +ELLIPSIS
         Traceback (most recent call last):
             ...
         AttributeError: ...
         >>> m.lock()
         >>> m.faces # should be sorted
-        [Face(0, 1, 2), Face(1, 2, 3), Face(2, 5, 6)]
+        [Face(0, 1, 2), Face(1, 2, 3)]
         >>> m.faces[0].index
         0
         >>> m.faces[1].index
         1
-        >>> m.faces[2].index
-        2
-        >>> m._faces # doctest: +ELLIPSIS
-        Traceback (most recent call last):
-            ...
-        AttributeError: ...
-        >>> m._edges # doctest: +ELLIPSIS
-        Traceback (most recent call last):
-            ...
-        AttributeError: ...
-        >>> m.add_face(1, 2, 3) # doctest: +ELLIPSIS
-        Traceback (most recent call last):
-            ...
-        AttributeError: ...
         """
         # store faces and set their index
         self.faces = []
@@ -521,6 +506,6 @@ class Mesh:
                     #if id(face) in adj_adj_faces.data:
                     #    del adj_adj_faces.data[id(face)]
 
-if __name__=='__main__':
+if __name__ == '__main__':
     import doctest
     doctest.testmod()

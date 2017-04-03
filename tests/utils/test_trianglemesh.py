@@ -118,3 +118,51 @@ class TestMesh:
         nose.tools.assert_equals(list(f2.get_adjacent_faces(2)), [])
         nose.tools.assert_equals(list(f2.get_adjacent_faces(3)), [])
         nose.tools.assert_equals(list(f2.get_adjacent_faces(4)), [Face(1, 3, 2)])
+
+    @nose.tools.raises(AttributeError)
+    def test_lock(self):
+        self.m.add_face(3, 1, 2)
+        self.m.add_face(0, 1, 2)
+        self.m.add_face(5, 6, 2)
+        self.m.faces
+
+    def test_sorted_faced_locked_mesh(self):
+        self.m.add_face(3, 1, 2)
+        self.m.add_face(0, 1, 2)
+        self.m.add_face(5, 6, 2)
+        self.m.lock()
+
+        #Should be sorted
+        nose.tools.assert_equals(self.m.faces , [Face(0, 1, 2), Face(1, 2, 3), Face(2, 5, 6)])
+        nose.tools.assert_equals(self.m.faces[0].index, 0)
+        nose.tools.assert_equals(self.m.faces[1].index, 1)
+        nose.tools.assert_equals(self.m.faces[2].index, 2)
+
+    @nose.tools.raises(AttributeError)
+    def test_faces_when_locked(self):
+        """Raise exception as faces freed when locked"""
+        self.m.lock()
+        self.m._faces
+
+    @nose.tools.raises(AttributeError)
+    def test_edges_when_locked(self):
+        """Raise exception as edges freed when locked"""
+        self.m.lock()
+        self.m._edges
+
+    @nose.tools.raises(AttributeError)
+    def test_faces_when_locked(self):
+        """Raise exception as edges freed when locked"""
+        self.m.lock()
+        self.m.add_face(1, 2, 3)
+
+    def test_discard_face(self):
+
+        f0 = self.m.add_face(0, 1, 2)
+        f1 = self.m.add_face(1, 3, 2)
+        self.m.add_face(2, 3, 4)
+
+        self.m.lock()
+        nose.tools.assert_equals(list(f0.get_adjacent_faces(0)), [Face(1, 3, 2)])
+        self.m.discard_face(f1)
+        nose.tools.assert_equals(list(f0.get_adjacent_faces(0)), [])
