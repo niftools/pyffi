@@ -1,4 +1,4 @@
-"""Tests for pyffi.utils.withref module."""
+"""Tests for pyffi.utils.trianglemesh module."""
 
 import nose.tools
 from pyffi.utils.trianglemesh import Face, Mesh, Edge
