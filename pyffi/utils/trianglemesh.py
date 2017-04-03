@@ -235,6 +235,7 @@ except ImportError:
         def isdisjoint(self, other):
             return len(self.intersection(other)) == 0
 
+
 class Edge:
     """A directed edge which keeps track of its faces."""
 
@@ -244,13 +245,6 @@ class Edge:
         >>> edge = Edge(6, 9)
         >>> edge.verts
         (6, 9)
-        >>> edge = Edge(8, 5)
-        >>> edge.verts
-        (8, 5)
-        >>> edge = Edge(3, 3) # doctest: +ELLIPSIS
-        Traceback (most recent call last):
-            ...
-        ValueError: ...
         """
         
         if ev0 == ev1:
@@ -306,14 +300,22 @@ class Face:
         """
         return "Face(%s, %s, %s)" % self.verts
 
+    def __eq__(self, other):
+        """
+        :param other:
+        :return:
+        """
+        return (self.verts[0] == other.verts[0]) & (self.verts[1] == self.verts[1]) & (self.verts[2] == self.verts[2])
+
+    def __hash__(self):
+        return self.verts[0] + self.verts[1] + self.verts[2]
+
     def get_next_vertex(self, vi):
         """Get next vertex of face.
 
         >>> face = Face(8, 7, 5)
         >>> face.get_next_vertex(8)
         7
-        >>> face.get_next_vertex(7)
-        5
         """
         # XXX using list(self.verts) instead of self.verts
         # XXX for Python 2.5 compatibility
@@ -324,6 +326,7 @@ class Face:
         # XXX using list(self.verts) instead of self.verts
         # XXX for Python 2.5 compatibility
         return self.adjacent_faces[list(self.verts).index(vi)]
+
 
 class Mesh:
     """A mesh of interconnected faces.
@@ -431,72 +434,8 @@ class Mesh:
         3
         >>> len(m._edges)
         9
-        >>> f3 = m.add_face(2, 3, 4)
-        >>> f3 is f2
-        True
-        >>> f4 = m.add_face(10, 11, 12)
-        >>> f5 = m.add_face(12, 10, 11)
-        >>> f6 = m.add_face(11, 12, 10)
-        >>> f4 is f5
-        True
-        >>> f4 is f6
-        True
-        >>> len(m._faces)
-        4
-        >>> len(m._edges)
-        12
 
-        Another mesh::
 
-            0->-1
-             \\ / \\
-              2-<-3
-              2->-3
-               \\ /
-                4
-
-        >>> m = Mesh()
-        >>> f0 = m.add_face(0, 1, 2)
-        >>> f1 = m.add_face(1, 3, 2)
-        >>> f2 = m.add_face(2, 3, 4)
-        >>> list(f0.get_adjacent_faces(0))
-        [Face(1, 3, 2)]
-        >>> list(f0.get_adjacent_faces(1))
-        []
-        >>> list(f0.get_adjacent_faces(2))
-        []
-        >>> list(f1.get_adjacent_faces(1))
-        [Face(2, 3, 4)]
-        >>> list(f1.get_adjacent_faces(3))
-        [Face(0, 1, 2)]
-        >>> list(f1.get_adjacent_faces(2))
-        []
-        >>> list(f2.get_adjacent_faces(2))
-        []
-        >>> list(f2.get_adjacent_faces(3))
-        []
-        >>> list(f2.get_adjacent_faces(4))
-        [Face(1, 3, 2)]
-        >>> # add an extra face, and check changes
-        >>> f3 = m.add_face(2, 3, 5)
-        >>> list(f0.get_adjacent_faces(0))
-        [Face(1, 3, 2)]
-        >>> list(f0.get_adjacent_faces(1))
-        []
-        >>> list(f0.get_adjacent_faces(2))
-        []
-        >>> list(f1.get_adjacent_faces(1)) # extra face here!
-        [Face(2, 3, 4), Face(2, 3, 5)]
-        >>> list(f1.get_adjacent_faces(3))
-        [Face(0, 1, 2)]
-        >>> list(f1.get_adjacent_faces(2))
-        []
-        >>> list(f2.get_adjacent_faces(2))
-        []
-        >>> list(f2.get_adjacent_faces(3))
-        []
-        >>> list(f2.get_adjacent_faces(4))
-        [Face(1, 3, 2)]
         """
         face = Face(v0, v1, v2)
         try:
