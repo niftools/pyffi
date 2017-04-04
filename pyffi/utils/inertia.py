@@ -122,67 +122,7 @@ def getMassInertiaCapsule(length, radius, density = 1, solid = True):
 # extended for the case where the polygon is a surface (set parameter
 # solid = False).
 def get_mass_center_inertia_polyhedron(vertices, triangles, density = 1, solid = True):
-    """Return mass, center of gravity, and inertia matrix for a polyhedron.
-
-    >>> from pyffi.utils.quickhull import qhull3d
-    >>> box = [(0,0,0),(1,0,0),(0,2,0),(0,0,3),(1,2,0),(0,2,3),(1,0,3),(1,2,3)]
-    >>> vertices, triangles = qhull3d(box)
-    >>> mass, center, inertia = get_mass_center_inertia_polyhedron(
-    ...     vertices, triangles, density = 4)
-    >>> mass
-    24.0
-    >>> center
-    (0.5, 1.0, 1.5)
-    >>> inertia
-    ((26.0, 0.0, 0.0), (0.0, 20.0, 0.0), (0.0, 0.0, 10.0))
-    >>> poly = [(3,0,0),(0,3,0),(-3,0,0),(0,-3,0),(0,0,3),(0,0,-3)] # very rough approximation of a sphere of radius 2
-    >>> vertices, triangles = qhull3d(poly)
-    >>> mass, center, inertia = get_mass_center_inertia_polyhedron(
-    ...     vertices, triangles, density = 3)
-    >>> mass
-    108.0
-    >>> center
-    (0.0, 0.0, 0.0)
-    >>> abs(inertia[0][0] - 194.4) < 0.0001
-    True
-    >>> abs(inertia[1][1] - 194.4) < 0.0001
-    True
-    >>> abs(inertia[2][2] - 194.4) < 0.0001
-    True
-    >>> abs(inertia[0][1]) < 0.0001
-    True
-    >>> abs(inertia[0][2]) < 0.0001
-    True
-    >>> abs(inertia[1][2]) < 0.0001
-    True
-    >>> sphere = []
-    >>> N = 10
-    >>> for j in range(-N+1, N):
-    ...     theta = j * 0.5 * math.pi / N
-    ...     st, ct = math.sin(theta), math.cos(theta)
-    ...     M = max(3, int(ct * 2 * N + 0.5))
-    ...     for i in range(0, M):
-    ...         phi = i * 2 * math.pi / M
-    ...         s, c = math.sin(phi), math.cos(phi)
-    ...         sphere.append((2*s*ct, 2*c*ct, 2*st)) # construct sphere of radius 2
-    >>> sphere.append((0,0,2))
-    >>> sphere.append((0,0,-2))
-    >>> vertices, triangles = qhull3d(sphere)
-    >>> mass, center, inertia = get_mass_center_inertia_polyhedron(
-    ...     vertices, triangles, density = 3, solid = True)
-    >>> abs(mass - 100.53) < 10 # 3*(4/3)*pi*2^3 = 100.53
-    True
-    >>> sum(abs(x) for x in center) < 0.01 # is center at origin?
-    True
-    >>> abs(inertia[0][0] - 160.84) < 10
-    True
-    >>> mass, center, inertia = get_mass_center_inertia_polyhedron(
-    ...     vertices, triangles, density = 3, solid = False)
-    >>> abs(mass - 150.79) < 10 # 3*4*pi*2^2 = 150.79
-    True
-    >>> abs(inertia[0][0] - mass*0.666*4) < 20 # m*(2/3)*2^2
-    True
-    """
+    """Return mass, center of gravity, and inertia matrix for a polyhedron."""
 
     # 120 times the covariance matrix of the canonical tetrahedron
     # (0,0,0),(1,0,0),(0,1,0),(0,0,1)

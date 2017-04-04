@@ -155,6 +155,7 @@ import tempfile
 import pyffi # for pyffi.__version__
 import pyffi.object_models # pyffi.object_models.FileFormat
 
+
 class Spell(object):
     """Spell base class. A spell takes a data file and then does something
     useful with it. The main entry point for spells is :meth:`recurse`, so if you
@@ -208,6 +209,7 @@ class Spell(object):
         self.data = data
         self.stream = stream
         self.toaster = toaster if toaster else Toaster()
+
 
     def _datainspect(self):
         """This is called after :meth:`pyffi.object_models.FileFormat.Data.inspect` has
@@ -403,6 +405,7 @@ class Spell(object):
             self.reports = []
         self.reports.append(report)
 
+
 class SpellGroupBase(Spell):
     """Base class for grouping spells. This implements all the spell grouping
     functions that fall outside of the actual recursing (:meth:`__init__`,
@@ -455,6 +458,7 @@ class SpellGroupBase(Spell):
         for spellclass in cls.ACTIVESPELLCLASSES:
             spellclass.toastexit(toaster)
 
+
 class SpellGroupSeriesBase(SpellGroupBase):
     """Base class for running spells in series."""
     def recurse(self, branch=None):
@@ -483,6 +487,7 @@ class SpellGroupSeriesBase(SpellGroupBase):
     @property
     def changed(self):
         return any(spell.changed for spell in self.spells)
+
 
 class SpellGroupParallelBase(SpellGroupBase):
     """Base class for running spells in parallel (that is, with only
@@ -518,6 +523,7 @@ class SpellGroupParallelBase(SpellGroupBase):
     def changed(self):
         return any(spell.changed for spell in self.spells)
 
+
 def SpellGroupSeries(*args):
     """Class factory for grouping spells in series."""
     return type("".join(spellclass.__name__ for spellclass in args),
@@ -527,6 +533,7 @@ def SpellGroupSeries(*args):
                      " | ".join(spellclass.SPELLNAME for spellclass in args),
                  "READONLY": 
                       all(spellclass.READONLY for spellclass in args)})
+
 
 def SpellGroupParallel(*args):
     """Class factory for grouping spells in parallel."""
@@ -674,7 +681,6 @@ class Toaster(object):
         resume=False,
         gccollect=False,
         inifile="")
-
     """List of spell classes of the particular :class:`Toaster` instance."""
 
     options = {}
@@ -910,28 +916,29 @@ class Toaster(object):
     def parse_inifile(option, opt, value, parser, toaster=None):
         r"""Initializes spell classes and options from an ini file.
         >>> from os.path import dirname
-        >>> dirpath = __file__
-        >>> for i in range(3): #recurse up to root repo dir
-        ...     dirpath = dirname(dirpath)
-        >>> repo_root = dirpath
+        >>> dir_path = __file__
+        >>> for i in range(2): #recurse up to root repo dir
+        ...     dir_path = dirname(dir_path)
+        >>> repo_root = dir_path
         >>> test_root = os.path.join(repo_root, 'tests').replace("\\", "/") #pyffi/test
-        >>> _test_root = os.path.join(repo_root, '_tests').replace("\\", "/")
-        >>> format_root = os.path.join(test_root, 'formats', 'nif', 'files').replace("\\", "/") #pyffi/test/nif
-        >>> _format_root = os.path.join(_test_root, 'formats', 'nif', 'files', 'nif').replace("\\", "/")
+        >>> import tempfile
+        >>> out = tempfile.mkdtemp()
+        >>> print(out)
+        >>> format_root = os.path.join(test_root, 'spells', 'nif', 'files').replace("\\", "/") #pyffi/test/nif
         >>> file = os.path.join(format_root, 'test_vertexcolor.nif').replace("\\", "/") #pyffi/test/nif/test_*.nif
+        >>> _format_root = os.path.join(out, 'tests', 'spells', 'nif', 'files').replace("\\", "/") #pyffi/test/nif
         >>> _file = os.path.join(_format_root, 'test_vertexcolor.nif').replace("\\", "/")
         >>> import pyffi.spells.nif
         >>> import pyffi.spells.nif.modify
         >>> class NifToaster(pyffi.spells.nif.NifToaster):
         ...     SPELLS = [pyffi.spells.nif.modify.SpellDelBranches]
-        >>> import tempfile
         >>> cfg = tempfile.NamedTemporaryFile(delete=False)
         >>> _ = cfg.write(b"[main]\n")
         >>> _ = cfg.write(b"spell = modify_delbranches\n")
         >>> _ = cfg.write("folder = {0}\n".format(file).encode())
         >>> _ = cfg.write(b"[options]\n")
         >>> _ = cfg.write("source-dir = {0}\n".format(test_root).encode())
-        >>> _ = cfg.write("dest-dir = {0}\n".format(_test_root).encode())
+        >>> _ = cfg.write("dest-dir = {0}\n".format(out).encode())
         >>> _ = cfg.write(b"exclude = NiVertexColorProperty NiStencilProperty\n")
         >>> _ = cfg.write(b"skip = 'testing quoted string'    normal_string\n")
         >>> cfg.close()
@@ -959,11 +966,11 @@ class Toaster(object):
         pyffi.toaster:INFO:  writing ...
         pyffi.toaster:INFO:Finished.
         >>> import os
+        >>> print(cfg.name)
         >>> os.remove(cfg.name)
         >>> print(_file)
-        >>> os.remove(_file)
-        >>> os.rmdir(_format_root)
-        >>> os.rmdir(_test_root)
+        >>> # os.remove(_file)
+        >>> # os.rmdir(out)
         >>> for name, value in sorted(toaster.options.items()):
         ...     print("%s: %s" % (name, value)) # doctest: +ELLIPSIS +REPORT_NDIFF +NORMALIZE_WHITESPACE
         applypatch: False
