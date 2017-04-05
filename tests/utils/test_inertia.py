@@ -2,11 +2,11 @@
 import math
 import nose.tools
 from pyffi.utils.quickhull import qhull3d
-from pyffi.utils.inertia import get_mass_center_inertia_polyhedron
+from pyffi.utils.inertia import get_mass_center_inertia_polyhedron, getMassInertiaSphere
 
 
 def assert_tuple_values(a, b):
-    """Wrapper func to clean assert tuple values"""
+    """Wrapper func to cleanly assert tuple values"""
     for i, j in zip(a, b):
         nose.tools.assert_almost_equal(i, j)
 
@@ -14,9 +14,14 @@ def assert_tuple_values(a, b):
 class TestInertia:
     """Tests Mass Centre Inertia generation"""
 
-    def test_inertia_sphere(self):
-        """Test mass and inertia for simple sphere"""
+    def test_mass_inertia_sphere_solid(self):
+        """Test mass and inertia for solid sphere"""
+        mass, inertia_matrix = getMassInertiaSphere(2.0, 3.0)
+        nose.tools.assert_almost_equals(mass, 100.53096491)
+        nose.tools.assert_almost_equals(inertia_matrix[0][0], 160.849543863)
 
+    def test_inertia_polyhedron_sphere(self):
+        """Test mass and inertia for simple sphere"""
         # very rough approximation of a sphere of radius 2
         poly = [(3, 0, 0), (0, 3, 0), (-3, 0, 0), (0, -3, 0), (0, 0, 3), (0, 0, -3)]
         vertices, triangles = qhull3d(poly)
@@ -26,7 +31,7 @@ class TestInertia:
         assert_tuple_values((inertia[0][0], inertia[1][1], inertia[2][2]), (194.4, 194.4, 194.4))
         assert_tuple_values((inertia[0][1], inertia[0][2], inertia[1][2]), (0, 0, 0))
 
-    def test_inertia_sphere_accurate(self):
+    def test_inertia_polyhedron_sphere_accurate(self):
         """Test mass and inertia for accurate sphere"""
         sphere = []
         n = 10
@@ -50,7 +55,7 @@ class TestInertia:
         nose.tools.assert_true(abs(mass - 150.79) < 10)  # 3*4*pi*2^2 = 150.79
         nose.tools.assert_true(abs(inertia[0][0] - mass * 0.666 * 4) < 20)  # m*(2/3)*2^2
 
-    def test_inertia_box(self):
+    def test_inertia_polyhedron_box(self):
         """Get mass and inertia for box"""
         box = [(0, 0, 0), (1, 0, 0), (0, 2, 0), (0, 0, 3), (1, 2, 0), (0, 2, 3), (1, 0, 3), (1, 2, 3)]
         vertices, triangles = qhull3d(box)
