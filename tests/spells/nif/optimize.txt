@@ -43,16 +43,14 @@ is the input working? yes it is
 >>> import niftoaster
 >>> sys.argv = ["niftoaster.py", "optimize", "--verbose=1", file_name_full_out]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS +REPORT_NDIFF
-This script will modify your files, in particular if something goes wrong it
-may destroy them. Make a backup of your files before running this script.
-<BLANKLINE>
+pyffi.toaster:WARNING:This script will modify your files, in particular if something goes wrong it may destroy them.
+pyffi.toaster:WARNING:Make a backup of your files before running this script.
 Are you sure that you want to proceed? [n/y] n
 pyffi.toaster:INFO:Script aborted by user.
 pyffi.toaster:INFO:Finished.
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS +REPORT_NDIFF
-This script will modify your files, in particular if something goes wrong it
-may destroy them. Make a backup of your files before running this script.
-<BLANKLINE>
+pyffi.toaster:WARNING:This script will modify your files, in particular if something goes wrong it may destroy them.
+pyffi.toaster:WARNING:Make a backup of your files before running this script.
 Are you sure that you want to proceed? [n/y] y
 pyffi.toaster:INFO:=== tests/spells/nif/files/out/_test.nif ===
 pyffi.toaster:INFO:  --- fix_delunusedroots & opt_cleanreflists & fix_detachhavoktristripsdata & fix_texturepath & fix_clampmaterialalpha & fix_bhksubshapes & fix_emptyskeletonroots ---
