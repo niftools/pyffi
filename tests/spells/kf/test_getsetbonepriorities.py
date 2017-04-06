@@ -1,22 +1,44 @@
 """Tests for the get/setbonepriorities spells."""
 
 import codecs
-import os
 import os.path
+
+import tempfile
+import os
+import shutil
 
 import nose.tools
 
 from pyffi.formats.nif import NifFormat
-from tests.spells.test_nif import call_niftoaster
+from tests.scripts.nif import call_niftoaster
 
+from os.path import dirname
+dir_path = __file__
+for i in range(1):  # recurse up to root repo dir
+    dir_path = dirname(dir_path)
+test_root = dir_path
+input_files = os.path.join(test_root, 'spells', 'kf').replace("\\", "/")
 
 class TestGetSetBonePrioritiesOblivion:
-    kffile = "tests/spells/kf/test_controllersequence.kf"
-    kffile2 = "tests/spells/kf/_test_controllersequence.kf"
-    txtfile = "tests/spells/kf/test_controllersequence_bonepriorities.txt"
 
-    def check_priorities(self, filename, priorities):
-        # helper function to check priorities
+    def __init__(self):
+        self.out = None
+        self.file_name = "test_controllersequence.kf"
+        self.txt_name = "test_controllersequence_bonepriorities.txt"
+
+    def setup(self):
+        self.out = tempfile.mkdtemp()
+        self.kffile = os.path.join(test_root, self.file_name)
+        self.kffile2 = os.path.join(test_root, "_" + self.file_name)
+        self.txtfile = os.path.join(test_root, self.txt_name)
+
+
+    def teardown(self):
+        shutil.rmtree(self.out)
+
+    @staticmethod
+    def check_priorities(filename, priorities):
+        """helper function to check priorities"""
         data = NifFormat.Data()
         with open(filename, "rb") as stream:
             data.read(stream)
@@ -27,35 +49,27 @@ class TestGetSetBonePrioritiesOblivion:
             [block.priority for block in seq.controlled_blocks], priorities)
 
     def test_check_get_set_bonepriorities(self):
-        self.check_priorities(self.kffile, [27, 27, 75])
+        TestGetSetBonePrioritiesOblivion.check_priorities(self.kffile, [27, 27, 75])
         toaster = call_niftoaster("modify_getbonepriorities", self.kffile)
         nose.tools.assert_equal(list(toaster.files_done), [self.kffile])
         nose.tools.assert_true(os.path.exists(self.txtfile))
         with codecs.open(self.txtfile, "rb", encoding="ascii") as stream:
-            nose.tools.assert_equal(stream.read(), """\
-[TestAction]
-Bip01=27
-Bip01 Pelvis=27
-Bip01 Spine=75
-""".replace('\n', '\r\n'))
+            contents = stream.read()
+            nose.tools.assert_equal(contents,'[TestAction]\r\nBip01=27\r\nBip01 Pelvis=27\r\nBip01 Spine=75\r\n')
         with codecs.open(self.txtfile, "wb", encoding="ascii") as stream:
-            stream.write("""\
-[TestAction]
-Bip01=33
-Bip01 Pelvis=29
-Bip01 Spine=42
-""".replace('\r\n', '\n')) # replace probably not needed; just in case
+            stream.write("[TestAction]\n")
+            stream.write("Bip01=33\n")
+            stream.write("Bip01 Pelvis=29\n")
+            stream.write("Bip01 Spine=42\n") # .replace('\r\n', '\n')) # replace probably not needed; just in case
         toaster = call_niftoaster("modify_setbonepriorities", "--prefix=_", self.kffile)
         nose.tools.assert_equal(list(toaster.files_done), [self.kffile])
         self.check_priorities(self.kffile2, [33, 29, 42])
         # test crlf write
         with codecs.open(self.txtfile, "wb", encoding="ascii") as stream:
-            stream.write("""\
-[TestAction]
-Bip01=38
-Bip01 Pelvis=22
-Bip01 Spine=47
-""".replace('\n', '\r\n'))
+            stream.write("[TestAction]\n")
+            stream.write("Bip01=38\n")
+            stream.write("Bip01 Pelvis=22\n")
+            stream.write("Bip01 Spine=47\n")
         toaster = call_niftoaster("modify_setbonepriorities", "--prefix=_", self.kffile)
         nose.tools.assert_equal(list(toaster.files_done), [self.kffile])
         self.check_priorities(self.kffile2, [38, 22, 47])
@@ -63,6 +77,7 @@ Bip01 Spine=47
         os.remove(self.kffile2)
 
 class TestGetSetBonePrioritiesFallout3(TestGetSetBonePrioritiesOblivion):
-    kffile = "tests/spells/kf/test_controllersequence_fo3.kf"
-    kffile2 = "tests/spells/kf/_test_controllersequence_fo3.kf"
-    txtfile = "tests/spells/kf/test_controllersequence_fo3_bonepriorities.txt"
+
+    def __init__(self):
+        self.file_name = "test_controllersequence_fo3.kf"
+        self.txt_name = "test_controllersequence_fo3_bonepriorities.txt"
