@@ -24,3 +24,7 @@ def call_niftoaster(*args):
     toaster.cli()
     sys.argv = oldargv
     return toaster
+
+
+class TestNif():
+    pass
