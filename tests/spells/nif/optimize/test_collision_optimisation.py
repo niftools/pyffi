@@ -60,6 +60,7 @@ class TestCollisionOptimisation(BaseFileTestCase):
         nose.tools.assert_equals(shape.material.material, 0)
         nose.tools.assert_true(isinstance(shape, NifFormat.bhkBoxShape))
 
+
 class TestBoxCollisionOptimisation(BaseFileTestCase):
 
     def setUp(self):
@@ -75,7 +76,6 @@ class TestBoxCollisionOptimisation(BaseFileTestCase):
         data = NifFormat.Data()
         stream = open(self.src_file, "rb")
         data.read(stream)
-
 
         # check initial data
         shape = data.roots[0].collision_object.body.shape
@@ -98,42 +98,45 @@ class TestBoxCollisionOptimisation(BaseFileTestCase):
         nose.tools.assert_true(isinstance(shape, NifFormat.bhkConvexTransformShape))
         nose.tools.assert_equals(shape.material.material, 9)
 
+class TestPackedBoxCollisionOptimisation(BaseFileTestCase):
 
+    def setUp(self):
+        super(TestPackedBoxCollisionOptimisation, self).setUp()
+        self.src_name = "test_opt_collision_packed.nif"
+        self.src_file = os.path.join(self.input_files, self.src_name)
+        self.dest_file = os.path.join(self.out, self.src_name)
+        shutil.copyfile(self.src_file, self.dest_file)
+        assert os.path.exists(self.dest_file)
 
-        # Box conversion from packed collision
-        # ------------------------------------
-        #
-        # >>> filename = nif_dir + "test_opt_collision_packed.nif"
-        #
-        # >>> data = NifFormat.Data()
-        # >>> stream = open(filename, "rb")
-        # >>> data.read(stream)
-        # >>> # check initial data
-        # >>> data.roots[0].collision_object.body.shape.sub_shapes[0].num_vertices
-        # 24
-        # >>> data.roots[0].collision_object.body.shape.data.num_vertices
-        # 24
-        # >>> data.roots[0].collision_object.body.shape.sub_shapes[0].material
-        # 9
-        # >>> # run the spell that optimizes this
-        # >>> spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionBox(data=data)
-        # >>> spell.recurse()
+    def test_box_from_packed_collision_optimisation(self):
+        """Test Box conversion from packed collision"""
+        data = NifFormat.Data()
+        stream = open(self.src_file, "rb")
+        data.read(stream)
+
+        # check initial data
+        shape = data.roots[0].collision_object.body.shape
+        nose.tools.assert_equals(shape.data.num_vertices, 24)
+        nose.tools.assert_equals(shape.sub_shapes[0].num_vertices, 24)
+        nose.tools.assert_equals(shape.sub_shapes[0].material.material, 9)
+
+        # run the spell that optimizes this
+        spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionBox(data=data)
+        spell.recurse()
         # pyffi.toaster:INFO:--- opt_collisionbox ---
         # pyffi.toaster:INFO:  ~~~ NiNode [TestBhkPackedNiTriStripsShape] ~~~
         # pyffi.toaster:INFO:    ~~~ bhkCollisionObject [] ~~~
         # pyffi.toaster:INFO:      ~~~ bhkRigidBodyT [] ~~~
         # pyffi.toaster:INFO:        optimized box collision
         # pyffi.toaster:INFO:    ~~~ NiTriShape [Stuff] ~~~
-        # >>> # check optimized data
-        # >>> data.roots[0].collision_object.body.shape.material
-        # 9
-        # >>> data.roots[0].collision_object.body.shape.shape.material
-        # 9
-        # >>> isinstance(data.roots[0].collision_object.body.shape, NifFormat.bhkConvexTransformShape)
-        # True
-        # >>> isinstance(data.roots[0].collision_object.body.shape.shape, NifFormat.bhkBoxShape)
-        # True
-        #
+
+        # check optimized data
+        shape = data.roots[0].collision_object.body.shape
+        nose.tools.assert_equals(shape.material.material, 9)
+        nose.tools.assert_true(isinstance(shape, NifFormat.bhkConvexTransformShape))
+        nose.tools.assert_true(isinstance(shape.shape, NifFormat.bhkBoxShape))
+
+
         # Box conversion from mopp collision
         # ----------------------------------
         #
