@@ -21,10 +21,9 @@ input_files = os.path.join(test_root, 'spells', 'kf').replace("\\", "/")
 
 class TestGetSetBonePrioritiesOblivion:
 
-    def __init__(self):
-        self.out = None
-        self.file_name = "test_controllersequence.kf"
-        self.txt_name = "test_controllersequence_bonepriorities.txt"
+    out = None
+    file_name = "test_controllersequence.kf"
+    txt_name = "test_controllersequence_bonepriorities.txt"
 
     def setup(self):
         self.out = tempfile.mkdtemp()
@@ -78,6 +77,5 @@ class TestGetSetBonePrioritiesOblivion:
 
 class TestGetSetBonePrioritiesFallout3(TestGetSetBonePrioritiesOblivion):
 
-    def __init__(self):
-        self.file_name = "test_controllersequence_fo3.kf"
-        self.txt_name = "test_controllersequence_fo3_bonepriorities.txt"
+    file_name = "test_controllersequence_fo3.kf"
+    txt_name = "test_controllersequence_fo3_bonepriorities.txt"

@@ -44,8 +44,7 @@ class TestEdge:
 class TestMesh:
     """Test class to test trianglemesh::Mesh"""
 
-    def __init__(self):
-        self.m = None
+    m = None
 
     def setup(self):
         """Initial Mesh"""

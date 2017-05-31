@@ -18,7 +18,6 @@ class TestToaster:
 
     def test_toaster_default_admissible(self):
         """# no include or exclude: all admissible"""
-
         toaster = MyToaster()
         nose.tools.assert_true(toaster.is_admissible_branch_class(NifFormat.NiProperty))
         nose.tools.assert_true(toaster.is_admissible_branch_class(NifFormat.NiNode))
@@ -62,14 +61,13 @@ class TestToaster:
 class TestIniParser:
     """Test the Ini parser"""
 
-    def __init__(self):
-        from os.path import dirname
-        dir_path = __file__
-        for i in range(2):  # recurse up to root repo dir
-            dir_path = dirname(dir_path)
-        self.test_root = dir_path
-        self.input_files = os.path.join(self.test_root, 'spells', 'nif', 'files').replace("\\", "/")
-        self.out = None
+    from os.path import dirname
+    dir_path = __file__
+    for i in range(2):  # recurse up to root repo dir
+        dir_path = dirname(dir_path)
+    test_root = dir_path
+    input_files = os.path.join(test_root, 'spells', 'nif', 'files').replace("\\", "/")
+    out = None
 
     def setup(self):
         self.out = tempfile.mkdtemp()
