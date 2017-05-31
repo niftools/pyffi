@@ -1,0 +1,39 @@
+Egm and tri files
+-----------------
+
+>>> import sys
+>>> import os
+>>> import niftoaster
+>>> sys.argv = ["niftoaster.py", "opt_geometry", "--noninteractive", "--dry-run", "tests/nif/test_opt_dupverts.nif"]
+>>> open("tests/nif/test_opt_dupverts.egm", "w").close()
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+pyffi.toaster:INFO:=== tests/nif/test_opt_dupverts.nif ===
+pyffi.toaster:INFO:Finished.
+>>> os.remove("tests/nif/test_opt_dupverts.egm")
+>>> open("tests/nif/test_opt_dupverts.tri", "w").close()
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
+pyffi.toaster:INFO:=== tests/nif/test_opt_dupverts.nif ===
+pyffi.toaster:INFO:Finished.
+>>> os.remove("tests/nif/test_opt_dupverts.tri")
+
+Duplicate vertex check
+----------------------
+
+>>> from pyffi.formats.nif import NifFormat
+>>> import pyffi.spells.nif.optimize
+>>> from pyffi.spells import Toaster
+>>> data = NifFormat.Data()
+>>> stream = open("tests/nif/test_opt_dupverts.nif", "rb")
+>>> data.read(stream)
+>>> spell = pyffi.spells.nif.optimize.SpellOptimizeGeometry(data=data)
+>>> spell.recurse() # doctest: +REPORT_NDIFF
+pyffi.toaster:INFO:--- opt_geometry ---
+pyffi.toaster:INFO:  ~~~ NiNode [Lowerclass Dunmer Cup Type-1] ~~~
+pyffi.toaster:INFO:    ~~~ NiTriStrips [Lowerclass Dunmer Cup Type-1] ~~~
+pyffi.toaster:INFO:      removing duplicate vertices
+pyffi.toaster:INFO:      (num vertices was 303 and is now 169)
+pyffi.toaster:INFO:      optimizing triangle ordering
+pyffi.toaster:INFO:      (ATVR reduced from 1.462 to 1.000)
+pyffi.toaster:INFO:      optimizing vertex ordering
+pyffi.toaster:INFO:      replacing branch by NiTriShape
+pyffi.toaster:INFO:      recalculating tangent space

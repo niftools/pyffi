@@ -102,7 +102,6 @@ def create_suite():
                   'spells/nif/modify_delbranches.txt',
                   'spells/nif/modify_delvertexcolor.txt',
                   'spells/nif/modify_substitutestringpalette.txt',
-                  'spells/nif/optimize.txt',
                   'spells/nif/opt_delunusedbones.txt',
                   'spells/nif/opt_delzeroscale.txt',
                   'spells/nif/opt_vertex_cache.txt',
