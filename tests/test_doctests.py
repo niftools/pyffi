@@ -112,7 +112,6 @@ def create_suite():
                   # 'formats/nif/niftoaster.txt', #havoklayer issue
                   # 'formats/nif/bhkpackednitristripsshape.txt', #havoklayer issue
                   # 'spells/nif/opt_collisiongeometry.txt', #havoklayer issue
-                  # 'spells/nif/opt_collision_to_box_shape.txt', #havoklayer issue
                   # 'formats/kfm/kfmtoaster.txt', #Not Implemented
                   # various regression tests (outside documentation)
                   # 'docs-sphinx/intro.rst', #outside of test dir...

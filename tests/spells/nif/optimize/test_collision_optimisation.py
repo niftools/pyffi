@@ -167,26 +167,33 @@ class TestPackedBoxCollisionOptimisation(BaseFileTestCase):
         nose.tools.assert_true(isinstance(shape, NifFormat.bhkConvexTransformShape))
         nose.tools.assert_true(isinstance(shape.shape, NifFormat.bhkBoxShape))
 
-        # Another regression test
-        # -----------------------
-        # Check that a collision mesh which is not a box, but whose vertices
-        # form a box, is not converted to a box.
-        #
-        # >>> filename = nif_dir + "test_opt_collision_to_boxshape_notabox.nif"
-        # >>> data = NifFormat.Data()
-        # >>> stream = open(filename, "rb")
-        # >>> data.read(stream)
-        # >>> # check initial data
-        # >>> data.roots[0].collision_object.body.shape.__class__.__name__
-        # 'bhkMoppBvTreeShape'
-        # >>> # run the box spell
-        # >>> spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionBox(data=data)
-        # >>> spell.recurse()
+
+class TestNotBoxCollisionOptimisation(BaseFileTestCase):
+    def setUp(self):
+        super(TestNotBoxCollisionOptimisation, self).setUp()
+        self.src_name = "test_opt_collision_to_boxshape_notabox.nif"
+        self.src_file = os.path.join(self.input_files, self.src_name)
+        self.dest_file = os.path.join(self.out, self.src_name)
+        shutil.copyfile(self.src_file, self.dest_file)
+        assert os.path.exists(self.dest_file)
+
+    def test_box_from_packed_collision_optimisation(self):
+        """Test that a collision mesh which is not a box, but whose vertices form a box, is not converted to a box."""
+        data = NifFormat.Data()
+        stream = open(self.src_file, "rb")
+        data.read(stream)
+
+        # check initial data
+        nose.tools.assert_equals(data.roots[0].collision_object.body.shape.__class__.__name__, 'bhkMoppBvTreeShape')
+
+        # run the box spell
+        spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionBox(data=data)
+        spell.recurse()
         # pyffi.toaster:INFO:--- opt_collisionbox ---
         # pyffi.toaster:INFO:  ~~~ NiNode [no_box_opt_test] ~~~
         # pyffi.toaster:INFO:    ~~~ bhkCollisionObject [] ~~~
         # pyffi.toaster:INFO:      ~~~ bhkRigidBodyT [] ~~~
         # pyffi.toaster:INFO:        ~~~ bhkMoppBvTreeShape [] ~~~
-        # >>> # check that we still have a mopp collision, and not a box collision
-        # >>> data.roots[0].collision_object.body.shape.__class__.__name__
-        # 'bhkMoppBvTreeShape'
+
+        # check that we still have a mopp collision, and not a box collision
+        nose.tools.assert_equals(data.roots[0].collision_object.body.shape.__class__.__name__, 'bhkMoppBvTreeShape')
