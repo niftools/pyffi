@@ -109,7 +109,6 @@ def create_suite():
                   # Contain outstanding issues
                   # 'spells/egm/optimize.txt',
                   # 'spells/nif/opt_mergeduplicates.txt', #nitrishape issue
-                  # 'formats/nif/niftoaster.txt', #havoklayer issue
                   # 'formats/nif/bhkpackednitristripsshape.txt', #havoklayer issue
                   # 'spells/nif/opt_collisiongeometry.txt', #havoklayer issue
                   # 'formats/kfm/kfmtoaster.txt', #Not Implemented
