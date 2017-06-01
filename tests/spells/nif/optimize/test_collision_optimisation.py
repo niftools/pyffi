@@ -66,24 +66,19 @@ class TestBoxCollisionOptimisation(BaseFileTestCase):
     def setUp(self):
         super(TestBoxCollisionOptimisation, self).setUp()
         self.src_name = "test_opt_collision_unpacked.nif"
-        self.src_file = os.path.join(self.input_files, self.src_name)
-        self.dest_file = os.path.join(self.out, self.src_name)
-        shutil.copyfile(self.src_file, self.dest_file)
-        assert os.path.exists(self.dest_file)
+        super(TestBoxCollisionOptimisation, self).readFile()
+        super(TestBoxCollisionOptimisation, self).readNifData()
 
     def test_box_from_unpacked_collision_optimisation(self):
         """Test Box conversion from unpacked collision"""
-        data = NifFormat.Data()
-        stream = open(self.src_file, "rb")
-        data.read(stream)
 
         # check initial data
-        shape = data.roots[0].collision_object.body.shape
+        shape = self.data.roots[0].collision_object.body.shape
         nose.tools.assert_equals(shape.strips_data[0].num_vertices, 24)
         nose.tools.assert_equals(shape.material.material, 9)
 
         # run the spell that optimizes this
-        spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionBox(data=data)
+        spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionBox(data=self.data)
         spell.recurse()
 
         # pyffi.toaster:INFO:--- opt_collisionbox ---
@@ -94,7 +89,7 @@ class TestBoxCollisionOptimisation(BaseFileTestCase):
         # pyffi.toaster:INFO:    ~~~ NiTriShape [Stuff] ~~~
 
         # check optimized data
-        shape = data.roots[0].collision_object.body.shape
+        shape = self.data.roots[0].collision_object.body.shape
         nose.tools.assert_true(isinstance(shape, NifFormat.bhkConvexTransformShape))
         nose.tools.assert_equals(shape.material.material, 9)
 
@@ -104,25 +99,20 @@ class TestPackedBoxCollisionOptimisation(BaseFileTestCase):
     def setUp(self):
         super(TestPackedBoxCollisionOptimisation, self).setUp()
         self.src_name = "test_opt_collision_packed.nif"
-        self.src_file = os.path.join(self.input_files, self.src_name)
-        self.dest_file = os.path.join(self.out, self.src_name)
-        shutil.copyfile(self.src_file, self.dest_file)
-        assert os.path.exists(self.dest_file)
+        super(TestBoxCollisionOptimisation, self).readFile()
+        super(TestBoxCollisionOptimisation, self).readNifData()
 
     def test_box_from_packed_collision_optimisation(self):
         """Test Box conversion from packed collision"""
-        data = NifFormat.Data()
-        stream = open(self.src_file, "rb")
-        data.read(stream)
 
         # check initial data
-        shape = data.roots[0].collision_object.body.shape
+        shape = self.data.roots[0].collision_object.body.shape
         nose.tools.assert_equals(shape.data.num_vertices, 24)
         nose.tools.assert_equals(shape.sub_shapes[0].num_vertices, 24)
         nose.tools.assert_equals(shape.sub_shapes[0].material.material, 9)
 
         # run the spell that optimizes this
-        spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionBox(data=data)
+        spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionBox(data=self.data)
         spell.recurse()
         # pyffi.toaster:INFO:--- opt_collisionbox ---
         # pyffi.toaster:INFO:  ~~~ NiNode [TestBhkPackedNiTriStripsShape] ~~~
@@ -132,25 +122,22 @@ class TestPackedBoxCollisionOptimisation(BaseFileTestCase):
         # pyffi.toaster:INFO:    ~~~ NiTriShape [Stuff] ~~~
 
         # check optimized data
-        shape = data.roots[0].collision_object.body.shape
+        shape = self.data.roots[0].collision_object.body.shape
         nose.tools.assert_equals(shape.material.material, 9)
         nose.tools.assert_true(isinstance(shape, NifFormat.bhkConvexTransformShape))
         nose.tools.assert_true(isinstance(shape.shape, NifFormat.bhkBoxShape))
 
     def test_box_from_mopp_collision_optimisation(self):
         """Test Box conversion from mopp collision"""
-        data = NifFormat.Data()
-        stream = open(self.src_file, "rb")
-        data.read(stream)
 
         # check initial data
-        shape = data.roots[0].collision_object.body.shape
+        shape = self.data.roots[0].collision_object.body.shape
         nose.tools.assert_equals(shape.data.num_vertices, 24)
         nose.tools.assert_equals(shape.sub_shapes[0].num_vertices, 24)
         nose.tools.assert_equals(shape.sub_shapes[0].material.material, 9)
 
         # run the spell that optimizes this
-        spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionBox(data=data)
+        spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionBox(data=self.data)
         spell.recurse()
         # pyffi.toaster:INFO:--- opt_collisionbox ---
         # pyffi.toaster:INFO:  ~~~ NiNode [TestBhkMoppBvTreeShape] ~~~
@@ -161,7 +148,7 @@ class TestPackedBoxCollisionOptimisation(BaseFileTestCase):
         # pyffi.toaster:INFO:    ~~~ NiTriShape [Stuff] ~~~
 
         # check optimized data
-        shape = data.roots[0].collision_object.body.shape
+        shape = self.data.roots[0].collision_object.body.shape
         nose.tools.assert_equals(shape.material.material, 9)
         nose.tools.assert_equals(shape.shape.material.material, 9)
         nose.tools.assert_true(isinstance(shape, NifFormat.bhkConvexTransformShape))
@@ -172,22 +159,17 @@ class TestNotBoxCollisionOptimisation(BaseFileTestCase):
     def setUp(self):
         super(TestNotBoxCollisionOptimisation, self).setUp()
         self.src_name = "test_opt_collision_to_boxshape_notabox.nif"
-        self.src_file = os.path.join(self.input_files, self.src_name)
-        self.dest_file = os.path.join(self.out, self.src_name)
-        shutil.copyfile(self.src_file, self.dest_file)
-        assert os.path.exists(self.dest_file)
+        super(TestBoxCollisionOptimisation, self).readFile()
+        super(TestBoxCollisionOptimisation, self).readNifData()
 
     def test_box_from_packed_collision_optimisation(self):
         """Test that a collision mesh which is not a box, but whose vertices form a box, is not converted to a box."""
-        data = NifFormat.Data()
-        stream = open(self.src_file, "rb")
-        data.read(stream)
 
         # check initial data
-        nose.tools.assert_equals(data.roots[0].collision_object.body.shape.__class__.__name__, 'bhkMoppBvTreeShape')
+        nose.tools.assert_equals(self.data.roots[0].collision_object.body.shape.__class__.__name__, 'bhkMoppBvTreeShape')
 
         # run the box spell
-        spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionBox(data=data)
+        spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionBox(data=self.data)
         spell.recurse()
         # pyffi.toaster:INFO:--- opt_collisionbox ---
         # pyffi.toaster:INFO:  ~~~ NiNode [no_box_opt_test] ~~~
@@ -196,4 +178,6 @@ class TestNotBoxCollisionOptimisation(BaseFileTestCase):
         # pyffi.toaster:INFO:        ~~~ bhkMoppBvTreeShape [] ~~~
 
         # check that we still have a mopp collision, and not a box collision
-        nose.tools.assert_equals(data.roots[0].collision_object.body.shape.__class__.__name__, 'bhkMoppBvTreeShape')
+        nose.tools.assert_equals(self.data.roots[0].collision_object.body.shape.__class__.__name__, 'bhkMoppBvTreeShape')
+
+
