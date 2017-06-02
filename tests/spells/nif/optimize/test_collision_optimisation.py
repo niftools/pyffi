@@ -3,13 +3,13 @@ import os
 import shutil
 
 from . import BaseFileTestCase
-from tests import test_logger
 import nose
 import pyffi
 from pyffi.spells import Toaster
 from pyffi.formats.nif import NifFormat
 
 from tests.utils import assert_tuple_values
+
 
 class TestCollisionOptimisation(BaseFileTestCase):
 
@@ -206,7 +206,6 @@ class TestMoppCollisionOptimisation(BaseFileTestCase):
         normal = hktriangle.normal
         assert_tuple_values((-0.9038461, 0.19667668, - 0.37997436), (normal.x, normal.y, normal.z))
 
-
         # run the spell that fixes this
         spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionGeometry(data=self.data)
         spell.recurse()  # doctest: +REPORT_NDIFF
@@ -269,3 +268,38 @@ class TestMoppCollisionOptimisation(BaseFileTestCase):
             pyffi.toaster: INFO:    ~~~ NiTriShape[]
             ~~~
         """
+
+
+class TestUnpackedCollisionOptimisation(BaseFileTestCase):
+
+    def setUp(self):
+        super(TestUnpackedCollisionOptimisation, self).setUp()
+        self.src_name = "test_opt_collision_unpacked.nif"
+        super(TestUnpackedCollisionOptimisation, self).readFile()
+        super(TestUnpackedCollisionOptimisation, self).readNifData()
+
+    def test_optimise_collision_complex_mopp(self):
+        """Test unpacked collision """
+
+        # check initial data
+        strip = self.data.roots[0].collision_object.body.shape.strips_data[0]
+        nose.tools.assert_equals(strip.num_vertices, 24)
+        nose.tools.assert_equals(strip.num_triangles, 32)
+
+        # run the spell
+        spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionGeometry(data=self.data)
+        spell.recurse()  # doctest: +REPORT_NDIFF
+
+        """
+        pyffi.toaster: INFO:--- opt_collisiongeometry - --
+        pyffi.toaster: INFO:  ~~~ NiNode[TestBhkNiTriStripsShape] ~~~
+        pyffi.toaster: INFO:    ~~~ bhkCollisionObject[] ~~~
+        pyffi.toaster: INFO:      ~~~ bhkRigidBodyT[] ~~~
+        pyffi.toaster: INFO:        packing collision
+        pyffi.toaster: INFO:        adding mopp
+        """
+        # check optimized data
+        shape = self.data.roots[0].collision_object.body.shape.shape
+        nose.tools.assert_equals(shape.sub_shapes[0].num_vertices, 8)
+        nose.tools.assert_equals(shape.data.num_vertices, 8)
+        nose.tools.assert_equals(shape.data.num_triangles, 12)

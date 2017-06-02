@@ -1075,7 +1075,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
             return False
         elif (isinstance(branch, NifFormat.bhkRigidBody)
               and isinstance(branch.shape, NifFormat.bhkNiTriStripsShape)):
-            if branch.layer == NifFormat.OblivionLayer.OL_CLUTTER:
+            if branch.havok_col_filter.layer == NifFormat.OblivionLayer.CLUTTER:
                 # packed collisions do not work for clutter
                 # so skip it
                 # see issue #3194017 reported by Gratis_monsta
