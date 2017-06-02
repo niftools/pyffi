@@ -47,6 +47,8 @@ import pyffi.spells.nif.check
 import pyffi.spells.nif.dump
 
 # these two do not yet work on py3k
+from tests import test_logger
+
 if sys.version_info[0] < 3:
     import pyffi.object_models.xsd
     import pyffi.formats.dae
@@ -109,7 +111,6 @@ def create_suite():
                   # Contain outstanding issues
                   # 'spells/egm/optimize.txt',
                   # 'spells/nif/opt_mergeduplicates.txt', #nitrishape issue
-                  # 'formats/nif/bhkpackednitristripsshape.txt', #havoklayer issue
                   # 'formats/kfm/kfmtoaster.txt', #Not Implemented
                   # various regression tests (outside documentation)
                   # 'docs-sphinx/intro.rst', #outside of test dir...
@@ -125,7 +126,7 @@ def create_suite():
 
 
 def test():
-    logger.info("Executing Doctests - ")
+    test_logger.info("Executing Doctests - ")
     # run tests
     return create_suite()
 
