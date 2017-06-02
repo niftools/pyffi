@@ -1,14 +1,11 @@
 """Tests for pyffi.utils.inertia module."""
 import math
+
 import nose.tools
-from pyffi.utils.quickhull import qhull3d
+
 from pyffi.utils.inertia import get_mass_center_inertia_polyhedron, getMassInertiaSphere
-
-
-def assert_tuple_values(a, b):
-    """Wrapper func to cleanly assert tuple values"""
-    for i, j in zip(a, b):
-        nose.tools.assert_almost_equal(i, j)
+from pyffi.utils.quickhull import qhull3d
+from tests.utils import assert_tuple_values
 
 
 class TestInertia:
