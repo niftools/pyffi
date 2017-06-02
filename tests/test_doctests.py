@@ -110,7 +110,6 @@ def create_suite():
                   # 'spells/egm/optimize.txt',
                   # 'spells/nif/opt_mergeduplicates.txt', #nitrishape issue
                   # 'formats/nif/bhkpackednitristripsshape.txt', #havoklayer issue
-                  # 'spells/nif/opt_collisiongeometry.txt', #havoklayer issue
                   # 'formats/kfm/kfmtoaster.txt', #Not Implemented
                   # various regression tests (outside documentation)
                   # 'docs-sphinx/intro.rst', #outside of test dir...

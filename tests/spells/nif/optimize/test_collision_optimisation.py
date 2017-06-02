@@ -115,12 +115,14 @@ class TestPackedBoxCollisionOptimisation(BaseFileTestCase):
         # run the spell that optimizes this
         spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionBox(data=self.data)
         spell.recurse()
+        """
         # pyffi.toaster:INFO:--- opt_collisionbox ---
         # pyffi.toaster:INFO:  ~~~ NiNode [TestBhkPackedNiTriStripsShape] ~~~
         # pyffi.toaster:INFO:    ~~~ bhkCollisionObject [] ~~~
         # pyffi.toaster:INFO:      ~~~ bhkRigidBodyT [] ~~~
         # pyffi.toaster:INFO:        optimized box collision
         # pyffi.toaster:INFO:    ~~~ NiTriShape [Stuff] ~~~
+        """
 
         # check optimized data
         shape = self.data.roots[0].collision_object.body.shape
@@ -140,6 +142,7 @@ class TestPackedBoxCollisionOptimisation(BaseFileTestCase):
         # run the spell that optimizes this
         spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionBox(data=self.data)
         spell.recurse()
+        """
         # pyffi.toaster:INFO:--- opt_collisionbox ---
         # pyffi.toaster:INFO:  ~~~ NiNode [TestBhkMoppBvTreeShape] ~~~
         # pyffi.toaster:INFO:    ~~~ bhkCollisionObject [] ~~~
@@ -147,6 +150,7 @@ class TestPackedBoxCollisionOptimisation(BaseFileTestCase):
         # pyffi.toaster:INFO:        ~~~ bhkMoppBvTreeShape [] ~~~
         # pyffi.toaster:INFO:          optimized box collision
         # pyffi.toaster:INFO:    ~~~ NiTriShape [Stuff] ~~~
+        """
 
         # check optimized data
         shape = self.data.roots[0].collision_object.body.shape
@@ -173,11 +177,13 @@ class TestNotBoxCollisionOptimisation(BaseFileTestCase):
         # run the box spell
         spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionBox(data=self.data)
         spell.recurse()
+        """
         # pyffi.toaster:INFO:--- opt_collisionbox ---
         # pyffi.toaster:INFO:  ~~~ NiNode [no_box_opt_test] ~~~
         # pyffi.toaster:INFO:    ~~~ bhkCollisionObject [] ~~~
         # pyffi.toaster:INFO:      ~~~ bhkRigidBodyT [] ~~~
         # pyffi.toaster:INFO:        ~~~ bhkMoppBvTreeShape [] ~~~
+        """
 
         # check that we still have a mopp collision, and not a box collision
         nose.tools.assert_equals(self.data.roots[0].collision_object.body.shape.__class__.__name__, 'bhkMoppBvTreeShape')
@@ -193,7 +199,7 @@ class TestMoppCollisionOptimisation(BaseFileTestCase):
     def test_optimise_collision_complex_mopp(self):
 
         # check initial data
-        shape = self.data.roots[0].collision_object.body.shape.shape
+        shape = self.shape
         nose.tools.assert_equals(shape.sub_shapes[0].num_vertices, 53)
         nose.tools.assert_equals(shape.data.num_vertices, 53)
         nose.tools.assert_equals(shape.data.num_triangles, 102)
@@ -208,7 +214,7 @@ class TestMoppCollisionOptimisation(BaseFileTestCase):
 
         # run the spell that fixes this
         spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionGeometry(data=self.data)
-        spell.recurse()  # doctest: +REPORT_NDIFF
+        spell.recurse()  
 
         # check optimized data
         shape = self.data.roots[0].collision_object.body.shape.shape
@@ -235,36 +241,6 @@ class TestMoppCollisionOptimisation(BaseFileTestCase):
             pyffi.toaster: INFO:          (num vertices in collision shape was 53 and is now 51)
             pyffi.toaster: INFO:          removing duplicate triangles
             pyffi.toaster: INFO:          (num triangles in collision shape was 102 and is now 98)
-            Mopper.Copyright(c)
-            2008, NIF
-            File
-            Format
-            Library and Tools.
-            All
-            rights
-            reserved.
-            < BLANKLINE >
-            Options:
-            --help
-            for usage help
-                --license
-                for licensing details
-    
-            < BLANKLINE >
-            Mopper
-            uses
-            havok.Copyright
-            1999 - 2008
-            Havok.com
-            Inc.( and its
-            Licensors).
-            All
-            Rights
-            Reserved.See
-            www.havok.com
-            for details.
-                < BLANKLINE >
-            < BLANKLINE >
             pyffi.toaster: INFO:    ~~~ NiTriShape[]
             ~~~
         """
@@ -278,7 +254,7 @@ class TestUnpackedCollisionOptimisation(BaseFileTestCase):
         super(TestUnpackedCollisionOptimisation, self).readFile()
         super(TestUnpackedCollisionOptimisation, self).readNifData()
 
-    def test_optimise_collision_complex_mopp(self):
+    def test_optimise_collision_unpacked(self):
         """Test unpacked collision """
 
         # check initial data
@@ -288,7 +264,7 @@ class TestUnpackedCollisionOptimisation(BaseFileTestCase):
 
         # run the spell
         spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionGeometry(data=self.data)
-        spell.recurse()  # doctest: +REPORT_NDIFF
+        spell.recurse()  
 
         """
         pyffi.toaster: INFO:--- opt_collisiongeometry - --
@@ -297,6 +273,89 @@ class TestUnpackedCollisionOptimisation(BaseFileTestCase):
         pyffi.toaster: INFO:      ~~~ bhkRigidBodyT[] ~~~
         pyffi.toaster: INFO:        packing collision
         pyffi.toaster: INFO:        adding mopp
+        """
+        # check optimized data
+        shape = self.data.roots[0].collision_object.body.shape.shape
+        nose.tools.assert_equals(shape.sub_shapes[0].num_vertices, 8)
+        nose.tools.assert_equals(shape.data.num_vertices, 8)
+        nose.tools.assert_equals(shape.data.num_triangles, 12)
+
+class TestPackedCollisionOptimisation(BaseFileTestCase):
+
+    def setUp(self):
+        super(TestPackedCollisionOptimisation, self).setUp()
+        self.src_name = "test_opt_collision_packed.nif"
+        super(TestPackedCollisionOptimisation, self).readFile()
+        super(TestPackedCollisionOptimisation, self).readNifData()
+
+    def test_optimise_collision_packed(self):
+        """Test packed collision """
+
+        # check initial data
+        shape = self.data.roots[0].collision_object.body.shape
+        nose.tools.assert_equals(shape.sub_shapes[0].num_vertices, 24)
+        nose.tools.assert_equals(shape.data.num_vertices, 24)
+        nose.tools.assert_equals(shape.data.num_triangles, 12)
+
+        # run the spell
+        spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionGeometry(data=self.data)
+        spell.recurse()
+        """
+        pyffi.toaster:INFO:--- opt_collisiongeometry ---
+        pyffi.toaster:INFO:  ~~~ NiNode [TestBhkPackedNiTriStripsShape] ~~~
+        pyffi.toaster:INFO:    ~~~ bhkCollisionObject [] ~~~
+        pyffi.toaster:INFO:      ~~~ bhkRigidBodyT [] ~~~
+        pyffi.toaster:INFO:        adding mopp
+        pyffi.toaster:INFO:        optimizing mopp
+        pyffi.toaster:INFO:        removing duplicate vertices
+        pyffi.toaster:INFO:        (processing subshape 0)
+        pyffi.toaster:INFO:        (num vertices in collision shape was 24 and is now 8)
+        pyffi.toaster:INFO:        removing duplicate triangles
+        pyffi.toaster:INFO:        (num triangles in collision shape was 12 and is now 12)
+        pyffi.toaster:INFO:    ~~~ NiTriShape [Stuff] ~~~
+        """
+
+        # check optimized data
+        shape = self.data.roots[0].collision_object.body.shape.shape
+        nose.tools.assert_equals(shape.sub_shapes[0].num_vertices, 8)
+        nose.tools.assert_equals(shape.data.num_vertices, 8)
+        nose.tools.assert_equals(shape.data.num_triangles, 12)
+
+
+class TestMoppCollisionOptimisation(BaseFileTestCase):
+
+    def setUp(self):
+        super(TestMoppCollisionOptimisation, self).setUp()
+        self.src_name = "test_opt_collision_mopp.nif"
+        super(TestMoppCollisionOptimisation, self).readFile()
+        super(TestMoppCollisionOptimisation, self).readNifData()
+
+    def test_optimise_collision_packed(self):
+        """Test packed collision """
+
+        # check initial data
+        shape = self.data.roots[0].collision_object.body.shape.shape
+        nose.tools.assert_equals(shape.sub_shapes[0].num_vertices, 24)
+        nose.tools.assert_equals(shape.data.num_vertices, 24)
+        nose.tools.assert_equals(shape.data.num_triangles, 12)
+
+        # run the spell
+        spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionGeometry(data=self.data)
+        spell.recurse()
+
+        """
+        pyffi.toaster:INFO:--- opt_collisiongeometry ---
+        pyffi.toaster:INFO:  ~~~ NiNode [TestBhkMoppBvTreeShape] ~~~
+        pyffi.toaster:INFO:    ~~~ bhkCollisionObject [] ~~~
+        pyffi.toaster:INFO:      ~~~ bhkRigidBodyT [] ~~~
+        pyffi.toaster:INFO:        ~~~ bhkMoppBvTreeShape [] ~~~
+        pyffi.toaster:INFO:          optimizing mopp
+        pyffi.toaster:INFO:          removing duplicate vertices
+        pyffi.toaster:INFO:          (processing subshape 0)
+        pyffi.toaster:INFO:          (num vertices in collision shape was 24 and is now 8)
+        pyffi.toaster:INFO:          removing duplicate triangles
+        pyffi.toaster:INFO:          (num triangles in collision shape was 12 and is now 12)
+        pyffi.toaster:INFO:    ~~~ NiTriShape [Stuff] ~~~
         """
         # check optimized data
         shape = self.data.roots[0].collision_object.body.shape.shape
