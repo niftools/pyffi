@@ -81,10 +81,12 @@ def create_suite():
 
     suite = unittest.TestSuite()
 
+    test_logger.info("Executing doctests")
     for mod in mods:
         try:
             suite.addTest(doctest.DocTestSuite(mod))
         except ValueError:  # no tests
+            test_logger.debug(str(mod) + "does not have a test suite")
             pass
 
     file_paths = {'object_model/simpletype.txt',
@@ -122,11 +124,11 @@ def create_suite():
     # TODO: examples
     # suite.addTest(doctest.DocFileSuite('examples/*.txt'))
 
-    print(unittest.TextTestRunner().run(suite))
+    return unittest.TextTestRunner().run(suite).wasSuccessful()
 
 
 def test():
-    test_logger.info("Executing Doctests - ")
+    test_logger.info("Executing Suite - ")
     # run tests
     return create_suite()
 
