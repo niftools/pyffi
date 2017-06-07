@@ -92,7 +92,6 @@ def create_suite():
     file_paths = {'object_model/simpletype.txt',
                   'object_model/arraytype.txt',
                   'formats/cgf/cgftoaster.txt',
-                  'formats/nif/matrix.txt',
                   'formats/nif/skinpartition.txt',
                   'spells/nif/dump_tex.txt',
                   'spells/nif/ffvt3rskin.txt',
