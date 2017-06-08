@@ -15,7 +15,7 @@ class TestMergeDuplicatesOptimisation(BaseFileTestCase):
         super(TestMergeDuplicatesOptimisation, self).copyFile()
 
     def test_non_interactive_opt_merge_duplicates(self):
-        call_niftoaster("opt_mergeduplicates", "--dry-run",  "--noninteractive", "--verbose=1", self.dest_file)
+        call_niftoaster("--raise", "opt_mergeduplicates", "--dry-run", "--noninteractive", "--verbose=1", self.dest_file)
     
 
 class TestMergeDuplicatesGeomOptimisation(BaseFileTestCase):
@@ -28,7 +28,7 @@ class TestMergeDuplicatesGeomOptimisation(BaseFileTestCase):
 
     def test_non_interactive_opt_merge_duplicates(self):
         pass
-        # call_niftoaster("opt_mergeduplicates", "--dry-run",  "--noninteractive", "--verbose=1", self.dest_file)
+        # call_niftoaster("--raise", "opt_mergeduplicates", "--dry-run",  "--noninteractive", "--verbose=1", self.dest_file)
 
         """
             pyffi.toaster:INFO:=== tests/spells/nif/files/test_opt_dupgeomdata.nif ===

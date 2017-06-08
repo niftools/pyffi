@@ -20,7 +20,7 @@ class FileTestOptimisation(BaseFileTestCase):
         assert os.path.exists(self.dest_file)
 
     def test_non_interactive_optimisation(self):
-        call_niftoaster("optimize", "--noninteractive", "--verbose=1", self.dest_file)
+        call_niftoaster("optimize", "--raise", "--noninteractive", "--verbose=1", self.dest_file)
         """ pyffi.toaster:INFO:=== tests/spells/nif/files/out/_test.nif ===
             pyffi.toaster:INFO:  --- fix_delunusedroots & opt_cleanreflists & fix_detachhavoktristripsdata & fix_texturepath & fix_clampmaterialalpha & fix_bhksubshapes & fix_emptyskeletonroots ---
             pyffi.toaster:INFO:    ~~~ NiNode [test] ~~~
@@ -43,7 +43,7 @@ class FileTestOptimisation(BaseFileTestCase):
 
     def test_simulate_user_optimisation(self):
         Toaster.toast.__globals__['input'] = inputfunc
-        call_niftoaster("optimize", "--verbose=1", self.dest_file)
+        call_niftoaster("optimize", "--raise", "--verbose=1", self.dest_file)
 
 
 

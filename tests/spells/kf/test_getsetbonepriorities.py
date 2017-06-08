@@ -49,7 +49,7 @@ class TestGetSetBonePrioritiesOblivion:
 
     def test_check_get_set_bonepriorities(self):
         TestGetSetBonePrioritiesOblivion.check_priorities(self.kffile, [27, 27, 75])
-        toaster = call_niftoaster("modify_getbonepriorities", self.kffile)
+        toaster = call_niftoaster("--raise", "modify_getbonepriorities", self.kffile)
         nose.tools.assert_equal(list(toaster.files_done), [self.kffile])
         nose.tools.assert_true(os.path.exists(self.txtfile))
         with codecs.open(self.txtfile, "rb", encoding="ascii") as stream:
@@ -60,7 +60,7 @@ class TestGetSetBonePrioritiesOblivion:
             stream.write("Bip01=33\n")
             stream.write("Bip01 Pelvis=29\n")
             stream.write("Bip01 Spine=42\n") # .replace('\r\n', '\n')) # replace probably not needed; just in case
-        toaster = call_niftoaster("modify_setbonepriorities", "--prefix=_", self.kffile)
+        toaster = call_niftoaster("--raise", "modify_setbonepriorities", "--prefix=_", self.kffile)
         nose.tools.assert_equal(list(toaster.files_done), [self.kffile])
         self.check_priorities(self.kffile2, [33, 29, 42])
         # test crlf write
@@ -69,13 +69,13 @@ class TestGetSetBonePrioritiesOblivion:
             stream.write("Bip01=38\n")
             stream.write("Bip01 Pelvis=22\n")
             stream.write("Bip01 Spine=47\n")
-        toaster = call_niftoaster("modify_setbonepriorities", "--prefix=_", self.kffile)
+        toaster = call_niftoaster("--raise", "modify_setbonepriorities", "--prefix=_", self.kffile)
         nose.tools.assert_equal(list(toaster.files_done), [self.kffile])
         self.check_priorities(self.kffile2, [38, 22, 47])
         os.remove(self.txtfile)
         os.remove(self.kffile2)
 
-class TestGetSetBonePrioritiesFallout3(TestGetSetBonePrioritiesOblivion):
 
+class TestGetSetBonePrioritiesFallout3(TestGetSetBonePrioritiesOblivion):
     file_name = "test_controllersequence_fo3.kf"
     txt_name = "test_controllersequence_fo3_bonepriorities.txt"
