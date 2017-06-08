@@ -29,7 +29,7 @@ def test_spells():
 @nose.tools.raises(AttributeError)
 def test_raise():
     """Test exception raised on invalid nif"""
-    call_niftoaster("--raise", "check_readwrite", nif_dir + "invalid.nif")
+    call_niftoaster("check_readwrite", nif_dir + "invalid.nif")
 
 
 def test_no_raise():
@@ -42,7 +42,7 @@ def test_check_readwrite():
     """Test basic read nif"""
     for filename in ["nds.nif", "neosteam.nif", "test.nif"]:
         file_path = nif_dir + "{0}".format(filename)
-        toaster = call_niftoaster("--raise", "check_readwrite", file_path)
+        toaster = call_niftoaster("check_readwrite", file_path)
         nose.tools.assert_equal(sorted(toaster.files_done), [file_path])
 
 

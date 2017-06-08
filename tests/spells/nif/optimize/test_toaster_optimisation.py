@@ -7,6 +7,7 @@ from tests import test_logger
 
 from pyffi.spells import Toaster
 
+
 class FileTestOptimisation(BaseFileTestCase):
     # I didn't need setUp and tearDown here..
 
@@ -20,7 +21,6 @@ class FileTestOptimisation(BaseFileTestCase):
 
     def test_non_interactive_optimisation(self):
         call_niftoaster("optimize", "--noninteractive", "--verbose=1", self.dest_file)
-        test_logger.info("Test")
         """ pyffi.toaster:INFO:=== tests/spells/nif/files/out/_test.nif ===
             pyffi.toaster:INFO:  --- fix_delunusedroots & opt_cleanreflists & fix_detachhavoktristripsdata & fix_texturepath & fix_clampmaterialalpha & fix_bhksubshapes & fix_emptyskeletonroots ---
             pyffi.toaster:INFO:    ~~~ NiNode [test] ~~~

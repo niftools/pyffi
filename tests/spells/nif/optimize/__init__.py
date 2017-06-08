@@ -21,7 +21,7 @@ class BaseFileTestCase(unittest.TestCase):
         self.input_files = os.path.join(test_root, 'spells', 'nif', 'files').replace("\\", "/")
         self.out = tempfile.mkdtemp()
 
-    def readFile(self):
+    def copyFile(self):
         self.src_file = os.path.join(self.input_files, self.src_name)
         self.dest_file = os.path.join(self.out, self.src_name)
         shutil.copyfile(self.src_file, self.dest_file)

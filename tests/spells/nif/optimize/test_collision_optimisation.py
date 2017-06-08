@@ -16,7 +16,7 @@ class TestCollisionOptimisation(BaseFileTestCase):
     def setUp(self):
         super(TestCollisionOptimisation, self).setUp()
         self.src_name = "test_opt_collision_to_boxshape.nif"
-        super(TestCollisionOptimisation, self).readFile()
+        super(TestCollisionOptimisation, self).copyFile()
         super(TestCollisionOptimisation, self).readNifData()
 
     def test_box_optimisation(self):
@@ -62,7 +62,7 @@ class TestBoxCollisionOptimisation(BaseFileTestCase):
     def setUp(self):
         super(TestBoxCollisionOptimisation, self).setUp()
         self.src_name = "test_opt_collision_unpacked.nif"
-        super(TestBoxCollisionOptimisation, self).readFile()
+        super(TestBoxCollisionOptimisation, self).copyFile()
         super(TestBoxCollisionOptimisation, self).readNifData()
 
     def test_box_from_unpacked_collision_optimisation(self):
@@ -95,7 +95,7 @@ class TestPackedBoxCollisionOptimisation(BaseFileTestCase):
     def setUp(self):
         super(TestPackedBoxCollisionOptimisation, self).setUp()
         self.src_name = "test_opt_collision_packed.nif"
-        super(TestPackedBoxCollisionOptimisation, self).readFile()
+        super(TestPackedBoxCollisionOptimisation, self).copyFile()
         super(TestPackedBoxCollisionOptimisation, self).readNifData()
 
     def test_box_from_packed_collision_optimisation(self):
@@ -160,7 +160,7 @@ class TestNotBoxCollisionOptimisation(BaseFileTestCase):
     def setUp(self):
         super(TestNotBoxCollisionOptimisation, self).setUp()
         self.src_name = "test_opt_collision_to_boxshape_notabox.nif"
-        super(TestNotBoxCollisionOptimisation, self).readFile()
+        super(TestNotBoxCollisionOptimisation, self).copyFile()
         super(TestNotBoxCollisionOptimisation, self).readNifData()
 
     def test_box_from_packed_collision_optimisation(self):
@@ -188,7 +188,7 @@ class TestMoppCollisionOptimisation(BaseFileTestCase):
     def setUp(self):
         super(TestMoppCollisionOptimisation, self).setUp()
         self.src_name = "test_opt_collision_complex_mopp.nif"
-        super(TestMoppCollisionOptimisation, self).readFile()
+        super(TestMoppCollisionOptimisation, self).copyFile()
         super(TestMoppCollisionOptimisation, self).readNifData()
 
     def test_optimise_collision_complex_mopp(self):
@@ -246,7 +246,7 @@ class TestUnpackedCollisionOptimisation(BaseFileTestCase):
     def setUp(self):
         super(TestUnpackedCollisionOptimisation, self).setUp()
         self.src_name = "test_opt_collision_unpacked.nif"
-        super(TestUnpackedCollisionOptimisation, self).readFile()
+        super(TestUnpackedCollisionOptimisation, self).copyFile()
         super(TestUnpackedCollisionOptimisation, self).readNifData()
 
     def test_optimise_collision_unpacked(self):
@@ -280,7 +280,7 @@ class TestPackedCollisionOptimisation(BaseFileTestCase):
     def setUp(self):
         super(TestPackedCollisionOptimisation, self).setUp()
         self.src_name = "test_opt_collision_packed.nif"
-        super(TestPackedCollisionOptimisation, self).readFile()
+        super(TestPackedCollisionOptimisation, self).copyFile()
         super(TestPackedCollisionOptimisation, self).readNifData()
 
     def test_optimise_collision_packed(self):
@@ -322,7 +322,7 @@ class TestMoppCollisionOptimisation(BaseFileTestCase):
     def setUp(self):
         super(TestMoppCollisionOptimisation, self).setUp()
         self.src_name = "test_opt_collision_mopp.nif"
-        super(TestMoppCollisionOptimisation, self).readFile()
+        super(TestMoppCollisionOptimisation, self).copyFile()
         super(TestMoppCollisionOptimisation, self).readNifData()
 
     def test_optimise_collision_packed(self):
