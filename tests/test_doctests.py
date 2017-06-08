@@ -89,9 +89,7 @@ def create_suite():
             test_logger.debug(str(mod) + "does not have a test suite")
             pass
 
-    file_paths = {'object_model/simpletype.txt',
-                  'object_model/arraytype.txt',
-                  'formats/cgf/cgftoaster.txt',
+    file_paths = {'formats/cgf/cgftoaster.txt',
                   'spells/nif/dump_tex.txt',
                   'spells/nif/ffvt3rskin.txt',
                   'spells/nif/fix_clampmaterialalpha.txt',
