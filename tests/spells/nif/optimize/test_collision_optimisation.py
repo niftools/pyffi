@@ -16,24 +16,19 @@ class TestCollisionOptimisation(BaseFileTestCase):
     def setUp(self):
         super(TestCollisionOptimisation, self).setUp()
         self.src_name = "test_opt_collision_to_boxshape.nif"
-        self.src_file = os.path.join(self.input_files, self.src_name)
-        self.dest_file = os.path.join(self.out, self.src_name)
-        shutil.copyfile(self.src_file, self.dest_file)
-        assert os.path.exists(self.dest_file)
+        super(TestCollisionOptimisation, self).readFile()
+        super(TestCollisionOptimisation, self).readNifData()
 
     def test_box_optimisation(self):
-        data = NifFormat.Data()
-        stream = open(self.src_file, "rb")
-        data.read(stream)
         # check initial data
-        shape = data.roots[0].collision_object.body.shape
+        shape = self.data.roots[0].collision_object.body.shape
         nose.tools.assert_equals(shape.data.num_vertices, 8)
         sub_shape = shape.sub_shapes[0]
         nose.tools.assert_equals(sub_shape.num_vertices, 8)
         nose.tools.assert_equals(sub_shape.material.material, 0)
 
         # run the spell that optimizes this
-        spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionBox(data=data)
+        spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionBox(data=self.data)
         spell.recurse()
         """
         # pyffi.toaster:INFO:--- opt_collisionbox ---
@@ -57,7 +52,7 @@ class TestCollisionOptimisation(BaseFileTestCase):
         """
 
         # check optimized data
-        shape = data.roots[0].collision_object.body.shape
+        shape = self.data.roots[0].collision_object.body.shape
         nose.tools.assert_equals(shape.material.material, 0)
         nose.tools.assert_true(isinstance(shape, NifFormat.bhkBoxShape))
 
@@ -214,7 +209,7 @@ class TestMoppCollisionOptimisation(BaseFileTestCase):
 
         # run the spell that fixes this
         spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionGeometry(data=self.data)
-        spell.recurse()  
+        spell.recurse()
 
         # check optimized data
         shape = self.data.roots[0].collision_object.body.shape.shape
@@ -264,7 +259,7 @@ class TestUnpackedCollisionOptimisation(BaseFileTestCase):
 
         # run the spell
         spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionGeometry(data=self.data)
-        spell.recurse()  
+        spell.recurse()
 
         """
         pyffi.toaster: INFO:--- opt_collisiongeometry - --
