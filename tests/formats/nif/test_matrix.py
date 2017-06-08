@@ -121,11 +121,10 @@ class TestMatrix:
         assert_true((mat2 * mat2.get_inverse()).is_identity())
 
     def test_sup_norm(self):
-        """Test sup norm for a matrix"""
+        """Test sup norm of a matrix"""
         mat = NifFormat.Matrix44()
         mat.set_identity()
-        mat.sup_norm()
-        1.0
+        assert_equals(mat.sup_norm(), 1.0)
         mat.m_11 = -0.434308
         mat.m_12 = 0.893095
         mat.m_13 = -0.117294
@@ -138,5 +137,4 @@ class TestMatrix:
         mat.m_41 = 3
         mat.m_41 = 4
         mat.m_41 = 8
-        mat.sup_norm()
-        8.0
+        assert_equals(mat.sup_norm(), 8.0)
