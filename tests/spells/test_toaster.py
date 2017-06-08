@@ -113,32 +113,18 @@ class TestIniParser:
         """
         pyffi.toaster: INFO: == = ...
         pyffi.toaster: INFO:  --- modify_delbranches - --
-        pyffi.toaster: INFO:    ~~~ NiNode[Scene
-        Root] ~~~
-        pyffi.toaster: INFO:      ~~~ NiTriStrips[Cube]
-        ~~~
-        pyffi.toaster: INFO:        ~~~ NiStencilProperty[]
-        ~~~
-        pyffi.toaster: INFO:          stripping
-        this
-        branch
-        pyffi.toaster: INFO:        ~~~ NiSpecularProperty[]
-        ~~~
-        pyffi.toaster: INFO:        ~~~ NiMaterialProperty[Material]
-        ~~~
-        pyffi.toaster: INFO:        ~~~ NiVertexColorProperty[]
-        ~~~
-        pyffi.toaster: INFO:          stripping
-        this
-        branch
-        pyffi.toaster: INFO:        ~~~ NiTriStripsData[]
-        ~~~
-        pyffi.toaster: INFO:creating
-        destination
-        path...
+        pyffi.toaster: INFO:    ~~~ NiNode[Scene Root] ~~~
+        pyffi.toaster: INFO:      ~~~ NiTriStrips[Cube] ~~~
+        pyffi.toaster: INFO:        ~~~ NiStencilProperty[]~~~
+        pyffi.toaster: INFO:          stripping this branch
+        pyffi.toaster: INFO:        ~~~ NiSpecularProperty[] ~~~
+        pyffi.toaster: INFO:        ~~~ NiMaterialProperty[Material] ~~~
+        pyffi.toaster: INFO:        ~~~ NiVertexColorProperty[] ~~~
+        pyffi.toaster: INFO:          stripping this branch
+        pyffi.toaster: INFO:        ~~~ NiTriStripsData[] ~~~
+        pyffi.toaster: INFO:creating destinationpath...
         pyffi.toaster: INFO:  writing...
         pyffi.toaster: INFO:Finished.
-
 
         applypatch: False
         archives: False

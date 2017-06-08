@@ -108,7 +108,6 @@ def create_suite():
 
                   # Contain outstanding issues
                   # 'spells/egm/optimize.txt',
-                  # 'spells/nif/opt_mergeduplicates.txt', #nitrishape issue
                   # 'formats/kfm/kfmtoaster.txt', #Not Implemented
                   # various regression tests (outside documentation)
                   # 'docs-sphinx/intro.rst', #outside of test dir...
