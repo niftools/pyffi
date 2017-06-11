@@ -112,7 +112,7 @@ filepaths = {'object_model/simpletype.txt',
              # 'spells/nif/opt_collisiongeometry.txt', #havoklayer issue
              # 'spells/nif/opt_collision_to_box_shape.txt', #havoklayer issue
              # 'formats/kfm/kfmtoaster.txt', #Not Implemented
-             # 'docs-sphinx/intro.rst', #outside of test dir...
+             # 'docs/intro.rst', #outside of test dir...
              }
 
 # various regression tests (outside documentation)
