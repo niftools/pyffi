@@ -1,24 +1,21 @@
-.. PyFFI documentation master file, created by sphinx-quickstart on Fri Oct 24 19:47:53 2008.
+.. PyFFI documentation master file, created by
+   sphinx-quickstart on Sat Jun 10 21:06:06 2017.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to PyFFI!
-=================
+Welcome to PyFFI's documentation!
+=================================
 
 :Release: |release|
 :Date:    |today|
 
-.. include:: ../README.rst
-
-Documentation
--------------
-
 .. toctree::
    :maxdepth: 2
+   :caption: Contents:
    
    intro
    install
-   pyffi
+   pyffi/index
 
    contribute
    authors
@@ -28,19 +25,11 @@ Documentation
    thanks
    glossary
 
-..
-   Possible entries for the future:
-   utilities
-   object_models
-   faq
-   examples
+.. include:: ../README.rst
 
 Indices and tables
-------------------
-  
+==================
+
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
-..
-  * :ref:`glossary`
