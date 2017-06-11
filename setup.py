@@ -1,5 +1,9 @@
 import sys
 from setuptools import setup
+from sphinx.setup_command import BuildDoc
+cmdclass = {
+    'build_sphinx': BuildDoc
+}
 
 """Setup script for PyFFI."""
 
@@ -73,6 +77,15 @@ setup(
         'scripts/patch_recursive_apply.py',
         'scripts/qskope.py'],
     author="Niftools Developers",
+    cmdclass=cmdclass,
+    # these are optional and override conf.py settings
+    command_options={
+        'build_sphinx': {
+            'project': ('setup.py', name),
+            'version': ('setup.py', version),
+            'release': ('setup.py', version)
+        }
+    },
     license="BSD",
     keywords="fileformat nif cgf binary interface stripify",
     platforms=["any"],

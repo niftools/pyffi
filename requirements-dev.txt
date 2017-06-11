@@ -5,4 +5,5 @@ pdbpp
 pyflakes
 pytest
 pytest-cov
-sphinx
+sphinx>1.5.6
+sphinx_rtd_theme

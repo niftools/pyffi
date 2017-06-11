@@ -71,7 +71,7 @@ All our documentation is written in ReST and can be generated into HTML,
 LaTeX, PDF and more thanks to Sphinx. You can generate it yourself::
 
     source venv/bin/activate
-    cd docs-sphinx
+    cd docs
     make html
 
 Examples

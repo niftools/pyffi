@@ -25,12 +25,11 @@ For format specific spells, refer to the corresponding module.
 .. toctree::
    :maxdepth: 2
    
-   pyffi.spells.cgf
-   pyffi.spells.dae
-   pyffi.spells.dds
-   pyffi.spells.kfm
-   pyffi.spells.nif
-   pyffi.spells.tga
+   cgf
+   dds
+   kfm
+   nif
+   tga
 
 Some spells are applicable on every file format, and those are documented
 here.
