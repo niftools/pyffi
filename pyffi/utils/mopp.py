@@ -165,7 +165,7 @@ def getMopperOriginScaleCodeWelding(vertices, triangles, material_indices=None):
             infile.write("%i %i %i\n" % tri)
         infile.write("\n%i\n" % len(material_indices))
         for matindex in material_indices:
-            infile.write("%i\n" % matindex)
+            infile.write("%i\n" % matindex.material)
         infile.seek(0)
         # call mopper (raises OSError on failure)
         if sys.platform == "win32":
@@ -185,7 +185,9 @@ def getMopperOriginScaleCodeWelding(vertices, triangles, material_indices=None):
                             for i in range(welding_info_len)]
         except ValueError:
             # conversion failed
-            raise RuntimeError("invalid mopper output (mopper failed?)")
+            raise RuntimeError("Invalid mopper output (mopper failed?)")
+    except:
+        raise RuntimeError("File writing error")
     finally:
         infile.close()
         outfile.close()

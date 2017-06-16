@@ -31,7 +31,7 @@ Read a DAE file
 >>> for i in range(4): #recurse up to root repo dir
 ...     dirpath = dirname(dirpath)
 >>> repo_root = dirpath
->>> format_root = os.path.join(repo_root, 'tests', 'dae')
+>>> format_root = os.path.join(repo_root, 'tests', 'formats', 'dae')
 >>> # check and read dae file
 >>> stream = open(os.path.join(format_root, 'cube.dae'), 'rb')
 >>> daedata = DaeFormat.Data()
@@ -50,13 +50,13 @@ Parse all DAE files in a directory tree
 ...     try:
 ...         # the replace call makes the doctest also pass on windows
 ...         os_path = stream.name
-...         split = (os_path.split(os.sep))[-3:]
+...         split = (os_path.split(os.sep))[-4:]
 ...         rejoin = os.path.join(*split).replace(os.sep, "/")
 ...         print("reading %s" % rejoin)
 ...         data.read(stream)
 ...     except Exception:
 ...         print("Warning: read failed due corrupt file, corrupt format description, or bug.")
-reading tests/dae/cube.dae
+reading tests/formats/dae/cube.dae
 Warning: read failed due corrupt file, corrupt format description, or bug.
 
 Create a DAE file from scratch and write to file

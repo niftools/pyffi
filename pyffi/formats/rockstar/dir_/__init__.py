@@ -23,7 +23,7 @@ Read a DIR file
 >>> for i in range(5): #recurse up to root repo dir
 ...     dirpath = dirname(dirpath)
 >>> repo_root = dirpath
->>> format_root = os.path.join(repo_root, 'tests', 'rockstar', 'dir')
+>>> format_root = os.path.join(repo_root, 'tests', 'formats', 'rockstar', 'dir')
 >>> file = os.path.join(format_root, 'test.dir').replace("\\\\", "/")
 >>> stream = open(file, 'rb')
 >>> data = DirFormat.Data()
@@ -48,14 +48,14 @@ Parse all DIR files in a directory tree
 ...     try:
 ...         # the replace call makes the doctest also pass on windows
 ...         os_path = stream.name
-...         split = (os_path.split(os.sep))[-4:]
+...         split = (os_path.split(os.sep))[-5:]
 ...         rejoin = os.path.join(*split).replace("\\\\", "/")
 ...         print("reading %s" % rejoin)
 ...     except Exception:
 ...         print(
 ...             "Warning: read failed due corrupt file,"
 ...             " corrupt format description, or bug.") # doctest: +REPORT_NDIFF
-reading tests/rockstar/dir/test.dir
+reading tests/formats/rockstar/dir/test.dir
 
 Create an DIR file from scratch and write to file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

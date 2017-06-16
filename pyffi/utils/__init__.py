@@ -43,6 +43,7 @@
 
 import os
 
+
 def walk(top, topdown=True, onerror=None, re_filename=None):
     """A variant of os.walk() which also works if top is a file instead of a
     directory, filters files by name, and returns full path. File names are
@@ -74,26 +75,15 @@ def walk(top, topdown=True, onerror=None, re_filename=None):
                 else:
                     yield os.path.join(dirpath, filename)
 
-#table = "."*32
-#for c in [chr(i) for i in range(32,128)]:
-#    table += c
-#table += "."*128
+# table = "."*32
+# for c in [chr(i) for i in range(32,128)]:
+#     table += c
+# table += "."*128
 chartable = '................................ !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.................................................................................................................................'.encode("ascii")
 
-def hex_dump(f, num_lines = 8):
-    """A function for hexdumping.
 
-    >>> from tempfile import TemporaryFile
-    >>> f = TemporaryFile()
-    >>> if f.write('abcdefg\\x0a'.encode("ascii")): pass
-    >>> if f.seek(2): pass # ignore result for py3k
-    >>> hex_dump(f, 2)
-                00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 
-    -----------------------------------------------------------
-    0x00000000  61 62>63 64 65 66 67 0A                         |abcdefg.        |
-    0x00000010                                                  |                |
-    <BLANKLINE>
-    """
+def hex_dump(f, num_lines=8):
+    """A function for hexdumping."""
 
     dumpstr = ""
 
@@ -126,26 +116,19 @@ def hex_dump(f, num_lines = 8):
             data += " ".encode("ascii")
         dumpstr += " |" + data.translate(chartable).decode("ascii") + "|\n"
         dumppos += 16
-    print(dumpstr)
+    return dumpstr
+
 
 def unique_map(hash_generator):
-    """Return a map and inverse map to indentify unique values based
+    """Return a map and inverse map to identify unique values based
     on hash, which is useful for removing duplicate data. If the hash
     generator yields None then the value is mapped to None (useful for
     discarding data).
-
-    >>> unique_map([])
-    ([], [])
-    >>> unique_map([3,2,6,None,1])
-    ([0, 1, 2, None, 3], [0, 1, 2, 4])
-    >>> unique_map([3,1,6,1])
-    ([0, 1, 2, 1], [0, 1, 2])
-    >>> unique_map([3,1,6,1,2,2,9,3,2])
-    ([0, 1, 2, 1, 3, 3, 4, 0, 3], [0, 1, 2, 4, 6])
     """
-    hash_map = [] # maps old index to new index
-    hash_map_inverse = [] # inverse: map new index to old index
-    hash_index_map = {None: None} # maps hash to new index (default for None)
+
+    hash_map = []  # maps old index to new index
+    hash_map_inverse = []  # inverse: map new index to old index
+    hash_index_map = {None: None}  # maps hash to new index (default for None)
     new_index = 0
     for old_index, hash_ in enumerate(hash_generator):
         try:
@@ -161,6 +144,7 @@ def unique_map(hash_generator):
             hash_map.append(hash_index)
     return hash_map, hash_map_inverse
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     import doctest
     doctest.testmod()

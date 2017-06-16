@@ -41,199 +41,33 @@
 
 # original license:
 
-##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-##~ License
-##~
-##- The RuneBlade Foundation library is intended to ease some
-##- aspects of writing intricate Jabber, XML, and User Interface (wxPython, etc.)
-##- applications, while providing the flexibility to modularly change the
-##- architecture. Enjoy.
-##~
-##~ Copyright (C) 2002  TechGame Networks, LLC.
-##~
-##~ This library is free software; you can redistribute it and/or
-##~ modify it under the terms of the BSD style License as found in the
-##~ LICENSE file included with this distribution.
-##~
-##~ TechGame Networks, LLC can be reached at:
-##~ 3578 E. Hartsel Drive #211
-##~ Colorado Springs, Colorado, USA, 80920
-##~
-##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~ License
+# ~
+# - The RuneBlade Foundation library is intended to ease some
+# - aspects of writing intricate Jabber, XML, and User Interface (wxPython, etc.)
+# - applications, while providing the flexibility to modularly change the
+# - architecture. Enjoy.
+# ~
+# ~ Copyright (C) 2002  TechGame Networks, LLC.
+# ~
+# ~ This library is free software; you can redistribute it and/or
+# ~ modify it under the terms of the BSD style License as found in the
+# ~ LICENSE file included with this distribution.
+# ~
+# ~ TechGame Networks, LLC can be reached at:
+# ~ 3578 E. Hartsel Drive #211
+# ~ Colorado Springs, Colorado, USA, 80920
+# ~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#~ Imports
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~ Imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 import operator # itemgetter
+from weakref import WeakSet
 
-
-try:
-    from weakref import WeakSet
-except ImportError:
-    # for py2k
-    from weakref import ref
-    class WeakSet(object):
-        """Simple weak set implementation.
-
-        >>> import gc
-        >>> ws = WeakSet()
-        >>> class Test(object):
-        ...     pass
-        >>> x = Test()
-        >>> y = Test()
-        >>> ws.add(x)
-        >>> list(ws)[0] is x
-        True
-        >>> ws.add(y)
-        >>> len(list(ws)) == 2
-        True
-        >>> del x
-        >>> tmp = gc.collect()
-        >>> list(ws)[0] is y
-        True
-        >>> del y
-        >>> tmp = gc.collect()
-        >>> list(ws)
-        []
-        """
-        def __init__(self, data=None):
-            self.data = set()
-            def _remove(item, selfref=ref(self)):
-                self = selfref()
-                if self is not None:
-                    self.data.discard(item)
-            self._remove = _remove
-            if data is not None:
-                self.update(data)
-
-        def __iter__(self):
-            for itemref in self.data:
-                item = itemref()
-                if item is not None:
-                    yield item
-
-        def __len__(self):
-            return sum(x() is not None for x in self.data)
-
-        def __contains__(self, item):
-            return ref(item) in self.data
-
-        def __reduce__(self):
-            return (self.__class__, (list(self),),
-                    getattr(self, '__dict__', None))
-
-        def add(self, item):
-            self.data.add(ref(item, self._remove))
-
-        def clear(self):
-            self.data.clear()
-
-        def copy(self):
-            return self.__class__(self)
-
-        def pop(self):
-            while True:
-                try:
-                    itemref = self.data.pop()
-                except KeyError:
-                    raise KeyError('pop from empty WeakSet')
-                item = itemref()
-                if item is not None:
-                    return item
-
-        def remove(self, item):
-            self.data.remove(ref(item))
-
-        def discard(self, item):
-            self.data.discard(ref(item))
-
-        def update(self, other):
-            if isinstance(other, self.__class__):
-                self.data.update(other.data)
-            else:
-                for element in other:
-                    self.add(element)
-        def __ior__(self, other):
-            self.update(other)
-            return self
-
-        # Helper functions for simple delegating methods.
-        def _apply(self, other, method):
-            if not isinstance(other, self.__class__):
-                other = self.__class__(other)
-            newdata = method(other.data)
-            newset = self.__class__()
-            newset.data = newdata
-            return newset
-
-        def difference(self, other):
-            return self._apply(other, self.data.difference)
-        __sub__ = difference
-
-        def difference_update(self, other):
-            if self is other:
-                self.data.clear()
-            else:
-                self.data.difference_update(ref(item) for item in other)
-        def __isub__(self, other):
-            if self is other:
-                self.data.clear()
-            else:
-                self.data.difference_update(ref(item) for item in other)
-            return self
-
-        def intersection(self, other):
-            return self._apply(other, self.data.intersection)
-        __and__ = intersection
-
-        def intersection_update(self, other):
-            self.data.intersection_update(ref(item) for item in other)
-        def __iand__(self, other):
-            self.data.intersection_update(ref(item) for item in other)
-            return self
-
-        def issubset(self, other):
-            return self.data.issubset(ref(item) for item in other)
-        __lt__ = issubset
-
-        def __le__(self, other):
-            return self.data <= set(ref(item) for item in other)
-
-        def issuperset(self, other):
-            return self.data.issuperset(ref(item) for item in other)
-        __gt__ = issuperset
-
-        def __ge__(self, other):
-            return self.data >= set(ref(item) for item in other)
-
-        def __eq__(self, other):
-            if not isinstance(other, self.__class__):
-                return NotImplemented
-            return self.data == set(ref(item) for item in other)
-
-        def symmetric_difference(self, other):
-            return self._apply(other, self.data.symmetric_difference)
-        __xor__ = symmetric_difference
-
-        def symmetric_difference_update(self, other):
-            if self is other:
-                self.data.clear()
-            else:
-                self.data.symmetric_difference_update(ref(item) for item in other)
-        def __ixor__(self, other):
-            if self is other:
-                self.data.clear()
-            else:
-                self.data.symmetric_difference_update(ref(item) for item in other)
-            return self
-
-        def union(self, other):
-            return self._apply(other, self.data.union)
-        __or__ = union
-
-        def isdisjoint(self, other):
-            return len(self.intersection(other)) == 0
 
 class Edge:
     """A directed edge which keeps track of its faces."""
@@ -244,13 +78,6 @@ class Edge:
         >>> edge = Edge(6, 9)
         >>> edge.verts
         (6, 9)
-        >>> edge = Edge(8, 5)
-        >>> edge.verts
-        (8, 5)
-        >>> edge = Edge(3, 3) # doctest: +ELLIPSIS
-        Traceback (most recent call last):
-            ...
-        ValueError: ...
         """
         
         if ev0 == ev1:
@@ -279,25 +106,7 @@ class Face:
         >>> face = Face(3, 7, 5)
         >>> face.verts
         (3, 7, 5)
-        >>> face = Face(9, 8, 2)
-        >>> face.verts
-        (2, 9, 8)
-        >>> face = Face(6, 1, 4)
-        >>> face.verts
-        (1, 4, 6)
         >>> Face(30, 0, 30) # doctest: +ELLIPSIS
-        Traceback (most recent call last):
-            ...
-        ValueError: ...
-        >>> Face(0, 40, 40) # doctest: +ELLIPSIS
-        Traceback (most recent call last):
-            ...
-        ValueError: ...
-        >>> Face(50, 50, 0) # doctest: +ELLIPSIS
-        Traceback (most recent call last):
-            ...
-        ValueError: ...
-        >>> Face(7, 7, 7) # doctest: +ELLIPSIS
         Traceback (most recent call last):
             ...
         ValueError: ...
@@ -324,20 +133,22 @@ class Face:
         """
         return "Face(%s, %s, %s)" % self.verts
 
+    def __eq__(self, other):
+        """
+        :param other:
+        :return:
+        """
+        return (self.verts[0] == other.verts[0]) & (self.verts[1] == self.verts[1]) & (self.verts[2] == self.verts[2])
+
+    def __hash__(self):
+        return self.verts[0] + self.verts[1] + self.verts[2]
+
     def get_next_vertex(self, vi):
         """Get next vertex of face.
 
         >>> face = Face(8, 7, 5)
         >>> face.get_next_vertex(8)
         7
-        >>> face.get_next_vertex(7)
-        5
-        >>> face.get_next_vertex(5)
-        8
-        >>> face.get_next_vertex(10) # doctest: +ELLIPSIS
-        Traceback (most recent call last):
-            ...
-        ValueError: ...
         """
         # XXX using list(self.verts) instead of self.verts
         # XXX for Python 2.5 compatibility
@@ -348,6 +159,7 @@ class Face:
         # XXX using list(self.verts) instead of self.verts
         # XXX for Python 2.5 compatibility
         return self.adjacent_faces[list(self.verts).index(vi)]
+
 
 class Mesh:
     """A mesh of interconnected faces.
@@ -455,72 +267,8 @@ class Mesh:
         3
         >>> len(m._edges)
         9
-        >>> f3 = m.add_face(2, 3, 4)
-        >>> f3 is f2
-        True
-        >>> f4 = m.add_face(10, 11, 12)
-        >>> f5 = m.add_face(12, 10, 11)
-        >>> f6 = m.add_face(11, 12, 10)
-        >>> f4 is f5
-        True
-        >>> f4 is f6
-        True
-        >>> len(m._faces)
-        4
-        >>> len(m._edges)
-        12
 
-        Another mesh::
 
-            0->-1
-             \\ / \\
-              2-<-3
-              2->-3
-               \\ /
-                4
-
-        >>> m = Mesh()
-        >>> f0 = m.add_face(0, 1, 2)
-        >>> f1 = m.add_face(1, 3, 2)
-        >>> f2 = m.add_face(2, 3, 4)
-        >>> list(f0.get_adjacent_faces(0))
-        [Face(1, 3, 2)]
-        >>> list(f0.get_adjacent_faces(1))
-        []
-        >>> list(f0.get_adjacent_faces(2))
-        []
-        >>> list(f1.get_adjacent_faces(1))
-        [Face(2, 3, 4)]
-        >>> list(f1.get_adjacent_faces(3))
-        [Face(0, 1, 2)]
-        >>> list(f1.get_adjacent_faces(2))
-        []
-        >>> list(f2.get_adjacent_faces(2))
-        []
-        >>> list(f2.get_adjacent_faces(3))
-        []
-        >>> list(f2.get_adjacent_faces(4))
-        [Face(1, 3, 2)]
-        >>> # add an extra face, and check changes
-        >>> f3 = m.add_face(2, 3, 5)
-        >>> list(f0.get_adjacent_faces(0))
-        [Face(1, 3, 2)]
-        >>> list(f0.get_adjacent_faces(1))
-        []
-        >>> list(f0.get_adjacent_faces(2))
-        []
-        >>> list(f1.get_adjacent_faces(1)) # extra face here!
-        [Face(2, 3, 4), Face(2, 3, 5)]
-        >>> list(f1.get_adjacent_faces(3))
-        [Face(0, 1, 2)]
-        >>> list(f1.get_adjacent_faces(2))
-        []
-        >>> list(f2.get_adjacent_faces(2))
-        []
-        >>> list(f2.get_adjacent_faces(3))
-        []
-        >>> list(f2.get_adjacent_faces(4))
-        [Face(1, 3, 2)]
         """
         face = Face(v0, v1, v2)
         try:
@@ -544,32 +292,17 @@ class Mesh:
         >>> m = Mesh()
         >>> f0 = m.add_face(3, 1, 2)
         >>> f1 = m.add_face(0, 1, 2)
-        >>> f2 = m.add_face(5, 6, 2)
         >>> m.faces # doctest: +ELLIPSIS
         Traceback (most recent call last):
             ...
         AttributeError: ...
         >>> m.lock()
         >>> m.faces # should be sorted
-        [Face(0, 1, 2), Face(1, 2, 3), Face(2, 5, 6)]
+        [Face(0, 1, 2), Face(1, 2, 3)]
         >>> m.faces[0].index
         0
         >>> m.faces[1].index
         1
-        >>> m.faces[2].index
-        2
-        >>> m._faces # doctest: +ELLIPSIS
-        Traceback (most recent call last):
-            ...
-        AttributeError: ...
-        >>> m._edges # doctest: +ELLIPSIS
-        Traceback (most recent call last):
-            ...
-        AttributeError: ...
-        >>> m.add_face(1, 2, 3) # doctest: +ELLIPSIS
-        Traceback (most recent call last):
-            ...
-        AttributeError: ...
         """
         # store faces and set their index
         self.faces = []
@@ -606,6 +339,6 @@ class Mesh:
                     #if id(face) in adj_adj_faces.data:
                     #    del adj_adj_faces.data[id(face)]
 
-if __name__=='__main__':
+if __name__ == '__main__':
     import doctest
     doctest.testmod()
