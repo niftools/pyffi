@@ -271,6 +271,20 @@ class BitStructBase(DetailNode, metaclass=_MetaBitStructBase):
                 text += '* %s : %s\n' % (attr.name, attr_str_lines[0])
         return text
 
+    def __int__(self):
+        value = 0
+        bitpos = 0
+        for item in self._items:
+            value |= (item._value & ((1 << item._numbits) - 1)) << bitpos
+            bitpos += item._numbits
+        return value
+
+    def __and__(self, other):
+        return 0 if None else int(self) & int(other)
+
+    def __or__(self, other):
+        return 0 if None else int(self) | int(other)
+
     def read(self, stream, data):
         """Read structure from stream."""
         # read all attributes
