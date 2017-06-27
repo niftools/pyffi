@@ -45,20 +45,21 @@ from functools import partial
 
 import struct
 
-from pyffi.object_models.editable import EditableSpinBox # for Bits
+from pyffi.object_models.editable import EditableSpinBox  # for Bits
 from pyffi.utils.graph import DetailNode, EdgeFilter
+
 
 class _MetaBitStructBase(type):
     """This metaclass checks for the presence of a _attrs attribute.
-    For each attribute in _attrs, an <attrname> property is generated which
-    gets and sets bit fields. Used as metaclass of BitStructBase."""
+    For each attribute in _attrs, an <attrname> property is generated which gets and sets bit fields.
+    Used as metaclass of BitStructBase."""
     def __init__(cls, name, bases, dct):
         super(_MetaBitStructBase, cls).__init__(name, bases, dct)
         # consistency checks
         if not '_attrs' in dct:
-            raise TypeError('%s: missing _attrs attribute'%cls)
+            raise TypeError('%s: missing _attrs attribute' % cls)
         if not '_numbytes' in dct:
-            raise TypeError('%s: missing _numbytes attribute'%cls)
+            raise TypeError('%s: missing _numbytes attribute' % cls)
 
         # check storage type
         if cls._numbytes == 1:
@@ -81,8 +82,8 @@ class _MetaBitStructBase(type):
         for attr in dct['_attrs']:
             # get and set basic attributes
             setattr(cls, attr.name, property(
-                partial(BitStructBase.get_attribute, name = attr.name),
-                partial(BitStructBase.set_attribute, name = attr.name),
+                partial(BitStructBase.get_attribute, name=attr.name),
+                partial(BitStructBase.set_attribute, name=attr.name),
                 doc=attr.doc))
 
         # precalculate the attribute list
@@ -91,10 +92,10 @@ class _MetaBitStructBase(type):
         # precalculate the attribute name list
         cls._names = cls._get_names()
 
+
 class Bits(DetailNode, EditableSpinBox):
-    """Basic implementation of a n-bit unsigned integer type (without read
-    and write)."""
-    def __init__(self, numbits = 1, default = 0, parent = None):
+    """Basic implementation of a n-bit unsigned integer type (without read and write)."""
+    def __init__(self, numbits=1, default=0, parent = None):
         # parent disabled for performance
         #self._parent = weakref.ref(parent) if parent else None
         self._value = default
@@ -135,14 +136,14 @@ class Bits(DetailNode, EditableSpinBox):
     def get_editor_maximum(self):
         return (1 << self._numbits) - 1
 
+
 class BitStructBase(DetailNode, metaclass=_MetaBitStructBase):
     """Base class from which all file bitstruct types are derived.
 
     The BitStructBase class implements the basic bitstruct interface:
     it will initialize all attributes using the class interface
     using the _attrs class variable, represent them as strings, and so on.
-    The class variable _attrs must be declared every derived class
-    interface.
+    The class variable _attrs must be declared every derived class interface.
 
     Each item in the class _attrs list stores the information about
     the attribute as stored for instance in the xml file, and the
@@ -178,7 +179,7 @@ class BitStructBase(DetailNode, metaclass=_MetaBitStructBase):
     <BLANKLINE>
     >>> y.to_int(None)
     13
-    >>> y.from_int(9, None)
+    >>> y.populate_attribute_values(9, None)
     >>> print(y) # doctest:+ELLIPSIS
     <class 'pyffi.object_models.xml.bit_struct.Flags'> instance at 0x...
     * a : 1
@@ -187,12 +188,12 @@ class BitStructBase(DetailNode, metaclass=_MetaBitStructBase):
     """
 
     _attrs = []
-    _numbytes = 1 # default width of a bitstruct
+    _numbytes = 1  # default width of a bitstruct
     _games = {}
-    arg = None # default argument
+    arg = None  # default argument
 
     # initialize all attributes
-    def __init__(self, template = None, argument = None, parent = None):
+    def __init__(self, template=None, argument=None, parent=None):
         """The constructor takes a tempate: any attribute whose type,
         or template type, is type(None) - which corresponds to
         TEMPLATE in the xml description - will be replaced by this
@@ -210,26 +211,23 @@ class BitStructBase(DetailNode, metaclass=_MetaBitStructBase):
         # initialize argument
         self.arg = argument
         # save parent (note: disabled for performance)
-        #self._parent = weakref.ref(parent) if parent else None
+        # self._parent = weakref.ref(parent) if parent else None
+
         # initialize item list
-        # this list is used for instance by qskope to display the structure
-        # in a tree view
+        # list is used for instance by qskope to display the structure in a tree view
         self._items = []
         # initialize attributes
         for attr in self._attribute_list:
-            # skip attributes with dupiclate names
+            # skip attributes with duplicate names
             if attr.name in names:
                 continue
             names.append(attr.name)
 
             # instantiate the integer
-            if attr.default != None:
-                attr_instance = Bits(numbits = attr.numbits,
-                                     default = attr.default,
-                                     parent = self)
+            if attr.default is not None:
+                attr_instance = Bits(numbits=attr.numbits, default=attr.default, parent=self)
             else:
-                attr_instance = Bits(numbits = attr.numbits,
-                                     parent = self)
+                attr_instance = Bits(numbits=attr.numbits, parent=self)
 
             # assign attribute value
             setattr(self, "_%s_value_" % attr.name, attr_instance)
@@ -280,24 +278,24 @@ class BitStructBase(DetailNode, metaclass=_MetaBitStructBase):
         return value
 
     def __and__(self, other):
-        return 0 if None else int(self) & int(other)
+        return 0 if None else self.__int__() & int(other)
 
     def __or__(self, other):
-        return 0 if None else int(self) | int(other)
+        return 0 if None else self.__int__() | int(other)
 
     def read(self, stream, data):
         """Read structure from stream."""
         # read all attributes
-        value = struct.unpack(data._byte_order + self._struct,
-                              stream.read(self._numbytes))[0]
-        # set the structure variables
-        self.from_int(value, data)
+        value = struct.unpack(data._byte_order + self._struct, stream.read(self._numbytes))[0]
 
-    def from_int(self, value, data):
+        # set the structure variables
+        self.populate_attribute_values(value, data)
+
+    def populate_attribute_values(self, value, data):
         """Set structure values from integer."""
         bitpos = 0
         for attr in self._get_filtered_attribute_list(data):
-            #print(attr.name) # debug
+            # print(attr.name) # debug
             attrvalue = (value >> bitpos) & ((1 << attr.numbits) - 1)
             setattr(self, attr.name, attrvalue)
             bitpos += attr.numbits
@@ -316,8 +314,7 @@ class BitStructBase(DetailNode, metaclass=_MetaBitStructBase):
 
     def write(self, stream, data):
         """Write structure to stream."""
-        stream.write(struct.pack(data._byte_order + self._struct,
-                                 self.to_int(data)))
+        stream.write(struct.pack(data._byte_order + self._struct, self.to_int(data)))
 
     def fix_links(self, data):
         """Fix links in the structure."""
@@ -368,7 +365,7 @@ class BitStructBase(DetailNode, metaclass=_MetaBitStructBase):
         for base in cls.__bases__:
             try:
                 attrs.extend(base._get_attribute_list())
-            except AttributeError: # when base class is "object"
+            except AttributeError:  # when base class is "object"
                 pass
         attrs.extend(cls._attrs)
         return attrs
@@ -379,11 +376,6 @@ class BitStructBase(DetailNode, metaclass=_MetaBitStructBase):
         Skips duplicate names."""
         # string of attributes of base classes of cls
         names = []
-        #for base in cls.__bases__:
-        #    try:
-        #        names.extend(base._get_names())
-        #    except AttributeError: # when base class is "object"
-        #        pass
         for attr in cls._attrs:
             if attr.name in names:
                 continue
@@ -392,15 +384,12 @@ class BitStructBase(DetailNode, metaclass=_MetaBitStructBase):
         return names
 
     def _get_filtered_attribute_list(self, data=None):
-        """Generator for listing all 'active' attributes, that is,
-        attributes whose condition evaluates ``True``, whose version
-        interval contaions C{version}, and whose user version is
-        C{user_version}. ``None`` for C{version} or C{user_version} means
-        that these checks are ignored. Duplicate names are skipped as
-        well.
+        """Generator for listing all 'active' attributes, that is, attributes whose condition evaluates ``True``,
+        whose version interval contains C{version}, and whose user version is C{user_version}.
+        ``None`` for C{version} or C{user_version} means that these checks are ignored.
+        Duplicate names are skipped as well.
 
-        Note: Use data instead of version and user_version (old way will be
-        deprecated)."""
+        Note: Use data instead of version and user_version (old way will be deprecated)."""
         names = []
         if data:
             version = data.version
@@ -409,7 +398,7 @@ class BitStructBase(DetailNode, metaclass=_MetaBitStructBase):
             version = None
             user_version = None
         for attr in self._attribute_list:
-            #print(attr.name, version, attr.ver1, attr.ver2) # debug
+            # print(attr.name, version, attr.ver1, attr.ver2) # debug
 
             # check version
             if not (version is None):
@@ -417,23 +406,23 @@ class BitStructBase(DetailNode, metaclass=_MetaBitStructBase):
                     continue
                 if (not (attr.ver2 is None)) and version > attr.ver2:
                     continue
-            #print("version check passed") # debug
+            # print("version check passed") # debug
 
             # check user version
             if not(attr.userver is None or user_version is None) \
                and user_version != attr.userver:
                 continue
-            #print("user version check passed") # debug
+            # print("user version check passed") # debug
 
             # check condition
             if not (attr.cond is None) and not attr.cond.eval(self):
                 continue
-            #print("condition passed") # debug
+            # print("condition passed") # debug
 
             # skip dupiclate names
             if attr.name in names:
                 continue
-            #print("duplicate check passed") # debug
+            # print("duplicate check passed") # debug
 
             names.append(attr.name)
             # passed all tests

@@ -1390,7 +1390,7 @@ class NifFormat(FileFormat):
                 # complete NiDataStream data
                 if block_type == "NiDataStream":
                     block.usage = data_stream_usage
-                    block.access.from_int(data_stream_access, self)
+                    block.access.populate_attribute_values(data_stream_access, self)
                 # store block index
                 self._block_dct[block_index] = block
                 self.blocks.append(block)
