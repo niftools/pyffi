@@ -80,6 +80,7 @@ class Expression(object):
     >>> bool(Expression('(1 <= 2) && (2 <= 3) && (3 <= 4)').eval())
     True
     """
+
     operators = set(('==', '!=', '>=', '<=', '&&', '||', '&', '|', '-', '!',
                      '<', '>', '/', '*', '+'))
 
@@ -121,9 +122,7 @@ class Expression(object):
             if (not self._right) or self._right == '""':
                 right = ""
             else:
-                right = data
-                for part in self._left.split("."):
-                    right = getattr(data, self._right)
+                right = getattr(data, self._right)
         elif isinstance(self._right, type):
             right = isinstance(data, self._right)
         elif self._right is None:
@@ -133,17 +132,17 @@ class Expression(object):
             right = self._right
 
         if self._op == '==':
-            return int(left == right)
+            return left == right
         elif self._op == '!=':
-            return int(left != right)
+            return left != right
         elif self._op == '>=':
-            return int(left >= right)
+            return left >= right
         elif self._op == '<=':
-            return int(left <= right)
+            return left <= right
         elif self._op == '&&':
-            return int(left and right)
+            return left and right
         elif self._op == '||':
-            return int(left or right)
+            return left or right
         elif self._op == '&':
             return left & right
         elif self._op == '|':
@@ -151,15 +150,15 @@ class Expression(object):
         elif self._op == '-':
             return left - right
         elif self._op == '!':
-            return int(not (right))
+            return not (right)
         elif self._op == '>':
-            return int(left > right)
+            return left > right
         elif self._op == '<':
-            return int(left < right)
+            return left < right
         elif self._op == '/':
-            return int(left / right)
+            return left / right
         elif self._op == '*':
-            return int(left * right)
+            return left * right
         elif self._op == '+':
             return left + right
         else:
