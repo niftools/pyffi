@@ -81,8 +81,7 @@ class Expression(object):
     """
     operators = set(( '==', '!=', '>=', '<=', '&&', '||', '&', '|', '-', '!',
                   '<', '>', '/', '*', '+' ))
-    arg_array_pattern = re.compile(r'^ARG\[(.)+\]$')
-    
+
     def __init__(self, expr_str, name_filter = None):
         try:
             left, self._op, right = self._partition(expr_str)
@@ -103,14 +102,7 @@ class Expression(object):
             else:
                 left = data
                 for part in self._left.split("."):
-                    if hasattr(left, 'ARG'):
-                        m = arg_array_pattern.match(part)
-                        if m:
-                            left = getattr(left, 'ARG')[int(m.group(1))]
-                        else:
-                            left = getattr(left, part)
-                    else:
-                        left = getattr(left, part)
+                    left = getattr(left, part)
         elif isinstance(self._left, type):
             left = isinstance(data, self._left)
         elif self._left is None:
@@ -128,13 +120,8 @@ class Expression(object):
             if (not self._right) or self._right == '""':
                 right = ""
             else:
-                if hasattr(data, 'ARG'):
-                    m = arg_array_pattern.match(self._right)
-                    if m:
-                        right = getattr(data, 'ARG')[int(m.group(1))]
-                    else:
-                        right = getattr(data, self._right)
-                else:
+                right = data
+                for part in self._left.split("."):
                     right = getattr(data, self._right)
         elif isinstance(self._right, type):
             right = isinstance(data, self._right)
