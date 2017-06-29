@@ -73,12 +73,6 @@ class Expression(object):
     True
     >>> bool(Expression('1 != 1').eval())
     False
-    >>> bool(Expression('!(1 == 1)').eval())
-    False
-    >>> bool(Expression('!((1 <= 2) && (2 <= 3))').eval())
-    False
-    >>> bool(Expression('(1 <= 2) && (2 <= 3) && (3 <= 4)').eval())
-    True
     """
 
     operators = set(('==', '!=', '>=', '<=', '&&', '||', '&', '|', '-', '!',
@@ -214,25 +208,14 @@ class Expression(object):
 
         >>> Expression._partition('abc || efg')
         ('abc', '||', 'efg')
-        >>> Expression._partition('abc||efg')
-        ('abc', '||', 'efg')
-        >>> Expression._partition('abcdefg')
-        ('abcdefg', '', '')
-        >>> Expression._partition(' abcdefg ')
-        ('abcdefg', '', '')
-        >>> Expression._partition(' (a | b) & c ')
-        ('a | b', '&', 'c')
-        >>> Expression._partition('(a | b)!=(b&c)')
-        ('a | b', '!=', 'b&c')
         >>> Expression._partition('(a== b) &&(( b!=c)||d )')
         ('a== b', '&&', '( b!=c)||d')
         >>> Expression._partition('!(1 <= 2)')
         ('', '!', '(1 <= 2)')
         >>> Expression._partition('')
         ('', '', '')
-        >>> Expression._partition('(1 == 1)')
-        ('1 == 1', '', '')
         """
+
         # strip whitespace
         expr_str = expr_str.strip()
 
