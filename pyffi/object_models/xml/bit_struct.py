@@ -157,7 +157,6 @@ class BitStructBase(DetailNode, metaclass=_MetaBitStructBase):
     See the pyffi.XmlHandler class for a more advanced example.
 
     >>> from pyffi.object_models.xml.basic import BasicBase
-    >>> from pyffi.object_models.xml.expression import Expression
     >>> from pyffi.object_models.xml import BitStructAttribute as Attr
     >>> class SimpleFormat(object):
     ...     @staticmethod
@@ -166,8 +165,8 @@ class BitStructBase(DetailNode, metaclass=_MetaBitStructBase):
     >>> class Flags(BitStructBase):
     ...     _numbytes = 1
     ...     _attrs = [
-    ...         Attr(SimpleFormat, dict(name = 'a', numbits = '3')),
-    ...         Attr(SimpleFormat, dict(name = 'b', numbits = '1'))]
+    ...         Attr(SimpleFormat, dict(name='a', numbits='3')),
+    ...         Attr(SimpleFormat, dict(name='b', numbits='1'))]
     >>> SimpleFormat.Flags = Flags
     >>> y = Flags()
     >>> y.a = 5
@@ -177,7 +176,7 @@ class BitStructBase(DetailNode, metaclass=_MetaBitStructBase):
     * a : 5
     * b : 1
     <BLANKLINE>
-    >>> y.to_int(None)
+    >>> y.get_attributes_values(None)
     13
     >>> y.populate_attribute_values(9, None)
     >>> print(y) # doctest:+ELLIPSIS
@@ -300,7 +299,7 @@ class BitStructBase(DetailNode, metaclass=_MetaBitStructBase):
             setattr(self, attr.name, attrvalue)
             bitpos += attr.numbits
 
-    def to_int(self, data):
+    def get_attributes_values(self, data):
         # implementation note: not defined via __int__ because conversion
         # takes arguments
         """Get as integer."""
@@ -314,7 +313,7 @@ class BitStructBase(DetailNode, metaclass=_MetaBitStructBase):
 
     def write(self, stream, data):
         """Write structure to stream."""
-        stream.write(struct.pack(data._byte_order + self._struct, self.to_int(data)))
+        stream.write(struct.pack(data._byte_order + self._struct, self.get_attributes_values(data)))
 
     def fix_links(self, data):
         """Fix links in the structure."""
