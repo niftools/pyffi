@@ -1,13 +1,13 @@
+import unittest
+
 from pyffi.object_models.xml.expression import Expression
-
-from tests.utils import assert_tuple_values
-
 from nose.tools import assert_equals, assert_false, assert_true, raises
 
 
 class A(object):
     x = False
     y = True
+
 
 class B(object):
 
@@ -18,13 +18,12 @@ class B(object):
         return self.__int__() * int(other)
 
 
-class TestExpression:
+class TestExpression(unittest.TestCase):
 
     def setUp(self):
         self.a = A()
 
     def test_data_source_evaluation(self):
-        self.a = A()
         e = Expression('x || y')
         assert_equals(e.eval(self.a), 1)
 
