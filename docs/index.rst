@@ -23,6 +23,7 @@ Welcome to PyFFI's documentation!
    changes
    todo
    thanks
+   faq
    glossary
 
 .. include:: ../README.rst
