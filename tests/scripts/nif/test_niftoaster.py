@@ -3,14 +3,14 @@
 import os
 import os.path
 
-import nose.tools
+from nose.tools import assert_equal, assert_raises, assert_almost_equal, raises
 
 from tests.scripts.nif import call_niftoaster
 
 nif_dir = "tests/spells/nif/files/"
 
 
-@nose.tools.raises(SystemExit)  # --help uses sys.exit()
+@raises(SystemExit)  # --help uses sys.exit()
 def test_help():
     """Tests spell help"""
     call_niftoaster("--raise", "--help")
@@ -26,7 +26,7 @@ def test_spells():
     call_niftoaster("--raise", "--spells")
 
 
-@nose.tools.raises(AttributeError)
+@raises(AttributeError)
 def test_raise():
     """Test exception raised on invalid nif"""
     call_niftoaster("--raise", "check_readwrite", nif_dir + "invalid.nif")
@@ -35,7 +35,7 @@ def test_raise():
 def test_no_raise():
     """Test ignore exception raised on invalid nif"""
     toaster = call_niftoaster("check_readwrite", nif_dir + "invalid.nif")
-    nose.tools.assert_equal(sorted(toaster.files_failed), [nif_dir + "invalid.nif"])
+    assert_equal(sorted(toaster.files_failed), [nif_dir + "invalid.nif"])
 
 
 def test_check_readwrite():
@@ -43,20 +43,18 @@ def test_check_readwrite():
     for filename in ["nds.nif", "neosteam.nif", "test.nif"]:
         file_path = nif_dir + "{0}".format(filename)
         toaster = call_niftoaster("--raise", "check_readwrite", file_path)
-        nose.tools.assert_equal(sorted(toaster.files_done), [file_path])
+        assert_equal(sorted(toaster.files_done), [file_path])
 
 
 def test_check_skip_only():
     """Test skip NIF files using filters and type"""
     toaster = call_niftoaster(
         *("--raise --skip texture --skip skin --only fix_t --only center check_nop {0}".format(nif_dir).split()))
-    nose.tools.assert_equal(
-        sorted(toaster.files_done), [
+    assert_equal(sorted(toaster.files_done), [
             nif_dir + 'test_centerradius.nif',
             nif_dir + 'test_fix_tangentspace.nif'])
 
-    nose.tools.assert_equal(
-        sorted(toaster.files_skipped), [
+    assert_equal(sorted(toaster.files_skipped), [
             nif_dir + 'invalid.nif',
             nif_dir + 'nds.nif',
             nif_dir + 'neosteam.nif',
@@ -94,14 +92,14 @@ def test_check_skip_only():
             nif_dir + 'test_skincenterradius.nif',
             nif_dir + 'test_vertexcolor.nif',
             ])
-    nose.tools.assert_equal(toaster.files_failed, set([]))
+    assert_equal(toaster.files_failed, set([]))
 
 
 def test_prefix_suffix():
     """Test add prefix and suffix to output"""
     call_niftoaster(
         *("--raise --prefix=pre_ --suffix=_suf --noninteractive optimize {0}test.nif".format(nif_dir).split()))
-    nose.tools.assert_equal(os.path.exists(nif_dir + "pre_test_suf.nif"), True)
+    assert_equal(os.path.exists(nif_dir + "pre_test_suf.nif"), True)
     os.remove(nif_dir + "pre_test_suf.nif")
 
 #TODO Move to spell test
@@ -112,11 +110,11 @@ def test_check_bhkbodycenter():
     toaster = call_niftoaster("--raise", "check_bhkbodycenter", testfile)
     orig = toaster.files_done[testfile][0]["center"]["orig"]
     calc = toaster.files_done[testfile][0]["center"]["calc"]
-    nose.tools.assert_equal(orig, (0.0, 0.0, 0.0, 0.0))
-    nose.tools.assert_almost_equal(calc[0], -1.08541444)
-    nose.tools.assert_almost_equal(calc[1], 18.46527444)
-    nose.tools.assert_almost_equal(calc[2], 6.88672184)
-    nose.tools.assert_almost_equal(calc[3], 0.0)
+    assert_equal(orig, (0.0, 0.0, 0.0, 0.0))
+    assert_almost_equal(calc[0], -1.08541444)
+    assert_almost_equal(calc[1], 18.46527444)
+    assert_almost_equal(calc[2], 6.88672184)
+    assert_almost_equal(calc[3], 0.0)
 
 
 def test_check_centerradius():
@@ -128,10 +126,10 @@ def test_check_centerradius():
     calc_center = toaster.files_done[testfile][0]["center"]["calc"]
     orig_radius = toaster.files_done[testfile][0]["radius"]["orig"]
     calc_radius = toaster.files_done[testfile][0]["radius"]["calc"]
-    nose.tools.assert_equal(vertex_outside, (10.0, -10.0, -10.0))
-    nose.tools.assert_equal(orig_center, (-1.0, 0.0, 0.0))
-    nose.tools.assert_almost_equal(orig_radius, 10.0)
-    nose.tools.assert_almost_equal(calc_radius, 17.32050890)
+    assert_equal(vertex_outside, (10.0, -10.0, -10.0))
+    assert_equal(orig_center, (-1.0, 0.0, 0.0))
+    assert_almost_equal(orig_radius, 10.0)
+    assert_almost_equal(calc_radius, 17.32050890)
 
 """
 The check_skincenterradius spell
