@@ -40,7 +40,7 @@
 # --------------------------------------------------------------------------
 
 # note: some imports are defined at the end to avoid problems with circularity
-
+import logging
 import weakref
 
 from pyffi.utils.graph import DetailNode, EdgeFilter
@@ -123,6 +123,7 @@ class Array(_ListWrap):
     """A general purpose class for 1 or 2 dimensional arrays consisting of
     either BasicBase or StructBase elements."""
 
+    logger = logging.getLogger("pyffi.nif.data.array")
     arg = None # default argument
 
     def __init__(
@@ -285,11 +286,14 @@ class Array(_ListWrap):
         """Read array from stream."""
         # parse arguments
         self._elementTypeArgument = self.arg
+
         # check array size
         len1 = self._len1()
+        self.logger.debug("Reading array of size " + str(len1))
         if len1 > 0x10000000:
             raise ValueError('array too long (%i)' % len1)
         del self[0:self.__len__()]
+
         # read array
         if self._count2 == None:
             for i in range(len1):
@@ -323,7 +327,7 @@ class Array(_ListWrap):
 describing number of elements (%i)'%(self.__len__(),len1))
         if len1 > 0x10000000:
             raise ValueError('array too long (%i)' % len1)
-        if self._count2 == None:
+        if self._count2 is not None:
             for elem in list.__iter__(self):
                 elem.write(stream, data)
         else:

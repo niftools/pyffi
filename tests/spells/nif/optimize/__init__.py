@@ -17,7 +17,7 @@ test_root = dir_path
 class BaseFileTestCase(unittest.TestCase):
     def setUp(self):
         super(BaseFileTestCase, self).setUp()
-        #.. set up that everyone needs ..
+        # set up that everyone needs ..
         self.input_files = os.path.join(test_root, 'spells', 'nif', 'files').replace("\\", "/")
         self.out = tempfile.mkdtemp()
 
@@ -34,7 +34,7 @@ class BaseFileTestCase(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self.out)
-        #.. tear down that everyone needs ..
+        # tear down that everyone needs ..
         super(BaseFileTestCase, self).tearDown()
 
 

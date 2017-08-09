@@ -6,6 +6,7 @@ from pyffi.spells import Toaster
 
 from nose.tools import assert_true, assert_false
 
+
 class TestMergeDuplicatesOptimisation(BaseFileTestCase):
     # I didn't need setUp and tearDown here..
 
@@ -27,8 +28,7 @@ class TestMergeDuplicatesGeomOptimisation(BaseFileTestCase):
         super(TestMergeDuplicatesGeomOptimisation, self).copyFile()
 
     def test_non_interactive_opt_merge_duplicates(self):
-        pass
-        # call_niftoaster("--raise", "opt_mergeduplicates", "--dry-run",  "--noninteractive", "--verbose=1", self.dest_file)
+        call_niftoaster("--raise", "opt_mergeduplicates", "--dry-run",  "--noninteractive", "--verbose=2", self.dest_file)
 
         """
             pyffi.toaster:INFO:=== tests/spells/nif/files/test_opt_dupgeomdata.nif ===
