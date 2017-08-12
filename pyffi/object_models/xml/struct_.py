@@ -40,7 +40,7 @@
 # --------------------------------------------------------------------------
 
 # note: some imports are defined at the end to avoid problems with circularity
-
+import logging
 from functools import partial
 
 
@@ -222,6 +222,7 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
     _attrs = []
     _games = {}
     arg = None
+    logger = logging.getLogger("pyffi.nif.data.struct")
 
     # initialize all attributes
     def __init__(self, template = None, argument = None, parent = None):
@@ -336,6 +337,20 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
                 text += '* %s : <None>\n' % attr.name
         return text
 
+    def _log_struct(self, stream, attr):
+        val = getattr(self, "_%s_value_" % attr.name)  # debug
+        if not isinstance(val, BasicBase):  # debug
+            self.logger.debug(val.__class__.__name__ + ":" + attr.name)
+        else:
+            try:
+                out = val.get_value()  # debug
+            except Exception:
+                pass
+            else:
+                offset = stream.tell()
+                hex_ver = "0x%08X" % offset
+                self.logger.debug("* {0}.{1} = {2} : type {3} at {4} offset {5} - ".format(self.__class__.__name__, attr.name, str(out), attr.type_, hex_ver, offset ))  # debug
+
     def read(self, stream, data):
         """Read structure from stream."""
         # read all attributes
@@ -345,23 +360,15 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
                 continue
             # get attribute argument (can only be done at runtime)
             rt_arg = attr.arg if isinstance(attr.arg, (int, type(None))) \
-                     else getattr(self, attr.arg)
+                else getattr(self, attr.arg)
             # read the attribute
             attr_value = getattr(self, "_%s_value_" % attr.name)
             attr_value.arg = rt_arg
-            if hasattr(attr, "type_"):
-                attr_value._elementType = attr.type_
+            # if hasattr(attr, "type_"):
+            #     attr_value._elementType = attr.type_
+            self._log_struct(stream, attr)
             attr_value.read(stream, data)
-            ### UNCOMMENT FOR DEBUGGING WHILE READING
-            #print("* %s.%s" % (self.__class__.__name__, attr.name)) # debug
-            #val = getattr(self, "_%s_value_" % attr.name) # debug
-            #if isinstance(val, BasicBase): # debug
-            #    try:
-            #        print(val.get_value()) # debug
-            #    except Exception:
-            #        pass
-            #else:
-            #    print(val.__class__.__name__)
+
 
     def write(self, stream, data):
         """Write structure to stream."""
@@ -377,27 +384,17 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
             attr_value = getattr(self, "_%s_value_" % attr.name)
             attr_value.arg = rt_arg
             getattr(self, "_%s_value_" % attr.name).write(stream, data)
-            ### UNCOMMENT FOR DEBUGGING WHILE WRITING
-            #print("* %s.%s" % (self.__class__.__name__, attr.name)) # debug
-            #val = getattr(self, "_%s_value_" % attr.name) # debug
-            #if isinstance(val, BasicBase): # debug
-            #    try:
-            #        print(val.get_value()) # debug
-            #    except Exception:
-            #        pass
-            #else:
-            #    print(val.__class__.__name__)
+            self._log_struct(stream, attr)
 
     def fix_links(self, data):
         """Fix links in the structure."""
         # parse arguments
         # fix links in all attributes
         for attr in self._get_filtered_attribute_list(data):
-            # check if there are any links at all
-            # (commonly this speeds things up considerably)
+            # check if there are any links at all, commonly this speeds things up considerably
             if not attr.type_._has_links:
                 continue
-            #print("fixlinks %s" % attr.name)
+            self.logger.debug("fixlinks %s" % attr.name)
             # fix the links in the attribute
             getattr(self, "_%s_value_" % attr.name).fix_links(data)
 
@@ -406,8 +403,7 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
         # get all links
         links = []
         for attr in self._get_filtered_attribute_list(data):
-            # check if there are any links at all
-            # (this speeds things up considerably)
+            # check if there are any links at all, this speeds things up considerably
             if not attr.type_._has_links:
                 continue
             # extend list of links
@@ -421,8 +417,7 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
         # get all strings
         strings = []
         for attr in self._get_filtered_attribute_list(data):
-            # check if there are any strings at all
-            # (this speeds things up considerably)
+            # check if there are any strings at all, this speeds things up considerably
             if (not attr.type_ is type(None)) and (not attr.type_._has_strings):
                 continue
             # extend list of strings

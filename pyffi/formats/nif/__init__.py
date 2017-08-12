@@ -1390,7 +1390,7 @@ class NifFormat(FileFormat):
                 # complete NiDataStream data
                 if block_type == "NiDataStream":
                     block.usage = data_stream_usage
-                    block.access.from_int(data_stream_access, self)
+                    block.access.populate_attribute_values(data_stream_access, self)
                 # store block index
                 self._block_dct[block_index] = block
                 self.blocks.append(block)
@@ -1567,7 +1567,7 @@ class NifFormat(FileFormat):
             # special case: NiDataStream stores part of data in block type list
             if block_type == "NiDataStream":
                 block_type = ("NiDataStream\x01%i\x01%i"
-                              % (root.usage, root.access.to_int(self)))
+                              % (root.usage, root.access.get_attributes_values(self)))
             try:
                 block_type_dct[root] = block_type_list.index(block_type)
             except ValueError:

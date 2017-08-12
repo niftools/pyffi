@@ -6,6 +6,7 @@ from pyffi.spells import Toaster
 
 from nose.tools import assert_true, assert_false
 
+
 class TestMergeDuplicatesOptimisation(BaseFileTestCase):
     # I didn't need setUp and tearDown here..
 
