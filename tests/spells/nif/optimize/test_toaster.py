@@ -8,11 +8,11 @@ from tests import test_logger
 from pyffi.spells import Toaster
 
 
-class FileTestOptimisation(BaseFileTestCase):
+class TestToasterOptimisation(BaseFileTestCase):
     # I didn't need setUp and tearDown here..
 
     def setUp(self):
-        super(FileTestOptimisation, self).setUp()
+        super(TestToasterOptimisation, self).setUp()
         self.src_name = "test.nif"
         self.src_file = os.path.join(self.input_files, self.src_name)
         self.dest_file = os.path.join(self.out, self.src_name)

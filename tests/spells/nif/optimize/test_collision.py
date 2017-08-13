@@ -1,7 +1,3 @@
-from tests.scripts.nif import call_niftoaster
-import os
-import shutil
-
 from . import BaseFileTestCase
 import nose
 import pyffi
@@ -77,12 +73,14 @@ class TestBoxCollisionOptimisation(BaseFileTestCase):
         spell = pyffi.spells.nif.optimize.SpellOptimizeCollisionBox(data=self.data)
         spell.recurse()
 
-        # pyffi.toaster:INFO:--- opt_collisionbox ---
-        # pyffi.toaster:INFO:  ~~~ NiNode [TestBhkNiTriStripsShape] ~~~
-        # pyffi.toaster:INFO:    ~~~ bhkCollisionObject [] ~~~
-        # pyffi.toaster:INFO:      ~~~ bhkRigidBodyT [] ~~~
-        # pyffi.toaster:INFO:        optimized box collision
-        # pyffi.toaster:INFO:    ~~~ NiTriShape [Stuff] ~~~
+        """
+        pyffi.toaster:INFO:--- opt_collisionbox ---
+        pyffi.toaster:INFO:  ~~~ NiNode [TestBhkNiTriStripsShape] ~~~
+        pyffi.toaster:INFO:    ~~~ bhkCollisionObject [] ~~~
+        pyffi.toaster:INFO:      ~~~ bhkRigidBodyT [] ~~~
+        pyffi.toaster:INFO:        optimized box collision
+        pyffi.toaster:INFO:    ~~~ NiTriShape [Stuff] ~~~
+        """
 
         # check optimized data
         shape = self.data.roots[0].collision_object.body.shape
