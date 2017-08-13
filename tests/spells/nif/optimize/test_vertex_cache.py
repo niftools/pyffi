@@ -1,4 +1,4 @@
-from . import BaseFileTestCase
+from tests.utils import BaseFileTestCase
 from nose.tools import assert_equals
 
 import pyffi

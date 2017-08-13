@@ -1,6 +1,6 @@
 from tests.scripts.nif import call_niftoaster
+from tests.utils import BaseFileTestCase
 
-from . import BaseFileTestCase
 import pyffi
 from pyffi.spells import Toaster
 

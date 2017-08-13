@@ -1,7 +1,8 @@
-from . import BaseFileTestCase
+from tests.utils import BaseFileTestCase
 from nose.tools import assert_true
 from tests import test_logger
 import pyffi
+from tests.utils import BaseFileTestCase
 
 
 class TestDelZeroScaleOptimisation(BaseFileTestCase):

@@ -1,4 +1,4 @@
-from . import BaseFileTestCase
+from tests.utils import BaseFileTestCase
 import nose
 import pyffi
 from pyffi.spells import Toaster

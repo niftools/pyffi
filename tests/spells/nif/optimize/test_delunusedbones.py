@@ -1,4 +1,4 @@
-from . import BaseFileTestCase
+from tests.utils import BaseFileTestCase
 from nose.tools import assert_equals, assert_is
 from pyffi.spells.nif.optimize import SpellDelUnusedBones
 

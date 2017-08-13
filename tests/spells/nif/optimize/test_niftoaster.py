@@ -1,8 +1,5 @@
 from tests.scripts.nif import call_niftoaster
-import os
-import shutil
-
-from . import BaseFileTestCase
+from tests.utils import BaseFileTestCase
 from tests import test_logger
 
 from pyffi.spells import Toaster
@@ -14,10 +11,7 @@ class TestToasterOptimisation(BaseFileTestCase):
     def setUp(self):
         super(TestToasterOptimisation, self).setUp()
         self.src_name = "test.nif"
-        self.src_file = os.path.join(self.input_files, self.src_name)
-        self.dest_file = os.path.join(self.out, self.src_name)
-        shutil.copyfile(self.src_file, self.dest_file)
-        assert os.path.exists(self.dest_file)
+        super(TestToasterOptimisation, self).copyFile()
 
     def test_non_interactive_optimisation(self):
         call_niftoaster("optimize", "--raise", "--noninteractive", "--verbose=1", self.dest_file)
@@ -42,13 +36,13 @@ class TestToasterOptimisation(BaseFileTestCase):
         """
 
     def test_simulate_user_optimisation(self):
-        Toaster.toast.__globals__['input'] = inputfunc
+        Toaster.toast.__globals__['input'] = input_func
         call_niftoaster("optimize", "--raise", "--verbose=1", self.dest_file)
 
+inputs = ["yes it is", "n", "y"]  # list of inputs of this test
 
 
-inputlist = ["yes it is", "n", "y"]  # list of inputs of this test
-def inputfunc(self, msg=""):
-    result = inputlist.pop(0)
-    print("%s%s" % (msg, result))
+def input_func(self, msg=""):
+    result = inputs.pop(0)
+    test_logger.debug("%s%s" % (msg, result))
     return result
