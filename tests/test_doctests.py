@@ -92,7 +92,6 @@ def create_suite():
     file_paths = {'formats/cgf/cgftoaster.txt',
                   'spells/nif/dump_tex.txt',
                   'spells/nif/ffvt3rskin.txt',
-                  'spells/nif/fix_clampmaterialalpha.txt',
                   'spells/nif/fix_cleanstringpalette.txt',
                   'spells/nif/fix_detachhavoktristripsdata.txt',
                   'spells/nif/fix_tangentspace.txt',
