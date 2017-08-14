@@ -3,7 +3,7 @@ from nose.tools import assert_true
 from tests import test_logger
 import pyffi
 from tests.utils import BaseFileTestCase
-
+from pyffi.spells.nif.optimize import SpellDelZeroScale
 
 class TestDelZeroScaleOptimisation(BaseFileTestCase):
     """Test for the delete zero scale spell"""
@@ -22,7 +22,7 @@ class TestDelZeroScaleOptimisation(BaseFileTestCase):
             test_logger.debug("{0}, {1}".format(child.name, child.scale))
 
         # run the spell that fixes this
-        spell = pyffi.spells.nif.optimize.SpellDelZeroScale(data=self.data)
+        spell = SpellDelZeroScale(data=self.data)
         spell.recurse()
         """
         pyffi.toaster:INFO:--- opt_delzeroscale ---

@@ -273,6 +273,7 @@ class TestUnpackedCollisionOptimisation(BaseFileTestCase):
         nose.tools.assert_equals(shape.data.num_vertices, 8)
         nose.tools.assert_equals(shape.data.num_triangles, 12)
 
+
 class TestPackedCollisionOptimisation(BaseFileTestCase):
 
     def setUp(self):

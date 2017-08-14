@@ -13,7 +13,7 @@ from pyffi.formats.nif import NifFormat
 def assert_tuple_values(a, b):
     """Wrapper func to cleanly assert tuple values"""
     for i, j in zip(a, b):
-        nose.tools.assert_almost_equal(i, j)
+        nose.tools.assert_almost_equal(i, j, places=3)
 
 dir_path = __file__
 for i in range(2):  # recurse up to root repo dir

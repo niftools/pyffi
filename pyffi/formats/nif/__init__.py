@@ -2128,7 +2128,7 @@ class NifFormat(FileFormat):
             if isinstance(x, type(None)):
                 return False
             if not isinstance(x, NifFormat.Vector3):
-                raise TypeError("do not know how to compare Vector3 and %s"%x.__class__)
+                raise TypeError("do not know how to compare Vector3 and %s" % x.__class__)
             if abs(self.x - x.x) > NifFormat.EPSILON: return False
             if abs(self.y - x.y) > NifFormat.EPSILON: return False
             if abs(self.z - x.z) > NifFormat.EPSILON: return False
