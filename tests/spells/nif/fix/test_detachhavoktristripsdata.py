@@ -8,7 +8,7 @@ from nose.tools import assert_equals, assert_true, assert_false
 
 
 class TestDetachHavokTriStripsData(BaseFileTestCase):
-    """Invoke the fix_texturepath spell check through nif toaster"""
+    """Invoke the fix_detachhavoktristripsdata spell check through nif toaster"""
 
     def setUp(self):
         super(TestDetachHavokTriStripsData, self).setUp()
