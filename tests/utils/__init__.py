@@ -37,7 +37,7 @@ class BaseFileTestCase(unittest.TestCase):
 
     def readNifData(self):
         self.data = NifFormat.Data()
-        stream = open(self.src_file, "rb")
+        stream = open(self.dest_file, "rb")
         self.data.read(stream)
 
     def tearDown(self):

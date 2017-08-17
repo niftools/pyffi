@@ -1507,6 +1507,7 @@ class TestFixTangentSpace(BaseFileTestCase):
         pyffi.toaster: INFO:      adding tangent space
         """
 
+
 class TestFixDeltaTangentSpace(BaseFileTestCase):
     """Invoke the fix_texturepath spell check through nif toaster"""
 
@@ -1530,7 +1531,6 @@ class TestFixDeltaTangentSpace(BaseFileTestCase):
         pyffi.toaster:INFO:  writing to temporary file
         pyffi.toaster:INFO:Finished.
         """
-
 
     def test_non_interactive_fix_addtangentspace_series(self):
 
