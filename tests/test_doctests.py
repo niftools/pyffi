@@ -91,7 +91,6 @@ def create_suite():
 
     file_paths = {'formats/cgf/cgftoaster.txt',
                   'spells/nif/dump_tex.txt',
-                  'spells/nif/ffvt3rskin.txt',
 
                   # Contain outstanding issues
                   # 'spells/egm/optimize.txt',
