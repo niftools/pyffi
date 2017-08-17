@@ -1,21 +1,20 @@
-"""Tests for the fix_ffvt3rskinpartition spell spell"""
+"""Tests for the fix_ffvt3rskinpartition spell"""
 from tests.scripts.nif import call_niftoaster
 from tests.utils import BaseFileTestCase
 
 
-class TestFixVertexInfleunce(BaseFileTestCase):
-    """Invoke the modify_substitutestringpalette spell check through nif toaster"""
+class TestFixSkinPartition(BaseFileTestCase):
+    """Invoke the fix_ffvt3rskinpartition spell check through nif toaster"""
 
     def setUp(self):
-        super(TestFixVertexInfleunce, self).setUp()
+        super(TestFixSkinPartition, self).setUp()
         self.src_name = "test_fix_ffvt3rskinpartition.nif"
-        super(TestFixVertexInfleunce, self).copyFile()
-        super(TestFixVertexInfleunce, self).readNifData()
+        super(TestFixSkinPartition, self).copyFile()
+        super(TestFixSkinPartition, self).readNifData()
 
     def test_non_interactive_fix_vertex_skin_partition(self):
         """Test that we can repartition vertex weight influence"""
 
-        # substitute
         call_niftoaster("--raise", "fix_ffvt3rskinpartition", "--noninteractive", "--verbose=1", self.dest_file)
 
         """
