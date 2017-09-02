@@ -7,13 +7,15 @@ import os
 import shutil
 import unittest
 from os.path import dirname
+
+from pyffi.formats.cgf import CgfFormat
 from pyffi.formats.nif import NifFormat
 
 
 def assert_tuple_values(a, b):
     """Wrapper func to cleanly assert tuple values"""
-    for i, j in zip(a, b):
-        nose.tools.assert_almost_equal(i, j, places=3)
+    for elem, j in zip(a, b):
+        nose.tools.assert_almost_equal(elem, j, places=3)
 
 dir_path = __file__
 for i in range(2):  # recurse up to root repo dir
@@ -22,7 +24,6 @@ test_root = dir_path
 
 
 class BaseFileTestCase(unittest.TestCase):
-
     FORMAT = ""
 
     def setUp(self):
@@ -37,11 +38,6 @@ class BaseFileTestCase(unittest.TestCase):
         shutil.copyfile(self.src_file, self.dest_file)
         assert os.path.exists(self.dest_file)
 
-    def readNifData(self):
-        self.data = NifFormat.Data()
-        stream = open(self.dest_file, "rb")
-        self.data.read(stream)
-
     def tearDown(self):
         shutil.rmtree(self.out)
         # tear down that everyone needs ..
@@ -51,5 +47,16 @@ class BaseFileTestCase(unittest.TestCase):
 class BaseNifFileTestCase(BaseFileTestCase):
     FORMAT = 'nif'
 
+    def readNifData(self):
+        self.data = NifFormat.Data()
+        stream = open(self.dest_file, "rb")
+        self.data.read(stream)
+
+
 class BaseCgfFileTestCase(BaseFileTestCase):
     FORMAT = 'cgf'
+
+    def readCgfData(self):
+        self.data = CgfFormat.Data()
+        stream = open(self.dest_file, "rb")
+        self.data.read(stream)
