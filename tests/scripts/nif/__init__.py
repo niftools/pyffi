@@ -17,7 +17,6 @@ def call_niftoaster(*args):
     """Call the NIF cli module"""
     oldargv = sys.argv[:]
     # -j1 to disable multithreading (makes various things impossible)
-    # --raise to ensure we catch issues
     sys.argv = ["niftoaster.py", "-j1"] + list(args)
     toaster = niftoaster.NifToaster()
     toaster.logger = test_logger

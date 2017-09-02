@@ -1,21 +1,21 @@
 """Tests for the fix_cleanstringpalette spell"""
 from tests.scripts.nif import call_niftoaster
-from tests.utils import BaseFileTestCase
+from tests.utils import BaseNifFileTestCase
 
 from pyffi.spells.nif.fix import SpellCleanStringPalette
 
 from nose.tools import assert_equals
 
 
-class TestFixTexturePathToaster(BaseFileTestCase):
+class TestFixTexturePathToasterNif(BaseNifFileTestCase):
     """Invoke the fix_texturepath spell check through nif toaster"""
 
 
     def setUp(self):
-        super(TestFixTexturePathToaster, self).setUp()
+        super(TestFixTexturePathToasterNif, self).setUp()
         self.src_name = "test_fix_cleanstringpalette.nif"
-        super(TestFixTexturePathToaster, self).copyFile()
-        super(TestFixTexturePathToaster, self).readNifData()
+        super(TestFixTexturePathToasterNif, self).copyFile()
+        super(TestFixTexturePathToasterNif, self).readNifData()
 
         # check current string palette
         strings = self.data.roots[0].controller.controller_sequences[0].string_palette.palette.get_all_strings()

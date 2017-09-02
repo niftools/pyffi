@@ -1,17 +1,17 @@
-from tests.utils import BaseFileTestCase
+from tests.utils import BaseNifFileTestCase
 from nose.tools import assert_equals
 
 import pyffi
 
 
-class TestVertexCacheOptimisation(BaseFileTestCase):
+class TestVertexCacheOptimisationNif(BaseNifFileTestCase):
     """Regression test for vertex cache algorithm"""
 
     def setUp(self):
-        super(TestVertexCacheOptimisation, self).setUp()
+        super(TestVertexCacheOptimisationNif, self).setUp()
         self.src_name = "test_opt_vertex_cache.nif"
-        super(TestVertexCacheOptimisation, self).copyFile()
-        super(TestVertexCacheOptimisation, self).readNifData()
+        super(TestVertexCacheOptimisationNif, self).copyFile()
+        super(TestVertexCacheOptimisationNif, self).readNifData()
 
         assert_equals(self.data.roots[0].children[0].data.num_vertices, 32)
 

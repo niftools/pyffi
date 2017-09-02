@@ -1,15 +1,15 @@
 """Tests for the fix_texturepath spell"""
 from tests.scripts.nif import call_niftoaster
-from tests.utils import BaseFileTestCase, assert_tuple_values
+from tests.utils import BaseNifFileTestCase, assert_tuple_values
 
-class TestFixTangentSpace(BaseFileTestCase):
+class TestFixTangentSpaceNif(BaseNifFileTestCase):
     """Invoke the fix_texturepath spell check through nif toaster"""
 
     def setUp(self):
-        super(TestFixTangentSpace, self).setUp()
+        super(TestFixTangentSpaceNif, self).setUp()
         self.src_name = "test_fix_texturepath.nif"
-        super(TestFixTangentSpace, self).copyFile()
-        super(TestFixTangentSpace, self).readNifData()
+        super(TestFixTangentSpaceNif, self).copyFile()
+        super(TestFixTangentSpaceNif, self).readNifData()
 
     def test_non_interactive_fix_texture_path(self):
         call_niftoaster("--raise", "fix_texturepath", "fix_addtangentspace", "--dry-run", "--noninteractive",

@@ -1,18 +1,18 @@
 """Tests for the modify_delbranches spell and its friends"""
 from tests.scripts.nif import call_niftoaster
-from tests.utils import BaseFileTestCase
+from tests.utils import BaseNifFileTestCase
 
 from nose.tools import assert_equals
 
 
-class TestModifyDelBranches(BaseFileTestCase):
+class TestModifyDelBranchesNif(BaseNifFileTestCase):
     """Invoke the modify_delbranches spell check through nif toaster"""
 
     def setUp(self):
-        super(TestModifyDelBranches, self).setUp()
+        super(TestModifyDelBranchesNif, self).setUp()
         self.src_name = "test_opt_mergeduplicates.nif"
-        super(TestModifyDelBranches, self).copyFile()
-        super(TestModifyDelBranches, self).readNifData()
+        super(TestModifyDelBranchesNif, self).copyFile()
+        super(TestModifyDelBranchesNif, self).readNifData()
 
     def test_non_interactive_modify_delbranches(self):
         props = ['NiNode', 'NiVertexColorProperty', 'NiZBufferProperty', 'NiStencilProperty', 'NiDitherProperty',
@@ -94,7 +94,7 @@ class TestModifyDelBranches(BaseFileTestCase):
         pyffi.toaster:INFO:Finished.
         """
         # check that file no longer has properties
-        super(TestModifyDelBranches, self).readNifData()
+        super(TestModifyDelBranchesNif, self).readNifData()
         blocks = [block.__class__.__name__ for block in self.data.blocks]
 
         branches = ['NiNode', 'NiNode', 'NiTriStrips', 'NiTriStripsData', 'NiTriStrips',
@@ -166,7 +166,7 @@ class TestModifyDelBranches(BaseFileTestCase):
         pyffi.toaster:INFO:Finished.
         """
 
-        super(TestModifyDelBranches, self).readNifData()
+        super(TestModifyDelBranchesNif, self).readNifData()
 
         # check that file no longer has properties
         blocks = [block.__class__.__name__ for block in self.data.blocks]

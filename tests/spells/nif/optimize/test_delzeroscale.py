@@ -1,18 +1,18 @@
-from tests.utils import BaseFileTestCase
+from tests.utils import BaseNifFileTestCase
 from nose.tools import assert_true
 from tests import test_logger
 import pyffi
-from tests.utils import BaseFileTestCase
+from tests.utils import BaseNifFileTestCase
 from pyffi.spells.nif.optimize import SpellDelZeroScale
 
-class TestDelZeroScaleOptimisation(BaseFileTestCase):
+class TestDelZeroScaleOptimisationNif(BaseNifFileTestCase):
     """Test for the delete zero scale spell"""
 
     def setUp(self):
-        super(TestDelZeroScaleOptimisation, self).setUp()
+        super(TestDelZeroScaleOptimisationNif, self).setUp()
         self.src_name = "test_opt_zeroscale.nif"
-        super(TestDelZeroScaleOptimisation, self).copyFile()
-        super(TestDelZeroScaleOptimisation, self).readNifData()
+        super(TestDelZeroScaleOptimisationNif, self).copyFile()
+        super(TestDelZeroScaleOptimisationNif, self).readNifData()
 
     def test_zero_scale_deletion(self):
         # check zero scale

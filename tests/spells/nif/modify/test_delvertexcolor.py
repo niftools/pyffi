@@ -1,18 +1,18 @@
 """Tests for the modify_delvertexcolor spell"""
 from tests.scripts.nif import call_niftoaster
-from tests.utils import BaseFileTestCase
+from tests.utils import BaseNifFileTestCase
 
 from nose.tools import assert_equals, assert_false, assert_true
 
 
-class TestModifyDelBranches(BaseFileTestCase):
+class TestModifyDelBranchesNif(BaseNifFileTestCase):
     """Invoke the modify_delvertexcolor spell check through nif toaster"""
 
     def setUp(self):
-        super(TestModifyDelBranches, self).setUp()
+        super(TestModifyDelBranchesNif, self).setUp()
         self.src_name = "test_vertexcolor.nif"
-        super(TestModifyDelBranches, self).copyFile()
-        super(TestModifyDelBranches, self).readNifData()
+        super(TestModifyDelBranchesNif, self).copyFile()
+        super(TestModifyDelBranchesNif, self).readNifData()
 
     def test_non_interactive_modify_delbranches(self):
         """Test that we can delete vertex colors"""
@@ -38,7 +38,7 @@ class TestModifyDelBranches(BaseFileTestCase):
         pyffi.toaster:INFO:Finished.
         """
 
-        super(TestModifyDelBranches, self).readNifData()
+        super(TestModifyDelBranchesNif, self).readNifData()
 
         # check that file has no vertex color
         blocks = [block.__class__.__name__ for block in self.data.blocks]

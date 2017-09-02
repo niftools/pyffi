@@ -1,17 +1,17 @@
 from nose.tools import assert_equals
 
 from tests.scripts.nif import call_niftoaster
-from tests.utils import BaseFileTestCase
+from tests.utils import BaseNifFileTestCase
 
 
-class TestModifyAllBonePriorities(BaseFileTestCase):
+class TestModifyAllBonePrioritiesNif(BaseNifFileTestCase):
     """Tests for the modify_allbonepriorities spell"""
 
     def setUp(self):
-        super(TestModifyAllBonePriorities, self).setUp()
+        super(TestModifyAllBonePrioritiesNif, self).setUp()
         self.src_name = "test_fix_cleanstringpalette.nif"
-        super(TestModifyAllBonePriorities, self).copyFile()
-        super(TestModifyAllBonePriorities, self).readNifData()
+        super(TestModifyAllBonePrioritiesNif, self).copyFile()
+        super(TestModifyAllBonePrioritiesNif, self).readNifData()
 
         def test_non_interactive_modify_all_bone_priorities(self):
             """Run the spell that modifies the bone prioirities"""

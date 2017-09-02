@@ -1,4 +1,4 @@
-from tests.utils import BaseFileTestCase
+from tests.utils import BaseNifFileTestCase
 import nose
 import pyffi
 from pyffi.spells import Toaster
@@ -7,13 +7,13 @@ from pyffi.formats.nif import NifFormat
 from tests.utils import assert_tuple_values
 
 
-class TestCollisionOptimisation(BaseFileTestCase):
+class TestCollisionOptimisationNif(BaseNifFileTestCase):
 
     def setUp(self):
-        super(TestCollisionOptimisation, self).setUp()
+        super(TestCollisionOptimisationNif, self).setUp()
         self.src_name = "test_opt_collision_to_boxshape.nif"
-        super(TestCollisionOptimisation, self).copyFile()
-        super(TestCollisionOptimisation, self).readNifData()
+        super(TestCollisionOptimisationNif, self).copyFile()
+        super(TestCollisionOptimisationNif, self).readNifData()
 
     def test_box_optimisation(self):
         # check initial data
@@ -53,13 +53,13 @@ class TestCollisionOptimisation(BaseFileTestCase):
         nose.tools.assert_true(isinstance(shape, NifFormat.bhkBoxShape))
 
 
-class TestBoxCollisionOptimisation(BaseFileTestCase):
+class TestBoxCollisionOptimisationNif(BaseNifFileTestCase):
 
     def setUp(self):
-        super(TestBoxCollisionOptimisation, self).setUp()
+        super(TestBoxCollisionOptimisationNif, self).setUp()
         self.src_name = "test_opt_collision_unpacked.nif"
-        super(TestBoxCollisionOptimisation, self).copyFile()
-        super(TestBoxCollisionOptimisation, self).readNifData()
+        super(TestBoxCollisionOptimisationNif, self).copyFile()
+        super(TestBoxCollisionOptimisationNif, self).readNifData()
 
     def test_box_from_unpacked_collision_optimisation(self):
         """Test Box conversion from unpacked collision"""
@@ -88,13 +88,13 @@ class TestBoxCollisionOptimisation(BaseFileTestCase):
         nose.tools.assert_equals(shape.material.material, 9)
 
 
-class TestPackedBoxCollisionOptimisation(BaseFileTestCase):
+class TestPackedBoxCollisionOptimisationNif(BaseNifFileTestCase):
 
     def setUp(self):
-        super(TestPackedBoxCollisionOptimisation, self).setUp()
+        super(TestPackedBoxCollisionOptimisationNif, self).setUp()
         self.src_name = "test_opt_collision_packed.nif"
-        super(TestPackedBoxCollisionOptimisation, self).copyFile()
-        super(TestPackedBoxCollisionOptimisation, self).readNifData()
+        super(TestPackedBoxCollisionOptimisationNif, self).copyFile()
+        super(TestPackedBoxCollisionOptimisationNif, self).readNifData()
 
     def test_box_from_packed_collision_optimisation(self):
         """Test Box conversion from packed collision"""
@@ -153,13 +153,13 @@ class TestPackedBoxCollisionOptimisation(BaseFileTestCase):
         nose.tools.assert_true(isinstance(shape.shape, NifFormat.bhkBoxShape))
 
 
-class TestNotBoxCollisionOptimisation(BaseFileTestCase):
+class TestNotBoxCollisionOptimisationNif(BaseNifFileTestCase):
 
     def setUp(self):
-        super(TestNotBoxCollisionOptimisation, self).setUp()
+        super(TestNotBoxCollisionOptimisationNif, self).setUp()
         self.src_name = "test_opt_collision_to_boxshape_notabox.nif"
-        super(TestNotBoxCollisionOptimisation, self).copyFile()
-        super(TestNotBoxCollisionOptimisation, self).readNifData()
+        super(TestNotBoxCollisionOptimisationNif, self).copyFile()
+        super(TestNotBoxCollisionOptimisationNif, self).readNifData()
 
     def test_box_from_packed_collision_optimisation(self):
         """Test that a collision mesh which is not a box, but whose vertices form a box, is not converted to a box."""
@@ -182,12 +182,12 @@ class TestNotBoxCollisionOptimisation(BaseFileTestCase):
         nose.tools.assert_equals(self.data.roots[0].collision_object.body.shape.__class__.__name__, 'bhkMoppBvTreeShape')
 
 
-class TestMoppCollisionOptimisation(BaseFileTestCase):
+class TestMoppCollisionOptimisationNif(BaseNifFileTestCase):
     def setUp(self):
-        super(TestMoppCollisionOptimisation, self).setUp()
+        super(TestMoppCollisionOptimisationNif, self).setUp()
         self.src_name = "test_opt_collision_complex_mopp.nif"
-        super(TestMoppCollisionOptimisation, self).copyFile()
-        super(TestMoppCollisionOptimisation, self).readNifData()
+        super(TestMoppCollisionOptimisationNif, self).copyFile()
+        super(TestMoppCollisionOptimisationNif, self).readNifData()
 
     def test_optimise_collision_complex_mopp(self):
 
@@ -239,13 +239,13 @@ class TestMoppCollisionOptimisation(BaseFileTestCase):
         """
 
 
-class TestUnpackedCollisionOptimisation(BaseFileTestCase):
+class TestUnpackedCollisionOptimisationNif(BaseNifFileTestCase):
 
     def setUp(self):
-        super(TestUnpackedCollisionOptimisation, self).setUp()
+        super(TestUnpackedCollisionOptimisationNif, self).setUp()
         self.src_name = "test_opt_collision_unpacked.nif"
-        super(TestUnpackedCollisionOptimisation, self).copyFile()
-        super(TestUnpackedCollisionOptimisation, self).readNifData()
+        super(TestUnpackedCollisionOptimisationNif, self).copyFile()
+        super(TestUnpackedCollisionOptimisationNif, self).readNifData()
 
     def test_optimise_collision_unpacked(self):
         """Test unpacked collision """
@@ -274,13 +274,13 @@ class TestUnpackedCollisionOptimisation(BaseFileTestCase):
         nose.tools.assert_equals(shape.data.num_triangles, 12)
 
 
-class TestPackedCollisionOptimisation(BaseFileTestCase):
+class TestPackedCollisionOptimisationNif(BaseNifFileTestCase):
 
     def setUp(self):
-        super(TestPackedCollisionOptimisation, self).setUp()
+        super(TestPackedCollisionOptimisationNif, self).setUp()
         self.src_name = "test_opt_collision_packed.nif"
-        super(TestPackedCollisionOptimisation, self).copyFile()
-        super(TestPackedCollisionOptimisation, self).readNifData()
+        super(TestPackedCollisionOptimisationNif, self).copyFile()
+        super(TestPackedCollisionOptimisationNif, self).readNifData()
 
     def test_optimise_collision_packed(self):
         """Test packed collision """
@@ -316,13 +316,13 @@ class TestPackedCollisionOptimisation(BaseFileTestCase):
         nose.tools.assert_equals(shape.data.num_triangles, 12)
 
 
-class TestMoppCollisionOptimisation(BaseFileTestCase):
+class TestMoppCollisionOptimisationNif(BaseNifFileTestCase):
 
     def setUp(self):
-        super(TestMoppCollisionOptimisation, self).setUp()
+        super(TestMoppCollisionOptimisationNif, self).setUp()
         self.src_name = "test_opt_collision_mopp.nif"
-        super(TestMoppCollisionOptimisation, self).copyFile()
-        super(TestMoppCollisionOptimisation, self).readNifData()
+        super(TestMoppCollisionOptimisationNif, self).copyFile()
+        super(TestMoppCollisionOptimisationNif, self).readNifData()
 
     def test_optimise_collision_packed(self):
         """Test packed collision """

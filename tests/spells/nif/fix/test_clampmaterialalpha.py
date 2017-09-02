@@ -1,20 +1,20 @@
 """Tests for the fix_texturepath spell"""
 from tests.scripts.nif import call_niftoaster
-from tests.utils import BaseFileTestCase
+from tests.utils import BaseNifFileTestCase
 
 from pyffi.spells.nif.fix import SpellClampMaterialAlpha
 
 from nose.tools import assert_true, assert_equals
 
 
-class TestFixTexturePathToaster(BaseFileTestCase):
+class TestFixTexturePathToasterNif(BaseNifFileTestCase):
     """Invoke the fix_texturepath spell check through nif toaster"""
 
     def setUp(self):
-        super(TestFixTexturePathToaster, self).setUp()
+        super(TestFixTexturePathToasterNif, self).setUp()
         self.src_name = "test_fix_clampmaterialalpha.nif"
-        super(TestFixTexturePathToaster, self).copyFile()
-        super(TestFixTexturePathToaster, self).readNifData()
+        super(TestFixTexturePathToasterNif, self).copyFile()
+        super(TestFixTexturePathToasterNif, self).readNifData()
         assert_true(self.data.roots[0].children[0].children[0].properties[0].alpha > 1.01)
         assert_true(self.data.roots[0].children[0].children[1].properties[0].alpha < -0.01)
 

@@ -1,17 +1,17 @@
 from tests.scripts.nif import call_niftoaster
-from tests.utils import BaseFileTestCase
+from tests.utils import BaseNifFileTestCase
 from tests import test_logger
 
 from pyffi.spells import Toaster
 
 
-class TestToasterOptimisation(BaseFileTestCase):
+class TestToasterOptimisationNif(BaseNifFileTestCase):
     # I didn't need setUp and tearDown here..
 
     def setUp(self):
-        super(TestToasterOptimisation, self).setUp()
+        super(TestToasterOptimisationNif, self).setUp()
         self.src_name = "test.nif"
-        super(TestToasterOptimisation, self).copyFile()
+        super(TestToasterOptimisationNif, self).copyFile()
 
     def test_non_interactive_optimisation(self):
         call_niftoaster("optimize", "--raise", "--noninteractive", "--verbose=1", self.dest_file)

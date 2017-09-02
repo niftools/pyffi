@@ -89,7 +89,7 @@ def create_suite():
             test_logger.debug(str(mod) + "does not have a test suite")
             pass
 
-    file_paths = {'formats/cgf/cgftoaster.txt',
+    file_paths = {
 
                   # Contain outstanding issues
                   # 'spells/egm/optimize.txt',

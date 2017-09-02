@@ -1,16 +1,16 @@
-from tests.utils import BaseFileTestCase
+from tests.utils import BaseNifFileTestCase
 from nose.tools import assert_equals, assert_is
 from pyffi.spells.nif.optimize import SpellDelUnusedBones
 
 
-class TestDeleteUnusedBonesOptimisation(BaseFileTestCase):
+class TestDeleteUnusedBonesOptimisationNif(BaseNifFileTestCase):
     """Tests for the opt_delunusedbones spell"""
 
     def setUp(self):
-        super(TestDeleteUnusedBonesOptimisation, self).setUp()
+        super(TestDeleteUnusedBonesOptimisationNif, self).setUp()
         self.src_name = "test_opt_delunusedbones.nif"
-        super(TestDeleteUnusedBonesOptimisation, self).copyFile()
-        super(TestDeleteUnusedBonesOptimisation, self).readNifData()
+        super(TestDeleteUnusedBonesOptimisationNif, self).copyFile()
+        super(TestDeleteUnusedBonesOptimisationNif, self).readNifData()
 
     def test_unused_bone_deletion(self):
         # check dummy bone

@@ -3,7 +3,7 @@ import tempfile
 import os
 import shutil
 
-import nose.tools
+from nose.tools import assert_true, assert_false
 
 from pyffi.formats.nif import NifFormat
 from pyffi.spells import Toaster
@@ -19,43 +19,43 @@ class TestToaster:
     def test_toaster_default_admissible(self):
         """# no include or exclude: all admissible"""
         toaster = MyToaster()
-        nose.tools.assert_true(toaster.is_admissible_branch_class(NifFormat.NiProperty))
-        nose.tools.assert_true(toaster.is_admissible_branch_class(NifFormat.NiNode))
-        nose.tools.assert_true(toaster.is_admissible_branch_class(NifFormat.NiAVObject))
-        nose.tools.assert_true(toaster.is_admissible_branch_class(NifFormat.NiLODNode))
-        nose.tools.assert_true(toaster.is_admissible_branch_class(NifFormat.NiMaterialProperty))
+        assert_true(toaster.is_admissible_branch_class(NifFormat.NiProperty))
+        assert_true(toaster.is_admissible_branch_class(NifFormat.NiNode))
+        assert_true(toaster.is_admissible_branch_class(NifFormat.NiAVObject))
+        assert_true(toaster.is_admissible_branch_class(NifFormat.NiLODNode))
+        assert_true(toaster.is_admissible_branch_class(NifFormat.NiMaterialProperty))
 
     def test_toaster_exclude(self):
         """Test exclude NiProperty and NiNode inherited types"""
         toaster = MyToaster(options={"exclude": ["NiProperty", "NiNode"]})
-        nose.tools.assert_false(toaster.is_admissible_branch_class(NifFormat.NiProperty))
-        nose.tools.assert_false(toaster.is_admissible_branch_class(NifFormat.NiNode))
-        nose.tools.assert_true(toaster.is_admissible_branch_class(NifFormat.NiAVObject))
-        nose.tools.assert_false(toaster.is_admissible_branch_class(NifFormat.NiLODNode))
-        nose.tools.assert_false(toaster.is_admissible_branch_class(NifFormat.NiMaterialProperty))
+        assert_false(toaster.is_admissible_branch_class(NifFormat.NiProperty))
+        assert_false(toaster.is_admissible_branch_class(NifFormat.NiNode))
+        assert_true(toaster.is_admissible_branch_class(NifFormat.NiAVObject))
+        assert_false(toaster.is_admissible_branch_class(NifFormat.NiLODNode))
+        assert_false(toaster.is_admissible_branch_class(NifFormat.NiMaterialProperty))
 
 
     def test_toaster_include(self):
         """Test include only NiProperty and NiNode inherited types"""
         toaster = MyToaster(options={"include": ["NiProperty", "NiNode"]})
-        nose.tools.assert_true(toaster.is_admissible_branch_class(NifFormat.NiProperty))
-        nose.tools.assert_true(toaster.is_admissible_branch_class(NifFormat.NiNode))
-        nose.tools.assert_false(toaster.is_admissible_branch_class(NifFormat.NiAVObject))
-        nose.tools.assert_true(toaster.is_admissible_branch_class(NifFormat.NiLODNode))  # NiNode subclass!
-        nose.tools.assert_true(toaster.is_admissible_branch_class(NifFormat.NiMaterialProperty))  # NiProperties are!
+        assert_true(toaster.is_admissible_branch_class(NifFormat.NiProperty))
+        assert_true(toaster.is_admissible_branch_class(NifFormat.NiNode))
+        assert_false(toaster.is_admissible_branch_class(NifFormat.NiAVObject))
+        assert_true(toaster.is_admissible_branch_class(NifFormat.NiLODNode))  # NiNode subclass!
+        assert_true(toaster.is_admissible_branch_class(NifFormat.NiMaterialProperty))  # NiProperties are!
 
 
     def test_toaster_include_and_exclude(self):
         """Test include NiProperty and NiNode, exclude NiMaterialProp and NiLODNode"""
         toaster = MyToaster(options={"include": ["NiProperty", "NiNode"],
                                      "exclude": ["NiMaterialProperty", "NiLODNode"]})
-        nose.tools.assert_true(toaster.is_admissible_branch_class(NifFormat.NiProperty))
-        nose.tools.assert_true(toaster.is_admissible_branch_class(NifFormat.NiNode))
-        nose.tools.assert_false(toaster.is_admissible_branch_class(NifFormat.NiAVObject))
-        nose.tools.assert_false(toaster.is_admissible_branch_class(NifFormat.NiLODNode))
-        nose.tools.assert_true(toaster.is_admissible_branch_class(NifFormat.NiSwitchNode))
-        nose.tools.assert_false(toaster.is_admissible_branch_class(NifFormat.NiMaterialProperty))
-        nose.tools.assert_true(toaster.is_admissible_branch_class(NifFormat.NiAlphaProperty))
+        assert_true(toaster.is_admissible_branch_class(NifFormat.NiProperty))
+        assert_true(toaster.is_admissible_branch_class(NifFormat.NiNode))
+        assert_false(toaster.is_admissible_branch_class(NifFormat.NiAVObject))
+        assert_false(toaster.is_admissible_branch_class(NifFormat.NiLODNode))
+        assert_true(toaster.is_admissible_branch_class(NifFormat.NiSwitchNode))
+        assert_false(toaster.is_admissible_branch_class(NifFormat.NiMaterialProperty))
+        assert_true(toaster.is_admissible_branch_class(NifFormat.NiAlphaProperty))
 
 
 class TestIniParser:

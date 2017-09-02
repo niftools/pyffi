@@ -1,20 +1,20 @@
 """Tests for the fix_detachhavoktristripsdata spell"""
 from tests.scripts.nif import call_niftoaster
-from tests.utils import BaseFileTestCase
+from tests.utils import BaseNifFileTestCase
 
 from pyffi.spells.nif.fix import SpellDetachHavokTriStripsData
 
 from nose.tools import assert_equals, assert_true, assert_false
 
 
-class TestDetachHavokTriStripsData(BaseFileTestCase):
+class TestDetachHavokTriStripsDataNif(BaseNifFileTestCase):
     """Invoke the fix_detachhavoktristripsdata spell check through nif toaster"""
 
     def setUp(self):
-        super(TestDetachHavokTriStripsData, self).setUp()
+        super(TestDetachHavokTriStripsDataNif, self).setUp()
         self.src_name = "test_fix_detachhavoktristripsdata.nif"
-        super(TestDetachHavokTriStripsData, self).copyFile()
-        super(TestDetachHavokTriStripsData, self).readNifData()
+        super(TestDetachHavokTriStripsDataNif, self).copyFile()
+        super(TestDetachHavokTriStripsDataNif, self).readNifData()
 
     def test_explicit_detach_havok_tristripsdata(self):
         """run the spell that detaches the trishapedata"""

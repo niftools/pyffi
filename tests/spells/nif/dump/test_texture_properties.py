@@ -1,16 +1,16 @@
 """Tests for the dump_tex spell"""
 from tests.scripts.nif import call_niftoaster
-from tests.utils import BaseFileTestCase
+from tests.utils import BaseNifFileTestCase
 
 
-class TestDumpTextureData(BaseFileTestCase):
+class TestDumpTextureDataNif(BaseNifFileTestCase):
     """Invoke the dump_tex spell check through nif toaster"""
 
     def setUp(self):
-        super(TestDumpTextureData, self).setUp()
+        super(TestDumpTextureDataNif, self).setUp()
         self.src_name = "test_dump_tex.nif"
-        super(TestDumpTextureData, self).copyFile()
-        super(TestDumpTextureData, self).readNifData()
+        super(TestDumpTextureDataNif, self).copyFile()
+        super(TestDumpTextureDataNif, self).readNifData()
 
     def test_non_interactive_dump_texture_properties(self):
         """Test that we extract texture and material information"""
@@ -36,14 +36,14 @@ class TestDumpTextureData(BaseFileTestCase):
         pyffi.toaster:INFO:Finished.
         """
 
-class TestDumpTextureData(BaseFileTestCase):
+class TestDumpTextureDataNif(BaseNifFileTestCase):
     """Invoke the dump_tex spell check through nif toaster"""
 
     def setUp(self):
-        super(TestDumpTextureData, self).setUp()
+        super(TestDumpTextureDataNif, self).setUp()
         self.src_name = "test_fix_ffvt3rskinpartition.nif"
-        super(TestDumpTextureData, self).copyFile()
-        super(TestDumpTextureData, self).readNifData()
+        super(TestDumpTextureDataNif, self).copyFile()
+        super(TestDumpTextureDataNif, self).readNifData()
 
     def test_non_interactive_dump_texture_properties(self):
         """Test that we extract texture and material information"""

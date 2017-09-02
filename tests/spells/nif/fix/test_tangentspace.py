@@ -1,18 +1,18 @@
 """Regression test for tangent space algorithm"""
 from tests.scripts.nif import call_niftoaster
-from tests.utils import BaseFileTestCase, assert_tuple_values
+from tests.utils import BaseNifFileTestCase, assert_tuple_values
 
 from pyffi.spells.nif.fix import SpellAddTangentSpace
 
 
-class TestFixTangentSpace(BaseFileTestCase):
+class TestFixTangentSpaceNif(BaseNifFileTestCase):
     """Invoke the fix_texturepath spell check through nif toaster"""
 
     def setUp(self):
-        super(TestFixTangentSpace, self).setUp()
+        super(TestFixTangentSpaceNif, self).setUp()
         self.src_name = "test_skincenterradius.nif"
-        super(TestFixTangentSpace, self).copyFile()
-        super(TestFixTangentSpace, self).readNifData()
+        super(TestFixTangentSpaceNif, self).copyFile()
+        super(TestFixTangentSpaceNif, self).readNifData()
 
     def test_explicit_fix_tangent_space(self):
         """run the spell that generates normals"""
@@ -1508,14 +1508,14 @@ class TestFixTangentSpace(BaseFileTestCase):
         """
 
 
-class TestFixDeltaTangentSpace(BaseFileTestCase):
+class TestFixDeltaTangentSpaceNif(BaseNifFileTestCase):
     """Invoke the fix_texturepath spell check through nif toaster"""
 
     def setUp(self):
-        super(TestFixDeltaTangentSpace, self).setUp()
+        super(TestFixDeltaTangentSpaceNif, self).setUp()
         self.src_name = "test_fix_tangentspace.nif"
-        super(TestFixDeltaTangentSpace, self).copyFile()
-        super(TestFixDeltaTangentSpace, self).readNifData()
+        super(TestFixDeltaTangentSpaceNif, self).copyFile()
+        super(TestFixDeltaTangentSpaceNif, self).readNifData()
 
     def test_non_interactive_fix_addtangentspace(self):
 

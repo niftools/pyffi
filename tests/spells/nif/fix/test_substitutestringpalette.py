@@ -1,18 +1,18 @@
 """Tests for the modify_substitutestringpalette spell"""
 from tests.scripts.nif import call_niftoaster
-from tests.utils import BaseFileTestCase
+from tests.utils import BaseNifFileTestCase
 
 from nose.tools import assert_true
 
 
-class TestModifySubstitutePalette(BaseFileTestCase):
+class TestModifySubstitutePaletteNif(BaseNifFileTestCase):
     """Invoke the modify_substitutestringpalette spell check through nif toaster"""
 
     def setUp(self):
-        super(TestModifySubstitutePalette, self).setUp()
+        super(TestModifySubstitutePaletteNif, self).setUp()
         self.src_name = "test_fix_cleanstringpalette.nif"
-        super(TestModifySubstitutePalette, self).copyFile()
-        super(TestModifySubstitutePalette, self).readNifData()
+        super(TestModifySubstitutePaletteNif, self).copyFile()
+        super(TestModifySubstitutePaletteNif, self).readNifData()
 
     def test_non_interactive_modify_string_palette_values(self):
         """Test that we can modify the string palette values"""
@@ -37,7 +37,7 @@ class TestModifySubstitutePalette(BaseFileTestCase):
         pyffi.toaster:INFO:Finished.
         """
 
-        super(TestModifySubstitutePalette, self).readNifData()
+        super(TestModifySubstitutePaletteNif, self).readNifData()
 
         # check cleaned palette
         strings = self.data.roots[0].controller.controller_sequences[0].string_palette.palette.get_all_strings()

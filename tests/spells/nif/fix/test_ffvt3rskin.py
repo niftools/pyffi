@@ -1,16 +1,16 @@
 """Tests for the fix_ffvt3rskinpartition spell"""
 from tests.scripts.nif import call_niftoaster
-from tests.utils import BaseFileTestCase
+from tests.utils import BaseNifFileTestCase
 
 
-class TestFixSkinPartition(BaseFileTestCase):
+class TestFixSkinPartitionNif(BaseNifFileTestCase):
     """Invoke the fix_ffvt3rskinpartition spell check through nif toaster"""
 
     def setUp(self):
-        super(TestFixSkinPartition, self).setUp()
+        super(TestFixSkinPartitionNif, self).setUp()
         self.src_name = "test_fix_ffvt3rskinpartition.nif"
-        super(TestFixSkinPartition, self).copyFile()
-        super(TestFixSkinPartition, self).readNifData()
+        super(TestFixSkinPartitionNif, self).copyFile()
+        super(TestFixSkinPartitionNif, self).readNifData()
 
     def test_non_interactive_fix_vertex_skin_partition(self):
         """Test that we can repartition vertex weight influence"""
