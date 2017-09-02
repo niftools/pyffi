@@ -50,3 +50,6 @@ class BaseFileTestCase(unittest.TestCase):
 
 class BaseNifFileTestCase(BaseFileTestCase):
     FORMAT = 'nif'
+
+class BaseCgfFileTestCase(BaseFileTestCase):
+    FORMAT = 'cgf'
