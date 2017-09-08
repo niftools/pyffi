@@ -1,6 +1,13 @@
 """
-:mod:`pyffi.object_models` --- File format description engines
+PyFFI Object Models --- File format description engines
 ==============================================================
+
+.. toctree::
+   :maxdepth: 2
+
+   mex
+   xml
+   xsd
 
 .. warning::
 

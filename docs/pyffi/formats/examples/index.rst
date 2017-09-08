@@ -1,0 +1,6 @@
+Format Examples
+===============
+
+.. toctree::
+    
+    bgem
