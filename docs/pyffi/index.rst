@@ -1,21 +1,10 @@
 .. currentmodule:: pyffi
-
-PyFFI Documentation
-===================
-
-.. toctree::
-   :maxdepth: 2
-   
-   formats/index
-   spells/index
-   object_models
-
 .. automodule:: pyffi
 
 FAQ About PyFFI API
 ===================
 
-.. _apihowdoesitwork::
+.. _apihowdoesitwork:
 
 How does it work?
 =================
