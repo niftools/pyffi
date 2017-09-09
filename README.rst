@@ -1,10 +1,22 @@
 PyFFI
 =====
-.. image:: https://travis-ci.org/niftools/pyffi.png?branch=develop
+.. image:: https://img.shields.io/travis/niftools/pyffi/develop.svg
     :target: https://travis-ci.org/niftools/pyffi
 
-.. image:: https://coveralls.io/repos/niftools/pyffi/badge.svg?branch=develop
+.. image:: https://img.shields.io/coveralls/niftools/pyffi/develop.svg
     :target: https://coveralls.io/r/niftools/pyffi?branch=develop
+
+.. image:: https://img.shields.io/pypi/v/PyFFI.svg
+    :target: https://pypi.python.org/pypi/PyFFI
+
+.. image:: https://img.shields.io/pypi/status/PyFFI.svg
+    :target: https://pypi.python.org/pypi/PyFFI
+
+.. image:: https://img.shields.io/pypi/pyversions/PyFFI.svg
+    :target: https://pypi.python.org/pypi/PyFFI
+
+.. image:: https://img.shields.io/discord/309117867398397952.svg
+    :target: https://forum.niftools.org/40-niftools-discord-server/
 
 The Python File Format Interface, briefly PyFFI, is an open source
 Python library for processing block structured binary files:
