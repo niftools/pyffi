@@ -81,7 +81,7 @@ setup(
     # these are optional and override conf.py settings
     command_options={
         'build_sphinx': {
-            'project': ('setup.py', name),
+            'project': ('setup.py', "PyFFI"),
             'version': ('setup.py', version),
             'release': ('setup.py', version)
         }
