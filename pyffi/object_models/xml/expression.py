@@ -41,7 +41,8 @@
 # --------------------------------------------------------------------------
 
 import re
-import sys # stderr (for debugging)
+import sys  # stderr (for debugging)
+
 
 class Expression(object):
     """This class represents an expression.
@@ -72,18 +73,12 @@ class Expression(object):
     True
     >>> bool(Expression('1 != 1').eval())
     False
-    >>> bool(Expression('!(1 == 1)').eval())
-    False
-    >>> bool(Expression('!((1 <= 2) && (2 <= 3))').eval())
-    False
-    >>> bool(Expression('(1 <= 2) && (2 <= 3) && (3 <= 4)').eval())
-    True
     """
-    operators = set(( '==', '!=', '>=', '<=', '&&', '||', '&', '|', '-', '!',
-                  '<', '>', '/', '*', '+' ))
-    arg_array_pattern = re.compile(r'^ARG\[(.)+\]$')
-    
-    def __init__(self, expr_str, name_filter = None):
+
+    operators = set(('==', '!=', '>=', '<=', '&&', '||', '&', '|', '-', '!',
+                     '<', '>', '/', '*', '+'))
+
+    def __init__(self, expr_str, name_filter=None):
         try:
             left, self._op, right = self._partition(expr_str)
             self._left = self._parse(left, name_filter)
@@ -92,7 +87,7 @@ class Expression(object):
             print("error while parsing expression '%s'" % expr_str)
             raise
 
-    def eval(self, data = None):
+    def eval(self, data=None):
         """Evaluate the expression to an integer."""
 
         if isinstance(self._left, Expression):
@@ -103,20 +98,13 @@ class Expression(object):
             else:
                 left = data
                 for part in self._left.split("."):
-                    if hasattr(left, 'ARG'):
-                        m = arg_array_pattern.match(part)
-                        if m:
-                            left = getattr(left, 'ARG')[int(m.group(1))]
-                        else:
-                            left = getattr(left, part)
-                    else:
-                        left = getattr(left, part)
+                    left = getattr(left, part)
         elif isinstance(self._left, type):
             left = isinstance(data, self._left)
         elif self._left is None:
             pass
         else:
-            assert(isinstance(self._left, int)) # debug
+            assert (isinstance(self._left, int))  # debug
             left = self._left
 
         if not self._op:
@@ -128,34 +116,27 @@ class Expression(object):
             if (not self._right) or self._right == '""':
                 right = ""
             else:
-                if hasattr(data, 'ARG'):
-                    m = arg_array_pattern.match(self._right)
-                    if m:
-                        right = getattr(data, 'ARG')[int(m.group(1))]
-                    else:
-                        right = getattr(data, self._right)
-                else:
-                    right = getattr(data, self._right)
+                right = getattr(data, self._right)
         elif isinstance(self._right, type):
             right = isinstance(data, self._right)
         elif self._right is None:
             pass
         else:
-            assert(isinstance(self._right, int)) # debug
+            assert (isinstance(self._right, int))  # debug
             right = self._right
 
         if self._op == '==':
-            return int(left == right)
+            return left == right
         elif self._op == '!=':
-            return int(left != right)
+            return left != right
         elif self._op == '>=':
-            return int(left >= right)
+            return left >= right
         elif self._op == '<=':
-            return int(left <= right)
+            return left <= right
         elif self._op == '&&':
-            return int(left and right)
+            return left and right
         elif self._op == '||':
-            return int(left or right)
+            return left or right
         elif self._op == '&':
             return left & right
         elif self._op == '|':
@@ -163,15 +144,15 @@ class Expression(object):
         elif self._op == '-':
             return left - right
         elif self._op == '!':
-            return int(not(right))
+            return not (right)
         elif self._op == '>':
-            return int(left > right)
+            return left > right
         elif self._op == '<':
-            return int(left < right)
+            return left < right
         elif self._op == '/':
-            return int(left / right)
+            return left / right
         elif self._op == '*':
-            return int(left * right)
+            return left * right
         elif self._op == '+':
             return left + right
         else:
@@ -211,7 +192,7 @@ class Expression(object):
                 + (int(m.group(2)) << 16)
                 + (int(m.group(3)) << 8)
                 + int(m.group(4))
-                )
+            )
             return ver
         # apply name filter on each component separately
         # (where a dot separates components)
@@ -227,25 +208,14 @@ class Expression(object):
 
         >>> Expression._partition('abc || efg')
         ('abc', '||', 'efg')
-        >>> Expression._partition('abc||efg')
-        ('abc', '||', 'efg')
-        >>> Expression._partition('abcdefg')
-        ('abcdefg', '', '')
-        >>> Expression._partition(' abcdefg ')
-        ('abcdefg', '', '')
-        >>> Expression._partition(' (a | b) & c ')
-        ('a | b', '&', 'c')
-        >>> Expression._partition('(a | b)!=(b&c)')
-        ('a | b', '!=', 'b&c')
         >>> Expression._partition('(a== b) &&(( b!=c)||d )')
         ('a== b', '&&', '( b!=c)||d')
         >>> Expression._partition('!(1 <= 2)')
         ('', '!', '(1 <= 2)')
         >>> Expression._partition('')
         ('', '', '')
-        >>> Expression._partition('(1 == 1)')
-        ('1 == 1', '', '')
         """
+
         # strip whitespace
         expr_str = expr_str.strip()
 
@@ -257,40 +227,40 @@ class Expression(object):
         # check if the left hand side starts with brackets
         # and if so, find the position of the starting bracket and the ending
         # bracket
-        left_startpos, left_endpos = cls._scanBrackets(expr_str)
+        left_startpos, left_endpos = cls._scan_brackets(expr_str)
         if left_startpos >= 0:
             # yes, it is a bracketted expression
             # so remove brackets and whitespace,
             # and let that be the left hand side
-            left_str = expr_str[left_startpos+1:left_endpos].strip()
+            left_str = expr_str[left_startpos + 1:left_endpos].strip()
             # if there is no next token, then just return the expression
             # without brackets
             if left_endpos + 1 == len(expr_str):
                 return left_str, "", ""
             # the next token should be the operator
             # find the position where the operator should start
-            op_startpos = left_endpos+1
+            op_startpos = left_endpos + 1
             while expr_str[op_startpos] == " ":
                 op_startpos += 1
             # to avoid confusion between && and &, and || and |,
             # let's first scan for operators of two characters
             # and then for operators of one character
-            for op_endpos in range(op_startpos+1, op_startpos-1, -1):
-                op_str = expr_str[op_startpos:op_endpos+1]
+            for op_endpos in range(op_startpos + 1, op_startpos - 1, -1):
+                op_str = expr_str[op_startpos:op_endpos + 1]
                 if op_str in cls.operators:
                     break
             else:
-                raise ValueError("expression syntax error: expected operator at '%s'"%expr_str[op_startpos:])
+                raise ValueError("expression syntax error: expected operator at '%s'" % expr_str[op_startpos:])
         else:
             # it's not... so we need to scan for the first operator
             for op_startpos, ch in enumerate(expr_str):
                 if ch == ' ': continue
                 if ch == '(' or ch == ')':
-                    raise ValueError("expression syntax error: expected operator before '%s'"%expr_str[op_startpos:])
+                    raise ValueError("expression syntax error: expected operator before '%s'" % expr_str[op_startpos:])
                 # to avoid confusion between && and &, and || and |,
                 # let's first scan for operators of two characters
-                for op_endpos in range(op_startpos+1, op_startpos-1, -1):
-                    op_str = expr_str[op_startpos:op_endpos+1]
+                for op_endpos in range(op_startpos + 1, op_startpos - 1, -1):
+                    op_str = expr_str[op_startpos:op_endpos + 1]
                     if op_str in cls.operators:
                         break
                 else:
@@ -307,65 +277,66 @@ class Expression(object):
 
         # now we have done the left hand side, and the operator
         # all that is left is to process the right hand side
-        right_startpos, right_endpos = cls._scanBrackets(expr_str, op_endpos+1)
+        right_startpos, right_endpos = cls._scan_brackets(expr_str, op_endpos + 1)
         if right_startpos >= 0:
             # yes, we found a bracketted expression
             # so remove brackets and whitespace,
             # and let that be the right hand side
-            right_str = expr_str[right_startpos+1:right_endpos].strip()
+            right_str = expr_str[right_startpos + 1:right_endpos].strip()
             # check for trailing junk
-            if expr_str[right_endpos+1:] and not expr_str[right_endpos+1:] == ' ':
+            if expr_str[right_endpos + 1:] and not expr_str[right_endpos + 1:] == ' ':
                 for op in cls.operators:
                     if expr_str.find(op) != -1:
                         break
                 else:
-                    raise ValueError("expression syntax error: unexpected trailing characters '%s'"%expr_str[right_endpos+1:])
+                    raise ValueError(
+                        "expression syntax error: unexpected trailing characters '%s'" % expr_str[right_endpos + 1:])
                 # trailing characters contain an operator: do not remove
                 # brackets but take
                 # everything to be the right hand side (this happens for
                 # instance in '(x <= y) && (y <= z) && (x != z)')
-                right_str = expr_str[op_endpos+1:].strip()
+                right_str = expr_str[op_endpos + 1:].strip()
         else:
             # no, so just take the whole expression as right hand side
-            right_str = expr_str[op_endpos+1:].strip()
+            right_str = expr_str[op_endpos + 1:].strip()
             # check that it is a valid expression
             if ("(" in right_str) or (")" in right_str):
-                raise ValueError("expression syntax error: unexpected brackets in '%s'"%right_str)
+                raise ValueError("expression syntax error: unexpected brackets in '%s'" % right_str)
         return left_str, op_str, right_str
 
     @staticmethod
-    def _scanBrackets(expr_str, fromIndex = 0):
+    def _scan_brackets(expr_str, fromIndex=0):
         """Looks for matching brackets.
 
-        >>> Expression._scanBrackets('abcde')
+        >>> Expression._scan_brackets('abcde')
         (-1, -1)
-        >>> Expression._scanBrackets('()')
+        >>> Expression._scan_brackets('()')
         (0, 1)
-        >>> Expression._scanBrackets('(abc(def))g')
+        >>> Expression._scan_brackets('(abc(def))g')
         (0, 9)
         >>> s = '  (abc(dd efy 442))xxg'
-        >>> startpos, endpos = Expression._scanBrackets(s)
-        >>> print(s[startpos+1:endpos])
+        >>> start_pos, end_pos = Expression._scan_brackets(s)
+        >>> print(s[start_pos+1:end_pos])
         abc(dd efy 442)
         """
-        startpos = -1
-        endpos = -1
-        scandepth = 0
-        for scanpos in range(fromIndex, len(expr_str)):
-            scanchar = expr_str[scanpos]
-            if scanchar == "(":
-                if startpos == -1:
-                    startpos = scanpos
-                scandepth += 1
-            elif scanchar == ")":
-                scandepth -= 1
-                if scandepth == 0:
-                    endpos = scanpos
+        start_pos = -1
+        end_pos = -1
+        scan_depth = 0
+        for scan_pos in range(fromIndex, len(expr_str)):
+            scan_char = expr_str[scan_pos]
+            if scan_char == "(":
+                if start_pos == -1:
+                    start_pos = scan_pos
+                scan_depth += 1
+            elif scan_char == ")":
+                scan_depth -= 1
+                if scan_depth == 0:
+                    end_pos = scan_pos
                     break
         else:
-            if startpos != -1 or endpos != -1:
+            if start_pos != -1 or end_pos != -1:
                 raise ValueError("expression syntax error (non-matching brackets?)")
-        return (startpos, endpos)
+        return start_pos, end_pos
 
     def map_(self, func):
         if isinstance(self._left, Expression):
@@ -377,7 +348,8 @@ class Expression(object):
         else:
             self._right = func(self._right)
 
+
 if __name__ == "__main__":
     import doctest
-    doctest.testmod()
 
+    doctest.testmod()

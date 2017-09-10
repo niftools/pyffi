@@ -40,7 +40,7 @@
 # --------------------------------------------------------------------------
 
 # note: some imports are defined at the end to avoid problems with circularity
-
+import logging
 import weakref
 
 from pyffi.utils.graph import DetailNode, EdgeFilter
@@ -123,6 +123,7 @@ class Array(_ListWrap):
     """A general purpose class for 1 or 2 dimensional arrays consisting of
     either BasicBase or StructBase elements."""
 
+    logger = logging.getLogger("pyffi.nif.data.array")
     arg = None # default argument
 
     def __init__(
@@ -157,7 +158,7 @@ class Array(_ListWrap):
         self._count1 = count1
         self._count2 = count2
 
-        if self._count2 == None:
+        if self._count2 is None:
             for i in range(self._len1()):
                 elem_instance = self._elementType(
                         template = self._elementTypeTemplate,
@@ -186,7 +187,7 @@ class Array(_ListWrap):
     def _len2(self, index1):
         """The length the array should have, obtained by evaluating
         the count2 expression."""
-        if self._count2 == None:
+        if self._count2 is None:
             raise ValueError('single array treated as double array (bug?)')
         if self._parent is None:
             expr = self._count2.eval()
@@ -200,7 +201,7 @@ class Array(_ListWrap):
     def deepcopy(self, block):
         """Copy attributes from a given array which needs to have at least as
         many elements (possibly more) as self."""
-        if self._count2 == None:
+        if self._count2 is None:
             for i in range(self._len1()):
                 attrvalue = self[i]
                 if isinstance(attrvalue, StructBase):
@@ -225,7 +226,7 @@ class Array(_ListWrap):
     # string of the array
     def __str__(self):
         text = '%s instance at 0x%08X\n' % (self.__class__, id(self))
-        if self._count2 == None:
+        if self._count2 is None:
             for i, element in enumerate(list.__iter__(self)):
                 if i > 16:
                     text += "etc...\n"
@@ -254,7 +255,7 @@ class Array(_ListWrap):
         ## TODO also update row numbers
         old_size = len(self)
         new_size = self._len1()
-        if self._count2 == None:
+        if self._count2 is None:
             if new_size < old_size:
                 del self[new_size:old_size]
             else:
@@ -285,13 +286,16 @@ class Array(_ListWrap):
         """Read array from stream."""
         # parse arguments
         self._elementTypeArgument = self.arg
+
         # check array size
         len1 = self._len1()
+        self.logger.debug("Reading array of size " + str(len1))
         if len1 > 0x10000000:
             raise ValueError('array too long (%i)' % len1)
         del self[0:self.__len__()]
+
         # read array
-        if self._count2 == None:
+        if self._count2 is None:
             for i in range(len1):
                 elem = self._elementType(
                     template = self._elementTypeTemplate,
@@ -323,7 +327,7 @@ class Array(_ListWrap):
 describing number of elements (%i)'%(self.__len__(),len1))
         if len1 > 0x10000000:
             raise ValueError('array too long (%i)' % len1)
-        if self._count2 == None:
+        if self._count2 is None:
             for elem in list.__iter__(self):
                 elem.write(stream, data)
         else:

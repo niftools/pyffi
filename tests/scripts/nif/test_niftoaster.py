@@ -1,506 +1,145 @@
-Doctests/formats for the niftoaster script
-==================================
+"""Tests for the niftoaster script"""
 
-The --help switch
------------------
+import os
+import os.path
 
->>> import os
->>> from os.path import dirname
->>> dirpath = __file__
->>> for i in range(3): #recurse up to root repo dir
-...     dirpath = dirname(dirpath)
->>> repo_root = dirpath
->>> script_dir = os.path.join(repo_root, "scripts", "nif")
->>> import sys
->>> script = os.path.join(script_dir, "niftoaster.py")
->>> sys.path.insert(-1, script_dir.replace("\\\\", "/"))
->>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--help"]
->>> try:
-...     niftoaster.NifToaster().cli()
-... except SystemExit: # --help uses sys.exit()
-...     pass # doctest: +REPORT_UDIFF
-Usage: niftoaster.py [options] <spell1> <spell2> ... <file>|<folder>
-<BLANKLINE>
-Apply the spells <spell1>, <spell2>, and so on, on <file>, or recursively on
-<folder>.
-<BLANKLINE>
-Options:
-  --version             show program's version number and exit
-  -h, --help            show this help message and exit
-  --archives            also parse files inside archives
-  -a ARG, --arg=ARG     pass argument ARG to each spell
-  --dest-dir=DESTDIR    write files to DESTDIR instead of overwriting the
-                        original; this is done by replacing SOURCEDIR by
-                        DESTDIR in all source file paths
-  --diff                write a binary patch instead of overwriting the
-                        original
-  --diff-cmd=CMD        use CMD as diff command; this command must accept
-                        precisely 3 arguments: 'CMD oldfile newfile
-                        patchfile'.
-  --dry-run             save modification to temporary file instead of
-                        overwriting the original (for debugging)
-  --examples            show examples of usage and exit
-  --help-spell          show help specific to the given spells
-  -i BLOCK, --include=BLOCK
-                        include only block type BLOCK in spell; if this option
-                        is not specified, then all block types are included
-                        except those specified under --exclude; include
-                        multiple block types by specifying this option more
-                        than once
-  --ini-file=FILE       read all options from FILE; if specified, all other
-                        arguments are ignored; to take options from multiple
-                        ini files, specify more than once
-  -j JOBS, --jobs=JOBS  allow JOBS jobs at once [default: 1]
-  --noninteractive      non-interactive session (overwrites files without
-                        warning)
-  --only=REGEX          only toast files whose names (i) contain the regular
-                        expression REGEX, and (ii) do not contain any regular
-                        expression specified with --skip; if specified
-                        multiple times, the expressions are 'ored'
-  --overwrite           overwrite existing files (also see --resume)
-  --patch               apply all binary patches
-  --patch-cmd=CMD       use CMD as patch command; this command must accept
-                        precisely 3 arguments: 'CMD oldfile newfile
-                        patchfile'.
-  -p, --pause           pause when done
-  --prefix=PREFIX       prepend PREFIX to file name when saving modification
-                        instead of overwriting the original
-  -r, --raise           raise exception on errors during the spell (for
-                        debugging)
-  --refresh=REFRESH     start new process pool every JOBS * REFRESH files if
-                        JOBS is 2 or more (when processing a large number of
-                        files, this prevents leaking memory on some operating
-                        systems) [default: 32]
-  --resume              do not overwrite existing files
-  --series              run spells in series rather than in parallel
-  --skip=REGEX          skip all files whose names contain the regular
-                        expression REGEX (takes precedence over --only); if
-                        specified multiple times, the expressions are 'ored'
-  --source-dir=SOURCEDIR
-                        see --dest-dir
-  --spells              list all spells and exit
-  --suffix=SUFFIX       append SUFFIX to file name when saving modification
-                        instead of overwriting the original
-  -v LEVEL, --verbose=LEVEL
-                        verbosity level: 0, 1, or 2 [default: 1]
-  -x BLOCK, --exclude=BLOCK
-                        exclude block type BLOCK from spell; exclude multiple
-                        block types by specifying this option more than once
-  --gccollect           run garbage collector after every spell (slows down
-                        toaster but may save memory)
+from nose.tools import assert_equal, assert_raises, assert_almost_equal, raises
 
-The --examples switch
----------------------
+from tests.scripts.nif import call_niftoaster
 
->>> import sys
->>> sys.path.append("scripts/nif")
->>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--examples"]
->>> niftoaster.NifToaster().cli() # doctest: +REPORT_UDIFF
-* check if PyFFI can read all files in current directory
-  (python version of nifskope's xml checker):
-<BLANKLINE>
-    python niftoaster.py check_read .
-<BLANKLINE>
-* optimize all NIF files in a directory tree, recursively
-<BLANKLINE>
-    python niftoaster.py optimize /path/to/your/nifs/
-<BLANKLINE>
-* print texture information of all NIF files in a directory tree, recursively
-<BLANKLINE>
-    python niftoaster.py dump_tex /path/to/your/nifs/
-<BLANKLINE>
-* update/generate mopps of all NIF files in a directory tree, recursively
-<BLANKLINE>
-    python niftoaster.py fix_mopp /path/to/your/nifs/
-<BLANKLINE>
-* update/generate skin partitions of all NIF files in a directory tree,
-recursively, for Freedom Force vs. The 3rd Reich
-<BLANKLINE>
-    python niftoaster.py fix_ffvt3rskinpartition /path/to/your/nifs/
-<BLANKLINE>
-* run the profiler on PyFFI while reading NIF files:
-<BLANKLINE>
-    python -m cProfile -s cumulative -o profile_read.txt niftoaster.py -j 1 check_read .
-<BLANKLINE>
-* find out time spent on a particular test:
-<BLANKLINE>
-    python -m cProfile -s cumulative niftoaster.py -j 1 check_tristrip
-<BLANKLINE>
-* scale all files in c:\zoo2 by a factor 100 - useful to
-  visualize NIF files from games such as Zoo Tycoon 2 that are otherwise too
-  small to show up properly in nifskope:
-<BLANKLINE>
-    python niftoaster.py -a 100 fix_scale "c:\zoo2"
-<BLANKLINE>
-
-The --spells switch
--------------------
-
->>> sys.argv = ["niftoaster.py", "--spells"]
->>> niftoaster.NifToaster().cli() # doctest: +REPORT_UDIFF
-check_nop
-check_read
-check_readwrite
-check_nodenamesbyflag
-check_compareskindata
-check_bhkbodycenter
-check_centerradius
-check_convexverticesshape
-check_mopp
-check_skincenterradius
-check_tangentspace
-check_tristrip
-check_version
-check_triangles
-check_triangles_atvr
-dump
-dump_tex
-dump_htmlreport
-dump_pixeldata
-dump_python
-fix_addtangentspace
-fix_clampmaterialalpha
-fix_deltangentspace
-fix_detachhavoktristripsdata
-modify_disableparallax
-fix_ffvt3rskinpartition
-fix_centerradius
-fix_skincenterradius
-fix_mopp
-fix_texturepath
-fix_mergeskeletonroots
-fix_sendgeometriestobindposition
-fix_senddetachedgeometriestonodeposition
-fix_sendbonestobindposition
-fix_scale
-fix_cleanstringpalette
-fix_fallout3stringoffsets
-fix_bhksubshapes
-fix_emptyskeletonroots
-modify_delbranches
-opt_cleanreflists
-opt_mergeduplicates
-opt_geometry
-optimize
-opt_delunusedbones
-opt_delzeroscale
-modify_texturepath
-modify_collisiontype
-modify_scaleanimationtime
-modify_reverseanimation
-modify_collisionmaterial
-modify_delvertexcolor
-modify_delalphaprop
-modify_delspecularprop
-modify_delbsxflags
-modify_delanimation
-modify_cleanfarnif
-modify_makefarnif
-modify_delstringextradatas
-modify_delskinshapes
-modify_delcollision
-modify_texturepathlowres
-modify_addstencilprop
-modify_makeskinlessnif
-modify_substitutestringpalette
-modify_substitutetexturepath
-fix_delunusedroots
-modify_bonepriorities
-modify_allbonepriorities
-modify_getbonepriorities
-modify_setbonepriorities
-modify_interpolatortransrotscale
-modify_delinterpolatortransformdata
-modify_collisiontomopp
-opt_reducegeometry
-opt_collisionbox
-opt_collisiongeometry
-opt_optimizeanimation
-check_materialemissivevalue
-modify_mirroranimation
-
-The check_readwrite spell and the --raise switch
-------------------------------------------------
-
->>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_readwrite", "tests/formats/nif/"]
->>> niftoaster.NifToaster().cli() # doctest: +REPORT_UDIFF +ELLIPSIS
-Traceback (most recent call last):
-    ...
-AttributeError: type object 'NifFormat' has no attribute 'NiInvalid!'
->>> sys.argv = ["niftoaster.py", "--verbose=1", "check_readwrite", "tests/formats/nif/"]
->>> niftoaster.NifToaster().cli() # doctest: +REPORT_UDIFF
-pyffi.toaster:INFO:=== tests/formats/nif/invalid.nif ===
-pyffi.toaster:ERROR:TEST FAILED ON tests/formats/nif/invalid.nif
-pyffi.toaster:ERROR:If you were running a spell that came with PyFFI, then
-pyffi.toaster:ERROR:please report this as a bug (include the file) on
-pyffi.toaster:ERROR:https://github.com/niftools/pyffi/issues
-pyffi.toaster:INFO:=== tests/formats/nif/nds.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/neosteam.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_centerradius.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_check_tangentspace1.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_check_tangentspace2.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_check_tangentspace3.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_check_tangentspace4.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_convexverticesshape.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_dump_tex.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_fix_clampmaterialalpha.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_fix_cleanstringpalette.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_fix_detachhavoktristripsdata.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_fix_disableparallax.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_fix_ffvt3rskinpartition.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_fix_mergeskeletonroots.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_fix_tangentspace.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_fix_texturepath.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_grid_128x128.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_grid_64x64.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_mopp.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_opt_collision_complex_mopp.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_opt_collision_mopp.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_opt_collision_packed.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_opt_collision_to_boxshape.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_opt_collision_to_boxshape_notabox.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_opt_collision_unpacked.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_opt_delunusedbones.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_opt_dupgeomdata.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_opt_dupverts.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_opt_emptyproperties.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_opt_grid_layout.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_opt_mergeduplicates.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_opt_vertex_cache.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_opt_zeroscale.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_skincenterradius.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:=== tests/formats/nif/test_vertexcolor.nif ===
-pyffi.toaster:INFO:  --- check_readwrite ---
-pyffi.toaster:INFO:    writing to temporary file
-pyffi.toaster:INFO:      comparing file sizes
-pyffi.toaster:INFO:Finished.
-
-The --skip and --only switches
-------------------------------
-
->>> import sys
->>> sys.path.append("scripts/nif")
->>> import niftoaster
->>> sys.argv = "niftoaster.py --skip texture --skip skin --only fix --only center check_read tests/formats/nif/".split()
->>> niftoaster.NifToaster().cli() # doctest: +REPORT_UDIFF +ELLIPSIS
-pyffi.toaster:INFO:=== tests/formats/nif/invalid.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/nds.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/neosteam.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/test.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/test_centerradius.nif ===
-pyffi.toaster:INFO:  --- check_read ---
-pyffi.toaster:INFO:=== tests/formats/nif/test_check_tangentspace1.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/test_check_tangentspace2.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/test_check_tangentspace3.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/test_check_tangentspace4.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/test_convexverticesshape.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/test_dump_tex.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/test_fix_clampmaterialalpha.nif ===
-pyffi.toaster:INFO:  --- check_read ---
-pyffi.toaster:INFO:=== tests/formats/nif/test_fix_cleanstringpalette.nif ===
-pyffi.toaster:INFO:  --- check_read ---
-pyffi.toaster:INFO:=== tests/formats/nif/test_fix_detachhavoktristripsdata.nif ===
-pyffi.toaster:INFO:  --- check_read ---
-pyffi.toaster:INFO:=== tests/formats/nif/test_fix_disableparallax.nif ===
-pyffi.toaster:INFO:  --- check_read ---
-pyffi.toaster:INFO:=== tests/formats/nif/test_fix_ffvt3rskinpartition.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/test_fix_mergeskeletonroots.nif ===
-pyffi.toaster:INFO:  --- check_read ---
-pyffi.toaster:INFO:=== tests/formats/nif/test_fix_tangentspace.nif ===
-pyffi.toaster:INFO:  --- check_read ---
-pyffi.toaster:INFO:=== tests/formats/nif/test_fix_texturepath.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/test_grid_128x128.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/test_grid_64x64.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/test_mopp.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/test_opt_collision_complex_mopp.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/test_opt_collision_mopp.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/test_opt_collision_packed.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/test_opt_collision_to_boxshape.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/test_opt_collision_to_boxshape_notabox.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/test_opt_collision_unpacked.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/test_opt_delunusedbones.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/test_opt_dupgeomdata.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/test_opt_dupverts.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/test_opt_emptyproperties.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/test_opt_grid_layout.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/test_opt_mergeduplicates.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/test_opt_vertex_cache.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/test_opt_zeroscale.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/test_skincenterradius.nif (skipped) ===
-pyffi.toaster:INFO:=== tests/formats/nif/test_vertexcolor.nif (skipped) ===
-pyffi.toaster:INFO:Finished.
-
-The --prefix and --suffix switches
-----------------------------------
-
->>> import niftoaster
->>> sys.argv = "niftoaster.py --verbose=0 --prefix=pre_ --suffix=_suf --noninteractive optimize tests/formats/nif/test.nif".split()
->>> niftoaster.NifToaster().cli()
->>> os.path.exists("tests/formats/nif/pre_test_suf.nif")
-True
->>> os.remove("tests/formats/nif/pre_test_suf.nif")
+nif_dir = "tests/spells/nif/files/"
 
 
-The check_bhkbodycenter spell
------------------------------
+@raises(SystemExit)  # --help uses sys.exit()
+def test_help():
+    """Tests spell help"""
+    call_niftoaster("--raise", "--help")
 
->>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_bhkbodycenter", "tests/formats/nif/test_fix_detachhavoktristripsdata.nif"]
->>> niftoaster.NifToaster().cli() # doctest: +REPORT_UDIFF +ELLIPSIS
-pyffi.toaster:INFO:=== tests/formats/nif/test_fix_detachhavoktristripsdata.nif ===
-pyffi.toaster:INFO:  --- check_bhkbodycenter ---
-pyffi.toaster:INFO:    ~~~ NiNode [MiddleWolfRug01] ~~~
-pyffi.toaster:INFO:      ~~~ NiTriStrips [MiddleWolfRug01:0] ~~~
-pyffi.toaster:INFO:        ~~~ bhkCollisionObject [] ~~~
-pyffi.toaster:INFO:          ~~~ bhkRigidBodyT [] ~~~
-pyffi.toaster:INFO:            getting rigid body mass, center, and inertia
-pyffi.toaster:INFO:            recalculating...
-pyffi.toaster:INFO:            checking center...
-pyffi.toaster:WARNING:center does not match; original [  0.000  0.000  0.000  0.000 ], calculated [ -1.085 18.465  6.887  0.000 ]
-pyffi.toaster:INFO:            checking inertia...
-pyffi.toaster:INFO:Finished.
 
-The check_centerradius spell
-----------------------------
+def test_examples():
+    """Tests example"""
+    call_niftoaster("--raise", "--examples")
 
->>> import sys
->>> sys.path.append("scripts/nif")
->>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_centerradius", "tests/formats/nif/test_centerradius.nif"]
->>> niftoaster.NifToaster().cli() # doctest: +REPORT_UDIFF +ELLIPSIS
-pyffi.toaster:INFO:=== tests/formats/nif/test_centerradius.nif ===
-pyffi.toaster:INFO:  --- check_centerradius ---
-pyffi.toaster:INFO:    ~~~ NiNode [test] ~~~
-pyffi.toaster:INFO:      ~~~ NiTriShape [Cube] ~~~
-pyffi.toaster:INFO:        ~~~ NiTriShapeData [] ~~~
-pyffi.toaster:INFO:          getting bounding sphere
-pyffi.toaster:INFO:          checking that all vertices are inside
-pyffi.toaster:WARNING:not all vertices inside bounding sphere (vertex [ 10.000 -10.000 -10.000 ], error 7.91647286...)
-pyffi.toaster:INFO:          recalculating bounding sphere
-pyffi.toaster:INFO:          comparing old and new spheres
-pyffi.toaster:WARNING:center does not match; original [ -1.000 -0.000  0.000 ], calculated [  0.000 -0.000  0.000 ]
-pyffi.toaster:WARNING:radius does not match; original 10.0, calculated 17.32...
-pyffi.toaster:INFO:Finished.
 
+def test_spells():
+    """Tests spells"""
+    call_niftoaster("--raise", "--spells")
+
+
+@raises(AttributeError)
+def test_raise():
+    """Test exception raised on invalid nif"""
+    call_niftoaster("--raise", "check_readwrite", nif_dir + "invalid.nif")
+
+
+def test_no_raise():
+    """Test ignore exception raised on invalid nif"""
+    toaster = call_niftoaster("check_readwrite", nif_dir + "invalid.nif")
+    assert_equal(sorted(toaster.files_failed), [nif_dir + "invalid.nif"])
+
+
+def test_check_readwrite():
+    """Test basic read nif"""
+    for filename in ["nds.nif", "neosteam.nif", "test.nif"]:
+        file_path = nif_dir + "{0}".format(filename)
+        toaster = call_niftoaster("--raise", "check_readwrite", file_path)
+        assert_equal(sorted(toaster.files_done), [file_path])
+
+
+def test_check_skip_only():
+    """Test skip NIF files using filters and type"""
+    toaster = call_niftoaster(
+        *("--raise --skip texture --skip skin --only fix_t --only center check_nop {0}".format(nif_dir).split()))
+    assert_equal(sorted(toaster.files_done), [
+            nif_dir + 'test_centerradius.nif',
+            nif_dir + 'test_fix_tangentspace.nif'])
+
+    assert_equal(sorted(toaster.files_skipped), [
+            nif_dir + 'invalid.nif',
+            nif_dir + 'nds.nif',
+            nif_dir + 'neosteam.nif',
+            nif_dir + 'test.nif',
+            nif_dir + 'test_check_tangentspace1.nif',
+            nif_dir + 'test_check_tangentspace2.nif',
+            nif_dir + 'test_check_tangentspace3.nif',
+            nif_dir + 'test_check_tangentspace4.nif',
+            nif_dir + 'test_convexverticesshape.nif',
+            nif_dir + 'test_dump_tex.nif',
+            nif_dir + 'test_fix_clampmaterialalpha.nif',
+            nif_dir + 'test_fix_cleanstringpalette.nif',
+            nif_dir + 'test_fix_detachhavoktristripsdata.nif',
+            nif_dir + 'test_fix_disableparallax.nif',
+            nif_dir + 'test_fix_ffvt3rskinpartition.nif',
+            nif_dir + 'test_fix_mergeskeletonroots.nif',
+            nif_dir + 'test_fix_texturepath.nif',
+            nif_dir + 'test_grid_128x128.nif',
+            nif_dir + 'test_grid_64x64.nif',
+            nif_dir + 'test_mopp.nif',
+            nif_dir + 'test_opt_collision_complex_mopp.nif',
+            nif_dir + 'test_opt_collision_mopp.nif',
+            nif_dir + 'test_opt_collision_packed.nif',
+            nif_dir + 'test_opt_collision_to_boxshape.nif',
+            nif_dir + 'test_opt_collision_to_boxshape_notabox.nif',
+            nif_dir + 'test_opt_collision_unpacked.nif',
+            nif_dir + 'test_opt_delunusedbones.nif',
+            nif_dir + 'test_opt_dupgeomdata.nif',
+            nif_dir + 'test_opt_dupverts.nif',
+            nif_dir + 'test_opt_emptyproperties.nif',
+            nif_dir + 'test_opt_grid_layout.nif',
+            nif_dir + 'test_opt_mergeduplicates.nif',
+            nif_dir + 'test_opt_vertex_cache.nif',
+            nif_dir + 'test_opt_zeroscale.nif',
+            nif_dir + 'test_skincenterradius.nif',
+            nif_dir + 'test_vertexcolor.nif',
+            ])
+    assert_equal(toaster.files_failed, set([]))
+
+
+def test_prefix_suffix():
+    """Test add prefix and suffix to output"""
+    call_niftoaster(
+        *("--raise --prefix=pre_ --suffix=_suf --noninteractive optimize {0}test.nif".format(nif_dir).split()))
+    assert_equal(os.path.exists(nif_dir + "pre_test_suf.nif"), True)
+    os.remove(nif_dir + "pre_test_suf.nif")
+
+#TODO Move to spell test
+
+def test_check_bhkbodycenter():
+    """Test body centre spell"""
+    testfile = nif_dir + "test_fix_detachhavoktristripsdata.nif"
+    toaster = call_niftoaster("--raise", "check_bhkbodycenter", testfile)
+    orig = toaster.files_done[testfile][0]["center"]["orig"]
+    calc = toaster.files_done[testfile][0]["center"]["calc"]
+    assert_equal(orig, (0.0, 0.0, 0.0, 0.0))
+    assert_almost_equal(calc[0], -1.08541444)
+    assert_almost_equal(calc[1], 18.46527444)
+    assert_almost_equal(calc[2], 6.88672184)
+    assert_almost_equal(calc[3], 0.0)
+
+
+def test_check_centerradius():
+    """Test body centre spell"""
+    testfile = nif_dir + "test_centerradius.nif"
+    toaster = call_niftoaster("--raise", "check_centerradius", testfile)
+    vertex_outside = toaster.files_done[testfile][0]["vertex_outside"]
+    orig_center = toaster.files_done[testfile][0]["center"]["orig"]
+    calc_center = toaster.files_done[testfile][0]["center"]["calc"]
+    orig_radius = toaster.files_done[testfile][0]["radius"]["orig"]
+    calc_radius = toaster.files_done[testfile][0]["radius"]["calc"]
+    assert_equal(vertex_outside, (10.0, -10.0, -10.0))
+    assert_equal(orig_center, (-1.0, 0.0, 0.0))
+    assert_almost_equal(orig_radius, 10.0)
+    assert_almost_equal(calc_radius, 17.32050890)
+
+"""
 The check_skincenterradius spell
 --------------------------------
 
 >>> import sys
 >>> sys.path.append("scripts/nif")
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_skincenterradius", "tests/formats/nif/test_skincenterradius.nif"]
->>> niftoaster.NifToaster().cli() # doctest: +REPORT_UDIFF +ELLIPSIS
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_skincenterradius", nif_dir + "test_skincenterradius.nif"]
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
 pyffi.toaster:INFO:=== tests/formats/nif/test_skincenterradius.nif ===
 pyffi.toaster:INFO:  --- check_skincenterradius ---
 pyffi.toaster:INFO:    ~~~ NiNode [Bip01] ~~~
@@ -528,16 +167,18 @@ pyffi.toaster:INFO:      ~~~ NiTriShape [Body] ~~~
 pyffi.toaster:INFO:        getting skindata block bounding spheres
 pyffi.toaster:INFO:        recalculating bounding spheres
 pyffi.toaster:INFO:        comparing old and new spheres
-pyffi.toaster:ERROR:b'Bip01 L Foot' center does not match; original [  0.000  0.000  0.000 ], calculated [  3.109  2.224 -0.117 ]
-pyffi.toaster:ERROR:b'Bip01 L Foot' radius does not match; original 0.0, calculated 5.48116622...
+pyffi.toaster:ERROR:Bip01 L Foot center does not match; original [  0.000  0.000  0.000 ], calculated [  3.109  2.224 -0.117 ]
+pyffi.toaster:ERROR:Bip01 L Foot radius does not match; original 0.0, calculated 5.48116622473
 pyffi.toaster:INFO:Finished.
 
 The check_convexverticesshape spell
 -----------------------------------
 
+>>> import sys
+>>> sys.path.append("scripts/nif")
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_convexverticesshape", "tests/formats/nif/test_convexverticesshape.nif"]
->>> niftoaster.NifToaster().cli() # doctest: +REPORT_UDIFF +ELLIPSIS
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_convexverticesshape", nif_dir + "test_convexverticesshape.nif"]
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
 pyffi.toaster:INFO:=== tests/formats/nif/test_convexverticesshape.nif ===
 pyffi.toaster:INFO:  --- check_convexverticesshape ---
 pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
@@ -552,9 +193,11 @@ pyffi.toaster:INFO:Finished.
 The check_mopp spell
 --------------------
 
+>>> import sys
+>>> sys.path.append("scripts/nif")
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--verbose=2", "--raise", "check_mopp", "tests/formats/nif/test_mopp.nif"]
->>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS +REPORT_UDIFF +NORMALIZE_WHITESPACE
+>>> sys.argv = ["niftoaster.py", "--verbose=2", "--raise", "check_mopp", nif_dir + "test_mopp.nif"]
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
 pyffi.toaster:INFO:=== tests/formats/nif/test_mopp.nif ===
 pyffi.nif.data:DEBUG:Reading header at 0x00000000
 pyffi.nif.data:DEBUG:Version 0x14000005
@@ -574,7 +217,7 @@ pyffi.toaster:INFO:            recalculating mopp origin and scale
 pyffi.toaster:WARNING:origin mismatch
 pyffi.toaster:WARNING:(was [ -1.670 -1.532 -1.444 ] and is now [ -1.760 -1.622 -1.534 ])
 pyffi.toaster:WARNING:scale mismatch
-pyffi.toaster:WARNING:(was 5308158.0 and is now 5020014.514...)
+pyffi.toaster:WARNING:(was 5308158.0 and is now 5020014.51438)
 pyffi.toaster:INFO:            parsing mopp
 pyffi.mopp:DEBUG:   0:0x28  0 254 [ bound Z ]
 pyffi.mopp:DEBUG:   3:0x27  0 242 [ bound Y ]
@@ -1154,8 +797,10 @@ pyffi.toaster:INFO:Finished.
 The modify_disableparallax spell
 --------------------------------
 
+>>> import sys
+>>> sys.path.append("scripts/nif")
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "--dry-run", "modify_disableparallax", "tests/formats/nif/test_fix_disableparallax.nif"]
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "--dry-run", "modify_disableparallax", nif_dir + "test_fix_disableparallax.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
 pyffi.toaster:INFO:=== tests/formats/nif/test_fix_disableparallax.nif ===
 pyffi.toaster:INFO:  --- modify_disableparallax ---
@@ -1176,8 +821,10 @@ XXX Todo: find an open source nif which can be used for testing.
 The check_tangentspace spell
 ----------------------------
 
+>>> import sys
+>>> sys.path.append("scripts/nif")
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tangentspace", "tests/formats/nif/test_check_tangentspace1.nif"]
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tangentspace", nif_dir + "test_check_tangentspace1.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
 pyffi.toaster:INFO:=== tests/formats/nif/test_check_tangentspace1.nif ===
 pyffi.toaster:INFO:  --- check_tangentspace ---
@@ -1185,7 +832,7 @@ pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
 pyffi.toaster:INFO:      ~~~ NiTriStrips [Plane] ~~~
 pyffi.toaster:INFO:        checking tangent space
 pyffi.toaster:INFO:Finished.
->>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tangentspace", "tests/formats/nif/test_check_tangentspace2.nif"]
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tangentspace", nif_dir + "test_check_tangentspace2.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
 pyffi.toaster:INFO:=== tests/formats/nif/test_check_tangentspace2.nif ===
 pyffi.toaster:INFO:  --- check_tangentspace ---
@@ -1193,12 +840,12 @@ pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
 pyffi.toaster:INFO:      ~~~ NiTriStrips [Plane] ~~~
 pyffi.toaster:INFO:        checking tangent space
 pyffi.toaster:INFO:Finished.
->>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tangentspace", "tests/formats/nif/test_check_tangentspace3.nif"]
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tangentspace", nif_dir + "test_check_tangentspace3.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
 Traceback (most recent call last):
     ...
 ValueError: tangent space data has invalid size, expected 96 bytes but got 95
->>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tangentspace", "tests/formats/nif/test_check_tangentspace4.nif"]
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tangentspace", nif_dir + "test_check_tangentspace4.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
 pyffi.toaster:INFO:=== tests/formats/nif/test_check_tangentspace4.nif ===
 pyffi.toaster:INFO:  --- check_tangentspace ---
@@ -1223,8 +870,10 @@ pyffi.toaster:INFO:Finished.
 The check_tristrip spell
 ------------------------
 
+>>> import sys
+>>> sys.path.append("scripts/nif")
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tristrip", "tests/formats/nif/test_opt_dupverts.nif"]
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "check_tristrip", nif_dir + "test_opt_dupverts.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
 pyffi.toaster:INFO:=== tests/formats/nif/test_opt_dupverts.nif ===
 pyffi.toaster:INFO:  --- check_tristrip ---
@@ -1254,8 +903,10 @@ pyffi.toaster:INFO:Finished.
 The fix_mergeskeletonroots spell
 --------------------------------
 
+>>> import sys
+>>> sys.path.append("scripts/nif")
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--verbose=2", "--raise", "--dry-run", "fix_mergeskeletonroots", "tests/formats/nif/test_fix_mergeskeletonroots.nif"]
+>>> sys.argv = ["niftoaster.py", "--verbose=2", "--raise", "--dry-run", "fix_mergeskeletonroots", nif_dir + "test_fix_mergeskeletonroots.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
 pyffi.toaster:INFO:=== tests/formats/nif/test_fix_mergeskeletonroots.nif ===
 pyffi.nif.data:DEBUG:Reading header at 0x00000000
@@ -1276,9 +927,9 @@ pyffi.nif.data:DEBUG:Reading NiSkinPartition block at 0x00000739
 pyffi.nif.data:DEBUG:Reading NiNode block at 0x00000829
 pyffi.toaster:INFO:  --- fix_mergeskeletonroots ---
 pyffi.toaster:INFO:    ~~~ NiNode [Scene Root] ~~~
-pyffi.nif.ninode:DEBUG:detaching b'Sphere' from b'Armature'
-pyffi.nif.ninode:DEBUG:attaching b'Sphere' to b'Scene Root'
-pyffi.toaster:INFO:      reassigned skeleton root of b'Sphere'
+pyffi.nif.ninode:DEBUG:detaching Sphere from Armature
+pyffi.nif.ninode:DEBUG:attaching Sphere to Scene Root
+pyffi.toaster:INFO:      reassigned skeleton root of Sphere
 pyffi.toaster:INFO:  writing to temporary file
 pyffi.nif.data:DEBUG:Writing header
 pyffi.nif.data:DEBUG:Writing NiNode block
@@ -1300,8 +951,10 @@ pyffi.toaster:INFO:Finished.
 The fix_scale spell
 -------------------
 
+>>> import sys
+>>> sys.path.append("scripts/nif")
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "--dry-run", "fix_scale", "tests/formats/nif/test_opt_dupverts.nif", "-a", "10"]
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "--dry-run", "fix_scale", nif_dir + "test_opt_dupverts.nif", "-a", "10"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
 pyffi.toaster:INFO:=== tests/formats/nif/test_opt_dupverts.nif ===
 pyffi.toaster:INFO:  --- fix_scale ---
@@ -1338,8 +991,10 @@ pyffi.toaster:INFO:Finished.
 The fix_mopp spell
 ------------------
 
+>>> import sys
+>>> sys.path.append("scripts/nif")
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "--dry-run", "fix_mopp", "tests/formats/nif/test_mopp.nif"]
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "--raise", "--dry-run", "fix_mopp", nif_dir + "test_mopp.nif"]
 >>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS
 pyffi.toaster:INFO:=== tests/formats/nif/test_mopp.nif ===
 pyffi.toaster:INFO:  --- fix_mopp ---
@@ -1365,9 +1020,11 @@ pyffi.toaster:INFO:Finished.
 The check_version spell
 -----------------------
 
+>>> import sys
+>>> sys.path.append("scripts/nif")
 >>> import niftoaster
->>> sys.argv = ["niftoaster.py", "--verbose=1", "check_version", "tests/formats/nif", "-a", "10"]
->>> niftoaster.NifToaster().cli() # doctest: +REPORT_UDIFF +ELLIPSIS +NORMALIZE_WHITESPACE
+>>> sys.argv = ["niftoaster.py", "--verbose=1", "check_version", "tests/spells/nif", "-a", "10"]
+>>> niftoaster.NifToaster().cli() # doctest: +ELLIPSIS +REPORT_NDIFF
 pyffi.toaster:INFO:=== tests/formats/nif/invalid.nif ===
 pyffi.toaster:ERROR:TEST FAILED ON tests/formats/nif/invalid.nif
 pyffi.toaster:ERROR:If you were running a spell that came with PyFFI, then
@@ -1554,3 +1211,4 @@ pyffi.toaster:INFO:  number of nifs: 1
 pyffi.toaster:INFO:  user version:  [0]
 pyffi.toaster:INFO:  user version2: [0]
 pyffi.toaster:INFO:Finished.
+"""

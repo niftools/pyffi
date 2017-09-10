@@ -29,10 +29,10 @@ The check_read and check_readwrite spells
 >>> sys.argv = ["cgftoaster.py", "--verbose=1", "check_read", "tests/formats/cgf/"]
 >>> cgftoaster.CgfToaster().cli() # doctest: +ELLIPSIS +REPORT_NDIFF
 pyffi.toaster:INFO:=== tests/formats/cgf/invalid.cgf ===
-pyffi.toaster:ERROR:TEST FAILED ON tests/formats/cgf/invalid.cgf
-pyffi.toaster:ERROR:If you were running a spell that came with PyFFI, then
-pyffi.toaster:ERROR:please report this as a bug (include the file) on
-pyffi.toaster:ERROR:https://github.com/niftools/pyffi/issues
+pyffi.toaster:ERROR:FAILED ON tests/formats/cgf/invalid.cgf - with the follow exception
+pyffi.toaster:ERROR:EXPT MSG : Invalid signature (got 'b'INVALI'' instead of 'CryTek' or 'NCAion')
+pyffi.toaster:ERROR:If you were running a spell that came with PyFFI
+pyffi.toaster:ERROR:Please report this issue - https://github.com/niftools/pyffi/issues
 pyffi.toaster:INFO:=== tests/formats/cgf/monkey.cgf ===
 pyffi.toaster:INFO:  --- check_read ---
 pyffi.toaster:INFO:=== tests/formats/cgf/test.cgf ===

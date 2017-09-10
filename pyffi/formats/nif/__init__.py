@@ -24,7 +24,7 @@ Read a NIF file
 >>> for i in range(4): #recurse up to root repo dir
 ...     dirpath = dirname(dirpath)
 >>> repo_root = dirpath
->>> format_root = os.path.join(repo_root, 'tests', 'nif')
+>>> format_root = os.path.join(repo_root, 'tests', 'spells', 'nif', 'files')
 >>> stream = open(os.path.join(format_root, 'test.nif'), 'rb')
 >>> data = NifFormat.Data()
 >>> # inspect is optional; it will not read the actual blocks
@@ -54,7 +54,7 @@ Parse all NIF files in a directory tree
 ...     try:
 ...         # the replace call makes the doctest also pass on windows
 ...         os_path = stream.name
-...         split = (os_path.split(os.sep))[-3:]
+...         split = (os_path.split(os.sep))[-5:]
 ...         rejoin = os.path.join(*split).replace(os.sep, "/")
 ...         print("reading %s" % rejoin)
 ...         data.read(stream)
@@ -62,45 +62,45 @@ Parse all NIF files in a directory tree
 ...         print(
 ...             "Warning: read failed due corrupt file,"
 ...             " corrupt format description, or bug.") # doctest: +REPORT_NDIFF
-reading tests/nif/invalid.nif
+reading tests/spells/nif/files/invalid.nif
 Warning: read failed due corrupt file, corrupt format description, or bug.
-reading tests/nif/nds.nif
-reading tests/nif/neosteam.nif
-reading tests/nif/test.nif
-reading tests/nif/test_centerradius.nif
-reading tests/nif/test_check_tangentspace1.nif
-reading tests/nif/test_check_tangentspace2.nif
-reading tests/nif/test_check_tangentspace3.nif
-reading tests/nif/test_check_tangentspace4.nif
-reading tests/nif/test_convexverticesshape.nif
-reading tests/nif/test_dump_tex.nif
-reading tests/nif/test_fix_clampmaterialalpha.nif
-reading tests/nif/test_fix_cleanstringpalette.nif
-reading tests/nif/test_fix_detachhavoktristripsdata.nif
-reading tests/nif/test_fix_disableparallax.nif
-reading tests/nif/test_fix_ffvt3rskinpartition.nif
-reading tests/nif/test_fix_mergeskeletonroots.nif
-reading tests/nif/test_fix_tangentspace.nif
-reading tests/nif/test_fix_texturepath.nif
-reading tests/nif/test_grid_128x128.nif
-reading tests/nif/test_grid_64x64.nif
-reading tests/nif/test_mopp.nif
-reading tests/nif/test_opt_collision_complex_mopp.nif
-reading tests/nif/test_opt_collision_mopp.nif
-reading tests/nif/test_opt_collision_packed.nif
-reading tests/nif/test_opt_collision_to_boxshape.nif
-reading tests/nif/test_opt_collision_to_boxshape_notabox.nif
-reading tests/nif/test_opt_collision_unpacked.nif
-reading tests/nif/test_opt_delunusedbones.nif
-reading tests/nif/test_opt_dupgeomdata.nif
-reading tests/nif/test_opt_dupverts.nif
-reading tests/nif/test_opt_emptyproperties.nif
-reading tests/nif/test_opt_grid_layout.nif
-reading tests/nif/test_opt_mergeduplicates.nif
-reading tests/nif/test_opt_vertex_cache.nif
-reading tests/nif/test_opt_zeroscale.nif
-reading tests/nif/test_skincenterradius.nif
-reading tests/nif/test_vertexcolor.nif
+reading tests/spells/nif/files/nds.nif
+reading tests/spells/nif/files/neosteam.nif
+reading tests/spells/nif/files/test.nif
+reading tests/spells/nif/files/test_centerradius.nif
+reading tests/spells/nif/files/test_check_tangentspace1.nif
+reading tests/spells/nif/files/test_check_tangentspace2.nif
+reading tests/spells/nif/files/test_check_tangentspace3.nif
+reading tests/spells/nif/files/test_check_tangentspace4.nif
+reading tests/spells/nif/files/test_convexverticesshape.nif
+reading tests/spells/nif/files/test_dump_tex.nif
+reading tests/spells/nif/files/test_fix_clampmaterialalpha.nif
+reading tests/spells/nif/files/test_fix_cleanstringpalette.nif
+reading tests/spells/nif/files/test_fix_detachhavoktristripsdata.nif
+reading tests/spells/nif/files/test_fix_disableparallax.nif
+reading tests/spells/nif/files/test_fix_ffvt3rskinpartition.nif
+reading tests/spells/nif/files/test_fix_mergeskeletonroots.nif
+reading tests/spells/nif/files/test_fix_tangentspace.nif
+reading tests/spells/nif/files/test_fix_texturepath.nif
+reading tests/spells/nif/files/test_grid_128x128.nif
+reading tests/spells/nif/files/test_grid_64x64.nif
+reading tests/spells/nif/files/test_mopp.nif
+reading tests/spells/nif/files/test_opt_collision_complex_mopp.nif
+reading tests/spells/nif/files/test_opt_collision_mopp.nif
+reading tests/spells/nif/files/test_opt_collision_packed.nif
+reading tests/spells/nif/files/test_opt_collision_to_boxshape.nif
+reading tests/spells/nif/files/test_opt_collision_to_boxshape_notabox.nif
+reading tests/spells/nif/files/test_opt_collision_unpacked.nif
+reading tests/spells/nif/files/test_opt_delunusedbones.nif
+
+reading tests/spells/nif/files/test_opt_dupverts.nif
+reading tests/spells/nif/files/test_opt_emptyproperties.nif
+reading tests/spells/nif/files/test_opt_grid_layout.nif
+reading tests/spells/nif/files/test_opt_mergeduplicates.nif
+reading tests/spells/nif/files/test_opt_vertex_cache.nif
+reading tests/spells/nif/files/test_opt_zeroscale.nif
+reading tests/spells/nif/files/test_skincenterradius.nif
+reading tests/spells/nif/files/test_vertexcolor.nif
 
 Create a NIF model from scratch and write to file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1390,7 +1390,7 @@ class NifFormat(FileFormat):
                 # complete NiDataStream data
                 if block_type == "NiDataStream":
                     block.usage = data_stream_usage
-                    block.access.from_int(data_stream_access, self)
+                    block.access.populate_attribute_values(data_stream_access, self)
                 # store block index
                 self._block_dct[block_index] = block
                 self.blocks.append(block)
@@ -1567,7 +1567,7 @@ class NifFormat(FileFormat):
             # special case: NiDataStream stores part of data in block type list
             if block_type == "NiDataStream":
                 block_type = ("NiDataStream\x01%i\x01%i"
-                              % (root.usage, root.access.to_int(self)))
+                              % (root.usage, root.access.get_attributes_values(self)))
             try:
                 block_type_dct[root] = block_type_list.index(block_type)
             except ValueError:
@@ -2906,7 +2906,7 @@ class NifFormat(FileFormat):
                 vertices=vertices,
                 # default layer 1 (static collision)
                 layer=self.data_layers[0].layer if self.data_layers else 1,
-                material=self.material)
+                material=self.material.material)
             # set scale
             packed.scale_copy.x = 1.0
             packed.scale_copy.y = 1.0
@@ -2957,7 +2957,7 @@ class NifFormat(FileFormat):
             else:
                 return self.sub_shapes
 
-        def add_shape(self, triangles, normals, vertices, layer = 0, material = 0):
+        def add_shape(self, triangles, normals, vertices, layer=0, material=0):
             """Pack the given geometry."""
             # add the shape data
             if not self.data:
@@ -2972,10 +2972,10 @@ class NifFormat(FileFormat):
             # add the shape
             self.sub_shapes[num_shapes].layer = layer
             self.sub_shapes[num_shapes].num_vertices = len(vertices)
-            self.sub_shapes[num_shapes].material = material
+            self.sub_shapes[num_shapes].material.material = material
             data.sub_shapes[num_shapes].layer = layer
             data.sub_shapes[num_shapes].num_vertices = len(vertices)
-            data.sub_shapes[num_shapes].material = material
+            data.sub_shapes[num_shapes].material.material = material
             firsttriangle = data.num_triangles
             firstvertex = data.num_vertices
             data.num_triangles += len(triangles)

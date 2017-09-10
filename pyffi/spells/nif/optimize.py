@@ -1075,7 +1075,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
             return False
         elif (isinstance(branch, NifFormat.bhkRigidBody)
               and isinstance(branch.shape, NifFormat.bhkNiTriStripsShape)):
-            if branch.layer == NifFormat.OblivionLayer.OL_CLUTTER:
+            if branch.havok_col_filter.layer == NifFormat.OblivionLayer.CLUTTER:
                 # packed collisions do not work for clutter
                 # so skip it
                 # see issue #3194017 reported by Gratis_monsta
@@ -1095,7 +1095,7 @@ class SpellOptimizeCollisionGeometry(pyffi.spells.nif.NifSpell):
                              NifFormat.bhkPackedNiTriStripsShape)):
             # packed collision without mopp
             # add a mopp to it if it is static
-            if any(sub_shape.layer != 1
+            if any(sub_shape.havok_col_filter.layer != 1
                    for sub_shape in branch.shape.get_sub_shapes()):
                 # no mopps for non-static objects
                 return False

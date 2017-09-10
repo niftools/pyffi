@@ -28,7 +28,7 @@ Read a BSA file
 >>> for i in range(4): #recurse up to root repo dir
 ...     dirpath = dirname(dirpath)
 >>> repo_root = dirpath
->>> format_root = os.path.join(repo_root, 'tests', 'bsa')
+>>> format_root = os.path.join(repo_root, 'tests', 'formats', 'bsa')
 >>> stream = open(os.path.join(format_root, 'test.bsa'), 'rb')
 >>> data = BsaFormat.Data()
 >>> data.inspect_quick(stream)
@@ -37,7 +37,7 @@ Read a BSA file
 >>> data.inspect(stream)
 >>> data.folders_offset
 36
->>> hex(data.archive_flags.to_int(data))
+>>> hex(data.archive_flags.get_attributes_values(data))
 '0x703'
 >>> data.num_folders
 1
@@ -52,7 +52,7 @@ Parse all BSA files in a directory tree
 ...     try:
 ...         # the replace call makes the doctest also pass on windows
 ...         os_path = stream.name
-...         split = (os_path.split(os.sep))[-3:]
+...         split = (os_path.split(os.sep))[-4:]
 ...         rejoin = os.path.join(*split).replace(os.sep, "/")
 ...         print("reading %s" % rejoin)
 ...         data.read(stream)
@@ -60,7 +60,7 @@ Parse all BSA files in a directory tree
 ...         print(
 ...             "Warning: read failed due corrupt file,"
 ...             " corrupt format description, or bug.") # doctest: +REPORT_NDIFF
-reading tests/bsa/test.bsa
+reading tests/formats/bsa/test.bsa
 
 Create an BSA file from scratch and write to file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

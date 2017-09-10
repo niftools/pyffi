@@ -24,7 +24,7 @@ Read a PSK file
 >>> for i in range(4): #recurse up to root repo dir
 ...     dirpath = dirname(dirpath)
 >>> repo_root = dirpath
->>> format_root = os.path.join(repo_root, 'tests', 'psk')
+>>> format_root = os.path.join(repo_root, 'tests', 'formats', 'psk')
 >>> file = os.path.join(format_root, 'examplemesh.psk')
 >>> stream = open(file, 'rb')
 >>> data = PskFormat.Data()
@@ -40,14 +40,14 @@ Parse all PSK files in a directory tree
 ...     try:
 ...         # the replace call makes the doctest also pass on windows
 ...         os_path = stream.name
-...         split = (os_path.split(os.sep))[-3:]
+...         split = (os_path.split(os.sep))[-4:]
 ...         rejoin = os.path.join(*split).replace(os.sep, "/")
 ...         print("reading %s" % rejoin)
 ...     except Exception:
 ...         print(
 ...             "Warning: read failed due corrupt file,"
 ...             " corrupt format description, or bug.") # doctest: +REPORT_NDIFF
-reading tests/psk/examplemesh.psk
+reading tests/formats/psk/examplemesh.psk
 
 Create an PSK file from scratch and write to file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
