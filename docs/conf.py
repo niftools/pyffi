@@ -135,7 +135,7 @@ html_logo = '_static/favicon.ico'
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = f'{project}doc'
+htmlhelp_basename = '%sdoc'%(project)
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -162,7 +162,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, f'{project}.tex', f'{project} Documentation', author, 'manual'),
+    (master_doc, '%s.tex'%(project), '%s Documentation'%(project), author, 'manual'),
 ]
 
 
@@ -171,7 +171,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, project.lower(), f'{project} Documentation', [author], 1)
+    (master_doc, project.lower(), '%s Documentation'%(project), [author], 1)
 ]
 
 
@@ -181,8 +181,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, project, f'{project} Documentation', author, project,
-     'PyFFI is an open source Python library for processing block structured binary files.',
+    (master_doc, project, '%s Documentation'%(project), author, project,
+     '%s is an open source Python library for processing block structured binary files.'%(project),
      'Miscellaneous'),
 ]
 
