@@ -22,8 +22,6 @@ import sys
 
 sys.path.insert(0, os.path.abspath('..'))
 
-on_rtd = os.getenv('READTHEDOCS') == 'True'
-
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -38,17 +36,13 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
     'sphinx.ext.imgmath',
-    'sphinx.ext.autosummary'
+    'sphinx.ext.autosummary',
+    'sphinx.ext.napoleon'
 ]
 
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3/', None)
 }
-
-if on_rtd:
-    extensions.append('sphinxcontrib.napoleon')
-else:
-    extensions.append('sphinx.ext.napoleon')
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
