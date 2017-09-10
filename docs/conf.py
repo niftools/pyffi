@@ -57,7 +57,7 @@ templates_path = ['_templates']
 # You can specify multiple suffix as a list of string:
 #
 # source_suffix = ['.rst', '.md']
-source_suffix = '.rst'
+source_suffix = ['.rst', '.md']
 
 # The master toctree document.
 master_doc = 'index'
@@ -101,13 +101,26 @@ todo_include_todos = True
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'niftools_sphinx_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-# html_theme_options = {}
+html_theme_options = {
+    'home': 'http://www.niftools.org',
+    'projects': 'http://www.niftools.org/projects',
+    'blog': 'http://www.niftools.org/blog',
+    'forums': 'https://forum.niftools.org/',
+    'github': 'niftools/pyffi',
+    'youtube': 'UC3oVHybxr9BsL-Tjpm4R7EQ',
+    'twitter': 'niftools',
+    'travis': 'niftools/pyffi',
+    'coveralls': 'niftools/pyffi',
+    'pypi': 'PyFFI',
+    'discord_id': 309117867398397952,
+    'discord_invite': 'https://img.shields.io/discord/309117867398397952.svg'
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -117,12 +130,12 @@ html_static_path = ['_static']
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
-html_favicon = 'logo.ico'
+html_logo = '_static/favicon.ico'
 
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = '%sdoc'%(project)
+htmlhelp_basename = f'{project}doc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -149,7 +162,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, '%s.tex'%(project), '%s Documentation'%(project), author, 'manual'),
+    (master_doc, f'{project}.tex', f'{project} Documentation', author, 'manual'),
 ]
 
 
@@ -158,7 +171,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, project.lower(), '%s Documentation'%(project), [author], 1)
+    (master_doc, project.lower(), f'{project} Documentation', [author], 1)
 ]
 
 
@@ -168,7 +181,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, project, '%s Documentation'%(project), author, project,
+    (master_doc, project, f'{project} Documentation', author, project,
      'PyFFI is an open source Python library for processing block structured binary files.',
      'Miscellaneous'),
 ]

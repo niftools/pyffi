@@ -102,6 +102,10 @@ Questions? Suggestions?
 -----------------------
 * Open an issue at the `issue tracker
   <https://github.com/niftools/pyffi/issues>`_.
+  
+* Check the `forums <https://forum.niftools.org/32-pyffi-nif-library-development/>`_.
+
+* Chat on our `discord <https://forum.niftools.org/40-niftools-discord-server/>`_ server.
 
 ..
   See http://www.niftools.org/ for more information and documentation.

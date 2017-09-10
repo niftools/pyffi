@@ -6,4 +6,4 @@ pyflakes
 pytest
 pytest-cov
 sphinx>1.5.6
-sphinx_rtd_theme
+niftools_sphinx_theme
