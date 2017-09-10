@@ -20,6 +20,8 @@
 import os
 import sys
 
+on_rtd = os.getenv('READTHEDOCS') == 'True'
+
 sys.path.insert(0, os.path.abspath('..'))
 
 # -- General configuration ------------------------------------------------
@@ -36,9 +38,13 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
     'sphinx.ext.imgmath',
-    'sphinx.ext.autosummary',
-    'sphinx.ext.napoleon'
+    'sphinx.ext.autosummary'
 ]
+
+if on_rtd:
+    extensions.append('sphinxcontrib-napoleon')
+else:
+    extensions.append('sphinx.ext.napoleon')
 
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3/', None)
@@ -108,7 +114,7 @@ html_theme_options = {
     'forums': 'https://forum.niftools.org/',
     'github': 'niftools/pyffi',
     'youtube': 'UC3oVHybxr9BsL-Tjpm4R7EQ',
-    'twitter': 'niftools',
+    'twitter': 'NifTools',
     'travis': 'niftools/pyffi',
     'coveralls': 'niftools/pyffi',
     'pypi': 'PyFFI',
