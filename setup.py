@@ -1,6 +1,16 @@
-import sys
+import sys, os
 from setuptools import setup
 from sphinx.setup_command import BuildDoc
+
+on_rtd = os.getenv('READTHEDOCS') == 'True'
+
+requirements = []
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
+
+if on_rtd:
+    requirements.append('sphinxcontrib-napoleon')
+
 cmdclass = {
     'build_sphinx': BuildDoc
 }
@@ -93,5 +103,6 @@ setup(
     classifiers=[_f for _f in classifiers.split("\n") if _f],
     long_description=long_description,
     url="https://github.com/niftools/pyffi",
-    download_url="https://github.com/niftools/pyffi/releases"
+    download_url="https://github.com/niftools/pyffi/releases",
+    install_require=requirements
 )
