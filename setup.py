@@ -5,7 +5,7 @@ from sphinx.setup_command import BuildDoc
 on_rtd = os.getenv('READTHEDOCS') == 'True'
 
 requirements = []
-with open('requirements.txt') as f:
+with open('requirements-dev.txt') as f:
     requirements = f.read().splitlines()
 
 if on_rtd:
