@@ -11,7 +11,6 @@ Welcome to PyFFI's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
    
    intro
    install

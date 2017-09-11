@@ -1,2 +1,0 @@
-BGEM Format Example
-===================

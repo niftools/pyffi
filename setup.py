@@ -104,5 +104,5 @@ setup(
     long_description=long_description,
     url="https://github.com/niftools/pyffi",
     download_url="https://github.com/niftools/pyffi/releases",
-    install_require=requirements
+    install_requires=requirements
 )
