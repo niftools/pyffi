@@ -51,7 +51,7 @@ intersphinx_mapping = {
 }
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+#templates_path = ['_templates']
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
@@ -112,6 +112,7 @@ html_theme_options = {
     'projects': 'http://www.niftools.org/projects',
     'blog': 'http://www.niftools.org/blog',
     'forums': 'https://forum.niftools.org/',
+    'about': 'http://www.niftools.org/about',
     'github': 'niftools/pyffi',
     'youtube': 'UC3oVHybxr9BsL-Tjpm4R7EQ',
     'twitter': 'NifTools',
@@ -119,7 +120,8 @@ html_theme_options = {
     'coveralls': 'niftools/pyffi',
     'pypi': 'PyFFI',
     'discord_id': 309117867398397952,
-    'discord_invite': 'https://img.shields.io/discord/309117867398397952.svg'
+    'discord_invite': 'https://img.shields.io/discord/309117867398397952.svg',
+    'rtd': 'tagnumelite-pyffi'
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

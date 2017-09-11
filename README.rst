@@ -18,6 +18,7 @@ PyFFI
 .. image:: https://img.shields.io/discord/309117867398397952.svg
     :target: https://forum.niftools.org/40-niftools-discord-server/
 
+
 The Python File Format Interface, briefly PyFFI, is an open source
 Python library for processing block structured binary files:
 

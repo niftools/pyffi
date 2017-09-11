@@ -32,8 +32,6 @@ Supported formats
 
    rockstar/index
 
-   examples/index
-
 Adding new formats
 ------------------
 
