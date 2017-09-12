@@ -121,7 +121,8 @@ html_theme_options = {
     'pypi': 'PyFFI',
     'discord_id': 309117867398397952,
     'discord_invite': 'https://img.shields.io/discord/309117867398397952.svg',
-    'rtd': 'tagnumelite-pyffi'
+    'rtd': 'tagnumelite-pyffi',
+    'badges': True
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
