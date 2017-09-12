@@ -93,7 +93,8 @@ setup(
         'build_sphinx': {
             'project': ('setup.py', "PyFFI"),
             'version': ('setup.py', version),
-            'release': ('setup.py', version)
+            'release': ('setup.py', version),
+            'source_dir': ('setup.py', 'docs/')
         }
     },
     license="BSD",

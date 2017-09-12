@@ -29,7 +29,7 @@ script:
 after_success:
   - coveralls
   - python setup.py sdist bdist_wheel
-  - cd docs && make html && cd ..
+  - python setup.py build_sphinx
 
 notifications:
     email: false
@@ -38,6 +38,6 @@ deploy:
   provider: pages
   skip_cleanup: true
   github_token: $github_token
-  local_dir: docs/_build/html
+  local_dir: build/sphinx/html
   on:
     branch: update_docs
