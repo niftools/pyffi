@@ -29,6 +29,15 @@ script:
 after_success:
   - coveralls
   - python setup.py sdist bdist_wheel
+  - cd docs && make html && cd ..
 
 notifications:
     email: false
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $github_token
+  local_dir: docs/_build/html
+  on:
+    branch: update_docs
