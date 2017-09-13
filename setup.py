@@ -12,7 +12,7 @@ if on_rtd:
     requirements.append('sphinxcontrib-napoleon')
 
 cmdclass = {
-    'build_sphinx': BuildDoc
+    'build_docs': BuildDoc
 }
 
 """Setup script for PyFFI."""
@@ -90,7 +90,7 @@ setup(
     cmdclass=cmdclass,
     # these are optional and override conf.py settings
     command_options={
-        'build_sphinx': {
+        'build_docs': {
             'project': ('setup.py', "PyFFI"),
             'version': ('setup.py', version),
             'release': ('setup.py', version),
