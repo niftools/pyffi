@@ -1,5 +1,19 @@
-import sys
+import sys, os
 from setuptools import setup
+from sphinx.setup_command import BuildDoc
+
+on_rtd = os.getenv('READTHEDOCS') == 'True'
+
+requirements = []
+with open('requirements-dev.txt') as f:
+    requirements = f.read().splitlines()
+
+if on_rtd:
+    requirements.append('sphinxcontrib-napoleon')
+
+cmdclass = {
+    'build_docs': BuildDoc
+}
 
 """Setup script for PyFFI."""
 
@@ -73,6 +87,16 @@ setup(
         'scripts/patch_recursive_apply.py',
         'scripts/qskope.py'],
     author="Niftools Developers",
+    cmdclass=cmdclass,
+    # these are optional and override conf.py settings
+    command_options={
+        'build_docs': {
+            'project': ('setup.py', "PyFFI"),
+            'version': ('setup.py', version),
+            'release': ('setup.py', version),
+            'source_dir': ('setup.py', 'docs/')
+        }
+    },
     license="BSD",
     keywords="fileformat nif cgf binary interface stripify",
     platforms=["any"],
@@ -80,5 +104,6 @@ setup(
     classifiers=[_f for _f in classifiers.split("\n") if _f],
     long_description=long_description,
     url="https://github.com/niftools/pyffi",
-    download_url="https://github.com/niftools/pyffi/releases"
+    download_url="https://github.com/niftools/pyffi/releases",
+    install_requires=requirements
 )

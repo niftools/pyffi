@@ -1,10 +1,23 @@
 PyFFI
 =====
-.. image:: https://travis-ci.org/niftools/pyffi.png?branch=develop
+.. image:: https://img.shields.io/travis/niftools/pyffi/develop.svg
     :target: https://travis-ci.org/niftools/pyffi
 
-.. image:: https://coveralls.io/repos/niftools/pyffi/badge.svg?branch=develop
+.. image:: https://img.shields.io/coveralls/niftools/pyffi/develop.svg
     :target: https://coveralls.io/r/niftools/pyffi?branch=develop
+
+.. image:: https://img.shields.io/pypi/v/PyFFI.svg
+    :target: https://pypi.python.org/pypi/PyFFI
+
+.. image:: https://img.shields.io/pypi/status/PyFFI.svg
+    :target: https://pypi.python.org/pypi/PyFFI
+
+.. image:: https://img.shields.io/pypi/pyversions/PyFFI.svg
+    :target: https://pypi.python.org/pypi/PyFFI
+
+.. image:: https://img.shields.io/discord/309117867398397952.svg
+    :target: https://forum.niftools.org/40-niftools-discord-server/
+
 
 The Python File Format Interface, briefly PyFFI, is an open source
 Python library for processing block structured binary files:
@@ -71,8 +84,13 @@ All our documentation is written in ReST and can be generated into HTML,
 LaTeX, PDF and more thanks to Sphinx. You can generate it yourself::
 
     source venv/bin/activate
-    cd docs-sphinx
+    cd docs
     make html
+
+Or
+
+    source venv/bin/activate
+    python setup.py setup_docs
 
 Examples
 --------
@@ -90,6 +108,10 @@ Questions? Suggestions?
 -----------------------
 * Open an issue at the `issue tracker
   <https://github.com/niftools/pyffi/issues>`_.
+  
+* Check the `forums <https://forum.niftools.org/32-pyffi-nif-library-development/>`_.
+
+* Chat on our `discord <https://forum.niftools.org/40-niftools-discord-server/>`_ server.
 
 ..
   See http://www.niftools.org/ for more information and documentation.

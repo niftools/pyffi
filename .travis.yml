@@ -29,6 +29,16 @@ script:
 after_success:
   - coveralls
   - python setup.py sdist bdist_wheel
+  - python setup.py build_docs
 
 notifications:
     email: false
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $github_token
+  local_dir: build/sphinx/html
+  on:
+    branch: update_docs
+    python: 3.6

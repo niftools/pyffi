@@ -1,1 +1,0 @@
-.. automodule:: pyffi.formats.bsa

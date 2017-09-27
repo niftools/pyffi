@@ -7,7 +7,7 @@ git clean -x -d -f
 rem generate documentation
 
 del docs\*.*
-rem cd docs-sphinx
+rem cd docs
 rem %PYTHONPATH%\python.exe %PYTHONPATH%\Scripts\epydoc.py  -v --output=..\docs --name="Python File Format Interface" --url="https://github.com/niftools/pyffi" --navlink="&nbsp;&nbsp;&nbsp;<a class=\"navbar\" target=\"_top\" href=\"https://github.com/niftools/pyffi\">Python File Format Interface</a>&nbsp;&nbsp;&nbsp;</th><th class=\"navbar\" align=\"center\">&nbsp;&nbsp;&nbsp;" --docformat="restructuredtext" --top=pyffi pyffi
 rem cd ..
 mkdir docs

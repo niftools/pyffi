@@ -1,13 +1,14 @@
 """
-:mod:`pyffi` --- Interfacing block structured files
-===================================================
+PyFFI --- Interfacing block structured files
+============================================
 
 .. toctree::
    :maxdepth: 3
 
-   pyffi.formats
-   pyffi.spells
-   pyffi.object_models
+   formats/index
+   spells/index
+   object_models/index
+   utils/index
 
 """
 
