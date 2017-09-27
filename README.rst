@@ -87,6 +87,11 @@ LaTeX, PDF and more thanks to Sphinx. You can generate it yourself::
     cd docs
     make html
 
+Or
+
+    source venv/bin/activate
+    python setup.py setup_docs
+
 Examples
 --------
 * The `Blender NIF Plugin
