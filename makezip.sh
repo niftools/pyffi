@@ -13,10 +13,10 @@ then
 	echo "PyFFI test release - documentation not included" > docs/index.html
 else
 	rm -rf docs
-	pushd docs-sphinx
+	pushd docs
 	make html SPHINXBUILD=sphinx-build-3.2
 	popd
-	mv docs-sphinx/_build/html/ docs/
+	mv docs/_build/html/ docs/
 fi
 
 # create source and binary distributions

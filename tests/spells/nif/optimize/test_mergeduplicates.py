@@ -17,7 +17,7 @@ class TestMergeDuplicatesOptimisation(BaseFileTestCase):
 
     def test_non_interactive_opt_merge_duplicates(self):
         call_niftoaster("--raise", "opt_mergeduplicates", "--dry-run", "--noninteractive", "--verbose=1", self.dest_file)
-    
+
 
 class TestMergeDuplicatesGeomOptimisation(BaseFileTestCase):
     # I didn't need setUp and tearDown here..

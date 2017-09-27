@@ -15,7 +15,6 @@ Welcome to PyFFI's documentation!
    intro
    install
    pyffi/index
-
    contribute
    authors
    license
