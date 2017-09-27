@@ -57,6 +57,7 @@ install:
   - "set HOME=%APPVEYOR_BUILD_FOLDER%"
   - "%PIP% install setuptools pip --upgrade"
   - "%PIP% install check-manifest coveralls nose pytest pytest-cov twine wheel"
+  - "%PIP% install sphinx"
   - "cd %HOME%"
 
 test: off
