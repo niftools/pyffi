@@ -134,6 +134,9 @@ class _MetaStructBase(type):
         # precalculate the attribute name list
         cls._names = cls._get_names()
 
+    def __repr__(cls):
+        return "<struct '%s'>"%(cls.__name__)
+
 class StructBase(GlobalNode, metaclass=_MetaStructBase):
     """Base class from which all file struct types are derived.
 

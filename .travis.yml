@@ -32,3 +32,12 @@ after_success:
 
 notifications:
     email: false
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $github_token
+  local_dir: build/sphinx/html
+  on:
+    branch: sphinx
+    python: 3.6

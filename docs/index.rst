@@ -18,7 +18,7 @@ Documentation
    
    intro
    install
-   pyffi
+   pyffi/index
 
    contribute
    authors
