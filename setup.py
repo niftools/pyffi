@@ -1,6 +1,5 @@
 import sys
 from setuptools import setup
-from sphinx.setup_command import BuildDoc
 
 """Setup script for PyFFI."""
 
@@ -20,6 +19,11 @@ classifiers = [
 
 if sys.version_info < (3, 3):
     raise RuntimeError("PyFFI requires Python 3.3 or higher.")
+
+try:
+    from sphinx.setup_command import BuildDoc
+except ModuleNotFoundError:
+    BuildDoc = type('SphinxNotInstalled', (Exception,), {})
 
 try:
     long_description = open("README.rst").read()
@@ -90,5 +94,8 @@ setup(
             'release': ('setup.py', version),
             'source_dir': ('setup.py', 'docs/')
         }
+    },
+    extra_requires={
+        'docs': ['sphinx']
     }
 )
