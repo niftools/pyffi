@@ -23,7 +23,7 @@ if sys.version_info < (3, 3):
 try:
     from sphinx.setup_command import BuildDoc
 except ModuleNotFoundError:
-    BuildDoc = type('SphinxNotInstalled', (Exception,), {})
+    from pyffi.utils import BuildDoc
 
 try:
     long_description = open("README.rst").read()
@@ -95,7 +95,7 @@ setup(
             'source_dir': ('setup.py', 'docs/')
         }
     },
-    extra_requires={
+    extras_require={
         'docs': ['sphinx']
     }
 )
