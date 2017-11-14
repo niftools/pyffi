@@ -42,7 +42,28 @@
 # ***** END LICENSE BLOCK *****
 
 import os
+from distutils.cmd import Command
 
+class BuildDoc(Command):
+    """
+    Distutils command to stop setup.py from throwing errors
+    if sphinx is not installed
+    """
+    
+    description = 'Sphinx is not installed'
+    user_options = []
+    
+    def initialize_options(self):
+        self.source_dir = self.build_dir = None
+        self.project = ''
+        self.version = ''
+        self.release = ''
+    
+    def finalize_options(self):
+        return
+    
+    def run(self):
+        print("Sphinx is not installed")
 
 def walk(top, topdown=True, onerror=None, re_filename=None):
     """A variant of os.walk() which also works if top is a file instead of a

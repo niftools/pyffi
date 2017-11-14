@@ -3,22 +3,27 @@ from setuptools import setup
 
 """Setup script for PyFFI."""
 
-classifiers = """\
-Development Status :: 4 - Beta
-License :: OSI Approved :: BSD License
-Intended Audience :: Developers
-Intended Audience :: End Users/Desktop
-Topic :: Multimedia :: Graphics :: 3D Modeling
-Programming Language :: Python
-Programming Language :: Python :: 3.3
-Programming Language :: Python :: 3.4
-Programming Language :: Python :: 3.5
-Programming Language :: Python :: 3.6
-Operating System :: OS Independent"""
+classifiers = [
+    'Development Status :: 4 - Beta',
+    'License :: OSI Approved :: BSD License',
+    'Intended Audience :: Developers',
+    'Intended Audience :: End Users/Desktop',
+    'Topic :: Multimedia :: Graphics :: 3D Modeling',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 3.3',
+    'Programming Language :: Python :: 3.4',
+    'Programming Language :: Python :: 3.5',
+    'Programming Language :: Python :: 3.6',
+    'Operating System :: OS Independent']
 # Topic :: Formats and Protocols :: Data Formats
 
 if sys.version_info < (3, 3):
     raise RuntimeError("PyFFI requires Python 3.3 or higher.")
+
+try:
+    from sphinx.setup_command import BuildDoc
+except ModuleNotFoundError:
+    from pyffi.utils import BuildDoc
 
 try:
     long_description = open("README.rst").read()
@@ -77,8 +82,20 @@ setup(
     keywords="fileformat nif cgf binary interface stripify",
     platforms=["any"],
     description="Processing block structured binary files.",
-    classifiers=[_f for _f in classifiers.split("\n") if _f],
+    classifiers=classifiers,
     long_description=long_description,
     url="https://github.com/niftools/pyffi",
-    download_url="https://github.com/niftools/pyffi/releases"
+    download_url="https://github.com/niftools/pyffi/releases",
+    cmdclass={'build_docs': BuildDoc},
+    command_options={
+        'build_docs': {
+            'project': ('setup.py', "PyFFI"),
+            'version': ('setup.py', version),
+            'release': ('setup.py', version),
+            'source_dir': ('setup.py', 'docs/')
+        }
+    },
+    extras_require={
+        'docs': ['sphinx']
+    }
 )

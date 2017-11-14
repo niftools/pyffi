@@ -17,17 +17,17 @@ Supported formats
 .. toctree::
    :maxdepth: 2
 
-   pyffi.formats.bsa
-   pyffi.formats.cgf
-   pyffi.formats.dae
-   pyffi.formats.dds
-   pyffi.formats.egm
-   pyffi.formats.egt
-   pyffi.formats.esp
-   pyffi.formats.kfm
-   pyffi.formats.nif
-   pyffi.formats.tga
-   pyffi.formats.tri
+   bsa
+   cgf
+   dae
+   dds
+   egm
+   egt
+   esp
+   kfm
+   nif
+   tga
+   tri
 
 Adding new formats
 ------------------
@@ -45,14 +45,14 @@ followed by a list of integers as many as described by the first
 integer. We start by creating an XML file, call it :file:`simple.xml`,
 which describes this format in a way that pyffi can understand:
 
-.. literalinclude:: ../examples/simple/simple.xml
+.. literalinclude:: ../../../examples/simple/simple.xml
     :language: xml
 
 What pyffi does is convert this simple XML description into Python classes
 which automatically can read and write the structure you've just described.
 Say this is the contents of :file:`simple.py`:
 
-.. literalinclude:: ../examples/simple/simple.py
+.. literalinclude:: ../../../examples/simple/simple.py
     :language: python
 
 What happens in this piece of code?
@@ -86,12 +86,12 @@ Reading and Writing Files
 To read the contents of a file of the format described by
 simple.xml:
 
-.. literalinclude:: ../examples/simple/testread.py
+.. literalinclude:: ../../../examples/simple/testread.py
     :language: python
 
 Or, to create a new file in this format:
 
-.. literalinclude:: ../examples/simple/testwrite.py
+.. literalinclude:: ../../../examples/simple/testwrite.py
     :language: python
 
 Further References

@@ -57,7 +57,7 @@ or on linux::
 
 To build the documentation::
 
-  cd docs-sphinx
+  cd docs
   make html
 
 PyFFI has an extensive test suite, which you can run via::

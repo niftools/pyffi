@@ -5,9 +5,9 @@
 .. toctree::
    :maxdepth: 3
 
-   pyffi.formats
-   pyffi.spells
-   pyffi.object_models
+   formats/index
+   spells/index
+   object_models
 
 """
 

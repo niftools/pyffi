@@ -40,7 +40,7 @@
 import logging
 import struct
 
-
+from pyffi.object_models import FileFormat as snakeCase
 from pyffi.object_models.xml.basic import BasicBase
 from pyffi.object_models.editable import EditableComboBox
 
@@ -84,7 +84,43 @@ class _MetaEnumBase(type):
 
         # set enum values as class attributes
         for item, value in zip(cls._enumkeys, cls._enumvalues):
-            setattr(cls, item, value)
+            setattr(cls, "".join(snakeCase.name_parts(item)), value)
+
+    def __iter__(cls):
+        cls.__i = 0
+        return cls
+
+    def __next__(cls):
+        if cls.__i < len(cls._enumvalues):
+            cls.__i += 1
+            return (cls._enumkeys[cls.__i-1], cls._enumvalues[cls.__i-1])
+        else:
+            raise StopIteration
+
+    def __getitem__(cls, key):
+        if key in cls._enumkeys:
+            index = cls._enumkeys.index(key)
+            return cls._enumvalues[index]
+        elif key in cls._enumvalues:
+            index = cls.enumvalues.index(key)
+            return cls._enumkeys[index]
+        else:
+            raise KeyError(key)
+
+    def __len__(cls):
+        return len(cls._enumkeys)
+
+    def __repr__(cls):
+        return "<enum '%s'>"%(cls.__name__)
+
+    def __str__(cls):
+        returns = "{"
+        for idx, key in enumerate(cls._enumkeys):
+            if not idx == 0 and idx <= len(cls._enumkeys) -1:
+                returns += ", "
+            returns += "\"%s\": \"%s\"" % (key, cls._enumvalues[idx])
+        returns += "}"
+        return returns
 
 class EnumBase(BasicBase, EditableComboBox, metaclass=_MetaEnumBase):
     _enumkeys = []

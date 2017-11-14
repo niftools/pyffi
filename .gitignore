@@ -5,4 +5,7 @@ build/
 .idea/
 venv/
 .cache/
-docs-sphinx/_build/
+docs/_build/
+/*.egg-info/
+/dist/
+*.mo

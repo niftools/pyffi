@@ -92,6 +92,8 @@ class _MetaBitStructBase(type):
         # precalculate the attribute name list
         cls._names = cls._get_names()
 
+    def __repr__(cls):
+        return "<bit_struct '%s'>"%(cls.__name__)
 
 class Bits(DetailNode, EditableSpinBox):
     """Basic implementation of a n-bit unsigned integer type (without read and write)."""

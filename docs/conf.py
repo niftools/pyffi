@@ -17,14 +17,30 @@ import sys, os
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
-#sys.path.append(os.path.abspath('some/directory'))
+
+on_rtd = os.getenv('READTHEDOCS') == 'True'
+
+sys.path.insert(0, os.path.abspath('..'))
 
 # General configuration
 # ---------------------
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.todo', 'sphinx.ext.autosummary']
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.todo',
+    'sphinx.ext.imgmath',
+    'sphinx.ext.githubpages',
+    'sphinx.ext.autosummary',
+    'sphinx.ext.napoleon'
+]
+
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3/', None)
+}
+
 todo_include_todos = True
 autosummary_generate = []
 
@@ -32,14 +48,15 @@ autosummary_generate = []
 templates_path = ['_templates']
 
 # The suffix of source filenames.
-source_suffix = '.rst'
+source_suffix = ['.rst', '.md']
 
 # The master toctree document.
 master_doc = 'index'
 
 # General substitutions.
 project = 'PyFFI'
-copyright = '2007-2012, Amorilia'
+copyright = '2012-2017, NifTools'
+author = 'Amorilia'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
@@ -92,7 +109,7 @@ html_style = 'default.css'
 
 # The name of an image file (within the static path) to place at the top of
 # the sidebar.
-#html_logo = None
+html_logo = "_static/favicon.ico"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -129,7 +146,7 @@ html_last_updated_fmt = '%b %d, %Y'
 #html_file_suffix = ''
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'PyFFIdoc'
+htmlhelp_basename = '%sdoc'%(project)
 
 
 # Options for LaTeX output
@@ -144,7 +161,7 @@ htmlhelp_basename = 'PyFFIdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
 latex_documents = [
-  ('index', 'PyFFI.tex', 'PyFFI Documentation', 'Amorilia', 'manual'),
+  ('index', '%s.tex'%(project), '%s Documentation'%(project), '%s'%(author), 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -164,4 +181,45 @@ latex_documents = [
 # If false, no module index is generated.
 #latex_use_modindex = True
 
+# -- Options for manual page output ---------------------------------------
 
+# One entry per manual page. List of tuples
+# (source start file, name, description, authors, manual section).
+man_pages = [
+    (master_doc, project.lower(), '%s Documentation'%(project), [author], 1)
+]
+
+# -- Options for Texinfo output -------------------------------------------
+
+# Grouping the document tree into Texinfo files. List of tuples
+# (source start file, target name, title, author,
+#  dir menu entry, description, category)
+texinfo_documents = [
+    (master_doc, project, '%s Documentation'%(project), author, project,
+     '%s is an open source Python library for processing block structured binary files.'%(project),
+     'Miscellaneous'),
+]
+
+# -- Options for Epub output ----------------------------------------------
+
+# Bibliographic Dublin Core info.
+epub_title = project
+epub_author = author
+epub_publisher = author
+epub_copyright = copyright
+
+# The unique identifier of the text. This can be a ISBN number
+# or the project homepage.
+#
+# epub_identifier = ''
+
+# A unique identification for the text.
+#
+# epub_uid = ''
+
+# A list of files that should not be packed into the epub file.
+epub_exclude_files = ['search.html']
+
+# -- Internalization -----------------------------------------------------
+locale_dirs = ['lang/']
+gettext_compact = False
