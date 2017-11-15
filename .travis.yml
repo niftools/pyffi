@@ -40,5 +40,5 @@ deploy:
   github_token: $github_token
   local_dir: build/sphinx/html
   on:
-    branch: sphinx
+    branch: develop
     python: 3.6
