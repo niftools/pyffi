@@ -24,22 +24,6 @@ class TestFixTexturePathToasterNif(BaseNifFileTestCase):
         spell = SpellClampMaterialAlpha(data=self.data)
         spell.recurse()
 
-        """
-        pyffi.toaster:INFO:--- fix_clampmaterialalpha ---
-        pyffi.toaster:INFO:  ~~~ NiNode [Scene Root] ~~~
-        pyffi.toaster:INFO:    ~~~ NiNode [Cone] ~~~
-        pyffi.toaster:INFO:      ~~~ NiTriShape [Tri Cone 0] ~~~
-        pyffi.toaster:INFO:        ~~~ NiMaterialProperty [Red] ~~~
-        pyffi.toaster:INFO:          clamping alpha value (1000.000000 -> 1.0)
-        pyffi.toaster:INFO:      ~~~ NiTriShape [Tri Cone 1] ~~~
-        pyffi.toaster:INFO:        ~~~ NiMaterialProperty [Green] ~~~
-        pyffi.toaster:INFO:          clamping alpha value (-1000.000000 -> 0.0)
-        pyffi.toaster:INFO:      ~~~ NiTriShape [Tri Cone 2] ~~~
-        pyffi.toaster:INFO:        ~~~ NiMaterialProperty [Blue] ~~~
-        pyffi.toaster:INFO:      ~~~ NiTriShape [Tri Cone 3] ~~~
-        pyffi.toaster:INFO:        ~~~ NiMaterialProperty [Yellow] ~~~
-        """
-
         # check that material alpha are no longer out of range
         assert_equals(self.data.roots[0].children[0].children[0].properties[0].alpha, 1.0)
         assert_equals(self.data.roots[0].children[0].children[1].properties[0].alpha, 0.0)
