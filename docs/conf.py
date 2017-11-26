@@ -18,9 +18,7 @@ import sys, os
 # is relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
 
-on_rtd = os.getenv('READTHEDOCS') == 'True'
-
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # General configuration
 # ---------------------
