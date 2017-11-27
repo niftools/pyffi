@@ -44,7 +44,7 @@
 import os
 from distutils.cmd import Command
 
-class BuildDoc(Command):
+class BuildDoc(Command): # pragma: no cover
     """
     Distutils command to stop setup.py from throwing errors
     if sphinx is not installed
@@ -63,7 +63,7 @@ class BuildDoc(Command):
         return
     
     def run(self):
-        print("Sphinx is not installed")
+        raise ModuleNotFoundError("Sphinx is not installed")
 
 def walk(top, topdown=True, onerror=None, re_filename=None):
     """A variant of os.walk() which also works if top is a file instead of a
