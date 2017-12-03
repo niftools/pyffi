@@ -58,7 +58,7 @@ or on linux::
 To build the documentation::
 
   cd docs
-  make html
+  make html -a
 
 PyFFI has an extensive test suite, which you can run via::
 

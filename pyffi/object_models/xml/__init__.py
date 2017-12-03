@@ -650,7 +650,7 @@ but got %s instead""" % name)
             # create class
             # assign it to cls.<class_name> if it has not been implemented
             # internally
-            cls_klass = getattr(self.cls, self.class_name, None)
+            cls_klass = getattr(self.cls, str(self.class_name).replace(' ', ''), None)
             if cls_klass and issubclass(cls_klass, BasicBase):
                 # overrides a basic type - not much to do
                 pass
@@ -659,7 +659,7 @@ but got %s instead""" % name)
                 if cls_klass:
                     # exists: create and add to base class of customizer
                     gen_klass = type(
-                        "_" + str(self.class_name),
+                        "_" + str(self.class_name).replace(' ', ''),
                         self.class_bases, self.class_dict)
                     setattr(self.cls, "_" + self.class_name, gen_klass)
                     # recreate the class, to ensure that the
@@ -681,7 +681,7 @@ but got %s instead""" % name)
                 else:
                     # does not yet exist: create it and assign to class dict
                     gen_klass = type(
-                        str(self.class_name), self.class_bases, self.class_dict)
+                        str(self.class_name).replace(' ', ''), self.class_bases, self.class_dict)
                     setattr(self.cls, self.class_name, gen_klass)
                 # append class to the appropriate list
                 if tag == self.tag_struct:

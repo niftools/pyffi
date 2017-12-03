@@ -6,3 +6,4 @@ pyflakes
 pytest
 pytest-cov
 sphinx
+yummy_sphinx_theme

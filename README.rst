@@ -72,7 +72,7 @@ LaTeX, PDF and more thanks to Sphinx. You can generate it yourself::
 
     source venv/bin/activate
     cd docs
-    make html
+    make html -a
 
 Examples
 --------
