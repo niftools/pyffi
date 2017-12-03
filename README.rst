@@ -1,9 +1,12 @@
 PyFFI
 =====
-.. image:: https://travis-ci.org/niftools/pyffi.png?branch=develop
+.. image:: https://img.shields.io/travis/niftools/pyffi/develop.svg?label=Linux%20Build
     :target: https://travis-ci.org/niftools/pyffi
 
-.. image:: https://coveralls.io/repos/niftools/pyffi/badge.svg?branch=develop
+.. image:: https://img.shields.io/appveyor/ci/neomonkeus/pyffi/develop.svg?label=Windows%20Build
+    :target: https://ci.appveyor.com/project/neomonkeus/pyffi
+
+.. image:: https://img.shields.io/coveralls/github/niftools/pyffi/develop.svg
     :target: https://coveralls.io/r/niftools/pyffi?branch=develop
 
 The Python File Format Interface, briefly PyFFI, is an open source
