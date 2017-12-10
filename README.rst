@@ -6,7 +6,7 @@ PyFFI
 .. image:: https://img.shields.io/appveyor/ci/neomonkeus/pyffi/develop.svg?label=Windows%20Build
     :target: https://ci.appveyor.com/project/neomonkeus/pyffi
 
-.. image:: https://img.shields.io/coveralls/github/niftools/pyffi/develop.svg
+.. image:: https://img.shields.io/coveralls/github/niftools/pyffi/develop.svg?label=Coverage
     :target: https://coveralls.io/r/niftools/pyffi?branch=develop
 
 The Python File Format Interface, briefly PyFFI, is an open source

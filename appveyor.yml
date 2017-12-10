@@ -64,7 +64,7 @@ test: off
 build_script:
   - "%PYTEST% --cov pyffi --cov-report=term tests"
   - "%RUN% setup.py sdist bdist_wheel"
-  - "%RUN% setup.py build_docs"
+  - "%RUN% setup.py build_docs -a"
 
 artifacts:
   # bdist_wheel puts your built wheel in the dist directory
