@@ -650,7 +650,7 @@ but got %s instead""" % name)
             # create class
             # assign it to cls.<class_name> if it has not been implemented
             # internally
-            cls_klass = getattr(self.cls, str(self.class_name), None)
+            cls_klass = getattr(self.cls, self.class_name, None)
             if cls_klass and issubclass(cls_klass, BasicBase):
                 # overrides a basic type - not much to do
                 pass
