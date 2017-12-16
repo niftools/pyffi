@@ -29,7 +29,7 @@ script:
 after_success:
   - coveralls
   - python setup.py sdist bdist_wheel
-  - python setup.py build_docs
+  - python setup.py build_docs -a
 
 notifications:
     email: false

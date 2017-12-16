@@ -21,7 +21,7 @@ Track the source
 If you simply want to keep track of the latest source code, start a
 shell (or, the Git Bash on windows), and type (this is like "svn checkout")::
 
-  git clone git://github.com/amorilia/pyffi.git
+  git clone git://github.com/niftools/pyffi.git
 
 To synchronize your code, type (this is like "svn update")::
 
@@ -58,7 +58,7 @@ or on linux::
 To build the documentation::
 
   cd docs
-  make html
+  make html -a
 
 PyFFI has an extensive test suite, which you can run via::
 

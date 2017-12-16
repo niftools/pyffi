@@ -96,10 +96,22 @@ pygments_style = 'sphinx'
 # Options for HTML output
 # -----------------------
 
+# HTML Theme
+html_theme = 'niftools_sphinx_theme'
+
+html_theme_options = {
+    'home': 'http://niftools.org',
+    'blog': 'http://niftools.org/blog',
+    'about': 'http://niftools.org/about',
+    'forums': 'http://forum.niftools.org',
+    'badges': False,
+    'github': 'niftools/pyffi'
+}
+
 # The style sheet to use for HTML and HTML Help pages. A file of that name
 # must exist either in Sphinx' static/ path, or in one of the custom paths
 # given in html_static_path.
-html_style = 'default.css'
+#html_style = 'default.css'
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -107,7 +119,9 @@ html_style = 'default.css'
 
 # The name of an image file (within the static path) to place at the top of
 # the sidebar.
-html_logo = "_static/favicon.ico"
+html_logo = "_static/logo.png"
+
+html_favicon = "_static/favicon.ico"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
