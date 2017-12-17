@@ -1,0 +1,272 @@
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <title>pyffi — Interfacing block structured files</title>
+
+    
+    
+    
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    
+    
+
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto|Roboto+Condensed|Source+Sans+Pro" rel="stylesheet">
+
+    
+
+    <!-- CSS -->
+    
+
+    
+
+    <link rel="stylesheet" href="../_static/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="../_static/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../_static/hover/css/hover-min.css">
+    <link rel="stylesheet" href="../_static/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="../_static/css/syntax.css">
+
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+
+
+    
+    
+    <link rel="author" title="About these documents" href="http://niftools.org/about" />
+    
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    
+    
+    <link rel="search" title="Search" href="../search.html" />
+    
+    
+    
+    <link rel="next" title="pyffi.formats — File format interfaces" href="formats/index.html" />
+    
+    
+    <link rel="prev" title="Installation" href="../install.html" />
+    
+     
+</head>
+<body data-spy="scroll" data-target="#toc" data-offset="180">
+    
+    <header class="site-header">
+    <div class="container">
+        <nav class="navbar ">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#site-navbar">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    </button>
+                    <a id="site-header-brand" href="../" title="PyFFI">
+                        <img src="../_static/logo.png" /> PyFFI
+                    </a>
+                </div>
+
+                <div id="site-navbar" class="collapse navbar-collapse" role="navigation">
+                    <ul class="nav navbar-nav navbar-right">
+                        
+                        <li><a href="http://niftools.org" class=" site-header-nav-item hvr-underline-from-center" target="" title="Home">
+                        Home
+                        </a></li>
+                        
+                        
+                        
+                        <li><a href="http://niftools.org/blog" class="site-header-nav-item hvr-underline-from-center" target="" title="Blog">
+                        Blog
+                        </a></li>
+                        
+                        
+                        <li><a href="../" class=" selected  site-header-nav-item hvr-underline-from-center" target="" title="Documentation">
+                        Documentation
+                        </a></li>
+                        
+                        
+                        <li><a href="http://forum.niftools.org" class=" site-header-nav-item hvr-underline-from-center" target="" title="Forums">
+                        Forums
+                        </a></li>
+                        
+                        
+                        <li><a href="http://niftools.org/about" class="site-header-nav-item hvr-underline-from-center" target="" title="About">
+                        About
+                        </a></li>
+                        
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    </header>
+    
+    <div class="content">
+        <section class="jumbotron geopattern" data-pattern-id="pyffi — Interfacing block structured files">
+            <div class="container">
+                <div id="jumbotron-meta-info">
+                    <h1>PyFFI Documentation</h1>
+                    <span class="meta-info">
+                        <span class="mega-octicon octicon-repo"></span>&nbsp;&nbsp;pyffi — Interfacing block structured files
+                    </span>
+                </div>
+            </div>
+        </section>
+        <article class="post container" itemscope itemtype="http://schema.org/BlogPosting">
+            <div class="row">
+                <div class="col-md-2 toc-bar">
+                
+                <nav id='toc'>
+                    <!--<span class="octicon octicon-list-unordered"></span>-->
+                    <h3><a href="../index.html">Table Of Contents</a></h3>
+                    
+                    <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal"><span class="pre">pyffi</span></code> — Interfacing block structured files</a></li>
+</ul>
+
+                    
+                </nav>
+                
+                
+                </div>
+                <div class="col-md-10">
+                    <div class="document">
+                        <div class="documentwrapper">
+                            
+                            <div class="bodywrapper">
+                            
+                            <div class="body" role="main">
+                            
+  <span class="target" id="module-pyffi"></span><div class="section" id="pyffi-interfacing-block-structured-files">
+<h1><a class="reference internal" href="#module-pyffi" title="pyffi"><code class="xref py py-mod docutils literal"><span class="pre">pyffi</span></code></a> — Interfacing block structured files<a class="headerlink" href="#pyffi-interfacing-block-structured-files" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="formats/index.html"><code class="docutils literal"><span class="pre">pyffi.formats</span></code> — File format interfaces</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="formats/index.html#supported-formats">Supported formats</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="formats/bsa.html"><code class="docutils literal"><span class="pre">pyffi.formats.bsa</span></code> — Bethesda Archive (.bsa)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="formats/cgf.html"><code class="docutils literal"><span class="pre">pyffi.formats.cgf</span></code> — Crytek (.cgf and .cga)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="formats/dae.html"><code class="docutils literal"><span class="pre">pyffi.formats.dae</span></code> — COLLADA (.dae)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="formats/dds.html"><code class="docutils literal"><span class="pre">pyffi.formats.dds</span></code> — DirectDraw Surface (.dds)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="formats/egm.html"><code class="docutils literal"><span class="pre">pyffi.formats.egm</span></code> — EGM (.egm)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="formats/egt.html"><code class="docutils literal"><span class="pre">pyffi.formats.egt</span></code> — EGT (.egt)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="formats/esp.html"><code class="docutils literal"><span class="pre">pyffi.formats.esp</span></code> — Elder Scrolls plugin/master/save files (.esp, .esm, and .ess)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="formats/kfm.html"><code class="docutils literal"><span class="pre">pyffi.formats.kfm</span></code> — NetImmerse/Gamebryo Keyframe Motion (.kfm)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="formats/nif.html"><code class="docutils literal"><span class="pre">pyffi.formats.nif</span></code> — NetImmerse/Gamebryo (.nif and .kf)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="formats/tga.html"><code class="docutils literal"><span class="pre">pyffi.formats.tga</span></code> — Targa (.tga)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="formats/tri.html"><code class="docutils literal"><span class="pre">pyffi.formats.tri</span></code> — TRI (.tri)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="formats/index.html#adding-new-formats">Adding new formats</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="formats/index.html#getting-started">Getting Started</a></li>
+<li class="toctree-l3"><a class="reference internal" href="formats/index.html#reading-and-writing-files">Reading and Writing Files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="formats/index.html#further-references">Further References</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="spells/index.html"><code class="docutils literal"><span class="pre">pyffi.spells</span></code> — High level file operations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="spells/index.html#supported-spells">Supported spells</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="spells/cgf.html"><code class="docutils literal"><span class="pre">pyffi.spells.cgf</span></code> —  Crytek Geometry/Animation (.cgf/.cga) spells</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spells/dds.html"><code class="docutils literal"><span class="pre">pyffi.spells.dds</span></code> — DirectDraw Surface spells</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spells/kfm.html"><code class="docutils literal"><span class="pre">pyffi.spells.kfm</span></code> —  NetImmerse/Gamebryo Keyframe Motion (.kfm) spells</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spells/nif.html"><code class="docutils literal"><span class="pre">pyffi.spells.nif</span></code> —  NetImmerse/Gamebryo File/Keyframe (.nif/.kf/.kfa) spells</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spells/tga.html"><code class="docutils literal"><span class="pre">pyffi.spells.tga</span></code> — Targa spells</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="spells/index.html#adding-new-spells">Adding new spells</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spells/index.html#grouping-spells-together">Grouping spells together</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spells/index.html#creating-toaster-scripts">Creating toaster scripts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="object_models.html"><code class="docutils literal"><span class="pre">pyffi.object_models</span></code> — File format description engines</a></li>
+</ul>
+</div>
+</div>
+
+
+                            </div>
+                            
+                            </div>
+                          
+                        </div>
+                        <div class="clearer"></div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+    
+    <footer class="container">
+        <div class="site-footer">
+            
+            <div class="copyright pull-left">
+                
+                    &#169; Copyright 2012-2017, NifTools.
+                
+                <!-- 请不要更改这一行 方便其他人知道模板的来源 谢谢 -->
+                <!-- Please keep this line to let others know where this theme comes from. Thank you :D -->
+                <!--Powered by <a href="https://github.com/DONGChuan/Yummy-Jekyll">Yummy Jekyll</a> -->
+            </div>
+            
+
+            <div class="pull-middle">
+                
+                <a href="https://github.com/niftools/pyffi" target="_blank" aria-label="PyFFI on GitHub">
+                    <span class="mega-octicon octicon-mark-github" title="GitHub"></span>
+                </a>
+                
+            </div>
+
+            
+            <div class="sphinx pull-right">
+                Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5
+            </div>
+            
+        </div>
+    </footer>
+    
+
+    
+    
+
+    <!-- JS -->
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.2.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../_static/js/script.js"></script>
+    <script type="text/javascript" src="../_static/geopattern/js/geopattern.min.js"></script>
+
+    <script>
+        $(document).ready(function(){
+            $('.geopattern').each(function(){
+                var pattern = GeoPattern.generate($(this).data('pattern-id'));
+                $(this).css('background-image', pattern.toDataUrl());
+                //$(this).geopattern($(this).data('pattern-id'));
+            });
+        });
+    </script>
+
+
+    
+</body>
+</html>

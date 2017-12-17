@@ -1,0 +1,678 @@
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <title>pyffi.spells.nif — NetImmerse/Gamebryo File/Keyframe (.nif/.kf/.kfa) spells</title>
+
+    
+    
+    
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    
+    
+
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto|Roboto+Condensed|Source+Sans+Pro" rel="stylesheet">
+
+    
+
+    <!-- CSS -->
+    
+
+    
+
+    <link rel="stylesheet" href="../../_static/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="../../_static/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../_static/hover/css/hover-min.css">
+    <link rel="stylesheet" href="../../_static/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="../../_static/css/syntax.css">
+
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+
+
+    
+    
+    <link rel="author" title="About these documents" href="http://niftools.org/about" />
+    
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    
+    
+    <link rel="search" title="Search" href="../../search.html" />
+    
+    
+    
+    <link rel="next" title="pyffi.spells.tga — Targa spells" href="tga.html" />
+    
+    
+    <link rel="prev" title="pyffi.spells.kfm — NetImmerse/Gamebryo Keyframe Motion (.kfm) spells" href="kfm.html" />
+    
+     
+</head>
+<body data-spy="scroll" data-target="#toc" data-offset="180">
+    
+    <header class="site-header">
+    <div class="container">
+        <nav class="navbar ">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#site-navbar">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    </button>
+                    <a id="site-header-brand" href="../../" title="PyFFI">
+                        <img src="../../_static/logo.png" /> PyFFI
+                    </a>
+                </div>
+
+                <div id="site-navbar" class="collapse navbar-collapse" role="navigation">
+                    <ul class="nav navbar-nav navbar-right">
+                        
+                        <li><a href="http://niftools.org" class=" site-header-nav-item hvr-underline-from-center" target="" title="Home">
+                        Home
+                        </a></li>
+                        
+                        
+                        
+                        <li><a href="http://niftools.org/blog" class="site-header-nav-item hvr-underline-from-center" target="" title="Blog">
+                        Blog
+                        </a></li>
+                        
+                        
+                        <li><a href="../../" class=" selected  site-header-nav-item hvr-underline-from-center" target="" title="Documentation">
+                        Documentation
+                        </a></li>
+                        
+                        
+                        <li><a href="http://forum.niftools.org" class=" site-header-nav-item hvr-underline-from-center" target="" title="Forums">
+                        Forums
+                        </a></li>
+                        
+                        
+                        <li><a href="http://niftools.org/about" class="site-header-nav-item hvr-underline-from-center" target="" title="About">
+                        About
+                        </a></li>
+                        
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    </header>
+    
+    <div class="content">
+        <section class="jumbotron geopattern" data-pattern-id="pyffi.spells.nif — NetImmerse/Gamebryo File/Keyframe (.nif/.kf/.kfa) spells">
+            <div class="container">
+                <div id="jumbotron-meta-info">
+                    <h1>PyFFI Documentation</h1>
+                    <span class="meta-info">
+                        <span class="mega-octicon octicon-repo"></span>&nbsp;&nbsp;pyffi.spells.nif — NetImmerse/Gamebryo File/Keyframe (.nif/.kf/.kfa) spells
+                    </span>
+                </div>
+            </div>
+        </section>
+        <article class="post container" itemscope itemtype="http://schema.org/BlogPosting">
+            <div class="row">
+                <div class="col-md-2 toc-bar">
+                
+                <nav id='toc'>
+                    <!--<span class="octicon octicon-list-unordered"></span>-->
+                    <h3><a href="../../index.html">Table Of Contents</a></h3>
+                    
+                    <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal"><span class="pre">pyffi.spells.nif</span></code> —  NetImmerse/Gamebryo File/Keyframe (.nif/.kf/.kfa) spells</a><ul>
+<li><a class="reference internal" href="#pyffi-spells-nif-fix-spells-to-fix-errors"><code class="docutils literal"><span class="pre">pyffi.spells.nif.fix</span></code> —  spells to fix errors</a><ul>
+<li><a class="reference internal" href="#implementation">Implementation</a></li>
+<li><a class="reference internal" href="#regression-tests">Regression tests</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pyffi-spells-nif-modify-spells-to-make-modifications"><code class="docutils literal"><span class="pre">pyffi.spells.nif.modify</span></code> —  spells to make modifications</a></li>
+</ul>
+</li>
+</ul>
+
+                    
+                </nav>
+                
+                
+                </div>
+                <div class="col-md-10">
+                    <div class="document">
+                        <div class="documentwrapper">
+                            
+                            <div class="bodywrapper">
+                            
+                            <div class="body" role="main">
+                            
+  <span class="target" id="module-pyffi.spells.nif"></span><div class="section" id="module-pyffi.spells.nif.check">
+<span id="pyffi-spells-nif-netimmerse-gamebryo-file-keyframe-nif-kf-kfa-spells"></span><h1><a class="reference internal" href="#module-pyffi.spells.nif" title="pyffi.spells.nif"><code class="xref py py-mod docutils literal"><span class="pre">pyffi.spells.nif</span></code></a> —  NetImmerse/Gamebryo File/Keyframe (.nif/.kf/.kfa) spells<a class="headerlink" href="#module-pyffi.spells.nif.check" title="Permalink to this headline">¶</a></h1>
+<p>Module which contains all spells that check something in a NIF file.</p>
+<span class="target" id="module-pyffi.spells.nif.dump"></span><p>Spells for dumping particular blocks from nifs.</p>
+<span class="target" id="module-pyffi.spells.nif.fix"></span><div class="section" id="pyffi-spells-nif-fix-spells-to-fix-errors">
+<h2><a class="reference internal" href="#module-pyffi.spells.nif.fix" title="pyffi.spells.nif.fix"><code class="xref py py-mod docutils literal"><span class="pre">pyffi.spells.nif.fix</span></code></a> —  spells to fix errors<a class="headerlink" href="#pyffi-spells-nif-fix-spells-to-fix-errors" title="Permalink to this headline">¶</a></h2>
+<p>Module which contains all spells that fix something in a nif.</p>
+<div class="section" id="implementation">
+<h3>Implementation<a class="headerlink" href="#implementation" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pyffi.spells.nif.fix.SpellDelTangentSpace">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.fix.</code><code class="descname">SpellDelTangentSpace</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.fix.SpellDelTangentSpace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.NifSpell</span></code></p>
+<p>Delete tangentspace if it is present.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.fix.SpellAddTangentSpace">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.fix.</code><code class="descname">SpellAddTangentSpace</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.fix.SpellAddTangentSpace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.NifSpell</span></code></p>
+<p>Add tangentspace if none is present.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.fix.SpellFFVT3RSkinPartition">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.fix.</code><code class="descname">SpellFFVT3RSkinPartition</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.fix.SpellFFVT3RSkinPartition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.NifSpell</span></code></p>
+<p>Create or update skin partition, with settings that work for Freedom
+Force vs. The 3rd Reich.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.fix.SpellFixTexturePath">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.fix.</code><code class="descname">SpellFixTexturePath</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.fix.SpellFixTexturePath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.fix.SpellParseTexturePath</span></code></p>
+<p>Fix the texture path. Transforms 0x0a into n and 0x0d into
+r. This fixes a bug in nifs saved with older versions of
+nifskope. Also transforms / into . This fixes problems when
+packing files into a bsa archive. Also if the version is 20.0.0.4
+or higher it will check for bad texture path form of e.g.
+c:program filesbethsoftobtexturesfilepath.dds and replace it
+with e.g. texturesfilepath.dds.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.fix.SpellDetachHavokTriStripsData">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.fix.</code><code class="descname">SpellDetachHavokTriStripsData</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.fix.SpellDetachHavokTriStripsData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.NifSpell</span></code></p>
+<p>For NiTriStrips if their NiTriStripsData also occurs in a
+bhkNiTriStripsShape, make deep copy of data in havok. This is
+mainly useful as a preperation for other spells that act on
+NiTriStripsData, to ensure that the havok data remains untouched.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.fix.SpellClampMaterialAlpha">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.fix.</code><code class="descname">SpellClampMaterialAlpha</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.fix.SpellClampMaterialAlpha" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.NifSpell</span></code></p>
+<p>Clamp corrupted material alpha values.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.fix.SpellSendGeometriesToBindPosition">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.fix.</code><code class="descname">SpellSendGeometriesToBindPosition</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.fix.SpellSendGeometriesToBindPosition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.SpellVisitSkeletonRoots</span></code></p>
+<p>Transform skinned geometries so similar bones have the same bone data,
+and hence, the same bind position, over all geometries.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.fix.SpellSendDetachedGeometriesToNodePosition">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.fix.</code><code class="descname">SpellSendDetachedGeometriesToNodePosition</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.fix.SpellSendDetachedGeometriesToNodePosition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.SpellVisitSkeletonRoots</span></code></p>
+<p>Transform geometries so each set of geometries that shares bones
+is aligned with the transform of the root bone of that set.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.fix.SpellSendBonesToBindPosition">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.fix.</code><code class="descname">SpellSendBonesToBindPosition</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.fix.SpellSendBonesToBindPosition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.SpellVisitSkeletonRoots</span></code></p>
+<p>Transform bones so bone data agrees with bone transforms,
+and hence, all bones are in bind position.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.fix.SpellMergeSkeletonRoots">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.fix.</code><code class="descname">SpellMergeSkeletonRoots</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.fix.SpellMergeSkeletonRoots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.NifSpell</span></code></p>
+<p>Merges skeleton roots in the NIF file so that no skeleton root has
+another skeleton root as child. Warns if merge is impossible (this happens
+if the global skin data of the geometry is not the unit transform).</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.fix.SpellApplySkinDeformation">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.fix.</code><code class="descname">SpellApplySkinDeformation</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.fix.SpellApplySkinDeformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.NifSpell</span></code></p>
+<p>Apply skin deformation to nif.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.fix.SpellScale">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.fix.</code><code class="descname">SpellScale</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.fix.SpellScale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.NifSpell</span></code></p>
+<p>Scale a model.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.fix.SpellFixCenterRadius">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.fix.</code><code class="descname">SpellFixCenterRadius</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.fix.SpellFixCenterRadius" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.check.SpellCheckCenterRadius</span></code></p>
+<p>Recalculate geometry centers and radii.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.fix.SpellFixSkinCenterRadius">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.fix.</code><code class="descname">SpellFixSkinCenterRadius</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.fix.SpellFixSkinCenterRadius" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.check.SpellCheckSkinCenterRadius</span></code></p>
+<p>Recalculate skin centers and radii.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.fix.SpellFixMopp">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.fix.</code><code class="descname">SpellFixMopp</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.fix.SpellFixMopp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.check.SpellCheckMopp</span></code></p>
+<p>Recalculate mopp data from collision geometry.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.fix.SpellCleanStringPalette">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.fix.</code><code class="descname">SpellCleanStringPalette</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.fix.SpellCleanStringPalette" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.NifSpell</span></code></p>
+<p>Remove unused strings from string palette.</p>
+<dl class="method">
+<dt id="pyffi.spells.nif.fix.SpellCleanStringPalette.branchentry">
+<code class="descname">branchentry</code><span class="sig-paren">(</span><em>branch</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.fix.SpellCleanStringPalette.branchentry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses string palette of either a single controller sequence,
+or of all controller sequences in a controller manager.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">seq</span> <span class="o">=</span> <span class="n">NifFormat</span><span class="o">.</span><span class="n">NiControllerSequence</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">seq</span><span class="o">.</span><span class="n">string_palette</span> <span class="o">=</span> <span class="n">NifFormat</span><span class="o">.</span><span class="n">NiStringPalette</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">block</span> <span class="o">=</span> <span class="n">seq</span><span class="o">.</span><span class="n">add_controlled_block</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">block</span><span class="o">.</span><span class="n">string_palette</span> <span class="o">=</span> <span class="n">seq</span><span class="o">.</span><span class="n">string_palette</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">block</span><span class="o">.</span><span class="n">set_variable_1</span><span class="p">(</span><span class="s2">&quot;there&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">block</span><span class="o">.</span><span class="n">set_node_name</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">block</span><span class="o">.</span><span class="n">string_palette</span><span class="o">.</span><span class="n">palette</span><span class="o">.</span><span class="n">add_string</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+<span class="go">12</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">seq</span><span class="o">.</span><span class="n">string_palette</span><span class="o">.</span><span class="n">palette</span><span class="o">.</span><span class="n">get_all_strings</span><span class="p">()</span>
+<span class="go">[b&#39;there&#39;, b&#39;hello&#39;, b&#39;test&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">SpellCleanStringPalette</span><span class="p">()</span><span class="o">.</span><span class="n">branchentry</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span>
+<span class="go">pyffi.toaster:INFO:parsing string palette</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">seq</span><span class="o">.</span><span class="n">string_palette</span><span class="o">.</span><span class="n">palette</span><span class="o">.</span><span class="n">get_all_strings</span><span class="p">()</span>
+<span class="go">[b&#39;hello&#39;, b&#39;there&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">block</span><span class="o">.</span><span class="n">get_variable_1</span><span class="p">()</span>
+<span class="go">b&#39;there&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">block</span><span class="o">.</span><span class="n">get_node_name</span><span class="p">()</span>
+<span class="go">b&#39;hello&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.nif.fix.SpellCleanStringPalette.substitute">
+<code class="descname">substitute</code><span class="sig-paren">(</span><em>old_string</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.fix.SpellCleanStringPalette.substitute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function to substitute strings in the string palette,
+to allow subclasses of this spell can modify the strings.
+This implementation returns string unmodified.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.fix.SpellDelUnusedRoots">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.fix.</code><code class="descname">SpellDelUnusedRoots</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.fix.SpellDelUnusedRoots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.NifSpell</span></code></p>
+<p>Remove root branches that shouldn’t be root branches and are
+unused in the file such as NiProperty branches that are not
+properly parented.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.fix.SpellFixEmptySkeletonRoots">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.fix.</code><code class="descname">SpellFixEmptySkeletonRoots</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.fix.SpellFixEmptySkeletonRoots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.NifSpell</span></code></p>
+<p>Fix empty skeleton roots in an as sane as possible way.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="regression-tests">
+<h3>Regression tests<a class="headerlink" href="#regression-tests" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<span class="target" id="module-pyffi.spells.nif.optimize"></span><p>Spells for optimizing NIF files.</p>
+<dl class="class">
+<dt id="pyffi.spells.nif.optimize.SpellCleanRefLists">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.optimize.</code><code class="descname">SpellCleanRefLists</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.optimize.SpellCleanRefLists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.NifSpell</span></code></p>
+<p>Remove empty and duplicate entries in reference lists.</p>
+<dl class="method">
+<dt id="pyffi.spells.nif.optimize.SpellCleanRefLists.cleanreflist">
+<code class="descname">cleanreflist</code><span class="sig-paren">(</span><em>reflist</em>, <em>category</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.optimize.SpellCleanRefLists.cleanreflist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a cleaned copy of the given list of references.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.optimize.SpellMergeDuplicates">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.optimize.</code><code class="descname">SpellMergeDuplicates</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.optimize.SpellMergeDuplicates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.NifSpell</span></code></p>
+<p>Remove duplicate branches.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.optimize.SpellOptimizeGeometry">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.optimize.</code><code class="descname">SpellOptimizeGeometry</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.optimize.SpellOptimizeGeometry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.NifSpell</span></code></p>
+<p>Optimize all geometries:
+- remove duplicate vertices
+- triangulate
+- recalculate skin partition
+- recalculate tangent space</p>
+<dl class="method">
+<dt id="pyffi.spells.nif.optimize.SpellOptimizeGeometry.branchentry">
+<code class="descname">branchentry</code><span class="sig-paren">(</span><em>branch</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.optimize.SpellOptimizeGeometry.branchentry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optimize a NiTriStrips or NiTriShape block:</p>
+<blockquote>
+<div><ul class="simple">
+<li>remove duplicate vertices</li>
+<li>retriangulate for vertex cache</li>
+<li>recalculate skin partition</li>
+<li>recalculate tangent space</li>
+</ul>
+</div></blockquote>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">Limit the size of shapes (see operation optimization mod for
+Oblivion!)</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.optimize.SpellOptimize">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.optimize.</code><code class="descname">SpellOptimize</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.optimize.SpellOptimize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.SpellCleanFarNifSpellDelUnusedRootsSpellCleanRefListsSpellDetachHavokTriStripsDataSpellFixTexturePathSpellClampMaterialAlphaSpellFixBhkSubShapesSpellFixEmptySkeletonRootsSpellOptimizeGeometrySpellOptimizeCollisionBoxSpellOptimizeCollisionGeometrySpellMergeDuplicates</span></code></p>
+<p>Global fixer and optimizer spell.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.optimize.SpellDelUnusedBones">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.optimize.</code><code class="descname">SpellDelUnusedBones</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.optimize.SpellDelUnusedBones" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.NifSpell</span></code></p>
+<p>Remove nodes that are not used for anything.</p>
+</dd></dl>
+
+<span class="target" id="module-pyffi.spells.nif.modify"></span><div class="section" id="pyffi-spells-nif-modify-spells-to-make-modifications">
+<h2><a class="reference internal" href="#module-pyffi.spells.nif.modify" title="pyffi.spells.nif.modify"><code class="xref py py-mod docutils literal"><span class="pre">pyffi.spells.nif.modify</span></code></a> —  spells to make modifications<a class="headerlink" href="#pyffi-spells-nif-modify-spells-to-make-modifications" title="Permalink to this headline">¶</a></h2>
+<p>Module which contains all spells that modify a nif.</p>
+<dl class="class">
+<dt id="pyffi.spells.nif.modify.SpellTexturePath">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.modify.</code><code class="descname">SpellTexturePath</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.modify.SpellTexturePath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.fix.SpellParseTexturePath</span></code></p>
+<p>Changes the texture path while keeping the texture names.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.modify.SpellSubstituteTexturePath">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.modify.</code><code class="descname">SpellSubstituteTexturePath</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.modify.SpellSubstituteTexturePath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyffi.spells.nif.fix.SpellFixTexturePath" title="pyffi.spells.nif.fix.SpellFixTexturePath"><code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.fix.SpellFixTexturePath</span></code></a></p>
+<p>Runs a regex replacement on texture paths.</p>
+<dl class="method">
+<dt id="pyffi.spells.nif.modify.SpellSubstituteTexturePath.substitute">
+<code class="descname">substitute</code><span class="sig-paren">(</span><em>old_path</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.modify.SpellSubstituteTexturePath.substitute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns modified texture path, and reports if path was modified.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.modify.SpellLowResTexturePath">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.modify.</code><code class="descname">SpellLowResTexturePath</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.modify.SpellLowResTexturePath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyffi.spells.nif.modify.SpellSubstituteTexturePath" title="pyffi.spells.nif.modify.SpellSubstituteTexturePath"><code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.modify.SpellSubstituteTexturePath</span></code></a></p>
+<p>Changes the texture path by replacing ‘textures*’ with
+‘textureslowres*’ - used mainly for making _far.nifs</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.modify.SpellCollisionType">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.modify.</code><code class="descname">SpellCollisionType</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.modify.SpellCollisionType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.NifSpell</span></code></p>
+<p>Sets the object collision to be a different type</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.modify.SpellCollisionMaterial">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.modify.</code><code class="descname">SpellCollisionMaterial</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.modify.SpellCollisionMaterial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.NifSpell</span></code></p>
+<p>Sets the object’s collision material to be a different type</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.modify.SpellScaleAnimationTime">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.modify.</code><code class="descname">SpellScaleAnimationTime</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.modify.SpellScaleAnimationTime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.NifSpell</span></code></p>
+<p>Scales the animation time.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.modify.SpellReverseAnimation">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.modify.</code><code class="descname">SpellReverseAnimation</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.modify.SpellReverseAnimation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.NifSpell</span></code></p>
+<p>Reverses the animation by reversing datas in relation to the time.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.modify.SpellSubstituteStringPalette">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.modify.</code><code class="descname">SpellSubstituteStringPalette</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.modify.SpellSubstituteStringPalette" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyffi.spells.nif.fix.SpellCleanStringPalette" title="pyffi.spells.nif.fix.SpellCleanStringPalette"><code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.fix.SpellCleanStringPalette</span></code></a></p>
+<p>Substitute strings in a string palette.</p>
+<dl class="method">
+<dt id="pyffi.spells.nif.modify.SpellSubstituteStringPalette.substitute">
+<code class="descname">substitute</code><span class="sig-paren">(</span><em>old_string</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.modify.SpellSubstituteStringPalette.substitute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns modified string, and reports if string was modified.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.modify.SpellChangeBonePriorities">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.modify.</code><code class="descname">SpellChangeBonePriorities</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.modify.SpellChangeBonePriorities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.NifSpell</span></code></p>
+<p>Changes controlled block priorities based on controlled block name.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.modify.SpellSetInterpolatorTransRotScale">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.modify.</code><code class="descname">SpellSetInterpolatorTransRotScale</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.modify.SpellSetInterpolatorTransRotScale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.NifSpell</span></code></p>
+<p>Changes specified bone(s) translations/rotations in their
+NiTransformInterpolator.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.modify.SpellDelInterpolatorTransformData">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.modify.</code><code class="descname">SpellDelInterpolatorTransformData</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.modify.SpellDelInterpolatorTransformData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.NifSpell</span></code></p>
+<p>Deletes the specified bone(s) NiTransformData(s).</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.modify.SpellDelBranches">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.modify.</code><code class="descname">SpellDelBranches</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.modify.SpellDelBranches" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.NifSpell</span></code></p>
+<p>Delete blocks that match the exclude list.</p>
+<dl class="method">
+<dt id="pyffi.spells.nif.modify.SpellDelBranches.branchentry">
+<code class="descname">branchentry</code><span class="sig-paren">(</span><em>branch</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.modify.SpellDelBranches.branchentry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Strip branch if it is flagged for deletion.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.nif.modify.SpellDelBranches.is_branch_to_be_deleted">
+<code class="descname">is_branch_to_be_deleted</code><span class="sig-paren">(</span><em>branch</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.modify.SpellDelBranches.is_branch_to_be_deleted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <code class="docutils literal"><span class="pre">True</span></code> for those branches that must be deleted.
+The default implementation returns <code class="docutils literal"><span class="pre">True</span></code> for branches that
+are not admissible as specified by include/exclude options of
+the toaster. Override in subclasses that must delete specific
+branches.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.modify._SpellDelBranchClasses">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.modify.</code><code class="descname">_SpellDelBranchClasses</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.modify._SpellDelBranchClasses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyffi.spells.nif.modify.SpellDelBranches" title="pyffi.spells.nif.modify.SpellDelBranches"><code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.modify.SpellDelBranches</span></code></a></p>
+<p>Delete blocks that match a given list. Only useful as base class
+for other spells.</p>
+<dl class="attribute">
+<dt id="pyffi.spells.nif.modify._SpellDelBranchClasses.BRANCH_CLASSES_TO_BE_DELETED">
+<code class="descname">BRANCH_CLASSES_TO_BE_DELETED</code><em class="property"> = ()</em><a class="headerlink" href="#pyffi.spells.nif.modify._SpellDelBranchClasses.BRANCH_CLASSES_TO_BE_DELETED" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of branch classes that have to be deleted.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.modify.SpellDelSkinShapes">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.modify.</code><code class="descname">SpellDelSkinShapes</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.modify.SpellDelSkinShapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyffi.spells.nif.modify.SpellDelBranches" title="pyffi.spells.nif.modify.SpellDelBranches"><code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.modify.SpellDelBranches</span></code></a></p>
+<p>Delete any geometries with a material name of ‘skin’</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.modify.SpellDisableParallax">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.modify.</code><code class="descname">SpellDisableParallax</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.modify.SpellDisableParallax" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.NifSpell</span></code></p>
+<p>Disable parallax shader (for Oblivion, but may work on other nifs too).</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.modify.SpellAddStencilProperty">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.modify.</code><code class="descname">SpellAddStencilProperty</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.modify.SpellAddStencilProperty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.NifSpell</span></code></p>
+<p>Adds a NiStencilProperty to each geometry if it is not present.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.modify.SpellDelVertexColor">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.modify.</code><code class="descname">SpellDelVertexColor</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.modify.SpellDelVertexColor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyffi.spells.nif.modify.SpellDelBranches" title="pyffi.spells.nif.modify.SpellDelBranches"><code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.nif.modify.SpellDelBranches</span></code></a></p>
+<p>Delete vertex color properties and vertex color data.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.modify.SpellMakeSkinlessNif">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.modify.</code><code class="descname">SpellMakeSkinlessNif</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.modify.SpellMakeSkinlessNif" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.SpellDelSkinShapesSpellAddStencilProperty</span></code></p>
+<p>Spell to make fleshless CMR (Custom Model Races)
+clothing/armour type nifs.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.modify.SpellCleanFarNif">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.modify.</code><code class="descname">SpellCleanFarNif</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.modify.SpellCleanFarNif" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.SpellDelVertexColorPropertySpellDelAlphaPropertySpellDelSpecularPropertySpellDelBSXFlagsSpellDelStringExtraDatasSpellDelTangentSpaceSpellDelCollisionDataSpellDelAnimationSpellDisableParallax</span></code></p>
+<p>Spell to clean _far type nifs (for even more optimizations,
+combine this with the optimize spell).</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.nif.modify.SpellMakeFarNif">
+<em class="property">class </em><code class="descclassname">pyffi.spells.nif.modify.</code><code class="descname">SpellMakeFarNif</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.nif.modify.SpellMakeFarNif" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.SpellDelVertexColorPropertySpellDelAlphaPropertySpellDelSpecularPropertySpellDelBSXFlagsSpellDelStringExtraDatasSpellDelTangentSpaceSpellDelCollisionDataSpellDelAnimationSpellDisableParallaxSpellLowResTexturePath</span></code></p>
+<p>Spell to make _far type nifs (for even more optimizations,
+combine this with the optimize spell).</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+                            </div>
+                            
+                            </div>
+                          
+                        </div>
+                        <div class="clearer"></div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+    
+    <footer class="container">
+        <div class="site-footer">
+            
+            <div class="copyright pull-left">
+                
+                    &#169; Copyright 2012-2017, NifTools.
+                
+                <!-- 请不要更改这一行 方便其他人知道模板的来源 谢谢 -->
+                <!-- Please keep this line to let others know where this theme comes from. Thank you :D -->
+                <!--Powered by <a href="https://github.com/DONGChuan/Yummy-Jekyll">Yummy Jekyll</a> -->
+            </div>
+            
+
+            <div class="pull-middle">
+                
+                <a href="https://github.com/niftools/pyffi" target="_blank" aria-label="PyFFI on GitHub">
+                    <span class="mega-octicon octicon-mark-github" title="GitHub"></span>
+                </a>
+                
+            </div>
+
+            
+            <div class="sphinx pull-right">
+                Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5
+            </div>
+            
+        </div>
+    </footer>
+    
+
+    
+    
+
+    <!-- JS -->
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.2.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/script.js"></script>
+    <script type="text/javascript" src="../../_static/geopattern/js/geopattern.min.js"></script>
+
+    <script>
+        $(document).ready(function(){
+            $('.geopattern').each(function(){
+                var pattern = GeoPattern.generate($(this).data('pattern-id'));
+                $(this).css('background-image', pattern.toDataUrl());
+                //$(this).geopattern($(this).data('pattern-id'));
+            });
+        });
+    </script>
+
+
+    
+</body>
+</html>

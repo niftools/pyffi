@@ -1,0 +1,543 @@
+﻿body {
+    background: #fafafa;
+}
+
+#site-header-brand,
+.jumbotron,
+.navbar-nav > li,
+.post-list-item,
+.sidebar-title,
+.sidebar-title-left,
+.about-description p,
+.toc-bar {
+    font-family: 'Open Sans', 'Helvetica Neue', Arial, Helvetica, freesans, sans-serif;
+}
+
+.posts-list-meta,
+.card-text .meta-info,
+.card-description p {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: 14px;
+}
+
+.card-title {
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 26px;
+}
+
+
+/** Header **/
+
+.site-header {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    width: 100%;
+    position: fixed;
+    margin: 40px 0 30px 0;
+    top: 0;
+    left: 0 !important;
+    right: 0;
+    z-index: 103;
+    color: #000;
+    background: #fff;
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -ms-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+.site-header #site-header-brand {
+    color: #2e2e2e;
+    float: left;
+}
+
+.site-header a {
+    display: inline-flex;
+    text-decoration: none;
+    vertical-align: middle;
+}
+
+.site-header a:hover {
+    color: #4183c4;
+}
+
+#site-header-brand {
+    font-size: 38px;
+    font-weight: 400;
+    line-height: 48px;
+    font-weight: 500;
+}
+
+#site-header-brand img {
+    height: 48px;
+    width: 48px;
+    margin-right: 8px;
+    image-rendering: crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+}
+
+
+/*******  Override Bootstrap *******/
+
+.navbar {
+    margin-bottom: 0px;
+    word-wrap: break-word;
+}
+
+.navbar-inverse .navbar-nav > li > a {
+    color: #dedede;
+}
+
+.navbar-toggle {
+    border-color: #777;
+}
+
+.navbar-toggle .icon-bar {
+    background-color: #444;
+}
+
+.navbar-toggle:focus,
+.navbar-toggle:hover {
+    background-color: #eee;
+}
+
+
+/*** Fix display issue with Edge/Firefox ***/
+
+.hvr-underline-from-center:before {
+    height: 0;
+}
+
+.hvr-underline-from-center:hover:before {
+    height: 4px;
+}
+
+.site-header-nav-item {
+    color: #000;
+    display: inline-block;
+    padding: 10px;
+    margin-left: 1.25rem;
+    font-size: 20px;
+}
+
+.site-header {
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.site-header.site-header-nav-scrolled {
+    margin: 0;
+}
+
+.site-header.site-header-nav-scrolled-ph {
+    margin-top: -160px;
+}
+
+.site-header.site-header-nav-scrolled,
+.site-header.site-header-nav-scrolled-ph {
+    background-color: #222;
+    -webkit-box-shadow: 0 0.125em 0.125em 0 rgba(0, 0, 0, 0.125);
+    -moz-box-shadow: 0 0.125em 0.125em 0 rgba(0, 0, 0, 0.125);
+    -ms-box-shadow: 0 0.125em 0.125em 0 rgba(0, 0, 0, 0.125);
+    -o-box-shadow: 0 0.125em 0.125em 0 rgba(0, 0, 0, 0.125);
+    box-shadow: 0 0.125em 0.125em 0 rgba(0, 0, 0, 0.125);
+}
+
+.site-header.site-header-nav-scrolled .navbar-inverse,
+.site-header.site-header-nav-scrolled-ph .navbar-inverse {
+    background: transparent;
+    border-color: transparent;
+}
+
+.site-header.site-header-nav-scrolled #site-header-brand,
+.site-header.site-header-nav-scrolled-ph #site-header-brand {
+    color: #fff;
+}
+
+/** Jumbotron **/
+
+.jumbotron {
+    padding-top: 200px;
+    padding-bottom: 100px;
+}
+
+.jumbotron .container {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.jumbotron h1,
+.jumbotron h2,
+.jumbotron h3,
+.jumbotron .meta-info {
+    color: #fff;
+}
+
+.jumbotron a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.jumbotron #jumbotron-meta-info {
+    margin-top: 20px;
+}
+
+.jumbotron .meta-info {
+    display: inline-block;
+    height: 33px;
+    margin-right: 15px;
+    vertical-align: middle;
+    font-size: 20px;
+}
+
+.jumbotron .meta-info .octicon {
+    font-size: 20px;
+}
+
+/** Post List **/
+
+.post-list-item {
+    position: relative;
+    padding-top: 20px;
+    padding-bottom: 10px;
+    list-style: none;
+    border-bottom: 1px solid #eee;
+}
+
+.post-list-item:first-child {
+    padding-top: 5px;
+}
+
+.post-list-item h2 {
+    margin-top: 5px;
+}
+
+.post-list-item .post-list-title a {
+    text-decoration: none;
+    padding-bottom: 10px;
+}
+
+.post-list-item .post-list-description {
+    margin-top: 8px;
+    margin-bottom: 0;
+    font-size: 18px;
+    color: #555;
+}
+
+.post-list-item .post-list-meta {
+    margin-top: 5px;
+    margin-bottom: 0;
+    color: #888;
+    font-size: 18px;
+    text-align: right;
+}
+
+.post-list-item .post-list-meta.octicon {
+    font-size: 18px;
+}
+
+.geopattern {
+    background-size: contain;
+}
+
+.sidebar-title,
+.sidebar-title-left {
+    margin-top: 0px;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #333;
+}
+
+.sidebar-title-left {
+    text-align: left;
+}
+
+.about-description p {
+    margin-bottom: 10px;
+    font-size: 18px;
+    color: #555;
+}
+
+
+/****** Discord ******/
+
+.social iframe {
+    display: flex;
+    width: 100%;
+    height: 400px;
+    overflow-x: hidden;
+    margin-bottom: 20px;
+}
+
+
+/****** Cards ******/
+
+.card .thumbnail {
+    border: 1px solid rgba(0, 0, 0, 0.075);
+    border-bottom-color: rgba(0, 0, 0, 0.125);
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 5px 10px rgba(0, 0, 0, 0.05);
+    transition: border-color 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
+    -webkit-transition: border-color 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
+    opacity: 0.96;
+    filter: saturate(180%);
+    -webkit-filter: saturate(180%);
+}
+
+.card .thumbnail:hover {
+    border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05), 0 10px 18px rgba(0, 0, 0, 0.1);
+    opacity: 1;
+    filter: saturate(250%);
+    -webkit-filter: saturate(250%);
+}
+
+.card .thumbnail:hover .card-title a {
+    text-decoration: none;
+}
+
+.card .thumbnail .card-image {
+    display: flex;
+    height: 80px;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    border-radius: 4px;
+}
+
+.card .thumbnail .card-image .card-image-cell {
+    text-align: center;
+    margin: auto;
+    padding: 10px;
+}
+
+.card .thumbnail .card-image h3 {
+    margin: 0;
+    text-shadow: 2px 2px rgba(55, 55, 55, 0.8);
+}
+
+.card .thumbnail .card-image a {
+    color: #fff;
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+    padding: 1.25em 3.5em;
+    margin: -1.25em -3.5em;
+}
+
+.card .thumbnail .card-description {
+    height: 3em;
+    overflow: hidden;
+}
+
+.card .thumbnail .card-text .meta-info {
+    margin-right: 10px;
+}
+
+ul.flex-list {
+    display: flex;
+    padding: 0;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+ul.flex-list li {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 5px 5px 0;
+    list-style: none;
+    cursor: pointer;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+ul.flex-list li.disabled {
+    cursor: not-allowed;
+    background: #555 !important;
+}
+
+ul.flex-list li header {
+    height: 25px;
+    width: 100%;
+    overflow: hidden;
+    margin-bottom: -25px;
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.2);
+    font-weight: bold;
+}
+
+ul.flex-list li header span {
+    display: block;
+    position: relative;
+    text-align: center;
+    top: 50%;
+    transform: translateY(-50%);
+    text-shadow: 0px 0px 10px rgba(51, 51, 51, 0.5), 0px 0px 5px #333333, 0px 0px 3px #282828, 0px 0px 2px rgba(30, 30, 30, 0.7);
+}
+
+ul.flex-list li > .content {
+    font-size: 159px;
+    line-height: 159px;
+    color: rgba(255, 255, 255, 0.2);
+}
+
+ul.flex-list li footer {
+    padding: 10px;
+    color: #333;
+    background-color: #fff;
+}
+
+/* small screens */
+
+@media (max-width: 996px) {
+    /* override the Affix plugin so that the navigation isn't sticky */
+    nav.affix[data-toggle='toc'] {
+        position: static;
+    }
+    nav[data-toggle='toc'] .nav .nav li,
+    nav[data-toggle='toc'] .nav .nav {
+        display: none;
+    }
+    nav[data-toggle='toc'].affix {
+        position: default;
+    }
+}
+
+/****** Media Queries ******/
+
+@media (max-width: 768px) {
+    /* Fix Logo jumping to the left under 768px */
+    #site-header-brand {
+        margin: 0 0 0 15px;
+    }
+    .jumbotron {
+        padding-top: 150px;
+        padding-bottom: 50px;
+    }
+}
+
+@media (max-width: 996px) {
+    .navbar-header {
+        float: none;
+    }
+    .navbar-left,
+    .navbar-right {
+        float: none !important;
+    }
+    .navbar-toggle {
+        display: block;
+    }
+    .navbar-collapse {
+        border-top: 1px solid transparent;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+    .navbar-fixed-top {
+        top: 0;
+        border-width: 0 0 1px;
+    }
+    .navbar-collapse.collapse {
+        display: none !important;
+    }
+    .navbar-nav {
+        float: none !important;
+        margin-top: 7.5px;
+    }
+    .navbar-nav > li {
+        float: none;
+    }
+    .navbar-nav > li > a {
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+    .collapse.in {
+        display: block !important;
+    }
+}
+
+@media (max-width: 1200px) and (min-width: 1080px) {
+    .container {
+        width: 1060px;
+    }
+    /*ul.flex-list {
+      $list-size: 80px;
+      li {
+          width: $list-size;
+          height: $list-size;
+      }
+  }*/
+}
+
+@media (max-width: 1200px) {
+    #site-navbar ul.nav li:first-child {
+        display: none;
+    }
+}
+
+/** Header **/
+
+/** TOC **/
+
+.toc-bar .octicon {
+    color: #555;
+    position: relative;
+    right: 12px;
+    top: 4px;
+}
+
+a.current {
+    color: #555;
+    position: relative;
+    right: 12px;
+    top: 4px;
+}
+
+nav #toc > ul {
+    text-align: justify;
+    display: inline-block;
+    list-style-position: inside;
+}
+
+/** Content **/
+
+div .admonition {
+    display: block;
+    padding: 24px;
+    font-style: oblique;
+}
+
+div .admonition > p .admonition-title {
+    color: red;
+}
+
+/** Footer **/
+
+.site-footer {
+    position: relative;
+    margin-top: 40px;
+    padding: 40px 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #777;
+    border-top: 2px solid #eee;
+}
+
+.site-footer > .copyright {
+    font-style: italic;
+}
+
+.site-footer > .sphinx {
+    font-style: italic;
+}
+
+.site-footer > .pull-middle {
+    position: absolute;
+    left: 50%;
+}
+
+.site-footer > .pull-middle a .mega-octicon {
+    color: #cecece;
+}
+
+.site-footer > .pull-middle a:hover .mega-octicon {
+    color: #bebebe;
+}

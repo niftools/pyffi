@@ -1,0 +1,971 @@
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <title>pyffi.spells — High level file operations</title>
+
+    
+    
+    
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    
+    
+
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto|Roboto+Condensed|Source+Sans+Pro" rel="stylesheet">
+
+    
+
+    <!-- CSS -->
+    
+
+    
+
+    <link rel="stylesheet" href="../../_static/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="../../_static/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../_static/hover/css/hover-min.css">
+    <link rel="stylesheet" href="../../_static/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="../../_static/css/syntax.css">
+
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+
+
+    
+    
+    <link rel="author" title="About these documents" href="http://niftools.org/about" />
+    
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    
+    
+    <link rel="search" title="Search" href="../../search.html" />
+    
+    
+    
+    <link rel="next" title="pyffi.spells.cgf — Crytek Geometry/Animation (.cgf/.cga) spells" href="cgf.html" />
+    
+    
+    <link rel="prev" title="pyffi.formats.tri — TRI (.tri)" href="../formats/tri.html" />
+    
+     
+</head>
+<body data-spy="scroll" data-target="#toc" data-offset="180">
+    
+    <header class="site-header">
+    <div class="container">
+        <nav class="navbar ">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#site-navbar">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    </button>
+                    <a id="site-header-brand" href="../../" title="PyFFI">
+                        <img src="../../_static/logo.png" /> PyFFI
+                    </a>
+                </div>
+
+                <div id="site-navbar" class="collapse navbar-collapse" role="navigation">
+                    <ul class="nav navbar-nav navbar-right">
+                        
+                        <li><a href="http://niftools.org" class=" site-header-nav-item hvr-underline-from-center" target="" title="Home">
+                        Home
+                        </a></li>
+                        
+                        
+                        
+                        <li><a href="http://niftools.org/blog" class="site-header-nav-item hvr-underline-from-center" target="" title="Blog">
+                        Blog
+                        </a></li>
+                        
+                        
+                        <li><a href="../../" class=" selected  site-header-nav-item hvr-underline-from-center" target="" title="Documentation">
+                        Documentation
+                        </a></li>
+                        
+                        
+                        <li><a href="http://forum.niftools.org" class=" site-header-nav-item hvr-underline-from-center" target="" title="Forums">
+                        Forums
+                        </a></li>
+                        
+                        
+                        <li><a href="http://niftools.org/about" class="site-header-nav-item hvr-underline-from-center" target="" title="About">
+                        About
+                        </a></li>
+                        
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    </header>
+    
+    <div class="content">
+        <section class="jumbotron geopattern" data-pattern-id="pyffi.spells — High level file operations">
+            <div class="container">
+                <div id="jumbotron-meta-info">
+                    <h1>PyFFI Documentation</h1>
+                    <span class="meta-info">
+                        <span class="mega-octicon octicon-repo"></span>&nbsp;&nbsp;pyffi.spells — High level file operations
+                    </span>
+                </div>
+            </div>
+        </section>
+        <article class="post container" itemscope itemtype="http://schema.org/BlogPosting">
+            <div class="row">
+                <div class="col-md-2 toc-bar">
+                
+                <nav id='toc'>
+                    <!--<span class="octicon octicon-list-unordered"></span>-->
+                    <h3><a href="../../index.html">Table Of Contents</a></h3>
+                    
+                    <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal"><span class="pre">pyffi.spells</span></code> — High level file operations</a><ul>
+<li><a class="reference internal" href="#supported-spells">Supported spells</a></li>
+<li><a class="reference internal" href="#adding-new-spells">Adding new spells</a></li>
+<li><a class="reference internal" href="#grouping-spells-together">Grouping spells together</a></li>
+<li><a class="reference internal" href="#creating-toaster-scripts">Creating toaster scripts</a></li>
+</ul>
+</li>
+</ul>
+
+                    
+                </nav>
+                
+                
+                </div>
+                <div class="col-md-10">
+                    <div class="document">
+                        <div class="documentwrapper">
+                            
+                            <div class="bodywrapper">
+                            
+                            <div class="body" role="main">
+                            
+  <span class="target" id="module-pyffi.spells"></span><div class="section" id="pyffi-spells-high-level-file-operations">
+<h1><a class="reference internal" href="#module-pyffi.spells" title="pyffi.spells"><code class="xref py py-mod docutils literal"><span class="pre">pyffi.spells</span></code></a> — High level file operations<a class="headerlink" href="#pyffi-spells-high-level-file-operations" title="Permalink to this headline">¶</a></h1>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This module is based on wz’s NifTester module, although
+nothing of wz’s original code is left in this module.</p>
+</div>
+<p>A <a class="reference internal" href="../../glossary.html#term-toaster"><span class="xref std std-term">toaster</span></a>, implemented by subclasses of the abstract
+<a class="reference internal" href="#pyffi.spells.Toaster" title="pyffi.spells.Toaster"><code class="xref py py-class docutils literal"><span class="pre">Toaster</span></code></a> class, walks over all files in a folder, and applies
+one or more transformations on each file. Such transformations are
+called <a class="reference internal" href="../../glossary.html#term-spell"><span class="xref std std-term">spell</span></a>s, and are implemented by subclasses of the
+abstract <a class="reference internal" href="#pyffi.spells.Spell" title="pyffi.spells.Spell"><code class="xref py py-class docutils literal"><span class="pre">Spell</span></code></a> class.</p>
+<p>A <a class="reference internal" href="../../glossary.html#term-spell"><span class="xref std std-term">spell</span></a> can also run independently of a <a class="reference internal" href="../../glossary.html#term-toaster"><span class="xref std std-term">toaster</span></a> and be
+applied on a branch directly. The recommended way of doing this is via
+the <a class="reference internal" href="#pyffi.spells.Spell.recurse" title="pyffi.spells.Spell.recurse"><code class="xref py py-meth docutils literal"><span class="pre">Spell.recurse()</span></code></a> method.</p>
+<div class="section" id="supported-spells">
+<h2>Supported spells<a class="headerlink" href="#supported-spells" title="Permalink to this headline">¶</a></h2>
+<p>For format specific spells, refer to the corresponding module.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cgf.html"><code class="docutils literal"><span class="pre">pyffi.spells.cgf</span></code> —  Crytek Geometry/Animation (.cgf/.cga) spells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dds.html"><code class="docutils literal"><span class="pre">pyffi.spells.dds</span></code> — DirectDraw Surface spells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kfm.html"><code class="docutils literal"><span class="pre">pyffi.spells.kfm</span></code> —  NetImmerse/Gamebryo Keyframe Motion (.kfm) spells</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nif.html"><code class="docutils literal"><span class="pre">pyffi.spells.nif</span></code> —  NetImmerse/Gamebryo File/Keyframe (.nif/.kf/.kfa) spells</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="nif.html#pyffi-spells-nif-fix-spells-to-fix-errors"><code class="docutils literal"><span class="pre">pyffi.spells.nif.fix</span></code> —  spells to fix errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nif.html#pyffi-spells-nif-modify-spells-to-make-modifications"><code class="docutils literal"><span class="pre">pyffi.spells.nif.modify</span></code> —  spells to make modifications</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tga.html"><code class="docutils literal"><span class="pre">pyffi.spells.tga</span></code> — Targa spells</a></li>
+</ul>
+</div>
+<p>Some spells are applicable on every file format, and those are documented
+here.</p>
+<dl class="class">
+<dt id="pyffi.spells.SpellApplyPatch">
+<em class="property">class </em><code class="descclassname">pyffi.spells.</code><code class="descname">SpellApplyPatch</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.SpellApplyPatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyffi.spells.Spell" title="pyffi.spells.Spell"><code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.Spell</span></code></a></p>
+<p>A spell for applying a patch on files.</p>
+<dl class="method">
+<dt id="pyffi.spells.SpellApplyPatch.datainspect">
+<code class="descname">datainspect</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.SpellApplyPatch.datainspect" title="Permalink to this definition">¶</a></dt>
+<dd><p>There is no need to read the whole file, so we apply the patch
+already at inspection stage, and stop the spell process by returning
+<code class="docutils literal"><span class="pre">False</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">False</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="docutils literal"><span class="pre">bool</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="adding-new-spells">
+<h2>Adding new spells<a class="headerlink" href="#adding-new-spells" title="Permalink to this headline">¶</a></h2>
+<p>To create new spells, derive your custom spells from the <a class="reference internal" href="#pyffi.spells.Spell" title="pyffi.spells.Spell"><code class="xref py py-class docutils literal"><span class="pre">Spell</span></code></a>
+class, and include them in the <a class="reference internal" href="#pyffi.spells.Toaster.SPELLS" title="pyffi.spells.Toaster.SPELLS"><code class="xref py py-attr docutils literal"><span class="pre">Toaster.SPELLS</span></code></a> attribute of your
+toaster.</p>
+<dl class="class">
+<dt id="pyffi.spells.Spell">
+<em class="property">class </em><code class="descclassname">pyffi.spells.</code><code class="descname">Spell</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.Spell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Spell base class. A spell takes a data file and then does something
+useful with it. The main entry point for spells is <a class="reference internal" href="#pyffi.spells.Spell.recurse" title="pyffi.spells.Spell.recurse"><code class="xref py py-meth docutils literal"><span class="pre">recurse()</span></code></a>, so if you
+are writing new spells, start with reading the documentation with
+<a class="reference internal" href="#pyffi.spells.Spell.recurse" title="pyffi.spells.Spell.recurse"><code class="xref py py-meth docutils literal"><span class="pre">recurse()</span></code></a>.</p>
+<dl class="attribute">
+<dt id="pyffi.spells.Spell.READONLY">
+<code class="descname">READONLY</code><em class="property"> = True</em><a class="headerlink" href="#pyffi.spells.Spell.READONLY" title="Permalink to this definition">¶</a></dt>
+<dd><p>A <code class="docutils literal"><span class="pre">bool</span></code> which determines whether the spell is read only or
+not. Default value is <code class="docutils literal"><span class="pre">True</span></code>. Override this class attribute, and
+set to <code class="docutils literal"><span class="pre">False</span></code>, when subclassing a spell that must write files
+back to the disk.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.spells.Spell.SPELLNAME">
+<code class="descname">SPELLNAME</code><em class="property"> = None</em><a class="headerlink" href="#pyffi.spells.Spell.SPELLNAME" title="Permalink to this definition">¶</a></dt>
+<dd><p>A <code class="docutils literal"><span class="pre">str</span></code> describing how to refer to the spell from the command line.
+Override this class attribute when subclassing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.Spell.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.Spell.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the spell data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data</strong> (<a class="reference internal" href="../object_models.html#pyffi.object_models.FileFormat.Data" title="pyffi.object_models.FileFormat.Data"><code class="xref py py-class docutils literal"><span class="pre">Data</span></code></a>) – The file <a class="reference internal" href="#pyffi.spells.Spell.data" title="pyffi.spells.Spell.data"><code class="xref py py-attr docutils literal"><span class="pre">data</span></code></a>.</li>
+<li><strong>stream</strong> (<code class="docutils literal"><span class="pre">file</span></code>) – The file <a class="reference internal" href="#pyffi.spells.Spell.stream" title="pyffi.spells.Spell.stream"><code class="xref py py-attr docutils literal"><span class="pre">stream</span></code></a>.</li>
+<li><strong>toaster</strong> (<a class="reference internal" href="#pyffi.spells.Toaster" title="pyffi.spells.Toaster"><code class="xref py py-class docutils literal"><span class="pre">Toaster</span></code></a>) – The <a class="reference internal" href="#pyffi.spells.Spell.toaster" title="pyffi.spells.Spell.toaster"><code class="xref py py-attr docutils literal"><span class="pre">toaster</span></code></a> this spell is called from (optional).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.Spell._branchinspect">
+<code class="descname">_branchinspect</code><span class="sig-paren">(</span><em>branch</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.Spell._branchinspect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if spell should be cast on this branch or not, based on
+exclude and include options passed on the command line. You should
+not need to override this function: if you need additional checks on
+whether a branch must be parsed or not, override the <a class="reference internal" href="#pyffi.spells.Spell.branchinspect" title="pyffi.spells.Spell.branchinspect"><code class="xref py py-meth docutils literal"><span class="pre">branchinspect()</span></code></a>
+method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>branch</strong> (<code class="xref py py-class docutils literal"><span class="pre">GlobalNode</span></code>) – The branch to check.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">True</span></code> if the branch must be processed, <code class="docutils literal"><span class="pre">False</span></code> otherwise.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="docutils literal"><span class="pre">bool</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.Spell._datainspect">
+<code class="descname">_datainspect</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.Spell._datainspect" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is called after <a class="reference internal" href="../object_models.html#pyffi.object_models.FileFormat.Data.inspect" title="pyffi.object_models.FileFormat.Data.inspect"><code class="xref py py-meth docutils literal"><span class="pre">pyffi.object_models.FileFormat.Data.inspect()</span></code></a> has
+been called, and before <a class="reference internal" href="../object_models.html#pyffi.object_models.FileFormat.Data.read" title="pyffi.object_models.FileFormat.Data.read"><code class="xref py py-meth docutils literal"><span class="pre">pyffi.object_models.FileFormat.Data.read()</span></code></a> is
+called.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">True</span></code> if the file must be processed, <code class="docutils literal"><span class="pre">False</span></code> otherwise.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="docutils literal"><span class="pre">bool</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.Spell.branchentry">
+<code class="descname">branchentry</code><span class="sig-paren">(</span><em>branch</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.Spell.branchentry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cast the spell on the given branch. First called with branch equal to
+<a class="reference internal" href="#pyffi.spells.Spell.data" title="pyffi.spells.Spell.data"><code class="xref py py-attr docutils literal"><span class="pre">data</span></code></a>’s children, then the grandchildren, and so on.
+The default implementation simply returns <code class="docutils literal"><span class="pre">True</span></code>.</p>
+<p>Typically, you will override this function to perform an operation
+on a particular block type and/or to stop recursion at particular
+block types.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>branch</strong> (<code class="xref py py-class docutils literal"><span class="pre">GlobalNode</span></code>) – The branch to cast the spell on.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">True</span></code> if the children must be processed, <code class="docutils literal"><span class="pre">False</span></code> otherwise.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="docutils literal"><span class="pre">bool</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.Spell.branchexit">
+<code class="descname">branchexit</code><span class="sig-paren">(</span><em>branch</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.Spell.branchexit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cast a spell on the given branch, after all its children,
+grandchildren, have been processed, if <a class="reference internal" href="#pyffi.spells.Spell.branchentry" title="pyffi.spells.Spell.branchentry"><code class="xref py py-meth docutils literal"><span class="pre">branchentry()</span></code></a> returned
+<code class="docutils literal"><span class="pre">True</span></code> on the given branch.</p>
+<p>Typically, you will override this function to perform a particular
+operation on a block type, but you rely on the fact that the children
+must have been processed first.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>branch</strong> (<code class="xref py py-class docutils literal"><span class="pre">GlobalNode</span></code>) – The branch to cast the spell on.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.Spell.branchinspect">
+<code class="descname">branchinspect</code><span class="sig-paren">(</span><em>branch</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.Spell.branchinspect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Like <a class="reference internal" href="#pyffi.spells.Spell._branchinspect" title="pyffi.spells.Spell._branchinspect"><code class="xref py py-meth docutils literal"><span class="pre">_branchinspect()</span></code></a>, but for customization: can be overridden to
+perform an extra inspection (the default implementation always
+returns <code class="docutils literal"><span class="pre">True</span></code>).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>branch</strong> (<code class="xref py py-class docutils literal"><span class="pre">GlobalNode</span></code>) – The branch to check.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">True</span></code> if the branch must be processed, <code class="docutils literal"><span class="pre">False</span></code> otherwise.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="docutils literal"><span class="pre">bool</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.spells.Spell.data">
+<code class="descname">data</code><em class="property"> = None</em><a class="headerlink" href="#pyffi.spells.Spell.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <a class="reference internal" href="../object_models.html#pyffi.object_models.FileFormat.Data" title="pyffi.object_models.FileFormat.Data"><code class="xref py py-class docutils literal"><span class="pre">Data</span></code></a> instance
+this spell acts on.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.Spell.dataentry">
+<code class="descname">dataentry</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.Spell.dataentry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called before all blocks are recursed.
+The default implementation simply returns <code class="docutils literal"><span class="pre">True</span></code>.
+You can access the data via <a class="reference internal" href="#pyffi.spells.Spell.data" title="pyffi.spells.Spell.data"><code class="xref py py-attr docutils literal"><span class="pre">data</span></code></a>, and unlike in the
+<a class="reference internal" href="#pyffi.spells.Spell.datainspect" title="pyffi.spells.Spell.datainspect"><code class="xref py py-meth docutils literal"><span class="pre">datainspect()</span></code></a> method, the full file has been processed at this stage.</p>
+<p>Typically, you will override this function to perform a global
+operation on the file data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">True</span></code> if the children must be processed, <code class="docutils literal"><span class="pre">False</span></code> otherwise.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="docutils literal"><span class="pre">bool</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.Spell.dataexit">
+<code class="descname">dataexit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.Spell.dataexit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called after all blocks have been processed, if <a class="reference internal" href="#pyffi.spells.Spell.dataentry" title="pyffi.spells.Spell.dataentry"><code class="xref py py-meth docutils literal"><span class="pre">dataentry()</span></code></a>
+returned <code class="docutils literal"><span class="pre">True</span></code>.</p>
+<p>Typically, you will override this function to perform a final spell
+operation, such as writing back the file in a special way, or making a
+summary log.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.Spell.datainspect">
+<code class="descname">datainspect</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.Spell.datainspect" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is called after <a class="reference internal" href="../object_models.html#pyffi.object_models.FileFormat.Data.inspect" title="pyffi.object_models.FileFormat.Data.inspect"><code class="xref py py-meth docutils literal"><span class="pre">pyffi.object_models.FileFormat.Data.inspect()</span></code></a> has
+been called, and before <a class="reference internal" href="../object_models.html#pyffi.object_models.FileFormat.Data.read" title="pyffi.object_models.FileFormat.Data.read"><code class="xref py py-meth docutils literal"><span class="pre">pyffi.object_models.FileFormat.Data.read()</span></code></a> is
+called. Override this function for customization.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">True</span></code> if the file must be processed, <code class="docutils literal"><span class="pre">False</span></code> otherwise.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="docutils literal"><span class="pre">bool</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.Spell.recurse">
+<code class="descname">recurse</code><span class="sig-paren">(</span><em>branch=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.Spell.recurse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function which calls <a class="reference internal" href="#pyffi.spells.Spell._branchinspect" title="pyffi.spells.Spell._branchinspect"><code class="xref py py-meth docutils literal"><span class="pre">_branchinspect()</span></code></a> and <a class="reference internal" href="#pyffi.spells.Spell.branchinspect" title="pyffi.spells.Spell.branchinspect"><code class="xref py py-meth docutils literal"><span class="pre">branchinspect()</span></code></a>
+on the branch,
+if both successful then <a class="reference internal" href="#pyffi.spells.Spell.branchentry" title="pyffi.spells.Spell.branchentry"><code class="xref py py-meth docutils literal"><span class="pre">branchentry()</span></code></a> on the branch, and if this is
+succesful it calls <a class="reference internal" href="#pyffi.spells.Spell.recurse" title="pyffi.spells.Spell.recurse"><code class="xref py py-meth docutils literal"><span class="pre">recurse()</span></code></a> on the branch’s children, and
+once all children are done, it calls <a class="reference internal" href="#pyffi.spells.Spell.branchexit" title="pyffi.spells.Spell.branchexit"><code class="xref py py-meth docutils literal"><span class="pre">branchexit()</span></code></a>.</p>
+<p>Note that <a class="reference internal" href="#pyffi.spells.Spell._branchinspect" title="pyffi.spells.Spell._branchinspect"><code class="xref py py-meth docutils literal"><span class="pre">_branchinspect()</span></code></a> and <a class="reference internal" href="#pyffi.spells.Spell.branchinspect" title="pyffi.spells.Spell.branchinspect"><code class="xref py py-meth docutils literal"><span class="pre">branchinspect()</span></code></a> are not called upon
+first entry of this function, that is, when called with <a class="reference internal" href="#pyffi.spells.Spell.data" title="pyffi.spells.Spell.data"><code class="xref py py-attr docutils literal"><span class="pre">data</span></code></a> as
+branch argument. Use <a class="reference internal" href="#pyffi.spells.Spell.datainspect" title="pyffi.spells.Spell.datainspect"><code class="xref py py-meth docutils literal"><span class="pre">datainspect()</span></code></a> to stop recursion into this branch.</p>
+<p>Do not override this function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>branch</strong> (<code class="xref py py-class docutils literal"><span class="pre">GlobalNode</span></code>) – The branch to start the recursion from, or <code class="docutils literal"><span class="pre">None</span></code>
+to recurse the whole tree.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.spells.Spell.stream">
+<code class="descname">stream</code><em class="property"> = None</em><a class="headerlink" href="#pyffi.spells.Spell.stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>The current <code class="docutils literal"><span class="pre">file</span></code> being processed.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pyffi.spells.Spell.toastentry">
+<em class="property">classmethod </em><code class="descname">toastentry</code><span class="sig-paren">(</span><em>toaster</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.Spell.toastentry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called just before the toaster starts processing
+all files. If it returns <code class="docutils literal"><span class="pre">False</span></code>, then the spell is not used.
+The default implementation simply returns <code class="docutils literal"><span class="pre">True</span></code>.</p>
+<p>For example, if the spell only acts on a particular block type, but
+that block type is excluded, then you can use this function to flag
+that this spell can be skipped. You can also use this function to
+initialize statistics data to be aggregated from files, to
+initialize a log file, and so.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>toaster</strong> (<a class="reference internal" href="#pyffi.spells.Toaster" title="pyffi.spells.Toaster"><code class="xref py py-class docutils literal"><span class="pre">Toaster</span></code></a>) – The toaster this spell is called from.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">True</span></code> if the spell applies, <code class="docutils literal"><span class="pre">False</span></code> otherwise.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="docutils literal"><span class="pre">bool</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.spells.Spell.toaster">
+<code class="descname">toaster</code><em class="property"> = None</em><a class="headerlink" href="#pyffi.spells.Spell.toaster" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <a class="reference internal" href="#pyffi.spells.Toaster" title="pyffi.spells.Toaster"><code class="xref py py-class docutils literal"><span class="pre">Toaster</span></code></a> instance this spell is called from.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pyffi.spells.Spell.toastexit">
+<em class="property">classmethod </em><code class="descname">toastexit</code><span class="sig-paren">(</span><em>toaster</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.Spell.toastexit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called when the toaster has finished processing
+all files.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>toaster</strong> (<a class="reference internal" href="#pyffi.spells.Toaster" title="pyffi.spells.Toaster"><code class="xref py py-class docutils literal"><span class="pre">Toaster</span></code></a>) – The toaster this spell is called from.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="grouping-spells-together">
+<h2>Grouping spells together<a class="headerlink" href="#grouping-spells-together" title="Permalink to this headline">¶</a></h2>
+<p>It is also possible to create composite spells, that is, spells that
+simply execute other spells. The following functions and classes can
+be used for this purpose.</p>
+<dl class="function">
+<dt id="pyffi.spells.SpellGroupParallel">
+<code class="descclassname">pyffi.spells.</code><code class="descname">SpellGroupParallel</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.SpellGroupParallel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class factory for grouping spells in parallel.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyffi.spells.SpellGroupSeries">
+<code class="descclassname">pyffi.spells.</code><code class="descname">SpellGroupSeries</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.SpellGroupSeries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class factory for grouping spells in series.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.SpellGroupBase">
+<em class="property">class </em><code class="descclassname">pyffi.spells.</code><code class="descname">SpellGroupBase</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.SpellGroupBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyffi.spells.Spell" title="pyffi.spells.Spell"><code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.Spell</span></code></a></p>
+<p>Base class for grouping spells. This implements all the spell grouping
+functions that fall outside of the actual recursing (<code class="xref py py-meth docutils literal"><span class="pre">__init__()</span></code>,
+<a class="reference internal" href="#pyffi.spells.SpellGroupBase.toastentry" title="pyffi.spells.SpellGroupBase.toastentry"><code class="xref py py-meth docutils literal"><span class="pre">toastentry()</span></code></a>, <code class="xref py py-meth docutils literal"><span class="pre">_datainspect()</span></code>, <a class="reference internal" href="#pyffi.spells.SpellGroupBase.datainspect" title="pyffi.spells.SpellGroupBase.datainspect"><code class="xref py py-meth docutils literal"><span class="pre">datainspect()</span></code></a>, and <a class="reference internal" href="#pyffi.spells.SpellGroupBase.toastexit" title="pyffi.spells.SpellGroupBase.toastexit"><code class="xref py py-meth docutils literal"><span class="pre">toastexit()</span></code></a>).</p>
+<dl class="attribute">
+<dt id="pyffi.spells.SpellGroupBase.ACTIVESPELLCLASSES">
+<code class="descname">ACTIVESPELLCLASSES</code><em class="property"> = []</em><a class="headerlink" href="#pyffi.spells.SpellGroupBase.ACTIVESPELLCLASSES" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of active spells of this group (not instantiated).
+This list is automatically built when <a class="reference internal" href="#pyffi.spells.SpellGroupBase.toastentry" title="pyffi.spells.SpellGroupBase.toastentry"><code class="xref py py-meth docutils literal"><span class="pre">toastentry()</span></code></a> is called.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.spells.SpellGroupBase.SPELLCLASSES">
+<code class="descname">SPELLCLASSES</code><em class="property"> = []</em><a class="headerlink" href="#pyffi.spells.SpellGroupBase.SPELLCLASSES" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of <a class="reference internal" href="#pyffi.spells.Spell" title="pyffi.spells.Spell"><code class="xref py py-class docutils literal"><span class="pre">Spell</span></code></a>s of this group (not instantiated).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.SpellGroupBase.datainspect">
+<code class="descname">datainspect</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.SpellGroupBase.datainspect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inspect every spell with L{Spell.datainspect} and keep
+those spells that must be cast.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.spells.SpellGroupBase.spells">
+<code class="descname">spells</code><em class="property"> = []</em><a class="headerlink" href="#pyffi.spells.SpellGroupBase.spells" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of active spell instances.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pyffi.spells.SpellGroupBase.toastentry">
+<em class="property">classmethod </em><code class="descname">toastentry</code><span class="sig-paren">(</span><em>toaster</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.SpellGroupBase.toastentry" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pyffi.spells.SpellGroupBase.toastexit">
+<em class="property">classmethod </em><code class="descname">toastexit</code><span class="sig-paren">(</span><em>toaster</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.SpellGroupBase.toastexit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.SpellGroupParallelBase">
+<em class="property">class </em><code class="descclassname">pyffi.spells.</code><code class="descname">SpellGroupParallelBase</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.SpellGroupParallelBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyffi.spells.SpellGroupBase" title="pyffi.spells.SpellGroupBase"><code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.SpellGroupBase</span></code></a></p>
+<p>Base class for running spells in parallel (that is, with only
+a single recursion in the tree).</p>
+<dl class="method">
+<dt id="pyffi.spells.SpellGroupParallelBase.branchentry">
+<code class="descname">branchentry</code><span class="sig-paren">(</span><em>branch</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.SpellGroupParallelBase.branchentry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run all spells.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.SpellGroupParallelBase.branchexit">
+<code class="descname">branchexit</code><span class="sig-paren">(</span><em>branch</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.SpellGroupParallelBase.branchexit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.SpellGroupParallelBase.branchinspect">
+<code class="descname">branchinspect</code><span class="sig-paren">(</span><em>branch</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.SpellGroupParallelBase.branchinspect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inspect spells with <a class="reference internal" href="#pyffi.spells.Spell.branchinspect" title="pyffi.spells.Spell.branchinspect"><code class="xref py py-meth docutils literal"><span class="pre">Spell.branchinspect()</span></code></a> (not all checks are
+executed, only keeps going until a spell inspection returns <code class="docutils literal"><span class="pre">True</span></code>).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.spells.SpellGroupParallelBase.changed">
+<code class="descname">changed</code><a class="headerlink" href="#pyffi.spells.SpellGroupParallelBase.changed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.SpellGroupParallelBase.dataentry">
+<code class="descname">dataentry</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.SpellGroupParallelBase.dataentry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Look into every spell with <a class="reference internal" href="#pyffi.spells.Spell.dataentry" title="pyffi.spells.Spell.dataentry"><code class="xref py py-meth docutils literal"><span class="pre">Spell.dataentry()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.SpellGroupParallelBase.dataexit">
+<code class="descname">dataexit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.SpellGroupParallelBase.dataexit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Look into every spell with <a class="reference internal" href="#pyffi.spells.Spell.dataexit" title="pyffi.spells.Spell.dataexit"><code class="xref py py-meth docutils literal"><span class="pre">Spell.dataexit()</span></code></a>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.spells.SpellGroupSeriesBase">
+<em class="property">class </em><code class="descclassname">pyffi.spells.</code><code class="descname">SpellGroupSeriesBase</code><span class="sig-paren">(</span><em>toaster=None</em>, <em>data=None</em>, <em>stream=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.SpellGroupSeriesBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyffi.spells.SpellGroupBase" title="pyffi.spells.SpellGroupBase"><code class="xref py py-class docutils literal"><span class="pre">pyffi.spells.SpellGroupBase</span></code></a></p>
+<p>Base class for running spells in series.</p>
+<dl class="method">
+<dt id="pyffi.spells.SpellGroupSeriesBase.branchentry">
+<code class="descname">branchentry</code><span class="sig-paren">(</span><em>branch</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.SpellGroupSeriesBase.branchentry" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.SpellGroupSeriesBase.branchinspect">
+<code class="descname">branchinspect</code><span class="sig-paren">(</span><em>branch</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.SpellGroupSeriesBase.branchinspect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.spells.SpellGroupSeriesBase.changed">
+<code class="descname">changed</code><a class="headerlink" href="#pyffi.spells.SpellGroupSeriesBase.changed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.SpellGroupSeriesBase.dataentry">
+<code class="descname">dataentry</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.SpellGroupSeriesBase.dataentry" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.SpellGroupSeriesBase.dataexit">
+<code class="descname">dataexit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.SpellGroupSeriesBase.dataexit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.SpellGroupSeriesBase.recurse">
+<code class="descname">recurse</code><span class="sig-paren">(</span><em>branch=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.SpellGroupSeriesBase.recurse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recurse spells in series.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="creating-toaster-scripts">
+<h2>Creating toaster scripts<a class="headerlink" href="#creating-toaster-scripts" title="Permalink to this headline">¶</a></h2>
+<p>To create a new toaster script, derive your toaster from the <a class="reference internal" href="#pyffi.spells.Toaster" title="pyffi.spells.Toaster"><code class="xref py py-class docutils literal"><span class="pre">Toaster</span></code></a>
+class, and set the <a class="reference internal" href="#pyffi.spells.Toaster.FILEFORMAT" title="pyffi.spells.Toaster.FILEFORMAT"><code class="xref py py-attr docutils literal"><span class="pre">Toaster.FILEFORMAT</span></code></a> attribute of your toaster to
+the file format class of the files it can toast.</p>
+<dl class="class">
+<dt id="pyffi.spells.Toaster">
+<em class="property">class </em><code class="descclassname">pyffi.spells.</code><code class="descname">Toaster</code><span class="sig-paren">(</span><em>spellclass=None</em>, <em>options=None</em>, <em>spellnames=None</em>, <em>logger=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.Toaster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Toaster base class. Toasters run spells on large quantities of files.
+They load each file and pass the data structure to any number of spells.</p>
+<dl class="attribute">
+<dt id="pyffi.spells.Toaster.ALIASDICT">
+<code class="descname">ALIASDICT</code><em class="property"> = {}</em><a class="headerlink" href="#pyffi.spells.Toaster.ALIASDICT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary with aliases for spells.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.spells.Toaster.DEFAULT_OPTIONS">
+<code class="descname">DEFAULT_OPTIONS</code><em class="property"> = {'raisetesterror': False, 'verbose': 1, 'pause': False, 'exclude': [], 'include': [], 'examples': False, 'spells': False, 'interactive': True, 'helpspell': False, 'dryrun': False, 'prefix': '', 'suffix': '', 'arg': '', 'createpatch': False, 'applypatch': False, 'diffcmd': '', 'patchcmd': '', 'series': False, 'skip': [], 'only': [], 'jobs': 32, 'refresh': 32, 'sourcedir': '', 'destdir': '', 'archives': False, 'resume': False, 'gccollect': False, 'inifile': ''}</em><a class="headerlink" href="#pyffi.spells.Toaster.DEFAULT_OPTIONS" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of spell classes of the particular <a class="reference internal" href="#pyffi.spells.Toaster" title="pyffi.spells.Toaster"><code class="xref py py-class docutils literal"><span class="pre">Toaster</span></code></a> instance.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.spells.Toaster.EXAMPLES">
+<code class="descname">EXAMPLES</code><em class="property"> = ''</em><a class="headerlink" href="#pyffi.spells.Toaster.EXAMPLES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Some examples which describe typical use of the toaster.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.spells.Toaster.FILEFORMAT">
+<code class="descname">FILEFORMAT</code><a class="headerlink" href="#pyffi.spells.Toaster.FILEFORMAT" title="Permalink to this definition">¶</a></dt>
+<dd><p>The file format class (a subclass of
+<a class="reference internal" href="../object_models.html#pyffi.object_models.FileFormat" title="pyffi.object_models.FileFormat"><code class="xref py py-class docutils literal"><span class="pre">FileFormat</span></code></a>).</p>
+<p>alias of <code class="xref py py-class docutils literal"><span class="pre">FileFormat</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.spells.Toaster.SPELLS">
+<code class="descname">SPELLS</code><em class="property"> = []</em><a class="headerlink" href="#pyffi.spells.Toaster.SPELLS" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of all available <a class="reference internal" href="#pyffi.spells.Spell" title="pyffi.spells.Spell"><code class="xref py py-class docutils literal"><span class="pre">Spell</span></code></a> classes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.Toaster.cli">
+<code class="descname">cli</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.Toaster.cli" title="Permalink to this definition">¶</a></dt>
+<dd><p>Command line interface: initializes spell classes and options from
+the command line, and run the <a class="reference internal" href="#pyffi.spells.Toaster.toast" title="pyffi.spells.Toaster.toast"><code class="xref py py-meth docutils literal"><span class="pre">toast()</span></code></a> method.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.spells.Toaster.exclude_types">
+<code class="descname">exclude_types</code><em class="property"> = []</em><a class="headerlink" href="#pyffi.spells.Toaster.exclude_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tuple of types corresponding to the exclude key of <a class="reference internal" href="#pyffi.spells.Toaster.options" title="pyffi.spells.Toaster.options"><code class="xref py py-attr docutils literal"><span class="pre">options</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.Toaster.get_toast_head_root_ext">
+<code class="descname">get_toast_head_root_ext</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.Toaster.get_toast_head_root_ext" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the name of where the input file <em>filename</em> would
+be written to by the toaster: head, root, and extension.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">str</span></code></a>) – The name of the hypothetical file to be
+toasted.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The head, root, and extension of the destination, or
+<code class="docutils literal"><span class="pre">(None,</span> <span class="pre">None,</span> <span class="pre">None)</span></code> if <code class="docutils literal"><span class="pre">--dry-run</span></code> is specified.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">tuple</span></code></a> of three <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">str</span></code></a>s</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.Toaster.get_toast_stream">
+<code class="descname">get_toast_stream</code><span class="sig-paren">(</span><em>filename</em>, <em>test_exists=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.Toaster.get_toast_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calls <code class="xref py py-meth docutils literal"><span class="pre">get_toast_head_root_ext(filename)()</span></code>
+to determine the name of the toast file, and return
+a stream for writing accordingly.</p>
+<p>Then return a stream where result can be written to, or
+in case test_exists is True, test if result would overwrite a
+file. More specifically, if test_exists is True, then no
+streams are created, and True is returned if the file
+already exists, and False is returned otherwise.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.spells.Toaster.include_types">
+<code class="descname">include_types</code><em class="property"> = []</em><a class="headerlink" href="#pyffi.spells.Toaster.include_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tuple of types corresponding to the include key of <a class="reference internal" href="#pyffi.spells.Toaster.options" title="pyffi.spells.Toaster.options"><code class="xref py py-attr docutils literal"><span class="pre">options</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.spells.Toaster.indent">
+<code class="descname">indent</code><em class="property"> = 0</em><a class="headerlink" href="#pyffi.spells.Toaster.indent" title="Permalink to this definition">¶</a></dt>
+<dd><p>An <code class="docutils literal"><span class="pre">int</span></code> which describes the current indentation level for messages.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.Toaster.inspect_filename">
+<code class="descname">inspect_filename</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.Toaster.inspect_filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns whether to toast a filename or not, based on
+skip_regexs and only_regexs.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.Toaster.is_admissible_branch_class">
+<code class="descname">is_admissible_branch_class</code><span class="sig-paren">(</span><em>branchtype</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.Toaster.is_admissible_branch_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function which checks whether a given branch type should
+have spells cast on it or not, based in exclude and include options.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyffi.formats.nif</span> <span class="k">import</span> <span class="n">NifFormat</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">MyToaster</span><span class="p">(</span><span class="n">Toaster</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">FILEFORMAT</span> <span class="o">=</span> <span class="n">NifFormat</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">toaster</span> <span class="o">=</span> <span class="n">MyToaster</span><span class="p">()</span> <span class="c1"># no include or exclude: all admissible</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">toaster</span><span class="o">.</span><span class="n">is_admissible_branch_class</span><span class="p">(</span><span class="n">NifFormat</span><span class="o">.</span><span class="n">NiProperty</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">toaster</span><span class="o">.</span><span class="n">is_admissible_branch_class</span><span class="p">(</span><span class="n">NifFormat</span><span class="o">.</span><span class="n">NiNode</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">toaster</span> <span class="o">=</span> <span class="n">MyToaster</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;include&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;NiProperty&quot;</span><span class="p">,</span> <span class="s2">&quot;NiNode&quot;</span><span class="p">],</span> <span class="s2">&quot;exclude&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;NiMaterialProperty&quot;</span><span class="p">,</span> <span class="s2">&quot;NiLODNode&quot;</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">toaster</span><span class="o">.</span><span class="n">is_admissible_branch_class</span><span class="p">(</span><span class="n">NifFormat</span><span class="o">.</span><span class="n">NiProperty</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">toaster</span><span class="o">.</span><span class="n">is_admissible_branch_class</span><span class="p">(</span><span class="n">NifFormat</span><span class="o">.</span><span class="n">NiNode</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">toaster</span><span class="o">.</span><span class="n">is_admissible_branch_class</span><span class="p">(</span><span class="n">NifFormat</span><span class="o">.</span><span class="n">NiAVObject</span><span class="p">)</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">toaster</span><span class="o">.</span><span class="n">is_admissible_branch_class</span><span class="p">(</span><span class="n">NifFormat</span><span class="o">.</span><span class="n">NiLODNode</span><span class="p">)</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">toaster</span><span class="o">.</span><span class="n">is_admissible_branch_class</span><span class="p">(</span><span class="n">NifFormat</span><span class="o">.</span><span class="n">NiSwitchNode</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">toaster</span><span class="o">.</span><span class="n">is_admissible_branch_class</span><span class="p">(</span><span class="n">NifFormat</span><span class="o">.</span><span class="n">NiMaterialProperty</span><span class="p">)</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">toaster</span><span class="o">.</span><span class="n">is_admissible_branch_class</span><span class="p">(</span><span class="n">NifFormat</span><span class="o">.</span><span class="n">NiAlphaProperty</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.spells.Toaster.logger">
+<code class="descname">logger</code><em class="property"> = &lt;Logger pyffi.toaster (NOTSET)&gt;</em><a class="headerlink" href="#pyffi.spells.Toaster.logger" title="Permalink to this definition">¶</a></dt>
+<dd><p>A <a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">logging.Logger</span></code></a> for toaster log messages.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.Toaster.msg">
+<code class="descname">msg</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.Toaster.msg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write log message with <code class="xref py py-meth docutils literal"><span class="pre">logger.info()</span></code>, taking into account
+<a class="reference internal" href="#pyffi.spells.Toaster.indent" title="pyffi.spells.Toaster.indent"><code class="xref py py-attr docutils literal"><span class="pre">indent</span></code></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<code class="docutils literal"><span class="pre">str</span></code>) – The message to write.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.Toaster.msgblockbegin">
+<code class="descname">msgblockbegin</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.Toaster.msgblockbegin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Acts like <a class="reference internal" href="#pyffi.spells.Toaster.msg" title="pyffi.spells.Toaster.msg"><code class="xref py py-meth docutils literal"><span class="pre">msg()</span></code></a>, but also increases <a class="reference internal" href="#pyffi.spells.Toaster.indent" title="pyffi.spells.Toaster.indent"><code class="xref py py-attr docutils literal"><span class="pre">indent</span></code></a> after writing the
+message.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.Toaster.msgblockend">
+<code class="descname">msgblockend</code><span class="sig-paren">(</span><em>message=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.Toaster.msgblockend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Acts like <a class="reference internal" href="#pyffi.spells.Toaster.msg" title="pyffi.spells.Toaster.msg"><code class="xref py py-meth docutils literal"><span class="pre">msg()</span></code></a>, but also decreases <a class="reference internal" href="#pyffi.spells.Toaster.indent" title="pyffi.spells.Toaster.indent"><code class="xref py py-attr docutils literal"><span class="pre">indent</span></code></a> before writing the
+message, but if the message argument is <code class="docutils literal"><span class="pre">None</span></code>, then no message is
+printed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.spells.Toaster.only_regexs">
+<code class="descname">only_regexs</code><em class="property"> = []</em><a class="headerlink" href="#pyffi.spells.Toaster.only_regexs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tuple of regular expressions corresponding to the only key of <a class="reference internal" href="#pyffi.spells.Toaster.options" title="pyffi.spells.Toaster.options"><code class="xref py py-attr docutils literal"><span class="pre">options</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.spells.Toaster.options">
+<code class="descname">options</code><em class="property"> = {}</em><a class="headerlink" href="#pyffi.spells.Toaster.options" title="Permalink to this definition">¶</a></dt>
+<dd><p>The options of the toaster, as <code class="docutils literal"><span class="pre">dict</span></code>.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyffi.spells.Toaster.parse_inifile">
+<em class="property">static </em><code class="descname">parse_inifile</code><span class="sig-paren">(</span><em>option</em>, <em>opt</em>, <em>value</em>, <em>parser</em>, <em>toaster=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.Toaster.parse_inifile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes spell classes and options from an ini file.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.spells.Toaster.skip_regexs">
+<code class="descname">skip_regexs</code><em class="property"> = []</em><a class="headerlink" href="#pyffi.spells.Toaster.skip_regexs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tuple of regular expressions corresponding to the skip key of <a class="reference internal" href="#pyffi.spells.Toaster.options" title="pyffi.spells.Toaster.options"><code class="xref py py-attr docutils literal"><span class="pre">options</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.spells.Toaster.spellnames">
+<code class="descname">spellnames</code><em class="property"> = []</em><a class="headerlink" href="#pyffi.spells.Toaster.spellnames" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of the names of the spells.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.Toaster.toast">
+<code class="descname">toast</code><span class="sig-paren">(</span><em>top</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.Toaster.toast" title="Permalink to this definition">¶</a></dt>
+<dd><p>Walk over all files in a directory tree and cast spells
+on every file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>top</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – The directory or file to toast.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.Toaster.toast_archives">
+<code class="descname">toast_archives</code><span class="sig-paren">(</span><em>top</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.Toaster.toast_archives" title="Permalink to this definition">¶</a></dt>
+<dd><p>Toast all files in all archives.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.spells.Toaster.top">
+<code class="descname">top</code><em class="property"> = ''</em><a class="headerlink" href="#pyffi.spells.Toaster.top" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the top folder to toast.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.Toaster.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>stream</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.Toaster.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the data to data and raises an exception if the
+write fails, but restores file if fails on overwrite.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.spells.Toaster.writepatch">
+<code class="descname">writepatch</code><span class="sig-paren">(</span><em>stream</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.spells.Toaster.writepatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a binary patch for the updated file.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+                            </div>
+                            
+                            </div>
+                          
+                        </div>
+                        <div class="clearer"></div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+    
+    <footer class="container">
+        <div class="site-footer">
+            
+            <div class="copyright pull-left">
+                
+                    &#169; Copyright 2012-2017, NifTools.
+                
+                <!-- 请不要更改这一行 方便其他人知道模板的来源 谢谢 -->
+                <!-- Please keep this line to let others know where this theme comes from. Thank you :D -->
+                <!--Powered by <a href="https://github.com/DONGChuan/Yummy-Jekyll">Yummy Jekyll</a> -->
+            </div>
+            
+
+            <div class="pull-middle">
+                
+                <a href="https://github.com/niftools/pyffi" target="_blank" aria-label="PyFFI on GitHub">
+                    <span class="mega-octicon octicon-mark-github" title="GitHub"></span>
+                </a>
+                
+            </div>
+
+            
+            <div class="sphinx pull-right">
+                Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5
+            </div>
+            
+        </div>
+    </footer>
+    
+
+    
+    
+
+    <!-- JS -->
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.2.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/script.js"></script>
+    <script type="text/javascript" src="../../_static/geopattern/js/geopattern.min.js"></script>
+
+    <script>
+        $(document).ready(function(){
+            $('.geopattern').each(function(){
+                var pattern = GeoPattern.generate($(this).data('pattern-id'));
+                $(this).css('background-image', pattern.toDataUrl());
+                //$(this).geopattern($(this).data('pattern-id'));
+            });
+        });
+    </script>
+
+
+    
+</body>
+</html>

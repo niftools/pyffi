@@ -1,0 +1,1313 @@
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <title>pyffi.formats.cgf — Crytek (.cgf and .cga)</title>
+
+    
+    
+    
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    
+    
+
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto|Roboto+Condensed|Source+Sans+Pro" rel="stylesheet">
+
+    
+
+    <!-- CSS -->
+    
+
+    
+
+    <link rel="stylesheet" href="../../_static/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="../../_static/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../_static/hover/css/hover-min.css">
+    <link rel="stylesheet" href="../../_static/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="../../_static/css/syntax.css">
+
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+
+
+    
+    
+    <link rel="author" title="About these documents" href="http://niftools.org/about" />
+    
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    
+    
+    <link rel="search" title="Search" href="../../search.html" />
+    
+    
+    
+    <link rel="next" title="pyffi.formats.dae — COLLADA (.dae)" href="dae.html" />
+    
+    
+    <link rel="prev" title="pyffi.formats.bsa — Bethesda Archive (.bsa)" href="bsa.html" />
+    
+     
+</head>
+<body data-spy="scroll" data-target="#toc" data-offset="180">
+    
+    <header class="site-header">
+    <div class="container">
+        <nav class="navbar ">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#site-navbar">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    </button>
+                    <a id="site-header-brand" href="../../" title="PyFFI">
+                        <img src="../../_static/logo.png" /> PyFFI
+                    </a>
+                </div>
+
+                <div id="site-navbar" class="collapse navbar-collapse" role="navigation">
+                    <ul class="nav navbar-nav navbar-right">
+                        
+                        <li><a href="http://niftools.org" class=" site-header-nav-item hvr-underline-from-center" target="" title="Home">
+                        Home
+                        </a></li>
+                        
+                        
+                        
+                        <li><a href="http://niftools.org/blog" class="site-header-nav-item hvr-underline-from-center" target="" title="Blog">
+                        Blog
+                        </a></li>
+                        
+                        
+                        <li><a href="../../" class=" selected  site-header-nav-item hvr-underline-from-center" target="" title="Documentation">
+                        Documentation
+                        </a></li>
+                        
+                        
+                        <li><a href="http://forum.niftools.org" class=" site-header-nav-item hvr-underline-from-center" target="" title="Forums">
+                        Forums
+                        </a></li>
+                        
+                        
+                        <li><a href="http://niftools.org/about" class="site-header-nav-item hvr-underline-from-center" target="" title="About">
+                        About
+                        </a></li>
+                        
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    </header>
+    
+    <div class="content">
+        <section class="jumbotron geopattern" data-pattern-id="pyffi.formats.cgf — Crytek (.cgf and .cga)">
+            <div class="container">
+                <div id="jumbotron-meta-info">
+                    <h1>PyFFI Documentation</h1>
+                    <span class="meta-info">
+                        <span class="mega-octicon octicon-repo"></span>&nbsp;&nbsp;pyffi.formats.cgf — Crytek (.cgf and .cga)
+                    </span>
+                </div>
+            </div>
+        </section>
+        <article class="post container" itemscope itemtype="http://schema.org/BlogPosting">
+            <div class="row">
+                <div class="col-md-2 toc-bar">
+                
+                <nav id='toc'>
+                    <!--<span class="octicon octicon-list-unordered"></span>-->
+                    <h3><a href="../../index.html">Table Of Contents</a></h3>
+                    
+                    <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal"><span class="pre">pyffi.formats.cgf</span></code> — Crytek (.cgf and .cga)</a><ul>
+<li><a class="reference internal" href="#implementation">Implementation</a></li>
+<li><a class="reference internal" href="#regression-tests">Regression tests</a><ul>
+<li><a class="reference internal" href="#read-a-cgf-file">Read a CGF file</a></li>
+<li><a class="reference internal" href="#parse-all-cgf-files-in-a-directory-tree">Parse all CGF files in a directory tree</a></li>
+<li><a class="reference internal" href="#create-a-cgf-file-from-scratch">Create a CGF file from scratch</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+                    
+                </nav>
+                
+                
+                </div>
+                <div class="col-md-10">
+                    <div class="document">
+                        <div class="documentwrapper">
+                            
+                            <div class="bodywrapper">
+                            
+                            <div class="body" role="main">
+                            
+  <span class="target" id="module-pyffi.formats.cgf"></span><div class="section" id="pyffi-formats-cgf-crytek-cgf-and-cga">
+<h1><a class="reference internal" href="#module-pyffi.formats.cgf" title="pyffi.formats.cgf"><code class="xref py py-mod docutils literal"><span class="pre">pyffi.formats.cgf</span></code></a> — Crytek (.cgf and .cga)<a class="headerlink" href="#pyffi-formats-cgf-crytek-cgf-and-cga" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat">
+<em class="property">class </em><code class="descclassname">pyffi.formats.cgf.</code><code class="descname">CgfFormat</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.xml.FileFormat</span></code></p>
+<p>Stores all information about the cgf file format.</p>
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.AbstractMtlChunk">
+<em class="property">class </em><code class="descname">AbstractMtlChunk</code><span class="sig-paren">(</span><em>template=None</em>, <em>argument=None</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.AbstractMtlChunk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.formats.cgf.Chunk</span></code></p>
+<p>Common parent for MtlChunk and MtlNameChunk.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.AbstractObjectChunk">
+<em class="property">class </em><code class="descname">AbstractObjectChunk</code><span class="sig-paren">(</span><em>template=None</em>, <em>argument=None</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.AbstractObjectChunk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.formats.cgf.Chunk</span></code></p>
+<p>Common parent for HelperChunk and MeshChunk.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.BoneLink">
+<em class="property">class </em><code class="descname">BoneLink</code><span class="sig-paren">(</span><em>template=None</em>, <em>argument=None</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.BoneLink" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.xml.struct_.StructBase</span></code></p>
+<p>A bone link.</p>
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.BoneLink.blending">
+<code class="descname">blending</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.BoneLink.blending" title="Permalink to this definition">¶</a></dt>
+<dd><p>Vertex weight.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.BoneLink.bone">
+<code class="descname">bone</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.BoneLink.bone" title="Permalink to this definition">¶</a></dt>
+<dd><p>The bone chunk.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.BoneLink.offset">
+<code class="descname">offset</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.BoneLink.offset" title="Permalink to this definition">¶</a></dt>
+<dd><p>The bone offset?</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="pyffi.formats.cgf.CgfFormat.CgfError">
+<em class="property">exception </em><code class="descname">CgfError</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.CgfError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></a></p>
+<p>Exception for CGF specific errors.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.ChunkHeader">
+<em class="property">class </em><code class="descname">ChunkHeader</code><span class="sig-paren">(</span><em>template=None</em>, <em>argument=None</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.ChunkHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.xml.struct_.StructBase</span></code></p>
+<p>A CGF chunk header.</p>
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.ChunkHeader.id">
+<code class="descname">id</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.ChunkHeader.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>The chunk identifier.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.ChunkHeader.offset">
+<code class="descname">offset</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.ChunkHeader.offset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Position of the chunk in the CGF file.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.ChunkHeader.type">
+<code class="descname">type</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.ChunkHeader.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Type of chunk referred to.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.ChunkHeader.version">
+<code class="descname">version</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.ChunkHeader.version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Version of the chunk referred to.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.ChunkType">
+<em class="property">class </em><code class="descname">ChunkType</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.ChunkType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.xml.enum.EnumBase</span></code></p>
+<p>An unsigned 32-bit integer, describing the chunk type.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.ChunkVersion">
+<em class="property">class </em><code class="descname">ChunkVersion</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.ChunkVersion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.common.UInt</span></code></p>
+<p>The version of a particular chunk, or the version of the chunk table.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.Data">
+<em class="property">class </em><code class="descname">Data</code><span class="sig-paren">(</span><em>filetype=4294901760</em>, <em>game='Far Cry'</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.Data</span></code></p>
+<p>A class to contain the actual cgf data.</p>
+<p>Note that L{versions} and L{chunk_table} are not automatically kept
+in sync with the L{chunks}, but they are
+resynchronized when calling L{write}.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>game</strong> – The cgf game.</li>
+<li><strong>header</strong> – The cgf header.</li>
+<li><a class="reference internal" href="nif.html#pyffi.formats.nif.NifFormat.bhkCompressedMeshShapeData.chunks" title="pyffi.formats.nif.NifFormat.bhkCompressedMeshShapeData.chunks"><strong>chunks</strong></a> – List of chunks (the actual data).</li>
+<li><a class="reference internal" href="nif.html#pyffi.formats.nif.NifFormat.versions" title="pyffi.formats.nif.NifFormat.versions"><strong>versions</strong></a> – List of chunk versions.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyffi.formats.cgf.CgfFormat.Data.get_global_child_nodes">
+<code class="descname">get_global_child_nodes</code><span class="sig-paren">(</span><em>edge_filter=(True</em>, <em>True)</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Data.get_global_child_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns chunks without parent.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.cgf.CgfFormat.Data.inspect">
+<code class="descname">inspect</code><span class="sig-paren">(</span><em>stream</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Data.inspect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quickly checks whether the stream appears to contain
+cgf data, and read the cgf header and chunk table. Resets stream to
+original position.</p>
+<p>Call this function if you only need to inspect the header and
+chunk table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stream</strong> (<code class="docutils literal"><span class="pre">file</span></code>) – The file to inspect.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.cgf.CgfFormat.Data.inspect_version_only">
+<code class="descname">inspect_version_only</code><span class="sig-paren">(</span><em>stream</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Data.inspect_version_only" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function checks the version only, and is faster
+than the usual inspect function (which reads the full
+chunk table). Sets the L{header} and L{game} instance
+variables if the stream contains a valid cgf file.</p>
+<p>Call this function if you simply wish to check that a file is
+a cgf file without having to parse even the header.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.6)"><strong>ValueError</strong></a> – If the stream does not contain a cgf file.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stream</strong> (<code class="docutils literal"><span class="pre">file</span></code>) – The stream from which to read.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.cgf.CgfFormat.Data.read">
+<code class="descname">read</code><span class="sig-paren">(</span><em>stream</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Data.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a cgf file. Does not reset stream position.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stream</strong> (<code class="docutils literal"><span class="pre">file</span></code>) – The stream from which to read.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.cgf.CgfFormat.Data.update_versions">
+<code class="descname">update_versions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Data.update_versions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update L{versions} for the given chunks and game.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.cgf.CgfFormat.Data.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>stream</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Data.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a cgf file. The L{header} and L{chunk_table} are
+recalculated from L{chunks}. Returns number of padding bytes
+written (this is for debugging purposes only).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stream</strong> (<em>file</em>) – The stream to which to write.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Number of padding bytes written.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.ExportFlagsChunk">
+<em class="property">class </em><code class="descname">ExportFlagsChunk</code><span class="sig-paren">(</span><em>template=None</em>, <em>argument=None</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.ExportFlagsChunk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.formats.cgf.Chunk</span></code></p>
+<p>Export information.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.FRGB">
+<em class="property">class </em><code class="descname">FRGB</code><span class="sig-paren">(</span><em>template=None</em>, <em>argument=None</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.FRGB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.xml.struct_.StructBase</span></code></p>
+<p>R32G32B32 (float).</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.Face">
+<em class="property">class </em><code class="descname">Face</code><span class="sig-paren">(</span><em>template=None</em>, <em>argument=None</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Face" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.xml.struct_.StructBase</span></code></p>
+<p>A mesh face.</p>
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.Face.material">
+<code class="descname">material</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Face.material" title="Permalink to this definition">¶</a></dt>
+<dd><p>Material index.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.Face.sm_group">
+<code class="descname">sm_group</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Face.sm_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Smoothing group.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.Face.v_0">
+<code class="descname">v_0</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Face.v_0" title="Permalink to this definition">¶</a></dt>
+<dd><p>First vertex index.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.Face.v_1">
+<code class="descname">v_1</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Face.v_1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Second vertex index.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.Face.v_2">
+<code class="descname">v_2</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Face.v_2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Third vertex index.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.FileOffset">
+<em class="property">class </em><code class="descname">FileOffset</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.FileOffset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.common.Int</span></code></p>
+<p>Points to a position in a file.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.FileSignature">
+<em class="property">class </em><code class="descname">FileSignature</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.FileSignature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.xml.basic.BasicBase</span></code></p>
+<p>The CryTek file signature with which every
+cgf file starts.</p>
+<dl class="method">
+<dt id="pyffi.formats.cgf.CgfFormat.FileSignature.get_hash">
+<code class="descname">get_hash</code><span class="sig-paren">(</span><em>data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.FileSignature.get_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a hash value for the signature.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An immutable object that can be used as a hash.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.cgf.CgfFormat.FileSignature.get_size">
+<code class="descname">get_size</code><span class="sig-paren">(</span><em>data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.FileSignature.get_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return number of bytes that the signature occupies in a file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Number of bytes.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.cgf.CgfFormat.FileSignature.get_value">
+<code class="descname">get_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.FileSignature.get_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get signature.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The signature.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.cgf.CgfFormat.FileSignature.read">
+<code class="descname">read</code><span class="sig-paren">(</span><em>stream</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.FileSignature.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read signature from stream.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stream</strong> (<em>file</em>) – The stream to read from.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.cgf.CgfFormat.FileSignature.set_value">
+<code class="descname">set_value</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.FileSignature.set_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Not implemented.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.cgf.CgfFormat.FileSignature.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>stream</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.FileSignature.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write signature to stream.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stream</strong> (<em>file</em>) – The stream to read from.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.FileType">
+<em class="property">class </em><code class="descname">FileType</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.FileType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.xml.enum.EnumBase</span></code></p>
+<p>An unsigned 32-bit integer, describing the file type.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.GeomNameListChunk">
+<em class="property">class </em><code class="descname">GeomNameListChunk</code><span class="sig-paren">(</span><em>template=None</em>, <em>argument=None</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.GeomNameListChunk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.xml.struct_.StructBase</span></code></p>
+<p>Obsolete, not decoded.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.Header">
+<em class="property">class </em><code class="descname">Header</code><span class="sig-paren">(</span><em>template=None</em>, <em>argument=None</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.xml.struct_.StructBase</span></code></p>
+<p>The CGF header.</p>
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.Header.offset">
+<code class="descname">offset</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Header.offset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Position of the chunk table in the CGF file.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.Header.signature">
+<code class="descname">signature</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Header.signature" title="Permalink to this definition">¶</a></dt>
+<dd><p>The CGF file signature.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.Header.type">
+<code class="descname">type</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Header.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>The CGF file type (geometry or animation).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.Header.version">
+<code class="descname">version</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Header.version" title="Permalink to this definition">¶</a></dt>
+<dd><p>The version of the chunk table.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.IRGB">
+<em class="property">class </em><code class="descname">IRGB</code><span class="sig-paren">(</span><em>template=None</em>, <em>argument=None</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.IRGB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.xml.struct_.StructBase</span></code></p>
+<p>R8G8B8.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.IRGBA">
+<em class="property">class </em><code class="descname">IRGBA</code><span class="sig-paren">(</span><em>template=None</em>, <em>argument=None</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.IRGBA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.xml.struct_.StructBase</span></code></p>
+<p>R8G8B8A8.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.InitialPosMatrix">
+<em class="property">class </em><code class="descname">InitialPosMatrix</code><span class="sig-paren">(</span><em>template=None</em>, <em>argument=None</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.InitialPosMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.xml.struct_.StructBase</span></code></p>
+<p>A bone initial position matrix.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.MRMChunk">
+<em class="property">class </em><code class="descname">MRMChunk</code><span class="sig-paren">(</span><em>template=None</em>, <em>argument=None</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.MRMChunk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.xml.struct_.StructBase</span></code></p>
+<p>Obsolete, not decoded.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.MtlListChunk">
+<em class="property">class </em><code class="descname">MtlListChunk</code><span class="sig-paren">(</span><em>template=None</em>, <em>argument=None</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.MtlListChunk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.xml.struct_.StructBase</span></code></p>
+<p>Obsolete, not decoded.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.PatchMeshChunk">
+<em class="property">class </em><code class="descname">PatchMeshChunk</code><span class="sig-paren">(</span><em>template=None</em>, <em>argument=None</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.PatchMeshChunk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.xml.struct_.StructBase</span></code></p>
+<p>Obsolete, not decoded.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.Ptr">
+<em class="property">class </em><code class="descname">Ptr</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Ptr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.formats.cgf.Ref</span></code></p>
+<p>Reference to a chunk, down the hierarchy.</p>
+<dl class="method">
+<dt id="pyffi.formats.cgf.CgfFormat.Ptr.get_refs">
+<code class="descname">get_refs</code><span class="sig-paren">(</span><em>data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Ptr.get_refs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ptr does not point down, so get_refs returns empty list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">C{[]}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.Quat">
+<em class="property">class </em><code class="descname">Quat</code><span class="sig-paren">(</span><em>template=None</em>, <em>argument=None</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Quat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.xml.struct_.StructBase</span></code></p>
+<p>A quaternion (x,y,z,w).</p>
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.Quat.w">
+<code class="descname">w</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Quat.w" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fourth coordinate.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.Quat.x">
+<code class="descname">x</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Quat.x" title="Permalink to this definition">¶</a></dt>
+<dd><p>First coordinate.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.Quat.y">
+<code class="descname">y</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Quat.y" title="Permalink to this definition">¶</a></dt>
+<dd><p>Second coordinate.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.Quat.z">
+<code class="descname">z</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Quat.z" title="Permalink to this definition">¶</a></dt>
+<dd><p>Third coordinate.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.Ref">
+<em class="property">class </em><code class="descname">Ref</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.xml.basic.BasicBase</span></code></p>
+<p>Reference to a chunk, up the hierarchy.</p>
+<dl class="method">
+<dt id="pyffi.formats.cgf.CgfFormat.Ref.fix_links">
+<code class="descname">fix_links</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Ref.fix_links" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resolve chunk index into a chunk.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><strong>block_dct</strong> – Dictionary mapping block index to block.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.cgf.CgfFormat.Ref.get_hash">
+<code class="descname">get_hash</code><span class="sig-paren">(</span><em>data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Ref.get_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a hash value for the chunk referred to.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An immutable object that can be used as a hash.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.cgf.CgfFormat.Ref.get_links">
+<code class="descname">get_links</code><span class="sig-paren">(</span><em>data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Ref.get_links" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the chunk reference.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Empty list if no reference, or single item list containing
+the reference.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.cgf.CgfFormat.Ref.get_refs">
+<code class="descname">get_refs</code><span class="sig-paren">(</span><em>data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Ref.get_refs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the chunk reference.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Empty list if no reference, or single item list containing
+the reference.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.cgf.CgfFormat.Ref.get_size">
+<code class="descname">get_size</code><span class="sig-paren">(</span><em>data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Ref.get_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return number of bytes this type occupies in a file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Number of bytes.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.cgf.CgfFormat.Ref.get_value">
+<code class="descname">get_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Ref.get_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get chunk being referred to.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The chunk being referred to.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.cgf.CgfFormat.Ref.read">
+<code class="descname">read</code><span class="sig-paren">(</span><em>stream</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Ref.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read chunk index.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stream</strong> (<em>file</em>) – The stream to read from.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.cgf.CgfFormat.Ref.set_value">
+<code class="descname">set_value</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Ref.set_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set chunk reference.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> (<em>L{CgfFormat.Chunk}</em>) – The value to assign.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.cgf.CgfFormat.Ref.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>stream</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Ref.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write chunk index.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stream</strong> (<em>file</em>) – The stream to write to.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.ScenePropsChunk">
+<em class="property">class </em><code class="descname">ScenePropsChunk</code><span class="sig-paren">(</span><em>template=None</em>, <em>argument=None</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.ScenePropsChunk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.xml.struct_.StructBase</span></code></p>
+<p>Not decoded. Nowhere used?</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.SizedString">
+<em class="property">class </em><code class="descname">SizedString</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.SizedString" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.xml.basic.BasicBase</span></code>, <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.editable.EditableLineEdit</span></code></p>
+<p>Basic type for strings. The type starts with an unsigned int which
+describes the length of the string.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tempfile</span> <span class="k">import</span> <span class="n">TemporaryFile</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">TemporaryFile</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyffi.object_models</span> <span class="k">import</span> <span class="n">FileFormat</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">FileFormat</span><span class="o">.</span><span class="n">Data</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="n">SizedString</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\x07\x00\x00\x00</span><span class="s1">abcdefg&#39;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)):</span> <span class="k">pass</span> <span class="c1"># ignore result for py3k</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">):</span> <span class="k">pass</span> <span class="c1"># ignore result for py3k</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="go">&#39;abcdefg&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">):</span> <span class="k">pass</span> <span class="c1"># ignore result for py3k</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="s1">&#39;Hi There&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">):</span> <span class="k">pass</span> <span class="c1"># ignore result for py3k</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">SizedString</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+<span class="go">&#39;Hi There&#39;</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="pyffi.formats.cgf.CgfFormat.SizedString.get_hash">
+<code class="descname">get_hash</code><span class="sig-paren">(</span><em>data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.SizedString.get_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a hash value for this string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An immutable object that can be used as a hash.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.cgf.CgfFormat.SizedString.get_size">
+<code class="descname">get_size</code><span class="sig-paren">(</span><em>data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.SizedString.get_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return number of bytes this type occupies in a file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Number of bytes.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.cgf.CgfFormat.SizedString.get_value">
+<code class="descname">get_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.SizedString.get_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The stored string.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.cgf.CgfFormat.SizedString.read">
+<code class="descname">read</code><span class="sig-paren">(</span><em>stream</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.SizedString.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read string from stream.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stream</strong> (<em>file</em>) – The stream to read from.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.cgf.CgfFormat.SizedString.set_value">
+<code class="descname">set_value</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.SizedString.set_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set string to C{value}.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – The value to assign.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.cgf.CgfFormat.SizedString.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>stream</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.SizedString.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write string to stream.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stream</strong> (<em>file</em>) – The stream to write to.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.String">
+<code class="descname">String</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.String" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">ZString</span></code></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.String128">
+<em class="property">class </em><code class="descname">String128</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.String128" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.common.FixedString</span></code></p>
+<p>String of fixed length 128.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.String16">
+<em class="property">class </em><code class="descname">String16</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.String16" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.common.FixedString</span></code></p>
+<p>String of fixed length 16.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.String256">
+<em class="property">class </em><code class="descname">String256</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.String256" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.common.FixedString</span></code></p>
+<p>String of fixed length 256.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.String32">
+<em class="property">class </em><code class="descname">String32</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.String32" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.common.FixedString</span></code></p>
+<p>String of fixed length 32.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.String64">
+<em class="property">class </em><code class="descname">String64</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.String64" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.common.FixedString</span></code></p>
+<p>String of fixed length 64.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.Tangent">
+<em class="property">class </em><code class="descname">Tangent</code><span class="sig-paren">(</span><em>template=None</em>, <em>argument=None</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Tangent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.xml.struct_.StructBase</span></code></p>
+<p>Tangents. Divide each component by 32767 to get the actual value.</p>
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.Tangent.w">
+<code class="descname">w</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.Tangent.w" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handness? Either 32767 (+1.0) or -32767 (-1.0).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.UV">
+<em class="property">class </em><code class="descname">UV</code><span class="sig-paren">(</span><em>template=None</em>, <em>argument=None</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.UV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.xml.struct_.StructBase</span></code></p>
+<p>Texture coordinate.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.UVFace">
+<em class="property">class </em><code class="descname">UVFace</code><span class="sig-paren">(</span><em>template=None</em>, <em>argument=None</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.UVFace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.xml.struct_.StructBase</span></code></p>
+<p>A texture face (vertex indices).</p>
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.UVFace.t_0">
+<code class="descname">t_0</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.UVFace.t_0" title="Permalink to this definition">¶</a></dt>
+<dd><p>First vertex index.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.UVFace.t_1">
+<code class="descname">t_1</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.UVFace.t_1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Second vertex index.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.UVFace.t_2">
+<code class="descname">t_2</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.UVFace.t_2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Third vertex index.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.cgf.CgfFormat.UnknownAAFC0005Chunk">
+<em class="property">class </em><code class="descname">UnknownAAFC0005Chunk</code><span class="sig-paren">(</span><em>template=None</em>, <em>argument=None</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.UnknownAAFC0005Chunk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.formats.cgf.Chunk</span></code></p>
+<p>Unknown. An extra block written by the XSI exporter.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.bool">
+<code class="descname">bool</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.bool" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">Bool</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.byte">
+<code class="descname">byte</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.byte" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">Byte</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.char">
+<code class="descname">char</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.char" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">Char</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.float">
+<code class="descname">float</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.float" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">Float</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.int">
+<code class="descname">int</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.int" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">Int</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.short">
+<code class="descname">short</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.short" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">Short</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.ubyte">
+<code class="descname">ubyte</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.ubyte" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">UByte</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.uint">
+<code class="descname">uint</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.uint" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">UInt</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.cgf.CgfFormat.ushort">
+<code class="descname">ushort</code><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.ushort" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">UShort</span></code></p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyffi.formats.cgf.CgfFormat.version_number">
+<em class="property">static </em><code class="descname">version_number</code><span class="sig-paren">(</span><em>version_str</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.cgf.CgfFormat.version_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts version string into an integer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>version_str</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – The version string.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A version integer.</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">hex</span><span class="p">(</span><span class="n">CgfFormat</span><span class="o">.</span><span class="n">version_number</span><span class="p">(</span><span class="s1">&#39;744&#39;</span><span class="p">))</span>
+<span class="go">&#39;0x744&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="regression-tests">
+<h2>Regression tests<a class="headerlink" href="#regression-tests" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="read-a-cgf-file">
+<h3>Read a CGF file<a class="headerlink" href="#read-a-cgf-file" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># get file version and file type, and read cgf file</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">dirname</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dirpath</span> <span class="o">=</span> <span class="vm">__file__</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span> <span class="c1">#recurse up to root repo dir</span>
+<span class="gp">... </span>    <span class="n">dirpath</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span><span class="n">dirpath</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">repo_root</span> <span class="o">=</span> <span class="n">dirpath</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">format_root</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">repo_root</span><span class="p">,</span> <span class="s1">&#39;tests&#39;</span><span class="p">,</span> <span class="s1">&#39;formats&#39;</span><span class="p">,</span> <span class="s1">&#39;cgf&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stream</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">format_root</span><span class="p">,</span> <span class="s1">&#39;test.cgf&#39;</span><span class="p">),</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">CgfFormat</span><span class="o">.</span><span class="n">Data</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># read chunk table only</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">inspect</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># check chunk types</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">chunktype</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">for</span> <span class="n">chunktype</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">chunk_table</span><span class="o">.</span><span class="n">get_chunk_types</span><span class="p">())</span>
+<span class="go">[&#39;SourceInfoChunk&#39;, &#39;TimingChunk&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">chunks</span> <span class="c1"># no chunks yet</span>
+<span class="go">[]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># read full file</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># get all chunks</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">chunks</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span> 
+<span class="go">&lt;class &#39;...SourceInfoChunk&#39;&gt; instance at ...</span>
+<span class="go">* source_file : &lt;None&gt;</span>
+<span class="go">* date : Fri Sep 28 22:40:44 2007</span>
+<span class="go">* author : blender@BLENDER</span>
+
+<span class="go">&lt;class &#39;...TimingChunk&#39;&gt; instance at ...</span>
+<span class="go">* secs_per_tick : 0.0002083333...</span>
+<span class="go">* ticks_per_frame : 160</span>
+<span class="go">* global_range :</span>
+<span class="go">    &lt;class &#39;...RangeEntity&#39;&gt; instance at ...</span>
+<span class="go">    * name : GlobalRange</span>
+<span class="go">    * start : 0</span>
+<span class="go">    * end : 100</span>
+<span class="go">* num_sub_ranges : 0</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="parse-all-cgf-files-in-a-directory-tree">
+<h3>Parse all CGF files in a directory tree<a class="headerlink" href="#parse-all-cgf-files-in-a-directory-tree" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">CgfFormat</span><span class="o">.</span><span class="n">walkData</span><span class="p">(</span><span class="n">format_root</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">try</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="c1"># the replace call makes the doctest also pass on windows</span>
+<span class="gp">... </span>        <span class="n">os_path</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">name</span>
+<span class="gp">... </span>        <span class="n">split</span> <span class="o">=</span> <span class="p">(</span><span class="n">os_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">))[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span>
+<span class="gp">... </span>        <span class="n">rejoin</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="o">*</span><span class="n">split</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;reading </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">rejoin</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: read failed due corrupt file, corrupt format description, or bug.&quot;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">chunks</span><span class="p">))</span>
+<span class="gp">... </span>    <span class="c1"># do something with the chunks</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">chunks</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="n">chunk</span><span class="o">.</span><span class="n">apply_scale</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
+<span class="go">reading tests/formats/cgf/invalid.cgf</span>
+<span class="go">Warning: read failed due corrupt file, corrupt format description, or bug.</span>
+<span class="go">0</span>
+<span class="go">reading tests/formats/cgf/monkey.cgf</span>
+<span class="go">14</span>
+<span class="go">reading tests/formats/cgf/test.cgf</span>
+<span class="go">2</span>
+<span class="go">reading tests/formats/cgf/vcols.cgf</span>
+<span class="go">6</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="create-a-cgf-file-from-scratch">
+<h3>Create a CGF file from scratch<a class="headerlink" href="#create-a-cgf-file-from-scratch" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyffi.formats.cgf</span> <span class="k">import</span> <span class="n">CgfFormat</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">node1</span> <span class="o">=</span> <span class="n">CgfFormat</span><span class="o">.</span><span class="n">NodeChunk</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">node1</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;hello&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">node2</span> <span class="o">=</span> <span class="n">CgfFormat</span><span class="o">.</span><span class="n">NodeChunk</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">node1</span><span class="o">.</span><span class="n">num_children</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">node1</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">update_size</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">node1</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">node2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">node2</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;world&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tempfile</span> <span class="k">import</span> <span class="n">TemporaryFile</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stream</span> <span class="o">=</span> <span class="n">TemporaryFile</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">CgfFormat</span><span class="o">.</span><span class="n">Data</span><span class="p">()</span> <span class="c1"># default is far cry</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">chunks</span> <span class="o">=</span> <span class="p">[</span><span class="n">node1</span><span class="p">,</span> <span class="n">node2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># note: write returns number of padding bytes</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+<span class="go">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># py3k returns 0 on seek; this hack removes return code from doctest</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">stream</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">):</span> <span class="k">pass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">inspect_version_only</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">hex</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+<span class="go">&#39;0x744&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># get all chunks</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">chunks</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span> 
+<span class="go">&lt;class &#39;pyffi.formats.cgf.NodeChunk&#39;&gt; instance at 0x...</span>
+<span class="go">* name : hello</span>
+<span class="go">* object : None</span>
+<span class="go">* parent : None</span>
+<span class="go">* num_children : 1</span>
+<span class="go">* material : None</span>
+<span class="go">* is_group_head : False</span>
+<span class="go">* is_group_member : False</span>
+<span class="go">* reserved_1 :</span>
+<span class="go">    &lt;class &#39;pyffi.object_models.xml.array.Array&#39;&gt; instance at 0x...</span>
+<span class="go">    0: 0</span>
+<span class="go">    1: 0</span>
+<span class="go">* transform :</span>
+<span class="go">    [  0.000  0.000  0.000  0.000 ]</span>
+<span class="go">    [  0.000  0.000  0.000  0.000 ]</span>
+<span class="go">    [  0.000  0.000  0.000  0.000 ]</span>
+<span class="go">    [  0.000  0.000  0.000  0.000 ]</span>
+<span class="go">* pos : [  0.000  0.000  0.000 ]</span>
+<span class="go">* rot :</span>
+<span class="go">    &lt;class &#39;pyffi.formats.cgf.Quat&#39;&gt; instance at 0x...</span>
+<span class="go">    * x : 0.0</span>
+<span class="go">    * y : 0.0</span>
+<span class="go">    * z : 0.0</span>
+<span class="go">    * w : 0.0</span>
+<span class="go">* scl : [  0.000  0.000  0.000 ]</span>
+<span class="go">* pos_ctrl : None</span>
+<span class="go">* rot_ctrl : None</span>
+<span class="go">* scl_ctrl : None</span>
+<span class="go">* property_string : &lt;None&gt;</span>
+<span class="go">* children :</span>
+<span class="go">    &lt;class &#39;pyffi.object_models.xml.array.Array&#39;&gt; instance at 0x...</span>
+<span class="go">    0: &lt;class &#39;pyffi.formats.cgf.NodeChunk&#39;&gt; instance at 0x...</span>
+
+<span class="go">&lt;class &#39;pyffi.formats.cgf.NodeChunk&#39;&gt; instance at 0x...</span>
+<span class="go">* name : world</span>
+<span class="go">* object : None</span>
+<span class="go">* parent : None</span>
+<span class="go">* num_children : 0</span>
+<span class="go">* material : None</span>
+<span class="go">* is_group_head : False</span>
+<span class="go">* is_group_member : False</span>
+<span class="go">* reserved_1 :</span>
+<span class="go">    &lt;class &#39;pyffi.object_models.xml.array.Array&#39;&gt; instance at 0x...</span>
+<span class="go">    0: 0</span>
+<span class="go">    1: 0</span>
+<span class="go">* transform :</span>
+<span class="go">    [  0.000  0.000  0.000  0.000 ]</span>
+<span class="go">    [  0.000  0.000  0.000  0.000 ]</span>
+<span class="go">    [  0.000  0.000  0.000  0.000 ]</span>
+<span class="go">    [  0.000  0.000  0.000  0.000 ]</span>
+<span class="go">* pos : [  0.000  0.000  0.000 ]</span>
+<span class="go">* rot :</span>
+<span class="go">    &lt;class &#39;pyffi.formats.cgf.Quat&#39;&gt; instance at 0x...</span>
+<span class="go">    * x : 0.0</span>
+<span class="go">    * y : 0.0</span>
+<span class="go">    * z : 0.0</span>
+<span class="go">    * w : 0.0</span>
+<span class="go">* scl : [  0.000  0.000  0.000 ]</span>
+<span class="go">* pos_ctrl : None</span>
+<span class="go">* rot_ctrl : None</span>
+<span class="go">* scl_ctrl : None</span>
+<span class="go">* property_string : &lt;None&gt;</span>
+<span class="go">* children : &lt;class &#39;pyffi.object_models.xml.array.Array&#39;&gt; instance at 0x...</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+                            </div>
+                            
+                            </div>
+                          
+                        </div>
+                        <div class="clearer"></div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+    
+    <footer class="container">
+        <div class="site-footer">
+            
+            <div class="copyright pull-left">
+                
+                    &#169; Copyright 2012-2017, NifTools.
+                
+                <!-- 请不要更改这一行 方便其他人知道模板的来源 谢谢 -->
+                <!-- Please keep this line to let others know where this theme comes from. Thank you :D -->
+                <!--Powered by <a href="https://github.com/DONGChuan/Yummy-Jekyll">Yummy Jekyll</a> -->
+            </div>
+            
+
+            <div class="pull-middle">
+                
+                <a href="https://github.com/niftools/pyffi" target="_blank" aria-label="PyFFI on GitHub">
+                    <span class="mega-octicon octicon-mark-github" title="GitHub"></span>
+                </a>
+                
+            </div>
+
+            
+            <div class="sphinx pull-right">
+                Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5
+            </div>
+            
+        </div>
+    </footer>
+    
+
+    
+    
+
+    <!-- JS -->
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.2.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/script.js"></script>
+    <script type="text/javascript" src="../../_static/geopattern/js/geopattern.min.js"></script>
+
+    <script>
+        $(document).ready(function(){
+            $('.geopattern').each(function(){
+                var pattern = GeoPattern.generate($(this).data('pattern-id'));
+                $(this).css('background-image', pattern.toDataUrl());
+                //$(this).geopattern($(this).data('pattern-id'));
+            });
+        });
+    </script>
+
+
+    
+</body>
+</html>

@@ -1,0 +1,430 @@
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <title>pyffi.formats — File format interfaces</title>
+
+    
+    
+    
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    
+    
+
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto|Roboto+Condensed|Source+Sans+Pro" rel="stylesheet">
+
+    
+
+    <!-- CSS -->
+    
+
+    
+
+    <link rel="stylesheet" href="../../_static/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="../../_static/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../_static/hover/css/hover-min.css">
+    <link rel="stylesheet" href="../../_static/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="../../_static/css/syntax.css">
+
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+
+
+    
+    
+    <link rel="author" title="About these documents" href="http://niftools.org/about" />
+    
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    
+    
+    <link rel="search" title="Search" href="../../search.html" />
+    
+    
+    
+    <link rel="next" title="pyffi.formats.bsa — Bethesda Archive (.bsa)" href="bsa.html" />
+    
+    
+    <link rel="prev" title="pyffi — Interfacing block structured files" href="../index.html" />
+    
+     
+</head>
+<body data-spy="scroll" data-target="#toc" data-offset="180">
+    
+    <header class="site-header">
+    <div class="container">
+        <nav class="navbar ">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#site-navbar">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    </button>
+                    <a id="site-header-brand" href="../../" title="PyFFI">
+                        <img src="../../_static/logo.png" /> PyFFI
+                    </a>
+                </div>
+
+                <div id="site-navbar" class="collapse navbar-collapse" role="navigation">
+                    <ul class="nav navbar-nav navbar-right">
+                        
+                        <li><a href="http://niftools.org" class=" site-header-nav-item hvr-underline-from-center" target="" title="Home">
+                        Home
+                        </a></li>
+                        
+                        
+                        
+                        <li><a href="http://niftools.org/blog" class="site-header-nav-item hvr-underline-from-center" target="" title="Blog">
+                        Blog
+                        </a></li>
+                        
+                        
+                        <li><a href="../../" class=" selected  site-header-nav-item hvr-underline-from-center" target="" title="Documentation">
+                        Documentation
+                        </a></li>
+                        
+                        
+                        <li><a href="http://forum.niftools.org" class=" site-header-nav-item hvr-underline-from-center" target="" title="Forums">
+                        Forums
+                        </a></li>
+                        
+                        
+                        <li><a href="http://niftools.org/about" class="site-header-nav-item hvr-underline-from-center" target="" title="About">
+                        About
+                        </a></li>
+                        
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    </header>
+    
+    <div class="content">
+        <section class="jumbotron geopattern" data-pattern-id="pyffi.formats — File format interfaces">
+            <div class="container">
+                <div id="jumbotron-meta-info">
+                    <h1>PyFFI Documentation</h1>
+                    <span class="meta-info">
+                        <span class="mega-octicon octicon-repo"></span>&nbsp;&nbsp;pyffi.formats — File format interfaces
+                    </span>
+                </div>
+            </div>
+        </section>
+        <article class="post container" itemscope itemtype="http://schema.org/BlogPosting">
+            <div class="row">
+                <div class="col-md-2 toc-bar">
+                
+                <nav id='toc'>
+                    <!--<span class="octicon octicon-list-unordered"></span>-->
+                    <h3><a href="../../index.html">Table Of Contents</a></h3>
+                    
+                    <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal"><span class="pre">pyffi.formats</span></code> — File format interfaces</a><ul>
+<li><a class="reference internal" href="#supported-formats">Supported formats</a></li>
+<li><a class="reference internal" href="#adding-new-formats">Adding new formats</a><ul>
+<li><a class="reference internal" href="#getting-started">Getting Started</a></li>
+<li><a class="reference internal" href="#reading-and-writing-files">Reading and Writing Files</a></li>
+<li><a class="reference internal" href="#further-references">Further References</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+                    
+                </nav>
+                
+                
+                </div>
+                <div class="col-md-10">
+                    <div class="document">
+                        <div class="documentwrapper">
+                            
+                            <div class="bodywrapper">
+                            
+                            <div class="body" role="main">
+                            
+  <span class="target" id="module-pyffi.formats"></span><div class="section" id="pyffi-formats-file-format-interfaces">
+<h1><a class="reference internal" href="#module-pyffi.formats" title="pyffi.formats"><code class="xref py py-mod docutils literal"><span class="pre">pyffi.formats</span></code></a> — File format interfaces<a class="headerlink" href="#pyffi-formats-file-format-interfaces" title="Permalink to this headline">¶</a></h1>
+<p>When experimenting with any of the supported file formats, you can specify
+an alternate location where you store your modified format description by means
+of an environment variable. For instance,
+to tell the library to use your version of <code class="file docutils literal"><span class="pre">cgf.xml</span></code>,
+set the <span class="target" id="index-0"></span><code class="xref std std-envvar docutils literal"><span class="pre">CGFXMLPATH</span></code> environment variable to the directory where
+<code class="file docutils literal"><span class="pre">cgf.xml</span></code> can be found. The environment variables <span class="target" id="index-1"></span><code class="xref std std-envvar docutils literal"><span class="pre">NIFXMLPATH</span></code>,
+<span class="target" id="index-2"></span><code class="xref std std-envvar docutils literal"><span class="pre">KFMXMLPATH</span></code>, <span class="target" id="index-3"></span><code class="xref std std-envvar docutils literal"><span class="pre">DDSXMLPATH</span></code>, and <span class="target" id="index-4"></span><code class="xref std std-envvar docutils literal"><span class="pre">TGAXMLPATH</span></code>
+work similarly.</p>
+<div class="section" id="supported-formats">
+<h2>Supported formats<a class="headerlink" href="#supported-formats" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bsa.html"><code class="docutils literal"><span class="pre">pyffi.formats.bsa</span></code> — Bethesda Archive (.bsa)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bsa.html#implementation">Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bsa.html#regression-tests">Regression tests</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cgf.html"><code class="docutils literal"><span class="pre">pyffi.formats.cgf</span></code> — Crytek (.cgf and .cga)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cgf.html#implementation">Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cgf.html#regression-tests">Regression tests</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dae.html"><code class="docutils literal"><span class="pre">pyffi.formats.dae</span></code> — COLLADA (.dae)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dae.html#implementation">Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dae.html#regression-tests">Regression tests</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dds.html"><code class="docutils literal"><span class="pre">pyffi.formats.dds</span></code> — DirectDraw Surface (.dds)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dds.html#implementation">Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dds.html#regression-tests">Regression tests</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="egm.html"><code class="docutils literal"><span class="pre">pyffi.formats.egm</span></code> — EGM (.egm)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="egm.html#implementation">Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="egm.html#regression-tests">Regression tests</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="egt.html"><code class="docutils literal"><span class="pre">pyffi.formats.egt</span></code> — EGT (.egt)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="egt.html#implementation">Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="egt.html#regression-tests">Regression tests</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="esp.html"><code class="docutils literal"><span class="pre">pyffi.formats.esp</span></code> — Elder Scrolls plugin/master/save files (.esp, .esm, and .ess)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="esp.html#implementation">Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="esp.html#regression-tests">Regression tests</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="kfm.html"><code class="docutils literal"><span class="pre">pyffi.formats.kfm</span></code> — NetImmerse/Gamebryo Keyframe Motion (.kfm)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="kfm.html#implementation">Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kfm.html#regression-tests">Regression tests</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nif.html"><code class="docutils literal"><span class="pre">pyffi.formats.nif</span></code> — NetImmerse/Gamebryo (.nif and .kf)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="nif.html#implementation">Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nif.html#regression-tests">Regression tests</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tga.html"><code class="docutils literal"><span class="pre">pyffi.formats.tga</span></code> — Targa (.tga)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tga.html#implementation">Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tga.html#regression-tests">Regression tests</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tri.html"><code class="docutils literal"><span class="pre">pyffi.formats.tri</span></code> — TRI (.tri)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tri.html#implementation">Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tri.html#regression-tests">Regression tests</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="adding-new-formats">
+<h2>Adding new formats<a class="headerlink" href="#adding-new-formats" title="Permalink to this headline">¶</a></h2>
+<p>This section tries to explain how you can implement your own format in pyffi.</p>
+<div class="section" id="getting-started">
+<h3>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h3>
+<p>Note that the files which make up the following example can all be found in
+the examples/simple directory of the source distribution of pyffi.</p>
+<p>Suppose you have a simple file format, which consists of an integer,
+followed by a list of integers as many as described by the first
+integer. We start by creating an XML file, call it <code class="file docutils literal"><span class="pre">simple.xml</span></code>,
+which describes this format in a way that pyffi can understand:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="cp">&lt;!DOCTYPE fileformat&gt;</span>
+<span class="nt">&lt;fileformat</span> <span class="na">version=</span><span class="s">&quot;1.0&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;basic</span> <span class="na">name=</span><span class="s">&quot;Int&quot;</span><span class="nt">&gt;</span>A signed 32-bit integer.<span class="nt">&lt;/basic&gt;</span>
+    <span class="nt">&lt;struct</span> <span class="na">name=</span><span class="s">&quot;Example&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;add</span> <span class="na">name=</span><span class="s">&quot;Num Integers&quot;</span> <span class="na">type=</span><span class="s">&quot;Int&quot;</span><span class="nt">&gt;</span>
+            Number of integers that follow.
+        <span class="nt">&lt;/add&gt;</span>
+        <span class="nt">&lt;add</span> <span class="na">name=</span><span class="s">&quot;Integers&quot;</span> <span class="na">type=</span><span class="s">&quot;Int&quot;</span> <span class="na">arr1=</span><span class="s">&quot;Num Integers&quot;</span><span class="nt">&gt;</span>
+            A list of integers.
+        <span class="nt">&lt;/add&gt;</span>
+    <span class="nt">&lt;/struct&gt;</span>
+<span class="nt">&lt;/fileformat&gt;</span>
+</pre></div>
+</div>
+<p>What pyffi does is convert this simple XML description into Python classes
+which automatically can read and write the structure you’ve just described.
+Say this is the contents of <code class="file docutils literal"><span class="pre">simple.py</span></code>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pyffi.object_models.xml</span>
+<span class="kn">import</span> <span class="nn">pyffi.object_models.common</span>
+
+<span class="k">class</span> <span class="nc">SimpleFormat</span><span class="p">(</span><span class="n">pyffi</span><span class="o">.</span><span class="n">object_models</span><span class="o">.</span><span class="n">xml</span><span class="o">.</span><span class="n">FileFormat</span><span class="p">):</span>
+    <span class="n">xml_file_name</span> <span class="o">=</span> <span class="s1">&#39;simple.xml&#39;</span>
+    <span class="n">xml_file_path</span> <span class="o">=</span> <span class="p">[</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span> <span class="p">]</span>
+
+    <span class="c1"># basic types</span>
+
+    <span class="n">Int</span> <span class="o">=</span> <span class="n">pyffi</span><span class="o">.</span><span class="n">object_models</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">Int</span>
+
+    <span class="c1"># extensions of generated types</span>
+
+    <span class="k">class</span> <span class="nc">Data</span><span class="p">(</span><span class="n">pyffi</span><span class="o">.</span><span class="n">object_models</span><span class="o">.</span><span class="n">xml</span><span class="o">.</span><span class="n">FileFormat</span><span class="o">.</span><span class="n">Data</span><span class="p">):</span>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">example</span> <span class="o">=</span> <span class="n">SimpleFormat</span><span class="o">.</span><span class="n">Example</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">Example</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">addInteger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">numIntegers</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">integers</span><span class="o">.</span><span class="n">update_size</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">integers</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">numIntegers</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+</pre></div>
+</div>
+<p>What happens in this piece of code?</p>
+<blockquote>
+<div><ul class="simple">
+<li>The <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.xml.FileFormat</span></code>
+base class triggers the transformation of xml into Python classes;
+how these classes can be used will be explained further.</li>
+<li>The <code class="xref py py-attr docutils literal"><span class="pre">xml_file_name</span></code>
+class attribute provides the name of the xml file that describes
+the structures we wish to generate. The
+<code class="xref py py-attr docutils literal"><span class="pre">xml_file_path</span></code>
+attribute gives a list of locations of where to look for this
+file; in our case we have simply chosen to put <code class="file docutils literal"><span class="pre">simple.xml</span></code>
+in the same directory as <code class="file docutils literal"><span class="pre">simple.py</span></code>.</li>
+<li>The <code class="xref py py-class docutils literal"><span class="pre">SimpleFormat.Example</span></code> class
+provides the generated class with a function <code class="xref py py-meth docutils literal"><span class="pre">addInteger()</span></code> in
+addition to the attributes <code class="xref py py-attr docutils literal"><span class="pre">numIntegers</span></code> and
+<code class="xref py py-attr docutils literal"><span class="pre">integers</span></code> which have been created from the XML.</li>
+<li>Finally, the <code class="xref py py-mod docutils literal"><span class="pre">pyffi.object_models.common</span></code> module implements
+the most common basic types, such as integers, characters, and
+floats. In the above example we have taken advantage of
+<code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.common.Int</span></code>, which defines a signed
+32-bit integer, exactly the type we need.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="reading-and-writing-files">
+<h3>Reading and Writing Files<a class="headerlink" href="#reading-and-writing-files" title="Permalink to this headline">¶</a></h3>
+<p>To read the contents of a file of the format described by
+simple.xml:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">simple</span> <span class="kn">import</span> <span class="n">SimpleFormat</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">SimpleFormat</span><span class="o">.</span><span class="n">Data</span><span class="p">()</span>
+<span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;somefile.simple&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span>
+<span class="n">x</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">example</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Or, to create a new file in this format:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">simple</span> <span class="kn">import</span> <span class="n">SimpleFormat</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">SimpleFormat</span><span class="o">.</span><span class="n">Data</span><span class="p">()</span>
+<span class="n">x</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">num_integers</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">x</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">integers</span><span class="o">.</span><span class="n">update_size</span><span class="p">()</span>
+<span class="n">x</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">integers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">x</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">integers</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">x</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">integers</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">x</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">integers</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">x</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">integers</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;pi.simple&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span>
+<span class="n">x</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="further-references">
+<h3>Further References<a class="headerlink" href="#further-references" title="Permalink to this headline">¶</a></h3>
+<p>With the above simple example in mind, you may wish to browse through
+the source code of <a class="reference internal" href="cgf.html#module-pyffi.formats.cgf" title="pyffi.formats.cgf"><code class="xref py py-mod docutils literal"><span class="pre">pyffi.formats.cgf</span></code></a> or
+<a class="reference internal" href="nif.html#module-pyffi.formats.nif" title="pyffi.formats.nif"><code class="xref py py-mod docutils literal"><span class="pre">pyffi.formats.nif</span></code></a> to see how pyffi works for more complex file
+formats.</p>
+</div>
+</div>
+</div>
+
+
+                            </div>
+                            
+                            </div>
+                          
+                        </div>
+                        <div class="clearer"></div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+    
+    <footer class="container">
+        <div class="site-footer">
+            
+            <div class="copyright pull-left">
+                
+                    &#169; Copyright 2012-2017, NifTools.
+                
+                <!-- 请不要更改这一行 方便其他人知道模板的来源 谢谢 -->
+                <!-- Please keep this line to let others know where this theme comes from. Thank you :D -->
+                <!--Powered by <a href="https://github.com/DONGChuan/Yummy-Jekyll">Yummy Jekyll</a> -->
+            </div>
+            
+
+            <div class="pull-middle">
+                
+                <a href="https://github.com/niftools/pyffi" target="_blank" aria-label="PyFFI on GitHub">
+                    <span class="mega-octicon octicon-mark-github" title="GitHub"></span>
+                </a>
+                
+            </div>
+
+            
+            <div class="sphinx pull-right">
+                Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5
+            </div>
+            
+        </div>
+    </footer>
+    
+
+    
+    
+
+    <!-- JS -->
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.2.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/script.js"></script>
+    <script type="text/javascript" src="../../_static/geopattern/js/geopattern.min.js"></script>
+
+    <script>
+        $(document).ready(function(){
+            $('.geopattern').each(function(){
+                var pattern = GeoPattern.generate($(this).data('pattern-id'));
+                $(this).css('background-image', pattern.toDataUrl());
+                //$(this).geopattern($(this).data('pattern-id'));
+            });
+        });
+    </script>
+
+
+    
+</body>
+</html>

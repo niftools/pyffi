@@ -1,0 +1,314 @@
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <title>How to contribute</title>
+
+    
+    
+    
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    
+    
+
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto|Roboto+Condensed|Source+Sans+Pro" rel="stylesheet">
+
+    
+
+    <!-- CSS -->
+    
+
+    
+
+    <link rel="stylesheet" href="_static/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="_static/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="_static/hover/css/hover-min.css">
+    <link rel="stylesheet" href="_static/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="_static/css/syntax.css">
+
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+
+
+    
+    
+    <link rel="author" title="About these documents" href="http://niftools.org/about" />
+    
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    
+    
+    <link rel="search" title="Search" href="search.html" />
+    
+    
+    
+    <link rel="next" title="Authors" href="authors.html" />
+    
+    
+    <link rel="prev" title="pyffi.object_models — File format description engines" href="pyffi/object_models.html" />
+    
+     
+</head>
+<body data-spy="scroll" data-target="#toc" data-offset="180">
+    
+    <header class="site-header">
+    <div class="container">
+        <nav class="navbar ">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#site-navbar">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    </button>
+                    <a id="site-header-brand" href="./" title="PyFFI">
+                        <img src="_static/logo.png" /> PyFFI
+                    </a>
+                </div>
+
+                <div id="site-navbar" class="collapse navbar-collapse" role="navigation">
+                    <ul class="nav navbar-nav navbar-right">
+                        
+                        <li><a href="http://niftools.org" class=" site-header-nav-item hvr-underline-from-center" target="" title="Home">
+                        Home
+                        </a></li>
+                        
+                        
+                        
+                        <li><a href="http://niftools.org/blog" class="site-header-nav-item hvr-underline-from-center" target="" title="Blog">
+                        Blog
+                        </a></li>
+                        
+                        
+                        <li><a href="./" class=" selected  site-header-nav-item hvr-underline-from-center" target="" title="Documentation">
+                        Documentation
+                        </a></li>
+                        
+                        
+                        <li><a href="http://forum.niftools.org" class=" site-header-nav-item hvr-underline-from-center" target="" title="Forums">
+                        Forums
+                        </a></li>
+                        
+                        
+                        <li><a href="http://niftools.org/about" class="site-header-nav-item hvr-underline-from-center" target="" title="About">
+                        About
+                        </a></li>
+                        
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    </header>
+    
+    <div class="content">
+        <section class="jumbotron geopattern" data-pattern-id="How to contribute">
+            <div class="container">
+                <div id="jumbotron-meta-info">
+                    <h1>PyFFI Documentation</h1>
+                    <span class="meta-info">
+                        <span class="mega-octicon octicon-repo"></span>&nbsp;&nbsp;How to contribute
+                    </span>
+                </div>
+            </div>
+        </section>
+        <article class="post container" itemscope itemtype="http://schema.org/BlogPosting">
+            <div class="row">
+                <div class="col-md-2 toc-bar">
+                
+                <nav id='toc'>
+                    <!--<span class="octicon octicon-list-unordered"></span>-->
+                    <h3><a href="index.html">Table Of Contents</a></h3>
+                    
+                    <ul>
+<li><a class="reference internal" href="#">How to contribute</a><ul>
+<li><a class="reference internal" href="#get-git-msysgit">Get git/msysgit</a></li>
+<li><a class="reference internal" href="#track-the-source">Track the source</a></li>
+<li><a class="reference internal" href="#development">Development</a><ul>
+<li><a class="reference internal" href="#create-a-fork">Create a fork</a></li>
+<li><a class="reference internal" href="#use-the-source">Use the source</a></li>
+<li><a class="reference internal" href="#submit-your-updates">Submit your updates</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+                    
+                </nav>
+                
+                
+                </div>
+                <div class="col-md-10">
+                    <div class="document">
+                        <div class="documentwrapper">
+                            
+                            <div class="bodywrapper">
+                            
+                            <div class="body" role="main">
+                            
+  <div class="section" id="how-to-contribute">
+<h1>How to contribute<a class="headerlink" href="#how-to-contribute" title="Permalink to this headline">¶</a></h1>
+<p>Do you want to fix a bug, improve documentation, or add a new feature?</p>
+<div class="section" id="get-git-msysgit">
+<h2>Get git/msysgit<a class="headerlink" href="#get-git-msysgit" title="Permalink to this headline">¶</a></h2>
+<p>If you are on windows, you need <a class="reference external" href="http://code.google.com/p/msysgit/downloads/list">msysgit</a>.  If you are already familiar
+with subversion, then, in a nutshell, msysgit is for git what
+TortoiseSVN is for subversion. The main difference is that msysgit is
+a command line based tool.</p>
+<p>For more information about git and github, the <a class="reference external" href="http://help.github.com">github help site</a> is a great start.</p>
+</div>
+<div class="section" id="track-the-source">
+<h2>Track the source<a class="headerlink" href="#track-the-source" title="Permalink to this headline">¶</a></h2>
+<p>If you simply want to keep track of the latest source code, start a
+shell (or, the Git Bash on windows), and type (this is like “svn checkout”):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">git</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">niftools</span><span class="o">/</span><span class="n">pyffi</span><span class="o">.</span><span class="n">git</span>
+</pre></div>
+</div>
+<p>To synchronize your code, type (this is like “svn update”):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">pull</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="development">
+<h2>Development<a class="headerlink" href="#development" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="create-a-fork">
+<h3>Create a fork<a class="headerlink" href="#create-a-fork" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Get a <a class="reference external" href="https://github.com/signup/free">github account</a>.</li>
+<li><a class="reference external" href="https://github.com/login">Log in</a> on github and <a class="reference external" href="http://help.github.com/forking">fork PyFFI</a>
+(yes! merging with git is easy so forking is encouraged!).</li>
+</ul>
+</div>
+<div class="section" id="use-the-source">
+<h3>Use the source<a class="headerlink" href="#use-the-source" title="Permalink to this headline">¶</a></h3>
+<p>PyFFI is entirely written in pure Python, hence the source code runs
+as such on any system that runs Python. Edit the code with your
+favorite editor, and install your version of PyFFI into your Python
+tree to enable your PyFFI to be used by other applications such as for
+instance QSkope, or the Blender NIF Scripts. From within your PyFFI
+git checkout:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">C</span><span class="p">:</span>\<span class="n">Python25</span>\<span class="n">python</span><span class="o">.</span><span class="n">exe</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span>
+</pre></div>
+</div>
+<p>or on linux:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span>
+</pre></div>
+</div>
+<p>To build the documentation:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">docs</span>
+<span class="n">make</span> <span class="n">html</span> <span class="o">-</span><span class="n">a</span>
+</pre></div>
+</div>
+<p>PyFFI has an extensive test suite, which you can run via:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">rundoctest</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>The Blender NIF Scripts test suite provides additional testing for
+PyFFI. From within your niftools/blender checkout:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">install</span><span class="o">.</span><span class="n">sh</span>
+<span class="n">blender</span> <span class="o">-</span><span class="n">P</span> <span class="n">runtest_xxx</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>To build the source packages and the Windows installer (on a linux
+system which has both wine and nsis installed):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">makezip</span><span class="o">.</span><span class="n">sh</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="submit-your-updates">
+<h3>Submit your updates<a class="headerlink" href="#submit-your-updates" title="Permalink to this headline">¶</a></h3>
+<p>Simply do a <a class="reference external" href="http://help.github.com/pull-requests">pull request</a>
+if you want your fork to be merged, and your contributions may be
+included in the next release!</p>
+</div>
+</div>
+</div>
+
+
+                            </div>
+                            
+                            </div>
+                          
+                        </div>
+                        <div class="clearer"></div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+    
+    <footer class="container">
+        <div class="site-footer">
+            
+            <div class="copyright pull-left">
+                
+                    &#169; Copyright 2012-2017, NifTools.
+                
+                <!-- 请不要更改这一行 方便其他人知道模板的来源 谢谢 -->
+                <!-- Please keep this line to let others know where this theme comes from. Thank you :D -->
+                <!--Powered by <a href="https://github.com/DONGChuan/Yummy-Jekyll">Yummy Jekyll</a> -->
+            </div>
+            
+
+            <div class="pull-middle">
+                
+                <a href="https://github.com/niftools/pyffi" target="_blank" aria-label="PyFFI on GitHub">
+                    <span class="mega-octicon octicon-mark-github" title="GitHub"></span>
+                </a>
+                
+            </div>
+
+            
+            <div class="sphinx pull-right">
+                Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5
+            </div>
+            
+        </div>
+    </footer>
+    
+
+    
+    
+
+    <!-- JS -->
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.2.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/js/script.js"></script>
+    <script type="text/javascript" src="_static/geopattern/js/geopattern.min.js"></script>
+
+    <script>
+        $(document).ready(function(){
+            $('.geopattern').each(function(){
+                var pattern = GeoPattern.generate($(this).data('pattern-id'));
+                $(this).css('background-image', pattern.toDataUrl());
+                //$(this).geopattern($(this).data('pattern-id'));
+            });
+        });
+    </script>
+
+
+    
+</body>
+</html>

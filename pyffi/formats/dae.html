@@ -1,0 +1,387 @@
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <title>pyffi.formats.dae — COLLADA (.dae)</title>
+
+    
+    
+    
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    
+    
+
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto|Roboto+Condensed|Source+Sans+Pro" rel="stylesheet">
+
+    
+
+    <!-- CSS -->
+    
+
+    
+
+    <link rel="stylesheet" href="../../_static/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="../../_static/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../_static/hover/css/hover-min.css">
+    <link rel="stylesheet" href="../../_static/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="../../_static/css/syntax.css">
+
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+
+
+    
+    
+    <link rel="author" title="About these documents" href="http://niftools.org/about" />
+    
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    
+    
+    <link rel="search" title="Search" href="../../search.html" />
+    
+    
+    
+    <link rel="next" title="pyffi.formats.dds — DirectDraw Surface (.dds)" href="dds.html" />
+    
+    
+    <link rel="prev" title="pyffi.formats.cgf — Crytek (.cgf and .cga)" href="cgf.html" />
+    
+     
+</head>
+<body data-spy="scroll" data-target="#toc" data-offset="180">
+    
+    <header class="site-header">
+    <div class="container">
+        <nav class="navbar ">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#site-navbar">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    </button>
+                    <a id="site-header-brand" href="../../" title="PyFFI">
+                        <img src="../../_static/logo.png" /> PyFFI
+                    </a>
+                </div>
+
+                <div id="site-navbar" class="collapse navbar-collapse" role="navigation">
+                    <ul class="nav navbar-nav navbar-right">
+                        
+                        <li><a href="http://niftools.org" class=" site-header-nav-item hvr-underline-from-center" target="" title="Home">
+                        Home
+                        </a></li>
+                        
+                        
+                        
+                        <li><a href="http://niftools.org/blog" class="site-header-nav-item hvr-underline-from-center" target="" title="Blog">
+                        Blog
+                        </a></li>
+                        
+                        
+                        <li><a href="../../" class=" selected  site-header-nav-item hvr-underline-from-center" target="" title="Documentation">
+                        Documentation
+                        </a></li>
+                        
+                        
+                        <li><a href="http://forum.niftools.org" class=" site-header-nav-item hvr-underline-from-center" target="" title="Forums">
+                        Forums
+                        </a></li>
+                        
+                        
+                        <li><a href="http://niftools.org/about" class="site-header-nav-item hvr-underline-from-center" target="" title="About">
+                        About
+                        </a></li>
+                        
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    </header>
+    
+    <div class="content">
+        <section class="jumbotron geopattern" data-pattern-id="pyffi.formats.dae — COLLADA (.dae)">
+            <div class="container">
+                <div id="jumbotron-meta-info">
+                    <h1>PyFFI Documentation</h1>
+                    <span class="meta-info">
+                        <span class="mega-octicon octicon-repo"></span>&nbsp;&nbsp;pyffi.formats.dae — COLLADA (.dae)
+                    </span>
+                </div>
+            </div>
+        </section>
+        <article class="post container" itemscope itemtype="http://schema.org/BlogPosting">
+            <div class="row">
+                <div class="col-md-2 toc-bar">
+                
+                <nav id='toc'>
+                    <!--<span class="octicon octicon-list-unordered"></span>-->
+                    <h3><a href="../../index.html">Table Of Contents</a></h3>
+                    
+                    <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal"><span class="pre">pyffi.formats.dae</span></code> — COLLADA (.dae)</a><ul>
+<li><a class="reference internal" href="#implementation">Implementation</a></li>
+<li><a class="reference internal" href="#regression-tests">Regression tests</a><ul>
+<li><a class="reference internal" href="#create-a-dae-file">Create a DAE file</a></li>
+<li><a class="reference internal" href="#read-a-dae-file">Read a DAE file</a></li>
+<li><a class="reference internal" href="#parse-all-dae-files-in-a-directory-tree">Parse all DAE files in a directory tree</a></li>
+<li><a class="reference internal" href="#create-a-dae-file-from-scratch-and-write-to-file">Create a DAE file from scratch and write to file</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+                    
+                </nav>
+                
+                
+                </div>
+                <div class="col-md-10">
+                    <div class="document">
+                        <div class="documentwrapper">
+                            
+                            <div class="bodywrapper">
+                            
+                            <div class="body" role="main">
+                            
+  <span class="target" id="module-pyffi.formats.dae"></span><div class="section" id="pyffi-formats-dae-collada-dae">
+<h1><a class="reference internal" href="#module-pyffi.formats.dae" title="pyffi.formats.dae"><code class="xref py py-mod docutils literal"><span class="pre">pyffi.formats.dae</span></code></a> — COLLADA (.dae)<a class="headerlink" href="#pyffi-formats-dae-collada-dae" title="Permalink to this headline">¶</a></h1>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">This module is not yet fully implemented, and is certainly not
+yet useful in its current state.</p>
+</div>
+<div class="section" id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyffi.formats.dae.DaeFormat">
+<em class="property">class </em><code class="descclassname">pyffi.formats.dae.</code><code class="descname">DaeFormat</code><a class="headerlink" href="#pyffi.formats.dae.DaeFormat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.xsd.FileFormat</span></code></p>
+<p>This class implements the DAE format.</p>
+<dl class="class">
+<dt id="pyffi.formats.dae.DaeFormat.Data">
+<em class="property">class </em><code class="descname">Data</code><span class="sig-paren">(</span><em>version=17039616</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.dae.DaeFormat.Data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.Data</span></code></p>
+<p>A class to contain the actual collada data.</p>
+<dl class="method">
+<dt id="pyffi.formats.dae.DaeFormat.Data.getVersion">
+<code class="descname">getVersion</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.dae.DaeFormat.Data.getVersion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the collada version, as integer (for instance, 1.4.1 would be
+0x01040100).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The version, as integer.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.dae.DaeFormat.Data.inspect">
+<code class="descname">inspect</code><span class="sig-paren">(</span><em>stream</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.dae.DaeFormat.Data.inspect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quickly checks whether the stream appears to contain
+collada data. Resets stream to original position. If the stream
+turns out to be collada, L{getVersion} is guaranteed to return
+the version.</p>
+<p>Call this function if you simply wish to check that a file is
+a collada file without having to parse it completely.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stream</strong> (<em>file</em>) – The file to inspect.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">True</span></code> if stream is collada, <code class="docutils literal"><span class="pre">False</span></code> otherwise.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.dae.DaeFormat.Data.read">
+<code class="descname">read</code><span class="sig-paren">(</span><em>stream</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.dae.DaeFormat.Data.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read collada data from stream.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stream</strong> (<em>file</em>) – The file to read from.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.dae.DaeFormat.Data.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>stream</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.dae.DaeFormat.Data.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write collada data to stream.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stream</strong> (<em>file</em>) – The file to write to.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="regression-tests">
+<h2>Regression tests<a class="headerlink" href="#regression-tests" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="create-a-dae-file">
+<h3>Create a DAE file<a class="headerlink" href="#create-a-dae-file" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">daedata</span> <span class="o">=</span> <span class="n">DaeFormat</span><span class="o">.</span><span class="n">Data</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">daedata</span><span class="o">.</span><span class="n">collada</span><span class="p">)</span> 
+<span class="go">&lt;...Collada object at ...&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="read-a-dae-file">
+<h3>Read a DAE file<a class="headerlink" href="#read-a-dae-file" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">dirname</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dirpath</span> <span class="o">=</span> <span class="vm">__file__</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span> <span class="c1">#recurse up to root repo dir</span>
+<span class="gp">... </span>    <span class="n">dirpath</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span><span class="n">dirpath</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">repo_root</span> <span class="o">=</span> <span class="n">dirpath</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">format_root</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">repo_root</span><span class="p">,</span> <span class="s1">&#39;tests&#39;</span><span class="p">,</span> <span class="s1">&#39;formats&#39;</span><span class="p">,</span> <span class="s1">&#39;dae&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># check and read dae file</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stream</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">format_root</span><span class="p">,</span> <span class="s1">&#39;cube.dae&#39;</span><span class="p">),</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">daedata</span> <span class="o">=</span> <span class="n">DaeFormat</span><span class="o">.</span><span class="n">Data</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">daedata</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span> 
+<span class="gt">Traceback (most recent call last):</span>
+    <span class="o">...</span>
+<span class="gr">NotImplementedError</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># get DAE file root element</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#print(daedata.getRootElement())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stream</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="parse-all-dae-files-in-a-directory-tree">
+<h3>Parse all DAE files in a directory tree<a class="headerlink" href="#parse-all-dae-files-in-a-directory-tree" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">DaeFormat</span><span class="o">.</span><span class="n">walkData</span><span class="p">(</span><span class="n">format_root</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">try</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="c1"># the replace call makes the doctest also pass on windows</span>
+<span class="gp">... </span>        <span class="n">os_path</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">name</span>
+<span class="gp">... </span>        <span class="n">split</span> <span class="o">=</span> <span class="p">(</span><span class="n">os_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">))[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span>
+<span class="gp">... </span>        <span class="n">rejoin</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="o">*</span><span class="n">split</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;reading </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">rejoin</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: read failed due corrupt file, corrupt format description, or bug.&quot;</span><span class="p">)</span>
+<span class="go">reading tests/formats/dae/cube.dae</span>
+<span class="go">Warning: read failed due corrupt file, corrupt format description, or bug.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="create-a-dae-file-from-scratch-and-write-to-file">
+<h3>Create a DAE file from scratch and write to file<a class="headerlink" href="#create-a-dae-file-from-scratch-and-write-to-file" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">daedata</span> <span class="o">=</span> <span class="n">DaeFormat</span><span class="o">.</span><span class="n">Data</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tempfile</span> <span class="k">import</span> <span class="n">TemporaryFile</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stream</span> <span class="o">=</span> <span class="n">TemporaryFile</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">daedata</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span> 
+<span class="gt">Traceback (most recent call last):</span>
+    <span class="o">...</span>
+<span class="gr">NotImplementedError</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+                            </div>
+                            
+                            </div>
+                          
+                        </div>
+                        <div class="clearer"></div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+    
+    <footer class="container">
+        <div class="site-footer">
+            
+            <div class="copyright pull-left">
+                
+                    &#169; Copyright 2012-2017, NifTools.
+                
+                <!-- 请不要更改这一行 方便其他人知道模板的来源 谢谢 -->
+                <!-- Please keep this line to let others know where this theme comes from. Thank you :D -->
+                <!--Powered by <a href="https://github.com/DONGChuan/Yummy-Jekyll">Yummy Jekyll</a> -->
+            </div>
+            
+
+            <div class="pull-middle">
+                
+                <a href="https://github.com/niftools/pyffi" target="_blank" aria-label="PyFFI on GitHub">
+                    <span class="mega-octicon octicon-mark-github" title="GitHub"></span>
+                </a>
+                
+            </div>
+
+            
+            <div class="sphinx pull-right">
+                Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5
+            </div>
+            
+        </div>
+    </footer>
+    
+
+    
+    
+
+    <!-- JS -->
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.2.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/script.js"></script>
+    <script type="text/javascript" src="../../_static/geopattern/js/geopattern.min.js"></script>
+
+    <script>
+        $(document).ready(function(){
+            $('.geopattern').each(function(){
+                var pattern = GeoPattern.generate($(this).data('pattern-id'));
+                $(this).css('background-image', pattern.toDataUrl());
+                //$(this).geopattern($(this).data('pattern-id'));
+            });
+        });
+    </script>
+
+
+    
+</body>
+</html>

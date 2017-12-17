@@ -1,0 +1,576 @@
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <title>pyffi.formats.egm — EGM (.egm)</title>
+
+    
+    
+    
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    
+    
+
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto|Roboto+Condensed|Source+Sans+Pro" rel="stylesheet">
+
+    
+
+    <!-- CSS -->
+    
+
+    
+
+    <link rel="stylesheet" href="../../_static/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="../../_static/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../_static/hover/css/hover-min.css">
+    <link rel="stylesheet" href="../../_static/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="../../_static/css/syntax.css">
+
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+
+
+    
+    
+    <link rel="author" title="About these documents" href="http://niftools.org/about" />
+    
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    
+    
+    <link rel="search" title="Search" href="../../search.html" />
+    
+    
+    
+    <link rel="next" title="pyffi.formats.egt — EGT (.egt)" href="egt.html" />
+    
+    
+    <link rel="prev" title="pyffi.formats.dds — DirectDraw Surface (.dds)" href="dds.html" />
+    
+     
+</head>
+<body data-spy="scroll" data-target="#toc" data-offset="180">
+    
+    <header class="site-header">
+    <div class="container">
+        <nav class="navbar ">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#site-navbar">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    </button>
+                    <a id="site-header-brand" href="../../" title="PyFFI">
+                        <img src="../../_static/logo.png" /> PyFFI
+                    </a>
+                </div>
+
+                <div id="site-navbar" class="collapse navbar-collapse" role="navigation">
+                    <ul class="nav navbar-nav navbar-right">
+                        
+                        <li><a href="http://niftools.org" class=" site-header-nav-item hvr-underline-from-center" target="" title="Home">
+                        Home
+                        </a></li>
+                        
+                        
+                        
+                        <li><a href="http://niftools.org/blog" class="site-header-nav-item hvr-underline-from-center" target="" title="Blog">
+                        Blog
+                        </a></li>
+                        
+                        
+                        <li><a href="../../" class=" selected  site-header-nav-item hvr-underline-from-center" target="" title="Documentation">
+                        Documentation
+                        </a></li>
+                        
+                        
+                        <li><a href="http://forum.niftools.org" class=" site-header-nav-item hvr-underline-from-center" target="" title="Forums">
+                        Forums
+                        </a></li>
+                        
+                        
+                        <li><a href="http://niftools.org/about" class="site-header-nav-item hvr-underline-from-center" target="" title="About">
+                        About
+                        </a></li>
+                        
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    </header>
+    
+    <div class="content">
+        <section class="jumbotron geopattern" data-pattern-id="pyffi.formats.egm — EGM (.egm)">
+            <div class="container">
+                <div id="jumbotron-meta-info">
+                    <h1>PyFFI Documentation</h1>
+                    <span class="meta-info">
+                        <span class="mega-octicon octicon-repo"></span>&nbsp;&nbsp;pyffi.formats.egm — EGM (.egm)
+                    </span>
+                </div>
+            </div>
+        </section>
+        <article class="post container" itemscope itemtype="http://schema.org/BlogPosting">
+            <div class="row">
+                <div class="col-md-2 toc-bar">
+                
+                <nav id='toc'>
+                    <!--<span class="octicon octicon-list-unordered"></span>-->
+                    <h3><a href="../../index.html">Table Of Contents</a></h3>
+                    
+                    <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal"><span class="pre">pyffi.formats.egm</span></code> — EGM (.egm)</a><ul>
+<li><a class="reference internal" href="#implementation">Implementation</a></li>
+<li><a class="reference internal" href="#regression-tests">Regression tests</a><ul>
+<li><a class="reference internal" href="#read-a-egm-file">Read a EGM file</a></li>
+<li><a class="reference internal" href="#parse-all-egm-files-in-a-directory-tree">Parse all EGM files in a directory tree</a></li>
+<li><a class="reference internal" href="#create-an-egm-file-from-scratch-and-write-to-file">Create an EGM file from scratch and write to file</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+                    
+                </nav>
+                
+                
+                </div>
+                <div class="col-md-10">
+                    <div class="document">
+                        <div class="documentwrapper">
+                            
+                            <div class="bodywrapper">
+                            
+                            <div class="body" role="main">
+                            
+  <span class="target" id="module-pyffi.formats.egm"></span><div class="section" id="pyffi-formats-egm-egm-egm">
+<h1><a class="reference internal" href="#module-pyffi.formats.egm" title="pyffi.formats.egm"><code class="xref py py-mod docutils literal"><span class="pre">pyffi.formats.egm</span></code></a> — EGM (.egm)<a class="headerlink" href="#pyffi-formats-egm-egm-egm" title="Permalink to this headline">¶</a></h1>
+<p>An .egm file contains facial shape modifiers, that is, morphs that modify
+static properties of the face, such as nose size, chin shape, and so on.</p>
+<div class="section" id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyffi.formats.egm.EgmFormat">
+<em class="property">class </em><code class="descclassname">pyffi.formats.egm.</code><code class="descname">EgmFormat</code><a class="headerlink" href="#pyffi.formats.egm.EgmFormat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.xml.FileFormat</span></code></p>
+<p>This class implements the EGM format.</p>
+<dl class="class">
+<dt id="pyffi.formats.egm.EgmFormat.Data">
+<em class="property">class </em><code class="descname">Data</code><span class="sig-paren">(</span><em>version=2</em>, <em>num_vertices=0</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.egm.EgmFormat.Data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.Data</span></code></p>
+<p>A class to contain the actual egm data.</p>
+<dl class="method">
+<dt id="pyffi.formats.egm.EgmFormat.Data.add_asym_morph">
+<code class="descname">add_asym_morph</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.egm.EgmFormat.Data.add_asym_morph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an asymmetric morph, and return it.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.egm.EgmFormat.Data.add_sym_morph">
+<code class="descname">add_sym_morph</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.egm.EgmFormat.Data.add_sym_morph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a symmetric morph, and return it.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.egm.EgmFormat.Data.apply_scale">
+<code class="descname">apply_scale</code><span class="sig-paren">(</span><em>scale</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.egm.EgmFormat.Data.apply_scale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply scale factor to all morphs.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.egm.EgmFormat.Data.inspect">
+<code class="descname">inspect</code><span class="sig-paren">(</span><em>stream</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.egm.EgmFormat.Data.inspect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quickly checks if stream contains EGM data, and reads the
+header.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stream</strong> (<em>file</em>) – The stream to inspect.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.egm.EgmFormat.Data.inspect_quick">
+<code class="descname">inspect_quick</code><span class="sig-paren">(</span><em>stream</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.egm.EgmFormat.Data.inspect_quick" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quickly checks if stream contains EGM data, and gets the
+version, by looking at the first 8 bytes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stream</strong> (<em>file</em>) – The stream to inspect.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.egm.EgmFormat.Data.read">
+<code class="descname">read</code><span class="sig-paren">(</span><em>stream</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.egm.EgmFormat.Data.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a egm file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stream</strong> (<code class="docutils literal"><span class="pre">file</span></code>) – The stream from which to read.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.egm.EgmFormat.Data.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>stream</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.egm.EgmFormat.Data.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a egm file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stream</strong> (<code class="docutils literal"><span class="pre">file</span></code>) – The stream to which to write.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.egm.EgmFormat.FileSignature">
+<em class="property">class </em><code class="descname">FileSignature</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.egm.EgmFormat.FileSignature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.object_models.xml.basic.BasicBase</span></code></p>
+<p>Basic type which implements the header of a EGM file.</p>
+<dl class="method">
+<dt id="pyffi.formats.egm.EgmFormat.FileSignature.get_hash">
+<code class="descname">get_hash</code><span class="sig-paren">(</span><em>data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.egm.EgmFormat.FileSignature.get_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a hash value for this value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An immutable object that can be used as a hash.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.egm.EgmFormat.FileSignature.get_size">
+<code class="descname">get_size</code><span class="sig-paren">(</span><em>data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.egm.EgmFormat.FileSignature.get_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return number of bytes the header string occupies in a file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Number of bytes.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.egm.EgmFormat.FileSignature.read">
+<code class="descname">read</code><span class="sig-paren">(</span><em>stream</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.egm.EgmFormat.FileSignature.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read header string from stream and check it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stream</strong> (<em>file</em>) – The stream to read from.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyffi.formats.egm.EgmFormat.FileSignature.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>stream</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.egm.EgmFormat.FileSignature.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the header string to stream.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stream</strong> (<em>file</em>) – The stream to write to.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyffi.formats.egm.EgmFormat.MorphRecord">
+<em class="property">class </em><code class="descname">MorphRecord</code><span class="sig-paren">(</span><em>template=None</em>, <em>argument=None</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.egm.EgmFormat.MorphRecord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyffi.formats.egm._MorphRecord</span></code>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create morph with 3 vertices.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">morph</span> <span class="o">=</span> <span class="n">EgmFormat</span><span class="o">.</span><span class="n">MorphRecord</span><span class="p">(</span><span class="n">argument</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">morph</span><span class="o">.</span><span class="n">set_relative_vertices</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">9</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># scale should be 9/32768.0 = 0.0002746...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">morph</span><span class="o">.</span><span class="n">scale</span> 
+<span class="go">0.0002746...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">vert</span> <span class="ow">in</span> <span class="n">morph</span><span class="o">.</span><span class="n">get_relative_vertices</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="mi">1000</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vert</span><span class="p">])</span>
+<span class="go">[3000, 5000, 2000]</span>
+<span class="go">[1000, 3000, 2000]</span>
+<span class="go">[-8999, 3000, -999]</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="pyffi.formats.egm.EgmFormat.MorphRecord.apply_scale">
+<code class="descname">apply_scale</code><span class="sig-paren">(</span><em>scale</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.egm.EgmFormat.MorphRecord.apply_scale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply scale factor to data.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create morph with 3 vertices.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">morph</span> <span class="o">=</span> <span class="n">EgmFormat</span><span class="o">.</span><span class="n">MorphRecord</span><span class="p">(</span><span class="n">argument</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">morph</span><span class="o">.</span><span class="n">set_relative_vertices</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">9</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">morph</span><span class="o">.</span><span class="n">apply_scale</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">vert</span> <span class="ow">in</span> <span class="n">morph</span><span class="o">.</span><span class="n">get_relative_vertices</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="mi">1000</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vert</span><span class="p">])</span>
+<span class="go">[6000, 10000, 4000]</span>
+<span class="go">[2000, 6000, 4000]</span>
+<span class="go">[-17999, 6000, -1999]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.egm.EgmFormat.byte">
+<code class="descname">byte</code><a class="headerlink" href="#pyffi.formats.egm.EgmFormat.byte" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">Byte</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.egm.EgmFormat.char">
+<code class="descname">char</code><a class="headerlink" href="#pyffi.formats.egm.EgmFormat.char" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">Char</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.egm.EgmFormat.float">
+<code class="descname">float</code><a class="headerlink" href="#pyffi.formats.egm.EgmFormat.float" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">Float</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.egm.EgmFormat.int">
+<code class="descname">int</code><a class="headerlink" href="#pyffi.formats.egm.EgmFormat.int" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">Int</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.egm.EgmFormat.short">
+<code class="descname">short</code><a class="headerlink" href="#pyffi.formats.egm.EgmFormat.short" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">Short</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.egm.EgmFormat.ubyte">
+<code class="descname">ubyte</code><a class="headerlink" href="#pyffi.formats.egm.EgmFormat.ubyte" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">UByte</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.egm.EgmFormat.uint">
+<code class="descname">uint</code><a class="headerlink" href="#pyffi.formats.egm.EgmFormat.uint" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">UInt</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyffi.formats.egm.EgmFormat.ushort">
+<code class="descname">ushort</code><a class="headerlink" href="#pyffi.formats.egm.EgmFormat.ushort" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">UShort</span></code></p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pyffi.formats.egm.EgmFormat.version_number">
+<em class="property">static </em><code class="descname">version_number</code><span class="sig-paren">(</span><em>version_str</em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.egm.EgmFormat.version_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts version string into an integer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>version_str</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – The version string.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A version integer.</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">EgmFormat</span><span class="o">.</span><span class="n">version_number</span><span class="p">(</span><span class="s1">&#39;002&#39;</span><span class="p">)</span>
+<span class="go">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">EgmFormat</span><span class="o">.</span><span class="n">version_number</span><span class="p">(</span><span class="s1">&#39;XXX&#39;</span><span class="p">)</span>
+<span class="go">-1</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="regression-tests">
+<h2>Regression tests<a class="headerlink" href="#regression-tests" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="read-a-egm-file">
+<h3>Read a EGM file<a class="headerlink" href="#read-a-egm-file" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># check and read egm file</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">dirname</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dirpath</span> <span class="o">=</span> <span class="vm">__file__</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span> <span class="c1">#recurse up to root repo dir</span>
+<span class="gp">... </span>    <span class="n">dirpath</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span><span class="n">dirpath</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">repo_root</span> <span class="o">=</span> <span class="n">dirpath</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">format_root</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">repo_root</span><span class="p">,</span> <span class="s1">&#39;tests&#39;</span><span class="p">,</span> <span class="s1">&#39;formats&#39;</span><span class="p">,</span> <span class="s1">&#39;egm&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">format_root</span><span class="p">,</span> <span class="s1">&#39;mmouthxivilai.egm&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stream</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">EgmFormat</span><span class="o">.</span><span class="n">Data</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">inspect_quick</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">version</span>
+<span class="go">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">inspect</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">num_vertices</span>
+<span class="go">89</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">num_sym_morphs</span>
+<span class="go">50</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">num_asym_morphs</span>
+<span class="go">30</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">time_date_stamp</span>
+<span class="go">2001060901</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">sym_morphs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">x</span>
+<span class="go">17249</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="parse-all-egm-files-in-a-directory-tree">
+<h3>Parse all EGM files in a directory tree<a class="headerlink" href="#parse-all-egm-files-in-a-directory-tree" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">EgmFormat</span><span class="o">.</span><span class="n">walkData</span><span class="p">(</span><span class="n">format_root</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">try</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="c1"># the replace call makes the doctest also pass on windows</span>
+<span class="gp">... </span>        <span class="n">os_path</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">name</span>
+<span class="gp">... </span>        <span class="n">split</span> <span class="o">=</span> <span class="p">(</span><span class="n">os_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">))[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span>
+<span class="gp">... </span>        <span class="n">rejoin</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="o">*</span><span class="n">split</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;reading </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">rejoin</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span>
+<span class="gp">... </span>            <span class="s2">&quot;Warning: read failed due corrupt file,&quot;</span>
+<span class="gp">... </span>            <span class="s2">&quot; corrupt format description, or bug.&quot;</span><span class="p">)</span> 
+<span class="go">reading tests/formats/egm/mmouthxivilai.egm</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="create-an-egm-file-from-scratch-and-write-to-file">
+<h3>Create an EGM file from scratch and write to file<a class="headerlink" href="#create-an-egm-file-from-scratch-and-write-to-file" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">EgmFormat</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">num_vertices</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">num_vertices</span>
+<span class="go">10</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">morph</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">add_sym_morph</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">morph</span><span class="o">.</span><span class="n">vertices</span><span class="p">)</span>
+<span class="go">10</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">morph</span><span class="o">.</span><span class="n">scale</span> <span class="o">=</span> <span class="mf">0.4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">morph</span><span class="o">.</span><span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="mi">123</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">morph</span><span class="o">.</span><span class="n">vertices</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="mi">30000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">morph</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">add_asym_morph</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">morph</span><span class="o">.</span><span class="n">scale</span> <span class="o">=</span> <span class="mf">2.3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">morph</span><span class="o">.</span><span class="n">vertices</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="o">-</span><span class="mi">5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">morph</span><span class="o">.</span><span class="n">vertices</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">99</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tempfile</span> <span class="k">import</span> <span class="n">TemporaryFile</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stream</span> <span class="o">=</span> <span class="n">TemporaryFile</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+                            </div>
+                            
+                            </div>
+                          
+                        </div>
+                        <div class="clearer"></div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+    
+    <footer class="container">
+        <div class="site-footer">
+            
+            <div class="copyright pull-left">
+                
+                    &#169; Copyright 2012-2017, NifTools.
+                
+                <!-- 请不要更改这一行 方便其他人知道模板的来源 谢谢 -->
+                <!-- Please keep this line to let others know where this theme comes from. Thank you :D -->
+                <!--Powered by <a href="https://github.com/DONGChuan/Yummy-Jekyll">Yummy Jekyll</a> -->
+            </div>
+            
+
+            <div class="pull-middle">
+                
+                <a href="https://github.com/niftools/pyffi" target="_blank" aria-label="PyFFI on GitHub">
+                    <span class="mega-octicon octicon-mark-github" title="GitHub"></span>
+                </a>
+                
+            </div>
+
+            
+            <div class="sphinx pull-right">
+                Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5
+            </div>
+            
+        </div>
+    </footer>
+    
+
+    
+    
+
+    <!-- JS -->
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.2.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/script.js"></script>
+    <script type="text/javascript" src="../../_static/geopattern/js/geopattern.min.js"></script>
+
+    <script>
+        $(document).ready(function(){
+            $('.geopattern').each(function(){
+                var pattern = GeoPattern.generate($(this).data('pattern-id'));
+                $(this).css('background-image', pattern.toDataUrl());
+                //$(this).geopattern($(this).data('pattern-id'));
+            });
+        });
+    </script>
+
+
+    
+</body>
+</html>

@@ -1,0 +1,357 @@
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <title>Introduction</title>
+
+    
+    
+    
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    
+    
+
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto|Roboto+Condensed|Source+Sans+Pro" rel="stylesheet">
+
+    
+
+    <!-- CSS -->
+    
+
+    
+
+    <link rel="stylesheet" href="_static/octicons/octicons/octicons.css">
+    <link rel="stylesheet" href="_static/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="_static/hover/css/hover-min.css">
+    <link rel="stylesheet" href="_static/primer-markdown/dist/user-content.min.css">
+    <link rel="stylesheet" href="_static/css/syntax.css">
+
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+
+
+    
+    
+    <link rel="author" title="About these documents" href="http://niftools.org/about" />
+    
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    
+    
+    <link rel="search" title="Search" href="search.html" />
+    
+    
+    
+    <link rel="next" title="Installation" href="install.html" />
+    
+    
+    <link rel="prev" title="Welcome to PyFFI!" href="index.html" />
+    
+     
+</head>
+<body data-spy="scroll" data-target="#toc" data-offset="180">
+    
+    <header class="site-header">
+    <div class="container">
+        <nav class="navbar ">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#site-navbar">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    </button>
+                    <a id="site-header-brand" href="./" title="PyFFI">
+                        <img src="_static/logo.png" /> PyFFI
+                    </a>
+                </div>
+
+                <div id="site-navbar" class="collapse navbar-collapse" role="navigation">
+                    <ul class="nav navbar-nav navbar-right">
+                        
+                        <li><a href="http://niftools.org" class=" site-header-nav-item hvr-underline-from-center" target="" title="Home">
+                        Home
+                        </a></li>
+                        
+                        
+                        
+                        <li><a href="http://niftools.org/blog" class="site-header-nav-item hvr-underline-from-center" target="" title="Blog">
+                        Blog
+                        </a></li>
+                        
+                        
+                        <li><a href="./" class=" selected  site-header-nav-item hvr-underline-from-center" target="" title="Documentation">
+                        Documentation
+                        </a></li>
+                        
+                        
+                        <li><a href="http://forum.niftools.org" class=" site-header-nav-item hvr-underline-from-center" target="" title="Forums">
+                        Forums
+                        </a></li>
+                        
+                        
+                        <li><a href="http://niftools.org/about" class="site-header-nav-item hvr-underline-from-center" target="" title="About">
+                        About
+                        </a></li>
+                        
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    </header>
+    
+    <div class="content">
+        <section class="jumbotron geopattern" data-pattern-id="Introduction">
+            <div class="container">
+                <div id="jumbotron-meta-info">
+                    <h1>PyFFI Documentation</h1>
+                    <span class="meta-info">
+                        <span class="mega-octicon octicon-repo"></span>&nbsp;&nbsp;Introduction
+                    </span>
+                </div>
+            </div>
+        </section>
+        <article class="post container" itemscope itemtype="http://schema.org/BlogPosting">
+            <div class="row">
+                <div class="col-md-2 toc-bar">
+                
+                <nav id='toc'>
+                    <!--<span class="octicon octicon-list-unordered"></span>-->
+                    <h3><a href="index.html">Table Of Contents</a></h3>
+                    
+                    <ul>
+<li><a class="reference internal" href="#">Introduction</a><ul>
+<li><a class="reference internal" href="#example-and-problem-description">Example and Problem Description</a></li>
+<li><a class="reference internal" href="#what-is-pyffi">What is PyFFI?</a></li>
+</ul>
+</li>
+</ul>
+
+                    
+                </nav>
+                
+                
+                </div>
+                <div class="col-md-10">
+                    <div class="document">
+                        <div class="documentwrapper">
+                            
+                            <div class="bodywrapper">
+                            
+                            <div class="body" role="main">
+                            
+  <div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="example-and-problem-description">
+<h2>Example and Problem Description<a class="headerlink" href="#example-and-problem-description" title="Permalink to this headline">¶</a></h2>
+<p>Consider an application which processes images stored in for instance
+the Targa format:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># read the file</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stream</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;tests/tga/test.tga&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">(</span><span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">())</span> <span class="c1"># read bytes</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stream</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># do something with the data...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="o">=</span> <span class="mi">20</span> <span class="c1"># change x origin</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="mi">20</span> <span class="c1"># change y origin</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># etc... until we are finished processing the data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># write the file</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tempfile</span> <span class="k">import</span> <span class="n">TemporaryFile</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stream</span> <span class="o">=</span> <span class="n">TemporaryFile</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dummy</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="c1"># py3k returns number of bytes written</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stream</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This methodology will work for any file format, but it is usually not
+very convenient. For complex file formats, the <em>do something with the
+data</em> part of the program would be necessarily quite complicated for
+the programmer. For this reason, it is convenient to convert the data
+(a sequence of bytes) into an organized collection of Python objects
+(a class suits this purpose perfectly) that clearly reveal what is
+stored in the data. Such organized collection is called an
+<a class="reference internal" href="glossary.html#term-interface"><span class="xref std std-term">interface</span></a>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">struct</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tempfile</span> <span class="k">import</span> <span class="n">TemporaryFile</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">TgaFile</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="sd">&quot;&quot;&quot;A simple class for reading and writing Targa files.&quot;&quot;&quot;</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="sd">&quot;&quot;&quot;Read tga file from stream.&quot;&quot;&quot;</span>
+<span class="gp">... </span>        <span class="n">stream</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">image_id_length</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">colormap_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_type</span><span class="p">,</span> \
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">colormap_index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">colormap_length</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">colormap_size</span><span class="p">,</span> \
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">x_origin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_origin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> \
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">pixel_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">flags</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;BBBHHBHHHHBB&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                                                    <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">18</span><span class="p">))</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">image_id</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_id_length</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">colormap_type</span><span class="p">:</span>
+<span class="gp">... </span>            <span class="bp">self</span><span class="o">.</span><span class="n">colormap</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">... </span>                <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">colormap_size</span> <span class="o">&gt;&gt;</span> <span class="mi">3</span><span class="p">)</span>
+<span class="gp">... </span>                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">colormap_length</span><span class="p">)]</span>
+<span class="gp">... </span>        <span class="k">else</span><span class="p">:</span>
+<span class="gp">... </span>            <span class="bp">self</span><span class="o">.</span><span class="n">colormap</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="p">[[</span><span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pixel_size</span> <span class="o">&gt;&gt;</span> <span class="mi">3</span><span class="p">)</span>
+<span class="gp">... </span>                       <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">)]</span>
+<span class="gp">... </span>                      <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">)]</span>
+<span class="gp">... </span>        <span class="n">stream</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="sd">&quot;&quot;&quot;Read tga file from stream.&quot;&quot;&quot;</span>
+<span class="gp">... </span>        <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
+<span class="gp">... </span>            <span class="n">stream</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="k">else</span><span class="p">:</span>
+<span class="gp">... </span>            <span class="n">stream</span> <span class="o">=</span> <span class="n">TemporaryFile</span><span class="p">()</span>
+<span class="gp">... </span>        <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;&lt;BBBHHBHHHHBB&quot;</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="bp">self</span><span class="o">.</span><span class="n">image_id_length</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">colormap_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_type</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="bp">self</span><span class="o">.</span><span class="n">colormap_index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">colormap_length</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="bp">self</span><span class="o">.</span><span class="n">colormap_size</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="bp">self</span><span class="o">.</span><span class="n">x_origin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_origin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="bp">self</span><span class="o">.</span><span class="n">pixel_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="p">))</span>
+<span class="gp">... </span>        <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_id</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">colormap</span><span class="p">:</span>
+<span class="gp">... </span>            <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">:</span>
+<span class="gp">... </span>            <span class="k">for</span> <span class="n">pixel</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+<span class="gp">... </span>                <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pixel</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="n">stream</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">TgaFile</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># read the file</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;tests/tga/test.tga&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># do something with the data...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">x_origin</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">y_origin</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># etc... until we are finished processing the data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># write the file</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The reading and writing part of the code has become a lot more
+complicated, but the benefit is immediately clear: instead of working
+with a sequence of bytes, we can directly work with the members of our
+<code class="docutils literal"><span class="pre">TgaFile</span></code> class, and our code no longer depends on how exactly image
+data is organized in a Targa file. In other words,
+our code can now use the semantics of the
+<code class="docutils literal"><span class="pre">TgaFile</span></code> class, and is consequently much easier to understand and
+to maintain.</p>
+<p>In practice, however, when taking the above approach as given, the
+additional code that enables this semantic translation is often
+difficult to maintain, for the following reasons:</p>
+<ul class="simple">
+<li><strong>Duplication:</strong> Any change in the reader part must be reflected in
+the writer part, and vice versa. Moreover, the same data types tend
+to occur again and again, leading to nearly identical code for each
+read/write operation. A partial solution to this problem would be to
+create an additional class for each data type, each with its read
+and write method.</li>
+<li><strong>No validation:</strong> What if <code class="file docutils literal"><span class="pre">test/tga/test.tga</span></code> is not a Targa
+file at all, or is corrupted? What if <code class="docutils literal"><span class="pre">image_id</span></code> changes length
+but <code class="docutils literal"><span class="pre">image_id_length</span></code> is not updated accordingly? Can we catch
+such bugs and prevent data to become corrupted?</li>
+<li><strong>Boring:</strong> Writing <a class="reference internal" href="glossary.html#term-interface"><span class="xref std std-term">interface</span></a> code gets boring very quickly.</li>
+</ul>
+</div>
+<div class="section" id="what-is-pyffi">
+<h2>What is PyFFI?<a class="headerlink" href="#what-is-pyffi" title="Permalink to this headline">¶</a></h2>
+<p>PyFFI aims to solve all of the above problems:</p>
+<ul class="simple">
+<li>The <a class="reference internal" href="glossary.html#term-interface"><span class="xref std std-term">interface</span></a> classes are <em>generated at runtime</em>, from an
+easy to maintain description of the file format. The generated
+classes provides semantic access to <em>all</em> information in the files.</li>
+<li>Validation is automatically enforced by the generated classes,
+except in a few rare cases when automatic validation might cause
+substantial overhead. These cases are well documented and simply
+require an explicit call to the validation method.</li>
+<li>The generated classes can easily be extended with additional class
+methods, for instance to provide common calculations (for example:
+converting a single pixel into greyscale).</li>
+<li>Very high level functions can be implemented as <a class="reference internal" href="glossary.html#term-spell"><span class="xref std std-term">spell</span></a>s (for
+example: convert a height map into a normal map).</li>
+</ul>
+</div>
+</div>
+
+
+                            </div>
+                            
+                            </div>
+                          
+                        </div>
+                        <div class="clearer"></div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+    
+    <footer class="container">
+        <div class="site-footer">
+            
+            <div class="copyright pull-left">
+                
+                    &#169; Copyright 2012-2017, NifTools.
+                
+                <!-- 请不要更改这一行 方便其他人知道模板的来源 谢谢 -->
+                <!-- Please keep this line to let others know where this theme comes from. Thank you :D -->
+                <!--Powered by <a href="https://github.com/DONGChuan/Yummy-Jekyll">Yummy Jekyll</a> -->
+            </div>
+            
+
+            <div class="pull-middle">
+                
+                <a href="https://github.com/niftools/pyffi" target="_blank" aria-label="PyFFI on GitHub">
+                    <span class="mega-octicon octicon-mark-github" title="GitHub"></span>
+                </a>
+                
+            </div>
+
+            
+            <div class="sphinx pull-right">
+                Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5
+            </div>
+            
+        </div>
+    </footer>
+    
+
+    
+    
+
+    <!-- JS -->
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.2.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/js/script.js"></script>
+    <script type="text/javascript" src="_static/geopattern/js/geopattern.min.js"></script>
+
+    <script>
+        $(document).ready(function(){
+            $('.geopattern').each(function(){
+                var pattern = GeoPattern.generate($(this).data('pattern-id'));
+                $(this).css('background-image', pattern.toDataUrl());
+                //$(this).geopattern($(this).data('pattern-id'));
+            });
+        });
+    </script>
+
+
+    
+</body>
+</html>
