@@ -1,9 +1,9 @@
 PyFFI
 =====
-.. image:: https://img.shields.io/travis/niftools/pyffi/develop.svg?label=Linux%20Build
+.. image:: https://img.shields.io/travis/niftools/pyffi/develop.svg?label=Linux%20Build&logo=travis
     :target: https://travis-ci.org/niftools/pyffi
 
-.. image:: https://img.shields.io/appveyor/ci/neomonkeus/pyffi/develop.svg?label=Windows%20Build
+.. image:: https://img.shields.io/appveyor/ci/neomonkeus/pyffi/develop.svg?label=Windows%20Build&logo=appveyor
     :target: https://ci.appveyor.com/project/neomonkeus/pyffi
 
 .. image:: https://img.shields.io/coveralls/github/niftools/pyffi/develop.svg?label=Coverage
