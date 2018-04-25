@@ -1,0 +1,2 @@
+sphinx;python_version!="3.3.*"
+yummy_sphinx_theme
