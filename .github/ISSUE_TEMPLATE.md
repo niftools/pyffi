@@ -1,4 +1,4 @@
-@niftools/pyffi-reviewer 
+@niftools/pyffi-reviewers
 
 ## Issue Overview 
 [Provide high level overview of the issue and why it is relevant to this repository]

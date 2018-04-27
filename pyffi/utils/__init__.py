@@ -44,6 +44,7 @@
 import os
 from distutils.cmd import Command
 
+
 class BuildDoc(Command): # pragma: no cover
     """
     Distutils command to stop setup.py from throwing errors
@@ -61,9 +62,10 @@ class BuildDoc(Command): # pragma: no cover
     
     def finalize_options(self):
         return
-    
+
     def run(self):
         raise ModuleNotFoundError("Sphinx is not installed")
+
 
 def walk(top, topdown=True, onerror=None, re_filename=None):
     """A variant of os.walk() which also works if top is a file instead of a
@@ -95,6 +97,7 @@ def walk(top, topdown=True, onerror=None, re_filename=None):
                         yield os.path.join(dirpath, filename)
                 else:
                     yield os.path.join(dirpath, filename)
+
 
 # table = "."*32
 # for c in [chr(i) for i in range(32,128)]:

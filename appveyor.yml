@@ -1,11 +1,5 @@
 environment:
   matrix:
-    - PYTHON: "C:\\Python33"
-      PYTHON_VERSION: "3.3"
-      RUN: "%PYTHON%\\python"
-      PIP: "%PYTHON%\\Scripts\\pip"
-      PYTEST: "%PYTHON%\\Scripts\\py.test"
-
     - PYTHON: "C:\\Python34"
       PYTHON_VERSION: "3.4"
       RUN: "%PYTHON%\\python"
@@ -20,12 +14,6 @@ environment:
 
     - PYTHON: "C:\\Python36"
       PYTHON_VERSION: "3.6"
-      RUN: "%PYTHON%\\python"
-      PIP: "%PYTHON%\\Scripts\\pip"
-      PYTEST: "%PYTHON%\\Scripts\\py.test"
-
-    - PYTHON: "C:\\Python33-x64"
-      PYTHON_VERSION: "3.3"
       RUN: "%PYTHON%\\python"
       PIP: "%PYTHON%\\Scripts\\pip"
       PYTEST: "%PYTHON%\\Scripts\\py.test"
@@ -53,10 +41,12 @@ environment:
 
 install:
   - "git submodule update --init --recursive"
-  - "ECHO %PYTHON% %PYTHON_VERSION%%APPVEYOR_BUILD_FOLDER%"
+  - "ECHO %PYTHON%"
+  - "ECHO %PYTHON_VERSION%%APPVEYOR_BUILD_FOLDER%"
   - "set HOME=%APPVEYOR_BUILD_FOLDER%"
-  - "%PIP% install setuptools pip --upgrade"
-  - "%PIP% install check-manifest coveralls nose pytest==3.2.5 pytest-cov twine wheel sphinx yummy_sphinx_theme"
+  - "%PYTHON%\\python -m pip install ."
+  - "%PYTHON%\\python -m pip install .[dev]"
+  - "%PYTHON%\\python -m pip install .[doc]"
   - "cd %HOME%"
 
 test: off

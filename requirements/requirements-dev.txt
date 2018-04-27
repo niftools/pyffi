@@ -3,7 +3,6 @@ coveralls
 nose
 pdbpp
 pyflakes
-pytest
+pytest==3.2.5
 pytest-cov
-sphinx
-yummy_sphinx_theme
+wheel
