@@ -99,6 +99,7 @@ params = dict(
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     packages=PACKAGES,
+    package_data=PACKAGE_DATA,
     scripts=SCRIPTS,
     author=AUTHOR,
     author_email=AUTHOR_EMAIL,
