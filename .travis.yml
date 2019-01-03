@@ -1,19 +1,16 @@
 language: python
+dist: xenial
 
 matrix:
   fast_finish: true
   include:
     - os: linux
-      dist: xenial
       python: 3.4
     - os: linux
-      dist: xenial
       python: 3.5
     - os: linux
-      dist: xenial
       python: 3.6
     - os: linux
-      dist: xenial
       python: 3.7
     - os: linux
       python: nightly
@@ -28,11 +25,11 @@ matrix:
     - os: osx
       osx_image: xcode10.1
       language: generic
-      env: PYTHON=3.6.8
+      env: PYTHON=3.6.7
     - os: osx
       osx_image: xcode10.1
       language: generic
-      env: PYTHON=3.7.2
+      env: PYTHON=3.7.1
 
 before_install: |
   if [ "$TRAVIS_OS_NAME" == "osx" ]; then
@@ -52,7 +49,7 @@ before_install: |
     export PYENV_VERSION=$PYTHON
     export PATH="/Users/travis/.pyenv/shims:${PATH}"
     pyenv virtualenv venv
-    source venv/bin/activate
+    source /Users/travis/.pyenv/versions/3.5.6/envs/venv/bin/activate
     # A manual check that the correct version of Python is running.
     python --version
   fi
