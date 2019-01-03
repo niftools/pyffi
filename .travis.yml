@@ -1,4 +1,4 @@
-dist: trusty
+dist: xenial
 osx_image: xcode10.1
 sudo: false
 language: python
