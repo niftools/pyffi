@@ -21,17 +21,17 @@ Read a KFM file
 >>> for i in range(4): #recurse up to root repo dir
 ...     dirpath = dirname(dirpath)
 >>> repo_root = dirpath
->>> format_root = os.path.join(repo_root, 'tests', 'formats', 'kfm')
->>> file = os.path.join(format_root, 'test.kfm')
+>>> files_dir = os.path.join(repo_root, 'tests', 'spells', 'kfm', 'files')
+>>> file = os.path.join(files_dir, 'test.kfm')
 >>> stream = open(file, 'rb')
 >>> data = KfmFormat.Data()
 >>> data.inspect(stream)
->>> print(data.nif_file_name.decode("ascii"))
-Test.kfm
 >>> data.read(stream)
 >>> stream.close()
+>>> print(data.kfm.nif_file_name.decode("ascii"))
+Test.nif
 >>> # get all animation file names
->>> for anim in data.animations:
+>>> for anim in data.kfm.animations:
 ...     print(anim.kf_file_name.decode("ascii"))
 Test_MD_Idle.kf
 Test_MD_Run.kf
@@ -41,30 +41,30 @@ Test_MD_Die.kf
 Parse all KFM files in a directory tree
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
->>> for stream, data in KfmFormat.walkData(format_root):
+>>> for stream, data in KfmFormat.walkData(files_dir):
 ...     try:
 ...         # the replace call makes the doctest also pass on windows
 ...         os_path = stream.name
-...         split = (os_path.split(os.sep))[-4:]
+...         split = (os_path.split(os.sep))[-5:]
 ...         rejoin = os.path.join(*split).replace("\\\\", "/")
 ...         print("reading %s" % rejoin)
 ...     except Exception:
 ...         print(
 ...             "Warning: read failed due corrupt file,"
 ...             " corrupt format description, or bug.") # doctest: +REPORT_NDIFF
-reading tests/formats/kfm/test.kfm
+reading tests/spells/kfm/files/test.kfm
 
 Create a KFM model from scratch and write to file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 >>> data = KfmFormat.Data()
->>> data.nif_file_name = "Test.nif"
->>> data.num_animations = 4
->>> data.animations.update_size()
->>> data.animations[0].kf_file_name = "Test_MD_Idle.kf"
->>> data.animations[1].kf_file_name = "Test_MD_Run.kf"
->>> data.animations[2].kf_file_name = "Test_MD_Walk.kf"
->>> data.animations[3].kf_file_name = "Test_MD_Die.kf"
+>>> data.kfm.nif_file_name = "Test.nif"
+>>> data.kfm.num_animations = 4
+>>> data.kfm.animations.update_size()
+>>> data.kfm.animations[0].kf_file_name = "Test_MD_Idle.kf"
+>>> data.kfm.animations[1].kf_file_name = "Test_MD_Run.kf"
+>>> data.kfm.animations[2].kf_file_name = "Test_MD_Walk.kf"
+>>> data.kfm.animations[3].kf_file_name = "Test_MD_Die.kf"
 >>> from tempfile import TemporaryFile
 >>> stream = TemporaryFile()
 >>> data.write(stream)
@@ -80,10 +80,12 @@ Get list of versions and games
 0x0200000B
 0x0201000B
 0x0202000B
+0x0202001B
 >>> for game, versions in sorted(KfmFormat.games.items(),
 ...                              key=lambda x: x[0]):
 ...     print("%s " % game + " ".join('0x%08X' % vnum for vnum in versions))
 Civilization IV 0x01000000 0x01024B00 0x0200000B
+Dragonica 0x0202001B
 Emerge 0x0201000B 0x0202000B
 Loki 0x01024B00
 Megami Tensei: Imagine 0x0201000B
@@ -132,14 +134,16 @@ The Guild 2 0x01024B00
 #
 # ***** END LICENSE BLOCK *****
 
-import struct, os, re
+import os
+import re
 
-import pyffi.object_models.xml
+import pyffi.object_models
 import pyffi.object_models.common
+import pyffi.object_models.xml
+import pyffi.object_models.xml.struct_
 from pyffi.object_models.xml.basic import BasicBase
 from pyffi.utils.graph import EdgeFilter
-import pyffi.object_models
-import pyffi.object_models.xml.struct_
+
 
 class KfmFormat(pyffi.object_models.xml.FileFormat):
     """This class implements the kfm file format."""
@@ -156,24 +160,32 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
     # basic types
     int = pyffi.object_models.common.Int
     uint = pyffi.object_models.common.UInt
-    byte = pyffi.object_models.common.UByte # not a typo
+    byte = pyffi.object_models.common.UByte  # not a typo
     char = pyffi.object_models.common.Char
     short = pyffi.object_models.common.Short
     ushort = pyffi.object_models.common.UShort
     float = pyffi.object_models.common.Float
     SizedString = pyffi.object_models.common.SizedString
-    TextString = pyffi.object_models.common.UndecodedData # for text (used by older kfm versions)
+    TextString = pyffi.object_models.common.UndecodedData  # for text (used by older kfm versions)
 
     # implementation of kfm-specific basic types
 
     class HeaderString(BasicBase):
         """The kfm header string."""
+
         def __init__(self, **kwargs):
             BasicBase.__init__(self, **kwargs)
             self._doseol = False
+            self.__value = None
 
         def __str__(self):
             return ';Gamebryo KFM File Version x.x.x.x'
+
+        def get_value(self):
+            return self.__value
+
+        def set_value(self, value):
+            self.__value = value
 
         def get_hash(self, data=None):
             """Return a hash value for this value.
@@ -187,18 +199,19 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
 
             :param stream: The stream to read from.
             :type stream: file
-            :keyword version: The file version.
-            :type version: int
+            :param data: The KfmFormat.Data()
+            :type data: pyffi.formats.kfm.KfmFormat.Data
             """
+
             # get the string we expect
             version_string = self.version_string(data.version)
             # read string from stream
-            hdrstr = stream.read(len(version_string))
+            header_string = stream.read(len(version_string))
             # check if the string is correct
-            if hdrstr != version_string.encode("ascii"):
+            if header_string != version_string.encode("ascii"):
                 raise ValueError(
                     "invalid KFM header: expected '%s' but got '%s'"
-                    % (version_string, hdrstr))
+                    % (version_string, header_string))
             # check eol style
             nextchar = stream.read(1)
             if nextchar == '\x0d'.encode("ascii"):
@@ -209,12 +222,15 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
             if nextchar != '\x0a'.encode("ascii"):
                 raise ValueError(
                     "invalid KFM header: string does not end on \\n or \\r\\n")
+            self.__value = header_string
 
         def write(self, stream, data):
             """Write the header string to stream.
 
             :param stream: The stream to write to.
             :type stream: file
+            :param data: The fileformat data to use
+            :type data: Data
             """
             # write the version string
             stream.write(self.version_string(data.version).encode("ascii"))
@@ -251,13 +267,13 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
             ';Gamebryo KFM File Version 1.2.4b'
             """
             if version == -1 or version is None:
-                raise RuntimeError('no string for version %s'%version)
-            return ";Gamebryo KFM File Version %s"%({
-                0x01000000 : "1.0",
-                0x01024b00 : "1.2.4b",
-                0x0200000b : "2.0.0.0b",
-                0x0201000b : "2.1.0.0b",
-                0x0202000b : "2.2.0.0b" } [version])
+                raise RuntimeError('no string for version %s' % version)
+            return ";Gamebryo KFM File Version %s" % ({
+                0x01000000: "1.0",
+                0x01024b00: "1.2.4b",
+                0x0200000b: "2.0.0.0b",
+                0x0201000b: "2.1.0.0b",
+                0x0202000b: "2.2.0.0b"}[version])
 
     # other types with internal implementation
     class FilePath(SizedString):
@@ -299,7 +315,7 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
             return -1
         for ver_digit in ver_list:
             if (ver_digit | 0xff) > 0xff:
-                return -1 # version not supported
+                return -1  # version not supported
         while len(ver_list) < 4:
             ver_list.append(0)
         return ((ver_list[0] << 24)
@@ -307,9 +323,17 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
                 + (ver_list[2] << 8)
                 + ver_list[3])
 
-    class Header(pyffi.object_models.FileFormat.Data):
+    class Data(pyffi.object_models.FileFormat.Data):
         """A class to contain the actual kfm data."""
-        version = 0x01024B00
+
+        def __init__(self, version=0x0202000b):
+            """Initialize kfm data."""
+
+            # the version numbers are stored outside the header structure
+            self.version = version
+
+            # create new compound
+            self.kfm = KfmFormat.Kfm()
 
         def inspect(self, stream):
             """Quick heuristic check if stream contains KFM data,
@@ -320,33 +344,33 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
             :type stream: file
             """
             pos = stream.tell()
+
             try:
                 hdrstr = stream.readline(64).rstrip()
             finally:
                 stream.seek(pos)
+
             if hdrstr.startswith(";Gamebryo KFM File Version ".encode("ascii")):
                 version_str = hdrstr[27:].decode("ascii")
             else:
                 # not a kfm file
                 raise ValueError("Not a KFM file.")
+
             try:
                 ver = KfmFormat.version_number(version_str)
             except:
                 # version not supported
                 raise ValueError("KFM version not supported.")
+
             if not ver in list(KfmFormat.versions.values()):
                 # unsupported version
                 raise ValueError("KFM version not supported.")
+
             # store version
             self.version = ver
+
             # read header string
-            try:
-                self._header_string_value_.read(stream, self)
-                self._unknown_byte_value_.read(stream, self)
-                self._nif_file_name_value_.read(stream, self)
-                self._master_value_.read(stream, self)
-            finally:
-                stream.seek(pos)
+            stream.seek(pos)
 
         def read(self, stream):
             """Read a kfm file.
@@ -355,9 +379,8 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
             :type stream: ``file``
             """
             # read the file
-            self.inspect(stream) # quick check
-            pyffi.object_models.xml.struct_.StructBase.read(
-                self, stream, self)
+            self.inspect(stream)  # quick check
+            self.kfm.read(stream, self)
 
             # check if we are at the end of the file
             if stream.read(1):
@@ -369,9 +392,9 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
             :param stream: The stream to which to write.
             :type stream: ``file``
             """
+
             # write the file
-            pyffi.object_models.xml.struct_.StructBase.write(
-                self, stream, self)
+            self.kfm.write(stream, self)
 
         # GlobalNode
 
@@ -391,5 +414,3 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
         def get_global_display(self):
             """Display the kf file name."""
             return self.kf_file_name if not self.name else self.name
-
-
