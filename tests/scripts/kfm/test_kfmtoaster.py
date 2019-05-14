@@ -39,7 +39,10 @@ def test_raise():
     pyffi:testlogger:ERROR:EXPT MSG : Not a KFM file.
     pyffi:testlogger:ERROR:If you were running a spell that came with PyFFI
     pyffi:testlogger:ERROR:Please report this issue - https://github.com/niftools/pyffi/issues
-    pyffi.toaster:INFO:Finished.
+    pyffi:testlogger:INFO:=== tests/spells/kfm/files/test.kfm ===
+    pyffi:testlogger:INFO:  --- check_readwrite ---
+    pyffi:testlogger:INFO:  writing to temporary file
+    pyffi:testlogger:INFO:Finished.
     """
 
 
@@ -56,4 +59,15 @@ def test_read_write():
     pyffi.toaster:INFO:      written size:  168
     pyffi.toaster:INFO:      padding:       2
     pyffi.toaster:INFO:Finished.
+    """
+
+
+def test_dump():
+    test_file = kfm_dir + "test.kfm"
+    call_kfmtoaster("--raise", "dump", test_file)
+    """
+    pyffi:testlogger:INFO:=== tests/spells/kfm/files/test.kfm ===
+    pyffi:testlogger:INFO:  --- dump ---
+    pyffi:testlogger:INFO:    <pyffi.formats.kfm.KfmFormat.Data object at ------->
+    pyffi:testlogger:INFO:Finished.
     """

@@ -12,7 +12,7 @@ test_logger.setLevel(logging.DEBUG)
 # Get Handlers
 log_handler = logging.StreamHandler(sys.stdout)
 log_handler.setLevel(logging.DEBUG)
-file_handler = RotatingFileHandler("tests\\test.log", mode='w', backupCount=10)
+file_handler = RotatingFileHandler("tests\\test.log", mode='w', maxBytes=64000000, backupCount=3)
 
 # Set Formatting
 # Make this a better format with more information
