@@ -28,10 +28,10 @@ Read a KFM file
 >>> data.inspect(stream)
 >>> data.read(stream)
 >>> stream.close()
->>> print(data.kfm.nif_file_name.decode("ascii"))
+>>> print(data.nif_file_name.decode("ascii"))
 Test.nif
 >>> # get all animation file names
->>> for anim in data.kfm.animations:
+>>> for anim in data.animations:
 ...     print(anim.kf_file_name.decode("ascii"))
 Test_MD_Idle.kf
 Test_MD_Run.kf
@@ -52,19 +52,20 @@ Parse all KFM files in a directory tree
 ...         print(
 ...             "Warning: read failed due corrupt file,"
 ...             " corrupt format description, or bug.") # doctest: +REPORT_NDIFF
+reading tests/spells/kfm/files/invalid.kfm
 reading tests/spells/kfm/files/test.kfm
 
 Create a KFM model from scratch and write to file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 >>> data = KfmFormat.Data()
->>> data.kfm.nif_file_name = "Test.nif"
->>> data.kfm.num_animations = 4
->>> data.kfm.animations.update_size()
->>> data.kfm.animations[0].kf_file_name = "Test_MD_Idle.kf"
->>> data.kfm.animations[1].kf_file_name = "Test_MD_Run.kf"
->>> data.kfm.animations[2].kf_file_name = "Test_MD_Walk.kf"
->>> data.kfm.animations[3].kf_file_name = "Test_MD_Die.kf"
+>>> data.nif_file_name = "Test.nif"
+>>> data.num_animations = 4
+>>> data.animations.update_size()
+>>> data.animations[0].kf_file_name = "Test_MD_Idle.kf"
+>>> data.animations[1].kf_file_name = "Test_MD_Run.kf"
+>>> data.animations[2].kf_file_name = "Test_MD_Walk.kf"
+>>> data.animations[3].kf_file_name = "Test_MD_Die.kf"
 >>> from tempfile import TemporaryFile
 >>> stream = TemporaryFile()
 >>> data.write(stream)
@@ -176,16 +177,16 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
         def __init__(self, **kwargs):
             BasicBase.__init__(self, **kwargs)
             self._doseol = False
-            self.__value = None
-
-        def __str__(self):
-            return ';Gamebryo KFM File Version x.x.x.x'
+            self.__value = ";Gamebryo KFM File Version x.x.x.x"
 
         def get_value(self):
             return self.__value
 
         def set_value(self, value):
-            self.__value = value
+            if str(value).startswith(";Gamebryo KFM File Version "):
+                self.__value = value
+            else:
+                raise ValueError("")
 
         def get_hash(self, data=None):
             """Return a hash value for this value.
@@ -362,14 +363,14 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
                 # version not supported
                 raise ValueError("KFM version not supported.")
 
-            if not ver in list(KfmFormat.versions.values()):
+            if ver not in list(KfmFormat.versions.values()):
                 # unsupported version
                 raise ValueError("KFM version not supported.")
 
             # store version
             self.version = ver
 
-            # read header string
+            # return stream to starting position
             stream.seek(pos)
 
         def read(self, stream):
@@ -395,6 +396,30 @@ class KfmFormat(pyffi.object_models.xml.FileFormat):
 
             # write the file
             self.kfm.write(stream, self)
+
+        @property
+        def nif_file_name(self):
+            return self.kfm.nif_file_name
+
+        @nif_file_name.setter
+        def nif_file_name(self, value):
+            self.kfm.nif_file_name = value
+
+        @property
+        def animations(self):
+            return self.kfm.animations
+
+        @animations.setter
+        def animations(self, value):
+            self.kfm.animations = value
+
+        @property
+        def num_animations(self):
+            return self.kfm.num_animations
+
+        @num_animations.setter
+        def num_animations(self, value):
+            self.kfm.num_animations = value
 
         # GlobalNode
 
