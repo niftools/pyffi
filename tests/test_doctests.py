@@ -98,8 +98,11 @@ def create_suite():
                   # 'docs-sphinx/intro.rst', #outside of test dir...
                   }
 
-    for path in file_paths:
-        suite.addTest(doctest.DocFileSuite(path))
+    suite.addTest(doctest.DocFileSuite(*file_paths))
+
+    # for path in file_paths:
+    #     test_logger.debug("Adding File to Suite: `%s`", path)
+    #     suite.addTest(doctest.DocFileSuite(path))
 
     # TODO: examples
     # suite.addTest(doctest.DocFileSuite('examples/*.txt'))
