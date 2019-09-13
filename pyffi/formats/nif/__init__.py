@@ -4691,19 +4691,50 @@ class NifFormat(FileFormat):
             normals = [ NifFormat.Vector3() for i in range(self.data.num_vertices) ]
             sumweights = [ 0.0 for i in range(self.data.num_vertices) ]
             skin_offset = skindata.get_transform()
+            # store one transform & rotation per bone
+            bone_transforms = []
             for i, bone_block in enumerate(skininst.bones):
                 bonedata = skindata.bone_list[i]
                 bone_offset = bonedata.get_transform()
                 bone_matrix = bone_block.get_transform(skelroot)
                 transform = bone_offset * bone_matrix * skin_offset
                 scale, rotation, translation = transform.get_scale_rotation_translation()
-                for skinweight in bonedata.vertex_weights:
-                    index = skinweight.index
-                    weight = skinweight.weight
-                    vertices[index] += weight * (self.data.vertices[index] * transform)
-                    if self.data.has_normals:
-                        normals[index] += weight * (self.data.normals[index] * rotation)
-                    sumweights[index] += weight
+                bone_transforms.append( (transform, rotation) )
+            
+            # the usual case
+            if skindata.has_vertex_weights:
+                for i, bone_block in enumerate(skininst.bones):
+                    bonedata = skindata.bone_list[i]
+                    transform, rotation = bone_transforms[i]
+                    for skinweight in bonedata.vertex_weights:
+                        index = skinweight.index
+                        weight = skinweight.weight
+                        vertices[index] += weight * (self.data.vertices[index] * transform)
+                        if self.data.has_normals:
+                            normals[index] += weight * (self.data.normals[index] * rotation)
+                        sumweights[index] += weight
+            # we must get weights from the partition
+            else:
+                skinpartition = skininst.skin_partition
+                for block in skinpartition.skin_partition_blocks:
+                    # get transforms for this block
+                    block_bone_transforms = [bone_transforms[i] for i in block.bones]
+
+                    # go over each vert in this block
+                    for vert_index, vertex_weights, bone_indices in zip(block.vertex_map,
+                                                                        block.vertex_weights,
+                                                                        block.bone_indices):
+                        # skip verts that were already processed in an earlier block
+                        if sumweights[vert_index] != 0.0:
+                            continue
+                        # go over all 4 weight / bone pairs and transform this vert
+                        for weight, b_i in zip(vertex_weights, bone_indices):
+                            if weight > 0.0:
+                                transform, rotation = block_bone_transforms[b_i]
+                                vertices[vert_index] += weight * (self.data.vertices[vert_index] * transform)
+                                if self.data.has_normals:
+                                    normals[vert_index] += weight * (self.data.normals[vert_index] * rotation)
+                                sumweights[vert_index] += weight
 
             for i, s in enumerate(sumweights):
                 if abs(s - 1.0) > 0.01: 
