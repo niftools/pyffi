@@ -40,7 +40,6 @@
 import logging
 import struct
 
-from pyffi.object_models import FileFormat as snakeCase
 from pyffi.object_models.xml.basic import BasicBase
 from pyffi.object_models.editable import EditableComboBox
 
@@ -84,7 +83,7 @@ class _MetaEnumBase(type):
 
         # set enum values as class attributes
         for item, value in zip(cls._enumkeys, cls._enumvalues):
-            setattr(cls, "".join(snakeCase.name_parts(item)), value)
+            setattr(cls, item, value)
 
     def __iter__(cls):
         cls.__i = 0
