@@ -78,7 +78,9 @@ class Expression(object):
     operators = set(('==', '!=', '>=', '<=', '&&', '||', '&', '|', '-', '!',
                      '<', '>', '/', '*', '+'))
 
-    def __init__(self, expr_str, name_filter=None):
+    def __init__(self, expr_str, name_filter=None, operators_dict=None):
+        if operators_dict:
+            expr_str = self.replace_op_dict(expr_str, operators_dict)
         try:
             left, self._op, right = self._partition(expr_str)
             self._left = self._parse(left, name_filter)
@@ -87,6 +89,13 @@ class Expression(object):
             print("error while parsing expression '%s'" % expr_str)
             raise
 
+    def replace_op_dict(self, expr_str, operators_dict):
+        """Update string with content of operator dict."""
+        for op_token, op_str in operators_dict.items():
+            if op_token in expr_str:
+                expr_str = expr_str.replace(op_token, op_str)
+        return expr_str
+        
     def eval(self, data=None):
         """Evaluate the expression to an integer."""
 

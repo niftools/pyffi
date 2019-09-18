@@ -189,12 +189,13 @@ class StructAttribute(object):
     is_abstract = False
     """Whether the attribute is abstract or not (read and written)."""
 
-    def __init__(self, cls, attrs):
+    def __init__(self, cls, attrs, operators):
         """Initialize attribute from the xml attrs dictionary of an
         add tag.
 
         :param cls: The class where all types reside.
-        :param attrs: The xml add tag attribute dictionary."""
+        :param attrs: The xml add tag attribute dictionary.
+        :param operators: A dict containing operator info for Expressions class."""
         # mandatory parameters
         self.displayname = attrs["name"]
         self.name = cls.name_attribute(self.displayname)
@@ -236,13 +237,13 @@ class StructAttribute(object):
                 # conversion failed; not a big problem
                 self.default = None
         if self.arr1:
-            self.arr1 = Expression(self.arr1, cls.name_attribute)
+            self.arr1 = Expression(self.arr1, cls.name_attribute, operators)
         if self.arr2:
-            self.arr2 = Expression(self.arr2, cls.name_attribute)
+            self.arr2 = Expression(self.arr2, cls.name_attribute, operators)
         if self.cond:
-            self.cond = Expression(self.cond, cls.name_attribute)
+            self.cond = Expression(self.cond, cls.name_attribute, operators)
         if self.vercond:
-            self.vercond = Expression(self.vercond, cls.name_attribute)
+            self.vercond = Expression(self.vercond, cls.name_attribute, operators)
         if self.arg:
             try:
                 self.arg = int(self.arg)
@@ -259,7 +260,7 @@ class StructAttribute(object):
 class BitStructAttribute(object):
     """Helper class to collect attribute data of bitstruct bits tags."""
 
-    def __init__(self, cls, attrs):
+    def __init__(self, cls, attrs, operators):
         """Initialize attribute from the xml attrs dictionary of an
         add tag.
 
@@ -280,7 +281,7 @@ class BitStructAttribute(object):
         if self.default:
             self.default = int(self.default)
         if self.cond:
-            self.cond = Expression(self.cond, cls.name_attribute)
+            self.cond = Expression(self.cond, cls.name_attribute, operators)
         if self.userver:
             self.userver = int(self.userver)
         if self.ver1:
@@ -328,7 +329,9 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
     "alias": tag_alias,
     "enum": tag_enum,
     "option": tag_option,
+    # no longer in nif xml
     "bitstruct": tag_bit_struct,
+    # no longer in nif xml
     "struct": tag_struct,
     "bits": tag_bits,
     "add": tag_attribute,
@@ -344,8 +347,8 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
     "operator": tag_operator,
     "bitfield": tag_bitfield,
     "member": tag_member,
-    # seems to behave like option used to do
-    "field": tag_option
+    # seems to behave like option used to do OR rather add?
+    "field": tag_attribute
     }
 
     # for compatibility with niftools
@@ -403,6 +406,8 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         # elements for versions
         self.version_string = None
 
+        self.operators = {}
+
     def pushTag(self, tag):
         """Push tag C{tag} on the stack and make it the current tag.
 
@@ -447,8 +452,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
             try:
                 tag = self.tags_niftools[name]
             except KeyError:
-                # raise XmlError("error unknown element '%s'" % name)
-                print("error unknown element '%s'" % name)
+                raise XmlError("error unknown element '%s'" % name)
 
         # Check the stack, if the stack does not exist then we must be
         # at the root of the xml file, and the tag must be "fileformat".
@@ -477,11 +481,12 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         # string.
         if self.current_tag == self.tag_struct:
             self.pushTag(tag)
+            print(attrs["name"])
             # struct -> attribute
             if tag == self.tag_attribute:
                 # add attribute to class dictionary
                 self.class_dict["_attrs"].append(
-                    StructAttribute(self.cls, attrs))
+                    StructAttribute(self.cls, attrs, self.operators))
             # struct -> version
             elif tag == self.tag_version:
                 # set the version string
@@ -490,8 +495,6 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                     self.version_string)
                 # (class_dict["_games"] is updated when reading the characters)
             else:
-            #     raise XmlError(
-            #         "only add and version tags allowed in struct declaration")
                 print(
                     "only add and version tags allowed in struct declaration")
         elif self.current_tag == self.tag_file:
@@ -615,9 +618,8 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 # self.bitfield_versions = str(attrs["versions"])
 
             else:
-                raise XmlError("""
-expected basic, alias, enum, bitstruct, struct, or version,
-but got %s instead""" % name)
+                raise XmlError(""" expected basic, alias, enum, bitstruct, struct, or version,
+                                but got %s instead""" % name)
 
         elif self.current_tag == self.tag_version:
             raise XmlError("version tag must not contain any sub tags")
@@ -641,10 +643,20 @@ but got %s instead""" % name)
 
         elif self.current_tag == self.tag_token:
             self.pushTag(tag)
+            if tag == self.tag_operator:
+                # this is the symbol that represents the op in nif.xml, eg "#EQ#"
+                op_token = attrs["token"]
+                op_string = attrs["string"]
+                self.operators[op_token] = op_string
+                
         elif self.current_tag == self.tag_bitfield:
             self.pushTag(tag)
         elif self.current_tag == self.tag_option:
             self.pushTag(tag)
+        elif self.current_tag == self.tag_attribute:
+            self.pushTag(tag)
+            if tag == self.tag_default:
+                print("Default")
             # verexpr_token = attrs["token"]
             # verexpr_string = attrs["string"]
             # self.class_dict["_enumkeys"].append(attrs["name"])
@@ -656,7 +668,7 @@ but got %s instead""" % name)
             if tag == self.tag_bits:
                 # mandatory parameters
                 self.class_dict["_attrs"].append(
-                    BitStructAttribute(self.cls, attrs))
+                    BitStructAttribute(self.cls, attrs, self.operators))
             elif tag == self.tag_option:
                 # niftools compatibility, we have a bitflags field
                 # so convert value into numbits
@@ -676,12 +688,12 @@ but got %s instead""" % name)
                             self.cls,
                             dict(name="Reserved Bits %i"
                                  % len(self.class_dict["_attrs"]),
-                                 numbits=numextrabits)))
+                                 numbits=numextrabits), self.operators))
                 # add the actual attribute
                 self.class_dict["_attrs"].append(
                     BitStructAttribute(
                         self.cls,
-                        dict(name=attrs["name"], numbits=1)))
+                        dict(name=attrs["name"], numbits=1), self.operators))
             else:
                 raise XmlError(
                     "only bits tags allowed in struct type declaration")
