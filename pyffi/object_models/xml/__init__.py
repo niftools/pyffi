@@ -308,6 +308,18 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
     tag_struct = 8
     tag_attribute = 9
     tag_bits = 10
+    # new stuff
+    tag_module = 11
+    tag_token = 12
+    tag_verexpr = 13
+    tag_condexpr = 14
+    tag_verset = 15
+    tag_default = 16
+    tag_range = 17
+    tag_global = 18
+    tag_operator = 18
+    tag_bitfield = 19
+    tag_member = 20
 
     tags = {
     "fileformat": tag_file,
@@ -319,7 +331,22 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
     "bitstruct": tag_bit_struct,
     "struct": tag_struct,
     "bits": tag_bits,
-    "add": tag_attribute}
+    "add": tag_attribute,
+    #new stuff
+    "module": tag_module,
+    "token": tag_token,
+    "verexpr": tag_verexpr,
+    "condexpr": tag_condexpr,
+    "verset": tag_verset,
+    "default": tag_default,
+    "range": tag_range,
+    "global": tag_global,
+    "operator": tag_operator,
+    "bitfield": tag_bitfield,
+    "member": tag_member,
+    # seems to behave like option used to do
+    "field": tag_option
+    }
 
     # for compatibility with niftools
     tags_niftools = {
@@ -420,7 +447,8 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
             try:
                 tag = self.tags_niftools[name]
             except KeyError:
-                raise XmlError("error unknown element '%s'" % name)
+                # raise XmlError("error unknown element '%s'" % name)
+                print("error unknown element '%s'" % name)
 
         # Check the stack, if the stack does not exist then we must be
         # at the root of the xml file, and the tag must be "fileformat".
@@ -462,7 +490,9 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                     self.version_string)
                 # (class_dict["_games"] is updated when reading the characters)
             else:
-                raise XmlError(
+            #     raise XmlError(
+            #         "only add and version tags allowed in struct declaration")
+                print(
                     "only add and version tags allowed in struct declaration")
         elif self.current_tag == self.tag_file:
             self.pushTag(tag)
@@ -506,7 +536,10 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 # check the class variables
                 is_template = (attrs.get("istemplate") == "1")
                 if self.basic_class._is_template != is_template:
-                    raise XmlError(
+                    # raise XmlError(
+                    #     'class %s should have _is_template = %s'
+                    #     % (self.class_name, is_template))
+                    print(
                         'class %s should have _is_template = %s'
                         % (self.class_name, is_template))
 
@@ -565,6 +598,21 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 self.cls.versions[self.version_string] = self.cls.version_number(
                     self.version_string)
                 # (self.cls.games is updated when reading the characters)
+            # fileformat -> module
+            elif tag == self.tag_module:
+                self.module_name = str(attrs["name"])
+                self.module_priority = str(attrs["priority"])
+                if "depends" in attrs:
+                    self.module_depends = str(attrs["depends"])
+            # fileformat -> token
+            elif tag == self.tag_token:
+                self.token_name = str(attrs["name"])
+                self.token_attrs = str(attrs["attrs"])
+            # fileformat -> bitfield
+            elif tag == self.tag_bitfield:
+                self.bitfield_name = str(attrs["name"])
+                self.bitfield_storage = str(attrs["storage"])
+                # self.bitfield_versions = str(attrs["versions"])
 
             else:
                 raise XmlError("""
@@ -591,6 +639,18 @@ but got %s instead""" % name)
             self.class_dict["_enumkeys"].append(attrs["name"])
             self.class_dict["_enumvalues"].append(value)
 
+        elif self.current_tag == self.tag_token:
+            self.pushTag(tag)
+        elif self.current_tag == self.tag_bitfield:
+            self.pushTag(tag)
+        elif self.current_tag == self.tag_option:
+            self.pushTag(tag)
+            # verexpr_token = attrs["token"]
+            # verexpr_string = attrs["string"]
+            # self.class_dict["_enumkeys"].append(attrs["name"])
+            # self.class_dict["_enumvalues"].append(value)
+
+
         elif self.current_tag == self.tag_bit_struct:
             self.pushTag(tag)
             if tag == self.tag_bits:
@@ -603,6 +663,9 @@ but got %s instead""" % name)
                 # first, calculate current bit position
                 bitpos = sum(bitattr.numbits
                              for bitattr in self.class_dict["_attrs"])
+                # avoid crash
+                if "value" not in attrs:
+                    return
                 # check if extra bits must be inserted
                 numextrabits = int(attrs["value"]) - bitpos
                 if numextrabits < 0:
@@ -624,7 +687,8 @@ but got %s instead""" % name)
                     "only bits tags allowed in struct type declaration")
 
         else:
-            raise XmlError("unhandled tag %s" % name)
+            # raise XmlError("unhandled tag %s" % name)
+            print("unhandled tag %s" % name)
 
     def endElement(self, name):
         """Called at the end of each xml tag.

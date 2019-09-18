@@ -400,6 +400,8 @@ class NifFormat(FileFormat):
     EPSILON = 0.0001
 
     # basic types
+    uint64 = pyffi.object_models.common.UInt64
+    int64 = pyffi.object_models.common.Int64
     ulittle32 = pyffi.object_models.common.ULittle32
     int = pyffi.object_models.common.Int
     uint = pyffi.object_models.common.UInt
@@ -407,6 +409,7 @@ class NifFormat(FileFormat):
     char = pyffi.object_models.common.Char
     short = pyffi.object_models.common.Short
     ushort = pyffi.object_models.common.UShort
+    hfloat = pyffi.object_models.common.HFloat
     float = pyffi.object_models.common.Float
     BlockTypeIndex = pyffi.object_models.common.UShort
     StringIndex = pyffi.object_models.common.UInt
@@ -415,6 +418,12 @@ class NifFormat(FileFormat):
     # implementation of nif-specific basic types
 
     class StringOffset(pyffi.object_models.common.Int):
+        """This is just an integer with -1 as default value."""
+        def __init__(self, **kwargs):
+            pyffi.object_models.common.Int.__init__(self, **kwargs)
+            self.set_value(-1)
+
+    class NiFixedString(pyffi.object_models.common.Int):
         """This is just an integer with -1 as default value."""
         def __init__(self, **kwargs):
             pyffi.object_models.common.Int.__init__(self, **kwargs)
