@@ -1973,6 +1973,28 @@ class NifFormat(FileFormat):
                        for row in self.as_list())
 
     class Vector3:
+                
+        def assign(self, vec):
+            """ Set this vector to values from another object that supports iteration or x,y,z properties """
+            # see if it is an iterable
+            try:
+                self.x = vec[0]
+                self.y = vec[1]
+                self.z = vec[2]
+            except:
+                if hasattr(vec, "x"):
+                    self.x = vec.x
+                if hasattr(vec, "y"):
+                    self.y = vec.y
+                if hasattr(vec, "z"):
+                    self.z = vec.z
+                
+        def __iter__(self):
+            # just a convenience so we can do: x,y,z = Vector3()
+            yield self.x
+            yield self.y
+            yield self.z
+        
         def as_list(self):
             return [self.x, self.y, self.z]
 

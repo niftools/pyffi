@@ -101,13 +101,13 @@ class MetaFileFormat(pyffi.object_models.MetaFileFormat):
             # which takes care of the class creation
             cls.logger.debug("Parsing %s and generating classes."
                              % xml_file_name)
-            start = time.clock()
+            start = time.time()
             try:
                 parser.parse(xml_file)
             finally:
                 xml_file.close()
             cls.logger.debug("Parsing finished in %.3f seconds."
-                             % (time.clock() - start))
+                             % (time.time() - start))
 
 
 class FileFormat(pyffi.object_models.FileFormat, metaclass=MetaFileFormat):

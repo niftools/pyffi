@@ -520,7 +520,7 @@ class MetaFileFormat(pyffi.object_models.MetaFileFormat):
 
             # parse the XSD file
             cls.logger.debug("Parsing %s and generating classes." % xsdfilename)
-            start = time.clock()
+            start = time.time()
             try:
                 # create nodes for every element in the XSD tree
                 schema = Tree.node_factory(
@@ -535,7 +535,7 @@ class MetaFileFormat(pyffi.object_models.MetaFileFormat):
             # generate attributes
             schema.attribute_walker(cls)
             cls.logger.debug("Parsing finished in %.3f seconds."
-                             % (time.clock() - start))
+                             % (time.time() - start))
 
 class Type(object):
     _node = None
