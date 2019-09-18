@@ -95,7 +95,7 @@ class _MetaEnumBase(type):
             cls.__i += 1
             return (cls._enumkeys[cls.__i-1], cls._enumvalues[cls.__i-1])
         else:
-            raise StopIteration
+            return
 
     def __getitem__(cls, key):
         if key in cls._enumkeys:
