@@ -319,7 +319,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
     tag_range = 17
     tag_global = 18
     tag_operator = 18
-    tag_bitfield = 19
+    # tag_bitfield = 19
     tag_member = 20
 
     tags = {
@@ -345,7 +345,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
     "range": tag_range,
     "global": tag_global,
     "operator": tag_operator,
-    "bitfield": tag_bitfield,
+    "bitfield": tag_bit_struct,
     "member": tag_member,
     # seems to behave like option used to do OR rather add?
     "field": tag_attribute
@@ -586,6 +586,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
             elif tag == self.tag_bit_struct:
                 self.class_bases += (BitStructBase,)
                 self.class_name = attrs["name"]
+                print("BITSTRUCT:",self.class_name)
                 try:
                     numbytes = int(attrs["numbytes"])
                 except KeyError:
@@ -594,6 +595,11 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 self.class_dict = {"_attrs": [], "__doc__": "",
                                   "_numbytes": numbytes,
                                   "__module__": self.cls.__module__}
+            # # fileformat -> bitfield
+            # elif tag == self.tag_bitfield:
+            #     self.bitfield_name = str(attrs["name"])
+            #     self.bitfield_storage = str(attrs["storage"])
+            #     # self.bitfield_versions = str(attrs["versions"])
 
             # fileformat -> version
             elif tag == self.tag_version:
@@ -611,11 +617,6 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
             elif tag == self.tag_token:
                 self.token_name = str(attrs["name"])
                 self.token_attrs = str(attrs["attrs"])
-            # fileformat -> bitfield
-            elif tag == self.tag_bitfield:
-                self.bitfield_name = str(attrs["name"])
-                self.bitfield_storage = str(attrs["storage"])
-                # self.bitfield_versions = str(attrs["versions"])
 
             else:
                 raise XmlError(""" expected basic, alias, enum, bitstruct, struct, or version,
@@ -641,6 +642,15 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
             self.class_dict["_enumkeys"].append(attrs["name"])
             self.class_dict["_enumvalues"].append(value)
 
+        # elif self.current_tag == self.tag_bitfield:
+        #     self.pushTag(tag)
+        #     if not tag == self.tag_member:
+        #         raise XmlError("only member tags allowed in bitfield declaration")
+        #     # member width="3" pos="12" mask="0xF000" name="Test Func" type="StencilTestFunc" default="TEST_GREATER
+        #     self.class_dict["width"] = attrs["width"]
+        #     self.class_dict["pos"] = attrs["pos"]
+        #     self.class_dict["name"].append(attrs["name"])
+
         elif self.current_tag == self.tag_token:
             self.pushTag(tag)
             if tag == self.tag_operator:
@@ -649,8 +659,6 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 op_string = attrs["string"]
                 self.operators[op_token] = op_string
                 
-        elif self.current_tag == self.tag_bitfield:
-            self.pushTag(tag)
         elif self.current_tag == self.tag_option:
             self.pushTag(tag)
         elif self.current_tag == self.tag_attribute:
@@ -666,6 +674,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         elif self.current_tag == self.tag_bit_struct:
             self.pushTag(tag)
             if tag == self.tag_bits:
+                # eg. <bits name="Has Folder Records" numbits="1" default="1" />
                 # mandatory parameters
                 self.class_dict["_attrs"].append(
                     BitStructAttribute(self.cls, attrs, self.operators))
@@ -693,6 +702,12 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 self.class_dict["_attrs"].append(
                     BitStructAttribute(
                         self.cls,
+                        dict(name=attrs["name"], numbits=1), self.operators))
+            # new nif xml    
+            elif tag == self.tag_member:
+
+                self.class_dict["_attrs"].append(
+                    BitStructAttribute(self.cls, 
                         dict(name=attrs["name"], numbits=1), self.operators))
             else:
                 raise XmlError(

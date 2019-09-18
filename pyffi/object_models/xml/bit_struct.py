@@ -68,8 +68,10 @@ class _MetaBitStructBase(type):
             cls._struct = 'H'
         elif cls._numbytes == 4:
             cls._struct = 'I'
+        elif cls._numbytes == 8:
+            cls._struct = 'II'
         else:
-            raise RuntimeError("unsupported bitstruct numbytes")
+            raise RuntimeError("unsupported bitstruct number of bytes: "+str(cls._numbytes))
 
         # template type?
         cls._is_template = False
