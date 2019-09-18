@@ -2,9 +2,7 @@
 
 import os
 import os.path
-
-from nose.tools import assert_equal, assert_raises, assert_almost_equal, raises
-
+from nose.tools import assert_equal, assert_almost_equal, raises
 from tests.scripts.nif import call_niftoaster
 
 nif_dir = "tests/spells/nif/files/"
@@ -102,8 +100,8 @@ def test_prefix_suffix():
     assert_equal(os.path.exists(nif_dir + "pre_test_suf.nif"), True)
     os.remove(nif_dir + "pre_test_suf.nif")
 
-#TODO Move to spell test
 
+#TODO Move to spell test
 def test_check_bhkbodycenter():
     """Test body centre spell"""
     testfile = nif_dir + "test_fix_detachhavoktristripsdata.nif"

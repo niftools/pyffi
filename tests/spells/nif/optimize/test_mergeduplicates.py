@@ -1,31 +1,31 @@
 from tests.scripts.nif import call_niftoaster
+from tests.utils import BaseNifFileTestCase
 
-from . import BaseFileTestCase
 import pyffi
 from pyffi.spells import Toaster
 
 from nose.tools import assert_true, assert_false
 
 
-class TestMergeDuplicatesOptimisation(BaseFileTestCase):
+class TestMergeDuplicatesOptimisationNif(BaseNifFileTestCase):
     # I didn't need setUp and tearDown here..
 
     def setUp(self):
-        super(TestMergeDuplicatesOptimisation, self).setUp()
+        super(TestMergeDuplicatesOptimisationNif, self).setUp()
         self.src_name = "test_opt_mergeduplicates.nif"
-        super(TestMergeDuplicatesOptimisation, self).copyFile()
+        super(TestMergeDuplicatesOptimisationNif, self).copyFile()
 
     def test_non_interactive_opt_merge_duplicates(self):
         call_niftoaster("--raise", "opt_mergeduplicates", "--dry-run", "--noninteractive", "--verbose=1", self.dest_file)
     
 
-class TestMergeDuplicatesGeomOptimisation(BaseFileTestCase):
+class TestMergeDuplicatesGeomOptimisationNif(BaseNifFileTestCase):
     # I didn't need setUp and tearDown here..
 
     def setUp(self):
-        super(TestMergeDuplicatesGeomOptimisation, self).setUp()
+        super(TestMergeDuplicatesGeomOptimisationNif, self).setUp()
         self.src_name = "test_opt_dupgeomdata.nif"
-        super(TestMergeDuplicatesGeomOptimisation, self).copyFile()
+        super(TestMergeDuplicatesGeomOptimisationNif, self).copyFile()
 
     def test_non_interactive_opt_merge_duplicates(self):
         pass
@@ -63,14 +63,14 @@ def has_duplicates(root):
     return False
 
 
-class TestExplicitMergeDuplicatesGeomOptimisation(BaseFileTestCase):
+class TestExplicitMergeDuplicatesGeomOptimisationNif(BaseNifFileTestCase):
     # I didn't need setUp and tearDown here..
 
     def setUp(self):
-        super(TestExplicitMergeDuplicatesGeomOptimisation, self).setUp()
+        super(TestExplicitMergeDuplicatesGeomOptimisationNif, self).setUp()
         self.src_name = "test_opt_mergeduplicates.nif"
-        super(TestExplicitMergeDuplicatesGeomOptimisation, self).copyFile()
-        super(TestExplicitMergeDuplicatesGeomOptimisation, self).readNifData()
+        super(TestExplicitMergeDuplicatesGeomOptimisationNif, self).copyFile()
+        super(TestExplicitMergeDuplicatesGeomOptimisationNif, self).readNifData()
 
     def test_non_interactive_opt_merge_duplicates(self):
         # check that there are duplicates

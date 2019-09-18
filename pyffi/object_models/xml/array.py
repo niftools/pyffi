@@ -45,11 +45,12 @@ import weakref
 
 from pyffi.utils.graph import DetailNode, EdgeFilter
 
+
 class _ListWrap(list, DetailNode):
     """A wrapper for list, which uses get_value and set_value for
     getting and setting items of the basic type."""
 
-    def __init__(self, element_type, parent = None):
+    def __init__(self, element_type, parent=None):
         self._parent = weakref.ref(parent) if parent else None
         self._elementType = element_type
         # we link to the unbound methods (that is, self.__class__.xxx
@@ -119,20 +120,21 @@ class _ListWrap(list, DetailNode):
         """Yield child names."""
         return ("[%i]" % row for row in range(list.__len__(self)))
 
+
 class Array(_ListWrap):
     """A general purpose class for 1 or 2 dimensional arrays consisting of
     either BasicBase or StructBase elements."""
 
     logger = logging.getLogger("pyffi.nif.data.array")
-    arg = None # default argument
+    arg = None  # default argument
 
     def __init__(
-        self,
-        element_type = None,
-        element_type_template = None,
-        element_type_argument = None,
-        count1 = None, count2 = None,
-        parent = None):
+            self,
+            element_type=None,
+            element_type_template=None,
+            element_type_argument=None,
+            count1=None, count2=None,
+            parent=None):
         """Initialize the array type.
 
         :param element_type: The class describing the type of each element.
@@ -147,10 +149,10 @@ class Array(_ListWrap):
             array is an attribute of."""
         if count2 is None:
             _ListWrap.__init__(self,
-                               element_type = element_type, parent = parent)
+                               element_type=element_type, parent=parent)
         else:
             _ListWrap.__init__(self,
-                               element_type = _ListWrap, parent = parent)
+                               element_type=_ListWrap, parent=parent)
         self._elementType = element_type
         self._parent = weakref.ref(parent) if parent else None
         self._elementTypeTemplate = element_type_template
@@ -161,32 +163,30 @@ class Array(_ListWrap):
         if self._count2 is None:
             for i in range(self._len1()):
                 elem_instance = self._elementType(
-                        template = self._elementTypeTemplate,
-                        argument = self._elementTypeArgument,
-                        parent = self)
+                    template=self._elementTypeTemplate,
+                    argument=self._elementTypeArgument,
+                    parent=self)
                 self.append(elem_instance)
         else:
             for i in range(self._len1()):
-                elem = _ListWrap(element_type = element_type, parent = self)
+                elem = _ListWrap(element_type=element_type, parent=self)
                 for j in range(self._len2(i)):
                     elem_instance = self._elementType(
-                            template = self._elementTypeTemplate,
-                            argument = self._elementTypeArgument,
-                            parent = elem)
+                        template=self._elementTypeTemplate,
+                        argument=self._elementTypeArgument,
+                        parent=elem)
                     elem.append(elem_instance)
                 self.append(elem)
 
     def _len1(self):
-        """The length the array should have, obtained by evaluating
-        the count1 expression."""
+        """The length the array should have, obtained by evaluating the count1 expression."""
         if self._parent is None:
             return self._count1.eval()
         else:
             return self._count1.eval(self._parent())
 
     def _len2(self, index1):
-        """The length the array should have, obtained by evaluating
-        the count2 expression."""
+        """The length the array should have, obtained by evaluating the count2 expression."""
         if self._count2 is None:
             raise ValueError('single array treated as double array (bug?)')
         if self._parent is None:
@@ -199,8 +199,7 @@ class Array(_ListWrap):
             return expr[index1]
 
     def deepcopy(self, block):
-        """Copy attributes from a given array which needs to have at least as
-        many elements (possibly more) as self."""
+        """Copy attributes from a given array which needs to have at least as many elements (possibly more) as self."""
         if self._count2 is None:
             for i in range(self._len1()):
                 attrvalue = self[i]
@@ -259,16 +258,16 @@ class Array(_ListWrap):
             if new_size < old_size:
                 del self[new_size:old_size]
             else:
-                for i in range(new_size-old_size):
+                for i in range(new_size - old_size):
                     elem = self._elementType(
-                        template = self._elementTypeTemplate,
-                        argument = self._elementTypeArgument)
+                        template=self._elementTypeTemplate,
+                        argument=self._elementTypeArgument)
                     self.append(elem)
         else:
             if new_size < old_size:
                 del self[new_size:old_size]
             else:
-                for i in range(new_size-old_size):
+                for i in range(new_size - old_size):
                     self.append(_ListWrap(self._elementType))
             for i, elemlist in enumerate(list.__iter__(self)):
                 old_size_i = len(elemlist)
@@ -276,10 +275,10 @@ class Array(_ListWrap):
                 if new_size_i < old_size_i:
                     del elemlist[new_size_i:old_size_i]
                 else:
-                    for j in range(new_size_i-old_size_i):
+                    for j in range(new_size_i - old_size_i):
                         elem = self._elementType(
-                            template = self._elementTypeTemplate,
-                            argument = self._elementTypeArgument)
+                            template=self._elementTypeTemplate,
+                            argument=self._elementTypeArgument)
                         elemlist.append(elem)
 
     def read(self, stream, data):
@@ -298,9 +297,9 @@ class Array(_ListWrap):
         if self._count2 is None:
             for i in range(len1):
                 elem = self._elementType(
-                    template = self._elementTypeTemplate,
-                    argument = self._elementTypeArgument,
-                    parent = self)
+                    template=self._elementTypeTemplate,
+                    argument=self._elementTypeArgument,
+                    parent=self)
                 elem.read(stream, data)
                 self.append(elem)
         else:
@@ -308,12 +307,12 @@ class Array(_ListWrap):
                 len2i = self._len2(i)
                 if len2i > 0x10000000:
                     raise ValueError('array too long (%i)' % len2i)
-                elemlist = _ListWrap(self._elementType, parent = self)
+                elemlist = _ListWrap(self._elementType, parent=self)
                 for j in range(len2i):
                     elem = self._elementType(
-                        template = self._elementTypeTemplate,
-                        argument = self._elementTypeArgument,
-                        parent = elemlist)
+                        template=self._elementTypeTemplate,
+                        argument=self._elementTypeArgument,
+                        parent=elemlist)
                     elem.read(stream, data)
                     elemlist.append(elem)
                 self.append(elemlist)
@@ -323,8 +322,8 @@ class Array(_ListWrap):
         self._elementTypeArgument = self.arg
         len1 = self._len1()
         if len1 != self.__len__():
-            raise ValueError('array size (%i) different from to field \
-describing number of elements (%i)'%(self.__len__(),len1))
+            raise ValueError('array size (%i) different from to field describing number of elements (%i)' %
+                             (self.__len__(), len1))
         if len1 > 0x10000000:
             raise ValueError('array too long (%i)' % len1)
         if self._count2 is None:
@@ -334,8 +333,8 @@ describing number of elements (%i)'%(self.__len__(),len1))
             for i, elemlist in enumerate(list.__iter__(self)):
                 len2i = self._len2(i)
                 if len2i != elemlist.__len__():
-                    raise ValueError("array size (%i) different from to field \
-describing number of elements (%i)"%(elemlist.__len__(),len2i))
+                    raise ValueError("array size (%i) different from to field describing number of elements (%i)" %
+                                     (elemlist.__len__(), len2i))
                 if len2i > 0x10000000:
                     raise ValueError('array too long (%i)' % len2i)
                 for elem in list.__iter__(elemlist):
@@ -405,6 +404,7 @@ describing number of elements (%i)"%(elemlist.__len__(),len2i))
             for elemlist in list.__iter__(self):
                 for elem in list.__iter__(elemlist):
                     yield elem
+
 
 from pyffi.object_models.xml.basic import BasicBase
 from pyffi.object_models.xml.struct_ import StructBase

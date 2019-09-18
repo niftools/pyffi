@@ -89,22 +89,7 @@ def create_suite():
             test_logger.debug(str(mod) + "does not have a test suite")
             pass
 
-    file_paths = {'formats/cgf/cgftoaster.txt',
-                  'spells/nif/dump_tex.txt',
-                  'spells/nif/ffvt3rskin.txt',
-                  'spells/nif/fix_clampmaterialalpha.txt',
-                  'spells/nif/fix_cleanstringpalette.txt',
-                  'spells/nif/fix_detachhavoktristripsdata.txt',
-                  'spells/nif/fix_tangentspace.txt',
-                  'spells/nif/fix_tangentspace_series_parallel.txt',
-                  'spells/nif/fix_texturepath.txt',
-                  'spells/nif/modify_allbonepriorities.txt',
-                  'spells/nif/modify_delbranches.txt',
-                  'spells/nif/modify_delvertexcolor.txt',
-                  'spells/nif/modify_substitutestringpalette.txt',
-                  'spells/nif/opt_delunusedbones.txt',
-                  'spells/nif/opt_delzeroscale.txt',
-                  'spells/nif/opt_vertex_cache.txt',
+    file_paths = {
 
                   # Contain outstanding issues
                   # 'spells/egm/optimize.txt',
