@@ -1842,9 +1842,9 @@ chunk size mismatch when reading %s at 0x%08X
                 for face in self.faces:
                     yield face.v_0, face.v_1, face.v_2
             elif self.indices_data:
-                it = iter(self.indices_data.indices)
-                while True:
-                   yield next(it), next(it), next(it)
+                inds = self.indices_data.indices
+                for i in range(0, len(inds), 3):
+                   yield inds[i], inds[i+1], inds[i+2]
 
         def get_material_indices(self):
             """Generator for all materials (per triangle)."""
