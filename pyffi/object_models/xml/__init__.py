@@ -189,13 +189,12 @@ class StructAttribute(object):
     is_abstract = False
     """Whether the attribute is abstract or not (read and written)."""
 
-    def __init__(self, cls, attrs, operators):
+    def __init__(self, cls, attrs):
         """Initialize attribute from the xml attrs dictionary of an
         add tag.
 
         :param cls: The class where all types reside.
-        :param attrs: The xml add tag attribute dictionary.
-        :param operators: A dict containing operator info for Expressions class."""
+        :param attrs: The xml add tag attribute dictionary."""
         # mandatory parameters
         self.displayname = attrs["name"]
         self.name = cls.name_attribute(self.displayname)
@@ -237,13 +236,13 @@ class StructAttribute(object):
                 # conversion failed; not a big problem
                 self.default = None
         if self.arr1:
-            self.arr1 = Expression(self.arr1, cls.name_attribute, operators)
+            self.arr1 = Expression(self.arr1, cls.name_attribute)
         if self.arr2:
-            self.arr2 = Expression(self.arr2, cls.name_attribute, operators)
+            self.arr2 = Expression(self.arr2, cls.name_attribute)
         if self.cond:
-            self.cond = Expression(self.cond, cls.name_attribute, operators)
+            self.cond = Expression(self.cond, cls.name_attribute)
         if self.vercond:
-            self.vercond = Expression(self.vercond, cls.name_attribute, operators)
+            self.vercond = Expression(self.vercond, cls.name_attribute)
         if self.arg:
             try:
                 self.arg = int(self.arg)
@@ -256,11 +255,10 @@ class StructAttribute(object):
         if self.ver2:
             self.ver2 = cls.version_number(self.ver2)
 
-
 class BitStructAttribute(object):
     """Helper class to collect attribute data of bitstruct bits tags."""
 
-    def __init__(self, cls, attrs, operators):
+    def __init__(self, cls, attrs):
         """Initialize attribute from the xml attrs dictionary of an
         add tag.
 
@@ -281,7 +279,7 @@ class BitStructAttribute(object):
         if self.default:
             self.default = int(self.default)
         if self.cond:
-            self.cond = Expression(self.cond, cls.name_attribute, operators)
+            self.cond = Expression(self.cond, cls.name_attribute)
         if self.userver:
             self.userver = int(self.userver)
         if self.ver1:
@@ -312,13 +310,8 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
     # new stuff
     tag_module = 11
     tag_token = 12
-    tag_verexpr = 13
-    tag_condexpr = 14
-    tag_verset = 15
-    tag_default = 16
-    tag_range = 17
-    tag_global = 18
-    tag_operator = 18
+    # we don't care about the type of token children
+    tag_subtoken = 18
     # tag_bitfield = 19
     tag_member = 20
 
@@ -338,13 +331,13 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
     #new stuff
     "module": tag_module,
     "token": tag_token,
-    "verexpr": tag_verexpr,
-    "condexpr": tag_condexpr,
-    "verset": tag_verset,
-    "default": tag_default,
-    "range": tag_range,
-    "global": tag_global,
-    "operator": tag_operator,
+    "verexpr": tag_subtoken,
+    "condexpr": tag_subtoken,
+    "verset": tag_subtoken,
+    "default": tag_subtoken,
+    "range": tag_subtoken,
+    "global": tag_subtoken,
+    "operator": tag_subtoken,
     "bitfield": tag_bit_struct,
     "member": tag_member,
     # seems to behave like option used to do OR rather add?
@@ -482,12 +475,13 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         # string.
         if self.current_tag == self.tag_struct:
             self.pushTag(tag)
-            print(attrs["name"])
+            attrs = self.replace_tokens(attrs, self.tokens)
+            # print(attrs["name"])
             # struct -> attribute
             if tag == self.tag_attribute:
                 # add attribute to class dictionary
                 self.class_dict["_attrs"].append(
-                    StructAttribute(self.cls, attrs, self.tokens))
+                    StructAttribute(self.cls, attrs))
             # struct -> version
             elif tag == self.tag_version:
                 # set the version string
@@ -617,7 +611,9 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
             # fileformat -> token
             elif tag == self.tag_token:
                 # create a new dict for this token to which we add token - str pairs for replacement
-                self.tokens.append( {} )
+                # also the target attributes that these tokens should be applied to
+                # store both as a tuple
+                self.tokens.append( ( {}, attrs["attrs"].split(" ") ) )
 
             else:
                 raise XmlError(""" expected basic, alias, enum, bitstruct, struct, or version,
@@ -658,27 +654,20 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
             op_token = attrs["token"]
             op_string = attrs["string"]
             # store it
-            self.tokens[-1][op_token] = op_string
+            self.tokens[-1][0][op_token] = op_string
                 
         elif self.current_tag == self.tag_option:
             self.pushTag(tag)
         elif self.current_tag == self.tag_attribute:
             self.pushTag(tag)
-            if tag == self.tag_default:
-                print("Default")
-            # verexpr_token = attrs["token"]
-            # verexpr_string = attrs["string"]
-            # self.class_dict["_enumkeys"].append(attrs["name"])
-            # self.class_dict["_enumvalues"].append(value)
-
-
         elif self.current_tag == self.tag_bit_struct:
             self.pushTag(tag)
+            attrs = self.replace_tokens(attrs, self.tokens)
             if tag == self.tag_bits:
                 # eg. <bits name="Has Folder Records" numbits="1" default="1" />
                 # mandatory parameters
                 self.class_dict["_attrs"].append(
-                    BitStructAttribute(self.cls, attrs, self.tokens))
+                    BitStructAttribute(self.cls, attrs))
             elif tag == self.tag_option:
                 # niftools compatibility, we have a bitflags field
                 # so convert value into numbits
@@ -698,18 +687,18 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                             self.cls,
                             dict(name="Reserved Bits %i"
                                  % len(self.class_dict["_attrs"]),
-                                 numbits=numextrabits), self.tokens))
+                                 numbits=numextrabits)))
                 # add the actual attribute
                 self.class_dict["_attrs"].append(
                     BitStructAttribute(
                         self.cls,
-                        dict(name=attrs["name"], numbits=1), self.tokens))
+                        dict(name=attrs["name"], numbits=1)))
             # new nif xml    
             elif tag == self.tag_member:
 
                 self.class_dict["_attrs"].append(
                     BitStructAttribute(self.cls, 
-                        dict(name=attrs["name"], numbits=1), self.tokens))
+                        dict(name=attrs["name"], numbits=1)))
             else:
                 raise XmlError(
                     "only bits tags allowed in struct type declaration")
@@ -828,6 +817,20 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                     attr.cond.map_(
                         lambda x: klass_filter[x] if x in klass_filter else x)
                 
+    def replace_tokens(self, attr_dict, replacers):
+        """Update attr_dict with content of replacers list of dicts."""
+        attr_dict = dict(attr_dict)
+        # replacers is a list of tuples ({tokens}, (target_attribs)) for each <token>
+        for tokens, target_attribs in replacers:
+            for target_attrib in target_attribs:
+                if target_attrib in attr_dict:
+                    expr_str = attr_dict[target_attrib]
+                    for op_token, op_str in tokens.items():
+                        if op_token in expr_str:
+                            expr_str = expr_str.replace(op_token, op_str)
+                    # replace 'member of' operator & update
+                    attr_dict[target_attrib] = expr_str.replace("\\", ".")
+        return attr_dict
 
     def characters(self, chars):
         """Add the string C{chars} to the docstring.
