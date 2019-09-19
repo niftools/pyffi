@@ -78,9 +78,12 @@ class Expression(object):
     operators = set(('==', '!=', '>=', '<=', '&&', '||', '&', '|', '-', '!',
                      '<', '>', '/', '*', '+'))
 
-    def __init__(self, expr_str, name_filter=None, operators_dict=None):
-        if operators_dict:
-            expr_str = self.replace_op_dict(expr_str, operators_dict)
+    def __init__(self, expr_str, name_filter=None, replacers=None):
+        self._expr_str = expr_str
+        self.expr_str = expr_str
+        if replacers:
+            expr_str = self.replace_op_dict(expr_str, replacers)
+            self.expr_str = self.replace_op_dict(expr_str, replacers)
         try:
             left, self._op, right = self._partition(expr_str)
             self._left = self._parse(left, name_filter)
@@ -89,16 +92,21 @@ class Expression(object):
             print("error while parsing expression '%s'" % expr_str)
             raise
 
-    def replace_op_dict(self, expr_str, operators_dict):
-        """Update string with content of operator dict."""
-        for op_token, op_str in operators_dict.items():
-            if op_token in expr_str:
-                expr_str = expr_str.replace(op_token, op_str)
+    def replace_op_dict(self, expr_str, replacers):
+        """Update string with content of replacers list of dicts."""
+        for token in replacers:
+            for op_token, op_str in token.items():
+                if op_token in expr_str:
+                    expr_str = expr_str.replace(op_token, op_str)
+        # replace 'member of' operator
+        expr_str = expr_str.replace("\\", ".")
         return expr_str
         
     def eval(self, data=None):
         """Evaluate the expression to an integer."""
-
+        print(self._expr_str)
+        print(self.expr_str)
+        print(self._left, self._op, self._right)
         if isinstance(self._left, Expression):
             left = self._left.eval(data)
         elif isinstance(self._left, str):

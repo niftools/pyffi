@@ -406,7 +406,8 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
         # elements for versions
         self.version_string = None
 
-        self.operators = {}
+        # a list of dicts that will store each token
+        self.tokens = []
 
     def pushTag(self, tag):
         """Push tag C{tag} on the stack and make it the current tag.
@@ -486,7 +487,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
             if tag == self.tag_attribute:
                 # add attribute to class dictionary
                 self.class_dict["_attrs"].append(
-                    StructAttribute(self.cls, attrs, self.operators))
+                    StructAttribute(self.cls, attrs, self.tokens))
             # struct -> version
             elif tag == self.tag_version:
                 # set the version string
@@ -615,8 +616,8 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                     self.module_depends = str(attrs["depends"])
             # fileformat -> token
             elif tag == self.tag_token:
-                self.token_name = str(attrs["name"])
-                self.token_attrs = str(attrs["attrs"])
+                # create a new dict for this token to which we add token - str pairs for replacement
+                self.tokens.append( {} )
 
             else:
                 raise XmlError(""" expected basic, alias, enum, bitstruct, struct, or version,
@@ -653,11 +654,11 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
 
         elif self.current_tag == self.tag_token:
             self.pushTag(tag)
-            if tag == self.tag_operator:
-                # this is the symbol that represents the op in nif.xml, eg "#EQ#"
-                op_token = attrs["token"]
-                op_string = attrs["string"]
-                self.operators[op_token] = op_string
+            # this is the symbol that represents the operation in nif.xml, eg "#EQ#"
+            op_token = attrs["token"]
+            op_string = attrs["string"]
+            # store it
+            self.tokens[-1][op_token] = op_string
                 
         elif self.current_tag == self.tag_option:
             self.pushTag(tag)
@@ -677,7 +678,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 # eg. <bits name="Has Folder Records" numbits="1" default="1" />
                 # mandatory parameters
                 self.class_dict["_attrs"].append(
-                    BitStructAttribute(self.cls, attrs, self.operators))
+                    BitStructAttribute(self.cls, attrs, self.tokens))
             elif tag == self.tag_option:
                 # niftools compatibility, we have a bitflags field
                 # so convert value into numbits
@@ -697,18 +698,18 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                             self.cls,
                             dict(name="Reserved Bits %i"
                                  % len(self.class_dict["_attrs"]),
-                                 numbits=numextrabits), self.operators))
+                                 numbits=numextrabits), self.tokens))
                 # add the actual attribute
                 self.class_dict["_attrs"].append(
                     BitStructAttribute(
                         self.cls,
-                        dict(name=attrs["name"], numbits=1), self.operators))
+                        dict(name=attrs["name"], numbits=1), self.tokens))
             # new nif xml    
             elif tag == self.tag_member:
 
                 self.class_dict["_attrs"].append(
                     BitStructAttribute(self.cls, 
-                        dict(name=attrs["name"], numbits=1), self.operators))
+                        dict(name=attrs["name"], numbits=1), self.tokens))
             else:
                 raise XmlError(
                     "only bits tags allowed in struct type declaration")
