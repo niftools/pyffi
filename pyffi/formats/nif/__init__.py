@@ -488,6 +488,16 @@ class NifFormat(FileFormat):
                 stream.write(struct.pack(data._byte_order + 'I',
                                          int(self._value)))
 
+    class T(pyffi.object_models.common.UShort):
+        """A dummy class"""
+        def __str__(self):
+            return "Template"
+
+    class ARG(pyffi.object_models.common.UShort):
+        """A dummy class"""
+        def __str__(self):
+            return "ARG"
+
     class Flags(pyffi.object_models.common.UShort):
         def __str__(self):
             return hex(self.get_value())

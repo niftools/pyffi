@@ -827,16 +827,15 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 if target_attrib in attr_dict:
                     expr_str = attr_dict[target_attrib]
                     for op_token, op_str in tokens.items():
-                        if op_token in expr_str:
-                            expr_str = expr_str.replace(op_token, op_str)
-                    expr_str = expr_str.replace("&gt;", ">")
-                    expr_str = expr_str.replace("&lt;", "<")
-                    expr_str = expr_str.replace("&amp;", "&")
-                    # expr_str = expr_str.replace("&amp;", "&")
-                    #LEN[
-                    # replace 'member of' operator & update
-                    attr_dict[target_attrib] = expr_str.replace("\\", ".")
-        # print(attr_dict)
+                        expr_str = expr_str.replace(op_token, op_str)
+                    attr_dict[target_attrib] = expr_str
+        # additional tokens that are not specified by nif.xml
+        fixed_tokens = ( ("\\", "."), ("&gt;", ">"), ("&lt;", "<"), ("&amp;", "&"), ("#T#", "T"), ("#ARG#", "ARG") )
+        for attrib, expr_str in attr_dict.items():
+            for op_token, op_str in fixed_tokens:
+                expr_str = expr_str.replace(op_token, op_str)
+            attr_dict[attrib] = expr_str
+
         return attr_dict
 
     def characters(self, chars):
