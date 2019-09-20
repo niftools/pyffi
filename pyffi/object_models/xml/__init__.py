@@ -581,7 +581,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
             elif tag == self.tag_bit_struct:
                 self.class_bases += (BitStructBase,)
                 self.class_name = attrs["name"]
-                print("BITSTRUCT:",self.class_name)
+                # print("BITSTRUCT:",self.class_name)
                 try:
                     numbytes = int(attrs["numbytes"])
                 except KeyError:
@@ -698,7 +698,7 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
 
                 self.class_dict["_attrs"].append(
                     BitStructAttribute(self.cls, 
-                        dict(name=attrs["name"], numbits=1)))
+                        dict(name=attrs["name"], numbits=attrs["width"])))
             else:
                 raise XmlError(
                     "only bits tags allowed in struct type declaration")
@@ -828,8 +828,14 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                     for op_token, op_str in tokens.items():
                         if op_token in expr_str:
                             expr_str = expr_str.replace(op_token, op_str)
+                    expr_str = expr_str.replace("&gt;", ">")
+                    expr_str = expr_str.replace("&lt;", "<")
+                    expr_str = expr_str.replace("&amp;", "&")
+                    # expr_str = expr_str.replace("&amp;", "&")
+                    #LEN[
                     # replace 'member of' operator & update
                     attr_dict[target_attrib] = expr_str.replace("\\", ".")
+        # print(attr_dict)
         return attr_dict
 
     def characters(self, chars):

@@ -75,7 +75,7 @@ class Expression(object):
     False
     """
 
-    operators = set(('==', '!=', '>=', '<=', '&&', '||', '&', '|', '-', '!',
+    operators = set(('==', '!=', '>=', '<=', '&&', '||', '&', '|', '-', '!', '>>', '<<',
                      '<', '>', '/', '*', '+'))
 
     def __init__(self, expr_str, name_filter=None):
@@ -150,11 +150,18 @@ class Expression(object):
         elif self._op == '<':
             return left < right
         elif self._op == '/':
-            return left / right
+            if right > 0:
+                return left / right
+            else:
+                return 0
         elif self._op == '*':
             return left * right
         elif self._op == '+':
             return left + right
+        elif self._op == '<<':
+            return left << right
+        elif self._op == '>>':
+            return left >> right
         else:
             raise NotImplementedError("expression syntax error: operator '" + self._op + "' not implemented")
 
