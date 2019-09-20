@@ -181,6 +181,10 @@ class StructAttribute(object):
     there is no upper limit.
     """
 
+    vercond = None
+    """The version condition of this member variable, as
+    :class:`Expression` or ``type(None)``.
+    """
     userver = None
     """The user version this member exists, as ``int``, and ``None`` if
     it exists for all user versions.
@@ -223,7 +227,7 @@ class StructAttribute(object):
         self.ver2 = attrs.get("ver2")
         self.userver = attrs.get("userver")
         self.doc = "" # handled in xml parser's characters function
-        self.is_abstract = (attrs.get("abstract") == "1")
+        self.is_abstract = (attrs.get("abstract") in ("1", "true"))
 
         # post-processing
         if self.default:
