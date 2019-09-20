@@ -46,11 +46,11 @@
         A null-terminated string.
     </basic>
 
-    <basic name="Ref" istemplate="1">
+    <basic name="Ref" generic="true">
         A reference to another block.
     </basic>
 
-    <basic name="Ptr" istemplate="1">
+    <basic name="Ptr" generic="true">
         A back-reference to another block (up the hierarchy).
     </basic>
 

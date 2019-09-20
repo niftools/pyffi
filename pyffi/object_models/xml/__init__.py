@@ -514,11 +514,11 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                             % class_basename)
                 else:
                     self.class_bases = (StructBase,)
-                # istemplate attribute is optional
+                # 'generic' attribute is optional
                 # if not set, then the struct is not a template
                 # set attributes (see class StructBase)
                 self.class_dict = {
-                    "_is_template": attrs.get("istemplate") == "1",
+                    "_is_template": attrs.get("generic") == "true",
                     "_attrs": [],
                     "_games": {},
                     "__doc__": "",
@@ -532,12 +532,9 @@ class XmlSaxHandler(xml.sax.handler.ContentHandler):
                 # via the name of the class.
                 self.basic_class = getattr(self.cls, self.class_name)
                 # check the class variables
-                is_template = (attrs.get("istemplate") == "1")
+                is_template = (attrs.get("generic") == "true")
                 if self.basic_class._is_template != is_template:
-                    # raise XmlError(
-                    #     'class %s should have _is_template = %s'
-                    #     % (self.class_name, is_template))
-                    print(
+                    raise XmlError(
                         'class %s should have _is_template = %s'
                         % (self.class_name, is_template))
 
