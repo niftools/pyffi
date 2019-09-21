@@ -374,7 +374,7 @@ class XmlParser:
         # The link between basic types and C{self.cls} types is done via the name of the class.
         basic_class = getattr(self.cls, self.class_name)
         # check the class variables
-        is_template = (basic.attrib.get("generic") == "true")
+        is_template = self.is_generic(basic.attrib)
         if basic_class._is_template != is_template:
             raise XmlError( 'class %s should have _is_template = %s' % (self.class_name, is_template))
 
@@ -442,10 +442,9 @@ class XmlParser:
                 raise XmlError( "typo, or forward declaration of struct %s" % class_basename)
         else:
             self.base_class = StructBase
-        # 'generic' attribute is optional
-        # if not set, then the struct is not a template
         # set attributes (see class StructBase)
-        self.class_dict["_is_template" ] = (attrs.get("generic") == "true")
+        # 'generic' attribute is optional- if not set, then the struct is not a template
+        self.class_dict["_is_template" ] = self.is_generic(attrs)
         self.class_dict["_attrs" ] = []
         self.class_dict["_games" ] = {}
         for field in struct:
@@ -516,6 +515,9 @@ class XmlParser:
 
 
     # the following are helper functions
+    def is_generic(self, attr):
+        # be backward compatible
+        return (attr.get("generic") == "true") or (attr.get("istemplate") == "1")
 
     def update_gamesdict(self, gamesdict, ver_text):
         if ver_text:
