@@ -488,15 +488,10 @@ class NifFormat(FileFormat):
                 stream.write(struct.pack(data._byte_order + 'I',
                                          int(self._value)))
 
-    class T(pyffi.object_models.common.UShort):
+    class TEMPLATE(pyffi.object_models.common.UShort):
         """A dummy class"""
         def __str__(self):
             return "Template"
-
-    class ARG(pyffi.object_models.common.UShort):
-        """A dummy class"""
-        def __str__(self):
-            return "ARG"
 
     class Flags(pyffi.object_models.common.UShort):
         def __str__(self):
@@ -1314,7 +1309,7 @@ class NifFormat(FileFormat):
             self.inspect_version_only(stream)
             logger.debug("Version 0x%08X" % self.version)
             self.header.read(stream, data=self)
-
+            # print(self.header)
             # list of root blocks
             # for versions < 3.3.0.13 this list is updated through the
             # "Top Level Object" string while reading the blocks
@@ -1400,11 +1395,12 @@ class NifFormat(FileFormat):
                 # read the block
                 try:
                     block.read(stream, self)
+                    # print(block)
                 except:
                     logger.exception("Reading %s failed" % block.__class__)
                     #logger.error("link stack: %s" % self._link_stack)
                     #logger.error("block that failed:")
-                    #logger.error("%s" % block)
+                    logger.error("%s" % block)
                     raise
                 # complete NiDataStream data
                 if block_type == "NiDataStream":

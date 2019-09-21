@@ -42,7 +42,7 @@
 
 import re
 import sys  # stderr (for debugging)
-
+import struct
 
 class Expression(object):
     """This class represents an expression.
@@ -82,6 +82,7 @@ class Expression(object):
 
         try:
             left, self._op, right = self._partition(expr_str)
+            # print(left, self._op, right)
             self._left = self._parse(left, name_filter)
             self._right = self._parse(right, name_filter)
         except:
@@ -116,7 +117,11 @@ class Expression(object):
             if (not self._right) or self._right == '""':
                 right = ""
             else:
-                right = getattr(data, self._right)
+                try:
+                    right = getattr(data, self._right)
+                except:
+                    print(self._right,"is not an attribute")
+                    right = self._right
         elif isinstance(self._right, type):
             right = isinstance(data, self._right)
         elif self._right is None:
@@ -124,7 +129,7 @@ class Expression(object):
         else:
             assert (isinstance(self._right, int))  # debug
             right = self._right
-
+        # print(self._left,self._op,right)
         if self._op == '==':
             return left == right
         elif self._op == '!=':
@@ -192,6 +197,11 @@ class Expression(object):
         # failed, so return the string, passed through the name filter
         except ValueError:
             pass
+        # it is a hex string, so return it as such
+        if expr_str.startswith("0x"):
+            hx = expr_str[2:]
+            return struct.pack(">i",int(hx,16))
+            # return struct.unpack('!f', bytes.fromhex(expr_str[2:]))[0]
         m = re.match(r'^([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)$', expr_str)
         if m:
             ver = (
