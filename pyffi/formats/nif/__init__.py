@@ -400,8 +400,6 @@ class NifFormat(FileFormat):
     EPSILON = 0.0001
 
     # basic types
-    uint64 = pyffi.object_models.common.UInt64
-    int64 = pyffi.object_models.common.Int64
     ulittle32 = pyffi.object_models.common.ULittle32
     int = pyffi.object_models.common.Int
     uint = pyffi.object_models.common.UInt
@@ -409,7 +407,6 @@ class NifFormat(FileFormat):
     char = pyffi.object_models.common.Char
     short = pyffi.object_models.common.Short
     ushort = pyffi.object_models.common.UShort
-    hfloat = pyffi.object_models.common.HFloat
     float = pyffi.object_models.common.Float
     BlockTypeIndex = pyffi.object_models.common.UShort
     StringIndex = pyffi.object_models.common.UInt
@@ -418,12 +415,6 @@ class NifFormat(FileFormat):
     # implementation of nif-specific basic types
 
     class StringOffset(pyffi.object_models.common.Int):
-        """This is just an integer with -1 as default value."""
-        def __init__(self, **kwargs):
-            pyffi.object_models.common.Int.__init__(self, **kwargs)
-            self.set_value(-1)
-
-    class NiFixedString(pyffi.object_models.common.Int):
         """This is just an integer with -1 as default value."""
         def __init__(self, **kwargs):
             pyffi.object_models.common.Int.__init__(self, **kwargs)
@@ -487,11 +478,6 @@ class NifFormat(FileFormat):
             else:
                 stream.write(struct.pack(data._byte_order + 'I',
                                          int(self._value)))
-
-    class TEMPLATE(pyffi.object_models.common.UShort):
-        """A dummy class"""
-        def __str__(self):
-            return "Template"
 
     class Flags(pyffi.object_models.common.UShort):
         def __str__(self):
@@ -1309,7 +1295,7 @@ class NifFormat(FileFormat):
             self.inspect_version_only(stream)
             logger.debug("Version 0x%08X" % self.version)
             self.header.read(stream, data=self)
-            # print(self.header)
+
             # list of root blocks
             # for versions < 3.3.0.13 this list is updated through the
             # "Top Level Object" string while reading the blocks
@@ -1395,12 +1381,11 @@ class NifFormat(FileFormat):
                 # read the block
                 try:
                     block.read(stream, self)
-                    # print(block)
                 except:
                     logger.exception("Reading %s failed" % block.__class__)
                     #logger.error("link stack: %s" % self._link_stack)
                     #logger.error("block that failed:")
-                    logger.error("%s" % block)
+                    #logger.error("%s" % block)
                     raise
                 # complete NiDataStream data
                 if block_type == "NiDataStream":

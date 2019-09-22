@@ -45,7 +45,6 @@ import types
 import os.path
 import sys
 import xml.sax
-import xml.etree.ElementTree as ET
 
 import pyffi.object_models
 from pyffi.object_models.xml.struct_    import StructBase
@@ -76,6 +75,7 @@ class MetaFileFormat(pyffi.object_models.MetaFileFormat):
         :param bases: The base classes, usually (object,).
         :param dct: A dictionary of class attributes, such as 'xml_file_name'.
         """
+
         super(MetaFileFormat, cls).__init__(name, bases, dct)
 
         # preparation: make deep copy of lists of enums, structs, etc.
@@ -84,7 +84,10 @@ class MetaFileFormat(pyffi.object_models.MetaFileFormat):
         cls.xml_bit_struct = cls.xml_bit_struct[:]
         cls.xml_struct = cls.xml_struct[:]
 
-        # we check dct to avoid parsing the same file more than once in the hierarchy
+        # parse XML
+
+        # we check dct to avoid parsing the same file more than once in
+        # the hierarchy
         xml_file_name = dct.get('xml_file_name')
         if xml_file_name:
             cls.logger.debug("Parsing %s and generating classes." % xml_file_name)
@@ -98,7 +101,6 @@ class MetaFileFormat(pyffi.object_models.MetaFileFormat):
                 xml_file.close()
 
             cls.logger.debug("Parsing finished in %.3f seconds." % (time.time() - start))
-
 
 
 class FileFormat(pyffi.object_models.FileFormat, metaclass=MetaFileFormat):
@@ -172,10 +174,6 @@ class StructAttribute(object):
     there is no upper limit.
     """
 
-    vercond = None
-    """The version condition of this member variable, as
-    :class:`Expression` or ``type(None)``.
-    """
     userver = None
     """The user version this member exists, as ``int``, and ``None`` if
     it exists for all user versions.
@@ -196,18 +194,19 @@ class StructAttribute(object):
         try:
             attrs_type_str = attrs["type"]
         except KeyError:
-            raise AttributeError("'%s' is missing a type attribute" % self.displayname)
+            raise AttributeError("'%s' is missing a type attribute"
+                                 % self.displayname)
         if attrs_type_str != "TEMPLATE":
             try:
                 self.type_ = getattr(cls, attrs_type_str)
             except AttributeError:
-                # forward declaration, resolved at final_cleanup
+                # forward declaration, resolved at endDocument
                 self.type_ = attrs_type_str
         else:
             self.type_ = type(None) # type determined at runtime
         # optional parameters
         self.default = attrs.get("default")
-        self.template = attrs.get("template") # resolved in final_cleanup
+        self.template = attrs.get("template") # resolved in endDocument
         self.arg = attrs.get("arg")
         self.arr1 = attrs.get("arr1")
         self.arr2 = attrs.get("arr2")
@@ -216,8 +215,8 @@ class StructAttribute(object):
         self.ver1 = attrs.get("ver1")
         self.ver2 = attrs.get("ver2")
         self.userver = attrs.get("userver")
-        self.doc = "" # handled in xml parser
-        self.is_abstract = (attrs.get("abstract") in ("1", "true"))
+        self.doc = "" # handled in xml parser's characters function
+        self.is_abstract = (attrs.get("abstract") == "1")
 
         # post-processing
         if self.default:
@@ -248,6 +247,7 @@ class StructAttribute(object):
             self.ver1 = cls.version_number(self.ver1)
         if self.ver2:
             self.ver2 = cls.version_number(self.ver2)
+
 
 class BitStructAttribute(object):
     """Helper class to collect attribute data of bitstruct bits tags."""
@@ -286,6 +286,7 @@ class XmlError(Exception):
     """The XML handler will throw this exception if something goes wrong while
     parsing."""
     pass
+
 
 
 class XmlParser:

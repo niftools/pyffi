@@ -240,6 +240,9 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
             it is described here.
         :param parent: The parent of this instance, that is, the instance this
             array is an attribute of."""
+        # used to track names of attributes that have already been added
+        # is faster than self.__dict__.has_key(...)
+        names = set()
         # initialize argument
         self.arg = argument
         # save parent (note: disabled for performance)
@@ -250,6 +253,12 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
         self._items = []
         # initialize attributes
         for attr in self._attribute_list:
+            # skip attributes with dupiclate names
+            # (for this to work properly, duplicates must have the same
+            # type, template, argument, arr1, and arr2)
+            if attr.name in names:
+                continue
+            names.add(attr.name)
 
             # things that can only be determined at runtime (rt_xxx)
             rt_type = attr.type_ if attr.type_ != type(None) \
@@ -527,7 +536,7 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
             user_version = None
         names = set()
         for attr in self._attribute_list:
-            # print(attr.name, version, attr.ver1, attr.ver2) # debug
+            #print(attr.name, version, attr.ver1, attr.ver2) # debug
 
             # check version
             if version is not None:
@@ -549,9 +558,7 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
 
             if (version is not None and user_version is not None
                 and attr.vercond is not None):
-                # print("vercond")
                 if not attr.vercond.eval(data):
-                    # print("passed")
                     continue
 
             #print("condition passed") # debug
@@ -560,9 +567,8 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
 
             if attr.name in names:
                 continue
-            # print("duplicate check passed") # debug
+            #print("duplicate check passed") # debug
 
-            # print(attr.name, version, attr.ver1, attr.ver2) # debug
             names.add(attr.name)
             # passed all tests
             # so yield the attribute

@@ -42,7 +42,7 @@
 
 import re
 import sys  # stderr (for debugging)
-import struct
+
 
 class Expression(object):
     """This class represents an expression.
@@ -75,14 +75,12 @@ class Expression(object):
     False
     """
 
-    operators = set(('==', '!=', '>=', '<=', '&&', '||', '&', '|', '-', '!', '>>', '<<',
+    operators = set(('==', '!=', '>=', '<=', '&&', '||', '&', '|', '-', '!',
                      '<', '>', '/', '*', '+'))
 
     def __init__(self, expr_str, name_filter=None):
-
         try:
             left, self._op, right = self._partition(expr_str)
-            # print(left, self._op, right)
             self._left = self._parse(left, name_filter)
             self._right = self._parse(right, name_filter)
         except:
@@ -91,6 +89,7 @@ class Expression(object):
 
     def eval(self, data=None):
         """Evaluate the expression to an integer."""
+
         if isinstance(self._left, Expression):
             left = self._left.eval(data)
         elif isinstance(self._left, str):
@@ -117,11 +116,7 @@ class Expression(object):
             if (not self._right) or self._right == '""':
                 right = ""
             else:
-                try:
-                    right = getattr(data, self._right)
-                except:
-                    print(self._right,"is not an attribute")
-                    right = self._right
+                right = getattr(data, self._right)
         elif isinstance(self._right, type):
             right = isinstance(data, self._right)
         elif self._right is None:
@@ -129,7 +124,7 @@ class Expression(object):
         else:
             assert (isinstance(self._right, int))  # debug
             right = self._right
-        # print(self._left,self._op,right)
+
         if self._op == '==':
             return left == right
         elif self._op == '!=':
@@ -155,18 +150,11 @@ class Expression(object):
         elif self._op == '<':
             return left < right
         elif self._op == '/':
-            if right > 0:
-                return left / right
-            else:
-                return 0
+            return left / right
         elif self._op == '*':
             return left * right
         elif self._op == '+':
             return left + right
-        elif self._op == '<<':
-            return left << right
-        elif self._op == '>>':
-            return left >> right
         else:
             raise NotImplementedError("expression syntax error: operator '" + self._op + "' not implemented")
 
@@ -197,11 +185,6 @@ class Expression(object):
         # failed, so return the string, passed through the name filter
         except ValueError:
             pass
-        # it is a hex string, so return it as such
-        if expr_str.startswith("0x"):
-            hx = expr_str[2:]
-            return struct.pack(">i",int(hx,16))
-            # return struct.unpack('!f', bytes.fromhex(expr_str[2:]))[0]
         m = re.match(r'^([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)$', expr_str)
         if m:
             ver = (
