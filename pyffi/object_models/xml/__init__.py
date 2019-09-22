@@ -44,7 +44,7 @@ import time # for timing stuff
 import types
 import os.path
 import sys
-import xml.sax
+import xml.etree.ElementTree as ET
 
 import pyffi.object_models
 from pyffi.object_models.xml.struct_    import StructBase
