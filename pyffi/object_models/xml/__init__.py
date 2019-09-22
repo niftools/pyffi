@@ -520,9 +520,7 @@ class XmlParser:
             if issubclass(cls_klass, pyffi.object_models.FileFormat.Data):
                 self.cls.Data = cls_klass
             # for the stuff below
-            gen_class = cls_klass
-            # I think the above is a typo, should be:
-            # gen_klass = cls_klass
+            gen_klass = cls_klass
         else:
             # does not yet exist: create it and assign to class dict
             gen_klass = type(self.class_name, (self.base_class,), self.class_dict)
