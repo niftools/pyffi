@@ -94,14 +94,13 @@ class MetaFileFormat(pyffi.object_models.MetaFileFormat):
             # open XML file
             start = time.time()
             xml_file = cls.openfile(xml_file_name, cls.xml_file_path)
-            xmlp = XmlParser(cls, name, bases)
+            xmlp = XmlParser(cls)
             try:
                 xmlp.load_xml(xml_file)
             finally:
                 xml_file.close()
 
             cls.logger.debug("Parsing finished in %.3f seconds." % (time.time() - start))
-
 
 class FileFormat(pyffi.object_models.FileFormat, metaclass=MetaFileFormat):
     """This class can be used as a base class for file formats
@@ -127,61 +126,6 @@ class FileFormat(pyffi.object_models.FileFormat, metaclass=MetaFileFormat):
 class StructAttribute(object):
     """Helper class to collect attribute data of struct add tags."""
 
-    name = None
-    """The name of this member variable."""
-
-    type_ = None
-    """The type of this member variable (type is ``str`` for forward
-    declarations, and resolved to :class:`BasicBase` or
-    :class:`StructBase` later).
-    """
-
-    default = None
-    """The default value of this member variable."""
-
-    template = None
-    """The template type of this member variable (initially ``str``,
-    resolved to :class:`BasicBase` or :class:`StructBase` at the end
-    of the xml parsing), and if there is no template type, then this
-    variable will equal ``type(None)``.
-    """
-
-    arg = None
-    """The argument of this member variable."""
-
-    arr1 = None
-    """The first array size of this member variable, as
-    :class:`Expression` or ``type(None)``.
-    """
-
-    arr2 = None
-    """The second array size of this member variable, as
-    :class:`Expression` or ``type(None)``.
-    """
-
-    cond = None
-    """The condition of this member variable, as
-    :class:`Expression` or ``type(None)``.
-    """
-
-    ver1 = None
-    """The first version this member exists, as ``int``, and ``None`` if
-    there is no lower limit.
-    """
-
-    ver2 = None
-    """The last version this member exists, as ``int``, and ``None`` if
-    there is no upper limit.
-    """
-
-    userver = None
-    """The user version this member exists, as ``int``, and ``None`` if
-    it exists for all user versions.
-    """
-
-    is_abstract = False
-    """Whether the attribute is abstract or not (read and written)."""
-
     def __init__(self, cls, attrs):
         """Initialize attribute from the xml attrs dictionary of an
         add tag.
@@ -189,34 +133,52 @@ class StructAttribute(object):
         :param cls: The class where all types reside.
         :param attrs: The xml add tag attribute dictionary."""
         # mandatory parameters
+
+        # The name of this member variable.
         self.displayname = attrs["name"]
         self.name = cls.name_attribute(self.displayname)
+        # The type of this member variable (type is ``str`` for forward
+        # declarations, and resolved to :class:`BasicBase` or :class:`StructBase` later).
         try:
             attrs_type_str = attrs["type"]
         except KeyError:
-            raise AttributeError("'%s' is missing a type attribute"
-                                 % self.displayname)
+            raise AttributeError("'%s' is missing a type attribute" % self.displayname)
         if attrs_type_str != "TEMPLATE":
             try:
                 self.type_ = getattr(cls, attrs_type_str)
             except AttributeError:
-                # forward declaration, resolved at endDocument
+                # forward declaration, resolved in final_cleanup()
                 self.type_ = attrs_type_str
         else:
-            self.type_ = type(None) # type determined at runtime
+            # type determined at runtime
+            self.type_ = type(None)
         # optional parameters
+
+        # default value of this member variable.
         self.default = attrs.get("default")
-        self.template = attrs.get("template") # resolved in endDocument
+        # template type of this member variable (initially ``str``, resolved in final_cleanup() to :class:`BasicBase` or :class:`StructBase` at the end
+        # of the xml parsing), and if there is no template type, then this variable will equal `None`.
+        self.template = attrs.get("template")
+        # argument of this member variable.
         self.arg = attrs.get("arg")
+        # first array size of this member variable, as :class:`Expression` or `None`.
         self.arr1 = attrs.get("arr1")
+        # second array size of this member variable, as :class:`Expression` or `None`.
         self.arr2 = attrs.get("arr2")
+        # condition of this member variable, as :class:`Expression` or `None`.
         self.cond = attrs.get("cond")
+        # version condition for this member variable
         self.vercond = attrs.get("vercond")
+        # first version this member exists, as `int`, and `None` if there is no lower limit.
         self.ver1 = attrs.get("ver1")
+        # last version this member exists, as `int`, and `None` if there is no upper limit.
         self.ver2 = attrs.get("ver2")
+        # user version this member exists, as `int`, and `None` if it exists for all user versions.
         self.userver = attrs.get("userver")
-        self.doc = "" # handled in xml parser's characters function
-        self.is_abstract = (attrs.get("abstract") == "1")
+        # docstring is handled in xml parser's characters function
+        self.doc = ""
+        # Whether the attribute is abstract or not (read and written).
+        self.is_abstract = (attrs.get("abstract") in ("1", "true"))
 
         # post-processing
         if self.default:
@@ -247,7 +209,6 @@ class StructAttribute(object):
             self.ver1 = cls.version_number(self.ver1)
         if self.ver2:
             self.ver2 = cls.version_number(self.ver2)
-
 
 class BitStructAttribute(object):
     """Helper class to collect attribute data of bitstruct bits tags."""
@@ -281,18 +242,15 @@ class BitStructAttribute(object):
         if self.ver2:
             self.ver2 = cls.version_number(self.ver2)
 
-
 class XmlError(Exception):
     """The XML handler will throw this exception if something goes wrong while
     parsing."""
     pass
 
-
-
 class XmlParser:
     struct_types = ("compound", "niobject", "struct")
     bitstruct_types = ("bitfield", "bitflags", "bitstruct")
-    def __init__(self, cls, name, bases):
+    def __init__(self, cls):
         """Set up the xml parser."""
 
         # initialize dictionaries
