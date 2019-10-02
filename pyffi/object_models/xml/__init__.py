@@ -199,10 +199,11 @@ class StructAttribute(object):
         if self.vercond:
             self.vercond = Expression(self.vercond, cls.name_attribute)
         if self.arg:
-            try:
-                self.arg = int(self.arg)
-            except ValueError:
-                self.arg = cls.name_attribute(self.arg)
+            # try:
+            #     self.arg = int(self.arg)
+            # except ValueError:
+            #     self.arg = cls.name_attribute(self.arg)
+            self.arg = Expression(self.arg, cls.name_attribute)
         if self.userver:
             self.userver = int(self.userver)
         if self.ver1:
@@ -576,6 +577,7 @@ class XmlParser:
                 continue
             # fix templates
             for attr in obj._attrs:
+                # print(attr.name)
                 templ = attr.template
                 if isinstance(templ, str):
                     attr.template =  getattr(self.cls, templ) if templ != "TEMPLATE" else type(None)

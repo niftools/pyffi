@@ -414,6 +414,35 @@ class Float(BasicBase, EditableFloatSpinBox):
         """
         return int(self.get_value()*200)
 
+class HFloat(Float):
+    def read(self, stream, data):
+        """Read value from stream.
+        :param stream: The stream to read from.
+        :type stream: file
+        """
+        self._value = struct.unpack(data._byte_order + 'e',
+                                    stream.read(2))[0]
+
+    def write(self, stream, data):
+        """Write value to stream.
+        :param stream: The stream to write to.
+        :type stream: file
+        """
+        try:
+            stream.write(struct.pack(data._byte_order + 'e',
+                                     self._value))
+        except OverflowError:
+            logger = logging.getLogger("pyffi.object_models")
+            logger.warn("float value overflow, writing zero")
+            stream.write(struct.pack(data._byte_order + 'e',
+                                     0))
+
+    def get_size(self, data=None):
+        """Return number of bytes this type occupies in a file.
+        :return: Number of bytes.
+        """
+        return 2
+
 class ZString(BasicBase, EditableLineEdit):
     """String of variable length (null terminated).
 

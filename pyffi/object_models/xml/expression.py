@@ -43,6 +43,7 @@
 import re
 import sys  # stderr (for debugging)
 
+from pyffi.object_models.xml.bit_struct import BitStructBase
 
 class Expression(object):
     """This class represents an expression.
@@ -75,7 +76,7 @@ class Expression(object):
     False
     """
 
-    operators = set(('==', '!=', '>=', '<=', '&&', '||', '&', '|', '-', '!',
+    operators = set(('==', '!=', '>=', '<=', '&&', '||', '&', '|', '-', '!', '>>', '<<',
                      '<', '>', '/', '*', '+'))
 
     def __init__(self, expr_str, name_filter=None):
@@ -124,7 +125,8 @@ class Expression(object):
         else:
             assert (isinstance(self._right, int))  # debug
             right = self._right
-
+        
+        
         if self._op == '==':
             return left == right
         elif self._op == '!=':
@@ -150,11 +152,29 @@ class Expression(object):
         elif self._op == '<':
             return left < right
         elif self._op == '/':
+            if right > 0:
+                return left / right
+            else:
+                return 0
             return left / right
         elif self._op == '*':
             return left * right
         elif self._op == '+':
             return left + right
+        elif self._op == '<<':
+            # get underlying value for bitstructs
+            if isinstance(left, (BitStructBase,) ):
+                left = left.get_attributes_values(None)
+            if isinstance(right, (BitStructBase,) ):
+                right = right.get_attributes_values(None)
+            return left << right
+        elif self._op == '>>':
+            # get underlying value for bitstructs
+            if isinstance(left, (BitStructBase,) ):
+                left = left.get_attributes_values(None)
+            if isinstance(right, (BitStructBase,) ):
+                right = right.get_attributes_values(None)
+            return left >> right
         else:
             raise NotImplementedError("expression syntax error: operator '" + self._op + "' not implemented")
 
