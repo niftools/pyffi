@@ -1289,7 +1289,11 @@ class NifFormat(FileFormat):
             try:
                 self.inspect_version_only(stream)
                 self.header.read(stream, data=self)
-                self.bs_header = self.header.bs_header
+                # for compatibility during nif xml version transition
+                try:
+                    self.bs_header = self.header.bs_header
+                except:
+                    self.bs_header = None
             finally:
                 stream.seek(pos)
 
