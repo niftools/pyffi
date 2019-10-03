@@ -61,6 +61,7 @@ class _MetaStructBase(type):
         cls._has_refs = getattr(cls, '_has_refs', False)
         # does the type contain a string?
         cls._has_strings = getattr(cls, '_has_strings', False)
+        # attr is a StructAttribute
         for attr in dct.get('_attrs', []):
             # basestring is a forward compound type declaration
             # and issubclass must take a type as first argument
@@ -68,28 +69,23 @@ class _MetaStructBase(type):
             if not isinstance(attr.type_, str) and \
                 issubclass(attr.type_, BasicBase) and attr.arr1 is None:
                 # get and set basic attributes
-                setattr(cls, attr.name, property(
-                    partial(StructBase.get_basic_attribute, name=attr.name),
-                    partial(StructBase.set_basic_attribute, name=attr.name),
-                    doc=attr.doc))
+                fget = partial(StructBase.get_basic_attribute, name=attr.name)
+                fset = partial(StructBase.set_basic_attribute, name=attr.name)
             elif not isinstance(attr.type_, str) and \
                 issubclass(attr.type_, StructBase) and attr.arr1 is None:
                 # get and set struct attributes
-                setattr(cls, attr.name, property(
-                    partial(StructBase.get_attribute, name=attr.name),
-                    partial(StructBase.set_attribute, name=attr.name),
-                    doc=attr.doc))
+                fget = partial(StructBase.get_attribute, name=attr.name)
+                fset = partial(StructBase.set_attribute, name=attr.name)
             elif attr.type_ == type(None) and attr.arr1 is None:
                 # get and set template attributes
-                setattr(cls, attr.name, property(
-                    partial(StructBase.get_template_attribute, name=attr.name),
-                    partial(StructBase.set_template_attribute, name=attr.name),
-                    doc=attr.doc))
+                fget = partial(StructBase.get_template_attribute, name=attr.name)
+                fset = partial(StructBase.set_template_attribute, name=attr.name)
             else:
                 # other types of attributes: get only
-                setattr(cls, attr.name, property(
-                    partial(StructBase.get_attribute, name=attr.name),
-                    doc=attr.doc))
+                fget = partial(StructBase.get_attribute, name=attr.name)
+                fset = None
+            # add getter & setter functions for attr to class
+            setattr(cls, attr.name, property(fget, fset, doc=attr.doc))
 
             # check for links and refs and strings
             if not cls._has_links:
@@ -290,12 +286,14 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
             rt_arg = attr.arg
 
             # instantiate the class, handling arrays at the same time
+            # create a single attribute, no array
             if attr.arr1 == None:
                 attr_instance = rt_type(
                     template = rt_template, argument = rt_arg,
                     parent = self)
                 if attr.default != None:
                     attr_instance.set_value(attr.default)
+            # create a 1D array
             elif attr.arr2 == None:
                 attr_instance = Array(
                     element_type = rt_type,
@@ -303,6 +301,7 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
                     element_type_argument = rt_arg,
                     count1 = attr.arr1,
                     parent = self)
+            # create a 2D array
             else:
                 attr_instance = Array(
                     element_type = rt_type,
@@ -316,6 +315,17 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
 
             # add instance to item list
             self._items.append(attr_instance)
+
+        # per field name, list of all instances that apply
+        self._attr_instance_unions = {}
+        
+        # populate attribute instance unions list
+        for attr, attr_instance in zip(self._attribute_list, self._items):
+            # we encounter a new field name so create a new union list for it
+            if attr.name not in self._attr_instance_unions:
+                self._attr_instance_unions[attr.name] = []
+            # add this instance to union
+            self._attr_instance_unions[attr.name].append(attr_instance)
         
     def deepcopy(self, block):
         """Copy attributes from a given block (one block class must be a
@@ -575,7 +585,7 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
             names.add(attr.name)
 
             # assign attribute value
-            setattr(self, "_%s_value_" % attr.name, attr_instance)
+            # setattr(self, "_%s_value_" % attr.name, attr_instance)
 
             # passed all tests
             # so yield the attribute
@@ -597,6 +607,8 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
                                value.__class__.__name__))
         # set it
         setattr(self, "_" + name + "_value_", value)
+        # for attr in self._attr_instance_unions[name]:
+        #     attr = value
 
     def get_basic_attribute(self, name):
         """Get a basic attribute."""
@@ -606,7 +618,11 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
     # name argument must be last
     def set_basic_attribute(self, value, name):
         """Set the value of a basic attribute."""
-        getattr(self, "_" + name + "_value_").set_value(value)
+        att = getattr(self, "_" + name + "_value_")
+        att.set_value(value)
+
+        # for attr in self._attr_instance_unions[name]:
+        #     attr.set_value(value)
 
     def get_template_attribute(self, name):
         """Get a template attribute."""
