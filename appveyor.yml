@@ -1,11 +1,5 @@
 environment:
   matrix:
-    - PYTHON: "C:\\Python34"
-      PYTHON_VERSION: "3.4"
-      RUN: "%PYTHON%\\python"
-      PIP: "%PYTHON%\\Scripts\\pip"
-      PYTEST: "%PYTHON%\\Scripts\\py.test"
-
     - PYTHON: "C:\\Python35"
       PYTHON_VERSION: "3.5"
       RUN: "%PYTHON%\\python"
@@ -14,12 +8,6 @@ environment:
 
     - PYTHON: "C:\\Python36"
       PYTHON_VERSION: "3.6"
-      RUN: "%PYTHON%\\python"
-      PIP: "%PYTHON%\\Scripts\\pip"
-      PYTEST: "%PYTHON%\\Scripts\\py.test"
-
-    - PYTHON: "C:\\Python34-x64"
-      PYTHON_VERSION: "3.4"
       RUN: "%PYTHON%\\python"
       PIP: "%PYTHON%\\Scripts\\pip"
       PYTEST: "%PYTHON%\\Scripts\\py.test"
