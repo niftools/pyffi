@@ -1,2 +1,2 @@
-sphinx
-yummy_sphinx_theme
+sphinx>=2.0.0
+niftools_sphinx_theme>=0.3.3
