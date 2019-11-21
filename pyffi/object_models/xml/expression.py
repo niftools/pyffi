@@ -76,7 +76,7 @@ class Expression(object):
     """
 
     operators = set(('==', '!=', '>=', '<=', '&&', '||', '&', '|', '-', '!',
-                     '<', '>', '/', '*', '+'))
+                     '<', '>', '/', '*', '+', '%'))
 
     def __init__(self, expr_str, name_filter=None):
         try:
@@ -155,6 +155,8 @@ class Expression(object):
             return left * right
         elif self._op == '+':
             return left + right
+        elif self._op == '%':
+            return left % right
         else:
             raise NotImplementedError("expression syntax error: operator '" + self._op + "' not implemented")
 
@@ -228,7 +230,7 @@ class Expression(object):
         # and if so, find the position of the starting bracket and the ending
         # bracket
         left_startpos, left_endpos = cls._scan_brackets(expr_str)
-        if left_startpos >= 0:
+        if left_startpos == 0:
             # yes, it is a bracketted expression
             # so remove brackets and whitespace,
             # and let that be the left hand side
