@@ -129,33 +129,10 @@ class _MetaStructBase(type):
         # precalculate the attribute list
         # profiling shows that this speeds up most of the StructBase methods
         # that rely on parsing the attribute list
-        
-        # this is a non-unique list of all StructAttributes of this class and its ancestors
-        # may continue more than one StructAttribute of the same name
         cls._attribute_list = cls._get_attribute_list()
 
         # precalculate the attribute name list
-        # list of unique names in the order they must be read
-        cls._names = []
-
-        # per field name, list of all StructAttributes that may apply
-        cls._attribute_unions = {}
-        
-        # populate unions and field names list
-        for attr in cls._attribute_list:
-            # we encounter a new field name so create a new union list for it, and add it to field names
-            if attr.name not in cls._attribute_unions:
-                cls._attribute_unions[attr.name] = []
-                cls._names.append(attr.name)
-            # add this StructAttribute to union
-            cls._attribute_unions[attr.name].append(attr)
-
-        # # debug
-        # if name == "NiNode":
-        #     print(cls._attribute_list )
-        #     print(cls._attribute_unions)
-        #     for name in cls._names:
-        #         print(name, len(cls._attribute_unions[name]) )
+        cls._names = cls._get_names()
 
     def __repr__(cls):
         return "<struct '%s'>"%(cls.__name__)
@@ -265,7 +242,7 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
             array is an attribute of."""
         # used to track names of attributes that have already been added
         # is faster than self.__dict__.has_key(...)
-        # names = set()
+        names = set()
         # initialize argument
         self.arg = argument
         # save parent (note: disabled for performance)
@@ -274,20 +251,22 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
         # this list is used for instance by qskope to display the structure
         # in a tree view
         self._items = []
-
         # initialize attributes
-        # _attribute_list is a list of StructAttributes, including unions of the same name
         for attr in self._attribute_list:
             # skip attributes with dupiclate names
             # (for this to work properly, duplicates must have the same
             # type, template, argument, arr1, and arr2)
-            # if attr.name in names:
-            #     continue
-            # names.add(attr.name)
+            if attr.name in names:
+                continue
+            names.add(attr.name)
+
             # things that can only be determined at runtime (rt_xxx)
-            rt_type = attr.type_ if attr.type_ != type(None) else template
-            rt_template = attr.template if attr.template != type(None) else template
-            rt_arg = attr.arg
+            rt_type = attr.type_ if attr.type_ != type(None) \
+                      else template
+            rt_template = attr.template if attr.template != type(None) \
+                          else template
+            rt_arg = attr.arg if isinstance(attr.arg, (int, type(None))) \
+                     else getattr(self, attr.arg)
 
             # instantiate the class, handling arrays at the same time
             if attr.arr1 == None:
@@ -316,7 +295,7 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
 
             # add instance to item list
             self._items.append(attr_instance)
-        
+
     def deepcopy(self, block):
         """Copy attributes from a given block (one block class must be a
         subclass of the other). Returns self."""
@@ -382,10 +361,12 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
             # skip abstract attributes
             if attr.is_abstract:
                 continue
+            # get attribute argument (can only be done at runtime)
+            rt_arg = attr.arg if isinstance(attr.arg, (int, type(None))) \
+                else getattr(self, attr.arg)
             # read the attribute
             attr_value = getattr(self, "_%s_value_" % attr.name)
-            # get attribute argument (can only be done at runtime)
-            attr_value.arg = attr.arg
+            attr_value.arg = rt_arg
             # if hasattr(attr, "type_"):
             #     attr_value._elementType = attr.type_
             self._log_struct(stream, attr)
@@ -399,11 +380,13 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
             # skip abstract attributes
             if attr.is_abstract:
                 continue
+            # get attribute argument (can only be done at runtime)
+            rt_arg = attr.arg if isinstance(attr.arg, (int, type(None))) \
+                     else getattr(self, attr.arg)
             # write the attribute
             attr_value = getattr(self, "_%s_value_" % attr.name)
-            # get attribute argument (can only be done at runtime)
-            attr_value.arg = attr.arg
-            attr_value.write(stream, data)
+            attr_value.arg = rt_arg
+            getattr(self, "_%s_value_" % attr.name).write(stream, data)
             self._log_struct(stream, attr)
 
     def fix_links(self, data):
@@ -505,7 +488,7 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
 
     @classmethod
     def _get_attribute_list(cls):
-        """Calculate the list of all StructAttributes of this structure, including duplicates."""
+        """Calculate the list of all attributes of this structure."""
         # string of attributes of base classes of cls
         attrs = []
         for base in cls.__bases__:
@@ -513,12 +496,26 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
                 attrs.extend(base._get_attribute_list())
             except AttributeError: # when base class is "object"
                 pass
+        attrs.extend(cls._attrs)
+        return attrs
+
+    @classmethod
+    def _get_names(cls):
+        """Calculate the list of all attributes names in this structure.
+        Skips duplicate names."""
+        # string of attributes of base classes of cls
+        names = []
+        for base in cls.__bases__:
+            try:
+                names.extend(base._get_names())
+            except AttributeError: # when base class is "object"
+                pass
         for attr in cls._attrs:
-            if attr in attrs:
+            if attr.name in names:
                 continue
             else:
-                attrs.append(attr)
-        return attrs
+                names.append(attr.name)
+        return names
 
     def _get_filtered_attribute_list(self, data=None):
         """Generator for listing all 'active' attributes, that is,
@@ -538,7 +535,7 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
             version = None
             user_version = None
         names = set()
-        for attr, attr_instance in zip(self._attribute_list, self._items):
+        for attr in self._attribute_list:
             #print(attr.name, version, attr.ver1, attr.ver2) # debug
 
             # check version
@@ -573,10 +570,6 @@ class StructBase(GlobalNode, metaclass=_MetaStructBase):
             #print("duplicate check passed") # debug
 
             names.add(attr.name)
-
-            # assign attribute value
-            setattr(self, "_%s_value_" % attr.name, attr_instance)
-
             # passed all tests
             # so yield the attribute
             yield attr

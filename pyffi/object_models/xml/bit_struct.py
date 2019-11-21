@@ -68,8 +68,6 @@ class _MetaBitStructBase(type):
             cls._struct = 'H'
         elif cls._numbytes == 4:
             cls._struct = 'I'
-        elif cls._numbytes == 8:
-            cls._struct = 'Q'
         else:
             raise RuntimeError("unsupported bitstruct numbytes")
 

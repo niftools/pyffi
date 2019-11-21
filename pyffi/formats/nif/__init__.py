@@ -400,8 +400,6 @@ class NifFormat(FileFormat):
     EPSILON = 0.0001
 
     # basic types
-    uint64 = pyffi.object_models.common.UInt64
-    int64 = pyffi.object_models.common.Int64
     ulittle32 = pyffi.object_models.common.ULittle32
     int = pyffi.object_models.common.Int
     uint = pyffi.object_models.common.UInt
@@ -410,7 +408,6 @@ class NifFormat(FileFormat):
     short = pyffi.object_models.common.Short
     ushort = pyffi.object_models.common.UShort
     float = pyffi.object_models.common.Float
-    hfloat = pyffi.object_models.common.HFloat
     BlockTypeIndex = pyffi.object_models.common.UShort
     StringIndex = pyffi.object_models.common.UInt
     SizedString = pyffi.object_models.common.SizedString
@@ -423,12 +420,6 @@ class NifFormat(FileFormat):
             pyffi.object_models.common.Int.__init__(self, **kwargs)
             self.set_value(-1)
 
-    class NiFixedString(pyffi.object_models.common.Int):
-        """This is just an integer with -1 as default value."""
-        def __init__(self, **kwargs):
-            pyffi.object_models.common.Int.__init__(self, **kwargs)
-            self.set_value(-1)
-    
     class bool(BasicBase, EditableBoolComboBox):
         """Basic implementation of a 32-bit (8-bit for versions > 4.0.0.2)
         boolean type.
@@ -1289,7 +1280,6 @@ class NifFormat(FileFormat):
             try:
                 self.inspect_version_only(stream)
                 self.header.read(stream, data=self)
-                self.bs_header = self.header.bs_header
             finally:
                 stream.seek(pos)
 
@@ -1302,7 +1292,7 @@ class NifFormat(FileFormat):
             logger = logging.getLogger("pyffi.nif.data")
             # read header
             logger.debug("Reading header at 0x%08X" % stream.tell())
-            self.inspect(stream)
+            self.inspect_version_only(stream)
             logger.debug("Version 0x%08X" % self.version)
             self.header.read(stream, data=self)
 
