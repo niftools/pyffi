@@ -41,7 +41,6 @@ CLASSIFIERS = [
     'Intended Audience :: Developers',
     'Intended Audience :: End Users/Desktop',
     'Topic :: Multimedia :: Graphics :: 3D Modeling',
-    ' Topic :: Formats and Protocols :: Data Formats',
     'Programming Language :: Python',
     'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
