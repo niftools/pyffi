@@ -58,21 +58,22 @@ def triangulate(strips):
 
     for strip in strips:
         if len(strip) < 3: continue # skip empty strips
-        i = strip.__iter__()
-        j = False
-        t1, t2 = next(i), next(i)
-        for k in range(2, len(strip)):
-            j = not j
-            t0, t1, t2 = t1, t2, next(i)
+        # flips the order of verts in every other tri
+        flip = False
+        for i in range(0, len(strip)-2):
+            flip = not flip
+            t0, t1, t2 = strip[i:i+3]
+            # skip degenerate tri
             if t0 == t1 or t1 == t2 or t2 == t0: continue
-            triangles.append((t0, t1, t2) if j else (t0, t2, t1))
+            # append tri in correct order
+            triangles.append((t0, t1, t2) if flip else (t0, t2, t1))
 
     return triangles
 
 def _generate_faces_from_triangles(triangles):
-    i = triangles.__iter__()
-    while True:
-        yield (next(i), next(i), next(i))
+    """Creates faces (tris) from a flat list of non-overlapping triangle indices"""
+    for i in range(0, len(triangles), 3):
+        yield triangles[i], triangles[i+1], triangles[i+2]
 
 def _sort_triangle_indices(triangles):
     """Sorts indices of each triangle so lowest index always comes first.
