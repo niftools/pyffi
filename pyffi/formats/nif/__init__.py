@@ -3344,12 +3344,18 @@ class NifFormat(FileFormat):
             >>> link.get_node_name()
             b'Bip01'
             """
-            if self.node_name:
+            # eg. ZT2
+            if self.target_name:
+                return self.target_name
+            # eg. Fallout
+            elif self.node_name:
                 return self.node_name
+            # eg. Loki (StringPalette)
             else:
                 return self._get_string(self.node_name_offset)
 
         def set_node_name(self, text):
+            self.target_name = text
             self.node_name = text
             self.node_name_offset = self._add_string(text)
 
