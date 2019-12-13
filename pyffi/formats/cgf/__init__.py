@@ -2450,20 +2450,15 @@ chunk size mismatch when reading %s at 0x%08X
             # Far Cry data preparation
             self.num_vertices = numvertices
             self.vertices.update_size()
-            selfvertices_iter = iter(self.vertices)
             self.num_faces = numtriangles
             self.faces.update_size()
-            selffaces_iter = iter(self.faces)
             if not uvslist is None:
                 self.num_uvs = numvertices
                 self.uvs.update_size()
                 self.uv_faces.update_size()
-                selfuvs_iter = iter(self.uvs)
-                selfuv_faces_iter = iter(self.uv_faces)
             if not colorslist is None:
                 self.has_vertex_colors = True
                 self.vertex_colors.update_size()
-                selfvertex_colors_iter = iter(self.vertex_colors)
 
             # Crysis data preparation
             self.num_indices = numtriangles * 3
@@ -2473,14 +2468,12 @@ chunk size mismatch when reading %s at 0x%08X
             self.vertices_data.bytes_per_element = 12
             self.vertices_data.num_elements = numvertices
             self.vertices_data.vertices.update_size()
-            selfvertices_data_iter = iter(self.vertices_data.vertices)
 
             self.normals_data = CgfFormat.DataStreamChunk()
             self.normals_data.data_stream_type = CgfFormat.DataStreamType.NORMALS
             self.normals_data.bytes_per_element = 12
             self.normals_data.num_elements = numvertices
             self.normals_data.normals.update_size()
-            selfnormals_data_iter = iter(self.normals_data.normals)
 
             self.indices_data = CgfFormat.DataStreamChunk()
             self.indices_data.data_stream_type = CgfFormat.DataStreamType.INDICES
@@ -2495,7 +2488,6 @@ chunk size mismatch when reading %s at 0x%08X
                 self.uvs_data.bytes_per_element = 8
                 self.uvs_data.num_elements = numvertices
                 self.uvs_data.uvs.update_size()
-                selfuvs_data_iter = iter(self.uvs_data.uvs)
                 # have tangent space
                 has_tangentspace = True
             else:
@@ -2509,7 +2501,6 @@ chunk size mismatch when reading %s at 0x%08X
                 self.colors_data.bytes_per_element = 4
                 self.colors_data.num_elements = numvertices
                 self.colors_data.rgba_colors.update_size()
-                selfcolors_data_iter = iter(self.colors_data.rgba_colors)
 
             self.num_mesh_subsets = len(verticeslist)
             self.mesh_subsets = CgfFormat.MeshSubsetsChunk()
@@ -2546,8 +2537,7 @@ chunk size mismatch when reading %s at 0x%08X
                 meshsubset.center.z = center[2]
 
                 # set vertex coordinates and normals for Far Cry
-                for vert, norm in zip(vertices, normals):
-                    cryvert = next(selfvertices_iter)
+                for cryvert, vert, norm in zip(self.vertices, vertices, normals):
                     cryvert.p.x = vert[0]
                     cryvert.p.y = vert[1]
                     cryvert.p.z = vert[2]
@@ -2556,9 +2546,9 @@ chunk size mismatch when reading %s at 0x%08X
                     cryvert.n.z = norm[2]
 
                 # set vertex coordinates and normals for Crysis
-                for vert, norm in zip(vertices, normals):
-                    cryvert = next(selfvertices_data_iter)
-                    crynorm = next(selfnormals_data_iter)
+                for cryvert, crynorm, vert, norm in zip(
+                    self.vertices_data.vertices, self.normals_data.normals, vertices, normals):
+                    
                     cryvert.x = vert[0]
                     cryvert.y = vert[1]
                     cryvert.z = vert[2]
@@ -2567,8 +2557,7 @@ chunk size mismatch when reading %s at 0x%08X
                     crynorm.z = norm[2]
 
                 # set Far Cry face info
-                for triangle in triangles:
-                    cryface = next(selffaces_iter)
+                for cryface, triangle in zip(self.faces, triangles):
                     cryface.v_0 = triangle[0] + firstvertexindex
                     cryface.v_1 = triangle[1] + firstvertexindex
                     cryface.v_2 = triangle[2] + firstvertexindex
@@ -2581,34 +2570,29 @@ chunk size mismatch when reading %s at 0x%08X
 
                 if not uvs is None:
                     # set Far Cry uv info
-                    for triangle in triangles:
-                        cryuvface = next(selfuv_faces_iter)
+                    for cryuvface, triangle in zip(self.uv_faces, triangles):
                         cryuvface.t_0 = triangle[0] + firstvertexindex
                         cryuvface.t_1 = triangle[1] + firstvertexindex
                         cryuvface.t_2 = triangle[2] + firstvertexindex
-                    for uv in uvs:
-                        cryuv = next(selfuvs_iter)
+                    for cryuv, uv in zip(self.uvs, uvs):
                         cryuv.u = uv[0]
                         cryuv.v = uv[1]
 
                     # set Crysis uv info
-                    for uv in uvs:
-                        cryuv = next(selfuvs_data_iter)
+                    for cryuv, uv in zip(self.uvs_data.uvs, uvs):
                         cryuv.u = uv[0]
                         cryuv.v = 1.0 - uv[1] # OpenGL fix
 
                 if not colors is None:
                     # set Far Cry color info
-                    for color in colors:
-                        crycolor = next(selfvertex_colors_iter)
+                    for crycolor, color in zip(self.vertex_colors, colors):
                         crycolor.r = color[0]
                         crycolor.g = color[1]
                         crycolor.b = color[2]
                         # note: Far Cry does not support alpha color channel
 
                     # set Crysis color info
-                    for color in colors:
-                        crycolor = next(selfcolors_data_iter)
+                    for crycolor, color in zip(self.colors_data.rgba_colors, colors):
                         crycolor.r = color[0]
                         crycolor.g = color[1]
                         crycolor.b = color[2]
@@ -2640,7 +2624,6 @@ chunk size mismatch when reading %s at 0x%08X
             self.tangents_data.bytes_per_element = 16
             self.tangents_data.num_elements = self.num_vertices
             self.tangents_data.tangents.update_size()
-            selftangents_data_iter = iter(self.tangents_data.tangents)
 
             # set Crysis tangents info
             tangents, binormals, orientations = pyffi.utils.tangentspace.getTangentSpace(
