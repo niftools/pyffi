@@ -58,11 +58,13 @@ def triangulate(strips):
 
     for strip in strips:
         if len(strip) < 3: continue # skip empty strips
+        # make list copy incase input data does not like slice notation
+        strip_list = list(strip)
         # flips the order of verts in every other tri
         flip = False
-        for i in range(0, len(strip)-2):
+        for i in range(0, len(strip_list)-2):
             flip = not flip
-            t0, t1, t2 = strip[i:i+3]
+            t0, t1, t2 = strip_list[i:i+3]
             # skip degenerate tri
             if t0 == t1 or t1 == t2 or t2 == t0: continue
             # append tri in correct order
