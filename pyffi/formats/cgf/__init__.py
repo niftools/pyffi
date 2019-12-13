@@ -1872,9 +1872,9 @@ chunk size mismatch when reading %s at 0x%08X
                     yield uvface.t_0, uvface.t_1, uvface.t_2
             elif self.indices_data:
                 # Crysis: UV triangles coincide with triangles
-                it = iter(self.indices_data.indices)
-                while True:
-                    yield next(it), next(it), next(it)
+                inds = self.indices_data.indices
+                for i in range(0, len(inds), 3):
+                   yield inds[i], inds[i+1], inds[i+2]
 
         ### DEPRECATED: USE set_geometry INSTEAD ###
         def set_vertices_normals(self, vertices, normals):
