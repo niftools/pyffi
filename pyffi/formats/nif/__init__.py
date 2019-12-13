@@ -7011,12 +7011,9 @@ class NifFormat(FileFormat):
             self.has_triangles = (n > 0)
             self.triangles.update_size()
 
-            # copy triangles
-            src = triangles.__iter__()
-            dst = self.triangles.__iter__()
-            for k in range(n):
-                dst_t = next(dst)
-                dst_t.v_1, dst_t.v_2, dst_t.v_3 = next(src)
+            # set triangles to triangles array
+            for dst_t, src_t in zip(self.triangles, triangles):
+                dst_t.v_1, dst_t.v_2, dst_t.v_3 = src_t
 
         def get_strips(self):
             return pyffi.utils.vertex_cache.stripify(self.get_triangles())
