@@ -55,8 +55,8 @@ for root, dirs, files in os.walk(folder):
         print("parsing {0}".format(name))
         with open(os.path.join(root, name), "rb") as csvfile:
             rows = csv.reader(csvfile)
-            header = next(rows)
-            numbers = next(rows)
+            header = rows[0]
+            numbers = rows[1]
             for name, num in zip(header, numbers):
                 name = name.strip()
                 total[root][name].append(float(num))
