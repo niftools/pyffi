@@ -347,8 +347,8 @@ def qhull3d(vertices, precision = 0.0001, verbose = False):
     # as long as there are triangles with outer vertices
     while outer_vertices:
         # grab a triangle and its outer vertices
-        tmp_iter = iter(outer_vertices.items())
-        triangle, outer = next(tmp_iter) # tmp_iter trick to make 2to3 work
+        # trick to make 2to3 work
+        triangle, outer = list(outer_vertices.items())[0]
         # calculate pivot point
         pivot = max(outer)[1]
         if verbose:

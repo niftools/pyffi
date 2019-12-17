@@ -3344,12 +3344,18 @@ class NifFormat(FileFormat):
             >>> link.get_node_name()
             b'Bip01'
             """
-            if self.node_name:
+            # eg. ZT2
+            if self.target_name:
+                return self.target_name
+            # eg. Fallout
+            elif self.node_name:
                 return self.node_name
+            # eg. Loki (StringPalette)
             else:
                 return self._get_string(self.node_name_offset)
 
         def set_node_name(self, text):
+            self.target_name = text
             self.node_name = text
             self.node_name_offset = self._add_string(text)
 
@@ -7005,12 +7011,9 @@ class NifFormat(FileFormat):
             self.has_triangles = (n > 0)
             self.triangles.update_size()
 
-            # copy triangles
-            src = triangles.__iter__()
-            dst = self.triangles.__iter__()
-            for k in range(n):
-                dst_t = next(dst)
-                dst_t.v_1, dst_t.v_2, dst_t.v_3 = next(src)
+            # set triangles to triangles array
+            for dst_t, src_t in zip(self.triangles, triangles):
+                dst_t.v_1, dst_t.v_2, dst_t.v_3 = src_t
 
         def get_strips(self):
             return pyffi.utils.vertex_cache.stripify(self.get_triangles())
