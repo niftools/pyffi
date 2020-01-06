@@ -46,7 +46,7 @@ To get the latest (but possibly unstable) code, clone PyFFI from its
     git clone --recursive git://github.com/niftools/pyffi.git
     virtualenv -p python3 venv
     source venv/bin/activate
-    pip install -r requirements-dev.txt
+    pip install -r requirements/requirements-dev.txt
 
 Be sure to use the --recursive flag to ensure that you also get all
 of the submodules.
