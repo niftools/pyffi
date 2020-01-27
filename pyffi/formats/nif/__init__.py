@@ -407,6 +407,7 @@ class NifFormat(FileFormat):
     char = pyffi.object_models.common.Char
     short = pyffi.object_models.common.Short
     ushort = pyffi.object_models.common.UShort
+    hfloat = pyffi.object_models.common.HFloat
     float = pyffi.object_models.common.Float
     BlockTypeIndex = pyffi.object_models.common.UShort
     StringIndex = pyffi.object_models.common.UInt
