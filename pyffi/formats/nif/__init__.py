@@ -5832,6 +5832,24 @@ class NifFormat(FileFormat):
                 return self.get_hash()[1:] == other.get_hash()[1:]
 
     class ATextureRenderData:
+        def __get_pixeldata_stream(self):
+            if isinstance(self, NifFormat.NiPersistentSrcTextureRendererData):
+                return ''.join(
+                    ''.join([chr(x) for x in tex])
+                    for tex in self.pixel_data)
+            elif isinstance(self, NifFormat.NiPixelData):
+                if self.pixel_data:
+                    # used in older nif versions
+                    return bytearray().join(
+                        bytearray().join([bytearray([x]) for x in tex])
+                        for tex in self.pixel_data)
+                else:
+                    # used in newer nif versions
+                    return ''.join(self.pixel_data_matrix)
+            else:
+                raise ValueError(
+                    "cannot retrieve pixel data when saving pixel format %i as DDS")
+
         def save_as_dds(self, stream):
             """Save image as DDS file."""
             # set up header and pixel data
@@ -5876,12 +5894,7 @@ class NifFormat(FileFormat):
                 header.caps_1.complex = 1
                 header.caps_1.texture = 1
                 header.caps_1.mipmap = 1
-                if self.pixel_data:
-                    # used in older nif versions
-                    pixeldata.set_value(self.pixel_data)
-                else:
-                    # used in newer nif versions
-                    pixeldata.set_value(''.join(self.pixel_data_matrix))
+                pixeldata.set_value(self.__get_pixeldata_stream())
             elif self.pixel_format == NifFormat.PixelFormat.PX_FMT_DXT1:
                 # format used in Megami Tensei: Imagine and Bully SE
                 header.flags.caps = 1
@@ -5904,14 +5917,7 @@ class NifFormat(FileFormat):
                 header.caps_1.complex = 1
                 header.caps_1.texture = 1
                 header.caps_1.mipmap = 1
-                if isinstance(self,
-                              NifFormat.NiPersistentSrcTextureRendererData):
-                    pixeldata.set_value(
-                        ''.join(
-                            ''.join([chr(x) for x in tex])
-                            for tex in self.pixel_data))
-                else:
-                    pixeldata.set_value(''.join(self.pixel_data_matrix))
+                pixeldata.set_value(self.__get_pixeldata_stream())
             elif self.pixel_format in (NifFormat.PixelFormat.PX_FMT_DXT5,
                                        NifFormat.PixelFormat.PX_FMT_DXT5_ALT):
                 # format used in Megami Tensei: Imagine
@@ -5935,7 +5941,7 @@ class NifFormat(FileFormat):
                 header.caps_1.complex = 1
                 header.caps_1.texture = 1
                 header.caps_1.mipmap = 1
-                pixeldata.set_value(''.join(self.pixel_data_matrix))
+                pixeldata.set_value(self.__get_pixeldata_stream())
             else:
                 raise ValueError(
                     "cannot save pixel format %i as DDS" % self.pixel_format)
