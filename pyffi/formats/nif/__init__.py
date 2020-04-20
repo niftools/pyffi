@@ -2900,7 +2900,7 @@ class NifFormat(FileFormat):
                 vertices=vertices,
                 # default layer 1 (static collision)
                 layer=self.data_layers[0].layer if self.data_layers else 1,
-                material=self.material.material)
+                material=self.material)
             # set scale
             packed.scale_copy.x = 1.0
             packed.scale_copy.y = 1.0
@@ -2966,10 +2966,10 @@ class NifFormat(FileFormat):
             # add the shape
             self.sub_shapes[num_shapes].layer = layer
             self.sub_shapes[num_shapes].num_vertices = len(vertices)
-            self.sub_shapes[num_shapes].material.material = material
+            self.sub_shapes[num_shapes].material = material
             data.sub_shapes[num_shapes].layer = layer
             data.sub_shapes[num_shapes].num_vertices = len(vertices)
-            data.sub_shapes[num_shapes].material.material = material
+            data.sub_shapes[num_shapes].material = material
             firsttriangle = data.num_triangles
             firstvertex = data.num_vertices
             data.num_triangles += len(triangles)
