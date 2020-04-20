@@ -104,6 +104,7 @@ class EdgeFilter(tuple):
             if edge_type.acyclic != self.acyclic_filter:
                 return False
 
+
 class DetailNode(object):
     """A node of the detail tree which can have children.
 

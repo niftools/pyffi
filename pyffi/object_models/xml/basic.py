@@ -41,6 +41,7 @@
 
 from pyffi.utils.graph import DetailNode
 
+
 class BasicBase(DetailNode):
     """Base class from which all basic types are derived.
 
@@ -91,7 +92,7 @@ class BasicBase(DetailNode):
         :param parent: The parent of this instance, that is, the instance this
             instance is an attribute of."""
         # parent disabled for performance
-        #self._parent = weakref.ref(parent) if parent else None
+        # self._parent = weakref.ref(parent) if parent else None
         pass
 
     # string representation
@@ -168,4 +169,3 @@ class BasicBase(DetailNode):
     def set_editor_value(self, editorvalue):
         """Set value from editor value."""
         return self.set_value(editorvalue)
-
