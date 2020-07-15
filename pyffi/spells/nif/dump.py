@@ -136,7 +136,7 @@ def dumpAttr(attr):
         return tohex(attr, 4)
     else:
         return str(attr)
-    
+
 class SpellDumpAll(NifSpell):
     """Dump the whole NIF file."""
 
@@ -196,7 +196,7 @@ class SpellDumpTex(NifSpell):
             if len(textures) > 0:
                 for n, tex in enumerate (textures):
                     self.toaster.msg('%i: %s' % (n, tex))
-            else: 
+            else:
                 self.toaster.msg('BSShaderTextureSet has no Textures')
             return False
         else:
@@ -220,7 +220,7 @@ class SpellHtmlReport(NifSpell):
         # enter every branch
         # (the base method is called in branch entry)
         return True
-        
+
     def branchentry(self, branch):
         # check if this branch must be checked, if not, recurse further
         if not NifSpell._branchinspect(self, branch):
@@ -230,15 +230,15 @@ class SpellHtmlReport(NifSpell):
         if not reports:
             # start a new report for this block type
             row = "<tr>"
-            row += "<th>%s</th>" % "file" 
-            row +=  "<th>%s</th>" % "id" 
+            row += "<th>%s</th>" % "file"
+            row +=  "<th>%s</th>" % "id"
             for attr in branch._get_filtered_attribute_list(data=self.data):
                 row += ("<th>%s</th>"
                         % escape(attr.displayname, self.ENTITIES))
             row += "</tr>"
             reports = [row]
             self.toaster.reports_per_blocktype[blocktype] = reports
-        
+
         row = "<tr>"
         row += "<td>%s</td>" % escape(self.stream.name)
         row += "<td>%s</td>" % escape("0x%08X" % id(branch), self.ENTITIES)
@@ -277,10 +277,10 @@ class SpellHtmlReport(NifSpell):
     def browser(cls, htmlstr):
         """Display html in the default web browser without creating a
         temp file.
-        
+
         Instantiates a trivial http server and calls webbrowser.open
         with a URL to retrieve html from that server.
-        """    
+        """
         class RequestHandler(http.server.BaseHTTPRequestHandler):
             def do_GET(self):
                 bufferSize = 1024*1024
@@ -289,7 +289,7 @@ class SpellHtmlReport(NifSpell):
 
         server = http.server.HTTPServer(('127.0.0.1', 0), RequestHandler)
         webbrowser.open('http://127.0.0.1:%s' % server.server_port)
-        server.handle_request()           
+        server.handle_request()
 
 class SpellExportPixelData(NifSpell):
     """Export embedded images as DDS files. If the toaster's
@@ -367,8 +367,8 @@ class SpellExportPixelData(NifSpell):
         head, tail = ntpath.split(texture_filename)
         root, ext = ntpath.splitext(tail)
         # for linux: make paths case insensitive by converting to lower case
-        head = head.lower()
-        root = root.lower()
+        head = head.lower().decode('utf8')
+        root = root.lower().decode('utf8')
         # XXX following is disabled because not all textures in Bully
         # XXX actually have this form; use "-a textures" for this game
         # make relative path for Bully SE
