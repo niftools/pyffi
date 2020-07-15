@@ -367,8 +367,8 @@ class SpellExportPixelData(NifSpell):
         head, tail = ntpath.split(texture_filename)
         root, ext = ntpath.splitext(tail)
         # for linux: make paths case insensitive by converting to lower case
-        head = head.lower().decode('utf8')
-        root = root.lower().decode('utf8')
+        head = head.lower().decode("utf8", "ignore")
+        root = root.lower().decode("utf8", "ignore")
         # XXX following is disabled because not all textures in Bully
         # XXX actually have this form; use "-a textures" for this game
         # make relative path for Bully SE
