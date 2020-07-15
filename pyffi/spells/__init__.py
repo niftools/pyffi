@@ -3,7 +3,7 @@
 ==================================================
 
 .. note::
-   
+
    This module is based on wz's NifTester module, although
    nothing of wz's original code is left in this module.
 
@@ -24,7 +24,7 @@ For format specific spells, refer to the corresponding module.
 
 .. toctree::
    :maxdepth: 2
-   
+
    cgf
    dds
    kfm
@@ -67,13 +67,13 @@ be used for this purpose.
    :show-inheritance:
    :members:
    :undoc-members:
-   
+
 
 .. autoclass:: SpellGroupParallelBase
    :show-inheritance:
    :members:
    :undoc-members:
-   
+
 
 .. autoclass:: SpellGroupSeriesBase
    :show-inheritance:
@@ -149,6 +149,9 @@ import re  # for regex parsing (--skip, --only)
 import shlex  # shlex.split for parsing option lists in ini files
 import subprocess
 import tempfile
+
+import sys  # for sys.exc_info
+import traceback # for traceback.print_exception
 
 import pyffi  # for pyffi.__version__
 import pyffi.object_models  # pyffi.object_models.FileFormat
@@ -528,7 +531,7 @@ def SpellGroupSeries(*args):
                 {"SPELLCLASSES": args,
                  "SPELLNAME":
                      " | ".join(spellclass.SPELLNAME for spellclass in args),
-                 "READONLY": 
+                 "READONLY":
                       all(spellclass.READONLY for spellclass in args)})
 
 
@@ -539,7 +542,7 @@ def SpellGroupParallel(*args):
                 {"SPELLCLASSES": args,
                  "SPELLNAME":
                      " & ".join(spellclass.SPELLNAME for spellclass in args),
-                 "READONLY": 
+                 "READONLY":
                       all(spellclass.READONLY for spellclass in args)})
 
 class SpellApplyPatch(Spell):
@@ -551,7 +554,7 @@ class SpellApplyPatch(Spell):
         """There is no need to read the whole file, so we apply the patch
         already at inspection stage, and stop the spell process by returning
         ``False``.
-    
+
         :return: ``False``
         :rtype: ``bool``
         """
@@ -1205,7 +1208,7 @@ class Toaster(object):
         # is much more verbose by default
 
         pause = self.options.get("pause", False)
-        
+
         # do not ask for confirmation (!= cli default)
         interactive = self.options.get("interactive", False)
 
@@ -1326,12 +1329,12 @@ class Toaster(object):
 
             # create spell instance
             spell = self.spellclass(toaster=self, data=data, stream=stream)
-            
+
             # inspect the spell instance
             if spell._datainspect() and spell.datainspect():
                 # read the full file
                 data.read(stream)
-                
+
                 # cast the spell on the data tree
                 spell.recurse()
 
@@ -1347,7 +1350,10 @@ class Toaster(object):
         except Exception as expt:
             self.files_failed.add(stream.name)
             self.logger.error("FAILED ON {0} - with the follow exception".format(stream.name))
-            self.logger.error("EXPT MSG : " + str(expt))
+            self.logger.error("EXPT MSG:")
+            exc_info = sys.exc_info()
+            traceback.print_exception(*exc_info)
+            del exc_info
             self.logger.error("If you were running a spell that came with PyFFI")
             self.logger.error("Please report this issue - https://github.com/niftools/pyffi/issues")
             # if raising test errors, reraise the exception
