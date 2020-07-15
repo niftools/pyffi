@@ -408,6 +408,7 @@ class SpellExportPixelData(NifSpell):
         """Save pixeldata as dds file, using the specified filename."""
         self.toaster.msg("found pixel data (format %i)"
                          % pixeldata.pixel_format)
+        stream = None
         try:
             stream = self.get_toast_pixeldata_stream(texture_filename)
             if stream:
